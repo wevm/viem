@@ -1,8 +1,8 @@
+import type { Siwe } from 'ox'
 import { expect, test, vi } from 'vitest'
 
 import { mainnet } from '../../chains/definitions/mainnet.js'
 import { createSiweMessage } from './createSiweMessage.js'
-import type { SiweMessage } from './types.js'
 
 const message = {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
@@ -11,7 +11,7 @@ const message = {
   nonce: 'foobarbaz',
   uri: 'https://example.com/path',
   version: '1',
-} satisfies SiweMessage
+} satisfies Siwe.Message
 
 test('default', () => {
   vi.useFakeTimers()
@@ -249,12 +249,9 @@ test('behavior: invalid address', () => {
   expect(() =>
     createSiweMessage({ ...message, address: '0xfoobarbaz' }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [InvalidAddressError: Address "0xfoobarbaz" is invalid.
+    [Address.InvalidAddressError: Address "0xfoobarbaz" is invalid.
 
-    - Address must be a hex value of 20 bytes (40 hex characters).
-    - Address must match its checksum counterpart.
-
-    Version: viem@x.y.z]
+    Details: Address is not a 20 byte (40 hexadecimal character) value.]
   `)
 })
 
@@ -262,14 +259,12 @@ test('behavior: invalid chainId', () => {
   expect(() =>
     createSiweMessage({ ...message, chainId: 1.1 }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "chainId".
+    [Siwe.InvalidMessageFieldError: Invalid Sign-In with Ethereum message field "chainId".
 
     - Chain ID must be a EIP-155 chain ID.
     - See https://eips.ethereum.org/EIPS/eip-155
 
-    Provided value: 1.1
-
-    Version: viem@x.y.z]
+    Provided value: 1.1]
   `)
 })
 
@@ -277,14 +272,12 @@ test('behavior: invalid domain', () => {
   expect(() =>
     createSiweMessage({ ...message, domain: '#foo' }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "domain".
+    [Siwe.InvalidMessageFieldError: Invalid Sign-In with Ethereum message field "domain".
 
     - Domain must be an RFC 3986 authority.
     - See https://www.rfc-editor.org/rfc/rfc3986
 
-    Provided value: #foo
-
-    Version: viem@x.y.z]
+    Provided value: #foo]
   `)
 })
 
@@ -292,14 +285,12 @@ test('behavior: invalid nonce', () => {
   expect(() =>
     createSiweMessage({ ...message, nonce: '#foo' }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "nonce".
+    [Siwe.InvalidMessageFieldError: Invalid Sign-In with Ethereum message field "nonce".
 
     - Nonce must be at least 8 characters.
     - Nonce must be alphanumeric.
 
-    Provided value: #foo
-
-    Version: viem@x.y.z]
+    Provided value: #foo]
   `)
 })
 
@@ -307,14 +298,12 @@ test('behavior: invalid uri', () => {
   expect(() =>
     createSiweMessage({ ...message, uri: '#foo' }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "uri".
+    [Siwe.InvalidMessageFieldError: Invalid Sign-In with Ethereum message field "uri".
 
     - URI must be a RFC 3986 URI referring to the resource that is the subject of the signing.
     - See https://www.rfc-editor.org/rfc/rfc3986
 
-    Provided value: #foo
-
-    Version: viem@x.y.z]
+    Provided value: #foo]
   `)
 })
 
@@ -323,13 +312,11 @@ test('behavior: invalid version', () => {
     // @ts-expect-error
     createSiweMessage({ ...message, version: '2' }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "version".
+    [Siwe.InvalidMessageFieldError: Invalid Sign-In with Ethereum message field "version".
 
     - Version must be '1'.
 
-    Provided value: 2
-
-    Version: viem@x.y.z]
+    Provided value: 2]
   `)
 })
 
@@ -337,14 +324,12 @@ test('behavior: invalid scheme', () => {
   expect(() =>
     createSiweMessage({ ...message, scheme: 'foo_bar' }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "scheme".
+    [Siwe.InvalidMessageFieldError: Invalid Sign-In with Ethereum message field "scheme".
 
     - Scheme must be an RFC 3986 URI scheme.
     - See https://www.rfc-editor.org/rfc/rfc3986#section-3.1
 
-    Provided value: foo_bar
-
-    Version: viem@x.y.z]
+    Provided value: foo_bar]
   `)
 })
 
@@ -352,14 +337,12 @@ test('behavior: invalid statement', () => {
   expect(() =>
     createSiweMessage({ ...message, statement: 'foo\nbar' }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "statement".
+    [Siwe.InvalidMessageFieldError: Invalid Sign-In with Ethereum message field "statement".
 
     - Statement must not include '\\n'.
 
     Provided value: foo
-    bar
-
-    Version: viem@x.y.z]
+    bar]
   `)
 })
 
@@ -370,14 +353,12 @@ test('behavior: invalid resources', () => {
       resources: ['https://example.com', 'foo'],
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "resources".
+    [Siwe.InvalidMessageFieldError: Invalid Sign-In with Ethereum message field "resources".
 
     - Every resource must be a RFC 3986 URI.
     - See https://www.rfc-editor.org/rfc/rfc3986
 
-    Provided value: foo
-
-    Version: viem@x.y.z]
+    Provided value: https://example.com]
   `)
 })
 

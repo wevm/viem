@@ -1,6 +1,6 @@
+import type { Siwe } from 'ox'
 import { expect, test, vi } from 'vitest'
 
-import type { SiweMessage } from './types.js'
 import { validateSiweMessage } from './validateSiweMessage.js'
 
 const message = {
@@ -10,7 +10,7 @@ const message = {
   nonce: 'foobarbaz',
   uri: 'https://example.com/path',
   version: '1',
-} satisfies SiweMessage
+} satisfies Siwe.Message
 
 test('default', () => {
   expect(

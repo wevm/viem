@@ -1,5 +1,11 @@
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
 export {
+  type Message as SiweMessage,
+  generateNonce as generateSiweNonce,
+  InvalidMessageFieldError as SiweInvalidMessageFieldError,
+} from 'ox/Siwe'
+
+export {
   verifySiweMessage,
   type VerifySiweMessageParameters,
   type VerifySiweMessageReturnType,
@@ -13,7 +19,6 @@ export {
   type CreateSiweMessageErrorType,
 } from '../utils/siwe/createSiweMessage.js'
 
-export { generateSiweNonce } from '../utils/siwe/generateSiweNonce.js'
 export { parseSiweMessage } from '../utils/siwe/parseSiweMessage.js'
 
 export {
@@ -22,9 +27,8 @@ export {
   type ValidateSiweMessageReturnType,
 } from '../utils/siwe/validateSiweMessage.js'
 
-export type { SiweMessage } from '../utils/siwe/types.js'
+import type { Siwe } from 'ox'
 
-export {
-  type SiweInvalidMessageFieldErrorType,
-  SiweInvalidMessageFieldError,
-} from '../errors/siwe.js'
+export type SiweInvalidMessageFieldErrorType = Siwe.InvalidMessageFieldError & {
+  name: 'SiweInvalidMessageFieldError'
+}
