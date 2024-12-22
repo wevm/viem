@@ -1,10 +1,14 @@
 import { expect, test } from 'vitest'
 
 import { greeterContract } from '~test/src/abis.js'
+import { anvilZksync } from '~test/src/anvil.js'
 import { accounts } from '~test/src/constants.js'
-import { anvilZksync } from '../../../test/src/anvil.js'
+import { accounts as acc } from '~test/src/zksync.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { simulateContract } from '../../actions/index.js'
+import { zksyncLocalHyperchain } from '../../chains/definitions/zksyncLocalHyperchain.js'
+import { createWalletClient } from '../../clients/createWalletClient.js'
+import { http } from '../../clients/transports/http.js'
 import type { EIP1193RequestFn } from '../../types/eip1193.js'
 import { eip712WalletActions } from './eip712.js'
 
@@ -47,9 +51,51 @@ test('sendTransaction', async () => {
   expect(result).toBeDefined()
 })
 
+test('sendTransaction with account hoisting', async () => {
+  const zksyncWallet = createWalletClient({
+    account: privateKeyToAccount(acc[0].privateKey),
+    chain: zksyncLocalHyperchain,
+    transport: http(),
+  }).extend(eip712WalletActions())
+
+  const result = await zksyncWallet.sendTransaction({
+    to: acc[1].address,
+    data: '0x0',
+    value: 7_000_000_000n,
+    maxFeePerGas: 10000000000n,
+    maxPriorityFeePerGas: 10000000000n,
+    gas: 158774n,
+    gasPerPubdata: 50_000n,
+  })
+  expect(result).toBeDefined()
+})
+
 test('signTransaction', async () => {
   const signature = await zksyncClient.signTransaction({
     account: privateKeyToAccount(accounts[0].privateKey),
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    maxFeePerGas: 10000000000n,
+    maxPriorityFeePerGas: 10000000000n,
+    gas: 158774n,
+    value: 10000000000n,
+    data: '0x0',
+    paymaster: '0xFD9aE5ebB0F6656f4b77a0E99dCbc5138d54b0BA',
+    paymasterInput:
+      '0x8c5a344500000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000',
+    type: 'eip712',
+    gasPerPubdata: 50000n,
+  })
+  expect(signature).toBeDefined()
+})
+
+test('signTransaction with account hoisting', async () => {
+  const zksyncWallet = createWalletClient({
+    account: privateKeyToAccount(acc[0].privateKey),
+    chain: zksyncLocalHyperchain,
+    transport: http(),
+  }).extend(eip712WalletActions())
+
+  const signature = await zksyncWallet.signTransaction({
     to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
     maxFeePerGas: 10000000000n,
     maxPriorityFeePerGas: 10000000000n,
