@@ -225,9 +225,9 @@ export { kcc } from './definitions/kcc.js'
 export { kinto } from './definitions/kinto.js'
 /** @deprecated Use `kaia` instead. */
 export { klaytn } from './definitions/klaytn.js'
-/** @deprecated Use `kairos` instead. */
 export { kaia } from './definitions/kaia.js'
 export { kairos } from './definitions/kairos.js'
+/** @deprecated Use `kairos` instead. */
 export { klaytnBaobab } from './definitions/klaytnBaobab.js'
 export { koi } from './definitions/koi.js'
 export { kroma } from './definitions/kroma.js'
