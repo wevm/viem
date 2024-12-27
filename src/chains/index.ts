@@ -140,6 +140,8 @@ export { etherlinkTestnet } from './definitions/etherlinkTestnet.js'
 export { evmos } from './definitions/evmos.js'
 export { evmosTestnet } from './definitions/evmosTestnet.js'
 export { excelonMainnet } from './definitions/excelonMainnet.js'
+export { exsat } from './definitions/exSat.js'
+export { exsatTestnet } from './definitions/exSatTestnet.js'
 export { expanse } from './definitions/expanse.js'
 export { fantom } from './definitions/fantom.js'
 /** @deprecated Use `sonicTestnet` instead. */

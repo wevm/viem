@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const eos = /*#__PURE__*/ defineChain({
+export const exsat = /*#__PURE__*/ defineChain({
   id: 7200,
   name: 'exSat Network',
   nativeCurrency: {
