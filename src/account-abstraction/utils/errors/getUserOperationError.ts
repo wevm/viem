@@ -58,7 +58,7 @@ export function getUserOperationError<err extends ErrorType<string>>(
     if (calls && cause instanceof ExecutionRevertedError) {
       const revertData = getRevertData(cause)
       const contractCalls = calls?.filter(
-        (call: any) => call.abi || call.data,
+        (call: any) => call.abi,
       ) as readonly Call[]
       if (revertData && contractCalls.length > 0)
         return getContractError({ calls: contractCalls, revertData })
