@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Provided deployment of accounts and contracts using `create2`
+**ZKSync:** Provided deployment of accounts and contracts using `create2`.
