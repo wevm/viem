@@ -1,5 +1,15 @@
 # viem
 
+## 2.21.58
+
+### Patch Changes
+
+- [#3160](https://github.com/wevm/viem/pull/3160) [`ffe0e95aa33ce9a69675bdbe307c5aa8a4ea7cf1`](https://github.com/wevm/viem/commit/ffe0e95aa33ce9a69675bdbe307c5aa8a4ea7cf1) Thanks [@elpiarthera](https://github.com/elpiarthera)! - Added Arthera chain.
+
+- [`77e4685232b59e1e2c041d11de64262a9c165b1f`](https://github.com/wevm/viem/commit/77e4685232b59e1e2c041d11de64262a9c165b1f) Thanks [@jxom](https://github.com/jxom)! - **Account Abstraction:** Fixed propagation of `revertData`.
+
+- [`7148e47e34391c8a669c5f4fce363fb0fa66067e`](https://github.com/wevm/viem/commit/7148e47e34391c8a669c5f4fce363fb0fa66067e) Thanks [@jxom](https://github.com/jxom)! - **Experimental (ERC-7739):** Added `salt` as a mandatory field of `verifierDomain`.
+
 ## 2.21.57
 
 ### Patch Changes
