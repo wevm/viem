@@ -44,6 +44,7 @@ test('default', async () => {
     contractAddress: contractAddress!,
   })
   await execute(client, {
+    address: client.account.address,
     authorizationList: [authorization],
     calls: [
       {
@@ -60,7 +61,6 @@ test('default', async () => {
         to: wagmiContractConfig.address,
       },
     ],
-    to: client.account.address,
   })
 
   await mine(client, { blocks: 1 })
@@ -96,7 +96,7 @@ test('args: opData', async () => {
       },
     ],
     opData: '0xdeadbeef',
-    to: client.account.address,
+    address: client.account.address,
   })
   await mine(client, { blocks: 1 })
   const receipt = await getTransactionReceipt(client, { hash })
@@ -110,13 +110,13 @@ test('args: opData', async () => {
 test('behavior: execution not supported', async () => {
   await expect(() =>
     execute(client, {
+      address: '0x0000000000000000000000000000000000000000',
       calls: [
         {
           to: accounts[2].address,
           value: 0n,
         },
       ],
-      to: '0x0000000000000000000000000000000000000000',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [ExecuteUnsupportedError: ERC-7821 execution is not supported.
@@ -128,13 +128,13 @@ test('behavior: execution not supported', async () => {
 test('behavior: insufficient funds', async () => {
   await expect(() =>
     execute(client, {
+      address: client.account.address,
       calls: [
         {
           to: accounts[2].address,
           value: parseEther('999999'),
         },
       ],
-      to: client.account.address,
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [TransactionExecutionError: Execution reverted for an unknown reason.
@@ -152,6 +152,7 @@ test('behavior: insufficient funds', async () => {
 test('behavior: unknown selector', async () => {
   await expect(() =>
     execute(client, {
+      address: client.account.address,
       calls: [
         {
           to: accounts[2].address,
@@ -167,7 +168,6 @@ test('behavior: unknown selector', async () => {
           to: '0x0000000000000000000000000000000000000000',
         },
       ],
-      to: client.account.address,
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [FunctionSelectorNotRecognizedError: Function is not recognized.
@@ -185,6 +185,7 @@ test('behavior: revert', async () => {
 
   await expect(() =>
     execute(client, {
+      address: client.account.address,
       calls: [
         {
           to: accounts[2].address,
@@ -200,7 +201,6 @@ test('behavior: revert', async () => {
           to: errorExampleAddress!,
         },
       ],
-      to: client.account.address,
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [ContractFunctionExecutionError: The contract function "complexCustomWrite" reverted.

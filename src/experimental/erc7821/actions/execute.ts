@@ -60,12 +60,12 @@ export type ExecuteParameters<
 > &
   GetAccountParameter<account, Account | Address> &
   GetChainParameter<chain, chainOverride> & {
+    /** Address that will execute the calls. */
+    address: Address
     /** Calls to execute. */
     calls: Calls<Narrow<calls>>
     /** Additional data to include for execution. */
     opData?: Hex | undefined
-    /** Address that will execute the calls. */
-    to: Address
   }
 
 export type ExecuteReturnType = Hex
@@ -154,7 +154,7 @@ export async function execute<
   client: Client<Transport, chain, account>,
   parameters: ExecuteParameters<chain, account, chainOverride, calls>,
 ): Promise<ExecuteReturnType> {
-  const { authorizationList, opData, to } = parameters
+  const { address, authorizationList, opData } = parameters
 
   const calls = parameters.calls.map((call_) => {
     const call = call_ as Call
@@ -177,13 +177,14 @@ export async function execute<
 
   const supported = await supportsExecutionMode(client, {
     opData,
-    to: authorizationList?.[0]?.contractAddress ?? to,
+    to: authorizationList?.[0]?.contractAddress ?? address,
   })
   if (!supported) throw new ExecuteUnsupportedError()
 
   try {
     return await sendTransaction(client, {
       ...parameters,
+      to: address,
       data: encodeFunctionData({
         abi,
         functionName: 'execute',
