@@ -12,7 +12,7 @@ import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type { AccessList, TransactionRequest } from '../../types/transaction.js'
-import type { ExactPartial, UnionOmit } from '../../types/utils.js'
+import type { ExactPartial, Prettify, UnionOmit } from '../../types/utils.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type NumberToHexErrorType,
@@ -58,10 +58,10 @@ export type CreateAccessListParameters<
       }
   )
 
-export type CreateAccessListReturnType = {
+export type CreateAccessListReturnType = Prettify<{
   accessList: AccessList
   gasUsed: bigint
-}
+}>
 
 export type CreateAccessListErrorType = GetCallErrorReturnType<
   | ParseAccountErrorType

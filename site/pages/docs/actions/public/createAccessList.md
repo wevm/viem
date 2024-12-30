@@ -46,7 +46,7 @@ The Account to create an access list for.
 // ---cut---
 import { parseEther } from 'viem'
 
-const gas = await publicClient.createAccessList({
+const result = await publicClient.createAccessList({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   data: '0xdeadbeef',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8'
@@ -64,7 +64,7 @@ Block number to create an access list for.
 // ---cut---
 import { parseEther } from 'viem'
 
-const gas = await publicClient.createAccessList({
+const result = await publicClient.createAccessList({
   blockNumber: 15121123n, // [!code focus]
   data: '0xdeadbeef',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8'
@@ -83,7 +83,7 @@ Block tag to create an access list for.
 // ---cut---
 import { parseEther } from 'viem'
 
-const gas = await publicClient.createAccessList({
+const result = await publicClient.createAccessList({
   blockTag: 'safe', // [!code focus]
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   data: '0xdeadbeef',
@@ -102,7 +102,7 @@ Contract function selector with encoded arguments.
 // ---cut---
 import { parseEther } from 'viem'
 
-const gas = await publicClient.createAccessList({
+const result = await publicClient.createAccessList({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   data: '0xdeadbeef', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8'
@@ -120,7 +120,7 @@ The price (in wei) to pay per gas. Only applies to [Legacy Transactions](/docs/g
 // ---cut---
 import { parseEther, parseGwei } from 'viem'
 
-const gas = await publicClient.createAccessList({
+const result = await publicClient.createAccessList({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   data: '0xdeadbeef',
   gasPrice: parseGwei('20'), // [!code focus]
@@ -139,7 +139,7 @@ Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to
 // ---cut---
 import { parseEther, parseGwei } from 'viem'
 
-const gas = await publicClient.createAccessList({
+const result = await publicClient.createAccessList({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   data: '0xdeadbeef',
   maxFeePerGas: parseGwei('20'),  // [!code focus]
@@ -158,7 +158,7 @@ Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](/docs
 // ---cut---
 import { parseEther, parseGwei } from 'viem'
 
-const gas = await publicClient.createAccessList({
+const result = await publicClient.createAccessList({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   data: '0xdeadbeef',
   maxFeePerGas: parseGwei('20'),
@@ -178,7 +178,7 @@ Transaction recipient.
 // ---cut---
 import { parseEther } from 'viem'
 
-const gas = await publicClient.createAccessList({
+const result = await publicClient.createAccessList({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   data: '0xdeadbeef',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
@@ -196,7 +196,7 @@ Value (in wei) sent with this transaction.
 // ---cut---
 import { parseEther } from 'viem'
 
-const gas = await publicClient.createAccessList({
+const result = await publicClient.createAccessList({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   data: '0xdeadbeef',
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
