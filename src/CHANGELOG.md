@@ -1,5 +1,11 @@
 # viem
 
+## 2.21.60
+
+### Patch Changes
+
+- [`b0592175ecc1dae8523f708e0b0d405445a9bfa6`](https://github.com/wevm/viem/commit/b0592175ecc1dae8523f708e0b0d405445a9bfa6) Thanks [@jxom](https://github.com/jxom)! - Added `createAccessList` action.
+
 ## 2.21.59
 
 ### Patch Changes
