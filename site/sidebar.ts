@@ -1387,6 +1387,28 @@ export const sidebar = {
           },
         ],
       },
+      {
+        text: 'ERC-7821',
+        items: [
+          {
+            text: 'Client',
+            link: '/experimental/erc7821/client',
+          },
+          {
+            text: 'Actions',
+            items: [
+              {
+                text: 'execute',
+                link: '/experimental/erc7821/execute',
+              },
+              {
+                text: 'supportsExecutionMode',
+                link: '/experimental/erc7821/supportsExecutionMode',
+              },
+            ],
+          },
+        ],
+      },
     ],
   },
   '/op-stack': {
