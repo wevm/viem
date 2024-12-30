@@ -11,10 +11,12 @@ import {
   getBalance,
   getTransactionReceipt,
   mine,
+  readContract,
 } from '../../../actions/index.js'
 import { decodeEventLog, parseEther } from '../../../utils/index.js'
 import { signAuthorization } from '../../eip7702/actions/signAuthorization.js'
 import { execute } from './execute.js'
+import { wagmiContractConfig } from '../../../../test/src/abis.js'
 
 const client = anvilMainnet.getClient({
   account: privateKeyToAccount(accounts[1].privateKey),
@@ -30,6 +32,12 @@ test('default', async () => {
     getBalance(client, { address: accounts[1].address }),
     getBalance(client, { address: accounts[2].address }),
     getBalance(client, { address: accounts[3].address }),
+    readContract(client, {
+      abi: wagmiContractConfig.abi,
+      address: wagmiContractConfig.address,
+      functionName: 'balanceOf',
+      args: [accounts[1].address],
+    }),
   ])
 
   const authorization = await signAuthorization(client, {
@@ -46,6 +54,11 @@ test('default', async () => {
         to: accounts[3].address,
         value: parseEther('2'),
       },
+      {
+        abi: wagmiContractConfig.abi,
+        functionName: 'mint',
+        to: wagmiContractConfig.address,
+      },
     ],
     to: client.account.address,
   })
@@ -56,11 +69,18 @@ test('default', async () => {
     getBalance(client, { address: accounts[1].address }),
     getBalance(client, { address: accounts[2].address }),
     getBalance(client, { address: accounts[3].address }),
+    readContract(client, {
+      abi: wagmiContractConfig.abi,
+      address: wagmiContractConfig.address,
+      functionName: 'balanceOf',
+      args: [accounts[1].address],
+    }),
   ])
 
   expect(balances_after[0]).toBeLessThan(balances_before[0] - parseEther('3'))
   expect(balances_after[1]).toBe(balances_before[1] + parseEther('1'))
   expect(balances_after[2]).toBe(balances_before[2] + parseEther('2'))
+  expect(balances_after[3]).toBe(balances_before[3] + 1n)
 })
 
 test('args: opData', async () => {
