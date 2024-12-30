@@ -7,6 +7,7 @@ test('exports actions', () => {
     {
       "addChain": [Function],
       "call": [Function],
+      "createAccessList": [Function],
       "createBlockFilter": [Function],
       "createContractEventFilter": [Function],
       "createEventFilter": [Function],

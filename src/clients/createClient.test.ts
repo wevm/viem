@@ -489,6 +489,7 @@ describe('extends', () => {
           },
           "serializers": undefined,
         },
+        "createAccessList": [Function],
         "createBlockFilter": [Function],
         "createContractEventFilter": [Function],
         "createEventFilter": [Function],

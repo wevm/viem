@@ -47,6 +47,12 @@ export {
   call,
 } from './public/call.js'
 export {
+  type CreateAccessListErrorType,
+  type CreateAccessListParameters,
+  type CreateAccessListReturnType,
+  createAccessList,
+} from './public/createAccessList.js'
+export {
   type CreateBlockFilterErrorType,
   type CreateBlockFilterReturnType,
   createBlockFilter,

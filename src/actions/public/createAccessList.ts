@@ -18,8 +18,10 @@ import {
   type NumberToHexErrorType,
   numberToHex,
 } from '../../utils/encoding/toHex.js'
-import { getCallError } from '../../utils/errors/getCallError.js'
-import type { GetCreateAccessListErrorReturnType } from '../../utils/errors/getCreateAccessList.js'
+import {
+  type GetCallErrorReturnType,
+  getCallError,
+} from '../../utils/errors/getCallError.js'
 import { extract } from '../../utils/formatters/extract.js'
 import {
   type FormatTransactionRequestErrorType,
@@ -61,7 +63,7 @@ export type CreateAccessListReturnType = {
   gasUsed: bigint
 }
 
-export type CreateAccessListErrorType = GetCreateAccessListErrorReturnType<
+export type CreateAccessListErrorType = GetCallErrorReturnType<
   | ParseAccountErrorType
   | AssertRequestErrorType
   | NumberToHexErrorType

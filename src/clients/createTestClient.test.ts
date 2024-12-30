@@ -316,6 +316,7 @@ test('extend', () => {
         },
         "serializers": undefined,
       },
+      "createAccessList": [Function],
       "createBlockFilter": [Function],
       "createContractEventFilter": [Function],
       "createEventFilter": [Function],
