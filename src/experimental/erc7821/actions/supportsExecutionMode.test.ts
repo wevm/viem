@@ -20,12 +20,12 @@ test('default', async () => {
 
   expect(
     await supportsExecutionMode(client, {
-      to: contractAddress!,
+      address: contractAddress!,
     }),
   ).toBe(true)
   expect(
     await supportsExecutionMode(client, {
-      to: client.account.address,
+      address: client.account.address,
     }),
   ).toBe(false)
 
@@ -41,7 +41,7 @@ test('default', async () => {
 
   expect(
     await supportsExecutionMode(client, {
-      to: client.account.address,
+      address: client.account.address,
     }),
   ).toBe(true)
 })
@@ -54,8 +54,8 @@ test('args: opData', async () => {
 
   expect(
     await supportsExecutionMode(client, {
+      address: contractAddress!,
       opData: '0xdeadbeef',
-      to: contractAddress!,
     }),
   ).toBe(true)
 })

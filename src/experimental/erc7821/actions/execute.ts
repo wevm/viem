@@ -53,12 +53,9 @@ export type ExecuteParameters<
     | 'gasPrice'
     | 'maxFeePerGas'
     | 'maxPriorityFeePerGas'
-    | 'nonce'
-    | 'type'
-    | 'value'
   >
 > &
-  GetAccountParameter<account, Account | Address> &
+  GetAccountParameter<account, Account | Address, true, true> &
   GetChainParameter<chain, chainOverride> & {
     /** Address that will execute the calls. */
     address: Address
@@ -176,8 +173,8 @@ export async function execute<
   )
 
   const supported = await supportsExecutionMode(client, {
+    address: authorizationList?.[0]?.contractAddress ?? address,
     opData,
-    to: authorizationList?.[0]?.contractAddress ?? address,
   })
   if (!supported) throw new ExecuteUnsupportedError()
 

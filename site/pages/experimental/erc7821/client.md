@@ -1,6 +1,6 @@
 # Extending Client with ERC-7821 Actions [Setting up your Viem Client]
 
-To use the experimental functionality of ERC-7821, you can extend your existing (or new) Viem Client with experimental ERC-7821 Actions.
+To use the experimental functionality of [ERC-7821](https://eips.ethereum.org/EIPS/eip-7821), you can extend your existing (or new) Viem Client with experimental [ERC-7821](https://eips.ethereum.org/EIPS/eip-7821) Actions.
 
 ```ts
 import { createClient, http } from 'viem'

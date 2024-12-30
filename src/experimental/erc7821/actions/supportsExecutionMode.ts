@@ -8,8 +8,8 @@ import type { Hex } from '../../../types/misc.js'
 import { abi, executionMode } from '../constants.js'
 
 export type SupportsExecutionModeParameters = {
+  address: Address
   opData?: Hex | undefined
-  to: Address
 }
 
 export type SupportsExecutionModeReturnType = boolean
@@ -45,12 +45,12 @@ export async function supportsExecutionMode<
   client: Client<Transport, chain>,
   parameters: SupportsExecutionModeParameters,
 ): Promise<SupportsExecutionModeReturnType> {
-  const { opData, to } = parameters
+  const { address, opData } = parameters
   const mode = opData ? executionMode.opData : executionMode.default
   try {
     return await readContract(client, {
       abi,
-      address: to,
+      address,
       functionName: 'supportsExecutionMode',
       args: [mode],
     })
