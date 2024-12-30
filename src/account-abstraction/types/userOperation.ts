@@ -1,10 +1,8 @@
-import type { AbiStateMutability, Address } from 'abitype'
-import type { ContractFunctionParameters } from '../../types/contract.js'
+import type { Address } from 'abitype'
 import type { Log } from '../../types/log.js'
 import type { Hash, Hex } from '../../types/misc.js'
-import type { GetMulticallContractParameters } from '../../types/multicall.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
-import type { OneOf, Prettify, UnionPartialBy } from '../../types/utils.js'
+import type { OneOf, UnionPartialBy } from '../../types/utils.js'
 import type { EntryPointVersion } from './entryPointVersion.js'
 
 /** @link https://eips.ethereum.org/EIPS/eip-4337#-eth_estimateuseroperationgas */
@@ -192,71 +190,3 @@ export type UserOperationReceipt<
   /** Hash of the user operation. */
   userOpHash: Hash
 }
-
-export type UserOperationCall = {
-  to: Hex
-  data?: Hex | undefined
-  value?: bigint | undefined
-}
-
-export type UserOperationCalls<
-  calls extends readonly unknown[],
-  ///
-  result extends readonly any[] = [],
-> = calls extends readonly [] // no calls, return empty
-  ? readonly []
-  : calls extends readonly [infer call] // one call left before returning `result`
-    ? readonly [
-        ...result,
-        Prettify<
-          OneOf<
-            | (Omit<
-                GetMulticallContractParameters<call, AbiStateMutability>,
-                'address'
-              > & {
-                to: Address
-                value?: bigint | undefined
-              })
-            | UserOperationCall
-          >
-        >,
-      ]
-    : calls extends readonly [infer call, ...infer rest] // grab first call and recurse through `rest`
-      ? UserOperationCalls<
-          [...rest],
-          [
-            ...result,
-            Prettify<
-              OneOf<
-                | (Omit<
-                    GetMulticallContractParameters<call, AbiStateMutability>,
-                    'address'
-                  > & {
-                    to: Address
-                    value?: bigint | undefined
-                  })
-                | UserOperationCall
-              >
-            >,
-          ]
-        >
-      : readonly unknown[] extends calls
-        ? calls
-        : // If `calls` is *some* array but we couldn't assign `unknown[]` to it, then it must hold some known/homogenous type!
-          // use this to infer the param types in the case of Array.map() argument
-          calls extends readonly (infer call extends OneOf<
-              | (Omit<ContractFunctionParameters, 'address'> & {
-                  to: Address
-                  value?: bigint | undefined
-                })
-              | UserOperationCall
-            >)[]
-          ? readonly Prettify<call>[]
-          : // Fallback
-            readonly OneOf<
-              | (Omit<ContractFunctionParameters, 'address'> & {
-                  to: Address
-                  value?: bigint | undefined
-                })
-              | UserOperationCall
-            >[]
