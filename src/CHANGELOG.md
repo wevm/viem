@@ -1,5 +1,17 @@
 # viem
 
+## 2.21.59
+
+### Patch Changes
+
+- [#3162](https://github.com/wevm/viem/pull/3162) [`c35a01b0ddcb7106badc3892a512a96ad83d67ec`](https://github.com/wevm/viem/commit/c35a01b0ddcb7106badc3892a512a96ad83d67ec) Thanks [@danijelTxFusion](https://github.com/danijelTxFusion)! - **ZKSync:** Provided deployment of accounts and contracts using `create2`.
+
+- [#3133](https://github.com/wevm/viem/pull/3133) [`cbf387556d4f9a913656e95829c4b6e84815de06`](https://github.com/wevm/viem/commit/cbf387556d4f9a913656e95829c4b6e84815de06) Thanks [@danijelTxFusion](https://github.com/danijelTxFusion)! - **ZKSync:** Added `getL1TokenAddress` and `getL2TokenAddress` public actions.
+
+- [#3109](https://github.com/wevm/viem/pull/3109) [`e03f948f61ac30831c8bbce7d511bfdf1b482892`](https://github.com/wevm/viem/commit/e03f948f61ac30831c8bbce7d511bfdf1b482892) Thanks [@danijelTxFusion](https://github.com/danijelTxFusion)! - **ZKSync:** Fixed account hoisting for `signEip712Transaction` and `sendEip712Transaction`.
+
+- [#3169](https://github.com/wevm/viem/pull/3169) [`0acee2b8d4a8c7b33e5736e2e46e1b47bb280ad6`](https://github.com/wevm/viem/commit/0acee2b8d4a8c7b33e5736e2e46e1b47bb280ad6) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added experimental ERC-7821 actions.
+
 ## 2.21.58
 
 ### Patch Changes
