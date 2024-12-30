@@ -1,12 +1,10 @@
 import { expect, test } from 'vitest'
 
 import type { Address } from 'abitype'
-import { anvilZksync } from '~test/src/anvil.js'
 import {
   getZksyncMockProvider,
   mockAccountBalances,
   mockAddress,
-  mockAddresses,
   mockBaseTokenL1Address,
   mockDetails,
   mockMainContractAddress,
@@ -17,8 +15,6 @@ import {
   mockedGasEstimation,
   mockedL1BatchNumber,
 } from '~test/src/zksync.js'
-import type { EIP1193RequestFn } from '~viem/types/eip1193.js'
-import { padHex } from '~viem/utils/data/pad.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { estimateFee } from '../actions/estimateFee.js'
