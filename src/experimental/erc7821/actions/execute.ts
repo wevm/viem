@@ -11,6 +11,7 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { BaseError } from '../../../errors/base.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../../types/account.js'
+import type { Call, Calls } from '../../../types/calls.js'
 import type {
   Chain,
   DeriveChain,
@@ -36,7 +37,6 @@ import {
   ExecuteUnsupportedError,
   FunctionSelectorNotRecognizedError,
 } from '../errors.js'
-import type { Call, Calls } from '../types.js'
 import { supportsExecutionMode } from './supportsExecutionMode.js'
 
 export type ExecuteParameters<

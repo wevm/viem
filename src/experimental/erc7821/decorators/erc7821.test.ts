@@ -33,6 +33,7 @@ describe('smoke test', () => {
     })
     await client.execute({
       authorizationList: [authorization],
+      address: client.account.address,
       calls: [
         {
           to: '0x0000000000000000000000000000000000000000',
@@ -40,14 +41,13 @@ describe('smoke test', () => {
           value: 0n,
         },
       ],
-      to: client.account.address,
     })
   })
 
   test('supportsExecutionMode', async () => {
     expect(
       await client.supportsExecutionMode({
-        to: client.account.address,
+        address: client.account.address,
       }),
     ).toBe(false)
   })
