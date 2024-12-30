@@ -35,7 +35,7 @@ The access list and gas used.
 
 ## Parameters
 
-### account
+### account (optional)
 
 - **Type:** `Account | Address`
 
