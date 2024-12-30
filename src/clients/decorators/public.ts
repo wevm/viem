@@ -31,6 +31,11 @@ import {
   call,
 } from '../../actions/public/call.js'
 import {
+  type CreateAccessListParameters,
+  type CreateAccessListReturnType,
+  createAccessList,
+} from '../../actions/public/createAccessList.js'
+import {
   type CreateBlockFilterReturnType,
   createBlockFilter,
 } from '../../actions/public/createBlockFilter.js'
@@ -285,6 +290,32 @@ export type PublicActions<
    * })
    */
   call: (parameters: CallParameters<chain>) => Promise<CallReturnType>
+  /**
+   * Creates an EIP-2930 access list that you can include in a transaction.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/createAccessList
+   * - JSON-RPC Methods: `eth_createAccessList`
+   *
+   * @param args - {@link CreateAccessListParameters}
+   * @returns The call data. {@link CreateAccessListReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   *
+   * const data = await client.createAccessList({
+   *   data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+   *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   * })
+   */
+  createAccessList: (
+    parameters: CreateAccessListParameters<chain>,
+  ) => Promise<CreateAccessListReturnType>
   /**
    * Creates a Filter to listen for new block hashes that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges).
    *
@@ -1833,6 +1864,7 @@ export function publicActions<
 ): PublicActions<transport, chain, account> {
   return {
     call: (args) => call(client, args),
+    createAccessList: (args) => createAccessList(client, args),
     createBlockFilter: () => createBlockFilter(client),
     createContractEventFilter: (args) =>
       createContractEventFilter(client, args),
