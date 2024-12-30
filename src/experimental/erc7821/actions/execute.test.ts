@@ -39,12 +39,10 @@ test('default', async () => {
     authorizationList: [authorization],
     calls: [
       {
-        data: '0x',
         to: accounts[2].address,
         value: parseEther('1'),
       },
       {
-        data: '0x',
         to: accounts[3].address,
         value: parseEther('2'),
       },
@@ -69,12 +67,10 @@ test('args: opData', async () => {
   const hash = await execute(client, {
     calls: [
       {
-        data: '0x',
         to: accounts[2].address,
         value: parseEther('1'),
       },
       {
-        data: '0x',
         to: accounts[3].address,
         value: parseEther('2'),
       },
@@ -96,7 +92,6 @@ test('behavior: execution not supported', async () => {
     execute(client, {
       calls: [
         {
-          data: '0x',
           to: accounts[2].address,
           value: 0n,
         },
@@ -115,7 +110,6 @@ test('behavior: insufficient funds', async () => {
     execute(client, {
       calls: [
         {
-          data: '0x',
           to: accounts[2].address,
           value: parseEther('999999'),
         },
@@ -140,12 +134,10 @@ test('behavior: unknown selector', async () => {
     execute(client, {
       calls: [
         {
-          data: '0x',
           to: accounts[2].address,
           value: parseEther('1'),
         },
         {
-          data: '0x',
           to: accounts[3].address,
           value: parseEther('2'),
         },
@@ -175,12 +167,10 @@ test('behavior: revert', async () => {
     execute(client, {
       calls: [
         {
-          data: '0x',
           to: accounts[2].address,
           value: parseEther('1'),
         },
         {
-          data: '0x',
           to: accounts[3].address,
           value: parseEther('2'),
         },
