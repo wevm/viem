@@ -63,6 +63,15 @@ export const sidebar = {
       items: [
         { text: 'Introduction', link: '/docs/actions/public/introduction' },
         {
+          text: 'Access List',
+          items: [
+            {
+              text: 'createAccessList',
+              link: '/docs/actions/public/createAccessList',
+            },
+          ],
+        },
+        {
           text: 'Account',
           items: [
             {
