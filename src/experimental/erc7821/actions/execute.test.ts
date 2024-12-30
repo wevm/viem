@@ -3,6 +3,7 @@ import {
   ERC7821Example,
   ErrorsExample,
 } from '../../../../contracts/generated.js'
+import { wagmiContractConfig } from '../../../../test/src/abis.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { accounts } from '../../../../test/src/constants.js'
 import { deploy, deployErrorExample } from '../../../../test/src/utils.js'
@@ -16,7 +17,6 @@ import {
 import { decodeEventLog, parseEther } from '../../../utils/index.js'
 import { signAuthorization } from '../../eip7702/actions/signAuthorization.js'
 import { execute } from './execute.js'
-import { wagmiContractConfig } from '../../../../test/src/abis.js'
 
 const client = anvilMainnet.getClient({
   account: privateKeyToAccount(accounts[1].privateKey),
