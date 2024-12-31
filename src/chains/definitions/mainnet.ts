@@ -6,7 +6,7 @@ export const mainnet = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://cloudflare-eth.com'],
+      http: ['https://eth.merkle.io'],
     },
   },
   blockExplorers: {
