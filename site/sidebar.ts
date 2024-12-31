@@ -97,6 +97,10 @@ export const sidebar = {
               link: '/docs/actions/public/getBlockTransactionCount',
             },
             {
+              text: 'simulate',
+              link: '/docs/actions/public/simulate',
+            },
+            {
               text: 'watchBlockNumber',
               link: '/docs/actions/public/watchBlockNumber',
             },

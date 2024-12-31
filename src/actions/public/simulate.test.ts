@@ -8,10 +8,10 @@ import { accounts } from '../../../test/src/constants.js'
 import { mainnetClient } from '../../../test/src/utils.js'
 import { maxUint256 } from '../../constants/number.js'
 import { parseEther, parseGwei } from '../../utils/index.js'
-import { simulateBlocks } from './simulateBlocks.js'
+import { simulate } from './simulate.js'
 
 test('default', async () => {
-  const result = await simulateBlocks(mainnetClient, {
+  const result = await simulate(mainnetClient, {
     blocks: [
       {
         calls: [
@@ -69,7 +69,7 @@ test('default', async () => {
 })
 
 test('args: blockOverrides', async () => {
-  const result = await simulateBlocks(mainnetClient, {
+  const result = await simulate(mainnetClient, {
     blocks: [
       {
         calls: [
@@ -99,7 +99,7 @@ test('args: blockOverrides', async () => {
 
 test('behavior: fee cap too high', async () => {
   await expect(() =>
-    simulateBlocks(mainnetClient, {
+    simulate(mainnetClient, {
       blocks: [
         {
           calls: [
@@ -122,7 +122,7 @@ test('behavior: fee cap too high', async () => {
 
 test('behavior: tip higher than fee cap', async () => {
   await expect(() =>
-    simulateBlocks(mainnetClient, {
+    simulate(mainnetClient, {
       blocks: [
         {
           calls: [
@@ -148,7 +148,7 @@ test('behavior: tip higher than fee cap', async () => {
 
 test('behavior: gas too low', async () => {
   await expect(() =>
-    simulateBlocks(mainnetClient, {
+    simulate(mainnetClient, {
       blocks: [
         {
           calls: [
@@ -180,7 +180,7 @@ test('behavior: gas too low', async () => {
 
 test('behavior: gas too high', async () => {
   await expect(() =>
-    simulateBlocks(mainnetClient, {
+    simulate(mainnetClient, {
       blocks: [
         {
           calls: [
@@ -205,7 +205,7 @@ test('behavior: gas too high', async () => {
 
 test('behavior: insufficient funds', async () => {
   await expect(() =>
-    simulateBlocks(mainnetClient, {
+    simulate(mainnetClient, {
       blocks: [
         {
           calls: [
@@ -222,7 +222,7 @@ test('behavior: insufficient funds', async () => {
 })
 
 test('behavior: contract function does not exist', async () => {
-  const result = await simulateBlocks(mainnetClient, {
+  const result = await simulate(mainnetClient, {
     blocks: [
       {
         calls: [
@@ -268,7 +268,7 @@ test('behavior: contract function does not exist', async () => {
 })
 
 test('behavior: contract function does not exist', async () => {
-  const result = await simulateBlocks(mainnetClient, {
+  const result = await simulate(mainnetClient, {
     blocks: [
       {
         calls: [
@@ -312,7 +312,7 @@ test('behavior: contract function does not exist', async () => {
 })
 
 test('behavior: contract revert', async () => {
-  const result = await simulateBlocks(mainnetClient, {
+  const result = await simulate(mainnetClient, {
     blocks: [
       {
         calls: [

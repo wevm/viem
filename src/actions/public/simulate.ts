@@ -1,13 +1,17 @@
 import type { Abi, AbiStateMutability, Address, Narrow } from 'abitype'
 import * as BlockOverrides from 'ox/BlockOverrides'
 
-import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import {
+  type ParseAccountErrorType,
+  parseAccount,
+} from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AbiDecodingZeroDataError } from '../../errors/abi.js'
 import type { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
 import { UnknownNodeError } from '../../errors/node.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { Block, BlockTag } from '../../types/block.js'
 import type { Call, Calls } from '../../types/calls.js'
@@ -18,16 +22,40 @@ import type { MulticallResults } from '../../types/multicall.js'
 import type { StateOverride } from '../../types/stateOverride.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { ExactPartial, UnionOmit } from '../../types/utils.js'
-import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
-import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
-import { numberToHex } from '../../utils/encoding/toHex.js'
+import {
+  type DecodeFunctionResultErrorType,
+  decodeFunctionResult,
+} from '../../utils/abi/decodeFunctionResult.js'
+import {
+  type EncodeFunctionDataErrorType,
+  encodeFunctionData,
+} from '../../utils/abi/encodeFunctionData.js'
+import {
+  type NumberToHexErrorType,
+  numberToHex,
+} from '../../utils/encoding/toHex.js'
 import { getContractError } from '../../utils/errors/getContractError.js'
-import { getNodeError } from '../../utils/errors/getNodeError.js'
-import { formatBlock } from '../../utils/formatters/block.js'
+import {
+  type GetNodeErrorReturnType,
+  getNodeError,
+} from '../../utils/errors/getNodeError.js'
+import {
+  type FormatBlockErrorType,
+  formatBlock,
+} from '../../utils/formatters/block.js'
 import { formatLog } from '../../utils/formatters/log.js'
-import { formatTransactionRequest } from '../../utils/formatters/transactionRequest.js'
-import { serializeStateOverride } from '../../utils/stateOverride.js'
-import { assertRequest } from '../../utils/transaction/assertRequest.js'
+import {
+  type FormatTransactionRequestErrorType,
+  formatTransactionRequest,
+} from '../../utils/formatters/transactionRequest.js'
+import {
+  type SerializeStateOverrideErrorType,
+  serializeStateOverride,
+} from '../../utils/stateOverride.js'
+import {
+  type AssertRequestErrorType,
+  assertRequest,
+} from '../../utils/transaction/assertRequest.js'
 
 type CallExtraProperties = ExactPartial<
   UnionOmit<
@@ -39,7 +67,7 @@ type CallExtraProperties = ExactPartial<
   account?: Account | Address | undefined
 }
 
-export type SimulateBlocksParameters<
+export type SimulateParameters<
   calls extends readonly unknown[] = readonly unknown[],
 > = {
   /** Blocks to simulate. */
@@ -55,7 +83,7 @@ export type SimulateBlocksParameters<
   returnFullTransactions?: boolean
   /** Whether to trace transfers. */
   traceTransfers?: boolean
-  /** Whether to validate the state. */
+  /** Whether to enable validation mode. */
   validation?: boolean
 } & (
   | {
@@ -73,7 +101,7 @@ export type SimulateBlocksParameters<
     }
 )
 
-export type SimulateBlocksReturnType<
+export type SimulateReturnType<
   calls extends readonly unknown[] = readonly unknown[],
 > = readonly (Block & {
   calls: MulticallResults<
@@ -91,13 +119,68 @@ export type SimulateBlocksReturnType<
   >
 })[]
 
-export async function simulateBlocks<
+export type SimulateErrorType =
+  | AssertRequestErrorType
+  | DecodeFunctionResultErrorType
+  | EncodeFunctionDataErrorType
+  | FormatBlockErrorType
+  | FormatTransactionRequestErrorType
+  | GetNodeErrorReturnType
+  | ParseAccountErrorType
+  | SerializeStateOverrideErrorType
+  | NumberToHexErrorType
+  | ErrorType
+
+/**
+ * Simulates a set of calls on block(s) with optional block and state overrides.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http, parseEther } from 'viem'
+ * import { simulate } from 'viem/actions'
+ * import { mainnet } from 'viem/chains'
+ *
+ * const client = createClient({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
+ *
+ * const result = await simulate(client, {
+ *   blocks: [{
+ *     blockOverrides: {
+ *       number: 69420n,
+ *     },
+ *     calls: [{
+ *       {
+ *         account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+ *         data: '0xdeadbeef',
+ *         to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+ *       },
+ *       {
+ *         account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+ *         to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+ *         value: parseEther('1'),
+ *       },
+ *     }],
+ *     stateOverrides: [{
+ *       address: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+ *       balance: parseEther('10'),
+ *     }],
+ *   }]
+ * })
+ * ```
+ *
+ * @param client - Client to use.
+ * @param parameters - {@link SimulateParameters}
+ * @returns Simulated blocks. {@link SimulateReturnType}
+ */
+export async function simulate<
   chain extends Chain | undefined,
   const calls extends readonly unknown[],
 >(
   client: Client<Transport, chain>,
-  parameters: SimulateBlocksParameters<calls>,
-): Promise<SimulateBlocksReturnType<calls>> {
+  parameters: SimulateParameters<calls>,
+): Promise<SimulateReturnType<calls>> {
   const {
     blockNumber,
     blockTag = 'latest',
@@ -197,7 +280,7 @@ export async function simulateBlocks<
               }),
         }
       }),
-    })) as unknown as SimulateBlocksReturnType<calls>
+    })) as unknown as SimulateReturnType<calls>
   } catch (e) {
     const cause = e as BaseError
     const error = getNodeError(cause, {})

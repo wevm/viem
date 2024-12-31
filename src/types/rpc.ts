@@ -8,7 +8,6 @@ import type {
   BlockTag,
   Uncle,
 } from './block.js'
-import type { BlockOverride } from './blockOverride.js'
 import type { FeeHistory, FeeValues } from './fee.js'
 import type { Log } from './log.js'
 import type { Hex } from './misc.js'
@@ -44,7 +43,6 @@ export type RpcBlock<
   includeTransactions extends boolean = boolean,
   transaction = RpcTransaction<blockTag extends 'pending' ? true : false>,
 > = Block<Quantity, includeTransactions, blockTag, transaction>
-export type RpcBlockOverride = BlockOverride<Quantity>
 export type RpcBlockNumber = BlockNumber<Quantity>
 export type RpcBlockIdentifier = BlockIdentifier<Quantity>
 export type RpcUncle = Uncle<Quantity>

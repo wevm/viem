@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
 
+import type * as BlockOverrides from 'ox/BlockOverrides'
 import type {
   RpcEstimateUserOperationGasReturnType,
   RpcGetUserOperationByHashReturnType,
@@ -8,7 +9,7 @@ import type {
 } from '../account-abstraction/types/rpc.js'
 import type { BlockTag } from './block.js'
 import type { Hash, Hex, LogTopic } from './misc.js'
-import type { RpcBlockOverride, RpcStateOverride } from './rpc.js'
+import type { RpcStateOverride } from './rpc.js'
 import type {
   RpcBlock as Block,
   RpcBlockIdentifier as BlockIdentifier,
@@ -1135,7 +1136,7 @@ export type PublicRpcSchema = [
     Parameters: [
       {
         blockStateCalls: readonly {
-          blockOverrides?: RpcBlockOverride | undefined
+          blockOverrides?: BlockOverrides.Rpc | undefined
           calls?: readonly ExactPartial<TransactionRequest>[] | undefined
           stateOverrides?: RpcStateOverride | undefined
         }[]
