@@ -9,13 +9,13 @@ Hashes [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data via [ERC-773
 ## Import
 
 ```ts
-import { hashTypedData } from 'viem/experimental/solady'
+import { hashTypedData } from 'viem/experimental/erc7739'
 ```
 
 ## Usage
 
 ```ts
-import { hashTypedData } from 'viem/experimental/solady'
+import { hashTypedData } from 'viem/experimental/erc7739'
 
 hashTypedData({
   domain: {
@@ -50,10 +50,11 @@ hashTypedData({
   extensions: [],
   fields: '0x0f',
   verifierDomain: {
+    chainId: 1,
     name: 'Smart Account',
+    salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
     version: '1',
     verifyingContract: '0x1234567890abcdef1234567890abcdef12345678',
-    chainId: 1,
   },
 })
 ```

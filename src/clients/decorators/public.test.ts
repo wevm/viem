@@ -36,6 +36,7 @@ test('default', async () => {
   expect(publicActions(client)).toMatchInlineSnapshot(`
     {
       "call": [Function],
+      "createAccessList": [Function],
       "createBlockFilter": [Function],
       "createContractEventFilter": [Function],
       "createEventFilter": [Function],
@@ -74,6 +75,7 @@ test('default', async () => {
       "prepareTransactionRequest": [Function],
       "readContract": [Function],
       "sendRawTransaction": [Function],
+      "simulate": [Function],
       "simulateContract": [Function],
       "uninstallFilter": [Function],
       "verifyMessage": [Function],

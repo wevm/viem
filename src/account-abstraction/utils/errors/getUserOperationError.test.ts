@@ -486,14 +486,8 @@ test('contract error (raw call)', () => {
     maxPriorityFeePerGas: 2n,
   })
   expect(result).toMatchInlineSnapshot(`
-    [UserOperationExecutionError: The contract function "" reverted with the following signature:
-    0xdeadbeef
+    [UserOperationExecutionError: Execution reverted for an unknown reason.
 
-    Unable to decode signature "0xdeadbeef" as it was not found on the provided ABI.
-    Make sure you are using the correct ABI and that the error exists on it.
-    You can look up the decoded signature here: https://openchain.xyz/signatures?query=0xdeadbeef.
-     
-     
     Request Arguments:
       callData:              0xdeadbeef
       callGasLimit:          1
@@ -507,7 +501,7 @@ test('contract error (raw call)', () => {
       signature:             0xdeadbeef
       verificationGasLimit:  1
 
-    Docs: https://viem.sh/docs/contract/decodeErrorResult
+    Details: execution reverted: 0xdeadbeef000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011546f6b656e2049442069732074616b656e000000000000000000000000000000
     Version: viem@x.y.z]
   `)
 })

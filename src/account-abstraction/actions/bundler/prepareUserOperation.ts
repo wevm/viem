@@ -12,8 +12,8 @@ import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import type { ErrorType } from '../../../errors/utils.js'
+import type { Call, Calls } from '../../../types/calls.js'
 import type { Chain } from '../../../types/chain.js'
-import type { ContractFunctionParameters } from '../../../types/contract.js'
 import type { Hex } from '../../../types/misc.js'
 import type { StateOverride } from '../../../types/stateOverride.js'
 import type {
@@ -42,8 +42,6 @@ import type {
 } from '../../types/entryPointVersion.js'
 import type {
   UserOperation,
-  UserOperationCall,
-  UserOperationCalls,
   UserOperationRequest,
 } from '../../types/userOperation.js'
 import {
@@ -154,7 +152,7 @@ export type PrepareUserOperationRequest<
     EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
 > = Assign<
   UserOperationRequest<_derivedVersion>,
-  OneOf<{ calls: UserOperationCalls<Narrow<calls>> } | { callData: Hex }> & {
+  OneOf<{ calls: Calls<Narrow<calls>> } | { callData: Hex }> & {
     parameters?: readonly PrepareUserOperationParameterType[] | undefined
     paymaster?:
       | Address
@@ -367,16 +365,14 @@ export async function prepareUserOperation<
       if (parameters.calls)
         return account.encodeCalls(
           parameters.calls.map((call_) => {
-            const call = call_ as
-              | UserOperationCall
-              | (ContractFunctionParameters & { to: Address; value: bigint })
-            if ('abi' in call)
+            const call = call_ as Call
+            if (call.abi)
               return {
                 data: encodeFunctionData(call),
                 to: call.to,
                 value: call.value,
-              } as UserOperationCall
-            return call as UserOperationCall
+              } as Call
+            return call as Call
           }),
         )
       return parameters.callData

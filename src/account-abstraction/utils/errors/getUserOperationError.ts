@@ -1,4 +1,4 @@
-import type { Address } from 'abitype'
+import type { Abi, Address } from 'abitype'
 import { BaseError } from '../../../errors/base.js'
 import {
   ContractFunctionExecutionError,
@@ -6,9 +6,8 @@ import {
   ContractFunctionZeroDataError,
 } from '../../../errors/contract.js'
 import type { ErrorType } from '../../../errors/utils.js'
-import type { ContractFunctionParameters } from '../../../types/contract.js'
+import type { Call } from '../../../types/calls.js'
 import type { Hex } from '../../../types/misc.js'
-import type { OneOf } from '../../../types/utils.js'
 import { decodeErrorResult } from '../../../utils/abi/decodeErrorResult.js'
 import type { GetContractErrorReturnType } from '../../../utils/errors/getContractError.js'
 import { ExecutionRevertedError } from '../../errors/bundler.js'
@@ -16,21 +15,11 @@ import {
   UserOperationExecutionError,
   type UserOperationExecutionErrorType,
 } from '../../errors/userOperation.js'
-import type {
-  UserOperation,
-  UserOperationCall,
-} from '../../types/userOperation.js'
+import type { UserOperation } from '../../types/userOperation.js'
 import {
   type GetBundlerErrorParameters,
   getBundlerError,
 } from './getBundlerError.js'
-
-type Call = OneOf<
-  | UserOperationCall
-  | (ContractFunctionParameters & {
-      to: Address
-    })
->
 
 type GetNodeErrorReturnType = ErrorType
 
@@ -58,7 +47,7 @@ export function getUserOperationError<err extends ErrorType<string>>(
     if (calls && cause instanceof ExecutionRevertedError) {
       const revertData = getRevertData(cause)
       const contractCalls = calls?.filter(
-        (call: any) => call.abi || call.data,
+        (call: any) => call.abi,
       ) as readonly Call[]
       if (revertData && contractCalls.length > 0)
         return getContractError({ calls: contractCalls, revertData })
@@ -106,7 +95,7 @@ function getContractError(parameters: {
   const { abi, functionName, args, to } = (() => {
     const contractCalls = calls?.filter((call) =>
       Boolean(call.abi),
-    ) as readonly (ContractFunctionParameters & { to: Address })[]
+    ) as readonly Call[]
 
     if (contractCalls.length === 1) return contractCalls[0]
 
@@ -133,7 +122,12 @@ function getContractError(parameters: {
       args: undefined,
       to: undefined,
     }
-  })()
+  })() as {
+    abi: Abi
+    functionName: string
+    args: unknown[]
+    to: Address
+  }
 
   const cause = (() => {
     if (revertData === '0x')

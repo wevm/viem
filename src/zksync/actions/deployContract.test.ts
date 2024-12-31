@@ -5,7 +5,7 @@ import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 
 import { deployContract } from './deployContract.js'
 
-import { anvilZksync } from '../../../test/src/anvil.js'
+import { anvilZksync } from '~test/src/anvil.js'
 import type { EIP1193RequestFn } from '../../index.js'
 import type { DeployContractParameters } from './deployContract.js'
 
@@ -46,6 +46,17 @@ test('args: factoryDeps', async () => {
         '0x702040405260405161083e38038061083e833981016040819123456abdcabcd',
         '0x102030405260405161083e38038061083e833981016040819112233abdcabcd',
       ],
+    }),
+  ).toMatchInlineSnapshot(
+    `"0x9afe47f3d95eccfc9210851ba5f877f76d372514a26b48bad848a07f77c33b87"`,
+  )
+})
+
+test('create2', async () => {
+  expect(
+    await deployContract(client, {
+      ...base,
+      deploymentType: 'create2',
     }),
   ).toMatchInlineSnapshot(
     `"0x9afe47f3d95eccfc9210851ba5f877f76d372514a26b48bad848a07f77c33b87"`,

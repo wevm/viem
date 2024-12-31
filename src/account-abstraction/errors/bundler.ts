@@ -32,10 +32,17 @@ export class ExecutionRevertedError extends BaseError {
   static code = -32521
   static message = /execution reverted/
 
+  data?: { revertData?: Hex } | undefined
+
   constructor({
     cause,
+    data,
     message,
-  }: { cause?: BaseError | undefined; message?: string | undefined } = {}) {
+  }: {
+    cause?: BaseError | undefined
+    data?: { revertData?: Hex } | undefined
+    message?: string | undefined
+  } = {}) {
     const reason = message
       ?.replace('execution reverted: ', '')
       ?.replace('execution reverted', '')
@@ -48,6 +55,8 @@ export class ExecutionRevertedError extends BaseError {
         name: 'ExecutionRevertedError',
       },
     )
+
+    this.data = data
   }
 }
 

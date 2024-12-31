@@ -489,6 +489,7 @@ describe('extends', () => {
           },
           "serializers": undefined,
         },
+        "createAccessList": [Function],
         "createBlockFilter": [Function],
         "createContractEventFilter": [Function],
         "createEventFilter": [Function],
@@ -532,6 +533,7 @@ describe('extends', () => {
         "readContract": [Function],
         "request": [Function],
         "sendRawTransaction": [Function],
+        "simulate": [Function],
         "simulateContract": [Function],
         "transport": {
           "fetchOptions": undefined,

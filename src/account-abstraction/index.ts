@@ -202,8 +202,6 @@ export type {
   UserOperationReceipt,
   UserOperationRequest,
   PackedUserOperation,
-  UserOperationCall,
-  UserOperationCalls,
 } from './types/userOperation.js'
 
 export {

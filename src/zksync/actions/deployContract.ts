@@ -7,7 +7,10 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { ContractConstructorArgs } from '../../types/contract.js'
 import type { Hash, Hex } from '../../types/misc.js'
-import { contractDeployerAddress } from '../constants/address.js'
+import {
+  contract2FactoryAddress,
+  contractDeployerAddress,
+} from '../constants/address.js'
 import type { ChainEIP712 } from '../types/chain.js'
 import type { ContractDeploymentType } from '../types/contract.js'
 import {
@@ -45,7 +48,7 @@ export type DeployContractErrorType =
  *
  * - Docs: https://viem.sh/docs/contract/deployContract
  *
- * @param client - Client to use
+ * @param walletClient - Client to use
  * @param parameters - {@link DeployContractParameters}
  * @returns The [Transaction](https://viem.sh/docs/glossary/terms#transaction) hash. {@link DeployContractReturnType}
  *
@@ -97,7 +100,10 @@ export function deployContract<
   return sendEip712Transaction(walletClient, {
     ...request,
     data,
-    to: contractDeployerAddress,
+    to:
+      deploymentType === 'create2' || deploymentType === 'create2Account'
+        ? contract2FactoryAddress
+        : contractDeployerAddress,
   } as unknown as SendEip712TransactionParameters<
     chain,
     account,

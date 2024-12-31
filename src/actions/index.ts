@@ -47,6 +47,12 @@ export {
   call,
 } from './public/call.js'
 export {
+  type CreateAccessListErrorType,
+  type CreateAccessListParameters,
+  type CreateAccessListReturnType,
+  createAccessList,
+} from './public/createAccessList.js'
+export {
   type CreateBlockFilterErrorType,
   type CreateBlockFilterReturnType,
   createBlockFilter,
@@ -243,6 +249,12 @@ export {
   type MulticallReturnType,
   multicall,
 } from './public/multicall.js'
+export {
+  type SimulateErrorType,
+  type SimulateParameters,
+  type SimulateReturnType,
+  simulate,
+} from './public/simulate.js'
 export {
   type OnBlock,
   type OnBlockParameter,

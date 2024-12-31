@@ -1,6 +1,9 @@
 export const contractDeployerAddress =
   '0x0000000000000000000000000000000000008006' as const
 
+export const contract2FactoryAddress =
+  '0x0000000000000000000000000000000000010000' as const
+
 export const legacyEthAddress =
   '0x0000000000000000000000000000000000000000' as const
 
