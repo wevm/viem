@@ -256,7 +256,7 @@ const result = await client.simulate({
       address: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
       balance: parseEther('10'),
     }],
-  }]
+  }],
   returnFullTransactions: true, // [!code focus]
 })
 ```
@@ -291,7 +291,7 @@ const result = await client.simulate({
       address: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
       balance: parseEther('10'),
     }],
-  }]
+  }],
   traceTransfers: true, // [!code focus]
 })
 ```
@@ -326,7 +326,7 @@ const result = await client.simulate({
       address: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
       balance: parseEther('10'),
     }],
-  }]
+  }],
   validation: true, // [!code focus]
 })
 ```
