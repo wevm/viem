@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const initVerseGenesis = /*#__PURE__*/ defineChain({
-  id: 7234,
+  id: 7_234,
   name: 'Genesis Testnet',
   nativeCurrency: {
     decimals: 18,
