@@ -8,7 +8,7 @@ import type {
 } from '../account-abstraction/types/rpc.js'
 import type { BlockTag } from './block.js'
 import type { Hash, Hex, LogTopic } from './misc.js'
-import type { RpcStateOverride } from './rpc.js'
+import type { RpcBlockOverride, RpcStateOverride } from './rpc.js'
 import type {
   RpcBlock as Block,
   RpcBlockIdentifier as BlockIdentifier,
@@ -1123,6 +1123,43 @@ export type PublicRpcSchema = [
     Method: 'eth_sendRawTransaction'
     Parameters: [signedTransaction: Hex]
     ReturnType: Hash
+  },
+  /**
+   * @description Simulates execution of a set of calls with optional block and state overrides.
+   * @example
+   * provider.request({ method: 'eth_simulateV1', params: [{ blockStateCalls: [{ calls: [{ from: '0x...', to: '0x...', value: '0x...', data: '0x...' }] }] }, 'latest'] })
+   * // => { ... }
+   */
+  {
+    Method: 'eth_simulateV1'
+    Parameters: [
+      {
+        blockStateCalls: readonly {
+          blockOverrides?: RpcBlockOverride | undefined
+          calls?: readonly ExactPartial<TransactionRequest>[] | undefined
+          stateOverrides?: RpcStateOverride | undefined
+        }[]
+        returnFullTransactions?: boolean | undefined
+        traceTransfers?: boolean | undefined
+        validation?: boolean | undefined
+      },
+      block: BlockNumber | BlockTag,
+    ]
+    ReturnType: readonly (Block & {
+      calls: readonly {
+        error?:
+          | {
+              data?: Hex | undefined
+              code: number
+              message: string
+            }
+          | undefined
+        logs?: readonly Log[] | undefined
+        gasUsed: Hex
+        returnData: Hex
+        status: Hex
+      }[]
+    })[]
   },
   /**
    * @description Destroys a filter based on filter ID

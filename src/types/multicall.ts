@@ -68,9 +68,10 @@ export type MulticallResults<
   contracts extends readonly unknown[] = readonly ContractFunctionParameters[],
   allowFailure extends boolean = true,
   options extends {
-    error?: Error
+    error?: Error | undefined
+    extraProperties?: Record<string, unknown> | undefined
     mutability: AbiStateMutability
-  } = { error: Error; mutability: AbiStateMutability },
+  } = { error: Error; extraProperties: {}; mutability: AbiStateMutability },
   ///
   result extends any[] = [],
 > = contracts extends readonly [] // no contracts, return empty
@@ -81,7 +82,8 @@ export type MulticallResults<
         MulticallResponse<
           GetMulticallContractReturnType<contract, options['mutability']>,
           options['error'],
-          allowFailure
+          allowFailure,
+          options['extraProperties']
         >,
       ]
     : contracts extends readonly [infer contract, ...infer rest] // grab first contract and recurse through `rest`
@@ -94,12 +96,18 @@ export type MulticallResults<
             MulticallResponse<
               GetMulticallContractReturnType<contract, options['mutability']>,
               options['error'],
-              allowFailure
+              allowFailure,
+              options['extraProperties']
             >,
           ]
         >
       : readonly unknown[] extends contracts
-        ? MulticallResponse<unknown, options['error'], allowFailure>[]
+        ? MulticallResponse<
+            unknown,
+            options['error'],
+            allowFailure,
+            options['extraProperties']
+          >[]
         : // If `contracts` is *some* array but we couldn't assign `unknown[]` to it, then it must hold some known/homogenous type!
           // use this to infer the param types in the case of Array.map() argument
           contracts extends readonly (infer contract extends
@@ -107,23 +115,34 @@ export type MulticallResults<
           ? MulticallResponse<
               GetMulticallContractReturnType<contract, options['mutability']>,
               options['error'],
-              allowFailure
+              allowFailure,
+              options['extraProperties']
             >[]
           : // Fallback
-            MulticallResponse<unknown, options['error'], allowFailure>[]
+            MulticallResponse<
+              unknown,
+              options['error'],
+              allowFailure,
+              options['extraProperties']
+            >[]
 
 export type MulticallResponse<
   result = unknown,
   error = unknown,
   allowFailure extends boolean = true,
+  extraProperties extends Record<string, unknown> | undefined = {},
 > = allowFailure extends true
   ?
-      | { error?: undefined; result: result; status: 'success' }
-      | {
+      | (extraProperties & {
+          error?: undefined
+          result: result
+          status: 'success'
+        })
+      | (extraProperties & {
           error: unknown extends error ? Error : error
           result?: undefined
           status: 'failure'
-        }
+        })
   : result
 
 // infer contract parameters from `unknown`

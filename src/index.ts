@@ -1105,12 +1105,14 @@ export type {
   DeriveAccount,
   HDKey,
 } from './types/account.js'
+export type { BlockOverride } from './types/blockOverride.js'
 export type {
   Index,
   Quantity,
   RpcBlock,
   RpcBlockIdentifier,
   RpcBlockNumber,
+  RpcBlockOverride,
   RpcFeeHistory,
   RpcFeeValues,
   RpcLog,
