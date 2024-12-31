@@ -181,6 +181,11 @@ import {
   readContract,
 } from '../../actions/public/readContract.js'
 import {
+  type SimulateParameters,
+  type SimulateReturnType,
+  simulate,
+} from '../../actions/public/simulate.js'
+import {
   type SimulateContractParameters,
   type SimulateContractReturnType,
   simulateContract,
@@ -1521,6 +1526,51 @@ export type PublicActions<
     args: SendRawTransactionParameters,
   ) => Promise<SendRawTransactionReturnType>
   /**
+   * Simulates a set of calls on block(s) with optional block and state overrides.
+   *
+   * @example
+   * ```ts
+   * import { createPublicClient, http, parseEther } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   *
+   * const result = await client.simulate({
+   *   blocks: [{
+   *     blockOverrides: {
+   *       number: 69420n,
+   *     },
+   *     calls: [{
+   *       {
+   *         account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+   *         data: '0xdeadbeef',
+   *         to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *       },
+   *       {
+   *         account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+   *         to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *         value: parseEther('1'),
+   *       },
+   *     }],
+   *     stateOverrides: [{
+   *       address: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+   *       balance: parseEther('10'),
+   *     }],
+   *   }]
+   * })
+   * ```
+   *
+   * @param client - Client to use.
+   * @param parameters - {@link SimulateParameters}
+   * @returns Simulated blocks. {@link SimulateReturnType}
+   */
+  simulate: <const calls extends readonly unknown[]>(
+    args: SimulateParameters<calls>,
+  ) => Promise<SimulateReturnType<calls>>
+  /**
    * Simulates/validates a contract interaction. This is useful for retrieving **return data** and **revert reasons** of contract write functions.
    *
    * - Docs: https://viem.sh/docs/contract/simulateContract
@@ -1908,6 +1958,7 @@ export function publicActions<
       prepareTransactionRequest(client as any, args as any) as any,
     readContract: (args) => readContract(client, args),
     sendRawTransaction: (args) => sendRawTransaction(client, args),
+    simulate: (args) => simulate(client, args),
     simulateContract: (args) => simulateContract(client, args),
     verifyMessage: (args) => verifyMessage(client, args),
     verifySiweMessage: (args) => verifySiweMessage(client, args),

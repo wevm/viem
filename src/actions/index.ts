@@ -250,6 +250,12 @@ export {
   multicall,
 } from './public/multicall.js'
 export {
+  type SimulateErrorType,
+  type SimulateParameters,
+  type SimulateReturnType,
+  simulate,
+} from './public/simulate.js'
+export {
   type OnBlock,
   type OnBlockParameter,
   type WatchBlocksErrorType,

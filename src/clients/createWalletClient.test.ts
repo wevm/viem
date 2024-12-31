@@ -482,6 +482,7 @@ test('extend', () => {
       "signMessage": [Function],
       "signTransaction": [Function],
       "signTypedData": [Function],
+      "simulate": [Function],
       "simulateContract": [Function],
       "snapshot": [Function],
       "stopImpersonatingAccount": [Function],

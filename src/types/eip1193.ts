@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
 
+import type * as BlockOverrides from 'ox/BlockOverrides'
 import type {
   RpcEstimateUserOperationGasReturnType,
   RpcGetUserOperationByHashReturnType,
@@ -1123,6 +1124,43 @@ export type PublicRpcSchema = [
     Method: 'eth_sendRawTransaction'
     Parameters: [signedTransaction: Hex]
     ReturnType: Hash
+  },
+  /**
+   * @description Simulates execution of a set of calls with optional block and state overrides.
+   * @example
+   * provider.request({ method: 'eth_simulateV1', params: [{ blockStateCalls: [{ calls: [{ from: '0x...', to: '0x...', value: '0x...', data: '0x...' }] }] }, 'latest'] })
+   * // => { ... }
+   */
+  {
+    Method: 'eth_simulateV1'
+    Parameters: [
+      {
+        blockStateCalls: readonly {
+          blockOverrides?: BlockOverrides.Rpc | undefined
+          calls?: readonly ExactPartial<TransactionRequest>[] | undefined
+          stateOverrides?: RpcStateOverride | undefined
+        }[]
+        returnFullTransactions?: boolean | undefined
+        traceTransfers?: boolean | undefined
+        validation?: boolean | undefined
+      },
+      BlockNumber | BlockTag,
+    ]
+    ReturnType: readonly (Block & {
+      calls: readonly {
+        error?:
+          | {
+              data?: Hex | undefined
+              code: number
+              message: string
+            }
+          | undefined
+        logs?: readonly Log[] | undefined
+        gasUsed: Hex
+        returnData: Hex
+        status: Hex
+      }[]
+    })[]
   },
   /**
    * @description Destroys a filter based on filter ID
