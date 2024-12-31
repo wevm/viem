@@ -1144,7 +1144,7 @@ export type PublicRpcSchema = [
         traceTransfers?: boolean | undefined
         validation?: boolean | undefined
       },
-      block: BlockNumber | BlockTag,
+      BlockNumber | BlockTag,
     ]
     ReturnType: readonly (Block & {
       calls: readonly {
