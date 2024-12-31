@@ -66,7 +66,7 @@ const abi = parseAbi([
   'function transferFrom(address, address, uint256) returns (bool)',
 ])
  
-const hash = await client.simulate({ // [!code focus:99]
+const result = await client.simulate({ // [!code focus:99]
   blocks: [{
     calls: [
       {
