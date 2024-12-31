@@ -199,8 +199,9 @@ export async function simulateBlocks<
       }),
     })) as unknown as SimulateBlocksReturnType<calls>
   } catch (e) {
-    const error = getNodeError(e as {} as BaseError, {})
-    if (error instanceof UnknownNodeError) throw e as {} as BaseError
+    const cause = e as BaseError
+    const error = getNodeError(cause, {})
+    if (error instanceof UnknownNodeError) throw cause
     throw error
   }
 }
