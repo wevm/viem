@@ -1,5 +1,11 @@
 # viem
 
+## 2.22.1
+
+### Patch Changes
+
+- [`8cd4642ce140de0dabf09a7ac63b1cb15232bb39`](https://github.com/wevm/viem/commit/8cd4642ce140de0dabf09a7ac63b1cb15232bb39) Thanks [@jxom](https://github.com/jxom)! - **Experimental(ERC-7821):** Updated generic ordering on `execute`.
+
 ## 2.22.0
 
 ### Minor Changes
