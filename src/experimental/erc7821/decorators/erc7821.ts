@@ -89,7 +89,7 @@ export type Erc7821Actions<
     const calls extends readonly unknown[],
     chainOverride extends Chain | undefined = undefined,
   >(
-    parameters: ExecuteParameters<chain, account, chainOverride, calls>,
+    parameters: ExecuteParameters<calls, chain, account, chainOverride>,
   ) => Promise<ExecuteReturnType>
   /**
    * Checks if the contract supports the ERC-7821 execution mode.
