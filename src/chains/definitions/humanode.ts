@@ -14,7 +14,6 @@ export const humanode = /*#__PURE__*/ defineChain({
     default: {
       name: 'Subscan',
       url: 'https://humanode.subscan.io',
-      apiUrl: 'https://humanode.api.subscan.io/api',
     },
   },
   contracts: {
