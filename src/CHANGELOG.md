@@ -1,5 +1,15 @@
 # viem
 
+## 2.22.2
+
+### Patch Changes
+
+- [#3178](https://github.com/wevm/viem/pull/3178) [`daad891fc6bbd84c8fe0e9320260e729ea2d8136`](https://github.com/wevm/viem/commit/daad891fc6bbd84c8fe0e9320260e729ea2d8136) Thanks [@hello-jdj](https://github.com/hello-jdj)! - Added Rivalz network.
+
+- [#3177](https://github.com/wevm/viem/pull/3177) [`7546dfbec9268b21fe37e35d081f1cf5f88d6acc`](https://github.com/wevm/viem/commit/7546dfbec9268b21fe37e35d081f1cf5f88d6acc) Thanks [@maxandron](https://github.com/maxandron)! - Added opstack config to blast chain
+
+- [`e12d4a0a6b26d182ab97346669c92148c13357e7`](https://github.com/wevm/viem/commit/e12d4a0a6b26d182ab97346669c92148c13357e7) Thanks [@MOZGIII](https://github.com/MOZGIII)! - Added Humanode mainnet and Testnet 5 chains.
+
 ## 2.22.1
 
 ### Patch Changes
