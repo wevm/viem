@@ -40,10 +40,10 @@ import {
 import { supportsExecutionMode } from './supportsExecutionMode.js'
 
 export type ExecuteParameters<
+  calls extends readonly unknown[] = readonly unknown[],
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
-  calls extends readonly unknown[] = readonly unknown[],
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = UnionEvaluate<
   UnionPick<
@@ -149,7 +149,7 @@ export async function execute<
   chainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: ExecuteParameters<chain, account, chainOverride, calls>,
+  parameters: ExecuteParameters<calls, chain, account, chainOverride>,
 ): Promise<ExecuteReturnType> {
   const { address, authorizationList, opData } = parameters
 

@@ -1,5 +1,31 @@
 # viem
 
+## 2.22.2
+
+### Patch Changes
+
+- [#3178](https://github.com/wevm/viem/pull/3178) [`daad891fc6bbd84c8fe0e9320260e729ea2d8136`](https://github.com/wevm/viem/commit/daad891fc6bbd84c8fe0e9320260e729ea2d8136) Thanks [@hello-jdj](https://github.com/hello-jdj)! - Added Rivalz network.
+
+- [#3177](https://github.com/wevm/viem/pull/3177) [`7546dfbec9268b21fe37e35d081f1cf5f88d6acc`](https://github.com/wevm/viem/commit/7546dfbec9268b21fe37e35d081f1cf5f88d6acc) Thanks [@maxandron](https://github.com/maxandron)! - Added opstack config to blast chain
+
+- [`e12d4a0a6b26d182ab97346669c92148c13357e7`](https://github.com/wevm/viem/commit/e12d4a0a6b26d182ab97346669c92148c13357e7) Thanks [@MOZGIII](https://github.com/MOZGIII)! - Added Humanode mainnet and Testnet 5 chains.
+
+## 2.22.1
+
+### Patch Changes
+
+- [`8cd4642ce140de0dabf09a7ac63b1cb15232bb39`](https://github.com/wevm/viem/commit/8cd4642ce140de0dabf09a7ac63b1cb15232bb39) Thanks [@jxom](https://github.com/jxom)! - **Experimental(ERC-7821):** Updated generic ordering on `execute`.
+
+## 2.22.0
+
+### Minor Changes
+
+- [#3172](https://github.com/wevm/viem/pull/3172) [`853e49e7d235785d8066f757911411f194dc1c47`](https://github.com/wevm/viem/commit/853e49e7d235785d8066f757911411f194dc1c47) Thanks [@jxom](https://github.com/jxom)! - Added `simulate` Action (`eth_simulateV1`).
+
+### Patch Changes
+
+- [`f19ceef5cd455a31629d33d9a649881e76a502be`](https://github.com/wevm/viem/commit/f19ceef5cd455a31629d33d9a649881e76a502be) Thanks [@jxom](https://github.com/jxom)! - Updated public mainnet RPC URL.
+
 ## 2.21.60
 
 ### Patch Changes

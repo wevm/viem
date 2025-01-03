@@ -36,6 +36,10 @@ export {
   parseAbiParameter,
   parseAbiParameters,
 } from 'abitype'
+export type {
+  BlockOverrides,
+  Rpc as RpcBlockOverrides,
+} from 'ox/BlockOverrides'
 
 export {
   getContract,
