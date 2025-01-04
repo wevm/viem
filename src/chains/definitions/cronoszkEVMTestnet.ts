@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const cronoszkEVMTestnet = /*#__PURE__*/ defineChain({
-  id: 282,
+  id: 240,
   name: 'Cronos zkEVM Testnet',
   nativeCurrency: {
     decimals: 18,
