@@ -1804,6 +1804,10 @@ export const sidebar = {
             text: 'requestExecute',
             link: '/zksync/actions/requestExecute',
           },
+          {
+            text: 'finalizeWithdrawal',
+            link: '/zksync/actions/finalizeWithdrawal',
+          },
         ],
       },
       {
