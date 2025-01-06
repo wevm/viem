@@ -15,7 +15,7 @@ import type {
 } from '../../types/chain.js'
 import type { UnionEvaluate, UnionOmit } from '../../types/utils.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
-import { portalAbi } from '../abis.js'
+import { portal2Abi, portalAbi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import type { Withdrawal } from '../types/withdrawal.js'
 
@@ -42,6 +42,11 @@ export type EstimateFinalizeWithdrawalGasParameters<
   GetContractAddressParameter<_derivedChain, 'portal'> & {
     /** Gas limit for transaction execution on the L2. */
     gas?: bigint | undefined
+    /**
+     * Finalize against a specific proof submittor.
+     * If unspecified, the sending account is the default.
+     */
+    proofSubmittor?: Address | null | undefined
     withdrawal: Withdrawal
   }
 export type EstimateFinalizeWithdrawalGasReturnType = bigint
@@ -93,6 +98,7 @@ export async function estimateFinalizeWithdrawalGas<
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
+    proofSubmittor,
     targetChain,
     withdrawal,
   } = parameters
@@ -103,12 +109,17 @@ export async function estimateFinalizeWithdrawalGas<
     return Object.values(targetChain!.contracts.portal)[0].address
   })()
 
+  const [functionName, args, abi] =
+    proofSubmittor
+      ? ['finalizeWithdrawalTransactionExternalProof', [withdrawal, proofSubmittor], portal2Abi]
+      : ['finalizeWithdrawalTransaction', [withdrawal], portalAbi]
+
   const params = {
     account,
-    abi: portalAbi,
+    abi,
     address: portalAddress,
-    functionName: 'finalizeWithdrawalTransaction',
-    args: [withdrawal],
+    functionName,
+    args,
     gas,
     maxFeePerGas,
     maxPriorityFeePerGas,
@@ -117,9 +128,7 @@ export async function estimateFinalizeWithdrawalGas<
     // in `estimateContractGas` or `estimateGas`
     // @ts-ignore
     chain,
-  } satisfies EstimateContractGasParameters<
-    typeof portalAbi,
-    'finalizeWithdrawalTransaction'
-  >
+  } satisfies EstimateContractGasParameters
+
   return estimateContractGas(client, params as any)
 }
