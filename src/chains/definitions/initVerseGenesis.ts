@@ -1,15 +1,15 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const initVerseGenesis = /*#__PURE__*/ defineChain({
-  id: 7234,
-  name: 'InitVerse Genesis Chain Testnet',
+  id: 7_234,
+  name: 'InitVerse Genesis Testnet',
   nativeCurrency: {
     decimals: 18,
     name: 'InitVerse',
     symbol: 'INI',
   },
   rpcUrls: {
-    default: { http: ['http://rpc-testnet.inichain.com'] },
+    default: { http: ['https://rpc-testnet.inichain.com'] },
   },
   blockExplorers: {
     default: {
