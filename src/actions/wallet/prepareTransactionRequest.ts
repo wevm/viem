@@ -316,26 +316,6 @@ export async function prepareTransactionRequest<
 
   if (parameters.includes('chainId')) request.chainId = await getChainId()
 
-  if (parameters.includes('nonce') && typeof nonce === 'undefined' && account) {
-    if (nonceManager) {
-      const chainId = await getChainId()
-      request.nonce = await nonceManager.consume({
-        address: account.address,
-        chainId,
-        client,
-      })
-    } else {
-      request.nonce = await getAction(
-        client,
-        getTransactionCount,
-        'getTransactionCount',
-      )({
-        address: account.address,
-        blockTag: 'pending',
-      })
-    }
-  }
-
   if (
     (parameters.includes('fees') || parameters.includes('type')) &&
     typeof type === 'undefined'
@@ -414,6 +394,26 @@ export async function prepareTransactionRequest<
         ? { address: account.address, type: 'json-rpc' }
         : account,
     } as EstimateGasParameters)
+
+  if (parameters.includes('nonce') && typeof nonce === 'undefined' && account) {
+    if (nonceManager) {
+      const chainId = await getChainId()
+      request.nonce = await nonceManager.consume({
+        address: account.address,
+        chainId,
+        client,
+      })
+    } else {
+      request.nonce = await getAction(
+        client,
+        getTransactionCount,
+        'getTransactionCount',
+      )({
+        address: account.address,
+        blockTag: 'pending',
+      })
+    }
+  }
 
   assertRequest(request as AssertRequestParameters)
 
