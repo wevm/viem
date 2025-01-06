@@ -1,5 +1,17 @@
 # viem
 
+## 2.22.3
+
+### Patch Changes
+
+- [#3153](https://github.com/wevm/viem/pull/3153) [`40222c8cf984db387251e1df5922e4b9715e2bf9`](https://github.com/wevm/viem/commit/40222c8cf984db387251e1df5922e4b9715e2bf9) Thanks [@0xrouss](https://github.com/0xrouss)! - Fixed premature nonce increment by rearranging gas estimation logic.
+
+- [`535fdf02cdefb7d705f04dda0c4b51b3d31c0bfb`](https://github.com/wevm/viem/commit/535fdf02cdefb7d705f04dda0c4b51b3d31c0bfb) Thanks [@jxom](https://github.com/jxom)! - Fixed experimental entrypoints.
+
+- [#3189](https://github.com/wevm/viem/pull/3189) [`d5669075680a78f553c12c6556f6bccffaec8d6c`](https://github.com/wevm/viem/commit/d5669075680a78f553c12c6556f6bccffaec8d6c) Thanks [@dnzdlklc](https://github.com/dnzdlklc)! - Added Lumia Mainnet and Testnet
+
+- [#3187](https://github.com/wevm/viem/pull/3187) [`d555ad9304f97bdcf9d1ac3cef9e86ab9a25da80`](https://github.com/wevm/viem/commit/d555ad9304f97bdcf9d1ac3cef9e86ab9a25da80) Thanks [@MaryBecky](https://github.com/MaryBecky)! - Fixed initVerseGenesis RPC URL.
+
 ## 2.22.2
 
 ### Patch Changes
