@@ -308,7 +308,8 @@ export async function waitForTransactionReceipt<
                 let reason: ReplacementReason = 'replaced'
                 if (
                   replacementTransaction.to === replacedTransaction.to &&
-                  replacementTransaction.value === replacedTransaction.value
+                  replacementTransaction.value === replacedTransaction.value &&
+                  replacementTransaction.input === replacedTransaction.input
                 ) {
                   reason = 'repriced'
                 } else if (

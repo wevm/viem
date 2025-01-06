@@ -292,6 +292,104 @@ describe('replaced transactions', () => {
     expect(receipt !== null).toBeTruthy()
   })
 
+  test('repriced (same input)', async () => {
+    setup()
+
+    await mine(client, { blocks: 10 })
+
+    const nonce = hexToNumber(
+      (await client.request({
+        method: 'eth_getTransactionCount',
+        params: [sourceAccount.address, 'latest'],
+      })) ?? '0x0',
+    )
+
+    const hash = await sendTransaction(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      data: '0x',
+      maxFeePerGas: parseGwei('10'),
+      nonce,
+    })
+
+    let replacement: any
+    const [receipt] = await Promise.all([
+      waitForTransactionReceipt(client, {
+        hash,
+        onReplaced: (replacement_) => (replacement = replacement_),
+      }),
+      (async () => {
+        await wait(100)
+
+        // speed up
+        await sendTransaction(client, {
+          account: sourceAccount.address,
+          to: targetAccount.address,
+          value: parseEther('1'),
+          data: '0x',
+          nonce,
+          maxFeePerGas: parseGwei('20'),
+        })
+      })(),
+    ])
+
+    expect(receipt !== null).toBeTruthy()
+    expect(replacement.reason).toBe('repriced')
+    expect(replacement.replacedTransaction).toBeDefined()
+    expect(replacement.transaction).toBeDefined()
+    expect(replacement.transactionReceipt).toBeDefined()
+  })
+
+  test('replaced (different input)', async () => {
+    setup()
+
+    await mine(client, { blocks: 10 })
+
+    const nonce = hexToNumber(
+      (await client.request({
+        method: 'eth_getTransactionCount',
+        params: [sourceAccount.address, 'latest'],
+      })) ?? '0x0',
+    )
+
+    const hash = await sendTransaction(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      data: '0x',
+      maxFeePerGas: parseGwei('10'),
+      nonce,
+    })
+
+    let replacement: any
+    const [receipt] = await Promise.all([
+      waitForTransactionReceipt(client, {
+        hash,
+        onReplaced: (replacement_) => (replacement = replacement_),
+      }),
+      (async () => {
+        await wait(100)
+
+        // speed up
+        await sendTransaction(client, {
+          account: sourceAccount.address,
+          to: targetAccount.address,
+          value: parseEther('1'),
+          data: '0xdeadbeef',
+          nonce,
+          maxFeePerGas: parseGwei('20'),
+        })
+      })(),
+    ])
+
+    expect(receipt !== null).toBeTruthy()
+    expect(replacement.reason).toBe('replaced')
+    expect(replacement.replacedTransaction).toBeDefined()
+    expect(replacement.transaction).toBeDefined()
+    expect(replacement.transactionReceipt).toBeDefined()
+  })
+
   test('cancelled', async () => {
     setup()
 
