@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-fixed initVerseGenesis rpc
+Fixed initVerseGenesis RPC URL.
