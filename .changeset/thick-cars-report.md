@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added Saga
+Added Saga chain.
