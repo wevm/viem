@@ -112,6 +112,11 @@ export {
 } from './erc7739/decorators/erc7739.js'
 
 export {
+  type Erc7821Actions,
+  erc7821Actions,
+} from './erc7821/decorators/erc7821.js'
+
+export {
   /** @deprecated This is no longer experimental – use `import type { ParseErc6492SignatureErrorType } from 'viem'` instead. */
   type ParseErc6492SignatureErrorType,
   /** @deprecated This is no longer experimental – use `import type { ParseErc6492SignatureParameters } from 'viem'` instead. */

@@ -5,6 +5,7 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import type { BaseError } from '../../../errors/base.js'
 import type { ErrorType } from '../../../errors/utils.js'
+import type { Calls } from '../../../types/calls.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
 import type { Assign, MaybeRequired, OneOf } from '../../../types/utils.js'
@@ -22,7 +23,6 @@ import type {
 } from '../../types/entryPointVersion.js'
 import type {
   UserOperation,
-  UserOperationCalls,
   UserOperationRequest,
 } from '../../types/userOperation.js'
 import { getUserOperationError } from '../../utils/errors/getUserOperationError.js'
@@ -53,9 +53,7 @@ export type SendUserOperationParameters<
     | Assign<
         // Accept a partially-formed User Operation (UserOperationRequest) to be filled.
         UserOperationRequest<_derivedVersion>,
-        OneOf<
-          { calls: UserOperationCalls<Narrow<calls>> } | { callData: Hex }
-        > & {
+        OneOf<{ calls: Calls<Narrow<calls>> } | { callData: Hex }> & {
           paymaster?:
             | Address
             | true

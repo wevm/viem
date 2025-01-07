@@ -22,7 +22,7 @@ export type GetEip712DomainParameters = {
 export type GetEip712DomainReturnType = {
   domain: RequiredBy<
     TypedDataDomain,
-    'chainId' | 'name' | 'verifyingContract' | 'version'
+    'chainId' | 'name' | 'verifyingContract' | 'salt' | 'version'
   >
   fields: Hex
   extensions: readonly bigint[]

@@ -16,7 +16,7 @@ export type HashTypedDataParameters<
 > = TypedDataDefinition<typedData, primaryType, primaryTypes> & {
   verifierDomain: RequiredBy<
     TypedDataDomain,
-    'chainId' | 'name' | 'verifyingContract' | 'version'
+    'chainId' | 'name' | 'verifyingContract' | 'salt' | 'version'
   >
 }
 

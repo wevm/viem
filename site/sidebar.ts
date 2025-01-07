@@ -63,6 +63,15 @@ export const sidebar = {
       items: [
         { text: 'Introduction', link: '/docs/actions/public/introduction' },
         {
+          text: 'Access List',
+          items: [
+            {
+              text: 'createAccessList',
+              link: '/docs/actions/public/createAccessList',
+            },
+          ],
+        },
+        {
           text: 'Account',
           items: [
             {
@@ -86,6 +95,10 @@ export const sidebar = {
             {
               text: 'getBlockTransactionCount',
               link: '/docs/actions/public/getBlockTransactionCount',
+            },
+            {
+              text: 'simulate',
+              link: '/docs/actions/public/simulate',
             },
             {
               text: 'watchBlockNumber',
@@ -1387,6 +1400,28 @@ export const sidebar = {
           },
         ],
       },
+      {
+        text: 'ERC-7821',
+        items: [
+          {
+            text: 'Client',
+            link: '/experimental/erc7821/client',
+          },
+          {
+            text: 'Actions',
+            items: [
+              {
+                text: 'execute',
+                link: '/experimental/erc7821/execute',
+              },
+              {
+                text: 'supportsExecutionMode',
+                link: '/experimental/erc7821/supportsExecutionMode',
+              },
+            ],
+          },
+        ],
+      },
     ],
   },
   '/op-stack': {
@@ -1705,6 +1740,14 @@ export const sidebar = {
           {
             text: 'getL1ChainId',
             link: '/zksync/actions/getL1ChainId',
+          },
+          {
+            text: 'getL1TokenAddress',
+            link: '/zksync/actions/getL1TokenAddress',
+          },
+          {
+            text: 'getL2TokenAddress',
+            link: '/zksync/actions/getL2TokenAddress',
           },
           {
             text: 'getLogProof',

@@ -43,7 +43,7 @@ test('default', async () => {
       "rpcUrls": {
         "default": {
           "http": [
-            "https://cloudflare-eth.com",
+            "https://eth.merkle.io",
           ],
         },
       },

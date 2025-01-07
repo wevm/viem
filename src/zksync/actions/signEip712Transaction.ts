@@ -53,6 +53,8 @@ export type SignEip712TransactionErrorType = SignTransactionErrorType
 /**
  * Signs an EIP712 transaction.
  *
+ *
+ * @param client - Client to use
  * @param args - {@link SignTransactionParameters}
  * @returns The signed serialized transaction. {@link SignTransactionReturnType}
  *
@@ -102,11 +104,12 @@ export async function signEip712Transaction<
     ...transaction
   } = args
 
-  if (!account_)
+  const account = account_ ? parseAccount(account_) : client.account
+
+  if (!account)
     throw new AccountNotFoundError({
       docsPath: '/docs/actions/wallet/signTransaction',
     })
-  const account = parseAccount(account_)
 
   assertEip712Request({
     account,

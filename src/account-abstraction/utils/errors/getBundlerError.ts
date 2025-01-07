@@ -253,12 +253,13 @@ export function getBundlerError(
 
   const error = err.walk((e) =>
     bundlerErrors.some((error) => error.code === (e as { code: number }).code),
-  ) as BaseError & { code: number }
+  ) as BaseError & { code: number; data: any }
 
   if (error) {
     if (error.code === ExecutionRevertedError.code)
       return new ExecutionRevertedError({
         cause: err,
+        data: error.data,
         message: error.details,
       }) as any
     if (error.code === InvalidFieldsError.code)
