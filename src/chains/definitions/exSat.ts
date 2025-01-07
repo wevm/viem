@@ -17,5 +17,5 @@ export const exsat = /*#__PURE__*/ defineChain({
       url: 'https://scan.exsat.network',
       apiUrl: 'https://scan.exsat.network/api',
     },
-  }
+  },
 })

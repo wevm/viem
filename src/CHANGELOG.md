@@ -1,5 +1,15 @@
 # viem
 
+## 2.22.4
+
+### Patch Changes
+
+- [#3196](https://github.com/wevm/viem/pull/3196) [`fad94b76ec2bfd44331f39ef7e564ef15c28a004`](https://github.com/wevm/viem/commit/fad94b76ec2bfd44331f39ef7e564ef15c28a004) Thanks [@pursonc](https://github.com/pursonc)! - Added exSat chain.
+
+- [#3194](https://github.com/wevm/viem/pull/3194) [`497fa72642f39725bc1364e2164ccc8b16e8131d`](https://github.com/wevm/viem/commit/497fa72642f39725bc1364e2164ccc8b16e8131d) Thanks [@davidenwang](https://github.com/davidenwang)! - Fixed transaction reprice logic in `waitForTransactionReceipt` to account for `transaction.input` as well.
+
+- [#3202](https://github.com/wevm/viem/pull/3202) [`344bcaf605f43b748e53a3e121d049c8cae0ed75`](https://github.com/wevm/viem/commit/344bcaf605f43b748e53a3e121d049c8cae0ed75) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Added Saga chain.
+
 ## 2.22.3
 
 ### Patch Changes
