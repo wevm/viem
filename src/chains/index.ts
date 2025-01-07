@@ -241,6 +241,7 @@ export { lavita } from './definitions/lavita.js'
 export { lightlinkPegasus } from './definitions/lightlinkPegasus.js'
 export { lightlinkPhoenix } from './definitions/lightlinkPhoenix.js'
 export { linea } from './definitions/linea.js'
+/** @deprecated Use `lineaSepolia` instead. */
 export { lineaGoerli } from './definitions/lineaGoerli.js'
 export { lineaSepolia } from './definitions/lineaSepolia.js'
 /** @deprecated Use `lineaSepolia` instead. */
