@@ -25,4 +25,5 @@ export const flowTestnet = /*#__PURE__*/ defineChain({
       blockCreated: 137518,
     },
   },
+  testnet: true,
 })
