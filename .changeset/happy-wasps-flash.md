@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Update Flow mainnet and testnet block explorer url
+Updated Flow Mainnet and Testnet block explorer URLs.
