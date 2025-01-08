@@ -101,6 +101,23 @@ const hash = await client.estimateFinalizeWithdrawalGas({
 })
 ```
 
+### proofSubmitter (optional)
+
+- **Type:** `Address`
+
+The address of the proof submitter to use when finalizing the withdrawal. No-op when the OptimismPortal contract version is less than v3.
+
+If unspecified, the sending account is the proof submitter.
+
+```ts
+const hash = await client.finalizeWithdrawal({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  proofSubmitter: '0xD15F47c16BD277ff2dee6a0bD4e418165231CB69', // [!code focus]
+  withdrawal: { /* ... */ },
+  targetChain: optimism,
+})
+```
+
 ### maxFeePerGas (optional)
 
 - **Type:** `bigint`
