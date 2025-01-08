@@ -43,7 +43,7 @@ export type EstimateFinalizeWithdrawalGasParameters<
     /** Gas limit for transaction execution on the L2. */
     gas?: bigint | undefined
     /**
-     * Finalize against a specific proof submittor.
+     * Finalize against a specific proof submitter.
      * If unspecified, the sending account is the default.
      */
     proofSubmitter?: Address | null | undefined
