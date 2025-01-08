@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-chore: update abstract block explorer to use etherscan
+Updated Abstract Testnet block explorer to use etherscan.
