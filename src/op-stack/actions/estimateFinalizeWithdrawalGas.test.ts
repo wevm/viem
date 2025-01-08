@@ -39,9 +39,12 @@ test('default', async () => {
 test('args: proof submittor', async () => {
   // TODO: migrate the rest of the test suite to a block with fault proofs
   // Sample withdrawal with fault proofs: https://optimistic.etherscan.io/tx/0x039d2fdf3161910cb667ed599a0a899314bd5041797b6707ba312792b6d43b5c
-  await reset(client, { blockNumber: 21165285n, jsonRpcUrl: anvilMainnet.forkUrl })
+  await reset(client, {
+    blockNumber: 21165285n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
 
-  const proofSubmittor = '0xD15F47c16BD277ff2dee6a0bD4e418165231CB69'
+  const proofSubmitter = '0xD15F47c16BD277ff2dee6a0bD4e418165231CB69'
   const withdrawal = {
     nonce:
       1766847064778384329583297500742918515827483896875618958121606201292641117n,
@@ -58,7 +61,7 @@ test('args: proof submittor', async () => {
     account: accounts[0].address,
     targetChain: optimism,
     withdrawal,
-    proofSubmittor, // on behalf of the proof submittor
+    proofSubmitter, // on behalf of the proof submittor
   })
   expect(gas).toBeDefined()
 })

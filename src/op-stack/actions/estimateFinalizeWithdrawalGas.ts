@@ -46,7 +46,7 @@ export type EstimateFinalizeWithdrawalGasParameters<
      * Finalize against a specific proof submittor.
      * If unspecified, the sending account is the default.
      */
-    proofSubmittor?: Address | null | undefined
+    proofSubmitter?: Address | null | undefined
     withdrawal: Withdrawal
   }
 export type EstimateFinalizeWithdrawalGasReturnType = bigint
@@ -98,7 +98,7 @@ export async function estimateFinalizeWithdrawalGas<
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
-    proofSubmittor,
+    proofSubmitter,
     targetChain,
     withdrawal,
   } = parameters
@@ -109,10 +109,13 @@ export async function estimateFinalizeWithdrawalGas<
     return Object.values(targetChain!.contracts.portal)[0].address
   })()
 
-  const [functionName, args, abi] =
-    proofSubmittor
-      ? ['finalizeWithdrawalTransactionExternalProof', [withdrawal, proofSubmittor], portal2Abi]
-      : ['finalizeWithdrawalTransaction', [withdrawal], portalAbi]
+  const [functionName, args, abi] = proofSubmitter
+    ? [
+        'finalizeWithdrawalTransactionExternalProof',
+        [withdrawal, proofSubmitter],
+        portal2Abi,
+      ]
+    : ['finalizeWithdrawalTransaction', [withdrawal], portalAbi]
 
   const params = {
     account,
