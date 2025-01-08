@@ -1,5 +1,5 @@
 ---
-"viem": minor
+"viem": patch
 ---
 
-CELO: Support gas price estimation for both Celo L1 and Celo L2
+**Celo:** Added support for gas price estimation on both Celo L1 and Celo L2.
