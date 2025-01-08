@@ -1,5 +1,5 @@
 ---
-"viem": minor
+"viem": patch
 ---
 
-added proofSubmitter argument for finalizing withdrawals under a different account for OptimismPortal >= v3
+**OP Stack:** Added `proofSubmitter` parameter to `finalizeWithdrawal` for finalizing withdrawals under a different account.
