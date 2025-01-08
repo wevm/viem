@@ -1,3 +1,4 @@
+import { getCode } from '../actions/public/getCode.js'
 import type { Client } from '../clients/createClient.js'
 import type {
   Address,
@@ -22,19 +23,23 @@ export const fees: ChainFees<typeof formatters> = {
   ) => {
     if (!params.request?.feeCurrency) return null
 
-    const [maxFeePerGas, maxPriorityFeePerGas] = await Promise.all([
+    const [gasPrice, maxPriorityFeePerGas, cel2] = await Promise.all([
       estimateFeePerGasInFeeCurrency(params.client, params.request.feeCurrency),
       estimateMaxPriorityFeePerGasInFeeCurrency(
         params.client,
         params.request.feeCurrency,
       ),
+      isCel2(params.client),
     ])
 
-    const suggestedMaxFeePerGas =
-      params.multiply(maxFeePerGas) + maxPriorityFeePerGas
+    const maxFeePerGas = cel2
+      ? // eth_gasPrice for cel2 returns baseFeePerGas + maxPriorityFeePerGas
+        params.multiply(gasPrice - maxPriorityFeePerGas) + maxPriorityFeePerGas
+      : // eth_gasPrice for Celo L1 returns (baseFeePerGas * multiplier), where the multiplier is 2 by default.
+        gasPrice + maxPriorityFeePerGas
 
     return {
-      maxFeePerGas: suggestedMaxFeePerGas,
+      maxFeePerGas,
       maxPriorityFeePerGas,
     }
   },
@@ -91,4 +96,10 @@ async function estimateMaxPriorityFeePerGasInFeeCurrency(
       params: [feeCurrency],
     })
   return BigInt(feesPerGas)
+}
+
+async function isCel2(client: Client) {
+  const proxyAdminAddress = '0x4200000000000000000000000000000000000018'
+  const code = await getCode(client, { address: proxyAdminAddress })
+  return Boolean(code)
 }
