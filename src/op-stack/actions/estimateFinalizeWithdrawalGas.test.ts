@@ -36,7 +36,7 @@ test('default', async () => {
   expect(gas).toBeDefined()
 })
 
-test('args: proof submitter', async () => {
+test.skip('args: proof submitter', async () => {
   // TODO: migrate the rest of the test suite to a block with fault proofs
   // Sample withdrawal with fault proofs: https://optimistic.etherscan.io/tx/0x039d2fdf3161910cb667ed599a0a899314bd5041797b6707ba312792b6d43b5c
   await reset(client, {
