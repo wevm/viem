@@ -52,7 +52,7 @@ export type FinalizeWithdrawalParameters<
      */
     gas?: bigint | null | undefined
     /**
-     * Finalize against a specific proof submittor.
+     * Finalize against a provided proof submitter.
      * If unspecified, the sending account is the default.
      */
     proofSubmitter?: Address | null | undefined
