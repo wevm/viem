@@ -1,4 +1,15 @@
-# Viem
+<p align="center">
+  <a href="https://viem.sh">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/viem/main/.github/gh-logo-dark.svg">
+        <img alt="viem logo" src="https://raw.githubusercontent.com/wevm/viem/main/.github/gh-logo-light.svg" width="auto" height="60">
+      </picture>
+</a>
+</p>
+
+<p align="center">
+  TypeScript Interface for Ethereum
+<p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/viem">
@@ -32,8 +43,6 @@
     </picture>
   </a>
 </p>
-
----
 
 ## Documentation
 
