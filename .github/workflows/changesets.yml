@@ -1,7 +1,8 @@
 name: Changesets
 on:
   push:
-    branches: [main]
+    # TODO: change to main
+    branches: [v3]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
