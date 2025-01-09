@@ -16,5 +16,11 @@ export const kromaSepolia = /*#__PURE__*/ defineChain({
       apiUrl: 'https://blockscout.sepolia.kroma.network/api',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 8900914,
+    },
+  },
   testnet: true,
 })
