@@ -12,7 +12,7 @@
     "neverthrow": "^7.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "viem": "workspace:*",
+    "viem": "workspace:meiv@*",
     "vocs": "1.0.0-alpha.62"
   }
 }

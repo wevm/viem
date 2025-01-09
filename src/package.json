@@ -1,7 +1,7 @@
 {
-  "name": "viem",
-  "description": "Ethereum Standard Library",
-  "version": "0.5.0",
+  "name": "meiv",
+  "description": "TypeScript Library for Ethereum",
+  "version": "3.0.0",
   "type": "module",
   "main": "./_cjs/index.js",
   "module": "./_esm/index.js",
