@@ -8,9 +8,11 @@
     "preview": "vocs preview"
   },
   "devDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "@types/react": "^18.3.18",
+    "neverthrow": "^7.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "viem": "workspace:*",
-    "vocs": "1.0.0-alpha.54"
+    "vocs": "1.0.0-alpha.62"
   }
 }

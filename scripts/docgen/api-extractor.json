@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
+  "mainEntryPointFilePath": "../../src/_types/index.docs.d.ts",
+  "bundledPackages": [],
+  "newlineKind": "lf",
+  "enumMemberOrder": "preserve",
+
+  "compiler": {
+    "tsconfigFilePath": "<projectFolder>/tsconfig.json",
+    "overrideTsconfig": {},
+    "skipLibCheck": true
+  },
+
+  "apiReport": {
+    "enabled": false
+  },
+
+  "docModel": {
+    "enabled": true,
+    "apiJsonFilePath": "<projectFolder>/scripts/docgen/<unscopedPackageName>.api.json",
+    "includeForgottenExports": true,
+    "projectFolderUrl": "https://github.com/wevm/viem/blob/main"
+  },
+
+  "dtsRollup": {
+    "enabled": false
+  },
+
+  "messages": {
+    "extractorMessageReporting": {
+      "default": { "logLevel": "warning" },
+      "ae-different-release-tags": { "logLevel": "none" },
+      "ae-incompatible-release-tags": { "logLevel": "none" },
+      "ae-internal-mixed-release-tag": { "logLevel": "none" },
+      "ae-missing-release-tag": { "logLevel": "none" },
+      "ae-unresolved-link": { "logLevel": "none" },
+      "ae-forgotten-export": { "logLevel": "none" }
+    }
+  }
+}

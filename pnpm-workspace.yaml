@@ -1,7 +1,3 @@
 packages:
-  - 'examples/*'
-  - 'environments/*'
   - 'site'
   - 'src'
-  - 'test'
-

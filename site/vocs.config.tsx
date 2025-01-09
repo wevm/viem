@@ -1,57 +1,54 @@
-import * as React from 'react'
+import React from 'react'
 import { defineConfig } from 'vocs'
 import pkg from '../src/package.json'
-import { sidebar } from './sidebar'
+import { sidebar, topNav } from './config-generated'
 
 export default defineConfig({
-  // banner: {
-  //   backgroundColor: '#3a393b',
-  //   textColor: 'white',
-  //   content:
-  //     'Viem is participating in Gitcoin Grants round 21. Consider [supporting the project](https://explorer.gitcoin.co/#/round/42161/389/73). Thank you. 🙏',
-  // },
   baseUrl:
     process.env.VERCEL_ENV === 'production'
       ? 'https://viem.sh'
       : process.env.VERCEL_URL,
   title: 'Viem',
   titleTemplate: '%s · Viem',
-  description:
-    'Build reliable Ethereum apps & libraries with lightweight, composable, & type-safe modules from viem.',
-  editLink: {
-    pattern: 'https://github.com/wevm/viem/edit/main/site/pages/:path',
-    text: 'Suggest changes to this page',
-  },
+  description: 'TypeScript Library for Ethereum',
   head() {
     return (
-      <>
-        <script
-          src="https://cdn.usefathom.com/script.js"
-          data-site="BYCJMNBD"
-          defer
-        />
-      </>
+      <script
+        src="https://cdn.usefathom.com/script.js"
+        data-site="BYCJMNBD"
+        defer
+      />
     )
   },
   ogImageUrl: {
     '/': '/og-image.png',
-    '/docs':
-      'https://vocs.dev/api/og?logo=%logo&title=%title&description=%description',
-    '/op-stack':
-      'https://vocs.dev/api/og?logo=%logo&title=%title&description=%description',
   },
-  iconUrl: { light: '/favicons/light.png', dark: '/favicons/dark.png' },
+  iconUrl: { light: '/icon-light.png', dark: '/icon-dark.png' },
   logoUrl: { light: '/icon-light.png', dark: '/icon-dark.png' },
-  rootDir: '.',
-  search: {
-    boostDocument(documentId) {
-      if (documentId.startsWith('pages/docs')) return 3
-      if (documentId.startsWith('pages/account-abstraction')) return 2
-      if (documentId.startsWith('pages/experimental')) return 2
-      return 1
+  markdown: {
+    code: {
+      themes: {
+        light: 'vitesse-light',
+        dark: 'vitesse-dark',
+      },
     },
   },
-  sidebar,
+  rootDir: '.',
+  sidebar: {
+    '/': [
+      { text: 'Introduction', link: '/' },
+      {
+        text: 'API Reference',
+        items: [
+          {
+            text: 'Core',
+            link: '/api',
+          },
+        ],
+      },
+    ],
+    ...sidebar,
+  },
   socials: [
     {
       icon: 'github',
@@ -78,12 +75,6 @@ export default defineConfig({
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/paradigm-light.svg',
           },
-          {
-            name: 'Ithaca',
-            link: 'https://ithaca.xyz',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/ithaca-light.svg',
-          },
         ],
       ],
     },
@@ -104,30 +95,19 @@ export default defineConfig({
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zksync-light.svg',
           },
+        ],
+        [
           {
             name: 'Brave',
             link: 'https://brave.com',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/brave-light.svg',
           },
-        ],
-        [
           {
             name: 'Linea',
             link: 'https://linea.build',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/linea-light.svg',
-          },
-          {
-            name: 'Routescan',
-            link: 'https://routescan.io',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/routescan-light.svg',
-          },
-          {
-            name: '',
-            link: 'https://github.com/sponsors/wevm',
-            image: '',
           },
         ],
       ],
@@ -248,45 +228,19 @@ export default defineConfig({
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/uniswap-light.svg',
           },
           {
-            name: 'Biconomy',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/biconomy-light.svg',
-            link: 'https://biconomy.io',
-          },
-          {
-            name: 'Thirdweb',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/thirdweb-light.svg',
-            link: 'https://thirdweb.com',
-          },
-          {
-            name: 'Uxuy',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/uxuy-light.svg',
-            link: 'https://uxuy.com',
-          },
-        ],
-        [
-          {
-            name: 'Polymarket',
-            link: 'https://polymarket.com',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/polymarket-light.svg',
+            name: '',
+            image: '',
+            link: 'https://github.com/sponsors/wevm',
           },
           {
             name: '',
-            link: 'https://github.com/sponsors/wevm',
             image: '',
+            link: 'https://github.com/sponsors/wevm',
           },
           {
             name: '',
-            link: 'https://github.com/sponsors/wevm',
             image: '',
-          },
-          {
-            name: '',
             link: 'https://github.com/sponsors/wevm',
-            image: '',
           },
         ],
       ],
@@ -294,46 +248,15 @@ export default defineConfig({
   ],
   theme: {
     accentColor: {
-      light: '#ff9318',
-      dark: '#ffc517',
+      light: '#4b7b2b',
+      dark: '#bd976a',
     },
   },
   topNav: [
-    { text: 'Docs', link: '/docs/getting-started', match: '/docs' },
-    {
-      text: 'Extensions',
-      items: [
-        {
-          text: 'Account Abstraction',
-          link: '/account-abstraction',
-        },
-        {
-          text: 'OP Stack',
-          link: '/op-stack',
-        },
-        {
-          text: 'ZKsync',
-          link: '/zksync',
-        },
-        {
-          text: 'Experimental',
-          link: '/experimental',
-        },
-      ],
-    },
-    {
-      text: 'Examples',
-      link: 'https://github.com/wevm/viem/tree/main/examples',
-    },
+    ...topNav,
     {
       text: pkg.version,
       items: [
-        {
-          text: `Migrating to ${toPatchVersionRange(pkg.version)}`,
-          link: `/docs/migration-guide#_${toPatchVersionRange(
-            pkg.version,
-          ).replace(/\./g, '-')}-breaking-changes`,
-        },
         {
           text: 'Changelog',
           link: 'https://github.com/wevm/viem/blob/main/src/CHANGELOG.md',
@@ -346,8 +269,3 @@ export default defineConfig({
     },
   ],
 })
-
-function toPatchVersionRange(version: string) {
-  const [major, minor] = version.split('.').slice(0, 2)
-  return `${major}.${minor}.x`
-}

@@ -1,34 +1,22 @@
-_cjs
-_esm
-_types
-*.local
+*.map
 .DS_Store
 .attest
-.eslintcache
-.next
-bench
-cache
+.env
+.local
+_esm
+_cjs
+_types
+dist
 coverage
 node_modules
-tsconfig*.tsbuildinfo
-wagmi
-src/node/trustedSetups_esm.ts
-**/trusted-setups/**/*.txt
-.idea
+tsconfig.*.tsbuildinfo
+tsconfig.tsbuildinfo
+tsdoc.d.tson
 
-# local env files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.envrc
-
-# tests
-generated.ts
-vectors/**/*.json
-
-# docs
-site/dist
-.vercel
-vocs.config.tsx.timestamp*
+viem.api.json
+lookup.json
+config-generated.ts
+site/pages/api
+site/pages/ercs
+site/pages/glossary
+tsdoc-metadata.json

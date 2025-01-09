@@ -1,6 +1,0 @@
-{
-  "type": "module",
-  "types": "../_types/zksync/index.d.ts",
-  "module": "../_esm/zksync/index.js",
-  "main": "../_cjs/zksync/index.js"
-}

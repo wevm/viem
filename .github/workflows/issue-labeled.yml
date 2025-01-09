@@ -12,8 +12,9 @@ jobs:
       needs-reproduction-body: |
         Hello @${{ github.event.issue.user.login }}. 
 
-        Please provide a [minimal reproduction](https://stackoverflow.com/help/minimal-reproducible-example) using [StackBlitz](https://new.viem.sh), [TypeScript Playground](https://www.typescriptlang.org/play) (for type issues), or a separate minimal GitHub repository.
+        Please provide a [minimal reproduction](https://stackoverflow.com/help/minimal-reproducible-example) using [StackBlitz](https://stackblitz.com), [TypeScript Playground](https://www.typescriptlang.org/play) (for type issues), or a separate minimal GitHub repository.
 
         [Minimal reproductions are required](https://antfu.me/posts/why-reproductions-are-required) as they save us a lot of time reproducing your config/environment and issue, and allow us to help you faster.
 
         Once a minimal reproduction is added, a team member will confirm it works, then re-open the issue.
+

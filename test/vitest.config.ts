@@ -1,44 +1,33 @@
-import { join } from 'node:path'
+import { basename, dirname, join } from 'node:path'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
     alias: {
-      '~contracts': join(__dirname, '../contracts'),
-      '~viem': join(__dirname, '../src'),
-      '~test': join(__dirname, '.'),
+      viem: join(import.meta.dirname, '../src'),
+      '~test': join(import.meta.dirname, '../test/src'),
     },
     benchmark: {
-      outputFile: './bench/report.json',
-      reporters: process.env.CI ? ['json'] : ['verbose'],
+      include: ['src/**/*.bench.ts'],
+      outputFile: './.bench/report.json',
     },
     coverage: {
       all: false,
+      include: ['**/src/**'],
       provider: 'v8',
       reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
-      exclude: [
-        '**/errors/utils.ts',
-        '**/zksync/**',
-        '**/_cjs/**',
-        '**/_esm/**',
-        '**/_types/**',
-        '**/*.bench.ts',
-        '**/*.bench-d.ts',
-        '**/*.test.ts',
-        '**/*.test-d.ts',
-        '**/test/**',
-      ],
     },
-    environment: 'node',
-    include: [
-      ...(process.env.TYPES ? ['**/*.bench-d.ts'] : []),
-      'src/**/*.test.ts',
-    ],
-    setupFiles: process.env.TYPES ? [] : [join(__dirname, './setup.ts')],
     globalSetup: process.env.TYPES
-      ? [join(__dirname, './benchTypesGlobalSetup.ts')]
-      : [join(__dirname, './globalSetup.ts')],
-    hookTimeout: 60_000,
-    testTimeout: 60_000,
+      ? [join(import.meta.dirname, './globalSetup.types.ts')]
+      : [join(import.meta.dirname, './globalSetup.ts')],
+    include: [
+      ...(process.env.TYPES ? ['src/**/*.snap-d.ts'] : ['src/**/*.test.ts']),
+    ],
+    passWithNoTests: true,
+    resolveSnapshotPath: (path, ext) =>
+      join(join(dirname(path), '_snap'), `${basename(path)}${ext}`),
+    setupFiles: process.env.TYPES
+      ? []
+      : [join(import.meta.dirname, './setup.ts')],
   },
 })

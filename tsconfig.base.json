@@ -11,13 +11,12 @@
     "useDefineForClassFields": true, // Not enabled by default in `strict` mode unless we bump `target` to ES2022.
     "noFallthroughCasesInSwitch": true, // Not enabled by default in `strict` mode.
     "noImplicitReturns": true, // Not enabled by default in `strict` mode.
+    "noUncheckedIndexedAccess": true,
     "useUnknownInCatchVariables": true, // TODO: This would normally be enabled in `strict` mode but would require some adjustments to the codebase.
     "noImplicitOverride": true, // Not enabled by default in `strict` mode.
     "noUnusedLocals": true, // Not enabled by default in `strict` mode.
     "noUnusedParameters": true, // Not enabled by default in `strict` mode.
     "exactOptionalPropertyTypes": true,
-    // TODO: Uncomment and fix types.
-    // "noUncheckedIndexedAccess": true,
 
     // JavaScript support
     "allowJs": false,
@@ -28,6 +27,7 @@
     "allowSyntheticDefaultImports": false,
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true,
+    "importHelpers": true, // This is only used for build validation. Since we do not have `tslib` installed, this will fail if we accidentally make use of anything that'd require injection of helpers.
 
     // Language and environment
     "moduleResolution": "NodeNext",

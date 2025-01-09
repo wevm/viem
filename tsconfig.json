@@ -1,15 +1,13 @@
 {
   // This configuration is used for local development and type checking.
   "extends": "./tsconfig.base.json",
-  "include": ["src", "test/src"],
-  "exclude": [],
-  "references": [{ "path": "./scripts/tsconfig.json" }],
+  "include": ["contracts", "scripts", "src", "test", "vectors"],
+  "exclude": ["src/_types"],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "~contracts/*": ["./contracts/*"],
-      "~viem/*": ["./src/*"],
-      "~test/*": ["./test/*"]
+      "~test/*": ["./test/*"],
+      "viem": ["src/index.ts"]
     }
   }
 }

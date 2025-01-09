@@ -1,20 +1,43 @@
-@layer vocs_preflight {
-  @tailwind base;
+:root {
+  --viem-color_noteText: #4b7b2a;
+  --viem-color_noteTextHover: #346414;
+  --viem-color_noteBackground: rgb(75 123 42 / 7%);
+  --viem-color_noteBorder: rgb(75 123 42 / 14%);
+
+  --vocs-color_noteBackground: var(--viem-color_noteBackground);
+  --vocs-color_noteText: var(--viem-color_noteText);
+  --vocs-color_noteTextHover: var(--viem-color_noteTextHover);
+  --vocs-color_noteBorder: var(--viem-color_noteBorder);
+  --vocs-color_infoBackground: var(--viem-color_noteBackground);
+  --vocs-color_infoText: var(--viem-color_noteText);
+  --vocs-color_infoTextHover: var(--viem-color_noteTextHover);
+  --vocs-color_infoBorder: var(--viem-color_noteBorder);
+  --vocs-color_tipBackground: var(--viem-color_noteBackground);
+  --vocs-color_tipText: var(--viem-color_noteText);
+  --vocs-color_tipTextHover: var(--viem-color_noteTextHover);
+  --vocs-color_tipBorder: var(--viem-color_noteBorder);
+  --vocs-twoslash_tagColor: #4b7b2a;
+  --vocs-twoslash_tagBackground: rgb(75 123 42 / 7%);
 }
 
-@tailwind components;
-@tailwind utilities;
+:root.dark {
+  --viem-color_noteText: #dbb180;
+  --viem-color_noteTextHover: #a48054;
+  --viem-color_noteBackground: rgb(189 151 106 / 9%);
+  --viem-color_noteBorder: rgb(189 151 106 / 17%);
 
-#home-install .vocs_CodeGroup {
-  display: flex;
-  height: 100%;
-  flex-direction: column;
-}
-
-#home-install .vocs_Tabs_content {
-  flex: 1;
-}
-
-#home-install .vocs_Code {
-  font-size: 18px;
+  --vocs-color_noteBackground: var(--viem-color_noteBackground);
+  --vocs-color_noteText: var(--viem-color_noteText);
+  --vocs-color_noteTextHover: var(--viem-color_noteTextHover);
+  --vocs-color_noteBorder: var(--viem-color_noteBorder);
+  --vocs-color_infoBackground: var(--viem-color_noteBackground);
+  --vocs-color_infoText: var(--viem-color_noteText);
+  --vocs-color_infoTextHover: var(--viem-color_noteTextHover);
+  --vocs-color_infoBorder: var(--viem-color_noteBorder);
+  --vocs-color_tipBackground: var(--viem-color_noteBackground);
+  --vocs-color_tipText: var(--viem-color_noteText);
+  --vocs-color_tipTextHover: var(--viem-color_noteTextHover);
+  --vocs-color_tipBorder: var(--viem-color_noteBorder);
+  --vocs-twoslash_tagColor: #d5ae81;
+  --vocs-twoslash_tagBackground: rgb(189 151 106 / 13%);
 }

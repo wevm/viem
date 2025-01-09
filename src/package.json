@@ -1,7 +1,7 @@
 {
   "name": "viem",
-  "description": "TypeScript Interface for Ethereum",
-  "version": "2.22.5",
+  "description": "Ethereum Standard Library",
+  "version": "0.5.0",
   "type": "module",
   "main": "./_cjs/index.js",
   "module": "./_esm/index.js",
@@ -10,160 +10,31 @@
   "sideEffects": false,
   "files": [
     "*",
-    "!**/*.bench.ts",
-    "!**/*.bench-d.ts",
-    "!**/*.test.ts",
-    "!**/*.test.ts.snap",
-    "!**/*.test-d.ts",
+    "!**/_test/**",
     "!**/*.tsbuildinfo",
     "!tsconfig.build.json",
     "!jsr.json"
   ],
-  "exports": {
-    ".": {
-      "types": "./_types/index.d.ts",
-      "import": "./_esm/index.js",
-      "default": "./_cjs/index.js"
-    },
-    "./account-abstraction": {
-      "types": "./_types/account-abstraction/index.d.ts",
-      "import": "./_esm/account-abstraction/index.js",
-      "default": "./_cjs/account-abstraction/index.js"
-    },
-    "./accounts": {
-      "types": "./_types/accounts/index.d.ts",
-      "import": "./_esm/accounts/index.js",
-      "default": "./_cjs/accounts/index.js"
-    },
-    "./actions": {
-      "types": "./_types/actions/index.d.ts",
-      "import": "./_esm/actions/index.js",
-      "default": "./_cjs/actions/index.js"
-    },
-    "./celo": {
-      "types": "./_types/celo/index.d.ts",
-      "import": "./_esm/celo/index.js",
-      "default": "./_cjs/celo/index.js"
-    },
-    "./chains": {
-      "types": "./_types/chains/index.d.ts",
-      "import": "./_esm/chains/index.js",
-      "default": "./_cjs/chains/index.js"
-    },
-    "./chains/utils": {
-      "types": "./_types/chains/utils.d.ts",
-      "import": "./_esm/chains/utils.js",
-      "default": "./_cjs/chains/utils.js"
-    },
-    "./ens": {
-      "types": "./_types/ens/index.d.ts",
-      "import": "./_esm/ens/index.js",
-      "default": "./_cjs/ens/index.js"
-    },
-    "./experimental": {
-      "types": "./_types/experimental/index.d.ts",
-      "import": "./_esm/experimental/index.js",
-      "default": "./_cjs/experimental/index.js"
-    },
-    "./experimental/erc7739": {
-      "types": "./_types/experimental/erc7739/index.d.ts",
-      "import": "./_esm/experimental/erc7739/index.js",
-      "default": "./_cjs/experimental/erc7739/index.js"
-    },
-    "./experimental/erc7821": {
-      "types": "./_types/experimental/erc7821/index.d.ts",
-      "import": "./_esm/experimental/erc7821/index.js",
-      "default": "./_cjs/experimental/erc7821/index.js"
-    },
-    "./linea": {
-      "types": "./_types/linea/index.d.ts",
-      "import": "./_esm/linea/index.js",
-      "default": "./_cjs/linea/index.js"
-    },
-    "./node": {
-      "types": "./_types/node/index.d.ts",
-      "import": "./_esm/node/index.js",
-      "default": "./_cjs/node/index.js"
-    },
-    "./nonce": {
-      "types": "./_types/nonce/index.d.ts",
-      "import": "./_esm/nonce/index.js",
-      "default": "./_cjs/nonce/index.js"
-    },
-    "./op-stack": {
-      "types": "./_types/op-stack/index.d.ts",
-      "import": "./_esm/op-stack/index.js",
-      "default": "./_cjs/op-stack/index.js"
-    },
-    "./siwe": {
-      "types": "./_types/siwe/index.d.ts",
-      "import": "./_esm/siwe/index.js",
-      "default": "./_cjs/siwe/index.js"
-    },
-    "./utils": {
-      "types": "./_types/utils/index.d.ts",
-      "import": "./_esm/utils/index.js",
-      "default": "./_cjs/utils/index.js"
-    },
-    "./window": {
-      "types": "./_types/window/index.d.ts",
-      "import": "./_esm/window/index.js",
-      "default": "./_cjs/window/index.js"
-    },
-    "./zksync": {
-      "types": "./_types/zksync/index.d.ts",
-      "import": "./_esm/zksync/index.js",
-      "default": "./_cjs/zksync/index.js"
-    },
-    "./package.json": "./package.json"
-  },
-  "typesVersions": {
-    "*": {
-      "accounts": ["./_types/accounts/index.d.ts"],
-      "actions": ["./_types/actions/index.d.ts"],
-      "celo": ["./_types/celo/index.d.ts"],
-      "chains": ["./_types/chains/index.d.ts"],
-      "chains/utils": ["./_types/chains/utils.d.ts"],
-      "ens": ["./_types/ens/index.d.ts"],
-      "experimental": ["./_types/experimental/index.d.ts"],
-      "experimental/erc7739": ["./_types/experimental/erc7739/index.d.ts"],
-      "experimental/erc7821": ["./_types/experimental/erc7821/index.d.ts"],
-      "node": ["./_types/node/index.d.ts"],
-      "op-stack": ["./_types/op-stack/index.d.ts"],
-      "siwe": ["./_types/siwe/index.d.ts"],
-      "utils": ["./_types/utils/index.d.ts"],
-      "window": ["./_types/window/index.d.ts"],
-      "zksync": ["./_types/zksync/index.d.ts"]
-    }
+  "dependencies": {
+    "ox": "0.6.0"
   },
   "peerDependencies": {
-    "typescript": ">=5.0.4"
+    "typescript": ">=5.4.0"
   },
   "peerDependenciesMeta": {
     "typescript": {
       "optional": true
     }
   },
-  "dependencies": {
-    "@noble/curves": "1.7.0",
-    "@noble/hashes": "1.6.1",
-    "@scure/bip32": "1.6.0",
-    "@scure/bip39": "1.5.0",
-    "abitype": "1.0.7",
-    "isows": "1.0.6",
-    "ox": "0.6.0",
-    "webauthn-p256": "0.0.10",
-    "ws": "8.18.0"
-  },
   "license": "MIT",
-  "homepage": "https://viem.sh",
+  "homepage": "https://wevm.dev",
   "repository": "wevm/viem",
-  "authors": ["awkweb.eth", "jxom.eth"],
+  "authors": ["awkweb", "jxom"],
   "funding": [
     {
       "type": "github",
       "url": "https://github.com/sponsors/wevm"
     }
   ],
-  "keywords": ["eth", "ethereum", "dapps", "wallet", "web3", "typescript"]
+  "keywords": ["typescript", "evm"]
 }

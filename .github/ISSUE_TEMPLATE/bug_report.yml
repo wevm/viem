@@ -49,8 +49,8 @@ body:
     id: reproduction
     attributes:
       label: Link to Minimal Reproducible Example
-      description: "Please provide a link that can reproduce the problem: [new.viem.sh](https://new.viem.sh) for runtime issues or [TypeScript Playground](https://www.typescriptlang.org/play) for type issues. For most issues, you will likely get asked to provide a minimal reproducible example so why not add one now :) If a report is vague (e.g. just snippets, generic error message, screenshot, etc.) and has no reproduction, it will receive a \"Needs Reproduction\" label and be auto-closed."
-      placeholder: https://new.viem.sh
+      description: "Please provide a link that can reproduce the problem: GitHub repo/fork with failing test or [StackBlitz](https://stackblitz.com) for runtime issues or [TypeScript Playground](https://www.typescriptlang.org/play) for type issues. For most issues, you will likely get asked to provide a minimal reproducible example so why not add one now :) If a report is vague (e.g. just snippets, generic error message, screenshot, etc.) and has no reproduction, it will receive a \"Needs Reproduction\" label and be auto-closed."
+      placeholder: https://github.com/wevm/viem
     validations:
       required: false
 
@@ -58,7 +58,7 @@ body:
     attributes:
       label: Anything else?
       description: |
-        Browser info? Screenshots? Anything that will give us more context about the issue you are encountering!
+        Browser/OS info? Screenshots? Anything that will give us more context about the issue you are encountering!
 
         Tip: You can attach images or log files by clicking this area to highlight it and then dragging files in.
     validations:

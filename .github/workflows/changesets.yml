@@ -2,7 +2,6 @@ name: Changesets
 on:
   push:
     branches: [main]
-  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -15,7 +14,12 @@ jobs:
     secrets: inherit
 
   changesets:
-    name: Create version pull request
+    name: Changesets
+    needs: verify
+    permissions:
+      contents: write
+      id-token: write
+      pull-requests: write
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
@@ -30,37 +34,11 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
-      - name: Create Version Pull Request
+      - name: PR or publish
         uses: changesets/action@v1
         with:
-          commit: 'chore: version package'
-          title: 'chore: version package'
-          version: pnpm changeset:version
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  release:
-    name: Release
-    needs: verify
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: write
-      id-token: write
-      pull-requests: write
-
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
-        with: 
-          submodules: 'recursive'
-
-      - name: Install dependencies
-        uses: ./.github/actions/install-dependencies
-
-      - name: Publish to NPM
-        uses: changesets/action@v1
-        with:
+          title: 'chore: version packages'
+          commit: 'chore: version packages'
           createGithubReleases: ${{ github.ref == 'refs/heads/main' }}
           publish: pnpm changeset:publish
           version: pnpm changeset:version
@@ -81,24 +59,3 @@ jobs:
           pnpm changeset version --no-git-tag --snapshot canary
           pnpm changeset:prepublish
           pnpm changeset publish --no-git-tag --snapshot canary --tag canary
-
-  jsr:
-    name: JSR
-    needs: verify
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-      id-token: write
-
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
-        with: 
-          submodules: 'recursive'
-
-      - name: Install dependencies
-        uses: ./.github/actions/install-dependencies
-
-      - name: Publish to JSR
-        run: pnpm version:update && cd src && pnpx jsr publish --allow-slow-types --allow-dirty

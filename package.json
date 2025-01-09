@@ -1,230 +1,116 @@
 {
+  "name": "viem",
   "private": true,
   "type": "module",
   "scripts": {
-    "bench": "vitest bench",
-    "bench:types": "TYPES=true vitest -c ./test/vitest.config.ts bench-d.ts",
+    "bench": "vitest -c ./test/vitest.config.ts bench",
+    "bench:types": "TYPES=true vitest -c ./test/vitest.config.ts src/**/*.bench-d.ts",
     "build": "pnpm clean && pnpm build:cjs && pnpm build:esm && pnpm build:types",
-    "build:cjs": "pnpm build:trustedSetups:start && tsc --project ./tsconfig.build.json --module commonjs --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./src/_cjs/package.json && pnpm build:trustedSetups:end",
     "build:esm": "tsc --project ./tsconfig.build.json --module es2020 --outDir ./src/_esm && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./src/_esm/package.json",
-    "build:trustedSetups:start": "mv src/node/trustedSetups.ts src/node/trustedSetups_esm.ts && mv src/node/trustedSetups_cjs.ts src/node/trustedSetups.ts",
-    "build:trustedSetups:end": "mv src/node/trustedSetups.ts src/node/trustedSetups_cjs.ts && mv src/node/trustedSetups_esm.ts src/node/trustedSetups.ts",
+    "build:cjs": "tsc --project ./tsconfig.build.json --module commonjs --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./src/_cjs/package.json",
     "build:types": "tsc --project ./tsconfig.build.json --module esnext --declarationDir ./src/_types --emitDeclarationOnly --declaration --declarationMap",
-    "changeset:prepublish": "pnpm version:update && bun scripts/prepublishOnly.ts && pnpm build",
+    "changeset:prepublish": "pnpm version:update && pnpm build && tsx scripts/prepublish.ts",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",
-    "changeset:version": "pnpm install --lockfile-only && changeset version && pnpm version:update && pnpm check",
-    "clean": "rm -rf *.tsbuildinfo src/*.tsbuildinfo src/_esm src/_cjs src/_types",
-    "contracts:build": "forge build --config-path ./contracts/foundry.toml && bun scripts/generateTypedArtifacts.ts",
-    "deps": "pnpx taze -r",
-    "docs:dev": "pnpm --filter site dev",
-    "docs:build": "pnpm --filter site build",
-    "check": "biome check --write --unsafe",
+    "changeset:version": "changeset version && pnpm version:update && pnpm format",
+    "check": "biome check . --fix --unsafe",
     "check:repo": "sherif",
+    "check:tsdoc": "eslint src -c scripts/docgen/tsdoc.config.js --ignore-pattern 'src/_esm/**/*.js'",
     "check:types": "tsc --noEmit",
-    "check:unused": "pnpm clean && knip",
-    "postinstall": "git submodule update --init --recursive && pnpm contracts:build",
-    "preconstruct": "bun scripts/preconstruct.ts",
+    "clean": "rimraf src/_types src/_esm src/_cjs ./tsconfig.build.tsbuildinfo src/tsconfig.build.tsbuildinfo",
+    "contracts:build": "forge build --config-path ./contracts/foundry.toml && tsx scripts/generate-typed-artifacts.ts",
+    "deps": "pnpx taze -r",
+    "dev": "pnpm preconstruct && pnpm playground",
+    "docs:dev": "pnpm --filter site dev",
+    "docs:extract": "pnpm api-extractor run -c scripts/docgen/api-extractor.json && tsx scripts/docgen/build.ts",
+    "docs:gen": "pnpm clean && pnpm build:types && pnpm docs:extract",
+    "docs:build": "pnpm docs:gen && pnpm --filter site build",
+    "knip": "knip --production",
+    "format": "biome format --write",
+    "postinstall": "git submodule update --init --recursive && pnpm contracts:build && pnpm preconstruct",
+    "preconstruct": "tsx ./scripts/preconstruct.ts",
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
-    "prepublishOnly": "bun scripts/prepublishOnly.ts",
     "size": "size-limit",
-    "test": "vitest -c ./test/vitest.config.ts dev",
-    "test:build": "publint --strict ./src && attw --pack ./src --ignore-rules false-esm",
-    "test:chains": "vitest test/scripts/chains.test.ts",
+    "test": "vitest -c ./test/vitest.config.ts",
     "test:ci": "CI=true vitest -c ./test/vitest.config.ts --coverage --retry=3 --bail=1",
-    "test:cov": "vitest dev -c ./test/vitest.config.ts --coverage",
-    "test:env": "pnpm test:env:bun && pnpm test:env:next && pnpm test:env:node && pnpm test:env:tsc && pnpm test:env:vite",
-    "test:env:bun": "pnpm --filter test-bun test",
-    "test:env:next": "pnpm --filter test-next test",
-    "test:env:node": "pnpm --filter test-node test",
-    "test:env:tsc": "pnpm --filter test-tsc test",
-    "test:env:vite": "pnpm --filter test-vite test",
-    "test:typecheck": "SKIP_GLOBAL_SETUP=true vitest --typecheck.only -c ./test/vitest.config.ts",
-    "test:ui": "vitest dev -c ./test/vitest.config.ts --ui",
-    "vectors": "bun test vectors/**/*.test.ts",
-    "vectors:generate": "bun vectors/generate.ts",
-    "version:update": "bun scripts/updateVersion.ts"
+    "test:cov": "vitest -c ./test/vitest.config.ts --coverage",
+    "test:types": "TYPES=true vitest -c ./test/vitest.config.ts",
+    "version:update": "tsx ./scripts/update-version.ts"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.15.4",
-    "@ark/attest": "^0.10.2",
-    "@biomejs/biome": "^1.9.3",
-    "@changesets/changelog-github": "^0.4.8",
-    "@changesets/cli": "^2.27.9",
-    "@ethereumjs/rlp": "^5.0.2",
-    "@pimlico/alto": "0.0.4",
-    "@size-limit/preset-big-lib": "^11.1.6",
-    "@types/bun": "^1.1.11",
-    "@types/node": "^20.16.12",
-    "@vitest/coverage-v8": "^1.0.4",
-    "@vitest/ui": "^1.0.4",
-    "bun": "^1.1.30",
-    "c-kzg": "^2.1.2",
-    "ethers": "^6.13.4",
-    "glob": "^10.4.5",
-    "knip": "^5.33.3",
-    "permissionless": "^0.2.14",
+    "@ark/attest": "^0.16.0",
+    "@biomejs/biome": "^1.9.4",
+    "@changesets/changelog-github": "^0.5.0",
+    "@changesets/cli": "^2.27.11",
+    "@microsoft/api-extractor": "^7.49.1",
+    "@microsoft/api-extractor-model": "^7.30.2",
+    "@microsoft/tsdoc": "^0.15.1",
+    "@microsoft/tsdoc-config": "^0.17.1",
+    "@size-limit/preset-big-lib": "^11.1.4",
+    "@types/bun": "^1.1.16",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.10.5",
+    "@vitest/coverage-v8": "1.0.4",
+    "bun": "^1.1.43",
+    "eslint": "^9.17.0",
+    "eslint-plugin-jsdoc": "^50.6.1",
+    "eslint-plugin-tsdoc": "^0.3.0",
+    "fs-extra": "^11.2.0",
+    "knip": "^5.41.1",
     "prool": "^0.0.16",
-    "publint": "^0.2.11",
-    "sherif": "^0.8.4",
+    "rimraf": "^5.0.10",
+    "sherif": "^0.11.0",
     "simple-git-hooks": "^2.11.1",
-    "size-limit": "^11.1.6",
-    "typescript": "5.6.2",
-    "vitest": "^1.0.4"
+    "size-limit": "^11.1.4",
+    "ts-morph": "^24.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "5.5.4",
+    "typescript-eslint": "^8.19.1",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "1.0.4",
+    "vocs": "1.0.0-alpha.62"
   },
-  "trustedDependencies": ["c-kzg"],
-  "packageManager": "pnpm@9.1.0",
+  "packageManager": "pnpm@9.15.3",
   "engines": {
-    "node": "22.x"
+    "node": ">=22"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm check"
   },
   "knip": {
-    "ignore": [".github/**", "environments/**", "vectors/**"],
+    "ignore": [
+      ".github/**",
+      "contracts/**",
+      "scripts/**",
+      "src/_test/**",
+      "site/**",
+      "test/**",
+      "vectors/**",
+      "src/package.json",
+      "tsdoc.config.js"
+    ],
     "ignoreBinaries": ["dev", "forge", "only-allow", "printf"],
-    "ignoreDependencies": ["bun", "@size-limit/preset-big-lib"],
-    "ignoreWorkspaces": ["examples/**", "test"],
+    "ignoreDependencies": ["@size-limit/preset-big-lib"],
     "vitest": {
       "config": ["test/vitest.config.ts"],
       "entry": ["**/*.{bench,bench-d,test,test-d,spec}.?(c|m)[jt]s?(x)"]
     },
     "workspaces": {
-      ".": {
-        "project": "scripts/*.ts"
-      },
       "src": {
-        "entry": [
-          "index.ts!",
-          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,linea,node,nonce,op-stack,siwe,utils,window,zksync}/index.ts!",
-          "chains/utils.ts!"
-        ],
-        "ignore": ["node/trustedSetups_cjs.ts"]
-      },
-      "site": {
-        "project": ["**/*.ts", "**/*.tsx"]
+        "entry": ["index.ts!"]
       }
+    }
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "size-limit@11.1.4": "patches/size-limit@11.1.4.patch"
     }
   },
   "size-limit": [
     {
-      "name": "import * from 'viem' (esm)",
+      "name": "import * from 'viem'",
       "path": "./src/_esm/index.js",
-      "limit": "66.5 kB",
       "import": "*"
-    },
-    {
-      "name": "const viem = require('viem') (cjs)",
-      "path": "./src/_cjs/index.js",
-      "limit": "78 kB"
-    },
-    {
-      "name": "import { createClient, http } from 'viem'",
-      "path": "./src/_esm/index.js",
-      "limit": "6.5 kB",
-      "import": "{ createClient, http }"
-    },
-    {
-      "name": "import * from 'viem/account-abstraction'",
-      "path": "./src/_esm/account-abstraction/index.js",
-      "limit": "47 kB",
-      "import": "*"
-    },
-    {
-      "name": "import { toCoinbaseSmartAccount } from 'viem/account-abstraction'",
-      "path": "./src/_esm/account-abstraction/index.js",
-      "limit": "37 kB",
-      "import": "{ toCoinbaseSmartAccount }"
-    },
-    {
-      "name": "import * from 'viem/accounts'",
-      "path": "./src/_esm/accounts/index.js",
-      "limit": "97 kB",
-      "import": "*"
-    },
-    {
-      "name": "import { privateKeyToAccount } from 'viem/accounts'",
-      "path": "./src/_esm/accounts/index.js",
-      "limit": "22 kB",
-      "import": "{ privateKeyToAccount }"
-    },
-    {
-      "name": "import { mnemonicToAccount } from 'viem/accounts'",
-      "path": "./src/_esm/accounts/index.js",
-      "limit": "30 kB",
-      "import": "{ mnemonicToAccount }"
-    },
-    {
-      "name": "import * from 'viem/actions'",
-      "path": "./src/_esm/actions/index.js",
-      "limit": "51 kB",
-      "import": "*"
-    },
-    {
-      "name": "import { getBlockNumber } from 'viem/actions'",
-      "path": "./src/_esm/actions/index.js",
-      "limit": "1 kB",
-      "import": "{ getBlockNumber }"
-    },
-    {
-      "name": "import * from 'viem/chains'",
-      "path": "./src/_esm/chains/index.js",
-      "limit": "45 kB",
-      "import": "*"
-    },
-    {
-      "name": "import { mainnet } from 'viem/chains'",
-      "path": "./src/_esm/chains/index.js",
-      "limit": "500 B",
-      "import": "{ mainnet }"
-    },
-    {
-      "name": "import * from 'viem/chains/utils'",
-      "path": "./src/_esm/chains/utils.js",
-      "limit": "8 kB",
-      "import": "*"
-    },
-    {
-      "name": "import * from 'viem/ens'",
-      "path": "./src/_esm/ens/index.js",
-      "limit": "48.5 kB",
-      "import": "*"
-    },
-    {
-      "name": "import { getEnsAvatar } from 'viem/ens'",
-      "path": "./src/_esm/ens/index.js",
-      "limit": "23 kB",
-      "import": "{ getEnsAvatar }"
-    },
-    {
-      "name": "import * from 'viem/siwe'",
-      "path": "./src/_esm/siwe/index.js",
-      "limit": "33 kB",
-      "import": "*"
-    },
-    {
-      "name": "import { verifySiweMessage } from 'viem/siwe'",
-      "path": "./src/_esm/siwe/index.js",
-      "limit": "32 kB",
-      "import": "{ verifySiweMessage }"
     }
-  ],
-  "pnpm": {
-    "overrides": {
-      "@opentelemetry/api@^1.8.0": "~1.7.0",
-      "hono@<4.2.7": "^4.2.7",
-      "ws@>=8.0.0 <8.17.1": "^8.17.1",
-      "ws@>=7.0.0 <7.5.10": "^7.5.10",
-      "hono@<4.5.8": "^4.5.8",
-      "micromatch@<4.0.8": "^4.0.8",
-      "permissionless>viem": "workspace:*",
-      "send@<0.19.0": "^0.19.0",
-      "serve-static@<1.16.0": "^1.16.0",
-      "cookie@<0.7.0": "^0.7.0",
-      "find-my-way@>=5.5.0 <8.2.2": "^8.2.2",
-      "cross-spawn@<6.0.6": ">=6.0.6",
-      "cross-spawn@>=7.0.0 <7.0.5": ">=7.0.5",
-      "smol-toml@<=1.3.0": ">=1.3.1"
-    }
-  }
+  ]
 }

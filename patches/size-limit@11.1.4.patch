@@ -1,0 +1,22 @@
+diff --git a/process-import.js b/process-import.js
+index 9e1e50f1fddaae677fefe8802d1454b05d3863cf..ae824a3c7c517d500ef3c2d02dfa3258c9a87c32 100644
+--- a/process-import.js
++++ b/process-import.js
+@@ -8,7 +8,16 @@ export async function processImport(check, output) {
+ 
+   let loader = ''
+   for (let i in check.import) {
+-    let imports = `${check.import[i]}`
++    let items = check.import[i]
++      .replace(/}|{/g, '')
++      .split(',')
++      .map((item) => item.trim())
++
++    let modules = items.map((item) => item.split('.'))
++    let imports = `{ ${Array.from(
++      new Set(modules.map((module) => module[0])),
++    ).join(', ')} }`
++
+     let list = check.import[i].replace(/}|{/g, '').trim()
+ 
+     if (check.import[i] === '*') {

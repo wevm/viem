@@ -1,66 +1,35 @@
 {
-  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
   "files": {
-    "ignore": [
-      "_cjs",
-      "_esm",
-      "_types",
-      ".next",
-      ".svelte-kit",
-      ".vercel",
-      "**/node_modules",
-      "CHANGELOG.md",
-      "bun.lockb",
-      "cache",
-      "contracts",
-      "test/kzg/*.json",
-      "test/kzg/*.txt",
-      "coverage",
-      "tsconfig.json",
-      "tsconfig.*.json",
-      "generated.ts",
-      "vectors/*.json",
-      "vectors/**/*.test.ts",
-      "wagmi",
-      "site/dist"
-    ]
+    "ignore": ["contracts/", "tsconfig.json", "tsconfig.*.json"]
+  },
+  "organizeImports": {
+    "enabled": true
   },
   "formatter": {
     "enabled": true,
-    "formatWithErrors": false,
     "indentStyle": "space",
-    "indentWidth": 2,
-    "lineWidth": 80
+    "indentWidth": 2
   },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true,
-      "a11y": {
-        "useButtonType": "off"
-      },
       "complexity": {
         "noBannedTypes": "off"
       },
-      "correctness": {
-        "noUnusedVariables": "error"
-      },
       "performance": {
-        "noBarrelFile": "error",
-        "noReExportAll": "error",
         "noDelete": "off"
       },
       "style": {
         "noNonNullAssertion": "off",
-        "useShorthandArrayType": "error"
+        "useTemplate": "off"
       },
       "suspicious": {
-        "noArrayIndexKey": "off",
         "noAssignInExpressions": "off",
-        "noConfusingVoidType": "off",
         "noConsoleLog": "error",
         "noExplicitAny": "off",
-        "noRedeclare": "off"
+        "noShadowRestrictedNames": "off"
       }
     }
   },
@@ -71,7 +40,9 @@
       "semicolons": "asNeeded"
     }
   },
-  "organizeImports": {
-    "enabled": true
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
   }
 }
