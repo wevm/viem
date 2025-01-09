@@ -274,8 +274,6 @@ Check out the following places for more viem-related content:
   </picture>
 </a>
 
-
-
 ## Contributing
 
 If you're interested in contributing, please read the [contributing docs](/.github/CONTRIBUTING.md) **before submitting a pull request**.
@@ -288,3 +286,11 @@ If you're interested in contributing, please read the [contributing docs](/.gith
 ## License
 
 [MIT](/LICENSE) License
+
+
+<br />
+<br />
+
+<a href="https://vercel.com/?utm_source=wevm&utm_campaign=oss">
+  <img src="https://www.datocms-assets.com/31049/1618983297-powered-by-vercel.svg" alt="Powered by Vercel" height="35">
+</a>
