@@ -7,7 +7,9 @@ description: Finalizes a withdrawal that occurred on an L2.
 
 Finalizes a withdrawal that occurred on an L2. Used in the Withdrawal flow.
 
-Internally performs a contract write to the [`finalizeWithdrawalTransaction` function](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol#L272) on the [Optimism Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol).
+Internally performs a contract write to the [`finalizeWithdrawalTransaction` function](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal2.sol#L383) on the [Optimism Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal2.sol).
+
+If the proof submitter is specified and the OptimismPortal contract version is v3 or greater, the [`finalizeWithdrawalTransactionExternalProof` function](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal2.sol#L390) function will be used to finalize the withdrawal with the provided address as the proof submitter.
 
 ## Usage
 
@@ -172,6 +174,23 @@ Gas limit for transaction execution on the L1.
 const hash = await client.finalizeWithdrawal({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   gas: 420_000n,  // [!code focus]
+  withdrawal: { /* ... */ },
+  targetChain: optimism,
+})
+```
+
+### proofSubmitter (optional)
+
+- **Type:** `Address`
+
+The address of the proof submitter to use when finalizing the withdrawal. No-op when the OptimismPortal contract version is less than v3.
+
+If unspecified, the sending account is the proof submitter.
+
+```ts
+const hash = await client.finalizeWithdrawal({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  proofSubmitter: '0xD15F47c16BD277ff2dee6a0bD4e418165231CB69', // [!code focus]
   withdrawal: { /* ... */ },
   targetChain: optimism,
 })

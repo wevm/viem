@@ -16,5 +16,11 @@ export const kroma = /*#__PURE__*/ defineChain({
       apiUrl: 'https://blockscout.kroma.network/api',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 16054868,
+    },
+  },
   testnet: false,
 })

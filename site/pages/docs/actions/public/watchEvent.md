@@ -339,7 +339,7 @@ Error thrown from listening for new Event Logs.
 // ---cut---
 const unwatch = publicClient.watchEvent(
   { 
-    onError: error => console.log(error) // [!code focus:1]
+    onError: error => console.log(error), // [!code focus:1]
     onLogs: logs => console.log(logs),
   }
 )

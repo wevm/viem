@@ -16,7 +16,7 @@ export const flowMainnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Mainnet Explorer',
-      url: 'https://flowdiver.io',
+      url: 'https://evm.flowscan.io',
     },
   },
   contracts: {

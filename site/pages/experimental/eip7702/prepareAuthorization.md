@@ -141,7 +141,7 @@ const authorization = await walletClient.prepareAuthorization({
 }) 
 ```
 
-### delegate (optional)
+### sponsor (optional)
 
 - **Type:** `true | Address | Account`
 
@@ -156,7 +156,7 @@ import { walletClient } from './client'
 const authorization = await walletClient.prepareAuthorization({
   account: privateKeyToAccount('0x...'),
   contractAddress: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  delegate: true, // [!code focus]
+  sponsor: true, // [!code focus]
 }) 
 ```
 

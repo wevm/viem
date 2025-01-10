@@ -16,7 +16,7 @@ import type {
 import type { Hash } from '../../types/misc.js'
 import type { UnionEvaluate, UnionOmit } from '../../types/utils.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
-import { portalAbi } from '../abis.js'
+import { portal2Abi, portalAbi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import type { Withdrawal } from '../types/withdrawal.js'
 import {
@@ -51,6 +51,11 @@ export type FinalizeWithdrawalParameters<
      * `null` to skip gas estimation & defer calculation to signer.
      */
     gas?: bigint | null | undefined
+    /**
+     * Finalize against a provided proof submitter.
+     * If unspecified, the sending account is the default.
+     */
+    proofSubmitter?: Address | null | undefined
     withdrawal: Withdrawal
   }
 export type FinalizeWithdrawalReturnType = Hash
@@ -98,6 +103,7 @@ export async function finalizeWithdrawal<
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
+    proofSubmitter,
     targetChain,
     withdrawal,
   } = parameters
@@ -116,13 +122,21 @@ export async function finalizeWithdrawal<
         )
       : undefined
 
+  const [functionName, args, abi] = proofSubmitter
+    ? [
+        'finalizeWithdrawalTransactionExternalProof',
+        [withdrawal, proofSubmitter],
+        portal2Abi,
+      ]
+    : ['finalizeWithdrawalTransaction', [withdrawal], portalAbi]
+
   return writeContract(client, {
     account: account!,
-    abi: portalAbi,
+    abi,
     address: portalAddress,
     chain,
-    functionName: 'finalizeWithdrawalTransaction',
-    args: [withdrawal],
+    functionName,
+    args,
     gas: gas_,
     maxFeePerGas,
     maxPriorityFeePerGas,

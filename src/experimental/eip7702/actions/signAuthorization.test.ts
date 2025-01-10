@@ -206,11 +206,11 @@ test('behavior: partial authorization: no chainId', async () => {
   ).toBe(true)
 })
 
-test('behavior: delegate is address', async () => {
+test('behavior: sponsor is address', async () => {
   const authorization = await signAuthorization(client, {
     account,
     contractAddress: wagmiContractConfig.address,
-    delegate: '0x0000000000000000000000000000000000000000',
+    sponsor: '0x0000000000000000000000000000000000000000',
   })
 
   expect(authorization.nonce).toBe(663)
@@ -222,11 +222,11 @@ test('behavior: delegate is address', async () => {
   ).toBe(true)
 })
 
-test('behavior: delegate is truthy', async () => {
+test('behavior: sponsor is truthy', async () => {
   const authorization = await signAuthorization(client, {
     account,
     contractAddress: wagmiContractConfig.address,
-    delegate: true,
+    sponsor: true,
   })
 
   expect(authorization.nonce).toBe(663)
@@ -238,11 +238,11 @@ test('behavior: delegate is truthy', async () => {
   ).toBe(true)
 })
 
-test('behavior: account as delegate', async () => {
+test('behavior: account as sponsor', async () => {
   const authorization = await signAuthorization(client, {
     account,
     contractAddress: wagmiContractConfig.address,
-    delegate: account,
+    sponsor: account,
   })
 
   expect(authorization.nonce).toBe(664)
