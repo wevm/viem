@@ -26,12 +26,16 @@ export type PrepareAuthorizationParameters<
 > = GetAccountParameter<account> &
   PartialBy<Authorization, 'chainId' | 'nonce'> & {
     /**
+     * @deprecated Use `sponsor` instead.
+     */
+    delegate?: true | Address | Account | undefined
+    /**
      * Whether the EIP-7702 Transaction will be executed by another Account.
      *
      * If not specified, it will be assumed that the EIP-7702 Transaction will
      * be executed by the Account that signed the Authorization.
      */
-    delegate?: true | Address | Account | undefined
+    sponsor?: true | Address | Account | undefined
   }
 
 export type PrepareAuthorizationReturnType = Authorization
@@ -95,7 +99,6 @@ export async function prepareAuthorization<
     contractAddress,
     chainId,
     nonce,
-    delegate: delegate_,
   } = parameters
 
   if (!account_)
@@ -104,9 +107,10 @@ export async function prepareAuthorization<
     })
   const account = parseAccount(account_)
 
-  const delegate = (() => {
-    if (typeof delegate_ === 'boolean') return delegate_
-    if (delegate_) return parseAccount(delegate_)
+  const sponsor = (() => {
+    const sponsor_ = parameters.sponsor ?? parameters.delegate
+    if (typeof sponsor_ === 'boolean') return sponsor_
+    if (sponsor_) return parseAccount(sponsor_)
     return undefined
   })()
 
@@ -131,8 +135,8 @@ export async function prepareAuthorization<
       blockTag: 'pending',
     })
     if (
-      !delegate ||
-      (delegate !== true && isAddressEqual(account.address, delegate.address))
+      !sponsor ||
+      (sponsor !== true && isAddressEqual(account.address, sponsor.address))
     )
       authorization.nonce += 1
   }

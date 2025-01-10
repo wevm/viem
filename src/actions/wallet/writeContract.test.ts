@@ -220,8 +220,8 @@ test('args: authorizationList', async () => {
   ).toBe(balance_recipient + parseEther('1'))
 })
 
-test('args: authorizationList (delegate)', async () => {
-  const delegate = privateKeyToAccount(accounts[0].privateKey)
+test('args: authorizationList (sponsor)', async () => {
+  const sponsor = privateKeyToAccount(accounts[0].privateKey)
   const authority = privateKeyToAccount(accounts[1].privateKey)
   const recipient = privateKeyToAccount(generatePrivateKey())
 
@@ -240,12 +240,12 @@ test('args: authorizationList (delegate)', async () => {
   const authorization = await signAuthorization(client, {
     account: authority,
     contractAddress: contractAddress!,
-    delegate,
+    sponsor,
   })
 
   const hash = await writeContract(client, {
     abi: BatchCallDelegation.abi,
-    account: delegate,
+    account: sponsor,
     address: authority.address,
     authorizationList: [authorization],
     functionName: 'execute',

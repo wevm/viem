@@ -154,7 +154,7 @@ contract BatchCallDelegation {
 
 **DO NOT USE IN PRODUCTION**
 
-This contract is for demonstration purposes only to show how EIP-7702 works. If a [delegate is executing calls](#5-optional-use-a-delegate) on behalf of the Account, it does not implement a nonce & signature verification mechanism to prevent replay attacks.
+This contract is for demonstration purposes only to show how EIP-7702 works. If [someone else (Sponsor Account) is executing calls](#5-optional-use-a-sponsor) on behalf of the Account, it does not implement a nonce & signature verification mechanism to prevent replay attacks.
 
 :::
 
@@ -330,9 +330,9 @@ export const walletClient = createWalletClient({
 
 :::
 
-### 5. Optional: Use a Delegate
+### 5. Optional: Use a Sponsor
 
-We can also utilize an Delegate Account to execute a call on behalf of the authorizing Account. This is useful for cases where we want to "sponsor" the Transaction for the user (i.e. pay for their gas fees).
+We can also utilize an Sponsor Account to execute a call on behalf of the authorizing Account. This is useful for cases where we want to "sponsor" the Transaction for the user (i.e. pay for their gas fees).
 
 :::code-group
 
@@ -341,11 +341,11 @@ import { parseEther } from 'viem'
 import { walletClient } from './config'
 import { abi, contractAddress } from './contract'
 
-const delegate = privateKeyToAccount('0x...') // [!code ++]
+const sponsor = privateKeyToAccount('0x...') // [!code ++]
 
 const authorization = await walletClient.signAuthorization({
   contractAddress,
-  delegate, // [!code ++]
+  sponsor, // [!code ++]
 })
 
 const hash = await walletClient.writeContract({
