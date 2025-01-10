@@ -1,5 +1,15 @@
 # viem
 
+## 2.22.6
+
+### Patch Changes
+
+- [#3209](https://github.com/wevm/viem/pull/3209) [`b0971fa96103094fb71447f36e43a034c465b80b`](https://github.com/wevm/viem/commit/b0971fa96103094fb71447f36e43a034c465b80b) Thanks [@hello-jdj](https://github.com/hello-jdj)! - Added Multicall address to Kroma.
+
+- [#3212](https://github.com/wevm/viem/pull/3212) [`14d850b1cb45474cd76e60fa0785d8e9c57ddb4b`](https://github.com/wevm/viem/commit/14d850b1cb45474cd76e60fa0785d8e9c57ddb4b) Thanks [@wei-b0](https://github.com/wei-b0)! - Added Huddle01 chain.
+
+- [`fd17ba92ee54af65a841823daab58991bfeb76c0`](https://github.com/wevm/viem/commit/fd17ba92ee54af65a841823daab58991bfeb76c0) Thanks [@jxom](https://github.com/jxom)! - **Experimental(EIP-7702):** Renamed `delegate` to `sponsor` on `signAuthorization`.
+
 ## 2.22.5
 
 ### Patch Changes
