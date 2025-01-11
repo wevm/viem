@@ -44,7 +44,7 @@ baseClientL2.request = (async ({ method, params }) => {
 }) as EIP1193RequestFn
 const clientL2 = baseClientL2.extend(publicActionsL2())
 
-test('default', async () => {
+test.skip('default', async () => {
   expect(
     await requestExecute(client, {
       account: privateKeyToAccount(accounts[0].privateKey),

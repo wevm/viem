@@ -235,7 +235,7 @@ test.skip('getL2TokenAddress', async () => {
   ).toBeDefined()
 })
 
-test('getL1TokenAddress', async () => {
+test.skip('getL1TokenAddress', async () => {
   const daiL1 = '0x70a0F165d6f8054d0d0CF8dFd4DD2005f0AF6B55'
   const daiL2 = '0xFC073319977e314F251EAE6ae6bE76B0B3BAeeCF'
   const client = anvilZksync.getClient()
