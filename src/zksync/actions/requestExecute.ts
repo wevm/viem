@@ -1,5 +1,4 @@
 import type { Address } from 'abitype'
-import type { Hex } from '../../types/misc.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import type { Account } from '../../accounts/types.js'
 import { privateKeyToAddress } from '../../accounts/utils/privateKeyToAddress.js'
@@ -21,6 +20,7 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../types/chain.js'
+import type { Hex } from '../../types/misc.js'
 import type { UnionEvaluate, UnionOmit } from '../../types/utils.js'
 import {
   type FormattedTransactionRequest,

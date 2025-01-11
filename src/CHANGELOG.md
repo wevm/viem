@@ -1,5 +1,13 @@
 # viem
 
+## 2.22.7
+
+### Patch Changes
+
+- [#3164](https://github.com/wevm/viem/pull/3164) [`8160d4212c496be8857e84ed2501a6956b1a3ead`](https://github.com/wevm/viem/commit/8160d4212c496be8857e84ed2501a6956b1a3ead) Thanks [@danijelTxFusion](https://github.com/danijelTxFusion)! - **ZKSync Extension:** Added `requestExecute` wallet action and `getL2HashFromPriorityOp` utility function.
+
+- [#3213](https://github.com/wevm/viem/pull/3213) [`6b44506c15dd7a1635cb36e46149e0617cf2926e`](https://github.com/wevm/viem/commit/6b44506c15dd7a1635cb36e46149e0617cf2926e) Thanks [@Gwen-M](https://github.com/Gwen-M)! - Deprecated Linea Goerli chain.
+
 ## 2.22.6
 
 ### Patch Changes
