@@ -1,5 +1,5 @@
 ---
-"viem": minor
+"viem": patch
 ---
 
-Added `requestExecute` wallet action and `getL2HashFromPriorityOp` util function in ZKsync extension
+**ZKSync Extension:** Added `requestExecute` wallet action and `getL2HashFromPriorityOp` utility function.
