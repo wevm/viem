@@ -72,7 +72,7 @@ test('domain: bigint value for chainId', () => {
       primaryType: 'Mail',
     }),
   ).toMatchInlineSnapshot(
-    '"0x14ed1dbbfecbe5de3919f7ea47daafdf3a29dfbb60dd88d85509f79773d503a5"',
+    '"0xb7cb45cf19c056d355e5d807ba0eac8cd5b4a7193f7ed978f4f9339f76cdf4d9"',
   )
 })
 
