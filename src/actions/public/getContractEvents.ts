@@ -89,7 +89,7 @@ export type GetContractEventsErrorType =
 /**
  * Returns a list of event logs emitted by a contract.
  *
- * - Docs: https://viem.sh/docs/actions/public/getContractEvents
+ * - Docs: https://viem.sh/docs/contract/getContractEvents#getcontractevents
  * - JSON-RPC Methods: [`eth_getLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getlogs)
  *
  * @param client - Client to use
