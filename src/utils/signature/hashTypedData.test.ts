@@ -238,6 +238,29 @@ test('wrong domain value', () => {
   `)
 })
 
+test('wrong domain value with extraneous attributes', () => {
+  expect(() =>
+    hashTypedData({
+      ...typedData.complex,
+      domain: {
+        0: 'W',
+        1: 'R',
+        2: 'O',
+        3: 'N',
+        4: 'G',
+        chainId: 1,
+      } as unknown as Record<string, unknown>,
+      primaryType: 'Mail',
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [BaseError: Invalid domain "{"0":"W","1":"R","2":"O","3":"N","4":"G","chainId":1}".
+
+    Must be a valid EIP-712 domain.
+
+    Version: viem@x.y.z]
+  `)
+})
+
 test('https://github.com/wevm/viem/issues/2888', () => {
   expect(() =>
     hashTypedData({

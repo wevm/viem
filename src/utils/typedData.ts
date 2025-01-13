@@ -124,6 +124,17 @@ export function validateTypedData<
   // Validate domain types.
   if (types.EIP712Domain && domain) {
     if (typeof domain !== 'object') throw new InvalidDomainError({ domain })
+      
+    const expectedDomainKeys = Object.keys({} as TypedDataDomain);
+    const domainKeys = Object.keys(domain);
+
+    // Check for unexpected keys
+    for (const key of domainKeys) {
+        if (!expectedDomainKeys.includes(key)) {
+          throw new InvalidDomainError({ domain })
+        }
+    }
+    
     validateData(types.EIP712Domain, domain)
   }
 
