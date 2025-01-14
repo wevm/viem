@@ -1,5 +1,11 @@
 # viem
 
+## 2.22.8
+
+### Patch Changes
+
+- [#3216](https://github.com/wevm/viem/pull/3216) [`7ad24ff6cb1770a1f5ad4d9c99bfee9fd99b12b5`](https://github.com/wevm/viem/commit/7ad24ff6cb1770a1f5ad4d9c99bfee9fd99b12b5) Thanks [@Hebx](https://github.com/Hebx)! - Added Citrea Testnet chain.
+
 ## 2.22.7
 
 ### Patch Changes

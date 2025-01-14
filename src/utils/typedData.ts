@@ -159,7 +159,8 @@ export function getTypesForEIP712Domain({
   return [
     typeof domain?.name === 'string' && { name: 'name', type: 'string' },
     domain?.version && { name: 'version', type: 'string' },
-    typeof domain?.chainId === 'number' && {
+    (typeof domain?.chainId === 'number' ||
+      typeof domain?.chainId === 'bigint') && {
       name: 'chainId',
       type: 'uint256',
     },
