@@ -84,12 +84,12 @@ export function validateTypedData<
     data: Record<string, unknown>,
   ) => {
     // Extract the names from the struct
-    const structNames = struct.map(param => param.name);
+    const structNames = struct.map((param) => param.name)
 
     // Check that all keys in data are included in the names at struct
     for (const key of Object.keys(data)) {
       if (!structNames.includes(key)) {
-        throw new ExtraneousDataError(data);
+        throw new ExtraneousDataError(data)
       }
     }
   }
@@ -98,7 +98,7 @@ export function validateTypedData<
     struct: readonly TypedDataParameter[],
     data: Record<string, unknown>,
   ) => {
-    validateExtraneousData(struct, data);
+    validateExtraneousData(struct, data)
     for (const param of struct) {
       const { name, type } = param
       const value = data[name]
