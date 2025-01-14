@@ -253,9 +253,9 @@ test('wrong domain value with extraneous attributes', () => {
       primaryType: 'Mail',
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [BaseError: Invalid domain "{"0":"W","1":"R","2":"O","3":"N","4":"G","chainId":1}".
+    [BaseError: Extraneous attribute(s) found in data: {"0":"W","1":"R","2":"O","3":"N","4":"G","chainId":1}.
 
-    Must be a valid EIP-712 domain.
+    Must be valid EIP-712 data.
 
     Version: viem@x.y.z]
   `)

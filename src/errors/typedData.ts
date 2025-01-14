@@ -43,3 +43,11 @@ export class InvalidStructTypeError extends BaseError {
     })
   }
 }
+
+export class ExtraneousDataError extends BaseError {
+  constructor(data: Record<string, unknown>) {
+    super(`Extraneous attribute(s) found in data: ${JSON.stringify(data)}.`, {
+      metaMessages: ['Must be valid EIP-712 data.'],
+    })
+  }
+}

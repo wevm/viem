@@ -3,6 +3,7 @@ import type { TypedData, TypedDataDomain, TypedDataParameter } from 'abitype'
 import { BytesSizeMismatchError } from '../errors/abi.js'
 import { InvalidAddressError } from '../errors/address.js'
 import {
+  ExtraneousDataError,
   InvalidDomainError,
   InvalidPrimaryTypeError,
   InvalidStructTypeError,
@@ -78,10 +79,26 @@ export function validateTypedData<
   const { domain, message, primaryType, types } =
     parameters as unknown as TypedDataDefinition
 
+  const validateExtraneousData = (
+    struct: readonly TypedDataParameter[],
+    data: Record<string, unknown>,
+  ) => {
+    // Extract the names from the struct
+    const structNames = struct.map(param => param.name);
+
+    // Check that all keys in data are included in the names at struct
+    for (const key of Object.keys(data)) {
+      if (!structNames.includes(key)) {
+        throw new ExtraneousDataError(data);
+      }
+    }
+  }
+
   const validateData = (
     struct: readonly TypedDataParameter[],
     data: Record<string, unknown>,
   ) => {
+    validateExtraneousData(struct, data);
     for (const param of struct) {
       const { name, type } = param
       const value = data[name]
@@ -124,23 +141,6 @@ export function validateTypedData<
   // Validate domain types.
   if (types.EIP712Domain && domain) {
     if (typeof domain !== 'object') throw new InvalidDomainError({ domain })
-
-    const expectedDomainKeys = [
-      'name',
-      'version',
-      'chainId',
-      'verifyingContract',
-      'salt',
-    ]
-    const domainKeys = Object.keys(domain)
-
-    // Check for unexpected keys
-    for (const key of domainKeys) {
-      if (!expectedDomainKeys.includes(key)) {
-        throw new InvalidDomainError({ domain })
-      }
-    }
-
     validateData(types.EIP712Domain, domain)
   }
 
