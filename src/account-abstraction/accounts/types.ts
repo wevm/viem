@@ -1,5 +1,5 @@
 import type { Abi, Address, TypedData } from 'abitype'
-import type { SignReturnType as WebAuthnSignReturnType } from 'webauthn-p256'
+import type * as WebAuthnP256 from 'ox/WebAuthnP256'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Hash, Hex, SignableMessage } from '../../types/misc.js'
@@ -218,6 +218,13 @@ export type SmartAccount<
     }
   >
 >
+
+// TODO(v3): Remove this in favor of `WebAuthnP256.sign.ReturnType` from Ox.
+export type WebAuthnSignReturnType = {
+  signature: Hex
+  webauthn: WebAuthnP256.SignMetadata
+  raw: WebAuthnP256.sign.ReturnType['raw']
+}
 
 export type WebAuthnAccount = {
   id: string
