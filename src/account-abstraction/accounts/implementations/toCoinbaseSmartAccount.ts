@@ -1,8 +1,5 @@
 import type { Address, TypedData } from 'abitype'
-import {
-  type WebAuthnData,
-  parseSignature as parseP256Signature,
-} from 'webauthn-p256'
+import { WebAuthnP256 } from 'ox'
 
 import type { LocalAccount } from '../../../accounts/types.js'
 import { readContract } from '../../../actions/public/readContract.js'
@@ -18,10 +15,11 @@ import { encodeFunctionData } from '../../../utils/abi/encodeFunctionData.js'
 import { encodePacked } from '../../../utils/abi/encodePacked.js'
 import { pad } from '../../../utils/data/pad.js'
 import { size } from '../../../utils/data/size.js'
-import { stringToHex } from '../../../utils/encoding/toHex.js'
+import { stringToHex, toHex } from '../../../utils/encoding/toHex.js'
 import { hashMessage } from '../../../utils/signature/hashMessage.js'
 import { hashTypedData } from '../../../utils/signature/hashTypedData.js'
 import { parseSignature } from '../../../utils/signature/parseSignature.js'
+import { serializeSignature } from '../../../utils/signature/serializeSignature.js'
 import { entryPoint06Abi } from '../../constants/abis.js'
 import type { UserOperation } from '../../types/userOperation.js'
 import { getUserOperationHash } from '../../utils/userOperation/getUserOperationHash.js'
@@ -275,10 +273,10 @@ export async function sign({
 }: { hash: Hash; owner: OneOf<LocalAccount | WebAuthnAccount> }) {
   // WebAuthn Account (Passkey)
   if (owner.type === 'webAuthn') {
-    const { signature, webauthn } = await owner.sign({
+    const { signature, metadata: webauthn } = await owner.sign({
       hash,
     })
-    return toWebAuthnSignature({ signature, webauthn })
+    return toWebAuthnSignature({ signature: serializeSignature({ r: toHex(signature.r), s: toHex(signature.s), yParity: signature.yParity!, v: undefined, to: 'hex' }), webauthn })
   }
 
   if (owner.sign) return owner.sign({ hash })
@@ -319,10 +317,10 @@ export function toWebAuthnSignature({
   webauthn,
   signature,
 }: {
-  webauthn: WebAuthnData
+  webauthn: WebAuthnP256.SignMetadata
   signature: Hex
 }) {
-  const { r, s } = parseP256Signature(signature)
+  const { r, s } =  parseSignature(signature)
   return encodeAbiParameters(
     [
       {
@@ -352,8 +350,8 @@ export function toWebAuthnSignature({
         clientDataJSON: stringToHex(webauthn.clientDataJSON),
         challengeIndex: BigInt(webauthn.challengeIndex),
         typeIndex: BigInt(webauthn.typeIndex),
-        r,
-        s,
+        r: BigInt(r),
+        s: BigInt(s),
       },
     ],
   )

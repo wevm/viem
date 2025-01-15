@@ -1,9 +1,9 @@
 // biome-ignore lint/performance/noBarrelFile: entrypoint
 export {
-  type CreateWebAuthnCredentialParameters,
-  type CreateWebAuthnCredentialReturnType,
+  type CreateCredentialParameters as CreateWebAuthnCredentialParameters,
+  type CreateCredentialReturnType as CreateWebAuthnCredentialReturnType,
   type P256Credential,
-  createWebAuthnCredential,
+  createCredential as createWebAuthnCredential,
 } from './accounts/createWebAuthnCredential.js'
 export {
   type CoinbaseSmartAccountImplementation,

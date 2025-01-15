@@ -561,9 +561,6 @@ importers:
       ox:
         specifier: 0.6.0
         version: 0.6.0(typescript@5.7.3)(zod@3.23.8)
-      webauthn-p256:
-        specifier: 0.0.10
-        version: 0.0.10
       ws:
         specifier: 8.18.0
         version: 8.18.0
@@ -5434,6 +5431,14 @@ packages:
       typescript:
         optional: true
 
+  viem@2.22.8:
+    resolution: {integrity: sha512-iB3PW/a/qzpYbpjo3R662u6a/zo6piZHez/N/bOC25C79FYXBCs8mQDqwiHk3FYErUhS4KVZLabKV9zGMd+EgQ==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   viem@file:src:
     resolution: {directory: src, type: directory}
     peerDependencies:
@@ -6690,7 +6695,7 @@ snapshots:
       pino-http: 8.6.1
       pino-pretty: 10.3.1
       prom-client: 14.2.0
-      viem: 2.22.7(typescript@5.6.2)(zod@3.23.8)
+      viem: 2.22.8(typescript@5.6.2)(zod@3.23.8)
       yargs: 17.7.2
       zod: 3.23.8
       zod-validation-error: 1.5.0(zod@3.23.8)
@@ -11295,7 +11300,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@file:src(typescript@5.6.2)(zod@3.23.8):
+  viem@2.22.8(typescript@5.6.2)(zod@3.23.8):
     dependencies:
       '@noble/curves': 1.7.0
       '@noble/hashes': 1.6.1
@@ -11305,6 +11310,23 @@ snapshots:
       isows: 1.0.6(ws@8.18.0)
       ox: 0.6.0(typescript@5.6.2)(zod@3.23.8)
       webauthn-p256: 0.0.10
+      ws: 8.18.0
+    optionalDependencies:
+      typescript: 5.6.2
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+      - zod
+
+  viem@file:src(typescript@5.6.2)(zod@3.23.8):
+    dependencies:
+      '@noble/curves': 1.7.0
+      '@noble/hashes': 1.6.1
+      '@scure/bip32': 1.6.0
+      '@scure/bip39': 1.5.0
+      abitype: 1.0.7(typescript@5.6.2)(zod@3.23.8)
+      isows: 1.0.6(ws@8.18.0)
+      ox: 0.6.0(typescript@5.6.2)(zod@3.23.8)
       ws: 8.18.0
     optionalDependencies:
       typescript: 5.6.2

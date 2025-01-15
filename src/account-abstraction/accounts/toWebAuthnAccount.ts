@@ -1,5 +1,4 @@
-import { type P256Credential, type SignParameters, sign } from 'webauthn-p256'
-
+import { PublicKey, WebAuthnP256 } from 'ox'
 import type { ErrorType } from '../../errors/utils.js'
 import { hashMessage } from '../../utils/signature/hashMessage.js'
 import { hashTypedData } from '../../utils/signature/hashTypedData.js'
@@ -10,8 +9,8 @@ export type ToWebAuthnAccountParameters = {
    * The WebAuthn P256 credential to use.
    */
   credential: {
-    id: P256Credential['id']
-    publicKey: P256Credential['publicKey']
+    id: WebAuthnP256.P256Credential['id']
+    publicKey: WebAuthnP256.P256Credential['publicKey']
   }
   /**
    * Credential request function. Useful for environments that do not support
@@ -19,11 +18,11 @@ export type ToWebAuthnAccountParameters = {
    *
    * @default window.navigator.credentials.get
    */
-  getFn?: SignParameters['getFn'] | undefined
+  getFn?: WebAuthnP256.sign.Options['getFn'] | undefined
   /**
    * The relying party identifier to use.
    */
-  rpId?: SignParameters['rpId'] | undefined
+  rpId?: WebAuthnP256.sign.Options['rpId'] | undefined
 }
 
 export type ToWebAuthnAccountReturnType = WebAuthnAccount
@@ -42,9 +41,9 @@ export function toWebAuthnAccount(
   const { id, publicKey } = parameters.credential
   return {
     id,
-    publicKey,
+    publicKey: PublicKey.toHex(publicKey),
     async sign({ hash }) {
-      return sign({ credentialId: id, getFn, hash, rpId })
+      return WebAuthnP256.sign({ credentialId: id, getFn, challenge: hash, rpId })
     },
     async signMessage({ message }) {
       return this.sign({ hash: hashMessage(message) })

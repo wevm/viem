@@ -1,5 +1,5 @@
 import type { Abi, Address, TypedData } from 'abitype'
-import type { SignReturnType as WebAuthnSignReturnType } from 'webauthn-p256'
+import { WebAuthnP256 } from 'ox'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Hash, Hex, SignableMessage } from '../../types/misc.js'
@@ -222,15 +222,15 @@ export type SmartAccount<
 export type WebAuthnAccount = {
   id: string
   publicKey: Hex
-  sign: ({ hash }: { hash: Hash }) => Promise<WebAuthnSignReturnType>
+  sign: ({ hash }: { hash: Hash }) => ReturnType<typeof WebAuthnP256.sign>
   signMessage: ({
     message,
-  }: { message: SignableMessage }) => Promise<WebAuthnSignReturnType>
+  }: { message: SignableMessage }) => ReturnType<typeof WebAuthnP256.sign>
   signTypedData: <
     const typedData extends TypedDataDefinition | Record<string, unknown>,
     primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
   >(
     typedDataDefinition: TypedDataDefinition<typedData, primaryType>,
-  ) => Promise<WebAuthnSignReturnType>
+  ) => ReturnType<typeof WebAuthnP256.sign>
   type: 'webAuthn'
 }
