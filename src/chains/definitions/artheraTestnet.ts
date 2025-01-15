@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const artheraTestnet = /*#__PURE__*/ defineChain({
-  id: 10242,
+  id: 10243,
   name: 'Arthera Testnet',
   nativeCurrency: { name: 'Arthera', symbol: 'AA', decimals: 18 },
   rpcUrls: {
