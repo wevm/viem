@@ -104,12 +104,6 @@ export default defineConfig({
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/zksync-light.svg',
           },
-          {
-            name: 'Brave',
-            link: 'https://brave.com',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/brave-light.svg',
-          },
         ],
         [
           {
@@ -123,11 +117,6 @@ export default defineConfig({
             link: 'https://routescan.io',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/routescan-light.svg',
-          },
-          {
-            name: '',
-            link: 'https://github.com/sponsors/wevm',
-            image: '',
           },
         ],
       ],
@@ -260,35 +249,30 @@ export default defineConfig({
             link: 'https://thirdweb.com',
           },
           {
-            name: 'Uxuy',
-            image:
-              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/uxuy-light.svg',
-            link: 'https://uxuy.com',
-          },
-        ],
-        [
-          {
             name: 'Polymarket',
             link: 'https://polymarket.com',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/polymarket-light.svg',
           },
-          {
-            name: '',
-            link: 'https://github.com/sponsors/wevm',
-            image: '',
-          },
-          {
-            name: '',
-            link: 'https://github.com/sponsors/wevm',
-            image: '',
-          },
-          {
-            name: '',
-            link: 'https://github.com/sponsors/wevm',
-            image: '',
-          },
         ],
+        // [
+        //
+        //   {
+        //     name: '',
+        //     link: 'https://github.com/sponsors/wevm',
+        //     image: '',
+        //   },
+        //   {
+        //     name: '',
+        //     link: 'https://github.com/sponsors/wevm',
+        //     image: '',
+        //   },
+        //   {
+        //     name: '',
+        //     link: 'https://github.com/sponsors/wevm',
+        //     image: '',
+        //   },
+        // ],
       ],
     },
   ],
