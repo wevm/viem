@@ -2,7 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const alephZeroTestnet = /*#__PURE__*/ defineChain({
   id: 2039,
-  name: 'Aleph Zero',
+  name: 'Aleph Zero Testnet',
   nativeCurrency: { name: 'TZERO', symbol: 'TZERO', decimals: 18 },
   rpcUrls: {
     default: {
