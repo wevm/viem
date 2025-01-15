@@ -14,6 +14,7 @@ import {
   optimism, // [!code hl]
   optimismGoerli, // [!code hl]
   optimismSepolia, // [!code hl]
+  soneium, // [!code hl]
   soneiumMinato, // [!code hl]
   zircuit, // [!code hl]
   zircuitTestnet, // [!code hl]
