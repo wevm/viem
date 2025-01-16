@@ -70,6 +70,9 @@ importers:
       knip:
         specifier: ^5.41.1
         version: 5.41.1(@types/node@22.10.5)(typescript@5.5.4)
+      ox:
+        specifier: 0.6.0
+        version: 0.6.0(typescript@5.5.4)(zod@3.23.8)
       prool:
         specifier: ^0.0.16
         version: 0.0.16
@@ -6836,6 +6839,11 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
+  abitype@1.0.6(typescript@5.5.4)(zod@3.23.8):
+    optionalDependencies:
+      typescript: 5.5.4
+      zod: 3.23.8
+
   abitype@1.0.6(typescript@5.7.2)(zod@3.23.8):
     optionalDependencies:
       typescript: 5.7.2
@@ -8997,6 +9005,20 @@ snapshots:
   outdent@0.5.0: {}
 
   outdent@0.8.0: {}
+
+  ox@0.6.0(typescript@5.5.4)(zod@3.23.8):
+    dependencies:
+      '@adraffy/ens-normalize': 1.10.1
+      '@noble/curves': 1.6.0
+      '@noble/hashes': 1.5.0
+      '@scure/bip32': 1.5.0
+      '@scure/bip39': 1.4.0
+      abitype: 1.0.6(typescript@5.5.4)(zod@3.23.8)
+      eventemitter3: 5.0.1
+    optionalDependencies:
+      typescript: 5.5.4
+    transitivePeerDependencies:
+      - zod
 
   ox@0.6.0(typescript@5.7.2)(zod@3.23.8):
     dependencies:

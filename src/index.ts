@@ -3,17 +3,20 @@
 export type {}
 
 /**
- * TODO.
+ * Utilities for instantiating Clients.
  *
  * @example
- * ### Todo
+ * ### Instantiating a Client
  *
  * ```ts twoslash
- * import { Todo } from 'viem'
+ * import { Client } from 'viem'
  *
- * const todo = Todo.todo()
+ * const client = Client.from({
+ *   chain: 'TODO',
+ *   transport: 'TODO',
+ * })
  * ```
  *
- * @category Todo
+ * @category General
  */
-export * as Todo from './core/Todo.js'
+export * as Client from './core/Client.js'

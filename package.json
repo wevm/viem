@@ -57,6 +57,7 @@
     "eslint-plugin-tsdoc": "^0.3.0",
     "fs-extra": "^11.2.0",
     "knip": "^5.41.1",
+    "ox": "0.6.0",
     "prool": "^0.0.16",
     "rimraf": "^5.0.10",
     "sherif": "^0.11.0",

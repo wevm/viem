@@ -28,6 +28,7 @@
       "suspicious": {
         "noAssignInExpressions": "off",
         "noConsoleLog": "error",
+        "noConfusingVoidType": "off",
         "noExplicitAny": "off",
         "noShadowRestrictedNames": "off"
       }

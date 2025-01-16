@@ -38,11 +38,19 @@ export default defineConfig({
     '/': [
       { text: 'Introduction', link: '/' },
       {
+        text: 'Guides',
+        items: [{ text: 'TODO', link: '/todo' }],
+      },
+      {
         text: 'API Reference',
         items: [
           {
             text: 'Core',
             link: '/api',
+          },
+          {
+            text: 'Utilities',
+            link: '/utilities',
           },
         ],
       },
