@@ -10,7 +10,7 @@
     "build:trustedSetups:start": "mv src/node/trustedSetups.ts src/node/trustedSetups_esm.ts && mv src/node/trustedSetups_cjs.ts src/node/trustedSetups.ts",
     "build:trustedSetups:end": "mv src/node/trustedSetups.ts src/node/trustedSetups_cjs.ts && mv src/node/trustedSetups_esm.ts src/node/trustedSetups.ts",
     "build:types": "tsc --project ./tsconfig.build.json --declarationDir ./src/_types --emitDeclarationOnly --declaration --declarationMap",
-    "changeset:prepublish": "pnpm version:update && bun scripts/prepublishOnly.ts && pnpm build",
+    "changeset:prepublish": "pnpm version:update && pnpm build && bun scripts/prepublishOnly.ts",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish",
     "changeset:version": "pnpm install --lockfile-only && changeset version && pnpm version:update && pnpm check",
     "clean": "rm -rf *.tsbuildinfo src/*.tsbuildinfo src/_esm src/_cjs src/_types",
