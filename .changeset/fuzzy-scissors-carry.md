@@ -2,4 +2,4 @@
 "viem": minor
 ---
 
-Added `withdraw` action in ZKsync extension
+**ZKsync Extension:** Added `withdraw` action.
