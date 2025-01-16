@@ -1789,6 +1789,15 @@ export const sidebar = {
         ],
       },
       {
+        text: 'L2 Wallet Actions',
+        items: [
+          {
+            text: 'withdraw',
+            link: '/zksync/actions/withdraw',
+          },
+        ],
+      },
+      {
         text: 'L1 Wallet Actions',
         items: [
           {
