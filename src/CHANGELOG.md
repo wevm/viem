@@ -1,5 +1,17 @@
 # viem
 
+## 2.22.9
+
+### Patch Changes
+
+- [#3232](https://github.com/wevm/viem/pull/3232) [`e1df486b02e62a9a9890752d42141671c0f37e25`](https://github.com/wevm/viem/commit/e1df486b02e62a9a9890752d42141671c0f37e25) Thanks [@jxom](https://github.com/jxom)! - Upgraded WebAuthn Accounts to use `ox` instead of `webauthn-p256`.
+
+- [#3226](https://github.com/wevm/viem/pull/3226) [`6f1e1090d2e3513b3e1056482b4caefa2f02235e`](https://github.com/wevm/viem/commit/6f1e1090d2e3513b3e1056482b4caefa2f02235e) Thanks [@Maar-io](https://github.com/Maar-io)! - Adding Soneium mainnet
+
+- [#3228](https://github.com/wevm/viem/pull/3228) [`06316558a3a968acd216d241fc76a956a6b062b4`](https://github.com/wevm/viem/commit/06316558a3a968acd216d241fc76a956a6b062b4) Thanks [@hello-jdj](https://github.com/hello-jdj)! - Added Arthera Testnet.
+
+- [#3224](https://github.com/wevm/viem/pull/3224) [`1a235e6cb2b6aaf61c69e1ac4c24f3c4f0e383ac`](https://github.com/wevm/viem/commit/1a235e6cb2b6aaf61c69e1ac4c24f3c4f0e383ac) Thanks [@paouvrard](https://github.com/paouvrard)! - Added NEAR Protocol chains.
+
 ## 2.22.8
 
 ### Patch Changes
