@@ -1,8 +1,6 @@
 import type { Address, TypedData } from 'abitype'
-import {
-  type WebAuthnData,
-  parseSignature as parseP256Signature,
-} from 'webauthn-p256'
+import * as Signature from 'ox/Signature'
+import type * as WebAuthnP256 from 'ox/WebAuthnP256'
 
 import type { LocalAccount } from '../../../accounts/types.js'
 import { readContract } from '../../../actions/public/readContract.js'
@@ -319,10 +317,10 @@ export function toWebAuthnSignature({
   webauthn,
   signature,
 }: {
-  webauthn: WebAuthnData
+  webauthn: WebAuthnP256.SignMetadata
   signature: Hex
 }) {
-  const { r, s } = parseP256Signature(signature)
+  const { r, s } = Signature.fromHex(signature)
   return encodeAbiParameters(
     [
       {

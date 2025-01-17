@@ -10,7 +10,6 @@
     "src/node/trustedSetups_esm.ts"
   ],
   "compilerOptions": {
-    "moduleResolution": "node",
     "sourceMap": true,
     "rootDir": "./src"
   }

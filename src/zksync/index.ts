@@ -135,6 +135,17 @@ export {
   type GetL1TokenAddressParameters,
   getL1TokenAddress,
 } from './actions/getL1TokenAddress.js'
+export {
+  type WithdrawErrorType,
+  type WithdrawParameters,
+  type WithdrawReturnType,
+  withdraw,
+} from './actions/withdraw.js'
+
+export {
+  legacyEthAddress,
+  l2BaseTokenAddress,
+} from './constants/address.js'
 
 export {
   /** @deprecated Use `zksync` instead */
@@ -175,6 +186,11 @@ export {
   walletActionsL1,
   type WalletActionsL1,
 } from './decorators/walletL1.js'
+
+export {
+  walletActionsL2,
+  type WalletActionsL2,
+} from './decorators/walletL2.js'
 
 export { serializeTransaction } from './serializers.js'
 

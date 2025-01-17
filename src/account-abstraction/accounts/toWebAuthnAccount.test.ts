@@ -1,6 +1,6 @@
+import { PublicKey, Signature, WebAuthnP256 } from 'ox'
 import { expect, test } from 'vitest'
 
-import { verify } from 'webauthn-p256'
 import { typedData } from '../../../test/src/constants.js'
 import { hashMessage, hashTypedData, keccak256 } from '../../utils/index.js'
 import { toWebAuthnAccount } from './toWebAuthnAccount.js'
@@ -109,11 +109,11 @@ test('sign', async () => {
     }
   `)
 
-  const valid = await verify({
-    publicKey: account.publicKey,
-    signature,
-    webauthn,
-    hash: keccak256('0xdeadbeef'),
+  const valid = WebAuthnP256.verify({
+    challenge: keccak256('0xdeadbeef'),
+    metadata: webauthn,
+    signature: Signature.fromHex(signature),
+    publicKey: PublicKey.fromHex(account.publicKey),
   })
   expect(valid).toBeTruthy()
 })
@@ -169,11 +169,11 @@ test('signMessage', async () => {
     }
   `)
 
-  const valid = await verify({
-    publicKey: account.publicKey,
-    signature,
-    webauthn,
-    hash: hashMessage('hello world'),
+  const valid = WebAuthnP256.verify({
+    challenge: hashMessage('hello world'),
+    metadata: webauthn,
+    signature: Signature.fromHex(signature),
+    publicKey: PublicKey.fromHex(account.publicKey),
   })
   expect(valid).toBeTruthy()
 })
@@ -230,14 +230,14 @@ test('signTypedData', async () => {
     }
   `)
 
-  const valid = await verify({
-    publicKey: account.publicKey,
-    signature,
-    webauthn,
-    hash: hashTypedData({
+  const valid = WebAuthnP256.verify({
+    challenge: hashTypedData({
       ...typedData.basic,
       primaryType: 'Mail',
     }),
+    metadata: webauthn,
+    signature: Signature.fromHex(signature),
+    publicKey: PublicKey.fromHex(account.publicKey),
   })
   expect(valid).toBeTruthy()
 })
