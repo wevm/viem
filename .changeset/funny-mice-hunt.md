@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-added goat network
+Added goat network.
