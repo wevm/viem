@@ -112,6 +112,69 @@ test('default', async () => {
 })
 
 describe('args', () => {
+  test('methods.exclude', async () => {
+    let count = 0
+    const server = await createHttpServer((_req, res) => {
+      count++
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ result: 'foo' }))
+    })
+
+    const request_ = buildRequest(request(server.url), {
+      methods: { exclude: ['eth_a'] },
+    })
+
+    await request_({ method: 'eth_b' })
+    expect(count).toBe(1)
+
+    count = 0
+    await expect(() =>
+      request_({
+        method: 'eth_a',
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [MethodNotSupportedRpcError: Method "eth_a" is not supported.
+
+      Details: method not supported
+      Version: viem@x.y.z]
+    `)
+    expect(count).toBe(0)
+  })
+
+  test('methods.exclude', async () => {
+    let count = 0
+    const server = await createHttpServer((_req, res) => {
+      count++
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ result: 'foo' }))
+    })
+
+    const request_ = buildRequest(request(server.url), {
+      methods: { include: ['eth_a', 'eth_b'] },
+    })
+
+    await request_({ method: 'eth_a' })
+    await request_({ method: 'eth_b' })
+    expect(count).toBe(2)
+
+    count = 0
+    await expect(() =>
+      request_({
+        method: 'eth_c',
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [MethodNotSupportedRpcError: Method "eth_c" is not supported.
+
+      Details: method not supported
+      Version: viem@x.y.z]
+    `)
+    expect(count).toBe(0)
+  })
+
   test('retryCount', async () => {
     let retryCount = -1
     const server = await createHttpServer((_req, res) => {
@@ -452,7 +515,7 @@ describe('behavior', () => {
       await expect(() =>
         buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        [MethodNotSupportedRpcError: Method "eth_blockNumber" is not implemented.
+        [MethodNotSupportedRpcError: Method "eth_blockNumber" is not supported.
 
         URL: http://localhost
         Request body: {"method":"eth_blockNumber"}
@@ -796,22 +859,22 @@ describe('behavior', () => {
         .map((arg) => JSON.stringify(arg)),
     ).toMatchInlineSnapshot(`
       [
-        "{"jsonrpc":"2.0","id":68,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":69,"method":"eth_blockNumber","params":[1]}",
-        "{"jsonrpc":"2.0","id":70,"method":"eth_chainId"}",
-        "{"jsonrpc":"2.0","id":71,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":73,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":74,"method":"eth_blockNumber","params":[1]}",
+        "{"jsonrpc":"2.0","id":75,"method":"eth_chainId"}",
+        "{"jsonrpc":"2.0","id":76,"method":"eth_blockNumber"}",
       ]
     `)
     expect(results).toMatchInlineSnapshot(`
       [
-        "{"jsonrpc":"2.0","id":68,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":68,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":69,"method":"eth_blockNumber","params":[1]}",
-        "{"jsonrpc":"2.0","id":68,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":70,"method":"eth_chainId"}",
-        "{"jsonrpc":"2.0","id":68,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":71,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":68,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":73,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":73,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":74,"method":"eth_blockNumber","params":[1]}",
+        "{"jsonrpc":"2.0","id":73,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":75,"method":"eth_chainId"}",
+        "{"jsonrpc":"2.0","id":73,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":76,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":73,"method":"eth_blockNumber"}",
       ]
     `)
   })
