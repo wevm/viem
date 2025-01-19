@@ -319,7 +319,7 @@ test('MethodNotSupportedRpcError', () => {
       }),
     ),
   ).toMatchInlineSnapshot(`
-    [MethodNotSupportedRpcError: Method is not implemented.
+    [MethodNotSupportedRpcError: Method is not supported.
 
     URL: http://localhost
     Request body: {"foo":"bar"}

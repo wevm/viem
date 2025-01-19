@@ -49,6 +49,8 @@ export type WebSocketTransportConfig = {
   keepAlive?: GetWebSocketRpcClientOptions['keepAlive'] | undefined
   /** The key of the WebSocket transport. */
   key?: TransportConfig['key'] | undefined
+  /** Methods to include or exclude from executing RPC requests. */
+  methods?: TransportConfig['methods'] | undefined
   /** The name of the WebSocket transport. */
   name?: TransportConfig['name'] | undefined
   /**
@@ -92,6 +94,7 @@ export function webSocket(
   const {
     keepAlive,
     key = 'webSocket',
+    methods,
     name = 'WebSocket JSON-RPC',
     reconnect,
     retryDelay,
@@ -104,6 +107,7 @@ export function webSocket(
     return createTransport(
       {
         key,
+        methods,
         name,
         async request({ method, params }) {
           const body = { method, params }

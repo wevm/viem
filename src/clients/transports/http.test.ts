@@ -389,6 +389,53 @@ describe('request', () => {
     await server.close()
   })
 
+  test('behavior: methods.exclude', async () => {
+    const server = await createHttpServer((_, res) => {
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const transport = http(server.url, {
+      key: 'jsonRpc',
+      name: 'JSON RPC',
+      methods: { exclude: ['eth_a'] },
+    })({ chain: localhost })
+
+    await transport.request({ method: 'eth_b' })
+
+    await expect(() =>
+      transport.request({ method: 'eth_a' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [MethodNotSupportedRpcError: Method "eth_a" is not supported.
+
+      Details: method not supported
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('behavior: methods.include', async () => {
+    const server = await createHttpServer((_, res) => {
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const transport = http(server.url, {
+      key: 'jsonRpc',
+      name: 'JSON RPC',
+      methods: { include: ['eth_a', 'eth_b'] },
+    })({ chain: localhost })
+
+    await transport.request({ method: 'eth_a' })
+    await transport.request({ method: 'eth_b' })
+
+    await expect(() =>
+      transport.request({ method: 'eth_c' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [MethodNotSupportedRpcError: Method "eth_c" is not supported.
+
+      Details: method not supported
+      Version: viem@x.y.z]
+    `)
+  })
+
   test('behavior: retryCount', async () => {
     let retryCount = -1
     const server = await createHttpServer((_req, res) => {

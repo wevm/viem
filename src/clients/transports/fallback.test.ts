@@ -216,6 +216,57 @@ describe('request', () => {
     `)
   })
 
+  test('methods.exclude', async () => {
+    const server1 = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+    const server2 = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ result: '0x2' }))
+    })
+
+    const transport = fallback([
+      http(server1.url, { methods: { exclude: ['eth_a'] } }),
+      http(server2.url),
+    ])({
+      chain: localhost,
+    })
+
+    expect(await transport.request({ method: 'eth_a' })).toBe('0x2')
+    expect(await transport.request({ method: 'eth_b' })).toBe('0x1')
+  })
+
+  test('methods.include', async () => {
+    const server1 = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+    const server2 = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ result: '0x2' }))
+    })
+
+    const transport = fallback([
+      http(server1.url, { methods: { include: ['eth_a', 'eth_b'] } }),
+      http(server2.url),
+    ])({
+      chain: localhost,
+    })
+
+    expect(await transport.request({ method: 'eth_a' })).toBe('0x1')
+    expect(await transport.request({ method: 'eth_b' })).toBe('0x1')
+    expect(await transport.request({ method: 'eth_c' })).toBe('0x2')
+  })
+
   test('error (rpc)', async () => {
     let count = 0
     const server1 = await createHttpServer((_req, res) => {

@@ -309,7 +309,7 @@ export class MethodNotSupportedRpcError extends RpcError {
     super(cause, {
       code: MethodNotSupportedRpcError.code,
       name: 'MethodNotSupportedRpcError',
-      shortMessage: `Method${method ? ` "${method}"` : ''} is not implemented.`,
+      shortMessage: `Method${method ? ` "${method}"` : ''} is not supported.`,
     })
   }
 }

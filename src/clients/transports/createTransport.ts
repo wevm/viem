@@ -1,6 +1,7 @@
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { EIP1193RequestFn } from '../../types/eip1193.js'
+import type { OneOf } from '../../types/utils.js'
 import { buildRequest } from '../../utils/buildRequest.js'
 import { uid as uid_ } from '../../utils/uid.js'
 import type { ClientConfig } from '../createClient.js'
@@ -13,6 +14,17 @@ export type TransportConfig<
   name: string
   /** The key of the transport. */
   key: string
+  /** Methods to include or exclude from executing RPC requests. */
+  methods?:
+    | OneOf<
+        | {
+            include?: string[] | undefined
+          }
+        | {
+            exclude?: string[] | undefined
+          }
+      >
+    | undefined
   /** The JSON-RPC request function that matches the EIP-1193 request spec. */
   request: eip1193RequestFn
   /** The base delay (in ms) between retries. */
@@ -53,6 +65,7 @@ export function createTransport<
 >(
   {
     key,
+    methods,
     name,
     request,
     retryCount = 3,
@@ -73,7 +86,7 @@ export function createTransport<
       timeout,
       type,
     },
-    request: buildRequest(request, { retryCount, retryDelay, uid }),
+    request: buildRequest(request, { methods, retryCount, retryDelay, uid }),
     value,
   }
 }
