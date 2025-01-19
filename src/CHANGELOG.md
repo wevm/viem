@@ -1,5 +1,17 @@
 # viem
 
+## 2.22.10
+
+### Patch Changes
+
+- [#3236](https://github.com/wevm/viem/pull/3236) [`23c95989ec60fa4879e94d6f8b907bd50e75060c`](https://github.com/wevm/viem/commit/23c95989ec60fa4879e94d6f8b907bd50e75060c) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Added goat network.
+
+- [#3221](https://github.com/wevm/viem/pull/3221) [`15ab5eef4636457bbee03e1e1166e7604ed78859`](https://github.com/wevm/viem/commit/15ab5eef4636457bbee03e1e1166e7604ed78859) Thanks [@danijelTxFusion](https://github.com/danijelTxFusion)! - **ZKsync Extension:** Added `withdraw` action.
+
+- [#3233](https://github.com/wevm/viem/pull/3233) [`e4fd731992c7230deaf29dc8ea36df42d89e012f`](https://github.com/wevm/viem/commit/e4fd731992c7230deaf29dc8ea36df42d89e012f) Thanks [@ggawryal](https://github.com/ggawryal)! - Added Aleph Zero Testnet chain.
+
+- [#3238](https://github.com/wevm/viem/pull/3238) [`28ff8090410e5355609bfb402989c78f6a521cff`](https://github.com/wevm/viem/commit/28ff8090410e5355609bfb402989c78f6a521cff) Thanks [@jxom](https://github.com/jxom)! - Added `methods` property to `http`, `ipc`, and `webSocket` transports to include or exclude RPC methods from being executed.
+
 ## 2.22.9
 
 ### Patch Changes
