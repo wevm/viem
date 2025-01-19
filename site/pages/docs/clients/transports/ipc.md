@@ -50,6 +50,22 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
+### methods (optional)
+
+- **Type:** `{ include?: string[], exclude?: string[] }`
+
+Methods to include or exclude from sending RPC requests.
+
+```ts twoslash
+import { ipc } from 'viem/node'
+// ---cut---
+const transport = ipc('/tmp/reth.ipc', {
+  methods: {
+    include: ['eth_sendTransaction', 'eth_signTypedData_v4'],
+  },
+})
+```
+
 ### name (optional)
 
 - **Type:** `string`
