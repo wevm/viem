@@ -43,6 +43,8 @@ export type HttpTransportConfig = {
   onFetchResponse?: HttpRpcClientOptions['onResponse'] | undefined
   /** The key of the HTTP transport. */
   key?: TransportConfig['key'] | undefined
+  /** Methods to include or exclude from executing RPC requests. */
+  methods?: TransportConfig['methods'] | undefined
   /** The name of the HTTP transport. */
   name?: TransportConfig['name'] | undefined
   /** The max number of times to retry. */
@@ -78,6 +80,7 @@ export function http(
     batch,
     fetchOptions,
     key = 'http',
+    methods,
     name = 'HTTP JSON-RPC',
     onFetchRequest,
     onFetchResponse,
@@ -101,6 +104,7 @@ export function http(
     return createTransport(
       {
         key,
+        methods,
         name,
         async request({ method, params }) {
           const body = { method, params }

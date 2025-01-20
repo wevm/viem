@@ -40,6 +40,8 @@ type IpcTransportSubscribe = {
 export type IpcTransportConfig = {
   /** The key of the Ipc transport. */
   key?: TransportConfig['key'] | undefined
+  /** Methods to include or exclude from executing RPC requests. */
+  methods?: TransportConfig['methods'] | undefined
   /** The name of the Ipc transport. */
   name?: TransportConfig['name'] | undefined
   /**
@@ -75,13 +77,20 @@ export function ipc(
   path: string,
   config: IpcTransportConfig = {},
 ): IpcTransport {
-  const { key = 'ipc', name = 'IPC JSON-RPC', reconnect, retryDelay } = config
+  const {
+    key = 'ipc',
+    methods,
+    name = 'IPC JSON-RPC',
+    reconnect,
+    retryDelay,
+  } = config
   return ({ retryCount: retryCount_, timeout: timeout_ }) => {
     const retryCount = config.retryCount ?? retryCount_
     const timeout = timeout_ ?? config.timeout ?? 10_000
     return createTransport(
       {
         key,
+        methods,
         name,
         async request({ method, params }) {
           const body = { method, params }

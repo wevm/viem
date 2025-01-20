@@ -156,6 +156,22 @@ const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
 })
 ```
 
+### methods (optional)
+
+- **Type:** `{ include?: string[], exclude?: string[] }`
+
+Methods to include or exclude from sending RPC requests.
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
+  methods: {
+    include: ['eth_sendTransaction', 'eth_signTypedData_v4'],
+  },
+})
+```
+
 ### name (optional)
 
 - **Type:** `string`
