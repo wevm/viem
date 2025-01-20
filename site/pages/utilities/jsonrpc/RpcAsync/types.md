@@ -8,16 +8,16 @@ showOutline: 1
 
 Asynchronous HTTP RPC interface.
 
-**Source:** [src/utils/RpcAsync.ts](https://github.com/wevm/viem/blob/main/src/utils/RpcAsync.ts#L273)
+**Source:** [src/utils/RpcAsync.ts](https://github.com/wevm/viem/blob/main/src/utils/RpcAsync.ts#L344)
 
 ## `RpcAsync.RequestFn`
 
 Request function on an RPC interface.
 
-**Source:** [src/utils/RpcAsync.ts](https://github.com/wevm/viem/blob/main/src/utils/RpcAsync.ts#L273)
+**Source:** [src/utils/RpcAsync.ts](https://github.com/wevm/viem/blob/main/src/utils/RpcAsync.ts#L344)
 
 ## `RpcAsync.RpcAsync`
 
 Generic asynchronous RPC interface.
 
-**Source:** [src/utils/RpcAsync.ts](https://github.com/wevm/viem/blob/main/src/utils/RpcAsync.ts#L12)
+**Source:** [src/utils/RpcAsync.ts](https://github.com/wevm/viem/blob/main/src/utils/RpcAsync.ts#L13)

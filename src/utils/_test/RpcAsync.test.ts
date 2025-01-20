@@ -98,6 +98,27 @@ describe('fromHttp', () => {
     `)
   })
 
+  test('behavior: zero timeout', async () => {
+    const rpc = RpcAsync.fromHttp(Anvil.mainnet.rpcUrl.http)
+    await expect(
+      rpc.request({
+        method: 'eth_getBlockByHash',
+        params: ['0x0', false],
+      }),
+    ).resolves.toMatchInlineSnapshot(
+      `
+      {
+        "error": {
+          "code": -32602,
+          "message": "odd number of digits",
+        },
+        "id": 0,
+        "jsonrpc": "2.0",
+      }
+    `,
+    )
+  })
+
   test('behavior: invalid rpc params', async () => {
     const rpc = RpcAsync.fromHttp(Anvil.mainnet.rpcUrl.http)
     await expect(
@@ -200,7 +221,7 @@ describe('fromHttp', () => {
     await expect(() =>
       rpc2.request({ method: 'web3_clientVersion' }),
     ).rejects.toMatchInlineSnapshot(`
-      [RpcAsync.HttpError: HTTP request failed.
+      [RpcAsync.HttpError: HTTP Response could not be parsed as JSON.
 
       URL: https://viem.sh/rpc
       Body: {"id":0,"method":"web3_clientVersion","jsonrpc":"2.0"}
@@ -238,6 +259,38 @@ describe('fromHttp', () => {
     expect(headers['x-wagmi']).toBeDefined()
 
     await server.close()
+  })
+
+  test('options: `fetchOptions.signal`', async () => {
+    const server = await Http.createServer(() => {})
+
+    const rpc = RpcAsync.fromHttp(server.url)
+
+    const controller = new AbortController()
+
+    await expect(() =>
+      Promise.all([
+        rpc.request(
+          {
+            method: 'web3_clientVersion',
+          },
+          {
+            fetchOptions: {
+              signal: controller.signal,
+            },
+          },
+        ),
+        Promise.resolve(controller.abort()),
+      ]),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [RpcAsync.HttpError: Operation timed out.
+
+      URL: https://viem.sh/rpc
+      Body: {"id":0,"method":"web3_clientVersion","jsonrpc":"2.0"}
+
+      Details: Operation timed out.
+      Version: viem@x.y.z]
+    `)
   })
 
   test('options: `fetchOptions` (fn)', async () => {
@@ -400,7 +453,7 @@ describe('fromHttp', () => {
         params: [Hex.fromNumber(Anvil.mainnet.config.forkBlockNumber), false],
       }),
     ).rejects.toMatchInlineSnapshot(`
-      [RpcAsync.HttpError: HTTP request failed.
+      [RpcAsync.HttpError: foo
 
       URL: https://viem.sh/rpc
       Body: {"id":0,"method":"eth_getBlockByNumber","params":["0x149adc6",false],"jsonrpc":"2.0"}
@@ -428,7 +481,7 @@ describe('fromHttp', () => {
         { timeout: 10000 },
       ),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [RpcAsync.HttpError: HTTP request failed.
+      [RpcAsync.HttpError: foo
 
       URL: https://viem.sh/rpc
       Body: {"id":0,"method":"eth_getBlockByNumber","params":["0x149adc6",false],"jsonrpc":"2.0"}

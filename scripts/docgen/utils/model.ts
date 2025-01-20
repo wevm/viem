@@ -129,6 +129,8 @@ export function createResolveDeclarationReference(
   const apiModel = hierarchy[0] as model.ApiModel
 
   return (declarationReference: DocDeclarationReference) => {
+    if ((declarationReference as any)._packageName === 'ox')
+      (declarationReference as any)._packageName = 'viem'
     const result = apiModel.resolveDeclarationReference(
       declarationReference,
       apiModel,

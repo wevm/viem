@@ -1,15 +1,14 @@
-import type * as Provider from 'ox/Provider'
 import type * as RpcSchema from 'ox/RpcSchema'
 
 import type * as Errors from './Errors.js'
-import type { ExactPartial, RequiredBy } from './internal/types.js'
+import type * as Transport from './Transport.js'
+import type { ExactPartial } from './internal/types.js'
 import { uid } from './internal/uid.js'
 
 type TODO = any
 
 type Account = TODO
 type Chain = TODO
-type Transport = TODO
 type PublicActions<_> = TODO
 type WalletActions<_> = TODO
 
@@ -49,16 +48,21 @@ export function from(parameters: from.Parameters): from.ReturnType {
   const {
     cacheTime = parameters.pollingInterval ?? 4_000,
     chain,
-    request,
     pollingInterval = 4_000,
   } = parameters
+
+  const transport = parameters.transport.setup({
+    chain,
+    pollingInterval,
+  })
 
   const client = {
     ...parameters,
     cacheTime,
     chain,
-    request: request as Provider.RequestFn,
+    request: transport.request,
     pollingInterval,
+    transport,
     uid: uid(),
   } satisfies Client_internal
 
@@ -79,7 +83,9 @@ export declare namespace from {
   export type Parameters<
     chain extends Chain | undefined = undefined,
     rpcSchema extends RpcSchema.Generic = RpcSchema.Default,
-  > = RequiredBy<ExactPartial<Client<chain, rpcSchema>>, 'transport'>
+  > = Omit<ExactPartial<Client<chain, rpcSchema>>, 'transport'> & {
+    transport: Transport.Transport
+  }
 
   export type ReturnType<
     chain extends Chain | undefined = undefined,
@@ -147,11 +153,11 @@ type Client_internal<
   /**
    * Request function wrapped with friendly error handling.
    */
-  request: Provider.RequestFn<rpcSchema>
+  request: Transport.RequestFn<rpcSchema>
   /**
    * JSON-RPC transport.
    */
-  transport: Transport
+  transport: Transport.TransportValue
   /**
    * A unique ID for the client.
    */

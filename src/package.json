@@ -16,7 +16,7 @@
     "!jsr.json"
   ],
   "dependencies": {
-    "ox": "0.6.0"
+    "ox": "0.6.6"
   },
   "peerDependencies": {
     "typescript": ">=5.4.0"

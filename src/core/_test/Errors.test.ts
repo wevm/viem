@@ -12,7 +12,10 @@ test('exports', () => {
 describe('BaseError', () => {
   test('BaseError', () => {
     expect(new Errors.BaseError('An error occurred.')).toMatchInlineSnapshot(
-      '[BaseError: An error occurred.]',
+      `
+      [BaseError: An error occurred.
+      Version: viem@x.y.z]
+    `,
     )
 
     expect(
@@ -21,7 +24,7 @@ describe('BaseError', () => {
       [BaseError: An error occurred.
 
       Details: details
-      Version: viem@3.0.0]
+      Version: viem@x.y.z]
     `)
 
     expect(
@@ -31,7 +34,7 @@ describe('BaseError', () => {
       [BaseError: An error occurred.
 
       Details: details
-      Version: viem@3.0.0]
+      Version: viem@x.y.z]
     `,
     )
   })
@@ -46,8 +49,8 @@ describe('BaseError', () => {
       [BaseError: An error occurred.
 
       Details: details
-      See: https://oxlib.sh/lol
-      Version: viem@3.0.0]
+      See: https://viem.sh/lol
+      Version: viem@x.y.z]
     `)
     expect(
       new Errors.BaseError('An error occurred.', {
@@ -57,8 +60,8 @@ describe('BaseError', () => {
       [BaseError: An error occurred.
 
       Details: error
-      See: https://oxlib.sh/docs
-      Version: viem@3.0.0]
+      See: https://viem.sh/docs
+      Version: viem@x.y.z]
     `)
     expect(
       new Errors.BaseError('An error occurred.', {
@@ -69,8 +72,8 @@ describe('BaseError', () => {
       [BaseError: An error occurred.
 
       Details: error
-      See: https://oxlib.sh/lol
-      Version: viem@3.0.0]
+      See: https://viem.sh/lol
+      Version: viem@x.y.z]
     `)
     expect(
       new Errors.BaseError('An error occurred.', {
@@ -81,8 +84,8 @@ describe('BaseError', () => {
       [BaseError: An error occurred.
 
       Details: details
-      See: https://oxlib.sh/lol
-      Version: viem@3.0.0]
+      See: https://viem.sh/lol
+      Version: viem@x.y.z]
     `)
   })
 
@@ -99,8 +102,8 @@ describe('BaseError', () => {
       [BaseError: An internal error occurred.
 
       Details: details
-      See: https://oxlib.sh/lol
-      Version: viem@3.0.0]
+      See: https://viem.sh/lol
+      Version: viem@x.y.z]
     `)
   })
 
@@ -115,8 +118,8 @@ describe('BaseError', () => {
       [BaseError: An internal error occurred.
 
       Details: details
-      See: https://oxlib.sh/lol
-      Version: viem@3.0.0]
+      See: https://viem.sh/lol
+      Version: viem@x.y.z]
     `)
   })
 
@@ -135,8 +138,8 @@ describe('BaseError', () => {
       - Address must be 20 bytes long
       - Address must match its checksum counterpart
 
-      See: https://oxlib.sh/lol
-      Version: viem@3.0.0]
+      See: https://viem.sh/lol
+      Version: viem@x.y.z]
     `)
   })
 
@@ -149,7 +152,10 @@ describe('BaseError', () => {
     const err = new Errors.BaseError('test1', {
       cause: new FooError('test2', { cause: new BarError('test3') }),
     })
-    expect(err.walk()).toMatchInlineSnapshot('[BaseError: test3]')
+    expect(err.walk()).toMatchInlineSnapshot(`
+      [BaseError: test3
+      Version: viem@x.y.z]
+    `)
   })
 
   test('walk: predicate fn', () => {
@@ -166,7 +172,7 @@ describe('BaseError', () => {
       [BaseError: test2
 
       Details: test3
-      Version: viem@3.0.0]
+      Version: viem@x.y.z]
     `,
     )
   })
@@ -195,7 +201,7 @@ describe('BaseError', () => {
       {
         "cause": [Error: test2],
         "details": "test2",
-        "docs": "https://oxlib.sh/lol",
+        "docs": "https://viem.sh/lol",
         "docsPath": "/lol",
         "name": "BaseError",
         "shortMessage": "test1",

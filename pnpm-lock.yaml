@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 patchedDependencies:
+  '@microsoft/api-extractor':
+    hash: ly5prdpbkem6me53cbfhtx5jbe
+    path: patches/@microsoft__api-extractor.patch
   size-limit@11.1.4:
     hash: imbqp73nbgdxtxyjg4sp7amlam
     path: patches/size-limit@11.1.4.patch
@@ -27,7 +30,7 @@ importers:
         version: 2.27.11
       '@microsoft/api-extractor':
         specifier: ^7.49.1
-        version: 7.49.1(@types/node@22.10.5)
+        version: 7.49.1(patch_hash=ly5prdpbkem6me53cbfhtx5jbe)(@types/node@22.10.5)
       '@microsoft/api-extractor-model':
         specifier: ^7.30.2
         version: 7.30.2(@types/node@22.10.5)
@@ -71,8 +74,8 @@ importers:
         specifier: ^5.41.1
         version: 5.41.1(@types/node@22.10.5)(typescript@5.5.4)
       ox:
-        specifier: 0.6.0
-        version: 0.6.0(typescript@5.5.4)(zod@3.23.8)
+        specifier: 0.6.6
+        version: 0.6.6(typescript@5.5.4)(zod@3.23.8)
       prool:
         specifier: ^0.0.16
         version: 0.0.16
@@ -134,8 +137,8 @@ importers:
   src:
     dependencies:
       ox:
-        specifier: 0.6.0
-        version: 0.6.0(typescript@5.7.2)(zod@3.23.8)
+        specifier: 0.6.6
+        version: 0.6.6(typescript@5.7.2)(zod@3.23.8)
 
 packages:
 
@@ -3658,8 +3661,8 @@ packages:
   outdent@0.8.0:
     resolution: {integrity: sha512-KiOAIsdpUTcAXuykya5fnVVT+/5uS0Q1mrkRHcF89tpieSmY33O/tmc54CqwA+bfhbtEfZUNLHaPUiB9X3jt1A==}
 
-  ox@0.6.0:
-    resolution: {integrity: sha512-blUzTLidvUlshv0O02CnLFqBLidNzPoAZdIth894avUAotTuWziznv6IENv5idRuOSSP3dH8WzcYw84zVdu0Aw==}
+  ox@0.6.6:
+    resolution: {integrity: sha512-giV0zJZoZFvDhJ1xBoVWF/U8fYlU/aTdFEogEBv2lH7/nqQobh1uuURT4Q1fpE92qrQ0Gl/nRLT3uzQkZUTqBA==}
     peerDependencies:
       typescript: '>=5.4.0'
     peerDependenciesMeta:
@@ -5730,7 +5733,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@microsoft/api-extractor@7.49.1(@types/node@22.10.5)':
+  '@microsoft/api-extractor@7.49.1(patch_hash=ly5prdpbkem6me53cbfhtx5jbe)(@types/node@22.10.5)':
     dependencies:
       '@microsoft/api-extractor-model': 7.30.2(@types/node@22.10.5)
       '@microsoft/tsdoc': 0.15.1
@@ -9006,7 +9009,7 @@ snapshots:
 
   outdent@0.8.0: {}
 
-  ox@0.6.0(typescript@5.5.4)(zod@3.23.8):
+  ox@0.6.6(typescript@5.5.4)(zod@3.23.8):
     dependencies:
       '@adraffy/ens-normalize': 1.10.1
       '@noble/curves': 1.6.0
@@ -9020,7 +9023,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.6.0(typescript@5.7.2)(zod@3.23.8):
+  ox@0.6.6(typescript@5.7.2)(zod@3.23.8):
     dependencies:
       '@adraffy/ens-normalize': 1.10.1
       '@noble/curves': 1.6.0

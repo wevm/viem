@@ -19,7 +19,7 @@
     "clean": "rimraf src/_types src/_esm src/_cjs ./tsconfig.build.tsbuildinfo src/tsconfig.build.tsbuildinfo",
     "contracts:build": "forge build --config-path ./contracts/foundry.toml && tsx scripts/generate-typed-artifacts.ts",
     "deps": "pnpx taze -r",
-    "dev": "pnpm preconstruct && pnpm playground",
+    "dev": "pnpm preconstruct",
     "docs:dev": "pnpm --filter site dev",
     "docs:extract": "pnpm api-extractor run -c scripts/docgen/api-extractor.json && tsx scripts/docgen/build.ts",
     "docs:gen": "pnpm clean && pnpm build:types && pnpm docs:extract",
@@ -57,7 +57,7 @@
     "eslint-plugin-tsdoc": "^0.3.0",
     "fs-extra": "^11.2.0",
     "knip": "^5.41.1",
-    "ox": "0.6.0",
+    "ox": "0.6.6",
     "prool": "^0.0.16",
     "rimraf": "^5.0.10",
     "sherif": "^0.11.0",
@@ -104,7 +104,8 @@
   },
   "pnpm": {
     "patchedDependencies": {
-      "size-limit@11.1.4": "patches/size-limit@11.1.4.patch"
+      "size-limit@11.1.4": "patches/size-limit@11.1.4.patch",
+      "@microsoft/api-extractor": "patches/@microsoft__api-extractor.patch"
     }
   },
   "size-limit": [

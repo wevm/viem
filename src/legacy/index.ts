@@ -1,1 +1,5 @@
-export { type Client, createClient } from './Client.js'
+export { type Client, from as createClient } from '../core/Client.js'
+// TODO:
+// - `createPublicClient`
+// - `createWalletClient`
+// - `createTestClient`

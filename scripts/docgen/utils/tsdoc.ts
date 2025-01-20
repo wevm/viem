@@ -105,7 +105,8 @@ export function processDocComment(
     examples: docComment?.customBlocks
       .filter((v) => v.blockTag.tagName === '@example')
       .map((v) => renderDocNode(v, resolveDeclarationReference))
-      .map((example) => cleanDoc(example, '@example')),
+      .map((example) => cleanDoc(example, '@example'))
+      .map((example) => example.replaceAll("from 'ox", "from 'viem/utils")),
     experimental: docComment.modifierTagSet.isExperimental(),
     remarks: cleanDoc(
       renderDocNode(docComment?.remarksBlock, resolveDeclarationReference),

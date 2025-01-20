@@ -33,25 +33,25 @@ const response = await rpc.request({ method: 'eth_blockNumber' })
 ## Definition
 
 ```ts
-function from<options, schema>(
-  iface: from.Parameters<options>,
+function from<request, options, schema>(
+  iface: from.Parameters<request, options>,
   options?: from.Options<options, schema>,
 ): RpcAsync<options, schema>
 ```
 
-**Source:** [src/utils/RpcAsync.ts](https://github.com/wevm/viem/blob/main/src/utils/RpcAsync.ts#L273)
+**Source:** [src/utils/RpcAsync.ts](https://github.com/wevm/viem/blob/main/src/utils/RpcAsync.ts#L344)
 
 ## Parameters
 
 ### iface
 
-- **Type:** `from.Parameters<options>`
+- **Type:** `from.Parameters<request, options>`
 
 Interface to instantiate.
 
 #### iface.request
 
-- **Type:** `(body: { [x: string]: RpcRequest.RpcRequest; [x: number]: RpcRequest.RpcRequest; [x: symbol]: RpcRequest.RpcRequest; }, options: options | Record`
+- **Type:** `(request: request | { [x: string]: RpcRequest.RpcRequest; [x: number]: RpcRequest.RpcRequest; [x: symbol]: RpcRequest.RpcRequest; } | readonly { [x: string]: RpcRequest.RpcRequest; [x: number]: RpcRequest.RpcRequest; [x: symbol]: RpcRequest.RpcRequest; }[], options: options | Record Promise<requ...`
 
 ### options
 

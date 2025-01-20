@@ -32,7 +32,7 @@ function fromHttp<schema>(
 ): Http<schema>
 ```
 
-**Source:** [src/utils/RpcAsync.ts](https://github.com/wevm/viem/blob/main/src/utils/RpcAsync.ts#L273)
+**Source:** [src/utils/RpcAsync.ts](https://github.com/wevm/viem/blob/main/src/utils/RpcAsync.ts#L344)
 
 ## Parameters
 
@@ -58,7 +58,7 @@ Function to use to make the request.
 
 #### options.fetchOptions
 
-- **Type:** `Omit)`
+- **Type:** `Omit | Promise<....`
 - **Optional**
 
 Request configuration to pass to `fetch`.

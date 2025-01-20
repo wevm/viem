@@ -2,6 +2,18 @@
 
 Utility functions and types for working with asynchronous JSON-RPC transports.
 
+## Examples
+
+### HTTP Instantiation
+
+```ts twoslash
+import { RpcAsync } from 'viem/utils'
+
+const rpc = RpcAsync.fromHttp('https://1.rpc.thirdweb.com')
+
+const response = await rpc.request({ method: 'eth_blockNumber' })
+```
+
 ## Functions
 
 | Name                | Description                         |

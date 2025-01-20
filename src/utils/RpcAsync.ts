@@ -280,11 +280,21 @@ export declare namespace fromHttp {
       },
       schema
     >
+
+  type ErrorType =
+    | promise.withTimeout.ErrorType
+    | MalformedResponseError
+    | HttpError
+    | Errors.GlobalErrorType
 }
 
 /** Thrown when a HTTP request fails. */
 export class HttpError extends Errors.BaseError<Error> {
   override readonly name = 'RpcAsync.HttpError'
+
+  body?: unknown
+  response?: Response | undefined
+  url?: string | undefined
 
   constructor({
     body,
@@ -296,10 +306,16 @@ export class HttpError extends Errors.BaseError<Error> {
     body?: unknown
     cause?: Error | undefined
     details?: string | undefined
+    headers?: Headers | undefined
     response?: Response | undefined
     url: string
   }) {
-    super('HTTP request failed.', {
+    const message = cause
+      ? 'shortMessage' in cause
+        ? cause.shortMessage
+        : cause.message
+      : 'HTTP request failed.'
+    super(message as string, {
       cause,
       details,
       metaMessages: [
@@ -308,6 +324,10 @@ export class HttpError extends Errors.BaseError<Error> {
         `Body: ${Json.stringify(body)}`,
       ],
     })
+
+    this.body = body
+    this.response = response
+    this.url = url
   }
 }
 

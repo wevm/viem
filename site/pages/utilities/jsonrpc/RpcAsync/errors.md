@@ -8,10 +8,10 @@ showOutline: 1
 
 Thrown when a HTTP request fails.
 
-**Source:** [src/utils/RpcAsync.ts](https://github.com/wevm/viem/blob/main/src/utils/RpcAsync.ts#L273)
+**Source:** [src/utils/RpcAsync.ts](https://github.com/wevm/viem/blob/main/src/utils/RpcAsync.ts#L344)
 
 ## `RpcAsync.MalformedResponseError`
 
 Thrown when a HTTP response is malformed.
 
-**Source:** [src/utils/RpcAsync.ts](https://github.com/wevm/viem/blob/main/src/utils/RpcAsync.ts#L273)
+**Source:** [src/utils/RpcAsync.ts](https://github.com/wevm/viem/blob/main/src/utils/RpcAsync.ts#L344)

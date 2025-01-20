@@ -1,3 +1,5 @@
+import * as Errors from 'ox/Errors'
+
 import { getVersion } from './internal/errors.js'
 
 export type GlobalErrorType<name extends string = 'Error'> = Error & {
@@ -26,7 +28,10 @@ export class BaseError<
 
   constructor(shortMessage: string, options: BaseError.Options<cause> = {}) {
     const details = (() => {
-      if (options.cause instanceof BaseError) {
+      if (
+        options.cause instanceof BaseError ||
+        options.cause instanceof Errors.BaseError
+      ) {
         if (options.cause.details) return options.cause.details
         if (options.cause.shortMessage) return options.cause.shortMessage
       }
@@ -34,7 +39,10 @@ export class BaseError<
       return options.details!
     })()
     const docsPath = (() => {
-      if (options.cause instanceof BaseError)
+      if (
+        options.cause instanceof BaseError ||
+        options.cause instanceof Errors.BaseError
+      )
         return options.cause.docsPath || options.docsPath
       return options.docsPath
     })()
@@ -50,9 +58,9 @@ export class BaseError<
             '',
             details ? `Details: ${details}` : undefined,
             docsPath ? `See: ${docs}` : undefined,
-            `Version: viem@${getVersion()}`,
           ]
         : []),
+      `Version: viem@${getVersion()}`,
     ]
       .filter((x) => typeof x === 'string')
       .join('\n')

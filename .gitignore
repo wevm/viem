@@ -18,5 +18,6 @@ lookup.json
 config-generated.ts
 site/pages/api
 site/pages/ercs
+site/pages/utilities
 site/pages/glossary
 tsdoc-metadata.json

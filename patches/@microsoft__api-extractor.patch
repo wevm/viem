@@ -1,0 +1,22 @@
+diff --git a/lib/analyzer/ExportAnalyzer.js b/lib/analyzer/ExportAnalyzer.js
+index 94641af98dd19cd6d20ba7ac33d7f793d9221a41..899c92556094fdf71d4ad3f6f99b5ce5fa3ec456 100644
+--- a/lib/analyzer/ExportAnalyzer.js
++++ b/lib/analyzer/ExportAnalyzer.js
+@@ -172,7 +172,7 @@ class ExportAnalyzer {
+      * Implementation of {@link AstSymbolTable.fetchAstModuleExportInfo}.
+      */
+     fetchAstModuleExportInfo(entryPointAstModule) {
+-        if (entryPointAstModule.isExternal) {
++        if (entryPointAstModule.isExternal && !entryPointAstModule.externalModulePath.startsWith('ox/')) {
+             throw new Error('fetchAstModuleExportInfo() is not supported for external modules');
+         }
+         if (entryPointAstModule.astModuleExportInfo === undefined) {
+@@ -228,7 +228,7 @@ class ExportAnalyzer {
+             return;
+         }
+         visitedAstModules.add(astModule);
+-        if (astModule.isExternal) {
++        if (astModule.isExternal && !astModule.externalModulePath.startsWith('ox/')) {
+             astModuleExportInfo.starExportedExternalModules.add(astModule);
+         }
+         else {
