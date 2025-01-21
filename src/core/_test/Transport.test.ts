@@ -1151,6 +1151,31 @@ describe('from', () => {
       ).rejects.toThrowError()
       expect(retryCount).toBe(0)
     })
+
+    test('deterministic UserRejectedRequestError (CAIP-25)', async () => {
+      let retryCount = -1
+      const server = await Http.createServer((_req, res) => {
+        retryCount++
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(
+          JSON.stringify({
+            error: {
+              code: 5000,
+              message: 'message',
+            },
+          }),
+        )
+      })
+
+      const transport = Transport.http(server.url).setup()
+
+      await expect(() =>
+        transport.request({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowError()
+      expect(retryCount).toBe(0)
+    })
   })
 })
 

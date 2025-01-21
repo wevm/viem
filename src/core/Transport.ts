@@ -134,7 +134,7 @@ export function from<
 
       return {
         ...value,
-        request(request, options) {
+        async request(request, options) {
           const dedupe = options?.dedupe ?? false
           const retryCount_ = options?.retryCount ?? retryCount
           const retryDelay_ = options?.retryDelay ?? retryDelay
@@ -145,43 +145,15 @@ export function from<
               )
             : undefined
 
-          return promise.withDedupe(
-            () =>
-              promise.withRetry(
-                async () => {
-                  try {
-                    return await value.request(request)
-                  } catch (e) {
-                    const error = (() => {
-                      if (e instanceof RpcResponse.BaseError) {
-                        const data =
-                          (e.data as {
-                            code?: number
-                            message?: string
-                          }) || {}
-                        if (data.code === 5000)
-                          return new Provider.UserRejectedRequestError({
-                            message: data.message,
-                          })
-                        return Provider.parseError(e)
-                      }
-                      return e
-                    })()
-                    throw new RequestError(error as http.ErrorType, {
-                      request,
-                      url,
-                    })
-                  }
-                },
-                {
+          try {
+            return await promise.withDedupe(
+              () =>
+                promise.withRetry(() => value.request(request), {
                   delay: ({ count, error }) => {
                     // If we find a Retry-After header, let's retry after the given time.
-                    if (
-                      error.cause &&
-                      error.cause instanceof RpcAsync.HttpError
-                    ) {
+                    if (error && error instanceof RpcAsync.HttpError) {
                       const retryAfter =
-                        error.cause.response?.headers?.get('Retry-After')
+                        error.response?.headers?.get('Retry-After')
                       if (retryAfter?.match(/\d/))
                         return Number.parseInt(retryAfter) * 1000
                     }
@@ -190,11 +162,31 @@ export function from<
                     return ~~(1 << count) * retryDelay_
                   },
                   retryCount: retryCount_,
-                  shouldRetry: ({ error }) => shouldRetry(error.cause as Error),
-                },
-              ),
-            { enabled: dedupe, id },
-          )
+                  shouldRetry: ({ error }) => shouldRetry(error as Error),
+                }),
+              { enabled: dedupe, id },
+            )
+          } catch (e) {
+            const error = (() => {
+              if (e instanceof RpcResponse.BaseError) {
+                const data =
+                  (e.data as {
+                    code?: number
+                    message?: string
+                  }) || {}
+                if (data.code === 5000)
+                  return new Provider.UserRejectedRequestError({
+                    message: data.message,
+                  })
+                return Provider.parseError(e)
+              }
+              return e
+            })()
+            throw new RequestError(error as http.ErrorType, {
+              request,
+              url,
+            })
+          }
         },
       }
     },
@@ -216,11 +208,14 @@ export declare namespace from {
   }
 
   type ErrorType =
-    | Hash.keccak256.ErrorType
-    | promise.withDedupe.ErrorType
-    | promise.withRetry.ErrorType
-    | promise.withTimeout.ErrorType
-    | RequestError
+    | RequestError<
+        | Hash.keccak256.ErrorType
+        | promise.withDedupe.ErrorType
+        | promise.withRetry.ErrorType
+        | promise.withTimeout.ErrorType
+        | RpcResponse.parse.ErrorType
+        | Provider.parseError.ReturnType<RpcResponse.ErrorObject>
+      >
     | Errors.GlobalErrorType
 }
 
@@ -337,11 +332,7 @@ export declare namespace http {
       onFetchResponse?: RpcAsync.fromHttp.Options['onResponse'] | undefined
     }
 
-  type ErrorType =
-    | promise.createBatchScheduler.ErrorType
-    | RpcAsync.fromHttp.ErrorType
-    | RpcResponse.parse.ErrorType
-    | Errors.GlobalErrorType
+  type ErrorType = from.ErrorType | Errors.GlobalErrorType
 }
 
 // TODO
@@ -351,14 +342,16 @@ export declare namespace http {
 // export function webSocket() {}
 
 /** Thrown when a HTTP request fails. */
-export class RequestError extends Errors.BaseError<http.ErrorType> {
+export class RequestError<
+  cause extends Error | undefined = undefined,
+> extends Errors.BaseError<cause> {
   override readonly name = 'Transport.RequestError'
 
   request: unknown
   url?: string
 
   constructor(
-    cause: http.ErrorType,
+    cause: any,
     {
       request,
       url,
@@ -387,8 +380,13 @@ export class RequestError extends Errors.BaseError<http.ErrorType> {
 /** @internal */
 export function shouldRetry(error: Error) {
   if ('code' in error && typeof error.code === 'number') {
-    if (error.code === RpcResponse.LimitExceededError.code) return true
-    if (error.code === RpcResponse.InternalError.code) return true
+    if (error instanceof RpcResponse.LimitExceededError) return true
+    if (error instanceof RpcResponse.InternalError) {
+      const data = (error.data ?? {}) as { code?: number | undefined }
+      // EIP-1193 & CAIP-25 errors should not be retried.
+      if (data.code && data.code >= 4000 && data.code < 6000) return false
+      return true
+    }
     return false
   }
   if (error instanceof RpcAsync.HttpError && error.response?.status) {
