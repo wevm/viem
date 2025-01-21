@@ -16,6 +16,5 @@ export const swell = /*#__PURE__*/ defineChain({
       apiUrl: 'https://explorer.swellnetwork.io/api',
     },
   },
-  contracts: {
-  },
+  contracts: {},
 })
