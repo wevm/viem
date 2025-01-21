@@ -1,5 +1,5 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
 import { chainConfig } from '../../op-stack/chainConfig.js'
+import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const swellchain = /*#__PURE__*/ defineChain({
   ...chainConfig,
