@@ -1,5 +1,13 @@
 # viem
 
+## 2.22.11
+
+### Patch Changes
+
+- [#3242](https://github.com/wevm/viem/pull/3242) [`2a2239e0b4efd8a62121ac87fcb17931cd403c16`](https://github.com/wevm/viem/commit/2a2239e0b4efd8a62121ac87fcb17931cd403c16) Thanks [@Duncan-Ultra](https://github.com/Duncan-Ultra)! - Added Ultra EVM Testnet chain
+
+- [#3246](https://github.com/wevm/viem/pull/3246) [`6a3e4073b018eb7b7f40aa420f89c1b376301227`](https://github.com/wevm/viem/commit/6a3e4073b018eb7b7f40aa420f89c1b376301227) Thanks [@aliberkhsl](https://github.com/aliberkhsl)! - Added Swellchain.
+
 ## 2.22.10
 
 ### Patch Changes
