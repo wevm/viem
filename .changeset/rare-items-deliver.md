@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add Swellchain
+Added Swellchain.
