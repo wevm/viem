@@ -18,5 +18,11 @@ export const rootstockTestnet = /*#__PURE__*/ defineChain({
       url: 'https://explorer.testnet.rootstock.io',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 2771150,
+    },
+  },
   testnet: true,
 })
