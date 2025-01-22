@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-add creditcoin3 chain
+Added creditcoin3 chain.
