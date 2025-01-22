@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add Lens Mainnet and Testnet chains
+Add Lens Testnet chains
