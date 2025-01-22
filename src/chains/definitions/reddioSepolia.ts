@@ -16,11 +16,5 @@ export const reddioSepolia = /*#__PURE__*/ defineChain({
       apiUrl: 'https://reddio-devnet.l2scan.co/api',
     },
   },
-  contracts: {
-    multicall3: {
-      address: '0x090241Dc01C66541169AF6eD13672212FD43D531',
-      blockCreated: 3611828,
-    },
-  },
   testnet: true,
 })
