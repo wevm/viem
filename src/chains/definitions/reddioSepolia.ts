@@ -18,8 +18,8 @@ export const reddioSepolia = /*#__PURE__*/ defineChain({
   },
   contracts: {
     multicall3: {
-      address: '0xB74D5Dba3081bCaDb5D4e1CC77Cc4807E1c4ecf8',
-      blockCreated: 7526064,
+      address: '0x090241Dc01C66541169AF6eD13672212FD43D531',
+      blockCreated: 3611828,
     },
   },
   testnet: true,
