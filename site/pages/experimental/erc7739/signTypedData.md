@@ -66,12 +66,12 @@ export const types = {
 ```ts twoslash [config.ts] filename="config.ts"
 import { createWalletClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { erc7739 } from 'viem/experimental'
+import { erc7739Actions } from 'viem/experimental'
 
 export const walletClient = createWalletClient({
   chain: mainnet,
   transport: http(),
-}).extend(erc7739())
+}).extend(erc7739Actions())
 
 export const [account] = await walletClient.getAddresses()
 // @log: ↑ JSON-RPC Account
@@ -137,7 +137,7 @@ export const types = {
 
 ```ts [config.ts (JSON-RPC Account)]
 import { createWalletClient, custom } from 'viem'
-import { erc7739 } from 'viem/experimental'
+import { erc7739Actions } from 'viem/experimental'
 
 // Retrieve Account from an EIP-1193 Provider.
 const [account] = await window.ethereum.request({ 
@@ -147,7 +147,7 @@ const [account] = await window.ethereum.request({
 export const walletClient = createWalletClient({
   account,
   transport: custom(window.ethereum!)
-}).extend(erc7739({ 
+}).extend(erc7739Actions({ 
   verifier: '0xCB9fA1eA9b8A3bf422a8639f23Df77ea66020eC2' 
 }))
 ```
@@ -155,12 +155,12 @@ export const walletClient = createWalletClient({
 ```ts twoslash [config.ts (Local Account)] filename="config.ts"
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { erc7739 } from 'viem/experimental'
+import { erc7739Actions } from 'viem/experimental'
 
 export const walletClient = createWalletClient({
   account: privateKeyToAccount('0x...'),
   transport: http()
-}).extend(erc7739({ 
+}).extend(erc7739Actions({ 
   verifier: '0xCB9fA1eA9b8A3bf422a8639f23Df77ea66020eC2' 
 }))
 ```
