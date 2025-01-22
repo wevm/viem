@@ -170,6 +170,7 @@ export type ContractFunctionRevertedErrorType =
   }
 export class ContractFunctionRevertedError extends BaseError {
   data?: DecodeErrorResultReturnType | undefined
+  rawData?: Hex | undefined
   reason?: string | undefined
   signature?: Hex | undefined
 
@@ -232,6 +233,7 @@ export class ContractFunctionRevertedError extends BaseError {
         `Unable to decode signature "${signature}" as it was not found on the provided ABI.`,
         'Make sure you are using the correct ABI and that the error exists on it.',
         `You can look up the decoded signature here: https://openchain.xyz/signatures?query=${signature}.`,
+        `Raw revert data: "${data}"`,
       ]
     }
 
@@ -251,6 +253,7 @@ export class ContractFunctionRevertedError extends BaseError {
       },
     )
 
+    this.rawData = data
     this.data = decodedData
     this.reason = reason
     this.signature = signature
