@@ -7,7 +7,7 @@ export const creditCoin3Testnet = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: ['https://rpc.cc3-testnet.creditcoin.network'],
-      webSocket: ['wss://rpc.cc3-testnet.creditcoin.network"'],
+      webSocket: ['wss://rpc.cc3-testnet.creditcoin.network'],
     },
   },
   blockExplorers: {
