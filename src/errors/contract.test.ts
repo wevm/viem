@@ -330,7 +330,7 @@ describe('ContractFunctionRevertedError', () => {
       Version: viem@x.y.z]
     `)
 
-    expect(err.rawData).be.undefined
+    expect(err.raw).be.undefined
   })
 
   test('data: Error(string)', () => {
@@ -348,7 +348,7 @@ describe('ContractFunctionRevertedError', () => {
       Version: viem@x.y.z]
     `)
 
-    expect(err.rawData).toEqual(data)
+    expect(err.raw).toEqual(data)
   })
 
   test('data: Panic(uint256)', () => {
@@ -366,7 +366,7 @@ describe('ContractFunctionRevertedError', () => {
       Version: viem@x.y.z]
     `)
 
-    expect(err.rawData).toEqual(data)
+    expect(err.raw).toEqual(data)
   })
 
   test('data: custom error', () => {
@@ -386,7 +386,7 @@ describe('ContractFunctionRevertedError', () => {
       Version: viem@x.y.z]
     `)
 
-    expect(err.rawData).toEqual(data)
+    expect(err.raw).toEqual(data)
   })
 
   test('data: zero data', () => {
@@ -402,7 +402,7 @@ describe('ContractFunctionRevertedError', () => {
       Version: viem@x.y.z]
     `)
 
-    expect(err.rawData).toEqual(data)
+    expect(err.raw).toEqual(data)
   })
 
   test('data: error signature does not exist on ABI', () => {
@@ -427,6 +427,6 @@ describe('ContractFunctionRevertedError', () => {
       Version: viem@x.y.z]
     `)
 
-    expect(err.rawData).toEqual(data)
+    expect(err.raw).toEqual(data)
   })
 })
