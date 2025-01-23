@@ -1,5 +1,11 @@
 # viem
 
+## 2.22.14
+
+### Patch Changes
+
+- [#3263](https://github.com/wevm/viem/pull/3263) [`b1f53f270a96003a4c915b4c7d3d047f5f521606`](https://github.com/wevm/viem/commit/b1f53f270a96003a4c915b4c7d3d047f5f521606) Thanks [@jsmjsm](https://github.com/jsmjsm)! - Added Multicall to Bitlayer.
+
 ## 2.22.13
 
 ### Patch Changes
