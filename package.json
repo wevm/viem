@@ -131,12 +131,6 @@
       "import": "*"
     },
     {
-      "name": "import { toCoinbaseSmartAccount } from 'viem/account-abstraction'",
-      "path": "./src/_esm/account-abstraction/index.js",
-      "limit": "37 kB",
-      "import": "{ toCoinbaseSmartAccount }"
-    },
-    {
       "name": "import * from 'viem/accounts'",
       "path": "./src/_esm/accounts/index.js",
       "limit": "97 kB",
