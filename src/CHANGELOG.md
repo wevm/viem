@@ -1,5 +1,17 @@
 # viem
 
+## 2.22.13
+
+### Patch Changes
+
+- [#3259](https://github.com/wevm/viem/pull/3259) [`2f63f9a8a2c1b3057a32024854e7a9e52e675acd`](https://github.com/wevm/viem/commit/2f63f9a8a2c1b3057a32024854e7a9e52e675acd) Thanks [@MaryBecky](https://github.com/MaryBecky)! - Added InitVerse Mainnet.
+
+- [#3261](https://github.com/wevm/viem/pull/3261) [`00350defbb9aed1daca91bd4411db9a5b4d56e96`](https://github.com/wevm/viem/commit/00350defbb9aed1daca91bd4411db9a5b4d56e96) Thanks [@fe-dudu](https://github.com/fe-dudu)! - Updated creditcoin3 testnet rpcUrls
+
+- [`a1e17d0be7a04755cbb55a46ae80218a5c2f253c`](https://github.com/wevm/viem/commit/a1e17d0be7a04755cbb55a46ae80218a5c2f253c) Thanks [@jxom](https://github.com/jxom)! - Added ability for Coinbase Smart Account owners to be `Address`.
+
+- [`2e687185aa91210b40557f5b5effd916a29f2e45`](https://github.com/wevm/viem/commit/2e687185aa91210b40557f5b5effd916a29f2e45) Thanks [@jxom](https://github.com/jxom)! - Bumped dependencies.
+
 ## 2.22.12
 
 ### Patch Changes
