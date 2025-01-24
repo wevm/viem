@@ -17,4 +17,10 @@ export const cronoszkEVM = /*#__PURE__*/ defineChain({
       url: 'https://explorer.zkevm.cronos.org',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0x06f4487d7c4a5983d2660db965cc6d2565e4cfaa',
+      blockCreated: 72,
+    },
+  },
 })
