@@ -2,6 +2,7 @@ export type { Chain } from '../types/chain.js'
 
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
 export { abey } from './definitions/abey.js'
+export { abstract } from './definitions/abstract.js'
 export { abstractTestnet } from './definitions/abstractTestnet.js'
 export { acala } from './definitions/acala.js'
 export { acria } from './definitions/acria.js'
