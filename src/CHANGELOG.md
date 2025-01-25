@@ -1,5 +1,15 @@
 # viem
 
+## 2.22.14
+
+### Patch Changes
+
+- [#3271](https://github.com/wevm/viem/pull/3271) [`4042055c43015e8181448af37bdf79caa28f3665`](https://github.com/wevm/viem/commit/4042055c43015e8181448af37bdf79caa28f3665) Thanks [@0xartcro](https://github.com/0xartcro)! - Added cronos zkEVM multicall3
+
+- [`7973e0c9a50e2af82ab2f12025be10c36d4df5c7`](https://github.com/wevm/viem/commit/7973e0c9a50e2af82ab2f12025be10c36d4df5c7) Thanks [@jxom](https://github.com/jxom)! - Added Hemi chain.
+
+- [#3267](https://github.com/wevm/viem/pull/3267) [`c9e411879c6123beef2c6ea89dc25d71e8a0a9e3`](https://github.com/wevm/viem/commit/c9e411879c6123beef2c6ea89dc25d71e8a0a9e3) Thanks [@hello-jdj](https://github.com/hello-jdj)! - Added PremiumBlock Testnet.
+
 ## 2.22.13
 
 ### Patch Changes
