@@ -499,3 +499,36 @@ test("errors: event doesn't exist", () => {
     ]
   `)
 })
+
+test('https://github.com/wevm/viem/issues/3278', () => {
+  const bugAbi = [
+    {
+      type: 'event',
+      name: 'test',
+      inputs: [
+        {
+          name: 'val',
+          type: 'uint32',
+          indexed: true,
+          internalType: 'uint32',
+        },
+      ],
+      anonymous: false,
+    },
+  ] as const
+
+  expect(
+    encodeEventTopics({
+      abi: bugAbi,
+      eventName: 'test',
+      args: {
+        val: 0, // change this to 1 and it works
+      },
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      "0xe3cff634ef3ac1857ee74821b8b4103c803384af6152771eef3a2a92bdda6db6",
+      "0x0000000000000000000000000000000000000000000000000000000000000000",
+    ]
+  `)
+})

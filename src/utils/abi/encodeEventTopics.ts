@@ -115,7 +115,9 @@ export function encodeEventTopics<
             return args_[i].map((_: any, j: number) =>
               encodeArg({ param, value: args_[i][j] }),
             )
-          return args_[i] ? encodeArg({ param, value: args_[i] }) : null
+          return typeof args_[i] !== 'undefined' && args_[i] !== null
+            ? encodeArg({ param, value: args_[i] })
+            : null
         }) ?? []
     }
   }
