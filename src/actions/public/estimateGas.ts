@@ -145,7 +145,7 @@ export async function estimateGas<
       // If `to` exists on the parameters, use that.
       if (rest.to) return rest.to
 
-      // If no `to` exists, and we are sending a EIP-7702 transaction, use the
+      // If no `to` exists, and we are sending an EIP-7702 transaction, use the
       // address of the first authorization in the list.
       if (authorizationList && authorizationList.length > 0)
         return await recoverAuthorizationAddress({
