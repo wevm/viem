@@ -56,7 +56,6 @@ import type {
   EIP1193RequestOptions,
 } from '../types/eip1193.js'
 import { stringToHex } from './encoding/toHex.js'
-import { keccak256 } from './hash/keccak256.js'
 import type { CreateBatchSchedulerErrorType } from './promise/createBatchScheduler.js'
 import { withDedupe } from './promise/withDedupe.js'
 import { type WithRetryErrorType, withRetry } from './promise/withRetry.js'
@@ -120,7 +119,7 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
       })
 
     const requestId = dedupe
-      ? keccak256(stringToHex(`${uid}.${stringify(args)}`))
+      ? stringToHex(`${uid}.${stringify(args)}`)
       : undefined
     return withDedupe(
       () =>
