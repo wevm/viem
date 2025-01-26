@@ -1,5 +1,15 @@
 # viem
 
+## 2.22.15
+
+### Patch Changes
+
+- [#3277](https://github.com/wevm/viem/pull/3277) [`b5eadf8c14cf6578aaeb82b1ff78f3b12a600a7b`](https://github.com/wevm/viem/commit/b5eadf8c14cf6578aaeb82b1ff78f3b12a600a7b) Thanks [@Duncan-Ultra](https://github.com/Duncan-Ultra)! - Added Ultra EVM Mainnet chain
+
+- [#3275](https://github.com/wevm/viem/pull/3275) [`3b21f1ad5c5679d557457144c28e089e1459373b`](https://github.com/wevm/viem/commit/3b21f1ad5c5679d557457144c28e089e1459373b) Thanks [@holic](https://github.com/holic)! - Removed hash on request cache key.
+
+- [`1d01f826777c98274326f321952beadb753ea243`](https://github.com/wevm/viem/commit/1d01f826777c98274326f321952beadb753ea243) Thanks [@jxom](https://github.com/jxom)! - Fixed `encodeEventTopics` for zeroish arguments.
+
 ## 2.22.14
 
 ### Patch Changes
