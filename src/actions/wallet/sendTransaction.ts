@@ -184,7 +184,7 @@ export async function sendTransaction<
       // If `to` exists on the parameters, use that.
       if (parameters.to) return parameters.to
 
-      // If no `to` exists, and we are sending a EIP-7702 transaction, use the
+      // If no `to` exists, and we are sending an EIP-7702 transaction, use the
       // address of the first authorization in the list.
       if (authorizationList && authorizationList.length > 0)
         return await recoverAuthorizationAddress({
