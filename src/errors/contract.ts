@@ -170,6 +170,7 @@ export type ContractFunctionRevertedErrorType =
   }
 export class ContractFunctionRevertedError extends BaseError {
   data?: DecodeErrorResultReturnType | undefined
+  raw?: Hex | undefined
   reason?: string | undefined
   signature?: Hex | undefined
 
@@ -252,6 +253,7 @@ export class ContractFunctionRevertedError extends BaseError {
     )
 
     this.data = decodedData
+    this.raw = data
     this.reason = reason
     this.signature = signature
   }

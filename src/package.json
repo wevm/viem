@@ -1,7 +1,7 @@
 {
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
-  "version": "2.22.10",
+  "version": "2.22.16",
   "type": "module",
   "main": "./_cjs/index.js",
   "module": "./_esm/index.js",
@@ -145,13 +145,13 @@
     }
   },
   "dependencies": {
-    "@noble/curves": "1.7.0",
-    "@noble/hashes": "1.6.1",
-    "@scure/bip32": "1.6.0",
-    "@scure/bip39": "1.5.0",
-    "abitype": "1.0.7",
+    "@noble/curves": "1.8.1",
+    "@noble/hashes": "1.7.1",
+    "@scure/bip32": "1.6.2",
+    "@scure/bip39": "1.5.4",
+    "abitype": "1.0.8",
     "isows": "1.0.6",
-    "ox": "0.6.5",
+    "ox": "0.6.7",
     "ws": "8.18.0"
   },
   "license": "MIT",

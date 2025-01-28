@@ -13,7 +13,10 @@ import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { http, createClient, toBlobs } from '../../index.js'
 import { nonceManager } from '../../utils/index.js'
-import { prepareTransactionRequest } from './prepareTransactionRequest.js'
+import {
+  eip1559NetworkCache,
+  prepareTransactionRequest,
+} from './prepareTransactionRequest.js'
 
 const client = anvilMainnet.getClient()
 
@@ -65,6 +68,8 @@ test('default', async () => {
 test('legacy fees', async () => {
   await setup()
 
+  eip1559NetworkCache.clear()
+
   vi.spyOn(getBlock, 'getBlock').mockResolvedValueOnce({
     baseFeePerGas: undefined,
   } as any)
@@ -100,6 +105,8 @@ test('legacy fees', async () => {
       "value": 1000000000000000000n,
     }
   `)
+
+  eip1559NetworkCache.clear()
 })
 
 test('args: account', async () => {
@@ -252,8 +259,6 @@ test('args: nonce', async () => {
 
 test('args: gasPrice', async () => {
   await setup()
-
-  vi.spyOn(getBlock, 'getBlock').mockResolvedValueOnce({} as any)
 
   const { nonce: _nonce, ...request } = await prepareTransactionRequest(
     client,

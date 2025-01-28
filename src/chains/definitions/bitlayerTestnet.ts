@@ -20,5 +20,11 @@ export const bitlayerTestnet = /*#__PURE__*/ defineChain({
       url: 'https://testnet.btrscan.com',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0x5B256fE9e993902eCe49D138a5b1162cBb529474',
+      blockCreated: 4135671,
+    },
+  },
   testnet: true,
 })

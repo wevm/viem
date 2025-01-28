@@ -20,4 +20,10 @@ export const bitlayer = /*#__PURE__*/ defineChain({
       url: 'https://www.btrscan.com',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0x5B256fE9e993902eCe49D138a5b1162cBb529474',
+      blockCreated: 2421963,
+    },
+  },
 })

@@ -317,58 +317,67 @@ describe('ContractFunctionExecutionError', () => {
 
 describe('ContractFunctionRevertedError', () => {
   test('default', () => {
-    expect(
-      new ContractFunctionRevertedError({
-        abi: ErrorsExample.abi,
-        message: 'oh no',
-        functionName: 'totalSupply',
-      }),
-    ).toMatchInlineSnapshot(`
+    const err = new ContractFunctionRevertedError({
+      abi: ErrorsExample.abi,
+      message: 'oh no',
+      functionName: 'totalSupply',
+    })
+
+    expect(err).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "totalSupply" reverted with the following reason:
       oh no
 
       Version: viem@x.y.z]
     `)
+
+    expect(err.raw).be.undefined
   })
 
   test('data: Error(string)', () => {
-    expect(
-      new ContractFunctionRevertedError({
-        abi: ErrorsExample.abi,
-        data: '0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000022456e756d657261626c655365743a20696e646578206f7574206f6620626f756e6473000000000000000000000000000000000000000000000000000000000000',
-        functionName: 'totalSupply',
-      }),
-    ).toMatchInlineSnapshot(`
+    const data =
+      '0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000022456e756d657261626c655365743a20696e646578206f7574206f6620626f756e6473000000000000000000000000000000000000000000000000000000000000'
+    const err = new ContractFunctionRevertedError({
+      abi: ErrorsExample.abi,
+      data,
+      functionName: 'totalSupply',
+    })
+    expect(err).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "totalSupply" reverted with the following reason:
       EnumerableSet: index out of bounds
 
       Version: viem@x.y.z]
     `)
+
+    expect(err.raw).toEqual(data)
   })
 
   test('data: Panic(uint256)', () => {
-    expect(
-      new ContractFunctionRevertedError({
-        abi: ErrorsExample.abi,
-        data: '0x4e487b710000000000000000000000000000000000000000000000000000000000000001',
-        functionName: 'totalSupply',
-      }),
-    ).toMatchInlineSnapshot(`
+    const data =
+      '0x4e487b710000000000000000000000000000000000000000000000000000000000000001'
+    const err = new ContractFunctionRevertedError({
+      abi: ErrorsExample.abi,
+      data,
+      functionName: 'totalSupply',
+    })
+    expect(err).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "totalSupply" reverted with the following reason:
       An \`assert\` condition failed.
 
       Version: viem@x.y.z]
     `)
+
+    expect(err.raw).toEqual(data)
   })
 
   test('data: custom error', () => {
-    expect(
-      new ContractFunctionRevertedError({
-        abi: ErrorsExample.abi,
-        data: '0xdb731cf4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000004500000000000000000000000000000000000000000000000000000000000000066275676765720000000000000000000000000000000000000000000000000000',
-        functionName: 'customComplexError',
-      }),
-    ).toMatchInlineSnapshot(`
+    const data =
+      '0xdb731cf4000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000004500000000000000000000000000000000000000000000000000000000000000066275676765720000000000000000000000000000000000000000000000000000'
+    const err = new ContractFunctionRevertedError({
+      abi: ErrorsExample.abi,
+      data,
+      functionName: 'customComplexError',
+    })
+    expect(err).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "customComplexError" reverted.
 
       Error: ComplexError((address sender, uint256 bar), string message, uint256 number)
@@ -376,30 +385,35 @@ describe('ContractFunctionRevertedError', () => {
 
       Version: viem@x.y.z]
     `)
+
+    expect(err.raw).toEqual(data)
   })
 
   test('data: zero data', () => {
-    expect(
-      new ContractFunctionRevertedError({
-        abi: ErrorsExample.abi,
-        data: '0x',
-        functionName: 'customComplexError',
-      }),
-    ).toMatchInlineSnapshot(`
+    const data = '0x'
+    const err = new ContractFunctionRevertedError({
+      abi: ErrorsExample.abi,
+      data,
+      functionName: 'customComplexError',
+    })
+    expect(err).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "customComplexError" reverted.
 
       Version: viem@x.y.z]
     `)
+
+    expect(err.raw).toEqual(data)
   })
 
   test('data: error signature does not exist on ABI', () => {
-    expect(
-      new ContractFunctionRevertedError({
-        abi: ErrorsExample.abi,
-        data: '0xdb731cfa000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000004500000000000000000000000000000000000000000000000000000000000000066275676765720000000000000000000000000000000000000000000000000000',
-        functionName: 'totalSupply',
-      }),
-    ).toMatchInlineSnapshot(`
+    const data =
+      '0xdb731cfa000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000004500000000000000000000000000000000000000000000000000000000000000066275676765720000000000000000000000000000000000000000000000000000'
+    const err = new ContractFunctionRevertedError({
+      abi: ErrorsExample.abi,
+      data,
+      functionName: 'totalSupply',
+    })
+    expect(err).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "totalSupply" reverted with the following signature:
       0xdb731cfa
 
@@ -410,5 +424,7 @@ describe('ContractFunctionRevertedError', () => {
       Docs: https://viem.sh/docs/contract/decodeErrorResult
       Version: viem@x.y.z]
     `)
+
+    expect(err.raw).toEqual(data)
   })
 })
