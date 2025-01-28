@@ -1,5 +1,15 @@
 # viem
 
+## 2.22.16
+
+### Patch Changes
+
+- [#3280](https://github.com/wevm/viem/pull/3280) [`bc2028ba8359f5d9dbf705b1b8989579d4f17ff4`](https://github.com/wevm/viem/commit/bc2028ba8359f5d9dbf705b1b8989579d4f17ff4) Thanks [@biruichen](https://github.com/biruichen)! - Added ETP Mainnet.
+
+- [`85344994ebaf286a2680dab886c037e73a24da11`](https://github.com/wevm/viem/commit/85344994ebaf286a2680dab886c037e73a24da11) Thanks [@jxom](https://github.com/jxom)! - Removed redundant `eth_getBlockByNumber` calls.
+
+- [#3282](https://github.com/wevm/viem/pull/3282) [`3bf349e78319b248010b9c0f40d77acbb6cb8a2e`](https://github.com/wevm/viem/commit/3bf349e78319b248010b9c0f40d77acbb6cb8a2e) Thanks [@aodhgan](https://github.com/aodhgan)! - Added Happychain testnet
+
 ## 2.22.15
 
 ### Patch Changes
