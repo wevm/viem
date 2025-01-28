@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const happychainTestnet = /*#__PURE__*/ defineChain({
   id: 216,
   name: 'Happychain Testnet',
-  network: 'happychain-testnet',
   nativeCurrency: {
     symbol: 'HAPPY',
     name: 'HAPPY',
