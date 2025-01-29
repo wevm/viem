@@ -1,5 +1,11 @@
 # viem
 
+## 2.22.17
+
+### Patch Changes
+
+- [`3f8859f52132158fcb721c416ba17424c5c1bc9d`](https://github.com/wevm/viem/commit/3f8859f52132158fcb721c416ba17424c5c1bc9d) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where Transports were falling back on execution errors.
+
 ## 2.22.16
 
 ### Patch Changes
