@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added WMC Testnet chain configuration
+Added WMC Testnet chain.
