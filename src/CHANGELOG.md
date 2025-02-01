@@ -1,5 +1,15 @@
 # viem
 
+## 2.22.18
+
+### Patch Changes
+
+- [#3287](https://github.com/wevm/viem/pull/3287) [`9a7bc6e354b9ef8ca3baeb6a4538d5564ccf08a5`](https://github.com/wevm/viem/commit/9a7bc6e354b9ef8ca3baeb6a4538d5564ccf08a5) Thanks [@hello-jdj](https://github.com/hello-jdj)! - Added Forta Chain.
+
+- [#3288](https://github.com/wevm/viem/pull/3288) [`3a7fba472a24f4cf8ff68172dc40ed7358e9b691`](https://github.com/wevm/viem/commit/3a7fba472a24f4cf8ff68172dc40ed7358e9b691) Thanks [@dmitrii602](https://github.com/dmitrii602)! - Added WMC Testnet chain.
+
+- [`68f00d39d40d16eb8408c441d79aa264e5e2149b`](https://github.com/wevm/viem/commit/68f00d39d40d16eb8408c441d79aa264e5e2149b) Thanks [@jxom](https://github.com/jxom)! - Fixed `simulate` data decoding.
+
 ## 2.22.17
 
 ### Patch Changes
