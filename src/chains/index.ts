@@ -491,6 +491,7 @@ export { wanchainTestnet } from './definitions/wanchainTestnet.js'
 export { weaveVMAlphanet } from './definitions/weavevmAlphanet.js'
 export { wemix } from './definitions/wemix.js'
 export { wemixTestnet } from './definitions/wemixTestnet.js'
+export { wmcTestnet } from './definitions/wmcTestnet.js';
 export { worldchain } from './definitions/worldchain.js'
 export { worldchainSepolia } from './definitions/worldchainSepolia.js'
 export { worldLand } from './definitions/worldLand.js'
