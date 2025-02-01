@@ -12,7 +12,7 @@ export const wmcTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'WMC Explorer',
-      url: 'https://explorer2-base-testnet.worldmobile.net/',
+      url: 'https://explorer2-base-testnet.worldmobile.net',
     },
   },
   testnet: true,
