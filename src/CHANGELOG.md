@@ -1,5 +1,15 @@
 # viem
 
+## 2.22.19
+
+### Patch Changes
+
+- [#3291](https://github.com/wevm/viem/pull/3291) [`4e53750f4e84486bcfcb35382cf6150438468d35`](https://github.com/wevm/viem/commit/4e53750f4e84486bcfcb35382cf6150438468d35) Thanks [@biruichen](https://github.com/biruichen)! - Added Sidra Chain.
+
+- [#3292](https://github.com/wevm/viem/pull/3292) [`d6388d78a20dac91ffc6196a79fdaea13c749c59`](https://github.com/wevm/viem/commit/d6388d78a20dac91ffc6196a79fdaea13c749c59) Thanks [@pk-850](https://github.com/pk-850)! - Added Multicall address to Songbird Canary-Network.
+
+- [#3293](https://github.com/wevm/viem/pull/3293) [`f3746922322ee2d8209a951ffae7d2e6dbcccca1`](https://github.com/wevm/viem/commit/f3746922322ee2d8209a951ffae7d2e6dbcccca1) Thanks [@jxom](https://github.com/jxom)! - Added ERC-7821 `executeBatches` for "batch of batches" execution mode.
+
 ## 2.22.18
 
 ### Patch Changes
