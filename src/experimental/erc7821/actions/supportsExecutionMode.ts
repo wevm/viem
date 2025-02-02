@@ -5,16 +5,23 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
+import { withCache } from '../../../utils/promise/withCache.js'
 import { abi, executionMode } from '../constants.js'
 
 export type SupportsExecutionModeParameters = {
   address: Address
-  opData?: Hex | undefined
+  mode?: 'default' | 'opData' | 'batchOfBatches' | Hex
 }
 
 export type SupportsExecutionModeReturnType = boolean
 
 export type SupportsExecutionModeErrorType = ErrorType
+
+const toSerializedMode = {
+  default: executionMode.default,
+  opData: executionMode.opData,
+  batchOfBatches: executionMode.batchOfBatches,
+} as const
 
 /**
  * Checks if the contract supports the ERC-7821 execution mode.
@@ -45,15 +52,21 @@ export async function supportsExecutionMode<
   client: Client<Transport, chain>,
   parameters: SupportsExecutionModeParameters,
 ): Promise<SupportsExecutionModeReturnType> {
-  const { address, opData } = parameters
-  const mode = opData ? executionMode.opData : executionMode.default
+  const { address, mode: m = 'default' } = parameters
+  const mode = m.startsWith('0x') ? m : (toSerializedMode as any)[m]
   try {
-    return await readContract(client, {
-      abi,
-      address,
-      functionName: 'supportsExecutionMode',
-      args: [mode],
-    })
+    return await withCache(
+      () =>
+        readContract(client, {
+          abi,
+          address,
+          functionName: 'supportsExecutionMode',
+          args: [mode],
+        }),
+      {
+        cacheKey: `supportsExecutionMode.${address}.${mode}`,
+      },
+    )
   } catch {
     return false
   }

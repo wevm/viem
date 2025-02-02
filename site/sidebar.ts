@@ -1415,6 +1415,10 @@ export const sidebar = {
                 link: '/experimental/erc7821/execute',
               },
               {
+                text: 'executeBatches',
+                link: '/experimental/erc7821/executeBatches',
+              },
+              {
                 text: 'supportsExecutionMode',
                 link: '/experimental/erc7821/supportsExecutionMode',
               },
