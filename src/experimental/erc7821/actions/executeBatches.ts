@@ -41,7 +41,8 @@ import {
 import { encodeCalls } from './execute.js'
 import { supportsExecutionMode } from './supportsExecutionMode.js'
 
-type Batch = { calls: readonly unknown[]; opData?: Hex | undefined }
+/** @internal */
+export type Batch = { calls: readonly unknown[]; opData?: Hex | undefined }
 
 export type ExecuteBatchesParameters<
   batches extends readonly Batch[] = readonly Batch[],

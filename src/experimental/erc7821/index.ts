@@ -1,4 +1,3 @@
-/**  */
 // biome-ignore lint/performance/noBarrelFile: entrypoint
 export {
   type ExecuteErrorType,
@@ -6,6 +5,12 @@ export {
   type ExecuteReturnType,
   execute,
 } from './actions/execute.js'
+export {
+  type ExecuteBatchesErrorType,
+  type ExecuteBatchesParameters,
+  type ExecuteBatchesReturnType,
+  executeBatches,
+} from './actions/executeBatches.js'
 export {
   type SupportsExecutionModeErrorType,
   type SupportsExecutionModeParameters,
