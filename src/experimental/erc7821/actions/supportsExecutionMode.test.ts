@@ -46,7 +46,7 @@ test('default', async () => {
   ).toBe(true)
 })
 
-test('args: opData', async () => {
+test('args: mode = opData', async () => {
   const { contractAddress } = await deploy(client, {
     abi: ERC7821Example.abi,
     bytecode: ERC7821Example.bytecode.object,
@@ -55,7 +55,35 @@ test('args: opData', async () => {
   expect(
     await supportsExecutionMode(client, {
       address: contractAddress!,
-      opData: '0xdeadbeef',
+      mode: 'opData',
+    }),
+  ).toBe(true)
+})
+
+test('args: mode = batchOfBatches', async () => {
+  const { contractAddress } = await deploy(client, {
+    abi: ERC7821Example.abi,
+    bytecode: ERC7821Example.bytecode.object,
+  })
+
+  expect(
+    await supportsExecutionMode(client, {
+      address: contractAddress!,
+      mode: 'batchOfBatches',
+    }),
+  ).toBe(true)
+})
+
+test('args: mode (hex)', async () => {
+  const { contractAddress } = await deploy(client, {
+    abi: ERC7821Example.abi,
+    bytecode: ERC7821Example.bytecode.object,
+  })
+
+  expect(
+    await supportsExecutionMode(client, {
+      address: contractAddress!,
+      mode: '0x0100000000007821000200000000000000000000000000000000000000000000',
     }),
   ).toBe(true)
 })

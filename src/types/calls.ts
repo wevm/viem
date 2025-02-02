@@ -45,3 +45,21 @@ export type Calls<
           ? readonly Prettify<call>[]
           : // Fallback
             readonly OneOf<Call>[]
+
+export type Batches<
+  batches extends readonly { calls: readonly unknown[] }[],
+  properties extends Record<string, any> = {},
+  ///
+  result extends readonly any[] = [],
+> = batches extends readonly [infer batch extends { calls: readonly unknown[] }]
+  ? [...result, { calls: Calls<batch['calls']> } & properties]
+  : batches extends readonly [
+        infer batch extends { calls: readonly unknown[] },
+        ...infer rest extends readonly { calls: readonly unknown[] }[],
+      ]
+    ? Batches<
+        [...rest],
+        properties,
+        [...result, { calls: Calls<batch['calls']> } & properties]
+      >
+    : batches
