@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-add berachain mainnet
+Added Berachain.
