@@ -1,6 +1,4 @@
-import type { Abi, Address, Narrow } from 'abitype'
-import * as AbiError from 'ox/AbiError'
-import * as AbiParameters from 'ox/AbiParameters'
+import type { Address, Narrow } from 'abitype'
 
 import {
   type SendTransactionErrorType,
@@ -11,7 +9,7 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { BaseError } from '../../../errors/base.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../../types/account.js'
-import type { Batches, Call } from '../../../types/calls.js'
+import type { Batches, Calls } from '../../../types/calls.js'
 import type {
   Chain,
   DeriveChain,
@@ -19,26 +17,17 @@ import type {
 } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
 import type { UnionEvaluate, UnionPick } from '../../../types/utils.js'
-import {
-  type DecodeErrorResultErrorType,
-  decodeErrorResult,
-} from '../../../utils/abi/decodeErrorResult.js'
-import {
-  type EncodeFunctionDataErrorType,
-  encodeFunctionData,
-} from '../../../utils/abi/encodeFunctionData.js'
-import {
-  type GetContractErrorReturnType,
-  getContractError,
-} from '../../../utils/errors/getContractError.js'
 import type { FormattedTransactionRequest } from '../../../utils/formatters/transactionRequest.js'
 import { withCache } from '../../../utils/promise/withCache.js'
-import { abi, executionMode } from '../constants.js'
+import { ExecuteUnsupportedError } from '../errors.js'
 import {
-  ExecuteUnsupportedError,
-  FunctionSelectorNotRecognizedError,
-} from '../errors.js'
-import { encodeCalls } from './execute.js'
+  type EncodeExecuteBatchesDataErrorType,
+  encodeExecuteBatchesData,
+} from '../utils/encodeExecuteBatchesData.js'
+import {
+  type GetExecuteErrorReturnType,
+  getExecuteError,
+} from '../utils/getExecuteError.js'
 import { supportsExecutionMode } from './supportsExecutionMode.js'
 
 /** @internal */
@@ -66,16 +55,13 @@ export type ExecuteBatchesParameters<
     address: Address
     /** Batches to execute. */
     batches: Batches<Narrow<batches>, { opData?: Hex | undefined }>
-    /** Additional data to include for execution. */
-    opData?: Hex | undefined
   }
 
 export type ExecuteBatchesReturnType = Hex
 
 export type ExecuteBatchesErrorType =
-  | DecodeErrorResultErrorType
-  | GetContractErrorReturnType
-  | EncodeFunctionDataErrorType
+  | GetExecuteErrorReturnType
+  | EncodeExecuteBatchesDataErrorType
   | SendTransactionErrorType
   | ErrorType
 
@@ -182,12 +168,6 @@ export async function executeBatches<
   const { authorizationList, batches } = parameters
 
   const address = authorizationList?.[0]?.contractAddress ?? parameters.address
-  const encodedBatches = AbiParameters.encode(AbiParameters.from('bytes[]'), [
-    batches.map((b) => {
-      const batch = b as Batch
-      return encodeCalls(batch.calls, batch.opData)
-    }),
-  ])
 
   const supported = await withCache(
     () =>
@@ -205,50 +185,10 @@ export async function executeBatches<
     return await sendTransaction(client, {
       ...parameters,
       to: parameters.address,
-      data: encodeFunctionData({
-        abi,
-        functionName: 'execute',
-        args: [executionMode.batchOfBatches, encodedBatches],
-      }),
+      data: encodeExecuteBatchesData({ batches }),
     } as any)
   } catch (e) {
-    const error = (e as BaseError).walk((e) => 'data' in (e as Error)) as
-      | (BaseError & { data?: Hex | undefined })
-      | undefined
-
-    if (!error?.data) throw e
-    if (
-      error.data ===
-      AbiError.getSelector(AbiError.from('error FnSelectorNotRecognized()'))
-    )
-      throw new FunctionSelectorNotRecognizedError()
-
-    let matched: Call | null = null
-    for (const b of parameters.batches) {
-      const batch = b as Batch
-      for (const c of batch.calls) {
-        const call = c as Call
-        if (!call.abi) continue
-        try {
-          const matches = Boolean(
-            decodeErrorResult({
-              abi: call.abi,
-              data: error.data!,
-            }),
-          )
-          if (!matches) continue
-          matched = call
-        } catch {}
-      }
-    }
-    if (!matched) throw e
-
-    throw getContractError(error as BaseError, {
-      abi: matched.abi as Abi,
-      address: matched.to,
-      args: matched.args,
-      docsPath: '/experimental/erc7821/executeBatches',
-      functionName: matched.functionName,
-    })
+    const calls = batches.flatMap((b) => b.calls) as Calls<Narrow<batches>>
+    throw getExecuteError(e as BaseError, { calls })
   }
 }

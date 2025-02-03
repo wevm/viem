@@ -56,7 +56,7 @@ importers:
         version: 20.16.12
       '@vitest/coverage-v8':
         specifier: ^1.0.4
-        version: 1.0.4(vitest@1.0.4(@types/node@20.16.12)(@vitest/ui@1.0.4)(terser@5.36.0))
+        version: 1.0.4(vitest@1.0.4)
       '@vitest/ui':
         specifier: ^1.0.4
         version: 1.0.4(vitest@1.0.4)
@@ -79,8 +79,8 @@ importers:
         specifier: ^0.2.14
         version: 0.2.14
       prool:
-        specifier: ^0.0.16
-        version: 0.0.16(@pimlico/alto@0.0.4(typescript@5.6.2))
+        specifier: ^0.0.17
+        version: 0.0.17(@pimlico/alto@0.0.4(typescript@5.6.2))
       publint:
         specifier: ^0.2.11
         version: 0.2.11
@@ -2635,7 +2635,6 @@ packages:
 
   bun@1.1.30:
     resolution: {integrity: sha512-ysRL1pq10Xba0jqVLPrKU3YIv0ohfp3cTajCPtpjCyppbn3lfiAVNpGoHfyaxS17OlPmWmR67UZRPw/EueQuug==}
-    cpu: [arm64, x64]
     os: [darwin, linux, win32]
     hasBin: true
 
@@ -4532,8 +4531,8 @@ packages:
     resolution: {integrity: sha512-sF308EhTenb/pDRPakm+WgiN+VdM/T1RaHj1x+MvAuT8UiQP8JmOEbxVqtkbfR4LrvOg5n7ic01kRBDGXjYikA==}
     engines: {node: '>=10'}
 
-  prool@0.0.16:
-    resolution: {integrity: sha512-s+i66jsINIJQd8w5iGunT8hCeM6RSXjL8qgXDTvcIuaAOjVRVMh0/PgbJ90KR3JAprXWXpa5XQnDEc4fLnvy1Q==}
+  prool@0.0.17:
+    resolution: {integrity: sha512-wSEoXcsJflqnrqAcJy3XAsJceF0qN2W4UTCQIpAvsf0g9WOrdA9/zgIGeaFUG87PrcYZ3i5Bdw/Fv30o4NmXBA==}
     engines: {node: '>=22'}
     peerDependencies:
       '@pimlico/alto': '*'
@@ -5421,6 +5420,14 @@ packages:
 
   viem@2.22.17:
     resolution: {integrity: sha512-eqNhlPGgRLR29XEVUT2uuaoEyMiaQZEKx63xT1py9OYsE+ZwlVgjnfrqbXad7Flg2iJ0Bs5Hh7o0FfRWUJGHvg==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
+  viem@2.22.19:
+    resolution: {integrity: sha512-aGR/NUHaboQ/HoS86wYfJWbXt6aewjhp2OCO2uczCrusgcwXO/qC0l36AcFVw2dkOPBEhIG5oXMEso97L+xHmA==}
     peerDependencies:
       typescript: '>=5.0.4'
     peerDependenciesMeta:
@@ -6678,7 +6685,7 @@ snapshots:
       pino-http: 8.6.1
       pino-pretty: 10.3.1
       prom-client: 14.2.0
-      viem: 2.22.17(typescript@5.6.2)(zod@3.23.8)
+      viem: 2.22.19(typescript@5.6.2)(zod@3.23.8)
       yargs: 17.7.2
       zod: 3.23.8
       zod-validation-error: 1.5.0(zod@3.23.8)
@@ -7561,7 +7568,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@1.0.4(vitest@1.0.4(@types/node@20.16.12)(@vitest/ui@1.0.4)(terser@5.36.0))':
+  '@vitest/coverage-v8@1.0.4(vitest@1.0.4)':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -10241,7 +10248,7 @@ snapshots:
     dependencies:
       tdigest: 0.1.2
 
-  prool@0.0.16(@pimlico/alto@0.0.4(typescript@5.6.2)):
+  prool@0.0.17(@pimlico/alto@0.0.4(typescript@5.6.2)):
     dependencies:
       change-case: 5.4.4
       eventemitter3: 5.0.1
@@ -11266,6 +11273,23 @@ snapshots:
       vfile-message: 4.0.2
 
   viem@2.22.17(typescript@5.6.2)(zod@3.23.8):
+    dependencies:
+      '@noble/curves': 1.8.1
+      '@noble/hashes': 1.7.1
+      '@scure/bip32': 1.6.2
+      '@scure/bip39': 1.5.4
+      abitype: 1.0.8(typescript@5.6.2)(zod@3.23.8)
+      isows: 1.0.6(ws@8.18.0)
+      ox: 0.6.7(typescript@5.6.2)(zod@3.23.8)
+      ws: 8.18.0
+    optionalDependencies:
+      typescript: 5.6.2
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+      - zod
+
+  viem@2.22.19(typescript@5.6.2)(zod@3.23.8):
     dependencies:
       '@noble/curves': 1.8.1
       '@noble/hashes': 1.7.1

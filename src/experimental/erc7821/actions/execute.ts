@@ -1,6 +1,4 @@
-import type { Abi, Address, Narrow } from 'abitype'
-import * as AbiError from 'ox/AbiError'
-import * as AbiParameters from 'ox/AbiParameters'
+import type { Address, Narrow } from 'abitype'
 
 import {
   type SendTransactionErrorType,
@@ -11,7 +9,7 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { BaseError } from '../../../errors/base.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../../types/account.js'
-import type { Call, Calls } from '../../../types/calls.js'
+import type { Calls } from '../../../types/calls.js'
 import type {
   Chain,
   DeriveChain,
@@ -19,25 +17,18 @@ import type {
 } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
 import type { UnionEvaluate, UnionPick } from '../../../types/utils.js'
-import {
-  type DecodeErrorResultErrorType,
-  decodeErrorResult,
-} from '../../../utils/abi/decodeErrorResult.js'
-import {
-  type EncodeFunctionDataErrorType,
-  encodeFunctionData,
-} from '../../../utils/abi/encodeFunctionData.js'
-import {
-  type GetContractErrorReturnType,
-  getContractError,
-} from '../../../utils/errors/getContractError.js'
 import type { FormattedTransactionRequest } from '../../../utils/formatters/transactionRequest.js'
 import { withCache } from '../../../utils/promise/withCache.js'
-import { abi, executionMode } from '../constants.js'
+import { executionMode } from '../constants.js'
+import { ExecuteUnsupportedError } from '../errors.js'
 import {
-  ExecuteUnsupportedError,
-  FunctionSelectorNotRecognizedError,
-} from '../errors.js'
+  type EncodeExecuteDataErrorType,
+  encodeExecuteData,
+} from '../utils/encodeExecuteData.js'
+import {
+  type GetExecuteErrorReturnType,
+  getExecuteError,
+} from '../utils/getExecuteError.js'
 import { supportsExecutionMode } from './supportsExecutionMode.js'
 
 export type ExecuteParameters<
@@ -69,9 +60,8 @@ export type ExecuteParameters<
 export type ExecuteReturnType = Hex
 
 export type ExecuteErrorType =
-  | DecodeErrorResultErrorType
-  | GetContractErrorReturnType
-  | EncodeFunctionDataErrorType
+  | GetExecuteErrorReturnType
+  | EncodeExecuteDataErrorType
   | SendTransactionErrorType
   | ErrorType
 
@@ -155,7 +145,6 @@ export async function execute<
   const { authorizationList, calls, opData } = parameters
 
   const address = authorizationList?.[0]?.contractAddress ?? parameters.address
-  const encodedCalls = encodeCalls(calls, opData)
   const mode = opData ? executionMode.opData : executionMode.default
 
   const supported = await withCache(
@@ -174,71 +163,9 @@ export async function execute<
     return await sendTransaction(client, {
       ...parameters,
       to: parameters.address,
-      data: encodeFunctionData({
-        abi,
-        functionName: 'execute',
-        args: [mode, encodedCalls],
-      }),
+      data: encodeExecuteData({ calls, opData }),
     } as any)
   } catch (e) {
-    const error = (e as BaseError).walk((e) => 'data' in (e as Error)) as
-      | (BaseError & { data?: Hex | undefined })
-      | undefined
-
-    if (!error?.data) throw e
-    if (
-      error.data ===
-      AbiError.getSelector(AbiError.from('error FnSelectorNotRecognized()'))
-    )
-      throw new FunctionSelectorNotRecognizedError()
-
-    let matched: Call | null = null
-    for (const c of parameters.calls) {
-      const call = c as Call
-      if (!call.abi) continue
-      try {
-        const matches = Boolean(
-          decodeErrorResult({
-            abi: call.abi,
-            data: error.data!,
-          }),
-        )
-        if (!matches) continue
-        matched = call
-      } catch {}
-    }
-    if (!matched) throw e
-
-    throw getContractError(error as BaseError, {
-      abi: matched.abi as Abi,
-      address: matched.to,
-      args: matched.args,
-      docsPath: '/experimental/erc7821/execute',
-      functionName: matched.functionName,
-    })
+    throw getExecuteError(e as BaseError, { calls })
   }
-}
-
-/** @internal */
-export function encodeCalls(
-  calls_: Calls<readonly unknown[]>,
-  opData?: Hex | undefined,
-) {
-  const calls = calls_.map((call_) => {
-    const call = call_ as Call
-    return {
-      data: call.abi ? encodeFunctionData(call) : (call.data ?? '0x'),
-      value: call.value ?? 0n,
-      target: call.to,
-    }
-  })
-
-  return AbiParameters.encode(
-    AbiParameters.from([
-      'struct Call { address target; uint256 value; bytes data; }',
-      'Call[] calls',
-      ...(opData ? ['bytes opData'] : []),
-    ]),
-    [calls, ...(opData ? [opData] : [])] as any,
-  )
 }
