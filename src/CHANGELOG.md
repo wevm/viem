@@ -1,5 +1,11 @@
 # viem
 
+## 2.22.21
+
+### Patch Changes
+
+- [`c822da1966220bb80eda9b00d47829bf23e29761`](https://github.com/wevm/viem/commit/c822da1966220bb80eda9b00d47829bf23e29761) Thanks [@jxom](https://github.com/jxom)! - Fixed ERC-7821 `getExecuteError` return type.
+
 ## 2.22.20
 
 ### Patch Changes
