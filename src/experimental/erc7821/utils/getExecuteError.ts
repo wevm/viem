@@ -33,7 +33,7 @@ export function getExecuteError<const calls extends readonly unknown[]>(
     | (BaseError & { data?: Hex | undefined })
     | undefined
 
-  if (!error?.data) throw e
+  if (!error?.data) return e as never
   if (
     error.data ===
     AbiError.getSelector(AbiError.from('error FnSelectorNotRecognized()'))
@@ -55,12 +55,13 @@ export function getExecuteError<const calls extends readonly unknown[]>(
       matched = call
     } catch {}
   }
-  if (!matched) throw e
+  if (matched)
+    return getContractError(error as BaseError, {
+      abi: matched.abi as Abi,
+      address: matched.to,
+      args: matched.args,
+      functionName: matched.functionName,
+    })
 
-  return getContractError(error as BaseError, {
-    abi: matched.abi as Abi,
-    address: matched.to,
-    args: matched.args,
-    functionName: matched.functionName,
-  })
+  return e as never
 }
