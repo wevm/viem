@@ -1,5 +1,15 @@
 # viem
 
+## 2.22.20
+
+### Patch Changes
+
+- [#3296](https://github.com/wevm/viem/pull/3296) [`41aab4288372b3e7a6591113be833b9c2aed6f40`](https://github.com/wevm/viem/commit/41aab4288372b3e7a6591113be833b9c2aed6f40) Thanks [@hello-jdj](https://github.com/hello-jdj)! - Added Donatuz network.
+
+- [`06f3deebc3b185b605eb79e5785bfbe2a6b8297c`](https://github.com/wevm/viem/commit/06f3deebc3b185b605eb79e5785bfbe2a6b8297c) Thanks [@jxom](https://github.com/jxom)! - Added ERC-7821 utilities.
+
+- [#3299](https://github.com/wevm/viem/pull/3299) [`d21dec69e6b8abfd279136f15817477c4f2fd646`](https://github.com/wevm/viem/commit/d21dec69e6b8abfd279136f15817477c4f2fd646) Thanks [@camiinthisthang](https://github.com/camiinthisthang)! - Added Berachain.
+
 ## 2.22.19
 
 ### Patch Changes
