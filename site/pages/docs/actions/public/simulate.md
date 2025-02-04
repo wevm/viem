@@ -58,7 +58,7 @@ The `calls` property also accepts **Contract Calls**, and can be used via the `a
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseEther } from 'viem'
+import { parseAbi, parseEther } from 'viem'
 import { client } from './config'
 
 const abi = parseAbi([
