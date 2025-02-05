@@ -6,14 +6,13 @@ export const botanixTestnet = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Botanix', symbol: 'BTC', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://poa-node.botanixlabs.dev'],
+      http: ['https://node.botanixlabs.dev'],
     },
   },
   blockExplorers: {
     default: {
-      name: 'blockscout',
-      url: 'https://blockscout.botanixlabs.dev',
-      apiUrl: 'https://blockscout.botanixlabs.dev',
+      name: 'Botanix Testnet Explorer',
+      url: 'https://testnet.botanixscan.io',
     },
   },
   testnet: true,
