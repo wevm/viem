@@ -10,8 +10,8 @@ export const xrOne = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: [ 'https://xr1.calderachain.xyz/http' ],
-      webSocket: [ 'wss://xr1.calderachain.xyz/ws' ],
+      http: ['https://xr1.calderachain.xyz/http'],
+      webSocket: ['wss://xr1.calderachain.xyz/ws'],
     },
   },
   blockExplorers: {
