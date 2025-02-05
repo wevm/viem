@@ -26,7 +26,7 @@ const versionedHashes = sidecarsToVersionedHashes({ sidecars }) // [!code focus]
 
 ```ts twoslash [kzg.ts] filename="kzg.ts"
 // @noErrors
-import * as kzg from 'c-kzg'
+import * as cKzg from 'c-kzg'
 import { setupKzg } from 'viem'
 import { mainnetTrustedSetupPath } from 'viem/node'
 

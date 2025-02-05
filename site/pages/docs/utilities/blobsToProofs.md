@@ -27,7 +27,7 @@ const proofs = blobsToProofs({ blobs, commitments, kzg }) // [!code focus]
 
 ```ts twoslash [kzg.ts] filename="kzg.ts"
 // @noErrors
-import * as kzg from 'c-kzg'
+import * as cKzg from 'c-kzg'
 import { setupKzg } from 'viem'
 
 export const kzg = setupKzg('./trusted-setup.json', cKzg)
@@ -91,13 +91,13 @@ KZG implementation. See [`setupKzg`](/docs/utilities/setupKzg) for more informat
 
 ```ts twoslash
 // @noErrors
-import * as kzg from 'c-kzg'
+import * as cKzg from 'c-kzg'
 import { blobsToProofs, setupKzg } from 'viem'
 import { mainnetTrustedSetupPath } from 'viem/node'
 
 const blobs = toBlobs({ data: '0x...' })
-const commitments = blobsToCommitments({ blobs, kzg })
 const kzg = setupKzg(cKzg, mainnetTrustedSetupPath) // [!code focus]
+const commitments = blobsToCommitments({ blobs, kzg })
 
 const proofs = blobsToProofs({ 
   blobs,
