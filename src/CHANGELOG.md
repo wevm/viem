@@ -1,5 +1,17 @@
 # viem
 
+## 2.22.22
+
+### Patch Changes
+
+- [#3302](https://github.com/wevm/viem/pull/3302) [`745009588fc11398c54dc289d30ea4d86fef9303`](https://github.com/wevm/viem/commit/745009588fc11398c54dc289d30ea4d86fef9303) Thanks [@NicolasMahe](https://github.com/NicolasMahe)! - Added multicall3 to LightLink definition
+
+- [#3310](https://github.com/wevm/viem/pull/3310) [`07b4f5d7cf884731e3a1a36d3366c79a0ec98276`](https://github.com/wevm/viem/commit/07b4f5d7cf884731e3a1a36d3366c79a0ec98276) Thanks [@eswarasai](https://github.com/eswarasai)! - Updated Botanix Testnet details
+
+- [#3301](https://github.com/wevm/viem/pull/3301) [`c3c56f8860fd22c5eadd04335a9cac26567e06c3`](https://github.com/wevm/viem/commit/c3c56f8860fd22c5eadd04335a9cac26567e06c3) Thanks [@pk-850](https://github.com/pk-850)! - Added Monad Testnet.
+
+- [#3309](https://github.com/wevm/viem/pull/3309) [`b354ba43be530f55c52fc9162ebcbb9d7210d9ce`](https://github.com/wevm/viem/commit/b354ba43be530f55c52fc9162ebcbb9d7210d9ce) Thanks [@RealWooblay](https://github.com/RealWooblay)! - Updated xrOne chain details.
+
 ## 2.22.21
 
 ### Patch Changes
