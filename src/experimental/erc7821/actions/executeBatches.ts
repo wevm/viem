@@ -9,7 +9,7 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { BaseError } from '../../../errors/base.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../../types/account.js'
-import type { Calls } from '../../../types/calls.js'
+import type { Batches, Calls } from '../../../types/calls.js'
 import type {
   Chain,
   DeriveChain,
@@ -19,20 +19,22 @@ import type { Hex } from '../../../types/misc.js'
 import type { UnionEvaluate, UnionPick } from '../../../types/utils.js'
 import type { FormattedTransactionRequest } from '../../../utils/formatters/transactionRequest.js'
 import { withCache } from '../../../utils/promise/withCache.js'
-import { executionMode } from '../constants.js'
 import { ExecuteUnsupportedError } from '../errors.js'
 import {
-  type EncodeExecuteDataErrorType,
-  encodeExecuteData,
-} from '../utils/encodeExecuteData.js'
+  type EncodeExecuteBatchesDataErrorType,
+  encodeExecuteBatchesData,
+} from '../utils/encodeExecuteBatchesData.js'
 import {
   type GetExecuteErrorReturnType,
   getExecuteError,
 } from '../utils/getExecuteError.js'
 import { supportsExecutionMode } from './supportsExecutionMode.js'
 
-export type ExecuteParameters<
-  calls extends readonly unknown[] = readonly unknown[],
+/** @internal */
+export type Batch = { calls: readonly unknown[]; opData?: Hex | undefined }
+
+export type ExecuteBatchesParameters<
+  batches extends readonly Batch[] = readonly Batch[],
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
@@ -51,29 +53,27 @@ export type ExecuteParameters<
   GetChainParameter<chain, chainOverride> & {
     /** Address that will execute the calls. */
     address: Address
-    /** Calls to execute. */
-    calls: Calls<Narrow<calls>>
-    /** Additional data to include for execution. */
-    opData?: Hex | undefined
+    /** Batches to execute. */
+    batches: Batches<Narrow<batches>, { opData?: Hex | undefined }>
   }
 
-export type ExecuteReturnType = Hex
+export type ExecuteBatchesReturnType = Hex
 
-export type ExecuteErrorType =
+export type ExecuteBatchesErrorType =
   | GetExecuteErrorReturnType
-  | EncodeExecuteDataErrorType
+  | EncodeExecuteBatchesDataErrorType
   | SendTransactionErrorType
   | ErrorType
 
 /**
- * Executes call(s) using the `execute` function on an [ERC-7821-compatible contract](https://eips.ethereum.org/EIPS/eip-7821).
+ * Executes batches of call(s) using "batch of batches" mode on an [ERC-7821-compatible contract](https://eips.ethereum.org/EIPS/eip-7821).
  *
  * @example
  * ```ts
- * import { createClient, http } from 'viem'
+ * import { createClient, http, parseEther } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  * import { mainnet } from 'viem/chains'
- * import { execute } from 'viem/experimental/erc7821'
+ * import { executeBatches } from 'viem/experimental/erc7821'
  *
  * const account = privateKeyToAccount('0x...')
  *
@@ -82,18 +82,30 @@ export type ExecuteErrorType =
  *   transport: http(),
  * })
  *
- * const hash = await execute(client, {
+ * const hash = await executeBatches(client, {
  *   account,
- *   calls: [{
+ *   batches: [
  *     {
- *       data: '0xdeadbeef',
- *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+ *       calls: [
+ *         {
+ *           to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+ *           value: parseEther('1'),
+ *         },
+ *       ],
  *     },
  *     {
- *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
- *       value: 69420n,
+ *       calls: [
+ *         {
+ *           to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
+ *           value: parseEther('2'),
+ *         },
+ *         {
+ *           data: '0xdeadbeef',
+ *           to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+ *         },
+ *       ],
  *     },
- *   }],
+ *   ],
  *   to: account.address,
  * })
  * ```
@@ -101,60 +113,70 @@ export type ExecuteErrorType =
  * @example
  * ```ts
  * // Account Hoisting
- * import { createClient, http } from 'viem'
+ * import { createClient, http, parseEther } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  * import { mainnet } from 'viem/chains'
- * import { execute } from 'viem/experimental/erc7821'
+ * import { executeBatches } from 'viem/experimental/erc7821'
  *
  * const account = privateKeyToAccount('0x...')
  *
  * const client = createClient({
- *   account,
  *   chain: mainnet,
  *   transport: http(),
  * })
  *
- * const hash = await execute(client, {
- *   calls: [{
+ * const hash = await executeBatches(client, {
+ *   batches: [
  *     {
- *       data: '0xdeadbeef',
- *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+ *       calls: [
+ *         {
+ *           to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+ *           value: parseEther('1'),
+ *         },
+ *       ],
  *     },
  *     {
- *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
- *       value: 69420n,
+ *       calls: [
+ *         {
+ *           to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
+ *           value: parseEther('2'),
+ *         },
+ *         {
+ *           data: '0xdeadbeef',
+ *           to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+ *         },
+ *       ],
  *     },
- *   }],
+ *   ],
  *   to: account.address,
  * })
  * ```
  *
  * @param client - Client to use.
- * @param parameters - {@link ExecuteParameters}
- * @returns Transaction hash. {@link ExecuteReturnType}
+ * @param parameters - {@link ExecuteBatchesParameters}
+ * @returns Transaction hash. {@link ExecuteBatchesReturnType}
  */
-export async function execute<
-  const calls extends readonly unknown[],
+export async function executeBatches<
+  batches extends readonly Batch[],
   chain extends Chain | undefined,
   account extends Account | undefined,
   chainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: ExecuteParameters<calls, chain, account, chainOverride>,
-): Promise<ExecuteReturnType> {
-  const { authorizationList, calls, opData } = parameters
+  parameters: ExecuteBatchesParameters<batches, chain, account, chainOverride>,
+): Promise<ExecuteBatchesReturnType> {
+  const { authorizationList, batches } = parameters
 
   const address = authorizationList?.[0]?.contractAddress ?? parameters.address
-  const mode = opData ? executionMode.opData : executionMode.default
 
   const supported = await withCache(
     () =>
       supportsExecutionMode(client, {
         address,
-        mode,
+        mode: 'batchOfBatches',
       }),
     {
-      cacheKey: `supportsExecutionMode.${client.uid}.${address}.${mode}`,
+      cacheKey: `supportsExecutionMode.${client.uid}.${address}.batchOfBatches`,
     },
   )
   if (!supported) throw new ExecuteUnsupportedError()
@@ -163,9 +185,10 @@ export async function execute<
     return await sendTransaction(client, {
       ...parameters,
       to: parameters.address,
-      data: encodeExecuteData({ calls, opData }),
+      data: encodeExecuteBatchesData({ batches }),
     } as any)
   } catch (e) {
+    const calls = batches.flatMap((b) => b.calls) as Calls<Narrow<batches>>
     throw getExecuteError(e as BaseError, { calls })
   }
 }

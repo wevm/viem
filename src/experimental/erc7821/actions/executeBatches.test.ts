@@ -16,7 +16,7 @@ import {
 } from '../../../actions/index.js'
 import { decodeEventLog, parseEther } from '../../../utils/index.js'
 import { signAuthorization } from '../../eip7702/actions/signAuthorization.js'
-import { execute } from './execute.js'
+import { executeBatches } from './executeBatches.js'
 
 const client = anvilMainnet.getClient({
   account: privateKeyToAccount(accounts[1].privateKey),
@@ -43,22 +43,30 @@ test('default', async () => {
   const authorization = await signAuthorization(client, {
     contractAddress: contractAddress!,
   })
-  await execute(client, {
+  await executeBatches(client, {
     authorizationList: [authorization],
     address: client.account.address,
-    calls: [
+    batches: [
       {
-        to: accounts[2].address,
-        value: parseEther('1'),
+        calls: [
+          {
+            to: accounts[2].address,
+            value: parseEther('1'),
+          },
+        ],
       },
       {
-        to: accounts[3].address,
-        value: parseEther('2'),
-      },
-      {
-        abi: wagmiContractConfig.abi,
-        functionName: 'mint',
-        to: wagmiContractConfig.address,
+        calls: [
+          {
+            to: accounts[3].address,
+            value: parseEther('2'),
+          },
+          {
+            abi: wagmiContractConfig.abi,
+            functionName: 'mint',
+            to: wagmiContractConfig.address,
+          },
+        ],
       },
     ],
   })
@@ -84,37 +92,57 @@ test('default', async () => {
 })
 
 test('args: opData', async () => {
-  const hash = await execute(client, {
+  const hash = await executeBatches(client, {
     address: client.account.address,
-    calls: [
+    batches: [
       {
-        to: accounts[2].address,
-        value: parseEther('1'),
+        calls: [
+          {
+            to: accounts[2].address,
+            value: parseEther('1'),
+          },
+          {
+            to: accounts[3].address,
+            value: parseEther('2'),
+          },
+        ],
+        opData: '0xdeadbeef',
       },
       {
-        to: accounts[3].address,
-        value: parseEther('2'),
+        calls: [
+          {
+            to: accounts[4].address,
+            value: parseEther('1'),
+          },
+        ],
+        opData: '0xcafebabe',
       },
     ],
-    opData: '0xdeadbeef',
   })
   await mine(client, { blocks: 1 })
   const receipt = await getTransactionReceipt(client, { hash })
-  const event = decodeEventLog({
-    abi: ERC7821Example.abi,
-    ...receipt?.logs[0],
-  })
-  expect(event.args.opData).toBe('0xdeadbeef')
+  const events = receipt?.logs.map((log) =>
+    decodeEventLog({
+      abi: ERC7821Example.abi,
+      ...log,
+    }),
+  )
+  expect(events?.[0].args.opData).toBe('0xdeadbeef')
+  expect(events?.[1].args.opData).toBe('0xcafebabe')
 })
 
 test('behavior: execution not supported', async () => {
   await expect(() =>
-    execute(client, {
+    executeBatches(client, {
       address: '0x0000000000000000000000000000000000000000',
-      calls: [
+      batches: [
         {
-          to: accounts[2].address,
-          value: 0n,
+          calls: [
+            {
+              to: accounts[2].address,
+              value: 0n,
+            },
+          ],
         },
       ],
     }),
@@ -127,12 +155,16 @@ test('behavior: execution not supported', async () => {
 
 test('behavior: insufficient funds', async () => {
   await expect(() =>
-    execute(client, {
+    executeBatches(client, {
       address: client.account.address,
-      calls: [
+      batches: [
         {
-          to: accounts[2].address,
-          value: parseEther('999999'),
+          calls: [
+            {
+              to: accounts[2].address,
+              value: parseEther('999999'),
+            },
+          ],
         },
       ],
     }),
@@ -142,7 +174,7 @@ test('behavior: insufficient funds', async () => {
     Request Arguments:
       from:  0x70997970C51812dc3A010C7d01b50e0d17dc79C8
       to:    0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-      data:  0xe9ae5c530100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000003c44cdddb6a900fa2b585dd299e03d12fa4293bc00000000000000000000000000000000000000000000d3c20dee1639f99c000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
+      data:  0xe9ae5c5301000000000078210002000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000016000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000003c44cdddb6a900fa2b585dd299e03d12fa4293bc00000000000000000000000000000000000000000000d3c20dee1639f99c000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
 
     Details: execution reverted
     Version: viem@x.y.z]
@@ -151,21 +183,29 @@ test('behavior: insufficient funds', async () => {
 
 test('behavior: unknown selector', async () => {
   await expect(() =>
-    execute(client, {
+    executeBatches(client, {
       address: client.account.address,
-      calls: [
+      batches: [
         {
-          to: accounts[2].address,
-          value: parseEther('1'),
+          calls: [
+            {
+              to: accounts[2].address,
+              value: parseEther('1'),
+            },
+            {
+              to: accounts[3].address,
+              value: parseEther('2'),
+            },
+          ],
         },
         {
-          to: accounts[3].address,
-          value: parseEther('2'),
-        },
-        {
-          abi: ErrorsExample.abi,
-          functionName: 'simpleCustomRead',
-          to: '0x0000000000000000000000000000000000000000',
+          calls: [
+            {
+              abi: ErrorsExample.abi,
+              functionName: 'simpleCustomRead',
+              to: '0x0000000000000000000000000000000000000000',
+            },
+          ],
         },
       ],
     }),
@@ -184,21 +224,29 @@ test('behavior: revert', async () => {
   const { contractAddress: errorExampleAddress } = await deployErrorExample()
 
   await expect(() =>
-    execute(client, {
+    executeBatches(client, {
       address: client.account.address,
-      calls: [
+      batches: [
         {
-          to: accounts[2].address,
-          value: parseEther('1'),
+          calls: [
+            {
+              to: accounts[2].address,
+              value: parseEther('1'),
+            },
+            {
+              to: accounts[3].address,
+              value: parseEther('2'),
+            },
+          ],
         },
         {
-          to: accounts[3].address,
-          value: parseEther('2'),
-        },
-        {
-          abi: ErrorsExample.abi,
-          functionName: 'complexCustomWrite',
-          to: errorExampleAddress!,
+          calls: [
+            {
+              abi: ErrorsExample.abi,
+              functionName: 'complexCustomWrite',
+              to: errorExampleAddress!,
+            },
+          ],
         },
       ],
     }),

@@ -242,13 +242,14 @@ export async function simulate<
         const logs = call.logs?.map((log) => formatLog(log))
         const status = call.status === '0x1' ? 'success' : 'failure'
 
-        const result = abi
-          ? decodeFunctionResult({
-              abi,
-              data,
-              functionName,
-            })
-          : null
+        const result =
+          abi && status === 'success'
+            ? decodeFunctionResult({
+                abi,
+                data,
+                functionName,
+              })
+            : null
 
         const error = (() => {
           if (status === 'success') return undefined

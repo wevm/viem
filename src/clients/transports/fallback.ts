@@ -1,3 +1,4 @@
+import { ExecutionRevertedError } from '../../errors/node.js'
 import {
   TransactionRejectedRpcError,
   UserRejectedRequestError,
@@ -195,6 +196,7 @@ function shouldThrow(error: Error) {
     if (
       error.code === TransactionRejectedRpcError.code ||
       error.code === UserRejectedRequestError.code ||
+      ExecutionRevertedError.nodeMessage.test(error.message) ||
       error.code === 5000 // CAIP UserRejectedRequestError
     )
       return true

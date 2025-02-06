@@ -64,7 +64,7 @@
     "glob": "^10.4.5",
     "knip": "^5.33.3",
     "permissionless": "^0.2.14",
-    "prool": "^0.0.16",
+    "prool": "^0.0.17",
     "publint": "^0.2.11",
     "sherif": "^0.8.4",
     "simple-git-hooks": "^2.11.1",
@@ -187,7 +187,7 @@
     {
       "name": "import { getEnsAvatar } from 'viem/ens'",
       "path": "./src/_esm/ens/index.js",
-      "limit": "23 kB",
+      "limit": "24 kB",
       "import": "{ getEnsAvatar }"
     },
     {

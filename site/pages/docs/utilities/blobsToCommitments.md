@@ -26,7 +26,7 @@ const commitments = blobsToCommitments({ blobs, kzg }) // [!code focus]
 
 ```ts twoslash [kzg.ts] filename="kzg.ts"
 // @noErrors
-import * as kzg from 'c-kzg'
+import * as cKzg from 'c-kzg'
 import { setupKzg } from 'viem'
 import { mainnetTrustedSetupPath } from 'viem/node'
 
@@ -70,7 +70,7 @@ KZG implementation. See [`setupKzg`](/docs/utilities/setupKzg) for more informat
 
 ```ts twoslash
 // @noErrors
-import * as kzg from 'c-kzg'
+import * as cKzg from 'c-kzg'
 import { blobsToCommitments, setupKzg, toBlobs } from 'viem'
 import { mainnetTrustedSetupPath } from 'viem/node'
 

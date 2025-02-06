@@ -8,6 +8,12 @@ import {
   execute,
 } from '../actions/execute.js'
 import {
+  type Batch,
+  type ExecuteBatchesParameters,
+  type ExecuteBatchesReturnType,
+  executeBatches,
+} from '../actions/executeBatches.js'
+import {
   type SupportsExecutionModeParameters,
   type SupportsExecutionModeReturnType,
   supportsExecutionMode,
@@ -92,6 +98,108 @@ export type Erc7821Actions<
     parameters: ExecuteParameters<calls, chain, account, chainOverride>,
   ) => Promise<ExecuteReturnType>
   /**
+   * Executes batches of call(s) using "batch of batches" mode on an [ERC-7821-compatible contract](https://eips.ethereum.org/EIPS/eip-7821).
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, parseEther } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
+   * import { mainnet } from 'viem/chains'
+   * import { erc7821Actions } from 'viem/experimental'
+   *
+   * const account = privateKeyToAccount('0x...')
+   *
+   * const client = createClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(erc7821Actions())
+   *
+   * const hash = await client.executeBatches({
+   *   account,
+   *   batches: [
+   *     {
+   *       calls: [
+   *         {
+   *           to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *           value: parseEther('1'),
+   *         },
+   *       ],
+   *     },
+   *     {
+   *       calls: [
+   *         {
+   *           to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
+   *           value: parseEther('2'),
+   *         },
+   *         {
+   *           data: '0xdeadbeef',
+   *           to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *         },
+   *       ],
+   *     },
+   *   ],
+   *   to: account.address,
+   * })
+   * ```
+   *
+   * @example
+   * ```ts
+   * // Account Hoisting
+   * import { createClient, http, parseEther } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
+   * import { mainnet } from 'viem/chains'
+   * import { erc7821Actions } from 'viem/experimental'
+   *
+   * const account = privateKeyToAccount('0x...')
+   *
+   * const client = createClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(erc7821Actions())
+   *
+   * const hash = await client.executeBatches({
+   *   batches: [
+   *     {
+   *       calls: [
+   *         {
+   *           to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *           value: parseEther('1'),
+   *         },
+   *       ],
+   *     },
+   *     {
+   *       calls: [
+   *         {
+   *           to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
+   *           value: parseEther('2'),
+   *         },
+   *         {
+   *           data: '0xdeadbeef',
+   *           to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *         },
+   *       ],
+   *     },
+   *   ],
+   *   to: account.address,
+   * })
+   * ```
+   *
+   * @param client - Client to use.
+   * @param parameters - {@link ExecuteBatchesParameters}
+   * @returns Transaction hash. {@link ExecuteBatchesReturnType}
+   */
+  executeBatches: <
+    const batches extends readonly Batch[],
+    chainOverride extends Chain | undefined = undefined,
+  >(
+    parameters: ExecuteBatchesParameters<
+      batches,
+      chain,
+      account,
+      chainOverride
+    >,
+  ) => Promise<ExecuteBatchesReturnType>
+  /**
    * Checks if the contract supports the ERC-7821 execution mode.
    *
    * @example
@@ -142,6 +250,7 @@ export function erc7821Actions() {
   ): Erc7821Actions<chain, account> => {
     return {
       execute: (parameters) => execute(client, parameters),
+      executeBatches: (parameters) => executeBatches(client, parameters),
       supportsExecutionMode: (parameters) =>
         supportsExecutionMode(client, parameters),
     }

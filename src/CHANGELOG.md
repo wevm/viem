@@ -1,5 +1,59 @@
 # viem
 
+## 2.22.22
+
+### Patch Changes
+
+- [#3302](https://github.com/wevm/viem/pull/3302) [`745009588fc11398c54dc289d30ea4d86fef9303`](https://github.com/wevm/viem/commit/745009588fc11398c54dc289d30ea4d86fef9303) Thanks [@NicolasMahe](https://github.com/NicolasMahe)! - Added multicall3 to LightLink definition
+
+- [#3310](https://github.com/wevm/viem/pull/3310) [`07b4f5d7cf884731e3a1a36d3366c79a0ec98276`](https://github.com/wevm/viem/commit/07b4f5d7cf884731e3a1a36d3366c79a0ec98276) Thanks [@eswarasai](https://github.com/eswarasai)! - Updated Botanix Testnet details
+
+- [#3301](https://github.com/wevm/viem/pull/3301) [`c3c56f8860fd22c5eadd04335a9cac26567e06c3`](https://github.com/wevm/viem/commit/c3c56f8860fd22c5eadd04335a9cac26567e06c3) Thanks [@pk-850](https://github.com/pk-850)! - Added Monad Testnet.
+
+- [#3309](https://github.com/wevm/viem/pull/3309) [`b354ba43be530f55c52fc9162ebcbb9d7210d9ce`](https://github.com/wevm/viem/commit/b354ba43be530f55c52fc9162ebcbb9d7210d9ce) Thanks [@RealWooblay](https://github.com/RealWooblay)! - Updated xrOne chain details.
+
+## 2.22.21
+
+### Patch Changes
+
+- [`c822da1966220bb80eda9b00d47829bf23e29761`](https://github.com/wevm/viem/commit/c822da1966220bb80eda9b00d47829bf23e29761) Thanks [@jxom](https://github.com/jxom)! - Fixed ERC-7821 `getExecuteError` return type.
+
+## 2.22.20
+
+### Patch Changes
+
+- [#3296](https://github.com/wevm/viem/pull/3296) [`41aab4288372b3e7a6591113be833b9c2aed6f40`](https://github.com/wevm/viem/commit/41aab4288372b3e7a6591113be833b9c2aed6f40) Thanks [@hello-jdj](https://github.com/hello-jdj)! - Added Donatuz network.
+
+- [`06f3deebc3b185b605eb79e5785bfbe2a6b8297c`](https://github.com/wevm/viem/commit/06f3deebc3b185b605eb79e5785bfbe2a6b8297c) Thanks [@jxom](https://github.com/jxom)! - Added ERC-7821 utilities.
+
+- [#3299](https://github.com/wevm/viem/pull/3299) [`d21dec69e6b8abfd279136f15817477c4f2fd646`](https://github.com/wevm/viem/commit/d21dec69e6b8abfd279136f15817477c4f2fd646) Thanks [@camiinthisthang](https://github.com/camiinthisthang)! - Added Berachain.
+
+## 2.22.19
+
+### Patch Changes
+
+- [#3291](https://github.com/wevm/viem/pull/3291) [`4e53750f4e84486bcfcb35382cf6150438468d35`](https://github.com/wevm/viem/commit/4e53750f4e84486bcfcb35382cf6150438468d35) Thanks [@biruichen](https://github.com/biruichen)! - Added Sidra Chain.
+
+- [#3292](https://github.com/wevm/viem/pull/3292) [`d6388d78a20dac91ffc6196a79fdaea13c749c59`](https://github.com/wevm/viem/commit/d6388d78a20dac91ffc6196a79fdaea13c749c59) Thanks [@pk-850](https://github.com/pk-850)! - Added Multicall address to Songbird Canary-Network.
+
+- [#3293](https://github.com/wevm/viem/pull/3293) [`f3746922322ee2d8209a951ffae7d2e6dbcccca1`](https://github.com/wevm/viem/commit/f3746922322ee2d8209a951ffae7d2e6dbcccca1) Thanks [@jxom](https://github.com/jxom)! - Added ERC-7821 `executeBatches` for "batch of batches" execution mode.
+
+## 2.22.18
+
+### Patch Changes
+
+- [#3287](https://github.com/wevm/viem/pull/3287) [`9a7bc6e354b9ef8ca3baeb6a4538d5564ccf08a5`](https://github.com/wevm/viem/commit/9a7bc6e354b9ef8ca3baeb6a4538d5564ccf08a5) Thanks [@hello-jdj](https://github.com/hello-jdj)! - Added Forta Chain.
+
+- [#3288](https://github.com/wevm/viem/pull/3288) [`3a7fba472a24f4cf8ff68172dc40ed7358e9b691`](https://github.com/wevm/viem/commit/3a7fba472a24f4cf8ff68172dc40ed7358e9b691) Thanks [@dmitrii602](https://github.com/dmitrii602)! - Added WMC Testnet chain.
+
+- [`68f00d39d40d16eb8408c441d79aa264e5e2149b`](https://github.com/wevm/viem/commit/68f00d39d40d16eb8408c441d79aa264e5e2149b) Thanks [@jxom](https://github.com/jxom)! - Fixed `simulate` data decoding.
+
+## 2.22.17
+
+### Patch Changes
+
+- [`3f8859f52132158fcb721c416ba17424c5c1bc9d`](https://github.com/wevm/viem/commit/3f8859f52132158fcb721c416ba17424c5c1bc9d) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where Transports were falling back on execution errors.
+
 ## 2.22.16
 
 ### Patch Changes
