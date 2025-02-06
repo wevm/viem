@@ -58,7 +58,7 @@ export type BundlerClientConfig<
         estimateFeesPerGas?:
           | ((parameters: {
               account: account | SmartAccount
-              bundlerClient: Client
+              bundlerClient: BundlerClient
               userOperation: UserOperationRequest
             }) => Promise<EstimateFeesPerGasReturnType<'eip1559'>>)
           | undefined
