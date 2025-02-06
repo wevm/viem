@@ -6,6 +6,12 @@ export const berachain = /*#__PURE__*/ defineChain({
     decimals: 18,
     name: 'BERA Token',
     symbol: 'BERA',
+  },  
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 0,
+    },
   },
   rpcUrls: {
     default: { http: ['https://rpc.berachain.com'] },
