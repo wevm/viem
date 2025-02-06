@@ -145,7 +145,7 @@ export async function getSocketRpcClient<socket extends {}>(
             subscriptions.clear()
 
             // Make sure socket is definitely closed.
-            socket.close()
+            socketClient?.close()
 
             // Attempt to reconnect.
             if (reconnect && reconnectCount < attempts)
@@ -167,7 +167,7 @@ export async function getSocketRpcClient<socket extends {}>(
             subscriptions.clear()
 
             // Make sure socket is definitely closed.
-            socket.close()
+            socketClient?.close()
 
             // Attempt to reconnect.
             if (reconnect && reconnectCount < attempts)
