@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Edit xrOne chain details.
+Updated xrOne chain details.
