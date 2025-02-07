@@ -298,6 +298,8 @@ export { metalL2 } from './definitions/metalL2.js'
 export { meter } from './definitions/meter.js'
 export { meterTestnet } from './definitions/meterTestnet.js'
 export { metis } from './definitions/metis.js'
+export { metisSepolia } from './definitions/metisSepolia.js'
+/** @deprecated Use `metisSepolia` instead. */
 export { metisGoerli } from './definitions/metisGoerli.js'
 export { mev } from './definitions/mev.js'
 export { mevTestnet } from './definitions/mevTestnet.js'
