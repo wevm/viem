@@ -21,7 +21,7 @@ export const metisSepolia = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Metis Sepolia Explorer',
-      url: 'https://sepolia-explorer.metisdevops.link/', 
+      url: 'https://sepolia-explorer.metisdevops.link', 
       apiUrl: 'https://sepolia-explorer.metisdevops.link/api-docs',
     },
   },
