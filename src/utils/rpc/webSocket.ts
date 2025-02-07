@@ -29,11 +29,11 @@ export async function getWebSocketRpcClient(
       const socket = new WebSocket(url)
 
       function onClose_() {
-        onClose()
         socket.removeEventListener('close', onClose_)
         socket.removeEventListener('message', onMessage)
         socket.removeEventListener('error', onError)
         socket.removeEventListener('open', onOpen)
+        onClose()
       }
       function onMessage({ data }: MessageEvent) {
         onResponse(JSON.parse(data))
@@ -59,7 +59,7 @@ export async function getWebSocketRpcClient(
       return Object.assign(socket, {
         close() {
           close_.bind(socket)()
-          onClose()
+          onClose_()
         },
         ping() {
           try {

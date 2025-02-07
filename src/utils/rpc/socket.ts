@@ -144,9 +144,6 @@ export async function getSocketRpcClient<socket extends {}>(
             requests.clear()
             subscriptions.clear()
 
-            // Make sure socket is definitely closed.
-            socketClient?.close()
-
             // Attempt to reconnect.
             if (reconnect && reconnectCount < attempts)
               setTimeout(async () => {
