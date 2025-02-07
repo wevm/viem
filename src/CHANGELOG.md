@@ -1,5 +1,19 @@
 # viem
 
+## 2.22.23
+
+### Patch Changes
+
+- [#3319](https://github.com/wevm/viem/pull/3319) [`099e7dded0fe1be817a30b9a8706eda017f1cf5a`](https://github.com/wevm/viem/commit/099e7dded0fe1be817a30b9a8706eda017f1cf5a) Thanks [@nidhinakranii](https://github.com/nidhinakranii)! - Added Metis Sepolia testnet chain and deprecated metisGoerli
+
+- [#3315](https://github.com/wevm/viem/pull/3315) [`c39d2896ba08fc8804268c5456d14cd9794c4e23`](https://github.com/wevm/viem/commit/c39d2896ba08fc8804268c5456d14cd9794c4e23) Thanks [@michelebruno](https://github.com/michelebruno)! - Added Berachain multicall.
+
+- [#3320](https://github.com/wevm/viem/pull/3320) [`3c37c4b800f5fa6a9932d0dbbad619db5aa55a8b`](https://github.com/wevm/viem/commit/3c37c4b800f5fa6a9932d0dbbad619db5aa55a8b) Thanks [@yongjun925](https://github.com/yongjun925)! - Added Birdlayer Chain.
+
+- [#3311](https://github.com/wevm/viem/pull/3311) [`149d4060d9d71a1fa2c106bfc3c5c817dba9860c`](https://github.com/wevm/viem/commit/149d4060d9d71a1fa2c106bfc3c5c817dba9860c) Thanks [@hello-jdj](https://github.com/hello-jdj)! - Added HashKey Chain.
+
+- [#3313](https://github.com/wevm/viem/pull/3313) [`15bec5dce10fabb451ddf25e6682082f77b7c631`](https://github.com/wevm/viem/commit/15bec5dce10fabb451ddf25e6682082f77b7c631) Thanks [@holic](https://github.com/holic)! - Closed socket on cleanup for RPC transport.
+
 ## 2.22.22
 
 ### Patch Changes

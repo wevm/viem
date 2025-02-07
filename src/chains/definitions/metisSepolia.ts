@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const metisSepolia = /*#__PURE__*/ defineChain({
-  id: 59902, 
+  id: 59902,
   name: 'Metis Sepolia',
   nativeCurrency: {
     decimals: 18,
@@ -14,14 +14,14 @@ export const metisSepolia = /*#__PURE__*/ defineChain({
         'wss://metis-sepolia-rpc.publicnode.com',
         'https://sepolia.metisdevops.link',
         'https://metis-sepolia-rpc.publicnode.com',
-        'https://metis-sepolia.gateway.tenderly.co'
+        'https://metis-sepolia.gateway.tenderly.co',
       ],
     },
   },
   blockExplorers: {
     default: {
       name: 'Metis Sepolia Explorer',
-      url: 'https://sepolia-explorer.metisdevops.link', 
+      url: 'https://sepolia-explorer.metisdevops.link',
       apiUrl: 'https://sepolia-explorer.metisdevops.link/api-docs',
     },
   },
