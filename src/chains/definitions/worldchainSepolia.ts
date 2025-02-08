@@ -17,6 +17,7 @@ export const worldchainSepolia = /*#__PURE__*/ defineChain({
     default: {
       name: 'Worldscan Sepolia',
       url: 'https://sepolia.worldscan.org',
+      apiUrl: 'https://api-sepolia.worldscan.org/api',
     },
     blockscout: {
       name: 'Blockscout',
