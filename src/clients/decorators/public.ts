@@ -181,10 +181,15 @@ import {
   readContract,
 } from '../../actions/public/readContract.js'
 import {
-  type SimulateParameters,
-  type SimulateReturnType,
-  simulate,
-} from '../../actions/public/simulate.js'
+  type SimulateBlocksParameters,
+  type SimulateBlocksReturnType,
+  simulateBlocks,
+} from '../../actions/public/simulateBlocks.js'
+import {
+  type SimulateCallsParameters,
+  type SimulateCallsReturnType,
+  simulateCalls,
+} from '../../actions/public/simulateCalls.js'
 import {
   type SimulateContractParameters,
   type SimulateContractReturnType,
@@ -1526,6 +1531,12 @@ export type PublicActions<
     args: SendRawTransactionParameters,
   ) => Promise<SendRawTransactionReturnType>
   /**
+   * @deprecated Use `simulateBlocks` instead.
+   */
+  simulate: <const calls extends readonly unknown[]>(
+    args: SimulateBlocksParameters<calls>,
+  ) => Promise<SimulateBlocksReturnType<calls>>
+  /**
    * Simulates a set of calls on block(s) with optional block and state overrides.
    *
    * @example
@@ -1538,7 +1549,7 @@ export type PublicActions<
    *   transport: http(),
    * })
    *
-   * const result = await client.simulate({
+   * const result = await client.simulateBlocks({
    *   blocks: [{
    *     blockOverrides: {
    *       number: 69420n,
@@ -1567,9 +1578,44 @@ export type PublicActions<
    * @param parameters - {@link SimulateParameters}
    * @returns Simulated blocks. {@link SimulateReturnType}
    */
-  simulate: <const calls extends readonly unknown[]>(
-    args: SimulateParameters<calls>,
-  ) => Promise<SimulateReturnType<calls>>
+  simulateBlocks: <const calls extends readonly unknown[]>(
+    args: SimulateBlocksParameters<calls>,
+  ) => Promise<SimulateBlocksReturnType<calls>>
+  /**
+   * Simulates a set of calls.
+   *
+   * @example
+   * ```ts
+   * import { createPublicClient, http, parseEther } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   *
+   * const result = await client.simulateCalls({
+   *   account: '0x5a0b54d5dc17e482fe8b0bdca5320161b95fb929',
+   *   calls: [{
+   *     {
+   *       data: '0xdeadbeef',
+   *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *     },
+   *     {
+   *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *       value: parseEther('1'),
+   *     },
+   *   ]
+   * })
+   * ```
+   *
+   * @param client - Client to use.
+   * @param parameters - {@link SimulateCallsParameters}
+   * @returns Results. {@link SimulateCallsReturnType}
+   */
+  simulateCalls: <const calls extends readonly unknown[]>(
+    args: SimulateCallsParameters<calls>,
+  ) => Promise<SimulateCallsReturnType<calls>>
   /**
    * Simulates/validates a contract interaction. This is useful for retrieving **return data** and **revert reasons** of contract write functions.
    *
@@ -1958,7 +2004,9 @@ export function publicActions<
       prepareTransactionRequest(client as any, args as any) as any,
     readContract: (args) => readContract(client, args),
     sendRawTransaction: (args) => sendRawTransaction(client, args),
-    simulate: (args) => simulate(client, args),
+    simulate: (args) => simulateBlocks(client, args),
+    simulateBlocks: (args) => simulateBlocks(client, args),
+    simulateCalls: (args) => simulateCalls(client, args),
     simulateContract: (args) => simulateContract(client, args),
     verifyMessage: (args) => verifyMessage(client, args),
     verifySiweMessage: (args) => verifySiweMessage(client, args),

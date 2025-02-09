@@ -2,7 +2,7 @@
 description: Simulates a set of calls on block(s).
 ---
 
-# simulate
+# simulateBlocks
 
 Simulates a set of calls on block(s) with optional block and state overrides. Internally uses the [`eth_simulateV1` JSON-RPC method](https://github.com/ethereum/execution-apis/pull/484).
 
@@ -14,7 +14,7 @@ Simulates a set of calls on block(s) with optional block and state overrides. In
 import { parseEther } from 'viem'
 import { client } from './config'
  
-const result = await client.simulate({
+const result = await client.simulateBlocks({
   blocks: [{
     blockOverrides: {
       number: 69420n,
@@ -66,7 +66,7 @@ const abi = parseAbi([
   'function transferFrom(address, address, uint256) returns (bool)',
 ])
  
-const result = await client.simulate({ // [!code focus:99]
+const result = await client.simulateBlocks({ // [!code focus:99]
   blocks: [{
     calls: [
       {
@@ -114,7 +114,7 @@ export const client = createPublicClient({
 
 ## Return Value
 
-`simulateReturnType`
+`SimulateBlocksReturnType`
 
 Simulation results.
 
@@ -133,7 +133,7 @@ Calls to simulate. Each call can consist of transaction request properties.
 ```ts twoslash
 import { client } from './config'
 // ---cut---
-const result = await client.simulate({
+const result = await client.simulateBlocks({
   blocks: [{
     blockOverrides: {
       number: 69420n,
@@ -167,7 +167,7 @@ Values to override on the block.
 ```ts twoslash
 import { client } from './config'
 // ---cut---
-const result = await client.simulate({
+const result = await client.simulateBlocks({
   blocks: [{
     blockOverrides: { // [!code focus]
       number: 69420n, // [!code focus]
@@ -201,7 +201,7 @@ State overrides.
 ```ts twoslash
 import { client } from './config'
 // ---cut---
-const result = await client.simulate({
+const result = await client.simulateBlocks({
   blocks: [{
     blockOverrides: {
       number: 69420n,
@@ -235,7 +235,7 @@ Whether to return the full transactions.
 ```ts twoslash
 import { client } from './config'
 // ---cut---
-const result = await client.simulate({
+const result = await client.simulateBlocks({
   blocks: [{
     blockOverrides: {
       number: 69420n,
@@ -270,7 +270,7 @@ Whether to trace transfers.
 ```ts twoslash
 import { client } from './config'
 // ---cut---
-const result = await client.simulate({
+const result = await client.simulateBlocks({
   blocks: [{
     blockOverrides: {
       number: 69420n,
@@ -305,7 +305,7 @@ Whether to enable validation mode.
 ```ts twoslash
 import { client } from './config'
 // ---cut---
-const result = await client.simulate({
+const result = await client.simulateBlocks({
   blocks: [{
     blockOverrides: {
       number: 69420n,

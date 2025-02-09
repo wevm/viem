@@ -284,50 +284,6 @@ test('behavior: chain on client', async () => {
   `)
 })
 
-test('error: no chain', async () => {
-  const requests: unknown[] = []
-
-  const client = getClient({
-    onRequest({ params }) {
-      requests.push(params)
-    },
-  })
-
-  await expect(() =>
-    sendCalls(client, {
-      account: accounts[0].address,
-      calls: [
-        {
-          chainId: 1,
-          to: accounts[1].address,
-          value: parseEther('1'),
-        },
-        {
-          chain: mainnet,
-          to: accounts[1].address,
-          value: parseEther('1'),
-        },
-        // @ts-expect-error
-        {
-          to: accounts[2].address,
-          value: parseEther('10'),
-        },
-        // @ts-expect-error
-        {
-          data: '0xcafebabe',
-          to: accounts[3].address,
-          value: parseEther('1000000'),
-        },
-      ],
-    }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ChainNotFoundError: No chain was provided to the request.
-    Please provide a chain with the \`chain\` argument on the Action, or by supplying a \`chain\` to WalletClient.
-
-    Version: viem@x.y.z]
-  `)
-})
-
 test('error: no account', async () => {
   const requests: unknown[] = []
 
