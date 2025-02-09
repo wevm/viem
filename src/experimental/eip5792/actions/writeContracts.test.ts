@@ -139,19 +139,16 @@ test('default', async () => {
         {
           "calls": [
             {
-              "chainId": "0x1",
               "data": "0x1249c58b",
               "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
               "value": undefined,
             },
             {
-              "chainId": "0x1",
               "data": "0x1249c58b",
               "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
               "value": undefined,
             },
             {
-              "chainId": "0x1",
               "data": "0x1249c58b",
               "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
               "value": undefined,
