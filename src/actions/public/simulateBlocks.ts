@@ -67,7 +67,7 @@ type CallExtraProperties = ExactPartial<
   account?: Account | Address | undefined
 }
 
-export type SimulateParameters<
+export type SimulateBlocksParameters<
   calls extends readonly unknown[] = readonly unknown[],
 > = {
   /** Blocks to simulate. */
@@ -80,11 +80,11 @@ export type SimulateParameters<
     stateOverrides?: StateOverride | undefined
   }[]
   /** Whether to return the full transactions. */
-  returnFullTransactions?: boolean
+  returnFullTransactions?: boolean | undefined
   /** Whether to trace transfers. */
-  traceTransfers?: boolean
+  traceTransfers?: boolean | undefined
   /** Whether to enable validation mode. */
-  validation?: boolean
+  validation?: boolean | undefined
 } & (
   | {
       /** The balance of the account at a block number. */
@@ -101,7 +101,7 @@ export type SimulateParameters<
     }
 )
 
-export type SimulateReturnType<
+export type SimulateBlocksReturnType<
   calls extends readonly unknown[] = readonly unknown[],
 > = readonly (Block & {
   calls: MulticallResults<
@@ -119,7 +119,7 @@ export type SimulateReturnType<
   >
 })[]
 
-export type SimulateErrorType =
+export type SimulateBlocksErrorType =
   | AssertRequestErrorType
   | DecodeFunctionResultErrorType
   | EncodeFunctionDataErrorType
@@ -171,16 +171,16 @@ export type SimulateErrorType =
  * ```
  *
  * @param client - Client to use.
- * @param parameters - {@link SimulateParameters}
- * @returns Simulated blocks. {@link SimulateReturnType}
+ * @param parameters - {@link SimulateBlocksParameters}
+ * @returns Simulated blocks. {@link SimulateBlocksReturnType}
  */
-export async function simulate<
+export async function simulateBlocks<
   chain extends Chain | undefined,
   const calls extends readonly unknown[],
 >(
   client: Client<Transport, chain>,
-  parameters: SimulateParameters<calls>,
-): Promise<SimulateReturnType<calls>> {
+  parameters: SimulateBlocksParameters<calls>,
+): Promise<SimulateBlocksReturnType<calls>> {
   const {
     blockNumber,
     blockTag = 'latest',
@@ -281,7 +281,7 @@ export async function simulate<
               }),
         }
       }),
-    })) as unknown as SimulateReturnType<calls>
+    })) as unknown as SimulateBlocksReturnType<calls>
   } catch (e) {
     const cause = e as BaseError
     const error = getNodeError(cause, {})

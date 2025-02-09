@@ -52,9 +52,9 @@ type CursorErrorType =
 
 type CursorAssertPositionErrorType = PositionOutOfBoundsErrorType | ErrorType
 
-type CursorDecrementPositionErrorType = NegativeOffsetError | ErrorType
+type CursorDecrementPositionErrorType = NegativeOffsetErrorType | ErrorType
 
-type CursorIncrementPositionErrorType = NegativeOffsetError | ErrorType
+type CursorIncrementPositionErrorType = NegativeOffsetErrorType | ErrorType
 
 type StaticCursorErrorType =
   | NegativeOffsetErrorType

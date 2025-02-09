@@ -76,6 +76,8 @@ test('default', async () => {
       "readContract": [Function],
       "sendRawTransaction": [Function],
       "simulate": [Function],
+      "simulateBlocks": [Function],
+      "simulateCalls": [Function],
       "simulateContract": [Function],
       "uninstallFilter": [Function],
       "verifyMessage": [Function],

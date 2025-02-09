@@ -59,6 +59,10 @@
     {
       "source": "/:match/experimental/eip5792/writeContracts",
       "destination": "/:match/experimental/eip5792/sendCalls#contract-calls"
+    },
+    {
+      "source": "/:match/simulate",
+      "destination": "/:match/simulateBlocks"
     }
   ]
 }
