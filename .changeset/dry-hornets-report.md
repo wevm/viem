@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added HashKey Chain.
+Added Story Mainnet.

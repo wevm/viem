@@ -9,7 +9,20 @@ export const metis = /*#__PURE__*/ defineChain({
     symbol: 'METIS',
   },
   rpcUrls: {
-    default: { http: ['https://andromeda.metis.io/?owner=1088'] },
+    default: {
+      http: [
+        'https://metis.rpc.hypersync.xyz',
+        'https://metis-pokt.nodies.app',
+        'https://api.blockeden.xyz/metis/67nCBdZQSH9z3YqDDjdm',
+        'https://metis-andromeda.rpc.thirdweb.com',
+        'https://metis-andromeda.gateway.tenderly.co',
+        'https://metis.api.onfinality.io/public',
+        'wss://metis-rpc.publicnode.com',
+        'https://andromeda.metis.io/?owner=1088',
+        'wss://metis.drpc.org',
+        'https://metis-mainnet.public.blastapi.io',
+      ],
+    },
   },
   blockExplorers: {
     default: {
