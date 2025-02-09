@@ -80,6 +80,8 @@ test('creates', () => {
       "request": [Function],
       "sendRawTransaction": [Function],
       "simulate": [Function],
+      "simulateBlocks": [Function],
+      "simulateCalls": [Function],
       "simulateContract": [Function],
       "transport": {
         "key": "mock",
@@ -220,6 +222,8 @@ describe('transports', () => {
         "request": [Function],
         "sendRawTransaction": [Function],
         "simulate": [Function],
+        "simulateBlocks": [Function],
+        "simulateCalls": [Function],
         "simulateContract": [Function],
         "transport": {
           "fetchOptions": undefined,
@@ -325,6 +329,8 @@ describe('transports', () => {
         "request": [Function],
         "sendRawTransaction": [Function],
         "simulate": [Function],
+        "simulateBlocks": [Function],
+        "simulateCalls": [Function],
         "simulateContract": [Function],
         "transport": {
           "getRpcClient": [Function],
@@ -412,6 +418,8 @@ describe('transports', () => {
         "request": [Function],
         "sendRawTransaction": [Function],
         "simulate": [Function],
+        "simulateBlocks": [Function],
+        "simulateCalls": [Function],
         "simulateContract": [Function],
         "transport": {
           "key": "custom",
@@ -555,6 +563,8 @@ test('extend', () => {
       "signTransaction": [Function],
       "signTypedData": [Function],
       "simulate": [Function],
+      "simulateBlocks": [Function],
+      "simulateCalls": [Function],
       "simulateContract": [Function],
       "snapshot": [Function],
       "stopImpersonatingAccount": [Function],

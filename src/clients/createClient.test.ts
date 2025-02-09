@@ -534,6 +534,8 @@ describe('extends', () => {
         "request": [Function],
         "sendRawTransaction": [Function],
         "simulate": [Function],
+        "simulateBlocks": [Function],
+        "simulateCalls": [Function],
         "simulateContract": [Function],
         "transport": {
           "fetchOptions": undefined,
