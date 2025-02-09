@@ -92,6 +92,8 @@ test('exports actions', () => {
       "signTransaction": [Function],
       "signTypedData": [Function],
       "simulate": [Function],
+      "simulateBlocks": [Function],
+      "simulateCalls": [Function],
       "simulateContract": [Function],
       "snapshot": [Function],
       "stopImpersonatingAccount": [Function],

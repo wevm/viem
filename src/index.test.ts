@@ -43,6 +43,7 @@ test('exports', () => {
       "erc721Abi",
       "erc4626Abi",
       "universalSignatureValidatorAbi",
+      "ethAddress",
       "zeroAddress",
       "deploylessCallViaBytecodeBytecode",
       "deploylessCallViaFactoryBytecode",
