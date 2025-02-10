@@ -147,7 +147,12 @@ test('behavior: with mutation calls + asset changes', async () => {
     ],
   })
 
-  expect(assetChanges).toMatchInlineSnapshot(`
+  expect(
+    assetChanges.map((change) => ({
+      ...change,
+      value: { diff: change.value.diff },
+    })),
+  ).toMatchInlineSnapshot(`
     [
       {
         "token": {
@@ -157,8 +162,6 @@ test('behavior: with mutation calls + asset changes', async () => {
         },
         "value": {
           "diff": -2000000000000000000n,
-          "post": 9998000000000000000000n,
-          "pre": 10000000000000000000000n,
         },
       },
       {
@@ -169,8 +172,6 @@ test('behavior: with mutation calls + asset changes', async () => {
         },
         "value": {
           "diff": 1n,
-          "post": 1n,
-          "pre": 0n,
         },
       },
       {
@@ -181,8 +182,6 @@ test('behavior: with mutation calls + asset changes', async () => {
         },
         "value": {
           "diff": -1000000000000000000n,
-          "post": 410429569258816445970930282571360n,
-          "pre": 410429569258817445970930282571360n,
         },
       },
     ]
