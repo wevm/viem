@@ -1,5 +1,21 @@
 # viem
 
+## 2.23.0
+
+### Minor Changes
+
+- [#3326](https://github.com/wevm/viem/pull/3326) [`5c06bfa8c66c8e1c8db75d7cb9b51284c4e68bd0`](https://github.com/wevm/viem/commit/5c06bfa8c66c8e1c8db75d7cb9b51284c4e68bd0) Thanks [@jxom](https://github.com/jxom)! - Added `simulateCalls` Action. [Docs](https://viem.sh/docs/actions/public/simulateCalls)
+
+### Patch Changes
+
+- [#3321](https://github.com/wevm/viem/pull/3321) [`120610889383e0a4bc50e88fd04a98cf8e372b7e`](https://github.com/wevm/viem/commit/120610889383e0a4bc50e88fd04a98cf8e372b7e) Thanks [@biruichen](https://github.com/biruichen)! - Added Story Mainnet.
+
+- [#3324](https://github.com/wevm/viem/pull/3324) [`0a32b1e3ea3795fc91b4254ca001981626888abd`](https://github.com/wevm/viem/commit/0a32b1e3ea3795fc91b4254ca001981626888abd) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added 0G Newton Testnet.
+
+- [#3325](https://github.com/wevm/viem/pull/3325) [`f68da13342a8ceea434dce6cd61fef508ae946bb`](https://github.com/wevm/viem/commit/f68da13342a8ceea434dce6cd61fef508ae946bb) Thanks [@lethaale](https://github.com/lethaale)! - Added ENS contracts to Berachain L1.
+
+- [#3322](https://github.com/wevm/viem/pull/3322) [`01a74e95271e98d4ff3771fc8c3515978fe8b22e`](https://github.com/wevm/viem/commit/01a74e95271e98d4ff3771fc8c3515978fe8b22e) Thanks [@vittominacori](https://github.com/vittominacori)! - Updated Worldchain Sepolia.
+
 ## 2.22.23
 
 ### Patch Changes
