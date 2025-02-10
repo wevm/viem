@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add Unichain mainnet
+Added Unichain.
