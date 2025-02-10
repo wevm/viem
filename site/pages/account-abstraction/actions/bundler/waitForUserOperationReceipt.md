@@ -2,7 +2,7 @@
 description: Waits for the User Operation to be included on a Block, and then returns the User Operation receipt.
 ---
 
-# getUserOperationReceipt
+# waitForUserOperationReceipt
 
 Waits for the User Operation to be included on a [Block](https://viem.sh/docs/glossary/terms#block) (one confirmation), and then returns the User Operation receipt.
 
