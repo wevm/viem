@@ -117,7 +117,7 @@ test('behavior: with mutation calls + asset changes', async () => {
   const account = '0xdead000000000000000042069420694206942069' as const
   const { assetChanges, results } = await simulateCalls(mainnetClient, {
     account,
-    assetChanges: true,
+    traceAssetChanges: true,
     calls: [
       {
         to: accounts[1].address,
@@ -383,4 +383,37 @@ test('behavior: stress', async () => {
   await simulateCalls(mainnetClient, {
     calls,
   })
+})
+
+test('behavior: account not provided with traceAssetChanges', async () => {
+  await expect(() =>
+    simulateCalls(mainnetClient, {
+      traceAssetChanges: true,
+      calls: [
+        {
+          to: accounts[1].address,
+          value: parseEther('1'),
+        },
+        {
+          to: accounts[2].address,
+          value: parseEther('1'),
+        },
+        {
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+          to: wagmiContractConfig.address,
+        },
+        {
+          abi: erc20Abi,
+          functionName: 'transfer',
+          to: '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE',
+          args: [accounts[1].address, parseEther('1')],
+        },
+      ],
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [BaseError: \`account\` is required when \`traceAssetChanges\` is true
+
+    Version: viem@x.y.z]
+  `)
 })

@@ -42,12 +42,12 @@ export type SimulateCallsParameters<
 > = Omit<SimulateBlocksParameters, 'blocks' | 'returnFullTransactions'> & {
   /** Account attached to the calls (msg.sender). */
   account?: account | undefined
-  /** Whether to trace asset changes. */
-  assetChanges?: boolean | undefined
   /** Calls to simulate. */
   calls: Calls<Narrow<calls>>
   /** State overrides. */
   stateOverrides?: StateOverride | undefined
+  /** Whether to trace asset changes. */
+  traceAssetChanges?: boolean | undefined
 }
 
 export type SimulateCallsReturnType<
@@ -57,8 +57,8 @@ export type SimulateCallsReturnType<
   assetChanges: readonly {
     token: {
       address: Address
-      decimals: number
-      symbol: string
+      decimals?: number | undefined
+      symbol?: string | undefined
     }
     value: { pre: bigint; post: bigint; diff: bigint }
   }[]
@@ -130,11 +130,11 @@ export async function simulateCalls<
   parameters: SimulateCallsParameters<calls, account>,
 ): Promise<SimulateCallsReturnType<calls>> {
   const {
-    assetChanges,
     blockNumber,
     blockTag,
     calls,
     stateOverrides,
+    traceAssetChanges,
     traceTransfers,
     validation,
   } = parameters
@@ -143,8 +143,10 @@ export async function simulateCalls<
     ? parseAccount(parameters.account)
     : undefined
 
-  if (assetChanges && !account)
-    throw new BaseError('`account` is required when `assetChanges` is true')
+  if (traceAssetChanges && !account)
+    throw new BaseError(
+      '`account` is required when `traceAssetChanges` is true',
+    )
 
   // Derive bytecode to extract ETH balance via a contract call.
   const getBalanceData = account
@@ -161,7 +163,7 @@ export async function simulateCalls<
     : undefined
 
   // Fetch ERC20/721 addresses that were "touched" from the calls.
-  const assetAddresses = assetChanges
+  const assetAddresses = traceAssetChanges
     ? await Promise.all(
         parameters.calls.map(async (call: any) => {
           if (!call.data && !call.abi) return
@@ -190,7 +192,7 @@ export async function simulateCalls<
     blockNumber,
     blockTag: blockTag as undefined,
     blocks: [
-      ...(assetChanges
+      ...(traceAssetChanges
         ? [
             // ETH pre balances
             {
@@ -231,7 +233,7 @@ export async function simulateCalls<
         stateOverrides: resultsStateOverrides,
       },
 
-      ...(assetChanges
+      ...(traceAssetChanges
         ? [
             // ETH post balances
             {
@@ -324,7 +326,7 @@ export async function simulateCalls<
     validation,
   })
 
-  const block_results = assetChanges ? blocks[2] : blocks[0]
+  const block_results = traceAssetChanges ? blocks[2] : blocks[0]
   const [
     block_ethPre,
     block_assetsPre,
@@ -334,7 +336,7 @@ export async function simulateCalls<
     block_decimals,
     block_tokenURI,
     block_symbols,
-  ] = assetChanges ? blocks : []
+  ] = traceAssetChanges ? blocks : []
 
   // Extract call results from the simulation.
   const { calls: block_calls, ...block } = block_results
@@ -383,14 +385,11 @@ export async function simulateCalls<
           decimals: 18,
           symbol: 'ETH',
         }
-      if ((!decimals_ && !tokenURI_) || !symbol_)
-        throw new BaseError(
-          'cannot simulate asset changes. asset does not comply with ERC20 or ERC721 standard.',
-        )
+
       return {
         address: assetAddresses[i - 1]! as Address,
-        decimals: Number(decimals_ ?? 1),
-        symbol: symbol_,
+        decimals: tokenURI_ || decimals_ ? Number(decimals_ ?? 1) : undefined,
+        symbol: symbol_ ?? undefined,
       }
     })()
 
