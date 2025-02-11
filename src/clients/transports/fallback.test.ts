@@ -4,6 +4,7 @@ import { createHttpServer } from '~test/src/utils.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { localhost } from '../../chains/index.js'
 import {
+  InternalRpcError,
   MethodNotSupportedRpcError,
   UserRejectedRequestError,
 } from '../../errors/rpc.js'
@@ -31,6 +32,7 @@ test('default', () => {
     {
       "config": {
         "key": "fallback",
+        "methods": undefined,
         "name": "Fallback",
         "request": [Function],
         "retryCount": 3,
@@ -45,6 +47,7 @@ test('default', () => {
           {
             "config": {
               "key": "http",
+              "methods": undefined,
               "name": "HTTP JSON-RPC",
               "request": [Function],
               "retryCount": 0,
@@ -61,6 +64,7 @@ test('default', () => {
           {
             "config": {
               "key": "http",
+              "methods": undefined,
               "name": "HTTP JSON-RPC",
               "request": [Function],
               "retryCount": 0,
@@ -265,6 +269,46 @@ describe('request', () => {
     expect(await transport.request({ method: 'eth_a' })).toBe('0x1')
     expect(await transport.request({ method: 'eth_b' })).toBe('0x1')
     expect(await transport.request({ method: 'eth_c' })).toBe('0x2')
+  })
+
+  test('methods.include (error)', async () => {
+    const server1 = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(
+        JSON.stringify({
+          error: { code: InternalRpcError.code, message: 'sad times' },
+        }),
+      )
+    })
+    const server2 = await createHttpServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ result: '0x2' }))
+    })
+
+    const transport = fallback([
+      http(server1.url, { methods: { include: ['eth_a', 'eth_b'] } }),
+      http(server2.url, { methods: { exclude: ['eth_a'] } }),
+      http(server2.url, { methods: { include: ['eth_b'] } }),
+    ])({
+      chain: localhost,
+    })
+
+    await expect(() =>
+      transport.request({ method: 'eth_a' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [InternalRpcError: An internal error was received.
+
+      URL: http://localhost
+      Request body: {"method":"eth_a"}
+
+      Details: sad times
+      Version: viem@x.y.z]
+    `)
+    expect(await transport.request({ method: 'eth_b' })).toBe('0x2')
   })
 
   test('error (rpc)', async () => {
@@ -556,6 +600,7 @@ describe('client', () => {
         "request": [Function],
         "transport": {
           "key": "fallback",
+          "methods": undefined,
           "name": "Fallback",
           "onResponse": [Function],
           "request": [Function],
@@ -566,6 +611,7 @@ describe('client', () => {
             {
               "config": {
                 "key": "http",
+                "methods": undefined,
                 "name": "HTTP JSON-RPC",
                 "request": [Function],
                 "retryCount": 0,
@@ -582,6 +628,7 @@ describe('client', () => {
             {
               "config": {
                 "key": "http",
+                "methods": undefined,
                 "name": "HTTP JSON-RPC",
                 "request": [Function],
                 "retryCount": 0,
