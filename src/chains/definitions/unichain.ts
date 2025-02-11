@@ -3,7 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const unichain = /*#__PURE__*/ defineChain({
   id: 130,
   name: 'Unichain',
-  nativeCurrency: { name: 'Unichain', symbol: 'ETH', decimals: 18 },
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
       http: ['https://mainnet.unichain.org/'],
