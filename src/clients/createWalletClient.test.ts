@@ -60,6 +60,7 @@ test('creates', () => {
       "switchChain": [Function],
       "transport": {
         "key": "mock",
+        "methods": undefined,
         "name": "Mock Transport",
         "request": [MockFunction spy],
         "retryCount": 3,
@@ -115,6 +116,7 @@ describe('args: account', () => {
         "switchChain": [Function],
         "transport": {
           "key": "mock",
+          "methods": undefined,
           "name": "Mock Transport",
           "request": [MockFunction spy],
           "retryCount": 3,
@@ -177,6 +179,7 @@ describe('args: account', () => {
         "switchChain": [Function],
         "transport": {
           "key": "mock",
+          "methods": undefined,
           "name": "Mock Transport",
           "request": [MockFunction spy],
           "retryCount": 3,
@@ -227,6 +230,7 @@ describe('args: transport', () => {
         "switchChain": [Function],
         "transport": {
           "key": "custom",
+          "methods": undefined,
           "name": "Custom Provider",
           "request": [Function],
           "retryCount": 3,
@@ -276,6 +280,7 @@ describe('args: transport', () => {
         "transport": {
           "fetchOptions": undefined,
           "key": "http",
+          "methods": undefined,
           "name": "HTTP JSON-RPC",
           "request": [Function],
           "retryCount": 3,
@@ -346,6 +351,7 @@ describe('args: transport', () => {
           "getRpcClient": [Function],
           "getSocket": [Function],
           "key": "webSocket",
+          "methods": undefined,
           "name": "WebSocket JSON-RPC",
           "request": [Function],
           "retryCount": 3,
@@ -492,6 +498,7 @@ test('extend', () => {
       "transport": {
         "fetchOptions": undefined,
         "key": "http",
+        "methods": undefined,
         "name": "HTTP JSON-RPC",
         "request": [Function],
         "retryCount": 3,

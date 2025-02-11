@@ -49,6 +49,7 @@ describe('config', () => {
       {
         "config": {
           "key": "mock",
+          "methods": undefined,
           "name": "IPC JSON-RPC",
           "request": [Function],
           "retryCount": 3,
@@ -74,6 +75,7 @@ describe('config', () => {
       {
         "config": {
           "key": "ipc",
+          "methods": undefined,
           "name": "Mock Transport",
           "request": [Function],
           "retryCount": 3,
@@ -97,6 +99,7 @@ describe('config', () => {
       {
         "config": {
           "key": "ipc",
+          "methods": undefined,
           "name": "IPC JSON-RPC",
           "request": [Function],
           "retryCount": 3,

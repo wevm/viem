@@ -17,6 +17,7 @@ test('default', () => {
     {
       "config": {
         "key": "mock",
+        "methods": undefined,
         "name": "Mock Transport",
         "request": [MockFunction spy],
         "retryCount": 3,
@@ -48,6 +49,7 @@ test('value', () => {
     {
       "config": {
         "key": "mock",
+        "methods": undefined,
         "name": "Mock Transport",
         "request": [MockFunction spy],
         "retryCount": 3,

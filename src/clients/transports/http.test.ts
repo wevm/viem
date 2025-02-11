@@ -18,6 +18,7 @@ test('default', () => {
     {
       "config": {
         "key": "http",
+        "methods": undefined,
         "name": "HTTP JSON-RPC",
         "request": [Function],
         "retryCount": 3,
@@ -44,6 +45,7 @@ describe('config', () => {
       {
         "config": {
           "key": "mock",
+          "methods": undefined,
           "name": "HTTP JSON-RPC",
           "request": [Function],
           "retryCount": 3,
@@ -69,6 +71,7 @@ describe('config', () => {
       {
         "config": {
           "key": "http",
+          "methods": undefined,
           "name": "Mock Transport",
           "request": [Function],
           "retryCount": 3,
@@ -92,6 +95,7 @@ describe('config', () => {
       {
         "config": {
           "key": "http",
+          "methods": undefined,
           "name": "HTTP JSON-RPC",
           "request": [Function],
           "retryCount": 3,
@@ -117,6 +121,7 @@ describe('config', () => {
       {
         "config": {
           "key": "http",
+          "methods": undefined,
           "name": "HTTP JSON-RPC",
           "request": [Function],
           "retryCount": 3,

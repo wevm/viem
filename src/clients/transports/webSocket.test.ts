@@ -30,6 +30,7 @@ describe('config', () => {
       {
         "config": {
           "key": "mock",
+          "methods": undefined,
           "name": "WebSocket JSON-RPC",
           "request": [Function],
           "retryCount": 3,
@@ -56,6 +57,7 @@ describe('config', () => {
       {
         "config": {
           "key": "webSocket",
+          "methods": undefined,
           "name": "Mock Transport",
           "request": [Function],
           "retryCount": 3,
@@ -80,6 +82,7 @@ describe('config', () => {
       {
         "config": {
           "key": "webSocket",
+          "methods": undefined,
           "name": "WebSocket JSON-RPC",
           "request": [Function],
           "retryCount": 3,
