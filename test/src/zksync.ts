@@ -1,6 +1,7 @@
 import { zksyncLocalNode } from '~viem/chains/index.js'
 import { createClient } from '~viem/clients/createClient.js'
 import { http } from '~viem/index.js'
+import type { ZksyncTransactionReceipt } from '~viem/zksync/index.js'
 import { accounts as acc } from './constants.js'
 
 export const zksyncClientLocalNode = createClient({
@@ -184,6 +185,186 @@ export const mockTransactionDetails = {
 
 export const mockedGasEstimation = 123456789n
 
+const mockedReceipt: ZksyncTransactionReceipt = {
+  transactionHash:
+    '0x15c295874fe9ad8f6708def4208119c68999f7a76ac6447c111e658ba6bfaa1e',
+  transactionIndex: 0,
+  blockHash:
+    '0x395fdbf0faa12cb49438dcbcf96ddb130b8c0730dd0a0dd6999e247e2c2bca85',
+  blockNumber: 45n,
+  l1BatchTxIndex: 0n,
+  l1BatchNumber: 22n,
+  from: '0x36615cf349d7f6344891b1e7ca7c72883f5dc049',
+  to: '0x000000000000000000000000000000000000800a',
+  cumulativeGasUsed: 0n,
+  gasUsed: 221700n,
+  contractAddress: null,
+  logs: [
+    {
+      address: '0x000000000000000000000000000000000000800a',
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        '0x00000000000000000000000036615cf349d7f6344891b1e7ca7c72883f5dc049',
+        '0x0000000000000000000000000000000000000000000000000000000000008001',
+      ],
+      data: '0x00000000000000000000000000000000000000000000000000001cd79e564400',
+      blockHash:
+        '0x395fdbf0faa12cb49438dcbcf96ddb130b8c0730dd0a0dd6999e247e2c2bca85',
+      blockNumber: 45n,
+      l1BatchNumber: 22n,
+      transactionHash:
+        '0x15c295874fe9ad8f6708def4208119c68999f7a76ac6447c111e658ba6bfaa1e',
+      transactionIndex: 0,
+      logIndex: 0,
+      transactionLogIndex: 0,
+      logType: null,
+      removed: false,
+    },
+    {
+      address: '0x000000000000000000000000000000000000800a',
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        '0x0000000000000000000000000000000000000000000000000000000000008001',
+        '0x00000000000000000000000036615cf349d7f6344891b1e7ca7c72883f5dc049',
+      ],
+      data: '0x000000000000000000000000000000000000000000000000000004ce9a63b600',
+      blockHash:
+        '0x395fdbf0faa12cb49438dcbcf96ddb130b8c0730dd0a0dd6999e247e2c2bca85',
+      blockNumber: 45n,
+      l1BatchNumber: 22n,
+      transactionHash:
+        '0x15c295874fe9ad8f6708def4208119c68999f7a76ac6447c111e658ba6bfaa1e',
+      transactionIndex: 0,
+      logIndex: 1,
+      transactionLogIndex: 1,
+      logType: null,
+      removed: false,
+    },
+    {
+      address: '0x000000000000000000000000000000000000800a',
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        '0x00000000000000000000000036615cf349d7f6344891b1e7ca7c72883f5dc049',
+        '0x000000000000000000000000000000000000000000000000000000000000800a',
+      ],
+      data: '0x00000000000000000000000000000000000000000000000000000001a13b8600',
+      blockHash:
+        '0x395fdbf0faa12cb49438dcbcf96ddb130b8c0730dd0a0dd6999e247e2c2bca85',
+      blockNumber: 45n,
+      l1BatchNumber: 22n,
+      transactionHash:
+        '0x15c295874fe9ad8f6708def4208119c68999f7a76ac6447c111e658ba6bfaa1e',
+      transactionIndex: 0,
+      logIndex: 2,
+      transactionLogIndex: 2,
+      logType: null,
+      removed: false,
+    },
+    {
+      address: '0x0000000000000000000000000000000000008008',
+      topics: [
+        '0x27fe8c0b49f49507b9d4fe5968c9f49edfe5c9df277d433a07a0717ede97638d',
+      ],
+      data: '0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008008000000000000000000000000000000000000000000000000000000000000800a0bc337b42226405c56d0c4db2bd874946831bd2b0b00e51e72d0cf430165fe7f',
+      blockHash:
+        '0x395fdbf0faa12cb49438dcbcf96ddb130b8c0730dd0a0dd6999e247e2c2bca85',
+      blockNumber: 45n,
+      l1BatchNumber: 22n,
+      transactionHash:
+        '0x15c295874fe9ad8f6708def4208119c68999f7a76ac6447c111e658ba6bfaa1e',
+      transactionIndex: 0,
+      logIndex: 3,
+      transactionLogIndex: 3,
+      logType: null,
+      removed: false,
+    },
+    {
+      address: '0x0000000000000000000000000000000000008008',
+      topics: [
+        '0x3a36e47291f4201faf137fab081d92295bce2d53be2c6ca68ba82c7faa9ce241',
+        '0x000000000000000000000000000000000000000000000000000000000000800a',
+        '0x0bc337b42226405c56d0c4db2bd874946831bd2b0b00e51e72d0cf430165fe7f',
+      ],
+      data: '0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000386c0960f936615cf349d7f6344891b1e7ca7c72883f5dc04900000000000000000000000000000000000000000000000000000001a13b86000000000000000000',
+      blockHash:
+        '0x395fdbf0faa12cb49438dcbcf96ddb130b8c0730dd0a0dd6999e247e2c2bca85',
+      blockNumber: 45n,
+      l1BatchNumber: 22n,
+      transactionHash:
+        '0x15c295874fe9ad8f6708def4208119c68999f7a76ac6447c111e658ba6bfaa1e',
+      transactionIndex: 0,
+      logIndex: 4,
+      transactionLogIndex: 4,
+      logType: null,
+      removed: false,
+    },
+    {
+      address: '0x000000000000000000000000000000000000800a',
+      topics: [
+        '0x2717ead6b9200dd235aad468c9809ea400fe33ac69b5bfaa6d3e90fc922b6398',
+        '0x00000000000000000000000036615cf349d7f6344891b1e7ca7c72883f5dc049',
+        '0x00000000000000000000000036615cf349d7f6344891b1e7ca7c72883f5dc049',
+      ],
+      data: '0x00000000000000000000000000000000000000000000000000000001a13b8600',
+      blockHash:
+        '0x395fdbf0faa12cb49438dcbcf96ddb130b8c0730dd0a0dd6999e247e2c2bca85',
+      blockNumber: 45n,
+      l1BatchNumber: 22n,
+      transactionHash:
+        '0x15c295874fe9ad8f6708def4208119c68999f7a76ac6447c111e658ba6bfaa1e',
+      transactionIndex: 0,
+      logIndex: 5,
+      transactionLogIndex: 5,
+      logType: null,
+      removed: false,
+    },
+    {
+      address: '0x000000000000000000000000000000000000800a',
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        '0x0000000000000000000000000000000000000000000000000000000000008001',
+        '0x00000000000000000000000036615cf349d7f6344891b1e7ca7c72883f5dc049',
+      ],
+      data: '0x000000000000000000000000000000000000000000000000000003df28f90a00',
+      blockHash:
+        '0x395fdbf0faa12cb49438dcbcf96ddb130b8c0730dd0a0dd6999e247e2c2bca85',
+      blockNumber: 45n,
+      l1BatchNumber: 22n,
+      transactionHash:
+        '0x15c295874fe9ad8f6708def4208119c68999f7a76ac6447c111e658ba6bfaa1e',
+      transactionIndex: 0,
+      logIndex: 6,
+      transactionLogIndex: 6,
+      logType: null,
+      removed: false,
+    },
+  ],
+  l2ToL1Logs: [
+    {
+      blockNumber: 40n,
+      blockHash:
+        '0x395fdbf0faa12cb49438dcbcf96ddb130b8c0730dd0a0dd6999e247e2c2bca85',
+      l1BatchNumber: 22n,
+      transactionIndex: 0n,
+      shardId: 0n,
+      isService: true,
+      sender: '0x0000000000000000000000000000000000008008',
+      key: '0x000000000000000000000000000000000000000000000000000000000000800a',
+      value:
+        '0x0bc337b42226405c56d0c4db2bd874946831bd2b0b00e51e72d0cf430165fe7f',
+      transactionHash:
+        '0x15c295874fe9ad8f6708def4208119c68999f7a76ac6447c111e658ba6bfaa1e',
+      logIndex: 0n,
+    },
+  ],
+  status: 'success',
+  root: '0x395fdbf0faa12cb49438dcbcf96ddb130b8c0730dd0a0dd6999e247e2c2bca85',
+  logsBloom:
+    '0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
+  type: 'eip1559',
+  effectiveGasPrice: 100000000n,
+}
+
 export const mockRequestReturnData = async (method: string) => {
   if (method === 'zks_L1ChainId') return mockChainId
   if (method === 'zks_estimateFee') return mockFeeValues
@@ -201,6 +382,7 @@ export const mockRequestReturnData = async (method: string) => {
   if (method === 'zks_getTransactionDetails') return mockTransactionDetails
   if (method === 'zks_L1BatchNumber') return mockedL1BatchNumber
   if (method === 'zks_estimateGasL1ToL2') return mockedGasEstimation
+  if (method === 'eth_getTransactionReceipt') return mockedReceipt
   return undefined
 }
 

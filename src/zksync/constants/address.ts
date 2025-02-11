@@ -14,3 +14,6 @@ export const ethAddressInContracts =
 /** The address of the base token. */
 export const l2BaseTokenAddress =
   '0x000000000000000000000000000000000000800a' as const
+
+export const l1MessengerAddress =
+  '0x0000000000000000000000000000000000008008' as const
