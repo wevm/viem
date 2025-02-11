@@ -1,5 +1,13 @@
 # viem
 
+## 2.23.1
+
+### Patch Changes
+
+- [`dee7aa693027b5a5324b77c32be64a2f50a1e2ab`](https://github.com/wevm/viem/commit/dee7aa693027b5a5324b77c32be64a2f50a1e2ab) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `fallback` transports would not adhere to transport method allow/denylists when falling through.
+
+- [#3332](https://github.com/wevm/viem/pull/3332) [`349cdbef6cd0eacde5ee680321652c494124852c`](https://github.com/wevm/viem/commit/349cdbef6cd0eacde5ee680321652c494124852c) Thanks [@cbachmeier](https://github.com/cbachmeier)! - Added Unichain.
+
 ## 2.23.0
 
 ### Minor Changes
