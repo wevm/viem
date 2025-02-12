@@ -1,18 +1,18 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const story = /*#__PURE__*/ defineChain({
-  id: 1514,
-  name: "Story",
+export const storyAeneid = /*#__PURE__*/ defineChain({
+  id: 13_15,
+  name: "Story Aeneid",
   nativeCurrency: { name: "IP", symbol: "IP", decimals: 18 },
   rpcUrls: {
     default: {
-      http: ["https://mainnet.storyrpc.io/"],
+      http: ["https://aeneid.storyrpc.io/"],
     },
   },
   blockExplorers: {
     default: {
       name: "Explorer",
-      url: "https://storyscan.xyz/",
+      url: "https://aeneid.storyscan.xyz/",
     },
   },
   contracts: {
@@ -21,5 +21,5 @@ export const story = /*#__PURE__*/ defineChain({
       blockCreated: 5882,
     },
   },
-  testnet: false,
+  testnet: true,
 });
