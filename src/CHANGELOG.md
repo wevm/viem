@@ -1,5 +1,15 @@
 # viem
 
+## 2.23.2
+
+### Patch Changes
+
+- [#3336](https://github.com/wevm/viem/pull/3336) [`bfa1e95421ea334d3e6434bb5811cb5600b1c457`](https://github.com/wevm/viem/commit/bfa1e95421ea334d3e6434bb5811cb5600b1c457) Thanks [@vittominacori](https://github.com/vittominacori)! - Updated Unichain currency name.
+
+- [#3337](https://github.com/wevm/viem/pull/3337) [`e92aad6c5a339e79e7da6af3d17a4b3b65b83564`](https://github.com/wevm/viem/commit/e92aad6c5a339e79e7da6af3d17a4b3b65b83564) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Pumpfi Testnet.
+
+- [#3339](https://github.com/wevm/viem/pull/3339) [`cdad6f36c010f4f42452da1186102e23e8a18a8d`](https://github.com/wevm/viem/commit/cdad6f36c010f4f42452da1186102e23e8a18a8d) Thanks [@0xArdy](https://github.com/0xArdy)! - Added Unichain OP Stack config.
+
 ## 2.23.1
 
 ### Patch Changes
