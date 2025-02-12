@@ -42,5 +42,5 @@ export const unichain = /*#__PURE__*/ defineChain({
       },
     },
   },
-  sourceId
+  sourceId,
 })
