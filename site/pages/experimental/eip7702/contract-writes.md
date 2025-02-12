@@ -349,6 +349,7 @@ const authorization = await walletClient.signAuthorization({
 })
 
 const hash = await walletClient.writeContract({
+  account: sponsor, // [!code ++]
   abi,
   address: walletClient.account.address,
   functionName: 'execute',
