@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added Unichain mainnet Op-Stack config
+Added Unichain OP Stack config.
