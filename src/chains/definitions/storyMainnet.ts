@@ -2,7 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const storyMainnet = /*#__PURE__*/ defineChain({
   id: 1514,
-  name: 'mainnet',
+  name: 'Story Mainnet',
   network: 'story-mainnet',
   nativeCurrency: { 
     name: 'IP', 
@@ -16,7 +16,7 @@ export const storyMainnet = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Explorer',
+      name: 'Story MainnetExplorer',
       url: 'https://storyscan.xyz/',
     },
   },

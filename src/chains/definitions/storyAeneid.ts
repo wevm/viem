@@ -2,7 +2,8 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const storyAeneid = /*#__PURE__*/ defineChain({
   id: 1315,
-  name: 'Aeneid',
+  name: 'Story Aeneid',
+  network: 'story-aeneid',
   nativeCurrency: { 
     name: 'IP', 
     symbol: 'IP', 
@@ -15,7 +16,7 @@ export const storyAeneid = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Explorer',
+      name: 'Story Aeneid Explorer',
       url: 'https://aeneid.storyscan.xyz/',
     },
   },
