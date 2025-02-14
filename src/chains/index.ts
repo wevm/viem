@@ -442,7 +442,10 @@ export { sophonTestnet } from './definitions/sophonTestnet.js'
 export { spicy } from './definitions/spicy.js'
 export { step } from './definitions/step.js'
 export { story } from './definitions/story.js'
+export { storyAeneid } from './definitions/storyAeneid.js'
+/** @deprecated Use `storyAeneid` instead. */
 export { storyOdyssey } from './definitions/storyOdyssey.js'
+/** @deprecated Use `storyAeneid` instead. */
 export { storyTestnet } from './definitions/storyTestnet.js'
 export { stratis } from './definitions/stratis.js'
 export { superlumio } from './definitions/superlumio.js'
