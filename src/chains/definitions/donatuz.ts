@@ -9,7 +9,7 @@ export const donatuz = /*#__PURE__*/ defineChain({
     symbol: 'ETH',
   },
   rpcUrls: {
-    default: { http: ['ttps://rpc.donatuz.com'] },
+    default: { http: ['https://rpc.donatuz.com'] },
   },
   blockExplorers: {
     default: {
