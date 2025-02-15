@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const haust = /*#__PURE__*/ defineChain({
+export const haustTestnet = /*#__PURE__*/ defineChain({
   id: 1_523_903_251,
   name: 'Haust Network Testnet',
   nativeCurrency: {
