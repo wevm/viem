@@ -11,5 +11,13 @@ export const story = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: { http: ['https://mainnet.storyrpc.io'] },
   },
+  blockExplorers: {
+    default: {
+      name: 'Story explorer',
+      url: 'https://storyscan.xyz',
+      apiUrl: 'https://storyscan.xyz/api/v2',
+    },
+  },
   testnet: false,
 })
+
