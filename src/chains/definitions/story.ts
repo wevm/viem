@@ -20,4 +20,3 @@ export const story = /*#__PURE__*/ defineChain({
   },
   testnet: false,
 })
-
