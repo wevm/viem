@@ -1,5 +1,4 @@
 import type { Address } from 'abitype'
-import type { Hex } from 'viem'
 import type { Account } from '../../accounts/types.js'
 import { readContract } from '../../actions/public/readContract.js'
 import {
@@ -17,6 +16,7 @@ import {
   type ChainNotFoundErrorType,
 } from '../../errors/chain.js'
 import type { Chain } from '../../types/chain.js'
+import type { Hex } from '../../types/misc.js'
 import {
   decodeAbiParameters,
   encodeFunctionData,
