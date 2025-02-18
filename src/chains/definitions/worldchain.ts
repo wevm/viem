@@ -32,7 +32,7 @@ export const worldchain = /*#__PURE__*/ defineChain({
     },
     disputeGameFactory: {
       [sourceId]: {
-        address: '0x0E90dCAFBC242D2C861A20Bb20EC8E7182965a52',
+        address: '0x069c4c579671f8c120b1327a73217D01Ea2EC5ea',
       },
     },
     l2OutputOracle: {
