@@ -918,19 +918,6 @@ export const portal2Abi = [
     type: 'receive',
   },
   {
-    inputs: [],
-    name: 'balance',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
     inputs: [
       {
         internalType: 'contract IDisputeGame',
@@ -959,44 +946,6 @@ export const portal2Abi = [
     name: 'checkWithdrawal',
     outputs: [],
     stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_to',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: '_mint',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: '_value',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint64',
-        name: '_gasLimit',
-        type: 'uint64',
-      },
-      {
-        internalType: 'bool',
-        name: '_isCreation',
-        type: 'bool',
-      },
-      {
-        internalType: 'bytes',
-        name: '_data',
-        type: 'bytes',
-      },
-    ],
-    name: 'depositERC20Transaction',
-    outputs: [],
-    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -1056,7 +1005,7 @@ export const portal2Abi = [
     name: 'disputeGameFactory',
     outputs: [
       {
-        internalType: 'contract DisputeGameFactory',
+        internalType: 'contract IDisputeGameFactory',
         name: '',
         type: 'address',
       },
@@ -1214,17 +1163,17 @@ export const portal2Abi = [
   {
     inputs: [
       {
-        internalType: 'contract DisputeGameFactory',
+        internalType: 'contract IDisputeGameFactory',
         name: '_disputeGameFactory',
         type: 'address',
       },
       {
-        internalType: 'contract SystemConfig',
+        internalType: 'contract ISystemConfig',
         name: '_systemConfig',
         type: 'address',
       },
       {
-        internalType: 'contract SuperchainConfig',
+        internalType: 'contract ISuperchainConfig',
         name: '_superchainConfig',
         type: 'address',
       },
@@ -1503,34 +1452,6 @@ export const portal2Abi = [
   {
     inputs: [
       {
-        internalType: 'address',
-        name: '_token',
-        type: 'address',
-      },
-      {
-        internalType: 'uint8',
-        name: '_decimals',
-        type: 'uint8',
-      },
-      {
-        internalType: 'bytes32',
-        name: '_name',
-        type: 'bytes32',
-      },
-      {
-        internalType: 'bytes32',
-        name: '_symbol',
-        type: 'bytes32',
-      },
-    ],
-    name: 'setGasPayingToken',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
         internalType: 'GameType',
         name: '_gameType',
         type: 'uint32',
@@ -1546,7 +1467,7 @@ export const portal2Abi = [
     name: 'superchainConfig',
     outputs: [
       {
-        internalType: 'contract SuperchainConfig',
+        internalType: 'contract ISuperchainConfig',
         name: '',
         type: 'address',
       },
@@ -1559,7 +1480,7 @@ export const portal2Abi = [
     name: 'systemConfig',
     outputs: [
       {
-        internalType: 'contract SystemConfig',
+        internalType: 'contract ISystemConfig',
         name: '',
         type: 'address',
       },
@@ -1791,17 +1712,12 @@ export const portal2Abi = [
   },
   {
     inputs: [],
-    name: 'NoValue',
+    name: 'LegacyGame',
     type: 'error',
   },
   {
     inputs: [],
     name: 'NonReentrant',
-    type: 'error',
-  },
-  {
-    inputs: [],
-    name: 'OnlyCustomGasToken',
     type: 'error',
   },
   {
@@ -1817,11 +1733,6 @@ export const portal2Abi = [
   {
     inputs: [],
     name: 'SmallGasLimit',
-    type: 'error',
-  },
-  {
-    inputs: [],
-    name: 'TransferFailed',
     type: 'error',
   },
   {
