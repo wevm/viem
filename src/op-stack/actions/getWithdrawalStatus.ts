@@ -249,27 +249,32 @@ export async function getWithdrawalStatus<
   if (checkWithdrawalResult.status === 'rejected') {
     const error = checkWithdrawalResult.reason as ReadContractErrorType
     if (error.cause instanceof ContractFunctionRevertedError) {
-      const errorMessage = error.cause.data?.args?.[0]
-      if (
-        errorMessage === 'OptimismPortal: invalid game type' ||
-        errorMessage === 'OptimismPortal: withdrawal has not been proven yet' ||
-        errorMessage ===
-          'OptimismPortal: withdrawal has not been proven by proof submitter address yet' ||
-        errorMessage ===
-          'OptimismPortal: dispute game created before respected game type was updated'
-      )
-        return 'ready-to-prove'
-      if (
-        errorMessage ===
-          'OptimismPortal: proven withdrawal has not matured yet' ||
-        errorMessage ===
-          'OptimismPortal: output proposal has not been finalized yet' ||
-        errorMessage === 'OptimismPortal: output proposal in air-gap'
-      )
-        return 'waiting-to-finalize'
+      // All potential error causes listed here, can either be the error string or the error name
+      // if custom error types are returned.
+      const errorCauses = {
+        'ready-to-prove': [
+          'OptimismPortal: invalid game type',
+          'OptimismPortal: withdrawal has not been proven yet',
+          'OptimismPortal: withdrawal has not been proven by proof submitter address yet',
+          'OptimismPortal: dispute game created before respected game type was updated',
+          'InvalidGameType',
+          'LegacyGame',
+        ],
+        'waiting-to-finalize': [
+          'OptimismPortal: proven withdrawal has not matured yet',
+          'OptimismPortal: output proposal has not been finalized yet',
+          'OptimismPortal: output proposal in air-gap',
+        ],
+      }
 
-      if (error.cause.data?.errorName === 'InvalidGameType')
+      // Pick out the error message and/or error name
+      // Return the status based on the error
+      const errorMessage =
+        error.cause.data?.errorName ?? (error.cause.data?.args?.[0] as string)
+      if (errorCauses['ready-to-prove'].includes(errorMessage))
         return 'ready-to-prove'
+      if (errorCauses['waiting-to-finalize'].includes(errorMessage))
+        return 'waiting-to-finalize'
     }
     throw checkWithdrawalResult.reason
   }
