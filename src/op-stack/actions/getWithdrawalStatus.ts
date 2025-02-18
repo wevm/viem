@@ -269,11 +269,17 @@ export async function getWithdrawalStatus<
 
       // Pick out the error message and/or error name
       // Return the status based on the error
-      const errorMessage =
-        error.cause.data?.errorName ?? (error.cause.data?.args?.[0] as string)
-      if (errorCauses['ready-to-prove'].includes(errorMessage))
+      const errors = [
+        error.cause.data?.errorName,
+        error.cause.data?.args?.[0] as string,
+      ]
+      if (errorCauses['ready-to-prove'].some((cause) => errors.includes(cause)))
         return 'ready-to-prove'
-      if (errorCauses['waiting-to-finalize'].includes(errorMessage))
+      if (
+        errorCauses['waiting-to-finalize'].some((cause) =>
+          errors.includes(cause),
+        )
+      )
         return 'waiting-to-finalize'
     }
     throw checkWithdrawalResult.reason
