@@ -141,6 +141,12 @@ export {
   type WithdrawReturnType,
   withdraw,
 } from './actions/withdraw.js'
+export {
+  type FinalizeWithdrawalErrorType,
+  type FinalizeWithdrawalParameters,
+  type FinalizeWithdrawalReturnType,
+  finalizeWithdrawal,
+} from './actions/finalizeWithdrawal.js'
 
 export {
   legacyEthAddress,
