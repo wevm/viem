@@ -7,7 +7,7 @@ runs:
     - name: Set up foundry
       uses: foundry-rs/foundry-toolchain@v1
       with:
-        version: 5a8bd893eeeeb9489ea66dd52a02eeaa580e3af0
+        version: nightly-5a8bd893eeeeb9489ea66dd52a02eeaa580e3af0
 
     - name: Set up pnpm
       uses: wevm/actions/.github/actions/pnpm@main
