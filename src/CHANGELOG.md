@@ -1,5 +1,33 @@
 # viem
 
+## 2.23.3
+
+### Patch Changes
+
+- [#3340](https://github.com/wevm/viem/pull/3340) [`66e5f6ab7b683a90775dcb8fae340e3154d74b38`](https://github.com/wevm/viem/commit/66e5f6ab7b683a90775dcb8fae340e3154d74b38) Thanks [@biruichen](https://github.com/biruichen)! - Added B3 multicall3.
+
+- [#3358](https://github.com/wevm/viem/pull/3358) [`8c62103fb556811d907d5bc588a5e9e6583aef3a`](https://github.com/wevm/viem/commit/8c62103fb556811d907d5bc588a5e9e6583aef3a) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Newton chain.
+
+- [#3360](https://github.com/wevm/viem/pull/3360) [`efa225262009297481d57f733e7b2c7e0b3a6ff1`](https://github.com/wevm/viem/commit/efa225262009297481d57f733e7b2c7e0b3a6ff1) Thanks [@smartcontracts](https://github.com/smartcontracts)! - **OP Stack:** Added support for `LegacyGame` error.
+
+- [#3359](https://github.com/wevm/viem/pull/3359) [`599818833dfc3778e723f94194ad6afc331e3afe`](https://github.com/wevm/viem/commit/599818833dfc3778e723f94194ad6afc331e3afe) Thanks [@mubaris](https://github.com/mubaris)! - Added Polynomial network.
+
+- [#3349](https://github.com/wevm/viem/pull/3349) [`322a2eb66579fec2ba48b1d3e37d6d1973965b1e`](https://github.com/wevm/viem/commit/322a2eb66579fec2ba48b1d3e37d6d1973965b1e) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Lumoz Mainnet & Testnet.
+
+- [#3352](https://github.com/wevm/viem/pull/3352) [`3fc5f865951b17ccf5a39a906d26a432a9bdacde`](https://github.com/wevm/viem/commit/3fc5f865951b17ccf5a39a906d26a432a9bdacde) Thanks [@biruichen](https://github.com/biruichen)! - Added Haust Network Testnet.
+
+- [#3266](https://github.com/wevm/viem/pull/3266) [`8500cf942ee868c9b871df91b3e536535b6325ee`](https://github.com/wevm/viem/commit/8500cf942ee868c9b871df91b3e536535b6325ee) Thanks [@danijelTxFusion](https://github.com/danijelTxFusion)! - Added `finalizeWithdrawal` action in the ZKsync extension
+
+- [#3348](https://github.com/wevm/viem/pull/3348) [`d0ead40b277d0d8094e654d20df903e4e92a551a`](https://github.com/wevm/viem/commit/d0ead40b277d0d8094e654d20df903e4e92a551a) Thanks [@cgero-eth](https://github.com/cgero-eth)! - Added Peaq chain.
+
+- [#3353](https://github.com/wevm/viem/pull/3353) [`f85f6d9d5aaf32668718819803c3d60148d8df07`](https://github.com/wevm/viem/commit/f85f6d9d5aaf32668718819803c3d60148d8df07) Thanks [@abbas9344](https://github.com/abbas9344)! - Added multicall3 contract to Berachain Artio.
+
+- [#3357](https://github.com/wevm/viem/pull/3357) [`6489a7217c028f46dd3aaa2d72aa0d870bb6630a`](https://github.com/wevm/viem/commit/6489a7217c028f46dd3aaa2d72aa0d870bb6630a) Thanks [@0xArdy](https://github.com/0xArdy)! - Fixed `disputeGameFactory` contract address in World Chain
+
+- [#3350](https://github.com/wevm/viem/pull/3350) [`a2368df1e539b5157bcb79479783c26f0f85192c`](https://github.com/wevm/viem/commit/a2368df1e539b5157bcb79479783c26f0f85192c) Thanks [@tomiir](https://github.com/tomiir)! - Fixed Donatuz network RPC URL
+
+- [#3354](https://github.com/wevm/viem/pull/3354) [`eec264fe99b6433e2320161366e6a82a65350d76`](https://github.com/wevm/viem/commit/eec264fe99b6433e2320161366e6a82a65350d76) Thanks [@rasplarry](https://github.com/rasplarry)! - Added Story Aeneid chain.
+
 ## 2.23.2
 
 ### Patch Changes
