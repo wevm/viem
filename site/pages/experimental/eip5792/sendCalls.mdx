@@ -187,9 +187,9 @@ The identifier can be any arbitrary string. The only requirement is that for a g
 
 ### account
 
-- **Type:** `Account | Address`
+- **Type:** `Account | Address | null`
 
-The Account to sign & broadcast the call from.
+The Account to sign & broadcast the call from. If set to `null`, it is assumed that the wallet will handle filling the sender of the calls.
 
 Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts).
 

@@ -1,4 +1,4 @@
-import type { Narrow } from 'abitype'
+import type { Address, Narrow } from 'abitype'
 import { parseAccount } from '../../../accounts/utils/parseAccount.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
@@ -31,7 +31,7 @@ export type SendCallsParameters<
     | WalletSendCallsParameters<WalletCapabilities>[number]['capabilities']
     | undefined
   version?: WalletSendCallsParameters[number]['version'] | undefined
-} & GetAccountParameter<account>
+} & GetAccountParameter<account, Account | Address, true, true>
 
 export type SendCallsReturnType = string
 
@@ -85,11 +85,11 @@ export async function sendCalls<
     version = '1.0',
   } = parameters
 
-  if (!account_)
+  if (typeof account_ === 'undefined')
     throw new AccountNotFoundError({
       docsPath: '/experimental/eip5792/sendCalls',
     })
-  const account = parseAccount(account_)
+  const account = account_ ? parseAccount(account_) : null
 
   const calls = parameters.calls.map((call_: unknown) => {
     const call = call_ as Call
@@ -118,7 +118,7 @@ export async function sendCalls<
             calls,
             capabilities,
             chainId: numberToHex(chain!.id),
-            from: account.address,
+            from: account?.address,
             version,
           },
         ],

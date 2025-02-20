@@ -210,15 +210,13 @@ export type WalletSendCallsParameters<
 > = [
   {
     calls: readonly {
-      chainId?: chainId | undefined
       to?: Address | undefined
       data?: Hex | undefined
       value?: quantity | undefined
     }[]
     capabilities?: capabilities | undefined
-    /** @deprecated Use `chainId` on `calls` instead. */
     chainId?: chainId | undefined
-    from: Address
+    from?: Address | undefined
     version: string
   },
 ]
