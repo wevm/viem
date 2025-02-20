@@ -5,8 +5,8 @@ export const zenchainTestnet = /*#__PURE__*/ defineChain({
   name: 'Zenchain Testnet',
   nativeCurrency: {
     decimals: 18,
-    name: 'ZCX',
-    symbol: 'ZCX',
+    name: 'ZTC',
+    symbol: 'ZTC',
   },
   rpcUrls: {
     default: {
