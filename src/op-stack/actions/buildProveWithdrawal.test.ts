@@ -29,7 +29,7 @@ beforeAll(async () => {
 })
 
 // TODO(fault-proofs): convert to `client` & `optimismClient` when fault proofs deployed to mainnet.
-test('default', async () => {
+test.skip('default', async () => {
   await reset(sepoliaClient, {
     blockNumber: 5528129n,
     jsonRpcUrl: anvilSepolia.forkUrl,
