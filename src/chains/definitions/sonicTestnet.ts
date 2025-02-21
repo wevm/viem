@@ -1,20 +1,20 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const sonicTestnet = /*#__PURE__*/ defineChain({
-  id: 64_165,
-  name: 'Sonic Testnet',
+  id: 57_054,
+  name: 'Sonic Blaze Testnet',
   nativeCurrency: {
     decimals: 18,
     name: 'Sonic',
     symbol: 'S',
   },
   rpcUrls: {
-    default: { http: ['https://rpc.testnet.soniclabs.com'] },
+    default: { http: ['https://rpc.blaze.soniclabs.com'] },
   },
   blockExplorers: {
     default: {
-      name: 'Sonic Testnet Explorer',
-      url: 'https://testnet.soniclabs.com/',
+      name: 'Sonic Blaze Testnet Explorer',
+      url: 'https://testnet.sonicscan.org/',
     },
   },
   testnet: true,
