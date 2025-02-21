@@ -1,5 +1,15 @@
 # viem
 
+## 2.23.4
+
+### Patch Changes
+
+- [`efcdc57e504a8469c63f944c28ff92e8095b43ad`](https://github.com/wevm/viem/commit/efcdc57e504a8469c63f944c28ff92e8095b43ad) Thanks [@jxom](https://github.com/jxom)! - **Experimental(ERC-5792):** Added support for nullish `account` in `sendCalls`.
+
+- [#3364](https://github.com/wevm/viem/pull/3364) [`e7f329941da463c1e1a4c69bbdcd73e34a744cf4`](https://github.com/wevm/viem/commit/e7f329941da463c1e1a4c69bbdcd73e34a744cf4) Thanks [@biruichen](https://github.com/biruichen)! - Added Ethernity Mainnet.
+
+- [#3369](https://github.com/wevm/viem/pull/3369) [`307ec81ca7c50d928e9f2243be32490aba28894f`](https://github.com/wevm/viem/commit/307ec81ca7c50d928e9f2243be32490aba28894f) Thanks [@GalaxySciTech](https://github.com/GalaxySciTech)! - Updated XDC Name.
+
 ## 2.23.3
 
 ### Patch Changes
