@@ -1,11 +1,6 @@
 import { keccak256 } from 'ethers'
-import { beforeAll, describe, expect, test } from 'vitest'
-import {
-  anvilMainnet,
-  anvilOptimism,
-  anvilOptimismSepolia,
-  anvilSepolia,
-} from '../../../test/src/anvil.js'
+import { describe, expect, test } from 'vitest'
+import { anvilMainnet, anvilOptimism } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
 import { getTransactionReceipt, reset } from '../../actions/index.js'
 
@@ -17,37 +12,31 @@ import {
 import { getGame } from './getGame.js'
 
 const client = anvilMainnet.getClient()
-const sepoliaClient = anvilSepolia.getClient()
 const optimismClient = anvilOptimism.getClient()
-const optimismSepoliaClient = anvilOptimismSepolia.getClient()
 
-beforeAll(async () => {
+test('default', async () => {
+  await reset(optimismClient, {
+    blockNumber: 132253445n,
+    jsonRpcUrl: anvilOptimism.forkUrl,
+  })
   await reset(client, {
-    blockNumber: 18772363n,
+    blockNumber: 21892012n,
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
-})
 
-// TODO(fault-proofs): convert to `client` & `optimismClient` when fault proofs deployed to mainnet.
-test.skip('default', async () => {
-  await reset(sepoliaClient, {
-    blockNumber: 5528129n,
-    jsonRpcUrl: anvilSepolia.forkUrl,
-  })
-
-  // https://sepolia-optimism.etherscan.io/tx/0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731
-  const receipt = await getTransactionReceipt(optimismSepoliaClient, {
-    hash: '0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731',
+  // https://optimistic.etherscan.io/tx/0x3107023b21569799804933e8fbf564d9b89d547b06ab64ffb8b3b671dfc76a85
+  const receipt = await getTransactionReceipt(optimismClient, {
+    hash: '0x3107023b21569799804933e8fbf564d9b89d547b06ab64ffb8b3b671dfc76a85',
   })
 
   const [withdrawal] = getWithdrawals(receipt)
-  const game = await getGame(sepoliaClient, {
+  const game = await getGame(client, {
     l2BlockNumber: receipt.blockNumber,
     limit: 10,
-    targetChain: optimismSepoliaClient.chain,
+    targetChain: optimismClient.chain,
   })
 
-  const request = await buildProveWithdrawal(optimismSepoliaClient, {
+  const request = await buildProveWithdrawal(optimismClient, {
     account: accounts[0].address,
     game,
     withdrawal: withdrawal!,
@@ -56,36 +45,42 @@ test.skip('default', async () => {
   expect(rest).toMatchInlineSnapshot(`
     {
       "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-      "l2OutputIndex": 126n,
+      "l2OutputIndex": 6137n,
       "outputRootProof": {
-        "latestBlockhash": "0xfa8de12720d54ee09e7d43d5823a685af27db5b063d6fe07c131df057bdf75f6",
-        "messagePasserStorageRoot": "0xbdbd55d9a6570c96e553d89b50d16f26a30f4b45d41f48273492a15fb804103b",
-        "stateRoot": "0x09402bbdf9e7bd5e3e6a32d77cd97f46f4d0cd8b8a67a6a82ec2ee68d2d3ec6b",
+        "latestBlockhash": "0x1967b4181af09bb7b22c687dc726152bef6309839a8f28e7f4399ca6373ec55f",
+        "messagePasserStorageRoot": "0x9a9bc4d25e4fe1e8972286bbcdaab283d86d21b89793cd960201a2d2294c59e1",
+        "stateRoot": "0x12f81bb9709ea46c1f93a85f3ee633885cee0f28a037800528070aa47169f04e",
         "version": "0x0000000000000000000000000000000000000000000000000000000000000000",
       },
       "withdrawal": {
-        "data": "0x",
-        "gasLimit": 21000n,
-        "nonce": 1766847064778384329583297500742918515827483896875618958121606201292622161n,
-        "sender": "0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6",
-        "target": "0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6",
-        "value": 69n,
-        "withdrawalHash": "0xcb5e39bf88790e468315b413dcbb66a7fc5f4ae8c962815c5a546aedec2735ea",
+        "data": "0x095ea7b300000000000000000000000000b700b9da0053009cb84400ed1e8fe251002af30000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "gasLimit": 200000n,
+        "nonce": 1766847064778384329583297500742918515827483896875618958121606201292636411n,
+        "sender": "0x00B700B9da0053009cb84400Ed1e8Fe251002aF3",
+        "target": "0x9175746E1fb611843CEC72ae4d6fa13c6184C9d0",
+        "value": 0n,
+        "withdrawalHash": "0xabb9f726072587989b9083f58e3dee0c825ba85c63d347f8f5a317e9b15f1044",
       },
       "withdrawalProof": [
-        "0xf90211a0eccf299db11c05f2704d507ab6a5d30d2b683db56f37fdb4848a47e4faf035bba0a034c9e88d05f5c97c3616348cc6ffcf8fcfb32851a1166c787d1d1908f8276da0119c2e865e6b9c4bce5d4a90d372c9ae6b64ac26ea8c330931d9c5df1e308f64a027c50cbe8a8bf77041bd466d32bf3a7c9b4cd58a5bccbd297106ba6bdf2cffc0a09d2e57f1f22715ff019ba428fbc2c8a0e2bf2ba51e5da0387d11e4c372c0d054a0155e20a6ae267547c2bd7ab99fef038687c357a96c37a94a31799619609e0cbca0a83a2130357ac5d5f7b6a16ff4febab1090efec8edccbf3c97beaa771d1b706ba0099f345b02c0c4d7c8af6857a4180f76e9bbe97afef99b43cea4582f42f957dfa0ffddd62f08dbe9c69f6bc55a0461e6d2d9ea7f885145b3d2631710af11f529e6a05869f8f713bd8ce830fb5e2155331b3ce85a3d73b9d44e1a7a71e205aa490bb6a0b8d55ec21b94db61613bc0e0c203e8a0b123ca0ffec3e1c66747dc7b2c9ba003a0577df6fd8798dd31641cf34351524ebd693352e555948137ab6bb2d56e474d0fa07ee39a1fbcfafb8f82ace908e8f3891a8841c9bfb28a2e9deae8cdc8f7b8545fa0639c266445b6cf85c0f841b614e78fa81cc82ead7862a1d9aecd9c765114b675a072ebc599d97a58ef6f7735e2cb63e6a63304266dd3f5f834b6bd8896ceb7985da092c7cd483df22b5106288cb90f017277654aac01f127c86249a7e9ee7b1f253680",
-        "0xf90211a014d442a1f4a28883647b2b0f3308b79139e5f2421fbc5d887a6d804609d38b08a00d21c762b09f797b3e420cb87f774d6f33d0154bad0453c83e587ccbad63e2afa0bc7c18dabdef13d0ae9caf15b8baed2eb0b1febf6e8ae5967f56eb178fbc5d7ca07fb0137a339b81021405bab8ce406753f8e02fc2bbbfdcd17676e0c069cded91a0f135dfa054defcb21219ef0ab0228130bd092cf47607eb06114ceb562af7e044a0a5eb92dfc9ab662fd5b2d664d4c732daf5bd77bbd5e428cc3ddf5bfa43bfd830a04183cb7e1fa786672c620175a7578ce3989194cc1a657407b6b394dc640e5684a0eb57ca2dbeec06b773b39a0155258d69f5d9bd5cc56e2d618bc36ec736fb9999a0b212974109607c7cdd96aed754d3a56e224d6e1abf9958720c6ecd7010c053dea0d71e602c5a5c3c62130ef3dab09f13fc9c0545479f478e2309a2b68c9f09d331a05849f10094503ff8b9129811c61232c190aa0a898d0795d3fe26986db663b21ea0707a704dce10c1fa605c66004e571f7eae794fa4a5cc1610d206a99c1da84342a0e6b00b8e43224ff838402e6f88c3aa62cfa47c8923a90c7bad99db13e08772c8a03ed6ab741a801d3cba7427e98d45c368cdb2e6f32be9a7d2e3ae4a101a93eb1ea0e88fd638b953f4bfba19555555a2ffbac81d2005bba9f0ed009907b93e6d58b6a0f776480f485ce7fe48d207eb4bb99f7b53abe9f3c79bf6c554a6790bde6d4d9b80",
-        "0xf8f1a0351ef625f9caf7fbfae712ebfc485539b43ea4ef290170786e127c76d2ee5778a0c6e5e7617231f38c747c0716308bc3a555f75e8be0e5c468e4ecdb5da2c44bafa07a00e04ed102d369f809e590b4fef0c33118634c19b9bb15127d0c0179238eaba03a3052ab4474426552042aca139309d2112a5f8f0945c22c34d13f9bc08350ae808080808080a0e5ee08c1f6193b9d9b861296fea79abfddfad0d87f066f23de5eae193ff0d1fe80a0094339e0a0d08980522889ed313fb5d081bb8a5028b7f5951a416ffee4fd0adea01af4f58d7bfb9667ad02191cdac1ffb410d69d2296f153613222911485ad5034808080",
-        "0xe19f3d78ae895933f6e9967249220e822e1ca6c1bf6609eb0ec1143e4a46ba3df401",
+        "0xf90211a0c59982b0f35e7a1247e6ce76f1a077b551835fecd2d0f2e4c5db17be40c51240a073e5291c617cd19a53fc9d43bddcf99fe7fb2158075ae8f1bb3bb6aa2040d535a02c7e90f4c5932721467ded6c64459c55adb4b4b5576bc83bef7fd94bc6585542a0b3649d82ebc95f216dc74d15eae873ce3a045318c9a31d08ebd72f1ef31ddbb2a058054823ac854cd35e048e8f70cc74fd7ab64fad8fd5f026da3f1f85c44154c7a0d16d05e86022c2433cb48ead097940901fc5b0db4a5fcdc0ea0a83705d5a18f0a0fffad88094062c07ecfa2f53e0f510983f01ef75c11e2719dd8284ef21c0c631a02b740f0ae96ba0c82a8808ce0f696e2d560c81c7dd2fcb1f95a0ba9f8c8fb7c6a0a1b45492f063274f945371c44101ade570ecaac5180ad1861a1a22e0421ca441a0566e9e1b0bac45b81804ab1a688b117f0a8fe8e6edcc048973d2eb51afc1cd38a03d96bd753c02a9d1cc2987cba61426998fb3155d79701c9eab033f6c68215222a0d3a00b9491d72c3f19808d0081c10feb221bb26a7111ed5fa784de91a6f6f041a0fd2f1a76d2dd99d121b3b634faa3e3912797fe33eeaa753e5f27d73744aa75b4a0575f9d91c8c7827c305ad2351f91d900dd752c4245483e74c3f426a343989798a04a48fb202666a75cfeb5363bb48a28a99e626d5e573f307b0860a6b3ee7e32a5a05c15cd7c5f7169441c60be48308bd4822811bcacaa3c550ee8bf02a00171975080",
+        "0xf90211a09ffae97419aa91e4bb2edd21ca19ac929cdf36cb6fec95764778f751e42f73d9a0215fb95fe6c233793c8a38258dea57caf7fd291863e333393499e4f1aafafc01a07d1defdc50fff80954935ad661e5859dc00a383b42d4511b670e5b5faedce3d4a0776a0d959b14d94c636ea0dea878fdc9cb1ffba6fd46febb33e77a2a220dfffba0ba090ef3fec5bd82f16eebaed4430717cc1992d54aab66d1726c31dba27b6af9a090c5902a1b23a9a5ab42ef6920d6f9f9797cc86a44e24860527b4ee080a954aca0798feffeea36ae9766f3c985305254aa0c79f0e1ebae34b55a15aadaae8e98fea06d6945f494e2a34e9f124540f2284366f979089ab980d459c5342d6ae9169f8ea0abda46255bc6cc90b1a9cf2f18b8475f0689043f0a5ef1874d36b95b1e86bf00a090998d26478e3edb4937164169944ec13c10963536a8c9672bb594fcf85ea6baa08bf468a8f3106579cfebcd96aa4c5ddb7a42ba2081b9461d0845eb1ec28eff77a0487d24c2ca803b88581e3f2f5f7767bce26c967e8d8365195f4089074b10dcf2a08460feb7623400bd66a58cef9b28c1cbf57ed4bbe0968ab7a506211641b85c67a0489e365114723773b6c40fcd10e9dcdcbef1ceadd31b1d3d3f84e801ce29d82ca0025cec13a0f01aaf92c6f6771acc903d0a21f0f8de6837e8c910a7f64f4f0068a02f4256c3d5c1f1762b75e12e8c0b2710bdfda3fe62c45cae6915e761bde8df7a80",
+        "0xf90211a086efc1fd70249bd582d52dfd643c9741d119d54dd56a7bea0c498d036bd8ede2a0d92e9a96bf9ac61831fcb9c7224323802ec2d8e35f5aef7a0e35eda25fd9072aa0bb7d70cf91e65326843c3e208cbfa3a42b5efbf602f588f77437256739a1f3daa0556ffb955c8b4b5855a7e531269936a382955be9497f98d72f9415349cfbda6ca03a3eb81e160d47f1b079d3c0c327c94b76d6a2c49b45fa8b6591e777434b7aeea04179a44686a408ec82f2f1f830b2e5041745889dc2a3251158bd302054a66069a0f801a61e3aa1278b5048067676d3cd14794b8537aede7ec8277bc0a316eca2baa0cf64917c46b946f3ab282642dae50032195953df103c21e3979d648b9fea56b6a012e45e1cd3bcba95447bc58f994b042aa1b1a56de85d6b3972fd931d5f88f9d7a015260c5aac295c735bb27fc1d1289d2ec41aded1d393c4f39a97509e41470f7ca07df7e41e60244636b80dc64ae0e7b73cab71a7f08ee47fa135ae79dad0bcbdcaa049b2402b89cc164dd5bd4bd74b971f875d9b77356cc26c3f848f40b8ba63d440a0ddba106c8be00f7c63a563e4ac18fbc50e5c5ef087e4f203bf8f616c11409a40a090fb57bca1383d0669bb8306af92db6665e4a13847e30eed96c867118f976bf7a087d96d28cc6ff8771a620e7e0b59f43648ada465c5da7868cf600a8aa074df64a098a57e08c04e862403c6859dbca96f0be4e6472091c41113f536602461e1950280",
+        "0xf90171a00da9729f55a1c6e5b6c5a5d2420e21c93033e01f9eb688f74fba54988104df4180a094270e29f26bcdbf19be59151f951dcb0c0e1faf94ba2f44f2d1fa30d398d39280a010b89927cd922af54885c68533e75c6f23baee1e110eed6c5274757f33181621a016bea6622768f71af75f956b4e6934f1049e312430d32f7ae93c204f4d9eac6aa0caf92529c2c554c10aba9c7d76a918ed8217968cc339ccc1e2f2bd04c933f68f80a0e415c4c7c49a1f1f10a6942ab74c43b8f5bd69e56c85996b4d7351b6912d6d9ea069059eeb8af76c4b1c1572f64705565defffeaf9b691f306783b15cf55806cca80a0199ac6dd5034deb122427aef12b5b32b06c0469004de6d4a8a8f243ac6913aaea0d99bc01350e800c809dfce4f725a3c4e8be003911709770992d6f61cf4394ecf80a05c00ea8fe2422b0566a72b301c05269a1c26311838b518be3a54a8e2d1532fb8a08dee8382631b788e6e0055ac2472666596f13b38eff45942fa5e6827cabaf3c480",
+        "0xe19f20afdae14e46b2f97d4b65e0b65afa0759de4ce31ddd28a065a6ca9e5360e001",
       ],
     }
   `)
 
-  const hash = await proveWithdrawal(sepoliaClient, request)
+  const hash = await proveWithdrawal(client, request)
   expect(hash).toBeDefined()
 }, 20_000)
 
 test('args: output (legacy)', async () => {
+  await reset(client, {
+    blockNumber: 18772363n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
+
   // https://optimistic.etherscan.io/tx/0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147
   const receipt = await getTransactionReceipt(optimismClient, {
     hash: '0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147',
