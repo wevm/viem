@@ -173,6 +173,7 @@ export { flowTestnet } from './definitions/flowTestnet.js'
 export { fluence } from './definitions/fluence.js'
 export { fluenceStage } from './definitions/fluenceStage.js'
 export { fluenceTestnet } from './definitions/fluenceTestnet.js'
+export { fluentTestnet } from './definitions/fluentTestnet.js'
 export { forma } from './definitions/forma.js'
 export { forta } from './definitions/forta.js'
 /** @deprecated Use `anvil` instead. */
