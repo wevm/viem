@@ -12,23 +12,15 @@ export const formTestnet = /*#__PURE__*/ defineChain({
     symbol: 'ETH',
   },
   rpcUrls: {
-    public: {
-      http: ['https://sepolia-rpc.form.network/http'],
-      webSocket: ['wss://sepolia-rpc.form.network/ws'],
-    },
     default: {
       http: ['https://sepolia-rpc.form.network/http'],
       webSocket: ['wss://sepolia-rpc.form.network/ws'],
     },
   },
   blockExplorers: {
-    etherscan: {
-      name: 'Form Testnet Explorer',
-      url: 'https://sepolia-explorer.form.network/',
-    },
     default: {
       name: 'Form Testnet Explorer',
-      url: 'https://sepolia-explorer.form.network/',
+      url: 'https://sepolia-explorer.form.network',
     },
   },
   contracts: {
