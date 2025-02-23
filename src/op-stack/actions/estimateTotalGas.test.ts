@@ -41,7 +41,7 @@ test('args: data', async () => {
     ...baseTransaction,
     data: '0x00000000000000000000000000000000000000000000000004fefa17b7240000',
   })
-  expect(gas).toBe(23444n)
+  expect(gas).toBe(23744n)
 })
 
 test('args: gasPriceOracleAddress', async () => {
