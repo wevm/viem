@@ -12,23 +12,15 @@ export const form = /*#__PURE__*/ defineChain({
     symbol: 'ETH',
   },
   rpcUrls: {
-    public: {
-      http: ['https://rpc.form.network/http'],
-      webSocket: ['wss://rpc.form.network/ws'],
-    },
     default: {
       http: ['https://rpc.form.network/http'],
       webSocket: ['wss://rpc.form.network/ws'],
     },
   },
   blockExplorers: {
-    etherscan: {
-      name: 'Form Explorer',
-      url: 'https://explorer.form.network/',
-    },
     default: {
       name: 'Form Explorer',
-      url: 'https://explorer.form.network/',
+      url: 'https://explorer.form.network',
     },
   },
   contracts: {
