@@ -1,5 +1,11 @@
 # viem
 
+## 2.23.5
+
+### Patch Changes
+
+- [#3375](https://github.com/wevm/viem/pull/3375) [`563ad1e7b60584d85e06dca7f3b0e7115e5e0428`](https://github.com/wevm/viem/commit/563ad1e7b60584d85e06dca7f3b0e7115e5e0428) Thanks [@abbas9344](https://github.com/abbas9344)! - Added Zero Network.
+
 ## 2.23.4
 
 ### Patch Changes
