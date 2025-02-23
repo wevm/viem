@@ -1,27 +1,30 @@
-import { expect, test, vi } from 'vitest'
-import { anvilSepolia } from '../../../test/src/anvil.js'
-import { optimismSepolia } from '../../op-stack/chains.js'
+import { beforeAll, expect, test, vi } from 'vitest'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { reset } from '../../actions/index.js'
+import { optimism } from '../../op-stack/chains.js'
 import { getGames } from './getGames.js'
 import { getTimeToNextGame } from './getTimeToNextGame.js'
 
-const sepoliaClient = anvilSepolia.getClient()
+const client = anvilMainnet.getClient()
 
-const games = await getGames(sepoliaClient, {
-  limit: 10,
-  targetChain: optimismSepolia,
+let l2BlockNumber: bigint
+beforeAll(async () => {
+  await reset(client, {
+    blockNumber: 21911472n,
+  })
+  const games = await getGames(client, {
+    limit: 10,
+    targetChain: optimism,
+  })
+  const [game] = games
+  l2BlockNumber = game.l2BlockNumber
 })
-const [game] = games
-const l2BlockNumber = game.l2BlockNumber
 
-// TODO(fault-proofs): use anvil client when fault proofs deployed to mainnet.
 test('default', async () => {
-  const { interval, seconds, timestamp } = await getTimeToNextGame(
-    sepoliaClient,
-    {
-      l2BlockNumber: l2BlockNumber + 1n,
-      targetChain: optimismSepolia,
-    },
-  )
+  const { interval, seconds, timestamp } = await getTimeToNextGame(client, {
+    l2BlockNumber: l2BlockNumber + 1n,
+    targetChain: optimism,
+  })
   expect(interval).toBeDefined()
   expect(seconds).toBeDefined()
   expect(timestamp).toBeDefined()
@@ -29,9 +32,9 @@ test('default', async () => {
 
 test('Date.now < latestOutputTimestamp', async () => {
   vi.setSystemTime(new Date(1702399191000))
-  const { seconds, timestamp } = await getTimeToNextGame(sepoliaClient, {
+  const { seconds, timestamp } = await getTimeToNextGame(client, {
     l2BlockNumber: l2BlockNumber + 1n,
-    targetChain: optimismSepolia,
+    targetChain: optimism,
   })
   vi.useRealTimers()
   expect(seconds).toBe(0)
@@ -39,22 +42,19 @@ test('Date.now < latestOutputTimestamp', async () => {
 })
 
 test('elapsedBlocks > blockInterval', async () => {
-  const { interval, seconds, timestamp } = await getTimeToNextGame(
-    sepoliaClient,
-    {
-      l2BlockNumber: l2BlockNumber + 1000n,
-      targetChain: optimismSepolia,
-    },
-  )
+  const { interval, seconds, timestamp } = await getTimeToNextGame(client, {
+    l2BlockNumber: l2BlockNumber + 1000n,
+    targetChain: optimism,
+  })
   expect(interval).toBeDefined()
   expect(seconds).toBeDefined()
   expect(timestamp).toBeDefined()
 })
 
 test('l2BlockNumber < latestGame.blockNumber', async () => {
-  const { seconds, timestamp } = await getTimeToNextGame(sepoliaClient, {
+  const { seconds, timestamp } = await getTimeToNextGame(client, {
     l2BlockNumber: l2BlockNumber - 10n,
-    targetChain: optimismSepolia,
+    targetChain: optimism,
   })
   expect(seconds).toBe(0)
   expect(timestamp).toBe(undefined)

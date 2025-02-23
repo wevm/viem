@@ -1,14 +1,20 @@
-import { expect, test } from 'vitest'
-import { anvilSepolia } from '../../../test/src/anvil.js'
-import { optimismSepolia } from '../../op-stack/chains.js'
+import { beforeAll, expect, test } from 'vitest'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { reset } from '../../actions/index.js'
+import { optimism } from '../../op-stack/chains.js'
 import { getGames } from './getGames.js'
 
-const sepoliaClient = anvilSepolia.getClient()
+const client = anvilMainnet.getClient()
 
-// TODO(fault-proofs): use anvil client when fault proofs deployed to mainnet.
+beforeAll(async () => {
+  await reset(client, {
+    blockNumber: 21911472n,
+  })
+})
+
 test('default', async () => {
-  const games = await getGames(sepoliaClient, {
-    targetChain: optimismSepolia,
+  const games = await getGames(client, {
+    targetChain: optimism,
     limit: 10,
   })
   expect(games.length > 0).toBeTruthy()
@@ -23,8 +29,8 @@ test('default', async () => {
 })
 
 test('args: l2BlockNumber', async () => {
-  const games = await getGames(sepoliaClient, {
-    targetChain: optimismSepolia,
+  const games = await getGames(client, {
+    targetChain: optimism,
     limit: 10,
     l2BlockNumber: 9510398n,
   })
@@ -40,8 +46,8 @@ test('args: l2BlockNumber', async () => {
 })
 
 test('args: l2BlockNumber (high)', async () => {
-  const games = await getGames(sepoliaClient, {
-    targetChain: optimismSepolia,
+  const games = await getGames(client, {
+    targetChain: optimism,
     limit: 10,
     l2BlockNumber: 99999999999999999999n,
   })
@@ -49,11 +55,11 @@ test('args: l2BlockNumber (high)', async () => {
 })
 
 test('args: address', async () => {
-  const games = await getGames(sepoliaClient, {
+  const games = await getGames(client, {
     limit: 10,
     l2BlockNumber: 9510398n,
-    disputeGameFactoryAddress: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
-    portalAddress: '0x16Fc5058F25648194471939df75CF27A2fdC48BC',
+    disputeGameFactoryAddress: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
+    portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed',
   })
   expect(games.length > 0).toBeTruthy()
 

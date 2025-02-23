@@ -1,15 +1,21 @@
-import { expect, test } from 'vitest'
-import { anvilSepolia } from '../../../test/src/anvil.js'
-import { optimismSepolia } from '../../op-stack/chains.js'
+import { beforeAll, expect, test } from 'vitest'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { reset } from '../../actions/index.js'
+import { optimism } from '../../op-stack/chains.js'
 import { getGame } from './getGame.js'
 
-const sepoliaClient = anvilSepolia.getClient()
+const client = anvilMainnet.getClient()
 
-// TODO(fault-proofs): use anvil client when fault proofs deployed to mainnet.
+beforeAll(async () => {
+  await reset(client, {
+    blockNumber: 21911472n,
+  })
+})
+
 test('default', async () => {
-  const game = await getGame(sepoliaClient, {
-    targetChain: optimismSepolia,
-    l2BlockNumber: 9510398n,
+  const game = await getGame(client, {
+    targetChain: optimism,
+    l2BlockNumber: 132300000n,
     limit: 10,
   })
   expect(game).toHaveProperty('l2BlockNumber')
@@ -21,9 +27,9 @@ test('default', async () => {
 })
 
 test('args: strategy', async () => {
-  const game = await getGame(sepoliaClient, {
-    targetChain: optimismSepolia,
-    l2BlockNumber: 9510398n,
+  const game = await getGame(client, {
+    targetChain: optimism,
+    l2BlockNumber: 132300000n,
     limit: 10,
     strategy: 'random',
   })
@@ -36,11 +42,11 @@ test('args: strategy', async () => {
 })
 
 test('args: address', async () => {
-  const game = await getGame(sepoliaClient, {
+  const game = await getGame(client, {
     limit: 10,
-    l2BlockNumber: 9510398n,
-    disputeGameFactoryAddress: '0x05F9613aDB30026FFd634f38e5C4dFd30a197Fa1',
-    portalAddress: '0x16Fc5058F25648194471939df75CF27A2fdC48BC',
+    l2BlockNumber: 132300000n,
+    disputeGameFactoryAddress: '0xe5965Ab5962eDc7477C8520243A95517CD252fA9',
+    portalAddress: '0xbEb5Fc579115071764c7423A4f12eDde41f106Ed',
   })
   expect(game).toHaveProperty('l2BlockNumber')
   expect(game).toHaveProperty('index')
