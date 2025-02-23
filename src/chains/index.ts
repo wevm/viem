@@ -175,6 +175,8 @@ export { fluence } from './definitions/fluence.js'
 export { fluenceStage } from './definitions/fluenceStage.js'
 export { fluenceTestnet } from './definitions/fluenceTestnet.js'
 export { forma } from './definitions/forma.js'
+export { form } from './definitions/form.js'
+export { formTestnet } from './definitions/formTestnet.js'
 export { forta } from './definitions/forta.js'
 /** @deprecated Use `anvil` instead. */
 export { foundry } from './definitions/foundry.js'
