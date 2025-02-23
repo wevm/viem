@@ -14,7 +14,7 @@ export const sonicBlazeTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Sonic Blaze Testnet Explorer',
-      url: 'https://testnet.sonicscan.org/',
+      url: 'https://testnet.sonicscan.org',
     },
   },
   testnet: true,
