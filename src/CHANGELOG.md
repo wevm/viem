@@ -1,5 +1,15 @@
 # viem
 
+## 2.23.5
+
+### Patch Changes
+
+- [#3374](https://github.com/wevm/viem/pull/3374) [`70ec80cbd9879672ba9cc0a3033648f06052f21a`](https://github.com/wevm/viem/commit/70ec80cbd9879672ba9cc0a3033648f06052f21a) Thanks [@teimurjan](https://github.com/teimurjan)! - Added Form and Form Testnet chains.
+
+- [#3375](https://github.com/wevm/viem/pull/3375) [`563ad1e7b60584d85e06dca7f3b0e7115e5e0428`](https://github.com/wevm/viem/commit/563ad1e7b60584d85e06dca7f3b0e7115e5e0428) Thanks [@abbas9344](https://github.com/abbas9344)! - Added Zero Network.
+
+- [#3378](https://github.com/wevm/viem/pull/3378) [`2bea96d68ae7c89d06ea21c7dd20878926f3d469`](https://github.com/wevm/viem/commit/2bea96d68ae7c89d06ea21c7dd20878926f3d469) Thanks [@AmanRaj1608](https://github.com/AmanRaj1608)! - Added sonic blaze testnet.
+
 ## 2.23.4
 
 ### Patch Changes
