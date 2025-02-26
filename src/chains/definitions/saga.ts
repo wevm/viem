@@ -10,12 +10,12 @@ export const saga = /*#__PURE__*/ defineChain({
     symbol: 'GAS',
   },
   rpcUrls: {
-    default: { http: ['http://sagaevm-5464-1.jsonrpc.sagarpc.io'] },
+    default: { http: ['https://sagaevm.jsonrpc.sagarpc.io'] },
   },
   blockExplorers: {
     default: {
       name: 'Saga Explorer',
-      url: 'https://sagaevm-5464-1.sagaexplorer.io',
+      url: 'https://sagaevm.sagaexplorer.io',
     },
   },
   contracts: {
