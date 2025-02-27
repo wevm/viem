@@ -9,7 +9,7 @@ export const real = /*#__PURE__*/ defineChain({
     symbol: 'reETH',
   },
   rpcUrls: {
-    default: { http: ['https://real.drpc.org'] },
+    default: { http: ['https://rpc.realforreal.gelato.digital'] },
   },
   blockExplorers: {
     default: {
