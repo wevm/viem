@@ -73,7 +73,7 @@ const gas = await bundlerClient.estimateUserOperationGas({ // [!code focus:7]
 
 ```ts twoslash [config.ts]
 import { createPublicClient, http } from 'viem'
-import { createBundlerClient, toSmartAccount, solady } from 'viem/account-abstraction'
+import { createBundlerClient, toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
@@ -132,7 +132,7 @@ export const wagmiAbi = [
 
 ```ts twoslash [config.ts]
 import { createPublicClient, http } from 'viem'
-import { createBundlerClient, toSmartAccount, solady } from 'viem/account-abstraction'
+import { createBundlerClient, toCoinbaseSmartAccount } from 'viem/account-abstraction'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 

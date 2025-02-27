@@ -377,6 +377,7 @@ const request = await walletClient.prepareTransactionRequest({
 Nonce Manager to consume and increment the Account nonce for the transaction request.
 
 ```ts twoslash
+// @noErrors
 // [!include config.ts]
 // ---cut---
 const request = await walletClient.prepareTransactionRequest({

@@ -6,13 +6,13 @@
     "dev": "vite"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^19",
+    "react-dom": "^19",
     "viem": "latest"
   },
   "devDependencies": {
-    "@types/react": "^18.0.27",
-    "@types/react-dom": "^18.0.10",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^4.3.2",
     "typescript": "^5.0.3",
     "vite": "^5.4.8"

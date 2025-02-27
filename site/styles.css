@@ -1,9 +1,12 @@
-@layer vocs_preflight {
-  @tailwind base;
-}
+@import "tailwindcss" important;
 
-@tailwind components;
-@tailwind utilities;
+@custom-variant dark (&:where(.dark, .dark *));
+
+.vocs_Button_button {
+  border-radius: 4px !important;
+  height: 36px !important;
+  padding: 0 16px !important;
+}
 
 #home-install .vocs_CodeGroup {
   display: flex;
