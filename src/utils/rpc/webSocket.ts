@@ -40,7 +40,7 @@ export async function getWebSocketRpcClient(
           const _data = JSON.parse(data);
           onResponse(_data);
         } catch (error) {
-          onResponse(data);
+          onError(error);
         }
       }
 
