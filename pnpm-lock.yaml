@@ -538,8 +538,8 @@ importers:
         specifier: workspace:*
         version: link:../src
       vocs:
-        specifier: next
-        version: 1.0.0-next.20250227T064627(@types/node@22.7.5)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.8)(terser@5.36.0)(typescript@5.7.3)(yaml@2.7.0)
+        specifier: ^1
+        version: 1.0.1(@types/node@22.7.5)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.8)(terser@5.36.0)(typescript@5.7.3)(yaml@2.7.0)
 
   src:
     dependencies:
@@ -4201,10 +4201,6 @@ packages:
   longest-streak@3.1.0:
     resolution: {integrity: sha512-9Ri+o0JYgehTaVBBDoMqIl8GXtbWg711O3srftcHhZ0dqnETqLaoIK0x17fUw9rFSlK/0NlsKe0Ahhyl5pXE2g==}
 
-  loose-envify@1.4.0:
-    resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
-    hasBin: true
-
   loupe@2.3.7:
     resolution: {integrity: sha512-zSMINGVYkdpYSOBmLi0D1Uo7JU9nVdQKrHxC8eYlV+9YKK9WePqAlL7lSlorG/U2Fw1w0hTBmaa/jrQ3UbPHtA==}
 
@@ -4926,9 +4922,6 @@ packages:
       '@pimlico/alto':
         optional: true
 
-  prop-types@15.8.1:
-    resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
-
   property-information@6.5.0:
     resolution: {integrity: sha512-PgTgs/BlvHxOu8QuEN7wi5A0OmXaBcHpmCSTehcs6Uuu9IkDIEo13Hy7n898RHfrQ49vKCoGeWZSaAK01nwVig==}
 
@@ -4987,14 +4980,6 @@ packages:
     peerDependencies:
       react: ^19.0.0
 
-  react-fast-compare@3.2.2:
-    resolution: {integrity: sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ==}
-
-  react-helmet@6.1.0:
-    resolution: {integrity: sha512-4uMzEY9nlDlgxr61NL3XbKRy1hEkXmKNXhjbAIOVw5vcFrsdYbH2FEwcNyWvWinl103nXgzYNlns9ca+8kFiWw==}
-    peerDependencies:
-      react: '>=16.3.0'
-
   react-intersection-observer@9.15.1:
     resolution: {integrity: sha512-vGrqYEVWXfH+AGu241uzfUpNK4HAdhCkSAyFdkMb9VWWXs6mxzBLpWCxEy9YcnDNY2g9eO6z7qUtTBdA9hc8pA==}
     peerDependencies:
@@ -5003,9 +4988,6 @@ packages:
     peerDependenciesMeta:
       react-dom:
         optional: true
-
-  react-is@16.13.1:
-    resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
@@ -5034,13 +5016,6 @@ packages:
       '@types/react':
         optional: true
 
-  react-router-dom@7.2.0:
-    resolution: {integrity: sha512-cU7lTxETGtQRQbafJubvZKHEn5izNABxZhBY0Jlzdv0gqQhCPQt2J8aN5ZPjS6mQOXn5NnirWNh+FpE8TTYN0Q==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      react: '>=18'
-      react-dom: '>=18'
-
   react-router@7.2.0:
     resolution: {integrity: sha512-fXyqzPgCPZbqhrk7k3hPcCpYIlQ2ugIXDboHUzhJISFVy2DEPsmHgN588MyGmkIOv3jDgNfUE3kJi83L28s/LQ==}
     engines: {node: '>=20.0.0'}
@@ -5050,11 +5025,6 @@ packages:
     peerDependenciesMeta:
       react-dom:
         optional: true
-
-  react-side-effect@2.1.2:
-    resolution: {integrity: sha512-PVjOcvVOyIILrYoyGEpDN3vmYNLdy1CajSFNt4TDsVQC5KpTijDvWVoR+/7Rz2xT978D8/ZtFceXxzsPwZEDvw==}
-    peerDependencies:
-      react: ^16.3.0 || ^17.0.0 || ^18.0.0
 
   react-style-singleton@2.2.3:
     resolution: {integrity: sha512-b6jSvxvVnyptAiLjbkWLE/lOnR4lfTtDAl+eUC7RZy+QQWc6wRzIV2CE6xBuMmDxc2qIihtDCZD5NPOFl7fRBQ==}
@@ -5939,8 +5909,8 @@ packages:
       jsdom:
         optional: true
 
-  vocs@1.0.0-next.20250227T064627:
-    resolution: {integrity: sha512-tXnz7uAQPFxd868iN1y+dkN0lSXm1CRVDogC0c/YV60KcSKvZhF0KmkKt/RPq7MGKOW66+NQfsv3GsPky5Kn4A==}
+  vocs@1.0.1:
+    resolution: {integrity: sha512-lGOdtJbu0Tx3B34CBOKC0fw5l0Aeg/ShZzPSIWHHFABjxpWtaQR8Z6qJFZSk6SiXCHJmF3zoofzAB2/ptc4NrA==}
     hasBin: true
     peerDependencies:
       react: ^19
@@ -9996,10 +9966,6 @@ snapshots:
 
   longest-streak@3.1.0: {}
 
-  loose-envify@1.4.0:
-    dependencies:
-      js-tokens: 4.0.0
-
   loupe@2.3.7:
     dependencies:
       get-func-name: 2.0.2
@@ -11045,12 +11011,6 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  prop-types@15.8.1:
-    dependencies:
-      loose-envify: 1.4.0
-      object-assign: 4.1.1
-      react-is: 16.13.1
-
   property-information@6.5.0: {}
 
   property-information@7.0.0: {}
@@ -11132,23 +11092,11 @@ snapshots:
       react: 19.0.0
       scheduler: 0.25.0
 
-  react-fast-compare@3.2.2: {}
-
-  react-helmet@6.1.0(react@19.0.0):
-    dependencies:
-      object-assign: 4.1.1
-      prop-types: 15.8.1
-      react: 19.0.0
-      react-fast-compare: 3.2.2
-      react-side-effect: 2.1.2(react@19.0.0)
-
   react-intersection-observer@9.15.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
       react: 19.0.0
     optionalDependencies:
       react-dom: 19.0.0(react@19.0.0)
-
-  react-is@16.13.1: {}
 
   react-is@18.3.1: {}
 
@@ -11173,12 +11121,6 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.0.8
 
-  react-router-dom@7.2.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
-    dependencies:
-      react: 19.0.0
-      react-dom: 19.0.0(react@19.0.0)
-      react-router: 7.2.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-
   react-router@7.2.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
       '@types/cookie': 0.6.0
@@ -11188,10 +11130,6 @@ snapshots:
       turbo-stream: 2.4.0
     optionalDependencies:
       react-dom: 19.0.0(react@19.0.0)
-
-  react-side-effect@2.1.2(react@19.0.0):
-    dependencies:
-      react: 19.0.0
 
   react-style-singleton@2.2.3(@types/react@19.0.8)(react@19.0.0):
     dependencies:
@@ -12217,7 +12155,7 @@ snapshots:
       - supports-color
       - terser
 
-  vocs@1.0.0-next.20250227T064627(@types/node@22.7.5)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.8)(terser@5.36.0)(typescript@5.7.3)(yaml@2.7.0):
+  vocs@1.0.1(@types/node@22.7.5)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.8)(terser@5.36.0)(typescript@5.7.3)(yaml@2.7.0):
     dependencies:
       '@floating-ui/react': 0.27.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@hono/node-server': 1.13.8(hono@4.7.2)
@@ -12267,9 +12205,8 @@ snapshots:
       postcss: 8.5.3
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
-      react-helmet: 6.1.0(react@19.0.0)
       react-intersection-observer: 9.15.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      react-router-dom: 7.2.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react-router: 7.2.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       rehype-autolink-headings: 7.1.0
       rehype-class-names: 2.0.0
       rehype-slug: 6.0.0
