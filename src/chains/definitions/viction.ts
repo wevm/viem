@@ -15,5 +15,11 @@ export const viction = /*#__PURE__*/ defineChain({
       url: 'https://vicscan.xyz',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xca11bde05977b3631167028862be2a173976ca11',
+      blockCreated: 87169904,
+    },
+  },
   testnet: false,
 })
