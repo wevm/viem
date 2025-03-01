@@ -1,4 +1,5 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
+
 export const hyperevm = /*#__PURE__*/ defineChain({
   id: 999,
   name: 'HyperEVM',
