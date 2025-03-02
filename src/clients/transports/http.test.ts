@@ -141,6 +141,32 @@ describe('config', () => {
       }
     `)
   })
+
+  test('raw', () => {
+    const transport = http('https://mockapi.com/rpc', {
+      raw: true,
+    })({})
+
+    expect(transport).toMatchInlineSnapshot(`
+      {
+        "config": {
+          "key": "http",
+          "methods": undefined,
+          "name": "HTTP JSON-RPC",
+          "request": [Function],
+          "retryCount": 3,
+          "retryDelay": 150,
+          "timeout": 10000,
+          "type": "http",
+        },
+        "request": [Function],
+        "value": {
+          "fetchOptions": undefined,
+          "url": "https://mockapi.com/rpc",
+        },
+      }
+    `)
+  })
 })
 
 describe('request', () => {
@@ -311,22 +337,22 @@ describe('request', () => {
         .map((arg) => JSON.stringify(arg)),
     ).toMatchInlineSnapshot(`
       [
-        "{"jsonrpc":"2.0","id":22,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":23,"method":"eth_blockNumber","params":[1]}",
-        "{"jsonrpc":"2.0","id":24,"method":"eth_chainId"}",
-        "{"jsonrpc":"2.0","id":25,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":23,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":24,"method":"eth_blockNumber","params":[1]}",
+        "{"jsonrpc":"2.0","id":25,"method":"eth_chainId"}",
+        "{"jsonrpc":"2.0","id":26,"method":"eth_blockNumber"}",
       ]
     `)
     expect(results).toMatchInlineSnapshot(`
       [
-        "{"jsonrpc":"2.0","id":22,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":22,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":23,"method":"eth_blockNumber","params":[1]}",
-        "{"jsonrpc":"2.0","id":22,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":24,"method":"eth_chainId"}",
-        "{"jsonrpc":"2.0","id":22,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":25,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":22,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":23,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":23,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":24,"method":"eth_blockNumber","params":[1]}",
+        "{"jsonrpc":"2.0","id":23,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":25,"method":"eth_chainId"}",
+        "{"jsonrpc":"2.0","id":23,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":26,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":23,"method":"eth_blockNumber"}",
       ]
     `)
   })
@@ -530,6 +556,27 @@ describe('request', () => {
 
       Details: The request timed out.
       Version: viem@x.y.z]
+    `)
+  })
+
+  test('behavior: raw', async () => {
+    const transport = http(anvilMainnet.rpcUrl.http, {
+      key: 'jsonRpc',
+      name: 'JSON RPC',
+      raw: true,
+    })({
+      chain: localhost,
+    })
+
+    const response = await transport.request({ method: '' })
+    expect(response).toMatchInlineSnapshot(`
+      {
+        "error": {
+          "code": -32601,
+          "message": "Method not found",
+        },
+        "result": undefined,
+      }
     `)
   })
 

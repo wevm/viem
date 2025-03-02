@@ -1,3 +1,4 @@
+import type { EIP1193RequestFn, RpcSchema } from '~viem/types/eip1193.js'
 import { RpcRequestError } from '../../errors/request.js'
 import {
   UrlRequiredError,
@@ -18,7 +19,7 @@ import {
   createTransport,
 } from './createTransport.js'
 
-export type HttpTransportConfig = {
+export type HttpTransportConfig<raw extends boolean | undefined = undefined> = {
   /**
    * Whether to enable Batch JSON-RPC.
    * @link https://www.jsonrpc.org/specification#batch
@@ -53,14 +54,20 @@ export type HttpTransportConfig = {
   retryDelay?: TransportConfig['retryDelay'] | undefined
   /** The timeout (in ms) for the HTTP request. Default: 10_000 */
   timeout?: TransportConfig['timeout'] | undefined
+  /** Whether to return JSON RPC errors as responses instead of throwing. */
+  raw?: raw | undefined
 }
 
-export type HttpTransport = Transport<
+export type HttpTransport<
+  rpcSchema extends RpcSchema | undefined = undefined,
+  raw extends boolean = false,
+> = Transport<
   'http',
   {
     fetchOptions?: HttpTransportConfig['fetchOptions'] | undefined
     url?: string | undefined
-  }
+  },
+  EIP1193RequestFn<rpcSchema, raw>
 >
 
 export type HttpTransportErrorType =
@@ -71,11 +78,14 @@ export type HttpTransportErrorType =
 /**
  * @description Creates a HTTP transport that connects to a JSON-RPC API.
  */
-export function http(
+export function http<
+  rpcSchema extends RpcSchema | undefined = undefined,
+  raw extends boolean = false,
+>(
   /** URL of the JSON-RPC API. Defaults to the chain's public RPC URL. */
   url?: string | undefined,
-  config: HttpTransportConfig = {},
-): HttpTransport {
+  config: HttpTransportConfig<raw> = {},
+): HttpTransport<rpcSchema, raw> {
   const {
     batch,
     fetchOptions,
@@ -85,6 +95,7 @@ export function http(
     onFetchRequest,
     onFetchResponse,
     retryDelay,
+    raw,
   } = config
   return ({ chain, retryCount: retryCount_, timeout: timeout_ }) => {
     const { batchSize = 1000, wait = 0 } =
@@ -132,6 +143,11 @@ export function http(
                 ]
 
           const [{ error, result }] = await fn(body)
+
+          if (raw) {
+            return { error, result }
+          }
+
           if (error)
             throw new RpcRequestError({
               body,

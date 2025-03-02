@@ -1950,16 +1950,25 @@ type DerivedRpcSchema<
 
 export type EIP1193RequestFn<
   rpcSchema extends RpcSchema | undefined = undefined,
+  raw extends boolean = false,
 > = <
   rpcSchemaOverride extends RpcSchemaOverride | undefined = undefined,
   _parameters extends EIP1193Parameters<
     DerivedRpcSchema<rpcSchema, rpcSchemaOverride>
   > = EIP1193Parameters<DerivedRpcSchema<rpcSchema, rpcSchemaOverride>>,
   _returnType = DerivedRpcSchema<rpcSchema, rpcSchemaOverride> extends RpcSchema
-    ? Extract<
-        DerivedRpcSchema<rpcSchema, rpcSchemaOverride>[number],
-        { Method: _parameters['method'] }
-      >['ReturnType']
+    ? raw extends true
+      ? {
+          result?: Extract<
+            DerivedRpcSchema<rpcSchema, rpcSchemaOverride>[number],
+            { Method: _parameters['method'] }
+          >['ReturnType']
+          error?: any
+        }
+      : Extract<
+          DerivedRpcSchema<rpcSchema, rpcSchemaOverride>[number],
+          { Method: _parameters['method'] }
+        >['ReturnType']
     : unknown,
 >(
   args: _parameters,
