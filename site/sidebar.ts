@@ -1796,6 +1796,10 @@ export const sidebar = {
             text: 'getL1TokenBalance',
             link: '/zksync/actions/getL1TokenBalance',
           },
+          {
+            text: 'isWithdrawalFinalized',
+            link: '/zksync/actions/isWithdrawalFinalized',
+          },
         ],
       },
       {
