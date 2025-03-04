@@ -1,5 +1,23 @@
 # viem
 
+## 2.23.6
+
+### Patch Changes
+
+- [#3389](https://github.com/wevm/viem/pull/3389) [`2159ca08722d90e854f36921eb200efbefc0734f`](https://github.com/wevm/viem/commit/2159ca08722d90e854f36921eb200efbefc0734f) Thanks [@yogaajs](https://github.com/yogaajs)! - Fixed handling of malformed JSON on WebSocket RPC.
+
+- [#3386](https://github.com/wevm/viem/pull/3386) [`5f738071c2c0e3d8bb0a5193b3b928403a8af2a4`](https://github.com/wevm/viem/commit/5f738071c2c0e3d8bb0a5193b3b928403a8af2a4) Thanks [@jiggyBu](https://github.com/jiggyBu)! - Updated real chain default RPC node
+
+- [#3396](https://github.com/wevm/viem/pull/3396) [`8dc421e7f7c0400b8aa5861f1f5a18cd1b3613b1`](https://github.com/wevm/viem/commit/8dc421e7f7c0400b8aa5861f1f5a18cd1b3613b1) Thanks [@deodad](https://github.com/deodad)! - Added `raw` option to `http` transport.
+
+- [#3400](https://github.com/wevm/viem/pull/3400) [`0165c5f1b2fe4a804967bda3a749b8d289c129f2`](https://github.com/wevm/viem/commit/0165c5f1b2fe4a804967bda3a749b8d289c129f2) Thanks [@bearpong](https://github.com/bearpong)! - Added Berachain Bepolia.
+
+- [#3387](https://github.com/wevm/viem/pull/3387) [`48fd9180edea77b0abe974f83588b7bbcba8854c`](https://github.com/wevm/viem/commit/48fd9180edea77b0abe974f83588b7bbcba8854c) Thanks [@emanuelconunaemme](https://github.com/emanuelconunaemme)! - Updated saga chain.
+
+- [#3402](https://github.com/wevm/viem/pull/3402) [`892d0bc1f0c804dfe3015c9550fff37c19799eb5`](https://github.com/wevm/viem/commit/892d0bc1f0c804dfe3015c9550fff37c19799eb5) Thanks [@poplexity](https://github.com/poplexity)! - Updated Telos RPC URLs.
+
+- [#3382](https://github.com/wevm/viem/pull/3382) [`186c4add2df2ead16bacead3dee6397f6a737f5d`](https://github.com/wevm/viem/commit/186c4add2df2ead16bacead3dee6397f6a737f5d) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Fluent Testnet.
+
 ## 2.23.5
 
 ### Patch Changes
