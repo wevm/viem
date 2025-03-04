@@ -1,4 +1,5 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
+
 export const berachainBepolia = /*#__PURE__*/ defineChain({
   id: 80069,
   name: 'Berachain Bepolia',
