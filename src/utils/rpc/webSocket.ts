@@ -37,10 +37,10 @@ export async function getWebSocketRpcClient(
       }
       function onMessage({ data }: MessageEvent) {
         try {
-          const _data = JSON.parse(data);
-          onResponse(_data);
+          const _data = JSON.parse(data)
+          onResponse(_data)
         } catch (error) {
-          onError(error);
+          onError(error)
         }
       }
 
