@@ -1,6 +1,7 @@
 import type { Address } from 'abitype'
 
 import type * as BlockOverrides from 'ox/BlockOverrides'
+import type * as Rpc from 'ox/RpcResponse'
 import type {
   RpcEstimateUserOperationGasReturnType,
   RpcGetUserOperationByHashReturnType,
@@ -1958,18 +1959,29 @@ export type EIP1193RequestFn<
   > = EIP1193Parameters<DerivedRpcSchema<rpcSchema, rpcSchemaOverride>>,
   _returnType = DerivedRpcSchema<rpcSchema, rpcSchemaOverride> extends RpcSchema
     ? raw extends true
-      ? {
-          result?: Extract<
-            DerivedRpcSchema<rpcSchema, rpcSchemaOverride>[number],
-            { Method: _parameters['method'] }
-          >['ReturnType']
-          error?: any
-        }
+      ? OneOf<
+          | {
+              result: Extract<
+                DerivedRpcSchema<rpcSchema, rpcSchemaOverride>[number],
+                { Method: _parameters['method'] }
+              >['ReturnType']
+            }
+          | { error: Rpc.ErrorObject }
+        >
       : Extract<
           DerivedRpcSchema<rpcSchema, rpcSchemaOverride>[number],
           { Method: _parameters['method'] }
         >['ReturnType']
-    : unknown,
+    : raw extends true
+      ? OneOf<
+          | {
+              result: unknown
+            }
+          | {
+              error: Rpc.ErrorObject
+            }
+        >
+      : unknown,
 >(
   args: _parameters,
   options?: EIP1193RequestOptions | undefined,

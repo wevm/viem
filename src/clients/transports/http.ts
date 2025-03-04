@@ -19,7 +19,10 @@ import {
   createTransport,
 } from './createTransport.js'
 
-export type HttpTransportConfig<raw extends boolean | undefined = undefined> = {
+export type HttpTransportConfig<
+  rpcSchema extends RpcSchema | undefined = undefined,
+  raw extends boolean = false,
+> = {
   /**
    * Whether to enable Batch JSON-RPC.
    * @link https://www.jsonrpc.org/specification#batch
@@ -48,14 +51,16 @@ export type HttpTransportConfig<raw extends boolean | undefined = undefined> = {
   methods?: TransportConfig['methods'] | undefined
   /** The name of the HTTP transport. */
   name?: TransportConfig['name'] | undefined
+  /** Whether to return JSON RPC errors as responses instead of throwing. */
+  raw?: raw | boolean | undefined
   /** The max number of times to retry. */
   retryCount?: TransportConfig['retryCount'] | undefined
   /** The base delay (in ms) between retries. */
   retryDelay?: TransportConfig['retryDelay'] | undefined
+  /** Typed JSON-RPC schema for the transport. */
+  rpcSchema?: rpcSchema | RpcSchema | undefined
   /** The timeout (in ms) for the HTTP request. Default: 10_000 */
   timeout?: TransportConfig['timeout'] | undefined
-  /** Whether to return JSON RPC errors as responses instead of throwing. */
-  raw?: raw | undefined
 }
 
 export type HttpTransport<
@@ -84,7 +89,7 @@ export function http<
 >(
   /** URL of the JSON-RPC API. Defaults to the chain's public RPC URL. */
   url?: string | undefined,
-  config: HttpTransportConfig<raw> = {},
+  config: HttpTransportConfig<rpcSchema, raw> = {},
 ): HttpTransport<rpcSchema, raw> {
   const {
     batch,
@@ -144,10 +149,7 @@ export function http<
 
           const [{ error, result }] = await fn(body)
 
-          if (raw) {
-            return { error, result }
-          }
-
+          if (raw) return { error, result }
           if (error)
             throw new RpcRequestError({
               body,
