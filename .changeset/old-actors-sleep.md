@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Adds Berachain Bepolia testnet
+Added Berachain Bepolia.
