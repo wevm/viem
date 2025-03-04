@@ -1,10 +1,10 @@
-import type { EIP1193RequestFn, RpcSchema } from '~viem/types/eip1193.js'
 import { RpcRequestError } from '../../errors/request.js'
 import {
   UrlRequiredError,
   type UrlRequiredErrorType,
 } from '../../errors/transport.js'
 import type { ErrorType } from '../../errors/utils.js'
+import type { EIP1193RequestFn, RpcSchema } from '../../types/eip1193.js'
 import type { RpcRequest } from '../../types/rpc.js'
 import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
 import {
