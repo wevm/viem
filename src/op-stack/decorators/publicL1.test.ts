@@ -2,9 +2,8 @@ import { describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 import { mainnetClient } from '~test/src/utils.js'
-import { anvilSepolia } from '../../../test/src/anvil.js'
 import { http, createPublicClient } from '../../index.js'
-import { optimism, optimismSepolia } from '../../op-stack/chains.js'
+import { optimism } from '../../op-stack/chains.js'
 import { getWithdrawals } from '../../op-stack/index.js'
 import { publicActionsL1 } from './publicL1.js'
 
@@ -13,8 +12,6 @@ const l2Client = createPublicClient({
   chain: optimism,
   transport: http(),
 })
-
-const sepoliaClient = anvilSepolia.getClient().extend(publicActionsL1())
 
 test('default', async () => {
   expect(publicActionsL1()(mainnetClient)).toMatchInlineSnapshot(`
@@ -98,19 +95,19 @@ describe('smoke test', () => {
   })
 
   test('getGame', async () => {
-    const request = await sepoliaClient.getGame({
-      l2BlockNumber: 9510398n,
+    const request = await client.getGame({
+      l2BlockNumber: 132300000n,
       limit: 10,
-      targetChain: optimismSepolia,
+      targetChain: optimism,
     })
     expect(request).toBeDefined()
   })
 
   test('getGames', async () => {
-    const request = await sepoliaClient.getGames({
-      l2BlockNumber: 9510398n,
+    const request = await client.getGames({
+      l2BlockNumber: 132300000n,
       limit: 10,
-      targetChain: optimismSepolia,
+      targetChain: optimism,
     })
     expect(request).toBeDefined()
   })
@@ -131,9 +128,9 @@ describe('smoke test', () => {
   })
 
   test('getTimeToNextGame', async () => {
-    const request = await sepoliaClient.getTimeToNextGame({
+    const request = await client.getTimeToNextGame({
       l2BlockNumber: 113365018n,
-      targetChain: optimismSepolia,
+      targetChain: optimism,
     })
     expect(request).toBeDefined()
   })
@@ -158,14 +155,14 @@ describe('smoke test', () => {
   })
 
   test('waitForNextGame', async () => {
-    const games = await sepoliaClient.getGames({
+    const games = await client.getGames({
       limit: 10,
-      targetChain: optimismSepolia,
+      targetChain: optimism,
     })
-    const request = await sepoliaClient.waitForNextGame({
+    const request = await client.waitForNextGame({
       l2BlockNumber: games[0].l2BlockNumber - 10n,
       limit: 10,
-      targetChain: optimismSepolia,
+      targetChain: optimism,
     })
     expect(request).toBeDefined()
   })

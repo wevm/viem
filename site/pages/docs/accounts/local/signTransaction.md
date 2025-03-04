@@ -282,6 +282,7 @@ const signature = await account.signTransaction({
 The transaction type.
 
 ```ts twoslash
+// @noErrors
 import { privateKeyToAccount } from 'viem/accounts'
 const account = privateKeyToAccount('0x...')
 // ---cut---

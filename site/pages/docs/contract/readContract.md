@@ -311,7 +311,7 @@ const data = await publicClient.readContract({
 
 Contract deployment factory address (ie. Create2 factory, Smart Account factory, etc).
 
-```ts twoslash
+```ts
 const data = await publicClient.readContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,
@@ -327,7 +327,7 @@ const data = await publicClient.readContract({
 
 Calldata to execute on the factory to deploy the contract.
 
-```ts twoslash
+```ts
 const data = await publicClient.readContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   abi: wagmiAbi,

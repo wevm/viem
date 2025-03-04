@@ -1,6 +1,7 @@
 import type { Address } from 'abitype'
 
 import type * as BlockOverrides from 'ox/BlockOverrides'
+import type * as Rpc from 'ox/RpcResponse'
 import type {
   RpcEstimateUserOperationGasReturnType,
   RpcGetUserOperationByHashReturnType,
@@ -210,15 +211,13 @@ export type WalletSendCallsParameters<
 > = [
   {
     calls: readonly {
-      chainId?: chainId | undefined
       to?: Address | undefined
       data?: Hex | undefined
       value?: quantity | undefined
     }[]
     capabilities?: capabilities | undefined
-    /** @deprecated Use `chainId` on `calls` instead. */
     chainId?: chainId | undefined
-    from: Address
+    from?: Address | undefined
     version: string
   },
 ]
@@ -1952,17 +1951,37 @@ type DerivedRpcSchema<
 
 export type EIP1193RequestFn<
   rpcSchema extends RpcSchema | undefined = undefined,
+  raw extends boolean = false,
 > = <
   rpcSchemaOverride extends RpcSchemaOverride | undefined = undefined,
   _parameters extends EIP1193Parameters<
     DerivedRpcSchema<rpcSchema, rpcSchemaOverride>
   > = EIP1193Parameters<DerivedRpcSchema<rpcSchema, rpcSchemaOverride>>,
   _returnType = DerivedRpcSchema<rpcSchema, rpcSchemaOverride> extends RpcSchema
-    ? Extract<
-        DerivedRpcSchema<rpcSchema, rpcSchemaOverride>[number],
-        { Method: _parameters['method'] }
-      >['ReturnType']
-    : unknown,
+    ? raw extends true
+      ? OneOf<
+          | {
+              result: Extract<
+                DerivedRpcSchema<rpcSchema, rpcSchemaOverride>[number],
+                { Method: _parameters['method'] }
+              >['ReturnType']
+            }
+          | { error: Rpc.ErrorObject }
+        >
+      : Extract<
+          DerivedRpcSchema<rpcSchema, rpcSchemaOverride>[number],
+          { Method: _parameters['method'] }
+        >['ReturnType']
+    : raw extends true
+      ? OneOf<
+          | {
+              result: unknown
+            }
+          | {
+              error: Rpc.ErrorObject
+            }
+        >
+      : unknown,
 >(
   args: _parameters,
   options?: EIP1193RequestOptions | undefined,

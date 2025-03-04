@@ -1,22 +1,28 @@
-import { expect, test } from 'vitest'
-import { anvilSepolia } from '../../../test/src/anvil.js'
-import { optimismSepolia } from '../../op-stack/chains.js'
+import { beforeAll, expect, test } from 'vitest'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { reset } from '../../actions/index.js'
+import { optimism } from '../../op-stack/chains.js'
 import { getGames } from './getGames.js'
 import { waitForNextGame } from './waitForNextGame.js'
 
-const sepoliaClient = anvilSepolia.getClient()
+const client = anvilMainnet.getClient()
 
-const games = await getGames(sepoliaClient, {
-  limit: 10,
-  targetChain: optimismSepolia,
+beforeAll(async () => {
+  await reset(client, {
+    blockNumber: 21911472n,
+  })
 })
-const [defaultGame] = games
 
 test('default', async () => {
-  const game = await waitForNextGame(sepoliaClient, {
+  const games = await getGames(client, {
+    limit: 10,
+    targetChain: optimism,
+  })
+  const [defaultGame] = games
+  const game = await waitForNextGame(client, {
     limit: 10,
     l2BlockNumber: defaultGame.l2BlockNumber - 10n,
-    targetChain: optimismSepolia,
+    targetChain: optimism,
   })
   expect(game).toHaveProperty('l2BlockNumber')
   expect(game).toHaveProperty('index')

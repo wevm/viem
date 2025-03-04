@@ -122,6 +122,8 @@ export function fallback<const transports extends readonly Transport[]>(
         key,
         name,
         async request({ method, params }) {
+          let includes: boolean | undefined
+
           const fetch = async (i = 0): Promise<any> => {
             const transport = transports[i]({
               ...rest,
@@ -157,6 +159,16 @@ export function fallback<const transports extends readonly Transport[]>(
 
               // If we've reached the end of the fallbacks, throw the error.
               if (i === transports.length - 1) throw err
+
+              // Check if at least one other transport includes the method
+              includes ??= transports.slice(i + 1).some((transport) => {
+                const { include, exclude } =
+                  transport({ chain }).config.methods || {}
+                if (include) return include.includes(method)
+                if (exclude) return !exclude.includes(method)
+                return true
+              })
+              if (!includes) throw err
 
               // Otherwise, try the next fallback.
               return fetch(i + 1)

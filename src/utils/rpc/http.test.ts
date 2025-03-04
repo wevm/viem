@@ -26,7 +26,7 @@ describe('request', () => {
       {
         "id": 1,
         "jsonrpc": "2.0",
-        "result": "anvil/v0.3.0",
+        "result": "anvil/v1.0.0",
       }
     `)
   })
@@ -41,7 +41,7 @@ describe('request', () => {
       {
         "id": 3,
         "jsonrpc": "2.0",
-        "result": "anvil/v0.3.0",
+        "result": "anvil/v1.0.0",
       }
     `)
   })
@@ -57,7 +57,7 @@ describe('request', () => {
       {
         "error": {
           "code": -32602,
-          "message": "Odd number of digits",
+          "message": "odd number of digits",
         },
         "id": 5,
         "jsonrpc": "2.0",
@@ -421,12 +421,12 @@ describe('http (batch)', () => {
         {
           "id": 93,
           "jsonrpc": "2.0",
-          "result": "anvil/v0.3.0",
+          "result": "anvil/v1.0.0",
         },
         {
           "id": 94,
           "jsonrpc": "2.0",
-          "result": "anvil/v0.3.0",
+          "result": "anvil/v1.0.0",
         },
       ]
     `)
@@ -447,12 +447,12 @@ describe('http (batch)', () => {
         {
           "id": 96,
           "jsonrpc": "2.0",
-          "result": "anvil/v0.3.0",
+          "result": "anvil/v1.0.0",
         },
         {
           "error": {
             "code": -32602,
-            "message": "Odd number of digits",
+            "message": "odd number of digits",
           },
           "id": 97,
           "jsonrpc": "2.0",
@@ -473,7 +473,7 @@ describe('http (batch)', () => {
         {
           "id": 99,
           "jsonrpc": "2.0",
-          "result": "anvil/v0.3.0",
+          "result": "anvil/v1.0.0",
         },
         {
           "error": {

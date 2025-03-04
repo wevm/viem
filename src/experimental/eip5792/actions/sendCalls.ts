@@ -1,21 +1,17 @@
-import type { AbiStateMutability, Address, Narrow } from 'abitype'
+import type { Address, Narrow } from 'abitype'
 import { parseAccount } from '../../../accounts/utils/parseAccount.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import type { BaseError } from '../../../errors/base.js'
-import { ChainNotFoundError } from '../../../errors/chain.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../../types/account.js'
+import type { Call, Calls } from '../../../types/calls.js'
 import type { Chain, DeriveChain } from '../../../types/chain.js'
-import type { ContractFunctionParameters } from '../../../types/contract.js'
 import type {
   WalletCapabilities,
   WalletSendCallsParameters,
 } from '../../../types/eip1193.js'
-import type { Hex } from '../../../types/misc.js'
-import type { GetMulticallContractParameters } from '../../../types/multicall.js'
-import type { MaybeRequired, OneOf, Prettify } from '../../../types/utils.js'
 import { encodeFunctionData } from '../../../utils/abi/encodeFunctionData.js'
 import type { RequestErrorType } from '../../../utils/buildRequest.js'
 import { numberToHex } from '../../../utils/encoding/toHex.js'
@@ -30,12 +26,12 @@ export type SendCallsParameters<
   _chain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = {
   chain?: chainOverride | Chain | undefined
-  calls: Calls<Narrow<calls>, _chain>
+  calls: Calls<Narrow<calls>>
   capabilities?:
     | WalletSendCallsParameters<WalletCapabilities>[number]['capabilities']
     | undefined
   version?: WalletSendCallsParameters[number]['version'] | undefined
-} & GetAccountParameter<account>
+} & GetAccountParameter<account, Account | Address, true, true>
 
 export type SendCallsReturnType = string
 
@@ -89,17 +85,14 @@ export async function sendCalls<
     version = '1.0',
   } = parameters
 
-  if (!account_)
+  if (typeof account_ === 'undefined')
     throw new AccountNotFoundError({
       docsPath: '/experimental/eip5792/sendCalls',
     })
-  const account = parseAccount(account_)
+  const account = account_ ? parseAccount(account_) : null
 
   const calls = parameters.calls.map((call_: unknown) => {
     const call = call_ as Call
-
-    const chainId = call.chain?.id ?? call.chainId ?? chain?.id
-    if (!chainId) throw new ChainNotFoundError()
 
     const data = call.abi
       ? encodeFunctionData({
@@ -110,7 +103,6 @@ export async function sendCalls<
       : call.data
 
     return {
-      chainId: numberToHex(chainId),
       data,
       to: call.to,
       value: call.value ? numberToHex(call.value) : undefined,
@@ -126,7 +118,7 @@ export async function sendCalls<
             calls,
             capabilities,
             chainId: numberToHex(chain!.id),
-            from: account.address,
+            from: account?.address,
             version,
           },
         ],
@@ -141,74 +133,3 @@ export async function sendCalls<
     })
   }
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-type RawCall = { data?: Hex; to?: Address; value?: bigint }
-
-type Call<
-  chain extends Chain | undefined = Chain | undefined,
-  contractFunctionParameters = Omit<ContractFunctionParameters, 'address'>,
-> = OneOf<
-  | (contractFunctionParameters & {
-      to: Address
-      value?: bigint | undefined
-    })
-  | RawCall
-> &
-  OneOf<
-    | MaybeRequired<
-        { chain?: Chain | undefined },
-        chain extends Chain ? false : true
-      >
-    | MaybeRequired<{ chainId?: number }, chain extends Chain ? false : true>
-  >
-
-type Calls<
-  calls extends readonly unknown[],
-  chain extends Chain | undefined,
-  ///
-  result extends readonly any[] = [],
-> = calls extends readonly [] // no calls, return empty
-  ? readonly []
-  : calls extends readonly [infer call] // one call left before returning `result`
-    ? readonly [
-        ...result,
-        Prettify<
-          Call<
-            chain,
-            Omit<
-              GetMulticallContractParameters<call, AbiStateMutability>,
-              'address'
-            >
-          >
-        >,
-      ]
-    : calls extends readonly [infer call, ...infer rest] // grab first call and recurse through `rest`
-      ? Calls<
-          [...rest],
-          chain,
-          [
-            ...result,
-            Prettify<
-              Call<
-                chain,
-                Omit<
-                  GetMulticallContractParameters<call, AbiStateMutability>,
-                  'address'
-                >
-              >
-            >,
-          ]
-        >
-      : readonly unknown[] extends calls
-        ? calls
-        : // If `calls` is *some* array but we couldn't assign `unknown[]` to it, then it must hold some known/homogenous type!
-          // use this to infer the param types in the case of Array.map() argument
-          calls extends readonly (infer call extends Call<
-              chain,
-              Omit<ContractFunctionParameters, 'address'>
-            >)[]
-          ? readonly Prettify<call>[]
-          : // Fallback
-            readonly Call<chain, Omit<ContractFunctionParameters, 'address'>>[]

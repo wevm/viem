@@ -15,6 +15,7 @@ baseClient.request = (async ({ method, params }) => {
   if (method === 'eth_call')
     return '0x00000000000000000000000070a0F165d6f8054d0d0CF8dFd4DD2005f0AF6B55'
   if (method === 'eth_getTransactionCount') return 1n
+  if (method === 'eth_gasPrice') return 150_000_000n
   if (method === 'eth_getBlockByNumber') return anvilMainnet.forkBlockNumber
   if (method === 'eth_chainId') return anvilMainnet.chain.id
   return anvilMainnet.getClient().request({ method, params } as any)
@@ -43,6 +44,15 @@ test('requestExecute', async () => {
       l2GasLimit: 900_000n,
       gasPrice: 200_000_000_000n,
       gas: 500_000n,
+    }),
+  ).toBeDefined()
+})
+
+test('finalizeWithdrawal', async () => {
+  expect(
+    await client.finalizeWithdrawal({
+      client: zksyncClient,
+      hash: '0x08ac22b6d5d048ae8a486aa41a058bb01d82bdca6489760414aa15f61f27b943',
     }),
   ).toBeDefined()
 })

@@ -40,6 +40,7 @@ test('creates', () => {
       "request": [Function],
       "transport": {
         "key": "mock",
+        "methods": undefined,
         "name": "Mock Transport",
         "request": [MockFunction spy],
         "retryCount": 3,
@@ -93,6 +94,7 @@ describe('transports', () => {
         "transport": {
           "fetchOptions": undefined,
           "key": "http",
+          "methods": undefined,
           "name": "HTTP JSON-RPC",
           "request": [Function],
           "retryCount": 3,
@@ -147,6 +149,7 @@ describe('transports', () => {
           "getRpcClient": [Function],
           "getSocket": [Function],
           "key": "webSocket",
+          "methods": undefined,
           "name": "WebSocket JSON-RPC",
           "request": [Function],
           "retryCount": 3,
@@ -180,6 +183,7 @@ describe('transports', () => {
         "request": [Function],
         "transport": {
           "key": "custom",
+          "methods": undefined,
           "name": "Custom Provider",
           "request": [Function],
           "retryCount": 3,
@@ -222,6 +226,7 @@ describe('config', () => {
         "request": [Function],
         "transport": {
           "key": "mock",
+          "methods": undefined,
           "name": "Mock Transport",
           "request": [MockFunction spy],
           "retryCount": 3,
@@ -268,6 +273,7 @@ describe('config', () => {
         "request": [Function],
         "transport": {
           "key": "mock",
+          "methods": undefined,
           "name": "Mock Transport",
           "request": [MockFunction spy],
           "retryCount": 3,
@@ -309,6 +315,7 @@ describe('config', () => {
         "request": [Function],
         "transport": {
           "key": "mock",
+          "methods": undefined,
           "name": "Mock Transport",
           "request": [MockFunction spy],
           "retryCount": 3,
@@ -350,6 +357,7 @@ describe('config', () => {
         "request": [Function],
         "transport": {
           "key": "mock",
+          "methods": undefined,
           "name": "Mock Transport",
           "request": [MockFunction spy],
           "retryCount": 3,
@@ -391,6 +399,7 @@ describe('config', () => {
         "request": [Function],
         "transport": {
           "key": "mock",
+          "methods": undefined,
           "name": "Mock Transport",
           "request": [MockFunction spy],
           "retryCount": 3,
@@ -432,6 +441,7 @@ describe('config', () => {
         "request": [Function],
         "transport": {
           "key": "mock",
+          "methods": undefined,
           "name": "Mock Transport",
           "request": [MockFunction spy],
           "retryCount": 3,
@@ -534,10 +544,13 @@ describe('extends', () => {
         "request": [Function],
         "sendRawTransaction": [Function],
         "simulate": [Function],
+        "simulateBlocks": [Function],
+        "simulateCalls": [Function],
         "simulateContract": [Function],
         "transport": {
           "fetchOptions": undefined,
           "key": "http",
+          "methods": undefined,
           "name": "HTTP JSON-RPC",
           "request": [Function],
           "retryCount": 3,

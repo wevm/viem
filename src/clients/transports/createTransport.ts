@@ -79,6 +79,7 @@ export function createTransport<
   return {
     config: {
       key,
+      methods,
       name,
       request,
       retryCount,

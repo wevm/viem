@@ -91,6 +91,7 @@ test('creates', () => {
       "stopImpersonatingAccount": [Function],
       "transport": {
         "key": "mock",
+        "methods": undefined,
         "name": "Mock Transport",
         "request": [MockFunction spy],
         "retryCount": 3,
@@ -176,6 +177,7 @@ describe('transports', () => {
         "transport": {
           "fetchOptions": undefined,
           "key": "http",
+          "methods": undefined,
           "name": "HTTP JSON-RPC",
           "request": [Function],
           "retryCount": 3,
@@ -262,6 +264,7 @@ describe('transports', () => {
           "getRpcClient": [Function],
           "getSocket": [Function],
           "key": "webSocket",
+          "methods": undefined,
           "name": "WebSocket JSON-RPC",
           "request": [Function],
           "retryCount": 3,
@@ -399,6 +402,8 @@ test('extend', () => {
       "signTransaction": [Function],
       "signTypedData": [Function],
       "simulate": [Function],
+      "simulateBlocks": [Function],
+      "simulateCalls": [Function],
       "simulateContract": [Function],
       "snapshot": [Function],
       "stopImpersonatingAccount": [Function],
@@ -406,6 +411,7 @@ test('extend', () => {
       "transport": {
         "fetchOptions": undefined,
         "key": "http",
+        "methods": undefined,
         "name": "HTTP JSON-RPC",
         "request": [Function],
         "retryCount": 3,

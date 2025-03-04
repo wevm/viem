@@ -29,14 +29,19 @@ export async function getWebSocketRpcClient(
       const socket = new WebSocket(url)
 
       function onClose_() {
-        onClose()
         socket.removeEventListener('close', onClose_)
         socket.removeEventListener('message', onMessage)
         socket.removeEventListener('error', onError)
         socket.removeEventListener('open', onOpen)
+        onClose()
       }
       function onMessage({ data }: MessageEvent) {
-        onResponse(JSON.parse(data))
+        try {
+          const _data = JSON.parse(data)
+          onResponse(_data)
+        } catch (error) {
+          onError(error as Error)
+        }
       }
 
       // Setup event listeners for RPC & subscription responses.
@@ -59,7 +64,7 @@ export async function getWebSocketRpcClient(
       return Object.assign(socket, {
         close() {
           close_.bind(socket)()
-          onClose()
+          onClose_()
         },
         ping() {
           try {

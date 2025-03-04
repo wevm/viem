@@ -1,97 +1,95 @@
 import { beforeAll, describe, expect, test, vi } from 'vitest'
-import {
-  anvilMainnet,
-  anvilOptimism,
-  anvilOptimismSepolia,
-  anvilSepolia,
-} from '../../../test/src/anvil.js'
+import { anvilMainnet, anvilOptimism } from '../../../test/src/anvil.js'
 import { getTransactionReceipt, reset } from '../../actions/index.js'
 
 import { getWithdrawalStatus } from './getWithdrawalStatus.js'
 
 const client = anvilMainnet.getClient()
-const sepoliaClient = anvilSepolia.getClient()
 const optimismClient = anvilOptimism.getClient()
-const optimismSepoliaClient = anvilOptimismSepolia.getClient()
 
-// TODO(fault-proofs): convert to `client` & `optimismClient` when fault proofs deployed to mainnet.
 test('waiting-to-prove', async () => {
-  await reset(sepoliaClient, {
-    blockNumber: 5857892n,
-    jsonRpcUrl: anvilSepolia.forkUrl,
+  await reset(optimismClient, {
+    blockNumber: 131027672n,
+    jsonRpcUrl: anvilOptimism.forkUrl,
   })
 
-  const receipt = await getTransactionReceipt(optimismSepoliaClient, {
-    hash: '0xc0e6125c9e075128ad55d3b3bcee17ce3568ab4c9280698b0e98409c3166a237',
+  const receipt = await getTransactionReceipt(optimismClient, {
+    hash: '0xb3cd0bf131e97b0339b6abde0aa7636fc87114ec6ff8cec28b5002c851c929a3',
   })
 
-  const status = await getWithdrawalStatus(sepoliaClient, {
+  const status = await getWithdrawalStatus(client, {
     gameLimit: 10,
     receipt,
-    targetChain: optimismSepoliaClient.chain,
+    targetChain: optimismClient.chain,
   })
   expect(status).toBe('waiting-to-prove')
 })
 
 test('ready-to-prove', async () => {
-  await reset(sepoliaClient, {
-    blockNumber: 5857991n,
-    jsonRpcUrl: anvilSepolia.forkUrl,
+  await reset(optimismClient, {
+    blockNumber: 131027872n,
+    jsonRpcUrl: anvilOptimism.forkUrl,
   })
 
-  const receipt = await getTransactionReceipt(optimismSepoliaClient, {
-    hash: '0xc0e6125c9e075128ad55d3b3bcee17ce3568ab4c9280698b0e98409c3166a237',
+  const receipt = await getTransactionReceipt(optimismClient, {
+    hash: '0xb3cd0bf131e97b0339b6abde0aa7636fc87114ec6ff8cec28b5002c851c929a3',
   })
 
-  const status = await getWithdrawalStatus(sepoliaClient, {
+  const status = await getWithdrawalStatus(client, {
     gameLimit: 10,
     receipt,
-    targetChain: optimismSepoliaClient.chain,
+    targetChain: optimismClient.chain,
   })
-  expect(status).toBe('ready-to-prove')
+  expect(status).toBe('waiting-to-prove')
 })
 
 test('waiting-to-finalize', async () => {
-  await reset(sepoliaClient, {
-    blockNumber: 5857993n,
-    jsonRpcUrl: anvilSepolia.forkUrl,
+  await reset(client, {
+    blockNumber: 21890132n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
   })
 
-  const receipt = await getTransactionReceipt(optimismSepoliaClient, {
-    hash: '0xc0e6125c9e075128ad55d3b3bcee17ce3568ab4c9280698b0e98409c3166a237',
-  })
-
-  const status = await getWithdrawalStatus(sepoliaClient, {
+  const status = await getWithdrawalStatus(client, {
     gameLimit: 10,
-    receipt,
-    targetChain: optimismSepoliaClient.chain,
+    targetChain: optimismClient.chain,
+    l2BlockNumber: 21890440n,
+    withdrawalHash:
+      '0x93439E023E5C21BAE8A4291990C4C17C7AC91B6602E92612C61B0A6FE14682E2',
+    sender: '0xf919B7DF8eBAD99B9Bb0Af9e40E9255E54343EF8',
   })
   expect(status).toBe('waiting-to-finalize')
 })
 
-// TODO(fault-proofs): unskip when this transaction is actually ready to finalize.
-test.skip('ready-to-finalize', async () => {
-  const receipt = await getTransactionReceipt(optimismSepoliaClient, {
-    hash: '0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731',
+test('ready-to-finalize', async () => {
+  await reset(client, {
+    blockNumber: 21890438n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
   })
 
-  const status = await getWithdrawalStatus(sepoliaClient, {
+  const status = await getWithdrawalStatus(client, {
     gameLimit: 10,
-    receipt,
-    targetChain: optimismSepoliaClient.chain,
+    targetChain: optimismClient.chain,
+    l2BlockNumber: 21890440n,
+    withdrawalHash:
+      '0x1CD56A12D477EDB091DDECAC56A29D51AD61A9920BE8FCF1EE62BA00AF2B8E55',
+    sender: '0x7F6a4DfFcE8aE3AD8b75a35b6e2FB611b93Ca1DB',
   })
   expect(status).toBe('ready-to-finalize')
 })
 
 test('finalized', async () => {
-  const receipt = await getTransactionReceipt(optimismSepoliaClient, {
-    hash: '0x28199bd830b7ff4f029145cf5b961aaaf8bf53e993a9d9788eb20d7b7706e517',
+  await reset(client, {
+    blockNumber: 21890440n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
   })
 
-  const status = await getWithdrawalStatus(sepoliaClient, {
+  const status = await getWithdrawalStatus(client, {
     gameLimit: 10,
-    receipt,
-    targetChain: optimismSepoliaClient.chain,
+    targetChain: optimismClient.chain,
+    l2BlockNumber: 21890440n,
+    withdrawalHash:
+      '0x1CD56A12D477EDB091DDECAC56A29D51AD61A9920BE8FCF1EE62BA00AF2B8E55',
+    sender: '0x7F6a4DfFcE8aE3AD8b75a35b6e2FB611b93Ca1DB',
   })
   expect(status).toBe('finalized')
 })

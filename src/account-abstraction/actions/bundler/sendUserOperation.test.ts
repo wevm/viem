@@ -325,6 +325,7 @@ describe('entryPointVersion: 0.7', async () => {
           },
         ],
         signature: '0xdeadbeef',
+        callGasLimit: 80000n,
         verificationGasLimit: 79141n,
         ...fees,
       }),

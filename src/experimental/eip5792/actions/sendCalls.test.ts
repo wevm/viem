@@ -73,7 +73,9 @@ const getClient = <chain extends Chain | undefined = undefined>({
             const callResult = await rpcClient.request({
               body: {
                 method: 'eth_call',
-                params: [{ ...call, from: params[0].from }],
+                params: [
+                  { ...call, from: params[0].from ?? accounts[0].address },
+                ],
                 id: 0,
               },
             })
@@ -82,7 +84,9 @@ const getClient = <chain extends Chain | undefined = undefined>({
             const { result, error } = await rpcClient.request({
               body: {
                 method: 'eth_sendTransaction',
-                params: [{ ...call, from: params[0].from }],
+                params: [
+                  { ...call, from: params[0].from ?? accounts[0].address },
+                ],
                 id: 0,
               },
             })
@@ -154,31 +158,26 @@ test('default', async () => {
         {
           "calls": [
             {
-              "chainId": "0x1",
               "data": undefined,
               "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
               "value": "0xde0b6b3a7640000",
             },
             {
-              "chainId": "0x1",
               "data": undefined,
               "to": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
               "value": undefined,
             },
             {
-              "chainId": "0x1",
               "data": "0xcafebabe",
               "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
               "value": "0x56bc75e2d63100000",
             },
             {
-              "chainId": "0x1",
               "data": "0x1249c58b",
               "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
               "value": undefined,
             },
             {
-              "chainId": "0x1",
               "data": "0x1249c58b",
               "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
               "value": undefined,
@@ -244,31 +243,26 @@ test('behavior: chain on client', async () => {
         {
           "calls": [
             {
-              "chainId": "0x1",
               "data": undefined,
               "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
               "value": "0xde0b6b3a7640000",
             },
             {
-              "chainId": "0x1",
               "data": undefined,
               "to": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
               "value": undefined,
             },
             {
-              "chainId": "0x1",
               "data": "0xcafebabe",
               "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
               "value": "0x56bc75e2d63100000",
             },
             {
-              "chainId": "0x1",
               "data": "0x1249c58b",
               "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
               "value": undefined,
             },
             {
-              "chainId": "0x1",
               "data": "0x1249c58b",
               "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
               "value": undefined,
@@ -284,7 +278,7 @@ test('behavior: chain on client', async () => {
   `)
 })
 
-test('error: no chain', async () => {
+test('behavior: inferred account', async () => {
   const requests: unknown[] = []
 
   const client = getClient({
@@ -293,38 +287,79 @@ test('error: no chain', async () => {
     },
   })
 
-  await expect(() =>
-    sendCalls(client, {
-      account: accounts[0].address,
-      calls: [
+  await reset(testClient, {
+    blockNumber: 16280770n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
+
+  const id_ = await sendCalls(client, {
+    account: null,
+    chain: mainnet,
+    calls: [
+      {
+        to: accounts[1].address,
+        value: parseEther('1'),
+      },
+      {
+        to: accounts[2].address,
+      },
+      {
+        data: '0xcafebabe',
+        to: accounts[3].address,
+        value: parseEther('100'),
+      },
+      {
+        abi: wagmiContractConfig.abi,
+        functionName: 'mint',
+        to: wagmiContractConfig.address,
+      },
+      {
+        abi: wagmiContractConfig.abi,
+        functionName: 'mint',
+        to: wagmiContractConfig.address,
+      },
+    ],
+  })
+
+  expect(id_).toBeDefined()
+  expect(requests).toMatchInlineSnapshot(`
+    [
+      [
         {
-          chainId: 1,
-          to: accounts[1].address,
-          value: parseEther('1'),
-        },
-        {
-          chain: mainnet,
-          to: accounts[1].address,
-          value: parseEther('1'),
-        },
-        // @ts-expect-error
-        {
-          to: accounts[2].address,
-          value: parseEther('10'),
-        },
-        // @ts-expect-error
-        {
-          data: '0xcafebabe',
-          to: accounts[3].address,
-          value: parseEther('1000000'),
+          "calls": [
+            {
+              "data": undefined,
+              "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+              "value": "0xde0b6b3a7640000",
+            },
+            {
+              "data": undefined,
+              "to": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+              "value": undefined,
+            },
+            {
+              "data": "0xcafebabe",
+              "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+              "value": "0x56bc75e2d63100000",
+            },
+            {
+              "data": "0x1249c58b",
+              "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+              "value": undefined,
+            },
+            {
+              "data": "0x1249c58b",
+              "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+              "value": undefined,
+            },
+          ],
+          "capabilities": undefined,
+          "chainId": "0x1",
+          "from": undefined,
+          "version": "1.0",
         },
       ],
-    }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ChainNotFoundError: No chain was provided to the request.
-    Please provide a chain with the \`chain\` argument on the Action, or by supplying a \`chain\` to WalletClient.
-
-    Version: viem@x.y.z]
+    ]
   `)
 })
 

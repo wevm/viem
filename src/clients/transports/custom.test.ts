@@ -24,6 +24,7 @@ test('default', () => {
     {
       "config": {
         "key": "custom",
+        "methods": undefined,
         "name": "Custom Provider",
         "request": [Function],
         "retryCount": 3,
@@ -45,6 +46,7 @@ describe('config', () => {
       {
         "config": {
           "key": "custom",
+          "methods": undefined,
           "name": "Custom Provider",
           "request": [Function],
           "retryCount": 3,
@@ -70,6 +72,7 @@ describe('config', () => {
       {
         "config": {
           "key": "mock",
+          "methods": undefined,
           "name": "Custom Provider",
           "request": [Function],
           "retryCount": 3,
@@ -97,6 +100,7 @@ describe('config', () => {
       {
         "config": {
           "key": "custom",
+          "methods": undefined,
           "name": "Mock Transport",
           "request": [Function],
           "retryCount": 3,

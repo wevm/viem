@@ -1,3 +1,4 @@
+import type { Address } from 'abitype'
 import {
   type ReadContractErrorType,
   readContract,
@@ -12,6 +13,7 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../types/chain.js'
+import type { Hash } from '../../types/misc.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
 import type { OneOf } from '../../types/utils.js'
 import { portal2Abi, portalAbi } from '../abis.js'
@@ -62,13 +64,33 @@ export type GetWithdrawalStatusParameters<
      * @default 100
      */
     gameLimit?: number
-    /**
-     * The relative index of the withdrawal in the transaction receipt logs.
-     * @default 0
-     */
-    logIndex?: number
-    receipt: TransactionReceipt
-  }
+  } & OneOf<
+    | {
+        /**
+         * The relative index of the withdrawal in the transaction receipt logs.
+         * @default 0
+         */
+        logIndex?: number
+        /**
+         * The transaction receipt of the withdrawal.
+         */
+        receipt: TransactionReceipt
+      }
+    | {
+        /**
+         * The L2 block number of the withdrawal.
+         */
+        l2BlockNumber: bigint
+        /**
+         * The sender of the withdrawal.
+         */
+        sender: Address
+        /**
+         * The hash of the withdrawal.
+         */
+        withdrawalHash: Hash
+      }
+  >
 export type GetWithdrawalStatusReturnType =
   | 'waiting-to-prove'
   | 'ready-to-prove'
@@ -138,12 +160,22 @@ export async function getWithdrawalStatus<
     return Object.values(targetChain.contracts.portal)[0].address
   })()
 
-  const withdrawal = getWithdrawals(receipt)[logIndex]
+  const l2BlockNumber = receipt?.blockNumber ?? parameters.l2BlockNumber
 
-  if (!withdrawal)
-    throw new ReceiptContainsNoWithdrawalsError({
-      hash: receipt.transactionHash,
-    })
+  const withdrawal = (() => {
+    if (receipt) {
+      const withdrawal = getWithdrawals({ logs: receipt.logs })[logIndex]
+      if (!withdrawal)
+        throw new ReceiptContainsNoWithdrawalsError({
+          hash: receipt.transactionHash,
+        })
+      return withdrawal
+    }
+    return {
+      sender: parameters.sender,
+      withdrawalHash: parameters.withdrawalHash,
+    }
+  })()
 
   const portalVersion = await getPortalVersion(
     client,
@@ -156,7 +188,7 @@ export async function getWithdrawalStatus<
       await Promise.allSettled([
         getL2Output(client, {
           ...parameters,
-          l2BlockNumber: receipt.blockNumber,
+          l2BlockNumber,
         } as GetL2OutputParameters),
         readContract(client, {
           abi: portalAbi,
@@ -221,7 +253,7 @@ export async function getWithdrawalStatus<
     await Promise.allSettled([
       getGame(client, {
         ...parameters,
-        l2BlockNumber: receipt.blockNumber,
+        l2BlockNumber,
         limit: gameLimit,
       } as GetGameParameters),
       readContract(client, {
@@ -249,27 +281,38 @@ export async function getWithdrawalStatus<
   if (checkWithdrawalResult.status === 'rejected') {
     const error = checkWithdrawalResult.reason as ReadContractErrorType
     if (error.cause instanceof ContractFunctionRevertedError) {
-      const errorMessage = error.cause.data?.args?.[0]
-      if (
-        errorMessage === 'OptimismPortal: invalid game type' ||
-        errorMessage === 'OptimismPortal: withdrawal has not been proven yet' ||
-        errorMessage ===
-          'OptimismPortal: withdrawal has not been proven by proof submitter address yet' ||
-        errorMessage ===
-          'OptimismPortal: dispute game created before respected game type was updated'
-      )
+      // All potential error causes listed here, can either be the error string or the error name
+      // if custom error types are returned.
+      const errorCauses = {
+        'ready-to-prove': [
+          'OptimismPortal: invalid game type',
+          'OptimismPortal: withdrawal has not been proven yet',
+          'OptimismPortal: withdrawal has not been proven by proof submitter address yet',
+          'OptimismPortal: dispute game created before respected game type was updated',
+          'InvalidGameType',
+          'LegacyGame',
+        ],
+        'waiting-to-finalize': [
+          'OptimismPortal: proven withdrawal has not matured yet',
+          'OptimismPortal: output proposal has not been finalized yet',
+          'OptimismPortal: output proposal in air-gap',
+        ],
+      }
+
+      // Pick out the error message and/or error name
+      // Return the status based on the error
+      const errors = [
+        error.cause.data?.errorName,
+        error.cause.data?.args?.[0] as string,
+      ]
+      if (errorCauses['ready-to-prove'].some((cause) => errors.includes(cause)))
         return 'ready-to-prove'
       if (
-        errorMessage ===
-          'OptimismPortal: proven withdrawal has not matured yet' ||
-        errorMessage ===
-          'OptimismPortal: output proposal has not been finalized yet' ||
-        errorMessage === 'OptimismPortal: output proposal in air-gap'
+        errorCauses['waiting-to-finalize'].some((cause) =>
+          errors.includes(cause),
+        )
       )
         return 'waiting-to-finalize'
-
-      if (error.cause.data?.errorName === 'InvalidGameType')
-        return 'ready-to-prove'
     }
     throw checkWithdrawalResult.reason
   }

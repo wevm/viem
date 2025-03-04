@@ -97,8 +97,8 @@ export const sidebar = {
               link: '/docs/actions/public/getBlockTransactionCount',
             },
             {
-              text: 'simulate',
-              link: '/docs/actions/public/simulate',
+              text: 'simulateBlocks',
+              link: '/docs/actions/public/simulateBlocks',
             },
             {
               text: 'watchBlockNumber',
@@ -111,8 +111,14 @@ export const sidebar = {
           ],
         },
         {
-          text: 'Call',
-          items: [{ text: 'call', link: '/docs/actions/public/call' }],
+          text: 'Calls',
+          items: [
+            { text: 'call', link: '/docs/actions/public/call' },
+            {
+              text: 'simulateCalls',
+              link: '/docs/actions/public/simulateCalls',
+            },
+          ],
         },
         {
           text: 'Chain',
@@ -1807,6 +1813,10 @@ export const sidebar = {
           {
             text: 'requestExecute',
             link: '/zksync/actions/requestExecute',
+          },
+          {
+            text: 'finalizeWithdrawal',
+            link: '/zksync/actions/finalizeWithdrawal',
           },
         ],
       },

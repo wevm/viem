@@ -1,34 +1,31 @@
 import { expect, test } from 'vitest'
-import {
-  anvilMainnet,
-  anvilOptimism,
-  anvilOptimismSepolia,
-  anvilSepolia,
-} from '../../../test/src/anvil.js'
+import { anvilMainnet, anvilOptimism } from '../../../test/src/anvil.js'
 import { getTransactionReceipt, reset } from '../../actions/index.js'
 
 import { waitToProve } from './waitToProve.js'
 
 const client = anvilMainnet.getClient()
-const sepoliaClient = anvilSepolia.getClient()
 const optimismClient = anvilOptimism.getClient()
-const optimismSepoliaClient = anvilOptimismSepolia.getClient()
 
 test('default', async () => {
-  await reset(sepoliaClient, {
-    blockNumber: 5528129n,
-    jsonRpcUrl: anvilSepolia.forkUrl,
+  await reset(optimismClient, {
+    blockNumber: 119830071n,
+    jsonRpcUrl: anvilOptimism.forkUrl,
+  })
+  await reset(client, {
+    blockNumber: 21892012n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
   })
 
-  // https://sepolia-optimism.etherscan.io/tx/0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731
-  const receipt = await getTransactionReceipt(optimismSepoliaClient, {
-    hash: '0x0cb90819569b229748c16caa26c9991fb8674581824d31dc9339228bb4e77731',
+  // https://optimistic.etherscan.io/tx/0x3107023b21569799804933e8fbf564d9b89d547b06ab64ffb8b3b671dfc76a85
+  const receipt = await getTransactionReceipt(optimismClient, {
+    hash: '0x3107023b21569799804933e8fbf564d9b89d547b06ab64ffb8b3b671dfc76a85',
   })
 
-  const output = await waitToProve(sepoliaClient, {
+  const output = await waitToProve(client, {
     gameLimit: 10,
     receipt,
-    targetChain: optimismSepoliaClient.chain,
+    targetChain: optimismClient.chain,
   })
   expect(output).toBeDefined()
 })

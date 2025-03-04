@@ -255,24 +255,29 @@ export default defineConfig({
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/polymarket-light.svg',
           },
         ],
-        // [
-        //
-        //   {
-        //     name: '',
-        //     link: 'https://github.com/sponsors/wevm',
-        //     image: '',
-        //   },
-        //   {
-        //     name: '',
-        //     link: 'https://github.com/sponsors/wevm',
-        //     image: '',
-        //   },
-        //   {
-        //     name: '',
-        //     link: 'https://github.com/sponsors/wevm',
-        //     image: '',
-        //   },
-        // ],
+        [
+          {
+            name: 'Sequence',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/sequence-light.svg',
+            link: 'https://sequence.xyz',
+          },
+          {
+            name: '',
+            link: 'https://github.com/sponsors/wevm',
+            image: '',
+          },
+          {
+            name: '',
+            link: 'https://github.com/sponsors/wevm',
+            image: '',
+          },
+          {
+            name: '',
+            link: 'https://github.com/sponsors/wevm',
+            image: '',
+          },
+        ],
       ],
     },
   ],

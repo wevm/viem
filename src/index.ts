@@ -564,7 +564,7 @@ export {
   erc4626Abi,
   universalSignatureValidatorAbi,
 } from './constants/abis.js'
-export { zeroAddress } from './constants/address.js'
+export { ethAddress, zeroAddress } from './constants/address.js'
 export {
   deploylessCallViaBytecodeBytecode,
   deploylessCallViaFactoryBytecode,

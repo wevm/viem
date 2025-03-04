@@ -1227,60 +1227,58 @@ describe('local account', () => {
     test('default', async () => {
       await setup()
 
-      const account_1 = privateKeyToAccount(sourceAccount.privateKey, {
+      const alice = privateKeyToAccount(accounts[5].privateKey, {
         nonceManager,
       })
-      const account_2 = privateKeyToAccount(targetAccount.privateKey, {
-        nonceManager,
-      })
+      const bob = privateKeyToAccount(accounts[6].privateKey, { nonceManager })
 
       const [hash_1, hash_2, hash_3, hash_4, hash_5] = await Promise.all([
         sendTransaction(client, {
-          account: account_1,
+          account: alice,
           to: targetAccount.address,
           value: parseEther('1'),
         }),
         sendTransaction(client, {
-          account: account_2,
+          account: bob,
           to: targetAccount.address,
           value: parseEther('1'),
         }),
         sendTransaction(client, {
-          account: account_1,
+          account: alice,
           to: targetAccount.address,
           value: parseEther('1'),
         }),
         sendTransaction(client, {
-          account: account_1,
+          account: alice,
           to: targetAccount.address,
           value: parseEther('1'),
         }),
         sendTransaction(client, {
-          account: account_2,
+          account: bob,
           to: targetAccount.address,
           value: parseEther('1'),
         }),
       ])
 
-      expect((await getTransaction(client, { hash: hash_1 })).nonce).toBe(683)
-      expect((await getTransaction(client, { hash: hash_2 })).nonce).toBe(112)
-      expect((await getTransaction(client, { hash: hash_3 })).nonce).toBe(684)
-      expect((await getTransaction(client, { hash: hash_4 })).nonce).toBe(685)
-      expect((await getTransaction(client, { hash: hash_5 })).nonce).toBe(113)
+      expect((await getTransaction(client, { hash: hash_1 })).nonce).toBe(30)
+      expect((await getTransaction(client, { hash: hash_2 })).nonce).toBe(12)
+      expect((await getTransaction(client, { hash: hash_3 })).nonce).toBe(31)
+      expect((await getTransaction(client, { hash: hash_4 })).nonce).toBe(32)
+      expect((await getTransaction(client, { hash: hash_5 })).nonce).toBe(13)
 
       const hash_6 = await sendTransaction(client, {
-        account: account_1,
+        account: alice,
         to: targetAccount.address,
         value: parseEther('1'),
       })
       const hash_7 = await sendTransaction(client, {
-        account: account_1,
+        account: alice,
         to: targetAccount.address,
         value: parseEther('1'),
       })
 
-      expect((await getTransaction(client, { hash: hash_6 })).nonce).toBe(686)
-      expect((await getTransaction(client, { hash: hash_7 })).nonce).toBe(687)
+      expect((await getTransaction(client, { hash: hash_6 })).nonce).toBe(33)
+      expect((await getTransaction(client, { hash: hash_7 })).nonce).toBe(34)
     })
   })
 })
