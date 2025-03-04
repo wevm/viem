@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Update Telos RPCs
+Updated Telos RPC URLs.
