@@ -243,6 +243,7 @@ export { iotexTestnet } from './definitions/iotexTestnet.js'
 export { iSunCoin } from './definitions/iSunCoin.js'
 export { jbc } from './definitions/jbc.js'
 export { jbcTestnet } from './definitions/jbcTestnet.js'
+export { juneo } from './definitions/juneo.js'
 export { karura } from './definitions/karura.js'
 /** @deprecated Use `kakarotStarknetSepolia` instead. */
 export { kakarotSepolia } from './definitions/kakarotSepolia.js'
