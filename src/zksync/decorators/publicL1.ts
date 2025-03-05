@@ -17,6 +17,11 @@ import {
   type GetL1TokenBalanceReturnType,
   getL1TokenBalance,
 } from '../actions/getL1TokenBalance.js'
+import {
+  type IsWithdrawalFinalizedParameters,
+  type IsWithdrawalFinalizedReturnType,
+  isWithdrawalFinalized,
+} from '../actions/isWithdrawalFinalized.js'
 
 export type PublicActionsL1<
   account extends Account | undefined = Account | undefined,
@@ -163,6 +168,36 @@ export type PublicActionsL1<
       ? [GetL1BalanceParameters<account>]
       : [GetL1BalanceParameters<account>] | []
   ) => Promise<GetL1BalanceReturnType>
+  /**
+   * Returns whether the withdrawal transaction is finalized on the L1 network.
+   *
+   * @param client - Client to use
+   * @param parameters - {@link IsWithdrawalFinalizedParameters}
+   * @returns bool - Whether the withdrawal transaction is finalized on the L1 network. {@link IsWithdrawalFinalizedReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet, zksync } from 'viem/chains'
+   * import { publicActionsL1, publicActionsL2 } from 'viem/zksync'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(publicActionsL1())
+   *
+   * const clientL2 = createPublicClient({
+   *   chain: zksync,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const hash = await client.isWithdrawalFinalized({
+   *     client: clientL2,
+   *     hash: '0x...',
+   * })
+   */
+  isWithdrawalFinalized: (
+    parameters: IsWithdrawalFinalizedParameters,
+  ) => Promise<IsWithdrawalFinalizedReturnType>
 }
 
 export function publicActionsL1() {
@@ -176,5 +211,6 @@ export function publicActionsL1() {
     getL1TokenBalance: (args) => getL1TokenBalance(client, args),
     // @ts-expect-error
     getL1Balance: (args) => getL1Balance(client, args),
+    isWithdrawalFinalized: (args) => isWithdrawalFinalized(client, args),
   })
 }
