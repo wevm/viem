@@ -1,8 +1,10 @@
+import { chainConfig } from "../../linea/chainConfig.js";
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const statusSepolia = /*#__PURE__*/ defineChain({
+  ...chainConfig,
   id: 1_660_990_954,
-  name: 'Status Sepolia',
+  name: 'Status Network Sepolia',
   nativeCurrency: {
     decimals: 18,
     name: 'Ether',
@@ -11,12 +13,12 @@ export const statusSepolia = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: ['https://public.sepolia.rpc.status.network'],
-      webSocket: ['wss://status-sepolia-rpc.eu-north-2.gateway.fm/ws'],
+      webSocket: ['wss://public.sepolia.rpc.status.network/ws'],
     },
   },
   blockExplorers: {
     default: {
-      name: 'Status Sepolia Block Explorer',
+      name: 'Blockscout',
       url: 'https://sepoliascan.status.network',
     },
   },
