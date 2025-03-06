@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 import { chainConfig } from "~viem/linea/chainConfig.js";
 
-export const statusNetworkSepolia = /*#__PURE__*/ defineChain({
+export const statusSepolia = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 1_660_990_954,
   name: 'Status Network Sepolia',
