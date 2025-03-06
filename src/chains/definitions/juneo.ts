@@ -17,5 +17,5 @@ export const juneo = /*#__PURE__*/ defineChain({
       url: 'https://juneoscan.io/chain/2',
       apiUrl: 'https://juneoscan.io/chain/2/api',
     },
-  },  
+  },
 })
