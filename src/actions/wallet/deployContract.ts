@@ -85,5 +85,6 @@ export function deployContract<
   return sendTransaction(walletClient, {
     ...request,
     data: calldata,
+    to: '0x',
   } as unknown as SendTransactionParameters<chain, account, chainOverride>)
 }
