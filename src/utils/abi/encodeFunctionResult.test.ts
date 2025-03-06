@@ -1,5 +1,8 @@
-import { expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 
+import { parseAbi } from 'abitype'
+import { multicall3Abi } from '../../constants/abis.js'
+import { decodeFunctionResult } from '../index.js'
 import { encodeFunctionResult } from './encodeFunctionResult.js'
 
 test('returns ()', () => {
@@ -305,4 +308,63 @@ test('errors: abi item not a function', () => {
     Docs: https://viem.sh/docs/contract/encodeFunctionResult
     Version: viem@x.y.z]
   `)
+})
+
+test('errors: invalid array', () => {
+  expect(() =>
+    encodeFunctionResult({
+      abi: parseAbi(['function x() returns (uint256, uint256)']),
+      // @ts-expect-error
+      result: 1n,
+    }),
+  ).toThrowErrorMatchingInlineSnapshot(`
+    [InvalidArrayError: Value "1" is not a valid array.
+
+    Version: viem@x.y.z]
+  `)
+})
+describe('https://github.com/wevm/viem/issues/3415', () => {
+  test.each([
+    {
+      abi: multicall3Abi,
+      functionName: 'aggregate3',
+      result: [
+        {
+          success: true,
+          returnData:
+            '0x0000000000000000000000000000000000000000000000000de0b6b3a7640000',
+        },
+      ],
+    },
+    {
+      abi: parseAbi(['function x() returns (uint256[])']),
+      result: [1n, 2n, 3n],
+    },
+    {
+      abi: parseAbi(['function x() returns (uint256[][])']),
+      result: [[1n, 2n, 3n]],
+    },
+    {
+      abi: parseAbi(['function x() returns (uint256[][], uint256[][])']),
+      result: [[[1n, 2n, 3n]], [[7n, 8n, 9n]]],
+    },
+    {
+      abi: parseAbi(['function x() returns (uint256[], uint256[])']),
+      result: [
+        [1n, 2n, 3n],
+        [4n, 5n, 6n],
+      ],
+    },
+  ])('', ({ abi, functionName, result }: any) => {
+    expect(
+      decodeFunctionResult({
+        abi,
+        data: encodeFunctionResult({
+          abi,
+          functionName,
+          result,
+        }),
+      }),
+    ).toEqual(result)
+  })
 })
