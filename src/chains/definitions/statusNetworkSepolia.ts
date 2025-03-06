@@ -1,5 +1,5 @@
+import { chainConfig } from "../../linea/chainConfig.js";
 import { defineChain } from '../../utils/chain/defineChain.js'
-import { chainConfig } from "~viem/linea/chainConfig.js";
 
 export const statusSepolia = /*#__PURE__*/ defineChain({
   ...chainConfig,
