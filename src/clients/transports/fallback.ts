@@ -111,7 +111,7 @@ export function fallback<const transports extends readonly Transport[]>(
     key = 'fallback',
     name = 'Fallback',
     rank = false,
-    shouldThrow = defaultShouldThrow,
+    shouldThrow: shouldThrowFn = shouldThrow,
     retryCount,
     retryDelay,
   } = config
@@ -158,7 +158,7 @@ export function fallback<const transports extends readonly Transport[]>(
                 status: 'error',
               })
 
-              if (shouldThrow(err as Error)) throw err
+              if (shouldThrowFn(err as Error)) throw err
 
               // If we've reached the end of the fallbacks, throw the error.
               if (i === transports.length - 1) throw err
@@ -206,7 +206,7 @@ export function fallback<const transports extends readonly Transport[]>(
   }) as FallbackTransport<transports>
 }
 
-function defaultShouldThrow(error: Error) {
+export function shouldThrow(error: Error) {
   if ('code' in error && typeof error.code === 'number') {
     if (
       error.code === TransactionRejectedRpcError.code ||
