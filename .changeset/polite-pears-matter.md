@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-added WaitForTransactionReceiptTimeoutErrorType to WaitForTransactionReceiptErrorType
+Exported `WaitForTransactionReceiptTimeoutErrorType` to `WaitForTransactionReceiptErrorType`.
