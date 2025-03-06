@@ -1,6 +1,9 @@
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import { TransactionNotFoundError } from '../../errors/transaction.js'
+import {
+  TransactionNotFoundError,
+  type TransactionNotFoundErrorType,
+} from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
@@ -60,6 +63,7 @@ export type GetTransactionReturnType<
 > = Prettify<FormattedTransaction<chain, blockTag>>
 
 export type GetTransactionErrorType =
+  | TransactionNotFoundErrorType
   | NumberToHexErrorType
   | RequestErrorType
   | ErrorType
