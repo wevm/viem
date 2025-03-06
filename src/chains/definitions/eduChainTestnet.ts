@@ -9,9 +9,9 @@ export const eduChainTestnet = /*#__PURE__*/ defineChain({
     symbol: 'EDU',
   },
   rpcUrls: {
-    default: { 
-        http: ['https://rpc.open-campus-codex.gelato.digital/'],
-        webSocket: ['wss://ws.open-campus-codex.gelato.digital'],
+    default: {
+      http: ['https://rpc.open-campus-codex.gelato.digital/'],
+      webSocket: ['wss://ws.open-campus-codex.gelato.digital'],
     },
   },
   blockExplorers: {
@@ -29,4 +29,3 @@ export const eduChainTestnet = /*#__PURE__*/ defineChain({
   },
   testnet: true,
 })
-

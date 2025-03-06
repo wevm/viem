@@ -9,8 +9,8 @@ export const eduChain = /*#__PURE__*/ defineChain({
     symbol: 'EDU',
   },
   rpcUrls: {
-    default: { 
-        http: ['https://rpc.edu-chain.raas.gelato.cloud']
+    default: {
+      http: ['https://rpc.edu-chain.raas.gelato.cloud'],
     },
   },
   blockExplorers: {
@@ -21,4 +21,3 @@ export const eduChain = /*#__PURE__*/ defineChain({
   },
   testnet: false,
 })
-
