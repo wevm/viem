@@ -486,11 +486,10 @@ describe('request', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
 
-    const transport = fallback([
-      http(server1.url),
-      http(server2.url),
-      http(server3.url),
-    ], { shouldThrow: (error: Error) => ('code' in error && error.code === 9999 )})({
+    const transport = fallback(
+      [http(server1.url), http(server2.url), http(server3.url)],
+      { shouldThrow: (error: Error) => 'code' in error && error.code === 9999 },
+    )({
       chain: localhost,
     })
     await expect(

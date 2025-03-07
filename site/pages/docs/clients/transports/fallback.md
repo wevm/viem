@@ -263,7 +263,7 @@ const transport = fallback([alchemy, infura], {
 
 - **Type:** `function`
 
-A boolean check on an `Error` object on whether a given error in a transport should throw, or should cause the `fallback` to continue to the next one.
+Whether the `fallback` Transport should immediately throw an error, or continue and try the next Transport.
 
 ```ts twoslash
 import { createPublicClient, fallback, http } from 'viem'
@@ -272,17 +272,8 @@ const alchemy = http('')
 const infura = http('') 
 // ---cut---
 const transport = fallback([alchemy, infura], {
-  shouldThrow: (err: Error) => { // [!code focus:12]
-    if ('code' in error && typeof error.code === 'number') {
-      if (
-        error.code === TransactionRejectedRpcError.code ||
-        error.code === UserRejectedRequestError.code ||
-        ExecutionRevertedError.nodeMessage.test(error.message) ||
-        error.code === 5000 // CAIP UserRejectedRequestError
-      )
-        return true
-    }
-    return false
-  },
+  shouldThrow: (err: Error) => { // [!code focus]
+    return err.message.includes('sad times') // [!code focus]
+  }, // [!code focus]
 })
 ```

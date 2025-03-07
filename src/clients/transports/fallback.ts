@@ -111,7 +111,7 @@ export function fallback<const transports extends readonly Transport[]>(
     key = 'fallback',
     name = 'Fallback',
     rank = false,
-    shouldThrow: shouldThrowFn = shouldThrow,
+    shouldThrow: shouldThrow_ = shouldThrow,
     retryCount,
     retryDelay,
   } = config
@@ -158,7 +158,7 @@ export function fallback<const transports extends readonly Transport[]>(
                 status: 'error',
               })
 
-              if (shouldThrowFn(err as Error)) throw err
+              if (shouldThrow_(err as Error)) throw err
 
               // If we've reached the end of the fallbacks, throw the error.
               if (i === transports.length - 1) throw err
