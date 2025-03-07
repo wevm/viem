@@ -28,6 +28,7 @@ test('exports', () => {
       "rpcSchema",
       "custom",
       "fallback",
+      "shouldThrow",
       "http",
       "createPublicClient",
       "createTestClient",
