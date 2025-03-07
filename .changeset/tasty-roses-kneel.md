@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Updated saga chain.
+Added Status Sepolia.

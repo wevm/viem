@@ -9,7 +9,7 @@ export const telos = /*#__PURE__*/ defineChain({
     symbol: 'TLOS',
   },
   rpcUrls: {
-    default: { http: ['https://mainnet.telos.net/evm'] },
+    default: { http: ['https://rpc.telos.net'] },
   },
   blockExplorers: {
     default: {
