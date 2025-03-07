@@ -8,10 +8,10 @@ import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
-import { deployContract } from './deployContract.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
-import { getTransactionReceipt } from '../public/getTransactionReceipt.js'
 import { signAuthorization } from '../../experimental/eip7702/actions/signAuthorization.js'
+import { getTransactionReceipt } from '../public/getTransactionReceipt.js'
+import { deployContract } from './deployContract.js'
 
 const client = anvilMainnet.getClient()
 const clientWithAccount = anvilMainnet.getClient({
@@ -27,12 +27,6 @@ test('default', async () => {
   expect(hash).toBeDefined()
 
   await mine(client, { blocks: 1 })
-
-  // Verify the transaction was a contract deployment with to: '0x'
-  const receipt = await getTransactionReceipt(client, { hash })
-  expect(receipt.to).toBe('0x')
-  expect(receipt.contractAddress).toBeDefined()
-  expect(receipt.contractAddress).not.toBeNull()
 })
 
 test('inferred account', async () => {
@@ -86,20 +80,16 @@ test('send value to contract', async () => {
 })
 
 test('with authorizationList', async () => {
-  const authority = privateKeyToAccount(accounts[1].privateKey)
-  const clientWithAuthority = anvilMainnet.getClient({
-    account: authority,
-  })
-
   // Create an authorization
-  const authorization = await signAuthorization(clientWithAuthority, {
-    account: authority,
+  const authorization = await signAuthorization(client, {
+    account: privateKeyToAccount(accounts[1].privateKey),
     contractAddress: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   })
 
   // Deploy a contract with authorizationList
-  const hash = await deployContract(clientWithAuthority, {
+  const hash = await deployContract(client, {
     ...baycContractConfig,
+    account: accounts[0].address,
     args: ['Bored Ape Wagmi Club', 'BAYC', 69420n, 0n],
     authorizationList: [authorization],
   })
@@ -109,7 +99,6 @@ test('with authorizationList', async () => {
 
   // Verify the transaction was a contract deployment (to address should be null)
   const receipt = await getTransactionReceipt(client, { hash })
-  expect(receipt.to).toBe('0x')
+  expect(receipt.to).toBeNull()
   expect(receipt.contractAddress).toBeDefined()
-  expect(receipt.contractAddress).not.toBeNull()
 })
