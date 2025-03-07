@@ -1,5 +1,23 @@
 # viem
 
+## 2.23.7
+
+### Patch Changes
+
+- [#3417](https://github.com/wevm/viem/pull/3417) [`ea771358624e71af8ca4082212c7a4534e872a32`](https://github.com/wevm/viem/commit/ea771358624e71af8ca4082212c7a4534e872a32) Thanks [@Kharabet](https://github.com/Kharabet)! - Updated GuruNetwork RPC URLs.
+
+- [#3408](https://github.com/wevm/viem/pull/3408) [`07ade80570c62ade8ef51ede7ad33c5832aa1e9e`](https://github.com/wevm/viem/commit/07ade80570c62ade8ef51ede7ad33c5832aa1e9e) Thanks [@falcoda](https://github.com/falcoda)! - Added Juneo Mainnet chain.
+
+- [`9c442de0ff38ac1f654b5c751d292e9a9f8d574c`](https://github.com/wevm/viem/commit/9c442de0ff38ac1f654b5c751d292e9a9f8d574c) Thanks [@jxom](https://github.com/jxom)! - Fixed `encodeFunctionResult` behavior. Fixes #3415.
+
+- [#3418](https://github.com/wevm/viem/pull/3418) [`92a3ac61fc7b3f805583ac8573086f3b349da470`](https://github.com/wevm/viem/commit/92a3ac61fc7b3f805583ac8573086f3b349da470) Thanks [@deodad](https://github.com/deodad)! - Exported `WaitForTransactionReceiptTimeoutErrorType` to `WaitForTransactionReceiptErrorType`.
+
+- [#3397](https://github.com/wevm/viem/pull/3397) [`00d46cfb4a9993d3bd6ec7cc9c240c9a8368b7c4`](https://github.com/wevm/viem/commit/00d46cfb4a9993d3bd6ec7cc9c240c9a8368b7c4) Thanks [@sumitvekariya](https://github.com/sumitvekariya)! - Fixed deployment transactions for EIP-7702.
+
+- [#3411](https://github.com/wevm/viem/pull/3411) [`ddb7e184dab8e80bf1137d3258db44662e433476`](https://github.com/wevm/viem/commit/ddb7e184dab8e80bf1137d3258db44662e433476) Thanks [@akitothemoon](https://github.com/akitothemoon)! - Added Status Sepolia.
+
+- [#3414](https://github.com/wevm/viem/pull/3414) [`71b90034fc087780e4794553a53bd98c6955ebe3`](https://github.com/wevm/viem/commit/71b90034fc087780e4794553a53bd98c6955ebe3) Thanks [@spalladino](https://github.com/spalladino)! - Added `shouldThrow` option to `fallback` transport.
+
 ## 2.23.6
 
 ### Patch Changes
