@@ -1,5 +1,5 @@
 ---
-"viem": minor
+"viem": patch
 ---
 
-Added `shouldThrow` option to fallback transport
+Added `shouldThrow` option to `fallback` transport.
