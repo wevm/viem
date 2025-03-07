@@ -84,6 +84,7 @@ export function deployContract<
   const calldata = encodeDeployData({ abi, args, bytecode })
   return sendTransaction(walletClient, {
     ...request,
+    ...(request.authorizationList ? { to: null } : {}),
     data: calldata,
   } as unknown as SendTransactionParameters<chain, account, chainOverride>)
 }
