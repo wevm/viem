@@ -75,7 +75,7 @@
   "trustedDependencies": ["c-kzg"],
   "packageManager": "pnpm@9.1.0",
   "engines": {
-    "node": "22.x"
+    "node": "23.x"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm check"

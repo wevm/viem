@@ -85,6 +85,8 @@ export type FallbackTransportConfig = {
   retryCount?: TransportConfig['retryCount'] | undefined
   /** The base delay (in ms) between retries. */
   retryDelay?: TransportConfig['retryDelay'] | undefined
+  /** Callback on whether an error should throw or try the next transport in the fallback. */
+  shouldThrow?: (error: Error) => boolean | undefined
 }
 
 export type FallbackTransport<
@@ -109,6 +111,7 @@ export function fallback<const transports extends readonly Transport[]>(
     key = 'fallback',
     name = 'Fallback',
     rank = false,
+    shouldThrow: shouldThrow_ = shouldThrow,
     retryCount,
     retryDelay,
   } = config
@@ -155,7 +158,7 @@ export function fallback<const transports extends readonly Transport[]>(
                 status: 'error',
               })
 
-              if (shouldThrow(err as Error)) throw err
+              if (shouldThrow_(err as Error)) throw err
 
               // If we've reached the end of the fallbacks, throw the error.
               if (i === transports.length - 1) throw err
@@ -203,7 +206,7 @@ export function fallback<const transports extends readonly Transport[]>(
   }) as FallbackTransport<transports>
 }
 
-function shouldThrow(error: Error) {
+export function shouldThrow(error: Error) {
   if ('code' in error && typeof error.code === 'number') {
     if (
       error.code === TransactionRejectedRpcError.code ||

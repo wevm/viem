@@ -507,6 +507,7 @@ export {
   type FallbackTransportConfig,
   type FallbackTransportErrorType,
   fallback,
+  shouldThrow,
 } from './clients/transports/fallback.js'
 export {
   type HttpTransport,
