@@ -1,5 +1,13 @@
 # viem
 
+## 2.23.8
+
+### Patch Changes
+
+- [`34592cd4e518f87c7aa8d91be66fec9edf1cfc19`](https://github.com/wevm/viem/commit/34592cd4e518f87c7aa8d91be66fec9edf1cfc19) Thanks [@jxom](https://github.com/jxom)! - Exported `Call` and `Calls` types.
+
+- [#3419](https://github.com/wevm/viem/pull/3419) [`1893b8f927de562f842a9d256ea6e66a0cf65a67`](https://github.com/wevm/viem/commit/1893b8f927de562f842a9d256ea6e66a0cf65a67) Thanks [@rizwanmoulvi](https://github.com/rizwanmoulvi)! - Added Edu Chain to chains.
+
 ## 2.23.7
 
 ### Patch Changes
