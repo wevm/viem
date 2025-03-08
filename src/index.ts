@@ -469,6 +469,7 @@ export type {
   WriteContractParameters,
   WriteContractReturnType,
 } from './actions/wallet/writeContract.js'
+export type { Call, Calls } from './types/calls.js'
 export type {
   Chain,
   ChainConfig,
