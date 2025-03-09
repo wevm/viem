@@ -1,21 +1,36 @@
 import type { Address } from 'abitype'
-import type { Hex, Signature } from '../../../types/misc.js'
-import type { ExactPartial } from '../../../types/utils.js'
+import type { Hex, Signature } from './misc.js'
+import type { ExactPartial, OneOf } from './utils.js'
 
-export type Authorization<uint32 = number, signed extends boolean = false> = {
-  /** Address of the contract to set as code for the Authority. */
-  contractAddress: Address
-  /** Chain ID to authorize. */
+export type Authorization<
+  uint32 = number,
+  signed extends boolean = false,
+> = OneOf<
+  | {
+      /**
+       * Address of the contract to delegate to.
+       * @alias `address`
+       */
+      contractAddress: Address
+    }
+  | {
+      /** Address of the contract to delegate to. */
+      address: Address
+    }
+> & {
+  /** Chain ID. */
   chainId: uint32
-  /** Nonce of the Authority to authorize. */
+  /** Nonce of the EOA to delegate to. */
   nonce: uint32
 } & (signed extends true ? Signature : ExactPartial<Signature>)
+
 export type AuthorizationList<
   uint32 = number,
   signed extends boolean = false,
 > = readonly Authorization<uint32, signed>[]
 
 export type SignedAuthorization<uint32 = number> = Authorization<uint32, true>
+
 export type SignedAuthorizationList<uint32 = number> =
   readonly SignedAuthorization<uint32>[]
 
