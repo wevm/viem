@@ -1,10 +1,10 @@
-# Contract Writes with EIP-7702
+# Sending Transactions with EIP-7702
 
-The guide below demonstrates how to perform Contract Writes with EIP-7702 to invoke Contract functions on an Externally Owned Account.
+The guide below demonstrates how to send EIP-7702 Transactions to invoke Contract functions on an Externally Owned Account.
 
 ## Overview
 
-Here is an end-to-end overview of how to perform a Contract Write to send a batch of Calls. We will break it down into [Steps](#steps) below.
+Here is an end-to-end overview of how to broadcast an EIP-7702 Transaction to emit a simple event on the EOA's designated contract. We will break it down into [Steps](#steps) below.
 
 :::code-group
 
@@ -19,23 +19,27 @@ const authorization = await walletClient.signAuthorization({
 })
 
 // 2. Invoke the Contract's `execute` function to perform batch calls.
-const hash = await walletClient.writeContract({
-  abi,
-  address: walletClient.account.address,
-  functionName: 'execute',
-  args: [[
-    {
-      data: '0x',
-      to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', 
-      value: parseEther('0.001'), 
-    }, {
-      data: '0x',
-      to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', 
-      value: parseEther('0.002'), 
-    }
-  ]],
+const hash = await walletClient.sendTransaction({
   authorizationList: [authorization],
-  //                  ↑ 3. Pass the Authorization as an option.
+  data: encodeFunctionData({
+    abi,
+    functionName: 'execute',
+    args: [
+      [
+        {
+          data: '0x',
+          to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
+          value: parseEther('0.001'),
+        },
+        {
+          data: '0x',
+          to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', 
+          value: parseEther('0.002'), 
+        },  
+      ],
+    ]
+  }),
+  to: walletClient.account.address,
 })
 ```
 
@@ -74,17 +78,16 @@ export const contractAddress = '0x...'
 
 ```ts twoslash [config.ts] filename="config.ts"
 import { createWalletClient, http } from 'viem'
-import { anvil } from 'viem/chains'
+import { sepolia } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts' 
-import { eip7702Actions } from 'viem/experimental'
 
 export const account = privateKeyToAccount('0x...')
  
 export const walletClient = createWalletClient({
   account,
-  chain: anvil,
+  chain: sepolia,
   transport: http(),
-}).extend(eip7702Actions())
+})
 ```
 
 ```solidity [BatchCallDelegation.sol]
@@ -98,6 +101,7 @@ contract BatchCallDelegation {
   }
 
   function execute(Call[] calldata calls) external payable {
+    require(address(this) == msg.sender);
     for (uint256 i = 0; i < calls.length; i++) {
       Call memory call = calls[i];
       (bool success, ) = call.to.call{value: call.value}(call.data);
@@ -109,20 +113,7 @@ contract BatchCallDelegation {
 
 :::
 
-:::warning
-EIP-7702 is currently not supported on Ethereum anvil or Testnets. For this example, we are using the `anvil` chain which interfaces with an [Anvil node](https://book.getfoundry.sh/anvil/) (a local Ethereum network).
-:::
-
 ## Steps
-
-### 0. Install & Run Anvil
-
-EIP-7702 is currently not supported on Ethereum Mainnet or Testnets, so let's set up an EIP-7702 compatible network. We will use an [Anvil node](https://book.getfoundry.sh/anvil/) for this example. If you are using an existing EIP-7702 compatible network, you can skip this step.
-
-```bash
-curl -L https://foundry.paradigm.xyz | bash
-anvil --hardfork prague
-```
 
 ### 1. Set up Smart Contract
 
@@ -141,6 +132,7 @@ contract BatchCallDelegation {
   }
 
   function execute(Call[] calldata calls) external payable {
+    require(address(this) == msg.sender);
     for (uint256 i = 0; i < calls.length; i++) {
       Call memory call = calls[i];
       (bool success, ) = call.to.call{value: call.value}(call.data);
@@ -152,9 +144,7 @@ contract BatchCallDelegation {
 
 :::warning
 
-**DO NOT USE IN PRODUCTION**
-
-This contract is for demonstration purposes only to show how EIP-7702 works. If [someone else (Sponsor Account) is executing calls](#5-optional-use-a-sponsor) on behalf of the Account, it does not implement a nonce & signature verification mechanism to prevent replay attacks.
+This contract is for demonstration purposes only. Use at your own risk.
 
 :::
 
@@ -162,21 +152,18 @@ This contract is for demonstration purposes only to show how EIP-7702 works. If 
 
 Next, we will need to set up a Client and Externally Owned Account to sign EIP-7702 Authorizations.
 
-This code snippet uses the [Extending Client](/experimental/eip7702/client) guide.
-
 ```ts twoslash [config.ts]
 import { createWalletClient, http } from 'viem'
-import { anvil } from 'viem/chains'
+import { sepolia } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
-import { eip7702Actions } from 'viem/experimental'
 
 export const account = privateKeyToAccount('0x...')
  
 export const walletClient = createWalletClient({
   account,
-  chain: anvil,
+  chain: sepolia,
   transport: http(),
-}).extend(eip7702Actions())
+})
 ```
 
 ### 3. Authorize Contract Designation
@@ -231,52 +218,56 @@ export const contractAddress = '0x...'
 
 ```ts twoslash [config.ts]
 import { createWalletClient, http } from 'viem'
-import { anvil } from 'viem/chains'
+import { sepolia } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
-import { eip7702Actions } from 'viem/experimental'
 
 export const account = privateKeyToAccount('0x...')
  
 export const walletClient = createWalletClient({
   account,
-  chain: anvil,
+  chain: sepolia,
   transport: http(),
-}).extend(eip7702Actions())
+})
 ```
 
 :::
 
 ### 4. Invoke Contract Function
 
-Using our [Contract Instance](/docs/contract/getContract), we can now call the `execute` function on it to perform batch calls.
+We can now perform batch calls by sending a Transaction to the Account (`account`) with the Authorization (`authorizationList`).
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseEther } from 'viem'
+import { encodeFunctionData, parseEther } from 'viem'
 import { walletClient } from './config'
-import { abi, contractAddress } from './contract'
+import { contractAddress } from './contract'
  
 const authorization = await walletClient.signAuthorization({
   contractAddress,
 })
 
-const hash = await walletClient.writeContract({ // [!code focus]
-  abi, // [!code focus]
-  address: walletClient.account.address, // [!code focus]
-  functionName: 'execute', // [!code focus]
-  args: [[ // [!code focus]
-    { // [!code focus]
-      data: '0x', // [!code focus]
-      to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',  // [!code focus]
-      value: parseEther('0.001'),  // [!code focus]
-    }, { // [!code focus]
-      data: '0x', // [!code focus]
-      to: '0xd2135CfB216b74109775236E36d4b433F1DF507B',  // [!code focus]
-      value: parseEther('0.002'),  // [!code focus]
-    } // [!code focus]
-  ]], // [!code focus]
+const hash = await walletClient.sendTransaction({ // [!code focus]
   authorizationList: [authorization], // [!code focus]
+  data: encodeFunctionData({ // [!code focus]
+    abi, // [!code focus]
+    functionName: 'execute', // [!code focus]
+    args: [ // [!code focus]
+      [ // [!code focus]
+        { // [!code focus]
+          data: '0x', // [!code focus]
+          to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', // [!code focus]
+          value: parseEther('0.001'), // [!code focus]
+        }, // [!code focus]
+        { // [!code focus]
+          data: '0x', // [!code focus]
+          to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
+          value: parseEther('0.002'), // [!code focus]
+        }, // [!code focus]
+      ], // [!code focus]
+    ] // [!code focus]
+  }), // [!code focus]
+  to: walletClient.account.address, // [!code focus]
 }) // [!code focus]
 ```
 
@@ -315,17 +306,16 @@ export const contractAddress = '0x...'
 
 ```ts twoslash [config.ts]
 import { createWalletClient, http } from 'viem'
-import { anvil } from 'viem/chains'
+import { sepolia } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
-import { eip7702Actions } from 'viem/experimental'
 
 export const account = privateKeyToAccount('0x...')
  
 export const walletClient = createWalletClient({
   account,
-  chain: anvil,
+  chain: sepolia,
   transport: http(),
-}).extend(eip7702Actions())
+})
 ```
 
 :::
@@ -337,9 +327,9 @@ We can also utilize an Sponsor Account to execute a call on behalf of the author
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseEther } from 'viem'
+import { encodeFunctionData, parseEther } from 'viem'
 import { walletClient } from './config'
-import { abi, contractAddress } from './contract'
+import { contractAddress } from './contract'
 
 const sponsor = privateKeyToAccount('0x...') // [!code ++]
 
@@ -348,40 +338,44 @@ const authorization = await walletClient.signAuthorization({
   sponsor, // [!code ++]
 })
 
-const hash = await walletClient.writeContract({
+const hash = await walletClient.sendTransaction({
   account: sponsor, // [!code ++]
-  abi,
-  address: walletClient.account.address,
-  functionName: 'execute',
-  args: [[
-    {
-      data: '0x',
-      to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', 
-      value: parseEther('0.001'), 
-    }, {
-      data: '0x',
-      to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', 
-      value: parseEther('0.002'), 
-    }
-  ]],
   authorizationList: [authorization],
+  data: encodeFunctionData({
+    abi,
+    functionName: 'execute',
+    args: [
+      [
+        {
+          data: '0x',
+          to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',
+          value: parseEther('0.001'),
+        },
+        {
+         data: '0x',
+          to: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+          value: parseEther('0.002'),
+        },
+      ],
+    ]
+  }),
+  to: walletClient.account.address,
 })
 ```
 
 ```ts twoslash [config.ts]
 // @noErrors
 import { createWalletClient, http } from 'viem'
-import { anvil } from 'viem/chains'
+import { sepolia } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
-import { eip7702Actions } from 'viem/experimental'
 
 export const account = privateKeyToAccount('0x...')
  
 export const walletClient = createWalletClient({
   account,
-  chain: anvil,
+  chain: sepolia,
   transport: http(),
-}).extend(eip7702Actions())
+})
 ```
 
 ```ts twoslash [contract.ts] filename="contract.ts"
