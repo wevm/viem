@@ -151,8 +151,8 @@
     "@scure/bip39": "1.5.4",
     "abitype": "1.0.8",
     "isows": "1.0.6",
-    "ox": "0.6.7",
-    "ws": "8.18.0"
+    "ox": "0.6.9",
+    "ws": "8.18.1"
   },
   "license": "MIT",
   "homepage": "https://viem.sh",
