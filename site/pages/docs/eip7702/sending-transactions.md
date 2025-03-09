@@ -13,7 +13,7 @@ import { parseEther } from 'viem'
 import { walletClient } from './config'
 import { abi, contractAddress } from './contract'
 
-// 1. Authorize injection of the Contract's bytecode into our Account.
+// 1. Authorize designation of the Contract onto the Account.
 const authorization = await walletClient.signAuthorization({
   contractAddress,
 })
@@ -170,7 +170,7 @@ export const walletClient = createWalletClient({
 
 We will need to sign an Authorization to designate the Contract to the Account.
 
-In the example below, we are using the `account` attached to the `walletClient` to sign the Authorization – this will be the Account that the Contract's bytecode will be injected into.
+In the example below, we are using the `account` attached to the `walletClient` to sign the Authorization – this will be the Account that will be used for delegation.
 
 :::code-group
 
