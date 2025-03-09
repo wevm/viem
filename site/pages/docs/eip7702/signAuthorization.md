@@ -38,13 +38,12 @@ const hash = await walletClient.sendTransaction({
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
-import { eip7702Actions } from 'viem/experimental'
 
 export const walletClient = createWalletClient({
   account: privateKeyToAccount('0x...'),
   chain: mainnet,
   transport: http(),
-}).extend(eip7702Actions())
+})
 ```
 
 :::
@@ -83,13 +82,12 @@ const hash = await walletClient.sendTransaction({
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
-import { eip7702Actions } from 'viem/experimental'
 
 export const walletClient = createWalletClient({
   account: privateKeyToAccount('0x...'),
   chain: mainnet,
   transport: http(),
-}).extend(eip7702Actions())
+})
 ```
 
 :::

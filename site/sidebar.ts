@@ -773,6 +773,59 @@ export const sidebar = {
       ],
     },
     {
+      text: 'EIP-7702',
+      collapsed: true,
+      items: [
+        {
+          text: 'Overview',
+          link: '/docs/eip7702',
+        },
+        {
+          text: 'Guides',
+          items: [
+            {
+              text: 'Contract Writes',
+              link: '/docs/eip7702/contract-writes',
+            },
+            {
+              text: 'Sending Transactions',
+              link: '/docs/eip7702/sending-transactions',
+            },
+          ],
+        },
+        {
+          text: 'Actions',
+          items: [
+            {
+              text: 'prepareAuthorization',
+              link: '/docs/eip7702/prepareAuthorization',
+            },
+            {
+              text: 'signAuthorization',
+              link: '/docs/eip7702/signAuthorization',
+            },
+          ],
+        },
+        {
+          text: 'Utilities',
+          items: [
+            {
+              text: 'hashAuthorization',
+              link: '/docs/eip7702/hashAuthorization',
+            },
+            {
+              text: 'recoverAuthorizationAddress',
+              link: '/docs/eip7702/recoverAuthorizationAddress',
+            },
+            {
+              text: 'verifyAuthorization',
+              link: '/docs/eip7702/verifyAuthorization',
+            },
+          ],
+        },
+      ],
+    },
+    {
       text: 'Utilities',
       collapsed: true,
       items: [
@@ -1292,62 +1345,6 @@ export const sidebar = {
               {
                 text: 'waitForCallsStatus',
                 link: '/experimental/eip5792/waitForCallsStatus',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        text: 'EIP-7702',
-        items: [
-          {
-            text: 'Overview',
-            link: '/experimental/eip7702',
-          },
-          {
-            text: 'Guides',
-            items: [
-              {
-                text: 'Extending Client',
-                link: '/experimental/eip7702/client',
-              },
-              {
-                text: 'Contract Writes',
-                link: '/experimental/eip7702/contract-writes',
-              },
-              {
-                text: 'Sending Transactions',
-                link: '/experimental/eip7702/sending-transactions',
-              },
-            ],
-          },
-          {
-            text: 'Actions',
-            items: [
-              {
-                text: 'prepareAuthorization',
-                link: '/experimental/eip7702/prepareAuthorization',
-              },
-              {
-                text: 'signAuthorization',
-                link: '/experimental/eip7702/signAuthorization',
-              },
-            ],
-          },
-          {
-            text: 'Utilities',
-            items: [
-              {
-                text: 'hashAuthorization',
-                link: '/experimental/eip7702/hashAuthorization',
-              },
-              {
-                text: 'recoverAuthorizationAddress',
-                link: '/experimental/eip7702/recoverAuthorizationAddress',
-              },
-              {
-                text: 'verifyAuthorization',
-                link: '/experimental/eip7702/verifyAuthorization',
               },
             ],
           },

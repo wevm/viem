@@ -63,6 +63,10 @@
     {
       "source": "/:match/simulate",
       "destination": "/:match/simulateBlocks"
+    },
+    {
+      "source": "/experimental/eip7702/:path*",
+      "destination": "/docs/eip7702/:path*"
     }
   ]
 }
