@@ -1,26 +1,26 @@
-import { defineChain } from "../../utils/chain/defineChain.js";
+import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const whitechain = /*#__PURE__*/ defineChain({
   testnet: false,
-  name: "Whitechain",
+  name: 'Whitechain',
   blockExplorers: {
     default: {
-      name: "Whitechain Explorer",
-      url: "https://explorer.whitechain.io",
+      name: 'Whitechain Explorer',
+      url: 'https://explorer.whitechain.io',
     },
   },
   id: 1875,
   rpcUrls: {
     default: {
-      http: ["https://rpc.whitechain.io"],
+      http: ['https://rpc.whitechain.io'],
     },
     public: {
-      http: ["https://rpc.whitechain.io"],
+      http: ['https://rpc.whitechain.io'],
     },
   },
   nativeCurrency: {
     decimals: 18,
-    name: "WhiteBIT Coin",
-    symbol: "WBT",
+    name: 'WhiteBIT Coin',
+    symbol: 'WBT',
   },
-});
+})
