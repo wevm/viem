@@ -14,9 +14,6 @@ export const whitechainTestnet = /*#__PURE__*/ defineChain({
     default: {
       http: ['https://rpc-testnet.whitechain.io'],
     },
-    public: {
-      http: ['https://rpc-testnet.whitechain.io'],
-    },
   },
   nativeCurrency: {
     decimals: 18,
