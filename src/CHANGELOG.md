@@ -1,5 +1,15 @@
 # viem
 
+## 2.23.9
+
+### Patch Changes
+
+- [#3423](https://github.com/wevm/viem/pull/3423) [`b73e8f1e8af0e45f9eb9ea3bc12662f29b72b5f0`](https://github.com/wevm/viem/commit/b73e8f1e8af0e45f9eb9ea3bc12662f29b72b5f0) Thanks [@ccxdev](https://github.com/ccxdev)! - Added Whitechain, WhitechainTestnet chains.
+
+- [#3422](https://github.com/wevm/viem/pull/3422) [`d74ff8ecc756ac490b8957a9c5bee1683f57f617`](https://github.com/wevm/viem/commit/d74ff8ecc756ac490b8957a9c5bee1683f57f617) Thanks [@ivanshukhov](https://github.com/ivanshukhov)! - Added RPC URLs and multicall3 address to Planq.
+
+- [#3421](https://github.com/wevm/viem/pull/3421) [`886bccf2ccf4c272a453a55195177c0e6a2231c1`](https://github.com/wevm/viem/commit/886bccf2ccf4c272a453a55195177c0e6a2231c1) Thanks [@biruichen](https://github.com/biruichen)! - Added MegaETH Testnet.
+
 ## 2.23.8
 
 ### Patch Changes
