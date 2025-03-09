@@ -3,7 +3,7 @@ import type { Address } from 'abitype'
 import type {
   AuthorizationList,
   SignedAuthorizationList,
-} from '../experimental/eip7702/types/authorization.js'
+} from './authorization.js'
 import type { BlobSidecar } from './eip4844.js'
 import type {
   FeeValuesEIP1559,

@@ -17,7 +17,6 @@ import {
   InvalidInputRpcError,
   MethodNotSupportedRpcError,
 } from '../../errors/rpc.js'
-import { signAuthorization } from '../../experimental/index.js'
 import type { Hex } from '../../types/misc.js'
 import type { TransactionSerializable } from '../../types/transaction.js'
 import { toBlobs } from '../../utils/blob/toBlobs.js'
@@ -45,6 +44,7 @@ import { setBalance } from '../test/setBalance.js'
 import { setNextBlockBaseFeePerGas } from '../test/setNextBlockBaseFeePerGas.js'
 import { setNonce } from '../test/setNonce.js'
 import { sendTransaction } from './sendTransaction.js'
+import { signAuthorization } from './signAuthorization.js'
 
 const client = anvilMainnet.getClient()
 const clientWithAccount = anvilMainnet.getClient({

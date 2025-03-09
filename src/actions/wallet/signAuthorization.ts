@@ -1,22 +1,22 @@
-import type { Account } from '../../../accounts/types.js'
+import type { Account } from '../../accounts/types.js'
 import {
   type ParseAccountErrorType,
   parseAccount,
-} from '../../../accounts/utils/parseAccount.js'
+} from '../../accounts/utils/parseAccount.js'
 import type {
   SignAuthorizationErrorType as SignAuthorizationErrorType_account,
   SignAuthorizationReturnType as SignAuthorizationReturnType_account,
-} from '../../../accounts/utils/signAuthorization.js'
-import type { Client } from '../../../clients/createClient.js'
-import type { Transport } from '../../../clients/transports/createTransport.js'
+} from '../../accounts/utils/signAuthorization.js'
+import type { Client } from '../../clients/createClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
 import {
   AccountNotFoundError,
   type AccountNotFoundErrorType,
   AccountTypeNotSupportedError,
   type AccountTypeNotSupportedErrorType,
-} from '../../../errors/account.js'
-import type { ErrorType } from '../../../errors/utils.js'
-import type { Chain } from '../../../types/chain.js'
+} from '../../errors/account.js'
+import type { ErrorType } from '../../errors/utils.js'
+import type { Chain } from '../../types/chain.js'
 import {
   type PrepareAuthorizationErrorType,
   type PrepareAuthorizationParameters,
@@ -94,7 +94,7 @@ export async function signAuthorization<
     })
   const account = parseAccount(account_)
 
-  if (!account.experimental_signAuthorization)
+  if (!account.signAuthorization)
     throw new AccountTypeNotSupportedError({
       docsPath: '/experimental/eip7702/signAuthorization',
       metaMessages: [
@@ -104,5 +104,5 @@ export async function signAuthorization<
     })
 
   const authorization = await prepareAuthorization(client, parameters)
-  return account.experimental_signAuthorization(authorization)
+  return account.signAuthorization(authorization)
 }

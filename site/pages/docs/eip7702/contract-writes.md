@@ -13,7 +13,7 @@ import { parseEther } from 'viem'
 import { walletClient } from './config'
 import { abi, contractAddress } from './contract'
 
-// 1. Authorize injection of the Contract's bytecode into our Account.
+// 1. Authorize designation of the Contract onto the Account.
 const authorization = await walletClient.signAuthorization({
   contractAddress,
 })
@@ -74,17 +74,16 @@ export const contractAddress = '0x...'
 
 ```ts twoslash [config.ts] filename="config.ts"
 import { createWalletClient, http } from 'viem'
-import { anvil } from 'viem/chains'
+import { sepolia } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts' 
-import { eip7702Actions } from 'viem/experimental'
 
 export const account = privateKeyToAccount('0x...')
  
 export const walletClient = createWalletClient({
   account,
-  chain: anvil,
+  chain: sepolia,
   transport: http(),
-}).extend(eip7702Actions())
+})
 ```
 
 ```solidity [BatchCallDelegation.sol]
@@ -98,6 +97,7 @@ contract BatchCallDelegation {
   }
 
   function execute(Call[] calldata calls) external payable {
+    require(address(this) == msg.sender);
     for (uint256 i = 0; i < calls.length; i++) {
       Call memory call = calls[i];
       (bool success, ) = call.to.call{value: call.value}(call.data);
@@ -109,20 +109,7 @@ contract BatchCallDelegation {
 
 :::
 
-:::warning
-EIP-7702 is currently not supported on Ethereum anvil or Testnets. For this example, we are using the `anvil` chain which interfaces with an [Anvil node](https://book.getfoundry.sh/anvil/) (a local Ethereum network).
-:::
-
 ## Steps
-
-### 0. Install & Run Anvil
-
-EIP-7702 is currently not supported on Ethereum Mainnet or Testnets, so let's set up an EIP-7702 compatible network. We will use an [Anvil node](https://book.getfoundry.sh/anvil/) for this example. If you are using an existing EIP-7702 compatible network, you can skip this step.
-
-```bash
-curl -L https://foundry.paradigm.xyz | bash
-anvil --hardfork prague
-```
 
 ### 1. Set up Smart Contract
 
@@ -141,6 +128,7 @@ contract BatchCallDelegation {
   }
 
   function execute(Call[] calldata calls) external payable {
+    require(address(this) == msg.sender);
     for (uint256 i = 0; i < calls.length; i++) {
       Call memory call = calls[i];
       (bool success, ) = call.to.call{value: call.value}(call.data);
@@ -152,9 +140,7 @@ contract BatchCallDelegation {
 
 :::warning
 
-**DO NOT USE IN PRODUCTION**
-
-This contract is for demonstration purposes only to show how EIP-7702 works. If [someone else (Sponsor Account) is executing calls](#5-optional-use-a-sponsor) on behalf of the Account, it does not implement a nonce & signature verification mechanism to prevent replay attacks.
+This contract is for demonstration purposes only. Use at your own risk.
 
 :::
 
@@ -162,28 +148,25 @@ This contract is for demonstration purposes only to show how EIP-7702 works. If 
 
 Next, we will need to set up a Client and Externally Owned Account to sign EIP-7702 Authorizations.
 
-This code snippet uses the [Extending Client](/experimental/eip7702/client) guide.
-
 ```ts twoslash [config.ts]
 import { createWalletClient, http } from 'viem'
-import { anvil } from 'viem/chains'
+import { sepolia } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
-import { eip7702Actions } from 'viem/experimental'
 
 export const account = privateKeyToAccount('0x...')
  
 export const walletClient = createWalletClient({
   account,
-  chain: anvil,
+  chain: sepolia,
   transport: http(),
-}).extend(eip7702Actions())
+})
 ```
 
 ### 3. Authorize Contract Designation
 
 We will need to sign an Authorization to designate the Contract to the Account.
 
-In the example below, we are using the `account` attached to the `walletClient` to sign the Authorization – this will be the Account that the Contract's bytecode will be injected into.
+In the example below, we are using the `account` attached to the `walletClient` to sign the Authorization – this will be the Account that will be used for delegation.
 
 :::code-group
 
@@ -231,24 +214,23 @@ export const contractAddress = '0x...'
 
 ```ts twoslash [config.ts]
 import { createWalletClient, http } from 'viem'
-import { anvil } from 'viem/chains'
+import { sepolia } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
-import { eip7702Actions } from 'viem/experimental'
 
 export const account = privateKeyToAccount('0x...')
  
 export const walletClient = createWalletClient({
   account,
-  chain: anvil,
+  chain: sepolia,
   transport: http(),
-}).extend(eip7702Actions())
+})
 ```
 
 :::
 
 ### 4. Invoke Contract Function
 
-Using our [Contract Instance](/docs/contract/getContract), we can now call the `execute` function on it to perform batch calls.
+We can now call the `execute` function on our Contract to perform batch calls.
 
 :::code-group
 
@@ -315,17 +297,16 @@ export const contractAddress = '0x...'
 
 ```ts twoslash [config.ts]
 import { createWalletClient, http } from 'viem'
-import { anvil } from 'viem/chains'
+import { sepolia } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
-import { eip7702Actions } from 'viem/experimental'
 
 export const account = privateKeyToAccount('0x...')
  
 export const walletClient = createWalletClient({
   account,
-  chain: anvil,
+  chain: sepolia,
   transport: http(),
-}).extend(eip7702Actions())
+})
 ```
 
 :::
@@ -371,17 +352,16 @@ const hash = await walletClient.writeContract({
 ```ts twoslash [config.ts]
 // @noErrors
 import { createWalletClient, http } from 'viem'
-import { anvil } from 'viem/chains'
+import { sepolia } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
-import { eip7702Actions } from 'viem/experimental'
 
 export const account = privateKeyToAccount('0x...')
  
 export const walletClient = createWalletClient({
   account,
-  chain: anvil,
+  chain: sepolia,
   transport: http(),
-}).extend(eip7702Actions())
+})
 ```
 
 ```ts twoslash [contract.ts] filename="contract.ts"

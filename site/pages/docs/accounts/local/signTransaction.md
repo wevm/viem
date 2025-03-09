@@ -96,7 +96,7 @@ Signed EIP-7702 Authorization list.
 import { privateKeyToAccount } from 'viem/accounts'
 const account = privateKeyToAccount('0x...')
 // ---cut---
-const authorization = await account.experimental_signAuthorization({
+const authorization = await account.signAuthorization({
   contractAddress: '0x...',
   chainId: 1,
   nonce: 1,
