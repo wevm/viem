@@ -4,7 +4,7 @@ description: Signs an EIP-7702 Authorization object.
 
 # signAuthorization
 
-Signs an [EIP-7702 Authorization](https://eips.ethereum.org/EIPS/eip-7702). The signed Authorization can be used in Transaction APIs like [`sendTransaction`](/docs/actions/wallet/sendTransaction#authorizationlist-optional) and [`writeContract`](/docs/contract/writeContract#authorizationlist-optional) to inject the authorized Contract bytecode(s) into an Account at the time of execution.
+Signs an [EIP-7702 Authorization](https://eips.ethereum.org/EIPS/eip-7702). The signed Authorization can be used in Transaction APIs like [`sendTransaction`](/docs/actions/wallet/sendTransaction#authorizationlist-optional) and [`writeContract`](/docs/contract/writeContract#authorizationlist-optional) to delegate an authorized Contract onto an Account.
 
 ## Usage
 
@@ -104,7 +104,7 @@ A signed Authorization object.
 
 - **Type:** `Account`
 
-Account to use to authorize injection of the [Contract (`authorization`)](#authorization) onto the Account.
+Account to use for delegation.
 
 Accepts a [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
@@ -140,7 +140,7 @@ const authorization = await walletClient.signAuthorization({
 
 - **Type:** `Address`
 
-The target Contract to inject onto the Account.
+The target Contract to delegate to the Account.
 
 ```ts twoslash
 import { privateKeyToAccount } from 'viem/accounts'

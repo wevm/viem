@@ -73,7 +73,7 @@
     "vitest": "^1.0.4"
   },
   "trustedDependencies": ["c-kzg"],
-  "packageManager": "pnpm@10.6.1",
+  "packageManager": "pnpm@9.1.0",
   "engines": {
     "node": "23.x"
   },
