@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Planq Network: Add additional RPCs, add multicall3 address
+Added RPC URLs and multicall3 address to Planq.
