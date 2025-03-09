@@ -4,7 +4,7 @@ export const hyperevmTestnet = /*#__PURE__*/ defineChain({
   name: 'HyperEVM Testnet',
   nativeCurrency: {
     decimals: 18,
-    name: 'HyperEVM Testnet',
+    name: 'Mock HYPE Token',
     symbol: 'Mock HYPE',
   },
   rpcUrls: {

@@ -4,7 +4,7 @@ export const hyperevm = /*#__PURE__*/ defineChain({
   name: 'HyperEVM',
   nativeCurrency: {
     decimals: 18,
-    name: 'HyperEVM',
+    name: 'HYPE Token',
     symbol: 'HYPE',
   },
   contracts: {
