@@ -1,25 +1,25 @@
 import type { Address } from 'abitype'
-import type { Account } from '../../../accounts/types.js'
+import type { Account } from '../../accounts/types.js'
 import {
   type ParseAccountErrorType,
   parseAccount,
-} from '../../../accounts/utils/parseAccount.js'
-import { getChainId } from '../../../actions/public/getChainId.js'
-import { getTransactionCount } from '../../../actions/public/getTransactionCount.js'
-import type { Client } from '../../../clients/createClient.js'
-import type { Transport } from '../../../clients/transports/createTransport.js'
+} from '../../accounts/utils/parseAccount.js'
+import type { Client } from '../../clients/createClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
 import {
   AccountNotFoundError,
   type AccountNotFoundErrorType,
-} from '../../../errors/account.js'
-import type { ErrorType } from '../../../errors/utils.js'
-import type { GetAccountParameter } from '../../../types/account.js'
-import type { Chain } from '../../../types/chain.js'
-import type { PartialBy } from '../../../types/utils.js'
-import { isAddressEqual } from '../../../utils/address/isAddressEqual.js'
-import type { RequestErrorType } from '../../../utils/buildRequest.js'
-import { getAction } from '../../../utils/getAction.js'
-import type { Authorization } from '../types/authorization.js'
+} from '../../errors/account.js'
+import type { ErrorType } from '../../errors/utils.js'
+import type { GetAccountParameter } from '../../types/account.js'
+import type { Authorization } from '../../types/authorization.js'
+import type { Chain } from '../../types/chain.js'
+import type { PartialBy } from '../../types/utils.js'
+import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import { getAction } from '../../utils/getAction.js'
+import { getChainId } from '../public/getChainId.js'
+import { getTransactionCount } from '../public/getTransactionCount.js'
 
 export type PrepareAuthorizationParameters<
   account extends Account | undefined = Account | undefined,
@@ -94,12 +94,7 @@ export async function prepareAuthorization<
   client: Client<Transport, chain, account>,
   parameters: PrepareAuthorizationParameters<account>,
 ): Promise<PrepareAuthorizationReturnType> {
-  const {
-    account: account_ = client.account,
-    contractAddress,
-    chainId,
-    nonce,
-  } = parameters
+  const { account: account_ = client.account, chainId, nonce } = parameters
 
   if (!account_)
     throw new AccountNotFoundError({
@@ -115,7 +110,7 @@ export async function prepareAuthorization<
   })()
 
   const authorization = {
-    contractAddress,
+    contractAddress: parameters.contractAddress ?? parameters.address,
     chainId,
     nonce,
   } as Authorization

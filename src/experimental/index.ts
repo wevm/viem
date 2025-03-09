@@ -48,56 +48,89 @@ export {
 } from './eip5792/decorators/eip5792.js'
 
 export {
-  type Eip7702Actions,
-  eip7702Actions,
-} from './eip7702/decorators/eip7702.js'
+  /** @deprecated This is no longer experimental – use `import type { WalletActions } from 'viem'` instead. */
+  type WalletActions as Eip7702Actions,
+  /** @deprecated This is no longer experimental – use `import { createWalletClient } from 'viem'` or `import { walletActions } from 'viem'` instead. */
+  walletActions as eip7702Actions,
+} from '../clients/decorators/wallet.js'
 export {
+  /** @deprecated This is no longer experimental – use `import type { PrepareAuthorizationParameters } from 'viem/actions'` instead. */
   type PrepareAuthorizationParameters,
+  /** @deprecated This is no longer experimental – use `import type { PrepareAuthorizationReturnType } from 'viem/actions'` instead. */
   type PrepareAuthorizationReturnType,
+  /** @deprecated This is no longer experimental – use `import type { PrepareAuthorizationErrorType } from 'viem/actions'` instead. */
   type PrepareAuthorizationErrorType,
+  /** @deprecated This is no longer experimental – use `import { prepareAuthorization } from 'viem/actions'` instead. */
   prepareAuthorization,
-} from './eip7702/actions/prepareAuthorization.js'
+} from '../actions/wallet/prepareAuthorization.js'
 export {
+  /** @deprecated This is no longer experimental – use `import type { SignAuthorizationParameters } from 'viem/actions'` instead. */
   type SignAuthorizationParameters,
+  /** @deprecated This is no longer experimental – use `import type { SignAuthorizationReturnType } from 'viem/actions'` instead. */
   type SignAuthorizationReturnType,
+  /** @deprecated This is no longer experimental – use `import type { SignAuthorizationErrorType } from 'viem/actions'` instead. */
   type SignAuthorizationErrorType,
+  /** @deprecated This is no longer experimental – use `import { signAuthorization } from 'viem/actions'` instead. */
   signAuthorization,
-} from './eip7702/actions/signAuthorization.js'
+} from '../actions/wallet/signAuthorization.js'
 export {
+  /** @deprecated This is no longer experimental – use `import type { Authorization } from 'viem'` instead. */
   type Authorization,
+  /** @deprecated This is no longer experimental – use `import type { SignedAuthorization } from 'viem'` instead. */
   type SignedAuthorization,
+  /** @deprecated This is no longer experimental – use `import type { AuthorizationList } from 'viem'` instead. */
   type AuthorizationList,
+  /** @deprecated This is no longer experimental – use `import type { SignedAuthorizationList } from 'viem'` instead. */
   type SignedAuthorizationList,
+  /** @deprecated This is no longer experimental – use `import type { SerializedAuthorization } from 'viem'` instead. */
   type SerializedAuthorization,
+  /** @deprecated This is no longer experimental – use `import type { SerializedAuthorizationList } from 'viem'` instead. */
   type SerializedAuthorizationList,
-} from './eip7702/types/authorization.js'
+} from '../types/authorization.js'
 export {
+  /** @deprecated This is no longer experimental – use `import type { RpcAuthorizationList } from 'viem'` instead. */
   type RpcAuthorizationList,
+  /** @deprecated This is no longer experimental – use `import type { RpcAuthorization } from 'viem'` instead. */
   type RpcAuthorization,
-} from './eip7702/types/rpc.js'
+} from '../types/rpc.js'
 export {
+  /** @deprecated This is no longer experimental – use `import type { HashAuthorizationParameters } from 'viem/utils'` instead. */
   type HashAuthorizationParameters,
+  /** @deprecated This is no longer experimental – use `import type { HashAuthorizationReturnType } from 'viem/utils'` instead. */
   type HashAuthorizationReturnType,
+  /** @deprecated This is no longer experimental – use `import type { HashAuthorizationErrorType } from 'viem/utils'` instead. */
   type HashAuthorizationErrorType,
+  /** @deprecated This is no longer experimental – use `import { hashAuthorization } from 'viem/utils'` instead. */
   hashAuthorization,
-} from './eip7702/utils/hashAuthorization.js'
+} from '../utils/authorization/hashAuthorization.js'
 export {
+  /** @deprecated This is no longer experimental – use `import type { RecoverAuthorizationAddressParameters } from 'viem/utils'` instead. */
   type RecoverAuthorizationAddressParameters,
+  /** @deprecated This is no longer experimental – use `import type { RecoverAuthorizationAddressReturnType } from 'viem/utils'` instead. */
   type RecoverAuthorizationAddressReturnType,
+  /** @deprecated This is no longer experimental – use `import type { RecoverAuthorizationAddressErrorType } from 'viem/utils'` instead. */
   type RecoverAuthorizationAddressErrorType,
+  /** @deprecated This is no longer experimental – use `import { recoverAuthorizationAddress } from 'viem/utils'` instead. */
   recoverAuthorizationAddress,
-} from './eip7702/utils/recoverAuthorizationAddress.js'
+} from '../utils/authorization/recoverAuthorizationAddress.js'
 export {
+  /** @deprecated This is no longer experimental – use `import type { SerializeAuthorizationListReturnType } from 'viem/utils'` instead. */
   type SerializeAuthorizationListReturnType,
+  /** @deprecated This is no longer experimental – use `import type { SerializeAuthorizationListErrorType } from 'viem/utils'` instead. */
   type SerializeAuthorizationListErrorType,
+  /** @deprecated This is no longer experimental – use `import { serializeAuthorizationList } from 'viem/utils'` instead. */
   serializeAuthorizationList,
-} from './eip7702/utils/serializeAuthorizationList.js'
+} from '../utils/authorization/serializeAuthorizationList.js'
 export {
+  /** @deprecated This is no longer experimental – use `import type { VerifyAuthorizationParameters } from 'viem/utils'` instead. */
   type VerifyAuthorizationParameters,
+  /** @deprecated This is no longer experimental – use `import type { VerifyAuthorizationReturnType } from 'viem/utils'` instead. */
   type VerifyAuthorizationReturnType,
+  /** @deprecated This is no longer experimental – use `import type { VerifyAuthorizationErrorType } from 'viem/utils'` instead. */
   type VerifyAuthorizationErrorType,
+  /** @deprecated This is no longer experimental – use `import { verifyAuthorization } from 'viem/utils'` instead. */
   verifyAuthorization,
-} from './eip7702/utils/verifyAuthorization.js'
+} from '../utils/authorization/verifyAuthorization.js'
 
 export {
   type GrantPermissionsParameters,

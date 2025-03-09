@@ -1,10 +1,10 @@
 import { beforeAll, expect, test } from 'vitest'
-import { wagmiContractConfig } from '../../../../test/src/abis.js'
-import { anvilMainnet } from '../../../../test/src/anvil.js'
-import { accounts } from '../../../../test/src/constants.js'
-import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
-import { reset } from '../../../actions/index.js'
-import { verifyAuthorization } from '../utils/verifyAuthorization.js'
+import { wagmiContractConfig } from '../../../test/src/abis.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { accounts } from '../../../test/src/constants.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { verifyAuthorization } from '../../utils/authorization/verifyAuthorization.js'
+import { reset } from '../index.js'
 import { signAuthorization } from './signAuthorization.js'
 
 const account = privateKeyToAccount(accounts[0].privateKey)
@@ -48,6 +48,41 @@ test('default', async () => {
   expect(authorization.s).toBeDefined()
   expect(authorization.v).toBeDefined()
   expect(authorization.yParity).toBeDefined()
+  expect(
+    await verifyAuthorization({
+      address: account.address,
+      authorization,
+    }),
+  ).toBe(true)
+})
+
+test('args: address (alias)', async () => {
+  const authorization = await signAuthorization(client, {
+    account,
+    address: wagmiContractConfig.address,
+    chainId: 1,
+    nonce: 0,
+  })
+
+  expect({
+    ...authorization,
+    r: null,
+    s: null,
+    v: null,
+    yParity: null,
+  }).toMatchInlineSnapshot(
+    `
+    {
+      "chainId": 1,
+      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+      "nonce": 0,
+      "r": null,
+      "s": null,
+      "v": null,
+      "yParity": null,
+    }
+  `,
+  )
   expect(
     await verifyAuthorization({
       address: account.address,

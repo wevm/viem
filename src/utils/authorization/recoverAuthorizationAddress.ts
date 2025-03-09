@@ -1,16 +1,16 @@
 import type { Address } from 'abitype'
 
-import type { ErrorType } from '../../../errors/utils.js'
-import type { ByteArray, Hex, Signature } from '../../../types/misc.js'
-import type { OneOf } from '../../../types/utils.js'
-import {
-  type RecoverAddressErrorType,
-  recoverAddress,
-} from '../../../utils/signature/recoverAddress.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type {
   Authorization,
   SignedAuthorization,
-} from '../types/authorization.js'
+} from '../../types/authorization.js'
+import type { ByteArray, Hex, Signature } from '../../types/misc.js'
+import type { OneOf } from '../../types/utils.js'
+import {
+  type RecoverAddressErrorType,
+  recoverAddress,
+} from '../signature/recoverAddress.js'
 import {
   type HashAuthorizationErrorType,
   hashAuthorization,

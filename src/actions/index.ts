@@ -380,6 +380,12 @@ export {
   revert,
 } from './test/revert.js'
 export {
+  type PrepareAuthorizationErrorType,
+  type PrepareAuthorizationParameters,
+  type PrepareAuthorizationReturnType,
+  prepareAuthorization,
+} from './wallet/prepareAuthorization.js'
+export {
   type PrepareTransactionRequestErrorType,
   type PrepareTransactionRequestParameters,
   type PrepareTransactionRequestReturnType,
@@ -392,6 +398,12 @@ export {
   type SendTransactionReturnType,
   sendTransaction,
 } from './wallet/sendTransaction.js'
+export {
+  type SignAuthorizationErrorType,
+  type SignAuthorizationParameters,
+  type SignAuthorizationReturnType,
+  signAuthorization,
+} from './wallet/signAuthorization.js'
 export {
   type SignTransactionErrorType,
   type SignTransactionParameters,

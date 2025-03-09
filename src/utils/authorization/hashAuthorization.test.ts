@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { wagmiContractConfig } from '../../../../test/src/abis.js'
+import { wagmiContractConfig } from '../../../test/src/abis.js'
 import { hashAuthorization } from './hashAuthorization.js'
 
 test('default', () => {
@@ -31,6 +31,18 @@ test('default', () => {
     }),
   ).toMatchInlineSnapshot(
     `"0x70f22b957bc18cbaa757a12cc3e5fa5268b98b24afe15a35a76e6874748a8bfa"`,
+  )
+})
+
+test('args: address (alias)', () => {
+  expect(
+    hashAuthorization({
+      address: '0xbe95c3f554e9fc85ec51be69a3d807a0d55bcf2c',
+      chainId: 1,
+      nonce: 40,
+    }),
+  ).toMatchInlineSnapshot(
+    `"0x5919da563810a99caf657d42bd10905adbd28b3b89b8a4577efa471e5e4b3914"`,
   )
 })
 

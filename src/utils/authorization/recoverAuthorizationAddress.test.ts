@@ -2,13 +2,13 @@ import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 
-import { wagmiContractConfig } from '../../../../test/src/abis.js'
-import { experimental_signAuthorization } from '../../../accounts/utils/signAuthorization.js'
-import { getAddress } from '../../../utils/address/getAddress.js'
+import { wagmiContractConfig } from '../../../test/src/abis.js'
+import { signAuthorization } from '../../accounts/utils/signAuthorization.js'
+import { getAddress } from '../address/getAddress.js'
 import { recoverAuthorizationAddress } from './recoverAuthorizationAddress.js'
 
 test('default', async () => {
-  const signedAuthorization = await experimental_signAuthorization({
+  const signedAuthorization = await signAuthorization({
     contractAddress: wagmiContractConfig.address,
     chainId: 1,
     nonce: 0,
@@ -27,7 +27,7 @@ test('args: signature', async () => {
     chainId: 1,
     nonce: 0,
   } as const
-  const signature = await experimental_signAuthorization({
+  const signature = await signAuthorization({
     ...authorization,
     privateKey: accounts[0].privateKey,
   })
@@ -45,7 +45,7 @@ test('args: signature (hex)', async () => {
     chainId: 1,
     nonce: 0,
   } as const
-  const signature = await experimental_signAuthorization({
+  const signature = await signAuthorization({
     ...authorization,
     privateKey: accounts[0].privateKey,
     to: 'hex',

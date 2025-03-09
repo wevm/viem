@@ -13,9 +13,9 @@ import {
   getTransactionReceipt,
   mine,
   readContract,
+  signAuthorization,
 } from '../../../actions/index.js'
 import { decodeEventLog, parseEther } from '../../../utils/index.js'
-import { signAuthorization } from '../../eip7702/actions/signAuthorization.js'
 import { executeBatches } from './executeBatches.js'
 
 const client = anvilMainnet.getClient({
