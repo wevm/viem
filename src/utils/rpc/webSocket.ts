@@ -36,7 +36,12 @@ export async function getWebSocketRpcClient(
         onClose()
       }
       function onMessage({ data }: MessageEvent) {
-        onResponse(JSON.parse(data))
+        try {
+          const _data = JSON.parse(data)
+          onResponse(_data)
+        } catch (error) {
+          onError(error as Error)
+        }
       }
 
       // Setup event listeners for RPC & subscription responses.

@@ -259,3 +259,21 @@ const transport = fallback([alchemy, infura], {
 })
 ```
 
+### shouldThrow (optional)
+
+- **Type:** `function`
+
+Whether the `fallback` Transport should immediately throw an error, or continue and try the next Transport.
+
+```ts twoslash
+import { createPublicClient, fallback, http } from 'viem'
+import { mainnet } from 'viem/chains'
+const alchemy = http('') 
+const infura = http('') 
+// ---cut---
+const transport = fallback([alchemy, infura], {
+  shouldThrow: (err: Error) => { // [!code focus]
+    return err.message.includes('sad times') // [!code focus]
+  }, // [!code focus]
+})
+```

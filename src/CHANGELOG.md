@@ -1,5 +1,59 @@
 # viem
 
+## 2.23.9
+
+### Patch Changes
+
+- [#3423](https://github.com/wevm/viem/pull/3423) [`b73e8f1e8af0e45f9eb9ea3bc12662f29b72b5f0`](https://github.com/wevm/viem/commit/b73e8f1e8af0e45f9eb9ea3bc12662f29b72b5f0) Thanks [@ccxdev](https://github.com/ccxdev)! - Added Whitechain, WhitechainTestnet chains.
+
+- [#3422](https://github.com/wevm/viem/pull/3422) [`d74ff8ecc756ac490b8957a9c5bee1683f57f617`](https://github.com/wevm/viem/commit/d74ff8ecc756ac490b8957a9c5bee1683f57f617) Thanks [@ivanshukhov](https://github.com/ivanshukhov)! - Added RPC URLs and multicall3 address to Planq.
+
+- [#3421](https://github.com/wevm/viem/pull/3421) [`886bccf2ccf4c272a453a55195177c0e6a2231c1`](https://github.com/wevm/viem/commit/886bccf2ccf4c272a453a55195177c0e6a2231c1) Thanks [@biruichen](https://github.com/biruichen)! - Added MegaETH Testnet.
+
+## 2.23.8
+
+### Patch Changes
+
+- [`34592cd4e518f87c7aa8d91be66fec9edf1cfc19`](https://github.com/wevm/viem/commit/34592cd4e518f87c7aa8d91be66fec9edf1cfc19) Thanks [@jxom](https://github.com/jxom)! - Exported `Call` and `Calls` types.
+
+- [#3419](https://github.com/wevm/viem/pull/3419) [`1893b8f927de562f842a9d256ea6e66a0cf65a67`](https://github.com/wevm/viem/commit/1893b8f927de562f842a9d256ea6e66a0cf65a67) Thanks [@rizwanmoulvi](https://github.com/rizwanmoulvi)! - Added Edu Chain to chains.
+
+## 2.23.7
+
+### Patch Changes
+
+- [#3417](https://github.com/wevm/viem/pull/3417) [`ea771358624e71af8ca4082212c7a4534e872a32`](https://github.com/wevm/viem/commit/ea771358624e71af8ca4082212c7a4534e872a32) Thanks [@Kharabet](https://github.com/Kharabet)! - Updated GuruNetwork RPC URLs.
+
+- [#3408](https://github.com/wevm/viem/pull/3408) [`07ade80570c62ade8ef51ede7ad33c5832aa1e9e`](https://github.com/wevm/viem/commit/07ade80570c62ade8ef51ede7ad33c5832aa1e9e) Thanks [@falcoda](https://github.com/falcoda)! - Added Juneo Mainnet chain.
+
+- [`9c442de0ff38ac1f654b5c751d292e9a9f8d574c`](https://github.com/wevm/viem/commit/9c442de0ff38ac1f654b5c751d292e9a9f8d574c) Thanks [@jxom](https://github.com/jxom)! - Fixed `encodeFunctionResult` behavior. Fixes #3415.
+
+- [#3418](https://github.com/wevm/viem/pull/3418) [`92a3ac61fc7b3f805583ac8573086f3b349da470`](https://github.com/wevm/viem/commit/92a3ac61fc7b3f805583ac8573086f3b349da470) Thanks [@deodad](https://github.com/deodad)! - Exported `WaitForTransactionReceiptTimeoutErrorType` to `WaitForTransactionReceiptErrorType`.
+
+- [#3397](https://github.com/wevm/viem/pull/3397) [`00d46cfb4a9993d3bd6ec7cc9c240c9a8368b7c4`](https://github.com/wevm/viem/commit/00d46cfb4a9993d3bd6ec7cc9c240c9a8368b7c4) Thanks [@sumitvekariya](https://github.com/sumitvekariya)! - Fixed deployment transactions for EIP-7702.
+
+- [#3411](https://github.com/wevm/viem/pull/3411) [`ddb7e184dab8e80bf1137d3258db44662e433476`](https://github.com/wevm/viem/commit/ddb7e184dab8e80bf1137d3258db44662e433476) Thanks [@akitothemoon](https://github.com/akitothemoon)! - Added Status Sepolia.
+
+- [#3414](https://github.com/wevm/viem/pull/3414) [`71b90034fc087780e4794553a53bd98c6955ebe3`](https://github.com/wevm/viem/commit/71b90034fc087780e4794553a53bd98c6955ebe3) Thanks [@spalladino](https://github.com/spalladino)! - Added `shouldThrow` option to `fallback` transport.
+
+## 2.23.6
+
+### Patch Changes
+
+- [#3389](https://github.com/wevm/viem/pull/3389) [`2159ca08722d90e854f36921eb200efbefc0734f`](https://github.com/wevm/viem/commit/2159ca08722d90e854f36921eb200efbefc0734f) Thanks [@yogaajs](https://github.com/yogaajs)! - Fixed handling of malformed JSON on WebSocket RPC.
+
+- [#3386](https://github.com/wevm/viem/pull/3386) [`5f738071c2c0e3d8bb0a5193b3b928403a8af2a4`](https://github.com/wevm/viem/commit/5f738071c2c0e3d8bb0a5193b3b928403a8af2a4) Thanks [@jiggyBu](https://github.com/jiggyBu)! - Updated real chain default RPC node
+
+- [#3396](https://github.com/wevm/viem/pull/3396) [`8dc421e7f7c0400b8aa5861f1f5a18cd1b3613b1`](https://github.com/wevm/viem/commit/8dc421e7f7c0400b8aa5861f1f5a18cd1b3613b1) Thanks [@deodad](https://github.com/deodad)! - Added `raw` option to `http` transport.
+
+- [#3400](https://github.com/wevm/viem/pull/3400) [`0165c5f1b2fe4a804967bda3a749b8d289c129f2`](https://github.com/wevm/viem/commit/0165c5f1b2fe4a804967bda3a749b8d289c129f2) Thanks [@bearpong](https://github.com/bearpong)! - Added Berachain Bepolia.
+
+- [#3387](https://github.com/wevm/viem/pull/3387) [`48fd9180edea77b0abe974f83588b7bbcba8854c`](https://github.com/wevm/viem/commit/48fd9180edea77b0abe974f83588b7bbcba8854c) Thanks [@emanuelconunaemme](https://github.com/emanuelconunaemme)! - Updated saga chain.
+
+- [#3402](https://github.com/wevm/viem/pull/3402) [`892d0bc1f0c804dfe3015c9550fff37c19799eb5`](https://github.com/wevm/viem/commit/892d0bc1f0c804dfe3015c9550fff37c19799eb5) Thanks [@poplexity](https://github.com/poplexity)! - Updated Telos RPC URLs.
+
+- [#3382](https://github.com/wevm/viem/pull/3382) [`186c4add2df2ead16bacead3dee6397f6a737f5d`](https://github.com/wevm/viem/commit/186c4add2df2ead16bacead3dee6397f6a737f5d) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Fluent Testnet.
+
 ## 2.23.5
 
 ### Patch Changes

@@ -469,6 +469,7 @@ export type {
   WriteContractParameters,
   WriteContractReturnType,
 } from './actions/wallet/writeContract.js'
+export type { Call, Calls } from './types/calls.js'
 export type {
   Chain,
   ChainConfig,
@@ -507,6 +508,7 @@ export {
   type FallbackTransportConfig,
   type FallbackTransportErrorType,
   fallback,
+  shouldThrow,
 } from './clients/transports/fallback.js'
 export {
   type HttpTransport,

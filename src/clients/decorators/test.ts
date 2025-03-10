@@ -356,9 +356,9 @@ export type TestActions = {
    */
   revert: (args: RevertParameters) => Promise<void>
   /**
-   * Returns the details of all transactions currently pending for inclusion in the next block(s), as well as the ones that are being scheduled for future execution only.
+   * Executes a transaction regardless of the signature.
    *
-   * - Docs: https://viem.sh/docs/actions/test/getTxpoolContent
+   * - Docs: https://viem.sh/docs/actions/test/sendUnsignedTransaction
    *
    * @param args – {@link SendUnsignedTransactionParameters}
    * @returns The transaction hash. {@link SendUnsignedTransactionReturnType}

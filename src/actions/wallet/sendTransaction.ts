@@ -184,6 +184,9 @@ export async function sendTransaction<
       // If `to` exists on the parameters, use that.
       if (parameters.to) return parameters.to
 
+      // If `to` is null, we are sending a deployment transaction.
+      if (parameters.to === null) return undefined
+
       // If no `to` exists, and we are sending a EIP-7702 transaction, use the
       // address of the first authorization in the list.
       if (authorizationList && authorizationList.length > 0)

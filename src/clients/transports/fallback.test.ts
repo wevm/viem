@@ -448,6 +448,57 @@ describe('request', () => {
     expect(count).toBe(2)
   })
 
+  test('error (rpc - custom shouldThrow)', async () => {
+    let count = 0
+    const server1 = await createHttpServer((_req, res) => {
+      count++
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(
+        JSON.stringify({
+          error: {
+            code: 9999,
+            message: 'sad times',
+          },
+        }),
+      )
+    })
+    const server2 = await createHttpServer((_req, res) => {
+      count++
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(
+        JSON.stringify({
+          error: {
+            code: MethodNotSupportedRpcError.code,
+            message: 'sad times',
+          },
+        }),
+      )
+    })
+    const server3 = await createHttpServer((_req, res) => {
+      count++
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+      })
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+
+    const transport = fallback(
+      [http(server1.url), http(server2.url), http(server3.url)],
+      { shouldThrow: (error: Error) => 'code' in error && error.code === 9999 },
+    )({
+      chain: localhost,
+    })
+    await expect(
+      transport.request({ method: 'eth_blockNumber' }),
+    ).rejects.toThrowError()
+
+    expect(count).toBe(1)
+  })
+
   test('all error', async () => {
     let count = 0
     const server1 = await createHttpServer((_req, res) => {

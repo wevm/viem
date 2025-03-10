@@ -311,7 +311,7 @@ const hash = await client.execute({
           value: parseEther('1') // [!code focus]
         }, // [!code focus]
       ] // [!code focus]
-    }
+    },
     {
       calls: [ // [!code focus]
         { // [!code focus]
