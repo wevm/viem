@@ -211,7 +211,7 @@ export type WalletActions<
    * Prepares an [EIP-7702 Authorization](https://eips.ethereum.org/EIPS/eip-7702) object for signing.
    * This Action will fill the required fields of the Authorization object if they are not provided (e.g. `nonce` and `chainId`).
    *
-   * With the prepared Authorization object, you can use [`signAuthorization`](https://viem.sh/experimental/eip7702/signAuthorization) to sign over the Authorization object.
+   * With the prepared Authorization object, you can use [`signAuthorization`](https://viem.sh/docs/eip7702/signAuthorization) to sign over the Authorization object.
    *
    * @param client - Client to use
    * @param parameters - {@link PrepareAuthorizationParameters}
@@ -441,8 +441,8 @@ export type WalletActions<
    * Signs an [EIP-7702 Authorization](https://eips.ethereum.org/EIPS/eip-7702) object.
    *
    * With the calculated signature, you can:
-   * - use [`verifyAuthorization`](https://viem.sh/experimental/eip7702/verifyAuthorization) to verify the signed Authorization object,
-   * - use [`recoverAuthorizationAddress`](https://viem.sh/experimental/eip7702/recoverAuthorizationAddress) to recover the signing address from the signed Authorization object.
+   * - use [`verifyAuthorization`](https://viem.sh/docs/eip7702/verifyAuthorization) to verify the signed Authorization object,
+   * - use [`recoverAuthorizationAddress`](https://viem.sh/docs/eip7702/recoverAuthorizationAddress) to recover the signing address from the signed Authorization object.
    *
    * @param client - Client to use
    * @param parameters - {@link SignAuthorizationParameters}

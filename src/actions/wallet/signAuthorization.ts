@@ -41,8 +41,8 @@ export type SignAuthorizationErrorType =
  * Signs an [EIP-7702 Authorization](https://eips.ethereum.org/EIPS/eip-7702) object.
  *
  * With the calculated signature, you can:
- * - use [`verifyAuthorization`](https://viem.sh/experimental/eip7702/verifyAuthorization) to verify the signed Authorization object,
- * - use [`recoverAuthorizationAddress`](https://viem.sh/experimental/eip7702/recoverAuthorizationAddress) to recover the signing address from the signed Authorization object.
+ * - use [`verifyAuthorization`](https://viem.sh/docs/eip7702/verifyAuthorization) to verify the signed Authorization object,
+ * - use [`recoverAuthorizationAddress`](https://viem.sh/docs/eip7702/recoverAuthorizationAddress) to recover the signing address from the signed Authorization object.
  *
  * @param client - Client to use
  * @param parameters - {@link SignAuthorizationParameters}
@@ -90,13 +90,13 @@ export async function signAuthorization<
 
   if (!account_)
     throw new AccountNotFoundError({
-      docsPath: '/experimental/eip7702/signAuthorization',
+      docsPath: '/docs/eip7702/signAuthorization',
     })
   const account = parseAccount(account_)
 
   if (!account.signAuthorization)
     throw new AccountTypeNotSupportedError({
-      docsPath: '/experimental/eip7702/signAuthorization',
+      docsPath: '/docs/eip7702/signAuthorization',
       metaMessages: [
         'The `signAuthorization` Action does not support JSON-RPC Accounts.',
       ],

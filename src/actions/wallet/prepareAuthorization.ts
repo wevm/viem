@@ -50,7 +50,7 @@ export type PrepareAuthorizationErrorType =
  * Prepares an [EIP-7702 Authorization](https://eips.ethereum.org/EIPS/eip-7702) object for signing.
  * This Action will fill the required fields of the Authorization object if they are not provided (e.g. `nonce` and `chainId`).
  *
- * With the prepared Authorization object, you can use [`signAuthorization`](https://viem.sh/experimental/eip7702/signAuthorization) to sign over the Authorization object.
+ * With the prepared Authorization object, you can use [`signAuthorization`](https://viem.sh/docs/eip7702/signAuthorization) to sign over the Authorization object.
  *
  * @param client - Client to use
  * @param parameters - {@link PrepareAuthorizationParameters}
@@ -98,7 +98,7 @@ export async function prepareAuthorization<
 
   if (!account_)
     throw new AccountNotFoundError({
-      docsPath: '/experimental/eip7702/prepareAuthorization',
+      docsPath: '/docs/eip7702/prepareAuthorization',
     })
   const account = parseAccount(account_)
 

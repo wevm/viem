@@ -322,12 +322,12 @@ import { parseEther } from 'viem'
 import { walletClient } from './config'
 import { abi, contractAddress } from './contract'
 
-const sponsor = privateKeyToAccount('0x...') // [!code ++]
-
 const authorization = await walletClient.signAuthorization({
   contractAddress,
-  sponsor, // [!code ++]
+  sponsor: true, // [!code ++]
 })
+
+const sponsor = privateKeyToAccount('0x...') // [!code ++]
 
 const hash = await walletClient.writeContract({
   account: sponsor, // [!code ++]

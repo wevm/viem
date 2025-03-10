@@ -1342,7 +1342,7 @@
 
 ### Minor Changes
 
-- [#2570](https://github.com/wevm/viem/pull/2570) [`fee80a9a`](https://github.com/wevm/viem/commit/fee80a9ae3e425354f21a6de5fa397244577eb28) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added EIP-7702 Extension. [See Docs](https://viem.sh/experimental/eip7702)
+- [#2570](https://github.com/wevm/viem/pull/2570) [`fee80a9a`](https://github.com/wevm/viem/commit/fee80a9ae3e425354f21a6de5fa397244577eb28) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added EIP-7702 Extension. [See Docs](https://viem.sh/docs/eip7702)
 
 - [#2586](https://github.com/wevm/viem/pull/2586) [`0b1693aa`](https://github.com/wevm/viem/commit/0b1693aa51468cfe77dae74ad44bd89dfd21fd0e) Thanks [@tmm](https://github.com/tmm)! - Renamed "zkSync" to "ZKsync":
 
