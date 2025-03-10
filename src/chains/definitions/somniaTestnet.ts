@@ -1,4 +1,4 @@
-import { defineChain } from '../../utils/chain/defineChain.js';
+import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const somniaTestnet = /*#__PURE__*/ defineChain({
   id: 50312,
@@ -17,4 +17,4 @@ export const somniaTestnet = /*#__PURE__*/ defineChain({
     },
   },
   testnet: true,
-});
+})
