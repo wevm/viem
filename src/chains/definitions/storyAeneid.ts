@@ -16,13 +16,13 @@ export const storyAeneid = /*#__PURE__*/ defineChain({
     },
     ensRegistry: {
       address: '0x5dC881dDA4e4a8d312be3544AD13118D1a04Cb17',
-      blockCreated: 1322033, 
+      blockCreated: 1322033,
     },
     ensUniversalResolver: {
       address: '0x6D3B3F99177FB2A5de7F9E928a9BD807bF7b5BAD',
       blockCreated: 1322097,
     },
-  },  
+  },
   rpcUrls: {
     default: { http: ['https://aeneid.storyrpc.io'] },
   },
