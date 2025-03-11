@@ -1,5 +1,15 @@
 # viem
 
+## 2.23.10
+
+### Patch Changes
+
+- [#3432](https://github.com/wevm/viem/pull/3432) [`dd0374c85d8dd7ee79bd13b9e357c84284e113ab`](https://github.com/wevm/viem/commit/dd0374c85d8dd7ee79bd13b9e357c84284e113ab) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Seismic Devnet.
+
+- [`9a7e864881e56cfa89c03e1113e6c80e1e3e889d`](https://github.com/wevm/viem/commit/9a7e864881e56cfa89c03e1113e6c80e1e3e889d) Thanks [@jxom](https://github.com/jxom)! - Fixed fee buffer in `prepareUserOperation`.
+
+- [#3393](https://github.com/wevm/viem/pull/3393) [`9c68250e34763019f3dd098a885d9924d7583ad8`](https://github.com/wevm/viem/commit/9c68250e34763019f3dd098a885d9924d7583ad8) Thanks [@allenchuang](https://github.com/allenchuang)! - Added ENS contracts to Story L1.
+
 ## 2.23.9
 
 ### Patch Changes

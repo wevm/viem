@@ -15,7 +15,7 @@ export const story = /*#__PURE__*/ defineChain({
     },
     ensRegistry: {
       address: '0x5dc881dda4e4a8d312be3544ad13118d1a04cb17',
-      blockCreated: 648924, 
+      blockCreated: 648924,
     },
     ensUniversalResolver: {
       address: '0xddfb18888a9466688235887dec2a10c4f5effee9',
