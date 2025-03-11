@@ -439,20 +439,14 @@ export async function prepareUserOperation<
               ? parameters.maxFeePerGas
               : BigInt(
                   // Bundlers unfortunately have strict rules on fee prechecks – we will need to set a generous buffer.
-                  Math.max(
-                    Number(2n * fees.maxFeePerGas),
-                    Number(parseGwei('3')),
-                  ),
+                  2n * fees.maxFeePerGas,
                 ),
           maxPriorityFeePerGas:
             typeof parameters.maxPriorityFeePerGas === 'bigint'
               ? parameters.maxPriorityFeePerGas
               : BigInt(
                   // Bundlers unfortunately have strict rules on fee prechecks – we will need to set a generous buffer.
-                  Math.max(
-                    Number(2n * fees.maxPriorityFeePerGas),
-                    Number(parseGwei('1')),
-                  ),
+                  2n * fees.maxPriorityFeePerGas,
                 ),
         }
       } catch {
