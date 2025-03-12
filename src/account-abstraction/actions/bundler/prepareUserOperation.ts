@@ -28,7 +28,6 @@ import {
 } from '../../../utils/abi/encodeFunctionData.js'
 import { type ConcatErrorType, concat } from '../../../utils/data/concat.js'
 import { getAction } from '../../../utils/getAction.js'
-import { parseGwei } from '../../../utils/unit/parseGwei.js'
 import type { SmartAccount } from '../../accounts/types.js'
 import type { BundlerClient } from '../../clients/createBundlerClient.js'
 import type { PaymasterActions } from '../../clients/decorators/paymaster.js'
