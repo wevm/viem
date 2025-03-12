@@ -24,9 +24,9 @@ export const pyrope = defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
-   l1StandardBridge: {
+    l1StandardBridge: {
       [sourceId]: {
-        address: "0xC24932c31D9621aE9e792576152B7ef010cFC2F8",
+        address: '0xC24932c31D9621aE9e792576152B7ef010cFC2F8',
       },
     },
   },
