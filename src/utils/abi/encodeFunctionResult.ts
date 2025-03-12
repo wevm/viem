@@ -3,6 +3,7 @@ import type { Abi, AbiStateMutability, ExtractAbiFunctions } from 'abitype'
 import {
   AbiFunctionNotFoundError,
   AbiFunctionOutputsNotFoundError,
+  InvalidArrayError,
 } from '../../errors/abi.js'
 import type {
   ContractFunctionName,
@@ -86,8 +87,12 @@ export function encodeFunctionResult<
   if (!abiItem.outputs)
     throw new AbiFunctionOutputsNotFoundError(abiItem.name, { docsPath })
 
-  let values = Array.isArray(result) ? result : [result]
-  if (abiItem.outputs.length === 0 && !values[0]) values = []
+  const values = (() => {
+    if (abiItem.outputs.length === 0) return []
+    if (abiItem.outputs.length === 1) return [result]
+    if (Array.isArray(result)) return result
+    throw new InvalidArrayError(result)
+  })()
 
   return encodeAbiParameters(abiItem.outputs, values)
 }

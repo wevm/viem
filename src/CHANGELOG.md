@@ -1,5 +1,51 @@
 # viem
 
+## 2.23.10
+
+### Patch Changes
+
+- [#3432](https://github.com/wevm/viem/pull/3432) [`dd0374c85d8dd7ee79bd13b9e357c84284e113ab`](https://github.com/wevm/viem/commit/dd0374c85d8dd7ee79bd13b9e357c84284e113ab) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Seismic Devnet.
+
+- [`9a7e864881e56cfa89c03e1113e6c80e1e3e889d`](https://github.com/wevm/viem/commit/9a7e864881e56cfa89c03e1113e6c80e1e3e889d) Thanks [@jxom](https://github.com/jxom)! - Fixed fee buffer in `prepareUserOperation`.
+
+- [#3393](https://github.com/wevm/viem/pull/3393) [`9c68250e34763019f3dd098a885d9924d7583ad8`](https://github.com/wevm/viem/commit/9c68250e34763019f3dd098a885d9924d7583ad8) Thanks [@allenchuang](https://github.com/allenchuang)! - Added ENS contracts to Story L1.
+
+## 2.23.9
+
+### Patch Changes
+
+- [#3423](https://github.com/wevm/viem/pull/3423) [`b73e8f1e8af0e45f9eb9ea3bc12662f29b72b5f0`](https://github.com/wevm/viem/commit/b73e8f1e8af0e45f9eb9ea3bc12662f29b72b5f0) Thanks [@ccxdev](https://github.com/ccxdev)! - Added Whitechain, WhitechainTestnet chains.
+
+- [#3422](https://github.com/wevm/viem/pull/3422) [`d74ff8ecc756ac490b8957a9c5bee1683f57f617`](https://github.com/wevm/viem/commit/d74ff8ecc756ac490b8957a9c5bee1683f57f617) Thanks [@ivanshukhov](https://github.com/ivanshukhov)! - Added RPC URLs and multicall3 address to Planq.
+
+- [#3421](https://github.com/wevm/viem/pull/3421) [`886bccf2ccf4c272a453a55195177c0e6a2231c1`](https://github.com/wevm/viem/commit/886bccf2ccf4c272a453a55195177c0e6a2231c1) Thanks [@biruichen](https://github.com/biruichen)! - Added MegaETH Testnet.
+
+## 2.23.8
+
+### Patch Changes
+
+- [`34592cd4e518f87c7aa8d91be66fec9edf1cfc19`](https://github.com/wevm/viem/commit/34592cd4e518f87c7aa8d91be66fec9edf1cfc19) Thanks [@jxom](https://github.com/jxom)! - Exported `Call` and `Calls` types.
+
+- [#3419](https://github.com/wevm/viem/pull/3419) [`1893b8f927de562f842a9d256ea6e66a0cf65a67`](https://github.com/wevm/viem/commit/1893b8f927de562f842a9d256ea6e66a0cf65a67) Thanks [@rizwanmoulvi](https://github.com/rizwanmoulvi)! - Added Edu Chain to chains.
+
+## 2.23.7
+
+### Patch Changes
+
+- [#3417](https://github.com/wevm/viem/pull/3417) [`ea771358624e71af8ca4082212c7a4534e872a32`](https://github.com/wevm/viem/commit/ea771358624e71af8ca4082212c7a4534e872a32) Thanks [@Kharabet](https://github.com/Kharabet)! - Updated GuruNetwork RPC URLs.
+
+- [#3408](https://github.com/wevm/viem/pull/3408) [`07ade80570c62ade8ef51ede7ad33c5832aa1e9e`](https://github.com/wevm/viem/commit/07ade80570c62ade8ef51ede7ad33c5832aa1e9e) Thanks [@falcoda](https://github.com/falcoda)! - Added Juneo Mainnet chain.
+
+- [`9c442de0ff38ac1f654b5c751d292e9a9f8d574c`](https://github.com/wevm/viem/commit/9c442de0ff38ac1f654b5c751d292e9a9f8d574c) Thanks [@jxom](https://github.com/jxom)! - Fixed `encodeFunctionResult` behavior. Fixes #3415.
+
+- [#3418](https://github.com/wevm/viem/pull/3418) [`92a3ac61fc7b3f805583ac8573086f3b349da470`](https://github.com/wevm/viem/commit/92a3ac61fc7b3f805583ac8573086f3b349da470) Thanks [@deodad](https://github.com/deodad)! - Exported `WaitForTransactionReceiptTimeoutErrorType` to `WaitForTransactionReceiptErrorType`.
+
+- [#3397](https://github.com/wevm/viem/pull/3397) [`00d46cfb4a9993d3bd6ec7cc9c240c9a8368b7c4`](https://github.com/wevm/viem/commit/00d46cfb4a9993d3bd6ec7cc9c240c9a8368b7c4) Thanks [@sumitvekariya](https://github.com/sumitvekariya)! - Fixed deployment transactions for EIP-7702.
+
+- [#3411](https://github.com/wevm/viem/pull/3411) [`ddb7e184dab8e80bf1137d3258db44662e433476`](https://github.com/wevm/viem/commit/ddb7e184dab8e80bf1137d3258db44662e433476) Thanks [@akitothemoon](https://github.com/akitothemoon)! - Added Status Sepolia.
+
+- [#3414](https://github.com/wevm/viem/pull/3414) [`71b90034fc087780e4794553a53bd98c6955ebe3`](https://github.com/wevm/viem/commit/71b90034fc087780e4794553a53bd98c6955ebe3) Thanks [@spalladino](https://github.com/spalladino)! - Added `shouldThrow` option to `fallback` transport.
+
 ## 2.23.6
 
 ### Patch Changes

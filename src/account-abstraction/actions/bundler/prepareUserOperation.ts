@@ -28,7 +28,6 @@ import {
 } from '../../../utils/abi/encodeFunctionData.js'
 import { type ConcatErrorType, concat } from '../../../utils/data/concat.js'
 import { getAction } from '../../../utils/getAction.js'
-import { parseGwei } from '../../../utils/unit/parseGwei.js'
 import type { SmartAccount } from '../../accounts/types.js'
 import type { BundlerClient } from '../../clients/createBundlerClient.js'
 import type { PaymasterActions } from '../../clients/decorators/paymaster.js'
@@ -439,20 +438,14 @@ export async function prepareUserOperation<
               ? parameters.maxFeePerGas
               : BigInt(
                   // Bundlers unfortunately have strict rules on fee prechecks – we will need to set a generous buffer.
-                  Math.max(
-                    Number(2n * fees.maxFeePerGas),
-                    Number(parseGwei('3')),
-                  ),
+                  2n * fees.maxFeePerGas,
                 ),
           maxPriorityFeePerGas:
             typeof parameters.maxPriorityFeePerGas === 'bigint'
               ? parameters.maxPriorityFeePerGas
               : BigInt(
                   // Bundlers unfortunately have strict rules on fee prechecks – we will need to set a generous buffer.
-                  Math.max(
-                    Number(2n * fees.maxPriorityFeePerGas),
-                    Number(parseGwei('1')),
-                  ),
+                  2n * fees.maxPriorityFeePerGas,
                 ),
         }
       } catch {

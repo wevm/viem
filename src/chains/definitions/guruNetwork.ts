@@ -10,7 +10,10 @@ export const guruNetwork = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.gurunetwork.ai/archive/260'],
+      http: [
+        'https://rpc-main.gurunetwork.ai',
+        'https://rpc.gurunetwork.ai/archive/260',
+      ],
     },
   },
   blockExplorers: {
