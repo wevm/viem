@@ -14,7 +14,7 @@ export const sonic = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Sonic Explorer',
-      url: 'https://sonicscan.org/',
+      url: 'https://sonicscan.org',
     },
   },
   contracts: {
