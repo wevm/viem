@@ -34,6 +34,7 @@ import {
   type ReadContractParameters,
   readContract,
 } from '../public/readContract.js'
+import { viemBatchedGateway } from '../../utils/batchedGateway.js'
 
 export type GetEnsAddressParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
@@ -129,19 +130,18 @@ export async function getEnsAddress<chain extends Chain | undefined>(
       address: universalResolverAddress,
       abi: universalResolverResolveAbi,
       functionName: 'resolve',
-      args: [toHex(packetToBytes(name)), functionData],
+      args: [
+        toHex(packetToBytes(name)),
+        functionData,
+        gatewayUrls ?? [viemBatchedGateway],
+      ],
       blockNumber,
       blockTag,
     } as const
 
     const readContractAction = getAction(client, readContract, 'readContract')
 
-    const res = gatewayUrls
-      ? await readContractAction({
-          ...readContractParameters,
-          args: [...readContractParameters.args, gatewayUrls],
-        })
-      : await readContractAction(readContractParameters)
+    const res = await readContractAction(readContractParameters)
 
     if (res[0] === '0x') return null
 
