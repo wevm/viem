@@ -1,12 +1,9 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import * as cKzg from 'c-kzg'
 import { describe, expect, test } from 'vitest'
 
-import '../../../test/src/kzg.js'
-import type { Kzg } from '../../types/kzg.js'
+import { kzg } from '../../../test/src/kzg.js'
 import { hexToBytes } from '../index.js'
-import { defineKzg } from './defineKzg.js'
 
 const blobToKzgCommitmentCases = JSON.parse(
   readFileSync(
@@ -20,19 +17,6 @@ const computeBlobKzgProofCases = JSON.parse(
     'utf8',
   ),
 )
-
-let kzg: Kzg
-
-test('defineKzg', () => {
-  kzg = defineKzg(cKzg)
-
-  expect(kzg).toMatchInlineSnapshot(`
-    {
-      "blobToKzgCommitment": [Function],
-      "computeBlobKzgProof": [Function],
-    }
-  `)
-})
 
 describe('blobToKzgCommitment', () => {
   for (const data of blobToKzgCommitmentCases) {

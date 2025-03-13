@@ -42,6 +42,9 @@ importers:
       '@ethereumjs/rlp':
         specifier: ^5.0.2
         version: 5.0.2
+      '@paulmillr/trusted-setups':
+        specifier: ^0.1.2
+        version: 0.1.2
       '@pimlico/alto':
         specifier: 0.0.4
         version: 0.0.4(typescript@5.6.2)
@@ -63,9 +66,6 @@ importers:
       bun:
         specifier: ^1.1.30
         version: 1.1.30
-      c-kzg:
-        specifier: ^2.1.2
-        version: 2.1.2
       ethers:
         specifier: ^6.13.4
         version: 6.13.4
@@ -75,6 +75,9 @@ importers:
       knip:
         specifier: ^5.33.3
         version: 5.33.3(@types/node@20.16.12)(typescript@5.6.2)
+      micro-eth-signer:
+        specifier: ^0.14.0
+        version: 0.14.0
       permissionless:
         specifier: ^0.2.14
         version: 0.2.14
@@ -1692,6 +1695,9 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@paulmillr/trusted-setups@0.1.2':
+    resolution: {integrity: sha512-NKpT0G4Blj+Vp9lbfczb7iPJm3B4njpzX8NXiQs8G51N4CLndCvLqEvksFlTJbNLwl3iwsGZHSvJRdfhfOHLwQ==}
+
   '@pimlico/alto@0.0.4':
     resolution: {integrity: sha512-rFdyBPnbNZ6O8N1kYDtm8CJ6a4Rs0Gxi2e4Wl5q1OnTdK38f09RolxPF2WgJDj2NDFWIRXINGHgt4Moj9hulYw==}
 
@@ -2910,9 +2916,6 @@ packages:
     resolution: {integrity: sha512-pbnl5XzGBdrFU/wT4jqmJVPn2B6UHPBOhzMQkY/SPUPB6QtUXtmBHBIwCbXJol93mOpGMnQyP/+BB19q04xj7g==}
     engines: {node: '>=4'}
 
-  bindings@1.5.0:
-    resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
-
   bintrees@1.0.2:
     resolution: {integrity: sha512-VOMgTMwjAaUG580SXn3LacVgjurrbMme7ZZNYGSSV7mmtY6QQRh0Eg3pwIcntQ77DErK1L0NxkbetjcoXzVwKw==}
 
@@ -2974,9 +2977,6 @@ packages:
   bytes@3.1.2:
     resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
     engines: {node: '>= 0.8'}
-
-  c-kzg@2.1.2:
-    resolution: {integrity: sha512-QmP4vTp5H2hN4mkKXF9VXtZ7k7oH1kmBxLiFT/7LcyE78RgX32zvPGfwtRAsrq/b3T6RZFIsHZvQEN7JdzoNOg==}
 
   cac@6.7.14:
     resolution: {integrity: sha512-b6Ilus+c3RrdDk+JhLKUAQfzzgLEPy6wcXqS7f/xe1EETvsDP6GORG7SFuOs6cID5YkqchW/LXZbX5bc8j7ZcQ==}
@@ -3606,9 +3606,6 @@ packages:
   figures@6.1.0:
     resolution: {integrity: sha512-d+l3qxjSesT4V7v2fh+QnmFnUWv9lSpjarhShNTgBOfA0ttejbQUAlHLitbjkoRiDulW0OPoQPYIGhIC8ohejg==}
     engines: {node: '>=18'}
-
-  file-uri-to-path@1.0.0:
-    resolution: {integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==}
 
   fill-range@7.1.1:
     resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
@@ -4316,6 +4313,12 @@ packages:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
     engines: {node: '>= 8'}
 
+  micro-eth-signer@0.14.0:
+    resolution: {integrity: sha512-5PLLzHiVYPWClEvZIXXFu5yutzpadb73rnQCpUqIHu3No3coFuWQNfE5tkBQJ7djuLYl6aRLaS0MgWJYGoqiBw==}
+
+  micro-packed@0.7.2:
+    resolution: {integrity: sha512-HJ/u8+tMzgrJVAl6P/4l8KGjJSA3SCZaRb1m4wpbovNScCSmVOGUYbkkcoPPcknCHWPpRAdjy+yqXqyQWf+k8g==}
+
   micromark-core-commonmark@2.0.2:
     resolution: {integrity: sha512-FKjQKbxd1cibWMM1P9N+H8TwlgGgSkWZMmfuVucLCHaYqeSvJ0hFeHsIa65pA2nYbes0f8LDHPMrd9X7Ujxg9w==}
 
@@ -4573,9 +4576,6 @@ packages:
         optional: true
       sass:
         optional: true
-
-  node-addon-api@5.1.0:
-    resolution: {integrity: sha512-eh0GgfEkpnoWDq+VY8OyvYhFEzBk6jIYbRKdIlyTiAXIVJ8PyBaKb0rp7oDtoddbdoHWhq8wwr+XZ81F1rpNdA==}
 
   node-emoji@2.1.3:
     resolution: {integrity: sha512-E2WEOVsgs7O16zsURJ/eH8BqhF029wGpEOnv7Urwdo2wmQanOACwJQh0devF9D9RhoZru0+9JXIS0dBXIAz+lA==}
@@ -5787,16 +5787,16 @@ packages:
   vfile@6.0.3:
     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
 
-  viem@2.23.8:
-    resolution: {integrity: sha512-0uzpgfoyoplo0KTOMAMxiF3BvaYmze+lCV3GIG7To1LtEJwfetRwtfPQF5IAzaJ1/XURlAVno6Co2lJURtvJeQ==}
+  viem@2.23.10:
+    resolution: {integrity: sha512-va6Wde+v96PdfzdPEspCML1MjAqe+88O8BD+R9Kun/4s5KMUNcqfHbXdZP0ZZ2Zms80styvH2pDRAqCho6TqkA==}
     peerDependencies:
       typescript: '>=5.0.4'
     peerDependenciesMeta:
       typescript:
         optional: true
 
-  viem@2.23.9:
-    resolution: {integrity: sha512-y8VLPfKukrstZKTerS9bm45ajZ22wUyStF+VquK3I2OovWLOyXSbQmJWei8syMFhp1uwhxh1tb0fAdx0WSRZWg==}
+  viem@2.23.8:
+    resolution: {integrity: sha512-0uzpgfoyoplo0KTOMAMxiF3BvaYmze+lCV3GIG7To1LtEJwfetRwtfPQF5IAzaJ1/XURlAVno6Co2lJURtvJeQ==}
     peerDependencies:
       typescript: '>=5.0.4'
     peerDependenciesMeta:
@@ -7260,6 +7260,8 @@ snapshots:
   '@oven/bun-windows-x64@1.1.30':
     optional: true
 
+  '@paulmillr/trusted-setups@0.1.2': {}
+
   '@pimlico/alto@0.0.4(typescript@5.6.2)':
     dependencies:
       '@fastify/cors': 9.0.1
@@ -7286,7 +7288,7 @@ snapshots:
       pino-http: 8.6.1
       pino-pretty: 10.3.1
       prom-client: 14.2.0
-      viem: 2.23.9(typescript@5.6.2)(zod@3.23.8)
+      viem: 2.23.10(typescript@5.6.2)(zod@3.23.8)
       yargs: 17.7.2
       zod: 3.23.8
       zod-validation-error: 1.5.0(zod@3.23.8)
@@ -8607,10 +8609,6 @@ snapshots:
     dependencies:
       is-windows: 1.0.2
 
-  bindings@1.5.0:
-    dependencies:
-      file-uri-to-path: 1.0.0
-
   bintrees@1.0.2: {}
 
   bl@5.1.0:
@@ -8685,11 +8683,6 @@ snapshots:
   bytes-iec@3.1.1: {}
 
   bytes@3.1.2: {}
-
-  c-kzg@2.1.2:
-    dependencies:
-      bindings: 1.5.0
-      node-addon-api: 5.1.0
 
   cac@6.7.14: {}
 
@@ -9360,8 +9353,6 @@ snapshots:
   figures@6.1.0:
     dependencies:
       is-unicode-supported: 2.1.0
-
-  file-uri-to-path@1.0.0: {}
 
   fill-range@7.1.1:
     dependencies:
@@ -10237,6 +10228,16 @@ snapshots:
 
   merge2@1.4.1: {}
 
+  micro-eth-signer@0.14.0:
+    dependencies:
+      '@noble/curves': 1.8.1
+      '@noble/hashes': 1.7.1
+      micro-packed: 0.7.2
+
+  micro-packed@0.7.2:
+    dependencies:
+      '@scure/base': 1.2.4
+
   micromark-core-commonmark@2.0.2:
     dependencies:
       decode-named-character-reference: 1.0.2
@@ -10646,8 +10647,6 @@ snapshots:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
-
-  node-addon-api@5.1.0: {}
 
   node-emoji@2.1.3:
     dependencies:
@@ -12035,6 +12034,23 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
 
+  viem@2.23.10(typescript@5.6.2)(zod@3.23.8):
+    dependencies:
+      '@noble/curves': 1.8.1
+      '@noble/hashes': 1.7.1
+      '@scure/bip32': 1.6.2
+      '@scure/bip39': 1.5.4
+      abitype: 1.0.8(typescript@5.6.2)(zod@3.23.8)
+      isows: 1.0.6(ws@8.18.1)
+      ox: 0.6.9(typescript@5.6.2)(zod@3.23.8)
+      ws: 8.18.1
+    optionalDependencies:
+      typescript: 5.6.2
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+      - zod
+
   viem@2.23.8(typescript@5.6.2)(zod@3.23.8):
     dependencies:
       '@noble/curves': 1.8.1
@@ -12045,23 +12061,6 @@ snapshots:
       isows: 1.0.6(ws@8.18.0)
       ox: 0.6.7(typescript@5.6.2)(zod@3.23.8)
       ws: 8.18.0
-    optionalDependencies:
-      typescript: 5.6.2
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-      - zod
-
-  viem@2.23.9(typescript@5.6.2)(zod@3.23.8):
-    dependencies:
-      '@noble/curves': 1.8.1
-      '@noble/hashes': 1.7.1
-      '@scure/bip32': 1.6.2
-      '@scure/bip39': 1.5.4
-      abitype: 1.0.8(typescript@5.6.2)(zod@3.23.8)
-      isows: 1.0.6(ws@8.18.1)
-      ox: 0.6.9(typescript@5.6.2)(zod@3.23.8)
-      ws: 8.18.1
     optionalDependencies:
       typescript: 5.6.2
     transitivePeerDependencies:
