@@ -33,7 +33,7 @@ import {
   type ReadContractParameters,
   readContract,
 } from '../public/readContract.js'
-import { viemBatchedGateway } from '~viem/utils/batchedGateway.js'
+import { viemBatchedGateway } from '../../utils/batchedGateway.js'
 
 export type GetEnsTextParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
