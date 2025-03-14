@@ -25,7 +25,10 @@ import { isAddressEqual } from './address/isAddressEqual.js'
 import { concat } from './data/concat.js'
 import { isHex } from './data/isHex.js'
 import { stringify } from './stringify.js'
-import { batchedGateway, viemBatchedGateway } from './batchedGateway.js'
+import {
+  localBatchedGateway,
+  localBatchedGatewayURL,
+} from './localBatchedGateway.js'
 
 export const offchainLookupSignature = '0x556f1830'
 export const offchainLookupAbiItem = {
@@ -86,8 +89,8 @@ export async function offchainLookup<chain extends Chain | undefined>(
       throw new OffchainLookupSenderMismatchError({ sender, to })
 
     const result =
-      urls.length === 1 && urls[0] === viemBatchedGateway
-        ? await batchedGateway(callData, ccipRequest_)
+      urls.length === 1 && urls[0] === localBatchedGatewayURL
+        ? await localBatchedGateway(callData, ccipRequest_)
         : await ccipRequest_({ data: callData, sender, urls })
 
     const { data: data_ } = await call(client, {

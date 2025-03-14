@@ -33,7 +33,7 @@ import {
   type ReadContractParameters,
   readContract,
 } from '../public/readContract.js'
-import { viemBatchedGateway } from '../../utils/batchedGateway.js'
+import { localBatchedGatewayURL } from '../../utils/localBatchedGateway.js'
 
 export type GetEnsTextParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
@@ -128,7 +128,7 @@ export async function getEnsText<chain extends Chain | undefined>(
           functionName: 'text',
           args: [namehash(name), key],
         }),
-        gatewayUrls ?? [viemBatchedGateway],
+        gatewayUrls ?? [localBatchedGatewayURL],
       ],
       blockNumber,
       blockTag,

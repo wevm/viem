@@ -43,7 +43,7 @@ export const multicall3Abi = [
   },
 ] as const
 
-export const batchedGatewayAbi = [
+export const localBatchedGatewayAbi = [
   {
     name: 'query',
     type: 'function',
@@ -87,6 +87,16 @@ export const batchedGatewayAbi = [
         type: 'uint16',
         name: 'status',
       },
+      {
+        type: 'string',
+        name: 'message',
+      },
+    ],
+  },
+  {
+    name: 'Error',
+    type: 'error',
+    inputs: [
       {
         type: 'string',
         name: 'message',
