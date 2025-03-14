@@ -1,21 +1,21 @@
-import type { Hex } from '../types/misc.js'
-import type { ccipRequest } from './ccip.js'
-import { localBatchedGatewayAbi } from '../constants/abis.js'
+import { batchGatewayAbi } from '../constants/abis.js'
 import { BaseError } from '../errors/base.js'
 import { HttpRequestError } from '../errors/request.js'
+import type { Hex } from '../types/misc.js'
 import { decodeFunctionData } from './abi/decodeFunctionData.js'
-import { encodeFunctionResult } from './abi/encodeFunctionResult.js'
 import { encodeErrorResult } from './abi/encodeErrorResult.js'
+import { encodeFunctionResult } from './abi/encodeFunctionResult.js'
+import type { ccipRequest } from './ccip.js'
 
-export const localBatchedGatewayURL = 'x-batched-gateway:true'
+export const localBatchGatewayUrl = 'x-batch-gateway:true'
 
-export async function localBatchedGateway(
+export async function localBatchGateway(
   data: Hex,
   ccipRequest_: typeof ccipRequest,
 ): Promise<Hex> {
   const {
     args: [queries],
-  } = decodeFunctionData({ abi: localBatchedGatewayAbi, data })
+  } = decodeFunctionData({ abi: batchGatewayAbi, data })
   const failures: boolean[] = []
   const responses: Hex[] = []
   await Promise.all(
@@ -30,7 +30,7 @@ export async function localBatchedGateway(
     }),
   )
   return encodeFunctionResult({
-    abi: localBatchedGatewayAbi,
+    abi: batchGatewayAbi,
     functionName: 'query',
     result: [failures, responses],
   })
@@ -39,13 +39,13 @@ export async function localBatchedGateway(
 function encodeError(err: unknown): Hex {
   if (err instanceof HttpRequestError && err.status) {
     return encodeErrorResult({
-      abi: localBatchedGatewayAbi,
+      abi: batchGatewayAbi,
       errorName: 'HttpError',
       args: [err.status, err.shortMessage],
     })
   }
   return encodeErrorResult({
-    abi: localBatchedGatewayAbi,
+    abi: batchGatewayAbi,
     errorName: 'Error',
     args: [
       err instanceof Error

@@ -30,11 +30,11 @@ import {
   packetToBytes,
 } from '../../utils/ens/packetToBytes.js'
 import { getAction } from '../../utils/getAction.js'
+import { localBatchGatewayUrl } from '../../utils/localBatchGateway.js'
 import {
   type ReadContractParameters,
   readContract,
 } from '../public/readContract.js'
-import { localBatchedGatewayURL } from '../../utils/localBatchedGateway.js'
 
 export type GetEnsAddressParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
@@ -133,7 +133,7 @@ export async function getEnsAddress<chain extends Chain | undefined>(
       args: [
         toHex(packetToBytes(name)),
         functionData,
-        gatewayUrls ?? [localBatchedGatewayURL],
+        gatewayUrls ?? [localBatchGatewayUrl],
       ],
       blockNumber,
       blockTag,

@@ -1,17 +1,17 @@
 import { describe, expect, test } from 'vitest'
-import { localBatchedGateway } from './localBatchedGateway.js'
-import { ccipRequest } from './ccip.js'
-import { localBatchedGatewayAbi } from '../constants/abis.js'
+import { batchGatewayAbi } from '../constants/abis.js'
 import { decodeFunctionResult } from './abi/decodeFunctionResult.js'
-import { encodeFunctionResult } from './abi/encodeFunctionResult.js'
-import { encodeFunctionData } from './abi/encodeFunctionData.js'
 import { encodeErrorResult } from './abi/encodeErrorResult.js'
+import { encodeFunctionData } from './abi/encodeFunctionData.js'
+import { encodeFunctionResult } from './abi/encodeFunctionResult.js'
+import { ccipRequest } from './ccip.js'
+import { localBatchGateway } from './localBatchGateway.js'
 
-describe('localBatchedGateway', () => {
+describe('localBatchGateway', () => {
   test('default', async () => {
     const sender = '0x0000000000000000000000000000000000000001'
     const data = encodeFunctionData({
-      abi: localBatchedGatewayAbi,
+      abi: batchGatewayAbi,
       functionName: 'query',
       args: [
         [
@@ -44,30 +44,30 @@ describe('localBatchedGateway', () => {
       ],
     })
     const [failures, responses] = decodeFunctionResult({
-      abi: localBatchedGatewayAbi,
+      abi: batchGatewayAbi,
       functionName: 'query',
-      data: await localBatchedGateway(data, ccipRequest),
+      data: await localBatchGateway(data, ccipRequest),
     })
     expect(failures, 'failures').toEqual([false, false, true, true, true])
     expect(responses[0]).toStrictEqual('0x')
     expect(responses[1]).toStrictEqual('0x12345678')
     expect(responses[2]).toStrictEqual(
       encodeErrorResult({
-        abi: localBatchedGatewayAbi,
+        abi: batchGatewayAbi,
         errorName: 'Error',
         args: ['An unknown error occurred.'],
       }),
     )
     expect(responses[3]).toStrictEqual(
       encodeErrorResult({
-        abi: localBatchedGatewayAbi,
+        abi: batchGatewayAbi,
         errorName: 'Error',
         args: ['HTTP request failed.'],
       }),
     )
     expect(responses[4]).toStrictEqual(
       encodeErrorResult({
-        abi: localBatchedGatewayAbi,
+        abi: batchGatewayAbi,
         errorName: 'Error',
         args: [
           'Offchain gateway response is malformed. Response data must be a hex value.',
@@ -77,9 +77,9 @@ describe('localBatchedGateway', () => {
   })
   test('empty', async () => {
     await expect(
-      localBatchedGateway(
+      localBatchGateway(
         encodeFunctionData({
-          abi: localBatchedGatewayAbi,
+          abi: batchGatewayAbi,
           functionName: 'query',
           args: [[]],
         }),
@@ -87,7 +87,7 @@ describe('localBatchedGateway', () => {
       ),
     ).resolves.toStrictEqual(
       encodeFunctionResult({
-        abi: localBatchedGatewayAbi,
+        abi: batchGatewayAbi,
         functionName: 'query',
         result: [[], []],
       }),
