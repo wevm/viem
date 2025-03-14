@@ -243,7 +243,7 @@ export async function simulateBlocks<
         const status = call.status === '0x1' ? 'success' : 'failure'
 
         const result =
-          abi && status === 'success'
+          abi && status === 'success' && data !== '0x'
             ? decodeFunctionResult({
                 abi,
                 data,
