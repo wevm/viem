@@ -313,7 +313,8 @@ export const walletClient = createWalletClient({
 
 ### 5. Optional: Use a Sponsor
 
-We can also utilize an Sponsor Account to execute a call on behalf of the authorizing Account. This is useful for cases where we want to "sponsor" the Transaction for the user (i.e. pay for their gas fees).
+We can also utilize an arbitrary sponsoring Account to perform the EIP-7702 execution to delegate to the EOA. This is useful if we don't want
+the EOA to pay for the gas fees to perform the delegation Transaction.
 
 :::code-group
 
