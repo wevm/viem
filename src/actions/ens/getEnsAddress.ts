@@ -30,6 +30,7 @@ import {
   packetToBytes,
 } from '../../utils/ens/packetToBytes.js'
 import { getAction } from '../../utils/getAction.js'
+import { localBatchGatewayUrl } from '../../utils/localBatchGateway.js'
 import {
   type ReadContractParameters,
   readContract,
@@ -129,19 +130,18 @@ export async function getEnsAddress<chain extends Chain | undefined>(
       address: universalResolverAddress,
       abi: universalResolverResolveAbi,
       functionName: 'resolve',
-      args: [toHex(packetToBytes(name)), functionData],
+      args: [
+        toHex(packetToBytes(name)),
+        functionData,
+        gatewayUrls ?? [localBatchGatewayUrl],
+      ],
       blockNumber,
       blockTag,
     } as const
 
     const readContractAction = getAction(client, readContract, 'readContract')
 
-    const res = gatewayUrls
-      ? await readContractAction({
-          ...readContractParameters,
-          args: [...readContractParameters.args, gatewayUrls],
-        })
-      : await readContractAction(readContractParameters)
+    const res = await readContractAction(readContractParameters)
 
     if (res[0] === '0x') return null
 

@@ -43,6 +43,68 @@ export const multicall3Abi = [
   },
 ] as const
 
+export const batchGatewayAbi = [
+  {
+    name: 'query',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      {
+        type: 'tuple[]',
+        name: 'queries',
+        components: [
+          {
+            type: 'address',
+            name: 'sender',
+          },
+          {
+            type: 'string[]',
+            name: 'urls',
+          },
+          {
+            type: 'bytes',
+            name: 'data',
+          },
+        ],
+      },
+    ],
+    outputs: [
+      {
+        type: 'bool[]',
+        name: 'failures',
+      },
+      {
+        type: 'bytes[]',
+        name: 'responses',
+      },
+    ],
+  },
+  {
+    name: 'HttpError',
+    type: 'error',
+    inputs: [
+      {
+        type: 'uint16',
+        name: 'status',
+      },
+      {
+        type: 'string',
+        name: 'message',
+      },
+    ],
+  },
+  {
+    name: 'Error',
+    type: 'error',
+    inputs: [
+      {
+        type: 'string',
+        name: 'message',
+      },
+    ],
+  },
+] as const
+
 const universalResolverErrors = [
   {
     inputs: [],
