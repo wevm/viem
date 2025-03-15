@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added pyrope to chain definitions
+Added Pyrope chain.
