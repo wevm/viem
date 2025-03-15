@@ -367,8 +367,10 @@ export { phoenix } from './definitions/phoenix.js'
 export { planq } from './definitions/planq.js'
 export { playfiAlbireo } from './definitions/playfiAlbireo.js'
 export { plinga } from './definitions/plinga.js'
+/** @deprecated Use `plumeMainnet` instead. */
 export { plume } from './definitions/plume.js'
 export { plumeDevnet } from './definitions/plumeDevnet.js'
+export { plumeMainnet } from './definitions/plumeMainnet.js'
 /** @deprecated Use `plumeDevnet` instead. */
 export { plumeTestnet } from './definitions/plumeTestnet.js'
 export { polterTestnet } from './definitions/polterTestnet.js'
