@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-ZenChain Testnet token changed from ZCX to ZTC
+Updated ZenChain Testnet symbol from ZCX to ZTC.
