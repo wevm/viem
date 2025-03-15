@@ -1,104 +1,88 @@
 ---
-description: Signs an EIP-7702 Authorization object.
+description: Prepares an EIP-7702 Authorization for signing.
 ---
 
-# signAuthorization
+# prepareAuthorization
 
-Signs an [EIP-7702 Authorization](https://eips.ethereum.org/EIPS/eip-7702). The signed Authorization can be used in Transaction APIs like [`sendTransaction`](/docs/actions/wallet/sendTransaction#authorizationlist-optional) and [`writeContract`](/docs/contract/writeContract#authorizationlist-optional) to inject the authorized Contract bytecode(s) into an Account at the time of execution.
+Prepares an [EIP-7702 Authorization](https://eips.ethereum.org/EIPS/eip-7702) for signing. 
+This Action will fill the required fields of the Authorization object if they are not provided (e.g. `nonce` and `chainId`).
+
+With the prepared Authorization object, you can use [`signAuthorization`](/docs/eip7702/signAuthorization) to sign over it.
 
 ## Usage
-
-A Contract can be authorized by supplying a `contractAddress`. By default, it will be signed over the Account's next available Nonce and the current Chain ID. You can also [explicitly set the `nonce` and `chainId`](#scoping).
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { walletClient } from './client'
  
-const authorization = await walletClient.signAuthorization({ // [!code focus]
+const authorization = await walletClient.prepareAuthorization({ // [!code focus]
   contractAddress: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
 }) // [!code focus]
 // @log: {
 // @log:   chainId: 1,
 // @log:   contractAddress: "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
 // @log:   nonce: 1,
-// @log:   r: "0xf507fb8fa33ffd05a7f26c980bbb8271aa113affc8f192feba87abe26549bda1",
-// @log:   s: "0x1b2687608968ecb67230bbf7944199560fa2b3cffe9cc2b1c024e1c8f86a9e08",
-// @log:   yParity: 0,
 // @log: }
 
-const hash = await walletClient.sendTransaction({
-  authorizationList: [authorization],
-  data: '0xdeadbeef',
-  to: walletClient.account.address,
-})
+const signedAuthorization = await walletClient.signAuthorization(authorization)
 ```
 
 ```ts twoslash [client.ts] filename="client.ts"
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
-import { eip7702Actions } from 'viem/experimental'
 
 export const walletClient = createWalletClient({
   account: privateKeyToAccount('0x...'),
   chain: mainnet,
   transport: http(),
-}).extend(eip7702Actions())
+})
 ```
 
 :::
 
 ### Explicit Scoping
 
-We can explicitly sign over a provided `nonce` and/or `chainId` by supplying them as parameters:
+We can explicitly set a `nonce` and/or `chainId` by supplying them as parameters:
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { walletClient } from './client'
  
-const authorization = await walletClient.signAuthorization({
+const authorization = await walletClient.prepareAuthorization({
   contractAddress: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   chainId: 10, // [!code focus]
-  nonce: 420, // [!code focus]
 })
 // @log: {
 // @log:   chainId: 10,
 // @log:   contractAddress: "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
 // @log:   nonce: 420,
-// @log:   r: "0xf507fb8fa33ffd05a7f26c980bbb8271aa113affc8f192feba87abe26549bda1",
-// @log:   s: "0x1b2687608968ecb67230bbf7944199560fa2b3cffe9cc2b1c024e1c8f86a9e08",
-// @log:   yParity: 0,
 // @log: }
 
-const hash = await walletClient.sendTransaction({
-  authorizationList: [authorization],
-  data: '0xdeadbeef',
-  to: walletClient.account.address,
-})
+const signedAuthorization = await walletClient.signAuthorization(authorization)
 ```
 
 ```ts twoslash [client.ts] filename="client.ts"
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
-import { eip7702Actions } from 'viem/experimental'
 
 export const walletClient = createWalletClient({
   account: privateKeyToAccount('0x...'),
   chain: mainnet,
   transport: http(),
-}).extend(eip7702Actions())
+})
 ```
 
 :::
 
 ## Returns
 
-`SignedAuthorization`
+`Authorization`
 
-A signed Authorization object.
+A prepared & unsigned Authorization object.
 
 ## Parameters
 
@@ -106,7 +90,7 @@ A signed Authorization object.
 
 - **Type:** `Account`
 
-Account to use to authorize injection of the [Contract (`authorization`)](#authorization) onto the Account.
+Account to use to prepare the Authorization object. 
 
 Accepts a [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc).
 
@@ -114,7 +98,7 @@ Accepts a [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts
 import { privateKeyToAccount } from 'viem/accounts'
 import { walletClient } from './client'
 
-const authorization = await walletClient.signAuthorization({
+const authorization = await walletClient.prepareAuthorization({
   account: privateKeyToAccount('0x...'), // [!code focus]
   contractAddress: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
 }) 
@@ -125,13 +109,14 @@ const authorization = await walletClient.signAuthorization({
 - **Type:** `Address`
 - **Default:** `client.chain.id` or Network chain ID
 
-The Chain ID to scope the Authorization to.
+The Chain ID to scope the Authorization to. If set to zero (`0`), then the Authorization will
+be valid on all chains.
 
 ```ts twoslash
 import { privateKeyToAccount } from 'viem/accounts'
 import { walletClient } from './client'
 
-const authorization = await walletClient.signAuthorization({
+const authorization = await walletClient.prepareAuthorization({
   account: privateKeyToAccount('0x...'),
   contractAddress: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   chainId: 1, // [!code focus]
@@ -142,13 +127,13 @@ const authorization = await walletClient.signAuthorization({
 
 - **Type:** `Address`
 
-The target Contract to inject onto the Account.
+The target Contract to designate onto the Account.
 
 ```ts twoslash
 import { privateKeyToAccount } from 'viem/accounts'
 import { walletClient } from './client'
 
-const authorization = await walletClient.signAuthorization({
+const authorization = await walletClient.prepareAuthorization({
   account: privateKeyToAccount('0x...'),
   contractAddress: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2' // [!code focus]
 }) 
@@ -166,7 +151,7 @@ If not specified, it will be assumed that the EIP-7702 Transaction will be execu
 import { privateKeyToAccount } from 'viem/accounts'
 import { walletClient } from './client'
 
-const authorization = await walletClient.signAuthorization({
+const authorization = await walletClient.prepareAuthorization({
   account: privateKeyToAccount('0x...'),
   contractAddress: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   sponsor: true, // [!code focus]
@@ -184,7 +169,7 @@ The nonce to scope the Authorization to.
 import { privateKeyToAccount } from 'viem/accounts'
 import { walletClient } from './client'
 
-const authorization = await walletClient.signAuthorization({
+const authorization = await walletClient.prepareAuthorization({
   account: privateKeyToAccount('0x...'),
   contractAddress: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   nonce: 69, // [!code focus]

@@ -186,8 +186,8 @@ const signature = await walletClient.signTransaction({
 
 :::note
 **References**
-- [EIP-7702 Overview](/experimental/eip7702)
-- [`signAuthorization` Docs](/experimental/eip7702/signAuthorization)
+- [EIP-7702 Overview](/docs/eip7702)
+- [`signAuthorization` Docs](/docs/eip7702/signAuthorization)
 :::
 
 ### blobs (optional)

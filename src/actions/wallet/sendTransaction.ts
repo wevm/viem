@@ -16,10 +16,6 @@ import {
 } from '../../errors/account.js'
 import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
-import {
-  type RecoverAuthorizationAddressErrorType,
-  recoverAuthorizationAddress,
-} from '../../experimental/eip7702/utils/recoverAuthorizationAddress.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain, DeriveChain } from '../../types/chain.js'
 import type { GetChainParameter } from '../../types/chain.js'
@@ -27,6 +23,10 @@ import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
 import type { Hash } from '../../types/misc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
+import {
+  type RecoverAuthorizationAddressErrorType,
+  recoverAuthorizationAddress,
+} from '../../utils/authorization/recoverAuthorizationAddress.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type AssertCurrentChainErrorType,

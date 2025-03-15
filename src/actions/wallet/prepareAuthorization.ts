@@ -1,25 +1,25 @@
 import type { Address } from 'abitype'
-import type { Account } from '../../../accounts/types.js'
+import type { Account } from '../../accounts/types.js'
 import {
   type ParseAccountErrorType,
   parseAccount,
-} from '../../../accounts/utils/parseAccount.js'
-import { getChainId } from '../../../actions/public/getChainId.js'
-import { getTransactionCount } from '../../../actions/public/getTransactionCount.js'
-import type { Client } from '../../../clients/createClient.js'
-import type { Transport } from '../../../clients/transports/createTransport.js'
+} from '../../accounts/utils/parseAccount.js'
+import type { Client } from '../../clients/createClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
 import {
   AccountNotFoundError,
   type AccountNotFoundErrorType,
-} from '../../../errors/account.js'
-import type { ErrorType } from '../../../errors/utils.js'
-import type { GetAccountParameter } from '../../../types/account.js'
-import type { Chain } from '../../../types/chain.js'
-import type { PartialBy } from '../../../types/utils.js'
-import { isAddressEqual } from '../../../utils/address/isAddressEqual.js'
-import type { RequestErrorType } from '../../../utils/buildRequest.js'
-import { getAction } from '../../../utils/getAction.js'
-import type { Authorization } from '../types/authorization.js'
+} from '../../errors/account.js'
+import type { ErrorType } from '../../errors/utils.js'
+import type { GetAccountParameter } from '../../types/account.js'
+import type { Authorization } from '../../types/authorization.js'
+import type { Chain } from '../../types/chain.js'
+import type { PartialBy } from '../../types/utils.js'
+import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import { getAction } from '../../utils/getAction.js'
+import { getChainId } from '../public/getChainId.js'
+import { getTransactionCount } from '../public/getTransactionCount.js'
 
 export type PrepareAuthorizationParameters<
   account extends Account | undefined = Account | undefined,
@@ -50,7 +50,7 @@ export type PrepareAuthorizationErrorType =
  * Prepares an [EIP-7702 Authorization](https://eips.ethereum.org/EIPS/eip-7702) object for signing.
  * This Action will fill the required fields of the Authorization object if they are not provided (e.g. `nonce` and `chainId`).
  *
- * With the prepared Authorization object, you can use [`signAuthorization`](https://viem.sh/experimental/eip7702/signAuthorization) to sign over the Authorization object.
+ * With the prepared Authorization object, you can use [`signAuthorization`](https://viem.sh/docs/eip7702/signAuthorization) to sign over the Authorization object.
  *
  * @param client - Client to use
  * @param parameters - {@link PrepareAuthorizationParameters}
@@ -94,16 +94,11 @@ export async function prepareAuthorization<
   client: Client<Transport, chain, account>,
   parameters: PrepareAuthorizationParameters<account>,
 ): Promise<PrepareAuthorizationReturnType> {
-  const {
-    account: account_ = client.account,
-    contractAddress,
-    chainId,
-    nonce,
-  } = parameters
+  const { account: account_ = client.account, chainId, nonce } = parameters
 
   if (!account_)
     throw new AccountNotFoundError({
-      docsPath: '/experimental/eip7702/prepareAuthorization',
+      docsPath: '/docs/eip7702/prepareAuthorization',
     })
   const account = parseAccount(account_)
 
@@ -115,7 +110,7 @@ export async function prepareAuthorization<
   })()
 
   const authorization = {
-    contractAddress,
+    contractAddress: parameters.contractAddress ?? parameters.address,
     chainId,
     nonce,
   } as Authorization

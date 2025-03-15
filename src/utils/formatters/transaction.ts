@@ -1,6 +1,5 @@
 import type { ErrorType } from '../../errors/utils.js'
-import type { SignedAuthorizationList } from '../../experimental/eip7702/types/authorization.js'
-import type { RpcAuthorizationList } from '../../experimental/eip7702/types/rpc.js'
+import type { SignedAuthorizationList } from '../../types/authorization.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
@@ -8,7 +7,7 @@ import type {
   ExtractChainFormatterReturnType,
 } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
-import type { RpcTransaction } from '../../types/rpc.js'
+import type { RpcAuthorizationList, RpcTransaction } from '../../types/rpc.js'
 import type { Transaction, TransactionType } from '../../types/transaction.js'
 import type { ExactPartial, UnionLooseOmit } from '../../types/utils.js'
 import { hexToNumber } from '../encoding/fromHex.js'

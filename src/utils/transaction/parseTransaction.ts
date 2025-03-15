@@ -12,7 +12,7 @@ import type { ErrorType } from '../../errors/utils.js'
 import type {
   SerializedAuthorizationList,
   SignedAuthorizationList,
-} from '../../experimental/eip7702/types/authorization.js'
+} from '../../types/authorization.js'
 import type { Hex, Signature } from '../../types/misc.js'
 import type {
   AccessList,
