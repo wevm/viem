@@ -1,5 +1,19 @@
 # viem
 
+## 2.23.11
+
+### Patch Changes
+
+- [#3442](https://github.com/wevm/viem/pull/3442) [`6dda4877ca9081675834fae51f70838ba5441cdf`](https://github.com/wevm/viem/commit/6dda4877ca9081675834fae51f70838ba5441cdf) Thanks [@LordMarkDev](https://github.com/LordMarkDev)! - Updated ZenChain Testnet symbol from ZCX to ZTC.
+
+- [#3447](https://github.com/wevm/viem/pull/3447) [`86f2474255ad6d17bf925ede51fd9466682fd28e`](https://github.com/wevm/viem/commit/86f2474255ad6d17bf925ede51fd9466682fd28e) Thanks [@biruichen](https://github.com/biruichen)! - Added Plume Mainnet.
+
+- [#3445](https://github.com/wevm/viem/pull/3445) [`ea5a0ced1210873df75920b1c9d8afcbc8c6359e`](https://github.com/wevm/viem/commit/ea5a0ced1210873df75920b1c9d8afcbc8c6359e) Thanks [@UnsignedInt8](https://github.com/UnsignedInt8)! - Added assertion for non-null data in `simulateBlocks`.
+
+- [#3438](https://github.com/wevm/viem/pull/3438) [`34152c2fb16f45611fb99718e51952cd212a381c`](https://github.com/wevm/viem/commit/34152c2fb16f45611fb99718e51952cd212a381c) Thanks [@0xxlegolas](https://github.com/0xxlegolas)! - Added Pyrope chain.
+
+- [#3437](https://github.com/wevm/viem/pull/3437) [`988ee7c89e5e9bb49e455704084c826ae3875101`](https://github.com/wevm/viem/commit/988ee7c89e5e9bb49e455704084c826ae3875101) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Added nibiru chain
+
 ## 2.23.10
 
 ### Patch Changes
