@@ -71,7 +71,6 @@
     "simple-git-hooks": "^2.11.1",
     "size-limit": "^11.1.6",
     "typescript": "5.6.2",
-    "viem-prev": "npm:viem@latest",
     "vitest": "^1.0.4"
   },
   "packageManager": "pnpm@9.1.0",
