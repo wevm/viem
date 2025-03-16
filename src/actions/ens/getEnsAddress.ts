@@ -24,13 +24,13 @@ import {
 import { type TrimErrorType, trim } from '../../utils/data/trim.js'
 import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
 import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
+import { localBatchGatewayUrl } from '../../utils/ens/localBatchGatewayRequest.js'
 import { type NamehashErrorType, namehash } from '../../utils/ens/namehash.js'
 import {
   type PacketToBytesErrorType,
   packetToBytes,
 } from '../../utils/ens/packetToBytes.js'
 import { getAction } from '../../utils/getAction.js'
-import { localBatchGatewayUrl } from '../../utils/localBatchGateway.js'
 import {
   type ReadContractParameters,
   readContract,

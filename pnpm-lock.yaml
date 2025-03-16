@@ -80,7 +80,7 @@ importers:
         version: 0.14.0
       permissionless:
         specifier: ^0.2.14
-        version: 0.2.14
+        version: 0.2.14(viem@2.23.11(typescript@5.6.2)(zod@3.23.8))
       prool:
         specifier: 0.0.23
         version: 0.0.23(@pimlico/alto@0.0.4(typescript@5.6.2))
@@ -99,6 +99,9 @@ importers:
       typescript:
         specifier: 5.6.2
         version: 5.6.2
+      viem-prev:
+        specifier: npm:viem@latest
+        version: viem@2.23.11(typescript@5.6.2)(zod@3.23.8)
       vitest:
         specifier: ^1.0.4
         version: 1.0.4(@types/node@20.16.12)(@vitest/ui@1.0.4)(lightningcss@1.29.1)(terser@5.36.0)
@@ -5787,8 +5790,8 @@ packages:
   vfile@6.0.3:
     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
 
-  viem@2.23.10:
-    resolution: {integrity: sha512-va6Wde+v96PdfzdPEspCML1MjAqe+88O8BD+R9Kun/4s5KMUNcqfHbXdZP0ZZ2Zms80styvH2pDRAqCho6TqkA==}
+  viem@2.23.11:
+    resolution: {integrity: sha512-yPkHJt4Vn88kLlrv8mrtVN54PW4vNLWRWDScf8SaHK2f44VlMk5IZbMJw4ycUoW9K9GUvCMrYuUa34MAcwYHIg==}
     peerDependencies:
       typescript: '>=5.0.4'
     peerDependenciesMeta:
@@ -7288,7 +7291,7 @@ snapshots:
       pino-http: 8.6.1
       pino-pretty: 10.3.1
       prom-client: 14.2.0
-      viem: 2.23.10(typescript@5.6.2)(zod@3.23.8)
+      viem: 2.23.11(typescript@5.6.2)(zod@3.23.8)
       yargs: 17.7.2
       zod: 3.23.8
       zod-validation-error: 1.5.0(zod@3.23.8)
@@ -10894,7 +10897,9 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.14: {}
+  permissionless@0.2.14(viem@2.23.11(typescript@5.6.2)(zod@3.23.8)):
+    dependencies:
+      viem: 2.23.11(typescript@5.6.2)(zod@3.23.8)
 
   picocolors@1.1.1: {}
 
@@ -12034,7 +12039,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
 
-  viem@2.23.10(typescript@5.6.2)(zod@3.23.8):
+  viem@2.23.11(typescript@5.6.2)(zod@3.23.8):
     dependencies:
       '@noble/curves': 1.8.1
       '@noble/hashes': 1.7.1
