@@ -141,7 +141,7 @@ export async function ccipRequest({
 
     try {
       const response = await fetch(
-        url.replace('{sender}', sender).replace('{data}', data),
+        url.replace('{sender}', sender.toLowerCase()).replace('{data}', data),
         {
           body: JSON.stringify(body),
           headers,
