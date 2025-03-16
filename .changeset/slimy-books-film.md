@@ -1,5 +1,5 @@
 ---
-"viem": minor
+"viem": patch
 ---
 
-Added `isWithdrawalFinalized` action in ZKsync extension
+**ZKSync Extension**: Added `isWithdrawalFinalized` action.
