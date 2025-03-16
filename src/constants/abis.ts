@@ -93,16 +93,6 @@ export const batchGatewayAbi = [
       },
     ],
   },
-  {
-    name: 'Error',
-    type: 'error',
-    inputs: [
-      {
-        type: 'string',
-        name: 'message',
-      },
-    ],
-  },
 ] as const
 
 const universalResolverErrors = [

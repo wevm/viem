@@ -1,4 +1,5 @@
 import { batchGatewayAbi } from '../constants/abis.js'
+import { solidityError } from '..//constants/solidity.js'
 import { BaseError } from '../errors/base.js'
 import { HttpRequestError } from '../errors/request.js'
 import type { Hex } from '../types/misc.js'
@@ -45,7 +46,7 @@ function encodeError(err: unknown): Hex {
     })
   }
   return encodeErrorResult({
-    abi: batchGatewayAbi,
+    abi: [solidityError],
     errorName: 'Error',
     args: [
       err instanceof Error
