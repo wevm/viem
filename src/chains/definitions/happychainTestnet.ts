@@ -17,7 +17,7 @@ export const happychainTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Happy Chain Testnet Explorer',
-      url: 'https://explorer.testnet.happy.tech/',
+      url: 'https://explorer.testnet.happy.tech',
     },
   },
   contracts: {
