@@ -1289,6 +1289,10 @@ export const sidebar = {
                 text: 'showCallsStatus',
                 link: '/experimental/eip5792/showCallsStatus',
               },
+              {
+                text: 'waitForCallsStatus',
+                link: '/experimental/eip5792/waitForCallsStatus',
+              },
             ],
           },
         ],

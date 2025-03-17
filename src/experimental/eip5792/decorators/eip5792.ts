@@ -23,6 +23,11 @@ import {
   showCallsStatus,
 } from '../actions/showCallsStatus.js'
 import {
+  type WaitForCallsStatusParameters,
+  type WaitForCallsStatusReturnType,
+  waitForCallsStatus,
+} from '../actions/waitForCallsStatus.js'
+import {
   type WriteContractsParameters,
   type WriteContractsReturnType,
   writeContracts,
@@ -144,6 +149,31 @@ export type Eip5792Actions<
     parameters: ShowCallsStatusParameters,
   ) => Promise<ShowCallsStatusReturnType>
   /**
+   * Waits for the status & receipts of a call bundle that was sent via `sendCalls`.
+   *
+   * - Docs: https://viem.sh/experimental/eip5792/waitForCallsStatus
+   * - JSON-RPC Methods: [`wallet_getCallsStatus`](https://eips.ethereum.org/EIPS/eip-5792)
+   *
+   * @param client - Client to use
+   * @param parameters - {@link WaitForCallsStatusParameters}
+   * @returns Status & receipts of the call bundle. {@link WaitForCallsStatusReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { waitForCallsStatus } from 'viem/experimental'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   *
+   * const { receipts, status } = await waitForCallsStatus(client, { id: '0xdeadbeef' })
+   */
+  waitForCallsStatus: (
+    parameters: WaitForCallsStatusParameters,
+  ) => Promise<WaitForCallsStatusReturnType>
+  /**
    * Requests for the wallet to sign and broadcast a batch of write contract calls (transactions) to the network.
    *
    * - Docs: https://viem.sh/experimental/eip5792/writeContracts
@@ -231,6 +261,8 @@ export function eip5792Actions() {
         getCapabilities(client as any, parameters)) as any,
       sendCalls: (parameters) => sendCalls(client, parameters),
       showCallsStatus: (parameters) => showCallsStatus(client, parameters),
+      waitForCallsStatus: (parameters) =>
+        waitForCallsStatus(client, parameters),
       writeContracts: (parameters) => writeContracts(client, parameters),
     }
   }

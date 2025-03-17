@@ -36,7 +36,7 @@ export type GetCapabilitiesErrorType = RequestErrorType | ErrorType
  * @example
  * import { createWalletClient, custom } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { getCapabilities } from 'viem/wallet'
+ * import { getCapabilities } from 'viem/experimental'
  *
  * const client = createWalletClient({
  *   chain: mainnet,

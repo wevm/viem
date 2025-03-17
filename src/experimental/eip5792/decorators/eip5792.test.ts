@@ -54,6 +54,7 @@ test('default', async () => {
       "getCapabilities": [Function],
       "sendCalls": [Function],
       "showCallsStatus": [Function],
+      "waitForCallsStatus": [Function],
       "writeContracts": [Function],
     }
   `)

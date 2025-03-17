@@ -24,6 +24,14 @@ export {
   showCallsStatus,
 } from './eip5792/actions/showCallsStatus.js'
 export {
+  type WaitForCallsStatusErrorType,
+  type WaitForCallsStatusParameters,
+  type WaitForCallsStatusReturnType,
+  type WaitForCallsStatusTimeoutErrorType,
+  WaitForCallsStatusTimeoutError,
+  waitForCallsStatus,
+} from './eip5792/actions/waitForCallsStatus.js'
+export {
   type WriteContractsErrorType,
   type WriteContractsParameters,
   type WriteContractsReturnType,

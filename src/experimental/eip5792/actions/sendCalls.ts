@@ -49,7 +49,7 @@ export type SendCallsErrorType = RequestErrorType | ErrorType
  * @example
  * import { createWalletClient, custom } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { sendCalls } from 'viem/wallet'
+ * import { sendCalls } from 'viem/experimental'
  *
  * const client = createWalletClient({
  *   chain: mainnet,
