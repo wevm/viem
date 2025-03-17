@@ -91,8 +91,8 @@ function formatAuthorizationList(
     (authorization) =>
       ({
         address: authorization.contractAddress,
-        r: authorization.r,
-        s: authorization.s,
+        r: numberToHex(authorization.r),
+        s: numberToHex(authorization.s),
         chainId: numberToHex(authorization.chainId),
         nonce: numberToHex(authorization.nonce),
         ...(typeof authorization.yParity !== 'undefined'
