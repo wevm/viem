@@ -51,7 +51,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd719
         with: 
           submodules: 'recursive'
 
@@ -59,7 +59,7 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Publish to NPM
-        uses: changesets/action@v1
+        uses: changesets/action@06245a4
         with:
           createGithubReleases: ${{ github.ref == 'refs/heads/main' }}
           publish: pnpm changeset:publish
@@ -93,7 +93,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd719
         with: 
           submodules: 'recursive'
 
