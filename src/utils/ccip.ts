@@ -88,13 +88,12 @@ export async function offchainLookup<chain extends Chain | undefined>(
     if (!isAddressEqual(to, sender))
       throw new OffchainLookupSenderMismatchError({ sender, to })
 
-    const result =
-      urls.length === 1 && urls[0] === localBatchGatewayUrl
-        ? await localBatchGatewayRequest({
-            data: callData,
-            ccipRequest: ccipRequest_,
-          })
-        : await ccipRequest_({ data: callData, sender, urls })
+    const result = urls.includes(localBatchGatewayUrl)
+      ? await localBatchGatewayRequest({
+          data: callData,
+          ccipRequest: ccipRequest_,
+        })
+      : await ccipRequest_({ data: callData, sender, urls })
 
     const { data: data_ } = await call(client, {
       blockNumber,
