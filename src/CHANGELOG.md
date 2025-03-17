@@ -1,5 +1,25 @@
 # viem
 
+## 2.23.12
+
+### Patch Changes
+
+- [#3449](https://github.com/wevm/viem/pull/3449) [`265c681bd2ceb7507cb3f81e0546fc8f98bbc78a`](https://github.com/wevm/viem/commit/265c681bd2ceb7507cb3f81e0546fc8f98bbc78a) Thanks [@adraffy](https://github.com/adraffy)! - Lowercased `sender` in CCIP-read.
+
+- [#3456](https://github.com/wevm/viem/pull/3456) [`6a2b130a7213acfc347a1a804f0fb46106e6361d`](https://github.com/wevm/viem/commit/6a2b130a7213acfc347a1a804f0fb46106e6361d) Thanks [@ly0va](https://github.com/ly0va)! - **ZKsync Extension:** Fixed nullish data encoding.
+
+- [#3455](https://github.com/wevm/viem/pull/3455) [`e4dc49916fc155425ecb3962ca3399c52154bf21`](https://github.com/wevm/viem/commit/e4dc49916fc155425ecb3962ca3399c52154bf21) Thanks [@orenyomtov](https://github.com/orenyomtov)! - Fixed leading zero hex encoding for EIP-7702 transactions.
+
+- [#3457](https://github.com/wevm/viem/pull/3457) [`8560051705a67d1921ab06b0c68bdbd3b6b0ab6c`](https://github.com/wevm/viem/commit/8560051705a67d1921ab06b0c68bdbd3b6b0ab6c) Thanks [@aodhgan](https://github.com/aodhgan)! - Updated Happychain Testnet URLs.
+
+- [#3379](https://github.com/wevm/viem/pull/3379) [`09d61c3f9b4237b696afb5f89b8f489009239e5c`](https://github.com/wevm/viem/commit/09d61c3f9b4237b696afb5f89b8f489009239e5c) Thanks [@danijelTxFusion](https://github.com/danijelTxFusion)! - **ZKSync Extension**: Added `isWithdrawalFinalized` action.
+
+- [#3452](https://github.com/wevm/viem/pull/3452) [`f6a253aff9c9ae70a29fdffb15ae778349699f8e`](https://github.com/wevm/viem/commit/f6a253aff9c9ae70a29fdffb15ae778349699f8e) Thanks [@charlenenicer](https://github.com/charlenenicer)! - Added basecamp testnet chain.
+
+- [#3450](https://github.com/wevm/viem/pull/3450) [`26e8a782ef60f18dcf5469e7dd5a125f7b10d039`](https://github.com/wevm/viem/commit/26e8a782ef60f18dcf5469e7dd5a125f7b10d039) Thanks [@emmaodia](https://github.com/emmaodia)! - Added Somnia Testnet chain
+
+- [`8527569ed4b9704b380c24a11aece9e0475f6b73`](https://github.com/wevm/viem/commit/8527569ed4b9704b380c24a11aece9e0475f6b73) Thanks [@jxom](https://github.com/jxom)! - **Experimental (EIP-5792):** Added `waitForCallsStatus` Action.
+
 ## 2.23.11
 
 ### Patch Changes
