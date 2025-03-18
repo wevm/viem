@@ -67,6 +67,11 @@ export {
   type CallReturnType,
 } from './actions/public/call.js'
 export type {
+  CreateAccessListParameters,
+  CreateAccessListReturnType,
+  CreateAccessListErrorType,
+} from './actions/public/createAccessList.js'
+export type {
   CreateBlockFilterErrorType,
   CreateBlockFilterReturnType,
 } from './actions/public/createBlockFilter.js'
@@ -268,6 +273,22 @@ export type {
 } from './actions/public/multicall.js'
 export type { SnapshotErrorType } from './actions/test/snapshot.js'
 export type {
+  SimulateBlocksParameters,
+  SimulateBlocksReturnType,
+  SimulateBlocksErrorType,
+} from './actions/public/simulateBlocks.js'
+export type {
+  SimulateCallsParameters,
+  SimulateCallsReturnType,
+  SimulateCallsErrorType,
+} from './actions/public/simulateCalls.js'
+export type {
+  GetMutabilityAwareValue,
+  SimulateContractParameters,
+  SimulateContractReturnType,
+  SimulateContractErrorType,
+} from './actions/public/simulateContract.js'
+export type {
   OnBlock,
   OnBlockParameter,
   WatchBlocksErrorType,
@@ -419,11 +440,6 @@ export type {
   SignTypedDataParameters,
   SignTypedDataReturnType,
 } from './actions/wallet/signTypedData.js'
-export type {
-  SimulateContractErrorType,
-  SimulateContractParameters,
-  SimulateContractReturnType,
-} from './actions/public/simulateContract.js'
 export type {
   StopImpersonatingAccountErrorType,
   StopImpersonatingAccountParameters,
