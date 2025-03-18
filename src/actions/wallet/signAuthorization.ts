@@ -1,22 +1,22 @@
-import type { Account } from '../../../accounts/types.js'
+import type { Account } from '../../accounts/types.js'
 import {
   type ParseAccountErrorType,
   parseAccount,
-} from '../../../accounts/utils/parseAccount.js'
+} from '../../accounts/utils/parseAccount.js'
 import type {
   SignAuthorizationErrorType as SignAuthorizationErrorType_account,
   SignAuthorizationReturnType as SignAuthorizationReturnType_account,
-} from '../../../accounts/utils/signAuthorization.js'
-import type { Client } from '../../../clients/createClient.js'
-import type { Transport } from '../../../clients/transports/createTransport.js'
+} from '../../accounts/utils/signAuthorization.js'
+import type { Client } from '../../clients/createClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
 import {
   AccountNotFoundError,
   type AccountNotFoundErrorType,
   AccountTypeNotSupportedError,
   type AccountTypeNotSupportedErrorType,
-} from '../../../errors/account.js'
-import type { ErrorType } from '../../../errors/utils.js'
-import type { Chain } from '../../../types/chain.js'
+} from '../../errors/account.js'
+import type { ErrorType } from '../../errors/utils.js'
+import type { Chain } from '../../types/chain.js'
 import {
   type PrepareAuthorizationErrorType,
   type PrepareAuthorizationParameters,
@@ -41,8 +41,8 @@ export type SignAuthorizationErrorType =
  * Signs an [EIP-7702 Authorization](https://eips.ethereum.org/EIPS/eip-7702) object.
  *
  * With the calculated signature, you can:
- * - use [`verifyAuthorization`](https://viem.sh/experimental/eip7702/verifyAuthorization) to verify the signed Authorization object,
- * - use [`recoverAuthorizationAddress`](https://viem.sh/experimental/eip7702/recoverAuthorizationAddress) to recover the signing address from the signed Authorization object.
+ * - use [`verifyAuthorization`](https://viem.sh/docs/eip7702/verifyAuthorization) to verify the signed Authorization object,
+ * - use [`recoverAuthorizationAddress`](https://viem.sh/docs/eip7702/recoverAuthorizationAddress) to recover the signing address from the signed Authorization object.
  *
  * @param client - Client to use
  * @param parameters - {@link SignAuthorizationParameters}
@@ -90,13 +90,13 @@ export async function signAuthorization<
 
   if (!account_)
     throw new AccountNotFoundError({
-      docsPath: '/experimental/eip7702/signAuthorization',
+      docsPath: '/docs/eip7702/signAuthorization',
     })
   const account = parseAccount(account_)
 
-  if (!account.experimental_signAuthorization)
+  if (!account.signAuthorization)
     throw new AccountTypeNotSupportedError({
-      docsPath: '/experimental/eip7702/signAuthorization',
+      docsPath: '/docs/eip7702/signAuthorization',
       metaMessages: [
         'The `signAuthorization` Action does not support JSON-RPC Accounts.',
       ],
@@ -104,5 +104,5 @@ export async function signAuthorization<
     })
 
   const authorization = await prepareAuthorization(client, parameters)
-  return account.experimental_signAuthorization(authorization)
+  return account.signAuthorization(authorization)
 }

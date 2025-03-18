@@ -1128,8 +1128,18 @@ export type {
   HDKey,
 } from './types/account.js'
 export type {
+  Authorization,
+  AuthorizationList,
+  SerializedAuthorization,
+  SerializedAuthorizationList,
+  SignedAuthorization,
+  SignedAuthorizationList,
+} from './types/authorization.js'
+export type {
   Index,
   Quantity,
+  RpcAuthorization,
+  RpcAuthorizationList,
   RpcBlock,
   RpcBlockIdentifier,
   RpcBlockNumber,

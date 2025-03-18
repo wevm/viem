@@ -42,9 +42,9 @@ describe('toAccount', () => {
     ).toMatchInlineSnapshot(`
       {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-        "experimental_signAuthorization": undefined,
         "nonceManager": undefined,
         "sign": undefined,
+        "signAuthorization": undefined,
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],

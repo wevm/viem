@@ -23,6 +23,11 @@ import {
   getPermissions,
 } from '../../actions/wallet/getPermissions.js'
 import {
+  type PrepareAuthorizationParameters,
+  type PrepareAuthorizationReturnType,
+  prepareAuthorization,
+} from '../../actions/wallet/prepareAuthorization.js'
+import {
   type PrepareTransactionRequestParameters,
   type PrepareTransactionRequestRequest,
   type PrepareTransactionRequestReturnType,
@@ -48,6 +53,11 @@ import {
   type SendTransactionReturnType,
   sendTransaction,
 } from '../../actions/wallet/sendTransaction.js'
+import {
+  type SignAuthorizationParameters,
+  type SignAuthorizationReturnType,
+  signAuthorization,
+} from '../../actions/wallet/signAuthorization.js'
 import {
   type SignMessageParameters,
   type SignMessageReturnType,
@@ -197,6 +207,52 @@ export type WalletActions<
    * const permissions = await client.getPermissions()
    */
   getPermissions: () => Promise<GetPermissionsReturnType>
+  /**
+   * Prepares an [EIP-7702 Authorization](https://eips.ethereum.org/EIPS/eip-7702) object for signing.
+   * This Action will fill the required fields of the Authorization object if they are not provided (e.g. `nonce` and `chainId`).
+   *
+   * With the prepared Authorization object, you can use [`signAuthorization`](https://viem.sh/docs/eip7702/signAuthorization) to sign over the Authorization object.
+   *
+   * @param client - Client to use
+   * @param parameters - {@link PrepareAuthorizationParameters}
+   * @returns The prepared Authorization object. {@link PrepareAuthorizationReturnType}
+   *
+   * @example
+   * import { createClient, http } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
+   * import { mainnet } from 'viem/chains'
+   * import { eip7702Actions } from 'viem/experimental'
+   *
+   * const client = createClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(eip7702Actions())
+   *
+   * const authorization = await client.prepareAuthorization({
+   *   account: privateKeyToAccount('0x..'),
+   *   contractAddress: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   * })
+   *
+   * @example
+   * // Account Hoisting
+   * import { createClient, http } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
+   * import { mainnet } from 'viem/chains'
+   * import { eip7702Actions } from 'viem/experimental'
+   *
+   * const client = createClient({
+   *   account: privateKeyToAccount('0x…'),
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(eip7702Actions())
+   *
+   * const authorization = await client.prepareAuthorization({
+   *   contractAddress: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   * })
+   */
+  prepareAuthorization: (
+    parameters: PrepareAuthorizationParameters<account>,
+  ) => Promise<PrepareAuthorizationReturnType>
   /**
    * Prepares a transaction request for signing.
    *
@@ -381,6 +437,53 @@ export type WalletActions<
   >(
     args: SendTransactionParameters<chain, account, chainOverride, request>,
   ) => Promise<SendTransactionReturnType>
+  /**
+   * Signs an [EIP-7702 Authorization](https://eips.ethereum.org/EIPS/eip-7702) object.
+   *
+   * With the calculated signature, you can:
+   * - use [`verifyAuthorization`](https://viem.sh/docs/eip7702/verifyAuthorization) to verify the signed Authorization object,
+   * - use [`recoverAuthorizationAddress`](https://viem.sh/docs/eip7702/recoverAuthorizationAddress) to recover the signing address from the signed Authorization object.
+   *
+   * @param client - Client to use
+   * @param parameters - {@link SignAuthorizationParameters}
+   * @returns The signed Authorization object. {@link SignAuthorizationReturnType}
+   *
+   * @example
+   * import { createClient, http } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
+   * import { mainnet } from 'viem/chains'
+   * import { eip7702Actions } from 'viem/experimental'
+   *
+   * const client = createClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(eip7702Actions())
+   *
+   * const signature = await client.signAuthorization({
+   *   account: privateKeyToAccount('0x..'),
+   *   contractAddress: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   * })
+   *
+   * @example
+   * // Account Hoisting
+   * import { createClient, http } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
+   * import { mainnet } from 'viem/chains'
+   * import { eip7702Actions } from 'viem/experimental'
+   *
+   * const client = createClient({
+   *   account: privateKeyToAccount('0x…'),
+   *   chain: mainnet,
+   *   transport: http(),
+   * }).extend(eip7702Actions())
+   *
+   * const signature = await client.signAuthorization({
+   *   contractAddress: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   * })
+   */
+  signAuthorization: (
+    parameters: SignAuthorizationParameters<account>,
+  ) => Promise<SignAuthorizationReturnType>
   /**
    * Calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191): `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
    *
@@ -706,12 +809,14 @@ export function walletActions<
     getAddresses: () => getAddresses(client),
     getChainId: () => getChainId(client),
     getPermissions: () => getPermissions(client),
+    prepareAuthorization: (args) => prepareAuthorization(client, args),
     prepareTransactionRequest: (args) =>
       prepareTransactionRequest(client as any, args as any) as any,
     requestAddresses: () => requestAddresses(client),
     requestPermissions: (args) => requestPermissions(client, args),
     sendRawTransaction: (args) => sendRawTransaction(client, args),
     sendTransaction: (args) => sendTransaction(client, args),
+    signAuthorization: (args) => signAuthorization(client, args),
     signMessage: (args) => signMessage(client, args),
     signTransaction: (args) => signTransaction(client, args),
     signTypedData: (args) => signTypedData(client, args),

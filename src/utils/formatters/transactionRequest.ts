@@ -1,12 +1,14 @@
 import type { ErrorType } from '../../errors/utils.js'
-import type { AuthorizationList } from '../../experimental/eip7702/types/authorization.js'
-import type { RpcAuthorizationList } from '../../experimental/eip7702/types/rpc.js'
+import type { AuthorizationList } from '../../types/authorization.js'
 import type {
   Chain,
   ExtractChainFormatterParameters,
 } from '../../types/chain.js'
 import type { ByteArray } from '../../types/misc.js'
-import type { RpcTransactionRequest } from '../../types/rpc.js'
+import type {
+  RpcAuthorizationList,
+  RpcTransactionRequest,
+} from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { ExactPartial } from '../../types/utils.js'
 import { bytesToHex, numberToHex } from '../encoding/toHex.js'

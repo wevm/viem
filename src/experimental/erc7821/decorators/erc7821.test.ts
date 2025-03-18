@@ -5,8 +5,7 @@ import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { accounts } from '../../../../test/src/constants.js'
 import { deploy } from '../../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
-import { mine } from '../../../actions/index.js'
-import { signAuthorization } from '../../eip7702/actions/signAuthorization.js'
+import { mine, signAuthorization } from '../../../actions/index.js'
 import { erc7821Actions } from './erc7821.js'
 
 const client = anvilMainnet

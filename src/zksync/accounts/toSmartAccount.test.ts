@@ -25,9 +25,9 @@ test('default', () => {
   ).toMatchInlineSnapshot(`
     {
       "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-      "experimental_signAuthorization": undefined,
       "nonceManager": undefined,
       "sign": [Function],
+      "signAuthorization": undefined,
       "signMessage": [Function],
       "signTransaction": [Function],
       "signTypedData": [Function],

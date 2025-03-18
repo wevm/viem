@@ -163,6 +163,29 @@ export {
   formatAbiParams,
 } from './abi/formatAbiItem.js'
 export {
+  type HashAuthorizationErrorType,
+  type HashAuthorizationParameters,
+  type HashAuthorizationReturnType,
+  hashAuthorization,
+} from './authorization/hashAuthorization.js'
+export {
+  type RecoverAuthorizationAddressErrorType,
+  type RecoverAuthorizationAddressParameters,
+  type RecoverAuthorizationAddressReturnType,
+  recoverAuthorizationAddress,
+} from './authorization/recoverAuthorizationAddress.js'
+export {
+  type SerializeAuthorizationListErrorType,
+  type SerializeAuthorizationListReturnType,
+  serializeAuthorizationList,
+} from './authorization/serializeAuthorizationList.js'
+export {
+  type VerifyAuthorizationErrorType,
+  type VerifyAuthorizationParameters,
+  type VerifyAuthorizationReturnType,
+  verifyAuthorization,
+} from './authorization/verifyAuthorization.js'
+export {
   type ParseAccountErrorType,
   parseAccount,
 } from '../accounts/utils/parseAccount.js'
