@@ -4,6 +4,7 @@ import type { JsonRpcAccount } from '../accounts/types.js'
 import { localhost } from '../chains/index.js'
 import { rpcSchema } from './createClient.js'
 import { type WalletClient, createWalletClient } from './createWalletClient.js'
+import { publicActions } from './decorators/public.js'
 import { http } from './transports/http.js'
 
 test('with chain', () => {
@@ -64,4 +65,11 @@ test('with custom rpc schema', async () => {
     params: ['hello'],
   })
   expectTypeOf(result).toEqualTypeOf<string>()
+})
+
+test('createWalletClient.extend + publicActions', () => {
+  createWalletClient({
+    chain: localhost,
+    transport: http(),
+  }).extend(publicActions)
 })
