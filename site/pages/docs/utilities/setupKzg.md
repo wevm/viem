@@ -25,6 +25,7 @@ import { setupKzg } from 'viem'
 ## Usage
 
 ```ts twoslash
+// @noErrors
 import * as cKzg from 'c-kzg'
 import { setupKzg } from 'viem'
 import { mainnetTrustedSetupPath } from 'viem/node'
@@ -78,6 +79,7 @@ The KZG interface.
 The [EIP-4844](https://eips.ethereum.org/EIPS/eip-4844) compatible [KZG interface](https://notes.ethereum.org/@vbuterin/proto_danksharding_faq#How-%E2%80%9Ccomplicated%E2%80%9D-and-%E2%80%9Cnew%E2%80%9D-is-KZG).
 
 ```ts twoslash
+// @noErrors
 import * as cKzg from 'c-kzg' // [!code focus]
 import { setupKzg } from 'viem'
 import { mainnetTrustedSetupPath } from 'viem/node'
@@ -95,6 +97,7 @@ const kzg = setupKzg(
 The path to the trusted setup file. 
 
 ```ts twoslash
+// @noErrors
 import * as cKzg from 'c-kzg'
 import { setupKzg } from 'viem'
 import { mainnetTrustedSetupPath } from 'viem/node' // [!code focus]
