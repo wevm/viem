@@ -168,7 +168,7 @@ const transport = webSocket('wss://1.rpc.thirdweb.com/...', {
 - **Type:** `number`
 - **Default:** `150`
 
-The base delay (in ms) between retries. By default, the Transport will use [exponential backoff](wss://en.wikipedia.org/wiki/Exponential_backoff) (`~~(1 << count) * retryDelay`), which means the time between retries is not constant.
+The base delay (in ms) between retries. By default, the Transport will use [exponential backoff](https://en.wikipedia.org/wiki/Exponential_backoff) (`~~(1 << count) * retryDelay`), which means the time between retries is not constant.
 
 ```ts twoslash
 import { webSocket } from 'viem'
