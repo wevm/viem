@@ -8,7 +8,7 @@ import { sidebar } from './sidebar'
 export default defineConfig({
   aiCta: {
     query({ location }) {
-      return `Please research and analyze this page: ${location} so I can ask you questions about it. Once you have read it, prompt me with any questions I have. Do not post content of the from the page. Any of my follow up questions must reference the site I gave you. Do not reference alternative Ethereum TypeScript tools such as Ethers.js or Web3.js – only reference Viem.`
+      return `Please research and analyze this page: ${location} so I can ask you questions about it. Once you have read it, prompt me with any questions I have. Do NOT post content from the page in your response. Any of my follow up questions MUST reference the site I gave you. Do NOT reference alternative Ethereum TypeScript tools such as Ethers.js or Web3.js – only reference Viem.`
     },
   },
   // banner: {
