@@ -1,0 +1,14 @@
+diff --git a/_lib/vite/utils/cache.js b/_lib/vite/utils/cache.js
+index 4c0d38edfb090a8e5f8430c5a67579db1515026c..e1b94e5c8e228ae4a1eb339e4545f9015acd1277 100644
+--- a/_lib/vite/utils/cache.js
++++ b/_lib/vite/utils/cache.js
+@@ -1,7 +1,7 @@
+ import { resolve } from 'node:path';
+ import { default as fs } from 'fs-extra';
+-export const search = create('search');
+-export const twoslash = create('twoslash');
++export const search = create('search', { cacheDir: resolve(import.meta.dirname, './.cache') });
++export const twoslash = create('twoslash', { cacheDir: resolve(import.meta.dirname, './.cache') });
+ export function create(key, { cacheDir = resolve(import.meta.dirname, '../.vocs/cache') } = {}) {
+     const pathname = (k) => resolve(cacheDir, `${key}${k ? `.${k}` : ''}.json`);
+     return {
