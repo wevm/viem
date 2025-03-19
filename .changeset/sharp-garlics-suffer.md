@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-feat: add Hyperliquid EVM
+Added Hyperliquid EVM.
