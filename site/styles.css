@@ -8,6 +8,10 @@
   padding: 0 16px !important;
 }
 
+[data-layout="landing"] .vocs_Content {
+  position: inherit;
+}
+
 #home-install .vocs_CodeGroup {
   display: flex;
   height: 100%;
