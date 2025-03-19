@@ -9,7 +9,7 @@ export const harmonyOne = /*#__PURE__*/ defineChain({
     decimals: 18,
   },
   rpcUrls: {
-    default: { http: ['https://rpc.ankr.com/harmony'] },
+    default: { http: ['https://1666600000.rpc.thirdweb.com'] },
   },
   blockExplorers: {
     default: {

@@ -6,7 +6,7 @@ export const goerli = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Goerli Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://rpc.ankr.com/eth_goerli'],
+      http: ['https://5.rpc.thirdweb.com'],
     },
   },
   blockExplorers: {

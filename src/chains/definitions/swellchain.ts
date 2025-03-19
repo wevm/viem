@@ -8,10 +8,7 @@ export const swellchain = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: [
-        'https://swell-mainnet.alt.technology',
-        'https://rpc.ankr.com/swell',
-      ],
+      http: ['https://swell-mainnet.alt.technology'],
     },
   },
   blockExplorers: {

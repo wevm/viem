@@ -6,7 +6,7 @@ export const polygonMumbai = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://rpc.ankr.com/polygon_mumbai'],
+      http: ['https://80001.rpc.thirdweb.com'],
     },
   },
   blockExplorers: {

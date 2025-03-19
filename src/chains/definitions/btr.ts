@@ -10,11 +10,7 @@ export const btr = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: [
-        'https://rpc.bitlayer.org',
-        'https://rpc.bitlayer-rpc.com',
-        'https://rpc.ankr.com/bitlayer',
-      ],
+      http: ['https://rpc.bitlayer.org', 'https://rpc.bitlayer-rpc.com'],
       webSocket: ['wss://ws.bitlayer.org', 'wss://ws.bitlayer-rpc.com'],
     },
   },
