@@ -16,7 +16,7 @@ import { mainnet } from 'viem/chains'
 
 const client = createPublicClient({
   chain: mainnet,
-  transport: http('https://eth-mainnet.g.alchemy.com/v2/...'), // [!code focus]
+  transport: http('https://1.rpc.thirdweb.com/...'), // [!code focus]
 })
 ```
 
@@ -35,7 +35,7 @@ You can enable Batch JSON-RPC by setting the `batch` flag to `true`:
 ```ts twoslash
 import { http } from 'viem'
 // ---cut---
-const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = http('https://1.rpc.thirdweb.com/...', {
   batch: true // [!code focus]
 })
 ```
@@ -48,7 +48,7 @@ import { mainnet } from 'viem/chains'
 
 const client = createPublicClient({
   chain: mainnet,
-  transport: http('https://eth-mainnet.g.alchemy.com/v2/...'), 
+  transport: http('https://1.rpc.thirdweb.com/...'), 
 })
 // ---cut---
 // The below will send a single Batch JSON-RPC HTTP request to the RPC Provider.
@@ -71,7 +71,7 @@ URL of the JSON-RPC API.
 ```ts twoslash
 import { http } from 'viem'
 // ---cut---
-const transport = http('https://eth-mainnet.g.alchemy.com/v2/...')
+const transport = http('https://1.rpc.thirdweb.com/...')
 ```
 
 ### batch (optional)
@@ -84,7 +84,7 @@ Toggle to enable Batch JSON-RPC
 ```ts twoslash
 import { http } from 'viem'
 // ---cut---
-const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = http('https://1.rpc.thirdweb.com/...', {
   batch: true // [!code focus]
 })
 ```
@@ -99,7 +99,7 @@ The maximum number of JSON-RPC requests to send in a batch.
 ```ts twoslash
 import { http } from 'viem'
 // ---cut---
-const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = http('https://1.rpc.thirdweb.com/...', {
   batch: {
     batchSize: 2_000 // [!code focus]
   }
@@ -116,7 +116,7 @@ The maximum number of milliseconds to wait before sending a batch.
 ```ts twoslash
 import { http } from 'viem'
 // ---cut---
-const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = http('https://1.rpc.thirdweb.com/...', {
   batch: {
     wait: 16 // [!code focus]
   }
@@ -132,7 +132,7 @@ const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
 ```ts twoslash
 import { http } from 'viem'
 // ---cut---
-const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = http('https://1.rpc.thirdweb.com/...', {
   fetchOptions: { // [!code focus:5]
     headers: {
       'Authorization': 'Bearer ...'
@@ -151,7 +151,7 @@ A key for the Transport.
 ```ts twoslash
 import { http } from 'viem'
 // ---cut---
-const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = http('https://1.rpc.thirdweb.com/...', {
   key: 'alchemy', // [!code focus]
 })
 ```
@@ -165,7 +165,7 @@ Methods to include or exclude from sending RPC requests.
 ```ts twoslash
 import { http } from 'viem'
 // ---cut---
-const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = http('https://1.rpc.thirdweb.com/...', {
   methods: {
     include: ['eth_sendTransaction', 'eth_signTypedData_v4'],
   },
@@ -182,7 +182,7 @@ A name for the Transport
 ```ts twoslash
 import { http } from 'viem'
 // ---cut---
-const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = http('https://1.rpc.thirdweb.com/...', {
   name: 'Alchemy HTTP Provider', // [!code focus]
 })
 ```
@@ -196,7 +196,7 @@ A callback to handle the fetch request. Useful for logging or debugging.
 ```ts twoslash
 import { http } from 'viem'
 // ---cut---
-const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = http('https://1.rpc.thirdweb.com/...', {
   onFetchRequest(request) {
     console.log(request) // [!code focus]
   }
@@ -212,7 +212,7 @@ A callback to handle the fetch response. Useful for logging or debugging.
 ```ts twoslash
 import { http } from 'viem'
 // ---cut---
-const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = http('https://1.rpc.thirdweb.com/...', {
   onFetchResponse(response) {
     console.log(response) // [!code focus]
   }
@@ -229,7 +229,7 @@ The max number of times to retry when a request fails.
 ```ts twoslash
 import { http } from 'viem'
 // ---cut---
-const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = http('https://1.rpc.thirdweb.com/...', {
   retryCount: 5, // [!code focus]
 })
 ```
@@ -244,7 +244,7 @@ The base delay (in ms) between retries. By default, the Transport will use [expo
 ```ts twoslash
 import { http } from 'viem'
 // ---cut---
-const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = http('https://1.rpc.thirdweb.com/...', {
   retryDelay: 100, // [!code focus]
 })
 ```
@@ -259,7 +259,7 @@ The timeout for requests.
 ```ts twoslash
 import { http } from 'viem'
 // ---cut---
-const transport = http('https://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = http('https://1.rpc.thirdweb.com/...', {
   timeout: 60_000, // [!code focus]
 })
 ```
