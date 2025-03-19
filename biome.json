@@ -5,6 +5,7 @@
       "_cjs",
       "_esm",
       "_types",
+      ".cache",
       ".next",
       ".svelte-kit",
       ".vercel",
