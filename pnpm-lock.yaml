@@ -541,8 +541,8 @@ importers:
         specifier: workspace:*
         version: link:../src
       vocs:
-        specifier: 1.0.7
-        version: 1.0.7(@types/node@22.7.5)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.8)(terser@5.36.0)(typescript@5.8.2)(yaml@2.7.0)
+        specifier: ^1.0.9
+        version: 1.0.9(@types/node@22.7.5)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.8)(terser@5.36.0)(typescript@5.8.2)(yaml@2.7.0)
 
   src:
     dependencies:
@@ -6224,8 +6224,8 @@ packages:
       jsdom:
         optional: true
 
-  vocs@1.0.7:
-    resolution: {integrity: sha512-Y/l/X5A3USosnGjULmQ7+I8NR3KxgTqTTF0u7YZ55T6h2NpDmMKS1n8YKwCUtPA737ujM+PwCeNm0Aq1daT7kA==}
+  vocs@1.0.9:
+    resolution: {integrity: sha512-50QVTHwcVYT8xY7R6NTFbAhQfA9k465xJCJoccQ9D6CDAqFHXjlsR0fxTjPgSXxFloMFhkihTG3Y6zFW100Hlg==}
     hasBin: true
     peerDependencies:
       react: ^19
@@ -12891,7 +12891,7 @@ snapshots:
       - supports-color
       - terser
 
-  vocs@1.0.7(@types/node@22.7.5)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.8)(terser@5.36.0)(typescript@5.8.2)(yaml@2.7.0):
+  vocs@1.0.9(@types/node@22.7.5)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.8)(terser@5.36.0)(typescript@5.8.2)(yaml@2.7.0):
     dependencies:
       '@floating-ui/react': 0.27.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@hono/node-server': 1.13.8(hono@4.7.2)

@@ -2,7 +2,7 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-.vocs_Button_button {
+[data-layout="landing"] .vocs_Button_button {
   border-radius: 4px !important;
   height: 36px !important;
   padding: 0 16px !important;
