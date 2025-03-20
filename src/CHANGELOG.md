@@ -1,5 +1,15 @@
 # viem
 
+## 2.23.13
+
+### Patch Changes
+
+- [#3461](https://github.com/wevm/viem/pull/3461) [`18e56ccdc52ad1c51f60ba15ca2771694df44a0a`](https://github.com/wevm/viem/commit/18e56ccdc52ad1c51f60ba15ca2771694df44a0a) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Merlin Erigon Testnet.
+
+- [#3458](https://github.com/wevm/viem/pull/3458) [`df2b898d1e48a19634032220ddef9ff2a39aa062`](https://github.com/wevm/viem/commit/df2b898d1e48a19634032220ddef9ff2a39aa062) Thanks [@MicahZoltu](https://github.com/MicahZoltu)! - Added missing re-exports.
+
+- [#3475](https://github.com/wevm/viem/pull/3475) [`cc47bba9fcfb8aa36dc923dbd167db6b27b0fe63`](https://github.com/wevm/viem/commit/cc47bba9fcfb8aa36dc923dbd167db6b27b0fe63) Thanks [@tmm](https://github.com/tmm)! - Swapped defunct Ankr RPC URLs for Thirdweb
+
 ## 2.23.12
 
 ### Patch Changes
