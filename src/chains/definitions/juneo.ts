@@ -2,7 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const juneo = /*#__PURE__*/ defineChain({
   id: 45_003,
-  name: 'JUNE-Chain',
+  name: 'Juneo JUNE-Chain',
   nativeCurrency: {
     decimals: 18,
     name: 'JUNE-Chain',
