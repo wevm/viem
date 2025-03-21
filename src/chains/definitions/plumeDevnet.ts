@@ -4,7 +4,7 @@ const sourceId = 11_155_111 // sepolia
 
 export const plumeDevnet = /*#__PURE__*/ defineChain({
   id: 98_864,
-  name: 'Plume Devnet',
+  name: 'Plume Devnet (Legacy)',
   nativeCurrency: {
     name: 'Plume Sepolia Ether',
     symbol: 'ETH',

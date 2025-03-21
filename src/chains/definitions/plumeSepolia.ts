@@ -2,18 +2,18 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11_155_111 // sepolia
 
-export const plumeTestnet = /*#__PURE__*/ defineChain({
-  id: 161_221_135,
-  name: 'Plume Testnet (Legacy)',
+export const plumeSepolia = /*#__PURE__*/ defineChain({
+  id: 98_867,
+  name: 'Plume Testnet',
   nativeCurrency: {
-    name: 'Plume Sepolia Ether',
-    symbol: 'ETH',
+    name: 'Plume',
+    symbol: 'PLUME',
     decimals: 18,
   },
   rpcUrls: {
     default: {
-      http: ['https://testnet-rpc.plumenetwork.xyz/http'],
-      webSocket: ['wss://testnet-rpc.plumenetwork.xyz/ws'],
+      http: ['https://testnet-rpc.plumenetwork.xyz'],
+      webSocket: ['wss://testnet-rpc.plumenetwork.xyz'],
     },
   },
   blockExplorers: {

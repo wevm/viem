@@ -4,7 +4,7 @@ const sourceId = 1 // ethereum
 
 export const plumeMainnet = /*#__PURE__*/ defineChain({
   id: 98_866,
-  name: 'Plume Mainnet',
+  name: 'Plume',
   nativeCurrency: {
     name: 'Plume',
     symbol: 'PLUME',
