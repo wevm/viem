@@ -3,44 +3,41 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11_155_111 // sepolia
 
-export const zircuitTestnet = /*#__PURE__*/ defineChain({
+export const zircuitGarfieldTestnet = /*#__PURE__*/ defineChain({
   ...chainConfig,
-  id: 48899,
-  name: 'Zircuit Testnet',
+  id: 48898,
+  name: 'Zircuit Garfield Testnet',
   nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
       http: [
-        'https://testnet.zircuit.com',
-        'https://zircuit1-testnet.p2pify.com',
-        'https://zircuit1-testnet.liquify.com',
+        'https://garfield-testnet.zircuit.com/',
       ],
     },
   },
   blockExplorers: {
     default: {
-      name: 'Zircuit Testnet Explorer',
-      url: 'https://explorer.testnet.zircuit.com',
+      name: 'Zircuit Garfield Testnet Explorer',
+      url: 'https://explorer.garfield-testnet.zircuit.com',
     },
   },
   contracts: {
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 6040287,
     },
     l2OutputOracle: {
       [sourceId]: {
-        address: '0x740C2dac453aEf7140809F80b72bf0e647af8148',
+        address: '0xd69D3AC5CA686cCF94b258291772bc520FEAf211',
       },
     },
     portal: {
       [sourceId]: {
-        address: '0x787f1C8c5924178689E0560a43D848bF8E54b23e',
+        address: '0x4E21A71Ac3F7607Da5c06153A17B1DD20E702c21',
       },
     },
     l1StandardBridge: {
       [sourceId]: {
-        address: '0x0545c5fe980098C16fcD0eCB5E79753afa6d9af9',
+        address: '0x87a7E2bCA9E35BA49282E832a28A6023904460D8',
       },
     },
   },
