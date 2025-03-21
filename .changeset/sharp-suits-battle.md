@@ -1,5 +1,5 @@
 ---
-"viem": minor
+"viem": patch
 ---
 
-added hoodi testnet
+Added Hoodi Testnet.
