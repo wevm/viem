@@ -23,6 +23,12 @@ export const plumeTestnet = /*#__PURE__*/ defineChain({
       apiUrl: 'https://testnet-explorer.plumenetwork.xyz/api',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 6_022_332,
+    },
+  },
   testnet: true,
   sourceId,
 })
