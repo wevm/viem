@@ -10,9 +10,7 @@ export const zircuitGarfieldTestnet = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: [
-        'https://garfield-testnet.zircuit.com/',
-      ],
+      http: ['https://garfield-testnet.zircuit.com/'],
     },
   },
   blockExplorers: {
