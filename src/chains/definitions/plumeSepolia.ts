@@ -23,6 +23,12 @@ export const plumeSepolia = /*#__PURE__*/ defineChain({
       apiUrl: 'https://testnet-explorer.plumenetwork.xyz/api',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0x59218e2df2A2E7Ba0de00c023e80906Ba47cB4C8',
+      blockCreated: 1_681,
+    },
+  },
   testnet: true,
   sourceId,
 })

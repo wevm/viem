@@ -25,7 +25,7 @@ export const plumeDevnet = /*#__PURE__*/ defineChain({
   },
   contracts: {
     multicall3: {
-      address: '0xca11bde05977b3631167028862be2a173976ca11',
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 481_948,
     },
   },

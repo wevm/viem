@@ -23,5 +23,11 @@ export const plumeMainnet = /*#__PURE__*/ defineChain({
       apiUrl: 'https://phoenix-explorer.plumenetwork.xyz/api',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xF9DA0EF6635F6134D9d1B7eAE025159D26ce5838',
+      blockCreated: 4_150,
+    },
+  },
   sourceId,
 })
