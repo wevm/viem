@@ -4,7 +4,7 @@ const sourceId = 1 // ethereum
 
 export const plume = /*#__PURE__*/ defineChain({
   id: 98_865,
-  name: 'Plume',
+  name: 'Plume (Legacy)',
   nativeCurrency: {
     name: 'Plume Ether',
     symbol: 'ETH',
