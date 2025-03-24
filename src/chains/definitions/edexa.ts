@@ -15,5 +15,5 @@ export const edexa = /*#__PURE__*/ defineChain({
       url: 'https://explorer.edexa.network',
       apiUrl: 'https://explorer.edexa.network/api/v2',
     },
-  }
+  },
 })
