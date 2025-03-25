@@ -190,20 +190,19 @@ export async function estimateUserOperationGas<
     : parameters
 
   try {
-    const rpcUserOperation = formatUserOperationRequest(
-      request as UserOperation,
-    )
-    const entrypoint = (entryPointAddress ?? account?.entryPoint?.address)!
+    const params = [
+      formatUserOperationRequest(request as UserOperation),
+      (entryPointAddress ?? account?.entryPoint?.address)!,
+    ] as const
 
-    const response = await client.request({
+    const result = await client.request({
       method: 'eth_estimateUserOperationGas',
-      params: rpcStateOverride
-        ? [rpcUserOperation, entrypoint, rpcStateOverride]
-        : ([rpcUserOperation, entrypoint] as [RpcUserOperation, Address]),
+      params: rpcStateOverride ? [...params, rpcStateOverride] : [...params],
     })
-    return formatUserOperationGas(
-      response,
-    ) as EstimateUserOperationGasReturnType<account, accountOverride>
+    return formatUserOperationGas(result) as EstimateUserOperationGasReturnType<
+      account,
+      accountOverride
+    >
   } catch (error) {
     const calls = (parameters as any).calls
     throw getUserOperationError(error as BaseError, {
