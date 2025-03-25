@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import type { RpcAuthorization } from '../../experimental/eip7702/types/rpc.js'
 import type { Hex } from '../../types/misc.js'
 import type { EntryPointVersion } from './entryPointVersion.js'
 import type {
@@ -8,7 +9,6 @@ import type {
   UserOperationReceipt,
   UserOperationRequest,
 } from './userOperation.js'
-import type { RpcAuthorization } from '../../experimental/eip7702/types/rpc.js'
 
 export type RpcEip7702Auth = {
   chainId: number
