@@ -1,5 +1,15 @@
 # viem
 
+## 2.23.15
+
+### Patch Changes
+
+- [#3490](https://github.com/wevm/viem/pull/3490) [`48851a1e76dd4b5ad6501e1b8c1675005baf0735`](https://github.com/wevm/viem/commit/48851a1e76dd4b5ad6501e1b8c1675005baf0735) Thanks [@biruichen](https://github.com/biruichen)! - Added DBK chain.
+
+- [#3492](https://github.com/wevm/viem/pull/3492) [`35842cf8581e558f456d38f629db97184d96f10f`](https://github.com/wevm/viem/commit/35842cf8581e558f456d38f629db97184d96f10f) Thanks [@falcoda](https://github.com/falcoda)! - add all Juneo primary supernet chains
+
+- [#3493](https://github.com/wevm/viem/pull/3493) [`7a3c20fbcf47d83776dc7f7a8140709b032b1ad9`](https://github.com/wevm/viem/commit/7a3c20fbcf47d83776dc7f7a8140709b032b1ad9) Thanks [@Nish0483](https://github.com/Nish0483)! - Added edeXa testnet and mainnet
+
 ## 2.23.14
 
 ### Patch Changes
