@@ -12,7 +12,6 @@ import type { Authorization } from '../../../experimental/eip7702/types/authoriz
 import type { Calls } from '../../../types/calls.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
-import type { RpcStateOverride } from '../../../types/rpc.js'
 import type { StateOverride } from '../../../types/stateOverride.js'
 import type {
   Assign,
@@ -199,11 +198,7 @@ export async function estimateUserOperationGas<
     const response = await client.request({
       method: 'eth_estimateUserOperationGas',
       params: rpcStateOverride
-        ? ([rpcUserOperation, entrypoint, rpcStateOverride] as [
-            RpcUserOperation,
-            Address,
-            RpcStateOverride,
-          ])
+        ? [rpcUserOperation, entrypoint, rpcStateOverride]
         : ([rpcUserOperation, entrypoint] as [RpcUserOperation, Address]),
     })
     return formatUserOperationGas(
