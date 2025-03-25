@@ -11,8 +11,8 @@ export const hoodi = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Blockscout',
-      url: 'https://hoodi.cloud.blockscout.com',
+      name: 'Etherscan',
+      url: 'https://hoodi.etherscan.io',
     },
   },
   testnet: true,
