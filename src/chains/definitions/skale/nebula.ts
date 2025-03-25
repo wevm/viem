@@ -2,7 +2,7 @@ import { defineChain } from '../../../utils/chain/defineChain.js'
 
 export const skaleNebula = /*#__PURE__*/ defineChain({
   id: 1_482_601_649,
-  name: 'SKALE | Nebula Gaming Hub',
+  name: 'SKALE Nebula Hub',
   nativeCurrency: { name: 'sFUEL', symbol: 'sFUEL', decimals: 18 },
   rpcUrls: {
     default: {
@@ -19,7 +19,7 @@ export const skaleNebula = /*#__PURE__*/ defineChain({
   contracts: {
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 2372986,
+      blockCreated: 2_372_986,
     },
   },
 })
