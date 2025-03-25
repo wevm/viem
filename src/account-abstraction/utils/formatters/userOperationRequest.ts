@@ -1,9 +1,9 @@
 import type { ErrorType } from '../../../errors/utils.js'
+import type { Authorization } from '../../../experimental/eip7702/types/authorization.js'
 import type { ExactPartial } from '../../../types/utils.js'
 import { numberToHex } from '../../../utils/encoding/toHex.js'
 import type { RpcUserOperation } from '../../types/rpc.js'
 import type { UserOperation } from '../../types/userOperation.js'
-import type { Authorization } from '../../../experimental/eip7702/types/authorization.js'
 
 export type FormatUserOperationRequestErrorType = ErrorType
 

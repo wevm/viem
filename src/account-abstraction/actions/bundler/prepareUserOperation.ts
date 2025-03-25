@@ -12,6 +12,7 @@ import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import type { ErrorType } from '../../../errors/utils.js'
+import type { Authorization } from '../../../experimental/eip7702/types/authorization.js'
 import type { Call, Calls } from '../../../types/calls.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
@@ -55,7 +56,6 @@ import {
   type EstimateUserOperationGasParameters,
   estimateUserOperationGas,
 } from './estimateUserOperationGas.js'
-import type { Authorization } from '../../../experimental/eip7702/types/authorization.js'
 
 const defaultParameters = [
   'factory',

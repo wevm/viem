@@ -8,9 +8,11 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import type { BaseError } from '../../../errors/base.js'
 import type { ErrorType } from '../../../errors/utils.js'
+import type { Authorization } from '../../../experimental/eip7702/types/authorization.js'
 import type { Calls } from '../../../types/calls.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
+import type { RpcStateOverride } from '../../../types/rpc.js'
 import type { StateOverride } from '../../../types/stateOverride.js'
 import type {
   Assign,
@@ -31,6 +33,7 @@ import type {
   DeriveEntryPointVersion,
   EntryPointVersion,
 } from '../../types/entryPointVersion.js'
+import type { RpcUserOperation } from '../../types/rpc.js'
 import type {
   EstimateUserOperationGasReturnType as EstimateUserOperationGasReturnType_,
   UserOperation,
@@ -50,9 +53,6 @@ import {
   type PrepareUserOperationParameters,
   prepareUserOperation,
 } from './prepareUserOperation.js'
-import type { Authorization } from '../../../experimental/eip7702/types/authorization.js'
-import type { RpcUserOperation } from '../../types/rpc.js'
-import type { RpcStateOverride } from '../../../types/rpc.js'
 
 export type EstimateUserOperationGasParameters<
   account extends SmartAccount | undefined = SmartAccount | undefined,
