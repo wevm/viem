@@ -8,6 +8,7 @@ import type {
   UserOperationReceipt,
   UserOperationRequest,
 } from './userOperation.js'
+import type { RpcAuthorization } from '../../experimental/eip7702/types/rpc.js'
 
 export type RpcEip7702Auth = {
   chainId: number
@@ -29,7 +30,7 @@ export type RpcGetUserOperationByHashReturnType<
 export type RpcUserOperation<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > = UserOperation<entryPointVersion, Hex> & {
-  eip7702Auth?: RpcEip7702Auth
+  eip7702Auth?: RpcAuthorization
 }
 
 export type RpcUserOperationReceipt<
@@ -39,5 +40,5 @@ export type RpcUserOperationReceipt<
 export type RpcUserOperationRequest<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > = UserOperationRequest<entryPointVersion, Hex> & {
-  eip7702Auth?: RpcEip7702Auth
+  eip7702Auth?: RpcAuthorization
 }

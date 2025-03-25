@@ -55,12 +55,12 @@ export function formatUserOperationRequest(
   if (typeof request.authorization !== 'undefined') {
     const auth = request.authorization
     rpcRequest.eip7702Auth = {
-      chainId: auth.chainId,
-      nonce: auth.nonce,
       address: auth.contractAddress,
-      ...(auth.r && { r: auth.r }),
-      ...(auth.s && { s: auth.s }),
-      ...(auth.yParity !== undefined && { yParity: auth.yParity }),
+      chainId: numberToHex(auth.chainId),
+      nonce: numberToHex(auth.nonce),
+      r: auth.r || '0x0',
+      s: auth.s || '0x0',
+      yParity: auth.yParity !== undefined ? numberToHex(auth.yParity) : '0x0',
     }
   }
 

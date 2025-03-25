@@ -32,7 +32,6 @@ import type {
   DeriveEntryPointVersion,
   EntryPointVersion,
 } from '../../types/entryPointVersion.js'
-import type { RpcUserOperation } from '../../types/rpc.js'
 import type {
   EstimateUserOperationGasReturnType as EstimateUserOperationGasReturnType_,
   UserOperation,
