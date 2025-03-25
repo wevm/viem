@@ -50,6 +50,9 @@ import {
   type PrepareUserOperationParameters,
   prepareUserOperation,
 } from './prepareUserOperation.js'
+import type { Authorization } from '../../../experimental/eip7702/types/authorization.js'
+import type { RpcUserOperation } from '../../types/rpc.js'
+import type { RpcStateOverride } from '../../../types/rpc.js'
 
 export type EstimateUserOperationGasParameters<
   account extends SmartAccount | undefined = SmartAccount | undefined,
@@ -95,6 +98,8 @@ export type EstimateUserOperationGasParameters<
   > & {
     /** State overrides for the User Operation call. */
     stateOverride?: StateOverride | undefined
+    /** Authorization for the operation */
+    authorization?: Authorization | undefined
   }
 
 export type EstimateUserOperationGasReturnType<
@@ -174,23 +179,36 @@ export async function estimateUserOperationGas<
         'prepareUserOperation',
       )({
         ...parameters,
-        parameters: ['factory', 'nonce', 'paymaster', 'signature'],
+        parameters: [
+          'factory',
+          'nonce',
+          'paymaster',
+          'signature',
+          'authorization',
+        ],
+        authorization: parameters.authorization,
       } as unknown as PrepareUserOperationParameters)
     : parameters
 
   try {
-    const params = [
-      formatUserOperationRequest(request as UserOperation),
-      (entryPointAddress ?? account?.entryPoint?.address)!,
-    ] as const
-    const result = await client.request({
+    const rpcUserOperation = formatUserOperationRequest(
+      request as UserOperation,
+    )
+    const entrypoint = (entryPointAddress ?? account?.entryPoint?.address)!
+
+    const response = await client.request({
       method: 'eth_estimateUserOperationGas',
-      params: rpcStateOverride ? [...params, rpcStateOverride] : [...params],
+      params: rpcStateOverride
+        ? ([rpcUserOperation, entrypoint, rpcStateOverride] as [
+            RpcUserOperation,
+            Address,
+            RpcStateOverride,
+          ])
+        : ([rpcUserOperation, entrypoint] as [RpcUserOperation, Address]),
     })
-    return formatUserOperationGas(result) as EstimateUserOperationGasReturnType<
-      account,
-      accountOverride
-    >
+    return formatUserOperationGas(
+      response,
+    ) as EstimateUserOperationGasReturnType<account, accountOverride>
   } catch (error) {
     const calls = (parameters as any).calls
     throw getUserOperationError(error as BaseError, {

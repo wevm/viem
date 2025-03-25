@@ -35,6 +35,7 @@ import {
   type PrepareUserOperationParameters,
   prepareUserOperation,
 } from './prepareUserOperation.js'
+import type { Authorization } from '../../../experimental/eip7702/types/authorization.js'
 
 export type SendUserOperationParameters<
   account extends SmartAccount | undefined = SmartAccount | undefined,
@@ -77,7 +78,10 @@ export type SendUserOperationParameters<
   MaybeRequired<
     { entryPointAddress?: Address },
     _derivedAccount extends undefined ? true : false
-  >
+  > & {
+    /** Authorization for the operation */
+    authorization?: Authorization | undefined
+  }
 export type SendUserOperationReturnType = Hex
 
 export type SendUserOperationErrorType =
@@ -131,34 +135,42 @@ export async function sendUserOperation<
         client,
         prepareUserOperation,
         'prepareUserOperation',
-      )(parameters as unknown as PrepareUserOperationParameters)
+      )({
+        ...parameters,
+        parameters: [
+          'factory',
+          'nonce',
+          'paymaster',
+          'signature',
+          'authorization',
+        ],
+        authorization: parameters.authorization,
+      } as unknown as PrepareUserOperationParameters)
     : parameters
 
-  const signature = (parameters.signature ||
-    (await account?.signUserOperation(request as UserOperation)))!
-
-  const rpcParameters = formatUserOperationRequest({
-    ...request,
-    signature,
-  } as UserOperation)
-
+  let signature: Hex | undefined
   try {
-    return await client.request(
-      {
-        method: 'eth_sendUserOperation',
-        params: [
-          rpcParameters,
-          (entryPointAddress ?? account?.entryPoint.address)!,
-        ],
-      },
-      { retryCount: 0 },
-    )
+    signature = (parameters.signature ||
+      (await account?.signUserOperation(request as UserOperation)))!
+
+    const rpcUserOperation = formatUserOperationRequest({
+      ...request,
+      signature,
+    } as UserOperation)
+    const entrypoint = (entryPointAddress ?? account?.entryPoint?.address)!
+
+    const response = await client.request({
+      method: 'eth_sendUserOperation',
+      params: [rpcUserOperation, entrypoint],
+    })
+
+    return response
   } catch (error) {
     const calls = (parameters as any).calls
     throw getUserOperationError(error as BaseError, {
       ...(request as UserOperation),
       ...(calls ? { calls } : {}),
-      signature,
+      ...(signature ? { signature } : {}),
     })
   }
 }

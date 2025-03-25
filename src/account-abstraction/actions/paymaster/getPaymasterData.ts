@@ -11,6 +11,7 @@ import {
   type FormatUserOperationRequestErrorType,
   formatUserOperationRequest,
 } from '../../utils/formatters/userOperationRequest.js'
+import type { Authorization } from '../../../experimental/eip7702/types/authorization.js'
 
 export type GetPaymasterDataParameters = OneOf<
   | PartialBy<
@@ -61,6 +62,8 @@ export type GetPaymasterDataParameters = OneOf<
   context?: unknown | undefined
   chainId: number
   entryPointAddress: Address
+  /** Authorization for the operation */
+  authorization?: Authorization | undefined
 }
 
 export type GetPaymasterDataReturnType = Prettify<

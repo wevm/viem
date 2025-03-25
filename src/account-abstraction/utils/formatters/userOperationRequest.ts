@@ -3,12 +3,15 @@ import type { ExactPartial } from '../../../types/utils.js'
 import { numberToHex } from '../../../utils/encoding/toHex.js'
 import type { RpcUserOperation } from '../../types/rpc.js'
 import type { UserOperation } from '../../types/userOperation.js'
+import type { Authorization } from '../../../experimental/eip7702/types/authorization.js'
 
 export type FormatUserOperationRequestErrorType = ErrorType
 
 export function formatUserOperationRequest(
-  request: ExactPartial<UserOperation>,
-) {
+  request: ExactPartial<UserOperation> & {
+    authorization?: Authorization | undefined
+  },
+): RpcUserOperation {
   const rpcRequest = {} as RpcUserOperation
 
   if (typeof request.callData !== 'undefined')
@@ -48,6 +51,18 @@ export function formatUserOperationRequest(
     rpcRequest.signature = request.signature
   if (typeof request.verificationGasLimit !== 'undefined')
     rpcRequest.verificationGasLimit = numberToHex(request.verificationGasLimit)
+
+  if (typeof request.authorization !== 'undefined') {
+    const auth = request.authorization
+    rpcRequest.eip7702Auth = {
+      chainId: auth.chainId,
+      nonce: auth.nonce,
+      address: auth.contractAddress,
+      ...(auth.r && { r: auth.r }),
+      ...(auth.s && { s: auth.s }),
+      ...(auth.yParity !== undefined && { yParity: auth.yParity }),
+    }
+  }
 
   return rpcRequest
 }

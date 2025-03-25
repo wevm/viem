@@ -55,6 +55,7 @@ import {
   type EstimateUserOperationGasParameters,
   estimateUserOperationGas,
 } from './estimateUserOperationGas.js'
+import type { Authorization } from '../../../experimental/eip7702/types/authorization.js'
 
 const defaultParameters = [
   'factory',
@@ -169,6 +170,8 @@ export type PrepareUserOperationRequest<
     paymasterContext?: unknown | undefined
     /** State overrides for the User Operation call. */
     stateOverride?: StateOverride | undefined
+    /** Authorization for the operation */
+    authorization?: Authorization | undefined
   }
 >
 
