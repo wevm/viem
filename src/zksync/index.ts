@@ -333,6 +333,7 @@ export {
   type GetL2HashFromPriorityOpErrorType,
   getL2HashFromPriorityOp,
 } from './utils/bridge/getL2HashFromPriorityOp.js'
+export { undoL1ToL2Alias } from './utils/bridge/undoL1ToL2Alias.js'
 export {
   type GetApprovalBasedPaymasterInputParameters,
   type GetApprovalBasedPaymasterInputReturnType,

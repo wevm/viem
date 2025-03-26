@@ -1,6 +1,4 @@
 import { type Address, parseAbi, parseAbiParameters } from 'abitype'
-import { ZeroAddress } from 'ethers'
-import type { Hex } from 'viem'
 import type { Account } from '../../accounts/types.js'
 import {
   type EstimateGasParameters,
@@ -22,6 +20,7 @@ import type { Client } from '../../clients/createClient.js'
 import { publicActions } from '../../clients/decorators/public.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { erc20Abi } from '../../constants/abis.js'
+import { zeroAddress } from '../../constants/address.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import { ClientChainNotConfiguredError } from '../../errors/chain.js'
 import type { GetAccountParameter } from '../../types/account.js'
@@ -30,6 +29,7 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../types/chain.js'
+import type { Hex } from '../../types/misc.js'
 import type { UnionEvaluate, UnionOmit } from '../../types/utils.js'
 import {
   type FormattedTransactionRequest,
@@ -76,22 +76,22 @@ export type DepositParameters<
     amount: bigint
     /** The address that will receive the deposited tokens on L2.
     Defaults to the sender address.*/
-    to?: Address
+    to?: Address | undefined
     /** (currently not used) The tip the operator will receive on top of
     the base cost of the transaction. */
-    operatorTip?: bigint
+    operatorTip?: bigint | undefined
     /** Maximum amount of L2 gas that transaction can consume during execution on L2. */
-    l2GasLimit?: bigint
+    l2GasLimit?: bigint | undefined
     /** The L2 gas price for each published L1 calldata byte. */
-    gasPerPubdataByte?: bigint
+    gasPerPubdataByte?: bigint | undefined
     /** The address on L2 that will receive the refund for the transaction.
     If the transaction fails, it will also be the address to receive `amount`. */
-    refundRecipient?: Address
+    refundRecipient?: Address | undefined
     /** The address of the bridge contract to be used.
     Defaults to the default ZKsync L1 shared bridge. */
-    bridgeAddress?: Address
+    bridgeAddress?: Address | undefined
     /** Additional data that can be sent to a bridge. */
-    customBridgeData?: Hex
+    customBridgeData?: Hex | undefined
     /** Whether token approval should be performed under the hood.
     Set this flag to true (or provide transaction overrides) if the bridge does
     not have sufficient allowance. The approval transaction is executed only if
@@ -104,6 +104,7 @@ export type DepositParameters<
             'data' | 'to' | 'from'
           >
         >
+      | undefined
     /** Whether base token approval should be performed under the hood.
     Set this flag to true (or provide transaction overrides) if the bridge does
     not have sufficient allowance. The approval transaction is executed only if
@@ -116,6 +117,7 @@ export type DepositParameters<
             'data' | 'to' | 'from'
           >
         >
+      | undefined
   }
 
 export type DepositReturnType = SendTransactionReturnType
@@ -238,6 +240,7 @@ export async function deposit<
   const { mintValue, tx } = await getL1DepositTx(
     client,
     account,
+    // @ts-ignore
     { ...parameters, token },
     bridgeAddresses,
     bridgehub,
@@ -307,7 +310,7 @@ async function getL1DepositTx<
     operatorTip = 0n,
     l2GasLimit,
     gasPerPubdataByte = requiredL1ToL2GasPerPubdataLimit,
-    refundRecipient = ZeroAddress as Address,
+    refundRecipient = zeroAddress,
     bridgeAddress,
     customBridgeData,
     value,
@@ -505,7 +508,8 @@ async function approveTokens<
           FormattedTransactionRequest<_derivedChain>,
           'data' | 'to' | 'from'
         >
-      >,
+      >
+    | undefined,
   approveBaseToken?:
     | boolean
     | UnionEvaluate<
@@ -513,7 +517,8 @@ async function approveTokens<
           FormattedTransactionRequest<_derivedChain>,
           'data' | 'to' | 'from'
         >
-      >,
+      >
+    | undefined,
 ) {
   if (isAddressEqual(baseToken, ethAddressInContracts)) {
     // Deposit token on ETH-based chain
@@ -653,9 +658,9 @@ async function getL2BridgeTxFeeParams<
   to: Address,
   gasPerPubdataByte: bigint,
   baseToken: Address,
-  l2GasLimit?: bigint,
-  bridgeAddress?: Address,
-  customBridgeData?: Hex,
+  l2GasLimit?: bigint | undefined,
+  bridgeAddress?: Address | undefined,
+  customBridgeData?: Hex | undefined,
 ) {
   if (!l2Client.chain) throw new ClientChainNotConfiguredError()
 

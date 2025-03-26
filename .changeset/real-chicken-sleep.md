@@ -1,5 +1,5 @@
 ---
-"viem": minor
+"viem": patch
 ---
 
-Added `deposit` action, apply and undo alias util functions in ZKsync extension
+**ZKSync Extension:** Added `deposit` action.

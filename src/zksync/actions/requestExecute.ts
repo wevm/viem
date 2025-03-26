@@ -58,21 +58,21 @@ export type RequestExecuteParameters<
     /** The input of the L2 transaction. */
     calldata: Hex
     /** Maximum amount of L2 gas that transaction can consume during execution on L2. */
-    l2GasLimit?: bigint
+    l2GasLimit?: bigint | undefined
     /** The amount of base token that needs to be minted on non-ETH-based L2. */
-    mintValue?: bigint
+    mintValue?: bigint | undefined
     /** The `msg.value` of L2 transaction. */
-    l2Value?: bigint
+    l2Value?: bigint | undefined
     /** An array of L2 bytecodes that will be marked as known on L2. */
-    factoryDeps?: Hex[]
+    factoryDeps?: Hex[] | undefined
     /** (currently not used) The tip the operator will receive on top of
      the base cost of the transaction. */
-    operatorTip?: bigint
+    operatorTip?: bigint | undefined
     /** The L2 gas price for each published L1 calldata byte. */
-    gasPerPubdataByte?: bigint
+    gasPerPubdataByte?: bigint | undefined
     /** The address on L2 that will receive the refund for the transaction.
      If the transaction fails, it will also be the address to receive `l2Value`. */
-    refundRecipient?: Address
+    refundRecipient?: Address | undefined
   }
 
 export type RequestExecuteReturnType = SendTransactionReturnType

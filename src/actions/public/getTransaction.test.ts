@@ -232,7 +232,7 @@ test('chain w/ custom block type', async () => {
     {
       "blockHash": "0x740371d30b3cee9d687f72e3409ba6447eceda7de86bc38b0fa84493114b510b",
       "blockNumber": 16628100n,
-      "chainId": undefined,
+      "chainId": 42220,
       "ethCompatible": false,
       "feeCurrency": undefined,
       "from": "0x045d685d23e8aa34dc408a66fb408f20dc84d785",
