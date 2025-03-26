@@ -1,8 +1,13 @@
 import { expect, test } from 'vitest'
 import { anvilMainnet, anvilZksync } from '~test/src/anvil.js'
-import { mockRequestReturnData } from '~test/src/zksync.js'
-import type { EIP1193RequestFn } from '~viem/types/eip1193.js'
-import { publicActionsL2, walletActionsL1 } from '~viem/zksync/index.js'
+import { accounts, mockRequestReturnData } from '~test/src/zksync.js'
+import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
+import type { EIP1193RequestFn } from '~viem/index.js'
+import {
+  legacyEthAddress,
+  publicActionsL2,
+  walletActionsL1,
+} from '~viem/zksync/index.js'
 
 const baseClient = anvilMainnet.getClient({
   batch: { multicall: false },
@@ -16,6 +21,7 @@ baseClient.request = (async ({ method, params }) => {
     return '0x00000000000000000000000070a0F165d6f8054d0d0CF8dFd4DD2005f0AF6B55'
   if (method === 'eth_getTransactionCount') return 1n
   if (method === 'eth_gasPrice') return 150_000_000n
+  if (method === 'eth_maxPriorityFeePerGas') return 100_000_000n
   if (method === 'eth_getBlockByNumber') return anvilMainnet.forkBlockNumber
   if (method === 'eth_chainId') return anvilMainnet.chain.id
   return anvilMainnet.getClient().request({ method, params } as any)
@@ -53,6 +59,19 @@ test('finalizeWithdrawal', async () => {
     await client.finalizeWithdrawal({
       client: zksyncClient,
       hash: '0x08ac22b6d5d048ae8a486aa41a058bb01d82bdca6489760414aa15f61f27b943',
+    }),
+  ).toBeDefined()
+})
+
+test('deposit', async () => {
+  const account = privateKeyToAccount(accounts[0].privateKey)
+  expect(
+    await client.deposit({
+      client: zksyncClient,
+      token: legacyEthAddress,
+      to: account.address,
+      refundRecipient: account.address,
+      amount: 7_000_000_000n,
     }),
   ).toBeDefined()
 })

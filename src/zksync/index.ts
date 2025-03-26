@@ -29,6 +29,12 @@ export {
   hashBytecode,
 } from './utils/hashBytecode.js'
 export {
+  type DepositErrorType,
+  type DepositReturnType,
+  type DepositParameters,
+  deposit,
+} from './actions/deposit.js'
+export {
   type EstimateFeeParameters,
   type EstimateFeeReturnType,
   estimateFee,

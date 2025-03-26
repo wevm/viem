@@ -3,6 +3,11 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import {
+  type DepositParameters,
+  type DepositReturnType,
+  deposit,
+} from '../actions/deposit.js'
+import {
   type FinalizeWithdrawalParameters,
   type FinalizeWithdrawalReturnType,
   finalizeWithdrawal,
@@ -18,6 +23,56 @@ export type WalletActionsL1<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
 > = {
+  /**
+   * Transfers the specified token from the associated account on the L1 network to the target account on the L2 network.
+   * The token can be either ETH or any ERC20 token. For ERC20 tokens, enough approved tokens must be associated with
+   * the specified L1 bridge (default one or the one defined in `bridgeAddress`).
+   * In this case, depending on is the chain ETH-based or not `approveToken` or `approveBaseToken`
+   * can be enabled to perform token approval. If there are already enough approved tokens for the L1 bridge,
+   * token approval will be skipped.
+   *
+   * @param parameters - {@link DepositParameters}
+   * @returns hash - The [Transaction](https://viem.sh/docs/glossary/terms#transaction) hash. {@link DepositReturnType}
+   *
+   * @example
+   * import { createPublicClient, createWalletClient, http } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
+   * import { zksync, mainnet } from 'viem/chains'
+   * import { walletActionsL1, legacyEthAddress, publicActionsL2 } from 'viem/zksync'
+   *
+   * const walletClient = createWalletClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   *   account: privateKeyToAccount('0x…'),
+   * }).extend(walletActionsL1())
+   *
+   * const clientL2 = createPublicClient({
+   *   chain: zksync,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const hash = await walletClient.deposit({
+   *     client: clientL2,
+   *     account,
+   *     token: legacyEthAddress,
+   *     to: walletClient.account.address,
+   *     amount: 1_000_000_000_000_000_000n,
+   *     refundRecipient: walletClient.account.address,
+   * })
+   */
+  deposit: <
+    chainOverride extends Chain | undefined = undefined,
+    chainL2 extends ChainEIP712 | undefined = ChainEIP712 | undefined,
+    accountL2 extends Account | undefined = Account | undefined,
+  >(
+    parameters: DepositParameters<
+      chain,
+      account,
+      chainOverride,
+      chainL2,
+      accountL2
+    >,
+  ) => Promise<DepositReturnType>
   /**
    * Initiates the withdrawal process which withdraws ETH or any ERC20 token
    * from the associated account on L2 network to the target account on L1 network.
@@ -113,6 +168,7 @@ export function walletActionsL1() {
   >(
     client: Client<transport, chain, account>,
   ): WalletActionsL1<chain, account> => ({
+    deposit: (args) => deposit(client, args),
     finalizeWithdrawal: (args) => finalizeWithdrawal(client, args),
     requestExecute: (args) => requestExecute(client, args),
   })
