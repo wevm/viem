@@ -65,7 +65,7 @@ test('behavior: partial authorization: no chainId + nonce', async () => {
     {
       "chainId": 1,
       "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
-      "nonce": 664,
+      "nonce": 663,
     }
   `,
   )
@@ -83,7 +83,7 @@ test('behavior: partial authorization: no nonce', async () => {
     {
       "chainId": 10,
       "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
-      "nonce": 664,
+      "nonce": 663,
     }
   `,
   )
@@ -107,31 +107,11 @@ test('behavior: partial authorization: no chainId', async () => {
   )
 })
 
-test('behavior: sponsor is address', async () => {
+test('behavior: self-executing', async () => {
   const authorization = await prepareAuthorization(client, {
     account,
     contractAddress: wagmiContractConfig.address,
-    sponsor: '0x0000000000000000000000000000000000000000',
-  })
-
-  expect(authorization.nonce).toBe(663)
-})
-
-test('behavior: sponsor is truthy', async () => {
-  const authorization = await prepareAuthorization(client, {
-    account,
-    contractAddress: wagmiContractConfig.address,
-    sponsor: true,
-  })
-
-  expect(authorization.nonce).toBe(663)
-})
-
-test('behavior: account as sponsor', async () => {
-  const authorization = await prepareAuthorization(client, {
-    account,
-    contractAddress: wagmiContractConfig.address,
-    sponsor: account,
+    executor: 'self',
   })
 
   expect(authorization.nonce).toBe(664)

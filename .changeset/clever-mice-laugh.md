@@ -7,4 +7,3 @@ Stabilized EIP-7702.
 - Added `prepareAuthorization` and `signAuthorization` Actions to the Wallet Client.
 - Added `hashAuthorization`, `recoverAuthorizationAddress`, and `verifyAuthorization` Utilities.
 - Renamed `account.experimental_signAuthorization` to `account.signAuthorization`.
-- Deprecated EIP-7702 exports in `viem/experimental`.

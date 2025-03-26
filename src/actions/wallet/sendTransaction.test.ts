@@ -903,9 +903,13 @@ describe('local account', () => {
   })
 
   test('args: authorizationList', async () => {
-    const authority = privateKeyToAccount(accounts[9].privateKey)
+    const eoa = privateKeyToAccount(accounts[9].privateKey)
+    const relay = privateKeyToAccount(accounts[0].privateKey)
     const recipient = privateKeyToAccount(generatePrivateKey())
 
+    const balance_eoa = await getBalance(client, {
+      address: eoa.address,
+    })
     const balance_recipient = await getBalance(client, {
       address: recipient.address,
     })
@@ -916,12 +920,12 @@ describe('local account', () => {
     })
 
     const authorization = await signAuthorization(client, {
-      account: authority,
+      account: eoa,
       contractAddress: contractAddress!,
     })
 
     const hash = await sendTransaction(client, {
-      account: authority,
+      account: relay,
       authorizationList: [authorization],
       data: encodeFunctionData({
         abi: BatchCallDelegation.abi,
@@ -936,7 +940,7 @@ describe('local account', () => {
           ],
         ],
       }),
-      to: authority.address,
+      to: eoa.address,
     })
     expect(hash).toBeDefined()
 
@@ -944,76 +948,7 @@ describe('local account', () => {
 
     const receipt = await getTransactionReceipt(client, { hash })
     const log = receipt.logs[0]
-    expect(getAddress(log.address)).toBe(authority.address)
-    expect(
-      decodeEventLog({
-        abi: BatchCallDelegation.abi,
-        ...log,
-      }),
-    ).toEqual({
-      args: {
-        data: '0x',
-        to: recipient.address,
-        value: parseEther('1'),
-      },
-      eventName: 'CallEmitted',
-    })
-
-    expect(
-      await getBalance(client, {
-        address: recipient.address,
-      }),
-    ).toBe(balance_recipient + parseEther('1'))
-  })
-
-  test('args: authorizationList (sponsor)', async () => {
-    const sponsor = privateKeyToAccount(accounts[0].privateKey)
-    const authority = privateKeyToAccount(accounts[9].privateKey)
-    const recipient = privateKeyToAccount(generatePrivateKey())
-
-    const balance_authority = await getBalance(client, {
-      address: authority.address,
-    })
-    const balance_recipient = await getBalance(client, {
-      address: recipient.address,
-    })
-
-    const { contractAddress } = await deploy(client, {
-      abi: BatchCallDelegation.abi,
-      bytecode: BatchCallDelegation.bytecode.object,
-    })
-
-    const authorization = await signAuthorization(client, {
-      account: authority,
-      contractAddress: contractAddress!,
-      sponsor,
-    })
-
-    const hash = await sendTransaction(client, {
-      account: sponsor,
-      authorizationList: [authorization],
-      data: encodeFunctionData({
-        abi: BatchCallDelegation.abi,
-        functionName: 'execute',
-        args: [
-          [
-            {
-              to: recipient.address,
-              data: '0x',
-              value: parseEther('1'),
-            },
-          ],
-        ],
-      }),
-      to: authority.address,
-    })
-    expect(hash).toBeDefined()
-
-    await mine(client, { blocks: 1 })
-
-    const receipt = await getTransactionReceipt(client, { hash })
-    const log = receipt.logs[0]
-    expect(getAddress(log.address)).toBe(authority.address)
+    expect(getAddress(log.address)).toBe(eoa.address)
     expect(
       decodeEventLog({
         abi: BatchCallDelegation.abi,
@@ -1035,17 +970,17 @@ describe('local account', () => {
     ).toBe(balance_recipient + parseEther('1'))
     expect(
       await getBalance(client, {
-        address: authority.address,
+        address: eoa.address,
       }),
-    ).toBe(balance_authority - parseEther('1'))
+    ).toBe(balance_eoa - parseEther('1'))
   })
 
   test('args: authorizationList (cross-chain)', async () => {
-    const sponsor = privateKeyToAccount(accounts[0].privateKey)
-    const authority = privateKeyToAccount(generatePrivateKey())
+    const eoa = privateKeyToAccount(generatePrivateKey())
+    const relay = privateKeyToAccount(accounts[0].privateKey)
     const recipient = privateKeyToAccount(generatePrivateKey())
 
-    const client_sepolia = anvilSepolia.getClient({ account: sponsor })
+    const client_sepolia = anvilSepolia.getClient({ account: relay })
 
     // deploy on mainnet
     const { contractAddress, hash } = await deploy(client, {
@@ -1056,7 +991,7 @@ describe('local account', () => {
     const { nonce } = await getTransaction(client, { hash })
 
     // deploy on sepolia
-    await setNonce(client_sepolia, { address: sponsor.address, nonce })
+    await setNonce(client_sepolia, { address: relay.address, nonce })
     await deploy(client_sepolia, {
       abi: BatchCallDelegation.abi,
       bytecode: BatchCallDelegation.bytecode.object,
@@ -1064,14 +999,13 @@ describe('local account', () => {
 
     // sign authorization with `0` chain id (all chains)
     const authorization = await signAuthorization(client, {
-      account: authority,
+      account: eoa,
       chainId: 0,
       contractAddress: contractAddress!,
-      sponsor,
     })
 
     const args = {
-      account: sponsor,
+      account: relay,
       authorizationList: [authorization],
       data: encodeFunctionData({
         abi: BatchCallDelegation.abi,
@@ -1086,7 +1020,7 @@ describe('local account', () => {
           ],
         ],
       }),
-      to: authority.address,
+      to: eoa.address,
     } as const
 
     // execute transactions on mainnet and sepolia
@@ -1106,6 +1040,71 @@ describe('local account', () => {
 
     expect(receipt_mainnet.logs.length).toBeGreaterThan(0)
     expect(receipt_sepolia.logs.length).toBeGreaterThan(0)
+  })
+
+  test('args: authorizationList (self-executing)', async () => {
+    const eoa = privateKeyToAccount(accounts[9].privateKey)
+    const recipient = privateKeyToAccount(generatePrivateKey())
+
+    const balance_recipient = await getBalance(client, {
+      address: recipient.address,
+    })
+
+    const { contractAddress } = await deploy(client, {
+      abi: BatchCallDelegation.abi,
+      bytecode: BatchCallDelegation.bytecode.object,
+    })
+
+    const authorization = await signAuthorization(client, {
+      account: eoa,
+      contractAddress: contractAddress!,
+      executor: 'self',
+    })
+
+    const hash = await sendTransaction(client, {
+      account: eoa,
+      authorizationList: [authorization],
+      data: encodeFunctionData({
+        abi: BatchCallDelegation.abi,
+        functionName: 'execute',
+        args: [
+          [
+            {
+              to: recipient.address,
+              data: '0x',
+              value: parseEther('1'),
+            },
+          ],
+        ],
+      }),
+      to: eoa.address,
+    })
+    expect(hash).toBeDefined()
+
+    await mine(client, { blocks: 1 })
+
+    const receipt = await getTransactionReceipt(client, { hash })
+    const log = receipt.logs[0]
+    expect(getAddress(log.address)).toBe(eoa.address)
+    expect(
+      decodeEventLog({
+        abi: BatchCallDelegation.abi,
+        ...log,
+      }),
+    ).toEqual({
+      args: {
+        data: '0x',
+        to: recipient.address,
+        value: parseEther('1'),
+      },
+      eventName: 'CallEmitted',
+    })
+
+    expect(
+      await getBalance(client, {
+        address: recipient.address,
+      }),
+    ).toBe(balance_recipient + parseEther('1'))
   })
 
   test('args: blobs', async () => {
@@ -1544,16 +1543,16 @@ describe('errors', () => {
 })
 
 test('https://github.com/wevm/viem/issues/2721', async () => {
-  const sponsor = privateKeyToAccount(generatePrivateKey())
-  const authority = privateKeyToAccount(generatePrivateKey())
+  const relay = privateKeyToAccount(generatePrivateKey())
+  const eoa = privateKeyToAccount(generatePrivateKey())
   const recipient = privateKeyToAccount(generatePrivateKey())
 
   await setBalance(client, {
-    address: sponsor.address,
+    address: relay.address,
     value: parseEther('100'),
   })
   await setBalance(client, {
-    address: authority.address,
+    address: eoa.address,
     value: parseEther('100'),
   })
 
@@ -1563,12 +1562,12 @@ test('https://github.com/wevm/viem/issues/2721', async () => {
   })
 
   const authorization = await signAuthorization(client, {
-    account: authority,
+    account: eoa,
     contractAddress: contractAddress!,
   })
 
   const hash = await sendTransaction(client, {
-    account: sponsor,
+    account: relay,
     authorizationList: [authorization],
     data: encodeFunctionData({
       abi: BatchCallDelegation.abi,
@@ -1583,7 +1582,7 @@ test('https://github.com/wevm/viem/issues/2721', async () => {
         ],
       ],
     }),
-    to: authority.address,
+    to: eoa.address,
   })
   expect(hash).toBeDefined()
 })

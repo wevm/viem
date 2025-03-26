@@ -17,10 +17,14 @@ import { recoverAuthorizationAddress } from 'viem/utils'
 :::code-group
 
 ```ts twoslash [example.ts]
+import { privateKeyToAccount } from 'viem/accounts'
 import { recoverAuthorizationAddress } from 'viem/utils' // [!code focus]
 import { walletClient } from './client'
 
+const eoa = privateKeyToAccount('0x...')
+
 const authorization = await walletClient.signAuthorization({
+  account: eoa,
   authorization: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
 })
 
@@ -31,11 +35,9 @@ const address = await recoverAuthorizationAddress({ // [!code focus]
 
 ```ts twoslash [client.ts] filename="client.ts"
 import { createWalletClient, http } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
 
 export const walletClient = createWalletClient({
-  account: privateKeyToAccount('0x...'),
   chain: mainnet,
   transport: http(),
 })

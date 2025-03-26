@@ -159,9 +159,13 @@ describe('args: chain', () => {
 })
 
 test('args: authorizationList', async () => {
-  const authority = privateKeyToAccount(accounts[1].privateKey)
+  const eoa = privateKeyToAccount(accounts[1].privateKey)
+  const relay = privateKeyToAccount(accounts[0].privateKey)
   const recipient = privateKeyToAccount(generatePrivateKey())
 
+  const balance_eoa = await getBalance(client, {
+    address: eoa.address,
+  })
   const balance_recipient = await getBalance(client, {
     address: recipient.address,
   })
@@ -172,14 +176,14 @@ test('args: authorizationList', async () => {
   })
 
   const authorization = await signAuthorization(client, {
-    account: authority,
+    account: eoa,
     contractAddress: contractAddress!,
   })
 
   const hash = await writeContract(client, {
     abi: BatchCallDelegation.abi,
-    account: authority,
-    address: authority.address,
+    account: relay,
+    address: eoa.address,
     authorizationList: [authorization],
     functionName: 'execute',
     args: [
@@ -198,7 +202,7 @@ test('args: authorizationList', async () => {
 
   const receipt = await getTransactionReceipt(client, { hash })
   const log = receipt.logs[0]
-  expect(getAddress(log.address)).toBe(authority.address)
+  expect(getAddress(log.address)).toBe(eoa.address)
   expect(
     decodeEventLog({
       abi: BatchCallDelegation.abi,
@@ -218,16 +222,17 @@ test('args: authorizationList', async () => {
       address: recipient.address,
     }),
   ).toBe(balance_recipient + parseEther('1'))
+  expect(
+    await getBalance(client, {
+      address: eoa.address,
+    }),
+  ).toBe(balance_eoa - parseEther('1'))
 })
 
-test('args: authorizationList (sponsor)', async () => {
-  const sponsor = privateKeyToAccount(accounts[0].privateKey)
-  const authority = privateKeyToAccount(accounts[1].privateKey)
+test('args: authorizationList (self-executing)', async () => {
+  const eoa = privateKeyToAccount(accounts[1].privateKey)
   const recipient = privateKeyToAccount(generatePrivateKey())
 
-  const balance_authority = await getBalance(client, {
-    address: authority.address,
-  })
   const balance_recipient = await getBalance(client, {
     address: recipient.address,
   })
@@ -238,15 +243,15 @@ test('args: authorizationList (sponsor)', async () => {
   })
 
   const authorization = await signAuthorization(client, {
-    account: authority,
+    account: eoa,
     contractAddress: contractAddress!,
-    sponsor,
+    executor: 'self',
   })
 
   const hash = await writeContract(client, {
     abi: BatchCallDelegation.abi,
-    account: sponsor,
-    address: authority.address,
+    account: eoa,
+    address: eoa.address,
     authorizationList: [authorization],
     functionName: 'execute',
     args: [
@@ -265,7 +270,7 @@ test('args: authorizationList (sponsor)', async () => {
 
   const receipt = await getTransactionReceipt(client, { hash })
   const log = receipt.logs[0]
-  expect(getAddress(log.address)).toBe(authority.address)
+  expect(getAddress(log.address)).toBe(eoa.address)
   expect(
     decodeEventLog({
       abi: BatchCallDelegation.abi,
@@ -285,11 +290,6 @@ test('args: authorizationList (sponsor)', async () => {
       address: recipient.address,
     }),
   ).toBe(balance_recipient + parseEther('1'))
-  expect(
-    await getBalance(client, {
-      address: authority.address,
-    }),
-  ).toBe(balance_authority - parseEther('1'))
 })
 
 test('args: dataSuffix', async () => {

@@ -1,6 +1,6 @@
 # Contract Writes with EIP-7702
 
-The guide below demonstrates how to perform Contract Writes with EIP-7702 to invoke Contract functions on an Externally Owned Account.
+The guide below demonstrates how to perform Contract Writes with EIP-7702 to invoke Contract functions on an Externally Owned Account (EOA).
 
 ## Overview
 
@@ -10,32 +10,40 @@ Here is an end-to-end overview of how to perform a Contract Write to send a batc
 
 ```ts twoslash [example.ts]
 import { parseEther } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 import { walletClient } from './config'
 import { abi, contractAddress } from './contract'
 
-// 1. Authorize designation of the Contract onto the Account.
+const eoa = privateKeyToAccount('0x...')
+
+// 1. Authorize designation of the Contract onto the EOA.
 const authorization = await walletClient.signAuthorization({
+  account: eoa,
   contractAddress,
 })
 
-// 2. Invoke the Contract's `execute` function to perform batch calls.
+// 2. Designate the Contract on the EOA, and invoke the 
+//    `initialize` function.
 const hash = await walletClient.writeContract({
   abi,
-  address: walletClient.account.address,
-  functionName: 'execute',
-  args: [[
-    {
-      data: '0x',
-      to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', 
-      value: parseEther('0.001'), 
-    }, {
-      data: '0x',
-      to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', 
-      value: parseEther('0.002'), 
-    }
-  ]],
+  address: eoa.address,
   authorizationList: [authorization],
-  //                  ↑ 3. Pass the Authorization as an option.
+  //                  ↑ 3. Pass the Authorization as a parameter.
+  functionName: 'initialize',
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+import { createWalletClient, http } from 'viem'
+import { sepolia } from 'viem/chains'
+import { privateKeyToAccount } from 'viem/accounts' 
+
+export const relay = privateKeyToAccount('0x...')
+ 
+export const walletClient = createWalletClient({
+  account: relay,
+  chain: sepolia,
+  transport: http(),
 })
 ```
 
@@ -43,27 +51,8 @@ const hash = await walletClient.writeContract({
 export const abi = [
   {
     "type": "function",
-    "name": "execute",
-    "inputs": [
-      {
-        "name": "calls",
-        "type": "tuple[]",
-        "components": [
-          {
-            "name": "data",
-            "type": "bytes",
-          },
-          {
-            "name": "to",
-            "type": "address",
-          },
-          {
-            "name": "value",
-            "type": "uint256",
-          }
-        ]
-      }
-    ],
+    "name": "initialize",
+    "inputs": [],
     "outputs": [],
     "stateMutability": "payable"
   },
@@ -72,37 +61,14 @@ export const abi = [
 export const contractAddress = '0x...'
 ```
 
-```ts twoslash [config.ts] filename="config.ts"
-import { createWalletClient, http } from 'viem'
-import { sepolia } from 'viem/chains'
-import { privateKeyToAccount } from 'viem/accounts' 
-
-export const account = privateKeyToAccount('0x...')
- 
-export const walletClient = createWalletClient({
-  account,
-  chain: sepolia,
-  transport: http(),
-})
-```
-
-```solidity [BatchCallDelegation.sol]
+```solidity [Delegation.sol]
 pragma solidity ^0.8.20;
 
-contract BatchCallDelegation {
-  struct Call {
-    bytes data;
-    address to;
-    uint256 value;
-  }
+contract Delegation {
+  event Log(string message);
 
-  function execute(Call[] calldata calls) external payable {
-    require(address(this) == msg.sender);
-    for (uint256 i = 0; i < calls.length; i++) {
-      Call memory call = calls[i];
-      (bool success, ) = call.to.call{value: call.value}(call.data);
-      require(success, "call reverted");
-    }
+  function initialize() external payable {
+    emit Log('Hello, world!');
   }
 }
 ```
@@ -113,68 +79,63 @@ contract BatchCallDelegation {
 
 ### 1. Set up Smart Contract
 
-We will need to set up a Smart Contract to interact with. For the purposes of this guide, we will [create](https://book.getfoundry.sh/reference/forge/forge-init) and [deploy](https://book.getfoundry.sh/forge/deploying) a `BatchCallDelegation.sol` contract, however, you can use any existing deployed contract.
+We will need to set up a Smart Contract to designate on the Account. For the purposes of this guide, we will [create](https://book.getfoundry.sh/reference/forge/forge-init) and [deploy](https://book.getfoundry.sh/forge/deploying) a simple demonstration `Delegation.sol` contract, however, you can use any existing deployed contract.
 
 Firstly, [deploy a Contract](https://book.getfoundry.sh/forge/deploying) to the Network with the following source:
 
-```solidity [BatchCallDelegation.sol]
+```solidity [Delegation.sol]
 pragma solidity ^0.8.20;
 
-contract BatchCallDelegation {
-  struct Call {
-    bytes data;
-    address to;
-    uint256 value;
-  }
+contract Delegation {
+  event Log(string message);
 
-  function execute(Call[] calldata calls) external payable {
-    require(address(this) == msg.sender);
-    for (uint256 i = 0; i < calls.length; i++) {
-      Call memory call = calls[i];
-      (bool success, ) = call.to.call{value: call.value}(call.data);
-      require(success, "call reverted");
-    }
+  function initialize() external payable {
+    emit Log('Hello, world!');
   }
 }
 ```
 
-:::warning
-
-This contract is for demonstration purposes only. Use at your own risk.
-
-:::
-
 ### 2. Set up Client & Account
 
-Next, we will need to set up a Client and Externally Owned Account to sign EIP-7702 Authorizations.
+Next, we will need to set up a Client and a "Relay Account" that will be responsible for broadcasting the EIP-7702 Contract Write.
 
 ```ts twoslash [config.ts]
 import { createWalletClient, http } from 'viem'
 import { sepolia } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 
-export const account = privateKeyToAccount('0x...')
+export const relay = privateKeyToAccount('0x...')
  
 export const walletClient = createWalletClient({
-  account,
+  account: relay,
   chain: sepolia,
   transport: http(),
 })
 ```
 
+:::info
+
+In this demo, we will be using a "Relay Account" (not the EOA) to broadcast the Transaction. This is typically how EIP-7702 is used in practice, as the relayer can sponsor the gas fees to perform the Transaction.
+
+However, it is also possible for the EOA to sign and also broadcast the Transaction. [See more](#note-self-executing-eip-7702).
+:::
+
 ### 3. Authorize Contract Designation
 
 We will need to sign an Authorization to designate the Contract to the Account.
 
-In the example below, we are using the `account` attached to the `walletClient` to sign the Authorization – this will be the Account that will be used for delegation.
+In the example below, we are instantiating an existing EOA (`account`) and using it to sign the Authorization – this will be the Account that will be used for delegation.
 
 :::code-group
 
 ```ts twoslash [example.ts]
 import { walletClient } from './config'
 import { contractAddress } from './contract'
+
+const eoa = privateKeyToAccount('0x...') // [!code focus]
  
 const authorization = await walletClient.signAuthorization({ // [!code focus]
+  account: eoa, // [!code focus]
   contractAddress, // [!code focus]
 }) // [!code focus]
 ```
@@ -183,27 +144,8 @@ const authorization = await walletClient.signAuthorization({ // [!code focus]
 export const abi = [
   {
     "type": "function",
-    "name": "execute",
-    "inputs": [
-      {
-        "name": "calls",
-        "type": "tuple[]",
-        "components": [
-          {
-            "name": "data",
-            "type": "bytes",
-          },
-          {
-            "name": "to",
-            "type": "address",
-          },
-          {
-            "name": "value",
-            "type": "uint256",
-          }
-        ]
-      }
-    ],
+    "name": "initialize",
+    "inputs": [],
     "outputs": [],
     "stateMutability": "payable"
   },
@@ -217,10 +159,10 @@ import { createWalletClient, http } from 'viem'
 import { sepolia } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 
-export const account = privateKeyToAccount('0x...')
+export const relay = privateKeyToAccount('0x...')
  
 export const walletClient = createWalletClient({
-  account,
+  account: relay,
   chain: sepolia,
   transport: http(),
 })
@@ -228,9 +170,13 @@ export const walletClient = createWalletClient({
 
 :::
 
-### 4. Invoke Contract Function
+:::info
+If the EOA is also broadcasting the Transaction, you will need to pass `executor: 'self'` to `signAuthorization`. [See more](#note-self-executing-eip-7702).
+:::
 
-We can now call the `execute` function on our Contract to perform batch calls.
+### 4. Broadcast Contract Write
+
+We can now designate the Contract on the Account (and execute the `initialize` function) by sending an EIP-7702 Contract Write.
 
 :::code-group
 
@@ -238,27 +184,19 @@ We can now call the `execute` function on our Contract to perform batch calls.
 import { parseEther } from 'viem'
 import { walletClient } from './config'
 import { abi, contractAddress } from './contract'
+
+const eoa = privateKeyToAccount('0x...')
  
 const authorization = await walletClient.signAuthorization({
+  account: eoa,
   contractAddress,
 })
 
 const hash = await walletClient.writeContract({ // [!code focus]
   abi, // [!code focus]
-  address: walletClient.account.address, // [!code focus]
-  functionName: 'execute', // [!code focus]
-  args: [[ // [!code focus]
-    { // [!code focus]
-      data: '0x', // [!code focus]
-      to: '0xcb98643b8786950F0461f3B0edf99D88F274574D',  // [!code focus]
-      value: parseEther('0.001'),  // [!code focus]
-    }, { // [!code focus]
-      data: '0x', // [!code focus]
-      to: '0xd2135CfB216b74109775236E36d4b433F1DF507B',  // [!code focus]
-      value: parseEther('0.002'),  // [!code focus]
-    } // [!code focus]
-  ]], // [!code focus]
+  address: eoa.address, // [!code focus]
   authorizationList: [authorization], // [!code focus]
+  functionName: 'initialize', // [!code focus]
 }) // [!code focus]
 ```
 
@@ -266,27 +204,8 @@ const hash = await walletClient.writeContract({ // [!code focus]
 export const abi = [
   {
     "type": "function",
-    "name": "execute",
-    "inputs": [
-      {
-        "name": "calls",
-        "type": "tuple[]",
-        "components": [
-          {
-            "name": "data",
-            "type": "bytes",
-          },
-          {
-            "name": "to",
-            "type": "address",
-          },
-          {
-            "name": "value",
-            "type": "uint256",
-          }
-        ]
-      }
-    ],
+    "name": "initialize",
+    "inputs": [],
     "outputs": [],
     "stateMutability": "payable"
   },
@@ -300,10 +219,10 @@ import { createWalletClient, http } from 'viem'
 import { sepolia } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 
-export const account = privateKeyToAccount('0x...')
+export const relay = privateKeyToAccount('0x...')
  
 export const walletClient = createWalletClient({
-  account,
+  account: relay,
   chain: sepolia,
   transport: http(),
 })
@@ -311,10 +230,15 @@ export const walletClient = createWalletClient({
 
 :::
 
-### 5. Optional: Use a Sponsor
+### Note: Self-executing EIP-7702
 
-We can also utilize an arbitrary sponsoring Account to perform the EIP-7702 execution to delegate to the EOA. This is useful if we don't want
-the EOA to pay for the gas fees to perform the delegation Transaction.
+If the signer of the Authorization (ie. the EOA) is also broadcasting the Transaction, you will need to pass `executor: 'self'` to `signAuthorization`. 
+
+This is because `authorization.nonce` must be incremented by 1 over `transaction.nonce`, so we will need to hint to `signAuthorization` that this is the case.
+
+:::tip
+In the example below, we are attaching an EOA to the Wallet Client (see `config.ts`), and using it for signing the Authorization and broadcasting the Transaction.
+:::
 
 :::code-group
 
@@ -324,29 +248,17 @@ import { walletClient } from './config'
 import { abi, contractAddress } from './contract'
 
 const authorization = await walletClient.signAuthorization({
+  account: eoa, // [!code --]
   contractAddress,
-  sponsor: true, // [!code ++]
+  executor: 'self', // [!code ++]
 })
 
-const sponsor = privateKeyToAccount('0x...') // [!code ++]
-
 const hash = await walletClient.writeContract({
-  account: sponsor, // [!code ++]
   abi,
-  address: walletClient.account.address,
-  functionName: 'execute',
-  args: [[
-    {
-      data: '0x',
-      to: '0xcb98643b8786950F0461f3B0edf99D88F274574D', 
-      value: parseEther('0.001'), 
-    }, {
-      data: '0x',
-      to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', 
-      value: parseEther('0.002'), 
-    }
-  ]],
+  address: eoa.address, // [!code --]
+  address: walletClient.account.address, // [!code ++]
   authorizationList: [authorization],
+  functionName: 'initialize',
 })
 ```
 
@@ -356,10 +268,12 @@ import { createWalletClient, http } from 'viem'
 import { sepolia } from 'viem/chains'
 import { privateKeyToAccount } from 'viem/accounts'
 
-export const account = privateKeyToAccount('0x...')
+export const relay = privateKeyToAccount('0x...') // [!code --]
+export const eoa = privateKeyToAccount('0x...') // [!code ++]
  
 export const walletClient = createWalletClient({
-  account,
+  account: relay, // [!code --]
+  account: eoa, // [!code ++]
   chain: sepolia,
   transport: http(),
 })
@@ -369,27 +283,8 @@ export const walletClient = createWalletClient({
 export const abi = [
   {
     "type": "function",
-    "name": "execute",
-    "inputs": [
-      {
-        "name": "calls",
-        "type": "tuple[]",
-        "components": [
-          {
-            "name": "data",
-            "type": "bytes",
-          },
-          {
-            "name": "to",
-            "type": "address",
-          },
-          {
-            "name": "value",
-            "type": "uint256",
-          }
-        ]
-      }
-    ],
+    "name": "initialize",
+    "inputs": [],
     "outputs": [],
     "stateMutability": "payable"
   },

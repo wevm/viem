@@ -1,4 +1,3 @@
-import type { Address } from 'abitype'
 import type { Account } from '../../accounts/types.js'
 import {
   type ParseAccountErrorType,
@@ -15,7 +14,6 @@ import type { GetAccountParameter } from '../../types/account.js'
 import type { Authorization } from '../../types/authorization.js'
 import type { Chain } from '../../types/chain.js'
 import type { PartialBy } from '../../types/utils.js'
-import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { getAction } from '../../utils/getAction.js'
 import { getChainId } from '../public/getChainId.js'
@@ -26,16 +24,12 @@ export type PrepareAuthorizationParameters<
 > = GetAccountParameter<account> &
   PartialBy<Authorization, 'chainId' | 'nonce'> & {
     /**
-     * @deprecated Use `sponsor` instead.
-     */
-    delegate?: true | Address | Account | undefined
-    /**
-     * Whether the EIP-7702 Transaction will be executed by another Account.
+     * Whether the EIP-7702 Transaction will be executed by the EOA (signing this Authorization) or another Account.
      *
-     * If not specified, it will be assumed that the EIP-7702 Transaction will
-     * be executed by the Account that signed the Authorization.
+     * By default, it will be assumed that the EIP-7702 Transaction will
+     * be executed by another Account.
      */
-    sponsor?: true | Address | Account | undefined
+    executor?: 'self' | undefined
   }
 
 export type PrepareAuthorizationReturnType = Authorization
@@ -94,20 +88,18 @@ export async function prepareAuthorization<
   client: Client<Transport, chain, account>,
   parameters: PrepareAuthorizationParameters<account>,
 ): Promise<PrepareAuthorizationReturnType> {
-  const { account: account_ = client.account, chainId, nonce } = parameters
+  const {
+    account: account_ = client.account,
+    chainId,
+    executor,
+    nonce,
+  } = parameters
 
   if (!account_)
     throw new AccountNotFoundError({
       docsPath: '/docs/eip7702/prepareAuthorization',
     })
   const account = parseAccount(account_)
-
-  const sponsor = (() => {
-    const sponsor_ = parameters.sponsor ?? parameters.delegate
-    if (typeof sponsor_ === 'boolean') return sponsor_
-    if (sponsor_) return parseAccount(sponsor_)
-    return undefined
-  })()
 
   const authorization = {
     contractAddress: parameters.contractAddress ?? parameters.address,
@@ -129,11 +121,7 @@ export async function prepareAuthorization<
       address: account.address,
       blockTag: 'pending',
     })
-    if (
-      !sponsor ||
-      (sponsor !== true && isAddressEqual(account.address, sponsor.address))
-    )
-      authorization.nonce += 1
+    if (executor === 'self') authorization.nonce += 1
   }
 
   return authorization

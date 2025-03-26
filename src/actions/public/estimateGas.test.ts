@@ -52,7 +52,7 @@ test('args: account', async () => {
 })
 
 test('args: authorizationList', async () => {
-  const authority = privateKeyToAccount(accounts[1].privateKey)
+  const eoa = privateKeyToAccount(accounts[1].privateKey)
 
   const { contractAddress } = await deploy(client, {
     abi: BatchCallDelegation.abi,
@@ -60,7 +60,7 @@ test('args: authorizationList', async () => {
   })
 
   const authorization = await signAuthorization(client, {
-    account: authority,
+    account: eoa,
     contractAddress: contractAddress!,
   })
 
