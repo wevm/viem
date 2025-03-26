@@ -2,7 +2,7 @@ import { defineChain } from '../../../utils/chain/defineChain.js'
 
 export const skaleTitanTestnet = /*#__PURE__*/ defineChain({
   id: 1_020_352_220,
-  name: 'SKALE Titan Hub',
+  name: 'SKALE Titan Testnet',
   nativeCurrency: { name: 'sFUEL', symbol: 'sFUEL', decimals: 18 },
   rpcUrls: {
     default: {

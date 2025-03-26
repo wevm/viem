@@ -2,7 +2,7 @@ import { defineChain } from '../../../utils/chain/defineChain.js'
 
 export const skaleExorde = /*#__PURE__*/ defineChain({
   id: 2_139_927_552,
-  name: 'SKALE | Exorde',
+  name: 'Exorde Network',
   nativeCurrency: { name: 'sFUEL', symbol: 'sFUEL', decimals: 18 },
   rpcUrls: {
     default: {

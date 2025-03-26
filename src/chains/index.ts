@@ -459,14 +459,14 @@ export { skaleBlockBrawlers } from './definitions/skale/brawl.js'
 export { skaleCalypso } from './definitions/skale/calypso.js'
 export { skaleCalypsoTestnet } from './definitions/skale/calypsoTestnet.js'
 export { skaleCryptoBlades } from './definitions/skale/cryptoBlades.js'
-export { skaleCryptoColosseum } from './definitions/skale/cryptoColosseum.js'
+/** @deprecated */
 export { skaleEuropa } from './definitions/skale/europa.js'
 export { skaleEuropaTestnet } from './definitions/skale/europaTestnet.js'
 export { skaleExorde } from './definitions/skale/exorde.js'
-export { skaleHumanProtocol } from './definitions/skale/humanProtocol.js'
+/** @deprecated */
 export { skaleNebula } from './definitions/skale/nebula.js'
 export { skaleNebulaTestnet } from './definitions/skale/nebulaTestnet.js'
-export { skaleRazor } from './definitions/skale/razor.js'
+/** @deprecated Use `skaleEuropa` instead */
 export { skaleTitan } from './definitions/skale/titan.js'
 export { skaleTitanTestnet } from './definitions/skale/titanTestnet.js'
 export { sketchpad } from './definitions/sketchpad.js'

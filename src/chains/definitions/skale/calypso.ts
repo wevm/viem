@@ -2,7 +2,7 @@ import { defineChain } from '../../../utils/chain/defineChain.js'
 
 export const skaleCalypso = /*#__PURE__*/ defineChain({
   id: 1_564_830_818,
-  name: 'SKALE | Calypso NFT Hub',
+  name: 'SKALE Calypso Hub',
   nativeCurrency: { name: 'sFUEL', symbol: 'sFUEL', decimals: 18 },
   rpcUrls: {
     default: {
@@ -21,7 +21,7 @@ export const skaleCalypso = /*#__PURE__*/ defineChain({
   contracts: {
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 3107626,
+      blockCreated: 3_107_626,
     },
   },
 })
