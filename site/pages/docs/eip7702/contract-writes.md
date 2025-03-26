@@ -97,7 +97,7 @@ contract Delegation {
 
 ### 2. Set up Client & Account
 
-Next, we will need to set up a Client and a "Relay Account" that will be responsible for broadcasting the EIP-7702 Contract Write.
+Next, we will need to set up a Client and a "Relay Account" that will be responsible for executing the EIP-7702 Contract Write.
 
 ```ts twoslash [config.ts]
 import { createWalletClient, http } from 'viem'
@@ -115,9 +115,9 @@ export const walletClient = createWalletClient({
 
 :::info
 
-In this demo, we will be using a "Relay Account" (not the EOA) to broadcast the Transaction. This is typically how EIP-7702 is used in practice, as the relayer can sponsor the gas fees to perform the Transaction.
+In this demo, we will be using a "Relay Account" (not the EOA) to execute the Transaction. This is typically how EIP-7702 is used in practice, as the relayer can sponsor the gas fees to perform the Transaction.
 
-However, it is also possible for the EOA to sign and also broadcast the Transaction. [See more](#note-self-executing-eip-7702).
+However, it is also possible for the EOA to sign and also execute the Transaction. [See more](#note-self-executing-eip-7702).
 :::
 
 ### 3. Authorize Contract Designation
@@ -171,10 +171,10 @@ export const walletClient = createWalletClient({
 :::
 
 :::info
-If the EOA is also broadcasting the Transaction, you will need to pass `executor: 'self'` to `signAuthorization`. [See more](#note-self-executing-eip-7702).
+If the EOA is also executing the Transaction, you will need to pass `executor: 'self'` to `signAuthorization`. [See more](#note-self-executing-eip-7702).
 :::
 
-### 4. Broadcast Contract Write
+### 4. execute Contract Write
 
 We can now designate the Contract on the Account (and execute the `initialize` function) by sending an EIP-7702 Contract Write.
 
@@ -232,12 +232,12 @@ export const walletClient = createWalletClient({
 
 ### Note: Self-executing EIP-7702
 
-If the signer of the Authorization (ie. the EOA) is also broadcasting the Transaction, you will need to pass `executor: 'self'` to `signAuthorization`. 
+If the signer of the Authorization (ie. the EOA) is also executing the Transaction, you will need to pass `executor: 'self'` to `signAuthorization`. 
 
 This is because `authorization.nonce` must be incremented by 1 over `transaction.nonce`, so we will need to hint to `signAuthorization` that this is the case.
 
 :::tip
-In the example below, we are attaching an EOA to the Wallet Client (see `config.ts`), and using it for signing the Authorization and broadcasting the Transaction.
+In the example below, we are attaching an EOA to the Wallet Client (see `config.ts`), and using it for signing the Authorization and executing the Transaction.
 :::
 
 :::code-group
