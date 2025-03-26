@@ -1,10 +1,10 @@
 import { beforeAll, expect, test } from 'vitest'
-import { wagmiContractConfig } from '../../../../test/src/abis.js'
-import { anvilMainnet } from '../../../../test/src/anvil.js'
-import { accounts } from '../../../../test/src/constants.js'
-import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
-import { reset } from '../../../actions/index.js'
-import { verifyAuthorization } from '../utils/verifyAuthorization.js'
+import { wagmiContractConfig } from '../../../test/src/abis.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { accounts } from '../../../test/src/constants.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { verifyAuthorization } from '../../utils/authorization/verifyAuthorization.js'
+import { reset } from '../index.js'
 import { signAuthorization } from './signAuthorization.js'
 
 const account = privateKeyToAccount(accounts[0].privateKey)
@@ -56,6 +56,41 @@ test('default', async () => {
   ).toBe(true)
 })
 
+test('args: address (alias)', async () => {
+  const authorization = await signAuthorization(client, {
+    account,
+    address: wagmiContractConfig.address,
+    chainId: 1,
+    nonce: 0,
+  })
+
+  expect({
+    ...authorization,
+    r: null,
+    s: null,
+    v: null,
+    yParity: null,
+  }).toMatchInlineSnapshot(
+    `
+    {
+      "chainId": 1,
+      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+      "nonce": 0,
+      "r": null,
+      "s": null,
+      "v": null,
+      "yParity": null,
+    }
+  `,
+  )
+  expect(
+    await verifyAuthorization({
+      address: account.address,
+      authorization,
+    }),
+  ).toBe(true)
+})
+
 test('behavior: address as authorization', async () => {
   const authorization = await signAuthorization(client, {
     account,
@@ -73,7 +108,7 @@ test('behavior: address as authorization', async () => {
     {
       "chainId": 1,
       "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
-      "nonce": 664,
+      "nonce": 663,
       "r": null,
       "s": null,
       "v": null,
@@ -110,7 +145,7 @@ test('behavior: partial authorization: no chainId + nonce', async () => {
     {
       "chainId": 1,
       "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
-      "nonce": 664,
+      "nonce": 663,
       "r": null,
       "s": null,
       "v": null,
@@ -148,7 +183,7 @@ test('behavior: partial authorization: no nonce', async () => {
     {
       "chainId": 10,
       "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
-      "nonce": 664,
+      "nonce": 663,
       "r": null,
       "s": null,
       "v": null,
@@ -206,43 +241,11 @@ test('behavior: partial authorization: no chainId', async () => {
   ).toBe(true)
 })
 
-test('behavior: sponsor is address', async () => {
+test('behavior: self-executing', async () => {
   const authorization = await signAuthorization(client, {
     account,
     contractAddress: wagmiContractConfig.address,
-    sponsor: '0x0000000000000000000000000000000000000000',
-  })
-
-  expect(authorization.nonce).toBe(663)
-  expect(
-    await verifyAuthorization({
-      address: account.address,
-      authorization,
-    }),
-  ).toBe(true)
-})
-
-test('behavior: sponsor is truthy', async () => {
-  const authorization = await signAuthorization(client, {
-    account,
-    contractAddress: wagmiContractConfig.address,
-    sponsor: true,
-  })
-
-  expect(authorization.nonce).toBe(663)
-  expect(
-    await verifyAuthorization({
-      address: account.address,
-      authorization,
-    }),
-  ).toBe(true)
-})
-
-test('behavior: account as sponsor', async () => {
-  const authorization = await signAuthorization(client, {
-    account,
-    contractAddress: wagmiContractConfig.address,
-    sponsor: account,
+    executor: 'self',
   })
 
   expect(authorization.nonce).toBe(664)
@@ -345,7 +348,7 @@ test('error: unsupported account type', async () => {
 
     The \`signAuthorization\` Action does not support JSON-RPC Accounts.
 
-    Docs: https://viem.sh/experimental/eip7702/signAuthorization
+    Docs: https://viem.sh/docs/eip7702/signAuthorization
     Version: viem@x.y.z]
   `)
 })
@@ -362,7 +365,7 @@ test('error: no account', async () => {
     [AccountNotFoundError: Could not find an Account to execute with this Action.
     Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
 
-    Docs: https://viem.sh/experimental/eip7702/signAuthorization
+    Docs: https://viem.sh/docs/eip7702/signAuthorization
     Version: viem@x.y.z]
   `)
 })

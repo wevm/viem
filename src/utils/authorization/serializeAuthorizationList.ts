@@ -1,10 +1,10 @@
-import type { ErrorType } from '../../../errors/utils.js'
-import { toHex } from '../../../utils/encoding/toHex.js'
-import { toYParitySignatureArray } from '../../../utils/transaction/serializeTransaction.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type {
   AuthorizationList,
   SerializedAuthorizationList,
-} from '../types/authorization.js'
+} from '../../types/authorization.js'
+import { toHex } from '../encoding/toHex.js'
+import { toYParitySignatureArray } from '../transaction/serializeTransaction.js'
 
 export type SerializeAuthorizationListReturnType = SerializedAuthorizationList
 
@@ -20,7 +20,9 @@ export function serializeAuthorizationList(
 
   const serializedAuthorizationList = []
   for (const authorization of authorizationList) {
-    const { contractAddress, chainId, nonce, ...signature } = authorization
+    const { chainId, nonce, ...signature } = authorization
+    const contractAddress =
+      authorization.contractAddress ?? authorization.address
     serializedAuthorizationList.push([
       chainId ? toHex(chainId) : '0x',
       contractAddress,

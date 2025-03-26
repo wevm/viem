@@ -8,7 +8,6 @@ import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, holesky } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
-import { signAuthorization } from '../../experimental/index.js'
 import { createClient, encodeFunctionData } from '../../index.js'
 import type { Transaction } from '../../types/transaction.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
@@ -16,6 +15,7 @@ import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
+import { signAuthorization } from '../wallet/signAuthorization.js'
 import { getBlock } from './getBlock.js'
 import { getTransaction } from './getTransaction.js'
 
@@ -179,7 +179,7 @@ test('gets transaction (eip4844)', async () => {
 })
 
 test('gets transaction (eip7702)', async () => {
-  const authority = privateKeyToAccount(accounts[1].privateKey)
+  const eoa = privateKeyToAccount(accounts[1].privateKey)
 
   const { contractAddress } = await deploy(client, {
     abi: BatchCallDelegation.abi,
@@ -187,12 +187,12 @@ test('gets transaction (eip7702)', async () => {
   })
 
   const authorization = await signAuthorization(client, {
-    account: authority,
+    account: eoa,
     contractAddress: contractAddress!,
   })
 
   const hash = await sendTransaction(client, {
-    account: authority,
+    account: eoa,
     authorizationList: [authorization],
     data: encodeFunctionData({
       abi: BatchCallDelegation.abi,
