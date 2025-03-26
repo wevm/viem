@@ -57,7 +57,7 @@ export async function getIpcRpcClient(
         socket.off('connect', onOpen)
       }
 
-      let lastRemaining = Buffer.alloc(0)
+      let lastRemaining = Buffer.alloc(0) as Buffer
       function onData(buffer: Buffer) {
         const [messages, remaining] = extractMessages(
           Buffer.concat([
