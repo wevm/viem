@@ -32,6 +32,7 @@ describe('smoke test', () => {
 
     const authorization = await signAuthorization(client, {
       contractAddress: contractAddress!,
+      executor: 'self',
     })
     await client.execute({
       authorizationList: [authorization],
@@ -55,6 +56,7 @@ describe('smoke test', () => {
 
     const authorization = await signAuthorization(client, {
       contractAddress: contractAddress!,
+      executor: 'self',
     })
     await client.executeBatches({
       authorizationList: [authorization],

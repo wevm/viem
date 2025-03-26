@@ -34,6 +34,7 @@ test('default', async () => {
 
   const authorization = await signAuthorization(client, {
     contractAddress: contractAddress!,
+    executor: 'self',
   })
   await sendTransaction(client, {
     authorizationList: [authorization],
