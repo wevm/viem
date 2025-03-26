@@ -264,13 +264,6 @@ await walletClient.writeContract({
 })
 ```
 
-:::note 
-**NOTE** 
-`account` can be an of type `Address` when calling through the wallet directly from a UI (using the browser's injected provider). 
-
-In contrast, `account` can be an type `Account` in any case, whether the signer comes from the browser's injected provider or JSON-RPC.
-:::
-
 ### accessList (optional)
 
 - **Type:** [`AccessList`](/docs/glossary/types#accesslist)
