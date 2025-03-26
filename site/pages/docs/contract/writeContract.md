@@ -252,7 +252,7 @@ await walletClient.writeContract({
 
 The Account to write to the contract from.
 
-Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc). If set to `null`, it is assumed that the transport will handle the filling the sender of the transaction.
+Accepts a [JSON-RPC Account (or Address)](/docs/clients/wallet#json-rpc-accounts) or [Local Account (Private Key, etc)](/docs/clients/wallet#local-accounts-private-key-mnemonic-etc). If set to `null`, it is assumed that the transport will handle the filling the sender of the transaction.
 
 ```ts
 await walletClient.writeContract({
