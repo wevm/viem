@@ -9,7 +9,7 @@ Here is an end-to-end overview of how to execute an EIP-7702 Transaction to emit
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseEther } from 'viem'
+import { encodeFunctionData } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { walletClient } from './config'
 import { abi, contractAddress } from './contract'
@@ -56,7 +56,14 @@ export const abi = [
     "name": "initialize",
     "inputs": [],
     "outputs": [],
-    "stateMutability": "payable"
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "ping",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "pure"
   },
 ] as const
 
@@ -71,6 +78,10 @@ contract Delegation {
 
   function initialize() external payable {
     emit Log('Hello, world!');
+  }
+
+  function ping() external pure {
+    emit Log('Pong!');
   }
 }
 ```
@@ -93,6 +104,11 @@ contract Delegation {
 
   function initialize() external payable {
     emit Log('Hello, world!');
+  }
+
+
+  function ping() external pure {
+    emit Log('Pong!');
   }
 }
 ```
@@ -149,7 +165,14 @@ export const abi = [
     "name": "initialize",
     "inputs": [],
     "outputs": [],
-    "stateMutability": "payable"
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "ping",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "pure"
   },
 ] as const
 
@@ -184,7 +207,7 @@ We can now designate the Contract on the Account (and execute the `initialize` f
 :::code-group
 
 ```ts twoslash [example.ts]
-import { encodeFunctionData, parseEther } from 'viem'
+import { encodeFunctionData } from 'viem'
 import { walletClient } from './config'
 import { contractAddress } from './contract'
 
@@ -212,7 +235,74 @@ export const abi = [
     "name": "initialize",
     "inputs": [],
     "outputs": [],
-    "stateMutability": "payable"
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "ping",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "pure"
+  },
+] as const
+
+export const contractAddress = '0x...'
+```
+
+```ts twoslash [config.ts]
+import { createWalletClient, http } from 'viem'
+import { sepolia } from 'viem/chains'
+import { privateKeyToAccount } from 'viem/accounts'
+
+export const relay = privateKeyToAccount('0x...')
+ 
+export const walletClient = createWalletClient({
+  account: relay,
+  chain: sepolia,
+  transport: http(),
+})
+```
+
+:::
+
+### 5. (Optional) Interact with the Delegated Account
+
+Now that we have designated a Contract onto the Account, we can interact with it by invoking its functions. 
+
+Note that we no longer need to use an Authorization!
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { encodeFunctionData } from 'viem'
+import { walletClient } from './config'
+
+const eoa = privateKeyToAccount('0x...')
+
+const hash = await walletClient.sendTransaction({
+  data: encodeFunctionData({
+    abi,
+    functionName: 'ping',
+  }),
+  to: eoa.address,
+})
+```
+
+```ts twoslash [contract.ts] filename="contract.ts"
+export const abi = [
+  {
+    "type": "function",
+    "name": "initialize",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "ping",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "pure"
   },
 ] as const
 
@@ -248,7 +338,7 @@ In the example below, we are attaching an EOA to the Wallet Client (see `config.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { encodeFunctionData, parseEther } from 'viem'
+import { encodeFunctionData } from 'viem'
 import { walletClient } from './config'
 import { contractAddress } from './contract'
 
@@ -293,7 +383,14 @@ export const abi = [
     "name": "initialize",
     "inputs": [],
     "outputs": [],
-    "stateMutability": "payable"
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "ping",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "pure"
   },
 ] as const
 

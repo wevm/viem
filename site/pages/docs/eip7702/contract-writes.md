@@ -9,7 +9,6 @@ Here is an end-to-end overview of how to perform a Contract Write to send a batc
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { walletClient } from './config'
 import { abi, contractAddress } from './contract'
@@ -54,7 +53,14 @@ export const abi = [
     "name": "initialize",
     "inputs": [],
     "outputs": [],
-    "stateMutability": "payable"
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "ping",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "pure"
   },
 ] as const
 
@@ -69,6 +75,10 @@ contract Delegation {
 
   function initialize() external payable {
     emit Log('Hello, world!');
+  }
+
+  function ping() external pure {
+    emit Log('Pong!');
   }
 }
 ```
@@ -91,6 +101,10 @@ contract Delegation {
 
   function initialize() external payable {
     emit Log('Hello, world!');
+  }
+
+  function ping() external pure {
+    emit Log('Pong!');
   }
 }
 ```
@@ -147,7 +161,14 @@ export const abi = [
     "name": "initialize",
     "inputs": [],
     "outputs": [],
-    "stateMutability": "payable"
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "ping",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "pure"
   },
 ] as const
 
@@ -174,14 +195,13 @@ export const walletClient = createWalletClient({
 If the EOA is also executing the Transaction, you will need to pass `executor: 'self'` to `signAuthorization`. [See more](#note-self-executing-eip-7702).
 :::
 
-### 4. execute Contract Write
+### 4. Execute Contract Write
 
 We can now designate the Contract on the Account (and execute the `initialize` function) by sending an EIP-7702 Contract Write.
 
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseEther } from 'viem'
 import { walletClient } from './config'
 import { abi, contractAddress } from './contract'
 
@@ -207,7 +227,14 @@ export const abi = [
     "name": "initialize",
     "inputs": [],
     "outputs": [],
-    "stateMutability": "payable"
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "ping",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "pure"
   },
 ] as const
 
@@ -230,6 +257,65 @@ export const walletClient = createWalletClient({
 
 :::
 
+### 5. (Optional) Interact with the Delegated Account
+
+Now that we have designated a Contract onto the Account, we can interact with it by invoking its functions. 
+
+Note that we no longer need to use an Authorization!
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { walletClient } from './config'
+import { abi } from './contract'
+
+const eoa = privateKeyToAccount('0x...')
+
+const hash = await walletClient.writeContract({
+  abi,
+  address: eoa.address,
+  functionName: 'ping', // [!code hl]
+})
+```
+
+```ts twoslash [contract.ts] filename="contract.ts"
+export const abi = [
+  {
+    "type": "function",
+    "name": "initialize",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "ping",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "pure"
+  },
+] as const
+
+export const contractAddress = '0x...'
+```
+
+```ts twoslash [config.ts]
+import { createWalletClient, http } from 'viem'
+import { sepolia } from 'viem/chains'
+import { privateKeyToAccount } from 'viem/accounts'
+
+export const relay = privateKeyToAccount('0x...')
+ 
+export const walletClient = createWalletClient({
+  account: relay,
+  chain: sepolia,
+  transport: http(),
+})
+```
+
+:::
+
+
 ### Note: Self-executing EIP-7702
 
 If the signer of the Authorization (ie. the EOA) is also executing the Transaction, you will need to pass `executor: 'self'` to `signAuthorization`. 
@@ -243,7 +329,6 @@ In the example below, we are attaching an EOA to the Wallet Client (see `config.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { parseEther } from 'viem'
 import { walletClient } from './config'
 import { abi, contractAddress } from './contract'
 
@@ -286,7 +371,14 @@ export const abi = [
     "name": "initialize",
     "inputs": [],
     "outputs": [],
-    "stateMutability": "payable"
+    "stateMutability": "pure"
+  },
+  {
+    "type": "function",
+    "name": "ping",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "pure"
   },
 ] as const
 
