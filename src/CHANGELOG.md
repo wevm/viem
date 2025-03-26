@@ -1,5 +1,72 @@
 # viem
 
+## 2.24.0
+
+### Minor Changes
+
+- [#3427](https://github.com/wevm/viem/pull/3427) [`2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7`](https://github.com/wevm/viem/commit/2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7) Thanks [@jxom](https://github.com/jxom)! - Stabilized EIP-7702.
+
+  - Added `prepareAuthorization` and `signAuthorization` Actions to the Wallet Client.
+  - Added `hashAuthorization`, `recoverAuthorizationAddress`, and `verifyAuthorization` Utilities.
+  - Renamed `account.experimental_signAuthorization` to `account.signAuthorization`.
+
+- [#3427](https://github.com/wevm/viem/pull/3427) [`2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7`](https://github.com/wevm/viem/commit/2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7) Thanks [@jxom](https://github.com/jxom)! - **BREAKING (Experimental)**: Removed deprecated `walletActionsEip5792` export. Use `eip5792Actions` instead.
+
+- [#3427](https://github.com/wevm/viem/pull/3427) [`2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7`](https://github.com/wevm/viem/commit/2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7) Thanks [@jxom](https://github.com/jxom)! - **BREAKING (Experimental)**: Removed deprecated ERC-6492 exports in `viem/experimental`. These are no longer experimental. Use exports from `viem` instead.
+
+- [#3427](https://github.com/wevm/viem/pull/3427) [`2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7`](https://github.com/wevm/viem/commit/2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7) Thanks [@jxom](https://github.com/jxom)! - **BREAKING (Experimental)**: Removed deprecated `walletActionsErc7715` export. Use `erc7715Actions` instead.
+
+- [#3427](https://github.com/wevm/viem/pull/3427) [`2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7`](https://github.com/wevm/viem/commit/2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7) Thanks [@jxom](https://github.com/jxom)! - **BREAKING (Experimental)**:
+
+  Removed EIP-7702 exports in `viem/experimental`. These are no longer experimental. Use exports from `viem` or `viem/utils` instead.
+
+  Note, there is also a behavioral change in the stable EIP-7702 `signAuthorization` function. Previously, it was assumed that the signer of the Authorization was also the executor of the Transaction. This is no longer the case.
+
+  If the signer of the Authorization is **NOT** the executor of the Transaction, you no longer need to pass a `sponsor` parameter.
+
+  ```diff
+  const eoa = privateKeyToAccount('0x...')
+  const relay = privateKeyToAccount('0x...')
+
+  const authorization = await client.signAuthorization({
+    account: eoa,
+    contractAddress: '0x...',
+  - sponsor: true
+  })
+
+  const transaction = await client.sendTransaction({
+    account: relay,
+    authorizationList: [authorization],
+  })
+  ```
+
+  If the signer of the Authorization is **ALSO** the executor of the Transaction, you will now need to pass the `executor` parameter with a value of `'self'`.
+
+  ```diff
+  const eoa = privateKeyToAccount('0x...')
+
+  const authorization = await client.signAuthorization({
+    account: eoa,
+    contractAddress: '0x...',
+  + executor: 'self',
+  })
+
+  const transaction = await client.sendTransaction({
+    account: eoa,
+    authorizationList: [authorization],
+  })
+  ```
+
+### Patch Changes
+
+- [#3469](https://github.com/wevm/viem/pull/3469) [`3f00c5f28e8a4eec0ee60fe3bb9acdc5e828d1c7`](https://github.com/wevm/viem/commit/3f00c5f28e8a4eec0ee60fe3bb9acdc5e828d1c7) Thanks [@danijelTxFusion](https://github.com/danijelTxFusion)! - **ZKSync Extension:** Added `deposit` action.
+
+- [#3497](https://github.com/wevm/viem/pull/3497) [`512ee19fdaf309d2ec607e024ecdb08ffbde5f68`](https://github.com/wevm/viem/commit/512ee19fdaf309d2ec607e024ecdb08ffbde5f68) Thanks [@DiRaiks](https://github.com/DiRaiks)! - Changed Hoodi block explorer to Etherscan.
+
+- [#3505](https://github.com/wevm/viem/pull/3505) [`c0f36abc39df5fc230c41871da1e7ba6a74d25eb`](https://github.com/wevm/viem/commit/c0f36abc39df5fc230c41871da1e7ba6a74d25eb) Thanks [@clemlak](https://github.com/clemlak)! - Added Multicall3 address to Ink Mainnet.
+
+- [#3506](https://github.com/wevm/viem/pull/3506) [`bce50f08acaa8355b11462487317929d958eb408`](https://github.com/wevm/viem/commit/bce50f08acaa8355b11462487317929d958eb408) Thanks [@CruzMolina](https://github.com/CruzMolina)! - add Multicall3 address to Ink Sepolia
+
 ## 2.23.15
 
 ### Patch Changes
