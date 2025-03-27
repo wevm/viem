@@ -23,8 +23,8 @@ export const sepolia = /*#__PURE__*/ defineChain({
     },
     ensRegistry: { address: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e' },
     ensUniversalResolver: {
-      address: '0xc8Af999e38273D658BE1b921b88A9Ddf005769cC',
-      blockCreated: 5_317_080,
+      address: '0xC087fF4e7D743c3ae6673FF5d42391b741369169',
+      blockCreated: 7_985_523,
     },
   },
   testnet: true,
