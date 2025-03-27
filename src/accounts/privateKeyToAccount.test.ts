@@ -45,8 +45,8 @@ test('sign authorization', async () => {
   expect(signedAuthorization).toMatchInlineSnapshot(
     `
     {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 0,
       "r": "0xff5d79daa56d5aae2657e8950af71377f8c2860255a9c915948c071ef9286def",
       "s": "0x17318a10ff56f0000a350a210fdb312ba22260a64f38dddc135912a6c4795c1d",

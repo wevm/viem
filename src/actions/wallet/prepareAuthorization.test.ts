@@ -107,14 +107,46 @@ test('behavior: partial authorization: no chainId', async () => {
   )
 })
 
-test('behavior: self-executing', async () => {
+test('behavior: executor (address)', async () => {
   const authorization = await prepareAuthorization(client, {
     account,
     contractAddress: wagmiContractConfig.address,
-    executor: 'self',
+    executor: '0x0000000000000000000000000000000000000000',
   })
 
-  expect(authorization.nonce).toBe(664)
+  expect(authorization.nonce).toBe(663)
+})
+
+test('behavior: executor (account)', async () => {
+  const authorization = await prepareAuthorization(client, {
+    account,
+    contractAddress: wagmiContractConfig.address,
+    executor: privateKeyToAccount(accounts[1].privateKey),
+  })
+
+  expect(authorization.nonce).toBe(663)
+})
+
+test('behavior: executor (self-executing)', async () => {
+  {
+    const authorization = await prepareAuthorization(client, {
+      account,
+      contractAddress: wagmiContractConfig.address,
+      executor: 'self',
+    })
+
+    expect(authorization.nonce).toBe(664)
+  }
+
+  {
+    const authorization = await prepareAuthorization(client, {
+      account,
+      contractAddress: wagmiContractConfig.address,
+      executor: account,
+    })
+
+    expect(authorization.nonce).toBe(664)
+  }
 })
 
 test('behavior: hoisted account on client', async () => {

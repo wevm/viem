@@ -1,3 +1,4 @@
+import type { Address } from 'abitype'
 import type { Account } from '../../accounts/types.js'
 import {
   type ParseAccountErrorType,
@@ -17,6 +18,7 @@ import type {
 } from '../../types/authorization.js'
 import type { Chain } from '../../types/chain.js'
 import type { PartialBy } from '../../types/utils.js'
+import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { getAction } from '../../utils/getAction.js'
 import { getChainId } from '../public/getChainId.js'
@@ -32,7 +34,7 @@ export type PrepareAuthorizationParameters<
      * By default, it will be assumed that the EIP-7702 Transaction will
      * be executed by another Account.
      */
-    executor?: 'self' | undefined
+    executor?: 'self' | Account | Address | undefined
   }
 
 export type PrepareAuthorizationReturnType = Authorization
@@ -91,18 +93,19 @@ export async function prepareAuthorization<
   client: Client<Transport, chain, account>,
   parameters: PrepareAuthorizationParameters<account>,
 ): Promise<PrepareAuthorizationReturnType> {
-  const {
-    account: account_ = client.account,
-    chainId,
-    executor,
-    nonce,
-  } = parameters
+  const { account: account_ = client.account, chainId, nonce } = parameters
 
   if (!account_)
     throw new AccountNotFoundError({
       docsPath: '/docs/eip7702/prepareAuthorization',
     })
   const account = parseAccount(account_)
+
+  const executor = (() => {
+    if (!parameters.executor) return undefined
+    if (parameters.executor === 'self') return parameters.executor
+    return parseAccount(parameters.executor)
+  })()
 
   const authorization = {
     address: parameters.contractAddress ?? parameters.address,
@@ -124,7 +127,11 @@ export async function prepareAuthorization<
       address: account.address,
       blockTag: 'pending',
     })
-    if (executor === 'self') authorization.nonce += 1
+    if (
+      executor === 'self' ||
+      (executor?.address && isAddressEqual(executor.address, account.address))
+    )
+      authorization.nonce += 1
   }
 
   return authorization
