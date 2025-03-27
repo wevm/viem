@@ -19,6 +19,19 @@ export const sidebar = {
         { text: 'Ethers v5 → viem', link: '/docs/ethers-migration' },
         { text: 'TypeScript', link: '/docs/typescript' },
         { text: 'Error Handling', link: '/docs/error-handling' },
+        {
+          text: 'EIP-7702',
+          link: '/docs/eip7702',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/docs/eip7702' },
+            { text: 'Contract Writes', link: '/docs/eip7702/contract-writes' },
+            {
+              text: 'Sending Transactions',
+              link: '/docs/eip7702/sending-transactions',
+            },
+          ],
+        },
         { text: 'Blob Transactions', link: '/docs/guides/blob-transactions' },
       ],
     },
