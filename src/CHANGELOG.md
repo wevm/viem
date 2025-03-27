@@ -1,5 +1,13 @@
 # viem
 
+## 2.24.1
+
+### Patch Changes
+
+- [`f988a5762f7ffdd0d1c3bab7de1f4e706bab59ae`](https://github.com/wevm/viem/commit/f988a5762f7ffdd0d1c3bab7de1f4e706bab59ae) Thanks [@jxom](https://github.com/jxom)! - Fixed `Authorization` type.
+
+- [`69e116862b8903b920485f685e99c16323130870`](https://github.com/wevm/viem/commit/69e116862b8903b920485f685e99c16323130870) Thanks [@jxom](https://github.com/jxom)! - Fixed `Authorization` type.
+
 ## 2.24.0
 
 ### Minor Changes
