@@ -34,8 +34,8 @@ test('default', async () => {
   }).toMatchInlineSnapshot(
     `
     {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 0,
       "r": null,
       "s": null,
@@ -73,8 +73,8 @@ test('args: address (alias)', async () => {
   }).toMatchInlineSnapshot(
     `
     {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 0,
       "r": null,
       "s": null,
@@ -106,8 +106,8 @@ test('behavior: address as authorization', async () => {
   }).toMatchInlineSnapshot(
     `
     {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 663,
       "r": null,
       "s": null,
@@ -143,8 +143,8 @@ test('behavior: partial authorization: no chainId + nonce', async () => {
   }).toMatchInlineSnapshot(
     `
     {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 663,
       "r": null,
       "s": null,
@@ -181,8 +181,8 @@ test('behavior: partial authorization: no nonce', async () => {
   }).toMatchInlineSnapshot(
     `
     {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 10,
-      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 663,
       "r": null,
       "s": null,
@@ -219,8 +219,8 @@ test('behavior: partial authorization: no chainId', async () => {
   }).toMatchInlineSnapshot(
     `
     {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 69,
       "r": null,
       "s": null,
@@ -274,8 +274,8 @@ test('behavior: hoisted account on client', async () => {
   }).toMatchInlineSnapshot(
     `
     {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 0,
       "r": null,
       "s": null,
@@ -313,8 +313,8 @@ test('behavior: no client chain', async () => {
   }).toMatchInlineSnapshot(
     `
     {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 0,
       "r": null,
       "s": null,

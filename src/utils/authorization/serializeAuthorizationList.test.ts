@@ -9,7 +9,7 @@ test('default', () => {
   expect(
     serializeAuthorizationList([
       {
-        contractAddress: wagmiContractConfig.address,
+        address: wagmiContractConfig.address,
         chainId: 1,
         nonce: 69,
         r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
@@ -57,7 +57,7 @@ test('default', () => {
   expect(
     serializeAuthorizationList([
       {
-        contractAddress: '0x0000000000000000000000000000000000000000',
+        address: '0x0000000000000000000000000000000000000000',
         chainId: 0,
         nonce: 0,
         r: '0x00',
@@ -81,7 +81,7 @@ test('default', () => {
   expect(
     serializeAuthorizationList([
       {
-        contractAddress: wagmiContractConfig.address,
+        address: wagmiContractConfig.address,
         chainId: 1,
         nonce: 69,
         r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',
@@ -89,7 +89,7 @@ test('default', () => {
         yParity: 1,
       },
       {
-        contractAddress: wagmiContractConfig.address,
+        address: wagmiContractConfig.address,
         chainId: 69,
         nonce: 420,
         r: '0x60fdd29ff912ce880cd3edaf9f932dc61d3dae823ea77e0323f94adb9f6a72fe',

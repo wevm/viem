@@ -1,5 +1,5 @@
 import type { ErrorType } from '../../errors/utils.js'
-import type { Authorization } from '../../types/authorization.js'
+import type { AuthorizationRequest } from '../../types/authorization.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
 import { type HexToBytesErrorType, hexToBytes } from '../encoding/toBytes.js'
@@ -9,10 +9,11 @@ import { type Keccak256ErrorType, keccak256 } from '../hash/keccak256.js'
 
 type To = 'hex' | 'bytes'
 
-export type HashAuthorizationParameters<to extends To> = Authorization & {
-  /** Output format. @default "hex" */
-  to?: to | To | undefined
-}
+export type HashAuthorizationParameters<to extends To> =
+  AuthorizationRequest & {
+    /** Output format. @default "hex" */
+    to?: to | To | undefined
+  }
 
 export type HashAuthorizationReturnType<to extends To> =
   | (to extends 'bytes' ? ByteArray : never)
@@ -33,13 +34,13 @@ export function hashAuthorization<to extends To = 'hex'>(
   parameters: HashAuthorizationParameters<to>,
 ): HashAuthorizationReturnType<to> {
   const { chainId, nonce, to } = parameters
-  const contractAddress = parameters.contractAddress ?? parameters.address
+  const address = parameters.contractAddress ?? parameters.address
   const hash = keccak256(
     concatHex([
       '0x05',
       toRlp([
         chainId ? numberToHex(chainId) : '0x',
-        contractAddress,
+        address,
         nonce ? numberToHex(nonce) : '0x',
       ]),
     ]),

@@ -1503,9 +1503,9 @@ describe('errors', () => {
         account: sourceAccount.address,
         authorizationList: [
           {
+            address: '0x0000000000000000000000000000000000000000',
             chainId: 1,
             nonce: 0,
-            contractAddress: '0x0000000000000000000000000000000000000000',
           },
         ],
       }),

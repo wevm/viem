@@ -21,8 +21,7 @@ export function serializeAuthorizationList(
   const serializedAuthorizationList = []
   for (const authorization of authorizationList) {
     const { chainId, nonce, ...signature } = authorization
-    const contractAddress =
-      authorization.contractAddress ?? authorization.address
+    const contractAddress = authorization.address
     serializedAuthorizationList.push([
       chainId ? toHex(chainId) : '0x',
       contractAddress,

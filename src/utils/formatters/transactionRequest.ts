@@ -92,7 +92,7 @@ function formatAuthorizationList(
   return authorizationList.map(
     (authorization) =>
       ({
-        address: authorization.contractAddress,
+        address: authorization.address,
         r: authorization.r
           ? numberToHex(BigInt(authorization.r))
           : authorization.r,

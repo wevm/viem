@@ -127,7 +127,7 @@ function formatAuthorizationList(
   authorizationList: RpcAuthorizationList,
 ): SignedAuthorizationList {
   return authorizationList.map((authorization) => ({
-    contractAddress: (authorization as any).address,
+    address: (authorization as any).address,
     chainId: Number(authorization.chainId),
     nonce: Number(authorization.nonce),
     r: authorization.r,

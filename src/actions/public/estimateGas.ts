@@ -211,14 +211,14 @@ export async function estimateGas<
       const value = await getBalance(client, { address: request.from })
       const estimates = await Promise.all(
         authorizationList.map(async (authorization) => {
-          const { contractAddress } = authorization
+          const { address } = authorization
           const estimate = await estimateGas_rpc({
             block,
             request: {
               authorizationList: undefined,
               data,
               from: account?.address,
-              to: contractAddress,
+              to: address,
               value: numberToHex(value),
             },
             rpcStateOverride,

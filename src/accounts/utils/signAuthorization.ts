@@ -1,6 +1,6 @@
 import type { ErrorType } from '../../errors/utils.js'
 import type {
-  Authorization,
+  AuthorizationRequest,
   SignedAuthorization,
 } from '../../types/authorization.js'
 import type { Hex, Signature } from '../../types/misc.js'
@@ -19,7 +19,7 @@ import {
 type To = 'object' | 'bytes' | 'hex'
 
 export type SignAuthorizationParameters<to extends To = 'object'> =
-  Authorization & {
+  AuthorizationRequest & {
     /** The private key to sign with. */
     privateKey: Hex
     to?: SignParameters<to>['to'] | undefined
@@ -41,15 +41,15 @@ export async function signAuthorization<to extends To = 'object'>(
   parameters: SignAuthorizationParameters<to>,
 ): Promise<SignAuthorizationReturnType<to>> {
   const { chainId, nonce, privateKey, to = 'object' } = parameters
-  const contractAddress = parameters.contractAddress ?? parameters.address
+  const address = parameters.contractAddress ?? parameters.address
   const signature = await sign({
-    hash: hashAuthorization({ contractAddress, chainId, nonce }),
+    hash: hashAuthorization({ address, chainId, nonce }),
     privateKey,
     to,
   })
   if (to === 'object')
     return {
-      contractAddress,
+      address,
       chainId,
       nonce,
       ...(signature as Signature),

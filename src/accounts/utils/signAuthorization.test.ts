@@ -23,8 +23,8 @@ test('default', async () => {
   }).toMatchInlineSnapshot(
     `
     {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 0,
       "r": null,
       "s": null,
@@ -62,8 +62,8 @@ test('args: address (alias)', async () => {
   }).toMatchInlineSnapshot(
     `
     {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 0,
       "r": null,
       "s": null,

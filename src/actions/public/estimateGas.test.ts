@@ -197,9 +197,9 @@ test('error: cannot infer `to` from `authorizationList`', async () => {
       account: accounts[0].address,
       authorizationList: [
         {
+          address: '0x0000000000000000000000000000000000000000',
           chainId: 1,
           nonce: 0,
-          contractAddress: '0x0000000000000000000000000000000000000000',
         },
       ],
       data: '0xdeadbeef',

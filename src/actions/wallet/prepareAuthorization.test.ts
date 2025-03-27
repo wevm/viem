@@ -27,8 +27,8 @@ test('default', async () => {
   expect(authorization).toMatchInlineSnapshot(
     `
     {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 0,
     }
   `,
@@ -46,8 +46,8 @@ test('args: address (alias)', async () => {
   expect(authorization).toMatchInlineSnapshot(
     `
     {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 0,
     }
   `,
@@ -63,8 +63,8 @@ test('behavior: partial authorization: no chainId + nonce', async () => {
   expect(authorization).toMatchInlineSnapshot(
     `
     {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 663,
     }
   `,
@@ -81,8 +81,8 @@ test('behavior: partial authorization: no nonce', async () => {
   expect(authorization).toMatchInlineSnapshot(
     `
     {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 10,
-      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 663,
     }
   `,
@@ -99,8 +99,8 @@ test('behavior: partial authorization: no chainId', async () => {
   expect(authorization).toMatchInlineSnapshot(
     `
     {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 69,
     }
   `,
@@ -128,8 +128,8 @@ test('behavior: hoisted account on client', async () => {
   expect(authorization).toMatchInlineSnapshot(
     `
     {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 0,
     }
   `,
@@ -147,8 +147,8 @@ test('behavior: no client chain', async () => {
   expect(authorization).toMatchInlineSnapshot(
     `
     {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 0,
     }
   `,

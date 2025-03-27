@@ -11,7 +11,10 @@ import {
 } from '../../errors/account.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
-import type { Authorization } from '../../types/authorization.js'
+import type {
+  Authorization,
+  AuthorizationRequest,
+} from '../../types/authorization.js'
 import type { Chain } from '../../types/chain.js'
 import type { PartialBy } from '../../types/utils.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
@@ -22,7 +25,7 @@ import { getTransactionCount } from '../public/getTransactionCount.js'
 export type PrepareAuthorizationParameters<
   account extends Account | undefined = Account | undefined,
 > = GetAccountParameter<account> &
-  PartialBy<Authorization, 'chainId' | 'nonce'> & {
+  PartialBy<AuthorizationRequest, 'chainId' | 'nonce'> & {
     /**
      * Whether the EIP-7702 Transaction will be executed by the EOA (signing this Authorization) or another Account.
      *
@@ -102,7 +105,7 @@ export async function prepareAuthorization<
   const account = parseAccount(account_)
 
   const authorization = {
-    contractAddress: parameters.contractAddress ?? parameters.address,
+    address: parameters.contractAddress ?? parameters.address,
     chainId,
     nonce,
   } as Authorization

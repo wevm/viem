@@ -2,7 +2,7 @@ import type { Address, TypedData } from 'abitype'
 
 import type { SmartAccount } from '../account-abstraction/accounts/types.js'
 import type { HDKey } from '../types/account.js'
-import type { Authorization } from '../types/authorization.js'
+import type { AuthorizationRequest } from '../types/authorization.js'
 import type { Hash, Hex, SignableMessage } from '../types/misc.js'
 import type {
   TransactionSerializable,
@@ -30,7 +30,9 @@ export type CustomSource = {
   // TODO(v3): Make `sign` required.
   sign?: ((parameters: { hash: Hash }) => Promise<Hex>) | undefined
   signAuthorization?:
-    | ((parameters: Authorization) => Promise<SignAuthorizationReturnType>)
+    | ((
+        parameters: AuthorizationRequest,
+      ) => Promise<SignAuthorizationReturnType>)
     | undefined
   signMessage: ({ message }: { message: SignableMessage }) => Promise<Hex>
   signTransaction: <
