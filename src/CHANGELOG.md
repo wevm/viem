@@ -1,5 +1,11 @@
 # viem
 
+## 2.24.2
+
+### Patch Changes
+
+- [#3517](https://github.com/wevm/viem/pull/3517) [`3032dca3e57f5f7c5647ddc9fdbdbc6c7ec8f694`](https://github.com/wevm/viem/commit/3032dca3e57f5f7c5647ddc9fdbdbc6c7ec8f694) Thanks [@jxom](https://github.com/jxom)! - Added missing deprecated `viem/experimental` exports.
+
 ## 2.24.1
 
 ### Patch Changes
