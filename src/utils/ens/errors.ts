@@ -16,11 +16,14 @@ export function isNullUniversalResolverError(
   if (!(err instanceof BaseError)) return false
   const cause = err.walk((e) => e instanceof ContractFunctionRevertedError)
   if (!(cause instanceof ContractFunctionRevertedError)) return false
-  if (cause.data?.errorName === 'ResolverNotFound') return true
-  if (cause.data?.errorName === 'ResolverWildcardNotSupported') return true
-  if (cause.data?.errorName === 'ResolverNotContract') return true
-  if (cause.data?.errorName === 'ResolverError') return true
+
   if (cause.data?.errorName === 'HttpError') return true
+  if (cause.data?.errorName === 'ResolverError') return true
+  if (cause.data?.errorName === 'ResolverNotContract') return true
+  if (cause.data?.errorName === 'ResolverNotFound') return true
+  if (cause.data?.errorName === 'ReverseAddressMismatch') return true
+  if (cause.data?.errorName === 'UnsupportedResolverProfile') return true
+
   // Backwards compatibility for older UniversalResolver contracts
   if (
     cause.reason?.includes(

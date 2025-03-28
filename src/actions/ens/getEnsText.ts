@@ -119,7 +119,6 @@ export async function getEnsText<chain extends Chain | undefined>(
     const readContractParameters = {
       address: universalResolverAddress,
       abi: universalResolverResolveAbi,
-      functionName: 'resolve',
       args: [
         toHex(packetToBytes(name)),
         encodeFunctionData({
@@ -137,9 +136,13 @@ export async function getEnsText<chain extends Chain | undefined>(
     const res = gatewayUrls
       ? await readContractAction({
           ...readContractParameters,
+          functionName: 'resolveWithGateways',
           args: [...readContractParameters.args, gatewayUrls],
         })
-      : await readContractAction(readContractParameters)
+      : await readContractAction({
+          ...readContractParameters,
+          functionName: 'resolve',
+        })
 
     if (res[0] === '0x') return null
 
