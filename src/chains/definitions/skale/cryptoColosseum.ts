@@ -13,4 +13,3 @@ export const skaleCryptoColosseum = /*#__PURE__*/ defineChain({
   blockExplorers: {},
   contracts: {},
 })
-

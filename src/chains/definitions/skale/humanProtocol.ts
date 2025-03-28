@@ -13,4 +13,3 @@ export const skaleHumanProtocol = /*#__PURE__*/ defineChain({
   blockExplorers: {},
   contracts: {},
 })
-

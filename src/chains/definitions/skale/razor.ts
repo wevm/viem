@@ -13,4 +13,3 @@ export const skaleRazor = /*#__PURE__*/ defineChain({
   blockExplorers: {},
   contracts: {},
 })
-
