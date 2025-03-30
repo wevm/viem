@@ -15,7 +15,7 @@ export const confluxESpaceTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'ConfluxScan',
-      url: 'https://evmtestnet.confluxscan.io',
+      url: 'https://evmtestnet.confluxscan.org',
     },
   },
   contracts: {
