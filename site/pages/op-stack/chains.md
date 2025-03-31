@@ -16,6 +16,8 @@ import {
   optimismSepolia, // [!code hl]
   soneium, // [!code hl]
   soneiumMinato, // [!code hl]
+  unichain, // [!code hl]
+  unichainSepolia, // [!code hl]
   zircuit, // [!code hl]
   zircuitTestnet, // [!code hl]
   zora, // [!code hl]
