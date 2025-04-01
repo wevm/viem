@@ -20,7 +20,7 @@ beforeAll(async () => {
     address: address.vitalik,
   })
   await reset(client, {
-    blockNumber: 19_258_213n,
+    blockNumber: 22_138_945n,
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
 })

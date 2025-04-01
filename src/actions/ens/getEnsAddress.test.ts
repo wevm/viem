@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test } from 'vitest'
+import { beforeAll, expect, test } from 'vitest'
 
 import { createHttpServer, setVitalikResolver } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
@@ -12,7 +12,7 @@ const client = anvilMainnet.getClient()
 
 beforeAll(async () => {
   await reset(client, {
-    blockNumber: 19_258_213n,
+    blockNumber: 22_138_945n,
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
   await setVitalikResolver()
@@ -52,7 +52,7 @@ test('gets address that starts with 0s for name', async () => {
 
 test('gets address for name with coinType', async () => {
   await expect(
-    getEnsAddress(client, { name: 'awkweb.eth', coinType: 60 }),
+    getEnsAddress(client, { name: 'awkweb.eth', coinType: 60n }),
   ).resolves.toMatchInlineSnapshot(
     '"0xa0cf798816d4b9b9866b5330eea46a18382f251e"',
   )
@@ -60,7 +60,21 @@ test('gets address for name with coinType', async () => {
 
 test('name without address with coinType', async () => {
   await expect(
-    getEnsAddress(client, { name: 'awkweb.eth', coinType: 61 }),
+    getEnsAddress(client, { name: 'awkweb.eth', coinType: 61n }),
+  ).resolves.toBeNull()
+})
+
+test('name with address with chainId', async () => {
+  await expect(
+    getEnsAddress(client, { name: 'taytems.eth', chainId: 10 }),
+  ).resolves.toMatchInlineSnapshot(
+    '"0x8e8db5ccef88cca9d624701db544989c996e3216"',
+  )
+})
+
+test('name without address with chainId', async () => {
+  await expect(
+    getEnsAddress(client, { name: 'awkweb.eth', chainId: 10 }),
   ).resolves.toBeNull()
 })
 
@@ -82,7 +96,7 @@ test('name with resolver that does not support addr - strict', async () => {
   ).rejects.toMatchInlineSnapshot(`
     [ContractFunctionExecutionError: The contract function "resolve" reverted.
 
-    Error: ResolverError(bytes returnData)
+    Error: ResolverError(bytes errorData)
                         (0x)
      
     Contract Call:
@@ -132,7 +146,7 @@ test('offchain: name without address', async () => {
     getEnsAddress(client, {
       name: 'loalsdsladasdhjasgdhasjdghasgdjgasjdasd.cb.id',
     }),
-  ).resolves.toMatchInlineSnapshot('null')
+  ).resolves.toBeNull()
 })
 
 test('offchain: aggregated', async () => {
@@ -170,25 +184,6 @@ test('custom universal resolver address', async () => {
   ).resolves.toMatchInlineSnapshot(
     '"0xA0Cf798816D4b9b9866b5330EEa46a18382f251e"',
   )
-})
-
-describe('universal resolver with custom errors', () => {
-  test('name without resolver', async () => {
-    await expect(
-      getEnsAddress(client, {
-        name: 'random123.zzz',
-        universalResolverAddress: '0x9380F1974D2B7064eA0c0EC251968D8c69f0Ae31',
-      }),
-    ).resolves.toBeNull()
-  })
-  test('name with invalid wildcard resolver', async () => {
-    await expect(
-      getEnsAddress(client, {
-        name: 'another-unregistered-name.eth',
-        universalResolverAddress: '0x9380F1974D2B7064eA0c0EC251968D8c69f0Ae31',
-      }),
-    ).resolves.toBeNull()
-  })
 })
 
 test('chain not provided', async () => {
@@ -230,7 +225,7 @@ test('universal resolver contract deployed on later block', async () => {
     [ChainDoesNotSupportContract: Chain "Ethereum (Local)" does not support contract "ensUniversalResolver".
 
     This could be due to any of the following:
-    - The contract "ensUniversalResolver" was not deployed until block 19258213 (current block 14353601).
+    - The contract "ensUniversalResolver" was not deployed until block 22138945 (current block 14353601).
 
     Version: viem@x.y.z]
   `)
