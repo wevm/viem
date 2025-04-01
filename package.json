@@ -64,7 +64,7 @@
     "glob": "^10.4.5",
     "knip": "^5.33.3",
     "micro-eth-signer": "^0.14.0",
-    "permissionless": "0.2.14",
+    "permissionless": "^0.2.14",
     "prool": "0.0.23",
     "publint": "^0.2.11",
     "sherif": "^0.8.4",
