@@ -388,8 +388,8 @@ export async function prepareUserOperation<
           factoryData: parameters.factoryData,
         }
       }
-      if(parameters.authorization) {
-        return { factory: undefined, factoryData: undefined}
+      if (parameters.authorization) {
+        return { factory: undefined, factoryData: undefined }
       }
       const { factory, factoryData } = await account.getFactoryArgs()
 
