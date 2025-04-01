@@ -1,6 +1,12 @@
 import type { ErrorType } from '../../../errors/utils.js'
-import type { ExactPartial } from '../../../types/utils.js'
+import type {
+  Authorization,
+  AuthorizationRequest,
+  SignedAuthorization,
+} from '../../../types/authorization.js'
+import type { ExactPartial, OneOf } from '../../../types/utils.js'
 import { numberToHex } from '../../../utils/encoding/toHex.js'
+import { pad } from '../../../utils/index.js'
 import type { RpcUserOperation } from '../../types/rpc.js'
 import type { UserOperation } from '../../types/userOperation.js'
 
@@ -48,6 +54,33 @@ export function formatUserOperationRequest(
     rpcRequest.signature = request.signature
   if (typeof request.verificationGasLimit !== 'undefined')
     rpcRequest.verificationGasLimit = numberToHex(request.verificationGasLimit)
+  if (typeof request.authorization !== 'undefined')
+    rpcRequest.eip7702Auth = formatAuthorization(request.authorization)
 
   return rpcRequest
+}
+
+function formatAuthorization(
+  authorization: OneOf<
+    | Authorization<bigint, false, true>
+    | AuthorizationRequest<bigint>
+    | SignedAuthorization<bigint, false>
+  >,
+) {
+  return {
+    address: authorization.address
+      ? authorization.address
+      : authorization.contractAddress,
+    chainId: numberToHex(authorization.chainId),
+    nonce: numberToHex(authorization.nonce),
+    r: authorization.r
+      ? numberToHex(BigInt(authorization.r))
+      : pad('0x', { size: 32 }),
+    s: authorization.s
+      ? numberToHex(BigInt(authorization.s))
+      : pad('0x', { size: 32 }),
+    yParity: authorization.yParity
+      ? numberToHex(authorization.yParity)
+      : pad('0x', { size: 32 }),
+  }
 }

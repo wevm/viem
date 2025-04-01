@@ -12,6 +12,11 @@ import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import type { ErrorType } from '../../../errors/utils.js'
+import type {
+  Authorization,
+  AuthorizationRequest,
+  SignedAuthorization,
+} from '../../../types/authorization.js'
 import type { Call, Calls } from '../../../types/calls.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
@@ -169,6 +174,9 @@ export type PrepareUserOperationRequest<
     paymasterContext?: unknown | undefined
     /** State overrides for the User Operation call. */
     stateOverride?: StateOverride | undefined
+    authorization?:
+      | OneOf<Authorization | AuthorizationRequest | SignedAuthorization>
+      | undefined
   }
 >
 
@@ -359,7 +367,7 @@ export async function prepareUserOperation<
   // Concurrently prepare properties required to fill the User Operation.
   ////////////////////////////////////////////////////////////////////////////////
 
-  const [callData, factory, fees, nonce] = await Promise.all([
+  const [callData, factory, fees, nonce, authorization] = await Promise.all([
     (async () => {
       if (parameters.calls)
         return account.encodeCalls(
@@ -457,6 +465,11 @@ export async function prepareUserOperation<
       if (typeof parameters.nonce === 'bigint') return parameters.nonce
       return account.getNonce()
     })(),
+    (async () => {
+      if (typeof parameters.authorization === 'object')
+        return parameters.authorization
+      return undefined
+    })(),
   ])
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -468,6 +481,8 @@ export async function prepareUserOperation<
     request = { ...request, ...(factory as any) }
   if (typeof fees !== 'undefined') request = { ...request, ...(fees as any) }
   if (typeof nonce !== 'undefined') request.nonce = nonce
+  if (typeof authorization !== 'undefined')
+    request.authorization = authorization
 
   ////////////////////////////////////////////////////////////////////////////////
   // Fill User Operation with the `signature` property.
