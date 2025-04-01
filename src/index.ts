@@ -47,24 +47,24 @@ export {
   type GetContractParameters,
   type GetContractReturnType,
 } from './actions/getContract.js'
-export type {
-  GetContractEventsErrorType,
-  GetContractEventsParameters,
-  GetContractEventsReturnType,
+export {
+  type GetContractEventsErrorType,
+  type GetContractEventsParameters,
+  type GetContractEventsReturnType,
 } from './actions/public/getContractEvents.js'
-export type {
-  GetEip712DomainErrorType,
-  GetEip712DomainParameters,
-  GetEip712DomainReturnType,
+export {
+  type GetEip712DomainErrorType,
+  type GetEip712DomainParameters,
+  type GetEip712DomainReturnType,
 } from './actions/public/getEip712Domain.js'
-export type {
-  AddChainErrorType,
-  AddChainParameters,
+export {
+  type AddChainErrorType,
+  type AddChainParameters,
 } from './actions/wallet/addChain.js'
-export type {
-  CallErrorType,
-  CallParameters,
-  CallReturnType,
+export {
+  type CallErrorType,
+  type CallParameters,
+  type CallReturnType,
 } from './actions/public/call.js'
 export type {
   CreateAccessListParameters,

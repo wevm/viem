@@ -69,25 +69,25 @@ export {
   /** @deprecated This is no longer experimental – use `import { signAuthorization } from 'viem/actions'` instead. */
   signAuthorization,
 } from '../actions/wallet/signAuthorization.js'
-export type {
+export {
   /** @deprecated This is no longer experimental – use `import type { Authorization } from 'viem'` instead. */
-  Authorization,
+  type Authorization,
   /** @deprecated This is no longer experimental – use `import type { SignedAuthorization } from 'viem'` instead. */
-  SignedAuthorization,
+  type SignedAuthorization,
   /** @deprecated This is no longer experimental – use `import type { AuthorizationList } from 'viem'` instead. */
-  AuthorizationList,
+  type AuthorizationList,
   /** @deprecated This is no longer experimental – use `import type { SignedAuthorizationList } from 'viem'` instead. */
-  SignedAuthorizationList,
+  type SignedAuthorizationList,
   /** @deprecated This is no longer experimental – use `import type { SerializedAuthorization } from 'viem'` instead. */
-  SerializedAuthorization,
+  type SerializedAuthorization,
   /** @deprecated This is no longer experimental – use `import type { SerializedAuthorizationList } from 'viem'` instead. */
-  SerializedAuthorizationList,
+  type SerializedAuthorizationList,
 } from '../types/authorization.js'
-export type {
+export {
   /** @deprecated This is no longer experimental – use `import type { RpcAuthorizationList } from 'viem'` instead. */
-  RpcAuthorizationList,
+  type RpcAuthorizationList,
   /** @deprecated This is no longer experimental – use `import type { RpcAuthorization } from 'viem'` instead. */
-  RpcAuthorization,
+  type RpcAuthorization,
 } from '../types/rpc.js'
 export {
   /** @deprecated This is no longer experimental – use `import type { HashAuthorizationParameters } from 'viem/utils'` instead. */
