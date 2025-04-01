@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import type { RpcAuthorization } from '../../experimental/eip7702/types/rpc.js'
+import type { RpcAuthorization } from '../../types/rpc.js'
 import type { Hex } from '../../types/misc.js'
 import type { EntryPointVersion } from './entryPointVersion.js'
 import type {

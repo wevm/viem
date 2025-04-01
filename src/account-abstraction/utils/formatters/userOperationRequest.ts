@@ -1,5 +1,5 @@
 import type { ErrorType } from '../../../errors/utils.js'
-import type { Authorization } from '../../../experimental/eip7702/types/authorization.js'
+import type { Authorization } from '../../../types/authorization.js'
 import type { ExactPartial } from '../../../types/utils.js'
 import { numberToHex } from '../../../utils/encoding/toHex.js'
 import type { RpcUserOperation } from '../../types/rpc.js'
@@ -55,7 +55,7 @@ export function formatUserOperationRequest(
   if (typeof request.authorization !== 'undefined') {
     const auth = request.authorization
     rpcRequest.eip7702Auth = {
-      address: auth.contractAddress,
+      address: auth.address,
       chainId: numberToHex(auth.chainId),
       nonce: numberToHex(auth.nonce),
       r: auth.r || '0x0',
