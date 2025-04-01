@@ -79,8 +79,8 @@ importers:
         specifier: ^0.14.0
         version: 0.14.0
       permissionless:
-        specifier: ^0.2.14
-        version: 0.2.38
+        specifier: 0.2.14
+        version: 0.2.14
       prool:
         specifier: 0.0.23
         version: 0.0.23(@pimlico/alto@0.0.4(typescript@5.8.2))
@@ -4948,14 +4948,10 @@ packages:
   pend@1.2.0:
     resolution: {integrity: sha512-F3asv42UuXchdzt+xXqfW1OGlVBe+mxa2mqI0pg5yAHZPvFmY3Y6drSf/GQ1A86WgWEN9Kzh/WrgKa6iGcHXLg==}
 
-  permissionless@0.2.38:
-    resolution: {integrity: sha512-j5ZIKiRL7IOJWumkdMMY5ukKVcs9zG5s2x68FqJBySHJ9R697YcRToxx+xUOkjDvDL5UNtONjQKSo/XwdQc8gQ==}
+  permissionless@0.2.14:
+    resolution: {integrity: sha512-4/r4gf6uGE7WfFaE4tVBxNd+QSLh0cVMkhC6yHzPUBBBLgrPf+gcUZjLsTamSLFm81K+m13jq3IQ3J0ooenWhg==}
     peerDependencies:
-      ox: 0.6.7
       viem: workspace:*
-    peerDependenciesMeta:
-      ox:
-        optional: true
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -11165,7 +11161,7 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.38: {}
+  permissionless@0.2.14: {}
 
   picocolors@1.1.1: {}
 

@@ -64,7 +64,7 @@
     "glob": "^10.4.5",
     "knip": "^5.33.3",
     "micro-eth-signer": "^0.14.0",
-    "permissionless": "^0.2.14",
+    "permissionless": "0.2.14",
     "prool": "0.0.23",
     "publint": "^0.2.11",
     "sherif": "^0.8.4",
@@ -81,13 +81,32 @@
     "pre-commit": "pnpm check"
   },
   "knip": {
-    "ignore": [".github/**", "environments/**", "vectors/**"],
-    "ignoreBinaries": ["dev", "forge", "only-allow", "printf"],
-    "ignoreDependencies": ["bun", "@size-limit/preset-big-lib"],
-    "ignoreWorkspaces": ["examples/**", "test"],
+    "ignore": [
+      ".github/**",
+      "environments/**",
+      "vectors/**"
+    ],
+    "ignoreBinaries": [
+      "dev",
+      "forge",
+      "only-allow",
+      "printf"
+    ],
+    "ignoreDependencies": [
+      "bun",
+      "@size-limit/preset-big-lib"
+    ],
+    "ignoreWorkspaces": [
+      "examples/**",
+      "test"
+    ],
     "vitest": {
-      "config": ["test/vitest.config.ts"],
-      "entry": ["**/*.{bench,bench-d,test,test-d,spec}.?(c|m)[jt]s?(x)"]
+      "config": [
+        "test/vitest.config.ts"
+      ],
+      "entry": [
+        "**/*.{bench,bench-d,test,test-d,spec}.?(c|m)[jt]s?(x)"
+      ]
     },
     "workspaces": {
       ".": {
@@ -99,10 +118,15 @@
           "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,linea,node,nonce,op-stack,siwe,utils,window,zksync}/index.ts!",
           "chains/utils.ts!"
         ],
-        "ignore": ["node/trustedSetups_cjs.ts"]
+        "ignore": [
+          "node/trustedSetups_cjs.ts"
+        ]
       },
       "site": {
-        "project": ["**/*.ts", "**/*.tsx"]
+        "project": [
+          "**/*.ts",
+          "**/*.tsx"
+        ]
       }
     }
   },

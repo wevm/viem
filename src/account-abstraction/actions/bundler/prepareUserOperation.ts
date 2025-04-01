@@ -388,7 +388,9 @@ export async function prepareUserOperation<
           factoryData: parameters.factoryData,
         }
       }
-
+      if(parameters.authorization) {
+        return { factory: undefined, factoryData: undefined}
+      }
       const { factory, factoryData } = await account.getFactoryArgs()
 
       if (account.entryPoint.version === '0.6')
