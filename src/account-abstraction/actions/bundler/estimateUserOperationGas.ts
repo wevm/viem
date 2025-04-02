@@ -8,6 +8,7 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import type { BaseError } from '../../../errors/base.js'
 import type { ErrorType } from '../../../errors/utils.js'
+import type { Authorization } from '../../../types/authorization.js'
 import type { Calls } from '../../../types/calls.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
@@ -95,6 +96,8 @@ export type EstimateUserOperationGasParameters<
   > & {
     /** State overrides for the User Operation call. */
     stateOverride?: StateOverride | undefined
+    /** Authorization for the operation */
+    authorization?: Authorization | undefined
   }
 
 export type EstimateUserOperationGasReturnType<
@@ -174,7 +177,14 @@ export async function estimateUserOperationGas<
         'prepareUserOperation',
       )({
         ...parameters,
-        parameters: ['factory', 'nonce', 'paymaster', 'signature'],
+        parameters: [
+          'factory',
+          'nonce',
+          'paymaster',
+          'signature',
+          'authorization',
+        ],
+        authorization: parameters.authorization,
       } as unknown as PrepareUserOperationParameters)
     : parameters
 
@@ -183,6 +193,7 @@ export async function estimateUserOperationGas<
       formatUserOperationRequest(request as UserOperation),
       (entryPointAddress ?? account?.entryPoint?.address)!,
     ] as const
+
     const result = await client.request({
       method: 'eth_estimateUserOperationGas',
       params: rpcStateOverride ? [...params, rpcStateOverride] : [...params],

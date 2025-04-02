@@ -5,6 +5,7 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import type { BaseError } from '../../../errors/base.js'
 import type { ErrorType } from '../../../errors/utils.js'
+import type { Authorization } from '../../../types/authorization.js'
 import type { Calls } from '../../../types/calls.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
@@ -77,7 +78,10 @@ export type SendUserOperationParameters<
   MaybeRequired<
     { entryPointAddress?: Address },
     _derivedAccount extends undefined ? true : false
-  >
+  > & {
+    /** Authorization for the operation */
+    authorization?: Authorization | undefined
+  }
 export type SendUserOperationReturnType = Hex
 
 export type SendUserOperationErrorType =
@@ -134,25 +138,22 @@ export async function sendUserOperation<
       )(parameters as unknown as PrepareUserOperationParameters)
     : parameters
 
-  const signature = (parameters.signature ||
-    (await account?.signUserOperation(request as UserOperation)))!
+  const signature =
+    parameters.signature ||
+    (await account?.signUserOperation(request as UserOperation))!
 
-  const rpcParameters = formatUserOperationRequest({
+  const rpcUserOperation = formatUserOperationRequest({
     ...request,
     signature,
   } as UserOperation)
-
+  const entrypoint = (entryPointAddress ?? account?.entryPoint?.address)!
   try {
-    return await client.request(
-      {
-        method: 'eth_sendUserOperation',
-        params: [
-          rpcParameters,
-          (entryPointAddress ?? account?.entryPoint.address)!,
-        ],
-      },
-      { retryCount: 0 },
-    )
+    const response = await client.request({
+      method: 'eth_sendUserOperation',
+      params: [rpcUserOperation, entrypoint],
+    })
+
+    return response
   } catch (error) {
     const calls = (parameters as any).calls
     throw getUserOperationError(error as BaseError, {

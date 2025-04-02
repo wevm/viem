@@ -2,6 +2,7 @@ import type { Address } from 'abitype'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
+import type { Authorization } from '../../../types/authorization.js'
 import type { Hex } from '../../../types/misc.js'
 import type { OneOf, PartialBy, Prettify } from '../../../types/utils.js'
 import { hexToBigInt } from '../../../utils/encoding/fromHex.js'
@@ -61,6 +62,8 @@ export type GetPaymasterDataParameters = OneOf<
   context?: unknown | undefined
   chainId: number
   entryPointAddress: Address
+  /** Authorization for the operation */
+  authorization?: Authorization | undefined
 }
 
 export type GetPaymasterDataReturnType = Prettify<

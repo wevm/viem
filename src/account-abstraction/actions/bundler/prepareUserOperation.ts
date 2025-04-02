@@ -12,6 +12,7 @@ import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import type { ErrorType } from '../../../errors/utils.js'
+import type { Authorization } from '../../../types/authorization.js'
 import type { Call, Calls } from '../../../types/calls.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
@@ -169,6 +170,8 @@ export type PrepareUserOperationRequest<
     paymasterContext?: unknown | undefined
     /** State overrides for the User Operation call. */
     stateOverride?: StateOverride | undefined
+    /** Authorization for the operation */
+    authorization?: Authorization | undefined
   }
 >
 
@@ -385,7 +388,9 @@ export async function prepareUserOperation<
           factoryData: parameters.factoryData,
         }
       }
-
+      if (parameters.authorization) {
+        return { factory: undefined, factoryData: undefined }
+      }
       const { factory, factoryData } = await account.getFactoryArgs()
 
       if (account.entryPoint.version === '0.6')

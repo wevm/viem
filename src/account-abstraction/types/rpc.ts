@@ -1,4 +1,6 @@
+import type { Address } from 'abitype'
 import type { Hex } from '../../types/misc.js'
+import type { RpcAuthorization } from '../../types/rpc.js'
 import type { EntryPointVersion } from './entryPointVersion.js'
 import type {
   EstimateUserOperationGasReturnType,
@@ -7,6 +9,15 @@ import type {
   UserOperationReceipt,
   UserOperationRequest,
 } from './userOperation.js'
+
+export type RpcEip7702Auth = {
+  chainId: number
+  nonce: number
+  address: Address
+  r?: Hex
+  s?: Hex
+  yParity?: number
+}
 
 export type RpcEstimateUserOperationGasReturnType<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
@@ -18,7 +29,9 @@ export type RpcGetUserOperationByHashReturnType<
 
 export type RpcUserOperation<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
-> = UserOperation<entryPointVersion, Hex>
+> = UserOperation<entryPointVersion, Hex> & {
+  eip7702Auth?: RpcAuthorization
+}
 
 export type RpcUserOperationReceipt<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
@@ -26,4 +39,6 @@ export type RpcUserOperationReceipt<
 
 export type RpcUserOperationRequest<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
-> = UserOperationRequest<entryPointVersion, Hex>
+> = UserOperationRequest<entryPointVersion, Hex> & {
+  eip7702Auth?: RpcAuthorization
+}
