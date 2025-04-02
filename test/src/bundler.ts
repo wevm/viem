@@ -105,7 +105,6 @@ function defineBundler<const chain extends Chain>({
         instance: (key) =>
           alto({
             enableDebugEndpoints: true,
-            dangerousSkipUserOperationValidation: true,
             // @ts-expect-error: TODO: add to prool.
             deploySimulationsContract: false,
             entrypoints: [
