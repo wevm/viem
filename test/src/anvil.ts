@@ -24,7 +24,7 @@ import { accounts, poolId } from './constants.js'
 export const anvilMainnet = defineAnvil({
   chain: mainnet,
   forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://cloudflare-eth.com'),
-  forkBlockNumber: 19868020n,
+  forkBlockNumber: 22179635n,
   noMining: true,
   port: 8545,
 })
@@ -233,10 +233,8 @@ function defineAnvil<const chain extends Chain>(
       await fetch(`${rpcUrl.http}/restart`)
     },
     async start() {
-      const stateFile = resolve(__dirname, `state/${chain.id}.json`)
       return await createServer({
         instance: anvil({
-          loadState: existsSync(stateFile) ? stateFile : undefined,
           forkUrl,
           forkBlockNumber,
           hardfork: 'Prague',
