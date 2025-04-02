@@ -23,9 +23,12 @@ export type SmartAccountImplementation<
   entryPointAbi extends Abi | readonly unknown[] = Abi,
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
   extend extends object = object,
+  accountAbi extends Abi | readonly unknown[] = Abi,
 > = {
   /** Client used to retrieve Smart Account data, and perform signing (if owner is a JSON-RPC Account). */
   client: Client
+  /** Compatible Account ABI of the Smart Account. */
+  abi?: accountAbi | undefined
   /** Compatible EntryPoint of the Smart Account. */
   entryPoint: {
     /** Compatible EntryPoint ABI. */

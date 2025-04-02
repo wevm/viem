@@ -1,0 +1,6 @@
+// SPDX-License-Identifier: Unlicense
+pragma solidity ^0.8.13;
+
+import {Simple7702Account} from "account-abstraction-4cbc060/accounts/Simple7702Account.sol";
+
+contract Simple7702AccountV08 is Simple7702Account {}
