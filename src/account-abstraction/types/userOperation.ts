@@ -107,9 +107,9 @@ export type UserOperation<
           /** Authorization data. */
           authorization?:
             | OneOf<
-                | Authorization<uint256, false, true>
-                | AuthorizationRequest<uint256>
-                | SignedAuthorization<uint256, false>
+                | Authorization<number, false, true>
+                | AuthorizationRequest<number>
+                | SignedAuthorization<number, false>
               >
             | undefined
         }
@@ -146,6 +146,14 @@ export type UserOperation<
           signature: Hex
           /** The amount of gas to allocate for the verification step. */
           verificationGasLimit: uint256
+          /** Authorization data. */
+          authorization?:
+            | OneOf<
+                | Authorization<number, false, true>
+                | AuthorizationRequest<number>
+                | SignedAuthorization<number, false>
+              >
+            | undefined
         }
       : never)
   | (entryPointVersion extends '0.6'
@@ -172,6 +180,14 @@ export type UserOperation<
           signature: Hex
           /** The amount of gas to allocate for the verification step. */
           verificationGasLimit: uint256
+          /** Authorization data. */
+          authorization?:
+            | OneOf<
+                | Authorization<number, false, true>
+                | AuthorizationRequest<number>
+                | SignedAuthorization<number, false>
+              >
+            | undefined
         }
       : never)
 >

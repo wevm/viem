@@ -62,9 +62,9 @@ export function formatUserOperationRequest(
 
 function formatAuthorization(
   authorization: OneOf<
-    | Authorization<bigint, false, true>
-    | AuthorizationRequest<bigint>
-    | SignedAuthorization<bigint, false>
+    | Authorization<number, false, true>
+    | AuthorizationRequest<number>
+    | SignedAuthorization<number, false>
   >,
 ) {
   return {
