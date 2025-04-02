@@ -1,5 +1,8 @@
+import { existsSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { createServer } from 'prool'
 import { type AnvilParameters, anvil } from 'prool/instances'
+
 import { mainnet, optimism, sepolia, zksync } from '../../src/chains/index.js'
 import { ipc } from '../../src/clients/transports/ipc.js'
 import {
@@ -230,8 +233,10 @@ function defineAnvil<const chain extends Chain>(
       await fetch(`${rpcUrl.http}/restart`)
     },
     async start() {
+      const stateFile = resolve(__dirname, `state/${chain.id}.json`)
       return await createServer({
         instance: anvil({
+          loadState: existsSync(stateFile) ? stateFile : undefined,
           forkUrl,
           forkBlockNumber,
           hardfork: 'Prague',
