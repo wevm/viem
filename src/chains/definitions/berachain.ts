@@ -30,5 +30,6 @@ export const berachain = /*#__PURE__*/ defineChain({
       url: 'https://berascan.com',
     },
   },
+  ensTlds: ['.bera'],
   testnet: false,
 })
