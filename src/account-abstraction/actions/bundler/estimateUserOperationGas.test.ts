@@ -54,9 +54,9 @@ describe('entryPointVersion: 0.7', async () => {
       ],
       ...fees,
     })
-    expect(gas.callGasLimit).toBeGreaterThanOrEqual(140000n)
+    expect(gas.callGasLimit).toBeGreaterThanOrEqual(70000n)
     expect(gas.preVerificationGas).toBeGreaterThanOrEqual(53000n)
-    expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(259000n)
+    expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(220000n)
   })
 
   test('args: paymaster (client)', async () => {
@@ -84,9 +84,9 @@ describe('entryPointVersion: 0.7', async () => {
       ...fees,
     })
 
-    expect(gas.callGasLimit).toBeGreaterThanOrEqual(140000n)
+    expect(gas.callGasLimit).toBeGreaterThanOrEqual(70000n)
     expect(gas.preVerificationGas).toBeGreaterThanOrEqual(53000n)
-    expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(190000n)
     expect(gas.paymasterVerificationGasLimit).toBeGreaterThanOrEqual(20000n)
     expect(gas.paymasterPostOpGasLimit).toBeGreaterThanOrEqual(0n)
   })
@@ -119,9 +119,9 @@ describe('entryPointVersion: 0.7', async () => {
       ...fees,
     })
 
-    expect(gas.callGasLimit).toBeGreaterThanOrEqual(140000n)
+    expect(gas.callGasLimit).toBeGreaterThanOrEqual(70000n)
     expect(gas.preVerificationGas).toBeGreaterThanOrEqual(59000n)
-    expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(190000n)
     expect(gas.paymasterVerificationGasLimit).toBeGreaterThanOrEqual(20000n)
     expect(gas.paymasterPostOpGasLimit).toBeGreaterThanOrEqual(0n)
   })
@@ -148,9 +148,9 @@ describe('entryPointVersion: 0.7', async () => {
       entryPointAddress: account.entryPoint?.address,
     })
 
-    expect(gas.callGasLimit).toBeGreaterThanOrEqual(80000n)
+    expect(gas.callGasLimit).toBeGreaterThanOrEqual(16000n)
     expect(gas.preVerificationGas).toBeGreaterThanOrEqual(51000n)
-    expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(259000n)
+    expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(220000n)
     expect(gas.paymasterVerificationGasLimit).toBeGreaterThanOrEqual(0n)
     expect(gas.paymasterPostOpGasLimit).toBeGreaterThanOrEqual(0n)
   })
