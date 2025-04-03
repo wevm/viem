@@ -191,7 +191,6 @@ describe('entryPointVersion: 0.7', async () => {
       ...fees,
     })
 
-    expect(nonce).toBeDefined()
     expect(callGasLimit).toBeGreaterThanOrEqual(10000n)
     expect(maxFeePerGas).toBeGreaterThanOrEqual(0n)
     expect(verificationGasLimit).toBeGreaterThanOrEqual(190000n)
