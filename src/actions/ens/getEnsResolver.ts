@@ -89,7 +89,7 @@ export async function getEnsResolver<chain extends Chain | undefined>(
   const tlds = chain?.ensTlds
   if (tlds && !tlds.some((tld) => name.endsWith(tld)))
     throw new Error(
-      `${name} is not a valid ENS TLD (${tlds?.join(', ')}) for chain ${chain?.id}.`,
+      `${name} is not a valid ENS TLD (${tlds?.join(', ')}) for chain "${chain.name}" (id: ${chain.id}).`,
     )
 
   const [resolverAddress] = await getAction(

@@ -119,6 +119,6 @@ test('invalid TLD', async () => {
   await expect(
     getEnsResolver(client, { name: 'vitalik.eth' }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
-    '[Error: vitalik.eth is not a valid ENS TLD (.linea.eth) for this chain.]',
+    `[Error: vitalik.eth is not a valid ENS TLD (.linea.eth) for chain "Linea Mainnet" (id: 59144).]`,
   )
 })
