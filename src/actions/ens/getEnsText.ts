@@ -91,29 +91,27 @@ export type GetEnsTextErrorType =
  */
 export async function getEnsText<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  {
-    blockNumber,
-    blockTag,
-    name,
-    key,
-    gatewayUrls,
-    strict,
-    universalResolverAddress: universalResolverAddress_,
-  }: GetEnsTextParameters,
+  parameters: GetEnsTextParameters,
 ): Promise<GetEnsTextReturnType> {
-  let universalResolverAddress = universalResolverAddress_
-  if (!universalResolverAddress) {
-    if (!client.chain)
+  const { blockNumber, blockTag, key, name, gatewayUrls, strict } = parameters
+  const { chain } = client
+
+  const universalResolverAddress = (() => {
+    if (parameters.universalResolverAddress)
+      return parameters.universalResolverAddress
+    if (!chain)
       throw new Error(
         'client chain not configured. universalResolverAddress is required.',
       )
-
-    universalResolverAddress = getChainContractAddress({
+    return getChainContractAddress({
       blockNumber,
-      chain: client.chain,
+      chain,
       contract: 'ensUniversalResolver',
     })
-  }
+  })()
+
+  const tlds = chain?.ensTlds
+  if (tlds && !tlds.some((tld) => name.endsWith(tld))) return null
 
   try {
     const readContractParameters = {

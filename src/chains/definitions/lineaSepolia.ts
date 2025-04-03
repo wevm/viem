@@ -33,5 +33,6 @@ export const lineaSepolia = /*#__PURE__*/ defineChain({
       blockCreated: 2395255,
     },
   },
+  ensTlds: ['.linea.eth'],
   testnet: true,
 })

@@ -33,5 +33,6 @@ export const linea = /*#__PURE__*/ defineChain({
       blockCreated: 6683000,
     },
   },
+  ensTlds: ['.linea.eth'],
   testnet: false,
 })

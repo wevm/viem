@@ -44,6 +44,8 @@ export type Chain<
         }
       >
     | undefined
+  /** Collection of ENS TLDs for the chain. */
+  ensTlds?: readonly string[] | undefined
   /** ID in number form */
   id: number
   /** Human-readable name */
