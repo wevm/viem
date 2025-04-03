@@ -105,13 +105,16 @@ function defineBundler<const chain extends Chain>({
         instance: (key) =>
           alto({
             enableDebugEndpoints: true,
+            // @ts-expect-error: TODO: add to prool.
+            deploySimulationsContract: false,
             entrypoints: [
               '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
               '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
             ],
-            entrypointSimulationContract:
-              '0x74Cb5e4eE81b86e70f9045036a1C5477de69eE87',
+            entrypointSimulationContractV7:
+              '0x0bFA466336b65eEf256ceCfDA1Fb717b8f1B453d',
             executorPrivateKeys: [accounts[0].privateKey],
+            utilityPrivateKey: accounts[0].privateKey,
             rpcUrl: rpcUrl(key),
             safeMode: false,
           }),

@@ -86,8 +86,6 @@ test('gets transaction (legacy)', async () => {
 })
 
 test('gets transaction (eip2930)', async () => {
-  const block = await getBlock(client)
-
   await setBalance(client, {
     address: targetAccount.address,
     value: targetAccount.balance,
@@ -98,7 +96,7 @@ test('gets transaction (eip2930)', async () => {
     account: sourceAccount.address,
     to: targetAccount.address,
     value: parseEther('1'),
-    gasPrice: BigInt((block.baseFeePerGas ?? 0n) * 2n),
+    type: 'eip2930',
   })
 
   const transaction = await getTransaction(client, {
@@ -189,6 +187,7 @@ test('gets transaction (eip7702)', async () => {
   const authorization = await signAuthorization(client, {
     account: eoa,
     contractAddress: contractAddress!,
+    executor: 'self',
   })
 
   const hash = await sendTransaction(client, {
