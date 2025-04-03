@@ -25,8 +25,8 @@ export const plumeSepolia = /*#__PURE__*/ defineChain({
   },
   contracts: {
     multicall3: {
-      address: '0x59218e2df2A2E7Ba0de00c023e80906Ba47cB4C8',
-      blockCreated: 1_681,
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 199_712,
     },
   },
   testnet: true,
