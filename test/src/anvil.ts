@@ -232,6 +232,7 @@ function defineAnvil<const chain extends Chain>(
     async start() {
       return await createServer({
         instance: anvil({
+          chainId: chain.id,
           forkUrl,
           forkBlockNumber,
           hardfork: 'Prague',
