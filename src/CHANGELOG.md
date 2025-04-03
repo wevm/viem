@@ -1,5 +1,17 @@
 # viem
 
+## 2.25.0
+
+### Minor Changes
+
+- [#3540](https://github.com/wevm/viem/pull/3540) [`48cffbc3175f02c0f3835230b8945802e34a1220`](https://github.com/wevm/viem/commit/48cffbc3175f02c0f3835230b8945802e34a1220) Thanks [@jxom](https://github.com/jxom)! - Added `ensTlds` chain config option.
+
+### Patch Changes
+
+- [`58db8b90d72983814664b12bd27bcd2bdf0f15f3`](https://github.com/wevm/viem/commit/58db8b90d72983814664b12bd27bcd2bdf0f15f3) Thanks [@jxom](https://github.com/jxom)! - **OP Stack:** Fixed unhandled `waiting-to-prove` case.
+
+- [#3537](https://github.com/wevm/viem/pull/3537) [`e367fdb4b0e866bd31e8240032632b6512c9a422`](https://github.com/wevm/viem/commit/e367fdb4b0e866bd31e8240032632b6512c9a422) Thanks [@alainncls](https://github.com/alainncls)! - Added ENS contracts to Linea Sepolia and Mainnet.
+
 ## 2.24.3
 
 ### Patch Changes
