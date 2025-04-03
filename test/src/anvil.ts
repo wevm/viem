@@ -1,5 +1,3 @@
-import { existsSync } from 'node:fs'
-import { resolve } from 'node:path'
 import { createServer } from 'prool'
 import { type AnvilParameters, anvil } from 'prool/instances'
 
