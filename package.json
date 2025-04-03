@@ -28,7 +28,7 @@
     "prepare": "pnpm simple-git-hooks",
     "prepublishOnly": "bun scripts/prepublishOnly.ts",
     "size": "size-limit",
-    "test": "vitest -c ./test/vitest.config.ts dev",
+    "test": "vitest -c ./test/vitest.config.ts",
     "test:build": "publint --strict ./src && attw --pack ./src --ignore-rules false-esm",
     "test:chains": "vitest test/scripts/chains.test.ts",
     "test:ci": "CI=true vitest -c ./test/vitest.config.ts --coverage --retry=3 --bail=1",

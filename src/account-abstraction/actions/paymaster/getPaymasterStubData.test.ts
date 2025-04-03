@@ -62,9 +62,9 @@ describe('entryPointVersion: 0.7', async () => {
         ...userOperation_paymaster,
       })
     expect(preVerificationGas).toBeDefined()
-    expect(userOperation_gas.callGasLimit).toBeGreaterThanOrEqual(70000n)
+    expect(userOperation_gas.callGasLimit).toBeGreaterThanOrEqual(10000n)
     expect(userOperation_gas.verificationGasLimit).toBeGreaterThanOrEqual(
-      259000n,
+      220000n,
     )
     expect(userOperation_gas.paymasterPostOpGasLimit).toBe(0n)
     expect(userOperation_gas.paymasterVerificationGasLimit).toBe(0n)

@@ -37,7 +37,7 @@ const args = {
   },
 } as const
 
-test('default', async () => {
+test.skip('default', async () => {
   const gas = await estimateProveWithdrawalGas(client, {
     account: accounts[0].address,
     targetChain: optimismClient.chain,

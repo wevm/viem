@@ -234,13 +234,13 @@ describe('events', () => {
       toBlock: anvilMainnet.forkBlockNumber,
     })
     assertType<Log<bigint, number, boolean, typeof event.default>[]>(logs)
-    expect(logs.length).toBe(973)
+    expect(logs.length).toBe(1403)
     expect(logs[0].eventName).toEqual('Transfer')
     expect(logs[0].args).toMatchInlineSnapshot(`
       {
-        "from": "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
-        "to": "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
-        "value": 17991444454902871n,
+        "from": "0x1f2F10D1C40777AE1Da742455c65828FF36Df387",
+        "to": "0x1B4b33b4c7307a2971E934302523Ed084dEd6A3F",
+        "value": 358332750601650176n,
       }
     `)
   })
@@ -254,13 +254,13 @@ describe('events', () => {
       blockHash: block.hash!,
     })
     assertType<Log<bigint, number, boolean, typeof event.default>[]>(logs)
-    expect(logs.length).toBe(161)
+    expect(logs.length).toBe(522)
     expect(logs[0].eventName).toEqual('Transfer')
     expect(logs[0].args).toMatchInlineSnapshot(`
       {
-        "from": "0x6b75d8AF000000e20B7a7DDf000Ba900b4009A80",
-        "to": "0x5CEd44F03ff443BBE14d8eA23bc24425FB89E3ED",
-        "value": 158620485778292080640n,
+        "from": "0x1f2F10D1C40777AE1Da742455c65828FF36Df387",
+        "to": "0x44bdBC621752F0bC4043c67d2E6C4434B4Ba63EC",
+        "value": 350029643320918016n,
       }
     `)
   })
@@ -274,7 +274,7 @@ describe('events', () => {
     })
 
     assertType<Log<bigint, number, boolean, typeof event.default, true>[]>(logs)
-    expect(logs.length).toBe(958)
+    expect(logs.length).toBe(1245)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<{
       from: `0x${string}`
@@ -283,9 +283,9 @@ describe('events', () => {
     }>()
     expect(logs[0].args).toMatchInlineSnapshot(`
       {
-        "from": "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
-        "to": "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
-        "value": 17991444454902871n,
+        "from": "0x1f2F10D1C40777AE1Da742455c65828FF36Df387",
+        "to": "0x1B4b33b4c7307a2971E934302523Ed084dEd6A3F",
+        "value": 358332750601650176n,
       }
     `)
 
@@ -303,7 +303,7 @@ describe('events', () => {
     assertType<Log<bigint, number, boolean, typeof event.default, false>[]>(
       logs,
     )
-    expect(logs.length).toBe(973)
+    expect(logs.length).toBe(1403)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<{
       from?: `0x${string}`
@@ -312,9 +312,9 @@ describe('events', () => {
     }>()
     expect(logs[0].args).toMatchInlineSnapshot(`
       {
-        "from": "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
-        "to": "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
-        "value": 17991444454902871n,
+        "from": "0x1f2F10D1C40777AE1Da742455c65828FF36Df387",
+        "to": "0x1B4b33b4c7307a2971E934302523Ed084dEd6A3F",
+        "value": 358332750601650176n,
       }
     `)
 
@@ -331,16 +331,16 @@ describe('events', () => {
     })
 
     assertType<Log<bigint, number, boolean, typeof event.unnamed, true>[]>(logs)
-    expect(logs.length).toBe(958)
+    expect(logs.length).toBe(1245)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<
       readonly [`0x${string}`, `0x${string}`, bigint]
     >()
     expect(logs[0].args).toMatchInlineSnapshot(`
       [
-        "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
-        "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
-        17991444454902871n,
+        "0x1f2F10D1C40777AE1Da742455c65828FF36Df387",
+        "0x1B4b33b4c7307a2971E934302523Ed084dEd6A3F",
+        358332750601650176n,
       ]
     `)
 
@@ -358,7 +358,7 @@ describe('events', () => {
     assertType<Log<bigint, number, boolean, typeof event.unnamed, false>[]>(
       logs,
     )
-    expect(logs.length).toBe(973)
+    expect(logs.length).toBe(1403)
 
     expectTypeOf(logs[0].args).toEqualTypeOf<
       | readonly []
@@ -368,9 +368,9 @@ describe('events', () => {
     >()
     expect(logs[0].args).toMatchInlineSnapshot(`
       [
-        "0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357",
-        "0x2aEEe741fa1e21120a21E57Db9ee545428E683C9",
-        17991444454902871n,
+        "0x1f2F10D1C40777AE1Da742455c65828FF36Df387",
+        "0x1B4b33b4c7307a2971E934302523Ed084dEd6A3F",
+        358332750601650176n,
       ]
     `)
 
