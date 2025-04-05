@@ -112,10 +112,15 @@ export {
   createPaymasterClient,
 } from './clients/createPaymasterClient.js'
 
-export { entryPoint06Abi, entryPoint07Abi } from './constants/abis.js'
+export {
+  entryPoint06Abi,
+  entryPoint07Abi,
+  entryPoint08Abi,
+} from './constants/abis.js'
 export {
   entryPoint06Address,
   entryPoint07Address,
+  entryPoint08Address,
 } from './constants/address.js'
 
 export {
