@@ -1098,6 +1098,7 @@ export type {
   WalletGrantPermissionsParameters,
   WalletGrantPermissionsReturnType,
   WalletSendCallsParameters,
+  WalletSendCallsReturnType,
   WalletPermissionCaveat,
   WalletPermission,
   WalletRpcSchema,

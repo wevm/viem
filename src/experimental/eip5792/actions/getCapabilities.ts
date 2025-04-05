@@ -3,10 +3,8 @@ import type { Address } from 'abitype'
 import { parseAccount } from '../../../accounts/utils/parseAccount.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
-import { AccountNotFoundError } from '../../../errors/account.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Account } from '../../../types/account.js'
-import type { Chain } from '../../../types/chain.js'
 import type {
   WalletCapabilities,
   WalletCapabilitiesRecord,
@@ -14,12 +12,19 @@ import type {
 import type { Prettify } from '../../../types/utils.js'
 import type { RequestErrorType } from '../../../utils/buildRequest.js'
 
-export type GetCapabilitiesParameters = {
+export type GetCapabilitiesParameters<
+  chainId extends number | undefined = undefined,
+> = {
   account?: Account | Address | undefined
+  chainId?: chainId | number | undefined
 }
 
-export type GetCapabilitiesReturnType = Prettify<
-  WalletCapabilitiesRecord<WalletCapabilities, number>
+export type GetCapabilitiesReturnType<
+  chainId extends number | undefined = undefined,
+> = Prettify<
+  chainId extends number
+    ? WalletCapabilities
+    : WalletCapabilitiesRecord<WalletCapabilities, number>
 >
 
 export type GetCapabilitiesErrorType = RequestErrorType | ErrorType
@@ -44,18 +49,19 @@ export type GetCapabilitiesErrorType = RequestErrorType | ErrorType
  * })
  * const capabilities = await getCapabilities(client)
  */
-export async function getCapabilities<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: GetCapabilitiesParameters = {},
-): Promise<GetCapabilitiesReturnType> {
-  const account_raw = parameters?.account ?? client.account
+export async function getCapabilities<
+  chainId extends number | undefined = undefined,
+>(
+  client: Client<Transport>,
+  parameters: GetCapabilitiesParameters<chainId> = {},
+): Promise<GetCapabilitiesReturnType<chainId>> {
+  const { account = client.account, chainId } = parameters
 
-  if (!account_raw) throw new AccountNotFoundError()
-  const account = parseAccount(account_raw)
+  const account_ = account ? parseAccount(account) : undefined
 
   const capabilities_raw = await client.request({
     method: 'wallet_getCapabilities',
-    params: [account.address],
+    params: [account_?.address],
   })
 
   const capabilities = {} as WalletCapabilitiesRecord<
@@ -64,5 +70,7 @@ export async function getCapabilities<chain extends Chain | undefined>(
   >
   for (const [key, value] of Object.entries(capabilities_raw))
     capabilities[Number(key)] = value
-  return capabilities
+  return (
+    typeof chainId === 'number' ? capabilities[chainId] : capabilities
+  ) as never
 }

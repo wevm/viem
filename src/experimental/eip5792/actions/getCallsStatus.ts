@@ -3,16 +3,30 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
-import type { WalletGetCallsStatusReturnType } from '../../../types/eip1193.js'
+import type {
+  WalletCapabilities,
+  WalletGetCallsStatusReturnType,
+} from '../../../types/eip1193.js'
 import type { Prettify } from '../../../types/utils.js'
 import type { RequestErrorType } from '../../../utils/buildRequest.js'
-import { hexToBigInt } from '../../../utils/encoding/fromHex.js'
+import { hexToBigInt, hexToNumber } from '../../../utils/encoding/fromHex.js'
 import { receiptStatuses } from '../../../utils/formatters/transactionReceipt.js'
 
 export type GetCallsStatusParameters = { id: string }
 
 export type GetCallsStatusReturnType = Prettify<
-  WalletGetCallsStatusReturnType<bigint, 'success' | 'reverted'>
+  Omit<
+    WalletGetCallsStatusReturnType<
+      WalletCapabilities,
+      number,
+      bigint,
+      'success' | 'reverted'
+    >,
+    'status'
+  > & {
+    statusCode: number
+    status: 'pending' | 'success' | 'failure' | undefined
+  }
 >
 
 export type GetCallsStatusErrorType = RequestErrorType | ErrorType
@@ -44,13 +58,35 @@ export async function getCallsStatus<
   client: Client<Transport, chain, account>,
   parameters: GetCallsStatusParameters,
 ): Promise<GetCallsStatusReturnType> {
-  const { id } = parameters
-  const { receipts, status } = await client.request({
+  const {
+    atomic = false,
+    chainId,
+    receipts,
+    version = '1.0',
+    ...response
+  } = await client.request({
     method: 'wallet_getCallsStatus',
-    params: [id],
+    params: [parameters.id],
   })
+  const [status, statusCode] = (() => {
+    const statusCode = response.status
+    if (statusCode >= 100 && statusCode < 200)
+      return ['pending', statusCode] as const
+    if (statusCode >= 200 && statusCode < 300)
+      return ['success', statusCode] as const
+    if (statusCode >= 400 && statusCode < 700)
+      return ['failure', statusCode] as const
+    // @ts-expect-error: for backwards compatibility
+    if (statusCode === 'CONFIRMED') return ['CONFIRMED' as never, 200] as const
+    // @ts-expect-error: for backwards compatibility
+    if (statusCode === 'PENDING') return ['PENDING' as never, 100] as const
+    return [undefined, statusCode]
+  })()
   return {
-    status,
+    ...response,
+    atomic,
+    // @ts-expect-error: for backwards compatibility
+    chainId: chainId ? hexToNumber(chainId) : undefined,
     receipts:
       receipts?.map((receipt) => ({
         ...receipt,
@@ -58,5 +94,8 @@ export async function getCallsStatus<
         gasUsed: hexToBigInt(receipt.gasUsed),
         status: receiptStatuses[receipt.status as '0x0' | '0x1'],
       })) ?? [],
+    statusCode,
+    status,
+    version,
   }
 }

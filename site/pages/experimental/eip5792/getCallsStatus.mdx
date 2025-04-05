@@ -1,12 +1,12 @@
 ---
-description: Returns the status and receipts of a call batch.
+description: Returns the status of a call batch.
 ---
 
 # getCallsStatus
 
-Returns the status and receipts of a call batch that was sent via `sendCalls`.
+Returns the status of a call batch that was sent via `sendCalls`.
 
-[Read more.](https://github.com/ethereum/EIPs/blob/1663ea2e7a683285f977eda51c32cec86553f585/EIPS/eip-5792.md#wallet_getcallsstatus)
+[Read more.](https://eips.ethereum.org/EIPS/eip-5792#wallet_getcallsstatus)
 
 :::warning[Warning]
 This is an experimental action that is not supported in most wallets. It is recommended to have a fallback mechanism if using this in production.
@@ -19,9 +19,17 @@ This is an experimental action that is not supported in most wallets. It is reco
 ```ts twoslash [example.ts]
 import { walletClient } from './config'
  
-const { status, receipts } = await walletClient.getCallsStatus({ // [!code focus:99]
+const result = await walletClient.getCallsStatus({ // [!code focus:99]
   id: '0x1234567890abcdef',
 })
+// @log: {
+// @log:   atomic: false,
+// @log:   chainId: 1,
+// @log:   id: '0x1234567890abcdef',
+// @log:   statusCode: 200,
+// @log:   status: 'success',
+// @log:   receipts: [{ ... }],
+// @log: }
 ```
 
 ```ts twoslash [config.ts] filename="config.ts"
@@ -45,7 +53,7 @@ export const [account] = await walletClient.getAddresses()
 
 `WalletGetCallsStatusReturnType`
 
-Status and receipts of the calls.
+Status of the calls.
 
 ## Parameters
 
