@@ -76,9 +76,7 @@ export async function waitForCallsStatus<chain extends Chain | undefined>(
   const {
     id,
     pollingInterval = client.pollingInterval,
-    status = ({ status, statusCode }) =>
-      //                   @ts-expect-error: for backwards compatibility
-      statusCode >= 200 || status === 'CONFIRMED',
+    status = ({ statusCode }) => statusCode >= 200,
     timeout = 60_000,
   } = parameters
   const observerId = stringify(['waitForCallsStatus', client.uid, id])
