@@ -100,7 +100,7 @@ describe('smoke test', () => {
             "transactionHash": "0x66a7b39a0c4635c2f30cd191d7e1fb0bd370c11dd93199f236c5bdacfc9136b3",
           },
         ],
-        "status": "success",
+        "status": "CONFIRMED",
         "statusCode": 200,
         "version": "1.0",
       }
