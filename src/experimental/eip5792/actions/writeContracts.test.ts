@@ -113,7 +113,7 @@ test('default', async () => {
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
 
-  const id_ = await writeContracts(client, {
+  const { id: id_ } = await writeContracts(client, {
     account: accounts[0].address,
     chain: mainnet,
     contracts: [
@@ -137,6 +137,7 @@ test('default', async () => {
     [
       [
         {
+          "atomicRequired": false,
           "calls": [
             {
               "data": "0x1249c58b",
@@ -157,6 +158,7 @@ test('default', async () => {
           "capabilities": undefined,
           "chainId": "0x1",
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "id": undefined,
           "version": "1.0",
         },
       ],

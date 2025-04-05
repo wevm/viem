@@ -3,14 +3,13 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import { BaseError } from '../../../errors/base.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Chain } from '../../../types/chain.js'
-import type { WalletGetCallsStatusReturnType } from '../../../types/eip1193.js'
-import type { Prettify } from '../../../types/utils.js'
 import { type ObserveErrorType, observe } from '../../../utils/observe.js'
 import { type PollErrorType, poll } from '../../../utils/poll.js'
 import { withResolvers } from '../../../utils/promise/withResolvers.js'
 import { stringify } from '../../../utils/stringify.js'
 import {
   type GetCallsStatusErrorType,
+  type GetCallsStatusReturnType,
   getCallsStatus,
 } from './getCallsStatus.js'
 
@@ -26,11 +25,11 @@ export type WaitForCallsStatusParameters = {
    */
   pollingInterval?: number | undefined
   /**
-   * The status to wait for.
+   * The status range to wait for.
    *
-   * @default 'CONFIRMED'
+   * @default (status) => status >= 200
    */
-  status?: 'CONFIRMED' | undefined
+  status?: ((parameters: GetCallsStatusReturnType) => boolean) | undefined
   /**
    * Optional timeout (in milliseconds) to wait before stopping polling.
    *
@@ -39,9 +38,7 @@ export type WaitForCallsStatusParameters = {
   timeout?: number | undefined
 }
 
-export type WaitForCallsStatusReturnType = Prettify<
-  WalletGetCallsStatusReturnType<bigint, 'success' | 'reverted'>
->
+export type WaitForCallsStatusReturnType = GetCallsStatusReturnType
 
 export type WaitForCallsStatusErrorType =
   | ObserveErrorType
@@ -79,7 +76,9 @@ export async function waitForCallsStatus<chain extends Chain | undefined>(
   const {
     id,
     pollingInterval = client.pollingInterval,
-    status = 'CONFIRMED',
+    status = ({ status, statusCode }) =>
+      //                   @ts-expect-error: for backwards compatibility
+      statusCode >= 200 || status === 'CONFIRMED',
     timeout = 60_000,
   } = parameters
   const observerId = stringify(['waitForCallsStatus', client.uid, id])
@@ -92,15 +91,19 @@ export async function waitForCallsStatus<chain extends Chain | undefined>(
   const unobserve = observe(observerId, { resolve, reject }, (emit) => {
     const unpoll = poll(
       async () => {
+        const done = (fn: () => void) => {
+          clearTimeout(timer)
+          unpoll()
+          fn()
+          unobserve()
+        }
+
         try {
           const result = await getCallsStatus(client, { id })
-          if (result.status !== status) return
-          emit.resolve(result)
+          if (!status(result)) return
+          done(() => emit.resolve(result))
         } catch (error) {
-          if (timer) clearTimeout(timer)
-          unpoll()
-          emit.reject(error)
-          unobserve()
+          done(() => emit.reject(error))
         }
       },
       {

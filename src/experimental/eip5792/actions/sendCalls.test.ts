@@ -8,7 +8,10 @@ import { type Client, createClient } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { custom } from '../../../clients/transports/custom.js'
 import { RpcRequestError } from '../../../errors/request.js'
-import type { WalletCallReceipt } from '../../../types/eip1193.js'
+import type {
+  WalletCallReceipt,
+  WalletGetCallsStatusReturnType,
+} from '../../../types/eip1193.js'
 import type { Hex } from '../../../types/misc.js'
 import { getHttpRpcClient, parseEther } from '../../../utils/index.js'
 import { uid } from '../../../utils/uid.js'
@@ -37,7 +40,16 @@ const getClient = <chain extends Chain | undefined = undefined>({
 
         if (method === 'wallet_getCallsStatus') {
           const hashes = calls.get(params[0])
-          if (!hashes) return { status: 'PENDING', receipts: [] }
+          if (!hashes)
+            return {
+              atomic: false,
+              chainId: '0x1',
+              id: params[0],
+              status: 100,
+              receipts: [],
+              version: '1.0',
+            } satisfies WalletGetCallsStatusReturnType
+
           const receipts = await Promise.all(
             hashes.map(async (hash) => {
               const { result, error } = await rpcClient.request({
@@ -64,7 +76,14 @@ const getClient = <chain extends Chain | undefined = undefined>({
               } satisfies WalletCallReceipt
             }),
           )
-          return { status: 'CONFIRMED', receipts }
+          return {
+            atomic: false,
+            chainId: '0x1',
+            id: params[0],
+            status: 200,
+            receipts,
+            version: '1.0',
+          } satisfies WalletGetCallsStatusReturnType
         }
 
         if (method === 'wallet_sendCalls') {
@@ -122,7 +141,7 @@ test('default', async () => {
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
 
-  const id_ = await sendCalls(client, {
+  const response = await sendCalls(client, {
     account: accounts[0].address,
     chain: mainnet,
     calls: [
@@ -151,11 +170,12 @@ test('default', async () => {
     ],
   })
 
-  expect(id_).toBeDefined()
+  expect(response.id).toBeDefined()
   expect(requests).toMatchInlineSnapshot(`
     [
       [
         {
+          "atomicRequired": false,
           "calls": [
             {
               "data": undefined,
@@ -186,6 +206,7 @@ test('default', async () => {
           "capabilities": undefined,
           "chainId": "0x1",
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "id": undefined,
           "version": "1.0",
         },
       ],
@@ -208,7 +229,7 @@ test('behavior: chain on client', async () => {
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
 
-  const id_ = await sendCalls(client, {
+  const { id } = await sendCalls(client, {
     account: accounts[0].address,
     calls: [
       {
@@ -236,11 +257,12 @@ test('behavior: chain on client', async () => {
     ],
   })
 
-  expect(id_).toBeDefined()
+  expect(id).toBeDefined()
   expect(requests).toMatchInlineSnapshot(`
     [
       [
         {
+          "atomicRequired": false,
           "calls": [
             {
               "data": undefined,
@@ -271,6 +293,7 @@ test('behavior: chain on client', async () => {
           "capabilities": undefined,
           "chainId": "0x1",
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "id": undefined,
           "version": "1.0",
         },
       ],
@@ -292,7 +315,7 @@ test('behavior: inferred account', async () => {
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
 
-  const id_ = await sendCalls(client, {
+  const { id } = await sendCalls(client, {
     account: null,
     chain: mainnet,
     calls: [
@@ -321,11 +344,12 @@ test('behavior: inferred account', async () => {
     ],
   })
 
-  expect(id_).toBeDefined()
+  expect(id).toBeDefined()
   expect(requests).toMatchInlineSnapshot(`
     [
       [
         {
+          "atomicRequired": false,
           "calls": [
             {
               "data": undefined,
@@ -356,6 +380,7 @@ test('behavior: inferred account', async () => {
           "capabilities": undefined,
           "chainId": "0x1",
           "from": undefined,
+          "id": undefined,
           "version": "1.0",
         },
       ],
