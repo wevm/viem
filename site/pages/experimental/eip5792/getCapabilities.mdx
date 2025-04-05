@@ -109,3 +109,18 @@ const capabilities = await walletClient.getCapabilities({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
 })
 ```
+
+### chainId
+
+- **Type:** `number`
+
+The chain ID to get capabilities for.
+
+```ts twoslash [example.ts]
+import { walletClient } from './config'
+// ---cut---
+const capabilities = await walletClient.getCapabilities({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  chainId: 8453, // [!code focus]
+})
+```

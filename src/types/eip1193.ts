@@ -1795,7 +1795,7 @@ export type WalletRpcSchema = [
    */
   {
     Method: 'wallet_getCapabilities'
-    Parameters?: [Address]
+    Parameters?: [Address | undefined] | undefined
     ReturnType: Prettify<WalletCapabilitiesRecord>
   },
   /**
