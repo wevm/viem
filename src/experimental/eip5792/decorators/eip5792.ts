@@ -120,8 +120,11 @@ export type Eip5792Actions<
    *   ],
    * })
    */
-  sendCalls: <chainOverride extends Chain | undefined = undefined>(
-    parameters: SendCallsParameters<chain, account, chainOverride>,
+  sendCalls: <
+    const calls extends readonly unknown[],
+    chainOverride extends Chain | undefined = undefined,
+  >(
+    parameters: SendCallsParameters<chain, account, chainOverride, calls>,
   ) => Promise<SendCallsReturnType>
   /**
    * Requests for the wallet to show information about a call batch
