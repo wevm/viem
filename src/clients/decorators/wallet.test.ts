@@ -67,6 +67,54 @@ describe('smoke test', () => {
     expect(await walletClient.getAddresses()).toBeDefined()
   })
 
+  test('getCapabilities', async () => {
+    expect(
+      await walletClient.getCapabilities({
+        account: '0x0000000000000000000000000000000000000000',
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "8453": {
+          "paymasterService": {
+            "supported": true,
+          },
+          "sessionKeys": {
+            "supported": true,
+          },
+        },
+        "84532": {
+          "paymasterService": {
+            "supported": true,
+          },
+        },
+      }
+    `)
+  })
+
+  test('getCallsStatus', async () => {
+    expect(
+      await walletClient.getCallsStatus({ id: '0x123' }),
+    ).toMatchInlineSnapshot(`
+      {
+        "atomic": false,
+        "chainId": undefined,
+        "receipts": [
+          {
+            "blockHash": "0x66a7b39a0c4635c2f30cd191d7e1fb0bd370c11dd93199f236c5bdacfc9136b3",
+            "blockNumber": 1n,
+            "gasUsed": 1n,
+            "logs": [],
+            "status": "success",
+            "transactionHash": "0x66a7b39a0c4635c2f30cd191d7e1fb0bd370c11dd93199f236c5bdacfc9136b3",
+          },
+        ],
+        "status": "CONFIRMED",
+        "statusCode": 200,
+        "version": "1.0",
+      }
+    `)
+  })
+
   test('getPermissions', async () => {
     expect(await walletClient.getPermissions()).toBeDefined()
   })
@@ -98,6 +146,19 @@ describe('smoke test', () => {
         value: parseEther('1'),
       }),
     ).toBeDefined()
+  })
+
+  test('sendCalls', async () => {
+    expect(
+      await walletClient.sendCalls({
+        account: '0x0000000000000000000000000000000000000000',
+        calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      }),
+    ).toMatchInlineSnapshot(`
+      {
+        "id": "0x1",
+      }
+    `)
   })
 
   test('sendRawTransaction', async () => {

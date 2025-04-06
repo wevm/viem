@@ -1,16 +1,16 @@
 import type { Address } from 'abitype'
 
-import { parseAccount } from '../../../accounts/utils/parseAccount.js'
-import type { Client } from '../../../clients/createClient.js'
-import type { Transport } from '../../../clients/transports/createTransport.js'
-import type { ErrorType } from '../../../errors/utils.js'
-import type { Account } from '../../../types/account.js'
+import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import type { Client } from '../../clients/createClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
+import type { Account } from '../../types/account.js'
 import type {
   WalletCapabilities,
   WalletCapabilitiesRecord,
-} from '../../../types/eip1193.js'
-import type { Prettify } from '../../../types/utils.js'
-import type { RequestErrorType } from '../../../utils/buildRequest.js'
+} from '../../types/eip1193.js'
+import type { Prettify } from '../../types/utils.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 
 export type GetCapabilitiesParameters<
   chainId extends number | undefined = undefined,

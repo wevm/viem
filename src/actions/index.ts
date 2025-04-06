@@ -312,6 +312,24 @@ export {
   getAddresses,
 } from './wallet/getAddresses.js'
 export {
+  type GetCapabilitiesErrorType,
+  type GetCapabilitiesParameters,
+  type GetCapabilitiesReturnType,
+  getCapabilities,
+} from './wallet/getCapabilities.js'
+export {
+  type GetCallsStatusErrorType,
+  type GetCallsStatusParameters,
+  type GetCallsStatusReturnType,
+  getCallsStatus,
+} from './wallet/getCallsStatus.js'
+export {
+  type ShowCallsStatusErrorType,
+  type ShowCallsStatusParameters,
+  type ShowCallsStatusReturnType,
+  showCallsStatus,
+} from './wallet/showCallsStatus.js'
+export {
   type GetPermissionsErrorType,
   type GetPermissionsReturnType,
   getPermissions,
@@ -393,6 +411,12 @@ export {
   defaultParameters as defaultPrepareTransactionRequestParameters,
 } from './wallet/prepareTransactionRequest.js'
 export {
+  type SendCallsErrorType,
+  type SendCallsParameters,
+  type SendCallsReturnType,
+  sendCalls,
+} from './wallet/sendCalls.js'
+export {
   type SendTransactionErrorType,
   type SendTransactionParameters,
   type SendTransactionReturnType,
@@ -416,6 +440,14 @@ export {
   type SendRawTransactionReturnType,
   sendRawTransaction,
 } from './wallet/sendRawTransaction.js'
+export {
+  type WaitForCallsStatusErrorType,
+  type WaitForCallsStatusParameters,
+  type WaitForCallsStatusReturnType,
+  type WaitForCallsStatusTimeoutError,
+  type WaitForCallsStatusTimeoutErrorType,
+  waitForCallsStatus,
+} from './wallet/waitForCallsStatus.js'
 export {
   type SendUnsignedTransactionErrorType,
   type SendUnsignedTransactionParameters,

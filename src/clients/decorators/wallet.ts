@@ -19,6 +19,16 @@ import {
   getAddresses,
 } from '../../actions/wallet/getAddresses.js'
 import {
+  type GetCallsStatusParameters,
+  type GetCallsStatusReturnType,
+  getCallsStatus,
+} from '../../actions/wallet/getCallsStatus.js'
+import {
+  type GetCapabilitiesReturnType,
+  getCapabilities,
+} from '../../actions/wallet/getCapabilities.js'
+import type { GetCapabilitiesParameters } from '../../actions/wallet/getCapabilities.js'
+import {
   type GetPermissionsReturnType,
   getPermissions,
 } from '../../actions/wallet/getPermissions.js'
@@ -43,6 +53,11 @@ import {
   requestPermissions,
 } from '../../actions/wallet/requestPermissions.js'
 import {
+  type SendCallsParameters,
+  type SendCallsReturnType,
+  sendCalls,
+} from '../../actions/wallet/sendCalls.js'
+import {
   type SendRawTransactionParameters,
   type SendRawTransactionReturnType,
   sendRawTransaction,
@@ -53,6 +68,11 @@ import {
   type SendTransactionReturnType,
   sendTransaction,
 } from '../../actions/wallet/sendTransaction.js'
+import {
+  type ShowCallsStatusReturnType,
+  showCallsStatus,
+} from '../../actions/wallet/showCallsStatus.js'
+import type { ShowCallsStatusParameters } from '../../actions/wallet/showCallsStatus.js'
 import {
   type SignAuthorizationParameters,
   type SignAuthorizationReturnType,
@@ -78,6 +98,10 @@ import {
   type SwitchChainParameters,
   switchChain,
 } from '../../actions/wallet/switchChain.js'
+import type {
+  WaitForCallsStatusParameters,
+  WaitForCallsStatusReturnType,
+} from '../../actions/wallet/waitForCallsStatus.js'
 import {
   type WatchAssetParameters,
   type WatchAssetReturnType,
@@ -88,6 +112,7 @@ import {
   type WriteContractReturnType,
   writeContract,
 } from '../../actions/wallet/writeContract.js'
+import { waitForCallsStatus } from '../../experimental/index.js'
 import type { Chain } from '../../types/chain.js'
 import type {
   ContractFunctionArgs,
@@ -168,6 +193,54 @@ export type WalletActions<
    * const accounts = await client.getAddresses()
    */
   getAddresses: () => Promise<GetAddressesReturnType>
+  /**
+   * Returns the status of a call batch that was sent via `sendCalls`.
+   *
+   * - Docs: https://viem.sh/experimental/eip5792/getCallsStatus
+   * - JSON-RPC Methods: [`wallet_getCallsStatus`](https://eips.ethereum.org/EIPS/eip-5792)
+   *
+   * @param client - Client to use
+   * @returns Status of the calls. {@link GetCallsStatusReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   *
+   * const { receipts, status } = await client.getCallsStatus({ id: '0xdeadbeef' })
+   */
+  getCallsStatus: (
+    parameters: GetCallsStatusParameters,
+  ) => Promise<GetCallsStatusReturnType>
+  /**
+   * Extract capabilities that the wallet supports (e.g. paymasters, session keys, etc).
+   *
+   * - Docs: https://viem.sh/experimental/eip5792/getCapabilities
+   * - JSON-RPC Methods: [`wallet_getCapabilities`](https://eips.ethereum.org/EIPS/eip-5792)
+   *
+   * @param client - Client to use
+   * @returns The wallet's capabilities. {@link GetCapabilitiesReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   *
+   * const capabilities = await client.getCapabilities({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   * })
+   */
+  getCapabilities: (
+    parameters?: GetCapabilitiesParameters,
+  ) => Promise<GetCapabilitiesReturnType>
   /**
    * Returns the chain ID associated with the current network.
    *
@@ -390,6 +463,44 @@ export type WalletActions<
     args: SendRawTransactionParameters,
   ) => Promise<SendRawTransactionReturnType>
   /**
+   * Requests the connected wallet to send a batch of calls.
+   *
+   * - Docs: https://viem.sh/experimental/eip5792/sendCalls
+   * - JSON-RPC Methods: [`wallet_sendCalls`](https://eips.ethereum.org/EIPS/eip-5792)
+   *
+   * @param client - Client to use
+   * @returns Transaction identifier. {@link SendCallsReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   *
+   * const id = await client.sendCalls({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   calls: [
+   *     {
+   *       data: '0xdeadbeef',
+   *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *     },
+   *     {
+   *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *       value: 69420n,
+   *     },
+   *   ],
+   * })
+   */
+  sendCalls: <
+    const calls extends readonly unknown[],
+    chainOverride extends Chain | undefined = undefined,
+  >(
+    parameters: SendCallsParameters<chain, account, chainOverride, calls>,
+  ) => Promise<SendCallsReturnType>
+  /**
    * Creates, signs, and sends a new transaction to the network.
    *
    * - Docs: https://viem.sh/docs/actions/wallet/sendTransaction
@@ -437,6 +548,30 @@ export type WalletActions<
   >(
     args: SendTransactionParameters<chain, account, chainOverride, request>,
   ) => Promise<SendTransactionReturnType>
+  /**
+   * Requests for the wallet to show information about a call batch
+   * that was sent via `sendCalls`.
+   *
+   * - Docs: https://viem.sh/experimental/eip5792/showCallsStatus
+   * - JSON-RPC Methods: [`wallet_showCallsStatus`](https://eips.ethereum.org/EIPS/eip-5792)
+   *
+   * @param client - Client to use
+   * @returns Displays status of the calls in wallet. {@link ShowCallsStatusReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   *
+   * await client.showCallsStatus({ id: '0xdeadbeef' })
+   */
+  showCallsStatus: (
+    parameters: ShowCallsStatusParameters,
+  ) => Promise<ShowCallsStatusReturnType>
   /**
    * Signs an [EIP-7702 Authorization](https://eips.ethereum.org/EIPS/eip-7702) object.
    *
@@ -704,6 +839,30 @@ export type WalletActions<
    */
   switchChain: (args: SwitchChainParameters) => Promise<void>
   /**
+   * Waits for the status & receipts of a call bundle that was sent via `sendCalls`.
+   *
+   * - Docs: https://viem.sh/experimental/eip5792/waitForCallsStatus
+   * - JSON-RPC Methods: [`wallet_getCallsStatus`](https://eips.ethereum.org/EIPS/eip-5792)
+   *
+   * @param client - Client to use
+   * @param parameters - {@link WaitForCallsStatusParameters}
+   * @returns Status & receipts of the call bundle. {@link WaitForCallsStatusReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   *
+   * const result = await client.waitForCallsStatus({ id: '0xdeadbeef' })
+   */
+  waitForCallsStatus: (
+    parameters: WaitForCallsStatusParameters,
+  ) => Promise<WaitForCallsStatusReturnType>
+  /**
    * Adds an EVM chain to the wallet.
    *
    * - Docs: https://viem.sh/docs/actions/wallet/watchAsset
@@ -808,6 +967,8 @@ export function walletActions<
     deployContract: (args) => deployContract(client, args),
     getAddresses: () => getAddresses(client),
     getChainId: () => getChainId(client),
+    getCapabilities: () => getCapabilities(client),
+    getCallsStatus: (args) => getCallsStatus(client, args),
     getPermissions: () => getPermissions(client),
     prepareAuthorization: (args) => prepareAuthorization(client, args),
     prepareTransactionRequest: (args) =>
@@ -815,12 +976,15 @@ export function walletActions<
     requestAddresses: () => requestAddresses(client),
     requestPermissions: (args) => requestPermissions(client, args),
     sendRawTransaction: (args) => sendRawTransaction(client, args),
+    sendCalls: (args) => sendCalls(client, args),
+    showCallsStatus: (args) => showCallsStatus(client, args),
     sendTransaction: (args) => sendTransaction(client, args),
     signAuthorization: (args) => signAuthorization(client, args),
     signMessage: (args) => signMessage(client, args),
     signTransaction: (args) => signTransaction(client, args),
     signTypedData: (args) => signTypedData(client, args),
     switchChain: (args) => switchChain(client, args),
+    waitForCallsStatus: (args) => waitForCallsStatus(client, args),
     watchAsset: (args) => watchAsset(client, args),
     writeContract: (args) => writeContract(client, args as any),
   }

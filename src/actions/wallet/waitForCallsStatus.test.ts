@@ -1,40 +1,50 @@
 import { expect, test } from 'vitest'
-import { anvilMainnet } from '../../../../test/src/anvil.js'
-import { accounts } from '../../../../test/src/constants.js'
-import { mine } from '../../../actions/index.js'
-import { mainnet } from '../../../chains/index.js'
-import { createClient } from '../../../clients/createClient.js'
-import { custom } from '../../../clients/transports/custom.js'
-import { RpcRequestError } from '../../../errors/request.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { accounts } from '../../../test/src/constants.js'
+import { mainnet } from '../../chains/index.js'
+import { createClient } from '../../clients/createClient.js'
+import { custom } from '../../clients/transports/custom.js'
+import { RpcRequestError } from '../../errors/request.js'
 import type {
   WalletCallReceipt,
   WalletGetCallsStatusReturnType,
-} from '../../../types/eip1193.js'
-import type { Hex } from '../../../types/misc.js'
-import { getHttpRpcClient, parseEther } from '../../../utils/index.js'
-import { uid } from '../../../utils/uid.js'
-import { getCallsStatus } from './getCallsStatus.js'
+} from '../../types/eip1193.js'
+import type { Hex } from '../../types/misc.js'
+import { getHttpRpcClient, parseEther } from '../../utils/index.js'
+import { uid } from '../../utils/uid.js'
+import { mine } from '../index.js'
 import { sendCalls } from './sendCalls.js'
+import { waitForCallsStatus } from './waitForCallsStatus.js'
 
 const testClient = anvilMainnet.getClient()
 
 type Uid = string
 type TxHashes = Hex[]
-const calls = new Map<Uid, TxHashes[]>()
+const calls = new Map<Uid, TxHashes>()
 
 const getClient = ({
   onRequest,
-}: { onRequest({ method, params }: any): void }) =>
+}: { onRequest?: ({ method, params }: any) => void } = {}) =>
   createClient({
+    pollingInterval: 100,
     transport: custom({
       async request({ method, params }) {
-        onRequest({ method, params })
+        onRequest?.({ method, params })
 
         const rpcClient = getHttpRpcClient(anvilMainnet.rpcUrl.http)
 
         if (method === 'wallet_getCallsStatus') {
           const hashes = calls.get(params[0])
-          if (!hashes) return null
+          if (!hashes)
+            return {
+              atomic: false,
+              chainId: '0x1',
+              id: params[0],
+              receipts: [],
+              status: 100,
+              version: '1.0',
+            } satisfies WalletGetCallsStatusReturnType
+
           const receipts = await Promise.all(
             hashes.map(async (hash) => {
               const { result, error } = await rpcClient.request({
@@ -71,7 +81,7 @@ const getClient = ({
         }
 
         if (method === 'wallet_sendCalls') {
-          const hashes = []
+          const hashes: TxHashes = []
           for (const call of params[0].calls) {
             const { result, error } = await rpcClient.request({
               body: {
@@ -89,7 +99,9 @@ const getClient = ({
             hashes.push(result)
           }
           const uid_ = uid()
-          calls.set(uid_, hashes)
+          setTimeout(() => {
+            calls.set(uid_, hashes)
+          }, 1000)
           return uid_
         }
 
@@ -130,7 +142,13 @@ test('default', async () => {
 
   await mine(testClient, { blocks: 1 })
 
-  const { id: id_, receipts, ...rest } = await getCallsStatus(client, { id })
+  const {
+    id: id_,
+    receipts,
+    ...rest
+  } = await waitForCallsStatus(client, {
+    id,
+  })
   expect(id_).toBeDefined()
   expect(rest).toMatchInlineSnapshot(`
     {
@@ -142,4 +160,81 @@ test('default', async () => {
     }
   `)
   expect(receipts!.length).toBe(3)
+})
+
+test('behavior: timeout exceeded', async () => {
+  const client = getClient()
+
+  const { id } = await sendCalls(client, {
+    account: accounts[0].address,
+    calls: [
+      {
+        to: accounts[1].address,
+        value: parseEther('1'),
+      },
+      {
+        to: accounts[2].address,
+      },
+      {
+        data: '0xcafebabe',
+        to: accounts[3].address,
+        value: parseEther('100'),
+      },
+    ],
+    chain: mainnet,
+  })
+
+  expect(id).toBeDefined()
+
+  await mine(testClient, { blocks: 1 })
+
+  await expect(() =>
+    waitForCallsStatus(client, {
+      id,
+      timeout: 100,
+    }),
+  ).rejects.toThrowError('Timed out while waiting for call bundle')
+})
+
+test('behavior: `wallet_getCallsStatus` failure', async () => {
+  const client = getClient({
+    onRequest({ method }) {
+      if (method === 'wallet_getCallsStatus') {
+        throw new RpcRequestError({
+          body: { method, params: [id] },
+          error: { code: 1, message: 'test' },
+          url: anvilMainnet.rpcUrl.http,
+        })
+      }
+    },
+  })
+
+  const { id } = await sendCalls(client, {
+    account: accounts[0].address,
+    calls: [
+      {
+        to: accounts[1].address,
+        value: parseEther('1'),
+      },
+      {
+        to: accounts[2].address,
+      },
+      {
+        data: '0xcafebabe',
+        to: accounts[3].address,
+        value: parseEther('100'),
+      },
+    ],
+    chain: mainnet,
+  })
+
+  expect(id).toBeDefined()
+
+  await mine(testClient, { blocks: 1 })
+
+  await expect(() =>
+    waitForCallsStatus(client, {
+      id,
+    }),
+  ).rejects.toThrowError('RPC Request failed.')
 })

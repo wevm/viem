@@ -1,21 +1,21 @@
 import type { Address, Narrow } from 'abitype'
-import { parseAccount } from '../../../accounts/utils/parseAccount.js'
-import type { Client } from '../../../clients/createClient.js'
-import type { Transport } from '../../../clients/transports/createTransport.js'
-import { AccountNotFoundError } from '../../../errors/account.js'
-import type { BaseError } from '../../../errors/base.js'
-import type { ErrorType } from '../../../errors/utils.js'
-import type { Account, GetAccountParameter } from '../../../types/account.js'
-import type { Call, Calls } from '../../../types/calls.js'
-import type { Chain, DeriveChain } from '../../../types/chain.js'
+import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import type { Client } from '../../clients/createClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import { AccountNotFoundError } from '../../errors/account.js'
+import type { BaseError } from '../../errors/base.js'
+import type { ErrorType } from '../../errors/utils.js'
+import type { Account, GetAccountParameter } from '../../types/account.js'
+import type { Call, Calls } from '../../types/calls.js'
+import type { Chain, DeriveChain } from '../../types/chain.js'
 import type {
   WalletCapabilities,
   WalletSendCallsParameters,
-} from '../../../types/eip1193.js'
-import { encodeFunctionData } from '../../../utils/abi/encodeFunctionData.js'
-import type { RequestErrorType } from '../../../utils/buildRequest.js'
-import { numberToHex } from '../../../utils/encoding/toHex.js'
-import { getTransactionError } from '../../../utils/errors/getTransactionError.js'
+} from '../../types/eip1193.js'
+import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
+import { numberToHex } from '../../utils/encoding/toHex.js'
+import { getTransactionError } from '../../utils/errors/getTransactionError.js'
 
 export type SendCallsParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -41,7 +41,7 @@ export type SendCallsReturnType = {
 export type SendCallsErrorType = RequestErrorType | ErrorType
 
 /**
- * Requests the connected wallet to send a batch of calls.
+ * Requests the connected wallet to send a batch of call(s).
  *
  * - Docs: https://viem.sh/experimental/eip5792/sendCalls
  * - JSON-RPC Methods: [`wallet_sendCalls`](https://eips.ethereum.org/EIPS/eip-5792)

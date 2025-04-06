@@ -200,6 +200,46 @@ function defineAnvil<const chain extends Chain>(
           if (method === 'wallet_sendTransaction') {
             method = 'eth_sendTransaction'
           }
+          if (method === 'wallet_getCapabilities')
+            return {
+              '0x2105': {
+                atomic: {
+                  supported: true,
+                },
+                paymasterService: {
+                  supported: true,
+                },
+              },
+              '0x14A34': {
+                atomic: {
+                  supported: true,
+                },
+                paymasterService: {
+                  supported: false,
+                },
+              },
+            }
+          if (method === 'wallet_sendCalls') return '0x1'
+          if (method === 'wallet_getCallsStatus')
+            return {
+              atomic: true,
+              chainId: '0x1',
+              id: '0x1',
+              receipts: [
+                {
+                  blockHash:
+                    '0x66a7b39a0c4635c2f30cd191d7e1fb0bd370c11dd93199f236c5bdacfc9136b3',
+                  blockNumber: '0x1',
+                  gasUsed: '0x1',
+                  logs: [],
+                  status: '0x1',
+                  transactionHash:
+                    '0x66a7b39a0c4635c2f30cd191d7e1fb0bd370c11dd93199f236c5bdacfc9136b3',
+                },
+              ],
+              status: 200,
+              version: '1.0',
+            }
 
           return request({ method, params }, opts)
         },
