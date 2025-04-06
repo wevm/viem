@@ -1,5 +1,58 @@
 # viem
 
+## 2.26.0
+
+### Minor Changes
+
+- [#3542](https://github.com/wevm/viem/pull/3542) [`082c3d0fcc2e376954116d380c65c6ac95293681`](https://github.com/wevm/viem/commit/082c3d0fcc2e376954116d380c65c6ac95293681) Thanks [@jxom](https://github.com/jxom)! - **Breaking (Experimental):** Updated EIP-5792 to the latest spec changes. The following APIs have been updated:
+
+  #### `getCallsStatus`
+
+  ```diff
+  const result = await client.getCallsStatus({ id })
+  //    ^?
+        {
+  +       atomic: boolean
+  +       chainId: number
+  +       id: string
+          receipts: Receipt[]
+  -       status: 'PENDING' | 'CONFIRMED'
+  +       status: 'pending' | 'success' | 'failure' | undefined
+  +       statusCode: number
+  +       version: string
+  }
+  ```
+
+  #### `sendCalls`
+
+  ```diff
+  const result = await client.sendCalls({ calls })
+  //    ^?
+  -     string
+  +     { id: string, capabilities?: Capabilities }
+  ```
+
+  #### `waitForCallsStatus`
+
+  ```diff
+  const result = await client.waitForCallsStatus({ id })
+  //    ^?
+        {
+  +       atomic: boolean
+  +       chainId: number
+  +       id: string
+          receipts: Receipt[]
+  -       status: 'PENDING' | 'CONFIRMED'
+  +       status: 'pending' | 'success' | 'failure' | undefined
+  +       statusCode: number
+  +       version: string
+  }
+  ```
+
+### Patch Changes
+
+- [#3542](https://github.com/wevm/viem/pull/3542) [`082c3d0fcc2e376954116d380c65c6ac95293681`](https://github.com/wevm/viem/commit/082c3d0fcc2e376954116d380c65c6ac95293681) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added `forceAtomic` and `id` parameters to `sendCalls`
+
 ## 2.25.0
 
 ### Minor Changes
