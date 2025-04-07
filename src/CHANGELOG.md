@@ -1,5 +1,11 @@
 # viem
 
+## 2.26.1
+
+### Patch Changes
+
+- [#3545](https://github.com/wevm/viem/pull/3545) [`33a01b96554759bb9fa60d3c4bfc1c2cd5974ddc`](https://github.com/wevm/viem/commit/33a01b96554759bb9fa60d3c4bfc1c2cd5974ddc) Thanks [@bmzig](https://github.com/bmzig)! - **OP Stack:** Fixed `Unproven` case.
+
 ## 2.26.0
 
 ### Minor Changes
