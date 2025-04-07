@@ -91,6 +91,8 @@ export type PublicZksyncRpcSchema = [
       l2WethBridge: Address
       l1SharedDefaultBridge: Address
       l2SharedDefaultBridge: Address
+      l1Nullifier?: Address
+      l1NativeTokenVault?: Address
     }
   },
   {

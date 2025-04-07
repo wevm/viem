@@ -29,6 +29,12 @@ export {
   hashBytecode,
 } from './utils/hashBytecode.js'
 export {
+  type ClaimFailedDepositErrorType,
+  type ClaimFailedDepositParameters,
+  type ClaimFailedDepositReturnType,
+  claimFailedDeposit,
+} from './actions/claimFailedDeposit.js'
+export {
   type DepositErrorType,
   type DepositReturnType,
   type DepositParameters,

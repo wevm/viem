@@ -44,3 +44,38 @@ export class WithdrawalLogNotFoundError extends BaseError {
     )
   }
 }
+
+export type CannotClaimSuccessfulDepositErrorType =
+  CannotClaimSuccessfulDepositError & {
+    name: 'CannotClaimSuccessfulDepositError'
+  }
+export class CannotClaimSuccessfulDepositError extends BaseError {
+  constructor({ hash }: { hash: Hash }) {
+    super([`Cannot claim successful deposit: ${hash}.`].join('\n'), {
+      name: 'CannotClaimSuccessfulDepositError',
+    })
+  }
+}
+
+export type LogProofNotFoundErrorType = LogProofNotFoundError & {
+  name: 'LogProofNotFoundError'
+}
+export class LogProofNotFoundError extends BaseError {
+  constructor({ hash, index }: { hash: Hash; index: number }) {
+    super(
+      [`Log proof not found for hash ${hash} and index ${index}.`].join('\n'),
+      { name: 'LogProofNotFoundError' },
+    )
+  }
+}
+
+export type L2BridgeNotFoundErrorType = L2BridgeNotFoundError & {
+  name: 'L2BridgeNotFoundError'
+}
+export class L2BridgeNotFoundError extends BaseError {
+  constructor() {
+    super(['L2 bridge address not found.'].join('\n'), {
+      name: 'L2BridgeNotFoundError',
+    })
+  }
+}

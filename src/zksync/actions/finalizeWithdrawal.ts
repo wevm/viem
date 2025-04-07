@@ -1,4 +1,4 @@
-import type { Address } from 'abitype'
+import { type Address, parseAbi } from 'abitype'
 import type { Account } from '../../accounts/types.js'
 import { readContract } from '../../actions/public/readContract.js'
 import {
@@ -20,17 +20,15 @@ import type { Hex } from '../../types/misc.js'
 import {
   decodeAbiParameters,
   encodeFunctionData,
-  isAddressEqual,
   parseAccount,
   slice,
 } from '../../utils/index.js'
-import { l1SharedBridgeAbi, l2SharedBridgeAbi } from '../constants/abis.js'
-import { l2BaseTokenAddress } from '../constants/address.js'
 import {
   WithdrawalLogNotFoundError,
   type WithdrawalLogNotFoundErrorType,
 } from '../errors/bridge.js'
 import type { ChainEIP712 } from '../types/chain.js'
+import type { BridgeContractAddresses } from '../types/contract.js'
 import { getWithdrawalL2ToL1Log } from '../utils/bridge/getWithdrawalL2ToL1Log.js'
 import { getWithdrawalLog } from '../utils/bridge/getWithdrawalLog.js'
 import { getDefaultBridgeAddresses } from './getDefaultBridgeAddresses.js'
@@ -149,52 +147,35 @@ export async function finalizeWithdrawal<
     })
   if (!l2Client.chain) throw new ChainNotFoundError()
 
-  const {
-    l1BatchNumber,
-    l2MessageIndex,
-    l2TxNumberInBlock,
-    message,
-    sender,
-    proof,
-  } = await getFinalizeWithdrawalParams(l2Client, { hash, index })
+  const finalizeWithdrawalParams = await getFinalizeWithdrawalParams(l2Client, {
+    hash,
+    index,
+  })
 
-  let l1Bridge: Address
-
-  if (isAddressEqual(sender, l2BaseTokenAddress))
-    l1Bridge = (await getDefaultBridgeAddresses(l2Client)).sharedL1
-  else if (!(await isLegacyBridge(l2Client, { address: sender })))
-    l1Bridge = await readContract(l2Client, {
-      address: sender,
-      abi: l2SharedBridgeAbi,
-      functionName: 'l1SharedBridge',
-      args: [],
-    })
-  else
-    l1Bridge = await readContract(l2Client, {
-      address: sender,
-      abi: l2SharedBridgeAbi,
-      functionName: 'l1Bridge',
-      args: [],
-    })
+  const l1Nullifier = (await getBridgeAddresses(client, l2Client)).l1Nullifier
 
   const data = encodeFunctionData({
-    abi: l1SharedBridgeAbi,
-    functionName: 'finalizeWithdrawal',
+    abi: parseAbi([
+      'function finalizeDeposit((uint256 chainId, uint256 l2BatchNumber, uint256 l2MessageIndex, address l2Sender, uint16 l2TxNumberInBatch, bytes message, bytes32[] merkleProof) _finalizeWithdrawalParams)',
+    ]),
+    functionName: 'finalizeDeposit',
     args: [
-      BigInt(l2Client.chain.id),
-      l1BatchNumber!,
-      BigInt(l2MessageIndex),
-      Number(l2TxNumberInBlock),
-      message,
-      proof,
+      {
+        chainId: BigInt(l2Client.chain.id),
+        l2BatchNumber: finalizeWithdrawalParams.l1BatchNumber!,
+        l2MessageIndex: BigInt(finalizeWithdrawalParams.l2MessageIndex),
+        l2Sender: finalizeWithdrawalParams.sender,
+        l2TxNumberInBatch: Number(finalizeWithdrawalParams.l2TxNumberInBlock),
+        message: finalizeWithdrawalParams.message,
+        merkleProof: finalizeWithdrawalParams.proof,
+      },
     ],
   })
 
   return await sendTransaction(client, {
     account,
-    to: l1Bridge,
+    to: l1Nullifier,
     data,
-    value: 0n,
     ...rest,
   } as SendTransactionParameters)
 }
@@ -230,19 +211,40 @@ async function getFinalizeWithdrawalParams<
   }
 }
 
-async function isLegacyBridge<
+async function getBridgeAddresses<
   chain extends Chain | undefined,
-  account extends Account | undefined,
->(client: Client<Transport, chain, account>, parameters: { address: Address }) {
-  try {
-    await readContract(client, {
-      address: parameters.address,
-      abi: l2SharedBridgeAbi,
-      functionName: 'l1SharedBridge',
+  chainL2 extends ChainEIP712 | undefined,
+>(
+  client: Client<Transport, chain>,
+  l2Client: Client<Transport, chainL2>,
+): Promise<
+  BridgeContractAddresses & {
+    l1Nullifier: Address
+    l1NativeTokenVault: Address
+  }
+> {
+  const addresses = await getDefaultBridgeAddresses(l2Client)
+  let l1Nullifier = addresses.l1Nullifier
+  let l1NativeTokenVault = addresses.l1NativeTokenVault
+
+  if (!l1Nullifier)
+    l1Nullifier = await readContract(client, {
+      address: addresses.sharedL1,
+      abi: parseAbi(['function L1_NULLIFIER() view returns (address)']),
+      functionName: 'L1_NULLIFIER',
       args: [],
     })
-    return false
-  } catch (_e) {
-    return true
+  if (!l1NativeTokenVault)
+    l1NativeTokenVault = await readContract(client, {
+      address: addresses.sharedL1,
+      abi: parseAbi(['function nativeTokenVault() view returns (address)']),
+      functionName: 'nativeTokenVault',
+      args: [],
+    })
+
+  return {
+    ...addresses,
+    l1Nullifier,
+    l1NativeTokenVault,
   }
 }

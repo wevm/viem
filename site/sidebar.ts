@@ -1840,6 +1840,10 @@ export const sidebar = {
             text: 'deposit',
             link: '/zksync/actions/deposit',
           },
+          {
+            text: 'claimFailedDeposit',
+            link: '/zksync/actions/claimFailedDeposit',
+          },
         ],
       },
       {
