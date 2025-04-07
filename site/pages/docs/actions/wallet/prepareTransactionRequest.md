@@ -184,14 +184,13 @@ Signed EIP-7702 Authorization list.
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
-import { eip7702Actions } from 'viem/experimental'
 
 const account = privateKeyToAccount('0x...')
 
 export const walletClient = createWalletClient({
   chain: mainnet,
   transport: http(),
-}).extend(eip7702Actions())
+})
 // ---cut---
 const authorization = await walletClient.signAuthorization({ 
   account,

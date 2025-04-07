@@ -218,15 +218,14 @@ export type WalletActions<
    * @returns The prepared Authorization object. {@link PrepareAuthorizationReturnType}
    *
    * @example
-   * import { createClient, http } from 'viem'
+   * import { createWalletClient, http } from 'viem'
    * import { privateKeyToAccount } from 'viem/accounts'
    * import { mainnet } from 'viem/chains'
-   * import { eip7702Actions } from 'viem/experimental'
    *
-   * const client = createClient({
+   * const client = createWalletClient({
    *   chain: mainnet,
    *   transport: http(),
-   * }).extend(eip7702Actions())
+   * })
    *
    * const authorization = await client.prepareAuthorization({
    *   account: privateKeyToAccount('0x..'),
@@ -235,16 +234,15 @@ export type WalletActions<
    *
    * @example
    * // Account Hoisting
-   * import { createClient, http } from 'viem'
+   * import { createWalletClient, http } from 'viem'
    * import { privateKeyToAccount } from 'viem/accounts'
    * import { mainnet } from 'viem/chains'
-   * import { eip7702Actions } from 'viem/experimental'
    *
-   * const client = createClient({
+   * const client = createWalletClient({
    *   account: privateKeyToAccount('0x…'),
    *   chain: mainnet,
    *   transport: http(),
-   * }).extend(eip7702Actions())
+   * })
    *
    * const authorization = await client.prepareAuthorization({
    *   contractAddress: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
@@ -449,15 +447,14 @@ export type WalletActions<
    * @returns The signed Authorization object. {@link SignAuthorizationReturnType}
    *
    * @example
-   * import { createClient, http } from 'viem'
+   * import { createWalletClient, http } from 'viem'
    * import { privateKeyToAccount } from 'viem/accounts'
    * import { mainnet } from 'viem/chains'
-   * import { eip7702Actions } from 'viem/experimental'
    *
-   * const client = createClient({
+   * const client = createWalletClient({
    *   chain: mainnet,
    *   transport: http(),
-   * }).extend(eip7702Actions())
+   * })
    *
    * const signature = await client.signAuthorization({
    *   account: privateKeyToAccount('0x..'),
@@ -466,16 +463,15 @@ export type WalletActions<
    *
    * @example
    * // Account Hoisting
-   * import { createClient, http } from 'viem'
+   * import { createWalletClient, http } from 'viem'
    * import { privateKeyToAccount } from 'viem/accounts'
    * import { mainnet } from 'viem/chains'
-   * import { eip7702Actions } from 'viem/experimental'
    *
-   * const client = createClient({
+   * const client = createWalletClient({
    *   account: privateKeyToAccount('0x…'),
    *   chain: mainnet,
    *   transport: http(),
-   * }).extend(eip7702Actions())
+   * })
    *
    * const signature = await client.signAuthorization({
    *   contractAddress: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
