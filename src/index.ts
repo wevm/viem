@@ -1592,6 +1592,7 @@ export {
   type EncodePackedErrorType,
   encodePacked,
 } from './utils/abi/encodePacked.js'
+export { withCache } from './utils/promise/withCache.js'
 export {
   type WithRetryErrorType,
   withRetry,
