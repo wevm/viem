@@ -1,5 +1,11 @@
 # viem
 
+## 2.26.2
+
+### Patch Changes
+
+- [`f736d9b2a6711a739a1fbae8c3c18fb694b407a4`](https://github.com/wevm/viem/commit/f736d9b2a6711a739a1fbae8c3c18fb694b407a4) Thanks [@jxom](https://github.com/jxom)! - Exported `withCache`.
+
 ## 2.26.1
 
 ### Patch Changes
