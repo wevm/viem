@@ -46,8 +46,8 @@ importers:
         specifier: ^0.1.2
         version: 0.1.2
       '@pimlico/alto':
-        specifier: 0.0.0-main.20250402T105443
-        version: 0.0.0-main.20250402T105443(typescript@5.8.2)
+        specifier: 0.0.0-main.20250410T160331
+        version: 0.0.0-main.20250410T160331(typescript@5.8.2)
       '@size-limit/preset-big-lib':
         specifier: ^11.1.6
         version: 11.1.6(size-limit@11.1.6)
@@ -83,7 +83,7 @@ importers:
         version: 0.2.14
       prool:
         specifier: 0.0.24
-        version: 0.0.24(@pimlico/alto@0.0.0-main.20250402T105443(typescript@5.8.2))
+        version: 0.0.24(@pimlico/alto@0.0.0-main.20250410T160331(typescript@5.8.2))
       publint:
         specifier: ^0.2.11
         version: 0.2.11
@@ -1743,8 +1743,8 @@ packages:
   '@paulmillr/trusted-setups@0.1.2':
     resolution: {integrity: sha512-NKpT0G4Blj+Vp9lbfczb7iPJm3B4njpzX8NXiQs8G51N4CLndCvLqEvksFlTJbNLwl3iwsGZHSvJRdfhfOHLwQ==}
 
-  '@pimlico/alto@0.0.0-main.20250402T105443':
-    resolution: {integrity: sha512-qUcs6REpEW2lUyCLROVA8kElzGcotk/li9+kVh8zHiomlwZYrQSFWPHSdkKBJTdNaJKJ5rxRfHP1H06kOqP2oA==}
+  '@pimlico/alto@0.0.0-main.20250410T160331':
+    resolution: {integrity: sha512-NdA7hnQTUS+ryMjIQ8m2N9KESglr5QYK9Ayi6Fc4MUonyUybfXCqlgxBmSVxzitG1R2TYha554CNrVgOBDvZig==}
     hasBin: true
 
   '@pimlico/opentelemetry-instrumentation-viem@0.0.4':
@@ -6223,8 +6223,8 @@ packages:
       typescript:
         optional: true
 
-  viem@2.24.3:
-    resolution: {integrity: sha512-FAoW0hqqpGOlZvfL6GbizDNUd6ZvUyNYYF8HouXbGATrO0RLLh28MOElFNF63hg++uZi2R/EcISs0bvY185z8g==}
+  viem@2.26.2:
+    resolution: {integrity: sha512-+yXSl1n+jV/Kn/zpETiNq0WOcINXti29nxdPIONvvNh+Es0VfeusW8bb2okVfa55pmuc8kOCOpB5wq3ZIUCTSA==}
     peerDependencies:
       typescript: '>=5.0.4'
     peerDependenciesMeta:
@@ -7723,7 +7723,7 @@ snapshots:
 
   '@paulmillr/trusted-setups@0.1.2': {}
 
-  '@pimlico/alto@0.0.0-main.20250402T105443(typescript@5.8.2)':
+  '@pimlico/alto@0.0.0-main.20250410T160331(typescript@5.8.2)':
     dependencies:
       '@fastify/websocket': 10.0.1
       '@opentelemetry/api': 1.7.0
@@ -7753,7 +7753,7 @@ snapshots:
       pino-pretty: 10.3.1
       prom-client: 14.2.0
       type-fest: 4.39.0
-      viem: 2.24.3(typescript@5.8.2)(zod@3.23.8)
+      viem: 2.26.2(typescript@5.8.2)(zod@3.23.8)
       yargs: 17.7.2
       zod: 3.23.8
       zod-validation-error: 1.5.0(zod@3.23.8)
@@ -11923,7 +11923,7 @@ snapshots:
     dependencies:
       tdigest: 0.1.2
 
-  prool@0.0.24(@pimlico/alto@0.0.0-main.20250402T105443(typescript@5.8.2)):
+  prool@0.0.24(@pimlico/alto@0.0.0-main.20250410T160331(typescript@5.8.2)):
     dependencies:
       change-case: 5.4.4
       eventemitter3: 5.0.1
@@ -11932,7 +11932,7 @@ snapshots:
       http-proxy: 1.18.1
       tar: 7.2.0
     optionalDependencies:
-      '@pimlico/alto': 0.0.0-main.20250402T105443(typescript@5.8.2)
+      '@pimlico/alto': 0.0.0-main.20250410T160331(typescript@5.8.2)
     transitivePeerDependencies:
       - debug
 
@@ -13011,7 +13011,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.24.3(typescript@5.8.2)(zod@3.23.8):
+  viem@2.26.2(typescript@5.8.2)(zod@3.23.8):
     dependencies:
       '@noble/curves': 1.8.1
       '@noble/hashes': 1.7.1

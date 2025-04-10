@@ -1,20 +1,14 @@
 import type { Address, TypedData } from 'abitype'
 
+import type { LocalAccount } from '~viem/accounts/types.js'
 import { parseAccount } from '../../../accounts/utils/parseAccount.js'
-import { signTypedData } from '../../../actions/index.js'
-import {
-  signMessage,
-  signMessage as signMessage_,
-} from '../../../actions/wallet/signMessage.js'
 import type { Client } from '../../../clients/createClient.js'
 import { entryPoint08Address } from '../../../constants/address.js'
 import { BaseError } from '../../../errors/base.js'
-import type { Account } from '../../../types/account.js'
 import type { TypedDataDefinition } from '../../../types/typedData.js'
 import type { Prettify } from '../../../types/utils.js'
 import { decodeFunctionData } from '../../../utils/abi/decodeFunctionData.js'
 import { encodeFunctionData } from '../../../utils/abi/encodeFunctionData.js'
-import { getAction } from '../../../utils/getAction.js'
 import { concat, encodePacked, numberToHex, pad } from '../../../utils/index.js'
 import { entryPoint08Abi } from '../../constants/abis.js'
 import { toSmartAccount } from '../toSmartAccount.js'
@@ -24,7 +18,7 @@ export type ToSimple7702SmartAccountParameters = {
   client: Client
   implementation?: Address | undefined
   getNonce?: SmartAccountImplementation['getNonce'] | undefined
-  owner: Address | Account
+  owner: LocalAccount
 }
 
 export type ToSimple7702SmartAccountReturnType = Prettify<
@@ -119,7 +113,7 @@ export async function toSimple7702SmartAccount(
     },
 
     async getFactoryArgs() {
-      return { factory: '0x7702', factoryData: '0x' }
+      return { factory: '0x7702', factoryData: undefined }
     },
 
     async getStubSignature() {
@@ -128,17 +122,13 @@ export async function toSimple7702SmartAccount(
 
     async signMessage(parameters) {
       const { message } = parameters
-      return await signMessage(client, {
-        account: owner,
-        message,
-      })
+      return await owner.signMessage({ message })
     },
 
     async signTypedData(parameters) {
       const { domain, types, primaryType, message } =
         parameters as TypedDataDefinition<TypedData, string>
-      return await signTypedData(client, {
-        account: owner,
+      return await owner.signTypedData({
         domain,
         message,
         primaryType,
@@ -176,12 +166,10 @@ export async function toSimple7702SmartAccount(
         pad(numberToHex(userOperation.verificationGasLimit), { size: 16 }),
         pad(numberToHex(userOperation.callGasLimit), { size: 16 }),
       ])
-
       const gasFees = concat([
         pad(numberToHex(userOperation.maxPriorityFeePerGas), { size: 16 }),
         pad(numberToHex(userOperation.maxFeePerGas), { size: 16 }),
       ])
-
       const paymasterAndData = userOperation.paymaster
         ? concat([
             userOperation.paymaster,
@@ -195,12 +183,7 @@ export async function toSimple7702SmartAccount(
           ])
         : '0x'
 
-      const signature = await getAction(
-        client,
-        signTypedData,
-        'signMessage',
-      )({
-        account: owner,
+      const signature = await owner.signTypedData({
         types: {
           PackedUserOperation: [
             { type: 'address', name: 'sender' },

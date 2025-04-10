@@ -197,7 +197,6 @@ export async function estimateUserOperationGas<
     throw getUserOperationError(error as BaseError, {
       ...(request as UserOperation),
       ...(calls ? { calls } : {}),
-      account,
     })
   }
 }

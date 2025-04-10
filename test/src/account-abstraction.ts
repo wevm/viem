@@ -1,3 +1,4 @@
+import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
 import { VerifyingPaymaster } from '../../contracts/generated.js'
 import {
   entryPoint06Abi,
@@ -46,17 +47,21 @@ export async function getSmartAccounts_08() {
   const accounts_ = []
 
   for (const account of accounts) {
+    const owner = privateKeyToAccount(account.privateKey)
     const smartAccount = await toSimple7702SmartAccount({
       client,
       implementation: implementationAddress,
-      owner: account.address,
+      owner,
     })
     await sendTransaction(client, {
       account: accounts[9].address,
       to: smartAccount.address,
       value: parseEther('100'),
     })
-    accounts_.push(smartAccount)
+    accounts_.push({
+      smartAccount,
+      owner,
+    })
   }
 
   await mine(client, {

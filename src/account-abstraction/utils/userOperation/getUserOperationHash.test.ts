@@ -174,7 +174,7 @@ describe('entryPoint: 0.8', () => {
           paymasterData: '0xdeadbeef',
           factory: '0x7702',
           factoryData: '0xdeadbeef',
-          eip7702Auth: {
+          authorization: {
             address: '0x1234567890123456789012345678901234567890',
             chainId: 1n,
             nonce: 0n,
