@@ -15,7 +15,16 @@ export type EstimateUserOperationGasReturnType<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
   uint256 = bigint,
 > = OneOf<
-  | (entryPointVersion extends '0.7' | '0.8'
+  | (entryPointVersion extends '0.8'
+      ? {
+          preVerificationGas: uint256
+          verificationGasLimit: uint256
+          callGasLimit: uint256
+          paymasterVerificationGasLimit?: uint256 | undefined
+          paymasterPostOpGasLimit?: uint256 | undefined
+        }
+      : never)
+  | (entryPointVersion extends '0.7'
       ? {
           preVerificationGas: uint256
           verificationGasLimit: uint256

@@ -1,6 +1,6 @@
 import type { Address, TypedData } from 'abitype'
 
-import type { LocalAccount } from '~viem/accounts/types.js'
+import type { LocalAccount } from '../../../accounts/types.js'
 import { parseAccount } from '../../../accounts/utils/parseAccount.js'
 import type { Client } from '../../../clients/createClient.js'
 import { entryPoint08Address } from '../../../constants/address.js'

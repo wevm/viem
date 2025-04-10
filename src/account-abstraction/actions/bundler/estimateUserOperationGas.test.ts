@@ -777,17 +777,19 @@ describe('entryPointVersion: 0.7', async () => {
   })
 
   test('behavior: prepared user operation', async () => {
+    const userOp = await prepareUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+      ],
+      ...fees,
+    })
+
     const request = {
-      ...(await prepareUserOperation(bundlerClient, {
-        account,
-        calls: [
-          {
-            to: '0x0000000000000000000000000000000000000000',
-            value: parseEther('1'),
-          },
-        ],
-        ...fees,
-      })),
+      ...userOp,
       account: undefined,
     } as const
 

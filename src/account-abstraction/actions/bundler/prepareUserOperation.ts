@@ -12,11 +12,6 @@ import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import type { ErrorType } from '../../../errors/utils.js'
-import type {
-  Authorization,
-  AuthorizationRequest,
-  SignedAuthorization,
-} from '../../../types/authorization.js'
 import type { Call, Calls } from '../../../types/calls.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
@@ -68,6 +63,7 @@ const defaultParameters = [
   'paymaster',
   'nonce',
   'signature',
+  'authorization',
 ] as const
 
 export type PrepareUserOperationParameterType =
@@ -77,10 +73,17 @@ export type PrepareUserOperationParameterType =
   | 'paymaster'
   | 'nonce'
   | 'signature'
+  | 'authorization'
 
 type FactoryProperties<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > =
+  | (entryPointVersion extends '0.8'
+      ? {
+          factory: UserOperation['factory']
+          factoryData: UserOperation['factoryData']
+        }
+      : never)
   | (entryPointVersion extends '0.7'
       ? {
           factory: UserOperation['factory']
@@ -96,6 +99,15 @@ type FactoryProperties<
 type GasProperties<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > =
+  | (entryPointVersion extends '0.8'
+      ? {
+          callGasLimit: UserOperation['callGasLimit']
+          preVerificationGas: UserOperation['preVerificationGas']
+          verificationGasLimit: UserOperation['verificationGasLimit']
+          paymasterPostOpGasLimit: UserOperation['paymasterPostOpGasLimit']
+          paymasterVerificationGasLimit: UserOperation['paymasterVerificationGasLimit']
+        }
+      : never)
   | (entryPointVersion extends '0.7'
       ? {
           callGasLimit: UserOperation['callGasLimit']
@@ -125,6 +137,14 @@ type NonceProperties = {
 type PaymasterProperties<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > =
+  | (entryPointVersion extends '0.8'
+      ? {
+          paymaster: UserOperation['paymaster']
+          paymasterData: UserOperation['paymasterData']
+          paymasterPostOpGasLimit: UserOperation['paymasterPostOpGasLimit']
+          paymasterVerificationGasLimit: UserOperation['paymasterVerificationGasLimit']
+        }
+      : never)
   | (entryPointVersion extends '0.7'
       ? {
           paymaster: UserOperation['paymaster']
@@ -141,6 +161,10 @@ type PaymasterProperties<
 
 type SignatureProperties = {
   signature: UserOperation['signature']
+}
+
+type AuthorizationProperties = {
+  authorization: UserOperation['authorization']
 }
 
 export type PrepareUserOperationRequest<
@@ -174,9 +198,6 @@ export type PrepareUserOperationRequest<
     paymasterContext?: unknown | undefined
     /** State overrides for the User Operation call. */
     stateOverride?: StateOverride | undefined
-    authorization?:
-      | OneOf<Authorization | AuthorizationRequest | SignedAuthorization>
-      | undefined
   }
 >
 
@@ -227,7 +248,12 @@ export type PrepareUserOperationReturnType<
     (Extract<_parameters, 'paymaster'> extends never
       ? {}
       : PaymasterProperties<_derivedVersion>) &
-    (Extract<_parameters, 'signature'> extends never ? {} : SignatureProperties)
+    (Extract<_parameters, 'signature'> extends never
+      ? {}
+      : SignatureProperties) &
+    (Extract<_parameters, 'authorization'> extends never
+      ? {}
+      : AuthorizationProperties)
 >
 
 export type PrepareUserOperationErrorType =
