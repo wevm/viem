@@ -13,7 +13,7 @@ export const confluxESpace = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'ConfluxScan',
-      url: 'https://evm.confluxscan.io',
+      url: 'https://evm.confluxscan.org',
     },
   },
   contracts: {

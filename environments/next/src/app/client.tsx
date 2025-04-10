@@ -10,7 +10,7 @@ export function Client() {
     ;(async () => {
       const client = createPublicClient({
         chain: mainnet,
-        transport: http('https://eth.drpc.org'),
+        transport: http(),
       })
 
       const webSocketClient = createPublicClient({

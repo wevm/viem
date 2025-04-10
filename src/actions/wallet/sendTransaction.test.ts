@@ -196,7 +196,7 @@ test('sends transaction (w/ serializer)', async () => {
   ).rejects.toThrowError()
 
   expect(serializer).toReturnWith(
-    '0x08f301820297843b9aca008502ae1107ec825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
+    '0x08f2018203a9843b9aca0084650118e6825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
   )
 })
 
@@ -288,37 +288,6 @@ test('no chain', async () => {
 
     Version: viem@x.y.z]
   `)
-})
-
-describe('args: gas', () => {
-  test('sends transaction', async () => {
-    await setup()
-
-    expect(
-      await getBalance(client, { address: targetAccount.address }),
-    ).toMatchInlineSnapshot('10000000000000000000000n')
-    expect(
-      await getBalance(client, { address: sourceAccount.address }),
-    ).toMatchInlineSnapshot('10000000000000000000000n')
-
-    expect(
-      await sendTransaction(client, {
-        account: sourceAccount.address,
-        to: targetAccount.address,
-        value: parseEther('1'),
-        gas: 1_000_000n,
-      }),
-    ).toBeDefined()
-
-    await mine(client, { blocks: 1 })
-
-    expect(
-      await getBalance(client, { address: targetAccount.address }),
-    ).toMatchInlineSnapshot('10001000000000000000000n')
-    expect(
-      await getBalance(client, { address: sourceAccount.address }),
-    ).toBeLessThan(sourceAccount.balance)
-  })
 })
 
 describe('args: gasPrice', () => {
@@ -903,9 +872,11 @@ describe('local account', () => {
   })
 
   test('args: authorizationList', async () => {
-    const eoa = privateKeyToAccount(accounts[9].privateKey)
-    const relay = privateKeyToAccount(accounts[0].privateKey)
+    const eoa = privateKeyToAccount(generatePrivateKey())
+    const relay = privateKeyToAccount(accounts[1].privateKey)
     const recipient = privateKeyToAccount(generatePrivateKey())
+
+    await setBalance(client, { address: eoa.address, value: parseEther('10') })
 
     const balance_eoa = await getBalance(client, {
       address: eoa.address,
@@ -982,6 +953,12 @@ describe('local account', () => {
 
     const client_sepolia = anvilSepolia.getClient({ account: relay })
 
+    await setBalance(client, { address: eoa.address, value: parseEther('10') })
+    await setBalance(client_sepolia, {
+      address: eoa.address,
+      value: parseEther('10'),
+    })
+
     // deploy on mainnet
     const { contractAddress, hash } = await deploy(client, {
       abi: BatchCallDelegation.abi,
@@ -1015,7 +992,7 @@ describe('local account', () => {
             {
               to: recipient.address,
               data: '0x',
-              value: 0n,
+              value: parseEther('1'),
             },
           ],
         ],
@@ -1259,11 +1236,11 @@ describe('local account', () => {
         }),
       ])
 
-      expect((await getTransaction(client, { hash: hash_1 })).nonce).toBe(30)
-      expect((await getTransaction(client, { hash: hash_2 })).nonce).toBe(12)
-      expect((await getTransaction(client, { hash: hash_3 })).nonce).toBe(31)
-      expect((await getTransaction(client, { hash: hash_4 })).nonce).toBe(32)
-      expect((await getTransaction(client, { hash: hash_5 })).nonce).toBe(13)
+      expect((await getTransaction(client, { hash: hash_1 })).nonce).toBe(36)
+      expect((await getTransaction(client, { hash: hash_2 })).nonce).toBe(13)
+      expect((await getTransaction(client, { hash: hash_3 })).nonce).toBe(37)
+      expect((await getTransaction(client, { hash: hash_4 })).nonce).toBe(38)
+      expect((await getTransaction(client, { hash: hash_5 })).nonce).toBe(14)
 
       const hash_6 = await sendTransaction(client, {
         account: alice,
@@ -1276,8 +1253,8 @@ describe('local account', () => {
         value: parseEther('1'),
       })
 
-      expect((await getTransaction(client, { hash: hash_6 })).nonce).toBe(33)
-      expect((await getTransaction(client, { hash: hash_7 })).nonce).toBe(34)
+      expect((await getTransaction(client, { hash: hash_6 })).nonce).toBe(39)
+      expect((await getTransaction(client, { hash: hash_7 })).nonce).toBe(40)
     })
   })
 })

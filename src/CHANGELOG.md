@@ -1,5 +1,108 @@
 # viem
 
+## 2.26.2
+
+### Patch Changes
+
+- [`f736d9b2a6711a739a1fbae8c3c18fb694b407a4`](https://github.com/wevm/viem/commit/f736d9b2a6711a739a1fbae8c3c18fb694b407a4) Thanks [@jxom](https://github.com/jxom)! - Exported `withCache`.
+
+## 2.26.1
+
+### Patch Changes
+
+- [#3545](https://github.com/wevm/viem/pull/3545) [`33a01b96554759bb9fa60d3c4bfc1c2cd5974ddc`](https://github.com/wevm/viem/commit/33a01b96554759bb9fa60d3c4bfc1c2cd5974ddc) Thanks [@bmzig](https://github.com/bmzig)! - **OP Stack:** Fixed `Unproven` case.
+
+## 2.26.0
+
+### Minor Changes
+
+- [#3542](https://github.com/wevm/viem/pull/3542) [`082c3d0fcc2e376954116d380c65c6ac95293681`](https://github.com/wevm/viem/commit/082c3d0fcc2e376954116d380c65c6ac95293681) Thanks [@jxom](https://github.com/jxom)! - **Breaking (Experimental):** Updated EIP-5792 to the latest spec changes. The following APIs have been updated:
+
+  #### `getCallsStatus`
+
+  ```diff
+  const result = await client.getCallsStatus({ id })
+  //    ^?
+        {
+  +       atomic: boolean
+  +       chainId: number
+  +       id: string
+          receipts: Receipt[]
+  -       status: 'PENDING' | 'CONFIRMED'
+  +       status: 'pending' | 'success' | 'failure' | undefined
+  +       statusCode: number
+  +       version: string
+  }
+  ```
+
+  #### `sendCalls`
+
+  ```diff
+  const result = await client.sendCalls({ calls })
+  //    ^?
+  -     string
+  +     { id: string, capabilities?: Capabilities }
+  ```
+
+  #### `waitForCallsStatus`
+
+  ```diff
+  const result = await client.waitForCallsStatus({ id })
+  //    ^?
+        {
+  +       atomic: boolean
+  +       chainId: number
+  +       id: string
+          receipts: Receipt[]
+  -       status: 'PENDING' | 'CONFIRMED'
+  +       status: 'pending' | 'success' | 'failure' | undefined
+  +       statusCode: number
+  +       version: string
+  }
+  ```
+
+### Patch Changes
+
+- [#3542](https://github.com/wevm/viem/pull/3542) [`082c3d0fcc2e376954116d380c65c6ac95293681`](https://github.com/wevm/viem/commit/082c3d0fcc2e376954116d380c65c6ac95293681) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added `forceAtomic` and `id` parameters to `sendCalls`
+
+## 2.25.0
+
+### Minor Changes
+
+- [#3540](https://github.com/wevm/viem/pull/3540) [`48cffbc3175f02c0f3835230b8945802e34a1220`](https://github.com/wevm/viem/commit/48cffbc3175f02c0f3835230b8945802e34a1220) Thanks [@jxom](https://github.com/jxom)! - Added `ensTlds` chain config option.
+
+### Patch Changes
+
+- [`58db8b90d72983814664b12bd27bcd2bdf0f15f3`](https://github.com/wevm/viem/commit/58db8b90d72983814664b12bd27bcd2bdf0f15f3) Thanks [@jxom](https://github.com/jxom)! - **OP Stack:** Fixed unhandled `waiting-to-prove` case.
+
+- [#3537](https://github.com/wevm/viem/pull/3537) [`e367fdb4b0e866bd31e8240032632b6512c9a422`](https://github.com/wevm/viem/commit/e367fdb4b0e866bd31e8240032632b6512c9a422) Thanks [@alainncls](https://github.com/alainncls)! - Added ENS contracts to Linea Sepolia and Mainnet.
+
+## 2.24.3
+
+### Patch Changes
+
+- [#3508](https://github.com/wevm/viem/pull/3508) [`cd5fb433a1f90bce39ae5846cb58770066c4ed10`](https://github.com/wevm/viem/commit/cd5fb433a1f90bce39ae5846cb58770066c4ed10) Thanks [@noface-infinex](https://github.com/noface-infinex)! - Added megaeth testnet multicall3 address.
+
+- [#3522](https://github.com/wevm/viem/pull/3522) [`bc2fbdeac97c2958f9b0d21c01167e23604fbfdf`](https://github.com/wevm/viem/commit/bc2fbdeac97c2958f9b0d21c01167e23604fbfdf) Thanks [@petermetz](https://github.com/petermetz)! - Ensured that the `keepAlive` and `reconnect` parameters are passed through to
+  the underlying implementation (`getWebSocketRpcClient()`) when the top level
+  `webSocket()` transport factory function is called with them specified.
+
+- [#3510](https://github.com/wevm/viem/pull/3510) [`d8f2ab6236346c02da511c7b310cdcc660773576`](https://github.com/wevm/viem/commit/d8f2ab6236346c02da511c7b310cdcc660773576) Thanks [@jeanregisser](https://github.com/jeanregisser)! - **Celo:** Removed check for L2 in fee estimation following the successful hardfork.
+
+- [#3514](https://github.com/wevm/viem/pull/3514) [`3ca83a8cd985eb2bee462e74eb09d0a759b3b0d9`](https://github.com/wevm/viem/commit/3ca83a8cd985eb2bee462e74eb09d0a759b3b0d9) Thanks [@darwintree](https://github.com/darwintree)! - Updated ConfluxScan links
+
+- [#3523](https://github.com/wevm/viem/pull/3523) [`3af11a52f25578fc72248879c3090d38c94fdf8b`](https://github.com/wevm/viem/commit/3af11a52f25578fc72248879c3090d38c94fdf8b) Thanks [@biruichen](https://github.com/biruichen)! - Added Swellchain Testnet.
+
+- [#3529](https://github.com/wevm/viem/pull/3529) [`77a0938552cbcce6ff8aac4ff4ae57c3fa3a45df`](https://github.com/wevm/viem/commit/77a0938552cbcce6ff8aac4ff4ae57c3fa3a45df) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Added Westend Asset Hub network
+
+- [#3530](https://github.com/wevm/viem/pull/3530) [`cf58f89206df56aba82a52302a43846ea58fdfae`](https://github.com/wevm/viem/commit/cf58f89206df56aba82a52302a43846ea58fdfae) Thanks [@jxom](https://github.com/jxom)! - Optimized OP Stack gas & fee estimation, and resolved #3513.
+
+## 2.24.2
+
+### Patch Changes
+
+- [#3517](https://github.com/wevm/viem/pull/3517) [`3032dca3e57f5f7c5647ddc9fdbdbc6c7ec8f694`](https://github.com/wevm/viem/commit/3032dca3e57f5f7c5647ddc9fdbdbc6c7ec8f694) Thanks [@jxom](https://github.com/jxom)! - Added missing deprecated `viem/experimental` exports.
+
 ## 2.24.1
 
 ### Patch Changes

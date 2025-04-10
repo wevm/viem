@@ -1,5 +1,6 @@
 import { createServer } from 'prool'
 import { type AnvilParameters, anvil } from 'prool/instances'
+
 import { mainnet, optimism, sepolia, zksync } from '../../src/chains/index.js'
 import { ipc } from '../../src/clients/transports/ipc.js'
 import {
@@ -233,6 +234,7 @@ function defineAnvil<const chain extends Chain>(
     async start() {
       return await createServer({
         instance: anvil({
+          chainId: chain.id,
           forkUrl,
           forkBlockNumber,
           hardfork: 'Prague',

@@ -1137,6 +1137,7 @@ describe('entryPointVersion: 0.7', async () => {
       account: account_,
       callGasLimit,
       maxFeePerGas,
+      nonce,
       verificationGasLimit,
       ...request
     } = await prepareUserOperation(bundlerClient, {
@@ -1155,21 +1156,21 @@ describe('entryPointVersion: 0.7', async () => {
       ...fees,
     })
 
-    expect(callGasLimit).toBeGreaterThanOrEqual(80000n)
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
     expect(maxFeePerGas).toBeGreaterThanOrEqual(0n)
-    expect(verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(190000n)
 
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 30902162761021348478818713600000n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
-        "preVerificationGas": 53438n,
-        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "preVerificationGas": 53477n,
+        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -1180,6 +1181,7 @@ describe('entryPointVersion: 0.7', async () => {
       account: account_,
       callGasLimit,
       maxFeePerGas,
+      nonce,
       verificationGasLimit,
       ...request
     } = await prepareUserOperation(bundlerClient, {
@@ -1189,20 +1191,20 @@ describe('entryPointVersion: 0.7', async () => {
       ...fees,
     })
 
-    expect(callGasLimit).toBeGreaterThanOrEqual(80000n)
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(10000n)
     expect(maxFeePerGas).toBeGreaterThanOrEqual(0n)
-    expect(verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(190000n)
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
-        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 30902162761039795222892423151616n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
-        "preVerificationGas": 51642n,
-        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "preVerificationGas": 51682n,
+        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -1222,9 +1224,9 @@ describe('entryPointVersion: 0.7', async () => {
       ...fees,
     })
 
-    expect(callGasLimit).toBeGreaterThanOrEqual(80000n)
+    expect(callGasLimit).toBeGreaterThanOrEqual(10000n)
     expect(maxFeePerGas).toBeGreaterThanOrEqual(0n)
-    expect(verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(190000n)
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
@@ -1232,8 +1234,8 @@ describe('entryPointVersion: 0.7', async () => {
         "nonce": 30902162761058241966966132703232n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
-        "preVerificationGas": 51642n,
-        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "preVerificationGas": 51682n,
+        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
       }
     `)
   })
@@ -1252,19 +1254,19 @@ describe('entryPointVersion: 0.7', async () => {
       ...fees,
     })
 
-    expect(callGasLimit).toBeGreaterThanOrEqual(80000n)
+    expect(callGasLimit).toBeGreaterThanOrEqual(10000n)
     expect(maxFeePerGas).toBeGreaterThanOrEqual(0n)
-    expect(verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(190000n)
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
-        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxPriorityFeePerGas": 2000000000n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
-        "preVerificationGas": 51642n,
-        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "preVerificationGas": 51682n,
+        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
       }
     `)
   })
@@ -1274,6 +1276,7 @@ describe('entryPointVersion: 0.7', async () => {
       account: _,
       callGasLimit,
       maxFeePerGas,
+      nonce,
       verificationGasLimit,
       ...request
     } = await prepareUserOperation(bundlerClient, {
@@ -1283,20 +1286,19 @@ describe('entryPointVersion: 0.7', async () => {
       ...fees,
     })
 
-    expect(callGasLimit).toBeGreaterThanOrEqual(80000n)
+    expect(callGasLimit).toBeGreaterThanOrEqual(10000n)
     expect(maxFeePerGas).toBeGreaterThanOrEqual(0n)
-    expect(verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(190000n)
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
-        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 0n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
-        "preVerificationGas": 51642n,
-        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "preVerificationGas": 51682n,
+        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -1308,6 +1310,7 @@ describe('entryPointVersion: 0.7', async () => {
         account: _,
         callGasLimit,
         maxFeePerGas,
+        nonce,
         verificationGasLimit,
         ...request
       } = await prepareUserOperation(bundlerClient, {
@@ -1317,20 +1320,20 @@ describe('entryPointVersion: 0.7', async () => {
         maxPriorityFeePerGas: 1n,
       })
 
-      expect(callGasLimit).toBeGreaterThanOrEqual(80000n)
+      expect(nonce).toBeDefined()
+      expect(callGasLimit).toBeGreaterThanOrEqual(10000n)
       expect(maxFeePerGas).toBeGreaterThanOrEqual(0n)
-      expect(verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+      expect(verificationGasLimit).toBeGreaterThanOrEqual(190000n)
       expect(request).toMatchInlineSnapshot(`
         {
           "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
-          "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+          "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
           "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
           "maxPriorityFeePerGas": 1n,
-          "nonce": 30902162761095135455113551806464n,
           "paymasterPostOpGasLimit": 0n,
           "paymasterVerificationGasLimit": 0n,
-          "preVerificationGas": 51642n,
-          "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+          "preVerificationGas": 51682n,
+          "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
           "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
         }
       `)
@@ -1341,6 +1344,7 @@ describe('entryPointVersion: 0.7', async () => {
         account: _,
         callGasLimit,
         maxFeePerGas,
+        nonce,
         verificationGasLimit,
         ...request
       } = await prepareUserOperation(bundlerClient, {
@@ -1349,20 +1353,20 @@ describe('entryPointVersion: 0.7', async () => {
         maxFeePerGas: 2n,
       })
 
-      expect(callGasLimit).toBeGreaterThanOrEqual(80000n)
+      expect(nonce).toBeDefined()
+      expect(callGasLimit).toBeGreaterThanOrEqual(10000n)
       expect(maxFeePerGas).toBeGreaterThanOrEqual(0n)
-      expect(verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+      expect(verificationGasLimit).toBeGreaterThanOrEqual(190000n)
       expect(request).toMatchInlineSnapshot(`
         {
           "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
-          "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+          "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
           "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
           "maxPriorityFeePerGas": 2000000000n,
-          "nonce": 30902162761113582199187261358080n,
           "paymasterPostOpGasLimit": 0n,
           "paymasterVerificationGasLimit": 0n,
-          "preVerificationGas": 51642n,
-          "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+          "preVerificationGas": 51682n,
+          "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
           "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
         }
       `)
@@ -1373,6 +1377,7 @@ describe('entryPointVersion: 0.7', async () => {
         account: _,
         callGasLimit,
         maxFeePerGas,
+        nonce,
         verificationGasLimit,
         ...request
       } = await prepareUserOperation(bundlerClient, {
@@ -1381,20 +1386,20 @@ describe('entryPointVersion: 0.7', async () => {
         maxPriorityFeePerGas: 2n,
       })
 
-      expect(callGasLimit).toBeGreaterThanOrEqual(80000n)
+      expect(nonce).toBeDefined()
+      expect(callGasLimit).toBeGreaterThanOrEqual(10000n)
       expect(maxFeePerGas).toBeGreaterThanOrEqual(0n)
-      expect(verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+      expect(verificationGasLimit).toBeGreaterThanOrEqual(190000n)
       expect(request).toMatchInlineSnapshot(`
         {
           "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
-          "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+          "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
           "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
           "maxPriorityFeePerGas": 2n,
-          "nonce": 30902162761132028943260970909696n,
           "paymasterPostOpGasLimit": 0n,
           "paymasterVerificationGasLimit": 0n,
-          "preVerificationGas": 51642n,
-          "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+          "preVerificationGas": 51682n,
+          "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
           "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
         }
       `)
@@ -1458,6 +1463,7 @@ describe('entryPointVersion: 0.7', async () => {
     const {
       account: _,
       callGasLimit,
+      nonce,
       paymasterData,
       verificationGasLimit,
       ...request
@@ -1478,22 +1484,22 @@ describe('entryPointVersion: 0.7', async () => {
       ...fees,
     })
 
-    expect(callGasLimit).toBeGreaterThanOrEqual(141000n)
-    expect(verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(190000n)
     expect(paymasterData?.length).toBe(260)
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 30902162761187369175482099564544n,
-        "paymaster": "0xf42ec71a4440f5e9871c643696dd6dc9a38911f8",
+        "paymaster": "0x2c56932223cde0d363266f1308c48ff1bf9f9041",
         "paymasterPostOpGasLimit": 1000000n,
         "paymasterVerificationGasLimit": 1000000n,
-        "preVerificationGas": 59826n,
-        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "preVerificationGas": 59866n,
+        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -1549,6 +1555,7 @@ describe('entryPointVersion: 0.7', async () => {
     const {
       account: _,
       callGasLimit,
+      nonce,
       paymasterData,
       verificationGasLimit,
       ...request
@@ -1573,22 +1580,22 @@ describe('entryPointVersion: 0.7', async () => {
       ...fees,
     })
 
-    expect(callGasLimit).toBeGreaterThanOrEqual(141000n)
-    expect(verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(190000n)
     expect(paymasterData?.length).toBe(260)
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 30902162761224262663629518667776n,
-        "paymaster": "0xd73bab8f06db28c87932571f87d0d2c0fdf13d94",
+        "paymaster": "0xda796117bf6905dd8db2ff1ab4397f6d2c4adda3",
         "paymasterPostOpGasLimit": 1000000n,
         "paymasterVerificationGasLimit": 1000000n,
-        "preVerificationGas": 59826n,
-        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "preVerificationGas": 59866n,
+        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -1609,6 +1616,7 @@ describe('entryPointVersion: 0.7', async () => {
     const {
       account: _,
       callGasLimit,
+      nonce,
       paymasterData,
       preVerificationGas,
       verificationGasLimit,
@@ -1637,22 +1645,22 @@ describe('entryPointVersion: 0.7', async () => {
       ...fees,
     })
 
-    expect(callGasLimit).toBeGreaterThanOrEqual(141000n)
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
     expect(preVerificationGas).toBeGreaterThanOrEqual(50000n)
-    expect(verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(190000n)
     expect(paymasterData?.length).toBe(260)
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 30902162761242709407703228219392n,
-        "paymaster": "0x28227b230d3945e580ed3b1c6c8ea1df658a7aa9",
+        "paymaster": "0x222d74f33b0d07687a769a44399e2272a4cb9ffe",
         "paymasterPostOpGasLimit": 1000000n,
         "paymasterVerificationGasLimit": 1000000n,
-        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -1673,6 +1681,7 @@ describe('entryPointVersion: 0.7', async () => {
     const {
       account: _,
       callGasLimit,
+      nonce,
       paymasterData,
       preVerificationGas,
       verificationGasLimit,
@@ -1695,22 +1704,22 @@ describe('entryPointVersion: 0.7', async () => {
       ...fees,
     })
 
-    expect(callGasLimit).toBeGreaterThanOrEqual(141000n)
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
     expect(paymasterData?.length).toBe(260)
     expect(preVerificationGas).toBeGreaterThanOrEqual(50000n)
-    expect(verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(190000n)
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 30902162761261156151776937771008n,
-        "paymaster": "0x82a9286db983093ff234cefcea1d8fa66382876b",
+        "paymaster": "0x88777418972fb3f58489303d763d4daf398a6527",
         "paymasterPostOpGasLimit": 1000000n,
         "paymasterVerificationGasLimit": 1000000n,
-        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -1720,6 +1729,7 @@ describe('entryPointVersion: 0.7', async () => {
     const {
       callGasLimit,
       maxFeePerGas,
+      nonce,
       preVerificationGas,
       verificationGasLimit,
       ...request
@@ -1741,21 +1751,21 @@ describe('entryPointVersion: 0.7', async () => {
     })
 
     expect(account).toBeDefined()
-    expect(callGasLimit).toBeGreaterThanOrEqual(141000n)
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
     expect(maxFeePerGas).toBeGreaterThanOrEqual(0n)
+    expect(nonce).toBeDefined()
     expect(preVerificationGas).toBeGreaterThanOrEqual(50000n)
-    expect(verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(190000n)
     expect({ ...request, account: undefined }).toMatchInlineSnapshot(`
       {
         "account": undefined,
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 30902162761279602895850647322624n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
-        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
         "signature": "0xdeadbeef",
       }
     `)
@@ -1765,6 +1775,7 @@ describe('entryPointVersion: 0.7', async () => {
     const {
       account: _,
       callGasLimit,
+      nonce,
       preVerificationGas,
       verificationGasLimit,
       ...request
@@ -1791,20 +1802,20 @@ describe('entryPointVersion: 0.7', async () => {
       ...fees,
     })
 
-    expect(callGasLimit).toBeGreaterThanOrEqual(141000n)
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
+    expect(nonce).toBeDefined()
     expect(preVerificationGas).toBeGreaterThanOrEqual(50000n)
     expect(verificationGasLimit).toBeGreaterThanOrEqual(1000000n)
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 30902162761298049639924356874240n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
-        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -1814,6 +1825,7 @@ describe('entryPointVersion: 0.7', async () => {
     const {
       account: _,
       callGasLimit,
+      nonce,
       preVerificationGas,
       verificationGasLimit,
       ...request
@@ -1844,18 +1856,18 @@ describe('entryPointVersion: 0.7', async () => {
       ...fees,
     })
 
+    expect(nonce).toBeDefined()
     expect(callGasLimit).toBeGreaterThanOrEqual(1000000n)
     expect(preVerificationGas).toBeGreaterThanOrEqual(1000000n)
     expect(verificationGasLimit).toBeGreaterThanOrEqual(1000000n)
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 30902162761316496383998066425856n,
-        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -1906,6 +1918,7 @@ describe('entryPointVersion: 0.7', async () => {
     const {
       account: _,
       callGasLimit,
+      nonce,
       preVerificationGas,
       verificationGasLimit,
       ...request
@@ -1924,20 +1937,20 @@ describe('entryPointVersion: 0.7', async () => {
       ],
     })
 
-    expect(callGasLimit).toBeGreaterThanOrEqual(141000n)
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
     expect(preVerificationGas).toBeGreaterThanOrEqual(50000n)
-    expect(verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(190000n)
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 3000000n,
         "maxPriorityFeePerGas": 1000000n,
-        "nonce": 30902162761353389872145485529088n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
-        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -1984,6 +1997,7 @@ describe('entryPointVersion: 0.7', async () => {
     const {
       account: _,
       callGasLimit,
+      nonce,
       paymasterData,
       preVerificationGas,
       verificationGasLimit,
@@ -2004,22 +2018,22 @@ describe('entryPointVersion: 0.7', async () => {
       ...fees,
     })
 
-    expect(callGasLimit).toBeGreaterThanOrEqual(141000n)
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
     expect(paymasterData?.length).toBe(260)
     expect(preVerificationGas).toBeGreaterThanOrEqual(50000n)
-    expect(verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(190000n)
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 30902162761390283360292904632320n,
-        "paymaster": "0x41219a0a9c0b86ed81933c788a6b63dfef8f17ee",
+        "paymaster": "0x4728af32823cf144586dab95632156cc81bb0203",
         "paymasterPostOpGasLimit": 1000000n,
         "paymasterVerificationGasLimit": 1000000n,
-        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -2045,6 +2059,7 @@ describe('entryPointVersion: 0.7', async () => {
     const {
       account: _,
       callGasLimit,
+      nonce,
       paymasterData,
       preVerificationGas,
       verificationGasLimit,
@@ -2065,22 +2080,22 @@ describe('entryPointVersion: 0.7', async () => {
       ...fees,
     })
 
-    expect(callGasLimit).toBeGreaterThanOrEqual(141000n)
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
     expect(paymasterData?.length).toBe(260)
     expect(preVerificationGas).toBeGreaterThanOrEqual(50000n)
-    expect(verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(190000n)
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 30902162761408730104366614183936n,
-        "paymaster": "0x1d460d731bd5a0ff2ca07309daeb8641a7b175a1",
+        "paymaster": "0x37d0ed258f37a966f33b75b5ae7486917a0ae614",
         "paymasterPostOpGasLimit": 1000000n,
         "paymasterVerificationGasLimit": 1000000n,
-        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -2109,6 +2124,7 @@ describe('entryPointVersion: 0.7', async () => {
     const {
       account: _,
       callGasLimit,
+      nonce,
       paymasterData,
       preVerificationGas,
       verificationGasLimit,
@@ -2129,22 +2145,22 @@ describe('entryPointVersion: 0.7', async () => {
       ...fees,
     })
 
-    expect(callGasLimit).toBeGreaterThanOrEqual(141000n)
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
     expect(paymasterData?.length).toBe(260)
     expect(preVerificationGas).toBeGreaterThanOrEqual(50000n)
-    expect(verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(190000n)
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 30902162761427176848440323735552n,
-        "paymaster": "0xf67e26649037695ddfab19f4e22d5c9fd1564592",
+        "paymaster": "0x294c69bd8415219b41b68a2f065deabb950dd489",
         "paymasterPostOpGasLimit": 1000000n,
         "paymasterVerificationGasLimit": 1000000n,
-        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -2167,6 +2183,7 @@ describe('entryPointVersion: 0.7', async () => {
     const {
       account: _,
       callGasLimit,
+      nonce,
       paymasterData,
       preVerificationGas,
       verificationGasLimit,
@@ -2187,22 +2204,22 @@ describe('entryPointVersion: 0.7', async () => {
       ...fees,
     })
 
-    expect(callGasLimit).toBeGreaterThanOrEqual(141000n)
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
     expect(paymasterData?.length).toBe(260)
     expect(preVerificationGas).toBeGreaterThanOrEqual(50000n)
-    expect(verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(190000n)
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 30902162761445623592514033287168n,
-        "paymaster": "0xea8ae08513f8230caa8d031d28cb4ac8ce720c68",
+        "paymaster": "0x48288d0e3079a03f6ec1846554cfc58c2696aaee",
         "paymasterPostOpGasLimit": 1000000n,
         "paymasterVerificationGasLimit": 1000000n,
-        "sender": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -2232,6 +2249,7 @@ describe('entryPointVersion: 0.6', async () => {
       account: _,
       callGasLimit,
       maxFeePerGas,
+      nonce,
       preVerificationGas,
       verificationGasLimit,
       ...request
@@ -2240,20 +2258,20 @@ describe('entryPointVersion: 0.6', async () => {
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       ...fees,
     })
-    expect(callGasLimit).toBeGreaterThanOrEqual(80000n)
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
     expect(maxFeePerGas).toBeGreaterThanOrEqual(15000000000n)
     expect(preVerificationGas).toBeGreaterThanOrEqual(55000n)
     expect(verificationGasLimit).toBeGreaterThanOrEqual(113000n)
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
-        "initCode": "0xabebe9a2d62af9a89e86eb208b51321e748640c3f14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
+        "initCode": "0xc565eb7363769f8ffae0005285ccd854c631a0a0f14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 30902162761021348478818713600000n,
         "paymasterAndData": "0x",
         "paymasterPostOpGasLimit": undefined,
         "paymasterVerificationGasLimit": undefined,
-        "sender": "0x6edf7db791fC4D438D4A683E857B2fE1a84947Ce",
+        "sender": "0x5d146EE4f31D852361f18B9CFCc510f773d6BC78",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -2272,6 +2290,7 @@ describe('entryPointVersion: 0.6', async () => {
       account: _,
       callGasLimit,
       maxFeePerGas,
+      nonce,
       preVerificationGas,
       verificationGasLimit,
       ...request
@@ -2281,20 +2300,20 @@ describe('entryPointVersion: 0.6', async () => {
       parameters: ['gas', 'nonce'],
       ...fees,
     })
-    expect(callGasLimit).toBeGreaterThanOrEqual(80000n)
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
     expect(maxFeePerGas).toBeGreaterThanOrEqual(15000000000n)
     expect(preVerificationGas).toBeGreaterThanOrEqual(54000n)
-    expect(verificationGasLimit).toBeGreaterThanOrEqual(113000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(110000n)
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
         "initCode": "0x",
         "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 30902162761039795222892423151616n,
         "paymasterAndData": "0x",
         "paymasterPostOpGasLimit": undefined,
         "paymasterVerificationGasLimit": undefined,
-        "sender": "0x6edf7db791fC4D438D4A683E857B2fE1a84947Ce",
+        "sender": "0x5d146EE4f31D852361f18B9CFCc510f773d6BC78",
       }
     `)
   })

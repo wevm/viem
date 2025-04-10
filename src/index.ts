@@ -1098,6 +1098,7 @@ export type {
   WalletGrantPermissionsParameters,
   WalletGrantPermissionsReturnType,
   WalletSendCallsParameters,
+  WalletSendCallsReturnType,
   WalletPermissionCaveat,
   WalletPermission,
   WalletRpcSchema,
@@ -1591,6 +1592,7 @@ export {
   type EncodePackedErrorType,
   encodePacked,
 } from './utils/abi/encodePacked.js'
+export { withCache } from './utils/promise/withCache.js'
 export {
   type WithRetryErrorType,
   withRetry,

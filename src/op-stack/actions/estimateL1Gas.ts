@@ -4,11 +4,6 @@ import {
   type ReadContractErrorType,
   readContract,
 } from '../../actions/public/readContract.js'
-import {
-  type PrepareTransactionRequestErrorType,
-  type PrepareTransactionRequestParameters,
-  prepareTransactionRequest,
-} from '../../actions/wallet/prepareTransactionRequest.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
@@ -22,14 +17,10 @@ import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { getChainContractAddress } from '../../utils/chain/getChainContractAddress.js'
 import type { HexToNumberErrorType } from '../../utils/encoding/fromHex.js'
 import {
-  type AssertRequestErrorType,
-  type AssertRequestParameters,
-  assertRequest,
-} from '../../utils/transaction/assertRequest.js'
-import {
   type SerializeTransactionErrorType,
   serializeTransaction,
 } from '../../utils/transaction/serializeTransaction.js'
+import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { gasPriceOracleAbi } from '../abis.js'
 import { contracts } from '../contracts.js'
 
@@ -48,8 +39,6 @@ export type EstimateL1GasReturnType = bigint
 
 export type EstimateL1GasErrorType =
   | RequestErrorType
-  | PrepareTransactionRequestErrorType
-  | AssertRequestErrorType
   | SerializeTransactionErrorType
   | HexToNumberErrorType
   | ReadContractErrorType
@@ -100,17 +89,18 @@ export async function estimateL1Gas<
     return contracts.gasPriceOracle.address
   })()
 
-  // Populate transaction with required fields to accurately estimate gas.
-  const request = await prepareTransactionRequest(
-    client,
-    args as PrepareTransactionRequestParameters,
-  )
-
-  assertRequest(request as AssertRequestParameters)
-
   const transaction = serializeTransaction({
-    ...request,
+    ...args,
+    chainId: chain?.id ?? 1,
     type: 'eip1559',
+
+    // Set upper-limit-ish stub values. Shouldn't affect the estimate too much as we are
+    // tweaking dust bytes here (as opposed to long `data` bytes).
+    // See: https://github.com/ethereum-optimism/optimism/blob/54d02df55523c9e1b4b38ed082c12a42087323a0/packages/contracts-bedrock/src/L2/GasPriceOracle.sol#L242-L248.
+    gas: args.data ? 300_000n : 21_000n,
+    maxFeePerGas: parseGwei('5'),
+    maxPriorityFeePerGas: parseGwei('1'),
+    nonce: 1,
   } as TransactionSerializable)
 
   return readContract(client, {

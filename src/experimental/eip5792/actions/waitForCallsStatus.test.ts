@@ -6,7 +6,10 @@ import { mainnet } from '../../../chains/index.js'
 import { createClient } from '../../../clients/createClient.js'
 import { custom } from '../../../clients/transports/custom.js'
 import { RpcRequestError } from '../../../errors/request.js'
-import type { WalletCallReceipt } from '../../../types/eip1193.js'
+import type {
+  WalletCallReceipt,
+  WalletGetCallsStatusReturnType,
+} from '../../../types/eip1193.js'
 import type { Hex } from '../../../types/misc.js'
 import { getHttpRpcClient, parseEther } from '../../../utils/index.js'
 import { uid } from '../../../utils/uid.js'
@@ -32,7 +35,16 @@ const getClient = ({
 
         if (method === 'wallet_getCallsStatus') {
           const hashes = calls.get(params[0])
-          if (!hashes) return { status: 'PENDING', receipts: [] }
+          if (!hashes)
+            return {
+              atomic: false,
+              chainId: '0x1',
+              id: params[0],
+              receipts: [],
+              status: 100,
+              version: '1.0',
+            } satisfies WalletGetCallsStatusReturnType
+
           const receipts = await Promise.all(
             hashes.map(async (hash) => {
               const { result, error } = await rpcClient.request({
@@ -58,7 +70,14 @@ const getClient = ({
               } satisfies WalletCallReceipt
             }),
           )
-          return { status: 'CONFIRMED', receipts }
+          return {
+            atomic: false,
+            chainId: '0x1',
+            id: params[0],
+            receipts,
+            status: 200,
+            version: '1.0',
+          } satisfies WalletGetCallsStatusReturnType
         }
 
         if (method === 'wallet_sendCalls') {
@@ -100,7 +119,7 @@ test('default', async () => {
     },
   })
 
-  const id = await sendCalls(client, {
+  const { id } = await sendCalls(client, {
     account: accounts[0].address,
     calls: [
       {
@@ -123,15 +142,30 @@ test('default', async () => {
 
   await mine(testClient, { blocks: 1 })
 
-  const { status, receipts } = await waitForCallsStatus(client, { id })
-  expect(status).toMatchInlineSnapshot(`"CONFIRMED"`)
+  const {
+    id: id_,
+    receipts,
+    ...rest
+  } = await waitForCallsStatus(client, {
+    id,
+  })
+  expect(id_).toBeDefined()
+  expect(rest).toMatchInlineSnapshot(`
+    {
+      "atomic": false,
+      "chainId": 1,
+      "status": "success",
+      "statusCode": 200,
+      "version": "1.0",
+    }
+  `)
   expect(receipts!.length).toBe(3)
 })
 
 test('behavior: timeout exceeded', async () => {
   const client = getClient()
 
-  const id = await sendCalls(client, {
+  const { id } = await sendCalls(client, {
     account: accounts[0].address,
     calls: [
       {
@@ -175,7 +209,7 @@ test('behavior: `wallet_getCallsStatus` failure', async () => {
     },
   })
 
-  const id = await sendCalls(client, {
+  const { id } = await sendCalls(client, {
     account: accounts[0].address,
     calls: [
       {

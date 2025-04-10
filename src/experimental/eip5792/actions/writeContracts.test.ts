@@ -113,7 +113,7 @@ test('default', async () => {
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
 
-  const id_ = await writeContracts(client, {
+  const { id: id_ } = await writeContracts(client, {
     account: accounts[0].address,
     chain: mainnet,
     contracts: [
@@ -137,6 +137,7 @@ test('default', async () => {
     [
       [
         {
+          "atomicRequired": false,
           "calls": [
             {
               "data": "0x1249c58b",
@@ -157,6 +158,7 @@ test('default', async () => {
           "capabilities": undefined,
           "chainId": "0x1",
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "id": undefined,
           "version": "1.0",
         },
       ],
@@ -198,12 +200,12 @@ test('default', async () => {
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
               "0x0000000000000000000000000000000000000000000000000000000000000221",
             ],
-            "transactionHash": "0x3dc2dcb12d9bb74c37b563bfea0e78521804502c5e6505f5e114ddad3292208f",
+            "transactionHash": "0x2883882416bce269c19c50520cef0489e9558db5d6bc8be4dabda9ac46d39756",
             "transactionIndex": "0x0",
           },
         ],
         "status": "success",
-        "transactionHash": "0x3dc2dcb12d9bb74c37b563bfea0e78521804502c5e6505f5e114ddad3292208f",
+        "transactionHash": "0x2883882416bce269c19c50520cef0489e9558db5d6bc8be4dabda9ac46d39756",
       },
       {
         "blockHash": undefined,
@@ -224,12 +226,12 @@ test('default', async () => {
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
               "0x0000000000000000000000000000000000000000000000000000000000000222",
             ],
-            "transactionHash": "0x6178e4e58efa34b308d5bc038be614ded98221d49af01fd9efda0bc4432acee2",
+            "transactionHash": "0x06e6e4ff8c9f6c9bf1ce08dbf545bcdcfa4412b4f0572507d6cd2c070e084950",
             "transactionIndex": "0x1",
           },
         ],
         "status": "success",
-        "transactionHash": "0x6178e4e58efa34b308d5bc038be614ded98221d49af01fd9efda0bc4432acee2",
+        "transactionHash": "0x06e6e4ff8c9f6c9bf1ce08dbf545bcdcfa4412b4f0572507d6cd2c070e084950",
       },
       {
         "blockHash": undefined,
@@ -250,12 +252,12 @@ test('default', async () => {
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
               "0x0000000000000000000000000000000000000000000000000000000000000223",
             ],
-            "transactionHash": "0xa6661c5bb2bed7ec8dd4dc07f5d7ed3e95817bdefdb9cfd11ef316fda70cbf0f",
+            "transactionHash": "0x99e3b89bb761e99c81345b002b6d30815d6c708b8230936373f5e64f8e35aeb9",
             "transactionIndex": "0x2",
           },
         ],
         "status": "success",
-        "transactionHash": "0xa6661c5bb2bed7ec8dd4dc07f5d7ed3e95817bdefdb9cfd11ef316fda70cbf0f",
+        "transactionHash": "0x99e3b89bb761e99c81345b002b6d30815d6c708b8230936373f5e64f8e35aeb9",
       },
     ]
   `)

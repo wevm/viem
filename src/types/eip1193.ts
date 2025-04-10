@@ -186,9 +186,19 @@ export type WalletGrantPermissionsReturnType = {
     | undefined
 }
 
-export type WalletGetCallsStatusReturnType<quantity = Hex, status = Hex> = {
-  status: 'PENDING' | 'CONFIRMED'
-  receipts?: WalletCallReceipt<quantity, status>[] | undefined
+export type WalletGetCallsStatusReturnType<
+  capabilities extends WalletCapabilities = WalletCapabilities,
+  numberType = Hex,
+  bigintType = Hex,
+  receiptStatus = Hex,
+> = {
+  atomic: boolean
+  capabilities?: capabilities | WalletCapabilities | undefined
+  chainId: numberType
+  id: string
+  receipts?: WalletCallReceipt<bigintType, receiptStatus>[] | undefined
+  status: number
+  version: string
 }
 
 export type WalletPermissionCaveat = {
@@ -210,17 +220,27 @@ export type WalletSendCallsParameters<
   quantity extends Quantity | bigint = Quantity,
 > = [
   {
+    atomicRequired: boolean
     calls: readonly {
+      capabilities?: capabilities | WalletCapabilities | undefined
       to?: Address | undefined
       data?: Hex | undefined
       value?: quantity | undefined
     }[]
-    capabilities?: capabilities | undefined
+    capabilities?: capabilities | WalletCapabilities | undefined
     chainId?: chainId | undefined
+    id?: string | undefined
     from?: Address | undefined
     version: string
   },
 ]
+
+export type WalletSendCallsReturnType<
+  capabilities extends WalletCapabilities = WalletCapabilities,
+> = {
+  capabilities?: capabilities | undefined
+  id: string
+}
 
 export type WatchAssetParams = {
   /** Token type. */
@@ -1775,7 +1795,7 @@ export type WalletRpcSchema = [
    */
   {
     Method: 'wallet_getCapabilities'
-    Parameters?: [Address]
+    Parameters?: [Address | undefined] | undefined
     ReturnType: Prettify<WalletCapabilitiesRecord>
   },
   /**
@@ -1836,7 +1856,7 @@ export type WalletRpcSchema = [
   {
     Method: 'wallet_sendCalls'
     Parameters?: WalletSendCallsParameters
-    ReturnType: string
+    ReturnType: WalletSendCallsReturnType
   },
   /**
    * @description Creates, signs, and sends a new transaction to the network

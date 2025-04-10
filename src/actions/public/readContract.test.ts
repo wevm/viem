@@ -92,7 +92,7 @@ describe('wagmi', () => {
         blockNumber: anvilMainnet.forkBlockNumber,
         functionName: 'totalSupply',
       }),
-    ).toEqual(648n)
+    ).toEqual(877n)
   })
 
   test('overloaded function', async () => {
