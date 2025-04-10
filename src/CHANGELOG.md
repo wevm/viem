@@ -1,5 +1,11 @@
 # viem
 
+## 2.26.3
+
+### Patch Changes
+
+- [`973d88ea66192c8a73410ca2dea2034e6a2c96a1`](https://github.com/wevm/viem/commit/973d88ea66192c8a73410ca2dea2034e6a2c96a1) Thanks [@jxom](https://github.com/jxom)! - **Experimental (EIP-5792):** Fixed `getCallsStatus` return value
+
 ## 2.26.2
 
 ### Patch Changes
