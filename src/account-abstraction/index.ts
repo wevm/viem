@@ -18,6 +18,12 @@ export {
   toSoladySmartAccount,
 } from './accounts/implementations/toSoladySmartAccount.js'
 export {
+  type Simple7702SmartAccountImplementation,
+  type ToSimple7702SmartAccountParameters,
+  type ToSimple7702SmartAccountReturnType,
+  toSimple7702SmartAccount,
+} from './accounts/implementations/toSimple7702SmartAccount.js'
+export {
   type ToSmartAccountParameters,
   type ToSmartAccountReturnType,
   toSmartAccount,

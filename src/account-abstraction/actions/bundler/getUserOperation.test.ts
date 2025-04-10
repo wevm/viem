@@ -2,9 +2,13 @@ import { beforeEach, describe, expect, test } from 'vitest'
 import {
   getSmartAccounts_06,
   getSmartAccounts_07,
+  getSmartAccounts_08,
 } from '../../../../test/src/account-abstraction.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
+import { accounts } from '../../../../test/src/constants.js'
+import { signAuthorization } from '../../../accounts/index.js'
+import { getTransactionCount } from '../../../actions/index.js'
 import { mine } from '../../../actions/test/mine.js'
 import { parseEther, parseGwei } from '../../../utils/index.js'
 import { getUserOperation } from './getUserOperation.js'
@@ -20,6 +24,72 @@ const fees = {
 
 beforeEach(async () => {
   await bundlerMainnet.restart()
+})
+describe('entryPointVersion: 0.8', async () => {
+  const [{ smartAccount, owner }] = await getSmartAccounts_08()
+
+  test('default', async () => {
+    const authorization = await owner.signAuthorization({
+      address: smartAccount.implementation,
+      chainId: client.chain.id,
+      nonce: await getTransactionCount(client, {
+        address: owner.address,
+      }),
+    })
+
+    const hash = await sendUserOperation(bundlerClient, {
+      account: smartAccount,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+      ],
+      authorization,
+      ...fees,
+    })
+
+    await bundlerClient.request({
+      method: 'debug_bundler_sendBundleNow',
+    })
+    await mine(client, {
+      blocks: 1,
+    })
+
+    const result = await getUserOperation(bundlerClient, {
+      hash,
+    })
+
+    expect(result).toBeDefined()
+  })
+
+  test('error: user operation not found', async () => {
+    const authorization = await owner.signAuthorization({
+      address: smartAccount.implementation,
+      chainId: client.chain.id,
+      nonce: await getTransactionCount(client, {
+        address: owner.address,
+      }),
+    })
+
+    const hash = await sendUserOperation(bundlerClient, {
+      account: smartAccount,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+      ],
+      authorization,
+      ...fees,
+    })
+
+    await expect(() =>
+      getUserOperation(bundlerClient, {
+        hash,
+      }),
+    ).rejects.toThrow('User Operation with hash')
+  })
 })
 
 describe('entryPointVersion: 0.7', async () => {

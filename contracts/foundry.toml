@@ -6,6 +6,7 @@ remappings = [
   "solady/=lib/solady/src/",
   "solady-dc09481/=lib/solady-dc09481/src/",
   "solady-6c2d0da/=lib/solady-6c2d0da/src/",
+  "account-abstraction-4cbc060/=lib/account-abstraction-4cbc060/contracts/",
 ]
 src = "src"
 out = "out"
