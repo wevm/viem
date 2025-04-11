@@ -113,7 +113,7 @@ export async function toSimple7702SmartAccount(
     },
 
     async getFactoryArgs() {
-      return { factory: '0x7702', factoryData: undefined }
+      return { factory: '0x7702', factoryData: '0x' }
     },
 
     async getStubSignature() {

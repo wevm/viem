@@ -15,7 +15,7 @@ const bundlerClient = bundlerMainnet.getBundlerClient()
 const client = anvilMainnet.getClient({ account: true })
 
 describe('entryPointVersion: 0.8', async () => {
-  const [{ smartAccount: account }] = await getSmartAccounts_08()
+  const [_, __, { smartAccount: account }] = await getSmartAccounts_08()
 
   test('default', async () => {
     const result = await prepareUserOperation(bundlerClient, {

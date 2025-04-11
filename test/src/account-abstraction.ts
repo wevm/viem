@@ -3,7 +3,6 @@ import { VerifyingPaymaster } from '../../contracts/generated.js'
 import {
   entryPoint06Abi,
   entryPoint07Address,
-  entryPoint08Address,
   formatUserOperation,
   toPackedUserOperation,
   toSimple7702SmartAccount,
@@ -157,25 +156,6 @@ export async function getVerifyingPaymaster_07() {
     abi: VerifyingPaymaster.abi,
     bytecode: VerifyingPaymaster.bytecode.object,
     args: [entryPoint07Address, client.account.address],
-  })
-
-  await writeContract(client, {
-    account: accounts[9].address,
-    abi: VerifyingPaymaster.abi,
-    address: contractAddress!,
-    functionName: 'deposit',
-    value: parseEther('100'),
-  })
-  await mine(client, { blocks: 1 })
-
-  return contractAddress!
-}
-
-export async function getVerifyingPaymaster_08() {
-  const { contractAddress } = await deploy(client, {
-    abi: VerifyingPaymaster.abi,
-    bytecode: VerifyingPaymaster.bytecode.object,
-    args: [entryPoint08Address, client.account.address],
   })
 
   await writeContract(client, {

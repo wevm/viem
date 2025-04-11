@@ -1,7 +1,6 @@
 import type { Address } from 'abitype'
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { zeroAddress } from '~viem/constants/address.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { accounts, typedData } from '../../../../test/src/constants.js'
 import { deploySimple7702Account_08 } from '../../../../test/src/utils.js'
@@ -12,8 +11,8 @@ import {
   signAuthorization,
   verifyMessage,
   verifyTypedData,
-  writeContract,
 } from '../../../actions/index.js'
+import { zeroAddress } from '../../../constants/address.js'
 import { encodeFunctionData } from '../../../utils/abi/encodeFunctionData.js'
 import { toSimple7702SmartAccount } from './toSimple7702SmartAccount.js'
 

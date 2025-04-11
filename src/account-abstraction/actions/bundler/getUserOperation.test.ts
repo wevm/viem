@@ -6,8 +6,6 @@ import {
 } from '../../../../test/src/account-abstraction.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
-import { accounts } from '../../../../test/src/constants.js'
-import { signAuthorization } from '../../../accounts/index.js'
 import { getTransactionCount } from '../../../actions/index.js'
 import { mine } from '../../../actions/test/mine.js'
 import { parseEther, parseGwei } from '../../../utils/index.js'
@@ -26,7 +24,7 @@ beforeEach(async () => {
   await bundlerMainnet.restart()
 })
 describe('entryPointVersion: 0.8', async () => {
-  const [{ smartAccount, owner }] = await getSmartAccounts_08()
+  const [_, __, { smartAccount, owner }] = await getSmartAccounts_08()
 
   test('default', async () => {
     const authorization = await owner.signAuthorization({

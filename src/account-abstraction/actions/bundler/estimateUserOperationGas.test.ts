@@ -41,7 +41,14 @@ beforeEach(async () => {
 })
 
 describe('entryPointVersion: 0.8', async () => {
-  const [{ smartAccount: account }] = await getSmartAccounts_08()
+  beforeAll(async () => {
+    await reset(client, {
+      blockNumber: 22239294n,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
+  })
+
+  const [_, __, { smartAccount: account }] = await getSmartAccounts_08()
 
   test('default', async () => {
     const gas = await estimateUserOperationGas(bundlerClient, {
@@ -68,6 +75,7 @@ describe('entryPointVersion: 0.8', async () => {
     expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(95000n)
   })
 
+  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0.8
   //   test('args: paymaster (client)', async () => {
   //     const paymaster = await getVerifyingPaymaster_08()
   //     const server = await createVerifyingPaymasterServer(client, { paymaster })
@@ -116,6 +124,7 @@ describe('entryPointVersion: 0.8', async () => {
   //     expect(gas.paymasterPostOpGasLimit).toBeGreaterThanOrEqual(0n)
   //   })
 
+  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0.8
   //   test('behavior: client.paymaster (client)', async () => {
   //     const paymaster = await getVerifyingPaymaster_07()
   //     const server = await createVerifyingPaymasterServer(client, { paymaster })
@@ -1455,9 +1464,9 @@ test('error: account not defined', async () => {
       ...fees,
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [AccountNotFoundError: Could not find an Account to execute with this Action.
-      Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
-  
-      Version: viem@x.y.z]
-    `)
+    [AccountNotFoundError: Could not find an Account to execute with this Action.
+    Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
+
+    Version: viem@x.y.z]
+  `)
 })
