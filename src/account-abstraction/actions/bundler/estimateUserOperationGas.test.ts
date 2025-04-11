@@ -5,13 +5,18 @@ import {
   createVerifyingPaymasterServer,
   getSmartAccounts_06,
   getSmartAccounts_07,
+  getSmartAccounts_08,
   getVerifyingPaymaster_07,
 } from '../../../../test/src/account-abstraction.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
 import { accounts } from '../../../../test/src/constants.js'
 import { deployErrorExample } from '../../../../test/src/utils.js'
-import { mine, writeContract } from '../../../actions/index.js'
+import {
+  mine,
+  prepareAuthorization,
+  writeContract,
+} from '../../../actions/index.js'
 import { http } from '../../../clients/transports/http.js'
 import { pad, parseEther, parseGwei } from '../../../utils/index.js'
 import { createPaymasterClient } from '../../clients/createPaymasterClient.js'
@@ -33,6 +38,660 @@ beforeEach(async () => {
   vi.useFakeTimers()
   vi.setSystemTime(new Date(Date.UTC(2023, 1, 1)))
   return () => vi.useRealTimers()
+})
+
+describe('entryPointVersion: 0.8', async () => {
+  beforeAll(async () => {
+    await reset(client, {
+      blockNumber: 22239294n,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
+  })
+
+  const [_, __, { smartAccount: account }] = await getSmartAccounts_08()
+
+  test('default', async () => {
+    const gas = await estimateUserOperationGas(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+        {
+          to: wagmiContractConfig.address,
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+        },
+      ],
+      authorization: await prepareAuthorization(client, {
+        account,
+        address: account.implementation,
+      }),
+      ...fees,
+    })
+    expect(gas.callGasLimit).toBeGreaterThanOrEqual(70000n)
+    expect(gas.preVerificationGas).toBeGreaterThanOrEqual(53000n)
+    expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(95000n)
+  })
+
+  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0.8
+  //   test('args: paymaster (client)', async () => {
+  //     const paymaster = await getVerifyingPaymaster_08()
+  //     const server = await createVerifyingPaymasterServer(client, { paymaster })
+
+  //     const paymasterClient = createPaymasterClient({
+  //       transport: http(server.url, {
+  //         onFetchRequest: async (request) => {
+  //           console.log('paymaster: onFetchRequest', await request.clone().json())
+  //         },
+  //         onFetchResponse: async (request) => {
+  //           console.log(
+  //             'paymaster: onFetchResponse',
+  //             await request.clone().json(),
+  //           )
+  //         },
+  //       }),
+  //     })
+
+  //     const authorization = await prepareAuthorization(client, {
+  //       account,
+  //       address: account.implementation,
+  //     })
+
+  //     const gas = await estimateUserOperationGas(bundlerClient, {
+  //       account,
+  //       calls: [
+  //         {
+  //           to: '0x0000000000000000000000000000000000000000',
+  //           value: parseEther('1'),
+  //         },
+  //         {
+  //           to: wagmiContractConfig.address,
+  //           abi: wagmiContractConfig.abi,
+  //           functionName: 'mint',
+  //         },
+  //       ],
+  //       paymaster: paymasterClient,
+  //       authorization,
+  //       ...fees,
+  //     })
+
+  //     expect(gas.callGasLimit).toBeGreaterThanOrEqual(140000n)
+  //     expect(gas.preVerificationGas).toBeGreaterThanOrEqual(53000n)
+  //     expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+  //     expect(gas.paymasterVerificationGasLimit).toBeGreaterThanOrEqual(20000n)
+  //     expect(gas.paymasterPostOpGasLimit).toBeGreaterThanOrEqual(0n)
+  //   })
+
+  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0.8
+  //   test('behavior: client.paymaster (client)', async () => {
+  //     const paymaster = await getVerifyingPaymaster_07()
+  //     const server = await createVerifyingPaymasterServer(client, { paymaster })
+
+  //     const paymasterClient = createPaymasterClient({
+  //       transport: http(server.url),
+  //     })
+
+  //     const bundlerClient = bundlerMainnet.getBundlerClient({
+  //       paymaster: paymasterClient,
+  //     })
+
+  //     const gas = await estimateUserOperationGas(bundlerClient, {
+  //       account,
+  //       calls: [
+  //         {
+  //           to: '0x0000000000000000000000000000000000000000',
+  //           value: parseEther('1'),
+  //         },
+  //         {
+  //           to: wagmiContractConfig.address,
+  //           abi: wagmiContractConfig.abi,
+  //           functionName: 'mint',
+  //         },
+  //       ],
+  //       ...fees,
+  //     })
+
+  //     expect(gas.callGasLimit).toBeGreaterThanOrEqual(140000n)
+  //     expect(gas.preVerificationGas).toBeGreaterThanOrEqual(59000n)
+  //     expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(237000n)
+  //     expect(gas.paymasterVerificationGasLimit).toBeGreaterThanOrEqual(20000n)
+  //     expect(gas.paymasterPostOpGasLimit).toBeGreaterThanOrEqual(0n)
+  //   })
+
+  test('behavior: prepared user operation', async () => {
+    const userOp = await prepareUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+      ],
+      authorization: await prepareAuthorization(client, {
+        account,
+        address: account.implementation,
+      }),
+      ...fees,
+    })
+
+    const request = {
+      ...userOp,
+      account: undefined,
+    } as const
+
+    expectTypeOf(request).toMatchTypeOf<UserOperation>()
+
+    const gas = await estimateUserOperationGas(bundlerClient, {
+      ...request,
+      entryPointAddress: account.entryPoint?.address,
+    })
+
+    expect(gas.callGasLimit).toBeGreaterThanOrEqual(16000n)
+    expect(gas.preVerificationGas).toBeGreaterThanOrEqual(51000n)
+    expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(95000n)
+    expect(gas.paymasterVerificationGasLimit).toBeGreaterThanOrEqual(0n)
+    expect(gas.paymasterPostOpGasLimit).toBeGreaterThanOrEqual(0n)
+  })
+
+  test('error: insufficient funds', async () => {
+    await expect(async () =>
+      estimateUserOperationGas(bundlerClient, {
+        account,
+        calls: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+            value: parseEther('1000000'),
+          },
+        ],
+        authorization: await prepareAuthorization(client, {
+          account,
+          address: account.implementation,
+        }),
+        ...fees,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+                [UserOperationExecutionError: Execution reverted with reason: UserOperation reverted during simulation with reason: 0x.
+
+                Request Arguments:
+                  callData:              0xb61d27f6000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d3c21bcecceda100000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
+                  factory:               0x7702
+                  maxFeePerGas:          15 gwei
+                  maxPriorityFeePerGas:  2 gwei
+                  nonce:                 30902162761058241966966132703232
+                  sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+                  signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
+
+                Details: UserOperation reverted during simulation with reason: 0x
+                Version: viem@x.y.z]
+              `)
+  })
+
+  test('error: contract revert', async () => {
+    await expect(async () =>
+      estimateUserOperationGas(bundlerClient, {
+        account,
+        calls: [
+          {
+            to: wagmiContractConfig.address,
+            abi: wagmiContractConfig.abi,
+            functionName: 'mint',
+            args: [420n],
+          },
+        ],
+        authorization: await prepareAuthorization(client, {
+          account,
+          address: account.implementation,
+        }),
+        ...fees,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+              [UserOperationExecutionError: The contract function "mint" reverted with the following reason:
+              Token ID is taken
+
+              Contract Call:
+                address:   0x0000000000000000000000000000000000000000
+                function:  mint(uint256 tokenId)
+                args:          (420)
+               
+              Request Arguments:
+                callData:              0xb61d27f6000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c2000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000024a0712d6800000000000000000000000000000000000000000000000000000000000001a400000000000000000000000000000000000000000000000000000000
+                factory:               0x7702
+                maxFeePerGas:          15 gwei
+                maxPriorityFeePerGas:  2 gwei
+                nonce:                 30902162761076688711039842254848
+                sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+                signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
+
+              Version: viem@x.y.z]
+            `)
+  })
+
+  test('error: contract revert', async () => {
+    await expect(async () =>
+      estimateUserOperationGas(bundlerClient, {
+        account,
+        calls: [
+          {
+            to: wagmiContractConfig.address,
+            abi: wagmiContractConfig.abi,
+            functionName: 'approve',
+            args: ['0x0000000000000000000000000000000000000000', 420n],
+          },
+        ],
+        authorization: await prepareAuthorization(client, {
+          account,
+          address: account.implementation,
+        }),
+        ...fees,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+                [UserOperationExecutionError: The contract function "approve" reverted with the following reason:
+                ERC721: approve caller is not owner nor approved for all
+
+                Contract Call:
+                  address:   0x0000000000000000000000000000000000000000
+                  function:  approve(address to, uint256 tokenId)
+                  args:             (0x0000000000000000000000000000000000000000, 420)
+                 
+                Request Arguments:
+                  callData:              0xb61d27f6000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c2000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000044095ea7b3000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001a400000000000000000000000000000000000000000000000000000000
+                  factory:               0x7702
+                  maxFeePerGas:          15 gwei
+                  maxPriorityFeePerGas:  2 gwei
+                  nonce:                 30902162761095135455113551806464
+                  sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+                  signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
+
+                Version: viem@x.y.z]
+              `)
+  })
+
+  test('error: contract revert (multiple calls)', async () => {
+    await expect(async () =>
+      estimateUserOperationGas(bundlerClient, {
+        account,
+        calls: [
+          {
+            to: wagmiContractConfig.address,
+            abi: wagmiContractConfig.abi,
+            functionName: 'mint',
+          },
+          {
+            to: wagmiContractConfig.address,
+            abi: wagmiContractConfig.abi,
+            functionName: 'approve',
+            args: ['0x0000000000000000000000000000000000000000', 420n],
+          },
+        ],
+        authorization: await prepareAuthorization(client, {
+          account,
+          address: account.implementation,
+        }),
+        ...fees,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+                [UserOperationExecutionError: The contract function "mint | approve" reverted with the following signature:
+                0x5a154675
+                
+                Unable to decode signature "0x5a154675" as it was not found on the provided ABI.
+                Make sure you are using the correct ABI and that the error exists on it.
+                You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+                 
+                 
+                Request Arguments:
+                  callData:              0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c2000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000044095ea7b3000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001a400000000000000000000000000000000000000000000000000000000
+                  factory:               0x7702
+                  maxFeePerGas:          15 gwei
+                  maxPriorityFeePerGas:  2 gwei
+                  nonce:                 30902162761113582199187261358080
+                  sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+                  signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
+
+                Docs: https://viem.sh/docs/contract/decodeErrorResult
+                Version: viem@x.y.z]
+              `)
+  })
+
+  test('error: function does not exist', async () => {
+    await expect(async () =>
+      estimateUserOperationGas(bundlerClient, {
+        account,
+        calls: [
+          {
+            // 7702 implementation has a fallback so sending it to uniswap factory instead
+            to: '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f',
+            abi: wagmiContractConfig.abi,
+            functionName: 'mint',
+            args: [420n],
+          },
+        ],
+        authorization: await prepareAuthorization(client, {
+          account,
+          address: account.implementation,
+        }),
+        ...fees,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+              [UserOperationExecutionError: The contract function "mint" returned no data ("0x").
+
+              This could be due to any of the following:
+                - The contract does not have the function "mint",
+                - The parameters passed to the contract function may be invalid, or
+                - The address is not a contract.
+               
+              Contract Call:
+                address:   0x0000000000000000000000000000000000000000
+                function:  mint(uint256 tokenId)
+                args:          (420)
+               
+              Request Arguments:
+                callData:              0xb61d27f60000000000000000000000005c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000024a0712d6800000000000000000000000000000000000000000000000000000000000001a400000000000000000000000000000000000000000000000000000000
+                factory:               0x7702
+                maxFeePerGas:          15 gwei
+                maxPriorityFeePerGas:  2 gwei
+                nonce:                 30902162761132028943260970909696
+                sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+                signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
+
+              Version: viem@x.y.z]
+            `)
+  })
+
+  test('error: generic revert', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(async () =>
+      estimateUserOperationGas(bundlerClient, {
+        account,
+        calls: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+            value: parseEther('1'),
+          },
+          {
+            abi: ErrorsExample.abi,
+            to: contractAddress!,
+            functionName: 'revertWrite',
+          },
+        ],
+        authorization: await prepareAuthorization(client, {
+          account,
+          address: account.implementation,
+        }),
+        ...fees,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+                [UserOperationExecutionError: The contract function "revertWrite" reverted with the following signature:
+                0x5a154675
+
+                Unable to decode signature "0x5a154675" as it was not found on the provided ABI.
+                Make sure you are using the correct ABI and that the error exists on it.
+                You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+                 
+                Contract Call:
+                  address:   0x0000000000000000000000000000000000000000
+                  function:  revertWrite()
+                 
+                Request Arguments:
+                  callData:              0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f102f0173707c6726543d65fa38025eb72026c37000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000004940b880200000000000000000000000000000000000000000000000000000000
+                  factory:               0x7702
+                  maxFeePerGas:          15 gwei
+                  maxPriorityFeePerGas:  2 gwei
+                  nonce:                 30902162761150475687334680461312
+                  sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+                  signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
+
+                Docs: https://viem.sh/docs/contract/decodeErrorResult
+                Version: viem@x.y.z]
+              `)
+  })
+
+  test('error: assert', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(async () =>
+      estimateUserOperationGas(bundlerClient, {
+        account,
+        calls: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+            value: parseEther('1'),
+          },
+          {
+            abi: ErrorsExample.abi,
+            to: contractAddress!,
+            functionName: 'assertWrite',
+          },
+        ],
+        authorization: await prepareAuthorization(client, {
+          account,
+          address: account.implementation,
+        }),
+        ...fees,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+              [UserOperationExecutionError: The contract function "assertWrite" reverted with the following signature:
+              0x5a154675
+
+              Unable to decode signature "0x5a154675" as it was not found on the provided ABI.
+              Make sure you are using the correct ABI and that the error exists on it.
+              You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+               
+              Contract Call:
+                address:   0x0000000000000000000000000000000000000000
+                function:  assertWrite()
+               
+              Request Arguments:
+                callData:              0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a7640000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005edb3ff1ea450d1ff6d614f24f5c760761f7f6880000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000040469615200000000000000000000000000000000000000000000000000000000
+                factory:               0x7702
+                maxFeePerGas:          15 gwei
+                maxPriorityFeePerGas:  2 gwei
+                nonce:                 30902162761168922431408390012928
+                sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+                signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
+
+              Docs: https://viem.sh/docs/contract/decodeErrorResult
+              Version: viem@x.y.z]
+            `)
+  })
+
+  test('error: overflow', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(async () =>
+      estimateUserOperationGas(bundlerClient, {
+        account,
+        calls: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+            value: parseEther('1'),
+          },
+          {
+            abi: ErrorsExample.abi,
+            to: contractAddress!,
+            functionName: 'overflowWrite',
+          },
+        ],
+        authorization: await prepareAuthorization(client, {
+          account,
+          address: account.implementation,
+        }),
+        ...fees,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+              [UserOperationExecutionError: The contract function "overflowWrite" reverted with the following signature:
+              0x5a154675
+
+              Unable to decode signature "0x5a154675" as it was not found on the provided ABI.
+              Make sure you are using the correct ABI and that the error exists on it.
+              You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+               
+              Contract Call:
+                address:   0x0000000000000000000000000000000000000000
+                function:  overflowWrite()
+               
+              Request Arguments:
+                callData:              0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000000000000000000000000000081a5186946ce055a5ceec93cd97c7e7ede7da922000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000004d44de86600000000000000000000000000000000000000000000000000000000
+                factory:               0x7702
+                maxFeePerGas:          15 gwei
+                maxPriorityFeePerGas:  2 gwei
+                nonce:                 30902162761187369175482099564544
+                sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+                signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
+
+              Docs: https://viem.sh/docs/contract/decodeErrorResult
+              Version: viem@x.y.z]
+            `)
+  })
+
+  test('error: divide by zero', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(async () =>
+      estimateUserOperationGas(bundlerClient, {
+        account,
+        calls: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+            value: parseEther('1'),
+          },
+          {
+            abi: ErrorsExample.abi,
+            to: contractAddress!,
+            functionName: 'divideByZeroWrite',
+          },
+        ],
+        authorization: await prepareAuthorization(client, {
+          account,
+          address: account.implementation,
+        }),
+        ...fees,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+              [UserOperationExecutionError: The contract function "divideByZeroWrite" reverted with the following signature:
+              0x5a154675
+
+              Unable to decode signature "0x5a154675" as it was not found on the provided ABI.
+              Make sure you are using the correct ABI and that the error exists on it.
+              You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+               
+              Contract Call:
+                address:   0x0000000000000000000000000000000000000000
+                function:  divideByZeroWrite()
+               
+              Request Arguments:
+                callData:              0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000000000000000000000000000000098f74b7c96497070ba5052e02832ef9892962e62000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000004c66cf13300000000000000000000000000000000000000000000000000000000
+                factory:               0x7702
+                maxFeePerGas:          15 gwei
+                maxPriorityFeePerGas:  2 gwei
+                nonce:                 30902162761205815919555809116160
+                sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+                signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
+
+              Docs: https://viem.sh/docs/contract/decodeErrorResult
+              Version: viem@x.y.z]
+            `)
+  })
+
+  test('error: custom error', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(async () =>
+      estimateUserOperationGas(bundlerClient, {
+        account,
+        calls: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+            value: parseEther('1'),
+          },
+          {
+            abi: ErrorsExample.abi,
+            to: contractAddress!,
+            functionName: 'simpleCustomWrite',
+          },
+        ],
+        authorization: await prepareAuthorization(client, {
+          account,
+          address: account.implementation,
+        }),
+        ...fees,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+              [UserOperationExecutionError: The contract function "simpleCustomWrite" reverted with the following signature:
+              0x5a154675
+
+              Unable to decode signature "0x5a154675" as it was not found on the provided ABI.
+              Make sure you are using the correct ABI and that the error exists on it.
+              You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+               
+              Contract Call:
+                address:   0x0000000000000000000000000000000000000000
+                function:  simpleCustomWrite()
+               
+              Request Arguments:
+                callData:              0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000831c6c334f8ddee62246a5c81b82c8e18008b38f000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000004a997732e00000000000000000000000000000000000000000000000000000000
+                factory:               0x7702
+                maxFeePerGas:          15 gwei
+                maxPriorityFeePerGas:  2 gwei
+                nonce:                 30902162761224262663629518667776
+                sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+                signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
+
+              Docs: https://viem.sh/docs/contract/decodeErrorResult
+              Version: viem@x.y.z]
+            `)
+  })
+
+  test('error: custom error', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(async () =>
+      estimateUserOperationGas(bundlerClient, {
+        account,
+        calls: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+            value: parseEther('1'),
+          },
+          {
+            abi: ErrorsExample.abi,
+            to: contractAddress!,
+            functionName: 'complexCustomWrite',
+          },
+        ],
+        authorization: await prepareAuthorization(client, {
+          account,
+          address: account.implementation,
+        }),
+        ...fees,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+              [UserOperationExecutionError: The contract function "complexCustomWrite" reverted with the following signature:
+              0x5a154675
+
+              Unable to decode signature "0x5a154675" as it was not found on the provided ABI.
+              Make sure you are using the correct ABI and that the error exists on it.
+              You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+               
+              Contract Call:
+                address:   0x0000000000000000000000000000000000000000
+                function:  complexCustomWrite()
+               
+              Request Arguments:
+                callData:              0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f47e3b0a1952a81f1afc41172762cb7ce87001330000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000048de18b9100000000000000000000000000000000000000000000000000000000
+                factory:               0x7702
+                maxFeePerGas:          15 gwei
+                maxPriorityFeePerGas:  2 gwei
+                nonce:                 30902162761242709407703228219392
+                sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+                signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
+
+              Docs: https://viem.sh/docs/contract/decodeErrorResult
+              Version: viem@x.y.z]
+            `)
+  })
 })
 
 describe('entryPointVersion: 0.7', async () => {
@@ -127,17 +786,19 @@ describe('entryPointVersion: 0.7', async () => {
   })
 
   test('behavior: prepared user operation', async () => {
+    const userOp = await prepareUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+      ],
+      ...fees,
+    })
+
     const request = {
-      ...(await prepareUserOperation(bundlerClient, {
-        account,
-        calls: [
-          {
-            to: '0x0000000000000000000000000000000000000000',
-            value: parseEther('1'),
-          },
-        ],
-        ...fees,
-      })),
+      ...userOp,
       account: undefined,
     } as const
 

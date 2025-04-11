@@ -53,7 +53,7 @@
     "@changesets/cli": "^2.27.9",
     "@ethereumjs/rlp": "^5.0.2",
     "@paulmillr/trusted-setups": "^0.1.2",
-    "@pimlico/alto": "0.0.15",
+    "@pimlico/alto": "0.0.18",
     "@size-limit/preset-big-lib": "^11.1.6",
     "@types/bun": "^1.1.11",
     "@types/node": "^22.13.13",

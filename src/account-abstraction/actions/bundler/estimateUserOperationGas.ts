@@ -183,6 +183,7 @@ export async function estimateUserOperationGas<
       formatUserOperationRequest(request as UserOperation),
       (entryPointAddress ?? account?.entryPoint?.address)!,
     ] as const
+
     const result = await client.request({
       method: 'eth_estimateUserOperationGas',
       params: rpcStateOverride ? [...params, rpcStateOverride] : [...params],
