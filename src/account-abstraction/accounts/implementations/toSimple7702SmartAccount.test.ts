@@ -28,7 +28,7 @@ beforeAll(async () => {
 test('default', async () => {
   const account = await toSimple7702SmartAccount({
     client,
-    owner: accounts[1].address,
+    owner: privateKeyToAccount(accounts[0].privateKey),
   })
 
   expect({
@@ -1135,7 +1135,7 @@ describe('return value: entryPoint', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: accounts[1].address,
+      owner: privateKeyToAccount(accounts[0].privateKey),
     })
 
     expect(account.entryPoint).toMatchInlineSnapshot(
@@ -2220,7 +2220,7 @@ describe('return value: getAddress', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: accounts[1].address,
+      owner: privateKeyToAccount(accounts[0].privateKey),
     })
 
     const address = await account.getAddress()
@@ -2235,7 +2235,7 @@ describe('return value: decodeCalls', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: accounts[1].address,
+      owner: privateKeyToAccount(accounts[0].privateKey),
     })
 
     const calls = [
@@ -2255,7 +2255,7 @@ describe('return value: decodeCalls', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: accounts[1].address,
+      owner: privateKeyToAccount(accounts[0].privateKey),
     })
 
     const calls = [
@@ -2285,11 +2285,11 @@ describe('return value: decodeCalls', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: accounts[1].address,
+      owner: privateKeyToAccount(accounts[0].privateKey),
     })
 
     const data = encodeFunctionData({
-      abi: account.abi,
+      abi: account.extend?.abi ?? [],
       functionName: 'entryPoint',
     })
     await expect(() =>
@@ -2307,7 +2307,7 @@ describe('return value: encodeCalls', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: accounts[1].address,
+      owner: privateKeyToAccount(accounts[0].privateKey),
     })
 
     const callData_1 = await account.encodeCalls([
@@ -2339,7 +2339,7 @@ describe('return value: encodeCalls', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: accounts[1].address,
+      owner: privateKeyToAccount(accounts[0].privateKey),
     })
 
     const callData = await account.encodeCalls([
@@ -2363,7 +2363,7 @@ describe('return value: getFactoryArgs', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: accounts[1].address,
+      owner: privateKeyToAccount(accounts[0].privateKey),
     })
 
     const signature = await account.getFactoryArgs()
@@ -2383,7 +2383,7 @@ describe('return value: getSignature', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: accounts[1].address,
+      owner: privateKeyToAccount(accounts[0].privateKey),
     })
 
     const signature = await account.getStubSignature()
@@ -2404,7 +2404,7 @@ describe('return value: getNonce', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: accounts[1].address,
+      owner: privateKeyToAccount(accounts[0].privateKey),
     })
 
     const nonce = await account.getNonce()
@@ -2415,7 +2415,7 @@ describe('return value: getNonce', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: accounts[1].address,
+      owner: privateKeyToAccount(accounts[0].privateKey),
     })
 
     const nonce = await account.getNonce({ key: 0n })
@@ -2428,16 +2428,16 @@ describe('return value: signMessage', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: accounts[1].address,
+      owner: privateKeyToAccount(accounts[0].privateKey),
     })
 
     const authorization = await signAuthorization(client, {
       address: implementation,
-      account: privateKeyToAccount(accounts[1].privateKey),
+      account: privateKeyToAccount(accounts[0].privateKey),
     })
 
     await sendTransaction(client, {
-      account: privateKeyToAccount(accounts[1].privateKey),
+      account: privateKeyToAccount(accounts[0].privateKey),
       to: zeroAddress,
       value: 0n,
       data: '0x',
@@ -2467,7 +2467,7 @@ describe('return value: signTypedData', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: privateKeyToAccount(accounts[1].privateKey),
+      owner: privateKeyToAccount(accounts[0].privateKey),
     })
 
     const signature = await account.signTypedData({
@@ -2490,7 +2490,7 @@ describe('return value: signUserOperation', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: accounts[1].address,
+      owner: privateKeyToAccount(accounts[0].privateKey),
     })
 
     const signature = await account.signUserOperation({

@@ -1,4 +1,12 @@
-import { beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest'
+import {
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  expectTypeOf,
+  test,
+  vi,
+} from 'vitest'
 import { ErrorsExample } from '../../../../contracts/generated.js'
 import { wagmiContractConfig } from '../../../../test/src/abis.js'
 import {
@@ -15,6 +23,7 @@ import { deployErrorExample } from '../../../../test/src/utils.js'
 import {
   mine,
   prepareAuthorization,
+  reset,
   writeContract,
 } from '../../../actions/index.js'
 import { http } from '../../../clients/transports/http.js'
@@ -41,14 +50,14 @@ beforeEach(async () => {
 })
 
 describe('entryPointVersion: 0.8', async () => {
+  const [_, __, { smartAccount: account }] = await getSmartAccounts_08()
+
   beforeAll(async () => {
     await reset(client, {
       blockNumber: 22239294n,
       jsonRpcUrl: anvilMainnet.forkUrl,
     })
   })
-
-  const [_, __, { smartAccount: account }] = await getSmartAccounts_08()
 
   test('default', async () => {
     const gas = await estimateUserOperationGas(bundlerClient, {

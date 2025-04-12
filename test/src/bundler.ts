@@ -15,13 +15,12 @@ import {
   type Transport,
 } from '../../src/index.js'
 import type { DebugBundlerRpcSchema } from '../../src/types/eip1193.js'
-import { accountAbstractionAnvilMainnet } from './anvil.js'
+import { anvilMainnet } from './anvil.js'
 import { accounts, poolId } from './constants.js'
 
 export const bundlerMainnet = defineBundler({
   chain: mainnet,
-  rpcUrl: (key) =>
-    `http://localhost:${accountAbstractionAnvilMainnet.port}/${key}`,
+  rpcUrl: (key) => `http://localhost:${anvilMainnet.port}/${key}`,
   port: 4337,
 })
 
@@ -113,8 +112,8 @@ function defineBundler<const chain extends Chain>({
               '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
               '0x4337084D9E255Ff0702461CF8895CE9E3b5Ff108',
             ],
-            executorPrivateKeys: [accounts[0].privateKey],
-            utilityPrivateKey: accounts[0].privateKey,
+            executorPrivateKeys: [accounts[3].privateKey],
+            utilityPrivateKey: accounts[3].privateKey,
             rpcUrl: rpcUrl(key),
             safeMode: false,
           }),

@@ -27,15 +27,6 @@ export const anvilMainnet = defineAnvil({
   port: 8545,
 })
 
-export const accountAbstractionAnvilMainnet = defineAnvil({
-  chain: mainnet,
-  forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://cloudflare-eth.com'),
-  forkBlockNumber: 22239294n,
-  noMining: true,
-  port: 8589,
-  hardfork: 'Prague',
-})
-
 export const anvilSepolia = defineAnvil({
   chain: sepolia,
   forkUrl: getEnv('VITE_ANVIL_FORK_URL_SEPOLIA', 'https://rpc.sepolia.org'),
