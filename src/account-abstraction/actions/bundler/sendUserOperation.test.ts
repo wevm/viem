@@ -156,7 +156,7 @@ describe('entryPointVersion: 0.8', async () => {
   //     await mine(client, { blocks: 1 })
   //   })
 
-  //   // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0.8
+  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0.8
   //   test('behavior: client.paymaster (client)', async () => {
   //     const paymaster = await getVerifyingPaymaster_07()
   //     const server = await createVerifyingPaymasterServer(client, { paymaster })

@@ -505,7 +505,7 @@ describe('entryPointVersion: 0.8', async () => {
   //         `)
   //   })
 
-  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0
+  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0.8
   //   test('args: paymaster (client w/ no chain)', async () => {
   //     const client = anvilMainnet.getClient({ account: true, chain: false })
 
@@ -545,7 +545,7 @@ describe('entryPointVersion: 0.8', async () => {
   //     expect(request).toBeDefined()
   //   })
 
-  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0
+  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0.8
   //   test('args: paymaster.getPaymasterData', async () => {
   //     const paymaster = await getVerifyingPaymaster_07()
   //     const server = await createVerifyingPaymasterServer(client, { paymaster })
@@ -610,7 +610,7 @@ describe('entryPointVersion: 0.8', async () => {
   //       `)
   //   })
 
-  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0
+  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0.8
   //   test('args: paymaster.getPaymasterStubData + paymaster.getPaymasterData', async () => {
   //     const paymaster = await getVerifyingPaymaster_07()
   //     const server = await createVerifyingPaymasterServer(client, { paymaster })
@@ -679,7 +679,7 @@ describe('entryPointVersion: 0.8', async () => {
   //         `)
   //   })
 
-  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0
+  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0.8
   //   test('args: paymasterContext', async () => {
   //     const paymaster = await getVerifyingPaymaster_07()
   //     const server = await createVerifyingPaymasterServer(client, { paymaster })
@@ -1039,7 +1039,7 @@ describe('entryPointVersion: 0.8', async () => {
     ).rejects.toThrowError()
   })
 
-  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0
+  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0.8
   //   test('behavior: bundlerClient.paymaster (client)', async () => {
   //     const paymaster = await getVerifyingPaymaster_07()
   //     const server = await createVerifyingPaymasterServer(client, { paymaster })
@@ -1101,7 +1101,7 @@ describe('entryPointVersion: 0.8', async () => {
   //       `)
   //   })
 
-  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0
+  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0.8
   //   test('behavior: client.paymaster.getPaymasterData', async () => {
   //     const paymaster = await getVerifyingPaymaster_07()
   //     const server = await createVerifyingPaymasterServer(client, { paymaster })
@@ -1167,7 +1167,7 @@ describe('entryPointVersion: 0.8', async () => {
   //       `)
   //   })
 
-  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0
+  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0.8
   //   test('behavior: client.paymaster.getPaymasterStubData + client.paymaster.getPaymasterData', async () => {
   //     const paymaster = await getVerifyingPaymaster_07()
   //     const server = await createVerifyingPaymasterServer(client, { paymaster })
