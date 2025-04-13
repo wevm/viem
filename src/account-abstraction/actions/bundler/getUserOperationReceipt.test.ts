@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import {
   getSmartAccounts_06,
   getSmartAccounts_07,
@@ -6,7 +6,7 @@ import {
 } from '../../../../test/src/account-abstraction.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
-import { getTransactionCount, mine } from '../../../actions/index.js'
+import { getTransactionCount, mine, reset } from '../../../actions/index.js'
 import { parseEther, parseGwei } from '../../../utils/index.js'
 import { getUserOperationReceipt } from './getUserOperationReceipt.js'
 import { sendUserOperation } from './sendUserOperation.js'
@@ -24,7 +24,21 @@ beforeEach(async () => {
 })
 
 describe('entryPointVersion: 0.8', async () => {
-  const [_, __, { smartAccount: account, owner }] = await getSmartAccounts_08()
+  let account: Awaited<
+    ReturnType<typeof getSmartAccounts_08>
+  >[0]['smartAccount']
+  let owner: Awaited<ReturnType<typeof getSmartAccounts_08>>[0]['owner']
+  beforeAll(async () => {
+    await reset(client, {
+      blockNumber: 22239294n,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
+
+    // Get smart accounts after reset is complete
+    const accounts = await getSmartAccounts_08()
+    account = accounts[0].smartAccount
+    owner = accounts[0].owner
+  })
 
   test('default', async () => {
     const authorization = await owner.signAuthorization({
@@ -93,7 +107,17 @@ describe('entryPointVersion: 0.8', async () => {
 })
 
 describe('entryPointVersion: 0.7', async () => {
-  const [account] = await getSmartAccounts_07()
+  let account: Awaited<ReturnType<typeof getSmartAccounts_07>>[0]
+  beforeAll(async () => {
+    await reset(client, {
+      blockNumber: 22239294n,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
+
+    // Get smart accounts after reset is complete
+    const accounts = await getSmartAccounts_07()
+    account = accounts[0]
+  })
 
   test('default', async () => {
     const hash = await sendUserOperation(bundlerClient, {
@@ -144,7 +168,17 @@ describe('entryPointVersion: 0.7', async () => {
 })
 
 describe('entryPointVersion: 0.6', async () => {
-  const [account] = await getSmartAccounts_06()
+  let account: Awaited<ReturnType<typeof getSmartAccounts_06>>[0]
+  beforeAll(async () => {
+    await reset(client, {
+      blockNumber: 22239294n,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
+
+    // Get smart accounts after reset is complete
+    const accounts = await getSmartAccounts_06()
+    account = accounts[0]
+  })
 
   test('default', async () => {
     const hash = await sendUserOperation(bundlerClient, {

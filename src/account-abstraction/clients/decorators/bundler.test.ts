@@ -1,8 +1,10 @@
-import { beforeEach, describe, expect, test } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { getSmartAccounts_07 } from '../../../../test/src/account-abstraction.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
-import { mine } from '../../../actions/index.js'
+import type { ToSoladySmartAccountReturnType } from '../../../account-abstraction/accounts/implementations/toSoladySmartAccount.js'
+import type { entryPoint07Abi } from '../../../account-abstraction/constants/abis.js'
+import { mine, reset } from '../../../actions/index.js'
 import { bundlerActions } from './bundler.js'
 
 const client = anvilMainnet.getClient().extend(bundlerActions)
@@ -28,7 +30,17 @@ test('default', async () => {
 })
 
 describe('smoke', async () => {
-  const [account] = await getSmartAccounts_07()
+  let account: ToSoladySmartAccountReturnType<typeof entryPoint07Abi, '0.7'>
+  beforeAll(async () => {
+    await reset(client, {
+      blockNumber: 22239294n,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
+
+    // Get smart accounts after reset is complete
+    const accounts = await getSmartAccounts_07()
+    account = accounts[0]
+  })
 
   test('estimateUserOperationGas', async () => {
     await bundlerClient.estimateUserOperationGas({

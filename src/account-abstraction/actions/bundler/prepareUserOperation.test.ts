@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { wagmiContractConfig } from '../../../../test/src/abis.js'
 import {
   createVerifyingPaymasterServer,
@@ -10,7 +10,7 @@ import {
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
 import { accounts } from '../../../../test/src/constants.js'
-import { prepareAuthorization } from '../../../actions/index.js'
+import { prepareAuthorization, reset } from '../../../actions/index.js'
 import { mine } from '../../../actions/test/mine.js'
 import { writeContract } from '../../../actions/wallet/writeContract.js'
 import { http } from '../../../clients/transports/http.js'
@@ -37,7 +37,21 @@ beforeEach(async () => {
 })
 
 describe('entryPointVersion: 0.8', async () => {
-  const [_, __, { smartAccount: account }] = await getSmartAccounts_08()
+  let account: Awaited<
+    ReturnType<typeof getSmartAccounts_08>
+  >[0]['smartAccount']
+  let owner: Awaited<ReturnType<typeof getSmartAccounts_08>>[0]['owner']
+  beforeAll(async () => {
+    await reset(client, {
+      blockNumber: 22239294n,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
+
+    // Get smart accounts after reset is complete
+    const accounts = await getSmartAccounts_08()
+    account = accounts[0].smartAccount
+    owner = accounts[0].owner
+  })
 
   test('default', async () => {
     const {
@@ -60,7 +74,7 @@ describe('entryPointVersion: 0.8', async () => {
         },
       ],
       authorization: await prepareAuthorization(client, {
-        account,
+        account: owner,
         address: account.implementation,
       }),
       ...fees,
@@ -75,7 +89,7 @@ describe('entryPointVersion: 0.8', async () => {
           "authorization": {
             "address": "0x48288d0e3079a03f6ec1846554cfc58c2696aaee",
             "chainId": 1,
-            "nonce": 51,
+            "nonce": 950,
           },
           "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
           "factory": "0x7702",
@@ -84,8 +98,8 @@ describe('entryPointVersion: 0.8', async () => {
           "nonce": 30902162761021348478818713600000n,
           "paymasterPostOpGasLimit": 0n,
           "paymasterVerificationGasLimit": 0n,
-          "preVerificationGas": 93869n,
-          "sender": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+          "preVerificationGas": 93882n,
+          "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
         }
       `)
@@ -103,7 +117,7 @@ describe('entryPointVersion: 0.8', async () => {
       callData:
         '0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000',
       authorization: await prepareAuthorization(client, {
-        account,
+        account: owner,
         address: account.implementation,
       }),
       ...fees,
@@ -117,7 +131,7 @@ describe('entryPointVersion: 0.8', async () => {
             "authorization": {
               "address": "0x48288d0e3079a03f6ec1846554cfc58c2696aaee",
               "chainId": 1,
-              "nonce": 51,
+              "nonce": 950,
             },
             "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
             "factory": "0x7702",
@@ -127,7 +141,7 @@ describe('entryPointVersion: 0.8', async () => {
             "paymasterPostOpGasLimit": 0n,
             "paymasterVerificationGasLimit": 0n,
             "preVerificationGas": 92087n,
-            "sender": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+            "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
             "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
           }
         `)
@@ -145,7 +159,7 @@ describe('entryPointVersion: 0.8', async () => {
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       parameters: ['gas', 'nonce'],
       authorization: await prepareAuthorization(client, {
-        account,
+        account: owner,
         address: account.implementation,
       }),
       ...fees,
@@ -159,7 +173,7 @@ describe('entryPointVersion: 0.8', async () => {
             "authorization": {
               "address": "0x48288d0e3079a03f6ec1846554cfc58c2696aaee",
               "chainId": 1,
-              "nonce": 51,
+              "nonce": 950,
             },
             "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
             "maxPriorityFeePerGas": 2000000000n,
@@ -167,7 +181,7 @@ describe('entryPointVersion: 0.8', async () => {
             "paymasterPostOpGasLimit": 0n,
             "paymasterVerificationGasLimit": 0n,
             "preVerificationGas": 92087n,
-            "sender": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+            "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           }
         `)
   })
@@ -184,7 +198,7 @@ describe('entryPointVersion: 0.8', async () => {
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       parameters: ['gas', 'factory'],
       authorization: await prepareAuthorization(client, {
-        account,
+        account: owner,
         address: account.implementation,
       }),
       ...fees,
@@ -198,7 +212,7 @@ describe('entryPointVersion: 0.8', async () => {
             "authorization": {
               "address": "0x48288d0e3079a03f6ec1846554cfc58c2696aaee",
               "chainId": 1,
-              "nonce": 51,
+              "nonce": 950,
             },
             "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
             "factory": "0x7702",
@@ -207,7 +221,7 @@ describe('entryPointVersion: 0.8', async () => {
             "paymasterPostOpGasLimit": 0n,
             "paymasterVerificationGasLimit": 0n,
             "preVerificationGas": 92087n,
-            "sender": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+            "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           }
         `)
   })
@@ -224,7 +238,7 @@ describe('entryPointVersion: 0.8', async () => {
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       nonce: 0n,
       authorization: await prepareAuthorization(client, {
-        account,
+        account: owner,
         address: account.implementation,
       }),
       ...fees,
@@ -238,7 +252,7 @@ describe('entryPointVersion: 0.8', async () => {
             "authorization": {
               "address": "0x48288d0e3079a03f6ec1846554cfc58c2696aaee",
               "chainId": 1,
-              "nonce": 51,
+              "nonce": 950,
             },
             "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
             "factory": "0x7702",
@@ -248,7 +262,7 @@ describe('entryPointVersion: 0.8', async () => {
             "paymasterPostOpGasLimit": 0n,
             "paymasterVerificationGasLimit": 0n,
             "preVerificationGas": 92087n,
-            "sender": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+            "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
             "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
           }
         `)
@@ -268,7 +282,7 @@ describe('entryPointVersion: 0.8', async () => {
         maxFeePerGas: 2n,
         maxPriorityFeePerGas: 1n,
         authorization: await prepareAuthorization(client, {
-          account,
+          account: owner,
           address: account.implementation,
         }),
       })
@@ -281,7 +295,7 @@ describe('entryPointVersion: 0.8', async () => {
               "authorization": {
                 "address": "0x48288d0e3079a03f6ec1846554cfc58c2696aaee",
                 "chainId": 1,
-                "nonce": 51,
+                "nonce": 950,
               },
               "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
               "factory": "0x7702",
@@ -291,7 +305,7 @@ describe('entryPointVersion: 0.8', async () => {
               "paymasterPostOpGasLimit": 0n,
               "paymasterVerificationGasLimit": 0n,
               "preVerificationGas": 92087n,
-              "sender": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+              "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
               "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
             }
           `)
@@ -309,7 +323,7 @@ describe('entryPointVersion: 0.8', async () => {
         calls: [{ to: '0x0000000000000000000000000000000000000000' }],
         maxFeePerGas: 2n,
         authorization: await prepareAuthorization(client, {
-          account,
+          account: owner,
           address: account.implementation,
         }),
       })
@@ -322,7 +336,7 @@ describe('entryPointVersion: 0.8', async () => {
               "authorization": {
                 "address": "0x48288d0e3079a03f6ec1846554cfc58c2696aaee",
                 "chainId": 1,
-                "nonce": 51,
+                "nonce": 950,
               },
               "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
               "factory": "0x7702",
@@ -332,7 +346,7 @@ describe('entryPointVersion: 0.8', async () => {
               "paymasterPostOpGasLimit": 0n,
               "paymasterVerificationGasLimit": 0n,
               "preVerificationGas": 92087n,
-              "sender": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+              "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
               "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
             }
           `)
@@ -350,7 +364,7 @@ describe('entryPointVersion: 0.8', async () => {
         calls: [{ to: '0x0000000000000000000000000000000000000000' }],
         maxPriorityFeePerGas: 2n,
         authorization: await prepareAuthorization(client, {
-          account,
+          account: owner,
           address: account.implementation,
         }),
       })
@@ -363,7 +377,7 @@ describe('entryPointVersion: 0.8', async () => {
               "authorization": {
                 "address": "0x48288d0e3079a03f6ec1846554cfc58c2696aaee",
                 "chainId": 1,
-                "nonce": 51,
+                "nonce": 950,
               },
               "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
               "factory": "0x7702",
@@ -373,7 +387,7 @@ describe('entryPointVersion: 0.8', async () => {
               "paymasterPostOpGasLimit": 0n,
               "paymasterVerificationGasLimit": 0n,
               "preVerificationGas": 92087n,
-              "sender": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+              "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
               "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
             }
           `)
@@ -397,7 +411,7 @@ describe('entryPointVersion: 0.8', async () => {
         ],
         paymaster: '0x0000000000000000000000000000000000000000',
         authorization: await prepareAuthorization(client, {
-          account,
+          account: owner,
           address: account.implementation,
         }),
         ...fees,
@@ -422,7 +436,7 @@ describe('entryPointVersion: 0.8', async () => {
         ],
         paymaster: true,
         authorization: await prepareAuthorization(client, {
-          account,
+          account: owner,
           address: account.implementation,
         }),
         ...fees,
@@ -749,7 +763,7 @@ describe('entryPointVersion: 0.8', async () => {
         },
       ],
       authorization: await prepareAuthorization(client, {
-        account,
+        account: owner,
         address: account.implementation,
       }),
       signature:
@@ -768,16 +782,16 @@ describe('entryPointVersion: 0.8', async () => {
             "authorization": {
               "address": "0x48288d0e3079a03f6ec1846554cfc58c2696aaee",
               "chainId": 1,
-              "nonce": 51,
+              "nonce": 950,
             },
             "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
             "factory": "0x7702",
             "factoryData": "0x",
             "maxPriorityFeePerGas": 2000000000n,
-            "nonce": 30902162761150475687334680461312n,
+            "nonce": 30902162761187369175482099564544n,
             "paymasterPostOpGasLimit": 0n,
             "paymasterVerificationGasLimit": 0n,
-            "sender": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+            "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
             "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
           }
         `)
@@ -811,7 +825,7 @@ describe('entryPointVersion: 0.8', async () => {
         },
       ],
       authorization: await prepareAuthorization(client, {
-        account,
+        account: owner,
         address: account.implementation,
       }),
       ...fees,
@@ -825,17 +839,17 @@ describe('entryPointVersion: 0.8', async () => {
               "authorization": {
                 "address": "0x48288d0e3079a03f6ec1846554cfc58c2696aaee",
                 "chainId": 1,
-                "nonce": 51,
+                "nonce": 950,
               },
               "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
               "factory": "0x7702",
               "factoryData": "0x",
               "maxFeePerGas": 15000000000n,
               "maxPriorityFeePerGas": 2000000000n,
-              "nonce": 30902162761168922431408390012928n,
+              "nonce": 30902162761205815919555809116160n,
               "paymasterPostOpGasLimit": 0n,
               "paymasterVerificationGasLimit": 0n,
-              "sender": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+              "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
               "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
             }
           `)
@@ -873,7 +887,7 @@ describe('entryPointVersion: 0.8', async () => {
         },
       ],
       authorization: await prepareAuthorization(client, {
-        account,
+        account: owner,
         address: account.implementation,
       }),
       ...fees,
@@ -887,15 +901,15 @@ describe('entryPointVersion: 0.8', async () => {
             "authorization": {
               "address": "0x48288d0e3079a03f6ec1846554cfc58c2696aaee",
               "chainId": 1,
-              "nonce": 51,
+              "nonce": 950,
             },
             "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
             "factory": "0x7702",
             "factoryData": "0x",
             "maxFeePerGas": 15000000000n,
             "maxPriorityFeePerGas": 2000000000n,
-            "nonce": 30902162761187369175482099564544n,
-            "sender": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+            "nonce": 30902162761224262663629518667776n,
+            "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
             "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
           }
         `)
@@ -930,7 +944,7 @@ describe('entryPointVersion: 0.8', async () => {
       ],
       paymaster: '0x0000000000000000000000000000000000000000',
       authorization: await prepareAuthorization(client, {
-        account,
+        account: owner,
         address: account.implementation,
       }),
       ...fees,
@@ -967,7 +981,7 @@ describe('entryPointVersion: 0.8', async () => {
         },
       ],
       authorization: await prepareAuthorization(client, {
-        account,
+        account: owner,
         address: account.implementation,
       }),
     })
@@ -980,17 +994,17 @@ describe('entryPointVersion: 0.8', async () => {
             "authorization": {
               "address": "0x48288d0e3079a03f6ec1846554cfc58c2696aaee",
               "chainId": 1,
-              "nonce": 51,
+              "nonce": 950,
             },
             "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
             "factory": "0x7702",
             "factoryData": "0x",
             "maxFeePerGas": 3000000n,
             "maxPriorityFeePerGas": 1000000n,
-            "nonce": 30902162761224262663629518667776n,
+            "nonce": 30902162761261156151776937771008n,
             "paymasterPostOpGasLimit": 0n,
             "paymasterVerificationGasLimit": 0n,
-            "sender": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+            "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
             "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
           }
         `)
@@ -1002,7 +1016,7 @@ describe('entryPointVersion: 0.8', async () => {
       paymaster: true,
     })
 
-    await expect(() =>
+    await expect(async () =>
       prepareUserOperation(bundlerClient, {
         account,
         calls: [
@@ -1016,6 +1030,10 @@ describe('entryPointVersion: 0.8', async () => {
             functionName: 'mint',
           },
         ],
+        authorization: await prepareAuthorization(client, {
+          account: owner,
+          address: account.implementation,
+        }),
         ...fees,
       }),
     ).rejects.toThrowError()
@@ -1297,7 +1315,17 @@ describe('entryPointVersion: 0.8', async () => {
 })
 
 describe('entryPointVersion: 0.7', async () => {
-  const [account] = await getSmartAccounts_07()
+  let account: Awaited<ReturnType<typeof getSmartAccounts_07>>[0]
+  beforeAll(async () => {
+    await reset(client, {
+      blockNumber: 22239294n,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
+
+    // Get smart accounts after reset is complete
+    const accounts = await getSmartAccounts_07()
+    account = accounts[0]
+  })
 
   test('default', async () => {
     const {
@@ -1331,13 +1359,13 @@ describe('entryPointVersion: 0.7', async () => {
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
+        "factory": "0x74ce26a2e4c1368c48a0157ce762944d282896db",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxPriorityFeePerGas": 2000000000n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
         "preVerificationGas": 53477n,
-        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+        "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -1365,13 +1393,13 @@ describe('entryPointVersion: 0.7', async () => {
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
-        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
+        "factory": "0x74ce26a2e4c1368c48a0157ce762944d282896db",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxPriorityFeePerGas": 2000000000n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
         "preVerificationGas": 51682n,
-        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+        "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -1402,7 +1430,7 @@ describe('entryPointVersion: 0.7', async () => {
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
         "preVerificationGas": 51682n,
-        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+        "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
       }
     `)
   })
@@ -1427,13 +1455,13 @@ describe('entryPointVersion: 0.7', async () => {
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
-        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
+        "factory": "0x74ce26a2e4c1368c48a0157ce762944d282896db",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxPriorityFeePerGas": 2000000000n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
         "preVerificationGas": 51682n,
-        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+        "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
       }
     `)
   })
@@ -1459,13 +1487,13 @@ describe('entryPointVersion: 0.7', async () => {
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
-        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
+        "factory": "0x74ce26a2e4c1368c48a0157ce762944d282896db",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxPriorityFeePerGas": 2000000000n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
         "preVerificationGas": 51682n,
-        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+        "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -1494,13 +1522,13 @@ describe('entryPointVersion: 0.7', async () => {
       expect(request).toMatchInlineSnapshot(`
         {
           "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
-          "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
+          "factory": "0x74ce26a2e4c1368c48a0157ce762944d282896db",
           "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
           "maxPriorityFeePerGas": 1n,
           "paymasterPostOpGasLimit": 0n,
           "paymasterVerificationGasLimit": 0n,
           "preVerificationGas": 51682n,
-          "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+          "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
           "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
         }
       `)
@@ -1527,13 +1555,13 @@ describe('entryPointVersion: 0.7', async () => {
       expect(request).toMatchInlineSnapshot(`
         {
           "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
-          "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
+          "factory": "0x74ce26a2e4c1368c48a0157ce762944d282896db",
           "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
           "maxPriorityFeePerGas": 2000000000n,
           "paymasterPostOpGasLimit": 0n,
           "paymasterVerificationGasLimit": 0n,
           "preVerificationGas": 51682n,
-          "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+          "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
           "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
         }
       `)
@@ -1560,13 +1588,13 @@ describe('entryPointVersion: 0.7', async () => {
       expect(request).toMatchInlineSnapshot(`
         {
           "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
-          "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
+          "factory": "0x74ce26a2e4c1368c48a0157ce762944d282896db",
           "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
           "maxPriorityFeePerGas": 2n,
           "paymasterPostOpGasLimit": 0n,
           "paymasterVerificationGasLimit": 0n,
           "preVerificationGas": 51682n,
-          "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+          "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
           "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
         }
       `)
@@ -1658,15 +1686,15 @@ describe('entryPointVersion: 0.7', async () => {
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
+        "factory": "0x74ce26a2e4c1368c48a0157ce762944d282896db",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
-        "paymaster": "0x2c56932223cde0d363266f1308c48ff1bf9f9041",
+        "paymaster": "0x7c77704007c9996ee591c516f7319828ba49d91e",
         "paymasterPostOpGasLimit": 1000000n,
         "paymasterVerificationGasLimit": 1000000n,
         "preVerificationGas": 59866n,
-        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+        "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -1754,15 +1782,15 @@ describe('entryPointVersion: 0.7', async () => {
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
+        "factory": "0x74ce26a2e4c1368c48a0157ce762944d282896db",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
-        "paymaster": "0xda796117bf6905dd8db2ff1ab4397f6d2c4adda3",
+        "paymaster": "0x081f08945fd17c5470f7bcee23fb57ab1099428e",
         "paymasterPostOpGasLimit": 1000000n,
         "paymasterVerificationGasLimit": 1000000n,
         "preVerificationGas": 59866n,
-        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+        "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -1820,14 +1848,14 @@ describe('entryPointVersion: 0.7', async () => {
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
+        "factory": "0x74ce26a2e4c1368c48a0157ce762944d282896db",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
-        "paymaster": "0x222d74f33b0d07687a769a44399e2272a4cb9ffe",
+        "paymaster": "0xf102f0173707c6726543d65fa38025eb72026c37",
         "paymasterPostOpGasLimit": 1000000n,
         "paymasterVerificationGasLimit": 1000000n,
-        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+        "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -1879,14 +1907,14 @@ describe('entryPointVersion: 0.7', async () => {
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
+        "factory": "0x74ce26a2e4c1368c48a0157ce762944d282896db",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
-        "paymaster": "0x88777418972fb3f58489303d763d4daf398a6527",
+        "paymaster": "0x5edb3ff1ea450d1ff6d614f24f5c760761f7f688",
         "paymasterPostOpGasLimit": 1000000n,
         "paymasterVerificationGasLimit": 1000000n,
-        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+        "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -1927,12 +1955,12 @@ describe('entryPointVersion: 0.7', async () => {
       {
         "account": undefined,
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
+        "factory": "0x74ce26a2e4c1368c48a0157ce762944d282896db",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxPriorityFeePerGas": 2000000000n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
-        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+        "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
         "signature": "0xdeadbeef",
       }
     `)
@@ -1976,13 +2004,13 @@ describe('entryPointVersion: 0.7', async () => {
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
+        "factory": "0x74ce26a2e4c1368c48a0157ce762944d282896db",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
-        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+        "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -2030,11 +2058,11 @@ describe('entryPointVersion: 0.7', async () => {
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
+        "factory": "0x74ce26a2e4c1368c48a0157ce762944d282896db",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
-        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+        "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -2111,13 +2139,13 @@ describe('entryPointVersion: 0.7', async () => {
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
+        "factory": "0x74ce26a2e4c1368c48a0157ce762944d282896db",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 3000000n,
         "maxPriorityFeePerGas": 1000000n,
         "paymasterPostOpGasLimit": 0n,
         "paymasterVerificationGasLimit": 0n,
-        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+        "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -2193,14 +2221,14 @@ describe('entryPointVersion: 0.7', async () => {
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
+        "factory": "0x74ce26a2e4c1368c48a0157ce762944d282896db",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
-        "paymaster": "0x4728af32823cf144586dab95632156cc81bb0203",
+        "paymaster": "0x81a5186946ce055a5ceec93cd97c7e7ede7da922",
         "paymasterPostOpGasLimit": 1000000n,
         "paymasterVerificationGasLimit": 1000000n,
-        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+        "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -2255,14 +2283,14 @@ describe('entryPointVersion: 0.7', async () => {
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
+        "factory": "0x74ce26a2e4c1368c48a0157ce762944d282896db",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
-        "paymaster": "0x37d0ed258f37a966f33b75b5ae7486917a0ae614",
+        "paymaster": "0x98f74b7c96497070ba5052e02832ef9892962e62",
         "paymasterPostOpGasLimit": 1000000n,
         "paymasterVerificationGasLimit": 1000000n,
-        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+        "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -2320,14 +2348,14 @@ describe('entryPointVersion: 0.7', async () => {
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
+        "factory": "0x74ce26a2e4c1368c48a0157ce762944d282896db",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
-        "paymaster": "0x294c69bd8415219b41b68a2f065deabb950dd489",
+        "paymaster": "0x831c6c334f8ddee62246a5c81b82c8e18008b38f",
         "paymasterPostOpGasLimit": 1000000n,
         "paymasterVerificationGasLimit": 1000000n,
-        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+        "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -2379,14 +2407,14 @@ describe('entryPointVersion: 0.7', async () => {
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
-        "factory": "0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73",
+        "factory": "0x74ce26a2e4c1368c48a0157ce762944d282896db",
         "factoryData": "0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxFeePerGas": 15000000000n,
         "maxPriorityFeePerGas": 2000000000n,
-        "paymaster": "0x48288d0e3079a03f6ec1846554cfc58c2696aaee",
+        "paymaster": "0xf47e3b0a1952a81f1afc41172762cb7ce8700133",
         "paymasterPostOpGasLimit": 1000000n,
         "paymasterVerificationGasLimit": 1000000n,
-        "sender": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+        "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -2409,7 +2437,17 @@ describe('entryPointVersion: 0.7', async () => {
 })
 
 describe('entryPointVersion: 0.6', async () => {
-  const [account] = await getSmartAccounts_06()
+  let account: Awaited<ReturnType<typeof getSmartAccounts_06>>[0]
+  beforeAll(async () => {
+    await reset(client, {
+      blockNumber: 22239294n,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
+
+    // Get smart accounts after reset is complete
+    const accounts = await getSmartAccounts_06()
+    account = accounts[0]
+  })
 
   test('default', async () => {
     const {
@@ -2433,12 +2471,12 @@ describe('entryPointVersion: 0.6', async () => {
     expect(request).toMatchInlineSnapshot(`
       {
         "callData": "0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000",
-        "initCode": "0xc565eb7363769f8ffae0005285ccd854c631a0a0f14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
+        "initCode": "0x74ce26a2e4c1368c48a0157ce762944d282896dbf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
         "maxPriorityFeePerGas": 2000000000n,
         "paymasterAndData": "0x",
         "paymasterPostOpGasLimit": undefined,
         "paymasterVerificationGasLimit": undefined,
-        "sender": "0x5d146EE4f31D852361f18B9CFCc510f773d6BC78",
+        "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
         "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
       }
     `)
@@ -2480,7 +2518,7 @@ describe('entryPointVersion: 0.6', async () => {
         "paymasterAndData": "0x",
         "paymasterPostOpGasLimit": undefined,
         "paymasterVerificationGasLimit": undefined,
-        "sender": "0x5d146EE4f31D852361f18B9CFCc510f773d6BC78",
+        "sender": "0xB7736b6eFedB1E7103F403122e35f2F015dE01c2",
       }
     `)
   })

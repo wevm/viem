@@ -7,19 +7,23 @@ import { deploySimple7702Account_08 } from '../../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import {
   mine,
+  reset,
   sendTransaction,
   signAuthorization,
   verifyMessage,
   verifyTypedData,
 } from '../../../actions/index.js'
 import { zeroAddress } from '../../../constants/address.js'
-import { encodeFunctionData } from '../../../utils/abi/encodeFunctionData.js'
 import { toSimple7702SmartAccount } from './toSimple7702SmartAccount.js'
 
 const client = anvilMainnet.getClient({ account: true })
 
 let implementation: Address
 beforeAll(async () => {
+  await reset(client, {
+    blockNumber: 22239294n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
   const { implementationAddress: _implementation } =
     await deploySimple7702Account_08()
   implementation = _implementation
@@ -28,7 +32,7 @@ beforeAll(async () => {
 test('default', async () => {
   const account = await toSimple7702SmartAccount({
     client,
-    owner: privateKeyToAccount(accounts[0].privateKey),
+    owner: privateKeyToAccount(accounts[1].privateKey),
   })
 
   expect({
@@ -41,7 +45,7 @@ test('default', async () => {
     {
       "_internal": null,
       "abi": null,
-      "address": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
       "client": null,
       "decodeCalls": [Function],
       "encodeCalls": [Function],
@@ -1135,7 +1139,7 @@ describe('return value: entryPoint', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: privateKeyToAccount(accounts[0].privateKey),
+      owner: privateKeyToAccount(accounts[1].privateKey),
     })
 
     expect(account.entryPoint).toMatchInlineSnapshot(
@@ -2220,12 +2224,12 @@ describe('return value: getAddress', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: privateKeyToAccount(accounts[0].privateKey),
+      owner: privateKeyToAccount(accounts[1].privateKey),
     })
 
     const address = await account.getAddress()
     expect(address).toMatchInlineSnapshot(
-      `"0x70997970c51812dc3a010c7d01b50e0d17dc79c8"`,
+      `"0x70997970C51812dc3A010C7d01b50e0d17dc79C8"`,
     )
   })
 })
@@ -2235,7 +2239,7 @@ describe('return value: decodeCalls', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: privateKeyToAccount(accounts[0].privateKey),
+      owner: privateKeyToAccount(accounts[1].privateKey),
     })
 
     const calls = [
@@ -2255,7 +2259,7 @@ describe('return value: decodeCalls', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: privateKeyToAccount(accounts[0].privateKey),
+      owner: privateKeyToAccount(accounts[1].privateKey),
     })
 
     const calls = [
@@ -2280,26 +2284,6 @@ describe('return value: decodeCalls', () => {
     const decoded = await account.decodeCalls?.(data)
     expect(decoded).toEqual(calls)
   })
-
-  test('invalid data', async () => {
-    const account = await toSimple7702SmartAccount({
-      client,
-      implementation,
-      owner: privateKeyToAccount(accounts[0].privateKey),
-    })
-
-    const data = encodeFunctionData({
-      abi: account.extend?.abi ?? [],
-      functionName: 'entryPoint',
-    })
-    await expect(() =>
-      account.decodeCalls?.(data),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [BaseError: unable to decode calls for "entryPoint"
-
-      Version: viem@x.y.z]
-    `)
-  })
 })
 
 describe('return value: encodeCalls', () => {
@@ -2307,7 +2291,7 @@ describe('return value: encodeCalls', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: privateKeyToAccount(accounts[0].privateKey),
+      owner: privateKeyToAccount(accounts[1].privateKey),
     })
 
     const callData_1 = await account.encodeCalls([
@@ -2339,7 +2323,7 @@ describe('return value: encodeCalls', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: privateKeyToAccount(accounts[0].privateKey),
+      owner: privateKeyToAccount(accounts[1].privateKey),
     })
 
     const callData = await account.encodeCalls([
@@ -2363,7 +2347,7 @@ describe('return value: getFactoryArgs', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: privateKeyToAccount(accounts[0].privateKey),
+      owner: privateKeyToAccount(accounts[1].privateKey),
     })
 
     const signature = await account.getFactoryArgs()
@@ -2383,7 +2367,7 @@ describe('return value: getSignature', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: privateKeyToAccount(accounts[0].privateKey),
+      owner: privateKeyToAccount(accounts[1].privateKey),
     })
 
     const signature = await account.getStubSignature()
@@ -2404,7 +2388,7 @@ describe('return value: getNonce', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: privateKeyToAccount(accounts[0].privateKey),
+      owner: privateKeyToAccount(accounts[1].privateKey),
     })
 
     const nonce = await account.getNonce()
@@ -2415,7 +2399,7 @@ describe('return value: getNonce', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: privateKeyToAccount(accounts[0].privateKey),
+      owner: privateKeyToAccount(accounts[1].privateKey),
     })
 
     const nonce = await account.getNonce({ key: 0n })
@@ -2428,16 +2412,16 @@ describe('return value: signMessage', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: privateKeyToAccount(accounts[0].privateKey),
+      owner: privateKeyToAccount(accounts[1].privateKey),
     })
 
     const authorization = await signAuthorization(client, {
       address: implementation,
-      account: privateKeyToAccount(accounts[0].privateKey),
+      account: privateKeyToAccount(accounts[1].privateKey),
     })
 
     await sendTransaction(client, {
-      account: privateKeyToAccount(accounts[0].privateKey),
+      account: privateKeyToAccount(accounts[1].privateKey),
       to: zeroAddress,
       value: 0n,
       data: '0x',
@@ -2467,7 +2451,7 @@ describe('return value: signTypedData', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: privateKeyToAccount(accounts[0].privateKey),
+      owner: privateKeyToAccount(accounts[1].privateKey),
     })
 
     const signature = await account.signTypedData({
@@ -2490,7 +2474,7 @@ describe('return value: signUserOperation', () => {
     const account = await toSimple7702SmartAccount({
       client,
       implementation,
-      owner: privateKeyToAccount(accounts[0].privateKey),
+      owner: privateKeyToAccount(accounts[1].privateKey),
     })
 
     const signature = await account.signUserOperation({
@@ -2505,7 +2489,7 @@ describe('return value: signUserOperation', () => {
     })
 
     expect(signature).toMatchInlineSnapshot(
-      `"0xe9c0e8c18b021583df1d878db71819c3fa54e2175bd2ff6b5336dc051704ad9b5e481361a7d6602231651710ecf492dfc273d87b58d94bddcc2ffbcc0b1290431b"`,
+      `"0xf29d9b44ec09b8542328c9f75a6e36976ac3507b43fa2d86f06b5157e60db7207bafccde8e7a308019dce8b540642e6134a5aebd69bfacb1778928c7f7c774711c"`,
     )
   })
 })

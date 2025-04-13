@@ -34,10 +34,10 @@ export {
   type ToWebAuthnAccountErrorType,
   toWebAuthnAccount,
 } from './accounts/toWebAuthnAccount.js'
-export {
-  type SmartAccount,
-  type SmartAccountImplementation,
-  type WebAuthnAccount,
+export type {
+  SmartAccount,
+  SmartAccountImplementation,
+  WebAuthnAccount,
 } from './accounts/types.js'
 
 export {
