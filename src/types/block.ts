@@ -84,37 +84,23 @@ export type BlockIdentifier<quantity = bigint> = {
 )
 
 
-/**
- * Represents a block number in the blockchain.
- * 
- * @typeParam quantity - The numeric type used, defaults to bigint
- */
+/** Represents a block number in the blockchain. */
 export type BlockNumber<quantity = bigint> = quantity
 
 /**
  * Specifies a particular block in the blockchain.
- * 
- * @remarks
  *
- * "latest"` - for the latest proposed block
- *  - the most recent block to be proposed
- *
- * "earliest"` for the earliest/genesis block
- *  - The lowest numbered block the client has available
- *
- * "pending"` - for the pending state/transactions
- *  -  Next block built by the client on top of unsafe and containing the set of transactions usually taken from local mempool
- *
- * "safe"` - for the latest safe head block
- *  - The most recent block that is safe from re-orgs under honest majority and certain synchronicity assumptions
- *
- * "finalized"` - for the latest finalized block
- *  - The most recent crypto-economically secure block; cannot be re-orged outside of manual intervention driven by community coordination
- * 
- * @privateRemarks
+ * - `"latest"`: the latest proposed block
+ * - `"earliest"`: the earliest/genesis block – lowest numbered block the client has available
+ * - `"pending"`: pending state/transactions – next block built by the client on top 
+ *   of unsafe and containing the set of transactions usually taken from local mempool
+ * - `"safe"`: the latest safe head block – the most recent block that is safe from 
+ *   re-orgs under honest majority and certain synchronicity assumptions
+ * - `"finalized"`: the latest finalized block – the most recent crypto-economically secure block; 
+ *   cannot be re-orged outside of manual intervention driven by community coordination
  * 
  * Using `pending`, while allowed, is not advised, as it may lead
- * to internally inconsistent results.  Use of `latest` is safe and will not
+ * to internally inconsistent results. Use of `latest` is safe and will not
  * lead to inconsistent results. Depending on the backing RPC networks caching system,
  * the usage of `pending` may lead to inconsistencies as a result of an 
  * overly aggressive cache system. This may cause downstream errors/invalid states.
