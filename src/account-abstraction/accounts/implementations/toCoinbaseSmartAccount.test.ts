@@ -1,10 +1,11 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
 import { accounts, typedData } from '../../../../test/src/constants.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import {
   mine,
+  reset,
   sendTransaction,
   verifyHash,
   verifyMessage,
@@ -646,18 +647,25 @@ describe('wrapSignature', () => {
 })
 
 describe('smoke', async () => {
-  const account = await toCoinbaseSmartAccount({
-    client,
-    owners: [owner],
-  })
+  let account: Awaited<ReturnType<typeof toCoinbaseSmartAccount>>
 
-  await sendTransaction(client, {
-    account: accounts[9].address,
-    to: account.address,
-    value: parseEther('100'),
-  })
-  await mine(client, {
-    blocks: 1,
+  beforeAll(async () => {
+    await reset(client, {
+      blockNumber: 22239294n,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
+    account = await toCoinbaseSmartAccount({
+      client,
+      owners: [owner],
+    })
+    await sendTransaction(client, {
+      account: accounts[9].address,
+      to: account.address,
+      value: parseEther('100'),
+    })
+    await mine(client, {
+      blocks: 1,
+    })
   })
 
   beforeEach(() => {
