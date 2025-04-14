@@ -29,7 +29,7 @@ test('default', async () => {
     {
       "_internal": null,
       "abi": null,
-      "address": "0x5DE8369D07A58C1d371A091979956d08b40ceA59",
+      "address": "0x7473Fcb76634352e4CbA37CFad3783B059792b44",
       "client": null,
       "decodeCalls": [Function],
       "encodeCalls": [Function],
@@ -982,7 +982,7 @@ test('return value: `getFactoryArgs`', async () => {
 
   expect(await account.getFactoryArgs()).toMatchInlineSnapshot(`
     {
-      "factory": "0x88777418972fb3f58489303d763d4daf398a6527",
+      "factory": "0xfc3983de3f7cbe1ba01084469779470ad0bbeffa",
       "factoryData": "0xf14ddffc00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c80000000000000000000000000000000000000000000000000000000000000000",
     }
   `)
