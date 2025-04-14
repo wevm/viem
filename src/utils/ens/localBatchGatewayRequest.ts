@@ -4,13 +4,19 @@ import type { Hex } from '../../types/misc.js'
 import { decodeFunctionData } from '../abi/decodeFunctionData.js'
 import { encodeErrorResult } from '../abi/encodeErrorResult.js'
 import { encodeFunctionResult } from '../abi/encodeFunctionResult.js'
-import type { CcipRequestErrorType, ccipRequest } from '../ccip.js'
+import type {
+  CcipRequestErrorType,
+  CcipRequestParameters,
+  CcipRequestReturnType,
+} from '../ccip.js'
 
 export const localBatchGatewayUrl = 'x-batch-gateway:true'
 
 export async function localBatchGatewayRequest(parameters: {
   data: Hex
-  ccipRequest: typeof ccipRequest
+  ccipRequest: (
+    parameters: CcipRequestParameters,
+  ) => Promise<CcipRequestReturnType>
 }): Promise<Hex> {
   const { data, ccipRequest } = parameters
 
