@@ -67,7 +67,7 @@ const gas = await publicClient.estimateGas({
 
 - **Type:** `0x${string}`
 
-Contract code or a hashed method call with encoded args.
+Contract code or a hashed method call with encoded args.  The args can be encoded using [encodeFunctionData](/docs/contract/encodeFunctionData).
 
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts]
