@@ -9,7 +9,7 @@ export const bsc = /*#__PURE__*/ defineChain({
     symbol: 'BNB',
   },
   rpcUrls: {
-    default: { http: ['https://rpc.ankr.com/bsc'] },
+    default: { http: ['https://56.rpc.thirdweb.com'] },
   },
   blockExplorers: {
     default: {

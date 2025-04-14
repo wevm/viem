@@ -14,7 +14,7 @@ export type GetL1AllowanceParameters<
   account extends Account | undefined = Account | undefined,
 > = GetAccountParameter<account> & {
   bridgeAddress: Address
-  blockTag?: BlockTag
+  blockTag?: BlockTag | undefined
   token: Address
 }
 

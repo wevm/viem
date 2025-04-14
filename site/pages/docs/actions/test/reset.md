@@ -40,7 +40,7 @@ Resets the fork to a given block number.
 ```ts
 await testClient.reset({
   blockNumber: 69420n, // [!code focus]
-  jsonRpcUrl: 'https://mainnet.g.alchemy.com/v2'
+  jsonRpcUrl: 'https://1.rpc.thirdweb.com'
 })
 ```
 
@@ -53,6 +53,6 @@ Resets the fork with a given JSON RPC URL.
 ```ts
 await testClient.reset({
   blockNumber: 69420n,
-  jsonRpcUrl: 'https://mainnet.g.alchemy.com/v2' // [!code focus]
+  jsonRpcUrl: 'https://1.rpc.thirdweb.com' // [!code focus]
 })
 ```

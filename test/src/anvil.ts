@@ -1,5 +1,6 @@
 import { createServer } from 'prool'
 import { type AnvilParameters, anvil } from 'prool/instances'
+
 import { mainnet, optimism, sepolia, zksync } from '../../src/chains/index.js'
 import { ipc } from '../../src/clients/transports/ipc.js'
 import {
@@ -21,7 +22,7 @@ import { accounts, poolId } from './constants.js'
 export const anvilMainnet = defineAnvil({
   chain: mainnet,
   forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://cloudflare-eth.com'),
-  forkBlockNumber: 19868020n,
+  forkBlockNumber: 22263623n,
   noMining: true,
   port: 8545,
 })
@@ -232,6 +233,7 @@ function defineAnvil<const chain extends Chain>(
     async start() {
       return await createServer({
         instance: anvil({
+          chainId: chain.id,
           forkUrl,
           forkBlockNumber,
           hardfork: 'Prague',

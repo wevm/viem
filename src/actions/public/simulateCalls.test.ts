@@ -106,7 +106,7 @@ test('behavior: with mutation calls', async () => {
         "data": "0x",
         "gasUsed": 78394n,
         "logs": null,
-        "result": undefined,
+        "result": null,
         "status": "success",
       },
     ]
@@ -208,7 +208,7 @@ test('behavior: with mutation calls + asset changes', async () => {
         "data": "0x",
         "gasUsed": 78394n,
         "logs": null,
-        "result": undefined,
+        "result": null,
         "status": "success",
       },
       {

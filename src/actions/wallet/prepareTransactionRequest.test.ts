@@ -86,10 +86,10 @@ test('legacy fees', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
+        "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -125,10 +125,10 @@ test('args: account', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
+        "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -162,10 +162,10 @@ test('args: chain', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
+        "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -200,10 +200,10 @@ test('args: chainId', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
+        "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -235,10 +235,10 @@ test('args: nonce', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
+        "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -273,10 +273,10 @@ test('args: gasPrice', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
+        "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -310,10 +310,10 @@ test('args: gasPrice (on chain w/ block.baseFeePerGas)', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
+        "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -344,10 +344,10 @@ test('args: maxFeePerGas', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
+        "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -417,10 +417,10 @@ test('args: maxPriorityFeePerGas', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
+        "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -452,10 +452,10 @@ test('args: maxPriorityFeePerGas === 0', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
+        "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -509,10 +509,10 @@ test('args: maxFeePerGas + maxPriorityFeePerGas', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
+        "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -581,10 +581,10 @@ test('args: type', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
+        "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -622,10 +622,10 @@ test('args: blobs', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
+        "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -665,10 +665,10 @@ test('args: parameters', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
+        "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -692,10 +692,10 @@ test('args: parameters', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
+        "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -722,10 +722,10 @@ test('args: parameters', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
+        "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -736,7 +736,7 @@ test('args: parameters', async () => {
       "gas": 21000n,
       "maxFeePerGas": 13000000000n,
       "maxPriorityFeePerGas": 1000000000n,
-      "nonce": 663,
+      "nonce": 953,
       "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
       "type": "eip1559",
       "value": 1000000000000000000n,
@@ -753,10 +753,10 @@ test('args: parameters', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
+        "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -767,7 +767,7 @@ test('args: parameters', async () => {
       "gas": 21000n,
       "maxFeePerGas": 13000000000n,
       "maxPriorityFeePerGas": 1000000000n,
-      "nonce": 663,
+      "nonce": 953,
       "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
       "type": "eip1559",
       "value": 1000000000000000000n,
@@ -801,10 +801,10 @@ test('args: parameters', async () => {
     {
       "account": {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "experimental_signAuthorization": [Function],
         "nonceManager": undefined,
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
+        "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
@@ -978,10 +978,10 @@ test('behavior: nonce manager', async () => {
   } as const
 
   const request_1 = await prepareTransactionRequest(client, args)
-  expect(request_1.nonce).toBe(663)
+  expect(request_1.nonce).toBe(953)
 
   const request_2 = await prepareTransactionRequest(client, args)
-  expect(request_2.nonce).toBe(664)
+  expect(request_2.nonce).toBe(954)
 
   const [request_3, request_4, request_5] = await Promise.all([
     prepareTransactionRequest(client, args),
@@ -989,7 +989,7 @@ test('behavior: nonce manager', async () => {
     prepareTransactionRequest(client, args),
   ])
 
-  expect(request_3.nonce).toBe(665)
-  expect(request_4.nonce).toBe(666)
-  expect(request_5.nonce).toBe(667)
+  expect(request_3.nonce).toBe(955)
+  expect(request_4.nonce).toBe(956)
+  expect(request_5.nonce).toBe(957)
 })

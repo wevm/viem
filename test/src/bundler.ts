@@ -109,9 +109,8 @@ function defineBundler<const chain extends Chain>({
               '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',
               '0x0000000071727De22E5E9d8BAf0edAc6f37da032',
             ],
-            entrypointSimulationContract:
-              '0x74Cb5e4eE81b86e70f9045036a1C5477de69eE87',
-            executorPrivateKeys: [accounts[0].privateKey],
+            executorPrivateKeys: [accounts[3].privateKey],
+            utilityPrivateKey: accounts[3].privateKey,
             rpcUrl: rpcUrl(key),
             safeMode: false,
           }),

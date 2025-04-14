@@ -19,6 +19,19 @@ export const sidebar = {
         { text: 'Ethers v5 → viem', link: '/docs/ethers-migration' },
         { text: 'TypeScript', link: '/docs/typescript' },
         { text: 'Error Handling', link: '/docs/error-handling' },
+        {
+          text: 'EIP-7702',
+          link: '/docs/eip7702',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/docs/eip7702' },
+            { text: 'Contract Writes', link: '/docs/eip7702/contract-writes' },
+            {
+              text: 'Sending Transactions',
+              link: '/docs/eip7702/sending-transactions',
+            },
+          ],
+        },
         { text: 'Blob Transactions', link: '/docs/guides/blob-transactions' },
       ],
     },
@@ -773,6 +786,59 @@ export const sidebar = {
       ],
     },
     {
+      text: 'EIP-7702',
+      collapsed: true,
+      items: [
+        {
+          text: 'Overview',
+          link: '/docs/eip7702',
+        },
+        {
+          text: 'Guides',
+          items: [
+            {
+              text: 'Contract Writes',
+              link: '/docs/eip7702/contract-writes',
+            },
+            {
+              text: 'Sending Transactions',
+              link: '/docs/eip7702/sending-transactions',
+            },
+          ],
+        },
+        {
+          text: 'Actions',
+          items: [
+            {
+              text: 'prepareAuthorization',
+              link: '/docs/eip7702/prepareAuthorization',
+            },
+            {
+              text: 'signAuthorization',
+              link: '/docs/eip7702/signAuthorization',
+            },
+          ],
+        },
+        {
+          text: 'Utilities',
+          items: [
+            {
+              text: 'hashAuthorization',
+              link: '/docs/eip7702/hashAuthorization',
+            },
+            {
+              text: 'recoverAuthorizationAddress',
+              link: '/docs/eip7702/recoverAuthorizationAddress',
+            },
+            {
+              text: 'verifyAuthorization',
+              link: '/docs/eip7702/verifyAuthorization',
+            },
+          ],
+        },
+      ],
+    },
+    {
       text: 'Utilities',
       collapsed: true,
       items: [
@@ -1289,61 +1355,9 @@ export const sidebar = {
                 text: 'showCallsStatus',
                 link: '/experimental/eip5792/showCallsStatus',
               },
-            ],
-          },
-        ],
-      },
-      {
-        text: 'EIP-7702',
-        items: [
-          {
-            text: 'Overview',
-            link: '/experimental/eip7702',
-          },
-          {
-            text: 'Guides',
-            items: [
               {
-                text: 'Extending Client',
-                link: '/experimental/eip7702/client',
-              },
-              {
-                text: 'Contract Writes',
-                link: '/experimental/eip7702/contract-writes',
-              },
-              {
-                text: 'Sending Transactions',
-                link: '/experimental/eip7702/sending-transactions',
-              },
-            ],
-          },
-          {
-            text: 'Actions',
-            items: [
-              {
-                text: 'prepareAuthorization',
-                link: '/experimental/eip7702/prepareAuthorization',
-              },
-              {
-                text: 'signAuthorization',
-                link: '/experimental/eip7702/signAuthorization',
-              },
-            ],
-          },
-          {
-            text: 'Utilities',
-            items: [
-              {
-                text: 'hashAuthorization',
-                link: '/experimental/eip7702/hashAuthorization',
-              },
-              {
-                text: 'recoverAuthorizationAddress',
-                link: '/experimental/eip7702/recoverAuthorizationAddress',
-              },
-              {
-                text: 'verifyAuthorization',
-                link: '/experimental/eip7702/verifyAuthorization',
+                text: 'waitForCallsStatus',
+                link: '/experimental/eip5792/waitForCallsStatus',
               },
             ],
           },
@@ -1796,6 +1810,10 @@ export const sidebar = {
             text: 'getL1TokenBalance',
             link: '/zksync/actions/getL1TokenBalance',
           },
+          {
+            text: 'isWithdrawalFinalized',
+            link: '/zksync/actions/isWithdrawalFinalized',
+          },
         ],
       },
       {
@@ -1817,6 +1835,10 @@ export const sidebar = {
           {
             text: 'finalizeWithdrawal',
             link: '/zksync/actions/finalizeWithdrawal',
+          },
+          {
+            text: 'deposit',
+            link: '/zksync/actions/deposit',
           },
         ],
       },

@@ -1,5 +1,273 @@
 # viem
 
+## 2.26.5
+
+### Patch Changes
+
+- [#3558](https://github.com/wevm/viem/pull/3558) [`ba55147b8b42552d29c25be6368c6e4bb50bb25c`](https://github.com/wevm/viem/commit/ba55147b8b42552d29c25be6368c6e4bb50bb25c) Thanks [@jxom](https://github.com/jxom)! - Added EIP-5792 errors.
+
+## 2.26.4
+
+### Patch Changes
+
+- [#3553](https://github.com/wevm/viem/pull/3553) [`7487580941c1527483dca5267bd6817913d01aeb`](https://github.com/wevm/viem/commit/7487580941c1527483dca5267bd6817913d01aeb) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Lens mainnet.
+
+## 2.26.3
+
+### Patch Changes
+
+- [`973d88ea66192c8a73410ca2dea2034e6a2c96a1`](https://github.com/wevm/viem/commit/973d88ea66192c8a73410ca2dea2034e6a2c96a1) Thanks [@jxom](https://github.com/jxom)! - **Experimental (EIP-5792):** Fixed `getCallsStatus` return value
+
+## 2.26.2
+
+### Patch Changes
+
+- [`f736d9b2a6711a739a1fbae8c3c18fb694b407a4`](https://github.com/wevm/viem/commit/f736d9b2a6711a739a1fbae8c3c18fb694b407a4) Thanks [@jxom](https://github.com/jxom)! - Exported `withCache`.
+
+## 2.26.1
+
+### Patch Changes
+
+- [#3545](https://github.com/wevm/viem/pull/3545) [`33a01b96554759bb9fa60d3c4bfc1c2cd5974ddc`](https://github.com/wevm/viem/commit/33a01b96554759bb9fa60d3c4bfc1c2cd5974ddc) Thanks [@bmzig](https://github.com/bmzig)! - **OP Stack:** Fixed `Unproven` case.
+
+## 2.26.0
+
+### Minor Changes
+
+- [#3542](https://github.com/wevm/viem/pull/3542) [`082c3d0fcc2e376954116d380c65c6ac95293681`](https://github.com/wevm/viem/commit/082c3d0fcc2e376954116d380c65c6ac95293681) Thanks [@jxom](https://github.com/jxom)! - **Breaking (Experimental):** Updated EIP-5792 to the latest spec changes. The following APIs have been updated:
+
+  #### `getCallsStatus`
+
+  ```diff
+  const result = await client.getCallsStatus({ id })
+  //    ^?
+        {
+  +       atomic: boolean
+  +       chainId: number
+  +       id: string
+          receipts: Receipt[]
+  -       status: 'PENDING' | 'CONFIRMED'
+  +       status: 'pending' | 'success' | 'failure' | undefined
+  +       statusCode: number
+  +       version: string
+  }
+  ```
+
+  #### `sendCalls`
+
+  ```diff
+  const result = await client.sendCalls({ calls })
+  //    ^?
+  -     string
+  +     { id: string, capabilities?: Capabilities }
+  ```
+
+  #### `waitForCallsStatus`
+
+  ```diff
+  const result = await client.waitForCallsStatus({ id })
+  //    ^?
+        {
+  +       atomic: boolean
+  +       chainId: number
+  +       id: string
+          receipts: Receipt[]
+  -       status: 'PENDING' | 'CONFIRMED'
+  +       status: 'pending' | 'success' | 'failure' | undefined
+  +       statusCode: number
+  +       version: string
+  }
+  ```
+
+### Patch Changes
+
+- [#3542](https://github.com/wevm/viem/pull/3542) [`082c3d0fcc2e376954116d380c65c6ac95293681`](https://github.com/wevm/viem/commit/082c3d0fcc2e376954116d380c65c6ac95293681) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added `forceAtomic` and `id` parameters to `sendCalls`
+
+## 2.25.0
+
+### Minor Changes
+
+- [#3540](https://github.com/wevm/viem/pull/3540) [`48cffbc3175f02c0f3835230b8945802e34a1220`](https://github.com/wevm/viem/commit/48cffbc3175f02c0f3835230b8945802e34a1220) Thanks [@jxom](https://github.com/jxom)! - Added `ensTlds` chain config option.
+
+### Patch Changes
+
+- [`58db8b90d72983814664b12bd27bcd2bdf0f15f3`](https://github.com/wevm/viem/commit/58db8b90d72983814664b12bd27bcd2bdf0f15f3) Thanks [@jxom](https://github.com/jxom)! - **OP Stack:** Fixed unhandled `waiting-to-prove` case.
+
+- [#3537](https://github.com/wevm/viem/pull/3537) [`e367fdb4b0e866bd31e8240032632b6512c9a422`](https://github.com/wevm/viem/commit/e367fdb4b0e866bd31e8240032632b6512c9a422) Thanks [@alainncls](https://github.com/alainncls)! - Added ENS contracts to Linea Sepolia and Mainnet.
+
+## 2.24.3
+
+### Patch Changes
+
+- [#3508](https://github.com/wevm/viem/pull/3508) [`cd5fb433a1f90bce39ae5846cb58770066c4ed10`](https://github.com/wevm/viem/commit/cd5fb433a1f90bce39ae5846cb58770066c4ed10) Thanks [@noface-infinex](https://github.com/noface-infinex)! - Added megaeth testnet multicall3 address.
+
+- [#3522](https://github.com/wevm/viem/pull/3522) [`bc2fbdeac97c2958f9b0d21c01167e23604fbfdf`](https://github.com/wevm/viem/commit/bc2fbdeac97c2958f9b0d21c01167e23604fbfdf) Thanks [@petermetz](https://github.com/petermetz)! - Ensured that the `keepAlive` and `reconnect` parameters are passed through to
+  the underlying implementation (`getWebSocketRpcClient()`) when the top level
+  `webSocket()` transport factory function is called with them specified.
+
+- [#3510](https://github.com/wevm/viem/pull/3510) [`d8f2ab6236346c02da511c7b310cdcc660773576`](https://github.com/wevm/viem/commit/d8f2ab6236346c02da511c7b310cdcc660773576) Thanks [@jeanregisser](https://github.com/jeanregisser)! - **Celo:** Removed check for L2 in fee estimation following the successful hardfork.
+
+- [#3514](https://github.com/wevm/viem/pull/3514) [`3ca83a8cd985eb2bee462e74eb09d0a759b3b0d9`](https://github.com/wevm/viem/commit/3ca83a8cd985eb2bee462e74eb09d0a759b3b0d9) Thanks [@darwintree](https://github.com/darwintree)! - Updated ConfluxScan links
+
+- [#3523](https://github.com/wevm/viem/pull/3523) [`3af11a52f25578fc72248879c3090d38c94fdf8b`](https://github.com/wevm/viem/commit/3af11a52f25578fc72248879c3090d38c94fdf8b) Thanks [@biruichen](https://github.com/biruichen)! - Added Swellchain Testnet.
+
+- [#3529](https://github.com/wevm/viem/pull/3529) [`77a0938552cbcce6ff8aac4ff4ae57c3fa3a45df`](https://github.com/wevm/viem/commit/77a0938552cbcce6ff8aac4ff4ae57c3fa3a45df) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Added Westend Asset Hub network
+
+- [#3530](https://github.com/wevm/viem/pull/3530) [`cf58f89206df56aba82a52302a43846ea58fdfae`](https://github.com/wevm/viem/commit/cf58f89206df56aba82a52302a43846ea58fdfae) Thanks [@jxom](https://github.com/jxom)! - Optimized OP Stack gas & fee estimation, and resolved #3513.
+
+## 2.24.2
+
+### Patch Changes
+
+- [#3517](https://github.com/wevm/viem/pull/3517) [`3032dca3e57f5f7c5647ddc9fdbdbc6c7ec8f694`](https://github.com/wevm/viem/commit/3032dca3e57f5f7c5647ddc9fdbdbc6c7ec8f694) Thanks [@jxom](https://github.com/jxom)! - Added missing deprecated `viem/experimental` exports.
+
+## 2.24.1
+
+### Patch Changes
+
+- [`f988a5762f7ffdd0d1c3bab7de1f4e706bab59ae`](https://github.com/wevm/viem/commit/f988a5762f7ffdd0d1c3bab7de1f4e706bab59ae) Thanks [@jxom](https://github.com/jxom)! - Fixed `Authorization` type.
+
+- [`69e116862b8903b920485f685e99c16323130870`](https://github.com/wevm/viem/commit/69e116862b8903b920485f685e99c16323130870) Thanks [@jxom](https://github.com/jxom)! - Fixed `Authorization` type.
+
+## 2.24.0
+
+### Minor Changes
+
+- [#3427](https://github.com/wevm/viem/pull/3427) [`2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7`](https://github.com/wevm/viem/commit/2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7) Thanks [@jxom](https://github.com/jxom)! - Stabilized EIP-7702.
+
+  - Added `prepareAuthorization` and `signAuthorization` Actions to the Wallet Client.
+  - Added `hashAuthorization`, `recoverAuthorizationAddress`, and `verifyAuthorization` Utilities.
+  - Renamed `account.experimental_signAuthorization` to `account.signAuthorization`.
+
+- [#3427](https://github.com/wevm/viem/pull/3427) [`2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7`](https://github.com/wevm/viem/commit/2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7) Thanks [@jxom](https://github.com/jxom)! - **BREAKING (Experimental)**: Removed deprecated `walletActionsEip5792` export. Use `eip5792Actions` instead.
+
+- [#3427](https://github.com/wevm/viem/pull/3427) [`2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7`](https://github.com/wevm/viem/commit/2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7) Thanks [@jxom](https://github.com/jxom)! - **BREAKING (Experimental)**: Removed deprecated ERC-6492 exports in `viem/experimental`. These are no longer experimental. Use exports from `viem` instead.
+
+- [#3427](https://github.com/wevm/viem/pull/3427) [`2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7`](https://github.com/wevm/viem/commit/2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7) Thanks [@jxom](https://github.com/jxom)! - **BREAKING (Experimental)**: Removed deprecated `walletActionsErc7715` export. Use `erc7715Actions` instead.
+
+- [#3427](https://github.com/wevm/viem/pull/3427) [`2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7`](https://github.com/wevm/viem/commit/2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7) Thanks [@jxom](https://github.com/jxom)! - **BREAKING (Experimental)**:
+
+  Removed EIP-7702 exports in `viem/experimental`. These are no longer experimental. Use exports from `viem` or `viem/utils` instead.
+
+  Note, there is also a behavioral change in the stable EIP-7702 `signAuthorization` function. Previously, it was assumed that the signer of the Authorization was also the executor of the Transaction. This is no longer the case.
+
+  If the signer of the Authorization is **NOT** the executor of the Transaction, you no longer need to pass a `sponsor` parameter.
+
+  ```diff
+  const eoa = privateKeyToAccount('0x...')
+  const relay = privateKeyToAccount('0x...')
+
+  const authorization = await client.signAuthorization({
+    account: eoa,
+    contractAddress: '0x...',
+  - sponsor: true
+  })
+
+  const transaction = await client.sendTransaction({
+    account: relay,
+    authorizationList: [authorization],
+  })
+  ```
+
+  If the signer of the Authorization is **ALSO** the executor of the Transaction, you will now need to pass the `executor` parameter with a value of `'self'`.
+
+  ```diff
+  const eoa = privateKeyToAccount('0x...')
+
+  const authorization = await client.signAuthorization({
+    account: eoa,
+    contractAddress: '0x...',
+  + executor: 'self',
+  })
+
+  const transaction = await client.sendTransaction({
+    account: eoa,
+    authorizationList: [authorization],
+  })
+  ```
+
+### Patch Changes
+
+- [#3469](https://github.com/wevm/viem/pull/3469) [`3f00c5f28e8a4eec0ee60fe3bb9acdc5e828d1c7`](https://github.com/wevm/viem/commit/3f00c5f28e8a4eec0ee60fe3bb9acdc5e828d1c7) Thanks [@danijelTxFusion](https://github.com/danijelTxFusion)! - **ZKSync Extension:** Added `deposit` action.
+
+- [#3497](https://github.com/wevm/viem/pull/3497) [`512ee19fdaf309d2ec607e024ecdb08ffbde5f68`](https://github.com/wevm/viem/commit/512ee19fdaf309d2ec607e024ecdb08ffbde5f68) Thanks [@DiRaiks](https://github.com/DiRaiks)! - Changed Hoodi block explorer to Etherscan.
+
+- [#3505](https://github.com/wevm/viem/pull/3505) [`c0f36abc39df5fc230c41871da1e7ba6a74d25eb`](https://github.com/wevm/viem/commit/c0f36abc39df5fc230c41871da1e7ba6a74d25eb) Thanks [@clemlak](https://github.com/clemlak)! - Added Multicall3 address to Ink Mainnet.
+
+- [#3506](https://github.com/wevm/viem/pull/3506) [`bce50f08acaa8355b11462487317929d958eb408`](https://github.com/wevm/viem/commit/bce50f08acaa8355b11462487317929d958eb408) Thanks [@CruzMolina](https://github.com/CruzMolina)! - add Multicall3 address to Ink Sepolia
+
+## 2.23.15
+
+### Patch Changes
+
+- [#3490](https://github.com/wevm/viem/pull/3490) [`48851a1e76dd4b5ad6501e1b8c1675005baf0735`](https://github.com/wevm/viem/commit/48851a1e76dd4b5ad6501e1b8c1675005baf0735) Thanks [@biruichen](https://github.com/biruichen)! - Added DBK chain.
+
+- [#3492](https://github.com/wevm/viem/pull/3492) [`35842cf8581e558f456d38f629db97184d96f10f`](https://github.com/wevm/viem/commit/35842cf8581e558f456d38f629db97184d96f10f) Thanks [@falcoda](https://github.com/falcoda)! - add all Juneo primary supernet chains
+
+- [#3493](https://github.com/wevm/viem/pull/3493) [`7a3c20fbcf47d83776dc7f7a8140709b032b1ad9`](https://github.com/wevm/viem/commit/7a3c20fbcf47d83776dc7f7a8140709b032b1ad9) Thanks [@Nish0483](https://github.com/Nish0483)! - Added edeXa testnet and mainnet
+
+## 2.23.14
+
+### Patch Changes
+
+- [#3484](https://github.com/wevm/viem/pull/3484) [`7054ecdcfdc20f6223b59aad5a1036c10ac8e53e`](https://github.com/wevm/viem/commit/7054ecdcfdc20f6223b59aad5a1036c10ac8e53e) Thanks [@falcoda](https://github.com/falcoda)! - Update Juneo Chain Name
+
+- [#3471](https://github.com/wevm/viem/pull/3471) [`68c3ab7c38d0533a4d4a9c260a5e914a82f1ac03`](https://github.com/wevm/viem/commit/68c3ab7c38d0533a4d4a9c260a5e914a82f1ac03) Thanks [@GuillermoEscobero](https://github.com/GuillermoEscobero)! - Added Garfield Testnet, added primary RPCs for Zircuit Mainnet and legacy Testnet
+
+- [#3479](https://github.com/wevm/viem/pull/3479) [`7765eec035995f5ea474aa6394b7f8c38987978e`](https://github.com/wevm/viem/commit/7765eec035995f5ea474aa6394b7f8c38987978e) Thanks [@Volchunovich](https://github.com/Volchunovich)! - Added Hoodi Testnet.
+
+- [#3486](https://github.com/wevm/viem/pull/3486) [`82c565a956fdd1ea29598ec5aeddf00adf014816`](https://github.com/wevm/viem/commit/82c565a956fdd1ea29598ec5aeddf00adf014816) Thanks [@vriveraPeersyst](https://github.com/vriveraPeersyst)! - Added XRPL EVM Devnet.
+
+- [#3481](https://github.com/wevm/viem/pull/3481) [`e3ac382801897615e45a11d095d390d205511edf`](https://github.com/wevm/viem/commit/e3ac382801897615e45a11d095d390d205511edf) Thanks [@Pochetes](https://github.com/Pochetes)! - Added multicall3 contract to Sonic Blaze Testnet.
+
+- [#3485](https://github.com/wevm/viem/pull/3485) [`251858c8cf3787263be0f16220a2e89514052845`](https://github.com/wevm/viem/commit/251858c8cf3787263be0f16220a2e89514052845) Thanks [@vriveraPeersyst](https://github.com/vriveraPeersyst)! - Added XRPL EVM Testnet.
+
+- [#3482](https://github.com/wevm/viem/pull/3482) [`60dbabe8c84a263aef166c969e8062fd1bed89f3`](https://github.com/wevm/viem/commit/60dbabe8c84a263aef166c969e8062fd1bed89f3) Thanks [@falcoda](https://github.com/falcoda)! - Add Socotra JUNE-Chain definition
+
+## 2.23.13
+
+### Patch Changes
+
+- [#3461](https://github.com/wevm/viem/pull/3461) [`18e56ccdc52ad1c51f60ba15ca2771694df44a0a`](https://github.com/wevm/viem/commit/18e56ccdc52ad1c51f60ba15ca2771694df44a0a) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Merlin Erigon Testnet.
+
+- [#3458](https://github.com/wevm/viem/pull/3458) [`df2b898d1e48a19634032220ddef9ff2a39aa062`](https://github.com/wevm/viem/commit/df2b898d1e48a19634032220ddef9ff2a39aa062) Thanks [@MicahZoltu](https://github.com/MicahZoltu)! - Added missing re-exports.
+
+- [#3475](https://github.com/wevm/viem/pull/3475) [`cc47bba9fcfb8aa36dc923dbd167db6b27b0fe63`](https://github.com/wevm/viem/commit/cc47bba9fcfb8aa36dc923dbd167db6b27b0fe63) Thanks [@tmm](https://github.com/tmm)! - Swapped defunct Ankr RPC URLs for Thirdweb
+
+## 2.23.12
+
+### Patch Changes
+
+- [#3449](https://github.com/wevm/viem/pull/3449) [`265c681bd2ceb7507cb3f81e0546fc8f98bbc78a`](https://github.com/wevm/viem/commit/265c681bd2ceb7507cb3f81e0546fc8f98bbc78a) Thanks [@adraffy](https://github.com/adraffy)! - Lowercased `sender` in CCIP-read.
+
+- [#3456](https://github.com/wevm/viem/pull/3456) [`6a2b130a7213acfc347a1a804f0fb46106e6361d`](https://github.com/wevm/viem/commit/6a2b130a7213acfc347a1a804f0fb46106e6361d) Thanks [@ly0va](https://github.com/ly0va)! - **ZKsync Extension:** Fixed nullish data encoding.
+
+- [#3455](https://github.com/wevm/viem/pull/3455) [`e4dc49916fc155425ecb3962ca3399c52154bf21`](https://github.com/wevm/viem/commit/e4dc49916fc155425ecb3962ca3399c52154bf21) Thanks [@orenyomtov](https://github.com/orenyomtov)! - Fixed leading zero hex encoding for EIP-7702 transactions.
+
+- [#3457](https://github.com/wevm/viem/pull/3457) [`8560051705a67d1921ab06b0c68bdbd3b6b0ab6c`](https://github.com/wevm/viem/commit/8560051705a67d1921ab06b0c68bdbd3b6b0ab6c) Thanks [@aodhgan](https://github.com/aodhgan)! - Updated Happychain Testnet URLs.
+
+- [#3379](https://github.com/wevm/viem/pull/3379) [`09d61c3f9b4237b696afb5f89b8f489009239e5c`](https://github.com/wevm/viem/commit/09d61c3f9b4237b696afb5f89b8f489009239e5c) Thanks [@danijelTxFusion](https://github.com/danijelTxFusion)! - **ZKSync Extension**: Added `isWithdrawalFinalized` action.
+
+- [#3452](https://github.com/wevm/viem/pull/3452) [`f6a253aff9c9ae70a29fdffb15ae778349699f8e`](https://github.com/wevm/viem/commit/f6a253aff9c9ae70a29fdffb15ae778349699f8e) Thanks [@charlenenicer](https://github.com/charlenenicer)! - Added basecamp testnet chain.
+
+- [#3450](https://github.com/wevm/viem/pull/3450) [`26e8a782ef60f18dcf5469e7dd5a125f7b10d039`](https://github.com/wevm/viem/commit/26e8a782ef60f18dcf5469e7dd5a125f7b10d039) Thanks [@emmaodia](https://github.com/emmaodia)! - Added Somnia Testnet chain
+
+- [`8527569ed4b9704b380c24a11aece9e0475f6b73`](https://github.com/wevm/viem/commit/8527569ed4b9704b380c24a11aece9e0475f6b73) Thanks [@jxom](https://github.com/jxom)! - **Experimental (EIP-5792):** Added `waitForCallsStatus` Action.
+
+## 2.23.11
+
+### Patch Changes
+
+- [#3442](https://github.com/wevm/viem/pull/3442) [`6dda4877ca9081675834fae51f70838ba5441cdf`](https://github.com/wevm/viem/commit/6dda4877ca9081675834fae51f70838ba5441cdf) Thanks [@LordMarkDev](https://github.com/LordMarkDev)! - Updated ZenChain Testnet symbol from ZCX to ZTC.
+
+- [#3447](https://github.com/wevm/viem/pull/3447) [`86f2474255ad6d17bf925ede51fd9466682fd28e`](https://github.com/wevm/viem/commit/86f2474255ad6d17bf925ede51fd9466682fd28e) Thanks [@biruichen](https://github.com/biruichen)! - Added Plume Mainnet.
+
+- [#3445](https://github.com/wevm/viem/pull/3445) [`ea5a0ced1210873df75920b1c9d8afcbc8c6359e`](https://github.com/wevm/viem/commit/ea5a0ced1210873df75920b1c9d8afcbc8c6359e) Thanks [@UnsignedInt8](https://github.com/UnsignedInt8)! - Added assertion for non-null data in `simulateBlocks`.
+
+- [#3438](https://github.com/wevm/viem/pull/3438) [`34152c2fb16f45611fb99718e51952cd212a381c`](https://github.com/wevm/viem/commit/34152c2fb16f45611fb99718e51952cd212a381c) Thanks [@0xxlegolas](https://github.com/0xxlegolas)! - Added Pyrope chain.
+
+- [#3437](https://github.com/wevm/viem/pull/3437) [`988ee7c89e5e9bb49e455704084c826ae3875101`](https://github.com/wevm/viem/commit/988ee7c89e5e9bb49e455704084c826ae3875101) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Added nibiru chain
+
 ## 2.23.10
 
 ### Patch Changes
@@ -1270,7 +1538,7 @@
 
 ### Minor Changes
 
-- [#2570](https://github.com/wevm/viem/pull/2570) [`fee80a9a`](https://github.com/wevm/viem/commit/fee80a9ae3e425354f21a6de5fa397244577eb28) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added EIP-7702 Extension. [See Docs](https://viem.sh/experimental/eip7702)
+- [#2570](https://github.com/wevm/viem/pull/2570) [`fee80a9a`](https://github.com/wevm/viem/commit/fee80a9ae3e425354f21a6de5fa397244577eb28) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added EIP-7702 Extension. [See Docs](https://viem.sh/docs/eip7702)
 
 - [#2586](https://github.com/wevm/viem/pull/2586) [`0b1693aa`](https://github.com/wevm/viem/commit/0b1693aa51468cfe77dae74ad44bd89dfd21fd0e) Thanks [@tmm](https://github.com/tmm)! - Renamed "zkSync" to "ZKsync":
 

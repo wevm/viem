@@ -27,13 +27,16 @@ export type SendCallsParameters<
 > = {
   chain?: chainOverride | Chain | undefined
   calls: Calls<Narrow<calls>>
-  capabilities?:
-    | WalletSendCallsParameters<WalletCapabilities>[number]['capabilities']
-    | undefined
+  capabilities?: WalletCapabilities | undefined
+  forceAtomic?: boolean | undefined
+  id?: string | undefined
   version?: WalletSendCallsParameters[number]['version'] | undefined
 } & GetAccountParameter<account, Account | Address, true, true>
 
-export type SendCallsReturnType = string
+export type SendCallsReturnType = {
+  capabilities?: WalletCapabilities | undefined
+  id: string
+}
 
 export type SendCallsErrorType = RequestErrorType | ErrorType
 
@@ -49,7 +52,7 @@ export type SendCallsErrorType = RequestErrorType | ErrorType
  * @example
  * import { createWalletClient, custom } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { sendCalls } from 'viem/wallet'
+ * import { sendCalls } from 'viem/experimental'
  *
  * const client = createWalletClient({
  *   chain: mainnet,
@@ -82,6 +85,8 @@ export async function sendCalls<
     account: account_ = client.account,
     capabilities,
     chain = client.chain,
+    forceAtomic = false,
+    id,
     version = '1.0',
   } = parameters
 
@@ -110,21 +115,25 @@ export async function sendCalls<
   })
 
   try {
-    return await client.request(
+    const response = await client.request(
       {
         method: 'wallet_sendCalls',
         params: [
           {
+            atomicRequired: forceAtomic,
             calls,
             capabilities,
             chainId: numberToHex(chain!.id),
             from: account?.address,
+            id,
             version,
           },
         ],
       },
       { retryCount: 0 },
     )
+    if (typeof response === 'string') return { id: response }
+    return response
   } catch (err) {
     throw getTransactionError(err as BaseError, {
       ...parameters,

@@ -47,25 +47,30 @@ export {
   type GetContractParameters,
   type GetContractReturnType,
 } from './actions/getContract.js'
-export {
-  type GetContractEventsErrorType,
-  type GetContractEventsParameters,
-  type GetContractEventsReturnType,
+export type {
+  GetContractEventsErrorType,
+  GetContractEventsParameters,
+  GetContractEventsReturnType,
 } from './actions/public/getContractEvents.js'
-export {
-  type GetEip712DomainErrorType,
-  type GetEip712DomainParameters,
-  type GetEip712DomainReturnType,
+export type {
+  GetEip712DomainErrorType,
+  GetEip712DomainParameters,
+  GetEip712DomainReturnType,
 } from './actions/public/getEip712Domain.js'
-export {
-  type AddChainErrorType,
-  type AddChainParameters,
+export type {
+  AddChainErrorType,
+  AddChainParameters,
 } from './actions/wallet/addChain.js'
-export {
-  type CallErrorType,
-  type CallParameters,
-  type CallReturnType,
+export type {
+  CallErrorType,
+  CallParameters,
+  CallReturnType,
 } from './actions/public/call.js'
+export type {
+  CreateAccessListParameters,
+  CreateAccessListReturnType,
+  CreateAccessListErrorType,
+} from './actions/public/createAccessList.js'
 export type {
   CreateBlockFilterErrorType,
   CreateBlockFilterReturnType,
@@ -268,6 +273,22 @@ export type {
 } from './actions/public/multicall.js'
 export type { SnapshotErrorType } from './actions/test/snapshot.js'
 export type {
+  SimulateBlocksParameters,
+  SimulateBlocksReturnType,
+  SimulateBlocksErrorType,
+} from './actions/public/simulateBlocks.js'
+export type {
+  SimulateCallsParameters,
+  SimulateCallsReturnType,
+  SimulateCallsErrorType,
+} from './actions/public/simulateCalls.js'
+export type {
+  GetMutabilityAwareValue,
+  SimulateContractParameters,
+  SimulateContractReturnType,
+  SimulateContractErrorType,
+} from './actions/public/simulateContract.js'
+export type {
   OnBlock,
   OnBlockParameter,
   WatchBlocksErrorType,
@@ -419,11 +440,6 @@ export type {
   SignTypedDataParameters,
   SignTypedDataReturnType,
 } from './actions/wallet/signTypedData.js'
-export type {
-  SimulateContractErrorType,
-  SimulateContractParameters,
-  SimulateContractReturnType,
-} from './actions/public/simulateContract.js'
 export type {
   StopImpersonatingAccountErrorType,
   StopImpersonatingAccountParameters,
@@ -753,8 +769,16 @@ export {
   type MaxFeePerGasTooLowErrorType,
 } from './errors/fee.js'
 export {
+  AtomicReadyWalletRejectedUpgradeError,
+  type AtomicReadyWalletRejectedUpgradeErrorType,
+  AtomicityNotSupportedError,
+  type AtomicityNotSupportedErrorType,
+  BundleTooLargeError,
+  type BundleTooLargeErrorType,
   ChainDisconnectedError,
   type ChainDisconnectedErrorType,
+  DuplicateIdError,
+  type DuplicateIdErrorType,
   InternalRpcError,
   type InternalRpcErrorType,
   InvalidInputRpcError,
@@ -790,8 +814,14 @@ export {
   type TransactionRejectedRpcErrorType,
   UnauthorizedProviderError,
   type UnauthorizedProviderErrorType,
+  UnknownBundleIdError,
+  type UnknownBundleIdErrorType,
   UnknownRpcError,
   type UnknownRpcErrorType,
+  UnsupportedChainIdError,
+  type UnsupportedChainIdErrorType,
+  UnsupportedNonOptionalCapabilityError,
+  type UnsupportedNonOptionalCapabilityErrorType,
   UnsupportedProviderMethodError,
   type UnsupportedProviderMethodErrorType,
   UserRejectedRequestError,
@@ -1082,6 +1112,7 @@ export type {
   WalletGrantPermissionsParameters,
   WalletGrantPermissionsReturnType,
   WalletSendCallsParameters,
+  WalletSendCallsReturnType,
   WalletPermissionCaveat,
   WalletPermission,
   WalletRpcSchema,
@@ -1112,8 +1143,18 @@ export type {
   HDKey,
 } from './types/account.js'
 export type {
+  Authorization,
+  AuthorizationList,
+  SerializedAuthorization,
+  SerializedAuthorizationList,
+  SignedAuthorization,
+  SignedAuthorizationList,
+} from './types/authorization.js'
+export type {
   Index,
   Quantity,
+  RpcAuthorization,
+  RpcAuthorizationList,
   RpcBlock,
   RpcBlockIdentifier,
   RpcBlockNumber,
@@ -1565,6 +1606,7 @@ export {
   type EncodePackedErrorType,
   encodePacked,
 } from './utils/abi/encodePacked.js'
+export { withCache } from './utils/promise/withCache.js'
 export {
   type WithRetryErrorType,
   withRetry,

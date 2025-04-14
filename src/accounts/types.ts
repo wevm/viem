@@ -1,8 +1,8 @@
 import type { Address, TypedData } from 'abitype'
 
 import type { SmartAccount } from '../account-abstraction/accounts/types.js'
-import type { Authorization } from '../experimental/eip7702/types/authorization.js'
 import type { HDKey } from '../types/account.js'
+import type { AuthorizationRequest } from '../types/authorization.js'
 import type { Hash, Hex, SignableMessage } from '../types/misc.js'
 import type {
   TransactionSerializable,
@@ -29,8 +29,10 @@ export type CustomSource = {
   nonceManager?: NonceManager | undefined
   // TODO(v3): Make `sign` required.
   sign?: ((parameters: { hash: Hash }) => Promise<Hex>) | undefined
-  experimental_signAuthorization?:
-    | ((parameters: Authorization) => Promise<SignAuthorizationReturnType>)
+  signAuthorization?:
+    | ((
+        parameters: AuthorizationRequest,
+      ) => Promise<SignAuthorizationReturnType>)
     | undefined
   signMessage: ({ message }: { message: SignableMessage }) => Promise<Hex>
   signTransaction: <
@@ -111,8 +113,6 @@ export type PrivateKeyAccount = Prettify<
   LocalAccount<'privateKey'> & {
     // TODO(v3): This will be redundant.
     sign: NonNullable<CustomSource['sign']>
-    experimental_signAuthorization: NonNullable<
-      CustomSource['experimental_signAuthorization']
-    >
+    signAuthorization: NonNullable<CustomSource['signAuthorization']>
   }
 >

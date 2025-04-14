@@ -45,7 +45,7 @@ describe('entryPointVersion: 0.7', async () => {
       }),
       (async () => {
         // Simulate some delay to send the bundle + mine block.
-        await wait(100)
+        await wait(500)
         await bundlerClient.request({
           method: 'debug_bundler_sendBundleNow',
         })
@@ -202,7 +202,7 @@ describe('entryPointVersion: 0.6', async () => {
       }),
       (async () => {
         // Simulate some delay to send the bundle + mine block.
-        await wait(50)
+        await wait(500)
         await bundlerClient.request({
           method: 'debug_bundler_sendBundleNow',
         })

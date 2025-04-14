@@ -24,7 +24,7 @@ export type ShowCallsStatusErrorType = RequestErrorType | ErrorType
  * @example
  * import { createWalletClient, custom } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { showCallsStatus } from 'viem/wallet'
+ * import { showCallsStatus } from 'viem/experimental'
  *
  * const client = createWalletClient({
  *   chain: mainnet,

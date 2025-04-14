@@ -17,7 +17,7 @@ import { mainnet } from 'viem/chains'
 const client = createPublicClient({
   chain: mainnet,
   transport: fallback([ // [!code focus]
-    http('https://eth-mainnet.g.alchemy.com/v2/...'), // [!code focus]
+    http('https://1.rpc.thirdweb.com/...'), // [!code focus]
     http('https://mainnet.infura.io/v3/...') // [!code focus]
   ]), // [!code focus]
 })
@@ -40,7 +40,7 @@ import { mainnet } from 'viem/chains'
 const client = createPublicClient({
   chain: mainnet,
   transport: fallback([ 
-    http('https://eth-mainnet.g.alchemy.com/v2/...'), 
+    http('https://1.rpc.thirdweb.com/...'), 
     http('https://mainnet.infura.io/v3/...') 
   ], { rank: true }), // [!code focus]
 })
@@ -56,7 +56,7 @@ const client = createPublicClient({
   chain: mainnet,
   transport: fallback(
     [
-      http('https://eth-mainnet.g.alchemy.com/v2/...'), 
+      http('https://1.rpc.thirdweb.com/...'), 
       http('https://mainnet.infura.io/v3/...') 
     ],
     { // [!code focus:9]
@@ -86,10 +86,10 @@ Whether or not to automatically rank the Transports based on their latency & sta
 ```ts twoslash
 import { createPublicClient, fallback, http } from 'viem'
 import { mainnet } from 'viem/chains'
-const alchemy = http('') 
+const thirdweb = http('') 
 const infura = http('') 
 // ---cut---
-const transport = fallback([alchemy, infura], {
+const transport = fallback([thirdweb, infura], {
   rank: false, // [!code focus]
 })
 ```
@@ -104,10 +104,10 @@ The polling interval (in ms) at which the ranker should ping the RPC URL.
 ```ts twoslash
 import { createPublicClient, fallback, http } from 'viem'
 import { mainnet } from 'viem/chains'
-const alchemy = http('') 
+const thirdweb = http('') 
 const infura = http('') 
 // ---cut---
-const transport = fallback([alchemy, infura], {
+const transport = fallback([thirdweb, infura], {
   rank: { // [!code focus:3]
     interval: 5_000
   },
@@ -125,10 +125,10 @@ Function to call to ping the Transport. Defaults to calling the `net_listening` 
 // @noErrors
 import { createPublicClient, fallback, http } from 'viem'
 import { mainnet } from 'viem/chains'
-const alchemy = http('') 
+const thirdweb = http('') 
 const infura = http('') 
 // ---cut---
-const transport = fallback([alchemy, infura], {
+const transport = fallback([thirdweb, infura], {
   rank: { // [!code focus:3]
     ping: ({ transport }) => transport.request({ method: 'eth_blockNumber' })
   },
@@ -145,10 +145,10 @@ The number of previous samples to perform ranking on.
 ```ts twoslash
 import { createPublicClient, fallback, http } from 'viem'
 import { mainnet } from 'viem/chains'
-const alchemy = http('') 
+const thirdweb = http('') 
 const infura = http('') 
 // ---cut---
-const transport = fallback([alchemy, infura], {
+const transport = fallback([thirdweb, infura], {
   rank: { // [!code focus:3]
     sampleCount: 10
   },
@@ -165,10 +165,10 @@ Timeout when sampling transports.
 ```ts twoslash
 import { createPublicClient, fallback, http } from 'viem'
 import { mainnet } from 'viem/chains'
-const alchemy = http('') 
+const thirdweb = http('') 
 const infura = http('') 
 // ---cut---
-const transport = fallback([alchemy, infura], {
+const transport = fallback([thirdweb, infura], {
   rank: { // [!code focus:3]
     timeout: 500
   },
@@ -185,10 +185,10 @@ The weight to apply to the latency score. The weight is proportional to the othe
 ```ts twoslash
 import { createPublicClient, fallback, http } from 'viem'
 import { mainnet } from 'viem/chains'
-const alchemy = http('') 
+const thirdweb = http('') 
 const infura = http('') 
 // ---cut---
-const transport = fallback([alchemy, infura], {
+const transport = fallback([thirdweb, infura], {
   rank: {
     weights: {
       latency: 0.4, // [!code focus:3]
@@ -208,10 +208,10 @@ The weight to apply to the stability score. The weight is proportional to the ot
 ```ts twoslash
 import { createPublicClient, fallback, http } from 'viem'
 import { mainnet } from 'viem/chains'
-const alchemy = http('') 
+const thirdweb = http('') 
 const infura = http('') 
 // ---cut---
-const transport = fallback([alchemy, infura], {
+const transport = fallback([thirdweb, infura], {
   rank: {
     weights: {
       latency: 0.4,
@@ -233,10 +233,10 @@ The max number of times to retry when a request fails.
 ```ts twoslash
 import { createPublicClient, fallback, http } from 'viem'
 import { mainnet } from 'viem/chains'
-const alchemy = http('') 
+const thirdweb = http('') 
 const infura = http('') 
 // ---cut---
-const transport = fallback([alchemy, infura], {
+const transport = fallback([thirdweb, infura], {
   retryCount: 5, // [!code focus]
 })
 ```
@@ -251,10 +251,10 @@ The base delay (in ms) between retries. By default, the Transport will use [expo
 ```ts twoslash
 import { createPublicClient, fallback, http } from 'viem'
 import { mainnet } from 'viem/chains'
-const alchemy = http('') 
+const thirdweb = http('') 
 const infura = http('') 
 // ---cut---
-const transport = fallback([alchemy, infura], {
+const transport = fallback([thirdweb, infura], {
   retryDelay: 100, // [!code focus]
 })
 ```
@@ -268,10 +268,10 @@ Whether the `fallback` Transport should immediately throw an error, or continue 
 ```ts twoslash
 import { createPublicClient, fallback, http } from 'viem'
 import { mainnet } from 'viem/chains'
-const alchemy = http('') 
+const thirdweb = http('') 
 const infura = http('') 
 // ---cut---
-const transport = fallback([alchemy, infura], {
+const transport = fallback([thirdweb, infura], {
   shouldThrow: (err: Error) => { // [!code focus]
     return err.message.includes('sad times') // [!code focus]
   }, // [!code focus]

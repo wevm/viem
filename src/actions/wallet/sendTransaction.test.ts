@@ -17,7 +17,6 @@ import {
   InvalidInputRpcError,
   MethodNotSupportedRpcError,
 } from '../../errors/rpc.js'
-import { signAuthorization } from '../../experimental/index.js'
 import type { Hex } from '../../types/misc.js'
 import type { TransactionSerializable } from '../../types/transaction.js'
 import { toBlobs } from '../../utils/blob/toBlobs.js'
@@ -45,6 +44,7 @@ import { setBalance } from '../test/setBalance.js'
 import { setNextBlockBaseFeePerGas } from '../test/setNextBlockBaseFeePerGas.js'
 import { setNonce } from '../test/setNonce.js'
 import { sendTransaction } from './sendTransaction.js'
+import { signAuthorization } from './signAuthorization.js'
 
 const client = anvilMainnet.getClient()
 const clientWithAccount = anvilMainnet.getClient({
@@ -196,7 +196,7 @@ test('sends transaction (w/ serializer)', async () => {
   ).rejects.toThrowError()
 
   expect(serializer).toReturnWith(
-    '0x08f301820297843b9aca008502ae1107ec825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
+    '0x08f2018203b9843b9aca008469126a1c825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
   )
 })
 
@@ -288,37 +288,6 @@ test('no chain', async () => {
 
     Version: viem@x.y.z]
   `)
-})
-
-describe('args: gas', () => {
-  test('sends transaction', async () => {
-    await setup()
-
-    expect(
-      await getBalance(client, { address: targetAccount.address }),
-    ).toMatchInlineSnapshot('10000000000000000000000n')
-    expect(
-      await getBalance(client, { address: sourceAccount.address }),
-    ).toMatchInlineSnapshot('10000000000000000000000n')
-
-    expect(
-      await sendTransaction(client, {
-        account: sourceAccount.address,
-        to: targetAccount.address,
-        value: parseEther('1'),
-        gas: 1_000_000n,
-      }),
-    ).toBeDefined()
-
-    await mine(client, { blocks: 1 })
-
-    expect(
-      await getBalance(client, { address: targetAccount.address }),
-    ).toMatchInlineSnapshot('10001000000000000000000n')
-    expect(
-      await getBalance(client, { address: sourceAccount.address }),
-    ).toBeLessThan(sourceAccount.balance)
-  })
 })
 
 describe('args: gasPrice', () => {
@@ -740,6 +709,219 @@ describe('local account', () => {
     ).toBeLessThan(sourceAccount.balance)
   })
 
+  test('args: authorizationList', async () => {
+    const eoa = privateKeyToAccount(generatePrivateKey())
+    const relay = privateKeyToAccount(accounts[1].privateKey)
+    const recipient = privateKeyToAccount(generatePrivateKey())
+
+    await setBalance(client, { address: eoa.address, value: parseEther('10') })
+
+    const balance_eoa = await getBalance(client, {
+      address: eoa.address,
+    })
+    const balance_recipient = await getBalance(client, {
+      address: recipient.address,
+    })
+
+    const { contractAddress } = await deploy(client, {
+      abi: BatchCallDelegation.abi,
+      bytecode: BatchCallDelegation.bytecode.object,
+    })
+
+    const authorization = await signAuthorization(client, {
+      account: eoa,
+      contractAddress: contractAddress!,
+    })
+
+    const hash = await sendTransaction(client, {
+      account: relay,
+      authorizationList: [authorization],
+      data: encodeFunctionData({
+        abi: BatchCallDelegation.abi,
+        functionName: 'execute',
+        args: [
+          [
+            {
+              to: recipient.address,
+              data: '0x',
+              value: parseEther('1'),
+            },
+          ],
+        ],
+      }),
+      to: eoa.address,
+    })
+    expect(hash).toBeDefined()
+
+    await mine(client, { blocks: 1 })
+
+    const receipt = await getTransactionReceipt(client, { hash })
+    const log = receipt.logs[0]
+    expect(getAddress(log.address)).toBe(eoa.address)
+    expect(
+      decodeEventLog({
+        abi: BatchCallDelegation.abi,
+        ...log,
+      }),
+    ).toEqual({
+      args: {
+        data: '0x',
+        to: recipient.address,
+        value: parseEther('1'),
+      },
+      eventName: 'CallEmitted',
+    })
+
+    expect(
+      await getBalance(client, {
+        address: recipient.address,
+      }),
+    ).toBe(balance_recipient + parseEther('1'))
+    expect(
+      await getBalance(client, {
+        address: eoa.address,
+      }),
+    ).toBe(balance_eoa - parseEther('1'))
+  })
+
+  test('args: authorizationList (cross-chain)', async () => {
+    const eoa = privateKeyToAccount(generatePrivateKey())
+    const relay = privateKeyToAccount(accounts[0].privateKey)
+    const recipient = privateKeyToAccount(generatePrivateKey())
+
+    const client_sepolia = anvilSepolia.getClient({ account: relay })
+
+    await setBalance(client, { address: eoa.address, value: parseEther('10') })
+    await setBalance(client_sepolia, {
+      address: eoa.address,
+      value: parseEther('10'),
+    })
+
+    // deploy on mainnet
+    const { contractAddress, hash } = await deploy(client, {
+      abi: BatchCallDelegation.abi,
+      bytecode: BatchCallDelegation.bytecode.object,
+    })
+
+    const { nonce } = await getTransaction(client, { hash })
+
+    // deploy on sepolia
+    await setNonce(client_sepolia, { address: relay.address, nonce })
+    await deploy(client_sepolia, {
+      abi: BatchCallDelegation.abi,
+      bytecode: BatchCallDelegation.bytecode.object,
+    })
+
+    // sign authorization with `0` chain id (all chains)
+    const authorization = await signAuthorization(client, {
+      account: eoa,
+      chainId: 0,
+      contractAddress: contractAddress!,
+    })
+
+    const args = {
+      account: relay,
+      authorizationList: [authorization],
+      data: encodeFunctionData({
+        abi: BatchCallDelegation.abi,
+        functionName: 'execute',
+        args: [
+          [
+            {
+              to: recipient.address,
+              data: '0x',
+              value: parseEther('1'),
+            },
+          ],
+        ],
+      }),
+      to: eoa.address,
+    } as const
+
+    // execute transactions on mainnet and sepolia
+    const hash_mainnet = await sendTransaction(client, args)
+    const hash_sepolia = await sendTransaction(client_sepolia, args)
+
+    await mine(client, { blocks: 1 })
+    await mine(client_sepolia, { blocks: 1 })
+
+    // check if receipts contain logs
+    const receipt_mainnet = await getTransactionReceipt(client, {
+      hash: hash_mainnet,
+    })
+    const receipt_sepolia = await getTransactionReceipt(client_sepolia, {
+      hash: hash_sepolia,
+    })
+
+    expect(receipt_mainnet.logs.length).toBeGreaterThan(0)
+    expect(receipt_sepolia.logs.length).toBeGreaterThan(0)
+  })
+
+  test('args: authorizationList (self-executing)', async () => {
+    const eoa = privateKeyToAccount(accounts[9].privateKey)
+    const recipient = privateKeyToAccount(generatePrivateKey())
+
+    const balance_recipient = await getBalance(client, {
+      address: recipient.address,
+    })
+
+    const { contractAddress } = await deploy(client, {
+      abi: BatchCallDelegation.abi,
+      bytecode: BatchCallDelegation.bytecode.object,
+    })
+
+    const authorization = await signAuthorization(client, {
+      account: eoa,
+      contractAddress: contractAddress!,
+      executor: 'self',
+    })
+
+    const hash = await sendTransaction(client, {
+      account: eoa,
+      authorizationList: [authorization],
+      data: encodeFunctionData({
+        abi: BatchCallDelegation.abi,
+        functionName: 'execute',
+        args: [
+          [
+            {
+              to: recipient.address,
+              data: '0x',
+              value: parseEther('1'),
+            },
+          ],
+        ],
+      }),
+      to: eoa.address,
+    })
+    expect(hash).toBeDefined()
+
+    await mine(client, { blocks: 1 })
+
+    const receipt = await getTransactionReceipt(client, { hash })
+    const log = receipt.logs[0]
+    expect(getAddress(log.address)).toBe(eoa.address)
+    expect(
+      decodeEventLog({
+        abi: BatchCallDelegation.abi,
+        ...log,
+      }),
+    ).toEqual({
+      args: {
+        data: '0x',
+        to: recipient.address,
+        value: parseEther('1'),
+      },
+      eventName: 'CallEmitted',
+    })
+
+    expect(
+      await getBalance(client, {
+        address: recipient.address,
+      }),
+    ).toBe(balance_recipient + parseEther('1'))
+  })
+
   test('args: gas', async () => {
     await setup()
 
@@ -747,7 +929,7 @@ describe('local account', () => {
       account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       value: parseEther('1'),
-      gas: 1_000_000n,
+      gas: 30_000n,
     })
 
     expect(
@@ -767,7 +949,7 @@ describe('local account', () => {
     ).toBeLessThan(sourceAccount.balance)
 
     const transaction = await getTransaction(client, { hash })
-    expect(transaction.gas).toBe(1_000_000n)
+    expect(transaction.gas).toBe(30_000n)
   })
 
   test('args: chain', async () => {
@@ -900,212 +1082,6 @@ describe('local account', () => {
       `,
       )
     })
-  })
-
-  test('args: authorizationList', async () => {
-    const authority = privateKeyToAccount(accounts[9].privateKey)
-    const recipient = privateKeyToAccount(generatePrivateKey())
-
-    const balance_recipient = await getBalance(client, {
-      address: recipient.address,
-    })
-
-    const { contractAddress } = await deploy(client, {
-      abi: BatchCallDelegation.abi,
-      bytecode: BatchCallDelegation.bytecode.object,
-    })
-
-    const authorization = await signAuthorization(client, {
-      account: authority,
-      contractAddress: contractAddress!,
-    })
-
-    const hash = await sendTransaction(client, {
-      account: authority,
-      authorizationList: [authorization],
-      data: encodeFunctionData({
-        abi: BatchCallDelegation.abi,
-        functionName: 'execute',
-        args: [
-          [
-            {
-              to: recipient.address,
-              data: '0x',
-              value: parseEther('1'),
-            },
-          ],
-        ],
-      }),
-      to: authority.address,
-    })
-    expect(hash).toBeDefined()
-
-    await mine(client, { blocks: 1 })
-
-    const receipt = await getTransactionReceipt(client, { hash })
-    const log = receipt.logs[0]
-    expect(getAddress(log.address)).toBe(authority.address)
-    expect(
-      decodeEventLog({
-        abi: BatchCallDelegation.abi,
-        ...log,
-      }),
-    ).toEqual({
-      args: {
-        data: '0x',
-        to: recipient.address,
-        value: parseEther('1'),
-      },
-      eventName: 'CallEmitted',
-    })
-
-    expect(
-      await getBalance(client, {
-        address: recipient.address,
-      }),
-    ).toBe(balance_recipient + parseEther('1'))
-  })
-
-  test('args: authorizationList (sponsor)', async () => {
-    const sponsor = privateKeyToAccount(accounts[0].privateKey)
-    const authority = privateKeyToAccount(accounts[9].privateKey)
-    const recipient = privateKeyToAccount(generatePrivateKey())
-
-    const balance_authority = await getBalance(client, {
-      address: authority.address,
-    })
-    const balance_recipient = await getBalance(client, {
-      address: recipient.address,
-    })
-
-    const { contractAddress } = await deploy(client, {
-      abi: BatchCallDelegation.abi,
-      bytecode: BatchCallDelegation.bytecode.object,
-    })
-
-    const authorization = await signAuthorization(client, {
-      account: authority,
-      contractAddress: contractAddress!,
-      sponsor,
-    })
-
-    const hash = await sendTransaction(client, {
-      account: sponsor,
-      authorizationList: [authorization],
-      data: encodeFunctionData({
-        abi: BatchCallDelegation.abi,
-        functionName: 'execute',
-        args: [
-          [
-            {
-              to: recipient.address,
-              data: '0x',
-              value: parseEther('1'),
-            },
-          ],
-        ],
-      }),
-      to: authority.address,
-    })
-    expect(hash).toBeDefined()
-
-    await mine(client, { blocks: 1 })
-
-    const receipt = await getTransactionReceipt(client, { hash })
-    const log = receipt.logs[0]
-    expect(getAddress(log.address)).toBe(authority.address)
-    expect(
-      decodeEventLog({
-        abi: BatchCallDelegation.abi,
-        ...log,
-      }),
-    ).toEqual({
-      args: {
-        data: '0x',
-        to: recipient.address,
-        value: parseEther('1'),
-      },
-      eventName: 'CallEmitted',
-    })
-
-    expect(
-      await getBalance(client, {
-        address: recipient.address,
-      }),
-    ).toBe(balance_recipient + parseEther('1'))
-    expect(
-      await getBalance(client, {
-        address: authority.address,
-      }),
-    ).toBe(balance_authority - parseEther('1'))
-  })
-
-  test('args: authorizationList (cross-chain)', async () => {
-    const sponsor = privateKeyToAccount(accounts[0].privateKey)
-    const authority = privateKeyToAccount(generatePrivateKey())
-    const recipient = privateKeyToAccount(generatePrivateKey())
-
-    const client_sepolia = anvilSepolia.getClient({ account: sponsor })
-
-    // deploy on mainnet
-    const { contractAddress, hash } = await deploy(client, {
-      abi: BatchCallDelegation.abi,
-      bytecode: BatchCallDelegation.bytecode.object,
-    })
-
-    const { nonce } = await getTransaction(client, { hash })
-
-    // deploy on sepolia
-    await setNonce(client_sepolia, { address: sponsor.address, nonce })
-    await deploy(client_sepolia, {
-      abi: BatchCallDelegation.abi,
-      bytecode: BatchCallDelegation.bytecode.object,
-    })
-
-    // sign authorization with `0` chain id (all chains)
-    const authorization = await signAuthorization(client, {
-      account: authority,
-      chainId: 0,
-      contractAddress: contractAddress!,
-      sponsor,
-    })
-
-    const args = {
-      account: sponsor,
-      authorizationList: [authorization],
-      data: encodeFunctionData({
-        abi: BatchCallDelegation.abi,
-        functionName: 'execute',
-        args: [
-          [
-            {
-              to: recipient.address,
-              data: '0x',
-              value: 0n,
-            },
-          ],
-        ],
-      }),
-      to: authority.address,
-    } as const
-
-    // execute transactions on mainnet and sepolia
-    const hash_mainnet = await sendTransaction(client, args)
-    const hash_sepolia = await sendTransaction(client_sepolia, args)
-
-    await mine(client, { blocks: 1 })
-    await mine(client_sepolia, { blocks: 1 })
-
-    // check if receipts contain logs
-    const receipt_mainnet = await getTransactionReceipt(client, {
-      hash: hash_mainnet,
-    })
-    const receipt_sepolia = await getTransactionReceipt(client_sepolia, {
-      hash: hash_sepolia,
-    })
-
-    expect(receipt_mainnet.logs.length).toBeGreaterThan(0)
-    expect(receipt_sepolia.logs.length).toBeGreaterThan(0)
   })
 
   test('args: blobs', async () => {
@@ -1260,11 +1236,11 @@ describe('local account', () => {
         }),
       ])
 
-      expect((await getTransaction(client, { hash: hash_1 })).nonce).toBe(30)
-      expect((await getTransaction(client, { hash: hash_2 })).nonce).toBe(12)
-      expect((await getTransaction(client, { hash: hash_3 })).nonce).toBe(31)
-      expect((await getTransaction(client, { hash: hash_4 })).nonce).toBe(32)
-      expect((await getTransaction(client, { hash: hash_5 })).nonce).toBe(13)
+      expect((await getTransaction(client, { hash: hash_1 })).nonce).toBe(36)
+      expect((await getTransaction(client, { hash: hash_2 })).nonce).toBe(13)
+      expect((await getTransaction(client, { hash: hash_3 })).nonce).toBe(37)
+      expect((await getTransaction(client, { hash: hash_4 })).nonce).toBe(38)
+      expect((await getTransaction(client, { hash: hash_5 })).nonce).toBe(14)
 
       const hash_6 = await sendTransaction(client, {
         account: alice,
@@ -1277,8 +1253,8 @@ describe('local account', () => {
         value: parseEther('1'),
       })
 
-      expect((await getTransaction(client, { hash: hash_6 })).nonce).toBe(33)
-      expect((await getTransaction(client, { hash: hash_7 })).nonce).toBe(34)
+      expect((await getTransaction(client, { hash: hash_6 })).nonce).toBe(39)
+      expect((await getTransaction(client, { hash: hash_7 })).nonce).toBe(40)
     })
   })
 })
@@ -1504,9 +1480,9 @@ describe('errors', () => {
         account: sourceAccount.address,
         authorizationList: [
           {
+            address: '0x0000000000000000000000000000000000000000',
             chainId: 1,
             nonce: 0,
-            contractAddress: '0x0000000000000000000000000000000000000000',
           },
         ],
       }),
@@ -1544,16 +1520,16 @@ describe('errors', () => {
 })
 
 test('https://github.com/wevm/viem/issues/2721', async () => {
-  const sponsor = privateKeyToAccount(generatePrivateKey())
-  const authority = privateKeyToAccount(generatePrivateKey())
+  const relay = privateKeyToAccount(generatePrivateKey())
+  const eoa = privateKeyToAccount(generatePrivateKey())
   const recipient = privateKeyToAccount(generatePrivateKey())
 
   await setBalance(client, {
-    address: sponsor.address,
+    address: relay.address,
     value: parseEther('100'),
   })
   await setBalance(client, {
-    address: authority.address,
+    address: eoa.address,
     value: parseEther('100'),
   })
 
@@ -1563,12 +1539,12 @@ test('https://github.com/wevm/viem/issues/2721', async () => {
   })
 
   const authorization = await signAuthorization(client, {
-    account: authority,
+    account: eoa,
     contractAddress: contractAddress!,
   })
 
   const hash = await sendTransaction(client, {
-    account: sponsor,
+    account: relay,
     authorizationList: [authorization],
     data: encodeFunctionData({
       abi: BatchCallDelegation.abi,
@@ -1583,7 +1559,7 @@ test('https://github.com/wevm/viem/issues/2721', async () => {
         ],
       ],
     }),
-    to: authority.address,
+    to: eoa.address,
   })
   expect(hash).toBeDefined()
 })

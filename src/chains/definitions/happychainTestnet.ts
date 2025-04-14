@@ -10,14 +10,14 @@ export const happychainTestnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://happy-testnet-sepolia.rpc.caldera.xyz/http'],
-      webSocket: ['wss://happy-testnet-sepolia.rpc.caldera.xyz/ws'],
+      http: ['https://rpc.testnet.happy.tech/http'],
+      webSocket: ['wss://rpc.testnet.happy.tech/ws'],
     },
   },
   blockExplorers: {
     default: {
       name: 'Happy Chain Testnet Explorer',
-      url: 'https://happy-testnet-sepolia.explorer.caldera.xyz/',
+      url: 'https://explorer.testnet.happy.tech',
     },
   },
   contracts: {

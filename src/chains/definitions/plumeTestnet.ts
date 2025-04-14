@@ -4,7 +4,7 @@ const sourceId = 11_155_111 // sepolia
 
 export const plumeTestnet = /*#__PURE__*/ defineChain({
   id: 161_221_135,
-  name: 'Plume Testnet',
+  name: 'Plume Testnet (Legacy)',
   nativeCurrency: {
     name: 'Plume Sepolia Ether',
     symbol: 'ETH',
@@ -21,6 +21,12 @@ export const plumeTestnet = /*#__PURE__*/ defineChain({
       name: 'Blockscout',
       url: 'https://testnet-explorer.plumenetwork.xyz',
       apiUrl: 'https://testnet-explorer.plumenetwork.xyz/api',
+    },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 6_022_332,
     },
   },
   testnet: true,

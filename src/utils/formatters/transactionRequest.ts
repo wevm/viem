@@ -1,12 +1,14 @@
 import type { ErrorType } from '../../errors/utils.js'
-import type { AuthorizationList } from '../../experimental/eip7702/types/authorization.js'
-import type { RpcAuthorizationList } from '../../experimental/eip7702/types/rpc.js'
+import type { AuthorizationList } from '../../types/authorization.js'
 import type {
   Chain,
   ExtractChainFormatterParameters,
 } from '../../types/chain.js'
 import type { ByteArray } from '../../types/misc.js'
-import type { RpcTransactionRequest } from '../../types/rpc.js'
+import type {
+  RpcAuthorizationList,
+  RpcTransactionRequest,
+} from '../../types/rpc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { ExactPartial } from '../../types/utils.js'
 import { bytesToHex, numberToHex } from '../encoding/toHex.js'
@@ -90,9 +92,13 @@ function formatAuthorizationList(
   return authorizationList.map(
     (authorization) =>
       ({
-        address: authorization.contractAddress,
-        r: authorization.r,
-        s: authorization.s,
+        address: authorization.address,
+        r: authorization.r
+          ? numberToHex(BigInt(authorization.r))
+          : authorization.r,
+        s: authorization.s
+          ? numberToHex(BigInt(authorization.s))
+          : authorization.s,
         chainId: numberToHex(authorization.chainId),
         nonce: numberToHex(authorization.nonce),
         ...(typeof authorization.yParity !== 'undefined'

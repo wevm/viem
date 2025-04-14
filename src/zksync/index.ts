@@ -29,6 +29,12 @@ export {
   hashBytecode,
 } from './utils/hashBytecode.js'
 export {
+  type DepositErrorType,
+  type DepositReturnType,
+  type DepositParameters,
+  deposit,
+} from './actions/deposit.js'
+export {
   type EstimateFeeParameters,
   type EstimateFeeReturnType,
   estimateFee,
@@ -95,6 +101,12 @@ export {
   type GetTransactionDetailsReturnType,
   getTransactionDetails,
 } from './actions/getTransactionDetails.js'
+export {
+  type IsWithdrawalFinalizedErrorType,
+  type IsWithdrawalFinalizedReturnType,
+  type IsWithdrawalFinalizedParameters,
+  isWithdrawalFinalized,
+} from './actions/isWithdrawalFinalized.js'
 export {
   type RequestExecuteErrorType,
   type RequestExecuteReturnType,
@@ -321,6 +333,7 @@ export {
   type GetL2HashFromPriorityOpErrorType,
   getL2HashFromPriorityOp,
 } from './utils/bridge/getL2HashFromPriorityOp.js'
+export { undoL1ToL2Alias } from './utils/bridge/undoL1ToL2Alias.js'
 export {
   type GetApprovalBasedPaymasterInputParameters,
   type GetApprovalBasedPaymasterInputReturnType,

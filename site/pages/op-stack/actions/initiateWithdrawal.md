@@ -30,11 +30,11 @@ const hash = await walletClientL2.initiateWithdrawal({
 ```ts [config.ts]
 import { createWalletClient, custom } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { mainnet } from 'viem/chains'
+import { optimism } from 'viem/chains'
 import { walletActionsL2 } from 'viem/op-stack'
 
 export const walletClientL2 = createWalletClient({
-  chain: mainnet,
+  chain: optimism,
   transport: custom(window.ethereum)
 }).extend(walletActionsL2())
 

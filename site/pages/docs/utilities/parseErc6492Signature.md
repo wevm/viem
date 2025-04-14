@@ -11,13 +11,13 @@ If the signature is not in ERC-6492 format, then the underlying (original) signa
 ## Import
 
 ```ts
-import { parseErc6492Signature } from 'viem/experimental'
+import { parseErc6492Signature } from 'viem/utils'
 ```
 
 ## Usage
 
 ```ts twoslash
-import { parseErc6492Signature } from 'viem/experimental'
+import { parseErc6492Signature } from 'viem/utils'
 
 const { // [!code focus:99]
   address,

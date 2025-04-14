@@ -63,7 +63,7 @@ function serializeTransactionEIP712(
     gas ? toHex(gas) : '0x',
     to ?? '0x',
     value ? toHex(value) : '0x',
-    data ?? '0x0',
+    data ?? '0x',
     toHex(chainId),
     toHex(''),
     toHex(''),

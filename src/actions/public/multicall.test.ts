@@ -50,11 +50,11 @@ test('default', async () => {
   ).toMatchInlineSnapshot(`
     [
       {
-        "result": 25386964533553076n,
+        "result": 39507977228957576n,
         "status": "success",
       },
       {
-        "result": 9063377042n,
+        "result": 123223706565n,
         "status": "success",
       },
       {
@@ -89,8 +89,8 @@ test('args: allowFailure', async () => {
     }),
   ).toMatchInlineSnapshot(`
     [
-      25386964533553076n,
-      9063377042n,
+      39507977228957576n,
+      123223706565n,
       10000n,
     ]
   `)
@@ -151,27 +151,15 @@ test('args: batchSize', async () => {
   ).toMatchInlineSnapshot(`
     [
       {
-        "result": 25386964533553076n,
+        "result": 39507977228957576n,
         "status": "success",
       },
       {
-        "result": 25386964533553076n,
+        "result": 39507977228957576n,
         "status": "success",
       },
       {
-        "result": 9063377042n,
-        "status": "success",
-      },
-      {
-        "result": 10000n,
-        "status": "success",
-      },
-      {
-        "result": 25386964533553076n,
-        "status": "success",
-      },
-      {
-        "result": 9063377042n,
+        "result": 123223706565n,
         "status": "success",
       },
       {
@@ -179,11 +167,23 @@ test('args: batchSize', async () => {
         "status": "success",
       },
       {
-        "result": 25386964533553076n,
+        "result": 39507977228957576n,
         "status": "success",
       },
       {
-        "result": 9063377042n,
+        "result": 123223706565n,
+        "status": "success",
+      },
+      {
+        "result": 10000n,
+        "status": "success",
+      },
+      {
+        "result": 39507977228957576n,
+        "status": "success",
+      },
+      {
+        "result": 123223706565n,
         "status": "success",
       },
       {
@@ -263,11 +263,11 @@ test('args: multicallAddress', async () => {
   ).toMatchInlineSnapshot(`
     [
       {
-        "result": 25386964533553076n,
+        "result": 39507977228957576n,
         "status": "success",
       },
       {
-        "result": 9063377042n,
+        "result": 123223706565n,
         "status": "success",
       },
       {
@@ -382,7 +382,7 @@ describe('errors', async () => {
             "status": "failure",
           },
           {
-            "result": 9063377042n,
+            "result": 123223706565n,
             "status": "success",
           },
           {
@@ -435,7 +435,7 @@ describe('errors', async () => {
             "status": "failure",
           },
           {
-            "result": 9063377042n,
+            "result": 123223706565n,
             "status": "success",
           },
           {
@@ -489,7 +489,7 @@ describe('errors', async () => {
             "status": "failure",
           },
           {
-            "result": 9063377042n,
+            "result": 123223706565n,
             "status": "success",
           },
           {
@@ -533,11 +533,11 @@ describe('errors', async () => {
       expect(res).toMatchInlineSnapshot(`
         [
           {
-            "result": 9063377042n,
+            "result": 123223706565n,
             "status": "success",
           },
           {
-            "result": 9063377042n,
+            "result": 123223706565n,
             "status": "success",
           },
           {
@@ -606,11 +606,11 @@ describe('errors', async () => {
       ).toMatchInlineSnapshot(`
         [
           {
-            "result": 9063377042n,
+            "result": 123223706565n,
             "status": "success",
           },
           {
-            "result": 9063377042n,
+            "result": 123223706565n,
             "status": "success",
           },
           {
@@ -761,7 +761,7 @@ describe('errors', async () => {
             "status": "failure",
           },
           {
-            "result": 9063377042n,
+            "result": 123223706565n,
             "status": "success",
           },
           {

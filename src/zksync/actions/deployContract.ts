@@ -31,9 +31,9 @@ export type DeployContractParameters<
   chainOverride extends ChainEIP712 | undefined = ChainEIP712 | undefined,
   allArgs = ContractConstructorArgs<abi>,
 > = DeployContractParameters_<abi, chain, account, chainOverride, allArgs> & {
-  deploymentType?: ContractDeploymentType
-  factoryDeps?: Hex[]
-  salt?: Hash
+  deploymentType?: ContractDeploymentType | undefined
+  factoryDeps?: Hex[] | undefined
+  salt?: Hash | undefined
 }
 
 export type DeployContractReturnType = SendEip712TransactionReturnType

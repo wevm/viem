@@ -24,6 +24,7 @@ import { defineKzg } from 'viem'
 ## Usage
 
 ```ts twoslash
+// @noErrors
 import * as cKzg from 'c-kzg'
 import { defineKzg } from 'viem'
 import { mainnetTrustedSetupPath } from 'viem/node'

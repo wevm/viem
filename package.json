@@ -28,7 +28,7 @@
     "prepare": "pnpm simple-git-hooks",
     "prepublishOnly": "bun scripts/prepublishOnly.ts",
     "size": "size-limit",
-    "test": "vitest -c ./test/vitest.config.ts dev --bail=1",
+    "test": "vitest -c ./test/vitest.config.ts",
     "test:build": "publint --strict ./src && attw --pack ./src --ignore-rules false-esm",
     "test:chains": "vitest test/scripts/chains.test.ts",
     "test:ci": "CI=true vitest -c ./test/vitest.config.ts --coverage --retry=3 --bail=1",
@@ -48,15 +48,15 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.15.4",
     "@ark/attest": "^0.10.2",
-    "@biomejs/biome": "^1.9.3",
+    "@biomejs/biome": "^1.9.4",
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.27.9",
     "@ethereumjs/rlp": "^5.0.2",
     "@paulmillr/trusted-setups": "^0.1.2",
-    "@pimlico/alto": "0.0.4",
+    "@pimlico/alto": "0.0.18",
     "@size-limit/preset-big-lib": "^11.1.6",
     "@types/bun": "^1.1.11",
-    "@types/node": "^20.16.12",
+    "@types/node": "^22.13.13",
     "@vitest/coverage-v8": "^1.0.4",
     "@vitest/ui": "^1.0.4",
     "bun": "^1.1.30",
@@ -65,12 +65,12 @@
     "knip": "^5.33.3",
     "micro-eth-signer": "^0.14.0",
     "permissionless": "^0.2.14",
-    "prool": "0.0.23",
+    "prool": "0.0.24",
     "publint": "^0.2.11",
     "sherif": "^0.8.4",
     "simple-git-hooks": "^2.11.1",
     "size-limit": "^11.1.6",
-    "typescript": "5.6.2",
+    "typescript": "5.8.2",
     "vitest": "^1.0.4"
   },
   "packageManager": "pnpm@9.1.0",
@@ -110,13 +110,13 @@
     {
       "name": "import * from 'viem' (esm)",
       "path": "./src/_esm/index.js",
-      "limit": "69 kB",
+      "limit": "70 kB",
       "import": "*"
     },
     {
       "name": "const viem = require('viem') (cjs)",
       "path": "./src/_cjs/index.js",
-      "limit": "83 kB"
+      "limit": "85 kB"
     },
     {
       "name": "import { createClient, http } from 'viem'",
@@ -151,7 +151,7 @@
     {
       "name": "import * from 'viem/actions'",
       "path": "./src/_esm/actions/index.js",
-      "limit": "54 kB",
+      "limit": "55 kB",
       "import": "*"
     },
     {

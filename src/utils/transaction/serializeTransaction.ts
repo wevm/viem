@@ -27,6 +27,10 @@ import type {
 } from '../../types/transaction.js'
 import type { OneOf } from '../../types/utils.js'
 import {
+  type SerializeAuthorizationListErrorType,
+  serializeAuthorizationList,
+} from '../authorization/serializeAuthorizationList.js'
+import {
   type BlobsToCommitmentsErrorType,
   blobsToCommitments,
 } from '../blob/blobsToCommitments.js'
@@ -47,10 +51,6 @@ import { trim } from '../data/trim.js'
 import { type ToHexErrorType, bytesToHex, toHex } from '../encoding/toHex.js'
 import { type ToRlpErrorType, toRlp } from '../encoding/toRlp.js'
 
-import {
-  type SerializeAuthorizationListErrorType,
-  serializeAuthorizationList,
-} from '../../experimental/eip7702/utils/serializeAuthorizationList.js'
 import {
   type AssertTransactionEIP1559ErrorType,
   type AssertTransactionEIP2930ErrorType,

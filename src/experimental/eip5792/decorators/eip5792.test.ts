@@ -54,6 +54,7 @@ test('default', async () => {
       "getCapabilities": [Function],
       "sendCalls": [Function],
       "showCallsStatus": [Function],
+      "waitForCallsStatus": [Function],
       "writeContracts": [Function],
     }
   `)
@@ -87,6 +88,8 @@ describe('smoke test', () => {
   test('getCallsStatus', async () => {
     expect(await client.getCallsStatus({ id: '0x123' })).toMatchInlineSnapshot(`
       {
+        "atomic": false,
+        "chainId": undefined,
         "receipts": [
           {
             "blockHash": "0x66a7b39a0c4635c2f30cd191d7e1fb0bd370c11dd93199f236c5bdacfc9136b3",
@@ -97,7 +100,9 @@ describe('smoke test', () => {
             "transactionHash": "0x66a7b39a0c4635c2f30cd191d7e1fb0bd370c11dd93199f236c5bdacfc9136b3",
           },
         ],
-        "status": "CONFIRMED",
+        "status": "success",
+        "statusCode": 200,
+        "version": "1.0",
       }
     `)
   })
@@ -109,7 +114,11 @@ describe('smoke test', () => {
         calls: [{ to: '0x0000000000000000000000000000000000000000' }],
         chain: mainnet,
       }),
-    ).toMatchInlineSnapshot(`"0x1"`)
+    ).toMatchInlineSnapshot(`
+      {
+        "id": "0x1",
+      }
+    `)
   })
 
   test('writeContracts', async () => {
@@ -123,6 +132,10 @@ describe('smoke test', () => {
           { ...wagmiContractConfig, functionName: 'mint' },
         ],
       }),
-    ).toMatchInlineSnapshot(`"0x1"`)
+    ).toMatchInlineSnapshot(`
+      {
+        "id": "0x1",
+      }
+    `)
   })
 })

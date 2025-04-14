@@ -34,6 +34,27 @@ const client = createClient({
 })
 
 test('default', async () => {
+  const capabilities = await getCapabilities(client)
+  expect(capabilities).toMatchInlineSnapshot(`
+    {
+      "8453": {
+        "paymasterService": {
+          "supported": false,
+        },
+        "sessionKeys": {
+          "supported": true,
+        },
+      },
+      "84532": {
+        "paymasterService": {
+          "supported": false,
+        },
+      },
+    }
+  `)
+})
+
+test('args: account', async () => {
   const capabilities = await getCapabilities(client, {
     account: accounts[0].address,
   })
@@ -56,7 +77,24 @@ test('default', async () => {
   `)
 })
 
-test('account on client', async () => {
+test('args: chainId', async () => {
+  const capabilities = await getCapabilities(client, {
+    account: accounts[0].address,
+    chainId: 8453,
+  })
+  expect(capabilities).toMatchInlineSnapshot(`
+    {
+      "paymasterService": {
+        "supported": true,
+      },
+      "sessionKeys": {
+        "supported": true,
+      },
+    }
+  `)
+})
+
+test('behavior: account on client', async () => {
   const client_2 = {
     ...client,
     account: accounts[1].address,

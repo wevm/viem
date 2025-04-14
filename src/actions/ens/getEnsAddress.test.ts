@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, test } from 'vitest'
 
 import { createHttpServer, setVitalikResolver } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
-import { mainnet, optimism } from '../../chains/index.js'
+import { linea, mainnet, optimism } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
 import { reset } from '../test/reset.js'
@@ -253,4 +253,14 @@ test('invalid universal resolver address', async () => {
     Docs: https://viem.sh/docs/contract/readContract
     Version: viem@x.y.z]
   `)
+})
+
+test('invalid TLD', async () => {
+  const client = createClient({
+    chain: linea,
+    transport: http(),
+  })
+  await expect(
+    getEnsAddress(client, { name: 'vitalik.eth' }),
+  ).resolves.toBeNull()
 })

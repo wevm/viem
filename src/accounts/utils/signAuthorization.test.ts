@@ -3,11 +3,11 @@ import { expect, test } from 'vitest'
 import { accounts } from '~test/src/constants.js'
 
 import { wagmiContractConfig } from '../../../test/src/abis.js'
-import { verifyAuthorization } from '../../experimental/eip7702/utils/verifyAuthorization.js'
-import { experimental_signAuthorization } from './signAuthorization.js'
+import { verifyAuthorization } from '../../utils/authorization/verifyAuthorization.js'
+import { signAuthorization } from './signAuthorization.js'
 
 test('default', async () => {
-  const signedAuthorization = await experimental_signAuthorization({
+  const signedAuthorization = await signAuthorization({
     contractAddress: wagmiContractConfig.address,
     chainId: 1,
     nonce: 0,
@@ -23,8 +23,8 @@ test('default', async () => {
   }).toMatchInlineSnapshot(
     `
     {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "contractAddress": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "nonce": 0,
       "r": null,
       "s": null,
@@ -45,13 +45,48 @@ test('default', async () => {
   ).toBe(true)
 })
 
+test('args: address (alias)', async () => {
+  const signedAuthorization = await signAuthorization({
+    address: wagmiContractConfig.address,
+    chainId: 1,
+    nonce: 0,
+    privateKey: accounts[0].privateKey,
+  })
+
+  expect({
+    ...signedAuthorization,
+    r: null,
+    s: null,
+    v: null,
+    yParity: null,
+  }).toMatchInlineSnapshot(
+    `
+    {
+      "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+      "chainId": 1,
+      "nonce": 0,
+      "r": null,
+      "s": null,
+      "v": null,
+      "yParity": null,
+    }
+  `,
+  )
+  expect(
+    await verifyAuthorization({
+      address: accounts[0].address,
+      authorization: signedAuthorization,
+    }),
+  ).toBe(true)
+})
+
 test('args: to (hex)', async () => {
   const authorization = {
     contractAddress: wagmiContractConfig.address,
     chainId: 1,
     nonce: 0,
   }
-  const signature = await experimental_signAuthorization({
+  const signature = await signAuthorization({
     ...authorization,
     privateKey: accounts[0].privateKey,
     to: 'hex',

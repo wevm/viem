@@ -167,7 +167,7 @@ export async function executeBatches<
 ): Promise<ExecuteBatchesReturnType> {
   const { authorizationList, batches } = parameters
 
-  const address = authorizationList?.[0]?.contractAddress ?? parameters.address
+  const address = authorizationList?.[0]?.address ?? parameters.address
 
   const supported = await withCache(
     () =>

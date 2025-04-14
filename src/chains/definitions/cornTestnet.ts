@@ -11,7 +11,7 @@ export const cornTestnet = /*#__PURE__*/ defineChain({
     symbol: 'BTCN',
   },
   rpcUrls: {
-    default: { http: ['https://rpc.ankr.com/corn_testnet'] },
+    default: { http: ['https://21000001.rpc.thirdweb.com'] },
   },
   blockExplorers: {
     default: {

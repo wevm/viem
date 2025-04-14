@@ -103,6 +103,7 @@ export function webSocket(
     const retryCount = config.retryCount ?? retryCount_
     const timeout = timeout_ ?? config.timeout ?? 10_000
     const url_ = url || chain?.rpcUrls.default.webSocket?.[0]
+    const wsRpcClientOpts = { keepAlive, reconnect }
     if (!url_) throw new UrlRequiredError()
     return createTransport(
       {
@@ -111,10 +112,7 @@ export function webSocket(
         name,
         async request({ method, params }) {
           const body = { method, params }
-          const rpcClient = await getWebSocketRpcClient(url_, {
-            keepAlive,
-            reconnect,
-          })
+          const rpcClient = await getWebSocketRpcClient(url_, wsRpcClientOpts)
           const { error, result } = await rpcClient.requestAsync({
             body,
             timeout,
@@ -137,10 +135,10 @@ export function webSocket(
           return getSocket(url_)
         },
         getRpcClient() {
-          return getWebSocketRpcClient(url_)
+          return getWebSocketRpcClient(url_, wsRpcClientOpts)
         },
         async subscribe({ params, onData, onError }: any) {
-          const rpcClient = await getWebSocketRpcClient(url_)
+          const rpcClient = await getWebSocketRpcClient(url_, wsRpcClientOpts)
           const { result: subscriptionId } = await new Promise<any>(
             (resolve, reject) =>
               rpcClient.request({

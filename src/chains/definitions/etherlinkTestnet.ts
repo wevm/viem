@@ -14,7 +14,7 @@ export const etherlinkTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Etherlink Testnet',
-      url: 'https://testnet-explorer.etherlink.com',
+      url: 'https://testnet.explorer.etherlink.com',
     },
   },
   testnet: true,

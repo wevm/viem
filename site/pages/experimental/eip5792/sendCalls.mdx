@@ -4,9 +4,9 @@ description: Sign and broadcast a batch of calls to the network.
 
 # sendCalls
 
-Requests for the wallet to sign and broadcast a batch of calls (transactions) to the network. 
+Requests for the wallet to sign and broadcast a batch of calls to the network. 
 
-[Read more.](https://github.com/ethereum/EIPs/blob/815028dc634463e1716fc5ce44c019a6040f0bef/EIPS/eip-5792.md#wallet_sendcalls)
+[Read more.](https://eips.ethereum.org/EIPS/eip-5792#wallet_sendcalls)
 
 :::warning[Warning]
 This is an experimental action that is not supported in most wallets. It is recommended to have a fallback mechanism if using this in production.
@@ -20,7 +20,7 @@ This is an experimental action that is not supported in most wallets. It is reco
 import { parseEther } from 'viem'
 import { account, walletClient } from './config'
  
-const id = await walletClient.sendCalls({ // [!code focus:99]
+const { id } = await walletClient.sendCalls({ // [!code focus:99]
   account,
   calls: [
     {
@@ -56,7 +56,7 @@ Notes:
 
 - `account` and `chain` are top level properties as all calls should be sent by the same account and chain.
 - Properties of `calls` items are only those shared by all transaction types (e.g. `data`, `to`, `value`). The Wallet should handle other required properties like gas & fees.
-- [Read `wallet_sendCalls` on EIP-5792.](https://github.com/ethereum/EIPs/blob/815028dc634463e1716fc5ce44c019a6040f0bef/EIPS/eip-5792.md#wallet_sendcalls)
+- [Read `wallet_sendCalls` on EIP-5792.](https://eips.ethereum.org/EIPS/eip-5792#wallet_sendcalls)
 
 ### Account Hoisting
 
@@ -69,7 +69,7 @@ If you do not wish to pass an `account` to every `sendCalls`, you can also hoist
 ```ts twoslash [example.ts]
 import { walletClient } from './config'
  
-const id = await walletClient.sendCalls({ // [!code focus:99]
+const { id } = await walletClient.sendCalls({ // [!code focus:99]
   calls: [
     {
       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -116,7 +116,7 @@ const abi = parseAbi([
   'function transferFrom(address, address, uint256) returns (bool)',
 ])
  
-const id = await walletClient.sendCalls({ // [!code focus:99]
+const { id } = await walletClient.sendCalls({ // [!code focus:99]
   calls: [
     {
       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -179,7 +179,7 @@ export const walletClient = createWalletClient({
 
 ## Returns
 
-`string`
+`{ id: string, capabilities?: WalletCapabilities }`
 
 The identifier can be any arbitrary string. The only requirement is that for a given session, consumers should be able to call `getCallsStatus` with this identifier to retrieve a batch call status and call receipts.
 
@@ -196,7 +196,7 @@ Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts).
 ```ts twoslash
 import { walletClient } from './config'
 
-const id = await walletClient.sendCalls({
+const { id } = await walletClient.sendCalls({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
   calls: [
     {
@@ -222,7 +222,7 @@ The target chain to broadcast the calls.
 import { mainnet } from 'viem/chains'
 import { walletClient } from './config'
 
-const id = await walletClient.sendCalls({
+const { id } = await walletClient.sendCalls({
   chain: mainnet, // [!code focus]
   calls: [
     {
@@ -247,7 +247,7 @@ An array of calls to be signed and broadcasted.
 import { mainnet } from 'viem/chains'
 import { walletClient } from './config'
 
-const id = await walletClient.sendCalls({
+const { id } = await walletClient.sendCalls({
   chain: mainnet,
   calls: [ // [!code focus]
     { // [!code focus]
@@ -272,7 +272,7 @@ Calldata to broadcast (typically a contract function selector with encoded argum
 import { mainnet } from 'viem/chains'
 import { walletClient } from './config'
 
-const id = await walletClient.sendCalls({
+const { id } = await walletClient.sendCalls({
   chain: mainnet,
   calls: [ 
     { 
@@ -297,7 +297,7 @@ Recipient address of the call.
 import { mainnet } from 'viem/chains'
 import { walletClient } from './config'
 
-const id = await walletClient.sendCalls({
+const { id } = await walletClient.sendCalls({
   chain: mainnet,
   calls: [ 
     { 
@@ -322,7 +322,7 @@ Value to send with the call.
 import { mainnet } from 'viem/chains'
 import { walletClient } from './config'
 
-const id = await walletClient.sendCalls({
+const { id } = await walletClient.sendCalls({
   chain: mainnet,
   calls: [ 
     { 
@@ -346,7 +346,7 @@ Capability metadata for the calls (e.g. specifying a paymaster).
 ```ts twoslash
 import { walletClient } from './config'
 
-const id = await walletClient.sendCalls({
+const { id } = await walletClient.sendCalls({
   calls: [
     {
       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -362,5 +362,54 @@ const id = await walletClient.sendCalls({
       url: 'https://...' // [!code focus]
     } // [!code focus]
   } // [!code focus]
+})
+```
+
+### forceAtomic
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Force the calls to be executed atomically. [See more](https://eips.ethereum.org/EIPS/eip-5792#call-execution-atomicity)
+
+```ts twoslash
+import { walletClient } from './config'
+
+const { id } = await walletClient.sendCalls({
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: parseEther('1')
+    },
+    {
+      data: '0xdeadbeef',
+      to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+    },
+  ],
+  forceAtomic: true, // [!code focus]
+})
+```
+
+### id
+
+- **Type:** `string`
+
+Attribute the call batch with an identifier.
+
+```ts twoslash
+import { walletClient } from './config'
+
+const { id } = await walletClient.sendCalls({
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: parseEther('1')
+    },
+    {
+      data: '0xdeadbeef',
+      to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+    },
+  ],
+  id: '<my-batch-id>', // [!code focus]
 })
 ```
