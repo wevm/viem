@@ -74,7 +74,7 @@ export async function getCallsStatus<
       return ['pending', statusCode] as const
     if (statusCode >= 200 && statusCode < 300)
       return ['success', statusCode] as const
-    if (statusCode >= 400 && statusCode < 700)
+    if (statusCode >= 300 && statusCode < 700)
       return ['failure', statusCode] as const
     // @ts-expect-error: for backwards compatibility
     if (statusCode === 'CONFIRMED') return ['success', 200] as const
