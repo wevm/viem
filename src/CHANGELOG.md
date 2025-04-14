@@ -1,5 +1,11 @@
 # viem
 
+## 2.26.4
+
+### Patch Changes
+
+- [#3553](https://github.com/wevm/viem/pull/3553) [`7487580941c1527483dca5267bd6817913d01aeb`](https://github.com/wevm/viem/commit/7487580941c1527483dca5267bd6817913d01aeb) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Lens mainnet.
+
 ## 2.26.3
 
 ### Patch Changes
