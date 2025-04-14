@@ -45,6 +45,57 @@ test('exports abis', () => {
           "type": "function",
         },
       ],
+      "batchGatewayAbi": [
+        {
+          "inputs": [
+            {
+              "components": [
+                {
+                  "name": "sender",
+                  "type": "address",
+                },
+                {
+                  "name": "urls",
+                  "type": "string[]",
+                },
+                {
+                  "name": "data",
+                  "type": "bytes",
+                },
+              ],
+              "name": "queries",
+              "type": "tuple[]",
+            },
+          ],
+          "name": "query",
+          "outputs": [
+            {
+              "name": "failures",
+              "type": "bool[]",
+            },
+            {
+              "name": "responses",
+              "type": "bytes[]",
+            },
+          ],
+          "stateMutability": "view",
+          "type": "function",
+        },
+        {
+          "inputs": [
+            {
+              "name": "status",
+              "type": "uint16",
+            },
+            {
+              "name": "message",
+              "type": "string",
+            },
+          ],
+          "name": "HttpError",
+          "type": "error",
+        },
+      ],
       "erc20Abi": [
         {
           "inputs": [
