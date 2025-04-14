@@ -1,5 +1,11 @@
 # viem
 
+## 2.26.5
+
+### Patch Changes
+
+- [#3558](https://github.com/wevm/viem/pull/3558) [`ba55147b8b42552d29c25be6368c6e4bb50bb25c`](https://github.com/wevm/viem/commit/ba55147b8b42552d29c25be6368c6e4bb50bb25c) Thanks [@jxom](https://github.com/jxom)! - Added EIP-5792 errors.
+
 ## 2.26.4
 
 ### Patch Changes
