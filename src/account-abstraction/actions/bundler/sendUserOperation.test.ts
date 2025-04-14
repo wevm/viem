@@ -384,10 +384,10 @@ describe('entryPointVersion: 0.6', async () => {
     await mine(client, { blocks: 1 })
 
     expect(await getBalance(client, { address: alice })).toMatchInlineSnapshot(
-      '10000000000000000000000n',
+      '10001000000000000000000n',
     )
     expect(await getBalance(client, { address: bob })).toMatchInlineSnapshot(
-      '10000000000000000000000n',
+      '10002000000000000000000n',
     )
   })
 
