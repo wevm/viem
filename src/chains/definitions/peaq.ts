@@ -11,14 +11,14 @@ export const peaq = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: [
+        'https://peaq-rpc.publicnode.com',
         'https://peaq.api.onfinality.io/public',
         'https://peaq-rpc.dwellir.com',
-        'https://peaq-rpc.publicnode.com',
         'https://evm.peaq.network',
       ],
       webSocket: [
-        'wss://peaq.api.onfinality.io/public',
         'wss://peaq-rpc.publicnode.com',
+        'wss://peaq.api.onfinality.io/public',
         'wss://peaq-rpc.dwellir.com',
       ],
     },
