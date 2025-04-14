@@ -256,13 +256,13 @@ describe('entryPointVersion: 0.7', async () => {
       Request Arguments:
         callData:              0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
         callGasLimit:          0
-        factory:               0xea2e668d430e5aa15baba2f5c5edfd4f9ef6eb73
+        factory:               0xf102f0173707c6726543d65fa38025eb72026c37
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000001
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
         nonce:                 30902162761021348478818713600000
         preVerificationGas:    0
-        sender:                0x6efA2348C36EE137f49a67c66525A1d264FaE926
+        sender:                0xc1b7F8B47312df97bdd97A6A4e322335F684A485
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
         verificationGasLimit:  0
 
@@ -305,7 +305,7 @@ describe('entryPointVersion: 0.7', async () => {
         maxPriorityFeePerGas:  2 gwei
         nonce:                 30902162761021348478818713600000
         preVerificationGas:    0
-        sender:                0x44f093A4811cE94D63EC975637E90c1e4132ee69
+        sender:                0x820576f0A704fE307eDcd62839C1de2818D860d5
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
         verificationGasLimit:  0
 
@@ -344,7 +344,7 @@ describe('entryPointVersion: 0.7', async () => {
         paymasterPostOpGasLimit:        0
         paymasterVerificationGasLimit:  0
         preVerificationGas:             48527
-        sender:                         0x5DE8369D07A58C1d371A091979956d08b40ceA59
+        sender:                         0x7473Fcb76634352e4CbA37CFad3783B059792b44
         signature:                      0xdeadbeef
         verificationGasLimit:           79141
 
@@ -384,10 +384,10 @@ describe('entryPointVersion: 0.6', async () => {
     await mine(client, { blocks: 1 })
 
     expect(await getBalance(client, { address: alice })).toMatchInlineSnapshot(
-      '10001000000000000000000n',
+      '10000000000000000000000n',
     )
     expect(await getBalance(client, { address: bob })).toMatchInlineSnapshot(
-      '10002000000000000000000n',
+      '10000000000000000000000n',
     )
   })
 
@@ -423,7 +423,7 @@ describe('entryPointVersion: 0.6', async () => {
         nonce:                 30902162761021348478818713600000
         paymasterAndData:      0x
         preVerificationGas:    0
-        sender:                0xbB2bD8ef42490AF89c9a35e529c53bC39844AD11
+        sender:                0x2e9F95d2E79bc16bDC8CEAa2e555Ef8b213ae478
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
         verificationGasLimit:  0
 
