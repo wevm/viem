@@ -2,4 +2,4 @@
 "viem": minor
 ---
 
-Update and Deprecate SKALE Network Chains
+Updated SKALE Network Chains.
