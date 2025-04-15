@@ -15,13 +15,13 @@ export const coreTestnet1 = /*#__PURE__*/ defineChain({
     default: {
       name: 'Core Testnet',
       url: 'https://scan.test.btcs.network',
-      apiUrl:'https://api.test.btcs.network/api',
+      apiUrl: 'https://api.test.btcs.network/api',
     },
   },
   contracts: {
     multicall3: {
       address: '0xCcddF20A1932537123C2E48Bd8e00b108B8f7569',
-      blockCreated: 29_350_509, 
+      blockCreated: 29_350_509,
     },
   },
   testnet: true,
