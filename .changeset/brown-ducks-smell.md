@@ -1,5 +1,5 @@
 ---
-"viem": minor
+"viem": patch
 ---
 
 Updated SKALE Network Chains.
