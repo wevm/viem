@@ -463,7 +463,7 @@ export { skaleCryptoBlades } from './definitions/skale/cryptoBlades.js'
 /** @deprecated */
 export { skaleCryptoColosseum } from './definitions/skale/cryptoColosseum.js'
 export { skaleEuropa } from './definitions/skale/europa.js'
-export { skaleEuropaTestnet } from './definitions/skale/europaTestnet.js' 
+export { skaleEuropaTestnet } from './definitions/skale/europaTestnet.js'
 export { skaleExorde } from './definitions/skale/exorde.js'
 /** @deprecated */
 export { skaleHumanProtocol } from './definitions/skale/humanProtocol.js'
