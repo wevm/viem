@@ -1,5 +1,35 @@
 # viem
 
+## 2.27.0
+
+### Minor Changes
+
+- [#3440](https://github.com/wevm/viem/pull/3440) [`e06a46a732d075f3a0d3bca916f82f39ee9d4344`](https://github.com/wevm/viem/commit/e06a46a732d075f3a0d3bca916f82f39ee9d4344) Thanks [@adraffy](https://github.com/adraffy)! - Added support for [ENSIP-21: Batch Gateway Offchain Lookup Protocol](https://github.com/ensdomains/ensips/blob/master/ensips/21.md).
+
+### Patch Changes
+
+- [#3564](https://github.com/wevm/viem/pull/3564) [`f22fe5ac63a4e403949fe301f548f28ac0c1a070`](https://github.com/wevm/viem/commit/f22fe5ac63a4e403949fe301f548f28ac0c1a070) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Added Tron Shasta network
+
+- [#3561](https://github.com/wevm/viem/pull/3561) [`8053048eaac6d3ad8e800742681ac27cbd8ed18a`](https://github.com/wevm/viem/commit/8053048eaac6d3ad8e800742681ac27cbd8ed18a) Thanks [@menefrego15](https://github.com/menefrego15)! - Added multicall3 contract to Hoodi chain
+
+- [`151e8944cd2eb2eb742dc84e566e886d0d638d3b`](https://github.com/wevm/viem/commit/151e8944cd2eb2eb742dc84e566e886d0d638d3b) Thanks [@jxom](https://github.com/jxom)! - Fixed ERC-7739 `signMessage` domain to not include salt.
+
+- [#3565](https://github.com/wevm/viem/pull/3565) [`542371cce67fa2bb2730e24a267629f4a2e89520`](https://github.com/wevm/viem/commit/542371cce67fa2bb2730e24a267629f4a2e89520) Thanks [@foxtrotravi](https://github.com/foxtrotravi)! - Added Lestnet chain.
+
+- [`4ba1a41f6b309d4d77236b073eb5b9da0f6330f5`](https://github.com/wevm/viem/commit/4ba1a41f6b309d4d77236b073eb5b9da0f6330f5) Thanks [@jxom](https://github.com/jxom)! - Fixed `getCallsStatus` failure status codes.
+
+## 2.26.5
+
+### Patch Changes
+
+- [#3558](https://github.com/wevm/viem/pull/3558) [`ba55147b8b42552d29c25be6368c6e4bb50bb25c`](https://github.com/wevm/viem/commit/ba55147b8b42552d29c25be6368c6e4bb50bb25c) Thanks [@jxom](https://github.com/jxom)! - Added EIP-5792 errors.
+
+## 2.26.4
+
+### Patch Changes
+
+- [#3553](https://github.com/wevm/viem/pull/3553) [`7487580941c1527483dca5267bd6817913d01aeb`](https://github.com/wevm/viem/commit/7487580941c1527483dca5267bd6817913d01aeb) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Lens mainnet.
+
 ## 2.26.3
 
 ### Patch Changes
