@@ -68,80 +68,9 @@ describe('entryPointVersion: 0.8', async () => {
     expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(95000n)
   })
 
-  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0.8
-  //   test('args: paymaster (client)', async () => {
-  //     const paymaster = await getVerifyingPaymaster_08()
-  //     const server = await createVerifyingPaymasterServer(client, { paymaster })
+  test.todo('args: paymaster (client)')
 
-  //     const paymasterClient = createPaymasterClient({
-  //       transport: http(server.url),
-  //     })
-
-  //     const authorization = await prepareAuthorization(client, {
-  //       account,
-  //       address: account.implementation,
-  //     })
-
-  //     const gas = await estimateUserOperationGas(bundlerClient, {
-  //       account,
-  //       calls: [
-  //         {
-  //           to: '0x0000000000000000000000000000000000000000',
-  //           value: parseEther('1'),
-  //         },
-  //         {
-  //           to: wagmiContractConfig.address,
-  //           abi: wagmiContractConfig.abi,
-  //           functionName: 'mint',
-  //         },
-  //       ],
-  //       paymaster: paymasterClient,
-  //       authorization,
-  //       ...fees,
-  //     })
-
-  //     expect(gas.callGasLimit).toBeGreaterThanOrEqual(140000n)
-  //     expect(gas.preVerificationGas).toBeGreaterThanOrEqual(53000n)
-  //     expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(237000n)
-  //     expect(gas.paymasterVerificationGasLimit).toBeGreaterThanOrEqual(20000n)
-  //     expect(gas.paymasterPostOpGasLimit).toBeGreaterThanOrEqual(0n)
-  //   })
-
-  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0.8
-  //   test('behavior: client.paymaster (client)', async () => {
-  //     const paymaster = await getVerifyingPaymaster_07()
-  //     const server = await createVerifyingPaymasterServer(client, { paymaster })
-
-  //     const paymasterClient = createPaymasterClient({
-  //       transport: http(server.url),
-  //     })
-
-  //     const bundlerClient = bundlerMainnet.getBundlerClient({
-  //       paymaster: paymasterClient,
-  //     })
-
-  //     const gas = await estimateUserOperationGas(bundlerClient, {
-  //       account,
-  //       calls: [
-  //         {
-  //           to: '0x0000000000000000000000000000000000000000',
-  //           value: parseEther('1'),
-  //         },
-  //         {
-  //           to: wagmiContractConfig.address,
-  //           abi: wagmiContractConfig.abi,
-  //           functionName: 'mint',
-  //         },
-  //       ],
-  //       ...fees,
-  //     })
-
-  //     expect(gas.callGasLimit).toBeGreaterThanOrEqual(140000n)
-  //     expect(gas.preVerificationGas).toBeGreaterThanOrEqual(59000n)
-  //     expect(gas.verificationGasLimit).toBeGreaterThanOrEqual(237000n)
-  //     expect(gas.paymasterVerificationGasLimit).toBeGreaterThanOrEqual(20000n)
-  //     expect(gas.paymasterPostOpGasLimit).toBeGreaterThanOrEqual(0n)
-  //   })
+  test.todo('behavior: client.paymaster (client)')
 
   test('behavior: prepared user operation', async () => {
     const userOp = await prepareUserOperation(bundlerClient, {

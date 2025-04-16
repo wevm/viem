@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   getSmartAccounts_06,
   getSmartAccounts_07,
@@ -6,7 +6,7 @@ import {
 } from '../../../../test/src/account-abstraction.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
-import { getTransactionCount, mine, reset } from '../../../actions/index.js'
+import { getTransactionCount, mine } from '../../../actions/index.js'
 import { parseEther, parseGwei } from '../../../utils/index.js'
 import { wait } from '../../../utils/wait.js'
 import * as getUserOperationReceipt from './getUserOperationReceipt.js'

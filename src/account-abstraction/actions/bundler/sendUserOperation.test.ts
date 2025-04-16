@@ -104,69 +104,9 @@ describe('entryPointVersion: 0.8', async () => {
     ).toBe(account.address)
   })
 
-  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0.8
-  //   test('args: paymaster (client)', async () => {
-  //     const paymaster = await getVerifyingPaymaster_07()
-  //     const server = await createVerifyingPaymasterServer(client, { paymaster })
+  test.todo('args: paymaster (client)')
 
-  //     const paymasterClient = createPaymasterClient({
-  //       transport: http(server.url),
-  //     })
-
-  //     const hash = await sendUserOperation(bundlerClient, {
-  //       account,
-  //       calls: [
-  //         {
-  //           to: alice,
-  //           value: parseEther('1'),
-  //         },
-  //         {
-  //           to: bob,
-  //           value: parseEther('2'),
-  //         },
-  //       ],
-  //       paymaster: paymasterClient,
-  //       ...fees,
-  //     })
-  //     expect(hash).toBeDefined()
-
-  //     await bundlerClient.request({ method: 'debug_bundler_sendBundleNow' })
-  //     await mine(client, { blocks: 1 })
-  //   })
-
-  // TODO: paymaster doesn't work as of now need to create new paymaster for entrypoint 0.8
-  //   test('behavior: client.paymaster (client)', async () => {
-  //     const paymaster = await getVerifyingPaymaster_07()
-  //     const server = await createVerifyingPaymasterServer(client, { paymaster })
-
-  //     const paymasterClient = createPaymasterClient({
-  //       transport: http(server.url),
-  //     })
-
-  //     const bundlerClient = bundlerMainnet.getBundlerClient({
-  //       client,
-  //       paymaster: paymasterClient,
-  //     })
-
-  //     const hash = await sendUserOperation(bundlerClient, {
-  //       account,
-  //       calls: [
-  //         {
-  //           to: alice,
-  //           value: parseEther('1'),
-  //         },
-  //         {
-  //           to: bob,
-  //           value: parseEther('2'),
-  //         },
-  //       ],
-  //       ...fees,
-  //     })
-  //     expect(hash).toBeDefined()
-
-  //     await bundlerClient.request({ method: 'debug_bundler_sendBundleNow' })
-  //     await mine(client, { blocks: 1 })
-  //   })
+  test.todo('behavior: client.paymaster (client)')
 
   test('behavior: prepared user operation', async () => {
     const request = {
