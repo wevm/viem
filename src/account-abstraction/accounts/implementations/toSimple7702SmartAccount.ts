@@ -1,7 +1,6 @@
 import type { Address, TypedData } from 'abitype'
 
 import type { PrivateKeyAccount } from '../../../accounts/types.js'
-import { parseAccount } from '../../../accounts/utils/parseAccount.js'
 import type { Client } from '../../../clients/createClient.js'
 import { entryPoint08Address } from '../../../constants/address.js'
 import { BaseError } from '../../../errors/base.js'
@@ -53,6 +52,7 @@ export async function toSimple7702SmartAccount(
     client,
     implementation = '0xe6Cae83BdE06E4c305530e199D7217f42808555B',
     getNonce,
+    owner,
   } = parameters
 
   const entryPoint = {
@@ -60,7 +60,6 @@ export async function toSimple7702SmartAccount(
     address: entryPoint08Address,
     version: '0.8',
   } as const
-  const owner = parseAccount(parameters.owner)
 
   return toSmartAccount({
     client,
