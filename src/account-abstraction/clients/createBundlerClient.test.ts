@@ -1,18 +1,7 @@
-import { beforeAll, expect, test } from 'vitest'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { expect, test } from 'vitest'
 import { bundlerMainnet } from '../../../test/src/bundler.js'
-import { reset } from '../../actions/index.js'
 import { http } from '../../clients/transports/http.js'
 import { createBundlerClient } from './createBundlerClient.js'
-
-const client = anvilMainnet.getClient({ account: true })
-
-beforeAll(async () => {
-  await reset(client, {
-    blockNumber: 22239294n,
-    jsonRpcUrl: anvilMainnet.forkUrl,
-  })
-})
 
 test('creates', () => {
   const { uid, transport, ...client } = createBundlerClient({

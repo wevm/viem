@@ -1,5 +1,4 @@
-import { beforeAll, describe, expect, test } from 'vitest'
-import { reset } from '~viem/actions/index.js'
+import { describe, expect, test } from 'vitest'
 import {
   createVerifyingPaymasterServer,
   getSmartAccounts_07,
@@ -17,20 +16,9 @@ import { getPaymasterStubData } from './getPaymasterStubData.js'
 const client = anvilMainnet.getClient({ account: true })
 const bundlerClient = bundlerMainnet.getBundlerClient({ client })
 describe('entryPointVersion: 0.7', async () => {
-  let account: Awaited<ReturnType<typeof getSmartAccounts_07>>[0]
-  let paymaster: Awaited<ReturnType<typeof getVerifyingPaymaster_07>>
-  let server: Awaited<ReturnType<typeof createVerifyingPaymasterServer>>
-
-  beforeAll(async () => {
-    await reset(client, {
-      blockNumber: 22239294n,
-      jsonRpcUrl: anvilMainnet.forkUrl,
-    })
-    const accounts = await getSmartAccounts_07()
-    account = accounts[0]
-    paymaster = await getVerifyingPaymaster_07()
-    server = await createVerifyingPaymasterServer(client, { paymaster })
-  })
+  const [account] = await getSmartAccounts_07()
+  const paymaster = await getVerifyingPaymaster_07()
+  const server = await createVerifyingPaymasterServer(client, { paymaster })
 
   test('default', async () => {
     const paymasterClient = createPaymasterClient({

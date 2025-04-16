@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, describe, expect, test } from 'vitest'
+import { beforeEach, describe, expect, test } from 'vitest'
 import {
   getSmartAccounts_06,
   getSmartAccounts_07,
@@ -6,7 +6,7 @@ import {
 } from '../../../../test/src/account-abstraction.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
-import { getTransactionCount, reset } from '../../../actions/index.js'
+import { getTransactionCount } from '../../../actions/index.js'
 import { mine } from '../../../actions/test/mine.js'
 import { parseEther, parseGwei } from '../../../utils/index.js'
 import { getUserOperation } from './getUserOperation.js'
@@ -24,33 +24,19 @@ beforeEach(async () => {
   await bundlerMainnet.restart()
 })
 describe('entryPointVersion: 0.8', async () => {
-  let smartAccount: Awaited<
-    ReturnType<typeof getSmartAccounts_08>
-  >[0]['smartAccount']
-  let owner: Awaited<ReturnType<typeof getSmartAccounts_08>>[0]['owner']
-  beforeAll(async () => {
-    await reset(client, {
-      blockNumber: 22239294n,
-      jsonRpcUrl: anvilMainnet.forkUrl,
-    })
-
-    // Get smart accounts after reset is complete
-    const [account] = await getSmartAccounts_08()
-    smartAccount = account.smartAccount
-    owner = account.owner
-  })
+  const [account] = await getSmartAccounts_08()
 
   test('default', async () => {
-    const authorization = await owner.signAuthorization({
-      address: smartAccount.implementation,
+    const authorization = await account.owner.signAuthorization({
+      address: account.implementation,
       chainId: client.chain.id,
       nonce: await getTransactionCount(client, {
-        address: owner.address,
+        address: account.owner.address,
       }),
     })
 
     const hash = await sendUserOperation(bundlerClient, {
-      account: smartAccount,
+      account,
       calls: [
         {
           to: '0x0000000000000000000000000000000000000000',
@@ -76,16 +62,16 @@ describe('entryPointVersion: 0.8', async () => {
   })
 
   test('error: user operation not found', async () => {
-    const authorization = await owner.signAuthorization({
-      address: smartAccount.implementation,
+    const authorization = await account.owner.signAuthorization({
+      address: account.implementation,
       chainId: client.chain.id,
       nonce: await getTransactionCount(client, {
-        address: owner.address,
+        address: account.owner.address,
       }),
     })
 
     const hash = await sendUserOperation(bundlerClient, {
-      account: smartAccount,
+      account,
       calls: [
         {
           to: '0x0000000000000000000000000000000000000000',
@@ -105,17 +91,7 @@ describe('entryPointVersion: 0.8', async () => {
 })
 
 describe('entryPointVersion: 0.7', async () => {
-  let account: Awaited<ReturnType<typeof getSmartAccounts_07>>[0]
-  beforeAll(async () => {
-    await reset(client, {
-      blockNumber: 22239294n,
-      jsonRpcUrl: anvilMainnet.forkUrl,
-    })
-
-    // Get smart accounts after reset is complete
-    const accounts = await getSmartAccounts_07()
-    account = accounts[0]
-  })
+  const [account] = await getSmartAccounts_07()
 
   test('default', async () => {
     const hash = await sendUserOperation(bundlerClient, {
@@ -164,17 +140,7 @@ describe('entryPointVersion: 0.7', async () => {
 })
 
 describe('entryPointVersion: 0.6', async () => {
-  let account: Awaited<ReturnType<typeof getSmartAccounts_06>>[0]
-  beforeAll(async () => {
-    await reset(client, {
-      blockNumber: 22239294n,
-      jsonRpcUrl: anvilMainnet.forkUrl,
-    })
-
-    // Get smart accounts after reset is complete
-    const accounts = await getSmartAccounts_06()
-    account = accounts[0]
-  })
+  const [account] = await getSmartAccounts_06()
 
   test('default', async () => {
     const hash = await sendUserOperation(bundlerClient, {

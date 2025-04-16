@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import {
   createVerifyingPaymasterServer,
   getSmartAccounts_07,
@@ -6,7 +6,7 @@ import {
 } from '../../../../test/src/account-abstraction.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
-import { mine, reset } from '../../../actions/index.js'
+import { mine } from '../../../actions/index.js'
 import { http } from '../../../clients/transports/http.js'
 import { parseEther } from '../../../utils/index.js'
 import { createPaymasterClient } from '../../clients/createPaymasterClient.js'
@@ -21,20 +21,9 @@ const client = anvilMainnet.getClient({ account: true })
 const bundlerClient = bundlerMainnet.getBundlerClient({ client })
 
 describe('entryPointVersion: 0.7', async () => {
-  let account: Awaited<ReturnType<typeof getSmartAccounts_07>>[0]
-  let paymaster: Awaited<ReturnType<typeof getVerifyingPaymaster_07>>
-  let server: Awaited<ReturnType<typeof createVerifyingPaymasterServer>>
-
-  beforeAll(async () => {
-    await reset(client, {
-      blockNumber: 22239294n,
-      jsonRpcUrl: anvilMainnet.forkUrl,
-    })
-    const accounts = await getSmartAccounts_07()
-    account = accounts[0]
-    paymaster = await getVerifyingPaymaster_07()
-    server = await createVerifyingPaymasterServer(client, { paymaster })
-  })
+  const [account] = await getSmartAccounts_07()
+  const paymaster = await getVerifyingPaymaster_07()
+  const server = await createVerifyingPaymasterServer(client, { paymaster })
 
   test('default', async () => {
     const paymasterClient = createPaymasterClient({

@@ -1,6 +1,6 @@
 import type { Address, TypedData } from 'abitype'
 
-import type { LocalAccount } from '../../../accounts/types.js'
+import type { PrivateKeyAccount } from '../../../accounts/types.js'
 import { parseAccount } from '../../../accounts/utils/parseAccount.js'
 import type { Client } from '../../../clients/createClient.js'
 import { entryPoint08Address } from '../../../constants/address.js'
@@ -18,7 +18,7 @@ export type ToSimple7702SmartAccountParameters = {
   client: Client
   implementation?: Address | undefined
   getNonce?: SmartAccountImplementation['getNonce'] | undefined
-  owner: LocalAccount
+  owner: PrivateKeyAccount
 }
 
 export type ToSimple7702SmartAccountReturnType = Prettify<
@@ -28,7 +28,7 @@ export type ToSimple7702SmartAccountReturnType = Prettify<
 export type Simple7702SmartAccountImplementation = SmartAccountImplementation<
   typeof entryPoint08Abi,
   '0.8',
-  { abi: typeof abi; implementation: Address }
+  { abi: typeof abi; implementation: Address; owner: PrivateKeyAccount }
 >
 
 /**
@@ -67,7 +67,7 @@ export async function toSimple7702SmartAccount(
     entryPoint,
     getNonce,
     abi,
-    extend: { abi, implementation }, // not removing abi from here as this will be a breaking change
+    extend: { abi, implementation, owner }, // not removing abi from here as this will be a breaking change
 
     async decodeCalls(data) {
       const result = decodeFunctionData({

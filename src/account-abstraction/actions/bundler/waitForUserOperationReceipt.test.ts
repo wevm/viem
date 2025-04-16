@@ -26,27 +26,14 @@ beforeEach(async () => {
 })
 
 describe('entryPointVersion: 0.8', async () => {
-  let account: Awaited<
-    ReturnType<typeof getSmartAccounts_08>
-  >[0]['smartAccount']
-  let owner: Awaited<ReturnType<typeof getSmartAccounts_08>>[0]['owner']
-
-  beforeAll(async () => {
-    await reset(client, {
-      blockNumber: 22239294n,
-      jsonRpcUrl: anvilMainnet.forkUrl,
-    })
-    const accounts = await getSmartAccounts_08()
-    account = accounts[0].smartAccount
-    owner = accounts[0].owner
-  })
+  const [account] = await getSmartAccounts_08()
 
   test('default', async () => {
-    const authorization = await owner.signAuthorization({
+    const authorization = await account.owner.signAuthorization({
       address: account.implementation,
       chainId: client.chain.id,
       nonce: await getTransactionCount(client, {
-        address: owner.address,
+        address: account.owner.address,
       }),
     })
 
@@ -82,11 +69,11 @@ describe('entryPointVersion: 0.8', async () => {
   })
 
   test('args: pollingInterval', async () => {
-    const authorization = await owner.signAuthorization({
+    const authorization = await account.owner.signAuthorization({
       address: account.implementation,
       chainId: client.chain.id,
       nonce: await getTransactionCount(client, {
-        address: owner.address,
+        address: account.owner.address,
       }),
     })
     const hash = await sendUserOperation(bundlerClient, {
@@ -122,11 +109,11 @@ describe('entryPointVersion: 0.8', async () => {
   })
 
   test('error: retryCount exceeded', async () => {
-    const authorization = await owner.signAuthorization({
+    const authorization = await account.owner.signAuthorization({
       address: account.implementation,
       chainId: client.chain.id,
       nonce: await getTransactionCount(client, {
-        address: owner.address,
+        address: account.owner.address,
       }),
     })
     const hash = await sendUserOperation(bundlerClient, {
@@ -156,11 +143,11 @@ describe('entryPointVersion: 0.8', async () => {
   })
 
   test('error: timeout exceeded', async () => {
-    const authorization = await owner.signAuthorization({
+    const authorization = await account.owner.signAuthorization({
       address: account.implementation,
       chainId: client.chain.id,
       nonce: await getTransactionCount(client, {
-        address: owner.address,
+        address: account.owner.address,
       }),
     })
     const hash = await sendUserOperation(bundlerClient, {
@@ -190,11 +177,11 @@ describe('entryPointVersion: 0.8', async () => {
   })
 
   test('error: generic error', async () => {
-    const authorization = await owner.signAuthorization({
+    const authorization = await account.owner.signAuthorization({
       address: account.implementation,
       chainId: client.chain.id,
       nonce: await getTransactionCount(client, {
-        address: owner.address,
+        address: account.owner.address,
       }),
     })
     const hash = await sendUserOperation(bundlerClient, {
@@ -237,16 +224,7 @@ describe('entryPointVersion: 0.8', async () => {
 })
 
 describe('entryPointVersion: 0.7', async () => {
-  let account: Awaited<ReturnType<typeof getSmartAccounts_07>>[0]
-
-  beforeAll(async () => {
-    await reset(client, {
-      blockNumber: 22239294n,
-      jsonRpcUrl: anvilMainnet.forkUrl,
-    })
-    const accounts = await getSmartAccounts_07()
-    account = accounts[0]
-  })
+  const [account] = await getSmartAccounts_07()
 
   test('default', async () => {
     const hash = await sendUserOperation(bundlerClient, {
@@ -403,16 +381,7 @@ describe('entryPointVersion: 0.7', async () => {
 })
 
 describe('entryPointVersion: 0.6', async () => {
-  let account: Awaited<ReturnType<typeof getSmartAccounts_06>>[0]
-
-  beforeAll(async () => {
-    await reset(client, {
-      blockNumber: 22239294n,
-      jsonRpcUrl: anvilMainnet.forkUrl,
-    })
-    const accounts = await getSmartAccounts_06()
-    account = accounts[0]
-  })
+  const [account] = await getSmartAccounts_06()
 
   test('default', async () => {
     const hash = await sendUserOperation(bundlerClient, {

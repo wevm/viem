@@ -30,17 +30,7 @@ test('default', async () => {
 })
 
 describe('smoke', async () => {
-  let account: ToSoladySmartAccountReturnType<typeof entryPoint07Abi, '0.7'>
-  beforeAll(async () => {
-    await reset(client, {
-      blockNumber: 22239294n,
-      jsonRpcUrl: anvilMainnet.forkUrl,
-    })
-
-    // Get smart accounts after reset is complete
-    const accounts = await getSmartAccounts_07()
-    account = accounts[0]
-  })
+  const [account] = await getSmartAccounts_07()
 
   test('estimateUserOperationGas', async () => {
     await bundlerClient.estimateUserOperationGas({

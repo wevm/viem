@@ -7,7 +7,6 @@ import { deploySimple7702Account_08 } from '../../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import {
   mine,
-  reset,
   sendTransaction,
   signAuthorization,
   verifyMessage,
@@ -20,10 +19,6 @@ const client = anvilMainnet.getClient({ account: true })
 
 let implementation: Address
 beforeAll(async () => {
-  await reset(client, {
-    blockNumber: 22239294n,
-    jsonRpcUrl: anvilMainnet.forkUrl,
-  })
   const { implementationAddress: _implementation } =
     await deploySimple7702Account_08()
   implementation = _implementation
@@ -1126,6 +1121,18 @@ test('default', async () => {
       "getStubSignature": [Function],
       "implementation": "0xe6Cae83BdE06E4c305530e199D7217f42808555B",
       "isDeployed": [Function],
+      "owner": {
+        "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "nonceManager": undefined,
+        "publicKey": "0x04ba5734d8f7091719471e7f7ed6b9df170dc70cc661ca05e688601ad984f068b0d67351e5f06073092499336ab0839ef8a521afd334e53807205fa2f08eec74f4",
+        "sign": [Function],
+        "signAuthorization": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
+      },
       "signMessage": [Function],
       "signTypedData": [Function],
       "signUserOperation": [Function],

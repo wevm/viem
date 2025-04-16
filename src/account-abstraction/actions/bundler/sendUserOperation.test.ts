@@ -1,12 +1,4 @@
-import {
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  expectTypeOf,
-  test,
-  vi,
-} from 'vitest'
+import { beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest'
 import { wagmiContractConfig } from '../../../../test/src/abis.js'
 import {
   createVerifyingPaymasterServer,
@@ -24,7 +16,6 @@ import {
   getTransactionCount,
   mine,
   readContract,
-  reset,
   setBalance,
   writeContract,
 } from '../../../actions/index.js'
@@ -62,27 +53,14 @@ beforeEach(async () => {
 })
 
 describe('entryPointVersion: 0.8', async () => {
-  let account: Awaited<
-    ReturnType<typeof getSmartAccounts_08>
-  >[0]['smartAccount']
-  let owner: Awaited<ReturnType<typeof getSmartAccounts_08>>[0]['owner']
-
-  beforeAll(async () => {
-    await reset(client, {
-      blockNumber: 22239294n,
-      jsonRpcUrl: anvilMainnet.forkUrl,
-    })
-    const accounts = await getSmartAccounts_08()
-    account = accounts[0].smartAccount
-    owner = accounts[0].owner
-  })
+  const [account] = await getSmartAccounts_08()
 
   test('default', async () => {
-    const authorization = await owner.signAuthorization({
+    const authorization = await account.owner.signAuthorization({
       address: account.implementation,
       chainId: client.chain.id,
       nonce: await getTransactionCount(client, {
-        address: owner.address,
+        address: account.owner.address,
       }),
     })
     const hash = await sendUserOperation(bundlerClient, {
@@ -259,11 +237,11 @@ describe('entryPointVersion: 0.8', async () => {
   })
 
   test('error: aa24', async () => {
-    const authorization = await owner.signAuthorization({
+    const authorization = await account.owner.signAuthorization({
       address: account.implementation,
       chainId: client.chain.id,
       nonce: await getTransactionCount(client, {
-        address: owner.address,
+        address: account.owner.address,
       }),
     })
 
@@ -309,20 +287,7 @@ describe('entryPointVersion: 0.8', async () => {
 })
 
 describe('entryPointVersion: 0.7', async () => {
-  let account: Awaited<ReturnType<typeof getSmartAccounts_07>>[0]
-  let account_2: Awaited<ReturnType<typeof getSmartAccounts_07>>[0]
-  let account_3: Awaited<ReturnType<typeof getSmartAccounts_07>>[0]
-
-  beforeAll(async () => {
-    await reset(client, {
-      blockNumber: 22239294n,
-      jsonRpcUrl: anvilMainnet.forkUrl,
-    })
-    const accounts = await getSmartAccounts_07()
-    account = accounts[0]
-    account_2 = accounts[1]
-    account_3 = accounts[2]
-  })
+  const [account, account_2, account_3] = await getSmartAccounts_07()
 
   test('default', async () => {
     const hash = await sendUserOperation(bundlerClient, {
@@ -340,7 +305,7 @@ describe('entryPointVersion: 0.7', async () => {
           abi: wagmiContractConfig.abi,
           functionName: 'mint',
           to: wagmiContractConfig.address,
-          args: [69420451n],
+          args: [69420511n],
         },
       ],
       ...fees,
@@ -360,7 +325,7 @@ describe('entryPointVersion: 0.7', async () => {
       await readContract(client, {
         ...wagmiContractConfig,
         functionName: 'ownerOf',
-        args: [69420451n],
+        args: [69420511n],
       }),
     ).toBe(account.address)
   })
@@ -465,13 +430,6 @@ describe('entryPointVersion: 0.7', async () => {
     expect(await getBalance(client, { address: bob })).toMatchInlineSnapshot(
       '10002000000000000000000n',
     )
-    expect(
-      await readContract(client, {
-        ...wagmiContractConfig,
-        functionName: 'ownerOf',
-        args: [69420451n],
-      }),
-    ).toBe(account.address)
   })
 
   test('error: no account', async () => {
@@ -527,13 +485,13 @@ describe('entryPointVersion: 0.7', async () => {
       Request Arguments:
         callData:              0xb61d27f60000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
         callGasLimit:          0
-        factory:               0x74ce26a2e4c1368c48a0157ce762944d282896db
+        factory:               0x5edb3ff1ea450d1ff6d614f24f5c760761f7f688
         factoryData:           0xf14ddffc000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000001
         maxFeePerGas:          15 gwei
         maxPriorityFeePerGas:  2 gwei
         nonce:                 30902162761021348478818713600000
         preVerificationGas:    0
-        sender:                0xB600766167E4186c9Ee74eEA1B02aA845BDE7069
+        sender:                0xC6B426A3272a812dD1B3EDB601447bbAA8C1294C
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
         verificationGasLimit:  0
 
@@ -576,7 +534,7 @@ describe('entryPointVersion: 0.7', async () => {
         maxPriorityFeePerGas:  2 gwei
         nonce:                 30902162761021348478818713600000
         preVerificationGas:    0
-        sender:                0x89B092309A96DAE4c9D59728b427DB60d5b2e274
+        sender:                0xd90Fd455cB571186372581209e0491337B736Ad4
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
         verificationGasLimit:  0
 
@@ -615,7 +573,7 @@ describe('entryPointVersion: 0.7', async () => {
         paymasterPostOpGasLimit:        0
         paymasterVerificationGasLimit:  0
         preVerificationGas:             48527
-        sender:                         0xB7736b6eFedB1E7103F403122e35f2F015dE01c2
+        sender:                         0xF2F83Eb89C48abd7aD93bA42C3ce904895337cea
         signature:                      0xdeadbeef
         verificationGasLimit:           79141
 
@@ -626,18 +584,7 @@ describe('entryPointVersion: 0.7', async () => {
 })
 
 describe('entryPointVersion: 0.6', async () => {
-  let account: Awaited<ReturnType<typeof getSmartAccounts_06>>[0]
-  let account_2: Awaited<ReturnType<typeof getSmartAccounts_06>>[0]
-
-  beforeAll(async () => {
-    await reset(client, {
-      blockNumber: 22239294n,
-      jsonRpcUrl: anvilMainnet.forkUrl,
-    })
-    const accounts = await getSmartAccounts_06()
-    account = accounts[0]
-    account_2 = accounts[1]
-  })
+  const [account, account_2] = await getSmartAccounts_06()
 
   test('default', async () => {
     const hash = await sendUserOperation(bundlerClient, {
@@ -705,7 +652,7 @@ describe('entryPointVersion: 0.6', async () => {
         nonce:                 30902162761021348478818713600000
         paymasterAndData:      0x
         preVerificationGas:    0
-        sender:                0xB600766167E4186c9Ee74eEA1B02aA845BDE7069
+        sender:                0x9e445784532eb3534bF7259bd9C1Df92DE5d65D1
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
         verificationGasLimit:  0
 

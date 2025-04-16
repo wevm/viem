@@ -33,7 +33,6 @@ import {
 } from '../../utils/index.js'
 import { parseSignature } from '../../utils/signature/parseSignature.js'
 import { mine } from '../test/mine.js'
-import { reset } from '../test/reset.js'
 import { signMessage } from '../wallet/signMessage.js'
 import { writeContract } from '../wallet/writeContract.js'
 import { simulateContract } from './simulateContract.js'
@@ -91,10 +90,6 @@ describe('local account', async () => {
 })
 
 describe('smart account', async () => {
-  await reset(client, {
-    blockNumber: 22239294n,
-    jsonRpcUrl: anvilMainnet.forkUrl,
-  })
   test('deployed', async () => {
     const { factoryAddress } = await deploySoladyAccount_07()
 

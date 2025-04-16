@@ -1,18 +1,8 @@
-import { beforeAll, expect, test } from 'vitest'
-import { anvilMainnet } from '../../../../test/src/anvil.js'
+import { expect, test } from 'vitest'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
-import { reset } from '../../../actions/index.js'
 import { getSupportedEntryPoints } from './getSupportedEntryPoints.js'
 
-const client = anvilMainnet.getClient({ account: true })
 const bundlerClient = bundlerMainnet.getBundlerClient()
-
-beforeAll(async () => {
-  await reset(client, {
-    blockNumber: 22239294n,
-    jsonRpcUrl: anvilMainnet.forkUrl,
-  })
-})
 
 test('default', async () => {
   expect(await getSupportedEntryPoints(bundlerClient)).toMatchInlineSnapshot(`

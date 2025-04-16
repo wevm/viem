@@ -47,20 +47,17 @@ export async function getSmartAccounts_08() {
 
   for (const account of accounts) {
     const owner = privateKeyToAccount(account.privateKey)
-    const smartAccount = await toSimple7702SmartAccount({
+    const account_ = await toSimple7702SmartAccount({
       client,
       implementation: implementationAddress,
       owner,
     })
     await sendTransaction(client, {
       account: accounts[9].address,
-      to: smartAccount.address,
+      to: account_.address,
       value: parseEther('100'),
     })
-    accounts_.push({
-      smartAccount,
-      owner,
-    })
+    accounts_.push(account_)
   }
 
   await mine(client, {
