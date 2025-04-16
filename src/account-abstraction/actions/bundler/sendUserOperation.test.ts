@@ -13,10 +13,10 @@ import { accounts } from '../../../../test/src/constants.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import {
   getBalance,
-  getTransactionCount,
   mine,
   readContract,
   setBalance,
+  signAuthorization,
   writeContract,
 } from '../../../actions/index.js'
 import { sepolia } from '../../../chains/index.js'
@@ -56,15 +56,10 @@ describe('entryPointVersion: 0.8', async () => {
   const [account] = await getSmartAccounts_08()
 
   test('default', async () => {
-    const authorization = await account.owner.signAuthorization({
-      address: account.implementation,
-      chainId: client.chain.id,
-      nonce: await getTransactionCount(client, {
-        address: account.owner.address,
-      }),
-    })
+    const authorization = await signAuthorization(client, account.authorization)
     const hash = await sendUserOperation(bundlerClient, {
       account,
+      authorization,
       calls: [
         {
           to: alice,
@@ -81,7 +76,6 @@ describe('entryPointVersion: 0.8', async () => {
           args: [69420451n],
         },
       ],
-      authorization,
       ...fees,
     })
     expect(hash).toBeDefined()
@@ -102,6 +96,24 @@ describe('entryPointVersion: 0.8', async () => {
         args: [69420451n],
       }),
     ).toBe(account.address)
+
+    await sendUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: alice,
+          value: parseEther('1'),
+        },
+      ],
+      ...fees,
+    })
+
+    await bundlerClient.request({ method: 'debug_bundler_sendBundleNow' })
+    await mine(client, { blocks: 1 })
+
+    expect(await getBalance(client, { address: alice })).toMatchInlineSnapshot(
+      '10002000000000000000000n',
+    )
   })
 
   test.todo('args: paymaster (client)')
@@ -177,14 +189,7 @@ describe('entryPointVersion: 0.8', async () => {
   })
 
   test('error: aa24', async () => {
-    const authorization = await account.owner.signAuthorization({
-      address: account.implementation,
-      chainId: client.chain.id,
-      nonce: await getTransactionCount(client, {
-        address: account.owner.address,
-      }),
-    })
-
+    const authorization = await signAuthorization(client, account.authorization)
     await expect(() =>
       sendUserOperation(bundlerClient, {
         account,
@@ -202,27 +207,27 @@ describe('entryPointVersion: 0.8', async () => {
         ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        [UserOperationExecutionError: Signature provided for the User Operation is invalid.
+      [UserOperationExecutionError: Signature provided for the User Operation is invalid.
 
-        This could arise when:
-        - the \`signature\` for the User Operation is incorrectly computed, and unable to be verified by the Smart Account
-         
-        Request Arguments:
-          callData:                       0xb61d27f600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
-          callGasLimit:                   80000
-          maxFeePerGas:                   15 gwei
-          maxPriorityFeePerGas:           2 gwei
-          nonce:                          30902162761058241966966132703232
-          paymasterPostOpGasLimit:        0
-          paymasterVerificationGasLimit:  0
-          preVerificationGas:             91968
-          sender:                         0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-          signature:                      0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
-          verificationGasLimit:           79141
+      This could arise when:
+      - the \`signature\` for the User Operation is incorrectly computed, and unable to be verified by the Smart Account
+       
+      Request Arguments:
+        callData:                       0xb61d27f600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000
+        callGasLimit:                   80000
+        maxFeePerGas:                   15 gwei
+        maxPriorityFeePerGas:           2 gwei
+        nonce:                          30902162761076688711039842254848
+        paymasterPostOpGasLimit:        0
+        paymasterVerificationGasLimit:  0
+        preVerificationGas:             91968
+        sender:                         0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+        signature:                      0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
+        verificationGasLimit:           79141
 
-        Details: UserOperation reverted with reason: AA24 signature error
-        Version: viem@x.y.z]
-      `)
+      Details: UserOperation reverted with reason: AA24 signature error
+      Version: viem@x.y.z]
+    `)
   })
 })
 

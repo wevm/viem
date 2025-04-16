@@ -174,7 +174,13 @@ export async function estimateUserOperationGas<
         'prepareUserOperation',
       )({
         ...parameters,
-        parameters: ['factory', 'nonce', 'paymaster', 'signature'],
+        parameters: [
+          'authorization',
+          'factory',
+          'nonce',
+          'paymaster',
+          'signature',
+        ],
       } as unknown as PrepareUserOperationParameters)
     : parameters
 

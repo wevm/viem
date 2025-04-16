@@ -3,6 +3,7 @@ import {
   type ParseAccountErrorType,
   parseAccount,
 } from '../../../accounts/utils/parseAccount.js'
+import { prepareAuthorization } from '../../../actions/index.js'
 import {
   type EstimateFeesPerGasErrorType,
   estimateFeesPerGas,
@@ -12,6 +13,7 @@ import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import type { ErrorType } from '../../../errors/utils.js'
+import type { SignedAuthorization } from '../../../types/authorization.js'
 import type { Call, Calls } from '../../../types/calls.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
@@ -237,7 +239,10 @@ export type PrepareUserOperationReturnType<
     callData: Hex
     paymasterAndData: _derivedVersion extends '0.6' ? Hex : undefined
     sender: UserOperation['sender']
-  } & (Extract<_parameters, 'factory'> extends never
+  } & (Extract<_parameters, 'authorization'> extends never
+      ? {}
+      : AuthorizationProperties) &
+    (Extract<_parameters, 'factory'> extends never
       ? {}
       : FactoryProperties<_derivedVersion>) &
     (Extract<_parameters, 'nonce'> extends never ? {} : NonceProperties) &
@@ -248,12 +253,7 @@ export type PrepareUserOperationReturnType<
     (Extract<_parameters, 'paymaster'> extends never
       ? {}
       : PaymasterProperties<_derivedVersion>) &
-    (Extract<_parameters, 'signature'> extends never
-      ? {}
-      : SignatureProperties) &
-    (Extract<_parameters, 'authorization'> extends never
-      ? {}
-      : AuthorizationProperties)
+    (Extract<_parameters, 'signature'> extends never ? {} : SignatureProperties)
 >
 
 export type PrepareUserOperationErrorType =
@@ -492,8 +492,21 @@ export async function prepareUserOperation<
       return account.getNonce()
     })(),
     (async () => {
+      if (!properties.includes('authorization')) return undefined
       if (typeof parameters.authorization === 'object')
         return parameters.authorization
+      if (account.authorization && !(await account.isDeployed())) {
+        const authorization = await prepareAuthorization(
+          account.client,
+          account.authorization,
+        )
+        return {
+          ...authorization,
+          r: '0xfffffffffffffffffffffffffffffff000000000000000000000000000000000',
+          s: '0x7aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          yParity: 1,
+        } satisfies SignedAuthorization
+      }
       return undefined
     })(),
   ])

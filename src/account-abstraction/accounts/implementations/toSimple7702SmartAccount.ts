@@ -1,7 +1,6 @@
 import type { Address, TypedData } from 'abitype'
 
 import type { PrivateKeyAccount } from '../../../accounts/types.js'
-import type { Client } from '../../../clients/createClient.js'
 import { entryPoint08Address } from '../../../constants/address.js'
 import { BaseError } from '../../../errors/base.js'
 import type { TypedDataDefinition } from '../../../types/typedData.js'
@@ -14,7 +13,7 @@ import { toSmartAccount } from '../toSmartAccount.js'
 import type { SmartAccount, SmartAccountImplementation } from '../types.js'
 
 export type ToSimple7702SmartAccountParameters = {
-  client: Client
+  client: Simple7702SmartAccountImplementation['client']
   implementation?: Address | undefined
   getNonce?: SmartAccountImplementation['getNonce'] | undefined
   owner: PrivateKeyAccount
@@ -27,7 +26,8 @@ export type ToSimple7702SmartAccountReturnType = Prettify<
 export type Simple7702SmartAccountImplementation = SmartAccountImplementation<
   typeof entryPoint08Abi,
   '0.8',
-  { abi: typeof abi; implementation: Address; owner: PrivateKeyAccount }
+  { abi: typeof abi; implementation: Address; owner: PrivateKeyAccount },
+  true
 >
 
 /**
@@ -62,11 +62,12 @@ export async function toSimple7702SmartAccount(
   } as const
 
   return toSmartAccount({
+    authorization: { account: owner, address: implementation },
+    abi,
     client,
+    extend: { abi, implementation, owner }, // not removing abi from here as this will be a breaking change
     entryPoint,
     getNonce,
-    abi,
-    extend: { abi, implementation, owner }, // not removing abi from here as this will be a breaking change
 
     async decodeCalls(data) {
       const result = decodeFunctionData({
@@ -145,18 +146,17 @@ export async function toSimple7702SmartAccount(
         userOperation.factory === '0x7702' &&
         userOperation.authorization
 
-      const delegate = isEip7702
-        ? (userOperation.authorization?.address ??
-          userOperation.authorization?.contractAddress)
+      const delegation = isEip7702
+        ? userOperation.authorization?.address
         : undefined
 
-      const initCode = delegate
+      const initCode = delegation
         ? userOperation.factoryData
           ? encodePacked(
               ['address', 'bytes'],
-              [delegate, userOperation.factoryData],
+              [delegation, userOperation.factoryData],
             )
-          : encodePacked(['address'], [delegate])
+          : encodePacked(['address'], [delegation])
         : userOperation.factory && userOperation.factoryData
           ? concat([userOperation.factory, userOperation.factoryData])
           : '0x'

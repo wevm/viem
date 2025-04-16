@@ -4,15 +4,12 @@ import {
   getSmartAccounts_07,
   getSmartAccounts_08,
 } from '../../../../test/src/account-abstraction.js'
-import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
-import { prepareAuthorization } from '../../../actions/index.js'
 import type { Hex } from '../../../types/misc.js'
 import type { UserOperation } from '../../types/userOperation.js'
 import { prepareUserOperation } from './prepareUserOperation.js'
 
 const bundlerClient = bundlerMainnet.getBundlerClient()
-const client = anvilMainnet.getClient({ account: true })
 
 describe('entryPointVersion: 0.8', async () => {
   const [, , account] = await getSmartAccounts_08()
@@ -21,10 +18,6 @@ describe('entryPointVersion: 0.8', async () => {
     const result = await prepareUserOperation(bundlerClient, {
       account,
       calls: [{ to: '0x' }],
-      authorization: await prepareAuthorization(client, {
-        account,
-        address: account.implementation,
-      }),
     })
 
     expectTypeOf(result.account).toMatchTypeOf(account)
@@ -46,10 +39,6 @@ describe('entryPointVersion: 0.8', async () => {
   test('cast (widened)', async () => {
     const result = await prepareUserOperation(bundlerClient, {
       account,
-      authorization: await prepareAuthorization(client, {
-        account,
-        address: account.implementation,
-      }),
       ...({} as UserOperation),
     })
 
@@ -103,10 +92,6 @@ describe('entryPointVersion: 0.8', async () => {
       account,
       calls: [{ to: '0x' }],
       parameters: ['gas'],
-      authorization: await prepareAuthorization(client, {
-        account,
-        address: account.implementation,
-      }),
     })
 
     // @ts-expect-error

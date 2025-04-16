@@ -1,9 +1,5 @@
 import type { Address } from 'abitype'
-import type {
-  Authorization,
-  AuthorizationRequest,
-  SignedAuthorization,
-} from '../../types/authorization.js'
+import type { SignedAuthorization } from '../../types/authorization.js'
 import type { Log } from '../../types/log.js'
 import type { Hash, Hex } from '../../types/misc.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
@@ -46,12 +42,13 @@ export type EstimateUserOperationGasReturnType<
 export type GetUserOperationByHashReturnType<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
   uint256 = bigint,
+  uint32 = number,
 > = {
   blockHash: Hash
   blockNumber: uint256
   entryPoint: Address
   transactionHash: Hash
-  userOperation: UserOperation<entryPointVersion, uint256>
+  userOperation: UserOperation<entryPointVersion, uint256, uint32>
 }
 
 /** @link https://eips.ethereum.org/EIPS/eip-4337#entrypoint-definition */
@@ -80,9 +77,12 @@ export type PackedUserOperation = {
 export type UserOperation<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
   uint256 = bigint,
+  uint32 = number,
 > = OneOf<
   | (entryPointVersion extends '0.8'
       ? {
+          /** Authorization data. */
+          authorization?: SignedAuthorization<uint32> | undefined
           /** The data to pass to the `sender` during the main execution call. */
           callData: Hex
           /** The amount of gas to allocate the main execution call */
@@ -113,18 +113,12 @@ export type UserOperation<
           signature: Hex
           /** The amount of gas to allocate for the verification step. */
           verificationGasLimit: uint256
-          /** Authorization data. */
-          authorization?:
-            | OneOf<
-                | Authorization<number, false, true>
-                | AuthorizationRequest<number>
-                | SignedAuthorization<number, false>
-              >
-            | undefined
         }
       : never)
   | (entryPointVersion extends '0.7'
       ? {
+          /** Authorization data. */
+          authorization?: SignedAuthorization<uint32> | undefined
           /** The data to pass to the `sender` during the main execution call. */
           callData: Hex
           /** The amount of gas to allocate the main execution call */
@@ -155,18 +149,12 @@ export type UserOperation<
           signature: Hex
           /** The amount of gas to allocate for the verification step. */
           verificationGasLimit: uint256
-          /** Authorization data. */
-          authorization?:
-            | OneOf<
-                | Authorization<number, false, true>
-                | AuthorizationRequest<number>
-                | SignedAuthorization<number, false>
-              >
-            | undefined
         }
       : never)
   | (entryPointVersion extends '0.6'
       ? {
+          /** Authorization data. */
+          authorization?: SignedAuthorization<uint32> | undefined
           /** The data to pass to the `sender` during the main execution call. */
           callData: Hex
           /** The amount of gas to allocate the main execution call */
@@ -189,14 +177,6 @@ export type UserOperation<
           signature: Hex
           /** The amount of gas to allocate for the verification step. */
           verificationGasLimit: uint256
-          /** Authorization data. */
-          authorization?:
-            | OneOf<
-                | Authorization<number, false, true>
-                | AuthorizationRequest<number>
-                | SignedAuthorization<number, false>
-              >
-            | undefined
         }
       : never)
 >
@@ -204,10 +184,11 @@ export type UserOperation<
 export type UserOperationRequest<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
   uint256 = bigint,
+  uint32 = number,
 > = OneOf<
   | (entryPointVersion extends '0.8'
       ? UnionPartialBy<
-          UserOperation<'0.8', uint256>,
+          UserOperation<'0.8', uint256, uint32>,
           // We are able to calculate these via `prepareUserOperation`.
           | keyof EstimateUserOperationGasReturnType<'0.8'>
           | 'callData'
@@ -220,7 +201,7 @@ export type UserOperationRequest<
       : never)
   | (entryPointVersion extends '0.7'
       ? UnionPartialBy<
-          UserOperation<'0.7', uint256>,
+          UserOperation<'0.7', uint256, uint32>,
           // We are able to calculate these via `prepareUserOperation`.
           | keyof EstimateUserOperationGasReturnType<'0.7'>
           | 'callData'
@@ -233,7 +214,7 @@ export type UserOperationRequest<
       : never)
   | (entryPointVersion extends '0.6'
       ? UnionPartialBy<
-          UserOperation<'0.6', uint256>,
+          UserOperation<'0.6', uint256, uint32>,
           // We are able to calculate these via `prepareUserOperation`.
           | keyof EstimateUserOperationGasReturnType<'0.6'>
           | 'callData'

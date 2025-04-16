@@ -12,11 +12,7 @@ import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
 import { accounts } from '../../../../test/src/constants.js'
 import { deployErrorExample } from '../../../../test/src/utils.js'
-import {
-  mine,
-  prepareAuthorization,
-  writeContract,
-} from '../../../actions/index.js'
+import { mine, writeContract } from '../../../actions/index.js'
 import { http } from '../../../clients/transports/http.js'
 import { pad, parseEther, parseGwei } from '../../../utils/index.js'
 import { createPaymasterClient } from '../../clients/createPaymasterClient.js'
@@ -57,10 +53,6 @@ describe('entryPointVersion: 0.8', async () => {
           functionName: 'mint',
         },
       ],
-      authorization: await prepareAuthorization(client, {
-        account,
-        address: account.implementation,
-      }),
       ...fees,
     })
     expect(gas.callGasLimit).toBeGreaterThanOrEqual(70000n)
@@ -81,10 +73,6 @@ describe('entryPointVersion: 0.8', async () => {
           value: parseEther('1'),
         },
       ],
-      authorization: await prepareAuthorization(client, {
-        account,
-        address: account.implementation,
-      }),
       ...fees,
     })
 
@@ -117,10 +105,6 @@ describe('entryPointVersion: 0.8', async () => {
             value: parseEther('1000000'),
           },
         ],
-        authorization: await prepareAuthorization(client, {
-          account,
-          address: account.implementation,
-        }),
         ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -153,10 +137,6 @@ describe('entryPointVersion: 0.8', async () => {
             args: [420n],
           },
         ],
-        authorization: await prepareAuthorization(client, {
-          account,
-          address: account.implementation,
-        }),
         ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -194,10 +174,6 @@ describe('entryPointVersion: 0.8', async () => {
             args: ['0x0000000000000000000000000000000000000000', 420n],
           },
         ],
-        authorization: await prepareAuthorization(client, {
-          account,
-          address: account.implementation,
-        }),
         ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -240,10 +216,6 @@ describe('entryPointVersion: 0.8', async () => {
             args: ['0x0000000000000000000000000000000000000000', 420n],
           },
         ],
-        authorization: await prepareAuthorization(client, {
-          account,
-          address: account.implementation,
-        }),
         ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -283,10 +255,6 @@ describe('entryPointVersion: 0.8', async () => {
             args: [420n],
           },
         ],
-        authorization: await prepareAuthorization(client, {
-          account,
-          address: account.implementation,
-        }),
         ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -333,10 +301,6 @@ describe('entryPointVersion: 0.8', async () => {
             functionName: 'revertWrite',
           },
         ],
-        authorization: await prepareAuthorization(client, {
-          account,
-          address: account.implementation,
-        }),
         ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -383,10 +347,6 @@ describe('entryPointVersion: 0.8', async () => {
             functionName: 'assertWrite',
           },
         ],
-        authorization: await prepareAuthorization(client, {
-          account,
-          address: account.implementation,
-        }),
         ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -433,10 +393,6 @@ describe('entryPointVersion: 0.8', async () => {
             functionName: 'overflowWrite',
           },
         ],
-        authorization: await prepareAuthorization(client, {
-          account,
-          address: account.implementation,
-        }),
         ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -483,10 +439,6 @@ describe('entryPointVersion: 0.8', async () => {
             functionName: 'divideByZeroWrite',
           },
         ],
-        authorization: await prepareAuthorization(client, {
-          account,
-          address: account.implementation,
-        }),
         ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -533,10 +485,6 @@ describe('entryPointVersion: 0.8', async () => {
             functionName: 'simpleCustomWrite',
           },
         ],
-        authorization: await prepareAuthorization(client, {
-          account,
-          address: account.implementation,
-        }),
         ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
@@ -583,10 +531,6 @@ describe('entryPointVersion: 0.8', async () => {
             functionName: 'complexCustomWrite',
           },
         ],
-        authorization: await prepareAuthorization(client, {
-          account,
-          address: account.implementation,
-        }),
         ...fees,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`

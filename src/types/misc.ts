@@ -15,32 +15,23 @@ export type SignatureLegacy = {
   s: Hex
   v: bigint
 }
-export type Signature<
-  uint32 = number,
-  supportLegacy extends boolean = true,
-> = supportLegacy extends true
-  ? OneOf<
-      | SignatureLegacy
-      | {
-          r: Hex
-          s: Hex
-          /** @deprecated use `yParity`. */
-          v: bigint
-          yParity?: uint32 | undefined
-        }
-      | {
-          r: Hex
-          s: Hex
-          /** @deprecated use `yParity`. */
-          v?: bigint | undefined
-          yParity: uint32
-        }
-    >
-  : {
+export type Signature<uint32 = number> = OneOf<
+  | SignatureLegacy
+  | {
       r: Hex
       s: Hex
+      /** @deprecated use `yParity`. */
+      v: bigint
+      yParity?: uint32 | undefined
+    }
+  | {
+      r: Hex
+      s: Hex
+      /** @deprecated use `yParity`. */
+      v?: bigint | undefined
       yParity: uint32
     }
+>
 export type CompactSignature = {
   r: Hex
   yParityAndS: Hex

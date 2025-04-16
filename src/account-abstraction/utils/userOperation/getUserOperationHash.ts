@@ -133,18 +133,17 @@ export function getUserOperationHash<
         userOperation.factory === '0x7702' &&
         userOperation.authorization
 
-      const delegate = isEip7702
-        ? (userOperation.authorization?.address ??
-          userOperation.authorization?.contractAddress)
+      const delegation = isEip7702
+        ? userOperation.authorization?.address
         : undefined
 
-      const initCode = delegate
+      const initCode = delegation
         ? userOperation.factoryData
           ? encodePacked(
               ['address', 'bytes'],
-              [delegate, userOperation.factoryData],
+              [delegation, userOperation.factoryData],
             )
-          : encodePacked(['address'], [delegate])
+          : encodePacked(['address'], [delegation])
         : userOperation.factory && userOperation.factoryData
           ? concat([userOperation.factory, userOperation.factoryData])
           : '0x'
