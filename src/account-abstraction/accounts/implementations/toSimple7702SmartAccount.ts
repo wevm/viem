@@ -26,7 +26,7 @@ export type ToSimple7702SmartAccountReturnType = Prettify<
 export type Simple7702SmartAccountImplementation = SmartAccountImplementation<
   typeof entryPoint08Abi,
   '0.8',
-  { abi: typeof abi; implementation: Address; owner: PrivateKeyAccount },
+  { abi: typeof abi; owner: PrivateKeyAccount },
   true
 >
 
@@ -65,7 +65,7 @@ export async function toSimple7702SmartAccount(
     authorization: { account: owner, address: implementation },
     abi,
     client,
-    extend: { abi, implementation, owner }, // not removing abi from here as this will be a breaking change
+    extend: { abi, owner }, // not removing abi from here as this will be a breaking change
     entryPoint,
     getNonce,
 

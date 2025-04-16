@@ -6,7 +6,7 @@ import {
 } from '../../../../test/src/account-abstraction.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
-import { getTransactionCount, mine } from '../../../actions/index.js'
+import { mine, signAuthorization } from '../../../actions/index.js'
 import { parseEther, parseGwei } from '../../../utils/index.js'
 import { getUserOperationReceipt } from './getUserOperationReceipt.js'
 import { sendUserOperation } from './sendUserOperation.js'
@@ -27,14 +27,7 @@ describe('entryPointVersion: 0.8', async () => {
   const [account] = await getSmartAccounts_08()
 
   test('default', async () => {
-    const authorization = await account.owner.signAuthorization({
-      address: account.implementation,
-      chainId: client.chain.id,
-      nonce: await getTransactionCount(client, {
-        address: account.owner.address,
-      }),
-    })
-
+    const authorization = await signAuthorization(client, account.authorization)
     const hash = await sendUserOperation(bundlerClient, {
       account,
       calls: [
@@ -62,14 +55,10 @@ describe('entryPointVersion: 0.8', async () => {
   })
 
   test('error: receipt not found', async () => {
-    const authorization = await account.owner.signAuthorization({
-      address: account.implementation,
-      chainId: client.chain.id,
-      nonce: await getTransactionCount(client, {
-        address: account.owner.address,
-      }),
-    })
-
+    const authorization = await signAuthorization(
+      account.client,
+      account.authorization,
+    )
     const hash = await sendUserOperation(bundlerClient, {
       account,
       calls: [
