@@ -16,4 +16,10 @@ export const lestnet = /*#__PURE__*/ defineChain({
     },
   },
   testnet: true,
+  contracts: {
+    multicall3: {
+      address: '0x03c26Ad8dE9277597CFEAB8E64Ada2Ca75bA87C8',
+      blockCreated: 1252245,
+    },
+  },
 })
