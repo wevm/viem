@@ -1,5 +1,19 @@
 # viem
 
+## 2.27.1
+
+### Patch Changes
+
+- [#3570](https://github.com/wevm/viem/pull/3570) [`a9f33168c0c11ade302bd66373c57c1e2386e2bd`](https://github.com/wevm/viem/commit/a9f33168c0c11ade302bd66373c57c1e2386e2bd) Thanks [@manuelbarbas](https://github.com/manuelbarbas)! - Updated SKALE Network Chains.
+
+- [#3579](https://github.com/wevm/viem/pull/3579) [`295e4f9e1a8aab79f88f8e59c4d5e7ac25def1ae`](https://github.com/wevm/viem/commit/295e4f9e1a8aab79f88f8e59c4d5e7ac25def1ae) Thanks [@jxom](https://github.com/jxom)! - **Account Abstraction:** Made `toCoinbaseSmartWallet` prefer `signTypedData` on owners.
+
+- [#3571](https://github.com/wevm/viem/pull/3571) [`b43af337761520f9c4d616d05387e5aae9473348`](https://github.com/wevm/viem/commit/b43af337761520f9c4d616d05387e5aae9473348) Thanks [@gr-akshaya](https://github.com/gr-akshaya)! - Added Core Blockchain Testnet details
+
+- [#3568](https://github.com/wevm/viem/pull/3568) [`2ad4736e25ddfe8f4ad3f4d031440f6e72f912e2`](https://github.com/wevm/viem/commit/2ad4736e25ddfe8f4ad3f4d031440f6e72f912e2) Thanks [@Markeljan](https://github.com/Markeljan)! - Fixed Metis & Metis Sepolia rpcUrls config
+
+- [#3567](https://github.com/wevm/viem/pull/3567) [`f28503e0f96f14bc0c75b56d92bf08a00c70f490`](https://github.com/wevm/viem/commit/f28503e0f96f14bc0c75b56d92bf08a00c70f490) Thanks [@Markeljan](https://github.com/Markeljan)! - Fixed Newton chain rpc url typo
+
 ## 2.27.0
 
 ### Minor Changes
