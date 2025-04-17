@@ -15,7 +15,6 @@ import { getPaymasterStubData } from './getPaymasterStubData.js'
 
 const client = anvilMainnet.getClient({ account: true })
 const bundlerClient = bundlerMainnet.getBundlerClient({ client })
-
 describe('entryPointVersion: 0.7', async () => {
   const [account] = await getSmartAccounts_07()
   const paymaster = await getVerifyingPaymaster_07()

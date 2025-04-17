@@ -9,7 +9,7 @@ export type Authorization<uint32 = number, signed extends boolean = false> = {
   chainId: uint32
   /** Nonce of the EOA to delegate to. */
   nonce: uint32
-} & (signed extends true ? Signature : ExactPartial<Signature>)
+} & (signed extends true ? Signature<uint32> : ExactPartial<Signature<uint32>>)
 
 export type AuthorizationList<
   uint32 = number,

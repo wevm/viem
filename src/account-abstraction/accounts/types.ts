@@ -1,7 +1,14 @@
 import type { Abi, Address, TypedData } from 'abitype'
 import type * as WebAuthnP256 from 'ox/WebAuthnP256'
 
+import type {
+  JsonRpcAccount,
+  LocalAccount,
+  PrivateKeyAccount,
+} from '../../accounts/types.js'
 import type { Client } from '../../clients/createClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Chain } from '../../types/chain.js'
 import type { Hash, Hex, SignableMessage } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
 import type { Assign, ExactPartial, UnionPartialBy } from '../../types/utils.js'
@@ -23,9 +30,14 @@ export type SmartAccountImplementation<
   entryPointAbi extends Abi | readonly unknown[] = Abi,
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
   extend extends object = object,
+  eip7702 extends boolean = boolean,
 > = {
   /** Client used to retrieve Smart Account data, and perform signing (if owner is a JSON-RPC Account). */
-  client: Client
+  client: Client<
+    Transport,
+    Chain | undefined,
+    JsonRpcAccount | LocalAccount | undefined
+  >
   /** Compatible EntryPoint of the Smart Account. */
   entryPoint: {
     /** Compatible EntryPoint ABI. */
@@ -189,7 +201,19 @@ export type SmartAccountImplementation<
           | undefined
       }
     | undefined
-}
+} & (eip7702 extends true
+  ? {
+      /** EIP-7702 authorization properties, if applicable. */
+      authorization: {
+        /** EOA to delegate to. */
+        account: PrivateKeyAccount
+        /** Delegation address. */
+        address: Address
+      }
+    }
+  : {
+      authorization?: undefined
+    })
 
 export type SmartAccount<
   implementation extends

@@ -1,9 +1,11 @@
+import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
 import { VerifyingPaymaster } from '../../contracts/generated.js'
 import {
   entryPoint06Abi,
   entryPoint07Address,
   formatUserOperation,
   toPackedUserOperation,
+  toSimple7702SmartAccount,
   toSoladySmartAccount,
 } from '../../src/account-abstraction/index.js'
 import {
@@ -31,11 +33,39 @@ import { accounts } from './constants.js'
 import {
   createHttpServer,
   deploy,
+  deploySimple7702Account_08,
   deploySoladyAccount_06,
   deploySoladyAccount_07,
 } from './utils.js'
 
 const client = anvilMainnet.getClient({ account: true })
+
+export async function getSmartAccounts_08() {
+  const { implementationAddress } = await deploySimple7702Account_08()
+
+  const accounts_ = []
+
+  for (const account of accounts) {
+    const owner = privateKeyToAccount(account.privateKey)
+    const account_ = await toSimple7702SmartAccount({
+      client,
+      implementation: implementationAddress,
+      owner,
+    })
+    await sendTransaction(client, {
+      account: accounts[9].address,
+      to: account_.address,
+      value: parseEther('100'),
+    })
+    accounts_.push(account_)
+  }
+
+  await mine(client, {
+    blocks: 1,
+  })
+
+  return accounts_
+}
 
 export async function getSmartAccounts_07() {
   const { factoryAddress } = await deploySoladyAccount_07()

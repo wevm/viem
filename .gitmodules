@@ -16,3 +16,6 @@
 [submodule "contracts/lib/solady-6c2d0da"]
 	path = contracts/lib/solady-6c2d0da
 	url = https://github.com/Vectorized/solady
+[submodule "contracts/lib/account-abstraction-4cbc060"]
+	path = contracts/lib/account-abstraction-4cbc060
+	url = https://github.com/eth-infinitism/account-abstraction

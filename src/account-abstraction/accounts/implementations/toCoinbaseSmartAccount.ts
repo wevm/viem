@@ -4,7 +4,6 @@ import type * as WebAuthnP256 from 'ox/WebAuthnP256'
 
 import type { LocalAccount } from '../../../accounts/types.js'
 import { readContract } from '../../../actions/public/readContract.js'
-import type { Client } from '../../../clients/createClient.js'
 import { entryPoint06Address } from '../../../constants/address.js'
 import { BaseError } from '../../../errors/base.js'
 import type { Hash, Hex } from '../../../types/misc.js'
@@ -32,7 +31,7 @@ import type {
 
 export type ToCoinbaseSmartAccountParameters = {
   address?: Address | undefined
-  client: Client
+  client: CoinbaseSmartAccountImplementation['client']
   ownerIndex?: number | undefined
   owners: readonly (Address | OneOf<LocalAccount | WebAuthnAccount>)[]
   nonce?: bigint | undefined

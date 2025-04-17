@@ -750,7 +750,6 @@ describe('smoke', async () => {
     client,
     owners: [owner],
   })
-
   await sendTransaction(client, {
     account: accounts[9].address,
     to: account.address,
