@@ -1,11 +1,12 @@
 import type { Address } from 'abitype'
 import type { Hash } from '../../../types/misc.js'
 import { encodeAbiParameters } from '../../../utils/abi/encodeAbiParameters.js'
+import { encodePacked } from '../../../utils/abi/encodePacked.js'
 import { concat } from '../../../utils/data/concat.js'
 import { pad } from '../../../utils/data/pad.js'
 import { numberToHex } from '../../../utils/encoding/toHex.js'
 import { keccak256 } from '../../../utils/hash/keccak256.js'
-import { encodePacked, hashTypedData } from '../../../utils/index.js'
+import { hashTypedData } from '../../../utils/signature/hashTypedData.js'
 import type { EntryPointVersion } from '../../types/entryPointVersion.js'
 import type { UserOperation } from '../../types/userOperation.js'
 
@@ -195,9 +196,9 @@ export function getUserOperationHash<
           sender,
           nonce,
           initCode,
-          callData: callData,
+          callData,
           accountGasLimits,
-          preVerificationGas: preVerificationGas,
+          preVerificationGas,
           gasFees,
           paymasterAndData,
         },
@@ -206,10 +207,7 @@ export function getUserOperationHash<
     throw new Error(`entryPointVersion "${entryPointVersion}" not supported.`)
   })()
 
-  if (entryPointVersion === '0.8') {
-    return packedUserOp
-  }
-
+  if (entryPointVersion === '0.8') return packedUserOp
   return keccak256(
     encodeAbiParameters(
       [{ type: 'bytes32' }, { type: 'address' }, { type: 'uint256' }],

@@ -10,26 +10,26 @@ export type SignableMessage =
       /** Raw data representation of the message. */
       raw: Hex | ByteArray
     }
-export type SignatureLegacy = {
+export type SignatureLegacy<bigintType = bigint> = {
   r: Hex
   s: Hex
-  v: bigint
+  v: bigintType
 }
-export type Signature<uint32 = number> = OneOf<
+export type Signature<numberType = number, bigintType = bigint> = OneOf<
   | SignatureLegacy
   | {
       r: Hex
       s: Hex
       /** @deprecated use `yParity`. */
-      v: bigint
-      yParity?: uint32 | undefined
+      v: bigintType
+      yParity?: numberType | undefined
     }
   | {
       r: Hex
       s: Hex
       /** @deprecated use `yParity`. */
-      v?: bigint | undefined
-      yParity: uint32
+      v?: bigintType | undefined
+      yParity: numberType
     }
 >
 export type CompactSignature = {
