@@ -1,26 +1,33 @@
-import type { Address } from 'abitype'
+import { type Address, parseAbi } from 'abitype'
 import type { Account } from '../../accounts/types.js'
+import { readContract } from '../../actions/public/readContract.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
+import { ClientChainNotConfiguredError } from '../../errors/chain.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { GetChainParameter } from '../../types/chain.js'
 import type { UnionOmit } from '../../types/utils.js'
 import type { EncodeFunctionDataReturnType } from '../../utils/abi/encodeFunctionData.js'
 import {
+  encodeAbiParameters,
   encodeFunctionData,
   isAddressEqual,
+  keccak256,
   parseAccount,
 } from '../../utils/index.js'
 import { ethTokenAbi, l2SharedBridgeAbi } from '../constants/abis.js'
 import {
   ethAddressInContracts,
+  l2AssetRouterAddress,
   l2BaseTokenAddress,
+  l2NativeTokenVaultAddress,
   legacyEthAddress,
 } from '../constants/address.js'
 import type { ChainEIP712 } from '../types/chain.js'
 import type { ZksyncTransactionRequest } from '../types/transaction.js'
 import { getDefaultBridgeAddresses } from './getDefaultBridgeAddresses.js'
+import { getL1ChainId } from './getL1ChainId.js'
 import { getL2TokenAddress } from './getL2TokenAddress.js'
 import {
   type SendTransactionErrorType,
@@ -133,6 +140,7 @@ export async function withdraw<
 ): Promise<WithdrawReturnType> {
   let {
     account: account_ = client.account,
+    chain: chain_ = client.chain,
     token = l2BaseTokenAddress,
     to,
     amount,
@@ -165,17 +173,65 @@ export async function withdraw<
     value = amount
     contract = l2BaseTokenAddress
   } else {
-    data = encodeFunctionData({
-      abi: l2SharedBridgeAbi,
-      functionName: 'withdraw',
-      args: [to, token, amount],
+    const assetId = await readContract(client, {
+      address: l2NativeTokenVaultAddress,
+      abi: parseAbi(['function assetId(address token) view returns (bytes32)']),
+      functionName: 'assetId',
+      args: [token],
     })
-    contract = bridgeAddress
-      ? bridgeAddress
-      : (await getDefaultBridgeAddresses(client)).sharedL2
+    const originChainId = await readContract(client, {
+      address: l2NativeTokenVaultAddress,
+      abi: parseAbi([
+        'function originChainId(bytes32 assetId) view returns (uint256)',
+      ]),
+      functionName: 'originChainId',
+      args: [assetId],
+    })
+    const l1ChainId = await getL1ChainId(client)
+
+    const isTokenL1Native =
+      originChainId === BigInt(l1ChainId) || token === ethAddressInContracts
+    if (!bridgeAddress) {
+      // If the legacy L2SharedBridge is deployed we use it for l1 native tokens.
+      bridgeAddress = isTokenL1Native
+        ? (await getDefaultBridgeAddresses(client)).sharedL2
+        : l2AssetRouterAddress
+    }
+    // For non L1 native tokens we need to use the AssetRouter.
+    // For L1 native tokens we can use the legacy withdraw method.
+    if (!isTokenL1Native) {
+      contract = l2AssetRouterAddress
+      if (!chain_) throw new ClientChainNotConfiguredError()
+      const chainId = chain_.id
+      const assetId = keccak256(
+        encodeAbiParameters(
+          [{ type: 'uint256' }, { type: 'address' }, { type: 'address' }],
+          [BigInt(chainId), l2NativeTokenVaultAddress, token],
+        ),
+      )
+      const assetData = encodeAbiParameters(
+        [{ type: 'uint256' }, { type: 'address' }, { type: 'address' }],
+        [BigInt(amount), to, token],
+      )
+      data = encodeFunctionData({
+        abi: parseAbi([
+          'function withdraw(bytes32 _assetId, bytes _transferData)',
+        ]),
+        functionName: 'withdraw',
+        args: [assetId, assetData],
+      })
+    } else {
+      contract = bridgeAddress
+      data = encodeFunctionData({
+        abi: l2SharedBridgeAbi,
+        functionName: 'withdraw',
+        args: [to, token, amount],
+      })
+    }
   }
 
   return await sendTransaction(client, {
+    chain: chain_,
     account,
     to: contract,
     data,
