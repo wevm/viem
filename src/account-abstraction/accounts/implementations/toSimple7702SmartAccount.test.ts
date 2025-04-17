@@ -66,7 +66,6 @@ test('default', async () => {
       "getFactoryArgs": [Function],
       "getNonce": [Function],
       "getStubSignature": [Function],
-      "implementation": "0xe6Cae83BdE06E4c305530e199D7217f42808555B",
       "isDeployed": [Function],
       "owner": {
         "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
