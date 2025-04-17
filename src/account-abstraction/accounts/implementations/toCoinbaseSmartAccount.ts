@@ -184,6 +184,14 @@ export async function toCoinbaseSmartAccount(
       })
 
       if (owner.type === 'address') throw new Error('owner cannot sign')
+      // Try to sign with signTypedData first if the owner has this capability
+      const typedDataSignature = await signWithTypedData({ hash, owner, chainId: client.chain!.id })
+      if (typedDataSignature) {
+        return wrapSignature({
+          ownerIndex,
+          signature: typedDataSignature,
+        })
+      }
       const signature = await sign({ hash, owner })
 
       return wrapSignature({
@@ -203,6 +211,14 @@ export async function toCoinbaseSmartAccount(
       })
 
       if (owner.type === 'address') throw new Error('owner cannot sign')
+      // Try to sign with signTypedData first if the owner has this capability
+      const typedDataSignature = await signWithTypedData({ hash, owner, chainId: client.chain!.id })
+      if (typedDataSignature) {
+        return wrapSignature({
+          ownerIndex,
+          signature: typedDataSignature,
+        })
+      }
       const signature = await sign({ hash, owner })
 
       return wrapSignature({
@@ -228,6 +244,14 @@ export async function toCoinbaseSmartAccount(
       })
 
       if (owner.type === 'address') throw new Error('owner cannot sign')
+      // Try to sign with signTypedData first if the owner has this capability
+      const typedDataSignature = await signWithTypedData({ hash, owner, chainId: client.chain!.id })
+      if (typedDataSignature) {
+        return wrapSignature({
+          ownerIndex,
+          signature: typedDataSignature,
+        })
+      }
       const signature = await sign({ hash, owner })
 
       return wrapSignature({
@@ -251,6 +275,14 @@ export async function toCoinbaseSmartAccount(
       })
 
       if (owner.type === 'address') throw new Error('owner cannot sign')
+      // Try to sign with signTypedData first if the owner has this capability
+      const typedDataSignature = await signWithTypedData({ hash, owner, chainId: client.chain!.id })
+      if (typedDataSignature) {
+        return wrapSignature({
+          ownerIndex,
+          signature: typedDataSignature,
+        })
+      }
       const signature = await sign({ hash, owner })
 
       return wrapSignature({
@@ -279,6 +311,63 @@ export async function toCoinbaseSmartAccount(
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 /** @internal */
+function getCoinbaseSmartWalletTypedData({
+  address,
+  chainId,
+  hash,
+}: {
+  address: Address;
+  chainId: number;
+  hash: Hash;
+}) {
+  return {
+    domain: {
+      chainId,
+      name: 'Coinbase Smart Wallet',
+      verifyingContract: address,
+      version: '1',
+    },
+    types: {
+      CoinbaseSmartWalletMessage: [
+        {
+          name: 'hash',
+          type: 'bytes32',
+        },
+      ],
+    },
+    primaryType: 'CoinbaseSmartWalletMessage' as const,
+    message: {
+      hash,
+    },
+  };
+}
+
+/** @internal */
+export async function signWithTypedData({
+  hash,
+  owner,
+  chainId,
+}: { 
+  hash: Hash; 
+  owner: OneOf<LocalAccount | WebAuthnAccount>;
+  chainId: number;
+}): Promise<Hex | undefined> {
+  // Check if this is a non-WebAuthn account that supports signTypedData
+  if (owner.type !== 'webAuthn' && owner.signTypedData) {
+    const typedData = getCoinbaseSmartWalletTypedData({
+      address: owner.address,
+      chainId,
+      hash,
+    })
+    
+    return await owner.signTypedData(typedData)
+  }
+  
+  // Return undefined if we can't handle this type of signature
+  return undefined
+}
+
+/** @internal */
 export async function sign({
   hash,
   owner,
@@ -302,26 +391,7 @@ export function toReplaySafeHash({
   chainId,
   hash,
 }: { address: Address; chainId: number; hash: Hash }) {
-  return hashTypedData({
-    domain: {
-      chainId,
-      name: 'Coinbase Smart Wallet',
-      verifyingContract: address,
-      version: '1',
-    },
-    types: {
-      CoinbaseSmartWalletMessage: [
-        {
-          name: 'hash',
-          type: 'bytes32',
-        },
-      ],
-    },
-    primaryType: 'CoinbaseSmartWalletMessage',
-    message: {
-      hash,
-    },
-  })
+  return hashTypedData(getCoinbaseSmartWalletTypedData({ address, chainId, hash }))
 }
 
 /** @internal */
