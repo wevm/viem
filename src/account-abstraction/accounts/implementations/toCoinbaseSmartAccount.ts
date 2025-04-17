@@ -207,17 +207,11 @@ export async function toCoinbaseSmartAccount(
     async signMessage(parameters) {
       const { message } = parameters
       const address = await this.getAddress()
-
-      const hash = toReplaySafeHash({
-        address,
-        chainId: client.chain!.id,
-        hash: hashMessage(message),
-      })
-
       if (owner.type === 'address') throw new Error('owner cannot sign')
+
       // Try to sign with signTypedData first if the owner has this capability
       const typedDataSignature = await signWithTypedData({
-        hash,
+        hash: hashMessage(message),
         owner,
         chainId: client.chain!.id,
       })
@@ -227,6 +221,12 @@ export async function toCoinbaseSmartAccount(
           signature: typedDataSignature,
         })
       }
+
+      const hash = toReplaySafeHash({
+        address,
+        chainId: client.chain!.id,
+        hash: hashMessage(message),
+      })
       const signature = await sign({ hash, owner })
 
       return wrapSignature({
@@ -240,6 +240,26 @@ export async function toCoinbaseSmartAccount(
         parameters as TypedDataDefinition<TypedData, string>
       const address = await this.getAddress()
 
+      if (owner.type === 'address') throw new Error('owner cannot sign')
+
+      // Try to sign with signTypedData first if the owner has this capability
+      const typedDataSignature = await signWithTypedData({
+        hash: hashTypedData({
+          domain,
+          message,
+          primaryType,
+          types,
+        }),
+        owner,
+        chainId: client.chain!.id,
+      })
+      if (typedDataSignature) {
+        return wrapSignature({
+          ownerIndex,
+          signature: typedDataSignature,
+        })
+      }
+
       const hash = toReplaySafeHash({
         address,
         chainId: client.chain!.id,
@@ -250,20 +270,6 @@ export async function toCoinbaseSmartAccount(
           types,
         }),
       })
-
-      if (owner.type === 'address') throw new Error('owner cannot sign')
-      // Try to sign with signTypedData first if the owner has this capability
-      const typedDataSignature = await signWithTypedData({
-        hash,
-        owner,
-        chainId: client.chain!.id,
-      })
-      if (typedDataSignature) {
-        return wrapSignature({
-          ownerIndex,
-          signature: typedDataSignature,
-        })
-      }
       const signature = await sign({ hash, owner })
 
       return wrapSignature({
