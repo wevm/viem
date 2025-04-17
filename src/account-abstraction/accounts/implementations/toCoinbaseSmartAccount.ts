@@ -177,14 +177,14 @@ export async function toCoinbaseSmartAccount(
     async sign(parameters) {
       const address = await this.getAddress()
 
-      const hash = toReplaySafeHash({
+      const typedData = toReplaySafeTypedData({
         address,
         chainId: client.chain!.id,
         hash: parameters.hash,
       })
 
       if (owner.type === 'address') throw new Error('owner cannot sign')
-      const signature = await sign({ hash, owner })
+      const signature = await signTypedData({ owner, typedData })
 
       return wrapSignature({
         ownerIndex,
@@ -196,14 +196,14 @@ export async function toCoinbaseSmartAccount(
       const { message } = parameters
       const address = await this.getAddress()
 
-      const hash = toReplaySafeHash({
+      const typedData = toReplaySafeTypedData({
         address,
         chainId: client.chain!.id,
         hash: hashMessage(message),
       })
 
       if (owner.type === 'address') throw new Error('owner cannot sign')
-      const signature = await sign({ hash, owner })
+      const signature = await signTypedData({ owner, typedData })
 
       return wrapSignature({
         ownerIndex,
@@ -216,7 +216,7 @@ export async function toCoinbaseSmartAccount(
         parameters as TypedDataDefinition<TypedData, string>
       const address = await this.getAddress()
 
-      const hash = toReplaySafeHash({
+      const typedData = toReplaySafeTypedData({
         address,
         chainId: client.chain!.id,
         hash: hashTypedData({
@@ -228,7 +228,7 @@ export async function toCoinbaseSmartAccount(
       })
 
       if (owner.type === 'address') throw new Error('owner cannot sign')
-      const signature = await sign({ hash, owner })
+      const signature = await signTypedData({ owner, typedData })
 
       return wrapSignature({
         ownerIndex,
@@ -279,6 +279,21 @@ export async function toCoinbaseSmartAccount(
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 /** @internal */
+export async function signTypedData({
+  typedData,
+  owner,
+}: {
+  typedData: TypedDataDefinition
+  owner: OneOf<LocalAccount | WebAuthnAccount>
+}) {
+  if (owner.type === 'local' && owner.signTypedData)
+    return owner.signTypedData(typedData)
+
+  const hash = hashTypedData(typedData)
+  return sign({ hash, owner })
+}
+
+/** @internal */
 export async function sign({
   hash,
   owner,
@@ -297,12 +312,12 @@ export async function sign({
 }
 
 /** @internal */
-export function toReplaySafeHash({
+export function toReplaySafeTypedData({
   address,
   chainId,
   hash,
 }: { address: Address; chainId: number; hash: Hash }) {
-  return hashTypedData({
+  return {
     domain: {
       chainId,
       name: 'Coinbase Smart Wallet',
@@ -321,7 +336,7 @@ export function toReplaySafeHash({
     message: {
       hash,
     },
-  })
+  } as const
 }
 
 /** @internal */
