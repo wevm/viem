@@ -279,30 +279,16 @@ export async function toCoinbaseSmartAccount(
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 /** @internal */
-export async function sign({
-  hash,
-  owner,
-}: { hash: Hash; owner: OneOf<LocalAccount | WebAuthnAccount> }) {
-  // WebAuthn Account (Passkey)
-  if (owner.type === 'webAuthn') {
-    const { signature, webauthn } = await owner.sign({
-      hash,
-    })
-    return toWebAuthnSignature({ signature, webauthn })
-  }
-
-  if (owner.sign) return owner.sign({ hash })
-
-  throw new BaseError('`owner` does not support raw sign.')
-}
-
-/** @internal */
-export function toReplaySafeHash({
+export function getCoinbaseSmartWalletTypedData({
   address,
   chainId,
   hash,
-}: { address: Address; chainId: number; hash: Hash }) {
-  return hashTypedData({
+}: {
+  address: Address
+  chainId: number
+  hash: Hash
+}) {
+  return {
     domain: {
       chainId,
       name: 'Coinbase Smart Wallet',
@@ -317,11 +303,58 @@ export function toReplaySafeHash({
         },
       ],
     },
-    primaryType: 'CoinbaseSmartWalletMessage',
+    primaryType: 'CoinbaseSmartWalletMessage' as const,
     message: {
       hash,
     },
+  }
+}
+
+/** @internal */
+export function toReplaySafeHash({
+  address,
+  chainId,
+  hash,
+}: { address: Address; chainId: number; hash: Hash }) {
+  const typedData = getCoinbaseSmartWalletTypedData({
+    address,
+    chainId,
+    hash,
   })
+  
+  return hashTypedData(typedData)
+}
+
+/** @internal */
+export async function sign({
+  hash,
+  owner,
+}: { hash: Hash; owner: OneOf<LocalAccount | WebAuthnAccount> }) {
+  // WebAuthn Account (Passkey)
+  if (owner.type === 'webAuthn') {
+    const { signature, webauthn } = await owner.sign({
+      hash,
+    })
+    return toWebAuthnSignature({ signature, webauthn })
+  }
+
+  // For accounts with signTypedData but no raw sign
+  if (owner.signTypedData) {
+    const chainId = owner.client?.chain?.id || 1
+    const typedData = getCoinbaseSmartWalletTypedData({
+      address: owner.address,
+      chainId,
+      hash,
+    })
+    
+    const signature = await owner.signTypedData(typedData)
+    return signature
+  }
+
+  // For accounts with direct sign capability
+  if (owner.sign) return owner.sign({ hash })
+
+  throw new BaseError('`owner` does not support signing via sign or signTypedData.')
 }
 
 /** @internal */
