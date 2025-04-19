@@ -191,7 +191,7 @@ export const publicClient = createPublicClient({
 :::
 
 :::note
-This example utilizes the [SimpleAccountFactory](https://github.com/eth-infinitism/account-abstraction/blob/develop/contracts/samples/SimpleAccountFactory.sol).
+This example utilizes the [SimpleAccountFactory](https://github.com/eth-infinitism/account-abstraction/blob/develop/contracts/accounts/SimpleAccountFactory.sol).
 :::
 
 ## Return Value
