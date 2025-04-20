@@ -5,7 +5,7 @@ description: Initiates a withdrawal on an L2 to the L1.
 
 # initiateWithdrawal
 
-Initiates a [withdrawal](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) on an L2 to the L1. 
+Initiates a [withdrawal](https://github.com/ethereum-optimism/specs/blob/main/specs/protocol/deposits.md) on an L2 to the L1. 
 
 Internally performs a contract write to the [`initiateWithdrawal` function](https://github.com/ethereum-optimism/optimism/blob/283f0aa2e3358ced30ff7cbd4028c0c0c3faa140/packages/contracts-bedrock/src/L2/L2ToL1MessagePasser.sol#L73) on the [Optimism L2ToL1MessagePasser predeploy contract](https://github.com/ethereum-optimism/optimism/blob/283f0aa2e3358ced30ff7cbd4028c0c0c3faa140/packages/contracts-bedrock/src/L2/L2ToL1MessagePasser.sol).
 
