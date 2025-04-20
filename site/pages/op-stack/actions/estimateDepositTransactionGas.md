@@ -5,7 +5,7 @@ description: Estimates gas to initiate a deposit transaction on an L1, which exe
 
 # estimateDepositTransactionGas
 
-Estimates gas to initiate a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) on an L1, which executes a transaction on an L2. 
+Estimates gas to initiate a [deposit transaction](https://github.com/ethereum-optimism/specs/blob/main/specs/protocol/deposits.md) on an L1, which executes a transaction on an L2. 
 
 ## Usage
 
