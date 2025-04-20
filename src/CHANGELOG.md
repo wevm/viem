@@ -1,5 +1,13 @@
 # viem
 
+## 2.27.3
+
+### Patch Changes
+
+- [#3581](https://github.com/wevm/viem/pull/3581) [`bb9398a43ebbb8d9af52832a845c0ebe19495a2e`](https://github.com/wevm/viem/commit/bb9398a43ebbb8d9af52832a845c0ebe19495a2e) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Gunz Mainnet.
+
+- [#3588](https://github.com/wevm/viem/pull/3588) [`0098740f4930a80744efc218303fb986f961d4db`](https://github.com/wevm/viem/commit/0098740f4930a80744efc218303fb986f961d4db) Thanks [@talentlessguy](https://github.com/talentlessguy)! - Updated noble dependencies.
+
 ## 2.27.2
 
 ### Patch Changes
