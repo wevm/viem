@@ -4,7 +4,7 @@ description: Computes source hash of a deposit transaction.
 
 # getSourceHash
 
-Computes the [source hash](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md#source-hash-computation) of a deposit transaction.
+Computes the [source hash](https://github.com/ethereum-optimism/specs/blob/main/specs/protocol/deposits.md#source-hash-computation) of a deposit transaction.
 
 ## Import
 ```ts
