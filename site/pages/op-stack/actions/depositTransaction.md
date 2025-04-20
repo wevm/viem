@@ -5,7 +5,7 @@ description: Initiates a deposit transaction on an L1, which executes a transact
 
 # depositTransaction
 
-Initiates a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) on an L1, which executes a transaction on an L2. 
+Initiates a [deposit transaction](https://github.com/ethereum-optimism/specs/blob/main/specs/protocol/deposits.md) on an L1, which executes a transaction on an L2. 
 
 Internally performs a contract write to the [`depositTransaction` function](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol#L378) on the [Optimism Portal contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal.sol).
 
