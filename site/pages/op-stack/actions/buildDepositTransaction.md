@@ -5,7 +5,7 @@ description: Builds & prepares parameters for a deposit transaction to be initia
 
 # buildDepositTransaction
 
-Builds & prepares parameters for a [deposit transaction](https://github.com/ethereum-optimism/optimism/blob/develop/specs/deposits.md) to be initiated on an L1 and executed on the L2.
+Builds & prepares parameters for a [deposit transaction]([https://github.com/ethereum-optimism/specs/blob/main/specs/protocol/deposits.md) to be initiated on an L1 and executed on the L2.
 
 ## Usage
 
