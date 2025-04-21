@@ -1,7 +1,6 @@
 import type { Address } from 'abitype'
 
 import type { TypedDataDefinition } from '../../../types/typedData.js'
-import { concat } from '../../../utils/data/concat.js'
 import type { UserOperation } from '../../types/userOperation.js'
 import { toPackedUserOperation } from './toPackedUserOperation.js'
 
@@ -17,23 +16,6 @@ export function getUserOperationTypedData(
   const { chainId, entryPointAddress, userOperation } = parameters
 
   const packedUserOp = toPackedUserOperation(userOperation)
-
-  const initCode_ = (() => {
-    if (
-      userOperation.authorization &&
-      (userOperation.factory === '0x7702' ||
-        userOperation.factory === '0x7702000000000000000000000000000000000000')
-    ) {
-      const delegation = userOperation.authorization.address
-      if (userOperation.factoryData)
-        return concat([delegation, userOperation.factoryData])
-      return delegation
-    }
-    return concat([
-      userOperation.factory ?? '0x',
-      userOperation.factoryData ?? '0x',
-    ])
-  })()
 
   return {
     types: {
@@ -55,9 +37,6 @@ export function getUserOperationTypedData(
       chainId,
       verifyingContract: entryPointAddress,
     },
-    message: {
-      ...packedUserOp,
-      initCode: initCode_,
-    },
+    message: packedUserOp,
   } as const satisfies TypedDataDefinition
 }

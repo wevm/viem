@@ -5,16 +5,14 @@ import type {
   PackedUserOperation,
   UserOperation,
 } from '../../types/userOperation.js'
+import { getInitCode } from './getInitCode.js'
 
 export function toPackedUserOperation(
   userOperation: UserOperation,
 ): PackedUserOperation {
   const {
-    authorization,
     callGasLimit,
     callData,
-    factory,
-    factoryData,
     maxPriorityFeePerGas,
     maxFeePerGas,
     paymaster,
@@ -30,28 +28,12 @@ export function toPackedUserOperation(
     pad(numberToHex(verificationGasLimit || 0n), { size: 16 }),
     pad(numberToHex(callGasLimit || 0n), { size: 16 }),
   ])
-
-  const initCode = (() => {
-    if (
-      factory === '0x7702' ||
-      factory === '0x7702000000000000000000000000000000000000'
-    ) {
-      if (!authorization) return '0x7702000000000000000000000000000000000000'
-      const delegation = authorization.address
-      if (factoryData) return concat([delegation, factoryData])
-      return delegation
-    }
-    if (factory && factoryData) return concat([factory, factoryData])
-    return '0x'
-  })()
-
+  const initCode = getInitCode(userOperation)
   const gasFees = concat([
     pad(numberToHex(maxPriorityFeePerGas || 0n), { size: 16 }),
     pad(numberToHex(maxFeePerGas || 0n), { size: 16 }),
   ])
-
   const nonce = userOperation.nonce ?? 0n
-
   const paymasterAndData = paymaster
     ? concat([
         paymaster,
@@ -64,7 +46,6 @@ export function toPackedUserOperation(
         paymasterData || '0x',
       ])
     : '0x'
-
   const preVerificationGas = userOperation.preVerificationGas ?? 0n
 
   return {

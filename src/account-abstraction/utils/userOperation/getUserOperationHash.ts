@@ -2,11 +2,11 @@ import type { Address } from 'abitype'
 
 import type { Hash, Hex } from '../../../types/misc.js'
 import { encodeAbiParameters } from '../../../utils/abi/encodeAbiParameters.js'
-import { concat } from '../../../utils/data/concat.js'
 import { keccak256 } from '../../../utils/hash/keccak256.js'
 import { hashTypedData } from '../../../utils/signature/hashTypedData.js'
 import type { EntryPointVersion } from '../../types/entryPointVersion.js'
 import type { UserOperation } from '../../types/userOperation.js'
+import { getInitCode } from './getInitCode.js'
 import { getUserOperationTypedData } from './getUserOperationTypedData.js'
 import { toPackedUserOperation } from './toPackedUserOperation.js'
 
@@ -30,13 +30,12 @@ export function getUserOperationHash<
   const userOperation = parameters.userOperation as UserOperation
   const {
     authorization,
-    callData,
+    callData = '0x',
     callGasLimit,
-    initCode,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
-    paymasterAndData,
+    paymasterAndData = '0x',
     preVerificationGas,
     sender,
     verificationGasLimit,
@@ -53,20 +52,13 @@ export function getUserOperationHash<
 
   const packedUserOp = (() => {
     if (entryPointVersion === '0.6') {
-      const initCode_ = (() => {
-        const factory = initCode?.slice(0, 42) as Hex
-        const factoryData = initCode?.slice(42) as Hex | undefined
-        if (
-          authorization &&
-          (factory === '0x7702' ||
-            factory === '0x7702000000000000000000000000000000000000')
-        ) {
-          const delegation = authorization.address
-          if (factoryData) return concat([delegation, factoryData])
-          return delegation
-        }
-        return initCode
-      })()
+      const factory = userOperation.initCode?.slice(0, 42) as Hex
+      const factoryData = userOperation.initCode?.slice(42) as Hex | undefined
+      const initCode = getInitCode({
+        authorization,
+        factory,
+        factoryData,
+      })
       return encodeAbiParameters(
         [
           { type: 'address' },
@@ -83,14 +75,14 @@ export function getUserOperationHash<
         [
           sender,
           nonce,
-          keccak256(initCode_ ?? '0x'),
-          keccak256(callData ?? '0x'),
+          keccak256(initCode),
+          keccak256(callData),
           callGasLimit,
           verificationGasLimit,
           preVerificationGas,
           maxFeePerGas,
           maxPriorityFeePerGas,
-          keccak256(paymasterAndData ?? '0x'),
+          keccak256(paymasterAndData),
         ],
       )
     }
