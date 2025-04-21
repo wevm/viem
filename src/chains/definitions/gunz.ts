@@ -6,7 +6,9 @@ export const gunz = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'GUN', symbol: 'GUN', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://rpc.gunzchain.io/ext/bc/2M47TxWHGnhNtq6pM5zPXdATBtuqubxn5EPFgFmEawCQr9WFML/rpc'],
+      http: [
+        'https://rpc.gunzchain.io/ext/bc/2M47TxWHGnhNtq6pM5zPXdATBtuqubxn5EPFgFmEawCQr9WFML/rpc',
+      ],
     },
   },
   blockExplorers: {
