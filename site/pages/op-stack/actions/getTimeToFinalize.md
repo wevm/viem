@@ -90,7 +90,7 @@ const { seconds, timestamp } = await publicClientL1.getTimeToFinalize({
 - **Type:** `Address`
 - **Default:** `targetChain.contracts.l2OutputOracle[chainId].address`
 
-The address of the [L2 Output Oracle contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/L2OutputOracle.sol). Defaults to the L2 Output Oracle contract specified on the `targetChain`.
+The address of the [L2 Output Oracle contract](https://github.com/ethereum-optimism/optimism/blob/develop/packages/contracts-bedrock/src/L1/OptimismPortal2.sol). Defaults to the L2 Output Oracle contract specified on the `targetChain`.
 
 If a `l2OutputOracleAddress` is provided, the `targetChain` parameter becomes optional.
 

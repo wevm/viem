@@ -145,8 +145,8 @@
     }
   },
   "dependencies": {
-    "@noble/curves": "1.8.1",
-    "@noble/hashes": "1.7.1",
+    "@noble/curves": "1.8.2",
+    "@noble/hashes": "1.7.2",
     "@scure/bip32": "1.6.2",
     "@scure/bip39": "1.5.4",
     "abitype": "1.0.8",
