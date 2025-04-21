@@ -284,7 +284,8 @@ export async function createVerifyingPaymasterServer(
             }),
           )
         }
-      } catch {
+      } catch (err) {
+        console.error(err)
         res.writeHead(500, {
           'Content-Type': 'application/json',
         })
