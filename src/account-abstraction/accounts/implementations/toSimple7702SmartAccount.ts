@@ -31,7 +31,7 @@ export type Simple7702SmartAccountImplementation = SmartAccountImplementation<
 >
 
 /**
- * @description Create a Simple7702 Smart Account.
+ * @description Create a Simple7702 Smart Account – based off [eth-infinitism's `Simple7702Account.sol`](https://github.com/eth-infinitism/account-abstraction/blob/develop/contracts/accounts/Simple7702Account.sol).
  *
  * @param parameters - {@link ToSimple7702SmartAccountParameters}
  * @returns Simple7702 Smart Account. {@link ToSimple7702SmartAccountReturnType}
