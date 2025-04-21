@@ -6,6 +6,7 @@ import {
   getSmartAccounts_07,
   getSmartAccounts_08,
   getVerifyingPaymaster_07,
+  getVerifyingPaymaster_08,
 } from '../../../../test/src/account-abstraction.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
@@ -415,15 +416,314 @@ describe('entryPointVersion: 0.8', async () => {
     ).rejects.toThrowError()
   })
 
-  test.todo('args: paymaster (client)')
+  test('args: paymaster (client)', async () => {
+    const paymaster = await getVerifyingPaymaster_08()
+    const server = await createVerifyingPaymasterServer(client, { paymaster })
 
-  test.todo('args: paymaster (client w/ no chain)')
+    const paymasterClient = createPaymasterClient({
+      transport: http(server.url),
+    })
 
-  test.todo('args: paymaster.getPaymasterData')
+    const bundlerClient = bundlerMainnet.getBundlerClient({
+      client,
+    })
 
-  test.todo('args: paymaster.getPaymasterStubData + paymaster.getPaymasterData')
+    const {
+      account: _,
+      callGasLimit,
+      nonce,
+      paymasterData,
+      verificationGasLimit,
+      ...request
+    } = await prepareUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+        {
+          to: wagmiContractConfig.address,
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+        },
+      ],
+      paymaster: paymasterClient,
+      ...fees,
+    })
 
-  test.todo('args: paymasterContext')
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(50000n)
+    expect(paymasterData?.length).toBe(260)
+    expect(request).toMatchInlineSnapshot(`
+      {
+        "authorization": {
+          "address": "0x081f08945fd17c5470f7bcee23fb57ab1099428e",
+          "chainId": 1,
+          "nonce": 959,
+          "r": "0xfffffffffffffffffffffffffffffff000000000000000000000000000000000",
+          "s": "0x7aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "yParity": 1,
+        },
+        "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
+        "factory": "0x7702",
+        "factoryData": "0x",
+        "maxFeePerGas": 15000000000n,
+        "maxPriorityFeePerGas": 2000000000n,
+        "paymaster": "0x831c6c334f8ddee62246a5c81b82c8e18008b38f",
+        "paymasterPostOpGasLimit": 1000000n,
+        "paymasterVerificationGasLimit": 1000000n,
+        "preVerificationGas": 100271n,
+        "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
+      }
+    `)
+  })
+
+  test('args: paymaster (client w/ no chain)', async () => {
+    const client = anvilMainnet.getClient({ account: true, chain: false })
+
+    const paymaster = await getVerifyingPaymaster_08()
+    const server = await createVerifyingPaymasterServer(client, { paymaster })
+
+    const paymasterClient = createPaymasterClient({
+      transport: http(server.url),
+    })
+
+    const bundlerClient = bundlerMainnet.getBundlerClient({
+      client,
+      chain: false,
+    })
+
+    const request = await prepareUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+        {
+          to: wagmiContractConfig.address,
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+        },
+      ],
+      paymaster: paymasterClient,
+      ...fees,
+    })
+
+    expect(request).toBeDefined()
+  })
+
+  test('args: paymaster.getPaymasterData', async () => {
+    const paymaster = await getVerifyingPaymaster_08()
+    const server = await createVerifyingPaymasterServer(client, { paymaster })
+
+    const paymasterClient = createPaymasterClient({
+      transport: http(server.url),
+    })
+
+    const bundlerClient = bundlerMainnet.getBundlerClient({
+      client,
+    })
+
+    const {
+      account: _,
+      callGasLimit,
+      nonce,
+      paymasterData,
+      verificationGasLimit,
+      ...request
+    } = await prepareUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+        {
+          to: wagmiContractConfig.address,
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+        },
+      ],
+      paymaster: {
+        async getPaymasterData(parameters) {
+          return getPaymasterData(paymasterClient, parameters)
+        },
+      },
+      ...fees,
+    })
+
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(50000n)
+    expect(paymasterData?.length).toBe(260)
+    expect(request).toMatchInlineSnapshot(`
+      {
+        "authorization": {
+          "address": "0x081f08945fd17c5470f7bcee23fb57ab1099428e",
+          "chainId": 1,
+          "nonce": 960,
+          "r": "0xfffffffffffffffffffffffffffffff000000000000000000000000000000000",
+          "s": "0x7aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "yParity": 1,
+        },
+        "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
+        "factory": "0x7702",
+        "factoryData": "0x",
+        "maxFeePerGas": 15000000000n,
+        "maxPriorityFeePerGas": 2000000000n,
+        "paymaster": "0xf47e3b0a1952a81f1afc41172762cb7ce8700133",
+        "paymasterPostOpGasLimit": 1000000n,
+        "paymasterVerificationGasLimit": 1000000n,
+        "preVerificationGas": 100271n,
+        "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
+      }
+    `)
+  })
+
+  test('args: paymaster.getPaymasterStubData + paymaster.getPaymasterData', async () => {
+    const paymaster = await getVerifyingPaymaster_08()
+    const server = await createVerifyingPaymasterServer(client, { paymaster })
+
+    const paymasterClient = createPaymasterClient({
+      transport: http(server.url),
+    })
+
+    const bundlerClient = bundlerMainnet.getBundlerClient({
+      client,
+    })
+
+    const {
+      account: _,
+      callGasLimit,
+      nonce,
+      paymasterData,
+      preVerificationGas,
+      verificationGasLimit,
+      ...request
+    } = await prepareUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+        {
+          to: wagmiContractConfig.address,
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+        },
+      ],
+      paymaster: {
+        async getPaymasterStubData(parameters) {
+          return getPaymasterStubData(paymasterClient, parameters)
+        },
+        async getPaymasterData(parameters) {
+          return getPaymasterData(paymasterClient, parameters)
+        },
+      },
+      ...fees,
+    })
+
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
+    expect(preVerificationGas).toBeGreaterThanOrEqual(50000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(50000n)
+    expect(paymasterData?.length).toBe(260)
+    expect(request).toMatchInlineSnapshot(`
+      {
+        "authorization": {
+          "address": "0x081f08945fd17c5470f7bcee23fb57ab1099428e",
+          "chainId": 1,
+          "nonce": 961,
+          "r": "0xfffffffffffffffffffffffffffffff000000000000000000000000000000000",
+          "s": "0x7aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "yParity": 1,
+        },
+        "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
+        "factory": "0x7702",
+        "factoryData": "0x",
+        "maxFeePerGas": 15000000000n,
+        "maxPriorityFeePerGas": 2000000000n,
+        "paymaster": "0xc63db9682ff11707cadbd72bf1a0354a7fef143b",
+        "paymasterPostOpGasLimit": 1000000n,
+        "paymasterVerificationGasLimit": 1000000n,
+        "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
+      }
+    `)
+  })
+
+  test('args: paymasterContext', async () => {
+    const paymaster = await getVerifyingPaymaster_08()
+    const server = await createVerifyingPaymasterServer(client, { paymaster })
+
+    const paymasterClient = createPaymasterClient({
+      transport: http(server.url),
+    })
+
+    const bundlerClient = bundlerMainnet.getBundlerClient({
+      client,
+    })
+
+    const {
+      account: _,
+      callGasLimit,
+      nonce,
+      paymasterData,
+      preVerificationGas,
+      verificationGasLimit,
+      ...request
+    } = await prepareUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+        {
+          to: wagmiContractConfig.address,
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+        },
+      ],
+      paymaster: paymasterClient,
+      paymasterContext: { validUntil: 3735928600 },
+      ...fees,
+    })
+
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
+    expect(paymasterData?.length).toBe(260)
+    expect(preVerificationGas).toBeGreaterThanOrEqual(50000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(50000n)
+    expect(request).toMatchInlineSnapshot(`
+      {
+        "authorization": {
+          "address": "0x081f08945fd17c5470f7bcee23fb57ab1099428e",
+          "chainId": 1,
+          "nonce": 962,
+          "r": "0xfffffffffffffffffffffffffffffff000000000000000000000000000000000",
+          "s": "0x7aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "yParity": 1,
+        },
+        "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
+        "factory": "0x7702",
+        "factoryData": "0x",
+        "maxFeePerGas": 15000000000n,
+        "maxPriorityFeePerGas": 2000000000n,
+        "paymaster": "0xfc3983de3f7cbe1ba01084469779470ad0bbeffa",
+        "paymasterPostOpGasLimit": 1000000n,
+        "paymasterVerificationGasLimit": 1000000n,
+        "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
+      }
+    `)
+  })
 
   test('args: signature', async () => {
     const {
@@ -711,15 +1011,281 @@ describe('entryPointVersion: 0.8', async () => {
     ).rejects.toThrowError()
   })
 
-  test.todo('behavior: bundlerClient.paymaster (client)')
+  test('behavior: bundlerClient.paymaster (client)', async () => {
+    const paymaster = await getVerifyingPaymaster_08()
+    const server = await createVerifyingPaymasterServer(client, { paymaster })
 
-  test.todo('behavior: client.paymaster.getPaymasterData')
+    const paymasterClient = createPaymasterClient({
+      transport: http(server.url),
+    })
 
-  test.todo(
-    'behavior: client.paymaster.getPaymasterStubData + client.paymaster.getPaymasterData',
-  )
+    const bundlerClient = bundlerMainnet.getBundlerClient({
+      client,
+      paymaster: paymasterClient,
+    })
 
-  test.todo('behavior: bundlerClient.paymasterContext')
+    const {
+      account: _,
+      callGasLimit,
+      nonce,
+      paymasterData,
+      preVerificationGas,
+      verificationGasLimit,
+      ...request
+    } = await prepareUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+        {
+          to: wagmiContractConfig.address,
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+        },
+      ],
+      ...fees,
+    })
+
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
+    expect(paymasterData?.length).toBe(260)
+    expect(preVerificationGas).toBeGreaterThanOrEqual(50000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(50000n)
+    expect(request).toMatchInlineSnapshot(`
+      {
+        "authorization": {
+          "address": "0x081f08945fd17c5470f7bcee23fb57ab1099428e",
+          "chainId": 1,
+          "nonce": 959,
+          "r": "0xfffffffffffffffffffffffffffffff000000000000000000000000000000000",
+          "s": "0x7aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "yParity": 1,
+        },
+        "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
+        "factory": "0x7702",
+        "factoryData": "0x",
+        "maxFeePerGas": 15000000000n,
+        "maxPriorityFeePerGas": 2000000000n,
+        "paymaster": "0x831c6c334f8ddee62246a5c81b82c8e18008b38f",
+        "paymasterPostOpGasLimit": 1000000n,
+        "paymasterVerificationGasLimit": 1000000n,
+        "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
+      }
+    `)
+  })
+
+  test('behavior: client.paymaster.getPaymasterData', async () => {
+    const paymaster = await getVerifyingPaymaster_08()
+    const server = await createVerifyingPaymasterServer(client, { paymaster })
+
+    const paymasterClient = createPaymasterClient({
+      transport: http(server.url),
+    })
+
+    const bundlerClient = bundlerMainnet.getBundlerClient({
+      client,
+      paymaster: {
+        async getPaymasterData(parameters) {
+          return getPaymasterData(paymasterClient, parameters)
+        },
+      },
+    })
+
+    const {
+      account: _,
+      callGasLimit,
+      nonce,
+      paymasterData,
+      preVerificationGas,
+      verificationGasLimit,
+      ...request
+    } = await prepareUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+        {
+          to: wagmiContractConfig.address,
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+        },
+      ],
+      ...fees,
+    })
+
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
+    expect(paymasterData?.length).toBe(260)
+    expect(preVerificationGas).toBeGreaterThanOrEqual(50000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(50000n)
+    expect(request).toMatchInlineSnapshot(`
+      {
+        "authorization": {
+          "address": "0x081f08945fd17c5470f7bcee23fb57ab1099428e",
+          "chainId": 1,
+          "nonce": 960,
+          "r": "0xfffffffffffffffffffffffffffffff000000000000000000000000000000000",
+          "s": "0x7aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "yParity": 1,
+        },
+        "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
+        "factory": "0x7702",
+        "factoryData": "0x",
+        "maxFeePerGas": 15000000000n,
+        "maxPriorityFeePerGas": 2000000000n,
+        "paymaster": "0xf47e3b0a1952a81f1afc41172762cb7ce8700133",
+        "paymasterPostOpGasLimit": 1000000n,
+        "paymasterVerificationGasLimit": 1000000n,
+        "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
+      }
+    `)
+  })
+
+  test('behavior: client.paymaster.getPaymasterStubData + client.paymaster.getPaymasterData', async () => {
+    const paymaster = await getVerifyingPaymaster_08()
+    const server = await createVerifyingPaymasterServer(client, { paymaster })
+
+    const paymasterClient = createPaymasterClient({
+      transport: http(server.url),
+    })
+
+    const bundlerClient = bundlerMainnet.getBundlerClient({
+      client,
+      paymaster: {
+        async getPaymasterStubData(parameters) {
+          return getPaymasterStubData(paymasterClient, parameters)
+        },
+        async getPaymasterData(parameters) {
+          return getPaymasterData(paymasterClient, parameters)
+        },
+      },
+    })
+
+    const {
+      account: _,
+      callGasLimit,
+      nonce,
+      paymasterData,
+      preVerificationGas,
+      verificationGasLimit,
+      ...request
+    } = await prepareUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+        {
+          to: wagmiContractConfig.address,
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+        },
+      ],
+      ...fees,
+    })
+
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
+    expect(paymasterData?.length).toBe(260)
+    expect(preVerificationGas).toBeGreaterThanOrEqual(50000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(50000n)
+    expect(request).toMatchInlineSnapshot(`
+      {
+        "authorization": {
+          "address": "0x081f08945fd17c5470f7bcee23fb57ab1099428e",
+          "chainId": 1,
+          "nonce": 961,
+          "r": "0xfffffffffffffffffffffffffffffff000000000000000000000000000000000",
+          "s": "0x7aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "yParity": 1,
+        },
+        "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
+        "factory": "0x7702",
+        "factoryData": "0x",
+        "maxFeePerGas": 15000000000n,
+        "maxPriorityFeePerGas": 2000000000n,
+        "paymaster": "0xc63db9682ff11707cadbd72bf1a0354a7fef143b",
+        "paymasterPostOpGasLimit": 1000000n,
+        "paymasterVerificationGasLimit": 1000000n,
+        "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
+      }
+    `)
+  })
+
+  test('behavior: bundlerClient.paymasterContext', async () => {
+    const paymaster = await getVerifyingPaymaster_08()
+    const server = await createVerifyingPaymasterServer(client, { paymaster })
+
+    const paymasterClient = createPaymasterClient({
+      transport: http(server.url),
+    })
+
+    const bundlerClient = bundlerMainnet.getBundlerClient({
+      client,
+      paymaster: paymasterClient,
+      paymasterContext: { validUntil: 3735928600 },
+    })
+
+    const {
+      account: _,
+      callGasLimit,
+      nonce,
+      paymasterData,
+      preVerificationGas,
+      verificationGasLimit,
+      ...request
+    } = await prepareUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+        {
+          to: wagmiContractConfig.address,
+          abi: wagmiContractConfig.abi,
+          functionName: 'mint',
+        },
+      ],
+      ...fees,
+    })
+
+    expect(nonce).toBeDefined()
+    expect(callGasLimit).toBeGreaterThanOrEqual(70000n)
+    expect(paymasterData?.length).toBe(260)
+    expect(preVerificationGas).toBeGreaterThanOrEqual(50000n)
+    expect(verificationGasLimit).toBeGreaterThanOrEqual(50000n)
+    expect(request).toMatchInlineSnapshot(`
+      {
+        "authorization": {
+          "address": "0x081f08945fd17c5470f7bcee23fb57ab1099428e",
+          "chainId": 1,
+          "nonce": 962,
+          "r": "0xfffffffffffffffffffffffffffffff000000000000000000000000000000000",
+          "s": "0x7aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "yParity": 1,
+        },
+        "callData": "0x34fcd5be00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a764000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000fba3912ca04dd458c843e2ee08967fc04f3579c20000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000041249c58b00000000000000000000000000000000000000000000000000000000",
+        "factory": "0x7702",
+        "factoryData": "0x",
+        "maxFeePerGas": 15000000000n,
+        "maxPriorityFeePerGas": 2000000000n,
+        "paymaster": "0xfc3983de3f7cbe1ba01084469779470ad0bbeffa",
+        "paymasterPostOpGasLimit": 1000000n,
+        "paymasterVerificationGasLimit": 1000000n,
+        "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "signature": "0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c",
+      }
+    `)
+  })
 
   test('error: no account', async () => {
     await expect(() =>

@@ -6,6 +6,7 @@ import {
   getSmartAccounts_07,
   getSmartAccounts_08,
   getVerifyingPaymaster_07,
+  getVerifyingPaymaster_08,
 } from '../../../../test/src/account-abstraction.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
@@ -116,9 +117,69 @@ describe('entryPointVersion: 0.8', async () => {
     )
   })
 
-  test.todo('args: paymaster (client)')
+  test('args: paymaster (client)', async () => {
+    const paymaster = await getVerifyingPaymaster_08()
+    const server = await createVerifyingPaymasterServer(client, { paymaster })
 
-  test.todo('behavior: client.paymaster (client)')
+    const paymasterClient = createPaymasterClient({
+      transport: http(server.url),
+    })
+
+    const authorization = await signAuthorization(client, account.authorization)
+    const hash = await sendUserOperation(bundlerClient, {
+      account,
+      authorization,
+      calls: [
+        {
+          to: alice,
+          value: parseEther('1'),
+        },
+        {
+          to: bob,
+          value: parseEther('2'),
+        },
+      ],
+      paymaster: paymasterClient,
+      ...fees,
+    })
+    expect(hash).toBeDefined()
+
+    await bundlerClient.request({ method: 'debug_bundler_sendBundleNow' })
+    await mine(client, { blocks: 1 })
+  })
+
+  test('behavior: client.paymaster (client)', async () => {
+    const paymaster = await getVerifyingPaymaster_08()
+    const server = await createVerifyingPaymasterServer(client, { paymaster })
+
+    const paymasterClient = createPaymasterClient({
+      transport: http(server.url),
+    })
+
+    const bundlerClient = bundlerMainnet.getBundlerClient({
+      client,
+      paymaster: paymasterClient,
+    })
+
+    const hash = await sendUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: alice,
+          value: parseEther('1'),
+        },
+        {
+          to: bob,
+          value: parseEther('2'),
+        },
+      ],
+      ...fees,
+    })
+    expect(hash).toBeDefined()
+
+    await bundlerClient.request({ method: 'debug_bundler_sendBundleNow' })
+    await mine(client, { blocks: 1 })
+  })
 
   test('behavior: prepared user operation', async () => {
     const request = {
@@ -142,10 +203,12 @@ describe('entryPointVersion: 0.8', async () => {
 
     expectTypeOf(request).toMatchTypeOf<UserOperation>()
 
+    const authorization = await signAuthorization(client, account.authorization)
     const hash = await sendUserOperation(bundlerClient, {
       ...request,
       entryPointAddress: account.entryPoint.address,
       signature,
+      authorization,
     })
     expect(hash).toBeDefined()
 
@@ -217,7 +280,7 @@ describe('entryPointVersion: 0.8', async () => {
         callGasLimit:                   80000
         maxFeePerGas:                   15 gwei
         maxPriorityFeePerGas:           2 gwei
-        nonce:                          30902162761076688711039842254848
+        nonce:                          30902162761113582199187261358080
         paymasterPostOpGasLimit:        0
         paymasterVerificationGasLimit:  0
         preVerificationGas:             91968
