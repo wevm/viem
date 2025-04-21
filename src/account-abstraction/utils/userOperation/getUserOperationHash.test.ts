@@ -447,4 +447,66 @@ describe('entryPoint: 0.6', () => {
       `"0x72bb2d82af9e9da2079fab165bc219c967c6ca0a63dfa55f382c5914ba2f77c5"`,
     )
   })
+
+  test('args: authorization', () => {
+    expect(
+      getUserOperationHash({
+        chainId: 1,
+        entryPointAddress: '0x1234567890123456789012345678901234567890',
+        entryPointVersion: '0.6',
+        userOperation: {
+          callData: '0x',
+          callGasLimit: 6942069n,
+          maxFeePerGas: 69420n,
+          maxPriorityFeePerGas: 69n,
+          nonce: 0n,
+          preVerificationGas: 6942069n,
+          sender: '0x1234567890123456789012345678901234567890',
+          signature: '0x',
+          verificationGasLimit: 6942069n,
+          initCode: '0x7702',
+          authorization: {
+            address: '0x1234567890123456789012345678901234567890',
+            chainId: 1,
+            nonce: 0,
+            yParity: 0,
+            r: '0x0000000000000000000000000000000000000000000000000000000000000000',
+            s: '0x0000000000000000000000000000000000000000000000000000000000000000',
+          },
+        },
+      }),
+    ).toMatchInlineSnapshot(
+      `"0xa9b77f87a292b7246c08f1846691b5d1c474e086f6d7daa0e47476fbaa516a22"`,
+    )
+
+    expect(
+      getUserOperationHash({
+        chainId: 1,
+        entryPointAddress: '0x1234567890123456789012345678901234567890',
+        entryPointVersion: '0.6',
+        userOperation: {
+          callData: '0x',
+          callGasLimit: 6942069n,
+          maxFeePerGas: 69420n,
+          maxPriorityFeePerGas: 69n,
+          nonce: 0n,
+          preVerificationGas: 6942069n,
+          sender: '0x1234567890123456789012345678901234567890',
+          signature: '0x',
+          verificationGasLimit: 6942069n,
+          initCode: '0x7702000000000000000000000000000000000000deadbeef',
+          authorization: {
+            address: '0x1234567890123456789012345678901234567890',
+            chainId: 1,
+            nonce: 0,
+            yParity: 0,
+            r: '0x0000000000000000000000000000000000000000000000000000000000000000',
+            s: '0x0000000000000000000000000000000000000000000000000000000000000000',
+          },
+        },
+      }),
+    ).toMatchInlineSnapshot(
+      `"0xaa4a4fa863b3018e0e23291ca82a8747d06c6a92548eb9198f54f4a63540d06e"`,
+    )
+  })
 })

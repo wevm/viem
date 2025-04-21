@@ -1,7 +1,8 @@
 import type { Address } from 'abitype'
 
-import type { Hash } from '../../../types/misc.js'
+import type { Hash, Hex } from '../../../types/misc.js'
 import { encodeAbiParameters } from '../../../utils/abi/encodeAbiParameters.js'
+import { concat } from '../../../utils/data/concat.js'
 import { keccak256 } from '../../../utils/hash/keccak256.js'
 import { hashTypedData } from '../../../utils/signature/hashTypedData.js'
 import type { EntryPointVersion } from '../../types/entryPointVersion.js'
@@ -28,6 +29,7 @@ export function getUserOperationHash<
   const { chainId, entryPointAddress, entryPointVersion } = parameters
   const userOperation = parameters.userOperation as UserOperation
   const {
+    authorization,
     callData,
     callGasLimit,
     initCode,
@@ -50,7 +52,21 @@ export function getUserOperationHash<
     )
 
   const packedUserOp = (() => {
-    if (entryPointVersion === '0.6')
+    if (entryPointVersion === '0.6') {
+      const initCode_ = (() => {
+        const factory = initCode?.slice(0, 42) as Hex
+        const factoryData = initCode?.slice(42) as Hex | undefined
+        if (
+          authorization &&
+          (factory === '0x7702' ||
+            factory === '0x7702000000000000000000000000000000000000')
+        ) {
+          const delegation = authorization.address
+          if (factoryData) return concat([delegation, factoryData])
+          return delegation
+        }
+        return initCode
+      })()
       return encodeAbiParameters(
         [
           { type: 'address' },
@@ -67,7 +83,7 @@ export function getUserOperationHash<
         [
           sender,
           nonce,
-          keccak256(initCode ?? '0x'),
+          keccak256(initCode_ ?? '0x'),
           keccak256(callData ?? '0x'),
           callGasLimit,
           verificationGasLimit,
@@ -77,6 +93,7 @@ export function getUserOperationHash<
           keccak256(paymasterAndData ?? '0x'),
         ],
       )
+    }
 
     if (entryPointVersion === '0.7') {
       const packedUserOp = toPackedUserOperation(userOperation)
