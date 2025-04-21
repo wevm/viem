@@ -1,3 +1,5 @@
+// TODO(v3): Remove this.
+
 import { describe, expect, test } from 'vitest'
 
 import { wagmiContractConfig } from '~test/src/abis.js'

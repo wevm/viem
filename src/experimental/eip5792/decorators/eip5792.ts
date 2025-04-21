@@ -1,32 +1,34 @@
-import type { Client } from '../../../clients/createClient.js'
-import type { Transport } from '../../../clients/transports/createTransport.js'
-import type { Account } from '../../../types/account.js'
-import type { Chain } from '../../../types/chain.js'
+// TODO(v3): Remove this.
+
 import {
   type GetCallsStatusParameters,
   type GetCallsStatusReturnType,
   getCallsStatus,
-} from '../actions/getCallsStatus.js'
+} from '../../../actions/wallet/getCallsStatus.js'
 import {
   type GetCapabilitiesParameters,
   type GetCapabilitiesReturnType,
   getCapabilities,
-} from '../actions/getCapabilities.js'
+} from '../../../actions/wallet/getCapabilities.js'
 import {
   type SendCallsParameters,
   type SendCallsReturnType,
   sendCalls,
-} from '../actions/sendCalls.js'
+} from '../../../actions/wallet/sendCalls.js'
 import {
   type ShowCallsStatusParameters,
   type ShowCallsStatusReturnType,
   showCallsStatus,
-} from '../actions/showCallsStatus.js'
+} from '../../../actions/wallet/showCallsStatus.js'
 import {
   type WaitForCallsStatusParameters,
   type WaitForCallsStatusReturnType,
   waitForCallsStatus,
-} from '../actions/waitForCallsStatus.js'
+} from '../../../actions/wallet/waitForCallsStatus.js'
+import type { Client } from '../../../clients/createClient.js'
+import type { Transport } from '../../../clients/transports/createTransport.js'
+import type { Account } from '../../../types/account.js'
+import type { Chain } from '../../../types/chain.js'
 import {
   type WriteContractsParameters,
   type WriteContractsReturnType,

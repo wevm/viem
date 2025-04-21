@@ -67,6 +67,10 @@
     {
       "source": "/docs/eip7702/:path*",
       "destination": "/docs/eip7702/:path*"
+    },
+    {
+      "source": "/:match/experimental/eip5792/:path*",
+      "destination": "/:match/docs/actions/wallet/:path*"
     }
   ]
 }

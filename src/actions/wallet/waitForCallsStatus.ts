@@ -1,12 +1,12 @@
-import type { Client } from '../../../clients/createClient.js'
-import type { Transport } from '../../../clients/transports/createTransport.js'
-import { BaseError } from '../../../errors/base.js'
-import type { ErrorType } from '../../../errors/utils.js'
-import type { Chain } from '../../../types/chain.js'
-import { type ObserveErrorType, observe } from '../../../utils/observe.js'
-import { type PollErrorType, poll } from '../../../utils/poll.js'
-import { withResolvers } from '../../../utils/promise/withResolvers.js'
-import { stringify } from '../../../utils/stringify.js'
+import type { Client } from '../../clients/createClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import { BaseError } from '../../errors/base.js'
+import type { ErrorType } from '../../errors/utils.js'
+import type { Chain } from '../../types/chain.js'
+import { type ObserveErrorType, observe } from '../../utils/observe.js'
+import { type PollErrorType, poll } from '../../utils/poll.js'
+import { withResolvers } from '../../utils/promise/withResolvers.js'
+import { stringify } from '../../utils/stringify.js'
 import {
   type GetCallsStatusErrorType,
   type GetCallsStatusReturnType,
@@ -50,7 +50,7 @@ export type WaitForCallsStatusErrorType =
 /**
  * Waits for the status & receipts of a call bundle that was sent via `sendCalls`.
  *
- * - Docs: https://viem.sh/experimental/eip5792/waitForCallsStatus
+ * - Docs: https://viem.sh/docs/actions/wallet/waitForCallsStatus
  * - JSON-RPC Methods: [`wallet_getCallsStatus`](https://eips.ethereum.org/EIPS/eip-5792)
  *
  * @param client - Client to use
@@ -60,7 +60,7 @@ export type WaitForCallsStatusErrorType =
  * @example
  * import { createWalletClient, custom } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { waitForCallsStatus } from 'viem/experimental'
+ * import { waitForCallsStatus } from 'viem/actions'
  *
  * const client = createWalletClient({
  *   chain: mainnet,

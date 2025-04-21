@@ -1,16 +1,16 @@
 import type { Address } from 'abitype'
 
-import { parseAccount } from '../../../accounts/utils/parseAccount.js'
-import type { Client } from '../../../clients/createClient.js'
-import type { Transport } from '../../../clients/transports/createTransport.js'
-import type { ErrorType } from '../../../errors/utils.js'
-import type { Account } from '../../../types/account.js'
+import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import type { Client } from '../../clients/createClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import type { ErrorType } from '../../errors/utils.js'
+import type { Account } from '../../types/account.js'
 import type {
   WalletCapabilities,
   WalletCapabilitiesRecord,
-} from '../../../types/eip1193.js'
-import type { Prettify } from '../../../types/utils.js'
-import type { RequestErrorType } from '../../../utils/buildRequest.js'
+} from '../../types/eip1193.js'
+import type { Prettify } from '../../types/utils.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 
 export type GetCapabilitiesParameters<
   chainId extends number | undefined = undefined,
@@ -32,7 +32,7 @@ export type GetCapabilitiesErrorType = RequestErrorType | ErrorType
 /**
  * Extract capabilities that a connected wallet supports (e.g. paymasters, session keys, etc).
  *
- * - Docs: https://viem.sh/experimental/eip5792/getCapabilities
+ * - Docs: https://viem.sh/docs/actions/wallet/getCapabilities
  * - JSON-RPC Methods: [`wallet_getCapabilities`](https://eips.ethereum.org/EIPS/eip-5792)
  *
  * @param client - Client to use
@@ -41,7 +41,7 @@ export type GetCapabilitiesErrorType = RequestErrorType | ErrorType
  * @example
  * import { createWalletClient, custom } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { getCapabilities } from 'viem/experimental'
+ * import { getCapabilities } from 'viem/actions'
  *
  * const client = createWalletClient({
  *   chain: mainnet,
