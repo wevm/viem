@@ -102,7 +102,7 @@ describe('smoke test', () => {
         ],
         "status": "success",
         "statusCode": 200,
-        "version": "1.0",
+        "version": "2.0.0",
       }
     `)
   })

@@ -62,7 +62,7 @@ export async function getCallsStatus<
     atomic = false,
     chainId,
     receipts,
-    version = '1.0',
+    version = '2.0.0',
     ...response
   } = await client.request({
     method: 'wallet_getCallsStatus',
