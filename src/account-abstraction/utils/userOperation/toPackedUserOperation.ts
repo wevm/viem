@@ -32,7 +32,11 @@ export function toPackedUserOperation(
   ])
 
   const initCode = (() => {
-    if (authorization && factory?.startsWith('0x7702')) {
+    if (
+      factory === '0x7702' ||
+      factory === '0x7702000000000000000000000000000000000000'
+    ) {
+      if (!authorization) return '0x'
       const delegation = authorization.address
       if (factoryData) return concat([delegation, factoryData])
       return delegation
