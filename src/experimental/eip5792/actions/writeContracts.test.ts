@@ -159,7 +159,7 @@ test('default', async () => {
           "chainId": "0x1",
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "id": undefined,
-          "version": "1.0",
+          "version": "2.0.0",
         },
       ],
     ]

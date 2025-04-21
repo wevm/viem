@@ -42,7 +42,7 @@ const getClient = ({
               id: params[0],
               receipts: [],
               status: 100,
-              version: '1.0',
+              version: '2.0.0',
             } satisfies WalletGetCallsStatusReturnType
 
           const receipts = await Promise.all(
@@ -76,7 +76,7 @@ const getClient = ({
             id: params[0],
             receipts,
             status: 200,
-            version: '1.0',
+            version: '2.0.0',
           } satisfies WalletGetCallsStatusReturnType
         }
 
@@ -156,7 +156,7 @@ test('default', async () => {
       "chainId": 1,
       "status": "success",
       "statusCode": 200,
-      "version": "1.0",
+      "version": "2.0.0",
     }
   `)
   expect(receipts!.length).toBe(3)

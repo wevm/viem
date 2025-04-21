@@ -47,7 +47,7 @@ const getClient = <chain extends Chain | undefined = undefined>({
               id: params[0],
               status: 100,
               receipts: [],
-              version: '1.0',
+              version: '2.0.0',
             } satisfies WalletGetCallsStatusReturnType
 
           const receipts = await Promise.all(
@@ -82,7 +82,7 @@ const getClient = <chain extends Chain | undefined = undefined>({
             id: params[0],
             status: 200,
             receipts,
-            version: '1.0',
+            version: '2.0.0',
           } satisfies WalletGetCallsStatusReturnType
         }
 
@@ -207,7 +207,7 @@ test('default', async () => {
           "chainId": "0x1",
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "id": undefined,
-          "version": "1.0",
+          "version": "2.0.0",
         },
       ],
     ]
@@ -294,7 +294,7 @@ test('behavior: chain on client', async () => {
           "chainId": "0x1",
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "id": undefined,
-          "version": "1.0",
+          "version": "2.0.0",
         },
       ],
     ]
@@ -381,7 +381,7 @@ test('behavior: inferred account', async () => {
           "chainId": "0x1",
           "from": undefined,
           "id": undefined,
-          "version": "1.0",
+          "version": "2.0.0",
         },
       ],
     ]
