@@ -152,7 +152,7 @@ describe('entryPoint: 0.8', () => {
     )
   })
 
-  test('args: eip7702', () => {
+  test('args: authorization', () => {
     expect(
       getUserOperationHash({
         chainId: 1,
@@ -186,6 +186,40 @@ describe('entryPoint: 0.8', () => {
       }),
     ).toMatchInlineSnapshot(
       `"0xd96232eb5d02f483166b9b23dca3ec2b963d70f09b961fce348c51d306278462"`,
+    )
+
+    expect(
+      getUserOperationHash({
+        chainId: 1,
+        entryPointAddress: '0x4337084D9E255Ff0702461CF8895CE9E3b5Ff108',
+        entryPointVersion: '0.8',
+        userOperation: {
+          callData: '0x',
+          callGasLimit: 6942069n,
+          maxFeePerGas: 69420n,
+          maxPriorityFeePerGas: 69n,
+          nonce: 0n,
+          preVerificationGas: 6942069n,
+          sender: '0x1234567890123456789012345678901234567890',
+          signature: '0x',
+          verificationGasLimit: 6942069n,
+          paymaster: '0x1234567890123456789012345678901234567890',
+          paymasterVerificationGasLimit: 6942069n,
+          paymasterPostOpGasLimit: 6942069n,
+          paymasterData: '0xdeadbeef',
+          factory: '0x7702',
+          authorization: {
+            address: '0x1234567890123456789012345678901234567890',
+            chainId: 1,
+            nonce: 0,
+            yParity: 0,
+            r: '0x0000000000000000000000000000000000000000000000000000000000000000',
+            s: '0x0000000000000000000000000000000000000000000000000000000000000000',
+          },
+        },
+      }),
+    ).toMatchInlineSnapshot(
+      `"0x66fe6eaaaf1d6727d404384354a720cb24694c697bfbab77b3d02345c2d6e1da"`,
     )
   })
 })

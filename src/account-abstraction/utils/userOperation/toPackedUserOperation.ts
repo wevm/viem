@@ -10,6 +10,7 @@ export function toPackedUserOperation(
   userOperation: UserOperation,
 ): PackedUserOperation {
   const {
+    authorization,
     callGasLimit,
     callData,
     factory,
@@ -29,13 +30,24 @@ export function toPackedUserOperation(
     pad(numberToHex(verificationGasLimit || 0n), { size: 16 }),
     pad(numberToHex(callGasLimit || 0n), { size: 16 }),
   ])
-  const initCode =
-    factory && factoryData ? concat([factory, factoryData]) : '0x'
+
+  const initCode = (() => {
+    if (authorization && factory?.startsWith('0x7702')) {
+      const delegation = authorization.address
+      if (factoryData) return concat([delegation, factoryData])
+      return delegation
+    }
+    if (factory && factoryData) return concat([factory, factoryData])
+    return '0x'
+  })()
+
   const gasFees = concat([
     pad(numberToHex(maxPriorityFeePerGas || 0n), { size: 16 }),
     pad(numberToHex(maxFeePerGas || 0n), { size: 16 }),
   ])
+
   const nonce = userOperation.nonce ?? 0n
+
   const paymasterAndData = paymaster
     ? concat([
         paymaster,
@@ -48,6 +60,7 @@ export function toPackedUserOperation(
         paymasterData || '0x',
       ])
     : '0x'
+
   const preVerificationGas = userOperation.preVerificationGas ?? 0n
 
   return {

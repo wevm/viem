@@ -7,8 +7,8 @@ import type { TypedDataDefinition } from '../../../types/typedData.js'
 import type { Prettify } from '../../../types/utils.js'
 import { decodeFunctionData } from '../../../utils/abi/decodeFunctionData.js'
 import { encodeFunctionData } from '../../../utils/abi/encodeFunctionData.js'
-import { concat, encodePacked, numberToHex, pad } from '../../../utils/index.js'
 import { entryPoint08Abi } from '../../constants/abis.js'
+import { getUserOperationTypedData } from '../../utils/userOperation/getUserOperationTypedData.js'
 import { toSmartAccount } from '../toSmartAccount.js'
 import type { SmartAccount, SmartAccountImplementation } from '../types.js'
 
@@ -140,80 +140,15 @@ export async function toSimple7702SmartAccount(
       const { chainId = client.chain!.id, ...userOperation } = parameters
 
       const address = await this.getAddress()
-
-      const isEip7702 =
-        userOperation.factory &&
-        userOperation.factory === '0x7702' &&
-        userOperation.authorization
-
-      const delegation = isEip7702
-        ? userOperation.authorization?.address
-        : undefined
-
-      const initCode = delegation
-        ? userOperation.factoryData
-          ? encodePacked(
-              ['address', 'bytes'],
-              [delegation, userOperation.factoryData],
-            )
-          : encodePacked(['address'], [delegation])
-        : userOperation.factory && userOperation.factoryData
-          ? concat([userOperation.factory, userOperation.factoryData])
-          : '0x'
-
-      const accountGasLimits = concat([
-        pad(numberToHex(userOperation.verificationGasLimit), { size: 16 }),
-        pad(numberToHex(userOperation.callGasLimit), { size: 16 }),
-      ])
-      const gasFees = concat([
-        pad(numberToHex(userOperation.maxPriorityFeePerGas), { size: 16 }),
-        pad(numberToHex(userOperation.maxFeePerGas), { size: 16 }),
-      ])
-      const paymasterAndData = userOperation.paymaster
-        ? concat([
-            userOperation.paymaster,
-            pad(numberToHex(userOperation.paymasterVerificationGasLimit || 0), {
-              size: 16,
-            }),
-            pad(numberToHex(userOperation.paymasterPostOpGasLimit || 0), {
-              size: 16,
-            }),
-            userOperation.paymasterData || '0x',
-          ])
-        : '0x'
-
-      const signature = await owner.signTypedData({
-        types: {
-          PackedUserOperation: [
-            { type: 'address', name: 'sender' },
-            { type: 'uint256', name: 'nonce' },
-            { type: 'bytes', name: 'initCode' },
-            { type: 'bytes', name: 'callData' },
-            { type: 'bytes32', name: 'accountGasLimits' },
-            { type: 'uint256', name: 'preVerificationGas' },
-            { type: 'bytes32', name: 'gasFees' },
-            { type: 'bytes', name: 'paymasterAndData' },
-          ],
-        },
-        primaryType: 'PackedUserOperation',
-        domain: {
-          name: 'ERC4337',
-          version: '1',
-          chainId,
-          verifyingContract: entryPoint.address,
-        },
-        message: {
+      const typedData = getUserOperationTypedData({
+        chainId,
+        entryPointAddress: entryPoint.address,
+        userOperation: {
+          ...userOperation,
           sender: address,
-          nonce: userOperation.nonce,
-          initCode,
-          callData: userOperation.callData,
-          accountGasLimits,
-          preVerificationGas: userOperation.preVerificationGas,
-          gasFees,
-          paymasterAndData,
         },
       })
-      return signature
+      return await owner.signTypedData(typedData)
     },
   })
 }
