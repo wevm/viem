@@ -6236,14 +6236,6 @@ packages:
       typescript:
         optional: true
 
-  viem@2.27.2:
-    resolution: {integrity: sha512-VwsB+RswcflbwBNPMvzTHuafDA51iT8v4SuIFcudTP2skmxcdodbgoOLP4dYELVnCzcedxoSJDOeext4V3zdnA==}
-    peerDependencies:
-      typescript: '>=5.0.4'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
   viem@file:src:
     resolution: {directory: src, type: directory}
     peerDependencies:
