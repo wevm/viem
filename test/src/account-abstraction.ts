@@ -1,5 +1,8 @@
 import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
-import { VerifyingPaymaster } from '../../contracts/generated.js'
+import {
+  VerifyingPaymaster_07,
+  VerifyingPaymaster_08,
+} from '../../contracts/generated.js'
 import {
   entryPoint06Abi,
   entryPoint07Address,
@@ -15,7 +18,10 @@ import {
   signMessage,
   writeContract,
 } from '../../src/actions/index.js'
-import { entryPoint06Address } from '../../src/constants/address.js'
+import {
+  entryPoint06Address,
+  entryPoint08Address,
+} from '../../src/constants/address.js'
 import {
   type Account,
   type Address,
@@ -148,16 +154,35 @@ export async function getSmartAccounts_06() {
   return accounts_
 }
 
+export async function getVerifyingPaymaster_08() {
+  const { contractAddress } = await deploy(client, {
+    abi: VerifyingPaymaster_08.abi,
+    bytecode: VerifyingPaymaster_08.bytecode.object,
+    args: [entryPoint08Address, client.account.address],
+  })
+
+  await writeContract(client, {
+    account: accounts[9].address,
+    abi: VerifyingPaymaster_08.abi,
+    address: contractAddress!,
+    functionName: 'deposit',
+    value: parseEther('100'),
+  })
+  await mine(client, { blocks: 1 })
+
+  return contractAddress!
+}
+
 export async function getVerifyingPaymaster_07() {
   const { contractAddress } = await deploy(client, {
-    abi: VerifyingPaymaster.abi,
-    bytecode: VerifyingPaymaster.bytecode.object,
+    abi: VerifyingPaymaster_07.abi,
+    bytecode: VerifyingPaymaster_07.bytecode.object,
     args: [entryPoint07Address, client.account.address],
   })
 
   await writeContract(client, {
     account: accounts[9].address,
-    abi: VerifyingPaymaster.abi,
+    abi: VerifyingPaymaster_07.abi,
     address: contractAddress!,
     functionName: 'deposit',
     value: parseEther('100'),
@@ -169,14 +194,14 @@ export async function getVerifyingPaymaster_07() {
 
 export async function getVerifyingPaymaster_06() {
   const { contractAddress } = await deploy(client, {
-    abi: VerifyingPaymaster.abi,
-    bytecode: VerifyingPaymaster.bytecode.object,
+    abi: VerifyingPaymaster_07.abi,
+    bytecode: VerifyingPaymaster_07.bytecode.object,
     args: [entryPoint06Address, client.account.address],
   })
 
   await writeContract(client, {
     account: accounts[9].address,
-    abi: VerifyingPaymaster.abi,
+    abi: VerifyingPaymaster_07.abi,
     address: contractAddress!,
     functionName: 'deposit',
     value: parseEther('100'),
@@ -198,7 +223,7 @@ export async function createVerifyingPaymasterServer(
     const validAfter = context?.validAfter ?? 4660
 
     const hash = await readContract(client, {
-      abi: VerifyingPaymaster.abi,
+      abi: VerifyingPaymaster_07.abi,
       address: paymaster,
       functionName: 'getHash',
       args: [

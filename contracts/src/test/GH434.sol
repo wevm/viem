@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.28;
 
 contract GH434 {
     function foo() public pure returns (uint256 a, bool b) {

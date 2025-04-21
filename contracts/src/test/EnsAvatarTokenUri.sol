@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.28;
 
 contract EnsAvatarTokenUri {
     function ownerOf(uint256 tokenId) public view returns (address) {

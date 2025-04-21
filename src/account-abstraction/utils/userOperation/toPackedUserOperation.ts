@@ -36,7 +36,7 @@ export function toPackedUserOperation(
       factory === '0x7702' ||
       factory === '0x7702000000000000000000000000000000000000'
     ) {
-      if (!authorization) return '0x'
+      if (!authorization) return '0x7702000000000000000000000000000000000000'
       const delegation = authorization.address
       if (factoryData) return concat([delegation, factoryData])
       return delegation

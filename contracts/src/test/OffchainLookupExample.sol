@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.28;
 
 contract OffchainLookupExample {
     error OffchainLookup(
@@ -30,7 +30,10 @@ contract OffchainLookupExample {
         bytes calldata result,
         bytes calldata extraData
     ) external view returns (address) {
-        (address owner, bytes32 hash, bytes memory sig) = abi.decode(result, (address, bytes32, bytes));
+        (address owner, bytes32 hash, bytes memory sig) = abi.decode(
+            result,
+            (address, bytes32, bytes)
+        );
         address signer = recoverSigner(hash, sig);
         require(signer == owner, "invalid signature");
         return signer;
