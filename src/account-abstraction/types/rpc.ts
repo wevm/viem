@@ -1,4 +1,5 @@
 import type { Hex } from '../../types/misc.js'
+import type { RpcAuthorization } from '../../types/rpc.js'
 import type { EntryPointVersion } from './entryPointVersion.js'
 import type {
   EstimateUserOperationGasReturnType,
@@ -14,11 +15,13 @@ export type RpcEstimateUserOperationGasReturnType<
 
 export type RpcGetUserOperationByHashReturnType<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
-> = GetUserOperationByHashReturnType<entryPointVersion, Hex>
+> = GetUserOperationByHashReturnType<entryPointVersion, Hex, Hex>
 
 export type RpcUserOperation<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
-> = UserOperation<entryPointVersion, Hex>
+> = UserOperation<entryPointVersion, Hex, Hex> & {
+  eip7702Auth?: RpcAuthorization
+}
 
 export type RpcUserOperationReceipt<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
@@ -26,4 +29,4 @@ export type RpcUserOperationReceipt<
 
 export type RpcUserOperationRequest<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
-> = UserOperationRequest<entryPointVersion, Hex>
+> = UserOperationRequest<entryPointVersion, Hex, Hex>

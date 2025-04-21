@@ -15,4 +15,7 @@
 	url = git@github.com:OpenZeppelin/openzeppelin-contracts.git
 [submodule "contracts/lib/solady-6c2d0da"]
 	path = contracts/lib/solady-6c2d0da
-	url = https://github.com/Vectorized/solady
+	url = git@github.com:Vectorized/solady.git
+[submodule "contracts/lib/account-abstraction-v07"]
+	path = contracts/lib/account-abstraction-v07
+	url = git@github.com:eth-infinitism/account-abstraction.git

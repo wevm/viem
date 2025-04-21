@@ -174,7 +174,13 @@ export async function estimateUserOperationGas<
         'prepareUserOperation',
       )({
         ...parameters,
-        parameters: ['factory', 'nonce', 'paymaster', 'signature'],
+        parameters: [
+          'authorization',
+          'factory',
+          'nonce',
+          'paymaster',
+          'signature',
+        ],
       } as unknown as PrepareUserOperationParameters)
     : parameters
 
@@ -183,6 +189,7 @@ export async function estimateUserOperationGas<
       formatUserOperationRequest(request as UserOperation),
       (entryPointAddress ?? account?.entryPoint?.address)!,
     ] as const
+
     const result = await client.request({
       method: 'eth_estimateUserOperationGas',
       params: rpcStateOverride ? [...params, rpcStateOverride] : [...params],

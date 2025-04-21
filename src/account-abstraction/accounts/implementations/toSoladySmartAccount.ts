@@ -3,7 +3,6 @@ import type { Abi, Address, TypedData } from 'abitype'
 import { parseAccount } from '../../../accounts/utils/parseAccount.js'
 import { readContract } from '../../../actions/public/readContract.js'
 import { signMessage as signMessage_ } from '../../../actions/wallet/signMessage.js'
-import type { Client } from '../../../clients/createClient.js'
 import { entryPoint07Address } from '../../../constants/address.js'
 import { BaseError } from '../../../errors/base.js'
 import { signMessage } from '../../../experimental/erc7739/actions/signMessage.js'
@@ -27,7 +26,7 @@ export type ToSoladySmartAccountParameters<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > = {
   address?: Address | undefined
-  client: Client
+  client: SoladySmartAccountImplementation['client']
   entryPoint?:
     | {
         abi: entryPointAbi

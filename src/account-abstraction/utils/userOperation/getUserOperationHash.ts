@@ -1,12 +1,14 @@
 import type { Address } from 'abitype'
-import type { Hash } from '../../../types/misc.js'
+
+import type { Hash, Hex } from '../../../types/misc.js'
 import { encodeAbiParameters } from '../../../utils/abi/encodeAbiParameters.js'
-import { concat } from '../../../utils/data/concat.js'
-import { pad } from '../../../utils/data/pad.js'
-import { numberToHex } from '../../../utils/encoding/toHex.js'
 import { keccak256 } from '../../../utils/hash/keccak256.js'
+import { hashTypedData } from '../../../utils/signature/hashTypedData.js'
 import type { EntryPointVersion } from '../../types/entryPointVersion.js'
 import type { UserOperation } from '../../types/userOperation.js'
+import { getInitCode } from './getInitCode.js'
+import { getUserOperationTypedData } from './getUserOperationTypedData.js'
+import { toPackedUserOperation } from './toPackedUserOperation.js'
 
 export type GetUserOperationHashParameters<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
@@ -27,20 +29,36 @@ export function getUserOperationHash<
   const { chainId, entryPointAddress, entryPointVersion } = parameters
   const userOperation = parameters.userOperation as UserOperation
   const {
-    callData,
+    authorization,
+    callData = '0x',
     callGasLimit,
-    initCode,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
-    paymasterAndData,
+    paymasterAndData = '0x',
     preVerificationGas,
     sender,
     verificationGasLimit,
   } = userOperation
 
+  if (entryPointVersion === '0.8')
+    return hashTypedData(
+      getUserOperationTypedData({
+        chainId,
+        entryPointAddress,
+        userOperation,
+      }),
+    )
+
   const packedUserOp = (() => {
     if (entryPointVersion === '0.6') {
+      const factory = userOperation.initCode?.slice(0, 42) as Hex
+      const factoryData = userOperation.initCode?.slice(42) as Hex | undefined
+      const initCode = getInitCode({
+        authorization,
+        factory,
+        factoryData,
+      })
       return encodeAbiParameters(
         [
           { type: 'address' },
@@ -57,51 +75,20 @@ export function getUserOperationHash<
         [
           sender,
           nonce,
-          keccak256(initCode ?? '0x'),
-          keccak256(callData ?? '0x'),
+          keccak256(initCode),
+          keccak256(callData),
           callGasLimit,
           verificationGasLimit,
           preVerificationGas,
           maxFeePerGas,
           maxPriorityFeePerGas,
-          keccak256(paymasterAndData ?? '0x'),
+          keccak256(paymasterAndData),
         ],
       )
     }
 
     if (entryPointVersion === '0.7') {
-      const accountGasLimits = concat([
-        pad(numberToHex(userOperation.verificationGasLimit), { size: 16 }),
-        pad(numberToHex(userOperation.callGasLimit), { size: 16 }),
-      ])
-      const callData_hashed = keccak256(callData)
-      const gasFees = concat([
-        pad(numberToHex(userOperation.maxPriorityFeePerGas), { size: 16 }),
-        pad(numberToHex(userOperation.maxFeePerGas), { size: 16 }),
-      ])
-      const initCode_hashed = keccak256(
-        userOperation.factory && userOperation.factoryData
-          ? concat([userOperation.factory, userOperation.factoryData])
-          : '0x',
-      )
-      const paymasterAndData_hashed = keccak256(
-        userOperation.paymaster
-          ? concat([
-              userOperation.paymaster,
-              pad(
-                numberToHex(userOperation.paymasterVerificationGasLimit || 0),
-                {
-                  size: 16,
-                },
-              ),
-              pad(numberToHex(userOperation.paymasterPostOpGasLimit || 0), {
-                size: 16,
-              }),
-              userOperation.paymasterData || '0x',
-            ])
-          : '0x',
-      )
-
+      const packedUserOp = toPackedUserOperation(userOperation)
       return encodeAbiParameters(
         [
           { type: 'address' },
@@ -114,14 +101,14 @@ export function getUserOperationHash<
           { type: 'bytes32' },
         ],
         [
-          sender,
-          nonce,
-          initCode_hashed,
-          callData_hashed,
-          accountGasLimits,
-          preVerificationGas,
-          gasFees,
-          paymasterAndData_hashed,
+          packedUserOp.sender,
+          packedUserOp.nonce,
+          keccak256(packedUserOp.initCode),
+          keccak256(packedUserOp.callData),
+          packedUserOp.accountGasLimits,
+          packedUserOp.preVerificationGas,
+          packedUserOp.gasFees,
+          keccak256(packedUserOp.paymasterAndData),
         ],
       )
     }
