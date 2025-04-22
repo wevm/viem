@@ -1,8 +1,11 @@
+// TODO(v3): Remove this.
+
 import { expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/src/abis.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { accounts } from '../../../../test/src/constants.js'
 import { mine, reset } from '../../../actions/index.js'
+import { getCallsStatus } from '../../../actions/wallet/getCallsStatus.js'
 import { mainnet } from '../../../chains/index.js'
 import { createClient } from '../../../clients/createClient.js'
 import { custom } from '../../../clients/transports/custom.js'
@@ -11,7 +14,6 @@ import type { WalletCallReceipt } from '../../../types/eip1193.js'
 import type { Hex } from '../../../types/misc.js'
 import { getHttpRpcClient } from '../../../utils/index.js'
 import { uid } from '../../../utils/uid.js'
-import { getCallsStatus } from './getCallsStatus.js'
 import { writeContracts } from './writeContracts.js'
 
 type Uid = string

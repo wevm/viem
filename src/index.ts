@@ -379,6 +379,33 @@ export type {
   PrepareTransactionRequestReturnType,
 } from './actions/wallet/prepareTransactionRequest.js'
 export type {
+  GetCapabilitiesParameters,
+  GetCapabilitiesErrorType,
+  GetCapabilitiesReturnType,
+} from './actions/wallet/getCapabilities.js'
+export type {
+  SendCallsErrorType,
+  SendCallsParameters,
+  SendCallsReturnType,
+} from './actions/wallet/sendCalls.js'
+export type {
+  GetCallsStatusErrorType,
+  GetCallsStatusParameters,
+  GetCallsStatusReturnType,
+} from './actions/wallet/getCallsStatus.js'
+export type {
+  ShowCallsStatusErrorType,
+  ShowCallsStatusParameters,
+  ShowCallsStatusReturnType,
+} from './actions/wallet/showCallsStatus.js'
+export { WaitForCallsStatusTimeoutError } from './actions/wallet/waitForCallsStatus.js'
+export type {
+  WaitForCallsStatusErrorType,
+  WaitForCallsStatusParameters,
+  WaitForCallsStatusReturnType,
+  WaitForCallsStatusTimeoutErrorType,
+} from './actions/wallet/waitForCallsStatus.js'
+export type {
   SendUnsignedTransactionErrorType,
   SendUnsignedTransactionParameters,
   SendUnsignedTransactionReturnType,

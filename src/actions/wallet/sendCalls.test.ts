@@ -1,20 +1,20 @@
 import { expect, test } from 'vitest'
-import { wagmiContractConfig } from '../../../../test/src/abis.js'
-import { anvilMainnet } from '../../../../test/src/anvil.js'
-import { accounts } from '../../../../test/src/constants.js'
-import { reset } from '../../../actions/index.js'
-import { type Chain, mainnet } from '../../../chains/index.js'
-import { type Client, createClient } from '../../../clients/createClient.js'
-import type { Transport } from '../../../clients/transports/createTransport.js'
-import { custom } from '../../../clients/transports/custom.js'
-import { RpcRequestError } from '../../../errors/request.js'
+import { wagmiContractConfig } from '../../../test/src/abis.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { accounts } from '../../../test/src/constants.js'
+import { type Chain, mainnet } from '../../chains/index.js'
+import { type Client, createClient } from '../../clients/createClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import { custom } from '../../clients/transports/custom.js'
+import { RpcRequestError } from '../../errors/request.js'
 import type {
   WalletCallReceipt,
   WalletGetCallsStatusReturnType,
-} from '../../../types/eip1193.js'
-import type { Hex } from '../../../types/misc.js'
-import { getHttpRpcClient, parseEther } from '../../../utils/index.js'
-import { uid } from '../../../utils/uid.js'
+} from '../../types/eip1193.js'
+import type { Hex } from '../../types/misc.js'
+import { getHttpRpcClient, parseEther } from '../../utils/index.js'
+import { uid } from '../../utils/uid.js'
+import { reset } from '../index.js'
 import { sendCalls } from './sendCalls.js'
 
 type Uid = string
