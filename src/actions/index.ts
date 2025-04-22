@@ -345,7 +345,6 @@ export {
   type WaitForCallsStatusParameters,
   type WaitForCallsStatusReturnType,
   type WaitForCallsStatusTimeoutErrorType,
-  WaitForCallsStatusTimeoutError,
   waitForCallsStatus,
 } from './wallet/waitForCallsStatus.js'
 export {

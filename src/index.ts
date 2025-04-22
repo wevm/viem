@@ -398,6 +398,7 @@ export type {
   ShowCallsStatusParameters,
   ShowCallsStatusReturnType,
 } from './actions/wallet/showCallsStatus.js'
+export { WaitForCallsStatusTimeoutError } from './actions/wallet/waitForCallsStatus.js'
 export type {
   WaitForCallsStatusErrorType,
   WaitForCallsStatusParameters,

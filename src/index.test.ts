@@ -24,6 +24,7 @@ test('exports', () => {
       "parseAbiParameter",
       "parseAbiParameters",
       "getContract",
+      "WaitForCallsStatusTimeoutError",
       "createClient",
       "rpcSchema",
       "custom",
