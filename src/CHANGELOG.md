@@ -1,5 +1,19 @@
 # viem
 
+## 2.28.0
+
+### Minor Changes
+
+- [#3580](https://github.com/wevm/viem/pull/3580) [`6aa70af8324612d8aeb0bb15ebe9d7b6d1688f4a`](https://github.com/wevm/viem/commit/6aa70af8324612d8aeb0bb15ebe9d7b6d1688f4a) Thanks [@jxom](https://github.com/jxom)! - **Account Abstraction:** Added support for EIP-7702 Authorizations on User Operations.
+
+- [#3580](https://github.com/wevm/viem/pull/3580) [`6aa70af8324612d8aeb0bb15ebe9d7b6d1688f4a`](https://github.com/wevm/viem/commit/6aa70af8324612d8aeb0bb15ebe9d7b6d1688f4a) Thanks [@jxom](https://github.com/jxom)! - **Account Abstraction:** Added support for EntryPoint 0.8.
+
+- [#3592](https://github.com/wevm/viem/pull/3592) [`e88edb2087ad31cf80ceb04549c12fb2cb46b62f`](https://github.com/wevm/viem/commit/e88edb2087ad31cf80ceb04549c12fb2cb46b62f) Thanks [@jxom](https://github.com/jxom)! - Stabilized EIP-5792 (moved out of experimental).
+
+### Patch Changes
+
+- [#3531](https://github.com/wevm/viem/pull/3531) [`573e7d70ec3a58c2bd395f47987422a5ab6d0475`](https://github.com/wevm/viem/commit/573e7d70ec3a58c2bd395f47987422a5ab6d0475) Thanks [@RobbyUitbeijerse](https://github.com/RobbyUitbeijerse)! - Added ERC-1155 export.
+
 ## 2.27.3
 
 ### Patch Changes
