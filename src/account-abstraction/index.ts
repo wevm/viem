@@ -18,6 +18,12 @@ export {
   toSoladySmartAccount,
 } from './accounts/implementations/toSoladySmartAccount.js'
 export {
+  type Simple7702SmartAccountImplementation,
+  type ToSimple7702SmartAccountParameters,
+  type ToSimple7702SmartAccountReturnType,
+  toSimple7702SmartAccount,
+} from './accounts/implementations/toSimple7702SmartAccount.js'
+export {
   type ToSmartAccountParameters,
   type ToSmartAccountReturnType,
   toSmartAccount,
@@ -28,10 +34,10 @@ export {
   type ToWebAuthnAccountErrorType,
   toWebAuthnAccount,
 } from './accounts/toWebAuthnAccount.js'
-export {
-  type SmartAccount,
-  type SmartAccountImplementation,
-  type WebAuthnAccount,
+export type {
+  SmartAccount,
+  SmartAccountImplementation,
+  WebAuthnAccount,
 } from './accounts/types.js'
 
 export {
@@ -112,10 +118,15 @@ export {
   createPaymasterClient,
 } from './clients/createPaymasterClient.js'
 
-export { entryPoint06Abi, entryPoint07Abi } from './constants/abis.js'
+export {
+  entryPoint06Abi,
+  entryPoint07Abi,
+  entryPoint08Abi,
+} from './constants/abis.js'
 export {
   entryPoint06Address,
   entryPoint07Address,
+  entryPoint08Address,
 } from './constants/address.js'
 
 export {
@@ -236,4 +247,9 @@ export {
   type GetUserOperationHashReturnType,
   getUserOperationHash,
 } from './utils/userOperation/getUserOperationHash.js'
+export {
+  type GetUserOperationTypedDataParameters,
+  type GetUserOperationTypedDataReturnType,
+  getUserOperationTypedData,
+} from './utils/userOperation/getUserOperationTypedData.js'
 export { toPackedUserOperation } from './utils/userOperation/toPackedUserOperation.js'

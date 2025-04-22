@@ -415,6 +415,39 @@ describe('return value: sign', () => {
 
     expect(result).toBeTruthy()
   })
+
+  test('behavior: owner uses `sign` instead of `signTypedData`', async () => {
+    const owner = privateKeyToAccount(accounts[0].privateKey)
+    // @ts-expect-error
+    owner.signTypedData = undefined
+
+    const account = await toCoinbaseSmartAccount({
+      client,
+      owners: [owner],
+      nonce: 70n,
+    })
+
+    await writeContract(client, {
+      ...account.factory,
+      functionName: 'createAccount',
+      args: [[pad(owner.address)], 70n],
+    })
+    await mine(client, {
+      blocks: 1,
+    })
+
+    const signature = await account.sign({
+      hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68',
+    })
+
+    const result = await verifyHash(client, {
+      address: await account.getAddress(),
+      hash: '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68',
+      signature,
+    })
+
+    expect(result).toBeTruthy()
+  })
 })
 
 describe('return value: signMessage', () => {
@@ -452,6 +485,39 @@ describe('return value: signMessage', () => {
       client,
       owners: [owner],
       nonce: 141241n,
+    })
+
+    const signature = await account.signMessage({
+      message: 'hello world',
+    })
+
+    const result = await verifyMessage(client, {
+      address: await account.getAddress(),
+      message: 'hello world',
+      signature,
+    })
+
+    expect(result).toBeTruthy()
+  })
+
+  test('behavior: owner uses `sign` instead of `signTypedData`', async () => {
+    const owner = privateKeyToAccount(accounts[0].privateKey)
+    // @ts-expect-error
+    owner.signMessage = undefined
+
+    const account = await toCoinbaseSmartAccount({
+      client,
+      owners: [owner],
+      nonce: 70n,
+    })
+
+    await writeContract(client, {
+      ...account.factory,
+      functionName: 'createAccount',
+      args: [[pad(owner.address)], 70n],
+    })
+    await mine(client, {
+      blocks: 1,
     })
 
     const signature = await account.signMessage({
@@ -504,6 +570,40 @@ describe('return value: signTypedData', () => {
       client,
       owners: [owner],
       nonce: 112312n,
+    })
+
+    const signature = await account.signTypedData({
+      ...typedData.basic,
+      primaryType: 'Mail',
+    })
+
+    const result = await verifyTypedData(client, {
+      address: await account.getAddress(),
+      signature,
+      ...typedData.basic,
+      primaryType: 'Mail',
+    })
+    expect(result).toBeTruthy()
+  })
+
+  test('behavior: owner uses `sign` instead of `signTypedData`', async () => {
+    const owner = privateKeyToAccount(accounts[0].privateKey)
+    // @ts-expect-error
+    owner.signTypedData = undefined
+
+    const account = await toCoinbaseSmartAccount({
+      client,
+      owners: [owner],
+      nonce: 515151n,
+    })
+
+    await writeContract(client, {
+      ...account.factory,
+      functionName: 'createAccount',
+      args: [[pad(owner.address)], 515151n],
+    })
+    await mine(client, {
+      blocks: 1,
     })
 
     const signature = await account.signTypedData({
@@ -650,7 +750,6 @@ describe('smoke', async () => {
     client,
     owners: [owner],
   })
-
   await sendTransaction(client, {
     account: accounts[9].address,
     to: account.address,
@@ -687,6 +786,7 @@ describe('smoke', async () => {
     const {
       account: _,
       callGasLimit,
+      nonce,
       preVerificationGas,
       verificationGasLimit,
       ...userOperation
@@ -701,6 +801,7 @@ describe('smoke', async () => {
       maxPriorityFeePerGas: 2000000000n,
     })
 
+    expect(nonce).toBeDefined()
     expect(callGasLimit).toBeGreaterThan(70000n)
     expect(preVerificationGas).toBeGreaterThan(67000n)
     expect(verificationGasLimit).toBeGreaterThan(360000n)
@@ -710,7 +811,6 @@ describe('smoke', async () => {
         "initCode": "0x0ba5ed0c6aa8c49038f819e587e2633c4a9f428a3ffba36f00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000020000000000000000000000000f39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "maxFeePerGas": 22785120848n,
         "maxPriorityFeePerGas": 2000000000n,
-        "nonce": 30902162761039795222892423151616n,
         "paymasterAndData": "0x",
         "paymasterPostOpGasLimit": undefined,
         "paymasterVerificationGasLimit": undefined,

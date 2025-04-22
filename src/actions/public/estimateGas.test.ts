@@ -272,6 +272,8 @@ describe('local account', () => {
         value: parseEther('1'),
       }),
     ).toMatchInlineSnapshot('21000n')
+
+    vi.restoreAllMocks()
   })
 
   test('args: maxFeePerGas (on eip1559)', async () => {

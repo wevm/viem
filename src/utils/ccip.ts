@@ -24,6 +24,10 @@ import { encodeAbiParameters } from './abi/encodeAbiParameters.js'
 import { isAddressEqual } from './address/isAddressEqual.js'
 import { concat } from './data/concat.js'
 import { isHex } from './data/isHex.js'
+import {
+  localBatchGatewayRequest,
+  localBatchGatewayUrl,
+} from './ens/localBatchGatewayRequest.js'
 import { stringify } from './stringify.js'
 
 export const offchainLookupSignature = '0x556f1830'
@@ -84,7 +88,12 @@ export async function offchainLookup<chain extends Chain | undefined>(
     if (!isAddressEqual(to, sender))
       throw new OffchainLookupSenderMismatchError({ sender, to })
 
-    const result = await ccipRequest_({ data: callData, sender, urls })
+    const result = urls.includes(localBatchGatewayUrl)
+      ? await localBatchGatewayRequest({
+          data: callData,
+          ccipRequest: ccipRequest_,
+        })
+      : await ccipRequest_({ data: callData, sender, urls })
 
     const { data: data_ } = await call(client, {
       blockNumber,

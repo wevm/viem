@@ -67,26 +67,30 @@ export type GetEnsResolverErrorType =
  */
 export async function getEnsResolver<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  {
-    blockNumber,
-    blockTag,
-    name,
-    universalResolverAddress: universalResolverAddress_,
-  }: GetEnsResolverParameters,
-) {
-  let universalResolverAddress = universalResolverAddress_
-  if (!universalResolverAddress) {
-    if (!client.chain)
+  parameters: GetEnsResolverParameters,
+): Promise<GetEnsResolverReturnType> {
+  const { blockNumber, blockTag, name } = parameters
+  const { chain } = client
+
+  const universalResolverAddress = (() => {
+    if (parameters.universalResolverAddress)
+      return parameters.universalResolverAddress
+    if (!chain)
       throw new Error(
         'client chain not configured. universalResolverAddress is required.',
       )
-
-    universalResolverAddress = getChainContractAddress({
+    return getChainContractAddress({
       blockNumber,
-      chain: client.chain,
+      chain,
       contract: 'ensUniversalResolver',
     })
-  }
+  })()
+
+  const tlds = chain?.ensTlds
+  if (tlds && !tlds.some((tld) => name.endsWith(tld)))
+    throw new Error(
+      `${name} is not a valid ENS TLD (${tlds?.join(', ')}) for chain "${chain.name}" (id: ${chain.id}).`,
+    )
 
   const [resolverAddress] = await getAction(
     client,

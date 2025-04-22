@@ -47,24 +47,24 @@ export {
   type GetContractParameters,
   type GetContractReturnType,
 } from './actions/getContract.js'
-export {
-  type GetContractEventsErrorType,
-  type GetContractEventsParameters,
-  type GetContractEventsReturnType,
+export type {
+  GetContractEventsErrorType,
+  GetContractEventsParameters,
+  GetContractEventsReturnType,
 } from './actions/public/getContractEvents.js'
-export {
-  type GetEip712DomainErrorType,
-  type GetEip712DomainParameters,
-  type GetEip712DomainReturnType,
+export type {
+  GetEip712DomainErrorType,
+  GetEip712DomainParameters,
+  GetEip712DomainReturnType,
 } from './actions/public/getEip712Domain.js'
-export {
-  type AddChainErrorType,
-  type AddChainParameters,
+export type {
+  AddChainErrorType,
+  AddChainParameters,
 } from './actions/wallet/addChain.js'
-export {
-  type CallErrorType,
-  type CallParameters,
-  type CallReturnType,
+export type {
+  CallErrorType,
+  CallParameters,
+  CallReturnType,
 } from './actions/public/call.js'
 export type {
   CreateAccessListParameters,
@@ -378,6 +378,33 @@ export type {
   PrepareTransactionRequestRequest,
   PrepareTransactionRequestReturnType,
 } from './actions/wallet/prepareTransactionRequest.js'
+export type {
+  GetCapabilitiesParameters,
+  GetCapabilitiesErrorType,
+  GetCapabilitiesReturnType,
+} from './actions/wallet/getCapabilities.js'
+export type {
+  SendCallsErrorType,
+  SendCallsParameters,
+  SendCallsReturnType,
+} from './actions/wallet/sendCalls.js'
+export type {
+  GetCallsStatusErrorType,
+  GetCallsStatusParameters,
+  GetCallsStatusReturnType,
+} from './actions/wallet/getCallsStatus.js'
+export type {
+  ShowCallsStatusErrorType,
+  ShowCallsStatusParameters,
+  ShowCallsStatusReturnType,
+} from './actions/wallet/showCallsStatus.js'
+export { WaitForCallsStatusTimeoutError } from './actions/wallet/waitForCallsStatus.js'
+export type {
+  WaitForCallsStatusErrorType,
+  WaitForCallsStatusParameters,
+  WaitForCallsStatusReturnType,
+  WaitForCallsStatusTimeoutErrorType,
+} from './actions/wallet/waitForCallsStatus.js'
 export type {
   SendUnsignedTransactionErrorType,
   SendUnsignedTransactionParameters,
@@ -770,8 +797,16 @@ export {
   type MaxFeePerGasTooLowErrorType,
 } from './errors/fee.js'
 export {
+  AtomicReadyWalletRejectedUpgradeError,
+  type AtomicReadyWalletRejectedUpgradeErrorType,
+  AtomicityNotSupportedError,
+  type AtomicityNotSupportedErrorType,
+  BundleTooLargeError,
+  type BundleTooLargeErrorType,
   ChainDisconnectedError,
   type ChainDisconnectedErrorType,
+  DuplicateIdError,
+  type DuplicateIdErrorType,
   InternalRpcError,
   type InternalRpcErrorType,
   InvalidInputRpcError,
@@ -807,8 +842,14 @@ export {
   type TransactionRejectedRpcErrorType,
   UnauthorizedProviderError,
   type UnauthorizedProviderErrorType,
+  UnknownBundleIdError,
+  type UnknownBundleIdErrorType,
   UnknownRpcError,
   type UnknownRpcErrorType,
+  UnsupportedChainIdError,
+  type UnsupportedChainIdErrorType,
+  UnsupportedNonOptionalCapabilityError,
+  type UnsupportedNonOptionalCapabilityErrorType,
   UnsupportedProviderMethodError,
   type UnsupportedProviderMethodErrorType,
   UserRejectedRequestError,
@@ -1099,6 +1140,7 @@ export type {
   WalletGrantPermissionsParameters,
   WalletGrantPermissionsReturnType,
   WalletSendCallsParameters,
+  WalletSendCallsReturnType,
   WalletPermissionCaveat,
   WalletPermission,
   WalletRpcSchema,
@@ -1592,6 +1634,7 @@ export {
   type EncodePackedErrorType,
   encodePacked,
 } from './utils/abi/encodePacked.js'
+export { withCache } from './utils/promise/withCache.js'
 export {
   type WithRetryErrorType,
   withRetry,

@@ -291,6 +291,7 @@ export async function getWithdrawalStatus<
           'OptimismPortal: dispute game created before respected game type was updated',
           'InvalidGameType',
           'LegacyGame',
+          'Unproven',
         ],
         'waiting-to-finalize': [
           'OptimismPortal: proven withdrawal has not matured yet',

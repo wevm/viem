@@ -736,7 +736,7 @@ test('args: parameters', async () => {
       "gas": 21000n,
       "maxFeePerGas": 13000000000n,
       "maxPriorityFeePerGas": 1000000000n,
-      "nonce": 663,
+      "nonce": 953,
       "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
       "type": "eip1559",
       "value": 1000000000000000000n,
@@ -767,7 +767,7 @@ test('args: parameters', async () => {
       "gas": 21000n,
       "maxFeePerGas": 13000000000n,
       "maxPriorityFeePerGas": 1000000000n,
-      "nonce": 663,
+      "nonce": 953,
       "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
       "type": "eip1559",
       "value": 1000000000000000000n,
@@ -978,10 +978,10 @@ test('behavior: nonce manager', async () => {
   } as const
 
   const request_1 = await prepareTransactionRequest(client, args)
-  expect(request_1.nonce).toBe(663)
+  expect(request_1.nonce).toBe(953)
 
   const request_2 = await prepareTransactionRequest(client, args)
-  expect(request_2.nonce).toBe(664)
+  expect(request_2.nonce).toBe(954)
 
   const [request_3, request_4, request_5] = await Promise.all([
     prepareTransactionRequest(client, args),
@@ -989,7 +989,7 @@ test('behavior: nonce manager', async () => {
     prepareTransactionRequest(client, args),
   ])
 
-  expect(request_3.nonce).toBe(665)
-  expect(request_4.nonce).toBe(666)
-  expect(request_5.nonce).toBe(667)
+  expect(request_3.nonce).toBe(955)
+  expect(request_4.nonce).toBe(956)
+  expect(request_5.nonce).toBe(957)
 })
