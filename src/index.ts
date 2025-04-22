@@ -606,6 +606,7 @@ export {
   erc20Abi,
   erc20Abi_bytes32,
   erc721Abi,
+  erc1155Abi,
   erc4626Abi,
   universalSignatureValidatorAbi,
 } from './constants/abis.js'
