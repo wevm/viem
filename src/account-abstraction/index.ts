@@ -247,4 +247,9 @@ export {
   type GetUserOperationHashReturnType,
   getUserOperationHash,
 } from './utils/userOperation/getUserOperationHash.js'
+export {
+  type GetUserOperationTypedDataParameters,
+  type GetUserOperationTypedDataReturnType,
+  getUserOperationTypedData,
+} from './utils/userOperation/getUserOperationTypedData.js'
 export { toPackedUserOperation } from './utils/userOperation/toPackedUserOperation.js'
