@@ -15,7 +15,7 @@ export type GetUserOperationTypedDataReturnType = TypedDataDefinition<
   'PackedUserOperation'
 >
 
-export const types = {
+const types = {
   PackedUserOperation: [
     { type: 'address', name: 'sender' },
     { type: 'uint256', name: 'nonce' },
