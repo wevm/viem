@@ -92,7 +92,7 @@ export async function sendCalls<
 
   if (typeof account_ === 'undefined')
     throw new AccountNotFoundError({
-      docsPath: '/experimental/eip5792/sendCalls',
+      docsPath: '/docs/actions/wallet/sendCalls',
     })
   const account = account_ ? parseAccount(account_) : null
 

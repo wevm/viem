@@ -92,7 +92,7 @@ export type Eip5792Actions<
   /**
    * Requests the connected wallet to send a batch of calls.
    *
-   * - Docs: https://viem.sh/experimental/eip5792/sendCalls
+   * - Docs: https://viem.sh/docs/actions/wallet/sendCalls
    * - JSON-RPC Methods: [`wallet_sendCalls`](https://eips.ethereum.org/EIPS/eip-5792)
    *
    * @param client - Client to use
