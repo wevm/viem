@@ -299,6 +299,31 @@ export const sidebar = {
           ],
         },
         {
+          text: 'Call Bundles (EIP-5792)',
+          items: [
+            {
+              text: 'getCallsStatus',
+              link: '/docs/actions/wallet/getCallsStatus',
+            },
+            {
+              text: 'getCapabilities',
+              link: '/docs/actions/wallet/getCapabilities',
+            },
+            {
+              text: 'sendCalls',
+              link: '/docs/actions/wallet/sendCalls',
+            },
+            {
+              text: 'showCallsStatus',
+              link: '/docs/actions/wallet/showCallsStatus',
+            },
+            {
+              text: 'waitForCallsStatus',
+              link: '/docs/actions/wallet/waitForCallsStatus',
+            },
+          ],
+        },
+        {
           text: 'Chain',
           items: [
             {
@@ -1329,37 +1354,6 @@ export const sidebar = {
           {
             text: 'Getting Started',
             link: '/experimental',
-          },
-        ],
-      },
-      {
-        text: 'EIP-5792',
-        items: [
-          { text: 'Client', link: '/experimental/eip5792/client' },
-          {
-            text: 'Actions',
-            items: [
-              {
-                text: 'getCallsStatus',
-                link: '/experimental/eip5792/getCallsStatus',
-              },
-              {
-                text: 'getCapabilities',
-                link: '/experimental/eip5792/getCapabilities',
-              },
-              {
-                text: 'sendCalls',
-                link: '/experimental/eip5792/sendCalls',
-              },
-              {
-                text: 'showCallsStatus',
-                link: '/experimental/eip5792/showCallsStatus',
-              },
-              {
-                text: 'waitForCallsStatus',
-                link: '/experimental/eip5792/waitForCallsStatus',
-              },
-            ],
           },
         ],
       },
