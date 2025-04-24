@@ -1,27 +1,34 @@
-import type { Client } from '../../../clients/createClient.js'
-import type { Transport } from '../../../clients/transports/createTransport.js'
-import type { Account } from '../../../types/account.js'
-import type { Chain } from '../../../types/chain.js'
+// TODO(v3): Remove this.
+
 import {
   type GetCallsStatusParameters,
   type GetCallsStatusReturnType,
   getCallsStatus,
-} from '../actions/getCallsStatus.js'
+} from '../../../actions/wallet/getCallsStatus.js'
 import {
   type GetCapabilitiesParameters,
   type GetCapabilitiesReturnType,
   getCapabilities,
-} from '../actions/getCapabilities.js'
+} from '../../../actions/wallet/getCapabilities.js'
 import {
   type SendCallsParameters,
   type SendCallsReturnType,
   sendCalls,
-} from '../actions/sendCalls.js'
+} from '../../../actions/wallet/sendCalls.js'
 import {
   type ShowCallsStatusParameters,
   type ShowCallsStatusReturnType,
   showCallsStatus,
-} from '../actions/showCallsStatus.js'
+} from '../../../actions/wallet/showCallsStatus.js'
+import {
+  type WaitForCallsStatusParameters,
+  type WaitForCallsStatusReturnType,
+  waitForCallsStatus,
+} from '../../../actions/wallet/waitForCallsStatus.js'
+import type { Client } from '../../../clients/createClient.js'
+import type { Transport } from '../../../clients/transports/createTransport.js'
+import type { Account } from '../../../types/account.js'
+import type { Chain } from '../../../types/chain.js'
 import {
   type WriteContractsParameters,
   type WriteContractsReturnType,
@@ -85,7 +92,7 @@ export type Eip5792Actions<
   /**
    * Requests the connected wallet to send a batch of calls.
    *
-   * - Docs: https://viem.sh/experimental/eip5792/sendCalls
+   * - Docs: https://viem.sh/docs/actions/wallet/sendCalls
    * - JSON-RPC Methods: [`wallet_sendCalls`](https://eips.ethereum.org/EIPS/eip-5792)
    *
    * @param client - Client to use
@@ -115,8 +122,11 @@ export type Eip5792Actions<
    *   ],
    * })
    */
-  sendCalls: <chainOverride extends Chain | undefined = undefined>(
-    parameters: SendCallsParameters<chain, account, chainOverride>,
+  sendCalls: <
+    const calls extends readonly unknown[],
+    chainOverride extends Chain | undefined = undefined,
+  >(
+    parameters: SendCallsParameters<chain, account, chainOverride, calls>,
   ) => Promise<SendCallsReturnType>
   /**
    * Requests for the wallet to show information about a call batch
@@ -143,6 +153,31 @@ export type Eip5792Actions<
   showCallsStatus: (
     parameters: ShowCallsStatusParameters,
   ) => Promise<ShowCallsStatusReturnType>
+  /**
+   * Waits for the status & receipts of a call bundle that was sent via `sendCalls`.
+   *
+   * - Docs: https://viem.sh/experimental/eip5792/waitForCallsStatus
+   * - JSON-RPC Methods: [`wallet_getCallsStatus`](https://eips.ethereum.org/EIPS/eip-5792)
+   *
+   * @param client - Client to use
+   * @param parameters - {@link WaitForCallsStatusParameters}
+   * @returns Status & receipts of the call bundle. {@link WaitForCallsStatusReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { waitForCallsStatus } from 'viem/experimental'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   *
+   * const { receipts, status } = await waitForCallsStatus(client, { id: '0xdeadbeef' })
+   */
+  waitForCallsStatus: (
+    parameters: WaitForCallsStatusParameters,
+  ) => Promise<WaitForCallsStatusReturnType>
   /**
    * Requests for the wallet to sign and broadcast a batch of write contract calls (transactions) to the network.
    *
@@ -231,6 +266,8 @@ export function eip5792Actions() {
         getCapabilities(client as any, parameters)) as any,
       sendCalls: (parameters) => sendCalls(client, parameters),
       showCallsStatus: (parameters) => showCallsStatus(client, parameters),
+      waitForCallsStatus: (parameters) =>
+        waitForCallsStatus(client, parameters),
       writeContracts: (parameters) => writeContracts(client, parameters),
     }
   }

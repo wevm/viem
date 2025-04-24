@@ -24,6 +24,7 @@ import {
 import { type TrimErrorType, trim } from '../../utils/data/trim.js'
 import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
 import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
+import { localBatchGatewayUrl } from '../../utils/ens/localBatchGatewayRequest.js'
 import { type NamehashErrorType, namehash } from '../../utils/ens/namehash.js'
 import {
   type PacketToBytesErrorType,
@@ -92,29 +93,28 @@ export type GetEnsAddressErrorType =
  */
 export async function getEnsAddress<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  {
-    blockNumber,
-    blockTag,
-    coinType,
-    name,
-    gatewayUrls,
-    strict,
-    universalResolverAddress: universalResolverAddress_,
-  }: GetEnsAddressParameters,
+  parameters: GetEnsAddressParameters,
 ): Promise<GetEnsAddressReturnType> {
-  let universalResolverAddress = universalResolverAddress_
-  if (!universalResolverAddress) {
-    if (!client.chain)
+  const { blockNumber, blockTag, coinType, name, gatewayUrls, strict } =
+    parameters
+  const { chain } = client
+
+  const universalResolverAddress = (() => {
+    if (parameters.universalResolverAddress)
+      return parameters.universalResolverAddress
+    if (!chain)
       throw new Error(
         'client chain not configured. universalResolverAddress is required.',
       )
-
-    universalResolverAddress = getChainContractAddress({
+    return getChainContractAddress({
       blockNumber,
-      chain: client.chain,
+      chain,
       contract: 'ensUniversalResolver',
     })
-  }
+  })()
+
+  const tlds = chain?.ensTlds
+  if (tlds && !tlds.some((tld) => name.endsWith(tld))) return null
 
   try {
     const functionData = encodeFunctionData({
@@ -129,19 +129,18 @@ export async function getEnsAddress<chain extends Chain | undefined>(
       address: universalResolverAddress,
       abi: universalResolverResolveAbi,
       functionName: 'resolve',
-      args: [toHex(packetToBytes(name)), functionData],
+      args: [
+        toHex(packetToBytes(name)),
+        functionData,
+        gatewayUrls ?? [localBatchGatewayUrl],
+      ],
       blockNumber,
       blockTag,
     } as const
 
     const readContractAction = getAction(client, readContract, 'readContract')
 
-    const res = gatewayUrls
-      ? await readContractAction({
-          ...readContractParameters,
-          args: [...readContractParameters.args, gatewayUrls],
-        })
-      : await readContractAction(readContractParameters)
+    const res = await readContractAction(readContractParameters)
 
     if (res[0] === '0x') return null
 

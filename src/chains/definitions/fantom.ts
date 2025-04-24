@@ -9,7 +9,7 @@ export const fantom = /*#__PURE__*/ defineChain({
     symbol: 'FTM',
   },
   rpcUrls: {
-    default: { http: ['https://rpc.ankr.com/fantom'] },
+    default: { http: ['https://250.rpc.thirdweb.com'] },
   },
   blockExplorers: {
     default: {

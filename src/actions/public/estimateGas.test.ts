@@ -8,13 +8,13 @@ import { maxUint256 } from '../../constants/number.js'
 
 import { BatchCallDelegation } from '../../../contracts/generated.js'
 import { deploy } from '../../../test/src/utils.js'
-import { signAuthorization } from '../../experimental/index.js'
 import { toBlobs } from '../../utils/blob/toBlobs.js'
 import { toHex } from '../../utils/encoding/toHex.js'
 import { encodeFunctionData } from '../../utils/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { reset } from '../test/reset.js'
+import { signAuthorization } from '../wallet/signAuthorization.js'
 import { estimateGas } from './estimateGas.js'
 import * as getBlock from './getBlock.js'
 
@@ -52,7 +52,7 @@ test('args: account', async () => {
 })
 
 test('args: authorizationList', async () => {
-  const authority = privateKeyToAccount(accounts[1].privateKey)
+  const eoa = privateKeyToAccount(accounts[1].privateKey)
 
   const { contractAddress } = await deploy(client, {
     abi: BatchCallDelegation.abi,
@@ -60,7 +60,7 @@ test('args: authorizationList', async () => {
   })
 
   const authorization = await signAuthorization(client, {
-    account: authority,
+    account: eoa,
     contractAddress: contractAddress!,
   })
 
@@ -197,9 +197,9 @@ test('error: cannot infer `to` from `authorizationList`', async () => {
       account: accounts[0].address,
       authorizationList: [
         {
+          address: '0x0000000000000000000000000000000000000000',
           chainId: 1,
           nonce: 0,
-          contractAddress: '0x0000000000000000000000000000000000000000',
         },
       ],
       data: '0xdeadbeef',
@@ -272,6 +272,8 @@ describe('local account', () => {
         value: parseEther('1'),
       }),
     ).toMatchInlineSnapshot('21000n')
+
+    vi.restoreAllMocks()
   })
 
   test('args: maxFeePerGas (on eip1559)', async () => {

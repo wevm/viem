@@ -2,7 +2,7 @@ import { defineChain } from '../../../utils/chain/defineChain.js'
 
 export const skaleEuropa = /*#__PURE__*/ defineChain({
   id: 2_046_399_126,
-  name: 'SKALE | Europa Liquidity Hub',
+  name: 'SKALE Europa Hub',
   nativeCurrency: { name: 'sFUEL', symbol: 'sFUEL', decimals: 18 },
   rpcUrls: {
     default: {
@@ -19,7 +19,7 @@ export const skaleEuropa = /*#__PURE__*/ defineChain({
   contracts: {
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 3113495,
+      blockCreated: 3_113_495,
     },
   },
 })

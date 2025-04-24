@@ -40,13 +40,13 @@ export type WithdrawParameters<
   Partial<GetAccountParameter<account>> &
   Partial<GetChainParameter<chain, chainOverride>> & {
     /** The address of the recipient on L1. Defaults to the sender address. */
-    to?: Address
+    to?: Address | undefined
     /** The address of the token. */
     token: Address
     /** The amount of the token to withdraw. */
     amount: bigint
     /** The address of the bridge contract to be used. */
-    bridgeAddress?: Address
+    bridgeAddress?: Address | undefined
   }
 
 export type WithdrawReturnType = SendTransactionReturnType

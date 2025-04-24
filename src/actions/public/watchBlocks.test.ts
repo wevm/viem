@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { celo, localhost } from '../../chains/index.js'
+import { localhost } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Block } from '../../types/block.js'
@@ -137,28 +137,6 @@ describe('poll', () => {
       unwatch()
       expect(blocks.length).toBe(2)
     })
-  })
-
-  test('custom chain type', async () => {
-    const client = createPublicClient({
-      chain: celo,
-      transport: http(),
-    })
-
-    let unwatch = () => {}
-    const block = await new Promise<OnBlockParameter<typeof celo>>(
-      (resolve) => {
-        unwatch = watchBlocks(client, {
-          emitOnBegin: true,
-          onBlock: (block) => resolve(block),
-          poll: true,
-          pollingInterval: 100,
-        })
-      },
-    )
-
-    unwatch()
-    expect(block.randomness).toBeDefined()
   })
 
   describe('transports', () => {

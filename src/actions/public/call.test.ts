@@ -423,14 +423,14 @@ describe('errors', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      [CallExecutionError: Execution reverted with reason: revert: Token ID is taken.
+      [CallExecutionError: Execution reverted with reason: Token ID is taken.
 
       Raw Call Arguments:
         from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
         to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
         data:  0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
 
-      Details: execution reverted: revert: Token ID is taken
+      Details: execution reverted: Token ID is taken
       Version: viem@x.y.z]
     `,
     )
@@ -1177,7 +1177,7 @@ describe('deployless call (bytecode)', () => {
           "success": true,
         },
         {
-          "returnData": "0x0000000000000000000000000000000000000000000000000000000000000288",
+          "returnData": "0x000000000000000000000000000000000000000000000000000000000000036d",
           "success": true,
         },
       ]

@@ -22,6 +22,7 @@ export const berachainTestnetbArtio = /*#__PURE__*/ defineChain({
       blockCreated: 7736795,
     },
   },
+  ensTlds: ['.bera'],
   rpcUrls: {
     default: { http: ['https://bartio.rpc.berachain.com'] },
   },

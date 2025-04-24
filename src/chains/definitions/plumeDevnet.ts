@@ -4,7 +4,7 @@ const sourceId = 11_155_111 // sepolia
 
 export const plumeDevnet = /*#__PURE__*/ defineChain({
   id: 98_864,
-  name: 'Plume Devnet',
+  name: 'Plume Devnet (Legacy)',
   nativeCurrency: {
     name: 'Plume Sepolia Ether',
     symbol: 'ETH',
@@ -25,7 +25,7 @@ export const plumeDevnet = /*#__PURE__*/ defineChain({
   },
   contracts: {
     multicall3: {
-      address: '0xca11bde05977b3631167028862be2a173976ca11',
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 481_948,
     },
   },

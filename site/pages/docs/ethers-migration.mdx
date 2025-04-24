@@ -47,7 +47,7 @@ Custom Chain:
 ```ts 
 import { providers } from 'ethers'
 
-const provider = new providers.JsonRpcProvider('https://rpc.ankr.com/fantom/​', { // [!code hl]
+const provider = new providers.JsonRpcProvider('https://250.rpc.thirdweb.com', { // [!code hl]
   name: 'Fantom', // [!code hl]
   id: 250 // [!code hl]
 }) // [!code hl]
@@ -74,7 +74,7 @@ import { fantom } from 'viem/chains'
 
 const client = createPublicClient({ // [!code hl]
   chain: fantom, // [!code hl]
-  transport: http('https://rpc.ankr.com/fantom/​') // [!code hl]
+  transport: http('https://250.rpc.thirdweb.com') // [!code hl]
 }) // [!code hl]
 ```
 

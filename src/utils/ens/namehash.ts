@@ -1,4 +1,5 @@
 import type { ErrorType } from '../../errors/utils.js'
+import type { ByteArray } from '../../types/misc.js'
 import { type ConcatErrorType, concat } from '../data/concat.js'
 import {
   type StringToBytesErrorType,
@@ -34,7 +35,7 @@ export type NamehashErrorType =
  * @link https://eips.ethereum.org/EIPS/eip-137
  */
 export function namehash(name: string) {
-  let result = new Uint8Array(32).fill(0)
+  let result = new Uint8Array(32).fill(0) as ByteArray
   if (!name) return bytesToHex(result)
 
   const labels = name.split('.')

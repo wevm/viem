@@ -144,7 +144,7 @@ export async function execute<
 ): Promise<ExecuteReturnType> {
   const { authorizationList, calls, opData } = parameters
 
-  const address = authorizationList?.[0]?.contractAddress ?? parameters.address
+  const address = authorizationList?.[0]?.address ?? parameters.address
   const mode = opData ? executionMode.opData : executionMode.default
 
   const supported = await withCache(

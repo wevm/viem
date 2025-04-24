@@ -3,6 +3,7 @@ import {
   type ParseAccountErrorType,
   parseAccount,
 } from '../../../accounts/utils/parseAccount.js'
+import { prepareAuthorization } from '../../../actions/index.js'
 import {
   type EstimateFeesPerGasErrorType,
   estimateFeesPerGas,
@@ -12,6 +13,7 @@ import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../../errors/account.js'
 import type { ErrorType } from '../../../errors/utils.js'
+import type { SignedAuthorization } from '../../../types/authorization.js'
 import type { Call, Calls } from '../../../types/calls.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
@@ -63,6 +65,7 @@ const defaultParameters = [
   'paymaster',
   'nonce',
   'signature',
+  'authorization',
 ] as const
 
 export type PrepareUserOperationParameterType =
@@ -72,10 +75,17 @@ export type PrepareUserOperationParameterType =
   | 'paymaster'
   | 'nonce'
   | 'signature'
+  | 'authorization'
 
 type FactoryProperties<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > =
+  | (entryPointVersion extends '0.8'
+      ? {
+          factory: UserOperation['factory']
+          factoryData: UserOperation['factoryData']
+        }
+      : never)
   | (entryPointVersion extends '0.7'
       ? {
           factory: UserOperation['factory']
@@ -91,6 +101,15 @@ type FactoryProperties<
 type GasProperties<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > =
+  | (entryPointVersion extends '0.8'
+      ? {
+          callGasLimit: UserOperation['callGasLimit']
+          preVerificationGas: UserOperation['preVerificationGas']
+          verificationGasLimit: UserOperation['verificationGasLimit']
+          paymasterPostOpGasLimit: UserOperation['paymasterPostOpGasLimit']
+          paymasterVerificationGasLimit: UserOperation['paymasterVerificationGasLimit']
+        }
+      : never)
   | (entryPointVersion extends '0.7'
       ? {
           callGasLimit: UserOperation['callGasLimit']
@@ -120,6 +139,14 @@ type NonceProperties = {
 type PaymasterProperties<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > =
+  | (entryPointVersion extends '0.8'
+      ? {
+          paymaster: UserOperation['paymaster']
+          paymasterData: UserOperation['paymasterData']
+          paymasterPostOpGasLimit: UserOperation['paymasterPostOpGasLimit']
+          paymasterVerificationGasLimit: UserOperation['paymasterVerificationGasLimit']
+        }
+      : never)
   | (entryPointVersion extends '0.7'
       ? {
           paymaster: UserOperation['paymaster']
@@ -136,6 +163,10 @@ type PaymasterProperties<
 
 type SignatureProperties = {
   signature: UserOperation['signature']
+}
+
+type AuthorizationProperties = {
+  authorization: UserOperation['authorization']
 }
 
 export type PrepareUserOperationRequest<
@@ -208,7 +239,10 @@ export type PrepareUserOperationReturnType<
     callData: Hex
     paymasterAndData: _derivedVersion extends '0.6' ? Hex : undefined
     sender: UserOperation['sender']
-  } & (Extract<_parameters, 'factory'> extends never
+  } & (Extract<_parameters, 'authorization'> extends never
+      ? {}
+      : AuthorizationProperties) &
+    (Extract<_parameters, 'factory'> extends never
       ? {}
       : FactoryProperties<_derivedVersion>) &
     (Extract<_parameters, 'nonce'> extends never ? {} : NonceProperties) &
@@ -359,7 +393,7 @@ export async function prepareUserOperation<
   // Concurrently prepare properties required to fill the User Operation.
   ////////////////////////////////////////////////////////////////////////////////
 
-  const [callData, factory, fees, nonce] = await Promise.all([
+  const [callData, factory, fees, nonce, authorization] = await Promise.all([
     (async () => {
       if (parameters.calls)
         return account.encodeCalls(
@@ -457,6 +491,24 @@ export async function prepareUserOperation<
       if (typeof parameters.nonce === 'bigint') return parameters.nonce
       return account.getNonce()
     })(),
+    (async () => {
+      if (!properties.includes('authorization')) return undefined
+      if (typeof parameters.authorization === 'object')
+        return parameters.authorization
+      if (account.authorization && !(await account.isDeployed())) {
+        const authorization = await prepareAuthorization(
+          account.client,
+          account.authorization,
+        )
+        return {
+          ...authorization,
+          r: '0xfffffffffffffffffffffffffffffff000000000000000000000000000000000',
+          s: '0x7aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+          yParity: 1,
+        } satisfies SignedAuthorization
+      }
+      return undefined
+    })(),
   ])
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -468,6 +520,8 @@ export async function prepareUserOperation<
     request = { ...request, ...(factory as any) }
   if (typeof fees !== 'undefined') request = { ...request, ...(fees as any) }
   if (typeof nonce !== 'undefined') request.nonce = nonce
+  if (typeof authorization !== 'undefined')
+    request.authorization = authorization
 
   ////////////////////////////////////////////////////////////////////////////////
   // Fill User Operation with the `signature` property.

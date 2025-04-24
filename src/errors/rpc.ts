@@ -68,6 +68,13 @@ export type ProviderRpcErrorCode =
   | 4900 // Disconnected
   | 4901 // Chain Disconnected
   | 4902 // Chain Not Recognized
+  | 5700 // Unsupported non-optional capability
+  | 5710 // Unsupported chain id
+  | 5720 // Duplicate ID
+  | 5730 // Unknown bundle id
+  | 5740 // Bundle too large
+  | 5750 // Atomic-ready wallet rejected upgrade
+  | 5760 // Atomicity not supported
 
 /**
  * Error subclass implementing Ethereum Provider errors per EIP-1193.
@@ -481,6 +488,158 @@ export class SwitchChainError extends ProviderRpcError {
       code: SwitchChainError.code,
       name: 'SwitchChainError',
       shortMessage: 'An error occurred when attempting to switch chain.',
+    })
+  }
+}
+
+/**
+ * Subclass for an "Unsupported non-optional capability" EIP-5792 error.
+ *
+ * EIP https://eips.ethereum.org/EIPS/eip-5792#error-codes
+ */
+export type UnsupportedNonOptionalCapabilityErrorType =
+  UnsupportedNonOptionalCapabilityError & {
+    code: 5700
+    name: 'UnsupportedNonOptionalCapabilityError'
+  }
+export class UnsupportedNonOptionalCapabilityError extends ProviderRpcError {
+  static code = 5700 as const
+
+  constructor(cause: Error) {
+    super(cause, {
+      code: UnsupportedNonOptionalCapabilityError.code,
+      name: 'UnsupportedNonOptionalCapabilityError',
+      shortMessage:
+        'This Wallet does not support a capability that was not marked as optional.',
+    })
+  }
+}
+
+/**
+ * Subclass for an "Unsupported chain id" EIP-5792 error.
+ *
+ * EIP https://eips.ethereum.org/EIPS/eip-5792#error-codes
+ */
+export type UnsupportedChainIdErrorType = UnsupportedChainIdError & {
+  code: 5710
+  name: 'UnsupportedChainIdError'
+}
+export class UnsupportedChainIdError extends ProviderRpcError {
+  static code = 5710 as const
+
+  constructor(cause: Error) {
+    super(cause, {
+      code: UnsupportedChainIdError.code,
+      name: 'UnsupportedChainIdError',
+      shortMessage: 'This Wallet does not support the requested chain ID.',
+    })
+  }
+}
+
+/**
+ * Subclass for an "Duplicate ID" EIP-5792 error.
+ *
+ * EIP https://eips.ethereum.org/EIPS/eip-5792#error-codes
+ */
+export type DuplicateIdErrorType = DuplicateIdError & {
+  code: 5720
+  name: 'DuplicateIdError'
+}
+export class DuplicateIdError extends ProviderRpcError {
+  static code = 5720 as const
+
+  constructor(cause: Error) {
+    super(cause, {
+      code: DuplicateIdError.code,
+      name: 'DuplicateIdError',
+      shortMessage: 'There is already a bundle submitted with this ID.',
+    })
+  }
+}
+
+/**
+ * Subclass for an "Unknown bundle ID" EIP-5792 error.
+ *
+ * EIP https://eips.ethereum.org/EIPS/eip-5792#error-codes
+ */
+export type UnknownBundleIdErrorType = UnknownBundleIdError & {
+  code: 5730
+  name: 'UnknownBundleIdError'
+}
+export class UnknownBundleIdError extends ProviderRpcError {
+  static code = 5730 as const
+
+  constructor(cause: Error) {
+    super(cause, {
+      code: UnknownBundleIdError.code,
+      name: 'UnknownBundleIdError',
+      shortMessage: 'This bundle id is unknown / has not been submitted',
+    })
+  }
+}
+
+/**
+ * Subclass for an "Bundle too large" EIP-5792 error.
+ *
+ * EIP https://eips.ethereum.org/EIPS/eip-5792#error-codes
+ */
+export type BundleTooLargeErrorType = BundleTooLargeError & {
+  code: 5740
+  name: 'BundleTooLargeError'
+}
+export class BundleTooLargeError extends ProviderRpcError {
+  static code = 5740 as const
+
+  constructor(cause: Error) {
+    super(cause, {
+      code: BundleTooLargeError.code,
+      name: 'BundleTooLargeError',
+      shortMessage: 'The call bundle is too large for the Wallet to process.',
+    })
+  }
+}
+
+/**
+ * Subclass for an "Atomic-ready wallet rejected upgrade" EIP-5792 error.
+ *
+ * EIP https://eips.ethereum.org/EIPS/eip-5792#error-codes
+ */
+export type AtomicReadyWalletRejectedUpgradeErrorType =
+  AtomicReadyWalletRejectedUpgradeError & {
+    code: 5750
+    name: 'AtomicReadyWalletRejectedUpgradeError'
+  }
+export class AtomicReadyWalletRejectedUpgradeError extends ProviderRpcError {
+  static code = 5750 as const
+
+  constructor(cause: Error) {
+    super(cause, {
+      code: AtomicReadyWalletRejectedUpgradeError.code,
+      name: 'AtomicReadyWalletRejectedUpgradeError',
+      shortMessage:
+        'The Wallet can support atomicity after an upgrade, but the user rejected the upgrade.',
+    })
+  }
+}
+
+/**
+ * Subclass for an "Atomicity not supported" EIP-5792 error.
+ *
+ * EIP https://eips.ethereum.org/EIPS/eip-5792#error-codes
+ */
+export type AtomicityNotSupportedErrorType = AtomicityNotSupportedError & {
+  code: 5760
+  name: 'AtomicityNotSupportedError'
+}
+export class AtomicityNotSupportedError extends ProviderRpcError {
+  static code = 5760 as const
+
+  constructor(cause: Error) {
+    super(cause, {
+      code: AtomicityNotSupportedError.code,
+      name: 'AtomicityNotSupportedError',
+      shortMessage:
+        'The wallet does not support atomic execution but the request requires it.',
     })
   }
 }

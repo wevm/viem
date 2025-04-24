@@ -12,7 +12,7 @@ import type { ErrorType } from '../../errors/utils.js'
 import type {
   SerializedAuthorizationList,
   SignedAuthorizationList,
-} from '../../experimental/eip7702/types/authorization.js'
+} from '../../types/authorization.js'
 import type { Hex, Signature } from '../../types/misc.js'
 import type {
   AccessList,
@@ -576,12 +576,12 @@ function parseAuthorizationList(
 ): SignedAuthorizationList {
   const authorizationList: Mutable<SignedAuthorizationList> = []
   for (let i = 0; i < serializedAuthorizationList.length; i++) {
-    const [chainId, contractAddress, nonce, yParity, r, s] =
+    const [chainId, address, nonce, yParity, r, s] =
       serializedAuthorizationList[i]
 
     authorizationList.push({
+      address,
       chainId: hexToNumber(chainId),
-      contractAddress,
       nonce: hexToNumber(nonce),
       ...parseEIP155Signature([yParity, r, s]),
     })

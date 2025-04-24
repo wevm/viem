@@ -71,6 +71,7 @@ Let's create a `kzg.ts` file that holds our KZG interface.
 :::code-group
 
 ```ts twoslash [kzg.ts] filename="kzg.ts"
+// @noErrors
 import * as cKzg from 'c-kzg'
 import { setupKzg } from 'viem'
 import { mainnetTrustedSetupPath } from 'viem/node'

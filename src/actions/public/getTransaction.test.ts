@@ -8,7 +8,6 @@ import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, holesky } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
-import { signAuthorization } from '../../experimental/index.js'
 import { createClient, encodeFunctionData } from '../../index.js'
 import type { Transaction } from '../../types/transaction.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
@@ -16,6 +15,7 @@ import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
+import { signAuthorization } from '../wallet/signAuthorization.js'
 import { getBlock } from './getBlock.js'
 import { getTransaction } from './getTransaction.js'
 
@@ -86,8 +86,6 @@ test('gets transaction (legacy)', async () => {
 })
 
 test('gets transaction (eip2930)', async () => {
-  const block = await getBlock(client)
-
   await setBalance(client, {
     address: targetAccount.address,
     value: targetAccount.balance,
@@ -98,7 +96,7 @@ test('gets transaction (eip2930)', async () => {
     account: sourceAccount.address,
     to: targetAccount.address,
     value: parseEther('1'),
-    gasPrice: BigInt((block.baseFeePerGas ?? 0n) * 2n),
+    type: 'eip2930',
   })
 
   const transaction = await getTransaction(client, {
@@ -179,7 +177,7 @@ test('gets transaction (eip4844)', async () => {
 })
 
 test('gets transaction (eip7702)', async () => {
-  const authority = privateKeyToAccount(accounts[1].privateKey)
+  const eoa = privateKeyToAccount(accounts[1].privateKey)
 
   const { contractAddress } = await deploy(client, {
     abi: BatchCallDelegation.abi,
@@ -187,12 +185,13 @@ test('gets transaction (eip7702)', async () => {
   })
 
   const authorization = await signAuthorization(client, {
-    account: authority,
+    account: eoa,
     contractAddress: contractAddress!,
+    executor: 'self',
   })
 
   const hash = await sendTransaction(client, {
-    account: authority,
+    account: eoa,
     authorizationList: [authorization],
     data: encodeFunctionData({
       abi: BatchCallDelegation.abi,
@@ -232,14 +231,14 @@ test('chain w/ custom block type', async () => {
     {
       "blockHash": "0x740371d30b3cee9d687f72e3409ba6447eceda7de86bc38b0fa84493114b510b",
       "blockNumber": 16628100n,
-      "chainId": undefined,
+      "chainId": 42220,
       "ethCompatible": false,
-      "feeCurrency": null,
+      "feeCurrency": undefined,
       "from": "0x045d685d23e8aa34dc408a66fb408f20dc84d785",
       "gas": 1527520n,
       "gasPrice": 2999683966n,
       "gatewayFee": 0n,
-      "gatewayFeeRecipient": null,
+      "gatewayFeeRecipient": undefined,
       "hash": "0x55678b68cc086d5b9739bb28748b492db030d001d9eb59001cc2d1f7a3305d17",
       "input": "0x389ec778",
       "nonce": 697201,

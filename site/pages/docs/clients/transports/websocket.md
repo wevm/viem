@@ -16,7 +16,7 @@ import { mainnet } from 'viem/chains'
 
 const client = createPublicClient({
   chain: mainnet, 
-  transport: webSocket('wss://eth-mainnet.g.alchemy.com/v2/...'), // [!code focus]
+  transport: webSocket('wss://1.rpc.thirdweb.com/...'), // [!code focus]
 })
 ```
 
@@ -35,7 +35,7 @@ URL of the JSON-RPC API.
 ```ts twoslash
 import { webSocket } from 'viem'
 // ---cut---
-const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...')
+const transport = webSocket('wss://1.rpc.thirdweb.com/...')
 ```
 
 ### keepAlive (optional)
@@ -48,7 +48,7 @@ Whether or not to send keep-alive ping messages.
 ```ts twoslash
 import { webSocket } from 'viem'
 // ---cut---
-const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = webSocket('wss://1.rpc.thirdweb.com/...', {
   keepAlive: { interval: 1_000 }, // [!code focus]
 })
 ```
@@ -63,7 +63,7 @@ A key for the Transport.
 ```ts twoslash
 import { webSocket } from 'viem'
 // ---cut---
-const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', { 
+const transport = webSocket('wss://1.rpc.thirdweb.com/...', { 
   key: 'alchemy',  // [!code focus]
 })
 ```
@@ -77,7 +77,7 @@ Methods to include or exclude from sending RPC requests.
 ```ts twoslash
 import { webSocket } from 'viem'
 // ---cut---
-const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = webSocket('wss://1.rpc.thirdweb.com/...', {
   methods: {
     include: ['eth_sendTransaction', 'eth_signTypedData_v4'],
   },
@@ -94,7 +94,7 @@ A name for the Transport
 ```ts twoslash
 import { webSocket } from 'viem'
 // ---cut---
-const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', { 
+const transport = webSocket('wss://1.rpc.thirdweb.com/...', { 
   name: 'Alchemy WebSocket Provider',  // [!code focus]
 })
 ```
@@ -109,7 +109,7 @@ Whether or not to attempt to reconnect on socket failure.
 ```ts twoslash
 import { webSocket } from 'viem'
 // ---cut---
-const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = webSocket('wss://1.rpc.thirdweb.com/...', {
   reconnect: false, // [!code focus]
 })
 ```
@@ -124,7 +124,7 @@ The max number of times to attempt to reconnect.
 ```ts twoslash
 import { webSocket } from 'viem'
 // ---cut---
-const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = webSocket('wss://1.rpc.thirdweb.com/...', {
   reconnect: {
     attempts: 10, // [!code focus]
   }
@@ -141,7 +141,7 @@ Retry delay (in ms) between reconnect attempts.
 ```ts twoslash
 import { webSocket } from 'viem'
 // ---cut---
-const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = webSocket('wss://1.rpc.thirdweb.com/...', {
   reconnect: {
     delay: 1_000, // [!code focus]
   }
@@ -158,7 +158,7 @@ The max number of times to retry when a request fails.
 ```ts twoslash
 import { webSocket } from 'viem'
 // ---cut---
-const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = webSocket('wss://1.rpc.thirdweb.com/...', {
   retryCount: 5, // [!code focus]
 })
 ```
@@ -173,7 +173,7 @@ The base delay (in ms) between retries. By default, the Transport will use [expo
 ```ts twoslash
 import { webSocket } from 'viem'
 // ---cut---
-const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = webSocket('wss://1.rpc.thirdweb.com/...', {
   retryDelay: 100, // [!code focus]
 })
 ```
@@ -188,7 +188,7 @@ The timeout for async WebSocket requests.
 ```ts twoslash
 import { webSocket } from 'viem'
 // ---cut---
-const transport = webSocket('wss://eth-mainnet.g.alchemy.com/v2/...', {
+const transport = webSocket('wss://1.rpc.thirdweb.com/...', {
   timeout: 60_000, // [!code focus]
 })
 ```

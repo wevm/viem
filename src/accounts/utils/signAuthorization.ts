@@ -1,14 +1,14 @@
 import type { ErrorType } from '../../errors/utils.js'
 import type {
-  Authorization,
+  AuthorizationRequest,
   SignedAuthorization,
-} from '../../experimental/eip7702/types/authorization.js'
+} from '../../types/authorization.js'
+import type { Hex, Signature } from '../../types/misc.js'
+import type { Prettify } from '../../types/utils.js'
 import {
   type HashAuthorizationErrorType,
   hashAuthorization,
-} from '../../experimental/eip7702/utils/hashAuthorization.js'
-import type { Hex, Signature } from '../../types/misc.js'
-import type { Prettify } from '../../types/utils.js'
+} from '../../utils/authorization/hashAuthorization.js'
 import {
   type SignErrorType,
   type SignParameters,
@@ -19,7 +19,7 @@ import {
 type To = 'object' | 'bytes' | 'hex'
 
 export type SignAuthorizationParameters<to extends To = 'object'> =
-  Authorization & {
+  AuthorizationRequest & {
     /** The private key to sign with. */
     privateKey: Hex
     to?: SignParameters<to>['to'] | undefined
@@ -37,24 +37,19 @@ export type SignAuthorizationErrorType =
 /**
  * Signs an Authorization hash in [EIP-7702 format](https://eips.ethereum.org/EIPS/eip-7702): `keccak256('0x05' || rlp([chain_id, address, nonce]))`.
  */
-export async function experimental_signAuthorization<to extends To = 'object'>(
+export async function signAuthorization<to extends To = 'object'>(
   parameters: SignAuthorizationParameters<to>,
 ): Promise<SignAuthorizationReturnType<to>> {
-  const {
-    contractAddress,
-    chainId,
-    nonce,
-    privateKey,
-    to = 'object',
-  } = parameters
+  const { chainId, nonce, privateKey, to = 'object' } = parameters
+  const address = parameters.contractAddress ?? parameters.address
   const signature = await sign({
-    hash: hashAuthorization({ contractAddress, chainId, nonce }),
+    hash: hashAuthorization({ address, chainId, nonce }),
     privateKey,
     to,
   })
   if (to === 'object')
     return {
-      contractAddress,
+      address,
       chainId,
       nonce,
       ...(signature as Signature),

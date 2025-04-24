@@ -317,6 +317,37 @@ export {
   getPermissions,
 } from './wallet/getPermissions.js'
 export {
+  type GetCapabilitiesParameters,
+  type GetCapabilitiesErrorType,
+  type GetCapabilitiesReturnType,
+  getCapabilities,
+} from './wallet/getCapabilities.js'
+export {
+  type SendCallsErrorType,
+  type SendCallsParameters,
+  type SendCallsReturnType,
+  sendCalls,
+} from './wallet/sendCalls.js'
+export {
+  type GetCallsStatusErrorType,
+  type GetCallsStatusParameters,
+  type GetCallsStatusReturnType,
+  getCallsStatus,
+} from './wallet/getCallsStatus.js'
+export {
+  type ShowCallsStatusErrorType,
+  type ShowCallsStatusParameters,
+  type ShowCallsStatusReturnType,
+  showCallsStatus,
+} from './wallet/showCallsStatus.js'
+export {
+  type WaitForCallsStatusErrorType,
+  type WaitForCallsStatusParameters,
+  type WaitForCallsStatusReturnType,
+  type WaitForCallsStatusTimeoutErrorType,
+  waitForCallsStatus,
+} from './wallet/waitForCallsStatus.js'
+export {
   type GetProofErrorType,
   type GetProofParameters,
   type GetProofReturnType,
@@ -380,6 +411,12 @@ export {
   revert,
 } from './test/revert.js'
 export {
+  type PrepareAuthorizationErrorType,
+  type PrepareAuthorizationParameters,
+  type PrepareAuthorizationReturnType,
+  prepareAuthorization,
+} from './wallet/prepareAuthorization.js'
+export {
   type PrepareTransactionRequestErrorType,
   type PrepareTransactionRequestParameters,
   type PrepareTransactionRequestReturnType,
@@ -392,6 +429,12 @@ export {
   type SendTransactionReturnType,
   sendTransaction,
 } from './wallet/sendTransaction.js'
+export {
+  type SignAuthorizationErrorType,
+  type SignAuthorizationParameters,
+  type SignAuthorizationReturnType,
+  signAuthorization,
+} from './wallet/signAuthorization.js'
 export {
   type SignTransactionErrorType,
   type SignTransactionParameters,

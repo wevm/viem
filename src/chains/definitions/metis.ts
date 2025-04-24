@@ -17,11 +17,10 @@ export const metis = /*#__PURE__*/ defineChain({
         'https://metis-andromeda.rpc.thirdweb.com',
         'https://metis-andromeda.gateway.tenderly.co',
         'https://metis.api.onfinality.io/public',
-        'wss://metis-rpc.publicnode.com',
         'https://andromeda.metis.io/?owner=1088',
-        'wss://metis.drpc.org',
         'https://metis-mainnet.public.blastapi.io',
       ],
+      webSocket: ['wss://metis-rpc.publicnode.com', 'wss://metis.drpc.org'],
     },
   },
   blockExplorers: {

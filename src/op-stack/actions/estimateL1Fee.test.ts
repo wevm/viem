@@ -1,10 +1,15 @@
+import { Hex } from 'ox'
 import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 
 import { anvilOptimism } from '../../../test/src/anvil.js'
-import { type TransactionRequestEIP1559, parseGwei } from '../../index.js'
-import { parseEther } from '../../utils/unit/parseEther.js'
+import { optimism } from '../../chains/index.js'
+import {
+  http,
+  type TransactionRequestEIP1559,
+  createClient,
+} from '../../index.js'
 import { estimateL1Fee } from './estimateL1Fee.js'
 
 const optimismClient = anvilOptimism.getClient()
@@ -12,10 +17,8 @@ const optimismClientWithAccount = anvilOptimism.getClient({ account: true })
 const optimismClientWithoutChain = anvilOptimism.getClient({ chain: false })
 
 const baseTransaction = {
-  maxFeePerGas: parseGwei('100'),
-  maxPriorityFeePerGas: parseGwei('1'),
+  data: '0xdeadbeef',
   to: accounts[1].address,
-  value: parseEther('0.1'),
 } as const satisfies Omit<TransactionRequestEIP1559, 'from'>
 
 test('default', async () => {
@@ -67,4 +70,16 @@ test('args: nullish chain', async () => {
     chain: null,
   })
   expect(fee).toBeDefined()
+})
+
+test('behavior: account with no funds', async () => {
+  const optimismClient = createClient({
+    chain: optimism,
+    transport: http(),
+  })
+  const gas = await estimateL1Fee(optimismClient, {
+    ...baseTransaction,
+    account: Hex.random(20),
+  })
+  expect(gas).toBeDefined()
 })

@@ -2,11 +2,11 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const zenchainTestnet = /*#__PURE__*/ defineChain({
   id: 8408,
-  name: 'Zenchain Testnet',
+  name: 'ZenChain Testnet',
   nativeCurrency: {
     decimals: 18,
-    name: 'ZCX',
-    symbol: 'ZCX',
+    name: 'ZTC',
+    symbol: 'ZTC',
   },
   rpcUrls: {
     default: {

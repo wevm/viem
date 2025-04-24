@@ -11,6 +11,7 @@ export const zircuitTestnet = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: [
+        'https://testnet.zircuit.com',
         'https://zircuit1-testnet.p2pify.com',
         'https://zircuit1-testnet.liquify.com',
       ],

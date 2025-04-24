@@ -8,6 +8,10 @@ const client = anvilMainnet.getClient()
 const optimismClient = anvilOptimism.getClient()
 
 test('waiting-to-prove', async () => {
+  await reset(client, {
+    blockNumber: 19868020n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
   await reset(optimismClient, {
     blockNumber: 131027672n,
     jsonRpcUrl: anvilOptimism.forkUrl,
@@ -26,6 +30,10 @@ test('waiting-to-prove', async () => {
 })
 
 test('ready-to-prove', async () => {
+  await reset(client, {
+    blockNumber: 19868020n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
   await reset(optimismClient, {
     blockNumber: 131027872n,
     jsonRpcUrl: anvilOptimism.forkUrl,

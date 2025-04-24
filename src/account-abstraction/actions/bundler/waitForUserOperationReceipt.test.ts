@@ -2,10 +2,11 @@ import { beforeEach, describe, expect, test, vi } from 'vitest'
 import {
   getSmartAccounts_06,
   getSmartAccounts_07,
+  getSmartAccounts_08,
 } from '../../../../test/src/account-abstraction.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
-import { mine } from '../../../actions/index.js'
+import { mine, signAuthorization } from '../../../actions/index.js'
 import { parseEther, parseGwei } from '../../../utils/index.js'
 import { wait } from '../../../utils/wait.js'
 import * as getUserOperationReceipt from './getUserOperationReceipt.js'
@@ -22,6 +23,173 @@ const fees = {
 
 beforeEach(async () => {
   await bundlerMainnet.restart()
+})
+
+describe('entryPointVersion: 0.8', async () => {
+  const [account] = await getSmartAccounts_08()
+
+  test('default', async () => {
+    const authorization = await signAuthorization(client, account.authorization)
+    const hash = await sendUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+      ],
+      authorization,
+      ...fees,
+    })
+
+    const [receipt] = await Promise.all([
+      waitForUserOperationReceipt(bundlerClient, {
+        hash,
+      }),
+      (async () => {
+        // Simulate some delay to send the bundle + mine block.
+        await wait(500)
+        await bundlerClient.request({
+          method: 'debug_bundler_sendBundleNow',
+        })
+        await mine(client, {
+          blocks: 1,
+        })
+      })(),
+    ])
+
+    expect(receipt.success).toBeTruthy()
+  })
+
+  test('args: pollingInterval', async () => {
+    const authorization = await signAuthorization(client, account.authorization)
+    const hash = await sendUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+      ],
+      authorization,
+      ...fees,
+    })
+
+    const [receipt] = await Promise.all([
+      waitForUserOperationReceipt(bundlerClient, {
+        hash,
+        pollingInterval: 100,
+      }),
+      (async () => {
+        // Simulate some delay to send the bundle + mine block.
+        await wait(100)
+        await bundlerClient.request({
+          method: 'debug_bundler_sendBundleNow',
+        })
+        await mine(client, {
+          blocks: 1,
+        })
+      })(),
+    ])
+
+    expect(receipt.success).toBeTruthy()
+  })
+
+  test('error: retryCount exceeded', async () => {
+    const authorization = await signAuthorization(client, account.authorization)
+    const hash = await sendUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+      ],
+      authorization,
+      ...fees,
+    })
+
+    await expect(() =>
+      Promise.all([
+        waitForUserOperationReceipt(bundlerClient, {
+          hash,
+          retryCount: 6,
+        }),
+        (async () => {
+          // Simulate some delay
+          await wait(500)
+        })(),
+      ]),
+    ).rejects.toThrowError('Timed out while waiting for User Operation')
+  })
+
+  test('error: timeout exceeded', async () => {
+    const authorization = await signAuthorization(client, account.authorization)
+    const hash = await sendUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+      ],
+      authorization,
+      ...fees,
+    })
+
+    await expect(() =>
+      Promise.all([
+        waitForUserOperationReceipt(bundlerClient, {
+          hash,
+          timeout: 100,
+        }),
+        (async () => {
+          // Simulate some delay
+          await wait(500)
+        })(),
+      ]),
+    ).rejects.toThrowError('Timed out while waiting for User Operation')
+  })
+
+  test('error: generic error', async () => {
+    const authorization = await signAuthorization(client, account.authorization)
+    const hash = await sendUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+      ],
+      authorization,
+      ...fees,
+    })
+
+    vi.spyOn(
+      getUserOperationReceipt,
+      'getUserOperationReceipt',
+    ).mockRejectedValueOnce(new Error('test'))
+
+    await expect(() =>
+      Promise.all([
+        waitForUserOperationReceipt(bundlerClient, {
+          hash,
+        }),
+        (async () => {
+          // Simulate some delay to send the bundle + mine block.
+          await wait(100)
+          await bundlerClient.request({
+            method: 'debug_bundler_sendBundleNow',
+          })
+          await mine(client, {
+            blocks: 1,
+          })
+        })(),
+      ]),
+    ).rejects.toMatchInlineSnapshot(`
+        [Error: test]
+      `)
+  })
 })
 
 describe('entryPointVersion: 0.7', async () => {
@@ -45,7 +213,7 @@ describe('entryPointVersion: 0.7', async () => {
       }),
       (async () => {
         // Simulate some delay to send the bundle + mine block.
-        await wait(100)
+        await wait(500)
         await bundlerClient.request({
           method: 'debug_bundler_sendBundleNow',
         })
@@ -202,7 +370,7 @@ describe('entryPointVersion: 0.6', async () => {
       }),
       (async () => {
         // Simulate some delay to send the bundle + mine block.
-        await wait(50)
+        await wait(500)
         await bundlerClient.request({
           method: 'debug_bundler_sendBundleNow',
         })
