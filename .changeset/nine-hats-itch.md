@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-add MemeCore mainnet and testnet
+Added MemeCore mainnet and testnet.
