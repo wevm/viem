@@ -25,10 +25,12 @@ import { http } from '../../clients/transports/http.js'
 import { signMessage as signMessageErc1271 } from '../../experimental/erc7739/actions/signMessage.js'
 import type { Hex } from '../../types/misc.js'
 import {
+  concat,
   encodeFunctionData,
   hashMessage,
   pad,
   serializeErc6492Signature,
+  slice,
   toBytes,
 } from '../../utils/index.js'
 import { parseSignature } from '../../utils/signature/parseSignature.js'
@@ -470,4 +472,19 @@ test('https://github.com/wevm/viem/issues/2484', async () => {
       signature,
     }),
   ).resolves.toBe(true)
+})
+
+test('https://github.com/wevm/viem/issues/3593', async () => {
+  const signature = await signMessage(client, {
+    account: localAccount,
+    message: 'hello world',
+  })
+
+  expect(
+    verifyHash(client, {
+      address: localAccount.address,
+      hash: hashMessage('hello world'),
+      signature: concat([slice(signature, 0, 64), '0x001b']),
+    }),
+  ).resolves.toBe(false)
 })
