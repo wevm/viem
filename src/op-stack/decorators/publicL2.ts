@@ -18,6 +18,11 @@ import {
   buildProveWithdrawal,
 } from '../actions/buildProveWithdrawal.js'
 import {
+  type BuildProveZircuitWithdrawalParameters,
+  type BuildProveZircuitWithdrawalReturnType,
+  buildProveZircuitWithdrawal,
+} from '../actions/buildProveZircuitWithdrawal.js'
+import {
   type EstimateContractL1FeeParameters,
   type EstimateContractL1FeeReturnType,
   estimateContractL1Fee,
@@ -144,6 +149,47 @@ export type PublicActionsL2<
     >,
   ) => Promise<
     BuildProveWithdrawalReturnType<
+      chain,
+      account,
+      chainOverride,
+      accountOverride
+    >
+  >
+
+  /**
+   * Builds the transaction that proves a withdrawal was initiated on an L2. Used in the Withdrawal flow.
+   *
+   * @param client - Client to use
+   * @param parameters - {@link BuildProveZircuitWithdrawalParameters}
+   * @returns The prove withdraw transaction request. {@link BuildProveZircuitWithdrawalReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { optimism } from 'viem/chains'
+   * import { buildProveZircuitWithdrawal } from 'viem/op-stack'
+   *
+   * const publicClientL2 = createPublicClient({
+   *   chain: optimism,
+   *   transport: http(),
+   * })
+   *
+   * const args = await buildProveZircuitWithdrawal(publicClientL2, {
+   *   output: { ... },
+   *   withdrawal: { ... },
+   * })
+   */
+  buildProveZircuitWithdrawal: <
+    chainOverride extends Chain | undefined = undefined,
+    accountOverride extends Account | Address | undefined = undefined,
+  >(
+    parameters: BuildProveZircuitWithdrawalParameters<
+      chain,
+      account,
+      chainOverride,
+      accountOverride
+    >,
+  ) => Promise<
+    BuildProveZircuitWithdrawalReturnType<
       chain,
       account,
       chainOverride,
@@ -498,6 +544,8 @@ export function publicActionsL2() {
     return {
       buildDepositTransaction: (args) => buildDepositTransaction(client, args),
       buildProveWithdrawal: (args) => buildProveWithdrawal(client, args),
+      buildProveZircuitWithdrawal: (args) =>
+        buildProveZircuitWithdrawal(client, args),
       estimateContractL1Fee: (args) => estimateContractL1Fee(client, args),
       estimateContractL1Gas: (args) => estimateContractL1Gas(client, args),
       estimateContractTotalFee: (args) =>

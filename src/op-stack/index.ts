@@ -18,6 +18,12 @@ export {
   type BuildProveWithdrawalReturnType,
 } from './actions/buildProveWithdrawal.js'
 export {
+  buildProveZircuitWithdrawal,
+  type BuildProveZircuitWithdrawalErrorType,
+  type BuildProveZircuitWithdrawalParameters,
+  type BuildProveZircuitWithdrawalReturnType,
+} from './actions/buildProveZircuitWithdrawal.js'
+export {
   depositTransaction,
   type DepositTransactionErrorType,
   type DepositTransactionParameters,

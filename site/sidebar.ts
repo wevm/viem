@@ -1487,6 +1487,10 @@ export const sidebar = {
             link: '/op-stack/actions/buildProveWithdrawal',
           },
           {
+            text: 'buildProveZircuitWithdrawal',
+            link: '/op-stack/actions/buildProveZircuitWithdrawal',
+          },
+          {
             text: 'estimateContractL1Fee',
             link: '/op-stack/actions/estimateContractL1Fee',
           },
