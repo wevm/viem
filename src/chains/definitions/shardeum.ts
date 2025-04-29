@@ -3,7 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const shardeum = /*#__PURE__*/ defineChain({
   id: 8118,
   name: 'Shardeum',
-  nativeCurrency: { name: 'SHARDEUM', symbol: 'SHM', decimals: 18 },
+  nativeCurrency: { name: 'Shardeum', symbol: 'SHM', decimals: 18 },
   rpcUrls: {
     default: {
       http: ['https://api.shardeum.org'],
