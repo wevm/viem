@@ -1,5 +1,15 @@
 # viem
 
+## 2.28.1
+
+### Patch Changes
+
+- [`982e2cadbe8647fbe59108080b5cb13327cbfbaa`](https://github.com/wevm/viem/commit/982e2cadbe8647fbe59108080b5cb13327cbfbaa) Thanks [@jxom](https://github.com/jxom)! - Added assertion for signature length in signature validation.
+
+- [#3596](https://github.com/wevm/viem/pull/3596) [`4b960104bd5bd3b277fc697a11dd0b7ff01be065`](https://github.com/wevm/viem/commit/4b960104bd5bd3b277fc697a11dd0b7ff01be065) Thanks [@tech-memecore](https://github.com/tech-memecore)! - Added MemeCore mainnet and testnet.
+
+- [#3599](https://github.com/wevm/viem/pull/3599) [`4bbab5f3e88268b8a4138460a4701ee3eb07adb8`](https://github.com/wevm/viem/commit/4bbab5f3e88268b8a4138460a4701ee3eb07adb8) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Shardeum mainnet.
+
 ## 2.28.0
 
 ### Minor Changes
