@@ -6,7 +6,7 @@ export const shardeum = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'SHARDEUM', symbol: 'SHM', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://api.shardeum.org/'],
+      http: ['https://api.shardeum.org'],
     },
   },
   blockExplorers: {
