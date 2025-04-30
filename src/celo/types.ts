@@ -40,19 +40,7 @@ export type CeloBlock<
     blockTag,
     CeloTransaction<blockTag extends 'pending' ? true : false>
   >,
-  {
-    difficulty?: bigint | undefined
-    gasLimit?: bigint | undefined
-    mixHash?: undefined
-    nonce?: bigint | null
-    randomness?:
-      | {
-          committed: Hex
-          revealed: Hex
-        }
-      | undefined
-    uncles?: undefined
-  }
+  {}
 >
 
 export type CeloRpcBlock<
@@ -64,19 +52,7 @@ export type CeloRpcBlock<
     includeTransactions,
     RpcTransaction<blockTag extends 'pending' ? true : false>
   >,
-  {
-    difficulty?: Hex | undefined
-    mixHash?: undefined
-    nonce?: Hex | null
-    gasLimit?: Hex | undefined
-    randomness?:
-      | {
-          committed: Hex
-          revealed: Hex
-        }
-      | undefined
-    uncles?: undefined
-  }
+  {}
 >
 
 export type CeloRpcTransaction<isPending extends boolean = boolean> = OneOf<
