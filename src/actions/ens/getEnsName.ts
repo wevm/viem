@@ -101,7 +101,6 @@ export async function getEnsName<chain extends Chain | undefined>(
     const readContractParameters = {
       address: universalResolverAddress,
       abi: universalResolverReverseAbi,
-
       args: [toHex(packetToBytes(reverseNode))],
       blockNumber,
       blockTag,
