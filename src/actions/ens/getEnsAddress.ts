@@ -137,7 +137,7 @@ export async function getEnsAddress<chain extends Chain | undefined>(
     const res = gatewayUrls
       ? await readContractAction({
           ...readContractSharedParams,
-          functionName: 'resolveWithGateways',
+          functionName: 'resolve',
           args: [...readContractSharedParams.args, gatewayUrls],
         })
       : await readContractAction({

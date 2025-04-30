@@ -112,7 +112,7 @@ export async function getEnsName<chain extends Chain | undefined>(
     const [name, resolvedAddress] = gatewayUrls
       ? await readContractAction({
           ...readContractParameters,
-          functionName: 'reverseWithGateways',
+          functionName: 'reverse',
           args: [...readContractParameters.args, gatewayUrls],
         })
       : await readContractAction({
