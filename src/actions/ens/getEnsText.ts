@@ -22,7 +22,6 @@ import {
 } from '../../utils/chain/getChainContractAddress.js'
 import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
 import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
-import { localBatchGatewayUrl } from '../../utils/ens/localBatchGatewayRequest.js'
 import { type NamehashErrorType, namehash } from '../../utils/ens/namehash.js'
 import {
   type PacketToBytesErrorType,
@@ -115,10 +114,11 @@ export async function getEnsText<chain extends Chain | undefined>(
   if (tlds && !tlds.some((tld) => name.endsWith(tld))) return null
 
   try {
-    const readContractParameters = {
+    const readContractSharedParams = {
       address: universalResolverAddress,
       abi: universalResolverResolveAbi,
-      functionName: 'resolve',
+      blockNumber,
+      blockTag,
       args: [
         toHex(packetToBytes(name)),
         encodeFunctionData({
@@ -126,15 +126,21 @@ export async function getEnsText<chain extends Chain | undefined>(
           functionName: 'text',
           args: [namehash(name), key],
         }),
-        gatewayUrls ?? [localBatchGatewayUrl],
       ],
-      blockNumber,
-      blockTag,
     } as const
 
     const readContractAction = getAction(client, readContract, 'readContract')
 
-    const res = await readContractAction(readContractParameters)
+    const res = gatewayUrls
+      ? await readContractAction({
+          ...readContractSharedParams,
+          functionName: 'resolveWithGateways',
+          args: [...readContractSharedParams.args, gatewayUrls],
+        })
+      : await readContractAction({
+          ...readContractSharedParams,
+          functionName: 'resolve',
+        })
 
     if (res[0] === '0x') return null
 

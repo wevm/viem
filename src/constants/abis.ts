@@ -159,7 +159,7 @@ export const universalResolverResolveAbi = [
     ],
   },
   {
-    name: 'resolve',
+    name: 'resolveWithGateways',
     type: 'function',
     stateMutability: 'view',
     inputs: [
@@ -189,7 +189,7 @@ export const universalResolverReverseAbi = [
     ],
   },
   {
-    name: 'reverse',
+    name: 'reverseWithGateways',
     type: 'function',
     stateMutability: 'view',
     inputs: [

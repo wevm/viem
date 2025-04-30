@@ -24,7 +24,6 @@ import {
 import { type TrimErrorType, trim } from '../../utils/data/trim.js'
 import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
 import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
-import { localBatchGatewayUrl } from '../../utils/ens/localBatchGatewayRequest.js'
 import { type NamehashErrorType, namehash } from '../../utils/ens/namehash.js'
 import {
   type PacketToBytesErrorType,
@@ -125,22 +124,26 @@ export async function getEnsAddress<chain extends Chain | undefined>(
         : { args: [namehash(name)] }),
     })
 
-    const readContractParameters = {
+    const readContractSharedParams = {
       address: universalResolverAddress,
       abi: universalResolverResolveAbi,
-      functionName: 'resolve',
-      args: [
-        toHex(packetToBytes(name)),
-        functionData,
-        gatewayUrls ?? [localBatchGatewayUrl],
-      ],
       blockNumber,
       blockTag,
+      args: [toHex(packetToBytes(name)), functionData],
     } as const
 
     const readContractAction = getAction(client, readContract, 'readContract')
 
-    const res = await readContractAction(readContractParameters)
+    const res = gatewayUrls
+      ? await readContractAction({
+          ...readContractSharedParams,
+          functionName: 'resolveWithGateways',
+          args: [...readContractSharedParams.args, gatewayUrls],
+        })
+      : await readContractAction({
+          ...readContractSharedParams,
+          functionName: 'resolve',
+        })
 
     if (res[0] === '0x') return null
 
