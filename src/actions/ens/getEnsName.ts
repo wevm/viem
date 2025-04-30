@@ -101,6 +101,7 @@ export async function getEnsName<chain extends Chain | undefined>(
     const readContractParameters = {
       address: universalResolverAddress,
       abi: universalResolverReverseAbi,
+      functionName: 'reverse',
       args: [toHex(packetToBytes(reverseNode))],
       blockNumber,
       blockTag,
@@ -111,13 +112,9 @@ export async function getEnsName<chain extends Chain | undefined>(
     const [name, resolvedAddress] = gatewayUrls
       ? await readContractAction({
           ...readContractParameters,
-          functionName: 'reverse',
           args: [...readContractParameters.args, gatewayUrls],
         })
-      : await readContractAction({
-          ...readContractParameters,
-          functionName: 'reverse',
-        })
+      : await readContractAction(readContractParameters)
 
     if (address.toLowerCase() !== resolvedAddress.toLowerCase()) return null
     return name
