@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixes ENS batch gateway function signatures
+Fixed ENS batch gateway signatures, and made Local Batch Gateway opt-in.
