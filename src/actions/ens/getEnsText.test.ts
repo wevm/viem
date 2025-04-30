@@ -72,6 +72,7 @@ test('name with resolver that does not support text() - strict', async () => {
       name: 'vitalik.eth',
       key: 'com.twitter',
       strict: true,
+      gatewayUrls: ['x-batch-gateway:true'],
     }),
   ).rejects.toMatchInlineSnapshot(`
     [ContractFunctionExecutionError: The contract function "resolve" reverted.
@@ -104,6 +105,7 @@ test('name without resolver - strict', async () => {
       name: 'random1223232222.eth',
       key: 'com.twitter',
       strict: true,
+      gatewayUrls: ['x-batch-gateway:true'],
     }),
   ).rejects.toMatchInlineSnapshot(`
     [ContractFunctionExecutionError: The contract function "resolve" reverted.
@@ -134,6 +136,7 @@ test('name with non-contract resolver - strict', async () => {
       name: 'vbuterin.eth',
       key: 'com.twitter',
       strict: true,
+      gatewayUrls: ['x-batch-gateway:true'],
     }),
   ).rejects.toMatchInlineSnapshot(`
     [ContractFunctionExecutionError: The contract function "resolve" reverted.
@@ -232,6 +235,7 @@ describe('universal resolver with generic errors', () => {
         key: 'com.twitter',
         strict: true,
         universalResolverAddress: '0xc0497E381f536Be9ce14B0dD3817cBcAe57d2F62',
+        gatewayUrls: ['x-batch-gateway:true'],
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [ContractFunctionExecutionError: The contract function "resolve" reverted with the following reason:
@@ -309,6 +313,7 @@ test('invalid universal resolver address', async () => {
       name: 'wagmi-dev.eth',
       key: 'com.twitter',
       universalResolverAddress: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
+      gatewayUrls: ['x-batch-gateway:true'],
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [ContractFunctionExecutionError: The contract function "resolve" reverted.

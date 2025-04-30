@@ -78,7 +78,11 @@ test('name with resolver that does not support addr', async () => {
 
 test('name with resolver that does not support addr - strict', async () => {
   await expect(
-    getEnsAddress(client, { name: 'vitalik.eth', strict: true }),
+    getEnsAddress(client, {
+      name: 'vitalik.eth',
+      strict: true,
+      gatewayUrls: ['x-batch-gateway:true'],
+    }),
   ).rejects.toMatchInlineSnapshot(`
     [ContractFunctionExecutionError: The contract function "resolve" reverted.
 
@@ -156,6 +160,34 @@ test('offchain: aggregated', async () => {
       "0x41563129cDbbD0c5D3e1c86cf9563926b243834d",
       "0x41563129cDbbD0c5D3e1c86cf9563926b243834d",
       null,
+    ]
+  `,
+  )
+})
+
+test('behavior: x-batch-gateway:true', async () => {
+  const client = createClient({
+    chain: mainnet,
+    batch: { multicall: true },
+    transport: http(process.env.VITE_ANVIL_FORK_URL),
+  })
+
+  const names = await Promise.all([
+    getEnsAddress(client, {
+      name: '1.offchainexample.eth',
+      gatewayUrls: ['x-batch-gateway:true'],
+    }),
+    getEnsAddress(client, {
+      name: '2.offchainexample.eth',
+      gatewayUrls: ['x-batch-gateway:true'],
+    }),
+  ])
+
+  expect(names).toMatchInlineSnapshot(
+    `
+    [
+      "0x41563129cDbbD0c5D3e1c86cf9563926b243834d",
+      "0x41563129cDbbD0c5D3e1c86cf9563926b243834d",
     ]
   `,
   )
@@ -241,6 +273,7 @@ test('invalid universal resolver address', async () => {
     getEnsAddress(client, {
       name: 'awkweb.eth',
       universalResolverAddress: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
+      gatewayUrls: ['x-batch-gateway:true'],
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [ContractFunctionExecutionError: The contract function "resolve" reverted.

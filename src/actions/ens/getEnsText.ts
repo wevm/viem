@@ -22,7 +22,6 @@ import {
 } from '../../utils/chain/getChainContractAddress.js'
 import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
 import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
-import { localBatchGatewayUrl } from '../../utils/ens/localBatchGatewayRequest.js'
 import { type NamehashErrorType, namehash } from '../../utils/ens/namehash.js'
 import {
   type PacketToBytesErrorType,
@@ -118,7 +117,6 @@ export async function getEnsText<chain extends Chain | undefined>(
     const readContractParameters = {
       address: universalResolverAddress,
       abi: universalResolverResolveAbi,
-      functionName: 'resolve',
       args: [
         toHex(packetToBytes(name)),
         encodeFunctionData({
@@ -126,15 +124,20 @@ export async function getEnsText<chain extends Chain | undefined>(
           functionName: 'text',
           args: [namehash(name), key],
         }),
-        gatewayUrls ?? [localBatchGatewayUrl],
       ],
       blockNumber,
       blockTag,
+      functionName: 'resolve',
     } as const
 
     const readContractAction = getAction(client, readContract, 'readContract')
 
-    const res = await readContractAction(readContractParameters)
+    const res = gatewayUrls
+      ? await readContractAction({
+          ...readContractParameters,
+          args: [...readContractParameters.args, gatewayUrls],
+        })
+      : await readContractAction(readContractParameters)
 
     if (res[0] === '0x') return null
 
