@@ -165,6 +165,34 @@ test('offchain: aggregated', async () => {
   )
 })
 
+test('behavior: x-batch-gateway:true', async () => {
+  const client = createClient({
+    chain: mainnet,
+    batch: { multicall: true },
+    transport: http(process.env.VITE_ANVIL_FORK_URL),
+  })
+
+  const names = await Promise.all([
+    getEnsAddress(client, {
+      name: '1.offchainexample.eth',
+      gatewayUrls: ['x-batch-gateway:true'],
+    }),
+    getEnsAddress(client, {
+      name: '2.offchainexample.eth',
+      gatewayUrls: ['x-batch-gateway:true'],
+    }),
+  ])
+
+  expect(names).toMatchInlineSnapshot(
+    `
+    [
+      "0x41563129cDbbD0c5D3e1c86cf9563926b243834d",
+      "0x41563129cDbbD0c5D3e1c86cf9563926b243834d",
+    ]
+  `,
+  )
+})
+
 test('custom universal resolver address', async () => {
   await expect(
     getEnsAddress(client, {

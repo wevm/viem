@@ -124,26 +124,23 @@ export async function getEnsAddress<chain extends Chain | undefined>(
         : { args: [namehash(name)] }),
     })
 
-    const readContractSharedParams = {
+    const readContractParameters = {
       address: universalResolverAddress,
       abi: universalResolverResolveAbi,
+      args: [toHex(packetToBytes(name)), functionData],
       blockNumber,
       blockTag,
-      args: [toHex(packetToBytes(name)), functionData],
+      functionName: 'resolve',
     } as const
 
     const readContractAction = getAction(client, readContract, 'readContract')
 
     const res = gatewayUrls
       ? await readContractAction({
-          ...readContractSharedParams,
-          functionName: 'resolve',
-          args: [...readContractSharedParams.args, gatewayUrls],
+          ...readContractParameters,
+          args: [...readContractParameters.args, gatewayUrls],
         })
-      : await readContractAction({
-          ...readContractSharedParams,
-          functionName: 'resolve',
-        })
+      : await readContractAction(readContractParameters)
 
     if (res[0] === '0x') return null
 

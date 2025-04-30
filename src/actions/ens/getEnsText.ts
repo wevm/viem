@@ -114,11 +114,9 @@ export async function getEnsText<chain extends Chain | undefined>(
   if (tlds && !tlds.some((tld) => name.endsWith(tld))) return null
 
   try {
-    const readContractSharedParams = {
+    const readContractParameters = {
       address: universalResolverAddress,
       abi: universalResolverResolveAbi,
-      blockNumber,
-      blockTag,
       args: [
         toHex(packetToBytes(name)),
         encodeFunctionData({
@@ -127,20 +125,19 @@ export async function getEnsText<chain extends Chain | undefined>(
           args: [namehash(name), key],
         }),
       ],
+      blockNumber,
+      blockTag,
+      functionName: 'resolve',
     } as const
 
     const readContractAction = getAction(client, readContract, 'readContract')
 
     const res = gatewayUrls
       ? await readContractAction({
-          ...readContractSharedParams,
-          functionName: 'resolve',
-          args: [...readContractSharedParams.args, gatewayUrls],
+          ...readContractParameters,
+          args: [...readContractParameters.args, gatewayUrls],
         })
-      : await readContractAction({
-          ...readContractSharedParams,
-          functionName: 'resolve',
-        })
+      : await readContractAction(readContractParameters)
 
     if (res[0] === '0x') return null
 
