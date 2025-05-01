@@ -1,5 +1,13 @@
 # viem
 
+## 2.28.2
+
+### Patch Changes
+
+- [#3600](https://github.com/wevm/viem/pull/3600) [`198504d07507e9ece02f00241a567bec43eae38a`](https://github.com/wevm/viem/commit/198504d07507e9ece02f00241a567bec43eae38a) Thanks [@TateB](https://github.com/TateB)! - Added `type` parameter to `sendTransaction`.
+
+- [#3607](https://github.com/wevm/viem/pull/3607) [`e39d6c1ea4a54866bfeb7eadb445598d20033798`](https://github.com/wevm/viem/commit/e39d6c1ea4a54866bfeb7eadb445598d20033798) Thanks [@Ryan-Adami](https://github.com/Ryan-Adami)! - Updated Fraxtal and Fraxtal testnet native currency to FRAX.
+
 ## 2.28.1
 
 ### Patch Changes
