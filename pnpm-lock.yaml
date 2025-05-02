@@ -23,6 +23,10 @@ overrides:
 importers:
 
   .:
+    dependencies:
+      viem:
+        specifier: ^2.28.3
+        version: 2.28.3(typescript@5.8.2)(zod@3.23.8)
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: ^0.15.4
@@ -80,7 +84,7 @@ importers:
         version: 0.14.0
       permissionless:
         specifier: ^0.2.14
-        version: 0.2.14
+        version: 0.2.14(viem@2.28.3(typescript@5.8.2)(zod@3.23.8))
       prool:
         specifier: 0.0.24
         version: 0.0.24(@pimlico/alto@0.0.18(typescript@5.8.2))
@@ -6232,6 +6236,14 @@ packages:
       typescript:
         optional: true
 
+  viem@2.28.3:
+    resolution: {integrity: sha512-kGYmSHNmzXqg7uZlaV6OEL1p68Z45BYTRPsUM0jYLmOn2zWy6DRA+YxntKnt6jBiCPjiWbVrbFm5QS6TWnfAXQ==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   viem@file:src:
     resolution: {directory: src, type: directory}
     peerDependencies:
@@ -7756,7 +7768,7 @@ snapshots:
       pino-pretty: 10.3.1
       prom-client: 14.2.0
       type-fest: 4.39.0
-      viem: 2.27.3(typescript@5.8.2)(zod@3.23.8)
+      viem: 2.28.3(typescript@5.8.2)(zod@3.23.8)
       yargs: 17.7.2
       zod: 3.23.8
       zod-validation-error: 1.5.0(zod@3.23.8)
@@ -11804,7 +11816,9 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.14: {}
+  permissionless@0.2.14(viem@2.28.3(typescript@5.8.2)(zod@3.23.8)):
+    dependencies:
+      viem: 2.28.3(typescript@5.8.2)(zod@3.23.8)
 
   picocolors@1.1.1: {}
 
@@ -13035,7 +13049,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.27.3(typescript@5.8.2)(zod@3.23.8):
+  viem@2.28.3(typescript@5.8.2)(zod@3.23.8):
     dependencies:
       '@noble/curves': 1.8.2
       '@noble/hashes': 1.7.2
