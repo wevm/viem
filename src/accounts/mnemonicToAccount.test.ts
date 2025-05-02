@@ -9,6 +9,14 @@ import { mnemonicToAccount } from './mnemonicToAccount.js'
 
 const mnemonic = 'test test test test test test test test test test test junk'
 
+test('invalid mnemonic', () => {
+  expect(() =>
+    mnemonicToAccount(
+      ' test test test test test test test test test test test zero',
+    ),
+  ).toThrow()
+})
+
 test('default', () => {
   expect(mnemonicToAccount(mnemonic)).toMatchInlineSnapshot(`
     {

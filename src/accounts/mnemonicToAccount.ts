@@ -1,5 +1,5 @@
 import { HDKey } from '@scure/bip32'
-import { mnemonicToSeedSync } from '@scure/bip39'
+import { mnemonicToSeedSync, validateMnemonic } from '@scure/bip39'
 
 import type { ErrorType } from '../errors/utils.js'
 import {
@@ -8,6 +8,7 @@ import {
   hdKeyToAccount,
 } from './hdKeyToAccount.js'
 import type { HDAccount } from './types.js'
+import { english } from './wordlists.js'
 
 export type MnemonicToAccountOptions = HDKeyToAccountOptions
 
@@ -22,6 +23,9 @@ export function mnemonicToAccount(
   mnemonic: string,
   opts: MnemonicToAccountOptions = {},
 ): HDAccount {
+  if (!validateMnemonic(mnemonic, english)) {
+    throw new Error('Invalid mnemonic')
+  }
   const seed = mnemonicToSeedSync(mnemonic)
   return hdKeyToAccount(HDKey.fromMasterSeed(seed), opts)
 }
