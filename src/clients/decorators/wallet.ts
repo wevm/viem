@@ -238,9 +238,9 @@ export type WalletActions<
    *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
    * })
    */
-  getCapabilities: (
-    parameters?: GetCapabilitiesParameters,
-  ) => Promise<GetCapabilitiesReturnType>
+  getCapabilities: <chainId extends number | undefined>(
+    parameters?: GetCapabilitiesParameters<chainId>,
+  ) => Promise<GetCapabilitiesReturnType<chainId>>
   /**
    * Returns the chain ID associated with the current network.
    *
@@ -963,7 +963,7 @@ export function walletActions<
     deployContract: (args) => deployContract(client, args),
     getAddresses: () => getAddresses(client),
     getCallsStatus: (args) => getCallsStatus(client, args),
-    getCapabilities: () => getCapabilities(client),
+    getCapabilities: (args) => getCapabilities(client, args),
     getChainId: () => getChainId(client),
     getPermissions: () => getPermissions(client),
     prepareAuthorization: (args) => prepareAuthorization(client, args),
