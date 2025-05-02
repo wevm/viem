@@ -1,5 +1,11 @@
 # viem
 
+## 2.28.3
+
+### Patch Changes
+
+- [#3611](https://github.com/wevm/viem/pull/3611) [`6cc31bbc87c788b0ccad15ab648e467222ae9105`](https://github.com/wevm/viem/commit/6cc31bbc87c788b0ccad15ab648e467222ae9105) Thanks [@jxom](https://github.com/jxom)! - Passed `chainId` to `wallet_getCapabilities`.
+
 ## 2.28.2
 
 ### Patch Changes
