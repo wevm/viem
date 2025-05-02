@@ -15,5 +15,5 @@ export const arenaz = /*#__PURE__*/ defineChain({
       url: 'https://explorer.arena-z.gg',
       apiUrl: 'https://explorer.arena-z.gg',
     },
-  }
+  },
 })
