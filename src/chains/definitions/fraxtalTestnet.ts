@@ -7,7 +7,7 @@ export const fraxtalTestnet = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 2522,
   name: 'Fraxtal Testnet',
-  nativeCurrency: { name: 'Frax Ether', symbol: 'frxETH', decimals: 18 },
+  nativeCurrency: { name: 'Frax', symbol: 'FRAX', decimals: 18 },
   rpcUrls: {
     default: {
       http: ['https://rpc.testnet.frax.com'],

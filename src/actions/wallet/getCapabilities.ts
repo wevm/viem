@@ -11,6 +11,7 @@ import type {
 } from '../../types/eip1193.js'
 import type { Prettify } from '../../types/utils.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
+import { numberToHex } from '../../utils/encoding/toHex.js'
 
 export type GetCapabilitiesParameters<
   chainId extends number | undefined = undefined,
@@ -59,9 +60,12 @@ export async function getCapabilities<
 
   const account_ = account ? parseAccount(account) : undefined
 
+  const params = chainId
+    ? ([account_?.address, [numberToHex(chainId)]] as const)
+    : ([account_?.address] as const)
   const capabilities_raw = await client.request({
     method: 'wallet_getCapabilities',
-    params: [account_?.address],
+    params,
   })
 
   const capabilities = {} as WalletCapabilitiesRecord<

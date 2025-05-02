@@ -19,5 +19,5 @@ export async function recoverAddress({
   hash,
   signature,
 }: RecoverAddressParameters): Promise<RecoverAddressReturnType> {
-  return publicKeyToAddress(await recoverPublicKey({ hash: hash, signature }))
+  return publicKeyToAddress(await recoverPublicKey({ hash, signature }))
 }

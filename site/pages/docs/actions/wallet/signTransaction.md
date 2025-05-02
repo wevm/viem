@@ -251,6 +251,24 @@ const signature = await walletClient.signTransaction({
 })
 ```
 
+### gas (optional)
+
+- **Type:** `bigint`
+
+The gas limit of the transaction. If missing, it will be estimated.
+
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
+// @noErrors
+const signature = await walletClient.signTransaction({
+  account,
+  gas: 21000n, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: parseEther('1') 
+})
+```
+
 ### gasPrice (optional)
 
 - **Type:** `bigint`
