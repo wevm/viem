@@ -13,7 +13,6 @@ export {
   type ParseAbiItem,
   type ParseAbiParameter,
   type ParseAbiParameters,
-  type ResolvedRegister,
   type TypedData,
   type TypedDataDomain,
   type TypedDataParameter,
@@ -1186,6 +1185,7 @@ export type {
   SignedAuthorization,
   SignedAuthorizationList,
 } from './types/authorization.js'
+export type { ResolvedRegister } from './types/register.js'
 export type {
   Index,
   Quantity,

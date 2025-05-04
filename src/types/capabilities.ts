@@ -1,7 +1,10 @@
 import type { Hex } from './misc.js'
+import type { ResolvedRegister } from './register.js'
 import type { Prettify } from './utils.js'
 
-export type CapabilitiesSchema = {
+export type CapabilitiesSchema = ResolvedRegister['CapabilitiesSchema']
+
+export type DefaultCapabilitiesSchema = {
   getCapabilities: {
     ReturnType: {
       atomic?:
