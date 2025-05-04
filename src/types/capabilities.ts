@@ -42,11 +42,11 @@ export type ChainIdToCapabilities<
 }
 
 export type ExtractCapabilities<
-  capability extends string,
+  method extends string,
   key extends 'Request' | 'ReturnType',
 > = Prettify<
-  capability extends keyof CapabilitiesSchema
-    ? CapabilitiesSchema[capability] extends {
+  method extends keyof CapabilitiesSchema
+    ? CapabilitiesSchema[method] extends {
         [k in key]: infer value extends Record<string, any>
       }
       ? Capabilities<value>
