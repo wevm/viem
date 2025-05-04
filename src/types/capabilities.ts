@@ -12,7 +12,7 @@ export type DefaultCapabilitiesSchema = {
             status: 'supported' | 'ready' | 'unsupported'
           }
         | undefined
-      experimental_paymasterService?:
+      paymasterService?:
         | {
             supported: boolean
           }
@@ -21,7 +21,7 @@ export type DefaultCapabilitiesSchema = {
   }
   sendCalls: {
     Request: {
-      experimental_paymasterService?:
+      paymasterService?:
         | {
             [chainId: number]: {
               url: string

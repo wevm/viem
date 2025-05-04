@@ -14,14 +14,11 @@ import type {
 import type { Hex } from '../../types/misc.js'
 import { getHttpRpcClient, parseEther } from '../../utils/index.js'
 import { uid } from '../../utils/uid.js'
-import { reset } from '../index.js'
 import { sendCalls } from './sendCalls.js'
 
 type Uid = string
 type TxHashes = Hex[]
 const calls = new Map<Uid, TxHashes[]>()
-
-const testClient = anvilMainnet.getClient()
 
 const getClient = <chain extends Chain | undefined = undefined>({
   chain,
@@ -136,11 +133,6 @@ test('default', async () => {
     },
   })
 
-  await reset(testClient, {
-    blockNumber: 16280770n,
-    jsonRpcUrl: anvilMainnet.forkUrl,
-  })
-
   const response = await sendCalls(client, {
     account: accounts[0].address,
     chain: mainnet,
@@ -203,7 +195,7 @@ test('default', async () => {
               "value": undefined,
             },
           ],
-          "capabilities": undefined,
+          "capabilities": {},
           "chainId": "0x1",
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "id": undefined,
@@ -222,11 +214,6 @@ test('behavior: chain on client', async () => {
     onRequest({ params }) {
       requests.push(params)
     },
-  })
-
-  await reset(testClient, {
-    blockNumber: 16280770n,
-    jsonRpcUrl: anvilMainnet.forkUrl,
   })
 
   const { id } = await sendCalls(client, {
@@ -290,7 +277,7 @@ test('behavior: chain on client', async () => {
               "value": undefined,
             },
           ],
-          "capabilities": undefined,
+          "capabilities": {},
           "chainId": "0x1",
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "id": undefined,
@@ -308,11 +295,6 @@ test('behavior: inferred account', async () => {
     onRequest({ params }) {
       requests.push(params)
     },
-  })
-
-  await reset(testClient, {
-    blockNumber: 16280770n,
-    jsonRpcUrl: anvilMainnet.forkUrl,
   })
 
   const { id } = await sendCalls(client, {
@@ -377,9 +359,66 @@ test('behavior: inferred account', async () => {
               "value": undefined,
             },
           ],
-          "capabilities": undefined,
+          "capabilities": {},
           "chainId": "0x1",
           "from": undefined,
+          "id": undefined,
+          "version": "2.0.0",
+        },
+      ],
+    ]
+  `)
+})
+
+test('behavior: capability: paymasterService', async () => {
+  const requests: unknown[] = []
+
+  const client = getClient({
+    onRequest({ params }) {
+      requests.push(params)
+    },
+  })
+
+  const response = await sendCalls(client, {
+    account: accounts[0].address,
+    capabilities: {
+      paymasterService: {
+        1: {
+          url: 'https://paymaster.com',
+        },
+      },
+    },
+    chain: mainnet,
+    calls: [
+      {
+        to: accounts[1].address,
+        value: parseEther('1'),
+      },
+    ],
+  })
+
+  expect(response.id).toBeDefined()
+  expect(requests).toMatchInlineSnapshot(`
+    [
+      [
+        {
+          "atomicRequired": false,
+          "calls": [
+            {
+              "data": undefined,
+              "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+              "value": "0xde0b6b3a7640000",
+            },
+          ],
+          "capabilities": {
+            "paymasterService": {
+              "0x1": {
+                "url": "https://paymaster.com",
+              },
+            },
+          },
+          "chainId": "0x1",
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "id": undefined,
           "version": "2.0.0",
         },

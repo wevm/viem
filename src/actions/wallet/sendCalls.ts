@@ -82,7 +82,6 @@ export async function sendCalls<
 ): Promise<SendCallsReturnType> {
   const {
     account: account_ = client.account,
-    capabilities,
     chain = client.chain,
     forceAtomic = false,
     id,
@@ -121,7 +120,7 @@ export async function sendCalls<
           {
             atomicRequired: forceAtomic,
             calls,
-            capabilities,
+            capabilities: formatRequestCapabilities(parameters.capabilities),
             chainId: numberToHex(chain!.id),
             from: account?.address,
             id,
@@ -139,5 +138,28 @@ export async function sendCalls<
       account,
       chain: parameters.chain!,
     })
+  }
+}
+
+export function formatRequestCapabilities(
+  capabilities: ExtractCapabilities<'sendCalls', 'Request'> | undefined,
+) {
+  const paymasterService = capabilities?.paymasterService
+    ? Object.entries(capabilities.paymasterService).reduce(
+        (paymasterService, [chainId, value]) => ({
+          ...(paymasterService ?? {}),
+          [numberToHex(Number(chainId))]: value,
+        }),
+        {},
+      )
+    : undefined
+
+  return {
+    ...capabilities,
+    ...(paymasterService
+      ? {
+          paymasterService,
+        }
+      : {}),
   }
 }
