@@ -6,9 +6,10 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type {
-  WalletCapabilities,
-  WalletCapabilitiesRecord,
-} from '../../types/eip1193.js'
+  Capabilities,
+  ChainIdToCapabilities,
+  ExtractCapabilities,
+} from '../../types/capabilities.js'
 import type { Prettify } from '../../types/utils.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
@@ -24,8 +25,11 @@ export type GetCapabilitiesReturnType<
   chainId extends number | undefined = undefined,
 > = Prettify<
   chainId extends number
-    ? WalletCapabilities
-    : WalletCapabilitiesRecord<WalletCapabilities, number>
+    ? ExtractCapabilities<'getCapabilities', 'ReturnType'>
+    : ChainIdToCapabilities<
+        Capabilities<ExtractCapabilities<'getCapabilities', 'ReturnType'>>,
+        number
+      >
 >
 
 export type GetCapabilitiesErrorType = RequestErrorType | ErrorType
@@ -68,12 +72,12 @@ export async function getCapabilities<
     params,
   })
 
-  const capabilities = {} as WalletCapabilitiesRecord<
-    WalletCapabilities,
+  const capabilities = {} as ChainIdToCapabilities<
+    ExtractCapabilities<'getCapabilities', 'ReturnType'>,
     number
   >
   for (const [key, value] of Object.entries(capabilities_raw))
-    capabilities[Number(key)] = value
+    capabilities[Number(key)] = value as never
   return (
     typeof chainId === 'number' ? capabilities[chainId] : capabilities
   ) as never

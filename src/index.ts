@@ -1106,6 +1106,16 @@ export type {
   Uncle,
 } from './types/block.js'
 export type {
+  Capabilities,
+  /** @deprecated Use `Capabilities` instead. */
+  Capabilities as WalletCapabilities,
+  CapabilitiesSchema,
+  /** @deprecated Use `ChainIdToCapabilities` instead. */
+  ChainIdToCapabilities as WalletCapabilitiesRecord,
+  ChainIdToCapabilities,
+  ExtractCapabilities,
+} from './types/capabilities.js'
+export type {
   ByteArray,
   Hash,
   Hex,
@@ -1133,8 +1143,6 @@ export type {
   RpcSchema,
   RpcSchemaOverride,
   TestRpcSchema,
-  WalletCapabilities,
-  WalletCapabilitiesRecord,
   WalletCallReceipt,
   WalletGetCallsStatusReturnType,
   WalletGrantPermissionsParameters,

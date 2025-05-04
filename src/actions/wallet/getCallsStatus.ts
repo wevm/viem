@@ -2,11 +2,9 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
+import type { ExtractCapabilities } from '../../types/capabilities.js'
 import type { Chain } from '../../types/chain.js'
-import type {
-  WalletCapabilities,
-  WalletGetCallsStatusReturnType,
-} from '../../types/eip1193.js'
+import type { WalletGetCallsStatusReturnType } from '../../types/eip1193.js'
 import type { Prettify } from '../../types/utils.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { hexToBigInt, hexToNumber } from '../../utils/encoding/fromHex.js'
@@ -17,7 +15,7 @@ export type GetCallsStatusParameters = { id: string }
 export type GetCallsStatusReturnType = Prettify<
   Omit<
     WalletGetCallsStatusReturnType<
-      WalletCapabilities,
+      ExtractCapabilities<'getCallsStatus', 'ReturnType'>,
       number,
       bigint,
       'success' | 'reverted'
