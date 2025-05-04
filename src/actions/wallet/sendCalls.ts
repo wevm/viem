@@ -7,11 +7,10 @@ import type { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../types/account.js'
 import type { Call, Calls } from '../../types/calls.js'
+import type { ExtractCapabilities } from '../../types/capabilities.js'
 import type { Chain, DeriveChain } from '../../types/chain.js'
-import type {
-  WalletCapabilities,
-  WalletSendCallsParameters,
-} from '../../types/eip1193.js'
+import type { WalletSendCallsParameters } from '../../types/eip1193.js'
+import type { Prettify } from '../../types/utils.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
@@ -27,16 +26,16 @@ export type SendCallsParameters<
 > = {
   chain?: chainOverride | Chain | undefined
   calls: Calls<Narrow<calls>>
-  capabilities?: WalletCapabilities | undefined
+  capabilities?: ExtractCapabilities<'sendCalls', 'Request'> | undefined
   forceAtomic?: boolean | undefined
   id?: string | undefined
   version?: WalletSendCallsParameters[number]['version'] | undefined
 } & GetAccountParameter<account, Account | Address, true, true>
 
-export type SendCallsReturnType = {
-  capabilities?: WalletCapabilities | undefined
+export type SendCallsReturnType = Prettify<{
+  capabilities?: ExtractCapabilities<'sendCalls', 'ReturnType'> | undefined
   id: string
-}
+}>
 
 export type SendCallsErrorType = RequestErrorType | ErrorType
 
@@ -83,7 +82,6 @@ export async function sendCalls<
 ): Promise<SendCallsReturnType> {
   const {
     account: account_ = client.account,
-    capabilities,
     chain = client.chain,
     forceAtomic = false,
     id,
@@ -122,7 +120,7 @@ export async function sendCalls<
           {
             atomicRequired: forceAtomic,
             calls,
-            capabilities,
+            capabilities: formatRequestCapabilities(parameters.capabilities),
             chainId: numberToHex(chain!.id),
             from: account?.address,
             id,
@@ -133,12 +131,35 @@ export async function sendCalls<
       { retryCount: 0 },
     )
     if (typeof response === 'string') return { id: response }
-    return response
+    return response as never
   } catch (err) {
     throw getTransactionError(err as BaseError, {
       ...parameters,
       account,
       chain: parameters.chain!,
     })
+  }
+}
+
+function formatRequestCapabilities(
+  capabilities: ExtractCapabilities<'sendCalls', 'Request'> | undefined,
+) {
+  const paymasterService = capabilities?.paymasterService
+    ? Object.entries(capabilities.paymasterService).reduce(
+        (paymasterService, [chainId, value]) => ({
+          ...(paymasterService ?? {}),
+          [numberToHex(Number(chainId))]: value,
+        }),
+        {},
+      )
+    : undefined
+
+  return {
+    ...capabilities,
+    ...(paymasterService
+      ? {
+          paymasterService,
+        }
+      : {}),
   }
 }

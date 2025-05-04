@@ -13,7 +13,6 @@ export {
   type ParseAbiItem,
   type ParseAbiParameter,
   type ParseAbiParameters,
-  type ResolvedRegister,
   type TypedData,
   type TypedDataDomain,
   type TypedDataParameter,
@@ -1106,6 +1105,16 @@ export type {
   Uncle,
 } from './types/block.js'
 export type {
+  Capabilities,
+  /** @deprecated Use `Capabilities` instead. */
+  Capabilities as WalletCapabilities,
+  CapabilitiesSchema,
+  /** @deprecated Use `ChainIdToCapabilities` instead. */
+  ChainIdToCapabilities as WalletCapabilitiesRecord,
+  ChainIdToCapabilities,
+  ExtractCapabilities,
+} from './types/capabilities.js'
+export type {
   ByteArray,
   Hash,
   Hex,
@@ -1133,8 +1142,6 @@ export type {
   RpcSchema,
   RpcSchemaOverride,
   TestRpcSchema,
-  WalletCapabilities,
-  WalletCapabilitiesRecord,
   WalletCallReceipt,
   WalletGetCallsStatusReturnType,
   WalletGrantPermissionsParameters,
@@ -1178,6 +1185,7 @@ export type {
   SignedAuthorization,
   SignedAuthorizationList,
 } from './types/authorization.js'
+export type { ResolvedRegister } from './types/register.js'
 export type {
   Index,
   Quantity,

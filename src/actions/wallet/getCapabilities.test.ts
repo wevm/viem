@@ -14,11 +14,11 @@ const client = createClient({
       if (method === 'wallet_getCapabilities')
         return {
           '0x2105': {
+            atomic: {
+              status: 'supported',
+            },
             paymasterService: {
               supported: params[0] === accounts[0].address,
-            },
-            sessionKeys: {
-              supported: true,
             },
           },
           '0x14A34': {
@@ -38,11 +38,11 @@ test('default', async () => {
   expect(capabilities).toMatchInlineSnapshot(`
     {
       "8453": {
+        "atomic": {
+          "status": "supported",
+        },
         "paymasterService": {
           "supported": false,
-        },
-        "sessionKeys": {
-          "supported": true,
         },
       },
       "84532": {
@@ -61,10 +61,10 @@ test('args: account', async () => {
   expect(capabilities).toMatchInlineSnapshot(`
     {
       "8453": {
-        "paymasterService": {
-          "supported": true,
+        "atomic": {
+          "status": "supported",
         },
-        "sessionKeys": {
+        "paymasterService": {
           "supported": true,
         },
       },
@@ -84,10 +84,10 @@ test('args: chainId', async () => {
   })
   expect(capabilities).toMatchInlineSnapshot(`
     {
-      "paymasterService": {
-        "supported": true,
+      "atomic": {
+        "status": "supported",
       },
-      "sessionKeys": {
+      "paymasterService": {
         "supported": true,
       },
     }
@@ -104,11 +104,11 @@ test('behavior: account on client', async () => {
   expect(capabilities).toMatchInlineSnapshot(`
     {
       "8453": {
+        "atomic": {
+          "status": "supported",
+        },
         "paymasterService": {
           "supported": false,
-        },
-        "sessionKeys": {
-          "supported": true,
         },
       },
       "84532": {
