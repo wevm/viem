@@ -141,7 +141,7 @@ export async function sendCalls<
   }
 }
 
-export function formatRequestCapabilities(
+function formatRequestCapabilities(
   capabilities: ExtractCapabilities<'sendCalls', 'Request'> | undefined,
 ) {
   const paymasterService = capabilities?.paymasterService
