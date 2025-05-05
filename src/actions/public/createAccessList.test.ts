@@ -32,7 +32,7 @@ test('default', async () => {
 
 test('args: blockNumber', async () => {
   const result = await createAccessList(client, {
-    blockNumber: 17080000n,
+    blockNumber: 22263623n,
     data: encodeFunctionData({
       abi: wagmiContractConfig.abi,
       functionName: 'name',
@@ -41,7 +41,14 @@ test('args: blockNumber', async () => {
   })
   expect(result).toMatchInlineSnapshot(`
     {
-      "accessList": [],
+      "accessList": [
+        {
+          "address": "0xfba3912ca04dd458c843e2ee08967fc04f3579c2",
+          "storageKeys": [
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+          ],
+        },
+      ],
       "gasUsed": 26671n,
     }
   `)
