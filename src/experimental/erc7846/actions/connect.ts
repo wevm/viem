@@ -97,7 +97,7 @@ function formatRequestCapabilities(
 ) {
   const {
     experimental_addSubAccount,
-    experimental_getSubAccounts,
+    experimental_getSubAccounts: getSubAccounts,
     experimental_signInWithEthereum,
     ...rest
   } = capabilities ?? {}
@@ -149,9 +149,9 @@ function formatRequestCapabilities(
           addSubAccount,
         }
       : {}),
-    ...(experimental_getSubAccounts
+    ...(getSubAccounts
       ? {
-          getSubAccounts: experimental_getSubAccounts,
+          getSubAccounts,
         }
       : {}),
     ...(signInWithEthereum
