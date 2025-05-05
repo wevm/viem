@@ -17,7 +17,7 @@ const client = createClient({
             atomic: {
               status: 'supported',
             },
-            experimental_addSubAccount: {
+            unstable_addSubAccount: {
               keyTypes: ['address', 'p256', 'webcrypto-p256', 'webauthn-p256'],
               supported: true,
             },

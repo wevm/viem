@@ -6,9 +6,9 @@ import { connect } from './connect.js'
 const client = anvilMainnet.getClient()
 
 test('default', async () => {
-  const accounts = await connect(client)
+  const response = await connect(client)
 
-  expect(accounts).toMatchInlineSnapshot(`
+  expect(response).toMatchInlineSnapshot(`
     {
       "accounts": [
         {
@@ -30,8 +30,8 @@ describe('behavior: eth_requestAccounts fallback', async () => {
       return request(parameters)
     }
 
-    const accounts = await connect(client)
-    expect(accounts).toMatchInlineSnapshot(`
+    const response = await connect(client)
+    expect(response).toMatchInlineSnapshot(`
     {
       "accounts": [
         {
@@ -55,7 +55,7 @@ describe('behavior: eth_requestAccounts fallback', async () => {
     await expect(() =>
       connect(client, {
         capabilities: {
-          experimental_signInWithEthereum: {
+          unstable_signInWithEthereum: {
             chainId: 1,
             nonce: 'abcd1234',
           },
@@ -67,16 +67,16 @@ describe('behavior: eth_requestAccounts fallback', async () => {
 
 test('behavior: capability: signInWithEthereum', async () => {
   {
-    const accounts = await connect(client, {
+    const response = await connect(client, {
       capabilities: {
-        experimental_signInWithEthereum: {
+        unstable_signInWithEthereum: {
           chainId: 1,
           nonce: 'abcd1234',
         },
       },
     })
 
-    expect(accounts).toMatchInlineSnapshot(`
+    expect(response).toMatchInlineSnapshot(`
       {
         "accounts": [
           {
@@ -104,9 +104,9 @@ test('behavior: capability: signInWithEthereum', async () => {
   }
 
   {
-    const accounts = await connect(client, {
+    const response = await connect(client, {
       capabilities: {
-        experimental_signInWithEthereum: {
+        unstable_signInWithEthereum: {
           chainId: 1,
           nonce: 'abcd1234',
           expirationTime: new Date('2025-01-01T00:00:00.000Z'),
@@ -116,7 +116,7 @@ test('behavior: capability: signInWithEthereum', async () => {
       },
     })
 
-    expect(accounts).toMatchInlineSnapshot(`
+    expect(response).toMatchInlineSnapshot(`
       {
         "accounts": [
           {
@@ -146,9 +146,9 @@ test('behavior: capability: signInWithEthereum', async () => {
 
 test('behavior: capability: addSubAccount', async () => {
   {
-    const accounts = await connect(client, {
+    const response = await connect(client, {
       capabilities: {
-        experimental_addSubAccount: {
+        unstable_addSubAccount: {
           account: {
             keys: [
               {
@@ -162,7 +162,7 @@ test('behavior: capability: addSubAccount', async () => {
       },
     })
 
-    expect(accounts).toMatchInlineSnapshot(`
+    expect(response).toMatchInlineSnapshot(`
     {
       "accounts": [
         {
@@ -179,9 +179,9 @@ test('behavior: capability: addSubAccount', async () => {
   }
 
   {
-    const accounts = await connect(client, {
+    const response = await connect(client, {
       capabilities: {
-        experimental_addSubAccount: {
+        unstable_addSubAccount: {
           account: {
             address: '0x0000000000000000000000000000000000000000',
             chainId: 1,
@@ -191,7 +191,7 @@ test('behavior: capability: addSubAccount', async () => {
       },
     })
 
-    expect(accounts).toMatchInlineSnapshot(`
+    expect(response).toMatchInlineSnapshot(`
     {
       "accounts": [
         {
@@ -208,9 +208,9 @@ test('behavior: capability: addSubAccount', async () => {
   }
 
   {
-    const accounts = await connect(client, {
+    const response = await connect(client, {
       capabilities: {
-        experimental_addSubAccount: {
+        unstable_addSubAccount: {
           account: {
             address: '0x0000000000000000000000000000000000000000',
             factory: '0x0000000000000000000000000000000000000000',
@@ -221,7 +221,7 @@ test('behavior: capability: addSubAccount', async () => {
       },
     })
 
-    expect(accounts).toMatchInlineSnapshot(`
+    expect(response).toMatchInlineSnapshot(`
     {
       "accounts": [
         {
@@ -239,13 +239,13 @@ test('behavior: capability: addSubAccount', async () => {
 })
 
 test('behavior: capability: getSubAccounts', async () => {
-  const accounts = await connect(client, {
+  const response = await connect(client, {
     capabilities: {
-      experimental_getSubAccounts: true,
+      unstable_getSubAccounts: true,
     },
   })
 
-  expect(accounts).toMatchInlineSnapshot(`
+  expect(response).toMatchInlineSnapshot(`
     {
       "accounts": [
         {

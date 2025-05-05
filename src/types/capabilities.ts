@@ -9,7 +9,7 @@ export type CapabilitiesSchema = ResolvedRegister['CapabilitiesSchema']
 export type DefaultCapabilitiesSchema = {
   connect: {
     Request: {
-      experimental_addSubAccount?:
+      unstable_addSubAccount?:
         | {
             account: OneOf<
               | {
@@ -38,25 +38,25 @@ export type DefaultCapabilitiesSchema = {
             >
           }
         | undefined
-      experimental_getSubAccounts?: boolean | undefined
-      experimental_signInWithEthereum?:
+      unstable_getSubAccounts?: boolean | undefined
+      unstable_signInWithEthereum?:
         | RequiredBy<Partial<SiweMessage>, 'chainId' | 'nonce'>
         | undefined
     }
     ReturnType: {
-      experimental_addSubAccount?:
+      unstable_addSubAccount?:
         | {
             address: Address
           }
         | undefined
-      experimental_getSubAccounts?:
+      unstable_getSubAccounts?:
         | readonly {
             address: Address
             factory?: Address | undefined
             factoryData?: Hex | undefined
           }[]
         | undefined
-      experimental_signInWithEthereum?:
+      unstable_signInWithEthereum?:
         | {
             message: string
             signature: Hex
@@ -71,7 +71,7 @@ export type DefaultCapabilitiesSchema = {
             status: 'supported' | 'ready' | 'unsupported'
           }
         | undefined
-      experimental_addSubAccount?:
+      unstable_addSubAccount?:
         | {
             keyTypes: (
               | 'address'

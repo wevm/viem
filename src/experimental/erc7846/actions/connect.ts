@@ -8,19 +8,20 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { BaseError } from '../../../errors/base.js'
 import type { ExtractCapabilities } from '../../../types/capabilities.js'
 import type { Chain } from '../../../types/chain.js'
+import type { Prettify } from '../../../types/utils.js'
 import type { RequestErrorType } from '../../../utils/buildRequest.js'
 import { numberToHex } from '../../../utils/encoding/toHex.js'
 
-export type ConnectParameters = {
+export type ConnectParameters = Prettify<{
   capabilities?: ExtractCapabilities<'connect', 'Request'> | undefined
-}
+}>
 
-export type ConnectReturnType = {
+export type ConnectReturnType = Prettify<{
   accounts: readonly {
     address: Address
     capabilities?: ExtractCapabilities<'connect', 'ReturnType'> | undefined
   }[]
-}
+}>
 
 export type ConnectErrorType = RequestErrorType | RequestAddressesErrorType
 
@@ -96,22 +97,20 @@ function formatRequestCapabilities(
   capabilities: ExtractCapabilities<'connect', 'Request'> | undefined,
 ) {
   const {
-    experimental_addSubAccount,
-    experimental_getSubAccounts: getSubAccounts,
-    experimental_signInWithEthereum,
+    unstable_addSubAccount,
+    unstable_getSubAccounts: getSubAccounts,
+    unstable_signInWithEthereum,
     ...rest
   } = capabilities ?? {}
 
-  const addSubAccount = experimental_addSubAccount
+  const addSubAccount = unstable_addSubAccount
     ? {
-        ...experimental_addSubAccount,
+        ...unstable_addSubAccount,
         account: {
-          ...experimental_addSubAccount.account,
-          ...(experimental_addSubAccount.account.chainId
+          ...unstable_addSubAccount.account,
+          ...(unstable_addSubAccount.account.chainId
             ? {
-                chainId: numberToHex(
-                  experimental_addSubAccount.account.chainId,
-                ),
+                chainId: numberToHex(unstable_addSubAccount.account.chainId),
               }
             : {}),
         },
@@ -119,10 +118,10 @@ function formatRequestCapabilities(
     : undefined
 
   const { chainId, expirationTime, issuedAt, notBefore } =
-    experimental_signInWithEthereum ?? {}
-  const signInWithEthereum = experimental_signInWithEthereum
+    unstable_signInWithEthereum ?? {}
+  const signInWithEthereum = unstable_signInWithEthereum
     ? {
-        ...experimental_signInWithEthereum,
+        ...unstable_signInWithEthereum,
         chainId: numberToHex(chainId!),
         ...(expirationTime
           ? {

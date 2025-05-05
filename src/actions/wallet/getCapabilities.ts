@@ -78,7 +78,7 @@ export async function getCapabilities<
   >
   for (const [chainId, capabilities_] of Object.entries(capabilities_raw)) {
     for (let [key, value] of Object.entries(capabilities_)) {
-      if (key === 'addSubAccount') key = 'experimental_addSubAccount'
+      if (key === 'addSubAccount') key = 'unstable_addSubAccount'
       capabilities[Number(chainId)][key] = value
     }
   }

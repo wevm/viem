@@ -175,3 +175,8 @@ export {
   type Erc7821Actions,
   erc7821Actions,
 } from './erc7821/decorators/erc7821.js'
+
+export {
+  type Erc7846Actions,
+  erc7846Actions,
+} from './erc7846/decorators/erc7846.js'
