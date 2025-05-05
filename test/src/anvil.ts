@@ -252,6 +252,9 @@ function defineAnvil<const chain extends Chain>(
               ],
             } as any
           }
+          if (method === 'wallet_disconnect') {
+            return null
+          }
 
           return request({ method, params }, opts)
         },

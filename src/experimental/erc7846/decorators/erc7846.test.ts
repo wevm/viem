@@ -28,4 +28,8 @@ describe('smoke test', () => {
       }
     `)
   })
+
+  test('disconnect', async () => {
+    await client.disconnect()
+  })
 })

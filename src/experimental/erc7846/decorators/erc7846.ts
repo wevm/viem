@@ -6,6 +6,7 @@ import {
   type ConnectReturnType,
   connect,
 } from '../actions/connect.js'
+import { disconnect } from '../actions/disconnect.js'
 
 export type Erc7846Actions = {
   /**
@@ -33,6 +34,28 @@ export type Erc7846Actions = {
   connect: (
     parameters?: ConnectParameters | undefined,
   ) => Promise<ConnectReturnType>
+  /**
+   * Requests to disconnect connected accounts.
+   *
+   * - Docs: https://viem.sh/experimental/erc7846/disconnect
+   * - JSON-RPC Methods: [`wallet_disconnect`](https://github.com/ethereum/ERCs/blob/abd1c9f4eda2d6ad06ade0e3af314637a27d1ee7/ERCS/erc-7846.md)
+   *
+   * @param client - Client to use
+   * @returns void
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { erc7846Actions } from 'viem/experimental/erc7846'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * }).extend(erc7846Actions())
+   *
+   * await client.disconnect()
+   */
+  disconnect: () => Promise<void>
 }
 
 /**
@@ -59,6 +82,7 @@ export function erc7846Actions() {
   ): Erc7846Actions => {
     return {
       connect: (parameters) => connect(client, parameters),
+      disconnect: () => disconnect(client),
     }
   }
 }

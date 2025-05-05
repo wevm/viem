@@ -25,7 +25,7 @@ export type ConnectReturnType = {
 export type ConnectErrorType = RequestErrorType | RequestAddressesErrorType
 
 /**
- * Requests to connect to a wallet.
+ * Requests to connect account(s) with optional capabilities.
  *
  * - Docs: https://viem.sh/experimental/erc7846/connect
  * - JSON-RPC Methods: [`wallet_connect`](https://github.com/ethereum/ERCs/blob/abd1c9f4eda2d6ad06ade0e3af314637a27d1ee7/ERCS/erc-7846.md)
