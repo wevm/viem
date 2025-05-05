@@ -31,15 +31,119 @@ export const walletClient = createWalletClient({
 
 :::
 
+## Returns
+
+List of connected accounts.
+
+```ts
+type ReturnType = {
+  accounts: readonly {
+    address: Address
+    capabilities: Record<string, unknown>
+  }[]
+}
+```
+
+## Parameters
+
+### `capabilities`
+
+- **Type:** `Record<string, unknown>`
+
+Key-value pairs of [capabilities](#capabilities).
+
+```ts twoslash
+import { walletClient } from './config'
+ 
+const { accounts } = await walletClient.connect({
+  capabilities: { // [!code focus]
+    unstable_signInWithEthereum: { // [!code focus]
+      chainId: 1, // [!code focus]
+      nonce: 'abcd1234', // [!code focus]
+    } // [!code focus]
+  } // [!code focus]
+})
+```
+
 ## Capabilities
 
 ### `unstable_addSubAccount`
 
+Adds a sub-account to the connected account. [See more](https://github.com/ethereum/ERCs/blob/4d3d641ee3c84750baf461b8dd71d27c424417a9/ERCS/erc-7895.md)
+
+```ts twoslash
+import { walletClient } from './config'
+
+const { accounts } = await walletClient.connect({
+  capabilities: {
+    unstable_addSubAccount: { // [!code focus]
+      account: { // [!code focus]
+        keys: [{ // [!code focus]
+          key: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+          type: 'address', // [!code focus]
+        }], // [!code focus]
+        type: 'create', // [!code focus]
+      } // [!code focus]
+    } // [!code focus]
+  }
+})
+// @log: [{
+// @log:   address: '0x90F79bf6EB2c4f870365E785982E1f101E93b906',
+// @log:   capabilities: {
+// @log:     unstable_addSubAccount: {
+// @log:       address: '0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc',
+// @log:     },
+// @log:   },
+// @log: }]
+```
+
 ### `unstable_getSubAccounts`
+
+Returns all sub-accounts of the connected account. [See more](https://github.com/ethereum/ERCs/blob/4d3d641ee3c84750baf461b8dd71d27c424417a9/ERCS/erc-7895.md)
+
+```ts twoslash
+import { walletClient } from './config'
+
+const { accounts } = await walletClient.connect({
+  capabilities: {
+    unstable_getSubAccounts: true,
+  },
+})
+// @log: [{
+// @log:   address: '0x90F79bf6EB2c4f870365E785982E1f101E93b906',
+// @log:   capabilities: {
+// @log:     unstable_getSubAccounts: [{
+// @log:       address: '0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc',
+// @log:     }],
+// @log:   },
+// @log: }]
+```
+
 
 ### `unstable_signInWithEthereum`
 
-## Returns
+Authenticate offchain using Sign-In with Ethereum. [See more](https://github.com/ethereum/ERCs/blob/abd1c9f4eda2d6ad06ade0e3af314637a27d1ee7/ERCS/erc-7846.md#signinwithethereum)
 
-## Parameters
+```ts twoslash
+import { walletClient } from './config'
+
+const { accounts } = await walletClient.connect({
+  capabilities: {
+    unstable_signInWithEthereum: {
+      chainId: 1,
+      nonce: 'abcd1234',
+    }
+  }
+})
+// @log: [{
+// @log:   address: '0x90F79bf6EB2c4f870365E785982E1f101E93b906',
+// @log:   capabilities: {
+// @log:     unstable_signInWithEthereum: {
+// @log:       message: 'example.com wants you to sign in with your Ethereum account...',
+// @log:       signature: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+// @log:     },
+// @log:   },
+// @log: }]
+```
+
 

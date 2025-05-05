@@ -49,7 +49,7 @@ export type ConnectErrorType = RequestErrorType | RequestAddressesErrorType
 export async function connect<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: ConnectParameters = {},
-) {
+): Promise<ConnectReturnType> {
   const capabilities = formatRequestCapabilities(parameters.capabilities)
 
   const response = await (async () => {
@@ -164,5 +164,17 @@ function formatRequestCapabilities(
 function formatResponseCapabilities(
   capabilities: ExtractCapabilities<'connect', 'ReturnType'> | undefined,
 ) {
-  return capabilities
+  return Object.entries(capabilities ?? {}).reduce(
+    (capabilities, [key, value]) => {
+      const k = (() => {
+        if (key === 'signInWithEthereum') return 'unstable_signInWithEthereum'
+        if (key === 'getSubAccounts') return 'unstable_getSubAccounts'
+        if (key === 'addSubAccount') return 'unstable_addSubAccount'
+        return key
+      })()
+      capabilities[k] = value
+      return capabilities
+    },
+    {} as Record<string, unknown>,
+  )
 }

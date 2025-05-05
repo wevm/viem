@@ -82,7 +82,7 @@ test('behavior: capability: signInWithEthereum', async () => {
           {
             "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
             "capabilities": {
-              "signInWithEthereum": {
+              "unstable_signInWithEthereum": {
                 "message": "example.com wants you to sign in with your Ethereum account:
       0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
@@ -122,7 +122,7 @@ test('behavior: capability: signInWithEthereum', async () => {
           {
             "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
             "capabilities": {
-              "signInWithEthereum": {
+              "unstable_signInWithEthereum": {
                 "message": "example.com wants you to sign in with your Ethereum account:
       0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
@@ -163,19 +163,19 @@ test('behavior: capability: addSubAccount', async () => {
     })
 
     expect(response).toMatchInlineSnapshot(`
-    {
-      "accounts": [
-        {
-          "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-          "capabilities": {
-            "addSubAccount": {
-              "address": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      {
+        "accounts": [
+          {
+            "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+            "capabilities": {
+              "unstable_addSubAccount": {
+                "address": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+              },
             },
           },
-        },
-      ],
-    }
-  `)
+        ],
+      }
+    `)
   }
 
   {
@@ -192,19 +192,19 @@ test('behavior: capability: addSubAccount', async () => {
     })
 
     expect(response).toMatchInlineSnapshot(`
-    {
-      "accounts": [
-        {
-          "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-          "capabilities": {
-            "addSubAccount": {
-              "address": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      {
+        "accounts": [
+          {
+            "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+            "capabilities": {
+              "unstable_addSubAccount": {
+                "address": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+              },
             },
           },
-        },
-      ],
-    }
-  `)
+        ],
+      }
+    `)
   }
 
   {
@@ -222,19 +222,19 @@ test('behavior: capability: addSubAccount', async () => {
     })
 
     expect(response).toMatchInlineSnapshot(`
-    {
-      "accounts": [
-        {
-          "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-          "capabilities": {
-            "addSubAccount": {
-              "address": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      {
+        "accounts": [
+          {
+            "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+            "capabilities": {
+              "unstable_addSubAccount": {
+                "address": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+              },
             },
           },
-        },
-      ],
-    }
-  `)
+        ],
+      }
+    `)
   }
 })
 
@@ -251,7 +251,7 @@ test('behavior: capability: getSubAccounts', async () => {
         {
           "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "capabilities": {
-            "getSubAccounts": [
+            "unstable_getSubAccounts": [
               {
                 "address": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
               },
