@@ -146,4 +146,7 @@ const { accounts } = await walletClient.connect({
 // @log: }]
 ```
 
+## JSON-RPC Methods
 
+- [`wallet_connect`](https://github.com/ethereum/ERCs/blob/abd1c9f4eda2d6ad06ade0e3af314637a27d1ee7/ERCS/erc-7846.md)
+- Falls back to [`eth_requestAccounts`](https://eips.ethereum.org/EIPS/eip-1102)
