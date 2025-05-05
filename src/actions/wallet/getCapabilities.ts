@@ -76,8 +76,12 @@ export async function getCapabilities<
     ExtractCapabilities<'getCapabilities', 'ReturnType'>,
     number
   >
-  for (const [key, value] of Object.entries(capabilities_raw))
-    capabilities[Number(key)] = value as never
+  for (const [chainId, capabilities_] of Object.entries(capabilities_raw)) {
+    for (let [key, value] of Object.entries(capabilities_)) {
+      if (key === 'addSubAccount') key = 'experimental_addSubAccount'
+      capabilities[Number(chainId)][key] = value
+    }
+  }
   return (
     typeof chainId === 'number' ? capabilities[chainId] : capabilities
   ) as never

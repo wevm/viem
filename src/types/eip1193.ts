@@ -1765,6 +1765,28 @@ export type WalletRpcSchema = [
     ReturnType: null
   },
   /**
+   * @description Connects to a wallet.
+   * @link https://github.com/ethereum/ERCs/blob/abd1c9f4eda2d6ad06ade0e3af314637a27d1ee7/ERCS/erc-7846.md
+   * @example
+   * provider.request({ method: 'wallet_connect' })
+   * // => { ... }
+   */
+  {
+    Method: 'wallet_connect'
+    Parameters: [
+      {
+        capabilities?: Capabilities | undefined
+        version: string
+      },
+    ]
+    ReturnType: {
+      accounts: readonly {
+        address: Address
+        capabilities?: Capabilities | undefined
+      }[]
+    }
+  },
+  /**
    * @description Returns the status of a call batch that was sent via `wallet_sendCalls`.
    * @link https://eips.ethereum.org/EIPS/eip-5792
    * @example
