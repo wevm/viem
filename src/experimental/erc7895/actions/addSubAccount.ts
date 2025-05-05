@@ -40,14 +40,14 @@ export type AddSubAccountReturnType = {
 export type AddSubAccountErrorType = RequestErrorType
 
 /**
- * Requests to add a sub-account.
+ * Requests to add a Sub Account.
  *
  * - Docs: https://viem.sh/experimental/erc7895/addSubAccount
  * - JSON-RPC Methods: [`wallet_addSubAccount`](https://github.com/ethereum/ERCs/blob/abd1c9f4eda2d6ad06ade0e3af314637a27d1ee7/ERCS/erc-7895.md)
  *
  * @param client - Client to use
  * @param parameters - {@link AddSubAccountParameters}
- * @returns Sub-account. {@link AddSubAccountReturnType}
+ * @returns Sub Account. {@link AddSubAccountReturnType}
  *
  * @example
  * import { createWalletClient, custom } from 'viem'
