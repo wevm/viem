@@ -1,4 +1,3 @@
-import type { Address } from 'abitype'
 import type {
   AddSubAccountParameters,
   AddSubAccountReturnType,
