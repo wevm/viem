@@ -1,5 +1,6 @@
 import type { DefaultCapabilitiesSchema } from './capabilities.js'
 
+/** @internal */
 // biome-ignore lint/suspicious/noEmptyInterface:
 export interface Register {}
 
