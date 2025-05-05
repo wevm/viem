@@ -31,11 +31,11 @@ export type AddSubAccountParameters = Prettify<
   >
 >
 
-export type AddSubAccountReturnType = {
+export type AddSubAccountReturnType = Prettify<{
   address: Address
   factory?: Address | undefined
   factoryData?: Hex | undefined
-}
+}>
 
 export type AddSubAccountErrorType = RequestErrorType
 

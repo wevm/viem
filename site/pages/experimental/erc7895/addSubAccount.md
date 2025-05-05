@@ -17,7 +17,7 @@ import { walletClient } from './config'
  
 const subAccount = await walletClient.addSubAccount({
   keys: [{ 
-    key: '0x0000000000000000000000000000000000000000', 
+    key: '0xefd5fb29a274ea6682673d8b3caa9263e936d48d', 
     type: 'address' 
   }],
   type: 'create',
@@ -99,6 +99,18 @@ const subAccount = await walletClient.addSubAccount({
 - **Type:** `'address' | 'p256' | 'webcrypto-p256' | 'webauthn-p256'`
 
 The type of signing key.
+
+```ts twoslash
+import { walletClient } from './config'
+ 
+const subAccount = await walletClient.addSubAccount({
+  keys: [{
+    key: '0xefd5fb29a274ea6682673d8b3caa9263e936d48d486e5df68893003e01241522',
+    type: 'p256' // [!code focus]
+  }],
+  type: 'create',
+})
+```
 
 
 ### Deployed Accounts
