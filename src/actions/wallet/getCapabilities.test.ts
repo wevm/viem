@@ -48,6 +48,15 @@ test('default', async () => {
         "paymasterService": {
           "supported": false,
         },
+        "unstable_addSubAccount": {
+          "keyTypes": [
+            "address",
+            "p256",
+            "webcrypto-p256",
+            "webauthn-p256",
+          ],
+          "supported": true,
+        },
       },
       "84532": {
         "paymasterService": {
@@ -69,6 +78,15 @@ test('args: account', async () => {
           "status": "supported",
         },
         "paymasterService": {
+          "supported": true,
+        },
+        "unstable_addSubAccount": {
+          "keyTypes": [
+            "address",
+            "p256",
+            "webcrypto-p256",
+            "webauthn-p256",
+          ],
           "supported": true,
         },
       },
@@ -94,6 +112,15 @@ test('args: chainId', async () => {
       "paymasterService": {
         "supported": true,
       },
+      "unstable_addSubAccount": {
+        "keyTypes": [
+          "address",
+          "p256",
+          "webcrypto-p256",
+          "webauthn-p256",
+        ],
+        "supported": true,
+      },
     }
   `)
 })
@@ -113,6 +140,15 @@ test('behavior: account on client', async () => {
         },
         "paymasterService": {
           "supported": false,
+        },
+        "unstable_addSubAccount": {
+          "keyTypes": [
+            "address",
+            "p256",
+            "webcrypto-p256",
+            "webauthn-p256",
+          ],
+          "supported": true,
         },
       },
       "84532": {
