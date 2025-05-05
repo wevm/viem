@@ -59,7 +59,7 @@ export type AddSubAccountErrorType = RequestErrorType
  *   transport: custom(window.ethereum),
  * })
  * const response = await addSubAccount(client, {
- *   keys: [{ key: '0x0000000000000000000000000000000000000000', type: 'address' }],
+ *   keys: [{ publicKey: '0x0000000000000000000000000000000000000000', type: 'address' }],
  *   type: 'create',
  * })
  */

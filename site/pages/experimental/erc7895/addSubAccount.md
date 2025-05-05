@@ -17,7 +17,7 @@ import { walletClient } from './config'
  
 const subAccount = await walletClient.addSubAccount({
   keys: [{ 
-    key: '0xefd5fb29a274ea6682673d8b3caa9263e936d48d', 
+    publicKey: '0xefd5fb29a274ea6682673d8b3caa9263e936d48d', 
     type: 'address' 
   }],
   type: 'create',
@@ -66,7 +66,7 @@ import { walletClient } from './config'
  
 const subAccount = await walletClient.addSubAccount({
   keys: [{ // [!code focus]
-    key: '0xefd5fb29a274ea6682673d8b3caa9263e936d48d486e5df68893003e01241522', // [!code focus]
+    publicKey: '0xefd5fb29a274ea6682673d8b3caa9263e936d48d486e5df68893003e01241522', // [!code focus]
     type: 'p256' // [!code focus]
   }], // [!code focus]
   type: 'create',
@@ -87,7 +87,7 @@ import { walletClient } from './config'
  
 const subAccount = await walletClient.addSubAccount({
   keys: [{
-    key: '0xefd5fb29a274ea6682673d8b3caa9263e936d48d486e5df68893003e01241522', // [!code focus]
+    publicKey: '0xefd5fb29a274ea6682673d8b3caa9263e936d48d486e5df68893003e01241522', // [!code focus]
     type: 'p256'
   }],
   type: 'create',
@@ -105,7 +105,7 @@ import { walletClient } from './config'
  
 const subAccount = await walletClient.addSubAccount({
   keys: [{
-    key: '0xefd5fb29a274ea6682673d8b3caa9263e936d48d486e5df68893003e01241522',
+    publicKey: '0xefd5fb29a274ea6682673d8b3caa9263e936d48d486e5df68893003e01241522',
     type: 'p256' // [!code focus]
   }],
   type: 'create',
