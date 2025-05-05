@@ -1,8 +1,11 @@
-import type { Address } from 'abitype'
+import type {
+  AddSubAccountParameters,
+  AddSubAccountReturnType,
+} from '../experimental/erc7895/actions/addSubAccount.js'
 import type { SiweMessage } from '../utils/siwe/types.js'
 import type { Hex } from './misc.js'
 import type { ResolvedRegister } from './register.js'
-import type { OneOf, Prettify, RequiredBy } from './utils.js'
+import type { Prettify, RequiredBy } from './utils.js'
 
 export type CapabilitiesSchema = ResolvedRegister['CapabilitiesSchema']
 
@@ -11,31 +14,7 @@ export type DefaultCapabilitiesSchema = {
     Request: {
       unstable_addSubAccount?:
         | {
-            account: OneOf<
-              | {
-                  address: Address
-                  chainId?: number | undefined
-                  type: 'deployed'
-                }
-              | {
-                  keys: readonly {
-                    key: Hex
-                    type:
-                      | 'address'
-                      | 'p256'
-                      | 'webcrypto-p256'
-                      | 'webauthn-p256'
-                  }[]
-                  type: 'create'
-                }
-              | {
-                  address: Address
-                  chainId?: number | undefined
-                  factory: Address
-                  factoryData: Hex
-                  type: 'undeployed'
-                }
-            >
+            account: AddSubAccountParameters
           }
         | undefined
       unstable_getSubAccounts?: boolean | undefined
@@ -44,18 +23,8 @@ export type DefaultCapabilitiesSchema = {
         | undefined
     }
     ReturnType: {
-      unstable_addSubAccount?:
-        | {
-            address: Address
-          }
-        | undefined
-      unstable_getSubAccounts?:
-        | readonly {
-            address: Address
-            factory?: Address | undefined
-            factoryData?: Hex | undefined
-          }[]
-        | undefined
+      unstable_addSubAccount?: AddSubAccountReturnType | undefined
+      unstable_getSubAccounts?: readonly AddSubAccountReturnType[] | undefined
       unstable_signInWithEthereum?:
         | {
             message: string

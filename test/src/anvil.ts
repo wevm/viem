@@ -255,6 +255,10 @@ function defineAnvil<const chain extends Chain>(
           if (method === 'wallet_disconnect') {
             return null
           }
+          if (method === 'wallet_addSubAccount')
+            return {
+              address: accounts[1].address,
+            } as any
 
           return request({ method, params }, opts)
         },

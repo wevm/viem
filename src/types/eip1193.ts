@@ -1765,6 +1765,43 @@ export type WalletRpcSchema = [
     ReturnType: null
   },
   /**
+   *
+   */
+  {
+    Method: 'wallet_addSubAccount'
+    Parameters: [
+      {
+        account: OneOf<
+          | {
+              keys: readonly {
+                key: Hex
+                type: 'address' | 'p256' | 'webcrypto-p256' | 'webauthn-p256'
+              }[]
+              type: 'create'
+            }
+          | {
+              address: Address
+              chainId?: number | undefined
+              type: 'deployed'
+            }
+          | {
+              address: Address
+              chainId?: number | undefined
+              factory: Address
+              factoryData: Hex
+              type: 'undeployed'
+            }
+        >
+        version: string
+      },
+    ]
+    ReturnType: {
+      address: Address
+      factory?: Address | undefined
+      factoryData?: Hex | undefined
+    }
+  },
+  /**
    * @description Requests to connect account(s).
    * @link https://github.com/ethereum/ERCs/blob/abd1c9f4eda2d6ad06ade0e3af314637a27d1ee7/ERCS/erc-7846.md
    * @example

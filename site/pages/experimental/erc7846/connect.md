@@ -1,10 +1,10 @@
 ---
-description: Requests to connect account(s).
+description: Requests to connect Account(s).
 ---
 
 # connect
 
-Requests to connect account(s) with optional [capabilities](#capabilities).
+Requests to connect Account(s) with optional [capabilities](#capabilities).
 
 ## Usage
 
@@ -69,7 +69,7 @@ const { accounts } = await walletClient.connect({
 
 ### `unstable_addSubAccount`
 
-Adds a sub-account to the connected account. [See more](https://github.com/ethereum/ERCs/blob/4d3d641ee3c84750baf461b8dd71d27c424417a9/ERCS/erc-7895.md)
+Adds a Sub Account to the connected Account. [See more](https://github.com/ethereum/ERCs/blob/4d3d641ee3c84750baf461b8dd71d27c424417a9/ERCS/erc-7895.md)
 
 ```ts twoslash
 import { walletClient } from './config'
@@ -99,7 +99,7 @@ const { accounts } = await walletClient.connect({
 
 ### `unstable_getSubAccounts`
 
-Returns all sub-accounts of the connected account. [See more](https://github.com/ethereum/ERCs/blob/4d3d641ee3c84750baf461b8dd71d27c424417a9/ERCS/erc-7895.md)
+Returns all Sub Accounts of the connected Account. [See more](https://github.com/ethereum/ERCs/blob/4d3d641ee3c84750baf461b8dd71d27c424417a9/ERCS/erc-7895.md)
 
 ```ts twoslash
 import { walletClient } from './config'
