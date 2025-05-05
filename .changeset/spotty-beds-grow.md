@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Updated `watchBlocks` to also work from genesis blocks using `emitMissed`
+Updated `watchBlocks` to also work from genesis blocks using `emitMissed`.
