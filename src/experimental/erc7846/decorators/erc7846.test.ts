@@ -11,6 +11,7 @@ test('default', async () => {
   expect(erc7846Actions()(client)).toMatchInlineSnapshot(`
     {
       "connect": [Function],
+      "disconnect": [Function],
     }
   `)
 })
