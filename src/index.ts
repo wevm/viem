@@ -1185,7 +1185,7 @@ export type {
   SignedAuthorization,
   SignedAuthorizationList,
 } from './types/authorization.js'
-export type { ResolvedRegister } from './types/register.js'
+export type { Register, ResolvedRegister } from './types/register.js'
 export type {
   Index,
   Quantity,
