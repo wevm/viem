@@ -168,8 +168,7 @@ function formatResponseCapabilities(
     (capabilities, [key, value]) => {
       const k = (() => {
         if (key === 'signInWithEthereum') return 'unstable_signInWithEthereum'
-        if (key === 'getSubAccounts') return 'unstable_getSubAccounts'
-        if (key === 'addSubAccount') return 'unstable_addSubAccount'
+        if (key === 'subAccounts') return 'unstable_subAccounts'
         return key
       })()
       capabilities[k] = value

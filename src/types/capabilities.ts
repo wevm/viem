@@ -17,20 +17,18 @@ export type DefaultCapabilitiesSchema = {
             account: AddSubAccountParameters
           }
         | undefined
-      unstable_getSubAccounts?: boolean | undefined
       unstable_signInWithEthereum?:
         | RequiredBy<Partial<SiweMessage>, 'chainId' | 'nonce'>
         | undefined
     }
     ReturnType: {
-      unstable_addSubAccount?: AddSubAccountReturnType | undefined
-      unstable_getSubAccounts?: readonly AddSubAccountReturnType[] | undefined
       unstable_signInWithEthereum?:
         | {
             message: string
             signature: Hex
           }
         | undefined
+      unstable_subAccounts?: readonly AddSubAccountReturnType[] | undefined
     }
   }
   getCapabilities: {

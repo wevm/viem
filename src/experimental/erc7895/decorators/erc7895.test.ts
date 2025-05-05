@@ -21,7 +21,7 @@ describe('smoke test', () => {
       await client.addSubAccount({
         keys: [
           {
-            key: '0x0000000000000000000000000000000000000000',
+            publicKey: '0x0000000000000000000000000000000000000000',
             type: 'address',
           },
         ],

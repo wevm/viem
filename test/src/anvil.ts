@@ -227,14 +227,7 @@ function defineAnvil<const chain extends Chain>(
                     : {}),
                   ...(params[0].capabilities?.addSubAccount
                     ? {
-                        addSubAccount: {
-                          address: accounts[1].address,
-                        },
-                      }
-                    : {}),
-                  ...(params[0].capabilities?.getSubAccounts
-                    ? {
-                        getSubAccounts: [
+                        subAccounts: [
                           {
                             address: accounts[1].address,
                           },

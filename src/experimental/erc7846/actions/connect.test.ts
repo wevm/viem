@@ -152,7 +152,7 @@ test('behavior: capability: addSubAccount', async () => {
           account: {
             keys: [
               {
-                key: '0x0000000000000000000000000000000000000000',
+                publicKey: '0x0000000000000000000000000000000000000000',
                 type: 'address',
               },
             ],
@@ -168,9 +168,11 @@ test('behavior: capability: addSubAccount', async () => {
           {
             "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
             "capabilities": {
-              "unstable_addSubAccount": {
-                "address": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-              },
+              "unstable_subAccounts": [
+                {
+                  "address": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+                },
+              ],
             },
           },
         ],
@@ -197,9 +199,11 @@ test('behavior: capability: addSubAccount', async () => {
           {
             "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
             "capabilities": {
-              "unstable_addSubAccount": {
-                "address": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-              },
+              "unstable_subAccounts": [
+                {
+                  "address": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+                },
+              ],
             },
           },
         ],
@@ -227,38 +231,15 @@ test('behavior: capability: addSubAccount', async () => {
           {
             "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
             "capabilities": {
-              "unstable_addSubAccount": {
-                "address": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-              },
+              "unstable_subAccounts": [
+                {
+                  "address": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+                },
+              ],
             },
           },
         ],
       }
     `)
   }
-})
-
-test('behavior: capability: getSubAccounts', async () => {
-  const response = await connect(client, {
-    capabilities: {
-      unstable_getSubAccounts: true,
-    },
-  })
-
-  expect(response).toMatchInlineSnapshot(`
-    {
-      "accounts": [
-        {
-          "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-          "capabilities": {
-            "unstable_getSubAccounts": [
-              {
-                "address": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-              },
-            ],
-          },
-        },
-      ],
-    }
-  `)
 })

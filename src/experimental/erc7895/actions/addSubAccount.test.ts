@@ -8,7 +8,10 @@ test('default', async () => {
   {
     const response = await addSubAccount(client, {
       keys: [
-        { key: '0x0000000000000000000000000000000000000000', type: 'address' },
+        {
+          publicKey: '0x0000000000000000000000000000000000000000',
+          type: 'address',
+        },
       ],
       type: 'create',
     })

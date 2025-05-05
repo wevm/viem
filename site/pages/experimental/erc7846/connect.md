@@ -90,29 +90,25 @@ const { accounts } = await walletClient.connect({
 // @log: [{
 // @log:   address: '0x90F79bf6EB2c4f870365E785982E1f101E93b906',
 // @log:   capabilities: {
-// @log:     unstable_addSubAccount: {
+// @log:     unstable_subAccounts: [{
 // @log:       address: '0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc',
-// @log:     },
+// @log:     }],
 // @log:   },
 // @log: }]
 ```
 
-### `unstable_getSubAccounts`
+### `unstable_subAccounts`
 
 Returns all Sub Accounts of the connected Account. [See more](https://github.com/ethereum/ERCs/blob/4d3d641ee3c84750baf461b8dd71d27c424417a9/ERCS/erc-7895.md)
 
 ```ts twoslash
 import { walletClient } from './config'
 
-const { accounts } = await walletClient.connect({
-  capabilities: {
-    unstable_getSubAccounts: true,
-  },
-})
+const { accounts } = await walletClient.connect()
 // @log: [{
 // @log:   address: '0x90F79bf6EB2c4f870365E785982E1f101E93b906',
 // @log:   capabilities: {
-// @log:     unstable_getSubAccounts: [{
+// @log:     unstable_subAccounts: [{
 // @log:       address: '0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc',
 // @log:     }],
 // @log:   },

@@ -1774,7 +1774,7 @@ export type WalletRpcSchema = [
         account: OneOf<
           | {
               keys: readonly {
-                key: Hex
+                publicKey: Hex
                 type: 'address' | 'p256' | 'webcrypto-p256' | 'webauthn-p256'
               }[]
               type: 'create'
