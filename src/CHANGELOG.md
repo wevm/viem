@@ -1,5 +1,11 @@
 # viem
 
+## 2.28.4
+
+### Patch Changes
+
+- [#3615](https://github.com/wevm/viem/pull/3615) [`804187c8c8b48654605f47e4383a57ec66a21064`](https://github.com/wevm/viem/commit/804187c8c8b48654605f47e4383a57ec66a21064) Thanks [@jxom](https://github.com/jxom)! - Added typed EIP-5792 capabilities.
+
 ## 2.28.3
 
 ### Patch Changes

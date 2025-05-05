@@ -12,15 +12,15 @@ export const plumeSepolia = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://testnet-rpc.plumenetwork.xyz'],
-      webSocket: ['wss://testnet-rpc.plumenetwork.xyz'],
+      http: ['https://testnet-rpc.plume.org'],
+      webSocket: ['wss://testnet-rpc.plume.org'],
     },
   },
   blockExplorers: {
     default: {
       name: 'Blockscout',
-      url: 'https://testnet-explorer.plumenetwork.xyz',
-      apiUrl: 'https://testnet-explorer.plumenetwork.xyz/api',
+      url: 'https://testnet-explorer.plume.org',
+      apiUrl: 'https://testnet-explorer.plume.org/api',
     },
   },
   contracts: {
