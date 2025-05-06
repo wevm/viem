@@ -20,6 +20,8 @@ describe('block', () => {
         nonce: '0x1',
         sealFields: ['0x0'],
         sha3Uncles: '0x0',
+        mixHash: '0x0',
+        uncles: [],
         extraData:
           '0xd983010700846765746889676f312e31372e3133856c696e7578000000000000f8ccc0c080b84169807e4d7934803decfde330167e444ec323431e1ff4cd70f40f2e79f24ce91f60340b99f97e3562ee57389e2c72343a74379e0b8b7ca5237ec141e84278bb3e00f8418e3e8af95497b7f6ffe7d3c4cbfbbdb06b26f6f3e913ca2cb7dff23532eaf3eb9f3b06ae75498c88353d279cf58fb0570736e2aa20cf53381722b6485f0f3c8180f8418e3fffffffffffffffffffffffffffb0005d23be939b9f8135e6b1ff283baff985c1b6ccacf2b6aa7fbd8939c4b6178b1d242b574a614b6347182a3b3195258080',
         gasUsed: '0x1',
@@ -30,12 +32,6 @@ describe('block', () => {
         number: '0x2',
         parentHash:
           '0xf6e57c99be5a81167bcb7bdf8d55572235384182c71635857ace2c04d25294ed',
-        randomness: {
-          committed:
-            '0x339714505ecf55eacc2d2568ea53a7424bd0aa40fd710fd6892464d0716da711',
-          revealed:
-            '0xe10b5f01b0376fdc9151f66992f8c1b990083acabc14ec1b04f6a53ad804db88',
-        },
         receiptsRoot:
           '0xca8aabc507534e45c982aa43e38118fc6f9cf222800e3d703a6e299a2e661f2a',
         size: '0x3',
@@ -91,9 +87,11 @@ describe('block', () => {
         difficulty: '0x0',
         excessBlobGas: '0x0',
         gasLimit: '0x0',
+        mixHash: '0x0',
         nonce: '0x1',
         sealFields: ['0x0'],
         sha3Uncles: '0x0',
+        uncles: [],
         extraData:
           '0xd983010700846765746889676f312e31372e3133856c696e7578000000000000f8ccc0c080b84169807e4d7934803decfde330167e444ec323431e1ff4cd70f40f2e79f24ce91f60340b99f97e3562ee57389e2c72343a74379e0b8b7ca5237ec141e84278bb3e00f8418e3e8af95497b7f6ffe7d3c4cbfbbdb06b26f6f3e913ca2cb7dff23532eaf3eb9f3b06ae75498c88353d279cf58fb0570736e2aa20cf53381722b6485f0f3c8180f8418e3fffffffffffffffffffffffffffb0005d23be939b9f8135e6b1ff283baff985c1b6ccacf2b6aa7fbd8939c4b6178b1d242b574a614b6347182a3b3195258080',
         gasUsed: '0x1',
@@ -104,12 +102,6 @@ describe('block', () => {
         number: '0x2',
         parentHash:
           '0xf6e57c99be5a81167bcb7bdf8d55572235384182c71635857ace2c04d25294ed',
-        randomness: {
-          committed:
-            '0x339714505ecf55eacc2d2568ea53a7424bd0aa40fd710fd6892464d0716da711',
-          revealed:
-            '0xe10b5f01b0376fdc9151f66992f8c1b990083acabc14ec1b04f6a53ad804db88',
-        },
         receiptsRoot:
           '0xca8aabc507534e45c982aa43e38118fc6f9cf222800e3d703a6e299a2e661f2a',
         size: '0x3',

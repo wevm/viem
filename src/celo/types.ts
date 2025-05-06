@@ -33,50 +33,20 @@ import type {
 export type CeloBlock<
   includeTransactions extends boolean = boolean,
   blockTag extends BlockTag = BlockTag,
-> = Assign<
-  Block<
-    bigint,
-    includeTransactions,
-    blockTag,
-    CeloTransaction<blockTag extends 'pending' ? true : false>
-  >,
-  {
-    difficulty?: bigint | undefined
-    gasLimit?: bigint | undefined
-    mixHash?: undefined
-    nonce?: bigint | null
-    randomness?:
-      | {
-          committed: Hex
-          revealed: Hex
-        }
-      | undefined
-    uncles?: undefined
-  }
+> = Block<
+  bigint,
+  includeTransactions,
+  blockTag,
+  CeloTransaction<blockTag extends 'pending' ? true : false>
 >
 
 export type CeloRpcBlock<
   blockTag extends BlockTag = BlockTag,
   includeTransactions extends boolean = boolean,
-> = Assign<
-  RpcBlock<
-    blockTag,
-    includeTransactions,
-    RpcTransaction<blockTag extends 'pending' ? true : false>
-  >,
-  {
-    difficulty?: Hex | undefined
-    mixHash?: undefined
-    nonce?: Hex | null
-    gasLimit?: Hex | undefined
-    randomness?:
-      | {
-          committed: Hex
-          revealed: Hex
-        }
-      | undefined
-    uncles?: undefined
-  }
+> = RpcBlock<
+  blockTag,
+  includeTransactions,
+  RpcTransaction<blockTag extends 'pending' ? true : false>
 >
 
 export type CeloRpcTransaction<isPending extends boolean = boolean> = OneOf<
