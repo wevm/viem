@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Updated `CeloBlock` & `CeloRpcBlock` types.
+**Celo:** Updated `CeloBlock` & `CeloRpcBlock` types.
