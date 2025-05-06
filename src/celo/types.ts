@@ -21,7 +21,7 @@ import type {
   Transaction as core_Transaction,
   TransactionRequest as core_TransactionRequest,
 } from '../types/transaction.js'
-import type { Assign, ExactPartial, OneOf } from '../types/utils.js'
+import type { ExactPartial, OneOf } from '../types/utils.js'
 
 import type {
   OpStackDepositTransaction,
