@@ -1,4 +1,5 @@
 import { type Address, parseAbi } from 'abitype'
+import * as BlockOverrides from 'ox/BlockOverrides'
 
 import type { Account } from '../../accounts/types.js'
 import {
@@ -91,6 +92,8 @@ export type CallParameters<
   factoryData?: Hex | undefined
   /** State overrides for the call. */
   stateOverride?: StateOverride | undefined
+  /** Block overrides for the call. */
+  blockOverrides?: BlockOverrides.BlockOverrides | undefined
 } & (
     | {
         /** The balance of the account at a block number. */
@@ -172,6 +175,7 @@ export async function call<chain extends Chain | undefined>(
     to,
     value,
     stateOverride,
+    blockOverrides,
     ...rest
   } = args
   const account = account_ ? parseAccount(account_) : undefined
@@ -212,6 +216,8 @@ export async function call<chain extends Chain | undefined>(
     const block = blockNumberHex || blockTag
 
     const rpcStateOverride = serializeStateOverride(stateOverride)
+    const rpcBlockOverrides =
+      blockOverrides && BlockOverrides.toRpc(blockOverrides)
 
     const chainFormat = client.chain?.formatters?.transactionRequest?.format
     const format = chainFormat || formatTransactionRequest
@@ -233,7 +239,12 @@ export async function call<chain extends Chain | undefined>(
       value,
     } as TransactionRequest) as TransactionRequest
 
-    if (batch && shouldPerformMulticall({ request }) && !rpcStateOverride) {
+    if (
+      batch &&
+      shouldPerformMulticall({ request }) &&
+      !rpcStateOverride &&
+      !rpcBlockOverrides
+    ) {
       try {
         return await scheduleMulticall(client, {
           ...request,
@@ -252,12 +263,26 @@ export async function call<chain extends Chain | undefined>(
     const response = await client.request({
       method: 'eth_call',
       params: rpcStateOverride
-        ? [
-            request as ExactPartial<RpcTransactionRequest>,
-            block,
-            rpcStateOverride,
-          ]
-        : [request as ExactPartial<RpcTransactionRequest>, block],
+        ? rpcBlockOverrides
+          ? [
+              request as ExactPartial<RpcTransactionRequest>,
+              block,
+              rpcStateOverride,
+              rpcBlockOverrides,
+            ]
+          : [
+              request as ExactPartial<RpcTransactionRequest>,
+              block,
+              rpcStateOverride,
+            ]
+        : rpcBlockOverrides
+          ? [
+              request as ExactPartial<RpcTransactionRequest>,
+              block,
+              {},
+              rpcBlockOverrides,
+            ]
+          : [request as ExactPartial<RpcTransactionRequest>, block],
     })
     if (response === '0x') return { data: undefined }
     return { data: response }

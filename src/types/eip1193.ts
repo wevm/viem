@@ -653,6 +653,12 @@ export type PublicRpcSchema = [
           block: BlockNumber | BlockTag | BlockIdentifier,
           stateOverrideSet: RpcStateOverride,
         ]
+      | [
+          transaction: ExactPartial<TransactionRequest>,
+          block: BlockNumber | BlockTag | BlockIdentifier,
+          stateOverrideSet: RpcStateOverride,
+          blockOverrides: BlockOverrides.Rpc,
+        ]
     ReturnType: Hex
   },
   /**
