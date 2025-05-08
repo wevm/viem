@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-support block overrides on simulate/call
+Added support for `blockOverrides` on `call`.
