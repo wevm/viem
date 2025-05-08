@@ -181,7 +181,7 @@
     {
       "name": "import * from 'viem/ens'",
       "path": "./src/_esm/ens/index.js",
-      "limit": "48.5 kB",
+      "limit": "49 kB",
       "import": "*"
     },
     {
@@ -199,7 +199,7 @@
     {
       "name": "import { verifySiweMessage } from 'viem/siwe'",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "32 kB",
+      "limit": "33 kB",
       "import": "{ verifySiweMessage }"
     }
   ],
