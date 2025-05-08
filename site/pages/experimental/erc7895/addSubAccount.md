@@ -73,7 +73,7 @@ const subAccount = await walletClient.addSubAccount({
 })
 ```
 
-#### `keys.key`
+#### `keys.publicKey`
 
 - **Type:** `Hex`
 
