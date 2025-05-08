@@ -84,6 +84,8 @@ export type CallParameters<
   account?: Account | Address | undefined
   /** Whether or not to enable multicall batching on this call. */
   batch?: boolean | undefined
+  /** Block overrides for the call. */
+  blockOverrides?: BlockOverrides.BlockOverrides | undefined
   /** Bytecode to perform the call on. */
   code?: Hex | undefined
   /** Contract deployment factory address (ie. Create2 factory, Smart Account factory, etc). */
@@ -92,8 +94,6 @@ export type CallParameters<
   factoryData?: Hex | undefined
   /** State overrides for the call. */
   stateOverride?: StateOverride | undefined
-  /** Block overrides for the call. */
-  blockOverrides?: BlockOverrides.BlockOverrides | undefined
 } & (
     | {
         /** The balance of the account at a block number. */
@@ -162,6 +162,7 @@ export async function call<chain extends Chain | undefined>(
     blockTag = 'latest',
     accessList,
     blobs,
+    blockOverrides,
     code,
     data: data_,
     factory,
@@ -175,7 +176,6 @@ export async function call<chain extends Chain | undefined>(
     to,
     value,
     stateOverride,
-    blockOverrides,
     ...rest
   } = args
   const account = account_ ? parseAccount(account_) : undefined
@@ -215,9 +215,10 @@ export async function call<chain extends Chain | undefined>(
     const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
 
+    const rpcBlockOverrides = blockOverrides
+      ? BlockOverrides.toRpc(blockOverrides)
+      : undefined
     const rpcStateOverride = serializeStateOverride(stateOverride)
-    const rpcBlockOverrides =
-      blockOverrides && BlockOverrides.toRpc(blockOverrides)
 
     const chainFormat = client.chain?.formatters?.transactionRequest?.format
     const format = chainFormat || formatTransactionRequest
@@ -260,29 +261,21 @@ export async function call<chain extends Chain | undefined>(
       }
     }
 
+    const params = (() => {
+      const base = [
+        request as ExactPartial<RpcTransactionRequest>,
+        block,
+      ] as const
+      if (rpcStateOverride && rpcBlockOverrides)
+        return [...base, rpcStateOverride, rpcBlockOverrides] as const
+      if (rpcStateOverride) return [...base, rpcStateOverride] as const
+      if (rpcBlockOverrides) return [...base, {}, rpcBlockOverrides] as const
+      return base
+    })()
+
     const response = await client.request({
       method: 'eth_call',
-      params: rpcStateOverride
-        ? rpcBlockOverrides
-          ? [
-              request as ExactPartial<RpcTransactionRequest>,
-              block,
-              rpcStateOverride,
-              rpcBlockOverrides,
-            ]
-          : [
-              request as ExactPartial<RpcTransactionRequest>,
-              block,
-              rpcStateOverride,
-            ]
-        : rpcBlockOverrides
-          ? [
-              request as ExactPartial<RpcTransactionRequest>,
-              block,
-              {},
-              rpcBlockOverrides,
-            ]
-          : [request as ExactPartial<RpcTransactionRequest>, block],
+      params,
     })
     if (response === '0x') return { data: undefined }
     return { data: response }
