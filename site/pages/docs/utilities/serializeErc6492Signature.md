@@ -9,13 +9,13 @@ Serializes a [ERC-6492](https://eips.ethereum.org/EIPS/eip-6492) flavoured signa
 ## Import
 
 ```ts
-import { serializeErc6492Signature } from 'viem/experimental'
+import { serializeErc6492Signature } from 'viem/utils'
 ```
 
 ## Usage
 
 ```ts twoslash
-import { serializeErc6492Signature } from 'viem/experimental'
+import { serializeErc6492Signature } from 'viem/utils'
 
 serializeErc6492Signature({ // [!code focus:99]
   address: '0xcafebabecafebabecafebabecafebabecafebabe',

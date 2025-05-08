@@ -10,7 +10,7 @@ export const newton = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['hhttps://global.rpc.mainnet.newtonproject.org'],
+      http: ['https://global.rpc.mainnet.newtonproject.org'],
     },
   },
   blockExplorers: {

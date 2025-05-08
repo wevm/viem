@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import type { SignedAuthorization } from '../../types/authorization.js'
 import type { Log } from '../../types/log.js'
 import type { Hash, Hex } from '../../types/misc.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
@@ -10,6 +11,15 @@ export type EstimateUserOperationGasReturnType<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
   uint256 = bigint,
 > = OneOf<
+  | (entryPointVersion extends '0.8'
+      ? {
+          preVerificationGas: uint256
+          verificationGasLimit: uint256
+          callGasLimit: uint256
+          paymasterVerificationGasLimit?: uint256 | undefined
+          paymasterPostOpGasLimit?: uint256 | undefined
+        }
+      : never)
   | (entryPointVersion extends '0.7'
       ? {
           preVerificationGas: uint256
@@ -32,12 +42,13 @@ export type EstimateUserOperationGasReturnType<
 export type GetUserOperationByHashReturnType<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
   uint256 = bigint,
+  uint32 = number,
 > = {
   blockHash: Hash
   blockNumber: uint256
   entryPoint: Address
   transactionHash: Hash
-  userOperation: UserOperation<entryPointVersion, uint256>
+  userOperation: UserOperation<entryPointVersion, uint256, uint32>
 }
 
 /** @link https://eips.ethereum.org/EIPS/eip-4337#entrypoint-definition */
@@ -66,9 +77,48 @@ export type PackedUserOperation = {
 export type UserOperation<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
   uint256 = bigint,
+  uint32 = number,
 > = OneOf<
+  | (entryPointVersion extends '0.8'
+      ? {
+          /** Authorization data. */
+          authorization?: SignedAuthorization<uint32> | undefined
+          /** The data to pass to the `sender` during the main execution call. */
+          callData: Hex
+          /** The amount of gas to allocate the main execution call */
+          callGasLimit: uint256
+          /** Account factory. Only for new accounts. */
+          factory?: Address | undefined
+          /** Data for account factory. */
+          factoryData?: Hex | undefined
+          /** Maximum fee per gas. */
+          maxFeePerGas: uint256
+          /** Maximum priority fee per gas. */
+          maxPriorityFeePerGas: uint256
+          /** Anti-replay parameter. */
+          nonce: uint256
+          /** Address of paymaster contract. */
+          paymaster?: Address | undefined
+          /** Data for paymaster. */
+          paymasterData?: Hex | undefined
+          /** The amount of gas to allocate for the paymaster post-operation code. */
+          paymasterPostOpGasLimit?: uint256 | undefined
+          /** The amount of gas to allocate for the paymaster validation code. */
+          paymasterVerificationGasLimit?: uint256 | undefined
+          /** Extra gas to pay the Bundler. */
+          preVerificationGas: uint256
+          /** The account making the operation. */
+          sender: Address
+          /** Data passed into the account to verify authorization. */
+          signature: Hex
+          /** The amount of gas to allocate for the verification step. */
+          verificationGasLimit: uint256
+        }
+      : never)
   | (entryPointVersion extends '0.7'
       ? {
+          /** Authorization data. */
+          authorization?: SignedAuthorization<uint32> | undefined
           /** The data to pass to the `sender` during the main execution call. */
           callData: Hex
           /** The amount of gas to allocate the main execution call */
@@ -103,6 +153,8 @@ export type UserOperation<
       : never)
   | (entryPointVersion extends '0.6'
       ? {
+          /** Authorization data. */
+          authorization?: SignedAuthorization<uint32> | undefined
           /** The data to pass to the `sender` during the main execution call. */
           callData: Hex
           /** The amount of gas to allocate the main execution call */
@@ -132,10 +184,24 @@ export type UserOperation<
 export type UserOperationRequest<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
   uint256 = bigint,
+  uint32 = number,
 > = OneOf<
+  | (entryPointVersion extends '0.8'
+      ? UnionPartialBy<
+          UserOperation<'0.8', uint256, uint32>,
+          // We are able to calculate these via `prepareUserOperation`.
+          | keyof EstimateUserOperationGasReturnType<'0.8'>
+          | 'callData'
+          | 'maxFeePerGas'
+          | 'maxPriorityFeePerGas'
+          | 'nonce'
+          | 'sender'
+          | 'signature'
+        >
+      : never)
   | (entryPointVersion extends '0.7'
       ? UnionPartialBy<
-          UserOperation<'0.7', uint256>,
+          UserOperation<'0.7', uint256, uint32>,
           // We are able to calculate these via `prepareUserOperation`.
           | keyof EstimateUserOperationGasReturnType<'0.7'>
           | 'callData'
@@ -148,7 +214,7 @@ export type UserOperationRequest<
       : never)
   | (entryPointVersion extends '0.6'
       ? UnionPartialBy<
-          UserOperation<'0.6', uint256>,
+          UserOperation<'0.6', uint256, uint32>,
           // We are able to calculate these via `prepareUserOperation`.
           | keyof EstimateUserOperationGasReturnType<'0.6'>
           | 'callData'

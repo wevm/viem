@@ -13,7 +13,6 @@ export {
   type ParseAbiItem,
   type ParseAbiParameter,
   type ParseAbiParameters,
-  type ResolvedRegister,
   type TypedData,
   type TypedDataDomain,
   type TypedDataParameter,
@@ -379,6 +378,33 @@ export type {
   PrepareTransactionRequestReturnType,
 } from './actions/wallet/prepareTransactionRequest.js'
 export type {
+  GetCapabilitiesParameters,
+  GetCapabilitiesErrorType,
+  GetCapabilitiesReturnType,
+} from './actions/wallet/getCapabilities.js'
+export type {
+  SendCallsErrorType,
+  SendCallsParameters,
+  SendCallsReturnType,
+} from './actions/wallet/sendCalls.js'
+export type {
+  GetCallsStatusErrorType,
+  GetCallsStatusParameters,
+  GetCallsStatusReturnType,
+} from './actions/wallet/getCallsStatus.js'
+export type {
+  ShowCallsStatusErrorType,
+  ShowCallsStatusParameters,
+  ShowCallsStatusReturnType,
+} from './actions/wallet/showCallsStatus.js'
+export { WaitForCallsStatusTimeoutError } from './actions/wallet/waitForCallsStatus.js'
+export type {
+  WaitForCallsStatusErrorType,
+  WaitForCallsStatusParameters,
+  WaitForCallsStatusReturnType,
+  WaitForCallsStatusTimeoutErrorType,
+} from './actions/wallet/waitForCallsStatus.js'
+export type {
   SendUnsignedTransactionErrorType,
   SendUnsignedTransactionParameters,
   SendUnsignedTransactionReturnType,
@@ -579,6 +605,7 @@ export {
   erc20Abi,
   erc20Abi_bytes32,
   erc721Abi,
+  erc1155Abi,
   erc4626Abi,
   universalSignatureValidatorAbi,
 } from './constants/abis.js'
@@ -769,8 +796,16 @@ export {
   type MaxFeePerGasTooLowErrorType,
 } from './errors/fee.js'
 export {
+  AtomicReadyWalletRejectedUpgradeError,
+  type AtomicReadyWalletRejectedUpgradeErrorType,
+  AtomicityNotSupportedError,
+  type AtomicityNotSupportedErrorType,
+  BundleTooLargeError,
+  type BundleTooLargeErrorType,
   ChainDisconnectedError,
   type ChainDisconnectedErrorType,
+  DuplicateIdError,
+  type DuplicateIdErrorType,
   InternalRpcError,
   type InternalRpcErrorType,
   InvalidInputRpcError,
@@ -806,8 +841,14 @@ export {
   type TransactionRejectedRpcErrorType,
   UnauthorizedProviderError,
   type UnauthorizedProviderErrorType,
+  UnknownBundleIdError,
+  type UnknownBundleIdErrorType,
   UnknownRpcError,
   type UnknownRpcErrorType,
+  UnsupportedChainIdError,
+  type UnsupportedChainIdErrorType,
+  UnsupportedNonOptionalCapabilityError,
+  type UnsupportedNonOptionalCapabilityErrorType,
   UnsupportedProviderMethodError,
   type UnsupportedProviderMethodErrorType,
   UserRejectedRequestError,
@@ -1064,6 +1105,16 @@ export type {
   Uncle,
 } from './types/block.js'
 export type {
+  Capabilities,
+  /** @deprecated Use `Capabilities` instead. */
+  Capabilities as WalletCapabilities,
+  CapabilitiesSchema,
+  /** @deprecated Use `ChainIdToCapabilities` instead. */
+  ChainIdToCapabilities as WalletCapabilitiesRecord,
+  ChainIdToCapabilities,
+  ExtractCapabilities,
+} from './types/capabilities.js'
+export type {
   ByteArray,
   Hash,
   Hex,
@@ -1091,13 +1142,12 @@ export type {
   RpcSchema,
   RpcSchemaOverride,
   TestRpcSchema,
-  WalletCapabilities,
-  WalletCapabilitiesRecord,
   WalletCallReceipt,
   WalletGetCallsStatusReturnType,
   WalletGrantPermissionsParameters,
   WalletGrantPermissionsReturnType,
   WalletSendCallsParameters,
+  WalletSendCallsReturnType,
   WalletPermissionCaveat,
   WalletPermission,
   WalletRpcSchema,
@@ -1135,6 +1185,7 @@ export type {
   SignedAuthorization,
   SignedAuthorizationList,
 } from './types/authorization.js'
+export type { Register, ResolvedRegister } from './types/register.js'
 export type {
   Index,
   Quantity,
@@ -1591,6 +1642,7 @@ export {
   type EncodePackedErrorType,
   encodePacked,
 } from './utils/abi/encodePacked.js'
+export { withCache } from './utils/promise/withCache.js'
 export {
   type WithRetryErrorType,
   withRetry,

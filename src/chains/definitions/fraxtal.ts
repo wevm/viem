@@ -7,7 +7,7 @@ export const fraxtal = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 252,
   name: 'Fraxtal',
-  nativeCurrency: { name: 'Frax Ether', symbol: 'frxETH', decimals: 18 },
+  nativeCurrency: { name: 'Frax', symbol: 'FRAX', decimals: 18 },
   rpcUrls: {
     default: {
       http: ['https://rpc.frax.com'],

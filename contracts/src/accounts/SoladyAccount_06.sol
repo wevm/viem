@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.28;
 
 import {ERC4337} from "solady-dc09481/accounts/ERC4337.sol";
 

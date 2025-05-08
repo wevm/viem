@@ -65,7 +65,7 @@ test('behavior: partial authorization: no chainId + nonce', async () => {
     {
       "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "nonce": 937,
+      "nonce": 953,
     }
   `,
   )
@@ -83,7 +83,7 @@ test('behavior: partial authorization: no nonce', async () => {
     {
       "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 10,
-      "nonce": 937,
+      "nonce": 953,
     }
   `,
   )
@@ -114,7 +114,7 @@ test('behavior: executor (address)', async () => {
     executor: '0x0000000000000000000000000000000000000000',
   })
 
-  expect(authorization.nonce).toBe(937)
+  expect(authorization.nonce).toBe(953)
 })
 
 test('behavior: executor (account)', async () => {
@@ -124,7 +124,7 @@ test('behavior: executor (account)', async () => {
     executor: privateKeyToAccount(accounts[1].privateKey),
   })
 
-  expect(authorization.nonce).toBe(937)
+  expect(authorization.nonce).toBe(953)
 })
 
 test('behavior: executor (self-executing)', async () => {
@@ -135,7 +135,7 @@ test('behavior: executor (self-executing)', async () => {
       executor: 'self',
     })
 
-    expect(authorization.nonce).toBe(938)
+    expect(authorization.nonce).toBe(954)
   }
 
   {
@@ -145,7 +145,7 @@ test('behavior: executor (self-executing)', async () => {
       executor: account,
     })
 
-    expect(authorization.nonce).toBe(938)
+    expect(authorization.nonce).toBe(954)
   }
 })
 

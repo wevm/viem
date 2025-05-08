@@ -284,7 +284,6 @@ export async function getWithdrawalStatus<
       // All potential error causes listed here, can either be the error string or the error name
       // if custom error types are returned.
       const errorCauses = {
-        'waiting-to-prove': ['Unproven'],
         'ready-to-prove': [
           'OptimismPortal: invalid game type',
           'OptimismPortal: withdrawal has not been proven yet',
@@ -292,6 +291,7 @@ export async function getWithdrawalStatus<
           'OptimismPortal: dispute game created before respected game type was updated',
           'InvalidGameType',
           'LegacyGame',
+          'Unproven',
         ],
         'waiting-to-finalize': [
           'OptimismPortal: proven withdrawal has not matured yet',
@@ -306,10 +306,6 @@ export async function getWithdrawalStatus<
         error.cause.data?.errorName,
         error.cause.data?.args?.[0] as string,
       ]
-      if (
-        errorCauses['waiting-to-prove'].some((cause) => errors.includes(cause))
-      )
-        return 'waiting-to-prove'
       if (errorCauses['ready-to-prove'].some((cause) => errors.includes(cause)))
         return 'ready-to-prove'
       if (

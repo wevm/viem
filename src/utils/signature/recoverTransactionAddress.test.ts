@@ -125,7 +125,7 @@ test('via account `signTransaction`', async () => {
 
 test('via `getTransaction`', async () => {
   const transaction = await getTransaction(client, {
-    blockNumber: anvilMainnet.forkBlockNumber - 10n,
+    blockNumber: anvilMainnet.forkBlockNumber - 15n,
     index: 0,
   })
   const serializedTransaction = serializeTransaction({

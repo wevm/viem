@@ -108,7 +108,7 @@ test('behavior: address as authorization', async () => {
     {
       "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "nonce": 937,
+      "nonce": 953,
       "r": null,
       "s": null,
       "v": null,
@@ -145,7 +145,7 @@ test('behavior: partial authorization: no chainId + nonce', async () => {
     {
       "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 1,
-      "nonce": 937,
+      "nonce": 953,
       "r": null,
       "s": null,
       "v": null,
@@ -183,7 +183,7 @@ test('behavior: partial authorization: no nonce', async () => {
     {
       "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
       "chainId": 10,
-      "nonce": 937,
+      "nonce": 953,
       "r": null,
       "s": null,
       "v": null,
@@ -248,7 +248,7 @@ test('behavior: self-executing', async () => {
     executor: 'self',
   })
 
-  expect(authorization.nonce).toBe(938)
+  expect(authorization.nonce).toBe(954)
   expect(
     await verifyAuthorization({
       address: account.address,

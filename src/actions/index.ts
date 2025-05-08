@@ -317,6 +317,37 @@ export {
   getPermissions,
 } from './wallet/getPermissions.js'
 export {
+  type GetCapabilitiesParameters,
+  type GetCapabilitiesErrorType,
+  type GetCapabilitiesReturnType,
+  getCapabilities,
+} from './wallet/getCapabilities.js'
+export {
+  type SendCallsErrorType,
+  type SendCallsParameters,
+  type SendCallsReturnType,
+  sendCalls,
+} from './wallet/sendCalls.js'
+export {
+  type GetCallsStatusErrorType,
+  type GetCallsStatusParameters,
+  type GetCallsStatusReturnType,
+  getCallsStatus,
+} from './wallet/getCallsStatus.js'
+export {
+  type ShowCallsStatusErrorType,
+  type ShowCallsStatusParameters,
+  type ShowCallsStatusReturnType,
+  showCallsStatus,
+} from './wallet/showCallsStatus.js'
+export {
+  type WaitForCallsStatusErrorType,
+  type WaitForCallsStatusParameters,
+  type WaitForCallsStatusReturnType,
+  type WaitForCallsStatusTimeoutErrorType,
+  waitForCallsStatus,
+} from './wallet/waitForCallsStatus.js'
+export {
   type GetProofErrorType,
   type GetProofParameters,
   type GetProofReturnType,

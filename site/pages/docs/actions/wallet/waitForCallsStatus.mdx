@@ -1,0 +1,114 @@
+---
+description: Waits for a call batch to be confirmed & included on a Block.
+---
+
+# waitForCallsStatus
+
+Waits for a call batch to be confirmed & included on a [Block](/docs/glossary/terms#block) before returning the status & receipts.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseEther } from 'viem'
+import { account, walletClient } from './config'
+ 
+const { id } = await walletClient.sendCalls({
+  account,
+  calls: [{
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: parseEther('1')
+  }],
+})
+ 
+const result = await walletClient.waitForCallsStatus({ // [!code focus]
+  id, // [!code focus]
+}) // [!code focus]
+// @log: {
+// @log:   atomic: false,
+// @log:   chainId: 1,
+// @log:   id: '0x1234567890abcdef',
+// @log:   statusCode: 200,
+// @log:   status: 'success',
+// @log:   receipts: [{ ... }],
+// @log: }
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+import 'viem/window'
+// ---cut---
+import { createWalletClient, custom } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const walletClient = createWalletClient({
+  chain: mainnet,
+  transport: custom(window.ethereum!),
+})
+
+export const [account] = await walletClient.getAddresses()
+```
+
+:::
+
+## Returns
+
+`WaitForCallsStatusReturnType`
+
+Status and receipts of the calls.
+
+## Parameters
+
+### id
+
+- **Type:** `string`
+
+Identifier of the call batch.
+
+```ts
+const result = await walletClient.waitForCallsStatus({
+  id: '0xdeadbeef', // [!code focus]
+})
+```
+
+### pollingInterval
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Polling interval in milliseconds.
+
+```ts
+const result = await walletClient.waitForCallsStatus({
+  id: '0xdeadbeef',
+  pollingInterval: 1_000, // [!code focus]
+})
+```
+
+### status
+
+- **Type:** `(parameters: { statusCode: number, status: string | undefined }) => boolean`
+- **Default:** `(parameters) => parameters.statusCode >= 200`
+
+Status to wait for. Defaults to non-pending status codes (`>=200`).
+
+```ts
+const result = await walletClient.waitForCallsStatus({
+  id: '0xdeadbeef',
+  status: ({ status }) => status === 'success', // [!code focus]
+})
+```
+
+### timeout
+
+- **Type:** `number`
+- **Default:** `60_000`
+
+Timeout in milliseconds before `waitForCallsStatus` stops polling.
+
+```ts
+const result = await walletClient.waitForCallsStatus({
+  id: '0xdeadbeef',
+  timeout: 10_000, // [!code focus]
+})
+```

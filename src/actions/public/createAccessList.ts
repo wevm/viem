@@ -120,7 +120,8 @@ export async function createAccessList<chain extends Chain | undefined>(
   try {
     assertRequest(args as AssertRequestParameters)
 
-    const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
+    const blockNumberHex =
+      typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
 
     const chainFormat = client.chain?.formatters?.transactionRequest?.format

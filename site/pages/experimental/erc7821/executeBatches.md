@@ -368,7 +368,7 @@ Signed EIP-7702 Authorization list.
 import { createWalletClient, http, parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
-import { eip7702Actions, erc7821Actions } from 'viem/experimental'
+import { erc7821Actions } from 'viem/experimental'
 
 const account = privateKeyToAccount('0x...')
 
@@ -377,7 +377,6 @@ export const client = createWalletClient({
   chain: mainnet,
   transport: http(),
 })
-  .extend(eip7702Actions())
   .extend(erc7821Actions())
 // ---cut---
 const authorization = await client.signAuthorization({ 

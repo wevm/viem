@@ -15,5 +15,11 @@ export const hoodi = /*#__PURE__*/ defineChain({
       url: 'https://hoodi.etherscan.io',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 2589,
+    },
+  },
   testnet: true,
 })

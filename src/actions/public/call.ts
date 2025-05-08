@@ -1,4 +1,5 @@
 import { type Address, parseAbi } from 'abitype'
+import * as BlockOverrides from 'ox/BlockOverrides'
 
 import type { Account } from '../../accounts/types.js'
 import {
@@ -83,6 +84,8 @@ export type CallParameters<
   account?: Account | Address | undefined
   /** Whether or not to enable multicall batching on this call. */
   batch?: boolean | undefined
+  /** Block overrides for the call. */
+  blockOverrides?: BlockOverrides.BlockOverrides | undefined
   /** Bytecode to perform the call on. */
   code?: Hex | undefined
   /** Contract deployment factory address (ie. Create2 factory, Smart Account factory, etc). */
@@ -159,6 +162,7 @@ export async function call<chain extends Chain | undefined>(
     blockTag = 'latest',
     accessList,
     blobs,
+    blockOverrides,
     code,
     data: data_,
     factory,
@@ -208,9 +212,13 @@ export async function call<chain extends Chain | undefined>(
   try {
     assertRequest(args as AssertRequestParameters)
 
-    const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
+    const blockNumberHex =
+      typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
 
+    const rpcBlockOverrides = blockOverrides
+      ? BlockOverrides.toRpc(blockOverrides)
+      : undefined
     const rpcStateOverride = serializeStateOverride(stateOverride)
 
     const chainFormat = client.chain?.formatters?.transactionRequest?.format
@@ -233,7 +241,12 @@ export async function call<chain extends Chain | undefined>(
       value,
     } as TransactionRequest) as TransactionRequest
 
-    if (batch && shouldPerformMulticall({ request }) && !rpcStateOverride) {
+    if (
+      batch &&
+      shouldPerformMulticall({ request }) &&
+      !rpcStateOverride &&
+      !rpcBlockOverrides
+    ) {
       try {
         return await scheduleMulticall(client, {
           ...request,
@@ -249,15 +262,21 @@ export async function call<chain extends Chain | undefined>(
       }
     }
 
+    const params = (() => {
+      const base = [
+        request as ExactPartial<RpcTransactionRequest>,
+        block,
+      ] as const
+      if (rpcStateOverride && rpcBlockOverrides)
+        return [...base, rpcStateOverride, rpcBlockOverrides] as const
+      if (rpcStateOverride) return [...base, rpcStateOverride] as const
+      if (rpcBlockOverrides) return [...base, {}, rpcBlockOverrides] as const
+      return base
+    })()
+
     const response = await client.request({
       method: 'eth_call',
-      params: rpcStateOverride
-        ? [
-            request as ExactPartial<RpcTransactionRequest>,
-            block,
-            rpcStateOverride,
-          ]
-        : [request as ExactPartial<RpcTransactionRequest>, block],
+      params,
     })
     if (response === '0x') return { data: undefined }
     return { data: response }
@@ -347,7 +366,8 @@ async function scheduleMulticall<chain extends Chain | undefined>(
     })
   }
 
-  const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
+  const blockNumberHex =
+    typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
   const block = blockNumberHex || blockTag
 
   const { schedule } = createBatchScheduler({

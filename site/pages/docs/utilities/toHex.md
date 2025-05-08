@@ -1,5 +1,5 @@
 ---
-description: Encodes a string, number, boolean or byte array to a hex value value.
+description: Encodes a string, number, boolean or byte array to a hex value.
 ---
 
 # toHex

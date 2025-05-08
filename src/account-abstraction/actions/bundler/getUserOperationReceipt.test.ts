@@ -2,10 +2,11 @@ import { beforeEach, describe, expect, test } from 'vitest'
 import {
   getSmartAccounts_06,
   getSmartAccounts_07,
+  getSmartAccounts_08,
 } from '../../../../test/src/account-abstraction.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { bundlerMainnet } from '../../../../test/src/bundler.js'
-import { mine } from '../../../actions/index.js'
+import { mine, signAuthorization } from '../../../actions/index.js'
 import { parseEther, parseGwei } from '../../../utils/index.js'
 import { getUserOperationReceipt } from './getUserOperationReceipt.js'
 import { sendUserOperation } from './sendUserOperation.js'
@@ -20,6 +21,64 @@ const fees = {
 
 beforeEach(async () => {
   await bundlerMainnet.restart()
+})
+
+describe('entryPointVersion: 0.8', async () => {
+  const [account] = await getSmartAccounts_08()
+
+  test('default', async () => {
+    const authorization = await signAuthorization(client, account.authorization)
+    const hash = await sendUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+      ],
+      authorization,
+      ...fees,
+    })
+
+    await bundlerClient.request({
+      method: 'debug_bundler_sendBundleNow',
+    })
+    await mine(client, {
+      blocks: 1,
+    })
+
+    const receipt = await getUserOperationReceipt(bundlerClient, {
+      hash,
+    })
+
+    expect(receipt.success).toBeTruthy()
+  })
+
+  test('error: receipt not found', async () => {
+    const authorization = await signAuthorization(
+      account.client,
+      account.authorization,
+    )
+    const hash = await sendUserOperation(bundlerClient, {
+      account,
+      calls: [
+        {
+          to: '0x0000000000000000000000000000000000000000',
+          value: parseEther('1'),
+        },
+      ],
+      authorization,
+      ...fees,
+    })
+
+    await expect(() =>
+      getUserOperationReceipt(bundlerClient, {
+        hash,
+      }),
+    ).rejects.toThrowError(
+      'The User Operation may not have been processed yet.',
+    )
+  })
 })
 
 describe('entryPointVersion: 0.7', async () => {
