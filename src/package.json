@@ -80,6 +80,11 @@
       "import": "./_esm/experimental/erc7846/index.js",
       "default": "./_cjs/experimental/erc7846/index.js"
     },
+    "./experimental/erc7895": {
+      "types": "./_types/experimental/erc7895/index.d.ts",
+      "import": "./_esm/experimental/erc7895/index.js",
+      "default": "./_cjs/experimental/erc7895/index.js"
+    },
     "./linea": {
       "types": "./_types/linea/index.d.ts",
       "import": "./_esm/linea/index.js",
@@ -134,6 +139,7 @@
       "experimental/erc7739": ["./_types/experimental/erc7739/index.d.ts"],
       "experimental/erc7821": ["./_types/experimental/erc7821/index.d.ts"],
       "experimental/erc7846": ["./_types/experimental/erc7846/index.d.ts"],
+      "experimental/erc7895": ["./_types/experimental/erc7895/index.d.ts"],
       "node": ["./_types/node/index.d.ts"],
       "op-stack": ["./_types/op-stack/index.d.ts"],
       "siwe": ["./_types/siwe/index.d.ts"],
