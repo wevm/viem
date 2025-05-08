@@ -136,7 +136,8 @@ export async function estimateGas<
         account?.type === 'local' ? undefined : ['blobVersionedHashes'],
     } as PrepareTransactionRequestParameters)) as EstimateGasParameters
 
-    const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
+    const blockNumberHex =
+      typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
 
     const rpcStateOverride = serializeStateOverride(stateOverride)

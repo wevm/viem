@@ -80,7 +80,8 @@ export async function estimateGas<
       ...rest
     } = args
 
-    const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
+    const blockNumberHex =
+      typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
 
     assertRequest(args as AssertRequestParameters)

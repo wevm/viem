@@ -77,7 +77,8 @@ export async function getFeeHistory<chain extends Chain | undefined>(
     rewardPercentiles,
   }: GetFeeHistoryParameters,
 ): Promise<GetFeeHistoryReturnType> {
-  const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
+  const blockNumberHex =
+    typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
   const feeHistory = await client.request(
     {
       method: 'eth_feeHistory',

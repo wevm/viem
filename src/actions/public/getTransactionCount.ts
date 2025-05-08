@@ -72,9 +72,14 @@ export async function getTransactionCount<
   const count = await client.request(
     {
       method: 'eth_getTransactionCount',
-      params: [address, blockNumber ? numberToHex(blockNumber) : blockTag],
+      params: [
+        address,
+        typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : blockTag,
+      ],
     },
-    { dedupe: Boolean(blockNumber) },
+    {
+      dedupe: Boolean(blockNumber),
+    },
   )
   return hexToNumber(count)
 }

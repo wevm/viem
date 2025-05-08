@@ -212,7 +212,8 @@ export async function call<chain extends Chain | undefined>(
   try {
     assertRequest(args as AssertRequestParameters)
 
-    const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
+    const blockNumberHex =
+      typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
 
     const rpcBlockOverrides = blockOverrides
@@ -365,7 +366,8 @@ async function scheduleMulticall<chain extends Chain | undefined>(
     })
   }
 
-  const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
+  const blockNumberHex =
+    typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
   const block = blockNumberHex || blockTag
 
   const { schedule } = createBatchScheduler({

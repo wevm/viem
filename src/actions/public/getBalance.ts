@@ -73,7 +73,8 @@ export async function getBalance<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   { address, blockNumber, blockTag = 'latest' }: GetBalanceParameters,
 ): Promise<GetBalanceReturnType> {
-  const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
+  const blockNumberHex =
+    typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
 
   const balance = await client.request({
     method: 'eth_getBalance',
