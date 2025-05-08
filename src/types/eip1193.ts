@@ -643,15 +643,21 @@ export type PublicRpcSchema = [
   {
     Method: 'eth_call'
     Parameters:
-      | [transaction: ExactPartial<TransactionRequest>]
-      | [
+      | readonly [transaction: ExactPartial<TransactionRequest>]
+      | readonly [
           transaction: ExactPartial<TransactionRequest>,
           block: BlockNumber | BlockTag | BlockIdentifier,
         ]
-      | [
+      | readonly [
           transaction: ExactPartial<TransactionRequest>,
           block: BlockNumber | BlockTag | BlockIdentifier,
           stateOverrideSet: RpcStateOverride,
+        ]
+      | readonly [
+          transaction: ExactPartial<TransactionRequest>,
+          block: BlockNumber | BlockTag | BlockIdentifier,
+          stateOverrideSet: RpcStateOverride,
+          blockOverrides: BlockOverrides.Rpc,
         ]
     ReturnType: Hex
   },
