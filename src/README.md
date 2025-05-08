@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  TypeScript Interface for Ethereum
+  TypeScript Interface for Ethereum & Zircuit
 <p>
 
 <p align="center">
