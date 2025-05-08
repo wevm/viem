@@ -9,7 +9,7 @@ export interface L2ToL1MessagePasserContract extends ChainContract {
 }
 
 // Explicit contract mapping
-export interface ZircuitContractsMap {
+interface ZircuitContractsMap {
   gasPriceOracle: ChainContract
   l1Block: ChainContract
   l2CrossDomainMessenger: ChainContract

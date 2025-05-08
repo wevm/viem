@@ -36,7 +36,6 @@ export const formatters = {
       })
       return {
         transactions,
-        ...(args.randomness ? { randomness: args.randomness } : {}),
       } as CeloBlock
     },
   }),

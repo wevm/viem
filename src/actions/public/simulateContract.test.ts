@@ -24,7 +24,7 @@ import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { mine } from '../test/mine.js'
 
-import { maxUint256 } from '~viem/constants/number.js'
+import { maxUint256 } from '~zkr-viem/constants/number.js'
 import { simulateContract } from './simulateContract.js'
 
 const client = anvilMainnet

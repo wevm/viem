@@ -135,7 +135,7 @@ export async function sendUserOperation<
     : parameters
 
   const signature = (parameters.signature ||
-    (await account?.signUserOperation(request as UserOperation)))!
+    (await account?.signUserOperation?.(request as UserOperation)))!
 
   const rpcParameters = formatUserOperationRequest({
     ...request,
@@ -148,7 +148,7 @@ export async function sendUserOperation<
         method: 'eth_sendUserOperation',
         params: [
           rpcParameters,
-          (entryPointAddress ?? account?.entryPoint.address)!,
+          (entryPointAddress ?? account?.entryPoint?.address)!,
         ],
       },
       { retryCount: 0 },

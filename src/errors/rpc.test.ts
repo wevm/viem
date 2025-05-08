@@ -2,7 +2,11 @@ import { expect, test } from 'vitest'
 
 import { RpcRequestError } from './request.js'
 import {
+  AtomicReadyWalletRejectedUpgradeError,
+  AtomicityNotSupportedError,
+  BundleTooLargeError,
   ChainDisconnectedError,
+  DuplicateIdError,
   InternalRpcError,
   InvalidInputRpcError,
   InvalidParamsRpcError,
@@ -20,7 +24,10 @@ import {
   SwitchChainError,
   TransactionRejectedRpcError,
   UnauthorizedProviderError,
+  UnknownBundleIdError,
   UnknownRpcError,
+  UnsupportedChainIdError,
+  UnsupportedNonOptionalCapabilityError,
   UnsupportedProviderMethodError,
   UserRejectedRequestError,
 } from './rpc.js'
@@ -559,6 +566,167 @@ test('SwitchChainError', () => {
     ),
   ).toMatchInlineSnapshot(`
     [SwitchChainError: An error occurred when attempting to switch chain.
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
+    Details: message
+    Version: viem@x.y.z]
+  `)
+})
+
+test('UnsupportedNonOptionalCapabilityError', () => {
+  expect(
+    new UnsupportedNonOptionalCapabilityError(
+      new RpcRequestError({
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: 5700,
+          message: 'message',
+        },
+      }),
+    ),
+  ).toMatchInlineSnapshot(`
+    [UnsupportedNonOptionalCapabilityError: This Wallet does not support a capability that was not marked as optional.
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
+    Details: message
+    Version: viem@x.y.z]
+  `)
+})
+
+test('UnsupportedChainIdError', () => {
+  expect(
+    new UnsupportedChainIdError(
+      new RpcRequestError({
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: 5710,
+          message: 'message',
+        },
+      }),
+    ),
+  ).toMatchInlineSnapshot(`
+    [UnsupportedChainIdError: This Wallet does not support the requested chain ID.
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
+    Details: message
+    Version: viem@x.y.z]
+  `)
+})
+
+test('DuplicateIdError', () => {
+  expect(
+    new DuplicateIdError(
+      new RpcRequestError({
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: 5720,
+          message: 'message',
+        },
+      }),
+    ),
+  ).toMatchInlineSnapshot(`
+    [DuplicateIdError: There is already a bundle submitted with this ID.
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
+    Details: message
+    Version: viem@x.y.z]
+  `)
+})
+
+test('UnknownBundleIdError', () => {
+  expect(
+    new UnknownBundleIdError(
+      new RpcRequestError({
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: 5730,
+          message: 'message',
+        },
+      }),
+    ),
+  ).toMatchInlineSnapshot(`
+    [UnknownBundleIdError: This bundle id is unknown / has not been submitted
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
+    Details: message
+    Version: viem@x.y.z]
+  `)
+})
+
+test('BundleTooLargeError', () => {
+  expect(
+    new BundleTooLargeError(
+      new RpcRequestError({
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: 5740,
+          message: 'message',
+        },
+      }),
+    ),
+  ).toMatchInlineSnapshot(`
+    [BundleTooLargeError: The call bundle is too large for the Wallet to process.
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
+    Details: message
+    Version: viem@x.y.z]
+  `)
+})
+
+test('AtomicReadyWalletRejectedUpgradeError', () => {
+  expect(
+    new AtomicReadyWalletRejectedUpgradeError(
+      new RpcRequestError({
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: 5750,
+          message: 'message',
+        },
+      }),
+    ),
+  ).toMatchInlineSnapshot(`
+    [AtomicReadyWalletRejectedUpgradeError: The Wallet can support atomicity after an upgrade, but the user rejected the upgrade.
+
+    URL: http://localhost
+    Request body: {"foo":"bar"}
+
+    Details: message
+    Version: viem@x.y.z]
+  `)
+})
+
+test('AtomicityNotSupportedError', () => {
+  expect(
+    new AtomicityNotSupportedError(
+      new RpcRequestError({
+        body: { foo: 'bar' },
+        url: 'https://viem.sh',
+        error: {
+          code: 5760,
+          message: 'message',
+        },
+      }),
+    ),
+  ).toMatchInlineSnapshot(`
+    [AtomicityNotSupportedError: The wallet does not support atomic execution but the request requires it.
 
     URL: http://localhost
     Request body: {"foo":"bar"}

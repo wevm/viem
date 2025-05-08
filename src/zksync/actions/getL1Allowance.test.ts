@@ -3,8 +3,8 @@ import { afterAll, expect, test, vi } from 'vitest'
 import { accounts } from '~test/src/constants.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 
-import { sepolia } from '~viem/chains/index.js'
-import { erc20Abi } from '~viem/constants/abis.js'
+import { sepolia } from '~zkr-viem/chains/index.js'
+import { erc20Abi } from '~zkr-viem/constants/abis.js'
 import * as readContract from '../../actions/public/readContract.js'
 import {
   http,

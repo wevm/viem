@@ -1,9 +1,12 @@
 import { afterAll, beforeAll, beforeEach, vi } from 'vitest'
 
-import { setIntervalMining } from '~viem/actions/test/setIntervalMining.js'
-import { cleanupCache, listenersCache } from '~viem/utils/observe.js'
-import { promiseCache, responseCache } from '~viem/utils/promise/withCache.js'
-import { socketClientCache } from '~viem/utils/rpc/socket.js'
+import { setIntervalMining } from '~zkr-viem/actions/test/setIntervalMining.js'
+import { cleanupCache, listenersCache } from '~zkr-viem/utils/observe.js'
+import {
+  promiseCache,
+  responseCache,
+} from '~zkr-viem/utils/promise/withCache.js'
+import { socketClientCache } from '~zkr-viem/utils/rpc/socket.js'
 
 import { setErrorConfig } from '../src/errors/base.js'
 import * as instances from './src/anvil.js'

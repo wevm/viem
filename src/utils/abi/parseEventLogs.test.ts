@@ -122,27 +122,27 @@ test('default', async () => {
     abi,
     logs,
   })
-  expect(parsedLogs.length).toBe(1348)
+  expect(parsedLogs.length).toBe(1626)
   expect(parsedLogs[0]).toMatchInlineSnapshot(`
     {
-      "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
       "args": {
-        "from": "0x1f2F10D1C40777AE1Da742455c65828FF36Df387",
-        "to": "0x1B4b33b4c7307a2971E934302523Ed084dEd6A3F",
-        "value": 358332750601650176n,
+        "from": "0x9a772018FbD77fcD2d25657e5C547BAfF3Fd7D16",
+        "to": "0x51C72848c68a965f66FA7a88855F9f7784502a7F",
+        "value": 120434120394n,
       },
-      "blockHash": "0x69ae1f61ac90b81e2f7a012e7792a4443397c6f692598d500ed7c5f08416c691",
-      "blockNumber": 22180092n,
-      "data": "0x00000000000000000000000000000000000000000000000004f90dbcf7000000",
+      "blockHash": "0xcefce01338b9da7553647cf3912ae562abaa0139fc7360f1ca279a609473ef3f",
+      "blockNumber": 22263618n,
+      "data": "0x0000000000000000000000000000000000000000000000000000001c0a6ed6ca",
       "eventName": "Transfer",
       "logIndex": 0,
       "removed": false,
       "topics": [
         "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-        "0x0000000000000000000000001f2f10d1c40777ae1da742455c65828ff36df387",
-        "0x0000000000000000000000001b4b33b4c7307a2971e934302523ed084ded6a3f",
+        "0x0000000000000000000000009a772018fbd77fcd2d25657e5c547baff3fd7d16",
+        "0x00000000000000000000000051c72848c68a965f66fa7a88855f9f7784502a7f",
       ],
-      "transactionHash": "0xca4e1c9355b454c147d213828387f768c204e238fed198ec4f946a36225751ea",
+      "transactionHash": "0x5a85da72e82150fc8272f4baa637f0bb9e5b7159912650f2c11f45e7a2b6d1a5",
       "transactionIndex": 0,
     }
   `)
@@ -864,27 +864,27 @@ test('args: eventName', async () => {
     eventName: 'Transfer',
     logs,
   })
-  expect(transferLogs.length).toBe(1245)
+  expect(transferLogs.length).toBe(1465)
   expect(transferLogs[0]).toMatchInlineSnapshot(`
     {
-      "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
       "args": {
-        "from": "0x1f2F10D1C40777AE1Da742455c65828FF36Df387",
-        "to": "0x1B4b33b4c7307a2971E934302523Ed084dEd6A3F",
-        "value": 358332750601650176n,
+        "from": "0x9a772018FbD77fcD2d25657e5C547BAfF3Fd7D16",
+        "to": "0x51C72848c68a965f66FA7a88855F9f7784502a7F",
+        "value": 120434120394n,
       },
-      "blockHash": "0x69ae1f61ac90b81e2f7a012e7792a4443397c6f692598d500ed7c5f08416c691",
-      "blockNumber": 22180092n,
-      "data": "0x00000000000000000000000000000000000000000000000004f90dbcf7000000",
+      "blockHash": "0xcefce01338b9da7553647cf3912ae562abaa0139fc7360f1ca279a609473ef3f",
+      "blockNumber": 22263618n,
+      "data": "0x0000000000000000000000000000000000000000000000000000001c0a6ed6ca",
       "eventName": "Transfer",
       "logIndex": 0,
       "removed": false,
       "topics": [
         "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-        "0x0000000000000000000000001f2f10d1c40777ae1da742455c65828ff36df387",
-        "0x0000000000000000000000001b4b33b4c7307a2971e934302523ed084ded6a3f",
+        "0x0000000000000000000000009a772018fbd77fcd2d25657e5c547baff3fd7d16",
+        "0x00000000000000000000000051c72848c68a965f66fa7a88855f9f7784502a7f",
       ],
-      "transactionHash": "0xca4e1c9355b454c147d213828387f768c204e238fed198ec4f946a36225751ea",
+      "transactionHash": "0x5a85da72e82150fc8272f4baa637f0bb9e5b7159912650f2c11f45e7a2b6d1a5",
       "transactionIndex": 0,
     }
   `)
@@ -894,28 +894,28 @@ test('args: eventName', async () => {
     eventName: 'Approval',
     logs,
   })
-  expect(approvalLogs.length).toBe(103)
+  expect(approvalLogs.length).toBe(161)
   expect(approvalLogs[0]).toMatchInlineSnapshot(`
     {
-      "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "address": "0x62b9c7356a2dc64a1969e19c23e4f579f9810aa7",
       "args": {
-        "owner": "0xC47591F5c023e44931c78D5A993834875b79FB11",
-        "spender": "0x75f21e4D88923e9ac9BB600D8AD3BE2d89Dd025d",
-        "value": 5000000n,
+        "owner": "0xf081470f5C6FBCCF48cC4e5B82Dd926409DcdD67",
+        "spender": "0x971add32Ea87f10bD192671630be3BE8A11b8623",
+        "value": 115792089237316195423570985008687907853269984665640553065265497905716727142853n,
       },
-      "blockHash": "0x69ae1f61ac90b81e2f7a012e7792a4443397c6f692598d500ed7c5f08416c691",
-      "blockNumber": 22180092n,
-      "data": "0x00000000000000000000000000000000000000000000000000000000004c4b40",
+      "blockHash": "0xcefce01338b9da7553647cf3912ae562abaa0139fc7360f1ca279a609473ef3f",
+      "blockNumber": 22263618n,
+      "data": "0xfffffffffffffffffffffffffffffffffffffffffff6ec1fdaddeba7574c59c5",
       "eventName": "Approval",
-      "logIndex": 24,
+      "logIndex": 91,
       "removed": false,
       "topics": [
         "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
-        "0x000000000000000000000000c47591f5c023e44931c78d5a993834875b79fb11",
-        "0x00000000000000000000000075f21e4d88923e9ac9bb600d8ad3be2d89dd025d",
+        "0x000000000000000000000000f081470f5c6fbccf48cc4e5b82dd926409dcdd67",
+        "0x000000000000000000000000971add32ea87f10bd192671630be3be8a11b8623",
       ],
-      "transactionHash": "0x9c59f8efde07e6eb01bdd5d73231ab0a5abc2cb0be57ecd3c385a98f3ea2fc7f",
-      "transactionIndex": 13,
+      "transactionHash": "0xd1426c3c24ca7eedd1cc53a09fed99c1e04796f15d8f6f8c09fd395d1af1b99c",
+      "transactionIndex": 38,
     }
   `)
 
@@ -924,27 +924,27 @@ test('args: eventName', async () => {
     eventName: ['Approval', 'Transfer'],
     logs,
   })
-  expect(contractLogs.length).toBe(1348)
+  expect(contractLogs.length).toBe(1626)
   expect(contractLogs[0]).toMatchInlineSnapshot(`
     {
-      "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
       "args": {
-        "from": "0x1f2F10D1C40777AE1Da742455c65828FF36Df387",
-        "to": "0x1B4b33b4c7307a2971E934302523Ed084dEd6A3F",
-        "value": 358332750601650176n,
+        "from": "0x9a772018FbD77fcD2d25657e5C547BAfF3Fd7D16",
+        "to": "0x51C72848c68a965f66FA7a88855F9f7784502a7F",
+        "value": 120434120394n,
       },
-      "blockHash": "0x69ae1f61ac90b81e2f7a012e7792a4443397c6f692598d500ed7c5f08416c691",
-      "blockNumber": 22180092n,
-      "data": "0x00000000000000000000000000000000000000000000000004f90dbcf7000000",
+      "blockHash": "0xcefce01338b9da7553647cf3912ae562abaa0139fc7360f1ca279a609473ef3f",
+      "blockNumber": 22263618n,
+      "data": "0x0000000000000000000000000000000000000000000000000000001c0a6ed6ca",
       "eventName": "Transfer",
       "logIndex": 0,
       "removed": false,
       "topics": [
         "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-        "0x0000000000000000000000001f2f10d1c40777ae1da742455c65828ff36df387",
-        "0x0000000000000000000000001b4b33b4c7307a2971e934302523ed084ded6a3f",
+        "0x0000000000000000000000009a772018fbd77fcd2d25657e5c547baff3fd7d16",
+        "0x00000000000000000000000051c72848c68a965f66fa7a88855f9f7784502a7f",
       ],
-      "transactionHash": "0xca4e1c9355b454c147d213828387f768c204e238fed198ec4f946a36225751ea",
+      "transactionHash": "0x5a85da72e82150fc8272f4baa637f0bb9e5b7159912650f2c11f45e7a2b6d1a5",
       "transactionIndex": 0,
     }
   `)
@@ -961,27 +961,27 @@ test('args: strict', async () => {
     logs,
     strict: false,
   })
-  expect(parsedLogs.length).toBe(1510)
+  expect(parsedLogs.length).toBe(1650)
   expect(parsedLogs[0]).toMatchInlineSnapshot(`
     {
-      "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
       "args": {
-        "from": "0x1f2F10D1C40777AE1Da742455c65828FF36Df387",
-        "to": "0x1B4b33b4c7307a2971E934302523Ed084dEd6A3F",
-        "value": 358332750601650176n,
+        "from": "0x9a772018FbD77fcD2d25657e5C547BAfF3Fd7D16",
+        "to": "0x51C72848c68a965f66FA7a88855F9f7784502a7F",
+        "value": 120434120394n,
       },
-      "blockHash": "0x69ae1f61ac90b81e2f7a012e7792a4443397c6f692598d500ed7c5f08416c691",
-      "blockNumber": 22180092n,
-      "data": "0x00000000000000000000000000000000000000000000000004f90dbcf7000000",
+      "blockHash": "0xcefce01338b9da7553647cf3912ae562abaa0139fc7360f1ca279a609473ef3f",
+      "blockNumber": 22263618n,
+      "data": "0x0000000000000000000000000000000000000000000000000000001c0a6ed6ca",
       "eventName": "Transfer",
       "logIndex": 0,
       "removed": false,
       "topics": [
         "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-        "0x0000000000000000000000001f2f10d1c40777ae1da742455c65828ff36df387",
-        "0x0000000000000000000000001b4b33b4c7307a2971e934302523ed084ded6a3f",
+        "0x0000000000000000000000009a772018fbd77fcd2d25657e5c547baff3fd7d16",
+        "0x00000000000000000000000051c72848c68a965f66fa7a88855f9f7784502a7f",
       ],
-      "transactionHash": "0xca4e1c9355b454c147d213828387f768c204e238fed198ec4f946a36225751ea",
+      "transactionHash": "0x5a85da72e82150fc8272f4baa637f0bb9e5b7159912650f2c11f45e7a2b6d1a5",
       "transactionIndex": 0,
     }
   `)

@@ -10,7 +10,7 @@ import {
   createClient,
   encodeErrorResult,
   encodeFunctionResult,
-} from '~viem/index.js'
+} from '~zkr-viem/index.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { optimism } from '../../chains/index.js'
 import { http } from '../../clients/transports/http.js'

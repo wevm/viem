@@ -1,17 +1,17 @@
 /* c8 ignore start */
-import { getTransactionReceipt } from '~viem/actions/public/getTransactionReceipt.js'
-import { impersonateAccount } from '~viem/actions/test/impersonateAccount.js'
-import { mine } from '~viem/actions/test/mine.js'
-import { stopImpersonatingAccount } from '~viem/actions/test/stopImpersonatingAccount.js'
+import { getTransactionReceipt } from '~zkr-viem/actions/public/getTransactionReceipt.js'
+import { impersonateAccount } from '~zkr-viem/actions/test/impersonateAccount.js'
+import { mine } from '~zkr-viem/actions/test/mine.js'
+import { stopImpersonatingAccount } from '~zkr-viem/actions/test/stopImpersonatingAccount.js'
 import {
   type DeployContractParameters,
   deployContract,
-} from '~viem/actions/wallet/deployContract.js'
-import { writeContract } from '~viem/actions/wallet/writeContract.js'
-import { holesky, mainnet } from '~viem/chains/index.js'
-import { createClient } from '~viem/clients/createClient.js'
-import { http } from '~viem/clients/transports/http.js'
-import { namehash } from '~viem/utils/ens/namehash.js'
+} from '~zkr-viem/actions/wallet/deployContract.js'
+import { writeContract } from '~zkr-viem/actions/wallet/writeContract.js'
+import { holesky, mainnet } from '~zkr-viem/chains/index.js'
+import { createClient } from '~zkr-viem/clients/createClient.js'
+import { http } from '~zkr-viem/clients/transports/http.js'
+import { namehash } from '~zkr-viem/utils/ens/namehash.js'
 import type { TestClientMode } from '../../src/clients/createTestClient.js'
 import {
   type Abi,
@@ -30,6 +30,7 @@ import {
   ErrorsExample,
   OffchainLookupExample,
   Payable,
+  Simple7702Account,
   SoladyAccount06,
   SoladyAccount07,
   SoladyAccountFactory06,
@@ -138,6 +139,16 @@ export async function deployPayable() {
     abi: Payable.abi,
     bytecode: Payable.bytecode.object,
   })
+}
+
+export async function deploySimple7702Account_08() {
+  const { contractAddress: implementationAddress } = await deploy(client, {
+    abi: Simple7702Account.abi,
+    bytecode: Simple7702Account.bytecode.object,
+  })
+  return {
+    implementationAddress: implementationAddress!,
+  }
 }
 
 export async function deploySoladyAccount_07() {

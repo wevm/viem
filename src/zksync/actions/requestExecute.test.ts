@@ -2,9 +2,9 @@ import { expect, test } from 'vitest'
 import { anvilMainnet, anvilZksync } from '~test/src/anvil.js'
 import { accounts } from '~test/src/constants.js'
 import { mockRequestReturnData } from '~test/src/zksync.js'
-import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
-import { type EIP1193RequestFn, publicActions } from '~viem/index.js'
-import { publicActionsL2 } from '~viem/zksync/index.js'
+import { privateKeyToAccount } from '~zkr-viem/accounts/privateKeyToAccount.js'
+import { type EIP1193RequestFn, publicActions } from '~zkr-viem/index.js'
+import { publicActionsL2 } from '~zkr-viem/zksync/index.js'
 import { requestExecute } from './requestExecute.js'
 
 const request = (async ({ method, params }) => {

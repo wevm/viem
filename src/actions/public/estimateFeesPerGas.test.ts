@@ -5,7 +5,7 @@ import { mainnet } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 
-import { createTestClient } from '~viem/index.js'
+import { createTestClient } from '~zkr-viem/index.js'
 import {
   estimateFeesPerGas,
   internal_estimateFeesPerGas,

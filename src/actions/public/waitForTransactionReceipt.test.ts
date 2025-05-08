@@ -11,8 +11,8 @@ import { sendTransaction } from '../wallet/sendTransaction.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 
-import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
-import { keccak256 } from '~viem/utils/index.js'
+import { privateKeyToAccount } from '~zkr-viem/accounts/privateKeyToAccount.js'
+import { keccak256 } from '~zkr-viem/utils/index.js'
 import { prepareTransactionRequest } from '../../actions/index.js'
 import {
   sendRawTransaction,

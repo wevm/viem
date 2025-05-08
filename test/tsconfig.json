@@ -7,7 +7,7 @@
     "types": ["@types/bun"],
     "baseUrl": ".",
     "paths": {
-      "~viem/*": ["../src/*"]
+      "~zkr-viem/*": ["../src/*"]
     }
   }
 }

@@ -14,7 +14,7 @@ import type {
   TransactionSerializedEIP4844,
   TransactionSerializedEIP7702,
   TransactionSerializedLegacy,
-} from '~viem/index.js'
+} from '~zkr-viem/index.js'
 import { signTransaction } from './signTransaction.js'
 
 const walletClient = createWalletClient({

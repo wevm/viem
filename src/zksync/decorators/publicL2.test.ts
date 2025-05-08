@@ -17,8 +17,8 @@ import {
   mockedGasEstimation,
   mockedL1BatchNumber,
 } from '~test/src/zksync.js'
-import type { EIP1193RequestFn } from '~viem/types/eip1193.js'
-import { padHex } from '~viem/utils/data/pad.js'
+import type { EIP1193RequestFn } from '~zkr-viem/types/eip1193.js'
+import { padHex } from '~zkr-viem/utils/data/pad.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { estimateFee } from '../actions/estimateFee.js'

@@ -57,6 +57,30 @@ export type GetPaymasterDataParameters = OneOf<
       | 'preVerificationGas'
       | 'verificationGasLimit'
     >
+  | PartialBy<
+      Pick<
+        UserOperation<'0.8'>,
+        | 'callData'
+        | 'callGasLimit'
+        | 'factory'
+        | 'factoryData'
+        | 'maxFeePerGas'
+        | 'maxPriorityFeePerGas'
+        | 'nonce'
+        | 'sender'
+        | 'preVerificationGas'
+        | 'verificationGasLimit'
+        | 'paymasterPostOpGasLimit'
+        | 'paymasterVerificationGasLimit'
+      >,
+      | 'callGasLimit'
+      | 'factory'
+      | 'factoryData'
+      | 'maxFeePerGas'
+      | 'maxPriorityFeePerGas'
+      | 'preVerificationGas'
+      | 'verificationGasLimit'
+    >
 > & {
   context?: unknown | undefined
   chainId: number

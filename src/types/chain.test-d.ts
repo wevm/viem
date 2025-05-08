@@ -1,6 +1,6 @@
 import { expectTypeOf, test } from 'vitest'
 
-import type { base } from '~viem/chains/index.js'
+import type { base } from '~zkr-viem/chains/index.js'
 import type { celo } from '../chains/definitions/celo.js'
 import type { mainnet } from '../chains/definitions/mainnet.js'
 import type { optimism } from '../chains/definitions/optimism.js'

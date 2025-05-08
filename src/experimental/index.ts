@@ -1,45 +1,72 @@
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
 export {
+  /** @deprecated This is no longer experimental – use `import type { GetCapabilitiesParameters } from 'viem/actions'` instead. */
   type GetCapabilitiesParameters,
+  /** @deprecated This is no longer experimental – use `import type { GetCapabilitiesErrorType } from 'viem/actions'` instead. */
   type GetCapabilitiesErrorType,
+  /** @deprecated This is no longer experimental – use `import type { GetCapabilitiesReturnType } from 'viem/actions'` instead. */
   type GetCapabilitiesReturnType,
+  /** @deprecated This is no longer experimental – use `import { getCapabilities } from 'viem/actions'` instead. */
   getCapabilities,
-} from './eip5792/actions/getCapabilities.js'
+} from '../actions/wallet/getCapabilities.js'
 export {
+  /** @deprecated This is no longer experimental – use `import type { SendCallsErrorType } from 'viem/actions'` instead. */
   type SendCallsErrorType,
+  /** @deprecated This is no longer experimental – use `import type { SendCallsParameters } from 'viem/actions'` instead. */
   type SendCallsParameters,
+  /** @deprecated This is no longer experimental – use `import type { SendCallsReturnType } from 'viem/actions'` instead. */
   type SendCallsReturnType,
+  /** @deprecated This is no longer experimental – use `import { sendCalls } from 'viem/actions'` instead. */
   sendCalls,
-} from './eip5792/actions/sendCalls.js'
+} from '../actions/wallet/sendCalls.js'
 export {
+  /** @deprecated This is no longer experimental – use `import type { GetCallsStatusErrorType } from 'viem/actions'` instead. */
   type GetCallsStatusErrorType,
+  /** @deprecated This is no longer experimental – use `import type { GetCallsStatusParameters } from 'viem/actions'` instead. */
   type GetCallsStatusParameters,
+  /** @deprecated This is no longer experimental – use `import type { GetCallsStatusReturnType } from 'viem/actions'` instead. */
   type GetCallsStatusReturnType,
+  /** @deprecated This is no longer experimental – use `import { getCallsStatus } from 'viem/actions'` instead. */
   getCallsStatus,
-} from './eip5792/actions/getCallsStatus.js'
+} from '../actions/wallet/getCallsStatus.js'
 export {
+  /** @deprecated This is no longer experimental – use `import type { ShowCallsStatusErrorType } from 'viem/actions'` instead. */
   type ShowCallsStatusErrorType,
+  /** @deprecated This is no longer experimental – use `import type { ShowCallsStatusParameters } from 'viem/actions'` instead. */
   type ShowCallsStatusParameters,
+  /** @deprecated This is no longer experimental – use `import type { ShowCallsStatusReturnType } from 'viem/actions'` instead. */
   type ShowCallsStatusReturnType,
+  /** @deprecated This is no longer experimental – use `import { showCallsStatus } from 'viem/actions'` instead. */
   showCallsStatus,
-} from './eip5792/actions/showCallsStatus.js'
+} from '../actions/wallet/showCallsStatus.js'
 export {
+  /** @deprecated This is no longer experimental – use `import type { WaitForCallsStatusErrorType } from 'viem/actions'` instead. */
   type WaitForCallsStatusErrorType,
+  /** @deprecated This is no longer experimental – use `import type { WaitForCallsStatusParameters } from 'viem/actions'` instead. */
   type WaitForCallsStatusParameters,
+  /** @deprecated This is no longer experimental – use `import type { WaitForCallsStatusReturnType } from 'viem/actions'` instead. */
   type WaitForCallsStatusReturnType,
+  /** @deprecated This is no longer experimental – use `import type { WaitForCallsStatusTimeoutErrorType } from 'viem/actions'` instead. */
   type WaitForCallsStatusTimeoutErrorType,
-  WaitForCallsStatusTimeoutError,
+  /** @deprecated This is no longer experimental – use `import { waitForCallsStatus } from 'viem/actions'` instead. */
   waitForCallsStatus,
-} from './eip5792/actions/waitForCallsStatus.js'
+} from '../actions/wallet/waitForCallsStatus.js'
 export {
+  /** @deprecated Use `SendCallsErrorType` instead. */
   type WriteContractsErrorType,
+  /** @deprecated Use `SendCallsParameters` instead. */
   type WriteContractsParameters,
+  /** @deprecated Use `SendCallsReturnType` instead. */
   type WriteContractsReturnType,
+  /** @deprecated */
   type WriteContractFunctionParameters,
+  /** @deprecated Use `sendCalls` instead. */
   writeContracts,
 } from './eip5792/actions/writeContracts.js'
 export {
+  /** @deprecated This is no longer experimental – use `import type { WalletActions } from 'viem'` instead. */
   type Eip5792Actions,
+  /** @deprecated This is no longer experimental – use `import { createWalletClient } from 'viem'` or `import { walletActions } from 'viem'` instead. */
   eip5792Actions,
 } from './eip5792/decorators/eip5792.js'
 
@@ -148,3 +175,13 @@ export {
   type Erc7821Actions,
   erc7821Actions,
 } from './erc7821/decorators/erc7821.js'
+
+export {
+  type Erc7846Actions,
+  erc7846Actions,
+} from './erc7846/decorators/erc7846.js'
+
+export {
+  type Erc7895Actions,
+  erc7895Actions,
+} from './erc7895/decorators/erc7895.js'

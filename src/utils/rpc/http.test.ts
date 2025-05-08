@@ -7,7 +7,7 @@ import { createHttpServer } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { getBlockNumber, mine } from '../../actions/index.js'
 
-import { keccak256 } from '~viem/index.js'
+import { keccak256 } from '~zkr-viem/index.js'
 import { numberToHex, toHex } from '../encoding/toHex.js'
 import * as withTimeout from '../promise/withTimeout.js'
 import { wait } from '../wait.js'
@@ -26,7 +26,7 @@ describe('request', () => {
       {
         "id": 1,
         "jsonrpc": "2.0",
-        "result": "anvil/v1.0.0",
+        "result": "anvil/v1.1.0",
       }
     `)
   })
@@ -41,7 +41,7 @@ describe('request', () => {
       {
         "id": 3,
         "jsonrpc": "2.0",
-        "result": "anvil/v1.0.0",
+        "result": "anvil/v1.1.0",
       }
     `)
   })
@@ -294,7 +294,7 @@ describe('request', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: {"method":"eth_getBlockByNumber","params":["0x1527101",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0x153b747",false]}
 
       Details: "ngmi"
       Version: viem@x.y.z]
@@ -322,7 +322,7 @@ describe('request', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: {"method":"eth_getBlockByNumber","params":["0x1527101",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0x153b747",false]}
 
       Details: Internal Server Error
       Version: viem@x.y.z]
@@ -395,7 +395,7 @@ describe('request', () => {
       [HttpRequestError: HTTP request failed.
 
       URL: http://localhost
-      Request body: {"method":"eth_getBlockByNumber","params":["0x1527101",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0x153b747",false]}
 
       Details: foo
       Version: viem@x.y.z]
@@ -421,12 +421,12 @@ describe('http (batch)', () => {
         {
           "id": 93,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.0.0",
+          "result": "anvil/v1.1.0",
         },
         {
           "id": 94,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.0.0",
+          "result": "anvil/v1.1.0",
         },
       ]
     `)
@@ -447,7 +447,7 @@ describe('http (batch)', () => {
         {
           "id": 96,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.0.0",
+          "result": "anvil/v1.1.0",
         },
         {
           "error": {
@@ -473,7 +473,7 @@ describe('http (batch)', () => {
         {
           "id": 99,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.0.0",
+          "result": "anvil/v1.1.0",
         },
         {
           "error": {
@@ -512,7 +512,7 @@ describe('http (batch)', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x1527101",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x153b747",false]}]
 
       Details: "ngmi"
       Version: viem@x.y.z]
@@ -543,7 +543,7 @@ describe('http (batch)', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x1527101",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x153b747",false]}]
 
       Details: Internal Server Error
       Version: viem@x.y.z]
@@ -573,7 +573,7 @@ describe('http (batch)', () => {
       [HttpRequestError: HTTP request failed.
 
       URL: http://localhost
-      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x1527101",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x153b747",false]}]
 
       Details: foo
       Version: viem@x.y.z]
@@ -604,7 +604,7 @@ test('https://github.com/wevm/viem/issues/2775', async () => {
 
     Status: 404
     URL: http://localhost
-    Request body: {"method":"eth_getBlockByNumber","params":["0x1527101",false]}
+    Request body: {"method":"eth_getBlockByNumber","params":["0x153b747",false]}
 
     Details: "default backend - 404"
     Version: viem@x.y.z]

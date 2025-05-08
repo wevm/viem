@@ -5,7 +5,7 @@ export default defineConfig({
   test: {
     alias: {
       '~contracts': join(__dirname, '../contracts'),
-      '~viem': join(__dirname, '../src'),
+      '~zkr-viem': join(__dirname, '../src'),
       '~test': join(__dirname, '.'),
     },
     benchmark: {

@@ -3,7 +3,7 @@ import {
   BaseFeeHigherThanValueError,
   TxHashNotFoundInLogsError,
   WithdrawalLogNotFoundError,
-} from '~viem/zksync/errors/bridge.js'
+} from '~zkr-viem/zksync/errors/bridge.js'
 
 test('BaseFeeHigherThanValueError', () => {
   expect(new BaseFeeHigherThanValueError(100n, 90n)).toMatchInlineSnapshot(`

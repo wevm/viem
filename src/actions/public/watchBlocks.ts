@@ -152,7 +152,7 @@ export function watchBlocks<
               blockTag,
               includeTransactions,
             })
-            if (block.number && prevBlock?.number) {
+            if (block.number !== null && prevBlock?.number != null) {
               // If the current block number is the same as the previous,
               // we can skip.
               if (block.number === prevBlock.number) return
@@ -177,12 +177,12 @@ export function watchBlocks<
 
             if (
               // If no previous block exists, emit.
-              !prevBlock?.number ||
+              prevBlock?.number == null ||
               // If the block tag is "pending" with no block number, emit.
-              (blockTag === 'pending' && !block?.number) ||
+              (blockTag === 'pending' && block?.number == null) ||
               // If the next block number is greater than the previous block number, emit.
               // We don't want to emit blocks in the past.
-              (block.number && block.number > prevBlock.number)
+              (block.number !== null && block.number > prevBlock.number)
             ) {
               emit.onBlock(block as any, prevBlock as any)
               prevBlock = block as any
