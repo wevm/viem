@@ -1,5 +1,19 @@
 # viem
 
+## 2.29.1
+
+### Patch Changes
+
+- [#3631](https://github.com/wevm/viem/pull/3631) [`1a49c75e44552c3bbb37f165adbb512fff0ed81b`](https://github.com/wevm/viem/commit/1a49c75e44552c3bbb37f165adbb512fff0ed81b) Thanks [@cruzdanilo](https://github.com/cruzdanilo)! - Added support for `blockOverrides` on `call`.
+
+- [#3625](https://github.com/wevm/viem/pull/3625) [`c8b6a18a229c8fc7137dfee67cd805c0d6c4f01f`](https://github.com/wevm/viem/commit/c8b6a18a229c8fc7137dfee67cd805c0d6c4f01f) Thanks [@alien-max](https://github.com/alien-max)! - Added arenaz chain.
+
+- [#3632](https://github.com/wevm/viem/pull/3632) [`31cdcda9383cb880bbe2e63852c5c881f12d1a02`](https://github.com/wevm/viem/commit/31cdcda9383cb880bbe2e63852c5c881f12d1a02) Thanks [@zainbacchus](https://github.com/zainbacchus)! - Updated `disputeGameFactory` contract for World Sepolia.
+
+- [`f3ec11e0688e57953b48628dde34a23ad9b4a01b`](https://github.com/wevm/viem/commit/f3ec11e0688e57953b48628dde34a23ad9b4a01b) Thanks [@jxom](https://github.com/jxom)! - Added `./experimental/erc7895` to `package.json#exports`.
+
+- [#3623](https://github.com/wevm/viem/pull/3623) [`5cf857b6d2f1e25b635626c0e3056dc769bbf75d`](https://github.com/wevm/viem/commit/5cf857b6d2f1e25b635626c0e3056dc769bbf75d) Thanks [@aaronmgdr](https://github.com/aaronmgdr)! - **Celo:** Updated `CeloBlock` & `CeloRpcBlock` types.
+
 ## 2.29.0
 
 ### Minor Changes
