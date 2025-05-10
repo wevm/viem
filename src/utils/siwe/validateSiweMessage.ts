@@ -1,6 +1,7 @@
 import type { Address } from 'abitype'
 
 import type { ExactPartial } from '../../types/utils.js'
+import { isAddress } from '../address/isAddress.js'
 import { isAddressEqual } from '../address/isAddressEqual.js'
 import type { SiweMessage } from './types.js'
 
@@ -61,6 +62,7 @@ export function validateSiweMessage(
 
   try {
     if (!message.address) return false
+    if (!isAddress(message.address, { strict: false })) return false
     if (address && !isAddressEqual(message.address, address)) return false
   } catch {
     return false
