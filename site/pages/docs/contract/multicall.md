@@ -234,6 +234,13 @@ const results = await publicClient.multicall({
 })
 ```
 
+### account (optional)
+
+- **Type:** [`Address`](/docs/glossary/types#address)
+
+The account to perform the read against.
+```
+
 ### multicallAddress (optional)
 
 - **Type:** [`Address`](/docs/glossary/types#address)

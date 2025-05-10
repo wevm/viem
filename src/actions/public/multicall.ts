@@ -43,6 +43,7 @@ export type MulticallParameters<
     properties?: Record<string, any>
   } = {},
 > = Pick<CallParameters, 'blockNumber' | 'blockTag' | 'stateOverride'> & {
+  account?: Address | undefined
   allowFailure?: allowFailure | boolean | undefined
   batchSize?: number | undefined
   contracts: MulticallContracts<
@@ -126,6 +127,7 @@ export async function multicall<
     blockTag,
     multicallAddress: multicallAddress_,
     stateOverride,
+    account,
   } = parameters
   const contracts = parameters.contracts as ContractFunctionParameters[]
 
@@ -190,6 +192,7 @@ export async function multicall<
       const error = getContractError(err as BaseError, {
         abi,
         address,
+        sender: account,
         args,
         docsPath: '/docs/contract/multicall',
         functionName,
@@ -215,6 +218,7 @@ export async function multicall<
       )({
         abi: multicall3Abi,
         address: multicallAddress!,
+        account,
         args: [calls],
         blockNumber,
         blockTag,
