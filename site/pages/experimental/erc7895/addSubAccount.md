@@ -16,10 +16,6 @@ Requests to add a Sub Account. [See more](https://github.com/ethereum/ERCs/blob/
 import { walletClient } from './config'
  
 const subAccount = await walletClient.addSubAccount({
-  keys: [{ 
-    publicKey: '0xefd5fb29a274ea6682673d8b3caa9263e936d48d', 
-    type: 'address' 
-  }],
   type: 'create',
 })
 ```

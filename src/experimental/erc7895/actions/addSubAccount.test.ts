@@ -7,6 +7,18 @@ const client = anvilMainnet.getClient()
 test('default', async () => {
   {
     const response = await addSubAccount(client, {
+      type: 'create',
+    })
+
+    expect(response).toMatchInlineSnapshot(`
+    {
+      "address": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+    }
+  `)
+  }
+
+  {
+    const response = await addSubAccount(client, {
       keys: [
         {
           publicKey: '0x0000000000000000000000000000000000000000',

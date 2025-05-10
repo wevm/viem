@@ -10,10 +10,12 @@ import { numberToHex } from '../../../utils/index.js'
 export type AddSubAccountParameters = Prettify<
   OneOf<
     | {
-        keys: readonly {
-          publicKey: Hex
-          type: 'address' | 'p256' | 'webcrypto-p256' | 'webauthn-p256'
-        }[]
+        keys?:
+          | readonly {
+              publicKey: Hex
+              type: 'address' | 'p256' | 'webcrypto-p256' | 'webauthn-p256'
+            }[]
+          | undefined
         type: 'create'
       }
     | {
