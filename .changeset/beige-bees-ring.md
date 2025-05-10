@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add Flame mainnet chain.
+Added Flame mainnet chain.
