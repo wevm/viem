@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-hardened address validation in validateSiweMessage
+Hardened address validation in `validateSiweMessage`.
