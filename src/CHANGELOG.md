@@ -1,5 +1,15 @@
 # viem
 
+## 2.29.2
+
+### Patch Changes
+
+- [#3635](https://github.com/wevm/viem/pull/3635) [`1fab6bb67fef1d274fa947ea9b088cf1285ccd1e`](https://github.com/wevm/viem/commit/1fab6bb67fef1d274fa947ea9b088cf1285ccd1e) Thanks [@joroshiba](https://github.com/joroshiba)! - Added Flame mainnet chain.
+
+- [`786d95e067918520dbf183e32f6ff391bac4afe2`](https://github.com/wevm/viem/commit/786d95e067918520dbf183e32f6ff391bac4afe2) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Updated EIP-7895 to latest spec.
+
+- [#3637](https://github.com/wevm/viem/pull/3637) [`636c7bde0bea5877202107affe539a7a4577fc0c`](https://github.com/wevm/viem/commit/636c7bde0bea5877202107affe539a7a4577fc0c) Thanks [@deodad](https://github.com/deodad)! - Hardened address validation in `validateSiweMessage`.
+
 ## 2.29.1
 
 ### Patch Changes
