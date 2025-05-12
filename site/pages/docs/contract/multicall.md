@@ -170,6 +170,21 @@ const results = await publicClient.multicall({
 })
 ```
 
+### account (optional)
+
+- **Type:** [`Address`](/docs/glossary/types#address)
+
+The account to perform the multicall against.
+
+```ts
+const results = await publicClient.multicall({
+  account: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+  contracts: [
+    ...
+  ],
+})
+```
+
 ### allowFailure (optional)
 
 - **Type:** `boolean`
