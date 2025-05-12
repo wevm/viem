@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added `account` param to multicall
+Added `account` parameter to multicall.

@@ -121,13 +121,13 @@ export async function multicall<
   parameters: MulticallParameters<contracts, allowFailure>,
 ): Promise<MulticallReturnType<contracts, allowFailure>> {
   const {
+    account,
     allowFailure = true,
     batchSize: batchSize_,
     blockNumber,
     blockTag,
     multicallAddress: multicallAddress_,
     stateOverride,
-    account,
   } = parameters
   const contracts = parameters.contracts as ContractFunctionParameters[]
 
@@ -192,10 +192,10 @@ export async function multicall<
       const error = getContractError(err as BaseError, {
         abi,
         address,
-        sender: account,
         args,
         docsPath: '/docs/contract/multicall',
         functionName,
+        sender: account,
       })
       if (!allowFailure) throw error
       chunkedCalls[currentChunk] = [
@@ -217,8 +217,8 @@ export async function multicall<
         'readContract',
       )({
         abi: multicall3Abi,
-        address: multicallAddress!,
         account,
+        address: multicallAddress!,
         args: [calls],
         blockNumber,
         blockTag,
