@@ -352,7 +352,12 @@ const { id } = await walletClient.sendCalls({
   ],
   capabilities: { // [!code focus]
     paymasterService: { // [!code focus]
-      url: 'https://...' // [!code focus]
+      1: { // [!code focus]
+        url: 'https://...' // [!code focus]
+      }, // [!code focus]
+      8453: { // [!code focus]
+        url: 'https://...' // [!code focus]
+      } // [!code focus]
     } // [!code focus]
   } // [!code focus]
 })
