@@ -60,11 +60,9 @@ export type DefaultCapabilitiesSchema = {
     Request: {
       paymasterService?:
         | {
-            [chainId: number]: {
-              context?: Record<string, any> | undefined
-              optional?: boolean | undefined
-              url: string
-            }
+            context?: Record<string, any> | undefined
+            optional?: boolean | undefined
+            url: string
           }
         | undefined
     }

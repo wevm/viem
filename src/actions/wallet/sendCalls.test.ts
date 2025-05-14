@@ -195,7 +195,7 @@ test('default', async () => {
               "value": undefined,
             },
           ],
-          "capabilities": {},
+          "capabilities": undefined,
           "chainId": "0x1",
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "id": undefined,
@@ -277,7 +277,7 @@ test('behavior: chain on client', async () => {
               "value": undefined,
             },
           ],
-          "capabilities": {},
+          "capabilities": undefined,
           "chainId": "0x1",
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "id": undefined,
@@ -359,7 +359,7 @@ test('behavior: inferred account', async () => {
               "value": undefined,
             },
           ],
-          "capabilities": {},
+          "capabilities": undefined,
           "chainId": "0x1",
           "from": undefined,
           "id": undefined,
@@ -383,9 +383,7 @@ test('behavior: capability: paymasterService', async () => {
     account: accounts[0].address,
     capabilities: {
       paymasterService: {
-        1: {
-          url: 'https://paymaster.com',
-        },
+        url: 'https://paymaster.com',
       },
     },
     chain: mainnet,
@@ -412,9 +410,7 @@ test('behavior: capability: paymasterService', async () => {
           ],
           "capabilities": {
             "paymasterService": {
-              "0x1": {
-                "url": "https://paymaster.com",
-              },
+              "url": "https://paymaster.com",
             },
           },
           "chainId": "0x1",
