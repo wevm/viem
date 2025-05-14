@@ -148,8 +148,10 @@ export async function sendCalls<
     if (
       error.name === 'MethodNotFoundRpcError' ||
       error.name === 'MethodNotSupportedRpcError' ||
-      error.details.toLowerCase().includes('does not exist') ||
-      error.details.toLowerCase().includes('missing or invalid')
+      error.details
+        .toLowerCase()
+        .includes('does not exist / is not available') ||
+      error.details.toLowerCase().includes('missing or invalid. request()')
     ) {
       const promises: Promise<Hex>[] = []
       for (const call of calls) {
