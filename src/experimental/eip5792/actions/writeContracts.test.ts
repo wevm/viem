@@ -157,7 +157,7 @@ test('default', async () => {
               "value": undefined,
             },
           ],
-          "capabilities": {},
+          "capabilities": undefined,
           "chainId": "0x1",
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "id": undefined,
