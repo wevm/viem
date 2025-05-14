@@ -1,5 +1,13 @@
 # viem
 
+## 2.29.3
+
+### Patch Changes
+
+- [#3639](https://github.com/wevm/viem/pull/3639) [`54d5114f7fbdfa4e866f16d8f1fa5ee851bc9979`](https://github.com/wevm/viem/commit/54d5114f7fbdfa4e866f16d8f1fa5ee851bc9979) Thanks [@izayl](https://github.com/izayl)! - Added `account` parameter to multicall.
+
+- [`ba718e23e3e19a064abc35e31234b7759b0d1b6e`](https://github.com/wevm/viem/commit/ba718e23e3e19a064abc35e31234b7759b0d1b6e) Thanks [@jxom](https://github.com/jxom)! - Fixed ERC-7677 `paymasterService` capability types.
+
 ## 2.29.2
 
 ### Patch Changes
