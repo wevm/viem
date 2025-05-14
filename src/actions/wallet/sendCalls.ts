@@ -10,11 +10,18 @@ import type { Call, Calls } from '../../types/calls.js'
 import type { ExtractCapabilities } from '../../types/capabilities.js'
 import type { Chain, DeriveChain } from '../../types/chain.js'
 import type { WalletSendCallsParameters } from '../../types/eip1193.js'
+import type { Hex } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
+import { concat } from '../../utils/data/concat.js'
+import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { getTransactionError } from '../../utils/errors/getTransactionError.js'
+import { sendTransaction } from './sendTransaction.js'
+
+export const transactionMagicIdentifier =
+  '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 export type SendCallsParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -134,6 +141,38 @@ export async function sendCalls<
     if (typeof response === 'string') return { id: response }
     return response as never
   } catch (err) {
+    const error = err as BaseError
+
+    // If the transport does not support EIP-5792, fall back to
+    // `eth_sendTransaction`.
+    if (
+      error.name === 'MethodNotFoundRpcError' ||
+      error.name === 'MethodNotSupportedRpcError' ||
+      error.details.toLowerCase().includes('does not exist') ||
+      error.details.toLowerCase().includes('missing or invalid')
+    ) {
+      const promises: Promise<Hex>[] = []
+      for (const call of calls) {
+        const promise = sendTransaction(client, {
+          account,
+          chain,
+          data: call.data,
+          to: call.to,
+          value: call.value ? hexToBigInt(call.value) : undefined,
+        })
+        promises.push(promise)
+        await new Promise((resolve) => setTimeout(resolve, 32))
+      }
+      const hashes = await Promise.all(promises)
+      return {
+        id: concat([
+          transactionMagicIdentifier,
+          numberToHex(chain!.id, { size: 32 }),
+          ...hashes,
+        ]),
+      }
+    }
+
     throw getTransactionError(err as BaseError, {
       ...parameters,
       account,
