@@ -1,7 +1,9 @@
 import { WebSocket } from 'isows'
 import { describe, expect, test, vi } from 'vitest'
+import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
+import { accounts } from '../../../test/src/constants.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { mine } from '../../actions/test/mine.js'
 
@@ -901,6 +903,41 @@ describe('requestAsync', () => {
       }
     `,
     )
+  })
+
+  test('serializes bigints', async () => {
+    const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+    const account = privateKeyToAccount(accounts[0].privateKey)
+    const typedData = {
+      types: {
+        EIP712Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
+        ],
+        Number: [
+          { name: 'value', type: 'uint256' },
+        ],
+      },
+      primaryType: 'Number',
+      domain: {
+        name: 'Websocket BigInt Test',
+        version: '1',
+        chainId: 1,
+        verifyingContract: '0x0000000000000000000000000000000000000000',
+      },
+      message: {
+        value: 1n,
+      }
+    }
+    const encodedSignature = await client.requestAsync({
+      body: { method: 'eth_signTypedData_v4',
+        params: [account.address, typedData]
+       },
+    })
+    expect(encodedSignature).toBeDefined()
+    expect(client.requests.size).toBe(0)
   })
 
   test.skip('timeout', async () => {

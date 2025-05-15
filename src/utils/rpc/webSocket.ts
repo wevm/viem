@@ -11,6 +11,7 @@ import {
   type SocketRpcClient,
   getSocketRpcClient,
 } from './socket.js'
+import { stringify } from '../stringify.js'
 
 export type GetWebSocketRpcClientOptions = Pick<
   GetSocketRpcClientParameters,
@@ -82,7 +83,7 @@ export async function getWebSocketRpcClient(
               method: 'net_version',
               params: [],
             }
-            socket.send(JSON.stringify(body))
+            socket.send(stringify(body))
           } catch (error) {
             onError(error as Error)
           }
@@ -98,7 +99,7 @@ export async function getWebSocketRpcClient(
               cause: new SocketClosedError({ url: socket.url }),
             })
 
-          return socket.send(JSON.stringify(body))
+          return socket.send(stringify(body))
         },
       } as Socket<WebSocket>)
     },
