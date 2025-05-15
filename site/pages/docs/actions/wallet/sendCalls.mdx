@@ -176,6 +176,12 @@ If the Wallet does not support EIP-5792 and `wallet_sendCalls`, passing the `exp
 flag to `sendCalls` will allow Viem to fall back to executing the calls sequentially
 via `eth_sendTransaction`. 
 
+:::warning
+When using `experimental_fallback` with a wallet that does not support EIP-5792, 
+Viem will return a custom bundle identifier (`id`). While this identifier works with Viem's [`getCallsStatus` 
+Action](/docs/actions/wallet/getCallsStatus), it cannot be used with the native `wallet_getCallsStatus` RPC method.
+:::
+
 :::code-group
 
 ```ts twoslash [example.ts]
