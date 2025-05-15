@@ -5,13 +5,13 @@ import {
   WebSocketRequestError,
 } from '../../errors/request.js'
 import type { RpcRequest } from '../../types/rpc.js'
+import { stringify } from '../stringify.js'
 import {
   type GetSocketRpcClientParameters,
   type Socket,
   type SocketRpcClient,
   getSocketRpcClient,
 } from './socket.js'
-import { stringify } from '../stringify.js'
 
 export type GetWebSocketRpcClientOptions = Pick<
   GetSocketRpcClientParameters,

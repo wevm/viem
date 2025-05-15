@@ -916,9 +916,7 @@ describe('requestAsync', () => {
           { name: 'chainId', type: 'uint256' },
           { name: 'verifyingContract', type: 'address' },
         ],
-        Number: [
-          { name: 'value', type: 'uint256' },
-        ],
+        Number: [{ name: 'value', type: 'uint256' }],
       },
       primaryType: 'Number',
       domain: {
@@ -929,12 +927,13 @@ describe('requestAsync', () => {
       },
       message: {
         value: 1n,
-      }
+      },
     }
     const encodedSignature = await client.requestAsync({
-      body: { method: 'eth_signTypedData_v4',
-        params: [account.address, typedData]
-       },
+      body: {
+        method: 'eth_signTypedData_v4',
+        params: [account.address, typedData],
+      },
     })
     expect(encodedSignature).toBeDefined()
     expect(client.requests.size).toBe(0)
