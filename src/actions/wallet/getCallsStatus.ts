@@ -13,7 +13,7 @@ import { sliceHex } from '../../utils/data/slice.js'
 import { trim } from '../../utils/data/trim.js'
 import { hexToBigInt, hexToNumber } from '../../utils/encoding/fromHex.js'
 import { receiptStatuses } from '../../utils/formatters/transactionReceipt.js'
-import { transactionMagicIdentifier } from './sendCalls.js'
+import { fallbackMagicIdentifier } from './sendCalls.js'
 
 export type GetCallsStatusParameters = { id: string }
 
@@ -62,10 +62,10 @@ export async function getCallsStatus<
   parameters: GetCallsStatusParameters,
 ): Promise<GetCallsStatusReturnType> {
   async function getStatus(id: Hex) {
-    const isTransactions = id.startsWith(transactionMagicIdentifier)
+    const isTransactions = id.endsWith(fallbackMagicIdentifier.slice(2))
     if (isTransactions) {
-      const chainId = trim(sliceHex(id, 32, 64))
-      const hashes = sliceHex(id, 64)
+      const chainId = trim(sliceHex(id, -64, -32))
+      const hashes = sliceHex(id, 0, -64)
         .slice(2)
         .match(/.{1,64}/g)
 
