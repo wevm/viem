@@ -59,7 +59,7 @@ importers:
         version: 22.13.13
       '@vitest/coverage-v8':
         specifier: ^1.0.4
-        version: 1.0.4(vitest@1.0.4(@types/node@22.13.13)(@vitest/ui@1.0.4)(lightningcss@1.29.1)(terser@5.36.0))
+        version: 1.0.4(vitest@1.0.4)
       '@vitest/ui':
         specifier: ^1.0.4
         version: 1.0.4(vitest@1.0.4)
@@ -3326,7 +3326,6 @@ packages:
 
   bun@1.1.30:
     resolution: {integrity: sha512-ysRL1pq10Xba0jqVLPrKU3YIv0ohfp3cTajCPtpjCyppbn3lfiAVNpGoHfyaxS17OlPmWmR67UZRPw/EueQuug==}
-    cpu: [arm64, x64]
     os: [darwin, linux, win32]
     hasBin: true
 
@@ -9143,7 +9142,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@1.0.4(vitest@1.0.4(@types/node@22.13.13)(@vitest/ui@1.0.4)(lightningcss@1.29.1)(terser@5.36.0))':
+  '@vitest/coverage-v8@1.0.4(vitest@1.0.4)':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
