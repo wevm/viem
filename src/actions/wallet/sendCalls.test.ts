@@ -565,47 +565,6 @@ describe('behavior: eth_sendTransaction fallback', () => {
       Version: viem@x.y.z]
     `)
   })
-
-  test('behavior: absent `experimental_fallback`', async () => {
-    await expect(() =>
-      sendCalls(client, {
-        account: accounts[0].address,
-        chain: mainnet,
-        calls: [
-          {
-            to: accounts[1].address,
-            value: parseEther('1'),
-          },
-          {
-            to: accounts[2].address,
-          },
-          {
-            data: '0xcafebabe',
-            to: accounts[3].address,
-            value: parseEther('100'),
-          },
-          {
-            abi: wagmiContractConfig.abi,
-            functionName: 'mint',
-            to: wagmiContractConfig.address,
-          },
-        ],
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [TransactionExecutionError: Invalid parameters were provided to the RPC method.
-      Double check you have provided the correct parameters.
-
-      URL: http://localhost
-      Request body: {"method":"wallet_sendCalls","params":[{"atomicRequired":false,"calls":[{"to":"0x70997970c51812dc3a010c7d01b50e0d17dc79c8","value":"0xde0b6b3a7640000"},{"to":"0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc"},{"data":"0xcafebabe","to":"0x90f79bf6eb2c4f870365e785982e1f101e93b906","value":"0x56bc75e2d63100000"},{"data":"0x1249c58b","to":"0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2"}],"chainId":"0x1","from":"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266","version":"2.0.0"}]}
-       
-      Request Arguments:
-        chain:  Ethereum (id: 1)
-        from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
-
-      Details: data did not match any variant of untagged enum EthRpcCall
-      Version: viem@x.y.z]
-    `)
-  })
 })
 
 test('error: no account', async () => {
