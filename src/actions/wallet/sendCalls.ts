@@ -177,7 +177,7 @@ export async function sendCalls<
           )
         }
       }
-      if (forceAtomic) {
+      if (forceAtomic && calls.length > 1) {
         const message =
           '`forceAtomic` is not supported on fallback to `eth_sendTransaction`.'
         throw new AtomicityNotSupportedError(
