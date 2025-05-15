@@ -173,7 +173,7 @@ export const walletClient = createWalletClient({
 ### Compatibility Fallback
 
 If the Wallet does not support EIP-5792 and `wallet_sendCalls`, passing the `experimental_fallback` 
-flag to `sendCalls` will indicate for Viem to fall back to executing the calls sequentially
+flag to `sendCalls` will allow Viem to fall back to executing the calls sequentially
 via `eth_sendTransaction`. 
 
 :::code-group
