@@ -5,10 +5,15 @@ import type { Account } from '../../types/account.js'
 import type { ExtractCapabilities } from '../../types/capabilities.js'
 import type { Chain } from '../../types/chain.js'
 import type { WalletGetCallsStatusReturnType } from '../../types/eip1193.js'
+import type { Hex } from '../../types/misc.js'
+import type { RpcTransactionReceipt } from '../../types/rpc.js'
 import type { Prettify } from '../../types/utils.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
+import { sliceHex } from '../../utils/data/slice.js'
+import { trim } from '../../utils/data/trim.js'
 import { hexToBigInt, hexToNumber } from '../../utils/encoding/fromHex.js'
 import { receiptStatuses } from '../../utils/formatters/transactionReceipt.js'
+import { fallbackMagicIdentifier } from './sendCalls.js'
 
 export type GetCallsStatusParameters = { id: string }
 
@@ -56,16 +61,54 @@ export async function getCallsStatus<
   client: Client<Transport, chain, account>,
   parameters: GetCallsStatusParameters,
 ): Promise<GetCallsStatusReturnType> {
+  async function getStatus(id: Hex) {
+    const isTransactions = id.endsWith(fallbackMagicIdentifier.slice(2))
+    if (isTransactions) {
+      const chainId = trim(sliceHex(id, -64, -32))
+      const hashes = sliceHex(id, 0, -64)
+        .slice(2)
+        .match(/.{1,64}/g)
+
+      const receipts = await Promise.all(
+        hashes!.map((hash) =>
+          client.request(
+            {
+              method: 'eth_getTransactionReceipt',
+              params: [`0x${hash}`],
+            },
+            { dedupe: true },
+          ),
+        ),
+      )
+
+      const status = (() => {
+        if (receipts.some((r) => r === null)) return 100 // pending
+        if (receipts.every((r) => r?.status === '0x1')) return 200 // success
+        if (receipts.every((r) => r?.status === '0x0')) return 500 // complete failure
+        return 600 // partial failure
+      })()
+
+      return {
+        atomic: false,
+        chainId: hexToNumber(chainId),
+        receipts: receipts.filter(Boolean) as RpcTransactionReceipt[],
+        status,
+        version: '2.0.0',
+      }
+    }
+    return client.request({
+      method: 'wallet_getCallsStatus',
+      params: [id],
+    })
+  }
+
   const {
     atomic = false,
     chainId,
     receipts,
     version = '2.0.0',
     ...response
-  } = await client.request({
-    method: 'wallet_getCallsStatus',
-    params: [parameters.id],
-  })
+  } = await getStatus(parameters.id as Hex)
   const [status, statusCode] = (() => {
     const statusCode = response.status
     if (statusCode >= 100 && statusCode < 200)
