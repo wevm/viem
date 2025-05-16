@@ -3,18 +3,29 @@ import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { AccountNotFoundError } from '../../errors/account.js'
-import type { BaseError } from '../../errors/base.js'
+import { BaseError } from '../../errors/base.js'
+import {
+  AtomicityNotSupportedError,
+  UnsupportedNonOptionalCapabilityError,
+} from '../../errors/rpc.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../types/account.js'
 import type { Call, Calls } from '../../types/calls.js'
 import type { ExtractCapabilities } from '../../types/capabilities.js'
 import type { Chain, DeriveChain } from '../../types/chain.js'
 import type { WalletSendCallsParameters } from '../../types/eip1193.js'
+import type { Hex } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
+import { concat } from '../../utils/data/concat.js'
+import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { getTransactionError } from '../../utils/errors/getTransactionError.js'
+import { sendTransaction } from './sendTransaction.js'
+
+export const fallbackMagicIdentifier =
+  '0x5792579257925792579257925792579257925792579257925792579257925792'
 
 export type SendCallsParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -27,6 +38,7 @@ export type SendCallsParameters<
   chain?: chainOverride | Chain | undefined
   calls: Calls<Narrow<calls>>
   capabilities?: ExtractCapabilities<'sendCalls', 'Request'> | undefined
+  experimental_fallback?: boolean | undefined
   forceAtomic?: boolean | undefined
   id?: string | undefined
   version?: WalletSendCallsParameters[number]['version'] | undefined
@@ -84,6 +96,7 @@ export async function sendCalls<
     account: account_ = client.account,
     capabilities,
     chain = client.chain,
+    experimental_fallback,
     forceAtomic = false,
     id,
     version = '2.0.0',
@@ -134,6 +147,68 @@ export async function sendCalls<
     if (typeof response === 'string') return { id: response }
     return response as never
   } catch (err) {
+    const error = err as BaseError
+
+    // If the transport does not support EIP-5792, fall back to
+    // `eth_sendTransaction`.
+    if (
+      experimental_fallback &&
+      (error.name === 'MethodNotFoundRpcError' ||
+        error.name === 'MethodNotSupportedRpcError' ||
+        error.details
+          .toLowerCase()
+          .includes('does not exist / is not available') ||
+        error.details.toLowerCase().includes('missing or invalid. request()') ||
+        error.details
+          .toLowerCase()
+          .includes('did not match any variant of untagged enum'))
+    ) {
+      if (capabilities) {
+        const hasNonOptionalCapability = Object.values(capabilities).some(
+          (capability) => !capability.optional,
+        )
+        if (hasNonOptionalCapability) {
+          const message =
+            'non-optional `capabilities` are not supported on fallback to `eth_sendTransaction`.'
+          throw new UnsupportedNonOptionalCapabilityError(
+            new BaseError(message, {
+              details: message,
+            }),
+          )
+        }
+      }
+      if (forceAtomic && calls.length > 1) {
+        const message =
+          '`forceAtomic` is not supported on fallback to `eth_sendTransaction`.'
+        throw new AtomicityNotSupportedError(
+          new BaseError(message, {
+            details: message,
+          }),
+        )
+      }
+
+      const promises: Promise<Hex>[] = []
+      for (const call of calls) {
+        const promise = sendTransaction(client, {
+          account,
+          chain,
+          data: call.data,
+          to: call.to,
+          value: call.value ? hexToBigInt(call.value) : undefined,
+        })
+        promises.push(promise)
+        await new Promise((resolve) => setTimeout(resolve, 32))
+      }
+      const hashes = await Promise.all(promises)
+      return {
+        id: concat([
+          ...hashes,
+          numberToHex(chain!.id, { size: 32 }),
+          fallbackMagicIdentifier,
+        ]),
+      }
+    }
+
     throw getTransactionError(err as BaseError, {
       ...parameters,
       account,
