@@ -59,7 +59,7 @@ importers:
         version: 22.13.13
       '@vitest/coverage-v8':
         specifier: ^1.0.4
-        version: 1.0.4(vitest@1.0.4(@types/node@22.13.13)(@vitest/ui@1.0.4)(lightningcss@1.29.1)(terser@5.36.0))
+        version: 1.0.4(vitest@1.0.4)
       '@vitest/ui':
         specifier: ^1.0.4
         version: 1.0.4(vitest@1.0.4)
@@ -562,8 +562,8 @@ importers:
         specifier: 1.0.8
         version: 1.0.8(typescript@5.8.3)(zod@3.23.8)
       isows:
-        specifier: 1.0.6
-        version: 1.0.6(ws@8.18.1)
+        specifier: 1.0.7
+        version: 1.0.7(ws@8.18.1)
       ox:
         specifier: 0.6.9
         version: 0.6.9(typescript@5.8.3)(zod@3.23.8)
@@ -3326,7 +3326,6 @@ packages:
 
   bun@1.1.30:
     resolution: {integrity: sha512-ysRL1pq10Xba0jqVLPrKU3YIv0ohfp3cTajCPtpjCyppbn3lfiAVNpGoHfyaxS17OlPmWmR67UZRPw/EueQuug==}
-    cpu: [arm64, x64]
     os: [darwin, linux, win32]
     hasBin: true
 
@@ -4368,6 +4367,11 @@ packages:
 
   isows@1.0.6:
     resolution: {integrity: sha512-lPHCayd40oW98/I0uvgaHKWCSvkzY27LjWLbtzOm64yQ+G3Q5npjjbdppU65iZXkK1Zt+kH9pfegli0AYfwYYw==}
+    peerDependencies:
+      ws: ^8.17.1
+
+  isows@1.0.7:
+    resolution: {integrity: sha512-I1fSfDCZL5P0v33sVqeTDSpcstAg/N+wF5HS033mogOVIp4B+oHC7oOCsA3axAbBSGTJ8QubbNmnIRN/h8U7hg==}
     peerDependencies:
       ws: ^8.17.1
 
@@ -6232,6 +6236,14 @@ packages:
       typescript:
         optional: true
 
+  viem@2.29.3:
+    resolution: {integrity: sha512-9D/nO+4S3Kk0P8vh6yXUA8OJ0mli9nzoY22qyh8iYHf1Q0GIejUnyq0QGjoDbkTcVzCVD5iA9KBkSxw9Tp3vUg==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   viem@file:src:
     resolution: {directory: src, type: directory}
     peerDependencies:
@@ -7756,7 +7768,7 @@ snapshots:
       pino-pretty: 10.3.1
       prom-client: 14.2.0
       type-fest: 4.39.0
-      viem: 2.29.2(typescript@5.8.2)(zod@3.23.8)
+      viem: 2.29.3(typescript@5.8.2)(zod@3.23.8)
       yargs: 17.7.2
       zod: 3.23.8
       zod-validation-error: 1.5.0(zod@3.23.8)
@@ -9130,7 +9142,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@1.0.4(vitest@1.0.4(@types/node@22.13.13)(@vitest/ui@1.0.4)(lightningcss@1.29.1)(terser@5.36.0))':
+  '@vitest/coverage-v8@1.0.4(vitest@1.0.4)':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -10666,6 +10678,10 @@ snapshots:
   isexe@2.0.0: {}
 
   isows@1.0.6(ws@8.18.1):
+    dependencies:
+      ws: 8.18.1
+
+  isows@1.0.7(ws@8.18.1):
     dependencies:
       ws: 8.18.1
 
@@ -13035,7 +13051,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.29.2(typescript@5.8.2)(zod@3.23.8):
+  viem@2.29.3(typescript@5.8.2)(zod@3.23.8):
     dependencies:
       '@noble/curves': 1.8.2
       '@noble/hashes': 1.7.2
@@ -13059,7 +13075,7 @@ snapshots:
       '@scure/bip32': 1.6.2
       '@scure/bip39': 1.5.4
       abitype: 1.0.8(typescript@5.6.2)(zod@3.23.8)
-      isows: 1.0.6(ws@8.18.1)
+      isows: 1.0.7(ws@8.18.1)
       ox: 0.6.9(typescript@5.6.2)(zod@3.23.8)
       ws: 8.18.1
     optionalDependencies:
