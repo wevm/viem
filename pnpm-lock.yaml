@@ -59,7 +59,7 @@ importers:
         version: 22.13.13
       '@vitest/coverage-v8':
         specifier: ^1.0.4
-        version: 1.0.4(vitest@1.0.4)
+        version: 1.0.4(vitest@1.0.4(@types/node@22.13.13)(@vitest/ui@1.0.4)(lightningcss@1.29.1)(terser@5.36.0))
       '@vitest/ui':
         specifier: ^1.0.4
         version: 1.0.4(vitest@1.0.4)
@@ -178,7 +178,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.29.2(typescript@5.6.2)(zod@3.23.8)
+        version: 2.29.3(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -191,7 +191,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.29.2(typescript@5.6.2)(zod@3.23.8)
+        version: 2.29.3(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -204,7 +204,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.29.2(typescript@5.6.2)(zod@3.23.8)
+        version: 2.29.3(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -217,7 +217,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.29.2(typescript@5.6.2)(zod@3.23.8)
+        version: 2.29.3(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -230,7 +230,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.29.2(typescript@5.6.2)(zod@3.23.8)
+        version: 2.29.3(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -249,7 +249,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.29.2(typescript@5.6.2)(zod@3.23.8)
+        version: 2.29.3(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -277,7 +277,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.29.2(typescript@5.6.2)(zod@3.23.8)
+        version: 2.29.3(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -299,7 +299,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.29.2(typescript@5.6.2)(zod@3.23.8)
+        version: 2.29.3(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -312,7 +312,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.29.2(typescript@5.6.2)(zod@3.23.8)
+        version: 2.29.3(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -331,7 +331,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.29.2(typescript@5.6.2)(zod@3.23.8)
+        version: 2.29.3(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -353,7 +353,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.29.2(typescript@5.6.2)(zod@3.23.8)
+        version: 2.29.3(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -366,7 +366,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.29.2(typescript@5.6.2)(zod@3.23.8)
+        version: 2.29.3(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -379,7 +379,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.29.2(typescript@5.6.2)(zod@3.23.8)
+        version: 2.29.3(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -392,7 +392,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.29.2(typescript@5.6.2)(zod@3.23.8)
+        version: 2.29.3(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -439,7 +439,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.29.2(typescript@5.6.2)(zod@3.23.8)
+        version: 2.29.3(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -467,7 +467,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.29.2(typescript@5.6.2)(zod@3.23.8)
+        version: 2.29.3(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -489,7 +489,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.29.2(typescript@5.6.2)(zod@3.23.8)
+        version: 2.29.3(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -508,7 +508,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.29.2(typescript@5.6.2)(zod@3.23.8)
+        version: 2.29.3(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -3326,6 +3326,7 @@ packages:
 
   bun@1.1.30:
     resolution: {integrity: sha512-ysRL1pq10Xba0jqVLPrKU3YIv0ohfp3cTajCPtpjCyppbn3lfiAVNpGoHfyaxS17OlPmWmR67UZRPw/EueQuug==}
+    cpu: [arm64, x64]
     os: [darwin, linux, win32]
     hasBin: true
 
@@ -6227,14 +6228,6 @@ packages:
 
   vfile@6.0.3:
     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
-
-  viem@2.29.2:
-    resolution: {integrity: sha512-cukRxab90jvQ+TDD84sU3qB3UmejYqgCw4cX8SfWzvh7JPfZXI3kAMUaT5OSR2As1Mgvx1EJawccwPjGqkSSwA==}
-    peerDependencies:
-      typescript: '>=5.0.4'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
 
   viem@2.29.3:
     resolution: {integrity: sha512-9D/nO+4S3Kk0P8vh6yXUA8OJ0mli9nzoY22qyh8iYHf1Q0GIejUnyq0QGjoDbkTcVzCVD5iA9KBkSxw9Tp3vUg==}
@@ -9142,7 +9135,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@1.0.4(vitest@1.0.4)':
+  '@vitest/coverage-v8@1.0.4(vitest@1.0.4(@types/node@22.13.13)(@vitest/ui@1.0.4)(lightningcss@1.29.1)(terser@5.36.0))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@bcoe/v8-coverage': 0.2.3
@@ -13034,7 +13027,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
 
-  viem@2.29.2(typescript@5.6.2)(zod@3.23.8):
+  viem@2.29.3(typescript@5.6.2)(zod@3.23.8):
     dependencies:
       '@noble/curves': 1.8.2
       '@noble/hashes': 1.7.2

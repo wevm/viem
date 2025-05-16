@@ -1,5 +1,13 @@
 # viem
 
+## 2.29.4
+
+### Patch Changes
+
+- [`61d8df4c205bef20e6d141d2f809665128737a5d`](https://github.com/wevm/viem/commit/61d8df4c205bef20e6d141d2f809665128737a5d) Thanks [@jxom](https://github.com/jxom)! - Fixed parsing of zeroish nonces on `parseTransaction`.
+
+- [#3654](https://github.com/wevm/viem/pull/3654) [`256a81b4e154c7f03ad4d5b2b8dcfa6f61c32f08`](https://github.com/wevm/viem/commit/256a81b4e154c7f03ad4d5b2b8dcfa6f61c32f08) Thanks [@lucasloisp](https://github.com/lucasloisp)! - Updated dependencies.
+
 ## 2.29.3
 
 ### Patch Changes
