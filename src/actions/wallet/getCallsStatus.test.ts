@@ -1,6 +1,8 @@
-import { expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
+import { ErrorsExample } from '../../../contracts/generated.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
+import { deployErrorExample } from '../../../test/src/utils.js'
 import { mainnet } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
@@ -142,4 +144,163 @@ test('default', async () => {
     }
   `)
   expect(receipts!.length).toBe(3)
+})
+
+describe('behavior: eth_sendTransaction fallback', () => {
+  const client = anvilMainnet.getClient()
+
+  test('default', async () => {
+    const response = await sendCalls(client, {
+      account: accounts[0].address,
+      chain: mainnet,
+      calls: [
+        {
+          to: accounts[1].address,
+          value: parseEther('1'),
+        },
+        {
+          to: accounts[2].address,
+        },
+        {
+          data: '0xcafebabe',
+          to: accounts[3].address,
+          value: parseEther('100'),
+        },
+      ],
+      experimental_fallback: true,
+    })
+
+    {
+      const status = await getCallsStatus(client, response)
+      expect(status).toMatchInlineSnapshot(`
+        {
+          "atomic": false,
+          "chainId": 1,
+          "receipts": [],
+          "status": "pending",
+          "statusCode": 100,
+          "version": "2.0.0",
+        }
+      `)
+    }
+
+    await mine(client, { blocks: 1 })
+
+    {
+      const { receipts, ...rest } = await getCallsStatus(client, response)
+      expect(receipts!.length).toBe(3)
+      expect(rest).toMatchInlineSnapshot(`
+        {
+          "atomic": false,
+          "chainId": 1,
+          "status": "success",
+          "statusCode": 200,
+          "version": "2.0.0",
+        }
+      `)
+    }
+  })
+
+  test('behavior: complete failure', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    const response = await sendCalls(client, {
+      account: accounts[0].address,
+      chain: mainnet,
+      calls: [
+        {
+          abi: ErrorsExample.abi,
+          to: contractAddress!,
+          functionName: 'revertWrite',
+        },
+        {
+          abi: ErrorsExample.abi,
+          to: contractAddress!,
+          functionName: 'simpleCustomWrite',
+        },
+      ],
+      experimental_fallback: true,
+    })
+
+    {
+      const status = await getCallsStatus(client, response)
+      expect(status).toMatchInlineSnapshot(`
+        {
+          "atomic": false,
+          "chainId": 1,
+          "receipts": [],
+          "status": "pending",
+          "statusCode": 100,
+          "version": "2.0.0",
+        }
+      `)
+    }
+
+    await mine(client, { blocks: 2 })
+
+    {
+      const { receipts, ...rest } = await getCallsStatus(client, response)
+      expect(receipts!.length).toBe(2)
+      expect(rest).toMatchInlineSnapshot(`
+        {
+          "atomic": false,
+          "chainId": 1,
+          "status": "failure",
+          "statusCode": 500,
+          "version": "2.0.0",
+        }
+      `)
+    }
+  })
+
+  test('behavior: partial failure', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    const response = await sendCalls(client, {
+      account: accounts[0].address,
+      chain: mainnet,
+      calls: [
+        {
+          abi: ErrorsExample.abi,
+          to: contractAddress!,
+          functionName: 'revertWrite',
+        },
+        {
+          to: accounts[1].address,
+          value: parseEther('1'),
+        },
+      ],
+      experimental_fallback: true,
+    })
+
+    {
+      const status = await getCallsStatus(client, response)
+      expect(status).toMatchInlineSnapshot(`
+        {
+          "atomic": false,
+          "chainId": 1,
+          "receipts": [],
+          "status": "pending",
+          "statusCode": 100,
+          "version": "2.0.0",
+        }
+      `)
+    }
+
+    await mine(client, { blocks: 2 })
+
+    {
+      const { receipts, ...rest } = await getCallsStatus(client, response)
+      expect(receipts!.length).toBe(2)
+      expect(rest).toMatchInlineSnapshot(`
+        {
+          "atomic": false,
+          "chainId": 1,
+          "status": "failure",
+          "statusCode": 600,
+          "version": "2.0.0",
+        }
+      `)
+    }
+  })
 })
