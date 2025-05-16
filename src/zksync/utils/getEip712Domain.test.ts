@@ -118,6 +118,15 @@ test('default', () => {
   `)
 })
 
+test('default calldata', async () => {
+  const transaction = {
+    ...baseEip712,
+    data: undefined,
+  }
+
+  expect(getEip712Domain(transaction).message.data).toEqual('0x');
+})
+
 test('signed', async () => {
   const signed = await signTransaction({
     privateKey: accounts[0].privateKey,
