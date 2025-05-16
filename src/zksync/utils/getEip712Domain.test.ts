@@ -124,7 +124,7 @@ test('default calldata', async () => {
     data: undefined,
   }
 
-  expect(getEip712Domain(transaction).message.data).toEqual('0x');
+  expect(getEip712Domain(transaction).message.data).toEqual('0x')
 })
 
 test('signed', async () => {
