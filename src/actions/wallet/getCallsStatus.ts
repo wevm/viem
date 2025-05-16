@@ -13,7 +13,10 @@ import { sliceHex } from '../../utils/data/slice.js'
 import { trim } from '../../utils/data/trim.js'
 import { hexToBigInt, hexToNumber } from '../../utils/encoding/fromHex.js'
 import { receiptStatuses } from '../../utils/formatters/transactionReceipt.js'
-import { fallbackMagicIdentifier } from './sendCalls.js'
+import {
+  fallbackMagicIdentifier,
+  fallbackTransactionErrorMagicIdentifier,
+} from './sendCalls.js'
 
 export type GetCallsStatusParameters = { id: string }
 
@@ -71,13 +74,15 @@ export async function getCallsStatus<
 
       const receipts = await Promise.all(
         hashes!.map((hash) =>
-          client.request(
-            {
-              method: 'eth_getTransactionReceipt',
-              params: [`0x${hash}`],
-            },
-            { dedupe: true },
-          ),
+          fallbackTransactionErrorMagicIdentifier.slice(2) !== hash
+            ? client.request(
+                {
+                  method: 'eth_getTransactionReceipt',
+                  params: [`0x${hash}`],
+                },
+                { dedupe: true },
+              )
+            : undefined,
         ),
       )
 
@@ -85,6 +90,7 @@ export async function getCallsStatus<
         if (receipts.some((r) => r === null)) return 100 // pending
         if (receipts.every((r) => r?.status === '0x1')) return 200 // success
         if (receipts.every((r) => r?.status === '0x0')) return 500 // complete failure
+        if (receipts.every((r) => r === undefined)) return 500 // complete failure
         return 600 // partial failure
       })()
 

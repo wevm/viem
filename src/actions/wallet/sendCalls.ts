@@ -26,6 +26,9 @@ import { sendTransaction } from './sendTransaction.js'
 
 export const fallbackMagicIdentifier =
   '0x5792579257925792579257925792579257925792579257925792579257925792'
+export const fallbackTransactionErrorMagicIdentifier = numberToHex(0, {
+  size: 32,
+})
 
 export type SendCallsParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -197,9 +200,19 @@ export async function sendCalls<
           value: call.value ? hexToBigInt(call.value) : undefined,
         })
         promises.push(promise)
+
+        // Note: some browser wallets require a small delay between transactions
+        // to prevent duplicate JSON-RPC requests.
         await new Promise((resolve) => setTimeout(resolve, 32))
       }
-      const hashes = await Promise.all(promises)
+
+      const results = await Promise.allSettled(promises)
+      if (results.every((r) => r.status === 'rejected')) throw results[0].reason
+
+      const hashes = results.map((result) => {
+        if (result.status === 'fulfilled') return result.value
+        return fallbackTransactionErrorMagicIdentifier
+      })
       return {
         id: concat([
           ...hashes,
