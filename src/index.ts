@@ -371,6 +371,11 @@ export type {
   SignTransactionReturnType,
 } from './actions/wallet/signTransaction.js'
 export type {
+  PrepareAuthorizationErrorType,
+  PrepareAuthorizationParameters,
+  PrepareAuthorizationReturnType,
+} from './actions/wallet/prepareAuthorization.js'
+export type {
   PrepareTransactionRequestErrorType,
   PrepareTransactionRequestParameters,
   PrepareTransactionRequestParameterType,
@@ -382,6 +387,11 @@ export type {
   GetCapabilitiesErrorType,
   GetCapabilitiesReturnType,
 } from './actions/wallet/getCapabilities.js'
+export type {
+  SignAuthorizationErrorType,
+  SignAuthorizationParameters,
+  SignAuthorizationReturnType,
+} from './actions/wallet/signAuthorization.js'
 export type {
   SendCallsErrorType,
   SendCallsParameters,
@@ -1180,6 +1190,7 @@ export type {
 export type {
   Authorization,
   AuthorizationList,
+  AuthorizationRequest,
   SerializedAuthorization,
   SerializedAuthorizationList,
   SignedAuthorization,
