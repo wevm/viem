@@ -1,5 +1,17 @@
 # viem
 
+## 2.30.0
+
+### Minor Changes
+
+- [#3657](https://github.com/wevm/viem/pull/3657) [`b9a1ac1673df3e17aba8e1157ac3da32be56018e`](https://github.com/wevm/viem/commit/b9a1ac1673df3e17aba8e1157ac3da32be56018e) Thanks [@jxom](https://github.com/jxom)! - Added `experimental_fallback` property to `sendCalls` for wallets that do not support EIP-5792 (falls back to `eth_sendTransaction`).
+
+### Patch Changes
+
+- [`e20bf3a11782a829b8e1da5051e040624f5d3755`](https://github.com/wevm/viem/commit/e20bf3a11782a829b8e1da5051e040624f5d3755) Thanks [@jxom](https://github.com/jxom)! - Fixed non-portable types.
+
+- [#3658](https://github.com/wevm/viem/pull/3658) [`5d9bdabd61a95a22a914c78c242fa9cfbc803ed1`](https://github.com/wevm/viem/commit/5d9bdabd61a95a22a914c78c242fa9cfbc803ed1) Thanks [@ly0va](https://github.com/ly0va)! - **ZKsync Extension:** Fixed default data value.
+
 ## 2.29.4
 
 ### Patch Changes
