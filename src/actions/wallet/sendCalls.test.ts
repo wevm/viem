@@ -565,6 +565,77 @@ describe('behavior: eth_sendTransaction fallback', () => {
       Version: viem@x.y.z]
     `)
   })
+
+  test('behavior: insufficient funds (complete)', async () => {
+    await expect(() =>
+      sendCalls(client, {
+        account: accounts[0].address,
+        chain: mainnet,
+        calls: [
+          {
+            to: accounts[1].address,
+            value: parseEther('99999'),
+          },
+          {
+            to: accounts[2].address,
+            value: parseEther('99999'),
+          },
+          {
+            data: '0xcafebabe',
+            to: accounts[3].address,
+            value: parseEther('99999'),
+          },
+        ],
+        experimental_fallback: true,
+        experimental_fallbackDelay: 0,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TransactionExecutionError: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
+
+      This error could arise when the account does not have enough funds to:
+       - pay for the total gas fee,
+       - pay for the value to send.
+       
+      The cost of the transaction is calculated as \`gas * gas fee + value\`, where:
+       - \`gas\` is the amount of gas needed for transaction to execute,
+       - \`gas fee\` is the gas fee,
+       - \`value\` is the amount of ether to send to the recipient.
+       
+      Request Arguments:
+        chain:  Ethereum (id: 1)
+        from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+        value:  99999 ETH
+
+      Details: Insufficient funds for gas * price + value
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('behavior: insufficient funds (partial)', async () => {
+    const response = await sendCalls(client, {
+      account: accounts[0].address,
+      chain: mainnet,
+      calls: [
+        {
+          to: accounts[1].address,
+          value: parseEther('1'),
+        },
+        {
+          to: accounts[2].address,
+          value: parseEther('1'),
+        },
+        {
+          data: '0xcafebabe',
+          to: accounts[3].address,
+          value: parseEther('99999'),
+        },
+      ],
+      experimental_fallback: true,
+      experimental_fallbackDelay: 0,
+    })
+    expect(response.id).toBeDefined()
+  })
 })
 
 test('error: no account', async () => {

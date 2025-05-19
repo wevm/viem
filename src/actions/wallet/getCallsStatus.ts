@@ -90,7 +90,6 @@ export async function getCallsStatus<
         if (receipts.some((r) => r === null)) return 100 // pending
         if (receipts.every((r) => r?.status === '0x1')) return 200 // success
         if (receipts.every((r) => r?.status === '0x0')) return 500 // complete failure
-        if (receipts.every((r) => r === undefined)) return 500 // complete failure
         return 600 // partial failure
       })()
 

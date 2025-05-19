@@ -303,4 +303,53 @@ describe('behavior: eth_sendTransaction fallback', () => {
       `)
     }
   })
+
+  test('behavior: partial failure (out of funds)', async () => {
+    const response = await sendCalls(client, {
+      account: accounts[0].address,
+      chain: mainnet,
+      calls: [
+        {
+          to: accounts[1].address,
+          value: parseEther('1'),
+        },
+        {
+          to: accounts[1].address,
+          value: parseEther('10000'),
+        },
+      ],
+      experimental_fallback: true,
+      experimental_fallbackDelay: 0,
+    })
+
+    {
+      const status = await getCallsStatus(client, response)
+      expect(status).toMatchInlineSnapshot(`
+        {
+          "atomic": false,
+          "chainId": 1,
+          "receipts": [],
+          "status": "pending",
+          "statusCode": 100,
+          "version": "2.0.0",
+        }
+      `)
+    }
+
+    await mine(client, { blocks: 2 })
+
+    {
+      const { receipts, ...rest } = await getCallsStatus(client, response)
+      expect(receipts!.length).toBe(1)
+      expect(rest).toMatchInlineSnapshot(`
+        {
+          "atomic": false,
+          "chainId": 1,
+          "status": "failure",
+          "statusCode": 600,
+          "version": "2.0.0",
+        }
+      `)
+    }
+  })
 })

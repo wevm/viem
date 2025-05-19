@@ -42,6 +42,7 @@ export type SendCallsParameters<
   calls: Calls<Narrow<calls>>
   capabilities?: ExtractCapabilities<'sendCalls', 'Request'> | undefined
   experimental_fallback?: boolean | undefined
+  experimental_fallbackDelay?: number | undefined
   forceAtomic?: boolean | undefined
   id?: string | undefined
   version?: WalletSendCallsParameters[number]['version'] | undefined
@@ -100,6 +101,7 @@ export async function sendCalls<
     capabilities,
     chain = client.chain,
     experimental_fallback,
+    experimental_fallbackDelay = 32,
     forceAtomic = false,
     id,
     version = '2.0.0',
@@ -203,7 +205,10 @@ export async function sendCalls<
 
         // Note: some browser wallets require a small delay between transactions
         // to prevent duplicate JSON-RPC requests.
-        await new Promise((resolve) => setTimeout(resolve, 32))
+        if (experimental_fallbackDelay > 0)
+          await new Promise((resolve) =>
+            setTimeout(resolve, experimental_fallbackDelay),
+          )
       }
 
       const results = await Promise.allSettled(promises)
