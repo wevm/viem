@@ -1,7 +1,7 @@
 {
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
-  "version": "2.28.0",
+  "version": "2.30.0",
   "type": "module",
   "main": "./_cjs/index.js",
   "module": "./_esm/index.js",
@@ -75,6 +75,16 @@
       "import": "./_esm/experimental/erc7821/index.js",
       "default": "./_cjs/experimental/erc7821/index.js"
     },
+    "./experimental/erc7846": {
+      "types": "./_types/experimental/erc7846/index.d.ts",
+      "import": "./_esm/experimental/erc7846/index.js",
+      "default": "./_cjs/experimental/erc7846/index.js"
+    },
+    "./experimental/erc7895": {
+      "types": "./_types/experimental/erc7895/index.d.ts",
+      "import": "./_esm/experimental/erc7895/index.js",
+      "default": "./_cjs/experimental/erc7895/index.js"
+    },
     "./linea": {
       "types": "./_types/linea/index.d.ts",
       "import": "./_esm/linea/index.js",
@@ -128,6 +138,8 @@
       "experimental": ["./_types/experimental/index.d.ts"],
       "experimental/erc7739": ["./_types/experimental/erc7739/index.d.ts"],
       "experimental/erc7821": ["./_types/experimental/erc7821/index.d.ts"],
+      "experimental/erc7846": ["./_types/experimental/erc7846/index.d.ts"],
+      "experimental/erc7895": ["./_types/experimental/erc7895/index.d.ts"],
       "node": ["./_types/node/index.d.ts"],
       "op-stack": ["./_types/op-stack/index.d.ts"],
       "siwe": ["./_types/siwe/index.d.ts"],
@@ -150,7 +162,7 @@
     "@scure/bip32": "1.6.2",
     "@scure/bip39": "1.5.4",
     "abitype": "1.0.8",
-    "isows": "1.0.6",
+    "isows": "1.0.7",
     "ox": "0.6.9",
     "ws": "8.18.1"
   },

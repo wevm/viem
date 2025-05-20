@@ -6,11 +6,13 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type {
-  WalletCapabilities,
-  WalletCapabilitiesRecord,
-} from '../../types/eip1193.js'
+  Capabilities,
+  ChainIdToCapabilities,
+  ExtractCapabilities,
+} from '../../types/capabilities.js'
 import type { Prettify } from '../../types/utils.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
+import { numberToHex } from '../../utils/encoding/toHex.js'
 
 export type GetCapabilitiesParameters<
   chainId extends number | undefined = undefined,
@@ -23,8 +25,11 @@ export type GetCapabilitiesReturnType<
   chainId extends number | undefined = undefined,
 > = Prettify<
   chainId extends number
-    ? WalletCapabilities
-    : WalletCapabilitiesRecord<WalletCapabilities, number>
+    ? ExtractCapabilities<'getCapabilities', 'ReturnType'>
+    : ChainIdToCapabilities<
+        Capabilities<ExtractCapabilities<'getCapabilities', 'ReturnType'>>,
+        number
+      >
 >
 
 export type GetCapabilitiesErrorType = RequestErrorType | ErrorType
@@ -59,17 +64,25 @@ export async function getCapabilities<
 
   const account_ = account ? parseAccount(account) : undefined
 
+  const params = chainId
+    ? ([account_?.address, [numberToHex(chainId)]] as const)
+    : ([account_?.address] as const)
   const capabilities_raw = await client.request({
     method: 'wallet_getCapabilities',
-    params: [account_?.address],
+    params,
   })
 
-  const capabilities = {} as WalletCapabilitiesRecord<
-    WalletCapabilities,
+  const capabilities = {} as ChainIdToCapabilities<
+    ExtractCapabilities<'getCapabilities', 'ReturnType'>,
     number
   >
-  for (const [key, value] of Object.entries(capabilities_raw))
-    capabilities[Number(key)] = value
+  for (const [chainId, capabilities_] of Object.entries(capabilities_raw)) {
+    capabilities[Number(chainId)] = {}
+    for (let [key, value] of Object.entries(capabilities_)) {
+      if (key === 'addSubAccount') key = 'unstable_addSubAccount'
+      capabilities[Number(chainId)][key] = value
+    }
+  }
   return (
     typeof chainId === 'number' ? capabilities[chainId] : capabilities
   ) as never

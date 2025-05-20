@@ -17,8 +17,11 @@ import {
 import { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
-import type { Chain, DeriveChain } from '../../types/chain.js'
-import type { GetChainParameter } from '../../types/chain.js'
+import type {
+  Chain,
+  DeriveChain,
+  GetChainParameter,
+} from '../../types/chain.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
 import type { Hash } from '../../types/misc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
@@ -167,6 +170,7 @@ export async function sendTransaction<
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
+    type,
     value,
     ...rest
   } = parameters
@@ -231,6 +235,7 @@ export async function sendTransaction<
         maxPriorityFeePerGas,
         nonce,
         to,
+        type,
         value,
       } as TransactionRequest)
 
@@ -310,6 +315,7 @@ export async function sendTransaction<
         nonce,
         nonceManager: account.nonceManager,
         parameters: [...defaultParameters, 'sidecars'],
+        type,
         value,
         ...rest,
         to,

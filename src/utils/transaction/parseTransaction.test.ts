@@ -117,6 +117,16 @@ describe('eip7702', () => {
     expect(transaction).toEqual({ ...args, type: 'eip7702' })
   })
 
+  test('behavior: zeroish nonce', () => {
+    const args = {
+      ...baseEip7702,
+      nonce: 0,
+    } satisfies TransactionSerializableEIP7702
+    const serialized = serializeTransaction(args)
+    const transaction = parseTransaction(serialized)
+    assertType<TransactionSerializableEIP7702>(transaction)
+    expect(transaction).toEqual({ ...args, type: 'eip7702' })
+  })
   test('signed', async () => {
     const signature = await sign({
       hash: keccak256(serializeTransaction(baseEip7702)),
@@ -315,6 +325,17 @@ describe('eip4844', () => {
     expect(transaction).toEqual({ ...args, type: 'eip4844' })
   })
 
+  test('behavior: zeroish nonce', () => {
+    const args = {
+      ...baseEip4844,
+      nonce: 0,
+    } satisfies TransactionSerializableEIP4844
+    const serialized = serializeTransaction(args)
+    const transaction = parseTransaction(serialized)
+    assertType<TransactionSerializableEIP4844>(transaction)
+    expect(transaction).toEqual({ ...args, type: 'eip4844' })
+  })
+
   test('args: sidecar', () => {
     const args = {
       ...baseEip4844,
@@ -485,6 +506,7 @@ describe('eip1559', () => {
   test('minimal', () => {
     const args = {
       chainId: 1,
+      nonce: 0,
       maxFeePerGas: 1n,
     }
     const serialized = serializeTransaction(args)
@@ -770,6 +792,7 @@ describe('eip2930', () => {
     const args = {
       chainId: 1,
       gasPrice: 1n,
+      nonce: 0,
       accessList: [
         {
           address: '0x0000000000000000000000000000000000000000',
@@ -805,6 +828,15 @@ describe('eip2930', () => {
     const args = {
       ...baseEip2930,
       data: '0x1234',
+    } satisfies TransactionSerializableEIP2930
+    const serialized = serializeTransaction(args)
+    expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip2930' })
+  })
+
+  test('behavior: zeroish nonce', () => {
+    const args = {
+      ...baseEip2930,
+      nonce: 0,
     } satisfies TransactionSerializableEIP2930
     const serialized = serializeTransaction(args)
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'eip2930' })
@@ -914,6 +946,15 @@ describe('legacy', () => {
       ...baseLegacy,
       chainId: 69,
     } satisfies TransactionSerializableLegacy
+    const serialized = serializeTransaction(args)
+    expect(parseTransaction(serialized)).toEqual({ ...args, type: 'legacy' })
+  })
+
+  test('behavior: zeroish nonce', () => {
+    const args = {
+      ...baseLegacy,
+      nonce: 0,
+    }
     const serialized = serializeTransaction(args)
     expect(parseTransaction(serialized)).toEqual({ ...args, type: 'legacy' })
   })
@@ -1192,5 +1233,27 @@ test('parseAccessList', () => {
         ],
       },
     ]
+  `)
+})
+
+test('https://github.com/wevm/viem/issues/3649', () => {
+  const transaction = parseTransaction(
+    '0x02f874827a6980843b9aca0084832156008252089470997970c51812dc3a010c7d01b50e0d17dc79c888016345785d8a000080c001a078f6d0d0f56eb676e9b58364f4555c6a64874e6e6ba9911b0bc968b582146190a07e1d1e9df79c86eef251675b7dab392df8018631ead898361c391c17c1ad4090',
+  )
+  expect(transaction).toMatchInlineSnapshot(`
+    {
+      "chainId": 31337,
+      "gas": 21000n,
+      "maxFeePerGas": 2200000000n,
+      "maxPriorityFeePerGas": 1000000000n,
+      "nonce": 0,
+      "r": "0x78f6d0d0f56eb676e9b58364f4555c6a64874e6e6ba9911b0bc968b582146190",
+      "s": "0x7e1d1e9df79c86eef251675b7dab392df8018631ead898361c391c17c1ad4090",
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "type": "eip1559",
+      "v": 28n,
+      "value": 100000000000000000n,
+      "yParity": 1,
+    }
   `)
 })

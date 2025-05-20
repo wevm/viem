@@ -13,7 +13,6 @@ export {
   type ParseAbiItem,
   type ParseAbiParameter,
   type ParseAbiParameters,
-  type ResolvedRegister,
   type TypedData,
   type TypedDataDomain,
   type TypedDataParameter,
@@ -372,6 +371,11 @@ export type {
   SignTransactionReturnType,
 } from './actions/wallet/signTransaction.js'
 export type {
+  PrepareAuthorizationErrorType,
+  PrepareAuthorizationParameters,
+  PrepareAuthorizationReturnType,
+} from './actions/wallet/prepareAuthorization.js'
+export type {
   PrepareTransactionRequestErrorType,
   PrepareTransactionRequestParameters,
   PrepareTransactionRequestParameterType,
@@ -383,6 +387,11 @@ export type {
   GetCapabilitiesErrorType,
   GetCapabilitiesReturnType,
 } from './actions/wallet/getCapabilities.js'
+export type {
+  SignAuthorizationErrorType,
+  SignAuthorizationParameters,
+  SignAuthorizationReturnType,
+} from './actions/wallet/signAuthorization.js'
 export type {
   SendCallsErrorType,
   SendCallsParameters,
@@ -1106,6 +1115,16 @@ export type {
   Uncle,
 } from './types/block.js'
 export type {
+  Capabilities,
+  /** @deprecated Use `Capabilities` instead. */
+  Capabilities as WalletCapabilities,
+  CapabilitiesSchema,
+  /** @deprecated Use `ChainIdToCapabilities` instead. */
+  ChainIdToCapabilities as WalletCapabilitiesRecord,
+  ChainIdToCapabilities,
+  ExtractCapabilities,
+} from './types/capabilities.js'
+export type {
   ByteArray,
   Hash,
   Hex,
@@ -1133,8 +1152,6 @@ export type {
   RpcSchema,
   RpcSchemaOverride,
   TestRpcSchema,
-  WalletCapabilities,
-  WalletCapabilitiesRecord,
   WalletCallReceipt,
   WalletGetCallsStatusReturnType,
   WalletGrantPermissionsParameters,
@@ -1173,11 +1190,13 @@ export type {
 export type {
   Authorization,
   AuthorizationList,
+  AuthorizationRequest,
   SerializedAuthorization,
   SerializedAuthorizationList,
   SignedAuthorization,
   SignedAuthorizationList,
 } from './types/authorization.js'
+export type { Register, ResolvedRegister } from './types/register.js'
 export type {
   Index,
   Quantity,

@@ -284,6 +284,7 @@ describe('eip1559', () => {
     )
     expect(parseTransaction(serialized)).toEqual({
       chainId: 1,
+      nonce: 0,
       to: accounts[1].address,
       type: 'eip1559',
     })
@@ -293,6 +294,7 @@ describe('eip1559', () => {
     const args = {
       chainId: 1,
       maxFeePerGas: 1n,
+      nonce: 0,
     }
     const serialized = serializeTransaction(args)
     expect(serialized).toEqual('0x02c90180800180808080c0')
@@ -302,6 +304,7 @@ describe('eip1559', () => {
   test('minimal (w/ type)', () => {
     const args = {
       chainId: 1,
+      nonce: 0,
       type: 'eip1559',
     } as const
     const serialized = serializeTransaction(args)
@@ -518,6 +521,7 @@ describe('eip2930', () => {
 
     expect(parseTransaction(serialized)).toEqual({
       chainId: 1,
+      nonce: 0,
       to: accounts[1].address,
       type: 'eip2930',
     })
@@ -526,6 +530,7 @@ describe('eip2930', () => {
   test('minimal (w/ accessList & gasPrice)', () => {
     const args = {
       chainId: 1,
+      nonce: 0,
       accessList: [
         {
           address: '0x0000000000000000000000000000000000000000',
@@ -546,6 +551,7 @@ describe('eip2930', () => {
   test('minimal (w/ type)', () => {
     const args = {
       chainId: 1,
+      nonce: 0,
       type: 'eip2930',
     } satisfies TransactionSerializableEIP2930
     const serialized = serializeTransaction(args)
@@ -728,6 +734,7 @@ describe('legacy', () => {
     )
 
     expect(parseTransaction(serialized)).toEqual({
+      nonce: 0,
       to: accounts[1].address,
       type: 'legacy',
     })
@@ -735,6 +742,7 @@ describe('legacy', () => {
 
   test('minimal (w/ gasPrice)', () => {
     const args = {
+      nonce: 0,
       gasPrice: parseGwei('2'),
     } satisfies TransactionSerializableLegacy
     const serialized = serializeTransaction(args)
@@ -744,6 +752,7 @@ describe('legacy', () => {
 
   test('minimal (w/ type)', () => {
     const args = {
+      nonce: 0,
       type: 'legacy',
     } satisfies TransactionSerializableLegacy
     const serialized = serializeTransaction(args)

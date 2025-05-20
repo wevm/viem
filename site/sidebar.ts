@@ -1440,6 +1440,46 @@ export const sidebar = {
           },
         ],
       },
+      {
+        text: 'ERC-7846',
+        items: [
+          {
+            text: 'Client',
+            link: '/experimental/erc7846/client',
+          },
+          {
+            text: 'Actions',
+            items: [
+              {
+                text: 'connect',
+                link: '/experimental/erc7846/connect',
+              },
+              {
+                text: 'disconnect',
+                link: '/experimental/erc7846/disconnect',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        text: 'ERC-7895',
+        items: [
+          {
+            text: 'Client',
+            link: '/experimental/erc7895/client',
+          },
+          {
+            text: 'Actions',
+            items: [
+              {
+                text: 'addSubAccount',
+                link: '/experimental/erc7895/addSubAccount',
+              },
+            ],
+          },
+        ],
+      },
     ],
   },
   '/op-stack': {

@@ -4,14 +4,16 @@ import {
   usdcContractConfig,
   wagmiContractConfig,
 } from '../../../test/src/abis.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
-import { mainnetClient } from '../../../test/src/utils.js'
 import { erc20Abi, erc721Abi } from '../../constants/abis.js'
 import { parseEther } from '../../utils/index.js'
 import { simulateCalls } from './simulateCalls.js'
 
+const client = anvilMainnet.getClient()
+
 test('default', async () => {
-  const { results } = await simulateCalls(mainnetClient, {
+  const { results } = await simulateCalls(client, {
     calls: [
       {
         abi: erc20Abi,
@@ -59,7 +61,7 @@ test('default', async () => {
 })
 
 test('behavior: with mutation calls', async () => {
-  const { results } = await simulateCalls(mainnetClient, {
+  const { results } = await simulateCalls(client, {
     account: accounts[0].address,
     calls: [
       {
@@ -115,7 +117,7 @@ test('behavior: with mutation calls', async () => {
 
 test('behavior: with mutation calls + asset changes', async () => {
   const account = '0xdead000000000000000042069420694206942069' as const
-  const { assetChanges, results } = await simulateCalls(mainnetClient, {
+  const { assetChanges, results } = await simulateCalls(client, {
     account,
     traceAssetChanges: true,
     calls: [
@@ -224,8 +226,8 @@ test('behavior: with mutation calls + asset changes', async () => {
 
 test('behavior: mutation calls with insufficient balance', async () => {
   await expect(() =>
-    simulateCalls(mainnetClient, {
-      account: accounts[0].address,
+    simulateCalls(client, {
+      account: '0x0000000000000000000000000000000000696969',
       calls: [
         {
           to: accounts[1].address,
@@ -248,7 +250,7 @@ test('behavior: mutation calls with insufficient balance', async () => {
 })
 
 test('behavior: contract function does not exist', async () => {
-  const { results } = await simulateCalls(mainnetClient, {
+  const { results } = await simulateCalls(client, {
     calls: [
       {
         abi: wagmiContractConfig.abi,
@@ -268,13 +270,9 @@ test('behavior: contract function does not exist', async () => {
     [
       {
         "data": "0x",
-        "error": [ContractFunctionExecutionError: The contract function "mint" returned no data ("0x").
+        "error": [ContractFunctionExecutionError: The contract function "mint" reverted with the following reason:
+    execution failed
 
-    This could be due to any of the following:
-      - The contract does not have the function "mint",
-      - The parameters passed to the contract function may be invalid, or
-      - The address is not a contract.
-     
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
       function:  mint()
@@ -290,7 +288,7 @@ test('behavior: contract function does not exist', async () => {
 })
 
 test('behavior: contract function does not exist', async () => {
-  const { results } = await simulateCalls(mainnetClient, {
+  const { results } = await simulateCalls(client, {
     calls: [
       {
         data: '0xdeadbeef',
@@ -309,13 +307,9 @@ test('behavior: contract function does not exist', async () => {
     [
       {
         "data": "0x",
-        "error": [ContractFunctionExecutionError: The contract function "<unknown>" returned no data ("0x").
+        "error": [ContractFunctionExecutionError: The contract function "<unknown>" reverted with the following reason:
+    execution failed
 
-    This could be due to any of the following:
-      - The contract does not have the function "<unknown>",
-      - The parameters passed to the contract function may be invalid, or
-      - The address is not a contract.
-     
     Contract Call:
       address:  0x0000000000000000000000000000000000000000
 
@@ -330,7 +324,7 @@ test('behavior: contract function does not exist', async () => {
 })
 
 test('behavior: contract revert', async () => {
-  const { results } = await simulateCalls(mainnetClient, {
+  const { results } = await simulateCalls(client, {
     calls: [
       {
         abi: wagmiContractConfig.abi,
@@ -352,7 +346,7 @@ test('behavior: contract revert', async () => {
       {
         "data": "0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011546f6b656e2049442069732074616b656e000000000000000000000000000000",
         "error": [ContractFunctionExecutionError: The contract function "mint" reverted with the following reason:
-    Token ID is taken
+    execution failed
 
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
@@ -379,14 +373,14 @@ test('behavior: stress', async () => {
     })
   }
 
-  await simulateCalls(mainnetClient, {
+  await simulateCalls(client, {
     calls,
   })
 })
 
 test('behavior: account not provided with traceAssetChanges', async () => {
   await expect(() =>
-    simulateCalls(mainnetClient, {
+    simulateCalls(client, {
       traceAssetChanges: true,
       calls: [
         {

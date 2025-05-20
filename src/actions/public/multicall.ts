@@ -43,6 +43,7 @@ export type MulticallParameters<
     properties?: Record<string, any>
   } = {},
 > = Pick<CallParameters, 'blockNumber' | 'blockTag' | 'stateOverride'> & {
+  account?: Address | undefined
   allowFailure?: allowFailure | boolean | undefined
   batchSize?: number | undefined
   contracts: MulticallContracts<
@@ -120,6 +121,7 @@ export async function multicall<
   parameters: MulticallParameters<contracts, allowFailure>,
 ): Promise<MulticallReturnType<contracts, allowFailure>> {
   const {
+    account,
     allowFailure = true,
     batchSize: batchSize_,
     blockNumber,
@@ -193,6 +195,7 @@ export async function multicall<
         args,
         docsPath: '/docs/contract/multicall',
         functionName,
+        sender: account,
       })
       if (!allowFailure) throw error
       chunkedCalls[currentChunk] = [
@@ -214,6 +217,7 @@ export async function multicall<
         'readContract',
       )({
         abi: multicall3Abi,
+        account,
         address: multicallAddress!,
         args: [calls],
         blockNumber,
