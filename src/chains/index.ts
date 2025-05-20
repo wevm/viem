@@ -586,6 +586,7 @@ export {
   xLayerTestnet,
 } from './definitions/xLayerTestnet.js'
 export { xrOne } from './definitions/xrOne.js'
+export { xrplevm } from './definitions/xrplevm.js'
 export { xrplevmDevnet } from './definitions/xrplevmDevnet.js'
 export { xrplevmTestnet } from './definitions/xrplevmTestnet.js'
 export { xrSepolia } from './definitions/xrSepolia.js'
