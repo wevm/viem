@@ -157,14 +157,14 @@
     }
   },
   "dependencies": {
-    "@noble/curves": "1.8.2",
-    "@noble/hashes": "1.7.2",
-    "@scure/bip32": "1.6.2",
-    "@scure/bip39": "1.5.4",
+    "@noble/curves": "1.9.1",
+    "@noble/hashes": "1.8.0",
+    "@scure/bip32": "1.7.0",
+    "@scure/bip39": "1.6.0",
     "abitype": "1.0.8",
     "isows": "1.0.7",
-    "ox": "0.6.9",
-    "ws": "8.18.1"
+    "ox": "0.7.1",
+    "ws": "8.18.2"
   },
   "license": "MIT",
   "homepage": "https://viem.sh",
