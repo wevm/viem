@@ -161,6 +161,11 @@ export async function waitForTransactionReceipt<
         timeout,
       )
     : undefined
+  
+  // keep track of when we started "waiting" for the transaction receipt
+  // so that we can stop the internal polling of the block number if the timeout is reached
+  // this is important because the block number polling will continue
+  const startTime = Date.now()
 
   const _unobserve = observe(
     observerId,
@@ -176,6 +181,12 @@ export async function waitForTransactionReceipt<
         poll: true,
         pollingInterval,
         async onBlockNumber(blockNumber_) {
+          // If the timeout is reached, stop polling.
+          if (timeout && Date.now() - startTime >= timeout) {
+            _unwatch()
+            _unobserve()
+            return
+          }
           const done = (fn: () => void) => {
             clearTimeout(timer)
             _unwatch()
