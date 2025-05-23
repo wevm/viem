@@ -161,7 +161,7 @@ export async function waitForTransactionReceipt<
         timeout,
       )
     : undefined
-  
+
   // keep track of when we started "waiting" for the transaction receipt
   // so that we can stop the internal polling of the block number if the timeout is reached
   // this is important because the block number polling will continue
