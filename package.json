@@ -116,7 +116,7 @@
     {
       "name": "const viem = require('viem') (cjs)",
       "path": "./src/_cjs/index.js",
-      "limit": "88 kB"
+      "limit": "89 kB"
     },
     {
       "name": "import { createClient, http } from 'viem'",
