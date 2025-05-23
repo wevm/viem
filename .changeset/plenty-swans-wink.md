@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fix: waitForTransactionReceipt() leaks on timeout
+Fixed `waitForTransactionReceipt` leak on timeout.
