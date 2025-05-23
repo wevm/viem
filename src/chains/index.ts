@@ -601,6 +601,8 @@ export { zhejiang } from './definitions/zhejiang.js'
 export { zilliqa } from './definitions/zilliqa.js'
 export { zilliqaTestnet } from './definitions/zilliqaTestnet.js'
 export { zircuit } from './definitions/zircuit.js'
+/** @deprecated Use zircuitGarfieldTestnet instead */
+export { zircuitTestnet } from './definitions/zircuitTestnet.js'
 export { zircuitGarfieldTestnet } from './definitions/zircuitGarfieldTestnet.js'
 export { zkFair } from './definitions/zkFair.js'
 export { zkFairTestnet } from './definitions/zkFairTestnet.js'
