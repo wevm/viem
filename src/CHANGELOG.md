@@ -1,5 +1,15 @@
 # viem
 
+## 2.30.1
+
+### Patch Changes
+
+- [#3660](https://github.com/wevm/viem/pull/3660) [`1bde5ecadbd9f97220a51fee519dbb09f1a940ea`](https://github.com/wevm/viem/commit/1bde5ecadbd9f97220a51fee519dbb09f1a940ea) Thanks [@ersanyakit](https://github.com/ersanyakit)! - Updated chiliz RPC URLs.
+
+- [`71c424e217ffeca4b2d055619916eaf880deb868`](https://github.com/wevm/viem/commit/71c424e217ffeca4b2d055619916eaf880deb868) Thanks [@jxom](https://github.com/jxom)! - Updated dependencies.
+
+- [#3671](https://github.com/wevm/viem/pull/3671) [`9ed3cef1c4aea557098bbab8e33ea4f3c1eeddf9`](https://github.com/wevm/viem/commit/9ed3cef1c4aea557098bbab8e33ea4f3c1eeddf9) Thanks [@frankudoags](https://github.com/frankudoags)! - Fixed `waitForTransactionReceipt` leak on timeout.
+
 ## 2.30.0
 
 ### Minor Changes
