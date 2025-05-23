@@ -152,26 +152,29 @@ export async function waitForTransactionReceipt<
   let receipt: GetTransactionReceiptReturnType<chain>
   let retrying = false
 
+  // biome-ignore lint/style/useConst: <we need to reassign these variables to the actual unobserve and unwatch functions later>
+  let _unobserve: () => void
+  let _unwatch: () => void
+
   const { promise, resolve, reject } =
     withResolvers<WaitForTransactionReceiptReturnType<chain>>()
 
   const timer = timeout
     ? setTimeout(
-        () => reject(new WaitForTransactionReceiptTimeoutError({ hash })),
+      () => {
+        _unwatch()
+        _unobserve()
+        reject(new WaitForTransactionReceiptTimeoutError({ hash }))
+      },
         timeout,
       )
     : undefined
 
-  // keep track of when we started "waiting" for the transaction receipt
-  // so that we can stop the internal polling of the block number if the timeout is reached
-  // this is important because the block number polling will continue
-  const startTime = Date.now()
-
-  const _unobserve = observe(
+  _unobserve = observe(
     observerId,
     { onReplaced, resolve, reject },
     (emit) => {
-      const _unwatch = getAction(
+      _unwatch = getAction(
         client,
         watchBlockNumber,
         'watchBlockNumber',
@@ -181,12 +184,6 @@ export async function waitForTransactionReceipt<
         poll: true,
         pollingInterval,
         async onBlockNumber(blockNumber_) {
-          // If the timeout is reached, stop polling.
-          if (timeout && Date.now() - startTime >= timeout) {
-            _unwatch()
-            _unobserve()
-            return
-          }
           const done = (fn: () => void) => {
             clearTimeout(timer)
             _unwatch()
