@@ -3,9 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11_155_111 // sepolia
 
-/**
- * @deprecated Use zircuitGarfieldTestnet.ts instead
- */
 export const zircuitTestnet = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 48899,
