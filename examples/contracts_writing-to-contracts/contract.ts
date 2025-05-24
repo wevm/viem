@@ -2,7 +2,7 @@
 // https://etherscan.io/address/0xfba3912ca04dd458c843e2ee08967fc04f3579c2#code
 
 export const wagmiContract = {
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  address: '0x1d8092d0c9821739d4870f0769378f4c4ca9c0e5',
   abi: [
     { inputs: [], stateMutability: 'nonpayable', type: 'constructor' },
     {
