@@ -2,7 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const bitkub = /*#__PURE__*/ defineChain({
   id: 96,
-  name: 'Bitkub',
+  name: 'KUB Chain',
   nativeCurrency: { name: 'Bitkub', symbol: 'KUB', decimals: 18 },
   rpcUrls: {
     default: {
@@ -11,7 +11,7 @@ export const bitkub = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Bitkub Chain Mainnet Explorer',
+      name: 'KUB Chain Mainnet Explorer',
       url: 'https://www.bkcscan.com',
       apiUrl: 'https://www.bkcscan.com/api',
     },
