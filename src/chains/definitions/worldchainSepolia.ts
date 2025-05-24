@@ -32,7 +32,7 @@ export const worldchainSepolia = /*#__PURE__*/ defineChain({
     },
     disputeGameFactory: {
       [sourceId]: {
-        address: '0x8cF97Ee616C986a070F5020d973b456D0120C253',
+        address: '0x8Ec1111f67Dad6b6A93B3F42DfBC92D81c98449A',
       },
     },
     l2OutputOracle: {

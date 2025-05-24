@@ -4,14 +4,16 @@ import {
   usdcContractConfig,
   wagmiContractConfig,
 } from '../../../test/src/abis.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { accounts } from '../../../test/src/constants.js'
-import { mainnetClient } from '../../../test/src/utils.js'
 import { maxUint256 } from '../../constants/number.js'
 import { parseEther, parseGwei } from '../../utils/index.js'
 import { simulateBlocks } from './simulateBlocks.js'
 
+const client = anvilMainnet.getClient()
+
 test('default', async () => {
-  const result = await simulateBlocks(mainnetClient, {
+  const result = await simulateBlocks(client, {
     blocks: [
       {
         calls: [
@@ -69,7 +71,7 @@ test('default', async () => {
 })
 
 test('args: blockOverrides', async () => {
-  const result = await simulateBlocks(mainnetClient, {
+  const result = await simulateBlocks(client, {
     blocks: [
       {
         calls: [
@@ -99,7 +101,7 @@ test('args: blockOverrides', async () => {
 
 test('behavior: fee cap too high', async () => {
   await expect(() =>
-    simulateBlocks(mainnetClient, {
+    simulateBlocks(client, {
       blocks: [
         {
           calls: [
@@ -122,7 +124,7 @@ test('behavior: fee cap too high', async () => {
 
 test('behavior: tip higher than fee cap', async () => {
   await expect(() =>
-    simulateBlocks(mainnetClient, {
+    simulateBlocks(client, {
       blocks: [
         {
           calls: [
@@ -148,7 +150,7 @@ test('behavior: tip higher than fee cap', async () => {
 
 test('behavior: gas too low', async () => {
   await expect(() =>
-    simulateBlocks(mainnetClient, {
+    simulateBlocks(client, {
       blocks: [
         {
           calls: [
@@ -170,47 +172,22 @@ test('behavior: gas too low', async () => {
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     `
-    [IntrinsicGasTooLowError: The amount of gas provided for the transaction is too low.
+    [IntrinsicGasTooHighError: The amount of gas provided for the transaction exceeds the limit allowed for the block.
 
-    Details: err: intrinsic gas too low: have 100, want 21000 (supplied gas 100)
+    Details: intrinsic gas too high -- CallGasCostMoreThanGasLimit
     Version: viem@x.y.z]
   `,
   )
 })
 
-test('behavior: gas too high', async () => {
-  await expect(() =>
-    simulateBlocks(mainnetClient, {
-      blocks: [
-        {
-          calls: [
-            {
-              account: accounts[0].address,
-              to: accounts[1].address,
-              value: parseEther('1'),
-              gas: 100_000_000_000_000_000n,
-            },
-          ],
-          stateOverrides: [
-            {
-              address: accounts[0].address,
-              balance: parseEther('10000'),
-            },
-          ],
-        },
-      ],
-    }),
-  ).rejects.toThrowError('block gas limit reached')
-})
-
 test('behavior: insufficient funds', async () => {
   await expect(() =>
-    simulateBlocks(mainnetClient, {
+    simulateBlocks(client, {
       blocks: [
         {
           calls: [
             {
-              account: accounts[0].address,
+              account: '0x0000000000000000000000000000000000696969',
               to: accounts[1].address,
               value: parseEther('1'),
             },
@@ -218,11 +195,11 @@ test('behavior: insufficient funds', async () => {
         },
       ],
     }),
-  ).rejects.toThrowError('insufficient funds for gas * price + value')
+  ).rejects.toThrowError('Insufficient funds for gas * price + value')
 })
 
 test('behavior: contract function does not exist', async () => {
-  const result = await simulateBlocks(mainnetClient, {
+  const result = await simulateBlocks(client, {
     blocks: [
       {
         calls: [
@@ -246,13 +223,9 @@ test('behavior: contract function does not exist', async () => {
     [
       {
         "data": "0x",
-        "error": [ContractFunctionExecutionError: The contract function "mint" returned no data ("0x").
+        "error": [ContractFunctionExecutionError: The contract function "mint" reverted with the following reason:
+    execution failed
 
-    This could be due to any of the following:
-      - The contract does not have the function "mint",
-      - The parameters passed to the contract function may be invalid, or
-      - The address is not a contract.
-     
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
       function:  mint()
@@ -268,7 +241,7 @@ test('behavior: contract function does not exist', async () => {
 })
 
 test('behavior: contract function does not exist', async () => {
-  const result = await simulateBlocks(mainnetClient, {
+  const result = await simulateBlocks(client, {
     blocks: [
       {
         calls: [
@@ -291,13 +264,9 @@ test('behavior: contract function does not exist', async () => {
     [
       {
         "data": "0x",
-        "error": [ContractFunctionExecutionError: The contract function "<unknown>" returned no data ("0x").
+        "error": [ContractFunctionExecutionError: The contract function "<unknown>" reverted with the following reason:
+    execution failed
 
-    This could be due to any of the following:
-      - The contract does not have the function "<unknown>",
-      - The parameters passed to the contract function may be invalid, or
-      - The address is not a contract.
-     
     Contract Call:
       address:  0x0000000000000000000000000000000000000000
 
@@ -312,7 +281,7 @@ test('behavior: contract function does not exist', async () => {
 })
 
 test('behavior: contract revert', async () => {
-  const result = await simulateBlocks(mainnetClient, {
+  const result = await simulateBlocks(client, {
     blocks: [
       {
         calls: [
@@ -338,7 +307,7 @@ test('behavior: contract revert', async () => {
       {
         "data": "0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011546f6b656e2049442069732074616b656e000000000000000000000000000000",
         "error": [ContractFunctionExecutionError: The contract function "mint" reverted with the following reason:
-    Token ID is taken
+    execution failed
 
     Contract Call:
       address:   0x0000000000000000000000000000000000000000

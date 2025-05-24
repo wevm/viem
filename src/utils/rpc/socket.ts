@@ -140,16 +140,17 @@ export async function getSocketRpcClient<socket extends {}>(
             for (const subscription of subscriptions.values())
               subscription.onError?.(new SocketClosedError({ url }))
 
-            // Clear all requests and subscriptions.
-            requests.clear()
-            subscriptions.clear()
-
             // Attempt to reconnect.
             if (reconnect && reconnectCount < attempts)
               setTimeout(async () => {
                 reconnectCount++
                 await setup().catch(console.error)
               }, delay)
+            // Otherwise, clear all requests and subscriptions.
+            else {
+              requests.clear()
+              subscriptions.clear()
+            }
           },
           onError(error_) {
             error = error_
@@ -158,10 +159,6 @@ export async function getSocketRpcClient<socket extends {}>(
             for (const request of requests.values()) request.onError?.(error)
             for (const subscription of subscriptions.values())
               subscription.onError?.(error)
-
-            // Clear all requests and subscriptions.
-            requests.clear()
-            subscriptions.clear()
 
             // Make sure socket is definitely closed.
             socketClient?.close()
@@ -172,6 +169,11 @@ export async function getSocketRpcClient<socket extends {}>(
                 reconnectCount++
                 await setup().catch(console.error)
               }, delay)
+            // Otherwise, clear all requests and subscriptions.
+            else {
+              requests.clear()
+              subscriptions.clear()
+            }
           },
           onOpen() {
             error = undefined

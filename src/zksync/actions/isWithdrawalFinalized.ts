@@ -1,4 +1,3 @@
-import type { Address } from 'abitype'
 import type { Account } from '../../accounts/types.js'
 import { readContract } from '../../actions/public/readContract.js'
 import type { Client } from '../../clients/createClient.js'
@@ -9,9 +8,7 @@ import {
 } from '../../errors/chain.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
-import { isAddressEqual, slice } from '../../utils/index.js'
-import { l1SharedBridgeAbi, l2SharedBridgeAbi } from '../constants/abis.js'
-import { l2BaseTokenAddress } from '../constants/address.js'
+import { l1SharedBridgeAbi } from '../constants/abis.js'
 import {
   WithdrawalLogNotFoundError,
   type WithdrawalLogNotFoundErrorType,
@@ -19,7 +16,6 @@ import {
 import type { ChainEIP712 } from '../types/chain.js'
 import { getWithdrawalL2ToL1Log } from '../utils/bridge/getWithdrawalL2ToL1Log.js'
 import { getWithdrawalLog } from '../utils/bridge/getWithdrawalLog.js'
-import { getBaseTokenL1Address } from './getBaseTokenL1Address.js'
 import { getDefaultBridgeAddresses } from './getDefaultBridgeAddresses.js'
 import { getLogProof } from './getLogProof.js'
 
@@ -87,7 +83,7 @@ export async function isWithdrawalFinalized<
     hash,
     index,
   })
-  const sender = slice(log.topics[1]!, 12) as Address
+
   // `getLogProof` is called not to get proof but
   // to get the index of the corresponding L2->L1 log,
   // which is returned as `proof.id`.
@@ -95,23 +91,9 @@ export async function isWithdrawalFinalized<
     txHash: hash,
     index: l2ToL1LogIndex!,
   })
-  if (!proof) {
-    throw new WithdrawalLogNotFoundError({ hash })
-  }
+  if (!proof) throw new WithdrawalLogNotFoundError({ hash })
 
-  let l1Bridge: Address
-  if (
-    isAddressEqual(sender, await getBaseTokenL1Address(l2Client)) ||
-    isAddressEqual(sender, l2BaseTokenAddress)
-  )
-    l1Bridge = (await getDefaultBridgeAddresses(l2Client)).sharedL1
-  else
-    l1Bridge = await readContract(l2Client, {
-      address: sender,
-      abi: l2SharedBridgeAbi,
-      functionName: 'l1SharedBridge',
-      args: [],
-    })
+  const l1Bridge = (await getDefaultBridgeAddresses(l2Client)).sharedL1
 
   return await readContract(client, {
     address: l1Bridge,

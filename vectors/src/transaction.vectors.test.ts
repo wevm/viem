@@ -27,7 +27,10 @@ const transactions = transactions_.map(
       maxPriorityFeePerGas: transaction.maxPriorityFeePerGas
         ? BigInt(transaction.maxPriorityFeePerGas)
         : undefined,
-      nonce: transaction.nonce ? Number(transaction.nonce) : undefined,
+      nonce:
+        typeof transaction.nonce === 'number'
+          ? transaction.nonce
+          : undefined,
       value: transaction.value ? BigInt(transaction.value) : undefined,
     },
     signature: {
@@ -49,7 +52,7 @@ describe('parseTransaction', () => {
         if (!transaction.maxFeePerBlobGas) delete transaction.maxFeePerBlobGas
         if (!transaction.maxPriorityFeePerGas)
           delete transaction.maxPriorityFeePerGas
-        if (!transaction.nonce) delete transaction.nonce
+        if (!transaction.nonce) transaction.nonce = 0
         if (!transaction.value) delete transaction.value
         expect(parseTransaction(serialized)).toEqual(transaction)
         expect(parseTransaction(serializedSigned)).toEqual({

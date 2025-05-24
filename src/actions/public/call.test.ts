@@ -7,6 +7,7 @@ import {
 } from '~contracts/generated.js'
 import {
   baycContractConfig,
+  multicall3ContractConfig,
   usdcContractConfig,
   wagmiContractConfig,
 } from '~test/src/abis.js'
@@ -51,6 +52,7 @@ const wagmiContractAddress = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
 const name4bytes = '0x06fdde03'
 const mint4bytes = '0x1249c58b'
 const mintWithParams4bytes = '0xa0712d68'
+const getCurrentBlockTimestamp4bytes = '0x0f28c97d'
 const fourTwenty =
   '00000000000000000000000000000000000000000000000000000000000001a4'
 const sixHundred =
@@ -198,6 +200,16 @@ test('args: override', async () => {
   expect(data).toMatchInlineSnapshot(
     `"${encodeAbiParameters([{ type: 'string' }], [fakeName])}"`,
   )
+})
+
+test.skip('args: blockOverrides', async () => {
+  // TODO: don't skip once block overrides are supported in Anvil.
+  const { data } = await call(client, {
+    data: getCurrentBlockTimestamp4bytes,
+    code: multicall3ContractConfig.bytecode,
+    blockOverrides: { time: 420n },
+  })
+  expect(data).toMatchInlineSnapshot(fourTwenty)
 })
 
 test.skip('args: blobs', async () => {

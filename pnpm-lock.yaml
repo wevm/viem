@@ -178,7 +178,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.28.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.30.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -191,7 +191,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.28.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.30.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -204,7 +204,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.28.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.30.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -217,7 +217,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.28.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.30.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -230,7 +230,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.28.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.30.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -249,7 +249,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.28.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.30.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -277,7 +277,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.28.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.30.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -299,7 +299,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.28.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.30.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -312,7 +312,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.28.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.30.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -331,7 +331,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.28.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.30.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -353,7 +353,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.28.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.30.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -366,7 +366,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.28.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.30.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -379,7 +379,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.28.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.30.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -392,7 +392,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.28.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.30.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -439,7 +439,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.28.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.30.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -467,7 +467,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.28.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.30.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -489,7 +489,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.28.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.30.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -508,7 +508,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.28.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.30.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -547,29 +547,29 @@ importers:
   src:
     dependencies:
       '@noble/curves':
-        specifier: 1.8.2
-        version: 1.8.2
+        specifier: 1.9.1
+        version: 1.9.1
       '@noble/hashes':
-        specifier: 1.7.2
-        version: 1.7.2
+        specifier: 1.8.0
+        version: 1.8.0
       '@scure/bip32':
-        specifier: 1.6.2
-        version: 1.6.2
+        specifier: 1.7.0
+        version: 1.7.0
       '@scure/bip39':
-        specifier: 1.5.4
-        version: 1.5.4
+        specifier: 1.6.0
+        version: 1.6.0
       abitype:
         specifier: 1.0.8
         version: 1.0.8(typescript@5.8.3)(zod@3.23.8)
       isows:
-        specifier: 1.0.6
-        version: 1.0.6(ws@8.18.1)
+        specifier: 1.0.7
+        version: 1.0.7(ws@8.18.2)
       ox:
-        specifier: 0.6.9
-        version: 0.6.9(typescript@5.8.3)(zod@3.23.8)
+        specifier: 0.7.1
+        version: 0.7.1(typescript@5.8.3)(zod@3.23.8)
       ws:
-        specifier: 8.18.1
-        version: 8.18.1
+        specifier: 8.18.2
+        version: 8.18.2
 
   test: {}
 
@@ -1481,6 +1481,10 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@noble/ciphers@1.3.0':
+    resolution: {integrity: sha512-2I0gnIVPtfnMw9ee9h1dJG7tp81+8Ob3OJb3Mv37rx5L40/b0i7djjCVvGOVqc9AEIQyvyu1i6ypKdFw8R8gQw==}
+    engines: {node: ^14.21.3 || >=16}
+
   '@noble/curves@1.2.0':
     resolution: {integrity: sha512-oYclrNgRaM9SsBUBVbb8M6DTV7ZHRTKugureoYEncY5c65HOmRzvSiTE3y5CYaPYJA/GVkrhXEoF0M3Ya9PMnw==}
 
@@ -1488,16 +1492,20 @@ packages:
     resolution: {integrity: sha512-vnI7V6lFNe0tLAuJMu+2sX+FcL14TaCWy1qiczg1VwRmPrpQCdq5ESXQMqUc2tluRNf6irBXrWbl1mGN8uaU/g==}
     engines: {node: ^14.21.3 || >=16}
 
+  '@noble/curves@1.9.1':
+    resolution: {integrity: sha512-k11yZxZg+t+gWvBbIswW0yoJlu8cHOC7dhunwOzoWH/mXGBiYyR4YY6hAEK/3EUs4UpB8la1RfdRpeGsFHkWsA==}
+    engines: {node: ^14.21.3 || >=16}
+
   '@noble/hashes@1.3.2':
     resolution: {integrity: sha512-MVC8EAQp7MvEcm30KWENFjgR+Mkmf+D189XJTkFIlwohU5hcBbn1ZkKq7KVTi2Hme3PMGF390DaL52beVrIihQ==}
     engines: {node: '>= 16'}
 
-  '@noble/hashes@1.7.1':
-    resolution: {integrity: sha512-B8XBPsn4vT/KJAGqDzbwztd+6Yte3P4V7iafm24bxgDe/mlRuK6xmWPuCNrKt2vDafZ8MfJLlchDG/vYafQEjQ==}
-    engines: {node: ^14.21.3 || >=16}
-
   '@noble/hashes@1.7.2':
     resolution: {integrity: sha512-biZ0NUSxyjLLqo6KxEJ1b+C2NAx0wtDoFvCaXHGgUkeHzf3Xc1xKumFKREuT7f7DARNZ/slvYUwFG6B0f2b6hQ==}
+    engines: {node: ^14.21.3 || >=16}
+
+  '@noble/hashes@1.8.0':
+    resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
     engines: {node: ^14.21.3 || >=16}
 
   '@nodelib/fs.scandir@2.1.5':
@@ -2659,14 +2667,20 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@scure/base@1.2.4':
-    resolution: {integrity: sha512-5Yy9czTO47mqz+/J8GM6GIId4umdCk1wc1q8rKERQulIoc8VP9pzDcghv10Tl2E7R96ZUx/PhND3ESYUQX8NuQ==}
+  '@scure/base@1.2.5':
+    resolution: {integrity: sha512-9rE6EOVeIQzt5TSu4v+K523F8u6DhBsoZWPGKlnCshhlDhy0kJzUX4V+tr2dWmzF1GdekvThABoEQBGBQI7xZw==}
 
   '@scure/bip32@1.6.2':
     resolution: {integrity: sha512-t96EPDMbtGgtb7onKKqxRLfE5g05k7uHnHRM2xdE6BP/ZmxaLtPek4J4KfVn/90IQNrU1IOAqMgiDtUdtbe3nw==}
 
+  '@scure/bip32@1.7.0':
+    resolution: {integrity: sha512-E4FFX/N3f4B80AKWp5dP6ow+flD1LQZo/w8UnLGYZO674jS6YnYeepycOOksv+vLPSpgN35wgKgy+ybfTb2SMw==}
+
   '@scure/bip39@1.5.4':
     resolution: {integrity: sha512-TFM4ni0vKvCfBpohoh+/lY05i9gRbSwXWngAsF4CABQxoaOHijxuaZ2R6cStDQ5CHtHO9aGJTr4ksVJASRRyMA==}
+
+  '@scure/bip39@1.6.0':
+    resolution: {integrity: sha512-+lF0BbLiJNwVlev4eKelw1WWLaiKXw7sSl8T6FvBlWkdX+94aGJ4o8XjUdlyhTCjd8c+B3KT3JfS8P0bLRNU6A==}
 
   '@sec-ant/readable-stream@0.4.1':
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
@@ -4366,8 +4380,8 @@ packages:
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
 
-  isows@1.0.6:
-    resolution: {integrity: sha512-lPHCayd40oW98/I0uvgaHKWCSvkzY27LjWLbtzOm64yQ+G3Q5npjjbdppU65iZXkK1Zt+kH9pfegli0AYfwYYw==}
+  isows@1.0.7:
+    resolution: {integrity: sha512-I1fSfDCZL5P0v33sVqeTDSpcstAg/N+wF5HS033mogOVIp4B+oHC7oOCsA3axAbBSGTJ8QubbNmnIRN/h8U7hg==}
     peerDependencies:
       ws: ^8.17.1
 
@@ -5085,6 +5099,14 @@ packages:
 
   ox@0.6.9:
     resolution: {integrity: sha512-wi5ShvzE4eOcTwQVsIPdFr+8ycyX+5le/96iAJutaZAvCes1J0+RvpEPg5QDPDiaR0XQQAvZVl7AwqQcINuUug==}
+    peerDependencies:
+      typescript: '>=5.4.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
+  ox@0.7.1:
+    resolution: {integrity: sha512-+k9fY9PRNuAMHRFIUbiK9Nt5seYHHzSQs9Bj+iMETcGtlpS7SmBzcGSVUQO3+nqGLEiNK4598pHNFlVRaZbRsg==}
     peerDependencies:
       typescript: '>=5.4.0'
     peerDependenciesMeta:
@@ -6224,8 +6246,8 @@ packages:
   vfile@6.0.3:
     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
 
-  viem@2.28.0:
-    resolution: {integrity: sha512-Z4W5O1pe+6pirYTFm451FcZmfGAUxUWt2L/eWC+YfTF28j/8rd7q6MBAi05lMN4KhLJjhN0s5YGIPB+kf1L20g==}
+  viem@2.30.0:
+    resolution: {integrity: sha512-hvO4l5JIOnYPL8imULoFQiVTSkebIqzGHmIfsdMfIHpAgBaCx8rJJH9cXAxQeWCqsFuTmjEj1cX912N7HSCgpQ==}
     peerDependencies:
       typescript: '>=5.0.4'
     peerDependenciesMeta:
@@ -6415,6 +6437,18 @@ packages:
 
   ws@8.18.1:
     resolution: {integrity: sha512-RKW2aJZMXeMxVpnZ6bck+RswznaxmzdULiBr6KY7XkTnW8uvt0iT9H5DkHUChXrc+uurzwa0rVI16n/Xzjdz1w==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
+  ws@8.18.2:
+    resolution: {integrity: sha512-DMricUmwGZUVr++AEAe2uiVM7UoO9MAVZMDu05UQOaUII0lp+zOzLLU4Xqh/JvTqklB1T4uELaaPBKyjE1r4fQ==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -7146,7 +7180,7 @@ snapshots:
     dependencies:
       duplexify: 4.1.3
       fastify-plugin: 4.5.1
-      ws: 8.18.1
+      ws: 8.18.2
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -7425,6 +7459,8 @@ snapshots:
   '@next/swc-win32-x64-msvc@15.1.7':
     optional: true
 
+  '@noble/ciphers@1.3.0': {}
+
   '@noble/curves@1.2.0':
     dependencies:
       '@noble/hashes': 1.3.2
@@ -7433,11 +7469,15 @@ snapshots:
     dependencies:
       '@noble/hashes': 1.7.2
 
+  '@noble/curves@1.9.1':
+    dependencies:
+      '@noble/hashes': 1.8.0
+
   '@noble/hashes@1.3.2': {}
 
-  '@noble/hashes@1.7.1': {}
-
   '@noble/hashes@1.7.2': {}
+
+  '@noble/hashes@1.8.0': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -7756,7 +7796,7 @@ snapshots:
       pino-pretty: 10.3.1
       prom-client: 14.2.0
       type-fest: 4.39.0
-      viem: 2.28.0(typescript@5.8.2)(zod@3.23.8)
+      viem: 2.30.0(typescript@5.8.2)(zod@3.23.8)
       yargs: 17.7.2
       zod: 3.23.8
       zod-validation-error: 1.5.0(zod@3.23.8)
@@ -8656,18 +8696,29 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.34.8':
     optional: true
 
-  '@scure/base@1.2.4': {}
+  '@scure/base@1.2.5': {}
 
   '@scure/bip32@1.6.2':
     dependencies:
       '@noble/curves': 1.8.2
       '@noble/hashes': 1.7.2
-      '@scure/base': 1.2.4
+      '@scure/base': 1.2.5
+
+  '@scure/bip32@1.7.0':
+    dependencies:
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/base': 1.2.5
 
   '@scure/bip39@1.5.4':
     dependencies:
       '@noble/hashes': 1.7.2
-      '@scure/base': 1.2.4
+      '@scure/base': 1.2.5
+
+  '@scure/bip39@1.6.0':
+    dependencies:
+      '@noble/hashes': 1.8.0
+      '@scure/base': 1.2.5
 
   '@sec-ant/readable-stream@0.4.1': {}
 
@@ -10665,9 +10716,13 @@ snapshots:
 
   isexe@2.0.0: {}
 
-  isows@1.0.6(ws@8.18.1):
+  isows@1.0.7(ws@8.18.1):
     dependencies:
       ws: 8.18.1
+
+  isows@1.0.7(ws@8.18.2):
+    dependencies:
+      ws: 8.18.2
 
   istanbul-lib-coverage@3.2.2: {}
 
@@ -11131,7 +11186,7 @@ snapshots:
 
   micro-packed@0.7.2:
     dependencies:
-      '@scure/base': 1.2.4
+      '@scure/base': 1.2.5
 
   micromark-core-commonmark@2.0.2:
     dependencies:
@@ -11662,10 +11717,10 @@ snapshots:
   ox@0.6.9(typescript@5.6.2)(zod@3.23.8):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
-      '@noble/curves': 1.8.2
-      '@noble/hashes': 1.7.2
-      '@scure/bip32': 1.6.2
-      '@scure/bip39': 1.5.4
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
       abitype: 1.0.8(typescript@5.6.2)(zod@3.23.8)
       eventemitter3: 5.0.1
     optionalDependencies:
@@ -11676,10 +11731,10 @@ snapshots:
   ox@0.6.9(typescript@5.8.2)(zod@3.23.8):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
-      '@noble/curves': 1.8.2
-      '@noble/hashes': 1.7.2
-      '@scure/bip32': 1.6.2
-      '@scure/bip39': 1.5.4
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
       abitype: 1.0.8(typescript@5.8.2)(zod@3.23.8)
       eventemitter3: 5.0.1
     optionalDependencies:
@@ -11687,13 +11742,29 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.6.9(typescript@5.8.3)(zod@3.23.8):
+  ox@0.7.1(typescript@5.6.2)(zod@3.23.8):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
-      '@noble/curves': 1.8.2
-      '@noble/hashes': 1.7.2
-      '@scure/bip32': 1.6.2
-      '@scure/bip39': 1.5.4
+      '@noble/ciphers': 1.3.0
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.0.8(typescript@5.6.2)(zod@3.23.8)
+      eventemitter3: 5.0.1
+    optionalDependencies:
+      typescript: 5.6.2
+    transitivePeerDependencies:
+      - zod
+
+  ox@0.7.1(typescript@5.8.3)(zod@3.23.8):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.0
+      '@noble/ciphers': 1.3.0
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
       abitype: 1.0.8(typescript@5.8.3)(zod@3.23.8)
       eventemitter3: 5.0.1
     optionalDependencies:
@@ -12016,7 +12087,7 @@ snapshots:
       chromium-bidi: 0.5.17(devtools-protocol@0.0.1262051)
       debug: 4.3.4
       devtools-protocol: 0.0.1262051
-      ws: 8.18.1
+      ws: 8.18.2
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -13018,14 +13089,14 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
 
-  viem@2.28.0(typescript@5.6.2)(zod@3.23.8):
+  viem@2.30.0(typescript@5.6.2)(zod@3.23.8):
     dependencies:
       '@noble/curves': 1.8.2
       '@noble/hashes': 1.7.2
       '@scure/bip32': 1.6.2
       '@scure/bip39': 1.5.4
       abitype: 1.0.8(typescript@5.6.2)(zod@3.23.8)
-      isows: 1.0.6(ws@8.18.1)
+      isows: 1.0.7(ws@8.18.1)
       ox: 0.6.9(typescript@5.6.2)(zod@3.23.8)
       ws: 8.18.1
     optionalDependencies:
@@ -13035,14 +13106,14 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.28.0(typescript@5.8.2)(zod@3.23.8):
+  viem@2.30.0(typescript@5.8.2)(zod@3.23.8):
     dependencies:
       '@noble/curves': 1.8.2
       '@noble/hashes': 1.7.2
       '@scure/bip32': 1.6.2
       '@scure/bip39': 1.5.4
       abitype: 1.0.8(typescript@5.8.2)(zod@3.23.8)
-      isows: 1.0.6(ws@8.18.1)
+      isows: 1.0.7(ws@8.18.1)
       ox: 0.6.9(typescript@5.8.2)(zod@3.23.8)
       ws: 8.18.1
     optionalDependencies:
@@ -13054,14 +13125,14 @@ snapshots:
 
   viem@file:src(typescript@5.6.2)(zod@3.23.8):
     dependencies:
-      '@noble/curves': 1.8.2
-      '@noble/hashes': 1.7.2
-      '@scure/bip32': 1.6.2
-      '@scure/bip39': 1.5.4
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
       abitype: 1.0.8(typescript@5.6.2)(zod@3.23.8)
-      isows: 1.0.6(ws@8.18.1)
-      ox: 0.6.9(typescript@5.6.2)(zod@3.23.8)
-      ws: 8.18.1
+      isows: 1.0.7(ws@8.18.2)
+      ox: 0.7.1(typescript@5.6.2)(zod@3.23.8)
+      ws: 8.18.2
     optionalDependencies:
       typescript: 5.6.2
     transitivePeerDependencies:
@@ -13182,7 +13253,7 @@ snapshots:
       '@hono/node-server': 1.13.8(hono@4.7.2)
       '@mdx-js/react': 3.1.0(@types/react@19.0.8)(react@19.0.0)
       '@mdx-js/rollup': 3.1.0(acorn@8.14.0)(rollup@4.34.8)
-      '@noble/hashes': 1.7.1
+      '@noble/hashes': 1.8.0
       '@radix-ui/colors': 3.0.0
       '@radix-ui/react-accordion': 1.2.3(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@radix-ui/react-dialog': 1.1.6(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -13341,6 +13412,8 @@ snapshots:
   ws@8.17.1: {}
 
   ws@8.18.1: {}
+
+  ws@8.18.2: {}
 
   y18n@5.0.8: {}
 

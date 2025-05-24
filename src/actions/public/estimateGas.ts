@@ -57,7 +57,7 @@ export type EstimateGasParameters<
         blockNumber?: undefined
         /**
          * The balance of the account at a block tag.
-         * @default 'latest'
+         * @default 'pending'
          */
         blockTag?: BlockTag | undefined
       }
@@ -136,7 +136,8 @@ export async function estimateGas<
         account?.type === 'local' ? undefined : ['blobVersionedHashes'],
     } as PrepareTransactionRequestParameters)) as EstimateGasParameters
 
-    const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
+    const blockNumberHex =
+      typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
 
     const rpcStateOverride = serializeStateOverride(stateOverride)
@@ -193,7 +194,7 @@ export async function estimateGas<
       return client.request({
         method: 'eth_estimateGas',
         params: rpcStateOverride
-          ? [request, block ?? 'latest', rpcStateOverride]
+          ? [request, block ?? 'pending', rpcStateOverride]
           : block
             ? [request, block]
             : [request],

@@ -14,11 +14,15 @@ const client = createClient({
       if (method === 'wallet_getCapabilities')
         return {
           '0x2105': {
+            atomic: {
+              status: 'supported',
+            },
+            unstable_addSubAccount: {
+              keyTypes: ['address', 'p256', 'webcrypto-p256', 'webauthn-p256'],
+              supported: true,
+            },
             paymasterService: {
               supported: params[0] === accounts[0].address,
-            },
-            sessionKeys: {
-              supported: true,
             },
           },
           '0x14A34': {
@@ -38,10 +42,19 @@ test('default', async () => {
   expect(capabilities).toMatchInlineSnapshot(`
     {
       "8453": {
+        "atomic": {
+          "status": "supported",
+        },
         "paymasterService": {
           "supported": false,
         },
-        "sessionKeys": {
+        "unstable_addSubAccount": {
+          "keyTypes": [
+            "address",
+            "p256",
+            "webcrypto-p256",
+            "webauthn-p256",
+          ],
           "supported": true,
         },
       },
@@ -61,10 +74,19 @@ test('args: account', async () => {
   expect(capabilities).toMatchInlineSnapshot(`
     {
       "8453": {
+        "atomic": {
+          "status": "supported",
+        },
         "paymasterService": {
           "supported": true,
         },
-        "sessionKeys": {
+        "unstable_addSubAccount": {
+          "keyTypes": [
+            "address",
+            "p256",
+            "webcrypto-p256",
+            "webauthn-p256",
+          ],
           "supported": true,
         },
       },
@@ -84,10 +106,19 @@ test('args: chainId', async () => {
   })
   expect(capabilities).toMatchInlineSnapshot(`
     {
+      "atomic": {
+        "status": "supported",
+      },
       "paymasterService": {
         "supported": true,
       },
-      "sessionKeys": {
+      "unstable_addSubAccount": {
+        "keyTypes": [
+          "address",
+          "p256",
+          "webcrypto-p256",
+          "webauthn-p256",
+        ],
         "supported": true,
       },
     }
@@ -104,10 +135,19 @@ test('behavior: account on client', async () => {
   expect(capabilities).toMatchInlineSnapshot(`
     {
       "8453": {
+        "atomic": {
+          "status": "supported",
+        },
         "paymasterService": {
           "supported": false,
         },
-        "sessionKeys": {
+        "unstable_addSubAccount": {
+          "keyTypes": [
+            "address",
+            "p256",
+            "webcrypto-p256",
+            "webauthn-p256",
+          ],
           "supported": true,
         },
       },

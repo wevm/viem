@@ -183,7 +183,7 @@ export async function simulateBlocks<
 ): Promise<SimulateBlocksReturnType<calls>> {
   const {
     blockNumber,
-    blockTag = 'latest',
+    blockTag = 'pending',
     blocks,
     returnFullTransactions,
     traceTransfers,
@@ -218,7 +218,8 @@ export async function simulateBlocks<
       })
     }
 
-    const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
+    const blockNumberHex =
+      typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
 
     const result = await client.request({

@@ -33,7 +33,5 @@ test('error: insufficient balance', async () => {
       to: '0x0000000000000000000000000000000000000000',
       value: parseEther('0.0001'),
     }),
-  ).rejects.toThrowError(
-    'transaction up-front cost 0x5af31a7dba00 exceeds transaction sender',
-  )
+  ).rejects.toThrowError('exceeds transaction sender account balance')
 })

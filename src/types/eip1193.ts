@@ -9,6 +9,7 @@ import type {
   RpcUserOperationReceipt,
 } from '../account-abstraction/types/rpc.js'
 import type { BlockTag } from './block.js'
+import type { Capabilities, ChainIdToCapabilities } from './capabilities.js'
 import type { Hash, Hex, LogTopic } from './misc.js'
 import type { RpcStateOverride } from './rpc.js'
 import type {
@@ -121,17 +122,6 @@ export type NetworkSync = {
   startingBlock: Quantity
 }
 
-export type WalletCapabilities = {
-  [capability: string]: any
-}
-
-export type WalletCapabilitiesRecord<
-  capabilities extends WalletCapabilities = WalletCapabilities,
-  id extends string | number = Hex,
-> = {
-  [chainId in id]: capabilities
-}
-
 export type WalletCallReceipt<quantity = Hex, status = Hex> = {
   logs: {
     address: Hex
@@ -187,13 +177,13 @@ export type WalletGrantPermissionsReturnType = {
 }
 
 export type WalletGetCallsStatusReturnType<
-  capabilities extends WalletCapabilities = WalletCapabilities,
+  capabilities extends Capabilities = Capabilities,
   numberType = Hex,
   bigintType = Hex,
   receiptStatus = Hex,
 > = {
   atomic: boolean
-  capabilities?: capabilities | WalletCapabilities | undefined
+  capabilities?: capabilities | Capabilities | undefined
   chainId: numberType
   id: string
   receipts?: WalletCallReceipt<bigintType, receiptStatus>[] | undefined
@@ -215,19 +205,19 @@ export type WalletPermission = {
 }
 
 export type WalletSendCallsParameters<
-  capabilities extends WalletCapabilities = WalletCapabilities,
+  capabilities extends Capabilities = Capabilities,
   chainId extends Hex | number = Hex,
   quantity extends Quantity | bigint = Quantity,
 > = [
   {
     atomicRequired: boolean
     calls: readonly {
-      capabilities?: capabilities | WalletCapabilities | undefined
+      capabilities?: capabilities | Capabilities | undefined
       to?: Address | undefined
       data?: Hex | undefined
       value?: quantity | undefined
     }[]
-    capabilities?: capabilities | WalletCapabilities | undefined
+    capabilities?: capabilities | Capabilities | undefined
     chainId?: chainId | undefined
     id?: string | undefined
     from?: Address | undefined
@@ -236,7 +226,7 @@ export type WalletSendCallsParameters<
 ]
 
 export type WalletSendCallsReturnType<
-  capabilities extends WalletCapabilities = WalletCapabilities,
+  capabilities extends Capabilities = Capabilities,
 > = {
   capabilities?: capabilities | undefined
   id: string
@@ -653,15 +643,21 @@ export type PublicRpcSchema = [
   {
     Method: 'eth_call'
     Parameters:
-      | [transaction: ExactPartial<TransactionRequest>]
-      | [
+      | readonly [transaction: ExactPartial<TransactionRequest>]
+      | readonly [
           transaction: ExactPartial<TransactionRequest>,
           block: BlockNumber | BlockTag | BlockIdentifier,
         ]
-      | [
+      | readonly [
           transaction: ExactPartial<TransactionRequest>,
           block: BlockNumber | BlockTag | BlockIdentifier,
           stateOverrideSet: RpcStateOverride,
+        ]
+      | readonly [
+          transaction: ExactPartial<TransactionRequest>,
+          block: BlockNumber | BlockTag | BlockIdentifier,
+          stateOverrideSet: RpcStateOverride,
+          blockOverrides: BlockOverrides.Rpc,
         ]
     ReturnType: Hex
   },
@@ -1775,6 +1771,76 @@ export type WalletRpcSchema = [
     ReturnType: null
   },
   /**
+   *
+   */
+  {
+    Method: 'wallet_addSubAccount'
+    Parameters: [
+      {
+        account: OneOf<
+          | {
+              keys: readonly {
+                publicKey: Hex
+                type: 'address' | 'p256' | 'webcrypto-p256' | 'webauthn-p256'
+              }[]
+              type: 'create'
+            }
+          | {
+              address: Address
+              chainId?: number | undefined
+              type: 'deployed'
+            }
+          | {
+              address: Address
+              chainId?: number | undefined
+              factory: Address
+              factoryData: Hex
+              type: 'undeployed'
+            }
+        >
+        version: string
+      },
+    ]
+    ReturnType: {
+      address: Address
+      factory?: Address | undefined
+      factoryData?: Hex | undefined
+    }
+  },
+  /**
+   * @description Requests to connect account(s).
+   * @link https://github.com/ethereum/ERCs/blob/abd1c9f4eda2d6ad06ade0e3af314637a27d1ee7/ERCS/erc-7846.md
+   * @example
+   * provider.request({ method: 'wallet_connect' })
+   * // => { ... }
+   */
+  {
+    Method: 'wallet_connect'
+    Parameters: [
+      {
+        capabilities?: Capabilities | undefined
+        version: string
+      },
+    ]
+    ReturnType: {
+      accounts: readonly {
+        address: Address
+        capabilities?: Capabilities | undefined
+      }[]
+    }
+  },
+  /**
+   * @description Disconnects connected account(s).
+   * @link https://github.com/ethereum/ERCs/blob/abd1c9f4eda2d6ad06ade0e3af314637a27d1ee7/ERCS/erc-7846.md
+   * @example
+   * provider.request({ method: 'wallet_disconnect' })
+   */
+  {
+    Method: 'wallet_disconnect'
+    Parameters?: undefined
+    ReturnType: void
+  },
+  /**
    * @description Returns the status of a call batch that was sent via `wallet_sendCalls`.
    * @link https://eips.ethereum.org/EIPS/eip-5792
    * @example
@@ -1795,8 +1861,12 @@ export type WalletRpcSchema = [
    */
   {
     Method: 'wallet_getCapabilities'
-    Parameters?: [Address | undefined] | undefined
-    ReturnType: Prettify<WalletCapabilitiesRecord>
+    Parameters?:
+      | readonly []
+      | readonly [Address | undefined]
+      | readonly [Address | undefined, readonly Hex[] | undefined]
+      | undefined
+    ReturnType: Prettify<ChainIdToCapabilities>
   },
   /**
    * @description Gets the wallets current permissions.
