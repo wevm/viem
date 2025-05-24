@@ -2,7 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const jbc = /*#__PURE__*/ defineChain({
   id: 8899,
-  name: 'JIBCHAIN L1',
+  name: 'JB Chain',
   network: 'jbc',
   nativeCurrency: { name: 'JBC', symbol: 'JBC', decimals: 18 },
   rpcUrls: {
