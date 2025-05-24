@@ -1,5 +1,17 @@
 # viem
 
+## 2.30.2
+
+### Patch Changes
+
+- [#3555](https://github.com/wevm/viem/pull/3555) [`5f5b984682814c7beb4a93579c648e7d1b252ef0`](https://github.com/wevm/viem/commit/5f5b984682814c7beb4a93579c648e7d1b252ef0) Thanks [@danijelTxFusion](https://github.com/danijelTxFusion)! - Added support for ZKsync v26, removed support for v25.
+
+- [#3672](https://github.com/wevm/viem/pull/3672) [`549dc06baed10f165f6dc9d97d221d310fb6ebe0`](https://github.com/wevm/viem/commit/549dc06baed10f165f6dc9d97d221d310fb6ebe0) Thanks [@gil7788](https://github.com/gil7788)! - Deprecated Zircuit Testnet.
+
+- [`2e1c02d1f90ef8a8e097c4f0191b10d4268b82d5`](https://github.com/wevm/viem/commit/2e1c02d1f90ef8a8e097c4f0191b10d4268b82d5) Thanks [@jxom](https://github.com/jxom)! - Handled connection errors for Actions that use WebSockets.
+
+- [`2e1c02d1f90ef8a8e097c4f0191b10d4268b82d5`](https://github.com/wevm/viem/commit/2e1c02d1f90ef8a8e097c4f0191b10d4268b82d5) Thanks [@jxom](https://github.com/jxom)! - Default to `pending` block tag for `call`, `estimateGas`, `simulateBlocks`, and dependent Actions.
+
 ## 2.30.1
 
 ### Patch Changes
