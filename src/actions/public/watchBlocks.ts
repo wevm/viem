@@ -213,12 +213,14 @@ export function watchBlocks<
           )({
             blockTag,
             includeTransactions,
-          }).then((block) => {
-            if (!active) return
-            if (!emitFetched) return
-            onBlock(block as any, undefined)
-            emitFetched = false
           })
+            .then((block) => {
+              if (!active) return
+              if (!emitFetched) return
+              onBlock(block as any, undefined)
+              emitFetched = false
+            })
+            .catch(onError)
         }
 
         const transport = (() => {
