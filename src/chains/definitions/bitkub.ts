@@ -2,8 +2,8 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const bitkub = /*#__PURE__*/ defineChain({
   id: 96,
-  name: 'KUB Chain',
-  nativeCurrency: { name: 'Bitkub', symbol: 'KUB', decimals: 18 },
+  name: 'KUB Mainnet',
+  nativeCurrency: { name: 'KUB Coin', symbol: 'KUB', decimals: 18 },
   rpcUrls: {
     default: {
       http: ['https://rpc.bitkubchain.io'],
