@@ -9,10 +9,11 @@
  */
 import { describe, expect, test, vi } from 'vitest'
 
-import { ErrorsExample } from '~contracts/generated.js'
+import { Delegation, ErrorsExample } from '~contracts/generated.js'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
 import {
+  deploy,
   deployBAYC,
   deployErrorExample,
   mainnetClient,
@@ -25,6 +26,9 @@ import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { mine } from '../test/mine.js'
 
 import { maxUint256 } from '~viem/constants/number.js'
+import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { signAuthorization } from '../wallet/signAuthorization.js'
 import { simulateContract } from './simulateContract.js'
 
 const client = anvilMainnet
@@ -329,6 +333,31 @@ describe('BAYC', () => {
       `)
     })
   })
+})
+
+test('behavior: authorizationList', async () => {
+  const { contractAddress } = await deploy(client, {
+    abi: Delegation.abi,
+    bytecode: Delegation.bytecode.object,
+  })
+
+  const eoa = privateKeyToAccount(generatePrivateKey())
+
+  const authorization = await signAuthorization(client, {
+    account: eoa,
+    contractAddress: contractAddress!,
+  })
+
+  const { result } = await simulateContract(client, {
+    abi: Delegation.abi,
+    address: contractAddress!,
+    functionName: 'ping',
+    account: eoa.address,
+    authorizationList: [authorization],
+    args: ['hello'],
+  })
+
+  expect(result).toEqual('pong: hello')
 })
 
 describe('contract errors', () => {

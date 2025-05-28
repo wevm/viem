@@ -1,10 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 
-import {
-  BatchCallDelegation,
-  ErrorsExample,
-  Payable,
-} from '~contracts/generated.js'
+import { Delegation, ErrorsExample, Payable } from '~contracts/generated.js'
 import { wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
 import { deploy, deployErrorExample, deployPayable } from '~test/src/utils.js'
@@ -171,8 +167,8 @@ test('args: authorizationList', async () => {
   })
 
   const { contractAddress } = await deploy(client, {
-    abi: BatchCallDelegation.abi,
-    bytecode: BatchCallDelegation.bytecode.object,
+    abi: Delegation.abi,
+    bytecode: Delegation.bytecode.object,
   })
 
   const authorization = await signAuthorization(client, {
@@ -181,7 +177,7 @@ test('args: authorizationList', async () => {
   })
 
   const hash = await writeContract(client, {
-    abi: BatchCallDelegation.abi,
+    abi: Delegation.abi,
     account: relay,
     address: eoa.address,
     authorizationList: [authorization],
@@ -205,7 +201,7 @@ test('args: authorizationList', async () => {
   expect(getAddress(log.address)).toBe(eoa.address)
   expect(
     decodeEventLog({
-      abi: BatchCallDelegation.abi,
+      abi: Delegation.abi,
       ...log,
     }),
   ).toEqual({
@@ -238,8 +234,8 @@ test('args: authorizationList (self-executing)', async () => {
   })
 
   const { contractAddress } = await deploy(client, {
-    abi: BatchCallDelegation.abi,
-    bytecode: BatchCallDelegation.bytecode.object,
+    abi: Delegation.abi,
+    bytecode: Delegation.bytecode.object,
   })
 
   const authorization = await signAuthorization(client, {
@@ -249,7 +245,7 @@ test('args: authorizationList (self-executing)', async () => {
   })
 
   const hash = await writeContract(client, {
-    abi: BatchCallDelegation.abi,
+    abi: Delegation.abi,
     account: eoa,
     address: eoa.address,
     authorizationList: [authorization],
@@ -273,7 +269,7 @@ test('args: authorizationList (self-executing)', async () => {
   expect(getAddress(log.address)).toBe(eoa.address)
   expect(
     decodeEventLog({
-      abi: BatchCallDelegation.abi,
+      abi: Delegation.abi,
       ...log,
     }),
   ).toEqual({
