@@ -1,5 +1,11 @@
 # viem
 
+## 2.30.5
+
+### Patch Changes
+
+- [#3682](https://github.com/wevm/viem/pull/3682) [`f618732c28e68883513f5326b824b938b93c6ea5`](https://github.com/wevm/viem/commit/f618732c28e68883513f5326b824b938b93c6ea5) Thanks [@jxom](https://github.com/jxom)! - Propagated `authorizationList` property on `call` Action.
+
 ## 2.30.4
 
 ### Patch Changes
