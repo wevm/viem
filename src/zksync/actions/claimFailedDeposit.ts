@@ -1,5 +1,4 @@
 import { type Address, parseAbi } from 'abitype'
-import { ethers } from 'ethers'
 import type { Account } from '../../accounts/types.js'
 import { getTransaction } from '../../actions/public/getTransaction.js'
 import { getTransactionReceipt } from '../../actions/public/getTransactionReceipt.js'
@@ -12,6 +11,7 @@ import {
 } from '../../actions/wallet/sendTransaction.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import { zeroHash } from '../../constants/bytes.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import { ClientChainNotConfiguredError } from '../../errors/chain.js'
 import type { TransactionReceiptNotFoundErrorType } from '../../errors/transaction.js'
@@ -173,7 +173,7 @@ export async function claimFailedDeposit<
       l2ToL1log.key === depositHash,
   )
   const successL2ToL1Log = receipt.l2ToL1Logs[successL2ToL1LogIndex]
-  if (successL2ToL1Log?.value !== ethers.ZeroHash)
+  if (successL2ToL1Log?.value !== zeroHash)
     throw new CannotClaimSuccessfulDepositError({ hash: depositHash })
 
   const tx = await getTransaction(l2Client, { hash: depositHash })
@@ -207,7 +207,7 @@ export async function claimFailedDeposit<
       args: [args[2]],
     })
     depositSender = args[0]
-    if (assetId === ethers.ZeroHash)
+    if (assetId === zeroHash)
       throw new Error(`Token ${args[2]} not registered in NTV`)
   } catch (_e) {
     const { args } = decodeFunctionData({
