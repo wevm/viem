@@ -1,10 +1,11 @@
+import type { Address } from 'abitype'
 import { RpcRequestError } from '../../errors/request.js'
 import {
   UrlRequiredError,
   type UrlRequiredErrorType,
 } from '../../errors/transport.js'
 import type { ErrorType } from '../../errors/utils.js'
-import type { Hash } from '../../types/misc.js'
+import type { Hash, LogTopic } from '../../types/misc.js'
 import type { RpcResponse } from '../../types/rpc.js'
 import { getSocket } from '../../utils/rpc/compat.js'
 import type { SocketRpcClient } from '../../utils/rpc/socket.js'
@@ -31,13 +32,27 @@ type WebSocketTransportSubscribeReturnType = {
 
 type WebSocketTransportSubscribe = {
   subscribe(
-    args: WebSocketTransportSubscribeParameters & {
-      /**
-       * @description Add information about compiled contracts
-       * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_addcompilationresult
-       */
-      params: ['newHeads']
-    },
+    args: WebSocketTransportSubscribeParameters &
+      (
+        | {
+            params: ['newHeads']
+          }
+        | {
+            params: ['newPendingTransactions']
+          }
+        | {
+            params: [
+              'logs',
+              {
+                address?: Address | Address[]
+                topics?: LogTopic[]
+              },
+            ]
+          }
+        | {
+            params: ['syncing']
+          }
+      ),
   ): Promise<WebSocketTransportSubscribeReturnType>
 }
 
