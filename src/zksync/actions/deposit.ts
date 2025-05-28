@@ -1,5 +1,4 @@
 import { type Address, parseAbi } from 'abitype'
-import { ethers } from 'ethers'
 import type { Account } from '../../accounts/types.js'
 import {
   type EstimateGasParameters,
@@ -22,6 +21,7 @@ import { publicActions } from '../../clients/decorators/public.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { erc20Abi } from '../../constants/abis.js'
 import { zeroAddress } from '../../constants/address.js'
+import { zeroHash } from '../../constants/bytes.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import { ClientChainNotConfiguredError } from '../../errors/chain.js'
 import type { GetAccountParameter } from '../../types/account.js'
@@ -871,8 +871,7 @@ async function getSecondBridgeCalldata<chain extends Chain | undefined>(
     args: [token_],
   })
 
-  if (assetIdFromNTV && assetIdFromNTV !== ethers.ZeroHash)
-    assetId = assetIdFromNTV
+  if (assetIdFromNTV && assetIdFromNTV !== zeroHash) assetId = assetIdFromNTV
   else {
     // Okay, the token have not been registered within the Native token vault.
     // There are two cases when it is possible:
