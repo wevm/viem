@@ -562,6 +562,11 @@ export function buildWithdrawalProof(
     msgNonce = msgNonce >> 1
   }
 
+  // Handle empty array case - return "0x" instead of concat([])
+  if (siblingHashes.length === 0) {
+    return '0x' as Hex
+  }
+
   const withdrawalProof = concat(siblingHashes)
 
   return withdrawalProof
