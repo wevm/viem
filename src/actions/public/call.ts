@@ -157,6 +157,7 @@ export async function call<chain extends Chain | undefined>(
 ): Promise<CallReturnType> {
   const {
     account: account_ = client.account,
+    authorizationList,
     batch = Boolean(client.batch?.multicall),
     blockNumber,
     blockTag = 'pending',
@@ -229,6 +230,7 @@ export async function call<chain extends Chain | undefined>(
       ...extract(rest, { format: chainFormat }),
       from: account?.address,
       accessList,
+      authorizationList,
       blobs,
       data,
       gas,

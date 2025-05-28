@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.28;
 
-contract BatchCallDelegation {
+contract Delegation {
     struct Call {
         bytes data;
         address to;
@@ -19,5 +19,9 @@ contract BatchCallDelegation {
 
             emit CallEmitted(call.to, call.value, call.data);
         }
+    }
+
+    function ping(string memory message) external returns (string memory) {
+        return string.concat("pong: ", message);
     }
 }

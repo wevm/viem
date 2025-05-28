@@ -1,6 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import {
+  Delegation,
   OffchainLookupExample,
   SoladyAccount07,
   SoladyAccountFactory07,
@@ -15,20 +16,17 @@ import { createCcipServer } from '~test/src/ccip.js'
 import { accounts } from '~test/src/constants.js'
 import { blobData, kzg } from '~test/src/kzg.js'
 import {
+  deploy,
   deployOffchainLookupExample,
   deploySoladyAccount_07,
   mainnetClient,
 } from '~test/src/utils.js'
-
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { aggregate3Signature } from '../../constants/contract.js'
 import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
-import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
-import { trim } from '../../utils/data/trim.js'
-import { parseGwei } from '../../utils/unit/parseGwei.js'
-import { wait } from '../../utils/wait.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
 import {
   http,
   type Hex,
@@ -43,6 +41,11 @@ import {
   toBlobs,
   toHex,
 } from '../../index.js'
+import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
+import { trim } from '../../utils/data/trim.js'
+import { parseGwei } from '../../utils/unit/parseGwei.js'
+import { wait } from '../../utils/wait.js'
+import { signAuthorization } from '../wallet/signAuthorization.js'
 import { call, getRevertErrorData } from './call.js'
 import { readContract } from './readContract.js'
 
@@ -153,6 +156,38 @@ test('zero data', async () => {
     to: wagmiContractAddress,
   })
   expect(data).toMatchInlineSnapshot('undefined')
+})
+
+test('args: authorizationList', async () => {
+  const { contractAddress } = await deploy(client, {
+    abi: Delegation.abi,
+    bytecode: Delegation.bytecode.object,
+  })
+
+  const eoa = privateKeyToAccount(generatePrivateKey())
+
+  const authorization = await signAuthorization(client, {
+    account: eoa,
+    contractAddress: contractAddress!,
+  })
+
+  const { data } = await call(client, {
+    authorizationList: [authorization],
+    data: encodeFunctionData({
+      abi: Delegation.abi,
+      functionName: 'ping',
+      args: ['hello'],
+    }),
+    to: eoa.address,
+  })
+
+  const result = decodeFunctionResult({
+    abi: Delegation.abi,
+    functionName: 'ping',
+    data: data!,
+  })
+
+  expect(result).toMatchInlineSnapshot('"pong: hello"')
 })
 
 test.skip('args: blockNumber', async () => {
