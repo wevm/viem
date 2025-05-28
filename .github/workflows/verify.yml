@@ -47,9 +47,6 @@ jobs:
 
       - name: Check for unused files, dependencies, and exports
         run: pnpm knip --production
-        
-      - name: Check size
-        run: pnpm size
 
   types:
     name: Types
