@@ -1,7 +1,7 @@
 {
   "name": "viem",
   "description": "TypeScript Interface for Ethereum",
-  "version": "2.30.2",
+  "version": "2.30.3",
   "type": "module",
   "main": "./_cjs/index.js",
   "module": "./_esm/index.js",

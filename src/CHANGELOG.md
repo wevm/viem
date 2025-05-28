@@ -1,5 +1,11 @@
 # viem
 
+## 2.30.3
+
+### Patch Changes
+
+- [`7fe8f4b72b7055d012e27f0d8dcc98340ace282c`](https://github.com/wevm/viem/commit/7fe8f4b72b7055d012e27f0d8dcc98340ace282c) Thanks [@jxom](https://github.com/jxom)! - **ZKSync:** Fixed zero hash import.
+
 ## 2.30.2
 
 ### Patch Changes
