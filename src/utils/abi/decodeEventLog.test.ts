@@ -169,6 +169,49 @@ test('unnamed args: Transfer(address,address,uint256)', () => {
   })
 })
 
+test('unnamed args: keep args ordered for mixed indexed args Transfer(address indexed,uint256,address indexed)', () => {
+  const event = decodeEventLog({
+    abi: [
+      {
+        inputs: [
+          {
+            indexed: true,
+            type: 'address',
+          },
+          {
+            indexed: false,
+            type: 'uint256',
+          },
+          {
+            indexed: true,
+            type: 'address',
+          },
+        ],
+        name: 'Transfer',
+        type: 'event',
+      },
+    ],
+    data: '0x0000000000000000000000000000000000000000000000000000000000000001',
+    topics: [
+      '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+      '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+      '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+    ],
+  })
+  assertType<typeof event>({
+    eventName: 'Transfer',
+    args: ['0x', 1n, '0x'],
+  })
+  expect(event).toEqual({
+    args: [
+      '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+      1n,
+      '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+    ],
+    eventName: 'Transfer',
+  })
+})
+
 test('Foo(string)', () => {
   const event = decodeEventLog({
     abi: [
