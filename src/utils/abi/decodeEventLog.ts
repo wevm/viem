@@ -158,15 +158,12 @@ export function decodeEventLog<
       try {
         const decodedData = decodeAbiParameters(nonIndexedInputs, data)
         if (decodedData) {
-          if (isUnnamed) {
-            for (let i = 0; i < inputs.length; i++) {
+          if (isUnnamed)
+            for (let i = 0; i < inputs.length; i++)
               args[i] = args[i] ?? decodedData.shift()
-            }
-          } else {
-            for (let i = 0; i < nonIndexedInputs.length; i++) {
+          else
+            for (let i = 0; i < nonIndexedInputs.length; i++)
               args[nonIndexedInputs[i].name!] = decodedData[i]
-            }
-          }
         }
       } catch (err) {
         if (strict) {
