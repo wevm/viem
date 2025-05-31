@@ -169,7 +169,7 @@ test('unnamed args: Transfer(address,address,uint256)', () => {
   })
 })
 
-test('unnamed args: keep args ordered for mixed indexed args Transfer(address indexed,uint256,address indexed)', () => {
+test('unnamed args: mixed ordering of indexed args', () => {
   const event = decodeEventLog({
     abi: [
       {
