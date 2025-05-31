@@ -131,19 +131,24 @@ export function decodeEventLog<
   const { name, inputs } = abiItem
   const isUnnamed = inputs?.some((x) => !('name' in x && x.name))
 
-  let args: any = isUnnamed ? [] : {}
+  const args: any = isUnnamed ? [] : {}
 
   // Decode topics (indexed args).
-  const indexedInputs = inputs.filter((x) => 'indexed' in x && x.indexed)
+  const indexedInputs = inputs
+    .map((x, i) => [x, i] as const)
+    .filter(([x]) => 'indexed' in x && x.indexed)
   for (let i = 0; i < indexedInputs.length; i++) {
-    const param = indexedInputs[i]
+    const [param, argIndex] = indexedInputs[i]
     const topic = argTopics[i]
     if (!topic)
       throw new DecodeLogTopicsMismatch({
         abiItem,
         param: param as AbiParameter & { indexed: boolean },
       })
-    args[isUnnamed ? i : param.name || i] = decodeTopic({ param, value: topic })
+    args[isUnnamed ? argIndex : param.name || argIndex] = decodeTopic({
+      param,
+      value: topic,
+    })
   }
 
   // Decode data (non-indexed args).
@@ -153,12 +158,12 @@ export function decodeEventLog<
       try {
         const decodedData = decodeAbiParameters(nonIndexedInputs, data)
         if (decodedData) {
-          if (isUnnamed) args = [...args, ...decodedData]
-          else {
-            for (let i = 0; i < nonIndexedInputs.length; i++) {
+          if (isUnnamed)
+            for (let i = 0; i < inputs.length; i++)
+              args[i] = args[i] ?? decodedData.shift()
+          else
+            for (let i = 0; i < nonIndexedInputs.length; i++)
               args[nonIndexedInputs[i].name!] = decodedData[i]
-            }
-          }
         }
       } catch (err) {
         if (strict) {
