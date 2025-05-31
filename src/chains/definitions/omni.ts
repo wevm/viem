@@ -13,7 +13,7 @@ export const omni = defineChain({
   blockExplorers: {
     default: {
       name: 'OmniScan',
-      url: 'https://omniscan.network/',
+      url: 'https://omniscan.network',
     },
   },
   testnet: false,
