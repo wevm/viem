@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added omni chains
+Added Omni chains.
