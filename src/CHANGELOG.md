@@ -1,5 +1,17 @@
 # viem
 
+## 2.30.6
+
+### Patch Changes
+
+- [#3687](https://github.com/wevm/viem/pull/3687) [`96a638da2a9a2e56d0a40238a229d5b2a9d30e9f`](https://github.com/wevm/viem/commit/96a638da2a9a2e56d0a40238a229d5b2a9d30e9f) Thanks [@jgannonjr](https://github.com/jgannonjr)! - Updated `WebSocketTransportSubscribe` type.
+
+- [#3681](https://github.com/wevm/viem/pull/3681) [`628e05f8abeee4ecd2280e18d409acc2d29201db`](https://github.com/wevm/viem/commit/628e05f8abeee4ecd2280e18d409acc2d29201db) Thanks [@ga-reth](https://github.com/ga-reth)! - Added Omni chains.
+
+- [`f16aa05dce498bb08afa24a8bcfbf49131e0647b`](https://github.com/wevm/viem/commit/f16aa05dce498bb08afa24a8bcfbf49131e0647b) Thanks [@jxom](https://github.com/jxom)! - Reverted [530f0f1](https://github.com/wevm/viem/commit/530f0f1693983c7de1676873f9f234033e5267e1).
+
+- [#3688](https://github.com/wevm/viem/pull/3688) [`d88a55b8f41c928767f1cbc2fa82d04e4ca9e3a3`](https://github.com/wevm/viem/commit/d88a55b8f41c928767f1cbc2fa82d04e4ca9e3a3) Thanks [@jgalat](https://github.com/jgalat)! - Fixed ordering of decoded arguments in `decodeEventLog`.
+
 ## 2.30.5
 
 ### Patch Changes
