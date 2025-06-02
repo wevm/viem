@@ -57,7 +57,7 @@ export type EstimateGasParameters<
         blockNumber?: undefined
         /**
          * The balance of the account at a block tag.
-         * @default 'pending'
+         * @default 'latest'
          */
         blockTag?: BlockTag | undefined
       }
@@ -194,7 +194,7 @@ export async function estimateGas<
       return client.request({
         method: 'eth_estimateGas',
         params: rpcStateOverride
-          ? [request, block ?? 'pending', rpcStateOverride]
+          ? [request, block ?? 'latest', rpcStateOverride]
           : block
             ? [request, block]
             : [request],

@@ -183,7 +183,7 @@ export async function simulateBlocks<
 ): Promise<SimulateBlocksReturnType<calls>> {
   const {
     blockNumber,
-    blockTag = 'pending',
+    blockTag = 'latest',
     blocks,
     returnFullTransactions,
     traceTransfers,

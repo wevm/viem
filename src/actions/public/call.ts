@@ -104,7 +104,7 @@ export type CallParameters<
         blockNumber?: undefined
         /**
          * The balance of the account at a block tag.
-         * @default 'pending'
+         * @default 'latest'
          */
         blockTag?: BlockTag | undefined
       }
@@ -160,7 +160,7 @@ export async function call<chain extends Chain | undefined>(
     authorizationList,
     batch = Boolean(client.batch?.multicall),
     blockNumber,
-    blockTag = 'pending',
+    blockTag = 'latest',
     accessList,
     blobs,
     blockOverrides,
@@ -351,7 +351,7 @@ async function scheduleMulticall<chain extends Chain | undefined>(
     typeof client.batch?.multicall === 'object' ? client.batch.multicall : {}
   const {
     blockNumber,
-    blockTag = 'pending',
+    blockTag = 'latest',
     data,
     multicallAddress: multicallAddress_,
     to,
