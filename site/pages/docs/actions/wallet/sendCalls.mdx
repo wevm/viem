@@ -330,6 +330,35 @@ const { id } = await walletClient.sendCalls({
 })
 ```
 
+When calling functions on contracts, it may be more convenient to pass in a [Contract Call](#contract-calls), providing the the `abi`, `functionName`, and `args` properties which will then be encoded into the appropriate `calls.data`.
+
+```ts twoslash
+import { parseAbi } from 'viem'
+import { walletClient } from './config'
+
+const abi = parseAbi([
+  'function approve(address, uint256) returns (bool)',
+])
+ 
+const { id } = await walletClient.sendCalls({
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: parseEther('1')
+    },
+    {
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      abi, // [!code focus:6]
+      functionName: 'approve',
+      args: [
+        '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', 
+        100n
+      ],
+    }
+  ],
+})
+```
+
 #### calls.to
 
 - **Type:** `Address`
