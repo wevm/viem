@@ -6,7 +6,7 @@ description: An Overview of EIP-7702
 
 EIP-7702 is a proposal to add a new Transaction type to allow an EOA to designate a Smart Contract as its "implementation".
 
-The main difference between an EIP-7702 Transaction and other transactions is the inclusion of a **"authorization list"** property, a set of `(chain_id, contract_address, nonce, y_parity, r, s)` tuples that depict what Contracts should be delegated onto the Externally Owned Account. 
+The main difference between an EIP-7702 Transaction and other transactions is the inclusion of an **"authorization list"** property, a set of `(chain_id, contract_address, nonce, y_parity, r, s)` tuples that depict what Contracts should be delegated onto the Externally Owned Account. 
 
 :::note
 In Viem, you won't need to worry about constructing these Authorization Tuples manually as you can use [`signAuthorization`](/docs/eip7702/signAuthorization) to generate them and use them in [Transaction APIs](/docs/eip7702/contract-writes).
