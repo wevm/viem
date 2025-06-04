@@ -34,6 +34,12 @@ export type HttpTransportConfig<
         batchSize?: number | undefined
         /** The maximum number of milliseconds to wait before sending a batch. @default 0 */
         wait?: number | undefined
+        /**
+         * Send one batch per `wait` milliseconds if the batch size is reached. By default, multiple batches are sent at once each `wait` milliseconds.
+         *
+         * Warning: This can lead to a high number of pending requests if the batch size is constantly exceeded without enough time to clear the queue.
+         * @default false */
+        waitAsRateLimit?: boolean | undefined
       }
     | undefined
   /**
@@ -102,9 +108,13 @@ export function http<
     retryDelay,
     raw,
   } = config
+
   return ({ chain, retryCount: retryCount_, timeout: timeout_ }) => {
-    const { batchSize = 1000, wait = 0 } =
-      typeof batch === 'object' ? batch : {}
+    const {
+      batchSize = 1000,
+      wait = 0,
+      waitAsRateLimit = false,
+    } = typeof batch === 'object' ? batch : {}
     const retryCount = config.retryCount ?? retryCount_
     const timeout = timeout_ ?? config.timeout ?? 10_000
     const url_ = url || chain?.rpcUrls.default.http[0]
@@ -128,9 +138,8 @@ export function http<
           const { schedule } = createBatchScheduler({
             id: url_,
             wait,
-            shouldSplitBatch(requests) {
-              return requests.length > batchSize
-            },
+            getBatchSize: () => batchSize,
+            waitAsRateLimit,
             fn: (body: RpcRequest[]) =>
               rpcClient.request({
                 body,

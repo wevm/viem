@@ -20,8 +20,9 @@ type CreateBatchSchedulerArguments<
 > = {
   fn: (args: parameters[]) => Promise<returnType>
   id: number | string
-  shouldSplitBatch?: ((args: parameters[]) => boolean) | undefined
+  getBatchSize?: ((args: parameters[]) => number) | undefined
   wait?: number | undefined
+  waitAsRateLimit?: boolean
   sort?: BatchResultsCompareFn<returnType[number]> | undefined
 }
 
@@ -46,55 +47,74 @@ export function createBatchScheduler<
 >({
   fn,
   id,
-  shouldSplitBatch,
+  getBatchSize,
   wait = 0,
+  waitAsRateLimit = false,
   sort,
 }: CreateBatchSchedulerArguments<
   parameters,
   returnType
 >): CreateBatchSchedulerReturnType<parameters, returnType> {
   const exec = async () => {
-    const scheduler = getScheduler()
-    flush()
+    const items = getBatchItems()
+    const args = items.map(({ args }) => args)
 
-    const args = scheduler.map(({ args }) => args)
-
-    if (args.length === 0) return
+    if (args.length === 0) {
+      flush()
+      return
+    }
 
     fn(args as parameters[])
       .then((data) => {
         if (sort && Array.isArray(data)) data.sort(sort)
-        for (let i = 0; i < scheduler.length; i++) {
-          const { resolve } = scheduler[i]
+        for (let i = 0; i < items.length; i++) {
+          const { resolve } = items[i]
           resolve?.([data[i], data])
+        }
+
+        if (waitAsRateLimit) {
+          if (args.length === 0) {
+            flush()
+            return
+          }
+          setTimeout(() => {
+            clearBatchItems(items.length)
+            exec()
+          }, wait)
+          return
         }
       })
       .catch((err) => {
-        for (let i = 0; i < scheduler.length; i++) {
-          const { reject } = scheduler[i]
+        for (let i = 0; i < items.length; i++) {
+          const { reject } = items[i]
           reject?.(err)
         }
       })
+
+    if (!waitAsRateLimit) {
+      clearBatchItems(items.length)
+      exec()
+    }
   }
 
   const flush = () => schedulerCache.delete(id)
 
+  const getScheduler = () => schedulerCache.get(id) || []
+  const setScheduler = (item: SchedulerItem) =>
+    schedulerCache.set(id, [...getScheduler(), item])
   const getBatchedArgs = () =>
     getScheduler().map(({ args }) => args) as parameters[]
 
-  const getScheduler = () => schedulerCache.get(id) || []
-
-  const setScheduler = (item: SchedulerItem) =>
-    schedulerCache.set(id, [...getScheduler(), item])
+  // if batchSize is undefined, it takes all items
+  const batchSize = getBatchSize?.(getBatchedArgs())
+  const getBatchItems = () => getScheduler().slice(0, batchSize)
+  const clearBatchItems = (amount: number) =>
+    schedulerCache.set(id, getScheduler().slice(amount))
 
   return {
     flush,
     async schedule(args: parameters) {
       const { promise, resolve, reject } = withResolvers()
-
-      const split = shouldSplitBatch?.([...getBatchedArgs(), args])
-
-      if (split) exec()
 
       const hasActiveScheduler = getScheduler().length > 0
       if (hasActiveScheduler) {
