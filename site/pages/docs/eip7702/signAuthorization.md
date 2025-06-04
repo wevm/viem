@@ -8,7 +8,7 @@ Signs an [EIP-7702 Authorization](https://eips.ethereum.org/EIPS/eip-7702). The 
 
 ## Usage
 
-A Contract can be authorized by supplying a `contractAddress`. By default, it will be signed over the Account's next available Nonce and the current Chain ID. You can also [explicitly set the `nonce` and `chainId`](#scoping).
+A Contract can be authorized by supplying a `contractAddress`. By default, it will be signed over the Account's next available Nonce and the current Chain ID. You can also [explicitly set the `nonce` and `chainId`](#scoping)
 
 :::code-group
 
