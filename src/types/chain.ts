@@ -28,6 +28,8 @@ export type Chain<
         default: ChainBlockExplorer
       }
     | undefined
+  /** Block time in milliseconds. */
+  blockTime?: number | undefined
   /** Collection of contracts */
   contracts?:
     | Prettify<
