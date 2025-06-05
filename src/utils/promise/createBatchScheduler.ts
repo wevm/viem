@@ -71,18 +71,6 @@ export function createBatchScheduler<
           const { resolve } = items[i]
           resolve?.([data[i], data])
         }
-
-        if (waitAsRateLimit) {
-          if (args.length === 0) {
-            flush()
-            return
-          }
-          setTimeout(() => {
-            clearBatchItems(items.length)
-            exec()
-          }, wait)
-          return
-        }
       })
       .catch((err) => {
         for (let i = 0; i < items.length; i++) {
@@ -91,10 +79,16 @@ export function createBatchScheduler<
         }
       })
 
-    if (!waitAsRateLimit) {
-      clearBatchItems(items.length)
-      exec()
+    if (waitAsRateLimit) {
+      setTimeout(() => {
+        clearBatchItems(items.length)
+        exec()
+      }, wait)
+      return
     }
+
+    clearBatchItems(items.length)
+    exec()
   }
 
   const flush = () => schedulerCache.delete(id)
