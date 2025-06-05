@@ -5,10 +5,10 @@
 :::
 
 MetaMask Smart Account has two types of implementations, each offering unique features 
-and use cases. See [Hybrid Smart Account](https://docs.gator.metamask.io/how-to/create-smart-account/configure-accounts-signers#configure-a-hybrid-smart-account) and [MultiSig Smart Account](https://docs.gator.metamask.io/how-to/create-smart-account/configure-accounts-signers#configure-a-multisig-smart-account) to learn more about 
+and use cases. See [Hybrid Smart Account](https://docs.gator.metamask.io/how-to/create-smart-account/configure-accounts-signers#configure-a-hybrid-smart-account) and [Multisig Smart Account](https://docs.gator.metamask.io/how-to/create-smart-account/configure-accounts-signers#configure-a-multisig-smart-account) to learn more about 
 the implementations.
 
-To implement MetaMask Smart Account, you can use the [`toMetaMaskSamrtAccount`](https://docs.gator.metamask.io/how-to/create-smart-account#create-a-metamasksmartaccount) function from [delegation toolkit](https://docs.gator.metamask.io).
+To implement MetaMask Smart Account, you can use the [`toMetaMaskSmartAccount`](https://docs.gator.metamask.io/how-to/create-smart-account#create-a-metamasksmartaccount) function from [delegation toolkit](https://docs.gator.metamask.io).
 
 ## Install
 
