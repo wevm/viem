@@ -70,7 +70,7 @@ export type ClientConfig<
   name?: string | undefined
   /**
    * Frequency (in ms) for polling enabled actions & events.
-   * @default 4_000
+   * @default chain.blockTime ?? 4_000
    */
   pollingInterval?: number | undefined
   /**
@@ -216,15 +216,18 @@ export function createClient<
 export function createClient(parameters: ClientConfig): Client {
   const {
     batch,
-    cacheTime = parameters.pollingInterval ?? 4_000,
+    chain,
     ccipRead,
     key = 'base',
     name = 'Base Client',
-    pollingInterval = 4_000,
     type = 'base',
   } = parameters
 
-  const chain = parameters.chain
+  const blockTime_ms = chain?.blockTime ?? 12_000
+  const pollingInterval =
+    parameters.pollingInterval ?? Math.floor(blockTime_ms / 3)
+  const cacheTime = parameters.cacheTime ?? pollingInterval
+
   const account = parameters.account
     ? parseAccount(parameters.account)
     : undefined
