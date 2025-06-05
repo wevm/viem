@@ -75,14 +75,6 @@ const client = createPublicClient({
     },
   }),
 })
-// ---cut---
-// Each batch will be sent at most once every 100 milliseconds.
-const [blockNumber, balance, ensName] = await Promise.all([
-  client.getBlockNumber(),
-  client.getBalance({ address: '0xd2135CfB216b74109775236E36d4b433F1DF507B' }),
-  client.getEnsName({ address: '0xd2135CfB216b74109775236E36d4b433F1DF507B' }),
-  // client.get....
-]);
 ```
 
 ## Parameters
