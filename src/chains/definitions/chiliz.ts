@@ -21,10 +21,10 @@ export const chiliz = /*#__PURE__*/ defineChain({
       apiUrl: 'https://scan.chiliz.com/api',
     },
   },
-   contracts: {
+  contracts: {
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 8080847,
     },
-  }
+  },
 })
