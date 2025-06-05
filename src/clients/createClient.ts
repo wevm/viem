@@ -70,7 +70,7 @@ export type ClientConfig<
   name?: string | undefined
   /**
    * Frequency (in ms) for polling enabled actions & events.
-   * @default chain.blockTime ?? 4_000
+   * @default chain.blockTime / 3
    */
   pollingInterval?: number | undefined
   /**
