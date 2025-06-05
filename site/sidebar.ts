@@ -1223,6 +1223,10 @@ export const sidebar = {
                 link: '/account-abstraction/accounts/smart/toCoinbaseSmartAccount',
               },
               {
+                text: 'MetaMask',
+                link: '/account-abstraction/accounts/smart/toMetaMaskSmartAccount',
+              },
+              {
                 text: 'Thirdweb',
                 link: '/account-abstraction/accounts/smart/toThirdwebSmartAccount',
               },
