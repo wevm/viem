@@ -43,7 +43,7 @@ export type ClientConfig<
     | undefined
   /**
    * Time (in ms) that cached data will remain in memory.
-   * @default 4_000
+   * @default chain.blockTime / 3
    */
   cacheTime?: number | undefined
   /**
@@ -223,9 +223,9 @@ export function createClient(parameters: ClientConfig): Client {
     type = 'base',
   } = parameters
 
-  const blockTime_ms = chain?.blockTime ?? 12_000
+  const blockTime = chain?.blockTime ?? 12_000
   const pollingInterval =
-    parameters.pollingInterval ?? Math.floor(blockTime_ms / 3)
+    parameters.pollingInterval ?? Math.floor(blockTime / 3)
   const cacheTime = parameters.cacheTime ?? pollingInterval
 
   const account = parameters.account
