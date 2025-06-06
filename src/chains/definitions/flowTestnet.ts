@@ -26,4 +26,5 @@ export const flowTestnet = /*#__PURE__*/ defineChain({
     },
   },
   testnet: true,
+  blockTime: 800,
 })
