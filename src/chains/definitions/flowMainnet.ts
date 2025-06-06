@@ -25,4 +25,5 @@ export const flowMainnet = /*#__PURE__*/ defineChain({
       blockCreated: 6205,
     },
   },
+  blockTime: 800,
 })
