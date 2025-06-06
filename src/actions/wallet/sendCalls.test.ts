@@ -298,7 +298,6 @@ test('behavior: inferred account', async () => {
   })
 
   const { id } = await sendCalls(client, {
-    account: null,
     chain: mainnet,
     calls: [
       {
@@ -636,45 +635,6 @@ describe('behavior: eth_sendTransaction fallback', () => {
     })
     expect(response.id).toBeDefined()
   })
-})
-
-test('error: no account', async () => {
-  const requests: unknown[] = []
-
-  const client = getClient({
-    chain: mainnet,
-    onRequest({ params }) {
-      requests.push(params)
-    },
-  })
-
-  await expect(() =>
-    // @ts-expect-error
-    sendCalls(client, {
-      calls: [
-        {
-          to: accounts[1].address,
-          value: parseEther('1'),
-        },
-        {
-          to: accounts[2].address,
-          value: parseEther('10'),
-        },
-        {
-          data: '0xcafebabe',
-          to: accounts[3].address,
-          value: parseEther('1000000'),
-        },
-      ],
-      chain: mainnet,
-    }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [AccountNotFoundError: Could not find an Account to execute with this Action.
-    Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
-
-    Docs: https://viem.sh/docs/actions/wallet/sendCalls
-    Version: viem@x.y.z]
-  `)
 })
 
 test('error: insufficient funds', async () => {

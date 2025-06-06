@@ -46,7 +46,7 @@ export type SendCallsParameters<
   forceAtomic?: boolean | undefined
   id?: string | undefined
   version?: WalletSendCallsParameters[number]['version'] | undefined
-} & GetAccountParameter<account, Account | Address, true, true>
+} & GetAccountParameter<account, Account | Address, false, true>
 
 export type SendCallsReturnType = Prettify<{
   capabilities?: ExtractCapabilities<'sendCalls', 'ReturnType'> | undefined
@@ -107,10 +107,6 @@ export async function sendCalls<
     version = '2.0.0',
   } = parameters
 
-  if (typeof account_ === 'undefined')
-    throw new AccountNotFoundError({
-      docsPath: '/docs/actions/wallet/sendCalls',
-    })
   const account = account_ ? parseAccount(account_) : null
 
   const calls = parameters.calls.map((call_: unknown) => {
