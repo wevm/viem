@@ -59,6 +59,24 @@ const [blockNumber, balance, ensName] = await Promise.all([
 ])
 ```
 
+You can also use the `waitAsRateLimit` option to send one batch per `wait` milliseconds if the batch size is reached.
+
+```ts twoslash
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http('https://1.rpc.thirdweb.com/...', {
+    batch: {
+      batchSize: 3,
+      wait: 100,
+      waitAsRateLimit: true, // [!code focus]
+    },
+  }),
+})
+```
+
 ## Parameters
 
 ### url (optional)
@@ -119,6 +137,25 @@ import { http } from 'viem'
 const transport = http('https://1.rpc.thirdweb.com/...', {
   batch: {
     wait: 16 // [!code focus]
+  }
+})
+```
+
+### batch.waitAsRateLimit (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Send one batch per `wait` milliseconds if the batch size is reached. By default, multiple batches are sent at once each `wait` milliseconds.
+
+Warning: This can lead to a high number of pending requests if the batch size is constantly exceeded without enough time to clear the queue.
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://1.rpc.thirdweb.com/...', {
+  batch: {
+    waitAsRateLimit: true // [!code focus]
   }
 })
 ```

@@ -375,9 +375,20 @@ async function scheduleMulticall<chain extends Chain | undefined>(
   const { schedule } = createBatchScheduler({
     id: `${client.uid}.${block}`,
     wait,
-    shouldSplitBatch(args) {
-      const size = args.reduce((size, { data }) => size + (data.length - 2), 0)
-      return size > batchSize * 2
+    getBatchSize: (args) => {
+      let accumulatedEffectiveSize = 0
+      let itemCount = 0
+
+      for (const item of args) {
+        const itemEffectiveSize = Math.max(0, item.data.length - 2)
+
+        if (accumulatedEffectiveSize + itemEffectiveSize > batchSize) break
+
+        accumulatedEffectiveSize += itemEffectiveSize
+        itemCount++
+      }
+
+      return itemCount
     },
     fn: async (
       requests: {
