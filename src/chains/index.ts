@@ -306,6 +306,8 @@ export { liskSepolia } from './definitions/liskSepolia.js'
 export { localhost } from './definitions/localhost.js'
 export { loop } from './definitions/loop.js'
 export { lukso } from './definitions/lukso.js'
+export { luxeports } from './definitions/luxeports.js'
+
 export { luksoTestnet } from './definitions/luksoTestnet.js'
 export { lumiaMainnet } from './definitions/lumiaMainnet.js'
 export { lumiaTestnet } from './definitions/lumiaTestnet.js'
