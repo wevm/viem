@@ -1,5 +1,23 @@
 # viem
 
+## 2.31.0
+
+### Minor Changes
+
+- [#3702](https://github.com/wevm/viem/pull/3702) [`b55ec5a6ee448367d3da844303a6f1a5bc71514a`](https://github.com/wevm/viem/commit/b55ec5a6ee448367d3da844303a6f1a5bc71514a) Thanks [@jxom](https://github.com/jxom)! - Added `blockTime` to OP Stack (2s) & ZKsync (1s) chains.
+
+- [#3702](https://github.com/wevm/viem/pull/3702) [`b55ec5a6ee448367d3da844303a6f1a5bc71514a`](https://github.com/wevm/viem/commit/b55ec5a6ee448367d3da844303a6f1a5bc71514a) Thanks [@jxom](https://github.com/jxom)! - Added `blockTime` to the `Chain` type. Polling intervals are now influenced from this property (if set).
+
+### Patch Changes
+
+- [`4b8bcc21b919addb1defe4872f7505d7d5bbc645`](https://github.com/wevm/viem/commit/4b8bcc21b919addb1defe4872f7505d7d5bbc645) Thanks [@jxom](https://github.com/jxom)! - Loosened account requirement on `sendCalls`.
+
+- [#3695](https://github.com/wevm/viem/pull/3695) [`20b1ed2a08a4728e6b6e20b4e3ce1f2124fef20d`](https://github.com/wevm/viem/commit/20b1ed2a08a4728e6b6e20b4e3ce1f2124fef20d) Thanks [@ersanyakit](https://github.com/ersanyakit)! - Added multicall3 to Chiliz chain.
+
+- [#3707](https://github.com/wevm/viem/pull/3707) [`32f30335c785d4a0a790e477ef9b732a3f09dd57`](https://github.com/wevm/viem/commit/32f30335c785d4a0a790e477ef9b732a3f09dd57) Thanks [@jribbink](https://github.com/jribbink)! - Added `blockTime` to Flow chains.
+
+- [`530928066db83540e57f8751308ebb2e557a3644`](https://github.com/wevm/viem/commit/530928066db83540e57f8751308ebb2e557a3644) Thanks [@jxom](https://github.com/jxom)! - Fixed issue where `decodeEventLog` would not check validity of the topic against the signature.
+
 ## 2.30.6
 
 ### Patch Changes
