@@ -461,8 +461,8 @@ test('behavior: cacheTime, pollingInterval based on chain.blockTime', () => {
     transport: http(),
   })
 
-  expect(client.cacheTime).toEqual(Math.floor(base.blockTime / 3))
-  expect(client.pollingInterval).toEqual(Math.floor(base.blockTime / 3))
+  expect(client.cacheTime).toEqual(Math.floor(base.blockTime / 2))
+  expect(client.pollingInterval).toEqual(Math.floor(base.blockTime / 2))
 })
 
 describe('extends', () => {

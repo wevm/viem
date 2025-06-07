@@ -224,8 +224,12 @@ export function createClient(parameters: ClientConfig): Client {
   } = parameters
 
   const blockTime = chain?.blockTime ?? 12_000
-  const pollingInterval =
-    parameters.pollingInterval ?? Math.floor(blockTime / 3)
+
+  const defaultPollingInterval = Math.min(
+    Math.max(Math.floor(blockTime / 2), 500),
+    4_000,
+  )
+  const pollingInterval = parameters.pollingInterval ?? defaultPollingInterval
   const cacheTime = parameters.cacheTime ?? pollingInterval
 
   const account = parameters.account
