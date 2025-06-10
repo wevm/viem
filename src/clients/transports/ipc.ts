@@ -27,13 +27,27 @@ type IpcTransportSubscribeReturnType = {
 
 type IpcTransportSubscribe = {
   subscribe(
-    args: IpcTransportSubscribeParameters & {
-      /**
-       * @description Add information about compiled contracts
-       * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_addcompilationresult
-       */
-      params: ['newHeads']
-    },
+    args: IpcTransportSubscribeParameters &
+      (
+        | {
+            params: ['newHeads']
+          }
+        | {
+            params: ['newPendingTransactions']
+          }
+        | {
+            params: [
+              'logs',
+              {
+                address?: Address | Address[]
+                topics?: LogTopic[]
+              },
+            ]
+          }
+        | {
+            params: ['syncing']
+          }
+      ),
   ): Promise<IpcTransportSubscribeReturnType>
 }
 
