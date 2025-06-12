@@ -155,13 +155,19 @@ export async function sendCalls<
       experimental_fallback &&
       (error.name === 'MethodNotFoundRpcError' ||
         error.name === 'MethodNotSupportedRpcError' ||
+        error.name === 'UnknownRpcError' ||
         error.details
           .toLowerCase()
           .includes('does not exist / is not available') ||
         error.details.toLowerCase().includes('missing or invalid. request()') ||
         error.details
           .toLowerCase()
-          .includes('did not match any variant of untagged enum'))
+          .includes('did not match any variant of untagged enum') ||
+        error.details
+          .toLowerCase()
+          .includes('account upgraded to unsupported contract') ||
+        error.details.toLowerCase().includes('eip-7702 not supported') ||
+        error.details.toLowerCase().includes('unsupported wc_ method'))
     ) {
       if (capabilities) {
         const hasNonOptionalCapability = Object.values(capabilities).some(
