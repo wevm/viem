@@ -2,7 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const bscTestnet = /*#__PURE__*/ defineChain({
   id: 97,
-  name: 'Binance Smart Chain Testnet',
+  name: 'BNB Smart Chain Testnet',
   nativeCurrency: {
     decimals: 18,
     name: 'BNB',
