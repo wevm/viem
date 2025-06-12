@@ -1,5 +1,15 @@
 # viem
 
+## 2.31.1
+
+### Patch Changes
+
+- [#3716](https://github.com/wevm/viem/pull/3716) [`4f5d06623a158244bacdc9a0fcf35b504e32d90d`](https://github.com/wevm/viem/commit/4f5d06623a158244bacdc9a0fcf35b504e32d90d) Thanks [@mikeki](https://github.com/mikeki)! - Updated BSC Testnet name.
+
+- [#3717](https://github.com/wevm/viem/pull/3717) [`25fcce76c41840390395b1fd86470d938507883a`](https://github.com/wevm/viem/commit/25fcce76c41840390395b1fd86470d938507883a) Thanks [@azf20](https://github.com/azf20)! - Added additional known failure cases for the sendCalls experimental fallback
+
+- [#3722](https://github.com/wevm/viem/pull/3722) [`851890821e3a7ef858d99dac05bb6fb448e31e3d`](https://github.com/wevm/viem/commit/851890821e3a7ef858d99dac05bb6fb448e31e3d) Thanks [@cc7768](https://github.com/cc7768)! - Added Blast OP Stack addresses.
+
 ## 2.31.0
 
 ### Minor Changes
