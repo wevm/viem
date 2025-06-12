@@ -49,9 +49,9 @@ import {
 import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
 import { trim } from '../data/trim.js'
 import {
+  type NumberToHexErrorType,
   bytesToHex,
   numberToHex,
-  type NumberToHexErrorType,
 } from '../encoding/toHex.js'
 import { type ToRlpErrorType, toRlp } from '../encoding/toRlp.js'
 

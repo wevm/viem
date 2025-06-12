@@ -1696,7 +1696,7 @@ test('exports abis', () => {
               "type": "address",
             },
             {
-              "name": "tokeId",
+              "name": "tokenId",
               "type": "uint256",
             },
           ],

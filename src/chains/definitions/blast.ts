@@ -30,20 +30,20 @@ export const blast = /*#__PURE__*/ defineChain({
     },
     l2OutputOracle: {
       [sourceId]: {
-        address: "0x826D1B0D4111Ad9146Eb8941D7Ca2B6a44215c76",
-        blockCreated: 19300358
-      }
+        address: '0x826D1B0D4111Ad9146Eb8941D7Ca2B6a44215c76',
+        blockCreated: 19300358,
+      },
     },
     portal: {
       [sourceId]: {
         address: '0x0Ec68c5B10F21EFFb74f2A5C61DFe6b08C0Db6Cb',
-        blockCreated: 19300357
-      }
+        blockCreated: 19300357,
+      },
     },
     l1StandardBridge: {
       [sourceId]: {
         address: '0x697402166Fbf2F22E970df8a6486Ef171dbfc524',
-        blockCreated: 19300360
+        blockCreated: 19300360,
       },
     },
   },
