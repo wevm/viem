@@ -8,10 +8,7 @@ import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
-import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
-import { getTransactionReceipt } from '../public/getTransactionReceipt.js'
 import { deployContract } from './deployContract.js'
-import { signAuthorization } from './signAuthorization.js'
 
 const client = anvilMainnet.getClient()
 const clientWithAccount = anvilMainnet.getClient({
