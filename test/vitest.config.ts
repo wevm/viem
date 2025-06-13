@@ -31,8 +31,8 @@ export default defineConfig({
     },
     environment: 'node',
     exclude: [
-      'node_modules',
-      'dist',
+      '**/node_modules/**',
+      '**/dist/**',
       '.idea',
       '.git',
       '.cache',
