@@ -65,6 +65,8 @@ type CallExtraProperties = ExactPartial<
 > & {
   /** Account attached to the call (msg.sender). */
   account?: Account | Address | undefined
+  /** Recipient. `null` if contract deployment. */
+  to?: Address | null | undefined
 }
 
 export type SimulateBlocksParameters<
@@ -262,7 +264,7 @@ export async function simulateBlocks<
           if (!error) return undefined
           return getContractError(error, {
             abi: (abi ?? []) as Abi,
-            address: to,
+            address: to ?? '0x',
             args,
             functionName: functionName ?? '<unknown>',
           })

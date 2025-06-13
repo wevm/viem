@@ -1,25 +1,30 @@
 import type { AbiStateMutability, Address } from 'abitype'
 import type { Hex } from './misc.js'
 import type { GetMulticallContractParameters } from './multicall.js'
-import type { OneOf, Prettify } from './utils.js'
+import type { Assign, OneOf, Prettify } from './utils.js'
 
 export type Call<
   call = unknown,
   extraProperties extends Record<string, unknown> = {},
 > = OneOf<
-  | (extraProperties & {
-      data?: Hex | undefined
-      to: Address
-      value?: bigint | undefined
-    })
-  | (extraProperties &
-      (Omit<
+  | Assign<
+      {
+        data?: Hex | undefined
+        to: Address
+        value?: bigint | undefined
+      },
+      extraProperties
+    >
+  | Assign<
+      Omit<
         GetMulticallContractParameters<call, AbiStateMutability>,
         'address'
       > & {
         to: Address
         value?: bigint | undefined
-      }))
+      },
+      extraProperties
+    >
 >
 
 export type Calls<
