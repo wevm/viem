@@ -1000,6 +1000,10 @@ export const sidebar = {
           text: 'Hash',
           items: [
             {
+              text: 'isHash',
+              link: '/docs/utilities/isHash',
+            },
+            {
               text: 'keccak256',
               link: '/docs/utilities/keccak256',
             },
