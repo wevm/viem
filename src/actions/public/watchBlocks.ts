@@ -244,7 +244,7 @@ export function watchBlocks<
               getBlock,
               'getBlock',
             )({
-              blockNumber: data.blockNumber,
+              blockNumber: data.result?.number,
               includeTransactions,
             }).catch(() => {})) as GetBlockReturnType<chain>
             if (!active) return
