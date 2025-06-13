@@ -177,10 +177,12 @@ export function watchEvent<
   const enablePolling = (() => {
     if (typeof poll_ !== 'undefined') return poll_
     if (typeof fromBlock === 'bigint') return true
-    if (client.transport.type === 'webSocket') return false
+    if (client.transport.type === 'webSocket' || client.transport.type === 'ipc') return false
     if (
       client.transport.type === 'fallback' &&
-      client.transport.transports[0].config.type === 'webSocket'
+      (client.transport.transports[0].config.type === 'webSocket'
+        || client.transport.transports[0].config.type === 'ipc'
+      )
     )
       return false
     return true

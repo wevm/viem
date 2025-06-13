@@ -97,7 +97,7 @@ const unwatch = publicClient.watchPendingTransactions(
 ### poll (optional)
 
 - **Type:** `boolean`
-- **Default:** `false` for WebSocket Clients, `true` for non-WebSocket Clients
+- **Default:** `false` for WebSocket or IPC Clients, `true` for other Clients
 
 Whether or not to use a polling mechanism to check for new pending transactions instead of a WebSocket subscription.
 
@@ -143,4 +143,4 @@ const unwatch = publicClient.watchPendingTransactions(
 - When `poll: true`
   - Calls [`eth_newPendingTransactionFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newpendingtransactionfilter) to initialize the filter.
   - Calls [`eth_getFilterChanges`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getFilterChanges) on a polling interval.
-- When `poll: false` & WebSocket Transport, uses a WebSocket subscription via [`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon) and the `"newPendingTransactions"` event. 
+- When `poll: false` & WebSocket or IPC Transport, uses a socket subscription via [`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon) and the `"newPendingTransactions"` event. 

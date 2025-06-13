@@ -348,7 +348,7 @@ const unwatch = publicClient.watchEvent(
 ### poll (optional)
 
 - **Type:** `boolean`
-- **Default:** `false` for WebSocket Clients, `true` for non-WebSocket Clients
+- **Default:** `false` for WebSocket or IPC Clients, `true` for other Clients
 
 Whether or not to use a polling mechanism to check for new logs instead of a WebSocket subscription.
 
@@ -422,6 +422,6 @@ Check out the usage of `watchEvent` in the live [Event Logs Example](https://sta
 
 - Calls [`eth_getLogs`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getlogs) for each block between the polling interval.
 
-**When poll `false` and WebSocket Transport:**
+**When poll `false` and WebSocket or IPC Transport:**
 
-- Uses a WebSocket subscription via `eth_subscribe` and the "logs" event.
+- Uses a socket subscription via `eth_subscribe` and the "logs" event.

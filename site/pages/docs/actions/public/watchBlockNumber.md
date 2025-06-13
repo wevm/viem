@@ -90,7 +90,7 @@ const unwatch = publicClient.watchBlockNumber(
 ### poll (optional)
 
 - **Type:** `boolean`
-- **Default:** `false` for WebSocket Transports, `true` for non-WebSocket Transports
+- **Default:** `false` for WebSocket or IPC Transports, `true` for other Transports
 
 Whether or not to use a polling mechanism to check for new block numbers instead of a WebSocket subscription.
 
@@ -139,4 +139,4 @@ Check out the usage of `watchBlockNumber` in the live [Watch Block Numbers Examp
 ## JSON-RPC Methods
 
 - When `poll: true`, calls [`eth_blockNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_blocknumber) on a polling interval.
-- When `poll: false` & WebSocket Transport, uses a WebSocket subscription via [`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon) and the `"newHeads"` event. 
+- When `poll: false` & WebSocket or IPC Transport, uses a socket subscription via [`eth_subscribe`](https://docs.alchemy.com/reference/eth-subscribe-polygon) and the `"newHeads"` event. 
