@@ -1,5 +1,11 @@
 # viem
 
+## 2.31.3
+
+### Patch Changes
+
+- [#3736](https://github.com/wevm/viem/pull/3736) [`a4159d7c9ebda462ee88ce9f0ca3a23c5c820057`](https://github.com/wevm/viem/commit/a4159d7c9ebda462ee88ce9f0ca3a23c5c820057) Thanks [@jxom](https://github.com/jxom)! - Updated Celo blocktime from 2 seconds to 1 second to reflect the actual network block time.
+
 ## 2.31.2
 
 ### Patch Changes
