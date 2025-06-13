@@ -70,12 +70,12 @@
     "sherif": "^0.8.4",
     "simple-git-hooks": "^2.11.1",
     "size-limit": "^11.1.6",
-    "typescript": "5.8.2",
+    "typescript": "catalog:",
     "vitest": "^1.0.4"
   },
-  "packageManager": "pnpm@9.1.0",
+  "packageManager": "pnpm@10.12.1",
   "engines": {
-    "node": "23.x"
+    "node": ">=23"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm check"

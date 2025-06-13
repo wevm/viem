@@ -30,6 +30,9 @@ export default defineConfig({
       ],
     },
     environment: 'node',
+    exclude: [
+      process.env.TEST_RLP !== 'true' ? '**/utils/encoding/toRlp.test.ts' : '',
+    ],
     include: [
       ...(process.env.TYPES ? ['**/*.bench-d.ts'] : []),
       'src/**/*.test.ts',

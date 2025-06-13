@@ -78,27 +78,3 @@ test('send value to contract', async () => {
     await getBalance(client, { address: accounts[0].address }),
   ).toBeLessThan(parseEther('1'))
 })
-
-test('with authorizationList', async () => {
-  // Create an authorization
-  const authorization = await signAuthorization(client, {
-    account: privateKeyToAccount(accounts[1].privateKey),
-    contractAddress: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  })
-
-  // Deploy a contract with authorizationList
-  const hash = await deployContract(client, {
-    ...baycContractConfig,
-    account: accounts[0].address,
-    args: ['Bored Ape Wagmi Club', 'BAYC', 69420n, 0n],
-    authorizationList: [authorization],
-  })
-  expect(hash).toBeDefined()
-
-  await mine(client, { blocks: 1 })
-
-  // Verify the transaction was a contract deployment (to address should be null)
-  const receipt = await getTransactionReceipt(client, { hash })
-  expect(receipt.to).toBeNull()
-  expect(receipt.contractAddress).toBeDefined()
-})

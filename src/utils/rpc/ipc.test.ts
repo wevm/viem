@@ -64,7 +64,7 @@ describe('request', () => {
     expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.1.0",
+        "result": "anvil/v1.2.3",
       }
     `)
     expect(rpcClient.requests.size).toBe(0)
@@ -315,7 +315,7 @@ describe('requestAsync', () => {
     expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.1.0",
+        "result": "anvil/v1.2.3",
       }
     `)
     expect(client.requests.size).toBe(0)
