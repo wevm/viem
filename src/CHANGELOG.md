@@ -1,5 +1,19 @@
 # viem
 
+## 2.31.2
+
+### Patch Changes
+
+- [`72cb74da6b605a525c81d94e8d7983c02853d084`](https://github.com/wevm/viem/commit/72cb74da6b605a525c81d94e8d7983c02853d084) Thanks [@jxom](https://github.com/jxom)! - Added support for empty `to` in `simulateBlocks`.
+
+- [`7ea9e83cbe46dd0a5f0764da043fb4bbbd198f82`](https://github.com/wevm/viem/commit/7ea9e83cbe46dd0a5f0764da043fb4bbbd198f82) Thanks [@jxom](https://github.com/jxom)! - Fixed `simulateCalls` incorrectly setting nonce to 0 when using `account` parameter.
+
+- [`2f66fc1ddb119617ae511cc1cf9e1f637f29f45e`](https://github.com/wevm/viem/commit/2f66fc1ddb119617ae511cc1cf9e1f637f29f45e) Thanks [@jxom](https://github.com/jxom)! - Updated dependencies.
+
+- [`9590a0def13049b7e8467a87b5b34c6f70ced509`](https://github.com/wevm/viem/commit/9590a0def13049b7e8467a87b5b34c6f70ced509) Thanks [@jxom](https://github.com/jxom)! - Fixed watchBlocks block number reference to use data.result.number instead of data.blockNumber.
+
+- [`ac4f03600bc628bf0d8aa4eda75c2918b9f98143`](https://github.com/wevm/viem/commit/ac4f03600bc628bf0d8aa4eda75c2918b9f98143) Thanks [@jxom](https://github.com/jxom)! - Fixed async cleanup handling in `observe` to prevent unhandled promise rejections.
+
 ## 2.31.1
 
 ### Patch Changes
