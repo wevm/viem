@@ -30,6 +30,7 @@ import {
   type EncodeFunctionDataErrorType,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
+import { concat } from '../../utils/data/concat.js'
 import {
   type NumberToHexErrorType,
   numberToHex,
@@ -201,9 +202,12 @@ export async function simulateBlocks<
       const calls = block.calls.map((call_) => {
         const call = call_ as Call<unknown, CallExtraProperties>
         const account = call.account ? parseAccount(call.account) : undefined
+        const data = call.abi ? encodeFunctionData(call) : call.data
         const request = {
           ...call,
-          data: call.abi ? encodeFunctionData(call) : call.data,
+          data: call.dataSuffix
+            ? concat([data || '0x', call.dataSuffix])
+            : data,
           from: call.from ?? account?.address,
         } as const
         assertRequest(request)

@@ -120,7 +120,7 @@ export async function sendCalls<
       : call.data
 
     return {
-      data,
+      data: call.dataSuffix && data ? concat([data, call.dataSuffix]) : data,
       to: call.to,
       value: call.value ? numberToHex(call.value) : undefined,
     }
