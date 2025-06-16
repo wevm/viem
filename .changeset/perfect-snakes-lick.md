@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added dataSuffix to sendCalls and simulateBlocks
+Added dataSuffix to `sendCalls` and `simulateBlocks`.
