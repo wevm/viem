@@ -10,6 +10,7 @@ export type Call<
   | Assign<
       {
         data?: Hex | undefined
+        dataSuffix?: Hex | undefined
         to: Address
         value?: bigint | undefined
       },
@@ -22,6 +23,7 @@ export type Call<
       > & {
         to: Address
         value?: bigint | undefined
+        dataSuffix?: Hex | undefined
       },
       extraProperties
     >

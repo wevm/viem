@@ -687,3 +687,49 @@ test('error: insufficient funds', async () => {
     Version: viem@x.y.z]
   `)
 })
+
+test('args: dataSuffix', async () => {
+  const requests: unknown[] = []
+
+  const client = getClient({
+    onRequest({ params }) {
+      requests.push(params)
+    },
+  })
+
+  const response = await sendCalls(client, {
+    account: accounts[0].address,
+    chain: mainnet,
+    calls: [
+      {
+        abi: wagmiContractConfig.abi,
+        functionName: 'mint',
+        to: wagmiContractConfig.address,
+        dataSuffix: '0x12345678',
+      },
+    ],
+  })
+
+  expect(response.id).toBeDefined()
+  expect(requests).toMatchInlineSnapshot(`
+    [
+      [
+        {
+          "atomicRequired": false,
+          "calls": [
+            {
+              "data": "0x1249c58b12345678",
+              "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+              "value": undefined,
+            },
+          ],
+          "capabilities": undefined,
+          "chainId": "0x1",
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "id": undefined,
+          "version": "2.0.0",
+        },
+      ],
+    ]
+  `)
+})

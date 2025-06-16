@@ -1,5 +1,7 @@
 import { expect, test } from 'vitest'
 
+import { createPublicClient } from '~viem/clients/createPublicClient.js'
+import { custom } from '~viem/clients/transports/custom.js'
 import {
   baycContractConfig,
   usdcContractConfig,
@@ -351,4 +353,62 @@ test('behavior: contract revert', async () => {
     ]
   `,
   )
+})
+
+test('behavior: dataSuffix', async () => {
+  const requests: unknown[] = []
+
+  const client = anvilMainnet.getClient()
+
+  const proxyClient = createPublicClient({
+    chain: client.chain,
+    transport: custom({
+      async request({ method, params }) {
+        requests.push(params)
+        return client.request({ method, params })
+      },
+    }),
+  })
+
+  const result = await simulateBlocks(proxyClient, {
+    blocks: [
+      {
+        calls: [
+          {
+            abi: wagmiContractConfig.abi,
+            functionName: 'name',
+            to: wagmiContractConfig.address,
+            dataSuffix: '0x1234',
+          },
+        ],
+      },
+    ],
+  })
+
+  // validate that the dataSuffix is appended to the data in the request
+  expect(requests[0]).toMatchInlineSnapshot(`
+  [
+  {
+    "blockStateCalls": [
+      {
+        "blockOverrides": undefined,
+        "calls": [
+          {
+            "data": "0x06fdde031234",
+            "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+          },
+        ],
+        "stateOverrides": undefined,
+      },
+    ],
+    "returnFullTransactions": undefined,
+    "traceTransfers": undefined,
+    "validation": undefined,
+  },
+  "latest",
+]
+  `)
+
+  // confirm that the result is still as expected
+  expect(result[0].calls[0].result).toEqual('wagmi')
 })
