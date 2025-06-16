@@ -1,5 +1,13 @@
 # viem
 
+## 2.31.3
+
+### Patch Changes
+
+- [#3736](https://github.com/wevm/viem/pull/3736) [`a4159d7c9ebda462ee88ce9f0ca3a23c5c820057`](https://github.com/wevm/viem/commit/a4159d7c9ebda462ee88ce9f0ca3a23c5c820057) Thanks [@jxom](https://github.com/jxom)! - Updated Celo blocktime from 2 seconds to 1 second to reflect the actual network block time.
+
+- [#3741](https://github.com/wevm/viem/pull/3741) [`2d7e8fd3b3d6971f0bc3e01df3ab4068490dba1c`](https://github.com/wevm/viem/commit/2d7e8fd3b3d6971f0bc3e01df3ab4068490dba1c) Thanks [@azf20](https://github.com/azf20)! - Added dataSuffix to `sendCalls` and `simulateBlocks`.
+
 ## 2.31.2
 
 ### Patch Changes
