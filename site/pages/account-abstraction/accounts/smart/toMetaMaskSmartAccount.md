@@ -1,14 +1,14 @@
 # MetaMask Smart Account
 
 :::warning
-**Note:** This implementation is maintained & distributed by [MetaMask Delegation Toolkit](https://docs.gator.metamask.io).
+**Note:** This implementation is maintained & distributed by [MetaMask Delegation Toolkit](https://docs.metamask.io/delegation-toolkit).
 :::
 
 MetaMask Smart Account has two types of implementations, each offering unique features 
-and use cases. See [Hybrid Smart Account](https://docs.gator.metamask.io/how-to/create-smart-account/configure-accounts-signers#configure-a-hybrid-smart-account) and [Multisig Smart Account](https://docs.gator.metamask.io/how-to/create-smart-account/configure-accounts-signers#configure-a-multisig-smart-account) to learn more about 
+and use cases. See [Hybrid Smart Account](https://docs.metamask.io/delegation-toolkit/how-to/create-smart-account/configure-accounts-signers/#configure-a-hybrid-smart-account) and [Multisig Smart Account](https://docs.metamask.io/delegation-toolkit/how-to/create-smart-account/configure-accounts-signers/#configure-a-multisig-smart-account) to learn more about 
 the implementations.
 
-To implement MetaMask Smart Account, you can use the [`toMetaMaskSmartAccount`](https://docs.gator.metamask.io/how-to/create-smart-account#create-a-metamasksmartaccount) function from [delegation toolkit](https://docs.gator.metamask.io).
+To implement MetaMask Smart Account, you can use the [`toMetaMaskSmartAccount`](https://docs.metamask.io/delegation-toolkit/how-to/create-smart-account/#create-a-metamasksmartaccount) function from [delegation toolkit](https://docs.metamask.io/delegation-toolkit/).
 
 ## Install
 
@@ -74,5 +74,4 @@ export const owner = privateKeyToAccount('0x...')
 
 ## Parameters
 
-[See Parameters](https://docs.gator.metamask.io/reference/delegation-toolkit-api/smart-account#parameters-5)
-
+[See Parameters](https://docs.metamask.io/delegation-toolkit/reference/api/smart-account/#parameters-5)
