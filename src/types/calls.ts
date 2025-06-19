@@ -48,7 +48,7 @@ export type Calls<
         ? calls
         : // If `calls` is *some* array but we couldn't assign `unknown[]` to it, then it must hold some known/homogenous type!
           // use this to infer the param types in the case of Array.map() argument
-          calls extends readonly (infer call extends OneOf<Call>)[]
+          calls extends readonly (infer call extends OneOf<Call<unknown, extraProperties>>)[]
           ? readonly Prettify<call>[]
           : // Fallback
             readonly OneOf<Call>[]
