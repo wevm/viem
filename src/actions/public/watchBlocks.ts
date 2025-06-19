@@ -37,7 +37,7 @@ export type WatchBlocksParameters<
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: ((error: Error) => void) | undefined
 } & (
-  | (HasTransportType<transport, 'webSocket'> extends true
+  | (HasTransportType<transport, 'webSocket' | 'ipc'> extends true
       ? {
           blockTag?: undefined
           emitMissed?: undefined
@@ -115,10 +115,16 @@ export function watchBlocks<
 ): WatchBlocksReturnType {
   const enablePolling = (() => {
     if (typeof poll_ !== 'undefined') return poll_
-    if (client.transport.type === 'webSocket') return false
     if (
-      client.transport.type === 'fallback' &&
-      client.transport.transports[0].config.type === 'webSocket'
+      client.transport.type === 'webSocket' ||
+      client.transport.type === 'ipc'
+    )
+      return false
+    if (
+      client.transport.type === 'fallback' && (
+        client.transport.transports[0].config.type === 'webSocket' ||
+        client.transport.transports[0].config.type === 'ipc'
+      )
     )
       return false
     return true
@@ -227,7 +233,8 @@ export function watchBlocks<
           if (client.transport.type === 'fallback') {
             const transport = client.transport.transports.find(
               (transport: ReturnType<Transport>) =>
-                transport.config.type === 'webSocket',
+                transport.config.type === 'webSocket' ||
+                transport.config.type === 'ipc',
             )
             if (!transport) return client.transport
             return transport.value
