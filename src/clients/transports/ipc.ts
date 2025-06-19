@@ -31,23 +31,23 @@ type IpcTransportSubscribe = {
     args: IpcTransportSubscribeParameters &
       (
         | {
-          params: ['newHeads']
-        }
+            params: ['newHeads']
+          }
         | {
-          params: ['newPendingTransactions']
-        }
+            params: ['newPendingTransactions']
+          }
         | {
-          params: [
-            'logs',
-            {
-              address?: Address | Address[]
-              topics?: LogTopic[]
-            },
-          ]
-        }
+            params: [
+              'logs',
+              {
+                address?: Address | Address[]
+                topics?: LogTopic[]
+              },
+            ]
+          }
         | {
-          params: ['syncing']
-        }
+            params: ['syncing']
+          }
       ),
   ): Promise<IpcTransportSubscribeReturnType>
 }
