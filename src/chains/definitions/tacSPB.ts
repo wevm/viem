@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const arbitrumSepolia = /*#__PURE__*/ defineChain({
+export const tacSPB = /*#__PURE__*/ defineChain({
   id: 2_391,
   name: 'TAC SPB Testnet',
   nativeCurrency: {

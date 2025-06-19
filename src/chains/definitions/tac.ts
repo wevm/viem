@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const arbitrum = /*#__PURE__*/ defineChain({
+export const tac = /*#__PURE__*/ defineChain({
   id: 239,
   name: 'TAC',
   nativeCurrency: { name: 'TAC', symbol: 'TAC', decimals: 18 },
