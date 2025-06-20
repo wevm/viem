@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-fix: correct eth_createAccessList method documentation in eip1193 types
+Corrected `eth_createAccessList` JSDoc in EIP-1193 types.
