@@ -662,11 +662,14 @@ export type PublicRpcSchema = [
     ReturnType: Hex
   },
   /**
-   * @description Executes a new message call immediately without submitting a transaction to the network
+   * @description Creates an EIP-2930 access list that can be included in a transaction.
    *
    * @example
-   * provider.request({ method: 'eth_call', params: [{ to: '0x...', data: '0x...' }] })
-   * // => '0x...'
+   * provider.request({ method: 'eth_createAccessList', params: [{ to: '0x...', data: '0x...' }] })
+   * // => {
+   * //   accessList: ['0x...', '0x...'],
+   * //   gasUsed: '0x123',
+   * // }
    */
   {
     Method: 'eth_createAccessList'
