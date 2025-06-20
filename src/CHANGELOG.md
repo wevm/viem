@@ -1,5 +1,21 @@
 # viem
 
+## 2.31.4
+
+### Patch Changes
+
+- [#3744](https://github.com/wevm/viem/pull/3744) [`4842ee5b46f2b1d7f130a879b7267883365f2d26`](https://github.com/wevm/viem/commit/4842ee5b46f2b1d7f130a879b7267883365f2d26) Thanks [@PaulRBerg](https://github.com/PaulRBerg)! - Added multicall3 to Chiliz and Morph.
+
+- [#3751](https://github.com/wevm/viem/pull/3751) [`ca1e87c70af644dc6b9d5bd498fbc1e171891ca1`](https://github.com/wevm/viem/commit/ca1e87c70af644dc6b9d5bd498fbc1e171891ca1) Thanks [@Iretse](https://github.com/Iretse)! - Fixed inferrence on `Calls` type.
+
+- [#3748](https://github.com/wevm/viem/pull/3748) [`e5d6a4b2a5b328830a2e26352f5be888b2e6a511`](https://github.com/wevm/viem/commit/e5d6a4b2a5b328830a2e26352f5be888b2e6a511) Thanks [@croll83](https://github.com/croll83)! - Added TAC and TAC SPB Testnet chains.
+
+- [#3745](https://github.com/wevm/viem/pull/3745) [`08566af344c7c5cb3d79c959943ad6aefc89f092`](https://github.com/wevm/viem/commit/08566af344c7c5cb3d79c959943ad6aefc89f092) Thanks [@emmaodia](https://github.com/emmaodia)! - Updated somniaTestnet Multicall3
+
+- [#3750](https://github.com/wevm/viem/pull/3750) [`681208ac89660e730a0f657a265103426f426494`](https://github.com/wevm/viem/commit/681208ac89660e730a0f657a265103426f426494) Thanks [@Iretse](https://github.com/Iretse)! - Made `ipc` reach parity with `webSocket` for action options.
+
+- [#3755](https://github.com/wevm/viem/pull/3755) [`a19f1dd7be9aa73006b03b550ea53c1cfb167600`](https://github.com/wevm/viem/commit/a19f1dd7be9aa73006b03b550ea53c1cfb167600) Thanks [@mmv08](https://github.com/mmv08)! - Corrected `eth_createAccessList` JSDoc in EIP-1193 types.
+
 ## 2.31.3
 
 ### Patch Changes
