@@ -20,8 +20,8 @@ export const xrplevm = /*#__PURE__*/ defineChain({
   },
   contracts: {
     multicall3: {
-      address: '0x82Cc144D7d0AD4B1c27cb41420e82b82Ad6e9B31', // missing deployment
-      blockCreated: 492302,
+      address: '0x6B5eFbC0C82eBb26CA13a4F11836f36Fc6fdBC5D',
+      blockCreated: 912208,
     },
   },
   testnet: false,
