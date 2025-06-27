@@ -1,5 +1,11 @@
 # viem
 
+## 2.31.5
+
+### Patch Changes
+
+- [#3762](https://github.com/wevm/viem/pull/3762) [`08061b6f9c1b74e018e7d7288d4dccd6781fd7ae`](https://github.com/wevm/viem/commit/08061b6f9c1b74e018e7d7288d4dccd6781fd7ae) Thanks [@adraffy](https://github.com/adraffy)! - Added support for recursion in ENS local batch gateway.
+
 ## 2.31.4
 
 ### Patch Changes
