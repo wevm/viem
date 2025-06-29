@@ -64,7 +64,7 @@ The ABI encoded data.
 
 The set of ABI parameters to encode, in the shape of the `inputs` or `outputs` attribute of an ABI event/function.
 
-These parameters must include valid [ABI types](https://docs.soliditylang.org/en/develop/abi-spec#types).
+These parameters must include valid [ABI types](https://docs.soliditylang.org/en/latest/abi-spec.html#types).
 
 ```ts
 encodeAbiParameters(
