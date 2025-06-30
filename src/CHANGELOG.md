@@ -1,5 +1,11 @@
 # viem
 
+## 2.31.6
+
+### Patch Changes
+
+- [`ceb4dbbd4c8cd858b2d803bcaad1bfe470cbffae`](https://github.com/wevm/viem/commit/ceb4dbbd4c8cd858b2d803bcaad1bfe470cbffae) Thanks [@jxom](https://github.com/jxom)! - Fixed narrowing of event args type.
+
 ## 2.31.5
 
 ### Patch Changes
