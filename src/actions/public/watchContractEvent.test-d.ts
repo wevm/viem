@@ -14,9 +14,6 @@ test('defined inline', () => {
     abi: usdcContractConfig.abi,
     onLogs(logs) {
       expectTypeOf(logs[0].args).toEqualTypeOf<
-        // TODO: Remove `readonly unknown[] | Record<string, unknown>`
-        | readonly unknown[]
-        | Record<string, unknown>
         | {
             owner?: Address | undefined
             spender?: Address | undefined
