@@ -17,7 +17,7 @@ export const fraxtal = /*#__PURE__*/ defineChain({
     default: {
       name: 'fraxscan',
       url: 'https://fraxscan.com',
-      apiUrl: 'https://api.fraxscan.com/api',
+      apiUrl: 'https://api.etherscan.io/v2/api?chainid=252',
     },
   },
   contracts: {

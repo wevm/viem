@@ -19,7 +19,7 @@ export const blast = /*#__PURE__*/ defineChain({
     default: {
       name: 'Blastscan',
       url: 'https://blastscan.io',
-      apiUrl: 'https://api.blastscan.io/api',
+      apiUrl: 'https://api.etherscan.io/v2/api?chainid=81457',
     },
   },
   contracts: {

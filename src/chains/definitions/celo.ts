@@ -17,7 +17,7 @@ export const celo = /*#__PURE__*/ defineChain({
     default: {
       name: 'Celo Explorer',
       url: 'https://celoscan.io',
-      apiUrl: 'https://api.celoscan.io/api',
+      apiUrl: 'https://api.etherscan.io/v2/api?chainid=42220',
     },
   },
   contracts: {

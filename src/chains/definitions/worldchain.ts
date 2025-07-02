@@ -16,7 +16,7 @@ export const worldchain = /*#__PURE__*/ defineChain({
     default: {
       name: 'Worldscan',
       url: 'https://worldscan.org',
-      apiUrl: 'https://api.worldscan.org/api',
+      apiUrl: 'https://api.worldscan.org/v2/api?chainid=480',
     },
     blockscout: {
       name: 'Blockscout',

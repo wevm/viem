@@ -18,7 +18,7 @@ export const taiko = /*#__PURE__*/ defineChain({
     default: {
       name: 'Taikoscan',
       url: 'https://taikoscan.io',
-      apiUrl: 'https://api.taikoscan.io/api',
+      apiUrl: 'https://api.etherscan.io/v2/api?chainid=167000',
     },
   },
   contracts: {

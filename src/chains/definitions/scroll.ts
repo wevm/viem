@@ -14,7 +14,7 @@ export const scroll = /*#__PURE__*/ defineChain({
     default: {
       name: 'Scrollscan',
       url: 'https://scrollscan.com',
-      apiUrl: 'https://api.scrollscan.com/api',
+      apiUrl: 'https://api.etherscan.io/v2/api?chainid=534352',
     },
   },
   contracts: {

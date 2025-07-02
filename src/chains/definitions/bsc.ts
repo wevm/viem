@@ -15,7 +15,7 @@ export const bsc = /*#__PURE__*/ defineChain({
     default: {
       name: 'BscScan',
       url: 'https://bscscan.com',
-      apiUrl: 'https://api.bscscan.com/api',
+      apiUrl: 'https://api.etherscan.io/v2/api?chainid=52',
     },
   },
   contracts: {

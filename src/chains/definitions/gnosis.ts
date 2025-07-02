@@ -18,7 +18,7 @@ export const gnosis = /*#__PURE__*/ defineChain({
     default: {
       name: 'Gnosisscan',
       url: 'https://gnosisscan.io',
-      apiUrl: 'https://api.gnosisscan.io/api',
+      apiUrl: 'https://api.etherscan.io/v2/api?chainid=100',
     },
   },
   contracts: {

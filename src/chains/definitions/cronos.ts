@@ -15,7 +15,7 @@ export const cronos = /*#__PURE__*/ defineChain({
     default: {
       name: 'Cronos Explorer',
       url: 'https://explorer.cronos.org',
-      apiUrl: 'https://explorer-api.cronos.org/mainnet/api',
+      apiUrl: 'https://api.etherscan.io/v2/api?chainid=25',
     },
   },
   contracts: {

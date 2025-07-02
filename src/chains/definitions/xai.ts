@@ -13,6 +13,7 @@ export const xai = /*#__PURE__*/ defineChain({
     default: {
       name: 'Blockscout',
       url: 'https://explorer.xai-chain.net',
+      apiUrl: 'https://api.etherscan.io/v2/api?chainid=660279',
     },
   },
   contracts: {

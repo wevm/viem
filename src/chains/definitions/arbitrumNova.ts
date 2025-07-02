@@ -13,7 +13,7 @@ export const arbitrumNova = /*#__PURE__*/ defineChain({
     default: {
       name: 'Arbiscan',
       url: 'https://nova.arbiscan.io',
-      apiUrl: 'https://api-nova.arbiscan.io/api',
+      apiUrl: 'https://api.etherscan.io/v2/api?chainid=42170',
     },
   },
   contracts: {

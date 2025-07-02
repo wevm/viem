@@ -18,7 +18,7 @@ export const opBNB = /*#__PURE__*/ defineChain({
     default: {
       name: 'opBNB (BSCScan)',
       url: 'https://opbnb.bscscan.com',
-      apiUrl: 'https://api-opbnb.bscscan.com/api',
+      apiUrl: 'https://api.etherscan.io/v2/api?chainid=204',
     },
   },
   contracts: {

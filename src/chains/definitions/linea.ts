@@ -16,7 +16,7 @@ export const linea = /*#__PURE__*/ defineChain({
     default: {
       name: 'Etherscan',
       url: 'https://lineascan.build',
-      apiUrl: 'https://api.lineascan.build/api',
+      apiUrl: 'https://api.etherscan.io/v2/api?chainid=59144',
     },
   },
   contracts: {

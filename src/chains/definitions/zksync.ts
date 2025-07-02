@@ -21,7 +21,7 @@ export const zksync = /*#__PURE__*/ defineChain({
     default: {
       name: 'Etherscan',
       url: 'https://era.zksync.network/',
-      apiUrl: 'https://api-era.zksync.network/api',
+      apiUrl: 'https://api.etherscan.io/v2/api?chainid=324',
     },
     native: {
       name: 'ZKsync Explorer',
