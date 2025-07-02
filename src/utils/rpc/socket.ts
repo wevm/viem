@@ -12,6 +12,7 @@ type Id = string | number
 type CallbackFn = {
   onResponse: (message: any) => void
   onError?: ((error?: Error | Event | undefined) => void) | undefined
+  body?: RpcRequest
 }
 type CallbackMap = Map<Id, CallbackFn>
 
@@ -196,6 +197,17 @@ export async function getSocketRpcClient<socket extends {}>(
           keepAliveTimer = setInterval(() => socket.ping?.(), keepAliveInterval)
         }
 
+        if (reconnect && reconnectCount > 0) {
+          subscriptions.clear()
+          const requestEntries = requests.entries()
+          for (const [key, { onResponse, body, onError }] of requestEntries) {
+            if (!body) continue
+
+            requests.delete(key)
+            socketClient?.request({ body, onResponse, onError })
+          }
+        }
+
         return result
       }
       await setup()
@@ -237,7 +249,7 @@ export async function getSocketRpcClient<socket extends {}>(
             onResponse(response)
           }
 
-          requests.set(id, { onResponse: callback, onError })
+          requests.set(id, { onResponse: callback, onError, body })
           try {
             socket.request({
               body: {
