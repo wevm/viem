@@ -12,6 +12,7 @@ type Id = string | number
 type CallbackFn = {
   onResponse: (message: any) => void
   onError?: ((error?: Error | Event | undefined) => void) | undefined
+  body?: RpcRequest
 }
 type CallbackMap = Map<Id, CallbackFn>
 
@@ -108,7 +109,9 @@ export async function getSocketRpcClient<socket extends {}>(
   const { attempts = 5, delay = 2_000 } =
     typeof reconnect === 'object' ? reconnect : {}
 
-  let socketClient = socketClientCache.get(`${key}:${url}`)
+  let socketClient = socketClientCache.get(
+    JSON.stringify({ keepAlive, key, url, reconnect }),
+  )
 
   // If the socket already exists, return it.
   if (socketClient) return socketClient as {} as SocketRpcClient<socket>
@@ -196,6 +199,19 @@ export async function getSocketRpcClient<socket extends {}>(
           keepAliveTimer = setInterval(() => socket.ping?.(), keepAliveInterval)
         }
 
+        if (reconnect && subscriptions.size > 0) {
+          const subscriptionEntries = subscriptions.entries()
+          for (const [
+            key,
+            { onResponse, body, onError },
+          ] of subscriptionEntries) {
+            if (!body) continue
+
+            subscriptions.delete(key)
+            socketClient?.request({ body, onResponse, onError })
+          }
+        }
+
         return result
       }
       await setup()
@@ -228,6 +244,7 @@ export async function getSocketRpcClient<socket extends {}>(
               subscriptions.set(response.result, {
                 onResponse: callback,
                 onError,
+                body,
               })
 
             // If we are unsubscribing from a topic, we want to remove the listener.

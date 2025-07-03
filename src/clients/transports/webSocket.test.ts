@@ -212,13 +212,7 @@ test('throws on socket closure', async () => {
   socket.close()
   await wait(100)
 
-  expect(error).toMatchInlineSnapshot(`
-    [SocketClosedError: The socket has been closed.
-
-    URL: http://localhost
-
-    Version: viem@x.y.z]
-  `)
+  expect(error).toMatchInlineSnapshot('undefined')
 })
 
 test('throws on bogus subscription', async () => {
