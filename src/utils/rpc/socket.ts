@@ -109,7 +109,9 @@ export async function getSocketRpcClient<socket extends {}>(
   const { attempts = 5, delay = 2_000 } =
     typeof reconnect === 'object' ? reconnect : {}
 
-  let socketClient = socketClientCache.get(`${key}:${url}`)
+  let socketClient = socketClientCache.get(
+    JSON.stringify({ keepAlive, key, url, reconnect }),
+  )
 
   // If the socket already exists, return it.
   if (socketClient) return socketClient as {} as SocketRpcClient<socket>

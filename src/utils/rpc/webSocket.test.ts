@@ -57,6 +57,133 @@ describe('getWebSocketRpcClient', () => {
     await wait(500)
     expect(spy).toHaveBeenCalledTimes(4)
   })
+
+  test('subscriptions persist after reconnect', async () => {
+    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws, {
+      reconnect: { delay: 100, attempts: 5 },
+    })
+
+    // Set up subscription tracking
+    const subscriptionResponses: RpcResponse[] = []
+
+    // Create a subscription
+    await new Promise<void>((resolve) => {
+      socketClient.request({
+        body: {
+          method: 'eth_subscribe',
+          params: ['newHeads'],
+        },
+        onResponse: (data) => {
+          if (data.result) resolve()
+          else if (data.method === 'eth_subscription')
+            subscriptionResponses.push(data)
+        },
+      })
+    })
+
+    // Verify subscription is active
+    expect(socketClient.subscriptions.size).toBe(1)
+
+    // Mine a block to trigger subscription notification
+    await mine(client, { blocks: 1 })
+    await wait(200)
+
+    const responsesBeforeDisconnect = subscriptionResponses.length
+    expect(responsesBeforeDisconnect).toBeGreaterThan(0)
+
+    // // Simulate connection drop by closing the socket
+    const originalSocket = socketClient.socket
+    originalSocket.close()
+
+    // // Wait for reconnection
+    await wait(300)
+
+    // Verify socket has reconnected
+    expect(socketClient.socket.readyState).toBe(WebSocket.OPEN)
+
+    // Mine more blocks to test if subscription still works
+    await mine(client, { blocks: 2 })
+    await wait(300)
+
+    // Verify we received new subscription notifications after reconnect
+    const responsesAfterReconnect = subscriptionResponses.length
+    expect(responsesAfterReconnect).toBeGreaterThan(responsesBeforeDisconnect)
+
+    socketClient.close()
+  })
+
+  test('multiple subscriptions persist after reconnect', async () => {
+    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws, {
+      reconnect: { delay: 100, attempts: 5 },
+    })
+
+    // Set up multiple subscriptions
+    const blockSubscriptionResponses: RpcResponse[] = []
+    const pendingTxSubscriptionResponses: RpcResponse[] = []
+
+    // Create newHeads subscription
+    await new Promise<void>((resolve) => {
+      socketClient.request({
+        body: {
+          method: 'eth_subscribe',
+          params: ['newHeads'],
+        },
+        onResponse: (data) => {
+          if (data.result) resolve()
+          else if (data.method === 'eth_subscription')
+            blockSubscriptionResponses.push(data)
+        },
+      })
+    })
+
+    // Create pendingTransactions subscription
+    await new Promise<void>((resolve) => {
+      socketClient.request({
+        body: {
+          method: 'eth_subscribe',
+          params: ['newPendingTransactions'],
+        },
+        onResponse: (data) => {
+          if (data.result) resolve()
+          else if (data.method === 'eth_subscription') {
+            pendingTxSubscriptionResponses.push(data)
+          }
+        },
+      })
+    })
+
+    // Verify both subscriptions are active
+    expect(socketClient.subscriptions.size).toBe(2)
+
+    // Mine a block to trigger subscription
+    await mine(client, { blocks: 1 })
+    await wait(200)
+
+    const blockResponsesBeforeDisconnect = blockSubscriptionResponses.length
+    expect(blockResponsesBeforeDisconnect).toBeGreaterThan(0)
+
+    // Simulate connection drop
+    const originalSocket = socketClient.socket
+    originalSocket.close()
+
+    // Wait for reconnection
+    await wait(300)
+
+    // Verify socket has reconnected
+    expect(socketClient.socket.readyState).toBe(WebSocket.OPEN)
+
+    // Mine more blocks to test if subscriptions still work
+    await mine(client, { blocks: 2 })
+    await wait(300)
+
+    // Verify both subscriptions received new notifications after reconnect
+    const blockResponsesAfterReconnect = blockSubscriptionResponses.length
+    expect(blockResponsesAfterReconnect).toBeGreaterThan(
+      blockResponsesBeforeDisconnect,
+    )
+
+    socketClient.close()
+  })
 })
 
 describe('request', () => {
@@ -360,7 +487,7 @@ describe('request', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 9,
+        "id": 22,
         "jsonrpc": "2.0",
       }
     `,
@@ -388,7 +515,7 @@ describe('request', () => {
       [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
-      Request body: {"jsonrpc":"2.0","id":11,"method":"wagmi_lol"}
+      Request body: {"jsonrpc":"2.0","id":26,"method":"wagmi_lol"}
 
       Version: viem@x.y.z]
     `,
@@ -416,7 +543,7 @@ describe('request', () => {
       [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
-      Request body: {"jsonrpc":"2.0","id":13,"method":"wagmi_lol"}
+      Request body: {"jsonrpc":"2.0","id":28,"method":"wagmi_lol"}
 
       Version: viem@x.y.z]
     `,
@@ -548,7 +675,7 @@ describe('request (subscription)', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 33,
+        "id": 48,
         "jsonrpc": "2.0",
       }
     `)
@@ -896,7 +1023,7 @@ describe('requestAsync', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 153,
+        "id": 168,
         "jsonrpc": "2.0",
       }
     `,
