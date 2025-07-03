@@ -122,10 +122,10 @@ test('request', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 4,
+      "id": 1,
       "jsonrpc": "2.0",
       "result": {
-        "id": 4,
+        "id": 1,
         "jsonrpc": "2.0",
         "method": "test",
       },
@@ -190,10 +190,10 @@ test('reconnect', async () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "id": 6,
+      "id": 1,
       "jsonrpc": "2.0",
       "result": {
-        "id": 6,
+        "id": 1,
         "jsonrpc": "2.0",
         "method": "test",
       },
@@ -233,10 +233,10 @@ test('reconnect', async () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "id": 8,
+      "id": 3,
       "jsonrpc": "2.0",
       "result": {
-        "id": 8,
+        "id": 3,
         "jsonrpc": "2.0",
         "method": "test",
       },
@@ -343,7 +343,7 @@ test('request (eth_subscribe)', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 13,
+      "id": 1,
       "jsonrpc": "2.0",
       "result": "0xabc",
     }
@@ -409,7 +409,7 @@ test('reconnect (eth_subscribe)', async () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "id": 15,
+      "id": 1,
       "jsonrpc": "2.0",
       "result": "0xabc",
     }
@@ -448,7 +448,7 @@ test('reconnect (eth_subscribe)', async () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "id": 18,
+      "id": 4,
       "jsonrpc": "2.0",
       "result": "0xabc",
     }
@@ -481,7 +481,7 @@ test('request (eth_unsubscribe)', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 20,
+      "id": 1,
       "jsonrpc": "2.0",
       "result": "0xabc",
     }
@@ -526,7 +526,7 @@ test('request (eth_subscription)', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 22,
+      "id": 1,
       "jsonrpc": "2.0",
       "method": "eth_subscription",
       "params": {
@@ -667,10 +667,10 @@ test('requestAsync', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 30,
+      "id": 1,
       "jsonrpc": "2.0",
       "result": {
-        "id": 30,
+        "id": 1,
         "jsonrpc": "2.0",
         "method": "test",
       },

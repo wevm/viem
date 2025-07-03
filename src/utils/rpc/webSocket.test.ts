@@ -487,7 +487,7 @@ describe('request', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 22,
+        "id": 1,
         "jsonrpc": "2.0",
       }
     `,
@@ -515,7 +515,7 @@ describe('request', () => {
       [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
-      Request body: {"jsonrpc":"2.0","id":26,"method":"wagmi_lol"}
+      Request body: {"jsonrpc":"2.0","id":3,"method":"wagmi_lol"}
 
       Version: viem@x.y.z]
     `,
@@ -543,7 +543,7 @@ describe('request', () => {
       [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
-      Request body: {"jsonrpc":"2.0","id":28,"method":"wagmi_lol"}
+      Request body: {"jsonrpc":"2.0","id":1,"method":"wagmi_lol"}
 
       Version: viem@x.y.z]
     `,
@@ -675,7 +675,7 @@ describe('request (subscription)', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 48,
+        "id": 1,
         "jsonrpc": "2.0",
       }
     `)
@@ -1023,7 +1023,7 @@ describe('requestAsync', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 168,
+        "id": 1,
         "jsonrpc": "2.0",
       }
     `,

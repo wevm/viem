@@ -39,7 +39,7 @@ describe('request', () => {
       }),
     ).toMatchInlineSnapshot(`
       {
-        "id": 3,
+        "id": 1,
         "jsonrpc": "2.0",
         "result": "anvil/v1.2.3",
       }
@@ -59,7 +59,7 @@ describe('request', () => {
           "code": -32602,
           "message": "odd number of digits",
         },
-        "id": 5,
+        "id": 1,
         "jsonrpc": "2.0",
       }
     `,
@@ -78,7 +78,7 @@ describe('request', () => {
           "code": -32601,
           "message": "Method not found",
         },
-        "id": 7,
+        "id": 1,
         "jsonrpc": "2.0",
       }
     `)
@@ -242,7 +242,7 @@ describe('request', () => {
       body: { method: 'web3_clientVersion' },
     })
     expect(headers['x-body-hash']).toBe(
-      '0x433b3dcc0ff6c41d44c000fe58867d8e937b6905459c564736f86f733704e585',
+      '0xd33705e291769e17b5e005a861bb933ce3925f325bf9127772f07f14bb7d0b25',
     )
   })
 
@@ -419,12 +419,12 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 93,
+          "id": 1,
           "jsonrpc": "2.0",
           "result": "anvil/v1.2.3",
         },
         {
-          "id": 94,
+          "id": 2,
           "jsonrpc": "2.0",
           "result": "anvil/v1.2.3",
         },
@@ -445,7 +445,7 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 96,
+          "id": 1,
           "jsonrpc": "2.0",
           "result": "anvil/v1.2.3",
         },
@@ -454,7 +454,7 @@ describe('http (batch)', () => {
             "code": -32602,
             "message": "odd number of digits",
           },
-          "id": 97,
+          "id": 2,
           "jsonrpc": "2.0",
         },
       ]
@@ -471,7 +471,7 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 99,
+          "id": 1,
           "jsonrpc": "2.0",
           "result": "anvil/v1.2.3",
         },
@@ -480,7 +480,7 @@ describe('http (batch)', () => {
             "code": -32601,
             "message": "Method not found",
           },
-          "id": 100,
+          "id": 2,
           "jsonrpc": "2.0",
         },
       ]
