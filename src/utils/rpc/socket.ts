@@ -109,9 +109,8 @@ export async function getSocketRpcClient<socket extends {}>(
   const { attempts = 5, delay = 2_000 } =
     typeof reconnect === 'object' ? reconnect : {}
 
-  let socketClient = socketClientCache.get(
-    JSON.stringify({ keepAlive, key, url, reconnect }),
-  )
+  const id = JSON.stringify({ keepAlive, key, url, reconnect })
+  let socketClient = socketClientCache.get(id)
 
   // If the socket already exists, return it.
   if (socketClient) return socketClient as {} as SocketRpcClient<socket>
@@ -121,7 +120,7 @@ export async function getSocketRpcClient<socket extends {}>(
     undefined,
     [SocketRpcClient<socket>]
   >({
-    id: `${key}:${url}`,
+    id,
     fn: async () => {
       // Set up a cache for incoming "synchronous" requests.
       const requests = new Map<Id, CallbackFn>()
@@ -222,7 +221,7 @@ export async function getSocketRpcClient<socket extends {}>(
         close() {
           keepAliveTimer && clearInterval(keepAliveTimer)
           socket.close()
-          socketClientCache.delete(`${key}:${url}`)
+          socketClientCache.delete(id)
         },
         get socket() {
           return socket
@@ -287,7 +286,7 @@ export async function getSocketRpcClient<socket extends {}>(
         subscriptions,
         url,
       }
-      socketClientCache.set(`${key}:${url}`, socketClient)
+      socketClientCache.set(id, socketClient)
 
       return [socketClient as {} as SocketRpcClient<socket>]
     },
