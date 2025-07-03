@@ -212,7 +212,7 @@ test('throws on socket closure', async () => {
   socket.close()
   await wait(100)
 
-  expect(error).toMatchInlineSnapshot(`undefined`)
+  expect(error).toMatchInlineSnapshot('undefined')
 })
 
 test('throws on bogus subscription', async () => {
