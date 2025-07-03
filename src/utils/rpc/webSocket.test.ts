@@ -487,7 +487,7 @@ describe('request', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 24,
+        "id": 22,
         "jsonrpc": "2.0",
       }
     `,

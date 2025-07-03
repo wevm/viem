@@ -448,7 +448,7 @@ test('reconnect (eth_subscribe)', async () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "id": 17,
+      "id": 18,
       "jsonrpc": "2.0",
       "result": "0xabc",
     }
@@ -481,7 +481,7 @@ test('request (eth_unsubscribe)', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 19,
+      "id": 20,
       "jsonrpc": "2.0",
       "result": "0xabc",
     }
@@ -526,7 +526,7 @@ test('request (eth_subscription)', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 21,
+      "id": 22,
       "jsonrpc": "2.0",
       "method": "eth_subscription",
       "params": {
@@ -667,10 +667,10 @@ test('requestAsync', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 29,
+      "id": 30,
       "jsonrpc": "2.0",
       "result": {
-        "id": 29,
+        "id": 30,
         "jsonrpc": "2.0",
         "method": "test",
       },
