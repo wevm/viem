@@ -1,5 +1,11 @@
 # viem
 
+## 2.31.7
+
+### Patch Changes
+
+- [#3772](https://github.com/wevm/viem/pull/3772) [`d79fb7ea8274e98911aa4a42190b8810816585cc`](https://github.com/wevm/viem/commit/d79fb7ea8274e98911aa4a42190b8810816585cc) Thanks [@hazelnutcloud](https://github.com/hazelnutcloud)! - Fixed issue where WebSocket subscriptions did not replay on reconnect.
+
 ## 2.31.6
 
 ### Patch Changes
