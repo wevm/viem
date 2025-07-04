@@ -12,212 +12,217 @@ import { getWebSocketRpcClient } from './webSocket.js'
 
 const client = anvilMainnet.getClient()
 
-describe('getWebSocketRpcClient', () => {
-  test('creates WebSocket instance', async () => {
-    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    expect(socketClient).toBeDefined()
-    expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
-  })
-
-  test('multiple invocations on a url only opens one socket', async () => {
-    const url = 'ws://127.0.0.1:8545/69420'
-    const [client1, client2, client3, client4] = await Promise.all([
-      getWebSocketRpcClient(url),
-      getWebSocketRpcClient(url),
-      getWebSocketRpcClient(url),
-      getWebSocketRpcClient(url),
-    ])
-    expect(client1).toEqual(client2)
-    expect(client1).toEqual(client3)
-    expect(client1).toEqual(client4)
-  })
-
-  test('reconnect', async () => {
-    const socketClient = await getWebSocketRpcClient(
-      'ws://127.0.0.1:8545/69420',
-      {
-        reconnect: { delay: 100 },
-      },
-    )
-    expect(socketClient).toBeDefined()
-    expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
-    socketClient.socket.close()
-    await wait(500)
-    expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
-  })
-
-  test('keepalive', async () => {
-    const socketClient = await getWebSocketRpcClient(
-      'ws://127.0.0.1:8545/69421',
-      {
-        keepAlive: { interval: 100 },
-      },
-    )
-    const spy = vi.spyOn(socketClient.socket, 'ping')
-    await wait(500)
-    expect(spy).toHaveBeenCalledTimes(4)
-  })
-
-  test('subscriptions persist after reconnect', async () => {
-    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws, {
-      reconnect: { delay: 100, attempts: 5 },
+describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
+  'getWebSocketRpcClient',
+  () => {
+    test('creates WebSocket instance', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      expect(socketClient).toBeDefined()
+      expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
     })
 
-    // Set up subscription tracking
-    const subscriptionResponses: RpcResponse[] = []
+    test('multiple invocations on a url only opens one socket', async () => {
+      const url = 'ws://127.0.0.1:8545/69420'
+      const [client1, client2, client3, client4] = await Promise.all([
+        getWebSocketRpcClient(url),
+        getWebSocketRpcClient(url),
+        getWebSocketRpcClient(url),
+        getWebSocketRpcClient(url),
+      ])
+      expect(client1).toEqual(client2)
+      expect(client1).toEqual(client3)
+      expect(client1).toEqual(client4)
+    })
 
-    // Create a subscription
-    await new Promise<void>((resolve) => {
-      socketClient.request({
-        body: {
-          method: 'eth_subscribe',
-          params: ['newHeads'],
+    test('reconnect', async () => {
+      const socketClient = await getWebSocketRpcClient(
+        'ws://127.0.0.1:8545/69420',
+        {
+          reconnect: { delay: 100 },
         },
-        onResponse: (data) => {
-          if (data.result) resolve()
-          else if (data.method === 'eth_subscription')
-            subscriptionResponses.push(data)
+      )
+      expect(socketClient).toBeDefined()
+      expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
+      socketClient.socket.close()
+      await wait(500)
+      expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
+    })
+
+    test('keepalive', async () => {
+      const socketClient = await getWebSocketRpcClient(
+        'ws://127.0.0.1:8545/69421',
+        {
+          keepAlive: { interval: 100 },
         },
+      )
+      const spy = vi.spyOn(socketClient.socket, 'ping')
+      await wait(500)
+      expect(spy).toHaveBeenCalledTimes(4)
+    })
+
+    test('subscriptions persist after reconnect', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws, {
+        reconnect: { delay: 100, attempts: 5 },
       })
-    })
 
-    // Verify subscription is active
-    expect(socketClient.subscriptions.size).toBe(1)
+      // Set up subscription tracking
+      const subscriptionResponses: RpcResponse[] = []
 
-    // Mine a block to trigger subscription notification
-    await mine(client, { blocks: 1 })
-    await wait(200)
-
-    const responsesBeforeDisconnect = subscriptionResponses.length
-    expect(responsesBeforeDisconnect).toBeGreaterThan(0)
-
-    // // Simulate connection drop by closing the socket
-    const originalSocket = socketClient.socket
-    originalSocket.close()
-
-    // // Wait for reconnection
-    await wait(300)
-
-    // Verify socket has reconnected
-    expect(socketClient.socket.readyState).toBe(WebSocket.OPEN)
-
-    // Mine more blocks to test if subscription still works
-    await mine(client, { blocks: 2 })
-    await wait(300)
-
-    // Verify we received new subscription notifications after reconnect
-    const responsesAfterReconnect = subscriptionResponses.length
-    expect(responsesAfterReconnect).toBeGreaterThan(responsesBeforeDisconnect)
-
-    socketClient.close()
-  })
-
-  test('multiple subscriptions persist after reconnect', async () => {
-    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws, {
-      reconnect: { delay: 100, attempts: 5 },
-    })
-
-    // Set up multiple subscriptions
-    const blockSubscriptionResponses: RpcResponse[] = []
-    const pendingTxSubscriptionResponses: RpcResponse[] = []
-
-    // Create newHeads subscription
-    await new Promise<void>((resolve) => {
-      socketClient.request({
-        body: {
-          method: 'eth_subscribe',
-          params: ['newHeads'],
-        },
-        onResponse: (data) => {
-          if (data.result) resolve()
-          else if (data.method === 'eth_subscription')
-            blockSubscriptionResponses.push(data)
-        },
+      // Create a subscription
+      await new Promise<void>((resolve) => {
+        socketClient.request({
+          body: {
+            method: 'eth_subscribe',
+            params: ['newHeads'],
+          },
+          onResponse: (data) => {
+            if (data.result) resolve()
+            else if (data.method === 'eth_subscription')
+              subscriptionResponses.push(data)
+          },
+        })
       })
+
+      // Verify subscription is active
+      expect(socketClient.subscriptions.size).toBe(1)
+
+      // Mine a block to trigger subscription notification
+      await mine(client, { blocks: 1 })
+      await wait(200)
+
+      const responsesBeforeDisconnect = subscriptionResponses.length
+      expect(responsesBeforeDisconnect).toBeGreaterThan(0)
+
+      // // Simulate connection drop by closing the socket
+      const originalSocket = socketClient.socket
+      originalSocket.close()
+
+      // // Wait for reconnection
+      await wait(300)
+
+      // Verify socket has reconnected
+      expect(socketClient.socket.readyState).toBe(WebSocket.OPEN)
+
+      // Mine more blocks to test if subscription still works
+      await mine(client, { blocks: 2 })
+      await wait(300)
+
+      // Verify we received new subscription notifications after reconnect
+      const responsesAfterReconnect = subscriptionResponses.length
+      expect(responsesAfterReconnect).toBeGreaterThan(responsesBeforeDisconnect)
+
+      socketClient.close()
     })
 
-    // Create pendingTransactions subscription
-    await new Promise<void>((resolve) => {
-      socketClient.request({
-        body: {
-          method: 'eth_subscribe',
-          params: ['newPendingTransactions'],
-        },
-        onResponse: (data) => {
-          if (data.result) resolve()
-          else if (data.method === 'eth_subscription') {
-            pendingTxSubscriptionResponses.push(data)
-          }
-        },
+    test('multiple subscriptions persist after reconnect', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws, {
+        reconnect: { delay: 100, attempts: 5 },
       })
+
+      // Set up multiple subscriptions
+      const blockSubscriptionResponses: RpcResponse[] = []
+      const pendingTxSubscriptionResponses: RpcResponse[] = []
+
+      // Create newHeads subscription
+      await new Promise<void>((resolve) => {
+        socketClient.request({
+          body: {
+            method: 'eth_subscribe',
+            params: ['newHeads'],
+          },
+          onResponse: (data) => {
+            if (data.result) resolve()
+            else if (data.method === 'eth_subscription')
+              blockSubscriptionResponses.push(data)
+          },
+        })
+      })
+
+      // Create pendingTransactions subscription
+      await new Promise<void>((resolve) => {
+        socketClient.request({
+          body: {
+            method: 'eth_subscribe',
+            params: ['newPendingTransactions'],
+          },
+          onResponse: (data) => {
+            if (data.result) resolve()
+            else if (data.method === 'eth_subscription') {
+              pendingTxSubscriptionResponses.push(data)
+            }
+          },
+        })
+      })
+
+      // Verify both subscriptions are active
+      expect(socketClient.subscriptions.size).toBe(2)
+
+      // Mine a block to trigger subscription
+      await mine(client, { blocks: 1 })
+      await wait(200)
+
+      const blockResponsesBeforeDisconnect = blockSubscriptionResponses.length
+      expect(blockResponsesBeforeDisconnect).toBeGreaterThan(0)
+
+      // Simulate connection drop
+      const originalSocket = socketClient.socket
+      originalSocket.close()
+
+      // Wait for reconnection
+      await wait(300)
+
+      // Verify socket has reconnected
+      expect(socketClient.socket.readyState).toBe(WebSocket.OPEN)
+
+      // Mine more blocks to test if subscriptions still work
+      await mine(client, { blocks: 2 })
+      await wait(300)
+
+      // Verify both subscriptions received new notifications after reconnect
+      const blockResponsesAfterReconnect = blockSubscriptionResponses.length
+      expect(blockResponsesAfterReconnect).toBeGreaterThan(
+        blockResponsesBeforeDisconnect,
+      )
+
+      socketClient.close()
     })
+  },
+)
 
-    // Verify both subscriptions are active
-    expect(socketClient.subscriptions.size).toBe(2)
-
-    // Mine a block to trigger subscription
-    await mine(client, { blocks: 1 })
-    await wait(200)
-
-    const blockResponsesBeforeDisconnect = blockSubscriptionResponses.length
-    expect(blockResponsesBeforeDisconnect).toBeGreaterThan(0)
-
-    // Simulate connection drop
-    const originalSocket = socketClient.socket
-    originalSocket.close()
-
-    // Wait for reconnection
-    await wait(300)
-
-    // Verify socket has reconnected
-    expect(socketClient.socket.readyState).toBe(WebSocket.OPEN)
-
-    // Mine more blocks to test if subscriptions still work
-    await mine(client, { blocks: 2 })
-    await wait(300)
-
-    // Verify both subscriptions received new notifications after reconnect
-    const blockResponsesAfterReconnect = blockSubscriptionResponses.length
-    expect(blockResponsesAfterReconnect).toBeGreaterThan(
-      blockResponsesBeforeDisconnect,
-    )
-
-    socketClient.close()
-  })
-})
-
-describe('request', () => {
-  test('valid request', async () => {
-    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    const { id, ...version } = await new Promise<any>((resolve) =>
-      socketClient.request({
-        body: { method: 'web3_clientVersion' },
-        onResponse: resolve,
-      }),
-    )
-    expect(id).toBeDefined()
-    expect(version).toMatchInlineSnapshot(`
+describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
+  'request',
+  () => {
+    test('valid request', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      const { id, ...version } = await new Promise<any>((resolve) =>
+        socketClient.request({
+          body: { method: 'web3_clientVersion' },
+          onResponse: resolve,
+        }),
+      )
+      expect(id).toBeDefined()
+      expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
         "result": "anvil/v1.2.3",
       }
     `)
-    expect(socketClient.requests.size).toBe(0)
-  })
+      expect(socketClient.requests.size).toBe(0)
+    })
 
-  test('valid request', async () => {
-    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    const { id, ...block } = await new Promise<any>((resolve) =>
-      socketClient.request({
-        body: {
-          method: 'eth_getBlockByNumber',
-          params: [numberToHex(anvilMainnet.forkBlockNumber), false],
-        },
-        onResponse: resolve,
-      }),
-    )
-    expect(id).toBeDefined()
-    expect(block).toMatchInlineSnapshot(`
+    test('valid request', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      const { id, ...block } = await new Promise<any>((resolve) =>
+        socketClient.request({
+          body: {
+            method: 'eth_getBlockByNumber',
+            params: [numberToHex(anvilMainnet.forkBlockNumber), false],
+          },
+          onResponse: resolve,
+        }),
+      )
+      expect(id).toBeDefined()
+      expect(block).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
         "result": {
@@ -465,42 +470,12 @@ describe('request', () => {
         },
       }
     `)
-    expect(socketClient.requests.size).toBe(0)
-  })
+      expect(socketClient.requests.size).toBe(0)
+    })
 
-  test('invalid request', async () => {
-    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    await expect(
-      new Promise<any>((resolve, reject) =>
-        socketClient.request({
-          body: {
-            method: 'wagmi_lol',
-          },
-          onError: reject,
-          onResponse: resolve,
-        }),
-      ),
-    ).resolves.toMatchInlineSnapshot(
-      `
-      {
-        "error": {
-          "code": -32602,
-          "message": "data did not match any variant of untagged enum EthRpcCall",
-        },
-        "id": 1,
-        "jsonrpc": "2.0",
-      }
-    `,
-    )
-    expect(socketClient.requests.size).toBe(0)
-  })
-
-  test('invalid request (closing socket)', async () => {
-    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    await wait(1000)
-    socketClient.close()
-    await expect(
-      () =>
+    test('invalid request', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      await expect(
         new Promise<any>((resolve, reject) =>
           socketClient.request({
             body: {
@@ -510,8 +485,38 @@ describe('request', () => {
             onResponse: resolve,
           }),
         ),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `
+      ).resolves.toMatchInlineSnapshot(
+        `
+      {
+        "error": {
+          "code": -32602,
+          "message": "data did not match any variant of untagged enum EthRpcCall",
+        },
+        "id": 1,
+        "jsonrpc": "2.0",
+      }
+    `,
+      )
+      expect(socketClient.requests.size).toBe(0)
+    })
+
+    test('invalid request (closing socket)', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      await wait(1000)
+      socketClient.close()
+      await expect(
+        () =>
+          new Promise<any>((resolve, reject) =>
+            socketClient.request({
+              body: {
+                method: 'wagmi_lol',
+              },
+              onError: reject,
+              onResponse: resolve,
+            }),
+          ),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `
       [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
@@ -519,27 +524,27 @@ describe('request', () => {
 
       Version: viem@x.y.z]
     `,
-    )
-    await wait(100)
-  })
+      )
+      await wait(100)
+    })
 
-  test('invalid request (closed socket)', async () => {
-    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    socketClient.close()
-    await wait(1000)
-    await expect(
-      () =>
-        new Promise<any>((resolve, reject) =>
-          socketClient.request({
-            body: {
-              method: 'wagmi_lol',
-            },
-            onError: reject,
-            onResponse: resolve,
-          }),
-        ),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `
+    test('invalid request (closed socket)', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      socketClient.close()
+      await wait(1000)
+      await expect(
+        () =>
+          new Promise<any>((resolve, reject) =>
+            socketClient.request({
+              body: {
+                method: 'wagmi_lol',
+              },
+              onError: reject,
+              onResponse: resolve,
+            }),
+          ),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `
       [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
@@ -547,129 +552,132 @@ describe('request', () => {
 
       Version: viem@x.y.z]
     `,
-    )
-  })
-})
+      )
+    })
+  },
+)
 
-describe('request (subscription)', () => {
-  test('basic', async () => {
-    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    const data_: RpcResponse[] = []
-    socketClient.request({
-      body: {
-        method: 'eth_subscribe',
-        params: ['newHeads'],
-      },
-      onResponse: (data) => data_.push(data),
+describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
+  'request (subscription)',
+  () => {
+    test('basic', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      const data_: RpcResponse[] = []
+      socketClient.request({
+        body: {
+          method: 'eth_subscribe',
+          params: ['newHeads'],
+        },
+        onResponse: (data) => data_.push(data),
+      })
+      await wait(100)
+      await mine(client, { blocks: 1 })
+      await wait(100)
+      await mine(client, { blocks: 1 })
+      await wait(100)
+      expect(socketClient.subscriptions.size).toBe(1)
+      expect(data_.length).toBe(3)
+      await socketClient.requestAsync({
+        body: {
+          method: 'eth_unsubscribe',
+          params: [(data_[0] as any).result],
+        },
+      })
+      await wait(100)
+      await mine(client, { blocks: 1 })
+      await wait(100)
+      await mine(client, { blocks: 1 })
+      await wait(100)
+      expect(socketClient.subscriptions.size).toBe(0)
+      expect(data_.length).toBe(3)
     })
-    await wait(100)
-    await mine(client, { blocks: 1 })
-    await wait(100)
-    await mine(client, { blocks: 1 })
-    await wait(100)
-    expect(socketClient.subscriptions.size).toBe(1)
-    expect(data_.length).toBe(3)
-    await socketClient.requestAsync({
-      body: {
-        method: 'eth_unsubscribe',
-        params: [(data_[0] as any).result],
-      },
-    })
-    await wait(100)
-    await mine(client, { blocks: 1 })
-    await wait(100)
-    await mine(client, { blocks: 1 })
-    await wait(100)
-    expect(socketClient.subscriptions.size).toBe(0)
-    expect(data_.length).toBe(3)
-  })
 
-  test('multiple', async () => {
-    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    const s1: RpcResponse[] = []
-    socketClient.request({
-      body: {
-        method: 'eth_subscribe',
-        params: ['newHeads'],
-      },
-      onResponse: (data) => s1.push(data),
+    test('multiple', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      const s1: RpcResponse[] = []
+      socketClient.request({
+        body: {
+          method: 'eth_subscribe',
+          params: ['newHeads'],
+        },
+        onResponse: (data) => s1.push(data),
+      })
+      const s2: RpcResponse[] = []
+      socketClient.request({
+        body: {
+          method: 'eth_subscribe',
+          params: ['newHeads'],
+        },
+        onResponse: (data) => s2.push(data),
+      })
+      const s3: RpcResponse[] = []
+      socketClient.request({
+        body: {
+          method: 'eth_subscribe',
+          params: ['newPendingTransactions'],
+        },
+        onResponse: (data) => s3.push(data),
+      })
+      await wait(100)
+      await mine(client, { blocks: 1 })
+      await wait(100)
+      await mine(client, { blocks: 1 })
+      await wait(100)
+      expect(socketClient.requests.size).toBe(0)
+      expect(socketClient.subscriptions.size).toBe(3)
+      expect(s1.length).toBe(3)
+      expect(s2.length).toBe(3)
+      expect(s3.length).toBe(1)
+      await socketClient.requestAsync({
+        body: {
+          method: 'eth_unsubscribe',
+          params: [(s1[0] as any).result],
+        },
+      })
+      await wait(100)
+      await mine(client, { blocks: 1 })
+      await wait(100)
+      await mine(client, { blocks: 1 })
+      await wait(100)
+      expect(socketClient.requests.size).toBe(0)
+      expect(socketClient.subscriptions.size).toBe(2)
+      expect(s1.length).toBe(3)
+      expect(s2.length).toBe(5)
+      expect(s3.length).toBe(1)
+      await socketClient.requestAsync({
+        body: {
+          method: 'eth_unsubscribe',
+          params: [(s2[0] as any).result],
+        },
+      })
+      await socketClient.requestAsync({
+        body: {
+          method: 'eth_unsubscribe',
+          params: [(s3[0] as any).result],
+        },
+      })
+      await wait(2000)
+      expect(socketClient.requests.size).toBe(0)
+      expect(socketClient.subscriptions.size).toBe(0)
+      expect(s1.length).toBe(3)
+      expect(s2.length).toBe(5)
+      expect(s3.length).toBe(1)
     })
-    const s2: RpcResponse[] = []
-    socketClient.request({
-      body: {
-        method: 'eth_subscribe',
-        params: ['newHeads'],
-      },
-      onResponse: (data) => s2.push(data),
-    })
-    const s3: RpcResponse[] = []
-    socketClient.request({
-      body: {
-        method: 'eth_subscribe',
-        params: ['newPendingTransactions'],
-      },
-      onResponse: (data) => s3.push(data),
-    })
-    await wait(100)
-    await mine(client, { blocks: 1 })
-    await wait(100)
-    await mine(client, { blocks: 1 })
-    await wait(100)
-    expect(socketClient.requests.size).toBe(0)
-    expect(socketClient.subscriptions.size).toBe(3)
-    expect(s1.length).toBe(3)
-    expect(s2.length).toBe(3)
-    expect(s3.length).toBe(1)
-    await socketClient.requestAsync({
-      body: {
-        method: 'eth_unsubscribe',
-        params: [(s1[0] as any).result],
-      },
-    })
-    await wait(100)
-    await mine(client, { blocks: 1 })
-    await wait(100)
-    await mine(client, { blocks: 1 })
-    await wait(100)
-    expect(socketClient.requests.size).toBe(0)
-    expect(socketClient.subscriptions.size).toBe(2)
-    expect(s1.length).toBe(3)
-    expect(s2.length).toBe(5)
-    expect(s3.length).toBe(1)
-    await socketClient.requestAsync({
-      body: {
-        method: 'eth_unsubscribe',
-        params: [(s2[0] as any).result],
-      },
-    })
-    await socketClient.requestAsync({
-      body: {
-        method: 'eth_unsubscribe',
-        params: [(s3[0] as any).result],
-      },
-    })
-    await wait(2000)
-    expect(socketClient.requests.size).toBe(0)
-    expect(socketClient.subscriptions.size).toBe(0)
-    expect(s1.length).toBe(3)
-    expect(s2.length).toBe(5)
-    expect(s3.length).toBe(1)
-  })
 
-  test('invalid subscription', async () => {
-    const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    let err_: RpcResponse | undefined
-    client.request({
-      body: {
-        method: 'eth_subscribe',
-        params: ['fakeHeadz'],
-      },
-      onResponse: (err) => (err_ = err),
-    })
-    await wait(500)
-    expect(client.requests.size).toBe(0)
-    expect(client.subscriptions.size).toBe(0)
-    expect(err_).toMatchInlineSnapshot(`
+    test('invalid subscription', async () => {
+      const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      let err_: RpcResponse | undefined
+      client.request({
+        body: {
+          method: 'eth_subscribe',
+          params: ['fakeHeadz'],
+        },
+        onResponse: (err) => (err_ = err),
+      })
+      await wait(500)
+      expect(client.requests.size).toBe(0)
+      expect(client.subscriptions.size).toBe(0)
+      expect(err_).toMatchInlineSnapshot(`
       {
         "error": {
           "code": -32602,
@@ -679,35 +687,38 @@ describe('request (subscription)', () => {
         "jsonrpc": "2.0",
       }
     `)
-  })
-})
-
-describe('requestAsync', () => {
-  test('valid request', async () => {
-    const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    const { id, ...version } = await client.requestAsync({
-      body: { method: 'web3_clientVersion' },
     })
-    expect(id).toBeDefined()
-    expect(version).toMatchInlineSnapshot(`
+  },
+)
+
+describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
+  'requestAsync',
+  () => {
+    test('valid request', async () => {
+      const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      const { id, ...version } = await client.requestAsync({
+        body: { method: 'web3_clientVersion' },
+      })
+      expect(id).toBeDefined()
+      expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
         "result": "anvil/v1.2.3",
       }
     `)
-    expect(client.requests.size).toBe(0)
-  })
-
-  test('valid request', async () => {
-    const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    const { id, ...block } = await client.requestAsync({
-      body: {
-        method: 'eth_getBlockByNumber',
-        params: [numberToHex(anvilMainnet.forkBlockNumber), false],
-      },
+      expect(client.requests.size).toBe(0)
     })
-    expect(id).toBeDefined()
-    expect(block).toMatchInlineSnapshot(`
+
+    test('valid request', async () => {
+      const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      const { id, ...block } = await client.requestAsync({
+        body: {
+          method: 'eth_getBlockByNumber',
+          params: [numberToHex(anvilMainnet.forkBlockNumber), false],
+        },
+      })
+      expect(id).toBeDefined()
+      expect(block).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
         "result": {
@@ -955,69 +966,69 @@ describe('requestAsync', () => {
         },
       }
     `)
-    expect(client.requests.size).toBe(0)
-  })
+      expect(client.requests.size).toBe(0)
+    })
 
-  test('serial requests', async () => {
-    const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    const response: any = []
-    for (const i in Array.from({ length: 10 })) {
-      response.push(
-        await client.requestAsync({
-          body: {
-            method: 'eth_getBlockByNumber',
-            params: [
-              numberToHex(anvilMainnet.forkBlockNumber - BigInt(i)),
-              false,
-            ],
-          },
+    test('serial requests', async () => {
+      const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      const response: any = []
+      for (const i in Array.from({ length: 10 })) {
+        response.push(
+          await client.requestAsync({
+            body: {
+              method: 'eth_getBlockByNumber',
+              params: [
+                numberToHex(anvilMainnet.forkBlockNumber - BigInt(i)),
+                false,
+              ],
+            },
+          }),
+        )
+      }
+      expect(response.map((r: any) => r.result.number)).toEqual(
+        Array.from({ length: 10 }).map((_, i) =>
+          numberToHex(anvilMainnet.forkBlockNumber - BigInt(i)),
+        ),
+      )
+      expect(client.requests.size).toBe(0)
+    })
+
+    test('parallel requests', async () => {
+      await wait(500)
+
+      await mine(client, { blocks: 100 })
+      const blockNumber = await getBlockNumber(client)
+
+      const client_2 = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      const response = await Promise.all(
+        Array.from({ length: 100 }).map(async (_, i) => {
+          return await client_2.requestAsync({
+            body: {
+              method: 'eth_getBlockByNumber',
+              params: [numberToHex(blockNumber - BigInt(i)), false],
+            },
+          })
         }),
       )
-    }
-    expect(response.map((r: any) => r.result.number)).toEqual(
-      Array.from({ length: 10 }).map((_, i) =>
-        numberToHex(anvilMainnet.forkBlockNumber - BigInt(i)),
-      ),
-    )
-    expect(client.requests.size).toBe(0)
-  })
+      expect(response.map((r) => r.result.number)).toEqual(
+        Array.from({ length: 100 }).map((_, i) =>
+          numberToHex(blockNumber - BigInt(i)),
+        ),
+      )
+      expect(client_2.requests.size).toBe(0)
+      await wait(500)
+    }, 30_000)
 
-  test('parallel requests', async () => {
-    await wait(500)
-
-    await mine(client, { blocks: 100 })
-    const blockNumber = await getBlockNumber(client)
-
-    const client_2 = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    const response = await Promise.all(
-      Array.from({ length: 100 }).map(async (_, i) => {
-        return await client_2.requestAsync({
+    test('invalid request', async () => {
+      const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      await expect(
+        client.requestAsync({
           body: {
-            method: 'eth_getBlockByNumber',
-            params: [numberToHex(blockNumber - BigInt(i)), false],
+            method: 'wagmi_lol',
           },
-        })
-      }),
-    )
-    expect(response.map((r) => r.result.number)).toEqual(
-      Array.from({ length: 100 }).map((_, i) =>
-        numberToHex(blockNumber - BigInt(i)),
-      ),
-    )
-    expect(client_2.requests.size).toBe(0)
-    await wait(500)
-  }, 30_000)
-
-  test('invalid request', async () => {
-    const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    await expect(
-      client.requestAsync({
-        body: {
-          method: 'wagmi_lol',
-        },
-      }),
-    ).resolves.toThrowErrorMatchingInlineSnapshot(
-      `
+        }),
+      ).resolves.toThrowErrorMatchingInlineSnapshot(
+        `
       {
         "error": {
           "code": -32602,
@@ -1027,22 +1038,22 @@ describe('requestAsync', () => {
         "jsonrpc": "2.0",
       }
     `,
-    )
-  })
+      )
+    })
 
-  test.skip('timeout', async () => {
-    const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+    test.skip('timeout', async () => {
+      const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
 
-    await expect(() =>
-      client.requestAsync({
-        body: {
-          method: 'eth_getBlockByNumber',
-          params: [numberToHex(5115n), false],
-        },
-        timeout: 10,
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `
+      await expect(() =>
+        client.requestAsync({
+          body: {
+            method: 'eth_getBlockByNumber',
+            params: [numberToHex(5115n), false],
+          },
+          timeout: 10,
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `
       [TimeoutError: The request took too long to respond.
 
       URL: http://localhost
@@ -1051,6 +1062,7 @@ describe('requestAsync', () => {
       Details: The request timed out.
       Version: viem@x.y.z]
     `,
-    )
-  })
-})
+      )
+    })
+  },
+)
