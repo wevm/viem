@@ -487,15 +487,15 @@ describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
         ),
       ).resolves.toMatchInlineSnapshot(
         `
-      {
-        "error": {
-          "code": -32602,
-          "message": "data did not match any variant of untagged enum EthRpcCall",
-        },
-        "id": 1,
-        "jsonrpc": "2.0",
-      }
-    `,
+        {
+          "error": {
+            "code": -32602,
+            "message": "data did not match any variant of untagged enum EthRpcCall",
+          },
+          "id": 1,
+          "jsonrpc": "2.0",
+        }
+      `,
       )
       expect(socketClient.requests.size).toBe(0)
     })
@@ -517,13 +517,13 @@ describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
           ),
       ).rejects.toThrowErrorMatchingInlineSnapshot(
         `
-      [WebSocketRequestError: WebSocket request failed.
+        [WebSocketRequestError: WebSocket request failed.
 
-      URL: http://localhost
-      Request body: {"jsonrpc":"2.0","id":3,"method":"wagmi_lol"}
+        URL: http://localhost
+        Request body: {"jsonrpc":"2.0","id":1,"method":"wagmi_lol"}
 
-      Version: viem@x.y.z]
-    `,
+        Version: viem@x.y.z]
+      `,
       )
       await wait(100)
     })
