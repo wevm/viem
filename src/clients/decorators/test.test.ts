@@ -71,7 +71,7 @@ describe('smoke test', () => {
     expect(await testClient.dropTransaction({ hash })).toBeUndefined()
   })
 
-  // TODO: Anvil sometimes stops interval mining when automining is programatically set.
+  // TODO: Anvil sometimes stops interval mining when automining is programmatically set.
   test.skip('getAutomine', async () => {
     expect(await testClient.getAutomine()).toBeDefined()
   })
@@ -133,7 +133,7 @@ describe('smoke test', () => {
     ).toBeDefined()
   })
 
-  // TODO: Anvil sometimes stops interval mining when automining is programatically set.
+  // TODO: Anvil sometimes stops interval mining when automining is programmatically set.
   test.skip('setAutomine', async () => {
     expect(await testClient.setAutomine(true)).toBeUndefined()
   })
