@@ -3,30 +3,30 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 const sourceId = 11_155_111 // sepolia
 
 export const plumeTestnet = /*#__PURE__*/ defineChain({
-  id: 161_221_135,
-  name: 'Plume Testnet (Legacy)',
+  id: 98_867,
+  name: 'Plume Testnet',
   nativeCurrency: {
-    name: 'Plume Sepolia Ether',
-    symbol: 'ETH',
+    name: 'Plume',
+    symbol: 'PLUME',
     decimals: 18,
   },
   rpcUrls: {
     default: {
-      http: ['https://testnet-rpc.plumenetwork.xyz/http'],
-      webSocket: ['wss://testnet-rpc.plumenetwork.xyz/ws'],
+      http: ['https://testnet-rpc.plume.org'],
+      webSocket: ['wss://testnet-rpc.plume.org'],
     },
   },
   blockExplorers: {
     default: {
       name: 'Blockscout',
-      url: 'https://testnet-explorer.plumenetwork.xyz',
-      apiUrl: 'https://testnet-explorer.plumenetwork.xyz/api',
+      url: 'https://testnet-explorer.plume.org',
+      apiUrl: 'https://testnet-explorer.plume.org/api',
     },
   },
   contracts: {
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 6_022_332,
+      blockCreated: 199_712,
     },
   },
   testnet: true,

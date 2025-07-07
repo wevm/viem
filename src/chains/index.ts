@@ -396,13 +396,13 @@ export { phoenix } from './definitions/phoenix.js'
 export { planq } from './definitions/planq.js'
 export { playfiAlbireo } from './definitions/playfiAlbireo.js'
 export { plinga } from './definitions/plinga.js'
-/** @deprecated Use `plumeMainnet` instead. */
 export { plume } from './definitions/plume.js'
-/** @deprecated Use `plumeSepolia` instead. */
+/** @deprecated Use `plumeTestnet` instead. */
 export { plumeDevnet } from './definitions/plumeDevnet.js'
+/** @deprecated Use `plume` instead. */
 export { plumeMainnet } from './definitions/plumeMainnet.js'
+/** @deprecated Use `plumeTestnet` instead. */
 export { plumeSepolia } from './definitions/plumeSepolia.js'
-/** @deprecated Use `plumeSepolia` instead. */
 export { plumeTestnet } from './definitions/plumeTestnet.js'
 export { polterTestnet } from './definitions/polterTestnet.js'
 export { polygon } from './definitions/polygon.js'
