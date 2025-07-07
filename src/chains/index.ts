@@ -466,6 +466,7 @@ export { shimmer } from './definitions/shimmer.js'
 export { shimmerTestnet } from './definitions/shimmerTestnet.js'
 export { sidraChain } from './definitions/sidra.js'
 export { silicon } from './definitions/silicon.js'
+/** @deprecated Use `siliconTestnet` instead. */
 export { siliconSepolia } from './definitions/siliconSepolia.js'
 export { sixProtocol } from './definitions/sixProtocol.js'
 export { skaleBlockBrawlers } from './definitions/skale/brawl.js'
