@@ -37,7 +37,7 @@ export type WalletActionsL1<
    * @example
    * import { createWalletClient, custom, parseEther } from 'viem'
    * import { base, mainnet } from 'viem/chains'
-   * import { walletActionsL1 } from 'viem/op-stack'
+   * import { walletActionsL1 } from 'viem/op-stack-kailua'
    *
    * const client = createWalletClient({
    *   chain: mainnet,
@@ -59,7 +59,7 @@ export type WalletActionsL1<
    * import { createWalletClient, http } from 'viem'
    * import { privateKeyToAccount } from 'viem/accounts'
    * import { base, mainnet } from 'viem/chains'
-   * import { walletActionsL1 } from 'viem/op-stack'
+   * import { walletActionsL1 } from 'viem/op-stack-kailua'
    *
    * const client = createWalletClient({
    *   account: privateKeyToAccount('0x…'),
@@ -91,7 +91,7 @@ export type WalletActionsL1<
    * @example
    * import { createWalletClient, http } from 'viem'
    * import { mainnet, optimism } from 'viem/chains'
-   * import { walletActionsL1 } from 'viem/op-stack'
+   * import { walletActionsL1 } from 'viem/op-stack-kailua'
    *
    * const walletClientL1 = createWalletClient({
    *   chain: mainnet,
@@ -118,7 +118,7 @@ export type WalletActionsL1<
    * @example
    * import { createWalletClient, http } from 'viem'
    * import { mainnet, optimism } from 'viem/chains'
-   * import { walletActionsL1 } from 'viem/op-stack'
+   * import { walletActionsL1 } from 'viem/op-stack-kailua'
    *
    * const walletClientL1 = createWalletClient({
    *   chain: mainnet,
@@ -146,7 +146,7 @@ export type WalletActionsL1<
  * @example
  * import { createPublicClient, createWalletClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { walletActionsL1 } from 'viem/op-stack'
+ * import { walletActionsL1 } from 'viem/op-stack-kailua'
  *
  * const walletClient = createWalletClient({
  *   chain: mainnet,

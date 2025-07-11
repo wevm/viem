@@ -74,7 +74,7 @@ export type InitiateWithdrawalErrorType =
  * @example
  * import { createWalletClient, custom, parseEther } from 'viem'
  * import { base, mainnet } from 'viem/chains'
- * import { initiateWithdrawal } from 'viem/op-stack'
+ * import { initiateWithdrawal } from 'viem/op-stack-kailua'
  *
  * const client = createWalletClient({
  *   chain: mainnet,
@@ -95,7 +95,7 @@ export type InitiateWithdrawalErrorType =
  * import { createWalletClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  * import { base, mainnet } from 'viem/chains'
- * import { initiateWithdrawal } from 'viem/op-stack'
+ * import { initiateWithdrawal } from 'viem/op-stack-kailua'
  *
  * const client = createWalletClient({
  *   account: privateKeyToAccount('0x…'),

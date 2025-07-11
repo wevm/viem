@@ -64,7 +64,7 @@ export type EstimateInitiateWithdrawalGasErrorType =
  * @example
  * import { createPublicClient, http, parseEther } from 'viem'
  * import { base, mainnet } from 'viem/chains'
- * import { estimateInitiateWithdrawalGas } from 'viem/op-stack'
+ * import { estimateInitiateWithdrawalGas } from 'viem/op-stack-kailua'
  *
  * const client = createPublicClient({
  *   chain: mainnet,

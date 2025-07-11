@@ -63,7 +63,7 @@ export type GetTimeToNextL2OutputErrorType =
  * import { createPublicClient, http } from 'viem'
  * import { getBlockNumber } from 'viem/actions'
  * import { mainnet, optimism } from 'viem/chains'
- * import { getTimeToNextL2Output } from 'viem/op-stack'
+ * import { getTimeToNextL2Output } from 'viem/op-stack-kailua'
  *
  * const publicClientL1 = createPublicClient({
  *   chain: mainnet,

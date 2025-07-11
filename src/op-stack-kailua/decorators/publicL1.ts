@@ -105,7 +105,7 @@ export type PublicActionsL1<
    * @example
    * import { createWalletClient, http, parseEther } from 'viem'
    * import { base } from 'viem/chains'
-   * import { publicActionsL1 } from 'viem/op-stack'
+   * import { publicActionsL1 } from 'viem/op-stack-kailua'
    *
    * const client = createWalletClient({
    *   chain: base,
@@ -141,7 +141,7 @@ export type PublicActionsL1<
    * @example
    * import { createPublicClient, custom, parseEther } from 'viem'
    * import { base, mainnet } from 'viem/chains'
-   * import { publicActionsL1 } from 'viem/op-stack'
+   * import { publicActionsL1 } from 'viem/op-stack-kailua'
    *
    * const client = createPublicClient({
    *   chain: mainnet,
@@ -179,7 +179,7 @@ export type PublicActionsL1<
    * @example
    * import { createPublicClient, http, parseEther } from 'viem'
    * import { base, mainnet } from 'viem/chains'
-   * import { publicActionsL1 } from 'viem/op-stack'
+   * import { publicActionsL1 } from 'viem/op-stack-kailua'
    *
    * const client = createPublicClient({
    *   chain: mainnet,
@@ -216,7 +216,7 @@ export type PublicActionsL1<
    * @example
    * import { createPublicClient, http, parseEther } from 'viem'
    * import { base, mainnet } from 'viem/chains'
-   * import { publicActionsL1 } from 'viem/op-stack'
+   * import { publicActionsL1 } from 'viem/op-stack-kailua'
    *
    * const client = createPublicClient({
    *   chain: mainnet,
@@ -301,7 +301,7 @@ export type PublicActionsL1<
    * @example
    * import { createPublicClient, http } from 'viem'
    * import { mainnet, optimism } from 'viem/chains'
-   * import { publicActionsL1 } from 'viem/op-stack'
+   * import { publicActionsL1 } from 'viem/op-stack-kailua'
    *
    * const publicClientL1 = createPublicClient({
    *   chain: mainnet,
@@ -358,7 +358,7 @@ export type PublicActionsL1<
    * import { createPublicClient, http } from 'viem'
    * import { getBlockNumber } from 'viem/actions'
    * import { mainnet, optimism } from 'viem/chains'
-   * import { publicActionsL1 } from 'viem/op-stack'
+   * import { publicActionsL1 } from 'viem/op-stack-kailua'
    *
    * const publicClientL1 = createPublicClient({
    *   chain: mainnet,
@@ -423,7 +423,7 @@ export type PublicActionsL1<
    * @example
    * import { createPublicClient, http } from 'viem'
    * import { mainnet, optimism } from 'viem/chains'
-   * import { publicActionsL1 } from 'viem/op-stack'
+   * import { publicActionsL1 } from 'viem/op-stack-kailua'
    *
    * const publicClientL1 = createPublicClient({
    *   chain: mainnet,
@@ -456,7 +456,7 @@ export type PublicActionsL1<
    * import { createPublicClient, http } from 'viem'
    * import { getBlockNumber } from 'viem/actions'
    * import { mainnet, optimism } from 'viem/chains'
-   * import { publicActionsL1 } from 'viem/op-stack'
+   * import { publicActionsL1 } from 'viem/op-stack-kailua'
    *
    * const publicClientL1 = createPublicClient({
    *   chain: mainnet,
@@ -494,7 +494,7 @@ export type PublicActionsL1<
    * import { createPublicClient, http } from 'viem'
    * import { getBlockNumber } from 'viem/actions'
    * import { mainnet, optimism } from 'viem/chains'
-   * import { publicActionsL1 } from 'viem/op-stack'
+   * import { publicActionsL1 } from 'viem/op-stack-kailua'
    *
    * const publicClientL1 = createPublicClient({
    *   chain: mainnet,
@@ -552,7 +552,7 @@ export type PublicActionsL1<
    * @example
    * import { createPublicClient, http } from 'viem'
    * import { mainnet, optimism } from 'viem/chains'
-   * import { publicActionsL1 } from 'viem/op-stack'
+   * import { publicActionsL1 } from 'viem/op-stack-kailua'
    *
    * const publicClientL1 = createPublicClient({
    *   chain: mainnet,
@@ -584,7 +584,7 @@ export type PublicActionsL1<
    * import { createPublicClient, http } from 'viem'
    * import { getBlockNumber } from 'viem/actions'
    * import { mainnet, optimism } from 'viem/chains'
-   * import { publicActionsL1 } from 'viem/op-stack'
+   * import { publicActionsL1 } from 'viem/op-stack-kailua'
    *
    * const publicClientL1 = createPublicClient({
    *   chain: mainnet,
@@ -622,7 +622,7 @@ export type PublicActionsL1<
    * import { createPublicClient, http } from 'viem'
    * import { getBlockNumber } from 'viem/actions'
    * import { mainnet, optimism } from 'viem/chains'
-   * import { publicActionsL1 } from 'viem/op-stack'
+   * import { publicActionsL1 } from 'viem/op-stack-kailua'
    *
    * const publicClientL1 = createPublicClient({
    *   chain: mainnet,
@@ -650,7 +650,7 @@ export type PublicActionsL1<
  * - Docs: https://viem.sh/op-stack/client
  *
  * @example
- * import { publicActionsL1 } from 'viem/op-stack'
+ * import { publicActionsL1 } from 'viem/op-stack-kailua'
  * import { mainnet } from 'viem/chains'
  * import { buildDepositTransaction } from 'viem/wallet'
  *

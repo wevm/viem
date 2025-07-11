@@ -88,7 +88,7 @@ export type BuildProveWithdrawalErrorType =
  * @example
  * import { createPublicClient, http } from 'viem'
  * import { optimism } from 'viem/chains'
- * import { buildProveWithdrawal } from 'viem/op-stack'
+ * import { buildProveWithdrawal } from 'viem/op-stack-kailua'
  *
  * const publicClientL2 = createPublicClient({
  *   chain: optimism,

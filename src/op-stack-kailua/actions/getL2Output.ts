@@ -62,7 +62,7 @@ export type GetL2OutputErrorType = ReadContractErrorType | ErrorType
  * @example
  * import { createPublicClient, http } from 'viem'
  * import { mainnet, optimism } from 'viem/chains'
- * import { getL2Output } from 'viem/op-stack'
+ * import { getL2Output } from 'viem/op-stack-kailua'
  *
  * const publicClientL1 = createPublicClient({
  *   chain: mainnet,

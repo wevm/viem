@@ -66,7 +66,7 @@ export type WaitForNextGameErrorType =
  * import { createPublicClient, http } from 'viem'
  * import { getBlockNumber } from 'viem/actions'
  * import { mainnet, optimism } from 'viem/chains'
- * import { waitForNextGame } from 'viem/op-stack'
+ * import { waitForNextGame } from 'viem/op-stack-kailua'
  *
  * const publicClientL1 = createPublicClient({
  *   chain: mainnet,

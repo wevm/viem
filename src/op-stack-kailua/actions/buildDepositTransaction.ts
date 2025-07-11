@@ -90,7 +90,7 @@ export type BuildDepositTransactionErrorType =
  * @example
  * import { createWalletClient, http, parseEther } from 'viem'
  * import { base } from 'viem/chains'
- * import { publicActionsL2 } from 'viem/op-stack'
+ * import { publicActionsL2 } from 'viem/op-stack-kailua'
  * import { buildDepositTransaction } from 'viem/wallet'
  *
  * const client = createWalletClient({

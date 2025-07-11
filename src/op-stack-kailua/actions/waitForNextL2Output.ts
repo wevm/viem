@@ -61,7 +61,7 @@ export type WaitForNextL2OutputErrorType =
  * import { createPublicClient, http } from 'viem'
  * import { getBlockNumber } from 'viem/actions'
  * import { mainnet, optimism } from 'viem/chains'
- * import { waitForNextL2Output } from 'viem/op-stack'
+ * import { waitForNextL2Output } from 'viem/op-stack-kailua'
  *
  * const publicClientL1 = createPublicClient({
  *   chain: mainnet,

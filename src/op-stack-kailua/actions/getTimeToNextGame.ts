@@ -59,7 +59,7 @@ export type GetTimeToNextGameErrorType = GetGamesErrorType | ErrorType
  * import { createPublicClient, http } from 'viem'
  * import { getBlockNumber } from 'viem/actions'
  * import { mainnet, optimism } from 'viem/chains'
- * import { getTimeToNextGame } from 'viem/op-stack'
+ * import { getTimeToNextGame } from 'viem/op-stack-kailua'
  *
  * const publicClientL1 = createPublicClient({
  *   chain: mainnet,

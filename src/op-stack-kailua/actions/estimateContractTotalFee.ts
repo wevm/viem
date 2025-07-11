@@ -85,7 +85,7 @@ export type EstimateContractTotalFeeErrorType = GetContractErrorReturnType<
  * @example
  * import { createPublicClient, http, parseAbi } from 'viem'
  * import { optimism } from 'viem/chains'
- * import { estimateContractTotalFee } from 'viem/op-stack'
+ * import { estimateContractTotalFee } from 'viem/op-stack-kailua'
  *
  * const client = createPublicClient({
  *   chain: optimism,

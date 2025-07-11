@@ -41,7 +41,7 @@ export type GetPortalVersionErrorType = ReadContractErrorType | ErrorType
  * @example
  * import { createPublicClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { getPortalVersion } from 'viem/op-stack'
+ * import { getPortalVersion } from 'viem/op-stack-kailua'
  *
  * const publicClientL1 = createPublicClient({
  *   chain: mainnet,

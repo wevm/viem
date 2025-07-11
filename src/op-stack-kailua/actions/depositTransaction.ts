@@ -76,7 +76,7 @@ export type DepositTransactionErrorType =
  * @example
  * import { createWalletClient, custom, parseEther } from 'viem'
  * import { base, mainnet } from 'viem/chains'
- * import { depositTransaction } from 'viem/op-stack'
+ * import { depositTransaction } from 'viem/op-stack-kailua'
  *
  * const client = createWalletClient({
  *   chain: mainnet,
@@ -98,7 +98,7 @@ export type DepositTransactionErrorType =
  * import { createWalletClient, http } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
  * import { base, mainnet } from 'viem/chains'
- * import { depositTransaction } from 'viem/op-stack'
+ * import { depositTransaction } from 'viem/op-stack-kailua'
  *
  * const client = createWalletClient({
  *   account: privateKeyToAccount('0x…'),

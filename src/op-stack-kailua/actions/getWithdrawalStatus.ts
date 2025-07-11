@@ -119,7 +119,7 @@ export type GetWithdrawalStatusErrorType =
  * import { createPublicClient, http } from 'viem'
  * import { getBlockNumber } from 'viem/actions'
  * import { mainnet, optimism } from 'viem/chains'
- * import { getWithdrawalStatus } from 'viem/op-stack'
+ * import { getWithdrawalStatus } from 'viem/op-stack-kailua'
  *
  * const publicClientL1 = createPublicClient({
  *   chain: mainnet,

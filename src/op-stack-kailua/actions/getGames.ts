@@ -52,7 +52,7 @@ export type GetGamesErrorType = ReadContractErrorType | ErrorType
  * @example
  * import { createPublicClient, http } from 'viem'
  * import { mainnet, optimism } from 'viem/chains'
- * import { getGames } from 'viem/op-stack'
+ * import { getGames } from 'viem/op-stack-kailua'
  *
  * const publicClientL1 = createPublicClient({
  *   chain: mainnet,

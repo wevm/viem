@@ -76,7 +76,7 @@ export type FinalizeWithdrawalErrorType =
  * @example
  * import { createWalletClient, http } from 'viem'
  * import { mainnet, optimism } from 'viem/chains'
- * import { finalizeWithdrawal } from 'viem/op-stack'
+ * import { finalizeWithdrawal } from 'viem/op-stack-kailua'
  *
  * const walletClientL1 = createWalletClient({
  *   chain: mainnet,

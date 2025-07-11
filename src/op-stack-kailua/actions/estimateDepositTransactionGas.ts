@@ -67,7 +67,7 @@ export type EstimateDepositTransactionGasErrorType =
  * @example
  * import { createPublicClient, custom, parseEther } from 'viem'
  * import { base, mainnet } from 'viem/chains'
- * import { estimateDepositTransactionGas } from 'viem/op-stack'
+ * import { estimateDepositTransactionGas } from 'viem/op-stack-kailua'
  *
  * const client = createPublicClient({
  *   chain: mainnet,

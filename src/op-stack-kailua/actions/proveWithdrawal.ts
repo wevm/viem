@@ -87,7 +87,7 @@ export type ProveWithdrawalErrorType =
  * @example
  * import { createWalletClient, http } from 'viem'
  * import { mainnet, optimism } from 'viem/chains'
- * import { proveWithdrawal } from 'viem/op-stack'
+ * import { proveWithdrawal } from 'viem/op-stack-kailua'
  *
  * const walletClientL1 = createWalletClient({
  *   chain: mainnet,

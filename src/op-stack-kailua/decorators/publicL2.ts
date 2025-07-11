@@ -84,7 +84,7 @@ export type PublicActionsL2<
    * @example
    * import { createWalletClient, http, parseEther } from 'viem'
    * import { base } from 'viem/chains'
-   * import { publicActionsL2 } from 'viem/op-stack'
+   * import { publicActionsL2 } from 'viem/op-stack-kailua'
    *
    * const client = createWalletClient({
    *   chain: base,
@@ -120,7 +120,7 @@ export type PublicActionsL2<
    * @example
    * import { createPublicClient, http } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { publicActionsL2 } from 'viem/op-stack'
+   * import { publicActionsL2 } from 'viem/op-stack-kailua'
    *
    * const publicClientL2 = createPublicClient({
    *   chain: optimism,
@@ -160,7 +160,7 @@ export type PublicActionsL2<
    * @example
    * import { createPublicClient, http, parseAbi } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { publicActionsL2 } from 'viem/op-stack'
+   * import { publicActionsL2 } from 'viem/op-stack-kailua'
    *
    * const client = createPublicClient({
    *   chain: optimism,
@@ -199,7 +199,7 @@ export type PublicActionsL2<
    * @example
    * import { createPublicClient, http, parseAbi } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { publicActionsL2 } from 'viem/op-stack'
+   * import { publicActionsL2 } from 'viem/op-stack-kailua'
    *
    * const client = createPublicClient({
    *   chain: optimism,
@@ -238,7 +238,7 @@ export type PublicActionsL2<
    * @example
    * import { createPublicClient, http, parseAbi } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { publicActionsL2 } from 'viem/op-stack'
+   * import { publicActionsL2 } from 'viem/op-stack-kailua'
    *
    * const client = createPublicClient({
    *   chain: optimism,
@@ -277,7 +277,7 @@ export type PublicActionsL2<
    * @example
    * import { createPublicClient, http, parseAbi } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { publicActionsL2 } from 'viem/op-stack'
+   * import { publicActionsL2 } from 'viem/op-stack-kailua'
    *
    * const client = createPublicClient({
    *   chain: optimism,
@@ -318,7 +318,7 @@ export type PublicActionsL2<
    * @example
    * import { createPublicClient, http, parseEther } from 'viem'
    * import { base, mainnet } from 'viem/chains'
-   * import { publicActionsL2 } from 'viem/op-stack'
+   * import { publicActionsL2 } from 'viem/op-stack-kailua'
    *
    * const client = createPublicClient({
    *   chain: mainnet,
@@ -353,7 +353,7 @@ export type PublicActionsL2<
    * @example
    * import { createPublicClient, http, parseEther } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { publicActionsL2 } from 'viem/op-stack'
+   * import { publicActionsL2 } from 'viem/op-stack-kailua'
    *
    * const client = createPublicClient({
    *   chain: optimism,
@@ -380,7 +380,7 @@ export type PublicActionsL2<
    * @example
    * import { createPublicClient, http, parseEther } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { publicActionsL2 } from 'viem/op-stack'
+   * import { publicActionsL2 } from 'viem/op-stack-kailua'
    *
    * const client = createPublicClient({
    *   chain: optimism,
@@ -402,7 +402,7 @@ export type PublicActionsL2<
    * @example
    * import { createPublicClient, http, parseEther } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { publicActionsL2 } from 'viem/op-stack'
+   * import { publicActionsL2 } from 'viem/op-stack-kailua'
    *
    * const client = createPublicClient({
    *   chain: optimism,
@@ -428,7 +428,7 @@ export type PublicActionsL2<
    * @example
    * import { createPublicClient, http, parseEther } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { publicActionsL2 } from 'viem/op-stack'
+   * import { publicActionsL2 } from 'viem/op-stack-kailua'
    *
    * const client = createPublicClient({
    *   chain: optimism,
@@ -454,7 +454,7 @@ export type PublicActionsL2<
    * @example
    * import { createPublicClient, http, parseEther } from 'viem'
    * import { optimism } from 'viem/chains'
-   * import { publicActionsL2 } from 'viem/op-stack'
+   * import { publicActionsL2 } from 'viem/op-stack-kailua'
    *
    * const client = createPublicClient({
    *   chain: optimism,
@@ -478,7 +478,7 @@ export type PublicActionsL2<
  * - Docs: https://viem.sh/op-stack/client
  *
  * @example
- * import { publicActionsL2 } from 'viem/op-stack'
+ * import { publicActionsL2 } from 'viem/op-stack-kailua'
  * import { optimism } from 'viem/chains'
  * import { buildDepositTransaction } from 'viem/wallet'
  *
