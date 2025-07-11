@@ -309,6 +309,10 @@ export default defineConfig({
           link: '/op-stack',
         },
         {
+          text: 'USDC',
+          link: '/usdc',
+        },
+        {
           text: 'ZKsync',
           link: '/zksync',
         },
