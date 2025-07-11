@@ -11,10 +11,10 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../types/chain.js'
+import { toBytes, toHex } from '../../utils/index.js'
 import { disputeGameFactoryAbi, portal2Abi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import type { Game } from '../types/withdrawal.js'
-import { toBytes, toHex } from '../../utils/index.js'
 
 export type GetGamesParameters<
   chain extends Chain | undefined = Chain | undefined,
