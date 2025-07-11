@@ -12,7 +12,7 @@
     "react": "^19",
     "react-dom": "^19",
     "tailwindcss": "^4.0.6",
-    "viem": "workspace:*",
+    "@gobob/viem": "workspace:*",
     "vocs": "^1.0.11"
   }
 }
