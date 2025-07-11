@@ -1,5 +1,5 @@
 {
-  "name": "viem",
+  "name": "@gobob/viem",
   "description": "TypeScript Interface for Ethereum",
   "version": "2.31.7",
   "type": "module",
@@ -105,6 +105,11 @@
       "import": "./_esm/op-stack/index.js",
       "default": "./_cjs/op-stack/index.js"
     },
+    "./op-stack-kailua": {
+      "types": "./_types/op-stack-kailua/index.d.ts",
+      "import": "./_esm/op-stack-kailua/index.js",
+      "default": "./_cjs/op-stack-kailua/index.js"
+    },
     "./siwe": {
       "types": "./_types/siwe/index.d.ts",
       "import": "./_esm/siwe/index.js",
@@ -142,6 +147,7 @@
       "experimental/erc7895": ["./_types/experimental/erc7895/index.d.ts"],
       "node": ["./_types/node/index.d.ts"],
       "op-stack": ["./_types/op-stack/index.d.ts"],
+      "op-stack-kailua": ["./_types/op-stack-kailua/index.d.ts"],
       "siwe": ["./_types/siwe/index.d.ts"],
       "utils": ["./_types/utils/index.d.ts"],
       "window": ["./_types/window/index.d.ts"],

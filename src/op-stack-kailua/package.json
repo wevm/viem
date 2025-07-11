@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "types": "../_types/op-stack-kailua/index.d.ts",
+  "module": "../_esm/op-stack-kailua/index.js",
+  "main": "../_cjs/op-stack-kailua/index.js"
+}
