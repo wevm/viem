@@ -1,5 +1,5 @@
 {
-  "name": "@wevm/viem",
+  "name": "@gobob/viem",
   "version": "2.31.7",
   "exports": {
     ".": "./index.ts",
