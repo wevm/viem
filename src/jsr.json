@@ -1,5 +1,5 @@
 {
-  "name": "@wevm/viem",
+  "name": "@gobob/viem",
   "version": "2.31.7",
   "exports": {
     ".": "./index.ts",
@@ -14,6 +14,7 @@
     "./linea": "./linea/index.ts",
     "./node": "./node/index.ts",
     "./op-stack": "./op-stack/index.ts",
+    "./op-stack-kailua": "./op-stack-kailua/index.ts",
     "./siwe": "./siwe/index.ts",
     "./utils": "./utils/index.ts",
     "./zksync": "./zksync/index.ts"

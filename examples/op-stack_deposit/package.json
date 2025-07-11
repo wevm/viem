@@ -8,7 +8,7 @@
   "dependencies": {
     "react": "^19",
     "react-dom": "^19",
-    "viem": "workspace:*"
+    "@gobob/viem": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19",
