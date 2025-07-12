@@ -2,7 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const xphereTestnet = /*#__PURE__*/ defineChain({
   id: 1998991,
-  name: 'Xphere Mainnet',
+  name: 'Xphere Testnet',
   nativeCurrency: {
     decimals: 18,
     name: 'XPT',
