@@ -21,4 +21,3 @@ export const xphereTestnet = /*#__PURE__*/ defineChain({
   },
   testnet: true,
 })
-
