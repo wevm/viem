@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-feat(chains): add Xphere Chain
+Added Xphere chain.
