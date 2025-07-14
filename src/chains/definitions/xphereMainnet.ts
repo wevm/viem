@@ -16,7 +16,7 @@ export const xphereMainnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Xphere Tamsa Explorer',
-      url: 'https://xp.tamsa.io/',
+      url: 'https://xp.tamsa.io',
     },
   },
   testnet: false,
