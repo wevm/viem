@@ -38,8 +38,14 @@ export const bobSepolia = defineChain({
     },
     portal: {
       [sourceId]: {
-        address: '0x867B1Aa872b9C8cB5E9F7755feDC45BB24Ad0ae4',
-        blockCreated: 4462615,
+        address: '0xBAAf3BAfdbd660380938b27d21c31bB7D072a799',
+        blockCreated: 6404317,
+      },
+    },
+    disputeGameFactory: {
+      [sourceId]: {
+        address: '0x7a25d06Af869d0A94f6effAfFa0A830EEBF1EcfB',
+        blockCreated: 8591637,
       },
     },
   },
