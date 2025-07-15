@@ -396,6 +396,7 @@ export { pgn } from './definitions/pgn.js'
 export { pgnTestnet } from './definitions/pgnTestnet.js'
 export { phoenix } from './definitions/phoenix.js'
 export { planq } from './definitions/planq.js'
+export { plasmaTestnet } from './definitions/plasmaTestnet.js'
 export { playfiAlbireo } from './definitions/playfiAlbireo.js'
 export { plinga } from './definitions/plinga.js'
 /** @deprecated Use `plumeMainnet` instead. */
