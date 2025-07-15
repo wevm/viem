@@ -22,7 +22,6 @@ Before you start, make sure you've:
 * Configured a domain for WebAuthn passkey registration.  
 * Familiarize yourself with [Circle's API Key and Client Key authentication](https://developers.circle.com/w3s/web3-services-api-client-keys-auth).
 
-Set these values in a `.env` file before running the example.
 
 ## Create a Passkey Credential
 
@@ -32,8 +31,8 @@ First, register a new **passkey** (WebAuthn credential) or use an existing one f
 import { toPasskeyTransport, toWebAuthnCredential, WebAuthnMode } from '@circle-fin/modular-wallets-core'
 
 // 1. Retrieve your Circle Client Key and Client URL from environment (set in .env)
-const clientKey = import.meta.env.VITE_CLIENT_KEY as string
-const clientUrl = import.meta.env.VITE_CLIENT_URL as string
+const clientKey = '...'
+const clientUrl = 'https://...'
 
 // 2. Initialize a Passkey transport for Circle's Passkey service
 const passkeyTransport = toPasskeyTransport(clientUrl, clientKey)
@@ -146,7 +145,6 @@ You have created a Circle Smart Account with a passkey and sent a gasless USDC t
 
 The Circle Modular Wallets SDK seamlessly handles the account abstraction flow – from passkey-based signing to sponsored gas payments – allowing you to build a user-friendly dApp without exposing the complexity of gas fees to your users.
 
----
 
 ## Example Apps
 
