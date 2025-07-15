@@ -35,6 +35,7 @@ export type ToCoinbaseSmartAccountParameters = {
   ownerIndex?: number | undefined
   owners: readonly (Address | OneOf<LocalAccount | WebAuthnAccount>)[]
   nonce?: bigint | undefined
+  version: '1.1' | '1' | 'unsafe_latest'
 }
 
 export type ToCoinbaseSmartAccountReturnType = Prettify<
@@ -53,6 +54,12 @@ export type CoinbaseSmartAccountImplementation = Assign<
   }
 >
 
+const factoryAddress = {
+  unsafe_latest: '0xba5ed110efdba3d005bfc882d75358acbbb85842',
+  '1.1': '0xba5ed110efdba3d005bfc882d75358acbbb85842',
+  '1': '0x0ba5ed0c6aa8c49038f819e587e2633c4a9f428a',
+} as const
+
 /**
  * @description Create a Coinbase Smart Account.
  *
@@ -67,12 +74,19 @@ export type CoinbaseSmartAccountImplementation = Assign<
  * const account = toCoinbaseSmartAccount({
  *   client,
  *   owners: [privateKeyToAccount('0x...')],
+ *   version: '1.1',
  * })
  */
 export async function toCoinbaseSmartAccount(
   parameters: ToCoinbaseSmartAccountParameters,
 ): Promise<ToCoinbaseSmartAccountReturnType> {
-  const { client, ownerIndex = 0, owners, nonce = 0n } = parameters
+  const {
+    client,
+    ownerIndex = 0,
+    owners,
+    nonce = 0n,
+    version = '1',
+  } = parameters
 
   let address = parameters.address
 
@@ -83,7 +97,7 @@ export async function toCoinbaseSmartAccount(
   } as const
   const factory = {
     abi: factoryAbi,
-    address: '0x0ba5ed0c6aa8c49038f819e587e2633c4a9f428a',
+    address: factoryAddress[version],
   } as const
 
   const owners_bytes = owners.map((owner) => {

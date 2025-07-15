@@ -696,6 +696,7 @@ test.skip('e2e', async () => {
   const account = await toCoinbaseSmartAccount({
     client,
     owners: [owner],
+    version: '1',
   })
   // const account = await toSoladySmartAccount({
   //   client,

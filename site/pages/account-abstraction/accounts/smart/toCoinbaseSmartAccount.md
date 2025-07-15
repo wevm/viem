@@ -14,6 +14,7 @@ import { owner } from './owner.js'
 const account = await toCoinbaseSmartAccount({ // [!code focus]
   client, // [!code focus]
   owners: [owner], // [!code focus]
+  version: '1.1', // [!code focus]
 }) // [!code focus]
 ```
 
@@ -70,6 +71,7 @@ const client = createPublicClient({ // [!code focus]
 const account = await toCoinbaseSmartAccount({
   client, // [!code focus]
   owners: [owner],
+  version: '1.1',
 })
 ```
 
@@ -97,6 +99,7 @@ const account = await toCoinbaseSmartAccount({
   client,
   owners: [privateKeyToAccount('0x...'), privateKeyToAccount('0x...')],
   ownerIndex: 1, // [!code focus]
+  version: '1.1',
 })
 ```
 
@@ -111,5 +114,28 @@ const account = await toCoinbaseSmartAccount({
   client,
   owners: [owner],
   nonce: 1n, // [!code focus]
+  version: '1.1',
 })
 ```
+
+### version
+
+- **Type:** `'1.1' | '1' | 'unsafe_latest'`
+- **Default:** `'1'`
+
+Version of the Smart Account to use.
+
+:::warning
+Version bumps DO contain breaking changes. 
+
+When using `unsafe_latest`, this will use the latest version of the Account, which means
+that the Account may not be compatible between Viem versions. Only use it for testing 
+purposes, or if you know what you are doing (ie. do not need account discovery).
+:::
+
+```ts
+const account = await toCoinbaseSmartAccount({
+  client,
+  owners: [owner],
+  version: '1', // [!code focus]
+})
