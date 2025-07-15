@@ -120,17 +120,13 @@ const account = await toCoinbaseSmartAccount({
 
 ### version
 
-- **Type:** `'1.1' | '1' | 'unsafe_latest'`
+- **Type:** `'1.1' | '1'`
 - **Default:** `'1'`
 
 Version of the Smart Account to use.
 
 :::warning
 Version bumps DO contain breaking changes. 
-
-When using `unsafe_latest`, this will use the latest version of the Account, which means
-that the Account may not be compatible between Viem versions. Only use it for testing 
-purposes, or if you know what you are doing (ie. do not need account discovery).
 :::
 
 ```ts

@@ -35,7 +35,7 @@ export type ToCoinbaseSmartAccountParameters = {
   ownerIndex?: number | undefined
   owners: readonly (Address | OneOf<LocalAccount | WebAuthnAccount>)[]
   nonce?: bigint | undefined
-  version: '1.1' | '1' | 'unsafe_latest'
+  version: '1.1' | '1'
 }
 
 export type ToCoinbaseSmartAccountReturnType = Prettify<
@@ -55,7 +55,6 @@ export type CoinbaseSmartAccountImplementation = Assign<
 >
 
 const factoryAddress = {
-  unsafe_latest: '0xba5ed110efdba3d005bfc882d75358acbbb85842',
   '1.1': '0xba5ed110efdba3d005bfc882d75358acbbb85842',
   '1': '0x0ba5ed0c6aa8c49038f819e587e2633c4a9f428a',
 } as const
