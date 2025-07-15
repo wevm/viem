@@ -27,15 +27,6 @@ Let's get started with the environment setup, then walk through each step of the
 
 First, set up your environment and connect to Arbitrum Sepolia. We'll use dotenv to load environment variables for our private key and relevant addresses.
 
-Ensure your **.env** file contains:
-
-```ts
-// .env (example)
-PRIVATE_KEY=...             // Your test wallet's private key (used to control the Smart Account)
-USDC_ADDRESS=...            // USDC token contract address on Arbitrum Sepolia
-PAYMASTER_V08_ADDRESS=...   // Circle Paymaster v0.8 contract address on Arbitrum Sepolia
-RECIPIENT_ADDRESS=...       // The address to receive USDC (e.g. another wallet you control)
-```
 
 Next, create a Viem public client for Arbitrum Sepolia and initialize a smart account. We use toSimple7702SmartAccount to treat our EOA (externally owned account) as an ERC-4337 smart account via EIP-7702 (so we don't deploy a contract upfront – the bundler will handle it if needed):
 
