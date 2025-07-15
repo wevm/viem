@@ -1,5 +1,11 @@
 # viem
 
+## 2.31.9
+
+### Patch Changes
+
+- [#6](https://github.com/bob-collective/viem/pull/6) [`a1225cad86d18af2a15bf96fcf9df9caad92315d`](https://github.com/bob-collective/viem/commit/a1225cad86d18af2a15bf96fcf9df9caad92315d) Thanks [@slavastartsev](https://github.com/slavastartsev)! - fix: patch bob sepolia chain
+
 ## 2.31.8
 
 ### Patch Changes
