@@ -2,6 +2,10 @@
 
 ## Overview
 
+:::info
+This guide is maintained by [Circle](https://www.circle.com).
+:::
+
 In this guide, we'll show how to send USDC on the Arbitrum Sepolia testnet **without needing any ETH for gas**, using [Circle's Paymaster service](https://developers.circle.com/stablecoins/paymaster-overview) with Viem's Account Abstraction.
 
 We'll use an Account Abstraction (ERC-4337) smart account (via EIP-7702) to perform a USDC transfer. The Circle Paymaster will sponsor the gas in exchange for a small USDC fee, authorized by our signed permit.
@@ -23,26 +27,15 @@ Let's get started with the environment setup, then walk through each step of the
 
 First, set up your environment and connect to Arbitrum Sepolia. We'll use dotenv to load environment variables for our private key and relevant addresses.
 
-Ensure your **.env** file contains:
-
-```ts
-// .env (example)
-PRIVATE_KEY=...             // Your test wallet's private key (used to control the Smart Account)
-USDC_ADDRESS=...            // USDC token contract address on Arbitrum Sepolia
-PAYMASTER_V08_ADDRESS=...   // Circle Paymaster v0.8 contract address on Arbitrum Sepolia
-RECIPIENT_ADDRESS=...       // The address to receive USDC (e.g. another wallet you control)
-```
 
 Next, create a Viem public client for Arbitrum Sepolia and initialize a smart account. We use toSimple7702SmartAccount to treat our EOA (externally owned account) as an ERC-4337 smart account via EIP-7702 (so we don't deploy a contract upfront – the bundler will handle it if needed):
 
 ```ts
-import "dotenv/config";
 import { createPublicClient, http, getContract, encodePacked, erc20Abi, hexToBigInt } from "viem";
 import { arbitrumSepolia } from "viem/chains";
 import { privateKeyToAccount } from "viem/accounts";
 import { createBundlerClient, toSimple7702SmartAccount } from "viem/account-abstraction";
 
-// --- 1. Setup ---
 const chain = arbitrumSepolia;
 const usdcAddress = process.env.USDC_ADDRESS;
 const paymasterAddress = process.env.PAYMASTER_V08_ADDRESS;
@@ -61,15 +54,8 @@ const account = await toSimple7702SmartAccount({ client, owner });
 Before sending a gasless transaction, ensure the smart account has enough USDC to cover the transfer **and** the gas fee (in USDC). We'll use Viem to read the USDC token balance of our smart account. If it's below a threshold (here we require at least **1 USDC**), the script will prompt you to fund the account via Circle's [USDC testnet faucet](https://faucet.circle.com) and then exit:
 
 ```ts
-// --- 2. Check USDC balance ---
 const usdc = getContract({ client, address: usdcAddress, abi: erc20Abi });
 const usdcBalance = await usdc.read.balanceOf([account.address]);
-if (usdcBalance < 1000000n) {
-  console.log(
-    `Fund ${account.address} with USDC on ${client.chain.name} using https://faucet.circle.com, then run this again.`
-  );
-  process.exit();
-}
 ```
 
 ## Step 3: Create an EIP-2612 Permit for the Paymaster
@@ -78,8 +64,7 @@ Circle's Paymaster requires a **permit signature** from the user to authorize it
 
 We have a local helper function signPermit (in a separate permit.js file) that constructs and signs this permit. Here's what the permit file looks like:
 
-```ts
-// permit.js
+```ts [permit.ts]
 import { maxUint256, erc20Abi, parseErc6492Signature, getContract, eip2612Permit } from "viem";
 
 // EIP-2612 ABI additions for nonces and version
@@ -117,15 +102,6 @@ export async function signPermit({ tokenAddress, client, account, spenderAddress
   // Sign the typed data (EIP-712) with the account's owner EOA
   const wrappedPermitSignature = await account.signTypedData(permitData);
 
-  // Optional: verify the signature is valid
-  const isValid = await client.verifyTypedData({
-    ...permitData,
-    address: account.address,
-    signature: wrappedPermitSignature,
-  });
-  if (!isValid) {
-    throw new Error(`Invalid permit signature for ${account.address}: ${wrappedPermitSignature}`);
-  }
 
   // Extract the standard signature (r, s, v) from the wrapped signature (handles EIP-6492 if used)
   const { signature } = parseErc6492Signature(wrappedPermitSignature);
@@ -146,7 +122,6 @@ The signPermit function does the following:
 Now we configure the Paymaster for our User Operation using the permit we just prepared. (Make sure to import the signPermit function from the permit file into your main script.) Viem's account abstraction allows us to provide a custom **Paymaster** object with a getPaymasterData method. The bundler will call this method to attach the necessary paymaster info to our User Operation. In this method, we'll generate the permit signature on the fly and pack it into the required format:
 
 ```ts
-// --- 4. Paymaster Setup ---
 const paymaster = {
   async getPaymasterData(parameters) {
     const permitAmount = 10000000n;  // Allow Paymaster to spend up to 10 USDC for gas
@@ -180,23 +155,12 @@ const paymaster = {
 Next, set up the bundler client that will send our User Operation through a bundler service. We'll use **Pimlico's public bundler** for Arbitrum Sepolia. We configure the bundler client with our account, the paymaster, and the bundler's RPC endpoint:
 
 ```ts
-// --- 5. Bundler Client ---
 const bundlerClient = createBundlerClient({
   account,
   client,
   paymaster,
   userOperation: {
-    // Optionally override gas price estimation to use bundler's suggestion
-    estimateFeesPerGas: async () => {
-      const { standard: fees } = await bundlerClient.request({
-        method: "pimlico_getUserOperationGasPrice",
-      });
-      const maxFeePerGas = hexToBigInt(fees.maxFeePerGas);
-      const maxPriorityFeePerGas = hexToBigInt(fees.maxPriorityFeePerGas);
-      return { maxFeePerGas, maxPriorityFeePerGas };
-    },
   },
-  // Use Pimlico's bundler RPC endpoint for Arbitrum Sepolia
   transport: http(`https://public.pimlico.io/v2/${client.chain.id}/rpc`),
 });
 ```
@@ -208,25 +172,21 @@ Finally, we create the User Operation to transfer USDC from our smart account to
 Because we're using an EIP-7702 smart account, we need to provide an authorization signature from the owner EOA. We obtain this with owner.signAuthorization(...). After that, we define the USDC transfer call and send the User Operation through our bundler client:
 
 ```ts
-// --- 6. Sign Authorization and Send User Operation ---
-const authorization = await owner.signAuthorization({
-  chainId: chain.id,
-  nonce: await client.getTransactionCount({ address: owner.address }),
-  contractAddress: account.authorization.address,
-});
+const authorization = await client.signAuthorization(account.authorization)
 
 // Define the action: transfer 0.01 USDC from the smart account to the recipient
-const transferCall = {
-  to: usdc.address,
-  abi: usdc.abi,
-  functionName: "transfer",
-  args: [recipientAddress, 10000n],  // 10,000 base units = 0.01 USDC
-};
+
 
 // Send the User Operation via the bundler
 const hash = await bundlerClient.sendUserOperation({
   account,
-  calls: [transferCall],
+  calls: [{
+    to: usdc.address,
+    abi: usdc.abi,
+    functionName: "transfer",
+    // 10,000 base units = 0.01 USDC
+    args: [recipientAddress, 10000n],
+  }],
   authorization,
 });
 console.log("UserOperation hash", hash);
@@ -249,7 +209,6 @@ When you run it, the script will first check the USDC balance:
 
 **Congratulations!** You've successfully sent a USDC transfer on Arbitrum Sepolia without using any ETH for gas.
 
----
 
 ## Next Steps
 

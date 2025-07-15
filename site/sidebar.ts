@@ -1731,6 +1731,41 @@ export const sidebar = {
       },
     ],
   },
+  '/usdc': {
+    backLink: true,
+    items: [
+      {
+        text: 'USDC',
+        items: [
+          {
+            text: 'Introduction',
+            link: '/usdc',
+          },
+        ],
+      },
+      {
+        text: 'Guides',
+        items: [
+          {
+            text: 'Integrating USDC',
+            link: '/usdc/guides/integrating',
+          },
+          {
+            text: 'Cross-Chain Transfers',
+            link: '/usdc/guides/cross-chain',
+          },
+          {
+            text: 'Paying Gas with USDC',
+            link: '/usdc/guides/paymaster',
+          },
+          {
+            text: 'Circle Smart Account',
+            link: '/usdc/guides/smart-account',
+          },
+        ],
+      },
+    ],
+  },
   '/zksync': {
     backLink: true,
     items: [
