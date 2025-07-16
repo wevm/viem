@@ -1,5 +1,25 @@
 # viem
 
+## 2.32.0
+
+### Minor Changes
+
+- [#3799](https://github.com/wevm/viem/pull/3799) [`32f388b97126f3a30aa2f5c1ec04eae1fb52d23d`](https://github.com/wevm/viem/commit/32f388b97126f3a30aa2f5c1ec04eae1fb52d23d) Thanks [@jxom](https://github.com/jxom)! - **Types (Breaking):** Added `version` property to `toCoinbaseSmartAccount`, and add `version: '1.1'`.
+
+  To migrate to this new type change in a current implementation, add `version: '1'` as a property to `toCoinbaseSmartAccount`.
+
+### Patch Changes
+
+- [#3792](https://github.com/wevm/viem/pull/3792) [`6051ca36a7beb979e962366c2409307772542ce4`](https://github.com/wevm/viem/commit/6051ca36a7beb979e962366c2409307772542ce4) Thanks [@rizwanmoulvi](https://github.com/rizwanmoulvi)! - Added Xphere chain.
+
+- [#3802](https://github.com/wevm/viem/pull/3802) [`6467a91ae2e794a1a6661ae288a82458a2ed651a`](https://github.com/wevm/viem/commit/6467a91ae2e794a1a6661ae288a82458a2ed651a) Thanks [@hinsxdcro](https://github.com/hinsxdcro)! - Updated block explorer url of Cronos Testnet
+
+- [#3796](https://github.com/wevm/viem/pull/3796) [`23403edbc3b47998e912c494b6024f7e2b300d0b`](https://github.com/wevm/viem/commit/23403edbc3b47998e912c494b6024f7e2b300d0b) Thanks [@cuonghx-dev](https://github.com/cuonghx-dev)! - Added Japan Open Chain.
+
+- [#3797](https://github.com/wevm/viem/pull/3797) [`e254f78b48eabbf9c134e0ffeed6fc264b100cae`](https://github.com/wevm/viem/commit/e254f78b48eabbf9c134e0ffeed6fc264b100cae) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Plasma Testnet.
+
+- [#3785](https://github.com/wevm/viem/pull/3785) [`1862bfc09cf10a4d3cde7218876058123030843a`](https://github.com/wevm/viem/commit/1862bfc09cf10a4d3cde7218876058123030843a) Thanks [@arongrp](https://github.com/arongrp)! - Added Graphite chains
+
 ## 2.31.7
 
 ### Patch Changes
