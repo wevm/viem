@@ -229,7 +229,7 @@ test('edge case: packed paymaster unpacking', () => {
     // Packed paymaster: paymaster(20) + verificationGasLimit(16) + postOpGasLimit(16) + data
     // paymaster: 777777777777aec03fd955926dbf81597e66834c (20 bytes)
     // verificationGasLimit: 000000000000000000000000000249f0 (16 bytes = 150000)
-    // postOpGasLimit: 000000000000000000000000000186a0 (16 bytes = 100000)  
+    // postOpGasLimit: 000000000000000000000000000186a0 (16 bytes = 100000)
     // data: cafebabe (4 bytes)
     paymasterAndData:
       '0x777777777777aec03fd955926dbf81597e66834c000000000000000000000000000249f0000000000000000000000000000186a0cafebabe' as const,
