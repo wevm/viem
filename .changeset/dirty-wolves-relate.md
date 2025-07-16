@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added Xphere chain.
+Added hyperEVM chain.
