@@ -114,12 +114,12 @@ export async function getSocketRpcClient<socket extends {}>(
 
   // If the socket already exists, return it.
   if (socketClient) {
-    console.log("returning existing socket client", { id });
+    // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+    console.log('returning existing socket client', { id })
     return socketClient as {} as SocketRpcClient<socket>
   }
   let reconnectCount = 0
   let setupCount = 0
-  let reconnectScheduled = false;
   const { schedule } = createBatchScheduler<
     undefined,
     [SocketRpcClient<socket>]
@@ -135,68 +135,66 @@ export async function getSocketRpcClient<socket extends {}>(
       let error: Error | Event | undefined
       let socket: Socket<{}>
       let keepAliveTimer: ReturnType<typeof setInterval> | undefined
+      let reconnectScheduled = false
+
+      async function handleError(error: Error | Event | undefined) {
+        // Notify all requests and subscriptions of the error.
+        for (const request of requests.values()) request.onError?.(error)
+        for (const subscription of subscriptions.values())
+          subscription.onError?.(error)
+
+        // Attempt to reconnect.
+        if (reconnect && reconnectCount < attempts) {
+          if (!reconnectScheduled) {
+            // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+            console.log('scheduling reconnect', { reconnectCount, id })
+            reconnectScheduled = true
+            reconnectCount++
+            setTimeout(async () => {
+              // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+              console.log('reconnecting', { reconnectCount, id })
+              await setup().catch(console.error)
+              reconnectScheduled = false
+            }, delay)
+          } else {
+            // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+            console.log('reconnect already scheduled', { reconnectCount, id })
+          }
+        }
+        // Otherwise, clear all requests and subscriptions.
+        else {
+          // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+          console.log('giving up on reconnect', { reconnectCount, id })
+          requests.clear()
+          subscriptions.clear()
+        }
+      }
 
       // Set up socket implementation.
       async function setup() {
-        reconnectScheduled = false;
-        const setupId = setupCount++;
-        console.log("new setup", { setupId, id });
+        const setupId = setupCount++
+        // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+        console.log('new setup', { setupId, id })
         const result = await getSocket({
           onClose() {
-            console.log("socket closed", { setupId, id });
-            // Notify all requests and subscriptions of the closure error.
-            for (const request of requests.values())
-              request.onError?.(new SocketClosedError({ url }))
-            for (const subscription of subscriptions.values())
-              subscription.onError?.(new SocketClosedError({ url }))
-
-            // Attempt to reconnect.
-            if (reconnect && reconnectCount < attempts && !reconnectScheduled) {
-              reconnectScheduled = true;
-              reconnectCount++
-              console.log("starting timeout after close", { reconnectCount, setupId, id });
-              setTimeout(async () => {
-                console.log("calling setup after close", { reconnectCount, setupId, id });
-                await setup().catch(console.error)
-              }, delay)
-            }
-            // Otherwise, clear all requests and subscriptions.
-            else {
-              requests.clear()
-              subscriptions.clear()
-            }
+            // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+            console.log('onClose', { setupId, id })
+            handleError(new SocketClosedError({ url }))
           },
           onError(error_) {
             error = error_
-
-            // Notify all requests and subscriptions of the error.
-            for (const request of requests.values()) request.onError?.(error)
-            for (const subscription of subscriptions.values())
-              subscription.onError?.(error)
-
-            // Make sure socket is definitely closed.
-            console.log("got error, closing socket", { setupId, id });
-            // This is clearing the cache, which means `getSocketRpcClient` will call a fresh `setup` again.
-            // This is also triggering the `onClose` callback, which will trigger a new `setup` call as well.
-            socketClient?.close() 
-
-            // Attempt to reconnect.
-            if (reconnect && reconnectCount < attempts && !reconnectScheduled) {
-              reconnectScheduled = true;
-              reconnectCount++
-              console.log("starting timeout after error", { reconnectCount, setupId, id });
-              setTimeout(async () => {
-                console.log("calling setup after error", { reconnectCount, setupId, id });
-                await setup().catch(console.error)
-              }, delay)
-            }
-            // Otherwise, clear all requests and subscriptions.
-            else {
-              requests.clear()
-              subscriptions.clear()
-            }
+            // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+            console.log('onError, closing socket', {
+              setupId,
+              id,
+              error: error_,
+            })
+            socket?.close()
+            handleError(error_)
           },
           onOpen() {
+            // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+            console.log('socket opened', { setupId, id })
             error = undefined
             reconnectCount = 0
           },
@@ -232,14 +230,16 @@ export async function getSocketRpcClient<socket extends {}>(
 
         return result
       }
-      console.log("calling fresh setup", { id });
+      // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+      console.log('calling fresh setup', { id })
       await setup()
       error = undefined
 
       // Create a new socket instance.
       socketClient = {
         close() {
-          console.log("closing socket and clearing cache", { id });
+          // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+          console.log('closing socket and clearing cache', { id })
           keepAliveTimer && clearInterval(keepAliveTimer)
           socket.close()
           socketClientCache.delete(id)
