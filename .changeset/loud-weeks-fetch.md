@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add Japan Open Chain.
+Added Japan Open Chain.
