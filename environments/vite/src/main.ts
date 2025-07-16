@@ -7,6 +7,10 @@ const webSocketClient = createPublicClient({
 })
 
 setInterval(async () => {
-  const blockNumber = await webSocketClient.getBlockNumber()
-  document.getElementById('app')!.innerText = `Block number: ${blockNumber}`
+  try {
+    const blockNumber = await webSocketClient.getBlockNumber()
+    document.getElementById('app')!.innerText = `Block number: ${blockNumber}`
+  } catch (e) {
+    console.error(e)
+  }
 }, 1000)

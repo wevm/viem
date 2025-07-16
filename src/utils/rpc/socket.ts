@@ -94,6 +94,9 @@ export const socketClientCache = /*#__PURE__*/ new Map<
   SocketRpcClient<Socket<{}>>
 >()
 
+// TODO: remove, just for debugging
+let setupCount = 0
+
 export async function getSocketRpcClient<socket extends {}>(
   parameters: GetSocketRpcClientParameters<socket>,
 ): Promise<SocketRpcClient<socket>> {
@@ -132,8 +135,31 @@ export async function getSocketRpcClient<socket extends {}>(
       let socket: Socket<{}>
       let keepAliveTimer: ReturnType<typeof setInterval> | undefined
 
+      let reconnectLock = false
+      function attemptReconnect() {
+        if (reconnect && reconnectCount < attempts) {
+          if (reconnectLock) return
+          reconnectLock = true
+          reconnectCount++
+          setTimeout(async () => {
+            await setup().catch(console.error)
+            reconnectLock = false
+          }, delay)
+        } else {
+          // TODO: remove, just for debugging
+          // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+          console.log('give up reconnect')
+          requests.clear()
+          subscriptions.clear()
+        }
+      }
+
       // Set up socket implementation.
       async function setup() {
+        // TODO: remove, just for debugging
+        // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+        console.log('setup', { setupCount, reconnectCount })
+
         const result = await getSocket({
           onClose() {
             // Notify all requests and subscriptions of the closure error.
@@ -142,17 +168,7 @@ export async function getSocketRpcClient<socket extends {}>(
             for (const subscription of subscriptions.values())
               subscription.onError?.(new SocketClosedError({ url }))
 
-            // Attempt to reconnect.
-            if (reconnect && reconnectCount < attempts)
-              setTimeout(async () => {
-                reconnectCount++
-                await setup().catch(console.error)
-              }, delay)
-            // Otherwise, clear all requests and subscriptions.
-            else {
-              requests.clear()
-              subscriptions.clear()
-            }
+            attemptReconnect()
           },
           onError(error_) {
             error = error_
@@ -163,19 +179,9 @@ export async function getSocketRpcClient<socket extends {}>(
               subscription.onError?.(error)
 
             // Make sure socket is definitely closed.
-            socketClient?.close()
+            socket?.close()
 
-            // Attempt to reconnect.
-            if (reconnect && reconnectCount < attempts)
-              setTimeout(async () => {
-                reconnectCount++
-                await setup().catch(console.error)
-              }, delay)
-            // Otherwise, clear all requests and subscriptions.
-            else {
-              requests.clear()
-              subscriptions.clear()
-            }
+            attemptReconnect()
           },
           onOpen() {
             error = undefined
