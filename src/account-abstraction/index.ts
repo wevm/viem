@@ -253,3 +253,4 @@ export {
   getUserOperationTypedData,
 } from './utils/userOperation/getUserOperationTypedData.js'
 export { toPackedUserOperation } from './utils/userOperation/toPackedUserOperation.js'
+export { toUserOperation } from './utils/userOperation/toUserOperation.js'
