@@ -94,6 +94,8 @@ export const socketClientCache = /*#__PURE__*/ new Map<
   SocketRpcClient<Socket<{}>>
 >()
 
+let setupCount = 0
+
 export async function getSocketRpcClient<socket extends {}>(
   parameters: GetSocketRpcClientParameters<socket>,
 ): Promise<SocketRpcClient<socket>> {
@@ -119,7 +121,6 @@ export async function getSocketRpcClient<socket extends {}>(
     return socketClient as {} as SocketRpcClient<socket>
   }
   let reconnectCount = 0
-  let setupCount = 0
   const { schedule } = createBatchScheduler<
     undefined,
     [SocketRpcClient<socket>]
@@ -136,6 +137,7 @@ export async function getSocketRpcClient<socket extends {}>(
       let socket: Socket<{}>
       let keepAliveTimer: ReturnType<typeof setInterval> | undefined
       let reconnectScheduled = false
+      let setupLock = false
 
       async function handleError(error: Error | Event | undefined) {
         // Notify all requests and subscriptions of the error.
@@ -167,69 +169,81 @@ export async function getSocketRpcClient<socket extends {}>(
           console.log('giving up on reconnect', { reconnectCount, id })
           requests.clear()
           subscriptions.clear()
+          setTimeout(() => socketClient?.close(), delay)
         }
       }
 
       // Set up socket implementation.
       async function setup() {
-        const setupId = setupCount++
-        // biome-ignore lint/suspicious/noConsoleLog: <explanation>
-        console.log('new setup', { setupId, id })
-        const result = await getSocket({
-          onClose() {
-            // biome-ignore lint/suspicious/noConsoleLog: <explanation>
-            console.log('onClose', { setupId, id })
-            handleError(new SocketClosedError({ url }))
-          },
-          onError(error_) {
-            error = error_
-            // biome-ignore lint/suspicious/noConsoleLog: <explanation>
-            console.log('onError, closing socket', {
-              setupId,
-              id,
-              error: error_,
-            })
-            socket?.close()
-            handleError(error_)
-          },
-          onOpen() {
-            // biome-ignore lint/suspicious/noConsoleLog: <explanation>
-            console.log('socket opened', { setupId, id })
-            error = undefined
-            reconnectCount = 0
-          },
-          onResponse(data) {
-            const isSubscription = data.method === 'eth_subscription'
-            const id = isSubscription ? data.params.subscription : data.id
-            const cache = isSubscription ? subscriptions : requests
-            const callback = cache.get(id)
-            if (callback) callback.onResponse(data)
-            if (!isSubscription) cache.delete(id)
-          },
-        })
+        if (setupLock) return
+        try {
+          setupLock = true
 
-        socket = result
+          const setupId = setupCount++
+          // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+          console.log('new setup', { setupId, reconnectCount })
+          const result = await getSocket({
+            onClose() {
+              // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+              console.log('onClose', { setupId, id })
+              handleError(new SocketClosedError({ url }))
+            },
+            onError(error_) {
+              error = error_
+              // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+              console.log('onError, closing socket', {
+                setupId,
+                id,
+                error: error_,
+              })
+              socket?.close()
+              handleError(error_)
+            },
+            onOpen() {
+              // biome-ignore lint/suspicious/noConsoleLog: <explanation>
+              console.log('socket opened', { setupId, id })
+              error = undefined
+              reconnectCount = 0
+            },
+            onResponse(data) {
+              const isSubscription = data.method === 'eth_subscription'
+              const id = isSubscription ? data.params.subscription : data.id
+              const cache = isSubscription ? subscriptions : requests
+              const callback = cache.get(id)
+              if (callback) callback.onResponse(data)
+              if (!isSubscription) cache.delete(id)
+            },
+          })
 
-        if (keepAlive) {
-          if (keepAliveTimer) clearInterval(keepAliveTimer)
-          keepAliveTimer = setInterval(() => socket.ping?.(), keepAliveInterval)
-        }
+          socket = result
 
-        if (reconnect && subscriptions.size > 0) {
-          const subscriptionEntries = subscriptions.entries()
-          for (const [
-            key,
-            { onResponse, body, onError },
-          ] of subscriptionEntries) {
-            if (!body) continue
-
-            subscriptions.delete(key)
-            socketClient?.request({ body, onResponse, onError })
+          if (keepAlive) {
+            if (keepAliveTimer) clearInterval(keepAliveTimer)
+            keepAliveTimer = setInterval(
+              () => socket.ping?.(),
+              keepAliveInterval,
+            )
           }
-        }
 
-        return result
+          if (reconnect && subscriptions.size > 0) {
+            const subscriptionEntries = subscriptions.entries()
+            for (const [
+              key,
+              { onResponse, body, onError },
+            ] of subscriptionEntries) {
+              if (!body) continue
+
+              subscriptions.delete(key)
+              socketClient?.request({ body, onResponse, onError })
+            }
+          }
+
+          return result
+        } finally {
+          setupLock = false
+        }
       }
+
       // biome-ignore lint/suspicious/noConsoleLog: <explanation>
       console.log('calling fresh setup', { id })
       await setup()
