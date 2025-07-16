@@ -1,19 +1,13 @@
-import { http, createPublicClient, webSocket } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = createPublicClient({
-  chain: mainnet,
-  transport: http(),
-})
+import { createPublicClient, webSocket } from 'viem'
+import { redstone } from 'viem/chains'
 
 const webSocketClient = createPublicClient({
-  chain: mainnet,
-  transport: webSocket(
-    'wss://eth-mainnet.g.alchemy.com/v2/WV-bLot1hKjjCfpPq603Ro-jViFzwYX8',
-  ),
+  chain: redstone,
+  transport: webSocket(),
 })
 
-await client.getBlockNumber()
-await webSocketClient.getBlockNumber()
-
-document.getElementById('app')!.innerText = 'success'
+setInterval(async () => {
+  const blockNumber = await webSocketClient.getBlockNumber()
+  console.log(blockNumber)
+  document.getElementById('app')!.innerText = `Block number: ${blockNumber}`
+}, 1000)

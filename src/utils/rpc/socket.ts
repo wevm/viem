@@ -113,9 +113,13 @@ export async function getSocketRpcClient<socket extends {}>(
   let socketClient = socketClientCache.get(id)
 
   // If the socket already exists, return it.
-  if (socketClient) return socketClient as {} as SocketRpcClient<socket>
-
+  if (socketClient) {
+    console.log("returning existing socket client", { id });
+    return socketClient as {} as SocketRpcClient<socket>
+  }
   let reconnectCount = 0
+  let setupCount = 0
+  let reconnectScheduled = false;
   const { schedule } = createBatchScheduler<
     undefined,
     [SocketRpcClient<socket>]
@@ -134,8 +138,12 @@ export async function getSocketRpcClient<socket extends {}>(
 
       // Set up socket implementation.
       async function setup() {
+        reconnectScheduled = false;
+        const setupId = setupCount++;
+        console.log("new setup", { setupId, id });
         const result = await getSocket({
           onClose() {
+            console.log("socket closed", { setupId, id });
             // Notify all requests and subscriptions of the closure error.
             for (const request of requests.values())
               request.onError?.(new SocketClosedError({ url }))
@@ -143,11 +151,15 @@ export async function getSocketRpcClient<socket extends {}>(
               subscription.onError?.(new SocketClosedError({ url }))
 
             // Attempt to reconnect.
-            if (reconnect && reconnectCount < attempts)
+            if (reconnect && reconnectCount < attempts && !reconnectScheduled) {
+              reconnectScheduled = true;
+              reconnectCount++
+              console.log("starting timeout after close", { reconnectCount, setupId, id });
               setTimeout(async () => {
-                reconnectCount++
+                console.log("calling setup after close", { reconnectCount, setupId, id });
                 await setup().catch(console.error)
               }, delay)
+            }
             // Otherwise, clear all requests and subscriptions.
             else {
               requests.clear()
@@ -163,14 +175,21 @@ export async function getSocketRpcClient<socket extends {}>(
               subscription.onError?.(error)
 
             // Make sure socket is definitely closed.
-            socketClient?.close()
+            console.log("got error, closing socket", { setupId, id });
+            // This is clearing the cache, which means `getSocketRpcClient` will call a fresh `setup` again.
+            // This is also triggering the `onClose` callback, which will trigger a new `setup` call as well.
+            socketClient?.close() 
 
             // Attempt to reconnect.
-            if (reconnect && reconnectCount < attempts)
+            if (reconnect && reconnectCount < attempts && !reconnectScheduled) {
+              reconnectScheduled = true;
+              reconnectCount++
+              console.log("starting timeout after error", { reconnectCount, setupId, id });
               setTimeout(async () => {
-                reconnectCount++
+                console.log("calling setup after error", { reconnectCount, setupId, id });
                 await setup().catch(console.error)
               }, delay)
+            }
             // Otherwise, clear all requests and subscriptions.
             else {
               requests.clear()
@@ -213,12 +232,14 @@ export async function getSocketRpcClient<socket extends {}>(
 
         return result
       }
+      console.log("calling fresh setup", { id });
       await setup()
       error = undefined
 
       // Create a new socket instance.
       socketClient = {
         close() {
+          console.log("closing socket and clearing cache", { id });
           keepAliveTimer && clearInterval(keepAliveTimer)
           socket.close()
           socketClientCache.delete(id)
