@@ -39,6 +39,7 @@ function Example() {
     toCoinbaseSmartAccount({
       client,
       owners: [toWebAuthnAccount({ credential })],
+      version: '1.1',
     }).then(setAccount)
   }, [credential])
 

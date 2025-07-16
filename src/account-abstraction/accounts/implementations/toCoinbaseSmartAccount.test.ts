@@ -40,6 +40,7 @@ describe('return value: encodeCalls', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
     })
 
     const callData_1 = await account.encodeCalls([
@@ -71,6 +72,7 @@ describe('return value: encodeCalls', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
     })
 
     const callData = await account.encodeCalls([
@@ -94,6 +96,7 @@ describe('return value: decodeCalls', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
     })
 
     const calls = [
@@ -113,6 +116,7 @@ describe('return value: decodeCalls', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
     })
 
     const calls = [
@@ -142,6 +146,7 @@ describe('return value: decodeCalls', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
     })
 
     const data = encodeFunctionData({
@@ -163,6 +168,7 @@ describe('return value: getAddress', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
     })
 
     const address = await account.getAddress()
@@ -173,6 +179,7 @@ describe('return value: getAddress', () => {
     const implementation_2 = await toCoinbaseSmartAccount({
       client,
       owners: [privateKeyToAccount(accounts[1].privateKey)],
+      version: '1',
     })
 
     const address_2 = await implementation_2.getAddress()
@@ -183,6 +190,7 @@ describe('return value: getAddress', () => {
     const implementation_3 = await toCoinbaseSmartAccount({
       client,
       owners: [owner, privateKeyToAccount(accounts[1].privateKey)],
+      version: '1',
     })
 
     const address_3 = await implementation_3.getAddress()
@@ -194,6 +202,7 @@ describe('return value: getAddress', () => {
       client,
       owners: [owner, privateKeyToAccount(accounts[1].privateKey)],
       nonce: 1n,
+      version: '1',
     })
 
     const address_4 = await implementation_4.getAddress()
@@ -205,6 +214,7 @@ describe('return value: getAddress', () => {
       address: '0xBb0c1d5E7f530e8e648150fc7Cf30912575523E8',
       client,
       owners: [owner],
+      version: '1',
     })
 
     const address_5 = (await implementation_5).address
@@ -219,6 +229,7 @@ describe('return value: getFactoryArgs', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
     })
 
     const signature = await account.getFactoryArgs()
@@ -238,6 +249,7 @@ describe('return value: getStubSignature', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
     })
 
     const signature = await account.getStubSignature()
@@ -250,6 +262,7 @@ describe('return value: getStubSignature', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner_webauthn],
+      version: '1',
     })
 
     const signature = await account.getStubSignature()
@@ -264,6 +277,7 @@ describe('return value: getStubSignature', () => {
         client,
         owners: [owner, owner_webauthn, owner],
         ownerIndex: 1,
+        version: '1',
       })
 
       const signature = await account.getStubSignature()
@@ -277,6 +291,7 @@ describe('return value: getStubSignature', () => {
         client,
         owners: [owner, owner_webauthn, owner],
         ownerIndex: 2,
+        version: '1',
       })
 
       const signature = await account.getStubSignature()
@@ -289,6 +304,7 @@ describe('return value: getStubSignature', () => {
       const account = await toCoinbaseSmartAccount({
         client,
         owners: [owner],
+        version: '1',
         ownerIndex: 1,
       })
 
@@ -313,6 +329,7 @@ describe('return value: getNonce', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
     })
 
     const nonce = await account.getNonce()
@@ -323,6 +340,7 @@ describe('return value: getNonce', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
     })
 
     const nonce = await account.getNonce({ key: 0n })
@@ -335,6 +353,7 @@ describe('return value: userOperation.estimateGas', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
     })
 
     const request = await account.userOperation?.estimateGas?.({
@@ -351,6 +370,7 @@ describe('return value: userOperation.estimateGas', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
     })
 
     const request = await account.userOperation?.estimateGas?.({
@@ -371,6 +391,7 @@ describe('return value: sign', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
       nonce: 70n,
     })
 
@@ -400,6 +421,7 @@ describe('return value: sign', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
       nonce: 141241n,
     })
 
@@ -424,6 +446,7 @@ describe('return value: sign', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
       nonce: 70n,
     })
 
@@ -455,6 +478,7 @@ describe('return value: signMessage', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
       nonce: 70n,
     })
 
@@ -484,6 +508,7 @@ describe('return value: signMessage', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
       nonce: 141241n,
     })
 
@@ -508,6 +533,7 @@ describe('return value: signMessage', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
       nonce: 70n,
     })
 
@@ -539,6 +565,7 @@ describe('return value: signTypedData', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
       nonce: 515151n,
     })
 
@@ -569,6 +596,7 @@ describe('return value: signTypedData', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
       nonce: 112312n,
     })
 
@@ -594,6 +622,7 @@ describe('return value: signTypedData', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
       nonce: 515151n,
     })
 
@@ -626,6 +655,7 @@ describe('return value: signUserOperation', () => {
     const account = await toCoinbaseSmartAccount({
       client,
       owners: [owner],
+      version: '1',
     })
 
     const signature = await account.signUserOperation({
@@ -749,6 +779,7 @@ describe('smoke', async () => {
   const account = await toCoinbaseSmartAccount({
     client,
     owners: [owner],
+    version: '1',
   })
   await sendTransaction(client, {
     account: accounts[9].address,
