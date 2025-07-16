@@ -1,5 +1,8 @@
 import { expect, test } from 'vitest'
-import type { UserOperation } from '../../types/userOperation.js'
+import type {
+  PackedUserOperation,
+  UserOperation,
+} from '../../types/userOperation.js'
 import { toPackedUserOperation } from './toPackedUserOperation.js'
 import { toUserOperation } from './toUserOperation.js'
 
@@ -91,19 +94,18 @@ test('idempotency: preserves already unpacked user operation', () => {
 test('edge case: mixed packed and unpacked fields', () => {
   // Test with some fields already unpacked and some still packed
   const mixedUserOperation = {
-    sender: '0x1234567890123456789012345678901234567890' as const,
+    sender: '0x1234567890123456789012345678901234567890',
     nonce: 0n,
-    initCode: '0x' as const,
-    callData: '0x' as const,
+    initCode: '0x',
+    callData: '0x',
     // Already unpacked gas limits - these should be preserved
     callGasLimit: 300000n,
     verificationGasLimit: 150000n,
     preVerificationGas: 50000n,
     // Still packed gas fees - these should be unpacked
-    gasFees:
-      '0x0000000000000000000000003b9aca000000000000000000000004a817c800' as const,
-    paymasterAndData: '0x' as const,
-    signature: '0x' as const,
+    gasFees: '0x0000000000000000000000003b9aca000000000000000000000004a817c800',
+    paymasterAndData: '0x',
+    signature: '0x',
   } as any // Using 'as any' since this mixed format doesn't match either type
 
   expect(toUserOperation(mixedUserOperation)).toStrictEqual({
@@ -122,19 +124,19 @@ test('edge case: mixed packed and unpacked fields', () => {
 })
 
 test('edge case: zero values in packed format', () => {
-  const packedUserOperation = {
-    sender: '0x1234567890123456789012345678901234567890' as const,
+  const packedUserOperation: PackedUserOperation = {
+    sender: '0x1234567890123456789012345678901234567890',
     nonce: 0n,
-    initCode: '0x' as const,
-    callData: '0x' as const,
+    initCode: '0x',
+    callData: '0x',
     // All zeros
     accountGasLimits:
-      '0x00000000000000000000000000000000000000000000000000000000000000000' as const,
+      '0x00000000000000000000000000000000000000000000000000000000000000000',
     preVerificationGas: 0n,
     gasFees:
-      '0x00000000000000000000000000000000000000000000000000000000000000000' as const,
-    paymasterAndData: '0x' as const,
-    signature: '0x' as const,
+      '0x00000000000000000000000000000000000000000000000000000000000000000',
+    paymasterAndData: '0x',
+    signature: '0x',
   }
 
   expect(toUserOperation(packedUserOperation)).toStrictEqual({
@@ -154,18 +156,17 @@ test('edge case: zero values in packed format', () => {
 
 test('edge case: short paymasterAndData not unpacked', () => {
   // Test that short paymasterAndData (less than minimum packed format) is preserved as-is
-  const packedUserOperation = {
-    sender: '0x1234567890123456789012345678901234567890' as const,
+  const packedUserOperation: PackedUserOperation = {
+    sender: '0x1234567890123456789012345678901234567890',
     nonce: 0n,
-    initCode: '0x' as const,
-    callData: '0x' as const,
+    initCode: '0x',
+    callData: '0x',
     accountGasLimits:
-      '0x00000000000000000000000030d400000000000000000000000001e8480' as const,
+      '0x00000000000000000000000030d400000000000000000000000001e8480',
     preVerificationGas: 50000n,
-    gasFees:
-      '0x0000000000000000000000003b9aca000000000000000000000004a817c800' as const,
-    paymasterAndData: '0x1234' as const, // Too short to be packed format
-    signature: '0x' as const,
+    gasFees: '0x0000000000000000000000003b9aca000000000000000000000004a817c800',
+    paymasterAndData: '0x1234', // Too short to be packed format
+    signature: '0x',
   }
 
   expect(toUserOperation(packedUserOperation)).toStrictEqual({
@@ -185,18 +186,17 @@ test('edge case: short paymasterAndData not unpacked', () => {
 
 test('edge case: EIP-7702 authorization prefix in initCode', () => {
   // Test handling of EIP-7702 authorization prefix
-  const packedUserOperation = {
-    sender: '0x1234567890123456789012345678901234567890' as const,
+  const packedUserOperation: PackedUserOperation = {
+    sender: '0x1234567890123456789012345678901234567890',
     nonce: 0n,
-    initCode: '0x7702000000000000000000000000000000000000' as const,
-    callData: '0x' as const,
+    initCode: '0x7702000000000000000000000000000000000000',
+    callData: '0x',
     accountGasLimits:
-      '0x00000000000000000000000030d400000000000000000000000001e8480' as const,
+      '0x00000000000000000000000030d400000000000000000000000001e8480',
     preVerificationGas: 50000n,
-    gasFees:
-      '0x0000000000000000000000003b9aca000000000000000000000004a817c800' as const,
-    paymasterAndData: '0x' as const,
-    signature: '0x' as const,
+    gasFees: '0x0000000000000000000000003b9aca000000000000000000000004a817c800',
+    paymasterAndData: '0x',
+    signature: '0x',
   }
 
   expect(toUserOperation(packedUserOperation)).toStrictEqual({
@@ -216,24 +216,23 @@ test('edge case: EIP-7702 authorization prefix in initCode', () => {
 
 test('edge case: packed paymaster unpacking', () => {
   // Test unpacking of properly formatted packed paymasterAndData
-  const packedUserOperation = {
-    sender: '0x1234567890123456789012345678901234567890' as const,
+  const packedUserOperation: PackedUserOperation = {
+    sender: '0x1234567890123456789012345678901234567890',
     nonce: 0n,
-    initCode: '0x' as const,
-    callData: '0x' as const,
+    initCode: '0x',
+    callData: '0x',
     accountGasLimits:
-      '0x00000000000000000000000030d400000000000000000000000001e8480' as const,
+      '0x00000000000000000000000030d400000000000000000000000001e8480',
     preVerificationGas: 50000n,
-    gasFees:
-      '0x0000000000000000000000003b9aca000000000000000000000004a817c800' as const,
+    gasFees: '0x0000000000000000000000003b9aca000000000000000000000004a817c800',
     // Packed paymaster: paymaster(20) + verificationGasLimit(16) + postOpGasLimit(16) + data
     // paymaster: 777777777777aec03fd955926dbf81597e66834c (20 bytes)
     // verificationGasLimit: 000000000000000000000000000249f0 (16 bytes = 150000)
     // postOpGasLimit: 000000000000000000000000000186a0 (16 bytes = 100000)
     // data: cafebabe (4 bytes)
     paymasterAndData:
-      '0x777777777777aec03fd955926dbf81597e66834c000000000000000000000000000249f0000000000000000000000000000186a0cafebabe' as const,
-    signature: '0x' as const,
+      '0x777777777777aec03fd955926dbf81597e66834c000000000000000000000000000249f0000000000000000000000000000186a0cafebabe',
+    signature: '0x',
   }
 
   expect(toUserOperation(packedUserOperation)).toStrictEqual({
