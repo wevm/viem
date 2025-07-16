@@ -94,9 +94,6 @@ export const socketClientCache = /*#__PURE__*/ new Map<
   SocketRpcClient<Socket<{}>>
 >()
 
-// TODO: remove, just for debugging
-let setupCount = 0
-
 export async function getSocketRpcClient<socket extends {}>(
   parameters: GetSocketRpcClientParameters<socket>,
 ): Promise<SocketRpcClient<socket>> {
@@ -141,14 +138,13 @@ export async function getSocketRpcClient<socket extends {}>(
           if (reconnectLock) return
           reconnectLock = true
           reconnectCount++
+          // Make sure the previous socket is definitely closed.
+          socket?.close()
           setTimeout(async () => {
             await setup().catch(console.error)
             reconnectLock = false
           }, delay)
         } else {
-          // TODO: remove, just for debugging
-          // biome-ignore lint/suspicious/noConsoleLog: <explanation>
-          console.log('give up reconnect')
           requests.clear()
           subscriptions.clear()
         }
@@ -156,10 +152,6 @@ export async function getSocketRpcClient<socket extends {}>(
 
       // Set up socket implementation.
       async function setup() {
-        // TODO: remove, just for debugging
-        // biome-ignore lint/suspicious/noConsoleLog: <explanation>
-        console.log('setup', { setupCount, reconnectCount })
-
         const result = await getSocket({
           onClose() {
             // Notify all requests and subscriptions of the closure error.
@@ -177,9 +169,6 @@ export async function getSocketRpcClient<socket extends {}>(
             for (const request of requests.values()) request.onError?.(error)
             for (const subscription of subscriptions.values())
               subscription.onError?.(error)
-
-            // Make sure socket is definitely closed.
-            socket?.close()
 
             attemptReconnect()
           },

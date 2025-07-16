@@ -1,9 +1,12 @@
-import { createPublicClient, webSocket } from 'viem'
+import { createPublicClient, webSocket, fallback, http } from 'viem'
 import { redstone } from 'viem/chains'
 
 const webSocketClient = createPublicClient({
   chain: redstone,
-  transport: webSocket(),
+  transport: fallback([
+    webSocket(undefined, { reconnect: { attempts: 100, delay: 1000 } }),
+    http(),
+  ]),
 })
 
 setInterval(async () => {
