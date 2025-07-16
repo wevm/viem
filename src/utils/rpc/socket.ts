@@ -132,19 +132,22 @@ export async function getSocketRpcClient<socket extends {}>(
       let socket: Socket<{}>
       let keepAliveTimer: ReturnType<typeof setInterval> | undefined
 
-      let reconnectLock = false
+      let reconnectInProgress = false
       function attemptReconnect() {
+        // Attempt to reconnect.
         if (reconnect && reconnectCount < attempts) {
-          if (reconnectLock) return
-          reconnectLock = true
+          if (reconnectInProgress) return
+          reconnectInProgress = true
           reconnectCount++
           // Make sure the previous socket is definitely closed.
           socket?.close()
           setTimeout(async () => {
             await setup().catch(console.error)
-            reconnectLock = false
+            reconnectInProgress = false
           }, delay)
-        } else {
+        }
+        // Otherwise, clear all requests and subscriptions.
+        else {
           requests.clear()
           subscriptions.clear()
         }
