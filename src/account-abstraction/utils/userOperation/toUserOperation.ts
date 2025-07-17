@@ -45,6 +45,13 @@ export function toUserOperation(
     userOperation as PackedUserOperation
   const result = { ...restUserOperation } as unknown as UserOperation
 
+  // Check if this appears to be packed format (has packed fields)
+  // These are the only fields that are known to be packed fields
+  // initCode and paymasterAndData could be from EntryPoint v0.6
+  // See UserOperation type for more details
+  const hasPackedFields =
+    'accountGasLimits' in userOperation || 'gasFees' in userOperation
+
   // Handle gas limits: use existing individual fields or unpack accountGasLimits
   if (
     !('verificationGasLimit' in userOperation) &&
@@ -75,6 +82,8 @@ export function toUserOperation(
   if (
     !('factory' in userOperation) &&
     !('factoryData' in userOperation) &&
+    // Only unpack initCode if this appears to be packed format (has packed fields)
+    hasPackedFields &&
     userOperation.initCode &&
     userOperation.initCode !== '0x'
   ) {
@@ -82,8 +91,6 @@ export function toUserOperation(
     const eip7702Prefix = '0x7702000000000000000000000000000000000000'
     if (userOperation.initCode === eip7702Prefix) {
       result.factory = eip7702Prefix
-      // Remove packed initCode since we've unpacked it
-      delete result.initCode
     } else {
       // Normal case or EIP-7702 with authorization (can't distinguish, so treat as normal)
       // factory (20 bytes) + factoryData (rest)
@@ -92,9 +99,9 @@ export function toUserOperation(
       if (factoryDataSlice.length > 2) {
         result.factoryData = factoryDataSlice
       }
-      // Remove packed initCode since we've unpacked it
-      delete result.initCode
     }
+    // Remove packed initCode since we've unpacked it
+    delete result.initCode
   }
 
   // Handle paymaster: use existing individual fields or unpack paymasterAndData
@@ -102,33 +109,28 @@ export function toUserOperation(
     !('paymaster' in userOperation) &&
     !('paymasterVerificationGasLimit' in userOperation) &&
     !('paymasterPostOpGasLimit' in userOperation) &&
-    !('paymasterData' in userOperation)
-  ) {
+    !('paymasterData' in userOperation) &&
     // Only unpack paymasterAndData if this appears to be packed format (has packed fields)
-    const hasPackedFields =
-      'accountGasLimits' in userOperation || 'gasFees' in userOperation
-    if (
-      hasPackedFields &&
-      userOperation.paymasterAndData &&
-      userOperation.paymasterAndData !== '0x' &&
-      userOperation.paymasterAndData.length >= 106
-    ) {
-      // 2 + 20*2 + 16*2 + 16*2 = 106 chars minimum for packed format
-      // paymaster (20 bytes) + paymasterVerificationGasLimit (16 bytes) + paymasterPostOpGasLimit (16 bytes) + paymasterData (rest)
-      result.paymaster = slice(userOperation.paymasterAndData, 0, 20)
-      result.paymasterVerificationGasLimit = hexToBigInt(
-        slice(userOperation.paymasterAndData, 20, 36),
-      )
-      result.paymasterPostOpGasLimit = hexToBigInt(
-        slice(userOperation.paymasterAndData, 36, 52),
-      )
-      const paymasterDataSlice = slice(userOperation.paymasterAndData, 52)
-      if (paymasterDataSlice.length > 2) {
-        result.paymasterData = paymasterDataSlice
-      }
-      // Remove packed paymasterAndData since we've unpacked it
-      delete result.paymasterAndData
+    hasPackedFields &&
+    userOperation.paymasterAndData &&
+    userOperation.paymasterAndData !== '0x' &&
+    userOperation.paymasterAndData.length >= 106
+  ) {
+    // 2 + 20*2 + 16*2 + 16*2 = 106 chars minimum for packed format
+    // paymaster (20 bytes) + paymasterVerificationGasLimit (16 bytes) + paymasterPostOpGasLimit (16 bytes) + paymasterData (rest)
+    result.paymaster = slice(userOperation.paymasterAndData, 0, 20)
+    result.paymasterVerificationGasLimit = hexToBigInt(
+      slice(userOperation.paymasterAndData, 20, 36),
+    )
+    result.paymasterPostOpGasLimit = hexToBigInt(
+      slice(userOperation.paymasterAndData, 36, 52),
+    )
+    const paymasterDataSlice = slice(userOperation.paymasterAndData, 52)
+    if (paymasterDataSlice.length > 2) {
+      result.paymasterData = paymasterDataSlice
     }
+    // Remove packed paymasterAndData since we've unpacked it
+    delete result.paymasterAndData
   }
 
   return result
