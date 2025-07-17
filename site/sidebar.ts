@@ -33,29 +33,6 @@ export const sidebar = {
           ],
         },
         { text: 'Blob Transactions', link: '/docs/guides/blob-transactions' },
-        {
-          text: 'USDC Integration',
-          link: '/docs/guides/usdc-integration',
-          collapsed: true,
-          items: [
-            {
-              text: 'Integrating USDC into Your Application',
-              link: '/docs/guides/usdc-integration-app',
-            },
-            {
-              text: 'Cross-Chain USDC Transfers (CCTP V2)',
-              link: '/docs/guides/usdc-integration-cctp',
-            },
-            {
-              text: 'Paying Gas with USDC (Circle Paymaster)',
-              link: '/docs/guides/usdc-integration-paymaster',
-            },
-            {
-              text: 'Circle Smart Account',
-              link: '/docs/guides/usdc-integration-smart-account',
-            },
-          ],
-        },
       ],
     },
     {

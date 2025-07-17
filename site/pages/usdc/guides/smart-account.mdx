@@ -18,30 +18,28 @@ This package provides utilities for passkey authentication and smart account cre
 
 Before you start, make sure you've:
 
-* Setup and retrieve your `CLIENT_KEY` and `CLIENT_URL` [by following this step](https://developers.circle.com/w3s/modular-wallets-setup).  
-* Configured a domain for WebAuthn passkey registration.  
-* Familiarize yourself with [Circle's API Key and Client Key authentication](https://developers.circle.com/w3s/web3-services-api-client-keys-auth).
+* Setup and retrieve your `CLIENT_KEY` and `CLIENT_URL` [by following this step](https://developers.circle.com/w3s/modular-wallets-setup)
+* Configured a domain for WebAuthn passkey registration
+* Familiarize yourself with [Circle's API Key and Client Key authentication](https://developers.circle.com/w3s/web3-services-api-client-keys-auth)
 
+::::steps
 
 ## Create a Passkey Credential
 
 First, register a new **passkey** (WebAuthn credential) or use an existing one for your user. The Circle SDK uses a **Passkey server** to handle WebAuthn registration and login. We need to initialize a Passkey transport with the Circle **Client Key** and **Client URL** (obtained from the Circle Modular Wallets console setup), then create a credential:
 
-```ts
+```ts twoslash
 import { toPasskeyTransport, toWebAuthnCredential, WebAuthnMode } from '@circle-fin/modular-wallets-core'
 
-// 1. Retrieve your Circle Client Key and Client URL from environment (set in .env)
 const clientKey = '...'
 const clientUrl = 'https://...'
 
-// 2. Initialize a Passkey transport for Circle's Passkey service
 const passkeyTransport = toPasskeyTransport(clientUrl, clientKey)
 
-// 3. Register a new passkey (WebAuthn) credential for the user
 const credential = await toWebAuthnCredential({
   transport: passkeyTransport,
-  mode: WebAuthnMode.Register,          // or WebAuthnMode.Login to use an existing credential
-  username: 'user-example',         // a unique username for the credential
+  mode: WebAuthnMode.Register,
+  username: 'user-example',
 })
 ```
 
@@ -56,13 +54,11 @@ import { toModularTransport } from '@circle-fin/modular-wallets-core'
 import { createPublicClient } from 'viem'
 import { polygonAmoy } from 'viem/chains'
 
-// 4. Create a Circle Modular transport for the chosen chain (Polygon Amoy testnet in this example)
 const modularTransport = toModularTransport(
-  `${clientUrl}/polygonAmoy`, // append the chain route to the Client URL
+  `${clientUrl}/polygonAmoy`,
   clientKey,
 )
 
-// 5. Initialize a Viem public client with the Circle transport
 const publicClient = createPublicClient({
   chain: polygonAmoy,
   transport: modularTransport,
@@ -79,12 +75,10 @@ With the client ready and a passkey credential available, you can create the **C
 import { toCircleSmartAccount } from '@circle-fin/modular-wallets-core'
 import { toWebAuthnAccount } from 'viem/account-abstraction'
 
-// 6. Convert the WebAuthn credential into a Viem Account for signing
 const ownerAccount = toWebAuthnAccount({
-  credential,  // use the credential obtained from the passkey registration
+  credential,
 })
 
-// 7. Create a Circle Smart Account using the public client and the passkey-based owner
 const smartAccount = await toCircleSmartAccount({
   client: publicClient,
   owner: ownerAccount,
@@ -98,10 +92,9 @@ To send transactions from a smart account, we use an ERC-4337 **Bundler**. Viem 
 ```ts
 import { createBundlerClient } from 'viem/account-abstraction'
 
-// 8. Initialize a Bundler client for sending User Operations via Circle's bundler
 const bundlerClient = createBundlerClient({
-  account: smartAccount,      // the Smart Account we just created
-  chain: polygonAmoy,         // the chain the bundler should target (must match the smartAccount's chain)
+  account: smartAccount,
+  chain: polygonAmoy,
   transport: modularTransport,
 })
 ```
@@ -116,16 +109,14 @@ We will use the Circle SDK's helper to encode an ERC-20 transfer call and then s
 import { encodeTransfer } from '@circle-fin/modular-wallets-core'
 import { parseUnits } from 'viem'
 
-// 9. Prepare an ERC-20 token transfer call (e.g., send 1.0 USDC to a recipient)
-const USDC_ADDRESS = '0x41e94eb019c0762f9bfcf9fb1e58725bfb0e7582'  // USDC contract on Polygon Amoy testnet
+const USDC_ADDRESS = '0x41e94eb019c0762f9bfcf9fb1e58725bfb0e7582'
 const USDC_DECIMALS = 6
 
 const recipient = '0x...recipient_address...'
-const amount = parseUnits('1', USDC_DECIMALS)  // 1 USDC in base units (10^6)
+const amount = parseUnits('1', USDC_DECIMALS)
 
 const callData = encodeTransfer(recipient, USDC_ADDRESS, amount)
 
-// 10. Send the user operation through the bundler (gas fees sponsored via paymaster)
 const userOpHash = await bundlerClient.sendUserOperation({
   calls: [callData],
   paymaster: true,
@@ -138,6 +129,8 @@ The bundler returns a `userOpHash` for the submitted operation. You can then wai
 const { receipt } = await bundlerClient.waitForUserOperationReceipt({ hash: userOpHash })
 console.log('Transaction hash:', receipt.transactionHash)
 ```
+
+::::
 
 That's it!
 
