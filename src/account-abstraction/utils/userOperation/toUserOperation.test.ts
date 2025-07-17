@@ -28,7 +28,7 @@ test('round trip: basic user operation', () => {
 })
 
 test('round trip: with factory fields', () => {
-  const original: UserOperation = {
+  const userOp: UserOperation = {
     callData: '0x',
     callGasLimit: 200000n,
     maxFeePerGas: 20000000000n,
@@ -42,15 +42,15 @@ test('round trip: with factory fields', () => {
     factoryData: '0xdeadbeef',
   }
 
-  expect(toUserOperation(toPackedUserOperation(original))).toStrictEqual({
-    ...original,
+  expect(toUserOperation(toPackedUserOperation(userOp))).toStrictEqual({
+    ...userOp,
     // packed format adds these empty fields for absent optional data
     paymasterAndData: '0x',
   })
 })
 
 test('round trip: complete operation with all fields', () => {
-  const original: UserOperation = {
+  const userOp: UserOperation = {
     callData:
       '0xb61d27f60000000000000000000000004e59b44847b379578588920ca78fbf26c0b4956c',
     callGasLimit: 211314n,
@@ -70,13 +70,11 @@ test('round trip: complete operation with all fields', () => {
     paymasterData: '0xcafebabe',
   }
 
-  expect(toUserOperation(toPackedUserOperation(original))).toStrictEqual(
-    original,
-  )
+  expect(toUserOperation(toPackedUserOperation(userOp))).toStrictEqual(userOp)
 })
 
 test('idempotency: preserves already unpacked user operation', () => {
-  const original: UserOperation = {
+  const userOp: UserOperation = {
     callData: '0x',
     callGasLimit: 200000n,
     maxFeePerGas: 20000000000n,
@@ -88,7 +86,7 @@ test('idempotency: preserves already unpacked user operation', () => {
     verificationGasLimit: 100000n,
   }
 
-  expect(toUserOperation(original)).toStrictEqual(original)
+  expect(toUserOperation(userOp)).toStrictEqual(userOp)
 })
 
 test('edge case: mixed packed and unpacked fields', () => {
@@ -251,4 +249,28 @@ test('edge case: packed paymaster unpacking', () => {
     paymasterPostOpGasLimit: 100000n,
     paymasterData: '0xcafebabe',
   })
+})
+
+test('edge case: v0.6 format preserved (no packed fields)', () => {
+  // Test that initCode and paymasterAndData are preserved when no packed fields present
+  // This simulates EntryPoint v0.6 format where these fields aren't packed
+  const userOpV06: UserOperation<'0.6'> = {
+    sender: '0x1234567890123456789012345678901234567890',
+    nonce: 0n,
+    // initCode in v0.6 format - should be preserved as-is
+    initCode: '0x1234567890123456789012345678901234567890deadbeef',
+    callData: '0x',
+    // Individual gas fields (no packed accountGasLimits)
+    callGasLimit: 200000n,
+    verificationGasLimit: 100000n,
+    preVerificationGas: 50000n,
+    // Individual gas fee fields (no packed gasFees)
+    maxPriorityFeePerGas: 1000000000n,
+    maxFeePerGas: 20000000000n,
+    // paymasterAndData in v0.6 format - should be preserved as-is
+    paymasterAndData: '0x777777777777aec03fd955926dbf81597e66834ccafebabe',
+    signature: '0x',
+  }
+
+  expect(toUserOperation(userOpV06)).toStrictEqual(userOpV06)
 })
