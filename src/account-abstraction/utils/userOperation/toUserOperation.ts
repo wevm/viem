@@ -12,11 +12,10 @@ import type {
  * field-by-field, using existing unpacked fields when available and only unpacking
  * packed fields when the unpacked versions don't exist.
  *
- * @param userOperation - The user operation (with packed or unpacked fields)
- * @returns The unpacked UserOperation
+ * @param userOperation - The user operation (with packed or unpacked fields). {@link PackedUserOperation} | {@link UserOperation}
+ * @returns The unpacked User Operation. {@link UserOperation}
  *
  * @example
- * ```ts
  * import { toUserOperation } from 'viem/account-abstraction'
  *
  * // Unpacks packed fields when individual fields don't exist
@@ -36,7 +35,6 @@ import type {
  * }
  *
  * const result = toUserOperation(packedUserOp)
- * ```
  */
 export function toUserOperation(
   userOperation: PackedUserOperation | UserOperation,
