@@ -8,7 +8,7 @@ This package & guide is maintained by [Circle](https://www.circle.com).
 
 Make sure to add [Circle's Modular Wallets](https://developers.circle.com/w3s/modular-wallets) SDK to your project:
 
-```shell
+```sh
 npm install @circle-fin/modular-wallets-core
 ```
 
@@ -16,20 +16,28 @@ This package provides utilities for passkey authentication and smart account cre
 
 ## Prerequisites
 
-Before you start, make sure you've:
+Before you start, make sure you have:
 
-* Setup and retrieve your `CLIENT_KEY` and `CLIENT_URL` [by following this step](https://developers.circle.com/w3s/modular-wallets-setup)
-* Configured a domain for WebAuthn passkey registration
+* Set up and retrieved your **Client Key and Client URL** [by following this step](https://developers.circle.com/w3s/modular-wallets-setup)
+* Configured a domain for WebAuthn credential (Passkey) registration
 * Familiarize yourself with [Circle's API Key and Client Key authentication](https://developers.circle.com/w3s/web3-services-api-client-keys-auth)
 
 ::::steps
 
 ## Create a Passkey Credential
 
-First, register a new **passkey** (WebAuthn credential) or use an existing one for your user. The Circle SDK uses a **Passkey server** to handle WebAuthn registration and login. We need to initialize a Passkey transport with the Circle **Client Key** and **Client URL** (obtained from the Circle Modular Wallets console setup), then create a credential:
+First, register a new **Passkey** (WebAuthn credential) or use an existing one for your user. 
 
-```ts twoslash
-import { toPasskeyTransport, toWebAuthnCredential, WebAuthnMode } from '@circle-fin/modular-wallets-core'
+The Circle SDK uses a **Passkey server** to handle WebAuthn registration and login. 
+
+We need to initialize a Passkey Transport with the Circle **Client Key** and **Client URL** (obtained from the Circle Modular Wallets console setup), then create a credential:
+
+```ts
+import { 
+  toPasskeyTransport, 
+  toWebAuthnCredential, 
+  WebAuthnMode 
+} from '@circle-fin/modular-wallets-core'
 
 const clientKey = '...'
 const clientUrl = 'https://...'
@@ -45,27 +53,35 @@ const credential = await toWebAuthnCredential({
 
 This will trigger the WebAuthn flow in the browser (e.g. biometric prompt) and yield a `credential` object for the passkey.
 
-## Connect the Client
+## Create Client
 
-Next, create a Viem **public client** configured to use Circle's infrastructure. Circle provides custom RPC endpoints (via the Client URL) for each supported network. Use `toModularTransport` to get a Viem transport for your target chain, and then initialize the client. For example, to connect to the Polygon Amoy testnet (a Circle test network):
+Next, create a Viem **Public Client** configured to use Circle's infrastructure. 
+
+Circle provides custom RPC endpoints (via the Client URL) for each supported network. 
+
+Use `toModularTransport` to get a Viem transport for your target chain, and then initialize the client. 
+
+For example, to connect to the Polygon Amoy testnet (a Circle test network):
 
 ```ts
 import { toModularTransport } from '@circle-fin/modular-wallets-core'
 import { createPublicClient } from 'viem'
 import { polygonAmoy } from 'viem/chains'
 
-const modularTransport = toModularTransport(
+const transport = toModularTransport(
   `${clientUrl}/polygonAmoy`,
   clientKey,
 )
 
-const publicClient = createPublicClient({
+const client = createPublicClient({
   chain: polygonAmoy,
-  transport: modularTransport,
+  transport,
 })
 ```
 
-**Note:** When calling `toModularTransport`, specify a supported network path. Circle's Modular Wallet service supports major EVM chains (Ethereum, Polygon, Base, Optimism, Arbitrum, etc., including their testnets). For example, use `"${clientUrl}/baseSepolia"` for Base Sepolia, `".../optimism"` for Optimism, and so on.
+:::note
+When calling `toModularTransport`, specify a supported network path. Circle's Modular Wallet service supports major EVM chains (Ethereum, Polygon, Base, Optimism, Arbitrum, etc., including their testnets). For example, use `${clientUrl}/baseSepolia` for Base Sepolia, `${clientUrl}/optimism` for Optimism, and so on.
+:::
 
 ## Create a Circle Smart Account
 
@@ -75,13 +91,13 @@ With the client ready and a passkey credential available, you can create the **C
 import { toCircleSmartAccount } from '@circle-fin/modular-wallets-core'
 import { toWebAuthnAccount } from 'viem/account-abstraction'
 
-const ownerAccount = toWebAuthnAccount({
+const owner = toWebAuthnAccount({
   credential,
 })
 
-const smartAccount = await toCircleSmartAccount({
-  client: publicClient,
-  owner: ownerAccount,
+const account = await toCircleSmartAccount({
+  client,
+  owner,
 })
 ```
 
@@ -91,11 +107,12 @@ To send transactions from a smart account, we use an ERC-4337 **Bundler**. Viem 
 
 ```ts
 import { createBundlerClient } from 'viem/account-abstraction'
+import { polygonAmoy } from 'viem/chains'
 
 const bundlerClient = createBundlerClient({
-  account: smartAccount,
+  account,
   chain: polygonAmoy,
-  transport: modularTransport,
+  transport,
 })
 ```
 
@@ -109,25 +126,24 @@ We will use the Circle SDK's helper to encode an ERC-20 transfer call and then s
 import { encodeTransfer } from '@circle-fin/modular-wallets-core'
 import { parseUnits } from 'viem'
 
-const USDC_ADDRESS = '0x41e94eb019c0762f9bfcf9fb1e58725bfb0e7582'
-const USDC_DECIMALS = 6
+const usdcAddress = '0x41e94eb019c0762f9bfcf9fb1e58725bfb0e7582'
 
-const recipient = '0x...recipient_address...'
-const amount = parseUnits('1', USDC_DECIMALS)
-
-const callData = encodeTransfer(recipient, USDC_ADDRESS, amount)
-
-const userOpHash = await bundlerClient.sendUserOperation({
-  calls: [callData],
+const hash = await bundlerClient.sendUserOperation({
+  calls: [
+    encodeTransfer(
+      '0x{recipient}', 
+      usdcAddress, 
+      parseUnits('1', 6)
+    )
+  ],
   paymaster: true,
 })
 ```
 
-The bundler returns a `userOpHash` for the submitted operation. You can then wait for the transaction to be mined:
+The bundler returns a User Operation `hash` for the submitted operation. You can then wait for the transaction to be included:
 
 ```ts
 const { receipt } = await bundlerClient.waitForUserOperationReceipt({ hash: userOpHash })
-console.log('Transaction hash:', receipt.transactionHash)
 ```
 
 ::::
