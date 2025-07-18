@@ -1,5 +1,11 @@
 # viem
 
+## 2.32.1
+
+### Patch Changes
+
+- [#3805](https://github.com/wevm/viem/pull/3805) [`76140d53636ed40bbb0a91ea8054848e34f71193`](https://github.com/wevm/viem/commit/76140d53636ed40bbb0a91ea8054848e34f71193) Thanks [@alvrs](https://github.com/alvrs)! - Fixed reconnection logic for WebSocket clients.
+
 ## 2.32.0
 
 ### Minor Changes
