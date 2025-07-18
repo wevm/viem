@@ -42,6 +42,12 @@ export const bob = defineChain({
         blockCreated: 4462615,
       },
     },
+    disputeGameFactory: {
+      [sourceId]: {
+        address: '0x96123dbFC3253185B594c6a7472EE5A21E9B1079',
+        blockCreated: 22933164,
+      },
+    },
   },
   sourceId,
 })

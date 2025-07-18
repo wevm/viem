@@ -249,26 +249,36 @@ export async function getWithdrawalStatus<
     args: [withdrawal.withdrawalHash, numProofSubmitters - 1n],
   }).catch(() => withdrawal.sender)
 
-  const [disputeGameResult, checkWithdrawalResult, finalizedResult] =
-    await Promise.allSettled([
-      getGame(client, {
-        ...parameters,
-        l2BlockNumber,
-        limit: gameLimit,
-      } as GetGameParameters),
-      readContract(client, {
-        abi: portal2Abi,
-        address: portalAddress,
-        functionName: 'checkWithdrawal',
-        args: [withdrawal.withdrawalHash, proofSubmitter],
-      }),
-      readContract(client, {
-        abi: portal2Abi,
-        address: portalAddress,
-        functionName: 'finalizedWithdrawals',
-        args: [withdrawal.withdrawalHash],
-      }),
-    ])
+  const [
+    disputeGameResult,
+    checkWithdrawalResult,
+    provenWithdrawalsResult,
+    finalizedResult,
+  ] = await Promise.allSettled([
+    getGame(client, {
+      ...parameters,
+      l2BlockNumber,
+      limit: gameLimit,
+    } as GetGameParameters),
+    readContract(client, {
+      abi: portal2Abi,
+      address: portalAddress,
+      functionName: 'checkWithdrawal',
+      args: [withdrawal.withdrawalHash, proofSubmitter],
+    }),
+    readContract(client, {
+      abi: portal2Abi,
+      address: portalAddress,
+      functionName: 'provenWithdrawals',
+      args: [withdrawal.withdrawalHash, proofSubmitter],
+    }),
+    readContract(client, {
+      abi: portal2Abi,
+      address: portalAddress,
+      functionName: 'finalizedWithdrawals',
+      args: [withdrawal.withdrawalHash],
+    }),
+  ])
 
   if (finalizedResult.status === 'fulfilled' && finalizedResult.value)
     return 'finalized'
@@ -314,6 +324,15 @@ export async function getWithdrawalStatus<
         )
       )
         return 'waiting-to-finalize'
+    }
+    // NOTE https://github.com/ethereum-optimism/optimism/blob/5131b07a429fcdc035d69f08c9f26602a680c1fc/packages/contracts-bedrock/src/L1/OptimismPortal2.sol#L515
+    // this contract function reverts in both 'ready-to-prove' and 'waiting-to-finalize' cases
+    if (error.name === 'ContractFunctionExecutionError') {
+      if (provenWithdrawalsResult.status === 'fulfilled') {
+        const [, timestamp] = provenWithdrawalsResult.value
+        if (timestamp) return 'waiting-to-finalize'
+      }
+      return 'ready-to-prove'
     }
     throw checkWithdrawalResult.reason
   }
