@@ -1,5 +1,11 @@
 # viem
 
+## 2.31.11
+
+### Patch Changes
+
+- [#10](https://github.com/bob-collective/viem/pull/10) [`be340e31d60a202ebe2b174989af3f4f88b20010`](https://github.com/bob-collective/viem/commit/be340e31d60a202ebe2b174989af3f4f88b20010) Thanks [@slavastartsev](https://github.com/slavastartsev)! - chore: get proof maturity time from game factory proxy contract
+
 ## 2.31.10
 
 ### Patch Changes
