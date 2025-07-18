@@ -138,6 +138,7 @@ test('request', async () => {
 test('reconnect', async () => {
   let active = true
   let count = -1
+
   const socketClient = await getSocketRpcClient({
     key: 'test-socket',
     async getSocket({ onError, onOpen, onResponse }) {
@@ -148,7 +149,7 @@ test('reconnect', async () => {
         onOpen()
         active = true
       } else {
-        onError(new Error('connection failed.'))
+        setTimeout(() => onError(new Error('connection failed.')), 200)
         active = false
       }
 
@@ -157,6 +158,7 @@ test('reconnect', async () => {
         request({ body }) {
           wait(100).then(() => {
             if (!active) return
+
             onResponse({ id: body.id ?? 0, jsonrpc: '2.0', result: body })
 
             wait(100).then(() => {
@@ -168,7 +170,7 @@ test('reconnect', async () => {
       }
     },
     reconnect: {
-      delay: 200,
+      delay: 100,
       attempts: 5,
     },
     url: anvilMainnet.rpcUrl.ws,
@@ -367,7 +369,7 @@ test('reconnect (eth_subscribe)', async () => {
         onOpen()
         active = true
       } else {
-        onError(new Error('connection failed.'))
+        setTimeout(() => onError(new Error('connection failed.')), 200)
         active = false
       }
 
@@ -387,7 +389,7 @@ test('reconnect (eth_subscribe)', async () => {
       }
     },
     reconnect: {
-      delay: 200,
+      delay: 100,
       attempts: 5,
     },
     url: anvilMainnet.rpcUrl.ws,

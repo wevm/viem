@@ -139,8 +139,10 @@ export async function getSocketRpcClient<socket extends {}>(
           if (reconnectInProgress) return
           reconnectInProgress = true
           reconnectCount++
+
           // Make sure the previous socket is definitely closed.
           socket?.close()
+
           setTimeout(async () => {
             await setup().catch(console.error)
             reconnectInProgress = false
