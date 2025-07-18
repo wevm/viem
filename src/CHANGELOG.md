@@ -1,5 +1,11 @@
 # viem
 
+## 2.31.10
+
+### Patch Changes
+
+- [#8](https://github.com/bob-collective/viem/pull/8) [`3a3d5063ee30841fd8c0d243ae29936cf475413c`](https://github.com/bob-collective/viem/commit/3a3d5063ee30841fd8c0d243ae29936cf475413c) Thanks [@slavastartsev](https://github.com/slavastartsev)! - Fix/kailua patch
+
 ## 2.31.9
 
 ### Patch Changes

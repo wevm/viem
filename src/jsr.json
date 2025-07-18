@@ -1,6 +1,6 @@
 {
   "name": "@gobob/viem",
-  "version": "2.31.9",
+  "version": "2.31.10",
   "exports": {
     ".": "./index.ts",
     "./accounts-abstraction": "./account-abstraction/index.ts",
