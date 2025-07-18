@@ -1,3 +1,4 @@
+import type { Address } from 'abitype'
 import {
   type MulticallErrorType,
   multicall,
@@ -14,7 +15,12 @@ import type {
   GetChainParameter,
 } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
-import { l2OutputOracleAbi, portal2Abi, portalAbi } from '../abis.js'
+import {
+  kailuaGameAbi,
+  l2OutputOracleAbi,
+  portal2Abi,
+  portalAbi,
+} from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import { getPortalVersion } from './getPortalVersion.js'
 
@@ -142,22 +148,20 @@ export async function getTimeToFinalize<
     args: [withdrawalHash, numProofSubmitters - 1n],
   }).catch(() => undefined)
 
-  const [[_disputeGameProxy, proveTimestamp], proofMaturityDelaySeconds] =
-    await Promise.all([
-      proofSubmitter
-        ? readContract(client, {
-            abi: portal2Abi,
-            address: portalAddress,
-            functionName: 'provenWithdrawals',
-            args: [withdrawalHash, proofSubmitter],
-          })
-        : Promise.resolve(['0x', 0n]),
-      readContract(client, {
+  const [_disputeGameProxy, proveTimestamp] = proofSubmitter
+    ? await readContract(client, {
         abi: portal2Abi,
         address: portalAddress,
-        functionName: 'proofMaturityDelaySeconds',
-      }),
-    ])
+        functionName: 'provenWithdrawals',
+        args: [withdrawalHash, proofSubmitter],
+      })
+    : await Promise.resolve<[Address, bigint]>(['0x', 0n])
+
+  const proofMaturityDelaySeconds = await readContract(client, {
+    abi: kailuaGameAbi,
+    address: _disputeGameProxy,
+    functionName: 'MAX_CLOCK_DURATION',
+  })
 
   if (proveTimestamp === 0n)
     throw new BaseError('Withdrawal has not been proven on L1.')
