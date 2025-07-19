@@ -483,6 +483,54 @@ describe('replaced transactions', () => {
     expect(replacement.transaction).toBeDefined()
     expect(replacement.transactionReceipt).toBeDefined()
   })
+
+  test('checkReplacement: false', async () => {
+    setup()
+
+    await mine(client, { blocks: 10 })
+
+    const nonce = hexToNumber(
+      (await client.request({
+        method: 'eth_getTransactionCount',
+        params: [sourceAccount.address, 'latest'],
+      })) ?? '0x0',
+    )
+
+    const hash = await sendTransaction(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxFeePerGas: parseGwei('10'),
+      nonce,
+    })
+
+    let replacementCalled = false
+    const receiptPromise = waitForTransactionReceipt(client, {
+      hash,
+      checkReplacement: false,
+      timeout: 3000,
+      onReplaced: () => (replacementCalled = true),
+    })
+
+    // Replace the transaction with a higher gas price
+    await wait(100)
+    await sendTransaction(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('2'),
+      nonce,
+      maxFeePerGas: parseGwei('20'),
+    })
+
+    // Since checkReplacement is false, it should timeout waiting for the original transaction
+    // rather than detecting the replacement
+    await expect(receiptPromise).rejects.toThrowError(
+      WaitForTransactionReceiptTimeoutError,
+    )
+
+    // The onReplaced callback should not have been called
+    expect(replacementCalled).toBe(false)
+  })
 })
 
 describe('args: confirmations', () => {
