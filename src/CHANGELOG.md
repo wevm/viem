@@ -1,5 +1,11 @@
 # viem
 
+## 2.33.0
+
+### Minor Changes
+
+- [#3808](https://github.com/wevm/viem/pull/3808) [`3fd9761a793c5e3b206b2381c8e145e914cd60e4`](https://github.com/wevm/viem/commit/3fd9761a793c5e3b206b2381c8e145e914cd60e4) Thanks [@jxom](https://github.com/jxom)! - Added `checkReplacement` parameter to `waitForTransactionReceipt`.
+
 ## 2.32.1
 
 ### Patch Changes
