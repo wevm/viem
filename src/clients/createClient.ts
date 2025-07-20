@@ -239,7 +239,7 @@ export function createClient(parameters: ClientConfig): Client {
     parameters.experimental_blockTag ??
     (typeof chain?.experimental_preconfirmationTime === 'number'
       ? 'pending'
-      : 'latest')
+      : undefined)
   const blockTime = chain?.blockTime ?? 12_000
 
   const defaultPollingInterval = Math.min(
@@ -264,7 +264,6 @@ export function createClient(parameters: ClientConfig): Client {
     cacheTime,
     ccipRead,
     chain,
-    experimental_blockTag,
     key,
     name,
     pollingInterval,
@@ -272,6 +271,7 @@ export function createClient(parameters: ClientConfig): Client {
     transport,
     type,
     uid: uid(),
+    ...(experimental_blockTag ? { experimental_blockTag } : {}),
   }
 
   function extend(base: typeof client) {

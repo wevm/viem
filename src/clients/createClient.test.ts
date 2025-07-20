@@ -30,7 +30,6 @@ test('creates', () => {
     {
       "account": undefined,
       "batch": undefined,
-      "blockTag": "latest",
       "cacheTime": 4000,
       "ccipRead": undefined,
       "chain": undefined,
@@ -66,7 +65,6 @@ describe('transports', () => {
       {
         "account": undefined,
         "batch": undefined,
-        "blockTag": "latest",
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": {
@@ -121,7 +119,6 @@ describe('transports', () => {
       {
         "account": undefined,
         "batch": undefined,
-        "blockTag": "latest",
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": {
@@ -176,7 +173,6 @@ describe('transports', () => {
       {
         "account": undefined,
         "batch": undefined,
-        "blockTag": "latest",
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": undefined,
@@ -202,7 +198,7 @@ describe('transports', () => {
 })
 
 describe('config', () => {
-  test('blockTag', () => {
+  test('experimental_blockTag', () => {
     const mockTransport = () =>
       createTransport({
         key: 'mock',
@@ -221,10 +217,10 @@ describe('config', () => {
       {
         "account": undefined,
         "batch": undefined,
-        "blockTag": "safe",
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": undefined,
+        "experimental_blockTag": "safe",
         "extend": [Function],
         "key": "base",
         "name": "Base Client",
@@ -245,23 +241,7 @@ describe('config', () => {
     `)
   })
 
-  test('blockTag: defaults to latest', () => {
-    const mockTransport = () =>
-      createTransport({
-        key: 'mock',
-        name: 'Mock Transport',
-        request: vi.fn(async () => null) as unknown as EIP1193RequestFn,
-        type: 'mock',
-      })
-    const { uid, ...client } = createClient({
-      transport: mockTransport,
-    })
-
-    expect(uid).toBeDefined()
-    expect(client.experimental_blockTag).toBe('latest')
-  })
-
-  test('blockTag: defaults to pending when chain has `experimental_preconfirmationTime`', () => {
+  test('experimental_blockTag: defaults to pending when chain has `experimental_preconfirmationTime`', () => {
     const mockTransport = () =>
       createTransport({
         key: 'mock',
@@ -303,7 +283,6 @@ describe('config', () => {
       {
         "account": undefined,
         "batch": undefined,
-        "blockTag": "latest",
         "cacheTime": 10000,
         "ccipRead": undefined,
         "chain": undefined,
@@ -349,7 +328,6 @@ describe('config', () => {
       {
         "account": undefined,
         "batch": undefined,
-        "blockTag": "latest",
         "cacheTime": 4000,
         "ccipRead": {
           "request": [Function],
@@ -394,7 +372,6 @@ describe('config', () => {
       {
         "account": undefined,
         "batch": undefined,
-        "blockTag": "latest",
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": undefined,
@@ -437,7 +414,6 @@ describe('config', () => {
       {
         "account": undefined,
         "batch": undefined,
-        "blockTag": "latest",
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": undefined,
@@ -480,7 +456,6 @@ describe('config', () => {
       {
         "account": undefined,
         "batch": undefined,
-        "blockTag": "latest",
         "cacheTime": 10000,
         "ccipRead": undefined,
         "chain": undefined,
@@ -523,7 +498,6 @@ describe('config', () => {
       {
         "account": undefined,
         "batch": undefined,
-        "blockTag": "latest",
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": undefined,
@@ -580,7 +554,6 @@ describe('extends', () => {
       {
         "account": undefined,
         "batch": undefined,
-        "blockTag": "latest",
         "cacheTime": 4000,
         "call": [Function],
         "ccipRead": undefined,
