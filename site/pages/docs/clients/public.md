@@ -206,7 +206,18 @@ const publicClient = createPublicClient({
 - **Type:** `BlockTag`
 - **Default:** `'latest'`
 
-The default block tag to use for RPC requests.
+The default block tag to use for Actions.
+
+This will be used as the default block tag for the following Actions:
+
+- `call`
+- `estimateGas`
+- `getBalance`
+- `getBlock`
+- `simulateBlocks`
+- `waitForTransactionReceipt`
+- `watchBlocks`
+
 
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts:imports]
