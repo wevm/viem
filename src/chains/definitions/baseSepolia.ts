@@ -53,3 +53,13 @@ export const baseSepolia = /*#__PURE__*/ defineChain({
   testnet: true,
   sourceId,
 })
+
+export const baseSepoliaFlashblocks = /*#__PURE__*/ defineChain({
+  ...baseSepolia,
+  experimental_preconfirmationTime: 200,
+  rpcUrls: {
+    default: {
+      http: ['https://sepolia-preconf.base.org'],
+    },
+  },
+})

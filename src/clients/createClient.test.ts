@@ -211,7 +211,7 @@ describe('config', () => {
         type: 'mock',
       })
     const { uid, ...client } = createClient({
-      blockTag: 'safe',
+      experimental_blockTag: 'safe',
       transport: mockTransport,
     })
 
@@ -261,7 +261,7 @@ describe('config', () => {
     expect(client.experimental_blockTag).toBe('latest')
   })
 
-  test('blockTag: defaults to pending when chain has experimental_preconfirmationTime', () => {
+  test('blockTag: defaults to pending when chain has `experimental_preconfirmationTime`', () => {
     const mockTransport = () =>
       createTransport({
         key: 'mock',
