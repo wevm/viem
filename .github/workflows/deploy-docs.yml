@@ -1,0 +1,30 @@
+name: Deploy Docs
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Build package
+        run: pnpm build
+
+      - name: Build docs
+        run: pnpm docs:build
+
+      - name: Deploy
+        uses: amondnet/vercel-action@v41.1.4
+        with:
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          working-directory: ./site/dist
