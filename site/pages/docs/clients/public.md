@@ -201,6 +201,23 @@ const publicClient = createPublicClient({
 })
 ```
 
+### blockTag (optional)
+
+- **Type:** `BlockTag`
+- **Default:** `'latest'`
+
+The default block tag to use for RPC requests.
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts:imports]
+// ---cut---
+const publicClient = createPublicClient({
+  blockTag: 'pending', // [!code focus]
+  chain: mainnet,
+  transport: http(),
+})
+```
+
 ### cacheTime (optional)
 
 - **Type:** `number`
