@@ -218,6 +218,10 @@ This will be used as the default block tag for the following Actions:
 - `waitForTransactionReceipt`
 - `watchBlocks`
 
+:::note
+If the chain supports a pre-confirmation mechanism (set via `chain.experimental_preconfirmationTime`), 
+the default block tag will be `'pending'`.
+:::
 
 ```ts twoslash
 // [!include ~/snippets/publicClient.ts:imports]
