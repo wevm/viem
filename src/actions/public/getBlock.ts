@@ -97,11 +97,10 @@ export async function getBlock<
   {
     blockHash,
     blockNumber,
-    blockTag: blockTag_,
+    blockTag = client.blockTag ?? 'latest',
     includeTransactions: includeTransactions_,
   }: GetBlockParameters<includeTransactions, blockTag> = {},
 ): Promise<GetBlockReturnType<chain, includeTransactions, blockTag>> {
-  const blockTag = blockTag_ ?? 'latest'
   const includeTransactions = includeTransactions_ ?? false
 
   const blockNumberHex =

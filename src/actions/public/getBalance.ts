@@ -71,7 +71,11 @@ export type GetBalanceErrorType =
  */
 export async function getBalance<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  { address, blockNumber, blockTag = 'latest' }: GetBalanceParameters,
+  {
+    address,
+    blockNumber,
+    blockTag = client.blockTag ?? 'latest',
+  }: GetBalanceParameters,
 ): Promise<GetBalanceReturnType> {
   const blockNumberHex =
     typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined

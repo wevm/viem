@@ -7,6 +7,7 @@ import {
 } from '../accounts/utils/parseAccount.js'
 import type { ErrorType } from '../errors/utils.js'
 import type { Account } from '../types/account.js'
+import type { BlockTag } from '../types/block.js'
 import type { Chain } from '../types/chain.js'
 import type {
   EIP1193RequestFn,
@@ -41,6 +42,15 @@ export type ClientConfig<
         multicall?: boolean | Prettify<MulticallBatchOptions> | undefined
       }
     | undefined
+  /**
+   * Default block tag to use for RPC requests.
+   *
+   * If the chain supports a pre-confirmation mechanism
+   * (set via `chain.experimental_preconfirmationTime`), defaults to `'pending'`.
+   *
+   * @default 'latest'
+   */
+  blockTag?: BlockTag | undefined
   /**
    * Time (in ms) that cached data will remain in memory.
    * @default chain.blockTime / 3
@@ -155,6 +165,8 @@ type Client_Base<
   account: account
   /** Flags for batch settings. */
   batch?: ClientConfig['batch'] | undefined
+  /** Default block tag to use for RPC requests. */
+  blockTag?: BlockTag | undefined
   /** Time (in ms) that cached data will remain in memory. */
   cacheTime: number
   /** [CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) configuration. */
@@ -223,6 +235,11 @@ export function createClient(parameters: ClientConfig): Client {
     type = 'base',
   } = parameters
 
+  const blockTag =
+    parameters.blockTag ??
+    (typeof chain?.experimental_preconfirmationTime === 'number'
+      ? 'pending'
+      : 'latest')
   const blockTime = chain?.blockTime ?? 12_000
 
   const defaultPollingInterval = Math.min(
@@ -244,6 +261,7 @@ export function createClient(parameters: ClientConfig): Client {
   const client = {
     account,
     batch,
+    blockTag,
     cacheTime,
     ccipRead,
     chain,
