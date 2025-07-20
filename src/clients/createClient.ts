@@ -172,7 +172,7 @@ type Client_Base<
   /** Chain for the client. */
   chain: chain
   /** Default block tag to use for RPC requests. */
-  experimental_blockTag: BlockTag
+  experimental_blockTag?: BlockTag | undefined
   /** A key for the client. */
   key: string
   /** A name for the client. */

@@ -194,7 +194,11 @@ export async function estimateGas<
       return client.request({
         method: 'eth_estimateGas',
         params: rpcStateOverride
-          ? [request, block ?? client.experimental_blockTag, rpcStateOverride]
+          ? [
+              request,
+              block ?? client.experimental_blockTag ?? 'latest',
+              rpcStateOverride,
+            ]
           : block
             ? [request, block]
             : [request],

@@ -74,7 +74,7 @@ export async function getBalance<chain extends Chain | undefined>(
   {
     address,
     blockNumber,
-    blockTag = client.experimental_blockTag,
+    blockTag = client.experimental_blockTag ?? 'latest',
   }: GetBalanceParameters,
 ): Promise<GetBalanceReturnType> {
   const blockNumberHex =
