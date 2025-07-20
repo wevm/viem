@@ -13,4 +13,3 @@ This will be used as the default block tag for the following actions:
 - `simulateBlocks`
 - `waitForTransactionReceipt`
 - `watchBlocks`
-
