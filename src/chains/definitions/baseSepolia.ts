@@ -54,7 +54,7 @@ export const baseSepolia = /*#__PURE__*/ defineChain({
   sourceId,
 })
 
-export const baseSepoliaFlashblocks = /*#__PURE__*/ defineChain({
+export const baseSepoliaPreconf = /*#__PURE__*/ defineChain({
   ...baseSepolia,
   experimental_preconfirmationTime: 200,
   rpcUrls: {
