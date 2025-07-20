@@ -103,7 +103,7 @@ export function watchBlocks<
 >(
   client: Client<transport, chain>,
   {
-    blockTag = 'latest',
+    blockTag = client.experimental_blockTag ?? 'latest',
     emitMissed = false,
     emitOnBegin = false,
     onBlock,

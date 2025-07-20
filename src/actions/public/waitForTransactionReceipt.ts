@@ -147,13 +147,19 @@ export async function waitForTransactionReceipt<
     confirmations = 1,
     hash,
     onReplaced,
-    pollingInterval = client.pollingInterval,
     retryCount = 6,
     retryDelay = ({ count }) => ~~(1 << count) * 200, // exponential backoff
     timeout = 180_000,
   } = parameters
 
   const observerId = stringify(['waitForTransactionReceipt', client.uid, hash])
+
+  const pollingInterval = (() => {
+    if (parameters.pollingInterval) return parameters.pollingInterval
+    if (client.chain?.experimental_preconfirmationTime)
+      return client.chain.experimental_preconfirmationTime
+    return client.pollingInterval
+  })()
 
   let transaction: GetTransactionReturnType<chain> | undefined
   let replacedTransaction: GetTransactionReturnType<chain> | undefined

@@ -54,6 +54,8 @@ export type Chain<
   name: string
   /** Currency used by chain */
   nativeCurrency: ChainNativeCurrency
+  /** Preconfirmation time in milliseconds. */
+  experimental_preconfirmationTime?: number | undefined
   /** Collection of RPC endpoints */
   rpcUrls: {
     [key: string]: ChainRpcUrls
