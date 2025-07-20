@@ -166,7 +166,7 @@ type Client_Base<
   /** Flags for batch settings. */
   batch?: ClientConfig['batch'] | undefined
   /** Default block tag to use for RPC requests. */
-  blockTag?: BlockTag | undefined
+  blockTag: BlockTag
   /** Time (in ms) that cached data will remain in memory. */
   cacheTime: number
   /** [CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) configuration. */

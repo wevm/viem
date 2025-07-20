@@ -186,7 +186,7 @@ export async function simulateBlocks<
 ): Promise<SimulateBlocksReturnType<calls>> {
   const {
     blockNumber,
-    blockTag = client.blockTag ?? 'latest',
+    blockTag = client.blockTag,
     blocks,
     returnFullTransactions,
     traceTransfers,
