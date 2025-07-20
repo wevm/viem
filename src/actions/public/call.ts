@@ -160,7 +160,7 @@ export async function call<chain extends Chain | undefined>(
     authorizationList,
     batch = Boolean(client.batch?.multicall),
     blockNumber,
-    blockTag = client.blockTag,
+    blockTag = client.experimental_blockTag,
     accessList,
     blobs,
     blockOverrides,
@@ -351,7 +351,7 @@ async function scheduleMulticall<chain extends Chain | undefined>(
     typeof client.batch?.multicall === 'object' ? client.batch.multicall : {}
   const {
     blockNumber,
-    blockTag = client.blockTag,
+    blockTag = client.experimental_blockTag,
     data,
     multicallAddress: multicallAddress_,
     to,

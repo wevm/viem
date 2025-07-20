@@ -216,7 +216,7 @@ describe('config', () => {
     })
 
     expect(uid).toBeDefined()
-    expect(client.blockTag).toBe('safe')
+    expect(client.experimental_blockTag).toBe('safe')
     expect(client).toMatchInlineSnapshot(`
       {
         "account": undefined,
@@ -258,7 +258,7 @@ describe('config', () => {
     })
 
     expect(uid).toBeDefined()
-    expect(client.blockTag).toBe('latest')
+    expect(client.experimental_blockTag).toBe('latest')
   })
 
   test('blockTag: defaults to pending when chain has experimental_preconfirmationTime', () => {
@@ -282,7 +282,7 @@ describe('config', () => {
     })
 
     expect(uid).toBeDefined()
-    expect(client.blockTag).toBe('pending')
+    expect(client.experimental_blockTag).toBe('pending')
   })
 
   test('cacheTime', () => {

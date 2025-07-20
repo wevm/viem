@@ -50,7 +50,7 @@ export type ClientConfig<
    *
    * @default 'latest'
    */
-  blockTag?: BlockTag | undefined
+  experimental_blockTag?: BlockTag | undefined
   /**
    * Time (in ms) that cached data will remain in memory.
    * @default chain.blockTime / 3
@@ -165,14 +165,14 @@ type Client_Base<
   account: account
   /** Flags for batch settings. */
   batch?: ClientConfig['batch'] | undefined
-  /** Default block tag to use for RPC requests. */
-  blockTag: BlockTag
   /** Time (in ms) that cached data will remain in memory. */
   cacheTime: number
   /** [CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) configuration. */
   ccipRead?: ClientConfig['ccipRead'] | undefined
   /** Chain for the client. */
   chain: chain
+  /** Default block tag to use for RPC requests. */
+  experimental_blockTag: BlockTag
   /** A key for the client. */
   key: string
   /** A name for the client. */
@@ -235,8 +235,8 @@ export function createClient(parameters: ClientConfig): Client {
     type = 'base',
   } = parameters
 
-  const blockTag =
-    parameters.blockTag ??
+  const experimental_blockTag =
+    parameters.experimental_blockTag ??
     (typeof chain?.experimental_preconfirmationTime === 'number'
       ? 'pending'
       : 'latest')
@@ -261,10 +261,10 @@ export function createClient(parameters: ClientConfig): Client {
   const client = {
     account,
     batch,
-    blockTag,
     cacheTime,
     ccipRead,
     chain,
+    experimental_blockTag,
     key,
     name,
     pollingInterval,
