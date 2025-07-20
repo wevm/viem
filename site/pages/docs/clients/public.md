@@ -284,7 +284,7 @@ the default block tag will be `'pending'`.
 // [!include ~/snippets/publicClient.ts:imports]
 // ---cut---
 const publicClient = createPublicClient({
-  blockTag: 'pending', // [!code focus]
+  experimental_blockTag: 'pending', // [!code focus]
   chain: mainnet,
   transport: http(),
 })
