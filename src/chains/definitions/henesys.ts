@@ -3,7 +3,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const henesys = /*#__PURE__*/ defineChain({
   id: 68414,
   name: 'Henesys',
-  network: 'Henesys',
   nativeCurrency: {
     decimals: 18,
     name: 'Nexpace',
