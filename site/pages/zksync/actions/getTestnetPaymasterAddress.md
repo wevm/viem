@@ -2,9 +2,19 @@
 description: Returns the address of a Paymaster on a Testnet.
 ---
 
-# getTestnetPaymasterAddress
+# getTestnetPaymasterAddress (depreated)
 
-Returns the address of a Paymaster on a Testnet.
+Returns the address of the testnet Paymaster.
+
+:::warning
+**This Action is being deprecated.**
+
+This method calls an RPC method that will be removed in a future release. Please use the alternatives mentioned below.
+
+**Alternatives / Workaround**
+
+The returned value can be found on each ZKsync chain technical documentation (e.g [ZKsync Era docs](https://docs.zksync.io/zksync-era/unique-features/paymaster#testnet-paymaster)).
+:::
 
 ## Usage
 
