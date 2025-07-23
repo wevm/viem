@@ -1,8 +1,11 @@
 import { assertType, describe, expect, test } from 'vitest'
 
+import { waitForTransactionReceipt } from '../../actions/public/waitForTransactionReceipt.js'
+import { base } from '../../chains/index.js'
+import { createClient } from '../../clients/createClient.js'
+import { http } from '../../clients/transports/http.js'
 import { getAddress } from '../address/getAddress.js'
 import { toEventSelector } from '../hash/toEventSelector.js'
-
 import { decodeEventLog } from './decodeEventLog.js'
 
 test('Transfer()', () => {
@@ -164,6 +167,49 @@ test('unnamed args: Transfer(address,address,uint256)', () => {
       '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
       '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
       1n,
+    ],
+    eventName: 'Transfer',
+  })
+})
+
+test('unnamed args: mixed ordering of indexed args', () => {
+  const event = decodeEventLog({
+    abi: [
+      {
+        inputs: [
+          {
+            indexed: true,
+            type: 'address',
+          },
+          {
+            indexed: false,
+            type: 'uint256',
+          },
+          {
+            indexed: true,
+            type: 'address',
+          },
+        ],
+        name: 'Transfer',
+        type: 'event',
+      },
+    ],
+    data: '0x0000000000000000000000000000000000000000000000000000000000000001',
+    topics: [
+      '0x138dbc8474f748db86063dcef24cef1495bc73385a946f8d691128085e5ebec2',
+      '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+      '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+    ],
+  })
+  assertType<typeof event>({
+    eventName: 'Transfer',
+    args: ['0x', 1n, '0x'],
+  })
+  expect(event).toEqual({
+    args: [
+      '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+      1n,
+      '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
     ],
     eventName: 'Transfer',
   })
@@ -864,6 +910,69 @@ describe('GitHub repros', () => {
       `,
       )
     })
+  })
+
+  test('https://github.com/wevm/viem/issues/3705', async () => {
+    const client = createClient({
+      chain: base,
+      transport: http(),
+    })
+
+    const receipt = await waitForTransactionReceipt(client, {
+      hash: '0xbee3f576c43a29d3c924cd46ff1ff42489eceae5e8e31afdbba8f982c8291a76',
+    })
+
+    const decoded = receipt.logs
+      .map((log) => {
+        try {
+          return decodeEventLog({
+            ...log,
+            abi: [
+              {
+                type: 'event',
+                name: 'PetRegistered',
+                inputs: [
+                  {
+                    name: 'petId',
+                    type: 'uint256',
+                    indexed: true,
+                    internalType: 'uint256',
+                  },
+                  {
+                    name: 'user',
+                    type: 'address',
+                    indexed: true,
+                    internalType: 'address',
+                  },
+                ],
+                anonymous: false,
+              },
+            ],
+          })
+        } catch {
+          return null
+        }
+      })
+      .filter((log) => log?.eventName === 'PetRegistered')
+
+    expect(decoded).toMatchInlineSnapshot(`
+      [
+        {
+          "args": {
+            "petId": 75574n,
+            "user": "0x03998b821AB247677a034762CA7F99fACF227975",
+          },
+          "eventName": "PetRegistered",
+        },
+        {
+          "args": {
+            "petId": 75575n,
+            "user": "0x03998b821AB247677a034762CA7F99fACF227975",
+          },
+          "eventName": "PetRegistered",
+        },
+      ]
+    `)
   })
 })
 

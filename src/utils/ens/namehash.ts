@@ -30,7 +30,7 @@ export type NamehashErrorType =
  *
  * @example
  * namehash('wevm.eth')
- * '0xf246651c1b9a6b141d19c2604e9a58f567973833990f830d882534a747801359'
+ * '0x08c85f2f4059e930c45a6aeff9dcd3bd95dc3c5c1cddef6a0626b31152248560'
  *
  * @link https://eips.ethereum.org/EIPS/eip-137
  */

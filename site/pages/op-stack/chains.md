@@ -19,7 +19,7 @@ import {
   unichain, // [!code hl]
   unichainSepolia, // [!code hl]
   zircuit, // [!code hl]
-  zircuitTestnet, // [!code hl]
+  zircuitGarfieldTestnet, // [!code hl]
   zora, // [!code hl]
   zoraSepolia, // [!code hl]
   zoraTestnet, // [!code hl]

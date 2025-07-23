@@ -13,8 +13,8 @@ export const cronosTestnet = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Cronos Explorer',
-      url: 'https://cronos.org/explorer/testnet3',
+      name: 'Cronos Explorer (Testnet)',
+      url: 'https://explorer.cronos.org/testnet',
     },
   },
   contracts: {

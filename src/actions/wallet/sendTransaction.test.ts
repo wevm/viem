@@ -7,7 +7,7 @@ import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
 
 import { maxUint256 } from '~viem/constants/number.js'
-import { BatchCallDelegation } from '../../../contracts/generated.js'
+import { Delegation } from '../../../contracts/generated.js'
 import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
 import { deploy } from '../../../test/src/utils.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
@@ -724,8 +724,8 @@ describe('local account', () => {
     })
 
     const { contractAddress } = await deploy(client, {
-      abi: BatchCallDelegation.abi,
-      bytecode: BatchCallDelegation.bytecode.object,
+      abi: Delegation.abi,
+      bytecode: Delegation.bytecode.object,
     })
 
     const authorization = await signAuthorization(client, {
@@ -737,7 +737,7 @@ describe('local account', () => {
       account: relay,
       authorizationList: [authorization],
       data: encodeFunctionData({
-        abi: BatchCallDelegation.abi,
+        abi: Delegation.abi,
         functionName: 'execute',
         args: [
           [
@@ -760,7 +760,7 @@ describe('local account', () => {
     expect(getAddress(log.address)).toBe(eoa.address)
     expect(
       decodeEventLog({
-        abi: BatchCallDelegation.abi,
+        abi: Delegation.abi,
         ...log,
       }),
     ).toEqual({
@@ -799,8 +799,8 @@ describe('local account', () => {
 
     // deploy on mainnet
     const { contractAddress, hash } = await deploy(client, {
-      abi: BatchCallDelegation.abi,
-      bytecode: BatchCallDelegation.bytecode.object,
+      abi: Delegation.abi,
+      bytecode: Delegation.bytecode.object,
     })
 
     const { nonce } = await getTransaction(client, { hash })
@@ -808,8 +808,8 @@ describe('local account', () => {
     // deploy on sepolia
     await setNonce(client_sepolia, { address: relay.address, nonce })
     await deploy(client_sepolia, {
-      abi: BatchCallDelegation.abi,
-      bytecode: BatchCallDelegation.bytecode.object,
+      abi: Delegation.abi,
+      bytecode: Delegation.bytecode.object,
     })
 
     // sign authorization with `0` chain id (all chains)
@@ -823,7 +823,7 @@ describe('local account', () => {
       account: relay,
       authorizationList: [authorization],
       data: encodeFunctionData({
-        abi: BatchCallDelegation.abi,
+        abi: Delegation.abi,
         functionName: 'execute',
         args: [
           [
@@ -866,8 +866,8 @@ describe('local account', () => {
     })
 
     const { contractAddress } = await deploy(client, {
-      abi: BatchCallDelegation.abi,
-      bytecode: BatchCallDelegation.bytecode.object,
+      abi: Delegation.abi,
+      bytecode: Delegation.bytecode.object,
     })
 
     const authorization = await signAuthorization(client, {
@@ -880,7 +880,7 @@ describe('local account', () => {
       account: eoa,
       authorizationList: [authorization],
       data: encodeFunctionData({
-        abi: BatchCallDelegation.abi,
+        abi: Delegation.abi,
         functionName: 'execute',
         args: [
           [
@@ -903,7 +903,7 @@ describe('local account', () => {
     expect(getAddress(log.address)).toBe(eoa.address)
     expect(
       decodeEventLog({
-        abi: BatchCallDelegation.abi,
+        abi: Delegation.abi,
         ...log,
       }),
     ).toEqual({
@@ -1534,8 +1534,8 @@ test('https://github.com/wevm/viem/issues/2721', async () => {
   })
 
   const { contractAddress } = await deploy(client, {
-    abi: BatchCallDelegation.abi,
-    bytecode: BatchCallDelegation.bytecode.object,
+    abi: Delegation.abi,
+    bytecode: Delegation.bytecode.object,
   })
 
   const authorization = await signAuthorization(client, {
@@ -1547,7 +1547,7 @@ test('https://github.com/wevm/viem/issues/2721', async () => {
     account: relay,
     authorizationList: [authorization],
     data: encodeFunctionData({
-      abi: BatchCallDelegation.abi,
+      abi: Delegation.abi,
       functionName: 'execute',
       args: [
         [

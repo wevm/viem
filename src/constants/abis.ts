@@ -1413,7 +1413,7 @@ export const erc721Abi = [
         type: 'address',
       },
       {
-        name: 'tokeId',
+        name: 'tokenId',
         type: 'uint256',
       },
     ],

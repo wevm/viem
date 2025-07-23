@@ -1,4 +1,4 @@
-import { type Address, parseAbi, parseAbiParameters } from 'abitype'
+import { type Address, parseAbi } from 'abitype'
 import type { Account } from '../../accounts/types.js'
 import {
   type EstimateGasParameters,
@@ -21,6 +21,7 @@ import { publicActions } from '../../clients/decorators/public.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { erc20Abi } from '../../constants/abis.js'
 import { zeroAddress } from '../../constants/address.js'
+import { zeroHash } from '../../constants/bytes.js'
 import { AccountNotFoundError } from '../../errors/account.js'
 import { ClientChainNotConfiguredError } from '../../errors/chain.js'
 import type { GetAccountParameter } from '../../types/account.js'
@@ -33,14 +34,17 @@ import type { Hex } from '../../types/misc.js'
 import type { UnionEvaluate, UnionOmit } from '../../types/utils.js'
 import {
   type FormattedTransactionRequest,
+  concatHex,
   encodeAbiParameters,
   encodeFunctionData,
   isAddressEqual,
+  keccak256,
   parseAccount,
 } from '../../utils/index.js'
 import { bridgehubAbi } from '../constants/abis.js'
 import {
   ethAddressInContracts,
+  l2NativeTokenVaultAddress,
   legacyEthAddress,
 } from '../constants/address.js'
 import { requiredL1ToL2GasPerPubdataLimit } from '../constants/number.js'
@@ -184,7 +188,6 @@ export type DepositErrorType =
  *
  * const hash = await deposit(walletClient, {
  *     client: clientL2,
- *     account,
  *     token: legacyEthAddress,
  *     to: walletClient.account.address,
  *     amount: 1_000_000_000_000_000_000n,
@@ -228,7 +231,7 @@ export async function deposit<
 
   if (isAddressEqual(token, legacyEthAddress)) token = ethAddressInContracts
 
-  const bridgeAddresses = await getDefaultBridgeAddresses(l2Client)
+  const bridgeAddresses = await getBridgeAddresses(client, l2Client)
   const bridgehub = await getBridgehubContractAddress(l2Client)
   const baseToken = await readContract(client, {
     address: bridgehub,
@@ -240,7 +243,6 @@ export async function deposit<
   const { mintValue, tx } = await getL1DepositTx(
     client,
     account,
-    // @ts-ignore
     { ...parameters, token },
     bridgeAddresses,
     bridgehub,
@@ -296,7 +298,10 @@ async function getL1DepositTx<
     accountL2,
     _derivedChain
   >,
-  bridgeAddresses: BridgeContractAddresses,
+  bridgeAddresses: BridgeContractAddresses & {
+    l1Nullifier: Address
+    l1NativeTokenVault: Address
+  },
   bridgehub: Address,
   baseToken: Address,
 ) {
@@ -406,9 +411,12 @@ async function getL1DepositTx<
           refundRecipient,
           secondBridgeAddress: bridgeAddress,
           secondBridgeValue: 0n,
-          secondBridgeCalldata: encodeAbiParameters(
-            parseAbiParameters('address x, uint256 y, address z'),
-            [token, amount, to],
+          secondBridgeCalldata: await getSecondBridgeCalldata(
+            client,
+            bridgeAddresses.l1NativeTokenVault,
+            token,
+            amount,
+            to,
           ),
         },
       ],
@@ -435,9 +443,12 @@ async function getL1DepositTx<
           refundRecipient,
           secondBridgeAddress: bridgeAddress,
           secondBridgeValue: amount,
-          secondBridgeCalldata: encodeAbiParameters(
-            parseAbiParameters('address x, uint256 y, address z'),
-            [ethAddressInContracts, 0n, to],
+          secondBridgeCalldata: await getSecondBridgeCalldata(
+            client,
+            bridgeAddresses.l1NativeTokenVault,
+            ethAddressInContracts,
+            amount,
+            to,
           ),
         },
       ],
@@ -464,9 +475,12 @@ async function getL1DepositTx<
           refundRecipient,
           secondBridgeAddress: bridgeAddress,
           secondBridgeValue: 0n,
-          secondBridgeCalldata: encodeAbiParameters(
-            parseAbiParameters('address x, uint256 y, address z'),
-            [token, amount, to],
+          secondBridgeCalldata: await getSecondBridgeCalldata(
+            client,
+            bridgeAddresses.l1NativeTokenVault,
+            token,
+            amount,
+            to,
           ),
         },
       ],
@@ -837,6 +851,93 @@ async function encodeDefaultBridgeData<chain extends Chain | undefined>(
     [{ type: 'bytes' }, { type: 'bytes' }, { type: 'bytes' }],
     [nameBytes, symbolBytes, decimalsBytes],
   )
+}
+
+async function getSecondBridgeCalldata<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  l1NativeTokenVault: Address,
+  token: Address,
+  amount: bigint,
+  to: Address,
+): Promise<Hex> {
+  let assetId: Hex
+  let token_ = token
+  if (isAddressEqual(token, legacyEthAddress)) token_ = ethAddressInContracts
+
+  const assetIdFromNTV = await readContract(client, {
+    address: l1NativeTokenVault,
+    abi: parseAbi(['function assetId(address token) view returns (bytes32)']),
+    functionName: 'assetId',
+    args: [token_],
+  })
+
+  if (assetIdFromNTV && assetIdFromNTV !== zeroHash) assetId = assetIdFromNTV
+  else {
+    // Okay, the token have not been registered within the Native token vault.
+    // There are two cases when it is possible:
+    // - The token is native to L1 (it may or may not be bridged), but it has not been
+    // registered within NTV after the Gateway upgrade. We assume that this is not the case
+    // as the SDK is expected to work only after the full migration is done.
+    // - The token is native to the current chain and it has never been bridged.
+
+    if (!client.chain) throw new ClientChainNotConfiguredError()
+    assetId = keccak256(
+      encodeAbiParameters(
+        [{ type: 'uint256' }, { type: 'address' }, { type: 'address' }],
+        [BigInt(client.chain.id), l2NativeTokenVaultAddress, token_],
+      ),
+    )
+  }
+
+  const ntvData = encodeAbiParameters(
+    [{ type: 'uint256' }, { type: 'address' }, { type: 'address' }],
+    [BigInt(amount), to, token_],
+  )
+
+  const data = encodeAbiParameters(
+    [{ type: 'bytes32' }, { type: 'bytes' }],
+    [assetId, ntvData],
+  )
+
+  return concatHex(['0x01', data])
+}
+
+async function getBridgeAddresses<
+  chain extends Chain | undefined,
+  chainL2 extends ChainEIP712 | undefined,
+>(
+  client: Client<Transport, chain>,
+  l2Client: Client<Transport, chainL2>,
+): Promise<
+  BridgeContractAddresses & {
+    l1Nullifier: Address
+    l1NativeTokenVault: Address
+  }
+> {
+  const addresses = await getDefaultBridgeAddresses(l2Client)
+  let l1Nullifier = addresses.l1Nullifier
+  let l1NativeTokenVault = addresses.l1NativeTokenVault
+
+  if (!l1Nullifier)
+    l1Nullifier = await readContract(client, {
+      address: addresses.sharedL1,
+      abi: parseAbi(['function L1_NULLIFIER() view returns (address)']),
+      functionName: 'L1_NULLIFIER',
+      args: [],
+    })
+  if (!l1NativeTokenVault)
+    l1NativeTokenVault = await readContract(client, {
+      address: addresses.sharedL1,
+      abi: parseAbi(['function nativeTokenVault() view returns (address)']),
+      functionName: 'nativeTokenVault',
+      args: [],
+    })
+
+  return {
+    ...addresses,
+    l1Nullifier,
+    l1NativeTokenVault,
+  }
 }
 
 function scaleGasLimit(gasLimit: bigint): bigint {

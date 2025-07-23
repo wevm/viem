@@ -29,7 +29,9 @@ export async function localBatchGatewayRequest(parameters: {
   await Promise.all(
     queries.map(async (query, i) => {
       try {
-        responses[i] = await ccipRequest(query)
+        responses[i] = query.urls.includes(localBatchGatewayUrl)
+          ? await localBatchGatewayRequest({ data: query.data, ccipRequest })
+          : await ccipRequest(query)
         failures[i] = false
       } catch (err) {
         failures[i] = true

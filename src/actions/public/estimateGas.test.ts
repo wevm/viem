@@ -6,7 +6,7 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { maxUint256 } from '../../constants/number.js'
 
-import { BatchCallDelegation } from '../../../contracts/generated.js'
+import { Delegation } from '../../../contracts/generated.js'
 import { deploy } from '../../../test/src/utils.js'
 import { toBlobs } from '../../utils/blob/toBlobs.js'
 import { toHex } from '../../utils/encoding/toHex.js'
@@ -55,8 +55,8 @@ test('args: authorizationList', async () => {
   const eoa = privateKeyToAccount(accounts[1].privateKey)
 
   const { contractAddress } = await deploy(client, {
-    abi: BatchCallDelegation.abi,
-    bytecode: BatchCallDelegation.bytecode.object,
+    abi: Delegation.abi,
+    bytecode: Delegation.bytecode.object,
   })
 
   const authorization = await signAuthorization(client, {
@@ -69,7 +69,7 @@ test('args: authorizationList', async () => {
       account: accounts[0].address,
       authorizationList: [authorization],
       data: encodeFunctionData({
-        abi: BatchCallDelegation.abi,
+        abi: Delegation.abi,
         functionName: 'execute',
         args: [
           [

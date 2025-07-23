@@ -64,7 +64,7 @@ describe('request', () => {
     expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.1.0",
+        "result": "anvil/v1.3.0",
       }
     `)
     expect(rpcClient.requests.size).toBe(0)
@@ -106,7 +106,7 @@ describe('request', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 7,
+        "id": 1,
         "jsonrpc": "2.0",
       }
     `,
@@ -134,7 +134,7 @@ describe('request', () => {
       [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
-      Request body: {"jsonrpc":"2.0","id":9,"method":"wagmi_lol"}
+      Request body: {"jsonrpc":"2.0","id":1,"method":"wagmi_lol"}
 
       Details: Socket is closed.
       Version: viem@x.y.z]
@@ -163,7 +163,7 @@ describe('request', () => {
       [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
-      Request body: {"jsonrpc":"2.0","id":11,"method":"wagmi_lol"}
+      Request body: {"jsonrpc":"2.0","id":1,"method":"wagmi_lol"}
 
       Details: Socket is closed.
       Version: viem@x.y.z]
@@ -298,7 +298,7 @@ describe('request (subscription)', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 31,
+        "id": 1,
         "jsonrpc": "2.0",
       }
     `)
@@ -315,7 +315,7 @@ describe('requestAsync', () => {
     expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.1.0",
+        "result": "anvil/v1.3.0",
       }
     `)
     expect(client.requests.size).toBe(0)
@@ -398,7 +398,7 @@ describe('requestAsync', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 151,
+        "id": 1,
         "jsonrpc": "2.0",
       }
     `,

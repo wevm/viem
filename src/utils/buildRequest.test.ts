@@ -1050,22 +1050,22 @@ describe('behavior', () => {
         .map((arg) => JSON.stringify(arg)),
     ).toMatchInlineSnapshot(`
       [
-        "{"jsonrpc":"2.0","id":87,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":88,"method":"eth_blockNumber","params":[1]}",
-        "{"jsonrpc":"2.0","id":89,"method":"eth_chainId"}",
-        "{"jsonrpc":"2.0","id":90,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":2,"method":"eth_blockNumber","params":[1]}",
+        "{"jsonrpc":"2.0","id":3,"method":"eth_chainId"}",
+        "{"jsonrpc":"2.0","id":4,"method":"eth_blockNumber"}",
       ]
     `)
     expect(results).toMatchInlineSnapshot(`
       [
-        "{"jsonrpc":"2.0","id":87,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":87,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":88,"method":"eth_blockNumber","params":[1]}",
-        "{"jsonrpc":"2.0","id":87,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":89,"method":"eth_chainId"}",
-        "{"jsonrpc":"2.0","id":87,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":90,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":87,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":2,"method":"eth_blockNumber","params":[1]}",
+        "{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":3,"method":"eth_chainId"}",
+        "{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":4,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber"}",
       ]
     `)
   })

@@ -1000,6 +1000,10 @@ export const sidebar = {
           text: 'Hash',
           items: [
             {
+              text: 'isHash',
+              link: '/docs/utilities/isHash',
+            },
+            {
               text: 'keccak256',
               link: '/docs/utilities/keccak256',
             },
@@ -1221,6 +1225,10 @@ export const sidebar = {
               {
                 text: 'Coinbase',
                 link: '/account-abstraction/accounts/smart/toCoinbaseSmartAccount',
+              },
+              {
+                text: 'MetaMask',
+                link: '/account-abstraction/accounts/smart/toMetaMaskSmartAccount',
               },
               {
                 text: 'Thirdweb',
@@ -1700,6 +1708,41 @@ export const sidebar = {
       },
     ],
   },
+  '/circle-usdc': {
+    backLink: true,
+    items: [
+      {
+        text: 'USDC (Circle)',
+        items: [
+          {
+            text: 'Introduction',
+            link: '/circle-usdc',
+          },
+        ],
+      },
+      {
+        text: 'Guides',
+        items: [
+          {
+            text: 'Integrating USDC',
+            link: '/circle-usdc/guides/integrating',
+          },
+          {
+            text: 'Cross-Chain Transfers',
+            link: '/circle-usdc/guides/cross-chain',
+          },
+          {
+            text: 'Paying Gas with USDC',
+            link: '/circle-usdc/guides/paymaster',
+          },
+          {
+            text: 'Circle Smart Account',
+            link: '/circle-usdc/guides/smart-account',
+          },
+        ],
+      },
+    ],
+  },
   '/zksync': {
     backLink: true,
     items: [
@@ -1873,6 +1916,10 @@ export const sidebar = {
           {
             text: 'deposit',
             link: '/zksync/actions/deposit',
+          },
+          {
+            text: 'claimFailedDeposit',
+            link: '/zksync/actions/claimFailedDeposit',
           },
         ],
       },

@@ -70,12 +70,12 @@
     "sherif": "^0.8.4",
     "simple-git-hooks": "^2.11.1",
     "size-limit": "^11.1.6",
-    "typescript": "5.8.2",
+    "typescript": "catalog:",
     "vitest": "^1.0.4"
   },
-  "packageManager": "pnpm@9.1.0",
+  "packageManager": "pnpm@10.12.1",
   "engines": {
-    "node": "23.x"
+    "node": ">=23"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm check"
@@ -110,13 +110,13 @@
     {
       "name": "import * from 'viem' (esm)",
       "path": "./src/_esm/index.js",
-      "limit": "72 kB",
+      "limit": "73 kB",
       "import": "*"
     },
     {
       "name": "const viem = require('viem') (cjs)",
       "path": "./src/_cjs/index.js",
-      "limit": "88 kB"
+      "limit": "90 kB"
     },
     {
       "name": "import { createClient, http } from 'viem'",
@@ -151,7 +151,7 @@
     {
       "name": "import * from 'viem/actions'",
       "path": "./src/_esm/actions/index.js",
-      "limit": "57 kB",
+      "limit": "58 kB",
       "import": "*"
     },
     {
@@ -219,6 +219,7 @@
       "cross-spawn@<6.0.6": ">=6.0.6",
       "cross-spawn@>=7.0.0 <7.0.5": ">=7.0.5",
       "smol-toml@<=1.3.0": ">=1.3.1"
-    }
+    },
+    "onlyBuiltDependencies": ["bun", "protobufjs", "simple-git-hooks"]
   }
 }

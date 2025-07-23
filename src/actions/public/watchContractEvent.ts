@@ -157,10 +157,15 @@ export function watchContractEvent<
   const enablePolling = (() => {
     if (typeof poll_ !== 'undefined') return poll_
     if (typeof fromBlock === 'bigint') return true
-    if (client.transport.type === 'webSocket') return false
+    if (
+      client.transport.type === 'webSocket' ||
+      client.transport.type === 'ipc'
+    )
+      return false
     if (
       client.transport.type === 'fallback' &&
-      client.transport.transports[0].config.type === 'webSocket'
+      (client.transport.transports[0].config.type === 'webSocket' ||
+        client.transport.transports[0].config.type === 'ipc')
     )
       return false
     return true
@@ -300,7 +305,8 @@ export function watchContractEvent<
             if (client.transport.type === 'fallback') {
               const transport = client.transport.transports.find(
                 (transport: ReturnType<Transport>) =>
-                  transport.config.type === 'webSocket',
+                  transport.config.type === 'webSocket' ||
+                  transport.config.type === 'ipc',
               )
               if (!transport) return client.transport
               return transport.value

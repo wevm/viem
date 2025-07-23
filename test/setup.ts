@@ -6,6 +6,7 @@ import { promiseCache, responseCache } from '~viem/utils/promise/withCache.js'
 import { socketClientCache } from '~viem/utils/rpc/socket.js'
 
 import { setErrorConfig } from '../src/errors/base.js'
+import { idCache } from '../src/utils/rpc/id.js'
 import * as instances from './src/anvil.js'
 
 const client = instances.anvilMainnet.getClient()
@@ -28,6 +29,7 @@ beforeAll(() => {
 })
 
 beforeEach(async () => {
+  idCache.reset()
   promiseCache.clear()
   responseCache.clear()
   listenersCache.clear()

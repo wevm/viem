@@ -298,7 +298,6 @@ test('behavior: inferred account', async () => {
   })
 
   const { id } = await sendCalls(client, {
-    account: null,
     chain: mainnet,
     calls: [
       {
@@ -638,45 +637,6 @@ describe('behavior: eth_sendTransaction fallback', () => {
   })
 })
 
-test('error: no account', async () => {
-  const requests: unknown[] = []
-
-  const client = getClient({
-    chain: mainnet,
-    onRequest({ params }) {
-      requests.push(params)
-    },
-  })
-
-  await expect(() =>
-    // @ts-expect-error
-    sendCalls(client, {
-      calls: [
-        {
-          to: accounts[1].address,
-          value: parseEther('1'),
-        },
-        {
-          to: accounts[2].address,
-          value: parseEther('10'),
-        },
-        {
-          data: '0xcafebabe',
-          to: accounts[3].address,
-          value: parseEther('1000000'),
-        },
-      ],
-      chain: mainnet,
-    }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [AccountNotFoundError: Could not find an Account to execute with this Action.
-    Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
-
-    Docs: https://viem.sh/docs/actions/wallet/sendCalls
-    Version: viem@x.y.z]
-  `)
-})
-
 test('error: insufficient funds', async () => {
   const requests: unknown[] = []
 
@@ -725,5 +685,51 @@ test('error: insufficient funds', async () => {
 
     Details: Insufficient funds for gas * price + value
     Version: viem@x.y.z]
+  `)
+})
+
+test('args: dataSuffix', async () => {
+  const requests: unknown[] = []
+
+  const client = getClient({
+    onRequest({ params }) {
+      requests.push(params)
+    },
+  })
+
+  const response = await sendCalls(client, {
+    account: accounts[0].address,
+    chain: mainnet,
+    calls: [
+      {
+        abi: wagmiContractConfig.abi,
+        functionName: 'mint',
+        to: wagmiContractConfig.address,
+        dataSuffix: '0x12345678',
+      },
+    ],
+  })
+
+  expect(response.id).toBeDefined()
+  expect(requests).toMatchInlineSnapshot(`
+    [
+      [
+        {
+          "atomicRequired": false,
+          "calls": [
+            {
+              "data": "0x1249c58b12345678",
+              "to": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+              "value": undefined,
+            },
+          ],
+          "capabilities": undefined,
+          "chainId": "0x1",
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "id": undefined,
+          "version": "2.0.0",
+        },
+      ],
+    ]
   `)
 })

@@ -54,6 +54,11 @@ export type WaitForTransactionReceiptParameters<
   chain extends Chain | undefined = Chain | undefined,
 > = {
   /**
+   * Whether to check for transaction replacements.
+   * @default true
+   */
+  checkReplacement?: boolean | undefined
+  /**
    * The number of confirmations (blocks that have passed) to wait before resolving.
    * @default 1
    */
@@ -135,38 +140,65 @@ export async function waitForTransactionReceipt<
   chain extends Chain | undefined,
 >(
   client: Client<Transport, chain>,
-  {
+  parameters: WaitForTransactionReceiptParameters<chain>,
+): Promise<WaitForTransactionReceiptReturnType<chain>> {
+  const {
+    checkReplacement = true,
     confirmations = 1,
     hash,
     onReplaced,
-    pollingInterval = client.pollingInterval,
     retryCount = 6,
     retryDelay = ({ count }) => ~~(1 << count) * 200, // exponential backoff
     timeout = 180_000,
-  }: WaitForTransactionReceiptParameters<chain>,
-): Promise<WaitForTransactionReceiptReturnType<chain>> {
+  } = parameters
+
   const observerId = stringify(['waitForTransactionReceipt', client.uid, hash])
+
+  const pollingInterval = (() => {
+    if (parameters.pollingInterval) return parameters.pollingInterval
+    if (client.chain?.experimental_preconfirmationTime)
+      return client.chain.experimental_preconfirmationTime
+    return client.pollingInterval
+  })()
 
   let transaction: GetTransactionReturnType<chain> | undefined
   let replacedTransaction: GetTransactionReturnType<chain> | undefined
-  let receipt: GetTransactionReceiptReturnType<chain>
+  let receipt: GetTransactionReceiptReturnType<chain> | undefined
   let retrying = false
+
+  // biome-ignore lint/style/useConst:
+  let _unobserve: () => void
+  let _unwatch: () => void
 
   const { promise, resolve, reject } =
     withResolvers<WaitForTransactionReceiptReturnType<chain>>()
 
   const timer = timeout
-    ? setTimeout(
-        () => reject(new WaitForTransactionReceiptTimeoutError({ hash })),
-        timeout,
-      )
+    ? setTimeout(() => {
+        _unwatch()
+        _unobserve()
+        reject(new WaitForTransactionReceiptTimeoutError({ hash }))
+      }, timeout)
     : undefined
 
-  const _unobserve = observe(
+  _unobserve = observe(
     observerId,
     { onReplaced, resolve, reject },
-    (emit) => {
-      const _unwatch = getAction(
+    async (emit) => {
+      receipt = await getAction(
+        client,
+        getTransactionReceipt,
+        'getTransactionReceipt',
+      )({ hash }).catch(() => undefined)
+
+      if (receipt && confirmations <= 1) {
+        clearTimeout(timer)
+        emit.resolve(receipt)
+        _unobserve()
+        return
+      }
+
+      _unwatch = getAction(
         client,
         watchBlockNumber,
         'watchBlockNumber',
@@ -198,14 +230,14 @@ export async function waitForTransactionReceipt<
               )
                 return
 
-              done(() => emit.resolve(receipt))
+              done(() => emit.resolve(receipt!))
               return
             }
 
             // Get the transaction to check if it's been replaced.
             // We need to retry as some RPC Providers may be slow to sync
             // up mined transactions.
-            if (!transaction) {
+            if (checkReplacement && !transaction) {
               retrying = true
               await withRetry(
                 async () => {
@@ -240,7 +272,7 @@ export async function waitForTransactionReceipt<
             )
               return
 
-            done(() => emit.resolve(receipt))
+            done(() => emit.resolve(receipt!))
           } catch (err) {
             // If the receipt is not found, the transaction will be pending.
             // We need to check if it has potentially been replaced.
@@ -326,9 +358,9 @@ export async function waitForTransactionReceipt<
                     reason,
                     replacedTransaction: replacedTransaction! as any,
                     transaction: replacementTransaction,
-                    transactionReceipt: receipt,
+                    transactionReceipt: receipt!,
                   })
-                  emit.resolve(receipt)
+                  emit.resolve(receipt!)
                 })
               } catch (err_) {
                 done(() => emit.reject(err_))

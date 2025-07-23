@@ -342,10 +342,7 @@ export type GetEventArgs<
     ? ExtractAbiEvent<abi, eventName>
     : AbiEvent & { type: 'event' },
   args = AbiEventParametersToPrimitiveTypes<abiEvent['inputs'], config>,
-  FailedToParseArgs =
-    | ([args] extends [never] ? true : false)
-    | (readonly unknown[] extends args ? true : false),
-> = true extends FailedToParseArgs
+> = args extends Record<PropertyKey, never>
   ? readonly unknown[] | Record<string, unknown>
   : args
 

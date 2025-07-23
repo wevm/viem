@@ -1,6 +1,12 @@
 import { expect, test } from 'vitest'
 import { anvilMainnet, anvilZksync } from '~test/src/anvil.js'
-import { accounts, mockRequestReturnData } from '~test/src/zksync.js'
+import {
+  accounts,
+  mockFailedDepositReceipt,
+  mockFailedDepositTransaction,
+  mockLogProof,
+  mockRequestReturnData,
+} from '~test/src/zksync.js'
 import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
 import type { EIP1193RequestFn } from '~viem/index.js'
 import {
@@ -30,6 +36,14 @@ const client = baseClient.extend(walletActionsL1())
 
 const baseZksyncClient = anvilZksync.getClient()
 baseZksyncClient.request = (async ({ method, params }) => {
+  if (
+    method === 'eth_getTransactionReceipt' &&
+    (<string[]>params)[0] ===
+      '0x5b08ec4c7ebb02c07a3f08bc5677aec87c47200f685f6389969a3c084bee13dc'
+  )
+    return mockFailedDepositReceipt
+  if (method === 'eth_getTransactionByHash') return mockFailedDepositTransaction
+  if (method === 'zks_getL2ToL1LogProof') return mockLogProof
   if (method === 'eth_call')
     return '0x00000000000000000000000070a0F165d6f8054d0d0CF8dFd4DD2005f0AF6B55'
   if (method === 'eth_estimateGas') return 158774n
@@ -72,6 +86,16 @@ test('deposit', async () => {
       to: account.address,
       refundRecipient: account.address,
       amount: 7_000_000_000n,
+    }),
+  ).toBeDefined()
+})
+
+test('claimFailedDeposit', async () => {
+  expect(
+    await client.claimFailedDeposit({
+      client: zksyncClient,
+      depositHash:
+        '0x5b08ec4c7ebb02c07a3f08bc5677aec87c47200f685f6389969a3c084bee13dc',
     }),
   ).toBeDefined()
 })
