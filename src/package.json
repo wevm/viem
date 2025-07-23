@@ -168,7 +168,13 @@
   },
   "license": "MIT",
   "homepage": "https://viem.sh",
-  "repository": "wevm/viem",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wevm/viem.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wevm/viem/issues"
+  },
   "authors": ["awkweb.eth", "jxom.eth"],
   "funding": [
     {
