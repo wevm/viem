@@ -249,37 +249,42 @@ export async function getWithdrawalStatus<
     args: [withdrawal.withdrawalHash, numProofSubmitters - 1n],
   }).catch(() => withdrawal.sender)
 
-  const [disputeGameResult, provenWithdrawalsResult, checkWithdrawalResult, finalizedResult] =
-    await Promise.allSettled([
-      getGame(client, {
-        ...parameters,
-        l2BlockNumber,
-        limit: gameLimit,
-      } as GetGameParameters),
-      readContract(client, {
-        abi: portal2Abi,
-        address: portalAddress,
-        functionName: 'provenWithdrawals',
-        args: [withdrawal.withdrawalHash, proofSubmitter],
-      }),
-      readContract(client, {
-        abi: portal2Abi,
-        address: portalAddress,
-        functionName: 'checkWithdrawal',
-        args: [withdrawal.withdrawalHash, proofSubmitter],
-      }),
-      readContract(client, {
-        abi: portal2Abi,
-        address: portalAddress,
-        functionName: 'finalizedWithdrawals',
-        args: [withdrawal.withdrawalHash],
-      }),
-    ])
+  const [
+    disputeGameResult,
+    provenWithdrawalsResult,
+    checkWithdrawalResult,
+    finalizedResult,
+  ] = await Promise.allSettled([
+    getGame(client, {
+      ...parameters,
+      l2BlockNumber,
+      limit: gameLimit,
+    } as GetGameParameters),
+    readContract(client, {
+      abi: portal2Abi,
+      address: portalAddress,
+      functionName: 'provenWithdrawals',
+      args: [withdrawal.withdrawalHash, proofSubmitter],
+    }),
+    readContract(client, {
+      abi: portal2Abi,
+      address: portalAddress,
+      functionName: 'checkWithdrawal',
+      args: [withdrawal.withdrawalHash, proofSubmitter],
+    }),
+    readContract(client, {
+      abi: portal2Abi,
+      address: portalAddress,
+      functionName: 'finalizedWithdrawals',
+      args: [withdrawal.withdrawalHash],
+    }),
+  ])
 
   if (finalizedResult.status === 'fulfilled' && finalizedResult.value)
     return 'finalized'
 
-  if (provenWithdrawalsResult.status === 'rejected') throw provenWithdrawalsResult.reason
+  if (provenWithdrawalsResult.status === 'rejected')
+    throw provenWithdrawalsResult.reason
 
   if (disputeGameResult.status === 'rejected') {
     const error = disputeGameResult.reason as GetGameErrorType
@@ -340,32 +345,38 @@ export async function getWithdrawalStatus<
         })
 
         // Check if the game is proper, respected, and finalized.
-        const [isGameProperResult, isGameRespectedResult, isGameFinalizedResult] =
-          await Promise.allSettled([
-            readContract(client, {
-              abi: anchorStateRegistryAbi,
-              address: anchorStateRegistry,
-              functionName: 'isGameProper',
-              args: [disputeGameAddress],
-            }),
-            readContract(client, {
-              abi: anchorStateRegistryAbi,
-              address: anchorStateRegistry,
-              functionName: 'isGameRespected',
-              args: [disputeGameAddress],
-            }),
-            readContract(client, {
-              abi: anchorStateRegistryAbi,
-              address: anchorStateRegistry,
-              functionName: 'isGameFinalized',
-              args: [disputeGameAddress],
-            }),
-          ])
+        const [
+          isGameProperResult,
+          isGameRespectedResult,
+          isGameFinalizedResult,
+        ] = await Promise.allSettled([
+          readContract(client, {
+            abi: anchorStateRegistryAbi,
+            address: anchorStateRegistry,
+            functionName: 'isGameProper',
+            args: [disputeGameAddress],
+          }),
+          readContract(client, {
+            abi: anchorStateRegistryAbi,
+            address: anchorStateRegistry,
+            functionName: 'isGameRespected',
+            args: [disputeGameAddress],
+          }),
+          readContract(client, {
+            abi: anchorStateRegistryAbi,
+            address: anchorStateRegistry,
+            functionName: 'isGameFinalized',
+            args: [disputeGameAddress],
+          }),
+        ])
 
         // If any of the calls failed, throw the error.
-        if (isGameProperResult.status === 'rejected') throw isGameProperResult.reason
-        if (isGameRespectedResult.status === 'rejected') throw isGameRespectedResult.reason
-        if (isGameFinalizedResult.status === 'rejected') throw isGameFinalizedResult.reason
+        if (isGameProperResult.status === 'rejected')
+          throw isGameProperResult.reason
+        if (isGameRespectedResult.status === 'rejected')
+          throw isGameRespectedResult.reason
+        if (isGameFinalizedResult.status === 'rejected')
+          throw isGameFinalizedResult.reason
 
         // If the game isn't proper, the user needs to re-prove.
         if (!isGameProperResult.value) {
@@ -388,23 +399,17 @@ export async function getWithdrawalStatus<
         // user needs to re-prove the withdrawal.
         if (errors.includes('OptimismPortal_ProofNotOldEnough')) {
           return 'waiting-to-finalize'
-        } else {
-          return 'ready-to-prove'
         }
-      } else {
-        if (
-          errorCauses['ready-to-prove'].some((cause) =>
-            errors.includes(cause),
-          )
-        )
-          return 'ready-to-prove'
-        if (
-          errorCauses['waiting-to-finalize'].some((cause) =>
-            errors.includes(cause),
-          )
-        )
-          return 'waiting-to-finalize'
+        return 'ready-to-prove'
       }
+      if (errorCauses['ready-to-prove'].some((cause) => errors.includes(cause)))
+        return 'ready-to-prove'
+      if (
+        errorCauses['waiting-to-finalize'].some((cause) =>
+          errors.includes(cause),
+        )
+      )
+        return 'waiting-to-finalize'
     }
     throw checkWithdrawalResult.reason
   }

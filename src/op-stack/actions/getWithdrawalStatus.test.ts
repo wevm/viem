@@ -30,7 +30,7 @@ test('waiting-to-prove', async () => {
 })
 test('ready-to-prove (U16)', async () => {
   await reset(client, {
-    blockNumber: 22991516n    ,
+    blockNumber: 22991516n,
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
   await reset(optimismClient, {
@@ -52,7 +52,7 @@ test('ready-to-prove (U16)', async () => {
 
 test('waiting-to-finalize (U16)', async () => {
   await reset(client, {
-    blockNumber: 22991516n    ,
+    blockNumber: 22991516n,
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
   await reset(optimismClient, {
