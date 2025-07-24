@@ -286,6 +286,7 @@ export async function getWithdrawalStatus<
       const errorCauses = {
         'ready-to-prove': [
           'OptimismPortal: invalid game type',
+          'OptimismPortal_Unproven',
           'OptimismPortal: withdrawal has not been proven yet',
           'OptimismPortal: withdrawal has not been proven by proof submitter address yet',
           'OptimismPortal: dispute game created before respected game type was updated',
@@ -294,6 +295,7 @@ export async function getWithdrawalStatus<
           'Unproven',
         ],
         'waiting-to-finalize': [
+          'OptimismPortal_ProofNotOldEnough',
           'OptimismPortal: proven withdrawal has not matured yet',
           'OptimismPortal: output proposal has not been finalized yet',
           'OptimismPortal: output proposal in air-gap',
