@@ -9,7 +9,7 @@ Returns the Chain Id of underlying L1 network.
 :::warning
 **This Action is being deprecated.**
 
-This method calls an RPC method that will be removed in a future release. Please use the alternatives mentioned below.
+This method calls an RPC method that [will be removed in a future release](https://github.com/zkSync-Community-Hub/zksync-developers/discussions/1066). Please use the alternatives mentioned below.
 
 **Alternatives / Workaround**
 

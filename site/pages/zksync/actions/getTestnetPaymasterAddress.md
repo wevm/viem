@@ -9,7 +9,7 @@ Returns the address of the testnet Paymaster.
 :::warning
 **This Action is being deprecated.**
 
-This method calls an RPC method that will be removed in a future release. Please use the alternatives mentioned below.
+This method calls an RPC method that [will be removed in a future release](https://github.com/zkSync-Community-Hub/zksync-developers/discussions/1066). Please use the alternatives mentioned below.
 
 **Alternatives / Workaround**
 
