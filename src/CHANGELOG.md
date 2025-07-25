@@ -1,5 +1,67 @@
 # viem
 
+## 2.33.1
+
+### Patch Changes
+
+- [#3814](https://github.com/wevm/viem/pull/3814) [`4751e43e9c7b88de415f89a9d606d972104386b9`](https://github.com/wevm/viem/commit/4751e43e9c7b88de415f89a9d606d972104386b9) Thanks [@b-tarczynski](https://github.com/b-tarczynski)! - Add `blockTime` to Arbitrum chains.
+
+- [#3811](https://github.com/wevm/viem/pull/3811) [`95f2d44d0eca10714f96f965ba4001981be80696`](https://github.com/wevm/viem/commit/95f2d44d0eca10714f96f965ba4001981be80696) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added reddio mainnet.
+
+- [#3813](https://github.com/wevm/viem/pull/3813) [`9a0ffe6e40e4d93d10721d8e90df27c989554461`](https://github.com/wevm/viem/commit/9a0ffe6e40e4d93d10721d8e90df27c989554461) Thanks [@emrahsky](https://github.com/emrahsky)! - Added Areum chain.
+
+- [#3824](https://github.com/wevm/viem/pull/3824) [`86933772868c24bd491807869b4d51c205be6236`](https://github.com/wevm/viem/commit/86933772868c24bd491807869b4d51c205be6236) Thanks [@smartcontracts](https://github.com/smartcontracts)! - **OP Stack:** Fixed `getWithdrawalStatus` for Upgrade 16.
+
+## 2.33.0
+
+### Minor Changes
+
+- [#3810](https://github.com/wevm/viem/pull/3810) [`d02d1faaeb8d59edff0c2bdd714a08a9428c5419`](https://github.com/wevm/viem/commit/d02d1faaeb8d59edff0c2bdd714a08a9428c5419) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added `experimental_blockTag` config option to the Client.
+
+  This will be used as the default block tag for the following actions:
+
+  - `call`
+  - `estimateGas`
+  - `getBalance`
+  - `getBlock`
+  - `simulateBlocks`
+  - `waitForTransactionReceipt`
+  - `watchBlocks`
+
+- [#3810](https://github.com/wevm/viem/pull/3810) [`d02d1faaeb8d59edff0c2bdd714a08a9428c5419`](https://github.com/wevm/viem/commit/d02d1faaeb8d59edff0c2bdd714a08a9428c5419) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added an `experimental_preconfirmationTime` property to the Chain configuration for chains that support pre-confirmations (e.g. "Flashblocks").
+
+- [#3808](https://github.com/wevm/viem/pull/3808) [`3fd9761a793c5e3b206b2381c8e145e914cd60e4`](https://github.com/wevm/viem/commit/3fd9761a793c5e3b206b2381c8e145e914cd60e4) Thanks [@jxom](https://github.com/jxom)! - Added `checkReplacement` parameter to `waitForTransactionReceipt`.
+
+### Patch Changes
+
+- [`66d59c4f9e9a5daede9bc19556cfefa879dcfd62`](https://github.com/wevm/viem/commit/66d59c4f9e9a5daede9bc19556cfefa879dcfd62) Thanks [@jxom](https://github.com/jxom)! - Added `basePreconf` and `baseSepoliaPreconf` chains.
+
+## 2.32.1
+
+### Patch Changes
+
+- [#3805](https://github.com/wevm/viem/pull/3805) [`76140d53636ed40bbb0a91ea8054848e34f71193`](https://github.com/wevm/viem/commit/76140d53636ed40bbb0a91ea8054848e34f71193) Thanks [@alvrs](https://github.com/alvrs)! - Fixed reconnection logic for WebSocket clients.
+
+## 2.32.0
+
+### Minor Changes
+
+- [#3799](https://github.com/wevm/viem/pull/3799) [`32f388b97126f3a30aa2f5c1ec04eae1fb52d23d`](https://github.com/wevm/viem/commit/32f388b97126f3a30aa2f5c1ec04eae1fb52d23d) Thanks [@jxom](https://github.com/jxom)! - **Types (Breaking):** Added `version` property to `toCoinbaseSmartAccount`, and add `version: '1.1'`.
+
+  To migrate to this new type change in a current implementation, add `version: '1'` as a property to `toCoinbaseSmartAccount`.
+
+### Patch Changes
+
+- [#3792](https://github.com/wevm/viem/pull/3792) [`6051ca36a7beb979e962366c2409307772542ce4`](https://github.com/wevm/viem/commit/6051ca36a7beb979e962366c2409307772542ce4) Thanks [@rizwanmoulvi](https://github.com/rizwanmoulvi)! - Added Xphere chain.
+
+- [#3802](https://github.com/wevm/viem/pull/3802) [`6467a91ae2e794a1a6661ae288a82458a2ed651a`](https://github.com/wevm/viem/commit/6467a91ae2e794a1a6661ae288a82458a2ed651a) Thanks [@hinsxdcro](https://github.com/hinsxdcro)! - Updated block explorer url of Cronos Testnet
+
+- [#3796](https://github.com/wevm/viem/pull/3796) [`23403edbc3b47998e912c494b6024f7e2b300d0b`](https://github.com/wevm/viem/commit/23403edbc3b47998e912c494b6024f7e2b300d0b) Thanks [@cuonghx-dev](https://github.com/cuonghx-dev)! - Added Japan Open Chain.
+
+- [#3797](https://github.com/wevm/viem/pull/3797) [`e254f78b48eabbf9c134e0ffeed6fc264b100cae`](https://github.com/wevm/viem/commit/e254f78b48eabbf9c134e0ffeed6fc264b100cae) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Plasma Testnet.
+
+- [#3785](https://github.com/wevm/viem/pull/3785) [`1862bfc09cf10a4d3cde7218876058123030843a`](https://github.com/wevm/viem/commit/1862bfc09cf10a4d3cde7218876058123030843a) Thanks [@arongrp](https://github.com/arongrp)! - Added Graphite chains
+
 ## 2.31.7
 
 ### Patch Changes

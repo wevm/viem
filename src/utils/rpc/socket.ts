@@ -132,6 +132,29 @@ export async function getSocketRpcClient<socket extends {}>(
       let socket: Socket<{}>
       let keepAliveTimer: ReturnType<typeof setInterval> | undefined
 
+      let reconnectInProgress = false
+      function attemptReconnect() {
+        // Attempt to reconnect.
+        if (reconnect && reconnectCount < attempts) {
+          if (reconnectInProgress) return
+          reconnectInProgress = true
+          reconnectCount++
+
+          // Make sure the previous socket is definitely closed.
+          socket?.close()
+
+          setTimeout(async () => {
+            await setup().catch(console.error)
+            reconnectInProgress = false
+          }, delay)
+        }
+        // Otherwise, clear all requests and subscriptions.
+        else {
+          requests.clear()
+          subscriptions.clear()
+        }
+      }
+
       // Set up socket implementation.
       async function setup() {
         const result = await getSocket({
@@ -142,17 +165,7 @@ export async function getSocketRpcClient<socket extends {}>(
             for (const subscription of subscriptions.values())
               subscription.onError?.(new SocketClosedError({ url }))
 
-            // Attempt to reconnect.
-            if (reconnect && reconnectCount < attempts)
-              setTimeout(async () => {
-                reconnectCount++
-                await setup().catch(console.error)
-              }, delay)
-            // Otherwise, clear all requests and subscriptions.
-            else {
-              requests.clear()
-              subscriptions.clear()
-            }
+            attemptReconnect()
           },
           onError(error_) {
             error = error_
@@ -162,20 +175,7 @@ export async function getSocketRpcClient<socket extends {}>(
             for (const subscription of subscriptions.values())
               subscription.onError?.(error)
 
-            // Make sure socket is definitely closed.
-            socketClient?.close()
-
-            // Attempt to reconnect.
-            if (reconnect && reconnectCount < attempts)
-              setTimeout(async () => {
-                reconnectCount++
-                await setup().catch(console.error)
-              }, delay)
-            // Otherwise, clear all requests and subscriptions.
-            else {
-              requests.clear()
-              subscriptions.clear()
-            }
+            attemptReconnect()
           },
           onOpen() {
             error = undefined

@@ -102,3 +102,10 @@ jobs:
 
       - name: Publish to JSR
         run: pnpm version:update && cd src && pnpx jsr publish --allow-slow-types --allow-dirty
+
+  docs:
+    name: Deploy Docs
+    needs: changesets
+    uses: ./.github/workflows/deploy-docs.yml
+    secrets: inherit
+    if: needs.changesets.outputs.published == 'true'
