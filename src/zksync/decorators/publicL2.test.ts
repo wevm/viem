@@ -1,10 +1,8 @@
 import { expect, test } from 'vitest'
 
-import type { Address } from 'abitype'
 import { anvilZksync } from '~test/src/anvil.js'
 import {
   getZksyncMockProvider,
-  mockAccountBalances,
   mockAddress,
   mockAddresses,
   mockBaseTokenL1Address,
