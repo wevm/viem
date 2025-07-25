@@ -1490,6 +1490,19 @@ export const portal2Abi = [
   },
   {
     inputs: [],
+    name: 'anchorStateRegistry',
+    outputs: [
+      {
+        internalType: 'contract IAnchorStateRegistry',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
     name: 'version',
     outputs: [
       {
@@ -1753,6 +1766,31 @@ export const portal2Abi = [
   {
     inputs: [],
     name: 'Unproven',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'OptimismPortal_AlreadyFinalized',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'OptimismPortal_Unproven',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'OptimismPortal_InvalidProofTimestamp',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'OptimismPortal_ProofNotOldEnough',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'OptimismPortal_InvalidRootClaim',
     type: 'error',
   },
 ] as const
@@ -2074,3 +2112,27 @@ export const portalAbi = [
   },
   { stateMutability: 'payable', type: 'receive' },
 ] as const
+
+export const anchorStateRegistryAbi = [
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: '_game', internalType: 'address', type: 'address' }],
+    name: 'isGameProper',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: '_game', internalType: 'address', type: 'address' }],
+    name: 'isGameRespected',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+  },
+  {
+    stateMutability: 'view',
+    type: 'function',
+    inputs: [{ name: '_game', internalType: 'address', type: 'address' }],
+    name: 'isGameFinalized',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+  },
+]
