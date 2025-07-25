@@ -61,6 +61,10 @@ export {
 } from './actions/getDefaultBridgeAddresses.js'
 export { getBridgehubContractAddress } from './actions/getBridgehubContractAddress.js'
 export {
+  type GetGasPerPubdataReturnType,
+  getGasPerPubdata,
+} from './actions/getGasPerPubdata.js'
+export {
   type GetL1AllowanceErrorType,
   type GetL1AllowanceParameters,
   type GetL1AllowanceReturnType,
