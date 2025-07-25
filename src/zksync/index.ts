@@ -45,11 +45,7 @@ export {
   type EstimateFeeReturnType,
   estimateFee,
 } from './actions/estimateFee.js'
-export {
-  type GetAllBalancesParameters,
-  type GetAllBalancesReturnType,
-  getAllBalances,
-} from './actions/getAllBalances.js'
+
 export {
   type GetBlockDetailsParameters,
   type GetBlockDetailsReturnType,

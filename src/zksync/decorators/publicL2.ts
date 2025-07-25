@@ -13,11 +13,6 @@ import {
   estimateGasL1ToL2,
 } from '../actions/estimateGasL1ToL2.js'
 import {
-  type GetAllBalancesParameters,
-  type GetAllBalancesReturnType,
-  getAllBalances,
-} from '../actions/getAllBalances.js'
-import {
   type GetBaseTokenL1AddressReturnType,
   getBaseTokenL1Address,
 } from '../actions/getBaseTokenL1Address.js'
@@ -167,28 +162,6 @@ export type PublicActionsL2<
    * const address = await client.getMainContractAddress();
    */
   getMainContractAddress: () => Promise<GetMainContractAddressReturnType>
-
-  /**
-   * Returns all known balances for a given account.
-   *
-   * @returns The balances for a given account. {@link GetAllBalancesReturnType}
-   * @param args - {@link GetAllBalancesParameters}
-   *
-   * @example
-   * import { createPublicClient, http } from 'viem'
-   * import { zksyncLocalNode } from 'viem/chains'
-   * import { publicActionsL2 } from 'viem/zksync'
-   *
-   * const client = createPublicClient({
-   *   chain: zksyncLocalNode,
-   *   transport: http(),
-   * }).extend(publicActionsL2())
-   *
-   * const balances = await client.getAllBalances({account: "0x36615Cf349d7F6344891B1e7CA7C72883F5dc049"});
-   */
-  getAllBalances: (
-    args: GetAllBalancesParameters,
-  ) => Promise<GetAllBalancesReturnType>
 
   /**
    * Returns data of transactions in a block.
@@ -487,7 +460,6 @@ export function publicActionsL2() {
       getTestnetPaymasterAddress: () => getTestnetPaymasterAddress(client),
       getL1ChainId: () => getL1ChainId(client),
       getMainContractAddress: () => getMainContractAddress(client),
-      getAllBalances: (args) => getAllBalances(client, args),
       getRawBlockTransaction: (args) => getRawBlockTransactions(client, args),
       getBlockDetails: (args) => getBlockDetails(client, args),
       getL1BatchDetails: (args) => getL1BatchDetails(client, args),
