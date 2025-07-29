@@ -1812,6 +1812,10 @@ export const sidebar = {
             link: '/zksync/actions/estimateFee',
           },
           {
+            text: 'getAllBalances (deprecated)',
+            link: '/zksync/actions/getAllBalances',
+          },
+          {
             text: 'getBaseTokenL1Address (deprecated)',
             link: '/zksync/actions/getBaseTokenL1Address',
           },
