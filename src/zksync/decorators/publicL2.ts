@@ -173,6 +173,8 @@ export type PublicActionsL2<
   getMainContractAddress: () => Promise<GetMainContractAddressReturnType>
 
   /**
+   * @deprecated This method has been removed from the node API.
+   *
    * Returns all known balances for a given account.
    *
    * @returns The balances for a given account. {@link GetAllBalancesReturnType}
