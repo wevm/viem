@@ -15,7 +15,7 @@ This method calls an RPC method that [will be removed in a future release](https
 
 This method returned the address of the chain's base token contract in L1. This can be retrieved from a call to the BridgeHub contract.
 
-1. Retrieve the BridgeHub contract address using the `getBridgeHubContract` action.
+1. Retrieve the BridgeHub contract address using the [`getBridgeHubContractAddress`](/zksync/actions/getBridgehubContractAddress) action.
 2. Call the `baseToken(chainId)` method on the BridgeHub contract.
 
 :::
