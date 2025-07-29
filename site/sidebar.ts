@@ -1780,6 +1780,10 @@ export const sidebar = {
             link: '/zksync/actions/getDefaultBridgeAddress',
           },
           {
+            text: 'getGasPerPubData',
+            link: '/zksync/actions/getGasPerPubData',
+          },
+          {
             text: 'getL1BatchDetails',
             link: '/zksync/actions/getL1BatchDetails',
           },
