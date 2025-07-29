@@ -1,8 +1,10 @@
 import { expect, test } from 'vitest'
 
+import type { Address } from 'abitype'
 import { anvilZksync } from '~test/src/anvil.js'
 import {
   getZksyncMockProvider,
+  mockAccountBalances,
   mockAddress,
   mockAddresses,
   mockBaseTokenL1Address,
@@ -21,6 +23,7 @@ import { createPublicClient } from '../../clients/createPublicClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { estimateFee } from '../actions/estimateFee.js'
 import { estimateGasL1ToL2 } from '../actions/estimateGasL1ToL2.js'
+import type { GetAllBalancesReturnType } from '../actions/getAllBalances.js'
 import { getLogProof } from '../actions/getLogProof.js'
 import { getTransactionDetails } from '../actions/getTransactionDetails.js'
 import { zksyncLocalNode } from '../chains.js'
@@ -60,6 +63,20 @@ test('getTestnetPaymasterAddress', async () => {
 test('getMainContractAddress', async () => {
   const mainContractAddress = await mockedZksyncClient.getMainContractAddress()
   expect(mainContractAddress).to.equal(mockMainContractAddress)
+})
+
+test('getAllBalances', async () => {
+  const balances = await mockedZksyncClient.getAllBalances({
+    account: mockAddress,
+  })
+
+  const mockAccountBalancesBigInt: GetAllBalancesReturnType = {}
+  const entries = Object.entries(mockAccountBalances)
+  for (const [key, value] of entries) {
+    mockAccountBalancesBigInt[key as Address] = BigInt(value)
+  }
+
+  expect(balances).to.deep.equal(mockAccountBalancesBigInt)
 })
 
 test('getRawBlockTransaction', async () => {
