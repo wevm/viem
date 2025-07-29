@@ -17,6 +17,13 @@ export const celoSepolia = /*#__PURE__*/ defineChain({
       http: ['https://forno.celo-sepolia.celo-testnet.org'],
     },
   },
+  blockExplorers: {
+    default: {
+      name: 'Celo Sepolia Explorer',
+      url: 'https://celo-sepolia.blockscout.com/',
+      apiUrl: 'https://celo-sepolia.blockscout.com/api',
+    },
+  },
   contracts: {
     ...chainConfig.contracts,
     multicall3: {
