@@ -2,7 +2,7 @@
 description: Returns data of transactions in a block.
 ---
 
-# getRawBlockTransaction (deprecated)
+# getRawBlockTransaction
 
 Returns data of transactions in a block.
 

@@ -2,7 +2,7 @@
 description: Returns the base token L1 address.
 ---
 
-# getBaseTokenL1Address (deprecated)
+# getBaseTokenL1Address
 
 Returns the address of the ZKsync Chain's base L1 token.
 

@@ -2,7 +2,7 @@
 description: Returns the Chain Id of underlying L1 network.
 ---
 
-# getL1ChainId (deprecated)
+# getL1ChainId
 
 Returns the Chain Id of underlying L1 network.
 

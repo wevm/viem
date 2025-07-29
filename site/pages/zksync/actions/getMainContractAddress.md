@@ -2,7 +2,7 @@
 description: Returns the address of a Main ZKsync Contract.
 ---
 
-# getMainContractAddress (deprecated)
+# getMainContractAddress
 
 Returns the address of a main ZKsync Chain Contract.
 

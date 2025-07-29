@@ -2,7 +2,7 @@
 description: Returns an estimated Fee for requested transaction.
 ---
 
-# estimateFee (deprecated)
+# estimateFee
 
 Returns an estimated Fee for requested transaction.
 
