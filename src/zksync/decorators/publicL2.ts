@@ -186,6 +186,7 @@ export type PublicActionsL2<
    *
    * const balances = await client.getAllBalances({account: "0x36615Cf349d7F6344891B1e7CA7C72883F5dc049"});
    */
+  /* @deprecated This method has been removed from the node API. */
   getAllBalances: (
     args: GetAllBalancesParameters,
   ) => Promise<GetAllBalancesReturnType>
