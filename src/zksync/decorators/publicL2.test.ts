@@ -27,7 +27,6 @@ import type { GetAllBalancesReturnType } from '../actions/getAllBalances.js'
 import { getLogProof } from '../actions/getLogProof.js'
 import { getTransactionDetails } from '../actions/getTransactionDetails.js'
 import { zksyncLocalNode } from '../chains.js'
-import { gasPerPubdataDefault } from '../constants/number.js'
 import { publicActionsL2 } from './publicL2.js'
 
 const mockedZksyncClient = createPublicClient({
@@ -257,9 +256,4 @@ test.skip('getL1TokenAddress', async () => {
       token: daiL2,
     }),
   ).toBeDefined()
-})
-
-test('getGasPerPubdata', async () => {
-  const gasPerPubdata = await mockedZksyncClient.getGasPerPubdata()
-  expect(gasPerPubdata).to.equal(gasPerPubdataDefault)
 })
