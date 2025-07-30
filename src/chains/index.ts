@@ -31,6 +31,10 @@ export { artheraTestnet } from './definitions/artheraTestnet.js'
 export { assetChain } from './definitions/assetChain.js'
 export { assetChainTestnet } from './definitions/assetChainTestnet.js'
 export { astar } from './definitions/astar.js'
+/** @deprecated */
+export { astarZkEVM } from './definitions/astarZkEVM.js'
+/** @deprecated */
+export { astarZkyoto } from './definitions/astarZkyoto.js'
 export { atletaOlympia } from './definitions/atletaOlympia.js'
 export { aurora } from './definitions/aurora.js'
 export { auroraTestnet } from './definitions/auroraTestnet.js'
