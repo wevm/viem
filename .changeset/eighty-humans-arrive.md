@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-add celo sepolia chain
+Added Celo Sepolia chain.
