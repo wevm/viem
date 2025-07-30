@@ -179,6 +179,7 @@ test('exports', () => {
       "UnsupportedPackedAbiType",
       "BaseError",
       "setErrorConfig",
+      "BundleFailedError",
       "BlockNotFoundError",
       "CallExecutionError",
       "ContractFunctionExecutionError",

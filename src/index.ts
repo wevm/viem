@@ -780,6 +780,10 @@ export {
 } from './errors/abi.js'
 export { BaseError, type BaseErrorType, setErrorConfig } from './errors/base.js'
 export {
+  BundleFailedError,
+  type BundleFailedErrorType,
+} from './errors/calls.js'
+export {
   BlockNotFoundError,
   type BlockNotFoundErrorType,
 } from './errors/block.js'
