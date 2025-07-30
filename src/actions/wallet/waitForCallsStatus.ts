@@ -1,11 +1,16 @@
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { BaseError } from '../../errors/base.js'
+import { BundleFailedError } from '../../errors/calls.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { type PollErrorType, poll } from '../../utils/poll.js'
 import { withResolvers } from '../../utils/promise/withResolvers.js'
+import {
+  type WithRetryParameters,
+  withRetry,
+} from '../../utils/promise/withRetry.js'
 import { stringify } from '../../utils/stringify.js'
 import {
   type GetCallsStatusErrorType,
@@ -25,11 +30,27 @@ export type WaitForCallsStatusParameters = {
    */
   pollingInterval?: number | undefined
   /**
+   * Number of times to retry if the call bundle failed.
+   * @default 4 (exponential backoff)
+   */
+  retryCount?: WithRetryParameters['retryCount'] | undefined
+  /**
+   * Time to wait (in ms) between retries.
+   * @default `({ count }) => ~~(1 << count) * 200` (exponential backoff)
+   */
+  retryDelay?: WithRetryParameters['delay'] | undefined
+  /**
    * The status range to wait for.
    *
    * @default (status) => status >= 200
    */
   status?: ((parameters: GetCallsStatusReturnType) => boolean) | undefined
+  /**
+   * Whether to throw an error if the call bundle fails.
+   *
+   * @default false
+   */
+  throwOnFailure?: boolean | undefined
   /**
    * Optional timeout (in milliseconds) to wait before stopping polling.
    *
@@ -76,8 +97,11 @@ export async function waitForCallsStatus<chain extends Chain | undefined>(
   const {
     id,
     pollingInterval = client.pollingInterval,
-    status = ({ statusCode }) => statusCode >= 200,
+    status = ({ statusCode }) => statusCode === 200 || statusCode >= 300,
+    retryCount = 4,
+    retryDelay = ({ count }) => ~~(1 << count) * 200, // exponential backoff
     timeout = 60_000,
+    throwOnFailure = false,
   } = parameters
   const observerId = stringify(['waitForCallsStatus', client.uid, id])
 
@@ -97,7 +121,18 @@ export async function waitForCallsStatus<chain extends Chain | undefined>(
         }
 
         try {
-          const result = await getCallsStatus(client, { id })
+          const result = await withRetry(
+            async () => {
+              const result = await getCallsStatus(client, { id })
+              if (throwOnFailure && result.status === 'failure')
+                throw new BundleFailedError(result)
+              return result
+            },
+            {
+              retryCount,
+              delay: retryDelay,
+            },
+          )
           if (!status(result)) return
           done(() => emit.resolve(result))
         } catch (error) {
