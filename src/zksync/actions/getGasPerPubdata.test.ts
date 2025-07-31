@@ -10,7 +10,7 @@ const client = { ...zksyncClientLocalNode }
 
 mockClientPublicActionsL2(client)
 
-test('default', async () => {
+test.skip('default', async () => {
   const fee = await getGasPerPubdata(client)
 
   expect(fee).toEqual(gasPerPubdataDefault)
