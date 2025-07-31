@@ -7,6 +7,7 @@ import type { PublicZksyncRpcSchema } from '../types/eip1193.js'
 
 export type GetTestnetPaymasterAddressReturnType = Address | null
 
+/* @deprecated Check the corresponding ZKsync chain technical documentation to find the testnet paymaster address */
 export async function getTestnetPaymasterAddress<
   chain extends Chain | undefined,
   account extends Account | undefined,

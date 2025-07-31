@@ -11,6 +11,7 @@ export type GetRawBlockTransactionsParameters = ZksyncNumberParameter
 
 export type GetRawBlockTransactionsReturnType = ZksyncRawBlockTransactions
 
+/* @deprecated Use `debug_getRawTransaction` and `debug_getRawTransactions` instead. */
 export async function getRawBlockTransactions<
   chain extends Chain | undefined,
   account extends Account | undefined,

@@ -1799,20 +1799,8 @@ export const sidebar = {
         text: 'L2 Public Actions',
         items: [
           {
-            text: 'estimateFee',
-            link: '/zksync/actions/estimateFee',
-          },
-          {
             text: 'estimateGasL1ToL2',
             link: '/zksync/actions/estimateGasL1ToL2',
-          },
-          {
-            text: 'getAllBalances',
-            link: '/zksync/actions/getAllBalances',
-          },
-          {
-            text: 'getBaseTokenL1Address',
-            link: '/zksync/actions/getBaseTokenL1Address',
           },
           {
             text: 'getBlockDetails',
@@ -1827,6 +1815,10 @@ export const sidebar = {
             link: '/zksync/actions/getDefaultBridgeAddress',
           },
           {
+            text: 'getGasPerPubData',
+            link: '/zksync/actions/getGasPerPubData',
+          },
+          {
             text: 'getL1BatchDetails',
             link: '/zksync/actions/getL1BatchDetails',
           },
@@ -1837,10 +1829,6 @@ export const sidebar = {
           {
             text: 'getL1BatchNumber',
             link: '/zksync/actions/getL1BatchNumber',
-          },
-          {
-            text: 'getL1ChainId',
-            link: '/zksync/actions/getL1ChainId',
           },
           {
             text: 'getL1TokenAddress',
@@ -1855,20 +1843,36 @@ export const sidebar = {
             link: '/zksync/actions/getLogProof',
           },
           {
-            text: 'getMainContractAddress',
+            text: 'getTransactionDetails',
+            link: '/zksync/actions/getTransactionDetails',
+          },
+          {
+            text: 'estimateFee (deprecated)',
+            link: '/zksync/actions/estimateFee',
+          },
+          {
+            text: 'getAllBalances (deprecated)',
+            link: '/zksync/actions/getAllBalances',
+          },
+          {
+            text: 'getBaseTokenL1Address (deprecated)',
+            link: '/zksync/actions/getBaseTokenL1Address',
+          },
+          {
+            text: 'getL1ChainId (deprecated)',
+            link: '/zksync/actions/getL1ChainId',
+          },
+          {
+            text: 'getMainContractAddress (deprecated)',
             link: '/zksync/actions/getMainContractAddress',
           },
           {
-            text: 'getRawBlockTransaction',
+            text: 'getRawBlockTransaction (deprecated)',
             link: '/zksync/actions/getRawBlockTransactions',
           },
           {
-            text: 'getTestnetPaymasterAddress',
+            text: 'getTestnetPaymasterAddress (deprecated)',
             link: '/zksync/actions/getTestnetPaymasterAddress',
-          },
-          {
-            text: 'getTransactionDetails',
-            link: '/zksync/actions/getTransactionDetails',
           },
         ],
       },
