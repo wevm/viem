@@ -75,7 +75,7 @@
   },
   "packageManager": "pnpm@10.12.1",
   "engines": {
-    "node": ">=23"
+    "node": "22.x"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm check"
