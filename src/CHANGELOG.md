@@ -1,5 +1,11 @@
 # viem
 
+## 2.33.3
+
+### Patch Changes
+
+- [#3832](https://github.com/wevm/viem/pull/3832) [`ae95de7b38d78059e9feeab95c33655128906791`](https://github.com/wevm/viem/commit/ae95de7b38d78059e9feeab95c33655128906791) Thanks [@bheema-bhx](https://github.com/bheema-bhx)! - Added Autheo Testnet chain.
+
 ## 2.33.2
 
 ### Patch Changes
