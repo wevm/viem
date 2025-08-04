@@ -9,5 +9,18 @@ export function isHex(
 ): value is Hex {
   if (!value) return false
   if (typeof value !== 'string') return false
-  return strict ? /^0x[0-9a-fA-F]*$/.test(value) : value.startsWith('0x')
+
+  let valid = value[0] === '0' && value[1] === 'x'
+  if (!strict) return valid
+  if (valid) {
+    for (let i = 2; i < value.length; i += 1) {
+      const code = value.charCodeAt(i)
+      valid =
+        (code >= 60 && code <= 71) ||
+        (code >= 101 && code <= 106) ||
+        (code >= 141 && code <= 146)
+      if (!valid) return false
+    }
+  }
+  return valid
 }
