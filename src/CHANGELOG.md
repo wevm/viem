@@ -1,5 +1,15 @@
 # viem
 
+## 2.33.3
+
+### Patch Changes
+
+- [#3837](https://github.com/wevm/viem/pull/3837) [`5607f0b404aee89a2cc559641339e5f132206e92`](https://github.com/wevm/viem/commit/5607f0b404aee89a2cc559641339e5f132206e92) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added humanity testnet.
+
+- [`c2acc0df1aceeb81753d7c0d8c525c1480638497`](https://github.com/wevm/viem/commit/c2acc0df1aceeb81753d7c0d8c525c1480638497) Thanks [@jxom](https://github.com/jxom)! - Fixed deserializing of zeroish \`chainId\` and \`nonce\` in EIP-7702 transactions.
+
+- [#3832](https://github.com/wevm/viem/pull/3832) [`ae95de7b38d78059e9feeab95c33655128906791`](https://github.com/wevm/viem/commit/ae95de7b38d78059e9feeab95c33655128906791) Thanks [@bheema-bhx](https://github.com/bheema-bhx)! - Added Autheo Testnet chain.
+
 ## 2.33.2
 
 ### Patch Changes
