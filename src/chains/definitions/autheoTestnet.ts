@@ -9,7 +9,12 @@ export const autheoTestnet = /*#__PURE__*/ defineChain({
     symbol: 'THEO',
   },
   rpcUrls: {
-    default: { http: ['https://testnet-rpc1.autheo.com', 'https://testnet-rpc2.autheo.com',] },
+    default: {
+      http: [
+        'https://testnet-rpc1.autheo.com',
+        'https://testnet-rpc2.autheo.com',
+      ],
+    },
   },
   blockExplorers: {
     default: {
