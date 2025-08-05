@@ -610,3 +610,81 @@ test('no url', () => {
   `,
   )
 })
+
+describe('request cancellation', () => {
+  test('cancels request with AbortSignal', async () => {
+    const server = await createHttpServer((_, res) => {
+      // Delay response to allow time for cancellation
+      setTimeout(() => {
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ jsonrpc: '2.0', result: '0x1', id: 0 }))
+      }, 100)
+    })
+
+    const controller = new AbortController()
+    const transport = http(server.url)({})
+
+    // Cancel after 50ms (before server responds at 100ms)
+    setTimeout(() => controller.abort(), 50)
+
+    await expect(
+      transport.request(
+        { method: 'eth_blockNumber' },
+        { signal: controller.signal },
+      ),
+    ).rejects.toThrow()
+
+    await server.close()
+  })
+
+  test('successful request with signal', async () => {
+    const server = await createHttpServer((_, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ jsonrpc: '2.0', result: '0x1', id: 0 }))
+    })
+
+    const controller = new AbortController()
+    const transport = http(server.url)({})
+
+    const result = await transport.request(
+      { method: 'eth_blockNumber' },
+      { signal: controller.signal },
+    )
+
+    expect(result).toBe('0x1')
+    await server.close()
+  })
+
+  test('multiple requests with same controller', async () => {
+    const server = await createHttpServer((_, res) => {
+      setTimeout(() => {
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ jsonrpc: '2.0', result: '0x1', id: 0 }))
+      }, 100)
+    })
+
+    const controller = new AbortController()
+    const transport = http(server.url)({})
+
+    // Start multiple requests
+    const promise1 = transport.request(
+      { method: 'eth_blockNumber' },
+      { signal: controller.signal },
+    )
+    const promise2 = transport.request(
+      {
+        method: 'eth_getBalance',
+        params: ['0x0000000000000000000000000000000000000000'],
+      },
+      { signal: controller.signal },
+    )
+
+    // Cancel after 50ms
+    setTimeout(() => controller.abort(), 50)
+
+    await expect(promise1).rejects.toThrow()
+    await expect(promise2).rejects.toThrow()
+
+    await server.close()
+  })
+})

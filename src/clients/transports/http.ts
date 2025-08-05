@@ -125,7 +125,7 @@ export function http<
         key,
         methods,
         name,
-        async request({ method, params }) {
+        async request({ method, params }, options) {
           const body = { method, params }
 
           const { schedule } = createBatchScheduler({
@@ -137,6 +137,9 @@ export function http<
             fn: (body: RpcRequest[]) =>
               rpcClient.request({
                 body,
+                fetchOptions: options?.signal
+                  ? { signal: options.signal }
+                  : undefined,
               }),
             sort: (a, b) => a.id - b.id,
           })
@@ -147,6 +150,9 @@ export function http<
               : [
                   await rpcClient.request({
                     body,
+                    fetchOptions: options?.signal
+                      ? { signal: options.signal }
+                      : undefined,
                   }),
                 ]
 
