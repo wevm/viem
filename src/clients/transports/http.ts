@@ -134,9 +134,7 @@ export function http<
             fn: (body: RpcRequest[]) =>
               rpcClient.request({
                 body,
-                fetchOptions: options?.signal
-                  ? { signal: options.signal }
-                  : undefined,
+                fetchOptions: { signal: options?.signal ?? null },
               }),
             sort: (a, b) => a.id - b.id,
           })
@@ -147,9 +145,7 @@ export function http<
               : [
                   await rpcClient.request({
                     body,
-                    fetchOptions: options?.signal
-                      ? { signal: options.signal }
-                      : undefined,
+                    fetchOptions: { signal: options?.signal ?? null },
                   }),
                 ]
 

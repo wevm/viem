@@ -47,7 +47,7 @@ function request(url: string) {
         method,
         params,
       },
-      fetchOptions: options?.signal ? { signal: options.signal } : undefined,
+      fetchOptions: { signal: options.signal },
     })
     if (error)
       throw new RpcRequestError({
