@@ -37,7 +37,13 @@ export type GetAssetsParameters<
     | undefined = undefined,
   account extends Account | undefined = Account | undefined,
 > = GetAccountParameter<account> & {
+  /**
+   * Whether or not to aggregate assets across multiple chains,
+   * and assign them to a '0' key.
+   * @default true
+   */
   aggregate?: aggregate | boolean | ((asset: Asset) => string) | undefined
+  /** Filter by assets. */
   assets?:
     | {
         [chainId: number]: readonly (
@@ -52,7 +58,9 @@ export type GetAssetsParameters<
         )[]
       }
     | undefined
+  /** Filter by asset types. */
   assetTypes?: readonly AssetType[] | undefined
+  /** Filter by chain IDs. */
   chainIds?: readonly number[] | undefined
 }
 
@@ -138,8 +146,10 @@ export async function getAssets<
   return response as never
 }
 
+/** @internal */
 type AssetType = 'native' | 'erc20' | 'erc721' | (string & {})
 
+/** @internal */
 type CustomAsset = {
   address: Address
   balance: bigint
@@ -149,6 +159,7 @@ type CustomAsset = {
   type: { custom: string }
 }
 
+/** @internal */
 type Erc20Asset = {
   address: Address
   balance: bigint
@@ -160,6 +171,7 @@ type Erc20Asset = {
   type: 'erc20'
 }
 
+/** @internal */
 type Erc721Asset = {
   address: Address
   balance: bigint
@@ -172,11 +184,13 @@ type Erc721Asset = {
   type: 'erc721'
 }
 
+/** @internal */
 type NativeAsset = {
   balance: bigint
   type: 'native'
 }
 
+/** @internal */
 function formatRequest(
   parameters: GetAssetsParameters<undefined, Account> | undefined = {},
 ): WalletGetAssetsParameters {
@@ -196,6 +210,7 @@ function formatRequest(
   }
 }
 
+/** @internal */
 function formatResponse(
   response: WalletGetAssetsReturnType,
 ): GetAssetsReturnType<false> {
