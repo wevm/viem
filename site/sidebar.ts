@@ -1423,6 +1423,24 @@ export const sidebar = {
         ],
       },
       {
+        text: 'ERC-7811',
+        items: [
+          {
+            text: 'Client',
+            link: '/experimental/erc7811/client',
+          },
+          {
+            text: 'Actions',
+            items: [
+              {
+                text: 'getAssets',
+                link: '/experimental/erc7811/getAssets',
+              },
+            ],
+          },
+        ],
+      },
+      {
         text: 'ERC-7821',
         items: [
           {
