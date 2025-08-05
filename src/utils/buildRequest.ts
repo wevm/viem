@@ -114,7 +114,7 @@ export type RequestErrorType =
   | ErrorType
 
 export function buildRequest<
-  request extends (args: any, options?: EIP1193RequestOptions) => Promise<any>,
+  request extends (args: any, options?: EIP1193RequestOptions | undefined) => Promise<any>,
 >(request: request, options: EIP1193RequestOptions = {}): EIP1193RequestFn {
   return async (args, overrideOptions: EIP1193RequestOptions = {}) => {
     const {
@@ -147,7 +147,7 @@ export function buildRequest<
         withRetry(
           async () => {
             try {
-              return await request(args, signal ? { signal } : undefined)
+              return await request(args, { signal })
             } catch (err_) {
               const err = err_ as unknown as RpcError<
                 RpcErrorCode | ProviderRpcErrorCode
