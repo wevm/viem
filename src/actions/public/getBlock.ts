@@ -8,6 +8,7 @@ import {
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Hash } from '../../types/misc.js'
 import type { RpcBlock } from '../../types/rpc.js'
 import type { Prettify } from '../../types/utils.js'
@@ -27,6 +28,8 @@ export type GetBlockParameters<
 > = {
   /** Whether or not to include transaction data in the response. */
   includeTransactions?: includeTransactions | undefined
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 } & (
   | {
       /** Hash of the block. */
@@ -99,6 +102,7 @@ export async function getBlock<
     blockNumber,
     blockTag = client.experimental_blockTag ?? 'latest',
     includeTransactions: includeTransactions_,
+    requestOptions,
   }: GetBlockParameters<includeTransactions, blockTag> = {},
 ): Promise<GetBlockReturnType<chain, includeTransactions, blockTag>> {
   const includeTransactions = includeTransactions_ ?? false
@@ -113,7 +117,7 @@ export async function getBlock<
         method: 'eth_getBlockByHash',
         params: [blockHash, includeTransactions],
       },
-      { dedupe: true },
+      { dedupe: true, ...requestOptions },
     )
   } else {
     block = await client.request(
@@ -121,7 +125,7 @@ export async function getBlock<
         method: 'eth_getBlockByNumber',
         params: [blockNumberHex || blockTag, includeTransactions],
       },
-      { dedupe: Boolean(blockNumberHex) },
+      { dedupe: Boolean(blockNumberHex), ...requestOptions },
     )
   }
 

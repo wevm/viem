@@ -28,6 +28,7 @@ import {
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Hex } from '../../types/misc.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type { StateOverride } from '../../types/stateOverride.js'
@@ -93,6 +94,8 @@ export type CallParameters<
   factory?: Address | undefined
   /** Calldata to execute on the factory to deploy the contract. */
   factoryData?: Hex | undefined
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
   /** State overrides for the call. */
   stateOverride?: StateOverride | undefined
 } & (
@@ -175,6 +178,7 @@ export async function call<chain extends Chain | undefined>(
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
+    requestOptions,
     to,
     value,
     stateOverride,
@@ -280,10 +284,13 @@ export async function call<chain extends Chain | undefined>(
       return base
     })()
 
-    const response = await client.request({
-      method: 'eth_call',
-      params,
-    })
+    const response = await client.request(
+      {
+        method: 'eth_call',
+        params,
+      },
+      requestOptions,
+    )
     if (response === '0x') return { data: undefined }
     return { data: response }
   } catch (err) {
