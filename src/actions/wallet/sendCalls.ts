@@ -155,6 +155,7 @@ export async function sendCalls<
       experimental_fallback &&
       (error.name === 'MethodNotFoundRpcError' ||
         error.name === 'MethodNotSupportedRpcError' ||
+        error.name === 'InternalRpcError' ||
         error.name === 'UnknownRpcError' ||
         error.details
           .toLowerCase()
