@@ -25,15 +25,10 @@ import {
   numberToHex,
 } from '../../../utils/encoding/toHex.js'
 
-export type Asset<chainIds extends boolean = false> = OneOf<
-  CustomAsset | Erc20Asset | Erc721Asset | NativeAsset
-> &
-  (chainIds extends true ? { chainIds: readonly number[] } : {})
-
 export type GetAssetsParameters<
   aggregate extends
     | boolean
-    | ((asset: Asset) => string)
+    | ((asset: getAssets.Asset) => string)
     | undefined = undefined,
   account extends Account | undefined = Account | undefined,
 > = GetAccountParameter<account> & {
@@ -42,7 +37,11 @@ export type GetAssetsParameters<
    * and assign them to a '0' key.
    * @default true
    */
-  aggregate?: aggregate | boolean | ((asset: Asset) => string) | undefined
+  aggregate?:
+    | aggregate
+    | boolean
+    | ((asset: getAssets.Asset) => string)
+    | undefined
   /** Filter by assets. */
   assets?:
     | {
@@ -53,13 +52,13 @@ export type GetAssetsParameters<
             }
           | {
               address: Address
-              type: AssetType
+              type: getAssets.AssetType
             }
         )[]
       }
     | undefined
   /** Filter by asset types. */
-  assetTypes?: readonly AssetType[] | undefined
+  assetTypes?: readonly getAssets.AssetType[] | undefined
   /** Filter by chain IDs. */
   chainIds?: readonly number[] | undefined
 }
@@ -67,11 +66,11 @@ export type GetAssetsParameters<
 export type GetAssetsReturnType<
   aggregate extends
     | boolean
-    | ((asset: Asset) => string)
+    | ((asset: getAssets.Asset) => string)
     | undefined = undefined,
 > = {
-  [chainId: number]: readonly Asset<false>[]
-} & (aggregate extends false ? {} : { 0: readonly Asset<true>[] })
+  [chainId: number]: readonly getAssets.Asset<false>[]
+} & (aggregate extends false ? {} : { 0: readonly getAssets.Asset<true>[] })
 
 export type GetAssetsErrorType =
   | HexToBigIntErrorType
@@ -105,7 +104,7 @@ export async function getAssets<
   account extends Account | undefined = Account | undefined,
   aggregate extends
     | boolean
-    | ((asset: Asset) => string)
+    | ((asset: getAssets.Asset) => string)
     | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
@@ -113,17 +112,17 @@ export async function getAssets<
     ? [GetAssetsParameters<aggregate, account>] | []
     : [GetAssetsParameters<aggregate, account>]
 ): Promise<Prettify<GetAssetsReturnType<aggregate>>> {
-  const { aggregate = true } = parameters ?? {}
+  const { account = client.account, aggregate = true } = parameters ?? {}
 
   const result = await client.request({
     method: 'wallet_getAssets',
-    params: [formatRequest(parameters)],
+    params: [formatRequest({ ...parameters, account })],
   })
   const response = formatResponse(result)
 
   const aggregated = (() => {
     if (!aggregate) return undefined
-    const aggregated = {} as Record<string, Asset<boolean>>
+    const aggregated = {} as Record<string, getAssets.Asset<boolean>>
     for (const [chainId, assets] of Object.entries(response)) {
       if (chainId === '0') continue
       for (const asset of assets) {
@@ -131,7 +130,7 @@ export async function getAssets<
           typeof aggregate === 'function'
             ? aggregate(asset)
             : (asset.address ?? ethAddress)
-        const item = (aggregated[key] ?? {}) as Asset<true>
+        const item = (aggregated[key] ?? {}) as getAssets.Asset<true>
         aggregated[key] = {
           ...asset,
           balance: asset.balance + (item?.balance ?? 0n),
@@ -146,48 +145,50 @@ export async function getAssets<
   return response as never
 }
 
-/** @internal */
-type AssetType = 'native' | 'erc20' | 'erc721' | (string & {})
+export declare namespace getAssets {
+  type Asset<chainIds extends boolean = false> = OneOf<
+    CustomAsset | Erc20Asset | Erc721Asset | NativeAsset
+  > &
+    (chainIds extends true ? { chainIds: readonly number[] } : {})
 
-/** @internal */
-type CustomAsset = {
-  address: Address
-  balance: bigint
-  metadata: {
-    [key: string]: unknown
+  type AssetType = 'native' | 'erc20' | 'erc721' | (string & {})
+
+  type CustomAsset = {
+    address: Address
+    balance: bigint
+    metadata: {
+      [key: string]: unknown
+    }
+    type: { custom: string }
   }
-  type: { custom: string }
-}
 
-/** @internal */
-type Erc20Asset = {
-  address: Address
-  balance: bigint
-  metadata: {
-    name: string
-    symbol: string
-    decimals: number
+  type Erc20Asset = {
+    address: Address
+    balance: bigint
+    metadata: {
+      name: string
+      symbol: string
+      decimals: number
+    }
+    type: 'erc20'
   }
-  type: 'erc20'
-}
 
-/** @internal */
-type Erc721Asset = {
-  address: Address
-  balance: bigint
-  metadata: {
-    name: string
-    symbol: string
-    tokenId: bigint
-    tokenUri?: string | undefined
+  type Erc721Asset = {
+    address: Address
+    balance: bigint
+    metadata: {
+      name: string
+      symbol: string
+      tokenId: bigint
+      tokenUri?: string | undefined
+    }
+    type: 'erc721'
   }
-  type: 'erc721'
-}
 
-/** @internal */
-type NativeAsset = {
-  balance: bigint
-  type: 'native'
+  type NativeAsset = {
+    balance: bigint
+    type: 'native'
+  }
 }
 
 /** @internal */
@@ -219,7 +220,7 @@ function formatResponse(
       Number(chainId),
       assets.map((asset) => {
         const balance = hexToBigInt(asset.balance)
-        const metadata = asset.metadata as Asset['metadata']
+        const metadata = asset.metadata as getAssets.Asset['metadata']
         const type = (() => {
           if (asset.type === 'native') return 'native'
           if (asset.type === 'erc20') return 'erc20'

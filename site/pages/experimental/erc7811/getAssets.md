@@ -33,10 +33,22 @@ export const walletClient = createWalletClient({
 
 ## Returns
 
-List of assets for the given account.
+List of assets for the given account. 
+
+The `0` key represents the aggregated assets across the returned chains.
 
 ```ts
 type ReturnType = {
+  /** Aggregated assets across returned chains. */
+  0: readonly {
+    address: Address | 'native'
+    balance: Hex
+    chainIds: readonly number[]
+    metadata?: unknown | undefined
+    type: 'native' | 'erc20' | 'erc721' | (string & {})
+  }[]
+  
+  /** Assets for each chain. */
   [chainId: number]: readonly {
     address: Address | 'native'
     balance: Hex
