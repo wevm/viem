@@ -3,7 +3,6 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
 import {
-  type Asset,
   type GetAssetsParameters,
   type GetAssetsReturnType,
   getAssets,
@@ -38,7 +37,7 @@ export type Erc7811Actions<
   getAssets: <
     aggregate extends
       | boolean
-      | ((asset: Asset) => string)
+      | ((asset: getAssets.Asset) => string)
       | undefined = undefined,
   >(
     ...[parameters]: account extends Account
