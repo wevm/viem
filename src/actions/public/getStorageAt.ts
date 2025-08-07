@@ -5,6 +5,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Hex } from '../../types/misc.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
@@ -15,6 +16,8 @@ import {
 export type GetStorageAtParameters = {
   address: Address
   slot: Hex
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 } & (
   | {
       blockNumber?: undefined
@@ -59,13 +62,22 @@ export type GetStorageAtErrorType =
  */
 export async function getStorageAt<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  { address, blockNumber, blockTag = 'latest', slot }: GetStorageAtParameters,
+  {
+    address,
+    blockNumber,
+    blockTag = 'latest',
+    slot,
+    requestOptions,
+  }: GetStorageAtParameters,
 ): Promise<GetStorageAtReturnType> {
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
-  const data = await client.request({
-    method: 'eth_getStorageAt',
-    params: [address, slot, blockNumberHex || blockTag],
-  })
+  const data = await client.request(
+    {
+      method: 'eth_getStorageAt',
+      params: [address, slot, blockNumberHex || blockTag],
+    },
+    requestOptions,
+  )
   return data
 }

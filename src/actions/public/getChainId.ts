@@ -3,11 +3,17 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type HexToNumberErrorType,
   hexToNumber,
 } from '../../utils/encoding/fromHex.js'
+
+export type GetChainIdParameters = {
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
+}
 
 export type GetChainIdReturnType = number
 
@@ -40,12 +46,15 @@ export type GetChainIdErrorType =
 export async function getChainId<
   chain extends Chain | undefined,
   account extends Account | undefined,
->(client: Client<Transport, chain, account>): Promise<GetChainIdReturnType> {
+>(
+  client: Client<Transport, chain, account>,
+  { requestOptions }: GetChainIdParameters = {},
+): Promise<GetChainIdReturnType> {
   const chainIdHex = await client.request(
     {
       method: 'eth_chainId',
     },
-    { dedupe: true },
+    { dedupe: true, ...requestOptions },
   )
   return hexToNumber(chainIdHex)
 }

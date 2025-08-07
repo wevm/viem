@@ -15,6 +15,7 @@ import type {
   ChainFeesFnParameters,
   GetChainParameter,
 } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type {
   FeeValuesEIP1559,
   FeeValuesLegacy,
@@ -43,6 +44,8 @@ export type EstimateFeesPerGasParameters<
    * @default 'eip1559'
    */
   type?: type | FeeValuesType | undefined
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 } & GetChainParameter<chain, chainOverride>
 
 export type EstimateFeesPerGasReturnType<
@@ -107,6 +110,7 @@ export async function internal_estimateFeesPerGas<
     block: block_,
     chain = client.chain,
     request,
+    requestOptions,
     type = 'eip1559',
   } = args || {}
 
@@ -129,7 +133,7 @@ export async function internal_estimateFeesPerGas<
 
   const block = block_
     ? block_
-    : await getAction(client, getBlock, 'getBlock')({})
+    : await getAction(client, getBlock, 'getBlock')({ requestOptions })
 
   if (typeof chain?.fees?.estimateFeesPerGas === 'function') {
     const fees = (await chain.fees.estimateFeesPerGas({
@@ -156,6 +160,7 @@ export async function internal_estimateFeesPerGas<
               block: block as Block,
               chain,
               request,
+              requestOptions,
             },
           )
 
@@ -171,7 +176,9 @@ export async function internal_estimateFeesPerGas<
 
   const gasPrice =
     request?.gasPrice ??
-    multiply(await getAction(client, getGasPrice, 'getGasPrice')({}))
+    multiply(
+      await getAction(client, getGasPrice, 'getGasPrice')({ requestOptions }),
+    )
   return {
     gasPrice,
   } as EstimateFeesPerGasReturnType<type>

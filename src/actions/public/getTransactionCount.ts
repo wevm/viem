@@ -6,6 +6,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type HexToNumberErrorType,
@@ -19,6 +20,8 @@ import {
 export type GetTransactionCountParameters = {
   /** The account address. */
   address: Address
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 } & (
   | {
       /** The block number. */
@@ -67,7 +70,12 @@ export async function getTransactionCount<
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  { address, blockTag = 'latest', blockNumber }: GetTransactionCountParameters,
+  {
+    address,
+    blockTag = 'latest',
+    blockNumber,
+    requestOptions,
+  }: GetTransactionCountParameters,
 ): Promise<GetTransactionCountReturnType> {
   const count = await client.request(
     {
@@ -79,6 +87,7 @@ export async function getTransactionCount<
     },
     {
       dedupe: Boolean(blockNumber),
+      ...requestOptions,
     },
   )
   return hexToNumber(count)

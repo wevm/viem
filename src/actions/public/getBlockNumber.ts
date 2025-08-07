@@ -2,6 +2,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type GetCacheErrorType,
@@ -12,6 +13,8 @@ import {
 export type GetBlockNumberParameters = {
   /** Time (in ms) that cached block number will remain in memory. */
   cacheTime?: number | undefined
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 }
 
 export type GetBlockNumberReturnType = bigint
@@ -53,13 +56,19 @@ export function getBlockNumberCache(id: string) {
  */
 export async function getBlockNumber<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  { cacheTime = client.cacheTime }: GetBlockNumberParameters = {},
+  {
+    cacheTime = client.cacheTime,
+    requestOptions,
+  }: GetBlockNumberParameters = {},
 ): Promise<GetBlockNumberReturnType> {
   const blockNumberHex = await withCache(
     () =>
-      client.request({
-        method: 'eth_blockNumber',
-      }),
+      client.request(
+        {
+          method: 'eth_blockNumber',
+        },
+        requestOptions,
+      ),
     { cacheKey: cacheKey(client.uid), cacheTime },
   )
   return BigInt(blockNumberHex)

@@ -6,6 +6,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import type { DecodeEventLogErrorType } from '../../utils/abi/decodeEventLog.js'
@@ -24,6 +25,8 @@ export type GetFilterLogsParameters<
   toBlock extends BlockNumber | BlockTag | undefined = undefined,
 > = {
   filter: Filter<'event', abi, eventName, any, strict, fromBlock, toBlock>
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 }
 export type GetFilterLogsReturnType<
   abi extends Abi | readonly unknown[] | undefined = undefined,
@@ -85,16 +88,20 @@ export async function getFilterLogs<
   _client: Client<Transport, chain>,
   {
     filter,
+    requestOptions,
   }: GetFilterLogsParameters<abi, eventName, strict, fromBlock, toBlock>,
 ): Promise<
   GetFilterLogsReturnType<abi, eventName, strict, fromBlock, toBlock>
 > {
   const strict = filter.strict ?? false
 
-  const logs = await filter.request({
-    method: 'eth_getFilterLogs',
-    params: [filter.id],
-  })
+  const logs = await filter.request(
+    {
+      method: 'eth_getFilterLogs',
+      params: [filter.id],
+    },
+    requestOptions,
+  )
 
   const formattedLogs = logs.map((log) => formatLog(log))
   if (!filter.abi)

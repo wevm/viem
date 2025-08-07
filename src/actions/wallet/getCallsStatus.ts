@@ -4,7 +4,10 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { ExtractCapabilities } from '../../types/capabilities.js'
 import type { Chain } from '../../types/chain.js'
-import type { WalletGetCallsStatusReturnType } from '../../types/eip1193.js'
+import type {
+  EIP1193RequestOptions,
+  WalletGetCallsStatusReturnType,
+} from '../../types/eip1193.js'
 import type { Hex } from '../../types/misc.js'
 import type { RpcTransactionReceipt } from '../../types/rpc.js'
 import type { Prettify } from '../../types/utils.js'
@@ -18,7 +21,11 @@ import {
   fallbackTransactionErrorMagicIdentifier,
 } from './sendCalls.js'
 
-export type GetCallsStatusParameters = { id: string }
+export type GetCallsStatusParameters = {
+  id: string
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
+}
 
 export type GetCallsStatusReturnType = Prettify<
   Omit<
@@ -64,6 +71,7 @@ export async function getCallsStatus<
   client: Client<Transport, chain, account>,
   parameters: GetCallsStatusParameters,
 ): Promise<GetCallsStatusReturnType> {
+  const { requestOptions } = parameters
   async function getStatus(id: Hex) {
     const isTransactions = id.endsWith(fallbackMagicIdentifier.slice(2))
     if (isTransactions) {
@@ -80,7 +88,7 @@ export async function getCallsStatus<
                   method: 'eth_getTransactionReceipt',
                   params: [`0x${hash}`],
                 },
-                { dedupe: true },
+                { dedupe: true, ...requestOptions },
               )
             : undefined,
         ),
@@ -101,10 +109,13 @@ export async function getCallsStatus<
         version: '2.0.0',
       }
     }
-    return client.request({
-      method: 'wallet_getCallsStatus',
-      params: [id],
-    })
+    return client.request(
+      {
+        method: 'wallet_getCallsStatus',
+        params: [id],
+      },
+      requestOptions,
+    )
   }
 
   const {

@@ -6,6 +6,7 @@ import { multicall3Abi } from '../../constants/abis.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
@@ -19,6 +20,8 @@ import { type CallParameters, call } from './call.js'
 export type GetBalanceParameters = {
   /** The address of the account. */
   address: Address
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 } & (
   | {
       /** The balance of the account at a block number. */
@@ -80,6 +83,7 @@ export async function getBalance<chain extends Chain | undefined>(
     address,
     blockNumber,
     blockTag = client.experimental_blockTag ?? 'latest',
+    requestOptions,
   }: GetBalanceParameters,
 ): Promise<GetBalanceReturnType> {
   if (client.batch?.multicall && client.chain?.contracts?.multicall3) {
@@ -113,9 +117,12 @@ export async function getBalance<chain extends Chain | undefined>(
   const blockNumberHex =
     typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
 
-  const balance = await client.request({
-    method: 'eth_getBalance',
-    params: [address, blockNumberHex || blockTag],
-  })
+  const balance = await client.request(
+    {
+      method: 'eth_getBalance',
+      params: [address, blockNumberHex || blockTag],
+    },
+    requestOptions,
+  )
   return BigInt(balance)
 }

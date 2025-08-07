@@ -6,6 +6,7 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { RpcLog } from '../../index.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Filter, FilterType } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import type { Hash } from '../../types/misc.js'
@@ -26,6 +27,8 @@ export type GetFilterChangesParameters<
   toBlock extends BlockNumber | BlockTag | undefined = undefined,
 > = {
   filter: Filter<filterType, abi, eventName, any, strict, fromBlock, toBlock>
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 }
 
 export type GetFilterChangesReturnType<
@@ -148,6 +151,7 @@ export async function getFilterChanges<
   _client: Client<transport, chain>,
   {
     filter,
+    requestOptions,
   }: GetFilterChangesParameters<
     filterType,
     abi,
@@ -168,10 +172,13 @@ export async function getFilterChanges<
 > {
   const strict = 'strict' in filter && filter.strict
 
-  const logs = await filter.request({
-    method: 'eth_getFilterChanges',
-    params: [filter.id],
-  })
+  const logs = await filter.request(
+    {
+      method: 'eth_getFilterChanges',
+      params: [filter.id],
+    },
+    requestOptions,
+  )
 
   if (typeof logs[0] === 'string')
     return logs as GetFilterChangesReturnType<

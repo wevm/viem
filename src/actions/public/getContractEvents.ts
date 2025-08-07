@@ -9,6 +9,7 @@ import type {
   ContractEventArgs,
   ContractEventName,
 } from '../../types/contract.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Log } from '../../types/log.js'
 import type { Hash } from '../../types/misc.js'
 import {
@@ -51,6 +52,8 @@ export type GetContractEventsParameters<
    * @default false
    */
   strict?: strict | boolean | undefined
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 } & (
   | {
       /** Block number or tag after which to include logs */
@@ -140,6 +143,7 @@ export async function getContractEvents<
     fromBlock,
     toBlock,
     strict,
+    requestOptions,
   } = parameters
   const event = eventName
     ? getAbiItem({ abi, name: eventName } as GetAbiItemParameters)
@@ -160,6 +164,7 @@ export async function getContractEvents<
     fromBlock,
     toBlock,
     strict,
+    requestOptions,
   } as {} as GetLogsParameters) as unknown as GetContractEventsReturnType<
     abi,
     eventName,

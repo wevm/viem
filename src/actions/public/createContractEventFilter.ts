@@ -9,6 +9,7 @@ import type {
   ContractEventName,
   MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Filter } from '../../types/filter.js'
 import type { Hex } from '../../types/misc.js'
 import {
@@ -43,6 +44,8 @@ export type CreateContractEventFilterParameters<
    */
   strict?: strict | boolean | undefined
   toBlock?: toBlock | BlockNumber | BlockTag | undefined
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 } & (undefined extends eventName
   ? {
       args?: undefined
@@ -125,8 +128,16 @@ export async function createContractEventFilter<
     toBlock
   >
 > {
-  const { address, abi, args, eventName, fromBlock, strict, toBlock } =
-    parameters as CreateContractEventFilterParameters
+  const {
+    address,
+    abi,
+    args,
+    eventName,
+    fromBlock,
+    strict,
+    toBlock,
+    requestOptions,
+  } = parameters as CreateContractEventFilterParameters
 
   const getRequest = createFilterRequestScope(client, {
     method: 'eth_newFilter',
@@ -139,18 +150,21 @@ export async function createContractEventFilter<
         eventName,
       } as unknown as EncodeEventTopicsParameters)
     : undefined
-  const id: Hex = await client.request({
-    method: 'eth_newFilter',
-    params: [
-      {
-        address,
-        fromBlock:
-          typeof fromBlock === 'bigint' ? numberToHex(fromBlock) : fromBlock,
-        toBlock: typeof toBlock === 'bigint' ? numberToHex(toBlock) : toBlock,
-        topics,
-      },
-    ],
-  })
+  const id: Hex = await client.request(
+    {
+      method: 'eth_newFilter',
+      params: [
+        {
+          address,
+          fromBlock:
+            typeof fromBlock === 'bigint' ? numberToHex(fromBlock) : fromBlock,
+          toBlock: typeof toBlock === 'bigint' ? numberToHex(toBlock) : toBlock,
+          topics,
+        },
+      ],
+    },
+    requestOptions,
+  )
 
   return {
     abi,

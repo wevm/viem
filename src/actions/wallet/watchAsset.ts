@@ -3,10 +3,16 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
-import type { WatchAssetParams } from '../../types/eip1193.js'
+import type {
+  EIP1193RequestOptions,
+  WatchAssetParams,
+} from '../../types/eip1193.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 
-export type WatchAssetParameters = WatchAssetParams
+export type WatchAssetParameters = WatchAssetParams & {
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
+}
 export type WatchAssetReturnType = boolean
 export type WatchAssetErrorType = RequestErrorType | ErrorType
 
@@ -45,12 +51,13 @@ export async function watchAsset<
   client: Client<Transport, chain, account>,
   params: WatchAssetParameters,
 ): Promise<WatchAssetReturnType> {
+  const { requestOptions, ...watchAssetParams } = params
   const added = await client.request(
     {
       method: 'wallet_watchAsset',
-      params,
+      params: watchAssetParams,
     },
-    { retryCount: 0 },
+    { retryCount: 0, ...requestOptions },
   )
   return added
 }

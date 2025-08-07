@@ -24,6 +24,7 @@ import type {
   ContractFunctionName,
   ContractFunctionParameters,
 } from '../../types/contract.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Hex } from '../../types/misc.js'
 import type { Prettify, UnionEvaluate, UnionOmit } from '../../types/utils.js'
 import {
@@ -82,6 +83,8 @@ export type WriteContractParameters<
       > & {
         /** Data to append to the end of the calldata. Useful for adding a ["domain" tag](https://opensea.notion.site/opensea/Seaport-Order-Attributions-ec2d69bf455041a5baa490941aad307f). */
         dataSuffix?: Hex | undefined
+        /** Request options. */
+        requestOptions?: EIP1193RequestOptions | undefined
       }
   > &
   UnionEvaluate<

@@ -5,6 +5,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Hex } from '../../types/misc.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
@@ -14,6 +15,8 @@ import {
 
 export type GetCodeParameters = {
   address: Address
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 } & (
   | {
       blockNumber?: undefined
@@ -57,7 +60,12 @@ export type GetCodeErrorType =
  */
 export async function getCode<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  { address, blockNumber, blockTag = 'latest' }: GetCodeParameters,
+  {
+    address,
+    blockNumber,
+    blockTag = 'latest',
+    requestOptions,
+  }: GetCodeParameters,
 ): Promise<GetCodeReturnType> {
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
@@ -66,7 +74,7 @@ export async function getCode<chain extends Chain | undefined>(
       method: 'eth_getCode',
       params: [address, blockNumberHex || blockTag],
     },
-    { dedupe: Boolean(blockNumberHex) },
+    { dedupe: Boolean(blockNumberHex), ...requestOptions },
   )
   if (hex === '0x') return undefined
   return hex
