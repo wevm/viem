@@ -64,7 +64,7 @@ import {
   UserRejectedRequestError,
   type UserRejectedRequestErrorType,
 } from '../errors/rpc.js'
-import type { ErrorType } from '../errors/utils.js'
+import type { AbortErrorType, ErrorType } from '../errors/utils.js'
 import type {
   EIP1193RequestFn,
   EIP1193RequestOptions,
@@ -111,6 +111,7 @@ export type RequestErrorType =
   | UserRejectedRequestErrorType
   | WebSocketRequestErrorType
   | WithRetryErrorType
+  | AbortErrorType
   | ErrorType
 
 export function buildRequest<
@@ -164,7 +165,9 @@ export function buildRequest<
                   throw new InvalidRequestRpcError(err)
                 // -32601
                 case MethodNotFoundRpcError.code:
-                  throw new MethodNotFoundRpcError(err, { method: args.method })
+                  throw new MethodNotFoundRpcError(err, {
+                    method: args.method,
+                  })
                 // -32602
                 case InvalidParamsRpcError.code:
                   throw new InvalidParamsRpcError(err)
