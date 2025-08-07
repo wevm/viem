@@ -1156,6 +1156,8 @@ export type {
   RpcSchema,
   RpcSchemaOverride,
   TestRpcSchema,
+  WalletGetAssetsParameters,
+  WalletGetAssetsReturnType,
   WalletCallReceipt,
   WalletGetCallsStatusReturnType,
   WalletGrantPermissionsParameters,
