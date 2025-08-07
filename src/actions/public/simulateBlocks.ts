@@ -23,7 +23,6 @@ import type { MulticallResults } from '../../types/multicall.js'
 import type { StateOverride } from '../../types/stateOverride.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { ExactPartial, UnionOmit } from '../../types/utils.js'
-import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type DecodeFunctionResultErrorType,
   decodeFunctionResult,
@@ -32,6 +31,7 @@ import {
   type EncodeFunctionDataErrorType,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { concat } from '../../utils/data/concat.js'
 import {
   type NumberToHexErrorType,
