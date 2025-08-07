@@ -10,6 +10,7 @@ import type {
   ChainIdToCapabilities,
   ExtractCapabilities,
 } from '../../types/capabilities.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Prettify } from '../../types/utils.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
@@ -19,6 +20,8 @@ export type GetCapabilitiesParameters<
 > = {
   account?: Account | Address | undefined
   chainId?: chainId | number | undefined
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 }
 
 export type GetCapabilitiesReturnType<
@@ -60,17 +63,20 @@ export async function getCapabilities<
   client: Client<Transport>,
   parameters: GetCapabilitiesParameters<chainId> = {},
 ): Promise<GetCapabilitiesReturnType<chainId>> {
-  const { account = client.account, chainId } = parameters
+  const { account = client.account, chainId, requestOptions } = parameters
 
   const account_ = account ? parseAccount(account) : undefined
 
   const params = chainId
     ? ([account_?.address, [numberToHex(chainId)]] as const)
     : ([account_?.address] as const)
-  const capabilities_raw = await client.request({
-    method: 'wallet_getCapabilities',
-    params,
-  })
+  const capabilities_raw = await client.request(
+    {
+      method: 'wallet_getCapabilities',
+      params,
+    },
+    requestOptions,
+  )
 
   const capabilities = {} as ChainIdToCapabilities<
     ExtractCapabilities<'getCapabilities', 'ReturnType'>,

@@ -5,8 +5,14 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import { getAddress } from '../../utils/address/getAddress.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
+
+export type RequestAddressesParameters = {
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
+}
 
 export type RequestAddressesReturnType = Address[]
 
@@ -23,6 +29,7 @@ export type RequestAddressesErrorType = RequestErrorType | ErrorType
  * This API can be useful for dapps that need to access the user's accounts in order to execute transactions or interact with smart contracts.
  *
  * @param client - Client to use
+ * @param parameters - {@link RequestAddressesParameters}
  * @returns List of accounts managed by a wallet {@link RequestAddressesReturnType}
  *
  * @example
@@ -41,10 +48,11 @@ export async function requestAddresses<
   account extends Account | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
+  { requestOptions }: RequestAddressesParameters = {},
 ): Promise<RequestAddressesReturnType> {
   const addresses = await client.request(
     { method: 'eth_requestAccounts' },
-    { dedupe: true, retryCount: 0 },
+    { dedupe: true, retryCount: 0, ...requestOptions },
   )
   return addresses.map((address) => getAddress(address))
 }

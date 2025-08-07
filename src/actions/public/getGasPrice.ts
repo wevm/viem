@@ -3,7 +3,13 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
+
+export type GetGasPriceParameters = {
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
+}
 
 export type GetGasPriceReturnType = bigint
 
@@ -32,9 +38,15 @@ export type GetGasPriceErrorType = RequestErrorType | ErrorType
 export async function getGasPrice<
   chain extends Chain | undefined,
   account extends Account | undefined,
->(client: Client<Transport, chain, account>): Promise<GetGasPriceReturnType> {
-  const gasPrice = await client.request({
-    method: 'eth_gasPrice',
-  })
+>(
+  client: Client<Transport, chain, account>,
+  { requestOptions }: GetGasPriceParameters = {},
+): Promise<GetGasPriceReturnType> {
+  const gasPrice = await client.request(
+    {
+      method: 'eth_gasPrice',
+    },
+    requestOptions,
+  )
   return BigInt(gasPrice)
 }

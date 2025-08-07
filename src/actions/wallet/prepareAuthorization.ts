@@ -17,6 +17,7 @@ import type {
   AuthorizationRequest,
 } from '../../types/authorization.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { PartialBy } from '../../types/utils.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
@@ -35,6 +36,8 @@ export type PrepareAuthorizationParameters<
      * be executed by another Account.
      */
     executor?: 'self' | Account | Address | undefined
+    /** Request options. */
+    requestOptions?: EIP1193RequestOptions | undefined
   }
 
 export type PrepareAuthorizationReturnType = Authorization
@@ -93,7 +96,12 @@ export async function prepareAuthorization<
   client: Client<Transport, chain, account>,
   parameters: PrepareAuthorizationParameters<account>,
 ): Promise<PrepareAuthorizationReturnType> {
-  const { account: account_ = client.account, chainId, nonce } = parameters
+  const {
+    account: account_ = client.account,
+    chainId,
+    nonce,
+    requestOptions,
+  } = parameters
 
   if (!account_)
     throw new AccountNotFoundError({
@@ -116,7 +124,7 @@ export async function prepareAuthorization<
   if (typeof authorization.chainId === 'undefined')
     authorization.chainId =
       client.chain?.id ??
-      (await getAction(client, getChainId, 'getChainId')({}))
+      (await getAction(client, getChainId, 'getChainId')({ requestOptions }))
 
   if (typeof authorization.nonce === 'undefined') {
     authorization.nonce = await getAction(
@@ -126,6 +134,7 @@ export async function prepareAuthorization<
     )({
       address: account.address,
       blockTag: 'pending',
+      requestOptions,
     })
     if (
       executor === 'self' ||

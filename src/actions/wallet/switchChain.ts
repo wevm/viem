@@ -3,6 +3,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type NumberToHexErrorType,
@@ -12,6 +13,8 @@ import {
 export type SwitchChainParameters = {
   /** ID of Chain to switch to */
   id: Chain['id']
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 }
 
 export type SwitchChainErrorType =
@@ -42,7 +45,10 @@ export type SwitchChainErrorType =
 export async function switchChain<
   chain extends Chain | undefined,
   account extends Account | undefined = undefined,
->(client: Client<Transport, chain, account>, { id }: SwitchChainParameters) {
+>(
+  client: Client<Transport, chain, account>,
+  { id, requestOptions }: SwitchChainParameters,
+) {
   await client.request(
     {
       method: 'wallet_switchEthereumChain',
@@ -52,6 +58,6 @@ export async function switchChain<
         },
       ],
     },
-    { retryCount: 0 },
+    { retryCount: 0, ...requestOptions },
   )
 }

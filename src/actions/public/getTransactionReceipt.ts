@@ -6,6 +6,7 @@ import {
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Hash } from '../../types/misc.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
@@ -16,6 +17,8 @@ import {
 export type GetTransactionReceiptParameters = {
   /** The hash of the transaction. */
   hash: Hash
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 }
 
 export type GetTransactionReceiptReturnType<
@@ -53,14 +56,14 @@ export type GetTransactionReceiptErrorType =
  */
 export async function getTransactionReceipt<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  { hash }: GetTransactionReceiptParameters,
+  { hash, requestOptions }: GetTransactionReceiptParameters,
 ) {
   const receipt = await client.request(
     {
       method: 'eth_getTransactionReceipt',
       params: [hash],
     },
-    { dedupe: true },
+    { dedupe: true, ...requestOptions },
   )
 
   if (!receipt) throw new TransactionReceiptNotFoundError({ hash })

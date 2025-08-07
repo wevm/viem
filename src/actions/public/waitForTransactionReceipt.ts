@@ -9,6 +9,7 @@ import {
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Hash } from '../../types/misc.js'
 import type { Transaction } from '../../types/transaction.js'
 import { getAction } from '../../utils/getAction.js'
@@ -72,6 +73,8 @@ export type WaitForTransactionReceiptParameters<
    * @default client.pollingInterval
    */
   pollingInterval?: number | undefined
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
   /**
    * Number of times to retry if the transaction or block is not found.
    * @default 6 (exponential backoff)
@@ -147,6 +150,7 @@ export async function waitForTransactionReceipt<
     confirmations = 1,
     hash,
     onReplaced,
+    requestOptions,
     retryCount = 6,
     retryDelay = ({ count }) => ~~(1 << count) * 200, // exponential backoff
     timeout = 180_000,
@@ -188,7 +192,7 @@ export async function waitForTransactionReceipt<
         client,
         getTransactionReceipt,
         'getTransactionReceipt',
-      )({ hash }).catch(() => undefined)
+      )({ hash, requestOptions }).catch(() => undefined)
 
       if (receipt && confirmations <= 1) {
         clearTimeout(timer)
@@ -244,7 +248,10 @@ export async function waitForTransactionReceipt<
                     client,
                     getTransaction,
                     'getTransaction',
-                  )({ hash })) as GetTransactionReturnType<chain>
+                  )({
+                    hash,
+                    requestOptions,
+                  })) as GetTransactionReturnType<chain>
                   if (transaction.blockNumber)
                     blockNumber = transaction.blockNumber
                 },
@@ -261,7 +268,7 @@ export async function waitForTransactionReceipt<
               client,
               getTransactionReceipt,
               'getTransactionReceipt',
-            )({ hash })
+            )({ hash, requestOptions })
 
             // Check if we have enough confirmations. If not, continue polling.
             if (
@@ -300,6 +307,7 @@ export async function waitForTransactionReceipt<
                     )({
                       blockNumber,
                       includeTransactions: true,
+                      requestOptions,
                     }),
                   {
                     delay: retryDelay,
@@ -328,6 +336,7 @@ export async function waitForTransactionReceipt<
                   'getTransactionReceipt',
                 )({
                   hash: replacementTransaction.hash,
+                  requestOptions,
                 })
 
                 // Check if we have enough confirmations. If not, continue polling.

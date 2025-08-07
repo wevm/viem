@@ -9,6 +9,7 @@ import type {
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Filter } from '../../types/filter.js'
 import type { Hex, LogTopic } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
@@ -42,6 +43,8 @@ export type CreateEventFilterParameters<
   address?: Address | Address[] | undefined
   fromBlock?: fromBlock | BlockNumber | BlockTag | undefined
   toBlock?: toBlock | BlockNumber | BlockTag | undefined
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 } & (MaybeExtractEventArgsFromAbi<
   abiEvents,
   _eventName
@@ -160,6 +163,7 @@ export async function createEventFilter<
     event,
     events: events_,
     fromBlock,
+    requestOptions,
     strict,
     toBlock,
   }: CreateEventFilterParameters<
@@ -202,18 +206,21 @@ export async function createEventFilter<
     if (event) topics = topics[0] as LogTopic[]
   }
 
-  const id: Hex = await client.request({
-    method: 'eth_newFilter',
-    params: [
-      {
-        address,
-        fromBlock:
-          typeof fromBlock === 'bigint' ? numberToHex(fromBlock) : fromBlock,
-        toBlock: typeof toBlock === 'bigint' ? numberToHex(toBlock) : toBlock,
-        ...(topics.length ? { topics } : {}),
-      },
-    ],
-  })
+  const id: Hex = await client.request(
+    {
+      method: 'eth_newFilter',
+      params: [
+        {
+          address,
+          fromBlock:
+            typeof fromBlock === 'bigint' ? numberToHex(fromBlock) : fromBlock,
+          toBlock: typeof toBlock === 'bigint' ? numberToHex(toBlock) : toBlock,
+          ...(topics.length ? { topics } : {}),
+        },
+      ],
+    },
+    requestOptions,
+  )
 
   return {
     abi: events,

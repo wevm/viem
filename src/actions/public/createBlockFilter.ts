@@ -2,9 +2,15 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Filter } from '../../types/filter.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { createFilterRequestScope } from '../../utils/filters/createFilterRequestScope.js'
+
+export type CreateBlockFilterParameters = {
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
+}
 
 export type CreateBlockFilterReturnType = Filter<'block'>
 
@@ -33,12 +39,16 @@ export type CreateBlockFilterErrorType = RequestErrorType | ErrorType
  */
 export async function createBlockFilter<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
+  { requestOptions }: CreateBlockFilterParameters = {},
 ): Promise<CreateBlockFilterReturnType> {
   const getRequest = createFilterRequestScope(client, {
     method: 'eth_newBlockFilter',
   })
-  const id = await client.request({
-    method: 'eth_newBlockFilter',
-  })
+  const id = await client.request(
+    {
+      method: 'eth_newBlockFilter',
+    },
+    requestOptions,
+  )
   return { id, request: getRequest(id), type: 'block' }
 }

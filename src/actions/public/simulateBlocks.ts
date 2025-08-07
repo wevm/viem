@@ -16,6 +16,7 @@ import type { Account } from '../../types/account.js'
 import type { Block, BlockTag } from '../../types/block.js'
 import type { Call, Calls } from '../../types/calls.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Log } from '../../types/log.js'
 import type { Hex } from '../../types/misc.js'
 import type { MulticallResults } from '../../types/multicall.js'
@@ -82,6 +83,8 @@ export type SimulateBlocksParameters<
     /** State overrides. */
     stateOverrides?: StateOverride | undefined
   }[]
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
   /** Whether to return the full transactions. */
   returnFullTransactions?: boolean | undefined
   /** Whether to trace transfers. */
@@ -188,6 +191,7 @@ export async function simulateBlocks<
     blockNumber,
     blockTag = client.experimental_blockTag ?? 'latest',
     blocks,
+    requestOptions,
     returnFullTransactions,
     traceTransfers,
     validation,
@@ -229,13 +233,21 @@ export async function simulateBlocks<
       typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
 
-    const result = await client.request({
-      method: 'eth_simulateV1',
-      params: [
-        { blockStateCalls, returnFullTransactions, traceTransfers, validation },
-        block,
-      ],
-    })
+    const result = await client.request(
+      {
+        method: 'eth_simulateV1',
+        params: [
+          {
+            blockStateCalls,
+            returnFullTransactions,
+            traceTransfers,
+            validation,
+          },
+          block,
+        ],
+      },
+      requestOptions,
+    )
 
     return result.map((block, i) => ({
       ...formatBlock(block),
