@@ -3,6 +3,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Hash } from '../../types/misc.js'
 import type { Quantity } from '../../types/rpc.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
@@ -15,7 +16,10 @@ import {
   numberToHex,
 } from '../../utils/encoding/toHex.js'
 
-export type GetBlockTransactionCountParameters =
+export type GetBlockTransactionCountParameters = {
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
+} & (
   | {
       /** Hash of the block. */
       blockHash?: Hash | undefined
@@ -34,6 +38,7 @@ export type GetBlockTransactionCountParameters =
       /** The block tag. Defaults to 'latest'. */
       blockTag?: BlockTag | undefined
     }
+)
 
 export type GetBlockTransactionCountReturnType = number
 
@@ -72,6 +77,7 @@ export async function getBlockTransactionCount<chain extends Chain | undefined>(
     blockHash,
     blockNumber,
     blockTag = 'latest',
+    requestOptions,
   }: GetBlockTransactionCountParameters = {},
 ): Promise<GetBlockTransactionCountReturnType> {
   const blockNumberHex =
@@ -84,7 +90,7 @@ export async function getBlockTransactionCount<chain extends Chain | undefined>(
         method: 'eth_getBlockTransactionCountByHash',
         params: [blockHash],
       },
-      { dedupe: true },
+      { dedupe: true, ...requestOptions },
     )
   } else {
     count = await client.request(
@@ -92,7 +98,7 @@ export async function getBlockTransactionCount<chain extends Chain | undefined>(
         method: 'eth_getBlockTransactionCountByNumber',
         params: [blockNumberHex || blockTag],
       },
-      { dedupe: Boolean(blockNumberHex) },
+      { dedupe: Boolean(blockNumberHex), ...requestOptions },
     )
   }
 

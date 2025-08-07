@@ -2,6 +2,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { FeeHistory } from '../../types/fee.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
@@ -22,6 +23,8 @@ export type GetFeeHistoryParameters = {
    * A monotonically increasing list of percentile values to sample from each block's effective priority fees per gas in ascending order, weighted by gas used.
    */
   rewardPercentiles: number[]
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 } & (
   | {
       blockNumber?: undefined
@@ -75,6 +78,7 @@ export async function getFeeHistory<chain extends Chain | undefined>(
     blockNumber,
     blockTag = 'latest',
     rewardPercentiles,
+    requestOptions,
   }: GetFeeHistoryParameters,
 ): Promise<GetFeeHistoryReturnType> {
   const blockNumberHex =
@@ -88,7 +92,7 @@ export async function getFeeHistory<chain extends Chain | undefined>(
         rewardPercentiles,
       ],
     },
-    { dedupe: Boolean(blockNumberHex) },
+    { dedupe: Boolean(blockNumberHex), ...requestOptions },
   )
   return formatFeeHistory(feeHistory)
 }

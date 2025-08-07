@@ -5,6 +5,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type NumberToHexErrorType,
@@ -14,6 +15,8 @@ import {
 export type GetBalanceParameters = {
   /** The address of the account. */
   address: Address
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 } & (
   | {
       /** The balance of the account at a block number. */
@@ -75,14 +78,18 @@ export async function getBalance<chain extends Chain | undefined>(
     address,
     blockNumber,
     blockTag = client.experimental_blockTag ?? 'latest',
+    requestOptions,
   }: GetBalanceParameters,
 ): Promise<GetBalanceReturnType> {
   const blockNumberHex =
     typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
 
-  const balance = await client.request({
-    method: 'eth_getBalance',
-    params: [address, blockNumberHex || blockTag],
-  })
+  const balance = await client.request(
+    {
+      method: 'eth_getBalance',
+      params: [address, blockNumberHex || blockTag],
+    },
+    requestOptions,
+  )
   return BigInt(balance)
 }

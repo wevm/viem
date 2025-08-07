@@ -9,6 +9,7 @@ import type {
   MaybeAbiEventName,
   MaybeExtractEventArgsFromAbi,
 } from '../../types/contract.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Log } from '../../types/log.js'
 import type { Hash, LogTopic } from '../../types/misc.js'
 import type { RpcLog } from '../../types/rpc.js'
@@ -43,6 +44,8 @@ export type GetLogsParameters<
 > = {
   /** Address or list of addresses from which logs originated */
   address?: Address | Address[] | undefined
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 } & (
   | {
       event: abiEvent
@@ -153,6 +156,7 @@ export async function getLogs<
     event,
     events: events_,
     args,
+    requestOptions,
     strict: strict_,
   }: GetLogsParameters<abiEvent, abiEvents, strict, fromBlock, toBlock> = {},
 ): Promise<GetLogsReturnType<abiEvent, abiEvents, strict, fromBlock, toBlock>> {
@@ -175,23 +179,32 @@ export async function getLogs<
 
   let logs: RpcLog[]
   if (blockHash) {
-    logs = await client.request({
-      method: 'eth_getLogs',
-      params: [{ address, topics, blockHash }],
-    })
+    logs = await client.request(
+      {
+        method: 'eth_getLogs',
+        params: [{ address, topics, blockHash }],
+      },
+      requestOptions,
+    )
   } else {
-    logs = await client.request({
-      method: 'eth_getLogs',
-      params: [
-        {
-          address,
-          topics,
-          fromBlock:
-            typeof fromBlock === 'bigint' ? numberToHex(fromBlock) : fromBlock,
-          toBlock: typeof toBlock === 'bigint' ? numberToHex(toBlock) : toBlock,
-        },
-      ],
-    })
+    logs = await client.request(
+      {
+        method: 'eth_getLogs',
+        params: [
+          {
+            address,
+            topics,
+            fromBlock:
+              typeof fromBlock === 'bigint'
+                ? numberToHex(fromBlock)
+                : fromBlock,
+            toBlock:
+              typeof toBlock === 'bigint' ? numberToHex(toBlock) : toBlock,
+          },
+        ],
+      },
+      requestOptions,
+    )
   }
 
   const formattedLogs = logs.map((log) => formatLog(log))

@@ -2,6 +2,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Hash } from '../../types/misc.js'
 import type { FormattedTransactionReceipt } from '../../utils/formatters/transactionReceipt.js'
 import { getAction } from '../../utils/getAction.js'
@@ -17,7 +18,10 @@ import {
 
 export type GetTransactionConfirmationsParameters<
   chain extends Chain | undefined = Chain,
-> =
+> = {
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
+} & (
   | {
       /** The transaction hash. */
       hash: Hash
@@ -28,6 +32,7 @@ export type GetTransactionConfirmationsParameters<
       /** The transaction receipt. */
       transactionReceipt: FormattedTransactionReceipt<chain>
     }
+)
 
 export type GetTransactionConfirmationsReturnType = bigint
 
@@ -64,12 +69,20 @@ export async function getTransactionConfirmations<
   chain extends Chain | undefined,
 >(
   client: Client<Transport, chain>,
-  { hash, transactionReceipt }: GetTransactionConfirmationsParameters<chain>,
+  {
+    hash,
+    transactionReceipt,
+    requestOptions,
+  }: GetTransactionConfirmationsParameters<chain>,
 ): Promise<GetTransactionConfirmationsReturnType> {
   const [blockNumber, transaction] = await Promise.all([
-    getAction(client, getBlockNumber, 'getBlockNumber')({}),
+    getAction(client, getBlockNumber, 'getBlockNumber')({ requestOptions }),
     hash
-      ? getAction(client, getTransaction, 'getTransaction')({ hash })
+      ? getAction(
+          client,
+          getTransaction,
+          'getTransaction',
+        )({ hash, requestOptions })
       : undefined,
   ])
   const transactionBlockNumber =
