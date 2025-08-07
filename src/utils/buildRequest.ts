@@ -114,7 +114,10 @@ export type RequestErrorType =
   | ErrorType
 
 export function buildRequest<
-  request extends (args: any, options?: EIP1193RequestOptions | undefined) => Promise<any>,
+  request extends (
+    args: any,
+    options?: EIP1193RequestOptions | undefined,
+  ) => Promise<any>,
 >(request: request, options: EIP1193RequestOptions = {}): EIP1193RequestFn {
   return async (args, overrideOptions: EIP1193RequestOptions = {}) => {
     const {

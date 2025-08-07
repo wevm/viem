@@ -9,6 +9,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import { BaseError } from '../../errors/base.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { StateOverride } from '../../types/stateOverride.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
@@ -46,6 +47,7 @@ export type EstimateGasParameters<
   chain extends Chain | undefined = Chain | undefined,
 > = UnionOmit<FormattedEstimateGas<chain>, 'from'> & {
   account?: Account | Address | undefined
+  requestOptions?: EIP1193RequestOptions | undefined
   stateOverride?: StateOverride | undefined
 } & (
     | {
@@ -125,6 +127,7 @@ export async function estimateGas<
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
+      requestOptions,
       value,
       stateOverride,
       ...rest
@@ -191,18 +194,21 @@ export async function estimateGas<
       rpcStateOverride: any
     }) {
       const { block, request, rpcStateOverride } = parameters
-      return client.request({
-        method: 'eth_estimateGas',
-        params: rpcStateOverride
-          ? [
-              request,
-              block ?? client.experimental_blockTag ?? 'latest',
-              rpcStateOverride,
-            ]
-          : block
-            ? [request, block]
-            : [request],
-      })
+      return client.request(
+        {
+          method: 'eth_estimateGas',
+          params: rpcStateOverride
+            ? [
+                request,
+                block ?? client.experimental_blockTag ?? 'latest',
+                rpcStateOverride,
+              ]
+            : block
+              ? [request, block]
+              : [request],
+        },
+        requestOptions,
+      )
     }
 
     let estimate = BigInt(
@@ -213,7 +219,10 @@ export async function estimateGas<
     //       Authorization list schema is not implemented on JSON-RPC spec yet, so we need to
     //       manually estimate the gas.
     if (authorizationList) {
-      const value = await getBalance(client, { address: request.from })
+      const value = await getBalance(client, {
+        address: request.from,
+        requestOptions,
+      })
       const estimates = await Promise.all(
         authorizationList.map(async (authorization) => {
           const { address } = authorization
