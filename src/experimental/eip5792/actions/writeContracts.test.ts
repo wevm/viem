@@ -1,8 +1,11 @@
+// TODO(v3): Remove this.
+
 import { expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/src/abis.js'
 import { anvilMainnet } from '../../../../test/src/anvil.js'
 import { accounts } from '../../../../test/src/constants.js'
 import { mine, reset } from '../../../actions/index.js'
+import { getCallsStatus } from '../../../actions/wallet/getCallsStatus.js'
 import { mainnet } from '../../../chains/index.js'
 import { createClient } from '../../../clients/createClient.js'
 import { custom } from '../../../clients/transports/custom.js'
@@ -11,7 +14,6 @@ import type { WalletCallReceipt } from '../../../types/eip1193.js'
 import type { Hex } from '../../../types/misc.js'
 import { getHttpRpcClient } from '../../../utils/index.js'
 import { uid } from '../../../utils/uid.js'
-import { getCallsStatus } from './getCallsStatus.js'
 import { writeContracts } from './writeContracts.js'
 
 type Uid = string
@@ -113,7 +115,7 @@ test('default', async () => {
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
 
-  const id_ = await writeContracts(client, {
+  const { id: id_ } = await writeContracts(client, {
     account: accounts[0].address,
     chain: mainnet,
     contracts: [
@@ -137,6 +139,7 @@ test('default', async () => {
     [
       [
         {
+          "atomicRequired": false,
           "calls": [
             {
               "data": "0x1249c58b",
@@ -157,7 +160,8 @@ test('default', async () => {
           "capabilities": undefined,
           "chainId": "0x1",
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-          "version": "1.0",
+          "id": undefined,
+          "version": "2.0.0",
         },
       ],
     ]
@@ -198,12 +202,12 @@ test('default', async () => {
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
               "0x0000000000000000000000000000000000000000000000000000000000000221",
             ],
-            "transactionHash": "0x3dc2dcb12d9bb74c37b563bfea0e78521804502c5e6505f5e114ddad3292208f",
+            "transactionHash": "0xacdee6d5b6d2d68a38da86c3abe7b8ab6010f33c64f4d88b974561f6b1d56347",
             "transactionIndex": "0x0",
           },
         ],
         "status": "success",
-        "transactionHash": "0x3dc2dcb12d9bb74c37b563bfea0e78521804502c5e6505f5e114ddad3292208f",
+        "transactionHash": "0xacdee6d5b6d2d68a38da86c3abe7b8ab6010f33c64f4d88b974561f6b1d56347",
       },
       {
         "blockHash": undefined,
@@ -224,12 +228,12 @@ test('default', async () => {
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
               "0x0000000000000000000000000000000000000000000000000000000000000222",
             ],
-            "transactionHash": "0x6178e4e58efa34b308d5bc038be614ded98221d49af01fd9efda0bc4432acee2",
+            "transactionHash": "0x176194788ff554fcf779fd1930e829fa833e13312b68a70c27cc45baf9db9fa7",
             "transactionIndex": "0x1",
           },
         ],
         "status": "success",
-        "transactionHash": "0x6178e4e58efa34b308d5bc038be614ded98221d49af01fd9efda0bc4432acee2",
+        "transactionHash": "0x176194788ff554fcf779fd1930e829fa833e13312b68a70c27cc45baf9db9fa7",
       },
       {
         "blockHash": undefined,
@@ -250,12 +254,12 @@ test('default', async () => {
               "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
               "0x0000000000000000000000000000000000000000000000000000000000000223",
             ],
-            "transactionHash": "0xa6661c5bb2bed7ec8dd4dc07f5d7ed3e95817bdefdb9cfd11ef316fda70cbf0f",
+            "transactionHash": "0xf159bb3cddf63e24b3486d4d88213258c1860d74721e77b466c26ba6cb1b8a4b",
             "transactionIndex": "0x2",
           },
         ],
         "status": "success",
-        "transactionHash": "0xa6661c5bb2bed7ec8dd4dc07f5d7ed3e95817bdefdb9cfd11ef316fda70cbf0f",
+        "transactionHash": "0xf159bb3cddf63e24b3486d4d88213258c1860d74721e77b466c26ba6cb1b8a4b",
       },
     ]
   `)

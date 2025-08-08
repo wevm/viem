@@ -35,6 +35,10 @@ import {
   getDefaultBridgeAddresses,
 } from '../actions/getDefaultBridgeAddresses.js'
 import {
+  type GetGasPerPubdataReturnType,
+  getGasPerPubdata,
+} from '../actions/getGasPerPubdata.js'
+import {
   type GetL1BatchBlockRangeParameters,
   type GetL1BatchBlockRangeReturnParameters,
   getL1BatchBlockRange,
@@ -169,6 +173,8 @@ export type PublicActionsL2<
   getMainContractAddress: () => Promise<GetMainContractAddressReturnType>
 
   /**
+   * @deprecated This method has been removed from the node API.
+   *
    * Returns all known balances for a given account.
    *
    * @returns The balances for a given account. {@link GetAllBalancesReturnType}
@@ -471,6 +477,25 @@ export type PublicActionsL2<
   getL1TokenAddress: (
     args: GetL1TokenAddressParameters,
   ) => Promise<GetL1TokenAddressReturnType>
+
+  /**
+   * Returns the scaled gas per pubdata limit for the currently open batch. Available since node version 28.7.0.
+   *
+   * @returns the scaled gas per pubdata limit for the currently open batch
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { zksyncLocalNode } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/zksync'
+   *
+   * const client = createPublicClient({
+   *   chain: zksyncLocalNode,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const gasPerPubdata = await client.getGasPerPubdata();
+   */
+  getGasPerPubdata: () => Promise<GetGasPerPubdataReturnType>
 }
 
 export function publicActionsL2() {
@@ -500,6 +525,7 @@ export function publicActionsL2() {
       getBaseTokenL1Address: () => getBaseTokenL1Address(client),
       getL2TokenAddress: (args) => getL2TokenAddress(client, args),
       getL1TokenAddress: (args) => getL1TokenAddress(client, args),
+      getGasPerPubdata: () => getGasPerPubdata(client),
     }
   }
 }

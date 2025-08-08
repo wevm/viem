@@ -115,7 +115,7 @@ export async function toSmartAccount<
         this.getFactoryArgs(),
         implementation.signMessage(parameters),
       ])
-      if (factory && factoryData)
+      if (factory && factoryData && factory !== '0x7702')
         return serializeErc6492Signature({
           address: factory,
           data: factoryData,
@@ -128,7 +128,7 @@ export async function toSmartAccount<
         this.getFactoryArgs(),
         implementation.signTypedData(parameters),
       ])
-      if (factory && factoryData)
+      if (factory && factoryData && factory !== '0x7702')
         return serializeErc6492Signature({
           address: factory,
           data: factoryData,

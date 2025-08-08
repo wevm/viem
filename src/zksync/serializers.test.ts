@@ -275,6 +275,7 @@ test('other', () => {
   expect(parseTransaction(serialized)).toEqual({
     to: accounts[0].address,
     chainId: 1,
+    nonce: 0,
     maxFeePerGas: parseGwei('2'),
     maxPriorityFeePerGas: parseGwei('2'),
     value: parseEther('1'),

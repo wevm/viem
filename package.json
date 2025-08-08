@@ -28,7 +28,7 @@
     "prepare": "pnpm simple-git-hooks",
     "prepublishOnly": "bun scripts/prepublishOnly.ts",
     "size": "size-limit",
-    "test": "vitest -c ./test/vitest.config.ts dev",
+    "test": "vitest -c ./test/vitest.config.ts",
     "test:build": "publint --strict ./src && attw --pack ./src --ignore-rules false-esm",
     "test:chains": "vitest test/scripts/chains.test.ts",
     "test:ci": "CI=true vitest -c ./test/vitest.config.ts --coverage --retry=3 --bail=1",
@@ -48,12 +48,12 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.15.4",
     "@ark/attest": "^0.10.2",
-    "@biomejs/biome": "^1.9.3",
+    "@biomejs/biome": "^1.9.4",
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.27.9",
     "@ethereumjs/rlp": "^5.0.2",
     "@paulmillr/trusted-setups": "^0.1.2",
-    "@pimlico/alto": "0.0.4",
+    "@pimlico/alto": "0.0.18",
     "@size-limit/preset-big-lib": "^11.1.6",
     "@types/bun": "^1.1.11",
     "@types/node": "^22.13.13",
@@ -65,17 +65,17 @@
     "knip": "^5.33.3",
     "micro-eth-signer": "^0.14.0",
     "permissionless": "^0.2.14",
-    "prool": "0.0.23",
+    "prool": "0.0.24",
     "publint": "^0.2.11",
     "sherif": "^0.8.4",
     "simple-git-hooks": "^2.11.1",
     "size-limit": "^11.1.6",
-    "typescript": "5.8.2",
+    "typescript": "catalog:",
     "vitest": "^1.0.4"
   },
-  "packageManager": "pnpm@9.1.0",
+  "packageManager": "pnpm@10.14.0",
   "engines": {
-    "node": "23.x"
+    "node": ">=24"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm check"
@@ -96,7 +96,7 @@
       "src": {
         "entry": [
           "index.ts!",
-          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,linea,node,nonce,op-stack,siwe,utils,window,zksync}/index.ts!",
+          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,utils,window,zksync}/index.ts!",
           "chains/utils.ts!"
         ],
         "ignore": ["node/trustedSetups_cjs.ts"]
@@ -110,13 +110,13 @@
     {
       "name": "import * from 'viem' (esm)",
       "path": "./src/_esm/index.js",
-      "limit": "69 kB",
+      "limit": "73 kB",
       "import": "*"
     },
     {
       "name": "const viem = require('viem') (cjs)",
       "path": "./src/_cjs/index.js",
-      "limit": "84 kB"
+      "limit": "91 kB"
     },
     {
       "name": "import { createClient, http } from 'viem'",
@@ -127,7 +127,7 @@
     {
       "name": "import * from 'viem/account-abstraction'",
       "path": "./src/_esm/account-abstraction/index.js",
-      "limit": "50 kB",
+      "limit": "55 kB",
       "import": "*"
     },
     {
@@ -151,7 +151,7 @@
     {
       "name": "import * from 'viem/actions'",
       "path": "./src/_esm/actions/index.js",
-      "limit": "54 kB",
+      "limit": "58 kB",
       "import": "*"
     },
     {
@@ -181,25 +181,25 @@
     {
       "name": "import * from 'viem/ens'",
       "path": "./src/_esm/ens/index.js",
-      "limit": "48.5 kB",
+      "limit": "50 kB",
       "import": "*"
     },
     {
       "name": "import { getEnsAvatar } from 'viem/ens'",
       "path": "./src/_esm/ens/index.js",
-      "limit": "24 kB",
+      "limit": "25 kB",
       "import": "{ getEnsAvatar }"
     },
     {
       "name": "import * from 'viem/siwe'",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "33 kB",
+      "limit": "34 kB",
       "import": "*"
     },
     {
       "name": "import { verifySiweMessage } from 'viem/siwe'",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "32 kB",
+      "limit": "34 kB",
       "import": "{ verifySiweMessage }"
     }
   ],
@@ -219,6 +219,7 @@
       "cross-spawn@<6.0.6": ">=6.0.6",
       "cross-spawn@>=7.0.0 <7.0.5": ">=7.0.5",
       "smol-toml@<=1.3.0": ">=1.3.1"
-    }
+    },
+    "onlyBuiltDependencies": ["bun", "protobufjs", "simple-git-hooks"]
   }
 }

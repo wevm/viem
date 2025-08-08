@@ -28,6 +28,8 @@ export type Chain<
         default: ChainBlockExplorer
       }
     | undefined
+  /** Block time in milliseconds. */
+  blockTime?: number | undefined
   /** Collection of contracts */
   contracts?:
     | Prettify<
@@ -44,12 +46,16 @@ export type Chain<
         }
       >
     | undefined
+  /** Collection of ENS TLDs for the chain. */
+  ensTlds?: readonly string[] | undefined
   /** ID in number form */
   id: number
   /** Human-readable name */
   name: string
   /** Currency used by chain */
   nativeCurrency: ChainNativeCurrency
+  /** Preconfirmation time in milliseconds. */
+  experimental_preconfirmationTime?: number | undefined
   /** Collection of RPC endpoints */
   rpcUrls: {
     [key: string]: ChainRpcUrls

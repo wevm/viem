@@ -1,7 +1,7 @@
 import { assertType, describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { BatchCallDelegation } from '../../../contracts/generated.js'
+import { Delegation } from '../../../contracts/generated.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { deploy } from '../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
@@ -86,8 +86,6 @@ test('gets transaction (legacy)', async () => {
 })
 
 test('gets transaction (eip2930)', async () => {
-  const block = await getBlock(client)
-
   await setBalance(client, {
     address: targetAccount.address,
     value: targetAccount.balance,
@@ -98,7 +96,7 @@ test('gets transaction (eip2930)', async () => {
     account: sourceAccount.address,
     to: targetAccount.address,
     value: parseEther('1'),
-    gasPrice: BigInt((block.baseFeePerGas ?? 0n) * 2n),
+    type: 'eip2930',
   })
 
   const transaction = await getTransaction(client, {
@@ -182,20 +180,21 @@ test('gets transaction (eip7702)', async () => {
   const eoa = privateKeyToAccount(accounts[1].privateKey)
 
   const { contractAddress } = await deploy(client, {
-    abi: BatchCallDelegation.abi,
-    bytecode: BatchCallDelegation.bytecode.object,
+    abi: Delegation.abi,
+    bytecode: Delegation.bytecode.object,
   })
 
   const authorization = await signAuthorization(client, {
     account: eoa,
     contractAddress: contractAddress!,
+    executor: 'self',
   })
 
   const hash = await sendTransaction(client, {
     account: eoa,
     authorizationList: [authorization],
     data: encodeFunctionData({
-      abi: BatchCallDelegation.abi,
+      abi: Delegation.abi,
       functionName: 'execute',
       args: [
         [

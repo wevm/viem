@@ -3,6 +3,7 @@ import { assertType, describe, expect, test, vi } from 'vitest'
 import { anvilMainnet } from '../../test/src/anvil.js'
 import { localhost } from '../chains/index.js'
 import type { EIP1193RequestFn, PublicRpcSchema } from '../index.js'
+import * as utilsRpcWebSocket from '../utils/rpc/webSocket.js'
 import { createPublicClient } from './createPublicClient.js'
 import { testActions } from './decorators/test.js'
 import { walletActions } from './decorators/wallet.js'
@@ -362,6 +363,49 @@ describe('transports', () => {
     `)
   })
 
+  test('webSocket - getRpcClient() - keepAlive & reconnect disabled', async () => {
+    const wsRpcClientOpts = { keepAlive: false, reconnect: false }
+    const { uid, ...client } = createPublicClient({
+      chain: localhost,
+      transport: webSocket(anvilMainnet.rpcUrl.ws, wsRpcClientOpts),
+    })
+    const spy = vi.spyOn(utilsRpcWebSocket, 'getWebSocketRpcClient')
+
+    await client.transport.getRpcClient()
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy).toHaveBeenCalledWith(anvilMainnet.rpcUrl.ws, wsRpcClientOpts)
+  })
+
+  test('webSocket - subscribe() - keepAlive & reconnect disabled', async () => {
+    const wsRpcClientOpts = { keepAlive: false, reconnect: false }
+    const { uid, ...client } = createPublicClient({
+      chain: localhost,
+      transport: webSocket(anvilMainnet.rpcUrl.ws, wsRpcClientOpts),
+    })
+    const spy = vi.spyOn(utilsRpcWebSocket, 'getWebSocketRpcClient')
+
+    await client.transport.subscribe({
+      params: ['newHeads'],
+      onData: () => {},
+      onError: () => {},
+    })
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy).toHaveBeenCalledWith(anvilMainnet.rpcUrl.ws, wsRpcClientOpts)
+  })
+
+  test('webSocket - request() - keepAlive & reconnect disabled', async () => {
+    const wsRpcClientOpts = { keepAlive: false, reconnect: false }
+    const { uid, ...client } = createPublicClient({
+      chain: localhost,
+      transport: webSocket(anvilMainnet.rpcUrl.ws, wsRpcClientOpts),
+    })
+    const spy = vi.spyOn(utilsRpcWebSocket, 'getWebSocketRpcClient')
+
+    await client.transport.request({ method: 'eth_blockNumber', params: [] })
+    expect(spy).toHaveBeenCalledTimes(1)
+    expect(spy).toHaveBeenCalledWith(anvilMainnet.rpcUrl.ws, wsRpcClientOpts)
+  })
+
   test('custom', () => {
     const { uid, ...client } = createPublicClient({
       transport: custom({ request: async () => null }),
@@ -506,6 +550,8 @@ test('extend', () => {
       "getBlockNumber": [Function],
       "getBlockTransactionCount": [Function],
       "getBytecode": [Function],
+      "getCallsStatus": [Function],
+      "getCapabilities": [Function],
       "getChainId": [Function],
       "getCode": [Function],
       "getContractEvents": [Function],
@@ -547,6 +593,7 @@ test('extend', () => {
       "requestPermissions": [Function],
       "reset": [Function],
       "revert": [Function],
+      "sendCalls": [Function],
       "sendRawTransaction": [Function],
       "sendTransaction": [Function],
       "sendUnsignedTransaction": [Function],
@@ -564,6 +611,7 @@ test('extend', () => {
       "setNonce": [Function],
       "setRpcUrl": [Function],
       "setStorageAt": [Function],
+      "showCallsStatus": [Function],
       "signAuthorization": [Function],
       "signMessage": [Function],
       "signTransaction": [Function],
@@ -592,6 +640,7 @@ test('extend', () => {
       "verifyMessage": [Function],
       "verifySiweMessage": [Function],
       "verifyTypedData": [Function],
+      "waitForCallsStatus": [Function],
       "waitForTransactionReceipt": [Function],
       "watchAsset": [Function],
       "watchBlockNumber": [Function],

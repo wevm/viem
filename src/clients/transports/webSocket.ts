@@ -1,10 +1,11 @@
+import type { Address } from 'abitype'
 import { RpcRequestError } from '../../errors/request.js'
 import {
   UrlRequiredError,
   type UrlRequiredErrorType,
 } from '../../errors/transport.js'
 import type { ErrorType } from '../../errors/utils.js'
-import type { Hash } from '../../types/misc.js'
+import type { Hash, LogTopic } from '../../types/misc.js'
 import type { RpcResponse } from '../../types/rpc.js'
 import { getSocket } from '../../utils/rpc/compat.js'
 import type { SocketRpcClient } from '../../utils/rpc/socket.js'
@@ -31,13 +32,27 @@ type WebSocketTransportSubscribeReturnType = {
 
 type WebSocketTransportSubscribe = {
   subscribe(
-    args: WebSocketTransportSubscribeParameters & {
-      /**
-       * @description Add information about compiled contracts
-       * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_addcompilationresult
-       */
-      params: ['newHeads']
-    },
+    args: WebSocketTransportSubscribeParameters &
+      (
+        | {
+            params: ['newHeads']
+          }
+        | {
+            params: ['newPendingTransactions']
+          }
+        | {
+            params: [
+              'logs',
+              {
+                address?: Address | Address[]
+                topics?: LogTopic[]
+              },
+            ]
+          }
+        | {
+            params: ['syncing']
+          }
+      ),
   ): Promise<WebSocketTransportSubscribeReturnType>
 }
 
@@ -103,6 +118,7 @@ export function webSocket(
     const retryCount = config.retryCount ?? retryCount_
     const timeout = timeout_ ?? config.timeout ?? 10_000
     const url_ = url || chain?.rpcUrls.default.webSocket?.[0]
+    const wsRpcClientOpts = { keepAlive, reconnect }
     if (!url_) throw new UrlRequiredError()
     return createTransport(
       {
@@ -111,10 +127,7 @@ export function webSocket(
         name,
         async request({ method, params }) {
           const body = { method, params }
-          const rpcClient = await getWebSocketRpcClient(url_, {
-            keepAlive,
-            reconnect,
-          })
+          const rpcClient = await getWebSocketRpcClient(url_, wsRpcClientOpts)
           const { error, result } = await rpcClient.requestAsync({
             body,
             timeout,
@@ -137,10 +150,10 @@ export function webSocket(
           return getSocket(url_)
         },
         getRpcClient() {
-          return getWebSocketRpcClient(url_)
+          return getWebSocketRpcClient(url_, wsRpcClientOpts)
         },
         async subscribe({ params, onData, onError }: any) {
-          const rpcClient = await getWebSocketRpcClient(url_)
+          const rpcClient = await getWebSocketRpcClient(url_, wsRpcClientOpts)
           const { result: subscriptionId } = await new Promise<any>(
             (resolve, reject) =>
               rpcClient.request({

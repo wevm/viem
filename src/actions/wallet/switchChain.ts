@@ -23,7 +23,7 @@ export type SwitchChainErrorType =
  * Switch the target chain in a wallet.
  *
  * - Docs: https://viem.sh/docs/actions/wallet/switchChain
- * - JSON-RPC Methods: [`eth_switchEthereumChain`](https://eips.ethereum.org/EIPS/eip-3326)
+ * - JSON-RPC Methods: [`wallet_switchEthereumChain`](https://eips.ethereum.org/EIPS/eip-3326)
  *
  * @param client - Client to use
  * @param parameters - {@link SwitchChainParameters}

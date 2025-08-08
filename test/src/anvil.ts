@@ -1,5 +1,6 @@
 import { createServer } from 'prool'
 import { type AnvilParameters, anvil } from 'prool/instances'
+
 import { mainnet, optimism, sepolia, zksync } from '../../src/chains/index.js'
 import { ipc } from '../../src/clients/transports/ipc.js'
 import {
@@ -15,13 +16,14 @@ import {
   createClient,
   webSocket,
 } from '../../src/index.js'
+import { createSiweMessage } from '../../src/siwe/index.js'
 import { ProviderRpcError } from '../../src/types/eip1193.js'
 import { accounts, poolId } from './constants.js'
 
 export const anvilMainnet = defineAnvil({
   chain: mainnet,
   forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://cloudflare-eth.com'),
-  forkBlockNumber: 19868020n,
+  forkBlockNumber: 22263623n,
   noMining: true,
   port: 8545,
 })
@@ -199,6 +201,57 @@ function defineAnvil<const chain extends Chain>(
           if (method === 'wallet_sendTransaction') {
             method = 'eth_sendTransaction'
           }
+          if (method === 'wallet_connect') {
+            const capabilities = params[0].capabilities
+              ? {
+                  ...(params[0].capabilities?.signInWithEthereum
+                    ? {
+                        signInWithEthereum: {
+                          message: createSiweMessage({
+                            ...params[0].capabilities?.signInWithEthereum,
+                            address: accounts[0].address,
+                            chainId: Number(chain.id),
+                            domain: 'example.com',
+                            issuedAt: new Date('2024-01-01T00:00:00.000Z'),
+                            expirationTime: new Date(
+                              '2024-01-01T00:00:00.000Z',
+                            ),
+                            notBefore: new Date('2024-01-01T00:00:00.000Z'),
+                            uri: 'https://example.com',
+                            version: '1',
+                          }),
+                          signature:
+                            '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+                        },
+                      }
+                    : {}),
+                  ...(params[0].capabilities?.addSubAccount
+                    ? {
+                        subAccounts: [
+                          {
+                            address: accounts[1].address,
+                          },
+                        ],
+                      }
+                    : {}),
+                }
+              : {}
+            return {
+              accounts: [
+                {
+                  address: accounts[0].address,
+                  capabilities,
+                },
+              ],
+            } as any
+          }
+          if (method === 'wallet_disconnect') {
+            return null
+          }
+          if (method === 'wallet_addSubAccount')
+            return {
+              address: accounts[1].address,
+            } as any
 
           return request({ method, params }, opts)
         },
@@ -232,6 +285,7 @@ function defineAnvil<const chain extends Chain>(
     async start() {
       return await createServer({
         instance: anvil({
+          chainId: chain.id,
           forkUrl,
           forkBlockNumber,
           hardfork: 'Prague',

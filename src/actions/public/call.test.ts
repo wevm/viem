@@ -1,12 +1,14 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import {
+  Delegation,
   OffchainLookupExample,
   SoladyAccount07,
   SoladyAccountFactory07,
 } from '~contracts/generated.js'
 import {
   baycContractConfig,
+  multicall3ContractConfig,
   usdcContractConfig,
   wagmiContractConfig,
 } from '~test/src/abis.js'
@@ -14,20 +16,17 @@ import { createCcipServer } from '~test/src/ccip.js'
 import { accounts } from '~test/src/constants.js'
 import { blobData, kzg } from '~test/src/kzg.js'
 import {
+  deploy,
   deployOffchainLookupExample,
   deploySoladyAccount_07,
   mainnetClient,
 } from '~test/src/utils.js'
-
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { aggregate3Signature } from '../../constants/contract.js'
 import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
-import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
-import { trim } from '../../utils/data/trim.js'
-import { parseGwei } from '../../utils/unit/parseGwei.js'
-import { wait } from '../../utils/wait.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
 import {
   http,
   type Hex,
@@ -42,6 +41,11 @@ import {
   toBlobs,
   toHex,
 } from '../../index.js'
+import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
+import { trim } from '../../utils/data/trim.js'
+import { parseGwei } from '../../utils/unit/parseGwei.js'
+import { wait } from '../../utils/wait.js'
+import { signAuthorization } from '../wallet/signAuthorization.js'
 import { call, getRevertErrorData } from './call.js'
 import { readContract } from './readContract.js'
 
@@ -51,6 +55,7 @@ const wagmiContractAddress = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
 const name4bytes = '0x06fdde03'
 const mint4bytes = '0x1249c58b'
 const mintWithParams4bytes = '0xa0712d68'
+const getCurrentBlockTimestamp4bytes = '0x0f28c97d'
 const fourTwenty =
   '00000000000000000000000000000000000000000000000000000000000001a4'
 const sixHundred =
@@ -153,6 +158,38 @@ test('zero data', async () => {
   expect(data).toMatchInlineSnapshot('undefined')
 })
 
+test('args: authorizationList', async () => {
+  const { contractAddress } = await deploy(client, {
+    abi: Delegation.abi,
+    bytecode: Delegation.bytecode.object,
+  })
+
+  const eoa = privateKeyToAccount(generatePrivateKey())
+
+  const authorization = await signAuthorization(client, {
+    account: eoa,
+    contractAddress: contractAddress!,
+  })
+
+  const { data } = await call(client, {
+    authorizationList: [authorization],
+    data: encodeFunctionData({
+      abi: Delegation.abi,
+      functionName: 'ping',
+      args: ['hello'],
+    }),
+    to: eoa.address,
+  })
+
+  const result = decodeFunctionResult({
+    abi: Delegation.abi,
+    functionName: 'ping',
+    data: data!,
+  })
+
+  expect(result).toMatchInlineSnapshot('"pong: hello"')
+})
+
 test.skip('args: blockNumber', async () => {
   const { data } = await call(client, {
     blockNumber: 15564164n,
@@ -198,6 +235,16 @@ test('args: override', async () => {
   expect(data).toMatchInlineSnapshot(
     `"${encodeAbiParameters([{ type: 'string' }], [fakeName])}"`,
   )
+})
+
+test.skip('args: blockOverrides', async () => {
+  // TODO: don't skip once block overrides are supported in Anvil.
+  const { data } = await call(client, {
+    data: getCurrentBlockTimestamp4bytes,
+    code: multicall3ContractConfig.bytecode,
+    blockOverrides: { time: 420n },
+  })
+  expect(data).toMatchInlineSnapshot(fourTwenty)
 })
 
 test.skip('args: blobs', async () => {
@@ -423,14 +470,14 @@ describe('errors', () => {
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
       `
-      [CallExecutionError: Execution reverted with reason: revert: Token ID is taken.
+      [CallExecutionError: Execution reverted with reason: Token ID is taken.
 
       Raw Call Arguments:
         from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
         to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
         data:  0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
 
-      Details: execution reverted: revert: Token ID is taken
+      Details: execution reverted: Token ID is taken
       Version: viem@x.y.z]
     `,
     )
@@ -1177,7 +1224,7 @@ describe('deployless call (bytecode)', () => {
           "success": true,
         },
         {
-          "returnData": "0x0000000000000000000000000000000000000000000000000000000000000288",
+          "returnData": "0x000000000000000000000000000000000000000000000000000000000000036d",
           "success": true,
         },
       ]

@@ -12,21 +12,21 @@ export const plumeSepolia = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://testnet-rpc.plumenetwork.xyz'],
-      webSocket: ['wss://testnet-rpc.plumenetwork.xyz'],
+      http: ['https://testnet-rpc.plume.org'],
+      webSocket: ['wss://testnet-rpc.plume.org'],
     },
   },
   blockExplorers: {
     default: {
       name: 'Blockscout',
-      url: 'https://testnet-explorer.plumenetwork.xyz',
-      apiUrl: 'https://testnet-explorer.plumenetwork.xyz/api',
+      url: 'https://testnet-explorer.plume.org',
+      apiUrl: 'https://testnet-explorer.plume.org/api',
     },
   },
   contracts: {
     multicall3: {
-      address: '0x59218e2df2A2E7Ba0de00c023e80906Ba47cB4C8',
-      blockCreated: 1_681,
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 199_712,
     },
   },
   testnet: true,

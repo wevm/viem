@@ -85,22 +85,4 @@ describe('sendTransaction()', () => {
       ],
     })
   })
-
-  test('provides valid transaction params to sign for eth_sendRawTransaction (local account) for CIP-42 - sending as CIP-64', async () => {
-    const hash = await client.sendTransaction({
-      value: 1n,
-      to: toAddress,
-      feeCurrency: feeCurrencyAddress,
-      gatewayFee: 123n,
-      gatewayFeeRecipient: '0x0000000000000000000000000000000000000001',
-    })
-
-    expect(hash).toEqual(transactionHash)
-    expect(transportRequestMock).toHaveBeenLastCalledWith({
-      method: 'eth_sendRawTransaction',
-      params: [
-        '0x7bf87f82a4ec80830930ae8503818c4cc80194f39fd6e51aad88f6f4ce6ab8827279cfffb922660180c0940000000000000000000000000000000000000fee01a07dbc07e3ed73e889b085f29f2b4a1e794d578307199b5a677071a204328837a0a02da0ba218d0ab8164010f3c0efa7f84f4df6d879a242dc5110248e7014df75dc',
-      ],
-    })
-  })
 })

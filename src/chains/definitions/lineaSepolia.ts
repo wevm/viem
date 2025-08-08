@@ -24,6 +24,15 @@ export const lineaSepolia = /*#__PURE__*/ defineChain({
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 227427,
     },
+    ensRegistry: {
+      address: '0x5B2636F0f2137B4aE722C01dd5122D7d3e9541f7',
+      blockCreated: 2395094,
+    },
+    ensUniversalResolver: {
+      address: '0x72560a31B3DAEE82B984a7F51c6b3b1bb7CC9F50',
+      blockCreated: 2395255,
+    },
   },
+  ensTlds: ['.linea.eth'],
   testnet: true,
 })

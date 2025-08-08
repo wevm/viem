@@ -32,5 +32,6 @@ export const story = /*#__PURE__*/ defineChain({
       apiUrl: 'https://storyscan.xyz/api/v2',
     },
   },
+  ensTlds: ['.ip'],
   testnet: false,
 })

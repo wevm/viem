@@ -122,10 +122,10 @@ test('request', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 4,
+      "id": 1,
       "jsonrpc": "2.0",
       "result": {
-        "id": 4,
+        "id": 1,
         "jsonrpc": "2.0",
         "method": "test",
       },
@@ -138,6 +138,7 @@ test('request', async () => {
 test('reconnect', async () => {
   let active = true
   let count = -1
+
   const socketClient = await getSocketRpcClient({
     key: 'test-socket',
     async getSocket({ onError, onOpen, onResponse }) {
@@ -148,7 +149,7 @@ test('reconnect', async () => {
         onOpen()
         active = true
       } else {
-        onError(new Error('connection failed.'))
+        setTimeout(() => onError(new Error('connection failed.')), 200)
         active = false
       }
 
@@ -157,6 +158,7 @@ test('reconnect', async () => {
         request({ body }) {
           wait(100).then(() => {
             if (!active) return
+
             onResponse({ id: body.id ?? 0, jsonrpc: '2.0', result: body })
 
             wait(100).then(() => {
@@ -168,7 +170,7 @@ test('reconnect', async () => {
       }
     },
     reconnect: {
-      delay: 200,
+      delay: 100,
       attempts: 5,
     },
     url: anvilMainnet.rpcUrl.ws,
@@ -190,10 +192,10 @@ test('reconnect', async () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "id": 6,
+      "id": 1,
       "jsonrpc": "2.0",
       "result": {
-        "id": 6,
+        "id": 1,
         "jsonrpc": "2.0",
         "method": "test",
       },
@@ -233,10 +235,10 @@ test('reconnect', async () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "id": 8,
+      "id": 3,
       "jsonrpc": "2.0",
       "result": {
-        "id": 8,
+        "id": 3,
         "jsonrpc": "2.0",
         "method": "test",
       },
@@ -343,7 +345,7 @@ test('request (eth_subscribe)', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 13,
+      "id": 1,
       "jsonrpc": "2.0",
       "result": "0xabc",
     }
@@ -367,7 +369,7 @@ test('reconnect (eth_subscribe)', async () => {
         onOpen()
         active = true
       } else {
-        onError(new Error('connection failed.'))
+        setTimeout(() => onError(new Error('connection failed.')), 200)
         active = false
       }
 
@@ -387,7 +389,7 @@ test('reconnect (eth_subscribe)', async () => {
       }
     },
     reconnect: {
-      delay: 200,
+      delay: 100,
       attempts: 5,
     },
     url: anvilMainnet.rpcUrl.ws,
@@ -409,7 +411,7 @@ test('reconnect (eth_subscribe)', async () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "id": 15,
+      "id": 1,
       "jsonrpc": "2.0",
       "result": "0xabc",
     }
@@ -448,7 +450,7 @@ test('reconnect (eth_subscribe)', async () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "id": 17,
+      "id": 4,
       "jsonrpc": "2.0",
       "result": "0xabc",
     }
@@ -481,7 +483,7 @@ test('request (eth_unsubscribe)', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 19,
+      "id": 1,
       "jsonrpc": "2.0",
       "result": "0xabc",
     }
@@ -526,7 +528,7 @@ test('request (eth_subscription)', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 21,
+      "id": 1,
       "jsonrpc": "2.0",
       "method": "eth_subscription",
       "params": {
@@ -667,10 +669,10 @@ test('requestAsync', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 29,
+      "id": 1,
       "jsonrpc": "2.0",
       "result": {
-        "id": 29,
+        "id": 1,
         "jsonrpc": "2.0",
         "method": "test",
       },

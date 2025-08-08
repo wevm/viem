@@ -49,6 +49,16 @@ test('behavior: invalid address', () => {
   ).toBeFalsy()
 })
 
+test('behavior: invalid address', () => {
+  expect(
+    validateSiweMessage({
+      message: {
+        address: '0xfoobarbaz',
+      },
+    }),
+  ).toBeFalsy()
+})
+
 test('behavior: domain mismatch', () => {
   expect(
     validateSiweMessage({

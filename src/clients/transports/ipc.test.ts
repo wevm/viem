@@ -16,6 +16,7 @@ const client = createClient({
 }).extend(() => ({ mode: 'anvil' }))
 
 const instance = anvil({
+  chainId: anvilMainnet.chain.id,
   port: 6967,
   ipc: anvilMainnet.rpcUrl.ipc,
   forkBlockNumber: anvilMainnet.forkBlockNumber,

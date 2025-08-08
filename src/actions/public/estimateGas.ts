@@ -83,7 +83,7 @@ export type EstimateGasErrorType = GetEstimateGasErrorReturnType<
  *
  * @param client - Client to use
  * @param parameters - {@link EstimateGasParameters}
- * @returns The gas estimate (in wei). {@link EstimateGasReturnType}
+ * @returns The gas estimate (in gas units). {@link EstimateGasReturnType}
  *
  * @example
  * import { createPublicClient, http, parseEther } from 'viem'
@@ -136,7 +136,8 @@ export async function estimateGas<
         account?.type === 'local' ? undefined : ['blobVersionedHashes'],
     } as PrepareTransactionRequestParameters)) as EstimateGasParameters
 
-    const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
+    const blockNumberHex =
+      typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
 
     const rpcStateOverride = serializeStateOverride(stateOverride)
@@ -193,7 +194,11 @@ export async function estimateGas<
       return client.request({
         method: 'eth_estimateGas',
         params: rpcStateOverride
-          ? [request, block ?? 'latest', rpcStateOverride]
+          ? [
+              request,
+              block ?? client.experimental_blockTag ?? 'latest',
+              rpcStateOverride,
+            ]
           : block
             ? [request, block]
             : [request],

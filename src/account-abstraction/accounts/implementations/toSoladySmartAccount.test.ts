@@ -40,7 +40,7 @@ test('default', async () => {
     {
       "_internal": null,
       "abi": null,
-      "address": "0xE911628bF8428C23f179a07b081325cAe376DE1f",
+      "address": "0x7473Fcb76634352e4CbA37CFad3783B059792b44",
       "client": null,
       "decodeCalls": [Function],
       "encodeCalls": [Function],
@@ -941,10 +941,10 @@ test('args: salt', async () => {
   })
 
   expect(await account_1.getAddress()).toMatchInlineSnapshot(
-    `"0x0b3D649C00208AFB6A40b4A7e918b84A52D783B8"`,
+    `"0xc1b7F8B47312df97bdd97A6A4e322335F684A485"`,
   )
   expect(await account_2.getAddress()).toMatchInlineSnapshot(
-    `"0x274B2baeCC1A87493db36439Df3D8012855fB182"`,
+    `"0x820576f0A704fE307eDcd62839C1de2818D860d5"`,
   )
 })
 
@@ -1840,7 +1840,7 @@ describe('return value: getAddress', () => {
 
     const address = await account.getAddress()
     expect(address).toMatchInlineSnapshot(
-      `"0xE911628bF8428C23f179a07b081325cAe376DE1f"`,
+      `"0x7473Fcb76634352e4CbA37CFad3783B059792b44"`,
     )
   })
 })
@@ -1985,7 +1985,7 @@ describe('return value: getFactoryArgs', () => {
     expect(signature).toMatchInlineSnapshot(
       `
       {
-        "factory": "0xfb6dab6200b8958c2655c3747708f82243d3f32e",
+        "factory": "0xf102f0173707c6726543d65fa38025eb72026c37",
         "factoryData": "0xf14ddffc00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c80000000000000000000000000000000000000000000000000000000000000000",
       }
     `,
@@ -2164,7 +2164,7 @@ describe('return value: signUserOperation', () => {
     })
 
     expect(signature).toMatchInlineSnapshot(
-      `"0x9500afd481cfd9e21302f178c616fe23c3762829e87ff4ff012cdf10b2633cd408cc37e045774581b21035e90d645e23cbc4857468cd83f690c4fecec246d53a1b"`,
+      `"0x3cbd8967bdd01a3786caa915ed1fe27ed67dd339db3a3c8329e886d4f7feafb26c2bbdc474175f773db1b695347d409befe2ee0ae3e9d3a2454d469325e42c201c"`,
     )
   })
 })

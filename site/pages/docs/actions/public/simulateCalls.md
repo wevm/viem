@@ -386,6 +386,37 @@ const { results } = await client.simulateCalls({
 })
 ```
 
+#### calls.dataSuffix
+
+- **Type:** Hex
+
+Data to append to the end of the calldata.
+
+```ts twoslash [example.ts]
+import { parseAbi } from 'viem'
+import { client } from './config'
+
+const abi = parseAbi([
+  'function approve(address, uint256) returns (bool)',
+])
+ // ---cut---
+const { id } = await client.simulateCalls({
+  calls: [
+    {
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      abi,
+      functionName: 'approve',
+      args: [
+        '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', 
+        100n
+      ],
+      dataSuffix: '0xdeadbeef' // [!code focus]
+    }
+  ],
+})
+```
+
+
 ### account (optional)
 
 - **Type:** `Account | Address`

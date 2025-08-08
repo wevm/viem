@@ -8,7 +8,11 @@ import {
   TimeoutError,
 } from '../errors/request.js'
 import {
+  AtomicReadyWalletRejectedUpgradeError,
+  AtomicityNotSupportedError,
+  BundleTooLargeError,
   ChainDisconnectedError,
+  DuplicateIdError,
   InternalRpcError,
   InvalidInputRpcError,
   InvalidParamsRpcError,
@@ -24,7 +28,10 @@ import {
   SwitchChainError,
   TransactionRejectedRpcError,
   UnauthorizedProviderError,
+  UnknownBundleIdError,
   UnknownRpcError,
+  UnsupportedChainIdError,
+  UnsupportedNonOptionalCapabilityError,
   UnsupportedProviderMethodError,
   UserRejectedRequestError,
 } from '../errors/rpc.js'
@@ -756,6 +763,190 @@ describe('behavior', () => {
       `)
     })
 
+    test('UnsupportedNonOptionalCapabilityError', async () => {
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(
+          JSON.stringify({
+            error: {
+              code: UnsupportedNonOptionalCapabilityError.code,
+              message: 'message',
+            },
+          }),
+        )
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [UnsupportedNonOptionalCapabilityError: This Wallet does not support a capability that was not marked as optional.
+
+        URL: http://localhost
+        Request body: {"method":"eth_blockNumber"}
+
+        Details: message
+        Version: viem@x.y.z]
+      `)
+    })
+
+    test('UnsupportedChainIdError', async () => {
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(
+          JSON.stringify({
+            error: { code: UnsupportedChainIdError.code, message: 'message' },
+          }),
+        )
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [UnsupportedChainIdError: This Wallet does not support the requested chain ID.
+
+        URL: http://localhost
+        Request body: {"method":"eth_blockNumber"}
+
+        Details: message
+        Version: viem@x.y.z]
+      `)
+    })
+
+    test('DuplicateIdError', async () => {
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(
+          JSON.stringify({
+            error: { code: DuplicateIdError.code, message: 'message' },
+          }),
+        )
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [DuplicateIdError: There is already a bundle submitted with this ID.
+
+        URL: http://localhost
+        Request body: {"method":"eth_blockNumber"}
+
+        Details: message
+        Version: viem@x.y.z]
+      `)
+    })
+
+    test('UnknownBundleIdError', async () => {
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(
+          JSON.stringify({
+            error: { code: UnknownBundleIdError.code, message: 'message' },
+          }),
+        )
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [UnknownBundleIdError: This bundle id is unknown / has not been submitted
+
+        URL: http://localhost
+        Request body: {"method":"eth_blockNumber"}
+
+        Details: message
+        Version: viem@x.y.z]
+      `)
+    })
+
+    test('BundleTooLargeError', async () => {
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(
+          JSON.stringify({
+            error: { code: BundleTooLargeError.code, message: 'message' },
+          }),
+        )
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [BundleTooLargeError: The call bundle is too large for the Wallet to process.
+
+        URL: http://localhost
+        Request body: {"method":"eth_blockNumber"}
+
+        Details: message
+        Version: viem@x.y.z]
+      `)
+    })
+
+    test('AtomicReadyWalletRejectedUpgradeError', async () => {
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(
+          JSON.stringify({
+            error: {
+              code: AtomicReadyWalletRejectedUpgradeError.code,
+              message: 'message',
+            },
+          }),
+        )
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [AtomicReadyWalletRejectedUpgradeError: The Wallet can support atomicity after an upgrade, but the user rejected the upgrade.
+
+        URL: http://localhost
+        Request body: {"method":"eth_blockNumber"}
+
+        Details: message
+        Version: viem@x.y.z]
+      `)
+    })
+
+    test('AtomicityNotSupportedError', async () => {
+      const server = await createHttpServer((_req, res) => {
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(
+          JSON.stringify({
+            error: {
+              code: AtomicityNotSupportedError.code,
+              message: 'message',
+            },
+          }),
+        )
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(`
+        [AtomicityNotSupportedError: The wallet does not support atomic execution but the request requires it.
+
+        URL: http://localhost
+        Request body: {"method":"eth_blockNumber"}
+
+        Details: message
+        Version: viem@x.y.z]
+      `)
+    })
+
     test('InvalidParamsRpcError', async () => {
       const server = await createHttpServer((_req, res) => {
         res.writeHead(200, {
@@ -859,22 +1050,22 @@ describe('behavior', () => {
         .map((arg) => JSON.stringify(arg)),
     ).toMatchInlineSnapshot(`
       [
-        "{"jsonrpc":"2.0","id":73,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":74,"method":"eth_blockNumber","params":[1]}",
-        "{"jsonrpc":"2.0","id":75,"method":"eth_chainId"}",
-        "{"jsonrpc":"2.0","id":76,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":2,"method":"eth_blockNumber","params":[1]}",
+        "{"jsonrpc":"2.0","id":3,"method":"eth_chainId"}",
+        "{"jsonrpc":"2.0","id":4,"method":"eth_blockNumber"}",
       ]
     `)
     expect(results).toMatchInlineSnapshot(`
       [
-        "{"jsonrpc":"2.0","id":73,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":73,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":74,"method":"eth_blockNumber","params":[1]}",
-        "{"jsonrpc":"2.0","id":73,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":75,"method":"eth_chainId"}",
-        "{"jsonrpc":"2.0","id":73,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":76,"method":"eth_blockNumber"}",
-        "{"jsonrpc":"2.0","id":73,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":2,"method":"eth_blockNumber","params":[1]}",
+        "{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":3,"method":"eth_chainId"}",
+        "{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":4,"method":"eth_blockNumber"}",
+        "{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber"}",
       ]
     `)
   })

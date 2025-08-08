@@ -29,6 +29,12 @@ export {
   hashBytecode,
 } from './utils/hashBytecode.js'
 export {
+  type ClaimFailedDepositErrorType,
+  type ClaimFailedDepositParameters,
+  type ClaimFailedDepositReturnType,
+  claimFailedDeposit,
+} from './actions/claimFailedDeposit.js'
+export {
   type DepositErrorType,
   type DepositReturnType,
   type DepositParameters,
@@ -54,6 +60,10 @@ export {
   getDefaultBridgeAddresses,
 } from './actions/getDefaultBridgeAddresses.js'
 export { getBridgehubContractAddress } from './actions/getBridgehubContractAddress.js'
+export {
+  type GetGasPerPubdataReturnType,
+  getGasPerPubdata,
+} from './actions/getGasPerPubdata.js'
 export {
   type GetL1AllowanceErrorType,
   type GetL1AllowanceParameters,

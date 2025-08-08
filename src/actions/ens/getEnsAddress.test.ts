@@ -2,7 +2,7 @@ import { beforeAll, expect, test } from 'vitest'
 
 import { createHttpServer, setVitalikResolver } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
-import { mainnet, optimism } from '../../chains/index.js'
+import { linea, mainnet, optimism } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
 import { reset } from '../test/reset.js'
@@ -101,8 +101,8 @@ test('name with resolver that does not support addr - strict', async () => {
      
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
-      function:  resolve(bytes name, bytes data)
-      args:             (0x07766974616c696b0365746800, 0x3b3b57deee6c4522aab0003e8d14cd40a6af439055fd2577951148c14b6cea9a53475835)
+      function:  resolve(bytes name, bytes data, string[] gateways)
+      args:             (0x07766974616c696b0365746800, 0x3b3b57deee6c4522aab0003e8d14cd40a6af439055fd2577951148c14b6cea9a53475835, ["x-batch-gateway:true"])
 
     Docs: https://viem.sh/docs/contract/readContract
     Version: viem@x.y.z]
@@ -242,10 +242,20 @@ test('invalid universal resolver address', async () => {
 
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
-      function:  resolve(bytes name, bytes data)
-      args:             (0x0661776b7765620365746800, 0x3b3b57de52d0f5fbf348925621be297a61b88ec492ebbbdfa9477d82892e2786020ad61c)
+      function:  resolve(bytes name, bytes data, string[] gateways)
+      args:             (0x0661776b7765620365746800, 0x3b3b57de52d0f5fbf348925621be297a61b88ec492ebbbdfa9477d82892e2786020ad61c, ["x-batch-gateway:true"])
 
     Docs: https://viem.sh/docs/contract/readContract
     Version: viem@x.y.z]
   `)
+})
+
+test('invalid TLD', async () => {
+  const client = createClient({
+    chain: linea,
+    transport: http(),
+  })
+  await expect(
+    getEnsAddress(client, { name: 'vitalik.eth' }),
+  ).resolves.toBeNull()
 })

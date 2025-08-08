@@ -12,960 +12,1048 @@ import { getWebSocketRpcClient } from './webSocket.js'
 
 const client = anvilMainnet.getClient()
 
-describe('getWebSocketRpcClient', () => {
-  test('creates WebSocket instance', async () => {
-    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    expect(socketClient).toBeDefined()
-    expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
-  })
+describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
+  'getWebSocketRpcClient',
+  () => {
+    test('creates WebSocket instance', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      expect(socketClient).toBeDefined()
+      expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
+    })
 
-  test('multiple invocations on a url only opens one socket', async () => {
-    const url = 'ws://127.0.0.1:8545/69420'
-    const [client1, client2, client3, client4] = await Promise.all([
-      getWebSocketRpcClient(url),
-      getWebSocketRpcClient(url),
-      getWebSocketRpcClient(url),
-      getWebSocketRpcClient(url),
-    ])
-    expect(client1).toEqual(client2)
-    expect(client1).toEqual(client3)
-    expect(client1).toEqual(client4)
-  })
+    test('multiple invocations on a url only opens one socket', async () => {
+      const url = 'ws://127.0.0.1:8545/69420'
+      const [client1, client2, client3, client4] = await Promise.all([
+        getWebSocketRpcClient(url),
+        getWebSocketRpcClient(url),
+        getWebSocketRpcClient(url),
+        getWebSocketRpcClient(url),
+      ])
+      expect(client1).toEqual(client2)
+      expect(client1).toEqual(client3)
+      expect(client1).toEqual(client4)
+    })
 
-  test('reconnect', async () => {
-    const socketClient = await getWebSocketRpcClient(
-      'ws://127.0.0.1:8545/69420',
-      {
-        reconnect: { delay: 100 },
-      },
-    )
-    expect(socketClient).toBeDefined()
-    expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
-    socketClient.socket.close()
-    await wait(500)
-    expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
-  })
+    test('reconnect', async () => {
+      const socketClient = await getWebSocketRpcClient(
+        'ws://127.0.0.1:8545/69420',
+        {
+          reconnect: { delay: 100 },
+        },
+      )
+      expect(socketClient).toBeDefined()
+      expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
+      socketClient.socket.close()
+      await wait(500)
+      expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
+    })
 
-  test('keepalive', async () => {
-    const socketClient = await getWebSocketRpcClient(
-      'ws://127.0.0.1:8545/69421',
-      {
-        keepAlive: { interval: 100 },
-      },
-    )
-    const spy = vi.spyOn(socketClient.socket, 'ping')
-    await wait(500)
-    expect(spy).toHaveBeenCalledTimes(4)
-  })
-})
+    test('keepalive', async () => {
+      const socketClient = await getWebSocketRpcClient(
+        'ws://127.0.0.1:8545/69421',
+        {
+          keepAlive: { interval: 100 },
+        },
+      )
+      const spy = vi.spyOn(socketClient.socket, 'ping')
+      await wait(500)
+      expect(spy).toHaveBeenCalledTimes(4)
+    })
 
-describe('request', () => {
-  test('valid request', async () => {
-    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    const { id, ...version } = await new Promise<any>((resolve) =>
-      socketClient.request({
-        body: { method: 'web3_clientVersion' },
-        onResponse: resolve,
-      }),
-    )
-    expect(id).toBeDefined()
-    expect(version).toMatchInlineSnapshot(`
+    test('subscriptions persist after reconnect', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws, {
+        reconnect: { delay: 100, attempts: 5 },
+      })
+
+      // Set up subscription tracking
+      const subscriptionResponses: RpcResponse[] = []
+
+      // Create a subscription
+      await new Promise<void>((resolve) => {
+        socketClient.request({
+          body: {
+            method: 'eth_subscribe',
+            params: ['newHeads'],
+          },
+          onResponse: (data) => {
+            if (data.result) resolve()
+            else if (data.method === 'eth_subscription')
+              subscriptionResponses.push(data)
+          },
+        })
+      })
+
+      // Verify subscription is active
+      expect(socketClient.subscriptions.size).toBe(1)
+
+      // Mine a block to trigger subscription notification
+      await mine(client, { blocks: 1 })
+      await wait(200)
+
+      const responsesBeforeDisconnect = subscriptionResponses.length
+      expect(responsesBeforeDisconnect).toBeGreaterThan(0)
+
+      // // Simulate connection drop by closing the socket
+      const originalSocket = socketClient.socket
+      originalSocket.close()
+
+      // // Wait for reconnection
+      await wait(300)
+
+      // Verify socket has reconnected
+      expect(socketClient.socket.readyState).toBe(WebSocket.OPEN)
+
+      // Mine more blocks to test if subscription still works
+      await mine(client, { blocks: 2 })
+      await wait(300)
+
+      // Verify we received new subscription notifications after reconnect
+      const responsesAfterReconnect = subscriptionResponses.length
+      expect(responsesAfterReconnect).toBeGreaterThan(responsesBeforeDisconnect)
+
+      socketClient.close()
+    })
+
+    test('multiple subscriptions persist after reconnect', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws, {
+        reconnect: { delay: 100, attempts: 5 },
+      })
+
+      // Set up multiple subscriptions
+      const blockSubscriptionResponses: RpcResponse[] = []
+      const pendingTxSubscriptionResponses: RpcResponse[] = []
+
+      // Create newHeads subscription
+      await new Promise<void>((resolve) => {
+        socketClient.request({
+          body: {
+            method: 'eth_subscribe',
+            params: ['newHeads'],
+          },
+          onResponse: (data) => {
+            if (data.result) resolve()
+            else if (data.method === 'eth_subscription')
+              blockSubscriptionResponses.push(data)
+          },
+        })
+      })
+
+      // Create pendingTransactions subscription
+      await new Promise<void>((resolve) => {
+        socketClient.request({
+          body: {
+            method: 'eth_subscribe',
+            params: ['newPendingTransactions'],
+          },
+          onResponse: (data) => {
+            if (data.result) resolve()
+            else if (data.method === 'eth_subscription') {
+              pendingTxSubscriptionResponses.push(data)
+            }
+          },
+        })
+      })
+
+      // Verify both subscriptions are active
+      expect(socketClient.subscriptions.size).toBe(2)
+
+      // Mine a block to trigger subscription
+      await mine(client, { blocks: 1 })
+      await wait(200)
+
+      const blockResponsesBeforeDisconnect = blockSubscriptionResponses.length
+      expect(blockResponsesBeforeDisconnect).toBeGreaterThan(0)
+
+      // Simulate connection drop
+      const originalSocket = socketClient.socket
+      originalSocket.close()
+
+      // Wait for reconnection
+      await wait(300)
+
+      // Verify socket has reconnected
+      expect(socketClient.socket.readyState).toBe(WebSocket.OPEN)
+
+      // Mine more blocks to test if subscriptions still work
+      await mine(client, { blocks: 2 })
+      await wait(300)
+
+      // Verify both subscriptions received new notifications after reconnect
+      const blockResponsesAfterReconnect = blockSubscriptionResponses.length
+      expect(blockResponsesAfterReconnect).toBeGreaterThan(
+        blockResponsesBeforeDisconnect,
+      )
+
+      socketClient.close()
+    })
+  },
+)
+
+describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
+  'request',
+  () => {
+    test('valid request', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      const { id, ...version } = await new Promise<any>((resolve) =>
+        socketClient.request({
+          body: { method: 'web3_clientVersion' },
+          onResponse: resolve,
+        }),
+      )
+      expect(id).toBeDefined()
+      expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.0.0",
+        "result": "anvil/v1.3.1",
       }
     `)
-    expect(socketClient.requests.size).toBe(0)
-  })
+      expect(socketClient.requests.size).toBe(0)
+    })
 
-  test('valid request', async () => {
-    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    const { id, ...block } = await new Promise<any>((resolve) =>
+    test('valid request', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      const { id, ...block } = await new Promise<any>((resolve) =>
+        socketClient.request({
+          body: {
+            method: 'eth_getBlockByNumber',
+            params: [numberToHex(anvilMainnet.forkBlockNumber), false],
+          },
+          onResponse: resolve,
+        }),
+      )
+      expect(id).toBeDefined()
+      expect(block).toMatchInlineSnapshot(`
+      {
+        "jsonrpc": "2.0",
+        "result": {
+          "baseFeePerGas": "0x25e3b018",
+          "blobGasUsed": "0xc0000",
+          "difficulty": "0x0",
+          "excessBlobGas": "0x180000",
+          "extraData": "0x6265617665726275696c642e6f7267",
+          "gasLimit": "0x224c7ad",
+          "gasUsed": "0xd83b57",
+          "hash": "0xd028bdc00aff985bdf872d6b961110d41a6fe4df5e93aeb6dffe2f38ae0a4f7d",
+          "logsBloom": "0xa336825265c0691c36791a28c7814901910c6b230e016020408d80135c1980b01016af2c481b78027612ff562ed6c7821228e23a0ccfea2b689d740905656000544085800d0928884ad6e10a344820e9f508517102f601cc0c081464d844b6993b4dd2a082e3462944ca5a4ab4227e8ce368046230b8974506a20496000f111406a9b5004e25a580a0e9204843b3100e18454253b384b508362280d101b634a12f62148431086a90625f16a482818f0841bac44db90101000f39c532160c7460d012000688201ea0013a33920e7b384728250356c52700955c3e2bc20891e2c62572a843e142470000051461200009428f79b8428b08a4c04b899412204954a5",
+          "miner": "0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5",
+          "mixHash": "0x33fd71ca8e38da7aa264c9b9252b7d2864484826eeeae67c2aaf3ab0a756f133",
+          "nonce": "0x0000000000000000",
+          "number": "0x153b747",
+          "parentBeaconBlockRoot": "0xa7b4e889e408381f1860000a708b6e5fd42ccd9de7fb1cb442a8e91ecb9e6f6c",
+          "parentHash": "0x019d374731477005b8d3e3236aca44d11ef53fc9eb0ab0c9e11f942636b04b1b",
+          "receiptsRoot": "0x230fa17d30bd0ca83606cd4704400735bf05cd09110bc96eeee7dbfbc0f870c9",
+          "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
+          "size": "0x1595e",
+          "stateRoot": "0xadea44d9167ee7c415601810dbb3f090de70edfdea34632b7e077cefad038af3",
+          "timestamp": "0x67fc55db",
+          "transactions": [
+            "0xa830b5e09e6d2709eaddc555c12fe5177aa22a0862869aefab392d64bcb67926",
+            "0xec8dae0c3c87e84115d6d80a13f18fa09149b26b6185dec8b1feb9277f57de16",
+            "0x6bdee6726ede49f0caedbb039559a3ecbeb30beccdbad0d0ad34b7878fd76756",
+            "0xec27e6ef7e8e0c5e495d978e2409f18d09efbac99f6a1d9766e8951eb20c1bb6",
+            "0x388f16334f1217cf27bbefcc8798834af13166cd7857b5c56892b1ebeef6c708",
+            "0x10f56c635bde3733b330e41fe1dedd83c303dbef4b713a87ad1fb0feda79a5e1",
+            "0x0b20063113f3377255f2d1fe4e3277feadaa98d122ebdfa4f08b2e58113c3bf2",
+            "0xa418d5bd350d6a7947d5801cfcda9aa9068cf43611cc5ec26a3e0996b3e6b1e0",
+            "0xcdb2fcead0254ce044d050761b3308f9fafb1bc419a8ca9a6dc4b3e62c437169",
+            "0x1b1e60b3aa4031704fae193d7f97a5484a1673f5ba2da0ee31e3b0858d839684",
+            "0x59917ed06b3fa39d2d311086d6032e2abe1341a31db2422e9467afad00fabfe4",
+            "0x185f39d2b7b2cbe0c0950ddc45df5948e167bbbceab235ae2b18193ccdbf3cf7",
+            "0x9aa22d79c11e83cecc8043528527d9c88a62d6103ca8f250aa8cb86eca02eb11",
+            "0xf914ecdf0c1922a1bd4effe4d2f15adaebea229b7b52ad610984a979ea09e565",
+            "0x27feb453dd1e91b41d5860c32ac34470d101f6e5da57c57c4e0c074c5d00cd5d",
+            "0x069bf514fa826397e81c88d4587530538e10baeb5e0388048030287d85b2b5f9",
+            "0x6c89d2775e9919fe8afde564755021b2291a797490e7d64a42231cd0e9ebec85",
+            "0x01975a1e08fac4209e625990cd4a0fbf2fa05e3c08d9e98898a5f50207f36c04",
+            "0x5eb6d26ad0d67a9af50cccb5e4d2e7c11e8d9e86fe51c61483cb62b84dd8e2bb",
+            "0xb600b487433b17d85b33ae7567e4558698afd3f72a8fa968985ac847055e09bc",
+            "0x002dd9d9fc69777dfac9ae0cae8d9b47ece05930f3dc971c23a3e7674629ce72",
+            "0x384b2c0059e7ecae49b44dfa6f5ed44fd9fac1dc0fab8c01d341cc886bd45789",
+            "0x403412968589902149efd2df44385afa00c4299c52aa83d64008bbee0c953d47",
+            "0xb6ef0c02e08374d3cea3eda42b8e08ed218033a70406712c9db64620ebe6ff62",
+            "0xca031374a4aa643a169e7edbfa8505b310b52f1559c49f7bb1acbcbd9281f8fe",
+            "0xeac0cf72d02033c8d24dd22ca23882773402f8791f57d9e3f161b1086cea39bf",
+            "0x7ac526702bccafe985f08a35ab96250066f230bfa4c589696d52f388dc28cd9b",
+            "0x7663feb1a75df42652c26c6c114d711956b03de8aada2493e8e858bc19163f18",
+            "0x7dd2137fdb2f69d3714bbd8cdc1be5ad0a4503ddfe19ffb8e752ee3537a6baab",
+            "0x88608458416217eb145836116357017d8ee7f0bff8f18e2a708b578645b115f7",
+            "0x03037c03f30232ed8b486ee3e43212f40d7e48317c733fad92034850420a29c6",
+            "0x96c58606a41010569c74160b3ff879948d4e254f305df63491dfb77637bb6fcb",
+            "0xc6391d3137b9937cc53e7044c7fde0e9e3d37ff3e2ce3e2c2daa40a1e855e8d6",
+            "0x126acf8dea4af4f8477d83fd40096277b8f46be7ce6f48c3f5ce12c73dbea9e2",
+            "0x5a3bb37a3859bfc316580c2c3016e0a602cc578e518fff5a1ca560cc3d457ff5",
+            "0x30c1bdd22384b8a1187dc5c30fe0aed454e1bbe724fad44e619fcf26287455a5",
+            "0xd664ff7bd195031873ab12bfddc3399bcab5a5e5e6b66e0ec9e7aca5eea533b9",
+            "0x52353a3786a5bc637d2a767d440a13ac426ae372301882a69cf99be5c08b9b34",
+            "0x8640c1cb3208b965e5405b952d4400f76ba5942640b6ff75559411d567c6624b",
+            "0xfc401c21638aeb2b853bb0e29bae2468fe6d757e76f455a0e00061301d243692",
+            "0xced23b981bc2fd12d5b45b8ae3f5b0effbb21cadc2d6431f677621ec8023ffc2",
+            "0x2b63a9e4d7d27a19ad8c84e2035b0bc5e1e2f61ceb53ad9fa7569f639bff78ec",
+            "0x9991c76fa2ba076162f0b8d21b9b2a6b2b9fe9dd5403dd6a4a05a72c85569a03",
+            "0x9a3a09b54dcae0cfe70d12a5d675f7e400d3f6d5c3b43ec018c7c1f587584ff4",
+            "0x848d7a6be7e269ee54437dc0272501e3aba635ad277903abafd75a21652ebde3",
+            "0xf4afe5774ac8d7196ad36103769ef606faa8a1c70284b609d5993db3c99773ee",
+            "0xdb2cc3a2dd936e22f3cccdacd3a95d6541070e2a0a9440b68d5b17036c791e25",
+            "0xdfc82c9edf56322fc2b2b42c49b4053fada87559d4269dc7f62df2043dff0391",
+            "0x6d4131a2c049efb6cbe31fcdc03aba6952875efbc8df336b915aea67a6d17cfa",
+            "0xc469810e7856cf8d1f748f2e5f8f80084253272019056b69474d0f10ff181ece",
+            "0x313e76bb4c1d58dd51df593e00369185d3612a660f67d5a3751bc341585b1eb4",
+            "0x6baf070c42ec0033ff0b0dec233c4ce7ab4f8b94369f67d02a6eb1a48ca6dff9",
+            "0x7544a200cb8855073410e2ef14666a2846f9e3c962fd68ab060bc63b2bf376f8",
+            "0xb6ca49f11c2be3541178e6896b98bf47b7c392e20c8c4c9e8dfc439ba7d34d37",
+            "0x5252bea73f0cb25d0096362e39faf73dd86eb1d1de8449bacf4aa7da96eaec4e",
+            "0x666875fa51d4cabf200b63db9b7c3110c593c60658f9ee174181ed7790a6f6de",
+            "0x68dd0295bf7d2f0d636ebc5d551db39132b3c8dc2374c1382a3a91d753cc93f7",
+            "0x4dbf6d86b0c8f87589b44fa8b8986684febb58815be0fb51bb5ab4904c3dd816",
+            "0xf5dac89d6f756e8e0728993f91420f883658306974b85df38d86dab3b1b66522",
+            "0x1929a2dd505f80e1d883eeaaccd09c3392e5d9ff0d42ebdf869bb413e72ae406",
+            "0x43c076bffb1b83e9208776bdc63b8e52ca2957c0f53966f0d388d97fe90ab84f",
+            "0x67abe41b249287654a1e34d15f386a11fb384dcb406ad179b7b6b6e2c66fbc58",
+            "0x8a8a45cea8595016bcad108c281ee8612cb0f6d4397d368315488feaa5f798d3",
+            "0x11592924727a9175d05e57635dc4b7eef9bebf67da90d590adeb3f2f27d3f4f4",
+            "0x8d816313b6dd7524ec3a22f82edee1aeb147a8468824c29bf48b53d2dc78a160",
+            "0x180de77173fd1e0a108a191f79edd955e35728d4dc17f00f3eb4f2a5aeb40d53",
+            "0x118f5228f1faf3c2301201d0451e578bae7bd7fae9c2aa860a85877fc94065d6",
+            "0xd23194a13c3302913bc044b8912f6361dfa997e667a8e00913e1349df04586a4",
+            "0x16395ca6eb8963ee04e3181c7233fa417678bc9446bd2602bf5f9b8eeb5b17c4",
+            "0x9d50f7dd271dff2451b4021ff75d0e581eae95d67260bc2ddf0c3e06d08b58f6",
+            "0xe342270887c85b5a5be6068ca116ebdf4a53ee29f5cbd0b1b6dd9b66f99699ec",
+            "0x74960a4a67cbf20e4e660747e16d9c82eff0b614baf34fc98dd125323555e319",
+            "0x0ba0a9eb5c3ba2700d70d1cb00dd1ba892205f47883690f5343f0d6e8a012110",
+            "0xbdc97aa06937fbb6227deaaf4242c4c136b03f7bf1c466b672c96b1e1994203b",
+            "0xccef5dd7738d65689ccfab4ce87431132dcff26c30f1337017c6f2cd2573f121",
+            "0xd4b7fa9c33c877ad0e0ca65caf27998e7d32bc3ef9cd351c2c318b294468c8ab",
+            "0x676858b075e31a88caf5d84bfb5e8bc8f1fda60c8b47ad6d1510e16025dab1b5",
+            "0x467afd1e746c073475d396198420fb504c330bc9759a9d49fb375c3831ccd863",
+            "0xc41560172f2c1e5880de04c06bc28872cf1aaf2bf5e86a42979b4ecfcd44d311",
+            "0xfc505c0a8009f008433aaf366e7a8a585f66336e77ab3066630552bb8c67a800",
+            "0x7454273c2845eea8611fecce8016bcbf7571959a1600c7ac97387ed3510e3582",
+            "0xdc856c8d91705f4b3d03964c8ad4befc3799a8849f2d527709432db45d3a388c",
+            "0x17d71b1691589e9597fc6d29d571be8d674f86538355806e697af188cb18eea9",
+            "0x5f0faee4777596897c3f8b7206ae31fe7ed5d3eb4718cdba07e1e743cda7cc1a",
+            "0x7c68af4b9e5c22ce5bcf74929a19180ad06125a80e9118128b653d0056260c58",
+            "0xe222040952e6f7fd617290b7b8904b00f81ef49e4fb37be040db1f66f1f4ddc8",
+            "0x1ad0b706c9a1d376cde377fb73395ecd5e0e55f428ad3299317806daef8de882",
+            "0x4f24aff0b5d7269902fef75cb69ba67aefd39f114f91b0d7a519e86e10d9c8b7",
+            "0x32e23029b54b3ffbc78c4e9f115a4cbefe65faf67ec295e2ad9a0603ed44d4de",
+            "0xfc424bbd777126fb913242238dafbacdd75344b6fd0f6d524d64f85b7420627d",
+            "0x2742143d7f34fa33714619ccf9c1f01f4f32a47ccbf69b6ecff00d398c483cf7",
+            "0x81d16e35c2f2372d18b2898778cd9f81eaa0a553b06bcc2620d69d2df39431ac",
+            "0x5ff48d7e61c45a9be174bf915f864318123dd16458550322b2fca85490a4c0f6",
+            "0xdfedd288385085f2f33a4235d9e65dffca463c555f3ef351f7ac6992360e6980",
+            "0xf8e19739eb8068854f9e6a2274a826228896d0e8c56b33ace69199a92385c6e4",
+            "0x72c03ec1db7496a464214c3c17c2303d55882ff873ddd42cd9aadd11d6cd4674",
+            "0xcd66de6e1ba35f34e0c1ae90d470abba0b39cb798909db5350aaa0414121cfa6",
+            "0x647544c734fff0189ab55e86e2a38c78d4764aea12ed0cd16c3dbee9aca5a4c9",
+            "0x2fd9010ba8d614a8492c02914bc5aa9504e588ce2b98b7c097eb78c02318f734",
+            "0xf9e4ae3673db5a8961fdbd3253643b2f09a475b76a2d3639671bb5b8d8df8599",
+            "0x269240fcb4257e6e0b2d970d8a08b06fd56226b0afbc3c41ae952cebd1d1e84d",
+            "0x2f9db6986f9d46736e6532030627e0be514e6e7c8d844e316ec589d3e0dbb573",
+            "0xeb32497fce6f101f55959ea2ac0b090a0b26032865c74e279754ba13384f2245",
+            "0x4257448420523d4320b38aee51ef17e72ad59b316c390267f524dcb51fa1f3e2",
+            "0x511ba0618f654bce433edc15ead66c282b9628049398b117c8dea68b5956484c",
+            "0xa5ab42e4353a63a1dbbb5fcd9827b0b5784468b4c71074ad5124eb84ea87b687",
+            "0x018b3ecb07b3487253f4c6f26c4a66518e5b4127433da45e10f88a458da19932",
+            "0x8d9c8a91a8ffb007f20622068d27b3d21e641cf4495bd7791f76eff22bbe3b5a",
+            "0xc65564c139b75062f4989cb2eed6c436e6036f281c8c5dfd811911b7575b03bb",
+            "0x1fa029e5ff784a280d1d3aa8a0738942ecea6f271d0b3cb852edd2233fbf807b",
+            "0x893eb054cc26a7f84904a4c038f8b5ab62b6fd97201526308699c6f750879cb8",
+            "0x52150a57b9f7e1b4cd27294a81a27966421a791b11238075818d70683fd716d1",
+            "0xb56f65e5aa53351984d177cb0e9099f386c10ad0989255b0dc2818982c08794e",
+            "0x2a2b18674d4e5955ead4f4c3ee115e26ccd4f5d16112fc8438ab4424f18ec9bc",
+            "0xb30bd6264b27feec0fb74dbf5c0dfbf0c2f6c4e7a69c0c265f3fad84f94f622d",
+            "0x30f32b6cefaba17d25b5a8c58cd42c60e19a7f0dd1f16251bfcede5bda55b7bc",
+            "0x48c3c9f6a2344284079d4ee6ffc186c5eb36a5a5a88c3c2e256690d6e5a9dc15",
+            "0x6a29c02a54d80de73c015bb4f769ec74fdb61e784b0ca07ecb5c88adc0554e4b",
+          ],
+          "transactionsRoot": "0x5c41008fd93b95aff0a1a453b657539b7e43d67d20c196c87fe59f5f2f1dd214",
+          "uncles": [],
+          "withdrawals": [
+            {
+              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
+              "amount": "0x12380f1",
+              "index": "0x4fc875b",
+              "validatorIndex": "0xbee4f",
+            },
+            {
+              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
+              "amount": "0x3f62a7a",
+              "index": "0x4fc875c",
+              "validatorIndex": "0xbee50",
+            },
+            {
+              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
+              "amount": "0x1256773",
+              "index": "0x4fc875d",
+              "validatorIndex": "0xbee56",
+            },
+            {
+              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
+              "amount": "0x125b69c",
+              "index": "0x4fc875e",
+              "validatorIndex": "0xbee57",
+            },
+            {
+              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
+              "amount": "0x3e33e35",
+              "index": "0x4fc875f",
+              "validatorIndex": "0xbee58",
+            },
+            {
+              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
+              "amount": "0x1266095",
+              "index": "0x4fc8760",
+              "validatorIndex": "0xbee59",
+            },
+            {
+              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
+              "amount": "0x1278100",
+              "index": "0x4fc8761",
+              "validatorIndex": "0xbee5a",
+            },
+            {
+              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
+              "amount": "0x127ad22",
+              "index": "0x4fc8762",
+              "validatorIndex": "0xbee5b",
+            },
+            {
+              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
+              "amount": "0x127d890",
+              "index": "0x4fc8763",
+              "validatorIndex": "0xbee5c",
+            },
+            {
+              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
+              "amount": "0x12612df",
+              "index": "0x4fc8764",
+              "validatorIndex": "0xbee5d",
+            },
+            {
+              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
+              "amount": "0x3e39635",
+              "index": "0x4fc8765",
+              "validatorIndex": "0xbee5e",
+            },
+            {
+              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
+              "amount": "0x126c872",
+              "index": "0x4fc8766",
+              "validatorIndex": "0xbee5f",
+            },
+            {
+              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
+              "amount": "0x1268edf",
+              "index": "0x4fc8767",
+              "validatorIndex": "0xbee60",
+            },
+            {
+              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
+              "amount": "0x1267257",
+              "index": "0x4fc8768",
+              "validatorIndex": "0xbee61",
+            },
+            {
+              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
+              "amount": "0x1269208",
+              "index": "0x4fc8769",
+              "validatorIndex": "0xbee62",
+            },
+            {
+              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
+              "amount": "0x127534c",
+              "index": "0x4fc876a",
+              "validatorIndex": "0xbee63",
+            },
+          ],
+          "withdrawalsRoot": "0x96c5c22e9b58cb7141b2aecf4250fc84b0486a00a78353cdcfc9d42c214b2127",
+        },
+      }
+    `)
+      expect(socketClient.requests.size).toBe(0)
+    })
+
+    test('invalid request', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      await expect(
+        new Promise<any>((resolve, reject) =>
+          socketClient.request({
+            body: {
+              method: 'wagmi_lol',
+            },
+            onError: reject,
+            onResponse: resolve,
+          }),
+        ),
+      ).resolves.toMatchInlineSnapshot(
+        `
+        {
+          "error": {
+            "code": -32602,
+            "message": "data did not match any variant of untagged enum EthRpcCall",
+          },
+          "id": 1,
+          "jsonrpc": "2.0",
+        }
+      `,
+      )
+      expect(socketClient.requests.size).toBe(0)
+    })
+
+    test('invalid request (closing socket)', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      await wait(1000)
+      socketClient.close()
+      await expect(
+        () =>
+          new Promise<any>((resolve, reject) =>
+            socketClient.request({
+              body: {
+                method: 'wagmi_lol',
+              },
+              onError: reject,
+              onResponse: resolve,
+            }),
+          ),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `
+        [WebSocketRequestError: WebSocket request failed.
+
+        URL: http://localhost
+        Request body: {"jsonrpc":"2.0","id":1,"method":"wagmi_lol"}
+
+        Version: viem@x.y.z]
+      `,
+      )
+      await wait(100)
+    })
+
+    test('invalid request (closed socket)', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      socketClient.close()
+      await wait(1000)
+      await expect(
+        () =>
+          new Promise<any>((resolve, reject) =>
+            socketClient.request({
+              body: {
+                method: 'wagmi_lol',
+              },
+              onError: reject,
+              onResponse: resolve,
+            }),
+          ),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `
+      [WebSocketRequestError: WebSocket request failed.
+
+      URL: http://localhost
+      Request body: {"jsonrpc":"2.0","id":1,"method":"wagmi_lol"}
+
+      Version: viem@x.y.z]
+    `,
+      )
+    })
+  },
+)
+
+describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
+  'request (subscription)',
+  () => {
+    test('basic', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      const data_: RpcResponse[] = []
       socketClient.request({
+        body: {
+          method: 'eth_subscribe',
+          params: ['newHeads'],
+        },
+        onResponse: (data) => data_.push(data),
+      })
+      await wait(100)
+      await mine(client, { blocks: 1 })
+      await wait(100)
+      await mine(client, { blocks: 1 })
+      await wait(100)
+      expect(socketClient.subscriptions.size).toBe(1)
+      expect(data_.length).toBe(3)
+      await socketClient.requestAsync({
+        body: {
+          method: 'eth_unsubscribe',
+          params: [(data_[0] as any).result],
+        },
+      })
+      await wait(100)
+      await mine(client, { blocks: 1 })
+      await wait(100)
+      await mine(client, { blocks: 1 })
+      await wait(100)
+      expect(socketClient.subscriptions.size).toBe(0)
+      expect(data_.length).toBe(3)
+    })
+
+    test('multiple', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      const s1: RpcResponse[] = []
+      socketClient.request({
+        body: {
+          method: 'eth_subscribe',
+          params: ['newHeads'],
+        },
+        onResponse: (data) => s1.push(data),
+      })
+      const s2: RpcResponse[] = []
+      socketClient.request({
+        body: {
+          method: 'eth_subscribe',
+          params: ['newHeads'],
+        },
+        onResponse: (data) => s2.push(data),
+      })
+      const s3: RpcResponse[] = []
+      socketClient.request({
+        body: {
+          method: 'eth_subscribe',
+          params: ['newPendingTransactions'],
+        },
+        onResponse: (data) => s3.push(data),
+      })
+      await wait(100)
+      await mine(client, { blocks: 1 })
+      await wait(100)
+      await mine(client, { blocks: 1 })
+      await wait(100)
+      expect(socketClient.requests.size).toBe(0)
+      expect(socketClient.subscriptions.size).toBe(3)
+      expect(s1.length).toBe(3)
+      expect(s2.length).toBe(3)
+      expect(s3.length).toBe(1)
+      await socketClient.requestAsync({
+        body: {
+          method: 'eth_unsubscribe',
+          params: [(s1[0] as any).result],
+        },
+      })
+      await wait(100)
+      await mine(client, { blocks: 1 })
+      await wait(100)
+      await mine(client, { blocks: 1 })
+      await wait(100)
+      expect(socketClient.requests.size).toBe(0)
+      expect(socketClient.subscriptions.size).toBe(2)
+      expect(s1.length).toBe(3)
+      expect(s2.length).toBe(5)
+      expect(s3.length).toBe(1)
+      await socketClient.requestAsync({
+        body: {
+          method: 'eth_unsubscribe',
+          params: [(s2[0] as any).result],
+        },
+      })
+      await socketClient.requestAsync({
+        body: {
+          method: 'eth_unsubscribe',
+          params: [(s3[0] as any).result],
+        },
+      })
+      await wait(2000)
+      expect(socketClient.requests.size).toBe(0)
+      expect(socketClient.subscriptions.size).toBe(0)
+      expect(s1.length).toBe(3)
+      expect(s2.length).toBe(5)
+      expect(s3.length).toBe(1)
+    })
+
+    test('invalid subscription', async () => {
+      const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      let err_: RpcResponse | undefined
+      client.request({
+        body: {
+          method: 'eth_subscribe',
+          params: ['fakeHeadz'],
+        },
+        onResponse: (err) => (err_ = err),
+      })
+      await wait(500)
+      expect(client.requests.size).toBe(0)
+      expect(client.subscriptions.size).toBe(0)
+      expect(err_).toMatchInlineSnapshot(`
+      {
+        "error": {
+          "code": -32602,
+          "message": "data did not match any variant of untagged enum EthRpcCall",
+        },
+        "id": 1,
+        "jsonrpc": "2.0",
+      }
+    `)
+    })
+  },
+)
+
+describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
+  'requestAsync',
+  () => {
+    test('valid request', async () => {
+      const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      const { id, ...version } = await client.requestAsync({
+        body: { method: 'web3_clientVersion' },
+      })
+      expect(id).toBeDefined()
+      expect(version).toMatchInlineSnapshot(`
+      {
+        "jsonrpc": "2.0",
+        "result": "anvil/v1.3.1",
+      }
+    `)
+      expect(client.requests.size).toBe(0)
+    })
+
+    test('valid request', async () => {
+      const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      const { id, ...block } = await client.requestAsync({
         body: {
           method: 'eth_getBlockByNumber',
           params: [numberToHex(anvilMainnet.forkBlockNumber), false],
         },
-        onResponse: resolve,
-      }),
-    )
-    expect(id).toBeDefined()
-    expect(block).toMatchInlineSnapshot(`
+      })
+      expect(id).toBeDefined()
+      expect(block).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
         "result": {
-          "baseFeePerGas": "0x20a0d339a",
-          "blobGasUsed": "0x0",
+          "baseFeePerGas": "0x25e3b018",
+          "blobGasUsed": "0xc0000",
           "difficulty": "0x0",
-          "excessBlobGas": "0x0",
+          "excessBlobGas": "0x180000",
           "extraData": "0x6265617665726275696c642e6f7267",
-          "gasLimit": "0x1c9c380",
-          "gasUsed": "0xd05f46",
-          "hash": "0x0c3e51fc62e1dd7401c8884882755b72e1c5720d0b01c75443cdfa8a129d3fc9",
-          "logsBloom": "0xd123054441c15c9d30998061c8899fbdb40be9b00b9c9b73202d015aef6a92b80e6a1520ca498004de50db02f992518322199054de076a903019e47aa1a8b018a046a6c95d2d39a92c06e33ea9a225aa80c5408964c57f5fe083d5dc8a7051e5e92f4844e244023e90cc74c040236e49c31b9aa023596ec5aa1c0e1458593c036dbe9f7cbaa69538a2ed205c0ae2145e441b1319eb6946a9d82da46e6e9c0ca85f9688c6fa946b844bbdd4cc3f225ce09641d62220214a7cb9744c66340c807013f0315212455a000620a3b27359c8c13e1000130da23e141107d28a4900e1909470a80b03d746114b1596d3a4430b68b4ff3e219bac38d8dfa1680ae4005d4d",
+          "gasLimit": "0x224c7ad",
+          "gasUsed": "0xd83b57",
+          "hash": "0xd028bdc00aff985bdf872d6b961110d41a6fe4df5e93aeb6dffe2f38ae0a4f7d",
+          "logsBloom": "0xa336825265c0691c36791a28c7814901910c6b230e016020408d80135c1980b01016af2c481b78027612ff562ed6c7821228e23a0ccfea2b689d740905656000544085800d0928884ad6e10a344820e9f508517102f601cc0c081464d844b6993b4dd2a082e3462944ca5a4ab4227e8ce368046230b8974506a20496000f111406a9b5004e25a580a0e9204843b3100e18454253b384b508362280d101b634a12f62148431086a90625f16a482818f0841bac44db90101000f39c532160c7460d012000688201ea0013a33920e7b384728250356c52700955c3e2bc20891e2c62572a843e142470000051461200009428f79b8428b08a4c04b899412204954a5",
           "miner": "0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5",
-          "mixHash": "0x7702b2acc3443bd74c0b3ff142414f9d51e4caa0f111d57d319f4d46e21dedf7",
+          "mixHash": "0x33fd71ca8e38da7aa264c9b9252b7d2864484826eeeae67c2aaf3ab0a756f133",
           "nonce": "0x0000000000000000",
-          "number": "0x12f2974",
-          "parentBeaconBlockRoot": "0xd472790dc1fd2d1b1cc9e208706266196f261e4c1a74f535d86981670c0d5f99",
-          "parentHash": "0xa93b995575bda48d4cf45a4f72593a48a744786b5e32e5ff92a21372f7a60875",
-          "receiptsRoot": "0xe2822bc9663118439077ad806cd7a2a1a75bf1d70bf61d901199cf599c46f9d7",
+          "number": "0x153b747",
+          "parentBeaconBlockRoot": "0xa7b4e889e408381f1860000a708b6e5fd42ccd9de7fb1cb442a8e91ecb9e6f6c",
+          "parentHash": "0x019d374731477005b8d3e3236aca44d11ef53fc9eb0ab0c9e11f942636b04b1b",
+          "receiptsRoot": "0x230fa17d30bd0ca83606cd4704400735bf05cd09110bc96eeee7dbfbc0f870c9",
           "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
-          "size": "0xdad8",
-          "stateRoot": "0x115fd5eac921e6728825958b2b87da8aaf17edc0085164f11de798f6ed00abbd",
-          "timestamp": "0x66434e43",
+          "size": "0x1595e",
+          "stateRoot": "0xadea44d9167ee7c415601810dbb3f090de70edfdea34632b7e077cefad038af3",
+          "timestamp": "0x67fc55db",
           "transactions": [
-            "0x5d374a026007c13e901765497b9164d44822902463efdf7b574b10c476ee2ad6",
-            "0x2762a7fb7c973e888edc457a3808d3882b5c8fc4f6c43a082d823319b126b91a",
-            "0xe637d86545a9b508b373fdd46cc71682ac4a5dba222d7c9ac01380306cc96cd9",
-            "0xecdfec41e9859fa217c5467debc9a5fa95290c3273f0ecf282f802983d2ca105",
-            "0x75f544151f040710f96a2c8cd6da6cd7bb60e461bfc9b4f87d015562d9a55328",
-            "0x07e609166382b05cd4cfd59764226374af8457a5dc0cea255721e5570cb32844",
-            "0x08109ccb2b1609d10cd929594ba3a131d59c7aa6eb174cc7bf578670a8198405",
-            "0x932fb264036b15e8a9704501e4f1ae34a9ac7543c498223c3456f03ebbefe221",
-            "0x4773aaf55c914947aeefe6c996b961c900bddd82b4e809d47a5f99af22b014ef",
-            "0x04d0728690604a7ec930782021704bb5d75d16d2c3330f8ab051348c906c52d4",
-            "0x61d5fc3a8aa4f5e802dcd54a7fceaad89a97c873578b845ad12b34a96540aeb7",
-            "0xd14bf1505356f83e55d4baffa315e0e9210479dff7486c4164a050c935d5bccf",
-            "0x6c4e8a1e9484ad717ef42df12a6cb9655216b6a2f7420f52dc540ed952860fdb",
-            "0x1d2361b3ec4fcb498732048e348fec130f15fb7e05187d8878985681c506b32a",
-            "0xc3da74a44904c29c9046587cbade10386db5aed500d7ead58335a9757fc64c93",
-            "0xc8632c7648b32e86023d8b585145bda62e5f8c160a5e6c8c02ec183297d05d2d",
-            "0xb6a79dcd720a72d2ea5728a8e58885304202535b00861113dce00d07bca7f3ab",
-            "0xc8b9a208eccabd84320946527cb1df897ec48318c1ca67e5fedc48388152518a",
-            "0xd5b0feea2d8e474913d280c45c4a6e365ec2bd8ab09982f0b07a7e6e2e433526",
-            "0xd67fa075f7abde07de71273e227856b43373276f18eb1446d1566cfafe896947",
-            "0xca96b4905a5854d52f3152dc2f86b1e8ef0891ce82b8a6d0622d4470fa980c03",
-            "0xd80b94b3d5e72e1cc74b3acbf6bec79bde51d6341f021a1259fe2e3303a919f4",
-            "0x0e034d76d3593f1f07baf2452e337da912dfc06fd61704e658797eaf5c33222e",
-            "0x755a7415073e029b231d575f935a10ae657eb30d3aa3edd32fcfc812ba2075b9",
-            "0x082bebb8c90bc915b6931d6d135ae7016a41b01e6d07151b5d11d2e3cc15868c",
-            "0x5a550298d163c3a6b1ca91412076781462a6e77825a7a34789e514f566a2ddd2",
-            "0x7f5523181ea3b7b83577e2de0ff3edf0b7bed050436fd6958274a0a6882a487d",
-            "0xc63aa388331f5016643dc4744dc47f0b79ac2dc30f2837f36058959de5c6d97b",
-            "0xa1cdde08be62979fb2d51e3d1447e67ef9a72e7e9ad6c70834b6667ab4b25b2f",
-            "0xeaf27f121d562cf7d6ba5fe04cb7477c2eae917f6ed0d254c474595334e1e61b",
-            "0x4d3a2c0aa20291ec2a3e9663676770bb1cb1c33c8caa7308ec9b0e180df42039",
-            "0x1f13065bd8d6bd0ff04592f8216576eb2ce38d766cf1fd4114392b4e622a7658",
-            "0x220ce318063ac4496ba1e7946b78fd1574f95518ac920563531b124bbc3ec22d",
-            "0x6c258638f3e25d325a1f73075a338ce02e57b4fac1b2a810a544d40b24e8b9f9",
-            "0xa2a5fdce0672a32e04908e9a12a683697057855a33da8ab3cfc5275094f270fe",
-            "0xfeb465bea0d19e832b87965440a36b3ea1d8bffda29d27ab72bf196f5a3954c0",
-            "0x20b39aed43810bfc46a279f91e2814ae5a56906f7b7505c499850f2605c82dac",
-            "0xd75f805748cdf37402c13b685d9dd9884ba1c0b0e3189f9f613a3a9ed223dbc8",
-            "0x46bb82c63a8a2e29d01360f78d5ee871178847627774756ca6efc614c9710cee",
-            "0x37a217624ca5724463612bc0a4f0943a3bf8599a05e9d4dc82da20bb0df79867",
-            "0xca8ec3dfca0e43c79a9a32cdd8a01c161a8fbbed07d6f5b4231dc7b4086d1380",
-            "0x12f7e01f6efcfb1c56bb3d4bf4358c32df847303c92d4f646996d4c601e1bd2f",
-            "0x50a0a2e7abaeee10aa9ec6ca0303a019acd2b09279357a480fd37c2c03e177f1",
-            "0x0c0134f6a1f68649f4777c86668ac2c3d348cd5ee9f71adaf5a783a3852a2e1c",
-            "0x740fb5ab5762b25c2be2f3590cb0811d74b54dae5e40f52bf1e68c8fe2cb6e92",
-            "0xa2218d513e2ca93a8acb3652d638af7be7e62711f48e81bf255fff3cfbe3a0dd",
-            "0x413a7f87acffc04ef34261ae47737ab2f5f461d0af5d57269c5f6cdf78275159",
-            "0x60d81ea9118a9d8075101f22e09d0646f155f23c2f4b84804f7ffc5afb203a68",
-            "0x2ff7f513238717f264521c91bc457fb17800beda940eaf6d7e56b1c866b42c06",
-            "0xda6dc1ae732e7ecbcac5765fc442fcee5a3617b5d575f5103b4fd9f706847c07",
-            "0xf59ef60c1d9dda81fc22a8e985b6d3e589f512eb8b2518b3511a43908a460294",
-            "0x81c6e17337cabd304c329a799b02e02245f37ece12a413f5c49282d18b1883cb",
-            "0x18fb9299e78ffe36bfea65442d790288937a4d1d5b69138525dadaa70dc42367",
-            "0x9db74bf461bb809717866699fb8b5d6bbe33b5bcc967dec46357331272e20df2",
-            "0xc59eefbe4041f7dc7fdf2c86c9cfc0f1706993dcee80de6b27f25489cb8e10a9",
-            "0x38b2207a133bfc3aec210fb386a199efb9087d13330fa0f637bfe37df59c312f",
-            "0xd35ffbf38934b54a900e35c65c07fc3081993ebf5a55bc67977b73410abc211f",
-            "0xa13e7a446c7f3ddaa8555c5d3437e8d827303b152a4dbb09ff01bde01a0585b0",
-            "0x0bb1b3eea492459f2796fb9b3f7022417860f3a5450374220c0c9c3bd2e63512",
-            "0xd9ebb04da1035f95bf3ed0bd06268f53737001f3f292ac825852875c57a6c4be",
-            "0xe07cf18aa356d0134f2e0da6f68de7c9f28af854455fbdd38770b44be98a1dc6",
-            "0x9be4c6c6a3c5622fcd0a1bbe13e21b8612eb39932f05b42972edf2ed184804dc",
-            "0x9cf9a53f37175b3eba970af4b06a9fa98042e08882b2ed96dd285c0eaaa8e13c",
-            "0x23f3b4e0dad22684741df92bba387be4e5c05414aca5bf54383e74a4b24b30eb",
-            "0x4dcfcf6353596c9665fd94b7b9281b65e0a94b45f98ddff681db9ffc5c561602",
-            "0x460b33043b87067727977ec7daea667bf440f482f0e77ab5a86745832c05d09e",
-            "0x2fd8ab214c757b69349f10a86d94ccdae0a2c692f3408ea4d65bf5a58c710166",
-            "0x6627f34e22dec201d70e4304375e60b0703a992610487356a7af6812c4ae89f0",
-            "0x6a2ac6c7b4f140443ea9190beba68706aa0828055cc0a49c037f6bed4a3b94c9",
-            "0xbadc35a3b5eb2524ddea54babbc6a7c531f94c845b499e2773f0d82f347976df",
-            "0x258972ea1dced55b6b95ed07085de981786401d4da790000d7bd8739b0132cd9",
-            "0x2b70ba122ab93b5b020a3e0ede3e5170d91b2fd8c429c4909b025a68e50a0a2a",
-            "0xa1f2796fbf29d6cb19d541bb9e2ac1bdb8ecf4f64e9d4068a77b18325d736be8",
-            "0x297b30d9b997e375d6d560c9670449c4ab9fc9e6cbfcfb094c659d053bd74fae",
-            "0x4f2058432f7e90bde5ac4661e66dd4ddb4865a31a015b5da7a74f1ed682d4471",
-            "0x88777368f2847a5a370cb5c6113b25841987168e1d60eff8f5e622b608c073b1",
-            "0x4b6de4690fed6b924865cf234a94b74f8765c969d821bbddeb4333936c558aa9",
-            "0x89db01005aa4cd9b60c481763f21dffe39a7ba2da6a4df80e1649fe71952ef70",
-            "0x888b2ccb261734919308c792c458dcafbaf5ec09b35ff490b77e55304d8f6352",
-            "0x847e03a9a940c74f151694bed14c82fc53eaaae5e4236e7f0525ab438f5e9d77",
-            "0x176f3b0b49ee54ec554dc3a4dea00b3d115e48a8c0d5d3c6f328d7da8f6beff7",
-            "0x009d634f81d6cbefe083d48d0741ab332f238bf496aafca838095e6fde0b541f",
-            "0xaec2cd6a1cf8954187174f4a62c07b021293cac8b69d1b48cd206ba3244292ba",
-            "0xc914a43546e51a0d4ab116e8fc86bd639c14b563474c9c247bb406404b6241c3",
-            "0xdd7f4c16cc0512e308b521c944e11b852d652652656ba5c30589fbbd4454002d",
-            "0x0329301ecb0cca138d687a07c3fc0e13358d10fb73f7ddac636fe1940d45be8b",
-            "0x2f569a19dff21bc2674064a636b3f87689f3e0ed0ef69a0d99bbedb5721e154c",
-            "0x06f42e2ae50574d560a495411ed504d3ca1c34ff5fe9f6f74a4327a9ada801f5",
-            "0x04db2f50573f591543a42ad27ad89efe7182ff286b6d2c75e8787cdfd67682ad",
-            "0xcac34907d292c7d1e8e307a3c669e9867977630b6667aa8ed0db0d0cb0e757f8",
-            "0xe043631e0d3d42dfacb87783a95d9a7fb6d1b4a6b556ad5ffd9724dfec8a05dd",
-            "0x163bd1073a5e99e886ae0ca8a469a58096e9992f772d8cf03c12897bc759ebf9",
-            "0xe468530ce156f65bf52574d52c7b55489ae9a4a7bc3df7710e3ef8fd47d72386",
-            "0xc19059a3d7e5f89c1bd674b798c5ff3860748acd9ccb7d684785358bc5a12d20",
-            "0x73f819dd32e6679910453dafe4976b5724749fcd18407078e46864a22e47181d",
-            "0xfe592761d1dc1bd893e0f8fdc548eaa3f5b441fda87ee71826d2d498a19b1f33",
-            "0x291c84340609f89adc913f236425e23792af8728f6320f5e67f936384e02debc",
-            "0x48aafb002e34c51e578c57e780ef52676301c44ce359c943238e56188c9be970",
-            "0xb3790060ee3927e51a8415bf742287ed54fefd32e8e5e0e6e6d8327504f67e3f",
-            "0x3fb1be8cec3734f7f261eee9bb67e16f89bd5e3836822cb30b79c3661fbbe00e",
-            "0x32ca794db2e8bb3a6ce2fee48506541397112c3deea2dfe46deeae71ee9f663a",
-            "0x81dc670fb945eb8c35b00b50f015fd9cef8c4560a855563364d01f2ef4508e14",
-            "0xbd6556b6d46cca1b2b17a19a3a59c240b0ef3cf48a64dec4d3998c9cc24c1a8e",
-            "0x90ad6135bfdf67e34c8f73238d31cc0986af1cb489bcfe81fc3eee05d9c29b97",
-            "0x6e1cb115a90aabc2808bc7322acd7b3c34545f4aa8038f5c6d730da941c2e676",
-            "0xf3f3af837c7e33b56008a0c04e8ab247210934cb6f3c5067e3a7a37f3e5dafe1",
-            "0xc9d4ceee42f0ec528c1a63eb9d44098fd23beeedba9604f9e083afb2d505fdef",
-            "0x17e4dea18b087b93f1215bcfad045ec54713658ebc484fe4e8986a771b0852a9",
-            "0xfb649abb7e83c2cd08e1e30f0604d06186e3d34901206b1d4c409b26b0510d08",
-            "0xcf248cf3701057459fc2347f9a9c3dc75332df6cfe002a8befe950ec2aa41b8c",
-            "0xe355fea96b01d1f58a9ad11787f347ab05da938b8ae8355fb4a4811c1791ddf2",
-            "0xf41a9728a3c5beb95bd54d48781fc5989608892c59cdf58545787581d7ef86a3",
-            "0x974a1c129883d3d47d8faaae93cb8a0559b095ec5440f2e876b1ee12588be268",
-            "0x7902398372de025e2a389ab30720d9219a48e0c843800fe2a117870b8588514e",
-            "0x3858c51d5edd299685ce0ac9aa398d572eba7a25afe941580e9ff281f3ef4b96",
-            "0x1a1a0c85194c4ceba80a6266fd6cf9977ace734c0bbe36fdb3f3b14fe185dbfc",
-            "0xfc0faddbc7dfa5939e91d6759c1a58bc8fb19ee24fb19aa31d05cbf8cada3cf2",
-            "0x99a9b35bfa30a6546895c6d134041b1564f7d404693619cf94fd6d5087559c2e",
-            "0x9689c75b7fa465187f1723e96ae4a1092f6f6aa86e187882acced16882682e46",
-            "0x70c6c50149f0bc6fd7c685bc9fab53dfd3f484a3c9bf206578951684a7e78d22",
-            "0x1c2b3e1326bc24046d45e3c626ce5e865e9f0f4807f129994558caeccc7e4c40",
-            "0x41491514a58d6db155b09d99c21e935f60aabdcb0b2bfd0ac3c7a66add88c8dc",
-            "0x120d2916730adbd56c3a6fd6fd4618af561c81b73952b9f247ebd6fb0d253a01",
-            "0xc65bb3d2984276ad902ed5d790cdbc5cfb953d5ff01dd0790532b2214dfb2f78",
-            "0xbdf1cf02af245b580cf20f728fddfa39c6eb5b0ed70e0487c1074fbf28ebc0b0",
-            "0xcbd578f01e8b5feba2ab69487c979e551c33ce2b73902c63943df9945dd23b9b",
-            "0xc8c42876c9f093326fd24262be17af1ec0a1030693f7e4a24201c28b3b90d82c",
-            "0x0b8839b2d0aa101cc2e8887c2d20c83d813559e7800f7ad9ce9af8be697a9a18",
-            "0xf621df816c070c7f0091dda13b34e6a46a7a86dab6852500351d4f5e2ae9eefe",
-            "0x8418a842e94ae25f54f427b389cee45d06da8cd3f55e41be9332c56241d48962",
-            "0xac58a960f5db3cc0570a20f8ca307ef444d9a90f630c7b629e66e4313aad45b3",
-            "0xf66d09329c4db75279f910ebe6d7a1c643632668a711dfb8069f47cf00d7a57a",
-            "0xdcacf0e0951030d0f733cbbb46b5f0b3b45840953525b757001ceb74bae9fa4b",
-            "0x941e10e4fde951acfbc184d76a51823b6ab04214b297e7e52bee236d8f66b8b9",
-            "0xd1dd9fbed648c9d93f590a91ef9922b6256878a498e61055d8fec739395ce0e9",
-            "0xe7eae47cd583cab13d7d684adc6e443ef38d83c7d2120171eecf7b0c9168a77b",
-            "0x08a6ff7d42b3056bc571e9c16607b373d37565a71cac95b9a85bf5788f08ea0d",
-            "0x3bae2e6ec6af9bbffe37b395df67769b234cdd743bd848764420ff2799ea673c",
-            "0xaa0b772f59055d8dfbef446352b2d08fbacd97968643a300e03e520c50ffdcbf",
-            "0xd8d29dfd14ab5068e615662b3580d191663f64cc15557873194d7b2718dc0425",
-            "0x0561ae8390935eece56ca93e3ea5feaa187e3777418fc19134649726c9519f41",
-            "0xe3c8dc3145997086caf05a06d4209d10096df09379fce4819f40c13cad005d3e",
-            "0x02d87b27d2a9e5cb47a71051ef0ef3202e2a86373807753e8603807e43ecf4f5",
+            "0xa830b5e09e6d2709eaddc555c12fe5177aa22a0862869aefab392d64bcb67926",
+            "0xec8dae0c3c87e84115d6d80a13f18fa09149b26b6185dec8b1feb9277f57de16",
+            "0x6bdee6726ede49f0caedbb039559a3ecbeb30beccdbad0d0ad34b7878fd76756",
+            "0xec27e6ef7e8e0c5e495d978e2409f18d09efbac99f6a1d9766e8951eb20c1bb6",
+            "0x388f16334f1217cf27bbefcc8798834af13166cd7857b5c56892b1ebeef6c708",
+            "0x10f56c635bde3733b330e41fe1dedd83c303dbef4b713a87ad1fb0feda79a5e1",
+            "0x0b20063113f3377255f2d1fe4e3277feadaa98d122ebdfa4f08b2e58113c3bf2",
+            "0xa418d5bd350d6a7947d5801cfcda9aa9068cf43611cc5ec26a3e0996b3e6b1e0",
+            "0xcdb2fcead0254ce044d050761b3308f9fafb1bc419a8ca9a6dc4b3e62c437169",
+            "0x1b1e60b3aa4031704fae193d7f97a5484a1673f5ba2da0ee31e3b0858d839684",
+            "0x59917ed06b3fa39d2d311086d6032e2abe1341a31db2422e9467afad00fabfe4",
+            "0x185f39d2b7b2cbe0c0950ddc45df5948e167bbbceab235ae2b18193ccdbf3cf7",
+            "0x9aa22d79c11e83cecc8043528527d9c88a62d6103ca8f250aa8cb86eca02eb11",
+            "0xf914ecdf0c1922a1bd4effe4d2f15adaebea229b7b52ad610984a979ea09e565",
+            "0x27feb453dd1e91b41d5860c32ac34470d101f6e5da57c57c4e0c074c5d00cd5d",
+            "0x069bf514fa826397e81c88d4587530538e10baeb5e0388048030287d85b2b5f9",
+            "0x6c89d2775e9919fe8afde564755021b2291a797490e7d64a42231cd0e9ebec85",
+            "0x01975a1e08fac4209e625990cd4a0fbf2fa05e3c08d9e98898a5f50207f36c04",
+            "0x5eb6d26ad0d67a9af50cccb5e4d2e7c11e8d9e86fe51c61483cb62b84dd8e2bb",
+            "0xb600b487433b17d85b33ae7567e4558698afd3f72a8fa968985ac847055e09bc",
+            "0x002dd9d9fc69777dfac9ae0cae8d9b47ece05930f3dc971c23a3e7674629ce72",
+            "0x384b2c0059e7ecae49b44dfa6f5ed44fd9fac1dc0fab8c01d341cc886bd45789",
+            "0x403412968589902149efd2df44385afa00c4299c52aa83d64008bbee0c953d47",
+            "0xb6ef0c02e08374d3cea3eda42b8e08ed218033a70406712c9db64620ebe6ff62",
+            "0xca031374a4aa643a169e7edbfa8505b310b52f1559c49f7bb1acbcbd9281f8fe",
+            "0xeac0cf72d02033c8d24dd22ca23882773402f8791f57d9e3f161b1086cea39bf",
+            "0x7ac526702bccafe985f08a35ab96250066f230bfa4c589696d52f388dc28cd9b",
+            "0x7663feb1a75df42652c26c6c114d711956b03de8aada2493e8e858bc19163f18",
+            "0x7dd2137fdb2f69d3714bbd8cdc1be5ad0a4503ddfe19ffb8e752ee3537a6baab",
+            "0x88608458416217eb145836116357017d8ee7f0bff8f18e2a708b578645b115f7",
+            "0x03037c03f30232ed8b486ee3e43212f40d7e48317c733fad92034850420a29c6",
+            "0x96c58606a41010569c74160b3ff879948d4e254f305df63491dfb77637bb6fcb",
+            "0xc6391d3137b9937cc53e7044c7fde0e9e3d37ff3e2ce3e2c2daa40a1e855e8d6",
+            "0x126acf8dea4af4f8477d83fd40096277b8f46be7ce6f48c3f5ce12c73dbea9e2",
+            "0x5a3bb37a3859bfc316580c2c3016e0a602cc578e518fff5a1ca560cc3d457ff5",
+            "0x30c1bdd22384b8a1187dc5c30fe0aed454e1bbe724fad44e619fcf26287455a5",
+            "0xd664ff7bd195031873ab12bfddc3399bcab5a5e5e6b66e0ec9e7aca5eea533b9",
+            "0x52353a3786a5bc637d2a767d440a13ac426ae372301882a69cf99be5c08b9b34",
+            "0x8640c1cb3208b965e5405b952d4400f76ba5942640b6ff75559411d567c6624b",
+            "0xfc401c21638aeb2b853bb0e29bae2468fe6d757e76f455a0e00061301d243692",
+            "0xced23b981bc2fd12d5b45b8ae3f5b0effbb21cadc2d6431f677621ec8023ffc2",
+            "0x2b63a9e4d7d27a19ad8c84e2035b0bc5e1e2f61ceb53ad9fa7569f639bff78ec",
+            "0x9991c76fa2ba076162f0b8d21b9b2a6b2b9fe9dd5403dd6a4a05a72c85569a03",
+            "0x9a3a09b54dcae0cfe70d12a5d675f7e400d3f6d5c3b43ec018c7c1f587584ff4",
+            "0x848d7a6be7e269ee54437dc0272501e3aba635ad277903abafd75a21652ebde3",
+            "0xf4afe5774ac8d7196ad36103769ef606faa8a1c70284b609d5993db3c99773ee",
+            "0xdb2cc3a2dd936e22f3cccdacd3a95d6541070e2a0a9440b68d5b17036c791e25",
+            "0xdfc82c9edf56322fc2b2b42c49b4053fada87559d4269dc7f62df2043dff0391",
+            "0x6d4131a2c049efb6cbe31fcdc03aba6952875efbc8df336b915aea67a6d17cfa",
+            "0xc469810e7856cf8d1f748f2e5f8f80084253272019056b69474d0f10ff181ece",
+            "0x313e76bb4c1d58dd51df593e00369185d3612a660f67d5a3751bc341585b1eb4",
+            "0x6baf070c42ec0033ff0b0dec233c4ce7ab4f8b94369f67d02a6eb1a48ca6dff9",
+            "0x7544a200cb8855073410e2ef14666a2846f9e3c962fd68ab060bc63b2bf376f8",
+            "0xb6ca49f11c2be3541178e6896b98bf47b7c392e20c8c4c9e8dfc439ba7d34d37",
+            "0x5252bea73f0cb25d0096362e39faf73dd86eb1d1de8449bacf4aa7da96eaec4e",
+            "0x666875fa51d4cabf200b63db9b7c3110c593c60658f9ee174181ed7790a6f6de",
+            "0x68dd0295bf7d2f0d636ebc5d551db39132b3c8dc2374c1382a3a91d753cc93f7",
+            "0x4dbf6d86b0c8f87589b44fa8b8986684febb58815be0fb51bb5ab4904c3dd816",
+            "0xf5dac89d6f756e8e0728993f91420f883658306974b85df38d86dab3b1b66522",
+            "0x1929a2dd505f80e1d883eeaaccd09c3392e5d9ff0d42ebdf869bb413e72ae406",
+            "0x43c076bffb1b83e9208776bdc63b8e52ca2957c0f53966f0d388d97fe90ab84f",
+            "0x67abe41b249287654a1e34d15f386a11fb384dcb406ad179b7b6b6e2c66fbc58",
+            "0x8a8a45cea8595016bcad108c281ee8612cb0f6d4397d368315488feaa5f798d3",
+            "0x11592924727a9175d05e57635dc4b7eef9bebf67da90d590adeb3f2f27d3f4f4",
+            "0x8d816313b6dd7524ec3a22f82edee1aeb147a8468824c29bf48b53d2dc78a160",
+            "0x180de77173fd1e0a108a191f79edd955e35728d4dc17f00f3eb4f2a5aeb40d53",
+            "0x118f5228f1faf3c2301201d0451e578bae7bd7fae9c2aa860a85877fc94065d6",
+            "0xd23194a13c3302913bc044b8912f6361dfa997e667a8e00913e1349df04586a4",
+            "0x16395ca6eb8963ee04e3181c7233fa417678bc9446bd2602bf5f9b8eeb5b17c4",
+            "0x9d50f7dd271dff2451b4021ff75d0e581eae95d67260bc2ddf0c3e06d08b58f6",
+            "0xe342270887c85b5a5be6068ca116ebdf4a53ee29f5cbd0b1b6dd9b66f99699ec",
+            "0x74960a4a67cbf20e4e660747e16d9c82eff0b614baf34fc98dd125323555e319",
+            "0x0ba0a9eb5c3ba2700d70d1cb00dd1ba892205f47883690f5343f0d6e8a012110",
+            "0xbdc97aa06937fbb6227deaaf4242c4c136b03f7bf1c466b672c96b1e1994203b",
+            "0xccef5dd7738d65689ccfab4ce87431132dcff26c30f1337017c6f2cd2573f121",
+            "0xd4b7fa9c33c877ad0e0ca65caf27998e7d32bc3ef9cd351c2c318b294468c8ab",
+            "0x676858b075e31a88caf5d84bfb5e8bc8f1fda60c8b47ad6d1510e16025dab1b5",
+            "0x467afd1e746c073475d396198420fb504c330bc9759a9d49fb375c3831ccd863",
+            "0xc41560172f2c1e5880de04c06bc28872cf1aaf2bf5e86a42979b4ecfcd44d311",
+            "0xfc505c0a8009f008433aaf366e7a8a585f66336e77ab3066630552bb8c67a800",
+            "0x7454273c2845eea8611fecce8016bcbf7571959a1600c7ac97387ed3510e3582",
+            "0xdc856c8d91705f4b3d03964c8ad4befc3799a8849f2d527709432db45d3a388c",
+            "0x17d71b1691589e9597fc6d29d571be8d674f86538355806e697af188cb18eea9",
+            "0x5f0faee4777596897c3f8b7206ae31fe7ed5d3eb4718cdba07e1e743cda7cc1a",
+            "0x7c68af4b9e5c22ce5bcf74929a19180ad06125a80e9118128b653d0056260c58",
+            "0xe222040952e6f7fd617290b7b8904b00f81ef49e4fb37be040db1f66f1f4ddc8",
+            "0x1ad0b706c9a1d376cde377fb73395ecd5e0e55f428ad3299317806daef8de882",
+            "0x4f24aff0b5d7269902fef75cb69ba67aefd39f114f91b0d7a519e86e10d9c8b7",
+            "0x32e23029b54b3ffbc78c4e9f115a4cbefe65faf67ec295e2ad9a0603ed44d4de",
+            "0xfc424bbd777126fb913242238dafbacdd75344b6fd0f6d524d64f85b7420627d",
+            "0x2742143d7f34fa33714619ccf9c1f01f4f32a47ccbf69b6ecff00d398c483cf7",
+            "0x81d16e35c2f2372d18b2898778cd9f81eaa0a553b06bcc2620d69d2df39431ac",
+            "0x5ff48d7e61c45a9be174bf915f864318123dd16458550322b2fca85490a4c0f6",
+            "0xdfedd288385085f2f33a4235d9e65dffca463c555f3ef351f7ac6992360e6980",
+            "0xf8e19739eb8068854f9e6a2274a826228896d0e8c56b33ace69199a92385c6e4",
+            "0x72c03ec1db7496a464214c3c17c2303d55882ff873ddd42cd9aadd11d6cd4674",
+            "0xcd66de6e1ba35f34e0c1ae90d470abba0b39cb798909db5350aaa0414121cfa6",
+            "0x647544c734fff0189ab55e86e2a38c78d4764aea12ed0cd16c3dbee9aca5a4c9",
+            "0x2fd9010ba8d614a8492c02914bc5aa9504e588ce2b98b7c097eb78c02318f734",
+            "0xf9e4ae3673db5a8961fdbd3253643b2f09a475b76a2d3639671bb5b8d8df8599",
+            "0x269240fcb4257e6e0b2d970d8a08b06fd56226b0afbc3c41ae952cebd1d1e84d",
+            "0x2f9db6986f9d46736e6532030627e0be514e6e7c8d844e316ec589d3e0dbb573",
+            "0xeb32497fce6f101f55959ea2ac0b090a0b26032865c74e279754ba13384f2245",
+            "0x4257448420523d4320b38aee51ef17e72ad59b316c390267f524dcb51fa1f3e2",
+            "0x511ba0618f654bce433edc15ead66c282b9628049398b117c8dea68b5956484c",
+            "0xa5ab42e4353a63a1dbbb5fcd9827b0b5784468b4c71074ad5124eb84ea87b687",
+            "0x018b3ecb07b3487253f4c6f26c4a66518e5b4127433da45e10f88a458da19932",
+            "0x8d9c8a91a8ffb007f20622068d27b3d21e641cf4495bd7791f76eff22bbe3b5a",
+            "0xc65564c139b75062f4989cb2eed6c436e6036f281c8c5dfd811911b7575b03bb",
+            "0x1fa029e5ff784a280d1d3aa8a0738942ecea6f271d0b3cb852edd2233fbf807b",
+            "0x893eb054cc26a7f84904a4c038f8b5ab62b6fd97201526308699c6f750879cb8",
+            "0x52150a57b9f7e1b4cd27294a81a27966421a791b11238075818d70683fd716d1",
+            "0xb56f65e5aa53351984d177cb0e9099f386c10ad0989255b0dc2818982c08794e",
+            "0x2a2b18674d4e5955ead4f4c3ee115e26ccd4f5d16112fc8438ab4424f18ec9bc",
+            "0xb30bd6264b27feec0fb74dbf5c0dfbf0c2f6c4e7a69c0c265f3fad84f94f622d",
+            "0x30f32b6cefaba17d25b5a8c58cd42c60e19a7f0dd1f16251bfcede5bda55b7bc",
+            "0x48c3c9f6a2344284079d4ee6ffc186c5eb36a5a5a88c3c2e256690d6e5a9dc15",
+            "0x6a29c02a54d80de73c015bb4f769ec74fdb61e784b0ca07ecb5c88adc0554e4b",
           ],
-          "transactionsRoot": "0xec75fee6c90538b6b5d846f5fd25f550591eaccbb366fc393c4a693f8370d0b4",
+          "transactionsRoot": "0x5c41008fd93b95aff0a1a453b657539b7e43d67d20c196c87fe59f5f2f1dd214",
           "uncles": [],
           "withdrawals": [
             {
               "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11cdffd",
-              "index": "0x2b3aa2b",
-              "validatorIndex": "0x36315",
+              "amount": "0x12380f1",
+              "index": "0x4fc875b",
+              "validatorIndex": "0xbee4f",
             },
             {
               "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11bee1f",
-              "index": "0x2b3aa2c",
-              "validatorIndex": "0x36316",
+              "amount": "0x3f62a7a",
+              "index": "0x4fc875c",
+              "validatorIndex": "0xbee50",
             },
             {
               "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11c8a4c",
-              "index": "0x2b3aa2d",
-              "validatorIndex": "0x36317",
+              "amount": "0x1256773",
+              "index": "0x4fc875d",
+              "validatorIndex": "0xbee56",
             },
             {
               "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11bfb57",
-              "index": "0x2b3aa2e",
-              "validatorIndex": "0x36318",
+              "amount": "0x125b69c",
+              "index": "0x4fc875e",
+              "validatorIndex": "0xbee57",
             },
             {
               "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11becdc",
-              "index": "0x2b3aa2f",
-              "validatorIndex": "0x36319",
+              "amount": "0x3e33e35",
+              "index": "0x4fc875f",
+              "validatorIndex": "0xbee58",
             },
             {
               "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11c0882",
-              "index": "0x2b3aa30",
-              "validatorIndex": "0x3631a",
+              "amount": "0x1266095",
+              "index": "0x4fc8760",
+              "validatorIndex": "0xbee59",
             },
             {
               "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11c12c5",
-              "index": "0x2b3aa31",
-              "validatorIndex": "0x3631b",
+              "amount": "0x1278100",
+              "index": "0x4fc8761",
+              "validatorIndex": "0xbee5a",
             },
             {
               "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11caadf",
-              "index": "0x2b3aa32",
-              "validatorIndex": "0x3631c",
+              "amount": "0x127ad22",
+              "index": "0x4fc8762",
+              "validatorIndex": "0xbee5b",
             },
             {
               "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11c47d5",
-              "index": "0x2b3aa33",
-              "validatorIndex": "0x3631d",
+              "amount": "0x127d890",
+              "index": "0x4fc8763",
+              "validatorIndex": "0xbee5c",
             },
             {
               "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x3c9a1eb",
-              "index": "0x2b3aa34",
-              "validatorIndex": "0x3631e",
+              "amount": "0x12612df",
+              "index": "0x4fc8764",
+              "validatorIndex": "0xbee5d",
             },
             {
               "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11c1404",
-              "index": "0x2b3aa35",
-              "validatorIndex": "0x3631f",
+              "amount": "0x3e39635",
+              "index": "0x4fc8765",
+              "validatorIndex": "0xbee5e",
             },
             {
               "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11c22d9",
-              "index": "0x2b3aa36",
-              "validatorIndex": "0x36320",
+              "amount": "0x126c872",
+              "index": "0x4fc8766",
+              "validatorIndex": "0xbee5f",
             },
             {
               "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11c2dab",
-              "index": "0x2b3aa37",
-              "validatorIndex": "0x36321",
+              "amount": "0x1268edf",
+              "index": "0x4fc8767",
+              "validatorIndex": "0xbee60",
             },
             {
               "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11bfdf6",
-              "index": "0x2b3aa38",
-              "validatorIndex": "0x36322",
+              "amount": "0x1267257",
+              "index": "0x4fc8768",
+              "validatorIndex": "0xbee61",
             },
             {
               "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11bafb3",
-              "index": "0x2b3aa39",
-              "validatorIndex": "0x36323",
+              "amount": "0x1269208",
+              "index": "0x4fc8769",
+              "validatorIndex": "0xbee62",
             },
             {
               "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11b9154",
-              "index": "0x2b3aa3a",
-              "validatorIndex": "0x36324",
+              "amount": "0x127534c",
+              "index": "0x4fc876a",
+              "validatorIndex": "0xbee63",
             },
           ],
-          "withdrawalsRoot": "0x3f196863f2d0d52b020c33d1ac2fb588f257ac153baa09fbee2cc1cce42fadef",
+          "withdrawalsRoot": "0x96c5c22e9b58cb7141b2aecf4250fc84b0486a00a78353cdcfc9d42c214b2127",
         },
       }
     `)
-    expect(socketClient.requests.size).toBe(0)
-  })
+      expect(client.requests.size).toBe(0)
+    })
 
-  test('invalid request', async () => {
-    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    await expect(
-      new Promise<any>((resolve, reject) =>
-        socketClient.request({
+    test('serial requests', async () => {
+      const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      const response: any = []
+      for (const i in Array.from({ length: 10 })) {
+        response.push(
+          await client.requestAsync({
+            body: {
+              method: 'eth_getBlockByNumber',
+              params: [
+                numberToHex(anvilMainnet.forkBlockNumber - BigInt(i)),
+                false,
+              ],
+            },
+          }),
+        )
+      }
+      expect(response.map((r: any) => r.result.number)).toEqual(
+        Array.from({ length: 10 }).map((_, i) =>
+          numberToHex(anvilMainnet.forkBlockNumber - BigInt(i)),
+        ),
+      )
+      expect(client.requests.size).toBe(0)
+    })
+
+    test('parallel requests', async () => {
+      await wait(500)
+
+      await mine(client, { blocks: 100 })
+      const blockNumber = await getBlockNumber(client)
+
+      const client_2 = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      const response = await Promise.all(
+        Array.from({ length: 100 }).map(async (_, i) => {
+          return await client_2.requestAsync({
+            body: {
+              method: 'eth_getBlockByNumber',
+              params: [numberToHex(blockNumber - BigInt(i)), false],
+            },
+          })
+        }),
+      )
+      expect(response.map((r) => r.result.number)).toEqual(
+        Array.from({ length: 100 }).map((_, i) =>
+          numberToHex(blockNumber - BigInt(i)),
+        ),
+      )
+      expect(client_2.requests.size).toBe(0)
+      await wait(500)
+    }, 30_000)
+
+    test('invalid request', async () => {
+      const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+      await expect(
+        client.requestAsync({
           body: {
             method: 'wagmi_lol',
           },
-          onError: reject,
-          onResponse: resolve,
         }),
-      ),
-    ).resolves.toMatchInlineSnapshot(
-      `
+      ).resolves.toThrowErrorMatchingInlineSnapshot(
+        `
       {
         "error": {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 9,
+        "id": 1,
         "jsonrpc": "2.0",
       }
     `,
-    )
-    expect(socketClient.requests.size).toBe(0)
-  })
-
-  test('invalid request (closing socket)', async () => {
-    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    await wait(1000)
-    socketClient.close()
-    await expect(
-      () =>
-        new Promise<any>((resolve, reject) =>
-          socketClient.request({
-            body: {
-              method: 'wagmi_lol',
-            },
-            onError: reject,
-            onResponse: resolve,
-          }),
-        ),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `
-      [WebSocketRequestError: WebSocket request failed.
-
-      URL: http://localhost
-      Request body: {"jsonrpc":"2.0","id":11,"method":"wagmi_lol"}
-
-      Version: viem@x.y.z]
-    `,
-    )
-    await wait(100)
-  })
-
-  test('invalid request (closed socket)', async () => {
-    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    socketClient.close()
-    await wait(1000)
-    await expect(
-      () =>
-        new Promise<any>((resolve, reject) =>
-          socketClient.request({
-            body: {
-              method: 'wagmi_lol',
-            },
-            onError: reject,
-            onResponse: resolve,
-          }),
-        ),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `
-      [WebSocketRequestError: WebSocket request failed.
-
-      URL: http://localhost
-      Request body: {"jsonrpc":"2.0","id":13,"method":"wagmi_lol"}
-
-      Version: viem@x.y.z]
-    `,
-    )
-  })
-})
-
-describe('request (subscription)', () => {
-  test('basic', async () => {
-    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    const data_: RpcResponse[] = []
-    socketClient.request({
-      body: {
-        method: 'eth_subscribe',
-        params: ['newHeads'],
-      },
-      onResponse: (data) => data_.push(data),
-    })
-    await wait(100)
-    await mine(client, { blocks: 1 })
-    await wait(100)
-    await mine(client, { blocks: 1 })
-    await wait(100)
-    expect(socketClient.subscriptions.size).toBe(1)
-    expect(data_.length).toBe(3)
-    await socketClient.requestAsync({
-      body: {
-        method: 'eth_unsubscribe',
-        params: [(data_[0] as any).result],
-      },
-    })
-    await wait(100)
-    await mine(client, { blocks: 1 })
-    await wait(100)
-    await mine(client, { blocks: 1 })
-    await wait(100)
-    expect(socketClient.subscriptions.size).toBe(0)
-    expect(data_.length).toBe(3)
-  })
-
-  test('multiple', async () => {
-    const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    const s1: RpcResponse[] = []
-    socketClient.request({
-      body: {
-        method: 'eth_subscribe',
-        params: ['newHeads'],
-      },
-      onResponse: (data) => s1.push(data),
-    })
-    const s2: RpcResponse[] = []
-    socketClient.request({
-      body: {
-        method: 'eth_subscribe',
-        params: ['newHeads'],
-      },
-      onResponse: (data) => s2.push(data),
-    })
-    const s3: RpcResponse[] = []
-    socketClient.request({
-      body: {
-        method: 'eth_subscribe',
-        params: ['newPendingTransactions'],
-      },
-      onResponse: (data) => s3.push(data),
-    })
-    await wait(100)
-    await mine(client, { blocks: 1 })
-    await wait(100)
-    await mine(client, { blocks: 1 })
-    await wait(100)
-    expect(socketClient.requests.size).toBe(0)
-    expect(socketClient.subscriptions.size).toBe(3)
-    expect(s1.length).toBe(3)
-    expect(s2.length).toBe(3)
-    expect(s3.length).toBe(1)
-    await socketClient.requestAsync({
-      body: {
-        method: 'eth_unsubscribe',
-        params: [(s1[0] as any).result],
-      },
-    })
-    await wait(100)
-    await mine(client, { blocks: 1 })
-    await wait(100)
-    await mine(client, { blocks: 1 })
-    await wait(100)
-    expect(socketClient.requests.size).toBe(0)
-    expect(socketClient.subscriptions.size).toBe(2)
-    expect(s1.length).toBe(3)
-    expect(s2.length).toBe(5)
-    expect(s3.length).toBe(1)
-    await socketClient.requestAsync({
-      body: {
-        method: 'eth_unsubscribe',
-        params: [(s2[0] as any).result],
-      },
-    })
-    await socketClient.requestAsync({
-      body: {
-        method: 'eth_unsubscribe',
-        params: [(s3[0] as any).result],
-      },
-    })
-    await wait(2000)
-    expect(socketClient.requests.size).toBe(0)
-    expect(socketClient.subscriptions.size).toBe(0)
-    expect(s1.length).toBe(3)
-    expect(s2.length).toBe(5)
-    expect(s3.length).toBe(1)
-  })
-
-  test('invalid subscription', async () => {
-    const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    let err_: RpcResponse | undefined
-    client.request({
-      body: {
-        method: 'eth_subscribe',
-        params: ['fakeHeadz'],
-      },
-      onResponse: (err) => (err_ = err),
-    })
-    await wait(500)
-    expect(client.requests.size).toBe(0)
-    expect(client.subscriptions.size).toBe(0)
-    expect(err_).toMatchInlineSnapshot(`
-      {
-        "error": {
-          "code": -32602,
-          "message": "data did not match any variant of untagged enum EthRpcCall",
-        },
-        "id": 33,
-        "jsonrpc": "2.0",
-      }
-    `)
-  })
-})
-
-describe('requestAsync', () => {
-  test('valid request', async () => {
-    const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    const { id, ...version } = await client.requestAsync({
-      body: { method: 'web3_clientVersion' },
-    })
-    expect(id).toBeDefined()
-    expect(version).toMatchInlineSnapshot(`
-      {
-        "jsonrpc": "2.0",
-        "result": "anvil/v1.0.0",
-      }
-    `)
-    expect(client.requests.size).toBe(0)
-  })
-
-  test('valid request', async () => {
-    const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    const { id, ...block } = await client.requestAsync({
-      body: {
-        method: 'eth_getBlockByNumber',
-        params: [numberToHex(anvilMainnet.forkBlockNumber), false],
-      },
-    })
-    expect(id).toBeDefined()
-    expect(block).toMatchInlineSnapshot(`
-      {
-        "jsonrpc": "2.0",
-        "result": {
-          "baseFeePerGas": "0x20a0d339a",
-          "blobGasUsed": "0x0",
-          "difficulty": "0x0",
-          "excessBlobGas": "0x0",
-          "extraData": "0x6265617665726275696c642e6f7267",
-          "gasLimit": "0x1c9c380",
-          "gasUsed": "0xd05f46",
-          "hash": "0x0c3e51fc62e1dd7401c8884882755b72e1c5720d0b01c75443cdfa8a129d3fc9",
-          "logsBloom": "0xd123054441c15c9d30998061c8899fbdb40be9b00b9c9b73202d015aef6a92b80e6a1520ca498004de50db02f992518322199054de076a903019e47aa1a8b018a046a6c95d2d39a92c06e33ea9a225aa80c5408964c57f5fe083d5dc8a7051e5e92f4844e244023e90cc74c040236e49c31b9aa023596ec5aa1c0e1458593c036dbe9f7cbaa69538a2ed205c0ae2145e441b1319eb6946a9d82da46e6e9c0ca85f9688c6fa946b844bbdd4cc3f225ce09641d62220214a7cb9744c66340c807013f0315212455a000620a3b27359c8c13e1000130da23e141107d28a4900e1909470a80b03d746114b1596d3a4430b68b4ff3e219bac38d8dfa1680ae4005d4d",
-          "miner": "0x95222290dd7278aa3ddd389cc1e1d165cc4bafe5",
-          "mixHash": "0x7702b2acc3443bd74c0b3ff142414f9d51e4caa0f111d57d319f4d46e21dedf7",
-          "nonce": "0x0000000000000000",
-          "number": "0x12f2974",
-          "parentBeaconBlockRoot": "0xd472790dc1fd2d1b1cc9e208706266196f261e4c1a74f535d86981670c0d5f99",
-          "parentHash": "0xa93b995575bda48d4cf45a4f72593a48a744786b5e32e5ff92a21372f7a60875",
-          "receiptsRoot": "0xe2822bc9663118439077ad806cd7a2a1a75bf1d70bf61d901199cf599c46f9d7",
-          "sha3Uncles": "0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347",
-          "size": "0xdad8",
-          "stateRoot": "0x115fd5eac921e6728825958b2b87da8aaf17edc0085164f11de798f6ed00abbd",
-          "timestamp": "0x66434e43",
-          "transactions": [
-            "0x5d374a026007c13e901765497b9164d44822902463efdf7b574b10c476ee2ad6",
-            "0x2762a7fb7c973e888edc457a3808d3882b5c8fc4f6c43a082d823319b126b91a",
-            "0xe637d86545a9b508b373fdd46cc71682ac4a5dba222d7c9ac01380306cc96cd9",
-            "0xecdfec41e9859fa217c5467debc9a5fa95290c3273f0ecf282f802983d2ca105",
-            "0x75f544151f040710f96a2c8cd6da6cd7bb60e461bfc9b4f87d015562d9a55328",
-            "0x07e609166382b05cd4cfd59764226374af8457a5dc0cea255721e5570cb32844",
-            "0x08109ccb2b1609d10cd929594ba3a131d59c7aa6eb174cc7bf578670a8198405",
-            "0x932fb264036b15e8a9704501e4f1ae34a9ac7543c498223c3456f03ebbefe221",
-            "0x4773aaf55c914947aeefe6c996b961c900bddd82b4e809d47a5f99af22b014ef",
-            "0x04d0728690604a7ec930782021704bb5d75d16d2c3330f8ab051348c906c52d4",
-            "0x61d5fc3a8aa4f5e802dcd54a7fceaad89a97c873578b845ad12b34a96540aeb7",
-            "0xd14bf1505356f83e55d4baffa315e0e9210479dff7486c4164a050c935d5bccf",
-            "0x6c4e8a1e9484ad717ef42df12a6cb9655216b6a2f7420f52dc540ed952860fdb",
-            "0x1d2361b3ec4fcb498732048e348fec130f15fb7e05187d8878985681c506b32a",
-            "0xc3da74a44904c29c9046587cbade10386db5aed500d7ead58335a9757fc64c93",
-            "0xc8632c7648b32e86023d8b585145bda62e5f8c160a5e6c8c02ec183297d05d2d",
-            "0xb6a79dcd720a72d2ea5728a8e58885304202535b00861113dce00d07bca7f3ab",
-            "0xc8b9a208eccabd84320946527cb1df897ec48318c1ca67e5fedc48388152518a",
-            "0xd5b0feea2d8e474913d280c45c4a6e365ec2bd8ab09982f0b07a7e6e2e433526",
-            "0xd67fa075f7abde07de71273e227856b43373276f18eb1446d1566cfafe896947",
-            "0xca96b4905a5854d52f3152dc2f86b1e8ef0891ce82b8a6d0622d4470fa980c03",
-            "0xd80b94b3d5e72e1cc74b3acbf6bec79bde51d6341f021a1259fe2e3303a919f4",
-            "0x0e034d76d3593f1f07baf2452e337da912dfc06fd61704e658797eaf5c33222e",
-            "0x755a7415073e029b231d575f935a10ae657eb30d3aa3edd32fcfc812ba2075b9",
-            "0x082bebb8c90bc915b6931d6d135ae7016a41b01e6d07151b5d11d2e3cc15868c",
-            "0x5a550298d163c3a6b1ca91412076781462a6e77825a7a34789e514f566a2ddd2",
-            "0x7f5523181ea3b7b83577e2de0ff3edf0b7bed050436fd6958274a0a6882a487d",
-            "0xc63aa388331f5016643dc4744dc47f0b79ac2dc30f2837f36058959de5c6d97b",
-            "0xa1cdde08be62979fb2d51e3d1447e67ef9a72e7e9ad6c70834b6667ab4b25b2f",
-            "0xeaf27f121d562cf7d6ba5fe04cb7477c2eae917f6ed0d254c474595334e1e61b",
-            "0x4d3a2c0aa20291ec2a3e9663676770bb1cb1c33c8caa7308ec9b0e180df42039",
-            "0x1f13065bd8d6bd0ff04592f8216576eb2ce38d766cf1fd4114392b4e622a7658",
-            "0x220ce318063ac4496ba1e7946b78fd1574f95518ac920563531b124bbc3ec22d",
-            "0x6c258638f3e25d325a1f73075a338ce02e57b4fac1b2a810a544d40b24e8b9f9",
-            "0xa2a5fdce0672a32e04908e9a12a683697057855a33da8ab3cfc5275094f270fe",
-            "0xfeb465bea0d19e832b87965440a36b3ea1d8bffda29d27ab72bf196f5a3954c0",
-            "0x20b39aed43810bfc46a279f91e2814ae5a56906f7b7505c499850f2605c82dac",
-            "0xd75f805748cdf37402c13b685d9dd9884ba1c0b0e3189f9f613a3a9ed223dbc8",
-            "0x46bb82c63a8a2e29d01360f78d5ee871178847627774756ca6efc614c9710cee",
-            "0x37a217624ca5724463612bc0a4f0943a3bf8599a05e9d4dc82da20bb0df79867",
-            "0xca8ec3dfca0e43c79a9a32cdd8a01c161a8fbbed07d6f5b4231dc7b4086d1380",
-            "0x12f7e01f6efcfb1c56bb3d4bf4358c32df847303c92d4f646996d4c601e1bd2f",
-            "0x50a0a2e7abaeee10aa9ec6ca0303a019acd2b09279357a480fd37c2c03e177f1",
-            "0x0c0134f6a1f68649f4777c86668ac2c3d348cd5ee9f71adaf5a783a3852a2e1c",
-            "0x740fb5ab5762b25c2be2f3590cb0811d74b54dae5e40f52bf1e68c8fe2cb6e92",
-            "0xa2218d513e2ca93a8acb3652d638af7be7e62711f48e81bf255fff3cfbe3a0dd",
-            "0x413a7f87acffc04ef34261ae47737ab2f5f461d0af5d57269c5f6cdf78275159",
-            "0x60d81ea9118a9d8075101f22e09d0646f155f23c2f4b84804f7ffc5afb203a68",
-            "0x2ff7f513238717f264521c91bc457fb17800beda940eaf6d7e56b1c866b42c06",
-            "0xda6dc1ae732e7ecbcac5765fc442fcee5a3617b5d575f5103b4fd9f706847c07",
-            "0xf59ef60c1d9dda81fc22a8e985b6d3e589f512eb8b2518b3511a43908a460294",
-            "0x81c6e17337cabd304c329a799b02e02245f37ece12a413f5c49282d18b1883cb",
-            "0x18fb9299e78ffe36bfea65442d790288937a4d1d5b69138525dadaa70dc42367",
-            "0x9db74bf461bb809717866699fb8b5d6bbe33b5bcc967dec46357331272e20df2",
-            "0xc59eefbe4041f7dc7fdf2c86c9cfc0f1706993dcee80de6b27f25489cb8e10a9",
-            "0x38b2207a133bfc3aec210fb386a199efb9087d13330fa0f637bfe37df59c312f",
-            "0xd35ffbf38934b54a900e35c65c07fc3081993ebf5a55bc67977b73410abc211f",
-            "0xa13e7a446c7f3ddaa8555c5d3437e8d827303b152a4dbb09ff01bde01a0585b0",
-            "0x0bb1b3eea492459f2796fb9b3f7022417860f3a5450374220c0c9c3bd2e63512",
-            "0xd9ebb04da1035f95bf3ed0bd06268f53737001f3f292ac825852875c57a6c4be",
-            "0xe07cf18aa356d0134f2e0da6f68de7c9f28af854455fbdd38770b44be98a1dc6",
-            "0x9be4c6c6a3c5622fcd0a1bbe13e21b8612eb39932f05b42972edf2ed184804dc",
-            "0x9cf9a53f37175b3eba970af4b06a9fa98042e08882b2ed96dd285c0eaaa8e13c",
-            "0x23f3b4e0dad22684741df92bba387be4e5c05414aca5bf54383e74a4b24b30eb",
-            "0x4dcfcf6353596c9665fd94b7b9281b65e0a94b45f98ddff681db9ffc5c561602",
-            "0x460b33043b87067727977ec7daea667bf440f482f0e77ab5a86745832c05d09e",
-            "0x2fd8ab214c757b69349f10a86d94ccdae0a2c692f3408ea4d65bf5a58c710166",
-            "0x6627f34e22dec201d70e4304375e60b0703a992610487356a7af6812c4ae89f0",
-            "0x6a2ac6c7b4f140443ea9190beba68706aa0828055cc0a49c037f6bed4a3b94c9",
-            "0xbadc35a3b5eb2524ddea54babbc6a7c531f94c845b499e2773f0d82f347976df",
-            "0x258972ea1dced55b6b95ed07085de981786401d4da790000d7bd8739b0132cd9",
-            "0x2b70ba122ab93b5b020a3e0ede3e5170d91b2fd8c429c4909b025a68e50a0a2a",
-            "0xa1f2796fbf29d6cb19d541bb9e2ac1bdb8ecf4f64e9d4068a77b18325d736be8",
-            "0x297b30d9b997e375d6d560c9670449c4ab9fc9e6cbfcfb094c659d053bd74fae",
-            "0x4f2058432f7e90bde5ac4661e66dd4ddb4865a31a015b5da7a74f1ed682d4471",
-            "0x88777368f2847a5a370cb5c6113b25841987168e1d60eff8f5e622b608c073b1",
-            "0x4b6de4690fed6b924865cf234a94b74f8765c969d821bbddeb4333936c558aa9",
-            "0x89db01005aa4cd9b60c481763f21dffe39a7ba2da6a4df80e1649fe71952ef70",
-            "0x888b2ccb261734919308c792c458dcafbaf5ec09b35ff490b77e55304d8f6352",
-            "0x847e03a9a940c74f151694bed14c82fc53eaaae5e4236e7f0525ab438f5e9d77",
-            "0x176f3b0b49ee54ec554dc3a4dea00b3d115e48a8c0d5d3c6f328d7da8f6beff7",
-            "0x009d634f81d6cbefe083d48d0741ab332f238bf496aafca838095e6fde0b541f",
-            "0xaec2cd6a1cf8954187174f4a62c07b021293cac8b69d1b48cd206ba3244292ba",
-            "0xc914a43546e51a0d4ab116e8fc86bd639c14b563474c9c247bb406404b6241c3",
-            "0xdd7f4c16cc0512e308b521c944e11b852d652652656ba5c30589fbbd4454002d",
-            "0x0329301ecb0cca138d687a07c3fc0e13358d10fb73f7ddac636fe1940d45be8b",
-            "0x2f569a19dff21bc2674064a636b3f87689f3e0ed0ef69a0d99bbedb5721e154c",
-            "0x06f42e2ae50574d560a495411ed504d3ca1c34ff5fe9f6f74a4327a9ada801f5",
-            "0x04db2f50573f591543a42ad27ad89efe7182ff286b6d2c75e8787cdfd67682ad",
-            "0xcac34907d292c7d1e8e307a3c669e9867977630b6667aa8ed0db0d0cb0e757f8",
-            "0xe043631e0d3d42dfacb87783a95d9a7fb6d1b4a6b556ad5ffd9724dfec8a05dd",
-            "0x163bd1073a5e99e886ae0ca8a469a58096e9992f772d8cf03c12897bc759ebf9",
-            "0xe468530ce156f65bf52574d52c7b55489ae9a4a7bc3df7710e3ef8fd47d72386",
-            "0xc19059a3d7e5f89c1bd674b798c5ff3860748acd9ccb7d684785358bc5a12d20",
-            "0x73f819dd32e6679910453dafe4976b5724749fcd18407078e46864a22e47181d",
-            "0xfe592761d1dc1bd893e0f8fdc548eaa3f5b441fda87ee71826d2d498a19b1f33",
-            "0x291c84340609f89adc913f236425e23792af8728f6320f5e67f936384e02debc",
-            "0x48aafb002e34c51e578c57e780ef52676301c44ce359c943238e56188c9be970",
-            "0xb3790060ee3927e51a8415bf742287ed54fefd32e8e5e0e6e6d8327504f67e3f",
-            "0x3fb1be8cec3734f7f261eee9bb67e16f89bd5e3836822cb30b79c3661fbbe00e",
-            "0x32ca794db2e8bb3a6ce2fee48506541397112c3deea2dfe46deeae71ee9f663a",
-            "0x81dc670fb945eb8c35b00b50f015fd9cef8c4560a855563364d01f2ef4508e14",
-            "0xbd6556b6d46cca1b2b17a19a3a59c240b0ef3cf48a64dec4d3998c9cc24c1a8e",
-            "0x90ad6135bfdf67e34c8f73238d31cc0986af1cb489bcfe81fc3eee05d9c29b97",
-            "0x6e1cb115a90aabc2808bc7322acd7b3c34545f4aa8038f5c6d730da941c2e676",
-            "0xf3f3af837c7e33b56008a0c04e8ab247210934cb6f3c5067e3a7a37f3e5dafe1",
-            "0xc9d4ceee42f0ec528c1a63eb9d44098fd23beeedba9604f9e083afb2d505fdef",
-            "0x17e4dea18b087b93f1215bcfad045ec54713658ebc484fe4e8986a771b0852a9",
-            "0xfb649abb7e83c2cd08e1e30f0604d06186e3d34901206b1d4c409b26b0510d08",
-            "0xcf248cf3701057459fc2347f9a9c3dc75332df6cfe002a8befe950ec2aa41b8c",
-            "0xe355fea96b01d1f58a9ad11787f347ab05da938b8ae8355fb4a4811c1791ddf2",
-            "0xf41a9728a3c5beb95bd54d48781fc5989608892c59cdf58545787581d7ef86a3",
-            "0x974a1c129883d3d47d8faaae93cb8a0559b095ec5440f2e876b1ee12588be268",
-            "0x7902398372de025e2a389ab30720d9219a48e0c843800fe2a117870b8588514e",
-            "0x3858c51d5edd299685ce0ac9aa398d572eba7a25afe941580e9ff281f3ef4b96",
-            "0x1a1a0c85194c4ceba80a6266fd6cf9977ace734c0bbe36fdb3f3b14fe185dbfc",
-            "0xfc0faddbc7dfa5939e91d6759c1a58bc8fb19ee24fb19aa31d05cbf8cada3cf2",
-            "0x99a9b35bfa30a6546895c6d134041b1564f7d404693619cf94fd6d5087559c2e",
-            "0x9689c75b7fa465187f1723e96ae4a1092f6f6aa86e187882acced16882682e46",
-            "0x70c6c50149f0bc6fd7c685bc9fab53dfd3f484a3c9bf206578951684a7e78d22",
-            "0x1c2b3e1326bc24046d45e3c626ce5e865e9f0f4807f129994558caeccc7e4c40",
-            "0x41491514a58d6db155b09d99c21e935f60aabdcb0b2bfd0ac3c7a66add88c8dc",
-            "0x120d2916730adbd56c3a6fd6fd4618af561c81b73952b9f247ebd6fb0d253a01",
-            "0xc65bb3d2984276ad902ed5d790cdbc5cfb953d5ff01dd0790532b2214dfb2f78",
-            "0xbdf1cf02af245b580cf20f728fddfa39c6eb5b0ed70e0487c1074fbf28ebc0b0",
-            "0xcbd578f01e8b5feba2ab69487c979e551c33ce2b73902c63943df9945dd23b9b",
-            "0xc8c42876c9f093326fd24262be17af1ec0a1030693f7e4a24201c28b3b90d82c",
-            "0x0b8839b2d0aa101cc2e8887c2d20c83d813559e7800f7ad9ce9af8be697a9a18",
-            "0xf621df816c070c7f0091dda13b34e6a46a7a86dab6852500351d4f5e2ae9eefe",
-            "0x8418a842e94ae25f54f427b389cee45d06da8cd3f55e41be9332c56241d48962",
-            "0xac58a960f5db3cc0570a20f8ca307ef444d9a90f630c7b629e66e4313aad45b3",
-            "0xf66d09329c4db75279f910ebe6d7a1c643632668a711dfb8069f47cf00d7a57a",
-            "0xdcacf0e0951030d0f733cbbb46b5f0b3b45840953525b757001ceb74bae9fa4b",
-            "0x941e10e4fde951acfbc184d76a51823b6ab04214b297e7e52bee236d8f66b8b9",
-            "0xd1dd9fbed648c9d93f590a91ef9922b6256878a498e61055d8fec739395ce0e9",
-            "0xe7eae47cd583cab13d7d684adc6e443ef38d83c7d2120171eecf7b0c9168a77b",
-            "0x08a6ff7d42b3056bc571e9c16607b373d37565a71cac95b9a85bf5788f08ea0d",
-            "0x3bae2e6ec6af9bbffe37b395df67769b234cdd743bd848764420ff2799ea673c",
-            "0xaa0b772f59055d8dfbef446352b2d08fbacd97968643a300e03e520c50ffdcbf",
-            "0xd8d29dfd14ab5068e615662b3580d191663f64cc15557873194d7b2718dc0425",
-            "0x0561ae8390935eece56ca93e3ea5feaa187e3777418fc19134649726c9519f41",
-            "0xe3c8dc3145997086caf05a06d4209d10096df09379fce4819f40c13cad005d3e",
-            "0x02d87b27d2a9e5cb47a71051ef0ef3202e2a86373807753e8603807e43ecf4f5",
-          ],
-          "transactionsRoot": "0xec75fee6c90538b6b5d846f5fd25f550591eaccbb366fc393c4a693f8370d0b4",
-          "uncles": [],
-          "withdrawals": [
-            {
-              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11cdffd",
-              "index": "0x2b3aa2b",
-              "validatorIndex": "0x36315",
-            },
-            {
-              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11bee1f",
-              "index": "0x2b3aa2c",
-              "validatorIndex": "0x36316",
-            },
-            {
-              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11c8a4c",
-              "index": "0x2b3aa2d",
-              "validatorIndex": "0x36317",
-            },
-            {
-              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11bfb57",
-              "index": "0x2b3aa2e",
-              "validatorIndex": "0x36318",
-            },
-            {
-              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11becdc",
-              "index": "0x2b3aa2f",
-              "validatorIndex": "0x36319",
-            },
-            {
-              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11c0882",
-              "index": "0x2b3aa30",
-              "validatorIndex": "0x3631a",
-            },
-            {
-              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11c12c5",
-              "index": "0x2b3aa31",
-              "validatorIndex": "0x3631b",
-            },
-            {
-              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11caadf",
-              "index": "0x2b3aa32",
-              "validatorIndex": "0x3631c",
-            },
-            {
-              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11c47d5",
-              "index": "0x2b3aa33",
-              "validatorIndex": "0x3631d",
-            },
-            {
-              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x3c9a1eb",
-              "index": "0x2b3aa34",
-              "validatorIndex": "0x3631e",
-            },
-            {
-              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11c1404",
-              "index": "0x2b3aa35",
-              "validatorIndex": "0x3631f",
-            },
-            {
-              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11c22d9",
-              "index": "0x2b3aa36",
-              "validatorIndex": "0x36320",
-            },
-            {
-              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11c2dab",
-              "index": "0x2b3aa37",
-              "validatorIndex": "0x36321",
-            },
-            {
-              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11bfdf6",
-              "index": "0x2b3aa38",
-              "validatorIndex": "0x36322",
-            },
-            {
-              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11bafb3",
-              "index": "0x2b3aa39",
-              "validatorIndex": "0x36323",
-            },
-            {
-              "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
-              "amount": "0x11b9154",
-              "index": "0x2b3aa3a",
-              "validatorIndex": "0x36324",
-            },
-          ],
-          "withdrawalsRoot": "0x3f196863f2d0d52b020c33d1ac2fb588f257ac153baa09fbee2cc1cce42fadef",
-        },
-      }
-    `)
-    expect(client.requests.size).toBe(0)
-  })
-
-  test('serial requests', async () => {
-    const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    const response: any = []
-    for (const i in Array.from({ length: 10 })) {
-      response.push(
-        await client.requestAsync({
-          body: {
-            method: 'eth_getBlockByNumber',
-            params: [
-              numberToHex(anvilMainnet.forkBlockNumber - BigInt(i)),
-              false,
-            ],
-          },
-        }),
       )
-    }
-    expect(response.map((r: any) => r.result.number)).toEqual(
-      Array.from({ length: 10 }).map((_, i) =>
-        numberToHex(anvilMainnet.forkBlockNumber - BigInt(i)),
-      ),
-    )
-    expect(client.requests.size).toBe(0)
-  })
+    })
 
-  test('parallel requests', async () => {
-    await wait(500)
+    test.skip('timeout', async () => {
+      const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
 
-    await mine(client, { blocks: 100 })
-    const blockNumber = await getBlockNumber(client)
-
-    const client_2 = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    const response = await Promise.all(
-      Array.from({ length: 100 }).map(async (_, i) => {
-        return await client_2.requestAsync({
+      await expect(() =>
+        client.requestAsync({
           body: {
             method: 'eth_getBlockByNumber',
-            params: [numberToHex(blockNumber - BigInt(i)), false],
+            params: [numberToHex(5115n), false],
           },
-        })
-      }),
-    )
-    expect(response.map((r) => r.result.number)).toEqual(
-      Array.from({ length: 100 }).map((_, i) =>
-        numberToHex(blockNumber - BigInt(i)),
-      ),
-    )
-    expect(client_2.requests.size).toBe(0)
-    await wait(500)
-  }, 30_000)
-
-  test('invalid request', async () => {
-    const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-    await expect(
-      client.requestAsync({
-        body: {
-          method: 'wagmi_lol',
-        },
-      }),
-    ).resolves.toThrowErrorMatchingInlineSnapshot(
-      `
-      {
-        "error": {
-          "code": -32602,
-          "message": "data did not match any variant of untagged enum EthRpcCall",
-        },
-        "id": 153,
-        "jsonrpc": "2.0",
-      }
-    `,
-    )
-  })
-
-  test.skip('timeout', async () => {
-    const client = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
-
-    await expect(() =>
-      client.requestAsync({
-        body: {
-          method: 'eth_getBlockByNumber',
-          params: [numberToHex(5115n), false],
-        },
-        timeout: 10,
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `
+          timeout: 10,
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `
       [TimeoutError: The request took too long to respond.
 
       URL: http://localhost
@@ -974,6 +1062,7 @@ describe('requestAsync', () => {
       Details: The request timed out.
       Version: viem@x.y.z]
     `,
-    )
-  })
-})
+      )
+    })
+  },
+)

@@ -7,6 +7,7 @@ import {
 } from '../accounts/utils/parseAccount.js'
 import type { ErrorType } from '../errors/utils.js'
 import type { Account } from '../types/account.js'
+import type { BlockTag } from '../types/block.js'
 import type { Chain } from '../types/chain.js'
 import type {
   EIP1193RequestFn,
@@ -42,8 +43,17 @@ export type ClientConfig<
       }
     | undefined
   /**
+   * Default block tag to use for RPC requests.
+   *
+   * If the chain supports a pre-confirmation mechanism
+   * (set via `chain.experimental_preconfirmationTime`), defaults to `'pending'`.
+   *
+   * @default 'latest'
+   */
+  experimental_blockTag?: BlockTag | undefined
+  /**
    * Time (in ms) that cached data will remain in memory.
-   * @default 4_000
+   * @default chain.blockTime / 3
    */
   cacheTime?: number | undefined
   /**
@@ -70,7 +80,7 @@ export type ClientConfig<
   name?: string | undefined
   /**
    * Frequency (in ms) for polling enabled actions & events.
-   * @default 4_000
+   * @default chain.blockTime / 3
    */
   pollingInterval?: number | undefined
   /**
@@ -161,6 +171,8 @@ type Client_Base<
   ccipRead?: ClientConfig['ccipRead'] | undefined
   /** Chain for the client. */
   chain: chain
+  /** Default block tag to use for RPC requests. */
+  experimental_blockTag?: BlockTag | undefined
   /** A key for the client. */
   key: string
   /** A name for the client. */
@@ -216,15 +228,27 @@ export function createClient<
 export function createClient(parameters: ClientConfig): Client {
   const {
     batch,
-    cacheTime = parameters.pollingInterval ?? 4_000,
+    chain,
     ccipRead,
     key = 'base',
     name = 'Base Client',
-    pollingInterval = 4_000,
     type = 'base',
   } = parameters
 
-  const chain = parameters.chain
+  const experimental_blockTag =
+    parameters.experimental_blockTag ??
+    (typeof chain?.experimental_preconfirmationTime === 'number'
+      ? 'pending'
+      : undefined)
+  const blockTime = chain?.blockTime ?? 12_000
+
+  const defaultPollingInterval = Math.min(
+    Math.max(Math.floor(blockTime / 2), 500),
+    4_000,
+  )
+  const pollingInterval = parameters.pollingInterval ?? defaultPollingInterval
+  const cacheTime = parameters.cacheTime ?? pollingInterval
+
   const account = parameters.account
     ? parseAccount(parameters.account)
     : undefined
@@ -247,6 +271,7 @@ export function createClient(parameters: ClientConfig): Client {
     transport,
     type,
     uid: uid(),
+    ...(experimental_blockTag ? { experimental_blockTag } : {}),
   }
 
   function extend(base: typeof client) {

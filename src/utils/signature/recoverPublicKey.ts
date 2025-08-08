@@ -1,6 +1,7 @@
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex, Signature } from '../../types/misc.js'
 import { type IsHexErrorType, isHex } from '../data/isHex.js'
+import { size } from '../data/size.js'
 import {
   type HexToNumberErrorType,
   hexToBigInt,
@@ -41,6 +42,7 @@ export async function recoverPublicKey({
 
     // typeof signature: `Hex | ByteArray`
     const signatureHex = isHex(signature) ? signature : toHex(signature)
+    if (size(signatureHex) !== 65) throw new Error('invalid signature length')
     const yParityOrV = hexToNumber(`0x${signatureHex.slice(130)}`)
     const recoveryBit = toRecoveryBit(yParityOrV)
     return secp256k1.Signature.fromCompact(

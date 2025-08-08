@@ -12,21 +12,21 @@ export const plumeMainnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://phoenix-rpc.plumenetwork.xyz'],
-      webSocket: ['wss://phoenix-rpc.plumenetwork.xyz'],
+      http: ['https://rpc.plume.org'],
+      webSocket: ['wss://rpc.plume.org'],
     },
   },
   blockExplorers: {
     default: {
       name: 'Blockscout',
-      url: 'https://phoenix-explorer.plumenetwork.xyz',
-      apiUrl: 'https://phoenix-explorer.plumenetwork.xyz/api',
+      url: 'https://explorer.plume.org',
+      apiUrl: 'https://explorer.plume.org/api',
     },
   },
   contracts: {
     multicall3: {
-      address: '0xF9DA0EF6635F6134D9d1B7eAE025159D26ce5838',
-      blockCreated: 4_150,
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 39_679,
     },
   },
   sourceId,

@@ -28,6 +28,7 @@ import {
   type EvmChainIdToCoinTypeError,
   evmChainIdToCoinType,
 } from '../../utils/ens/evmChainIdToCoinType.js'
+import { localBatchGatewayUrl } from '../../utils/ens/localBatchGatewayRequest.js'
 import { type NamehashErrorType, namehash } from '../../utils/ens/namehash.js'
 import {
   type PacketToBytesErrorType,
@@ -106,30 +107,28 @@ export type GetEnsAddressErrorType =
  */
 export async function getEnsAddress<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  {
-    blockNumber,
-    blockTag,
-    coinType,
-    chainId,
-    name,
-    gatewayUrls,
-    strict,
-    universalResolverAddress: universalResolverAddress_,
-  }: GetEnsAddressParameters,
+  parameters: GetEnsAddressParameters,
 ): Promise<GetEnsAddressReturnType> {
-  let universalResolverAddress = universalResolverAddress_
-  if (!universalResolverAddress) {
-    if (!client.chain)
+  const { blockNumber, blockTag, chainId, coinType, name, gatewayUrls, strict } =
+    parameters
+  const { chain } = client
+
+  const universalResolverAddress = (() => {
+    if (parameters.universalResolverAddress)
+      return parameters.universalResolverAddress
+    if (!chain)
       throw new Error(
         'client chain not configured. universalResolverAddress is required.',
       )
-
-    universalResolverAddress = getChainContractAddress({
+    return getChainContractAddress({
       blockNumber,
-      chain: client.chain,
+      chain,
       contract: 'ensUniversalResolver',
     })
-  }
+  })()
+
+  const tlds = chain?.ensTlds
+  if (tlds && !tlds.some((tld) => name.endsWith(tld))) return null
 
   const args = (() => {
     if (coinType != null) return [namehash(name), BigInt(coinType)] as const
@@ -148,23 +147,19 @@ export async function getEnsAddress<chain extends Chain | undefined>(
     const readContractParameters = {
       address: universalResolverAddress,
       abi: universalResolverResolveAbi,
-      args: [toHex(packetToBytes(name)), functionData],
+      functionName: 'resolveWithGateways',
+      args: [
+        toHex(packetToBytes(name)),
+        functionData,
+        gatewayUrls ?? [localBatchGatewayUrl],
+      ],
       blockNumber,
       blockTag,
     } as const
 
     const readContractAction = getAction(client, readContract, 'readContract')
 
-    const res = gatewayUrls
-      ? await readContractAction({
-          ...readContractParameters,
-          functionName: 'resolveWithGateways',
-          args: [...readContractParameters.args, gatewayUrls],
-        })
-      : await readContractAction({
-          ...readContractParameters,
-          functionName: 'resolve',
-        })
+    const res = await readContractAction(readContractParameters)
 
     if (res[0] === '0x') return null
 

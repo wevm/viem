@@ -33,5 +33,6 @@ export const storyAeneid = /*#__PURE__*/ defineChain({
       apiUrl: 'https://aeneid.storyscan.xyz/api/v2',
     },
   },
+  ensTlds: ['.ip'],
   testnet: true,
 })

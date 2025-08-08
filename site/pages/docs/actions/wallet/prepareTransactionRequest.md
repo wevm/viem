@@ -184,14 +184,13 @@ Signed EIP-7702 Authorization list.
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
-import { eip7702Actions } from 'viem/experimental'
 
 const account = privateKeyToAccount('0x...')
 
 export const walletClient = createWalletClient({
   chain: mainnet,
   transport: http(),
-}).extend(eip7702Actions())
+})
 // ---cut---
 const authorization = await walletClient.signAuthorization({ 
   account,
@@ -269,6 +268,25 @@ const request = await walletClient.prepareTransactionRequest({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1000000000000000000n
+})
+```
+
+### gas (optional)
+
+- **Type:** `bigint`
+
+The gas limit of the transaction. If missing, it will be estimated.
+
+```ts twoslash
+// [!include config.ts]
+// ---cut---
+import { parseEther, parseGwei } from 'viem'
+
+const request = await walletClient.prepareTransactionRequest({
+  account,
+  gas: 21000n, // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: parseEther('1') 
 })
 ```
 

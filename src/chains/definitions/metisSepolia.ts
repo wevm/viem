@@ -11,11 +11,11 @@ export const metisSepolia = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: [
-        'wss://metis-sepolia-rpc.publicnode.com',
         'https://sepolia.metisdevops.link',
         'https://metis-sepolia-rpc.publicnode.com',
         'https://metis-sepolia.gateway.tenderly.co',
       ],
+      webSocket: ['wss://metis-sepolia-rpc.publicnode.com'],
     },
   },
   blockExplorers: {

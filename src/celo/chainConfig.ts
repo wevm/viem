@@ -4,6 +4,7 @@ import { formatters } from './formatters.js'
 import { serializers } from './serializers.js'
 
 export const chainConfig = {
+  blockTime: 1_000,
   contracts,
   formatters,
   serializers,

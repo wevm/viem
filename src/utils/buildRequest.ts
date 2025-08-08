@@ -7,8 +7,16 @@ import {
   type WebSocketRequestErrorType,
 } from '../errors/request.js'
 import {
+  AtomicReadyWalletRejectedUpgradeError,
+  type AtomicReadyWalletRejectedUpgradeErrorType,
+  AtomicityNotSupportedError,
+  type AtomicityNotSupportedErrorType,
+  BundleTooLargeError,
+  type BundleTooLargeErrorType,
   ChainDisconnectedError,
   type ChainDisconnectedErrorType,
+  DuplicateIdError,
+  type DuplicateIdErrorType,
   InternalRpcError,
   type InternalRpcErrorType,
   InvalidInputRpcError,
@@ -43,8 +51,14 @@ import {
   type TransactionRejectedRpcErrorType,
   UnauthorizedProviderError,
   type UnauthorizedProviderErrorType,
+  UnknownBundleIdError,
+  type UnknownBundleIdErrorType,
   UnknownRpcError,
   type UnknownRpcErrorType,
+  UnsupportedChainIdError,
+  type UnsupportedChainIdErrorType,
+  UnsupportedNonOptionalCapabilityError,
+  type UnsupportedNonOptionalCapabilityErrorType,
   UnsupportedProviderMethodError,
   type UnsupportedProviderMethodErrorType,
   UserRejectedRequestError,
@@ -63,8 +77,12 @@ import type { GetSocketRpcClientErrorType } from './rpc/socket.js'
 import { stringify } from './stringify.js'
 
 export type RequestErrorType =
+  | AtomicityNotSupportedErrorType
+  | AtomicReadyWalletRejectedUpgradeErrorType
+  | BundleTooLargeErrorType
   | ChainDisconnectedErrorType
   | CreateBatchSchedulerErrorType
+  | DuplicateIdErrorType
   | HttpRequestErrorType
   | InternalRpcErrorType
   | InvalidInputRpcErrorType
@@ -85,7 +103,10 @@ export type RequestErrorType =
   | TimeoutErrorType
   | TransactionRejectedRpcErrorType
   | UnauthorizedProviderErrorType
+  | UnknownBundleIdErrorType
   | UnknownRpcErrorType
+  | UnsupportedChainIdErrorType
+  | UnsupportedNonOptionalCapabilityErrorType
   | UnsupportedProviderMethodErrorType
   | UserRejectedRequestErrorType
   | WebSocketRequestErrorType
@@ -170,6 +191,7 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
                 // -32006
                 case JsonRpcVersionUnsupportedError.code:
                   throw new JsonRpcVersionUnsupportedError(err)
+
                 // 4001
                 case UserRejectedRequestError.code:
                   throw new UserRejectedRequestError(err)
@@ -188,10 +210,34 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
                 // 4902
                 case SwitchChainError.code:
                   throw new SwitchChainError(err)
+
+                // 5700
+                case UnsupportedNonOptionalCapabilityError.code:
+                  throw new UnsupportedNonOptionalCapabilityError(err)
+                // 5710
+                case UnsupportedChainIdError.code:
+                  throw new UnsupportedChainIdError(err)
+                // 5720
+                case DuplicateIdError.code:
+                  throw new DuplicateIdError(err)
+                // 5730
+                case UnknownBundleIdError.code:
+                  throw new UnknownBundleIdError(err)
+                // 5740
+                case BundleTooLargeError.code:
+                  throw new BundleTooLargeError(err)
+                // 5750
+                case AtomicReadyWalletRejectedUpgradeError.code:
+                  throw new AtomicReadyWalletRejectedUpgradeError(err)
+                // 5760
+                case AtomicityNotSupportedError.code:
+                  throw new AtomicityNotSupportedError(err)
+
                 // CAIP-25: User Rejected Error
                 // https://docs.walletconnect.com/2.0/specs/clients/sign/error-codes#rejected-caip-25
                 case 5000:
                   throw new UserRejectedRequestError(err)
+
                 default:
                   if (err_ instanceof BaseError) throw err_
                   throw new UnknownRpcError(err as Error)

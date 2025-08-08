@@ -139,3 +139,33 @@ contract Example {
 ```
 
 :::
+
+### Simple bytes
+
+A simple `bytes` that contains an ABI-encoded `uint256` value.
+
+:::code-group
+
+```ts [example.ts]
+const values = decodeAbiParameters(
+  [
+    { name: "response", type: "bytes" },
+  ],
+  '0x' +
+  '0000000000000000000000000000000000000000000000000000000000000020' + // offset pointer
+  '0000000000000000000000000000000000000000000000000000000000000020' + // length
+  '0000000000000000000000000000000000000000000000000000000000000001',  // data
+)
+// 0x0000000000000000000000000000000000000000000000000000000000000001
+```
+
+```solidity [Example.sol]
+contract Example {
+  function simpleBytes() public pure returns (bytes memory) {
+    bytes memory value = abi.encode(1);
+    return abi.encode(value);
+  }
+}
+```
+
+:::

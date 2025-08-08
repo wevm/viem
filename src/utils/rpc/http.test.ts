@@ -26,7 +26,7 @@ describe('request', () => {
       {
         "id": 1,
         "jsonrpc": "2.0",
-        "result": "anvil/v1.0.0",
+        "result": "anvil/v1.3.1",
       }
     `)
   })
@@ -39,9 +39,9 @@ describe('request', () => {
       }),
     ).toMatchInlineSnapshot(`
       {
-        "id": 3,
+        "id": 1,
         "jsonrpc": "2.0",
-        "result": "anvil/v1.0.0",
+        "result": "anvil/v1.3.1",
       }
     `)
   })
@@ -59,7 +59,7 @@ describe('request', () => {
           "code": -32602,
           "message": "odd number of digits",
         },
-        "id": 5,
+        "id": 1,
         "jsonrpc": "2.0",
       }
     `,
@@ -78,7 +78,7 @@ describe('request', () => {
           "code": -32601,
           "message": "Method not found",
         },
-        "id": 7,
+        "id": 1,
         "jsonrpc": "2.0",
       }
     `)
@@ -242,7 +242,7 @@ describe('request', () => {
       body: { method: 'web3_clientVersion' },
     })
     expect(headers['x-body-hash']).toBe(
-      '0x433b3dcc0ff6c41d44c000fe58867d8e937b6905459c564736f86f733704e585',
+      '0xd33705e291769e17b5e005a861bb933ce3925f325bf9127772f07f14bb7d0b25',
     )
   })
 
@@ -294,7 +294,7 @@ describe('request', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0x153b747",false]}
 
       Details: "ngmi"
       Version: viem@x.y.z]
@@ -322,7 +322,7 @@ describe('request', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0x153b747",false]}
 
       Details: Internal Server Error
       Version: viem@x.y.z]
@@ -395,7 +395,7 @@ describe('request', () => {
       [HttpRequestError: HTTP request failed.
 
       URL: http://localhost
-      Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
+      Request body: {"method":"eth_getBlockByNumber","params":["0x153b747",false]}
 
       Details: foo
       Version: viem@x.y.z]
@@ -419,14 +419,14 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 93,
+          "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.0.0",
+          "result": "anvil/v1.3.1",
         },
         {
-          "id": 94,
+          "id": 2,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.0.0",
+          "result": "anvil/v1.3.1",
         },
       ]
     `)
@@ -445,16 +445,16 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 96,
+          "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.0.0",
+          "result": "anvil/v1.3.1",
         },
         {
           "error": {
             "code": -32602,
             "message": "odd number of digits",
           },
-          "id": 97,
+          "id": 2,
           "jsonrpc": "2.0",
         },
       ]
@@ -471,16 +471,16 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 99,
+          "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.0.0",
+          "result": "anvil/v1.3.1",
         },
         {
           "error": {
             "code": -32601,
             "message": "Method not found",
           },
-          "id": 100,
+          "id": 2,
           "jsonrpc": "2.0",
         },
       ]
@@ -512,7 +512,7 @@ describe('http (batch)', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12f2974",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x153b747",false]}]
 
       Details: "ngmi"
       Version: viem@x.y.z]
@@ -543,7 +543,7 @@ describe('http (batch)', () => {
 
       Status: 500
       URL: http://localhost
-      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12f2974",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x153b747",false]}]
 
       Details: Internal Server Error
       Version: viem@x.y.z]
@@ -573,7 +573,7 @@ describe('http (batch)', () => {
       [HttpRequestError: HTTP request failed.
 
       URL: http://localhost
-      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x12f2974",false]}]
+      Request body: [{"method":"web3_clientVersion"},{"method":"eth_getBlockByNumber","params":["0x153b747",false]}]
 
       Details: foo
       Version: viem@x.y.z]
@@ -604,7 +604,7 @@ test('https://github.com/wevm/viem/issues/2775', async () => {
 
     Status: 404
     URL: http://localhost
-    Request body: {"method":"eth_getBlockByNumber","params":["0x12f2974",false]}
+    Request body: {"method":"eth_getBlockByNumber","params":["0x153b747",false]}
 
     Details: "default backend - 404"
     Version: viem@x.y.z]

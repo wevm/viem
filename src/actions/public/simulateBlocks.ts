@@ -30,6 +30,7 @@ import {
   type EncodeFunctionDataErrorType,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
+import { concat } from '../../utils/data/concat.js'
 import {
   type NumberToHexErrorType,
   numberToHex,
@@ -65,6 +66,8 @@ type CallExtraProperties = ExactPartial<
 > & {
   /** Account attached to the call (msg.sender). */
   account?: Account | Address | undefined
+  /** Recipient. `null` if contract deployment. */
+  to?: Address | null | undefined
 }
 
 export type SimulateBlocksParameters<
@@ -183,7 +186,7 @@ export async function simulateBlocks<
 ): Promise<SimulateBlocksReturnType<calls>> {
   const {
     blockNumber,
-    blockTag = 'latest',
+    blockTag = client.experimental_blockTag ?? 'latest',
     blocks,
     returnFullTransactions,
     traceTransfers,
@@ -199,9 +202,12 @@ export async function simulateBlocks<
       const calls = block.calls.map((call_) => {
         const call = call_ as Call<unknown, CallExtraProperties>
         const account = call.account ? parseAccount(call.account) : undefined
+        const data = call.abi ? encodeFunctionData(call) : call.data
         const request = {
           ...call,
-          data: call.abi ? encodeFunctionData(call) : call.data,
+          data: call.dataSuffix
+            ? concat([data || '0x', call.dataSuffix])
+            : data,
           from: call.from ?? account?.address,
         } as const
         assertRequest(request)
@@ -218,7 +224,8 @@ export async function simulateBlocks<
       })
     }
 
-    const blockNumberHex = blockNumber ? numberToHex(blockNumber) : undefined
+    const blockNumberHex =
+      typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
 
     const result = await client.request({
@@ -261,7 +268,7 @@ export async function simulateBlocks<
           if (!error) return undefined
           return getContractError(error, {
             abi: (abi ?? []) as Abi,
-            address: to,
+            address: to ?? '0x',
             args,
             functionName: functionName ?? '<unknown>',
           })

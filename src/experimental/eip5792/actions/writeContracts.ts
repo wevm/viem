@@ -1,5 +1,13 @@
+// TODO(v3): Remove this.
+
 import type { Abi, AbiStateMutability, Address, Narrow } from 'abitype'
 
+import {
+  type SendCallsErrorType,
+  type SendCallsParameters,
+  type SendCallsReturnType,
+  sendCalls,
+} from '../../../actions/wallet/sendCalls.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
@@ -18,12 +26,6 @@ import {
   encodeFunctionData,
 } from '../../../utils/abi/encodeFunctionData.js'
 import { getAction } from '../../../utils/getAction.js'
-import {
-  type SendCallsErrorType,
-  type SendCallsParameters,
-  type SendCallsReturnType,
-  sendCalls,
-} from './sendCalls.js'
 
 export type WriteContractsParameters<
   contracts extends
@@ -50,8 +52,6 @@ export type WriteContractsErrorType =
   | ErrorType
 
 /**
- * @deprecated Use {@link sendCalls} instead. See https://viem.sh/experimental/eip5792/sendCalls#contract-calls.
- *
  * Requests for the wallet to sign and broadcast a batch of write contract calls (transactions) to the network.
  *
  * - Docs: https://viem.sh/experimental/eip5792/writeContracts

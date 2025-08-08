@@ -182,7 +182,7 @@ function parseTransactionEIP7702(
   if (isHex(to) && to !== '0x') transaction.to = to
   if (isHex(gas) && gas !== '0x') transaction.gas = hexToBigInt(gas)
   if (isHex(data) && data !== '0x') transaction.data = data
-  if (isHex(nonce) && nonce !== '0x') transaction.nonce = hexToNumber(nonce)
+  if (isHex(nonce)) transaction.nonce = nonce === '0x' ? 0 : hexToNumber(nonce)
   if (isHex(value) && value !== '0x') transaction.value = hexToBigInt(value)
   if (isHex(maxFeePerGas) && maxFeePerGas !== '0x')
     transaction.maxFeePerGas = hexToBigInt(maxFeePerGas)
@@ -281,7 +281,7 @@ function parseTransactionEIP4844(
   if (isHex(to) && to !== '0x') transaction.to = to
   if (isHex(gas) && gas !== '0x') transaction.gas = hexToBigInt(gas)
   if (isHex(data) && data !== '0x') transaction.data = data
-  if (isHex(nonce) && nonce !== '0x') transaction.nonce = hexToNumber(nonce)
+  if (isHex(nonce)) transaction.nonce = nonce === '0x' ? 0 : hexToNumber(nonce)
   if (isHex(value) && value !== '0x') transaction.value = hexToBigInt(value)
   if (isHex(maxFeePerBlobGas) && maxFeePerBlobGas !== '0x')
     transaction.maxFeePerBlobGas = hexToBigInt(maxFeePerBlobGas)
@@ -372,7 +372,7 @@ function parseTransactionEIP1559(
   if (isHex(to) && to !== '0x') transaction.to = to
   if (isHex(gas) && gas !== '0x') transaction.gas = hexToBigInt(gas)
   if (isHex(data) && data !== '0x') transaction.data = data
-  if (isHex(nonce) && nonce !== '0x') transaction.nonce = hexToNumber(nonce)
+  if (isHex(nonce)) transaction.nonce = nonce === '0x' ? 0 : hexToNumber(nonce)
   if (isHex(value) && value !== '0x') transaction.value = hexToBigInt(value)
   if (isHex(maxFeePerGas) && maxFeePerGas !== '0x')
     transaction.maxFeePerGas = hexToBigInt(maxFeePerGas)
@@ -443,7 +443,7 @@ function parseTransactionEIP2930(
   if (isHex(to) && to !== '0x') transaction.to = to
   if (isHex(gas) && gas !== '0x') transaction.gas = hexToBigInt(gas)
   if (isHex(data) && data !== '0x') transaction.data = data
-  if (isHex(nonce) && nonce !== '0x') transaction.nonce = hexToNumber(nonce)
+  if (isHex(nonce)) transaction.nonce = nonce === '0x' ? 0 : hexToNumber(nonce)
   if (isHex(value) && value !== '0x') transaction.value = hexToBigInt(value)
   if (isHex(gasPrice) && gasPrice !== '0x')
     transaction.gasPrice = hexToBigInt(gasPrice)
@@ -506,7 +506,7 @@ function parseTransactionLegacy(
   if (isHex(to) && to !== '0x') transaction.to = to
   if (isHex(gas) && gas !== '0x') transaction.gas = hexToBigInt(gas)
   if (isHex(data) && data !== '0x') transaction.data = data
-  if (isHex(nonce) && nonce !== '0x') transaction.nonce = hexToNumber(nonce)
+  if (isHex(nonce)) transaction.nonce = nonce === '0x' ? 0 : hexToNumber(nonce)
   if (isHex(value) && value !== '0x') transaction.value = hexToBigInt(value)
   if (isHex(gasPrice) && gasPrice !== '0x')
     transaction.gasPrice = hexToBigInt(gasPrice)
@@ -581,8 +581,8 @@ function parseAuthorizationList(
 
     authorizationList.push({
       address,
-      chainId: hexToNumber(chainId),
-      nonce: hexToNumber(nonce),
+      chainId: chainId === '0x' ? 0 : hexToNumber(chainId),
+      nonce: nonce === '0x' ? 0 : hexToNumber(nonce),
       ...parseEIP155Signature([yParity, r, s]),
     })
   }

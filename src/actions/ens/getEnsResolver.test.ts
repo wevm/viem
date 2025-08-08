@@ -1,7 +1,7 @@
 import { beforeAll, expect, test } from 'vitest'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
-import { optimism } from '../../chains/index.js'
+import { linea, optimism } from '../../chains/index.js'
 
 import { http } from '../../clients/transports/http.js'
 
@@ -109,4 +109,16 @@ test('invalid universal resolver address', async () => {
     Docs: https://viem.sh/docs/contract/readContract
     Version: viem@x.y.z]
   `)
+})
+
+test('invalid TLD', async () => {
+  const client = createClient({
+    chain: linea,
+    transport: http(),
+  })
+  await expect(
+    getEnsResolver(client, { name: 'vitalik.eth' }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    `[Error: vitalik.eth is not a valid ENS TLD (.linea.eth) for chain "Linea Mainnet" (id: 59144).]`,
+  )
 })

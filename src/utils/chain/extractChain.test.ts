@@ -65,6 +65,7 @@ test('default', async () => {
           "url": "https://optimistic.etherscan.io",
         },
       },
+      "blockTime": 2000,
       "contracts": {
         "disputeGameFactory": {
           "1": {

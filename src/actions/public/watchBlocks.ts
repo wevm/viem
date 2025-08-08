@@ -37,7 +37,7 @@ export type WatchBlocksParameters<
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: ((error: Error) => void) | undefined
 } & (
-  | (HasTransportType<transport, 'webSocket'> extends true
+  | (HasTransportType<transport, 'webSocket' | 'ipc'> extends true
       ? {
           blockTag?: undefined
           emitMissed?: undefined
@@ -103,7 +103,7 @@ export function watchBlocks<
 >(
   client: Client<transport, chain>,
   {
-    blockTag = 'latest',
+    blockTag = client.experimental_blockTag ?? 'latest',
     emitMissed = false,
     emitOnBegin = false,
     onBlock,
@@ -115,10 +115,15 @@ export function watchBlocks<
 ): WatchBlocksReturnType {
   const enablePolling = (() => {
     if (typeof poll_ !== 'undefined') return poll_
-    if (client.transport.type === 'webSocket') return false
+    if (
+      client.transport.type === 'webSocket' ||
+      client.transport.type === 'ipc'
+    )
+      return false
     if (
       client.transport.type === 'fallback' &&
-      client.transport.transports[0].config.type === 'webSocket'
+      (client.transport.transports[0].config.type === 'webSocket' ||
+        client.transport.transports[0].config.type === 'ipc')
     )
       return false
     return true
@@ -152,7 +157,7 @@ export function watchBlocks<
               blockTag,
               includeTransactions,
             })
-            if (block.number && prevBlock?.number) {
+            if (block.number !== null && prevBlock?.number != null) {
               // If the current block number is the same as the previous,
               // we can skip.
               if (block.number === prevBlock.number) return
@@ -177,12 +182,12 @@ export function watchBlocks<
 
             if (
               // If no previous block exists, emit.
-              !prevBlock?.number ||
+              prevBlock?.number == null ||
               // If the block tag is "pending" with no block number, emit.
-              (blockTag === 'pending' && !block?.number) ||
+              (blockTag === 'pending' && block?.number == null) ||
               // If the next block number is greater than the previous block number, emit.
               // We don't want to emit blocks in the past.
-              (block.number && block.number > prevBlock.number)
+              (block.number !== null && block.number > prevBlock.number)
             ) {
               emit.onBlock(block as any, prevBlock as any)
               prevBlock = block as any
@@ -213,19 +218,22 @@ export function watchBlocks<
           )({
             blockTag,
             includeTransactions,
-          }).then((block) => {
-            if (!active) return
-            if (!emitFetched) return
-            onBlock(block as any, undefined)
-            emitFetched = false
           })
+            .then((block) => {
+              if (!active) return
+              if (!emitFetched) return
+              onBlock(block as any, undefined)
+              emitFetched = false
+            })
+            .catch(onError)
         }
 
         const transport = (() => {
           if (client.transport.type === 'fallback') {
             const transport = client.transport.transports.find(
               (transport: ReturnType<Transport>) =>
-                transport.config.type === 'webSocket',
+                transport.config.type === 'webSocket' ||
+                transport.config.type === 'ipc',
             )
             if (!transport) return client.transport
             return transport.value
@@ -242,7 +250,7 @@ export function watchBlocks<
               getBlock,
               'getBlock',
             )({
-              blockNumber: data.blockNumber,
+              blockNumber: data.result?.number,
               includeTransactions,
             }).catch(() => {})) as GetBlockReturnType<chain>
             if (!active) return
