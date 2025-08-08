@@ -204,19 +204,6 @@ const universalResolverErrors = [
 export const universalResolverResolveAbi = [
   ...universalResolverErrors,
   {
-    name: 'resolve',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { name: 'name', type: 'bytes' },
-      { name: 'data', type: 'bytes' },
-    ],
-    outputs: [
-      { name: '', type: 'bytes' },
-      { name: 'address', type: 'address' },
-    ],
-  },
-  {
     name: 'resolveWithGateways',
     type: 'function',
     stateMutability: 'view',
@@ -234,23 +221,6 @@ export const universalResolverResolveAbi = [
 
 export const universalResolverReverseAbi = [
   ...universalResolverErrors,
-  {
-    name: 'reverse',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'bytes', name: 'reverseName' },
-      {
-        type: 'uint256',
-        name: 'coinType',
-      },
-    ],
-    outputs: [
-      { type: 'string', name: 'resolvedName' },
-      { type: 'address', name: 'resolver' },
-      { type: 'address', name: 'reverseResolver' },
-    ],
-  },
   {
     name: 'reverseWithGateways',
     type: 'function',
