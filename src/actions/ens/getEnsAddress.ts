@@ -109,8 +109,15 @@ export async function getEnsAddress<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: GetEnsAddressParameters,
 ): Promise<GetEnsAddressReturnType> {
-  const { blockNumber, blockTag, chainId, coinType, name, gatewayUrls, strict } =
-    parameters
+  const {
+    blockNumber,
+    blockTag,
+    chainId,
+    coinType,
+    name,
+    gatewayUrls,
+    strict,
+  } = parameters
   const { chain } = client
 
   const universalResolverAddress = (() => {
