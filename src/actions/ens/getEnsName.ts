@@ -16,6 +16,7 @@ import {
   type EvmChainIdToCoinTypeError,
   evmChainIdToCoinType,
 } from '../../utils/ens/evmChainIdToCoinType.js'
+import { localBatchGatewayUrl } from '../../utils/ens/localBatchGatewayRequest.js'
 import type { PacketToBytesErrorType } from '../../utils/ens/packetToBytes.js'
 import { getAction } from '../../utils/getAction.js'
 import {
@@ -86,59 +87,49 @@ export type GetEnsNameErrorType =
  */
 export async function getEnsName<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  {
-    address,
-    blockNumber,
-    blockTag,
-    chainId,
-    coinType: coinType_ = 60n,
-    gatewayUrls,
-    strict,
-    universalResolverAddress: universalResolverAddress_,
-  }: GetEnsNameParameters,
+  parameters: GetEnsNameParameters,
 ): Promise<GetEnsNameReturnType> {
-  let universalResolverAddress = universalResolverAddress_
-  if (!universalResolverAddress) {
-    if (!client.chain)
+  const { address, blockNumber, blockTag, chainId, gatewayUrls, strict } =
+    parameters
+  const { chain } = client
+
+  const universalResolverAddress = (() => {
+    if (parameters.universalResolverAddress)
+      return parameters.universalResolverAddress
+    if (!chain)
       throw new Error(
         'client chain not configured. universalResolverAddress is required.',
       )
-
-    universalResolverAddress = getChainContractAddress({
+    return getChainContractAddress({
       blockNumber,
-      chain: client.chain,
+      chain,
       contract: 'ensUniversalResolver',
     })
-  }
+  })()
 
-  const coinType = chainId ? evmChainIdToCoinType(chainId) : coinType_
+  const coinType =
+    typeof chainId === 'number'
+      ? evmChainIdToCoinType(chainId)
+      : (parameters.coinType ?? 60n)
 
   try {
     const readContractParameters = {
       address: universalResolverAddress,
       abi: universalResolverReverseAbi,
+      args: [address, coinType, gatewayUrls ?? [localBatchGatewayUrl]],
+      functionName: 'reverseWithGateways',
       blockNumber,
       blockTag,
-      args: [address, coinType],
     } as const
 
     const readContractAction = getAction(client, readContract, 'readContract')
 
-    const [name] = gatewayUrls
-      ? await readContractAction({
-          ...readContractParameters,
-          functionName: 'reverseWithGateways',
-          args: [...readContractParameters.args, gatewayUrls],
-        })
-      : await readContractAction({
-          ...readContractParameters,
-          functionName: 'reverse',
-        })
+    const [name] = await readContractAction(readContractParameters)
 
-    return name
+    return name || null
   } catch (err) {
     if (strict) throw err
-    if (isNullUniversalResolverError(err, 'reverse')) return null
+    if (isNullUniversalResolverError(err)) return null
     throw err
   }
 }

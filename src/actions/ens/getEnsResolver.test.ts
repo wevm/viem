@@ -13,7 +13,7 @@ const client = anvilMainnet.getClient()
 
 beforeAll(async () => {
   await reset(client, {
-    blockNumber: 22_138_945n,
+    blockNumber: 23_085_558n,
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
 })
@@ -86,7 +86,7 @@ test('universal resolver contract deployed on later block', async () => {
     [ChainDoesNotSupportContract: Chain "Ethereum (Local)" does not support contract "ensUniversalResolver".
 
     This could be due to any of the following:
-    - The contract "ensUniversalResolver" was not deployed until block 22138945 (current block 14353601).
+    - The contract "ensUniversalResolver" was not deployed until block 23085558 (current block 14353601).
 
     Version: viem@x.y.z]
   `)

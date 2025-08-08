@@ -182,7 +182,7 @@ export async function getEnsAddress<chain extends Chain | undefined>(
     return address
   } catch (err) {
     if (strict) throw err
-    if (isNullUniversalResolverError(err, 'resolve')) return null
+    if (isNullUniversalResolverError(err)) return null
     throw err
   }
 }

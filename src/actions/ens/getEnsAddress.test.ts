@@ -12,7 +12,7 @@ const client = anvilMainnet.getClient()
 
 beforeAll(async () => {
   await reset(client, {
-    blockNumber: 22_138_945n,
+    blockNumber: 23_085_558n,
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
   await setVitalikResolver()
@@ -94,15 +94,15 @@ test('name with resolver that does not support addr - strict', async () => {
   await expect(
     getEnsAddress(client, { name: 'vitalik.eth', strict: true }),
   ).rejects.toMatchInlineSnapshot(`
-    [ContractFunctionExecutionError: The contract function "resolve" reverted.
+    [ContractFunctionExecutionError: The contract function "resolveWithGateways" reverted.
 
     Error: ResolverError(bytes errorData)
                         (0x)
      
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
-      function:  resolve(bytes name, bytes data, string[] gateways)
-      args:             (0x07766974616c696b0365746800, 0x3b3b57deee6c4522aab0003e8d14cd40a6af439055fd2577951148c14b6cea9a53475835, ["x-batch-gateway:true"])
+      function:  resolveWithGateways(bytes name, bytes data, string[] gateways)
+      args:                         (0x07766974616c696b0365746800, 0x3b3b57deee6c4522aab0003e8d14cd40a6af439055fd2577951148c14b6cea9a53475835, ["x-batch-gateway:true"])
 
     Docs: https://viem.sh/docs/contract/readContract
     Version: viem@x.y.z]
@@ -126,7 +126,6 @@ test('name with a label larger than 255 bytes', async () => {
   await expect(
     getEnsAddress(client, {
       name: `${'9'.repeat(291)}.eth`,
-      universalResolverAddress: '0xc0497e381f536be9ce14b0dd3817cbcae57d2f62',
     }),
   ).resolves.toMatchInlineSnapshot(
     `"0xcdf14B42e1D3c264F6955521944a50d9A4d5CF3a"`,
@@ -179,7 +178,7 @@ test('custom universal resolver address', async () => {
   await expect(
     getEnsAddress(client, {
       name: 'awkweb.eth',
-      universalResolverAddress: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376',
+      universalResolverAddress: '0xED73a03F19e8D849E44a39252d222c6ad5217E1e',
     }),
   ).resolves.toMatchInlineSnapshot(
     '"0xA0Cf798816D4b9b9866b5330EEa46a18382f251e"',
@@ -225,7 +224,7 @@ test('universal resolver contract deployed on later block', async () => {
     [ChainDoesNotSupportContract: Chain "Ethereum (Local)" does not support contract "ensUniversalResolver".
 
     This could be due to any of the following:
-    - The contract "ensUniversalResolver" was not deployed until block 22138945 (current block 14353601).
+    - The contract "ensUniversalResolver" was not deployed until block 23085558 (current block 14353601).
 
     Version: viem@x.y.z]
   `)
@@ -238,12 +237,12 @@ test('invalid universal resolver address', async () => {
       universalResolverAddress: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ContractFunctionExecutionError: The contract function "resolve" reverted.
+    [ContractFunctionExecutionError: The contract function "resolveWithGateways" reverted.
 
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
-      function:  resolve(bytes name, bytes data, string[] gateways)
-      args:             (0x0661776b7765620365746800, 0x3b3b57de52d0f5fbf348925621be297a61b88ec492ebbbdfa9477d82892e2786020ad61c, ["x-batch-gateway:true"])
+      function:  resolveWithGateways(bytes name, bytes data, string[] gateways)
+      args:                         (0x0661776b7765620365746800, 0x3b3b57de52d0f5fbf348925621be297a61b88ec492ebbbdfa9477d82892e2786020ad61c, ["x-batch-gateway:true"])
 
     Docs: https://viem.sh/docs/contract/readContract
     Version: viem@x.y.z]

@@ -147,7 +147,7 @@ export async function getEnsText<chain extends Chain | undefined>(
     return record === '' ? null : record
   } catch (err) {
     if (strict) throw err
-    if (isNullUniversalResolverError(err, 'resolve')) return null
+    if (isNullUniversalResolverError(err)) return null
     throw err
   }
 }
