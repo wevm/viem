@@ -22,6 +22,7 @@ import type { OneOf, Prettify } from '../../types/utils.js'
 import { concat } from '../../utils/data/concat.js'
 import { keccak256 } from '../../utils/hash/keccak256.js'
 import { contracts } from '../contractsZircuit.js'
+import type { Withdrawal } from '../types/withdrawal.js'
 import type { GetWithdrawalsErrorType } from '../utils/getWithdrawals.js'
 import type { GetGameReturnType } from './getGame.js'
 import type { GetL2OutputReturnType } from './getL2Output.js'
@@ -66,6 +67,7 @@ export type BuildProveZircuitWithdrawalParameters<
 > = GetAccountParameter<account, accountOverride, false> &
   GetChainParameter<chain, chainOverride> & {
     receipt: TransactionReceipt
+    withdrawal?: Withdrawal
   } & OneOf<{ output: GetL2OutputReturnType } | { game: GetGameReturnType }>
 
 export type BuildProveZircuitWithdrawalReturnType<
@@ -137,7 +139,9 @@ export async function buildProveZircuitWithdrawal<
   const { account, chain = client.chain, game, output, receipt } = args
 
   // Extract withdrawal from receipt
-  const [withdrawal] = getWithdrawals(receipt)
+  const [withdrawal] = args.withdrawal
+    ? [args.withdrawal]
+    : getWithdrawals(receipt)
   const { withdrawalHash } = withdrawal
 
   // console.log('withdrawal', withdrawal);
