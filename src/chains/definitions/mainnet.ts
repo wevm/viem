@@ -4,6 +4,7 @@ export const mainnet = /*#__PURE__*/ defineChain({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  blockTime: 12_000,
   rpcUrls: {
     default: {
       http: ['https://eth.merkle.io'],
