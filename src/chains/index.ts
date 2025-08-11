@@ -281,6 +281,7 @@ export { juneoSocotraTestnet } from './definitions/juneoSocotraTestnet.js'
 export { juneoUSD1Chain } from './definitions/juneoUSD1Chain.js'
 export { juneoUSDT1Chain } from './definitions/juneoUSDT1Chain.js'
 export { karura } from './definitions/karura.js'
+export { katana } from './definitions/katana.js'
 /** @deprecated Use `kakarotStarknetSepolia` instead. */
 export { kakarotSepolia } from './definitions/kakarotSepolia.js'
 export { kakarotStarknetSepolia } from './definitions/kakarotStarknetSepolia.js'
