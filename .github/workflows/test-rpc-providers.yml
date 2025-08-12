@@ -15,7 +15,7 @@ jobs:
         total-shards: [3]
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with: 
           submodules: 'recursive'
 
@@ -68,7 +68,7 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with: 
           submodules: 'recursive'
 
