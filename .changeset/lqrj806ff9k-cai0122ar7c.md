@@ -2,4 +2,5 @@
 "viem": patch
 ---
 
-Updated PEAQ chain RPC URLs and added Agung testnet chain.
+Added Agung testnet chain.
+Updated PEAQ chain RPC URLs.
