@@ -20,11 +20,5 @@ export const katana = /*#__PURE__*/ defineChain({
       url: 'https://explorer.katanarpc.com',
     },
   },
-  contracts: {
-    multicall3: {
-      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 1898013,
-    },
-  },
   testnet: false,
 })
