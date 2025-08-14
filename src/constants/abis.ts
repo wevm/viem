@@ -97,24 +97,53 @@ export const batchGatewayAbi = [
 
 const universalResolverErrors = [
   {
-    inputs: [],
-    name: 'ResolverNotFound',
-    type: 'error',
-  },
-  {
-    inputs: [],
-    name: 'ResolverWildcardNotSupported',
-    type: 'error',
-  },
-  {
-    inputs: [],
-    name: 'ResolverNotContract',
+    inputs: [
+      {
+        name: 'dns',
+        type: 'bytes',
+      },
+    ],
+    name: 'DNSDecodingFailed',
     type: 'error',
   },
   {
     inputs: [
       {
-        name: 'returnData',
+        name: 'ens',
+        type: 'string',
+      },
+    ],
+    name: 'DNSEncodingFailed',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'EmptyAddress',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        name: 'status',
+        type: 'uint16',
+      },
+      {
+        name: 'message',
+        type: 'string',
+      },
+    ],
+    name: 'HttpError',
+    type: 'error',
+  },
+  {
+    inputs: [],
+    name: 'InvalidBatchGatewayResponse',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        name: 'errorData',
         type: 'bytes',
       },
     ],
@@ -124,21 +153,50 @@ const universalResolverErrors = [
   {
     inputs: [
       {
-        components: [
-          {
-            name: 'status',
-            type: 'uint16',
-          },
-          {
-            name: 'message',
-            type: 'string',
-          },
-        ],
-        name: 'errors',
-        type: 'tuple[]',
+        name: 'name',
+        type: 'bytes',
+      },
+      {
+        name: 'resolver',
+        type: 'address',
       },
     ],
-    name: 'HttpError',
+    name: 'ResolverNotContract',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        name: 'name',
+        type: 'bytes',
+      },
+    ],
+    name: 'ResolverNotFound',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        name: 'primary',
+        type: 'string',
+      },
+      {
+        name: 'primaryAddress',
+        type: 'bytes',
+      },
+    ],
+    name: 'ReverseAddressMismatch',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes4',
+        name: 'selector',
+        type: 'bytes4',
+      },
+    ],
+    name: 'UnsupportedResolverProfile',
     type: 'error',
   },
 ] as const
@@ -146,20 +204,7 @@ const universalResolverErrors = [
 export const universalResolverResolveAbi = [
   ...universalResolverErrors,
   {
-    name: 'resolve',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { name: 'name', type: 'bytes' },
-      { name: 'data', type: 'bytes' },
-    ],
-    outputs: [
-      { name: '', type: 'bytes' },
-      { name: 'address', type: 'address' },
-    ],
-  },
-  {
-    name: 'resolve',
+    name: 'resolveWithGateways',
     type: 'function',
     stateMutability: 'view',
     inputs: [
@@ -177,30 +222,18 @@ export const universalResolverResolveAbi = [
 export const universalResolverReverseAbi = [
   ...universalResolverErrors,
   {
-    name: 'reverse',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'bytes', name: 'reverseName' }],
-    outputs: [
-      { type: 'string', name: 'resolvedName' },
-      { type: 'address', name: 'resolvedAddress' },
-      { type: 'address', name: 'reverseResolver' },
-      { type: 'address', name: 'resolver' },
-    ],
-  },
-  {
-    name: 'reverse',
+    name: 'reverseWithGateways',
     type: 'function',
     stateMutability: 'view',
     inputs: [
       { type: 'bytes', name: 'reverseName' },
+      { type: 'uint256', name: 'coinType' },
       { type: 'string[]', name: 'gateways' },
     ],
     outputs: [
       { type: 'string', name: 'resolvedName' },
-      { type: 'address', name: 'resolvedAddress' },
-      { type: 'address', name: 'reverseResolver' },
       { type: 'address', name: 'resolver' },
+      { type: 'address', name: 'reverseResolver' },
     ],
   },
 ] as const
