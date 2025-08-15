@@ -8,7 +8,7 @@ description: Returns the time until the next L2 dispute game is submitted.
 Returns the time until the next L2 dispute game (after the provided block number) is submitted. Used for the [Withdrawal](/op-stack/guides/withdrawals) flow.
 
 :::info
-This Action is only compatible with OP Stack chains that have upgraded to [Fault Proofs](https://docs.optimism.io/stack/protocol/fault-proofs/overview) and have a deployed [DisputeGameFactoryProxy contract](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/addresses.json).
+This Action is only compatible with OP Stack chains that have upgraded to [Fault Proofs](https://docs.optimism.io/stack/fault-proofs/explainer) and have a deployed [DisputeGameFactoryProxy contract](https://github.com/ethereum-optimism/superchain-registry/blob/main/superchain/extra/addresses/addresses.json).
 :::
 
 ## Usage
