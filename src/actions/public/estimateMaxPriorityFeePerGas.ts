@@ -9,6 +9,7 @@ import type { Account } from '../../types/account.js'
 import type { Block } from '../../types/block.js'
 import type { Chain, ChainFeesFnParameters } from '../../types/chain.js'
 import type { GetChainParameter } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type HexToBigIntErrorType,
@@ -22,7 +23,10 @@ import { type GetGasPriceErrorType, getGasPrice } from './getGasPrice.js'
 export type EstimateMaxPriorityFeePerGasParameters<
   chain extends Chain | undefined = Chain | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
-> = GetChainParameter<chain, chainOverride>
+> = GetChainParameter<chain, chainOverride> & {
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
+}
 
 export type EstimateMaxPriorityFeePerGasReturnType = bigint
 
@@ -85,7 +89,12 @@ export async function internal_estimateMaxPriorityFeePerGas<
       | undefined
   },
 ): Promise<EstimateMaxPriorityFeePerGasReturnType> {
-  const { block: block_, chain = client.chain, request } = args || {}
+  const {
+    block: block_,
+    chain = client.chain,
+    request,
+    requestOptions,
+  } = args || {}
 
   try {
     const maxPriorityFeePerGas =
@@ -93,7 +102,8 @@ export async function internal_estimateMaxPriorityFeePerGas<
 
     if (typeof maxPriorityFeePerGas === 'function') {
       const block =
-        block_ || (await getAction(client, getBlock, 'getBlock')({}))
+        block_ ||
+        (await getAction(client, getBlock, 'getBlock')({ requestOptions }))
       const maxPriorityFeePerGas_ = await maxPriorityFeePerGas({
         block,
         client,
@@ -105,9 +115,12 @@ export async function internal_estimateMaxPriorityFeePerGas<
 
     if (typeof maxPriorityFeePerGas !== 'undefined') return maxPriorityFeePerGas
 
-    const maxPriorityFeePerGasHex = await client.request({
-      method: 'eth_maxPriorityFeePerGas',
-    })
+    const maxPriorityFeePerGasHex = await client.request(
+      {
+        method: 'eth_maxPriorityFeePerGas',
+      },
+      requestOptions,
+    )
     return hexToBigInt(maxPriorityFeePerGasHex)
   } catch {
     // If the RPC Provider does not support `eth_maxPriorityFeePerGas`
@@ -116,8 +129,8 @@ export async function internal_estimateMaxPriorityFeePerGas<
     const [block, gasPrice] = await Promise.all([
       block_
         ? Promise.resolve(block_)
-        : getAction(client, getBlock, 'getBlock')({}),
-      getAction(client, getGasPrice, 'getGasPrice')({}),
+        : getAction(client, getBlock, 'getBlock')({ requestOptions }),
+      getAction(client, getGasPrice, 'getGasPrice')({ requestOptions }),
     ])
 
     if (typeof block.baseFeePerGas !== 'bigint')

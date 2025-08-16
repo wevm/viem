@@ -7,6 +7,7 @@ import {
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Hash } from '../../types/misc.js'
 import type { RpcTransaction } from '../../types/rpc.js'
 import type { Prettify } from '../../types/utils.js'
@@ -20,7 +21,7 @@ import {
   formatTransaction,
 } from '../../utils/formatters/transaction.js'
 
-export type GetTransactionParameters<blockTag extends BlockTag = 'latest'> =
+export type GetTransactionParameters<blockTag extends BlockTag = 'latest'> = (
   | {
       /** The block hash */
       blockHash: Hash
@@ -56,6 +57,10 @@ export type GetTransactionParameters<blockTag extends BlockTag = 'latest'> =
       hash: Hash
       index?: number | undefined
     }
+) & {
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
+}
 
 export type GetTransactionReturnType<
   chain extends Chain | undefined = undefined,
@@ -103,6 +108,7 @@ export async function getTransaction<
     blockTag: blockTag_,
     hash,
     index,
+    requestOptions,
   }: GetTransactionParameters<blockTag>,
 ): Promise<GetTransactionReturnType<chain, blockTag>> {
   const blockTag = blockTag_ || 'latest'
@@ -117,7 +123,7 @@ export async function getTransaction<
         method: 'eth_getTransactionByHash',
         params: [hash],
       },
-      { dedupe: true },
+      { dedupe: true, ...requestOptions },
     )
   } else if (blockHash) {
     transaction = await client.request(
@@ -125,7 +131,7 @@ export async function getTransaction<
         method: 'eth_getTransactionByBlockHashAndIndex',
         params: [blockHash, numberToHex(index)],
       },
-      { dedupe: true },
+      { dedupe: true, ...requestOptions },
     )
   } else if (blockNumberHex || blockTag) {
     transaction = await client.request(
@@ -133,7 +139,7 @@ export async function getTransaction<
         method: 'eth_getTransactionByBlockNumberAndIndex',
         params: [blockNumberHex || blockTag, numberToHex(index)],
       },
-      { dedupe: Boolean(blockNumberHex) },
+      { dedupe: Boolean(blockNumberHex), ...requestOptions },
     )
   }
 
