@@ -515,6 +515,7 @@ export { songbird } from './definitions/songbird.js'
 export { songbirdTestnet } from './definitions/songbirdTestnet.js'
 export { sophon } from './definitions/sophon.js'
 export { sophonTestnet } from './definitions/sophonTestnet.js'
+export { sovaSepolia } from './definitions/sovaSepolia.js'
 export { spicy } from './definitions/spicy.js'
 export {
   statusSepolia,
