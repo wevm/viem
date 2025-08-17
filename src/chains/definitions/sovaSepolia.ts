@@ -15,7 +15,7 @@ export const sovaSepolia = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Blockscout',
+      name: 'Sova Sepolia Explorer',
       url: 'https://explorer.testnet.sova.io',
     },
   },
