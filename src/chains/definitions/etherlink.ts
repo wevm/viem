@@ -3,6 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const etherlink = /*#__PURE__*/ defineChain({
   id: 42793,
   name: 'Etherlink',
+  blockTime: 4_830,
   nativeCurrency: {
     decimals: 18,
     name: 'Tez',
