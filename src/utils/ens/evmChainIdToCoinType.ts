@@ -16,6 +16,7 @@ const SLIP44_MSB = 0x80000000
  * 2147483658n
  */
 export function evmChainIdToCoinType(chainId: number): bigint {
+  if (chainId === 1) return 1n
   if (chainId >= SLIP44_MSB || chainId < 0)
     throw new EnsInvalidChainIdError({ chainId })
   return BigInt((0x80000000 | chainId) >>> 0)

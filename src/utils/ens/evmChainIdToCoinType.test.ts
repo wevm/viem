@@ -9,7 +9,7 @@ test.each([
   },
   {
     chainId: 1,
-    expected: 2147483649n,
+    expected: 1n,
   },
   {
     chainId: 8453,
@@ -25,7 +25,7 @@ test.each([
 
 test('only positive chainIds', () => {
   expect(() => evmChainIdToCoinType(-1)).toThrowErrorMatchingInlineSnapshot(`
-    [EnsInvalidChainIdError: Invalid ENSIP-11 chainId: -1. Must be between 0 and 0x7fffffff.
+    [EnsInvalidChainIdError: Invalid ENSIP-11 chainId: -1. Must be between 0 and 0x7fffffff, or 1.
 
     Version: viem@x.y.z]
   `)
@@ -35,7 +35,7 @@ test('less than 0x80000000', () => {
   expect(() =>
     evmChainIdToCoinType(0x80000000),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [EnsInvalidChainIdError: Invalid ENSIP-11 chainId: 2147483648. Must be between 0 and 0x7fffffff.
+    [EnsInvalidChainIdError: Invalid ENSIP-11 chainId: 2147483648. Must be between 0 and 0x7fffffff, or 1.
 
     Version: viem@x.y.z]
   `)
