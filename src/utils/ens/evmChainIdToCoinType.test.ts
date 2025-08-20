@@ -9,7 +9,7 @@ test.each([
   },
   {
     chainId: 1,
-    expected: 1n,
+    expected: 60n,
   },
   {
     chainId: 8453,
