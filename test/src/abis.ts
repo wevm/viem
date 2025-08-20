@@ -3466,7 +3466,7 @@ export const seaportContractConfig = {
 } as const
 
 export const ensPublicResolverConfig = {
-  address: '0x4976fb03c32e5b8cfe2b6ccb31c09ba78ebaba41',
+  address: '0x231b0Ee14048e9dCcD1d247744d114a4EB5E8E63',
   abi: [
     {
       inputs: [{ name: '_ens', type: 'address' }],

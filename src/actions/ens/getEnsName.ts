@@ -10,12 +10,13 @@ import {
   type GetChainContractAddressErrorType,
   getChainContractAddress,
 } from '../../utils/chain/getChainContractAddress.js'
-import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
-import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
 import {
-  type PacketToBytesErrorType,
-  packetToBytes,
-} from '../../utils/ens/packetToBytes.js'
+  type ChainIdToCoinTypeError,
+  chainIdToCoinType,
+} from '../../utils/ens/chainIdToCoinType.js'
+import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
+import { localBatchGatewayUrl } from '../../utils/ens/localBatchGatewayRequest.js'
+import type { PacketToBytesErrorType } from '../../utils/ens/packetToBytes.js'
 import { getAction } from '../../utils/getAction.js'
 import {
   type ReadContractErrorType,
@@ -33,15 +34,26 @@ export type GetEnsNameParameters = Prettify<
     strict?: boolean | undefined
     /** Address of ENS Universal Resolver Contract. */
     universalResolverAddress?: Address | undefined
-  }
+  } & (
+      | {
+          /** Chain ID to get ENS name for. */
+          chainId?: number | undefined
+          coinType?: undefined
+        }
+      | {
+          chainId?: undefined
+          /** Coin type to get ENS name for. */
+          coinType?: bigint | undefined
+        }
+    )
 >
 
 export type GetEnsNameReturnType = string | null
 
 export type GetEnsNameErrorType =
+  | ChainIdToCoinTypeError
   | GetChainContractAddressErrorType
   | ReadContractErrorType
-  | ToHexErrorType
   | PacketToBytesErrorType
   | ErrorType
 
@@ -73,54 +85,49 @@ export type GetEnsNameErrorType =
  */
 export async function getEnsName<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  {
-    address,
-    blockNumber,
-    blockTag,
-    gatewayUrls,
-    strict,
-    universalResolverAddress: universalResolverAddress_,
-  }: GetEnsNameParameters,
+  parameters: GetEnsNameParameters,
 ): Promise<GetEnsNameReturnType> {
-  let universalResolverAddress = universalResolverAddress_
-  if (!universalResolverAddress) {
-    if (!client.chain)
+  const { address, blockNumber, blockTag, chainId, gatewayUrls, strict } =
+    parameters
+  const { chain } = client
+
+  const universalResolverAddress = (() => {
+    if (parameters.universalResolverAddress)
+      return parameters.universalResolverAddress
+    if (!chain)
       throw new Error(
         'client chain not configured. universalResolverAddress is required.',
       )
-
-    universalResolverAddress = getChainContractAddress({
+    return getChainContractAddress({
       blockNumber,
-      chain: client.chain,
+      chain,
       contract: 'ensUniversalResolver',
     })
-  }
+  })()
 
-  const reverseNode = `${address.toLowerCase().substring(2)}.addr.reverse`
+  const coinType =
+    typeof chainId === 'number'
+      ? chainIdToCoinType(chainId)
+      : (parameters.coinType ?? 60n)
+
   try {
     const readContractParameters = {
       address: universalResolverAddress,
       abi: universalResolverReverseAbi,
-      functionName: 'reverse',
-      args: [toHex(packetToBytes(reverseNode))],
+      args: [address, coinType, gatewayUrls ?? [localBatchGatewayUrl]],
+      functionName: 'reverseWithGateways',
       blockNumber,
       blockTag,
     } as const
 
     const readContractAction = getAction(client, readContract, 'readContract')
 
-    const [name, resolvedAddress] = gatewayUrls
-      ? await readContractAction({
-          ...readContractParameters,
-          args: [...readContractParameters.args, gatewayUrls],
-        })
-      : await readContractAction(readContractParameters)
+    const [name] = await readContractAction(readContractParameters)
 
-    if (address.toLowerCase() !== resolvedAddress.toLowerCase()) return null
-    return name
+    return name || null
   } catch (err) {
     if (strict) throw err
-    if (isNullUniversalResolverError(err, 'reverse')) return null
+    if (isNullUniversalResolverError(err)) return null
     throw err
   }
 }

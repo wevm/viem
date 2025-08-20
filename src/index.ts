@@ -901,6 +901,8 @@ export {
   EnsAvatarUnsupportedNamespaceError,
   type EnsAvatarUnsupportedNamespaceErrorType,
   type EnsAvatarUriResolutionErrorType,
+  EnsInvalidChainIdError,
+  type EnsInvalidChainIdErrorType,
 } from './errors/ens.js'
 export {
   type InvalidDecimalNumberErrorType,
@@ -1229,6 +1231,10 @@ export type {
   StateMapping,
   StateOverride,
 } from './types/stateOverride.js'
+export {
+  chainIdToCoinType,
+  type ChainIdToCoinTypeError,
+} from './utils/ens/chainIdToCoinType.js'
 export { labelhash, type LabelhashErrorType } from './utils/ens/labelhash.js'
 export { namehash, type NamehashErrorType } from './utils/ens/namehash.js'
 export {

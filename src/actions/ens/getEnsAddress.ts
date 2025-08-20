@@ -23,6 +23,10 @@ import {
 } from '../../utils/chain/getChainContractAddress.js'
 import { type TrimErrorType, trim } from '../../utils/data/trim.js'
 import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
+import {
+  type ChainIdToCoinTypeError,
+  chainIdToCoinType,
+} from '../../utils/ens/chainIdToCoinType.js'
 import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
 import { localBatchGatewayUrl } from '../../utils/ens/localBatchGatewayRequest.js'
 import { type NamehashErrorType, namehash } from '../../utils/ens/namehash.js'
@@ -38,8 +42,6 @@ import {
 
 export type GetEnsAddressParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
-    /** ENSIP-9 compliant coinType used to resolve addresses for other chains */
-    coinType?: number | undefined
     /** Universal Resolver gateway URLs to use for resolving CCIP-read requests. */
     gatewayUrls?: string[] | undefined
     /** Name to get the address for. */
@@ -48,12 +50,24 @@ export type GetEnsAddressParameters = Prettify<
     strict?: boolean | undefined
     /** Address of ENS Universal Resolver Contract. */
     universalResolverAddress?: Address | undefined
-  }
+  } & (
+      | {
+          /** ENSIP-11 chainId used to resolve addresses for other chains */
+          chainId?: number | undefined
+          coinType?: undefined
+        }
+      | {
+          chainId?: undefined
+          /** ENSIP-9 compliant coinType used to resolve addresses for other chains */
+          coinType?: bigint | undefined
+        }
+    )
 >
 
 export type GetEnsAddressReturnType = Address | null
 
 export type GetEnsAddressErrorType =
+  | ChainIdToCoinTypeError
   | GetChainContractAddressErrorType
   | EncodeFunctionDataErrorType
   | NamehashErrorType
@@ -95,8 +109,15 @@ export async function getEnsAddress<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: GetEnsAddressParameters,
 ): Promise<GetEnsAddressReturnType> {
-  const { blockNumber, blockTag, coinType, name, gatewayUrls, strict } =
-    parameters
+  const {
+    blockNumber,
+    blockTag,
+    chainId,
+    coinType,
+    name,
+    gatewayUrls,
+    strict,
+  } = parameters
   const { chain } = client
 
   const universalResolverAddress = (() => {
@@ -116,19 +137,24 @@ export async function getEnsAddress<chain extends Chain | undefined>(
   const tlds = chain?.ensTlds
   if (tlds && !tlds.some((tld) => name.endsWith(tld))) return null
 
+  const args = (() => {
+    if (coinType != null) return [namehash(name), BigInt(coinType)] as const
+    if (chainId != null)
+      return [namehash(name), chainIdToCoinType(chainId)] as const
+    return [namehash(name)] as const
+  })()
+
   try {
     const functionData = encodeFunctionData({
       abi: addressResolverAbi,
       functionName: 'addr',
-      ...(coinType != null
-        ? { args: [namehash(name), BigInt(coinType)] }
-        : { args: [namehash(name)] }),
+      args,
     })
 
     const readContractParameters = {
       address: universalResolverAddress,
       abi: universalResolverResolveAbi,
-      functionName: 'resolve',
+      functionName: 'resolveWithGateways',
       args: [
         toHex(packetToBytes(name)),
         functionData,
@@ -146,7 +172,7 @@ export async function getEnsAddress<chain extends Chain | undefined>(
 
     const address = decodeFunctionResult({
       abi: addressResolverAbi,
-      args: coinType != null ? [namehash(name), BigInt(coinType)] : undefined,
+      args,
       functionName: 'addr',
       data: res[0],
     })
@@ -156,7 +182,7 @@ export async function getEnsAddress<chain extends Chain | undefined>(
     return address
   } catch (err) {
     if (strict) throw err
-    if (isNullUniversalResolverError(err, 'resolve')) return null
+    if (isNullUniversalResolverError(err)) return null
     throw err
   }
 }
