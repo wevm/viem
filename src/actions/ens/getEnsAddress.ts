@@ -23,11 +23,11 @@ import {
 } from '../../utils/chain/getChainContractAddress.js'
 import { type TrimErrorType, trim } from '../../utils/data/trim.js'
 import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
-import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
 import {
   type ChainIdToCoinTypeError,
   chainIdToCoinType,
 } from '../../utils/ens/chainIdToCoinType.js'
+import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
 import { localBatchGatewayUrl } from '../../utils/ens/localBatchGatewayRequest.js'
 import { type NamehashErrorType, namehash } from '../../utils/ens/namehash.js'
 import {

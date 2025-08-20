@@ -10,11 +10,11 @@ import {
   type GetChainContractAddressErrorType,
   getChainContractAddress,
 } from '../../utils/chain/getChainContractAddress.js'
-import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
 import {
   type ChainIdToCoinTypeError,
   chainIdToCoinType,
 } from '../../utils/ens/chainIdToCoinType.js'
+import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
 import { localBatchGatewayUrl } from '../../utils/ens/localBatchGatewayRequest.js'
 import type { PacketToBytesErrorType } from '../../utils/ens/packetToBytes.js'
 import { getAction } from '../../utils/getAction.js'
