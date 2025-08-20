@@ -10,12 +10,11 @@ import {
   type GetChainContractAddressErrorType,
   getChainContractAddress,
 } from '../../utils/chain/getChainContractAddress.js'
-import type { ToHexErrorType } from '../../utils/encoding/toHex.js'
 import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
 import {
-  type EvmChainIdToCoinTypeError,
-  evmChainIdToCoinType,
-} from '../../utils/ens/evmChainIdToCoinType.js'
+  type ChainIdToCoinTypeError,
+  chainIdToCoinType,
+} from '../../utils/ens/chainIdToCoinType.js'
 import { localBatchGatewayUrl } from '../../utils/ens/localBatchGatewayRequest.js'
 import type { PacketToBytesErrorType } from '../../utils/ens/packetToBytes.js'
 import { getAction } from '../../utils/getAction.js'
@@ -52,10 +51,9 @@ export type GetEnsNameParameters = Prettify<
 export type GetEnsNameReturnType = string | null
 
 export type GetEnsNameErrorType =
-  | EvmChainIdToCoinTypeError
+  | ChainIdToCoinTypeError
   | GetChainContractAddressErrorType
   | ReadContractErrorType
-  | ToHexErrorType
   | PacketToBytesErrorType
   | ErrorType
 
@@ -109,7 +107,7 @@ export async function getEnsName<chain extends Chain | undefined>(
 
   const coinType =
     typeof chainId === 'number'
-      ? evmChainIdToCoinType(chainId)
+      ? chainIdToCoinType(chainId)
       : (parameters.coinType ?? 60n)
 
   try {

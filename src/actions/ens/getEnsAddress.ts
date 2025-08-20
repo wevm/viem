@@ -25,9 +25,9 @@ import { type TrimErrorType, trim } from '../../utils/data/trim.js'
 import { type ToHexErrorType, toHex } from '../../utils/encoding/toHex.js'
 import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
 import {
-  type EvmChainIdToCoinTypeError,
-  evmChainIdToCoinType,
-} from '../../utils/ens/evmChainIdToCoinType.js'
+  type ChainIdToCoinTypeError,
+  chainIdToCoinType,
+} from '../../utils/ens/chainIdToCoinType.js'
 import { localBatchGatewayUrl } from '../../utils/ens/localBatchGatewayRequest.js'
 import { type NamehashErrorType, namehash } from '../../utils/ens/namehash.js'
 import {
@@ -67,7 +67,7 @@ export type GetEnsAddressParameters = Prettify<
 export type GetEnsAddressReturnType = Address | null
 
 export type GetEnsAddressErrorType =
-  | EvmChainIdToCoinTypeError
+  | ChainIdToCoinTypeError
   | GetChainContractAddressErrorType
   | EncodeFunctionDataErrorType
   | NamehashErrorType
@@ -140,7 +140,7 @@ export async function getEnsAddress<chain extends Chain | undefined>(
   const args = (() => {
     if (coinType != null) return [namehash(name), BigInt(coinType)] as const
     if (chainId != null)
-      return [namehash(name), evmChainIdToCoinType(chainId)] as const
+      return [namehash(name), chainIdToCoinType(chainId)] as const
     return [namehash(name)] as const
   })()
 
