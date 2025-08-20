@@ -2,6 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const megaethTestnet = /*#__PURE__*/ defineChain({
   id: 6342,
+  blockTime: 1_000,
   name: 'MegaETH Testnet',
   nativeCurrency: {
     name: 'MegaETH Testnet Ether',
