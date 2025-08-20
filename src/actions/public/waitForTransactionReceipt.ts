@@ -166,9 +166,8 @@ export async function waitForTransactionReceipt<
   let receipt: GetTransactionReceiptReturnType<chain> | undefined
   let retrying = false
 
-  // biome-ignore lint/style/useConst:
-  let _unobserve: () => void
-  let _unwatch: () => void
+  let _unobserve: () => void = () => {}
+  let _unwatch: () => void = () => {}
 
   const { promise, resolve, reject } =
     withResolvers<WaitForTransactionReceiptReturnType<chain>>()
