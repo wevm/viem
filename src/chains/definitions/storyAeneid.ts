@@ -29,8 +29,8 @@ export const storyAeneid = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Story Aeneid Explorer',
-      url: 'https://aeneid.storyscan.xyz',
-      apiUrl: 'https://aeneid.storyscan.xyz/api/v2',
+      url: 'https://aeneid.storyscan.io',
+      apiUrl: 'https://aeneid.storyscan.io/api/v2',
     },
   },
   ensTlds: ['.ip'],

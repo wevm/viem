@@ -1,7 +1,9 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
+
 export const berachain = /*#__PURE__*/ defineChain({
   id: 80094,
   name: 'Berachain',
+  blockTime: 2_000,
   nativeCurrency: {
     decimals: 18,
     name: 'BERA Token',

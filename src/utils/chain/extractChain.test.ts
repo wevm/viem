@@ -18,6 +18,7 @@ test('default', async () => {
           "url": "https://etherscan.io",
         },
       },
+      "blockTime": 12000,
       "contracts": {
         "ensRegistry": {
           "address": "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",

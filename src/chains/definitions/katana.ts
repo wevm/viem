@@ -1,10 +1,9 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const hemi = /*#__PURE__*/ defineChain({
-  id: 43111,
-  name: 'Hemi',
-  network: 'Hemi',
-  blockTime: 12_000,
+export const katana = /*#__PURE__*/ defineChain({
+  id: 747474,
+  name: 'Katana',
+  network: 'katana',
   nativeCurrency: {
     name: 'Ether',
     symbol: 'ETH',
@@ -12,13 +11,13 @@ export const hemi = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.hemi.network/rpc'],
+      http: ['https://rpc.katana.network'],
     },
   },
   blockExplorers: {
     default: {
-      name: 'blockscout',
-      url: 'https://explorer.hemi.xyz',
+      name: 'katana explorer',
+      url: 'https://explorer.katanarpc.com',
     },
   },
   testnet: false,

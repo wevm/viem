@@ -175,8 +175,8 @@ export async function waitForTransactionReceipt<
 
   const timer = timeout
     ? setTimeout(() => {
-        _unwatch()
-        _unobserve()
+        _unwatch?.()
+        _unobserve?.()
         reject(new WaitForTransactionReceiptTimeoutError({ hash }))
       }, timeout)
     : undefined
@@ -194,7 +194,7 @@ export async function waitForTransactionReceipt<
       if (receipt && confirmations <= 1) {
         clearTimeout(timer)
         emit.resolve(receipt)
-        _unobserve()
+        _unobserve?.()
         return
       }
 
@@ -210,9 +210,9 @@ export async function waitForTransactionReceipt<
         async onBlockNumber(blockNumber_) {
           const done = (fn: () => void) => {
             clearTimeout(timer)
-            _unwatch()
+            _unwatch?.()
             fn()
-            _unobserve()
+            _unobserve?.()
           }
 
           let blockNumber = blockNumber_
