@@ -617,7 +617,7 @@ test('args: timeout', async () => {
   ).rejects.toThrowError(WaitForTransactionReceiptTimeoutError)
 })
 
-test('timeout with fake hash (reproduces _unwatch is not a function issue)', async () => {
+test('https://github.com/wevm/viem/pull/3876', async () => {
   // This test reproduces the issue where timeout fires before _unwatch is initialized
   // when using a fake hash that will never be found
   await expect(() =>
