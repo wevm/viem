@@ -1,5 +1,34 @@
 # viem
 
+## 2.34.0
+
+### Minor Changes
+
+- [#3843](https://github.com/wevm/viem/pull/3843) [`15352db6d002742f455946380fd77b16a8c5e3e1`](https://github.com/wevm/viem/commit/15352db6d002742f455946380fd77b16a8c5e3e1) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added support for ERC-7811 `getAssets`
+
+### Patch Changes
+
+- [`c88ae75376af7ed7cae920c25116804214a4fea3`](https://github.com/wevm/viem/commit/c88ae75376af7ed7cae920c25116804214a4fea3) Thanks [@jxom](https://github.com/jxom)! - Updated dependencies.
+
+- [#3854](https://github.com/wevm/viem/pull/3854) [`160841ff0d3d0387c3cfe60fc7c2dfef123942d9`](https://github.com/wevm/viem/commit/160841ff0d3d0387c3cfe60fc7c2dfef123942d9) Thanks [@0xdevant](https://github.com/0xdevant)! - Added Hyperliquid EVM Testnet.
+
+- [#3856](https://github.com/wevm/viem/pull/3856) [`97512ca3adda768db41efb3514de8b8476abf2b2`](https://github.com/wevm/viem/commit/97512ca3adda768db41efb3514de8b8476abf2b2) Thanks [@cr-eative-dev](https://github.com/cr-eative-dev)! - Added Agung testnet chain.
+  Updated PEAQ chain RPC URLs.
+
+- [#3849](https://github.com/wevm/viem/pull/3849) [`9d41203c46cf989a489ee33b3f8a12128aad4236`](https://github.com/wevm/viem/commit/9d41203c46cf989a489ee33b3f8a12128aad4236) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Humanity Mainnet.
+
+- [#3867](https://github.com/wevm/viem/pull/3867) [`122b28dc11f6d4feccb0d78820cab72e63b33004`](https://github.com/wevm/viem/commit/122b28dc11f6d4feccb0d78820cab72e63b33004) Thanks [@johanneskares](https://github.com/johanneskares)! - Added support for magic.link in `sendCalls` fallback.
+
+- [`29b6853c58a96088c94793da23d2fab5354ce296`](https://github.com/wevm/viem/commit/29b6853c58a96088c94793da23d2fab5354ce296) Thanks [@jxom](https://github.com/jxom)! - Added `blockTime` to `mainnet`.
+
+- [#3868](https://github.com/wevm/viem/pull/3868) [`5e6d33efc9ac25dc2520bbec8e94632cffbe26d0`](https://github.com/wevm/viem/commit/5e6d33efc9ac25dc2520bbec8e94632cffbe26d0) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Sova Sepolia.
+
+- [`29b6853c58a96088c94793da23d2fab5354ce296`](https://github.com/wevm/viem/commit/29b6853c58a96088c94793da23d2fab5354ce296) Thanks [@jxom](https://github.com/jxom)! - Updated Story block explorer URLs.
+
+- [#3838](https://github.com/wevm/viem/pull/3838) [`4a5249a83bf35b1bd1b66f202f3f9a665f14674b`](https://github.com/wevm/viem/commit/4a5249a83bf35b1bd1b66f202f3f9a665f14674b) Thanks [@0xheartcode](https://github.com/0xheartcode)! - Removed deprecated astarzkevm and astarzkyoto chains.
+
+- [#3857](https://github.com/wevm/viem/pull/3857) [`7827c35eefd09d1b01256e80e03cbf69af1a67d1`](https://github.com/wevm/viem/commit/7827c35eefd09d1b01256e80e03cbf69af1a67d1) Thanks [@SilverPokerKing](https://github.com/SilverPokerKing)! - Added Katana network.
+
 ## 2.33.3
 
 ### Patch Changes

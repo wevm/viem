@@ -6,7 +6,7 @@ import { erc7811Actions } from '../decorators/erc7811.js'
 import { getAssets } from './getAssets.js'
 
 const client = createClient({
-  transport: http('https://base-sepolia-int.rpc.ithaca.xyz'),
+  transport: http('https://rpc.ithaca.xyz'),
 }).extend(erc7811Actions())
 
 test('default', async () => {
