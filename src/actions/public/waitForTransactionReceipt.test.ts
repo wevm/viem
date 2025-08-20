@@ -13,7 +13,10 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
 import { keccak256 } from '~viem/utils/index.js'
-import { prepareTransactionRequest } from '../../actions/index.js'
+import {
+  getTransactionCount,
+  prepareTransactionRequest,
+} from '../../actions/index.js'
 import {
   sendRawTransaction,
   setIntervalMining,
@@ -22,6 +25,10 @@ import {
 import * as getBlock from './getBlock.js'
 import * as getTransactionModule from './getTransaction.js'
 import { waitForTransactionReceipt } from './waitForTransactionReceipt.js'
+import { createClient } from '../../clients/createClient.js'
+import { sepolia } from '../../chains/index.js'
+import { http } from '../../clients/transports/http.js'
+import { setTimeout } from 'node:timers/promises'
 
 const client = anvilMainnet.getClient()
 
@@ -660,4 +667,46 @@ describe('errors', () => {
       ]),
     ).rejects.toThrowErrorMatchingInlineSnapshot('[Error: foo]')
   })
+})
+
+test.only('https://github.com/wevm/viem/issues/3875', async () => {
+  const account = privateKeyToAccount(
+    process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,
+  )
+  const client = createClient({
+    chain: sepolia,
+    transport: http(),
+  })
+
+  const block = await getBlock.getBlock(client)
+  const nonce = await getTransactionCount(client, {
+    address: account.address,
+    blockTag: 'pending',
+  })
+
+  const hash = await sendTransaction(client, {
+    account,
+    to: account.address,
+    nonce,
+    maxPriorityFeePerGas: 0n,
+    maxFeePerGas: block.baseFeePerGas!,
+    value: 0n,
+  })
+
+  const receipt = await Promise.all([
+    waitForTransactionReceipt(client, {
+      hash,
+    }),
+    (async () => {
+      await wait(1000)
+      await sendTransaction(client, {
+        account,
+        nonce,
+        to: account.address,
+        value: 0n,
+      })
+    })(),
+  ])
+
+  expect(receipt).toBeDefined()
 })
