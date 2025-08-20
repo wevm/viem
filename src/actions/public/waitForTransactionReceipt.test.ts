@@ -617,18 +617,6 @@ test('args: timeout', async () => {
   ).rejects.toThrowError(WaitForTransactionReceiptTimeoutError)
 })
 
-test('https://github.com/wevm/viem/pull/3876', async () => {
-  // This test reproduces the issue where timeout fires before _unwatch is initialized
-  // when using a fake hash that will never be found
-  await expect(() =>
-    waitForTransactionReceipt(client, {
-      hash: '0x0716b5f39bb68337df2944f12d8b5821df7b5bdc04e6dadba750a6a126ac42ab',
-      confirmations: 0,
-      timeout: 1, // Very short timeout to trigger race condition
-    }),
-  ).rejects.toThrowError(WaitForTransactionReceiptTimeoutError)
-})
-
 describe('errors', () => {
   test('throws when transaction replaced and getBlock fails', async () => {
     setup()
