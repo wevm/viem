@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { chainIdToCoinType } from './chainIdToCoinType.js'
+import { toCoinType } from './toCoinType.js'
 
 test.each([
   {
@@ -19,12 +19,12 @@ test.each([
     chainId: 0x7fffffff,
     expected: 4294967295n,
   },
-])('chainIdToCoinType($chainId) -> $expected', ({ chainId, expected }) => {
-  expect(chainIdToCoinType(chainId)).toBe(expected)
+])('toCoinType($chainId) -> $expected', ({ chainId, expected }) => {
+  expect(toCoinType(chainId)).toBe(expected)
 })
 
 test('only positive chainIds', () => {
-  expect(() => chainIdToCoinType(-1)).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => toCoinType(-1)).toThrowErrorMatchingInlineSnapshot(`
     [EnsInvalidChainIdError: Invalid ENSIP-11 chainId: -1. Must be between 0 and 0x7fffffff, or 1.
 
     Version: viem@x.y.z]
@@ -32,9 +32,7 @@ test('only positive chainIds', () => {
 })
 
 test('less than 0x80000000', () => {
-  expect(() =>
-    chainIdToCoinType(0x80000000),
-  ).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => toCoinType(0x80000000)).toThrowErrorMatchingInlineSnapshot(`
     [EnsInvalidChainIdError: Invalid ENSIP-11 chainId: 2147483648. Must be between 0 and 0x7fffffff, or 1.
 
     Version: viem@x.y.z]

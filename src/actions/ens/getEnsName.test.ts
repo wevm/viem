@@ -10,6 +10,7 @@ import {
   createClient,
   encodeErrorResult,
   encodeFunctionResult,
+  toCoinType,
 } from '~viem/index.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { optimism } from '../../chains/index.js'
@@ -37,11 +38,11 @@ test('gets primary name for address', async () => {
   ).resolves.toMatchInlineSnapshot('"awkweb.eth"')
 })
 
-test('gets primary name for address using custom chain id', async () => {
+test('gets primary name for address using `toCoinType`', async () => {
   await expect(
     getEnsName(client, {
       address: '0x69420f05A11f617B4B74fFe2E04B2D300dFA556F',
-      chainId: 0,
+      coinType: toCoinType(0),
     }),
   ).resolves.toMatchInlineSnapshot('"ilikelasagna.eth"')
 })

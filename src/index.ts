@@ -1232,9 +1232,9 @@ export type {
   StateOverride,
 } from './types/stateOverride.js'
 export {
-  chainIdToCoinType,
-  type ChainIdToCoinTypeError,
-} from './utils/ens/chainIdToCoinType.js'
+  toCoinType,
+  type ToCoinTypeError,
+} from './utils/ens/toCoinType.js'
 export { labelhash, type LabelhashErrorType } from './utils/ens/labelhash.js'
 export { namehash, type NamehashErrorType } from './utils/ens/namehash.js'
 export {

@@ -5,6 +5,7 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import { linea, mainnet, optimism } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
+import { toCoinType } from '../../ens/index.js'
 import { reset } from '../test/reset.js'
 import { getEnsAddress } from './getEnsAddress.js'
 
@@ -58,9 +59,9 @@ test('gets address for name with coinType', async () => {
   )
 })
 
-test('gets address for name with chainId 1', async () => {
+test('gets address for name with coinType', async () => {
   await expect(
-    getEnsAddress(client, { name: 'awkweb.eth', chainId: 1 }),
+    getEnsAddress(client, { name: 'awkweb.eth', coinType: toCoinType(1) }),
   ).resolves.toMatchInlineSnapshot(
     '"0xa0cf798816d4b9b9866b5330eea46a18382f251e"',
   )
@@ -74,7 +75,7 @@ test('name without address with coinType', async () => {
 
 test('name with address with chainId', async () => {
   await expect(
-    getEnsAddress(client, { name: 'taytems.eth', chainId: 10 }),
+    getEnsAddress(client, { name: 'taytems.eth', coinType: toCoinType(10) }),
   ).resolves.toMatchInlineSnapshot(
     '"0x8e8db5ccef88cca9d624701db544989c996e3216"',
   )
@@ -82,7 +83,7 @@ test('name with address with chainId', async () => {
 
 test('name without address with chainId', async () => {
   await expect(
-    getEnsAddress(client, { name: 'awkweb.eth', chainId: 10 }),
+    getEnsAddress(client, { name: 'awkweb.eth', coinType: toCoinType(10) }),
   ).resolves.toBeNull()
 })
 

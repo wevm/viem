@@ -31,9 +31,9 @@ export {
   getEnsText,
 } from '../actions/ens/getEnsText.js'
 export {
-  type ChainIdToCoinTypeError,
-  chainIdToCoinType,
-} from '../utils/ens/chainIdToCoinType.js'
+  type ToCoinTypeError,
+  toCoinType,
+} from '../utils/ens/toCoinType.js'
 export { type LabelhashErrorType, labelhash } from '../utils/ens/labelhash.js'
 export { type NamehashErrorType, namehash } from '../utils/ens/namehash.js'
 export {

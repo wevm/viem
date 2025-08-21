@@ -10,10 +10,6 @@ import {
   type GetChainContractAddressErrorType,
   getChainContractAddress,
 } from '../../utils/chain/getChainContractAddress.js'
-import {
-  type ChainIdToCoinTypeError,
-  chainIdToCoinType,
-} from '../../utils/ens/chainIdToCoinType.js'
 import { isNullUniversalResolverError } from '../../utils/ens/errors.js'
 import { localBatchGatewayUrl } from '../../utils/ens/localBatchGatewayRequest.js'
 import type { PacketToBytesErrorType } from '../../utils/ens/packetToBytes.js'
@@ -26,32 +22,42 @@ import {
 
 export type GetEnsNameParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
-    /** Address to get ENS name for. */
+    /**
+     * Address to get ENS name for.
+     */
     address: Address
-    /** Universal Resolver gateway URLs to use for resolving CCIP-read requests. */
+    /**
+     * ENSIP-9 compliant coinType (chain) to get ENS name for.
+     *
+     * To get the `coinType` for a chain id, use the `toCoinType` function:
+     * ```ts
+     * import { toCoinType } from 'viem'
+     * import { base } from 'viem/chains'
+     *
+     * const coinType = toCoinType(base.id)
+     * ```
+     *
+     * @default 60n
+     */
+    coinType?: bigint | undefined
+    /**
+     * Universal Resolver gateway URLs to use for resolving CCIP-read requests.
+     */
     gatewayUrls?: string[] | undefined
-    /** Whether or not to throw errors propagated from the ENS Universal Resolver Contract. */
+    /**
+     * Whether or not to throw errors propagated from the ENS Universal Resolver Contract.
+     */
     strict?: boolean | undefined
-    /** Address of ENS Universal Resolver Contract. */
+    /**
+     * Address of ENS Universal Resolver Contract.
+     */
     universalResolverAddress?: Address | undefined
-  } & (
-      | {
-          /** Chain ID to get ENS name for. */
-          chainId?: number | undefined
-          coinType?: undefined
-        }
-      | {
-          chainId?: undefined
-          /** Coin type to get ENS name for. */
-          coinType?: bigint | undefined
-        }
-    )
+  }
 >
 
 export type GetEnsNameReturnType = string | null
 
 export type GetEnsNameErrorType =
-  | ChainIdToCoinTypeError
   | GetChainContractAddressErrorType
   | ReadContractErrorType
   | PacketToBytesErrorType
@@ -87,8 +93,14 @@ export async function getEnsName<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   parameters: GetEnsNameParameters,
 ): Promise<GetEnsNameReturnType> {
-  const { address, blockNumber, blockTag, chainId, gatewayUrls, strict } =
-    parameters
+  const {
+    address,
+    blockNumber,
+    blockTag,
+    coinType = 60n,
+    gatewayUrls,
+    strict,
+  } = parameters
   const { chain } = client
 
   const universalResolverAddress = (() => {
@@ -104,11 +116,6 @@ export async function getEnsName<chain extends Chain | undefined>(
       contract: 'ensUniversalResolver',
     })
   })()
-
-  const coinType =
-    typeof chainId === 'number'
-      ? chainIdToCoinType(chainId)
-      : (parameters.coinType ?? 60n)
 
   try {
     const readContractParameters = {
