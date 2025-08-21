@@ -19,5 +19,11 @@ export const eduChain = /*#__PURE__*/ defineChain({
       url: 'https://educhain.blockscout.com/',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 16410660,
+    },
+  },
   testnet: false,
 })
