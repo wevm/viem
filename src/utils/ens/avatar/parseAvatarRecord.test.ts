@@ -11,7 +11,7 @@ const client = anvilMainnet.getClient()
 
 beforeAll(async () => {
   await reset(client, {
-    blockNumber: 19_258_213n,
+    blockNumber: 23_085_558n,
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
 })

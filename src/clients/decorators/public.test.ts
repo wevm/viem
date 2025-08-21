@@ -225,7 +225,7 @@ describe('smoke test', () => {
     async () => {
       const blockNumber = await getBlockNumber(client)
       await reset(client, {
-        blockNumber: 19_258_213n,
+        blockNumber: 23_085_558n,
         jsonRpcUrl: anvilMainnet.forkUrl,
       })
       expect(await client.getEnsAddress({ name: 'jxom.eth' })).toBeDefined()
@@ -242,7 +242,7 @@ describe('smoke test', () => {
     async () => {
       const blockNumber = await getBlockNumber(client)
       await reset(client, {
-        blockNumber: 19_258_213n,
+        blockNumber: 23_085_558n,
         jsonRpcUrl: anvilMainnet.forkUrl,
       })
       expect(await client.getEnsAvatar({ name: 'jxom.eth' })).toBeDefined()
@@ -259,7 +259,7 @@ describe('smoke test', () => {
     async () => {
       const blockNumber = await getBlockNumber(client)
       await reset(client, {
-        blockNumber: 19_258_213n,
+        blockNumber: 23_085_558n,
         jsonRpcUrl: anvilMainnet.forkUrl,
       })
       expect(
@@ -278,7 +278,7 @@ describe('smoke test', () => {
     async () => {
       const blockNumber = await getBlockNumber(client)
       await reset(client, {
-        blockNumber: 19_258_213n,
+        blockNumber: 23_085_558n,
         jsonRpcUrl: anvilMainnet.forkUrl,
       })
       expect(await client.getEnsResolver({ name: 'jxom.eth' })).toBeDefined()
@@ -295,7 +295,7 @@ describe('smoke test', () => {
     async () => {
       const blockNumber = await getBlockNumber(client)
       await reset(client, {
-        blockNumber: 19_258_213n,
+        blockNumber: 23_085_558n,
         jsonRpcUrl: anvilMainnet.forkUrl,
       })
       expect(
