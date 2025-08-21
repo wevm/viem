@@ -509,8 +509,8 @@ export { somniaTestnet } from './definitions/somniaTestnet.js'
 export { soneium } from './definitions/soneium.js'
 export { soneiumMinato } from './definitions/soneiumMinato.js'
 export { sonic } from './definitions/sonic.js'
-/** @deprecated Use `sonicBlazeTestnet` instead. */
 export { sonicTestnet } from './definitions/sonicTestnet.js'
+/** @deprecated Use `sonicTestnet` instead. */
 export { sonicBlazeTestnet } from './definitions/sonicBlazeTestnet.js'
 export { songbird } from './definitions/songbird.js'
 export { songbirdTestnet } from './definitions/songbirdTestnet.js'
