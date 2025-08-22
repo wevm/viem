@@ -206,37 +206,37 @@ jobs:
         shell: bash
         run: pnpm vectors
 
-  # wagmi:
-  #   name: Wagmi
-  #   needs: [build, types]
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 10
-  #   strategy:
-  #     matrix:
-  #       typescript-version: ['5.7.2', '5.8.2', '5.9.2', 'latest']
+  wagmi:
+    name: Wagmi
+    needs: [build, types]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        typescript-version: ['5.7.2', '5.8.2', '5.9.2', 'latest']
 
-  #   steps:
-  #     - name: Clone repository
-  #       uses: actions/checkout@v4
-  #       with: 
-  #         submodules: 'recursive'
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
 
-  #     - name: Install dependencies
-  #       uses: ./.github/actions/install-dependencies
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
 
-  #     - name: Setup wagmi
-  #       uses: ./.github/actions/setup-wagmi
-  #       env:
-  #         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup wagmi
+        uses: ./.github/actions/setup-wagmi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  #     - run: pnpm add -D -w typescript@${{ matrix.typescript-version }}
-  #       working-directory: ./wagmi
+      - run: pnpm add -D -w typescript@${{ matrix.typescript-version }}
+        working-directory: ./wagmi
 
-  #     - name: Check types
-  #       run: pnpm check:types
-  #       working-directory: ./wagmi
+      - name: Check types
+        run: pnpm check:types
+        working-directory: ./wagmi
 
-  #     - name: Check build
-  #       run: pnpm build
-  #       working-directory: ./wagmi
+      - name: Check build
+        run: pnpm build
+        working-directory: ./wagmi
 
