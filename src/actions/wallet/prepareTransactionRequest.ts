@@ -32,6 +32,7 @@ import type { DeriveAccount, GetAccountParameter } from '../../types/account.js'
 import type { Block } from '../../types/block.js'
 import type { Chain, DeriveChain } from '../../types/chain.js'
 import type { GetChainParameter } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
 import type {
   TransactionRequest,
@@ -127,7 +128,11 @@ export type PrepareTransactionRequestParameters<
 > = request &
   GetAccountParameter<account, accountOverride, false, true> &
   GetChainParameter<chain, chainOverride> &
-  GetTransactionRequestKzgParameter<request> & { chainId?: number | undefined }
+  GetTransactionRequestKzgParameter<request> & {
+    chainId?: number | undefined
+    /** Request options. */
+    requestOptions?: EIP1193RequestOptions | undefined
+  }
 
 export type PrepareTransactionRequestReturnType<
   chain extends Chain | undefined = Chain | undefined,
@@ -264,6 +269,7 @@ export async function prepareTransactionRequest<
     nonceManager,
     parameters = defaultParameters,
     type,
+    requestOptions,
   } = args
   const account = account_ ? parseAccount(account_) : account_
 
@@ -276,7 +282,7 @@ export async function prepareTransactionRequest<
       client,
       getBlock_,
       'getBlock',
-    )({ blockTag: 'latest' })
+    )({ blockTag: 'latest', requestOptions })
     return block
   }
 
@@ -285,7 +291,11 @@ export async function prepareTransactionRequest<
     if (chainId) return chainId
     if (chain) return chain.id
     if (typeof args.chainId !== 'undefined') return args.chainId
-    const chainId_ = await getAction(client, getChainId_, 'getChainId')({})
+    const chainId_ = await getAction(
+      client,
+      getChainId_,
+      'getChainId',
+    )({ requestOptions })
     chainId = chainId_
     return chainId
   }
@@ -306,6 +316,7 @@ export async function prepareTransactionRequest<
       )({
         address: account.address,
         blockTag: 'pending',
+        requestOptions,
       })
     }
   }
@@ -373,6 +384,7 @@ export async function prepareTransactionRequest<
             block: block as Block,
             chain,
             request: request as PrepareTransactionRequestParameters,
+            requestOptions,
           })
 
         if (
@@ -404,6 +416,7 @@ export async function prepareTransactionRequest<
             chain,
             request: request as PrepareTransactionRequestParameters,
             type: 'legacy',
+            requestOptions,
           },
         )
         request.gasPrice = gasPrice_
@@ -421,6 +434,7 @@ export async function prepareTransactionRequest<
       account: account
         ? { address: account.address, type: 'json-rpc' }
         : account,
+      requestOptions,
     } as EstimateGasParameters)
 
   assertRequest(request as AssertRequestParameters)

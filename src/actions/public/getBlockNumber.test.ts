@@ -46,3 +46,55 @@ test('behavior: caches blockNumber within cacheTime', async () => {
 
   vi.useRealTimers()
 })
+
+test('requestOptions: cancellation with AbortController', async () => {
+  const controller = new AbortController()
+
+  const promise = getBlockNumber(client, {
+    requestOptions: {
+      signal: controller.signal,
+    },
+  })
+
+  // Cancel the request immediately
+  controller.abort()
+
+  await expect(promise).rejects.toThrow()
+})
+
+test('requestOptions: successful request with signal', async () => {
+  const controller = new AbortController()
+
+  const blockNumber = await getBlockNumber(client, {
+    requestOptions: {
+      signal: controller.signal,
+    },
+  })
+
+  expect(blockNumber).toBeDefined()
+  expect(typeof blockNumber).toBe('bigint')
+})
+
+test('requestOptions: already aborted signal', async () => {
+  const controller = new AbortController()
+  controller.abort()
+
+  const promise = getBlockNumber(client, {
+    requestOptions: {
+      signal: controller.signal,
+    },
+  })
+
+  await expect(promise).rejects.toThrow()
+})
+
+test('requestOptions: custom retry settings', async () => {
+  const blockNumber = await getBlockNumber(client, {
+    requestOptions: {
+      retryCount: 0,
+      retryDelay: 0,
+    },
+  })
+
+  expect(blockNumber).toBeDefined()
+})
