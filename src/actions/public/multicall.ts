@@ -42,7 +42,10 @@ export type MulticallParameters<
     optional?: boolean
     properties?: Record<string, any>
   } = {},
-> = Pick<CallParameters, 'blockNumber' | 'blockTag' | 'stateOverride'> & {
+> = Pick<
+  CallParameters,
+  'authorizationList' | 'blockNumber' | 'blockTag' | 'stateOverride'
+> & {
   account?: Address | undefined
   allowFailure?: allowFailure | boolean | undefined
   batchSize?: number | undefined
@@ -122,6 +125,7 @@ export async function multicall<
 ): Promise<MulticallReturnType<contracts, allowFailure>> {
   const {
     account,
+    authorizationList,
     allowFailure = true,
     batchSize: batchSize_,
     blockNumber,
@@ -220,6 +224,7 @@ export async function multicall<
         account,
         address: multicallAddress!,
         args: [calls],
+        authorizationList,
         blockNumber,
         blockTag,
         functionName: 'aggregate3',

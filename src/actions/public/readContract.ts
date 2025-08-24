@@ -43,6 +43,7 @@ export type ReadContractParameters<
   Pick<
     CallParameters,
     | 'account'
+    | 'authorizationList'
     | 'blockNumber'
     | 'blockTag'
     | 'factory'

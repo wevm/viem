@@ -1,20 +1,28 @@
 import { describe, expect, test } from 'vitest'
 
 import {
+  Delegation,
   ErrorsExample,
   SoladyAccount07,
   SoladyAccountFactory07,
 } from '~contracts/generated.js'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
-import { deployErrorExample, deploySoladyAccount_07 } from '~test/src/utils.js'
+import {
+  deploy,
+  deployErrorExample,
+  deploySoladyAccount_07,
+} from '~test/src/utils.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
+import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 
 import type { Hex } from '../../types/misc.js'
 import { pad } from '../../utils/data/pad.js'
 import { toHex } from '../../utils/encoding/toHex.js'
 import { encodeFunctionData } from '../../utils/index.js'
+import { signAuthorization } from '../wallet/signAuthorization.js'
 import { readContract } from './readContract.js'
 
 const client = anvilMainnet.getClient()
@@ -187,6 +195,30 @@ describe('bayc', () => {
       Version: viem@x.y.z]
     `)
   })
+})
+
+test('args: authorizationList', async () => {
+  const { contractAddress } = await deploy(client, {
+    abi: Delegation.abi,
+    bytecode: Delegation.bytecode.object,
+  })
+
+  const eoa = privateKeyToAccount(generatePrivateKey())
+
+  const authorization = await signAuthorization(client, {
+    account: eoa,
+    contractAddress: contractAddress!,
+  })
+
+  const result = await readContract(client, {
+    abi: Delegation.abi,
+    address: eoa.address,
+    functionName: 'ping',
+    args: ['hello'],
+    authorizationList: [authorization],
+  })
+
+  expect(result).toMatchInlineSnapshot('"pong: hello"')
 })
 
 describe('deployless read (factory)', () => {
