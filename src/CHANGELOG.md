@@ -1,5 +1,30 @@
 # viem
 
+## 2.35.0
+
+### Minor Changes
+
+- [#3848](https://github.com/wevm/viem/pull/3848) [`390fff8db23f388f520356c9d3847a22acf56a72`](https://github.com/wevm/viem/commit/390fff8db23f388f520356c9d3847a22acf56a72) Thanks [@TateB](https://github.com/TateB)! - Added support for chain-specific ENS resolution and ENS UniversalResolver v3.
+
+### Patch Changes
+
+- [#3871](https://github.com/wevm/viem/pull/3871) [`318218989aaafe413f2d659bed619b30dcf672d3`](https://github.com/wevm/viem/commit/318218989aaafe413f2d659bed619b30dcf672d3) Thanks [@bearpong](https://github.com/bearpong)! - Added `blockTime` for Berachain.
+
+- [#3874](https://github.com/wevm/viem/pull/3874) [`59fd7d5f7f02c0d3eb12ac6d497e5edd5ebc8b77`](https://github.com/wevm/viem/commit/59fd7d5f7f02c0d3eb12ac6d497e5edd5ebc8b77) Thanks [@BigtoMantraDev](https://github.com/BigtoMantraDev)! - Add MANTRA DuKong EVM Testnet
+
+- [#3876](https://github.com/wevm/viem/pull/3876) [`77901c8fa3d8868d26e3821ccc1650457b07092c`](https://github.com/wevm/viem/commit/77901c8fa3d8868d26e3821ccc1650457b07092c) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fixed `_unwatch is not a function` error in `waitForTransactionReceipt`.
+
+- [#3870](https://github.com/wevm/viem/pull/3870) [`f9a10532b4cd8fd8f9dc1430a966a9fad87962df`](https://github.com/wevm/viem/commit/f9a10532b4cd8fd8f9dc1430a966a9fad87962df) Thanks [@essserrr](https://github.com/essserrr)! - Added `blockTime` for:
+
+  - `avalanche`
+  - `berachain`
+  - `bsc`
+  - `etherlink`
+  - `hemi`
+  - `megaethTestnet`
+  - `monadTestnet`
+  - `sonic`
+
 ## 2.34.0
 
 ### Minor Changes
