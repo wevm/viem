@@ -73,9 +73,9 @@
     "typescript": "catalog:",
     "vitest": "^1.0.4"
   },
-  "packageManager": "pnpm@10.14.0",
+  "packageManager": "pnpm@10.15.0",
   "engines": {
-    "node": ">=24"
+    "node": ">=22"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm check"
