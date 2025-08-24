@@ -1,5 +1,11 @@
 # viem
 
+## 2.35.1
+
+### Patch Changes
+
+- [`768cf82c32dc7f5d9601eb5f601efcef857184c2`](https://github.com/wevm/viem/commit/768cf82c32dc7f5d9601eb5f601efcef857184c2) Thanks [@jxom](https://github.com/jxom)! - Added `authorizationList` to `readContract` and `multicall`.
+
 ## 2.35.0
 
 ### Minor Changes
