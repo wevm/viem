@@ -281,6 +281,111 @@ test('args: multicallAddress', async () => {
   `)
 })
 
+test('args: deployless', async () => {
+  expect(
+    await multicall(client, {
+      blockNumber: anvilMainnet.forkBlockNumber,
+      deployless: true,
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+        {
+          ...baycContractConfig,
+          functionName: 'totalSupply',
+        },
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      {
+        "result": 39507977228957576n,
+        "status": "success",
+      },
+      {
+        "result": 123223706565n,
+        "status": "success",
+      },
+      {
+        "result": 10000n,
+        "status": "success",
+      },
+    ]
+  `)
+})
+
+test('args: deployless with allowFailure false', async () => {
+  expect(
+    await multicall(client, {
+      allowFailure: false,
+      blockNumber: anvilMainnet.forkBlockNumber,
+      deployless: true,
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+        {
+          ...baycContractConfig,
+          functionName: 'totalSupply',
+        },
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      39507977228957576n,
+      123223706565n,
+      10000n,
+    ]
+  `)
+})
+
+test('args: deployless without chain', async () => {
+  const clientWithoutChain = createPublicClient({
+    transport: http(anvilMainnet.rpcUrl.http),
+  })
+
+  expect(
+    await multicall(clientWithoutChain, {
+      blockNumber: anvilMainnet.forkBlockNumber,
+      deployless: true,
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      {
+        "result": 39507977228957576n,
+        "status": "success",
+      },
+      {
+        "result": 123223706565n,
+        "status": "success",
+      },
+    ]
+  `)
+})
+
 test('args: stateOverride', async () => {
   const fakeName = 'NotWagmi'
 
@@ -1217,6 +1322,93 @@ test('batchSize on client', async () => {
   await multicall(client, {
     contracts,
   })
+})
+
+test('deployless on client', async () => {
+  const clientWithDeployless = createPublicClient({
+    batch: {
+      multicall: {
+        deployless: true,
+      },
+    },
+    chain: anvilMainnet.chain,
+    transport: http(),
+  })
+
+  expect(
+    await multicall(clientWithDeployless, {
+      blockNumber: anvilMainnet.forkBlockNumber,
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+        {
+          ...baycContractConfig,
+          functionName: 'totalSupply',
+        },
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      {
+        "result": 39507977228957576n,
+        "status": "success",
+      },
+      {
+        "result": 123223706565n,
+        "status": "success",
+      },
+      {
+        "result": 10000n,
+        "status": "success",
+      },
+    ]
+  `)
+})
+
+test('deployless on client without chain', async () => {
+  const clientWithDeploylessNoChain = createPublicClient({
+    batch: {
+      multicall: {
+        deployless: true,
+      },
+    },
+    transport: http(anvilMainnet.rpcUrl.http),
+  })
+
+  expect(
+    await multicall(clientWithDeploylessNoChain, {
+      blockNumber: anvilMainnet.forkBlockNumber,
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      {
+        "result": 39507977228957576n,
+        "status": "success",
+      },
+      {
+        "result": 123223706565n,
+        "status": "success",
+      },
+    ]
+  `)
 })
 
 describe('GitHub repros', () => {

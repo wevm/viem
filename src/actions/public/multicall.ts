@@ -3,6 +3,7 @@ import type { AbiStateMutability, Address, Narrow } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { multicall3Abi } from '../../constants/abis.js'
+import { multicall3Bytecode } from '../../constants/contracts.js'
 import { AbiDecodingZeroDataError } from '../../errors/abi.js'
 import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
@@ -14,6 +15,7 @@ import type {
   MulticallContracts,
   MulticallResults,
 } from '../../types/multicall.js'
+import type { OneOf } from '../../types/utils.js'
 import {
   type DecodeFunctionResultErrorType,
   decodeFunctionResult,
@@ -45,15 +47,27 @@ export type MulticallParameters<
   CallParameters,
   'authorizationList' | 'blockNumber' | 'blockTag' | 'stateOverride'
 > & {
+  /** The account to use for the multicall. */
   account?: Address | undefined
+  /** Whether to allow failures. */
   allowFailure?: allowFailure | boolean | undefined
+  /** The size of each batch of calls. */
   batchSize?: number | undefined
+  /** The contracts to call. */
   contracts: MulticallContracts<
     Narrow<contracts>,
     { mutability: AbiStateMutability } & options
   >
-  multicallAddress?: Address | undefined
-}
+} & OneOf<
+    | {
+        /** The address of the multicall3 contract to use. */
+        multicallAddress?: Address | undefined
+      }
+    | {
+        /** Enable deployless multicall. */
+        deployless?: boolean | undefined
+      }
+  >
 
 export type MulticallReturnType<
   contracts extends readonly unknown[] = readonly ContractFunctionParameters[],
@@ -126,33 +140,31 @@ export async function multicall<
     account,
     authorizationList,
     allowFailure = true,
-    batchSize: batchSize_,
     blockNumber,
     blockTag,
-    multicallAddress: multicallAddress_,
     stateOverride,
   } = parameters
   const contracts = parameters.contracts as ContractFunctionParameters[]
 
-  const batchSize =
-    batchSize_ ??
-    ((typeof client.batch?.multicall === 'object' &&
-      client.batch.multicall.batchSize) ||
-      1_024)
+  const {
+    batchSize = parameters.batchSize ?? 1024,
+    deployless = parameters.deployless ?? false,
+  } = typeof client.batch?.multicall === 'object' ? client.batch.multicall : {}
 
-  let multicallAddress = multicallAddress_
-  if (!multicallAddress) {
-    if (!client.chain)
-      throw new Error(
-        'client chain not configured. multicallAddress is required.',
-      )
-
-    multicallAddress = getChainContractAddress({
-      blockNumber,
-      chain: client.chain,
-      contract: 'multicall3',
-    })
-  }
+  const multicallAddress = (() => {
+    if (parameters.multicallAddress) return parameters.multicallAddress
+    if (deployless) return null
+    if (client.chain) {
+      return getChainContractAddress({
+        blockNumber,
+        chain: client.chain,
+        contract: 'multicall3',
+      })
+    }
+    throw new Error(
+      'client chain not configured. multicallAddress is required.',
+    )
+  })()
 
   type Aggregate3Calls = {
     allowFailure: boolean
@@ -219,9 +231,11 @@ export async function multicall<
         readContract,
         'readContract',
       )({
+        ...(multicallAddress === null
+          ? { code: multicall3Bytecode }
+          : { address: multicallAddress }),
         abi: multicall3Abi,
         account,
-        address: multicallAddress!,
         args: [calls],
         authorizationList,
         blockNumber,

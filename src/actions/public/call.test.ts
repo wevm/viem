@@ -655,9 +655,15 @@ describe('errors', () => {
   })
 })
 
-describe('batch call', () => {
+describe.each([true, false])('batch call (deployless: %s)', (deployless) => {
   test('default', async () => {
-    const client_2 = anvilMainnet.getClient({ batch: { multicall: true } })
+    const client_2 = anvilMainnet.getClient({
+      batch: {
+        multicall: {
+          deployless,
+        },
+      },
+    })
 
     const spy = vi.spyOn(client_2, 'request')
 
@@ -705,32 +711,17 @@ describe('batch call', () => {
     const results = await Promise.all(p)
 
     expect(spy).toBeCalledTimes(4)
-    expect(results).toMatchInlineSnapshot(`
-      [
-        {
-          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
-        },
-        {
-          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
-        },
-      ]
-    `)
+    expect(results).toMatchSnapshot()
   })
 
   test('args: blockNumber', async () => {
-    const client_2 = anvilMainnet.getClient({ batch: { multicall: true } })
+    const client_2 = anvilMainnet.getClient({
+      batch: {
+        multicall: {
+          deployless,
+        },
+      },
+    })
 
     const spy = vi.spyOn(client_2, 'request')
 
@@ -787,35 +778,17 @@ describe('batch call', () => {
     const results = await Promise.all(p)
 
     expect(spy).toBeCalledTimes(6)
-    expect(results).toMatchInlineSnapshot(`
-      [
-        {
-          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
-        },
-        {
-          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
-        },
-      ]
-    `)
+    expect(results).toMatchSnapshot()
   })
 
   test('args: no address, no data, aggregate3 sig, other properties', async () => {
-    const client_2 = anvilMainnet.getClient({ batch: { multicall: true } })
+    const client_2 = anvilMainnet.getClient({
+      batch: {
+        multicall: {
+          deployless,
+        },
+      },
+    })
 
     const spy = vi.spyOn(client_2, 'request')
 
@@ -852,7 +825,13 @@ describe('batch call', () => {
   })
 
   test('contract revert', async () => {
-    const client_2 = anvilMainnet.getClient({ batch: { multicall: true } })
+    const client_2 = anvilMainnet.getClient({
+      batch: {
+        multicall: {
+          deployless,
+        },
+      },
+    })
 
     const spy = vi.spyOn(client_2, 'request')
 
@@ -873,32 +852,14 @@ describe('batch call', () => {
     const results = await Promise.allSettled(p)
 
     expect(spy).toBeCalledTimes(1)
-    expect(results).toMatchInlineSnapshot(`
-      [
-        {
-          "status": "fulfilled",
-          "value": {
-            "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
-          },
-        },
-        {
-          "reason": [CallExecutionError: Execution reverted for an unknown reason.
-
-      Raw Call Arguments:
-        to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
-        data:  0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
-
-      Version: viem@x.y.z],
-          "status": "rejected",
-        },
-      ]
-    `)
+    expect(results).toMatchSnapshot()
   })
 
   test('client config', async () => {
     const client_2 = anvilMainnet.getClient({
       batch: {
         multicall: {
+          deployless,
           batchSize: 1024,
           wait: 16,
         },
@@ -951,34 +912,15 @@ describe('batch call', () => {
     const results = await Promise.all(p)
 
     expect(spy).toBeCalledTimes(2)
-    expect(results).toMatchInlineSnapshot(`
-      [
-        {
-          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
-        },
-        {
-          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
-        },
-      ]
-    `)
+    expect(results).toMatchSnapshot()
   })
 
-  test('no chain on client', async () => {
+  test.runIf(deployless === false)('no chain on client', async () => {
     const client_2 = anvilMainnet.getClient({
       batch: {
-        multicall: true,
+        multicall: {
+          deployless,
+        },
       },
       chain: false,
     })
@@ -1008,74 +950,55 @@ describe('batch call', () => {
     const results = await Promise.all(p)
 
     expect(spy).toBeCalledTimes(3)
-    expect(results).toMatchInlineSnapshot(`
-      [
-        {
-          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
-        },
-      ]
-    `)
+    expect(results).toMatchSnapshot()
   })
 
-  test('chain not configured with multicall', async () => {
-    const client_2 = anvilMainnet.getClient({
-      batch: {
-        multicall: true,
-      },
-    })
-    client_2.chain = {
-      ...client_2.chain,
-      contracts: {
-        // @ts-expect-error
-        multicall3: undefined,
-      },
-    }
-
-    const spy = vi.spyOn(client_2, 'request')
-
-    const p = []
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: wagmiContractAddress,
-      }),
-    )
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: usdcContractConfig.address,
-      }),
-    )
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: baycContractConfig.address,
-      }),
-    )
-
-    const results = await Promise.all(p)
-
-    expect(spy).toBeCalledTimes(3)
-    expect(results).toMatchInlineSnapshot(`
-      [
-        {
-          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
+  test.runIf(deployless === false)(
+    'chain not configured with multicall',
+    async () => {
+      const client_2 = anvilMainnet.getClient({
+        batch: {
+          multicall: {
+            deployless,
+          },
         },
-        {
-          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
+      })
+      client_2.chain = {
+        ...client_2.chain,
+        contracts: {
+          // @ts-expect-error
+          multicall3: undefined,
         },
-        {
-          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
-        },
-      ]
-    `)
-  })
+      }
+
+      const spy = vi.spyOn(client_2, 'request')
+
+      const p = []
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+        }),
+      )
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: usdcContractConfig.address,
+        }),
+      )
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: baycContractConfig.address,
+        }),
+      )
+
+      const results = await Promise.all(p)
+
+      expect(spy).toBeCalledTimes(3)
+      expect(results).toMatchSnapshot()
+    },
+  )
 })
 
 describe('deployless call (factory)', () => {
