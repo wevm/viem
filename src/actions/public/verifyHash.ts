@@ -155,7 +155,7 @@ async function verifyErc8010(
       signature: parameters.signature,
     })
 
-  // deployless multicall
+  // Deployless verification.
   const results = await readContract(client, {
     authorizationList: [
       {
