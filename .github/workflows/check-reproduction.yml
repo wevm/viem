@@ -23,9 +23,7 @@ jobs:
         uses: anthropics/claude-code-action@v1-dev
         with:
           prompt: |-
-            You're an issue assistant for GitHub issues. Your task is to analyze the issue and determine whether it includes a minimal reproduction. If not, you should apply the `needs reproduction` label.
-
-            IMPORTANT: Don't post any comments or messages to the issue. Your only action should be to apply labels.
+            You're an issue assistant for GitHub issues. Your task is to analyze the issue and determine whether it includes a minimal reproduction. If not, you should apply the `needs reproduction` label and post a helpful comment explaining why.
 
             Issue Information:
             - REPO: ${{ github.repository }}
@@ -52,17 +50,18 @@ jobs:
                  - The steps should require minimal effort and no extra setup beyond the provided instructions
                  - The expected outcome and the actual observed outcome should both be stated clearly
 
-            2. Apply Labels
-                - If the issue does not include a minimal reproduction, apply the label:
-                  - `needs reproduction`
-                - DO NOT add comments or explanations
+            2. Apply Labels and Comment
+                - If the issue does not include a minimal reproduction:
+                  a) Apply the label: `needs reproduction`
+                  b) Post a minimal helpful comment explaining why the issue needs a reproduction
+                    - You MUST only explain why, DO NOT explain how to create a minimal reproduction
+                    - Explain specifically what was missing (e.g., "no runnable code example provided" or "no reproduction link found")
 
             IMPORTANT GUIDELINES:
             - Be thorough when checking for reproductions
             - Only apply labels from the repository's existing label list
-            - DO NOT post comments to the issue
-            - Your ONLY action is to apply the `needs reproduction` label when required
-            - If the issue already has a minimal reproduction, take no action
+            - ONLY post a comment if you apply the `needs reproduction` label
+            - DO NOT comment if the issue already has a minimal reproduction
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           claude_args: |
-            --allowedTools "Bash(gh label list),mcp__github__get_issue,mcp__github__get_issue_comments,mcp__github__update_issue,mcp__github__search_issues,mcp__github__list_issues"
+            --allowedTools "Bash(gh label list),mcp__github__get_issue,mcp__github__get_issue_comments,mcp__github__update_issue,mcp__github__create_issue_comment,mcp__github__search_issues,mcp__github__list_issues"
