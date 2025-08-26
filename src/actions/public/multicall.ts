@@ -15,7 +15,6 @@ import type {
   MulticallContracts,
   MulticallResults,
 } from '../../types/multicall.js'
-import type { OneOf } from '../../types/utils.js'
 import {
   type DecodeFunctionResultErrorType,
   decodeFunctionResult,
@@ -53,21 +52,16 @@ export type MulticallParameters<
   allowFailure?: allowFailure | boolean | undefined
   /** The size of each batch of calls. */
   batchSize?: number | undefined
+  /** Enable deployless multicall. */
+  deployless?: boolean | undefined
   /** The contracts to call. */
   contracts: MulticallContracts<
     Narrow<contracts>,
     { mutability: AbiStateMutability } & options
   >
-} & OneOf<
-    | {
-        /** The address of the multicall3 contract to use. */
-        multicallAddress?: Address | undefined
-      }
-    | {
-        /** Enable deployless multicall. */
-        deployless?: boolean | undefined
-      }
-  >
+  /** The address of the multicall3 contract to use. */
+  multicallAddress?: Address | undefined
+}
 
 export type MulticallReturnType<
   contracts extends readonly unknown[] = readonly ContractFunctionParameters[],
