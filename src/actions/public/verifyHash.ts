@@ -141,7 +141,9 @@ async function verifyErc8010(
   // Check if already delegated
   const code = await getCode(client, {
     address,
-  })
+    blockNumber,
+    blockTag,
+  } as never)
 
   // If already delegated, perform standard ERC-1271 verification.
   if (code === concatHex(['0xef0100', authorization.address]))
@@ -167,7 +169,7 @@ async function verifyErc8010(
     ],
     abi: multicall3Abi,
     blockNumber,
-    blockTag,
+    blockTag: 'pending',
     code: multicall3Bytecode,
     functionName: 'aggregate3',
     args: [
