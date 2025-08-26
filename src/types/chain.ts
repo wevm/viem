@@ -42,7 +42,7 @@ export type Chain<
           ensRegistry?: ChainContract | undefined
           ensUniversalResolver?: ChainContract | undefined
           multicall3?: ChainContract | undefined
-          universalSignatureVerifier?: ChainContract | undefined
+          erc6492Verifier?: ChainContract | undefined
         }
       >
     | undefined

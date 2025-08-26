@@ -8,8 +8,8 @@ import { ensPublicResolverConfig, smartAccountConfig } from '~test/src/abis.js'
 import { anvilMainnet } from '~test/src/anvil.js'
 import { accounts, address } from '~test/src/constants.js'
 import {
+  deployErc6492SignatureVerifier,
   deploySoladyAccount_07,
-  deployUniversalSignatureVerifier,
 } from '~test/src/utils.js'
 import {
   entryPoint07Abi,
@@ -91,7 +91,7 @@ describe('local account', async () => {
   })
 })
 
-describe('smart account', async () => {
+describe('create2 account', async () => {
   test('deployed', async () => {
     const { factoryAddress } = await deploySoladyAccount_07()
 
@@ -158,8 +158,8 @@ describe('smart account', async () => {
 
   test('undeployed with predeployed verifier (via arg)', async () => {
     const { factoryAddress } = await deploySoladyAccount_07()
-    const { contractAddress: universalSignatureVerifierAddress } =
-      await deployUniversalSignatureVerifier()
+    const { contractAddress: erc6492VerifierAddress } =
+      await deployErc6492SignatureVerifier()
 
     const { result: verifier } = await simulateContract(client, {
       account: localAccount,
@@ -190,7 +190,7 @@ describe('smart account', async () => {
         factoryData,
         hash: hashMessage('hello world'),
         signature,
-        universalSignatureVerifierAddress: universalSignatureVerifierAddress!,
+        erc6492VerifierAddress: erc6492VerifierAddress!,
       }),
     ).resolves.toBe(true)
   })
@@ -198,7 +198,7 @@ describe('smart account', async () => {
   test('undeployed with predeployed verifier (via client)', async () => {
     const { factoryAddress } = await deploySoladyAccount_07()
     const { contractAddress: verifySig } =
-      await deployUniversalSignatureVerifier()
+      await deployErc6492SignatureVerifier()
 
     const overrideClient = {
       ...client,
@@ -206,7 +206,7 @@ describe('smart account', async () => {
         ...client.chain,
         contracts: {
           ...client.chain.contracts,
-          universalSignatureVerifier: { address: verifySig },
+          erc6492Verifier: { address: verifySig },
         },
       },
     }
@@ -330,47 +330,49 @@ describe('smart account', async () => {
       }),
     ).resolves.toBe(true)
   })
-})
 
-test('signature already contains wrapper', async () => {
-  const { factoryAddress } = await deploySoladyAccount_07()
+  test('signature already contains wrapper', async () => {
+    const { factoryAddress } = await deploySoladyAccount_07()
 
-  const { result: verifier } = await simulateContract(client, {
-    account: localAccount,
-    abi: SoladyAccountFactory07.abi,
-    address: factoryAddress,
-    functionName: 'createAccount',
-    args: [localAccount.address, pad('0x0')],
-  })
+    const { result: verifier } = await simulateContract(client, {
+      account: localAccount,
+      abi: SoladyAccountFactory07.abi,
+      address: factoryAddress,
+      functionName: 'createAccount',
+      args: [localAccount.address, pad('0x0')],
+    })
 
-  const factoryData = encodeFunctionData({
-    abi: SoladyAccountFactory07.abi,
-    functionName: 'createAccount',
-    args: [localAccount.address, pad('0x0')],
-  })
+    const factoryData = encodeFunctionData({
+      abi: SoladyAccountFactory07.abi,
+      functionName: 'createAccount',
+      args: [localAccount.address, pad('0x0')],
+    })
 
-  const signature = await signMessageErc1271(client, {
-    account: localAccount,
-    factory: factoryAddress,
-    factoryData,
-    message: 'hello world',
-    verifier,
-  })
-
-  expect(
-    verifyHash(client, {
-      address: verifier,
+    const signature = await signMessageErc1271(client, {
+      account: localAccount,
       factory: factoryAddress,
       factoryData,
-      hash: hashMessage('hello world'),
-      signature: serializeErc6492Signature({
-        address: factoryAddress,
-        data: factoryData,
-        signature,
+      message: 'hello world',
+      verifier,
+    })
+
+    expect(
+      verifyHash(client, {
+        address: verifier,
+        factory: factoryAddress,
+        factoryData,
+        hash: hashMessage('hello world'),
+        signature: serializeErc6492Signature({
+          address: factoryAddress,
+          data: factoryData,
+          signature,
+        }),
       }),
-    }),
-  ).resolves.toBe(true)
+    ).resolves.toBe(true)
+  })
 })
+
+describe.todo('7702 account')
 
 test.each([
   {

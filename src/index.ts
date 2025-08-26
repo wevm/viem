@@ -612,15 +612,19 @@ export {
   erc721Abi,
   erc1155Abi,
   erc4626Abi,
+  erc6492SignatureValidatorAbi,
+  /** @deprecated use `erc6492SignatureValidatorAbi` instead. */
+  erc6492SignatureValidatorAbi as universalSignatureValidatorAbi,
   multicall3Abi,
-  universalSignatureValidatorAbi,
 } from './constants/abis.js'
 export { ethAddress, zeroAddress } from './constants/address.js'
 export { zeroHash } from './constants/bytes.js'
 export {
   deploylessCallViaBytecodeBytecode,
   deploylessCallViaFactoryBytecode,
-  universalSignatureValidatorByteCode,
+  erc6492SignatureValidatorByteCode,
+  /** @deprecated use `erc6492SignatureValidatorByteCode` instead. */
+  erc6492SignatureValidatorByteCode as universalSignatureValidatorByteCode,
 } from './constants/contracts.js'
 export {
   maxInt8,

@@ -1749,7 +1749,7 @@ test('exports abis', () => {
           "type": "function",
         },
       ],
-      "smartAccountAbi": [
+      "erc1271Abi": [
         {
           "inputs": [
             {
@@ -2067,7 +2067,7 @@ test('exports abis', () => {
           "type": "function",
         },
       ],
-      "universalSignatureValidatorAbi": [
+      "erc6492SignatureValidatorAbi": [
         {
           "inputs": [
             {
