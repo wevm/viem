@@ -249,6 +249,27 @@ const results = await publicClient.multicall({
 })
 ```
 
+### deployless (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Enable deployless multicall.
+
+```ts
+const results = await publicClient.multicall({
+  contracts: [
+    {
+      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      abi: wagmiAbi,
+      functionName: 'totalSupply',
+    },
+    ...
+  ],
+  deployless: true // [!code focus]
+})
+```
+
 ### multicallAddress (optional)
 
 - **Type:** [`Address`](/docs/glossary/types#address)
