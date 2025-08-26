@@ -91,7 +91,7 @@ describe('local account', async () => {
   })
 })
 
-describe('create2 account', async () => {
+describe('erc6492', async () => {
   test('deployed', async () => {
     const { factoryAddress } = await deploySoladyAccount_07()
 
@@ -372,7 +372,7 @@ describe('create2 account', async () => {
   })
 })
 
-describe.todo('7702 account')
+describe.todo('erc8010', async () => {})
 
 test.each([
   {
