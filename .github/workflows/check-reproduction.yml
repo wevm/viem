@@ -15,12 +15,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
 
       - name: Check Reproduction
-        uses: anthropics/claude-code-action@v1-dev
+        uses: anthropics/claude-code-action@c05ccc5ce416f3129e97c8d17188813fef66f002
         with:
           prompt: |-
             You're an issue assistant for GitHub issues. Your task is to analyze the issue and determine whether it includes a minimal reproduction. If not, you should apply the `needs reproduction` label and post a helpful comment explaining why.
