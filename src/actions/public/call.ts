@@ -350,7 +350,7 @@ async function scheduleMulticall<chain extends Chain | undefined>(
 ) {
   const {
     batchSize = 1024,
-    deployless,
+    deployless = false,
     wait = 0,
   } = typeof client.batch?.multicall === 'object' ? client.batch.multicall : {}
   const {
