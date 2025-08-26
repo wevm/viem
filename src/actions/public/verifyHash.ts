@@ -13,7 +13,10 @@ import {
   erc6492SignatureValidatorByteCode,
   multicall3Bytecode,
 } from '../../constants/contracts.js'
-import { CallExecutionError } from '../../errors/contract.js'
+import {
+  CallExecutionError,
+  ContractFunctionExecutionError,
+} from '../../errors/contract.js'
 import type { InvalidHexBooleanError } from '../../errors/encoding.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
@@ -113,7 +116,7 @@ export async function verifyHash<chain extends Chain | undefined>(
       if (verified) return true
     } catch {}
 
-    if (error instanceof CallExecutionError) {
+    if (error instanceof VerificationError) {
       // if the execution fails, the signature was not valid and an internal method inside of the validator reverted
       // this can happen for many reasons, for example if signer can not be recovered from the signature
       // or if the signature has no valid format
@@ -125,8 +128,7 @@ export async function verifyHash<chain extends Chain | undefined>(
 }
 
 /** @internal */
-// biome-ignore lint/correctness/noUnusedVariables: _
-async function verifyErc8010(
+export async function verifyErc8010(
   client: Client,
   parameters: verifyErc8010.Parameters,
 ) {
@@ -152,11 +154,15 @@ async function verifyErc8010(
       blockNumber,
       blockTag,
       hash,
-      signature: parameters.signature,
+      signature,
     })
 
   // Deployless verification.
-  const results = await readContract(client, {
+  const results = await getAction(
+    client,
+    readContract,
+    'readContract',
+  )({
     authorizationList: [
       {
         address: authorization.address,
@@ -199,7 +205,7 @@ async function verifyErc8010(
   const data = results[results.length - 1]?.returnData
 
   if (data?.startsWith('0x1626ba7e')) return true
-  throw new Error()
+  throw new VerificationError()
 }
 
 export namespace verifyErc8010 {
@@ -265,10 +271,17 @@ async function verifyErc6492(
         ...rest,
       } as unknown as CallParameters)
 
-  const { data } = await getAction(client, call, 'call')(args)
+  const { data } = await getAction(
+    client,
+    call,
+    'call',
+  )(args).catch((error) => {
+    if (error instanceof CallExecutionError) throw new VerificationError()
+    throw error
+  })
 
   if (hexToBool(data ?? '0x0')) return true
-  throw new Error()
+  throw new VerificationError()
 }
 
 export namespace verifyErc6492 {
@@ -291,17 +304,25 @@ export async function verifyErc1271(
 ) {
   const { address, blockNumber, blockTag, hash, signature } = parameters
 
-  const result = await readContract(client, {
+  const result = await getAction(
+    client,
+    readContract,
+    'readContract',
+  )({
     address,
     abi: erc1271Abi,
     args: [hash, signature],
     blockNumber,
     blockTag,
     functionName: 'isValidSignature',
+  }).catch((error) => {
+    if (error instanceof ContractFunctionExecutionError)
+      throw new VerificationError()
+    throw error
   })
 
   if (result.startsWith('0x1626ba7e')) return true
-  throw new Error()
+  throw new VerificationError()
 }
 
 export namespace verifyErc1271 {
@@ -314,3 +335,5 @@ export namespace verifyErc1271 {
     signature: Hex
   }
 }
+
+class VerificationError extends Error {}
