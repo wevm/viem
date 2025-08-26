@@ -8,15 +8,15 @@ import type { EIP1193RequestFn, RpcSchema } from '../../types/eip1193.js'
 import type { RpcRequest } from '../../types/rpc.js'
 import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
 import {
-  type HttpRpcClientOptions,
   getHttpRpcClient,
+  type HttpRpcClientOptions,
 } from '../../utils/rpc/http.js'
 
 import {
   type CreateTransportErrorType,
+  createTransport,
   type Transport,
   type TransportConfig,
-  createTransport,
 } from './createTransport.js'
 
 export type HttpTransportConfig<

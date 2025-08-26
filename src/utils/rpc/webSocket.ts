@@ -7,9 +7,9 @@ import {
 import type { RpcRequest } from '../../types/rpc.js'
 import {
   type GetSocketRpcClientParameters,
+  getSocketRpcClient,
   type Socket,
   type SocketRpcClient,
-  getSocketRpcClient,
 } from './socket.js'
 
 export type GetWebSocketRpcClientOptions = Pick<

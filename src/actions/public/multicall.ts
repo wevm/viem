@@ -6,6 +6,7 @@ import { multicall3Abi } from '../../constants/abis.js'
 import { AbiDecodingZeroDataError } from '../../errors/abi.js'
 import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { ContractFunctionParameters } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
@@ -29,8 +30,6 @@ import {
   type GetContractErrorReturnType,
   getContractError,
 } from '../../utils/errors/getContractError.js'
-
-import type { ErrorType } from '../../errors/utils.js'
 import { getAction } from '../../utils/getAction.js'
 import type { CallParameters } from './call.js'
 import { type ReadContractErrorType, readContract } from './readContract.js'

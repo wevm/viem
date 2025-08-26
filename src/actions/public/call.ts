@@ -71,11 +71,11 @@ import {
   type SerializeStateOverrideErrorType,
   serializeStateOverride,
 } from '../../utils/stateOverride.js'
-import { assertRequest } from '../../utils/transaction/assertRequest.js'
 import type {
   AssertRequestErrorType,
   AssertRequestParameters,
 } from '../../utils/transaction/assertRequest.js'
+import { assertRequest } from '../../utils/transaction/assertRequest.js'
 
 export type CallParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -428,10 +428,7 @@ type ToDeploylessCallViaBytecodeDataErrorType =
   | EncodeDeployDataErrorType
   | ErrorType
 
-function toDeploylessCallViaBytecodeData(parameters: {
-  code: Hex
-  data: Hex
-}) {
+function toDeploylessCallViaBytecodeData(parameters: { code: Hex; data: Hex }) {
   const { code, data } = parameters
   return encodeDeployData({
     abi: parseAbi(['constructor(bytes, bytes)']),

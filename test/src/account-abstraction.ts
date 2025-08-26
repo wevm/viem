@@ -27,12 +27,12 @@ import {
   type Address,
   type Chain,
   type Client,
-  type RpcUserOperation,
-  type Transport,
   concat,
   encodeAbiParameters,
   numberToHex,
   parseEther,
+  type RpcUserOperation,
+  type Transport,
 } from '../../src/index.js'
 import { anvilMainnet } from './anvil.js'
 import { accounts } from './constants.js'
@@ -309,8 +309,7 @@ export async function createVerifyingPaymasterServer(
             }),
           )
         }
-      } catch (err) {
-        console.error(err)
+      } catch (_err) {
         res.writeHead(500, {
           'Content-Type': 'application/json',
         })

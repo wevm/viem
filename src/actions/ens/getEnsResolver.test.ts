@@ -2,10 +2,8 @@ import { beforeAll, expect, test } from 'vitest'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { linea, optimism } from '../../chains/index.js'
-
-import { http } from '../../clients/transports/http.js'
-
 import { createClient } from '../../clients/createClient.js'
+import { http } from '../../clients/transports/http.js'
 import { reset } from '../test/reset.js'
 import { getEnsResolver } from './getEnsResolver.js'
 

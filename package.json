@@ -48,7 +48,7 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.15.4",
     "@ark/attest": "^0.10.2",
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.2.2",
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.27.9",
     "@ethereumjs/rlp": "^5.0.2",
@@ -81,13 +81,32 @@
     "pre-commit": "pnpm check"
   },
   "knip": {
-    "ignore": [".github/**", "environments/**", "vectors/**"],
-    "ignoreBinaries": ["dev", "forge", "only-allow", "printf"],
-    "ignoreDependencies": ["bun", "@size-limit/preset-big-lib"],
-    "ignoreWorkspaces": ["examples/**", "test"],
+    "ignore": [
+      ".github/**",
+      "environments/**",
+      "vectors/**"
+    ],
+    "ignoreBinaries": [
+      "dev",
+      "forge",
+      "only-allow",
+      "printf"
+    ],
+    "ignoreDependencies": [
+      "bun",
+      "@size-limit/preset-big-lib"
+    ],
+    "ignoreWorkspaces": [
+      "examples/**",
+      "test"
+    ],
     "vitest": {
-      "config": ["test/vitest.config.ts"],
-      "entry": ["**/*.{bench,bench-d,test,test-d,spec}.?(c|m)[jt]s?(x)"]
+      "config": [
+        "test/vitest.config.ts"
+      ],
+      "entry": [
+        "**/*.{bench,bench-d,test,test-d,spec}.?(c|m)[jt]s?(x)"
+      ]
     },
     "workspaces": {
       ".": {
@@ -99,10 +118,15 @@
           "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,utils,window,zksync}/index.ts!",
           "chains/utils.ts!"
         ],
-        "ignore": ["node/trustedSetups_cjs.ts"]
+        "ignore": [
+          "node/trustedSetups_cjs.ts"
+        ]
       },
       "site": {
-        "project": ["**/*.ts", "**/*.tsx"]
+        "project": [
+          "**/*.ts",
+          "**/*.tsx"
+        ]
       }
     }
   },
@@ -220,6 +244,10 @@
       "cross-spawn@>=7.0.0 <7.0.5": ">=7.0.5",
       "smol-toml@<=1.3.0": ">=1.3.1"
     },
-    "onlyBuiltDependencies": ["bun", "protobufjs", "simple-git-hooks"]
+    "onlyBuiltDependencies": [
+      "bun",
+      "protobufjs",
+      "simple-git-hooks"
+    ]
   }
 }

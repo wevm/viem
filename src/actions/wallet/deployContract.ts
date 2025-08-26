@@ -3,14 +3,12 @@ import type { Abi } from 'abitype'
 import type { Account } from '../../accounts/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import type { Chain } from '../../types/chain.js'
-import type { GetChainParameter } from '../../types/chain.js'
+import type { ErrorType } from '../../errors/utils.js'
+import type { Chain, GetChainParameter } from '../../types/chain.js'
 import type { ContractConstructorArgs } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type { UnionEvaluate, UnionOmit } from '../../types/utils.js'
 import { encodeDeployData } from '../../utils/abi/encodeDeployData.js'
-
-import type { ErrorType } from '../../errors/utils.js'
 import {
   type SendTransactionErrorType,
   type SendTransactionParameters,

@@ -2,11 +2,11 @@ import type { Address } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
-import { estimateFee } from '../actions/estimateFee.js'
 import type {
   EstimateFeeParameters,
   EstimateFeeReturnType,
 } from '../actions/estimateFee.js'
+import { estimateFee } from '../actions/estimateFee.js'
 import {
   type EstimateGasL1ToL2Parameters,
   type EstimateGasL1ToL2ReturnType,

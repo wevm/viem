@@ -11,8 +11,8 @@ import type {
   Signature,
 } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
-import { hashMessage } from '../../utils/signature/hashMessage.js'
 import type { HashMessageErrorType } from '../../utils/signature/hashMessage.js'
+import { hashMessage } from '../../utils/signature/hashMessage.js'
 import {
   type VerifyHashErrorType,
   type VerifyHashParameters,

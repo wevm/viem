@@ -2,17 +2,16 @@ import { expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 import { kzg } from '~test/src/kzg.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import * as getBlock from '../../actions/public/getBlock.js'
 import { mine } from '../../actions/test/mine.js'
 import { setBalance } from '../../actions/test/setBalance.js'
 import { setNextBlockBaseFeePerGas } from '../../actions/test/setNextBlockBaseFeePerGas.js'
+import { createClient, http, toBlobs } from '../../index.js'
+import { nonceManager } from '../../utils/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
-import { http, createClient, toBlobs } from '../../index.js'
-import { nonceManager } from '../../utils/index.js'
 import {
   eip1559NetworkCache,
   prepareTransactionRequest,

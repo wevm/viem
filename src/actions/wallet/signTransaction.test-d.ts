@@ -1,13 +1,6 @@
 import type { Address } from 'abitype'
 
 import { expectTypeOf, test } from 'vitest'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
-import type { Account } from '../../accounts/types.js'
-import { createWalletClient } from '../../clients/createWalletClient.js'
-import { http } from '../../clients/transports/http.js'
-import type { Chain } from '../../types/chain.js'
-
 import type {
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
@@ -15,6 +8,11 @@ import type {
   TransactionSerializedEIP7702,
   TransactionSerializedLegacy,
 } from '~viem/index.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import type { Account } from '../../accounts/types.js'
+import { createWalletClient } from '../../clients/createWalletClient.js'
+import { http } from '../../clients/transports/http.js'
+import type { Chain } from '../../types/chain.js'
 import { signTransaction } from './signTransaction.js'
 
 const walletClient = createWalletClient({

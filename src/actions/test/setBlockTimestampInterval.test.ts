@@ -1,9 +1,7 @@
 import { expect, test } from 'vitest'
-
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { wait } from '../../utils/wait.js'
 import { getBlock } from '../public/getBlock.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { mine } from './mine.js'
 import { setBlockTimestampInterval } from './setBlockTimestampInterval.js'

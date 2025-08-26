@@ -53,8 +53,8 @@ import {
 } from '../../utils/transaction/assertRequest.js'
 import { type GetChainIdErrorType, getChainId } from '../public/getChainId.js'
 import {
-  type PrepareTransactionRequestErrorType,
   defaultParameters,
+  type PrepareTransactionRequestErrorType,
   prepareTransactionRequest,
 } from './prepareTransactionRequest.js'
 import {

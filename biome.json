@@ -1,34 +1,35 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
-    "ignore": [
-      "_cjs",
-      "_esm",
-      "_types",
-      ".cache",
-      ".next",
-      ".svelte-kit",
-      ".vercel",
-      "**/node_modules",
-      "CHANGELOG.md",
-      "bun.lockb",
-      "cache",
-      "contracts",
-      "test/kzg/*.json",
-      "test/kzg/*.txt",
-      "coverage",
-      "tsconfig.json",
-      "tsconfig.*.json",
-      "generated.ts",
-      "vectors/*.json",
-      "vectors/**/*.test.ts",
-      "wagmi",
-      "site/dist"
+    "includes": [
+      "**",
+      "!**/_cjs",
+      "!**/_esm",
+      "!**/_types",
+      "!**/.cache",
+      "!**/.next",
+      "!**/.svelte-kit",
+      "!**/.vercel",
+      "!**/node_modules",
+      "!**/CHANGELOG.md",
+      "!**/bun.lockb",
+      "!**/cache",
+      "!**/contracts",
+      "!**/test/kzg/**/*.json",
+      "!**/test/kzg/**/*.txt",
+      "!**/coverage",
+      "!**/tsconfig.json",
+      "!**/tsconfig.*.json",
+      "!**/generated.ts",
+      "!**/vectors/**/*.json",
+      "!**/vectors/**/*.test.ts",
+      "!**/wagmi",
+      "!**/site/dist"
     ]
   },
   "formatter": {
     "enabled": true,
-    "formatWithErrors": false,
+    "formatWithErrors": true,
     "indentStyle": "space",
     "indentWidth": 2,
     "lineWidth": 80
@@ -53,15 +54,18 @@
       },
       "style": {
         "noNonNullAssertion": "off",
-        "useShorthandArrayType": "error"
+        "useConsistentArrayType": {
+          "level": "error",
+          "options": { "syntax": "shorthand" }
+        }
       },
       "suspicious": {
         "noArrayIndexKey": "off",
         "noAssignInExpressions": "off",
         "noConfusingVoidType": "off",
-        "noConsoleLog": "error",
         "noExplicitAny": "off",
-        "noRedeclare": "off"
+        "noRedeclare": "off",
+        "noConsole": { "level": "error", "options": { "allow": ["log"] } }
       }
     }
   },
@@ -72,7 +76,5 @@
       "semicolons": "asNeeded"
     }
   },
-  "organizeImports": {
-    "enabled": true
-  }
+  "assist": { "actions": { "source": { "organizeImports": "on" } } }
 }

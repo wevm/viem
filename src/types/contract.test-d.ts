@@ -1,15 +1,15 @@
 import {
   type Abi,
   type Address,
-  type ResolvedRegister,
   parseAbi,
+  type ResolvedRegister,
 } from 'abitype'
 import type { seaportAbi } from 'abitype/abis'
 import { expectTypeOf, test } from 'vitest'
 
 import type {
-  AbiEventParameterToPrimitiveType,
   AbiEventParametersToPrimitiveTypes,
+  AbiEventParameterToPrimitiveType,
   AbiEventTopicToPrimitiveType,
   ContractFunctionArgs,
   ContractFunctionName,

@@ -28,11 +28,11 @@ import { aggregate3Signature } from '../../constants/contract.js'
 import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
 import {
-  http,
-  type Hex,
   createClient,
   decodeFunctionResult,
   encodeAbiParameters,
+  type Hex,
+  http,
   maxUint256,
   multicall3Abi,
   pad,

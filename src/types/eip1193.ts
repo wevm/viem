@@ -11,7 +11,6 @@ import type {
 import type { BlockTag } from './block.js'
 import type { Capabilities, ChainIdToCapabilities } from './capabilities.js'
 import type { Hash, Hex, LogTopic } from './misc.js'
-import type { RpcStateOverride } from './rpc.js'
 import type {
   RpcBlock as Block,
   RpcBlockIdentifier as BlockIdentifier,
@@ -20,6 +19,7 @@ import type {
   RpcLog as Log,
   RpcProof as Proof,
   Quantity,
+  RpcStateOverride,
   RpcTransaction as Transaction,
   RpcTransactionReceipt as TransactionReceipt,
   RpcTransactionRequest as TransactionRequest,

@@ -9,9 +9,9 @@ import { wait } from '../../utils/wait.js'
 
 import {
   type CreateTransportErrorType,
+  createTransport,
   type Transport,
   type TransportConfig,
-  createTransport,
 } from './createTransport.js'
 // TODO: Narrow `method` & `params` types.
 export type OnResponseFn = (
@@ -42,9 +42,9 @@ type RankOptions = {
   /**
    * Ping method to determine latency.
    */
-  ping?: (parameters: { transport: ReturnType<Transport> }) =>
-    | Promise<unknown>
-    | undefined
+  ping?: (parameters: {
+    transport: ReturnType<Transport>
+  }) => Promise<unknown> | undefined
   /**
    * The number of previous samples to perform ranking on.
    * @default 10

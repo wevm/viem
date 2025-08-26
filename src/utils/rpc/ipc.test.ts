@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { getBlockNumber, mine } from '../../actions/index.js'
-import { http, createClient } from '../../index.js'
+import { createClient, http } from '../../index.js'
 import type { RpcResponse } from '../../types/rpc.js'
 import { numberToHex } from '../index.js'
 import { wait } from '../wait.js'

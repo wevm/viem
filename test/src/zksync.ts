@@ -19,7 +19,10 @@ export function getZksyncMockProvider(
   request: ({
     method,
     params,
-  }: { method: string; params?: unknown }) => Promise<any>,
+  }: {
+    method: string
+    params?: unknown
+  }) => Promise<any>,
 ) {
   return {
     on: () => null,

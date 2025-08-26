@@ -1,6 +1,7 @@
+import type { Address } from 'abitype'
 import { assertType, describe, expect, test } from 'vitest'
-
 import { accounts } from '~test/src/constants.js'
+import { wagmiContractConfig } from '../../../test/src/abis.js'
 import { sign } from '../../accounts/utils/sign.js'
 import type {
   TransactionSerializableBase,
@@ -15,9 +16,6 @@ import { toRlp } from '../encoding/toRlp.js'
 import { keccak256 } from '../hash/keccak256.js'
 import { parseEther } from '../unit/parseEther.js'
 import { parseGwei } from '../unit/parseGwei.js'
-
-import type { Address } from 'abitype'
-import { wagmiContractConfig } from '../../../test/src/abis.js'
 import {
   parseAccessList,
   parseTransaction,

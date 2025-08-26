@@ -1,5 +1,4 @@
 import { resolve } from 'node:path'
-import * as React from 'react'
 import { defineConfig } from 'vocs'
 
 import pkg from '../src/package.json'
@@ -32,13 +31,11 @@ export default defineConfig({
   },
   head() {
     return (
-      <>
-        <script
-          src="https://cdn.usefathom.com/script.js"
-          data-site="BYCJMNBD"
-          defer
-        />
-      </>
+      <script
+        src="https://cdn.usefathom.com/script.js"
+        data-site="BYCJMNBD"
+        defer
+      />
     )
   },
   ogImageUrl: {

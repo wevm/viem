@@ -1,12 +1,10 @@
+import type { IncomingHttpHeaders } from 'node:http'
 import { assertType, describe, expect, test } from 'vitest'
-
 import { createHttpServer } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { localhost } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'
-
-import type { IncomingHttpHeaders } from 'node:http'
-import { anvilMainnet } from '../../../test/src/anvil.js'
-import { http, type HttpTransport } from './http.js'
+import { type HttpTransport, http } from './http.js'
 
 test('default', () => {
   const transport = http('https://mockapi.com/rpc')

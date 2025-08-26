@@ -1,5 +1,5 @@
+import { parseAbi } from 'abitype'
 import { beforeAll, describe, expect, test } from 'vitest'
-
 import { address } from '~test/src/constants.js'
 import {
   createHttpServer,
@@ -15,8 +15,6 @@ import {
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { optimism } from '../../chains/index.js'
 import { http } from '../../clients/transports/http.js'
-
-import { parseAbi } from 'abitype'
 import { reset } from '../test/reset.js'
 import { getEnsName } from './getEnsName.js'
 

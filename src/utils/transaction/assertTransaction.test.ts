@@ -1,8 +1,6 @@
 import { describe, expect, test } from 'vitest'
-
-import { parseGwei } from '../unit/parseGwei.js'
-
 import { maxUint256 } from '~viem/constants/number.js'
+import { parseGwei } from '../unit/parseGwei.js'
 import {
   assertTransactionEIP1559,
   assertTransactionEIP2930,

@@ -1,11 +1,11 @@
 import * as React from 'react'
 import ReactDOM from 'react-dom/client'
-import { http, type Hex, createClient, parseEther, walletActions } from 'viem'
+import { createClient, type Hex, http, parseEther, walletActions } from 'viem'
 import {
-  type P256Credential,
-  type SmartAccount,
   createBundlerClient,
   createWebAuthnCredential,
+  type P256Credential,
+  type SmartAccount,
   toCoinbaseSmartAccount,
   toWebAuthnAccount,
 } from 'viem/account-abstraction'

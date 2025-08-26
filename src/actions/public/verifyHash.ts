@@ -17,7 +17,7 @@ import {
 import { getAddress } from '../../utils/address/getAddress.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import { type IsHexErrorType, isHex } from '../../utils/data/isHex.js'
-import { type ToHexErrorType, bytesToHex } from '../../utils/encoding/toHex.js'
+import { bytesToHex, type ToHexErrorType } from '../../utils/encoding/toHex.js'
 import { getAction } from '../../utils/getAction.js'
 import { encodeFunctionData, hexToBool } from '../../utils/index.js'
 import { isErc6492Signature } from '../../utils/signature/isErc6492Signature.js'

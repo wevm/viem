@@ -1,6 +1,7 @@
 export type { Chain } from '../types/chain.js'
-
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
+export { zeroG } from './definitions/0g.js'
+export { fireChain } from './definitions/5ireChain.js'
 export { abey } from './definitions/abey.js'
 export { abstract } from './definitions/abstract.js'
 export { abstractTestnet } from './definitions/abstractTestnet.js'
@@ -23,9 +24,9 @@ export { arbitrumGoerli } from './definitions/arbitrumGoerli.js'
 export { arbitrumNova } from './definitions/arbitrumNova.js'
 export { arbitrumSepolia } from './definitions/arbitrumSepolia.js'
 export { arenaz } from './definitions/arenaz.js'
-export { areum } from './definitions/areum.js'
 export { areonNetwork } from './definitions/areonNetwork.js'
 export { areonNetworkTestnet } from './definitions/areonNetworkTestnet.js'
+export { areum } from './definitions/areum.js'
 export { artelaTestnet } from './definitions/artelaTestnet.js'
 export { arthera } from './definitions/arthera.js'
 export { artheraTestnet } from './definitions/artheraTestnet.js'
@@ -60,6 +61,7 @@ export { berachainTestnet } from './definitions/berachainTestnet.js'
 export { berachainTestnetbArtio } from './definitions/berachainTestnetbArtio.js'
 export { bevmMainnet } from './definitions/bevmMainnet.js'
 export { bifrost } from './definitions/bifrost.js'
+export { birdlayer } from './definitions/birdlayer.js'
 export { bitgert } from './definitions/bitgert.js'
 export { bitkub } from './definitions/bitkub.js'
 export { bitkubTestnet } from './definitions/bitkubTestnet.js'
@@ -68,7 +70,6 @@ export { bitlayerTestnet } from './definitions/bitlayerTestnet.js'
 export { bitrock } from './definitions/bitrock.js'
 export { bitTorrent } from './definitions/bitTorrent.js'
 export { bitTorrentTestnet } from './definitions/bitTorrentTestnet.js'
-export { birdlayer } from './definitions/birdlayer.js'
 export { blast } from './definitions/blast.js'
 export { blastSepolia } from './definitions/blastSepolia.js'
 export { bob } from './definitions/bob.js'
@@ -142,8 +143,8 @@ export { dreyerxMainnet } from './definitions/dreyerxMainnet.js'
 export { dreyerxTestnet } from './definitions/dreyerxTestnet.js'
 export { dustboyIoT } from './definitions/dustboyIoT.js'
 export { dymension } from './definitions/dymension.js'
-export { edexaTestnet } from './definitions/edexaTestnet.js'
 export { edexa } from './definitions/edexa.js'
+export { edexaTestnet } from './definitions/edexaTestnet.js'
 export { edgeless } from './definitions/edgeless.js'
 export { edgelessTestnet } from './definitions/edgelessTestnet.js'
 export { edgeware } from './definitions/edgeware.js'
@@ -180,7 +181,6 @@ export { fibo } from './definitions/fibo.js'
 export { filecoin } from './definitions/filecoin.js'
 export { filecoinCalibration } from './definitions/filecoinCalibration.js'
 export { filecoinHyperspace } from './definitions/filecoinHyperspace.js'
-export { fireChain } from './definitions/5ireChain.js'
 export { flame } from './definitions/flame.js'
 export { flare } from './definitions/flare.js'
 export { flareTestnet } from './definitions/flareTestnet.js'
@@ -192,9 +192,8 @@ export { fluence } from './definitions/fluence.js'
 export { fluenceStage } from './definitions/fluenceStage.js'
 export { fluenceTestnet } from './definitions/fluenceTestnet.js'
 export { fluentTestnet } from './definitions/fluentTestnet.js'
-export { forma } from './definitions/forma.js'
 export { form } from './definitions/form.js'
-export { formicarium } from './definitions/memecoreFormicariumTestnet.js'
+export { forma } from './definitions/forma.js'
 export { formTestnet } from './definitions/formTestnet.js'
 export { forta } from './definitions/forta.js'
 /** @deprecated Use `anvil` instead. */
@@ -282,20 +281,20 @@ export { juneoSGD1Chain } from './definitions/juneoSGD1Chain.js'
 export { juneoSocotraTestnet } from './definitions/juneoSocotraTestnet.js'
 export { juneoUSD1Chain } from './definitions/juneoUSD1Chain.js'
 export { juneoUSDT1Chain } from './definitions/juneoUSDT1Chain.js'
-export { karura } from './definitions/karura.js'
-export { katana } from './definitions/katana.js'
+export { kaia } from './definitions/kaia.js'
+export { kairos } from './definitions/kairos.js'
 /** @deprecated Use `kakarotStarknetSepolia` instead. */
 export { kakarotSepolia } from './definitions/kakarotSepolia.js'
 export { kakarotStarknetSepolia } from './definitions/kakarotStarknetSepolia.js'
 export { kardiaChain } from './definitions/kardiaChain.js'
+export { karura } from './definitions/karura.js'
+export { katana } from './definitions/katana.js'
 export { kava } from './definitions/kava.js'
 export { kavaTestnet } from './definitions/kavaTestnet.js'
 export { kcc } from './definitions/kcc.js'
 export { kinto } from './definitions/kinto.js'
 /** @deprecated Use `kaia` instead. */
 export { klaytn } from './definitions/klaytn.js'
-export { kaia } from './definitions/kaia.js'
-export { kairos } from './definitions/kairos.js'
 /** @deprecated Use `kairos` instead. */
 export { klaytnBaobab } from './definitions/klaytnBaobab.js'
 export { koi } from './definitions/koi.js'
@@ -344,6 +343,7 @@ export { megaethTestnet } from './definitions/megaethTestnet.js'
 export { mekong } from './definitions/mekong.js'
 export { meld } from './definitions/meld.js'
 export { memecore } from './definitions/memecore.js'
+export { formicarium } from './definitions/memecoreFormicariumTestnet.js'
 export { merlin } from './definitions/merlin.js'
 export { merlinErigonTestnet } from './definitions/merlinErigonTestnet.js'
 export { metachain } from './definitions/metachain.js'
@@ -353,9 +353,9 @@ export { metalL2 } from './definitions/metalL2.js'
 export { meter } from './definitions/meter.js'
 export { meterTestnet } from './definitions/meterTestnet.js'
 export { metis } from './definitions/metis.js'
-export { metisSepolia } from './definitions/metisSepolia.js'
 /** @deprecated Use `metisSepolia` instead. */
 export { metisGoerli } from './definitions/metisGoerli.js'
+export { metisSepolia } from './definitions/metisSepolia.js'
 export { mev } from './definitions/mev.js'
 export { mevTestnet } from './definitions/mevTestnet.js'
 export { mint } from './definitions/mint.js'
@@ -441,11 +441,11 @@ export { qTestnet } from './definitions/qTestnet.js'
 export { real } from './definitions/real.js'
 export { redbellyMainnet } from './definitions/redbellyMainnet.js'
 export { redbellyTestnet } from './definitions/redbellyTestnet.js'
+export { reddio } from './definitions/reddio.js'
+export { reddioSepolia } from './definitions/reddioSepolia.js'
 export { redstone } from './definitions/redstone.js'
 export { rei } from './definitions/rei.js'
 export { reyaNetwork } from './definitions/reyaNetwork.js'
-export { reddio } from './definitions/reddio.js'
-export { reddioSepolia } from './definitions/reddioSepolia.js'
 export { riseTestnet } from './definitions/riseTestnet.js'
 export { rivalz } from './definitions/rivalz.js'
 export { rollux } from './definitions/rollux.js'
@@ -508,12 +508,12 @@ export { snaxTestnet } from './definitions/snaxTestnet.js'
 export { somniaTestnet } from './definitions/somniaTestnet.js'
 export { soneium } from './definitions/soneium.js'
 export { soneiumMinato } from './definitions/soneiumMinato.js'
-export { sonic } from './definitions/sonic.js'
-/** @deprecated Use `sonicBlazeTestnet` instead. */
-export { sonicTestnet } from './definitions/sonicTestnet.js'
-export { sonicBlazeTestnet } from './definitions/sonicBlazeTestnet.js'
 export { songbird } from './definitions/songbird.js'
 export { songbirdTestnet } from './definitions/songbirdTestnet.js'
+export { sonic } from './definitions/sonic.js'
+export { sonicBlazeTestnet } from './definitions/sonicBlazeTestnet.js'
+/** @deprecated Use `sonicBlazeTestnet` instead. */
+export { sonicTestnet } from './definitions/sonicTestnet.js'
 export { sophon } from './definitions/sophon.js'
 export { sophonTestnet } from './definitions/sophonTestnet.js'
 export { sovaSepolia } from './definitions/sovaSepolia.js'
@@ -618,7 +618,6 @@ export { yooldoVerse } from './definitions/yooldoVerse.js'
 export { yooldoVerseTestnet } from './definitions/yooldoVerseTestnet.js'
 export { zenchainTestnet } from './definitions/zenchainTestnet.js'
 export { zeniq } from './definitions/zeniq.js'
-export { zeroG } from './definitions/0g.js'
 export { zeroNetwork } from './definitions/zeroNetwork.js'
 export { zetachain } from './definitions/zetachain.js'
 export { zetachainAthensTestnet } from './definitions/zetachainAthensTestnet.js'
@@ -664,11 +663,11 @@ export { zoraTestnet } from './definitions/zoraTestnet.js'
 // Required type exports to prevent TypeScript error "TS2742".
 
 export type {
-  SerializeTransactionCIP64ReturnType,
   assertTransactionCIP42 as assertTransactionCIP42Celo,
   assertTransactionCIP64 as assertTransactionCIP64Celo,
-  serializeTransaction as serializeTransactionCelo,
+  SerializeTransactionCIP64ReturnType,
   serializers as serializersCelo,
+  serializeTransaction as serializeTransactionCelo,
 } from '../celo/serializers.js'
 export type {
   CeloBlock,
@@ -692,12 +691,12 @@ export type {
   TransactionSerializedCIP64,
 } from '../celo/types.js'
 export type {
+  assertTransactionDeposit as assertTransactionDepositOpStack,
   SerializeTransactionDepositReturnType,
   SerializeTransactionErrorType,
   SerializeTransactionReturnType,
-  assertTransactionDeposit as assertTransactionDepositOpStack,
-  serializeTransaction as serializeTransactionOpStack,
   serializers as serializersOpStack,
+  serializeTransaction as serializeTransactionOpStack,
 } from '../op-stack/serializers.js'
 export type {
   OpStackBlock,
@@ -730,9 +729,9 @@ export type {
 export type {
   /** @deprecated Use `ZksyncBlock` instead */
   ZksyncBlock as ZkSyncBlock,
+  ZksyncBlock,
   /** @deprecated Use `ZksyncRpcBlock` instead */
   ZksyncRpcBlock as ZkSyncRpcBlock,
-  ZksyncBlock,
   ZksyncRpcBlock,
 } from '../zksync/types/block.js'
 export type { ChainEIP712 } from '../zksync/types/chain.js'
@@ -749,83 +748,83 @@ export type {
 export type {
   /** @deprecated Use `ZksyncL2ToL1Log` instead */
   ZksyncL2ToL1Log as ZkSyncL2ToL1Log,
+  ZksyncL2ToL1Log,
   /** @deprecated Use `ZksyncLog` instead */
   ZksyncLog as ZkSyncLog,
+  ZksyncLog,
   /** @deprecated Use `ZksyncRpcL2ToL1Log` instead */
   ZksyncRpcL2ToL1Log as ZkSyncRpcL2ToL1Log,
+  ZksyncRpcL2ToL1Log,
   /** @deprecated Use `ZkSyncRpcLog` instead */
   ZksyncRpcLog as ZkSyncRpcLog,
-  ZksyncL2ToL1Log,
-  ZksyncLog,
-  ZksyncRpcL2ToL1Log,
   ZksyncRpcLog,
 } from '../zksync/types/log.js'
 export type {
+  /** @deprecated Use `ZksyncTransactionRequest_internal` instead */
+  TransactionRequest as ZkSyncTransactionRequest_internal,
+  TransactionRequest as ZksyncTransactionRequest_internal,
   TransactionRequestEIP712,
   /** @deprecated Use `ZksyncEIP712TransactionSignable` instead */
   ZksyncEIP712TransactionSignable as ZkSyncEIP712TransactionSignable,
+  ZksyncEIP712TransactionSignable,
   /** @deprecated Use `ZksyncRawBlockTransactions` instead */
   ZksyncRawBlockTransactions as ZkSyncRawBlockTransactions,
+  ZksyncRawBlockTransactions,
   /** @deprecated Use `ZksyncRpcTransaction` instead */
   ZksyncRpcTransaction as ZkSyncRpcTransaction,
+  ZksyncRpcTransaction,
   /** @deprecated Use `ZksyncRpcTransactionEIP712` instead */
   ZksyncRpcTransactionEIP712 as ZkSyncRpcTransactionEIP712,
+  ZksyncRpcTransactionEIP712,
   /** @deprecated Use `ZksyncRpcTransactionPriority` instead */
   ZksyncRpcTransactionPriority as ZkSyncRpcTransactionPriority,
+  ZksyncRpcTransactionPriority,
   /** @deprecated Use `ZksyncRpcTransactionReceipt` instead */
   ZksyncRpcTransactionReceipt as ZkSyncRpcTransactionReceipt,
+  ZksyncRpcTransactionReceipt,
   /** @deprecated Use `ZksyncRpcTransactionReceiptOverrides` instead */
   ZksyncRpcTransactionReceiptOverrides as ZkSyncRpcTransactionReceiptOverrides,
+  ZksyncRpcTransactionReceiptOverrides,
   /** @deprecated Use `ZksyncRpcTransactionRequest` instead */
   ZksyncRpcTransactionRequest as ZkSyncRpcTransactionRequest,
+  ZksyncRpcTransactionRequest,
   /** @deprecated Use `ZksyncRpcTransactionRequestEIP712` instead */
   ZksyncRpcTransactionRequestEIP712 as ZkSyncRpcTransactionRequestEIP712,
+  ZksyncRpcTransactionRequestEIP712,
   /** @deprecated Use `ZksyncTransaction` instead */
   ZksyncTransaction as ZkSyncTransaction,
+  ZksyncTransaction,
   /** @deprecated Use `ZksyncTransactionDetails` instead */
   ZksyncTransactionDetails as ZkSyncTransactionDetails,
+  ZksyncTransactionDetails,
   /** @deprecated Use `ZksyncTransactionEIP712` instead */
   ZksyncTransactionEIP712 as ZkSyncTransactionEIP712,
+  ZksyncTransactionEIP712,
   /** @deprecated Use `ZksyncTransactionReceipt` instead */
   ZksyncTransactionReceipt as ZkSyncTransactionReceipt,
+  ZksyncTransactionReceipt,
   /** @deprecated Use `ZksyncTransactionReceiptOverrides` instead */
   ZksyncTransactionReceiptOverrides as ZkSyncTransactionReceiptOverrides,
+  ZksyncTransactionReceiptOverrides,
   /** @deprecated Use `ZksyncTransactionRequest` instead */
   ZksyncTransactionRequest as ZkSyncTransactionRequest,
+  ZksyncTransactionRequest,
   /** @deprecated Use `ZksyncTransactionRequestEIP712` instead */
   ZksyncTransactionRequestEIP712 as ZkSyncTransactionRequestEIP712,
-  /** @deprecated Use `ZksyncTransactionRequest_internal` instead */
-  TransactionRequest as ZkSyncTransactionRequest_internal,
+  ZksyncTransactionRequestEIP712,
   /** @deprecated Use `ZksyncTransactionSerializable` instead */
   ZksyncTransactionSerializable as ZkSyncTransactionSerializable,
+  ZksyncTransactionSerializable,
   /** @deprecated Use `ZksyncTransactionSerializableEIP712` instead */
   ZksyncTransactionSerializableEIP712 as ZkSyncTransactionSerializableEIP712,
+  ZksyncTransactionSerializableEIP712,
   /** @deprecated Use `ZksyncTransactionSerialized` instead */
   ZksyncTransactionSerialized as ZkSyncTransactionSerialized,
+  ZksyncTransactionSerialized,
   /** @deprecated Use `ZksyncTransactionSerializedEIP712` instead */
   ZksyncTransactionSerializedEIP712 as ZkSyncTransactionSerializedEIP712,
+  ZksyncTransactionSerializedEIP712,
   /** @deprecated Use `ZksyncTransactionType` instead */
   ZksyncTransactionType as ZkSyncTransactionType,
-  ZksyncEIP712TransactionSignable,
-  ZksyncRawBlockTransactions,
-  ZksyncRpcTransaction,
-  ZksyncRpcTransactionEIP712,
-  ZksyncRpcTransactionPriority,
-  ZksyncRpcTransactionReceipt,
-  ZksyncRpcTransactionReceiptOverrides,
-  ZksyncRpcTransactionRequest,
-  ZksyncRpcTransactionRequestEIP712,
-  ZksyncTransaction,
-  ZksyncTransactionDetails,
-  ZksyncTransactionEIP712,
-  ZksyncTransactionReceipt,
-  ZksyncTransactionReceiptOverrides,
-  ZksyncTransactionRequest,
-  ZksyncTransactionRequestEIP712,
-  TransactionRequest as ZksyncTransactionRequest_internal,
-  ZksyncTransactionSerializable,
-  ZksyncTransactionSerializableEIP712,
-  ZksyncTransactionSerialized,
-  ZksyncTransactionSerializedEIP712,
   ZksyncTransactionType,
 } from '../zksync/types/transaction.js'

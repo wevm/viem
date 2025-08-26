@@ -25,7 +25,9 @@ const calls = new Map<Uid, TxHashes>()
 
 const getClient = ({
   onRequest,
-}: { onRequest?: ({ method, params }: any) => void } = {}) =>
+}: {
+  onRequest?: ({ method, params }: any) => void
+} = {}) =>
   createClient({
     pollingInterval: 100,
     transport: custom({

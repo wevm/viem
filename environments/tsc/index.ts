@@ -1,4 +1,4 @@
-import { http, createPublicClient, webSocket } from 'viem'
+import { createPublicClient, http, webSocket } from 'viem'
 import { mainnet } from 'viem/chains'
 ;(async () => {
   const client = createPublicClient({

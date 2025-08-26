@@ -1,5 +1,6 @@
 import type { OpStackTransactionSerialized } from '../chains/index.js'
 import { InvalidSerializedTransactionError } from '../errors/transaction.js'
+import { parseTransaction as parseTransaction_op } from '../op-stack/parsers.js'
 import type { Hex } from '../types/misc.js'
 import type { ExactPartial } from '../types/utils.js'
 import { isHex } from '../utils/data/isHex.js'
@@ -24,8 +25,6 @@ import type {
   TransactionSerializedCIP42,
   TransactionSerializedCIP64,
 } from './types.js'
-
-import { parseTransaction as parseTransaction_op } from '../op-stack/parsers.js'
 
 export type ParseTransactionReturnType<
   serialized extends CeloTransactionSerialized = CeloTransactionSerialized,
