@@ -1,4 +1,4 @@
-import { multicall3Abi, erc1271Abi } from '~viem/constants/abis.js'
+import { erc1271Abi, multicall3Abi } from '~viem/constants/abis.js'
 
 export const erc20Abi = [
   {

@@ -1,7 +1,6 @@
 import type { Address } from 'abitype'
 import * as SignatureErc6492 from 'ox/erc6492/SignatureErc6492'
 import * as SignatureErc8010 from 'ox/erc8010/SignatureErc8010'
-import * as ox_Signature from 'ox/Signature'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
