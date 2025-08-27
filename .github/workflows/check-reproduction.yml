@@ -22,6 +22,10 @@ jobs:
       - name: Check Reproduction
         uses: anthropics/claude-code-action@c05ccc5ce416f3129e97c8d17188813fef66f002
         with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          claude_args: |
+            --allowedTools "Bash(gh label list),mcp__github__get_issue,mcp__github__get_issue_comments,mcp__github__add_issue_comment,mcp__github__update_issue,mcp__github__create_issue_comment,mcp__github__search_issues,mcp__github__list_issues"
           prompt: |-
             You're an issue assistant for GitHub issues. Your task is to analyze the issue and determine whether it includes a minimal reproduction. If not, you should apply the `needs reproduction` label and post a helpful comment explaining why.
 
@@ -62,6 +66,3 @@ jobs:
             - Only apply labels from the repository's existing label list
             - ONLY post a comment if you apply the `needs reproduction` label
             - DO NOT comment if the issue already has a minimal reproduction
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          claude_args: |
-            --allowedTools "Bash(gh label list),mcp__github__get_issue,mcp__github__get_issue_comments,mcp__github__add_issue_comment,mcp__github__update_issue,mcp__github__create_issue_comment,mcp__github__search_issues,mcp__github__list_issues"
