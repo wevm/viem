@@ -28,6 +28,8 @@ export type HttpRpcClientOptions = {
     | undefined
   /** A callback to handle the response. */
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
+  /** Override for the fetch function used to make requests. */
+  fetchOverride?: typeof fetch | undefined
   /** The timeout (in ms) for the request. */
   timeout?: number | undefined
 }
@@ -50,6 +52,10 @@ export type HttpRequestParameters<
     | undefined
   /** A callback to handle the response. */
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
+  /** Override for the fetch function used to make requests. */
+  fetchOverride?:
+    | ((input: string | URL | Request, init?: RequestInit) => Promise<Response>)
+    | undefined
   /** The timeout (in ms) for the request. */
   timeout?: HttpRpcClientOptions['timeout'] | undefined
 }
@@ -81,6 +87,7 @@ export function getHttpRpcClient(
         onRequest = options.onRequest,
         onResponse = options.onResponse,
         timeout = options.timeout ?? 10_000,
+        fetchOverride: fetch_ = options.fetchOverride ?? fetch,
       } = params
 
       const fetchOptions = {
@@ -117,7 +124,7 @@ export function getHttpRpcClient(
             }
             const request = new Request(url, init)
             const args = (await onRequest?.(request, init)) ?? { ...init, url }
-            const response = await fetch(args.url ?? url, args)
+            const response = await fetch_(args.url ?? url, args)
             return response
           },
           {
