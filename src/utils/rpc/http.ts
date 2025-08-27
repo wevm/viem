@@ -29,7 +29,9 @@ export type HttpRpcClientOptions = {
   /** A callback to handle the response. */
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
   /** Override for the fetch function used to make requests. */
-  fetchOverride?: typeof fetch | undefined
+  fetchOverride?:
+    | ((input: string | URL | Request, init?: RequestInit) => Promise<Response>)
+    | undefined
   /** The timeout (in ms) for the request. */
   timeout?: number | undefined
 }
@@ -53,9 +55,7 @@ export type HttpRequestParameters<
   /** A callback to handle the response. */
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
   /** Override for the fetch function used to make requests. */
-  fetchOverride?:
-    | ((input: string | URL | Request, init?: RequestInit) => Promise<Response>)
-    | undefined
+  fetchOverride?: HttpRpcClientOptions['fetchOverride'] | undefined
   /** The timeout (in ms) for the request. */
   timeout?: HttpRpcClientOptions['timeout'] | undefined
 }
