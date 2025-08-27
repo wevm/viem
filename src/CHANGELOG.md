@@ -1,5 +1,17 @@
 # viem
 
+## 2.36.0
+
+### Minor Changes
+
+- [#3883](https://github.com/wevm/viem/pull/3883) [`4758e2ca5ba8a91bec4da9fa952d9e9b920c045d`](https://github.com/wevm/viem/commit/4758e2ca5ba8a91bec4da9fa952d9e9b920c045d) Thanks [@jxom](https://github.com/jxom)! - Added `deployless` option to `batch.multicall` on `createClient`.
+
+- [#3883](https://github.com/wevm/viem/pull/3883) [`4758e2ca5ba8a91bec4da9fa952d9e9b920c045d`](https://github.com/wevm/viem/commit/4758e2ca5ba8a91bec4da9fa952d9e9b920c045d) Thanks [@jxom](https://github.com/jxom)! - Added `deployless` parameter to `multicall` Action.
+
+### Patch Changes
+
+- [`427ff4c156b8ef6b2bd4b6f833f6b9008f0ac4b8`](https://github.com/wevm/viem/commit/427ff4c156b8ef6b2bd4b6f833f6b9008f0ac4b8) Thanks [@jxom](https://github.com/jxom)! - Updated Ox.
+
 ## 2.35.1
 
 ### Patch Changes
