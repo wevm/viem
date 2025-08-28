@@ -1,5 +1,13 @@
 # viem
 
+## 2.36.1
+
+### Patch Changes
+
+- [#3892](https://github.com/wevm/viem/pull/3892) [`32f10d5fa330134f5248d8cb8efbd78e8172fb95`](https://github.com/wevm/viem/commit/32f10d5fa330134f5248d8cb8efbd78e8172fb95) Thanks [@fe-dudu](https://github.com/fe-dudu)! - Updated Creditcoin chain name.
+
+- [#3896](https://github.com/wevm/viem/pull/3896) [`de5fccf43cc509c961c3b2ca44343224278f7ca4`](https://github.com/wevm/viem/commit/de5fccf43cc509c961c3b2ca44343224278f7ca4) Thanks [@iamshvetsov](https://github.com/iamshvetsov)! - Added support for CrossFi
+
 ## 2.36.0
 
 ### Minor Changes
