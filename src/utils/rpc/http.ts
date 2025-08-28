@@ -15,6 +15,10 @@ import { stringify } from '../stringify.js'
 import { idCache } from './id.js'
 
 export type HttpRpcClientOptions = {
+  /** Override for the fetch function used to make requests. */
+  fetchFn?:
+    | ((input: string | URL | Request, init?: RequestInit) => Promise<Response>)
+    | undefined
   /** Request configuration to pass to `fetch`. */
   fetchOptions?: Omit<RequestInit, 'body'> | undefined
   /** A callback to handle the request. */
@@ -28,10 +32,6 @@ export type HttpRpcClientOptions = {
     | undefined
   /** A callback to handle the response. */
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
-  /** Override for the fetch function used to make requests. */
-  fetchOverride?:
-    | ((input: string | URL | Request, init?: RequestInit) => Promise<Response>)
-    | undefined
   /** The timeout (in ms) for the request. */
   timeout?: number | undefined
 }
@@ -41,6 +41,8 @@ export type HttpRequestParameters<
 > = {
   /** The RPC request body. */
   body: body
+  /** Override for the fetch function used to make requests. */
+  fetchFn?: HttpRpcClientOptions['fetchFn'] | undefined
   /** Request configuration to pass to `fetch`. */
   fetchOptions?: HttpRpcClientOptions['fetchOptions'] | undefined
   /** A callback to handle the response. */
@@ -54,8 +56,6 @@ export type HttpRequestParameters<
     | undefined
   /** A callback to handle the response. */
   onResponse?: ((response: Response) => Promise<void> | void) | undefined
-  /** Override for the fetch function used to make requests. */
-  fetchOverride?: HttpRpcClientOptions['fetchOverride'] | undefined
   /** The timeout (in ms) for the request. */
   timeout?: HttpRpcClientOptions['timeout'] | undefined
 }
@@ -87,7 +87,7 @@ export function getHttpRpcClient(
         onRequest = options.onRequest,
         onResponse = options.onResponse,
         timeout = options.timeout ?? 10_000,
-        fetchOverride: fetch_ = options.fetchOverride ?? fetch,
+        fetchFn = options.fetchFn ?? fetch,
       } = params
 
       const fetchOptions = {
@@ -124,7 +124,7 @@ export function getHttpRpcClient(
             }
             const request = new Request(url, init)
             const args = (await onRequest?.(request, init)) ?? { ...init, url }
-            const response = await fetch_(args.url ?? url, args)
+            const response = await fetchFn(args.url ?? url, args)
             return response
           },
           {
