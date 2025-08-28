@@ -355,7 +355,7 @@ describe('request', () => {
     const fetchOverride = vi.fn(fetch)
 
     const client = getHttpRpcClient(anvilMainnet.rpcUrl.http, {
-      fetchOverride,
+      fetchFn: fetchOverride,
     })
 
     await client.request({
