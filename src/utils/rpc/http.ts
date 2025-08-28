@@ -15,6 +15,10 @@ import { stringify } from '../stringify.js'
 import { idCache } from './id.js'
 
 export type HttpRpcClientOptions = {
+  /** Override for the fetch function used to make requests. */
+  fetchFn?:
+    | ((input: string | URL | Request, init?: RequestInit) => Promise<Response>)
+    | undefined
   /** Request configuration to pass to `fetch`. */
   fetchOptions?: Omit<RequestInit, 'body'> | undefined
   /** A callback to handle the request. */
@@ -37,6 +41,8 @@ export type HttpRequestParameters<
 > = {
   /** The RPC request body. */
   body: body
+  /** Override for the fetch function used to make requests. */
+  fetchFn?: HttpRpcClientOptions['fetchFn'] | undefined
   /** Request configuration to pass to `fetch`. */
   fetchOptions?: HttpRpcClientOptions['fetchOptions'] | undefined
   /** A callback to handle the response. */
@@ -81,6 +87,7 @@ export function getHttpRpcClient(
         onRequest = options.onRequest,
         onResponse = options.onResponse,
         timeout = options.timeout ?? 10_000,
+        fetchFn = options.fetchFn ?? fetch,
       } = params
 
       const fetchOptions = {
@@ -117,7 +124,7 @@ export function getHttpRpcClient(
             }
             const request = new Request(url, init)
             const args = (await onRequest?.(request, init)) ?? { ...init, url }
-            const response = await fetch(args.url ?? url, args)
+            const response = await fetchFn(args.url ?? url, args)
             return response
           },
           {
