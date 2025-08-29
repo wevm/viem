@@ -6,10 +6,14 @@ import {
   symlinkSync,
 } from 'node:fs'
 import { basename, dirname, join, resolve } from 'node:path'
+import { fileURLToPath } from 'url'
 
 console.log('Setting up packages for development.')
 
-const packagePath = resolve(import.meta.dirname, '../src/package.json')
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
+const packagePath = resolve(__dirname, '../src/package.json')
 const packageJson = JSON.parse(readFileSync(packagePath, 'utf-8'))
 
 console.log(`${packageJson.name} — ${dirname(packagePath)}`)
@@ -35,19 +39,19 @@ for (const [key, exports] of Object.entries(packageJson.exports)) {
   // Skip `package.json` exports
   if (/package\.json$/.test(key)) continue
 
-  let entries: any
-  if (typeof exports === 'string')
+  let entries: [type: 'types' | 'default', value: string][]
+
+  if (typeof exports === 'string') {
     entries = [
       ['default', exports],
       ['types', exports.replace('.js', '.d.ts')],
     ]
-  else entries = Object.entries(exports as {})
+  } else {
+    entries = Object.entries(exports as Record<string, string>) as [type: 'types' | 'default', value: string][]
+  }
 
   // Link exports to dist locations
-  for (const [, value] of entries as [
-    type: 'types' | 'default',
-    value: string,
-  ][]) {
+  for (const [, value] of entries) {
     const srcDir = resolve(dir, dirname(value).replace(/_types|_esm|_cjs/, ''))
     const srcFilePath = resolve(srcDir, 'index.ts')
 
