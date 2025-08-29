@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const sonicTestnet = /*#__PURE__*/ defineChain({
-  id: 64_165,
+  id: 14_601,
   name: 'Sonic Testnet',
   nativeCurrency: {
     decimals: 18,
