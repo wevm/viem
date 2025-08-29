@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const bxnTestnet = /*#__PURE__*/ defineChain({
-  id: 4777,
+  id: 4888,
   name: 'BlackFort Exchange Network Testnet',
   nativeCurrency: {
     name: 'BlackFort Testnet Token',
@@ -10,14 +10,14 @@ export const bxnTestnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://testnet.blackfort.network/rpc'],
+      http: ['https://rpc.blackfort.network/testnet/rpc'],
     },
   },
   blockExplorers: {
     default: {
       name: 'Blockscout',
-      url: 'https://testnet-explorer.blackfort.network',
-      apiUrl: 'https://testnet-explorer.blackfort.network/api',
+      url: 'https://testnet.blackfortscan.com',
+      apiUrl: 'https://testnet.blackfortscan.com/api',
     },
   },
   testnet: true,
