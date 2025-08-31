@@ -84,10 +84,10 @@ export function getHttpRpcClient(
     async request(params) {
       const {
         body,
+        fetchFn = options.fetchFn ?? fetch,
         onRequest = options.onRequest,
         onResponse = options.onResponse,
         timeout = options.timeout ?? 10_000,
-        fetchFn = options.fetchFn ?? fetch,
       } = params
 
       const fetchOptions = {
