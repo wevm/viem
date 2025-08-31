@@ -8,6 +8,7 @@ export const unichain = /*#__PURE__*/ defineChain({
   id: 130,
   name: 'Unichain',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  blockTime: 1_000,
   rpcUrls: {
     default: {
       http: ['https://mainnet.unichain.org/'],
