@@ -348,6 +348,26 @@ describe('request', () => {
     vi.unstubAllGlobals()
   })
 
+  test('fetch override', async () => {
+    const fetchOverride = vi.fn(fetch)
+
+    const client = getHttpRpcClient(anvilMainnet.rpcUrl.http, {
+      fetchFn: fetchOverride,
+    })
+
+    await client.request({
+      body: { method: 'web3_clientVersion' },
+    })
+
+    expect(fetchOverride).toHaveBeenCalledWith(anvilMainnet.rpcUrl.http, {
+      body: JSON.stringify({ method: 'web3_clientVersion' }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    })
+  })
+
   // TODO: This is flaky.
   test.skip('timeout', async () => {
     const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
