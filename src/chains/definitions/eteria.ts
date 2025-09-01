@@ -18,8 +18,8 @@ export const eteria = /*#__PURE__*/ defineChain({
   },
   contracts: {
     multicall3: {
-      address: '0xca11bde05977b3631167028862be2a173976ca11',
-      blockCreated: 7654707,
+      address: '0x8cC688B1F99b651ee00bB0Cb0aae61F416F8384b',
+      blockCreated: 918,
     },
   },
 })
