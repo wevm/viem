@@ -11,7 +11,7 @@ export const eteria = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Arbiscan',
+      name: 'Eteria Explorer',
       url: 'https://explorer.eteria.io',
       apiUrl: 'https://explorer.eteria.io/api',
     },
