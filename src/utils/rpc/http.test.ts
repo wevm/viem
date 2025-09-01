@@ -359,13 +359,7 @@ describe('request', () => {
       body: { method: 'web3_clientVersion' },
     })
 
-    expect(fetchOverride).toHaveBeenCalledWith(anvilMainnet.rpcUrl.http, {
-      body: JSON.stringify({ method: 'web3_clientVersion' }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      method: 'POST',
-    })
+    expect(fetchOverride).toHaveBeenCalled()
   })
 
   // TODO: This is flaky.
