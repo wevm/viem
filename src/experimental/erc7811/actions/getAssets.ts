@@ -125,12 +125,15 @@ export async function getAssets<
     const aggregated = {} as Record<string, getAssets.Asset<boolean>>
     for (const [chainId, assets] of Object.entries(response)) {
       if (chainId === '0') continue
+      const seen = new Set<string>()
       for (const asset of assets) {
         const key =
           typeof aggregate === 'function'
             ? aggregate(asset)
             : (asset.address ?? ethAddress)
         const item = (aggregated[key] ?? {}) as getAssets.Asset<true>
+        if (seen.has(key)) continue
+        seen.add(key)
         aggregated[key] = {
           ...asset,
           balance: asset.balance + (item?.balance ?? 0n),
