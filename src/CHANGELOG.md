@@ -1,5 +1,23 @@
 # viem
 
+## 2.36.1
+
+### Patch Changes
+
+- [#3892](https://github.com/wevm/viem/pull/3892) [`32f10d5fa330134f5248d8cb8efbd78e8172fb95`](https://github.com/wevm/viem/commit/32f10d5fa330134f5248d8cb8efbd78e8172fb95) Thanks [@fe-dudu](https://github.com/fe-dudu)! - Updated Creditcoin chain name.
+
+- [#3895](https://github.com/wevm/viem/pull/3895) [`30d80c216d7a6fc84881f3877a8950d1d71c9bd7`](https://github.com/wevm/viem/commit/30d80c216d7a6fc84881f3877a8950d1d71c9bd7) Thanks [@coffeexcoin](https://github.com/coffeexcoin)! - Added `fetchFn` parameter to `http` transport configuration.
+
+- [`c83a5e119635d6f82c6cc4b453f051504437d3b3`](https://github.com/wevm/viem/commit/c83a5e119635d6f82c6cc4b453f051504437d3b3) Thanks [@jxom](https://github.com/jxom)! - Fixed `getAssets` aggregation duplicates.
+
+- [#3904](https://github.com/wevm/viem/pull/3904) [`06e29d5fb636ecf2681e1699cbd1518c91c7a16c`](https://github.com/wevm/viem/commit/06e29d5fb636ecf2681e1699cbd1518c91c7a16c) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added OpenLedger mainnet.
+
+- [`37b8a437cf3803b7a3e00056acf4db38b7e27fef`](https://github.com/wevm/viem/commit/37b8a437cf3803b7a3e00056acf4db38b7e27fef) Thanks [@jxom](https://github.com/jxom)! - Updated dependencies.
+
+- [#3898](https://github.com/wevm/viem/pull/3898) [`c261db9b533cc19796216c88b30d3a19accd0ca8`](https://github.com/wevm/viem/commit/c261db9b533cc19796216c88b30d3a19accd0ca8) Thanks [@b-tarczynski](https://github.com/b-tarczynski)! - Added `blockTime` to Unichain.
+
+- [#3896](https://github.com/wevm/viem/pull/3896) [`de5fccf43cc509c961c3b2ca44343224278f7ca4`](https://github.com/wevm/viem/commit/de5fccf43cc509c961c3b2ca44343224278f7ca4) Thanks [@iamshvetsov](https://github.com/iamshvetsov)! - Added support for CrossFi
+
 ## 2.36.0
 
 ### Minor Changes
