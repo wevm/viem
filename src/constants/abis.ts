@@ -274,7 +274,7 @@ export const addressResolverAbi = [
 // ERC-1271
 // isValidSignature(bytes32 hash, bytes signature) → bytes4 magicValue
 /** @internal */
-export const smartAccountAbi = [
+export const erc1271Abi = [
   {
     name: 'isValidSignature',
     type: 'function',
@@ -290,7 +290,7 @@ export const smartAccountAbi = [
 // ERC-6492 - universal deployless signature validator contract
 // constructor(address _signer, bytes32 _hash, bytes _signature) → bytes4 returnValue
 // returnValue is either 0x1 (valid) or 0x0 (invalid)
-export const universalSignatureValidatorAbi = [
+export const erc6492SignatureValidatorAbi = [
   {
     inputs: [
       {

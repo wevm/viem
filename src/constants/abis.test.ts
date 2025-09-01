@@ -512,6 +512,29 @@ test('exports abis', () => {
           "type": "function",
         },
       ],
+      "erc1271Abi": [
+        {
+          "inputs": [
+            {
+              "name": "hash",
+              "type": "bytes32",
+            },
+            {
+              "name": "signature",
+              "type": "bytes",
+            },
+          ],
+          "name": "isValidSignature",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes4",
+            },
+          ],
+          "stateMutability": "view",
+          "type": "function",
+        },
+      ],
       "erc20Abi": [
         {
           "inputs": [
@@ -1390,6 +1413,50 @@ test('exports abis', () => {
           "type": "function",
         },
       ],
+      "erc6492SignatureValidatorAbi": [
+        {
+          "inputs": [
+            {
+              "name": "_signer",
+              "type": "address",
+            },
+            {
+              "name": "_hash",
+              "type": "bytes32",
+            },
+            {
+              "name": "_signature",
+              "type": "bytes",
+            },
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor",
+        },
+        {
+          "inputs": [
+            {
+              "name": "_signer",
+              "type": "address",
+            },
+            {
+              "name": "_hash",
+              "type": "bytes32",
+            },
+            {
+              "name": "_signature",
+              "type": "bytes",
+            },
+          ],
+          "name": "isValidSig",
+          "outputs": [
+            {
+              "type": "bool",
+            },
+          ],
+          "stateMutability": "nonpayable",
+          "type": "function",
+        },
+      ],
       "erc721Abi": [
         {
           "inputs": [
@@ -1749,29 +1816,6 @@ test('exports abis', () => {
           "type": "function",
         },
       ],
-      "smartAccountAbi": [
-        {
-          "inputs": [
-            {
-              "name": "hash",
-              "type": "bytes32",
-            },
-            {
-              "name": "signature",
-              "type": "bytes",
-            },
-          ],
-          "name": "isValidSignature",
-          "outputs": [
-            {
-              "name": "",
-              "type": "bytes4",
-            },
-          ],
-          "stateMutability": "view",
-          "type": "function",
-        },
-      ],
       "textResolverAbi": [
         {
           "inputs": [
@@ -2064,50 +2108,6 @@ test('exports abis', () => {
             },
           ],
           "stateMutability": "view",
-          "type": "function",
-        },
-      ],
-      "universalSignatureValidatorAbi": [
-        {
-          "inputs": [
-            {
-              "name": "_signer",
-              "type": "address",
-            },
-            {
-              "name": "_hash",
-              "type": "bytes32",
-            },
-            {
-              "name": "_signature",
-              "type": "bytes",
-            },
-          ],
-          "stateMutability": "nonpayable",
-          "type": "constructor",
-        },
-        {
-          "inputs": [
-            {
-              "name": "_signer",
-              "type": "address",
-            },
-            {
-              "name": "_hash",
-              "type": "bytes32",
-            },
-            {
-              "name": "_signature",
-              "type": "bytes",
-            },
-          ],
-          "name": "isValidSig",
-          "outputs": [
-            {
-              "type": "bool",
-            },
-          ],
-          "stateMutability": "nonpayable",
           "type": "function",
         },
       ],

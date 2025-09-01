@@ -18,6 +18,7 @@ import { namehash } from '~viem/utils/ens/namehash.js'
 import {
   EnsAvatarTokenUri,
   ERC20InvalidTransferEvent,
+  ERC6492SignatureVerifier,
   ErrorsExample,
   OffchainLookupExample,
   Payable,
@@ -26,7 +27,6 @@ import {
   SoladyAccount07,
   SoladyAccountFactory06,
   SoladyAccountFactory07,
-  VerifySig,
 } from '../../contracts/generated.js'
 import type { TestClientMode } from '../../src/clients/createTestClient.js'
 import {
@@ -185,10 +185,10 @@ export async function deploySoladyAccount_06() {
   }
 }
 
-export async function deployUniversalSignatureVerifier() {
+export async function deployErc6492SignatureVerifier() {
   return deploy(client, {
-    abi: VerifySig.abi,
-    bytecode: VerifySig.bytecode.object,
+    abi: ERC6492SignatureVerifier.abi,
+    bytecode: ERC6492SignatureVerifier.bytecode.object,
   })
 }
 
