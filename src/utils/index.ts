@@ -442,11 +442,23 @@ export {
   isErc6492Signature,
 } from './signature/isErc6492Signature.js'
 export {
+  type IsErc8010SignatureErrorType,
+  type IsErc8010SignatureParameters,
+  type IsErc8010SignatureReturnType,
+  isErc8010Signature,
+} from './signature/isErc8010Signature.js'
+export {
   type ParseErc6492SignatureErrorType,
   type ParseErc6492SignatureParameters,
   type ParseErc6492SignatureReturnType,
   parseErc6492Signature,
 } from './signature/parseErc6492Signature.js'
+export {
+  type ParseErc8010SignatureErrorType,
+  type ParseErc8010SignatureParameters,
+  type ParseErc8010SignatureReturnType,
+  parseErc8010Signature,
+} from './signature/parseErc8010Signature.js'
 export {
   type RecoverAddressErrorType,
   type RecoverAddressParameters,
@@ -477,6 +489,12 @@ export {
   type SerializeErc6492SignatureReturnType,
   serializeErc6492Signature,
 } from './signature/serializeErc6492Signature.js'
+export {
+  type SerializeErc8010SignatureErrorType,
+  type SerializeErc8010SignatureParameters,
+  type SerializeErc8010SignatureReturnType,
+  serializeErc8010Signature,
+} from './signature/serializeErc8010Signature.js'
 export {
   type VerifyHashErrorType,
   type VerifyHashParameters,

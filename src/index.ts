@@ -612,15 +612,19 @@ export {
   erc721Abi,
   erc1155Abi,
   erc4626Abi,
+  erc6492SignatureValidatorAbi,
+  /** @deprecated use `erc6492SignatureValidatorAbi` instead. */
+  erc6492SignatureValidatorAbi as universalSignatureValidatorAbi,
   multicall3Abi,
-  universalSignatureValidatorAbi,
 } from './constants/abis.js'
 export { ethAddress, zeroAddress } from './constants/address.js'
 export { zeroHash } from './constants/bytes.js'
 export {
   deploylessCallViaBytecodeBytecode,
   deploylessCallViaFactoryBytecode,
-  universalSignatureValidatorByteCode,
+  erc6492SignatureValidatorByteCode,
+  /** @deprecated use `erc6492SignatureValidatorByteCode` instead. */
+  erc6492SignatureValidatorByteCode as universalSignatureValidatorByteCode,
 } from './constants/contracts.js'
 export {
   maxInt8,
@@ -1690,6 +1694,12 @@ export {
   isErc6492Signature,
 } from './utils/signature/isErc6492Signature.js'
 export {
+  type IsErc8010SignatureErrorType,
+  type IsErc8010SignatureParameters,
+  type IsErc8010SignatureReturnType,
+  isErc8010Signature,
+} from './utils/signature/isErc8010Signature.js'
+export {
   /** @deprecated Use `ParseCompactSignatureErrorType`. */
   type ParseCompactSignatureErrorType as HexToCompactSignatureErrorType,
   type ParseCompactSignatureErrorType,
@@ -1703,6 +1713,12 @@ export {
   type ParseErc6492SignatureReturnType,
   parseErc6492Signature,
 } from './utils/signature/parseErc6492Signature.js'
+export {
+  type ParseErc8010SignatureErrorType,
+  type ParseErc8010SignatureParameters,
+  type ParseErc8010SignatureReturnType,
+  parseErc8010Signature,
+} from './utils/signature/parseErc8010Signature.js'
 export {
   /** @deprecated Use `ParseSignatureErrorType`. */
   type ParseSignatureErrorType as HexToSignatureErrorType,
@@ -1755,6 +1771,12 @@ export {
   type SerializeErc6492SignatureReturnType,
   serializeErc6492Signature,
 } from './utils/signature/serializeErc6492Signature.js'
+export {
+  type SerializeErc8010SignatureErrorType,
+  type SerializeErc8010SignatureParameters,
+  type SerializeErc8010SignatureReturnType,
+  serializeErc8010Signature,
+} from './utils/signature/serializeErc8010Signature.js'
 export {
   /** @deprecated Use `SignatureToHexErrorType` instead. */
   type SerializeSignatureErrorType as SignatureToHexErrorType,

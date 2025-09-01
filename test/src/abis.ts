@@ -1,4 +1,4 @@
-import { multicall3Abi, smartAccountAbi } from '~viem/constants/abis.js'
+import { erc1271Abi, multicall3Abi } from '~viem/constants/abis.js'
 
 export const erc20Abi = [
   {
@@ -4327,7 +4327,7 @@ export const ensReverseRegistrarConfig = {
 
 export const smartAccountConfig = {
   address: '0x3FCf42e10CC70Fe75A62EB3aDD6D305Aa840d145',
-  abi: smartAccountAbi,
+  abi: erc1271Abi,
 } as const
 
 export const greeterContract = {
