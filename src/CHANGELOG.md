@@ -1,5 +1,11 @@
 # viem
 
+## 2.37.0
+
+### Minor Changes
+
+- [#3905](https://github.com/wevm/viem/pull/3905) [`f134e8e20415986573d88dbf2a1c8cf0327c8b5a`](https://github.com/wevm/viem/commit/f134e8e20415986573d88dbf2a1c8cf0327c8b5a) Thanks [@jxom](https://github.com/jxom)! - Added support for [ERC-8010: Pre-delegated Signature Verification](https://github.com/ethereum/ERCs/pull/1186).
+
 ## 2.36.1
 
 ### Patch Changes
