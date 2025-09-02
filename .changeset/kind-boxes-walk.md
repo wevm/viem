@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Use getAction within waitForCallsStatus
+Use `getAction` within `waitForCallsStatus`
