@@ -1,5 +1,11 @@
 # viem
 
+## 2.37.1
+
+### Patch Changes
+
+- [`575b84ad795c59fd24f2f0d7d13586184edff2d9`](https://github.com/wevm/viem/commit/575b84ad795c59fd24f2f0d7d13586184edff2d9) Thanks [@jxom](https://github.com/jxom)! - Updated dependencies.
+
 ## 2.37.0
 
 ### Minor Changes
