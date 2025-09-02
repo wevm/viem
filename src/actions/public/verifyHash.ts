@@ -38,6 +38,7 @@ import {
   type IsAddressEqualErrorType,
   isAddressEqual,
 } from '../../utils/address/isAddressEqual.js'
+import { verifyAuthorization } from '../../utils/authorization/verifyAuthorization.js'
 import { type ConcatHexErrorType, concatHex } from '../../utils/data/concat.js'
 import { type IsHexErrorType, isHex } from '../../utils/data/isHex.js'
 import { hexToBool } from '../../utils/encoding/fromHex.js'
@@ -167,7 +168,7 @@ export async function verifyErc8010(
   const { address, blockNumber, blockTag, hash, multicallAddress } = parameters
 
   const {
-    authorization,
+    authorization: authorization_ox,
     data: initData,
     signature,
     to,
@@ -181,7 +182,7 @@ export async function verifyErc8010(
   } as never)
 
   // If already delegated, perform standard ERC-1271 verification.
-  if (code === concatHex(['0xef0100', authorization.address]))
+  if (code === concatHex(['0xef0100', authorization_ox.address]))
     return await verifyErc1271(client, {
       address,
       blockNumber,
@@ -189,6 +190,21 @@ export async function verifyErc8010(
       hash,
       signature,
     })
+
+  const authorization = {
+    address: authorization_ox.address,
+    chainId: Number(authorization_ox.chainId),
+    nonce: Number(authorization_ox.nonce),
+    r: numberToHex(authorization_ox.r, { size: 32 }),
+    s: numberToHex(authorization_ox.s, { size: 32 }),
+    yParity: authorization_ox.yParity,
+  } as const
+
+  const valid = await verifyAuthorization({
+    address,
+    authorization,
+  })
+  if (!valid) throw new VerificationError()
 
   // Deployless verification.
   const results = await getAction(
@@ -199,16 +215,7 @@ export async function verifyErc8010(
     ...(multicallAddress
       ? { address: multicallAddress }
       : { code: multicall3Bytecode }),
-    authorizationList: [
-      {
-        address: authorization.address,
-        chainId: Number(authorization.chainId),
-        nonce: Number(authorization.nonce),
-        r: numberToHex(authorization.r, { size: 32 }),
-        s: numberToHex(authorization.s, { size: 32 }),
-        yParity: authorization.yParity,
-      },
-    ],
+    authorizationList: [authorization],
     abi: multicall3Abi,
     blockNumber,
     blockTag: 'pending',
