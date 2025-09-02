@@ -16,7 +16,7 @@ import type {
 import type { Hash, Hex } from '../../types/misc.js'
 import type { UnionEvaluate, UnionOmit } from '../../types/utils.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
-import { portalAbi } from '../abis.js'
+import { portal2Abi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import {
   type EstimateProveWithdrawalGasErrorType,
@@ -141,7 +141,7 @@ export async function proveWithdrawal<
 
   return writeContract(client, {
     account: account!,
-    abi: portalAbi,
+    abi: portal2Abi,
     address: portalAddress,
     chain,
     functionName: 'proveWithdrawalTransaction',
