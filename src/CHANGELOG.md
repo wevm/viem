@@ -1,5 +1,11 @@
 # viem
 
+## 2.37.1
+
+### Patch Changes
+
+- [`f3b2d7352d352be06e87d146ab6ac3008a21bca3`](https://github.com/wevm/viem/commit/f3b2d7352d352be06e87d146ab6ac3008a21bca3) Thanks [@jxom](https://github.com/jxom)! - Prefer named `ox` imports.
+
 ## 2.37.0
 
 ### Minor Changes
