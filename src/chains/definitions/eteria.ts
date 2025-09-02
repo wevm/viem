@@ -15,11 +15,5 @@ export const eteria = /*#__PURE__*/ defineChain({
       url: 'https://explorer.eteria.io',
       apiUrl: 'https://explorer.eteria.io/api',
     },
-  },
-  contracts: {
-    multicall3: {
-      address: '0x8cC688B1F99b651ee00bB0Cb0aae61F416F8384b',
-      blockCreated: 918,
-    },
-  },
+  }
 })
