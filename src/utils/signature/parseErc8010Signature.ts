@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import * as SignatureErc8010 from 'ox/erc8010/SignatureErc8010'
+import { SignatureErc8010 } from 'ox/erc8010'
 import type { ErrorType } from '../../errors/utils.js'
 import type { SignedAuthorization } from '../../types/authorization.js'
 import type { Hex } from '../../types/misc.js'
