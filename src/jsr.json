@@ -1,6 +1,6 @@
 {
   "name": "@wevm/viem",
-  "version": "2.36.1",
+  "version": "2.37.0",
   "exports": {
     ".": "./index.ts",
     "./accounts-abstraction": "./account-abstraction/index.ts",
