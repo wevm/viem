@@ -127,7 +127,7 @@ export async function waitForCallsStatus<chain extends Chain | undefined>(
               const result = await getAction(
                 client,
                 getCallsStatus,
-                'getCallsStatus'
+                'getCallsStatus',
               )({ id })
               if (throwOnFailure && result.status === 'failure')
                 throw new BundleFailedError(result)

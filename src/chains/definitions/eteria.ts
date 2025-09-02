@@ -15,5 +15,5 @@ export const eteria = /*#__PURE__*/ defineChain({
       url: 'https://explorer.eteria.io',
       apiUrl: 'https://explorer.eteria.io/api',
     },
-  }
+  },
 })
