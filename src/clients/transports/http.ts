@@ -36,6 +36,7 @@ export type HttpTransportConfig<
         wait?: number | undefined
       }
     | undefined
+  fetchFn?: HttpRpcClientOptions['fetchFn'] | undefined
   /**
    * Request configuration to pass to `fetch`.
    * @link https://developer.mozilla.org/en-US/docs/Web/API/fetch
@@ -93,6 +94,7 @@ export function http<
 ): HttpTransport<rpcSchema, raw> {
   const {
     batch,
+    fetchFn,
     fetchOptions,
     key = 'http',
     methods,
@@ -111,6 +113,7 @@ export function http<
     if (!url_) throw new UrlRequiredError()
 
     const rpcClient = getHttpRpcClient(url_, {
+      fetchFn,
       fetchOptions,
       onRequest: onFetchRequest,
       onResponse: onFetchResponse,
