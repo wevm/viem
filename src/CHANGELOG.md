@@ -1,5 +1,19 @@
 # viem
 
+## 2.37.2
+
+### Patch Changes
+
+- [#3916](https://github.com/wevm/viem/pull/3916) [`7196b6ce7ebd67c00540de8d3d96484e1b84f798`](https://github.com/wevm/viem/commit/7196b6ce7ebd67c00540de8d3d96484e1b84f798) Thanks [@chybisov](https://github.com/chybisov)! - Added `getAction` to `waitForCallsStatus`.
+
+- [#3918](https://github.com/wevm/viem/pull/3918) [`e72d35631d5dd5c35730f7d7c914d8bc649762b2`](https://github.com/wevm/viem/commit/e72d35631d5dd5c35730f7d7c914d8bc649762b2) Thanks [@wobsoriano](https://github.com/wobsoriano)! - Bumped `abitype` to `1.1.0`.
+
+- [#3917](https://github.com/wevm/viem/pull/3917) [`d4104d3b545371ddeeeaacab703cff6fe1570e45`](https://github.com/wevm/viem/commit/d4104d3b545371ddeeeaacab703cff6fe1570e45) Thanks [@coffeexcoin](https://github.com/coffeexcoin)! - Added `fetchFn` to `http` transport.
+
+- [`da117f66d73c3e9bc65a83931495877930f4ed2e`](https://github.com/wevm/viem/commit/da117f66d73c3e9bc65a83931495877930f4ed2e) Thanks [@jxom](https://github.com/jxom)! - Replaced `portalAbi` with `portal2Abi` in `proveWithdrawal`
+
+- [#3907](https://github.com/wevm/viem/pull/3907) [`014aad66bbf0171b144e95d6ecbaa860af87ab59`](https://github.com/wevm/viem/commit/014aad66bbf0171b144e95d6ecbaa860af87ab59) Thanks [@Eteriaio](https://github.com/Eteriaio)! - Added Eteria chain.
+
 ## 2.37.1
 
 ### Patch Changes
