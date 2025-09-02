@@ -4,6 +4,7 @@ import { BaseError } from '../../errors/base.js'
 import { BundleFailedError } from '../../errors/calls.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
+import { getAction } from '../../utils/getAction.js'
 import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { type PollErrorType, poll } from '../../utils/poll.js'
 import { withResolvers } from '../../utils/promise/withResolvers.js'
@@ -123,7 +124,11 @@ export async function waitForCallsStatus<chain extends Chain | undefined>(
         try {
           const result = await withRetry(
             async () => {
-              const result = await getCallsStatus(client, { id })
+              const result = await getAction(
+                client,
+                getCallsStatus,
+                'getCallsStatus'
+              )({ id })
               if (throwOnFailure && result.status === 'failure')
                 throw new BundleFailedError(result)
               return result
