@@ -78,6 +78,7 @@ test('default', async () => {
       "simulateCalls": [Function],
       "simulateContract": [Function],
       "uninstallFilter": [Function],
+      "verifyHash": [Function],
       "verifyMessage": [Function],
       "verifySiweMessage": [Function],
       "verifyTypedData": [Function],
