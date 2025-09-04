@@ -1,8 +1,11 @@
 import { resolve } from 'node:path'
+import React from 'react'
 import { defineConfig } from 'vocs'
 
 import pkg from '../src/package.json'
 import { sidebar } from './sidebar'
+
+React
 
 export default defineConfig({
   aiCta: {
