@@ -1,5 +1,11 @@
 # viem
 
+## 2.37.3
+
+### Patch Changes
+
+- [`fb8bbc87ea3be7a0df70cc7784d58a0d3ad22a28`](https://github.com/wevm/viem/commit/fb8bbc87ea3be7a0df70cc7784d58a0d3ad22a28) Thanks [@jxom](https://github.com/jxom)! - Added `verifyHash` to public decorators.
+
 ## 2.37.2
 
 ### Patch Changes
