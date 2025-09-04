@@ -39,6 +39,10 @@ export const publicClient = createPublicClient({
   transport: http()
 })
 
+export const walletClient = createWalletClient({
+  transport: custom(window.ethereum!)
+})
+
 // @log: ↓ JSON-RPC Account
 export const [account] = await walletClient.getAddresses()
 
