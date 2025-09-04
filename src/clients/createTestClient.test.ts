@@ -428,6 +428,7 @@ test('extend', () => {
       },
       "type": "testClient",
       "uninstallFilter": [Function],
+      "verifyHash": [Function],
       "verifyMessage": [Function],
       "verifySiweMessage": [Function],
       "verifyTypedData": [Function],

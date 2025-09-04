@@ -557,6 +557,7 @@ test('extend', () => {
       },
       "type": "walletClient",
       "uninstallFilter": [Function],
+      "verifyHash": [Function],
       "verifyMessage": [Function],
       "verifySiweMessage": [Function],
       "verifyTypedData": [Function],
