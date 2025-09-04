@@ -638,6 +638,7 @@ describe('extends', () => {
         },
         "type": "base",
         "uninstallFilter": [Function],
+        "verifyHash": [Function],
         "verifyMessage": [Function],
         "verifySiweMessage": [Function],
         "verifyTypedData": [Function],
