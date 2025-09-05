@@ -45,6 +45,7 @@ export type ReadContractParameters<
     | 'account'
     | 'authorizationList'
     | 'blockNumber'
+    | 'blockOverrides'
     | 'blockTag'
     | 'factory'
     | 'factoryData'

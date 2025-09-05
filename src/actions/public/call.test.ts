@@ -237,14 +237,13 @@ test('args: override', async () => {
   )
 })
 
-test.skip('args: blockOverrides', async () => {
-  // TODO: don't skip once block overrides are supported in Anvil.
+test('args: blockOverrides', async () => {
   const { data } = await call(client, {
     data: getCurrentBlockTimestamp4bytes,
     code: multicall3ContractConfig.bytecode,
     blockOverrides: { time: 420n },
   })
-  expect(data).toMatchInlineSnapshot(fourTwenty)
+  expect(data).toMatchInlineSnapshot(`"0x${fourTwenty}"`)
 })
 
 test.skip('args: blobs', async () => {

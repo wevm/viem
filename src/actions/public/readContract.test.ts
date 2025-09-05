@@ -6,7 +6,11 @@ import {
   SoladyAccount07,
   SoladyAccountFactory07,
 } from '~contracts/generated.js'
-import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
+import {
+  baycContractConfig,
+  multicall3ContractConfig,
+  wagmiContractConfig,
+} from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
 import {
   deploy,
@@ -150,6 +154,16 @@ describe('wagmi', () => {
         ],
       }),
     ).toEqual(fakeName)
+  })
+
+  test('args: blockOverrides', async () => {
+    expect(
+      await readContract(client, {
+        ...multicall3ContractConfig,
+        functionName: 'getCurrentBlockTimestamp',
+        blockOverrides: { time: 420n },
+      }),
+    ).toEqual(420n)
   })
 })
 

@@ -8,6 +8,7 @@ import { describe, expect, test, vi } from 'vitest'
 import { Delegation, ErrorsExample, GH434 } from '~contracts/generated.js'
 import {
   baycContractConfig,
+  multicall3ContractConfig,
   usdcContractConfig,
   wagmiContractConfig,
 } from '~test/src/abis.js'
@@ -443,6 +444,36 @@ test('args: stateOverride', async () => {
       },
       {
         "result": "${fakeName}",
+        "status": "success",
+      },
+    ]
+  `)
+})
+
+test('args: blockOverrides', async () => {
+  expect(
+    await multicall(client, {
+      batchSize: 2,
+      contracts: [
+        {
+          ...multicall3ContractConfig,
+          functionName: 'getCurrentBlockTimestamp',
+        },
+        {
+          ...multicall3ContractConfig,
+          functionName: 'getCurrentBlockTimestamp',
+        },
+      ],
+      blockOverrides: { time: 420n },
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      {
+        "result": 420n,
+        "status": "success",
+      },
+      {
+        "result": 420n,
         "status": "success",
       },
     ]
