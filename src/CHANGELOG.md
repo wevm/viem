@@ -1,5 +1,11 @@
 # viem
 
+## 2.37.4
+
+### Patch Changes
+
+- [#3928](https://github.com/wevm/viem/pull/3928) [`68b0c109df2773a147cd4a293f738983402538e1`](https://github.com/wevm/viem/commit/68b0c109df2773a147cd4a293f738983402538e1) Thanks [@fubhy](https://github.com/fubhy)! - Tweaked `watchBlockNumber` to work with genesis blocks
+
 ## 2.37.3
 
 ### Patch Changes
