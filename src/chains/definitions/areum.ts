@@ -2,7 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const areum = /*#__PURE__*/ defineChain({
   id: 463,
-  name: 'Areum',
+  name: 'Areum Mainnet',
   nativeCurrency: { decimals: 18, name: 'AREA', symbol: 'AREA' },
   rpcUrls: {
     default: {
