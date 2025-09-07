@@ -1,4 +1,3 @@
-
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const teaSepolia = /*#__PURE__*/ defineChain({
