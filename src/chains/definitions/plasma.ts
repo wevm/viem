@@ -10,13 +10,13 @@ export const plasma = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.plasma.to/'],
+      http: ['https://rpc.plasma.to'],
     },
   },
   blockExplorers: {
     default: {
       name: 'PlasmaScan',
-      url: 'https://plasmascan.to/',
+      url: 'https://plasmascan.to',
     },
   },
 })
