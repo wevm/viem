@@ -44,7 +44,11 @@ export type MulticallParameters<
   } = {},
 > = Pick<
   CallParameters,
-  'authorizationList' | 'blockNumber' | 'blockTag' | 'stateOverride'
+  | 'authorizationList'
+  | 'blockNumber'
+  | 'blockOverrides'
+  | 'blockTag'
+  | 'stateOverride'
 > & {
   /** The account to use for the multicall. */
   account?: Address | undefined
@@ -135,6 +139,7 @@ export async function multicall<
     authorizationList,
     allowFailure = true,
     blockNumber,
+    blockOverrides,
     blockTag,
     stateOverride,
   } = parameters
@@ -233,6 +238,7 @@ export async function multicall<
         args: [calls],
         authorizationList,
         blockNumber,
+        blockOverrides,
         blockTag,
         functionName: 'aggregate3',
         stateOverride,

@@ -1,5 +1,17 @@
 # viem
 
+## 2.37.4
+
+### Patch Changes
+
+- [#3921](https://github.com/wevm/viem/pull/3921) [`fbd71b713fc38c07aad3004f99f938cac94d2210`](https://github.com/wevm/viem/commit/fbd71b713fc38c07aad3004f99f938cac94d2210) Thanks [@mattw09](https://github.com/mattw09)! - Added Plasma chain.
+
+- [#3925](https://github.com/wevm/viem/pull/3925) [`54be8905faa661e67ff374c7d2da3ef79b7463b9`](https://github.com/wevm/viem/commit/54be8905faa661e67ff374c7d2da3ef79b7463b9) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Tea Sepolia.
+
+- [#3928](https://github.com/wevm/viem/pull/3928) [`68b0c109df2773a147cd4a293f738983402538e1`](https://github.com/wevm/viem/commit/68b0c109df2773a147cd4a293f738983402538e1) Thanks [@fubhy](https://github.com/fubhy)! - Tweaked `watchBlockNumber` to work with genesis blocks
+
+- [#3927](https://github.com/wevm/viem/pull/3927) [`b34a0654de59e9fbb6d66661851fb81414e4c558`](https://github.com/wevm/viem/commit/b34a0654de59e9fbb6d66661851fb81414e4c558) Thanks [@moonhee0507](https://github.com/moonhee0507)! - Added Creditcoin Devnet chain.
+
 ## 2.37.3
 
 ### Patch Changes

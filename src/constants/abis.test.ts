@@ -1815,6 +1815,19 @@ test('exports abis', () => {
           "stateMutability": "view",
           "type": "function",
         },
+        {
+          "inputs": [],
+          "name": "getCurrentBlockTimestamp",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "timestamp",
+              "type": "uint256",
+            },
+          ],
+          "stateMutability": "view",
+          "type": "function",
+        },
       ],
       "textResolverAbi": [
         {

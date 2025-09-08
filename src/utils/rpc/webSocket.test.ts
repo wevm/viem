@@ -204,7 +204,7 @@ describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
       expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.3.2",
+        "result": "anvil/v1.3.4",
       }
     `)
       expect(socketClient.requests.size).toBe(0)
@@ -703,7 +703,7 @@ describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
       expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.3.2",
+        "result": "anvil/v1.3.4",
       }
     `)
       expect(client.requests.size).toBe(0)
