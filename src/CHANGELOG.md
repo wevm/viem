@@ -1,5 +1,15 @@
 # viem
 
+## 2.37.5
+
+### Patch Changes
+
+- [#3935](https://github.com/wevm/viem/pull/3935) [`1a85c7a9bdd4a1319d6940b5b6f2d84c7c997611`](https://github.com/wevm/viem/commit/1a85c7a9bdd4a1319d6940b5b6f2d84c7c997611) Thanks [@sandyup](https://github.com/sandyup)! - Added Plasma Devnet.
+
+- [#3922](https://github.com/wevm/viem/pull/3922) [`06673e0a6ac6284f9d9897d8f84816978c2187dd`](https://github.com/wevm/viem/commit/06673e0a6ac6284f9d9897d8f84816978c2187dd) Thanks [@cruzdanilo](https://github.com/cruzdanilo)! - Added support for `blockOverrides` on `readContract`.
+
+- [#3922](https://github.com/wevm/viem/pull/3922) [`06673e0a6ac6284f9d9897d8f84816978c2187dd`](https://github.com/wevm/viem/commit/06673e0a6ac6284f9d9897d8f84816978c2187dd) Thanks [@cruzdanilo](https://github.com/cruzdanilo)! - Added support for `blockOverrides` on `multicall`.
+
 ## 2.37.4
 
 ### Patch Changes
