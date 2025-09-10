@@ -1,6 +1,8 @@
 export type { Chain } from '../types/chain.js'
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
+/** @deprecated Use `zeroGGalileoTestnet` instead. */
 export { zeroG } from './definitions/0g.js'
+export { zeroGGalileoTestnet } from './definitions/0gGalileoTestnet.js'
 export { fireChain } from './definitions/5ireChain.js'
 export { abey } from './definitions/abey.js'
 export { abstract } from './definitions/abstract.js'
