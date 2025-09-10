@@ -14,6 +14,7 @@ export const giwaSepolia = defineChain({
   contracts: {
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 4151544,
     },
     l2OutputOracle: {},
     disputeGameFactory: {
@@ -24,11 +25,13 @@ export const giwaSepolia = defineChain({
     portal: {
       [sourceId]: {
         address: '0x956962C34687A954e611A83619ABaA37Ce6bC78A',
+        blockCreated: 4169142,
       },
     },
     l1StandardBridge: {
       [sourceId]: {
         address: '0x77b2ffc0F57598cAe1DB76cb398059cF5d10A7E7',
+        blockCreated: 4164961,
       },
     },
   },
