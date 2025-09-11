@@ -16,7 +16,7 @@ export const plasmaTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'RouteScan',
-      url: 'https://testnet.plasmascan.to/',
+      url: 'https://testnet.plasmascan.to',
     },
   },
   testnet: true,
