@@ -1,5 +1,13 @@
 # viem
 
+## 2.37.6
+
+### Patch Changes
+
+- [#3942](https://github.com/wevm/viem/pull/3942) [`4f63629c8b8cb1715159676c15ccce94028afb74`](https://github.com/wevm/viem/commit/4f63629c8b8cb1715159676c15ccce94028afb74) Thanks [@UsmannK](https://github.com/UsmannK)! - Updated `plasmaTestnet` explorer.
+
+- [#3934](https://github.com/wevm/viem/pull/3934) [`7074189a2e636f5de322c46cf0437e9e0a0f8ddd`](https://github.com/wevm/viem/commit/7074189a2e636f5de322c46cf0437e9e0a0f8ddd) Thanks [@3commascapital](https://github.com/3commascapital)! - Added `blockTime` to pulsechain networks.
+
 ## 2.37.5
 
 ### Patch Changes
