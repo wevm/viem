@@ -504,7 +504,7 @@ test('overloads: tuple', () => {
   `)
 })
 
-test('overloads: ambiguious types', () => {
+test('overloads: ambiguous types', () => {
   expect(() =>
     getAbiItem({
       abi: parseAbi(['function foo(address)', 'function foo(bytes20)']),
