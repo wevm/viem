@@ -5,6 +5,7 @@ export const pulsechain = /*#__PURE__*/ defineChain({
   name: 'PulseChain',
   nativeCurrency: { name: 'Pulse', symbol: 'PLS', decimals: 18 },
   testnet: false,
+  blockTime: 10_000,
   rpcUrls: {
     default: {
       http: ['https://rpc.pulsechain.com'],
