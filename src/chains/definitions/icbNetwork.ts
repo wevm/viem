@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const ICBNetwork = /*#__PURE__*/ defineChain({
+export const icbNetwork = /*#__PURE__*/ defineChain({
   id: 73115,
   name: 'ICB Network',
   nativeCurrency: {
