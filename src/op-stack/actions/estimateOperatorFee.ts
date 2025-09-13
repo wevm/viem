@@ -9,11 +9,6 @@ import {
   type ReadContractErrorType,
   readContract,
 } from '../../actions/public/readContract.js'
-import {
-  type PrepareTransactionRequestErrorType,
-  type PrepareTransactionRequestParameters,
-  prepareTransactionRequest,
-} from '../../actions/wallet/prepareTransactionRequest.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
@@ -41,7 +36,6 @@ export type EstimateOperatorFeeReturnType = bigint
 
 export type EstimateOperatorFeeErrorType =
   | RequestErrorType
-  | PrepareTransactionRequestErrorType
   | EstimateGasErrorType
   | HexToNumberErrorType
   | ReadContractErrorType
@@ -49,7 +43,7 @@ export type EstimateOperatorFeeErrorType =
 
 /**
  * Estimates the operator fee required to execute an L2 transaction.
- * 
+ *
  * Operator fees are part of the Isthmus upgrade and allow OP Stack operators
  * to recover costs related to Alt-DA, ZK proving, or custom gas tokens.
  * Returns 0 for pre-Isthmus chains or when operator fee functions don't exist.
@@ -85,7 +79,7 @@ export async function estimateOperatorFee<
 
   const l1BlockAddress = (() => {
     if (l1BlockAddress_) return l1BlockAddress_
-    if (chain)
+    if (chain?.contracts?.l1Block)
       return getChainContractAddress({
         chain,
         contract: 'l1Block',
@@ -96,15 +90,8 @@ export async function estimateOperatorFee<
   // Try to get operator fee parameters. If any of these calls fail,
   // it means this is a pre-Isthmus chain and operator fees don't apply
   try {
-    // Populate transaction with required fields to accurately estimate gas
-    const request = await prepareTransactionRequest(
-      client,
-      args as PrepareTransactionRequestParameters,
-    )
-
-    // Get the estimated gas for the transaction and operator fee parameters in parallel
-    const [gasUsed, operatorFeeScalar, operatorFeeConstant] = await Promise.all([
-      estimateGas(client, request as EstimateGasParameters),
+    // Get operator fee parameters first to fail fast if not supported
+    const [operatorFeeScalar, operatorFeeConstant] = await Promise.all([
       readContract(client, {
         abi: l1BlockAbi,
         address: l1BlockAddress,
@@ -116,6 +103,9 @@ export async function estimateOperatorFee<
         functionName: 'operatorFeeConstant',
       }),
     ])
+
+    // Estimate gas for the actual transaction
+    const gasUsed = await estimateGas(client, args as EstimateGasParameters)
 
     // Calculate operator fee: saturatingAdd(saturatingMul(gasUsed, scalar) / 1e6, constant)
     // Using saturating arithmetic to prevent overflow

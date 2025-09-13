@@ -3,7 +3,7 @@ import { expect, test } from 'vitest'
 import { accounts } from '~test/src/constants.js'
 
 import { anvilOptimism } from '../../../test/src/anvil.js'
-import { type TransactionRequestEIP1559, parseGwei } from '../../index.js'
+import { parseGwei, type TransactionRequestEIP1559 } from '../../index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { estimateOperatorFee } from './estimateOperatorFee.js'
 
@@ -19,7 +19,10 @@ const baseTransaction = {
 } as const satisfies Omit<TransactionRequestEIP1559, 'from'>
 
 test('default', async () => {
-  const fee = await estimateOperatorFee(optimismClientWithAccount, baseTransaction)
+  const fee = await estimateOperatorFee(
+    optimismClientWithAccount,
+    baseTransaction,
+  )
   expect(fee).toBeDefined()
 })
 
