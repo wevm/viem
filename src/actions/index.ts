@@ -1,16 +1,5 @@
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
 export {
-  type AddChainErrorType,
-  type AddChainParameters,
-  addChain,
-} from './wallet/addChain.js'
-export {
-  type DeployContractErrorType,
-  type DeployContractParameters,
-  type DeployContractReturnType,
-  deployContract,
-} from './wallet/deployContract.js'
-export {
   type GetEnsAddressErrorType,
   type GetEnsAddressParameters,
   type GetEnsAddressReturnType,
@@ -75,11 +64,6 @@ export {
   createPendingTransactionFilter,
 } from './public/createPendingTransactionFilter.js'
 export {
-  type DumpStateErrorType,
-  type DumpStateReturnType,
-  dumpState,
-} from './test/dumpState.js'
-export {
   type EstimateContractGasErrorType,
   type EstimateContractGasParameters,
   type EstimateContractGasReturnType,
@@ -92,17 +76,17 @@ export {
   estimateFeesPerGas,
 } from './public/estimateFeesPerGas.js'
 export {
-  type EstimateMaxPriorityFeePerGasErrorType,
-  type EstimateMaxPriorityFeePerGasParameters,
-  type EstimateMaxPriorityFeePerGasReturnType,
-  estimateMaxPriorityFeePerGas,
-} from './public/estimateMaxPriorityFeePerGas.js'
-export {
   type EstimateGasErrorType,
   type EstimateGasParameters,
   type EstimateGasReturnType,
   estimateGas,
 } from './public/estimateGas.js'
+export {
+  type EstimateMaxPriorityFeePerGasErrorType,
+  type EstimateMaxPriorityFeePerGasParameters,
+  type EstimateMaxPriorityFeePerGasReturnType,
+  estimateMaxPriorityFeePerGas,
+} from './public/estimateMaxPriorityFeePerGas.js'
 export {
   type GetBalanceErrorType,
   type GetBalanceParameters,
@@ -140,15 +124,15 @@ export {
 export {
   /** @deprecated Use `GetCodeErrorType` instead */
   type GetCodeErrorType as GetBytecodeErrorType,
+  type GetCodeErrorType,
   /** @deprecated Use `GetCodeParameters` instead */
   type GetCodeParameters as GetBytecodeParameters,
+  type GetCodeParameters,
   /** @deprecated Use `GetCodeReturnType` instead  */
   type GetCodeReturnType as GetBytecodeReturnType,
+  type GetCodeReturnType,
   /** @deprecated Use `getCode` instead  */
   getCode as getBytecode,
-  type GetCodeErrorType,
-  type GetCodeParameters,
-  type GetCodeReturnType,
   getCode,
 } from './public/getCode.js'
 export {
@@ -193,11 +177,23 @@ export {
   getLogs,
 } from './public/getLogs.js'
 export {
+  type GetProofErrorType,
+  type GetProofParameters,
+  type GetProofReturnType,
+  getProof,
+} from './public/getProof.js'
+export {
   type GetStorageAtErrorType,
   type GetStorageAtParameters,
   type GetStorageAtReturnType,
   getStorageAt,
 } from './public/getStorageAt.js'
+export {
+  type GetTransactionErrorType,
+  type GetTransactionParameters,
+  type GetTransactionReturnType,
+  getTransaction,
+} from './public/getTransaction.js'
 export {
   type GetTransactionConfirmationsErrorType,
   type GetTransactionConfirmationsParameters,
@@ -211,38 +207,11 @@ export {
   getTransactionCount,
 } from './public/getTransactionCount.js'
 export {
-  type GetTransactionErrorType,
-  type GetTransactionParameters,
-  type GetTransactionReturnType,
-  getTransaction,
-} from './public/getTransaction.js'
-export {
   type GetTransactionReceiptErrorType,
   type GetTransactionReceiptParameters,
   type GetTransactionReceiptReturnType,
   getTransactionReceipt,
 } from './public/getTransactionReceipt.js'
-export {
-  type ImpersonateAccountErrorType,
-  type ImpersonateAccountParameters,
-  impersonateAccount,
-} from './test/impersonateAccount.js'
-export {
-  type IncreaseTimeErrorType,
-  type IncreaseTimeParameters,
-  increaseTime,
-} from './test/increaseTime.js'
-export {
-  type LoadStateErrorType,
-  type LoadStateParameters,
-  type LoadStateReturnType,
-  loadState,
-} from './test/loadState.js'
-export {
-  type MineErrorType,
-  type MineParameters,
-  mine,
-} from './test/mine.js'
 export {
   type MulticallErrorType,
   type MulticallParameters,
@@ -250,16 +219,22 @@ export {
   multicall,
 } from './public/multicall.js'
 export {
+  type ReadContractErrorType,
+  type ReadContractParameters,
+  type ReadContractReturnType,
+  readContract,
+} from './public/readContract.js'
+export {
   type SimulateBlocksErrorType,
-  type SimulateBlocksParameters,
-  type SimulateBlocksReturnType,
-  simulateBlocks,
   /** @deprecated Use `SimulateBlocksErrorType` instead */
   type SimulateBlocksErrorType as SimulateErrorType,
+  type SimulateBlocksParameters,
   /** @deprecated Use `SimulateBlocksParameters` instead */
   type SimulateBlocksParameters as SimulateParameters,
+  type SimulateBlocksReturnType,
   /** @deprecated Use `SimulateBlocksReturnType` instead */
   type SimulateBlocksReturnType as SimulateReturnType,
+  simulateBlocks,
   /** @deprecated Use `simulateBlocks` instead */
   simulateBlocks as simulate,
 } from './public/simulateBlocks.js'
@@ -270,13 +245,43 @@ export {
   simulateCalls,
 } from './public/simulateCalls.js'
 export {
-  type OnBlock,
-  type OnBlockParameter,
-  type WatchBlocksErrorType,
-  type WatchBlocksParameters,
-  type WatchBlocksReturnType,
-  watchBlocks,
-} from './public/watchBlocks.js'
+  type SimulateContractErrorType,
+  type SimulateContractParameters,
+  type SimulateContractReturnType,
+  simulateContract,
+} from './public/simulateContract.js'
+export {
+  type UninstallFilterErrorType,
+  type UninstallFilterParameters,
+  type UninstallFilterReturnType,
+  uninstallFilter,
+} from './public/uninstallFilter.js'
+export {
+  type VerifyHashErrorType,
+  type VerifyHashParameters,
+  type VerifyHashReturnType,
+  verifyHash,
+} from './public/verifyHash.js'
+export {
+  type VerifyMessageErrorType,
+  type VerifyMessageParameters,
+  type VerifyMessageReturnType,
+  verifyMessage,
+} from './public/verifyMessage.js'
+export {
+  type VerifyTypedDataErrorType,
+  type VerifyTypedDataParameters,
+  type VerifyTypedDataReturnType,
+  verifyTypedData,
+} from './public/verifyTypedData.js'
+export {
+  type ReplacementReason,
+  type ReplacementReturnType,
+  type WaitForTransactionReceiptErrorType,
+  type WaitForTransactionReceiptParameters,
+  type WaitForTransactionReceiptReturnType,
+  waitForTransactionReceipt,
+} from './public/waitForTransactionReceipt.js'
 export {
   type OnBlockNumberFn,
   type OnBlockNumberParameter,
@@ -285,6 +290,20 @@ export {
   type WatchBlockNumberReturnType,
   watchBlockNumber,
 } from './public/watchBlockNumber.js'
+export {
+  type OnBlock,
+  type OnBlockParameter,
+  type WatchBlocksErrorType,
+  type WatchBlocksParameters,
+  type WatchBlocksReturnType,
+  watchBlocks,
+} from './public/watchBlocks.js'
+export {
+  type WatchContractEventErrorType,
+  type WatchContractEventParameters,
+  type WatchContractEventReturnType,
+  watchContractEvent,
+} from './public/watchContractEvent.js'
 export {
   type WatchEventOnLogsFn,
   type WatchEventOnLogsParameter,
@@ -301,81 +320,14 @@ export {
   watchPendingTransactions,
 } from './public/watchPendingTransactions.js'
 export {
-  type ReadContractErrorType,
-  type ReadContractParameters,
-  type ReadContractReturnType,
-  readContract,
-} from './public/readContract.js'
-export {
-  type GetAddressesErrorType,
-  type GetAddressesReturnType,
-  getAddresses,
-} from './wallet/getAddresses.js'
-export {
-  type GetPermissionsErrorType,
-  type GetPermissionsReturnType,
-  getPermissions,
-} from './wallet/getPermissions.js'
-export {
-  type GetCapabilitiesParameters,
-  type GetCapabilitiesErrorType,
-  type GetCapabilitiesReturnType,
-  getCapabilities,
-} from './wallet/getCapabilities.js'
-export {
-  type SendCallsErrorType,
-  type SendCallsParameters,
-  type SendCallsReturnType,
-  sendCalls,
-} from './wallet/sendCalls.js'
-export {
-  type GetCallsStatusErrorType,
-  type GetCallsStatusParameters,
-  type GetCallsStatusReturnType,
-  getCallsStatus,
-} from './wallet/getCallsStatus.js'
-export {
-  type ShowCallsStatusErrorType,
-  type ShowCallsStatusParameters,
-  type ShowCallsStatusReturnType,
-  showCallsStatus,
-} from './wallet/showCallsStatus.js'
-export {
-  type WaitForCallsStatusErrorType,
-  type WaitForCallsStatusParameters,
-  type WaitForCallsStatusReturnType,
-  type WaitForCallsStatusTimeoutErrorType,
-  waitForCallsStatus,
-} from './wallet/waitForCallsStatus.js'
-export {
-  type GetProofErrorType,
-  type GetProofParameters,
-  type GetProofReturnType,
-  getProof,
-} from './public/getProof.js'
-export {
-  type ReplacementReason,
-  type ReplacementReturnType,
-  type WaitForTransactionReceiptErrorType,
-  type WaitForTransactionReceiptParameters,
-  type WaitForTransactionReceiptReturnType,
-  waitForTransactionReceipt,
-} from './public/waitForTransactionReceipt.js'
-export {
-  type RequestAddressesErrorType,
-  type RequestAddressesReturnType,
-  requestAddresses,
-} from './wallet/requestAddresses.js'
-export {
-  type RequestPermissionsErrorType,
-  type RequestPermissionsReturnType,
-  type RequestPermissionsParameters,
-  requestPermissions,
-} from './wallet/requestPermissions.js'
-export {
   type DropTransactionParameters,
   dropTransaction,
 } from './test/dropTransaction.js'
+export {
+  type DumpStateErrorType,
+  type DumpStateReturnType,
+  dumpState,
+} from './test/dumpState.js'
 export {
   type GetAutomineErrorType,
   type GetAutomineReturnType,
@@ -392,10 +344,31 @@ export {
   getTxpoolStatus,
 } from './test/getTxpoolStatus.js'
 export {
+  type ImpersonateAccountErrorType,
+  type ImpersonateAccountParameters,
+  impersonateAccount,
+} from './test/impersonateAccount.js'
+export {
+  type IncreaseTimeErrorType,
+  type IncreaseTimeParameters,
+  increaseTime,
+} from './test/increaseTime.js'
+export {
   type InspectTxpoolErrorType,
   type InspectTxpoolReturnType,
   inspectTxpool,
 } from './test/inspectTxpool.js'
+export {
+  type LoadStateErrorType,
+  type LoadStateParameters,
+  type LoadStateReturnType,
+  loadState,
+} from './test/loadState.js'
+export {
+  type MineErrorType,
+  type MineParameters,
+  mine,
+} from './test/mine.js'
 export {
   type RemoveBlockTimestampIntervalErrorType,
   removeBlockTimestampInterval,
@@ -411,54 +384,17 @@ export {
   revert,
 } from './test/revert.js'
 export {
-  type PrepareAuthorizationErrorType,
-  type PrepareAuthorizationParameters,
-  type PrepareAuthorizationReturnType,
-  prepareAuthorization,
-} from './wallet/prepareAuthorization.js'
-export {
-  type PrepareTransactionRequestErrorType,
-  type PrepareTransactionRequestParameters,
-  type PrepareTransactionRequestReturnType,
-  prepareTransactionRequest,
-  defaultParameters as defaultPrepareTransactionRequestParameters,
-} from './wallet/prepareTransactionRequest.js'
-export {
-  type SendTransactionErrorType,
-  type SendTransactionParameters,
-  type SendTransactionReturnType,
-  sendTransaction,
-} from './wallet/sendTransaction.js'
-export {
-  type SignAuthorizationErrorType,
-  type SignAuthorizationParameters,
-  type SignAuthorizationReturnType,
-  signAuthorization,
-} from './wallet/signAuthorization.js'
-export {
-  type SignTransactionErrorType,
-  type SignTransactionParameters,
-  type SignTransactionReturnType,
-  signTransaction,
-} from './wallet/signTransaction.js'
-export {
-  type SendRawTransactionErrorType,
-  type SendRawTransactionParameters,
-  type SendRawTransactionReturnType,
-  sendRawTransaction,
-} from './wallet/sendRawTransaction.js'
-export {
   type SendUnsignedTransactionErrorType,
   type SendUnsignedTransactionParameters,
   type SendUnsignedTransactionReturnType,
   sendUnsignedTransaction,
 } from './test/sendUnsignedTransaction.js'
+export { type SetAutomineErrorType, setAutomine } from './test/setAutomine.js'
 export {
   type SetBalanceErrorType,
   type SetBalanceParameters,
   setBalance,
 } from './test/setBalance.js'
-export { type SetAutomineErrorType, setAutomine } from './test/setAutomine.js'
 export {
   type SetBlockGasLimitErrorType,
   type SetBlockGasLimitParameters,
@@ -516,11 +452,109 @@ export {
 } from './test/setStorageAt.js'
 export { type SnapshotErrorType, snapshot } from './test/snapshot.js'
 export {
+  type StopImpersonatingAccountErrorType,
+  type StopImpersonatingAccountParameters,
+  stopImpersonatingAccount,
+} from './test/stopImpersonatingAccount.js'
+export {
+  type AddChainErrorType,
+  type AddChainParameters,
+  addChain,
+} from './wallet/addChain.js'
+export {
+  type DeployContractErrorType,
+  type DeployContractParameters,
+  type DeployContractReturnType,
+  deployContract,
+} from './wallet/deployContract.js'
+export {
+  type GetAddressesErrorType,
+  type GetAddressesReturnType,
+  getAddresses,
+} from './wallet/getAddresses.js'
+export {
+  type GetCallsStatusErrorType,
+  type GetCallsStatusParameters,
+  type GetCallsStatusReturnType,
+  getCallsStatus,
+} from './wallet/getCallsStatus.js'
+export {
+  type GetCapabilitiesErrorType,
+  type GetCapabilitiesParameters,
+  type GetCapabilitiesReturnType,
+  getCapabilities,
+} from './wallet/getCapabilities.js'
+export {
+  type GetPermissionsErrorType,
+  type GetPermissionsReturnType,
+  getPermissions,
+} from './wallet/getPermissions.js'
+export {
+  type PrepareAuthorizationErrorType,
+  type PrepareAuthorizationParameters,
+  type PrepareAuthorizationReturnType,
+  prepareAuthorization,
+} from './wallet/prepareAuthorization.js'
+export {
+  defaultParameters as defaultPrepareTransactionRequestParameters,
+  type PrepareTransactionRequestErrorType,
+  type PrepareTransactionRequestParameters,
+  type PrepareTransactionRequestReturnType,
+  prepareTransactionRequest,
+} from './wallet/prepareTransactionRequest.js'
+export {
+  type RequestAddressesErrorType,
+  type RequestAddressesReturnType,
+  requestAddresses,
+} from './wallet/requestAddresses.js'
+export {
+  type RequestPermissionsErrorType,
+  type RequestPermissionsParameters,
+  type RequestPermissionsReturnType,
+  requestPermissions,
+} from './wallet/requestPermissions.js'
+export {
+  type SendCallsErrorType,
+  type SendCallsParameters,
+  type SendCallsReturnType,
+  sendCalls,
+} from './wallet/sendCalls.js'
+export {
+  type SendRawTransactionErrorType,
+  type SendRawTransactionParameters,
+  type SendRawTransactionReturnType,
+  sendRawTransaction,
+} from './wallet/sendRawTransaction.js'
+export {
+  type SendTransactionErrorType,
+  type SendTransactionParameters,
+  type SendTransactionReturnType,
+  sendTransaction,
+} from './wallet/sendTransaction.js'
+export {
+  type ShowCallsStatusErrorType,
+  type ShowCallsStatusParameters,
+  type ShowCallsStatusReturnType,
+  showCallsStatus,
+} from './wallet/showCallsStatus.js'
+export {
+  type SignAuthorizationErrorType,
+  type SignAuthorizationParameters,
+  type SignAuthorizationReturnType,
+  signAuthorization,
+} from './wallet/signAuthorization.js'
+export {
   type SignMessageErrorType,
   type SignMessageParameters,
   type SignMessageReturnType,
   signMessage,
 } from './wallet/signMessage.js'
+export {
+  type SignTransactionErrorType,
+  type SignTransactionParameters,
+  type SignTransactionReturnType,
+  signTransaction,
+} from './wallet/signTransaction.js'
 export {
   type SignTypedDataErrorType,
   type SignTypedDataParameters,
@@ -528,57 +562,23 @@ export {
   signTypedData,
 } from './wallet/signTypedData.js'
 export {
-  type SimulateContractErrorType,
-  type SimulateContractParameters,
-  type SimulateContractReturnType,
-  simulateContract,
-} from './public/simulateContract.js'
-export {
-  type StopImpersonatingAccountErrorType,
-  type StopImpersonatingAccountParameters,
-  stopImpersonatingAccount,
-} from './test/stopImpersonatingAccount.js'
-export {
   type SwitchChainErrorType,
   type SwitchChainParameters,
   switchChain,
 } from './wallet/switchChain.js'
 export {
-  type UninstallFilterErrorType,
-  type UninstallFilterParameters,
-  type UninstallFilterReturnType,
-  uninstallFilter,
-} from './public/uninstallFilter.js'
-export {
-  type VerifyHashErrorType,
-  type VerifyHashParameters,
-  type VerifyHashReturnType,
-  verifyHash,
-} from './public/verifyHash.js'
-export {
-  type VerifyMessageErrorType,
-  type VerifyMessageParameters,
-  type VerifyMessageReturnType,
-  verifyMessage,
-} from './public/verifyMessage.js'
-export {
-  type VerifyTypedDataErrorType,
-  type VerifyTypedDataParameters,
-  type VerifyTypedDataReturnType,
-  verifyTypedData,
-} from './public/verifyTypedData.js'
+  type WaitForCallsStatusErrorType,
+  type WaitForCallsStatusParameters,
+  type WaitForCallsStatusReturnType,
+  type WaitForCallsStatusTimeoutErrorType,
+  waitForCallsStatus,
+} from './wallet/waitForCallsStatus.js'
 export {
   type WatchAssetErrorType,
   type WatchAssetParameters,
   type WatchAssetReturnType,
   watchAsset,
 } from './wallet/watchAsset.js'
-export {
-  type WatchContractEventErrorType,
-  type WatchContractEventParameters,
-  type WatchContractEventReturnType,
-  watchContractEvent,
-} from './public/watchContractEvent.js'
 export {
   type WriteContractErrorType,
   type WriteContractParameters,

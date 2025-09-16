@@ -1,9 +1,11 @@
 import { resolve } from 'node:path'
-import * as React from 'react'
+import React from 'react'
 import { defineConfig } from 'vocs'
 
 import pkg from '../src/package.json'
 import { sidebar } from './sidebar'
+
+React
 
 export default defineConfig({
   aiCta: {
@@ -32,13 +34,11 @@ export default defineConfig({
   },
   head() {
     return (
-      <>
-        <script
-          src="https://cdn.usefathom.com/script.js"
-          data-site="BYCJMNBD"
-          defer
-        />
-      </>
+      <script
+        src="https://cdn.usefathom.com/script.js"
+        data-site="BYCJMNBD"
+        defer
+      />
     )
   },
   ogImageUrl: {
@@ -125,6 +125,19 @@ export default defineConfig({
             link: 'https://routescan.io',
             image:
               'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/routescan-light.svg',
+          },
+        ],
+        [
+          {
+            name: 'Gemini',
+            link: 'https://gemini.com',
+            image:
+              'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/gemini-light.svg',
+          },
+          {
+            name: '',
+            link: 'https://github.com/sponsors/wevm',
+            image: '',
           },
         ],
       ],

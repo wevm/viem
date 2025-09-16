@@ -102,7 +102,7 @@ export function getAbiItem<
   if (abiItems.length === 1)
     return abiItems[0] as GetAbiItemReturnType<abi, name, args>
 
-  let matchedAbiItem: AbiItem | undefined = undefined
+  let matchedAbiItem: AbiItem | undefined
   for (const abiItem of abiItems) {
     if (!('inputs' in abiItem)) continue
     if (!args || args.length === 0) {

@@ -1,24 +1,22 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
+import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
+import { keccak256 } from '~viem/utils/index.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { prepareTransactionRequest } from '../../actions/index.js'
 import { WaitForTransactionReceiptTimeoutError } from '../../errors/transaction.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
-import { mine } from '../test/mine.js'
-import { sendTransaction } from '../wallet/sendTransaction.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
-
-import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
-import { keccak256 } from '~viem/utils/index.js'
-import { prepareTransactionRequest } from '../../actions/index.js'
 import {
   sendRawTransaction,
   setIntervalMining,
   signTransaction,
 } from '../index.js'
+import { mine } from '../test/mine.js'
+import { sendTransaction } from '../wallet/sendTransaction.js'
 import * as getBlock from './getBlock.js'
 import * as getTransactionModule from './getTransaction.js'
 import { waitForTransactionReceipt } from './waitForTransactionReceipt.js'

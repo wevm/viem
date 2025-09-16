@@ -117,7 +117,7 @@ export async function signMessage<
     })
   const account = parseAccount(account_)
 
-  const { salt, ...domain } = await (async () => {
+  const { salt: _, ...domain } = await (async () => {
     if (parameters.verifierDomain) return parameters.verifierDomain
     const { domain } = await getAction(
       client,

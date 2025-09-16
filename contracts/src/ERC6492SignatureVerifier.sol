@@ -11,7 +11,7 @@ interface IERC1271Wallet {
     ) external view returns (bytes4 magicValue);
 }
 
-contract VerifySig {
+contract ERC6492SignatureVerifier {
     // ERC-6492 suffix: https://eips.ethereum.org/EIPS/eip-6492
     bytes32 private constant ERC6492_DETECTION_SUFFIX =
         0x6492649264926492649264926492649264926492649264926492649264926492;

@@ -309,7 +309,10 @@ export async function signTypedData({
 export async function sign({
   hash,
   owner,
-}: { hash: Hash; owner: OneOf<LocalAccount | WebAuthnAccount> }) {
+}: {
+  hash: Hash
+  owner: OneOf<LocalAccount | WebAuthnAccount>
+}) {
   // WebAuthn Account (Passkey)
   if (owner.type === 'webAuthn') {
     const { signature, webauthn } = await owner.sign({
@@ -328,7 +331,11 @@ export function toReplaySafeTypedData({
   address,
   chainId,
   hash,
-}: { address: Address; chainId: number; hash: Hash }) {
+}: {
+  address: Address
+  chainId: number
+  hash: Hash
+}) {
   return {
     domain: {
       chainId,

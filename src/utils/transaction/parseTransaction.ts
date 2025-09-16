@@ -581,8 +581,8 @@ function parseAuthorizationList(
 
     authorizationList.push({
       address,
-      chainId: hexToNumber(chainId),
-      nonce: hexToNumber(nonce),
+      chainId: chainId === '0x' ? 0 : hexToNumber(chainId),
+      nonce: nonce === '0x' ? 0 : hexToNumber(nonce),
       ...parseEIP155Signature([yParity, r, s]),
     })
   }

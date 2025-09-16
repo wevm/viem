@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { getBlockNumber, mine } from '../../actions/index.js'
-import { http, createClient } from '../../index.js'
+import { createClient, http } from '../../index.js'
 import type { RpcResponse } from '../../types/rpc.js'
 import { numberToHex } from '../index.js'
 import { wait } from '../wait.js'
@@ -64,7 +64,7 @@ describe('request', () => {
     expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.3.0",
+        "result": "anvil/v1.3.5",
       }
     `)
     expect(rpcClient.requests.size).toBe(0)
@@ -315,7 +315,7 @@ describe('requestAsync', () => {
     expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.3.0",
+        "result": "anvil/v1.3.5",
       }
     `)
     expect(client.requests.size).toBe(0)

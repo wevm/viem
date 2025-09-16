@@ -180,6 +180,27 @@ const publicClient = createPublicClient({
 })
 ```
 
+### batch.multicall.deployless (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Enable deployless multicall.
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts:imports]
+// ---cut---
+const publicClient = createPublicClient({
+  batch: {
+    multicall: {
+      deployless: true, // [!code focus]
+    },
+  },
+  chain: mainnet,
+  transport: http(),
+})
+```
+
 ### batch.multicall.wait (optional)
 
 - **Type:** `number`

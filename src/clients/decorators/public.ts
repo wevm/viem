@@ -201,6 +201,11 @@ import {
   uninstallFilter,
 } from '../../actions/public/uninstallFilter.js'
 import {
+  type VerifyHashParameters,
+  type VerifyHashReturnType,
+  verifyHash,
+} from '../../actions/public/verifyHash.js'
+import {
   type VerifyMessageParameters,
   type VerifyMessageReturnType,
   verifyMessage,
@@ -1677,6 +1682,15 @@ export type PublicActions<
     >
   >
   /**
+   * Verify that a hash was signed by the provided address.
+   *
+   * - Docs {@link https://viem.sh/docs/actions/public/verifyHash}
+   *
+   * @param parameters - {@link VerifyHashParameters}
+   * @returns Whether or not the signature is valid. {@link VerifyHashReturnType}
+   */
+  verifyHash: (args: VerifyHashParameters) => Promise<VerifyHashReturnType>
+  /**
    * Verify that a message was signed by the provided address.
    *
    * Compatible with Smart Contract Accounts & Externally Owned Accounts via [ERC-6492](https://eips.ethereum.org/EIPS/eip-6492).
@@ -2008,6 +2022,7 @@ export function publicActions<
     simulateBlocks: (args) => simulateBlocks(client, args),
     simulateCalls: (args) => simulateCalls(client, args),
     simulateContract: (args) => simulateContract(client, args),
+    verifyHash: (args) => verifyHash(client, args),
     verifyMessage: (args) => verifyMessage(client, args),
     verifySiweMessage: (args) => verifySiweMessage(client, args),
     verifyTypedData: (args) => verifyTypedData(client, args),

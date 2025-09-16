@@ -41,7 +41,7 @@ describe('entryPointVersion: 0.8', async () => {
 
   test('default', async () => {
     const {
-      account: account_,
+      account: _,
       callGasLimit,
       maxFeePerGas,
       verificationGasLimit,
@@ -92,7 +92,7 @@ describe('entryPointVersion: 0.8', async () => {
 
   test('args: callData', async () => {
     const {
-      account: account_,
+      account: _,
       callGasLimit,
       maxFeePerGas,
       verificationGasLimit,
@@ -1308,7 +1308,7 @@ describe('entryPointVersion: 0.7', async () => {
 
   test('default', async () => {
     const {
-      account: account_,
+      account: _,
       callGasLimit,
       maxFeePerGas,
       nonce,
@@ -1352,7 +1352,7 @@ describe('entryPointVersion: 0.7', async () => {
 
   test('args: callData', async () => {
     const {
-      account: account_,
+      account: _,
       callGasLimit,
       maxFeePerGas,
       nonce,
@@ -1450,7 +1450,7 @@ describe('entryPointVersion: 0.7', async () => {
       account: _,
       callGasLimit,
       maxFeePerGas,
-      nonce,
+      nonce: __,
       verificationGasLimit,
       ...request
     } = await prepareUserOperation(bundlerClient, {

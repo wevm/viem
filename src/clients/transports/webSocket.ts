@@ -15,9 +15,9 @@ import {
 } from '../../utils/rpc/webSocket.js'
 import {
   type CreateTransportErrorType,
+  createTransport,
   type Transport,
   type TransportConfig,
-  createTransport,
 } from './createTransport.js'
 
 type WebSocketTransportSubscribeParameters = {

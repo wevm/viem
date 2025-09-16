@@ -167,7 +167,8 @@ export async function sendCalls<
           .toLowerCase()
           .includes('account upgraded to unsupported contract') ||
         error.details.toLowerCase().includes('eip-7702 not supported') ||
-        error.details.toLowerCase().includes('unsupported wc_ method'))
+        error.details.toLowerCase().includes('unsupported wc_ method') ||
+        error.details.toLowerCase().includes('feature toggled misconfigured'))
     ) {
       if (capabilities) {
         const hasNonOptionalCapability = Object.values(capabilities).some(

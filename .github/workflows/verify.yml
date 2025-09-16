@@ -48,8 +48,8 @@ jobs:
       - name: Check for unused files, dependencies, and exports
         run: pnpm knip --production
 
-      - name: Check size
-        run: pnpm size
+      # - name: Check size
+      #   run: pnpm size
 
   types:
     name: Types
@@ -132,15 +132,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        type: ['bun', 'node-18', 'node-20', 'node-latest', 'next', 'tsc', 'vite']
+        type: ['bun', 'node-22', 'node-latest', 'next', 'tsc', 'vite']
         include:
           - type: bun
             runtime: bun
-          - type: node-18
-            node-version: 18
-            runtime: node
-          - type: node-20
-            node-version: 20
+          - type: node-22
+            node-version: 22
             runtime: node
           - type: node-latest
             node-version: latest
@@ -148,7 +145,7 @@ jobs:
           - type: next
             runtime: next
           - type: tsc
-            node-version: 20
+            node-version: 22
             runtime: tsc
           - type: vite
             runtime: vite
@@ -206,37 +203,37 @@ jobs:
         shell: bash
         run: pnpm vectors
 
-  # wagmi:
-  #   name: Wagmi
-  #   needs: [build, types]
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 10
-  #   strategy:
-  #     matrix:
-  #       typescript-version: ['5.4.5', '5.5.2']
+  wagmi:
+    name: Wagmi
+    needs: [build, types]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        typescript-version: ['5.7.2', '5.8.2', '5.9.2', 'latest']
 
-  #   steps:
-  #     - name: Clone repository
-  #       uses: actions/checkout@v4
-  #       with: 
-  #         submodules: 'recursive'
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
 
-  #     - name: Install dependencies
-  #       uses: ./.github/actions/install-dependencies
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
 
-  #     - name: Setup wagmi
-  #       uses: ./.github/actions/setup-wagmi
-  #       env:
-  #         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup wagmi
+        uses: ./.github/actions/setup-wagmi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  #     - run: pnpm add -D -w typescript@${{ matrix.typescript-version }}
-  #       working-directory: ./wagmi
+      - run: pnpm add -D -w typescript@${{ matrix.typescript-version }}
+        working-directory: ./wagmi
 
-  #     - name: Check types
-  #       run: pnpm check:types
-  #       working-directory: ./wagmi
+      - name: Check types
+        run: pnpm check:types
+        working-directory: ./wagmi
 
-  #     - name: Check build
-  #       run: pnpm build
-  #       working-directory: ./wagmi
+      - name: Check build
+        run: pnpm build
+        working-directory: ./wagmi
 

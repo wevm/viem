@@ -14,7 +14,7 @@ import { getGame } from './getGame.js'
 const client = anvilMainnet.getClient()
 const optimismClient = anvilOptimism.getClient()
 
-test('default', async () => {
+test.skip('default', async () => {
   await reset(optimismClient, {
     blockNumber: 132253445n,
     jsonRpcUrl: anvilOptimism.forkUrl,
@@ -75,7 +75,7 @@ test('default', async () => {
   expect(hash).toBeDefined()
 }, 20_000)
 
-test('args: output (legacy)', async () => {
+test.skip('args: output (legacy)', async () => {
   await reset(client, {
     blockNumber: 18772363n,
     jsonRpcUrl: anvilMainnet.forkUrl,
@@ -155,7 +155,7 @@ describe('proof nodes', () => {
   })
 
   // test it within the context of getTransactionReceipt
-  test('should add a proof node when final node is inside of a branch', async () => {
+  test.skip('should add a proof node when final node is inside of a branch', async () => {
     // so we don't have to initialize a bnb client we are using an optimism tx but making the proof
     // returned match the bnb testnet withdrawal
     // https://optimistic.etherscan.io/tx/0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147

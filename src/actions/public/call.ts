@@ -13,6 +13,7 @@ import { aggregate3Signature } from '../../constants/contract.js'
 import {
   deploylessCallViaBytecodeBytecode,
   deploylessCallViaFactoryBytecode,
+  multicall3Bytecode,
 } from '../../constants/contracts.js'
 import { BaseError } from '../../errors/base.js'
 import {
@@ -71,11 +72,11 @@ import {
   type SerializeStateOverrideErrorType,
   serializeStateOverride,
 } from '../../utils/stateOverride.js'
-import { assertRequest } from '../../utils/transaction/assertRequest.js'
 import type {
   AssertRequestErrorType,
   AssertRequestParameters,
 } from '../../utils/transaction/assertRequest.js'
+import { assertRequest } from '../../utils/transaction/assertRequest.js'
 
 export type CallParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -347,26 +348,30 @@ async function scheduleMulticall<chain extends Chain | undefined>(
   client: Client<Transport>,
   args: ScheduleMulticallParameters<chain>,
 ) {
-  const { batchSize = 1024, wait = 0 } =
-    typeof client.batch?.multicall === 'object' ? client.batch.multicall : {}
+  const {
+    batchSize = 1024,
+    deployless = false,
+    wait = 0,
+  } = typeof client.batch?.multicall === 'object' ? client.batch.multicall : {}
   const {
     blockNumber,
     blockTag = client.experimental_blockTag ?? 'latest',
     data,
-    multicallAddress: multicallAddress_,
     to,
   } = args
 
-  let multicallAddress = multicallAddress_
-  if (!multicallAddress) {
-    if (!client.chain) throw new ClientChainNotConfiguredError()
-
-    multicallAddress = getChainContractAddress({
-      blockNumber,
-      chain: client.chain,
-      contract: 'multicall3',
-    })
-  }
+  const multicallAddress = (() => {
+    if (deployless) return null
+    if (args.multicallAddress) return args.multicallAddress
+    if (client.chain) {
+      return getChainContractAddress({
+        blockNumber,
+        chain: client.chain,
+        contract: 'multicall3',
+      })
+    }
+    throw new ClientChainNotConfiguredError()
+  })()
 
   const blockNumberHex =
     typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
@@ -401,8 +406,14 @@ async function scheduleMulticall<chain extends Chain | undefined>(
         method: 'eth_call',
         params: [
           {
-            data: calldata,
-            to: multicallAddress,
+            ...(multicallAddress === null
+              ? {
+                  data: toDeploylessCallViaBytecodeData({
+                    code: multicall3Bytecode,
+                    data: calldata,
+                  }),
+                }
+              : { to: multicallAddress, data: calldata }),
           },
           block,
         ],
@@ -428,10 +439,7 @@ type ToDeploylessCallViaBytecodeDataErrorType =
   | EncodeDeployDataErrorType
   | ErrorType
 
-function toDeploylessCallViaBytecodeData(parameters: {
-  code: Hex
-  data: Hex
-}) {
+function toDeploylessCallViaBytecodeData(parameters: { code: Hex; data: Hex }) {
   const { code, data } = parameters
   return encodeDeployData({
     abi: parseAbi(['constructor(bytes, bytes)']),

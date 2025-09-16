@@ -1,9 +1,9 @@
 import type { ErrorType } from '../../errors/utils.js'
 import {
   type CreateTransportErrorType,
+  createTransport,
   type Transport,
   type TransportConfig,
-  createTransport,
 } from './createTransport.js'
 
 type EthereumProvider = { request(...args: any): Promise<any> }

@@ -1,11 +1,12 @@
 @import "tailwindcss" important;
 
+/* biome-ignore lint/suspicious/noUnknownAtRules: _ */
 @custom-variant dark (&:where(.dark, .dark *));
 
 [data-layout="landing"] .vocs_Button_button {
-  border-radius: 4px !important;
-  height: 36px !important;
-  padding: 0 16px !important;
+  border-radius: 4px;
+  height: 36px;
+  padding: 0 16px;
 }
 
 [data-layout="landing"] .vocs_Content {

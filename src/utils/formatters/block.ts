@@ -1,7 +1,7 @@
 import type { ErrorType } from '../../errors/utils.js'
 import type { Block, BlockTag } from '../../types/block.js'
-import type { Chain } from '../../types/chain.js'
 import type {
+  Chain,
   ExtractChainFormatterExclude,
   ExtractChainFormatterReturnType,
 } from '../../types/chain.js'

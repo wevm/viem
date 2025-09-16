@@ -8,9 +8,8 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import { namehash } from '../../utils/ens/namehash.js'
 import { impersonateAccount } from '../test/impersonateAccount.js'
 import { mine } from '../test/mine.js'
-import { writeContract } from '../wallet/writeContract.js'
-
 import { reset } from '../test/reset.js'
+import { writeContract } from '../wallet/writeContract.js'
 import { getEnsAvatar } from './getEnsAvatar.js'
 
 const client = anvilMainnet.getClient()
@@ -20,7 +19,7 @@ beforeAll(async () => {
     address: address.vitalik,
   })
   await reset(client, {
-    blockNumber: 19_258_213n,
+    blockNumber: 23_085_558n,
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
 })

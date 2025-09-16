@@ -12,6 +12,7 @@ import {
   DecodeLogTopicsMismatch,
   type DecodeLogTopicsMismatchErrorType,
 } from '../../errors/abi.js'
+import { PositionOutOfBoundsError } from '../../errors/cursor.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type {
   ContractEventArgsFromTopics,
@@ -29,8 +30,6 @@ import {
   type ToEventSelectorErrorType,
   toEventSelector,
 } from '../hash/toEventSelector.js'
-
-import { PositionOutOfBoundsError } from '../../errors/cursor.js'
 import {
   type DecodeAbiParametersErrorType,
   decodeAbiParameters,

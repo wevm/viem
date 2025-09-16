@@ -19,7 +19,10 @@ export function getZksyncMockProvider(
   request: ({
     method,
     params,
-  }: { method: string; params?: unknown }) => Promise<any>,
+  }: {
+    method: string
+    params?: unknown
+  }) => Promise<any>,
 ) {
   return {
     on: () => null,
@@ -36,6 +39,8 @@ export const mockFeeValues = {
   max_fee_per_gas: '0xee6b280',
   max_priority_fee_per_gas: '0x0',
 }
+
+export const mockGasPerPubdata = '0x42'
 
 export const mockAccountBalances = {
   '0x0000000000000000000000000000000000000000': '1000000000000000000',
@@ -497,6 +502,7 @@ export const mockLogProof = {
 export const mockRequestReturnData = async (method: string) => {
   if (method === 'zks_L1ChainId') return mockChainId
   if (method === 'zks_estimateFee') return mockFeeValues
+  if (method === 'zks_gasPerPubdata') return mockGasPerPubdata
   if (method === 'zks_getAllAccountBalances') return mockAccountBalances
   if (method === 'zks_getBaseTokenL1Address') return mockBaseTokenL1Address
   if (method === 'zks_getBlockDetails') return mockBlockDetails

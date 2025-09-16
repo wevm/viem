@@ -4,23 +4,22 @@ import { ERC20InvalidTransferEvent } from '~contracts/generated.js'
 import { usdcContractConfig } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
 import { deployErc20InvalidTransferEvent } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import {
+  type Client,
+  createClient,
+  fallback,
+  http,
+  InvalidInputRpcError,
+  RpcRequestError,
+  webSocket,
+} from '../../index.js'
 import { getAddress } from '../../utils/address/getAddress.js'
 import { wait } from '../../utils/wait.js'
 import { impersonateAccount } from '../test/impersonateAccount.js'
 import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
 import { writeContract } from '../wallet/writeContract.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
-import {
-  http,
-  type Client,
-  InvalidInputRpcError,
-  RpcRequestError,
-  createClient,
-  fallback,
-  webSocket,
-} from '../../index.js'
 import * as createContractEventFilter from './createContractEventFilter.js'
 import * as getBlockNumber from './getBlockNumber.js'
 import * as getFilterChanges from './getFilterChanges.js'

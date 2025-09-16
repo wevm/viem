@@ -1,4 +1,4 @@
-// biome-ignore lint/performance/noBarrelFile:
+// biome-ignore lint/performance/noBarrelFile: _
 export { wordlist as czech } from '@scure/bip39/wordlists/czech'
 export { wordlist as english } from '@scure/bip39/wordlists/english'
 export { wordlist as french } from '@scure/bip39/wordlists/french'

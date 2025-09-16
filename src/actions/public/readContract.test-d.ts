@@ -1,8 +1,8 @@
 import {
   type Abi,
   type Address,
-  type ResolvedRegister,
   parseAbi,
+  type ResolvedRegister,
 } from 'abitype'
 import {
   wagmiMintExampleAbi,

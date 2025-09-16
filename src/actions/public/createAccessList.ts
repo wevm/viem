@@ -28,11 +28,11 @@ import {
   type FormattedTransactionRequest,
   formatTransactionRequest,
 } from '../../utils/formatters/transactionRequest.js'
-import { assertRequest } from '../../utils/transaction/assertRequest.js'
 import type {
   AssertRequestErrorType,
   AssertRequestParameters,
 } from '../../utils/transaction/assertRequest.js'
+import { assertRequest } from '../../utils/transaction/assertRequest.js'
 
 export type CreateAccessListParameters<
   chain extends Chain | undefined = Chain | undefined,

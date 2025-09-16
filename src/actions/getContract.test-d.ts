@@ -3,8 +3,8 @@ import {
   type Address,
   type ExtractAbiEventNames,
   type ExtractAbiFunctionNames,
-  type ResolvedRegister,
   parseAbi,
+  type ResolvedRegister,
 } from 'abitype'
 
 import { expectTypeOf, test } from 'vitest'

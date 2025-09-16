@@ -11,7 +11,6 @@ import type {
 import type { BlockTag } from './block.js'
 import type { Capabilities, ChainIdToCapabilities } from './capabilities.js'
 import type { Hash, Hex, LogTopic } from './misc.js'
-import type { RpcStateOverride } from './rpc.js'
 import type {
   RpcBlock as Block,
   RpcBlockIdentifier as BlockIdentifier,
@@ -20,6 +19,7 @@ import type {
   RpcLog as Log,
   RpcProof as Proof,
   Quantity,
+  RpcStateOverride,
   RpcTransaction as Transaction,
   RpcTransactionReceipt as TransactionReceipt,
   RpcTransactionRequest as TransactionRequest,
@@ -174,6 +174,31 @@ export type WalletGrantPermissionsReturnType = {
         submitToAddress?: `0x${string}` | undefined
       }
     | undefined
+}
+
+export type WalletGetAssetsParameters = {
+  account: Address
+  assetFilter?:
+    | {
+        [chainId: Hex]: readonly {
+          address: Address
+          type: 'native' | 'erc20' | 'erc721' | (string & {})
+        }[]
+      }
+    | undefined
+  assetTypeFilter?:
+    | readonly ('native' | 'erc20' | 'erc721' | (string & {}))[]
+    | undefined
+  chainFilter?: readonly Hex[] | undefined
+}
+
+export type WalletGetAssetsReturnType = {
+  [chainId: Hex]: readonly {
+    address: Address | 'native'
+    balance: Hex
+    metadata?: unknown | undefined
+    type: 'native' | 'erc20' | 'erc721' | (string & {})
+  }[]
 }
 
 export type WalletGetCallsStatusReturnType<
@@ -1842,6 +1867,18 @@ export type WalletRpcSchema = [
     Method: 'wallet_disconnect'
     Parameters?: undefined
     ReturnType: void
+  },
+  /**
+   * @description Returns the assets owned by the wallet.
+   * @link https://github.com/ethereum/ERCs/blob/master/ERCS/erc-7811.md
+   * @example
+   * provider.request({ method: 'wallet_getAssets', params: [...] })
+   * // => { ... }
+   */
+  {
+    Method: 'wallet_getAssets'
+    Parameters?: [WalletGetAssetsParameters]
+    ReturnType: WalletGetAssetsReturnType
   },
   /**
    * @description Returns the status of a call batch that was sent via `wallet_sendCalls`.

@@ -96,6 +96,7 @@ test('creates', () => {
       },
       "type": "publicClient",
       "uninstallFilter": [Function],
+      "verifyHash": [Function],
       "verifyMessage": [Function],
       "verifySiweMessage": [Function],
       "verifyTypedData": [Function],
@@ -241,6 +242,7 @@ describe('transports', () => {
         },
         "type": "publicClient",
         "uninstallFilter": [Function],
+        "verifyHash": [Function],
         "verifyMessage": [Function],
         "verifySiweMessage": [Function],
         "verifyTypedData": [Function],
@@ -350,6 +352,7 @@ describe('transports', () => {
         },
         "type": "publicClient",
         "uninstallFilter": [Function],
+        "verifyHash": [Function],
         "verifyMessage": [Function],
         "verifySiweMessage": [Function],
         "verifyTypedData": [Function],
@@ -365,7 +368,7 @@ describe('transports', () => {
 
   test('webSocket - getRpcClient() - keepAlive & reconnect disabled', async () => {
     const wsRpcClientOpts = { keepAlive: false, reconnect: false }
-    const { uid, ...client } = createPublicClient({
+    const { uid: _, ...client } = createPublicClient({
       chain: localhost,
       transport: webSocket(anvilMainnet.rpcUrl.ws, wsRpcClientOpts),
     })
@@ -378,7 +381,7 @@ describe('transports', () => {
 
   test('webSocket - subscribe() - keepAlive & reconnect disabled', async () => {
     const wsRpcClientOpts = { keepAlive: false, reconnect: false }
-    const { uid, ...client } = createPublicClient({
+    const { uid: _, ...client } = createPublicClient({
       chain: localhost,
       transport: webSocket(anvilMainnet.rpcUrl.ws, wsRpcClientOpts),
     })
@@ -395,7 +398,7 @@ describe('transports', () => {
 
   test('webSocket - request() - keepAlive & reconnect disabled', async () => {
     const wsRpcClientOpts = { keepAlive: false, reconnect: false }
-    const { uid, ...client } = createPublicClient({
+    const { uid: _, ...client } = createPublicClient({
       chain: localhost,
       transport: webSocket(anvilMainnet.rpcUrl.ws, wsRpcClientOpts),
     })
@@ -480,6 +483,7 @@ describe('transports', () => {
         },
         "type": "publicClient",
         "uninstallFilter": [Function],
+        "verifyHash": [Function],
         "verifyMessage": [Function],
         "verifySiweMessage": [Function],
         "verifyTypedData": [Function],
@@ -637,6 +641,7 @@ test('extend', () => {
       },
       "type": "publicClient",
       "uninstallFilter": [Function],
+      "verifyHash": [Function],
       "verifyMessage": [Function],
       "verifySiweMessage": [Function],
       "verifyTypedData": [Function],

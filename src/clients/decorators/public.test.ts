@@ -1,16 +1,12 @@
 import { describe, expect, test } from 'vitest'
-
+import { SoladyAccountFactory07 } from '~contracts/generated.js'
 import {
   smartAccountConfig,
   usdcContractConfig,
   wagmiContractConfig,
 } from '~test/src/abis.js'
-import { accounts, address, typedData } from '~test/src/constants.js'
-import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
-import { parseEther } from '../../utils/unit/parseEther.js'
-
-import { SoladyAccountFactory07 } from '~contracts/generated.js'
 import { anvilMainnet } from '~test/src/anvil.js'
+import { accounts, address, typedData } from '~test/src/constants.js'
 import { deploySoladyAccount_07 } from '~test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { signMessage } from '../../accounts/utils/signMessage.js'
@@ -22,9 +18,11 @@ import {
   simulateContract,
   writeContract,
 } from '../../actions/index.js'
+import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { base } from '../../chains/index.js'
 import { pad } from '../../utils/index.js'
 import { createSiweMessage } from '../../utils/siwe/createSiweMessage.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
 import { wait } from '../../utils/wait.js'
 import { createPublicClient } from '../createPublicClient.js'
 import { http } from '../transports/http.js'
@@ -80,6 +78,7 @@ test('default', async () => {
       "simulateCalls": [Function],
       "simulateContract": [Function],
       "uninstallFilter": [Function],
+      "verifyHash": [Function],
       "verifyMessage": [Function],
       "verifySiweMessage": [Function],
       "verifyTypedData": [Function],
@@ -225,7 +224,7 @@ describe('smoke test', () => {
     async () => {
       const blockNumber = await getBlockNumber(client)
       await reset(client, {
-        blockNumber: 19_258_213n,
+        blockNumber: 23_085_558n,
         jsonRpcUrl: anvilMainnet.forkUrl,
       })
       expect(await client.getEnsAddress({ name: 'jxom.eth' })).toBeDefined()
@@ -242,7 +241,7 @@ describe('smoke test', () => {
     async () => {
       const blockNumber = await getBlockNumber(client)
       await reset(client, {
-        blockNumber: 19_258_213n,
+        blockNumber: 23_085_558n,
         jsonRpcUrl: anvilMainnet.forkUrl,
       })
       expect(await client.getEnsAvatar({ name: 'jxom.eth' })).toBeDefined()
@@ -259,7 +258,7 @@ describe('smoke test', () => {
     async () => {
       const blockNumber = await getBlockNumber(client)
       await reset(client, {
-        blockNumber: 19_258_213n,
+        blockNumber: 23_085_558n,
         jsonRpcUrl: anvilMainnet.forkUrl,
       })
       expect(
@@ -278,7 +277,7 @@ describe('smoke test', () => {
     async () => {
       const blockNumber = await getBlockNumber(client)
       await reset(client, {
-        blockNumber: 19_258_213n,
+        blockNumber: 23_085_558n,
         jsonRpcUrl: anvilMainnet.forkUrl,
       })
       expect(await client.getEnsResolver({ name: 'jxom.eth' })).toBeDefined()
@@ -295,7 +294,7 @@ describe('smoke test', () => {
     async () => {
       const blockNumber = await getBlockNumber(client)
       await reset(client, {
-        blockNumber: 19_258_213n,
+        blockNumber: 23_085_558n,
         jsonRpcUrl: anvilMainnet.forkUrl,
       })
       expect(

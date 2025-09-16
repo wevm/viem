@@ -27,8 +27,8 @@ import {
   type AssertCurrentChainErrorType,
   assertCurrentChain,
 } from '../../utils/chain/assertCurrentChain.js'
-import { numberToHex } from '../../utils/encoding/toHex.js'
 import type { NumberToHexErrorType } from '../../utils/encoding/toHex.js'
+import { numberToHex } from '../../utils/encoding/toHex.js'
 import {
   type FormattedTransactionRequest,
   formatTransactionRequest,

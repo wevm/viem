@@ -1,7 +1,6 @@
+import { type Address, parseAbi } from 'abitype'
 import { seaportAbi } from 'abitype/abis'
 import { assertType, expectTypeOf, test } from 'vitest'
-
-import { type Address, parseAbi } from 'abitype'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
