@@ -1,5 +1,17 @@
 # viem
 
+## 2.37.7
+
+### Patch Changes
+
+- [`768a11055ad9a4ad47e1ba118545f2f0294fb19b`](https://github.com/wevm/viem/commit/768a11055ad9a4ad47e1ba118545f2f0294fb19b) Thanks [@jxom](https://github.com/jxom)! - Removed manual `authorizationList` gas.
+
+- [#3958](https://github.com/wevm/viem/pull/3958) [`52ac3ffb99922c5362058a570466e04c401a0630`](https://github.com/wevm/viem/commit/52ac3ffb99922c5362058a570466e04c401a0630) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added ENI Mainnet & Testnet.
+
+- [#3949](https://github.com/wevm/viem/pull/3949) [`dffbdc2762d776f90317b4e191e1631a4df8df3a`](https://github.com/wevm/viem/commit/dffbdc2762d776f90317b4e191e1631a4df8df3a) Thanks [@mmabbasi77](https://github.com/mmabbasi77)! - Added ICB Network chain.
+
+- [#3952](https://github.com/wevm/viem/pull/3952) [`9cf65b7fe846c0755bdd8bf3b0d820e0d7623986`](https://github.com/wevm/viem/commit/9cf65b7fe846c0755bdd8bf3b0d820e0d7623986) Thanks [@jeffgeudens](https://github.com/jeffgeudens)! - Added Botanix chain and modified Botanix Testnet
+
 ## 2.37.6
 
 ### Patch Changes
