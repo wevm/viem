@@ -11,3 +11,5 @@ catalog:
   react: ^19
   react-dom: ^19
   typescript: ^5.9.2
+
+minimumReleaseAge: 1440

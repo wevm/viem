@@ -73,7 +73,7 @@
     "typescript": "catalog:",
     "vitest": "^1.0.4"
   },
-  "packageManager": "pnpm@10.15.0",
+  "packageManager": "pnpm@10.16.1",
   "engines": {
     "node": ">=22"
   },
