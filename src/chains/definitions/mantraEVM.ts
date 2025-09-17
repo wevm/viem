@@ -37,6 +37,6 @@ export const mantraEVM = /*#__PURE__*/ defineChain({
     historyStorage: {
       address: '0x0000f90827f1c53a10cb7a02335b175320002935',
       blockCreated: 8618894,
-    }
+    },
   },
 })
