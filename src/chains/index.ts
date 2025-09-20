@@ -526,6 +526,7 @@ export { sonicBlazeTestnet } from './definitions/sonicBlazeTestnet.js'
 export { sonicTestnet } from './definitions/sonicTestnet.js'
 export { sophon } from './definitions/sophon.js'
 export { sophonTestnet } from './definitions/sophonTestnet.js'
+export { sova } from './definitions/sova.js'
 export { sovaSepolia } from './definitions/sovaSepolia.js'
 export { spicy } from './definitions/spicy.js'
 export {
