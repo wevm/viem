@@ -29,6 +29,8 @@ jobs:
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
+        with:
+          node-version: 24.5
 
       - name: Create Version Pull Request
         uses: changesets/action@v1
@@ -57,6 +59,8 @@ jobs:
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
+        with:
+          node-version: 24.5
 
       - name: Publish to NPM
         uses: changesets/action@06245a4e0a36c064a573d4150030f5ec548e4fcc
@@ -66,16 +70,13 @@ jobs:
           version: pnpm changeset:version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish Prerelease
         if: steps.changesets.outputs.published != 'true'
         continue-on-error: true
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npm config set "//registry.npmjs.org/:_authToken" "$NPM_TOKEN"
           git reset --hard origin/main
           pnpm clean
           pnpm changeset version --no-git-tag --snapshot canary
