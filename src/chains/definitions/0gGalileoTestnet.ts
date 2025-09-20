@@ -3,7 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const zeroGGalileoTestnet = /*#__PURE__*/ defineChain({
   id: 16_601,
   name: '0G Galileo Testnet',
-  nativeCurrency: { name: 'OG', symbol: 'OG', decimals: 18 },
+  nativeCurrency: { name: 'A0GI', symbol: 'A0GI', decimals: 18 },
   rpcUrls: {
     default: {
       http: ['https://evmrpc-testnet.0g.ai'],
