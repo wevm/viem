@@ -1,6 +1,5 @@
 export type { Chain } from '../types/chain.js'
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
-export { zeroG } from './definitions/0g.js'
 export { fireChain } from './definitions/5ireChain.js'
 export { abey } from './definitions/abey.js'
 export { abstract } from './definitions/abstract.js'
@@ -629,6 +628,10 @@ export { yooldoVerse } from './definitions/yooldoVerse.js'
 export { yooldoVerseTestnet } from './definitions/yooldoVerseTestnet.js'
 export { zenchainTestnet } from './definitions/zenchainTestnet.js'
 export { zeniq } from './definitions/zeniq.js'
+/** @deprecated Use `zeroGGalileoTestnet` instead. */
+export { zeroG } from './definitions/0g.js'
+export { zeroGGalileoTestnet } from './definitions/0gGalileoTestnet.js'
+export { zeroGMainnet } from './definitions/0gMainnet.js'
 export { zeroNetwork } from './definitions/zeroNetwork.js'
 export { zetachain } from './definitions/zetachain.js'
 export { zetachainAthensTestnet } from './definitions/zetachainAthensTestnet.js'
