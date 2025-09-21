@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added Sophon mainnet.
+Added Sova mainnet.
