@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add MANTRA EVM
+Added MANTRA EVM.
