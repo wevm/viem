@@ -86,7 +86,7 @@ For example, the `mint` function name below requires a **tokenId** argument, and
 
 ```ts [example.ts] {8}
 import { account, walletClient } from './client'
-import { wagmiAbi } from './abi'
+import { wagmiAbabi'
 
 const { request } = await publicClient.simulateContract({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
@@ -145,13 +145,7 @@ If you don't need to perform validation on the contract write, you can also use 
 import { account, walletClient } from './config'
 import { wagmiAbi } from './abi'
 
-await walletClient.writeContract({
-  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  abi: wagmiAbi,
-  functionName: 'mint',
-  account,
-})
-```
+
 
 ```ts [abi.ts]
 export const wagmiAbi = [
