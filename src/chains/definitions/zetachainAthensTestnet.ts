@@ -22,7 +22,7 @@ export const zetachainAthensTestnet = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'ZetaScan',
-      url: 'https://testnet.zetascan.com/',
+      url: 'https://testnet.zetascan.com',
     },
   },
   testnet: true,
