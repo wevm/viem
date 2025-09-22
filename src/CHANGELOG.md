@@ -1,5 +1,17 @@
 # viem
 
+## 2.37.8
+
+### Patch Changes
+
+- [#3959](https://github.com/wevm/viem/pull/3959) [`20b10d7e1862583780f2b760289801308c2466f7`](https://github.com/wevm/viem/commit/20b10d7e1862583780f2b760289801308c2466f7) Thanks [@BigtoMantraDev](https://github.com/BigtoMantraDev)! - Added MANTRA EVM.
+
+- [`b0855ac06666199ac5a53f1aa6f776e30a380bf9`](https://github.com/wevm/viem/commit/b0855ac06666199ac5a53f1aa6f776e30a380bf9) Thanks [@jxom](https://github.com/jxom)! - Added `id` to JSON-RPC payload for WebSocket pings.
+
+- [#3964](https://github.com/wevm/viem/pull/3964) [`4683cbda6b98592f432879df1398a55317683f30`](https://github.com/wevm/viem/commit/4683cbda6b98592f432879df1398a55317683f30) Thanks [@hejtao](https://github.com/hejtao)! - Added 0g Mainnet and Testnet.
+
+- [#3962](https://github.com/wevm/viem/pull/3962) [`fdf3d59cd788f11dd92d22ec330d5ab246b66fa0`](https://github.com/wevm/viem/commit/fdf3d59cd788f11dd92d22ec330d5ab246b66fa0) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Sova mainnet.
+
 ## 2.37.7
 
 ### Patch Changes
