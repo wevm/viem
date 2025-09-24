@@ -10,9 +10,7 @@ export const jovaySepolia = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: [
-        'https://api.zan.top/public/jovay-testnet',
-      ],
+      http: ['https://api.zan.top/public/jovay-testnet'],
     },
   },
   blockExplorers: {

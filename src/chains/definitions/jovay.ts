@@ -10,9 +10,7 @@ export const jovay = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: [
-        'https://api.zan.top/public/jovay-mainnet',
-      ],
+      http: ['https://api.zan.top/public/jovay-mainnet'],
     },
   },
   blockExplorers: {
