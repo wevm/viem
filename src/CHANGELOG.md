@@ -1,5 +1,11 @@
 # viem
 
+## 2.37.9
+
+### Patch Changes
+
+- [#3971](https://github.com/wevm/viem/pull/3971) [`ddd870e616a5af1fe78b94b27c793294b07f384e`](https://github.com/wevm/viem/commit/ddd870e616a5af1fe78b94b27c793294b07f384e) Thanks [@akitothemoon](https://github.com/akitothemoon)! - Added Jovay Mainnet & Testnet.
+
 ## 2.37.8
 
 ### Patch Changes
