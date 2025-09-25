@@ -606,6 +606,8 @@ export { vision } from './definitions/vision.js'
 export { visionTestnet } from './definitions/visionTestnet.js'
 export { wanchain } from './definitions/wanchain.js'
 export { wanchainTestnet } from './definitions/wanchainTestnet.js'
+/** @deprecated Use `loadAlphanet` instead. */
+export { weaveVMAlphanet } from './definitions/weavevmAlphanet.js'
 export { loadAlphanet } from './definitions/loadAlphanet.js'
 export { wemix } from './definitions/wemix.js'
 export { wemixTestnet } from './definitions/wemixTestnet.js'
