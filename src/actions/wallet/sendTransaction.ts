@@ -208,7 +208,7 @@ export async function sendTransaction<
 
     if (account?.type === 'json-rpc' || account === null) {
       let chainId: number | undefined
-      if (chain !== null) {
+      if (client.chain && chain !== null) {
         chainId = await getAction(client, getChainId, 'getChainId')({})
         assertCurrentChain({
           currentChainId: chainId,
@@ -225,7 +225,7 @@ export async function sendTransaction<
         accessList,
         authorizationList,
         blobs,
-        chainId,
+        chainId: chain?.id,
         data,
         from: account?.address,
         gas,

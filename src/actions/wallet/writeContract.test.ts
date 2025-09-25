@@ -77,36 +77,6 @@ test('client chain mismatch', async () => {
   `)
 })
 
-test('no chain', async () => {
-  const client = createWalletClient({
-    transport: http(anvilMainnet.rpcUrl.http),
-  })
-  await expect(() =>
-    // @ts-expect-error
-    writeContract(client, {
-      ...wagmiContractConfig,
-      account: accounts[0].address,
-      functionName: 'mint',
-    }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ContractFunctionExecutionError: No chain was provided to the request.
-    Please provide a chain with the \`chain\` argument on the Action, or by supplying a \`chain\` to WalletClient.
-
-    Request Arguments:
-      from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
-      to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
-      data:  0x1249c58b
-     
-    Contract Call:
-      address:   0x0000000000000000000000000000000000000000
-      function:  mint()
-      sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
-
-    Docs: https://viem.sh/docs/contract/writeContract
-    Version: viem@x.y.z]
-  `)
-})
-
 describe('args: chain', () => {
   test('default', async () => {
     const client = createWalletClient({

@@ -265,30 +265,6 @@ test('inferred account', async () => {
   ).toBeDefined()
 })
 
-test('no chain', async () => {
-  const client = createWalletClient({
-    transport: http(anvilMainnet.rpcUrl.http),
-  })
-  await expect(() =>
-    // @ts-expect-error
-    sendTransaction(client, {
-      account: sourceAccount.address,
-      to: targetAccount.address,
-      value: parseEther('1'),
-    }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [TransactionExecutionError: No chain was provided to the request.
-    Please provide a chain with the \`chain\` argument on the Action, or by supplying a \`chain\` to WalletClient.
-
-    Request Arguments:
-      from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
-      to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
-      value:  1 ETH
-
-    Version: viem@x.y.z]
-  `)
-})
-
 describe('args: gasPrice', () => {
   test('sends transaction', async () => {
     await setup()
