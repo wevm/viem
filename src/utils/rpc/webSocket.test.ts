@@ -55,7 +55,7 @@ describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
           keepAlive: { interval: 100 },
         },
       )
-      const spy = vi.spyOn(socketClient.socket, 'ping')
+      const spy = vi.spyOn(socketClient.socket, 'ping' as never)
       await wait(500)
       expect(spy).toHaveBeenCalledTimes(4)
     })
