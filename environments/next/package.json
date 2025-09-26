@@ -16,7 +16,7 @@
     "viem": "file:../../src/"
   },
   "devDependencies": {
-    "@playwright/test": "1.49.1",
+    "@playwright/test": "1.55.1",
     "@types/node": "^20.8.3",
     "@types/react": "^19",
     "@types/react-dom": "^19",
