@@ -55,7 +55,7 @@ describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
           keepAlive: { interval: 100 },
         },
       )
-      const spy = vi.spyOn(socketClient.socket, 'ping')
+      const spy = vi.spyOn(socketClient.socket, 'ping' as never)
       await wait(500)
       expect(spy).toHaveBeenCalledTimes(4)
     })
@@ -204,7 +204,7 @@ describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
       expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.3.6",
+        "result": "anvil/v1.4.0",
       }
     `)
       expect(socketClient.requests.size).toBe(0)
@@ -703,7 +703,7 @@ describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
       expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.3.6",
+        "result": "anvil/v1.4.0",
       }
     `)
       expect(client.requests.size).toBe(0)

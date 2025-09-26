@@ -327,6 +327,16 @@ export {
   type GetL2HashFromPriorityOpErrorType,
   getL2HashFromPriorityOp,
 } from './utils/bridge/getL2HashFromPriorityOp.js'
+export {
+  type GetWithdrawalL2ToL1LogParameters,
+  type GetWithdrawalL2ToL1LogReturnType,
+  getWithdrawalL2ToL1Log,
+} from './utils/bridge/getWithdrawalL2ToL1Log.js'
+export {
+  type GetWithdrawalLogParameters,
+  type GetWithdrawalLogReturnType,
+  getWithdrawalLog,
+} from './utils/bridge/getWithdrawalLog.js'
 export { undoL1ToL2Alias } from './utils/bridge/undoL1ToL2Alias.js'
 export {
   type HashBytecodeErrorType,
