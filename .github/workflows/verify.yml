@@ -18,6 +18,9 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
+      - name: Audit dependencies
+        run: pnpm audit
+
       - name: Check repo
         run: pnpm check:repo
 
@@ -176,7 +179,7 @@ jobs:
 
       - name: Install Playwright Browsers
         if: ${{ matrix.runtime == 'next' || matrix.runtime == 'vite' }}
-        run: pnpx playwright@1.49.1 install --with-deps
+        run: pnpx playwright@1.55.1 install --with-deps
 
       - name: Build
         run: pnpm build

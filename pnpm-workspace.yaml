@@ -1,9 +1,9 @@
 packages:
-  - 'examples/*'
-  - 'environments/*'
-  - 'site'
-  - 'src'
-  - 'test'
+  - examples/*
+  - environments/*
+  - site
+  - src
+  - test
 
 catalog:
   '@types/react': ^19
