@@ -57,8 +57,8 @@
     "@size-limit/preset-big-lib": "^11.2.0",
     "@types/bun": "^1.2.22",
     "@types/node": "^24.5.2",
-    "@vitest/coverage-v8": "^1.0.4",
-    "@vitest/ui": "^1.0.4",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
     "bun": "^1.2.22",
     "ethers": "^6.15.0",
     "glob": "^10.4.5",
@@ -71,7 +71,7 @@
     "simple-git-hooks": "^2.13.1",
     "size-limit": "^11.2.0",
     "typescript": "catalog:",
-    "vitest": "^1.0.4"
+    "vitest": "^3.2.4"
   },
   "packageManager": "pnpm@10.16.1",
   "engines": {
