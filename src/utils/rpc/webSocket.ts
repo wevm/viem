@@ -36,6 +36,9 @@ export async function getWebSocketRpcClient(
         onClose()
       }
       function onMessage({ data }: MessageEvent) {
+        // ignore empty messages
+        if (typeof data === 'string' && data.trim().length === 0) return
+
         try {
           const _data = JSON.parse(data)
           onResponse(_data)
