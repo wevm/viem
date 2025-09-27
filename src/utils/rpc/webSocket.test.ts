@@ -554,6 +554,21 @@ describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
     `,
       )
     })
+
+    test('empty message', async () => {
+      const socketClient = await getWebSocketRpcClient(anvilMainnet.rpcUrl.ws)
+
+      // send a malformed message
+      const messageEvent = new MessageEvent('message', { data: '' })
+      socketClient.socket.dispatchEvent(messageEvent)
+
+      // Send a legitimate message and subscribe to the error event
+      await expect(
+        socketClient.requestAsync({
+          body: { method: 'web3_clientVersion' },
+        }),
+      ).resolves.toBeTruthy()
+    })
   },
 )
 
