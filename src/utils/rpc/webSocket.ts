@@ -79,6 +79,7 @@ export async function getWebSocketRpcClient(
 
             const body: RpcRequest = {
               jsonrpc: '2.0',
+              id: null,
               method: 'net_version',
               params: [],
             }

@@ -1,5 +1,29 @@
 # viem
 
+## 2.37.8
+
+### Patch Changes
+
+- [#3959](https://github.com/wevm/viem/pull/3959) [`20b10d7e1862583780f2b760289801308c2466f7`](https://github.com/wevm/viem/commit/20b10d7e1862583780f2b760289801308c2466f7) Thanks [@BigtoMantraDev](https://github.com/BigtoMantraDev)! - Added MANTRA EVM.
+
+- [`b0855ac06666199ac5a53f1aa6f776e30a380bf9`](https://github.com/wevm/viem/commit/b0855ac06666199ac5a53f1aa6f776e30a380bf9) Thanks [@jxom](https://github.com/jxom)! - Added `id` to JSON-RPC payload for WebSocket pings.
+
+- [#3964](https://github.com/wevm/viem/pull/3964) [`4683cbda6b98592f432879df1398a55317683f30`](https://github.com/wevm/viem/commit/4683cbda6b98592f432879df1398a55317683f30) Thanks [@hejtao](https://github.com/hejtao)! - Added 0g Mainnet and Testnet.
+
+- [#3962](https://github.com/wevm/viem/pull/3962) [`fdf3d59cd788f11dd92d22ec330d5ab246b66fa0`](https://github.com/wevm/viem/commit/fdf3d59cd788f11dd92d22ec330d5ab246b66fa0) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Sova mainnet.
+
+## 2.37.7
+
+### Patch Changes
+
+- [`768a11055ad9a4ad47e1ba118545f2f0294fb19b`](https://github.com/wevm/viem/commit/768a11055ad9a4ad47e1ba118545f2f0294fb19b) Thanks [@jxom](https://github.com/jxom)! - Removed manual `authorizationList` gas.
+
+- [#3958](https://github.com/wevm/viem/pull/3958) [`52ac3ffb99922c5362058a570466e04c401a0630`](https://github.com/wevm/viem/commit/52ac3ffb99922c5362058a570466e04c401a0630) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added ENI Mainnet & Testnet.
+
+- [#3949](https://github.com/wevm/viem/pull/3949) [`dffbdc2762d776f90317b4e191e1631a4df8df3a`](https://github.com/wevm/viem/commit/dffbdc2762d776f90317b4e191e1631a4df8df3a) Thanks [@mmabbasi77](https://github.com/mmabbasi77)! - Added ICB Network chain.
+
+- [#3952](https://github.com/wevm/viem/pull/3952) [`9cf65b7fe846c0755bdd8bf3b0d820e0d7623986`](https://github.com/wevm/viem/commit/9cf65b7fe846c0755bdd8bf3b0d820e0d7623986) Thanks [@jeffgeudens](https://github.com/jeffgeudens)! - Added Botanix chain and modified Botanix Testnet
+
 ## 2.37.6
 
 ### Patch Changes
