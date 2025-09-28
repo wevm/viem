@@ -1,5 +1,5 @@
 ---
-"@wevm/viem": patch
+"viem": patch
 ---
 
 Deprecated `weaveVMAlphanet` chain.
