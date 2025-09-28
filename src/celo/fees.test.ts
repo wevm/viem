@@ -35,7 +35,7 @@ describe('celo/fees', () => {
     expect(celo.fees.estimateFeesPerGas).toBeTypeOf('function')
 
     // @ts-expect-error
-    requestMock.mockImplementation((request) => {
+    requestMock.mockImplementation((request: any) => {
       if (request.method === 'eth_gasPrice')
         return (baseFee + priorityFee).toString()
       if (request.method === 'eth_maxPriorityFeePerGas')

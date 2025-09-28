@@ -10,7 +10,7 @@ export default defineConfig({
     },
     benchmark: {
       outputFile: './bench/report.json',
-      reporters: process.env.CI ? ['json'] : ['verbose'],
+      reporters: process.env.CI ? ['default'] : ['verbose'],
     },
     coverage: {
       all: false,
