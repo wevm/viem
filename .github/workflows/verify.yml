@@ -8,6 +8,8 @@ jobs:
     name: Check
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
 
     steps:
       - name: Clone repository
@@ -32,6 +34,8 @@ jobs:
     needs: check
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
 
     steps:
       - name: Clone repository
@@ -58,6 +62,8 @@ jobs:
     name: Types
     needs: check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     timeout-minutes: 5
     strategy:
       matrix:
@@ -89,6 +95,8 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
     strategy:
       max-parallel: 3
       matrix:
@@ -133,6 +141,8 @@ jobs:
   test-envs:
     name: Test Environments
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
         type: ['bun', 'node-22', 'node-latest', 'next', 'tsc', 'vite']
@@ -193,6 +203,9 @@ jobs:
   vectors:
     name: Vectors
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
     steps:
       - name: Clone repository
         uses: actions/checkout@v4

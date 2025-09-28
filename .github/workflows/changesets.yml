@@ -13,11 +13,15 @@ jobs:
     name: Verify
     uses: ./.github/workflows/verify.yml
     secrets: inherit
+    permissions:
+      contents: read
 
   changesets:
     name: Create version pull request
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
 
     steps:
       - name: Clone repository
@@ -105,4 +109,6 @@ jobs:
     needs: changesets
     uses: ./.github/workflows/deploy-docs.yml
     secrets: inherit
+    permissions:
+      contents: read
     if: needs.changesets.outputs.published == 'true'

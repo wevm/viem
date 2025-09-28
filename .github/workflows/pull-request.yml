@@ -11,11 +11,15 @@ jobs:
     name: Verify
     uses: ./.github/workflows/verify.yml
     secrets: inherit
+    permissions:
+      contents: read
 
   size:
     name: Size
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
 
     steps:
       - name: Clone repository
