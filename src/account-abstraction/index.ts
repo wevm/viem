@@ -38,6 +38,7 @@ export type {
   SmartAccount,
   SmartAccountImplementation,
   WebAuthnAccount,
+  WebAuthnSignReturnType,
 } from './accounts/types.js'
 
 export {

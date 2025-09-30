@@ -1,5 +1,38 @@
 # viem
 
+## 2.37.10
+
+### Patch Changes
+
+- [#3984](https://github.com/wevm/viem/pull/3984) [`18a482b048237df5a5af822f483ed55be90ba63f`](https://github.com/wevm/viem/commit/18a482b048237df5a5af822f483ed55be90ba63f) Thanks [@ihooni](https://github.com/ihooni)! - Added GIWA Sepolia chain.
+
+- [#3985](https://github.com/wevm/viem/pull/3985) [`1e791ad6aeebcd9a8dd4ad7e95f7d0690fa5949b`](https://github.com/wevm/viem/commit/1e791ad6aeebcd9a8dd4ad7e95f7d0690fa5949b) Thanks [@pazernykormoran](https://github.com/pazernykormoran)! - Added `blockTime` to Gnosis chains.
+
+## 2.37.9
+
+### Patch Changes
+
+- [#3980](https://github.com/wevm/viem/pull/3980) [`912509b2a03072b81af0f5f0f723dca1996e0635`](https://github.com/wevm/viem/commit/912509b2a03072b81af0f5f0f723dca1996e0635) Thanks [@xzilja](https://github.com/xzilja)! - Added multicall3 contracts to Plasma.
+
+- [#3981](https://github.com/wevm/viem/pull/3981) [`204cf427cd93cfa6e89bba84999a1e5019ba09df`](https://github.com/wevm/viem/commit/204cf427cd93cfa6e89bba84999a1e5019ba09df) Thanks [@maxandron](https://github.com/maxandron)! - Fixed handling of empty websocket messages from Erigon clients
+
+- [#3971](https://github.com/wevm/viem/pull/3971) [`ddd870e616a5af1fe78b94b27c793294b07f384e`](https://github.com/wevm/viem/commit/ddd870e616a5af1fe78b94b27c793294b07f384e) Thanks [@akitothemoon](https://github.com/akitothemoon)! - Added Jovay Mainnet & Testnet.
+
+- [#3974](https://github.com/wevm/viem/pull/3974) [`3ecda3b5aadee0d6ec63c8ed1248d05add39e07a`](https://github.com/wevm/viem/commit/3ecda3b5aadee0d6ec63c8ed1248d05add39e07a) Thanks [@xylophonez](https://github.com/xylophonez)! - Deprecated `weaveVMAlphanet` chain.
+  Added `loadAlphanet` chain.
+
+## 2.37.8
+
+### Patch Changes
+
+- [#3959](https://github.com/wevm/viem/pull/3959) [`20b10d7e1862583780f2b760289801308c2466f7`](https://github.com/wevm/viem/commit/20b10d7e1862583780f2b760289801308c2466f7) Thanks [@BigtoMantraDev](https://github.com/BigtoMantraDev)! - Added MANTRA EVM.
+
+- [`b0855ac06666199ac5a53f1aa6f776e30a380bf9`](https://github.com/wevm/viem/commit/b0855ac06666199ac5a53f1aa6f776e30a380bf9) Thanks [@jxom](https://github.com/jxom)! - Added `id` to JSON-RPC payload for WebSocket pings.
+
+- [#3964](https://github.com/wevm/viem/pull/3964) [`4683cbda6b98592f432879df1398a55317683f30`](https://github.com/wevm/viem/commit/4683cbda6b98592f432879df1398a55317683f30) Thanks [@hejtao](https://github.com/hejtao)! - Added 0g Mainnet and Testnet.
+
+- [#3962](https://github.com/wevm/viem/pull/3962) [`fdf3d59cd788f11dd92d22ec330d5ab246b66fa0`](https://github.com/wevm/viem/commit/fdf3d59cd788f11dd92d22ec330d5ab246b66fa0) Thanks [@Yutaro-Mori-eng](https://github.com/Yutaro-Mori-eng)! - Added Sova mainnet.
+
 ## 2.37.7
 
 ### Patch Changes
