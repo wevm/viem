@@ -261,6 +261,11 @@ import {
   type SendRawTransactionReturnType,
   sendRawTransaction,
 } from '../../actions/wallet/sendRawTransaction.js'
+import {
+  type SendRawTransactionSyncParameters,
+  type SendRawTransactionSyncReturnType,
+  sendRawTransactionSync,
+} from '../../actions/wallet/sendRawTransactionSync.js'
 import type { Account } from '../../types/account.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
@@ -1536,6 +1541,33 @@ export type PublicActions<
     args: SendRawTransactionParameters,
   ) => Promise<SendRawTransactionReturnType>
   /**
+   * Sends a **signed** transaction to the network
+   *
+   * - Docs: https://viem.sh/docs/actions/wallet/sendRawTransactionSync
+   * - JSON-RPC Method: [`eth_sendRawTransactionSync`](https://eips.ethereum.org/EIPS/eip-7966)
+   *
+   * @param client - Client to use
+   * @param parameters - {@link SendRawTransactionSyncParameters}
+   * @returns The transaction receipt. {@link SendRawTransactionSyncReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { sendRawTransactionSync } from 'viem/wallet'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   *
+   * const receipt = await client.sendRawTransactionSync({
+   *   serializedTransaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33'
+   * })
+   */
+  sendRawTransactionSync: (
+    args: SendRawTransactionSyncParameters,
+  ) => Promise<SendRawTransactionSyncReturnType<chain>>
+  /**
    * @deprecated Use `simulateBlocks` instead.
    */
   simulate: <const calls extends readonly unknown[]>(
@@ -2018,6 +2050,7 @@ export function publicActions<
       prepareTransactionRequest(client as any, args as any) as any,
     readContract: (args) => readContract(client, args),
     sendRawTransaction: (args) => sendRawTransaction(client, args),
+    sendRawTransactionSync: (args) => sendRawTransactionSync(client, args),
     simulate: (args) => simulateBlocks(client, args),
     simulateBlocks: (args) => simulateBlocks(client, args),
     simulateCalls: (args) => simulateCalls(client, args),

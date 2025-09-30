@@ -526,6 +526,12 @@ export {
   sendRawTransaction,
 } from './wallet/sendRawTransaction.js'
 export {
+  type SendRawTransactionSyncErrorType,
+  type SendRawTransactionSyncParameters,
+  type SendRawTransactionSyncReturnType,
+  sendRawTransactionSync,
+} from './wallet/sendRawTransactionSync.js'
+export {
   type SendTransactionErrorType,
   type SendTransactionParameters,
   type SendTransactionReturnType,

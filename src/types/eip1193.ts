@@ -1169,6 +1169,20 @@ export type PublicRpcSchema = [
     ReturnType: Hash
   },
   /**
+   * @description Sends a **signed** transaction to the network synchronously
+   * @link https://eips.ethereum.org/EIPS/eip-7966
+   * @example
+   * provider.request({ method: 'eth_sendRawTransactionSync', params: ['0x...'] })
+   * // => '0x...'
+   */
+  {
+    Method: 'eth_sendRawTransactionSync'
+    Parameters:
+      | [signedTransaction: Hex]
+      | [signedTransaction: Hex, timeout: Hex]
+    ReturnType: TransactionReceipt
+  },
+  /**
    * @description Simulates execution of a set of calls with optional block and state overrides.
    * @example
    * provider.request({ method: 'eth_simulateV1', params: [{ blockStateCalls: [{ calls: [{ from: '0x...', to: '0x...', value: '0x...', data: '0x...' }] }] }, 'latest'] })
@@ -1710,6 +1724,20 @@ export type WalletRpcSchema = [
     Method: 'eth_sendRawTransaction'
     Parameters: [signedTransaction: Hex]
     ReturnType: Hash
+  },
+  /**
+   * @description Sends and already-signed transaction to the network synchronously
+   * @link https://eips.ethereum.org/EIPS/eip-7966
+   * @example
+   * provider.request({ method: 'eth_sendRawTransactionSync', params: ['0x...'] })
+   * // => '0x...'
+   */
+  {
+    Method: 'eth_sendRawTransactionSync'
+    Parameters:
+      | [signedTransaction: Hex]
+      | [signedTransaction: Hex, timeout: Hex]
+    ReturnType: TransactionReceipt
   },
   /**
    * @description Calculates an Ethereum-specific signature in the form of `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`
