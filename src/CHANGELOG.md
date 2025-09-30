@@ -1,5 +1,13 @@
 # viem
 
+## 2.37.10
+
+### Patch Changes
+
+- [#3984](https://github.com/wevm/viem/pull/3984) [`18a482b048237df5a5af822f483ed55be90ba63f`](https://github.com/wevm/viem/commit/18a482b048237df5a5af822f483ed55be90ba63f) Thanks [@ihooni](https://github.com/ihooni)! - Added GIWA Sepolia chain.
+
+- [#3985](https://github.com/wevm/viem/pull/3985) [`1e791ad6aeebcd9a8dd4ad7e95f7d0690fa5949b`](https://github.com/wevm/viem/commit/1e791ad6aeebcd9a8dd4ad7e95f7d0690fa5949b) Thanks [@pazernykormoran](https://github.com/pazernykormoran)! - Added `blockTime` to Gnosis chains.
+
 ## 2.37.9
 
 ### Patch Changes
