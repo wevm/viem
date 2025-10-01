@@ -4,12 +4,11 @@ import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { mine } from '../../actions/test/mine.js'
 import { avalanche } from '../../chains/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
-
-import { walletActions } from './wallet.js'
 import { wait } from '../../utils/wait.js'
-import { mine } from '../../actions/test/mine.js'
+import { walletActions } from './wallet.js'
 
 const walletClient = anvilMainnet.getClient().extend(walletActions)
 const walletClientWithAccount = anvilMainnet

@@ -74,6 +74,12 @@ import {
   sendTransaction,
 } from '../../actions/wallet/sendTransaction.js'
 import {
+  type SendTransactionSyncParameters,
+  type SendTransactionSyncRequest,
+  type SendTransactionSyncReturnType,
+  sendTransactionSync,
+} from '../../actions/wallet/sendTransactionSync.js'
+import {
   type ShowCallsStatusParameters,
   type ShowCallsStatusReturnType,
   showCallsStatus,
@@ -580,6 +586,55 @@ export type WalletActions<
     args: SendTransactionParameters<chain, account, chainOverride, request>,
   ) => Promise<SendTransactionReturnType>
   /**
+   * Creates, signs, and sends a new transaction to the network synchronously.
+   * Returns the transaction receipt.
+   *
+   * - Docs: https://viem.sh/docs/actions/wallet/sendTransactionSync
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions_sending-transactions
+   * - JSON-RPC Methods:
+   *   - JSON-RPC Accounts: [`eth_sendTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendtransaction)
+   *   - Local Accounts: [`eth_sendRawTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendrawtransaction)
+   *
+   * @param args - {@link SendTransactionParameters}
+   * @returns The transaction receipt. {@link SendTransactionReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   * const receipt = await client.sendTransactionSync({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *   value: 1000000000000000000n,
+   * })
+   *
+   * @example
+   * // Account Hoisting
+   * import { createWalletClient, http } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   account: privateKeyToAccount('0x…'),
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const receipt = await client.sendTransactionSync({
+   *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *   value: 1000000000000000000n,
+   * })
+   */
+  sendTransactionSync: <
+    const request extends SendTransactionSyncRequest<chain, chainOverride>,
+    chainOverride extends Chain | undefined = undefined,
+  >(
+    args: SendTransactionSyncParameters<chain, account, chainOverride, request>,
+  ) => Promise<SendTransactionSyncReturnType>
+  /**
    * Requests for the wallet to show information about a call batch
    * that was sent via `sendCalls`.
    *
@@ -1008,6 +1063,7 @@ export function walletActions<
     sendRawTransaction: (args) => sendRawTransaction(client, args),
     sendRawTransactionSync: (args) => sendRawTransactionSync(client, args),
     sendTransaction: (args) => sendTransaction(client, args),
+    sendTransactionSync: (args) => sendTransactionSync(client, args),
     showCallsStatus: (args) => showCallsStatus(client, args),
     signAuthorization: (args) => signAuthorization(client, args),
     signMessage: (args) => signMessage(client, args),
