@@ -1,5 +1,11 @@
 # viem
 
+## 2.37.11
+
+### Patch Changes
+
+- [`cce7f03ea0c05c6ec4840cd4221e58cf7d7b5ab1`](https://github.com/wevm/viem/commit/cce7f03ea0c05c6ec4840cd4221e58cf7d7b5ab1) Thanks [@jxom](https://github.com/jxom)! - Added support for async `serializer` on `signTransaction`.
+
 ## 2.37.10
 
 ### Patch Changes
