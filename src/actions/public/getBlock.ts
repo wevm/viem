@@ -128,5 +128,5 @@ export async function getBlock<
   if (!block) throw new BlockNotFoundError({ blockHash, blockNumber })
 
   const format = client.chain?.formatters?.block?.format || formatBlock
-  return format(block)
+  return format(block, 'getBlock')
 }

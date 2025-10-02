@@ -87,6 +87,7 @@ describe('eip4844', () => {
       assertTransactionEIP4844({
         blobVersionedHashes: [],
         chainId: 1,
+        to: '0x0000000000000000000000000000000000000000',
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
       [EmptyBlobError: Blob data must not be empty.
@@ -100,6 +101,7 @@ describe('eip4844', () => {
       assertTransactionEIP4844({
         blobVersionedHashes: ['0xcafebabe'],
         chainId: 1,
+        to: '0x0000000000000000000000000000000000000000',
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidVersionedHashSizeError: Versioned hash "0xcafebabe" size is invalid.
@@ -118,6 +120,7 @@ describe('eip4844', () => {
           '0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe',
         ],
         chainId: 1,
+        to: '0x0000000000000000000000000000000000000000',
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidVersionedHashVersionError: Versioned hash "0xcafebabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe" version is invalid.
@@ -137,6 +140,7 @@ describe('eip4844', () => {
         ],
         maxFeePerGas: maxUint256 + 1n,
         chainId: 1,
+        to: '0x0000000000000000000000000000000000000000',
       }),
     ).toThrowErrorMatchingInlineSnapshot(`
       [FeeCapTooHighError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).

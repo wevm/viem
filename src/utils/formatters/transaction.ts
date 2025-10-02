@@ -45,7 +45,10 @@ export const transactionType = {
 
 export type FormatTransactionErrorType = ErrorType
 
-export function formatTransaction(transaction: ExactPartial<RpcTransaction>) {
+export function formatTransaction(
+  transaction: ExactPartial<RpcTransaction>,
+  _action?: string | undefined,
+) {
   const transaction_ = {
     ...transaction,
     blockHash: transaction.blockHash ? transaction.blockHash : null,

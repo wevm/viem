@@ -127,20 +127,23 @@ export async function createAccessList<chain extends Chain | undefined>(
     const chainFormat = client.chain?.formatters?.transactionRequest?.format
     const format = chainFormat || formatTransactionRequest
 
-    const request = format({
-      // Pick out extra data that might exist on the chain's transaction request type.
-      ...extract(rest, { format: chainFormat }),
-      from: account?.address,
-      blobs,
-      data,
-      gas,
-      gasPrice,
-      maxFeePerBlobGas,
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      to,
-      value,
-    } as TransactionRequest) as TransactionRequest
+    const request = format(
+      {
+        // Pick out extra data that might exist on the chain's transaction request type.
+        ...extract(rest, { format: chainFormat }),
+        from: account?.address,
+        blobs,
+        data,
+        gas,
+        gasPrice,
+        maxFeePerBlobGas,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        to,
+        value,
+      } as TransactionRequest,
+      'createAccessList',
+    ) as TransactionRequest
 
     const response = await client.request({
       method: 'eth_createAccessList',

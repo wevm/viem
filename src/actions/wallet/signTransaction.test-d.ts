@@ -103,12 +103,12 @@ test('eip7702', () => {
 
 test('eip4844', () => {
   const signature1 = signTransaction(walletClient, {
-    blobs: [],
+    blobVersionedHashes: [],
     maxFeePerBlobGas: 0n,
     to: '0x0000000000000000000000000000000000000000',
   })
   const signature2 = signTransaction(walletClient, {
-    blobs: [],
+    blobVersionedHashes: [],
     maxFeePerBlobGas: 0n,
     to: '0x0000000000000000000000000000000000000000',
     type: 'eip4844',
