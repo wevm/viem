@@ -34,7 +34,7 @@ export type FormatTransactionRequestErrorType = ErrorType
 
 export function formatTransactionRequest(
   request: ExactPartial<TransactionRequest>,
-  _action?: string | undefined,
+  _?: string | undefined,
 ) {
   const rpcRequest = {} as RpcTransactionRequest
 
