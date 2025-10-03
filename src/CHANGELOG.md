@@ -1,5 +1,13 @@
 # viem
 
+## 2.37.12
+
+### Patch Changes
+
+- [#3997](https://github.com/wevm/viem/pull/3997) [`0abb1d104e9464523ee83f1bc5136ebdae1dc2da`](https://github.com/wevm/viem/commit/0abb1d104e9464523ee83f1bc5136ebdae1dc2da) Thanks [@jxom](https://github.com/jxom)! - Tweaked `TransactionSerializable` & `TransactionRequest` types to be more symmetric.
+
+- [#3997](https://github.com/wevm/viem/pull/3997) [`0abb1d104e9464523ee83f1bc5136ebdae1dc2da`](https://github.com/wevm/viem/commit/0abb1d104e9464523ee83f1bc5136ebdae1dc2da) Thanks [@jxom](https://github.com/jxom)! - Added `action` parameter to formatters.
+
 ## 2.37.11
 
 ### Patch Changes
