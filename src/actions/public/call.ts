@@ -224,7 +224,7 @@ export async function call<chain extends Chain | undefined>(
     const rpcStateOverride = serializeStateOverride(stateOverride)
 
     const chainFormat = client.chain?.formatters?.transactionRequest?.format
-    const format = (chainFormat || formatTransactionRequest) as const
+    const format = chainFormat || formatTransactionRequest
 
     const request = format(
       {
