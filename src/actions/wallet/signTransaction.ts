@@ -172,7 +172,10 @@ export async function signTransaction<
       method: 'eth_signTransaction',
       params: [
         {
-          ...format(transaction as unknown as TransactionRequest),
+          ...format(
+            transaction as unknown as TransactionRequest,
+            'signTransaction',
+          ),
           chainId: numberToHex(chainId),
           from: account.address,
         } as unknown as RpcTransactionRequest,
