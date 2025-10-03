@@ -4,9 +4,10 @@ import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { mine } from '../../actions/test/mine.js'
 import { avalanche } from '../../chains/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
-
+import { wait } from '../../utils/wait.js'
 import { walletActions } from './wallet.js'
 
 const walletClient = anvilMainnet.getClient().extend(walletActions)
@@ -30,6 +31,7 @@ test('default', async () => {
       "requestPermissions": [Function],
       "sendCalls": [Function],
       "sendRawTransaction": [Function],
+      "sendRawTransactionSync": [Function],
       "sendTransaction": [Function],
       "showCallsStatus": [Function],
       "signAuthorization": [Function],
@@ -117,6 +119,25 @@ describe('smoke test', () => {
         serializedTransaction,
       }),
     ).toBeDefined()
+  })
+
+  test('sendRawTransactionSync', async () => {
+    const request = await walletClient.prepareTransactionRequest({
+      account: privateKeyToAccount(accounts[0].privateKey),
+      to: accounts[1].address,
+      value: parseEther('1'),
+    })
+    const serializedTransaction = await walletClient.signTransaction(request)
+    const [receipt] = await Promise.all([
+      walletClient.sendRawTransactionSync({
+        serializedTransaction,
+      }),
+      (async () => {
+        await wait(100)
+        await mine(walletClient, { blocks: 1 })
+      })(),
+    ])
+    expect(receipt).toBeDefined()
   })
 
   test('sendTransaction', async () => {

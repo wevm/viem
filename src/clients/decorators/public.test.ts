@@ -73,6 +73,7 @@ test('default', async () => {
       "prepareTransactionRequest": [Function],
       "readContract": [Function],
       "sendRawTransaction": [Function],
+      "sendRawTransactionSync": [Function],
       "simulate": [Function],
       "simulateBlocks": [Function],
       "simulateCalls": [Function],
@@ -461,6 +462,25 @@ describe('smoke test', () => {
         serializedTransaction,
       }),
     ).toBeDefined()
+  })
+
+  test('sendRawTransactionSync', async () => {
+    const request = await client.prepareTransactionRequest({
+      account: privateKeyToAccount(accounts[0].privateKey),
+      to: accounts[1].address,
+      value: parseEther('1'),
+    })
+    const serializedTransaction = await signTransaction(client, request)
+    const [receipt] = await Promise.all([
+      client.sendRawTransactionSync({
+        serializedTransaction,
+      }),
+      (async () => {
+        await wait(100)
+        await mine(client, { blocks: 1 })
+      })(),
+    ])
+    expect(receipt).toBeDefined()
   })
 
   test('readContract', async () => {

@@ -76,6 +76,7 @@ test('exports actions', () => {
       "revert": [Function],
       "sendCalls": [Function],
       "sendRawTransaction": [Function],
+      "sendRawTransactionSync": [Function],
       "sendTransaction": [Function],
       "sendUnsignedTransaction": [Function],
       "setAutomine": [Function],
