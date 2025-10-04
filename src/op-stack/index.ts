@@ -60,6 +60,12 @@ export {
   estimateL1Gas,
 } from './actions/estimateL1Gas.js'
 export {
+  type EstimateOperatorFeeErrorType,
+  type EstimateOperatorFeeParameters,
+  type EstimateOperatorFeeReturnType,
+  estimateOperatorFee,
+} from './actions/estimateOperatorFee.js'
+export {
   type EstimateTotalFeeErrorType,
   type EstimateTotalFeeParameters,
   type EstimateTotalFeeReturnType,
