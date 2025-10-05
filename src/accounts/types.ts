@@ -4,14 +4,10 @@ import type { SmartAccount } from '../account-abstraction/accounts/types.js'
 import type { HDKey } from '../types/account.js'
 import type { AuthorizationRequest } from '../types/authorization.js'
 import type { Hash, Hex, SignableMessage } from '../types/misc.js'
-import type {
-  TransactionSerializable,
-  TransactionSerialized,
-} from '../types/transaction.js'
+import type { TransactionSerializable } from '../types/transaction.js'
 import type { TypedDataDefinition } from '../types/typedData.js'
-import type { IsNarrowable, OneOf, Prettify } from '../types/utils.js'
+import type { OneOf, Prettify } from '../types/utils.js'
 import type { NonceManager } from '../utils/nonceManager.js'
-import type { GetTransactionType } from '../utils/transaction/getTransactionType.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import type { SignAuthorizationReturnType } from './utils/signAuthorization.js'
 
