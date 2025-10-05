@@ -46,14 +46,7 @@ export type CustomSource = {
           serializer?: serializer | undefined
         }
       | undefined,
-  ) => Promise<
-    IsNarrowable<
-      TransactionSerialized<GetTransactionType<transaction>>,
-      Hex
-    > extends true
-      ? TransactionSerialized<GetTransactionType<transaction>>
-      : Hex
-  >
+  ) => Promise<Hex>
   signTypedData: <
     const typedData extends TypedData | Record<string, unknown>,
     primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
