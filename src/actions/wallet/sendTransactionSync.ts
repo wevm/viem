@@ -89,6 +89,8 @@ export type SendTransactionSyncParameters<
   GetAccountParameter<account, Account | Address, true, true> &
   GetChainParameter<chain, chainOverride> &
   GetTransactionRequestKzgParameter<request> & {
+    /** Polling interval (ms) to poll for the transaction receipt. @default client.pollingInterval */
+    pollingInterval?: number | undefined
     /** Timeout (ms) to wait for a response. @default Math.max(chain.blockTime * 3, 5_000) */
     timeout?: number | undefined
   }
@@ -181,6 +183,7 @@ export async function sendTransactionSync<
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
+    pollingInterval,
     type,
     value,
     ...rest
@@ -318,6 +321,7 @@ export async function sendTransactionSync<
       )({
         checkReplacement: false,
         hash,
+        pollingInterval,
         timeout,
       })
     }

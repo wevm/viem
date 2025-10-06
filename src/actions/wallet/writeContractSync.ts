@@ -39,7 +39,7 @@ export type WriteContractSyncParameters<
   account,
   chainOverride
 > &
-  Pick<SendTransactionSyncParameters<chain>, 'timeout'>
+  Pick<SendTransactionSyncParameters<chain>, 'pollingInterval' | 'timeout'>
 
 export type WriteContractSyncReturnType<
   chain extends Chain | undefined = Chain | undefined,
