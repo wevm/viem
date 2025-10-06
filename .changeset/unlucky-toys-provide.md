@@ -1,5 +1,0 @@
----
-"viem": patch
----
-
-Deprecated `celoAlfajores`.

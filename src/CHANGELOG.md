@@ -1,5 +1,19 @@
 # viem
 
+## 2.37.13
+
+### Patch Changes
+
+- [#4003](https://github.com/wevm/viem/pull/4003) [`4bc1803f76fd1d935982a20f558926f4c8417014`](https://github.com/wevm/viem/commit/4bc1803f76fd1d935982a20f558926f4c8417014) Thanks [@yumartins](https://github.com/yumartins)! - Added Nitrograph Testnet chain.
+
+- [`4376837b38d2d2a2c9b44e4955fadbdb75c13a74`](https://github.com/wevm/viem/commit/4376837b38d2d2a2c9b44e4955fadbdb75c13a74) Thanks [@jxom](https://github.com/jxom)! - Simplify `account#signTransaction` interface.
+
+- [#3993](https://github.com/wevm/viem/pull/3993) [`a57ff1b6010a087d986320d3e5c50cca9dded93c`](https://github.com/wevm/viem/commit/a57ff1b6010a087d986320d3e5c50cca9dded93c) Thanks [@simbadMarino](https://github.com/simbadMarino)! - Added TRON Nile testnet chain
+
+- [#3996](https://github.com/wevm/viem/pull/3996) [`b8915c0be63c87e75225fb716631e913b0131d09`](https://github.com/wevm/viem/commit/b8915c0be63c87e75225fb716631e913b0131d09) Thanks [@sandyup](https://github.com/sandyup)! - Added Doma Testnet.
+
+- [#3990](https://github.com/wevm/viem/pull/3990) [`3d6ea4ea07323ac3f2bed91ab4c33ded5e23b6d1`](https://github.com/wevm/viem/commit/3d6ea4ea07323ac3f2bed91ab4c33ded5e23b6d1) Thanks [@aaronmgdr](https://github.com/aaronmgdr)! - Deprecated `celoAlfajores`.
+
 ## 2.37.12
 
 ### Patch Changes
