@@ -226,23 +226,26 @@ export async function call<chain extends Chain | undefined>(
     const chainFormat = client.chain?.formatters?.transactionRequest?.format
     const format = chainFormat || formatTransactionRequest
 
-    const request = format({
-      // Pick out extra data that might exist on the chain's transaction request type.
-      ...extract(rest, { format: chainFormat }),
-      from: account?.address,
-      accessList,
-      authorizationList,
-      blobs,
-      data,
-      gas,
-      gasPrice,
-      maxFeePerBlobGas,
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      nonce,
-      to: deploylessCall ? undefined : to,
-      value,
-    } as TransactionRequest) as TransactionRequest
+    const request = format(
+      {
+        // Pick out extra data that might exist on the chain's transaction request type.
+        ...extract(rest, { format: chainFormat }),
+        from: account?.address,
+        accessList,
+        authorizationList,
+        blobs,
+        data,
+        gas,
+        gasPrice,
+        maxFeePerBlobGas,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        nonce,
+        to: deploylessCall ? undefined : to,
+        value,
+      } as TransactionRequest,
+      'call',
+    ) as TransactionRequest
 
     if (
       batch &&

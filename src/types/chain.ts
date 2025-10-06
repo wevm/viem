@@ -185,7 +185,7 @@ export type ChainFormatters = {
 }
 
 export type ChainFormatter<type extends string = string> = {
-  format: (args: any) => any
+  format: (args: any, action?: string | undefined) => any
   type: type
 }
 
