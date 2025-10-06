@@ -1,5 +1,11 @@
 # viem
 
+## 2.38.0
+
+### Minor Changes
+
+- [#3989](https://github.com/wevm/viem/pull/3989) [`2b254aa650411285c74dc8caa01a6a4e096e9915`](https://github.com/wevm/viem/commit/2b254aa650411285c74dc8caa01a6a4e096e9915) Thanks [@jxom](https://github.com/jxom)! - Added `sendTransactionSync`, `sendRawTransactionSync`, `writeContractSync`, `sendCallsSync`.
+
 ## 2.37.13
 
 ### Patch Changes
