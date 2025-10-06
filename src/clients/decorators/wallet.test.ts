@@ -33,6 +33,7 @@ test('default', async () => {
       "sendRawTransaction": [Function],
       "sendRawTransactionSync": [Function],
       "sendTransaction": [Function],
+      "sendTransactionSync": [Function],
       "showCallsStatus": [Function],
       "signAuthorization": [Function],
       "signMessage": [Function],
@@ -42,6 +43,7 @@ test('default', async () => {
       "waitForCallsStatus": [Function],
       "watchAsset": [Function],
       "writeContract": [Function],
+      "writeContractSync": [Function],
     }
   `)
 })

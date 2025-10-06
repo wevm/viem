@@ -78,6 +78,7 @@ test('exports actions', () => {
       "sendRawTransaction": [Function],
       "sendRawTransactionSync": [Function],
       "sendTransaction": [Function],
+      "sendTransactionSync": [Function],
       "sendUnsignedTransaction": [Function],
       "setAutomine": [Function],
       "setBalance": [Function],
@@ -118,6 +119,7 @@ test('exports actions', () => {
       "watchEvent": [Function],
       "watchPendingTransactions": [Function],
       "writeContract": [Function],
+      "writeContractSync": [Function],
     }
   `)
 })

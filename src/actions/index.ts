@@ -538,6 +538,12 @@ export {
   sendTransaction,
 } from './wallet/sendTransaction.js'
 export {
+  type SendTransactionSyncErrorType,
+  type SendTransactionSyncParameters,
+  type SendTransactionSyncReturnType,
+  sendTransactionSync,
+} from './wallet/sendTransactionSync.js'
+export {
   type ShowCallsStatusErrorType,
   type ShowCallsStatusParameters,
   type ShowCallsStatusReturnType,
@@ -591,3 +597,9 @@ export {
   type WriteContractReturnType,
   writeContract,
 } from './wallet/writeContract.js'
+export {
+  type WriteContractSyncErrorType,
+  type WriteContractSyncParameters,
+  type WriteContractSyncReturnType,
+  writeContractSync,
+} from './wallet/writeContractSync.js'
