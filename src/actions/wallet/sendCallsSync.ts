@@ -6,7 +6,6 @@ import type { GetCallsStatusReturnType } from './getCallsStatus.js'
 import {
   type SendCallsErrorType,
   type SendCallsParameters,
-  type SendCallsReturnType,
   sendCalls,
 } from './sendCalls.js'
 import {
@@ -39,7 +38,7 @@ export type SendCallsSyncErrorType = SendCallsErrorType
  * - JSON-RPC Methods: [`wallet_sendCalls`](https://eips.ethereum.org/EIPS/eip-5792)
  *
  * @param client - Client to use
- * @returns Transaction identifier. {@link SendCallsReturnType}
+ * @returns Calls status. {@link SendCallsSyncReturnType}
  *
  * @example
  * import { createWalletClient, custom } from 'viem'
@@ -50,7 +49,7 @@ export type SendCallsSyncErrorType = SendCallsErrorType
  *   chain: mainnet,
  *   transport: custom(window.ethereum),
  * })
- * const { receipts } = await sendCallsSync(client, {
+ * const status = await sendCallsSync(client, {
  *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
  *   calls: [
  *     {

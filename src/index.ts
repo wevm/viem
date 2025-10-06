@@ -481,6 +481,11 @@ export type {
   SendCallsReturnType,
 } from './actions/wallet/sendCalls.js'
 export type {
+  SendCallsSyncErrorType,
+  SendCallsSyncParameters,
+  SendCallsSyncReturnType,
+} from './actions/wallet/sendCallsSync.js'
+export type {
   SendRawTransactionErrorType,
   SendRawTransactionParameters,
   SendRawTransactionReturnType,

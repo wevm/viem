@@ -520,6 +520,12 @@ export {
   sendCalls,
 } from './wallet/sendCalls.js'
 export {
+  type SendCallsSyncErrorType,
+  type SendCallsSyncParameters,
+  type SendCallsSyncReturnType,
+  sendCallsSync,
+} from './wallet/sendCallsSync.js'
+export {
   type SendRawTransactionErrorType,
   type SendRawTransactionParameters,
   type SendRawTransactionReturnType,

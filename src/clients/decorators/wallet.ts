@@ -58,6 +58,11 @@ import {
   sendCalls,
 } from '../../actions/wallet/sendCalls.js'
 import {
+  type SendCallsSyncParameters,
+  type SendCallsSyncReturnType,
+  sendCallsSync,
+} from '../../actions/wallet/sendCallsSync.js'
+import {
   type SendRawTransactionParameters,
   type SendRawTransactionReturnType,
   sendRawTransaction,
@@ -487,6 +492,44 @@ export type WalletActions<
   >(
     parameters: SendCallsParameters<chain, account, chainOverride, calls>,
   ) => Promise<SendCallsReturnType>
+  /**
+   * Requests the connected wallet to send a batch of calls, and waits for the calls to be included in a block.
+   *
+   * - Docs: https://viem.sh/docs/actions/wallet/sendCallsSync
+   * - JSON-RPC Methods: [`wallet_sendCalls`](https://eips.ethereum.org/EIPS/eip-5792)
+   *
+   * @param client - Client to use
+   * @returns Calls status. {@link SendCallsSyncReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   *
+   * const status = await client.sendCallsSync({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   calls: [
+   *     {
+   *       data: '0xdeadbeef',
+   *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *     },
+   *     {
+   *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *       value: 69420n,
+   *     },
+   *   ],
+   * })
+   */
+  sendCallsSync: <
+    const calls extends readonly unknown[],
+    chainOverride extends Chain | undefined = undefined,
+  >(
+    parameters: SendCallsSyncParameters<chain, account, chainOverride, calls>,
+  ) => Promise<SendCallsSyncReturnType>
   /**
    * Sends a **signed** transaction to the network
    *
@@ -1114,6 +1157,7 @@ export function walletActions<
     requestAddresses: () => requestAddresses(client),
     requestPermissions: (args) => requestPermissions(client, args),
     sendCalls: (args) => sendCalls(client, args),
+    sendCallsSync: (args) => sendCallsSync(client, args),
     sendRawTransaction: (args) => sendRawTransaction(client, args),
     sendRawTransactionSync: (args) => sendRawTransactionSync(client, args),
     sendTransaction: (args) => sendTransaction(client, args),

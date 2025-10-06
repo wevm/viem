@@ -30,6 +30,7 @@ test('default', async () => {
       "requestAddresses": [Function],
       "requestPermissions": [Function],
       "sendCalls": [Function],
+      "sendCallsSync": [Function],
       "sendRawTransaction": [Function],
       "sendRawTransactionSync": [Function],
       "sendTransaction": [Function],
