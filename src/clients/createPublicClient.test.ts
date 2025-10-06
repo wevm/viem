@@ -602,6 +602,7 @@ test('extend', () => {
       "reset": [Function],
       "revert": [Function],
       "sendCalls": [Function],
+      "sendCallsSync": [Function],
       "sendRawTransaction": [Function],
       "sendRawTransactionSync": [Function],
       "sendTransaction": [Function],
