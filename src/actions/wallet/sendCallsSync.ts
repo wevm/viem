@@ -10,8 +10,8 @@ import {
   sendCalls,
 } from './sendCalls.js'
 import {
-  waitForCallsStatus,
   type WaitForCallsStatusParameters,
+  waitForCallsStatus,
 } from './waitForCallsStatus.js'
 
 export type SendCallsSyncParameters<
