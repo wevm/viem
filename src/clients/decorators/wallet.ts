@@ -58,16 +58,32 @@ import {
   sendCalls,
 } from '../../actions/wallet/sendCalls.js'
 import {
+  type SendCallsSyncParameters,
+  type SendCallsSyncReturnType,
+  sendCallsSync,
+} from '../../actions/wallet/sendCallsSync.js'
+import {
   type SendRawTransactionParameters,
   type SendRawTransactionReturnType,
   sendRawTransaction,
 } from '../../actions/wallet/sendRawTransaction.js'
+import {
+  type SendRawTransactionSyncParameters,
+  type SendRawTransactionSyncReturnType,
+  sendRawTransactionSync,
+} from '../../actions/wallet/sendRawTransactionSync.js'
 import {
   type SendTransactionParameters,
   type SendTransactionRequest,
   type SendTransactionReturnType,
   sendTransaction,
 } from '../../actions/wallet/sendTransaction.js'
+import {
+  type SendTransactionSyncParameters,
+  type SendTransactionSyncRequest,
+  type SendTransactionSyncReturnType,
+  sendTransactionSync,
+} from '../../actions/wallet/sendTransactionSync.js'
 import {
   type ShowCallsStatusParameters,
   type ShowCallsStatusReturnType,
@@ -113,6 +129,11 @@ import {
   type WriteContractReturnType,
   writeContract,
 } from '../../actions/wallet/writeContract.js'
+import {
+  type WriteContractSyncParameters,
+  type WriteContractSyncReturnType,
+  writeContractSync,
+} from '../../actions/wallet/writeContractSync.js'
 import type { Chain } from '../../types/chain.js'
 import type {
   ContractFunctionArgs,
@@ -472,6 +493,44 @@ export type WalletActions<
     parameters: SendCallsParameters<chain, account, chainOverride, calls>,
   ) => Promise<SendCallsReturnType>
   /**
+   * Requests the connected wallet to send a batch of calls, and waits for the calls to be included in a block.
+   *
+   * - Docs: https://viem.sh/docs/actions/wallet/sendCallsSync
+   * - JSON-RPC Methods: [`wallet_sendCalls`](https://eips.ethereum.org/EIPS/eip-5792)
+   *
+   * @param client - Client to use
+   * @returns Calls status. {@link SendCallsSyncReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   *
+   * const status = await client.sendCallsSync({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   calls: [
+   *     {
+   *       data: '0xdeadbeef',
+   *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *     },
+   *     {
+   *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *       value: 69420n,
+   *     },
+   *   ],
+   * })
+   */
+  sendCallsSync: <
+    const calls extends readonly unknown[],
+    chainOverride extends Chain | undefined = undefined,
+  >(
+    parameters: SendCallsSyncParameters<chain, account, chainOverride, calls>,
+  ) => Promise<SendCallsSyncReturnType>
+  /**
    * Sends a **signed** transaction to the network
    *
    * - Docs: https://viem.sh/docs/actions/wallet/sendRawTransaction
@@ -498,6 +557,34 @@ export type WalletActions<
   sendRawTransaction: (
     args: SendRawTransactionParameters,
   ) => Promise<SendRawTransactionReturnType>
+  /**
+   * Sends a **signed** transaction to the network synchronously,
+   * and waits for the transaction to be included in a block.
+   *
+   * - Docs: https://viem.sh/docs/actions/wallet/sendRawTransactionSync
+   * - JSON-RPC Method: [`eth_sendRawTransactionSync`](https://eips.ethereum.org/EIPS/eip-7966)
+   *
+   * @param client - Client to use
+   * @param parameters - {@link SendRawTransactionSyncParameters}
+   * @returns The transaction receipt. {@link SendRawTransactionSyncReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { sendRawTransactionSync } from 'viem/wallet'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   *
+   * const receipt = await client.sendRawTransactionSync({
+   *   serializedTransaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33'
+   * })
+   */
+  sendRawTransactionSync: (
+    args: SendRawTransactionSyncParameters,
+  ) => Promise<SendRawTransactionSyncReturnType<chain>>
   /**
    * Creates, signs, and sends a new transaction to the network.
    *
@@ -546,6 +633,55 @@ export type WalletActions<
   >(
     args: SendTransactionParameters<chain, account, chainOverride, request>,
   ) => Promise<SendTransactionReturnType>
+  /**
+   * Creates, signs, and sends a new transaction to the network synchronously.
+   * Returns the transaction receipt.
+   *
+   * - Docs: https://viem.sh/docs/actions/wallet/sendTransactionSync
+   * - Examples: https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions_sending-transactions
+   * - JSON-RPC Methods:
+   *   - JSON-RPC Accounts: [`eth_sendTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendtransaction)
+   *   - Local Accounts: [`eth_sendRawTransaction`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendrawtransaction)
+   *
+   * @param args - {@link SendTransactionParameters}
+   * @returns The transaction receipt. {@link SendTransactionReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   * const receipt = await client.sendTransactionSync({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *   value: 1000000000000000000n,
+   * })
+   *
+   * @example
+   * // Account Hoisting
+   * import { createWalletClient, http } from 'viem'
+   * import { privateKeyToAccount } from 'viem/accounts'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   account: privateKeyToAccount('0x…'),
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const receipt = await client.sendTransactionSync({
+   *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *   value: 1000000000000000000n,
+   * })
+   */
+  sendTransactionSync: <
+    const request extends SendTransactionSyncRequest<chain, chainOverride>,
+    chainOverride extends Chain | undefined = undefined,
+  >(
+    args: SendTransactionSyncParameters<chain, account, chainOverride, request>,
+  ) => Promise<SendTransactionSyncReturnType>
   /**
    * Requests for the wallet to show information about a call batch
    * that was sent via `sendCalls`.
@@ -951,6 +1087,55 @@ export type WalletActions<
       chainOverride
     >,
   ) => Promise<WriteContractReturnType>
+  /**
+   * Executes a write function on a contract synchronously.
+   * Returns the transaction receipt.
+   *
+   * - Docs: https://viem.sh/docs/contract/writeContract
+   *
+   * A "write" function on a Solidity contract modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](https://viem.sh/docs/glossary/terms) is needed to be broadcast in order to change the state.
+   *
+   * Internally, uses a [Wallet Client](https://viem.sh/docs/clients/wallet) to call the [`sendTransaction` action](https://viem.sh/docs/actions/wallet/sendTransaction) with [ABI-encoded `data`](https://viem.sh/docs/contract/encodeFunctionData).
+   *
+   * __Warning: The `write` internally sends a transaction – it does not validate if the contract write will succeed (the contract may throw an error). It is highly recommended to [simulate the contract write with `contract.simulate`](https://viem.sh/docs/contract/writeContract#usage) before you execute it.__
+   *
+   * @param args - {@link WriteContractSyncParameters}
+   * @returns A [Transaction Receipt](https://viem.sh/docs/glossary/terms#receipt). {@link WriteContractSyncReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom, parseAbi } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   * const receipt = await client.writeContractSync({
+   *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+   *   abi: parseAbi(['function mint(uint32 tokenId) nonpayable']),
+   *   functionName: 'mint',
+   *   args: [69420],
+   * })
+   */
+  writeContractSync: <
+    const abi extends Abi | readonly unknown[],
+    functionName extends ContractFunctionName<abi, 'payable' | 'nonpayable'>,
+    args extends ContractFunctionArgs<
+      abi,
+      'payable' | 'nonpayable',
+      functionName
+    >,
+    chainOverride extends Chain | undefined = undefined,
+  >(
+    args: WriteContractSyncParameters<
+      abi,
+      functionName,
+      args,
+      chain,
+      account,
+      chainOverride
+    >,
+  ) => Promise<WriteContractSyncReturnType>
 }
 
 export function walletActions<
@@ -972,8 +1157,11 @@ export function walletActions<
     requestAddresses: () => requestAddresses(client),
     requestPermissions: (args) => requestPermissions(client, args),
     sendCalls: (args) => sendCalls(client, args),
+    sendCallsSync: (args) => sendCallsSync(client, args),
     sendRawTransaction: (args) => sendRawTransaction(client, args),
+    sendRawTransactionSync: (args) => sendRawTransactionSync(client, args),
     sendTransaction: (args) => sendTransaction(client, args),
+    sendTransactionSync: (args) => sendTransactionSync(client, args),
     showCallsStatus: (args) => showCallsStatus(client, args),
     signAuthorization: (args) => signAuthorization(client, args),
     signMessage: (args) => signMessage(client, args),
@@ -983,5 +1171,6 @@ export function walletActions<
     waitForCallsStatus: (args) => waitForCallsStatus(client, args),
     watchAsset: (args) => watchAsset(client, args),
     writeContract: (args) => writeContract(client, args as any),
+    writeContractSync: (args) => writeContractSync(client, args as any),
   }
 }

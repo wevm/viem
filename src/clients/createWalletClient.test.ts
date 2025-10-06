@@ -57,7 +57,9 @@ test('creates', () => {
       "requestPermissions": [Function],
       "sendCalls": [Function],
       "sendRawTransaction": [Function],
+      "sendRawTransactionSync": [Function],
       "sendTransaction": [Function],
+      "sendTransactionSync": [Function],
       "showCallsStatus": [Function],
       "signAuthorization": [Function],
       "signMessage": [Function],
@@ -78,6 +80,7 @@ test('creates', () => {
       "waitForCallsStatus": [Function],
       "watchAsset": [Function],
       "writeContract": [Function],
+      "writeContractSync": [Function],
     }
   `)
 })
@@ -120,7 +123,9 @@ describe('args: account', () => {
         "requestPermissions": [Function],
         "sendCalls": [Function],
         "sendRawTransaction": [Function],
+        "sendRawTransactionSync": [Function],
         "sendTransaction": [Function],
+        "sendTransactionSync": [Function],
         "showCallsStatus": [Function],
         "signAuthorization": [Function],
         "signMessage": [Function],
@@ -141,6 +146,7 @@ describe('args: account', () => {
         "waitForCallsStatus": [Function],
         "watchAsset": [Function],
         "writeContract": [Function],
+        "writeContractSync": [Function],
       }
     `)
   })
@@ -190,7 +196,9 @@ describe('args: account', () => {
         "requestPermissions": [Function],
         "sendCalls": [Function],
         "sendRawTransaction": [Function],
+        "sendRawTransactionSync": [Function],
         "sendTransaction": [Function],
+        "sendTransactionSync": [Function],
         "showCallsStatus": [Function],
         "signAuthorization": [Function],
         "signMessage": [Function],
@@ -211,6 +219,7 @@ describe('args: account', () => {
         "waitForCallsStatus": [Function],
         "watchAsset": [Function],
         "writeContract": [Function],
+        "writeContractSync": [Function],
       }
     `)
   })
@@ -248,7 +257,9 @@ describe('args: transport', () => {
         "requestPermissions": [Function],
         "sendCalls": [Function],
         "sendRawTransaction": [Function],
+        "sendRawTransactionSync": [Function],
         "sendTransaction": [Function],
+        "sendTransactionSync": [Function],
         "showCallsStatus": [Function],
         "signAuthorization": [Function],
         "signMessage": [Function],
@@ -269,6 +280,7 @@ describe('args: transport', () => {
         "waitForCallsStatus": [Function],
         "watchAsset": [Function],
         "writeContract": [Function],
+        "writeContractSync": [Function],
       }
     `)
   })
@@ -304,7 +316,9 @@ describe('args: transport', () => {
         "requestPermissions": [Function],
         "sendCalls": [Function],
         "sendRawTransaction": [Function],
+        "sendRawTransactionSync": [Function],
         "sendTransaction": [Function],
+        "sendTransactionSync": [Function],
         "showCallsStatus": [Function],
         "signAuthorization": [Function],
         "signMessage": [Function],
@@ -327,6 +341,7 @@ describe('args: transport', () => {
         "waitForCallsStatus": [Function],
         "watchAsset": [Function],
         "writeContract": [Function],
+        "writeContractSync": [Function],
       }
     `)
   })
@@ -381,7 +396,9 @@ describe('args: transport', () => {
         "requestPermissions": [Function],
         "sendCalls": [Function],
         "sendRawTransaction": [Function],
+        "sendRawTransactionSync": [Function],
         "sendTransaction": [Function],
+        "sendTransactionSync": [Function],
         "showCallsStatus": [Function],
         "signAuthorization": [Function],
         "signMessage": [Function],
@@ -405,6 +422,7 @@ describe('args: transport', () => {
         "waitForCallsStatus": [Function],
         "watchAsset": [Function],
         "writeContract": [Function],
+        "writeContractSync": [Function],
       }
     `)
   })
@@ -515,7 +533,9 @@ test('extend', () => {
       "revert": [Function],
       "sendCalls": [Function],
       "sendRawTransaction": [Function],
+      "sendRawTransactionSync": [Function],
       "sendTransaction": [Function],
+      "sendTransactionSync": [Function],
       "sendUnsignedTransaction": [Function],
       "setAutomine": [Function],
       "setBalance": [Function],
@@ -570,6 +590,7 @@ test('extend', () => {
       "watchEvent": [Function],
       "watchPendingTransactions": [Function],
       "writeContract": [Function],
+      "writeContractSync": [Function],
     }
   `)
 })
