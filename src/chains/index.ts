@@ -100,6 +100,7 @@ export { bxnTestnet } from './definitions/bxnTestnet.js'
 export { cannon } from './definitions/cannon.js'
 export { canto } from './definitions/canto.js'
 export { celo } from './definitions/celo.js'
+/** @deprecated use `celoSepolia` instead */
 export { celoAlfajores } from './definitions/celoAlfajores.js'
 export { celoSepolia } from './definitions/celoSepolia.js'
 export { chang } from './definitions/chang.js'
