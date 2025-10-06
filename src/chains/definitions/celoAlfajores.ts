@@ -4,7 +4,6 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 const sourceId = 17000 // holsky
 // source https://storage.googleapis.com/cel2-rollup-files/alfajores/deployment-l1.json
 
-/** @deprecated Use `celoSepolia` instead */
 export const celoAlfajores = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 44_787,
