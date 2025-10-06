@@ -620,6 +620,7 @@ describe('extends', () => {
         "readContract": [Function],
         "request": [Function],
         "sendRawTransaction": [Function],
+        "sendRawTransactionSync": [Function],
         "simulate": [Function],
         "simulateBlocks": [Function],
         "simulateCalls": [Function],
