@@ -46,7 +46,7 @@ jobs:
 
   release:
     name: Release
-    # needs: verify
+    needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -74,7 +74,7 @@ jobs:
 
   jsr:
     name: JSR
-    # needs: verify
+    needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
