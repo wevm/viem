@@ -3,6 +3,10 @@ import { BaseError } from './base.js'
 export type InvalidAddressErrorType = InvalidAddressError & {
   name: 'InvalidAddressError'
 }
+// TODO: Use `@link` in TSDoc
+/**
+ * @deprecated Use `Address.InvalidAddressError` instead.
+ */
 export class InvalidAddressError extends BaseError {
   constructor({ address }: { address: string }) {
     super(`Address "${address}" is invalid.`, {
