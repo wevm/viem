@@ -1,19 +1,18 @@
 import type { Address } from 'abitype'
+import * as ox_Address from 'ox/Address'
 
-import {
-  InvalidAddressError,
-  type InvalidAddressErrorType,
-} from '../../errors/address.js'
+import type { InvalidAddressErrorType } from '../../errors/address.js'
 import type { ErrorType } from '../../errors/utils.js'
-import { isAddress } from './isAddress.js'
 
+// TODO: Use `@link` in TSDoc
+/** @deprecated Use `boolean` instead. */
 export type IsAddressEqualReturnType = boolean
+/** @deprecated Use `Address.isEqual.ErrorType` instead. */
 export type IsAddressEqualErrorType = InvalidAddressErrorType | ErrorType
 
+/**
+ * @deprecated Use `Address.isEqual` instead.
+ */
 export function isAddressEqual(a: Address, b: Address) {
-  if (!isAddress(a, { strict: false }))
-    throw new InvalidAddressError({ address: a })
-  if (!isAddress(b, { strict: false }))
-    throw new InvalidAddressError({ address: b })
-  return a.toLowerCase() === b.toLowerCase()
+  return ox_Address.isEqual(a, b)
 }
