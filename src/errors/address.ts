@@ -5,7 +5,7 @@ export type InvalidAddressErrorType = InvalidAddressError & {
 }
 // TODO: Use `@link` in TSDoc
 /**
- * @deprecated Use `Address.InvalidAddressError` instead.
+ * @deprecated Use `Address.InvalidAddressError` instead from `import { Address } from 'viem/utils'`
  */
 export class InvalidAddressError extends BaseError {
   constructor({ address }: { address: string }) {
