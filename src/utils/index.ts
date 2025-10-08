@@ -1,4 +1,7 @@
-// biome-ignore lint/performance/noBarrelFile: entrypoint module
+// biome-ignore lint/performance/noBarrelFile: _
+export * as Address from 'ox/Address'
+export * as ContractAddress from 'ox/ContractAddress'
+
 export {
   type ParseAbi,
   type ParseAbiItem,

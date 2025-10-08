@@ -49,7 +49,7 @@
       },
       "performance": {
         "noBarrelFile": "error",
-        "noReExportAll": "error",
+        "noReExportAll": "off",
         "noDelete": "off"
       },
       "style": {
@@ -76,5 +76,8 @@
       "semicolons": "asNeeded"
     }
   },
-  "assist": { "actions": { "source": { "organizeImports": "on" } } }
+  "assist": {
+    "actions": { "source": { "organizeImports": "on" } },
+    "includes": ["**", "!**/index.ts"]
+  }
 }

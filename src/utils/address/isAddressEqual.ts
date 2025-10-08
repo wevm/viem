@@ -11,7 +11,7 @@ export type IsAddressEqualReturnType = boolean
 export type IsAddressEqualErrorType = InvalidAddressErrorType | ErrorType
 
 /**
- * @deprecated Use `Address.isEqual` instead.
+ * @deprecated Use `Address.isEqual` instead from `import { Address } from 'viem/utils'`
  */
 export function isAddressEqual(a: Address, b: Address) {
   return ox_Address.isEqual(a, b)
