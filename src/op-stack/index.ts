@@ -176,7 +176,6 @@ export {
 
 export { chainConfig } from './chainConfig.js'
 
-// biome-ignore lint/performance/noReExportAll: intentionally re-exporting
 export * from './chains.js'
 
 export {
