@@ -385,8 +385,11 @@ test('extend', () => {
       "reset": [Function],
       "revert": [Function],
       "sendCalls": [Function],
+      "sendCallsSync": [Function],
       "sendRawTransaction": [Function],
+      "sendRawTransactionSync": [Function],
       "sendTransaction": [Function],
+      "sendTransactionSync": [Function],
       "sendUnsignedTransaction": [Function],
       "setAutomine": [Function],
       "setBalance": [Function],
@@ -441,6 +444,7 @@ test('extend', () => {
       "watchEvent": [Function],
       "watchPendingTransactions": [Function],
       "writeContract": [Function],
+      "writeContractSync": [Function],
     }
   `)
 })

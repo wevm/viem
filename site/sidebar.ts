@@ -314,6 +314,10 @@ export const sidebar = {
               link: '/docs/actions/wallet/sendCalls',
             },
             {
+              text: 'sendCallsSync',
+              link: '/docs/actions/wallet/sendCallsSync',
+            },
+            {
               text: 'showCallsStatus',
               link: '/docs/actions/wallet/showCallsStatus',
             },
@@ -374,8 +378,16 @@ export const sidebar = {
               link: '/docs/actions/wallet/sendRawTransaction',
             },
             {
+              text: 'sendRawTransactionSync',
+              link: '/docs/actions/wallet/sendRawTransactionSync',
+            },
+            {
               text: 'sendTransaction',
               link: '/docs/actions/wallet/sendTransaction',
+            },
+            {
+              text: 'sendTransactionSync',
+              link: '/docs/actions/wallet/sendTransactionSync',
             },
             {
               text: 'signTransaction',
@@ -641,6 +653,10 @@ export const sidebar = {
             {
               text: 'writeContract',
               link: '/docs/contract/writeContract',
+            },
+            {
+              text: 'writeContractSync',
+              link: '/docs/contract/writeContractSync',
             },
             {
               text: 'watchContractEvent',

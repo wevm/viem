@@ -520,17 +520,35 @@ export {
   sendCalls,
 } from './wallet/sendCalls.js'
 export {
+  type SendCallsSyncErrorType,
+  type SendCallsSyncParameters,
+  type SendCallsSyncReturnType,
+  sendCallsSync,
+} from './wallet/sendCallsSync.js'
+export {
   type SendRawTransactionErrorType,
   type SendRawTransactionParameters,
   type SendRawTransactionReturnType,
   sendRawTransaction,
 } from './wallet/sendRawTransaction.js'
 export {
+  type SendRawTransactionSyncErrorType,
+  type SendRawTransactionSyncParameters,
+  type SendRawTransactionSyncReturnType,
+  sendRawTransactionSync,
+} from './wallet/sendRawTransactionSync.js'
+export {
   type SendTransactionErrorType,
   type SendTransactionParameters,
   type SendTransactionReturnType,
   sendTransaction,
 } from './wallet/sendTransaction.js'
+export {
+  type SendTransactionSyncErrorType,
+  type SendTransactionSyncParameters,
+  type SendTransactionSyncReturnType,
+  sendTransactionSync,
+} from './wallet/sendTransactionSync.js'
 export {
   type ShowCallsStatusErrorType,
   type ShowCallsStatusParameters,
@@ -585,3 +603,9 @@ export {
   type WriteContractReturnType,
   writeContract,
 } from './wallet/writeContract.js'
+export {
+  type WriteContractSyncErrorType,
+  type WriteContractSyncParameters,
+  type WriteContractSyncReturnType,
+  writeContractSync,
+} from './wallet/writeContractSync.js'
