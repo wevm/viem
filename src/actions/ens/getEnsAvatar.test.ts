@@ -162,20 +162,20 @@ describe('args: gateways', async () => {
       // uri: ipfs
       record: 'ipfs://ipfs/Qma8mnp6xV3J2cRNf3mTth5C8nV11CAnceVinc3y8jSbio',
       expected:
-        'https://gateway.pinata.cloud/ipfs/Qma8mnp6xV3J2cRNf3mTth5C8nV11CAnceVinc3y8jSbio',
+        'http://ipfs.fleek.co/ipfs/Qma8mnp6xV3J2cRNf3mTth5C8nV11CAnceVinc3y8jSbio',
     },
     {
       // uri: ipfs (no prefix)
       record: 'Qma8mnp6xV3J2cRNf3mTth5C8nV11CAnceVinc3y8jSbio',
       expected:
-        'https://gateway.pinata.cloud/ipfs/Qma8mnp6xV3J2cRNf3mTth5C8nV11CAnceVinc3y8jSbio',
+        'http://ipfs.fleek.co/ipfs/Qma8mnp6xV3J2cRNf3mTth5C8nV11CAnceVinc3y8jSbio',
     },
   ])('$record -> $expected', async ({ record, expected }) => {
     await setEnsAvatar(record)
     await expect(
       getEnsAvatar(client, {
         name: 'vitalik.eth',
-        assetGatewayUrls: { ipfs: 'https://gateway.pinata.cloud' },
+        assetGatewayUrls: { ipfs: 'http://ipfs.fleek.co' },
       }),
     ).resolves.toEqual(expected)
   })
