@@ -1,5 +1,13 @@
 # viem
 
+## 2.38.1
+
+### Patch Changes
+
+- [#4011](https://github.com/wevm/viem/pull/4011) [`127124e4a6747a083bdfc6628148bf70dace2cfb`](https://github.com/wevm/viem/commit/127124e4a6747a083bdfc6628148bf70dace2cfb) Thanks [@akitothemoon](https://github.com/akitothemoon)! - Added Injective network.
+
+- [#4008](https://github.com/wevm/viem/pull/4008) [`ac6206b771336086289d30195a716be68efb5e04`](https://github.com/wevm/viem/commit/ac6206b771336086289d30195a716be68efb5e04) Thanks [@johanneskares](https://github.com/johanneskares)! - Added Trust Wallet Support for `sendCalls` with `experimental_fallback`.
+
 ## 2.38.0
 
 ### Minor Changes
