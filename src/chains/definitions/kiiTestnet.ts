@@ -1,9 +1,9 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const kiiTestnet = /*#__PURE__*/ defineChain({
+export const kiiTestnetOro = /*#__PURE__*/ defineChain({
   id: 1336,
   name: 'Kii Testnet Oro',
-  network: 'kii-testnet',
+  network: 'kii-testnet-oro',
   nativeCurrency: {
     name: 'Kii',
     symbol: 'KII',
