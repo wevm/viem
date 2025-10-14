@@ -327,7 +327,7 @@ test('no chain', async () => {
   `)
 })
 
-describe('args: throwOnReceiptRevert', async () => {
+test('args: throwOnReceiptRevert', async () => {
   await setup()
 
   const { contractAddress } = await deployErrorExample()
