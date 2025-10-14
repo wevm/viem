@@ -42,7 +42,6 @@ test('args: throwOnReceiptRevert', async () => {
       functionName: 'revertWrite',
     }),
     gas: 100_000n,
-    throwOnReceiptRevert: true,
     to: contractAddress!,
   })
   const serializedTransaction = await signTransaction(client, request)
@@ -50,6 +49,7 @@ test('args: throwOnReceiptRevert', async () => {
     Promise.all([
       sendRawTransactionSync(client, {
         serializedTransaction,
+        throwOnReceiptRevert: true,
       }),
       (async () => {
         await wait(100)
