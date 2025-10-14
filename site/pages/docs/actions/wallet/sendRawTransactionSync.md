@@ -63,3 +63,33 @@ const signature = await walletClient.sendRawTransaction({
   serializedTransaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33' // [!code focus]
 })
 ```
+
+### throwOnReceiptRevert (optional)
+
+- **Type:** `boolean`
+
+Whether to throw an error if the transaction was detected as reverted.
+
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
+const receipt = await walletClient.sendRawTransactionSync({
+  serializedTransaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33',
+  throwOnReceiptRevert: true // [!code focus]
+})
+```
+
+### timeout (optional)
+
+- **Type:** `number`
+
+Timeout for the transaction to be included in a block.
+
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
+const receipt = await walletClient.sendRawTransactionSync({
+  serializedTransaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33',
+  timeout: 20_000 // [!code focus]
+})
+```

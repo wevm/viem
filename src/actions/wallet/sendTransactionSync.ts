@@ -15,6 +15,10 @@ import {
   type AccountTypeNotSupportedErrorType,
 } from '../../errors/account.js'
 import { BaseError } from '../../errors/base.js'
+import {
+  TransactionReceiptRevertedError,
+  type TransactionReceiptRevertedErrorType,
+} from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type {
@@ -91,6 +95,8 @@ export type SendTransactionSyncParameters<
   GetTransactionRequestKzgParameter<request> & {
     /** Polling interval (ms) to poll for the transaction receipt. @default client.pollingInterval */
     pollingInterval?: number | undefined
+    /** Whether to throw an error if the transaction was detected as reverted. @default true */
+    throwOnReceiptRevert?: boolean | undefined
     /** Timeout (ms) to wait for a response. @default Math.max(chain.blockTime * 3, 5_000) */
     timeout?: number | undefined
   }
@@ -111,6 +117,7 @@ export type SendTransactionSyncErrorType =
       | SendRawTransactionSyncErrorType
       | RecoverAuthorizationAddressErrorType
       | SignTransactionErrorType
+      | TransactionReceiptRevertedErrorType
       | RequestErrorType
     >
   | WaitForTransactionReceiptErrorType
@@ -184,6 +191,7 @@ export async function sendTransactionSync<
     maxPriorityFeePerGas,
     nonce,
     pollingInterval,
+    throwOnReceiptRevert,
     type,
     value,
     ...rest
@@ -314,7 +322,7 @@ export async function sendTransactionSync<
         }
       })()
 
-      return getAction(
+      const receipt = await getAction(
         client,
         waitForTransactionReceipt,
         'waitForTransactionReceipt',
@@ -324,6 +332,9 @@ export async function sendTransactionSync<
         pollingInterval,
         timeout,
       })
+      if (throwOnReceiptRevert && receipt.status === 'reverted')
+        throw new TransactionReceiptRevertedError({ receipt })
+      return receipt
     }
 
     if (account?.type === 'local') {
@@ -363,6 +374,7 @@ export async function sendTransactionSync<
         'sendRawTransactionSync',
       )({
         serializedTransaction,
+        throwOnReceiptRevert,
       })) as never
     }
 

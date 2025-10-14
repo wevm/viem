@@ -2,10 +2,10 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 import { maxUint256 } from '~viem/constants/number.js'
-import { Delegation } from '../../../contracts/generated.js'
+import { Delegation, ErrorsExample } from '../../../contracts/generated.js'
 import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
-import { deploy } from '../../../test/src/utils.js'
+import { deploy, deployErrorExample } from '../../../test/src/utils.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import {
@@ -325,6 +325,24 @@ test('no chain', async () => {
 
     Version: viem@x.y.z]
   `)
+})
+
+describe('args: throwOnReceiptRevert', async () => {
+  await setup()
+
+  const { contractAddress } = await deployErrorExample()
+
+  await expect(() =>
+    sendTransactionSync(client, {
+      account: sourceAccount.address,
+      data: encodeFunctionData({
+        abi: ErrorsExample.abi,
+        functionName: 'revertWrite',
+      }),
+      throwOnReceiptRevert: true,
+      to: contractAddress!,
+    }),
+  ).rejects.toThrow('The receipt marked the transaction as "reverted".')
 })
 
 describe('args: gasPrice', () => {
@@ -1459,6 +1477,25 @@ describe('local account', () => {
           .nonce,
       ).toBe(40)
     })
+  })
+
+  test('args: throwOnReceiptRevert', async () => {
+    await setup()
+
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      sendTransactionSync(client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        data: encodeFunctionData({
+          abi: ErrorsExample.abi,
+          functionName: 'revertWrite',
+        }),
+        gas: 100_000n,
+        throwOnReceiptRevert: true,
+        to: contractAddress!,
+      }),
+    ).rejects.toThrow('The receipt marked the transaction as "reverted".')
   })
 })
 

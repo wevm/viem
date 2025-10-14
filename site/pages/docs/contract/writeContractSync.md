@@ -457,6 +457,22 @@ await walletClient.writeContractSync({
 })
 ```
 
+### throwOnReceiptRevert (optional)
+
+- **Type:** `boolean`
+
+Whether to throw an error if the transaction was detected as reverted.
+
+```ts
+await walletClient.writeContractSync({
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  abi: wagmiAbi,
+  functionName: 'mint',
+  args: [69420],
+  throwOnReceiptRevert: true // [!code focus]
+})
+```
+
 ### timeout (optional)
 
 - **Type:** `number`

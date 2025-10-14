@@ -381,6 +381,24 @@ const receipt = await walletClient.sendTransactionSync({
 })
 ```
 
+### throwOnReceiptRevert (optional)
+
+- **Type:** `boolean`
+
+Whether to throw an error if the transaction was detected as reverted.
+
+```ts twoslash
+// [!include ~/snippets/walletClient.ts]
+// ---cut---
+const receipt = await walletClient.sendTransactionSync({
+  account,
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1000000000000000000n,
+  nonce: 69,
+  throwOnReceiptRevert: true // [!code focus]
+})
+```
+
 ### timeout (optional)
 
 - **Type:** `number`
