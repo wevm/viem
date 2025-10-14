@@ -149,6 +149,35 @@ test('no chain', async () => {
   `)
 })
 
+describe('behavior: throw when receipt is reverted', () => {
+  test('default', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      writeContractSync(client, {
+        abi: ErrorsExample.abi,
+        address: contractAddress!,
+        functionName: 'revertWrite',
+        account: accounts[0].address,
+      }),
+    ).rejects.toThrow('The receipt marked the transaction as "reverted"')
+  })
+
+  test('args: throwOnReceiptRevert: false', async () => {
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(
+      writeContractSync(client, {
+        abi: ErrorsExample.abi,
+        address: contractAddress!,
+        functionName: 'revertWrite',
+        account: accounts[0].address,
+        throwOnReceiptRevert: false,
+      }),
+    ).resolves.toBeDefined()
+  })
+})
+
 describe('args: chain', () => {
   test('default', async () => {
     const client = createWalletClient({

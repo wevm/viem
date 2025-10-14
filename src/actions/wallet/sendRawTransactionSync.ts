@@ -1,5 +1,6 @@
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import { TransactionReceiptRevertedError } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { TransactionSerializedGeneric } from '../../types/transaction.js'
@@ -13,6 +14,8 @@ import {
 export type SendRawTransactionSyncParameters = {
   /** The signed serialized transaction. */
   serializedTransaction: TransactionSerializedGeneric
+  /** Whether to throw an error if the transaction was detected as reverted. @default true */
+  throwOnReceiptRevert?: boolean | undefined
   /** The timeout for the transaction. */
   timeout?: number | undefined
 }
@@ -50,7 +53,11 @@ export type SendRawTransactionSyncErrorType = RequestErrorType | ErrorType
  */
 export async function sendRawTransactionSync<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  { serializedTransaction, timeout }: SendRawTransactionSyncParameters,
+  {
+    serializedTransaction,
+    throwOnReceiptRevert,
+    timeout,
+  }: SendRawTransactionSyncParameters,
 ): Promise<SendRawTransactionSyncReturnType<chain>> {
   const receipt = await client.request(
     {
@@ -64,5 +71,9 @@ export async function sendRawTransactionSync<chain extends Chain | undefined>(
   const format =
     client.chain?.formatters?.transactionReceipt?.format ||
     formatTransactionReceipt
-  return format(receipt) as SendRawTransactionSyncReturnType<chain>
+
+  const formatted = format(receipt) as SendRawTransactionSyncReturnType<chain>
+  if (formatted.status === 'reverted' && throwOnReceiptRevert)
+    throw new TransactionReceiptRevertedError({ receipt: formatted })
+  return formatted
 }
