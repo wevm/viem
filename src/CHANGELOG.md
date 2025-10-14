@@ -1,5 +1,11 @@
 # viem
 
+## 2.38.2
+
+### Patch Changes
+
+- [#4018](https://github.com/wevm/viem/pull/4018) [`f56feac59540721ed51da3bfc4386909177403cd`](https://github.com/wevm/viem/commit/f56feac59540721ed51da3bfc4386909177403cd) Thanks [@jxom](https://github.com/jxom)! - Added `throwOnReceiptRevert` property to `sendTransactionSync`, `writeContractSync`, `sendRawTransactionSync`.
+
 ## 2.38.1
 
 ### Patch Changes
