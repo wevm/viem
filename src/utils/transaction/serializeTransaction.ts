@@ -43,6 +43,10 @@ import {
   commitmentsToVersionedHashes,
 } from '../blob/commitmentsToVersionedHashes.js'
 import {
+  type GetBlobVersionErrorType,
+  getBlobVersion,
+} from '../blob/getBlobVersion.js'
+import {
   type ToBlobSidecarsErrorType,
   toBlobSidecars,
 } from '../blob/toBlobSidecars.js'
@@ -202,6 +206,7 @@ type SerializeTransactionEIP4844ErrorType =
   | BlobsToCommitmentsErrorType
   | CommitmentsToVersionedHashesErrorType
   | blobsToProofsErrorType
+  | GetBlobVersionErrorType
   | ToBlobSidecarsErrorType
   | ConcatHexErrorType
   | InvalidLegacyVErrorType
@@ -225,9 +230,16 @@ function serializeTransactionEIP4844(
     maxPriorityFeePerGas,
     accessList,
     data,
+    blobVersion: explicitBlobVersion,
   } = transaction
 
   assertTransactionEIP4844(transaction)
+
+  // Auto-detect blob version based on chain ID (Sepolia uses EIP-7594)
+  const blobVersion = getBlobVersion({
+    chainId,
+    blobVersion: explicitBlobVersion,
+  })
 
   let blobVersionedHashes = transaction.blobVersionedHashes
   let sidecars = transaction.sidecars
@@ -253,7 +265,7 @@ function serializeTransactionEIP4844(
         commitments,
       })
     if (typeof sidecars === 'undefined') {
-      const proofs = blobsToProofs({ blobs, commitments, kzg })
+      const proofs = blobsToProofs({ blobs, commitments, kzg, blobVersion })
       sidecars = toBlobSidecars({ blobs, commitments, proofs })
     }
   }
@@ -283,9 +295,27 @@ function serializeTransactionEIP4844(
       const { blob, commitment, proof } = sidecars[i]
       blobs.push(blob)
       commitments.push(commitment)
-      proofs.push(proof)
+      // proof can be a single proof (EIP-4844) or an array of proofs (EIP-7594)
+      if (Array.isArray(proof)) {
+        proofs.push(...proof)
+      } else {
+        proofs.push(proof)
+      }
     }
 
+  if (blobVersion === '7594') {
+    // EIP-7594: wrapper format with version byte
+    return concatHex([
+      '0x03',
+      sidecars
+        ? // Wrapper format: [tx_payload_body, wrapper_version, blobs, commitments, cell_proofs]
+          toRlp([serializedTransaction, '0x01', blobs, commitments, proofs])
+        : // Standard envelope (no wrapper version for non-sidecar transactions)
+          toRlp(serializedTransaction),
+    ]) as TransactionSerializedEIP4844
+  }
+
+  // EIP-4844: legacy format without wrapper version
   return concatHex([
     '0x03',
     sidecars

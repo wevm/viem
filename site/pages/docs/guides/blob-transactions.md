@@ -2,9 +2,12 @@
 
 Blob Transactions are a new type of transaction in Ethereum (introduced in [EIP-4844](https://eips.ethereum.org/EIPS/eip-4844)) that allows you to broadcast BLObs (Binary Large Objects) to the Ethereum network. Blob Transactions are like any other transaction, but with the added ability to carry a payload of Blobs. Blobs are extremely larger than regular calldata (~128kB), however unlike regular calldata, they are not accessible on the EVM. The EVM can only view the commitments of the blobs. Blobs are also transient, and only last for 4096 epochs (approx. 18 days).
 
-To read more on Blob Transactions and EIP-4844, check out these resources: 
+Viem also supports [EIP-7594](https://eips.ethereum.org/EIPS/eip-7594) (PeerDAS) blobs, which use a different proof format. On Sepolia, EIP-7594 is automatically used, while other chains default to EIP-4844.
+
+To read more on Blob Transactions and EIP-4844, check out these resources:
 
 - [EIP-4844 Spec](https://eips.ethereum.org/EIPS/eip-4844)
+- [EIP-7594 Spec](https://eips.ethereum.org/EIPS/eip-7594)
 - [EIP-4844 Website](https://www.eip4844.com/#faq)
 - [EIP-4844 FAQ](https://notes.ethereum.org/@vbuterin/proto_danksharding_faq#Proto-Danksharding-FAQ)
 

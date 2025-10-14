@@ -15,6 +15,11 @@ export type Kzg = {
    * commitment.
    */
   computeBlobKzgProof(blob: ByteArray, commitment: ByteArray): ByteArray
+  /**
+   * Compute cells and their KZG proofs for a blob (EIP-7594).
+   * Returns a tuple of [cells, proofs].
+   */
+  computeCellsAndKzgProofs?(blob: ByteArray): [ByteArray[], ByteArray[]]
 }
 
 export type GetTransactionRequestKzgParameter<

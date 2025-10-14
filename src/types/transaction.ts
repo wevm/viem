@@ -376,6 +376,8 @@ export type TransactionSerializableEIP4844<
       | (nullableSidecars extends true ? false : never)
       | undefined
     type?: 'eip4844' | undefined
+    /** Blob version (EIP-4844 or EIP-7594). Defaults to '4844'. */
+    blobVersion?: '4844' | '7594' | undefined
     yParity?: number | undefined
   } & OneOf<
     | {

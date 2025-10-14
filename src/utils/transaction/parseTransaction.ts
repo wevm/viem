@@ -224,14 +224,22 @@ function parseTransactionEIP4844(
 ): TransactionSerializableEIP4844 {
   const transactionOrWrapperArray = toTransactionArray(serializedTransaction)
 
-  const hasNetworkWrapper = transactionOrWrapperArray.length === 4
+  // EIP-4844 has 4 elements: [tx, blobs, commitments, proofs]
+  // EIP-7594 has 5 elements: [tx, version, blobs, commitments, proofs]
+  const hasNetworkWrapper =
+    transactionOrWrapperArray.length === 4 ||
+    transactionOrWrapperArray.length === 5
+  const isEIP7594 = transactionOrWrapperArray.length === 5
 
   const transactionArray = hasNetworkWrapper
     ? transactionOrWrapperArray[0]
     : transactionOrWrapperArray
   const wrapperArray = hasNetworkWrapper
-    ? transactionOrWrapperArray.slice(1)
+    ? isEIP7594
+      ? transactionOrWrapperArray.slice(2) // Skip version byte at index 1
+      : transactionOrWrapperArray.slice(1)
     : []
+  const blobVersion = isEIP7594 ? '7594' : '4844'
 
   const [
     chainId,
@@ -293,12 +301,33 @@ function parseTransactionEIP4844(
     transaction.maxPriorityFeePerGas = hexToBigInt(maxPriorityFeePerGas)
   if (accessList.length !== 0 && accessList !== '0x')
     transaction.accessList = parseAccessList(accessList as RecursiveArray<Hex>)
-  if (blobs && commitments && proofs)
+  if (blobs && commitments && proofs) {
+    // Group proofs by blob
+    const proofsArray = proofs as Hex[]
+    const blobsArray = blobs as Hex[]
+    // Calculate proofs per blob dynamically
+    const proofsPerBlob = Math.floor(proofsArray.length / blobsArray.length)
+    const groupedProofs: Hex[][] = []
+    for (let i = 0; i < blobsArray.length; i++) {
+      const startIdx = i * proofsPerBlob
+      groupedProofs.push(proofsArray.slice(startIdx, startIdx + proofsPerBlob))
+    }
+
     transaction.sidecars = toBlobSidecars({
-      blobs: blobs as Hex[],
+      blobs: blobsArray,
       commitments: commitments as Hex[],
-      proofs: proofs as Hex[],
+      proofs: groupedProofs,
+      blobVersion,
     })
+  }
+
+  // Set blobVersion based on wrapper detection or chain ID
+  if (isEIP7594) {
+    transaction.blobVersion = '7594'
+  } else if (transaction.chainId === 11_155_111) {
+    // Sepolia uses EIP-7594
+    transaction.blobVersion = '7594'
+  }
 
   assertTransactionEIP4844(transaction)
 

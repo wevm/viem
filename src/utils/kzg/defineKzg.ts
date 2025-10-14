@@ -22,9 +22,11 @@ export type DefineKzgErrorType = ErrorType
 export function defineKzg({
   blobToKzgCommitment,
   computeBlobKzgProof,
+  computeCellsAndKzgProofs,
 }: DefineKzgParameters): DefineKzgReturnType {
   return {
     blobToKzgCommitment,
     computeBlobKzgProof,
-  }
+    computeCellsAndKzgProofs,
+  } as DefineKzgReturnType
 }
