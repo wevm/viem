@@ -27,10 +27,10 @@ test('default', async () => {
 test.skip('4844', async () => {
   const client = createClient({
     chain: sepolia,
-    transport: http(process.env.RPC_URL),
+    transport: http(process.env.RPC_URL!),
   })
 
-  const privateKey = process.env.PRIVATE_KEY
+  const privateKey = process.env.PRIVATE_KEY as `0x${string}`
   const account = privateKeyToAccount(privateKey)
   const blobs = toBlobs({ data: stringToHex(blobData) })
   const nonce = await getTransactionCount(client, {
