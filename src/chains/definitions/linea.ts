@@ -5,6 +5,7 @@ export const linea = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 59_144,
   name: 'Linea Mainnet',
+  blockTime: 2000,
   nativeCurrency: { name: 'Linea Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
