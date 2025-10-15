@@ -7,6 +7,7 @@ export const optimism = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 10,
   name: 'OP Mainnet',
+  blockTime: 2000,
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
