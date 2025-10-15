@@ -5,6 +5,7 @@ export const celo = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 42_220,
   name: 'Celo',
+  blockTime: 1000,
   nativeCurrency: {
     decimals: 18,
     name: 'CELO',
