@@ -112,7 +112,7 @@ export function toBlobSidecars<
     sidecars.push({
       blob: blobs[i],
       commitment: commitments[i],
-      proof: blobProofs.length === 1 ? blobProofs[0] : ([...blobProofs] as any),
+      proof: blobProofs.length === 1 ? blobProofs[0] : [...blobProofs],
     })
   }
 
