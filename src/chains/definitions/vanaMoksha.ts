@@ -3,6 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const vanaMoksha = /*#__PURE__*/ defineChain({
   id: 14800,
   name: 'Vana Moksha Testnet',
+  blockTime: 6_000,
   nativeCurrency: {
     decimals: 18,
     name: 'Vana',
