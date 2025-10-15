@@ -311,6 +311,7 @@ export { katana } from './definitions/katana.js'
 export { kava } from './definitions/kava.js'
 export { kavaTestnet } from './definitions/kavaTestnet.js'
 export { kcc } from './definitions/kcc.js'
+export { kiiTestnetOro } from './definitions/kiiTestnet.js'
 export { kinto } from './definitions/kinto.js'
 /** @deprecated Use `kaia` instead. */
 export { klaytn } from './definitions/klaytn.js'
