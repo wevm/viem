@@ -1591,6 +1591,10 @@ export const sidebar = {
             link: '/op-stack/actions/estimateL1Gas',
           },
           {
+            text: 'estimateOperatorFee',
+            link: '/op-stack/actions/estimateOperatorFee',
+          },
+          {
             text: 'estimateTotalFee',
             link: '/op-stack/actions/estimateTotalFee',
           },
