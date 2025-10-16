@@ -3,6 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const plasma = /*#__PURE__*/ defineChain({
   id: 9745,
   name: 'Plasma',
+  blockTime: 1000,
   nativeCurrency: {
     name: 'Plasma',
     symbol: 'XPL',
