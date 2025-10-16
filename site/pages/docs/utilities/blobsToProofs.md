@@ -99,9 +99,31 @@ const blobs = toBlobs({ data: '0x...' })
 const kzg = setupKzg(cKzg, mainnetTrustedSetupPath) // [!code focus]
 const commitments = blobsToCommitments({ blobs, kzg })
 
-const proofs = blobsToProofs({ 
+const proofs = blobsToProofs({
   blobs,
   commitments,
   kzg, // [!code focus]
-}) 
+})
+```
+
+### blobVersion (optional)
+
+- **Type:** `'4844' | '7594'`
+- **Default:** `'4844'`
+
+The blob version to use for proof generation. Defaults to `'4844'` (EIP-4844). Use `'7594'` for EIP-7594 (PeerDAS) blobs.
+
+```ts twoslash
+import { blobsToCommitments, blobsToProofs, toBlobs } from 'viem'
+import { kzg } from './kzg'
+
+const blobs = toBlobs({ data: '0x...' })
+const commitments = blobsToCommitments({ blobs, kzg })
+
+const proofs = blobsToProofs({
+  blobs,
+  commitments,
+  kzg,
+  blobVersion: '7594', // [!code focus]
+})
 ```

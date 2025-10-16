@@ -205,14 +205,32 @@ const kzg = defineKzg({} as any)
 // ---cut---
 import { toBlobSidecars, toBlobs } from 'viem'
 
-const sidecars = toBlobSidecars({ 
+const sidecars = toBlobSidecars({
   data: '0x1234',
-  kzg, 
-  to: 'bytes', // [!code focus]  
-}) 
+  kzg,
+  to: 'bytes', // [!code focus]
+})
 
 sidecars // [!code focus]
 // ^?
 
 
+```
+
+### blobVersion (optional)
+
+- **Type:** `'4844' | '7594'`
+- **Default:** `'4844'`
+
+The blob version to use for proof generation. Defaults to `'4844'` (EIP-4844). Use `'7594'` for EIP-7594 (PeerDAS) blobs.
+
+```ts twoslash
+import { toBlobSidecars } from 'viem'
+import { kzg } from './kzg'
+
+const sidecars = toBlobSidecars({
+  data: '0x...',
+  kzg,
+  blobVersion: '7594', // [!code focus]
+})
 ```

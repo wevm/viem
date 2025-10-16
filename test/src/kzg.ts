@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { trustedSetup as fastSetup } from '@paulmillr/trusted-setups/fast.js'
-import { KZG } from 'micro-eth-signer/kzg'
+import { trustedSetup as fastSetup } from '@paulmillr/trusted-setups/fast-peerdas.js'
+
+import { KZG } from 'micro-eth-signer/advanced/kzg.js'
 import { bytesToHex, defineKzg, hexToBytes } from '../../src/index.js'
 
 const k = new KZG(fastSetup)
@@ -16,6 +17,16 @@ export const kzg = defineKzg({
         bytesToHex(commitment),
       ) as `0x${string}`,
     )
+  },
+  computeCellsAndKzgProofs(blob) {
+    const [cells, proofs] = k.computeCellsAndProofs(bytesToHex(blob)) as [
+      `0x${string}`[],
+      `0x${string}`[],
+    ]
+    return [
+      cells.map((cell) => hexToBytes(cell)),
+      proofs.map((proof) => hexToBytes(proof)),
+    ]
   },
 })
 

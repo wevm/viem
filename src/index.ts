@@ -1411,6 +1411,12 @@ export {
   fromBlobs,
 } from './utils/blob/fromBlobs.js'
 export {
+  type GetBlobVersionErrorType,
+  type GetBlobVersionParameters,
+  type GetBlobVersionReturnType,
+  getBlobVersion,
+} from './utils/blob/getBlobVersion.js'
+export {
   type SidecarsToVersionedHashesErrorType,
   type SidecarsToVersionedHashesParameters,
   type SidecarsToVersionedHashesReturnType,

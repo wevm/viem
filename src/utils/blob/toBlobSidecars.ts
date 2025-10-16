@@ -25,6 +25,8 @@ export type ToBlobSidecarsParameters<
 > = {
   /** Return type. */
   to?: to | To | undefined
+  /** Blob version (EIP-4844 or EIP-7594). Defaults to '4844'. */
+  blobVersion?: '4844' | '7594' | undefined
 } & OneOf<
   | {
       /** Data to transform into blobs. */
@@ -37,8 +39,8 @@ export type ToBlobSidecarsParameters<
       blobs: blobs | readonly Hex[] | readonly ByteArray[]
       /** Commitment for each blob. */
       commitments: _blobsType | readonly Hex[] | readonly ByteArray[]
-      /** Proof for each blob. */
-      proofs: _blobsType | readonly Hex[] | readonly ByteArray[]
+      /** Proof(s) for each blob (array of proof arrays). */
+      proofs: readonly (readonly Hex[])[] | readonly (readonly ByteArray[])[]
     }
 >
 
@@ -93,20 +95,26 @@ export function toBlobSidecars<
 >(
   parameters: ToBlobSidecarsParameters<data, blobs, to>,
 ): ToBlobSidecarsReturnType<to> {
-  const { data, kzg, to } = parameters
+  const { data, kzg, to, blobVersion = '4844' } = parameters
   const blobs = parameters.blobs ?? toBlobs({ data: data!, to })
   const commitments =
     parameters.commitments ?? blobsToCommitments({ blobs, kzg: kzg!, to })
   const proofs =
-    parameters.proofs ?? blobsToProofs({ blobs, commitments, kzg: kzg!, to })
+    parameters.proofs ??
+    blobsToProofs({ blobs, commitments, kzg: kzg!, to, blobVersion })
 
   const sidecars: BlobSidecars = []
-  for (let i = 0; i < blobs.length; i++)
+  for (let i = 0; i < blobs.length; i++) {
+    const blobProofs = proofs[i]
+    // For EIP-4844, blobProofs is [single_proof]
+    // For EIP-7594, blobProofs is [proof1, proof2, ..., proof128]
+    // We store the first proof in the sidecar (for EIP-4844) or all proofs (for EIP-7594)
     sidecars.push({
       blob: blobs[i],
       commitment: commitments[i],
-      proof: proofs[i],
+      proof: blobProofs.length === 1 ? blobProofs[0] : [...blobProofs],
     })
+  }
 
   return sidecars as ToBlobSidecarsReturnType<to>
 }

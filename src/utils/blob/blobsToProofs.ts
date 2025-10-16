@@ -6,6 +6,8 @@ import { type BytesToHexErrorType, bytesToHex } from '../encoding/toHex.js'
 
 type To = 'hex' | 'bytes'
 
+export type BlobVersion = '4844' | '7594'
+
 export type blobsToProofsParameters<
   blobs extends readonly ByteArray[] | readonly Hex[],
   commitments extends readonly ByteArray[] | readonly Hex[],
@@ -25,14 +27,16 @@ export type blobsToProofsParameters<
       ? {}
       : `commitments must be the same type as blobs`)
   /** KZG implementation. */
-  kzg: Pick<Kzg, 'computeBlobKzgProof'>
+  kzg: Pick<Kzg, 'computeBlobKzgProof' | 'computeCellsAndKzgProofs'>
   /** Return type. */
   to?: to | To | undefined
+  /** Blob version (EIP-4844 or EIP-7594). Defaults to '4844'. */
+  blobVersion?: BlobVersion | undefined
 }
 
 export type blobsToProofsReturnType<to extends To> =
-  | (to extends 'bytes' ? ByteArray[] : never)
-  | (to extends 'hex' ? Hex[] : never)
+  | (to extends 'bytes' ? ByteArray[][] : never)
+  | (to extends 'hex' ? Hex[][] : never)
 
 export type blobsToProofsErrorType =
   | BytesToHexErrorType
@@ -41,6 +45,10 @@ export type blobsToProofsErrorType =
 
 /**
  * Compute the proofs for a list of blobs and their commitments.
+ *
+ * Returns an array of proof arrays, where each inner array contains the proofs for one blob:
+ * - EIP-4844: Each blob has 1 proof
+ * - EIP-7594: Each blob has 128 cell proofs
  *
  * @example
  * ```ts
@@ -53,6 +61,22 @@ export type blobsToProofsErrorType =
  * const blobs = toBlobs({ data: '0x1234' })
  * const commitments = blobsToCommitments({ blobs, kzg })
  * const proofs = blobsToProofs({ blobs, commitments, kzg })
+ * // proofs = [[proof1], [proof2]] - one proof per blob
+ * ```
+ *
+ * @example
+ * ```ts
+ * // EIP-7594 (PeerDAS) blobs
+ * import {
+ *   blobsToCommitments,
+ *   toBlobs
+ * } from 'viem'
+ * import { kzg } from './kzg'
+ *
+ * const blobs = toBlobs({ data: '0x1234' })
+ * const commitments = blobsToCommitments({ blobs, kzg })
+ * const proofs = blobsToProofs({ blobs, commitments, kzg, blobVersion: '7594' })
+ * // proofs = [[proof1, proof2, ...proof128], [proof129, ...]] - 128 proofs per blob
  * ```
  */
 export function blobsToProofs<
@@ -64,7 +88,7 @@ export function blobsToProofs<
 >(
   parameters: blobsToProofsParameters<blobs, commitments, to>,
 ): blobsToProofsReturnType<to> {
-  const { kzg } = parameters
+  const { kzg, blobVersion = '4844' } = parameters
 
   const to =
     parameters.to ?? (typeof parameters.blobs[0] === 'string' ? 'hex' : 'bytes')
@@ -80,14 +104,33 @@ export function blobsToProofs<
       : parameters.commitments
   ) as ByteArray[]
 
-  const proofs: ByteArray[] = []
-  for (let i = 0; i < blobs.length; i++) {
-    const blob = blobs[i]
-    const commitment = commitments[i]
-    proofs.push(Uint8Array.from(kzg.computeBlobKzgProof(blob, commitment)))
+  const proofs: ByteArray[][] = []
+
+  if (blobVersion === '7594') {
+    // EIP-7594: Use computeCellsAndKzgProofs and return cell proofs for each blob
+    if (!kzg.computeCellsAndKzgProofs) {
+      throw new Error(
+        'KZG implementation does not support computeCellsAndKzgProofs (required for EIP-7594)',
+      )
+    }
+    for (let i = 0; i < blobs.length; i++) {
+      const blob = blobs[i]
+      const [_cells, cellProofs] = kzg.computeCellsAndKzgProofs(blob)
+      // Each blob gets its own array of cell proofs
+      proofs.push(cellProofs)
+    }
+  } else {
+    // EIP-4844: Use computeBlobKzgProof (one proof per blob, wrapped in array)
+    for (let i = 0; i < blobs.length; i++) {
+      const blob = blobs[i]
+      const commitment = commitments[i]
+      proofs.push([Uint8Array.from(kzg.computeBlobKzgProof(blob, commitment))])
+    }
   }
 
   return (to === 'bytes'
     ? proofs
-    : proofs.map((x) => bytesToHex(x))) as {} as blobsToProofsReturnType<to>
+    : proofs.map((blobProofs) =>
+        blobProofs.map((proof) => bytesToHex(proof)),
+      )) as {} as blobsToProofsReturnType<to>
 }

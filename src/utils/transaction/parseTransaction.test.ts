@@ -486,6 +486,85 @@ describe('eip4844', () => {
   })
 })
 
+describe('eip7594', () => {
+  const baseEip7594 = {
+    ...base,
+    blobVersionedHashes: [
+      '0x01adbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+    ],
+    blobVersion: '7594',
+    chainId: 11_155_111, // Sepolia
+  } as const satisfies TransactionSerializableEIP4844
+
+  test('default', () => {
+    const serialized = serializeTransaction(baseEip7594)
+    const transaction = parseTransaction(serialized)
+    assertType<TransactionSerializableEIP4844>(transaction)
+    expect(transaction).toEqual({ ...baseEip7594, type: 'eip4844' })
+  })
+
+  test('args: fees', () => {
+    const args = {
+      ...baseEip7594,
+      maxFeePerBlobGas: parseGwei('2'),
+      maxFeePerGas: parseGwei('2'),
+      maxPriorityFeePerGas: parseGwei('1'),
+    }
+    const serialized = serializeTransaction(args)
+    const transaction = parseTransaction(serialized)
+    assertType<TransactionSerializableEIP4844>(transaction)
+    expect(transaction).toEqual({ ...args, type: 'eip4844' })
+  })
+
+  test('args: gas', () => {
+    const args = {
+      ...baseEip7594,
+      gas: 69n,
+    }
+    const serialized = serializeTransaction(args)
+    const transaction = parseTransaction(serialized)
+    assertType<TransactionSerializableEIP4844>(transaction)
+    expect(transaction).toEqual({ ...args, type: 'eip4844' })
+  })
+
+  test('args: sidecar', () => {
+    const args = {
+      ...baseEip7594,
+      sidecars: [
+        {
+          blob: '0x1234',
+          commitment: '0x1234',
+          // EIP-7594: Each sidecar has an array of cell proofs
+          proof: ['0x1234', '0x5678'],
+        },
+        {
+          blob: '0x1234',
+          commitment: '0x1234',
+          proof: ['0xabcd', '0xef01'],
+        },
+      ],
+    } as const satisfies TransactionSerializableEIP4844
+    const serialized = serializeTransaction(args)
+    const transaction = parseTransaction(serialized)
+    assertType<TransactionSerializableEIP4844>(transaction)
+    expect(transaction).toEqual({ ...args, type: 'eip4844' })
+  })
+
+  test('signed', async () => {
+    const signature = await sign({
+      hash: keccak256(serializeTransaction(baseEip7594)),
+      privateKey: accounts[0].privateKey,
+    })
+    const serialized = serializeTransaction(baseEip7594, signature)
+    const parsed = parseTransaction(serialized)
+    expect(parsed).toEqual({
+      ...baseEip7594,
+      ...signature,
+      type: 'eip4844',
+    })
+  })
+})
+
 describe('eip1559', () => {
   const baseEip1559 = {
     ...base,
