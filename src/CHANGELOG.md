@@ -1,5 +1,23 @@
 # viem
 
+## 2.38.3
+
+### Patch Changes
+
+- [#4028](https://github.com/wevm/viem/pull/4028) [`7485281108420d422bd36cffa2ff1c8e7294423d`](https://github.com/wevm/viem/commit/7485281108420d422bd36cffa2ff1c8e7294423d) Thanks [@tnunamak](https://github.com/tnunamak)! - Added Vana and Vana Moksha Testnet chains.
+
+- [#4034](https://github.com/wevm/viem/pull/4034) [`de8f2f01f222b8e5dcea3689838ea1f452a8383b`](https://github.com/wevm/viem/commit/de8f2f01f222b8e5dcea3689838ea1f452a8383b) Thanks [@sandyup](https://github.com/sandyup)! - Added Surge Testnet.
+
+- [#4032](https://github.com/wevm/viem/pull/4032) [`fdc1baf3257c9744738d070fa57da6bf2547172b`](https://github.com/wevm/viem/commit/fdc1baf3257c9744738d070fa57da6bf2547172b) Thanks [@boredland](https://github.com/boredland)! - Added `blockTime` property to Polygon.
+
+- [#4033](https://github.com/wevm/viem/pull/4033) [`5601fc11189948f2e3ac6fef88da9fd3a25e825d`](https://github.com/wevm/viem/commit/5601fc11189948f2e3ac6fef88da9fd3a25e825d) Thanks [@boredland](https://github.com/boredland)! - Added `blockTime` property to Scroll chain.
+
+- [#4027](https://github.com/wevm/viem/pull/4027) [`1fc791c7d003a8f76ca0c71c47dd0414ff72b0b7`](https://github.com/wevm/viem/commit/1fc791c7d003a8f76ca0c71c47dd0414ff72b0b7) Thanks [@boredland](https://github.com/boredland)! - Added `blockTime` property to Linea.
+
+- [#4017](https://github.com/wevm/viem/pull/4017) [`f27860fbd61c1d324ac1c8d85bf14fb4354c96ec`](https://github.com/wevm/viem/commit/f27860fbd61c1d324ac1c8d85bf14fb4354c96ec) Thanks [@GiovaniGuizzo](https://github.com/GiovaniGuizzo)! - Added Kii Testnet Oro chain.
+
+- [#4031](https://github.com/wevm/viem/pull/4031) [`12f0a4443716fdc5616cc8641c8bcfabdd61e531`](https://github.com/wevm/viem/commit/12f0a4443716fdc5616cc8641c8bcfabdd61e531) Thanks [@boredland](https://github.com/boredland)! - Added `blockTime` to Plasma chain.
+
 ## 2.38.2
 
 ### Patch Changes
