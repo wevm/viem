@@ -72,7 +72,8 @@ test('client chain mismatch', async () => {
       function:  mint()
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-    Docs: https://viem.sh/docs/contract/writeContract
+    Details: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
+    See: https://viem.sh/docs/contract/writeContract
     Version: viem@x.y.z]
   `)
 })
@@ -102,7 +103,9 @@ test('no chain', async () => {
       function:  mint()
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-    Docs: https://viem.sh/docs/contract/writeContract
+    Details: No chain was provided to the request.
+    Please provide a chain with the \`chain\` argument on the Action, or by supplying a \`chain\` to WalletClient.
+    See: https://viem.sh/docs/contract/writeContract
     Version: viem@x.y.z]
   `)
 })
@@ -148,7 +151,8 @@ describe('args: chain', () => {
         function:  mint()
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Docs: https://viem.sh/docs/contract/writeContract
+      Details: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
+      See: https://viem.sh/docs/contract/writeContract
       Version: viem@x.y.z]
     `)
   })
@@ -385,7 +389,9 @@ test('w/ simulateContract (overloaded)', async () => {
       args:          (69421)
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-    Docs: https://viem.sh/docs/contract/simulateContract
+    Details: The contract function "mint" reverted with the following reason:
+    Token ID is taken
+    See: https://viem.sh/docs/contract/simulateContract
     Version: viem@x.y.z]
   `)
 })
@@ -417,7 +423,8 @@ test('w/ simulateContract (args chain mismatch)', async () => {
       function:  mint()
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-    Docs: https://viem.sh/docs/contract/writeContract
+    Details: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
+    See: https://viem.sh/docs/contract/writeContract
     Version: viem@x.y.z]
   `)
 })
@@ -451,7 +458,8 @@ test('w/ simulateContract (client chain mismatch)', async () => {
       function:  mint()
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-    Docs: https://viem.sh/docs/contract/writeContract
+    Details: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
+    See: https://viem.sh/docs/contract/writeContract
     Version: viem@x.y.z]
   `)
 })
@@ -503,7 +511,9 @@ describe('behavior: contract revert', () => {
         function:  revertWrite()
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
-      Docs: https://viem.sh/docs/contract/writeContract
+      Details: The contract function "revertWrite" reverted with the following reason:
+      This is a revert message
+      See: https://viem.sh/docs/contract/writeContract
       Version: viem@x.y.z]
     `)
   })
@@ -527,7 +537,9 @@ describe('behavior: contract revert', () => {
         function:  assertWrite()
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
-      Docs: https://viem.sh/docs/contract/writeContract
+      Details: The contract function "assertWrite" reverted with the following reason:
+      An \`assert\` condition failed.
+      See: https://viem.sh/docs/contract/writeContract
       Version: viem@x.y.z]
     `)
   })
@@ -551,7 +563,9 @@ describe('behavior: contract revert', () => {
         function:  overflowWrite()
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
-      Docs: https://viem.sh/docs/contract/writeContract
+      Details: The contract function "overflowWrite" reverted with the following reason:
+      Arithmetic operation resulted in underflow or overflow.
+      See: https://viem.sh/docs/contract/writeContract
       Version: viem@x.y.z]
     `)
   })
@@ -575,7 +589,9 @@ describe('behavior: contract revert', () => {
         function:  divideByZeroWrite()
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
-      Docs: https://viem.sh/docs/contract/writeContract
+      Details: The contract function "divideByZeroWrite" reverted with the following reason:
+      Division or modulo by zero (e.g. \`5 / 0\` or \`23 % 0\`).
+      See: https://viem.sh/docs/contract/writeContract
       Version: viem@x.y.z]
     `)
   })
@@ -598,7 +614,8 @@ describe('behavior: contract revert', () => {
         function:  requireWrite()
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
-      Docs: https://viem.sh/docs/contract/writeContract
+      Details: The contract function "requireWrite" reverted.
+      See: https://viem.sh/docs/contract/writeContract
       Version: viem@x.y.z]
     `)
   })
@@ -624,7 +641,8 @@ describe('behavior: contract revert', () => {
         function:  simpleCustomWrite()
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
-      Docs: https://viem.sh/docs/contract/writeContract
+      Details: The contract function "simpleCustomWrite" reverted.
+      See: https://viem.sh/docs/contract/writeContract
       Version: viem@x.y.z]
     `)
   })
@@ -650,7 +668,8 @@ describe('behavior: contract revert', () => {
         function:  complexCustomWrite()
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
-      Docs: https://viem.sh/docs/contract/writeContract
+      Details: The contract function "complexCustomWrite" reverted.
+      See: https://viem.sh/docs/contract/writeContract
       Version: viem@x.y.z]
     `)
   })

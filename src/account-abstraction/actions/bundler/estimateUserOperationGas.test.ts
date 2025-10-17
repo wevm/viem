@@ -222,6 +222,8 @@ describe('entryPointVersion: 0.8', async () => {
         sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
+      Details: The contract function "mint" reverted with the following reason:
+      Token ID is taken
       Version: viem@x.y.z]
     `)
   })
@@ -259,6 +261,8 @@ describe('entryPointVersion: 0.8', async () => {
         sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
+      Details: The contract function "approve" reverted with the following reason:
+      ERC721: approve caller is not owner nor approved for all
       Version: viem@x.y.z]
     `)
   })
@@ -301,7 +305,10 @@ describe('entryPointVersion: 0.8', async () => {
         sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
-      Docs: https://viem.sh/docs/contract/decodeErrorResult
+      Details: Encoded error signature "0x5a154675" not found on ABI.
+      Make sure you are using the correct ABI and that the error exists on it.
+      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+      See: https://oxlib.sh/docs/contract/decodeErrorResult
       Version: viem@x.y.z]
     `)
   })
@@ -344,6 +351,7 @@ describe('entryPointVersion: 0.8', async () => {
         sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
+      Details: The contract function "mint" returned no data ("0x").
       Version: viem@x.y.z]
     `)
   })
@@ -389,7 +397,10 @@ describe('entryPointVersion: 0.8', async () => {
         sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
-      Docs: https://viem.sh/docs/contract/decodeErrorResult
+      Details: Encoded error signature "0x5a154675" not found on ABI.
+      Make sure you are using the correct ABI and that the error exists on it.
+      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+      See: https://oxlib.sh/docs/contract/decodeErrorResult
       Version: viem@x.y.z]
     `)
   })
@@ -435,7 +446,10 @@ describe('entryPointVersion: 0.8', async () => {
         sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
-      Docs: https://viem.sh/docs/contract/decodeErrorResult
+      Details: Encoded error signature "0x5a154675" not found on ABI.
+      Make sure you are using the correct ABI and that the error exists on it.
+      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+      See: https://oxlib.sh/docs/contract/decodeErrorResult
       Version: viem@x.y.z]
     `)
   })
@@ -481,7 +495,10 @@ describe('entryPointVersion: 0.8', async () => {
         sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
-      Docs: https://viem.sh/docs/contract/decodeErrorResult
+      Details: Encoded error signature "0x5a154675" not found on ABI.
+      Make sure you are using the correct ABI and that the error exists on it.
+      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+      See: https://oxlib.sh/docs/contract/decodeErrorResult
       Version: viem@x.y.z]
     `)
   })
@@ -527,7 +544,10 @@ describe('entryPointVersion: 0.8', async () => {
         sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
-      Docs: https://viem.sh/docs/contract/decodeErrorResult
+      Details: Encoded error signature "0x5a154675" not found on ABI.
+      Make sure you are using the correct ABI and that the error exists on it.
+      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+      See: https://oxlib.sh/docs/contract/decodeErrorResult
       Version: viem@x.y.z]
     `)
   })
@@ -573,7 +593,10 @@ describe('entryPointVersion: 0.8', async () => {
         sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
-      Docs: https://viem.sh/docs/contract/decodeErrorResult
+      Details: Encoded error signature "0x5a154675" not found on ABI.
+      Make sure you are using the correct ABI and that the error exists on it.
+      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+      See: https://oxlib.sh/docs/contract/decodeErrorResult
       Version: viem@x.y.z]
     `)
   })
@@ -619,7 +642,10 @@ describe('entryPointVersion: 0.8', async () => {
         sender:                0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
-      Docs: https://viem.sh/docs/contract/decodeErrorResult
+      Details: Encoded error signature "0x5a154675" not found on ABI.
+      Make sure you are using the correct ABI and that the error exists on it.
+      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+      See: https://oxlib.sh/docs/contract/decodeErrorResult
       Version: viem@x.y.z]
     `)
   })
@@ -810,6 +836,8 @@ describe('entryPointVersion: 0.7', async () => {
         sender:                0xF2F83Eb89C48abd7aD93bA42C3ce904895337cea
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
+      Details: The contract function "mint" reverted with the following reason:
+      Token ID is taken
       Version: viem@x.y.z]
     `)
   })
@@ -847,6 +875,8 @@ describe('entryPointVersion: 0.7', async () => {
         sender:                0xF2F83Eb89C48abd7aD93bA42C3ce904895337cea
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
+      Details: The contract function "approve" reverted with the following reason:
+      ERC721: approve caller is not owner nor approved for all
       Version: viem@x.y.z]
     `)
   })
@@ -885,6 +915,8 @@ describe('entryPointVersion: 0.7', async () => {
         sender:                0xF2F83Eb89C48abd7aD93bA42C3ce904895337cea
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
+      Details: The contract function "mint | approve" reverted with the following reason:
+      ERC721: approve caller is not owner nor approved for all
       Version: viem@x.y.z]
     `)
   })
@@ -926,6 +958,7 @@ describe('entryPointVersion: 0.7', async () => {
         sender:                0xF2F83Eb89C48abd7aD93bA42C3ce904895337cea
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
+      Details: The contract function "mint" returned no data ("0x").
       Version: viem@x.y.z]
     `)
   })
@@ -967,6 +1000,8 @@ describe('entryPointVersion: 0.7', async () => {
         sender:                0xF2F83Eb89C48abd7aD93bA42C3ce904895337cea
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
+      Details: The contract function "revertWrite" reverted with the following reason:
+      This is a revert message
       Version: viem@x.y.z]
     `)
   })
@@ -1008,6 +1043,8 @@ describe('entryPointVersion: 0.7', async () => {
         sender:                0xF2F83Eb89C48abd7aD93bA42C3ce904895337cea
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
+      Details: The contract function "assertWrite" reverted with the following reason:
+      An \`assert\` condition failed.
       Version: viem@x.y.z]
     `)
   })
@@ -1049,6 +1086,8 @@ describe('entryPointVersion: 0.7', async () => {
         sender:                0xF2F83Eb89C48abd7aD93bA42C3ce904895337cea
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
+      Details: The contract function "overflowWrite" reverted with the following reason:
+      Arithmetic operation resulted in underflow or overflow.
       Version: viem@x.y.z]
     `)
   })
@@ -1090,6 +1129,8 @@ describe('entryPointVersion: 0.7', async () => {
         sender:                0xF2F83Eb89C48abd7aD93bA42C3ce904895337cea
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
+      Details: The contract function "divideByZeroWrite" reverted with the following reason:
+      Division or modulo by zero (e.g. \`5 / 0\` or \`23 % 0\`).
       Version: viem@x.y.z]
     `)
   })
@@ -1133,6 +1174,7 @@ describe('entryPointVersion: 0.7', async () => {
         sender:                0xF2F83Eb89C48abd7aD93bA42C3ce904895337cea
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
+      Details: The contract function "simpleCustomWrite" reverted.
       Version: viem@x.y.z]
     `)
   })
@@ -1176,6 +1218,7 @@ describe('entryPointVersion: 0.7', async () => {
         sender:                0xF2F83Eb89C48abd7aD93bA42C3ce904895337cea
         signature:             0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c
 
+      Details: The contract function "complexCustomWrite" reverted.
       Version: viem@x.y.z]
     `)
   })

@@ -35,8 +35,8 @@ test('BaseError (w/ docsPath)', () => {
   ).toMatchInlineSnapshot(`
     [BaseError: An error occurred.
 
-    Docs: https://viem.sh/lol
     Details: details
+    See: https://viem.sh/lol
     Version: viem@x.y.z]
   `)
   expect(
@@ -46,7 +46,8 @@ test('BaseError (w/ docsPath)', () => {
   ).toMatchInlineSnapshot(`
     [BaseError: An error occurred.
 
-    Docs: https://viem.sh/docs
+    Details: error
+    See: https://oxlib.sh/docs
     Version: viem@x.y.z]
   `)
   expect(
@@ -57,7 +58,8 @@ test('BaseError (w/ docsPath)', () => {
   ).toMatchInlineSnapshot(`
     [BaseError: An error occurred.
 
-    Docs: https://viem.sh/lol
+    Details: error
+    See: https://viem.sh/lol
     Version: viem@x.y.z]
   `)
   expect(
@@ -68,8 +70,8 @@ test('BaseError (w/ docsPath)', () => {
   ).toMatchInlineSnapshot(`
     [BaseError: An error occurred.
 
-    Docs: https://viem.sh/lol
     Details: details
+    See: https://viem.sh/lol
     Version: viem@x.y.z]
   `)
 })
@@ -84,8 +86,8 @@ test('BaseError (w/ docsBaseUrl)', () => {
   ).toMatchInlineSnapshot(`
     [BaseError: An error occurred.
 
-    Docs: https://test/lol
     Details: details
+    See: https://test/lol
     Version: viem@x.y.z]
   `)
 })
@@ -119,8 +121,8 @@ test('inherited BaseError', () => {
   ).toMatchInlineSnapshot(`
     [BaseError: An internal error occurred.
 
-    Docs: https://viem.sh/lol
     Details: details
+    See: https://oxlib.sh/lol
     Version: viem@x.y.z]
   `)
 })
@@ -135,8 +137,8 @@ test('inherited Error', () => {
   ).toMatchInlineSnapshot(`
     [BaseError: An internal error occurred.
 
-    Docs: https://viem.sh/lol
     Details: details
+    See: https://viem.sh/lol
     Version: viem@x.y.z]
   `)
 })
@@ -165,6 +167,7 @@ test('walk: predicate fn', () => {
   expect(err.walk((err) => err instanceof FooError)).toMatchInlineSnapshot(`
     [BaseError: test2
 
+    Details: test3
     Version: viem@x.y.z]
   `)
 })
@@ -214,7 +217,7 @@ test('setErrorConfig', () => {
   expect(new FooError()).toMatchInlineSnapshot(`
     [FooError: An error occurred
 
-    Docs: https://sweetlib.com/xyz
+    See: https://sweetlib.com/xyz
     Version: sweetlib@1.2.3]
   `)
 })

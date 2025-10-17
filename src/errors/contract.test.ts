@@ -24,6 +24,7 @@ describe('CallExecutionError', () => {
       Raw Call Arguments:
         from:  0xd8da6bf26964af9d7eed9e03e53415d37aa96045
 
+      Details: error
       Version: viem@x.y.z]
     `)
   })
@@ -49,6 +50,7 @@ describe('CallExecutionError', () => {
         gas:    420
         nonce:  69
 
+      Details: error
       Version: viem@x.y.z]
     `)
   })
@@ -76,6 +78,7 @@ describe('CallExecutionError', () => {
         maxPriorityFeePerGas:  0.000000069 gwei
         nonce:                 69
 
+      Details: error
       Version: viem@x.y.z]
     `)
   })
@@ -101,6 +104,7 @@ describe('CallExecutionError', () => {
         gasPrice:  0.00000042 gwei
         nonce:     69
 
+      Details: error
       Version: viem@x.y.z]
     `)
   })
@@ -127,6 +131,7 @@ describe('CallExecutionError', () => {
         gas:    420
         nonce:  69
 
+      Details: error
       Version: viem@x.y.z]
     `)
   })
@@ -158,6 +163,7 @@ describe('CallExecutionError', () => {
         gas:    420
         nonce:  69
 
+      Details: error
       Version: viem@x.y.z]
     `)
   })
@@ -176,6 +182,7 @@ describe('ContractFunctionExecutionError', () => {
       Contract Call:
         function:  totalSupply()
 
+      Details: Internal error.
       Version: viem@x.y.z]
     `)
   })
@@ -194,6 +201,7 @@ describe('ContractFunctionExecutionError', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  totalSupply()
 
+      Details: Internal error.
       Version: viem@x.y.z]
     `)
   })
@@ -214,6 +222,7 @@ describe('ContractFunctionExecutionError', () => {
         function:  mintApe(uint256 numberOfTokens)
         args:             (1)
 
+      Details: Internal error.
       Version: viem@x.y.z]
     `)
   })
@@ -235,7 +244,8 @@ describe('ContractFunctionExecutionError', () => {
         function:  mintApe(uint256 numberOfTokens)
         args:             (1)
 
-      Docs: https://viem.sh/docs
+      Details: Internal error.
+      See: https://viem.sh/docs
       Version: viem@x.y.z]
     `)
   })
@@ -258,6 +268,7 @@ describe('ContractFunctionExecutionError', () => {
         args:             (1)
         sender:    0x0000000000000000000000000000000000000000
 
+      Details: Internal error.
       Version: viem@x.y.z]
     `)
   })
@@ -282,6 +293,7 @@ describe('ContractFunctionExecutionError', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  totalSupply()
 
+      Details: Internal error.
       Version: viem@x.y.z]
     `)
   })
@@ -296,6 +308,9 @@ describe('ContractFunctionExecutionError', () => {
       [ContractFunctionExecutionError: An unknown error occurred while executing the contract function "foo".
 
 
+      Details: An error occurred.
+
+      Version: viem@x.y.z
       Version: viem@x.y.z]
     `)
   })
@@ -310,6 +325,7 @@ describe('ContractFunctionExecutionError', () => {
       [ContractFunctionExecutionError: Internal error.
 
 
+      Details: Internal error.
       Version: viem@x.y.z]
     `)
   })
@@ -421,7 +437,10 @@ describe('ContractFunctionRevertedError', () => {
       Make sure you are using the correct ABI and that the error exists on it.
       You can look up the decoded signature here: https://openchain.xyz/signatures?query=0xdb731cfa.
 
-      Docs: https://viem.sh/docs/contract/decodeErrorResult
+      Details: Encoded error signature "0xdb731cfa" not found on ABI.
+      Make sure you are using the correct ABI and that the error exists on it.
+      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0xdb731cfa.
+      See: https://oxlib.sh/docs/contract/decodeErrorResult
       Version: viem@x.y.z]
     `)
 

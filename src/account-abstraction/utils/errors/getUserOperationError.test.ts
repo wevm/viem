@@ -36,6 +36,7 @@ test('default', () => {
       signature:             0xdeadbeef
       verificationGasLimit:  1
 
+    Details: Unknown error
     Version: viem@x.y.z]
   `)
 })
@@ -93,6 +94,8 @@ test('contract error (via error.message)', () => {
       signature:             0xdeadbeef
       verificationGasLimit:  1
 
+    Details: The contract function "mint" reverted with the following reason:
+    Token ID is taken
     Version: viem@x.y.z]
   `)
 })
@@ -149,6 +152,8 @@ test('contract error (via error.data)', () => {
       signature:             0xdeadbeef
       verificationGasLimit:  1
 
+    Details: The contract function "mint" reverted with the following reason:
+    Token ID is taken
     Version: viem@x.y.z]
   `)
 })
@@ -208,6 +213,8 @@ test('contract error (via error.data.revertData)', () => {
       signature:             0xdeadbeef
       verificationGasLimit:  1
 
+    Details: The contract function "mint" reverted with the following reason:
+    Token ID is taken
     Version: viem@x.y.z]
   `)
 })
@@ -268,6 +275,7 @@ test('contract error (via error.data)', () => {
       signature:             0xdeadbeef
       verificationGasLimit:  1
 
+    Details: The contract function "mint" returned no data ("0x").
     Version: viem@x.y.z]
   `)
 })
@@ -326,6 +334,8 @@ test('contract error (multiple calls)', () => {
       signature:             0xdeadbeef
       verificationGasLimit:  1
 
+    Details: The contract function "mint | approve" reverted with the following reason:
+    Token ID is taken
     Version: viem@x.y.z]
   `)
 })
@@ -389,6 +399,7 @@ test('contract error (multiple calls)', () => {
       signature:             0xdeadbeef
       verificationGasLimit:  1
 
+    Details: The contract function "simpleCustomWrite" reverted.
     Version: viem@x.y.z]
   `)
 })
@@ -451,7 +462,10 @@ test('contract error (multiple calls - unknown error)', () => {
       signature:             0xdeadbeef
       verificationGasLimit:  1
 
-    Docs: https://viem.sh/docs/contract/decodeErrorResult
+    Details: Encoded error signature "0xdeadbeef" not found on ABI.
+    Make sure you are using the correct ABI and that the error exists on it.
+    You can look up the decoded signature here: https://openchain.xyz/signatures?query=0xdeadbeef.
+    See: https://oxlib.sh/docs/contract/decodeErrorResult
     Version: viem@x.y.z]
   `)
 })

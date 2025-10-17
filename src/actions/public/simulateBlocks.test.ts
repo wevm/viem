@@ -261,6 +261,8 @@ test('behavior: contract function does not exist', async () => {
       address:   0x0000000000000000000000000000000000000000
       function:  mint()
 
+    Details: The contract function "mint" reverted with the following reason:
+    execution failed
     Version: viem@x.y.z],
         "gasUsed": 28585n,
         "logs": [],
@@ -301,6 +303,8 @@ test('behavior: contract function does not exist', async () => {
     Contract Call:
       address:  0x0000000000000000000000000000000000000000
 
+    Details: The contract function "<unknown>" reverted with the following reason:
+    execution failed
     Version: viem@x.y.z],
         "gasUsed": 21277n,
         "logs": [],
@@ -345,6 +349,8 @@ test('behavior: contract revert', async () => {
       function:  mint(uint256 tokenId)
       args:          (1)
 
+    Details: The contract function "mint" reverted with the following reason:
+    execution failed
     Version: viem@x.y.z],
         "gasUsed": 23813n,
         "logs": [],

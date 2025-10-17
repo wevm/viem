@@ -84,10 +84,10 @@ test('errors: no account provided', async () => {
         '0x5b08ec4c7ebb02c07a3f08bc5677aec87c47200f685f6389969a3c084bee13dc',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [AccountNotFoundError: Could not find an Account to execute with this Action.
-      Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
+    [AccountNotFoundError: Could not find an Account to execute with this Action.
+    Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
 
-      Docs: https://viem.sh/docs/actions/wallet/sendTransaction
-      Version: viem@x.y.z]
+    See: https://viem.sh/docs/actions/wallet/sendTransaction
+    Version: viem@x.y.z]
   `)
 })

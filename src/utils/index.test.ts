@@ -5,6 +5,8 @@ import * as utils from './index.js'
 test('exports utils', () => {
   expect(Object.keys(utils)).toMatchInlineSnapshot(`
     [
+      "Address",
+      "ContractAddress",
       "parseAbi",
       "parseAbiItem",
       "parseAbiParameter",

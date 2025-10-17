@@ -188,7 +188,8 @@ test('error: portal contract non-existent (old block)', async () => {
       address:   0x0000000000000000000000000000000000000000
       function:  version()
 
-    Docs: https://viem.sh/docs/contract/readContract
+    Details: The contract function "version" returned no data ("0x").
+    See: https://viem.sh/docs/contract/readContract
     Version: viem@x.y.z]
   `)
 })

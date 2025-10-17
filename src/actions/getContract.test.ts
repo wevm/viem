@@ -261,7 +261,8 @@ test('js reserved keywords/prototype methods as abi item names', async () => {
       address:   0x0000000000000000000000000000000000000000
       function:  constructor()
 
-    Docs: https://viem.sh/docs/contract/readContract
+    Details: The contract function "constructor" reverted.
+    See: https://viem.sh/docs/contract/readContract
     Version: viem@x.y.z]
   `)
   await expect(
@@ -274,7 +275,8 @@ test('js reserved keywords/prototype methods as abi item names', async () => {
       function:  function(string function)
       args:              (function)
 
-    Docs: https://viem.sh/docs/contract/readContract
+    Details: The contract function "function" reverted.
+    See: https://viem.sh/docs/contract/readContract
     Version: viem@x.y.z]
   `)
 })

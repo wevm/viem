@@ -53,7 +53,7 @@ test('InvalidAbiDecodingTypeError', () => {
     [InvalidAbiDecodingType: Type "lol" is not a valid decoding type.
     Please provide a valid ABI type.
 
-    Docs: https://viem.sh/lol
+    See: https://viem.sh/lol
     Version: viem@x.y.z]
   `)
 })
@@ -95,7 +95,7 @@ test('AbiEventSignatureEmptyTopicsError', () => {
   ).toMatchInlineSnapshot(`
     [AbiEventSignatureEmptyTopicsError: Cannot extract event signature from empty topics.
 
-    Docs: https://viem.sh/test
+    See: https://viem.sh/test
     Version: viem@x.y.z]
   `)
 })
@@ -207,7 +207,7 @@ test('InvalidAbiEncodingTypeError', () => {
     [InvalidAbiEncodingType: Type "lol" is not a valid encoding type.
     Please provide a valid ABI type.
 
-    Docs: https://viem.sh/lol
+    See: https://viem.sh/lol
     Version: viem@x.y.z]
   `)
 })

@@ -577,7 +577,7 @@ describe('entryPointVersion: 0.7', async () => {
         callGasLimit:                   80000
         maxFeePerGas:                   15 gwei
         maxPriorityFeePerGas:           2 gwei
-        nonce:                          30902162761095135455113551806464
+        nonce:                          30902162761113582199187261358080
         paymasterPostOpGasLimit:        0
         paymasterVerificationGasLimit:  0
         preVerificationGas:             48527

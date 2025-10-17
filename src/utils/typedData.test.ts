@@ -475,7 +475,7 @@ describe('validateTypedData', () => {
 
       Check that the primary type is a key in \`types\`.
 
-      Docs: https://viem.sh/api/glossary/Errors#typeddatainvalidprimarytypeerror
+      See: https://viem.sh/api/glossary/Errors
       Version: viem@x.y.z]
     `)
   })

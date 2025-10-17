@@ -123,7 +123,8 @@ test('error: default', async () => {
       address:   0x0000000000000000000000000000000000000000
       function:  eip712Domain()
 
-    Docs: https://viem.sh/docs/contract/readContract
+    Details: Address "0x00000000000000000000000000000000000000000" is invalid.
+    See: https://viem.sh/docs/contract/readContract
     Version: viem@x.y.z]
   `,
   )

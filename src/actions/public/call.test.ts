@@ -305,6 +305,7 @@ describe('errors', () => {
         data:          0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
         maxFeePerGas:  115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei
 
+      Details: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
       Version: viem@x.y.z]
     `)
   })
@@ -456,6 +457,7 @@ describe('errors', () => {
         maxFeePerGas:          20 gwei
         maxPriorityFeePerGas:  22 gwei
 
+      Details: The provided tip (\`maxPriorityFeePerGas\` = 22 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 20 gwei).
       Version: viem@x.y.z]
     `)
   })
@@ -535,6 +537,7 @@ describe('errors', () => {
               stateDiff:
                 0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
 
+        Details: Address "0x1" is invalid.
         Version: viem@x.y.z]
       `)
     })
@@ -580,6 +583,7 @@ describe('errors', () => {
               stateDiff:
                 0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
 
+        Details: State for account "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2" is set multiple times.
         Version: viem@x.y.z]
       `)
     })
@@ -622,6 +626,7 @@ describe('errors', () => {
               stateDiff:
                 0x00000000000000000000000000000000000000000000000000000000000001a4: 0x00000000000000000000000000000000000000000000000000000000000001a4
 
+        Details: state and stateDiff are set on the same account.
         Version: viem@x.y.z]
       `)
     })

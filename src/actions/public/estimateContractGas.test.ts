@@ -72,7 +72,9 @@ describe('wagmi', () => {
         args:             (0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC, 420)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Docs: https://viem.sh/docs/contract/estimateContractGas
+      Details: The contract function "approve" reverted with the following reason:
+      ERC721: approval to current owner
+      See: https://viem.sh/docs/contract/estimateContractGas
       Version: viem@x.y.z]
     `)
     await expect(() =>
@@ -92,7 +94,9 @@ describe('wagmi', () => {
         args:          (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Docs: https://viem.sh/docs/contract/estimateContractGas
+      Details: The contract function "mint" reverted with the following reason:
+      Token ID is taken
+      See: https://viem.sh/docs/contract/estimateContractGas
       Version: viem@x.y.z]
     `)
     await expect(() =>
@@ -116,7 +120,9 @@ describe('wagmi', () => {
         args:                      (0x1a1E021A302C237453D3D45c7B82B19cEEB7E2e6, 0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC, 1)
         sender:    0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
 
-      Docs: https://viem.sh/docs/contract/estimateContractGas
+      Details: The contract function "safeTransferFrom" reverted with the following reason:
+      ERC721: transfer caller is not owner nor approved
+      See: https://viem.sh/docs/contract/estimateContractGas
       Version: viem@x.y.z]
     `)
   })
@@ -218,7 +224,9 @@ describe('BAYC', () => {
           args:             (1)
           sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-        Docs: https://viem.sh/docs/contract/estimateContractGas
+        Details: The contract function "mintApe" reverted with the following reason:
+        Sale must be active to mint Ape
+        See: https://viem.sh/docs/contract/estimateContractGas
         Version: viem@x.y.z]
       `)
     })
@@ -258,7 +266,9 @@ describe('contract errors', () => {
         function:  revertWrite()
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Docs: https://viem.sh/docs/contract/estimateContractGas
+      Details: The contract function "revertWrite" reverted with the following reason:
+      This is a revert message
+      See: https://viem.sh/docs/contract/estimateContractGas
       Version: viem@x.y.z]
     `)
   })
@@ -282,7 +292,9 @@ describe('contract errors', () => {
         function:  assertWrite()
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Docs: https://viem.sh/docs/contract/estimateContractGas
+      Details: The contract function "assertWrite" reverted with the following reason:
+      An \`assert\` condition failed.
+      See: https://viem.sh/docs/contract/estimateContractGas
       Version: viem@x.y.z]
     `)
   })
@@ -306,7 +318,9 @@ describe('contract errors', () => {
         function:  overflowWrite()
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Docs: https://viem.sh/docs/contract/estimateContractGas
+      Details: The contract function "overflowWrite" reverted with the following reason:
+      Arithmetic operation resulted in underflow or overflow.
+      See: https://viem.sh/docs/contract/estimateContractGas
       Version: viem@x.y.z]
     `)
   })
@@ -330,7 +344,9 @@ describe('contract errors', () => {
         function:  divideByZeroWrite()
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Docs: https://viem.sh/docs/contract/estimateContractGas
+      Details: The contract function "divideByZeroWrite" reverted with the following reason:
+      Division or modulo by zero (e.g. \`5 / 0\` or \`23 % 0\`).
+      See: https://viem.sh/docs/contract/estimateContractGas
       Version: viem@x.y.z]
     `)
   })
@@ -353,7 +369,8 @@ describe('contract errors', () => {
         function:  requireWrite()
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Docs: https://viem.sh/docs/contract/estimateContractGas
+      Details: The contract function "requireWrite" reverted.
+      See: https://viem.sh/docs/contract/estimateContractGas
       Version: viem@x.y.z]
     `)
   })
@@ -379,7 +396,8 @@ describe('contract errors', () => {
         function:  simpleCustomWrite()
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Docs: https://viem.sh/docs/contract/estimateContractGas
+      Details: The contract function "simpleCustomWrite" reverted.
+      See: https://viem.sh/docs/contract/estimateContractGas
       Version: viem@x.y.z]
     `)
   })
@@ -405,7 +423,8 @@ describe('contract errors', () => {
         function:  complexCustomWrite()
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-      Docs: https://viem.sh/docs/contract/estimateContractGas
+      Details: The contract function "complexCustomWrite" reverted.
+      See: https://viem.sh/docs/contract/estimateContractGas
       Version: viem@x.y.z]
     `)
   })

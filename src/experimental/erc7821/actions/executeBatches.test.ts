@@ -261,6 +261,7 @@ test('behavior: revert', async () => {
       address:   0x0000000000000000000000000000000000000000
       function:  complexCustomWrite()
 
+    Details: The contract function "complexCustomWrite" reverted.
     Version: viem@x.y.z]
   `)
 })

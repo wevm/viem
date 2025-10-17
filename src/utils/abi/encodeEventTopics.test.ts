@@ -446,7 +446,7 @@ test("errors: event doesn't exist", () => {
     [AbiEventNotFoundError: Event "Bar" not found on ABI.
     Make sure you are using the correct ABI and that the event exists on it.
 
-    Docs: https://viem.sh/docs/contract/encodeEventTopics
+    See: https://viem.sh/docs/contract/encodeEventTopics
     Version: viem@x.y.z]
   `)
 })
@@ -475,7 +475,7 @@ test('errors: abi item not an event', () => {
     [AbiEventNotFoundError: Event not found on ABI.
     Make sure you are using the correct ABI and that the event exists on it.
 
-    Docs: https://viem.sh/docs/contract/encodeEventTopics
+    See: https://viem.sh/docs/contract/encodeEventTopics
     Version: viem@x.y.z]
   `)
 })

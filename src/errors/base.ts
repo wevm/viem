@@ -1,3 +1,4 @@
+import * as ox_BaseError from 'ox/Errors'
 import { version } from './version.js'
 
 type ErrorConfig = {
@@ -34,65 +35,38 @@ type BaseErrorParameters = {
 }
 
 export type BaseErrorType = BaseError & { name: 'BaseError' }
-export class BaseError extends Error {
-  details: string
-  docsPath?: string | undefined
+export class BaseError extends ox_BaseError.BaseError<Error> {
   metaMessages?: string[] | undefined
-  shortMessage: string
-  version: string
-
-  override name = 'BaseError'
 
   constructor(shortMessage: string, args: BaseErrorParameters = {}) {
-    const details = (() => {
-      if (args.cause instanceof BaseError) return args.cause.details
-      if (args.cause?.message) return args.cause.message
-      return args.details!
-    })()
-    const docsPath = (() => {
-      if (args.cause instanceof BaseError)
-        return args.cause.docsPath || args.docsPath
-      return args.docsPath
-    })()
-    const docsUrl = errorConfig.getDocsUrl?.({ ...args, docsPath })
+    const {
+      cause,
+      details,
+      docsBaseUrl,
+      docsPath,
+      docsSlug,
+      metaMessages,
+      name,
+    } = args
 
-    const message = [
-      shortMessage || 'An error occurred.',
-      '',
-      ...(args.metaMessages ? [...args.metaMessages, ''] : []),
-      ...(docsUrl ? [`Docs: ${docsUrl}`] : []),
-      ...(details ? [`Details: ${details}`] : []),
-      ...(errorConfig.version ? [`Version: ${errorConfig.version}`] : []),
-    ].join('\n')
+    const docsUrl = errorConfig.getDocsUrl?.({
+      docsBaseUrl,
+      docsPath,
+      docsSlug,
+      name,
+    })
+    const url = docsUrl ? new URL(docsUrl, docsBaseUrl) : undefined
 
-    super(message, args.cause ? { cause: args.cause } : undefined)
+    super(shortMessage, {
+      cause,
+      details,
+      docsPath: url?.pathname,
+      docsOrigin: url?.origin,
+      metaMessages,
+      version: errorConfig.version,
+    })
 
-    this.details = details
-    this.docsPath = docsPath
-    this.metaMessages = args.metaMessages
-    this.name = args.name ?? this.name
-    this.shortMessage = shortMessage
-    this.version = version
+    this.metaMessages = metaMessages
+    this.name = name ?? this.name
   }
-
-  walk(): Error
-  walk(fn: (err: unknown) => boolean): Error | null
-  walk(fn?: any): any {
-    return walk(this, fn)
-  }
-}
-
-function walk(
-  err: unknown,
-  fn?: ((err: unknown) => boolean) | undefined,
-): unknown {
-  if (fn?.(err)) return err
-  if (
-    err &&
-    typeof err === 'object' &&
-    'cause' in err &&
-    err.cause !== undefined
-  )
-    return walk(err.cause, fn)
-  return fn ? null : err
 }

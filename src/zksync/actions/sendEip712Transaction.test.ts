@@ -45,7 +45,7 @@ test('errors: no account', async () => {
     [AccountNotFoundError: Could not find an Account to execute with this Action.
     Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
 
-    Docs: https://viem.sh/docs/actions/wallet/sendTransaction
+    See: https://viem.sh/docs/actions/wallet/sendTransaction
     Version: viem@x.y.z]
   `)
 })
@@ -66,6 +66,11 @@ test('errors: invalid eip712 tx', async () => {
       chain:  ZKsync Era (Local) (id: 324)
       from:   0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
+    Details: Transaction is not an EIP712 transaction.
+
+    Transaction must:
+      - include \`type: "eip712"\`
+      - include one of the following: \`customSignature\`, \`paymaster\`, \`paymasterInput\`, \`gasPerPubdata\`, \`factoryDeps\`
     Version: viem@x.y.z]
   `)
 })

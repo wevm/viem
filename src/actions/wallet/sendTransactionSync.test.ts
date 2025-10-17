@@ -287,6 +287,7 @@ test('client chain mismatch', async () => {
       to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
       value:  1 ETH
 
+    Details: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 42220 – Celo).
     Version: viem@x.y.z]
   `)
 })
@@ -323,6 +324,8 @@ test('no chain', async () => {
       to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
       value:  1 ETH
 
+    Details: No chain was provided to the request.
+    Please provide a chain with the \`chain\` argument on the Action, or by supplying a \`chain\` to WalletClient.
     Version: viem@x.y.z]
   `)
 })
@@ -734,6 +737,7 @@ describe('args: chain', async () => {
         to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
         value:  1 ETH
 
+      Details: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
       Version: viem@x.y.z]
     `)
   })
@@ -788,6 +792,8 @@ describe('args: chain', async () => {
         to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
         value:  0 ETH
 
+      Details: Missing or invalid parameters.
+      Double check you have provided the correct parameters.
       Version: viem@x.y.z]
     `)
   })
@@ -1514,7 +1520,7 @@ describe('smart account', async () => {
 
       Consider using the \`sendUserOperation\` Action instead.
 
-      Docs: https://viem.sh/docs/actions/bundler/sendUserOperation
+      See: https://viem.sh/docs/actions/bundler/sendUserOperation
       Version: viem@x.y.z]
     `)
   })
@@ -1533,7 +1539,7 @@ describe('errors', () => {
       [AccountNotFoundError: Could not find an Account to execute with this Action.
       Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
 
-      Docs: https://viem.sh/docs/actions/wallet/sendTransactionSync
+      See: https://viem.sh/docs/actions/wallet/sendTransactionSync
       Version: viem@x.y.z]
     `)
   })
@@ -1557,6 +1563,7 @@ describe('errors', () => {
         value:         1 ETH
         maxFeePerGas:  115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei
 
+      Details: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
       Version: viem@x.y.z]
     `)
   })
@@ -1709,6 +1716,7 @@ describe('errors', () => {
         maxFeePerGas:          10 gwei
         maxPriorityFeePerGas:  11 gwei
 
+      Details: The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
       Version: viem@x.y.z]
     `,
     )
@@ -1733,6 +1741,7 @@ describe('errors', () => {
       Request Arguments:
         from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: \`to\` is required. Could not infer from \`authorizationList\`.
       Version: viem@x.y.z]
     `,
     )
@@ -1752,7 +1761,7 @@ describe('errors', () => {
       `
       [AccountTypeNotSupportedError: Account type "foo" is not supported.
 
-      Docs: https://viem.sh/docs/actions/wallet/sendTransactionSync
+      See: https://viem.sh/docs/actions/wallet/sendTransactionSync
       Version: viem@x.y.z]
     `,
     )

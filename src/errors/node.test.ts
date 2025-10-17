@@ -27,6 +27,7 @@ test('FeeCapTooHighError', () => {
   expect(error).toMatchInlineSnapshot(`
     [FeeCapTooHighError: The fee cap (\`maxFeePerGas\` = 420124124012041204024020140124120401281273891237128937128937128737912371283791 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 
@@ -34,6 +35,7 @@ test('FeeCapTooHighError', () => {
   expect(error).toMatchInlineSnapshot(`
     [FeeCapTooHighError: The fee cap (\`maxFeePerGas\`) cannot be higher than the maximum allowed value (2^256-1).
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 })
@@ -46,6 +48,7 @@ test('FeeCapTooLowError', () => {
   expect(error).toMatchInlineSnapshot(`
     [FeeCapTooLowError: The fee cap (\`maxFeePerGas\` = 1 gwei) cannot be lower than the block base fee.
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 
@@ -53,6 +56,7 @@ test('FeeCapTooLowError', () => {
   expect(error).toMatchInlineSnapshot(`
     [FeeCapTooLowError: The fee cap (\`maxFeePerGas\` gwei) cannot be lower than the block base fee.
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 })
@@ -65,6 +69,7 @@ test('NonceTooHighError', () => {
   expect(error).toMatchInlineSnapshot(`
     [NonceTooHighError: Nonce provided for the transaction (1) is higher than the next one expected.
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 
@@ -72,6 +77,7 @@ test('NonceTooHighError', () => {
   expect(error).toMatchInlineSnapshot(`
     [NonceTooHighError: Nonce provided for the transaction is higher than the next one expected.
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 })
@@ -85,6 +91,7 @@ test('NonceTooLowError', () => {
     [NonceTooLowError: Nonce provided for the transaction (1) is lower than the current nonce of the account.
     Try increasing the nonce or find the latest nonce with \`getTransactionCount\`.
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 
@@ -93,6 +100,7 @@ test('NonceTooLowError', () => {
     [NonceTooLowError: Nonce provided for the transaction is lower than the current nonce of the account.
     Try increasing the nonce or find the latest nonce with \`getTransactionCount\`.
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 })
@@ -105,6 +113,7 @@ test('NonceMaxValueError', () => {
   expect(error).toMatchInlineSnapshot(`
     [NonceMaxValueError: Nonce provided for the transaction (69420) exceeds the maximum allowed nonce.
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 })
@@ -123,6 +132,7 @@ test('InsufficientFundsError', () => {
      - \`gas fee\` is the gas fee,
      - \`value\` is the amount of ether to send to the recipient.
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 })
@@ -135,6 +145,7 @@ test('NonceMaxValueError', () => {
   expect(error).toMatchInlineSnapshot(`
     [NonceMaxValueError: Nonce provided for the transaction (69420) exceeds the maximum allowed nonce.
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 
@@ -142,6 +153,7 @@ test('NonceMaxValueError', () => {
   expect(error).toMatchInlineSnapshot(`
     [NonceMaxValueError: Nonce provided for the transaction exceeds the maximum allowed nonce.
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 })
@@ -154,6 +166,7 @@ test('IntrinsicGasTooHighError', () => {
   expect(error).toMatchInlineSnapshot(`
     [IntrinsicGasTooHighError: The amount of gas (694242424) provided for the transaction exceeds the limit allowed for the block.
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 
@@ -161,6 +174,7 @@ test('IntrinsicGasTooHighError', () => {
   expect(error).toMatchInlineSnapshot(`
     [IntrinsicGasTooHighError: The amount of gas provided for the transaction exceeds the limit allowed for the block.
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 })
@@ -173,6 +187,7 @@ test('IntrinsicGasTooLowError', () => {
   expect(error).toMatchInlineSnapshot(`
     [IntrinsicGasTooLowError: The amount of gas (1) provided for the transaction is too low.
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 
@@ -180,6 +195,7 @@ test('IntrinsicGasTooLowError', () => {
   expect(error).toMatchInlineSnapshot(`
     [IntrinsicGasTooLowError: The amount of gas provided for the transaction is too low.
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 })
@@ -191,6 +207,7 @@ test('TransactionTypeNotSupportedError', () => {
   expect(error).toMatchInlineSnapshot(`
     [TransactionTypeNotSupportedError: The transaction type is not supported for this chain.
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 })
@@ -204,6 +221,7 @@ test('TipAboveFeeCapError', () => {
   expect(error).toMatchInlineSnapshot(`
     [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 70 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 69 gwei).
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 
@@ -211,6 +229,7 @@ test('TipAboveFeeCapError', () => {
   expect(error).toMatchInlineSnapshot(`
     [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\`) cannot be higher than the fee cap (\`maxFeePerGas\`).
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 
@@ -221,6 +240,7 @@ test('TipAboveFeeCapError', () => {
   expect(error).toMatchInlineSnapshot(`
     [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 70 gwei) cannot be higher than the fee cap (\`maxFeePerGas\`).
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 
@@ -231,6 +251,7 @@ test('TipAboveFeeCapError', () => {
   expect(error).toMatchInlineSnapshot(`
     [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\`) cannot be higher than the fee cap (\`maxFeePerGas\` = 70 gwei).
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 })
@@ -240,6 +261,7 @@ test('UnknownNodeError', () => {
   expect(error).toMatchInlineSnapshot(`
     [UnknownNodeError: An error occurred while executing: foo
 
+    Details: foo
     Version: viem@x.y.z]
   `)
 })

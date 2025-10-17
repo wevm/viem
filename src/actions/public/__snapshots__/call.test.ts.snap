@@ -78,6 +78,9 @@ Raw Call Arguments:
   to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
   data:  0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
 
+Details: An error occurred.
+
+Version: viem@x.y.z
 Version: viem@x.y.z],
     "status": "rejected",
   },
@@ -185,6 +188,9 @@ Raw Call Arguments:
   to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
   data:  0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
 
+Details: An error occurred.
+
+Version: viem@x.y.z
 Version: viem@x.y.z],
     "status": "rejected",
   },

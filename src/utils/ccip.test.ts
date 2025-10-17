@@ -157,6 +157,7 @@ describe('offchainLookup', () => {
         Callback selector: 0xcafebabe
         Extra data: 0xdeadbeaf
 
+      Details: Reverted sender address does not match target contract address (\`to\`).
       Version: viem@x.y.z]
     `)
   })

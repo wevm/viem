@@ -32,6 +32,8 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: The contract function "mintApe" reverted with the following reason:
+      Sale must be active to mint Ape
       Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
@@ -67,6 +69,8 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: The contract function "mintApe" reverted with the following reason:
+      Sale must be active to mint Ape
       Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
@@ -102,6 +106,8 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: The contract function "mintApe" reverted with the following reason:
+      Sale must be active to mint Ape
       Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
@@ -136,6 +142,8 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: The contract function "mintApe" reverted with the following reason:
+      ah no
       Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
@@ -170,6 +178,8 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: The contract function "mintApe" reverted with the following reason:
+      Sale must be active to mint Ape
       Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
@@ -205,6 +215,8 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: The contract function "mintApe" reverted with the following reason:
+      ah no
       Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
@@ -240,6 +252,8 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: The contract function "mintApe" reverted with the following reason:
+      Sale must be active to mint Ape
       Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
@@ -294,6 +308,7 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: An RPC error occurred
       Version: viem@x.y.z]
     `)
     expect(error2.cause).toMatchInlineSnapshot(`
@@ -316,6 +331,9 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: An error occurred.
+
+      Version: viem@x.y.z
       Version: viem@x.y.z]
     `)
     expect(error3.cause).toMatchInlineSnapshot(`
@@ -345,6 +363,7 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: The contract function "mintApe" returned no data ("0x").
       Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`

@@ -210,6 +210,7 @@ test('error: cannot infer `to` from `authorizationList`', async () => {
       from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
       data:  0xdeadbeef
 
+    Details: \`to\` is required. Could not infer from \`authorizationList\`
     Version: viem@x.y.z]
   `)
 })
@@ -307,6 +308,7 @@ describe('local account', () => {
         value:         1 ETH
         maxFeePerGas:  33 gwei
 
+      Details: Chain does not support EIP-1559 fees.
       Version: viem@x.y.z]
     `)
   })
@@ -341,6 +343,7 @@ describe('errors', () => {
         value:         1 ETH
         maxFeePerGas:  115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei
 
+      Details: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
       Version: viem@x.y.z]
     `)
   })
@@ -365,6 +368,7 @@ describe('errors', () => {
         maxFeePerGas:          10 gwei
         maxPriorityFeePerGas:  11 gwei
 
+      Details: The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
       Version: viem@x.y.z]
     `,
     )

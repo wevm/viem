@@ -106,6 +106,7 @@ describe('TransactionExecutionError', () => {
       Request Arguments:
         from:  0xd8da6bf26964af9d7eed9e03e53415d37aa96045
 
+      Details: error
       Version: viem@x.y.z]
     `)
   })
@@ -131,6 +132,7 @@ describe('TransactionExecutionError', () => {
         gas:    420
         nonce:  69
 
+      Details: error
       Version: viem@x.y.z]
     `)
   })
@@ -158,6 +160,7 @@ describe('TransactionExecutionError', () => {
         maxPriorityFeePerGas:  0.000000069 gwei
         nonce:                 69
 
+      Details: error
       Version: viem@x.y.z]
     `)
   })
@@ -183,6 +186,7 @@ describe('TransactionExecutionError', () => {
         gasPrice:  0.00000042 gwei
         nonce:     69
 
+      Details: error
       Version: viem@x.y.z]
     `)
   })
@@ -210,6 +214,7 @@ describe('TransactionExecutionError', () => {
         gas:    420
         nonce:  69
 
+      Details: error
       Version: viem@x.y.z]
     `)
   })
@@ -242,6 +247,7 @@ describe('TransactionExecutionError', () => {
         gas:    420
         nonce:  69
 
+      Details: error
       Version: viem@x.y.z]
     `)
   })

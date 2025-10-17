@@ -243,7 +243,7 @@ test('no url', () => {
   expect(() => webSocket()({})).toThrowErrorMatchingInlineSnapshot(`
     [UrlRequiredError: No URL was provided to the Transport. Please provide a valid RPC URL to the Transport.
 
-    Docs: https://viem.sh/docs/clients/intro
+    See: https://viem.sh/docs/clients/intro
     Version: viem@x.y.z]
   `)
 })

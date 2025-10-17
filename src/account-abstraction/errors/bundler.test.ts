@@ -42,6 +42,7 @@ test('AccountNotDeployedError', () => {
     - No \`factory\`/\`factoryData\` or \`initCode\` properties are provided for Smart Account deployment.
     - An incorrect \`sender\` address is provided.
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -54,6 +55,7 @@ test('FailedToSendToBeneficiaryError', () => {
   ).toMatchInlineSnapshot(`
     [FailedToSendToBeneficiaryError: Failed to send funds to beneficiary.
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -69,6 +71,7 @@ test('GasValuesOverflowError', () => {
     This could arise when:
     - one of the gas values exceeded 2**120 (uint120)
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -81,6 +84,7 @@ test('HandleOpsOutOfGasError', () => {
   ).toMatchInlineSnapshot(`
     [HandleOpsOutOfGasError: The \`handleOps\` function was called by the Bundler with a gas limit too low.
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -209,6 +213,7 @@ test('InsufficientPrefundError', () => {
     - the Smart Account does not have sufficient funds to cover the required prefund, or
     - a Paymaster was not provided
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -221,6 +226,7 @@ test('InternalCallOnlyError', () => {
   ).toMatchInlineSnapshot(`
     [InternalCallOnlyError: Bundler attempted to call an invalid function on the EntryPoint.
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -236,6 +242,7 @@ test('InvalidAccountNonceError', () => {
 
     nonce: 69
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -248,6 +255,7 @@ test('InvalidAggregatorError', () => {
   ).toMatchInlineSnapshot(`
     [InvalidAggregatorError: Bundler used an invalid aggregator for handling aggregated User Operations.
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -260,6 +268,7 @@ test('InvalidBeneficiaryError', () => {
   ).toMatchInlineSnapshot(`
     [InvalidBeneficiaryError: Bundler has not set a beneficiary address.
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -276,6 +285,7 @@ test('InvalidPaymasterAndDataError', () => {
     - the \`paymasterAndData\` property is of an incorrect length
 
 
+    Details: test
     Version: viem@x.y.z]
   `)
 
@@ -292,6 +302,7 @@ test('InvalidPaymasterAndDataError', () => {
 
     paymasterAndData: 0x0000000000000000000000000000000000000000deadbeef
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -307,6 +318,7 @@ test('PaymasterDepositTooLowError', () => {
     This could arise when:
     - the Paymaster has deposited less than the expected amount via the \`deposit\` function
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -319,6 +331,7 @@ test('PaymasterFunctionRevertedError', () => {
   ).toMatchInlineSnapshot(`
     [PaymasterFunctionRevertedError: The \`validatePaymasterUserOp\` function on the Paymaster reverted.
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -331,6 +344,7 @@ test('PaymasterNotDeployedError', () => {
   ).toMatchInlineSnapshot(`
     [PaymasterNotDeployedError: The Paymaster contract has not been deployed.
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -343,6 +357,7 @@ test('PaymasterPostOpFunctionRevertedError', () => {
   ).toMatchInlineSnapshot(`
     [PaymasterPostOpFunctionRevertedError: Paymaster \`postOp\` function reverted.
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -385,6 +400,7 @@ test('SmartAccountFunctionRevertedError', () => {
   ).toMatchInlineSnapshot(`
     [SmartAccountFunctionRevertedError: The \`validateUserOp\` function on the Smart Account reverted.
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -400,6 +416,7 @@ test('UserOperationExpiredError', () => {
     This could arise when:
     - the \`validAfter\` or \`validUntil\` values returned from \`validateUserOp\` on the Smart Account are not satisfied
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -415,6 +432,7 @@ test('UserOperationPaymasterExpiredError', () => {
     This could arise when:
     - the \`validAfter\` or \`validUntil\` values returned from \`validatePaymasterUserOp\` on the Paymaster are not satisfied
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -427,6 +445,7 @@ test('UserOperationRejectedByEntryPointError', () => {
   ).toMatchInlineSnapshot(`
     [UserOperationRejectedByEntryPointError: User Operation rejected by EntryPoint's \`simulateValidation\` during account creation or validation.
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -442,6 +461,7 @@ test('UserOperationSignatureError', () => {
     This could arise when:
     - the \`signature\` for the User Operation is incorrectly computed, and unable to be verified by the Smart Account
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -457,6 +477,7 @@ test('UserOperationPaymasterSignatureError', () => {
     This could arise when:
     - the \`signature\` for the User Operation is incorrectly computed, and unable to be verified by the Paymaster
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -469,6 +490,7 @@ test('UnknownBundlerError', () => {
   ).toMatchInlineSnapshot(`
     [UnknownBundlerError: An error occurred while executing user operation: test
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -484,6 +506,7 @@ test('VerificationGasLimitExceededError', () => {
     This could arise when:
     - the gas used for verification exceeded the \`verificationGasLimit\`
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })
@@ -499,6 +522,7 @@ test('VerificationGasLimitTooLowError', () => {
     This could arise when:
     - the \`verificationGasLimit\` is too low to verify the User Operation
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })

@@ -104,7 +104,8 @@ test('address with primary name that has no resolver - strict', async () => {
       function:  reverseWithGateways(bytes reverseName, uint256 coinType, string[] gateways)
       args:                         (0x00000000000061aD8EE190710508A818aE5325C3, 60, ["x-batch-gateway:true"])
 
-    Docs: https://viem.sh/docs/contract/readContract
+    Details: The contract function "reverseWithGateways" reverted.
+    See: https://viem.sh/docs/contract/readContract
     Version: viem@x.y.z]
   `)
 })
@@ -137,7 +138,8 @@ describe('primary name with resolver that does not support text()', () => {
         function:  reverseWithGateways(bytes reverseName, uint256 coinType, string[] gateways)
         args:                         (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 60, ["x-batch-gateway:true"])
 
-      Docs: https://viem.sh/docs/contract/readContract
+      Details: The contract function "reverseWithGateways" reverted.
+      See: https://viem.sh/docs/contract/readContract
       Version: viem@x.y.z]
     `)
   })
@@ -171,7 +173,8 @@ describe('primary name with non-contract resolver', () => {
         function:  reverseWithGateways(bytes reverseName, uint256 coinType, string[] gateways)
         args:                         (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 60, ["x-batch-gateway:true"])
 
-      Docs: https://viem.sh/docs/contract/readContract
+      Details: The contract function "reverseWithGateways" reverted.
+      See: https://viem.sh/docs/contract/readContract
       Version: viem@x.y.z]
     `)
   })
@@ -303,7 +306,8 @@ test('invalid universal resolver address', async () => {
       function:  reverseWithGateways(bytes reverseName, uint256 coinType, string[] gateways)
       args:                         (0xA0Cf798816D4b9b9866b5330EEa46a18382f251e, 60, ["x-batch-gateway:true"])
 
-    Docs: https://viem.sh/docs/contract/readContract
+    Details: The contract function "reverseWithGateways" reverted.
+    See: https://viem.sh/docs/contract/readContract
     Version: viem@x.y.z]
   `)
 })

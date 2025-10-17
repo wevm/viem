@@ -42,6 +42,7 @@ test('UserOperationExecutionError', () => {
       signature:             0xdeadbeef
       verificationGasLimit:  1
 
+    Details: test
     Version: viem@x.y.z]
   `)
 })

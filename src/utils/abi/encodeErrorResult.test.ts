@@ -139,7 +139,7 @@ test("errors: error doesn't exist", () => {
     [AbiErrorNotFoundError: Error "AccessDeniedError" not found on ABI.
     Make sure you are using the correct ABI and that the error exists on it.
 
-    Docs: https://viem.sh/docs/contract/encodeErrorResult
+    See: https://viem.sh/docs/contract/encodeErrorResult
     Version: viem@x.y.z]
   `)
 })
@@ -182,7 +182,7 @@ test('error: abi item not an error', () => {
     [AbiErrorNotFoundError: Error not found on ABI.
     Make sure you are using the correct ABI and that the error exists on it.
 
-    Docs: https://viem.sh/docs/contract/encodeErrorResult
+    See: https://viem.sh/docs/contract/encodeErrorResult
     Version: viem@x.y.z]
   `,
   )
@@ -212,7 +212,7 @@ test('errors: no inputs', () => {
     Cannot encode error result without knowing what the parameter types are.
     Make sure you are using the correct ABI and that the inputs exist on it.
 
-    Docs: https://viem.sh/docs/contract/encodeErrorResult
+    See: https://viem.sh/docs/contract/encodeErrorResult
     Version: viem@x.y.z]
   `)
   expect(() =>
@@ -239,7 +239,7 @@ test('errors: no inputs', () => {
     Cannot encode error result without knowing what the parameter types are.
     Make sure you are using the correct ABI and that the inputs exist on it.
 
-    Docs: https://viem.sh/docs/contract/encodeErrorResult
+    See: https://viem.sh/docs/contract/encodeErrorResult
     Version: viem@x.y.z]
   `)
 })

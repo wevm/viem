@@ -184,7 +184,9 @@ describe('bayc', () => {
         function:  tokenOfOwnerByIndex(address owner, uint256 index)
         args:                         (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 5)
 
-      Docs: https://viem.sh/docs/contract/readContract
+      Details: The contract function "tokenOfOwnerByIndex" reverted with the following reason:
+      EnumerableSet: index out of bounds
+      See: https://viem.sh/docs/contract/readContract
       Version: viem@x.y.z]
     `)
   })
@@ -205,7 +207,9 @@ describe('bayc', () => {
         function:  ownerOf(uint256 tokenId)
         args:             (420213123123)
 
-      Docs: https://viem.sh/docs/contract/readContract
+      Details: The contract function "ownerOf" reverted with the following reason:
+      ERC721: owner query for nonexistent token
+      See: https://viem.sh/docs/contract/readContract
       Version: viem@x.y.z]
     `)
   })
@@ -317,7 +321,9 @@ describe('contract errors', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  revertRead()
 
-      Docs: https://viem.sh/docs/contract/readContract
+      Details: The contract function "revertRead" reverted with the following reason:
+      This is a revert message
+      See: https://viem.sh/docs/contract/readContract
       Version: viem@x.y.z]
     `)
   })
@@ -339,7 +345,9 @@ describe('contract errors', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  assertRead()
 
-      Docs: https://viem.sh/docs/contract/readContract
+      Details: The contract function "assertRead" reverted with the following reason:
+      An \`assert\` condition failed.
+      See: https://viem.sh/docs/contract/readContract
       Version: viem@x.y.z]
     `)
   })
@@ -361,7 +369,9 @@ describe('contract errors', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  overflowRead()
 
-      Docs: https://viem.sh/docs/contract/readContract
+      Details: The contract function "overflowRead" reverted with the following reason:
+      Arithmetic operation resulted in underflow or overflow.
+      See: https://viem.sh/docs/contract/readContract
       Version: viem@x.y.z]
     `)
   })
@@ -383,7 +393,9 @@ describe('contract errors', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  divideByZeroRead()
 
-      Docs: https://viem.sh/docs/contract/readContract
+      Details: The contract function "divideByZeroRead" reverted with the following reason:
+      Division or modulo by zero (e.g. \`5 / 0\` or \`23 % 0\`).
+      See: https://viem.sh/docs/contract/readContract
       Version: viem@x.y.z]
     `)
   })
@@ -404,7 +416,8 @@ describe('contract errors', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  requireRead()
 
-      Docs: https://viem.sh/docs/contract/readContract
+      Details: The contract function "requireRead" reverted.
+      See: https://viem.sh/docs/contract/readContract
       Version: viem@x.y.z]
     `)
   })
@@ -428,7 +441,8 @@ describe('contract errors', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  simpleCustomRead()
 
-      Docs: https://viem.sh/docs/contract/readContract
+      Details: The contract function "simpleCustomRead" reverted.
+      See: https://viem.sh/docs/contract/readContract
       Version: viem@x.y.z]
     `)
   })
@@ -451,7 +465,8 @@ describe('contract errors', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  simpleCustomReadNoArgs()
 
-      Docs: https://viem.sh/docs/contract/readContract
+      Details: The contract function "simpleCustomReadNoArgs" reverted.
+      See: https://viem.sh/docs/contract/readContract
       Version: viem@x.y.z]
     `)
   })
@@ -475,7 +490,8 @@ describe('contract errors', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  complexCustomRead()
 
-      Docs: https://viem.sh/docs/contract/readContract
+      Details: The contract function "complexCustomRead" reverted.
+      See: https://viem.sh/docs/contract/readContract
       Version: viem@x.y.z]
     `)
   })
@@ -505,7 +521,10 @@ describe('contract errors', () => {
         address:   0x0000000000000000000000000000000000000000
         function:  simpleCustomRead()
 
-      Docs: https://viem.sh/docs/contract/decodeErrorResult
+      Details: Encoded error signature "0xf9006398" not found on ABI.
+      Make sure you are using the correct ABI and that the error exists on it.
+      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0xf9006398.
+      See: https://viem.sh/docs/contract/decodeErrorResult
       Version: viem@x.y.z]
     `)
   })
@@ -530,7 +549,8 @@ test('fake contract address', async () => {
       address:   0x0000000000000000000000000000000000000000
       function:  totalSupply()
 
-    Docs: https://viem.sh/docs/contract/readContract
+    Details: The contract function "totalSupply" returned no data ("0x").
+    See: https://viem.sh/docs/contract/readContract
     Version: viem@x.y.z]
   `)
 })
