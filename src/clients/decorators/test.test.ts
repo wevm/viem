@@ -1,10 +1,9 @@
 import { describe, expect, test } from 'vitest'
 
 import { accounts, address } from '~test/src/constants.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
 import { createTestClient } from '../createTestClient.js'
 import { publicActions } from './public.js'
 import { testActions } from './test.js'

@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 import { signTransaction } from '../../accounts/utils/signTransaction.js'
-import { type TransactionSerializableEIP1559, parseEther } from '../../index.js'
+import { parseEther, type TransactionSerializableEIP1559 } from '../../index.js'
 import { zksync } from '../../zksync/index.js'
 import { serializeTransaction } from '../../zksync/serializers.js'
 import type { ZksyncTransactionSerializableEIP712 } from '../types/transaction.js'

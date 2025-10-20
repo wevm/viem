@@ -1,7 +1,7 @@
 import type { ErrorType } from '../../errors/utils.js'
 import type { Block, BlockTag } from '../../types/block.js'
-import type { Chain } from '../../types/chain.js'
 import type {
+  Chain,
   ExtractChainFormatterExclude,
   ExtractChainFormatterReturnType,
 } from '../../types/chain.js'
@@ -40,7 +40,10 @@ export type FormattedBlock<
 
 export type FormatBlockErrorType = ErrorType
 
-export function formatBlock(block: ExactPartial<RpcBlock>) {
+export function formatBlock(
+  block: ExactPartial<RpcBlock>,
+  _?: string | undefined,
+) {
   const transactions = (block.transactions ?? []).map((transaction) => {
     if (typeof transaction === 'string') return transaction
     return formatTransaction(transaction)

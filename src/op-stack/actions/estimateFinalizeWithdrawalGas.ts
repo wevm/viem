@@ -129,7 +129,7 @@ export async function estimateFinalizeWithdrawalGas<
     nonce,
     // TODO: Not sure `chain` is necessary since it's not used downstream
     // in `estimateContractGas` or `estimateGas`
-    // @ts-ignore
+    // @ts-expect-error
     chain,
   } satisfies EstimateContractGasParameters
 

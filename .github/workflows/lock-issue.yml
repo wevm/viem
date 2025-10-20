@@ -8,6 +8,8 @@ jobs:
   lock-issue:
     if: ${{ github.repository_owner == 'wevm' }}
     uses: wevm/actions/.github/workflows/lock-issue.yml@main
+    permissions:
+      contents: read
     with:
       issue-comment: |
         This issue has been locked since it has been closed for more than 14 days.

@@ -28,10 +28,10 @@ import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
 import { type PadErrorType, pad } from '../data/pad.js'
 import {
   type BoolToHexErrorType,
-  type NumberToHexErrorType,
-  type StringToHexErrorType,
   boolToHex,
+  type NumberToHexErrorType,
   numberToHex,
+  type StringToHexErrorType,
   stringToHex,
 } from '../encoding/toHex.js'
 import { arrayRegex, bytesRegex, integerRegex } from '../regex.js'
@@ -107,7 +107,7 @@ function encode<const packedAbiType extends PackedAbiType | unknown>(
   const intMatch = (type as string).match(integerRegex)
   if (intMatch) {
     const [_type, baseType, bits = '256'] = intMatch
-    const size = Number.parseInt(bits) / 8
+    const size = Number.parseInt(bits, 10) / 8
     return numberToHex(value as number, {
       size: isArray ? 32 : size,
       signed: baseType === 'int',
@@ -117,9 +117,9 @@ function encode<const packedAbiType extends PackedAbiType | unknown>(
   const bytesMatch = (type as string).match(bytesRegex)
   if (bytesMatch) {
     const [_type, size] = bytesMatch
-    if (Number.parseInt(size) !== ((value as Hex).length - 2) / 2)
+    if (Number.parseInt(size, 10) !== ((value as Hex).length - 2) / 2)
       throw new BytesSizeMismatchError({
-        expectedSize: Number.parseInt(size),
+        expectedSize: Number.parseInt(size, 10),
         givenSize: ((value as Hex).length - 2) / 2,
       })
     return pad(value as Hex, { dir: 'right', size: isArray ? 32 : null }) as Hex

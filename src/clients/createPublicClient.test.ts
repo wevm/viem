@@ -80,6 +80,7 @@ test('creates', () => {
       "readContract": [Function],
       "request": [Function],
       "sendRawTransaction": [Function],
+      "sendRawTransactionSync": [Function],
       "simulate": [Function],
       "simulateBlocks": [Function],
       "simulateCalls": [Function],
@@ -96,6 +97,7 @@ test('creates', () => {
       },
       "type": "publicClient",
       "uninstallFilter": [Function],
+      "verifyHash": [Function],
       "verifyMessage": [Function],
       "verifySiweMessage": [Function],
       "verifyTypedData": [Function],
@@ -223,6 +225,7 @@ describe('transports', () => {
         "readContract": [Function],
         "request": [Function],
         "sendRawTransaction": [Function],
+        "sendRawTransactionSync": [Function],
         "simulate": [Function],
         "simulateBlocks": [Function],
         "simulateCalls": [Function],
@@ -241,6 +244,7 @@ describe('transports', () => {
         },
         "type": "publicClient",
         "uninstallFilter": [Function],
+        "verifyHash": [Function],
         "verifyMessage": [Function],
         "verifySiweMessage": [Function],
         "verifyTypedData": [Function],
@@ -331,6 +335,7 @@ describe('transports', () => {
         "readContract": [Function],
         "request": [Function],
         "sendRawTransaction": [Function],
+        "sendRawTransactionSync": [Function],
         "simulate": [Function],
         "simulateBlocks": [Function],
         "simulateCalls": [Function],
@@ -350,6 +355,7 @@ describe('transports', () => {
         },
         "type": "publicClient",
         "uninstallFilter": [Function],
+        "verifyHash": [Function],
         "verifyMessage": [Function],
         "verifySiweMessage": [Function],
         "verifyTypedData": [Function],
@@ -365,7 +371,7 @@ describe('transports', () => {
 
   test('webSocket - getRpcClient() - keepAlive & reconnect disabled', async () => {
     const wsRpcClientOpts = { keepAlive: false, reconnect: false }
-    const { uid, ...client } = createPublicClient({
+    const { uid: _, ...client } = createPublicClient({
       chain: localhost,
       transport: webSocket(anvilMainnet.rpcUrl.ws, wsRpcClientOpts),
     })
@@ -378,7 +384,7 @@ describe('transports', () => {
 
   test('webSocket - subscribe() - keepAlive & reconnect disabled', async () => {
     const wsRpcClientOpts = { keepAlive: false, reconnect: false }
-    const { uid, ...client } = createPublicClient({
+    const { uid: _, ...client } = createPublicClient({
       chain: localhost,
       transport: webSocket(anvilMainnet.rpcUrl.ws, wsRpcClientOpts),
     })
@@ -395,7 +401,7 @@ describe('transports', () => {
 
   test('webSocket - request() - keepAlive & reconnect disabled', async () => {
     const wsRpcClientOpts = { keepAlive: false, reconnect: false }
-    const { uid, ...client } = createPublicClient({
+    const { uid: _, ...client } = createPublicClient({
       chain: localhost,
       transport: webSocket(anvilMainnet.rpcUrl.ws, wsRpcClientOpts),
     })
@@ -464,6 +470,7 @@ describe('transports', () => {
         "readContract": [Function],
         "request": [Function],
         "sendRawTransaction": [Function],
+        "sendRawTransactionSync": [Function],
         "simulate": [Function],
         "simulateBlocks": [Function],
         "simulateCalls": [Function],
@@ -480,6 +487,7 @@ describe('transports', () => {
         },
         "type": "publicClient",
         "uninstallFilter": [Function],
+        "verifyHash": [Function],
         "verifyMessage": [Function],
         "verifySiweMessage": [Function],
         "verifyTypedData": [Function],
@@ -594,8 +602,11 @@ test('extend', () => {
       "reset": [Function],
       "revert": [Function],
       "sendCalls": [Function],
+      "sendCallsSync": [Function],
       "sendRawTransaction": [Function],
+      "sendRawTransactionSync": [Function],
       "sendTransaction": [Function],
+      "sendTransactionSync": [Function],
       "sendUnsignedTransaction": [Function],
       "setAutomine": [Function],
       "setBalance": [Function],
@@ -637,6 +648,7 @@ test('extend', () => {
       },
       "type": "publicClient",
       "uninstallFilter": [Function],
+      "verifyHash": [Function],
       "verifyMessage": [Function],
       "verifySiweMessage": [Function],
       "verifyTypedData": [Function],
@@ -649,6 +661,7 @@ test('extend', () => {
       "watchEvent": [Function],
       "watchPendingTransactions": [Function],
       "writeContract": [Function],
+      "writeContractSync": [Function],
     }
   `)
 })

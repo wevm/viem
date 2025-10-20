@@ -180,6 +180,27 @@ const publicClient = createPublicClient({
 })
 ```
 
+### batch.multicall.deployless (optional)
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Enable deployless multicall.
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts:imports]
+// ---cut---
+const publicClient = createPublicClient({
+  batch: {
+    multicall: {
+      deployless: true, // [!code focus]
+    },
+  },
+  chain: mainnet,
+  transport: http(),
+})
+```
+
 ### batch.multicall.wait (optional)
 
 - **Type:** `number`
@@ -257,6 +278,39 @@ const publicClient = createPublicClient({
   transport: http(),
 })
 ```
+
+### experimental_blockTag (optional)
+
+- **Type:** `BlockTag`
+- **Default:** `'latest'`
+
+The default block tag to use for Actions.
+
+This will be used as the default block tag for the following Actions:
+
+- `call`
+- `estimateGas`
+- `getBalance`
+- `getBlock`
+- `simulateBlocks`
+- `waitForTransactionReceipt`
+- `watchBlocks`
+
+:::note
+If the chain supports a pre-confirmation mechanism (set via `chain.experimental_preconfirmationTime`), 
+the default block tag will be `'pending'`.
+:::
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts:imports]
+// ---cut---
+const publicClient = createPublicClient({
+  experimental_blockTag: 'pending', // [!code focus]
+  chain: mainnet,
+  transport: http(),
+})
+```
+
 
 ### key (optional)
 

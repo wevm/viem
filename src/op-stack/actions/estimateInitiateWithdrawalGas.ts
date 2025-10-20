@@ -115,7 +115,7 @@ export async function estimateInitiateWithdrawalGas<
     value,
     // TODO: Not sure `chain` is necessary since it's not used downstream
     // in `estimateContractGas` or `estimateGas`
-    // @ts-ignore
+    // @ts-expect-error
     chain,
   } satisfies EstimateContractGasParameters<
     typeof l2ToL1MessagePasserAbi,

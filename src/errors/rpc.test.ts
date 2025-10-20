@@ -2,8 +2,8 @@ import { expect, test } from 'vitest'
 
 import { RpcRequestError } from './request.js'
 import {
-  AtomicReadyWalletRejectedUpgradeError,
   AtomicityNotSupportedError,
+  AtomicReadyWalletRejectedUpgradeError,
   BundleTooLargeError,
   ChainDisconnectedError,
   DuplicateIdError,

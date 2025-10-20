@@ -1,13 +1,11 @@
 import type { TypedData } from 'abitype'
-
+import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
 import {
   type HashTypedDataErrorType,
   hashTypedData,
 } from '../../utils/signature/hashTypedData.js'
-
-import type { ErrorType } from '../../errors/utils.js'
 import { type SignErrorType, sign } from './sign.js'
 
 export type SignTypedDataParameters<

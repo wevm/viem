@@ -6,12 +6,11 @@ import {
   InvalidAddressError,
   type InvalidAddressErrorType,
 } from '../errors/address.js'
+import type { ErrorType } from '../errors/utils.js'
 import {
   type IsAddressErrorType,
   isAddress,
 } from '../utils/address/isAddress.js'
-
-import type { ErrorType } from '../errors/utils.js'
 import type {
   AccountSource,
   CustomSource,

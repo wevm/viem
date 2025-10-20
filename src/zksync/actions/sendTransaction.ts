@@ -1,11 +1,11 @@
 import type { Account } from '../../accounts/types.js'
-import { sendTransaction as core_sendTransaction } from '../../actions/wallet/sendTransaction.js'
 import type {
-  SendTransactionRequest,
   SendTransactionErrorType as core_SendTransactionErrorType,
   SendTransactionParameters as core_SendTransactionParameters,
   SendTransactionReturnType as core_SendTransactionReturnType,
+  SendTransactionRequest,
 } from '../../actions/wallet/sendTransaction.js'
+import { sendTransaction as core_sendTransaction } from '../../actions/wallet/sendTransaction.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ChainEIP712 } from '../types/chain.js'

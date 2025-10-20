@@ -6,14 +6,14 @@ import type { Hash, LogTopic } from '../../types/misc.js'
 import type { RpcResponse } from '../../types/rpc.js'
 import {
   type GetIpcRpcClientOptions,
-  type IpcRpcClient,
   getIpcRpcClient,
+  type IpcRpcClient,
 } from '../../utils/rpc/ipc.js'
 import {
   type CreateTransportErrorType,
+  createTransport,
   type Transport,
   type TransportConfig,
-  createTransport,
 } from './createTransport.js'
 
 type IpcTransportSubscribeParameters = {

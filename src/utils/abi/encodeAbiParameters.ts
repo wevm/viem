@@ -1,7 +1,7 @@
 import type {
   AbiParameter,
-  AbiParameterToPrimitiveType,
   AbiParametersToPrimitiveTypes,
+  AbiParameterToPrimitiveType,
 } from 'abitype'
 
 import {
@@ -31,10 +31,10 @@ import { type SizeErrorType, size } from '../data/size.js'
 import { type SliceErrorType, slice } from '../data/slice.js'
 import {
   type BoolToHexErrorType,
-  type NumberToHexErrorType,
-  type StringToHexErrorType,
   boolToHex,
+  type NumberToHexErrorType,
   numberToHex,
+  type StringToHexErrorType,
   stringToHex,
 } from '../encoding/toHex.js'
 import { integerRegex } from '../regex.js'
@@ -309,9 +309,9 @@ function encodeBytes<const param extends AbiParameter>(
       encoded: concat([padHex(numberToHex(bytesSize, { size: 32 })), value_]),
     }
   }
-  if (bytesSize !== Number.parseInt(paramSize))
+  if (bytesSize !== Number.parseInt(paramSize, 10))
     throw new AbiEncodingBytesSizeMismatchError({
-      expectedSize: Number.parseInt(paramSize),
+      expectedSize: Number.parseInt(paramSize, 10),
       value,
     })
   return { dynamic: false, encoded: padHex(value, { dir: 'right' }) }

@@ -14,8 +14,8 @@ import { type ToHexErrorType, toHex } from '../encoding/toHex.js'
 import { type Keccak256ErrorType, keccak256 } from '../hash/keccak256.js'
 import {
   type GetTypesForEIP712DomainErrorType,
-  type ValidateTypedDataErrorType,
   getTypesForEIP712Domain,
+  type ValidateTypedDataErrorType,
   validateTypedData,
 } from '../typedData.js'
 

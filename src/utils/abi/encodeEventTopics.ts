@@ -134,7 +134,10 @@ export type EncodeArgErrorType =
 function encodeArg({
   param,
   value,
-}: { param: AbiParameter; value: AbiParameterToPrimitiveType<AbiParameter> }) {
+}: {
+  param: AbiParameter
+  value: AbiParameterToPrimitiveType<AbiParameter>
+}) {
   if (param.type === 'string' || param.type === 'bytes')
     return keccak256(toBytes(value as string))
   if (param.type === 'tuple' || param.type.match(/^(.*)\[(\d+)?\]$/))

@@ -24,7 +24,9 @@ const testClient = anvilMainnet.getClient()
 
 const getClient = ({
   onRequest,
-}: { onRequest({ method, params }: any): void }) =>
+}: {
+  onRequest({ method, params }: any): void
+}) =>
   createClient({
     transport: custom({
       async request({ method, params }) {

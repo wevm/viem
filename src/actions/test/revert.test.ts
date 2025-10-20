@@ -1,11 +1,10 @@
 import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { getBalance } from '../public/getBalance.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { mine } from './mine.js'
 import { revert } from './revert.js'

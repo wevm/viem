@@ -6,6 +6,22 @@ description: Returns an estimated Fee for requested transaction.
 
 Returns an estimated Fee for requested transaction.
 
+:::warning
+**This Action is being deprecated.**
+
+This method calls an RPC method that [will be removed in a future release](https://github.com/zkSync-Community-Hub/zksync-developers/discussions/1066). Please use the alternatives mentioned below.
+
+**Alternatives / Workaround**
+
+The original returned `Fee` object contained `gasLimit`, `maxFeePerGas`, `maxPriorityFeePerGas` and `gasPerPubData`. Use the following methods to retrieve these values:
+
+- `gasLimit`: use `eth_estimateGas` or [its correspondent viem action](/docs/actions/public/estimateGas).
+- `maxFeePerGas`: use `eth_gasPrice` or [its correspondent viem action](/docs/actions/public/getGasPrice).
+- `maxPriorityFeePerGas`: set to `0`.
+- `gasPerPubData`: use `zks_gasPerPubdata` or [its correspondent viem action](/zksync/actions/getGasPerPubData).
+
+:::
+
 ## Usage
 
 :::code-group

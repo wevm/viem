@@ -4,9 +4,8 @@ import { bench, describe } from 'vitest'
 
 import { ethersProvider } from '~test/src/bench.js'
 import { accounts } from '~test/src/constants.js'
-import { parseEther } from '../../utils/unit/parseEther.js'
-
 import { anvilMainnet } from '../../../test/src/anvil.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
 import { sendTransaction } from './sendTransaction.js'
 
 const client = anvilMainnet.getClient()

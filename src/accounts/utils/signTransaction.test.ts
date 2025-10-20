@@ -70,6 +70,7 @@ describe('eip4844', async () => {
     blobVersionedHashes,
     chainId: 1,
     sidecars,
+    to: '0x0000000000000000000000000000000000000000',
     type: 'eip4844',
   } as const satisfies TransactionSerializable
 
@@ -84,7 +85,14 @@ describe('eip4844', async () => {
   test('args: blobs + kzg', async () => {
     const blobs = toBlobs({ data: stringToHex(blobData) })
     const signature = await signTransaction({
-      transaction: { ...base, blobs, chainId: 1, kzg, type: 'eip4844' },
+      transaction: {
+        ...base,
+        blobs,
+        chainId: 1,
+        kzg,
+        to: '0x0000000000000000000000000000000000000000',
+        type: 'eip4844',
+      },
       privateKey: accounts[0].privateKey,
     })
     expect(signature).toMatchSnapshot()
@@ -94,7 +102,7 @@ describe('eip4844', async () => {
     const blobs = toBlobs({ data: stringToHex(blobData) })
     const request = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(accounts[0].privateKey),
-      blobs: blobs,
+      blobs,
       kzg,
       maxFeePerBlobGas: parseGwei('20'),
       to: '0x0000000000000000000000000000000000000000',

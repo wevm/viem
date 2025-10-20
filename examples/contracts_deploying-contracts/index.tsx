@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import {
-  http,
   type Address,
-  type Hash,
-  type TransactionReceipt,
   createPublicClient,
   createWalletClient,
   custom,
+  type Hash,
+  http,
   stringify,
+  type TransactionReceipt,
 } from 'viem'
 import { goerli } from 'viem/chains'
 import 'viem/window'

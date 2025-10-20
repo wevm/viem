@@ -3,6 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const avalanche = /*#__PURE__*/ defineChain({
   id: 43_114,
   name: 'Avalanche',
+  blockTime: 1_700,
   nativeCurrency: {
     decimals: 18,
     name: 'Avalanche',

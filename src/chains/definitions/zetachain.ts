@@ -22,7 +22,7 @@ export const zetachain = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'ZetaScan',
-      url: 'https://explorer.zetachain.com',
+      url: 'https://zetascan.com',
     },
   },
   testnet: false,

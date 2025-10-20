@@ -10,14 +10,12 @@ import { ErrorsExample } from '~contracts/generated.js'
 import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 import { accounts } from '~test/src/constants.js'
 import { deployBAYC, deployErrorExample } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { publicActions } from '../../index.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
-
-import { publicActions } from '../../index.js'
 import { estimateContractGas } from './estimateContractGas.js'
 
 const client = anvilMainnet.getClient().extend(publicActions)

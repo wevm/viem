@@ -3,9 +3,11 @@ import type { AbiStateMutability, Address, Narrow } from 'abitype'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { multicall3Abi } from '../../constants/abis.js'
+import { multicall3Bytecode } from '../../constants/contracts.js'
 import { AbiDecodingZeroDataError } from '../../errors/abi.js'
 import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { ContractFunctionParameters } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
@@ -29,8 +31,6 @@ import {
   type GetContractErrorReturnType,
   getContractError,
 } from '../../utils/errors/getContractError.js'
-
-import type { ErrorType } from '../../errors/utils.js'
 import { getAction } from '../../utils/getAction.js'
 import type { CallParameters } from './call.js'
 import { type ReadContractErrorType, readContract } from './readContract.js'
@@ -42,14 +42,28 @@ export type MulticallParameters<
     optional?: boolean
     properties?: Record<string, any>
   } = {},
-> = Pick<CallParameters, 'blockNumber' | 'blockTag' | 'stateOverride'> & {
+> = Pick<
+  CallParameters,
+  | 'authorizationList'
+  | 'blockNumber'
+  | 'blockOverrides'
+  | 'blockTag'
+  | 'stateOverride'
+> & {
+  /** The account to use for the multicall. */
   account?: Address | undefined
+  /** Whether to allow failures. */
   allowFailure?: allowFailure | boolean | undefined
+  /** The size of each batch of calls. */
   batchSize?: number | undefined
+  /** Enable deployless multicall. */
+  deployless?: boolean | undefined
+  /** The contracts to call. */
   contracts: MulticallContracts<
     Narrow<contracts>,
     { mutability: AbiStateMutability } & options
   >
+  /** The address of the multicall3 contract to use. */
   multicallAddress?: Address | undefined
 }
 
@@ -122,34 +136,34 @@ export async function multicall<
 ): Promise<MulticallReturnType<contracts, allowFailure>> {
   const {
     account,
+    authorizationList,
     allowFailure = true,
-    batchSize: batchSize_,
     blockNumber,
+    blockOverrides,
     blockTag,
-    multicallAddress: multicallAddress_,
     stateOverride,
   } = parameters
   const contracts = parameters.contracts as ContractFunctionParameters[]
 
-  const batchSize =
-    batchSize_ ??
-    ((typeof client.batch?.multicall === 'object' &&
-      client.batch.multicall.batchSize) ||
-      1_024)
+  const {
+    batchSize = parameters.batchSize ?? 1024,
+    deployless = parameters.deployless ?? false,
+  } = typeof client.batch?.multicall === 'object' ? client.batch.multicall : {}
 
-  let multicallAddress = multicallAddress_
-  if (!multicallAddress) {
-    if (!client.chain)
-      throw new Error(
-        'client chain not configured. multicallAddress is required.',
-      )
-
-    multicallAddress = getChainContractAddress({
-      blockNumber,
-      chain: client.chain,
-      contract: 'multicall3',
-    })
-  }
+  const multicallAddress = (() => {
+    if (parameters.multicallAddress) return parameters.multicallAddress
+    if (deployless) return null
+    if (client.chain) {
+      return getChainContractAddress({
+        blockNumber,
+        chain: client.chain,
+        contract: 'multicall3',
+      })
+    }
+    throw new Error(
+      'client chain not configured. multicallAddress is required.',
+    )
+  })()
 
   type Aggregate3Calls = {
     allowFailure: boolean
@@ -216,11 +230,15 @@ export async function multicall<
         readContract,
         'readContract',
       )({
+        ...(multicallAddress === null
+          ? { code: multicall3Bytecode }
+          : { address: multicallAddress }),
         abi: multicall3Abi,
         account,
-        address: multicallAddress!,
         args: [calls],
+        authorizationList,
         blockNumber,
+        blockOverrides,
         blockTag,
         functionName: 'aggregate3',
         stateOverride,

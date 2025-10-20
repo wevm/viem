@@ -1,5 +1,5 @@
 // [!region imports]
-import { http, createPublicClient } from 'viem'
+import { createPublicClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
 // [!endregion imports]
 

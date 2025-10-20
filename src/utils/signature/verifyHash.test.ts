@@ -1,9 +1,8 @@
 import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { signMessage } from '../../actions/wallet/signMessage.js'
-
 import { anvilMainnet } from '../../../test/src/anvil.js'
+import { signMessage } from '../../actions/wallet/signMessage.js'
 import { hashMessage } from './hashMessage.js'
 import { verifyHash } from './verifyHash.js'
 

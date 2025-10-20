@@ -21,15 +21,14 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../types/chain.js'
-import type { Hash } from '../../types/misc.js'
-import type { Hex } from '../../types/misc.js'
+import type { Hash, Hex } from '../../types/misc.js'
 import type { UnionEvaluate, UnionOmit } from '../../types/utils.js'
 import {
-  type FormattedTransactionRequest,
   decodeAbiParameters,
   decodeFunctionData,
   encodeAbiParameters,
   encodeFunctionData,
+  type FormattedTransactionRequest,
   isAddressEqual,
   parseAccount,
 } from '../../utils/index.js'

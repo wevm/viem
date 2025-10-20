@@ -3,6 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const scroll = /*#__PURE__*/ defineChain({
   id: 534_352,
   name: 'Scroll',
+  blockTime: 3000,
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {

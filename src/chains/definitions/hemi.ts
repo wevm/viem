@@ -4,6 +4,7 @@ export const hemi = /*#__PURE__*/ defineChain({
   id: 43111,
   name: 'Hemi',
   network: 'Hemi',
+  blockTime: 12_000,
   nativeCurrency: {
     name: 'Ether',
     symbol: 'ETH',

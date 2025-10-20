@@ -30,8 +30,11 @@ import {
 } from '../../errors/fee.js'
 import type { DeriveAccount, GetAccountParameter } from '../../types/account.js'
 import type { Block } from '../../types/block.js'
-import type { Chain, DeriveChain } from '../../types/chain.js'
-import type { GetChainParameter } from '../../types/chain.js'
+import type {
+  Chain,
+  DeriveChain,
+  GetChainParameter,
+} from '../../types/chain.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
 import type {
   TransactionRequest,

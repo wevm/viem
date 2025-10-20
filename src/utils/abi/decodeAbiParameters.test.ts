@@ -6,12 +6,10 @@ import { address } from '~test/src/constants.js'
 import { multicall3Abi } from '../../constants/abis.js'
 import type { Hex } from '../../types/misc.js'
 import { getAddress } from '../address/getAddress.js'
-
-import { decodeAbiParameters } from './decodeAbiParameters.js'
-import { getAbiItem } from './getAbiItem.js'
-
 import { hexToBytes } from '../encoding/toBytes.js'
+import { decodeAbiParameters } from './decodeAbiParameters.js'
 import { encodeAbiParameters } from './encodeAbiParameters.js'
+import { getAbiItem } from './getAbiItem.js'
 
 describe('static', () => {
   test('blank', () => {

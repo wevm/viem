@@ -148,5 +148,5 @@ export async function getTransaction<
 
   const format =
     client.chain?.formatters?.transaction?.format || formatTransaction
-  return format(transaction)
+  return format(transaction, 'getTransaction')
 }

@@ -16,6 +16,7 @@ import { domain, types } from './data.js'
 const account = await toCoinbaseSmartAccount({
   client,
   owners: [owner],
+  version: '1.1',
 })
 
 const signature = await account.signTypedData({ // [!code focus]

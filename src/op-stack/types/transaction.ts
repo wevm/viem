@@ -3,17 +3,17 @@ import type { Hex } from '../../types/misc.js'
 import type {
   Index,
   Quantity,
-  RpcTransactionReceipt,
   RpcTransaction as RpcTransaction_,
+  RpcTransactionReceipt,
 } from '../../types/rpc.js'
 import type {
+  Transaction as Transaction_,
   TransactionBase,
   TransactionReceipt,
   TransactionSerializable,
   TransactionSerializableBase,
   TransactionSerialized,
   TransactionType,
-  Transaction as Transaction_,
 } from '../../types/transaction.js'
 import type { OneOf } from '../../types/utils.js'
 

@@ -3,6 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const arbitrumSepolia = /*#__PURE__*/ defineChain({
   id: 421_614,
   name: 'Arbitrum Sepolia',
+  blockTime: 250,
   nativeCurrency: {
     name: 'Arbitrum Sepolia Ether',
     symbol: 'ETH',

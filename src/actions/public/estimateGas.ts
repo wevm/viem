@@ -40,7 +40,6 @@ import {
   type PrepareTransactionRequestParameters,
   prepareTransactionRequest,
 } from '../wallet/prepareTransactionRequest.js'
-import { getBalance } from './getBalance.js'
 
 export type EstimateGasParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -166,71 +165,42 @@ export async function estimateGas<
     const chainFormat = client.chain?.formatters?.transactionRequest?.format
     const format = chainFormat || formatTransactionRequest
 
-    const request = format({
-      // Pick out extra data that might exist on the chain's transaction request type.
-      ...extract(rest, { format: chainFormat }),
-      from: account?.address,
-      accessList,
-      authorizationList,
-      blobs,
-      blobVersionedHashes,
-      data,
-      gas,
-      gasPrice,
-      maxFeePerBlobGas,
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      nonce,
-      to,
-      value,
-    } as TransactionRequest)
+    const request = format(
+      {
+        // Pick out extra data that might exist on the chain's transaction request type.
+        ...extract(rest, { format: chainFormat }),
+        from: account?.address,
+        accessList,
+        authorizationList,
+        blobs,
+        blobVersionedHashes,
+        data,
+        gas,
+        gasPrice,
+        maxFeePerBlobGas,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        nonce,
+        to,
+        value,
+      } as TransactionRequest,
+      'estimateGas',
+    )
 
-    function estimateGas_rpc(parameters: {
-      block: any
-      request: any
-      rpcStateOverride: any
-    }) {
-      const { block, request, rpcStateOverride } = parameters
-      return client.request({
+    return BigInt(
+      await client.request({
         method: 'eth_estimateGas',
         params: rpcStateOverride
-          ? [request, block ?? 'latest', rpcStateOverride]
+          ? [
+              request,
+              block ?? client.experimental_blockTag ?? 'latest',
+              rpcStateOverride,
+            ]
           : block
             ? [request, block]
             : [request],
-      })
-    }
-
-    let estimate = BigInt(
-      await estimateGas_rpc({ block, request, rpcStateOverride }),
+      }),
     )
-
-    // TODO(7702): Remove this once https://github.com/ethereum/execution-apis/issues/561 is resolved.
-    //       Authorization list schema is not implemented on JSON-RPC spec yet, so we need to
-    //       manually estimate the gas.
-    if (authorizationList) {
-      const value = await getBalance(client, { address: request.from })
-      const estimates = await Promise.all(
-        authorizationList.map(async (authorization) => {
-          const { address } = authorization
-          const estimate = await estimateGas_rpc({
-            block,
-            request: {
-              authorizationList: undefined,
-              data,
-              from: account?.address,
-              to: address,
-              value: numberToHex(value),
-            },
-            rpcStateOverride,
-          }).catch(() => 100_000n)
-          return 2n * BigInt(estimate)
-        }),
-      )
-      estimate += estimates.reduce((acc, curr) => acc + curr, 0n)
-    }
-
-    return estimate
   } catch (err) {
     throw getEstimateGasError(err as BaseError, {
       ...args,

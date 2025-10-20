@@ -7,8 +7,7 @@ import {
 } from '../../../errors/abi.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { ContractConstructorArgs } from '../../../types/contract.js'
-import type { Hash } from '../../../types/misc.js'
-import type { Hex } from '../../../types/misc.js'
+import type { Hash, Hex } from '../../../types/misc.js'
 import { encodeAbiParameters } from '../../../utils/abi/encodeAbiParameters.js'
 import type {
   EncodeDeployDataParameters as EncodeDeployDataParameters_,

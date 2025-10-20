@@ -16,7 +16,7 @@ import type {
 import type { Hash } from '../../types/misc.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
 import type { OneOf } from '../../types/utils.js'
-import { portal2Abi, portalAbi } from '../abis.js'
+import { anchorStateRegistryAbi, portal2Abi, portalAbi } from '../abis.js'
 import {
   ReceiptContainsNoWithdrawalsError,
   type ReceiptContainsNoWithdrawalsErrorType,
@@ -249,35 +249,49 @@ export async function getWithdrawalStatus<
     args: [withdrawal.withdrawalHash, numProofSubmitters - 1n],
   }).catch(() => withdrawal.sender)
 
-  const [disputeGameResult, checkWithdrawalResult, finalizedResult] =
-    await Promise.allSettled([
-      getGame(client, {
-        ...parameters,
-        l2BlockNumber,
-        limit: gameLimit,
-      } as GetGameParameters),
-      readContract(client, {
-        abi: portal2Abi,
-        address: portalAddress,
-        functionName: 'checkWithdrawal',
-        args: [withdrawal.withdrawalHash, proofSubmitter],
-      }),
-      readContract(client, {
-        abi: portal2Abi,
-        address: portalAddress,
-        functionName: 'finalizedWithdrawals',
-        args: [withdrawal.withdrawalHash],
-      }),
-    ])
+  const [
+    disputeGameResult,
+    provenWithdrawalsResult,
+    checkWithdrawalResult,
+    finalizedResult,
+  ] = await Promise.allSettled([
+    getGame(client, {
+      ...parameters,
+      l2BlockNumber,
+      limit: gameLimit,
+    } as GetGameParameters),
+    readContract(client, {
+      abi: portal2Abi,
+      address: portalAddress,
+      functionName: 'provenWithdrawals',
+      args: [withdrawal.withdrawalHash, proofSubmitter],
+    }),
+    readContract(client, {
+      abi: portal2Abi,
+      address: portalAddress,
+      functionName: 'checkWithdrawal',
+      args: [withdrawal.withdrawalHash, proofSubmitter],
+    }),
+    readContract(client, {
+      abi: portal2Abi,
+      address: portalAddress,
+      functionName: 'finalizedWithdrawals',
+      args: [withdrawal.withdrawalHash],
+    }),
+  ])
 
   if (finalizedResult.status === 'fulfilled' && finalizedResult.value)
     return 'finalized'
+
+  if (provenWithdrawalsResult.status === 'rejected')
+    throw provenWithdrawalsResult.reason
 
   if (disputeGameResult.status === 'rejected') {
     const error = disputeGameResult.reason as GetGameErrorType
     if (error.name === 'GameNotFoundError') return 'waiting-to-prove'
     throw disputeGameResult.reason
   }
+
   if (checkWithdrawalResult.status === 'rejected') {
     const error = checkWithdrawalResult.reason as ReadContractErrorType
     if (error.cause instanceof ContractFunctionRevertedError) {
@@ -292,6 +306,9 @@ export async function getWithdrawalStatus<
           'InvalidGameType',
           'LegacyGame',
           'Unproven',
+          // After U16
+          'OptimismPortal_Unproven',
+          'OptimismPortal_InvalidProofTimestamp',
         ],
         'waiting-to-finalize': [
           'OptimismPortal: proven withdrawal has not matured yet',
@@ -306,6 +323,85 @@ export async function getWithdrawalStatus<
         error.cause.data?.errorName,
         error.cause.data?.args?.[0] as string,
       ]
+
+      // After U16 we get a generic error message (OptimismPortal_InvalidRootClaim) because the
+      // OptimismPortal will call AnchorStateRegistry.isGameClaimValid which simply returns
+      // true/false. If we get this generic error, we need to figure out why the function returned
+      // false and return a proper status accordingly. We can also check these conditions when we
+      // get ProofNotOldEnough so users can be notified when their pending proof becomes invalid
+      // before it can be finalized.
+      if (
+        errors.includes('OptimismPortal_InvalidRootClaim') ||
+        errors.includes('OptimismPortal_ProofNotOldEnough')
+      ) {
+        // Get the dispute game address from the proven withdrawal.
+        const disputeGameAddress = provenWithdrawalsResult.value[0] as Address
+
+        // Get the AnchorStateRegistry address from the portal.
+        const anchorStateRegistry = await readContract(client, {
+          abi: portal2Abi,
+          address: portalAddress,
+          functionName: 'anchorStateRegistry',
+        })
+
+        // Check if the game is proper, respected, and finalized.
+        const [
+          isGameProperResult,
+          isGameRespectedResult,
+          isGameFinalizedResult,
+        ] = await Promise.allSettled([
+          readContract(client, {
+            abi: anchorStateRegistryAbi,
+            address: anchorStateRegistry,
+            functionName: 'isGameProper',
+            args: [disputeGameAddress],
+          }),
+          readContract(client, {
+            abi: anchorStateRegistryAbi,
+            address: anchorStateRegistry,
+            functionName: 'isGameRespected',
+            args: [disputeGameAddress],
+          }),
+          readContract(client, {
+            abi: anchorStateRegistryAbi,
+            address: anchorStateRegistry,
+            functionName: 'isGameFinalized',
+            args: [disputeGameAddress],
+          }),
+        ])
+
+        // If any of the calls failed, throw the error.
+        if (isGameProperResult.status === 'rejected')
+          throw isGameProperResult.reason
+        if (isGameRespectedResult.status === 'rejected')
+          throw isGameRespectedResult.reason
+        if (isGameFinalizedResult.status === 'rejected')
+          throw isGameFinalizedResult.reason
+
+        // If the game isn't proper, the user needs to re-prove.
+        if (!isGameProperResult.value) {
+          return 'ready-to-prove'
+        }
+
+        // If the game isn't respected, the user needs to re-prove.
+        if (!isGameRespectedResult.value) {
+          return 'ready-to-prove'
+        }
+
+        // If the game isn't finalized, the user needs to wait to finalize.
+        if (!isGameFinalizedResult.value) {
+          return 'waiting-to-finalize'
+        }
+
+        // If the actual error was ProofNotOldEnough, then at this point the game is probably
+        // completely fine but the proof hasn't passed the waiting period. Otherwise, the only
+        // reason we'd be here is if the game resolved in favor of the challenger, which means the
+        // user needs to re-prove the withdrawal.
+        if (errors.includes('OptimismPortal_ProofNotOldEnough')) {
+          return 'waiting-to-finalize'
+        }
+        return 'ready-to-prove'
+      }
       if (errorCauses['ready-to-prove'].some((cause) => errors.includes(cause)))
         return 'ready-to-prove'
       if (

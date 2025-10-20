@@ -4,6 +4,7 @@ export const arbitrum = /*#__PURE__*/ defineChain({
   id: 42_161,
   name: 'Arbitrum One',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  blockTime: 250,
   rpcUrls: {
     default: {
       http: ['https://arb1.arbitrum.io/rpc'],

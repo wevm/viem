@@ -1,10 +1,9 @@
 import { expect, test } from 'vitest'
 
 import { accounts, typedData } from '~test/src/constants.js'
+import { wagmiContractConfig } from '../../test/src/abis.js'
 import { parseEther } from '../utils/unit/parseEther.js'
 import { parseGwei } from '../utils/unit/parseGwei.js'
-
-import { wagmiContractConfig } from '../../test/src/abis.js'
 import { privateKeyToAccount } from './privateKeyToAccount.js'
 
 test('default', () => {

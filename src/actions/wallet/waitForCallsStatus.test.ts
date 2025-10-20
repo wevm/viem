@@ -4,6 +4,7 @@ import { accounts } from '../../../test/src/constants.js'
 import { mainnet } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
+import { BundleFailedError } from '../../errors/calls.js'
 import { RpcRequestError } from '../../errors/request.js'
 import type {
   WalletCallReceipt,
@@ -24,7 +25,9 @@ const calls = new Map<Uid, TxHashes>()
 
 const getClient = ({
   onRequest,
-}: { onRequest?: ({ method, params }: any) => void } = {}) =>
+}: {
+  onRequest?: ({ method, params }: any) => void
+} = {}) =>
   createClient({
     pollingInterval: 100,
     transport: custom({
@@ -237,4 +240,120 @@ test('behavior: `wallet_getCallsStatus` failure', async () => {
       id,
     }),
   ).rejects.toThrowError('RPC Request failed.')
+})
+
+test('behavior: throwOnFailure = true with failed bundle', async () => {
+  const client = createClient({
+    pollingInterval: 100,
+    transport: custom({
+      async request({ params }) {
+        return {
+          atomic: false,
+          chainId: '0x1',
+          id: params[0],
+          receipts: [],
+          status: 400,
+          version: '2.0.0',
+        } satisfies WalletGetCallsStatusReturnType
+      },
+    }),
+  })
+
+  try {
+    await waitForCallsStatus(client, {
+      id: 'test-bundle-id',
+      throwOnFailure: true,
+    })
+  } catch (e) {
+    const error = e as BundleFailedError
+    expect(error).toBeInstanceOf(BundleFailedError)
+    expect((error as BundleFailedError).name).toBe('BundleFailedError')
+    expect((error as BundleFailedError).result.status).toBe('failure')
+    expect((error as BundleFailedError).result.statusCode).toBe(400)
+  }
+})
+
+test('behavior: throwOnFailure = false with failed bundle (default)', async () => {
+  const client = createClient({
+    pollingInterval: 100,
+    transport: custom({
+      async request({ params }) {
+        return {
+          atomic: false,
+          chainId: '0x1',
+          id: params[0],
+          receipts: [],
+          status: 400,
+          version: '2.0.0',
+        } satisfies WalletGetCallsStatusReturnType
+      },
+    }),
+  })
+
+  const id = 'test-bundle-id'
+
+  // Should not throw by default (throwOnFailure = false)
+  const result = await waitForCallsStatus(client, {
+    id,
+  })
+
+  expect(result.status).toBe('failure')
+  expect(result.statusCode).toBe(400)
+  expect(result.id).toBe(id)
+})
+
+test('behavior: throwOnFailure = false explicitly with failed bundle', async () => {
+  const client = createClient({
+    pollingInterval: 100,
+    transport: custom({
+      async request({ params }) {
+        return {
+          atomic: false,
+          chainId: '0x1',
+          id: params[0],
+          receipts: [],
+          status: 500,
+          version: '2.0.0',
+        } satisfies WalletGetCallsStatusReturnType
+      },
+    }),
+  })
+
+  const id = 'test-bundle-id'
+
+  const result = await waitForCallsStatus(client, {
+    id,
+    throwOnFailure: false,
+  })
+
+  expect(result.status).toBe('failure')
+  expect(result.statusCode).toBe(500)
+  expect(result.id).toBe(id)
+})
+
+test('behavior: throwOnFailure = true with successful bundle', async () => {
+  const client = getClient()
+
+  const { id } = await sendCalls(client, {
+    account: accounts[0].address,
+    calls: [
+      {
+        to: accounts[1].address,
+        value: parseEther('1'),
+      },
+    ],
+    chain: mainnet,
+  })
+
+  expect(id).toBeDefined()
+
+  await mine(testClient, { blocks: 1 })
+
+  const result = await waitForCallsStatus(client, {
+    id,
+    throwOnFailure: true,
+  })
+
+  expect(result.status).toBe('success')
+  expect(result.statusCode).toBe(200)
 })

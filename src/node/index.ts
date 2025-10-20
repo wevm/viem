@@ -5,10 +5,8 @@ export {
   type IpcTransportErrorType,
   ipc,
 } from '../clients/transports/ipc.js'
-
-export { mainnetTrustedSetupPath } from './trustedSetups.js'
-
 export {
-  type IpcRpcClient,
   getIpcRpcClient,
+  type IpcRpcClient,
 } from '../utils/rpc/ipc.js'
+export { mainnetTrustedSetupPath } from './trustedSetups.js'

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
 import { getTransactionReceipt } from '../../actions/index.js'
-import { http, createClient } from '../../index.js'
+import { createClient, http } from '../../index.js'
 import { optimismSepolia } from '../chains.js'
 import { extractWithdrawalMessageLogs } from './extractWithdrawalMessageLogs.js'
 

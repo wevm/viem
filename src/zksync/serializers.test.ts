@@ -4,12 +4,12 @@ import { signTransaction } from '../accounts/utils/signTransaction.js'
 import { zksync } from '../chains/index.js'
 import { BaseError } from '../errors/base.js'
 import { InvalidChainIdError } from '../errors/chain.js'
-import { InvalidAddressError } from '../index.js'
 import {
-  type TransactionSerializableEIP1559,
+  InvalidAddressError,
   parseEther,
   parseGwei,
   parseTransaction,
+  type TransactionSerializableEIP1559,
 } from '../index.js'
 import { serializeTransaction } from './serializers.js'
 import type { ZksyncTransactionSerializableEIP712 } from './types/transaction.js'

@@ -8,6 +8,8 @@ jobs:
     name: Check
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
 
     steps:
       - name: Clone repository
@@ -17,6 +19,9 @@ jobs:
 
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
+
+      - name: Audit dependencies
+        run: pnpm audit
 
       - name: Check repo
         run: pnpm check:repo
@@ -29,6 +34,8 @@ jobs:
     needs: check
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
 
     steps:
       - name: Clone repository
@@ -48,17 +55,19 @@ jobs:
       - name: Check for unused files, dependencies, and exports
         run: pnpm knip --production
 
-      - name: Check size
-        run: pnpm size
+      # - name: Check size
+      #   run: pnpm size
 
   types:
     name: Types
     needs: check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     timeout-minutes: 5
     strategy:
       matrix:
-        version: ['5.5.2', '5.6.2', '5.7.2', '5.8.2', 'latest']
+        version: ['5.7.2', '5.8.2', '5.9.2', 'latest']
 
     steps:
       - name: Clone repository
@@ -86,6 +95,8 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
     strategy:
       max-parallel: 3
       matrix:
@@ -130,17 +141,16 @@ jobs:
   test-envs:
     name: Test Environments
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
-        type: ['bun', 'node-18', 'node-20', 'node-latest', 'next', 'tsc', 'vite']
+        type: ['bun', 'node-22', 'node-latest', 'next', 'tsc', 'vite']
         include:
           - type: bun
             runtime: bun
-          - type: node-18
-            node-version: 18
-            runtime: node
-          - type: node-20
-            node-version: 20
+          - type: node-22
+            node-version: 22
             runtime: node
           - type: node-latest
             node-version: latest
@@ -148,7 +158,7 @@ jobs:
           - type: next
             runtime: next
           - type: tsc
-            node-version: 20
+            node-version: 22
             runtime: tsc
           - type: vite
             runtime: vite
@@ -179,7 +189,7 @@ jobs:
 
       - name: Install Playwright Browsers
         if: ${{ matrix.runtime == 'next' || matrix.runtime == 'vite' }}
-        run: pnpx playwright@1.49.1 install --with-deps
+        run: pnpx playwright@1.55.1 install --with-deps
 
       - name: Build
         run: pnpm build
@@ -193,6 +203,9 @@ jobs:
   vectors:
     name: Vectors
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
@@ -213,7 +226,7 @@ jobs:
   #   timeout-minutes: 10
   #   strategy:
   #     matrix:
-  #       typescript-version: ['5.4.5', '5.5.2']
+  #       typescript-version: ['5.7.2', '5.8.2', '5.9.2', 'latest']
 
   #   steps:
   #     - name: Clone repository

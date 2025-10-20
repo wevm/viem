@@ -96,7 +96,7 @@ export function validateTypedData<
         // and will throw.
         numberToHex(value, {
           signed: base === 'int',
-          size: Number.parseInt(size_) / 8,
+          size: Number.parseInt(size_, 10) / 8,
         })
       }
 
@@ -106,9 +106,9 @@ export function validateTypedData<
       const bytesMatch = type.match(bytesRegex)
       if (bytesMatch) {
         const [_type, size_] = bytesMatch
-        if (size_ && size(value as Hex) !== Number.parseInt(size_))
+        if (size_ && size(value as Hex) !== Number.parseInt(size_, 10))
           throw new BytesSizeMismatchError({
-            expectedSize: Number.parseInt(size_),
+            expectedSize: Number.parseInt(size_, 10),
             givenSize: size(value as Hex),
           })
       }
@@ -138,7 +138,9 @@ export type GetTypesForEIP712DomainErrorType = ErrorType
 
 export function getTypesForEIP712Domain({
   domain,
-}: { domain?: TypedDataDomain | undefined }): TypedDataParameter[] {
+}: {
+  domain?: TypedDataDomain | undefined
+}): TypedDataParameter[] {
   return [
     typeof domain?.name === 'string' && { name: 'name', type: 'string' },
     domain?.version && { name: 'version', type: 'string' },

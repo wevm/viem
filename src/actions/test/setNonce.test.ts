@@ -1,9 +1,8 @@
 import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { getTransactionCount } from '../public/getTransactionCount.js'
-
 import { anvilMainnet } from '../../../test/src/anvil.js'
+import { getTransactionCount } from '../public/getTransactionCount.js'
 
 import { mine } from './mine.js'
 import { setNonce } from './setNonce.js'

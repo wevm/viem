@@ -99,15 +99,9 @@ test('consume (sequence)', async () => {
     promise_3,
   ])
 
-  expect(
-    (await getTransaction(mainnetClient, { hash: hash_1 })).nonce,
-  ).toMatchObject(1)
-  expect(
-    (await getTransaction(mainnetClient, { hash: hash_2 })).nonce,
-  ).toMatchObject(2)
-  expect(
-    (await getTransaction(mainnetClient, { hash: hash_3 })).nonce,
-  ).toMatchObject(3)
+  expect((await getTransaction(mainnetClient, { hash: hash_1 })).nonce).toBe(1)
+  expect((await getTransaction(mainnetClient, { hash: hash_2 })).nonce).toBe(2)
+  expect((await getTransaction(mainnetClient, { hash: hash_3 })).nonce).toBe(3)
   expect(await nonceManager.get(mainnetArgs)).toBe(4)
 
   const nonce_4 = await nonceManager.consume(mainnetArgs)
@@ -117,9 +111,7 @@ test('consume (sequence)', async () => {
     nonce: nonce_4,
     value: 0n,
   })
-  expect(
-    (await getTransaction(mainnetClient, { hash: hash_4 })).nonce,
-  ).toMatchObject(4)
+  expect((await getTransaction(mainnetClient, { hash: hash_4 })).nonce).toBe(4)
 
   expect(await nonceManager.get(mainnetArgs)).toBe(5)
 })
@@ -165,15 +157,9 @@ test('consume (parallel)', async () => {
     }),
   ])
 
-  expect(
-    (await getTransaction(mainnetClient, { hash: hash_1 })).nonce,
-  ).toMatchObject(5)
-  expect(
-    (await getTransaction(mainnetClient, { hash: hash_2 })).nonce,
-  ).toMatchObject(6)
-  expect(
-    (await getTransaction(mainnetClient, { hash: hash_3 })).nonce,
-  ).toMatchObject(7)
+  expect((await getTransaction(mainnetClient, { hash: hash_1 })).nonce).toBe(5)
+  expect((await getTransaction(mainnetClient, { hash: hash_2 })).nonce).toBe(6)
+  expect((await getTransaction(mainnetClient, { hash: hash_3 })).nonce).toBe(7)
   expect(await nonceManager.get(mainnetArgs)).toBe(8)
 
   const nonce_4 = await nonceManager.consume(mainnetArgs)
@@ -183,9 +169,7 @@ test('consume (parallel)', async () => {
     nonce: nonce_4,
     value: 0n,
   })
-  expect(
-    (await getTransaction(mainnetClient, { hash: hash_4 })).nonce,
-  ).toMatchObject(8)
+  expect((await getTransaction(mainnetClient, { hash: hash_4 })).nonce).toBe(8)
   expect(await nonceManager.get(mainnetArgs)).toBe(9)
 })
 

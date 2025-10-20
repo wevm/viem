@@ -13,6 +13,7 @@ import { client, owner } from './config'
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [owner],
+  version: '1.1',
 })
 
 const signature = await account.signUserOperation({ // [!code focus:99]
@@ -67,6 +68,7 @@ import { client, owner } from './config'
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [owner],
+  version: '1.1',
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -98,6 +100,7 @@ import { client, owner } from './config'
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [owner],
+  version: '1.1',
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -129,6 +132,7 @@ import { client, owner } from './config'
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [owner],
+  version: '1.1',
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -160,6 +164,7 @@ import { client, owner } from './config'
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [owner],
+  version: '1.1',
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -191,6 +196,7 @@ import { client, owner } from './config'
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [owner],
+  version: '1.1',
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -222,6 +228,7 @@ import { client, owner } from './config'
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [owner],
+  version: '1.1',
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -254,6 +261,7 @@ import { client, owner } from './config'
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [owner],
+  version: '1.1',
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -285,6 +293,7 @@ import { client, owner } from './config'
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [owner],
+  version: '1.1',
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -318,6 +327,7 @@ import { client, owner } from './config'
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [owner],
+  version: '1.1',
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -351,6 +361,7 @@ import { client, owner } from './config'
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [owner],
+  version: '1.1',
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -384,6 +395,7 @@ import { client, owner } from './config'
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [owner],
+  version: '1.1',
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -417,6 +429,7 @@ import { client, owner } from './config'
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [owner],
+  version: '1.1',
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -450,6 +463,7 @@ import { client, owner } from './config'
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [owner],
+  version: '1.1',
 })
 // ---cut---
 const signature = await account.signUserOperation({
@@ -483,6 +497,7 @@ import { client, owner } from './config'
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [owner],
+  version: '1.1',
 })
 // ---cut---
 const signature = await account.signUserOperation({

@@ -73,7 +73,9 @@ export type ParseTransactionReturnType<
   ?
       | (type extends 'eip1559' ? TransactionSerializableEIP1559 : never)
       | (type extends 'eip2930' ? TransactionSerializableEIP2930 : never)
-      | (type extends 'eip4844' ? TransactionSerializableEIP4844 : never)
+      | (type extends 'eip4844'
+          ? TransactionSerializableEIP4844<bigint, number, false>
+          : never)
       | (type extends 'eip7702' ? TransactionSerializableEIP7702 : never)
       | (type extends 'legacy' ? TransactionSerializableLegacy : never)
   : TransactionSerializable
@@ -276,9 +278,9 @@ function parseTransactionEIP4844(
   const transaction = {
     blobVersionedHashes: blobVersionedHashes as Hex[],
     chainId: hexToNumber(chainId as Hex),
+    to,
     type: 'eip4844',
   } as TransactionSerializableEIP4844
-  if (isHex(to) && to !== '0x') transaction.to = to
   if (isHex(gas) && gas !== '0x') transaction.gas = hexToBigInt(gas)
   if (isHex(data) && data !== '0x') transaction.data = data
   if (isHex(nonce)) transaction.nonce = nonce === '0x' ? 0 : hexToNumber(nonce)
@@ -581,8 +583,8 @@ function parseAuthorizationList(
 
     authorizationList.push({
       address,
-      chainId: hexToNumber(chainId),
-      nonce: hexToNumber(nonce),
+      chainId: chainId === '0x' ? 0 : hexToNumber(chainId),
+      nonce: nonce === '0x' ? 0 : hexToNumber(nonce),
       ...parseEIP155Signature([yParity, r, s]),
     })
   }

@@ -29,8 +29,8 @@ export const lineaSepolia = /*#__PURE__*/ defineChain({
       blockCreated: 2395094,
     },
     ensUniversalResolver: {
-      address: '0x72560a31B3DAEE82B984a7F51c6b3b1bb7CC9F50',
-      blockCreated: 2395255,
+      address: '0x4D41762915F83c76EcaF6776d9b08076aA32b492',
+      blockCreated: 17_168_484,
     },
   },
   ensTlds: ['.linea.eth'],

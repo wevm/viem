@@ -568,7 +568,7 @@ export async function prepareUserOperation<
   ) {
     const {
       isFinal = false,
-      sponsor,
+      sponsor: _,
       ...paymasterArgs
     } = await getPaymasterStubData({
       chainId: await getChainId(),

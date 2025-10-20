@@ -8,11 +8,11 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import type { Client } from '../../index.js'
 
 import {
+  createClient,
+  fallback,
   http,
   InvalidInputRpcError,
   RpcRequestError,
-  createClient,
-  fallback,
   webSocket,
 } from '../../index.js'
 import { getAddress } from '../../utils/address/getAddress.js'

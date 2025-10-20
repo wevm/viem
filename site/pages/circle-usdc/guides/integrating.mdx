@@ -1,0 +1,339 @@
+# Integrating USDC into Your Application
+
+## Overview
+
+:::info
+This guide is maintained by [Circle](https://www.circle.com).
+:::
+
+This guide walks you through how to integrate **USDC** into your application using [Viem](https://viem.sh).
+
+We'll demonstrate how to interact with the USDC token contract to enable key functionality such as reading balances, transferring funds, approving third-party spenders, monitoring transfer events, and optimizing contract reads.
+
+You'll be using the [Public Client](/docs/clients/public) to read blockchain state and [Wallet Client](/docs/clients/wallet) to sign and send transactions. 
+
+We'll be working on the **Sepolia testnet**, but the steps apply to any USDC-supported EVM-compatible network.
+
+By the end of this guide, you'll know how to:
+
+* Set up Viem clients and securely manage accounts  
+* Read and display USDC balances  
+* Send USDC between wallets  
+* Approve contracts (e.g., Uniswap) to spend USDC on your behalf  
+* Monitor on-chain Transfer events in real-time  
+* Optimize data loading with batched readContract calls
+
+Each step is self-contained and modular — designed to be easily copied into your own project, whether you're building a wallet, a dashboard, a DeFi tool, or anything else powered by stable digital dollars.
+
+Let's get started.
+
+## Steps
+
+::::steps
+
+### Set up Clients
+
+In this step, we'll configure a **Public Client** for reading blockchain data, and a **Wallet Client** for signing and sending transactions with USDC. You'll also set up your account using a private key.
+
+We'll be using the Sepolia testnet, but you can easily swap this for any EVM-compatible chain.
+
+```ts twoslash [example.ts]
+import { createPublicClient, createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { sepolia } from 'viem/chains'
+
+export const account = privateKeyToAccount('0x...')
+
+export const publicClient = createPublicClient({
+  chain: sepolia,
+  transport: http(),
+})
+
+export const walletClient = createWalletClient({
+  account,
+  chain: sepolia,
+  transport: http(),
+})
+```
+
+### Initialize the USDC Contract
+
+Now we'll define the **USDC token contract** by providing its address and ABI. This allows us to interact with functions like balanceOf, transfer, and approve.
+
+You can use any USDC address from [Circle's official registry](https://developers.circle.com/stablecoins/usdc-contract-addresses), but for this guide, we're using the Sepolia testnet version.
+
+```ts twoslash [contract.ts]
+import { erc20Abi } from 'viem'
+
+export const usdcAbi = erc20Abi
+export const usdcAddress = '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238'
+```
+
+### Check a Wallet's USDC Balance
+
+Let's check the USDC balance of your account. This is useful for verifying holdings before transfers, or displaying token balances in a wallet UI.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { formatUnits } from 'viem'
+import { publicClient, account } from './config'
+import { usdcAddress, usdcAbi } from './contract'
+
+const balance = await publicClient.readContract({
+  address: usdcAddress,
+  abi: usdcAbi,
+  functionName: 'balanceOf',
+  args: [account.address],
+})
+
+console.log(`Your USDC balance: ${formatUnits(balance, 6)} USDC`)
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+import { createPublicClient, createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { sepolia } from 'viem/chains'
+
+export const account = privateKeyToAccount('0x...')
+
+export const publicClient = createPublicClient({
+  chain: sepolia,
+  transport: http(),
+})
+
+export const walletClient = createWalletClient({
+  account,
+  chain: sepolia,
+  transport: http(),
+})
+```
+
+```ts twoslash [contract.ts] filename="contract.ts"
+import { erc20Abi } from 'viem'
+
+export const usdcAbi = erc20Abi
+export const usdcAddress = '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238'
+```
+
+:::
+
+Note: USDC uses 6 decimals — unlike ETH which uses 18. Always remember to format your values accordingly.
+
+### Transfer USDC
+
+Now we'll transfer USDC from your wallet to another address. This is the most common action in USDC-based apps — whether it's sending payments, tipping, or moving funds between accounts.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { walletClient } from './config'
+import { usdcAddress, usdcAbi } from './contract'
+
+const recipient = '0x...'
+
+const hash = await walletClient.writeContract({
+  address: usdcAddress,
+  abi: usdcAbi,
+  functionName: 'transfer',
+  args: [
+    recipient,
+    parseUnits('100', 6), // 100 USDC
+  ],
+})
+
+console.log(`Sent 100 USDC. Tx Hash: ${hash}`)
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+import { createPublicClient, createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { sepolia } from 'viem/chains'
+
+export const account = privateKeyToAccount('0x...')
+
+export const publicClient = createPublicClient({
+  chain: sepolia,
+  transport: http(),
+})
+
+export const walletClient = createWalletClient({
+  account,
+  chain: sepolia,
+  transport: http(),
+})
+```
+
+```ts twoslash [contract.ts] filename="contract.ts"
+import { erc20Abi } from 'viem'
+
+export const usdcAbi = erc20Abi
+export const usdcAddress = '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238'
+```
+
+:::
+
+### Approve a Contract to Spend USDC
+
+To interact with DeFi protocols like Uniswap, Compound, or payment processors, you'll often need to **approve a contract** to spend tokens on your behalf.
+
+In this step, we'll approve the Uniswap Router to spend up to 1000 USDC from your wallet.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { walletClient } from './config'
+import { usdcAddress, usdcAbi } from './contract'
+
+const hash = await walletClient.writeContract({
+  address: usdcAddress,
+  abi: usdcAbi,
+  functionName: 'approve',
+  args: [
+    '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
+    parseUnits('1000', 6),
+  ],
+})
+
+console.log(`Approved 1000 USDC for Uniswap. Tx Hash: ${hash}`)
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+import { createPublicClient, createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { sepolia } from 'viem/chains'
+
+export const account = privateKeyToAccount('0x...')
+
+export const publicClient = createPublicClient({
+  chain: sepolia,
+  transport: http(),
+})
+
+export const walletClient = createWalletClient({
+  account,
+  chain: sepolia,
+  transport: http(),
+})
+```
+
+```ts twoslash [contract.ts] filename="contract.ts"
+import { erc20Abi } from 'viem'
+
+export const usdcAbi = erc20Abi
+export const usdcAddress = '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238'
+```
+
+:::
+
+
+### Check the Allowance for a Spender
+
+Once you've approved a spender (like Uniswap), you may want to verify how much USDC they're allowed to use.
+
+Let's fetch the allowance for the Uniswap Router.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { formatUnits } from 'viem'
+import { publicClient, account } from './config'
+import { usdcAddress, usdcAbi } from './contract'
+
+const allowance = await publicClient.readContract({
+  address: usdcAddress,
+  abi: usdcAbi,
+  functionName: 'allowance',
+  args: [
+    account.address,
+    '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
+  ],
+})
+
+console.log(`Remaining allowance: ${formatUnits(allowance, 6)} USDC`)
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+import { createPublicClient, createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { sepolia } from 'viem/chains'
+
+export const account = privateKeyToAccount('0x...')
+
+export const publicClient = createPublicClient({
+  chain: sepolia,
+  transport: http(),
+})
+
+export const walletClient = createWalletClient({
+  account,
+  chain: sepolia,
+  transport: http(),
+})
+```
+
+```ts twoslash [contract.ts] filename="contract.ts"
+import { erc20Abi } from 'viem'
+
+export const usdcAbi = erc20Abi
+export const usdcAddress = '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238'
+```
+
+:::
+
+
+### Watch for USDC Transfers
+
+Let's subscribe to real-time "Transfer events" emitted by the USDC contract. This is useful for building wallet UIs, dashboards, or backend listeners.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { formatUnits } from 'viem'
+import { publicClient } from './config'
+import { usdcAddress, usdcAbi } from './contract'
+
+const unwatch = publicClient.watchContractEvent({
+  address: usdcAddress,
+  abi: usdcAbi,
+  eventName: 'Transfer',
+  onLogs: (logs) => {
+    logs.forEach((log) => {
+      const { from, to, value } = log.args
+      console.log(`Transfer: ${from} → ${to} (${formatUnits(value, 6)} USDC)`)
+    })
+  },
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+import { createPublicClient, createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { sepolia } from 'viem/chains'
+
+export const account = privateKeyToAccount('0x...')
+
+export const publicClient = createPublicClient({
+  chain: sepolia,
+  transport: http(),
+})
+
+export const walletClient = createWalletClient({
+  account,
+  chain: sepolia,
+  transport: http(),
+})
+```
+
+```ts twoslash [contract.ts] filename="contract.ts"
+import { erc20Abi } from 'viem'
+
+export const usdcAbi = erc20Abi
+export const usdcAddress = '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238'
+```
+
+:::
+
+::::

@@ -1,24 +1,22 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
+import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
+import { keccak256 } from '~viem/utils/index.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { prepareTransactionRequest } from '../../actions/index.js'
 import { WaitForTransactionReceiptTimeoutError } from '../../errors/transaction.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
-import { mine } from '../test/mine.js'
-import { sendTransaction } from '../wallet/sendTransaction.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
-
-import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
-import { keccak256 } from '~viem/utils/index.js'
-import { prepareTransactionRequest } from '../../actions/index.js'
 import {
   sendRawTransaction,
   setIntervalMining,
   signTransaction,
 } from '../index.js'
+import { mine } from '../test/mine.js'
+import { sendTransaction } from '../wallet/sendTransaction.js'
 import * as getBlock from './getBlock.js'
 import * as getTransactionModule from './getTransaction.js'
 import { waitForTransactionReceipt } from './waitForTransactionReceipt.js'
@@ -482,6 +480,54 @@ describe('replaced transactions', () => {
     expect(replacement.replacedTransaction).toBeDefined()
     expect(replacement.transaction).toBeDefined()
     expect(replacement.transactionReceipt).toBeDefined()
+  })
+
+  test('checkReplacement: false', async () => {
+    setup()
+
+    await mine(client, { blocks: 10 })
+
+    const nonce = hexToNumber(
+      (await client.request({
+        method: 'eth_getTransactionCount',
+        params: [sourceAccount.address, 'latest'],
+      })) ?? '0x0',
+    )
+
+    const hash = await sendTransaction(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxFeePerGas: parseGwei('10'),
+      nonce,
+    })
+
+    let replacementCalled = false
+    const receiptPromise = waitForTransactionReceipt(client, {
+      hash,
+      checkReplacement: false,
+      timeout: 3000,
+      onReplaced: () => (replacementCalled = true),
+    })
+
+    // Replace the transaction with a higher gas price
+    await wait(100)
+    await sendTransaction(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('2'),
+      nonce,
+      maxFeePerGas: parseGwei('20'),
+    })
+
+    // Since checkReplacement is false, it should timeout waiting for the original transaction
+    // rather than detecting the replacement
+    await expect(receiptPromise).rejects.toThrowError(
+      WaitForTransactionReceiptTimeoutError,
+    )
+
+    // The onReplaced callback should not have been called
+    expect(replacementCalled).toBe(false)
   })
 })
 

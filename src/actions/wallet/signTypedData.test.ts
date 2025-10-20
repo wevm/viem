@@ -1,11 +1,10 @@
 import { describe, expect, test } from 'vitest'
 
 import { accounts, typedData } from '~test/src/constants.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { getAddress } from '../../utils/address/getAddress.js'
 import { recoverTypedDataAddress } from '../../utils/signature/recoverTypedDataAddress.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
 import { signTypedData } from './signTypedData.js'
 
 const localAccount = privateKeyToAccount(accounts[0].privateKey)

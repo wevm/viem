@@ -4,8 +4,8 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
-import { hashMessage } from '../../utils/signature/hashMessage.js'
 import type { HashMessageErrorType } from '../../utils/signature/hashMessage.js'
+import { hashMessage } from '../../utils/signature/hashMessage.js'
 import { parseSiweMessage } from '../../utils/siwe/parseSiweMessage.js'
 import {
   type ValidateSiweMessageParameters,

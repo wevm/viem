@@ -7,14 +7,14 @@ import { blobData, kzg } from '../../../test/src/kzg.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, mainnet } from '../../chains/index.js'
 import {
+  createWalletClient,
   http,
+  parseGwei,
+  stringToHex,
   type TransactionRequestBase,
   type TransactionRequestEIP1559,
   type TransactionRequestEIP2930,
   type TransactionRequestLegacy,
-  createWalletClient,
-  parseGwei,
-  stringToHex,
 } from '../../index.js'
 import type {
   TransactionRequestEIP4844,

@@ -201,6 +201,11 @@ import {
   uninstallFilter,
 } from '../../actions/public/uninstallFilter.js'
 import {
+  type VerifyHashParameters,
+  type VerifyHashReturnType,
+  verifyHash,
+} from '../../actions/public/verifyHash.js'
+import {
   type VerifyMessageParameters,
   type VerifyMessageReturnType,
   verifyMessage,
@@ -256,6 +261,11 @@ import {
   type SendRawTransactionReturnType,
   sendRawTransaction,
 } from '../../actions/wallet/sendRawTransaction.js'
+import {
+  type SendRawTransactionSyncParameters,
+  type SendRawTransactionSyncReturnType,
+  sendRawTransactionSync,
+} from '../../actions/wallet/sendRawTransactionSync.js'
 import type { Account } from '../../types/account.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
@@ -1531,6 +1541,33 @@ export type PublicActions<
     args: SendRawTransactionParameters,
   ) => Promise<SendRawTransactionReturnType>
   /**
+   * Sends a **signed** transaction to the network
+   *
+   * - Docs: https://viem.sh/docs/actions/wallet/sendRawTransactionSync
+   * - JSON-RPC Method: [`eth_sendRawTransactionSync`](https://eips.ethereum.org/EIPS/eip-7966)
+   *
+   * @param client - Client to use
+   * @param parameters - {@link SendRawTransactionSyncParameters}
+   * @returns The transaction receipt. {@link SendRawTransactionSyncReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { sendRawTransactionSync } from 'viem/wallet'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   *
+   * const receipt = await client.sendRawTransactionSync({
+   *   serializedTransaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33'
+   * })
+   */
+  sendRawTransactionSync: (
+    args: SendRawTransactionSyncParameters,
+  ) => Promise<SendRawTransactionSyncReturnType<chain>>
+  /**
    * @deprecated Use `simulateBlocks` instead.
    */
   simulate: <const calls extends readonly unknown[]>(
@@ -1676,6 +1713,15 @@ export type PublicActions<
       accountOverride
     >
   >
+  /**
+   * Verify that a hash was signed by the provided address.
+   *
+   * - Docs {@link https://viem.sh/docs/actions/public/verifyHash}
+   *
+   * @param parameters - {@link VerifyHashParameters}
+   * @returns Whether or not the signature is valid. {@link VerifyHashReturnType}
+   */
+  verifyHash: (args: VerifyHashParameters) => Promise<VerifyHashReturnType>
   /**
    * Verify that a message was signed by the provided address.
    *
@@ -2004,10 +2050,12 @@ export function publicActions<
       prepareTransactionRequest(client as any, args as any) as any,
     readContract: (args) => readContract(client, args),
     sendRawTransaction: (args) => sendRawTransaction(client, args),
+    sendRawTransactionSync: (args) => sendRawTransactionSync(client, args),
     simulate: (args) => simulateBlocks(client, args),
     simulateBlocks: (args) => simulateBlocks(client, args),
     simulateCalls: (args) => simulateCalls(client, args),
     simulateContract: (args) => simulateContract(client, args),
+    verifyHash: (args) => verifyHash(client, args),
     verifyMessage: (args) => verifyMessage(client, args),
     verifySiweMessage: (args) => verifySiweMessage(client, args),
     verifyTypedData: (args) => verifyTypedData(client, args),

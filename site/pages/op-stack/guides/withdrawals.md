@@ -1,17 +1,3 @@
----
-head:
-  - - meta
-    - property: og:title
-      content: Withdrawals
-  - - meta
-    - name: description
-      content: How to withdraw from OP Stack chains to Mainnet.
-  - - meta
-    - property: og:description
-      content: How to withdraw from OP Stack chains to Mainnet.
-
----
-
 # Withdrawals
 
 This guide will demonstrate how to withdraw **1 Ether** from **[Optimism (OP Mainnet)](https://www.optimism.io/)** to **Mainnet**.

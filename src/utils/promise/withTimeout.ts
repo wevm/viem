@@ -5,7 +5,9 @@ export type WithTimeoutErrorType = ErrorType
 export function withTimeout<data>(
   fn: ({
     signal,
-  }: { signal: AbortController['signal'] | null }) => Promise<data>,
+  }: {
+    signal: AbortController['signal'] | null
+  }) => Promise<data>,
   {
     errorInstance = new Error('timed out'),
     timeout,

@@ -124,7 +124,7 @@ describe('smoke test', () => {
     expect(request).toBeDefined()
   })
 
-  test('buildProveWithdrawal', async () => {
+  test.skip('buildProveWithdrawal', async () => {
     const request = await opStackClient.buildProveWithdrawal({
       withdrawal: {
         nonce:

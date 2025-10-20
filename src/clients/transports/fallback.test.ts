@@ -14,8 +14,8 @@ import { createPublicClient } from '../createPublicClient.js'
 import type { Transport } from './createTransport.js'
 import {
   type FallbackTransport,
-  type OnResponseFn,
   fallback,
+  type OnResponseFn,
   rankTransports,
 } from './fallback.js'
 import { http } from './http.js'

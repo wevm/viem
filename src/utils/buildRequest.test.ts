@@ -8,8 +8,8 @@ import {
   TimeoutError,
 } from '../errors/request.js'
 import {
-  AtomicReadyWalletRejectedUpgradeError,
   AtomicityNotSupportedError,
+  AtomicReadyWalletRejectedUpgradeError,
   BundleTooLargeError,
   ChainDisconnectedError,
   DuplicateIdError,

@@ -1,4 +1,7 @@
 /* c8 ignore start */
+
+import { createServer, type RequestListener } from 'node:http'
+import type { AddressInfo } from 'node:net'
 import { getTransactionReceipt } from '~viem/actions/public/getTransactionReceipt.js'
 import { impersonateAccount } from '~viem/actions/test/impersonateAccount.js'
 import { mine } from '~viem/actions/test/mine.js'
@@ -12,21 +15,10 @@ import { holesky, mainnet } from '~viem/chains/index.js'
 import { createClient } from '~viem/clients/createClient.js'
 import { http } from '~viem/clients/transports/http.js'
 import { namehash } from '~viem/utils/ens/namehash.js'
-import type { TestClientMode } from '../../src/clients/createTestClient.js'
 import {
-  type Abi,
-  type Account,
-  type Chain,
-  type TestClient,
-  type Transport,
-  publicActions,
-} from '../../src/index.js'
-
-import { type RequestListener, createServer } from 'node:http'
-import type { AddressInfo } from 'node:net'
-import {
-  ERC20InvalidTransferEvent,
   EnsAvatarTokenUri,
+  ERC20InvalidTransferEvent,
+  ERC6492SignatureVerifier,
   ErrorsExample,
   OffchainLookupExample,
   Payable,
@@ -35,8 +27,16 @@ import {
   SoladyAccount07,
   SoladyAccountFactory06,
   SoladyAccountFactory07,
-  VerifySig,
 } from '../../contracts/generated.js'
+import type { TestClientMode } from '../../src/clients/createTestClient.js'
+import {
+  type Abi,
+  type Account,
+  type Chain,
+  publicActions,
+  type TestClient,
+  type Transport,
+} from '../../src/index.js'
 import {
   baycContractConfig,
   ensRegistryConfig,
@@ -126,7 +126,9 @@ export async function deployErc20InvalidTransferEvent() {
 
 export async function deployOffchainLookupExample({
   urls,
-}: { urls: string[] }) {
+}: {
+  urls: string[]
+}) {
   return deploy(client, {
     abi: OffchainLookupExample.abi,
     bytecode: OffchainLookupExample.bytecode.object,
@@ -183,10 +185,10 @@ export async function deploySoladyAccount_06() {
   }
 }
 
-export async function deployUniversalSignatureVerifier() {
+export async function deployErc6492SignatureVerifier() {
   return deploy(client, {
-    abi: VerifySig.abi,
-    bytecode: VerifySig.bytecode.object,
+    abi: ERC6492SignatureVerifier.abi,
+    bytecode: ERC6492SignatureVerifier.bytecode.object,
   })
 }
 

@@ -42,7 +42,7 @@ export type Chain<
           ensRegistry?: ChainContract | undefined
           ensUniversalResolver?: ChainContract | undefined
           multicall3?: ChainContract | undefined
-          universalSignatureVerifier?: ChainContract | undefined
+          erc6492Verifier?: ChainContract | undefined
         }
       >
     | undefined
@@ -54,6 +54,8 @@ export type Chain<
   name: string
   /** Currency used by chain */
   nativeCurrency: ChainNativeCurrency
+  /** Preconfirmation time in milliseconds. */
+  experimental_preconfirmationTime?: number | undefined
   /** Collection of RPC endpoints */
   rpcUrls: {
     [key: string]: ChainRpcUrls
@@ -183,7 +185,7 @@ export type ChainFormatters = {
 }
 
 export type ChainFormatter<type extends string = string> = {
-  format: (args: any) => any
+  format: (args: any, action?: string | undefined) => any
   type: type
 }
 

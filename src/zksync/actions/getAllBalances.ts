@@ -13,6 +13,7 @@ export type GetAllBalancesParameters<
 
 export type GetAllBalancesReturnType = { [key: Address]: bigint }
 
+/* @deprecated This method has been removed from the node API. */
 export async function getAllBalances<
   chain extends Chain | undefined,
   account extends Account | undefined,

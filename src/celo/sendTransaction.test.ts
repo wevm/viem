@@ -3,11 +3,11 @@ import { accounts } from '~test/src/constants.js'
 import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
 import { celo } from '../chains/index.js'
 import {
+  createTransport,
+  createWalletClient,
   type EIP1193RequestFn,
   type PublicRpcSchema,
   type WalletRpcSchema,
-  createTransport,
-  createWalletClient,
 } from '../index.js'
 
 describe('sendTransaction()', () => {

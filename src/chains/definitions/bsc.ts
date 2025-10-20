@@ -3,6 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const bsc = /*#__PURE__*/ defineChain({
   id: 56,
   name: 'BNB Smart Chain',
+  blockTime: 750,
   nativeCurrency: {
     decimals: 18,
     name: 'BNB',

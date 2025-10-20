@@ -1,16 +1,15 @@
 import { afterAll, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
-
 import { sepolia } from '~viem/chains/index.js'
 import { erc20Abi } from '~viem/constants/abis.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import * as readContract from '../../actions/public/readContract.js'
 import {
-  http,
   createClient,
   createPublicClient,
   createWalletClient,
+  http,
 } from '../../index.js'
 import { publicActionsL1 } from '../decorators/publicL1.js'
 import { getL1Allowance } from './getL1Allowance.js'

@@ -55,7 +55,8 @@ const owner = privateKeyToAccount('0x...')
 
 const account = await toCoinbaseSmartAccount({ // [!code focus]
   client, // [!code focus]
-  owners: [owner] // [!code focus]
+  owners: [owner], // [!code focus]
+  version: '1.1', // [!code focus]
 }) // [!code focus]
 
 const bundlerClient = createBundlerClient({

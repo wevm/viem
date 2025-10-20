@@ -1,6 +1,7 @@
 import type { Abi, Address } from 'abitype'
 
 import { type CallParameters, call } from '../actions/public/call.js'
+import type { Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
 import type { BaseError } from '../errors/base.js'
 import {
@@ -14,11 +15,9 @@ import {
   HttpRequestError,
   type HttpRequestErrorType,
 } from '../errors/request.js'
+import type { ErrorType } from '../errors/utils.js'
 import type { Chain } from '../types/chain.js'
 import type { Hex } from '../types/misc.js'
-
-import type { Client } from '../clients/createClient.js'
-import type { ErrorType } from '../errors/utils.js'
 import { decodeErrorResult } from './abi/decodeErrorResult.js'
 import { encodeAbiParameters } from './abi/encodeAbiParameters.js'
 import { isAddressEqual } from './address/isAddressEqual.js'

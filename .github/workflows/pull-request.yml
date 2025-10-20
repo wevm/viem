@@ -11,11 +11,37 @@ jobs:
     name: Verify
     uses: ./.github/workflows/verify.yml
     secrets: inherit
+    permissions:
+      contents: read
+
+  publish:
+    name: Publish Prerelease
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Publish Prerelease
+        run: |
+          pnpm clean
+          pnpm changeset:prepublish
+          pnpx pkg-pr-new publish --pnpm --compact './src'
 
   size:
     name: Size
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
 
     steps:
       - name: Clone repository

@@ -1,5 +1,5 @@
 import type { Address, TypedData } from 'abitype'
-
+import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex, Signature } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
 import { type GetAddressErrorType, getAddress } from '../address/getAddress.js'
@@ -7,8 +7,6 @@ import {
   type IsAddressEqualErrorType,
   isAddressEqual,
 } from '../address/isAddressEqual.js'
-
-import type { ErrorType } from '../../errors/utils.js'
 import {
   type RecoverTypedDataAddressParameters,
   recoverTypedDataAddress,

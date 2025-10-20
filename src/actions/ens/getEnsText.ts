@@ -118,7 +118,6 @@ export async function getEnsText<chain extends Chain | undefined>(
     const readContractParameters = {
       address: universalResolverAddress,
       abi: universalResolverResolveAbi,
-      functionName: 'resolve',
       args: [
         toHex(packetToBytes(name)),
         encodeFunctionData({
@@ -128,6 +127,7 @@ export async function getEnsText<chain extends Chain | undefined>(
         }),
         gatewayUrls ?? [localBatchGatewayUrl],
       ],
+      functionName: 'resolveWithGateways',
       blockNumber,
       blockTag,
     } as const
@@ -147,7 +147,7 @@ export async function getEnsText<chain extends Chain | undefined>(
     return record === '' ? null : record
   } catch (err) {
     if (strict) throw err
-    if (isNullUniversalResolverError(err, 'resolve')) return null
+    if (isNullUniversalResolverError(err)) return null
     throw err
   }
 }

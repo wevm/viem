@@ -13,5 +13,5 @@ export default function () {
   })
 }
 
-// biome-ignore lint/performance/noBarrelFile: <explanation>
+// biome-ignore lint/performance/noBarrelFile: _
 export { teardown } from '@ark/attest'

@@ -1,13 +1,10 @@
 import { expect, test } from 'vitest'
-
+import { anvilZksync } from '~test/src/anvil.js'
 import { accounts } from '~test/src/constants.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
-
-import { deployContract } from './deployContract.js'
-
-import { anvilZksync } from '~test/src/anvil.js'
 import type { EIP1193RequestFn } from '../../index.js'
 import type { DeployContractParameters } from './deployContract.js'
+import { deployContract } from './deployContract.js'
 
 const sourceAccount = accounts[0]
 

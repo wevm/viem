@@ -2,15 +2,14 @@ import { describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 import { blobData, kzg } from '~test/src/kzg.js'
-import { anvilMainnet, anvilSepolia } from '../../../test/src/anvil.js'
-import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
-import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
-
 import { maxUint256 } from '~viem/constants/number.js'
 import { Delegation } from '../../../contracts/generated.js'
 import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
+import { anvilMainnet, anvilSepolia } from '../../../test/src/anvil.js'
 import { deploy } from '../../../test/src/utils.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { celo, localhost, mainnet, optimism } from '../../chains/index.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
 import {

@@ -128,7 +128,7 @@ export function watchBlockNumber<
               'getBlockNumber',
             )({ cacheTime: 0 })
 
-            if (prevBlockNumber) {
+            if (prevBlockNumber !== undefined) {
               // If the current block number is the same as the previous,
               // we can skip.
               if (blockNumber === prevBlockNumber) return
@@ -145,7 +145,10 @@ export function watchBlockNumber<
 
             // If the next block number is greater than the previous,
             // it is not in the past, and we can emit the new block number.
-            if (!prevBlockNumber || blockNumber > prevBlockNumber) {
+            if (
+              prevBlockNumber === undefined ||
+              blockNumber > prevBlockNumber
+            ) {
               emit.onBlockNumber(blockNumber, prevBlockNumber)
               prevBlockNumber = blockNumber
             }

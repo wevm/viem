@@ -5,15 +5,18 @@
  */
 import { describe, expect, test, vi } from 'vitest'
 
-import { ErrorsExample, GH434 } from '~contracts/generated.js'
+import { Delegation, ErrorsExample, GH434 } from '~contracts/generated.js'
 import {
   baycContractConfig,
+  multicall3ContractConfig,
   usdcContractConfig,
   wagmiContractConfig,
 } from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
 import { deploy, deployErrorExample } from '~test/src/utils.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
+import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { mainnet } from '../../chains/index.js'
 
 import { createPublicClient } from '../../clients/createPublicClient.js'
@@ -21,6 +24,7 @@ import { http } from '../../clients/transports/http.js'
 import type { Hex } from '../../types/misc.js'
 import { pad } from '../../utils/data/pad.js'
 import { toHex } from '../../utils/encoding/toHex.js'
+import { signAuthorization } from '../wallet/signAuthorization.js'
 import { multicall } from './multicall.js'
 import * as readContract from './readContract.js'
 
@@ -278,6 +282,111 @@ test('args: multicallAddress', async () => {
   `)
 })
 
+test('args: deployless', async () => {
+  expect(
+    await multicall(client, {
+      blockNumber: anvilMainnet.forkBlockNumber,
+      deployless: true,
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+        {
+          ...baycContractConfig,
+          functionName: 'totalSupply',
+        },
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      {
+        "result": 39507977228957576n,
+        "status": "success",
+      },
+      {
+        "result": 123223706565n,
+        "status": "success",
+      },
+      {
+        "result": 10000n,
+        "status": "success",
+      },
+    ]
+  `)
+})
+
+test('args: deployless with allowFailure false', async () => {
+  expect(
+    await multicall(client, {
+      allowFailure: false,
+      blockNumber: anvilMainnet.forkBlockNumber,
+      deployless: true,
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+        {
+          ...baycContractConfig,
+          functionName: 'totalSupply',
+        },
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      39507977228957576n,
+      123223706565n,
+      10000n,
+    ]
+  `)
+})
+
+test('args: deployless without chain', async () => {
+  const clientWithoutChain = createPublicClient({
+    transport: http(anvilMainnet.rpcUrl.http),
+  })
+
+  expect(
+    await multicall(clientWithoutChain, {
+      blockNumber: anvilMainnet.forkBlockNumber,
+      deployless: true,
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      {
+        "result": 39507977228957576n,
+        "status": "success",
+      },
+      {
+        "result": 123223706565n,
+        "status": "success",
+      },
+    ]
+  `)
+})
+
 test('args: stateOverride', async () => {
   const fakeName = 'NotWagmi'
 
@@ -337,6 +446,76 @@ test('args: stateOverride', async () => {
         "result": "${fakeName}",
         "status": "success",
       },
+    ]
+  `)
+})
+
+test('args: blockOverrides', async () => {
+  expect(
+    await multicall(client, {
+      batchSize: 2,
+      contracts: [
+        {
+          ...multicall3ContractConfig,
+          functionName: 'getCurrentBlockTimestamp',
+        },
+        {
+          ...multicall3ContractConfig,
+          functionName: 'getCurrentBlockTimestamp',
+        },
+      ],
+      blockOverrides: { time: 420n },
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      {
+        "result": 420n,
+        "status": "success",
+      },
+      {
+        "result": 420n,
+        "status": "success",
+      },
+    ]
+  `)
+})
+
+test('args: authorizationList', async () => {
+  const { contractAddress } = await deploy(client, {
+    abi: Delegation.abi,
+    bytecode: Delegation.bytecode.object,
+  })
+
+  const eoa = privateKeyToAccount(generatePrivateKey())
+
+  const authorization = await signAuthorization(client, {
+    account: eoa,
+    contractAddress: contractAddress!,
+  })
+
+  const result = await multicall(client, {
+    allowFailure: false,
+    authorizationList: [authorization],
+    contracts: [
+      {
+        abi: Delegation.abi,
+        address: eoa.address,
+        functionName: 'ping',
+        args: ['hello'],
+      },
+      {
+        abi: Delegation.abi,
+        address: eoa.address,
+        functionName: 'ping',
+        args: ['world'],
+      },
+    ],
+  })
+
+  expect(result).toMatchInlineSnapshot(`
+    [
+      "pong: hello",
+      "pong: world",
     ]
   `)
 })
@@ -1174,6 +1353,93 @@ test('batchSize on client', async () => {
   await multicall(client, {
     contracts,
   })
+})
+
+test('deployless on client', async () => {
+  const clientWithDeployless = createPublicClient({
+    batch: {
+      multicall: {
+        deployless: true,
+      },
+    },
+    chain: anvilMainnet.chain,
+    transport: http(),
+  })
+
+  expect(
+    await multicall(clientWithDeployless, {
+      blockNumber: anvilMainnet.forkBlockNumber,
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+        {
+          ...baycContractConfig,
+          functionName: 'totalSupply',
+        },
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      {
+        "result": 39507977228957576n,
+        "status": "success",
+      },
+      {
+        "result": 123223706565n,
+        "status": "success",
+      },
+      {
+        "result": 10000n,
+        "status": "success",
+      },
+    ]
+  `)
+})
+
+test('deployless on client without chain', async () => {
+  const clientWithDeploylessNoChain = createPublicClient({
+    batch: {
+      multicall: {
+        deployless: true,
+      },
+    },
+    transport: http(anvilMainnet.rpcUrl.http),
+  })
+
+  expect(
+    await multicall(clientWithDeploylessNoChain, {
+      blockNumber: anvilMainnet.forkBlockNumber,
+      contracts: [
+        {
+          ...usdcContractConfig,
+          functionName: 'totalSupply',
+        },
+        {
+          ...usdcContractConfig,
+          functionName: 'balanceOf',
+          args: [address.vitalik],
+        },
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    [
+      {
+        "result": 39507977228957576n,
+        "status": "success",
+      },
+      {
+        "result": 123223706565n,
+        "status": "success",
+      },
+    ]
+  `)
 })
 
 describe('GitHub repros', () => {

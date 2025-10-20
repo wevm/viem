@@ -6,7 +6,7 @@ import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import * as readContract from '../../actions/public/readContract.js'
 import { sepolia } from '../../chains/index.js'
 import { erc20Abi } from '../../constants/abis.js'
-import { http, createClient, createPublicClient } from '../../index.js'
+import { createClient, createPublicClient, http } from '../../index.js'
 import { getL1Balance } from './getL1Balance.js'
 
 const sourceAccount = accounts[0]

@@ -3,8 +3,8 @@ import type { ByteArray } from '../../types/misc.js'
 import { type ConcatErrorType, concat } from '../data/concat.js'
 import {
   type StringToBytesErrorType,
-  type ToBytesErrorType,
   stringToBytes,
+  type ToBytesErrorType,
   toBytes,
 } from '../encoding/toBytes.js'
 import { type BytesToHexErrorType, bytesToHex } from '../encoding/toHex.js'
