@@ -13,7 +13,7 @@ export const gatechain = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Gate Scan',
-      url: 'https://www.gatescan.org/',
+      url: 'https://www.gatescan.org',
       apiUrl: 'https://gatescan.org/api',
     },
   },
