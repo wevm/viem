@@ -1,3 +1,4 @@
+import { TorClient, type TorClientOptions } from 'tor-hazae41'
 import { RpcRequestError } from '../../errors/request.js'
 import {
   UrlRequiredError,
@@ -62,6 +63,13 @@ export type HttpTransportConfig<
   rpcSchema?: rpcSchema | RpcSchema | undefined
   /** The timeout (in ms) for the HTTP request. Default: 10_000 */
   timeout?: TransportConfig['timeout'] | undefined
+  /** todo */
+  tor?: TorClientOptions & {
+    sharedClient?: TorClient
+    filter:
+      | string[]
+      | ((input: RequestInfo | URL, init?: RequestInit) => boolean)
+  }
 }
 
 export type HttpTransport<
@@ -112,8 +120,14 @@ export function http<
     const url_ = url || chain?.rpcUrls.default.http[0]
     if (!url_) throw new UrlRequiredError()
 
+    let maybeWrappedFetchFn = fetchFn ?? fetch
+
+    if (config.tor) {
+      maybeWrappedFetchFn = makePartialTorFetch(maybeWrappedFetchFn, config.tor)
+    }
+
     const rpcClient = getHttpRpcClient(url_, {
-      fetchFn,
+      fetchFn: maybeWrappedFetchFn,
       fetchOptions,
       onRequest: onFetchRequest,
       onResponse: onFetchResponse,
@@ -171,5 +185,49 @@ export function http<
         url: url_,
       },
     )
+  }
+}
+
+type FetchFn = NonNullable<HttpRpcClientOptions['fetchFn']>
+
+function makePartialTorFetch(
+  fetchFn: FetchFn,
+  torOptions: NonNullable<HttpTransportConfig['tor']>,
+): FetchFn {
+  const tor = torOptions?.sharedClient ?? new TorClient(torOptions)
+
+  let filterFn: (input: RequestInfo | URL, init?: RequestInit) => boolean
+
+  if (typeof torOptions.filter === 'function') {
+    filterFn = torOptions.filter
+  } else {
+    const filterMethods = torOptions.filter
+
+    filterFn = (_input, init) => {
+      try {
+        if (!init?.body) {
+          return false
+        }
+
+        const body = JSON.parse(init.body as string)
+        const requests = Array.isArray(body) ? body : [body]
+
+        return requests.some((req: any) => filterMethods.includes(req.method))
+      } catch {
+        return false
+      }
+    }
+  }
+
+  return async (input: RequestInfo | URL, init?: RequestInit) => {
+    if (filterFn(input, init)) {
+      if (typeof input !== 'string') {
+        throw new Error('Unsupported: non-string url')
+      }
+
+      return tor.fetch(input, init)
+    }
+
+    return fetchFn(input, init)
   }
 }
