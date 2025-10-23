@@ -421,9 +421,8 @@ export async function prepareTransactionRequest<
       'estimateGas',
     )({
       ...request,
-      account: account
-        ? { address: account.address, type: 'json-rpc' }
-        : account,
+      account,
+      prepare: account?.type === 'local' ? [] : ['blobVersionedHashes'],
     } as EstimateGasParameters)
 
   assertRequest(request as AssertRequestParameters)
