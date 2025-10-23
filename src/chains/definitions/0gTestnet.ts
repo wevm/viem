@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const zeroGGalileoTestnet = /*#__PURE__*/ defineChain({
+export const zeroGTestnet = /*#__PURE__*/ defineChain({
   id: 16_602,
   name: '0G Galileo Testnet',
   nativeCurrency: { name: 'A0GI', symbol: 'A0GI', decimals: 18 },
