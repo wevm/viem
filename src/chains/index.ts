@@ -4,8 +4,10 @@ export {
   /** @deprecated Use `zeroGGalileoTestnet` instead. */
   zeroG,
 } from './definitions/0g.js'
+/** @deprecated Use `zeroGGalileoTestnet` instead. */
 export { zeroGGalileoTestnet } from './definitions/0gGalileoTestnet.js'
 export { zeroGMainnet } from './definitions/0gMainnet.js'
+export { zeroGTestnet } from './definitions/0gTestnet.js'
 export { fireChain } from './definitions/5ireChain.js'
 export { abey } from './definitions/abey.js'
 export { abstract } from './definitions/abstract.js'
