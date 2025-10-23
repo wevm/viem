@@ -114,6 +114,14 @@ export async function estimateGas<
   const { account: account_ = client.account, prepare = true } = args
   const account = account_ ? parseAccount(account_) : undefined
 
+  const parameters = (() => {
+    if (Array.isArray(prepare)) return prepare
+    // Some RPC Providers do not compute versioned hashes from blobs. We will need
+    // to compute them.
+    if (account?.type !== 'local') return ['blobVersionedHashes']
+    return undefined
+  })()
+
   try {
     const {
       accessList,
@@ -135,11 +143,7 @@ export async function estimateGas<
     } = prepare
       ? ((await prepareTransactionRequest(client, {
           ...args,
-          parameters:
-            prepare ??
-            // Some RPC Providers do not compute versioned hashes from blobs. We will need
-            // to compute them.
-            (account?.type === 'local' ? undefined : ['blobVersionedHashes']),
+          parameters,
         } as PrepareTransactionRequestParameters)) as EstimateGasParameters)
       : args
 
