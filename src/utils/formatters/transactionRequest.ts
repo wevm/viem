@@ -55,8 +55,7 @@ export function formatTransactionRequest(
     else rpcRequest.blobs = request.blobs
   }
   if (typeof request.data !== 'undefined') rpcRequest.data = request.data
-  if (typeof request.account !== 'undefined')
-    rpcRequest.from = request.account.address
+  if (request.account) rpcRequest.from = request.account.address
   if (typeof request.from !== 'undefined') rpcRequest.from = request.from
   if (typeof request.gas !== 'undefined')
     rpcRequest.gas = numberToHex(request.gas)
