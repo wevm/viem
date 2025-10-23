@@ -1,5 +1,17 @@
 # viem
 
+## 2.38.4
+
+### Patch Changes
+
+- [#4038](https://github.com/wevm/viem/pull/4038) [`042bf3963a7435adc1044a61df03cd65f31eeac9`](https://github.com/wevm/viem/commit/042bf3963a7435adc1044a61df03cd65f31eeac9) Thanks [@cuzfinal](https://github.com/cuzfinal)! - Updated hashkeyChainTestnet config
+
+- [`97fad54d7d6248686a7767e9ac49b8ecc60d54f8`](https://github.com/wevm/viem/commit/97fad54d7d6248686a7767e9ac49b8ecc60d54f8) Thanks [@jxom](https://github.com/jxom)! - Passed `account` to transaction request formatters.
+
+- [#4047](https://github.com/wevm/viem/pull/4047) [`0d9222968b1dda76fd2efc3d3c64c745955d4240`](https://github.com/wevm/viem/commit/0d9222968b1dda76fd2efc3d3c64c745955d4240) Thanks [@akitothemoon](https://github.com/akitothemoon)! - Added Quai network.
+
+- [#4042](https://github.com/wevm/viem/pull/4042) [`0044d12bf123cc990caf4463fe3cae237bf34d2e`](https://github.com/wevm/viem/commit/0044d12bf123cc990caf4463fe3cae237bf34d2e) Thanks [@saqibhafeezkhan](https://github.com/saqibhafeezkhan)! - Added Gatechain Mainnet
+
 ## 2.38.3
 
 ### Patch Changes
