@@ -1,5 +1,11 @@
 # viem
 
+## 2.38.5
+
+### Patch Changes
+
+- [#4049](https://github.com/wevm/viem/pull/4049) [`f12376ca95436fe05f7fe7bc411441bc0f02c8da`](https://github.com/wevm/viem/commit/f12376ca95436fe05f7fe7bc411441bc0f02c8da) Thanks [@hejtao](https://github.com/hejtao)! - Added 0g testnet.
+
 ## 2.38.4
 
 ### Patch Changes
