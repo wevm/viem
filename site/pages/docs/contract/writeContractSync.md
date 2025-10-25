@@ -2,7 +2,7 @@
 description: Executes a write function on a contract synchronously.
 ---
 
-# writeContract
+# writeContractSync
 
 Executes a write function on a contract, and waits for the transaction to be included in a block. Returns the transaction receipt.
 
