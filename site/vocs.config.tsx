@@ -1,4 +1,3 @@
-import { resolve } from 'node:path'
 import React from 'react'
 import { defineConfig } from 'vocs'
 
