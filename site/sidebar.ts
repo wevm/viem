@@ -1762,8 +1762,21 @@ export const sidebar = {
             link: '/circle-usdc/guides/integrating',
           },
           {
-            text: 'Cross-Chain Transfers',
-            link: '/circle-usdc/guides/cross-chain',
+            text: 'Cross Chain Transfers',
+            items: [
+              {
+                text: 'Overview',
+                link: '/circle-usdc/guides/cross-chain',
+              },
+              {
+                text: 'CCTP Integration with Bridge Kit',
+                link: '/circle-usdc/guides/bridge-kit',
+              },
+              {
+                text: 'CCTP Integration',
+                link: '/circle-usdc/guides/manual-cctp',
+              },
+            ],
           },
           {
             text: 'Paying Gas with USDC',
