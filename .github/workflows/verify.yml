@@ -221,6 +221,8 @@ jobs:
 
   wagmi:
     name: Wagmi
+    permissions:
+      contents: read
     needs: [build, types]
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -252,4 +254,3 @@ jobs:
       - name: Check build
         run: pnpm build
         working-directory: ./wagmi
-
