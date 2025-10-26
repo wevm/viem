@@ -239,7 +239,7 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Set TypeScript version
-        run: pnpm add -D typescript@${{ matrix.typescript-version }}
+        run: pnpm add -D -w typescript@${{ matrix.typescript-version }}
 
       - name: Setup wagmi
         uses: ./.github/actions/setup-wagmi
