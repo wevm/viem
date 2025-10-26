@@ -239,12 +239,16 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
+      - name: Set TypeScript version
+        run: pnpm add -D typescript@${{ matrix.typescript-version }}
+
       - name: Setup wagmi
         uses: ./.github/actions/setup-wagmi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - run: pnpm add -D -w typescript@${{ matrix.typescript-version }}
+      - name: Set TypeScript version (wagmi)
+        run: pnpm add -D -w typescript@${{ matrix.typescript-version }}
         working-directory: ./wagmi
 
       - name: Check types
