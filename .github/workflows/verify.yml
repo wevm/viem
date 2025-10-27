@@ -239,16 +239,15 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Set TypeScript version
-        run: pnpm add -D -w typescript@${{ matrix.typescript-version }}
+        run: |
+          pnpm install -D -w typescript@${{ matrix.typescript-version }}
+          node -e "import fs from 'fs'; const p = JSON.parse(fs.readFileSync('./package.json', 'utf8')); p.pnpm = p.pnpm || {}; p.pnpm.overrides = p.pnpm.overrides || {}; p.pnpm.overrides.typescript = '${{ matrix.typescript-version }}'; fs.writeFileSync('package.json', JSON.stringify(p, null, 2));"
+          pnpm install --no-frozen-lockfile
 
       - name: Setup wagmi
         uses: ./.github/actions/setup-wagmi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set TypeScript version (wagmi)
-        run: pnpm add -D -w typescript@${{ matrix.typescript-version }}
-        working-directory: ./wagmi
 
       - name: Check types
         run: pnpm check:types
