@@ -544,8 +544,8 @@ export { soneiumMinato } from './definitions/soneiumMinato.js'
 export { songbird } from './definitions/songbird.js'
 export { songbirdTestnet } from './definitions/songbirdTestnet.js'
 export { sonic } from './definitions/sonic.js'
+/** @deprecated Use `sonicTestnet` instead. */
 export { sonicBlazeTestnet } from './definitions/sonicBlazeTestnet.js'
-/** @deprecated Use `sonicBlazeTestnet` instead. */
 export { sonicTestnet } from './definitions/sonicTestnet.js'
 export { sophon } from './definitions/sophon.js'
 export { sophonTestnet } from './definitions/sophonTestnet.js'
