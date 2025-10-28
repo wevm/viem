@@ -15,6 +15,10 @@ export const arcTestnet = /*#__PURE__*/ defineChain({
         'https://rpc.quicknode.testnet.arc.network',
         'https://rpc.blockdaemon.testnet.arc.network',
       ],
+      webSocket: [
+        'wss://rpc.testnet.arc.network',
+        'wss://rpc.quicknode.testnet.arc.network',
+      ],
     },
   },
   blockExplorers: {
