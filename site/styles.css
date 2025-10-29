@@ -1,6 +1,7 @@
 @import "tailwindcss" important;
 
-/* biome-ignore lint/suspicious/noUnknownAtRules: _ */
+@source "./";
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 [data-layout="landing"] .vocs_Button_button {
