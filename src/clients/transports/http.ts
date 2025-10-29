@@ -6,10 +6,11 @@ import {
 } from '../../errors/transport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { EIP1193RequestFn, RpcSchema } from '../../types/eip1193.js'
-import type { RpcRequest } from '../../types/rpc.js'
+import type { RpcRequest, RpcResponse } from '../../types/rpc.js'
 import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
 import {
   getHttpRpcClient,
+  type HttpRpcClient,
   type HttpRpcClientOptions,
 } from '../../utils/rpc/http.js'
 
@@ -75,16 +76,20 @@ export type HttpTransportConfig<
      * - If an array of strings: Only RPC methods matching these names will use Tor
      * - If a function: Called for each request to determine if it should use Tor
      */
-    filter:
-      | string[]
-      | ((input: RequestInfo | URL, init?: RequestInit) => boolean)
+    filter: string[] | RpcRequestFilter
     /**
      * A shared TorClient instance to reuse across multiple transports.
      * If not provided, a new TorClient will be created using the other TorClientOptions.
      */
     sharedClient?: TorClient
+    /**
+     * The timeout (in ms) for the HTTP request over Tor. Default: max(60_000, config.timeout).
+     */
+    timeout?: number
   }
 }
+
+export type RpcRequestFilter = (body: RpcRequest[]) => boolean
 
 export type HttpTransport<
   rpcSchema extends RpcSchema | undefined = undefined,
@@ -134,19 +139,19 @@ export function http<
     const url_ = url || chain?.rpcUrls.default.http[0]
     if (!url_) throw new UrlRequiredError()
 
-    let maybeWrappedFetchFn = fetchFn ?? fetch
-
-    if (config.tor) {
-      maybeWrappedFetchFn = makePartialTorFetch(maybeWrappedFetchFn, config.tor)
-    }
-
-    const rpcClient = getHttpRpcClient(url_, {
-      fetchFn: maybeWrappedFetchFn,
+    const rpcClientOptions = {
+      fetchFn,
       fetchOptions,
       onRequest: onFetchRequest,
       onResponse: onFetchResponse,
       timeout,
-    })
+    }
+
+    const rpcClient = getHttpRpcClient(url_, rpcClientOptions)
+
+    const torTools = config.tor
+      ? makeTorTools(config.tor, url_, rpcClientOptions, timeout)
+      : undefined
 
     return createTransport(
       {
@@ -162,23 +167,26 @@ export function http<
             shouldSplitBatch(requests) {
               return requests.length > batchSize
             },
-            fn: (body: RpcRequest[]) =>
-              rpcClient.request({
-                body,
-              }),
+            fn: (body: RpcRequest[]) => {
+              if (torTools?.filter(body)) {
+                return torTools.rpcClient.request({ body })
+              }
+              return rpcClient.request({ body })
+            },
             sort: (a, b) => a.id - b.id,
           })
 
-          const fn = async (body: RpcRequest) =>
-            batch
-              ? schedule(body)
-              : [
-                  await rpcClient.request({
-                    body,
-                  }),
-                ]
+          let responseData: Awaited<ReturnType<typeof schedule>> | RpcResponse[]
 
-          const [{ error, result }] = await fn(body)
+          if (batch) {
+            responseData = await schedule(body)
+          } else if (torTools?.filter([body])) {
+            responseData = [await torTools.rpcClient.request({ body })]
+          } else {
+            responseData = [await rpcClient.request({ body })]
+          }
+
+          const [{ error, result }] = responseData
 
           if (raw) return { error, result }
           if (error)
@@ -202,46 +210,29 @@ export function http<
   }
 }
 
-type FetchFn = NonNullable<HttpRpcClientOptions['fetchFn']>
+function makeTorTools(
+  torConfig: NonNullable<HttpTransportConfig['tor']>,
+  url: string,
+  rpcClientOptions: HttpRpcClientOptions,
+  timeout: number,
+): { rpcClient: HttpRpcClient; filter: (body: RpcRequest[]) => boolean } {
+  const tor = torConfig.sharedClient ?? new TorClient(torConfig)
 
-function makePartialTorFetch(
-  fetchFn: FetchFn,
-  torOptions: NonNullable<HttpTransportConfig['tor']>,
-): FetchFn {
-  const tor = torOptions?.sharedClient ?? new TorClient(torOptions)
+  let filter: RpcRequestFilter
 
-  let filterFn: (input: RequestInfo | URL, init?: RequestInit) => boolean
-
-  if (typeof torOptions.filter === 'function') {
-    filterFn = torOptions.filter
+  if (typeof torConfig.filter === 'function') {
+    filter = torConfig.filter
   } else {
-    const filterMethods = torOptions.filter
-
-    filterFn = (_input, init) => {
-      try {
-        if (!init?.body) {
-          return false
-        }
-
-        const body = JSON.parse(init.body as string)
-        const requests = Array.isArray(body) ? body : [body]
-
-        return requests.some((req: any) => filterMethods.includes(req.method))
-      } catch {
-        return false
-      }
-    }
+    const filterMethods = torConfig.filter
+    filter = (body) => body.some((req) => filterMethods.includes(req.method))
   }
 
-  return async (input: RequestInfo | URL, init?: RequestInit) => {
-    if (filterFn(input, init)) {
-      if (typeof input !== 'string') {
-        throw new Error('Unsupported: non-string url')
-      }
-
-      return tor.fetch(input, init)
-    }
-
-    return fetchFn(input, init)
+  return {
+    rpcClient: getHttpRpcClient(url, {
+      ...rpcClientOptions,
+      fetchFn: (input, init) => tor.fetch(input.toString(), init),
+      timeout: torConfig.timeout ?? Math.max(timeout, 60_000),
+    }),
+    filter,
   }
 }
