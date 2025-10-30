@@ -1,5 +1,13 @@
 # viem
 
+## 2.38.6
+
+### Patch Changes
+
+- [#4064](https://github.com/wevm/viem/pull/4064) [`9bccdb2cb445270833468c1c273d6e0f2c1dbdf7`](https://github.com/wevm/viem/commit/9bccdb2cb445270833468c1c273d6e0f2c1dbdf7) Thanks [@coffeexcoin](https://github.com/coffeexcoin)! - Added `blockTime` for `abstract`, `abstractTestnet`, `sophon`, `sophonTestnet`, `zksync`, `zksyncSepoliaTestnet`.
+
+- [#4061](https://github.com/wevm/viem/pull/4061) [`7efb234a7396002b1a911ff4bfbd809c76d3acc1`](https://github.com/wevm/viem/commit/7efb234a7396002b1a911ff4bfbd809c76d3acc1) Thanks [@Blessing-Circle](https://github.com/Blessing-Circle)! - Added Arc Testnet chain.
+
 ## 2.38.5
 
 ### Patch Changes
