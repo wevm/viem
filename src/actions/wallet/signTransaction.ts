@@ -173,7 +173,10 @@ export async function signTransaction<
       params: [
         {
           ...format(
-            transaction as unknown as TransactionRequest,
+            {
+              ...transaction,
+              account,
+            } as unknown as TransactionRequest,
             'signTransaction',
           ),
           chainId: numberToHex(chainId),

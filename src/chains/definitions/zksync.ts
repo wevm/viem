@@ -3,6 +3,7 @@ import { chainConfig } from '../../zksync/chainConfig.js'
 
 export const zksync = /*#__PURE__*/ defineChain({
   ...chainConfig,
+  blockTime: 200,
   id: 324,
   name: 'ZKsync Era',
   network: 'zksync-era',

@@ -8,6 +8,9 @@ catalog:
   react-dom: ^19
   typescript: ^5.9.2
 minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+  - hono
+  - vocs
 packages:
   - examples/*
   - environments/*

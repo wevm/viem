@@ -65,7 +65,7 @@ test('gets transaction receipt', async () => {
   `)
 })
 
-test('gets transaction receipt (4844)', async () => {
+test.skip('gets transaction receipt (4844)', async () => {
   const client = createClient({
     chain: holesky,
     transport: http(),

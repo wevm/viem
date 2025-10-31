@@ -205,6 +205,7 @@ export async function simulateBlocks<
         const data = call.abi ? encodeFunctionData(call) : call.data
         const request = {
           ...call,
+          account,
           data: call.dataSuffix
             ? concat([data || '0x', call.dataSuffix])
             : data,

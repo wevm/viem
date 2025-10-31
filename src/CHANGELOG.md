@@ -1,5 +1,35 @@
 # viem
 
+## 2.38.6
+
+### Patch Changes
+
+- [#4064](https://github.com/wevm/viem/pull/4064) [`9bccdb2cb445270833468c1c273d6e0f2c1dbdf7`](https://github.com/wevm/viem/commit/9bccdb2cb445270833468c1c273d6e0f2c1dbdf7) Thanks [@coffeexcoin](https://github.com/coffeexcoin)! - Added `blockTime` for `abstract`, `abstractTestnet`, `sophon`, `sophonTestnet`, `zksync`, `zksyncSepoliaTestnet`.
+
+- [#4061](https://github.com/wevm/viem/pull/4061) [`7efb234a7396002b1a911ff4bfbd809c76d3acc1`](https://github.com/wevm/viem/commit/7efb234a7396002b1a911ff4bfbd809c76d3acc1) Thanks [@Blessing-Circle](https://github.com/Blessing-Circle)! - Added Arc Testnet chain.
+
+## 2.38.5
+
+### Patch Changes
+
+- [#4056](https://github.com/wevm/viem/pull/4056) [`320895cf0e6c654b419d8d61a59c4e7b46674368`](https://github.com/wevm/viem/commit/320895cf0e6c654b419d8d61a59c4e7b46674368) Thanks [@sandyup](https://github.com/sandyup)! - Added Nomina mainnet.
+
+- [#4055](https://github.com/wevm/viem/pull/4055) [`2f933fb8ab20c63b8e777d1819fdd80f9b9a8715`](https://github.com/wevm/viem/commit/2f933fb8ab20c63b8e777d1819fdd80f9b9a8715) Thanks [@sandyup](https://github.com/sandyup)! - Removed trailing whitespace from PGN chain name.
+
+- [#4049](https://github.com/wevm/viem/pull/4049) [`f12376ca95436fe05f7fe7bc411441bc0f02c8da`](https://github.com/wevm/viem/commit/f12376ca95436fe05f7fe7bc411441bc0f02c8da) Thanks [@hejtao](https://github.com/hejtao)! - Added 0g testnet.
+
+## 2.38.4
+
+### Patch Changes
+
+- [#4038](https://github.com/wevm/viem/pull/4038) [`042bf3963a7435adc1044a61df03cd65f31eeac9`](https://github.com/wevm/viem/commit/042bf3963a7435adc1044a61df03cd65f31eeac9) Thanks [@cuzfinal](https://github.com/cuzfinal)! - Updated hashkeyChainTestnet config
+
+- [`97fad54d7d6248686a7767e9ac49b8ecc60d54f8`](https://github.com/wevm/viem/commit/97fad54d7d6248686a7767e9ac49b8ecc60d54f8) Thanks [@jxom](https://github.com/jxom)! - Passed `account` to transaction request formatters.
+
+- [#4047](https://github.com/wevm/viem/pull/4047) [`0d9222968b1dda76fd2efc3d3c64c745955d4240`](https://github.com/wevm/viem/commit/0d9222968b1dda76fd2efc3d3c64c745955d4240) Thanks [@akitothemoon](https://github.com/akitothemoon)! - Added Quai network.
+
+- [#4042](https://github.com/wevm/viem/pull/4042) [`0044d12bf123cc990caf4463fe3cae237bf34d2e`](https://github.com/wevm/viem/commit/0044d12bf123cc990caf4463fe3cae237bf34d2e) Thanks [@saqibhafeezkhan](https://github.com/saqibhafeezkhan)! - Added Gatechain Mainnet
+
 ## 2.38.3
 
 ### Patch Changes

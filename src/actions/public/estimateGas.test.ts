@@ -13,6 +13,7 @@ import { encodeFunctionData } from '../../utils/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { reset } from '../test/reset.js'
+import * as prepareTransactionRequestModule from '../wallet/prepareTransactionRequest.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
 import { estimateGas } from './estimateGas.js'
 import * as getBlock from './getBlock.js'
@@ -188,6 +189,26 @@ test('args: override', async () => {
       ],
     }),
   ).toMatchInlineSnapshot('51594n')
+})
+
+test('args: prepare', async () => {
+  const prepareTransactionRequestSpy = vi.spyOn(
+    prepareTransactionRequestModule,
+    'prepareTransactionRequest',
+  )
+
+  expect(
+    await estimateGas(client, {
+      account: accounts[0].address,
+      to: accounts[1].address,
+      value: parseEther('1'),
+      prepare: false,
+    }),
+  ).toMatchInlineSnapshot('21000n')
+
+  expect(prepareTransactionRequestSpy).not.toHaveBeenCalled()
+
+  vi.restoreAllMocks()
 })
 
 test('error: cannot infer `to` from `authorizationList`', async () => {

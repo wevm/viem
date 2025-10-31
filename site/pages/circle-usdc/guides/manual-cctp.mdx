@@ -1,0 +1,259 @@
+# Cross Chain USDC Transfers (CCTP Integration)
+
+## Overview
+
+:::info
+This guide is maintained by [Circle](https://www.circle.com).
+:::
+
+Let's set up a cross-chain USDC transfer using [Circle's Cross-Chain Transfer Protocol (CCTP V2)](https://developers.circle.com/stablecoins/cctp-getting-started) and Viem.
+
+In this guide, we'll build a TypeScript script that burns USDC on the **Optimism Sepolia** testnet and mints the equivalent USDC on the **Ethereum Sepolia** testnet – all with just a few steps.
+
+We'll use Viem's wallet client to interact with both chains, and the Circle CCTP Attestation API to retrieve the attestation needed to mint USDC on the destination chain.
+
+By the end, you'll know how to:
+
+* Approve the Circle TokenMessenger contract to spend USDC on the source chain (Optimism Sepolia).
+* Burn USDC on the source chain to initiate a cross-chain transfer.
+* Fetch an attestation from Circle verifying the burn event.
+* Mint USDC on the destination chain (Ethereum Sepolia) using the attestation.
+* Verify that the USDC balance moved from the source chain to the destination chain.
+
+## Steps
+
+::::steps
+
+### Set up Viem Clients
+
+First, we need to configure our environment and connect to both blockchains. We'll use **Viem** to create wallet clients for signing transactions and public clients for reading blockchain data.
+
+```ts twoslash [config.ts]
+import { createClient, http, publicActions, walletActions } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import { sepolia, optimismSepolia } from 'viem/chains';
+
+export const account = privateKeyToAccount('0x...');
+
+export const client = {
+  optimismSepolia: createClient({
+    account,
+    chain: optimismSepolia,
+    transport: http(),
+  })
+    .extend(publicActions)
+    .extend(walletActions),
+
+  sepolia: createClient({
+    account,
+    chain: sepolia,
+    transport: http(),
+  })
+    .extend(publicActions)
+    .extend(walletActions),
+}
+```
+
+:::note
+Ensure your test wallet is funded with Sepolia ETH (for gas) on both networks and some Sepolia USDC on Optimism.
+:::
+
+### Define constants
+
+Next, let's define all the constants we'll need: contract addresses, domains, and transfer parameters.
+
+CCTP uses specific contracts on each chain for messaging and token minting/burning, and uses [**domain IDs**](https://developers.circle.com/stablecoins/supported-domains) to identify each blockchain in the protocol. The domain ID for Ethereum (Sepolia) is 0, and for Optimism (Sepolia) it's 2.
+
+We'll also specify the amount of USDC to transfer (in USDC's smallest unit, 6 decimal places) and the max fee for a **Fast** transfer.
+
+```ts [constants.ts]
+import { erc20Abi } from 'viem'
+
+export const domain = {
+  optimismSepolia: 2,
+  mainnet: 0,
+}
+
+export const tokenMessengerAbi = [{
+  type: 'function', 
+  name: 'depositForBurn', 
+  stateMutability: 'nonpayable',
+  inputs: [
+    { name: 'amount', type: 'uint256' }, 
+    { name: 'destinationDomain', type: 'uint32' },
+    { name: 'mintRecipient', type: 'bytes32' }, 
+    { name: 'burnToken', type: 'address' },
+    { name: 'destinationCaller', type: 'bytes32' }, 
+    { name: 'maxFee', type: 'uint256' },
+    { name: 'minFinalityThreshold', type: 'uint32' },
+  ],
+  outputs: [],
+}, {
+  type: 'function', 
+  name: 'receiveMessage', 
+  stateMutability: 'nonpayable',
+  inputs: [ 
+    { name: 'message', type: 'bytes' }, 
+    { name: 'attestation', type: 'bytes' } 
+  ],
+  outputs: [],
+}] as const
+
+export const tokenMessengerAddress = {
+  optimismSepolia: '0x8fe6b999dc680ccfdd5bf7eb0974218be2542daa',
+  mainnet: '0xe737e5cebeeba77efe34d4aa090756590b1ce275',
+}
+
+export const usdcAbi = erc20Abi
+
+export const usdcAddress = {
+  optimismSepolia: '0x5fd84259d66cd46123540766be93dfe6d43130d7',
+  mainnet: '0x1c7d4b196cb0c7b01d743fbc6116a902379c7238',
+}
+```
+
+### Approve USDC for transfer
+
+Before we can burn USDC, we must approve the TokenMessenger contract to spend it.   
+To prevent a race condition, we call waitForTransactionReceipt to ensure the approval transaction is confirmed before we proceed to the next step.
+
+```ts
+import { parseUnits } from 'viem'
+import { client } from './config'
+import { tokenMessengerAddress, usdcAddress, usdcAbi } from './constants'
+
+async function approveUSDC() {
+  // approve 1 USDC
+  const hash = await client.optimismSepolia.writeContract({
+    abi: usdcAbi,
+    address: usdcAddress.optimismSepolia,
+    functionName: 'approve',
+    args: [tokenMessengerAddress.optimismSepolia, parseUnits('1', 6)],
+  });
+  await client.optimismSepolia.waitForTransactionReceipt({ hash });
+}
+```
+
+### Burn USDC to initiate the transfer
+
+Now comes the core of CCTP: **burning** USDC on the source chain to initiate the transfer.
+
+We'll call the TokenMessenger's `depositForBurn(...)` function on Optimism Sepolia.   
+This will burn the specified USDC from our wallet and emit a message that Circle's infrastructure will pick up.
+
+Our function burnUSDC will handle this and return the transaction result, which we'll need for the next step (to retrieve the attestation).
+
+```ts
+import { erc20Abi, padHex, parseUnits } from 'viem'
+import { client } from './config'
+import { domain, tokenMessengerAddress, usdcAddress, usdcAbi } from './constants'
+
+const destinationAddress = '0x...'
+
+async function burnUSDC() {
+  return await client.optimismSepolia.writeContract({
+    abi: tokenMessengerAbi,
+    address: tokenMessengerAddress.optimismSepolia,
+    functionName: 'depositForBurn',
+    args: [
+      parseUnits('1', 6), 
+      domain.sepolia, 
+      padHex(destinationAddress, { dir: 'left', size: 32 }),
+      usdcAddress.optimismSepolia, 
+      '0x0000000000000000000000000000000000000000000000000000000000000000', 
+      parseUnits('0.0005', 6), 
+      1000,
+    ],
+  })
+}
+```
+
+### Retrieve the attestation from Circle
+
+After burning USDC on the source chain, Circle's CCTP service needs to provide an **attestation** – basically a signed confirmation that the burn event happened and is valid.
+
+The attestation will later be used to authorize minting on the destination chain. Circle provides a public API endpoint to fetch this attestation by the source domain and transaction hash.
+
+```ts
+import { Hex } from 'viem'
+import { domain } from './constants'
+
+async function retrieveAttestation(burnTx: Hex) {
+  const url = `https://iris-api-sandbox.circle.com/v2/messages/${domain.optimismSepolia}?transactionHash=${burnTx}`;
+
+  return new Promise((resolve, reject) => {
+    const interval = setInterval(async () => {
+      try {
+        const response = await fetch(url)
+        if (!response.ok) return
+        
+        const data = await response.json()
+        if (!data?.messages?.[0]) return
+        if (data.messages[0].status !== 'complete') return
+
+        clearInterval(interval)
+        resolve(data.messages[0])
+      } catch (error: any) {
+        clearInterval(interval)
+        reject(error)
+      }
+    }, 5000);
+  });
+}
+```
+
+### Mint USDC on the destination chain
+
+With the attestation, we call the receiveMessage function on the MessageTransmitter contract on Ethereum Sepolia. This function verifies the attestation and mints the USDC to our destination address.
+
+```ts
+import { client } from './config'
+import { tokenMessengerAddress, tokenMessengerAbi } from './constants'
+
+async function mintUSDC(attestation: { attestation: Hex, message: Hex }) {
+  return await client.sepolia.writeContract({
+    to: tokenMessengerAddress.sepolia,
+    abi: tokenMessengerAbi,
+    functionName: 'receiveMessage',
+    args: [attestation.message, attestation.attestation],
+  });
+}
+```
+
+### Execute the transfer
+
+Finally, we execute the steps in sequence and verify the final balances on both chains.
+
+```ts
+import { client } from './config'
+
+// 1. Approve USDC on source chain
+await approveUSDC();
+
+// 2. Burn USDC on source (initiates transfer)
+const burnTx = await burnUSDC();
+
+// 3. Retrieve attestation for the burn transaction
+const attestation = await retrieveAttestation(burnTx);
+
+// 4. Mint USDC on destination chain using the attestation
+await mintUSDC(attestation);
+
+const sourceBalance = await client.optimismSepolia.readContract({
+  address: usdcAddress.optimismSepolia,
+  abi: usdcAbi,
+  functionName: 'balanceOf',
+  args: [account.address],
+});
+const destBalance = await client.sepolia.readContract({
+  address: usdcAddress.sepolia,
+  abi: usdcAbi,
+  functionName: 'balanceOf',
+  args: [account.address],
+});
+
+console.log(`USDC on Optimism Sepolia: ${formatUnits(sourceBalance, 6)}`);
+console.log(`USDC on Ethereum Sepolia: ${formatUnits(destBalance, 6)}`);
+```
+
+::::
