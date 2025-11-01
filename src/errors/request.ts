@@ -48,6 +48,7 @@ export type WebSocketRequestErrorType = WebSocketRequestError & {
   name: 'WebSocketRequestError'
 }
 export class WebSocketRequestError extends BaseError {
+  url: string
   constructor({
     body,
     cause,
@@ -68,6 +69,7 @@ export class WebSocketRequestError extends BaseError {
       ].filter(Boolean) as string[],
       name: 'WebSocketRequestError',
     })
+    this.url = url
   }
 }
 
@@ -77,7 +79,7 @@ export type RpcRequestErrorType = RpcRequestError & {
 export class RpcRequestError extends BaseError {
   code: number
   data?: unknown
-
+  url: string
   constructor({
     body,
     error,
@@ -95,6 +97,7 @@ export class RpcRequestError extends BaseError {
     })
     this.code = error.code
     this.data = error.data
+    this.url = url
   }
 }
 
@@ -102,6 +105,7 @@ export type SocketClosedErrorType = SocketClosedError & {
   name: 'SocketClosedError'
 }
 export class SocketClosedError extends BaseError {
+  url: string | undefined
   constructor({
     url,
   }: {
@@ -111,6 +115,7 @@ export class SocketClosedError extends BaseError {
       metaMessages: [url && `URL: ${getUrl(url)}`].filter(Boolean) as string[],
       name: 'SocketClosedError',
     })
+    this.url = url
   }
 }
 
@@ -118,6 +123,7 @@ export type TimeoutErrorType = TimeoutError & {
   name: 'TimeoutError'
 }
 export class TimeoutError extends BaseError {
+  url: string
   constructor({
     body,
     url,
@@ -130,5 +136,6 @@ export class TimeoutError extends BaseError {
       metaMessages: [`URL: ${getUrl(url)}`, `Request body: ${stringify(body)}`],
       name: 'TimeoutError',
     })
+    this.url = url
   }
 }
