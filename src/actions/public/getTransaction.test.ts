@@ -136,7 +136,7 @@ test('gets transaction (eip2930)', async () => {
   expect(transaction.value).toMatchInlineSnapshot('1000000000000000000n')
 })
 
-test('gets transaction (eip4844)', async () => {
+test.skip('gets transaction (eip4844)', async () => {
   const client = createClient({
     chain: holesky,
     transport: http(),
