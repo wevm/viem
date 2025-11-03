@@ -9,7 +9,13 @@ export const xoneTestnet = /*#__PURE__*/ defineChain({
     symbol: 'XOC',
   },
   rpcUrls: {
-    default: { http: ['https://rpc-testnet.xone.org', 'https://rpc-testnet.xone.plus', 'https://rpc-testnet.knight.center'] },
+    default: {
+      http: [
+        'https://rpc-testnet.xone.org',
+        'https://rpc-testnet.xone.plus',
+        'https://rpc-testnet.knight.center',
+      ],
+    },
   },
   blockExplorers: {
     default: {
