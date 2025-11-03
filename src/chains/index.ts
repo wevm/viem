@@ -648,6 +648,8 @@ export {
   x1Testnet,
   xLayerTestnet,
 } from './definitions/xLayerTestnet.js'
+export { xoneMiannet } from './definitions/xoneMainnet.js'
+export { xoneTestnet } from './definitions/xoneTestnet.js'
 export { xphereMainnet } from './definitions/xphereMainnet.js'
 export { xphereTestnet } from './definitions/xphereTestnet.js'
 export { xrOne } from './definitions/xrOne.js'
@@ -698,8 +700,6 @@ export {
 export { zora } from './definitions/zora.js'
 export { zoraSepolia } from './definitions/zoraSepolia.js'
 export { zoraTestnet } from './definitions/zoraTestnet.js'
-export { xoneMiannet } from './definitions/xoneMainnet.js'
-export { xoneTestnet } from './definitions/xoneTestnet.js'
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Required type exports to prevent TypeScript error "TS2742".
