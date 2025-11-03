@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const xoneMiannet = /*#__PURE__*/ defineChain({
+export const xoneMainnet = /*#__PURE__*/ defineChain({
   id: 3721,
   name: 'Xone Chain Mainnet',
   nativeCurrency: {
