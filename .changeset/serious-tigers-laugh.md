@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add Xone main/test net (chainId: 3721/33772211)
+Added Xone mainnet and testnet.
