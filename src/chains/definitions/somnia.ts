@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const somniaTestnet = /*#__PURE__*/ defineChain({
+export const somnia = defineChain({
   id: 5031,
   name: 'Somnia',
   nativeCurrency: { name: 'SOMI', symbol: 'SOMI', decimals: 18 },
