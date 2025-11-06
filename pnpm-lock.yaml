@@ -593,6 +593,9 @@ importers:
       ox:
         specifier: 0.9.6
         version: 0.9.6(typescript@5.9.3)(zod@3.25.76)
+      tor-hazae41:
+        specifier: 0.2.5
+        version: 0.2.5
       ws:
         specifier: 8.18.3
         version: 8.18.3
@@ -904,6 +907,21 @@ packages:
   '@braintree/sanitize-url@7.1.1':
     resolution: {integrity: sha512-i1L7noDNxtFyL5DmZafWy1wRVhGehQmzZaz1HiN5e7iylJMSZR7ekOV7NsIqa5qBldlLrsKv4HbgFUVlQrz8Mw==}
 
+  '@brumewallet/wallet.wasm@1.0.2':
+    resolution: {integrity: sha512-NRgxE2xAHZOHnkrTyOQ6QDMU/GncOzA3uwp4VLfDPfZhDjnQ9o133tiBNGLjAYLEAr2rt37MA6huy958wu75Ig==}
+    peerDependencies:
+      '@hazae41/base16.wasm': ^1.0.5
+      '@hazae41/base58.wasm': ^1.0.6
+      '@hazae41/base64.wasm': ^1.0.9
+      '@hazae41/chacha20poly1305.wasm': ^1.0.1
+      '@hazae41/ed25519.wasm': ^1.0.11
+      '@hazae41/network.wasm': ^1.0.2
+      '@hazae41/ripemd.wasm': ^1.0.6
+      '@hazae41/secp256k1.wasm': ^1.0.10
+      '@hazae41/sha1.wasm': ^1.0.5
+      '@hazae41/sha3.wasm': ^1.0.4
+      '@hazae41/x25519.wasm': ^1.0.8
+
   '@changesets/apply-release-plan@7.0.13':
     resolution: {integrity: sha512-BIW7bofD2yAWoE8H4V40FikC+1nNFEKBisMECccS16W1rt6qqhNTBDmIw5HaqmMgtLNz9e7oiALiEUuKrQ4oHg==}
 
@@ -1210,6 +1228,177 @@ packages:
     resolution: {integrity: sha512-AiXO/bfe9bmxBjxxtYxFAXGZvMaN5s8kO+jBHAJCON8rJoB5YS/D6X7ZNc6XQkuHNmyl4CYaMI1fJ/Gn27RGGw==}
     engines: {node: '>=6'}
     hasBin: true
+
+  '@hazae41/aes.wasm@1.0.3':
+    resolution: {integrity: sha512-hWFukqQ7XBBtuuNm2HwbSx1wW5b20QJ9zhWmUIe8MjLBGU8RwkhIYmB/EeJFPdKxS+c9WbtGg6f145g3azPaKA==}
+    peerDependencies:
+      '@hazae41/memory.wasm': ^1.0.27
+
+  '@hazae41/asn1@1.3.31':
+    resolution: {integrity: sha512-vuErGzgaZDxyEjmhkKHWciwwHvR87lLVqIhs+FLVamBSHZLGOwewgqUlgOK9bNfK6WFB6N7grLX/MJSe3us+PQ==}
+
+  '@hazae41/base16.wasm@1.0.10':
+    resolution: {integrity: sha512-L+0z4JfWoUrMgAVB5iGGCWdmXdOtAzOX9cyyAToIU/zLJ3SAM8NB2IkZt8hYrsKWrajoBNHNhpWB8LGpODfWjw==}
+    peerDependencies:
+      '@hazae41/memory.wasm': ^1.0.27
+
+  '@hazae41/base16@1.0.18':
+    resolution: {integrity: sha512-N4bcBzrXnbJeM4o0lFXd+PlSL3Z7UIOtVN4+602nmE+2cHbBzT2BsPTX4oH5+YBhX3rEMFE/pJ60nT57amRxhw==}
+
+  '@hazae41/base58.wasm@1.0.8':
+    resolution: {integrity: sha512-ekTUN39bRPi9I1U13ohbmpJMFSZRirlNBxoJFY3KBimzmmiFybF7/MZK95UnE35g+W083gagTPxdnr4Y1KMGhA==}
+    peerDependencies:
+      '@hazae41/memory.wasm': ^1.0.27
+
+  '@hazae41/base64.wasm@1.0.12':
+    resolution: {integrity: sha512-UPApu4C5J3BQVuDyrfYvhC3qQr9GCZkoTjzO/WAcg1LsBQPw+G7iPhwDjmdu8CS1j3P+HastoujenVqfghMbSw==}
+    peerDependencies:
+      '@hazae41/memory.wasm': ^1.0.27
+
+  '@hazae41/base64@1.0.15':
+    resolution: {integrity: sha512-SX97fH6s5wxu454q0JohKQEPUEqQDTREWoKhvs+523VFz0Ur+DsPaC60jl7eamfbb3QwDcycu3Wf0GmqDQ+Ypw==}
+
+  '@hazae41/base64url@1.0.17':
+    resolution: {integrity: sha512-1X73r8GJHN6KGUu4f+6jY7s5Sqz8Y/HpNsdD+7IGhrK7EZ96CbKD/0sEh2np+UJ4vxwMmmtMZsWdyKnJdbDiug==}
+
+  '@hazae41/binary@1.3.5':
+    resolution: {integrity: sha512-o2unN0+W8+QDJkrUEYpTgJafZrPcjjpszYLEy8WwDR0BOvzT/cFNm1lA8vJEsv2jSGfGmqCSid4ndgkHWO8UAg==}
+
+  '@hazae41/bitset@1.0.1':
+    resolution: {integrity: sha512-XZAGbTJjq5vY4Z/RzVLH2hfAOE7jjz+wTUTk9GuWv5GIofPTNyO/3ETwP9NdTFJpcQPvTLdjiBjoWZ1+e/J8eA==}
+
+  '@hazae41/bitwise.wasm@1.0.9':
+    resolution: {integrity: sha512-zzDtJyFkWJbDCeOj85OTvQaLJ/+W9MJpGFtRTBRjtcigWkS/ZXTBolMdGUkEtppboUDCf7Jxi8Vya918gTWMNA==}
+    peerDependencies:
+      '@hazae41/memory.wasm': ^1.0.27
+
+  '@hazae41/box@2.0.1':
+    resolution: {integrity: sha512-eX9AeEfeZkRSgEeoZMZn1oAEE1lDpmBFSuYcpJ2NZ2btxh+VeiuegHCazzqMWqyR79OLJQxK+o1iVA5j6hi16A==}
+
+  '@hazae41/bytes@1.2.11':
+    resolution: {integrity: sha512-cmuy7gwYGUZjCu2tEMfvCYUDOuC31g23B5q4dQ8IBBH7SxFOW3tSdm1UHKDm49bFFtOZ/uO86B6jSTj2Ci5XCg==}
+
+  '@hazae41/cadenas@0.4.2':
+    resolution: {integrity: sha512-yGdGZjAtlG6x7ira74bmJY4xQ3+bQehATP1QfNRqhOt3EiSC4LIbq0158/X3p3/48jHY2vpVO1B8h0h9HDCymw==}
+
+  '@hazae41/cascade@2.2.2':
+    resolution: {integrity: sha512-9Y0MVMPca3AY2W63ckyULrgw2d8V9+ROOSZs+5PPbzm0zS+ihlD015Kpkpf8J1jtvIWIRhflcFa5Rbk/Ip5DKQ==}
+
+  '@hazae41/chacha20poly1305.wasm@1.0.8':
+    resolution: {integrity: sha512-Mu9+BdvNypjGOcbnuvLfXFARHpHy++87caCnFqW+9ce57qQFgPKmWkAV2SKqIvC6mhy2jr95yR9Uej3D7BRWLw==}
+    deprecated: Use @hazae41/chacha20poly1305-wasm instead
+    peerDependencies:
+      '@hazae41/memory.wasm': ^1.0.27
+
+  '@hazae41/chacha20poly1305@1.0.8':
+    resolution: {integrity: sha512-wp3dPjGweWLA7t/7LMoAj9nt25c5wpufnthBrFHKJi+qS2bhxEWvlOtWWnT3rD1DyoS2caKWRN4CbgIlg0ymkQ==}
+
+  '@hazae41/cursor@1.2.4':
+    resolution: {integrity: sha512-/pE3kOcZnPtLdw6MTv3ALEcuUV3Ab3lWNAafGQSMAzN7vUIJJUIa3mReScwsCLNnfYWy34Y46RIuRb/2kOnEcg==}
+
+  '@hazae41/disposer@2.0.20':
+    resolution: {integrity: sha512-O+/vlXgyJtd9yGEtkjJ2GszqiEhCDdusaPhnUMwjyrY1En5X2Jd3CTHahJxdsrfBVuXuULy3xcaC67qse/b86g==}
+
+  '@hazae41/ed25519.wasm@1.0.13':
+    resolution: {integrity: sha512-ccTp8C5FglxI/d1zhSxJlectnLAjwp/cEyBLPb4M99vM4CZfLt1hlnxIfB38D2uyAGjzMY3BWf9ISYvsY0BD1w==}
+    peerDependencies:
+      '@hazae41/memory.wasm': ^1.0.27
+
+  '@hazae41/ed25519@2.1.22':
+    resolution: {integrity: sha512-7LAfNguTwihtqWyUwM5Vt7ERJTywV2jEfvE1cWdZVTsNyvhQNExWYezlpwTpRz5F8dCvqHQmiop0izcdstkLQQ==}
+    peerDependencies:
+      '@hazae41/base64url': ^1.0.17
+
+  '@hazae41/future@1.0.3':
+    resolution: {integrity: sha512-tc6xV7buZI1P8d66OTH7noD5L3fKCZpTOfyvlVMIcjqvkY/gRcBinFzegc6DmXx08ZlwfAlnebU+ZX5NO+9+iw==}
+
+  '@hazae41/kcp@1.1.3':
+    resolution: {integrity: sha512-Q/l1vZ1NYeElTHrgIxjDUsI5U2Bfkj5lCFyRyEXiya66bCxKTXYXDguGh+qi/bS0onPX6/TSipLHeyYXXHGAIA==}
+
+  '@hazae41/keccak256@1.0.10':
+    resolution: {integrity: sha512-HdlqaAOFOX8OIBGe6giMhYMExLwxBL5uLr/2btiilD3rCh3HpMppzyORjhsUxAATDscLMqmMYMBbsZfREOV8Nw==}
+
+  '@hazae41/memory-wasm@1.0.46':
+    resolution: {integrity: sha512-ifPyk7lVx9VpPayNOl8Z84z6eUf/9jXG4c397BJUFrmaS6iuCk5KRNrf3kQzvGmMLpfykXqI6cIqxYayUUCopw==}
+
+  '@hazae41/memory.wasm@1.0.37':
+    resolution: {integrity: sha512-WP+SRckje//RkeHRJZ3OWSPqPUPwzDb+5XH76/1WzSC3kfhwt0CQsf4pX/2Z86WtDAlgJg1d0VOxQfs2uI2m9Q==}
+    deprecated: Please use @hazae41/memory-wasm (with a hyphen instead of a dot)
+
+  '@hazae41/mutex@2.1.0':
+    resolution: {integrity: sha512-69PEhdpLNuuOshb14pvK2gmOAvtJApz2vIzEgRtvVNffeGrUxXO2GyPKXqjjZ80Bvy4WA9Ov0BDIdeeqOyqwMQ==}
+
+  '@hazae41/network.wasm@1.0.10':
+    resolution: {integrity: sha512-AypIZuCuY7D1JYzsZaCIc5NPYmyOVeA/O7QhwnfGcGCGMm9xYTsW5aRVEaMkvJdBrgiEFOl3jnFW88q0ElRNcA==}
+    peerDependencies:
+      '@hazae41/base16.wasm': ^1.0.9
+      '@hazae41/memory.wasm': ^1.0.27
+      '@hazae41/sha3.wasm': ^1.0.7
+
+  '@hazae41/option@1.1.4':
+    resolution: {integrity: sha512-ZGAVkOJJw2YIeihG8PaWs4R3KDloCgWGNDPqbATvT3kTtoyU+dJmya/UCM2P+ZwCfWYpE7nGiYJbBTlpp929Qg==}
+    deprecated: Please use @hazae41/result-and-option now
+
+  '@hazae41/plume@3.0.5':
+    resolution: {integrity: sha512-Kx6dP09Fj/34RTLHXJ3nlTgPv9TLPsY9O0h1MjbKW8/DB4S3RhmFWLcbLeoJ870do4b0zuRQWNPDAPvSkK6AAA==}
+    peerDependencies:
+      '@hazae41/option': ^1.1.4
+
+  '@hazae41/result@1.3.2':
+    resolution: {integrity: sha512-X2RdjCC4DypMZFN3aZ7P5Zh8kEMN6SEqcMARRa/CraEU7Es/hj0yBh1Pt5eAYrRkpnWiE9+ohKSU4s7nL5L1gg==}
+    deprecated: Please use @hazae41/result-and-option now
+
+  '@hazae41/ripemd.wasm@1.0.8':
+    resolution: {integrity: sha512-fVvXo5zl1Db9R57CpzyOkgdxNSVrUIWMaaSlUFeO9QJTgFf1uQq5lR3su3mourScfDSz+i0fA6W6An8Kn6m3QA==}
+    peerDependencies:
+      '@hazae41/memory.wasm': ^1.0.27
+
+  '@hazae41/ripemd160@1.0.3':
+    resolution: {integrity: sha512-Zom/lqSc6hHjpokwjoGBaEnGJIW/vrseCQqnx3K+t70rxfB39ZuIveREyOx+cuchx6b1xpsGNyq+4Wbw2Igx+Q==}
+
+  '@hazae41/rsa.wasm@1.0.14':
+    resolution: {integrity: sha512-EoimiN7oc8HEhT/plofp6e0fNjDiA04ZDFn886oArOzsSPuNAvePGNfmhQ1QpKssOCy7cpcmsqxjSiswfGlz3A==}
+    peerDependencies:
+      '@hazae41/memory.wasm': ^1.0.27
+
+  '@hazae41/secp256k1.wasm@1.0.21':
+    resolution: {integrity: sha512-u2GTQU+GmtwNTIvQScFtYx9W6Sy2jiAUAout70FVYwFRzeWCoOQUOGlfPbMsTrMaCZSWjSIdNsaAjMRu2sZy7g==}
+    deprecated: Use @hazae41/secp256k1-wasm
+    peerDependencies:
+      '@hazae41/memory-wasm': ^1.0.37
+
+  '@hazae41/sha1.wasm@1.0.7':
+    resolution: {integrity: sha512-BQUPHbIMfgG7K2mJoX0FYaZtTYojn0KQCFRh5bJNXV5eyM2oEdfMGNv0UbllX4R/ookseTNOODdmnC9McPOarA==}
+    peerDependencies:
+      '@hazae41/memory.wasm': ^1.0.27
+
+  '@hazae41/sha1@1.1.14':
+    resolution: {integrity: sha512-I5f2SDHVVw6TZGt06ov/dxRglozxEt0WCU0u2rr6Q7PktAYcLUNAV/CGy/TyQBgS+oMb8ucS6U/inzb8FlhEzA==}
+
+  '@hazae41/sha3.wasm@1.0.7':
+    resolution: {integrity: sha512-GvgR5EZaYyGRQ84ayz3XaGODF4sg732e5rLg4y9881+EC42XQmgvIUWdnDuCUZyEvg11SgLURj3l8U2j4+Njgw==}
+    peerDependencies:
+      '@hazae41/memory.wasm': ^1.0.27
+
+  '@hazae41/signals@1.0.2':
+    resolution: {integrity: sha512-vgcjmjyMtN5l61D8a+GWqQfhvTA5aEcgEPK5RKDPe66dTgj10M/xOgQV/McJuwgDRf0gvEvpUMStMs+OfVEIxA==}
+
+  '@hazae41/smux@1.1.3':
+    resolution: {integrity: sha512-2xe71M//WSGaZ6O06TF0E/4pQBG9p56Ufx/hEoxY970Sn4spWEd45iXvNbMr3muFt3j9QUITt8DBWmlTSRfFdw==}
+
+  '@hazae41/symbol-dispose-polyfill@1.0.2':
+    resolution: {integrity: sha512-Jjlfw/K3A4Abl2QijyaAq4Xx+FN8Xu6132vqGUnNj3pFzPg+bGq6pytalvTEzU0o/VEOn7/hDnJ5v1NlCjUXkQ==}
+
+  '@hazae41/x25519.wasm@1.0.11':
+    resolution: {integrity: sha512-kNZ6PZxIakxKBbYb0w4pMjwpMNqsco6ZVf+Sfza7JkZZ+K5dMF7Lhwap6/tyaa0cEitj1YijIfXcBCksWmDO9w==}
+    peerDependencies:
+      '@hazae41/memory.wasm': ^1.0.27
+
+  '@hazae41/x25519@2.2.9':
+    resolution: {integrity: sha512-OuDHsdNLzgDLlaSFqLUdWM52isFs0PpDImDLbMviWsHTndcRum2jpQGnQHyP0EyA/GbdjQaVAMBteje1SIPjuA==}
+
+  '@hazae41/x509@1.2.10':
+    resolution: {integrity: sha512-hfi4WQWRwQHgPZKhD/nLty2XlPJyLehaoHib/1UpffYbKcauWGhIy/GtI8TaCA6kBvpFYylUcuWmY8+kV1pquQ==}
 
   '@hono/node-server@1.19.5':
     resolution: {integrity: sha512-iBuhh+uaaggeAuf+TftcjZyWh2GEgZcVGXkNtskLVoWaXhnJtC5HLHrU8W1KHDoucqO1MswwglmkWLFyiDn4WQ==}
@@ -4622,6 +4811,22 @@ packages:
   hastscript@9.0.1:
     resolution: {integrity: sha512-g7df9rMFX/SPi34tyGCyUBREQoKkapwdY/T04Qn9TDWfHhAYt4/I0gMVirzK5wEzeUqIjEB+LXC/ypb7Aqno5w==}
 
+  hazae-echalote-with-fleche-pr1-fix@0.4.19:
+    resolution: {integrity: sha512-sRCi6NLnKonD9Y+yKYjS9/hal1yXmbi5djkL9tUKA1tNuDKGqgAbKrwvdya1q2/SjdlY1lLIrOGXtW4Ucj04Kw==}
+    peerDependencies:
+      '@hazae41/aes.wasm': ^1.0.0
+      '@hazae41/base16': ^1.0.18
+      '@hazae41/base64': ^1.0.15
+      '@hazae41/ed25519': ^2.1.21
+      '@hazae41/rsa.wasm': ^1.0.10
+      '@hazae41/sha1': ^1.1.14
+      '@hazae41/x25519': ^2.2.9
+
+  hazae-fleche-pr1-fix@1.4.6:
+    resolution: {integrity: sha512-Jp4qt65UV7azK6a6AmPrPBTN74bPpcFBnWMGyoKlMPQrjuaSGVAjgfGTo78gQTwIw0S7POIwSHdLy7ftPgBsvA==}
+    peerDependencies:
+      '@hazae41/bitwise.wasm': ^1
+
   help-me@5.0.0:
     resolution: {integrity: sha512-7xgomUX6ADmcYzFik0HzAxh/73YlKR9bmFzf51CZwR+b6YtzU2m0u49hQCqV6SvlqIqsaxovfwdvbnsw3b/zpg==}
 
@@ -6539,6 +6744,9 @@ packages:
   toml@3.0.0:
     resolution: {integrity: sha512-y/mWCZinnvxjTKYhJ+pYxwD0mRLVvOtdS2Awbgxln6iEnt4rk0yBxeSBHkGJcPucRiG0e55mwWp+g/05rsrd6w==}
 
+  tor-hazae41@0.2.5:
+    resolution: {integrity: sha512-e0LfEyXthvl2XQWgVu0n2OpNtt3ldCmYXzARQK5VZqvbaC8H5YwaHM26pOwfyii/YirCXXcGnhlTz4p2hAkUFQ==}
+
   totalist@3.0.1:
     resolution: {integrity: sha512-sf4i37nQ2LBx4m3wB74y+ubopq6W/dIzXg0FDGjsYnZHVa1Da8FH853wlL2gtUhg+xJXjfk3kUZS3BRoQeoQBQ==}
     engines: {node: '>=6'}
@@ -7408,6 +7616,20 @@ snapshots:
 
   '@braintree/sanitize-url@7.1.1': {}
 
+  '@brumewallet/wallet.wasm@1.0.2(@hazae41/base16.wasm@1.0.10(@hazae41/memory.wasm@1.0.37))(@hazae41/base58.wasm@1.0.8(@hazae41/memory.wasm@1.0.37))(@hazae41/base64.wasm@1.0.12(@hazae41/memory.wasm@1.0.37))(@hazae41/chacha20poly1305.wasm@1.0.8(@hazae41/memory.wasm@1.0.37))(@hazae41/ed25519.wasm@1.0.13(@hazae41/memory.wasm@1.0.37))(@hazae41/network.wasm@1.0.10(@hazae41/base16.wasm@1.0.10(@hazae41/memory.wasm@1.0.37))(@hazae41/memory.wasm@1.0.37)(@hazae41/sha3.wasm@1.0.7(@hazae41/memory.wasm@1.0.37)))(@hazae41/ripemd.wasm@1.0.8(@hazae41/memory.wasm@1.0.37))(@hazae41/secp256k1.wasm@1.0.21(@hazae41/memory-wasm@1.0.46))(@hazae41/sha1.wasm@1.0.7(@hazae41/memory.wasm@1.0.37))(@hazae41/sha3.wasm@1.0.7(@hazae41/memory.wasm@1.0.37))(@hazae41/x25519.wasm@1.0.11(@hazae41/memory.wasm@1.0.37))':
+    dependencies:
+      '@hazae41/base16.wasm': 1.0.10(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/base58.wasm': 1.0.8(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/base64.wasm': 1.0.12(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/chacha20poly1305.wasm': 1.0.8(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/ed25519.wasm': 1.0.13(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/network.wasm': 1.0.10(@hazae41/base16.wasm@1.0.10(@hazae41/memory.wasm@1.0.37))(@hazae41/memory.wasm@1.0.37)(@hazae41/sha3.wasm@1.0.7(@hazae41/memory.wasm@1.0.37))
+      '@hazae41/ripemd.wasm': 1.0.8(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/secp256k1.wasm': 1.0.21(@hazae41/memory-wasm@1.0.46)
+      '@hazae41/sha1.wasm': 1.0.7(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/sha3.wasm': 1.0.7(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/x25519.wasm': 1.0.11(@hazae41/memory.wasm@1.0.37)
+
   '@changesets/apply-release-plan@7.0.13':
     dependencies:
       '@changesets/config': 3.1.1
@@ -7758,6 +7980,206 @@ snapshots:
       long: 5.2.3
       protobufjs: 7.4.0
       yargs: 17.7.2
+
+  '@hazae41/aes.wasm@1.0.3(@hazae41/memory.wasm@1.0.37)':
+    dependencies:
+      '@hazae41/memory.wasm': 1.0.37
+
+  '@hazae41/asn1@1.3.31':
+    dependencies:
+      '@hazae41/base16': 1.0.18
+      '@hazae41/binary': 1.3.5
+      '@hazae41/bytes': 1.2.11
+      '@hazae41/cursor': 1.2.4
+
+  '@hazae41/base16.wasm@1.0.10(@hazae41/memory.wasm@1.0.37)':
+    dependencies:
+      '@hazae41/memory.wasm': 1.0.37
+
+  '@hazae41/base16@1.0.18':
+    dependencies:
+      '@hazae41/box': 2.0.1
+      '@hazae41/option': 1.1.4
+
+  '@hazae41/base58.wasm@1.0.8(@hazae41/memory.wasm@1.0.37)':
+    dependencies:
+      '@hazae41/memory.wasm': 1.0.37
+
+  '@hazae41/base64.wasm@1.0.12(@hazae41/memory.wasm@1.0.37)':
+    dependencies:
+      '@hazae41/memory.wasm': 1.0.37
+
+  '@hazae41/base64@1.0.15':
+    dependencies:
+      '@hazae41/box': 2.0.1
+      '@hazae41/option': 1.1.4
+
+  '@hazae41/base64url@1.0.17':
+    dependencies:
+      '@hazae41/box': 2.0.1
+      '@hazae41/option': 1.1.4
+
+  '@hazae41/binary@1.3.5':
+    dependencies:
+      '@hazae41/cursor': 1.2.4
+
+  '@hazae41/bitset@1.0.1': {}
+
+  '@hazae41/bitwise.wasm@1.0.9(@hazae41/memory.wasm@1.0.37)':
+    dependencies:
+      '@hazae41/memory.wasm': 1.0.37
+
+  '@hazae41/box@2.0.1': {}
+
+  '@hazae41/bytes@1.2.11': {}
+
+  '@hazae41/cadenas@0.4.2(@hazae41/base64url@1.0.17)':
+    dependencies:
+      '@hazae41/asn1': 1.3.31
+      '@hazae41/base16': 1.0.18
+      '@hazae41/binary': 1.3.5
+      '@hazae41/bytes': 1.2.11
+      '@hazae41/cascade': 2.2.2
+      '@hazae41/cursor': 1.2.4
+      '@hazae41/ed25519': 2.1.22(@hazae41/base64url@1.0.17)
+      '@hazae41/future': 1.0.3
+      '@hazae41/option': 1.1.4
+      '@hazae41/x509': 1.2.10
+    transitivePeerDependencies:
+      - '@hazae41/base64url'
+
+  '@hazae41/cascade@2.2.2': {}
+
+  '@hazae41/chacha20poly1305.wasm@1.0.8(@hazae41/memory.wasm@1.0.37)':
+    dependencies:
+      '@hazae41/memory.wasm': 1.0.37
+
+  '@hazae41/chacha20poly1305@1.0.8':
+    dependencies:
+      '@hazae41/box': 2.0.1
+      '@hazae41/option': 1.1.4
+
+  '@hazae41/cursor@1.2.4': {}
+
+  '@hazae41/disposer@2.0.20': {}
+
+  '@hazae41/ed25519.wasm@1.0.13(@hazae41/memory.wasm@1.0.37)':
+    dependencies:
+      '@hazae41/memory.wasm': 1.0.37
+
+  '@hazae41/ed25519@2.1.22(@hazae41/base64url@1.0.17)':
+    dependencies:
+      '@hazae41/base64url': 1.0.17
+      '@hazae41/box': 2.0.1
+      '@hazae41/option': 1.1.4
+      '@hazae41/result': 1.3.2
+
+  '@hazae41/future@1.0.3': {}
+
+  '@hazae41/kcp@1.1.3':
+    dependencies:
+      '@hazae41/binary': 1.3.5
+      '@hazae41/bytes': 1.2.11
+      '@hazae41/cascade': 2.2.2
+      '@hazae41/cursor': 1.2.4
+      '@hazae41/future': 1.0.3
+
+  '@hazae41/keccak256@1.0.10':
+    dependencies:
+      '@hazae41/box': 2.0.1
+      '@hazae41/option': 1.1.4
+
+  '@hazae41/memory-wasm@1.0.46': {}
+
+  '@hazae41/memory.wasm@1.0.37': {}
+
+  '@hazae41/mutex@2.1.0':
+    dependencies:
+      '@hazae41/future': 1.0.3
+
+  '@hazae41/network.wasm@1.0.10(@hazae41/base16.wasm@1.0.10(@hazae41/memory.wasm@1.0.37))(@hazae41/memory.wasm@1.0.37)(@hazae41/sha3.wasm@1.0.7(@hazae41/memory.wasm@1.0.37))':
+    dependencies:
+      '@hazae41/base16.wasm': 1.0.10(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/memory.wasm': 1.0.37
+      '@hazae41/sha3.wasm': 1.0.7(@hazae41/memory.wasm@1.0.37)
+
+  '@hazae41/option@1.1.4':
+    dependencies:
+      '@hazae41/result': 1.3.2
+
+  '@hazae41/plume@3.0.5(@hazae41/option@1.1.4)':
+    dependencies:
+      '@hazae41/disposer': 2.0.20
+      '@hazae41/future': 1.0.3
+      '@hazae41/option': 1.1.4
+      '@hazae41/signals': 1.0.2
+
+  '@hazae41/result@1.3.2':
+    dependencies:
+      '@hazae41/option': 1.1.4
+
+  '@hazae41/ripemd.wasm@1.0.8(@hazae41/memory.wasm@1.0.37)':
+    dependencies:
+      '@hazae41/memory.wasm': 1.0.37
+
+  '@hazae41/ripemd160@1.0.3':
+    dependencies:
+      '@hazae41/box': 2.0.1
+      '@hazae41/option': 1.1.4
+      '@hazae41/result': 1.3.2
+
+  '@hazae41/rsa.wasm@1.0.14(@hazae41/memory.wasm@1.0.37)':
+    dependencies:
+      '@hazae41/memory.wasm': 1.0.37
+
+  '@hazae41/secp256k1.wasm@1.0.21(@hazae41/memory-wasm@1.0.46)':
+    dependencies:
+      '@hazae41/memory-wasm': 1.0.46
+
+  '@hazae41/sha1.wasm@1.0.7(@hazae41/memory.wasm@1.0.37)':
+    dependencies:
+      '@hazae41/memory.wasm': 1.0.37
+
+  '@hazae41/sha1@1.1.14':
+    dependencies:
+      '@hazae41/box': 2.0.1
+      '@hazae41/option': 1.1.4
+
+  '@hazae41/sha3.wasm@1.0.7(@hazae41/memory.wasm@1.0.37)':
+    dependencies:
+      '@hazae41/memory.wasm': 1.0.37
+
+  '@hazae41/signals@1.0.2':
+    dependencies:
+      '@hazae41/disposer': 2.0.20
+      '@hazae41/future': 1.0.3
+
+  '@hazae41/smux@1.1.3':
+    dependencies:
+      '@hazae41/binary': 1.3.5
+      '@hazae41/bytes': 1.2.11
+      '@hazae41/cascade': 2.2.2
+      '@hazae41/cursor': 1.2.4
+      '@hazae41/future': 1.0.3
+
+  '@hazae41/symbol-dispose-polyfill@1.0.2': {}
+
+  '@hazae41/x25519.wasm@1.0.11(@hazae41/memory.wasm@1.0.37)':
+    dependencies:
+      '@hazae41/memory.wasm': 1.0.37
+
+  '@hazae41/x25519@2.2.9':
+    dependencies:
+      '@hazae41/box': 2.0.1
+      '@hazae41/option': 1.1.4
+      '@hazae41/result': 1.3.2
+
+  '@hazae41/x509@1.2.10':
+    dependencies:
+      '@hazae41/asn1': 1.3.31
+      '@hazae41/base16': 1.0.18
+      '@hazae41/base64': 1.0.15
+      '@hazae41/binary': 1.3.5
 
   '@hono/node-server@1.19.5(hono@4.10.3)':
     dependencies:
@@ -11490,6 +11912,46 @@ snapshots:
       property-information: 7.0.0
       space-separated-tokens: 2.0.2
 
+  hazae-echalote-with-fleche-pr1-fix@0.4.19(@hazae41/aes.wasm@1.0.3(@hazae41/memory.wasm@1.0.37))(@hazae41/base16@1.0.18)(@hazae41/base64@1.0.15)(@hazae41/base64url@1.0.17)(@hazae41/bitwise.wasm@1.0.9(@hazae41/memory.wasm@1.0.37))(@hazae41/ed25519@2.1.22(@hazae41/base64url@1.0.17))(@hazae41/rsa.wasm@1.0.14(@hazae41/memory.wasm@1.0.37))(@hazae41/sha1@1.1.14)(@hazae41/x25519@2.2.9):
+    dependencies:
+      '@hazae41/aes.wasm': 1.0.3(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/asn1': 1.3.31
+      '@hazae41/base16': 1.0.18
+      '@hazae41/base64': 1.0.15
+      '@hazae41/binary': 1.3.5
+      '@hazae41/bitset': 1.0.1
+      '@hazae41/bytes': 1.2.11
+      '@hazae41/cadenas': 0.4.2(@hazae41/base64url@1.0.17)
+      '@hazae41/cascade': 2.2.2
+      '@hazae41/cursor': 1.2.4
+      '@hazae41/ed25519': 2.1.22(@hazae41/base64url@1.0.17)
+      '@hazae41/fleche': hazae-fleche-pr1-fix@1.4.6(@hazae41/bitwise.wasm@1.0.9(@hazae41/memory.wasm@1.0.37))
+      '@hazae41/future': 1.0.3
+      '@hazae41/kcp': 1.1.3
+      '@hazae41/mutex': 2.1.0
+      '@hazae41/option': 1.1.4
+      '@hazae41/plume': 3.0.5(@hazae41/option@1.1.4)
+      '@hazae41/rsa.wasm': 1.0.14(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/sha1': 1.1.14
+      '@hazae41/smux': 1.1.3
+      '@hazae41/x25519': 2.2.9
+      '@hazae41/x509': 1.2.10
+    transitivePeerDependencies:
+      - '@hazae41/base64url'
+      - '@hazae41/bitwise.wasm'
+
+  hazae-fleche-pr1-fix@1.4.6(@hazae41/bitwise.wasm@1.0.9(@hazae41/memory.wasm@1.0.37)):
+    dependencies:
+      '@hazae41/base64': 1.0.15
+      '@hazae41/binary': 1.3.5
+      '@hazae41/bitwise.wasm': 1.0.9(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/bytes': 1.2.11
+      '@hazae41/cascade': 2.2.2
+      '@hazae41/cursor': 1.2.4
+      '@hazae41/disposer': 2.0.20
+      '@hazae41/future': 1.0.3
+      '@hazae41/signals': 1.0.2
+
   help-me@5.0.0: {}
 
   highlight.js@10.7.3: {}
@@ -13908,6 +14370,55 @@ snapshots:
 
   toml@3.0.0: {}
 
+  tor-hazae41@0.2.5:
+    dependencies:
+      '@brumewallet/wallet.wasm': 1.0.2(@hazae41/base16.wasm@1.0.10(@hazae41/memory.wasm@1.0.37))(@hazae41/base58.wasm@1.0.8(@hazae41/memory.wasm@1.0.37))(@hazae41/base64.wasm@1.0.12(@hazae41/memory.wasm@1.0.37))(@hazae41/chacha20poly1305.wasm@1.0.8(@hazae41/memory.wasm@1.0.37))(@hazae41/ed25519.wasm@1.0.13(@hazae41/memory.wasm@1.0.37))(@hazae41/network.wasm@1.0.10(@hazae41/base16.wasm@1.0.10(@hazae41/memory.wasm@1.0.37))(@hazae41/memory.wasm@1.0.37)(@hazae41/sha3.wasm@1.0.7(@hazae41/memory.wasm@1.0.37)))(@hazae41/ripemd.wasm@1.0.8(@hazae41/memory.wasm@1.0.37))(@hazae41/secp256k1.wasm@1.0.21(@hazae41/memory-wasm@1.0.46))(@hazae41/sha1.wasm@1.0.7(@hazae41/memory.wasm@1.0.37))(@hazae41/sha3.wasm@1.0.7(@hazae41/memory.wasm@1.0.37))(@hazae41/x25519.wasm@1.0.11(@hazae41/memory.wasm@1.0.37))
+      '@hazae41/aes.wasm': 1.0.3(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/asn1': 1.3.31
+      '@hazae41/base16': 1.0.18
+      '@hazae41/base16.wasm': 1.0.10(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/base58.wasm': 1.0.8(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/base64': 1.0.15
+      '@hazae41/base64.wasm': 1.0.12(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/base64url': 1.0.17
+      '@hazae41/binary': 1.3.5
+      '@hazae41/bitwise.wasm': 1.0.9(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/box': 2.0.1
+      '@hazae41/bytes': 1.2.11
+      '@hazae41/cadenas': 0.4.2(@hazae41/base64url@1.0.17)
+      '@hazae41/cascade': 2.2.2
+      '@hazae41/chacha20poly1305': 1.0.8
+      '@hazae41/chacha20poly1305.wasm': 1.0.8(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/cursor': 1.2.4
+      '@hazae41/disposer': 2.0.20
+      '@hazae41/echalote': hazae-echalote-with-fleche-pr1-fix@0.4.19(@hazae41/aes.wasm@1.0.3(@hazae41/memory.wasm@1.0.37))(@hazae41/base16@1.0.18)(@hazae41/base64@1.0.15)(@hazae41/base64url@1.0.17)(@hazae41/bitwise.wasm@1.0.9(@hazae41/memory.wasm@1.0.37))(@hazae41/ed25519@2.1.22(@hazae41/base64url@1.0.17))(@hazae41/rsa.wasm@1.0.14(@hazae41/memory.wasm@1.0.37))(@hazae41/sha1@1.1.14)(@hazae41/x25519@2.2.9)
+      '@hazae41/ed25519': 2.1.22(@hazae41/base64url@1.0.17)
+      '@hazae41/ed25519.wasm': 1.0.13(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/fleche': hazae-fleche-pr1-fix@1.4.6(@hazae41/bitwise.wasm@1.0.9(@hazae41/memory.wasm@1.0.37))
+      '@hazae41/future': 1.0.3
+      '@hazae41/kcp': 1.1.3
+      '@hazae41/keccak256': 1.0.10
+      '@hazae41/memory-wasm': 1.0.46
+      '@hazae41/memory.wasm': 1.0.37
+      '@hazae41/mutex': 2.1.0
+      '@hazae41/network.wasm': 1.0.10(@hazae41/base16.wasm@1.0.10(@hazae41/memory.wasm@1.0.37))(@hazae41/memory.wasm@1.0.37)(@hazae41/sha3.wasm@1.0.7(@hazae41/memory.wasm@1.0.37))
+      '@hazae41/option': 1.1.4
+      '@hazae41/plume': 3.0.5(@hazae41/option@1.1.4)
+      '@hazae41/result': 1.3.2
+      '@hazae41/ripemd.wasm': 1.0.8(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/ripemd160': 1.0.3
+      '@hazae41/rsa.wasm': 1.0.14(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/secp256k1.wasm': 1.0.21(@hazae41/memory-wasm@1.0.46)
+      '@hazae41/sha1': 1.1.14
+      '@hazae41/sha1.wasm': 1.0.7(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/sha3.wasm': 1.0.7(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/signals': 1.0.2
+      '@hazae41/smux': 1.1.3
+      '@hazae41/symbol-dispose-polyfill': 1.0.2
+      '@hazae41/x25519': 2.2.9
+      '@hazae41/x25519.wasm': 1.0.11(@hazae41/memory.wasm@1.0.37)
+      '@hazae41/x509': 1.2.10
+
   totalist@3.0.1: {}
 
   tr46@0.0.3: {}
@@ -14136,6 +14647,7 @@ snapshots:
       abitype: 1.1.0(typescript@5.6.2)(zod@3.25.76)
       isows: 1.0.7(ws@8.18.3)
       ox: 0.9.6(typescript@5.6.2)(zod@3.25.76)
+      tor-hazae41: 0.2.5
       ws: 8.18.3
     optionalDependencies:
       typescript: 5.6.2
