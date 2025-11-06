@@ -6,7 +6,7 @@ export const silentData = /*#__PURE__*/ defineChain({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
-      http: ['https://mainnet.silentdata.com/'],
+      http: ['https://mainnet.silentdata.com'],
     },
   },
   blockExplorers: {
