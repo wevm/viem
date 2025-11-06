@@ -600,6 +600,241 @@ describe('request', () => {
   })
 })
 
+describe('tor support', () => {
+  test('tor config with string array filter', async () => {
+    const mockTorFetch = new MockFetch('0xtor')
+    const mockRegularFetch = new MockFetch('0xregular')
+
+    const transport = http('https://mockapi.com/rpc', {
+      fetchFn: mockRegularFetch.fetch,
+      tor: {
+        snowflakeUrl: 'https://snowflake.example.com/',
+        filter: ['eth_getBalance', 'eth_sendTransaction'], // Only these methods use Tor
+        sharedClient: mockTorFetch as any,
+      },
+    })({ chain: localhost })
+
+    // Reset counters
+    mockTorFetch.reset()
+    mockRegularFetch.reset()
+
+    // Request that should NOT use Tor
+    const blockNumber = await transport.request({ method: 'eth_blockNumber' })
+    expect(blockNumber).toBe('0xregular')
+    expect(mockRegularFetch.wasCalled()).toBe(true)
+    expect(mockTorFetch.callCount).toBe(0)
+
+    // Request that SHOULD use Tor
+    const balance = await transport.request({
+      method: 'eth_getBalance',
+      params: ['0x123'],
+    })
+    expect(balance).toBe('0xtor')
+    expect(mockRegularFetch.callCount).toBe(1) // unchanged from previous call
+    expect(mockTorFetch.callCount).toBe(1)
+    expect(mockTorFetch.wasMethodUsed('eth_getBalance')).toBe(true)
+    expect(mockTorFetch.wasLastRequestBatch()).toBe(false)
+  })
+
+  test('tor config with function filter', async () => {
+    const mockTorFetch = new MockFetch('0xtor')
+    const mockRegularFetch = new MockFetch('0xregular')
+
+    const transport = http('https://mockapi.com/rpc', {
+      fetchFn: mockRegularFetch.fetch,
+      tor: {
+        snowflakeUrl: 'https://snowflake.example.com/',
+        filter: (body) => body.some((req) => req.method.includes('Balance')), // Function-based filter
+        sharedClient: mockTorFetch as any,
+      },
+    })({ chain: localhost })
+
+    // Reset counters
+    mockTorFetch.reset()
+    mockRegularFetch.reset()
+
+    // Request that should NOT use Tor
+    await transport.request({ method: 'eth_blockNumber' })
+    expect(mockRegularFetch.callCount).toBe(1)
+    expect(mockTorFetch.callCount).toBe(0)
+
+    // Request that SHOULD use Tor (contains 'Balance')
+    await transport.request({ method: 'eth_getBalance', params: ['0x123'] })
+    expect(mockRegularFetch.callCount).toBe(1) // unchanged
+    expect(mockTorFetch.callCount).toBe(1)
+  })
+
+  test('tor config with batch requests', async () => {
+    const mockTorFetch = new MockFetch('0xtor')
+    const mockRegularFetch = new MockFetch('0xregular')
+
+    const transport = http('https://mockapi.com/rpc', {
+      batch: true,
+      fetchFn: mockRegularFetch.fetch,
+      tor: {
+        snowflakeUrl: 'https://snowflake.example.com/',
+        filter: ['eth_getBalance'], // Only balance calls use Tor
+        sharedClient: mockTorFetch as any,
+      },
+    })({ chain: localhost })
+
+    // Reset counters
+    mockTorFetch.reset()
+    mockRegularFetch.reset()
+
+    // Batch with mixed requests - one should trigger Tor for the entire batch
+    const promises = [
+      transport.request({ method: 'eth_blockNumber' }),
+      transport.request({ method: 'eth_getBalance', params: ['0x123'] }), // This triggers Tor
+    ]
+
+    const results = await Promise.all(promises)
+
+    // Since one request in the batch uses Tor, the entire batch should go through Tor
+    expect(mockTorFetch.callCount).toBe(1)
+    expect(mockRegularFetch.callCount).toBe(0)
+    expect(results).toEqual(['0xtor1', '0xtor2'])
+
+    // Verify the batch contained both methods using helper methods
+    expect(mockTorFetch.wasLastRequestBatch()).toBe(true)
+    expect(mockTorFetch.getLastRequestBody()).toHaveLength(2)
+    expect(mockTorFetch.wasMethodUsed('eth_blockNumber')).toBe(true)
+    expect(mockTorFetch.wasMethodUsed('eth_getBalance')).toBe(true)
+  })
+
+  test('tor error handling', async () => {
+    const mockTorFetch = new MockFetch('0xtor')
+    mockTorFetch.setErrorResponse({
+      jsonrpc: '2.0',
+      id: 1,
+      error: { code: -32601, message: 'Method not found via Tor' },
+    })
+
+    const transport = http('https://mockapi.com/rpc', {
+      tor: {
+        snowflakeUrl: 'https://snowflake.example.com/',
+        filter: ['eth_getBalance'],
+        sharedClient: mockTorFetch as any,
+      },
+    })({ chain: localhost })
+
+    await expect(() =>
+      transport.request({ method: 'eth_getBalance', params: ['0x123'] }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [MethodNotFoundRpcError: The method "eth_getBalance" does not exist / is not available.
+
+      URL: http://localhost
+      Request body: {"method":"eth_getBalance","params":["0x123"]}
+
+      Details: Method not found via Tor
+      Version: viem@x.y.z]
+    `)
+  })
+
+  class MockFetch {
+    public callCount = 0
+    public usedMethods: string[] = []
+    public requestBodies: any[] = []
+    private responseOverride: Response | undefined
+    private errorResponse: any
+
+    constructor(private defaultResult = '0xmock') {}
+
+    setResponse(response: Response) {
+      this.responseOverride = response
+      return this
+    }
+
+    setErrorResponse(error: any) {
+      this.errorResponse = error
+      return this
+    }
+
+    reset() {
+      this.callCount = 0
+      this.usedMethods = []
+      this.requestBodies = []
+      this.responseOverride = undefined
+      this.errorResponse = undefined
+      return this
+    }
+
+    // Helper methods for testing
+    wasCalled(): boolean {
+      return this.callCount > 0
+    }
+
+    wasMethodUsed(method: string): boolean {
+      return this.usedMethods.includes(method)
+    }
+
+    getLastRequestBody() {
+      return this.requestBodies[this.requestBodies.length - 1]
+    }
+
+    wasLastRequestBatch(): boolean {
+      const lastBody = this.getLastRequestBody()
+      return Array.isArray(lastBody)
+    }
+
+    // Works as both fetch function and TorClient.fetch method
+    fetch = async (_input: RequestInfo | URL | string, init?: RequestInit) => {
+      this.callCount++
+
+      // Track request details
+      if (init?.body && typeof init.body === 'string') {
+        try {
+          const body = JSON.parse(init.body)
+          this.requestBodies.push(body)
+
+          if (Array.isArray(body)) {
+            this.usedMethods.push(...body.map((req: any) => req.method))
+          } else {
+            this.usedMethods.push(body.method)
+          }
+        } catch {
+          // ignore parse errors
+        }
+      }
+
+      // Return custom response if set
+      if (this.responseOverride) {
+        return this.responseOverride
+      }
+
+      // Return error response if set
+      if (this.errorResponse) {
+        return new Response(JSON.stringify(this.errorResponse), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+
+      // Determine if this is a batch request
+      const isBatch =
+        this.requestBodies[this.requestBodies.length - 1] &&
+        Array.isArray(this.requestBodies[this.requestBodies.length - 1])
+
+      if (isBatch) {
+        const batchSize =
+          this.requestBodies[this.requestBodies.length - 1].length
+        const results = Array.from({ length: batchSize }, (_, i) => ({
+          result: `${this.defaultResult}${i + 1}`,
+        }))
+        return new Response(JSON.stringify(results), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+
+      return new Response(JSON.stringify({ result: this.defaultResult }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+  }
+})
+
 test('no url', () => {
   expect(() => http()({})).toThrowErrorMatchingInlineSnapshot(
     `
