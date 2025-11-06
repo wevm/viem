@@ -11,7 +11,7 @@ export const kii = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['TODO'],
+      http: ['https://json-rpc.kiivalidator.com'],
     },
   },
   blockExplorers: {
