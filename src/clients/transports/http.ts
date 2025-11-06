@@ -63,12 +63,26 @@ export type HttpTransportConfig<
   rpcSchema?: rpcSchema | RpcSchema | undefined
   /** The timeout (in ms) for the HTTP request. Default: 10_000 */
   timeout?: TransportConfig['timeout'] | undefined
-  /** todo */
+  /**
+   * Configuration for routing requests through the Tor network.
+   * Requires `snowflakeUrl`, `filter`.
+   * Other TorClientOptions are documented at https://www.npmjs.com/package/tor-hazae41
+   * @link https://viem.sh/docs/clients/transports/http#tor-support
+   */
   tor?: TorClientOptions & {
-    sharedClient?: TorClient
+    /**
+     * Determines which requests should be routed through Tor.
+     * - If an array of strings: Only RPC methods matching these names will use Tor
+     * - If a function: Called for each request to determine if it should use Tor
+     */
     filter:
       | string[]
       | ((input: RequestInfo | URL, init?: RequestInit) => boolean)
+    /**
+     * A shared TorClient instance to reuse across multiple transports.
+     * If not provided, a new TorClient will be created using the other TorClientOptions.
+     */
+    sharedClient?: TorClient
   }
 }
 

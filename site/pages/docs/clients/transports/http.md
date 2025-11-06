@@ -59,6 +59,27 @@ const [blockNumber, balance, ensName] = await Promise.all([
 ])
 ```
 
+## Tor Support
+
+The `http` Transport supports routing requests through the Tor network for enhanced privacy. This is useful when you want to anonymize your RPC requests.
+
+```ts twoslash
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http({
+    tor: { // [!code focus:4]
+      snowflakeUrl: 'https://snowflake.pse.dev/',
+      filter: ['eth_sendRawTransaction'],
+    },
+  }),
+})
+```
+
+You can configure which RPC methods should be routed through Tor using the `filter` option. In the example above, only `eth_sendRawTransaction` calls will go through Tor, while other methods will use the regular HTTP connection.
+
 ## Parameters
 
 ### url (optional)
@@ -264,3 +285,39 @@ const transport = http('https://1.rpc.thirdweb.com/...', {
 })
 ```
 
+### tor (optional)
+
+- **Type:** `TorClientOptions & { sharedClient?: TorClient, filter: string[] | ((input: RequestInfo | URL, init?: RequestInit) => boolean) }`
+
+Configuration for routing requests through the Tor network. Requires `snowflakeUrl`, `filter`. Additional TorClientOptions are documented at [tor-hazae41](https://www.npmjs.com/package/tor-hazae41).
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://1.rpc.thirdweb.com/...', {
+  tor: { // [!code focus:4]
+    snowflakeUrl: 'https://snowflake.pse.dev/',
+    filter: ['eth_sendRawTransaction'],
+  },
+})
+```
+
+### tor.snowflakeUrl
+
+- **Type:** `string`
+
+The URL of the Snowflake proxy server for Tor connectivity.
+
+### tor.filter
+
+- **Type:** `string[] | ((input: RequestInfo | URL, init?: RequestInit) => boolean)`
+
+Determines which requests should be routed through Tor:
+- If an array of strings: Only RPC methods matching these names will use Tor
+- If a function: Called for each request to determine if it should use Tor
+
+### tor.sharedClient (optional)
+
+- **Type:** `TorClient`
+
+A shared TorClient instance to reuse across multiple transports. If not provided, a new TorClient will be created using the other TorClientOptions.
