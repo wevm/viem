@@ -12,13 +12,7 @@ export const taikoHoodi = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Etherscan',
-      url: 'https://hoodi.taikoscan.io/',
-    },
-  },
-  contracts: {
-    multicall3: {
-      address: '0x41a272d73bB1742356A85EAe3128871ab1F7ADF4',
-      blockCreated: 525510,
+      url: 'https://hoodi.taikoscan.io',
     },
   },
   testnet: true,
