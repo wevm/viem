@@ -316,8 +316,22 @@ Determines which requests should be routed through Tor:
 - If an array of strings: Only RPC methods matching these names will use Tor
 - If a function: Called for each request to determine if it should use Tor
 
+### tor.url (optional)
+
+- **Type:** `string`
+- **Default:** Same URL as non-Tor requests
+
+The RPC URL to use when routing requests through Tor.
+
 ### tor.sharedClient (optional)
 
 - **Type:** `TorClient`
 
 A shared TorClient instance to reuse across multiple transports. If not provided, a new TorClient will be created using the other TorClientOptions.
+
+### tor.timeout (optional)
+
+- **Type:** `number`
+- **Default:** `max(60_000, config.timeout)`
+
+The timeout (in ms) for the HTTP request over Tor.

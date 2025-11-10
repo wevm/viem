@@ -78,6 +78,11 @@ export type HttpTransportConfig<
      */
     filter: string[] | RpcRequestFilter
     /**
+     * The RPC url to use when routing through tor.
+     * Default: same url as non-tor requests.
+     */
+    url?: string
+    /**
      * A shared TorClient instance to reuse across multiple transports.
      * If not provided, a new TorClient will be created using the other TorClientOptions.
      */
@@ -228,7 +233,7 @@ function makeTorTools(
   }
 
   return {
-    rpcClient: getHttpRpcClient(url, {
+    rpcClient: getHttpRpcClient(torConfig.url ?? url, {
       ...rpcClientOptions,
       fetchFn: (input, init) => tor.fetch(input.toString(), init),
       timeout: torConfig.timeout ?? Math.max(timeout, 60_000),
