@@ -92,15 +92,17 @@ export function waitForUserOperationReceipt(
         unobserve()
       }
 
-      const timeoutId = timeout ? setTimeout(
-          () =>
-            done(() =>
-              emit.reject(
-                new WaitForUserOperationReceiptTimeoutError({ hash }),
+      const timeoutId = timeout
+        ? setTimeout(
+            () =>
+              done(() =>
+                emit.reject(
+                  new WaitForUserOperationReceiptTimeoutError({ hash }),
+                ),
               ),
-            ),
-          timeout,
-        ) : undefined
+            timeout,
+          )
+        : undefined
 
       const unpoll = poll(
         async () => {
