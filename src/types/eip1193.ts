@@ -1015,6 +1015,18 @@ export type PublicRpcSchema = [
     ReturnType: Transaction | null
   },
   /**
+   * @description Returns information about a transaction specified by sender and nonce
+   * @link https://eips.ethereum.org/EIPS/eip-1474
+   * @example
+   * provider.request({ method: 'eth_getTransactionBySenderAndNonce', params: ['0x...', '0x...'] })
+   * // => { ... }
+   */
+  {
+    Method: 'eth_getTransactionBySenderAndNonce'
+    Parameters: [sender: Address, nonce: Quantity]
+    ReturnType: Transaction | null
+  },
+  /**
    * @description Returns the number of transactions sent from an address
    * @link https://eips.ethereum.org/EIPS/eip-1474
    * @example

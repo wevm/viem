@@ -403,3 +403,24 @@ describe('args: blockTag', () => {
     expect(transaction).toBeDefined()
   }, 10000)
 })
+
+describe('args: sender and nonce', () => {
+  test.only('gets transaction by sender and nonce', async () => {
+    const hash = await sendTransaction(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    await mine(client, { blocks: 1 })
+    await wait(200)
+
+    const transaction = await getTransaction(client, { hash })
+
+    const transaction2 = await getTransaction(client, {
+      sender: sourceAccount.address,
+      nonce: transaction.nonce,
+    })
+    expect(transaction2).toEqual(transaction)
+  })
+})
