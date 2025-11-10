@@ -405,7 +405,7 @@ describe('args: blockTag', () => {
 })
 
 describe('args: sender and nonce', () => {
-  test.only('gets transaction by sender and nonce', async () => {
+  test('gets transaction by sender and nonce', async () => {
     const hash = await sendTransaction(client, {
       account: sourceAccount.address,
       to: targetAccount.address,
