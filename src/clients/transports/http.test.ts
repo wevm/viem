@@ -608,7 +608,7 @@ describe('tor support', () => {
     const transport = http('https://mockapi.com/rpc', {
       fetchFn: mockRegularFetch.fetch,
       tor: {
-        snowflakeUrl: 'https://snowflake.example.com/',
+        snowflakeUrl: 'wss://snowflake.example.com/',
         filter: ['eth_getBalance', 'eth_sendTransaction'], // Only these methods use Tor
         sharedClient: mockTorFetch as any,
       },
@@ -643,7 +643,7 @@ describe('tor support', () => {
     const transport = http('https://mockapi.com/rpc', {
       fetchFn: mockRegularFetch.fetch,
       tor: {
-        snowflakeUrl: 'https://snowflake.example.com/',
+        snowflakeUrl: 'wss://snowflake.example.com/',
         filter: (body) => body.some((req) => req.method.includes('Balance')), // Function-based filter
         sharedClient: mockTorFetch as any,
       },
@@ -672,7 +672,7 @@ describe('tor support', () => {
       batch: true,
       fetchFn: mockRegularFetch.fetch,
       tor: {
-        snowflakeUrl: 'https://snowflake.example.com/',
+        snowflakeUrl: 'wss://snowflake.example.com/',
         filter: ['eth_getBalance'], // Only balance calls use Tor
         sharedClient: mockTorFetch as any,
       },
@@ -712,7 +712,7 @@ describe('tor support', () => {
 
     const transport = http('https://mockapi.com/rpc', {
       tor: {
-        snowflakeUrl: 'https://snowflake.example.com/',
+        snowflakeUrl: 'wss://snowflake.example.com/',
         filter: ['eth_getBalance'],
         sharedClient: mockTorFetch as any,
       },

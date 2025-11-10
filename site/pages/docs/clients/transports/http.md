@@ -71,7 +71,7 @@ const client = createPublicClient({
   chain: mainnet,
   transport: http({
     tor: { // [!code focus:4]
-      snowflakeUrl: 'https://snowflake.pse.dev/',
+      snowflakeUrl: 'wss://snowflake.pse.dev/',
       filter: ['eth_sendRawTransaction'],
     },
   }),
@@ -296,7 +296,7 @@ import { http } from 'viem'
 // ---cut---
 const transport = http('https://1.rpc.thirdweb.com/...', {
   tor: { // [!code focus:4]
-    snowflakeUrl: 'https://snowflake.pse.dev/',
+    snowflakeUrl: 'wss://snowflake.pse.dev/',
     filter: ['eth_sendRawTransaction'],
   },
 })
