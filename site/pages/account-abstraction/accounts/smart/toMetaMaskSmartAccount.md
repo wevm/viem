@@ -8,7 +8,7 @@ MetaMask Smart Accounts has three types of implementations, each offering unique
 and use cases. See [Hybrid smart account](https://docs.metamask.io/smart-accounts-kit/guides/smart-accounts/create-smart-account/#create-a-hybrid-smart-account), [Multisig smart account](https://docs.metamask.io/smart-accounts-kit/guides/smart-accounts/create-smart-account/#create-a-multisig-smart-account), and [Stateless 7702 smart account](https://docs.metamask.io/smart-accounts-kit/guides/smart-accounts/create-smart-account/#create-a-stateless-7702-smart-account) to learn more about 
 the implementations.
 
-To implement MetaMask Smart Accounts, you can use the [`toMetaMaskSmartAccount`](https://docs.metamask.io/smart-accounts-kit/how-to/create-smart-account/#create-a-metamasksmartaccount) function from the [Smart Accounts Kit](https://docs.metamask.io/smart-accounts-kit/).
+To implement MetaMask Smart Accounts, you can use the [`toMetaMaskSmartAccount`](https://docs.metamask.io/smart-accounts-kit/guides/smart-accounts/create-smart-account/) function from the [Smart Accounts Kit](https://docs.metamask.io/smart-accounts-kit/).
 
 ## Install
 
