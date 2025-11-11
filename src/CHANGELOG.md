@@ -1,5 +1,25 @@
 # viem
 
+## 2.39.0
+
+### Minor Changes
+
+- [`c348b3e3f261503aea0ce684ecce31002c06ca94`](https://github.com/wevm/viem/commit/c348b3e3f261503aea0ce684ecce31002c06ca94) Thanks [@jxom](https://github.com/jxom)! - Added `sender` and `nonce` properties to `getTransaction` to support `eth_getTransactionBySenderAndNonce`.
+
+### Patch Changes
+
+- [#4058](https://github.com/wevm/viem/pull/4058) [`eb5fb8894ca982dcb2f2e30e3be1c8953afeb799`](https://github.com/wevm/viem/commit/eb5fb8894ca982dcb2f2e30e3be1c8953afeb799) Thanks [@tuphan-dn](https://github.com/tuphan-dn)! - Fixed a bug where the timeout in `waitForUserOperationReceipt` was not properly cleared after the receipt was returned.
+
+- [#4074](https://github.com/wevm/viem/pull/4074) [`7d88fcdc0a91a445863e28d0c3fca0ec606e7a00`](https://github.com/wevm/viem/commit/7d88fcdc0a91a445863e28d0c3fca0ec606e7a00) Thanks [@askmyselfwhy](https://github.com/askmyselfwhy)! - Added Helios Testnet.
+
+- [#4081](https://github.com/wevm/viem/pull/4081) [`9172f8cf92d7b23c3e82bfffba076d4eacad7108`](https://github.com/wevm/viem/commit/9172f8cf92d7b23c3e82bfffba076d4eacad7108) Thanks [@sandyup](https://github.com/sandyup)! - Added Silent Data Mainnet.
+
+- [#4080](https://github.com/wevm/viem/pull/4080) [`2bfa29ea935d3be6fec17dfb75c9baf303504a46`](https://github.com/wevm/viem/commit/2bfa29ea935d3be6fec17dfb75c9baf303504a46) Thanks [@antonimmo](https://github.com/antonimmo)! - Updated ApeChain name.
+
+- [#4073](https://github.com/wevm/viem/pull/4073) [`cfdb8b329313ca70c0aa7c7f5805d55547869e72`](https://github.com/wevm/viem/commit/cfdb8b329313ca70c0aa7c7f5805d55547869e72) Thanks [@akitothemoon](https://github.com/akitothemoon)! - Added POTOS Mainnet.
+
+- [#4068](https://github.com/wevm/viem/pull/4068) [`b0ab1c2faf47a795656e1189957f8491b255976b`](https://github.com/wevm/viem/commit/b0ab1c2faf47a795656e1189957f8491b255976b) Thanks [@mangosago99](https://github.com/mangosago99)! - Added Xone mainnet and testnet.
+
 ## 2.38.6
 
 ### Patch Changes
