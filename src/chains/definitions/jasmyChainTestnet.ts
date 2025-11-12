@@ -11,5 +11,5 @@ export const jasmyChainTestnet = /*#__PURE__*/ defineChain({
       webSocket: ['wss://rpc_testnet.jasmychain.io'],
     },
   },
-  testnet: false,
+  testnet: true,
 })
