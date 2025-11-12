@@ -1,5 +1,11 @@
 # viem
 
+## 2.31.12
+
+### Patch Changes
+
+- [#13](https://github.com/bob-collective/viem/pull/13) [`1ce1792a75e7916df3eb6155886e7204dee8fb35`](https://github.com/bob-collective/viem/commit/1ce1792a75e7916df3eb6155886e7204dee8fb35) Thanks [@slavastartsev](https://github.com/slavastartsev)! - fix: update calculation for seconds to finalize
+
 ## 2.31.11
 
 ### Patch Changes

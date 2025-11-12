@@ -85,7 +85,7 @@ importers:
         version: 0.14.0
       permissionless:
         specifier: ^0.2.14
-        version: 0.2.14(viem@2.32.0(typescript@5.8.3)(zod@3.23.8))
+        version: 0.2.14(viem@2.39.0(typescript@5.8.3)(zod@3.23.8))
       prool:
         specifier: 0.0.24
         version: 0.0.24(@pimlico/alto@0.0.18(typescript@5.8.3))
@@ -155,7 +155,7 @@ importers:
     dependencies:
       typescript:
         specifier: latest
-        version: 5.8.3
+        version: 5.9.3
       viem:
         specifier: file:../../src/
         version: link:../../src
@@ -183,7 +183,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.32.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.39.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -196,7 +196,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.32.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.39.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -209,7 +209,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.32.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.39.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -222,7 +222,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.32.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.39.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -235,7 +235,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.32.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.39.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -254,7 +254,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.32.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.39.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -282,7 +282,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.32.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.39.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -304,7 +304,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.32.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.39.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -317,7 +317,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.32.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.39.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -336,7 +336,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.32.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.39.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -358,7 +358,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.32.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.39.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -371,7 +371,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.32.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.39.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -384,7 +384,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.32.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.39.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -397,7 +397,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.32.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.39.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -444,7 +444,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.32.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.39.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -472,7 +472,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.32.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.39.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -494,7 +494,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.32.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.39.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -513,7 +513,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.32.0(typescript@5.6.2)(zod@3.23.8)
+        version: 2.39.0(typescript@5.6.2)(zod@3.23.8)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -547,7 +547,7 @@ importers:
         version: 4.0.6
       vocs:
         specifier: ^1.0.11
-        version: 1.0.11(@types/node@22.13.13)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.8)(terser@5.36.0)(typescript@5.8.3)(yaml@2.7.0)
+        version: 1.0.11(@types/node@22.13.13)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.8)(terser@5.36.0)(typescript@5.9.3)(yaml@2.7.0)
 
   src:
     dependencies:
@@ -565,13 +565,13 @@ importers:
         version: 1.6.0
       abitype:
         specifier: 1.0.8
-        version: 1.0.8(typescript@5.8.3)(zod@3.23.8)
+        version: 1.0.8(typescript@5.9.3)(zod@3.23.8)
       isows:
         specifier: 1.0.7
         version: 1.0.7(ws@8.18.2)
       ox:
         specifier: 0.8.1
-        version: 0.8.1(typescript@5.8.3)(zod@3.23.8)
+        version: 0.8.1(typescript@5.9.3)(zod@3.23.8)
       ws:
         specifier: 8.18.2
         version: 8.18.2
@@ -1503,6 +1503,10 @@ packages:
 
   '@noble/curves@1.8.2':
     resolution: {integrity: sha512-vnI7V6lFNe0tLAuJMu+2sX+FcL14TaCWy1qiczg1VwRmPrpQCdq5ESXQMqUc2tluRNf6irBXrWbl1mGN8uaU/g==}
+    engines: {node: ^14.21.3 || >=16}
+
+  '@noble/curves@1.9.1':
+    resolution: {integrity: sha512-k11yZxZg+t+gWvBbIswW0yoJlu8cHOC7dhunwOzoWH/mXGBiYyR4YY6hAEK/3EUs4UpB8la1RfdRpeGsFHkWsA==}
     engines: {node: ^14.21.3 || >=16}
 
   '@noble/curves@1.9.2':
@@ -3117,6 +3121,17 @@ packages:
     peerDependencies:
       typescript: '>=5.0.4'
       zod: ^3 >=3.22.0
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+      zod:
+        optional: true
+
+  abitype@1.1.0:
+    resolution: {integrity: sha512-6Vh4HcRxNMLA0puzPjM5GBgT4aAcFGKZzSgAXvuZ27shJP6NEpielTuqbBmZILR5/xd0PizkBGy5hReKz9jl5A==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+      zod: ^3.22.0 || ^4.0.0
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -5112,6 +5127,14 @@ packages:
       typescript:
         optional: true
 
+  ox@0.9.6:
+    resolution: {integrity: sha512-8SuCbHPvv2eZLYXrNmC0EC12rdzXQLdhnOMlHDW2wiCPLxBrOOJwX5L5E61by+UjTPOryqQiRSnjIKCI+GykKg==}
+    peerDependencies:
+      typescript: '>=5.4.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   p-filter@2.1.0:
     resolution: {integrity: sha512-ZBxxZ5sL2HghephhpGAQdoskxplTwr7ICaehZwLIlfL6acuVgZPm8yBNuRAFBGEqtD/hmUeq9eqLg2ys9Xr/yw==}
     engines: {node: '>=8'}
@@ -6121,6 +6144,11 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  typescript@5.9.3:
+    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   ua-parser-js@1.0.40:
     resolution: {integrity: sha512-z6PJ8Lml+v3ichVojCiB8toQJBuwR42ySM4ezjXIqXK3M0HczmKQ3LF4rhU55PfD99KEEXQG6yb7iOMyvYuHew==}
     hasBin: true
@@ -6240,8 +6268,8 @@ packages:
   vfile@6.0.3:
     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
 
-  viem@2.32.0:
-    resolution: {integrity: sha512-pHwKXQSyEWX+8ttOQJdU5dSBfYd6L9JxARY/Sx0MBj3uF/Zaiqt6o1SbzjFjQXkNzWSgtxK7H89ZI1SMIA2iLQ==}
+  viem@2.39.0:
+    resolution: {integrity: sha512-rCN+IfnMESlrg/iPyyVL+M9NS/BHzyyNy72470tFmbTuscY3iPaZGMtJDcHKKV8TC6HV9DjWk0zWX6cpu0juyA==}
     peerDependencies:
       typescript: '>=5.0.4'
     peerDependenciesMeta:
@@ -6423,6 +6451,18 @@ packages:
 
   ws@8.18.2:
     resolution: {integrity: sha512-DMricUmwGZUVr++AEAe2uiVM7UoO9MAVZMDu05UQOaUII0lp+zOzLLU4Xqh/JvTqklB1T4uELaaPBKyjE1r4fQ==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
+  ws@8.18.3:
+    resolution: {integrity: sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -7460,6 +7500,10 @@ snapshots:
     dependencies:
       '@noble/hashes': 1.7.2
 
+  '@noble/curves@1.9.1':
+    dependencies:
+      '@noble/hashes': 1.8.0
+
   '@noble/curves@1.9.2':
     dependencies:
       '@noble/hashes': 1.8.0
@@ -7787,7 +7831,7 @@ snapshots:
       pino-pretty: 10.3.1
       prom-client: 14.2.0
       type-fest: 4.39.0
-      viem: 2.32.0(typescript@5.8.3)(zod@3.23.8)
+      viem: 2.39.0(typescript@5.8.3)(zod@3.23.8)
       yargs: 17.7.2
       zod: 3.23.8
       zod-validation-error: 1.5.0(zod@3.23.8)
@@ -8776,11 +8820,11 @@ snapshots:
       '@shikijs/core': 1.29.2
       '@shikijs/types': 1.29.2
 
-  '@shikijs/twoslash@1.29.2(typescript@5.8.3)':
+  '@shikijs/twoslash@1.29.2(typescript@5.9.3)':
     dependencies:
       '@shikijs/core': 1.29.2
       '@shikijs/types': 1.29.2
-      twoslash: 0.2.12(typescript@5.8.3)
+      twoslash: 0.2.12(typescript@5.9.3)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -9050,10 +9094,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript/vfs@1.6.1(typescript@5.8.3)':
+  '@typescript/vfs@1.6.1(typescript@5.9.3)':
     dependencies:
       debug: 4.4.0
-      typescript: 5.8.3
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
@@ -9310,7 +9354,17 @@ snapshots:
       typescript: 5.6.2
       zod: 3.23.8
 
-  abitype@1.0.8(typescript@5.8.3)(zod@3.23.8):
+  abitype@1.0.8(typescript@5.9.3)(zod@3.23.8):
+    optionalDependencies:
+      typescript: 5.9.3
+      zod: 3.23.8
+
+  abitype@1.1.0(typescript@5.6.2)(zod@3.23.8):
+    optionalDependencies:
+      typescript: 5.6.2
+      zod: 3.23.8
+
+  abitype@1.1.0(typescript@5.8.3)(zod@3.23.8):
     optionalDependencies:
       typescript: 5.8.3
       zod: 3.23.8
@@ -10695,6 +10749,10 @@ snapshots:
     dependencies:
       ws: 8.18.2
 
+  isows@1.0.7(ws@8.18.3):
+    dependencies:
+      ws: 8.18.3
+
   istanbul-lib-coverage@3.2.2: {}
 
   istanbul-lib-report@3.0.1:
@@ -11700,7 +11758,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.8.1(typescript@5.8.3)(zod@3.23.8):
+  ox@0.8.1(typescript@5.9.3)(zod@3.23.8):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
       '@noble/ciphers': 1.3.0
@@ -11708,7 +11766,37 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.0.8(typescript@5.8.3)(zod@3.23.8)
+      abitype: 1.0.8(typescript@5.9.3)(zod@3.23.8)
+      eventemitter3: 5.0.1
+    optionalDependencies:
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - zod
+
+  ox@0.9.6(typescript@5.6.2)(zod@3.23.8):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.0
+      '@noble/ciphers': 1.3.0
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.1.0(typescript@5.6.2)(zod@3.23.8)
+      eventemitter3: 5.0.1
+    optionalDependencies:
+      typescript: 5.6.2
+    transitivePeerDependencies:
+      - zod
+
+  ox@0.9.6(typescript@5.8.3)(zod@3.23.8):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.0
+      '@noble/ciphers': 1.3.0
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.1.0(typescript@5.8.3)(zod@3.23.8)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.8.3
@@ -11818,9 +11906,9 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.14(viem@2.32.0(typescript@5.8.3)(zod@3.23.8)):
+  permissionless@0.2.14(viem@2.39.0(typescript@5.8.3)(zod@3.23.8)):
     dependencies:
-      viem: 2.32.0(typescript@5.8.3)(zod@3.23.8)
+      viem: 2.39.0(typescript@5.8.3)(zod@3.23.8)
 
   picocolors@1.1.1: {}
 
@@ -12897,11 +12985,11 @@ snapshots:
 
   twoslash-protocol@0.2.12: {}
 
-  twoslash@0.2.12(typescript@5.8.3):
+  twoslash@0.2.12(typescript@5.9.3):
     dependencies:
-      '@typescript/vfs': 1.6.1(typescript@5.8.3)
+      '@typescript/vfs': 1.6.1(typescript@5.9.3)
       twoslash-protocol: 0.2.12
-      typescript: 5.8.3
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
@@ -12914,6 +13002,8 @@ snapshots:
   typescript@5.6.2: {}
 
   typescript@5.8.3: {}
+
+  typescript@5.9.3: {}
 
   ua-parser-js@1.0.40: {}
 
@@ -13032,16 +13122,16 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
 
-  viem@2.32.0(typescript@5.6.2)(zod@3.23.8):
+  viem@2.39.0(typescript@5.6.2)(zod@3.23.8):
     dependencies:
-      '@noble/curves': 1.9.2
+      '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.0.8(typescript@5.6.2)(zod@3.23.8)
-      isows: 1.0.7(ws@8.18.2)
-      ox: 0.8.1(typescript@5.6.2)(zod@3.23.8)
-      ws: 8.18.2
+      abitype: 1.1.0(typescript@5.6.2)(zod@3.23.8)
+      isows: 1.0.7(ws@8.18.3)
+      ox: 0.9.6(typescript@5.6.2)(zod@3.23.8)
+      ws: 8.18.3
     optionalDependencies:
       typescript: 5.6.2
     transitivePeerDependencies:
@@ -13049,16 +13139,16 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.32.0(typescript@5.8.3)(zod@3.23.8):
+  viem@2.39.0(typescript@5.8.3)(zod@3.23.8):
     dependencies:
-      '@noble/curves': 1.9.2
+      '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.0.8(typescript@5.8.3)(zod@3.23.8)
-      isows: 1.0.7(ws@8.18.2)
-      ox: 0.8.1(typescript@5.8.3)(zod@3.23.8)
-      ws: 8.18.2
+      abitype: 1.1.0(typescript@5.8.3)(zod@3.23.8)
+      isows: 1.0.7(ws@8.18.3)
+      ox: 0.9.6(typescript@5.8.3)(zod@3.23.8)
+      ws: 8.18.3
     optionalDependencies:
       typescript: 5.8.3
     transitivePeerDependencies:
@@ -13173,7 +13263,7 @@ snapshots:
       - supports-color
       - terser
 
-  vocs@1.0.11(@types/node@22.13.13)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.8)(terser@5.36.0)(typescript@5.8.3)(yaml@2.7.0):
+  vocs@1.0.11(@types/node@22.13.13)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(acorn@8.14.0)(jiti@2.4.2)(lightningcss@1.29.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.34.8)(terser@5.36.0)(typescript@5.9.3)(yaml@2.7.0):
     dependencies:
       '@floating-ui/react': 0.27.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@hono/node-server': 1.13.8(hono@4.7.2)
@@ -13190,7 +13280,7 @@ snapshots:
       '@radix-ui/react-tabs': 1.1.3(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@shikijs/rehype': 1.29.2
       '@shikijs/transformers': 1.29.2
-      '@shikijs/twoslash': 1.29.2(typescript@5.8.3)
+      '@shikijs/twoslash': 1.29.2(typescript@5.9.3)
       '@tailwindcss/vite': 4.0.7(vite@6.2.0(@types/node@22.13.13)(jiti@2.4.2)(lightningcss@1.29.1)(terser@5.36.0)(yaml@2.7.0))
       '@vanilla-extract/css': 1.17.1
       '@vanilla-extract/dynamic': 2.1.2
@@ -13238,7 +13328,7 @@ snapshots:
       serve-static: 1.16.2
       shiki: 1.29.2
       toml: 3.0.0
-      twoslash: 0.2.12(typescript@5.8.3)
+      twoslash: 0.2.12(typescript@5.9.3)
       ua-parser-js: 1.0.40
       unified: 11.0.5
       unist-util-visit: 5.0.0
@@ -13338,6 +13428,8 @@ snapshots:
   ws@8.17.1: {}
 
   ws@8.18.2: {}
+
+  ws@8.18.3: {}
 
   y18n@5.0.8: {}
 
