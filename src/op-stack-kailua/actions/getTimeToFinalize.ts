@@ -148,32 +148,52 @@ export async function getTimeToFinalize<
     args: [withdrawalHash, numProofSubmitters - 1n],
   }).catch(() => undefined)
 
-  const [_disputeGameProxy, proveTimestamp] = proofSubmitter
-    ? await readContract(client, {
-        abi: portal2Abi,
-        address: portalAddress,
-        functionName: 'provenWithdrawals',
-        args: [withdrawalHash, proofSubmitter],
-      })
-    : await Promise.resolve<[Address, bigint]>(['0x', 0n])
+  const [
+    [_disputeGameProxy, proveTimestamp],
+    proofMaturityDelaySeconds,
+    disputeGameFinalityDelaySeconds,
+  ] = await Promise.all([
+    proofSubmitter
+      ? readContract(client, {
+          abi: portal2Abi,
+          address: portalAddress,
+          functionName: 'provenWithdrawals',
+          args: [withdrawalHash, proofSubmitter],
+        })
+      : Promise.resolve(['0x', 0n]),
+    readContract(client, {
+      abi: portal2Abi,
+      address: portalAddress,
+      functionName: 'proofMaturityDelaySeconds',
+    }),
+    readContract(client, {
+      abi: portal2Abi,
+      address: portalAddress,
+      functionName: 'disputeGameFinalityDelaySeconds',
+    }),
+  ])
 
-  const proofMaturityDelaySeconds = await readContract(client, {
+  const maxClockDuration = await readContract(client, {
     abi: kailuaGameAbi,
-    address: _disputeGameProxy,
+    address: _disputeGameProxy as Address,
     functionName: 'MAX_CLOCK_DURATION',
   })
 
   if (proveTimestamp === 0n)
     throw new BaseError('Withdrawal has not been proven on L1.')
 
+  const period = Math.max(
+    Number(proofMaturityDelaySeconds),
+    Number(disputeGameFinalityDelaySeconds),
+  )
   const secondsSinceProven = Date.now() / 1000 - Number(proveTimestamp)
   const secondsToFinalize =
-    Number(proofMaturityDelaySeconds) - secondsSinceProven
+    period + Number(maxClockDuration) - secondsSinceProven
 
   const seconds = Math.floor(
     secondsToFinalize < 0n ? 0 : secondsToFinalize + buffer,
   )
   const timestamp = Date.now() + seconds * 1000
 
-  return { period: Number(proofMaturityDelaySeconds), seconds, timestamp }
+  return { period, seconds, timestamp }
 }
