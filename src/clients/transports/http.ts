@@ -1,3 +1,4 @@
+import { TorClient, type TorClientOptions } from 'tor-hazae41'
 import { RpcRequestError } from '../../errors/request.js'
 import {
   UrlRequiredError,
@@ -5,10 +6,11 @@ import {
 } from '../../errors/transport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { EIP1193RequestFn, RpcSchema } from '../../types/eip1193.js'
-import type { RpcRequest } from '../../types/rpc.js'
+import type { RpcRequest, RpcResponse } from '../../types/rpc.js'
 import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
 import {
   getHttpRpcClient,
+  type HttpRpcClient,
   type HttpRpcClientOptions,
 } from '../../utils/rpc/http.js'
 
@@ -62,7 +64,37 @@ export type HttpTransportConfig<
   rpcSchema?: rpcSchema | RpcSchema | undefined
   /** The timeout (in ms) for the HTTP request. Default: 10_000 */
   timeout?: TransportConfig['timeout'] | undefined
+  /**
+   * Configuration for routing requests through the Tor network.
+   * Requires `snowflakeUrl`, `filter`.
+   * Other TorClientOptions are documented at https://www.npmjs.com/package/tor-hazae41
+   * @link https://viem.sh/docs/clients/transports/http#tor-support
+   */
+  tor?: TorClientOptions & {
+    /**
+     * Determines which requests should be routed through Tor.
+     * - If an array of strings: Only RPC methods matching these names will use Tor
+     * - If a function: Called for each request to determine if it should use Tor
+     */
+    filter: string[] | RpcRequestFilter
+    /**
+     * The RPC url to use when routing through tor.
+     * Default: same url as non-tor requests.
+     */
+    url?: string
+    /**
+     * A shared TorClient instance to reuse across multiple transports.
+     * If not provided, a new TorClient will be created using the other TorClientOptions.
+     */
+    sharedClient?: TorClient
+    /**
+     * The timeout (in ms) for the HTTP request over Tor. Default: max(60_000, config.timeout).
+     */
+    timeout?: number
+  }
 }
+
+export type RpcRequestFilter = (body: RpcRequest[]) => boolean
 
 export type HttpTransport<
   rpcSchema extends RpcSchema | undefined = undefined,
@@ -112,13 +144,19 @@ export function http<
     const url_ = url || chain?.rpcUrls.default.http[0]
     if (!url_) throw new UrlRequiredError()
 
-    const rpcClient = getHttpRpcClient(url_, {
+    const rpcClientOptions = {
       fetchFn,
       fetchOptions,
       onRequest: onFetchRequest,
       onResponse: onFetchResponse,
       timeout,
-    })
+    }
+
+    const rpcClient = getHttpRpcClient(url_, rpcClientOptions)
+
+    const torTools = config.tor
+      ? makeTorTools(config.tor, url_, rpcClientOptions, timeout)
+      : undefined
 
     return createTransport(
       {
@@ -134,23 +172,26 @@ export function http<
             shouldSplitBatch(requests) {
               return requests.length > batchSize
             },
-            fn: (body: RpcRequest[]) =>
-              rpcClient.request({
-                body,
-              }),
+            fn: (body: RpcRequest[]) => {
+              if (torTools?.filter(body)) {
+                return torTools.rpcClient.request({ body })
+              }
+              return rpcClient.request({ body })
+            },
             sort: (a, b) => a.id - b.id,
           })
 
-          const fn = async (body: RpcRequest) =>
-            batch
-              ? schedule(body)
-              : [
-                  await rpcClient.request({
-                    body,
-                  }),
-                ]
+          let responseData: Awaited<ReturnType<typeof schedule>> | RpcResponse[]
 
-          const [{ error, result }] = await fn(body)
+          if (batch) {
+            responseData = await schedule(body)
+          } else if (torTools?.filter([body])) {
+            responseData = [await torTools.rpcClient.request({ body })]
+          } else {
+            responseData = [await rpcClient.request({ body })]
+          }
+
+          const [{ error, result }] = responseData
 
           if (raw) return { error, result }
           if (error)
@@ -171,5 +212,32 @@ export function http<
         url: url_,
       },
     )
+  }
+}
+
+function makeTorTools(
+  torConfig: NonNullable<HttpTransportConfig['tor']>,
+  url: string,
+  rpcClientOptions: HttpRpcClientOptions,
+  timeout: number,
+): { rpcClient: HttpRpcClient; filter: (body: RpcRequest[]) => boolean } {
+  const tor = torConfig.sharedClient ?? new TorClient(torConfig)
+
+  let filter: RpcRequestFilter
+
+  if (typeof torConfig.filter === 'function') {
+    filter = torConfig.filter
+  } else {
+    const filterMethods = torConfig.filter
+    filter = (body) => body.some((req) => filterMethods.includes(req.method))
+  }
+
+  return {
+    rpcClient: getHttpRpcClient(torConfig.url ?? url, {
+      ...rpcClientOptions,
+      fetchFn: (input, init) => tor.fetch(input.toString(), init),
+      timeout: torConfig.timeout ?? Math.max(timeout, 60_000),
+    }),
+    filter,
   }
 }
