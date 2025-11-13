@@ -23,12 +23,18 @@ import {
   type EstimateL1FeeParameters,
   estimateL1Fee,
 } from './estimateL1Fee.js'
+import {
+  type EstimateOperatorFeeErrorType,
+  type EstimateOperatorFeeParameters,
+  estimateOperatorFee,
+} from './estimateOperatorFee.js'
 
 export type EstimateTotalFeeParameters<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
-> = EstimateL1FeeParameters<chain, account, chainOverride>
+> = EstimateL1FeeParameters<chain, account, chainOverride> &
+  EstimateOperatorFeeParameters<chain, account, chainOverride>
 
 export type EstimateTotalFeeReturnType = bigint
 
@@ -36,12 +42,13 @@ export type EstimateTotalFeeErrorType =
   | RequestErrorType
   | PrepareTransactionRequestErrorType
   | EstimateL1FeeErrorType
+  | EstimateOperatorFeeErrorType
   | EstimateGasErrorType
   | GetGasPriceErrorType
   | ErrorType
 
 /**
- * Estimates the L1 data fee + L2 fee to execute an L2 transaction.
+ * Estimates the L1 data fee + L2 fee + operator fee to execute an L2 transaction.
  *
  * @param client - Client to use
  * @param parameters - {@link EstimateTotalFeeParameters}
@@ -76,11 +83,12 @@ export async function estimateTotalFee<
     args as PrepareTransactionRequestParameters,
   )
 
-  const [l1Fee, l2Gas, l2GasPrice] = await Promise.all([
+  const [l1Fee, operatorFee, l2Gas, l2GasPrice] = await Promise.all([
     estimateL1Fee(client, request as EstimateL1FeeParameters),
+    estimateOperatorFee(client, request as EstimateOperatorFeeParameters),
     estimateGas(client, request as EstimateGasParameters),
     getGasPrice(client),
   ])
 
-  return l1Fee + l2Gas * l2GasPrice
+  return l1Fee + operatorFee + l2Gas * l2GasPrice
 }
