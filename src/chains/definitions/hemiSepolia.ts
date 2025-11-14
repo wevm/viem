@@ -20,5 +20,11 @@ export const hemiSepolia = /*#__PURE__*/ defineChain({
       url: 'https://testnet.explorer.hemi.xyz',
     },
   },
+  contracts: {
+    ...chainConfig.contracts,
+    multicall3: {
+      address: '0xca11bde05977b3631167028862be2a173976ca11',
+    },
+  },
   testnet: true,
 })
