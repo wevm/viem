@@ -1,7 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const megaethTestnet = /*#__PURE__*/ defineChain({
-  id: 6342,
+  id: 6343,
   blockTime: 1_000,
   name: 'MegaETH Testnet',
   nativeCurrency: {
@@ -11,14 +11,14 @@ export const megaethTestnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://carrot.megaeth.com/rpc'],
-      webSocket: ['wss://carrot.megaeth.com/ws'],
+      http: ['https://timothy.megaeth.com/rpc'],
+      webSocket: ['wss://timothy.megaeth.com/ws'],
     },
   },
   blockExplorers: {
     default: {
       name: 'MegaETH Testnet Explorer',
-      url: 'https://www.megaexplorer.xyz/',
+      url: 'https://megaeth-testnet-v2.blockscout.com',
     },
   },
   contracts: {
