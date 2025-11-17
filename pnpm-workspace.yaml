@@ -1,6 +1,7 @@
 auditConfig:
   ignoreGhsas:
     - GHSA-ffrw-9mx8-89p8
+    - GHSA-mh29-5h37-fv8m
 catalog:
   '@types/react': ^19
   '@types/react-dom': ^19
