@@ -164,7 +164,7 @@ export type DomainSeparatorErrorType =
 
 export function domainSeparator({ domain }: { domain: TypedDataDomain }): Hex {
   return hashDomain({
-    domain,
+    domain: domain as never,
     types: {
       EIP712Domain: getTypesForEIP712Domain({ domain }),
     },

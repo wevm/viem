@@ -282,7 +282,7 @@ test('https://github.com/wevm/viem/issues/4095', () => {
     },
     primaryType: 'Message',
     data: {
-      contents: '0x0deadbeeff',
+      contents: '0xdeadbeeff',
     },
   })
   expect(result2).toEqual(result)
@@ -293,6 +293,7 @@ test('https://github.com/wevm/viem/issues/4095', () => {
     },
     primaryType: 'Message',
     data: {
+      // @ts-expect-error
       contents: hexToBytes('0xdeadbeeff'),
     },
   })
