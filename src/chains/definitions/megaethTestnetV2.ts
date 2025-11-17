@@ -1,10 +1,9 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-/** @deprecated Use `megaethTestnetV2` instead. */
-export const megaethTestnet = /*#__PURE__*/ defineChain({
-  id: 6342,
+export const megaethTestnetV2 = /*#__PURE__*/ defineChain({
+  id: 6343,
   blockTime: 1_000,
-  name: 'MegaETH Testnet',
+  name: 'MegaETH Testnet V2',
   nativeCurrency: {
     name: 'MegaETH Testnet Ether',
     symbol: 'ETH',
@@ -12,14 +11,14 @@ export const megaethTestnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://carrot.megaeth.com/rpc'],
-      webSocket: ['wss://carrot.megaeth.com/ws'],
+      http: ['https://timothy.megaeth.com/rpc'],
+      webSocket: ['wss://timothy.megaeth.com/ws'],
     },
   },
   blockExplorers: {
     default: {
       name: 'MegaETH Testnet Explorer',
-      url: 'https://www.megaexplorer.xyz/',
+      url: 'https://megaeth-testnet-v2.blockscout.com'
     },
   },
   contracts: {
