@@ -244,11 +244,7 @@ function encodeField({
     ]
   }
 
-  if (type === 'bytes') {
-    const prepend = value.length % 2 ? '0' : ''
-    value = `0x${prepend + value.slice(2)}`
-    return [{ type: 'bytes32' }, keccak256(value)]
-  }
+  if (type === 'bytes') return [{ type: 'bytes32' }, keccak256(value)]
 
   if (type === 'string') return [{ type: 'bytes32' }, keccak256(toHex(value))]
 

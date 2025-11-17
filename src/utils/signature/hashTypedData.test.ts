@@ -2,9 +2,9 @@ import { expect, test } from 'vitest'
 
 import { typedData } from '~test/src/constants.js'
 import { pad } from '../data/pad.js'
+import { hexToBytes } from '../encoding/toBytes.js'
 import { toHex } from '../encoding/toHex.js'
-
-import { hashTypedData } from './hashTypedData.js'
+import { hashStruct, hashTypedData } from './hashTypedData.js'
 
 test('default', () => {
   expect(
@@ -260,4 +260,41 @@ test('https://github.com/wevm/viem/issues/2888', () => {
 
     Version: viem@x.y.z]
   `)
+})
+
+test('https://github.com/wevm/viem/issues/4095', () => {
+  const result = hashStruct({
+    types: {
+      Message: [{ name: 'contents', type: 'bytes' }],
+    },
+    primaryType: 'Message',
+    data: {
+      contents: '0xdeadbeeff',
+    },
+  })
+  expect(result).toMatchInlineSnapshot(
+    `"0x46dd2e1229a8617009031214110e540f749edbfd29f5435eee7df065b96b6d6f"`,
+  )
+
+  const result2 = hashStruct({
+    types: {
+      Message: [{ name: 'contents', type: 'bytes' }],
+    },
+    primaryType: 'Message',
+    data: {
+      contents: '0x0deadbeeff',
+    },
+  })
+  expect(result2).toEqual(result)
+
+  const result3 = hashStruct({
+    types: {
+      Message: [{ name: 'contents', type: 'bytes' }],
+    },
+    primaryType: 'Message',
+    data: {
+      contents: hexToBytes('0xdeadbeeff'),
+    },
+  })
+  expect(result3).toEqual(result)
 })
