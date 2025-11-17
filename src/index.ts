@@ -1227,7 +1227,11 @@ export type {
   TransactionType,
 } from './types/transaction.js'
 export type { GetPollOptions, GetTransportConfig } from './types/transport.js'
-export type { TypedDataDefinition } from './types/typedData.js'
+export type {
+  EIP712DomainDefinition,
+  MessageDefinition,
+  TypedDataDefinition,
+} from './types/typedData.js'
 export type {
   Assign,
   Branded,
