@@ -1,5 +1,11 @@
 # viem
 
+## 2.39.2
+
+### Patch Changes
+
+- [`4fbaf70de4e483891451ea9549a0f7e7b30b2bfe`](https://github.com/wevm/viem/commit/4fbaf70de4e483891451ea9549a0f7e7b30b2bfe) Thanks [@jxom](https://github.com/jxom)! - Added support for `Uint8Array` on `hashStruct`.
+
 ## 2.39.1
 
 ### Patch Changes
