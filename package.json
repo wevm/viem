@@ -61,7 +61,6 @@
     "@vitest/ui": "^3.2.4",
     "bun": "^1.2.22",
     "ethers": "^6.15.0",
-    "glob": "^10.4.5",
     "knip": "^5.64.0",
     "micro-eth-signer": "^0.14.0",
     "permissionless": "^0.2.57",
