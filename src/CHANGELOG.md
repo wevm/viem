@@ -1,5 +1,17 @@
 # viem
 
+## 2.39.1
+
+### Patch Changes
+
+- [#4086](https://github.com/wevm/viem/pull/4086) [`add94c47c3960beccb6a981dfb3c35a21c44f6b4`](https://github.com/wevm/viem/commit/add94c47c3960beccb6a981dfb3c35a21c44f6b4) Thanks [@kyonRay](https://github.com/kyonRay)! - Added POTOS Testnet.
+
+- [#4088](https://github.com/wevm/viem/pull/4088) [`d2855cc99422361e0513d250997da7862b160a88`](https://github.com/wevm/viem/commit/d2855cc99422361e0513d250997da7862b160a88) Thanks [@akitothemoon](https://github.com/akitothemoon)! - Added Jasmy Chain.
+
+- [#4092](https://github.com/wevm/viem/pull/4092) [`8d24f14e1da493a003b17252a3e66e067df75c3b`](https://github.com/wevm/viem/commit/8d24f14e1da493a003b17252a3e66e067df75c3b) Thanks [@spalladino](https://github.com/spalladino)! - Added handling of nethermind execution reverted error.
+
+- [`71ad615bff67d56481e3bb6188439223f06ca055`](https://github.com/wevm/viem/commit/71ad615bff67d56481e3bb6188439223f06ca055) Thanks [@jxom](https://github.com/jxom)! - Added `account` as a transport config parameter.
+
 ## 2.39.0
 
 ### Minor Changes
