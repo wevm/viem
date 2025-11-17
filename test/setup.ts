@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, vi } from 'vitest'
 
 import { setIntervalMining } from '~viem/actions/test/setIntervalMining.js'
 import { cleanupCache, listenersCache } from '~viem/utils/observe.js'
@@ -40,6 +40,6 @@ beforeEach(async () => {
   await setIntervalMining(client, { interval: 0 })
 }, 20_000)
 
-afterAll(async () => {
+afterEach(() => {
   vi.restoreAllMocks()
 })

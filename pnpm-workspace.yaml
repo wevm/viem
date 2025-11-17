@@ -10,7 +10,10 @@ catalog:
   typescript: ^5.9.2
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
+  - '@vitest/*'
+  - glob
   - hono
+  - vitest
   - vocs
 packages:
   - examples/*
