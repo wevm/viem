@@ -42,6 +42,7 @@ test('gets transaction receipt', async () => {
           "address": "0xf7134ce138832c1456f2a91d64621ee90c2bddea",
           "blockHash": "0x019d374731477005b8d3e3236aca44d11ef53fc9eb0ab0c9e11f942636b04b1b",
           "blockNumber": 22263622n,
+          "blockTimestamp": "0x67fc55cf",
           "data": "0x",
           "logIndex": 0,
           "removed": false,
