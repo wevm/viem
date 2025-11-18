@@ -1,5 +1,13 @@
 # viem
 
+## 2.39.3
+
+### Patch Changes
+
+- [#4099](https://github.com/wevm/viem/pull/4099) [`7e060c65427613fc1f847cda6b3231483e268a44`](https://github.com/wevm/viem/commit/7e060c65427613fc1f847cda6b3231483e268a44) Thanks [@QEDK](https://github.com/QEDK)! - Added Monad mainnet.
+
+- [#4100](https://github.com/wevm/viem/pull/4100) [`987e5415b0052cbe0b79e3780754c8ec1cf5db2f`](https://github.com/wevm/viem/commit/987e5415b0052cbe0b79e3780754c8ec1cf5db2f) Thanks [@sandyup](https://github.com/sandyup)! - Added Etherlink Shadownet Testnet.
+
 ## 2.39.2
 
 ### Patch Changes
