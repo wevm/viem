@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-feat: add monad mainnet
+Added Monad mainnet.
