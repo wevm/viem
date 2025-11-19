@@ -2,6 +2,11 @@ import type { Abi, Address, TypedData } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
 import {
+  type FillTransactionParameters,
+  type FillTransactionReturnType,
+  fillTransaction,
+} from '../../actions/public/fillTransaction.js'
+import {
   type GetChainIdReturnType,
   getChainId,
 } from '../../actions/public/getChainId.js'
@@ -141,11 +146,6 @@ import type {
 } from '../../types/contract.js'
 import type { Client } from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'
-import {
-  fillTransaction,
-  type FillTransactionParameters,
-  type FillTransactionReturnType,
-} from '../../actions/public/fillTransaction.js'
 
 export type WalletActions<
   chain extends Chain | undefined = Chain | undefined,

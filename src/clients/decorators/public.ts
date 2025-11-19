@@ -36,11 +36,6 @@ import {
   createAccessList,
 } from '../../actions/public/createAccessList.js'
 import {
-  type FillTransactionParameters,
-  type FillTransactionReturnType,
-  fillTransaction,
-} from '../../actions/public/fillTransaction.js'
-import {
   type CreateBlockFilterReturnType,
   createBlockFilter,
 } from '../../actions/public/createBlockFilter.js'
@@ -78,6 +73,11 @@ import {
   type EstimateMaxPriorityFeePerGasReturnType,
   estimateMaxPriorityFeePerGas,
 } from '../../actions/public/estimateMaxPriorityFeePerGas.js'
+import {
+  type FillTransactionParameters,
+  type FillTransactionReturnType,
+  fillTransaction,
+} from '../../actions/public/fillTransaction.js'
 import {
   type GetBalanceParameters,
   type GetBalanceReturnType,
