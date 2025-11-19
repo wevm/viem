@@ -754,6 +754,21 @@ export type PublicRpcSchema = [
     ReturnType: Quantity
   },
   /**
+   * @description Fills a transaction with the necessary data to be signed.
+   *
+   * @example
+   * provider.request({ method: 'eth_fillTransaction', params: [{ from: '0x...', to: '0x...', value: '0x...' }] })
+   * // => '0x...'
+   */
+  {
+    Method: 'eth_fillTransaction'
+    Parameters: [transaction: TransactionRequest]
+    ReturnType: {
+      raw: Hex
+      tx: Transaction
+    }
+  },
+  /**
    * @description Returns a collection of historical gas information
    *
    * @example
@@ -1700,6 +1715,21 @@ export type WalletRpcSchema = [
           stateOverride: RpcStateOverride,
         ]
     ReturnType: Quantity
+  },
+  /**
+   * @description Fills a transaction with the necessary data to be signed.
+   *
+   * @example
+   * provider.request({ method: 'eth_fillTransaction', params: [{ from: '0x...', to: '0x...', value: '0x...' }] })
+   * // => '0x...'
+   */
+  {
+    Method: 'eth_fillTransaction'
+    Parameters: [transaction: TransactionRequest]
+    ReturnType: {
+      raw: Hex
+      tx: Transaction
+    }
   },
   /**
    * @description Requests that the user provides an Ethereum address to be identified by. Typically causes a browser extension popup to appear.

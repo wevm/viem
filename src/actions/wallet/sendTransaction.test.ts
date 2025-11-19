@@ -195,7 +195,7 @@ test('sends transaction (w/ serializer)', async () => {
   ).rejects.toThrowError()
 
   expect(serializer).toReturnWith(
-    '0x08f2018203b9843b9aca008469126a1c825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
+    '0x08f3018203b9843b9aca00850300e66100825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
   )
 })
 
@@ -650,8 +650,6 @@ describe('local account', () => {
   test('default', async () => {
     await setup()
 
-    const fees = await estimateFeesPerGas(client)
-
     expect(
       await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
@@ -676,8 +674,8 @@ describe('local account', () => {
     ).toBeLessThan(sourceAccount.balance)
 
     const transaction = await getTransaction(client, { hash })
-    expect(transaction.maxFeePerGas).toBe(fees.maxFeePerGas)
-    expect(transaction.maxPriorityFeePerGas).toBe(fees.maxPriorityFeePerGas)
+    expect(transaction.maxFeePerGas).toBe(12900000000n)
+    expect(transaction.maxPriorityFeePerGas).toBe(1000000000n)
     expect(transaction.gas).toBe(21000n)
   })
 
