@@ -43,6 +43,7 @@ test('default', async () => {
       "estimateFeesPerGas": [Function],
       "estimateGas": [Function],
       "estimateMaxPriorityFeePerGas": [Function],
+      "fillTransaction": [Function],
       "getBalance": [Function],
       "getBlobBaseFee": [Function],
       "getBlock": [Function],

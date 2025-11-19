@@ -67,6 +67,30 @@ export type FillTransactionErrorType =
   | GetTransactionErrorReturnType<ErrorType>
   | ErrorType
 
+/**
+ * Fills a transaction request with the necessary fields to be signed over.
+ *
+ * - Docs: https://viem.sh/docs/actions/public/fillTransaction
+ *
+ * @param client - Client to use
+ * @param parameters - {@link FillTransactionParameters}
+ * @returns The filled transaction. {@link FillTransactionReturnType}
+ *
+ * @example
+ * import { createPublicClient, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
+ * import { fillTransaction } from 'viem/public'
+ *
+ * const client = createPublicClient({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
+ * const result = await fillTransaction(client, {
+ *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+ *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+ *   value: parseEther('1'),
+ * })
+ */
 export async function fillTransaction<
   chain extends Chain | undefined,
   account extends Account | undefined,

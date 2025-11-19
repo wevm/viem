@@ -332,6 +332,7 @@ test('extend', () => {
       "estimateGas": [Function],
       "estimateMaxPriorityFeePerGas": [Function],
       "extend": [Function],
+      "fillTransaction": [Function],
       "getAddresses": [Function],
       "getAutomine": [Function],
       "getBalance": [Function],
