@@ -27,6 +27,7 @@ test('exports actions', () => {
       "estimateFeesPerGas": [Function],
       "estimateGas": [Function],
       "estimateMaxPriorityFeePerGas": [Function],
+      "fillTransaction": [Function],
       "getAddresses": [Function],
       "getAutomine": [Function],
       "getBalance": [Function],

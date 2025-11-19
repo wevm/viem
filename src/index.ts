@@ -136,6 +136,11 @@ export type {
   EstimateMaxPriorityFeePerGasReturnType,
 } from './actions/public/estimateMaxPriorityFeePerGas.js'
 export type {
+  FillTransactionErrorType,
+  FillTransactionParameters,
+  FillTransactionReturnType,
+} from './actions/public/fillTransaction.js'
+export type {
   GetBalanceErrorType,
   GetBalanceParameters,
   GetBalanceReturnType,

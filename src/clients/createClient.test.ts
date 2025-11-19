@@ -586,6 +586,7 @@ describe('extends', () => {
         "estimateGas": [Function],
         "estimateMaxPriorityFeePerGas": [Function],
         "extend": [Function],
+        "fillTransaction": [Function],
         "getBalance": [Function],
         "getBlobBaseFee": [Function],
         "getBlock": [Function],

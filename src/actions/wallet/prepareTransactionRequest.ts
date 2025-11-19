@@ -24,6 +24,7 @@ import {
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { AccountNotFoundErrorType } from '../../errors/account.js'
+import type { BaseError } from '../../errors/base.js'
 import {
   Eip1559FeesNotSupportedError,
   MaxFeePerGasTooLowError,
@@ -58,6 +59,7 @@ import { commitmentsToVersionedHashes } from '../../utils/blob/commitmentsToVers
 import { toBlobSidecars } from '../../utils/blob/toBlobSidecars.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
+import { LruMap } from '../../utils/lru.js'
 import type { NonceManager } from '../../utils/nonceManager.js'
 import {
   type AssertRequestErrorType,
@@ -68,6 +70,10 @@ import {
   type GetTransactionType,
   getTransactionType,
 } from '../../utils/transaction/getTransactionType.js'
+import {
+  type FillTransactionParameters,
+  fillTransaction,
+} from '../public/fillTransaction.js'
 import { getChainId as getChainId_ } from '../public/getChainId.js'
 
 export const defaultParameters = [
@@ -81,6 +87,8 @@ export const defaultParameters = [
 
 /** @internal */
 export const eip1559NetworkCache = /*#__PURE__*/ new Map<string, boolean>()
+
+const supportsFillTransaction = /*#__PURE__*/ new LruMap<boolean>(128)
 
 export type PrepareTransactionRequestParameterType =
   | 'blobVersionedHashes'
@@ -241,7 +249,7 @@ export async function prepareTransactionRequest<
   chainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  args: PrepareTransactionRequestParameters<
+  args_: PrepareTransactionRequestParameters<
     chain,
     account,
     chainOverride,
@@ -257,6 +265,60 @@ export async function prepareTransactionRequest<
     request
   >
 > {
+  const attemptFill =
+    // Do not attempt if `eth_fillTransaction` is not supported.
+    supportsFillTransaction.get(client.uid) !== false &&
+    // Should attempt `eth_fillTransaction` if "fees" or "gas" are required to be populated,
+    // otherwise, can just use the other individual calls.
+    ['fees', 'gas'].some((parameter) =>
+      args_.parameters?.includes(
+        parameter as PrepareTransactionRequestParameterType,
+      ),
+    )
+
+  const fillResult = attemptFill
+    ? await getAction(
+        client,
+        fillTransaction,
+        'fillTransaction',
+      )(args_ as FillTransactionParameters)
+        .then((result) => {
+          const {
+            chainId,
+            from,
+            gas,
+            gasPrice,
+            nonce,
+            maxFeePerBlobGas,
+            maxFeePerGas,
+            maxPriorityFeePerGas,
+            type,
+          } = result.transaction
+          supportsFillTransaction.set(client.uid, true)
+          return {
+            ...args_,
+            chainId,
+            from,
+            gas,
+            gasPrice,
+            nonce,
+            maxFeePerBlobGas,
+            maxFeePerGas,
+            maxPriorityFeePerGas,
+            type,
+          }
+        })
+        .catch((e) => {
+          const error = e as BaseError & { cause: BaseError }
+          if (
+            error.cause.name === 'MethodNotFoundRpcError' ||
+            error.cause.name === 'MethodNotSupportedRpcError'
+          )
+            supportsFillTransaction.set(client.uid, false)
+          return args_
+        })
+    : args_
+
   const {
     account: account_ = client.account,
     blobs,
@@ -267,10 +329,14 @@ export async function prepareTransactionRequest<
     nonceManager,
     parameters = defaultParameters,
     type,
-  } = args
+  } = fillResult
+
   const account = account_ ? parseAccount(account_) : account_
 
-  const request = { ...args, ...(account ? { from: account?.address } : {}) }
+  const request = {
+    ...fillResult,
+    ...(account ? { from: account?.address } : {}),
+  }
 
   let block: Block | undefined
   async function getBlock(): Promise<Block> {
@@ -287,7 +353,7 @@ export async function prepareTransactionRequest<
   async function getChainId(): Promise<number> {
     if (chainId) return chainId
     if (chain) return chain.id
-    if (typeof args.chainId !== 'undefined') return args.chainId
+    if (typeof request.chainId !== 'undefined') return request.chainId
     const chainId_ = await getAction(client, getChainId_, 'getChainId')({})
     chainId = chainId_
     return chainId
@@ -379,9 +445,9 @@ export async function prepareTransactionRequest<
           })
 
         if (
-          typeof args.maxPriorityFeePerGas === 'undefined' &&
-          args.maxFeePerGas &&
-          args.maxFeePerGas < maxPriorityFeePerGas
+          typeof request.maxPriorityFeePerGas === 'undefined' &&
+          request.maxFeePerGas &&
+          request.maxFeePerGas < maxPriorityFeePerGas
         )
           throw new MaxFeePerGasTooLowError({
             maxPriorityFeePerGas,
@@ -393,12 +459,12 @@ export async function prepareTransactionRequest<
     } else {
       // Legacy fees
       if (
-        typeof args.maxFeePerGas !== 'undefined' ||
-        typeof args.maxPriorityFeePerGas !== 'undefined'
+        typeof request.maxFeePerGas !== 'undefined' ||
+        typeof request.maxPriorityFeePerGas !== 'undefined'
       )
         throw new Eip1559FeesNotSupportedError()
 
-      if (typeof args.gasPrice === 'undefined') {
+      if (typeof request.gasPrice === 'undefined') {
         const block = await getBlock()
         const { gasPrice: gasPrice_ } = await internal_estimateFeesPerGas(
           client,
