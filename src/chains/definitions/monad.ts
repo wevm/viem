@@ -16,7 +16,7 @@ export const monad = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Monad Vision',
+      name: 'MonadVision',
       url: 'https://monadvision.com',
     },
   },
