@@ -200,7 +200,7 @@
     "@noble/hashes": "1.8.0",
     "@scure/bip32": "1.7.0",
     "@scure/bip39": "1.6.0",
-    "abitype": "https://pkg.pr.new/abitype@e56c1fa",
+    "abitype": "1.2.0",
     "isows": "1.0.7",
     "ox": "0.9.6",
     "ws": "8.18.3"

@@ -580,8 +580,8 @@ importers:
         specifier: 1.6.0
         version: 1.6.0
       abitype:
-        specifier: https://pkg.pr.new/abitype@e56c1fa
-        version: https://pkg.pr.new/abitype@e56c1fa(typescript@5.9.3)(zod@3.25.76)
+        specifier: 1.2.0
+        version: 1.2.0(typescript@5.9.3)(zod@3.25.76)
       isows:
         specifier: 1.0.7
         version: 1.0.7(ws@8.18.3)
@@ -3335,9 +3335,8 @@ packages:
       zod:
         optional: true
 
-  abitype@https://pkg.pr.new/abitype@e56c1fa:
-    resolution: {tarball: https://pkg.pr.new/abitype@e56c1fa}
-    version: 0.0.0--.cc9da9d
+  abitype@1.2.0:
+    resolution: {integrity: sha512-fD3ROjckUrWsybaSor2AdWxzA0e/DSyV2dA4aYd7bd8orHsoJjl09fOgKfUkTDfk0BsDGBf4NBgu/c7JoS2Npw==}
     peerDependencies:
       typescript: '>=5.0.4'
       zod: ^3.22.0 || ^4.0.0
@@ -10042,17 +10041,17 @@ snapshots:
       typescript: 5.9.2
       zod: 3.23.8
 
-  abitype@1.1.0(typescript@5.9.3)(zod@3.25.76):
-    optionalDependencies:
-      typescript: 5.9.3
-      zod: 3.25.76
-
-  abitype@https://pkg.pr.new/abitype@e56c1fa(typescript@5.6.2)(zod@3.25.76):
+  abitype@1.2.0(typescript@5.6.2)(zod@3.25.76):
     optionalDependencies:
       typescript: 5.6.2
       zod: 3.25.76
 
-  abitype@https://pkg.pr.new/abitype@e56c1fa(typescript@5.9.3)(zod@3.25.76):
+  abitype@1.2.0(typescript@5.9.2)(zod@3.23.8):
+    optionalDependencies:
+      typescript: 5.9.2
+      zod: 3.23.8
+
+  abitype@1.2.0(typescript@5.9.3)(zod@3.25.76):
     optionalDependencies:
       typescript: 5.9.3
       zod: 3.25.76
@@ -12636,7 +12635,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.1.0(typescript@5.6.2)(zod@3.25.76)
+      abitype: 1.2.0(typescript@5.6.2)(zod@3.25.76)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.6.2
@@ -12651,7 +12650,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.1.0(typescript@5.9.2)(zod@3.23.8)
+      abitype: 1.2.0(typescript@5.9.2)(zod@3.23.8)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.9.2
@@ -12666,7 +12665,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.1.0(typescript@5.9.3)(zod@3.25.76)
+      abitype: 1.2.0(typescript@5.9.3)(zod@3.25.76)
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.9.3
@@ -14047,7 +14046,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: https://pkg.pr.new/abitype@e56c1fa(typescript@5.6.2)(zod@3.25.76)
+      abitype: 1.2.0(typescript@5.6.2)(zod@3.25.76)
       isows: 1.0.7(ws@8.18.3)
       ox: 0.9.6(typescript@5.6.2)(zod@3.25.76)
       ws: 8.18.3
