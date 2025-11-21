@@ -1,5 +1,6 @@
 import type {
   AbiParameter,
+  AbiParameterKind,
   AbiParametersToPrimitiveTypes,
   AbiParameterToPrimitiveType,
 } from 'abitype'
@@ -87,7 +88,7 @@ export function encodeAbiParameters<
 >(
   params: params,
   values: params extends readonly AbiParameter[]
-    ? AbiParametersToPrimitiveTypes<params>
+    ? AbiParametersToPrimitiveTypes<params, AbiParameterKind, true>
     : never,
 ): EncodeAbiParametersReturnType {
   if (params.length !== values.length)
