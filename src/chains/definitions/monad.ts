@@ -11,20 +11,14 @@ export const monad = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: [
-       'https://rpc.monad.xyz',
-       'https://rpc1.monad.xyz',
-      ],
-      webSocket: [
-        'wss://rpc.monad.xyz',
-        'wss://rpc1.monad.xyz',
-      ],
+      http: ['https://rpc.monad.xyz', 'https://rpc1.monad.xyz'],
+      webSocket: ['wss://rpc.monad.xyz', 'wss://rpc1.monad.xyz'],
     },
   },
   blockExplorers: {
     default: {
       name: 'MonadVision',
-      url: 'https://monadvision.com'
+      url: 'https://monadvision.com',
     },
     monadscan: {
       name: 'Monadscan',

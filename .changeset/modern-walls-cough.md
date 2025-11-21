@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Updated Monad mainnet to add websocket urls, multicall3, second block explorer, second rpc url; and update the primary block explorer url
+Updated Monad block explorer URL and added WebSocket URLs, Multicall3 contract, second block explorer, and second RPC URL.
