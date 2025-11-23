@@ -825,7 +825,7 @@ type GetReadFunction<
     ? ExtractAbiFunction<abi, functionName>
     : AbiFunction,
   //
-  _args = AbiParametersToPrimitiveTypes<abiFunction['inputs']>,
+  _args = AbiParametersToPrimitiveTypes<abiFunction['inputs'], 'inputs', true>,
   _options = Prettify<
     UnionOmit<
       ReadContractParameters<abi, functionName, args>,
@@ -859,7 +859,7 @@ type GetEstimateFunction<
     ? ExtractAbiFunction<abi, functionName>
     : AbiFunction,
   //
-  _args = AbiParametersToPrimitiveTypes<abiFunction['inputs']>,
+  _args = AbiParametersToPrimitiveTypes<abiFunction['inputs'], 'inputs', true>,
   _options = Prettify<
     UnionOmit<
       EstimateContractGasParameters<abi, functionName, args, chain>,
@@ -909,7 +909,7 @@ type GetSimulateFunction<
     ? ExtractAbiFunction<abi, functionName>
     : AbiFunction,
   //
-  _args = AbiParametersToPrimitiveTypes<abiFunction['inputs']>,
+  _args = AbiParametersToPrimitiveTypes<abiFunction['inputs'], 'inputs', true>,
 > = narrowable extends true
   ? <
       chainOverride extends Chain | undefined = undefined,
@@ -1003,7 +1003,7 @@ type GetWriteFunction<
     ? ExtractAbiFunction<abi, functionName>
     : AbiFunction,
   //
-  _args = AbiParametersToPrimitiveTypes<abiFunction['inputs']>,
+  _args = AbiParametersToPrimitiveTypes<abiFunction['inputs'], 'inputs', true>,
   // For making `options` parameter required if `account` or `chain` is undefined
   _isOptionsRequired = Or<[IsUndefined<account>, IsUndefined<chain>]>,
 > = narrowable extends true

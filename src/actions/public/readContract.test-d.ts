@@ -231,7 +231,7 @@ test('behavior', () => {
   test('overloads', async () => {
     const abi = parseAbi([
       'function foo() view returns (int8)',
-      'function foo(address) view returns (string)',
+      'function foo(address tokenId) view returns (string)',
       'function foo(address, address) view returns ((address foo, address bar))',
       'function bar() view returns (int8)',
     ])
