@@ -336,40 +336,36 @@ test('error: small gas', async () => {
   `)
 })
 
-test.skip(
-  'e2e (sepolia)',
-  async () => {
-    const account = privateKeyToAccount(
-      process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,
-    )
+test.skip('e2e (sepolia)', { timeout: 1800000 }, async () => {
+  const account = privateKeyToAccount(
+    process.env.VITE_ACCOUNT_PRIVATE_KEY as `0x${string}`,
+  )
 
-    const client_opSepolia = createClient({
-      chain: optimismSepolia,
-      transport: http(),
-    })
-    const client_sepolia = createClient({
-      account,
-      chain: sepolia,
-      transport: http(),
-    })
+  const client_opSepolia = createClient({
+    chain: optimismSepolia,
+    transport: http(),
+  })
+  const client_sepolia = createClient({
+    account,
+    chain: sepolia,
+    transport: http(),
+  })
 
-    const request = await buildDepositTransaction(client_opSepolia, {
-      mint: 69n,
-      to: account.address,
-    })
+  const request = await buildDepositTransaction(client_opSepolia, {
+    mint: 69n,
+    to: account.address,
+  })
 
-    const hash = await depositTransaction(client_sepolia, request)
-    expect(hash).toBeDefined()
+  const hash = await depositTransaction(client_sepolia, request)
+  expect(hash).toBeDefined()
 
-    const receipt = await waitForTransactionReceipt(client_sepolia, {
-      hash,
-    })
+  const receipt = await waitForTransactionReceipt(client_sepolia, {
+    hash,
+  })
 
-    const [l2Hash] = getL2TransactionHashes(receipt)
+  const [l2Hash] = getL2TransactionHashes(receipt)
 
-    await waitForTransactionReceipt(client_opSepolia, {
-      hash: l2Hash,
-    })
-  },
-  { timeout: 1800000 },
-)
+  await waitForTransactionReceipt(client_opSepolia, {
+    hash: l2Hash,
+  })
+})

@@ -166,6 +166,7 @@ export const walletClient = createWalletClient({
   transport: http(),
 })
 // ---cut---
+// @noErrors
 const authorization = await walletClient.signAuthorization({ 
   account,
   contractAddress: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', 
@@ -390,6 +391,7 @@ Whether to throw an error if the transaction was detected as reverted.
 ```ts twoslash
 // [!include ~/snippets/walletClient.ts]
 // ---cut---
+// @noErrors
 const receipt = await walletClient.sendTransactionSync({
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',

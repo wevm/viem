@@ -1,4 +1,4 @@
-import { afterAll, expect, test, vi } from 'vitest'
+import { beforeEach, expect, test, vi } from 'vitest'
 
 import { anvilMainnet, anvilZksync } from '~test/src/anvil.js'
 import { accounts } from '~test/src/constants.js'
@@ -24,7 +24,7 @@ const clientWithAccount = createWalletClient({
   account: privateKeyToAccount(accounts[0].privateKey),
 }).extend(publicActionsL1())
 
-const spy = vi.spyOn(readContract, 'readContract').mockResolvedValue(170n)
+beforeEach(() => vi.spyOn(readContract, 'readContract').mockResolvedValue(170n))
 
 const baseClient = anvilMainnet.getClient({
   batch: { multicall: false },
@@ -55,10 +55,6 @@ baseZksyncClient.request = (async ({ method, params }) => {
   )
 }) as EIP1193RequestFn
 const zksyncClient = baseZksyncClient.extend(publicActionsL2())
-
-afterAll(() => {
-  spy.mockRestore()
-})
 
 test('default', async () => {
   expect(publicActionsL1()(client)).toMatchInlineSnapshot(`

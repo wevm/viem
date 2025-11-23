@@ -1,4 +1,3 @@
-import { resolve } from 'node:path'
 import React from 'react'
 import { defineConfig } from 'vocs'
 
@@ -23,7 +22,7 @@ export default defineConfig({
     process.env.VERCEL_ENV === 'production'
       ? 'https://viem.sh'
       : process.env.VERCEL_URL,
-  cacheDir: resolve(process.cwd(), './.cache'),
+  cacheDir: '.cache',
   title: 'Viem',
   titleTemplate: '%s · Viem',
   description:

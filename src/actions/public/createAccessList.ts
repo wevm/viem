@@ -131,7 +131,7 @@ export async function createAccessList<chain extends Chain | undefined>(
       {
         // Pick out extra data that might exist on the chain's transaction request type.
         ...extract(rest, { format: chainFormat }),
-        from: account?.address,
+        account,
         blobs,
         data,
         gas,

@@ -8,7 +8,7 @@ import { mainnet } from 'viem/chains'
 
   const webSocketClient = createPublicClient({
     chain: mainnet,
-    transport: webSocket('wss://eth.drpc.org'),
+    transport: webSocket('wss://ethereum-rpc.publicnode.com'),
   })
 
   await client.getBlockNumber()

@@ -1,5 +1,81 @@
 # viem
 
+## 2.39.3
+
+### Patch Changes
+
+- [#4099](https://github.com/wevm/viem/pull/4099) [`7e060c65427613fc1f847cda6b3231483e268a44`](https://github.com/wevm/viem/commit/7e060c65427613fc1f847cda6b3231483e268a44) Thanks [@QEDK](https://github.com/QEDK)! - Added Monad mainnet.
+
+- [#4100](https://github.com/wevm/viem/pull/4100) [`987e5415b0052cbe0b79e3780754c8ec1cf5db2f`](https://github.com/wevm/viem/commit/987e5415b0052cbe0b79e3780754c8ec1cf5db2f) Thanks [@sandyup](https://github.com/sandyup)! - Added Etherlink Shadownet Testnet.
+
+## 2.39.2
+
+### Patch Changes
+
+- [`4fbaf70de4e483891451ea9549a0f7e7b30b2bfe`](https://github.com/wevm/viem/commit/4fbaf70de4e483891451ea9549a0f7e7b30b2bfe) Thanks [@jxom](https://github.com/jxom)! - Added support for `Uint8Array` on `hashStruct`.
+
+## 2.39.1
+
+### Patch Changes
+
+- [#4086](https://github.com/wevm/viem/pull/4086) [`add94c47c3960beccb6a981dfb3c35a21c44f6b4`](https://github.com/wevm/viem/commit/add94c47c3960beccb6a981dfb3c35a21c44f6b4) Thanks [@kyonRay](https://github.com/kyonRay)! - Added POTOS Testnet.
+
+- [#4088](https://github.com/wevm/viem/pull/4088) [`d2855cc99422361e0513d250997da7862b160a88`](https://github.com/wevm/viem/commit/d2855cc99422361e0513d250997da7862b160a88) Thanks [@akitothemoon](https://github.com/akitothemoon)! - Added Jasmy Chain.
+
+- [#4092](https://github.com/wevm/viem/pull/4092) [`8d24f14e1da493a003b17252a3e66e067df75c3b`](https://github.com/wevm/viem/commit/8d24f14e1da493a003b17252a3e66e067df75c3b) Thanks [@spalladino](https://github.com/spalladino)! - Added handling of nethermind execution reverted error.
+
+- [`71ad615bff67d56481e3bb6188439223f06ca055`](https://github.com/wevm/viem/commit/71ad615bff67d56481e3bb6188439223f06ca055) Thanks [@jxom](https://github.com/jxom)! - Added `account` as a transport config parameter.
+
+## 2.39.0
+
+### Minor Changes
+
+- [`c348b3e3f261503aea0ce684ecce31002c06ca94`](https://github.com/wevm/viem/commit/c348b3e3f261503aea0ce684ecce31002c06ca94) Thanks [@jxom](https://github.com/jxom)! - Added `sender` and `nonce` properties to `getTransaction` to support `eth_getTransactionBySenderAndNonce`.
+
+### Patch Changes
+
+- [#4058](https://github.com/wevm/viem/pull/4058) [`eb5fb8894ca982dcb2f2e30e3be1c8953afeb799`](https://github.com/wevm/viem/commit/eb5fb8894ca982dcb2f2e30e3be1c8953afeb799) Thanks [@tuphan-dn](https://github.com/tuphan-dn)! - Fixed a bug where the timeout in `waitForUserOperationReceipt` was not properly cleared after the receipt was returned.
+
+- [#4074](https://github.com/wevm/viem/pull/4074) [`7d88fcdc0a91a445863e28d0c3fca0ec606e7a00`](https://github.com/wevm/viem/commit/7d88fcdc0a91a445863e28d0c3fca0ec606e7a00) Thanks [@askmyselfwhy](https://github.com/askmyselfwhy)! - Added Helios Testnet.
+
+- [#4081](https://github.com/wevm/viem/pull/4081) [`9172f8cf92d7b23c3e82bfffba076d4eacad7108`](https://github.com/wevm/viem/commit/9172f8cf92d7b23c3e82bfffba076d4eacad7108) Thanks [@sandyup](https://github.com/sandyup)! - Added Silent Data Mainnet.
+
+- [#4080](https://github.com/wevm/viem/pull/4080) [`2bfa29ea935d3be6fec17dfb75c9baf303504a46`](https://github.com/wevm/viem/commit/2bfa29ea935d3be6fec17dfb75c9baf303504a46) Thanks [@antonimmo](https://github.com/antonimmo)! - Updated ApeChain name.
+
+- [#4073](https://github.com/wevm/viem/pull/4073) [`cfdb8b329313ca70c0aa7c7f5805d55547869e72`](https://github.com/wevm/viem/commit/cfdb8b329313ca70c0aa7c7f5805d55547869e72) Thanks [@akitothemoon](https://github.com/akitothemoon)! - Added POTOS Mainnet.
+
+- [#4068](https://github.com/wevm/viem/pull/4068) [`b0ab1c2faf47a795656e1189957f8491b255976b`](https://github.com/wevm/viem/commit/b0ab1c2faf47a795656e1189957f8491b255976b) Thanks [@mangosago99](https://github.com/mangosago99)! - Added Xone mainnet and testnet.
+
+## 2.38.6
+
+### Patch Changes
+
+- [#4064](https://github.com/wevm/viem/pull/4064) [`9bccdb2cb445270833468c1c273d6e0f2c1dbdf7`](https://github.com/wevm/viem/commit/9bccdb2cb445270833468c1c273d6e0f2c1dbdf7) Thanks [@coffeexcoin](https://github.com/coffeexcoin)! - Added `blockTime` for `abstract`, `abstractTestnet`, `sophon`, `sophonTestnet`, `zksync`, `zksyncSepoliaTestnet`.
+
+- [#4061](https://github.com/wevm/viem/pull/4061) [`7efb234a7396002b1a911ff4bfbd809c76d3acc1`](https://github.com/wevm/viem/commit/7efb234a7396002b1a911ff4bfbd809c76d3acc1) Thanks [@Blessing-Circle](https://github.com/Blessing-Circle)! - Added Arc Testnet chain.
+
+## 2.38.5
+
+### Patch Changes
+
+- [#4056](https://github.com/wevm/viem/pull/4056) [`320895cf0e6c654b419d8d61a59c4e7b46674368`](https://github.com/wevm/viem/commit/320895cf0e6c654b419d8d61a59c4e7b46674368) Thanks [@sandyup](https://github.com/sandyup)! - Added Nomina mainnet.
+
+- [#4055](https://github.com/wevm/viem/pull/4055) [`2f933fb8ab20c63b8e777d1819fdd80f9b9a8715`](https://github.com/wevm/viem/commit/2f933fb8ab20c63b8e777d1819fdd80f9b9a8715) Thanks [@sandyup](https://github.com/sandyup)! - Removed trailing whitespace from PGN chain name.
+
+- [#4049](https://github.com/wevm/viem/pull/4049) [`f12376ca95436fe05f7fe7bc411441bc0f02c8da`](https://github.com/wevm/viem/commit/f12376ca95436fe05f7fe7bc411441bc0f02c8da) Thanks [@hejtao](https://github.com/hejtao)! - Added 0g testnet.
+
+## 2.38.4
+
+### Patch Changes
+
+- [#4038](https://github.com/wevm/viem/pull/4038) [`042bf3963a7435adc1044a61df03cd65f31eeac9`](https://github.com/wevm/viem/commit/042bf3963a7435adc1044a61df03cd65f31eeac9) Thanks [@cuzfinal](https://github.com/cuzfinal)! - Updated hashkeyChainTestnet config
+
+- [`97fad54d7d6248686a7767e9ac49b8ecc60d54f8`](https://github.com/wevm/viem/commit/97fad54d7d6248686a7767e9ac49b8ecc60d54f8) Thanks [@jxom](https://github.com/jxom)! - Passed `account` to transaction request formatters.
+
+- [#4047](https://github.com/wevm/viem/pull/4047) [`0d9222968b1dda76fd2efc3d3c64c745955d4240`](https://github.com/wevm/viem/commit/0d9222968b1dda76fd2efc3d3c64c745955d4240) Thanks [@akitothemoon](https://github.com/akitothemoon)! - Added Quai network.
+
+- [#4042](https://github.com/wevm/viem/pull/4042) [`0044d12bf123cc990caf4463fe3cae237bf34d2e`](https://github.com/wevm/viem/commit/0044d12bf123cc990caf4463fe3cae237bf34d2e) Thanks [@saqibhafeezkhan](https://github.com/saqibhafeezkhan)! - Added Gatechain Mainnet
+
 ## 2.38.3
 
 ### Patch Changes

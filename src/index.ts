@@ -136,6 +136,11 @@ export type {
   EstimateMaxPriorityFeePerGasReturnType,
 } from './actions/public/estimateMaxPriorityFeePerGas.js'
 export type {
+  FillTransactionErrorType,
+  FillTransactionParameters,
+  FillTransactionReturnType,
+} from './actions/public/fillTransaction.js'
+export type {
   GetBalanceErrorType,
   GetBalanceParameters,
   GetBalanceReturnType,
@@ -1227,7 +1232,11 @@ export type {
   TransactionType,
 } from './types/transaction.js'
 export type { GetPollOptions, GetTransportConfig } from './types/transport.js'
-export type { TypedDataDefinition } from './types/typedData.js'
+export type {
+  EIP712DomainDefinition,
+  MessageDefinition,
+  TypedDataDefinition,
+} from './types/typedData.js'
 export type {
   Assign,
   Branded,

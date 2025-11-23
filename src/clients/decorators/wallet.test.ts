@@ -20,6 +20,7 @@ test('default', async () => {
     {
       "addChain": [Function],
       "deployContract": [Function],
+      "fillTransaction": [Function],
       "getAddresses": [Function],
       "getCallsStatus": [Function],
       "getCapabilities": [Function],

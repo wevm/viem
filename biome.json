@@ -65,7 +65,8 @@
         "noConfusingVoidType": "off",
         "noExplicitAny": "off",
         "noRedeclare": "off",
-        "noConsole": { "level": "error", "options": { "allow": ["log"] } }
+        "noConsole": { "level": "error", "options": { "allow": ["log"] } },
+        "noUnknownAtRules": "off"
       }
     }
   },

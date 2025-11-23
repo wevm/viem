@@ -23,38 +23,34 @@ const webSocketClient = createClient({
 })
 
 describe('poll', () => {
-  test(
-    'watches for pending transactions',
-    async () => {
-      await wait(1000)
+  test('watches for pending transactions', { timeout: 10_000 }, async () => {
+    await wait(1000)
 
-      let transactions: OnTransactionsParameter = []
-      const unwatch = watchPendingTransactions(client, {
-        onTransactions: (transactions_) => {
-          transactions = [...transactions, ...transactions_]
-        },
-        poll: true,
-      })
-      await wait(1000)
-      await sendTransaction(client, {
-        account: accounts[0].address,
-        to: accounts[1].address,
-        value: parseEther('1'),
-      })
-      await wait(1000)
-      await sendTransaction(client, {
-        account: accounts[2].address,
-        to: accounts[3].address,
-        value: parseEther('1'),
-      })
-      await wait(1500)
-      unwatch()
-      expect(transactions.length).toBe(2)
+    let transactions: OnTransactionsParameter = []
+    const unwatch = watchPendingTransactions(client, {
+      onTransactions: (transactions_) => {
+        transactions = [...transactions, ...transactions_]
+      },
+      poll: true,
+    })
+    await wait(1000)
+    await sendTransaction(client, {
+      account: accounts[0].address,
+      to: accounts[1].address,
+      value: parseEther('1'),
+    })
+    await wait(1000)
+    await sendTransaction(client, {
+      account: accounts[2].address,
+      to: accounts[3].address,
+      value: parseEther('1'),
+    })
+    await wait(1500)
+    unwatch()
+    expect(transactions.length).toBe(2)
 
-      await mine(client, { blocks: 1 })
-    },
-    { timeout: 10_000 },
-  )
+    await mine(client, { blocks: 1 })
+  })
 
   test('watches for pending transactions (unbatched)', async () => {
     await wait(1000)
@@ -130,37 +126,33 @@ describe('poll', () => {
 })
 
 describe('subscribe', () => {
-  test(
-    'watches for pending transactions',
-    async () => {
-      await wait(1000)
+  test('watches for pending transactions', { timeout: 10_000 }, async () => {
+    await wait(1000)
 
-      let transactions: OnTransactionsParameter = []
-      const unwatch = watchPendingTransactions(webSocketClient, {
-        onTransactions: (transactions_) => {
-          transactions = [...transactions, ...transactions_]
-        },
-      })
-      await wait(1000)
-      await sendTransaction(client, {
-        account: accounts[0].address,
-        to: accounts[1].address,
-        value: parseEther('1'),
-      })
-      await wait(1000)
-      await sendTransaction(client, {
-        account: accounts[2].address,
-        to: accounts[3].address,
-        value: parseEther('1'),
-      })
-      await wait(1500)
-      unwatch()
-      expect(transactions.length).toBe(2)
+    let transactions: OnTransactionsParameter = []
+    const unwatch = watchPendingTransactions(webSocketClient, {
+      onTransactions: (transactions_) => {
+        transactions = [...transactions, ...transactions_]
+      },
+    })
+    await wait(1000)
+    await sendTransaction(client, {
+      account: accounts[0].address,
+      to: accounts[1].address,
+      value: parseEther('1'),
+    })
+    await wait(1000)
+    await sendTransaction(client, {
+      account: accounts[2].address,
+      to: accounts[3].address,
+      value: parseEther('1'),
+    })
+    await wait(1500)
+    unwatch()
+    expect(transactions.length).toBe(2)
 
-      await mine(client, { blocks: 1 })
-    },
-    { timeout: 10_000 },
-  )
+    await mine(client, { blocks: 1 })
+  })
 
   describe('errors', () => {
     test('handles error thrown on init', async () => {

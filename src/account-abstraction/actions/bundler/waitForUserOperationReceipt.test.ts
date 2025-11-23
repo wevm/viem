@@ -123,7 +123,7 @@ describe('entryPointVersion: 0.8', async () => {
     ).rejects.toThrowError('Timed out while waiting for User Operation')
   })
 
-  test('error: timeout exceeded', async () => {
+  test.skip('error: timeout exceeded', async () => {
     const authorization = await signAuthorization(client, account.authorization)
     const hash = await sendUserOperation(bundlerClient, {
       account,
@@ -284,7 +284,7 @@ describe('entryPointVersion: 0.7', async () => {
     ).rejects.toThrowError('Timed out while waiting for User Operation')
   })
 
-  test('error: timeout exceeded', async () => {
+  test.skip('error: timeout exceeded', async () => {
     const hash = await sendUserOperation(bundlerClient, {
       account,
       calls: [

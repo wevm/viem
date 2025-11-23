@@ -38,6 +38,7 @@ import {
 } from '../../utils/transaction/assertRequest.js'
 import {
   type PrepareTransactionRequestParameters,
+  type PrepareTransactionRequestParameterType,
   prepareTransactionRequest,
 } from '../wallet/prepareTransactionRequest.js'
 
@@ -45,6 +46,10 @@ export type EstimateGasParameters<
   chain extends Chain | undefined = Chain | undefined,
 > = UnionOmit<FormattedEstimateGas<chain>, 'from'> & {
   account?: Account | Address | undefined
+  prepare?:
+    | boolean
+    | readonly PrepareTransactionRequestParameterType[]
+    | undefined
   stateOverride?: StateOverride | undefined
 } & (
     | {
@@ -106,8 +111,16 @@ export async function estimateGas<
   client: Client<Transport, chain, account>,
   args: EstimateGasParameters<chain>,
 ): Promise<EstimateGasReturnType> {
-  const { account: account_ = client.account } = args
+  const { account: account_ = client.account, prepare = true } = args
   const account = account_ ? parseAccount(account_) : undefined
+
+  const parameters = (() => {
+    if (Array.isArray(prepare)) return prepare
+    // Some RPC Providers do not compute versioned hashes from blobs. We will need
+    // to compute them.
+    if (account?.type !== 'local') return ['blobVersionedHashes']
+    return undefined
+  })()
 
   try {
     const {
@@ -127,13 +140,12 @@ export async function estimateGas<
       value,
       stateOverride,
       ...rest
-    } = (await prepareTransactionRequest(client, {
-      ...args,
-      parameters:
-        // Some RPC Providers do not compute versioned hashes from blobs. We will need
-        // to compute them.
-        account?.type === 'local' ? undefined : ['blobVersionedHashes'],
-    } as PrepareTransactionRequestParameters)) as EstimateGasParameters
+    } = prepare
+      ? ((await prepareTransactionRequest(client, {
+          ...args,
+          parameters,
+        } as PrepareTransactionRequestParameters)) as EstimateGasParameters)
+      : args
 
     const blockNumberHex =
       typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
@@ -169,7 +181,7 @@ export async function estimateGas<
       {
         // Pick out extra data that might exist on the chain's transaction request type.
         ...extract(rest, { format: chainFormat }),
-        from: account?.address,
+        account,
         accessList,
         authorizationList,
         blobs,

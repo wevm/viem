@@ -226,7 +226,7 @@ describe('replaced transactions', () => {
         onReplaced: (replacement_) => (replacement = replacement_),
       }),
       (async () => {
-        await wait(100)
+        await wait(500)
 
         // speed up
         await sendTransaction(client, {
@@ -271,7 +271,7 @@ describe('replaced transactions', () => {
         hash,
       }),
       (async () => {
-        await wait(100)
+        await wait(500)
 
         // speed up
         await sendTransaction(client, {
@@ -318,7 +318,7 @@ describe('replaced transactions', () => {
         onReplaced: (replacement_) => (replacement = replacement_),
       }),
       (async () => {
-        await wait(100)
+        await wait(500)
 
         // speed up
         await sendTransaction(client, {
@@ -367,7 +367,7 @@ describe('replaced transactions', () => {
         onReplaced: (replacement_) => (replacement = replacement_),
       }),
       (async () => {
-        await wait(100)
+        await wait(500)
 
         // speed up
         await sendTransaction(client, {
@@ -415,7 +415,7 @@ describe('replaced transactions', () => {
         onReplaced: (replacement_) => (replacement = replacement_),
       }),
       (async () => {
-        await wait(100)
+        await wait(500)
 
         // speed up
         await sendTransaction(client, {
@@ -462,7 +462,7 @@ describe('replaced transactions', () => {
         onReplaced: (replacement_) => (replacement = replacement_),
       }),
       (async () => {
-        await wait(100)
+        await wait(500)
 
         // speed up
         await sendTransaction(client, {
@@ -511,7 +511,7 @@ describe('replaced transactions', () => {
     })
 
     // Replace the transaction with a higher gas price
-    await wait(100)
+    await wait(500)
     await sendTransaction(client, {
       account: sourceAccount.address,
       to: targetAccount.address,
@@ -580,7 +580,7 @@ describe('args: confirmations', () => {
         hash,
       }),
       (async () => {
-        await wait(100)
+        await wait(500)
 
         // speed up
         await sendTransaction(client, {
@@ -644,7 +644,7 @@ describe('errors', () => {
           hash,
         }),
         (async () => {
-          await wait(100)
+          await wait(500)
 
           // speed up
           await sendTransaction(client, {

@@ -1,10 +1,15 @@
 // Implementation forked and adapted from https://github.com/MetaMask/eth-sig-util/blob/main/src/sign-typed-data.ts
 
-import type { AbiParameter, TypedData, TypedDataDomain } from 'abitype'
+import type { AbiParameter, TypedData } from 'abitype'
 
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
-import type { TypedDataDefinition } from '../../types/typedData.js'
+import type {
+  EIP712DomainDefinition,
+  MessageDefinition,
+  TypedDataDefinition,
+} from '../../types/typedData.js'
+import type { UnionOmit } from '../../types/utils.js'
 import {
   type EncodeAbiParametersErrorType,
   encodeAbiParameters,
@@ -86,17 +91,16 @@ export function hashTypedData<
 
 export type HashDomainErrorType = HashStructErrorType | ErrorType
 
-export function hashDomain({
+export function hashDomain<
+  const typedData extends TypedData | Record<string, unknown> = TypedData,
+>({
   domain,
   types,
-}: {
-  domain: TypedDataDomain
-  types: Record<string, MessageTypeProperty[]>
-}) {
+}: UnionOmit<EIP712DomainDefinition<typedData>, 'primaryType'>) {
   return hashStruct({
-    data: domain,
+    data: domain as Record<string, unknown>,
     primaryType: 'EIP712Domain',
-    types,
+    types: types as Record<string, readonly MessageTypeProperty[]>,
   })
 }
 
@@ -105,19 +109,18 @@ export type HashStructErrorType =
   | Keccak256ErrorType
   | ErrorType
 
-export function hashStruct({
+export function hashStruct<
+  const typedData extends TypedData | Record<string, unknown>,
+  primaryType extends keyof typedData | 'EIP712Domain',
+>({
   data,
   primaryType,
   types,
-}: {
-  data: Record<string, unknown>
-  primaryType: string
-  types: Record<string, readonly MessageTypeProperty[]>
-}) {
+}: MessageDefinition<typedData, primaryType, 'data'>) {
   const encoded = encodeData({
-    data,
+    data: data as Record<string, unknown>,
     primaryType,
-    types,
+    types: types as Record<string, readonly MessageTypeProperty[]>,
   })
   return keccak256(encoded)
 }
@@ -244,11 +247,7 @@ function encodeField({
     ]
   }
 
-  if (type === 'bytes') {
-    const prepend = value.length % 2 ? '0' : ''
-    value = `0x${prepend + value.slice(2)}`
-    return [{ type: 'bytes32' }, keccak256(value)]
-  }
+  if (type === 'bytes') return [{ type: 'bytes32' }, keccak256(value)]
 
   if (type === 'string') return [{ type: 'bytes32' }, keccak256(toHex(value))]
 
