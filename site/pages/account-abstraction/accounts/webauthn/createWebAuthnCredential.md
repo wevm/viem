@@ -28,10 +28,10 @@ import {
   toWebAuthnAccount 
 } from 'viem/account-abstraction'
 
-// Register a credential (ie. passkey).
-const credential = await createWebAuthnCredential({
-  name: 'Example',
-})
+// Register a credential (ie. passkey). // [!code focus] 
+const credential = await createWebAuthnCredential({ // [!code focus]
+  name: 'Example', // [!code focus]
+}) // [!code focus]
 
 // Create a WebAuthn account from the credential.
 const account = toWebAuthnAccount({
