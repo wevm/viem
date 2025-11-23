@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add url to request errors
+Added `url` property to request errors.
