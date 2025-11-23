@@ -8,23 +8,9 @@ This function uses [`ox/WebAuthnP256`](https://github.com/wevm/ox) under-the-hoo
 
 ## Overview
 
-`createWebAuthnCredential` initiates the WebAuthn registration flow on the user's device, creating a cryptographic credential (commonly called a "passkey") that can later be used for authentication. The function handles the browser's credential creation dialog and returns a credential object that you can store and use to create WebAuthn accounts.
+`createWebAuthnCredential` initiates the WebAuthn (passkey) registration flow on the user's device, creating a cryptographic P256 credential that can later be used for authentication. 
 
-Think of this as the registration step—it's what happens when a user first sets up their passkey on your application.
-
-## What This Function Does
-
-When you call `createWebAuthnCredential`, it:
-
-- Triggers your browser's built-in credential creation dialog (the interface where users confirm they want to create a passkey)
-- Communicates with your device's authenticator (fingerprint sensor, Face ID, security key, etc.)
-- Generates a cryptographic key pair on the device
-- Returns a credential object containing the public key and metadata
-- Never sends the private key off the device—it stays secure
-
-## When to Use It
-
-Use this function during your application's account registration or passkey setup flow. It's a one-time operation per device—once a user creates a credential, you store it and use it for subsequent authentication attempts.
+This function uses `navigator.credentials.create()` internally. [Read more](https://developer.mozilla.org/en-US/docs/Web/API/CredentialsContainer/create).
 
 ## Import
 
@@ -33,8 +19,6 @@ import { createWebAuthnCredential } from 'viem/account-abstraction'
 ```
 
 ## Usage
-
-### Basic Usage
 
 At minimum, you need to provide a name to identify the credential:
 
@@ -71,11 +55,11 @@ A P-256 WebAuthn Credential object with the following structure:
 }
 ```
 
-This credential object is designed to be passed to `toWebAuthnAccount()` to create a `WebAuthnAccount`, which provides signing capabilities for transactions and messages. The `publicKey` is encoded as a hex string with the `0x` prefix (as required by the `Hex` type), and the `raw` credential contains the metadata needed to verify the user during authentication.
+This credential object is designed to be passed to `toWebAuthnAccount()` to create a `WebAuthnAccount`, which provides signing capabilities for transactions and messages.
 
 ## Parameters
 
-### name (required)
+### name 
 
 - **Type:** `string`
 
@@ -93,11 +77,7 @@ const credential = await createWebAuthnCredential({
 
 - **Type:** `Uint8Array`
 
-A random cryptographic value that proves this credential creation request came from you and not an attacker. If you don't provide one, the function generates a random one. For production applications, you should generate a challenge on your server and send it to the client to prevent replay attacks.
-
-:::info Production Note
-When using a server-generated challenge, it is typically transmitted as a base64url-encoded string. You must decode this string into a `Uint8Array` on the client before passing it here. This step is crucial for preventing replay attacks.
-:::
+A random cryptographic value that proves the credential creation request. If you don't provide one, the function generates a random one.
 
 ```ts twoslash
 import { createWebAuthnCredential, toWebAuthnAccount } from 'viem/account-abstraction'
@@ -108,16 +88,11 @@ const credential = await createWebAuthnCredential({
 })
 ```
 
-### rp (optional, but recommended for production)
+### rp (optional)
 
 - **Type:** `{ id: string; name: string }`
 
-An object describing your relying party (your application). Contains:
-
-- **id**: Your domain (e.g., `"example.com"`). **Security Constraint**: The browser strictly enforces that this ID must be a registrable domain suffix of, or exactly match, the current website's security origin. For example, if your origin is `https://login.example.com`, valid RP IDs are `login.example.com` and `example.com`, but not `m.login.example.com` or `com`.
-- **name**: Your application name (e.g., `"Example App"`).
-
-Without this, the function uses sensible defaults, but explicitly setting it is more secure and explicitly shows your application name to the user during registration.
+An object describing the relying party. [Read more](https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredentialCreationOptions#rp).
 
 ```ts twoslash
 import { createWebAuthnCredential, toWebAuthnAccount } from 'viem/account-abstraction'
@@ -135,7 +110,7 @@ const credential = await createWebAuthnCredential({
 
 - **Type:** `number`
 
-How long (in milliseconds) to wait for the user to complete the registration before giving up. The default is usually sufficient. Set this if you expect slow network connections or users who take longer to interact with their authenticators.
+How long (in milliseconds) to wait for the user to complete the registration.
 
 ```ts twoslash
 import { createWebAuthnCredential, toWebAuthnAccount } from 'viem/account-abstraction'
@@ -184,7 +159,7 @@ const account = toWebAuthnAccount({
 })
 ```
 
-## Error Cases to Handle
+## Error Cases
 
 The registration can fail or be cancelled for several reasons:
 
@@ -195,7 +170,3 @@ The registration can fail or be cancelled for several reasons:
 - The authenticator is locked or unavailable
 
 Wrap the function call in a try-catch block to handle these gracefully.
-
-## Next Steps
-
-Once you have a credential, use `toWebAuthnAccount()` to convert it into a usable account object, then store it in your database or session for future authentication attempts.
