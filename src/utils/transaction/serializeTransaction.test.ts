@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import { assertType, describe, expect, test } from 'vitest'
+import { assertType, describe, expect, test, vi } from 'vitest'
 import { accounts } from '~test/src/constants.js'
 import { wagmiContractConfig } from '../../../test/src/abis.js'
 import { blobData, kzg } from '../../../test/src/kzg.js'
@@ -17,6 +17,7 @@ import type {
   TransactionSerializedEIP7702,
   TransactionSerializedLegacy,
 } from '../../types/transaction.js'
+import { FUSAKA_ACTIVATION_MAINNET_TIMESTAMP } from '../blob/getBlobVersion.js'
 import { sidecarsToVersionedHashes } from '../blob/sidecarsToVersionedHashes.js'
 import { toBlobSidecars } from '../blob/toBlobSidecars.js'
 import { toBlobs } from '../blob/toBlobs.js'
@@ -242,6 +243,40 @@ describe('eip4844', () => {
     const serialized = serializeTransaction(transaction)
     assertType<TransactionSerializedEIP4844>(serialized)
     expect(serialized).toMatchSnapshot()
+  })
+
+  test('mainnet switches to EIP-7594 at Fusaka activation', () => {
+    const sidecars = toBlobSidecars({ data: stringToHex('abcd'), kzg })
+    const blobVersionedHashes = sidecarsToVersionedHashes({ sidecars })
+    const transaction = {
+      ...baseEip4844,
+      blobVersionedHashes,
+      sidecars,
+      chainId: 1, // mainnet
+    } satisfies TransactionSerializableEIP4844
+
+    // Before Fusaka activation: should use EIP-4844 format
+    vi.setSystemTime(new Date((FUSAKA_ACTIVATION_MAINNET_TIMESTAMP - 1) * 1000))
+    const serializedBefore = serializeTransaction(transaction)
+    const parsedBefore = parseTransaction(serializedBefore)
+    expect(parsedBefore.blobVersion).toBeUndefined()
+
+    // At Fusaka activation: should use EIP-7594 format
+    vi.setSystemTime(new Date(FUSAKA_ACTIVATION_MAINNET_TIMESTAMP * 1000))
+    const serializedAt = serializeTransaction(transaction)
+    const parsedAt = parseTransaction(serializedAt)
+    expect(parsedAt.blobVersion).toBe('7594')
+
+    // After Fusaka activation: should use EIP-7594 format
+    vi.setSystemTime(new Date((FUSAKA_ACTIVATION_MAINNET_TIMESTAMP + 1) * 1000))
+    const serializedAfter = serializeTransaction(transaction)
+    const parsedAfter = parseTransaction(serializedAfter)
+    expect(parsedAfter.blobVersion).toBe('7594')
+
+    // Verify the serialized formats are different before and after
+    expect(serializedBefore).not.toBe(serializedAt)
+
+    vi.useRealTimers()
   })
 })
 

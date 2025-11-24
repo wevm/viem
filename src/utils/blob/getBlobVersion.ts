@@ -6,11 +6,16 @@ export type GetBlobVersionParameters = {
   chainId?: number | undefined
   /** Explicit blob version override */
   blobVersion?: BlobVersion | undefined
+  /** The current UNIX timestamp in seconds */
+  currentTimestamp?: number
 }
 
 export type GetBlobVersionReturnType = BlobVersion
 
 export type GetBlobVersionErrorType = ErrorType
+
+// See https://eips.ethereum.org/EIPS/eip-7607#activation
+export const FUSAKA_ACTIVATION_MAINNET_TIMESTAMP = 1764798551
 
 /**
  * Determines the blob version to use based on chain ID.
@@ -41,13 +46,24 @@ export type GetBlobVersionErrorType = ErrorType
 export function getBlobVersion(
   parameters: GetBlobVersionParameters = {},
 ): GetBlobVersionReturnType {
-  const { chainId, blobVersion } = parameters
+  const {
+    chainId,
+    blobVersion,
+    currentTimestamp = Math.trunc(Date.now() / 1000),
+  } = parameters
 
   // If explicit version provided, use it
   if (blobVersion) return blobVersion
 
   // Sepolia uses EIP-7594
   if (chainId === 11_155_111) return '7594'
+
+  if (
+    chainId === 1 &&
+    currentTimestamp >= FUSAKA_ACTIVATION_MAINNET_TIMESTAMP
+  ) {
+    return '7594'
+  }
 
   // Default to EIP-4844
   return '4844'

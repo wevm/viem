@@ -1,12 +1,35 @@
 import { expect, test } from 'vitest'
-import { getBlobVersion } from './getBlobVersion.js'
+import {
+  FUSAKA_ACTIVATION_MAINNET_TIMESTAMP,
+  getBlobVersion,
+} from './getBlobVersion.js'
 
 test('default: returns 4844', () => {
   expect(getBlobVersion()).toBe('4844')
 })
 
-test('mainnet: returns 4844', () => {
-  expect(getBlobVersion({ chainId: 1 })).toBe('4844')
+test('mainnet before Fusaka activation: returns 4844', () => {
+  expect(
+    getBlobVersion({
+      chainId: 1,
+      currentTimestamp: FUSAKA_ACTIVATION_MAINNET_TIMESTAMP - 1,
+    }),
+  ).toBe('4844')
+})
+
+test('mainnet after Fusaka activation: returns 7594', () => {
+  expect(
+    getBlobVersion({
+      chainId: 1,
+      currentTimestamp: FUSAKA_ACTIVATION_MAINNET_TIMESTAMP,
+    }),
+  ).toBe('7594')
+  expect(
+    getBlobVersion({
+      chainId: 1,
+      currentTimestamp: FUSAKA_ACTIVATION_MAINNET_TIMESTAMP + 1,
+    }),
+  ).toBe('7594')
 })
 
 test('sepolia: returns 7594', () => {
