@@ -1,5 +1,13 @@
 # viem
 
+## 2.40.1
+
+### Patch Changes
+
+- [`6a2013d88b6eedc9420ce3fea86af530842f1787`](https://github.com/wevm/viem/commit/6a2013d88b6eedc9420ce3fea86af530842f1787) Thanks [@jxom](https://github.com/jxom)! - Fixed `sendTransactionSync` generic.
+
+- [`4dca806057cb83152a3f1fbd3df31f730eb93eea`](https://github.com/wevm/viem/commit/4dca806057cb83152a3f1fbd3df31f730eb93eea) Thanks [@jxom](https://github.com/jxom)! - Added `hyperliquid` chain.
+
 ## 2.40.0
 
 ### Minor Changes
