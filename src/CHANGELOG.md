@@ -1,5 +1,11 @@
 # viem
 
+## 2.40.2
+
+### Patch Changes
+
+- [`73f5e468b57862250529be1233c39dee7520df20`](https://github.com/wevm/viem/commit/73f5e468b57862250529be1233c39dee7520df20) Thanks [@jxom](https://github.com/jxom)! - Added `getAction` support to `verifyMessage` and `verifyTypedData`.
+
 ## 2.40.1
 
 ### Patch Changes
