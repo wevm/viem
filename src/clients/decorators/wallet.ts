@@ -720,7 +720,7 @@ export type WalletActions<
     chainOverride extends Chain | undefined = undefined,
   >(
     args: SendTransactionSyncParameters<chain, account, chainOverride, request>,
-  ) => Promise<SendTransactionSyncReturnType>
+  ) => Promise<SendTransactionSyncReturnType<chain>>
   /**
    * Requests for the wallet to show information about a call batch
    * that was sent via `sendCalls`.
