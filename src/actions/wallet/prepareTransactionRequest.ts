@@ -362,7 +362,7 @@ export async function prepareTransactionRequest<
   const request = {
     ...fillResult,
     ...(account ? { from: account?.address } : {}),
-    ...(nonce ? { nonce } : {}),
+    nonce: nonce ?? fillResult.nonce,
   }
 
   let block: Block | undefined
