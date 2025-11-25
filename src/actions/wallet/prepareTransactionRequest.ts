@@ -267,7 +267,7 @@ export async function prepareTransactionRequest<
 > {
   const attemptFill =
     // Do not attempt if `eth_fillTransaction` is not supported.
-    supportsFillTransaction.get(client.uid) !== false &&
+    supportsFillTransaction.get(client.uid) !== undefined &&
     // Should attempt `eth_fillTransaction` if "fees" or "gas" are required to be populated,
     // otherwise, can just use the other individual calls.
     ['fees', 'gas'].some((parameter) =>
