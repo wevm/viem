@@ -88,7 +88,8 @@ export const defaultParameters = [
 /** @internal */
 export const eip1559NetworkCache = /*#__PURE__*/ new Map<string, boolean>()
 
-const supportsFillTransaction = /*#__PURE__*/ new LruMap<boolean>(128)
+/** @internal */
+export const supportsFillTransaction = /*#__PURE__*/ new LruMap<boolean>(128)
 
 export type PrepareTransactionRequestParameterType =
   | 'blobVersionedHashes'
@@ -249,7 +250,7 @@ export async function prepareTransactionRequest<
   chainOverride extends Chain | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  args_: PrepareTransactionRequestParameters<
+  args: PrepareTransactionRequestParameters<
     chain,
     account,
     chainOverride,
@@ -265,13 +266,47 @@ export async function prepareTransactionRequest<
     request
   >
 > {
+  const {
+    account: account_ = client.account,
+    chain,
+    nonceManager,
+    parameters = defaultParameters,
+  } = args
+
+  let chainId: number | undefined
+  async function getChainId(): Promise<number> {
+    if (chainId) return chainId
+    if (chain) return chain.id
+    if (typeof args.chainId !== 'undefined') return args.chainId
+    const chainId_ = await getAction(client, getChainId_, 'getChainId')({})
+    chainId = chainId_
+    return chainId
+  }
+
+  const account = account_ ? parseAccount(account_) : account_
+
+  let nonce = args.nonce
+  if (
+    parameters.includes('nonce') &&
+    typeof nonce === 'undefined' &&
+    account &&
+    nonceManager
+  ) {
+    const chainId = await getChainId()
+    nonce = await nonceManager.consume({
+      address: account.address,
+      chainId,
+      client,
+    })
+  }
+
   const attemptFill =
     // Do not attempt if `eth_fillTransaction` is not supported.
     supportsFillTransaction.get(client.uid) !== false &&
     // Should attempt `eth_fillTransaction` if "fees" or "gas" are required to be populated,
     // otherwise, can just use the other individual calls.
     ['fees', 'gas'].some((parameter) =>
-      args_.parameters?.includes(
+      args.parameters?.includes(
         parameter as PrepareTransactionRequestParameterType,
       ),
     )
@@ -281,7 +316,7 @@ export async function prepareTransactionRequest<
         client,
         fillTransaction,
         'fillTransaction',
-      )(args_ as FillTransactionParameters)
+      )({ ...args, nonce } as FillTransactionParameters)
         .then((result) => {
           const {
             chainId,
@@ -296,46 +331,38 @@ export async function prepareTransactionRequest<
           } = result.transaction
           supportsFillTransaction.set(client.uid, true)
           return {
-            ...args_,
-            chainId,
-            from,
-            gas,
-            gasPrice,
-            nonce,
-            maxFeePerBlobGas,
-            maxFeePerGas,
-            maxPriorityFeePerGas,
-            type,
+            ...args,
+            ...(chainId ? { chainId } : {}),
+            ...(from ? { from } : {}),
+            ...(gas ? { gas } : {}),
+            ...(gasPrice ? { gasPrice } : {}),
+            ...(nonce ? { nonce } : {}),
+            ...(maxFeePerBlobGas ? { maxFeePerBlobGas } : {}),
+            ...(maxFeePerGas ? { maxFeePerGas } : {}),
+            ...(maxPriorityFeePerGas ? { maxPriorityFeePerGas } : {}),
+            ...(type ? { type } : {}),
           }
         })
         .catch((e) => {
           const error = e as BaseError & { cause: BaseError }
-          if (
-            error.cause.name === 'MethodNotFoundRpcError' ||
-            error.cause.name === 'MethodNotSupportedRpcError'
-          )
-            supportsFillTransaction.set(client.uid, false)
-          return args_
+          const unsupported = error.walk((e) => {
+            const error = e as BaseError
+            return (
+              error.name === 'MethodNotFoundRpcError' ||
+              error.name === 'MethodNotSupportedRpcError'
+            )
+          })
+          if (unsupported) supportsFillTransaction.set(client.uid, false)
+          return args
         })
-    : args_
+    : args
 
-  const {
-    account: account_ = client.account,
-    blobs,
-    chain,
-    gas,
-    kzg,
-    nonce,
-    nonceManager,
-    parameters = defaultParameters,
-    type,
-  } = fillResult
-
-  const account = account_ ? parseAccount(account_) : account_
+  const { blobs, gas, kzg, type } = fillResult
 
   const request = {
     ...fillResult,
     ...(account ? { from: account?.address } : {}),
+    ...(nonce ? { nonce } : {}),
   }
 
   let block: Block | undefined
@@ -349,35 +376,20 @@ export async function prepareTransactionRequest<
     return block
   }
 
-  let chainId: number | undefined
-  async function getChainId(): Promise<number> {
-    if (chainId) return chainId
-    if (chain) return chain.id
-    if (typeof request.chainId !== 'undefined') return request.chainId
-    const chainId_ = await getAction(client, getChainId_, 'getChainId')({})
-    chainId = chainId_
-    return chainId
-  }
-
-  if (parameters.includes('nonce') && typeof nonce === 'undefined' && account) {
-    if (nonceManager) {
-      const chainId = await getChainId()
-      request.nonce = await nonceManager.consume({
-        address: account.address,
-        chainId,
-        client,
-      })
-    } else {
-      request.nonce = await getAction(
-        client,
-        getTransactionCount,
-        'getTransactionCount',
-      )({
-        address: account.address,
-        blockTag: 'pending',
-      })
-    }
-  }
+  if (
+    parameters.includes('nonce') &&
+    typeof nonce === 'undefined' &&
+    account &&
+    !nonceManager
+  )
+    request.nonce = await getAction(
+      client,
+      getTransactionCount,
+      'getTransactionCount',
+    )({
+      address: account.address,
+      blockTag: 'pending',
+    })
 
   if (
     (parameters.includes('blobVersionedHashes') ||

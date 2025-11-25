@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 import { kzg } from '~test/src/kzg.js'
@@ -20,8 +20,10 @@ import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import * as fillTransaction from '../public/fillTransaction.js'
 import {
+  defaultParameters,
   eip1559NetworkCache,
   prepareTransactionRequest,
+  supportsFillTransaction,
 } from './prepareTransactionRequest.js'
 
 const client = anvilMainnet.getClient()
@@ -51,6 +53,10 @@ describe('without `eth_fillTransaction`', () => {
         cause: new MethodNotFoundRpcError(new Error('Method not found')),
       }),
     )
+  })
+
+  afterEach(() => {
+    vi.spyOn(fillTransaction, 'fillTransaction').mockRestore()
   })
 
   test('default', async () => {
@@ -994,90 +1000,44 @@ describe('without `eth_fillTransaction`', () => {
 })
 
 describe('with `eth_fillTransaction`', () => {
+  beforeEach(() => {
+    supportsFillTransaction.clear()
+  })
+
   test('default', async () => {
     await setup()
 
-    const block = await getBlock.getBlock(client)
-    const {
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      nonce: _nonce,
-      ...rest
-    } = await prepareTransactionRequest(client, {
+    const transactionRequest = await prepareTransactionRequest(client, {
+      parameters: defaultParameters,
       to: targetAccount.address,
       value: parseEther('1'),
     })
-    expect(maxFeePerGas).toEqual(
-      (block.baseFeePerGas! * 120n) / 100n + maxPriorityFeePerGas!,
-    )
-    expect(rest).toMatchInlineSnapshot(`
-        {
-          "chainId": 1,
-          "gas": 21000n,
-          "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-          "type": "eip1559",
-          "value": 1000000000000000000n,
-        }
-      `)
-  })
-
-  test('legacy fees', async () => {
-    await setup()
-
-    eip1559NetworkCache.clear()
-
-    vi.spyOn(getBlock, 'getBlock').mockResolvedValueOnce({
-      baseFeePerGas: undefined,
-    } as any)
-
-    const { nonce: _nonce, ...request } = await prepareTransactionRequest(
-      client,
+    expect(transactionRequest).toMatchInlineSnapshot(`
       {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        to: targetAccount.address,
-        value: parseEther('1'),
-      },
-    )
-    expect(request).toMatchInlineSnapshot(`
-      {
-        "account": {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "nonceManager": undefined,
-          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
-          "sign": [Function],
-          "signAuthorization": [Function],
-          "signMessage": [Function],
-          "signTransaction": [Function],
-          "signTypedData": [Function],
-          "source": "privateKey",
-          "type": "local",
-        },
         "chainId": 1,
-        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "gas": 21000n,
-        "gasPrice": 11700000000n,
+        "gasPrice": 12900000000n,
+        "maxFeePerGas": 12900000000n,
+        "maxPriorityFeePerGas": 1000000000n,
+        "nonce": 953,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-        "type": "legacy",
+        "type": "eip1559",
         "value": 1000000000000000000n,
       }
     `)
-
-    eip1559NetworkCache.clear()
   })
 
   test('args: account', async () => {
     await setup()
 
-    const {
-      maxFeePerGas: _maxFeePerGas,
-      nonce: _nonce,
-      ...rest
-    } = await prepareTransactionRequest(client, {
+    const transaction = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: defaultParameters,
       to: targetAccount.address,
       value: parseEther('1'),
     })
-    expect(rest).toMatchInlineSnapshot(`
+    expect(transaction).toMatchInlineSnapshot(`
       {
         "account": {
           "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -1094,7 +1054,10 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
+        "gasPrice": 12900000000n,
+        "maxFeePerGas": 12900000000n,
         "maxPriorityFeePerGas": 1000000000n,
+        "nonce": 953,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
         "value": 1000000000000000000n,
@@ -1105,16 +1068,13 @@ describe('with `eth_fillTransaction`', () => {
   test('args: chain', async () => {
     await setup()
 
-    const {
-      maxFeePerGas: _maxFeePerGas,
-      nonce: _nonce,
-      ...rest
-    } = await prepareTransactionRequest(client, {
+    const transaction = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: defaultParameters,
       to: targetAccount.address,
       value: parseEther('1'),
     })
-    expect(rest).toMatchInlineSnapshot(`
+    expect(transaction).toMatchInlineSnapshot(`
       {
         "account": {
           "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -1131,7 +1091,10 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
+        "gasPrice": 12900000000n,
+        "maxFeePerGas": 12900000000n,
         "maxPriorityFeePerGas": 1000000000n,
+        "nonce": 953,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
         "value": 1000000000000000000n,
@@ -1142,17 +1105,14 @@ describe('with `eth_fillTransaction`', () => {
   test('args: chainId', async () => {
     await setup()
 
-    const {
-      maxFeePerGas: _maxFeePerGas,
-      nonce: _nonce,
-      ...rest
-    } = await prepareTransactionRequest(client, {
+    const transaction = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: defaultParameters,
       chainId: 69,
       to: targetAccount.address,
       value: parseEther('1'),
     })
-    expect(rest).toMatchInlineSnapshot(`
+    expect(transaction).toMatchInlineSnapshot(`
       {
         "account": {
           "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -1169,7 +1129,10 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 69,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
+        "gasPrice": 12900000000n,
+        "maxFeePerGas": 12900000000n,
         "maxPriorityFeePerGas": 1000000000n,
+        "nonce": 953,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
         "value": 1000000000000000000n,
@@ -1180,14 +1143,14 @@ describe('with `eth_fillTransaction`', () => {
   test('args: nonce', async () => {
     await setup()
 
-    const { maxFeePerGas: _maxFeePerGas, ...rest } =
-      await prepareTransactionRequest(client, {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        to: targetAccount.address,
-        nonce: 5,
-        value: parseEther('1'),
-      })
-    expect(rest).toMatchInlineSnapshot(`
+    const transaction = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: defaultParameters,
+      to: targetAccount.address,
+      nonce: 5,
+      value: parseEther('1'),
+    })
+    expect(transaction).toMatchInlineSnapshot(`
       {
         "account": {
           "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -1204,6 +1167,8 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
+        "gasPrice": 12900000000n,
+        "maxFeePerGas": 12900000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 5,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -1216,16 +1181,14 @@ describe('with `eth_fillTransaction`', () => {
   test('args: gasPrice', async () => {
     await setup()
 
-    const { nonce: _nonce, ...request } = await prepareTransactionRequest(
-      client,
-      {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        to: targetAccount.address,
-        gasPrice: parseGwei('10'),
-        value: parseEther('1'),
-      },
-    )
-    expect(request).toMatchInlineSnapshot(`
+    const transaction = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: defaultParameters,
+      to: targetAccount.address,
+      gasPrice: parseGwei('10'),
+      value: parseEther('1'),
+    })
+    expect(transaction).toMatchInlineSnapshot(`
       {
         "account": {
           "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -1243,6 +1206,7 @@ describe('with `eth_fillTransaction`', () => {
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
         "gasPrice": 10000000000n,
+        "nonce": 953,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "legacy",
         "value": 1000000000000000000n,
@@ -1253,16 +1217,14 @@ describe('with `eth_fillTransaction`', () => {
   test('args: gasPrice (on chain w/ block.baseFeePerGas)', async () => {
     await setup()
 
-    const { nonce: _nonce, ...request } = await prepareTransactionRequest(
-      client,
-      {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        to: targetAccount.address,
-        gasPrice: parseGwei('10'),
-        value: parseEther('1'),
-      },
-    )
-    expect(request).toMatchInlineSnapshot(`
+    const transaction = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: defaultParameters,
+      to: targetAccount.address,
+      gasPrice: parseGwei('10'),
+      value: parseEther('1'),
+    })
+    expect(transaction).toMatchInlineSnapshot(`
       {
         "account": {
           "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -1280,6 +1242,7 @@ describe('with `eth_fillTransaction`', () => {
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
         "gasPrice": 10000000000n,
+        "nonce": 953,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "legacy",
         "value": 1000000000000000000n,
@@ -1290,13 +1253,14 @@ describe('with `eth_fillTransaction`', () => {
   test('args: maxFeePerGas', async () => {
     await setup()
 
-    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
+    const transaction = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: defaultParameters,
       to: targetAccount.address,
       maxFeePerGas: parseGwei('100'),
       value: parseEther('1'),
     })
-    expect(rest).toMatchInlineSnapshot(`
+    expect(transaction).toMatchInlineSnapshot(`
       {
         "account": {
           "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -1313,8 +1277,10 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
+        "gasPrice": 120000000000n,
         "maxFeePerGas": 100000000000n,
         "maxPriorityFeePerGas": 1000000000n,
+        "nonce": 953,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
         "value": 1000000000000000000n,
@@ -1328,33 +1294,13 @@ describe('with `eth_fillTransaction`', () => {
     await expect(() =>
       prepareTransactionRequest(client, {
         account: privateKeyToAccount(sourceAccount.privateKey),
+        parameters: defaultParameters,
         to: targetAccount.address,
         maxFeePerGas: parseGwei('0.1'),
         value: parseEther('1'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [MaxFeePerGasTooLowError: \`maxFeePerGas\` cannot be less than the \`maxPriorityFeePerGas\` (1 gwei).
-
-      Version: viem@x.y.z]
-    `)
-  })
-
-  test('args: maxFeePerGas (on legacy)', async () => {
-    await setup()
-
-    vi.spyOn(getBlock, 'getBlock').mockResolvedValueOnce({
-      baseFeePerGas: undefined,
-    } as any)
-
-    await expect(() =>
-      prepareTransactionRequest(client, {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        to: targetAccount.address,
-        maxFeePerGas: parseGwei('10'),
-        value: parseEther('1'),
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Eip1559FeesNotSupportedError: Chain does not support EIP-1559 fees.
+      [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 1 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 0.1 gwei).
 
       Version: viem@x.y.z]
     `)
@@ -1365,6 +1311,7 @@ describe('with `eth_fillTransaction`', () => {
 
     const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: defaultParameters,
       to: targetAccount.address,
       maxPriorityFeePerGas: parseGwei('5'),
       value: parseEther('1'),
@@ -1386,7 +1333,8 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "maxFeePerGas": 17000000000n,
+        "gasPrice": 17700000000n,
+        "maxFeePerGas": 17700000000n,
         "maxPriorityFeePerGas": 5000000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
@@ -1400,6 +1348,7 @@ describe('with `eth_fillTransaction`', () => {
 
     const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: defaultParameters,
       to: targetAccount.address,
       maxPriorityFeePerGas: 0n,
       value: parseEther('1'),
@@ -1421,7 +1370,8 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "maxFeePerGas": 12000000000n,
+        "gasPrice": 11700000000n,
+        "maxFeePerGas": 11700000000n,
         "maxPriorityFeePerGas": 0n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
@@ -1430,32 +1380,12 @@ describe('with `eth_fillTransaction`', () => {
     `)
   })
 
-  test('args: maxPriorityFeePerGas (on legacy)', async () => {
-    await setup()
-
-    vi.spyOn(getBlock, 'getBlock').mockResolvedValueOnce({
-      baseFeePerGas: undefined,
-    } as any)
-
-    await expect(() =>
-      prepareTransactionRequest(client, {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        to: targetAccount.address,
-        maxFeePerGas: parseGwei('5'),
-        value: parseEther('1'),
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [Eip1559FeesNotSupportedError: Chain does not support EIP-1559 fees.
-
-      Version: viem@x.y.z]
-    `)
-  })
-
   test('args: maxFeePerGas + maxPriorityFeePerGas', async () => {
     await setup()
 
     const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: defaultParameters,
       to: targetAccount.address,
       maxFeePerGas: parseGwei('10'),
       maxPriorityFeePerGas: parseGwei('5'),
@@ -1478,6 +1408,7 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
+        "gasPrice": 12000000000n,
         "maxFeePerGas": 10000000000n,
         "maxPriorityFeePerGas": 5000000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -1494,6 +1425,7 @@ describe('with `eth_fillTransaction`', () => {
       // @ts-expect-error
       prepareTransactionRequest(client, {
         account: privateKeyToAccount(sourceAccount.privateKey),
+        parameters: defaultParameters,
         to: targetAccount.address,
         gasPrice: parseGwei('10'),
         maxPriorityFeePerGas: parseGwei('20'),
@@ -1512,6 +1444,7 @@ describe('with `eth_fillTransaction`', () => {
 
     const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: defaultParameters,
       to: targetAccount.address,
       type: 'eip1559',
       value: parseEther('1'),
@@ -1533,59 +1466,11 @@ describe('with `eth_fillTransaction`', () => {
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "maxFeePerGas": 13000000000n,
+        "gasPrice": 12900000000n,
+        "maxFeePerGas": 12900000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
-        "value": 1000000000000000000n,
-      }
-    `)
-  })
-
-  test('args: blobs', async () => {
-    await setup()
-
-    const {
-      blobs: _blobs,
-      nonce: _nonce,
-      ...rest
-    } = await prepareTransactionRequest(client, {
-      account: privateKeyToAccount(sourceAccount.privateKey),
-      blobs: toBlobs({ data: '0x1234' }),
-      kzg,
-      maxFeePerBlobGas: parseGwei('20'),
-      to: targetAccount.address,
-      value: parseEther('1'),
-    })
-    expect(rest).toMatchInlineSnapshot(`
-      {
-        "account": {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "nonceManager": undefined,
-          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
-          "sign": [Function],
-          "signAuthorization": [Function],
-          "signMessage": [Function],
-          "signTransaction": [Function],
-          "signTypedData": [Function],
-          "source": "privateKey",
-          "type": "local",
-        },
-        "blobVersionedHashes": [
-          "0x01d34d7bd213433308d1f63023dc70fd585064cd108ee69be0637a09f4028ea3",
-        ],
-        "chainId": 1,
-        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "gas": 53001n,
-        "kzg": {
-          "blobToKzgCommitment": [Function],
-          "computeBlobKzgProof": [Function],
-        },
-        "maxFeePerBlobGas": 20000000000n,
-        "maxFeePerGas": 13000000000n,
-        "maxPriorityFeePerGas": 1000000000n,
-        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-        "type": "eip4844",
         "value": 1000000000000000000n,
       }
     `)
@@ -1614,9 +1499,15 @@ describe('with `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
+        "gasPrice": 12900000000n,
+        "maxFeePerGas": 12900000000n,
+        "maxPriorityFeePerGas": 1000000000n,
+        "nonce": 953,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
         "value": 1000000000000000000n,
       }
     `)
@@ -1641,10 +1532,13 @@ describe('with `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "maxFeePerGas": 13000000000n,
+        "gasPrice": 12900000000n,
+        "maxFeePerGas": 12900000000n,
         "maxPriorityFeePerGas": 1000000000n,
+        "nonce": 953,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
         "type": "eip1559",
         "value": 1000000000000000000n,
@@ -1671,9 +1565,11 @@ describe('with `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "maxFeePerGas": 13000000000n,
+        "gasPrice": 12900000000n,
+        "maxFeePerGas": 12900000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -1702,9 +1598,11 @@ describe('with `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
-        "maxFeePerGas": 13000000000n,
+        "gasPrice": 12900000000n,
+        "maxFeePerGas": 12900000000n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -1774,7 +1672,7 @@ describe('with `eth_fillTransaction`', () => {
       nonceManager: account.nonceManager,
       to: targetAccount.address,
       value: parseEther('1'),
-      parameters: ['nonce'],
+      parameters: defaultParameters,
     } as const
 
     const request_1 = await prepareTransactionRequest(client, args)

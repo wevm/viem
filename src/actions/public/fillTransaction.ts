@@ -129,6 +129,7 @@ export async function fillTransaction<
   const nonce = await (async () => {
     if (!account) return nonce_
     if (!nonceManager) return nonce_
+    if (typeof nonce_ !== 'undefined') return nonce_
     const account_ = parseAccount(account)
     const chainId = chain
       ? chain.id
