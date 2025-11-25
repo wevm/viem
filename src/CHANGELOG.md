@@ -1,5 +1,11 @@
 # viem
 
+## 2.40.3
+
+### Patch Changes
+
+- [#4119](https://github.com/wevm/viem/pull/4119) [`9b89137fa523fb0a7ab5afcef477375b6de9a86d`](https://github.com/wevm/viem/commit/9b89137fa523fb0a7ab5afcef477375b6de9a86d) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where a `nonceManager` would unexpectedly consume a nonce if `eth_fillTransaction` is not supported.
+
 ## 2.40.2
 
 ### Patch Changes
