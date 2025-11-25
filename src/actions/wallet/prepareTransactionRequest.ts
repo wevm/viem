@@ -358,11 +358,12 @@ export async function prepareTransactionRequest<
     : args
 
   const { blobs, gas, kzg, type } = fillResult
+  nonce ??= fillResult.nonce
 
   const request = {
     ...fillResult,
     ...(account ? { from: account?.address } : {}),
-    nonce: nonce ?? fillResult.nonce,
+    ...(nonce ? { nonce } : {}),
   }
 
   let block: Block | undefined
