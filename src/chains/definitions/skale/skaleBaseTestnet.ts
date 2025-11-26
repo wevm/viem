@@ -1,0 +1,26 @@
+import { defineChain } from '../../../utils/chain/defineChain.js'
+
+export const skaleBaseTestnet = /*#__PURE__*/ defineChain({
+  id: 324705682,
+  name: 'SKALE Base Testnet',
+  nativeCurrency: { name: 'Credits', symbol: 'CREDIT', decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ['https://base-sepolia-testnet.skalenodes.com/v1/base-testnet'],
+      webSocket: ['wss://base-sepolia-testnet.skalenodes.com/v1/ws/base-testnet'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'SKALE Explorer',
+      url: 'https://base-sepolia-testnet-explorer.skalenodes.com/',
+    },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 1381,
+    },
+  },
+  testnet: true,
+})
