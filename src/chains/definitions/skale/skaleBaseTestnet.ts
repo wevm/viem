@@ -7,7 +7,9 @@ export const skaleBaseTestnet = /*#__PURE__*/ defineChain({
   rpcUrls: {
     default: {
       http: ['https://base-sepolia-testnet.skalenodes.com/v1/base-testnet'],
-      webSocket: ['wss://base-sepolia-testnet.skalenodes.com/v1/ws/base-testnet'],
+      webSocket: [
+        'wss://base-sepolia-testnet.skalenodes.com/v1/ws/base-testnet',
+      ],
     },
   },
   blockExplorers: {
