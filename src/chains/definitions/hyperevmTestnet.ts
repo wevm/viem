@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const hyperevmTestnet = /*#__PURE__*/ defineChain({
+export const hyperliquidEvmTestnet = /*#__PURE__*/ defineChain({
   id: 998,
   name: 'HyperEVM Testnet',
   nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 },
@@ -11,3 +11,5 @@ export const hyperevmTestnet = /*#__PURE__*/ defineChain({
   },
   testnet: true,
 })
+
+export { hyperliquidEvmTestnet as hyperevmTestnet }
