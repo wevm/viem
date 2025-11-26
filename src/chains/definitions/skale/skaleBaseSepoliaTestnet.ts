@@ -1,8 +1,8 @@
 import { defineChain } from '../../../utils/chain/defineChain.js'
 
-export const skaleBaseTestnet = /*#__PURE__*/ defineChain({
+export const skaleBaseSepoliaTestnet = /*#__PURE__*/ defineChain({
   id: 324705682,
-  name: 'SKALE Base Testnet',
+  name: 'SKALE Base Sepolia Testnet',
   nativeCurrency: { name: 'Credits', symbol: 'CREDIT', decimals: 18 },
   rpcUrls: {
     default: {
