@@ -65,7 +65,7 @@ export async function getL1BaseFee<
 
   const gasPriceOracleAddress = (() => {
     if (gasPriceOracleAddress_) return gasPriceOracleAddress_
-    if (chain?.contracts?.gasPriceOracle)
+    if (chain)
       return getChainContractAddress({
         chain,
         contract: 'gasPriceOracle',
