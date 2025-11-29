@@ -53,6 +53,11 @@ import {
   estimateL1Gas,
 } from '../actions/estimateL1Gas.js'
 import {
+  type EstimateOperatorFeeParameters,
+  type EstimateOperatorFeeReturnType,
+  estimateOperatorFee,
+} from '../actions/estimateOperatorFee.js'
+import {
   type EstimateTotalFeeParameters,
   type EstimateTotalFeeReturnType,
   estimateTotalFee,
@@ -419,6 +424,34 @@ export type PublicActionsL2<
     parameters: EstimateL1GasParameters<chain, account, chainOverride>,
   ) => Promise<EstimateL1GasReturnType>
   /**
+   * Estimates the operator fee required to execute an L2 transaction.
+   *
+   * Returns 0 for pre-Isthmus chains or when operator fee functions don't exist.
+   *
+   * @param client - Client to use
+   * @param parameters - {@link EstimateOperatorFeeParameters}
+   * @returns The operator fee (in wei). {@link EstimateOperatorFeeReturnType}
+   *
+   * @example
+   * import { createPublicClient, http, parseEther } from 'viem'
+   * import { optimism } from 'viem/chains'
+   * import { publicActionsL2 } from 'viem/op-stack'
+   *
+   * const client = createPublicClient({
+   *   chain: optimism,
+   *   transport: http(),
+   * }).extend(publicActionsL2())
+   *
+   * const operatorFee = await client.estimateOperatorFee({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *   value: parseEther('1'),
+   * })
+   */
+  estimateOperatorFee: <chainOverride extends Chain | undefined = undefined>(
+    parameters: EstimateOperatorFeeParameters<chain, account, chainOverride>,
+  ) => Promise<EstimateOperatorFeeReturnType>
+  /**
    * Estimates the L1 data fee + L2 fee to execute an L2 transaction.
    *
    * @param client - Client to use
@@ -509,6 +542,7 @@ export function publicActionsL2() {
       estimateL1Fee: (args) => estimateL1Fee(client, args),
       getL1BaseFee: (args) => getL1BaseFee(client, args),
       estimateL1Gas: (args) => estimateL1Gas(client, args),
+      estimateOperatorFee: (args) => estimateOperatorFee(client, args),
       estimateTotalFee: (args) => estimateTotalFee(client, args),
       estimateTotalGas: (args) => estimateTotalGas(client, args),
     }
