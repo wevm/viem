@@ -375,7 +375,7 @@ export async function prepareTransactionRequest<
         })
         .catch((e) => {
           const error = e as BaseError & { cause: BaseError }
-          const unsupported = error.walk((e) => {
+          const unsupported = error.walk?.((e) => {
             const error = e as BaseError
             return (
               error.name === 'MethodNotFoundRpcError' ||
