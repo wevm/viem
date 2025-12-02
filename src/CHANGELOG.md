@@ -1,5 +1,15 @@
 # viem
 
+## 2.41.0
+
+### Minor Changes
+
+- [`fee56f5e9f0f66dc3c6cb52b891e933dde044410`](https://github.com/wevm/viem/commit/fee56f5e9f0f66dc3c6cb52b891e933dde044410) Thanks [@jxom](https://github.com/jxom)! - Added `chain.prepareTransactionRequest` config that allows chain-specifc transaction preparation logic.
+
+### Patch Changes
+
+- [`1bda14ca5dd5d4bdcf0e0a9117ccc34ea7da64c9`](https://github.com/wevm/viem/commit/1bda14ca5dd5d4bdcf0e0a9117ccc34ea7da64c9) Thanks [@jxom](https://github.com/jxom)! - Added optimization to check if `eth_fillTransaction` needs to be called.
+
 ## 2.40.4
 
 ### Patch Changes
