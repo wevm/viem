@@ -328,19 +328,27 @@ export async function prepareTransactionRequest<
             maxFeePerGas,
             maxPriorityFeePerGas,
             type,
+            ...rest
           } = result.transaction
           supportsFillTransaction.set(client.uid, true)
           return {
             ...args,
-            ...(chainId ? { chainId } : {}),
             ...(from ? { from } : {}),
-            ...(gas ? { gas } : {}),
-            ...(gasPrice ? { gasPrice } : {}),
-            ...(nonce ? { nonce } : {}),
-            ...(maxFeePerBlobGas ? { maxFeePerBlobGas } : {}),
-            ...(maxFeePerGas ? { maxFeePerGas } : {}),
-            ...(maxPriorityFeePerGas ? { maxPriorityFeePerGas } : {}),
             ...(type ? { type } : {}),
+            ...(typeof chainId !== 'undefined' ? { chainId } : {}),
+            ...(typeof gas !== 'undefined' ? { gas } : {}),
+            ...(typeof gasPrice !== 'undefined' ? { gasPrice } : {}),
+            ...(typeof nonce !== 'undefined' ? { nonce } : {}),
+            ...(typeof maxFeePerBlobGas !== 'undefined'
+              ? { maxFeePerBlobGas }
+              : {}),
+            ...(typeof maxFeePerGas !== 'undefined' ? { maxFeePerGas } : {}),
+            ...(typeof maxPriorityFeePerGas !== 'undefined'
+              ? { maxPriorityFeePerGas }
+              : {}),
+            ...('nonceKey' in rest && typeof rest.nonceKey !== 'undefined'
+              ? { nonceKey: rest.nonceKey }
+              : {}),
           }
         })
         .catch((e) => {
