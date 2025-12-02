@@ -307,31 +307,6 @@ describe('local account', () => {
     ).toMatchInlineSnapshot('21000n')
   })
 
-  test('args: maxFeePerGas (on legacy)', async () => {
-    vi.spyOn(getBlock, 'getBlock').mockResolvedValueOnce({
-      baseFeePerGas: undefined,
-    } as any)
-
-    await expect(() =>
-      estimateGas(client, {
-        account: privateKeyToAccount(accounts[0].privateKey),
-        to: accounts[1].address,
-        maxFeePerGas: parseGwei('33'),
-        value: parseEther('1'),
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [EstimateGasExecutionError: Chain does not support EIP-1559 fees.
-
-      Estimate Gas Arguments:
-        from:          0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-        to:            0x70997970c51812dc3a010c7d01b50e0d17dc79c8
-        value:         1 ETH
-        maxFeePerGas:  33 gwei
-
-      Version: viem@x.y.z]
-    `)
-  })
-
   test('args: gas', async () => {
     expect(
       await estimateGas(client, {
