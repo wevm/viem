@@ -1,5 +1,13 @@
 # viem
 
+## 2.40.4
+
+### Patch Changes
+
+- [#3950](https://github.com/wevm/viem/pull/3950) [`f73a2c959ff215856b7b56f60b4093e430d81e44`](https://github.com/wevm/viem/commit/f73a2c959ff215856b7b56f60b4093e430d81e44) Thanks [@Kemperino](https://github.com/Kemperino)! - Added estimateOperatorFee action for OP Stack chains
+
+- [#4125](https://github.com/wevm/viem/pull/4125) [`a73183f305e9ea5f45a3f3742d110f34501a79ac`](https://github.com/wevm/viem/commit/a73183f305e9ea5f45a3f3742d110f34501a79ac) Thanks [@sandyup](https://github.com/sandyup)! - Added Reactive Lasna Testnet.
+
 ## 2.40.3
 
 ### Patch Changes
