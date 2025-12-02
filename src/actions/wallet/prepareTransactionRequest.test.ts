@@ -999,6 +999,246 @@ describe('without `eth_fillTransaction`', () => {
   })
 })
 
+describe('attemptFill conditions', () => {
+  beforeEach(() => {
+    supportsFillTransaction.clear()
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  test('should not attempt fill when supportsFillTransaction is false', async () => {
+    await setup()
+
+    supportsFillTransaction.set(client.uid, false)
+
+    const fillTransactionSpy = vi.spyOn(fillTransaction, 'fillTransaction')
+
+    await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    expect(fillTransactionSpy).not.toHaveBeenCalled()
+  })
+
+  test('should not attempt fill when parameters do not include fees or gas', async () => {
+    await setup()
+
+    const fillTransactionSpy = vi.spyOn(fillTransaction, 'fillTransaction')
+
+    await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: ['nonce', 'chainId', 'type'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    expect(fillTransactionSpy).not.toHaveBeenCalled()
+  })
+
+  test('should not attempt fill when chainId is already provided', async () => {
+    await setup()
+
+    const fillTransactionSpy = vi.spyOn(fillTransaction, 'fillTransaction')
+
+    await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      chainId: 1,
+      parameters: ['chainId'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    // fillTransaction should not be called because chainId is already a number
+    expect(fillTransactionSpy).not.toHaveBeenCalled()
+  })
+
+  test('should not attempt fill when nonce is already provided', async () => {
+    await setup()
+
+    const fillTransactionSpy = vi.spyOn(fillTransaction, 'fillTransaction')
+
+    await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      nonce: 5,
+      parameters: ['nonce'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    // fillTransaction should not be called because nonce is already a number
+    expect(fillTransactionSpy).not.toHaveBeenCalled()
+  })
+
+  test('should not attempt fill when gasPrice is provided', async () => {
+    await setup()
+
+    const fillTransactionSpy = vi.spyOn(fillTransaction, 'fillTransaction')
+
+    await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      gasPrice: parseGwei('10'),
+      parameters: ['fees'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    // fillTransaction should not be called because gasPrice is already provided
+    expect(fillTransactionSpy).not.toHaveBeenCalled()
+  })
+
+  test('should not attempt fill when maxFeePerGas and maxPriorityFeePerGas are provided', async () => {
+    await setup()
+
+    const fillTransactionSpy = vi.spyOn(fillTransaction, 'fillTransaction')
+
+    await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      maxFeePerGas: parseGwei('100'),
+      maxPriorityFeePerGas: parseGwei('5'),
+      parameters: ['fees'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    // fillTransaction should not be called because fee params are already provided
+    expect(fillTransactionSpy).not.toHaveBeenCalled()
+  })
+
+  test('should attempt fill when maxFeePerGas is provided but maxPriorityFeePerGas is not', async () => {
+    await setup()
+
+    const fillTransactionSpy = vi.spyOn(fillTransaction, 'fillTransaction')
+
+    await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      maxFeePerGas: parseGwei('100'),
+      parameters: ['fees'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    // fillTransaction should be called because maxPriorityFeePerGas is missing
+    expect(fillTransactionSpy).toHaveBeenCalled()
+  })
+
+  test('should not attempt fill when gas is provided', async () => {
+    await setup()
+
+    const fillTransactionSpy = vi.spyOn(fillTransaction, 'fillTransaction')
+
+    await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      gas: 21000n,
+      maxFeePerGas: parseGwei('100'),
+      maxPriorityFeePerGas: parseGwei('5'),
+      parameters: ['gas'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    // fillTransaction should not be called because gas is already provided
+    expect(fillTransactionSpy).not.toHaveBeenCalled()
+  })
+
+  test('should attempt fill when gas is not provided', async () => {
+    await setup()
+
+    const fillTransactionSpy = vi.spyOn(fillTransaction, 'fillTransaction')
+
+    await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      maxFeePerGas: parseGwei('100'),
+      maxPriorityFeePerGas: parseGwei('5'),
+      parameters: ['gas'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    // fillTransaction should be called because gas needs to be estimated
+    expect(fillTransactionSpy).toHaveBeenCalled()
+  })
+
+  test('should attempt fill when blobs and kzg are provided with blobVersionedHashes parameter', async () => {
+    await setup()
+
+    const fillTransactionSpy = vi.spyOn(fillTransaction, 'fillTransaction')
+
+    await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      blobs: toBlobs({ data: '0x1234' }),
+      kzg,
+      maxFeePerBlobGas: parseGwei('20'),
+      parameters: ['blobVersionedHashes', 'gas'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    // fillTransaction should be called because blobs and kzg are provided with blobVersionedHashes parameter
+    expect(fillTransactionSpy).toHaveBeenCalled()
+  })
+
+  test('should attempt fill when blobs and kzg are provided with sidecars parameter', async () => {
+    await setup()
+
+    const fillTransactionSpy = vi.spyOn(fillTransaction, 'fillTransaction')
+
+    await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      blobs: toBlobs({ data: '0x1234' }),
+      kzg,
+      gas: 21000n,
+      maxFeePerBlobGas: parseGwei('20'),
+      parameters: ['gas', 'sidecars'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    // fillTransaction should be called because blobs and kzg are provided with sidecars parameter
+    expect(fillTransactionSpy).toHaveBeenCalled()
+  })
+
+  test('should not attempt fill when blobVersionedHashes parameter is set but blobs or kzg are missing', async () => {
+    await setup()
+
+    const fillTransactionSpy = vi.spyOn(fillTransaction, 'fillTransaction')
+
+    await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      maxFeePerGas: parseGwei('100'),
+      maxPriorityFeePerGas: parseGwei('5'),
+      gas: 21000n,
+      parameters: ['blobVersionedHashes', 'fees'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    // fillTransaction should not be called because:
+    // 1. fees check passes (maxFeePerGas and maxPriorityFeePerGas are provided)
+    // 2. blob check returns false (blobs/kzg are missing)
+    expect(fillTransactionSpy).not.toHaveBeenCalled()
+  })
+
+  test('should attempt fill when only blobVersionedHashes parameter is set without blobs/kzg but gas is missing', async () => {
+    await setup()
+
+    const fillTransactionSpy = vi.spyOn(fillTransaction, 'fillTransaction')
+
+    await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: ['blobVersionedHashes', 'gas'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    // fillTransaction will be called because 'gas' is in parameters and gas is not provided
+    expect(fillTransactionSpy).toHaveBeenCalled()
+  })
+})
+
 describe('with `eth_fillTransaction`', () => {
   beforeEach(() => {
     supportsFillTransaction.clear()

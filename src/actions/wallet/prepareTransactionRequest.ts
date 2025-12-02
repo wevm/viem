@@ -300,16 +300,38 @@ export async function prepareTransactionRequest<
     })
   }
 
-  const attemptFill =
+  const attemptFill = (() => {
     // Do not attempt if `eth_fillTransaction` is not supported.
-    supportsFillTransaction.get(client.uid) !== false &&
+    if (supportsFillTransaction.get(client.uid) === false) return false
+
     // Should attempt `eth_fillTransaction` if "fees" or "gas" are required to be populated,
     // otherwise, can just use the other individual calls.
-    ['fees', 'gas'].some((parameter) =>
-      args.parameters?.includes(
-        parameter as PrepareTransactionRequestParameterType,
-      ),
+    const shouldAttempt = ['fees', 'gas'].some((parameter) =>
+      parameters.includes(parameter as PrepareTransactionRequestParameterType),
     )
+    if (!shouldAttempt) return false
+
+    // Check if `eth_fillTransaction` needs to be called.
+    if (parameters.includes('chainId') && typeof args.chainId !== 'number')
+      return true
+    if (parameters.includes('nonce') && typeof nonce !== 'number') return true
+    if (
+      parameters.includes('fees') &&
+      typeof args.gasPrice !== 'bigint' &&
+      (typeof args.maxFeePerGas !== 'bigint' ||
+        typeof (args as any).maxPriorityFeePerGas !== 'bigint')
+    )
+      return true
+    if (parameters.includes('gas') && typeof args.gas !== 'bigint') return true
+    if (
+      (parameters.includes('blobVersionedHashes') ||
+        parameters.includes('sidecars')) &&
+      args.kzg &&
+      args.blobs
+    )
+      return true
+    return false
+  })()
 
   const fillResult = attemptFill
     ? await getAction(
