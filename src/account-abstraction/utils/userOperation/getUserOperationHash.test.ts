@@ -224,6 +224,223 @@ describe('entryPoint: 0.8', () => {
   })
 })
 
+describe('entryPoint: 0.9', () => {
+  test('default', () => {
+    expect(
+      getUserOperationHash({
+        chainId: 1,
+        entryPointAddress: '0x433709009B8330FDa32311DF1C2AFA402eD8D009',
+        entryPointVersion: '0.9',
+        userOperation: {
+          callData: '0x',
+          callGasLimit: 6942069n,
+          maxFeePerGas: 69420n,
+          maxPriorityFeePerGas: 69n,
+          nonce: 0n,
+          preVerificationGas: 6942069n,
+          sender: '0x1234567890123456789012345678901234567890',
+          signature: '0x',
+          verificationGasLimit: 6942069n,
+        },
+      }),
+    ).toMatchInlineSnapshot(
+      `"0x5fea5504ddf594de3c1164430244ca36b8f8272d9ae391660be481a2c066fdf3"`,
+    )
+  })
+
+  test('args: factory + factoryData', () => {
+    expect(
+      getUserOperationHash({
+        chainId: 1,
+        entryPointAddress: '0x433709009B8330FDa32311DF1C2AFA402eD8D009',
+        entryPointVersion: '0.9',
+        userOperation: {
+          callData: '0x',
+          callGasLimit: 6942069n,
+          maxFeePerGas: 69420n,
+          maxPriorityFeePerGas: 69n,
+          nonce: 0n,
+          preVerificationGas: 6942069n,
+          sender: '0x1234567890123456789012345678901234567890',
+          signature: '0x',
+          verificationGasLimit: 6942069n,
+          factory: '0x1234567890123456789012345678901234567890',
+          factoryData: '0xdeadbeef',
+        },
+      }),
+    ).toMatchInlineSnapshot(
+      `"0x73f57975f825911aa8a5c883b5df235c6b6d50a196f7f52de40d5bca3c8558ae"`,
+    )
+  })
+
+  test('args: paymaster', () => {
+    expect(
+      getUserOperationHash({
+        chainId: 1,
+        entryPointAddress: '0x433709009B8330FDa32311DF1C2AFA402eD8D009',
+        entryPointVersion: '0.9',
+        userOperation: {
+          callData: '0x',
+          callGasLimit: 6942069n,
+          maxFeePerGas: 69420n,
+          maxPriorityFeePerGas: 69n,
+          nonce: 0n,
+          preVerificationGas: 6942069n,
+          sender: '0x1234567890123456789012345678901234567890',
+          signature: '0x',
+          verificationGasLimit: 6942069n,
+          paymaster: '0x1234567890123456789012345678901234567890',
+        },
+      }),
+    ).toMatchInlineSnapshot(
+      `"0x61123074468024bd8c8f864f1999f972353816fe66d3041ea832cf4d04420f81"`,
+    )
+  })
+
+  test('args: paymasterVerificationGasLimit', () => {
+    expect(
+      getUserOperationHash({
+        chainId: 1,
+        entryPointAddress: '0x433709009B8330FDa32311DF1C2AFA402eD8D009',
+        entryPointVersion: '0.9',
+        userOperation: {
+          callData: '0x',
+          callGasLimit: 6942069n,
+          maxFeePerGas: 69420n,
+          maxPriorityFeePerGas: 69n,
+          nonce: 0n,
+          preVerificationGas: 6942069n,
+          sender: '0x1234567890123456789012345678901234567890',
+          signature: '0x',
+          verificationGasLimit: 6942069n,
+          paymaster: '0x1234567890123456789012345678901234567890',
+          paymasterVerificationGasLimit: 6942069n,
+        },
+      }),
+    ).toMatchInlineSnapshot(
+      `"0xc2af022040ee744ac33783a7985ee34fe3cf56a412ed65deea5b5a244866ebd5"`,
+    )
+  })
+
+  test('args: paymasterPostOpGasLimit', () => {
+    expect(
+      getUserOperationHash({
+        chainId: 1,
+        entryPointAddress: '0x433709009B8330FDa32311DF1C2AFA402eD8D009',
+        entryPointVersion: '0.9',
+        userOperation: {
+          callData: '0x',
+          callGasLimit: 6942069n,
+          maxFeePerGas: 69420n,
+          maxPriorityFeePerGas: 69n,
+          nonce: 0n,
+          preVerificationGas: 6942069n,
+          sender: '0x1234567890123456789012345678901234567890',
+          signature: '0x',
+          verificationGasLimit: 6942069n,
+          paymaster: '0x1234567890123456789012345678901234567890',
+          paymasterVerificationGasLimit: 6942069n,
+          paymasterPostOpGasLimit: 6942069n,
+        },
+      }),
+    ).toMatchInlineSnapshot(
+      `"0x6839a4373751bb9d4b1acf2c77ff756067d5fa345b9943e8230fc60d0544f5d5"`,
+    )
+  })
+
+  test('args: paymasterData', () => {
+    expect(
+      getUserOperationHash({
+        chainId: 1,
+        entryPointAddress: '0x433709009B8330FDa32311DF1C2AFA402eD8D009',
+        entryPointVersion: '0.9',
+        userOperation: {
+          callData: '0x',
+          callGasLimit: 6942069n,
+          maxFeePerGas: 69420n,
+          maxPriorityFeePerGas: 69n,
+          nonce: 0n,
+          preVerificationGas: 6942069n,
+          sender: '0x1234567890123456789012345678901234567890',
+          signature: '0x',
+          verificationGasLimit: 6942069n,
+          paymaster: '0x1234567890123456789012345678901234567890',
+          paymasterVerificationGasLimit: 6942069n,
+          paymasterPostOpGasLimit: 6942069n,
+          paymasterData: '0xdeadbeef',
+        },
+      }),
+    ).toMatchInlineSnapshot(
+      `"0xde381ae0368b77df677808c3a2da72abd68a07eab11ef31c35923f56a75bbe6d"`,
+    )
+  })
+
+  test('args: paymasterSignature (0.9 feature)', () => {
+    expect(
+      getUserOperationHash({
+        chainId: 1,
+        entryPointAddress: '0x433709009B8330FDa32311DF1C2AFA402eD8D009',
+        entryPointVersion: '0.9',
+        userOperation: {
+          callData: '0x',
+          callGasLimit: 6942069n,
+          maxFeePerGas: 69420n,
+          maxPriorityFeePerGas: 69n,
+          nonce: 0n,
+          preVerificationGas: 6942069n,
+          sender: '0x1234567890123456789012345678901234567890',
+          signature: '0x',
+          verificationGasLimit: 6942069n,
+          paymaster: '0x1234567890123456789012345678901234567890',
+          paymasterVerificationGasLimit: 6942069n,
+          paymasterPostOpGasLimit: 6942069n,
+          paymasterData: '0xdeadbeef',
+          paymasterSignature: '0xcafebabe',
+        },
+      }),
+    ).toMatchInlineSnapshot(
+      `"0x9a538c5deb10298bcc09baa188099e5a3935ec20d92f211a1d838ab214b260ba"`,
+    )
+  })
+
+  test('args: authorization', () => {
+    expect(
+      getUserOperationHash({
+        chainId: 1,
+        entryPointAddress: '0x433709009B8330FDa32311DF1C2AFA402eD8D009',
+        entryPointVersion: '0.9',
+        userOperation: {
+          callData: '0x',
+          callGasLimit: 6942069n,
+          maxFeePerGas: 69420n,
+          maxPriorityFeePerGas: 69n,
+          nonce: 0n,
+          preVerificationGas: 6942069n,
+          sender: '0x1234567890123456789012345678901234567890',
+          signature: '0x',
+          verificationGasLimit: 6942069n,
+          paymaster: '0x1234567890123456789012345678901234567890',
+          paymasterVerificationGasLimit: 6942069n,
+          paymasterPostOpGasLimit: 6942069n,
+          paymasterData: '0xdeadbeef',
+          factory: '0x7702',
+          factoryData: '0xdeadbeef',
+          authorization: {
+            address: '0x1234567890123456789012345678901234567890',
+            chainId: 1,
+            nonce: 0,
+            yParity: 0,
+            r: '0x0000000000000000000000000000000000000000000000000000000000000000',
+            s: '0x0000000000000000000000000000000000000000000000000000000000000000',
+          },
+        },
+      }),
+    ).toMatchInlineSnapshot(
+      `"0x20993875bc385b402072201a31152ff8bfd6a53cf37607fbc68f1bdabff80a1f"`,
+    )
+  })
+})
+
 describe('entryPoint: 0.7', () => {
   test('default', () => {
     expect(

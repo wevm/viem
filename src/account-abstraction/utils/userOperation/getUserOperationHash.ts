@@ -41,7 +41,7 @@ export function getUserOperationHash<
     verificationGasLimit,
   } = userOperation
 
-  if (entryPointVersion === '0.8')
+  if (entryPointVersion === '0.8' || entryPointVersion === '0.9')
     return hashTypedData(
       getUserOperationTypedData({
         chainId,

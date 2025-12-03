@@ -7,7 +7,7 @@ import { toPackedUserOperation } from './toPackedUserOperation.js'
 export type GetUserOperationTypedDataParameters = {
   chainId: number
   entryPointAddress: Address
-  userOperation: UserOperation<'0.8'>
+  userOperation: UserOperation<'0.8'> | UserOperation<'0.9'>
 }
 
 export type GetUserOperationTypedDataReturnType = TypedDataDefinition<

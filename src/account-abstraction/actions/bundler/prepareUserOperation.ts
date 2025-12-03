@@ -80,6 +80,12 @@ export type PrepareUserOperationParameterType =
 type FactoryProperties<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > =
+  | (entryPointVersion extends '0.9'
+      ? {
+          factory: UserOperation['factory']
+          factoryData: UserOperation['factoryData']
+        }
+      : never)
   | (entryPointVersion extends '0.8'
       ? {
           factory: UserOperation['factory']
@@ -101,6 +107,15 @@ type FactoryProperties<
 type GasProperties<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > =
+  | (entryPointVersion extends '0.9'
+      ? {
+          callGasLimit: UserOperation['callGasLimit']
+          preVerificationGas: UserOperation['preVerificationGas']
+          verificationGasLimit: UserOperation['verificationGasLimit']
+          paymasterPostOpGasLimit: UserOperation['paymasterPostOpGasLimit']
+          paymasterVerificationGasLimit: UserOperation['paymasterVerificationGasLimit']
+        }
+      : never)
   | (entryPointVersion extends '0.8'
       ? {
           callGasLimit: UserOperation['callGasLimit']
@@ -139,6 +154,14 @@ type NonceProperties = {
 type PaymasterProperties<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > =
+  | (entryPointVersion extends '0.9'
+      ? {
+          paymaster: UserOperation['paymaster']
+          paymasterData: UserOperation['paymasterData']
+          paymasterPostOpGasLimit: UserOperation['paymasterPostOpGasLimit']
+          paymasterVerificationGasLimit: UserOperation['paymasterVerificationGasLimit']
+        }
+      : never)
   | (entryPointVersion extends '0.8'
       ? {
           paymaster: UserOperation['paymaster']

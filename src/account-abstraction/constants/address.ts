@@ -4,3 +4,5 @@ export const entryPoint07Address =
   '0x0000000071727De22E5E9d8BAf0edAc6f37da032' as const
 export const entryPoint08Address =
   '0x4337084D9E255Ff0702461CF8895CE9E3b5Ff108' as const
+export const entryPoint09Address =
+  '0x433709009B8330FDa32311DF1C2AFA402eD8D009' as const
