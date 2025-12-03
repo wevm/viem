@@ -131,14 +131,6 @@ export async function proveWithdrawal<
     return Object.values(targetChain!.contracts.portal)[0].address
   })()
 
-  const gas_ =
-    typeof gas !== 'bigint' && gas !== null
-      ? await estimateProveWithdrawalGas(
-          client,
-          parameters as EstimateProveWithdrawalGasParameters,
-        )
-      : (gas ?? undefined)
-
   return writeContract(client, {
     account: account!,
     abi: portal2Abi,
@@ -146,7 +138,7 @@ export async function proveWithdrawal<
     chain,
     functionName: 'proveWithdrawalTransaction',
     args: [withdrawal, l2OutputIndex, outputRootProof, withdrawalProof],
-    gas: gas_,
+    gas: gas ?? undefined,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,

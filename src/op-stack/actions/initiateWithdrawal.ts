@@ -129,14 +129,6 @@ export async function initiateWithdrawal<
     request: { data = '0x', gas: l1Gas, to, value },
   } = parameters
 
-  const gas_ =
-    typeof gas !== 'number' && gas !== null
-      ? await estimateInitiateWithdrawalGas(
-          client,
-          parameters as EstimateInitiateWithdrawalGasParameters,
-        )
-      : undefined
-
   return writeContract(client, {
     account: account!,
     abi: l2ToL1MessagePasserAbi,
@@ -144,7 +136,7 @@ export async function initiateWithdrawal<
     chain,
     functionName: 'initiateWithdrawal',
     args: [to, l1Gas, data],
-    gas: gas_,
+    gas: gas ?? undefined,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,

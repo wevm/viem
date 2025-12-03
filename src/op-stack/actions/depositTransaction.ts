@@ -147,14 +147,6 @@ export async function depositTransaction<
     return Object.values(targetChain!.contracts.portal)[0].address
   })()
 
-  const gas_ =
-    typeof gas !== 'number' && gas !== null
-      ? await estimateDepositTransactionGas(
-          client,
-          parameters as EstimateDepositTransactionGasParameters,
-        )
-      : undefined
-
   return writeContract(client, {
     account: account!,
     abi: portalAbi,
@@ -172,6 +164,6 @@ export async function depositTransaction<
     maxPriorityFeePerGas,
     nonce,
     value: mint,
-    gas: gas_,
+    gas: gas ?? undefined,
   } satisfies WriteContractParameters as any)
 }

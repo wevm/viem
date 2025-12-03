@@ -114,14 +114,6 @@ export async function finalizeWithdrawal<
     return Object.values(targetChain!.contracts.portal)[0].address
   })()
 
-  const gas_ =
-    typeof gas !== 'number' && gas !== null
-      ? await estimateFinalizeWithdrawalGas(
-          client,
-          parameters as EstimateFinalizeWithdrawalGasParameters,
-        )
-      : undefined
-
   const [functionName, args, abi] = proofSubmitter
     ? [
         'finalizeWithdrawalTransactionExternalProof',
@@ -137,7 +129,7 @@ export async function finalizeWithdrawal<
     chain,
     functionName,
     args,
-    gas: gas_,
+    gas: gas ?? undefined,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
