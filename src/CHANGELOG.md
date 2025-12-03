@@ -1,5 +1,11 @@
 # viem
 
+## 2.41.1
+
+### Patch Changes
+
+- [`e6cfa651b28c2c059f42cd250f7191262d121fbe`](https://github.com/wevm/viem/commit/e6cfa651b28c2c059f42cd250f7191262d121fbe) Thanks [@jxom](https://github.com/jxom)! - Removed redundant OP Stack gas estimations
+
 ## 2.41.0
 
 ### Minor Changes
