@@ -318,10 +318,12 @@ export async function prepareTransactionRequest<
   if (
     prepareTransactionRequest?.fn &&
     prepareTransactionRequest.runAt?.includes('beforeFillTransaction')
-  )
+  ) {
     request = await prepareTransactionRequest.fn(request, {
       phase: 'beforeFillTransaction',
     })
+    nonce ??= request.nonce
+  }
 
   const attemptFill = (() => {
     // Do not attempt if blobs are provided.
