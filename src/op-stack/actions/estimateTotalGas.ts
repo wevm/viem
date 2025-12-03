@@ -3,11 +3,7 @@ import {
   type EstimateGasParameters,
   estimateGas,
 } from '../../actions/public/estimateGas.js'
-import {
-  type PrepareTransactionRequestErrorType,
-  type PrepareTransactionRequestParameters,
-  prepareTransactionRequest,
-} from '../../actions/wallet/prepareTransactionRequest.js'
+import type { PrepareTransactionRequestErrorType } from '../../actions/wallet/prepareTransactionRequest.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'

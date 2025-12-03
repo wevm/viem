@@ -19,11 +19,7 @@ import type { FormattedTransactionRequest } from '../../utils/formatters/transac
 import { l2ToL1MessagePasserAbi } from '../abis.js'
 import { contracts } from '../contracts.js'
 import type { WithdrawalRequest } from '../types/withdrawal.js'
-import {
-  type EstimateInitiateWithdrawalGasErrorType,
-  type EstimateInitiateWithdrawalGasParameters,
-  estimateInitiateWithdrawalGas,
-} from './estimateInitiateWithdrawalGas.js'
+import type { EstimateInitiateWithdrawalGasErrorType } from './estimateInitiateWithdrawalGas.js'
 
 export type InitiateWithdrawalParameters<
   chain extends Chain | undefined = Chain | undefined,

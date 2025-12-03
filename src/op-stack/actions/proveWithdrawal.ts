@@ -18,11 +18,7 @@ import type { UnionEvaluate, UnionOmit } from '../../types/utils.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import { portal2Abi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
-import {
-  type EstimateProveWithdrawalGasErrorType,
-  type EstimateProveWithdrawalGasParameters,
-  estimateProveWithdrawalGas,
-} from './estimateProveWithdrawalGas.js'
+import type { EstimateProveWithdrawalGasErrorType } from './estimateProveWithdrawalGas.js'
 
 export type ProveWithdrawalParameters<
   chain extends Chain | undefined = Chain | undefined,

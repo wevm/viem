@@ -20,11 +20,7 @@ import type { FormattedTransactionRequest } from '../../utils/formatters/transac
 import { portalAbi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import type { DepositRequest } from '../types/deposit.js'
-import {
-  type EstimateDepositTransactionGasErrorType,
-  type EstimateDepositTransactionGasParameters,
-  estimateDepositTransactionGas,
-} from './estimateDepositTransactionGas.js'
+import type { EstimateDepositTransactionGasErrorType } from './estimateDepositTransactionGas.js'
 
 export type DepositTransactionParameters<
   chain extends Chain | undefined = Chain | undefined,
