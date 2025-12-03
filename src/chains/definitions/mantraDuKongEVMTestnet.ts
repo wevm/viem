@@ -5,8 +5,8 @@ export const mantraDuKongEVMTestnet = /*#__PURE__*/ defineChain({
   name: 'MANTRA DuKong EVM Testnet',
   nativeCurrency: {
     decimals: 18,
-    name: 'OM',
-    symbol: 'OM',
+    name: 'MANTRA',
+    symbol: 'MANTRA',
   },
   rpcUrls: {
     default: { http: ['https://evm.dukong.mantrachain.io'] },
