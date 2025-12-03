@@ -6,6 +6,7 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
 import type { ByteArray, Hex, Signature } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
+import { getAction } from '../../utils/getAction.js'
 import {
   type HashTypedDataErrorType,
   hashTypedData,
@@ -63,7 +64,11 @@ export async function verifyTypedData<
     ...callRequest
   } = parameters as VerifyTypedDataParameters
   const hash = hashTypedData({ message, primaryType, types, domain })
-  return verifyHash(client, {
+  return getAction(
+    client,
+    verifyHash,
+    'verifyHash',
+  )({
     address,
     factory: factory!,
     factoryData: factoryData!,

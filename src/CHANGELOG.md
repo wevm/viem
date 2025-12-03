@@ -1,5 +1,71 @@
 # viem
 
+## 2.41.2
+
+### Patch Changes
+
+- [`be9879ff69eb9b7526878b18c32ead9eeb9f5335`](https://github.com/wevm/viem/commit/be9879ff69eb9b7526878b18c32ead9eeb9f5335) Thanks [@jxom](https://github.com/jxom)! - Added preference to use chain-specific prepared transaction nonce.
+
+## 2.41.1
+
+### Patch Changes
+
+- [`e6cfa651b28c2c059f42cd250f7191262d121fbe`](https://github.com/wevm/viem/commit/e6cfa651b28c2c059f42cd250f7191262d121fbe) Thanks [@jxom](https://github.com/jxom)! - Removed redundant OP Stack gas estimations
+
+## 2.41.0
+
+### Minor Changes
+
+- [`fee56f5e9f0f66dc3c6cb52b891e933dde044410`](https://github.com/wevm/viem/commit/fee56f5e9f0f66dc3c6cb52b891e933dde044410) Thanks [@jxom](https://github.com/jxom)! - Added `chain.prepareTransactionRequest` config that allows chain-specifc transaction preparation logic.
+
+### Patch Changes
+
+- [`1bda14ca5dd5d4bdcf0e0a9117ccc34ea7da64c9`](https://github.com/wevm/viem/commit/1bda14ca5dd5d4bdcf0e0a9117ccc34ea7da64c9) Thanks [@jxom](https://github.com/jxom)! - Added optimization to check if `eth_fillTransaction` needs to be called.
+
+## 2.40.4
+
+### Patch Changes
+
+- [#3950](https://github.com/wevm/viem/pull/3950) [`f73a2c959ff215856b7b56f60b4093e430d81e44`](https://github.com/wevm/viem/commit/f73a2c959ff215856b7b56f60b4093e430d81e44) Thanks [@Kemperino](https://github.com/Kemperino)! - Added estimateOperatorFee action for OP Stack chains
+
+- [#4125](https://github.com/wevm/viem/pull/4125) [`a73183f305e9ea5f45a3f3742d110f34501a79ac`](https://github.com/wevm/viem/commit/a73183f305e9ea5f45a3f3742d110f34501a79ac) Thanks [@sandyup](https://github.com/sandyup)! - Added Reactive Lasna Testnet.
+
+## 2.40.3
+
+### Patch Changes
+
+- [#4119](https://github.com/wevm/viem/pull/4119) [`9b89137fa523fb0a7ab5afcef477375b6de9a86d`](https://github.com/wevm/viem/commit/9b89137fa523fb0a7ab5afcef477375b6de9a86d) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where a `nonceManager` would unexpectedly consume a nonce if `eth_fillTransaction` is not supported.
+
+## 2.40.2
+
+### Patch Changes
+
+- [`73f5e468b57862250529be1233c39dee7520df20`](https://github.com/wevm/viem/commit/73f5e468b57862250529be1233c39dee7520df20) Thanks [@jxom](https://github.com/jxom)! - Added `getAction` support to `verifyMessage` and `verifyTypedData`.
+
+## 2.40.1
+
+### Patch Changes
+
+- [`6a2013d88b6eedc9420ce3fea86af530842f1787`](https://github.com/wevm/viem/commit/6a2013d88b6eedc9420ce3fea86af530842f1787) Thanks [@jxom](https://github.com/jxom)! - Fixed `sendTransactionSync` generic.
+
+- [`4dca806057cb83152a3f1fbd3df31f730eb93eea`](https://github.com/wevm/viem/commit/4dca806057cb83152a3f1fbd3df31f730eb93eea) Thanks [@jxom](https://github.com/jxom)! - Added `hyperliquid` chain.
+
+## 2.40.0
+
+### Minor Changes
+
+- [#4098](https://github.com/wevm/viem/pull/4098) [`003b231361f223487aa3e6a67a1e5258e8fe758b`](https://github.com/wevm/viem/commit/003b231361f223487aa3e6a67a1e5258e8fe758b) Thanks [@jxom](https://github.com/jxom)! - Hooked up `eth_fillTransaction` routing to `prepareTransactionRequest`, to reduce the RPC calls required to prepare a local transaction from 3-4, to 1 (if `eth_fillTransaction` is supported by the execution node).
+
+- [#4098](https://github.com/wevm/viem/pull/4098) [`003b231361f223487aa3e6a67a1e5258e8fe758b`](https://github.com/wevm/viem/commit/003b231361f223487aa3e6a67a1e5258e8fe758b) Thanks [@jxom](https://github.com/jxom)! - Added `fillTransaction` action for `eth_fillTransaction` support.
+
+### Patch Changes
+
+- [#4069](https://github.com/wevm/viem/pull/4069) [`b46fbe33a45faa9c645fddadfd59d7660b12615c`](https://github.com/wevm/viem/commit/b46fbe33a45faa9c645fddadfd59d7660b12615c) Thanks [@bearpong](https://github.com/bearpong)! - Added `url` property to request errors.
+
+- [#4109](https://github.com/wevm/viem/pull/4109) [`40132ab1a9dc4583685b7e1a77368cad953f917d`](https://github.com/wevm/viem/commit/40132ab1a9dc4583685b7e1a77368cad953f917d) Thanks [@keone](https://github.com/keone)! - Updated Monad block explorer URL and added WebSocket URLs, Multicall3 contract, second block explorer, and second RPC URL.
+
+- [#4110](https://github.com/wevm/viem/pull/4110) [`90ada93230446875bd2ada289f2b83f4d3a58816`](https://github.com/wevm/viem/commit/90ada93230446875bd2ada289f2b83f4d3a58816) Thanks [@ikautak](https://github.com/ikautak)! - Added `passphrase` option to `mnemonicToAccount`.
+
 ## 2.39.3
 
 ### Patch Changes

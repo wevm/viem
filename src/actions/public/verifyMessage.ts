@@ -11,6 +11,7 @@ import type {
   Signature,
 } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
+import { getAction } from '../../utils/getAction.js'
 import type { HashMessageErrorType } from '../../utils/signature/hashMessage.js'
 import { hashMessage } from '../../utils/signature/hashMessage.js'
 import {
@@ -60,7 +61,11 @@ export async function verifyMessage<chain extends Chain | undefined>(
   }: VerifyMessageParameters,
 ): Promise<VerifyMessageReturnType> {
   const hash = hashMessage(message)
-  return verifyHash(client, {
+  return getAction(
+    client,
+    verifyHash,
+    'verifyHash',
+  )({
     address,
     factory: factory!,
     factoryData: factoryData!,
