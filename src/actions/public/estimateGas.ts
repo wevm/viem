@@ -194,7 +194,6 @@ export async function estimateGas<
         blobs,
         blobVersionedHashes,
         data,
-        gas,
         gasPrice,
         maxFeePerBlobGas,
         maxFeePerGas,
