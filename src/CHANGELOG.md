@@ -1,5 +1,11 @@
 # viem
 
+## 2.41.2
+
+### Patch Changes
+
+- [`be9879ff69eb9b7526878b18c32ead9eeb9f5335`](https://github.com/wevm/viem/commit/be9879ff69eb9b7526878b18c32ead9eeb9f5335) Thanks [@jxom](https://github.com/jxom)! - Added preference to use chain-specific prepared transaction nonce.
+
 ## 2.41.1
 
 ### Patch Changes
