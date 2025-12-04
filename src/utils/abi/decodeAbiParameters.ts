@@ -1,4 +1,8 @@
-import type { AbiParameter, AbiParametersToPrimitiveTypes } from 'abitype'
+import type {
+  AbiParameter,
+  AbiParameterKind,
+  AbiParametersToPrimitiveTypes,
+} from 'abitype'
 import {
   AbiDecodingDataSizeTooSmallError,
   AbiDecodingZeroDataError,
@@ -36,7 +40,9 @@ import { getArrayComponents } from './encodeAbiParameters.js'
 export type DecodeAbiParametersReturnType<
   params extends readonly AbiParameter[] = readonly AbiParameter[],
 > = AbiParametersToPrimitiveTypes<
-  params extends readonly AbiParameter[] ? params : AbiParameter[]
+  params extends readonly AbiParameter[] ? params : AbiParameter[],
+  AbiParameterKind,
+  true
 >
 
 export type DecodeAbiParametersErrorType =
@@ -76,7 +82,7 @@ export function decodeAbiParameters<
     consumed += consumed_
     values.push(data)
   }
-  return values as DecodeAbiParametersReturnType<params>
+  return values as never
 }
 
 type DecodeParameterErrorType =

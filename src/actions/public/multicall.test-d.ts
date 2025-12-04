@@ -251,7 +251,7 @@ test('many contracts of differing types', async () => {
         address: '0x',
         abi: parseAbi([
           'function foo() view returns (int8)',
-          'function foo(address) view returns (string)',
+          'function foo(address account) view returns (string)',
           'function foo(address, address) view returns ((address foo, address bar))',
           'function bar() view returns (int8)',
         ]),

@@ -88,8 +88,8 @@ test('infers args', () => {
     transport: custom(window.ethereum!),
   })
   const abi = parseAbi([
-    'function foo(address) payable returns (int8)',
-    'function bar(address, uint256) returns (int8)',
+    'function foo(address account) payable returns (int8)',
+    'function bar(address account, uint256 amount) returns (int8)',
   ])
 
   type Result1 = WriteContractParameters<typeof abi, 'foo'>
@@ -275,8 +275,8 @@ test('overloads', async () => {
   })
   const abi = parseAbi([
     'function foo() returns (int8)',
-    'function foo(address) returns (string)',
-    'function foo(address, address) returns ((address foo, address bar))',
+    'function foo(address account) returns (string)',
+    'function foo(address sender, address account) returns ((address foo, address bar))',
     'function bar() returns (int8)',
   ])
 
