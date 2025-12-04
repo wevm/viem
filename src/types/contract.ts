@@ -217,15 +217,26 @@ export type ContractFunctionParameters<
   functionName:
     | allFunctionNames // show all options
     | (functionName extends allFunctionNames ? functionName : never) // infer value
-  args?:
-    | (abi extends Abi
-        ? UnionWiden<IsUnion<abiFunction> extends true ? args : allArgs>
-        : never)
-    | allArgs
-    | undefined
 } & (readonly [] extends allArgs
-  ? {}
-  : { args: Widen<IsUnion<abiFunction> extends true ? args : allArgs> }) &
+  ? {
+      args?:
+        | allArgs
+        | (abi extends Abi
+            ? Abi extends abi
+              ? never
+              : UnionWiden<IsUnion<abiFunction> extends true ? args : allArgs>
+            : never)
+        | undefined
+    }
+  : {
+      args:
+        | allArgs
+        | (abi extends Abi
+            ? Abi extends abi
+              ? never
+              : Widen<IsUnion<abiFunction> extends true ? args : allArgs>
+            : never)
+    }) &
   (deployless extends true
     ? { address?: undefined; code: Hex }
     : { address: Address })
