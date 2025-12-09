@@ -1346,6 +1346,10 @@ export {
   encodePacked,
 } from './utils/abi/encodePacked.js'
 export {
+  type FormatEventSignatureErrorType,
+  formatEventSignature,
+} from './utils/abi/formatEventSignature.js'
+export {
   type GetAbiItemErrorType,
   type GetAbiItemParameters,
   type GetAbiItemReturnType,
