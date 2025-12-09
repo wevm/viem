@@ -11,6 +11,15 @@ export type EstimateUserOperationGasReturnType<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
   uint256 = bigint,
 > = OneOf<
+  | (entryPointVersion extends '0.9'
+      ? {
+          preVerificationGas: uint256
+          verificationGasLimit: uint256
+          callGasLimit: uint256
+          paymasterVerificationGasLimit?: uint256 | undefined
+          paymasterPostOpGasLimit?: uint256 | undefined
+        }
+      : never)
   | (entryPointVersion extends '0.8'
       ? {
           preVerificationGas: uint256
@@ -79,6 +88,44 @@ export type UserOperation<
   uint256 = bigint,
   uint32 = number,
 > = OneOf<
+  | (entryPointVersion extends '0.9'
+      ? {
+          /** Authorization data. */
+          authorization?: SignedAuthorization<uint32> | undefined
+          /** The data to pass to the `sender` during the main execution call. */
+          callData: Hex
+          /** The amount of gas to allocate the main execution call */
+          callGasLimit: uint256
+          /** Account factory. Only for new accounts. */
+          factory?: Address | undefined
+          /** Data for account factory. */
+          factoryData?: Hex | undefined
+          /** Maximum fee per gas. */
+          maxFeePerGas: uint256
+          /** Maximum priority fee per gas. */
+          maxPriorityFeePerGas: uint256
+          /** Anti-replay parameter. */
+          nonce: uint256
+          /** Address of paymaster contract. */
+          paymaster?: Address | undefined
+          /** Data for paymaster. */
+          paymasterData?: Hex | undefined
+          /** The amount of gas to allocate for the paymaster post-operation code. */
+          paymasterPostOpGasLimit?: uint256 | undefined
+          /** Paymaster signature. Can be provided separately for parallelizable signing. */
+          paymasterSignature?: Hex | undefined
+          /** The amount of gas to allocate for the paymaster validation code. */
+          paymasterVerificationGasLimit?: uint256 | undefined
+          /** Extra gas to pay the Bundler. */
+          preVerificationGas: uint256
+          /** The account making the operation. */
+          sender: Address
+          /** Data passed into the account to verify authorization. */
+          signature: Hex
+          /** The amount of gas to allocate for the verification step. */
+          verificationGasLimit: uint256
+        }
+      : never)
   | (entryPointVersion extends '0.8'
       ? {
           /** Authorization data. */
@@ -186,6 +233,19 @@ export type UserOperationRequest<
   uint256 = bigint,
   uint32 = number,
 > = OneOf<
+  | (entryPointVersion extends '0.9'
+      ? UnionPartialBy<
+          UserOperation<'0.9', uint256, uint32>,
+          // We are able to calculate these via `prepareUserOperation`.
+          | keyof EstimateUserOperationGasReturnType<'0.9'>
+          | 'callData'
+          | 'maxFeePerGas'
+          | 'maxPriorityFeePerGas'
+          | 'nonce'
+          | 'sender'
+          | 'signature'
+        >
+      : never)
   | (entryPointVersion extends '0.8'
       ? UnionPartialBy<
           UserOperation<'0.8', uint256, uint32>,

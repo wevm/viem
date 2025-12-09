@@ -122,11 +122,13 @@ export {
   entryPoint06Abi,
   entryPoint07Abi,
   entryPoint08Abi,
+  entryPoint09Abi,
 } from './constants/abis.js'
 export {
   entryPoint06Address,
   entryPoint07Address,
   entryPoint08Address,
+  entryPoint09Address,
 } from './constants/address.js'
 
 export {
