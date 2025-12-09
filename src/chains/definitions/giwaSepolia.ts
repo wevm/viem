@@ -47,3 +47,13 @@ export const giwaSepolia = /*#__PURE__*/ defineChain({
   testnet: true,
   sourceId,
 })
+
+export const giwaSepoliaPreconf = defineChain({
+  ...giwaSepolia,
+  experimental_preconfirmationTime: 200,
+  rpcUrls: {
+    default: {
+      http: ['https://sepolia-rpc-flashblocks.giwa.io'],
+    },
+  },
+})
