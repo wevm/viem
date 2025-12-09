@@ -152,7 +152,10 @@ export function decodeEventLog<
   if (nonIndexedInputs.length > 0) {
     if (data && data !== '0x') {
       try {
-        const decodedData = decodeAbiParameters(nonIndexedInputs, data)
+        const decodedData = decodeAbiParameters(
+          nonIndexedInputs,
+          data,
+        ) as unknown[]
         if (decodedData) {
           if (isUnnamed)
             for (let i = 0; i < inputs.length; i++)
