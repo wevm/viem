@@ -11,9 +11,9 @@ import {
   createTransport,
   type Transport,
 } from '../clients/transports/createTransport.js'
-import * as Transaction from './Transaction.js'
 import type { Chain } from '../types/chain.js'
 import type { ChainConfig } from './chainConfig.js'
+import * as Transaction from './Transaction.js'
 
 export type FeePayer = Transport<typeof withFeePayer.type>
 

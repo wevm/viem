@@ -1,5 +1,5 @@
-import { defineChain } from '../../utils/chain/defineChain.js'
 import { chainConfig } from '../../tempo/chainConfig.js'
+import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const tempoDevnet = /*#__PURE__*/ defineChain({
   ...chainConfig,

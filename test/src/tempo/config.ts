@@ -2,6 +2,7 @@ import { Mnemonic } from 'ox'
 import { generateMnemonic } from '../../../src/accounts/generateMnemonic.js'
 import { english } from '../../../src/accounts/wordlists.js'
 import { sendTransactionSync } from '../../../src/actions/index.js'
+import { tempoLocalnet, tempoTestnet } from '../../../src/chains/index.js'
 import {
   type Address,
   type Chain,
@@ -15,7 +16,6 @@ import {
   http as viem_http,
 } from '../../../src/index.js'
 import * as Actions from '../../../src/tempo/Actions/index.js'
-import { tempoLocalnet, tempoTestnet } from '../../../src/chains/index.js'
 import { Account, Addresses, Tick } from '../../../src/tempo/index.js'
 import { rpcUrl } from './prool.js'
 
