@@ -5,19 +5,20 @@ export const stableTestnet = /*#__PURE__*/ defineChain({
   name: 'Stable Testnet',
   nativeCurrency: {
     decimals: 18,
-    name: 'USDT',
-    symbol: 'USDT',
+    name: 'gUSDT',
+    symbol: 'gUSDT',
   },
   rpcUrls: {
     default: {
-      http: ['https://stable-jsonrpc.testnet.chain0.dev'],
+      http: ['https://rpc.testnet.stable.xyz'],
+      webSocket: ['wss://rpc.testnet.stable.xyz'],
     },
   },
   blockExplorers: {
     default: {
-      name: 'Blockscout Explorer',
-      url: 'https://stable-explorer.testnet.chain0.dev',
-      apiUrl: 'https://stable-explorer.testnet.chain0.dev/api/v2',
+      name: 'Stablescan',
+      url: 'https://testnet.stablescan.xyz',
+      apiUrl: 'https://testnet.stablescan.xyz/api',
     },
   },
   testnet: true,
