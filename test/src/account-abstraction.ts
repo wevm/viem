@@ -5,7 +5,9 @@ import {
 } from '../../contracts/generated.js'
 import {
   entryPoint06Abi,
+  entryPoint06Address,
   entryPoint07Address,
+  entryPoint08Address,
   formatUserOperation,
   toPackedUserOperation,
   toSimple7702SmartAccount,
@@ -18,10 +20,6 @@ import {
   signMessage,
   writeContract,
 } from '../../src/actions/index.js'
-import {
-  entryPoint06Address,
-  entryPoint08Address,
-} from '../../src/constants/address.js'
 import {
   type Account,
   type Address,
