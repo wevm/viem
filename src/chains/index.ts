@@ -563,6 +563,7 @@ export { sophonTestnet } from './definitions/sophonTestnet.js'
 export { sova } from './definitions/sova.js'
 export { sovaSepolia } from './definitions/sovaSepolia.js'
 export { spicy } from './definitions/spicy.js'
+export { stableTestnet } from './definitions/stableTestnet.js'
 export {
   statusSepolia,
   statusSepolia as statusNetworkSepolia,
