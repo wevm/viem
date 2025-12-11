@@ -592,9 +592,14 @@ export { syscoinTestnet } from './definitions/syscoinTestnet.js'
 export { tac } from './definitions/tac.js'
 export { tacSPB } from './definitions/tacSPB.js'
 export { taiko } from './definitions/taiko.js'
+/** @deprecated Use `taikoHoodi` instead. */
 export { taikoHekla } from './definitions/taikoHekla.js'
+export { taikoHoodi } from './definitions/taikoHoodi.js'
+/** @deprecated Use `taikoHoodi` instead. */
 export { taikoJolnir } from './definitions/taikoJolnir.js'
+/** @deprecated Use `taikoHoodi` instead. */
 export { taikoKatla } from './definitions/taikoKatla.js'
+/** @deprecated Use `taikoHoodi` instead. */
 export { taikoTestnetSepolia } from './definitions/taikoTestnetSepolia.js'
 export { taraxa } from './definitions/taraxa.js'
 export { taraxaTestnet } from './definitions/taraxaTestnet.js'
