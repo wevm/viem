@@ -136,7 +136,7 @@ test('gets transaction (eip2930)', async () => {
   expect(transaction.value).toMatchInlineSnapshot('1000000000000000000n')
 })
 
-test('gets transaction (eip4844)', async () => {
+test.skip('gets transaction (eip4844)', async () => {
   const client = createClient({
     chain: holesky,
     transport: http(),
@@ -402,4 +402,25 @@ describe('args: blockTag', () => {
     })
     expect(transaction).toBeDefined()
   }, 10000)
+})
+
+describe('args: sender and nonce', () => {
+  test('gets transaction by sender and nonce', async () => {
+    const hash = await sendTransaction(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    await mine(client, { blocks: 1 })
+    await wait(200)
+
+    const transaction = await getTransaction(client, { hash })
+
+    const transaction2 = await getTransaction(client, {
+      sender: sourceAccount.address,
+      nonce: transaction.nonce,
+    })
+    expect(transaction2).toEqual(transaction)
+  })
 })

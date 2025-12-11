@@ -1,3 +1,4 @@
+import type { Address } from '../../accounts/index.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import {
@@ -9,7 +10,7 @@ import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type { RpcTransaction } from '../../types/rpc.js'
-import type { Prettify } from '../../types/utils.js'
+import type { OneOf, Prettify } from '../../types/utils.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type NumberToHexErrorType,
@@ -21,41 +22,41 @@ import {
 } from '../../utils/formatters/transaction.js'
 
 export type GetTransactionParameters<blockTag extends BlockTag = 'latest'> =
-  | {
-      /** The block hash */
-      blockHash: Hash
-      blockNumber?: undefined
-      blockTag?: undefined
-      hash?: undefined
-      /** The index of the transaction on the block. */
-      index: number
-    }
-  | {
-      blockHash?: undefined
-      /** The block number */
-      blockNumber: bigint
-      blockTag?: undefined
-      hash?: undefined
-      /** The index of the transaction on the block. */
-      index: number
-    }
-  | {
-      blockHash?: undefined
-      blockNumber?: undefined
-      /** The block tag. */
-      blockTag: blockTag | BlockTag
-      hash?: undefined
-      /** The index of the transaction on the block. */
-      index: number
-    }
-  | {
-      blockHash?: undefined
-      blockNumber?: undefined
-      blockTag?: undefined
-      /** The hash of the transaction. */
-      hash: Hash
-      index?: number | undefined
-    }
+  OneOf<
+    // eth_getTransactionByBlockHashAndIndex
+    | {
+        /** The block hash */
+        blockHash: Hash
+        /** The index of the transaction on the block. */
+        index: number
+      }
+    // eth_getTransactionByBlockNumberAndIndex
+    | {
+        /** The block number */
+        blockNumber: bigint
+        /** The index of the transaction on the block. */
+        index: number
+      }
+    // eth_getTransactionByBlockNumberAndIndex
+    | {
+        /** The block tag. */
+        blockTag: blockTag | BlockTag
+        /** The index of the transaction on the block. */
+        index: number
+      }
+    // eth_getTransactionByHash
+    | {
+        /** The hash of the transaction. */
+        hash: Hash
+      }
+    // eth_getTransactionBySenderAndNonce
+    | {
+        /** The sender of the transaction. */
+        sender: Address
+        /** The nonce of the transaction on the sender. */
+        nonce: number
+      }
+  >
 
 export type GetTransactionReturnType<
   chain extends Chain | undefined = undefined,
@@ -103,6 +104,8 @@ export async function getTransaction<
     blockTag: blockTag_,
     hash,
     index,
+    sender,
+    nonce,
   }: GetTransactionParameters<blockTag>,
 ): Promise<GetTransactionReturnType<chain, blockTag>> {
   const blockTag = blockTag_ || 'latest'
@@ -127,13 +130,21 @@ export async function getTransaction<
       },
       { dedupe: true },
     )
-  } else if (blockNumberHex || blockTag) {
+  } else if ((blockNumberHex || blockTag) && typeof index === 'number') {
     transaction = await client.request(
       {
         method: 'eth_getTransactionByBlockNumberAndIndex',
         params: [blockNumberHex || blockTag, numberToHex(index)],
       },
       { dedupe: Boolean(blockNumberHex) },
+    )
+  } else if (sender && typeof nonce === 'number') {
+    transaction = await client.request(
+      {
+        method: 'eth_getTransactionBySenderAndNonce',
+        params: [sender, numberToHex(nonce)],
+      },
+      { dedupe: true },
     )
   }
 

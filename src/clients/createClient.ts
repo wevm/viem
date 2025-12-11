@@ -255,6 +255,7 @@ export function createClient(parameters: ClientConfig): Client {
     ? parseAccount(parameters.account)
     : undefined
   const { config, request, value } = parameters.transport({
+    account,
     chain,
     pollingInterval,
   })

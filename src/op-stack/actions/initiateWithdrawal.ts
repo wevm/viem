@@ -19,11 +19,7 @@ import type { FormattedTransactionRequest } from '../../utils/formatters/transac
 import { l2ToL1MessagePasserAbi } from '../abis.js'
 import { contracts } from '../contracts.js'
 import type { WithdrawalRequest } from '../types/withdrawal.js'
-import {
-  type EstimateInitiateWithdrawalGasErrorType,
-  type EstimateInitiateWithdrawalGasParameters,
-  estimateInitiateWithdrawalGas,
-} from './estimateInitiateWithdrawalGas.js'
+import type { EstimateInitiateWithdrawalGasErrorType } from './estimateInitiateWithdrawalGas.js'
 
 export type InitiateWithdrawalParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -129,14 +125,6 @@ export async function initiateWithdrawal<
     request: { data = '0x', gas: l1Gas, to, value },
   } = parameters
 
-  const gas_ =
-    typeof gas !== 'number' && gas !== null
-      ? await estimateInitiateWithdrawalGas(
-          client,
-          parameters as EstimateInitiateWithdrawalGasParameters,
-        )
-      : undefined
-
   return writeContract(client, {
     account: account!,
     abi: l2ToL1MessagePasserAbi,
@@ -144,7 +132,7 @@ export async function initiateWithdrawal<
     chain,
     functionName: 'initiateWithdrawal',
     args: [to, l1Gas, data],
-    gas: gas_,
+    gas: gas ?? undefined,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,

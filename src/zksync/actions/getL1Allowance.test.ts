@@ -1,4 +1,4 @@
-import { afterAll, expect, test, vi } from 'vitest'
+import { expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
 import { sepolia } from '~viem/chains/index.js'
@@ -17,13 +17,10 @@ import { getL1Allowance } from './getL1Allowance.js'
 const sourceAccount = accounts[0]
 const tokenL1 = '0x5C221E77624690fff6dd741493D735a17716c26B'
 const account = privateKeyToAccount(sourceAccount.privateKey)
-const spy = vi.spyOn(readContract, 'readContract').mockResolvedValue(170n)
-
-afterAll(() => {
-  spy.mockRestore()
-})
 
 test('default with account hoisting', async () => {
+  const spy = vi.spyOn(readContract, 'readContract').mockResolvedValue(170n)
+
   const client = createWalletClient({
     chain: sepolia,
     transport: http(),
@@ -50,6 +47,8 @@ test('default with account hoisting', async () => {
 })
 
 test('args: blockTag with account hoisting', async () => {
+  const spy = vi.spyOn(readContract, 'readContract').mockResolvedValue(170n)
+
   const client = createClient({
     chain: sepolia,
     transport: http(),
@@ -77,6 +76,8 @@ test('args: blockTag with account hoisting', async () => {
 })
 
 test('default with account provided to the method', async () => {
+  const spy = vi.spyOn(readContract, 'readContract').mockResolvedValue(170n)
+
   const client = createPublicClient({
     chain: sepolia,
     transport: http(),
@@ -103,6 +104,8 @@ test('default with account provided to the method', async () => {
 })
 
 test('args: blockTag with account provided to the method', async () => {
+  const spy = vi.spyOn(readContract, 'readContract').mockResolvedValue(170n)
+
   const client = createPublicClient({
     chain: sepolia,
     transport: http(),
