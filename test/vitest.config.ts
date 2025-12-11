@@ -3,11 +3,13 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    alias: {
-      '~contracts': join(__dirname, '../contracts'),
-      '~viem': join(__dirname, '../src'),
-      '~test': join(__dirname, '.'),
-    },
+    alias: [
+      { find: '~contracts', replacement: join(__dirname, '../contracts') },
+      { find: '~viem', replacement: join(__dirname, '../src') },
+      { find: '~test', replacement: join(__dirname, '.') },
+      { find: /^viem$/, replacement: join(__dirname, '../src/index.ts') },
+      { find: /^viem\/(.*)/, replacement: join(__dirname, '../src/$1') },
+    ],
     benchmark: {
       outputFile: './bench/report.json',
       reporters: process.env.CI ? ['default'] : ['verbose'],

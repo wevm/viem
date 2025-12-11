@@ -13,6 +13,8 @@ minimumReleaseAgeExclude:
   - '@vitest/*'
   - glob  
   - hono
+  - ox
+  - prool
   - vitest
   - vocs
 packages:
