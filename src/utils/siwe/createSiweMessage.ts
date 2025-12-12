@@ -138,7 +138,7 @@ export function createSiweMessage(
   })()
   const statement = (() => {
     if (!parameters.statement) return ''
-    return `${parameters.statement}\n`
+    return `${parameters.statement}\n\n`
   })()
   const prefix = `${origin} wants you to sign in with your Ethereum account:\n${address}\n\n${statement}`
 
@@ -166,7 +166,7 @@ export function createSiweMessage(
     suffix += content
   }
 
-  return `${prefix}\n${suffix}`
+  return `${prefix}${suffix}`
 }
 
 const domainRegex =
