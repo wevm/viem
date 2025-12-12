@@ -1,8 +1,6 @@
 import { expect, test } from 'vitest'
-
-import { getBlock } from '../public/getBlock.js'
-
 import { anvilMainnet } from '../../../test/src/anvil.js'
+import { getBlock } from '../public/getBlock.js'
 
 import { increaseTime } from './increaseTime.js'
 import { mine } from './mine.js'

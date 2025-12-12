@@ -1,12 +1,11 @@
 import { expect, test } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { getTransactionConfirmations } from './getTransactionConfirmations.js'
 import { getTransactionReceipt } from './getTransactionReceipt.js'

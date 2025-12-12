@@ -3,6 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const polygon = /*#__PURE__*/ defineChain({
   id: 137,
   name: 'Polygon',
+  blockTime: 2000,
   nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
   rpcUrls: {
     default: {

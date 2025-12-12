@@ -718,7 +718,9 @@ export type TestActions = {
 
 export function testActions<mode extends TestClientMode>({
   mode,
-}: { mode: mode }): <
+}: {
+  mode: mode
+}): <
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,

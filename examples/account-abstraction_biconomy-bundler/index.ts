@@ -1,4 +1,4 @@
-import { http, type Hex, createPublicClient, parseEther } from 'viem'
+import { createPublicClient, type Hex, http, parseEther } from 'viem'
 import {
   createBundlerClient,
   createPaymasterClient,

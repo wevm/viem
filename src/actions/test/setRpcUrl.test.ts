@@ -1,8 +1,6 @@
 import { expect, test } from 'vitest'
-
-import { setRpcUrl } from './setRpcUrl.js'
-
 import { anvilMainnet } from '../../../test/src/anvil.js'
+import { setRpcUrl } from './setRpcUrl.js'
 
 const client = anvilMainnet.getClient()
 

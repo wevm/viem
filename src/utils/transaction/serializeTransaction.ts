@@ -25,7 +25,7 @@ import type {
   TransactionSerializedLegacy,
   TransactionType,
 } from '../../types/transaction.js'
-import type { OneOf } from '../../types/utils.js'
+import type { MaybePromise, OneOf } from '../../types/utils.js'
 import {
   type SerializeAuthorizationListErrorType,
   serializeAuthorizationList,
@@ -49,8 +49,8 @@ import {
 import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
 import { trim } from '../data/trim.js'
 import {
-  type NumberToHexErrorType,
   bytesToHex,
+  type NumberToHexErrorType,
   numberToHex,
 } from '../encoding/toHex.js'
 import { type ToRlpErrorType, toRlp } from '../encoding/toRlp.js'
@@ -87,9 +87,14 @@ export type SerializeTransactionFn<
   transaction extends TransactionSerializableGeneric = TransactionSerializable,
   ///
   _transactionType extends TransactionType = never,
-> = typeof serializeTransaction<
-  OneOf<TransactionSerializable | transaction>,
-  _transactionType
+> = (
+  transaction: OneOf<TransactionSerializable | transaction>,
+  signature?: Signature | undefined,
+) => MaybePromise<
+  SerializedTransactionReturnType<
+    OneOf<TransactionSerializable | transaction>,
+    _transactionType
+  >
 >
 
 export type SerializeTransactionErrorType =

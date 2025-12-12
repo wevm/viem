@@ -1,24 +1,22 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
+import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
+import { keccak256 } from '~viem/utils/index.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { prepareTransactionRequest } from '../../actions/index.js'
 import { WaitForTransactionReceiptTimeoutError } from '../../errors/transaction.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
-import { mine } from '../test/mine.js'
-import { sendTransaction } from '../wallet/sendTransaction.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
-
-import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
-import { keccak256 } from '~viem/utils/index.js'
-import { prepareTransactionRequest } from '../../actions/index.js'
 import {
   sendRawTransaction,
   setIntervalMining,
   signTransaction,
 } from '../index.js'
+import { mine } from '../test/mine.js'
+import { sendTransaction } from '../wallet/sendTransaction.js'
 import * as getBlock from './getBlock.js'
 import * as getTransactionModule from './getTransaction.js'
 import { waitForTransactionReceipt } from './waitForTransactionReceipt.js'
@@ -228,7 +226,7 @@ describe('replaced transactions', () => {
         onReplaced: (replacement_) => (replacement = replacement_),
       }),
       (async () => {
-        await wait(100)
+        await wait(500)
 
         // speed up
         await sendTransaction(client, {
@@ -273,7 +271,7 @@ describe('replaced transactions', () => {
         hash,
       }),
       (async () => {
-        await wait(100)
+        await wait(500)
 
         // speed up
         await sendTransaction(client, {
@@ -320,7 +318,7 @@ describe('replaced transactions', () => {
         onReplaced: (replacement_) => (replacement = replacement_),
       }),
       (async () => {
-        await wait(100)
+        await wait(500)
 
         // speed up
         await sendTransaction(client, {
@@ -369,7 +367,7 @@ describe('replaced transactions', () => {
         onReplaced: (replacement_) => (replacement = replacement_),
       }),
       (async () => {
-        await wait(100)
+        await wait(500)
 
         // speed up
         await sendTransaction(client, {
@@ -417,7 +415,7 @@ describe('replaced transactions', () => {
         onReplaced: (replacement_) => (replacement = replacement_),
       }),
       (async () => {
-        await wait(100)
+        await wait(500)
 
         // speed up
         await sendTransaction(client, {
@@ -464,7 +462,7 @@ describe('replaced transactions', () => {
         onReplaced: (replacement_) => (replacement = replacement_),
       }),
       (async () => {
-        await wait(100)
+        await wait(500)
 
         // speed up
         await sendTransaction(client, {
@@ -513,7 +511,7 @@ describe('replaced transactions', () => {
     })
 
     // Replace the transaction with a higher gas price
-    await wait(100)
+    await wait(500)
     await sendTransaction(client, {
       account: sourceAccount.address,
       to: targetAccount.address,
@@ -582,7 +580,7 @@ describe('args: confirmations', () => {
         hash,
       }),
       (async () => {
-        await wait(100)
+        await wait(500)
 
         // speed up
         await sendTransaction(client, {
@@ -646,7 +644,7 @@ describe('errors', () => {
           hash,
         }),
         (async () => {
-          await wait(100)
+          await wait(500)
 
           // speed up
           await sendTransaction(client, {

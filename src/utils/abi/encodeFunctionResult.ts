@@ -5,12 +5,11 @@ import {
   AbiFunctionOutputsNotFoundError,
   InvalidArrayError,
 } from '../../errors/abi.js'
+import type { ErrorType } from '../../errors/utils.js'
 import type {
   ContractFunctionName,
   ContractFunctionReturnType,
 } from '../../types/contract.js'
-
-import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
 import type { IsNarrowable, UnionEvaluate } from '../../types/utils.js'
 import {

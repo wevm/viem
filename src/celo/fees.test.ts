@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 import { celo } from '~viem/chains/index.js'
-import { http, createTestClient } from '~viem/index.js'
+import { createTestClient, http } from '~viem/index.js'
 
 const client = createTestClient({
   transport: http(),
@@ -34,8 +34,8 @@ describe('celo/fees', () => {
 
     expect(celo.fees.estimateFeesPerGas).toBeTypeOf('function')
 
-    // @ts-ignore
-    requestMock.mockImplementation((request) => {
+    // @ts-expect-error
+    requestMock.mockImplementation((request: any) => {
       if (request.method === 'eth_gasPrice')
         return (baseFee + priorityFee).toString()
       if (request.method === 'eth_maxPriorityFeePerGas')

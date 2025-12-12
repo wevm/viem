@@ -1,6 +1,5 @@
-import { expectTypeOf, test } from 'vitest'
-
 import { type Abi, type Address, parseAbi } from 'abitype'
+import { expectTypeOf, test } from 'vitest'
 import { wagmiContractConfig } from '~test/src/abis.js'
 import {
   type DecodeFunctionResultParameters,

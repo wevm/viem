@@ -42,6 +42,7 @@ test('creates', () => {
       "chain": undefined,
       "deployContract": [Function],
       "extend": [Function],
+      "fillTransaction": [Function],
       "getAddresses": [Function],
       "getCallsStatus": [Function],
       "getCapabilities": [Function],
@@ -56,8 +57,11 @@ test('creates', () => {
       "requestAddresses": [Function],
       "requestPermissions": [Function],
       "sendCalls": [Function],
+      "sendCallsSync": [Function],
       "sendRawTransaction": [Function],
+      "sendRawTransactionSync": [Function],
       "sendTransaction": [Function],
+      "sendTransactionSync": [Function],
       "showCallsStatus": [Function],
       "signAuthorization": [Function],
       "signMessage": [Function],
@@ -68,7 +72,7 @@ test('creates', () => {
         "key": "mock",
         "methods": undefined,
         "name": "Mock Transport",
-        "request": [MockFunction spy],
+        "request": [MockFunction],
         "retryCount": 3,
         "retryDelay": 150,
         "timeout": undefined,
@@ -78,6 +82,7 @@ test('creates', () => {
       "waitForCallsStatus": [Function],
       "watchAsset": [Function],
       "writeContract": [Function],
+      "writeContractSync": [Function],
     }
   `)
 })
@@ -105,6 +110,7 @@ describe('args: account', () => {
         "chain": undefined,
         "deployContract": [Function],
         "extend": [Function],
+        "fillTransaction": [Function],
         "getAddresses": [Function],
         "getCallsStatus": [Function],
         "getCapabilities": [Function],
@@ -119,8 +125,11 @@ describe('args: account', () => {
         "requestAddresses": [Function],
         "requestPermissions": [Function],
         "sendCalls": [Function],
+        "sendCallsSync": [Function],
         "sendRawTransaction": [Function],
+        "sendRawTransactionSync": [Function],
         "sendTransaction": [Function],
+        "sendTransactionSync": [Function],
         "showCallsStatus": [Function],
         "signAuthorization": [Function],
         "signMessage": [Function],
@@ -131,7 +140,7 @@ describe('args: account', () => {
           "key": "mock",
           "methods": undefined,
           "name": "Mock Transport",
-          "request": [MockFunction spy],
+          "request": [MockFunction],
           "retryCount": 3,
           "retryDelay": 150,
           "timeout": undefined,
@@ -141,6 +150,7 @@ describe('args: account', () => {
         "waitForCallsStatus": [Function],
         "watchAsset": [Function],
         "writeContract": [Function],
+        "writeContractSync": [Function],
       }
     `)
   })
@@ -175,6 +185,7 @@ describe('args: account', () => {
         "chain": undefined,
         "deployContract": [Function],
         "extend": [Function],
+        "fillTransaction": [Function],
         "getAddresses": [Function],
         "getCallsStatus": [Function],
         "getCapabilities": [Function],
@@ -189,8 +200,11 @@ describe('args: account', () => {
         "requestAddresses": [Function],
         "requestPermissions": [Function],
         "sendCalls": [Function],
+        "sendCallsSync": [Function],
         "sendRawTransaction": [Function],
+        "sendRawTransactionSync": [Function],
         "sendTransaction": [Function],
+        "sendTransactionSync": [Function],
         "showCallsStatus": [Function],
         "signAuthorization": [Function],
         "signMessage": [Function],
@@ -201,7 +215,7 @@ describe('args: account', () => {
           "key": "mock",
           "methods": undefined,
           "name": "Mock Transport",
-          "request": [MockFunction spy],
+          "request": [MockFunction],
           "retryCount": 3,
           "retryDelay": 150,
           "timeout": undefined,
@@ -211,6 +225,7 @@ describe('args: account', () => {
         "waitForCallsStatus": [Function],
         "watchAsset": [Function],
         "writeContract": [Function],
+        "writeContractSync": [Function],
       }
     `)
   })
@@ -233,6 +248,7 @@ describe('args: transport', () => {
         "chain": undefined,
         "deployContract": [Function],
         "extend": [Function],
+        "fillTransaction": [Function],
         "getAddresses": [Function],
         "getCallsStatus": [Function],
         "getCapabilities": [Function],
@@ -247,8 +263,11 @@ describe('args: transport', () => {
         "requestAddresses": [Function],
         "requestPermissions": [Function],
         "sendCalls": [Function],
+        "sendCallsSync": [Function],
         "sendRawTransaction": [Function],
+        "sendRawTransactionSync": [Function],
         "sendTransaction": [Function],
+        "sendTransactionSync": [Function],
         "showCallsStatus": [Function],
         "signAuthorization": [Function],
         "signMessage": [Function],
@@ -269,6 +288,7 @@ describe('args: transport', () => {
         "waitForCallsStatus": [Function],
         "watchAsset": [Function],
         "writeContract": [Function],
+        "writeContractSync": [Function],
       }
     `)
   })
@@ -289,6 +309,7 @@ describe('args: transport', () => {
         "chain": undefined,
         "deployContract": [Function],
         "extend": [Function],
+        "fillTransaction": [Function],
         "getAddresses": [Function],
         "getCallsStatus": [Function],
         "getCapabilities": [Function],
@@ -303,8 +324,11 @@ describe('args: transport', () => {
         "requestAddresses": [Function],
         "requestPermissions": [Function],
         "sendCalls": [Function],
+        "sendCallsSync": [Function],
         "sendRawTransaction": [Function],
+        "sendRawTransactionSync": [Function],
         "sendTransaction": [Function],
+        "sendTransactionSync": [Function],
         "showCallsStatus": [Function],
         "signAuthorization": [Function],
         "signMessage": [Function],
@@ -327,6 +351,7 @@ describe('args: transport', () => {
         "waitForCallsStatus": [Function],
         "watchAsset": [Function],
         "writeContract": [Function],
+        "writeContractSync": [Function],
       }
     `)
   })
@@ -366,6 +391,7 @@ describe('args: transport', () => {
         },
         "deployContract": [Function],
         "extend": [Function],
+        "fillTransaction": [Function],
         "getAddresses": [Function],
         "getCallsStatus": [Function],
         "getCapabilities": [Function],
@@ -380,8 +406,11 @@ describe('args: transport', () => {
         "requestAddresses": [Function],
         "requestPermissions": [Function],
         "sendCalls": [Function],
+        "sendCallsSync": [Function],
         "sendRawTransaction": [Function],
+        "sendRawTransactionSync": [Function],
         "sendTransaction": [Function],
+        "sendTransactionSync": [Function],
         "showCallsStatus": [Function],
         "signAuthorization": [Function],
         "signMessage": [Function],
@@ -405,6 +434,7 @@ describe('args: transport', () => {
         "waitForCallsStatus": [Function],
         "watchAsset": [Function],
         "writeContract": [Function],
+        "writeContractSync": [Function],
       }
     `)
   })
@@ -462,6 +492,7 @@ test('extend', () => {
       "estimateGas": [Function],
       "estimateMaxPriorityFeePerGas": [Function],
       "extend": [Function],
+      "fillTransaction": [Function],
       "getAddresses": [Function],
       "getAutomine": [Function],
       "getBalance": [Function],
@@ -514,8 +545,11 @@ test('extend', () => {
       "reset": [Function],
       "revert": [Function],
       "sendCalls": [Function],
+      "sendCallsSync": [Function],
       "sendRawTransaction": [Function],
+      "sendRawTransactionSync": [Function],
       "sendTransaction": [Function],
+      "sendTransactionSync": [Function],
       "sendUnsignedTransaction": [Function],
       "setAutomine": [Function],
       "setBalance": [Function],
@@ -557,6 +591,7 @@ test('extend', () => {
       },
       "type": "walletClient",
       "uninstallFilter": [Function],
+      "verifyHash": [Function],
       "verifyMessage": [Function],
       "verifySiweMessage": [Function],
       "verifyTypedData": [Function],
@@ -569,6 +604,7 @@ test('extend', () => {
       "watchEvent": [Function],
       "watchPendingTransactions": [Function],
       "writeContract": [Function],
+      "writeContractSync": [Function],
     }
   `)
 })

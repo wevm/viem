@@ -53,8 +53,8 @@ import {
 } from '../../utils/transaction/assertRequest.js'
 import { type GetChainIdErrorType, getChainId } from '../public/getChainId.js'
 import {
-  type PrepareTransactionRequestErrorType,
   defaultParameters,
+  type PrepareTransactionRequestErrorType,
   prepareTransactionRequest,
 } from './prepareTransactionRequest.js'
 import {
@@ -219,25 +219,28 @@ export async function sendTransaction<
       const chainFormat = client.chain?.formatters?.transactionRequest?.format
       const format = chainFormat || formatTransactionRequest
 
-      const request = format({
-        // Pick out extra data that might exist on the chain's transaction request type.
-        ...extract(rest, { format: chainFormat }),
-        accessList,
-        authorizationList,
-        blobs,
-        chainId,
-        data,
-        from: account?.address,
-        gas,
-        gasPrice,
-        maxFeePerBlobGas,
-        maxFeePerGas,
-        maxPriorityFeePerGas,
-        nonce,
-        to,
-        type,
-        value,
-      } as TransactionRequest)
+      const request = format(
+        {
+          // Pick out extra data that might exist on the chain's transaction request type.
+          ...extract(rest, { format: chainFormat }),
+          accessList,
+          account,
+          authorizationList,
+          blobs,
+          chainId,
+          data,
+          gas,
+          gasPrice,
+          maxFeePerBlobGas,
+          maxFeePerGas,
+          maxPriorityFeePerGas,
+          nonce,
+          to,
+          type,
+          value,
+        } as TransactionRequest,
+        'sendTransaction',
+      )
 
       const isWalletNamespaceSupported = supportsWalletNamespace.get(client.uid)
       const method = isWalletNamespaceSupported

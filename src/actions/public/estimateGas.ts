@@ -38,14 +38,18 @@ import {
 } from '../../utils/transaction/assertRequest.js'
 import {
   type PrepareTransactionRequestParameters,
+  type PrepareTransactionRequestParameterType,
   prepareTransactionRequest,
 } from '../wallet/prepareTransactionRequest.js'
-import { getBalance } from './getBalance.js'
 
 export type EstimateGasParameters<
   chain extends Chain | undefined = Chain | undefined,
 > = UnionOmit<FormattedEstimateGas<chain>, 'from'> & {
   account?: Account | Address | undefined
+  prepare?:
+    | boolean
+    | readonly PrepareTransactionRequestParameterType[]
+    | undefined
   stateOverride?: StateOverride | undefined
 } & (
     | {
@@ -107,10 +111,37 @@ export async function estimateGas<
   client: Client<Transport, chain, account>,
   args: EstimateGasParameters<chain>,
 ): Promise<EstimateGasReturnType> {
-  const { account: account_ = client.account } = args
+  const { account: account_ = client.account, prepare = true } = args
   const account = account_ ? parseAccount(account_) : undefined
 
+  const parameters = (() => {
+    if (Array.isArray(prepare)) return prepare
+    // Some RPC Providers do not compute versioned hashes from blobs. We will need
+    // to compute them.
+    if (account?.type !== 'local') return ['blobVersionedHashes']
+    return undefined
+  })()
+
   try {
+    const to = await (async () => {
+      // If `to` exists on the parameters, use that.
+      if (args.to) return args.to
+
+      // If no `to` exists, and we are sending a EIP-7702 transaction, use the
+      // address of the first authorization in the list.
+      if (args.authorizationList && args.authorizationList.length > 0)
+        return await recoverAuthorizationAddress({
+          authorization: args.authorizationList[0],
+        }).catch(() => {
+          throw new BaseError(
+            '`to` is required. Could not infer from `authorizationList`',
+          )
+        })
+
+      // Otherwise, we are sending a deployment transaction.
+      return undefined
+    })()
+
     const {
       accessList,
       authorizationList,
@@ -128,13 +159,19 @@ export async function estimateGas<
       value,
       stateOverride,
       ...rest
-    } = (await prepareTransactionRequest(client, {
-      ...args,
-      parameters:
-        // Some RPC Providers do not compute versioned hashes from blobs. We will need
-        // to compute them.
-        account?.type === 'local' ? undefined : ['blobVersionedHashes'],
-    } as PrepareTransactionRequestParameters)) as EstimateGasParameters
+    } = prepare
+      ? ((await prepareTransactionRequest(client, {
+          ...args,
+          parameters,
+          to,
+        } as PrepareTransactionRequestParameters)) as EstimateGasParameters)
+      : args
+
+    // If we get `gas` back from the prepared transaction request, which is
+    // different from the `gas` we provided, it was likely filled by other means
+    // during request preparation (e.g. `eth_fillTransaction` or `chain.transactionRequest.prepare`).
+    // (e.g. `eth_fillTransaction` or `chain.transactionRequest.prepare`).
+    if (gas && args.gas !== gas) return gas
 
     const blockNumberHex =
       typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
@@ -142,56 +179,34 @@ export async function estimateGas<
 
     const rpcStateOverride = serializeStateOverride(stateOverride)
 
-    const to = await (async () => {
-      // If `to` exists on the parameters, use that.
-      if (rest.to) return rest.to
-
-      // If no `to` exists, and we are sending a EIP-7702 transaction, use the
-      // address of the first authorization in the list.
-      if (authorizationList && authorizationList.length > 0)
-        return await recoverAuthorizationAddress({
-          authorization: authorizationList[0],
-        }).catch(() => {
-          throw new BaseError(
-            '`to` is required. Could not infer from `authorizationList`',
-          )
-        })
-
-      // Otherwise, we are sending a deployment transaction.
-      return undefined
-    })()
-
     assertRequest(args as AssertRequestParameters)
 
     const chainFormat = client.chain?.formatters?.transactionRequest?.format
     const format = chainFormat || formatTransactionRequest
 
-    const request = format({
-      // Pick out extra data that might exist on the chain's transaction request type.
-      ...extract(rest, { format: chainFormat }),
-      from: account?.address,
-      accessList,
-      authorizationList,
-      blobs,
-      blobVersionedHashes,
-      data,
-      gas,
-      gasPrice,
-      maxFeePerBlobGas,
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      nonce,
-      to,
-      value,
-    } as TransactionRequest)
+    const request = format(
+      {
+        // Pick out extra data that might exist on the chain's transaction request type.
+        ...extract(rest, { format: chainFormat }),
+        account,
+        accessList,
+        authorizationList,
+        blobs,
+        blobVersionedHashes,
+        data,
+        gasPrice,
+        maxFeePerBlobGas,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        nonce,
+        to,
+        value,
+      } as TransactionRequest,
+      'estimateGas',
+    )
 
-    function estimateGas_rpc(parameters: {
-      block: any
-      request: any
-      rpcStateOverride: any
-    }) {
-      const { block, request, rpcStateOverride } = parameters
-      return client.request({
+    return BigInt(
+      await client.request({
         method: 'eth_estimateGas',
         params: rpcStateOverride
           ? [
@@ -202,39 +217,8 @@ export async function estimateGas<
           : block
             ? [request, block]
             : [request],
-      })
-    }
-
-    let estimate = BigInt(
-      await estimateGas_rpc({ block, request, rpcStateOverride }),
+      }),
     )
-
-    // TODO(7702): Remove this once https://github.com/ethereum/execution-apis/issues/561 is resolved.
-    //       Authorization list schema is not implemented on JSON-RPC spec yet, so we need to
-    //       manually estimate the gas.
-    if (authorizationList) {
-      const value = await getBalance(client, { address: request.from })
-      const estimates = await Promise.all(
-        authorizationList.map(async (authorization) => {
-          const { address } = authorization
-          const estimate = await estimateGas_rpc({
-            block,
-            request: {
-              authorizationList: undefined,
-              data,
-              from: account?.address,
-              to: address,
-              value: numberToHex(value),
-            },
-            rpcStateOverride,
-          }).catch(() => 100_000n)
-          return 2n * BigInt(estimate)
-        }),
-      )
-      estimate += estimates.reduce((acc, curr) => acc + curr, 0n)
-    }
-
-    return estimate
   } catch (err) {
     throw getEstimateGasError(err as BaseError, {
       ...args,

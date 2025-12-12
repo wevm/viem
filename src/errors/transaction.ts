@@ -3,7 +3,10 @@ import type { SendTransactionParameters } from '../actions/wallet/sendTransactio
 import type { BlockTag } from '../types/block.js'
 import type { Chain } from '../types/chain.js'
 import type { Hash, Hex } from '../types/misc.js'
-import type { TransactionType } from '../types/transaction.js'
+import type {
+  TransactionReceipt,
+  TransactionType,
+} from '../types/transaction.js'
 import { formatEther } from '../utils/unit/formatEther.js'
 import { formatGwei } from '../utils/unit/formatGwei.js'
 
@@ -242,6 +245,29 @@ export class TransactionReceiptNotFoundError extends BaseError {
         name: 'TransactionReceiptNotFoundError',
       },
     )
+  }
+}
+
+export type TransactionReceiptRevertedErrorType =
+  TransactionReceiptRevertedError & {
+    name: 'TransactionReceiptRevertedError'
+  }
+export class TransactionReceiptRevertedError extends BaseError {
+  receipt: TransactionReceipt
+
+  constructor({ receipt }: { receipt: TransactionReceipt }) {
+    super(`Transaction with hash "${receipt.transactionHash}" reverted.`, {
+      metaMessages: [
+        'The receipt marked the transaction as "reverted". This could mean that the function on the contract you are trying to call threw an error.',
+        ' ',
+        'You can attempt to extract the revert reason by:',
+        '- calling the `simulateContract` or `simulateCalls` Action with the `abi` and `functionName` of the contract',
+        '- using the `call` Action with raw `data`',
+      ],
+      name: 'TransactionReceiptRevertedError',
+    })
+
+    this.receipt = receipt
   }
 }
 

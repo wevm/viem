@@ -8,14 +8,14 @@ import {
   type GetJsonImageErrorType,
   type GetMetadataAvatarUriErrorType,
   type GetNftTokenUriErrorType,
-  type ParseAvatarUriErrorType,
-  type ParseNftUriErrorType,
-  type ResolveAvatarUriErrorType,
   getJsonImage,
   getMetadataAvatarUri,
   getNftTokenUri,
+  type ParseAvatarUriErrorType,
+  type ParseNftUriErrorType,
   parseAvatarUri,
   parseNftUri,
+  type ResolveAvatarUriErrorType,
   resolveAvatarUri,
 } from './utils.js'
 

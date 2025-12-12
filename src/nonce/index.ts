@@ -1,9 +1,9 @@
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
 export {
   type CreateNonceManagerParameters,
-  type NonceManager,
-  type NonceManagerSource,
   createNonceManager,
   jsonRpc,
+  type NonceManager,
+  type NonceManagerSource,
   nonceManager,
 } from '../utils/nonceManager.js'

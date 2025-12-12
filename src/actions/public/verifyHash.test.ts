@@ -1,6 +1,9 @@
-import { describe, expect, test } from 'vitest'
+import { beforeAll, describe, expect, test } from 'vitest'
 
 import {
+  Eoa,
+  EoaInitializer,
+  EoaOptional,
   SoladyAccount07,
   SoladyAccountFactory07,
 } from '~contracts/generated.js'
@@ -8,8 +11,9 @@ import { ensPublicResolverConfig, smartAccountConfig } from '~test/src/abis.js'
 import { anvilMainnet } from '~test/src/anvil.js'
 import { accounts, address } from '~test/src/constants.js'
 import {
+  deploy,
+  deployErc6492SignatureVerifier,
   deploySoladyAccount_07,
-  deployUniversalSignatureVerifier,
 } from '~test/src/utils.js'
 import {
   entryPoint07Abi,
@@ -18,6 +22,7 @@ import {
 } from '~viem/account-abstraction/index.js'
 import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
 import { bundlerMainnet } from '../../../test/src/bundler.js'
+import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { zksync } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
@@ -34,13 +39,17 @@ import {
   toBytes,
 } from '../../utils/index.js'
 import { parseSignature } from '../../utils/signature/parseSignature.js'
+import { serializeErc8010Signature } from '../../utils/signature/serializeErc8010Signature.js'
 import { mine } from '../test/mine.js'
+import { setNonce } from '../test/setNonce.js'
+import { sendTransaction } from '../wallet/sendTransaction.js'
+import { signAuthorization } from '../wallet/signAuthorization.js'
 import { signMessage } from '../wallet/signMessage.js'
 import { writeContract } from '../wallet/writeContract.js'
 import { simulateContract } from './simulateContract.js'
 import { verifyHash } from './verifyHash.js'
 
-const client = anvilMainnet.getClient()
+const client = anvilMainnet.getClient({ account: true })
 
 const localAccount = privateKeyToAccount(accounts[0].privateKey)
 
@@ -91,7 +100,7 @@ describe('local account', async () => {
   })
 })
 
-describe('smart account', async () => {
+describe('erc6492', async () => {
   test('deployed', async () => {
     const { factoryAddress } = await deploySoladyAccount_07()
 
@@ -158,8 +167,8 @@ describe('smart account', async () => {
 
   test('undeployed with predeployed verifier (via arg)', async () => {
     const { factoryAddress } = await deploySoladyAccount_07()
-    const { contractAddress: universalSignatureVerifierAddress } =
-      await deployUniversalSignatureVerifier()
+    const { contractAddress: erc6492VerifierAddress } =
+      await deployErc6492SignatureVerifier()
 
     const { result: verifier } = await simulateContract(client, {
       account: localAccount,
@@ -190,7 +199,7 @@ describe('smart account', async () => {
         factoryData,
         hash: hashMessage('hello world'),
         signature,
-        universalSignatureVerifierAddress: universalSignatureVerifierAddress!,
+        erc6492VerifierAddress: erc6492VerifierAddress!,
       }),
     ).resolves.toBe(true)
   })
@@ -198,7 +207,7 @@ describe('smart account', async () => {
   test('undeployed with predeployed verifier (via client)', async () => {
     const { factoryAddress } = await deploySoladyAccount_07()
     const { contractAddress: verifySig } =
-      await deployUniversalSignatureVerifier()
+      await deployErc6492SignatureVerifier()
 
     const overrideClient = {
       ...client,
@@ -206,7 +215,7 @@ describe('smart account', async () => {
         ...client.chain,
         contracts: {
           ...client.chain.contracts,
-          universalSignatureVerifier: { address: verifySig },
+          erc6492Verifier: { address: verifySig },
         },
       },
     }
@@ -330,46 +339,390 @@ describe('smart account', async () => {
       }),
     ).resolves.toBe(true)
   })
-})
 
-test('signature already contains wrapper', async () => {
-  const { factoryAddress } = await deploySoladyAccount_07()
+  test('signature already contains wrapper', async () => {
+    const { factoryAddress } = await deploySoladyAccount_07()
 
-  const { result: verifier } = await simulateContract(client, {
-    account: localAccount,
-    abi: SoladyAccountFactory07.abi,
-    address: factoryAddress,
-    functionName: 'createAccount',
-    args: [localAccount.address, pad('0x0')],
-  })
+    const { result: verifier } = await simulateContract(client, {
+      account: localAccount,
+      abi: SoladyAccountFactory07.abi,
+      address: factoryAddress,
+      functionName: 'createAccount',
+      args: [localAccount.address, pad('0x0')],
+    })
 
-  const factoryData = encodeFunctionData({
-    abi: SoladyAccountFactory07.abi,
-    functionName: 'createAccount',
-    args: [localAccount.address, pad('0x0')],
-  })
+    const factoryData = encodeFunctionData({
+      abi: SoladyAccountFactory07.abi,
+      functionName: 'createAccount',
+      args: [localAccount.address, pad('0x0')],
+    })
 
-  const signature = await signMessageErc1271(client, {
-    account: localAccount,
-    factory: factoryAddress,
-    factoryData,
-    message: 'hello world',
-    verifier,
-  })
-
-  expect(
-    verifyHash(client, {
-      address: verifier,
+    const signature = await signMessageErc1271(client, {
+      account: localAccount,
       factory: factoryAddress,
       factoryData,
-      hash: hashMessage('hello world'),
-      signature: serializeErc6492Signature({
-        address: factoryAddress,
-        data: factoryData,
+      message: 'hello world',
+      verifier,
+    })
+
+    expect(
+      verifyHash(client, {
+        address: verifier,
+        factory: factoryAddress,
+        factoryData,
+        hash: hashMessage('hello world'),
+        signature: serializeErc6492Signature({
+          address: factoryAddress,
+          data: factoryData,
+          signature,
+        }),
+      }),
+    ).resolves.toBe(true)
+  })
+})
+
+describe('erc8010', async () => {
+  let delegation: `0x${string}`
+  let delegation_withInit: `0x${string}`
+  let initializer: `0x${string}`
+
+  beforeAll(async () => {
+    {
+      const { contractAddress } = await deploy(client, {
+        abi: EoaOptional.abi,
+        bytecode: EoaOptional.bytecode.object,
+      })
+      delegation = contractAddress!
+    }
+
+    {
+      const { contractAddress } = await deploy(client, {
+        abi: Eoa.abi,
+        bytecode: Eoa.bytecode.object,
+      })
+      delegation_withInit = contractAddress!
+    }
+
+    {
+      const { contractAddress } = await deploy(client, {
+        abi: EoaInitializer.abi,
+        bytecode: EoaInitializer.bytecode.object,
+      })
+      initializer = contractAddress!
+    }
+  })
+
+  test('delegated', async () => {
+    const account = privateKeyToAccount(generatePrivateKey())
+
+    // Delegate.
+    const authorization = await signAuthorization(client, {
+      account,
+      address: delegation,
+    })
+
+    await sendTransaction(client, {
+      authorizationList: [authorization],
+      gas: 1_000_000n,
+    })
+    await mine(client, { blocks: 1 })
+
+    // Verify (success).
+    {
+      const hash = hashMessage('hello world')
+      const signature = await account.sign({
+        hash,
+      })
+      const valid = await verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      })
+      expect(valid).toBe(true)
+    }
+
+    // Verify (failure).
+    {
+      const hash = hashMessage('hello world')
+      const signature = await account.sign({
+        hash,
+      })
+      const valid = await verifyHash(client, {
+        address: account.address,
+        hash: hashMessage('world'),
+        signature,
+      })
+      expect(valid).toBe(false)
+    }
+  })
+
+  test('delegated: with init data, wrapped signature', async () => {
+    const account = privateKeyToAccount(generatePrivateKey())
+
+    // Delegate.
+    const authorization = await signAuthorization(client, {
+      account,
+      address: delegation_withInit,
+    })
+    await sendTransaction(client, {
+      authorizationList: [authorization],
+      gas: 1_000_000n,
+    })
+    await mine(client, { blocks: 1 })
+
+    // Verify (failure).
+    {
+      const hash = hashMessage('hello world')
+      const signature = serializeErc8010Signature({
+        authorization,
+        signature: await account.sign({
+          hash,
+        }),
+      })
+      const valid = await verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      })
+      expect(valid).toBe(false)
+    }
+
+    // Initialize.
+    await writeContract(client, {
+      address: account.address,
+      abi: Eoa.abi,
+      functionName: 'initialize',
+    })
+    await mine(client, { blocks: 1 })
+
+    // Verify (success).
+    {
+      const hash = hashMessage('hello world')
+      const signature = serializeErc8010Signature({
+        authorization,
+        signature: await account.sign({
+          hash,
+        }),
+      })
+      const valid = await verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      })
+      expect(valid).toBe(true)
+    }
+  })
+
+  test('predelegated', async () => {
+    const account = privateKeyToAccount(generatePrivateKey())
+
+    const authorization = await signAuthorization(client, {
+      account,
+      address: delegation,
+    })
+
+    const hash = hashMessage('hello world')
+
+    const signature = serializeErc8010Signature({
+      authorization,
+      signature: await account.sign({
+        hash,
+      }),
+    })
+
+    const valid = await verifyHash(client, {
+      address: account.address,
+      hash,
+      signature,
+    })
+
+    expect(valid).toBe(true)
+  })
+
+  test('predelegated: with init data', async () => {
+    const account = privateKeyToAccount(generatePrivateKey())
+
+    const authorization = await signAuthorization(client, {
+      account,
+      address: delegation_withInit,
+    })
+    const initData = encodeFunctionData({
+      abi: Eoa.abi,
+      functionName: 'initialize',
+    })
+
+    const hash = hashMessage('hello world')
+
+    // Verify (failure).
+    {
+      const signature = serializeErc8010Signature({
+        authorization,
+        signature: await account.sign({
+          hash,
+        }),
+      })
+      const valid = await verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      })
+      expect(valid).toBe(false)
+    }
+
+    // Verify (success).
+    {
+      const signature = serializeErc8010Signature({
+        authorization,
+        data: initData,
+        signature: await account.sign({
+          hash,
+        }),
+      })
+      const valid = await verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      })
+      expect(valid).toBe(true)
+    }
+  })
+
+  test('predelegated: with init data (external initializer)', async () => {
+    const account = privateKeyToAccount(generatePrivateKey())
+
+    const authorization = await signAuthorization(client, {
+      account,
+      address: delegation_withInit,
+    })
+    const initData = encodeFunctionData({
+      abi: EoaInitializer.abi,
+      functionName: 'initialize',
+      args: [account.address],
+    })
+
+    const hash = hashMessage('hello world')
+
+    // Verify (failure).
+    {
+      const signature = serializeErc8010Signature({
+        authorization,
+        signature: await account.sign({
+          hash,
+        }),
+      })
+      const valid = await verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      })
+      expect(valid).toBe(false)
+    }
+
+    // Verify (success).
+    {
+      const signature = serializeErc8010Signature({
+        address: initializer,
+        authorization,
+        data: initData,
+        signature: await account.sign({
+          hash,
+        }),
+      })
+      const valid = await verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      })
+      expect(valid).toBe(true)
+    }
+  })
+
+  test('predelegated: invalidate nonce (failure)', async () => {
+    const account = privateKeyToAccount(generatePrivateKey())
+
+    const authorization = await signAuthorization(client, {
+      account,
+      address: delegation,
+    })
+
+    const hash = hashMessage('hello world')
+
+    const signature = serializeErc8010Signature({
+      authorization,
+      signature: await account.sign({
+        hash,
+      }),
+    })
+
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash,
         signature,
       }),
-    }),
-  ).resolves.toBe(true)
+    ).toBe(true)
+
+    // Invalidate nonce.
+    await setNonce(client, {
+      address: account.address,
+      nonce: 69,
+    })
+
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      }),
+    ).toBe(false)
+  })
+
+  test('predelegated: invalidate delegation (failure)', async () => {
+    const account = privateKeyToAccount(generatePrivateKey())
+
+    const authorization = await signAuthorization(client, {
+      account,
+      address: delegation,
+    })
+
+    const hash = hashMessage('hello world')
+
+    const signature = serializeErc8010Signature({
+      authorization,
+      signature: await account.sign({
+        hash,
+      }),
+    })
+
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      }),
+    ).toBe(true)
+
+    // Re-delegate.
+    {
+      const authorization = await signAuthorization(client, {
+        account,
+        address: delegation_withInit,
+      })
+      await sendTransaction(client, {
+        authorizationList: [authorization],
+        gas: 1_000_000n,
+      })
+      await mine(client, { blocks: 1 })
+    }
+
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      }),
+    ).toBe(false)
+  })
 })
 
 test.each([

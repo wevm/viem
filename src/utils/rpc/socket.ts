@@ -144,6 +144,7 @@ export async function getSocketRpcClient<socket extends {}>(
           socket?.close()
 
           setTimeout(async () => {
+            // biome-ignore lint/suspicious/noConsole: _
             await setup().catch(console.error)
             reconnectInProgress = false
           }, delay)

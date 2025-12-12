@@ -5,7 +5,9 @@ import {
 } from '../../contracts/generated.js'
 import {
   entryPoint06Abi,
+  entryPoint06Address,
   entryPoint07Address,
+  entryPoint08Address,
   formatUserOperation,
   toPackedUserOperation,
   toSimple7702SmartAccount,
@@ -19,20 +21,16 @@ import {
   writeContract,
 } from '../../src/actions/index.js'
 import {
-  entryPoint06Address,
-  entryPoint08Address,
-} from '../../src/constants/address.js'
-import {
   type Account,
   type Address,
   type Chain,
   type Client,
-  type RpcUserOperation,
-  type Transport,
   concat,
   encodeAbiParameters,
   numberToHex,
   parseEther,
+  type RpcUserOperation,
+  type Transport,
 } from '../../src/index.js'
 import { anvilMainnet } from './anvil.js'
 import { accounts } from './constants.js'
@@ -309,8 +307,7 @@ export async function createVerifyingPaymasterServer(
             }),
           )
         }
-      } catch (err) {
-        console.error(err)
+      } catch (_err) {
         res.writeHead(500, {
           'Content-Type': 'application/json',
         })

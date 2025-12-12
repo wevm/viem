@@ -92,14 +92,28 @@ export function waitForUserOperationReceipt(
         unobserve()
       }
 
+      const timeoutId = timeout
+        ? setTimeout(
+            () =>
+              done(() =>
+                emit.reject(
+                  new WaitForUserOperationReceiptTimeoutError({ hash }),
+                ),
+              ),
+            timeout,
+          )
+        : undefined
+
       const unpoll = poll(
         async () => {
-          if (retryCount && count >= retryCount)
+          if (retryCount && count >= retryCount) {
+            clearTimeout(timeoutId)
             done(() =>
               emit.reject(
                 new WaitForUserOperationReceiptTimeoutError({ hash }),
               ),
             )
+          }
 
           try {
             const receipt = await getAction(
@@ -112,6 +126,8 @@ export function waitForUserOperationReceipt(
             const error = err as GetUserOperationReceiptErrorType
             if (error.name !== 'UserOperationReceiptNotFoundError')
               done(() => emit.reject(error))
+          } finally {
+            clearTimeout(timeoutId)
           }
 
           count++
@@ -121,17 +137,6 @@ export function waitForUserOperationReceipt(
           interval: pollingInterval,
         },
       )
-
-      if (timeout)
-        setTimeout(
-          () =>
-            done(() =>
-              emit.reject(
-                new WaitForUserOperationReceiptTimeoutError({ hash }),
-              ),
-            ),
-          timeout,
-        )
 
       return unpoll
     })

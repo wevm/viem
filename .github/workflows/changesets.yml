@@ -13,11 +13,16 @@ jobs:
     name: Verify
     uses: ./.github/workflows/verify.yml
     secrets: inherit
+    permissions:
+      contents: read
 
   changesets:
     name: Create version pull request
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write 
 
     steps:
       - name: Clone repository
@@ -66,21 +71,6 @@ jobs:
           version: pnpm changeset:version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish Prerelease
-        if: steps.changesets.outputs.published != 'true'
-        continue-on-error: true
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          npm config set "//registry.npmjs.org/:_authToken" "$NPM_TOKEN"
-          git reset --hard origin/main
-          pnpm clean
-          pnpm changeset version --no-git-tag --snapshot canary
-          pnpm changeset:prepublish
-          pnpm changeset publish --no-git-tag --snapshot canary --tag canary
 
   jsr:
     name: JSR
@@ -108,4 +98,6 @@ jobs:
     needs: changesets
     uses: ./.github/workflows/deploy-docs.yml
     secrets: inherit
+    permissions:
+      contents: read
     if: needs.changesets.outputs.published == 'true'

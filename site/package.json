@@ -4,15 +4,15 @@
   "type": "module",
   "scripts": {
     "dev": "vocs dev",
-    "build": "NODE_OPTIONS=\"--max-old-space-size=8192\" vocs build --searchIndex false && vocs search-index",
+    "build": "NODE_OPTIONS=\"--max-old-space-size=16384\" vocs build --searchIndex false && vocs search-index",
     "twoslash": "vocs twoslash",
     "preview": "vocs preview"
   },
   "devDependencies": {
     "react": "^19",
     "react-dom": "^19",
-    "tailwindcss": "^4.0.6",
+    "tailwindcss": "^4.1.16",
     "viem": "workspace:*",
-    "vocs": "^1.0.11"
+    "vocs": "^1.1.0"
   }
 }

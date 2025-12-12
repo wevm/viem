@@ -18,6 +18,7 @@ import type {
   ExtractAbiFunctionForArgs,
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
+import type { TransactionRequest } from '../../types/transaction.js'
 import type {
   IsNarrowable,
   NoInfer,
@@ -37,10 +38,8 @@ import {
   type GetContractErrorReturnType,
   getContractError,
 } from '../../utils/errors/getContractError.js'
-import type { WriteContractParameters } from '../wallet/writeContract.js'
-
-import type { TransactionRequest } from '../../types/transaction.js'
 import { getAction } from '../../utils/getAction.js'
+import type { WriteContractParameters } from '../wallet/writeContract.js'
 import { type CallErrorType, type CallParameters, call } from './call.js'
 
 export type GetMutabilityAwareValue<

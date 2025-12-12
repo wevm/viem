@@ -43,6 +43,7 @@ import {
   type SendTransactionReturnType,
   sendTransaction,
 } from './sendTransaction.js'
+import type { sendTransactionSync } from './sendTransactionSync.js'
 
 export type WriteContractParameters<
   abi extends Abi | readonly unknown[] = Abi,
@@ -171,47 +172,81 @@ export async function writeContract<
     chainOverride
   >,
 ): Promise<WriteContractReturnType> {
-  const {
-    abi,
-    account: account_ = client.account,
-    address,
-    args,
-    dataSuffix,
-    functionName,
-    ...request
-  } = parameters as WriteContractParameters
+  return writeContract.internal(
+    client,
+    sendTransaction,
+    'sendTransaction',
+    parameters,
+  ) as never
+}
 
-  if (typeof account_ === 'undefined')
-    throw new AccountNotFoundError({
-      docsPath: '/docs/contract/writeContract',
-    })
-  const account = account_ ? parseAccount(account_) : null
-
-  const data = encodeFunctionData({
-    abi,
-    args,
-    functionName,
-  } as EncodeFunctionDataParameters)
-
-  try {
-    return await getAction(
-      client,
-      sendTransaction,
-      'sendTransaction',
-    )({
-      data: `${data}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
-      to: address,
-      account,
-      ...request,
-    })
-  } catch (error) {
-    throw getContractError(error as BaseError, {
+export namespace writeContract {
+  export async function internal<
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+    const abi extends Abi | readonly unknown[],
+    functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+    args extends ContractFunctionArgs<
       abi,
+      'nonpayable' | 'payable',
+      functionName
+    >,
+    chainOverride extends Chain | undefined,
+  >(
+    client: Client<Transport, chain, account>,
+    actionFn: typeof sendTransaction | typeof sendTransactionSync,
+    name: 'sendTransaction' | 'sendTransactionSync',
+    parameters: WriteContractParameters<
+      abi,
+      functionName,
+      args,
+      chain,
+      account,
+      chainOverride
+    >,
+  ) {
+    const {
+      abi,
+      account: account_ = client.account,
       address,
       args,
-      docsPath: '/docs/contract/writeContract',
+      dataSuffix,
       functionName,
-      sender: account?.address,
-    })
+      ...request
+    } = parameters as WriteContractParameters
+
+    if (typeof account_ === 'undefined')
+      throw new AccountNotFoundError({
+        docsPath: '/docs/contract/writeContract',
+      })
+    const account = account_ ? parseAccount(account_) : null
+
+    const data = encodeFunctionData({
+      abi,
+      args,
+      functionName,
+    } as EncodeFunctionDataParameters)
+
+    try {
+      return await getAction(
+        client,
+        actionFn as never,
+        name,
+      )({
+        data: `${data}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
+        to: address,
+        account,
+        ...request,
+      })
+    } catch (error) {
+      throw getContractError(error as BaseError, {
+        abi,
+        address,
+        args,
+        docsPath: '/docs/contract/writeContract',
+        functionName,
+        sender: account?.address,
+      })
+    }
   }
 }

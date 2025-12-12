@@ -1,9 +1,9 @@
 import type { Account } from '../../accounts/types.js'
-import { signTransaction as signTransaction_ } from '../../actions/wallet/signTransaction.js'
 import type {
   SignTransactionErrorType as SignTransactionErrorType_,
   SignTransactionReturnType as SignTransactionReturnType_,
 } from '../../actions/wallet/signTransaction.js'
+import { signTransaction as signTransaction_ } from '../../actions/wallet/signTransaction.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { GetAccountParameter } from '../../types/account.js'

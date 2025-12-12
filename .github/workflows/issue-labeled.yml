@@ -8,6 +8,8 @@ jobs:
   issue-labeled:
     if: ${{ github.repository_owner == 'wevm' }}
     uses: wevm/actions/.github/workflows/issue-labeled.yml@main
+    permissions:
+      contents: read
     with:
       needs-reproduction-body: |
         Hello @${{ github.event.issue.user.login }}. 

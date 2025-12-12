@@ -7,11 +7,11 @@ import {
 } from '../../src/account-abstraction/clients/createBundlerClient.js'
 import { mainnet } from '../../src/chains/index.js'
 import {
-  http,
   type Chain,
   type Client,
   type ClientConfig,
   type ExactPartial,
+  http,
   type Transport,
 } from '../../src/index.js'
 import type { DebugBundlerRpcSchema } from '../../src/types/eip1193.js'

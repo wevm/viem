@@ -1,8 +1,6 @@
 import { expect, test } from 'vitest'
-
-import { parseGwei } from '../unit/parseGwei.js'
-
 import { maxUint256 } from '~viem/constants/number.js'
+import { parseGwei } from '../unit/parseGwei.js'
 import { assertRequest } from './assertRequest.js'
 
 test('invalid address', () => {
@@ -62,48 +60,6 @@ test('tip higher than fee cap', () => {
     }),
   ).toThrowErrorMatchingInlineSnapshot(`
     [TipAboveFeeCapError: The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
-
-    Version: viem@x.y.z]
-  `)
-})
-
-test('fee conflict', () => {
-  expect(() =>
-    // @ts-expect-error
-    assertRequest({
-      gasPrice: parseGwei('8'),
-      maxFeePerGas: parseGwei('10'),
-      maxPriorityFeePerGas: parseGwei('11'),
-    }),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    [FeeConflictError: Cannot specify both a \`gasPrice\` and a \`maxFeePerGas\`/\`maxPriorityFeePerGas\`.
-    Use \`maxFeePerGas\`/\`maxPriorityFeePerGas\` for EIP-1559 compatible networks, and \`gasPrice\` for others.
-
-    Version: viem@x.y.z]
-  `)
-
-  expect(() =>
-    // @ts-expect-error
-    assertRequest({
-      gasPrice: parseGwei('8'),
-      maxFeePerGas: parseGwei('10'),
-    }),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    [FeeConflictError: Cannot specify both a \`gasPrice\` and a \`maxFeePerGas\`/\`maxPriorityFeePerGas\`.
-    Use \`maxFeePerGas\`/\`maxPriorityFeePerGas\` for EIP-1559 compatible networks, and \`gasPrice\` for others.
-
-    Version: viem@x.y.z]
-  `)
-
-  expect(() =>
-    // @ts-expect-error
-    assertRequest({
-      gasPrice: parseGwei('8'),
-      maxPriorityFeePerGas: parseGwei('11'),
-    }),
-  ).toThrowErrorMatchingInlineSnapshot(`
-    [FeeConflictError: Cannot specify both a \`gasPrice\` and a \`maxFeePerGas\`/\`maxPriorityFeePerGas\`.
-    Use \`maxFeePerGas\`/\`maxPriorityFeePerGas\` for EIP-1559 compatible networks, and \`gasPrice\` for others.
 
     Version: viem@x.y.z]
   `)

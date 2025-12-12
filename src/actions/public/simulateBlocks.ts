@@ -205,6 +205,7 @@ export async function simulateBlocks<
         const data = call.abi ? encodeFunctionData(call) : call.data
         const request = {
           ...call,
+          account,
           data: call.dataSuffix
             ? concat([data || '0x', call.dataSuffix])
             : data,
@@ -261,7 +262,7 @@ export async function simulateBlocks<
         const error = (() => {
           if (status === 'success') return undefined
 
-          let error = undefined
+          let error: Error | undefined
           if (call.error?.data === '0x') error = new AbiDecodingZeroDataError()
           else if (call.error) error = new RawContractError(call.error)
 

@@ -4,12 +4,11 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import { localhost } from '../../chains/index.js'
 import { type Client, createClient } from '../../clients/createClient.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
+import { fallback } from '../../clients/transports/fallback.js'
 import { http } from '../../clients/transports/http.js'
+import { webSocket } from '../../clients/transports/webSocket.js'
 import { wait } from '../../utils/wait.js'
 import { mine } from '../test/mine.js'
-
-import { fallback } from '../../clients/transports/fallback.js'
-import { webSocket } from '../../clients/transports/webSocket.js'
 import * as getBlockNumber from './getBlockNumber.js'
 import {
   type OnBlockNumberParameter,

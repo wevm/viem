@@ -1,26 +1,32 @@
-/**
- * TODO:  Heaps more test cases :D
- *        - Complex calldata types
- *        - Complex return types (tuple/structs)
- *        - Calls against blocks
- */
 import { describe, expect, test } from 'vitest'
 
 import {
+  Delegation,
   ErrorsExample,
   SoladyAccount07,
   SoladyAccountFactory07,
 } from '~contracts/generated.js'
-import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
+import {
+  baycContractConfig,
+  multicall3ContractConfig,
+  wagmiContractConfig,
+} from '~test/src/abis.js'
 import { accounts, address } from '~test/src/constants.js'
-import { deployErrorExample, deploySoladyAccount_07 } from '~test/src/utils.js'
+import {
+  deploy,
+  deployErrorExample,
+  deploySoladyAccount_07,
+} from '~test/src/utils.js'
 
 import { anvilMainnet } from '../../../test/src/anvil.js'
+import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 
 import type { Hex } from '../../types/misc.js'
 import { pad } from '../../utils/data/pad.js'
 import { toHex } from '../../utils/encoding/toHex.js'
 import { encodeFunctionData } from '../../utils/index.js'
+import { signAuthorization } from '../wallet/signAuthorization.js'
 import { readContract } from './readContract.js'
 
 const client = anvilMainnet.getClient()
@@ -149,6 +155,16 @@ describe('wagmi', () => {
       }),
     ).toEqual(fakeName)
   })
+
+  test('args: blockOverrides', async () => {
+    expect(
+      await readContract(client, {
+        ...multicall3ContractConfig,
+        functionName: 'getCurrentBlockTimestamp',
+        blockOverrides: { time: 420n },
+      }),
+    ).toEqual(420n)
+  })
 })
 
 describe('bayc', () => {
@@ -193,6 +209,30 @@ describe('bayc', () => {
       Version: viem@x.y.z]
     `)
   })
+})
+
+test('args: authorizationList', async () => {
+  const { contractAddress } = await deploy(client, {
+    abi: Delegation.abi,
+    bytecode: Delegation.bytecode.object,
+  })
+
+  const eoa = privateKeyToAccount(generatePrivateKey())
+
+  const authorization = await signAuthorization(client, {
+    account: eoa,
+    contractAddress: contractAddress!,
+  })
+
+  const result = await readContract(client, {
+    abi: Delegation.abi,
+    address: eoa.address,
+    functionName: 'ping',
+    args: ['hello'],
+    authorizationList: [authorization],
+  })
+
+  expect(result).toMatchInlineSnapshot('"pong: hello"')
 })
 
 describe('deployless read (factory)', () => {
@@ -493,4 +533,674 @@ test('fake contract address', async () => {
     Docs: https://viem.sh/docs/contract/readContract
     Version: viem@x.y.z]
   `)
+})
+
+describe('complex types', () => {
+  test('array returns', async () => {
+    const result = await readContract(client, {
+      abi: [
+        {
+          inputs: [
+            {
+              components: [
+                { name: 'target', type: 'address' },
+                { name: 'allowFailure', type: 'bool' },
+                { name: 'callData', type: 'bytes' },
+              ],
+              name: 'calls',
+              type: 'tuple[]',
+            },
+          ],
+          name: 'aggregate3',
+          outputs: [
+            {
+              components: [
+                { name: 'success', type: 'bool' },
+                { name: 'returnData', type: 'bytes' },
+              ],
+              name: 'returnData',
+              type: 'tuple[]',
+            },
+          ],
+          stateMutability: 'view',
+          type: 'function',
+        },
+      ],
+      address: anvilMainnet.chain.contracts.multicall3.address,
+      functionName: 'aggregate3',
+      args: [
+        [
+          {
+            target: wagmiContractConfig.address,
+            allowFailure: false,
+            callData: '0x06fdde03', // name() function selector
+          },
+          {
+            target: wagmiContractConfig.address,
+            allowFailure: false,
+            callData: '0x95d89b41', // symbol() function selector
+          },
+        ],
+      ],
+    })
+
+    // Verify it's actually an array of tuples
+    expect(Array.isArray(result)).toBe(true)
+    expect(result.length).toBe(2)
+
+    // Each element should be a tuple with success and returnData
+    for (const item of result) {
+      expect(typeof item).toBe('object')
+      expect(item).toHaveProperty('success')
+      expect(item).toHaveProperty('returnData')
+      expect(typeof item.success).toBe('boolean')
+      expect(typeof item.returnData).toBe('string')
+      expect(item.returnData).toMatch(/^0x[0-9a-fA-F]*$/)
+    }
+  })
+
+  test('tuple returns', async () => {
+    const { factoryAddress: factory } = await deploySoladyAccount_07()
+    const address = await readContract(client, {
+      account: accounts[0].address,
+      abi: SoladyAccountFactory07.abi,
+      address: factory,
+      functionName: 'getAddress',
+      args: [pad('0x0')],
+    })
+    const factoryData = encodeFunctionData({
+      abi: SoladyAccountFactory07.abi,
+      functionName: 'createAccount',
+      args: [accounts[0].address, pad('0x0')],
+    })
+
+    const [
+      fields,
+      name,
+      version,
+      chainId,
+      verifyingContract,
+      salt,
+      extensions,
+    ] = await readContract(client, {
+      address,
+      abi: SoladyAccount07.abi,
+      functionName: 'eip712Domain',
+      factory,
+      factoryData,
+    })
+
+    // Verify tuple structure is properly decoded
+    expect(typeof fields).toBe('string') // bytes1
+    expect(typeof name).toBe('string')
+    expect(typeof version).toBe('string')
+    expect(typeof chainId).toBe('bigint')
+    expect(typeof verifyingContract).toBe('string')
+    expect(typeof salt).toBe('string') // bytes32
+    expect(Array.isArray(extensions)).toBe(true) // uint256[]
+
+    // Verify actual values make sense
+    expect(name).toBe('SoladyAccount')
+    expect(version).toBe('1')
+    expect(chainId).toBe(1n)
+    expect(verifyingContract).toMatch(/^0x[0-9a-fA-F]{40}$/)
+    expect(salt).toMatch(/^0x[0-9a-fA-F]{64}$/)
+  })
+
+  test('array inputs', async () => {
+    const calls = [
+      {
+        target: wagmiContractConfig.address,
+        allowFailure: false,
+        callData: '0x06fdde03' as const, // name() function selector
+      },
+      {
+        target: wagmiContractConfig.address,
+        allowFailure: false,
+        callData: '0x95d89b41' as const, // symbol() function selector
+      },
+      {
+        target: baycContractConfig.address,
+        allowFailure: false,
+        callData: '0x06fdde03' as const, // name() function selector
+      },
+    ] as const
+
+    const results = await readContract(client, {
+      abi: [
+        {
+          inputs: [
+            {
+              components: [
+                { name: 'target', type: 'address' },
+                { name: 'allowFailure', type: 'bool' },
+                { name: 'callData', type: 'bytes' },
+              ],
+              name: 'calls',
+              type: 'tuple[]',
+            },
+          ],
+          name: 'aggregate3',
+          outputs: [
+            {
+              components: [
+                { name: 'success', type: 'bool' },
+                { name: 'returnData', type: 'bytes' },
+              ],
+              name: 'returnData',
+              type: 'tuple[]',
+            },
+          ],
+          stateMutability: 'view',
+          type: 'function',
+        },
+      ],
+      address: anvilMainnet.chain.contracts.multicall3.address,
+      functionName: 'aggregate3',
+      args: [calls],
+    })
+
+    // Verify array of structs was properly encoded and decoded
+    expect(Array.isArray(results)).toBe(true)
+    expect(results.length).toBe(3)
+
+    for (const result of results) {
+      expect(typeof result).toBe('object')
+      expect(result).toHaveProperty('success')
+      expect(result).toHaveProperty('returnData')
+      expect(typeof result.success).toBe('boolean')
+      expect(typeof result.returnData).toBe('string')
+      expect(result.returnData).toMatch(/^0x[0-9a-fA-F]*$/)
+    }
+  })
+
+  test('nested structs', async () => {
+    const nestedCall = {
+      target: wagmiContractConfig.address,
+      allowFailure: false,
+      callData: '0x06fdde03' as const,
+    }
+
+    const result = await readContract(client, {
+      abi: [
+        {
+          inputs: [
+            {
+              components: [
+                { name: 'target', type: 'address' },
+                { name: 'allowFailure', type: 'bool' },
+                { name: 'callData', type: 'bytes' },
+              ],
+              name: 'calls',
+              type: 'tuple[]',
+            },
+          ],
+          name: 'aggregate3',
+          outputs: [
+            {
+              components: [
+                { name: 'success', type: 'bool' },
+                { name: 'returnData', type: 'bytes' },
+              ],
+              name: 'returnData',
+              type: 'tuple[]',
+            },
+          ],
+          stateMutability: 'view',
+          type: 'function',
+        },
+      ],
+      address: anvilMainnet.chain.contracts.multicall3.address,
+      functionName: 'aggregate3',
+      args: [
+        [
+          nestedCall,
+          {
+            target: baycContractConfig.address,
+            allowFailure: true,
+            callData: '0x95d89b41' as const,
+          },
+        ],
+      ],
+    })
+
+    // Verify nested struct encoding worked
+    expect(Array.isArray(result)).toBe(true)
+    expect(result.length).toBe(2)
+    expect(result[0]).toHaveProperty('success')
+    expect(result[0]).toHaveProperty('returnData')
+    expect(typeof result[0].success).toBe('boolean')
+    expect(typeof result[0].returnData).toBe('string')
+  })
+})
+
+describe('block context', () => {
+  test('block number', async () => {
+    const specificBlock = anvilMainnet.forkBlockNumber - 100n
+
+    const result = await readContract(client, {
+      ...wagmiContractConfig,
+      functionName: 'totalSupply',
+      blockNumber: specificBlock,
+    })
+
+    // Should return a valid result from that specific block
+    expect(typeof result).toBe('bigint')
+    expect(result).toBeGreaterThan(0n)
+
+    // Verify consistency for same block
+    const resultAgain = await readContract(client, {
+      ...wagmiContractConfig,
+      functionName: 'totalSupply',
+      blockNumber: specificBlock,
+    })
+    expect(result).toBe(resultAgain)
+  })
+
+  test('block tags', async () => {
+    const blockTags = ['latest', 'pending', 'finalized'] as const
+
+    for (const blockTag of blockTags) {
+      const result = await readContract(client, {
+        ...wagmiContractConfig,
+        functionName: 'name',
+        blockTag,
+      })
+      expect(typeof result).toBe('string')
+      expect(result).toBe('wagmi')
+    }
+  })
+
+  test('historical state', async () => {
+    const currentSupply = await readContract(client, {
+      ...wagmiContractConfig,
+      functionName: 'totalSupply',
+      blockTag: 'latest',
+    })
+
+    const pastSupply = await readContract(client, {
+      ...wagmiContractConfig,
+      functionName: 'totalSupply',
+      blockNumber: anvilMainnet.forkBlockNumber,
+    })
+
+    // Both should be valid bigints
+    expect(typeof currentSupply).toBe('bigint')
+    expect(typeof pastSupply).toBe('bigint')
+    expect(currentSupply).toBeGreaterThan(0n)
+    expect(pastSupply).toBeGreaterThan(0n)
+
+    // Test consistency for same block
+    const pastSupply2 = await readContract(client, {
+      ...wagmiContractConfig,
+      functionName: 'totalSupply',
+      blockNumber: anvilMainnet.forkBlockNumber,
+    })
+    expect(pastSupply).toBe(pastSupply2)
+  })
+
+  test('invalid block', async () => {
+    // Test with future block number
+    await expect(() =>
+      readContract(client, {
+        ...wagmiContractConfig,
+        functionName: 'totalSupply',
+        blockNumber: 999999999999999999n,
+      }),
+    ).rejects.toThrow()
+
+    // Test with invalid block tag
+    await expect(() =>
+      readContract(client, {
+        ...wagmiContractConfig,
+        functionName: 'totalSupply',
+        blockTag: 'invalid' as any,
+      }),
+    ).rejects.toThrow()
+  })
+})
+
+describe('account parameter', () => {
+  test('account context', async () => {
+    const accountTests = [
+      { account: accounts[0].address, target: accounts[0].address },
+      { account: accounts[1].address, target: accounts[1].address },
+      { account: accounts[0].address, target: address.vitalik },
+    ]
+
+    for (const { account, target } of accountTests) {
+      const balance = await readContract(client, {
+        ...wagmiContractConfig,
+        functionName: 'balanceOf',
+        args: [target],
+        account,
+      })
+      expect(typeof balance).toBe('bigint')
+      expect(balance).toBeGreaterThanOrEqual(0n)
+    }
+  })
+
+  test('consistency', async () => {
+    const resultWithAccount = await readContract(client, {
+      ...wagmiContractConfig,
+      functionName: 'symbol',
+      account: accounts[0].address,
+    })
+
+    const resultWithoutAccount = await readContract(client, {
+      ...wagmiContractConfig,
+      functionName: 'symbol',
+    })
+
+    // Both should work and return the same result for view functions
+    expect(resultWithAccount).toBe('WAGMI')
+    expect(resultWithoutAccount).toBe('WAGMI')
+    expect(resultWithAccount).toBe(resultWithoutAccount)
+  })
+})
+
+describe('edge cases', () => {
+  test('invalid address', async () => {
+    // Test valid address format but non-contract
+    await expect(() =>
+      readContract(client, {
+        abi: wagmiContractConfig.abi,
+        address: '0x0000000000000000000000000000000000000069',
+        functionName: 'totalSupply',
+      }),
+    ).rejects.toThrow(/returned no data/)
+
+    // Test zero address
+    await expect(() =>
+      readContract(client, {
+        abi: wagmiContractConfig.abi,
+        address: '0x0000000000000000000000000000000000000000',
+        functionName: 'totalSupply',
+      }),
+    ).rejects.toThrow(/returned no data/)
+  })
+
+  test('boundary conditions', async () => {
+    // Test with zero address balance - should revert for ERC721
+    await expect(() =>
+      readContract(client, {
+        ...wagmiContractConfig,
+        functionName: 'balanceOf',
+        args: ['0x0000000000000000000000000000000000000000'],
+      }),
+    ).rejects.toThrow(/zero address/)
+
+    // Test with large token ID that doesn't exist
+    const nonExistentTokenId = 999999999n
+    await expect(() =>
+      readContract(client, {
+        ...wagmiContractConfig,
+        functionName: 'ownerOf',
+        args: [nonExistentTokenId],
+      }),
+    ).rejects.toThrow()
+
+    // Test with invalid interface ID
+    const invalidInterfaceResult = await readContract(client, {
+      ...wagmiContractConfig,
+      functionName: 'supportsInterface',
+      args: ['0x00000000'],
+    })
+    expect(typeof invalidInterfaceResult).toBe('boolean')
+  })
+
+  test('deployless edge cases', async () => {
+    // Test with invalid bytecode
+    await expect(() =>
+      readContract(client, {
+        abi: wagmiContractConfig.abi,
+        code: '0x00',
+        functionName: 'name',
+      }),
+    ).rejects.toThrow()
+
+    // Test with empty bytecode
+    await expect(() =>
+      readContract(client, {
+        abi: wagmiContractConfig.abi,
+        code: '0x',
+        functionName: 'name',
+      }),
+    ).rejects.toThrow()
+  })
+
+  test('BAYC edge cases', async () => {
+    // Test with token ID that doesn't exist (BAYC has 10,000 tokens: 0-9999)
+    await expect(() =>
+      readContract(client, {
+        ...baycContractConfig,
+        functionName: 'ownerOf',
+        args: [10000n],
+      }),
+    ).rejects.toThrow() // Should revert for non-existent token
+
+    // Test with very large token ID
+    await expect(() =>
+      readContract(client, {
+        ...baycContractConfig,
+        functionName: 'ownerOf',
+        args: [999999999999n],
+      }),
+    ).rejects.toThrow() // Should revert for non-existent token
+  })
+})
+
+describe('function selectors', () => {
+  test('selector verification', async () => {
+    // Test that the function selectors in comments are actually correct
+    const nameSelector = '0x06fdde03' // name() function selector
+    const symbolSelector = '0x95d89b41' // symbol() function selector
+
+    // Test using multicall3 with verified selectors
+    const multicallResult = await readContract(client, {
+      abi: [
+        {
+          inputs: [
+            {
+              components: [
+                { name: 'target', type: 'address' },
+                { name: 'allowFailure', type: 'bool' },
+                { name: 'callData', type: 'bytes' },
+              ],
+              name: 'calls',
+              type: 'tuple[]',
+            },
+          ],
+          name: 'aggregate3',
+          outputs: [
+            {
+              components: [
+                { name: 'success', type: 'bool' },
+                { name: 'returnData', type: 'bytes' },
+              ],
+              name: 'returnData',
+              type: 'tuple[]',
+            },
+          ],
+          stateMutability: 'view',
+          type: 'function',
+        },
+      ],
+      address: anvilMainnet.chain.contracts.multicall3.address,
+      functionName: 'aggregate3',
+      args: [
+        [
+          {
+            target: wagmiContractConfig.address,
+            allowFailure: false,
+            callData: nameSelector, // name() function selector
+          },
+          {
+            target: wagmiContractConfig.address,
+            allowFailure: false,
+            callData: symbolSelector, // symbol() function selector
+          },
+        ],
+      ],
+    })
+
+    // Verify the function selectors actually work
+    expect(Array.isArray(multicallResult)).toBe(true)
+    expect(multicallResult.length).toBe(2)
+    expect(multicallResult[0].success).toBe(true)
+    expect(multicallResult[1].success).toBe(true)
+  })
+
+  test('consistency', async () => {
+    // Verify that direct function calls and selector-based calls return the same data
+    const directName = await readContract(client, {
+      ...wagmiContractConfig,
+      functionName: 'name',
+    })
+
+    const selectorBasedName = await readContract(client, {
+      abi: [
+        {
+          inputs: [
+            {
+              components: [
+                { name: 'target', type: 'address' },
+                { name: 'allowFailure', type: 'bool' },
+                { name: 'callData', type: 'bytes' },
+              ],
+              name: 'calls',
+              type: 'tuple[]',
+            },
+          ],
+          name: 'aggregate3',
+          outputs: [
+            {
+              components: [
+                { name: 'success', type: 'bool' },
+                { name: 'returnData', type: 'bytes' },
+              ],
+              name: 'returnData',
+              type: 'tuple[]',
+            },
+          ],
+          stateMutability: 'view',
+          type: 'function',
+        },
+      ],
+      address: anvilMainnet.chain.contracts.multicall3.address,
+      functionName: 'aggregate3',
+      args: [
+        [
+          {
+            target: wagmiContractConfig.address,
+            allowFailure: false,
+            callData: '0x06fdde03', // name() function selector
+          },
+        ],
+      ],
+    })
+
+    expect(directName).toBe('wagmi')
+    expect(Array.isArray(selectorBasedName)).toBe(true)
+    expect(selectorBasedName[0].success).toBe(true)
+    // The return data contains the encoded result, not the decoded string
+    expect(typeof selectorBasedName[0].returnData).toBe('string')
+  })
+})
+
+describe('integration', () => {
+  test('multi-contract', async () => {
+    // Test reading from multiple contracts in sequence
+    const wagmiName = await readContract(client, {
+      ...wagmiContractConfig,
+      functionName: 'name',
+    })
+
+    const wagmiSymbol = await readContract(client, {
+      ...wagmiContractConfig,
+      functionName: 'symbol',
+    })
+
+    const wagmiSupply = await readContract(client, {
+      ...wagmiContractConfig,
+      functionName: 'totalSupply',
+      blockNumber: anvilMainnet.forkBlockNumber,
+    })
+
+    // Verify all contract interactions work
+    expect(wagmiName).toBe('wagmi')
+    expect(wagmiSymbol).toBe('WAGMI')
+    expect(typeof wagmiSupply).toBe('bigint')
+    expect(wagmiSupply).toBeGreaterThan(0n)
+  })
+
+  test('concurrent calls', async () => {
+    // Test multiple concurrent calls to verify no race conditions
+    const promises = Array.from({ length: 5 }, (_, i) =>
+      readContract(client, {
+        ...wagmiContractConfig,
+        functionName: 'balanceOf',
+        args: [accounts[i % accounts.length].address],
+      }),
+    )
+
+    const results = await Promise.all(promises)
+
+    // All should be valid bigints
+    for (const result of results) {
+      expect(typeof result).toBe('bigint')
+      expect(result).toBeGreaterThanOrEqual(0n)
+    }
+  })
+
+  test('type validation', async () => {
+    // Test various return types
+    const name = await readContract(client, {
+      ...wagmiContractConfig,
+      functionName: 'name',
+    })
+
+    const balance = await readContract(client, {
+      ...wagmiContractConfig,
+      functionName: 'balanceOf',
+      args: [accounts[0].address],
+    })
+
+    const approved = await readContract(client, {
+      ...wagmiContractConfig,
+      functionName: 'isApprovedForAll',
+      args: [accounts[0].address, accounts[1].address],
+    })
+
+    // Verify type correctness
+    expect(typeof name).toBe('string')
+    expect(typeof balance).toBe('bigint')
+    expect(typeof approved).toBe('boolean')
+
+    expect(name).toBe('wagmi')
+    expect(balance).toBeGreaterThanOrEqual(0n)
+    expect([true, false]).toContain(approved)
+  })
+
+  test('performance', async () => {
+    // Test that repeated calls with same parameters return consistent results
+    const contractCall = {
+      ...wagmiContractConfig,
+      functionName: 'name' as const,
+    }
+
+    // Make multiple calls with identical parameters
+    const results = await Promise.all([
+      readContract(client, contractCall),
+      readContract(client, contractCall),
+      readContract(client, contractCall),
+    ])
+
+    // All results should be identical
+    expect(results[0]).toBe('wagmi')
+    expect(results[1]).toBe('wagmi')
+    expect(results[2]).toBe('wagmi')
+    expect(results[0]).toBe(results[1])
+    expect(results[1]).toBe(results[2])
+  })
 })

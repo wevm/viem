@@ -38,15 +38,35 @@ import {
 
 export type GetEnsAddressParameters = Prettify<
   Pick<ReadContractParameters, 'blockNumber' | 'blockTag'> & {
-    /** ENSIP-9 compliant coinType used to resolve addresses for other chains */
-    coinType?: number | undefined
-    /** Universal Resolver gateway URLs to use for resolving CCIP-read requests. */
+    /**
+     * ENSIP-9 compliant coinType (chain) to get ENS address for.
+     *
+     * To get the `coinType` for a chain id, use the `toCoinType` function:
+     * ```ts
+     * import { toCoinType } from 'viem'
+     * import { base } from 'viem/chains'
+     *
+     * const coinType = toCoinType(base.id)
+     * ```
+     *
+     * @default 60n
+     */
+    coinType?: bigint | undefined
+    /**
+     * Universal Resolver gateway URLs to use for resolving CCIP-read requests.
+     */
     gatewayUrls?: string[] | undefined
-    /** Name to get the address for. */
+    /**
+     * Name to get the address for.
+     */
     name: string
-    /** Whether or not to throw errors propagated from the ENS Universal Resolver Contract. */
+    /**
+     * Whether or not to throw errors propagated from the ENS Universal Resolver Contract.
+     */
     strict?: boolean | undefined
-    /** Address of ENS Universal Resolver Contract. */
+    /**
+     * Address of ENS Universal Resolver Contract.
+     */
     universalResolverAddress?: Address | undefined
   }
 >
@@ -116,19 +136,22 @@ export async function getEnsAddress<chain extends Chain | undefined>(
   const tlds = chain?.ensTlds
   if (tlds && !tlds.some((tld) => name.endsWith(tld))) return null
 
+  const args = (() => {
+    if (coinType != null) return [namehash(name), BigInt(coinType)] as const
+    return [namehash(name)] as const
+  })()
+
   try {
     const functionData = encodeFunctionData({
       abi: addressResolverAbi,
       functionName: 'addr',
-      ...(coinType != null
-        ? { args: [namehash(name), BigInt(coinType)] }
-        : { args: [namehash(name)] }),
+      args,
     })
 
     const readContractParameters = {
       address: universalResolverAddress,
       abi: universalResolverResolveAbi,
-      functionName: 'resolve',
+      functionName: 'resolveWithGateways',
       args: [
         toHex(packetToBytes(name)),
         functionData,
@@ -146,7 +169,7 @@ export async function getEnsAddress<chain extends Chain | undefined>(
 
     const address = decodeFunctionResult({
       abi: addressResolverAbi,
-      args: coinType != null ? [namehash(name), BigInt(coinType)] : undefined,
+      args,
       functionName: 'addr',
       data: res[0],
     })
@@ -156,7 +179,7 @@ export async function getEnsAddress<chain extends Chain | undefined>(
     return address
   } catch (err) {
     if (strict) throw err
-    if (isNullUniversalResolverError(err, 'resolve')) return null
+    if (isNullUniversalResolverError(err)) return null
     throw err
   }
 }

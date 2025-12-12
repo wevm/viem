@@ -21,9 +21,10 @@ export type Call<
         GetMulticallContractParameters<call, AbiStateMutability>,
         'address'
       > & {
+        data?: Hex | undefined
+        dataSuffix?: Hex | undefined
         to: Address
         value?: bigint | undefined
-        dataSuffix?: Hex | undefined
       },
       extraProperties
     >

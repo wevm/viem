@@ -85,6 +85,34 @@ const result = await walletClient.waitForCallsStatus({
 })
 ```
 
+### retryCount
+
+- **Type:** `number`
+- **Default:** `4`
+
+Number of times to retry if the call bundle fails.
+
+```ts
+const result = await walletClient.waitForCallsStatus({
+  id: '0xdeadbeef',
+  retryCount: 10, // [!code focus]
+})
+```
+
+### retryDelay
+
+- **Type:** `number`
+- **Default:** `({ count }) => ~~(1 << count) * 200`
+
+Time to wait (in ms) between retries.
+
+```ts
+const result = await walletClient.waitForCallsStatus({
+  id: '0xdeadbeef',
+  retryDelay: 1_000, // [!code focus]
+})
+```
+
 ### status
 
 - **Type:** `(parameters: { statusCode: number, status: string | undefined }) => boolean`
@@ -96,6 +124,20 @@ Status to wait for. Defaults to non-pending status codes (`>=200`).
 const result = await walletClient.waitForCallsStatus({
   id: '0xdeadbeef',
   status: ({ status }) => status === 'success', // [!code focus]
+})
+```
+
+### throwOnFailure
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether to throw an error if the call bundle fails.
+
+```ts
+const result = await walletClient.waitForCallsStatus({
+  id: '0xdeadbeef',
+  throwOnFailure: true, // [!code focus]
 })
 ```
 

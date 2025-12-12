@@ -1,13 +1,10 @@
+import type { IncomingHttpHeaders } from 'node:http'
 import { describe, expect, test, vi } from 'vitest'
 
-import type { IncomingHttpHeaders } from 'node:http'
-
 import { createHttpServer } from '~test/src/utils.js'
-
+import { keccak256 } from '~viem/index.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { getBlockNumber, mine } from '../../actions/index.js'
-
-import { keccak256 } from '~viem/index.js'
 import { numberToHex, toHex } from '../encoding/toHex.js'
 import * as withTimeout from '../promise/withTimeout.js'
 import { wait } from '../wait.js'
@@ -26,7 +23,7 @@ describe('request', () => {
       {
         "id": 1,
         "jsonrpc": "2.0",
-        "result": "anvil/v1.3.0",
+        "result": "anvil/v1.5.0",
       }
     `)
   })
@@ -41,7 +38,7 @@ describe('request', () => {
       {
         "id": 1,
         "jsonrpc": "2.0",
-        "result": "anvil/v1.3.0",
+        "result": "anvil/v1.5.0",
       }
     `)
   })
@@ -351,6 +348,20 @@ describe('request', () => {
     vi.unstubAllGlobals()
   })
 
+  test('fetch override', async () => {
+    const fetchOverride = vi.fn(fetch)
+
+    const client = getHttpRpcClient(anvilMainnet.rpcUrl.http, {
+      fetchFn: fetchOverride,
+    })
+
+    await client.request({
+      body: { method: 'web3_clientVersion' },
+    })
+
+    expect(fetchOverride).toHaveBeenCalled()
+  })
+
   // TODO: This is flaky.
   test.skip('timeout', async () => {
     const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
@@ -421,12 +432,12 @@ describe('http (batch)', () => {
         {
           "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.3.0",
+          "result": "anvil/v1.5.0",
         },
         {
           "id": 2,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.3.0",
+          "result": "anvil/v1.5.0",
         },
       ]
     `)
@@ -447,7 +458,7 @@ describe('http (batch)', () => {
         {
           "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.3.0",
+          "result": "anvil/v1.5.0",
         },
         {
           "error": {
@@ -473,7 +484,7 @@ describe('http (batch)', () => {
         {
           "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.3.0",
+          "result": "anvil/v1.5.0",
         },
         {
           "error": {

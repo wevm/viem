@@ -5,6 +5,7 @@ export const linea = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 59_144,
   name: 'Linea Mainnet',
+  blockTime: 2000,
   nativeCurrency: { name: 'Linea Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
@@ -29,8 +30,8 @@ export const linea = /*#__PURE__*/ defineChain({
       blockCreated: 6682888,
     },
     ensUniversalResolver: {
-      address: '0x3aA974fb3f8C1E02796048BDCdeD79e9D53a6965',
-      blockCreated: 6683000,
+      address: '0x4D41762915F83c76EcaF6776d9b08076aA32b492',
+      blockCreated: 22_222_151,
     },
   },
   ensTlds: ['.linea.eth'],

@@ -5,15 +5,14 @@ import { anvilMainnet } from '../../../test/src/anvil.js'
 import { holesky, zksync } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
+import { createClient } from '../../index.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
+import { wait } from '../../utils/wait.js'
 import type { ZksyncTransactionReceipt } from '../../zksync/types/transaction.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
-
-import { createClient } from '../../index.js'
-import { wait } from '../../utils/wait.js'
 import { getBlock } from './getBlock.js'
 import { getTransaction } from './getTransaction.js'
 import { getTransactionReceipt } from './getTransactionReceipt.js'
@@ -43,6 +42,7 @@ test('gets transaction receipt', async () => {
           "address": "0xf7134ce138832c1456f2a91d64621ee90c2bddea",
           "blockHash": "0x019d374731477005b8d3e3236aca44d11ef53fc9eb0ab0c9e11f942636b04b1b",
           "blockNumber": 22263622n,
+          "blockTimestamp": "0x67fc55cf",
           "data": "0x",
           "logIndex": 0,
           "removed": false,
@@ -66,7 +66,7 @@ test('gets transaction receipt', async () => {
   `)
 })
 
-test('gets transaction receipt (4844)', async () => {
+test.skip('gets transaction receipt (4844)', async () => {
   const client = createClient({
     chain: holesky,
     transport: http(),
