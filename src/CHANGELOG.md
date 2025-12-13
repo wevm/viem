@@ -1,5 +1,28 @@
 # viem
 
+## 2.42.0
+
+### Minor Changes
+
+- [#4134](https://github.com/wevm/viem/pull/4134) [`d9d666beeccf748157d1292849f5a0d18768baf7`](https://github.com/wevm/viem/commit/d9d666beeccf748157d1292849f5a0d18768baf7) Thanks [@mikelxc](https://github.com/mikelxc)! - Added EntryPoint v0.9 support for Account Abstraction (ERC-4337).
+
+  - Added `entryPoint09Abi` and `entryPoint09Address` constants
+  - Added `'0.9'` to `EntryPointVersion` type
+  - Added `UserOperation<'0.9'>` with new `paymasterSignature` field for parallelizable paymaster signing
+  - Updated `getUserOperationHash` to support v0.9 (uses EIP-712 typed data like v0.8)
+  - Updated `toPackedUserOperation` to handle `paymasterSignature`
+  - Updated `prepareUserOperation` type definitions for v0.9
+
+### Patch Changes
+
+- [#4145](https://github.com/wevm/viem/pull/4145) [`6104df73f8f38b55dc04174523ade8f25436f6da`](https://github.com/wevm/viem/commit/6104df73f8f38b55dc04174523ade8f25436f6da) Thanks [@myronrotter](https://github.com/myronrotter)! - Added Taiko Hoodi Testnet.
+
+- [#4144](https://github.com/wevm/viem/pull/4144) [`6e6543861d95f8ebf6167a077dce39f1fe6febfa`](https://github.com/wevm/viem/commit/6e6543861d95f8ebf6167a077dce39f1fe6febfa) Thanks [@chawyehsu](https://github.com/chawyehsu)! - Add Stable Testnet
+
+- [#4137](https://github.com/wevm/viem/pull/4137) [`97cec97451ff88ddaebf3b2a2a10fdb81e28b0da`](https://github.com/wevm/viem/commit/97cec97451ff88ddaebf3b2a2a10fdb81e28b0da) Thanks [@akitothemoon](https://github.com/akitothemoon)! - Added Henesys network.
+
+- [#4138](https://github.com/wevm/viem/pull/4138) [`cf7bcc86422c32d70023e196dc2a85f6ad690b27`](https://github.com/wevm/viem/commit/cf7bcc86422c32d70023e196dc2a85f6ad690b27) Thanks [@ihooni](https://github.com/ihooni)! - Support preconf for GIWA testnet
+
 ## 2.41.2
 
 ### Patch Changes
