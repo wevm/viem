@@ -24,131 +24,190 @@ const client = client_
   .extend(tempoActions())
 
 describe('sendTransaction', () => {
-  describe('secp256k1', () => {
-    test('default', async () => {
-      const account = accounts[0]
+  test('default', async () => {
+    const account = accounts[0]
 
-      const hash = await client.sendTransaction({
-        account,
-        data: '0xdeadbeef',
-        to: '0x0000000000000000000000000000000000000000',
-      })
-      await client.waitForTransactionReceipt({ hash })
-
-      const {
-        blockHash,
-        blockNumber,
-        chainId,
-        from,
-        gas,
-        gasPrice,
-        hash: hash_,
-        keyAuthorization: __,
-        maxFeePerGas,
-        maxPriorityFeePerGas,
-        nonce,
-        nonceKey,
-        signature,
-        transactionIndex,
-        ...transaction
-      } = await client.getTransaction({ hash })
-
-      expect(blockHash).toBeDefined()
-      expect(blockNumber).toBeDefined()
-      expect(chainId).toBeDefined()
-      expect(from).toBe(account.address.toLowerCase())
-      expect(gas).toBeDefined()
-      expect(gasPrice).toBeDefined()
-      expect(hash_).toBe(hash)
-      expect(maxFeePerGas).toBeDefined()
-      expect(maxPriorityFeePerGas).toBeDefined()
-      expect(nonce).toBeDefined()
-      expect(nonceKey).toBeDefined()
-      expect(signature).toBeDefined()
-      expect(transactionIndex).toBeDefined()
-      expect(transaction).toMatchInlineSnapshot(`
-        {
-          "accessList": [],
-          "authorizationList": [],
-          "calls": [
-            {
-              "data": "0xdeadbeef",
-              "to": "0x0000000000000000000000000000000000000000",
-              "value": 0n,
-            },
-          ],
-          "data": undefined,
-          "feePayerSignature": undefined,
-          "feeToken": "0x20c0000000000000000000000000000000000001",
-          "maxFeePerBlobGas": undefined,
-          "to": null,
-          "type": "tempo",
-          "typeHex": "0x76",
-          "v": undefined,
-          "validAfter": null,
-          "validBefore": null,
-          "value": 0n,
-          "yParity": undefined,
-        }
-      `)
+    const hash = await client.sendTransaction({
+      account,
+      data: '0xdeadbeef',
+      to: '0x0000000000000000000000000000000000000000',
     })
+    await client.waitForTransactionReceipt({ hash })
 
-    test('with calls', async () => {
-      const account = accounts[0]
+    const {
+      blockHash,
+      blockNumber,
+      chainId,
+      from,
+      gas,
+      gasPrice,
+      hash: hash_,
+      keyAuthorization: __,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      r,
+      s,
+      v,
+      yParity,
+      transactionIndex,
+      ...transaction
+    } = await client.getTransaction({ hash })
 
-      const hash = await client.sendTransaction({
-        account,
-        calls: [
-          actions.token.create.call({
-            admin: accounts[0].address,
-            currency: 'USD',
-            name: 'Test Token 3',
-            symbol: 'TEST3',
-          }),
+    expect(blockHash).toBeDefined()
+    expect(blockNumber).toBeDefined()
+    expect(chainId).toBeDefined()
+    expect(from).toBe(account.address.toLowerCase())
+    expect(gas).toBeDefined()
+    expect(gasPrice).toBeDefined()
+    expect(hash_).toBe(hash)
+    expect(maxFeePerGas).toBeDefined()
+    expect(maxPriorityFeePerGas).toBeDefined()
+    expect(nonce).toBeDefined()
+    expect(r).toBeDefined()
+    expect(s).toBeDefined()
+    expect(v).toBeDefined()
+    expect(yParity).toBeDefined()
+    expect(transactionIndex).toBeDefined()
+    expect(transaction).toMatchInlineSnapshot(`
+      {
+        "accessList": [],
+        "data": "0xdeadbeef",
+        "feePayerSignature": undefined,
+        "input": "0xdeadbeef",
+        "to": "0x0000000000000000000000000000000000000000",
+        "type": "eip1559",
+        "typeHex": "0x2",
+        "value": 0n,
+      }
+    `)
+  })
+
+  test('with fee token', async () => {
+    const account = accounts[0]
+
+    const hash = await client.sendTransaction({
+      account,
+      data: '0xdeadbeef',
+      feeToken: '0x20c0000000000000000000000000000000000001',
+      to: '0x0000000000000000000000000000000000000000',
+    })
+    await client.waitForTransactionReceipt({ hash })
+
+    const {
+      blockHash,
+      blockNumber,
+      chainId,
+      from,
+      gas,
+      gasPrice,
+      hash: hash_,
+      keyAuthorization: __,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      nonceKey,
+      signature,
+      transactionIndex,
+      ...transaction
+    } = await client.getTransaction({ hash })
+
+    expect(blockHash).toBeDefined()
+    expect(blockNumber).toBeDefined()
+    expect(chainId).toBeDefined()
+    expect(from).toBe(account.address.toLowerCase())
+    expect(gas).toBeDefined()
+    expect(gasPrice).toBeDefined()
+    expect(hash_).toBe(hash)
+    expect(maxFeePerGas).toBeDefined()
+    expect(maxPriorityFeePerGas).toBeDefined()
+    expect(nonce).toBeDefined()
+    expect(nonceKey).toBeDefined()
+    expect(signature).toBeDefined()
+    expect(transactionIndex).toBeDefined()
+    expect(transaction).toMatchInlineSnapshot(`
+      {
+        "accessList": [],
+        "authorizationList": [],
+        "calls": [
+          {
+            "data": "0xdeadbeef",
+            "to": "0x0000000000000000000000000000000000000000",
+            "value": 0n,
+          },
         ],
-      })
-      await client.waitForTransactionReceipt({ hash })
+        "data": undefined,
+        "feePayerSignature": undefined,
+        "feeToken": "0x20c0000000000000000000000000000000000001",
+        "maxFeePerBlobGas": undefined,
+        "to": null,
+        "type": "tempo",
+        "typeHex": "0x76",
+        "v": undefined,
+        "validAfter": null,
+        "validBefore": null,
+        "value": 0n,
+        "yParity": undefined,
+      }
+    `)
+  })
 
-      const {
-        blockHash,
-        blockNumber,
-        calls,
-        chainId,
-        from,
-        gas,
-        gasPrice,
-        hash: hash_,
-        keyAuthorization: __,
-        maxFeePerGas,
-        maxPriorityFeePerGas,
-        nonce,
-        nonceKey,
-        signature,
-        transactionIndex,
-        ...transaction
-      } = await client.getTransaction({ hash })
+  test('with calls', async () => {
+    const account = accounts[0]
 
-      expect(blockHash).toBeDefined()
-      expect(blockNumber).toBeDefined()
-      expect(calls?.length).toBe(1)
-      expect(chainId).toBeDefined()
-      expect(from).toBe(account.address.toLowerCase())
-      expect(gas).toBeDefined()
-      expect(gasPrice).toBeDefined()
-      expect(hash_).toBe(hash)
-      expect(maxFeePerGas).toBeDefined()
-      expect(maxPriorityFeePerGas).toBeDefined()
-      expect(nonce).toBeDefined()
-      expect(nonceKey).toBeDefined()
-      expect(signature).toBeDefined()
-      expect(transactionIndex).toBeDefined()
-      expect(transaction).toMatchInlineSnapshot(`
+    const hash = await client.sendTransaction({
+      account,
+      calls: [
+        actions.token.create.call({
+          admin: accounts[0].address,
+          currency: 'USD',
+          name: 'Test Token 3',
+          symbol: 'TEST3',
+        }),
+      ],
+    })
+    await client.waitForTransactionReceipt({ hash })
+
+    const {
+      blockHash,
+      blockNumber,
+      calls,
+      chainId,
+      from,
+      gas,
+      gasPrice,
+      hash: hash_,
+      keyAuthorization: __,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      nonceKey,
+      signature,
+      transactionIndex,
+      ...transaction
+    } = await client.getTransaction({ hash })
+
+    expect(blockHash).toBeDefined()
+    expect(blockNumber).toBeDefined()
+    expect(calls?.length).toBe(1)
+    expect(chainId).toBeDefined()
+    expect(from).toBe(account.address.toLowerCase())
+    expect(gas).toBeDefined()
+    expect(gasPrice).toBeDefined()
+    expect(hash_).toBe(hash)
+    expect(maxFeePerGas).toBeDefined()
+    expect(maxPriorityFeePerGas).toBeDefined()
+    expect(nonce).toBeDefined()
+    expect(nonceKey).toBeDefined()
+    expect(signature).toBeDefined()
+    expect(transactionIndex).toBeDefined()
+    expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
           "data": undefined,
           "feePayerSignature": undefined,
-          "feeToken": "0x20c0000000000000000000000000000000000001",
+          "feeToken": null,
           "maxFeePerBlobGas": undefined,
           "to": null,
           "type": "tempo",
@@ -160,53 +219,53 @@ describe('sendTransaction', () => {
           "yParity": undefined,
         }
       `)
+  })
+
+  test('with feePayer', async () => {
+    const account = privateKeyToAccount(generatePrivateKey())
+    const feePayer = accounts[0]
+
+    const hash = await client.sendTransaction({
+      account,
+      feePayer,
+      to: '0x0000000000000000000000000000000000000000',
     })
+    await client.waitForTransactionReceipt({ hash })
 
-    test('with feePayer', async () => {
-      const account = privateKeyToAccount(generatePrivateKey())
-      const feePayer = accounts[0]
+    const {
+      blockHash,
+      blockNumber,
+      chainId,
+      feePayerSignature,
+      from,
+      gas,
+      gasPrice,
+      hash: hash_,
+      keyAuthorization: __,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      nonceKey,
+      signature,
+      transactionIndex,
+      ...transaction
+    } = await client.getTransaction({ hash })
 
-      const hash = await client.sendTransaction({
-        account,
-        feePayer,
-        to: '0x0000000000000000000000000000000000000000',
-      })
-      await client.waitForTransactionReceipt({ hash })
-
-      const {
-        blockHash,
-        blockNumber,
-        chainId,
-        feePayerSignature,
-        from,
-        gas,
-        gasPrice,
-        hash: hash_,
-        keyAuthorization: __,
-        maxFeePerGas,
-        maxPriorityFeePerGas,
-        nonce,
-        nonceKey,
-        signature,
-        transactionIndex,
-        ...transaction
-      } = await client.getTransaction({ hash })
-
-      expect(blockHash).toBeDefined()
-      expect(blockNumber).toBeDefined()
-      expect(chainId).toBeDefined()
-      expect(feePayerSignature).toBeDefined()
-      expect(from).toBe(account.address.toLowerCase())
-      expect(gas).toBeDefined()
-      expect(gasPrice).toBeDefined()
-      expect(hash_).toBe(hash)
-      expect(maxFeePerGas).toBeDefined()
-      expect(maxPriorityFeePerGas).toBeDefined()
-      expect(nonce).toBeDefined()
-      expect(nonceKey).toBeDefined()
-      expect(signature).toBeDefined()
-      expect(transactionIndex).toBeDefined()
-      expect(transaction).toMatchInlineSnapshot(`
+    expect(blockHash).toBeDefined()
+    expect(blockNumber).toBeDefined()
+    expect(chainId).toBeDefined()
+    expect(feePayerSignature).toBeDefined()
+    expect(from).toBe(account.address.toLowerCase())
+    expect(gas).toBeDefined()
+    expect(gasPrice).toBeDefined()
+    expect(hash_).toBe(hash)
+    expect(maxFeePerGas).toBeDefined()
+    expect(maxPriorityFeePerGas).toBeDefined()
+    expect(nonce).toBeDefined()
+    expect(nonceKey).toBeDefined()
+    expect(signature).toBeDefined()
+    expect(transactionIndex).toBeDefined()
+    expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -218,7 +277,7 @@ describe('sendTransaction', () => {
             },
           ],
           "data": undefined,
-          "feeToken": "0x20c0000000000000000000000000000000000001",
+          "feeToken": null,
           "maxFeePerBlobGas": undefined,
           "to": null,
           "type": "tempo",
@@ -230,46 +289,44 @@ describe('sendTransaction', () => {
           "yParity": undefined,
         }
       `)
+  })
+
+  test('with access key', async () => {
+    const account = accounts[0]
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
     })
 
-    test('with access key', async () => {
-      const account = accounts[0]
-      const accessKey = Account.fromP256(generatePrivateKey(), {
-        access: account,
+    const keyAuthorization = await account.signKeyAuthorization(accessKey)
+    await account.assignKeyAuthorization(keyAuthorization)
+
+    {
+      const receipt = await client.sendTransactionSync({
+        account: accessKey,
       })
+      expect(receipt).toBeDefined()
+    }
 
-      const keyAuthorization = await account.signKeyAuthorization(accessKey)
-      await account.assignKeyAuthorization(keyAuthorization)
+    {
+      const receipt = await client.token.transferSync({
+        account: accessKey,
+        amount: 100n,
+        token: '0x20c0000000000000000000000000000000000001',
+        to: '0x0000000000000000000000000000000000000001',
+      })
+      expect(receipt).toBeDefined()
+    }
 
-      {
-        const receipt = await client.sendTransactionSync({
-          account: accessKey,
-        })
-        expect(receipt).toBeDefined()
-      }
-
-      // TODO: uncomment once unlimited spend supported
-      // {
-      //   const receipt = await client.token.transferSync({
-      //     account: accessKey,
-      //     amount: 100n,
-      //     token: '0x20c0000000000000000000000000000000000001',
-      //     to: '0x0000000000000000000000000000000000000001',
-      //   })
-      //   expect(receipt).toBeDefined()
-      // }
-
-      {
-        const receipt = await client.token.createSync({
-          account: accessKey,
-          admin: accessKey.address,
-          currency: 'USD',
-          name: 'Test Token 4',
-          symbol: 'TEST4',
-        })
-        expect(receipt).toBeDefined()
-      }
-    })
+    {
+      const receipt = await client.token.createSync({
+        account: accessKey,
+        admin: accessKey.address,
+        currency: 'USD',
+        name: 'Test Token 4',
+        symbol: 'TEST4',
+      })
+      expect(receipt).toBeDefined()
+    }
   })
 
   describe('p256', () => {
@@ -333,7 +390,7 @@ describe('sendTransaction', () => {
           ],
           "data": undefined,
           "feePayerSignature": undefined,
-          "feeToken": "0x20c0000000000000000000000000000000000001",
+          "feeToken": null,
           "maxFeePerBlobGas": undefined,
           "to": null,
           "type": "tempo",
@@ -410,7 +467,7 @@ describe('sendTransaction', () => {
           "authorizationList": [],
           "data": undefined,
           "feePayerSignature": undefined,
-          "feeToken": "0x20c0000000000000000000000000000000000001",
+          "feeToken": null,
           "maxFeePerBlobGas": undefined,
           "to": null,
           "type": "tempo",
@@ -483,7 +540,7 @@ describe('sendTransaction', () => {
             },
           ],
           "data": undefined,
-          "feeToken": "0x20c0000000000000000000000000000000000001",
+          "feeToken": null,
           "maxFeePerBlobGas": undefined,
           "to": null,
           "type": "tempo",
@@ -613,7 +670,7 @@ describe('sendTransaction', () => {
           ],
           "data": undefined,
           "feePayerSignature": undefined,
-          "feeToken": "0x20c0000000000000000000000000000000000001",
+          "feeToken": null,
           "gas": 29012n,
           "maxFeePerBlobGas": undefined,
           "to": null,
@@ -818,7 +875,7 @@ describe('sendTransaction', () => {
           ],
           "data": undefined,
           "feePayerSignature": undefined,
-          "feeToken": "0x20c0000000000000000000000000000000000001",
+          "feeToken": null,
           "maxFeePerBlobGas": undefined,
           "to": null,
           "type": "tempo",
@@ -899,7 +956,7 @@ describe('sendTransaction', () => {
           "authorizationList": [],
           "data": undefined,
           "feePayerSignature": undefined,
-          "feeToken": "0x20c0000000000000000000000000000000000001",
+          "feeToken": null,
           "maxFeePerBlobGas": undefined,
           "to": null,
           "type": "tempo",
@@ -976,7 +1033,7 @@ describe('sendTransaction', () => {
             },
           ],
           "data": undefined,
-          "feeToken": "0x20c0000000000000000000000000000000000001",
+          "feeToken": null,
           "maxFeePerBlobGas": undefined,
           "to": null,
           "type": "tempo",
@@ -1076,7 +1133,7 @@ describe('sendTransaction', () => {
       client.getTransaction({ hash: receipts[2].transactionHash }),
     ])
 
-    expect(transactions[0].nonceKey).toBe(0n)
+    expect(transactions[0].nonceKey).toBe(undefined)
     expect(transactions[1].nonceKey).toBeGreaterThan(0n)
     expect(transactions[2].nonceKey).toBeGreaterThan(0n)
   })
@@ -1153,7 +1210,7 @@ describe('signTransaction', () => {
           },
         ],
         "data": undefined,
-        "feeToken": "0x20c0000000000000000000000000000000000001",
+        "feeToken": null,
         "gas": 24002n,
         "maxFeePerBlobGas": undefined,
         "to": null,
@@ -1266,19 +1323,13 @@ describe('relay', () => {
         '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
       )
 
-      const { receipt } = await client.fee.setUserTokenSync({
+      const { receipt } = await client.token.approveSync({
         account,
+        amount: 100n,
         feePayer: true,
+        spender: '0x0000000000000000000000000000000000000000',
         token: 1n,
       })
-
-      const userToken = await client.fee.getUserToken({ account })
-      expect(userToken).toMatchInlineSnapshot(`
-        {
-          "address": "0x20C0000000000000000000000000000000000001",
-          "id": 1n,
-        }
-      `)
 
       const {
         blockHash,
@@ -1319,13 +1370,13 @@ describe('relay', () => {
           "authorizationList": [],
           "calls": [
             {
-              "data": "0xe789744400000000000000000000000020c0000000000000000000000000000000000001",
-              "to": "0xfeec000000000000000000000000000000000000",
+              "data": "0x095ea7b300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064",
+              "to": "0x20c0000000000000000000000000000000000001",
               "value": 0n,
             },
           ],
           "data": undefined,
-          "feeToken": "0x20c0000000000000000000000000000000000001",
+          "feeToken": null,
           "maxFeePerBlobGas": undefined,
           "to": null,
           "type": "tempo",
@@ -1380,9 +1431,11 @@ describe('relay', () => {
         '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
       )
 
-      const { receipt } = await client.fee.setUserTokenSync({
+      const { receipt } = await client.token.approveSync({
         account,
+        amount: 100n,
         feePayer: true,
+        spender: '0x0000000000000000000000000000000000000000',
         token: 1n,
       })
 
@@ -1396,19 +1449,13 @@ describe('relay', () => {
         '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b',
       )
 
-      const { receipt } = await client.fee.setUserTokenSync({
+      const { receipt } = await client.token.approveSync({
         account,
+        amount: 100n,
         feePayer: true,
+        spender: '0x0000000000000000000000000000000000000000',
         token: 1n,
       })
-
-      const userToken = await client.fee.getUserToken({ account })
-      expect(userToken).toMatchInlineSnapshot(`
-        {
-          "address": "0x20C0000000000000000000000000000000000001",
-          "id": 1n,
-        }
-      `)
 
       const {
         blockHash,
@@ -1449,13 +1496,13 @@ describe('relay', () => {
           "authorizationList": [],
           "calls": [
             {
-              "data": "0xe789744400000000000000000000000020c0000000000000000000000000000000000001",
-              "to": "0xfeec000000000000000000000000000000000000",
+              "data": "0x095ea7b300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064",
+              "to": "0x20c0000000000000000000000000000000000001",
               "value": 0n,
             },
           ],
           "data": undefined,
-          "feeToken": "0x20c0000000000000000000000000000000000001",
+          "feeToken": null,
           "maxFeePerBlobGas": undefined,
           "to": null,
           "type": "tempo",
@@ -1475,19 +1522,13 @@ describe('relay', () => {
       const keyPair = await WebCryptoP256.createKeyPair()
       const account = Account.fromWebCryptoP256(keyPair)
 
-      const { receipt } = await client.fee.setUserTokenSync({
+      const { receipt } = await client.token.approveSync({
         account,
+        amount: 100n,
         feePayer: true,
+        spender: '0x0000000000000000000000000000000000000000',
         token: 1n,
       })
-
-      const userToken = await client.fee.getUserToken({ account })
-      expect(userToken).toMatchInlineSnapshot(`
-        {
-          "address": "0x20C0000000000000000000000000000000000001",
-          "id": 1n,
-        }
-      `)
 
       const transaction = await client.getTransaction({
         hash: receipt.transactionHash,
@@ -1507,19 +1548,13 @@ describe('relay', () => {
         },
       )
 
-      const { receipt } = await client.fee.setUserTokenSync({
+      const { receipt } = await client.token.approveSync({
         account,
+        amount: 100n,
         feePayer: true,
+        spender: '0x0000000000000000000000000000000000000000',
         token: 1n,
       })
-
-      const userToken = await client.fee.getUserToken({ account })
-      expect(userToken).toMatchInlineSnapshot(`
-            {
-              "address": "0x20C0000000000000000000000000000000000001",
-              "id": 1n,
-            }
-          `)
 
       const {
         blockHash,
@@ -1560,13 +1595,13 @@ describe('relay', () => {
           "authorizationList": [],
           "calls": [
             {
-              "data": "0xe789744400000000000000000000000020c0000000000000000000000000000000000001",
-              "to": "0xfeec000000000000000000000000000000000000",
+              "data": "0x095ea7b300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064",
+              "to": "0x20c0000000000000000000000000000000000001",
               "value": 0n,
             },
           ],
           "data": undefined,
-          "feeToken": "0x20c0000000000000000000000000000000000001",
+          "feeToken": null,
           "maxFeePerBlobGas": undefined,
           "to": null,
           "type": "tempo",

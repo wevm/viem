@@ -163,9 +163,11 @@ export function getType(
   transaction: Record<string, unknown>,
 ): Transaction['type'] {
   if (
+    (transaction.account as { keyType?: string })?.keyType !== 'secp256k1' ||
     typeof transaction.calls !== 'undefined' ||
     typeof transaction.feePayer !== 'undefined' ||
     typeof transaction.feeToken !== 'undefined' ||
+    typeof transaction.keyAuthorization !== 'undefined' ||
     typeof transaction.nonceKey !== 'undefined' ||
     typeof transaction.signature !== 'undefined' ||
     typeof transaction.validBefore !== 'undefined' ||
@@ -318,6 +320,12 @@ async function serializeTempo(
     type: 'tempo',
     ...(nonce ? { nonce: BigInt(nonce) } : {}),
   } satisfies TxTempo.TxEnvelopeTempo
+
+  // TODO(tempo): confirm behavior
+  // If we have marked the transaction as intended to be paid
+  // by a fee payer (feePayer: true), we will not use the fee token
+  // as the fee payer will choose their fee token.
+  if (feePayer === true) delete transaction_ox.feeToken
 
   if (signature && typeof transaction.feePayer === 'object') {
     const tx = TxTempo.from(transaction_ox, {

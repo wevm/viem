@@ -71,8 +71,9 @@ export function formatTransactionRequest(
     ? parseAccount<Account | viem_Account | Address>(request.account)
     : undefined
 
+  // TODO(tempo): confirm if we still need this
   // Convert EIP-1559 transactions to Tempo transactions.
-  if (request.type === 'eip1559') (request as any).type = 'tempo'
+  // if (request.type === 'eip1559') (request as any).type = 'tempo'
 
   // If the request is not a Tempo transaction, route to Viem formatter.
   if (!isTempo(request))
@@ -89,6 +90,12 @@ export function formatTransactionRequest(
         data: r.data,
       },
     ]
+
+  // TODO(tempo): confirm behavior
+  // If we have marked the transaction as intended to be paid
+  // by a fee payer (feePayer: true), we will not use the fee token
+  // as the fee payer will choose their fee token.
+  if (request.feePayer === true) delete request.feeToken
 
   const rpc = ox_TransactionRequest.toRpc({
     ...request,

@@ -1,8 +1,8 @@
 import { RpcTransport } from 'ox'
-import { Instance, Server } from 'prool'
+import { type Instance, Server } from 'prool'
 import * as TestContainers from 'prool/testcontainers'
 
-export const port = 3000
+export const port = 8545
 
 export const rpcUrl = (() => {
   if (import.meta.env.VITE_TEMPO_ENV === 'testnet')
@@ -35,12 +35,10 @@ export async function createServer() {
   } satisfies Instance.tempo.Parameters
 
   return Server.create({
-    instance: tag
-      ? TestContainers.Instance.tempo({
-          ...args,
-          image: `ghcr.io/tempoxyz/tempo:${tag}`,
-        })
-      : Instance.tempo(args),
+    instance: TestContainers.Instance.tempo({
+      ...args,
+      image: `ghcr.io/tempoxyz/tempo:${tag}`,
+    }),
     port,
   })
 }

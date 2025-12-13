@@ -451,14 +451,6 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
     },
     async signTransaction(transaction, options) {
       const { serializer = Transaction.serialize } = options ?? {}
-
-      const keyAuthorization =
-        (await storage?.getItem('pendingKeyAuthorization')) ?? undefined
-      if (keyAuthorization && !(transaction as any).keyAuthorization) {
-        ;(transaction as any).keyAuthorization = keyAuthorization
-        await storage.removeItem('pendingKeyAuthorization')
-      }
-
       const signature = await sign({
         hash: keccak256(await serializer(transaction)),
       })

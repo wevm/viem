@@ -64,10 +64,10 @@ ${rpcUrl} \\
   }
 }
 
-export const http = (url?: string | undefined) =>
+export const http = (url = rpcUrl) =>
   viem_http(url, {
     ...debugOptions({
-      rpcUrl,
+      rpcUrl: url,
     }),
   })
 
@@ -84,7 +84,7 @@ export function getClient<
   return createClient({
     pollingInterval: 100,
     chain,
-    transport: http(),
+    transport: http(rpcUrl),
     ...parameters,
   })
 }
@@ -255,13 +255,17 @@ export async function fundAddress(
   const { address } = parameters
   const account = accounts.at(0)!
   if (account.address === address) return
-  await Actions.token.transferSync(client, {
-    account,
-    amount: parseUnits('10000', 6),
-    feeToken: 1n,
-    to: address,
-    token: 1n,
-  })
+  await Promise.all(
+    // fund pathUSD, alphaUSD, betaUSD, thetaUSD
+    [0n, 1n, 2n, 3n].map((feeToken) =>
+      Actions.token.transferSync(client, {
+        account,
+        amount: parseUnits('10000', 6),
+        to: address,
+        token: feeToken,
+      }),
+    ),
+  )
 }
 
 export declare namespace fundAddress {
