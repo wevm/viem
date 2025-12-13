@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
-import type { TransactionReceipt } from '~viem/types/transaction.js'
-import { getL2HashFromPriorityOp } from '~viem/zksync/utils/bridge/getL2HashFromPriorityOp.js'
+import type { TransactionReceipt } from '../../../types/transaction.js'
+import { getL2HashFromPriorityOp } from './getL2HashFromPriorityOp.js'
 
 const receipt: TransactionReceipt = {
   transactionHash:

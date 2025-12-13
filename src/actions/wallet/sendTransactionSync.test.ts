@@ -1,7 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { maxUint256 } from '~viem/constants/number.js'
 import { Delegation, ErrorsExample } from '../../../contracts/generated.js'
 import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
@@ -19,6 +18,7 @@ import type { Client } from '../../clients/createClient.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { http } from '../../clients/transports/http.js'
+import { maxUint256 } from '../../constants/number.js'
 import {
   InvalidInputRpcError,
   MethodNotSupportedRpcError,
