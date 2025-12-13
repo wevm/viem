@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
 import { accounts } from '~test/src/constants.js'
-import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
+import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import { celo } from '../chains/index.js'
 import {
   createTransport,

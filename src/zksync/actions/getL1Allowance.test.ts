@@ -1,10 +1,10 @@
 import { expect, test, vi } from 'vitest'
 
 import { accounts } from '~test/src/constants.js'
-import { sepolia } from '~viem/chains/index.js'
-import { erc20Abi } from '~viem/constants/abis.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import * as readContract from '../../actions/public/readContract.js'
+import { sepolia } from '../../chains/index.js'
+import { erc20Abi } from '../../constants/abis.js'
 import {
   createClient,
   createPublicClient,

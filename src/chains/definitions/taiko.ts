@@ -16,14 +16,14 @@ export const taiko = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Taikoscan',
+      name: 'Etherscan',
       url: 'https://taikoscan.io',
-      apiUrl: 'https://api.taikoscan.io/api',
     },
   },
   contracts: {
     multicall3: {
-      address: '0xcb2436774C3e191c85056d248EF4260ce5f27A9D',
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 11269,
     },
   },
 })

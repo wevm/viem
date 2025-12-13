@@ -3,9 +3,9 @@ import { expect, test } from 'vitest'
 import { anvilZksync } from '~test/src/anvil.js'
 import { accounts } from '~test/src/constants.js'
 import { mockRequestReturnData } from '~test/src/zksync.js'
-import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
-import type { EIP1193RequestFn } from '~viem/index.js'
-import { legacyEthAddress, publicActionsL2 } from '~viem/zksync/index.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import type { EIP1193RequestFn } from '../../index.js'
+import { legacyEthAddress, publicActionsL2 } from '../../zksync/index.js'
 import { withdraw } from './withdraw.js'
 
 const request = (async ({ method, params }) => {

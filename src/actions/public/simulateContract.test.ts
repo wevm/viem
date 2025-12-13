@@ -18,12 +18,12 @@ import {
   deployErrorExample,
   mainnetClient,
 } from '~test/src/utils.js'
-import { maxUint256 } from '~viem/constants/number.js'
 import { anvilMainnet } from '../../../test/src/anvil.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { publicActions } from '../../clients/decorators/public.js'
 import { walletActions } from '../../clients/decorators/wallet.js'
+import { maxUint256 } from '../../constants/number.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { mine } from '../test/mine.js'

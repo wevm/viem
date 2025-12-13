@@ -5,11 +5,14 @@ export default defineConfig({
   test: {
     alias: [
       { find: '~contracts', replacement: join(__dirname, '../contracts') },
-      { find: '~viem', replacement: join(__dirname, '../src') },
       { find: '~test', replacement: join(__dirname, '.') },
       { find: /^viem$/, replacement: join(__dirname, '../src/index.ts') },
       { find: /^viem\/(.*)/, replacement: join(__dirname, '../src/$1') },
     ],
+    benchmark: {
+      outputFile: './bench/report.json',
+      reporters: process.env.CI ? ['default'] : ['verbose'],
+    },
     coverage: {
       provider: 'v8',
       reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],

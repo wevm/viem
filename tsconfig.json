@@ -1,21 +1,12 @@
 {
-  // This configuration is used for local development and type checking.
-  "extends": "./tsconfig.base.json",
-  "include": ["src", "test/src"],
-  "exclude": [],
-  "references": [{ "path": "./scripts/tsconfig.json" }],
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "~contracts/*": ["./contracts/*"],
-      "~viem/*": ["./src/*"],
-      "~test/*": ["./test/*"],
-      // TODO: create tsconfig.json in tests - use composite references.
-      "viem": ["./src/index.ts"],
-      "viem/actions": ["./src/actions/index.ts"],
-      "viem/accounts": ["./src/accounts/index.ts"],
-      "viem/chains": ["./src/chains/index.ts"],
-      "viem/tempo": ["./src/tempo/index.ts"],
-    }
-  }
+	"files": [],
+	"references": [
+		{ "path": "./scripts/tsconfig.json" },
+		{ "path": "./src/tsconfig.json" },
+		{ "path": "./test/tsconfig.json" }
+	],
+	"compilerOptions": {
+		"module": "nodenext",
+		"moduleResolution": "nodenext"
+	}
 }

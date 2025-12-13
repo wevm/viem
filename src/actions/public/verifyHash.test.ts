@@ -15,13 +15,13 @@ import {
   deployErc6492SignatureVerifier,
   deploySoladyAccount_07,
 } from '~test/src/utils.js'
+import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
+import { bundlerMainnet } from '../../../test/src/bundler.js'
 import {
   entryPoint07Abi,
   entryPoint07Address,
   toPackedUserOperation,
-} from '~viem/account-abstraction/index.js'
-import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
-import { bundlerMainnet } from '../../../test/src/bundler.js'
+} from '../../account-abstraction/index.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { zksync } from '../../chains/index.js'
