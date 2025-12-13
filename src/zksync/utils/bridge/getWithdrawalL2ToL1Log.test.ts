@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 import { anvilZksync } from '~test/src/anvil.js'
 import { mockRequestReturnData } from '~test/src/zksync.js'
-import type { EIP1193RequestFn } from '~viem/types/eip1193.js'
+import type { EIP1193RequestFn } from '../../../types/eip1193.js'
 import { getWithdrawalL2ToL1Log } from './getWithdrawalL2ToL1Log.js'
 
 const client = anvilZksync.getClient({ batch: { multicall: false } })

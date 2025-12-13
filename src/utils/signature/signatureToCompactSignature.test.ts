@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import type { Signature } from '~viem/types/misc.js'
+import type { Signature } from '../../types/misc.js'
 import { signatureToCompactSignature } from './signatureToCompactSignature.js'
 
 test('default', () => {
