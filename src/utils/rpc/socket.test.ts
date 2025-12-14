@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 import { wait } from '../wait.js'
 import { getSocketRpcClient } from './socket.js'
 

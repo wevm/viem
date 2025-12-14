@@ -1,8 +1,7 @@
 import type { IncomingHttpHeaders } from 'node:http'
 import { describe, expect, test, vi } from 'vitest'
-
-import { createHttpServer } from '~test/src/utils.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { createHttpServer } from '~test/utils.js'
 import { getBlockNumber, mine } from '../../actions/index.js'
 import { keccak256 } from '../../index.js'
 import { numberToHex, toHex } from '../encoding/toHex.js'

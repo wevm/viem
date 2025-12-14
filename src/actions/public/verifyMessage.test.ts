@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
-import { smartAccountConfig } from '~test/src/abis.js'
-import { accounts, address } from '~test/src/constants.js'
-import { mainnetClient } from '~test/src/utils.js'
+import { smartAccountConfig } from '~test/abis.js'
+import { accounts, address } from '~test/constants.js'
+import { mainnetClient } from '~test/utils.js'
 import { verifyMessage } from './verifyMessage.js'
 
 describe('verifyMessage', () => {

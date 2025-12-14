@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
-import { anvilZksync } from '~test/src/anvil.js'
-import { mockRequestReturnData } from '~test/src/zksync.js'
+import { anvilZksync } from '~test/anvil.js'
+import { mockRequestReturnData } from '~test/zksync.js'
 import type { EIP1193RequestFn } from '../../../types/eip1193.js'
 import { getWithdrawalLog } from './getWithdrawalLog.js'
 

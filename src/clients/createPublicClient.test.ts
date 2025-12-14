@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { anvilMainnet } from '../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 import { localhost } from '../chains/index.js'
 import type { EIP1193RequestFn, PublicRpcSchema } from '../index.js'
 import * as utilsRpcWebSocket from '../utils/rpc/webSocket.js'

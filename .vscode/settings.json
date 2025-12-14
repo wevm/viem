@@ -5,6 +5,8 @@
   "typescript.updateImportsOnFileMove.enabled": "always",
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
+  "javascript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
   "javascript.preferences.autoImportFileExcludePatterns": ["**/_types/**"],
   "typescript.preferences.autoImportFileExcludePatterns": ["**/_types/**"],
   "[json]": {

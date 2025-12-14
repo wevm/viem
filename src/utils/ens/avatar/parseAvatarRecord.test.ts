@@ -1,8 +1,6 @@
 import { beforeAll, describe, expect, test } from 'vitest'
-
-import { deployEnsAvatarTokenUri } from '~test/src/utils.js'
-
-import { anvilMainnet } from '../../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { deployEnsAvatarTokenUri } from '~test/utils.js'
 
 import { reset } from '../../../actions/index.js'
 import { parseAvatarRecord } from './parseAvatarRecord.js'

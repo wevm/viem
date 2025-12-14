@@ -1,8 +1,8 @@
 import { beforeEach, expect, test, vi } from 'vitest'
 
-import { anvilMainnet, anvilZksync } from '~test/src/anvil.js'
-import { accounts } from '~test/src/constants.js'
-import { mockRequestReturnData } from '~test/src/zksync.js'
+import { anvilMainnet, anvilZksync } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
+import { mockRequestReturnData } from '~test/zksync.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import * as readContract from '../../actions/public/readContract.js'
 import { sepolia } from '../../chains/index.js'

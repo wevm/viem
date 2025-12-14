@@ -3,9 +3,9 @@ import {
   baycContractConfig,
   usdcContractConfig,
   wagmiContractConfig,
-} from '../../../test/src/abis.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
-import { accounts } from '../../../test/src/constants.js'
+} from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import { maxUint256 } from '../../constants/number.js'

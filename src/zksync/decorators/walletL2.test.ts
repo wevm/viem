@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
-import { anvilZksync } from '~test/src/anvil.js'
-import { mockRequestReturnData } from '~test/src/zksync.js'
+import { anvilZksync } from '~test/anvil.js'
+import { mockRequestReturnData } from '~test/zksync.js'
 import type { EIP1193RequestFn } from '../../index.js'
 import { legacyEthAddress } from '../../zksync/index.js'
 import { walletActionsL2 } from './walletL2.js'

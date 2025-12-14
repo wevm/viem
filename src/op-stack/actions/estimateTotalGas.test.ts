@@ -1,8 +1,6 @@
 import { expect, test } from 'vitest'
-
-import { accounts } from '~test/src/constants.js'
-
-import { anvilOptimism } from '../../../test/src/anvil.js'
+import { anvilOptimism } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import { parseGwei, type TransactionRequestEIP1559 } from '../../index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { estimateTotalGas } from './estimateTotalGas.js'

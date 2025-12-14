@@ -1,12 +1,12 @@
 import { parseAbi } from 'abitype'
 import { beforeAll, describe, expect, test } from 'vitest'
-import { address } from '~test/src/constants.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { address } from '~test/constants.js'
 import {
   createHttpServer,
   setVitalikName,
   setVitalikResolver,
-} from '~test/src/utils.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+} from '~test/utils.js'
 import { optimism } from '../../chains/index.js'
 import { http } from '../../clients/transports/http.js'
 import {

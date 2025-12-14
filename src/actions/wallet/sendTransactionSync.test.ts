@@ -1,10 +1,9 @@
 import { describe, expect, test, vi } from 'vitest'
-
-import { accounts } from '~test/src/constants.js'
+import { getSmartAccounts_07 } from '~test/account-abstraction.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
+import { deploy, deployErrorExample } from '~test/utils.js'
 import { Delegation, ErrorsExample } from '../../../contracts/generated.js'
-import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
-import { deploy, deployErrorExample } from '../../../test/src/utils.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import {

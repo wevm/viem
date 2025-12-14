@@ -1,7 +1,7 @@
 import { anvil } from 'prool/instances'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 import { getBlockNumber, mine } from '../../actions/index.js'
 import { createClient, http } from '../../index.js'
 import type { RpcResponse } from '../../types/rpc.js'
