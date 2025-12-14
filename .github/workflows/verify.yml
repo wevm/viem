@@ -121,8 +121,9 @@ jobs:
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: pnpm test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
+          command: pnpm test --bail=1 --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
+          CI: true
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
           VITE_ANVIL_FORK_URL_OPTIMISM: ${{ secrets.VITE_ANVIL_FORK_URL_OPTIMISM }}
           VITE_ANVIL_FORK_URL_OPTIMISM_SEPOLIA: ${{ secrets.VITE_ANVIL_FORK_URL_OPTIMISM_SEPOLIA }}
@@ -161,8 +162,9 @@ jobs:
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: pnpm test:ci --project tempo e2e
+          command: pnpm test --bail=1 --project tempo e2e
         env:
+          CI: true
           VITE_TEMPO_ENV: ${{ matrix.node-env }}
 
   test-envs:

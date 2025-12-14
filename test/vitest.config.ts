@@ -29,6 +29,7 @@ export default defineConfig({
         '**/test/**',
       ],
     },
+    retry: 3,
     projects: [
       {
         extends: true,
@@ -64,7 +65,6 @@ export default defineConfig({
           setupFiles: [join(__dirname, './src/tempo/setup.ts')],
           globalSetup: [join(__dirname, './src/tempo/setup.global.ts')],
           sequence: { groupOrder: 1 },
-          retry: 3,
           testTimeout: 10_000,
         },
       },
