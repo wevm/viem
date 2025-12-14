@@ -254,7 +254,7 @@ describe('local account', () => {
         to: accounts[1].address,
         maxFeePerBlobGas: parseGwei('20'),
       }),
-    ).toMatchInlineSnapshot('53001n')
+    ).toMatchInlineSnapshot('21001n')
   })
 
   test('args: data', async () => {
