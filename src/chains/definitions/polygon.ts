@@ -14,7 +14,7 @@ export const polygon = /*#__PURE__*/ defineChain({
     default: {
       name: 'PolygonScan',
       url: 'https://polygonscan.com',
-      apiUrl: 'https://api.polygonscan.com/api',
+      apiUrl: 'https://api.etherscan.io/v2/api',
     },
   },
   contracts: {
