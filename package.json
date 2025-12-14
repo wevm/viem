@@ -23,6 +23,7 @@
     "check:repo": "sherif",
     "check:types": "tsc -b",
     "check:unused": "pnpm clean && knip",
+    "gen:tempo-abis": "bun scripts/generateTempoAbis.ts",
     "postinstall": "git submodule update --init --recursive && pnpm contracts:build",
     "preconstruct": "bun scripts/preconstruct.ts",
     "preinstall": "pnpx only-allow pnpm",

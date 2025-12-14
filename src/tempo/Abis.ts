@@ -1,179 +1,5 @@
 // Generated with `pnpm gen:abis`. Do not modify manually.
 
-export const accountKeychain = [
-  {
-    name: 'authorizeKey',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'keyId' },
-      { type: 'uint8', name: 'signatureType' },
-      { type: 'uint64', name: 'expiry' },
-      { type: 'bool', name: 'enforceLimits' },
-      {
-        type: 'tuple[]',
-        name: 'limits',
-        components: [
-          { type: 'address', name: 'token' },
-          { type: 'uint256', name: 'amount' },
-        ],
-      },
-    ],
-    outputs: [],
-  },
-  {
-    name: 'revokeKey',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [{ type: 'address', name: 'keyId' }],
-    outputs: [],
-  },
-  {
-    name: 'updateSpendingLimit',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'keyId' },
-      { type: 'address', name: 'token' },
-      { type: 'uint256', name: 'newLimit' },
-    ],
-    outputs: [],
-  },
-  {
-    name: 'getKey',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'account' },
-      { type: 'address', name: 'keyId' },
-    ],
-    outputs: [
-      {
-        type: 'tuple',
-        components: [
-          { type: 'uint8', name: 'signatureType' },
-          { type: 'address', name: 'keyId' },
-          { type: 'uint64', name: 'expiry' },
-          { type: 'bool', name: 'enforceLimits' },
-          { type: 'bool', name: 'isRevoked' },
-        ],
-      },
-    ],
-  },
-  {
-    name: 'getRemainingLimit',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'account' },
-      { type: 'address', name: 'keyId' },
-      { type: 'address', name: 'token' },
-    ],
-    outputs: [{ type: 'uint256' }],
-  },
-  {
-    name: 'getTransactionKey',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'address' }],
-  },
-  {
-    name: 'KeyAuthorized',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'bytes32', name: 'publicKey', indexed: true },
-      { type: 'uint8', name: 'signatureType' },
-      { type: 'uint64', name: 'expiry' },
-    ],
-  },
-  {
-    name: 'KeyRevoked',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'bytes32', name: 'publicKey', indexed: true },
-    ],
-  },
-  {
-    name: 'SpendingLimitUpdated',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'bytes32', name: 'publicKey', indexed: true },
-      { type: 'address', name: 'token', indexed: true },
-      { type: 'uint256', name: 'newLimit' },
-    ],
-  },
-  { name: 'UnauthorizedCaller', type: 'error', inputs: [] },
-  { name: 'KeyAlreadyExists', type: 'error', inputs: [] },
-  { name: 'KeyNotFound', type: 'error', inputs: [] },
-  { name: 'KeyExpired', type: 'error', inputs: [] },
-  { name: 'SpendingLimitExceeded', type: 'error', inputs: [] },
-  { name: 'InvalidSignatureType', type: 'error', inputs: [] },
-  { name: 'ZeroPublicKey', type: 'error', inputs: [] },
-  { name: 'ExpiryInPast', type: 'error', inputs: [] },
-  { name: 'KeyAlreadyRevoked', type: 'error', inputs: [] },
-] as const
-
-export const nonce = [
-  {
-    name: 'getNonce',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'address', name: 'account' },
-      { type: 'uint256', name: 'nonceKey' },
-    ],
-    outputs: [{ type: 'uint64', name: 'nonce' }],
-  },
-  {
-    name: 'getActiveNonceKeyCount',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'address', name: 'account' }],
-    outputs: [{ type: 'uint256', name: 'count' }],
-  },
-  {
-    name: 'NonceIncremented',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'uint256', name: 'nonceKey', indexed: true },
-      { type: 'uint64', name: 'newNonce' },
-    ],
-  },
-  {
-    name: 'ActiveKeyCountChanged',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'uint256', name: 'newCount' },
-    ],
-  },
-  { name: 'ProtocolNonceNotSupported', type: 'error', inputs: [] },
-  { name: 'InvalidNonceKey', type: 'error', inputs: [] },
-  { name: 'NonceOverflow', type: 'error', inputs: [] },
-] as const
-
-export const pathUsd = [
-  {
-    name: 'TRANSFER_ROLE',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'bytes32' }],
-  },
-  {
-    name: 'RECEIVE_WITH_MEMO_ROLE',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'bytes32' }],
-  },
-] as const
-
 export const stablecoinExchange = [
   {
     name: 'createPair',
@@ -1030,6 +856,7 @@ export const tip20 = [
   { name: 'RewardsDisabled', type: 'error', inputs: [] },
   { name: 'ScheduledRewardsDisabled', type: 'error', inputs: [] },
   { name: 'ProtectedAddress', type: 'error', inputs: [] },
+  { name: 'InvalidToken', type: 'error', inputs: [] },
   {
     name: 'hasRole',
     type: 'function',
@@ -1104,185 +931,6 @@ export const tip20 = [
     ],
   },
   { name: 'Unauthorized', type: 'error', inputs: [] },
-] as const
-
-export const tip20Factory = [
-  {
-    name: 'createToken',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'string', name: 'name' },
-      { type: 'string', name: 'symbol' },
-      { type: 'string', name: 'currency' },
-      { type: 'address', name: 'quoteToken' },
-      { type: 'address', name: 'admin' },
-    ],
-    outputs: [{ type: 'address' }],
-  },
-  {
-    name: 'tokenIdCounter',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'uint256' }],
-  },
-  {
-    name: 'isTIP20',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'address', name: 'token' }],
-    outputs: [{ type: 'bool' }],
-  },
-  {
-    name: 'TokenCreated',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'token', indexed: true },
-      { type: 'uint256', name: 'tokenId', indexed: true },
-      { type: 'string', name: 'name' },
-      { type: 'string', name: 'symbol' },
-      { type: 'string', name: 'currency' },
-      { type: 'address', name: 'quoteToken' },
-      { type: 'address', name: 'admin' },
-    ],
-  },
-] as const
-
-export const tip20RewardsRegistry = [
-  {
-    name: 'finalizeStreams',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [],
-    outputs: [],
-  },
-  { name: 'Unauthorized', type: 'error', inputs: [] },
-  { name: 'StreamsAlreadyFinalized', type: 'error', inputs: [] },
-] as const
-
-export const tip403Registry = [
-  {
-    name: 'policyIdCounter',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'uint64' }],
-  },
-  {
-    name: 'policyData',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'uint64', name: 'policyId' }],
-    outputs: [
-      { type: 'uint8', name: 'policyType' },
-      { type: 'address', name: 'admin' },
-    ],
-  },
-  {
-    name: 'isAuthorized',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [
-      { type: 'uint64', name: 'policyId' },
-      { type: 'address', name: 'user' },
-    ],
-    outputs: [{ type: 'bool' }],
-  },
-  {
-    name: 'createPolicy',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'admin' },
-      { type: 'uint8', name: 'policyType' },
-    ],
-    outputs: [{ type: 'uint64' }],
-  },
-  {
-    name: 'createPolicyWithAccounts',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'admin' },
-      { type: 'uint8', name: 'policyType' },
-      { type: 'address[]', name: 'accounts' },
-    ],
-    outputs: [{ type: 'uint64' }],
-  },
-  {
-    name: 'setPolicyAdmin',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'uint64', name: 'policyId' },
-      { type: 'address', name: 'admin' },
-    ],
-    outputs: [],
-  },
-  {
-    name: 'modifyPolicyWhitelist',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'uint64', name: 'policyId' },
-      { type: 'address', name: 'account' },
-      { type: 'bool', name: 'allowed' },
-    ],
-    outputs: [],
-  },
-  {
-    name: 'modifyPolicyBlacklist',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'uint64', name: 'policyId' },
-      { type: 'address', name: 'account' },
-      { type: 'bool', name: 'restricted' },
-    ],
-    outputs: [],
-  },
-  {
-    name: 'PolicyAdminUpdated',
-    type: 'event',
-    inputs: [
-      { type: 'uint64', name: 'policyId', indexed: true },
-      { type: 'address', name: 'updater', indexed: true },
-      { type: 'address', name: 'admin', indexed: true },
-    ],
-  },
-  {
-    name: 'PolicyCreated',
-    type: 'event',
-    inputs: [
-      { type: 'uint64', name: 'policyId', indexed: true },
-      { type: 'address', name: 'updater', indexed: true },
-      { type: 'uint8', name: 'policyType' },
-    ],
-  },
-  {
-    name: 'WhitelistUpdated',
-    type: 'event',
-    inputs: [
-      { type: 'uint64', name: 'policyId', indexed: true },
-      { type: 'address', name: 'updater', indexed: true },
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'bool', name: 'allowed' },
-    ],
-  },
-  {
-    name: 'BlacklistUpdated',
-    type: 'event',
-    inputs: [
-      { type: 'uint64', name: 'policyId', indexed: true },
-      { type: 'address', name: 'updater', indexed: true },
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'bool', name: 'restricted' },
-    ],
-  },
-  { name: 'Unauthorized', type: 'error', inputs: [] },
-  { name: 'IncompatiblePolicyType', type: 'error', inputs: [] },
-  { name: 'SelfOwnedPolicyMustBeWhitelist', type: 'error', inputs: [] },
 ] as const
 
 export const tipAccountRegistrar = [
@@ -1594,6 +1242,369 @@ export const feeAmm = [
   { name: 'InternalError', type: 'error', inputs: [] },
 ] as const
 
+export const accountKeychain = [
+  {
+    name: 'authorizeKey',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'keyId' },
+      { type: 'uint8', name: 'signatureType' },
+      { type: 'uint64', name: 'expiry' },
+      { type: 'bool', name: 'enforceLimits' },
+      {
+        type: 'tuple[]',
+        name: 'limits',
+        components: [
+          { type: 'address', name: 'token' },
+          { type: 'uint256', name: 'amount' },
+        ],
+      },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'revokeKey',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'address', name: 'keyId' }],
+    outputs: [],
+  },
+  {
+    name: 'updateSpendingLimit',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'keyId' },
+      { type: 'address', name: 'token' },
+      { type: 'uint256', name: 'newLimit' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'getKey',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'keyId' },
+    ],
+    outputs: [
+      {
+        type: 'tuple',
+        components: [
+          { type: 'uint8', name: 'signatureType' },
+          { type: 'address', name: 'keyId' },
+          { type: 'uint64', name: 'expiry' },
+          { type: 'bool', name: 'enforceLimits' },
+          { type: 'bool', name: 'isRevoked' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'getRemainingLimit',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'keyId' },
+      { type: 'address', name: 'token' },
+    ],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'getTransactionKey',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'KeyAuthorized',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'address', name: 'publicKey', indexed: true },
+      { type: 'uint8', name: 'signatureType' },
+      { type: 'uint64', name: 'expiry' },
+    ],
+  },
+  {
+    name: 'KeyAuthorized',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'bytes32', name: 'publicKey', indexed: true },
+      { type: 'uint8', name: 'signatureType' },
+      { type: 'uint64', name: 'expiry' },
+    ],
+  },
+  {
+    name: 'KeyRevoked',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'address', name: 'publicKey', indexed: true },
+    ],
+  },
+  {
+    name: 'KeyRevoked',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'bytes32', name: 'publicKey', indexed: true },
+    ],
+  },
+  {
+    name: 'SpendingLimitUpdated',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'address', name: 'publicKey', indexed: true },
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'uint256', name: 'newLimit' },
+    ],
+  },
+  {
+    name: 'SpendingLimitUpdated',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'bytes32', name: 'publicKey', indexed: true },
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'uint256', name: 'newLimit' },
+    ],
+  },
+  { name: 'UnauthorizedCaller', type: 'error', inputs: [] },
+  { name: 'KeyAlreadyExists', type: 'error', inputs: [] },
+  { name: 'KeyNotFound', type: 'error', inputs: [] },
+  { name: 'KeyExpired', type: 'error', inputs: [] },
+  { name: 'SpendingLimitExceeded', type: 'error', inputs: [] },
+  { name: 'InvalidSignatureType', type: 'error', inputs: [] },
+  { name: 'ZeroPublicKey', type: 'error', inputs: [] },
+  { name: 'ExpiryInPast', type: 'error', inputs: [] },
+  { name: 'KeyAlreadyRevoked', type: 'error', inputs: [] },
+] as const
+
+export const nonce = [
+  {
+    name: 'getNonce',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'uint256', name: 'nonceKey' },
+    ],
+    outputs: [{ type: 'uint64', name: 'nonce' }],
+  },
+  {
+    name: 'getActiveNonceKeyCount',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'account' }],
+    outputs: [{ type: 'uint256', name: 'count' }],
+  },
+  {
+    name: 'NonceIncremented',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'uint256', name: 'nonceKey', indexed: true },
+      { type: 'uint64', name: 'newNonce' },
+    ],
+  },
+  {
+    name: 'ActiveKeyCountChanged',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'uint256', name: 'newCount' },
+    ],
+  },
+  { name: 'ProtocolNonceNotSupported', type: 'error', inputs: [] },
+  { name: 'InvalidNonceKey', type: 'error', inputs: [] },
+  { name: 'NonceOverflow', type: 'error', inputs: [] },
+] as const
+
+export const tip20RewardsRegistry = [
+  {
+    name: 'finalizeStreams',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [],
+    outputs: [],
+  },
+  { name: 'Unauthorized', type: 'error', inputs: [] },
+  { name: 'StreamsAlreadyFinalized', type: 'error', inputs: [] },
+] as const
+
+export const tip20Factory = [
+  {
+    name: 'createToken',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'string', name: 'name' },
+      { type: 'string', name: 'symbol' },
+      { type: 'string', name: 'currency' },
+      { type: 'address', name: 'quoteToken' },
+      { type: 'address', name: 'admin' },
+    ],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'tokenIdCounter',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint256' }],
+  },
+  {
+    name: 'isTIP20',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'token' }],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'TokenCreated',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'uint256', name: 'tokenId', indexed: true },
+      { type: 'string', name: 'name' },
+      { type: 'string', name: 'symbol' },
+      { type: 'string', name: 'currency' },
+      { type: 'address', name: 'quoteToken' },
+      { type: 'address', name: 'admin' },
+    ],
+  },
+] as const
+
+export const tip403Registry = [
+  {
+    name: 'policyIdCounter',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'policyData',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'uint64', name: 'policyId' }],
+    outputs: [
+      { type: 'uint8', name: 'policyType' },
+      { type: 'address', name: 'admin' },
+    ],
+  },
+  {
+    name: 'isAuthorized',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'uint64', name: 'policyId' },
+      { type: 'address', name: 'user' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'createPolicy',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'admin' },
+      { type: 'uint8', name: 'policyType' },
+    ],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'createPolicyWithAccounts',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'admin' },
+      { type: 'uint8', name: 'policyType' },
+      { type: 'address[]', name: 'accounts' },
+    ],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'setPolicyAdmin',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint64', name: 'policyId' },
+      { type: 'address', name: 'admin' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'modifyPolicyWhitelist',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint64', name: 'policyId' },
+      { type: 'address', name: 'account' },
+      { type: 'bool', name: 'allowed' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'modifyPolicyBlacklist',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint64', name: 'policyId' },
+      { type: 'address', name: 'account' },
+      { type: 'bool', name: 'restricted' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'PolicyAdminUpdated',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'policyId', indexed: true },
+      { type: 'address', name: 'updater', indexed: true },
+      { type: 'address', name: 'admin', indexed: true },
+    ],
+  },
+  {
+    name: 'PolicyCreated',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'policyId', indexed: true },
+      { type: 'address', name: 'updater', indexed: true },
+      { type: 'uint8', name: 'policyType' },
+    ],
+  },
+  {
+    name: 'WhitelistUpdated',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'policyId', indexed: true },
+      { type: 'address', name: 'updater', indexed: true },
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'bool', name: 'allowed' },
+    ],
+  },
+  {
+    name: 'BlacklistUpdated',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'policyId', indexed: true },
+      { type: 'address', name: 'updater', indexed: true },
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'bool', name: 'restricted' },
+    ],
+  },
+  { name: 'Unauthorized', type: 'error', inputs: [] },
+  { name: 'IncompatiblePolicyType', type: 'error', inputs: [] },
+] as const
+
 export const validatorConfig = [
   {
     name: 'getValidators',
@@ -1684,5 +1695,22 @@ export const validatorConfig = [
       { type: 'string', name: 'input' },
       { type: 'string', name: 'backtrace' },
     ],
+  },
+] as const
+
+export const pathUsd = [
+  {
+    name: 'TRANSFER_ROLE',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'bytes32' }],
+  },
+  {
+    name: 'RECEIVE_WITH_MEMO_ROLE',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'bytes32' }],
   },
 ] as const
