@@ -1,4 +1,3 @@
-import * as Hex from 'ox/Hex'
 import type { TokenId } from 'ox/tempo'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
 import { extendSchema } from '../utils/chain/defineChain.js'
@@ -9,26 +8,7 @@ import type { SerializeTransactionFn } from '../utils/transaction/serializeTrans
 import type { Account } from './Account.js'
 import * as Formatters from './Formatters.js'
 import * as Transaction from './Transaction.js'
-
-// TODO(tempo): scope by address+chainId
-const nonceKeyManager = {
-  counter: 0,
-  resetScheduled: false,
-  reset() {
-    this.counter = 0
-    this.resetScheduled = false
-  },
-  get() {
-    if (!this.resetScheduled) {
-      this.resetScheduled = true
-      queueMicrotask(() => this.reset())
-    }
-    const count = this.counter
-    this.counter++
-    if (count === 0) return 0n
-    return Hex.toBigInt(Hex.random(6))
-  },
-}
+import * as NonceKeyStore from './internal/nonceKeyStore.js'
 
 export const chainConfig = {
   blockTime: 1_000,
@@ -57,7 +37,15 @@ export const chainConfig = {
 
     request.nonceKey = (() => {
       if (typeof request.nonceKey !== 'undefined') return request.nonceKey
-      const nonceKey = nonceKeyManager.get()
+
+      const address = request.account?.address ?? request.from
+      if (!address) return undefined
+      if (!request.chain) return undefined
+      const nonceKey = NonceKeyStore.getNonceKey(NonceKeyStore.store, {
+        address,
+        chainId: request.chain.id,
+      })
+
       if (nonceKey === 0n) return undefined
       return nonceKey
     })()

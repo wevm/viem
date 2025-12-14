@@ -1,8 +1,10 @@
 import { setTimeout } from 'node:timers/promises'
 import { afterAll, beforeAll } from 'vitest'
 import { faucet } from '../../../src/tempo/Actions/index.js'
-import { accounts, client, nodeEnv } from './config.js'
+import { accounts, getClient, nodeEnv } from './config.js'
 import { rpcUrl } from './prool.js'
+
+const client = getClient()
 
 beforeAll(async () => {
   if (nodeEnv === 'localnet') return

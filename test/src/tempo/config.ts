@@ -90,11 +90,6 @@ export function getClient<
   })
 }
 
-export const client = getClient()
-export const clientWithAccount = getClient({
-  account: accounts.at(0)!,
-})
-
 export async function setupToken(
   client: Client<Transport, Chain, viem_Account>,
   parameters: Partial<

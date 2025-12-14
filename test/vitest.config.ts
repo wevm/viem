@@ -58,6 +58,7 @@ export default defineConfig({
             : [join(__dirname, './setup.global.ts')],
           hookTimeout: 60_000,
           testTimeout: 60_000,
+          sequence: { groupOrder: 0 },
         },
       },
       {
@@ -67,6 +68,7 @@ export default defineConfig({
           include: ['src/tempo/**/*.test.ts'],
           setupFiles: [join(__dirname, './src/tempo/setup.ts')],
           globalSetup: [join(__dirname, './src/tempo/setup.global.ts')],
+          sequence: { groupOrder: 1 },
         },
       },
     ],

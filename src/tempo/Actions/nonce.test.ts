@@ -1,11 +1,15 @@
 import { setTimeout } from 'node:timers/promises'
 import { afterEach, describe, expect, test } from 'vitest'
-import { accounts, clientWithAccount } from '../../../test/src/tempo/config.js'
-import { rpcUrl } from '../../../test/src/tempo/prool.js'
+import { accounts, getClient } from '~test/tempo/config.js'
+import { rpcUrl } from '~test/tempo/prool.js'
 import * as actions from './index.js'
 
 const account = accounts[0]
 const account2 = accounts[1]
+
+const client = getClient({
+  account,
+})
 
 afterEach(async () => {
   await fetch(`${rpcUrl}/restart`)
@@ -14,7 +18,7 @@ afterEach(async () => {
 describe('getNonce', () => {
   test('default', async () => {
     // Get nonce for an account with previously unused noncekey
-    const nonce = await actions.nonce.getNonce(clientWithAccount, {
+    const nonce = await actions.nonce.getNonce(client, {
       account: account.address,
       nonceKey: 1n,
     })
@@ -23,11 +27,11 @@ describe('getNonce', () => {
   })
 
   test('behavior: different nonce keys are independent', async () => {
-    let nonce1 = await actions.nonce.getNonce(clientWithAccount, {
+    let nonce1 = await actions.nonce.getNonce(client, {
       account: account.address,
       nonceKey: 1n,
     })
-    let nonce2 = await actions.nonce.getNonce(clientWithAccount, {
+    let nonce2 = await actions.nonce.getNonce(client, {
       account: account.address,
       nonceKey: 2n,
     })
@@ -35,18 +39,18 @@ describe('getNonce', () => {
     expect(nonce1).toBe(1n)
     expect(nonce2).toBe(1n)
 
-    await actions.token.transferSync(clientWithAccount, {
+    await actions.token.transferSync(client, {
       to: account2.address,
       amount: 1n,
       token: 1n,
       nonceKey: 2n,
     })
 
-    nonce1 = await actions.nonce.getNonce(clientWithAccount, {
+    nonce1 = await actions.nonce.getNonce(client, {
       account: account.address,
       nonceKey: 1n,
     })
-    nonce2 = await actions.nonce.getNonce(clientWithAccount, {
+    nonce2 = await actions.nonce.getNonce(client, {
       account: account.address,
       nonceKey: 2n,
     })
@@ -57,11 +61,11 @@ describe('getNonce', () => {
   })
 
   test('behavior: different accounts are independent', async () => {
-    const nonce1 = await actions.nonce.getNonce(clientWithAccount, {
+    const nonce1 = await actions.nonce.getNonce(client, {
       account: account.address,
       nonceKey: 1n,
     })
-    const nonce2 = await actions.nonce.getNonce(clientWithAccount, {
+    const nonce2 = await actions.nonce.getNonce(client, {
       account: account2.address,
       nonceKey: 1n,
     })
@@ -75,7 +79,7 @@ describe('getNonce', () => {
 describe('getNonceKeyCount', () => {
   test('default', async () => {
     // Get active nonce key count for a fresh account
-    const count = await actions.nonce.getNonceKeyCount(clientWithAccount, {
+    const count = await actions.nonce.getNonceKeyCount(client, {
       account: account.address,
     })
 
@@ -84,10 +88,10 @@ describe('getNonceKeyCount', () => {
   })
 
   test('behavior: different accounts are independent', async () => {
-    const count1 = await actions.nonce.getNonceKeyCount(clientWithAccount, {
+    const count1 = await actions.nonce.getNonceKeyCount(client, {
       account: account.address,
     })
-    const count2 = await actions.nonce.getNonceKeyCount(clientWithAccount, {
+    const count2 = await actions.nonce.getNonceKeyCount(client, {
       account: account2.address,
     })
 
@@ -104,7 +108,7 @@ describe('watchNonceIncremented', () => {
       log: actions.nonce.watchNonceIncremented.Log
     }> = []
 
-    const unwatch = actions.nonce.watchNonceIncremented(clientWithAccount, {
+    const unwatch = actions.nonce.watchNonceIncremented(client, {
       onNonceIncremented: (args, log) => {
         events.push({ args, log })
       },
@@ -116,7 +120,7 @@ describe('watchNonceIncremented', () => {
 
     try {
       // Have to manually set nonce because eth_FillTransaction does not support nonce keys
-      await actions.token.transferSync(clientWithAccount, {
+      await actions.token.transferSync(client, {
         to: account2.address,
         amount: 1n,
         token: 1n,
@@ -124,7 +128,7 @@ describe('watchNonceIncremented', () => {
         nonce: 0,
       })
 
-      await actions.token.transferSync(clientWithAccount, {
+      await actions.token.transferSync(client, {
         to: account2.address,
         amount: 1n,
         token: 1n,
@@ -152,18 +156,15 @@ describe('watchActiveKeyCountChanged', () => {
       log: actions.nonce.watchActiveKeyCountChanged.Log
     }> = []
 
-    const unwatch = actions.nonce.watchActiveKeyCountChanged(
-      clientWithAccount,
-      {
-        onActiveKeyCountChanged: (args, log) => {
-          events.push({ args, log })
-        },
+    const unwatch = actions.nonce.watchActiveKeyCountChanged(client, {
+      onActiveKeyCountChanged: (args, log) => {
+        events.push({ args, log })
       },
-    )
+    })
 
     try {
       // First use of nonceKey 10 should increment active key count
-      await actions.token.transferSync(clientWithAccount, {
+      await actions.token.transferSync(client, {
         to: account2.address,
         amount: 1n,
         token: 1n,
@@ -172,7 +173,7 @@ describe('watchActiveKeyCountChanged', () => {
       })
 
       // First use of nonceKey 11 should increment again
-      await actions.token.transferSync(clientWithAccount, {
+      await actions.token.transferSync(client, {
         to: account2.address,
         amount: 1n,
         token: 1n,

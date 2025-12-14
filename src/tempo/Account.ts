@@ -17,12 +17,7 @@ import { hashAuthorization } from '../utils/authorization/hashAuthorization.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
 import { hashMessage } from '../utils/signature/hashMessage.js'
 import { hashTypedData } from '../utils/signature/hashTypedData.js'
-import * as Storage from './Storage.js'
 import * as Transaction from './Transaction.js'
-
-type StorageSchema = {
-  pendingKeyAuthorization?: KeyAuthorization.Signed | undefined
-}
 
 export type Account_base<source extends string = string> = RequiredBy<
   LocalAccount<source>,
@@ -30,8 +25,6 @@ export type Account_base<source extends string = string> = RequiredBy<
 > & {
   /** Key type. */
   keyType: SignatureEnvelope.Type
-  /** Account storage. */
-  storage: Storage.Storage<StorageSchema>
 }
 
 export type RootAccount = Account_base<'root'> & {
@@ -68,7 +61,7 @@ export function fromHeadlessWebAuthn<
   privateKey: Hex.Hex,
   options: options | fromHeadlessWebAuthn.Options,
 ): fromHeadlessWebAuthn.ReturnValue<options> {
-  const { access, rpId, origin, storage } = options
+  const { access, rpId, origin } = options
 
   const publicKey = P256.getPublicKey({ privateKey })
 
@@ -95,7 +88,6 @@ export function fromHeadlessWebAuthn<
         type: 'webAuthn',
       })
     },
-    storage,
   }) as never
 }
 
@@ -104,7 +96,7 @@ export declare namespace fromHeadlessWebAuthn {
     WebAuthnP256.getSignPayload.Options,
     'challenge' | 'rpId' | 'origin'
   > &
-    Pick<from.Parameters, 'access' | 'storage'> & {
+    Pick<from.Parameters, 'access'> & {
       rpId: string
       origin: string
     }
@@ -130,7 +122,7 @@ export function fromP256<const options extends fromP256.Options>(
   privateKey: Hex.Hex,
   options: options | fromP256.Options = {},
 ): fromP256.ReturnValue<options> {
-  const { access, storage } = options
+  const { access } = options
   const publicKey = P256.getPublicKey({ privateKey })
 
   return from({
@@ -145,12 +137,11 @@ export function fromP256<const options extends fromP256.Options>(
         type: 'p256',
       })
     },
-    storage,
   }) as never
 }
 
 export declare namespace fromP256 {
-  export type Options = Pick<from.Parameters, 'access' | 'storage'>
+  export type Options = Pick<from.Parameters, 'access'>
 
   export type ReturnValue<options extends Options = Options> =
     from.ReturnValue<options>
@@ -173,7 +164,7 @@ export function fromSecp256k1<const options extends fromSecp256k1.Options>(
   privateKey: Hex.Hex,
   options: options | fromSecp256k1.Options = {},
 ): fromSecp256k1.ReturnValue<options> {
-  const { access, storage } = options
+  const { access } = options
   const publicKey = Secp256k1.getPublicKey({ privateKey })
 
   return from({
@@ -185,12 +176,11 @@ export function fromSecp256k1<const options extends fromSecp256k1.Options>(
       const signature = Secp256k1.sign({ payload: hash, privateKey })
       return Signature.toHex(signature)
     },
-    storage,
   }) as never
 }
 
 export declare namespace fromSecp256k1 {
-  export type Options = Pick<from.Parameters, 'access' | 'storage'>
+  export type Options = Pick<from.Parameters, 'access'>
 
   export type ReturnValue<options extends Options = Options> =
     from.ReturnValue<options>
@@ -258,7 +248,6 @@ export function fromWebAuthnP256(
   options: fromWebAuthnP256.Options = {},
 ): fromWebAuthnP256.ReturnValue {
   const { id } = credential
-  const { storage } = options
   const publicKey = PublicKey.fromHex(credential.publicKey)
   return from({
     keyType: 'webAuthn',
@@ -276,7 +265,6 @@ export function fromWebAuthnP256(
         type: 'webAuthn',
       })
     },
-    storage,
   })
 }
 
@@ -289,7 +277,6 @@ export declare namespace fromWebAuthnP256 {
   export type Options = {
     getFn?: WebAuthnP256.sign.Options['getFn'] | undefined
     rpId?: WebAuthnP256.sign.Options['rpId'] | undefined
-    storage?: from.Parameters['storage'] | undefined
   }
 
   export type ReturnValue = from.ReturnValue
@@ -317,7 +304,7 @@ export function fromWebCryptoP256<
   keyPair: Awaited<ReturnType<typeof WebCryptoP256.createKeyPair>>,
   options: options | fromWebCryptoP256.Options = {},
 ): fromWebCryptoP256.ReturnValue<options> {
-  const { access, storage } = options
+  const { access } = options
   const { publicKey, privateKey } = keyPair
 
   return from({
@@ -333,12 +320,11 @@ export function fromWebCryptoP256<
         type: 'p256',
       })
     },
-    storage,
   }) as never
 }
 
 export declare namespace fromWebCryptoP256 {
-  export type Options = Pick<from.Parameters, 'access' | 'storage'>
+  export type Options = Pick<from.Parameters, 'access'>
 
   export type ReturnValue<options extends Options = Options> =
     from.ReturnValue<options>
@@ -392,11 +378,6 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
   const publicKey = PublicKey.toHex(parameters.publicKey, {
     includePrefix: false,
   })
-
-  const storage = Storage.from<StorageSchema>(
-    parameters.storage ?? Storage.memory(),
-    { key: `tempo.ts:${address.toLowerCase()}` },
-  )
 
   async function sign({ hash }: { hash: Hex.Hex }) {
     const signature = await parameters.sign({ hash })
@@ -460,7 +441,6 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
     },
     publicKey,
     source,
-    storage,
     type: 'local',
   }
 }
@@ -477,12 +457,6 @@ declare namespace fromBase {
     sign: NonNullable<LocalAccount['sign']>
     /** Source. */
     source?: string | undefined
-    /**
-     * Account storage.
-     * Used for access key management, and pending key authorizations.
-     * @default `Storage.memory()`
-     */
-    storage?: Storage.Storage | undefined
   }
 
   export type ReturnValue = Account_base

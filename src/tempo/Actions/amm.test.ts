@@ -5,16 +5,20 @@ import { Abis, Actions } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import {
   accounts,
-  clientWithAccount,
+  getClient,
   setupPoolWithLiquidity,
-} from '../../../test/src/tempo/config.js'
+} from '~test/tempo/config.js'
 
 const account = accounts[0]
 const account2 = accounts[1]
 
+const client = getClient({
+  account,
+})
+
 describe('getPool', () => {
   test('default', async () => {
-    const pool = await Actions.amm.getPool(clientWithAccount, {
+    const pool = await Actions.amm.getPool(client, {
       userToken: 1n,
       validatorToken: '0x20c0000000000000000000000000000000000001',
     })
@@ -30,7 +34,7 @@ describe('getPool', () => {
 
 describe('getLiquidityBalance', () => {
   test('default', async () => {
-    const balance = await Actions.amm.getLiquidityBalance(clientWithAccount, {
+    const balance = await Actions.amm.getLiquidityBalance(client, {
       address: account.address,
       userToken: 1n,
       validatorToken: '0x20c0000000000000000000000000000000000001',
@@ -42,28 +46,28 @@ describe('getLiquidityBalance', () => {
 describe('mint', () => {
   test('default', async () => {
     // Create a new token for testing
-    const { token } = await Actions.token.createSync(clientWithAccount, {
+    const { token } = await Actions.token.createSync(client, {
       name: 'Test Token 2',
       symbol: 'TEST2',
       currency: 'USD',
     })
 
     // Grant issuer role to mint tokens
-    await Actions.token.grantRolesSync(clientWithAccount, {
+    await Actions.token.grantRolesSync(client, {
       token,
       roles: ['issuer'],
-      to: clientWithAccount.account.address,
+      to: client.account.address,
     })
 
     // Mint some tokens to account
-    await Actions.token.mintSync(clientWithAccount, {
+    await Actions.token.mintSync(client, {
       to: account.address,
       amount: parseUnits('1000', 6),
       token,
     })
 
     // First, establish initial liquidity with two-sided mint
-    await Actions.amm.mintSync(clientWithAccount, {
+    await Actions.amm.mintSync(client, {
       to: account.address,
       userTokenAddress: token,
       validatorTokenAddress: 1n,
@@ -71,14 +75,14 @@ describe('mint', () => {
     })
 
     // Get initial pool state
-    const poolBefore = await Actions.amm.getPool(clientWithAccount, {
+    const poolBefore = await Actions.amm.getPool(client, {
       userToken: token,
       validatorToken: 1n,
     })
 
     // Add single-sided liquidity (only validatorToken)
     const { receipt: mintReceipt, ...mintResult } = await Actions.amm.mintSync(
-      clientWithAccount,
+      client,
       {
         userTokenAddress: token,
         validatorTokenAddress: 1n,
@@ -94,7 +98,7 @@ describe('mint', () => {
     expect(mintResult.liquidity).toBeGreaterThan(0n)
 
     // Verify pool reserves - only validatorToken should increase
-    const poolAfter = await Actions.amm.getPool(clientWithAccount, {
+    const poolAfter = await Actions.amm.getPool(client, {
       userToken: token,
       validatorToken: 1n,
     })
@@ -109,20 +113,17 @@ describe('mint', () => {
 
 describe.skip('burn', () => {
   test('default', async () => {
-    const { tokenAddress } = await setupPoolWithLiquidity(clientWithAccount)
+    const { tokenAddress } = await setupPoolWithLiquidity(client)
 
     // Get LP balance before burn
-    const lpBalanceBefore = await Actions.amm.getLiquidityBalance(
-      clientWithAccount,
-      {
-        address: account.address,
-        userToken: tokenAddress,
-        validatorToken: 1n,
-      },
-    )
+    const lpBalanceBefore = await Actions.amm.getLiquidityBalance(client, {
+      address: account.address,
+      userToken: tokenAddress,
+      validatorToken: 1n,
+    })
 
     // TODO(TEMPO-1183): Remove this janky fix to get some user token in the pool
-    await Actions.token.transferSync(clientWithAccount, {
+    await Actions.token.transferSync(client, {
       to: '0x30D861999070Ae03B9548501DBd573E11A9f59Ee',
       amount: 600n,
       token: tokenAddress,
@@ -134,7 +135,7 @@ describe.skip('burn', () => {
       receipt: burnReceipt,
       userToken,
       ...burnResult
-    } = await Actions.amm.burnSync(clientWithAccount, {
+    } = await Actions.amm.burnSync(client, {
       userToken: tokenAddress,
       validatorToken: 1n,
       liquidity: lpBalanceBefore / 2n,
@@ -156,19 +157,16 @@ describe.skip('burn', () => {
     `)
 
     // Verify LP balance decreased
-    const lpBalanceAfter = await Actions.amm.getLiquidityBalance(
-      clientWithAccount,
-      {
-        address: account.address,
-        userToken: tokenAddress,
-        validatorToken: 1n,
-      },
-    )
+    const lpBalanceAfter = await Actions.amm.getLiquidityBalance(client, {
+      address: account.address,
+      userToken: tokenAddress,
+      validatorToken: 1n,
+    })
     expect(lpBalanceAfter).toBeLessThan(lpBalanceBefore)
     expect(lpBalanceAfter).toBe(lpBalanceBefore / 2n)
 
     // Verify pool reserves decreased
-    const pool = await Actions.amm.getPool(clientWithAccount, {
+    const pool = await Actions.amm.getPool(client, {
       userToken: tokenAddress,
       validatorToken: 1n,
     })
@@ -184,10 +182,10 @@ describe.skip('burn', () => {
 
 describe.skip('rebalanceSwap', () => {
   test('default', async () => {
-    const { tokenAddress } = await setupPoolWithLiquidity(clientWithAccount)
+    const { tokenAddress } = await setupPoolWithLiquidity(client)
 
     // TODO(TEMPO-1183): Remove this janky fix to get some user token in the pool
-    await Actions.token.transferSync(clientWithAccount, {
+    await Actions.token.transferSync(client, {
       to: '0x30D861999070Ae03B9548501DBd573E11A9f59Ee',
       amount: 600n,
       token: tokenAddress,
@@ -195,7 +193,7 @@ describe.skip('rebalanceSwap', () => {
     })
 
     // Get balance before swap
-    const balanceBefore = await Actions.token.getBalance(clientWithAccount, {
+    const balanceBefore = await Actions.token.getBalance(client, {
       token: tokenAddress,
       account: account2.address,
     })
@@ -206,7 +204,7 @@ describe.skip('rebalanceSwap', () => {
       swapper,
       userToken,
       ...swapResult
-    } = await Actions.amm.rebalanceSwapSync(clientWithAccount, {
+    } = await Actions.amm.rebalanceSwapSync(client, {
       userToken: tokenAddress,
       validatorToken: 1n,
       amountOut: 100n,
@@ -225,7 +223,7 @@ describe.skip('rebalanceSwap', () => {
     `)
 
     // Verify balance increased
-    const balanceAfter = await Actions.token.getBalance(clientWithAccount, {
+    const balanceAfter = await Actions.token.getBalance(client, {
       token: tokenAddress,
       account: account2.address,
     })
@@ -235,10 +233,10 @@ describe.skip('rebalanceSwap', () => {
 
 describe.skip('watchRebalanceSwap', () => {
   test('default', async () => {
-    const { tokenAddress } = await setupPoolWithLiquidity(clientWithAccount)
+    const { tokenAddress } = await setupPoolWithLiquidity(client)
 
     // TODO(TEMPO-1183): Remove this janky fix to get some user token in the pool
-    await Actions.token.transferSync(clientWithAccount, {
+    await Actions.token.transferSync(client, {
       to: '0x30D861999070Ae03B9548501DBd573E11A9f59Ee',
       amount: 600n,
       token: tokenAddress,
@@ -246,14 +244,14 @@ describe.skip('watchRebalanceSwap', () => {
     })
 
     let eventArgs: any = null
-    const unwatch = Actions.amm.watchRebalanceSwap(clientWithAccount, {
+    const unwatch = Actions.amm.watchRebalanceSwap(client, {
       onRebalanceSwap: (args) => {
         eventArgs = args
       },
     })
 
     // Perform rebalance swap
-    await Actions.amm.rebalanceSwapSync(clientWithAccount, {
+    await Actions.amm.rebalanceSwapSync(client, {
       userToken: tokenAddress,
       validatorToken: 1n,
       amountOut: 100n,
@@ -277,28 +275,28 @@ describe.skip('watchRebalanceSwap', () => {
 describe('watchMint', () => {
   test('default', async () => {
     // Create a new token for testing
-    const { token } = await Actions.token.createSync(clientWithAccount, {
+    const { token } = await Actions.token.createSync(client, {
       name: 'Test Token 2',
       symbol: 'TEST2',
       currency: 'USD',
     })
 
     // Grant issuer role to mint tokens
-    await Actions.token.grantRolesSync(clientWithAccount, {
+    await Actions.token.grantRolesSync(client, {
       token,
       roles: ['issuer'],
-      to: clientWithAccount.account.address,
+      to: client.account.address,
     })
 
     // Mint some tokens to account
-    await Actions.token.mintSync(clientWithAccount, {
+    await Actions.token.mintSync(client, {
       to: account.address,
       amount: parseUnits('1000', 6),
       token,
     })
 
     // Mint USD to account
-    await writeContractSync(clientWithAccount, {
+    await writeContractSync(client, {
       abi: Abis.tip20,
       address: '0x20c0000000000000000000000000000000000001',
       functionName: 'transfer',
@@ -306,14 +304,14 @@ describe('watchMint', () => {
     })
 
     let eventArgs: any = null
-    const unwatch = Actions.amm.watchMint(clientWithAccount, {
+    const unwatch = Actions.amm.watchMint(client, {
       onMint: (args) => {
         eventArgs = args
       },
     })
 
     // Add liquidity to pool
-    await Actions.amm.mintSync(clientWithAccount, {
+    await Actions.amm.mintSync(client, {
       userTokenAddress: token,
       validatorTokenAddress: 1n,
       validatorTokenAmount: parseUnits('100', 6),
@@ -335,17 +333,17 @@ describe('watchMint', () => {
 
 describe.skip('watchBurn', () => {
   test('default', async () => {
-    const { tokenAddress } = await setupPoolWithLiquidity(clientWithAccount)
+    const { tokenAddress } = await setupPoolWithLiquidity(client)
 
     // Get LP balance
-    const lpBalance = await Actions.amm.getLiquidityBalance(clientWithAccount, {
+    const lpBalance = await Actions.amm.getLiquidityBalance(client, {
       userToken: tokenAddress,
       validatorToken: 1n,
       address: account.address,
     })
 
     // TODO(TEMPO-1183): Remove this janky fix to get some user token in the pool
-    await Actions.token.transferSync(clientWithAccount, {
+    await Actions.token.transferSync(client, {
       to: '0x30D861999070Ae03B9548501DBd573E11A9f59Ee',
       amount: 600n,
       token: tokenAddress,
@@ -353,14 +351,14 @@ describe.skip('watchBurn', () => {
     })
 
     let eventArgs: any = null
-    const unwatch = Actions.amm.watchBurn(clientWithAccount, {
+    const unwatch = Actions.amm.watchBurn(client, {
       onBurn: (args) => {
         eventArgs = args
       },
     })
 
     // Burn LP tokens
-    await Actions.amm.burnSync(clientWithAccount, {
+    await Actions.amm.burnSync(client, {
       userToken: tokenAddress,
       validatorToken: 1n,
       liquidity: lpBalance / 2n,

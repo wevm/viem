@@ -5,30 +5,27 @@ import { parseUnits } from 'viem'
 import { getCode, writeContractSync } from 'viem/actions'
 import { Abis, Addresses, TokenIds } from 'viem/tempo'
 import { beforeAll, describe, expect, test } from 'vitest'
-import {
-  accounts,
-  addresses,
-  clientWithAccount,
-} from '../../../test/src/tempo/config.js'
-import { rpcUrl } from '../../../test/src/tempo/prool.js'
+import { accounts, addresses, getClient } from '~test/tempo/config.js'
+import { rpcUrl } from '~test/tempo/prool.js'
 import * as actions from './index.js'
 
 const account = accounts[0]
 const account2 = accounts[1]
 const account3 = accounts[2]
 
+const client = getClient({
+  account,
+})
+
 describe('approve', () => {
   test('default', async () => {
     {
       // approve
-      const { receipt, ...result } = await actions.token.approveSync(
-        clientWithAccount,
-        {
-          spender: account2.address,
-          amount: parseUnits('100', 6),
-          token: addresses.alphaUsd,
-        },
-      )
+      const { receipt, ...result } = await actions.token.approveSync(client, {
+        spender: account2.address,
+        amount: parseUnits('100', 6),
+        token: addresses.alphaUsd,
+      })
       expect(receipt).toBeDefined()
       expect(result).toMatchInlineSnapshot(`
         {
@@ -41,7 +38,7 @@ describe('approve', () => {
 
     {
       // check allowance
-      const allowance = await actions.token.getAllowance(clientWithAccount, {
+      const allowance = await actions.token.getAllowance(client, {
         spender: account2.address,
         token: addresses.alphaUsd,
       })
@@ -49,7 +46,7 @@ describe('approve', () => {
     }
 
     // transfer tokens for gas
-    await writeContractSync(clientWithAccount, {
+    await writeContractSync(client, {
       abi: Abis.tip20,
       address: addresses.alphaUsd,
       functionName: 'transfer',
@@ -57,7 +54,7 @@ describe('approve', () => {
     })
 
     // transfer tokens from approved account
-    await actions.token.transferSync(clientWithAccount, {
+    await actions.token.transferSync(client, {
       amount: parseUnits('50', 6),
       account: account2,
       from: account.address,
@@ -67,7 +64,7 @@ describe('approve', () => {
 
     {
       // verify updated allowance
-      const allowance = await actions.token.getAllowance(clientWithAccount, {
+      const allowance = await actions.token.getAllowance(client, {
         spender: account2.address,
         token: addresses.alphaUsd,
       })
@@ -75,7 +72,7 @@ describe('approve', () => {
     }
 
     // verify balance
-    const balance = await actions.token.getBalance(clientWithAccount, {
+    const balance = await actions.token.getBalance(client, {
       account: '0x0000000000000000000000000000000000000001',
       token: addresses.alphaUsd,
     })
@@ -83,21 +80,18 @@ describe('approve', () => {
   })
 
   test('behavior: token address', async () => {
-    const balanceBefore = await actions.token.getBalance(clientWithAccount, {
+    const balanceBefore = await actions.token.getBalance(client, {
       account: '0x0000000000000000000000000000000000000001',
       token: addresses.alphaUsd,
     })
 
     {
       // approve
-      const { receipt, ...result } = await actions.token.approveSync(
-        clientWithAccount,
-        {
-          amount: parseUnits('100', 6),
-          token: addresses.alphaUsd,
-          spender: account2.address,
-        },
-      )
+      const { receipt, ...result } = await actions.token.approveSync(client, {
+        amount: parseUnits('100', 6),
+        token: addresses.alphaUsd,
+        spender: account2.address,
+      })
       expect(receipt).toBeDefined()
       expect(result).toMatchInlineSnapshot(`
         {
@@ -110,7 +104,7 @@ describe('approve', () => {
 
     {
       // check allowance
-      const allowance = await actions.token.getAllowance(clientWithAccount, {
+      const allowance = await actions.token.getAllowance(client, {
         token: addresses.alphaUsd,
         spender: account2.address,
       })
@@ -118,7 +112,7 @@ describe('approve', () => {
     }
 
     // transfer tokens for gas
-    await writeContractSync(clientWithAccount, {
+    await writeContractSync(client, {
       abi: Abis.tip20,
       address: addresses.alphaUsd,
       functionName: 'transfer',
@@ -126,7 +120,7 @@ describe('approve', () => {
     })
 
     // transfer tokens from approved account
-    await actions.token.transferSync(clientWithAccount, {
+    await actions.token.transferSync(client, {
       amount: parseUnits('50', 6),
       account: account2,
       from: account.address,
@@ -136,7 +130,7 @@ describe('approve', () => {
 
     {
       // verify updated allowance
-      const allowance = await actions.token.getAllowance(clientWithAccount, {
+      const allowance = await actions.token.getAllowance(client, {
         spender: account2.address,
         token: addresses.alphaUsd,
       })
@@ -144,7 +138,7 @@ describe('approve', () => {
     }
 
     // verify balance
-    const balance = await actions.token.getBalance(clientWithAccount, {
+    const balance = await actions.token.getBalance(client, {
       account: '0x0000000000000000000000000000000000000001',
       token: addresses.alphaUsd,
     })
@@ -152,21 +146,18 @@ describe('approve', () => {
   })
 
   test('behavior: token address', async () => {
-    const balanceBefore = await actions.token.getBalance(clientWithAccount, {
+    const balanceBefore = await actions.token.getBalance(client, {
       account: '0x0000000000000000000000000000000000000001',
       token: addresses.alphaUsd,
     })
 
     {
       // approve
-      const { receipt, ...result } = await actions.token.approveSync(
-        clientWithAccount,
-        {
-          amount: parseUnits('100', 6),
-          token: addresses.alphaUsd,
-          spender: account2.address,
-        },
-      )
+      const { receipt, ...result } = await actions.token.approveSync(client, {
+        amount: parseUnits('100', 6),
+        token: addresses.alphaUsd,
+        spender: account2.address,
+      })
       expect(receipt).toBeDefined()
       expect(result).toMatchInlineSnapshot(`
         {
@@ -179,7 +170,7 @@ describe('approve', () => {
 
     {
       // check allowance
-      const allowance = await actions.token.getAllowance(clientWithAccount, {
+      const allowance = await actions.token.getAllowance(client, {
         token: addresses.alphaUsd,
         spender: account2.address,
       })
@@ -187,7 +178,7 @@ describe('approve', () => {
     }
 
     // transfer tokens for gas
-    await writeContractSync(clientWithAccount, {
+    await writeContractSync(client, {
       abi: Abis.tip20,
       address: addresses.alphaUsd,
       functionName: 'transfer',
@@ -195,7 +186,7 @@ describe('approve', () => {
     })
 
     // transfer tokens from approved account
-    await actions.token.transferSync(clientWithAccount, {
+    await actions.token.transferSync(client, {
       amount: parseUnits('50', 6),
       account: account2,
       from: account.address,
@@ -205,7 +196,7 @@ describe('approve', () => {
 
     {
       // verify updated allowance
-      const allowance = await actions.token.getAllowance(clientWithAccount, {
+      const allowance = await actions.token.getAllowance(client, {
         spender: account2.address,
         token: addresses.alphaUsd,
       })
@@ -213,7 +204,7 @@ describe('approve', () => {
     }
 
     // verify balance
-    const balance = await actions.token.getBalance(clientWithAccount, {
+    const balance = await actions.token.getBalance(client, {
       account: '0x0000000000000000000000000000000000000001',
       token: addresses.alphaUsd,
     })
@@ -224,7 +215,7 @@ describe('approve', () => {
 describe('create', () => {
   test('default', async () => {
     const { receipt, token, tokenId, ...result } =
-      await actions.token.createSync(clientWithAccount, {
+      await actions.token.createSync(client, {
         currency: 'USD',
         name: 'Test USD',
         symbol: 'TUSD',
@@ -243,7 +234,7 @@ describe('create', () => {
     expect(tokenId).toBeDefined()
     expect(receipt).toBeDefined()
 
-    const code = await getCode(clientWithAccount, {
+    const code = await getCode(client, {
       address: token,
     })
     expect(code).toBe('0xef')
@@ -253,7 +244,7 @@ describe('create', () => {
 describe('getAllowance', () => {
   test('default', async () => {
     // First, approve some allowance
-    await writeContractSync(clientWithAccount, {
+    await writeContractSync(client, {
       abi: Abis.tip20,
       address: addresses.alphaUsd,
       functionName: 'approve',
@@ -262,7 +253,7 @@ describe('getAllowance', () => {
 
     {
       // Test with default token
-      const allowance = await actions.token.getAllowance(clientWithAccount, {
+      const allowance = await actions.token.getAllowance(client, {
         spender: account2.address,
         token: addresses.alphaUsd,
       })
@@ -271,7 +262,7 @@ describe('getAllowance', () => {
 
     {
       // Test with token address
-      const allowance = await actions.token.getAllowance(clientWithAccount, {
+      const allowance = await actions.token.getAllowance(client, {
         token: addresses.alphaUsd,
         spender: account2.address,
       })
@@ -281,7 +272,7 @@ describe('getAllowance', () => {
 
     {
       // Test with token ID
-      const allowance = await actions.token.getAllowance(clientWithAccount, {
+      const allowance = await actions.token.getAllowance(client, {
         token: addresses.alphaUsd,
         spender: account2.address,
       })
@@ -295,7 +286,7 @@ describe('getBalance', () => {
   test('default', async () => {
     {
       // Test with token address
-      const balance = await actions.token.getBalance(clientWithAccount, {
+      const balance = await actions.token.getBalance(client, {
         token: addresses.alphaUsd,
       })
 
@@ -304,7 +295,7 @@ describe('getBalance', () => {
 
     {
       // Test with token ID & different account
-      const balance = await actions.token.getBalance(clientWithAccount, {
+      const balance = await actions.token.getBalance(client, {
         token: addresses.alphaUsd,
         account: Hex.random(20),
       })
@@ -316,7 +307,7 @@ describe('getBalance', () => {
 
 describe('getMetadata', () => {
   test('default', async () => {
-    const metadata = await actions.token.getMetadata(clientWithAccount, {
+    const metadata = await actions.token.getMetadata(client, {
       token: addresses.alphaUsd,
     })
 
@@ -336,13 +327,13 @@ describe('getMetadata', () => {
   })
 
   test('behavior: custom token (address)', async () => {
-    const { token } = await actions.token.createSync(clientWithAccount, {
+    const { token } = await actions.token.createSync(client, {
       currency: 'USD',
       name: 'Test USD',
       symbol: 'TUSD',
     })
 
-    const metadata = await actions.token.getMetadata(clientWithAccount, {
+    const metadata = await actions.token.getMetadata(client, {
       token,
     })
 
@@ -363,7 +354,7 @@ describe('getMetadata', () => {
 
   test('behavior: quote token', async () => {
     {
-      const metadata = await actions.token.getMetadata(clientWithAccount, {
+      const metadata = await actions.token.getMetadata(client, {
         token: TokenIds.pathUsd,
       })
 
@@ -379,7 +370,7 @@ describe('getMetadata', () => {
     }
 
     {
-      const metadata = await actions.token.getMetadata(clientWithAccount, {
+      const metadata = await actions.token.getMetadata(client, {
         token: Addresses.pathUsd,
       })
 
@@ -396,13 +387,13 @@ describe('getMetadata', () => {
   })
 
   test('behavior: custom token (id)', async () => {
-    const token = await actions.token.createSync(clientWithAccount, {
+    const token = await actions.token.createSync(client, {
       currency: 'USD',
       name: 'Test USD',
       symbol: 'TUSD',
     })
 
-    const metadata = await actions.token.getMetadata(clientWithAccount, {
+    const metadata = await actions.token.getMetadata(client, {
       token: token.tokenId,
     })
 
@@ -425,21 +416,21 @@ describe('getMetadata', () => {
 describe('mint', () => {
   test('default', async () => {
     // Create a new token where we're the admin
-    const { token } = await actions.token.createSync(clientWithAccount, {
+    const { token } = await actions.token.createSync(client, {
       currency: 'USD',
       name: 'Mintable Token',
       symbol: 'MINT',
     })
 
     // Grant issuer role
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token,
       roles: ['issuer'],
-      to: clientWithAccount.account.address,
+      to: client.account.address,
     })
 
     // Check initial balance
-    const balanceBefore = await actions.token.getBalance(clientWithAccount, {
+    const balanceBefore = await actions.token.getBalance(client, {
       token,
       account: account2.address,
     })
@@ -447,7 +438,7 @@ describe('mint', () => {
 
     // Mint tokens
     const { receipt: mintReceipt, ...mintResult } =
-      await actions.token.mintSync(clientWithAccount, {
+      await actions.token.mintSync(client, {
         token,
         to: account2.address,
         amount: parseUnits('1000', 6),
@@ -461,14 +452,14 @@ describe('mint', () => {
     `)
 
     // Check balance after mint
-    const balanceAfter = await actions.token.getBalance(clientWithAccount, {
+    const balanceAfter = await actions.token.getBalance(client, {
       token,
       account: account2.address,
     })
     expect(balanceAfter).toBe(parseUnits('1000', 6))
 
     // Check total supply
-    const metadata = await actions.token.getMetadata(clientWithAccount, {
+    const metadata = await actions.token.getMetadata(client, {
       token,
     })
     expect(metadata.totalSupply).toBe(parseUnits('1000', 6))
@@ -477,23 +468,23 @@ describe('mint', () => {
   // TODO: fix
   test.skip('with memo', async () => {
     // Create a new token
-    const { token } = await actions.token.createSync(clientWithAccount, {
-      admin: clientWithAccount.account,
+    const { token } = await actions.token.createSync(client, {
+      admin: client.account,
       currency: 'USD',
       name: 'Mintable Token 2',
       symbol: 'MINT2',
     })
 
     // Grant issuer role
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token,
       roles: ['issuer'],
-      to: clientWithAccount.account.address,
+      to: client.account.address,
     })
 
     // Mint tokens with memo
     const { receipt: mintMemoReceipt, ...mintMemoResult } =
-      await actions.token.mintSync(clientWithAccount, {
+      await actions.token.mintSync(client, {
         token,
         to: account2.address,
         amount: parseUnits('500', 6),
@@ -508,7 +499,7 @@ describe('mint', () => {
     `)
 
     // Verify balance
-    const balance = await actions.token.getBalance(clientWithAccount, {
+    const balance = await actions.token.getBalance(client, {
       token,
       account: account2.address,
     })
@@ -519,24 +510,18 @@ describe('mint', () => {
 describe('transfer', () => {
   test('default', async () => {
     // Get initial balances
-    const senderBalanceBefore = await actions.token.getBalance(
-      clientWithAccount,
-      {
-        account: account.address,
-        token: addresses.alphaUsd,
-      },
-    )
-    const receiverBalanceBefore = await actions.token.getBalance(
-      clientWithAccount,
-      {
-        account: account2.address,
-        token: addresses.alphaUsd,
-      },
-    )
+    const senderBalanceBefore = await actions.token.getBalance(client, {
+      account: account.address,
+      token: addresses.alphaUsd,
+    })
+    const receiverBalanceBefore = await actions.token.getBalance(client, {
+      account: account2.address,
+      token: addresses.alphaUsd,
+    })
 
     // Transfer tokens
     const { receipt: transferReceipt, ...transferResult } =
-      await actions.token.transferSync(clientWithAccount, {
+      await actions.token.transferSync(client, {
         to: account2.address,
         amount: parseUnits('10', 6),
         token: addresses.alphaUsd,
@@ -551,20 +536,14 @@ describe('transfer', () => {
     `)
 
     // Verify balances
-    const senderBalanceAfter = await actions.token.getBalance(
-      clientWithAccount,
-      {
-        account: account.address,
-        token: addresses.alphaUsd,
-      },
-    )
-    const receiverBalanceAfter = await actions.token.getBalance(
-      clientWithAccount,
-      {
-        account: account2.address,
-        token: addresses.alphaUsd,
-      },
-    )
+    const senderBalanceAfter = await actions.token.getBalance(client, {
+      account: account.address,
+      token: addresses.alphaUsd,
+    })
+    const receiverBalanceAfter = await actions.token.getBalance(client, {
+      account: account2.address,
+      token: addresses.alphaUsd,
+    })
 
     expect(senderBalanceAfter - senderBalanceBefore).toBeLessThan(
       parseUnits('10', 6),
@@ -576,34 +555,34 @@ describe('transfer', () => {
 
   test('behavior: with custom token', async () => {
     // Create a new token
-    const { token } = await actions.token.createSync(clientWithAccount, {
+    const { token } = await actions.token.createSync(client, {
       currency: 'USD',
       name: 'Transfer Token',
       symbol: 'XFER',
     })
 
     // Grant issuer role and mint tokens
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token,
       roles: ['issuer'],
-      to: clientWithAccount.account.address,
+      to: client.account.address,
     })
 
-    await actions.token.mintSync(clientWithAccount, {
+    await actions.token.mintSync(client, {
       token,
-      to: clientWithAccount.account.address,
+      to: client.account.address,
       amount: parseUnits('1000', 6),
     })
 
     // Transfer custom tokens
-    await actions.token.transferSync(clientWithAccount, {
+    await actions.token.transferSync(client, {
       token,
       to: account2.address,
       amount: parseUnits('100', 6),
     })
 
     // Verify balance
-    const balance = await actions.token.getBalance(clientWithAccount, {
+    const balance = await actions.token.getBalance(client, {
       token,
       account: account2.address,
     })
@@ -614,7 +593,7 @@ describe('transfer', () => {
     const memo = Hex.fromString('Payment for services')
 
     const { receipt: transferMemoReceipt, ...transferMemoResult } =
-      await actions.token.transferSync(clientWithAccount, {
+      await actions.token.transferSync(client, {
         to: account2.address,
         amount: parseUnits('5', 6),
         memo,
@@ -633,14 +612,14 @@ describe('transfer', () => {
 
   test('behavior: from another account (transferFrom)', async () => {
     // First approve account2 to spend tokens
-    await actions.token.approveSync(clientWithAccount, {
+    await actions.token.approveSync(client, {
       spender: account2.address,
       amount: parseUnits('50', 6),
       token: addresses.alphaUsd,
     })
 
     // Transfer tokens for gas
-    await writeContractSync(clientWithAccount, {
+    await writeContractSync(client, {
       abi: Abis.tip20,
       address: addresses.alphaUsd,
       functionName: 'transfer',
@@ -648,13 +627,13 @@ describe('transfer', () => {
     })
 
     // Get initial balance
-    const balanceBefore = await actions.token.getBalance(clientWithAccount, {
+    const balanceBefore = await actions.token.getBalance(client, {
       account: account3.address,
       token: addresses.alphaUsd,
     })
 
     // Account2 transfers from account to account3
-    await actions.token.transferSync(clientWithAccount, {
+    await actions.token.transferSync(client, {
       account: account2,
       from: account.address,
       to: account3.address,
@@ -663,14 +642,14 @@ describe('transfer', () => {
     })
 
     // Verify balance
-    const balanceAfter = await actions.token.getBalance(clientWithAccount, {
+    const balanceAfter = await actions.token.getBalance(client, {
       account: account3.address,
       token: addresses.alphaUsd,
     })
     expect(balanceAfter - balanceBefore).toBe(parseUnits('25', 6))
 
     // Verify allowance was reduced
-    const allowance = await actions.token.getAllowance(clientWithAccount, {
+    const allowance = await actions.token.getAllowance(client, {
       spender: account2.address,
       token: addresses.alphaUsd,
     })
@@ -681,46 +660,43 @@ describe('transfer', () => {
 describe('burn', () => {
   test('default', async () => {
     // Create a new token where we have issuer role
-    const { token } = await actions.token.createSync(clientWithAccount, {
+    const { token } = await actions.token.createSync(client, {
       currency: 'USD',
       name: 'Burnable Token',
       symbol: 'BURN',
     })
 
     // Grant issuer role
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token,
       roles: ['issuer'],
-      to: clientWithAccount.account.address,
+      to: client.account.address,
     })
 
     // Mint some tokens
-    await actions.token.mintSync(clientWithAccount, {
+    await actions.token.mintSync(client, {
       token,
-      to: clientWithAccount.account.address,
+      to: client.account.address,
       amount: parseUnits('1000', 6),
     })
 
     // Check balance before burn
-    const balanceBefore = await actions.token.getBalance(clientWithAccount, {
+    const balanceBefore = await actions.token.getBalance(client, {
       token,
     })
     expect(balanceBefore).toBe(parseUnits('1000', 6))
 
     // Check total supply before
-    const metadataBefore = await actions.token.getMetadata(clientWithAccount, {
+    const metadataBefore = await actions.token.getMetadata(client, {
       token,
     })
     expect(metadataBefore.totalSupply).toBe(parseUnits('1000', 6))
 
     // Burn tokens
-    const { receipt, ...result } = await actions.token.burnSync(
-      clientWithAccount,
-      {
-        token,
-        amount: parseUnits('100', 6),
-      },
-    )
+    const { receipt, ...result } = await actions.token.burnSync(client, {
+      token,
+      amount: parseUnits('100', 6),
+    })
     expect(receipt).toBeDefined()
     expect(result).toMatchInlineSnapshot(`
       {
@@ -730,13 +706,13 @@ describe('burn', () => {
     `)
 
     // Check balance after burn
-    const balanceAfter = await actions.token.getBalance(clientWithAccount, {
+    const balanceAfter = await actions.token.getBalance(client, {
       token,
     })
     expect(balanceAfter).toBe(parseUnits('900', 6))
 
     // Check total supply after
-    const metadataAfter = await actions.token.getMetadata(clientWithAccount, {
+    const metadataAfter = await actions.token.getMetadata(client, {
       token,
     })
     expect(metadataAfter.totalSupply).toBe(parseUnits('900', 6))
@@ -744,38 +720,38 @@ describe('burn', () => {
 
   test('behavior: requires issuer role', async () => {
     // Create a new token
-    const { token } = await actions.token.createSync(clientWithAccount, {
+    const { token } = await actions.token.createSync(client, {
       currency: 'USD',
       name: 'Restricted Burn Token',
       symbol: 'RBURN',
     })
 
     // Grant issuer role to account2 (not us)
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token,
       roles: ['issuer'],
       to: account2.address,
     })
 
     // Transfer gas to account2
-    await writeContractSync(clientWithAccount, {
+    await writeContractSync(client, {
       abi: Abis.tip20,
       address: addresses.alphaUsd,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
 
-    await actions.token.mintSync(clientWithAccount, {
+    await actions.token.mintSync(client, {
       account: account2,
       feeToken: addresses.alphaUsd,
       token,
-      to: clientWithAccount.account.address,
+      to: client.account.address,
       amount: parseUnits('100', 6),
     })
 
     // Try to burn without issuer role - should fail
     await expect(
-      actions.token.burnSync(clientWithAccount, {
+      actions.token.burnSync(client, {
         token,
         amount: parseUnits('10', 6),
       }),
@@ -790,47 +766,47 @@ describe.todo('changeTokenTransferPolicy')
 describe('pause', () => {
   test('default', async () => {
     // Create a new token
-    const { token } = await actions.token.createSync(clientWithAccount, {
+    const { token } = await actions.token.createSync(client, {
       currency: 'USD',
       name: 'Pausable Token',
       symbol: 'PAUSE',
     })
 
     // Grant pause role
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token,
       roles: ['pause'],
-      to: clientWithAccount.account.address,
+      to: client.account.address,
     })
 
     // Grant issuer role and mint tokens
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token,
       roles: ['issuer'],
-      to: clientWithAccount.account.address,
+      to: client.account.address,
     })
 
-    await actions.token.mintSync(clientWithAccount, {
+    await actions.token.mintSync(client, {
       token,
       to: account2.address,
       amount: parseUnits('1000', 6),
     })
 
     // Verify token is not paused
-    let metadata = await actions.token.getMetadata(clientWithAccount, {
+    let metadata = await actions.token.getMetadata(client, {
       token,
     })
     expect(metadata.paused).toBe(false)
 
     // Transfer gas
-    await writeContractSync(clientWithAccount, {
+    await writeContractSync(client, {
       abi: Abis.tip20,
       address: addresses.alphaUsd,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
 
-    await actions.token.transferSync(clientWithAccount, {
+    await actions.token.transferSync(client, {
       account: account2,
       token,
       to: account3.address,
@@ -839,7 +815,7 @@ describe('pause', () => {
 
     // Pause the token
     const { receipt: pauseReceipt, ...pauseResult } =
-      await actions.token.pauseSync(clientWithAccount, {
+      await actions.token.pauseSync(client, {
         token,
       })
     expect(pauseReceipt).toBeDefined()
@@ -851,14 +827,14 @@ describe('pause', () => {
     `)
 
     // Verify token is paused
-    metadata = await actions.token.getMetadata(clientWithAccount, {
+    metadata = await actions.token.getMetadata(client, {
       token,
     })
     expect(metadata.paused).toBe(true)
 
     // Transfers should now fail
     await expect(
-      actions.token.transferSync(clientWithAccount, {
+      actions.token.transferSync(client, {
         account: account2,
         token,
         to: account3.address,
@@ -869,7 +845,7 @@ describe('pause', () => {
 
   test('behavior: requires pause role', async () => {
     // Create a new token
-    const { token } = await actions.token.createSync(clientWithAccount, {
+    const { token } = await actions.token.createSync(client, {
       currency: 'USD',
       name: 'Restricted Pause Token',
       symbol: 'RPAUSE',
@@ -877,34 +853,34 @@ describe('pause', () => {
 
     // Try to pause without pause role - should fail
     await expect(
-      actions.token.pauseSync(clientWithAccount, {
+      actions.token.pauseSync(client, {
         token,
       }),
     ).rejects.toThrow()
 
     // Grant pause role to account2
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token,
       roles: ['pause'],
       to: account2.address,
     })
 
     // Transfer gas to account2
-    await writeContractSync(clientWithAccount, {
+    await writeContractSync(client, {
       abi: Abis.tip20,
       address: addresses.alphaUsd,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
 
-    await actions.token.pauseSync(clientWithAccount, {
+    await actions.token.pauseSync(client, {
       account: account2,
       feeToken: addresses.alphaUsd,
       token,
     })
 
     // Verify token is paused
-    const metadata = await actions.token.getMetadata(clientWithAccount, {
+    const metadata = await actions.token.getMetadata(client, {
       token,
     })
     expect(metadata.paused).toBe(true)
@@ -912,30 +888,27 @@ describe('pause', () => {
 
   test('behavior: cannot pause already paused token', async () => {
     // Create a new token
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Double Pause Token',
-        symbol: 'DPAUSE',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Double Pause Token',
+      symbol: 'DPAUSE',
+    })
 
     // Grant pause role
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token: address,
       roles: ['pause'],
-      to: clientWithAccount.account.address,
+      to: client.account.address,
     })
 
     // Pause the token
-    await actions.token.pauseSync(clientWithAccount, {
+    await actions.token.pauseSync(client, {
       token: address,
     })
 
     // Try to pause again - implementation may vary, but typically this succeeds without error
     const { receipt: doublePauseReceipt, ...doublePauseResult } =
-      await actions.token.pauseSync(clientWithAccount, {
+      await actions.token.pauseSync(client, {
         token: address,
       })
     expect(doublePauseReceipt.status).toBe('success')
@@ -951,54 +924,51 @@ describe('pause', () => {
 describe('unpause', () => {
   test('default', async () => {
     // Create a new token
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Unpausable Token',
-        symbol: 'UNPAUSE',
-      },
-    )
-
-    // Grant pause and unpause roles
-    await actions.token.grantRolesSync(clientWithAccount, {
-      token: address,
-      roles: ['pause'],
-      to: clientWithAccount.account.address,
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Unpausable Token',
+      symbol: 'UNPAUSE',
     })
 
-    await actions.token.grantRolesSync(clientWithAccount, {
+    // Grant pause and unpause roles
+    await actions.token.grantRolesSync(client, {
+      token: address,
+      roles: ['pause'],
+      to: client.account.address,
+    })
+
+    await actions.token.grantRolesSync(client, {
       token: address,
       roles: ['unpause'],
-      to: clientWithAccount.account.address,
+      to: client.account.address,
     })
 
     // Grant issuer role and mint tokens
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token: address,
       roles: ['issuer'],
-      to: clientWithAccount.account.address,
+      to: client.account.address,
     })
 
-    await actions.token.mintSync(clientWithAccount, {
+    await actions.token.mintSync(client, {
       token: address,
       to: account2.address,
       amount: parseUnits('1000', 6),
     })
 
     // First pause the token
-    await actions.token.pauseSync(clientWithAccount, {
+    await actions.token.pauseSync(client, {
       token: address,
     })
 
     // Verify token is paused
-    let metadata = await actions.token.getMetadata(clientWithAccount, {
+    let metadata = await actions.token.getMetadata(client, {
       token: address,
     })
     expect(metadata.paused).toBe(true)
 
     // Transfer gas to account2
-    await writeContractSync(clientWithAccount, {
+    await writeContractSync(client, {
       abi: Abis.tip20,
       address: addresses.alphaUsd,
       functionName: 'transfer',
@@ -1007,7 +977,7 @@ describe('unpause', () => {
 
     // Verify transfers fail when paused
     await expect(
-      actions.token.transferSync(clientWithAccount, {
+      actions.token.transferSync(client, {
         account: account2,
         token: address,
         to: account3.address,
@@ -1017,7 +987,7 @@ describe('unpause', () => {
 
     // Unpause the token
     const { receipt: unpauseReceipt, ...unpauseResult } =
-      await actions.token.unpauseSync(clientWithAccount, {
+      await actions.token.unpauseSync(client, {
         token: address,
       })
     expect(unpauseReceipt).toBeDefined()
@@ -1029,20 +999,20 @@ describe('unpause', () => {
     `)
 
     // Verify token is unpaused
-    metadata = await actions.token.getMetadata(clientWithAccount, {
+    metadata = await actions.token.getMetadata(client, {
       token: address,
     })
     expect(metadata.paused).toBe(false)
 
     // Transfers should work again
-    await actions.token.transferSync(clientWithAccount, {
+    await actions.token.transferSync(client, {
       account: account2,
       token: address,
       to: account3.address,
       amount: parseUnits('100', 6),
     })
 
-    const balance = await actions.token.getBalance(clientWithAccount, {
+    const balance = await actions.token.getBalance(client, {
       token: address,
       account: account3.address,
     })
@@ -1051,42 +1021,39 @@ describe('unpause', () => {
 
   test('behavior: requires unpause role', async () => {
     // Create a new token
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Restricted Unpause Token',
-        symbol: 'RUNPAUSE',
-      },
-    )
-
-    // Grant pause role and pause the token
-    await actions.token.grantRolesSync(clientWithAccount, {
-      token: address,
-      roles: ['pause'],
-      to: clientWithAccount.account.address,
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Restricted Unpause Token',
+      symbol: 'RUNPAUSE',
     })
 
-    await actions.token.pauseSync(clientWithAccount, {
+    // Grant pause role and pause the token
+    await actions.token.grantRolesSync(client, {
+      token: address,
+      roles: ['pause'],
+      to: client.account.address,
+    })
+
+    await actions.token.pauseSync(client, {
       token: address,
     })
 
     // Try to unpause without unpause role - should fail
     await expect(
-      actions.token.unpauseSync(clientWithAccount, {
+      actions.token.unpauseSync(client, {
         token: address,
       }),
     ).rejects.toThrow()
 
     // Grant unpause role to account2
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token: address,
       roles: ['unpause'],
       to: account2.address,
     })
 
     // Transfer gas to account2
-    await writeContractSync(clientWithAccount, {
+    await writeContractSync(client, {
       abi: Abis.tip20,
       address: addresses.alphaUsd,
       functionName: 'transfer',
@@ -1094,14 +1061,14 @@ describe('unpause', () => {
     })
 
     // Now account2 should be able to unpause
-    await actions.token.unpauseSync(clientWithAccount, {
+    await actions.token.unpauseSync(client, {
       account: account2,
       feeToken: addresses.alphaUsd,
       token: address,
     })
 
     // Verify token is unpaused
-    const metadata = await actions.token.getMetadata(clientWithAccount, {
+    const metadata = await actions.token.getMetadata(client, {
       token: address,
     })
     expect(metadata.paused).toBe(false)
@@ -1109,38 +1076,35 @@ describe('unpause', () => {
 
   test('behavior: different roles for pause and unpause', async () => {
     // Create a new token
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Split Role Token',
-        symbol: 'SPLIT',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Split Role Token',
+      symbol: 'SPLIT',
+    })
 
     // Grant pause role to account2
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token: address,
       roles: ['pause'],
       to: account2.address,
     })
 
     // Grant unpause role to account3
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token: address,
       roles: ['unpause'],
       to: account3.address,
     })
 
     // Transfer gas to both accounts
-    await writeContractSync(clientWithAccount, {
+    await writeContractSync(client, {
       abi: Abis.tip20,
       address: addresses.alphaUsd,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
 
-    await writeContractSync(clientWithAccount, {
+    await writeContractSync(client, {
       abi: Abis.tip20,
       address: addresses.alphaUsd,
       functionName: 'transfer',
@@ -1148,7 +1112,7 @@ describe('unpause', () => {
     })
 
     // Account2 can pause
-    await actions.token.pauseSync(clientWithAccount, {
+    await actions.token.pauseSync(client, {
       account: account2,
       feeToken: addresses.alphaUsd,
       token: address,
@@ -1156,21 +1120,21 @@ describe('unpause', () => {
 
     // Account2 cannot unpause
     await expect(
-      actions.token.unpauseSync(clientWithAccount, {
+      actions.token.unpauseSync(client, {
         account: account2,
         token: address,
       }),
     ).rejects.toThrow()
 
     // Account3 can unpause
-    await actions.token.unpauseSync(clientWithAccount, {
+    await actions.token.unpauseSync(client, {
       account: account3,
       feeToken: addresses.alphaUsd,
       token: address,
     })
 
     // Verify token is unpaused
-    const metadata = await actions.token.getMetadata(clientWithAccount, {
+    const metadata = await actions.token.getMetadata(client, {
       token: address,
     })
     expect(metadata.paused).toBe(false)
@@ -1181,7 +1145,7 @@ describe('prepareUpdateQuoteToken', () => {
   test('default', async () => {
     // Create two tokens - one to be the new quote token
     const { token: quoteTokenAddress } = await actions.token.createSync(
-      clientWithAccount,
+      client,
       {
         currency: 'USD',
         name: 'Quote Token',
@@ -1189,21 +1153,18 @@ describe('prepareUpdateQuoteToken', () => {
       },
     )
 
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Main Token',
-        symbol: 'MAIN',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Main Token',
+      symbol: 'MAIN',
+    })
 
     // Update quote token
     const {
       receipt: updateReceipt,
       nextQuoteToken,
       ...updateResult
-    } = await actions.token.prepareUpdateQuoteTokenSync(clientWithAccount, {
+    } = await actions.token.prepareUpdateQuoteTokenSync(client, {
       token: address,
       quoteToken: quoteTokenAddress,
     })
@@ -1222,7 +1183,7 @@ describe('prepareUpdateQuoteToken', () => {
   test('behavior: requires admin role', async () => {
     // Create quote token
     const { token: quoteTokenAddress } = await actions.token.createSync(
-      clientWithAccount,
+      client,
       {
         currency: 'USD',
         name: 'Quote Token 2',
@@ -1230,18 +1191,15 @@ describe('prepareUpdateQuoteToken', () => {
       },
     )
 
-    // Create main token where clientWithAccount.account is admin
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Restricted Token',
-        symbol: 'RESTR',
-      },
-    )
+    // Create main token where client.account is admin
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Restricted Token',
+      symbol: 'RESTR',
+    })
 
     // Transfer gas to account2
-    await writeContractSync(clientWithAccount, {
+    await writeContractSync(client, {
       abi: Abis.tip20,
       address: addresses.alphaUsd,
       functionName: 'transfer',
@@ -1250,7 +1208,7 @@ describe('prepareUpdateQuoteToken', () => {
 
     // Try to update quote token from account2 (not admin) - should fail
     await expect(
-      actions.token.prepareUpdateQuoteTokenSync(clientWithAccount, {
+      actions.token.prepareUpdateQuoteTokenSync(client, {
         account: account2,
         token: address,
         quoteToken: quoteTokenAddress,
@@ -1261,7 +1219,7 @@ describe('prepareUpdateQuoteToken', () => {
   test('behavior: with token ID', async () => {
     // Create quote token
     const { token: quoteTokenAddress } = await actions.token.createSync(
-      clientWithAccount,
+      client,
       {
         currency: 'USD',
         name: 'Quote Token 3',
@@ -1270,21 +1228,18 @@ describe('prepareUpdateQuoteToken', () => {
     )
 
     // Create main token using token ID
-    const { tokenId: mainTokenId } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Main Token ID',
-        symbol: 'MAINID',
-      },
-    )
+    const { tokenId: mainTokenId } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Main Token ID',
+      symbol: 'MAINID',
+    })
 
     // Update quote token using token ID for main token, address for quote token
     const {
       receipt: updateReceipt,
       nextQuoteToken,
       ...updateResult
-    } = await actions.token.prepareUpdateQuoteTokenSync(clientWithAccount, {
+    } = await actions.token.prepareUpdateQuoteTokenSync(client, {
       token: mainTokenId,
       quoteToken: quoteTokenAddress,
     })
@@ -1303,7 +1258,7 @@ describe('finalizeUpdateQuoteToken', () => {
   test('default', async () => {
     // Create quote token
     const { token: quoteTokenAddress } = await actions.token.createSync(
-      clientWithAccount,
+      client,
       {
         currency: 'USD',
         name: 'Quote Token',
@@ -1312,17 +1267,14 @@ describe('finalizeUpdateQuoteToken', () => {
     )
 
     // Create main token
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Main Token',
-        symbol: 'MAIN',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Main Token',
+      symbol: 'MAIN',
+    })
 
     // Prepare update quote token (step 1)
-    await actions.token.prepareUpdateQuoteTokenSync(clientWithAccount, {
+    await actions.token.prepareUpdateQuoteTokenSync(client, {
       token: address,
       quoteToken: quoteTokenAddress,
     })
@@ -1332,7 +1284,7 @@ describe('finalizeUpdateQuoteToken', () => {
       receipt: finalizeReceipt,
       newQuoteToken,
       ...finalizeResult
-    } = await actions.token.updateQuoteTokenSync(clientWithAccount, {
+    } = await actions.token.updateQuoteTokenSync(client, {
       token: address,
     })
 
@@ -1347,7 +1299,7 @@ describe('finalizeUpdateQuoteToken', () => {
     expect(newQuoteToken).toBe(quoteTokenAddress)
 
     // Verify it's reflected in metadata
-    const metadata = await actions.token.getMetadata(clientWithAccount, {
+    const metadata = await actions.token.getMetadata(client, {
       token: address,
     })
     expect(metadata.quoteToken).toBe(quoteTokenAddress)
@@ -1356,7 +1308,7 @@ describe('finalizeUpdateQuoteToken', () => {
   test('behavior: requires admin role', async () => {
     // Create quote token
     const { token: quoteTokenAddress } = await actions.token.createSync(
-      clientWithAccount,
+      client,
       {
         currency: 'USD',
         name: 'Quote Token 2',
@@ -1365,23 +1317,20 @@ describe('finalizeUpdateQuoteToken', () => {
     )
 
     // Create main token
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Restricted Token',
-        symbol: 'RESTR',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Restricted Token',
+      symbol: 'RESTR',
+    })
 
     // Update quote token as admin
-    await actions.token.prepareUpdateQuoteTokenSync(clientWithAccount, {
+    await actions.token.prepareUpdateQuoteTokenSync(client, {
       token: address,
       quoteToken: quoteTokenAddress,
     })
 
     // Transfer gas to account2
-    await writeContractSync(clientWithAccount, {
+    await writeContractSync(client, {
       abi: Abis.tip20,
       address: addresses.alphaUsd,
       functionName: 'transfer',
@@ -1390,7 +1339,7 @@ describe('finalizeUpdateQuoteToken', () => {
 
     // Try to finalize as non-admin - should fail
     await expect(
-      actions.token.updateQuoteTokenSync(clientWithAccount, {
+      actions.token.updateQuoteTokenSync(client, {
         account: account2,
         token: address,
       }),
@@ -1399,35 +1348,29 @@ describe('finalizeUpdateQuoteToken', () => {
 
   test('behavior: prevents circular references', async () => {
     // Create token B
-    const { token: tokenBAddress } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Token B',
-        symbol: 'TKB',
-      },
-    )
+    const { token: tokenBAddress } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Token B',
+      symbol: 'TKB',
+    })
 
     // Create token A that links to token B
-    const { token: tokenAAddress } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Token A',
-        symbol: 'TKA',
-        quoteToken: tokenBAddress,
-      },
-    )
+    const { token: tokenAAddress } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Token A',
+      symbol: 'TKA',
+      quoteToken: tokenBAddress,
+    })
 
     // Try to make token B link to token A (would create A -> B -> A loop)
-    await actions.token.prepareUpdateQuoteTokenSync(clientWithAccount, {
+    await actions.token.prepareUpdateQuoteTokenSync(client, {
       token: tokenBAddress,
       quoteToken: tokenAAddress,
     })
 
     // Finalize should fail due to circular reference detection
     await expect(
-      actions.token.updateQuoteTokenSync(clientWithAccount, {
+      actions.token.updateQuoteTokenSync(client, {
         token: tokenBAddress,
       }),
     ).rejects.toThrow()
@@ -1439,60 +1382,51 @@ describe.todo('setTokenSupplyCap')
 describe('hasRole', () => {
   test('default', async () => {
     // Create a new token where we're the admin
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'HasRole Test Token',
-        symbol: 'HRTEST',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'HasRole Test Token',
+      symbol: 'HRTEST',
+    })
 
     // Client account should have defaultAdmin role on the new token
-    const hasDefaultAdminRole = await actions.token.hasRole(clientWithAccount, {
+    const hasDefaultAdminRole = await actions.token.hasRole(client, {
       token: address,
       role: 'defaultAdmin',
     })
     expect(hasDefaultAdminRole).toBe(true)
 
     // Client account should not have issuer role initially on the new token
-    const hasIssuerRole = await actions.token.hasRole(clientWithAccount, {
+    const hasIssuerRole = await actions.token.hasRole(client, {
       token: address,
       role: 'issuer',
     })
     expect(hasIssuerRole).toBe(false)
 
     // Grant issuer role
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token: address,
       roles: ['issuer'],
-      to: clientWithAccount.account.address,
+      to: client.account.address,
     })
 
     // Now should have issuer role
-    const hasIssuerRoleAfterGrant = await actions.token.hasRole(
-      clientWithAccount,
-      {
-        token: address,
-        role: 'issuer',
-      },
-    )
+    const hasIssuerRoleAfterGrant = await actions.token.hasRole(client, {
+      token: address,
+      role: 'issuer',
+    })
     expect(hasIssuerRoleAfterGrant).toBe(true)
   })
 
   test('behavior: check other account', async () => {
     // Create a new token
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'HasRole Other Account',
-        symbol: 'HROAC',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'HasRole Other Account',
+      symbol: 'HROAC',
+    })
 
     // Account2 should not have issuer role
-    const hasIssuerBefore = await actions.token.hasRole(clientWithAccount, {
+    const hasIssuerBefore = await actions.token.hasRole(client, {
       token: address,
       account: account2.address,
       role: 'issuer',
@@ -1500,14 +1434,14 @@ describe('hasRole', () => {
     expect(hasIssuerBefore).toBe(false)
 
     // Grant issuer role to account2
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token: address,
       roles: ['issuer'],
       to: account2.address,
     })
 
     // Account2 should now have issuer role
-    const hasIssuerAfter = await actions.token.hasRole(clientWithAccount, {
+    const hasIssuerAfter = await actions.token.hasRole(client, {
       token: address,
       account: account2.address,
       role: 'issuer',
@@ -1515,7 +1449,7 @@ describe('hasRole', () => {
     expect(hasIssuerAfter).toBe(true)
 
     // Account3 should still not have issuer role
-    const account3HasIssuer = await actions.token.hasRole(clientWithAccount, {
+    const account3HasIssuer = await actions.token.hasRole(client, {
       token: address,
       account: account3.address,
       role: 'issuer',
@@ -1525,24 +1459,21 @@ describe('hasRole', () => {
 
   test('behavior: multiple roles', async () => {
     // Create a new token
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'HasRole Multiple',
-        symbol: 'HRMULTI',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'HasRole Multiple',
+      symbol: 'HRMULTI',
+    })
 
     // Grant multiple roles to account2
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token: address,
       roles: ['issuer', 'pause'],
       to: account2.address,
     })
 
     // Check issuer role
-    const hasIssuer = await actions.token.hasRole(clientWithAccount, {
+    const hasIssuer = await actions.token.hasRole(client, {
       token: address,
       account: account2.address,
       role: 'issuer',
@@ -1550,7 +1481,7 @@ describe('hasRole', () => {
     expect(hasIssuer).toBe(true)
 
     // Check pause role
-    const hasPause = await actions.token.hasRole(clientWithAccount, {
+    const hasPause = await actions.token.hasRole(client, {
       token: address,
       account: account2.address,
       role: 'pause',
@@ -1558,7 +1489,7 @@ describe('hasRole', () => {
     expect(hasPause).toBe(true)
 
     // Check unpause role (not granted)
-    const hasUnpause = await actions.token.hasRole(clientWithAccount, {
+    const hasUnpause = await actions.token.hasRole(client, {
       token: address,
       account: account2.address,
       role: 'unpause',
@@ -1568,24 +1499,21 @@ describe('hasRole', () => {
 
   test('behavior: after revoke', async () => {
     // Create a new token
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'HasRole Revoke',
-        symbol: 'HRREV',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'HasRole Revoke',
+      symbol: 'HRREV',
+    })
 
     // Grant issuer role to account2
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token: address,
       roles: ['issuer'],
       to: account2.address,
     })
 
     // Verify has role
-    const hasRoleBefore = await actions.token.hasRole(clientWithAccount, {
+    const hasRoleBefore = await actions.token.hasRole(client, {
       token: address,
       account: account2.address,
       role: 'issuer',
@@ -1593,14 +1521,14 @@ describe('hasRole', () => {
     expect(hasRoleBefore).toBe(true)
 
     // Revoke the role
-    await actions.token.revokeRolesSync(clientWithAccount, {
+    await actions.token.revokeRolesSync(client, {
       token: address,
       roles: ['issuer'],
       from: account2.address,
     })
 
     // Verify no longer has role
-    const hasRoleAfter = await actions.token.hasRole(clientWithAccount, {
+    const hasRoleAfter = await actions.token.hasRole(client, {
       token: address,
       account: account2.address,
       role: 'issuer',
@@ -1610,24 +1538,21 @@ describe('hasRole', () => {
 
   test('behavior: with token ID', async () => {
     // Create a new token
-    const { token: address, tokenId } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'HasRole Token ID',
-        symbol: 'HRTID',
-      },
-    )
+    const { token: address, tokenId } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'HasRole Token ID',
+      symbol: 'HRTID',
+    })
 
     // Grant issuer role
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token: tokenId,
       roles: ['issuer'],
       to: account2.address,
     })
 
     // Check using token ID
-    const hasRole = await actions.token.hasRole(clientWithAccount, {
+    const hasRole = await actions.token.hasRole(client, {
       token: tokenId,
       account: account2.address,
       role: 'issuer',
@@ -1635,7 +1560,7 @@ describe('hasRole', () => {
     expect(hasRole).toBe(true)
 
     // Verify same result with address
-    const hasRoleWithAddress = await actions.token.hasRole(clientWithAccount, {
+    const hasRoleWithAddress = await actions.token.hasRole(client, {
       token: address,
       account: account2.address,
       role: 'issuer',
@@ -1647,29 +1572,23 @@ describe('hasRole', () => {
 describe('getRoleAdmin', () => {
   test('default', async () => {
     // Create a new token where we're the admin
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'GetRoleAdmin Test Token',
-        symbol: 'GRATEST',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'GetRoleAdmin Test Token',
+      symbol: 'GRATEST',
+    })
 
     // Get admin role for issuer role (should be defaultAdmin)
-    const issuerAdminRole = await actions.token.getRoleAdmin(
-      clientWithAccount,
-      {
-        token: address,
-        role: 'issuer',
-      },
-    )
+    const issuerAdminRole = await actions.token.getRoleAdmin(client, {
+      token: address,
+      role: 'issuer',
+    })
     expect(issuerAdminRole).toBe(
       '0x0000000000000000000000000000000000000000000000000000000000000000',
     )
 
     // Get admin role for pause role (should be defaultAdmin)
-    const pauseAdminRole = await actions.token.getRoleAdmin(clientWithAccount, {
+    const pauseAdminRole = await actions.token.getRoleAdmin(client, {
       token: address,
       role: 'pause',
     })
@@ -1678,13 +1597,10 @@ describe('getRoleAdmin', () => {
     )
 
     // Get admin role for unpause role (should be defaultAdmin)
-    const unpauseAdminRole = await actions.token.getRoleAdmin(
-      clientWithAccount,
-      {
-        token: address,
-        role: 'unpause',
-      },
-    )
+    const unpauseAdminRole = await actions.token.getRoleAdmin(client, {
+      token: address,
+      role: 'unpause',
+    })
     expect(unpauseAdminRole).toBe(
       '0x0000000000000000000000000000000000000000000000000000000000000000',
     )
@@ -1692,98 +1608,74 @@ describe('getRoleAdmin', () => {
 
   test('behavior: after setting role admin', async () => {
     // Create a new token
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'GetRoleAdmin After Set',
-        symbol: 'GRASET',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'GetRoleAdmin After Set',
+      symbol: 'GRASET',
+    })
 
     // Get initial admin role for issuer
-    const initialAdminRole = await actions.token.getRoleAdmin(
-      clientWithAccount,
-      {
-        token: address,
-        role: 'issuer',
-      },
-    )
+    const initialAdminRole = await actions.token.getRoleAdmin(client, {
+      token: address,
+      role: 'issuer',
+    })
     expect(initialAdminRole).toBe(
       '0x0000000000000000000000000000000000000000000000000000000000000000',
     )
 
     // Set pause as admin role for issuer
-    await actions.token.setRoleAdminSync(clientWithAccount, {
+    await actions.token.setRoleAdminSync(client, {
       token: address,
       role: 'issuer',
       adminRole: 'pause',
     })
 
     // Get updated admin role for issuer
-    const updatedAdminRole = await actions.token.getRoleAdmin(
-      clientWithAccount,
-      {
-        token: address,
-        role: 'issuer',
-      },
-    )
+    const updatedAdminRole = await actions.token.getRoleAdmin(client, {
+      token: address,
+      role: 'issuer',
+    })
     expect(updatedAdminRole).toBe(TokenRole.serialize('pause'))
   })
 
   test('behavior: with token ID', async () => {
     // Create a new token
-    const { token: address, tokenId } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'GetRoleAdmin Token ID',
-        symbol: 'GRATID',
-      },
-    )
+    const { token: address, tokenId } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'GetRoleAdmin Token ID',
+      symbol: 'GRATID',
+    })
 
     // Get admin role using token ID
-    const adminRoleWithId = await actions.token.getRoleAdmin(
-      clientWithAccount,
-      {
-        token: tokenId,
-        role: 'issuer',
-      },
-    )
+    const adminRoleWithId = await actions.token.getRoleAdmin(client, {
+      token: tokenId,
+      role: 'issuer',
+    })
     expect(adminRoleWithId).toBe(
       '0x0000000000000000000000000000000000000000000000000000000000000000',
     )
 
     // Get admin role using address
-    const adminRoleWithAddress = await actions.token.getRoleAdmin(
-      clientWithAccount,
-      {
-        token: address,
-        role: 'issuer',
-      },
-    )
+    const adminRoleWithAddress = await actions.token.getRoleAdmin(client, {
+      token: address,
+      role: 'issuer',
+    })
     expect(adminRoleWithAddress).toBe(adminRoleWithId)
   })
 
   test('behavior: defaultAdmin role admin', async () => {
     // Create a new token
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'GetRoleAdmin DefaultAdmin',
-        symbol: 'GRADMIN',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'GetRoleAdmin DefaultAdmin',
+      symbol: 'GRADMIN',
+    })
 
     // Get admin role for defaultAdmin role (should be itself - 0x00)
-    const defaultAdminAdminRole = await actions.token.getRoleAdmin(
-      clientWithAccount,
-      {
-        token: address,
-        role: 'defaultAdmin',
-      },
-    )
+    const defaultAdminAdminRole = await actions.token.getRoleAdmin(client, {
+      token: address,
+      role: 'defaultAdmin',
+    })
     expect(defaultAdminAdminRole).toBe(
       '0x0000000000000000000000000000000000000000000000000000000000000000',
     )
@@ -1793,19 +1685,16 @@ describe('getRoleAdmin', () => {
 describe('grantRoles', () => {
   test('default', async () => {
     // Create a new token where we're the admin
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        admin: clientWithAccount.account,
-        currency: 'USD',
-        name: 'Test Token',
-        symbol: 'TEST',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      admin: client.account,
+      currency: 'USD',
+      name: 'Test Token',
+      symbol: 'TEST',
+    })
 
     // Grant issuer role to account2
     const { receipt: grantReceipt, value: grantValue } =
-      await actions.token.grantRolesSync(clientWithAccount, {
+      await actions.token.grantRolesSync(client, {
         token: address,
         roles: ['issuer'],
         to: account2.address,
@@ -1827,24 +1716,21 @@ describe('grantRoles', () => {
 
 describe('revokeTokenRole', async () => {
   test('default', async () => {
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        admin: clientWithAccount.account,
-        currency: 'USD',
-        name: 'Test Token 2',
-        symbol: 'TEST2',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      admin: client.account,
+      currency: 'USD',
+      name: 'Test Token 2',
+      symbol: 'TEST2',
+    })
 
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token: address,
       roles: ['issuer'],
       to: account2.address,
     })
 
     const { receipt: revokeReceipt, value: revokeValue } =
-      await actions.token.revokeRolesSync(clientWithAccount, {
+      await actions.token.revokeRolesSync(client, {
         from: account2.address,
         token: address,
         roles: ['issuer'],
@@ -1866,28 +1752,25 @@ describe('revokeTokenRole', async () => {
 
 describe('renounceTokenRole', async () => {
   test('default', async () => {
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        admin: clientWithAccount.account,
-        currency: 'USD',
-        name: 'Test Token 3',
-        symbol: 'TEST3',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      admin: client.account,
+      currency: 'USD',
+      name: 'Test Token 3',
+      symbol: 'TEST3',
+    })
 
     const { receipt: grantReceipt } = await actions.token.grantRolesSync(
-      clientWithAccount,
+      client,
       {
         token: address,
         roles: ['issuer'],
-        to: clientWithAccount.account.address,
+        to: client.account.address,
       },
     )
     expect(grantReceipt.status).toBe('success')
 
     const { receipt: renounceReceipt, value: renounceValue } =
-      await actions.token.renounceRolesSync(clientWithAccount, {
+      await actions.token.renounceRolesSync(client, {
         token: address,
         roles: ['issuer'],
       })
@@ -1915,20 +1798,20 @@ describe('watchCreate', () => {
       log: actions.token.watchCreate.Log
     }> = []
 
-    const unwatch = actions.token.watchCreate(clientWithAccount, {
+    const unwatch = actions.token.watchCreate(client, {
       onTokenCreated: (args, log) => {
         receivedTokens.push({ args, log })
       },
     })
 
     try {
-      await actions.token.createSync(clientWithAccount, {
+      await actions.token.createSync(client, {
         currency: 'USD',
         name: 'Watch Test Token 1',
         symbol: 'WATCH1',
       })
 
-      await actions.token.createSync(clientWithAccount, {
+      await actions.token.createSync(client, {
         currency: 'USD',
         name: 'Watch Test Token 2',
         symbol: 'WATCH2',
@@ -1945,14 +1828,11 @@ describe('watchCreate', () => {
 
   test('behavior: filter by tokenId', async () => {
     // First, create a token to know what ID we're at
-    const { tokenId: firstId } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Setup Token',
-        symbol: 'SETUP',
-      },
-    )
+    const { tokenId: firstId } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Setup Token',
+      symbol: 'SETUP',
+    })
 
     // We want to watch for the token with ID = firstId + 2
     const targetTokenId = firstId + 2n
@@ -1963,7 +1843,7 @@ describe('watchCreate', () => {
     }> = []
 
     // Start watching for token creation events only for targetTokenId
-    const unwatch = actions.token.watchCreate(clientWithAccount, {
+    const unwatch = actions.token.watchCreate(client, {
       args: {
         tokenId: targetTokenId,
       },
@@ -1974,24 +1854,21 @@ describe('watchCreate', () => {
 
     try {
       // Create first token (should NOT be captured - ID will be firstId + 1)
-      await actions.token.createSync(clientWithAccount, {
+      await actions.token.createSync(client, {
         currency: 'USD',
         name: 'Filtered Watch Token 1',
         symbol: 'FWATCH1',
       })
 
       // Create second token (should be captured - ID will be firstId + 2 = targetTokenId)
-      const { tokenId: id2 } = await actions.token.createSync(
-        clientWithAccount,
-        {
-          currency: 'USD',
-          name: 'Filtered Watch Token 2',
-          symbol: 'FWATCH2',
-        },
-      )
+      const { tokenId: id2 } = await actions.token.createSync(client, {
+        currency: 'USD',
+        name: 'Filtered Watch Token 2',
+        symbol: 'FWATCH2',
+      })
 
       // Create third token (should NOT be captured - ID will be firstId + 3)
-      await actions.token.createSync(clientWithAccount, {
+      await actions.token.createSync(client, {
         currency: 'USD',
         name: 'Filtered Watch Token 3',
         symbol: 'FWATCH3',
@@ -2026,20 +1903,17 @@ describe('watchCreate', () => {
 describe('watchMint', () => {
   test('default', async () => {
     // Create a new token for testing
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Mint Watch Token',
-        symbol: 'MINT',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Mint Watch Token',
+      symbol: 'MINT',
+    })
 
     // Grant issuer role
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token: address,
       roles: ['issuer'],
-      to: clientWithAccount.account.address,
+      to: client.account.address,
     })
 
     const receivedMints: Array<{
@@ -2048,7 +1922,7 @@ describe('watchMint', () => {
     }> = []
 
     // Start watching for mint events
-    const unwatch = actions.token.watchMint(clientWithAccount, {
+    const unwatch = actions.token.watchMint(client, {
       token: address,
       onMint: (args, log) => {
         receivedMints.push({ args, log })
@@ -2057,14 +1931,14 @@ describe('watchMint', () => {
 
     try {
       // Mint first batch
-      await actions.token.mintSync(clientWithAccount, {
+      await actions.token.mintSync(client, {
         token: address,
         to: account2.address,
         amount: parseUnits('100', 6),
       })
 
       // Mint second batch
-      await actions.token.mintSync(clientWithAccount, {
+      await actions.token.mintSync(client, {
         token: address,
         to: account3.address,
         amount: parseUnits('50', 6),
@@ -2093,20 +1967,17 @@ describe('watchMint', () => {
 
   test('behavior: filter by to address', async () => {
     // Create a new token for testing
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Filtered Mint Token',
-        symbol: 'FMINT',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Filtered Mint Token',
+      symbol: 'FMINT',
+    })
 
     // Grant issuer role
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token: address,
       roles: ['issuer'],
-      to: clientWithAccount.account.address,
+      to: client.account.address,
     })
 
     const receivedMints: Array<{
@@ -2115,7 +1986,7 @@ describe('watchMint', () => {
     }> = []
 
     // Start watching for mint events only to account2
-    const unwatch = actions.token.watchMint(clientWithAccount, {
+    const unwatch = actions.token.watchMint(client, {
       token: address,
       args: {
         to: account2.address,
@@ -2127,21 +1998,21 @@ describe('watchMint', () => {
 
     try {
       // Mint to account2 (should be captured)
-      await actions.token.mintSync(clientWithAccount, {
+      await actions.token.mintSync(client, {
         token: address,
         to: account2.address,
         amount: parseUnits('100', 6),
       })
 
       // Mint to account3 (should NOT be captured)
-      await actions.token.mintSync(clientWithAccount, {
+      await actions.token.mintSync(client, {
         token: address,
         to: account3.address,
         amount: parseUnits('50', 6),
       })
 
       // Mint to account2 again (should be captured)
-      await actions.token.mintSync(clientWithAccount, {
+      await actions.token.mintSync(client, {
         token: address,
         to: account2.address,
         amount: parseUnits('75', 6),
@@ -2178,14 +2049,11 @@ describe('watchMint', () => {
 describe('watchApprove', () => {
   test('default', async () => {
     // Create a new token for testing
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Approval Watch Token',
-        symbol: 'APPR',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Approval Watch Token',
+      symbol: 'APPR',
+    })
 
     const receivedApprovals: Array<{
       args: actions.token.watchApprove.Args
@@ -2193,7 +2061,7 @@ describe('watchApprove', () => {
     }> = []
 
     // Start watching for approval events
-    const unwatch = actions.token.watchApprove(clientWithAccount, {
+    const unwatch = actions.token.watchApprove(client, {
       token: address,
       onApproval: (args, log) => {
         receivedApprovals.push({ args, log })
@@ -2202,14 +2070,14 @@ describe('watchApprove', () => {
 
     try {
       // Approve account2
-      await actions.token.approveSync(clientWithAccount, {
+      await actions.token.approveSync(client, {
         token: address,
         spender: account2.address,
         amount: parseUnits('100', 6),
       })
 
       // Approve account3
-      await actions.token.approveSync(clientWithAccount, {
+      await actions.token.approveSync(client, {
         token: address,
         spender: account3.address,
         amount: parseUnits('50', 6),
@@ -2240,14 +2108,11 @@ describe('watchApprove', () => {
 
   test('behavior: filter by spender address', async () => {
     // Create a new token for testing
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Filtered Approval Token',
-        symbol: 'FAPPR',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Filtered Approval Token',
+      symbol: 'FAPPR',
+    })
 
     const receivedApprovals: Array<{
       args: actions.token.watchApprove.Args
@@ -2255,7 +2120,7 @@ describe('watchApprove', () => {
     }> = []
 
     // Start watching for approval events only to account2
-    const unwatch = actions.token.watchApprove(clientWithAccount, {
+    const unwatch = actions.token.watchApprove(client, {
       token: address,
       args: {
         spender: account2.address,
@@ -2267,21 +2132,21 @@ describe('watchApprove', () => {
 
     try {
       // Approve account2 (should be captured)
-      await actions.token.approveSync(clientWithAccount, {
+      await actions.token.approveSync(client, {
         token: address,
         spender: account2.address,
         amount: parseUnits('100', 6),
       })
 
       // Approve account3 (should NOT be captured)
-      await actions.token.approveSync(clientWithAccount, {
+      await actions.token.approveSync(client, {
         token: address,
         spender: account3.address,
         amount: parseUnits('50', 6),
       })
 
       // Approve account2 again (should be captured)
-      await actions.token.approveSync(clientWithAccount, {
+      await actions.token.approveSync(client, {
         token: address,
         spender: account2.address,
         amount: parseUnits('75', 6),
@@ -2320,37 +2185,34 @@ describe('watchApprove', () => {
 describe('watchBurn', () => {
   test('default', async () => {
     // Create a new token for testing
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Burn Watch Token',
-        symbol: 'BURN',
-      },
-    )
-
-    // Grant issuer role to mint/burn tokens
-    await actions.token.grantRolesSync(clientWithAccount, {
-      token: address,
-      roles: ['issuer'],
-      to: clientWithAccount.account.address,
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Burn Watch Token',
+      symbol: 'BURN',
     })
 
     // Grant issuer role to mint/burn tokens
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
+      token: address,
+      roles: ['issuer'],
+      to: client.account.address,
+    })
+
+    // Grant issuer role to mint/burn tokens
+    await actions.token.grantRolesSync(client, {
       token: address,
       roles: ['issuer'],
       to: account2.address,
     })
 
     // Mint tokens to burn later
-    await actions.token.mintSync(clientWithAccount, {
+    await actions.token.mintSync(client, {
       token: address,
-      to: clientWithAccount.account.address,
+      to: client.account.address,
       amount: parseUnits('200', 6),
     })
 
-    await actions.token.mintSync(clientWithAccount, {
+    await actions.token.mintSync(client, {
       token: address,
       to: account2.address,
       amount: parseUnits('100', 6),
@@ -2362,7 +2224,7 @@ describe('watchBurn', () => {
     }> = []
 
     // Start watching for burn events
-    const unwatch = actions.token.watchBurn(clientWithAccount, {
+    const unwatch = actions.token.watchBurn(client, {
       token: address,
       onBurn: (args, log) => {
         receivedBurns.push({ args, log })
@@ -2371,13 +2233,13 @@ describe('watchBurn', () => {
 
     try {
       // Burn first batch
-      await actions.token.burnSync(clientWithAccount, {
+      await actions.token.burnSync(client, {
         token: address,
         amount: parseUnits('50', 6),
       })
 
       // Transfer gas to account2
-      await writeContractSync(clientWithAccount, {
+      await writeContractSync(client, {
         abi: Abis.tip20,
         address: addresses.alphaUsd,
         functionName: 'transfer',
@@ -2385,7 +2247,7 @@ describe('watchBurn', () => {
       })
 
       // Burn second batch from account2
-      await actions.token.burnSync(clientWithAccount, {
+      await actions.token.burnSync(client, {
         account: account2,
         token: address,
         amount: parseUnits('25', 6),
@@ -2414,37 +2276,34 @@ describe('watchBurn', () => {
 
   test('behavior: filter by from address', async () => {
     // Create a new token for testing
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Filtered Burn Token',
-        symbol: 'FBURN',
-      },
-    )
-
-    // Grant issuer role
-    await actions.token.grantRolesSync(clientWithAccount, {
-      token: address,
-      roles: ['issuer'],
-      to: clientWithAccount.account.address,
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Filtered Burn Token',
+      symbol: 'FBURN',
     })
 
     // Grant issuer role
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
+      token: address,
+      roles: ['issuer'],
+      to: client.account.address,
+    })
+
+    // Grant issuer role
+    await actions.token.grantRolesSync(client, {
       token: address,
       roles: ['issuer'],
       to: account2.address,
     })
 
     // Mint tokens to multiple accounts
-    await actions.token.mintSync(clientWithAccount, {
+    await actions.token.mintSync(client, {
       token: address,
-      to: clientWithAccount.account.address,
+      to: client.account.address,
       amount: parseUnits('200', 6),
     })
 
-    await actions.token.mintSync(clientWithAccount, {
+    await actions.token.mintSync(client, {
       token: address,
       to: account2.address,
       amount: parseUnits('200', 6),
@@ -2455,11 +2314,11 @@ describe('watchBurn', () => {
       log: actions.token.watchBurn.Log
     }> = []
 
-    // Start watching for burn events only from clientWithAccount.account
-    const unwatch = actions.token.watchBurn(clientWithAccount, {
+    // Start watching for burn events only from client.account
+    const unwatch = actions.token.watchBurn(client, {
       token: address,
       args: {
-        from: clientWithAccount.account.address,
+        from: client.account.address,
       },
       onBurn: (args, log) => {
         receivedBurns.push({ args, log })
@@ -2467,14 +2326,14 @@ describe('watchBurn', () => {
     })
 
     try {
-      // Burn from clientWithAccount.account (should be captured)
-      await actions.token.burnSync(clientWithAccount, {
+      // Burn from client.account (should be captured)
+      await actions.token.burnSync(client, {
         token: address,
         amount: parseUnits('50', 6),
       })
 
       // Transfer gas to account2
-      await writeContractSync(clientWithAccount, {
+      await writeContractSync(client, {
         abi: Abis.tip20,
         address: addresses.alphaUsd,
         functionName: 'transfer',
@@ -2482,21 +2341,21 @@ describe('watchBurn', () => {
       })
 
       // Burn from account2 (should NOT be captured)
-      await actions.token.burnSync(clientWithAccount, {
+      await actions.token.burnSync(client, {
         account: account2,
         token: address,
         amount: parseUnits('25', 6),
       })
 
-      // Burn from clientWithAccount.account again (should be captured)
-      await actions.token.burnSync(clientWithAccount, {
+      // Burn from client.account again (should be captured)
+      await actions.token.burnSync(client, {
         token: address,
         amount: parseUnits('75', 6),
       })
 
       await setTimeout(500)
 
-      // Should only receive 2 events (from clientWithAccount.account)
+      // Should only receive 2 events (from client.account)
       expect(receivedBurns).toHaveLength(2)
 
       expect(receivedBurns.at(0)!.args).toMatchInlineSnapshot(`
@@ -2512,9 +2371,9 @@ describe('watchBurn', () => {
         }
       `)
 
-      // Verify all received burns are from clientWithAccount.account
+      // Verify all received burns are from client.account
       for (const burn of receivedBurns) {
-        expect(burn.args.from).toBe(clientWithAccount.account.address)
+        expect(burn.args.from).toBe(client.account.address)
       }
     } finally {
       if (unwatch) unwatch()
@@ -2525,14 +2384,11 @@ describe('watchBurn', () => {
 describe('watchAdminRole', () => {
   test('default', async () => {
     // Create a new token for testing
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Admin Role Watch Token',
-        symbol: 'ADMIN',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Admin Role Watch Token',
+      symbol: 'ADMIN',
+    })
 
     const receivedAdminUpdates: Array<{
       args: actions.token.watchAdminRole.Args
@@ -2540,7 +2396,7 @@ describe('watchAdminRole', () => {
     }> = []
 
     // Start watching for role admin updates
-    const unwatch = actions.token.watchAdminRole(clientWithAccount, {
+    const unwatch = actions.token.watchAdminRole(client, {
       token: address,
       onRoleAdminUpdated: (args, log) => {
         receivedAdminUpdates.push({ args, log })
@@ -2554,7 +2410,7 @@ describe('watchAdminRole', () => {
         role,
         newAdminRole,
         ...setRoleAdmin1Result
-      } = await actions.token.setRoleAdminSync(clientWithAccount, {
+      } = await actions.token.setRoleAdminSync(client, {
         token: address,
         role: 'issuer',
         adminRole: 'pause',
@@ -2569,7 +2425,7 @@ describe('watchAdminRole', () => {
       expect(newAdminRole).toBeDefined()
 
       // Set role admin for pause role
-      await actions.token.setRoleAdminSync(clientWithAccount, {
+      await actions.token.setRoleAdminSync(client, {
         token: address,
         role: 'pause',
         adminRole: 'unpause',
@@ -2580,10 +2436,10 @@ describe('watchAdminRole', () => {
       expect(receivedAdminUpdates).toHaveLength(2)
 
       expect(receivedAdminUpdates.at(0)!.args.sender).toBe(
-        clientWithAccount.account.address,
+        client.account.address,
       )
       expect(receivedAdminUpdates.at(1)!.args.sender).toBe(
-        clientWithAccount.account.address,
+        client.account.address,
       )
     } finally {
       if (unwatch) unwatch()
@@ -2594,14 +2450,11 @@ describe('watchAdminRole', () => {
 describe('watchRole', () => {
   test('default', async () => {
     // Create a new token for testing
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Role Watch Token',
-        symbol: 'ROLE',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Role Watch Token',
+      symbol: 'ROLE',
+    })
 
     const receivedRoleUpdates: Array<{
       args: actions.token.watchRole.Args
@@ -2609,7 +2462,7 @@ describe('watchRole', () => {
     }> = []
 
     // Start watching for role membership updates
-    const unwatch = actions.token.watchRole(clientWithAccount, {
+    const unwatch = actions.token.watchRole(client, {
       token: address,
       onRoleUpdated: (args, log) => {
         receivedRoleUpdates.push({ args, log })
@@ -2618,21 +2471,21 @@ describe('watchRole', () => {
 
     try {
       // Grant issuer role to account2
-      await actions.token.grantRolesSync(clientWithAccount, {
+      await actions.token.grantRolesSync(client, {
         token: address,
         roles: ['issuer'],
         to: account2.address,
       })
 
       // Grant pause role to account3
-      await actions.token.grantRolesSync(clientWithAccount, {
+      await actions.token.grantRolesSync(client, {
         token: address,
         roles: ['pause'],
         to: account3.address,
       })
 
       // Revoke issuer role from account2
-      await actions.token.revokeRolesSync(clientWithAccount, {
+      await actions.token.revokeRolesSync(client, {
         token: address,
         roles: ['issuer'],
         from: account2.address,
@@ -2663,14 +2516,11 @@ describe('watchRole', () => {
 
   test('behavior: filter by account address', async () => {
     // Create a new token for testing
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Filtered Role Token',
-        symbol: 'FROLE',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Filtered Role Token',
+      symbol: 'FROLE',
+    })
 
     const receivedRoleUpdates: Array<{
       args: actions.token.watchRole.Args
@@ -2678,7 +2528,7 @@ describe('watchRole', () => {
     }> = []
 
     // Start watching for role updates only for account2
-    const unwatch = actions.token.watchRole(clientWithAccount, {
+    const unwatch = actions.token.watchRole(client, {
       token: address,
       args: {
         account: account2.address,
@@ -2690,21 +2540,21 @@ describe('watchRole', () => {
 
     try {
       // Grant issuer role to account2 (should be captured)
-      await actions.token.grantRolesSync(clientWithAccount, {
+      await actions.token.grantRolesSync(client, {
         token: address,
         roles: ['issuer'],
         to: account2.address,
       })
 
       // Grant pause role to account3 (should NOT be captured)
-      await actions.token.grantRolesSync(clientWithAccount, {
+      await actions.token.grantRolesSync(client, {
         token: address,
         roles: ['pause'],
         to: account3.address,
       })
 
       // Revoke issuer role from account2 (should be captured)
-      await actions.token.revokeRolesSync(clientWithAccount, {
+      await actions.token.revokeRolesSync(client, {
         token: address,
         roles: ['issuer'],
         from: account2.address,
@@ -2742,26 +2592,23 @@ describe('watchTransfer', () => {
 
   test('default', async () => {
     // Create a new token for testing
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Transfer Watch Token',
-        symbol: 'XFER',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Transfer Watch Token',
+      symbol: 'XFER',
+    })
 
     // Grant issuer role to mint tokens
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token: address,
       roles: ['issuer'],
-      to: clientWithAccount.account.address,
+      to: client.account.address,
     })
 
     // Mint tokens to transfer
-    await actions.token.mintSync(clientWithAccount, {
+    await actions.token.mintSync(client, {
       token: address,
-      to: clientWithAccount.account.address,
+      to: client.account.address,
       amount: parseUnits('500', 6),
     })
 
@@ -2771,7 +2618,7 @@ describe('watchTransfer', () => {
     }> = []
 
     // Start watching for transfer events
-    const unwatch = actions.token.watchTransfer(clientWithAccount, {
+    const unwatch = actions.token.watchTransfer(client, {
       token: address,
       onTransfer: (args, log) => {
         receivedTransfers.push({ args, log })
@@ -2780,14 +2627,14 @@ describe('watchTransfer', () => {
 
     try {
       // Transfer to account2
-      await actions.token.transferSync(clientWithAccount, {
+      await actions.token.transferSync(client, {
         token: address,
         to: account2.address,
         amount: parseUnits('100', 6),
       })
 
       // Transfer to account3
-      await actions.token.transferSync(clientWithAccount, {
+      await actions.token.transferSync(client, {
         token: address,
         to: account3.address,
         amount: parseUnits('50', 6),
@@ -2818,26 +2665,23 @@ describe('watchTransfer', () => {
 
   test('behavior: filter by to address', async () => {
     // Create a new token for testing
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Filtered Transfer Token',
-        symbol: 'FXFER',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Filtered Transfer Token',
+      symbol: 'FXFER',
+    })
 
     // Grant issuer role
-    await actions.token.grantRolesSync(clientWithAccount, {
+    await actions.token.grantRolesSync(client, {
       token: address,
       roles: ['issuer'],
-      to: clientWithAccount.account.address,
+      to: client.account.address,
     })
 
     // Mint tokens
-    await actions.token.mintSync(clientWithAccount, {
+    await actions.token.mintSync(client, {
       token: address,
-      to: clientWithAccount.account.address,
+      to: client.account.address,
       amount: parseUnits('500', 6),
     })
 
@@ -2847,7 +2691,7 @@ describe('watchTransfer', () => {
     }> = []
 
     // Start watching for transfer events only to account2
-    const unwatch = actions.token.watchTransfer(clientWithAccount, {
+    const unwatch = actions.token.watchTransfer(client, {
       token: address,
       args: {
         to: account2.address,
@@ -2859,21 +2703,21 @@ describe('watchTransfer', () => {
 
     try {
       // Transfer to account2 (should be captured)
-      await actions.token.transferSync(clientWithAccount, {
+      await actions.token.transferSync(client, {
         token: address,
         to: account2.address,
         amount: parseUnits('100', 6),
       })
 
       // Transfer to account3 (should NOT be captured)
-      await actions.token.transferSync(clientWithAccount, {
+      await actions.token.transferSync(client, {
         token: address,
         to: account3.address,
         amount: parseUnits('50', 6),
       })
 
       // Transfer to account2 again (should be captured)
-      await actions.token.transferSync(clientWithAccount, {
+      await actions.token.transferSync(client, {
         token: address,
         to: account2.address,
         amount: parseUnits('75', 6),
@@ -2913,7 +2757,7 @@ describe('watchUpdateQuoteToken', () => {
   test('default', async () => {
     // Create quote token
     const { token: quoteTokenAddress } = await actions.token.createSync(
-      clientWithAccount,
+      client,
       {
         currency: 'USD',
         name: 'Watch Quote Token',
@@ -2922,14 +2766,11 @@ describe('watchUpdateQuoteToken', () => {
     )
 
     // Create main token
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Watch Main Token',
-        symbol: 'WMAIN',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Watch Main Token',
+      symbol: 'WMAIN',
+    })
 
     const receivedUpdates: Array<{
       args: actions.token.watchUpdateQuoteToken.Args
@@ -2937,7 +2778,7 @@ describe('watchUpdateQuoteToken', () => {
     }> = []
 
     // Start watching for quote token update events
-    const unwatch = actions.token.watchUpdateQuoteToken(clientWithAccount, {
+    const unwatch = actions.token.watchUpdateQuoteToken(client, {
       token: address,
       onUpdateQuoteToken: (args, log) => {
         receivedUpdates.push({ args, log })
@@ -2946,13 +2787,13 @@ describe('watchUpdateQuoteToken', () => {
 
     try {
       // Step 1: Prepare update quote token (should emit NextQuoteTokenSet)
-      await actions.token.prepareUpdateQuoteTokenSync(clientWithAccount, {
+      await actions.token.prepareUpdateQuoteTokenSync(client, {
         token: address,
         quoteToken: quoteTokenAddress,
       })
 
       // Step 2: Finalize the update (should emit QuoteTokenUpdateFinalized)
-      await actions.token.updateQuoteTokenSync(clientWithAccount, {
+      await actions.token.updateQuoteTokenSync(client, {
         token: address,
       })
 
@@ -2964,16 +2805,12 @@ describe('watchUpdateQuoteToken', () => {
       // First event: update proposed (not finalized)
       expect(receivedUpdates.at(0)!.args.completed).toBe(false)
       expect(receivedUpdates.at(0)!.args.nextQuoteToken).toBe(quoteTokenAddress)
-      expect(receivedUpdates.at(0)!.args.updater).toBe(
-        clientWithAccount.account.address,
-      )
+      expect(receivedUpdates.at(0)!.args.updater).toBe(client.account.address)
 
       // Second event: update finalized
       expect(receivedUpdates.at(1)!.args.completed).toBe(true)
       expect(receivedUpdates.at(1)!.args.newQuoteToken).toBe(quoteTokenAddress)
-      expect(receivedUpdates.at(1)!.args.updater).toBe(
-        clientWithAccount.account.address,
-      )
+      expect(receivedUpdates.at(1)!.args.updater).toBe(client.account.address)
     } finally {
       if (unwatch) unwatch()
     }
@@ -2982,7 +2819,7 @@ describe('watchUpdateQuoteToken', () => {
   test('behavior: only proposed updates', async () => {
     // Create quote token
     const { token: quoteTokenAddress } = await actions.token.createSync(
-      clientWithAccount,
+      client,
       {
         currency: 'USD',
         name: 'Proposed Quote Token',
@@ -2991,14 +2828,11 @@ describe('watchUpdateQuoteToken', () => {
     )
 
     // Create main token
-    const { token: address } = await actions.token.createSync(
-      clientWithAccount,
-      {
-        currency: 'USD',
-        name: 'Proposed Main Token',
-        symbol: 'PMAIN',
-      },
-    )
+    const { token: address } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Proposed Main Token',
+      symbol: 'PMAIN',
+    })
 
     const receivedUpdates: Array<{
       args: actions.token.watchUpdateQuoteToken.Args
@@ -3006,7 +2840,7 @@ describe('watchUpdateQuoteToken', () => {
     }> = []
 
     // Start watching
-    const unwatch = actions.token.watchUpdateQuoteToken(clientWithAccount, {
+    const unwatch = actions.token.watchUpdateQuoteToken(client, {
       token: address,
       onUpdateQuoteToken: (args, log) => {
         receivedUpdates.push({ args, log })
@@ -3015,7 +2849,7 @@ describe('watchUpdateQuoteToken', () => {
 
     try {
       // Only update (don't finalize)
-      await actions.token.prepareUpdateQuoteTokenSync(clientWithAccount, {
+      await actions.token.prepareUpdateQuoteTokenSync(client, {
         token: address,
         quoteToken: quoteTokenAddress,
       })

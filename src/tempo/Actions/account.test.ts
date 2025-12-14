@@ -2,10 +2,10 @@ import { Hex, P256, Secp256k1, WebCryptoP256 } from 'ox'
 import { verifyMessage, verifyTypedData } from 'viem/actions'
 import { Account, tempoActions } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
-import { client as baseClient } from '../../../test/src/tempo/config.js'
 import * as actions from './account.js'
+import { getClient } from '~test/tempo/config.js'
 
-const client = baseClient.extend(tempoActions())
+const client = getClient().extend(tempoActions())
 
 describe('verifyHash', () => {
   test('secp256k1: default signature', async () => {
