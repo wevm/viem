@@ -312,6 +312,7 @@ test('exports', () => {
       "offchainLookupSignature",
       "assertCurrentChain",
       "defineChain",
+      "extendSchema",
       "extractChain",
       "getChainContractAddress",
       "concat",

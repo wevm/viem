@@ -63,6 +63,7 @@ describe('without `eth_fillTransaction`', () => {
 
     const block = await getBlock.getBlock(client)
     const {
+      chain,
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce: _nonce,
@@ -71,53 +72,13 @@ describe('without `eth_fillTransaction`', () => {
       to: targetAccount.address,
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(maxFeePerGas).toEqual(
       (block.baseFeePerGas! * 120n) / 100n + maxPriorityFeePerGas!,
     )
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": undefined,
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
-        },
         "chainId": 1,
         "gas": 21000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -136,14 +97,16 @@ describe('without `eth_fillTransaction`', () => {
       baseFeePerGas: undefined,
     } as any)
 
-    const { nonce: _nonce, ...request } = await prepareTransactionRequest(
-      client,
-      {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        to: targetAccount.address,
-        value: parseEther('1'),
-      },
-    )
+    const {
+      chain,
+      nonce: _nonce,
+      ...request
+    } = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    expect(chain).toBe(client.chain)
     expect(request).toMatchInlineSnapshot(`
       {
         "account": {
@@ -157,47 +120,6 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -216,6 +138,7 @@ describe('without `eth_fillTransaction`', () => {
     await setup()
 
     const {
+      chain,
       maxFeePerGas: _maxFeePerGas,
       nonce: _nonce,
       ...rest
@@ -224,6 +147,7 @@ describe('without `eth_fillTransaction`', () => {
       to: targetAccount.address,
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -237,47 +161,6 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -294,6 +177,7 @@ describe('without `eth_fillTransaction`', () => {
     await setup()
 
     const {
+      chain,
       maxFeePerGas: _maxFeePerGas,
       nonce: _nonce,
       ...rest
@@ -302,6 +186,7 @@ describe('without `eth_fillTransaction`', () => {
       to: targetAccount.address,
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -315,47 +200,6 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -372,6 +216,7 @@ describe('without `eth_fillTransaction`', () => {
     await setup()
 
     const {
+      chain,
       maxFeePerGas: _maxFeePerGas,
       nonce: _nonce,
       ...rest
@@ -381,6 +226,7 @@ describe('without `eth_fillTransaction`', () => {
       to: targetAccount.address,
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -394,47 +240,6 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 69,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -450,13 +255,17 @@ describe('without `eth_fillTransaction`', () => {
   test('args: nonce', async () => {
     await setup()
 
-    const { maxFeePerGas: _maxFeePerGas, ...rest } =
-      await prepareTransactionRequest(client, {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        to: targetAccount.address,
-        nonce: 5,
-        value: parseEther('1'),
-      })
+    const {
+      chain,
+      maxFeePerGas: _maxFeePerGas,
+      ...rest
+    } = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      nonce: 5,
+      value: parseEther('1'),
+    })
+    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -470,47 +279,6 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -527,15 +295,17 @@ describe('without `eth_fillTransaction`', () => {
   test('args: gasPrice', async () => {
     await setup()
 
-    const { nonce: _nonce, ...request } = await prepareTransactionRequest(
-      client,
-      {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        to: targetAccount.address,
-        gasPrice: parseGwei('10'),
-        value: parseEther('1'),
-      },
-    )
+    const {
+      chain,
+      nonce: _nonce,
+      ...request
+    } = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      gasPrice: parseGwei('10'),
+      value: parseEther('1'),
+    })
+    expect(chain).toBe(client.chain)
     expect(request).toMatchInlineSnapshot(`
       {
         "account": {
@@ -549,47 +319,6 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -605,15 +334,17 @@ describe('without `eth_fillTransaction`', () => {
   test('args: gasPrice (on chain w/ block.baseFeePerGas)', async () => {
     await setup()
 
-    const { nonce: _nonce, ...request } = await prepareTransactionRequest(
-      client,
-      {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        to: targetAccount.address,
-        gasPrice: parseGwei('10'),
-        value: parseEther('1'),
-      },
-    )
+    const {
+      chain,
+      nonce: _nonce,
+      ...request
+    } = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      gasPrice: parseGwei('10'),
+      value: parseEther('1'),
+    })
+    expect(chain).toBe(client.chain)
     expect(request).toMatchInlineSnapshot(`
       {
         "account": {
@@ -627,47 +358,6 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -683,12 +373,17 @@ describe('without `eth_fillTransaction`', () => {
   test('args: maxFeePerGas', async () => {
     await setup()
 
-    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
+    const {
+      chain,
+      nonce: _nonce,
+      ...rest
+    } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       maxFeePerGas: parseGwei('100'),
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -702,47 +397,6 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -797,12 +451,17 @@ describe('without `eth_fillTransaction`', () => {
   test('args: maxPriorityFeePerGas', async () => {
     await setup()
 
-    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
+    const {
+      chain,
+      nonce: _nonce,
+      ...rest
+    } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       maxPriorityFeePerGas: parseGwei('5'),
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -816,47 +475,6 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -873,12 +491,17 @@ describe('without `eth_fillTransaction`', () => {
   test('args: maxPriorityFeePerGas === 0', async () => {
     await setup()
 
-    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
+    const {
+      chain,
+      nonce: _nonce,
+      ...rest
+    } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       maxPriorityFeePerGas: 0n,
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -892,47 +515,6 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -970,13 +552,18 @@ describe('without `eth_fillTransaction`', () => {
   test('args: maxFeePerGas + maxPriorityFeePerGas', async () => {
     await setup()
 
-    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
+    const {
+      chain,
+      nonce: _nonce,
+      ...rest
+    } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       maxFeePerGas: parseGwei('10'),
       maxPriorityFeePerGas: parseGwei('5'),
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -990,47 +577,6 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -1067,12 +613,17 @@ describe('without `eth_fillTransaction`', () => {
   test('args: type', async () => {
     await setup()
 
-    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
+    const {
+      chain,
+      nonce: _nonce,
+      ...rest
+    } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       type: 'eip1559',
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -1086,47 +637,6 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -1144,6 +654,7 @@ describe('without `eth_fillTransaction`', () => {
     await setup()
 
     const {
+      chain,
       blobs: _blobs,
       nonce: _nonce,
       ...rest
@@ -1155,6 +666,7 @@ describe('without `eth_fillTransaction`', () => {
       to: targetAccount.address,
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -1172,47 +684,6 @@ describe('without `eth_fillTransaction`', () => {
         "blobVersionedHashes": [
           "0x01d34d7bd213433308d1f63023dc70fd585064cd108ee69be0637a09f4028ea3",
         ],
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
-        },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21001n,
@@ -1233,12 +704,13 @@ describe('without `eth_fillTransaction`', () => {
   test('args: parameters', async () => {
     await setup()
 
-    const result = await prepareTransactionRequest(client, {
+    const { chain, ...result } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: ['gas'],
       to: targetAccount.address,
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(result).toMatchInlineSnapshot(`
       {
         "account": {
@@ -1253,47 +725,6 @@ describe('without `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
-        },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -1301,12 +732,16 @@ describe('without `eth_fillTransaction`', () => {
       }
     `)
 
-    const result2 = await prepareTransactionRequest(client, {
-      account: privateKeyToAccount(sourceAccount.privateKey),
-      parameters: ['gas', 'fees'],
-      to: targetAccount.address,
-      value: parseEther('1'),
-    })
+    const { chain: chain2, ...result2 } = await prepareTransactionRequest(
+      client,
+      {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        parameters: ['gas', 'fees'],
+        to: targetAccount.address,
+        value: parseEther('1'),
+      },
+    )
+    expect(chain2).toBe(client.chain)
     expect(result2).toMatchInlineSnapshot(`
       {
         "account": {
@@ -1321,47 +756,6 @@ describe('without `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
-        },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
         "maxFeePerGas": 13000000000n,
@@ -1372,12 +766,16 @@ describe('without `eth_fillTransaction`', () => {
       }
     `)
 
-    const result3 = await prepareTransactionRequest(client, {
-      account: privateKeyToAccount(sourceAccount.privateKey),
-      parameters: ['gas', 'fees', 'nonce'],
-      to: targetAccount.address,
-      value: parseEther('1'),
-    })
+    const { chain: chain3, ...result3 } = await prepareTransactionRequest(
+      client,
+      {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        parameters: ['gas', 'fees', 'nonce'],
+        to: targetAccount.address,
+        value: parseEther('1'),
+      },
+    )
+    expect(chain3).toBe(client.chain)
     expect(result3).toMatchInlineSnapshot(`
       {
         "account": {
@@ -1392,47 +790,6 @@ describe('without `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
-        },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
         "maxFeePerGas": 13000000000n,
@@ -1444,12 +801,16 @@ describe('without `eth_fillTransaction`', () => {
       }
     `)
 
-    const result4 = await prepareTransactionRequest(client, {
-      account: privateKeyToAccount(sourceAccount.privateKey),
-      parameters: ['gas', 'fees', 'nonce', 'type'],
-      to: targetAccount.address,
-      value: parseEther('1'),
-    })
+    const { chain: chain4, ...result4 } = await prepareTransactionRequest(
+      client,
+      {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        parameters: ['gas', 'fees', 'nonce', 'type'],
+        to: targetAccount.address,
+        value: parseEther('1'),
+      },
+    )
+    expect(chain4).toBe(client.chain)
     expect(result4).toMatchInlineSnapshot(`
       {
         "account": {
@@ -1464,47 +825,6 @@ describe('without `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
-        },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
         "maxFeePerGas": 13000000000n,
@@ -1517,6 +837,7 @@ describe('without `eth_fillTransaction`', () => {
     `)
 
     const {
+      chain: chain5,
       blobs: _blobs,
       sidecars,
       ...result5
@@ -1529,6 +850,7 @@ describe('without `eth_fillTransaction`', () => {
       to: targetAccount.address,
       value: parseEther('1'),
     })
+    expect(chain5).toBe(client.chain)
     expect(
       sidecars.map(({ blob: _blob, ...rest }) => rest),
     ).toMatchInlineSnapshot(`
@@ -1552,47 +874,6 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "kzg": {
@@ -2016,55 +1297,18 @@ describe('with `eth_fillTransaction`', () => {
   test('default', async () => {
     await setup()
 
-    const transactionRequest = await prepareTransactionRequest(client, {
-      parameters: defaultParameters,
-      to: targetAccount.address,
-      value: parseEther('1'),
-    })
+    const { chain, ...transactionRequest } = await prepareTransactionRequest(
+      client,
+      {
+        parameters: defaultParameters,
+        to: targetAccount.address,
+        value: parseEther('1'),
+      },
+    )
+    expect(chain).toBe(client.chain)
     expect(transactionRequest).toMatchInlineSnapshot(`
       {
         "account": undefined,
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
-        },
         "chainId": 1,
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "gas": 21000n,
@@ -2082,12 +1326,13 @@ describe('with `eth_fillTransaction`', () => {
   test('args: account', async () => {
     await setup()
 
-    const transaction = await prepareTransactionRequest(client, {
+    const { chain, ...transaction } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: defaultParameters,
       to: targetAccount.address,
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(transaction).toMatchInlineSnapshot(`
       {
         "account": {
@@ -2101,47 +1346,6 @@ describe('with `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -2160,12 +1364,13 @@ describe('with `eth_fillTransaction`', () => {
   test('args: chain', async () => {
     await setup()
 
-    const transaction = await prepareTransactionRequest(client, {
+    const { chain, ...transaction } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: defaultParameters,
       to: targetAccount.address,
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(transaction).toMatchInlineSnapshot(`
       {
         "account": {
@@ -2179,47 +1384,6 @@ describe('with `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -2238,13 +1402,14 @@ describe('with `eth_fillTransaction`', () => {
   test('args: nonce', async () => {
     await setup()
 
-    const transaction = await prepareTransactionRequest(client, {
+    const { chain, ...transaction } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: defaultParameters,
       to: targetAccount.address,
       nonce: 5,
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(transaction).toMatchInlineSnapshot(`
       {
         "account": {
@@ -2258,47 +1423,6 @@ describe('with `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -2317,13 +1441,14 @@ describe('with `eth_fillTransaction`', () => {
   test('args: gasPrice', async () => {
     await setup()
 
-    const transaction = await prepareTransactionRequest(client, {
+    const { chain, ...transaction } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: defaultParameters,
       to: targetAccount.address,
       gasPrice: parseGwei('10'),
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(transaction).toMatchInlineSnapshot(`
       {
         "account": {
@@ -2337,47 +1462,6 @@ describe('with `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -2394,13 +1478,14 @@ describe('with `eth_fillTransaction`', () => {
   test('args: gasPrice (on chain w/ block.baseFeePerGas)', async () => {
     await setup()
 
-    const transaction = await prepareTransactionRequest(client, {
+    const { chain, ...transaction } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: defaultParameters,
       to: targetAccount.address,
       gasPrice: parseGwei('10'),
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(transaction).toMatchInlineSnapshot(`
       {
         "account": {
@@ -2414,47 +1499,6 @@ describe('with `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -2471,13 +1515,14 @@ describe('with `eth_fillTransaction`', () => {
   test('args: maxFeePerGas', async () => {
     await setup()
 
-    const transaction = await prepareTransactionRequest(client, {
+    const { chain, ...transaction } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: defaultParameters,
       to: targetAccount.address,
       maxFeePerGas: parseGwei('100'),
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(transaction).toMatchInlineSnapshot(`
       {
         "account": {
@@ -2491,47 +1536,6 @@ describe('with `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -2568,13 +1572,18 @@ describe('with `eth_fillTransaction`', () => {
   test('args: maxPriorityFeePerGas', async () => {
     await setup()
 
-    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
+    const {
+      chain,
+      nonce: _nonce,
+      ...rest
+    } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: defaultParameters,
       to: targetAccount.address,
       maxPriorityFeePerGas: parseGwei('5'),
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -2588,47 +1597,6 @@ describe('with `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -2646,13 +1614,18 @@ describe('with `eth_fillTransaction`', () => {
   test('args: maxPriorityFeePerGas === 0', async () => {
     await setup()
 
-    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
+    const {
+      chain,
+      nonce: _nonce,
+      ...rest
+    } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: defaultParameters,
       to: targetAccount.address,
       maxPriorityFeePerGas: 0n,
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -2666,47 +1639,6 @@ describe('with `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -2724,7 +1656,11 @@ describe('with `eth_fillTransaction`', () => {
   test('args: maxFeePerGas + maxPriorityFeePerGas', async () => {
     await setup()
 
-    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
+    const {
+      chain,
+      nonce: _nonce,
+      ...rest
+    } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: defaultParameters,
       to: targetAccount.address,
@@ -2732,6 +1668,7 @@ describe('with `eth_fillTransaction`', () => {
       maxPriorityFeePerGas: parseGwei('5'),
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -2745,47 +1682,6 @@ describe('with `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -2824,13 +1720,18 @@ describe('with `eth_fillTransaction`', () => {
   test('args: type', async () => {
     await setup()
 
-    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
+    const {
+      chain,
+      nonce: _nonce,
+      ...rest
+    } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: defaultParameters,
       to: targetAccount.address,
       type: 'eip1559',
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -2844,47 +1745,6 @@ describe('with `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -2902,12 +1762,13 @@ describe('with `eth_fillTransaction`', () => {
   test('args: parameters', async () => {
     await setup()
 
-    const result = await prepareTransactionRequest(client, {
+    const { chain, ...result } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: ['gas'],
       to: targetAccount.address,
       value: parseEther('1'),
     })
+    expect(chain).toBe(client.chain)
     expect(result).toMatchInlineSnapshot(`
       {
         "account": {
@@ -2922,47 +1783,6 @@ describe('with `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
-        },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
@@ -2976,12 +1796,16 @@ describe('with `eth_fillTransaction`', () => {
       }
     `)
 
-    const result2 = await prepareTransactionRequest(client, {
-      account: privateKeyToAccount(sourceAccount.privateKey),
-      parameters: ['gas', 'fees'],
-      to: targetAccount.address,
-      value: parseEther('1'),
-    })
+    const { chain: chain2, ...result2 } = await prepareTransactionRequest(
+      client,
+      {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        parameters: ['gas', 'fees'],
+        to: targetAccount.address,
+        value: parseEther('1'),
+      },
+    )
+    expect(chain2).toBe(client.chain)
     expect(result2).toMatchInlineSnapshot(`
       {
         "account": {
@@ -2996,47 +1820,6 @@ describe('with `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
-        },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
@@ -3050,12 +1833,16 @@ describe('with `eth_fillTransaction`', () => {
       }
     `)
 
-    const result3 = await prepareTransactionRequest(client, {
-      account: privateKeyToAccount(sourceAccount.privateKey),
-      parameters: ['gas', 'fees', 'nonce'],
-      to: targetAccount.address,
-      value: parseEther('1'),
-    })
+    const { chain: chain3, ...result3 } = await prepareTransactionRequest(
+      client,
+      {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        parameters: ['gas', 'fees', 'nonce'],
+        to: targetAccount.address,
+        value: parseEther('1'),
+      },
+    )
+    expect(chain3).toBe(client.chain)
     expect(result3).toMatchInlineSnapshot(`
       {
         "account": {
@@ -3070,47 +1857,6 @@ describe('with `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
-        },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
@@ -3124,12 +1870,16 @@ describe('with `eth_fillTransaction`', () => {
       }
     `)
 
-    const result4 = await prepareTransactionRequest(client, {
-      account: privateKeyToAccount(sourceAccount.privateKey),
-      parameters: ['gas', 'fees', 'nonce', 'type'],
-      to: targetAccount.address,
-      value: parseEther('1'),
-    })
+    const { chain: chain4, ...result4 } = await prepareTransactionRequest(
+      client,
+      {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        parameters: ['gas', 'fees', 'nonce', 'type'],
+        to: targetAccount.address,
+        value: parseEther('1'),
+      },
+    )
+    expect(chain4).toBe(client.chain)
     expect(result4).toMatchInlineSnapshot(`
       {
         "account": {
@@ -3143,47 +1893,6 @@ describe('with `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -3199,6 +1908,7 @@ describe('with `eth_fillTransaction`', () => {
     `)
 
     const {
+      chain: chain5,
       blobs: _blobs,
       sidecars,
       ...result5
@@ -3211,6 +1921,7 @@ describe('with `eth_fillTransaction`', () => {
       to: targetAccount.address,
       value: parseEther('1'),
     })
+    expect(chain5).toBe(client.chain)
     expect(
       sidecars.map(({ blob: _blob, ...rest }) => rest),
     ).toMatchInlineSnapshot(`
@@ -3234,47 +1945,6 @@ describe('with `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
-        },
-        "chain": {
-          "blockExplorers": {
-            "default": {
-              "apiUrl": "https://api.etherscan.io/api",
-              "name": "Etherscan",
-              "url": "https://etherscan.io",
-            },
-          },
-          "blockTime": 12000,
-          "contracts": {
-            "ensUniversalResolver": {
-              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
-              "blockCreated": 23085558,
-            },
-            "multicall3": {
-              "address": "0xca11bde05977b3631167028862be2a173976ca11",
-              "blockCreated": 14353601,
-            },
-          },
-          "extend": [Function],
-          "fees": undefined,
-          "formatters": undefined,
-          "id": 1,
-          "name": "Ethereum (Local)",
-          "nativeCurrency": {
-            "decimals": 18,
-            "name": "Ether",
-            "symbol": "ETH",
-          },
-          "rpcUrls": {
-            "default": {
-              "http": [
-                "http://127.0.0.1:8545/1159",
-              ],
-              "webSocket": [
-                "ws://127.0.0.1:8545/1159",
-              ],
-            },
-          },
-          "serializers": undefined,
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "kzg": {
