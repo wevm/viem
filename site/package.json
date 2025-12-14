@@ -13,6 +13,6 @@
     "react-dom": "^19",
     "tailwindcss": "^4.1.16",
     "viem": "workspace:*",
-    "vocs": "^1.1.0"
+    "vocs": "^1.3.1"
   }
 }

@@ -572,8 +572,8 @@ importers:
         specifier: workspace:*
         version: link:../src
       vocs:
-        specifier: ^1.1.0
-        version: 1.1.0(@types/node@24.5.2)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(jiti@2.6.0)(lightningcss@1.30.2)(next@16.0.10(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.52.2)(terser@5.36.0)(typescript@5.9.3)
+        specifier: ^1.3.1
+        version: 1.3.1(@types/node@24.5.2)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(jiti@2.6.0)(lightningcss@1.30.2)(next@16.0.10(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.52.2)(terser@5.36.0)(typescript@5.9.3)
 
   src:
     dependencies:
@@ -5154,9 +5154,6 @@ packages:
     resolution: {integrity: sha512-tJLxrKJhO2ukZ5z0gyjY1zPh3Rh88Ej9P7jNrZiHMUXHae1yvI2imgOZtL1TO8TW6biMMKfTtAOoEJANgtWBMQ==}
     engines: {node: '>=12'}
 
-  magic-string@0.30.19:
-    resolution: {integrity: sha512-2N21sPY9Ws53PZvsEpVtNuSW+ScYbQdp4b9qUaL+9QkHUrGFKo56Lg9Emg5s9V/qrtNBmiR01sYhUOwu3H+VOw==}
-
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
@@ -6635,9 +6632,6 @@ packages:
   tinybench@2.9.0:
     resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==}
 
-  tinyexec@1.0.1:
-    resolution: {integrity: sha512-5uC6DDlmeqiOwCPmK9jMSdOuZTh8bU39Ys6yidB+UTt5hfZUPGAypSgFRiEp+jbi9qH40BLDvy85jIU88wKSqw==}
-
   tinyexec@1.0.2:
     resolution: {integrity: sha512-W/KYk+NFhkmsYpuHq5JykngiOCnxeVL8v8dFnqxSD8qEEdRfXk1SDM6JzNqcERbcGYj9tMrDQBYV9cjgnunFIg==}
     engines: {node: '>=18'}
@@ -7004,8 +6998,8 @@ packages:
       jsdom:
         optional: true
 
-  vocs@1.1.0:
-    resolution: {integrity: sha512-RvSdP+OP5w/mzY6rupup8RLRRfi+9dqZmiiB/NOFrQds5iZNR2h2hNui+oKXUwAxv/Dywo2ma4YYSy6v/aw0Dw==}
+  vocs@1.3.1:
+    resolution: {integrity: sha512-0dg2/ku5RZzFYe98UoQOTPHhMlHE7HDSb2aIbjJmbgjwTBg1n0gPJCIyJzthdU4xRIZZSVnhsBKVQAc5KBG61w==}
     engines: {node: '>=22'}
     hasBin: true
     peerDependencies:
@@ -7202,7 +7196,7 @@ snapshots:
   '@antfu/install-pkg@1.1.0':
     dependencies:
       package-manager-detector: 1.5.0
-      tinyexec: 1.0.1
+      tinyexec: 1.0.2
 
   '@antfu/utils@9.3.0': {}
 
@@ -9628,7 +9622,7 @@ snapshots:
       enhanced-resolve: 5.18.3
       jiti: 2.6.0
       lightningcss: 1.30.2
-      magic-string: 0.30.19
+      magic-string: 0.30.21
       source-map-js: 1.2.1
       tailwindcss: 4.1.15
 
@@ -12126,10 +12120,6 @@ snapshots:
 
   luxon@3.6.1: {}
 
-  magic-string@0.30.19:
-    dependencies:
-      '@jridgewell/sourcemap-codec': 1.5.5
-
   magic-string@0.30.21:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
@@ -14207,8 +14197,6 @@ snapshots:
 
   tinybench@2.9.0: {}
 
-  tinyexec@1.0.1: {}
-
   tinyexec@1.0.2: {}
 
   tinyglobby@0.2.15:
@@ -14575,7 +14563,7 @@ snapshots:
       - tsx
       - yaml
 
-  vocs@1.1.0(@types/node@24.5.2)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(jiti@2.6.0)(lightningcss@1.30.2)(next@16.0.10(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.52.2)(terser@5.36.0)(typescript@5.9.3):
+  vocs@1.3.1(@types/node@24.5.2)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(jiti@2.6.0)(lightningcss@1.30.2)(next@16.0.10(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.52.2)(terser@5.36.0)(typescript@5.9.3):
     dependencies:
       '@floating-ui/react': 0.27.16(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@hono/node-server': 1.19.5(hono@4.10.3)
