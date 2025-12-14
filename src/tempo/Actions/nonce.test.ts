@@ -1,5 +1,5 @@
 import { setTimeout } from 'node:timers/promises'
-import { afterEach, beforeEach, describe, expect, test } from 'vitest'
+import { beforeEach, describe, expect, test } from 'vitest'
 import { accounts, getClient } from '~test/tempo/config.js'
 import { rpcUrl } from '~test/tempo/prool.js'
 import * as actions from './index.js'
