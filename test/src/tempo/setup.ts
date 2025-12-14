@@ -1,6 +1,6 @@
 import { setTimeout } from 'node:timers/promises'
 import { afterAll, beforeAll } from 'vitest'
-import { faucet } from '../../../src/tempo/Actions/index.js'
+import { faucet } from '../../../src/tempo/actions/index.js'
 import { accounts, getClient, nodeEnv } from './config.js'
 import { rpcUrl } from './prool.js'
 

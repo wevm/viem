@@ -16,7 +16,7 @@ import {
   type Account as viem_Account,
   http as viem_http,
 } from '../../../src/index.js'
-import * as Actions from '../../../src/tempo/Actions/index.js'
+import * as Actions from '../../../src/tempo/actions/index.js'
 import { Account, Addresses, Tick } from '../../../src/tempo/index.js'
 import { rpcUrl } from './prool.js'
 

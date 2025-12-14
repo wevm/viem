@@ -13,7 +13,7 @@ export type {
 export { Tick } from 'ox/tempo'
 export * as Abis from './Abis.js'
 export * as Account from './Account.js'
-export * as Actions from './Actions/index.js'
+export * as Actions from './actions/index.js'
 export * as Addresses from './Addresses.js'
 export {
   type Decorator as TempoActions,
