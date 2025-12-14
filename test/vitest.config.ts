@@ -33,29 +33,23 @@ export default defineConfig({
       {
         extends: true,
         test: {
+          name: 'type-bench',
+          include: ['src/**/*.bench-d.ts'],
+          globalSetup: [join(__dirname, './setup-bench-types.global.ts')],
+        },
+      },
+      {
+        extends: true,
+        test: {
           name: 'core',
-          benchmark: {
-            outputFile: './bench/report.json',
-            reporters: process.env.CI ? ['default'] : ['verbose'],
-          },
           exclude: [
-            '**/node_modules/**',
-            '**/dist/**',
-            '.idea',
-            '.git',
-            '.cache',
             process.env.TEST_RLP !== 'true'
               ? '**/utils/encoding/toRlp.test.ts'
               : '',
           ],
-          include: [
-            ...(process.env.TYPES ? ['**/*.bench-d.ts'] : []),
-            'src/**/*.test.ts',
-          ],
-          setupFiles: process.env.TYPES ? [] : [join(__dirname, './setup.ts')],
-          globalSetup: process.env.TYPES
-            ? [join(__dirname, './setup-bench-types.global.ts')]
-            : [join(__dirname, './setup.global.ts')],
+          include: ['src/**/*.test.ts'],
+          setupFiles: [join(__dirname, './setup.ts')],
+          globalSetup: [join(__dirname, './setup.global.ts')],
           hookTimeout: 60_000,
           testTimeout: 60_000,
           sequence: { groupOrder: 0 },

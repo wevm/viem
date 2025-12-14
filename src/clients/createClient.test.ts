@@ -68,6 +68,7 @@ describe('transports', () => {
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": {
+          "extend": [Function],
           "fees": undefined,
           "formatters": undefined,
           "id": 1337,
@@ -122,6 +123,7 @@ describe('transports', () => {
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": {
+          "extend": [Function],
           "fees": undefined,
           "formatters": undefined,
           "id": 1337,
@@ -558,6 +560,7 @@ describe('extends', () => {
         "call": [Function],
         "ccipRead": undefined,
         "chain": {
+          "extend": [Function],
           "fees": undefined,
           "formatters": undefined,
           "id": 1337,

@@ -75,14 +75,56 @@ describe('without `eth_fillTransaction`', () => {
       (block.baseFeePerGas! * 120n) / 100n + maxPriorityFeePerGas!,
     )
     expect(rest).toMatchInlineSnapshot(`
-        {
-          "chainId": 1,
-          "gas": 21000n,
-          "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-          "type": "eip1559",
-          "value": 1000000000000000000n,
-        }
-      `)
+      {
+        "account": undefined,
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
+        },
+        "chainId": 1,
+        "gas": 21000n,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
+        "value": 1000000000000000000n,
+      }
+    `)
   })
 
   test('legacy fees', async () => {
@@ -115,6 +157,47 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
+        },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -155,6 +238,47 @@ describe('without `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
+        },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
@@ -191,6 +315,47 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
+        },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -230,6 +395,47 @@ describe('without `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
+        },
         "chainId": 69,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
@@ -264,6 +470,47 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
+        },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -303,6 +550,47 @@ describe('without `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
+        },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
@@ -340,6 +628,47 @@ describe('without `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
+        },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
@@ -373,6 +702,47 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
+        },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -447,6 +817,47 @@ describe('without `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
+        },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
@@ -481,6 +892,47 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
+        },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -539,6 +991,47 @@ describe('without `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
+        },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
@@ -594,6 +1087,47 @@ describe('without `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
+        },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
@@ -638,6 +1172,47 @@ describe('without `eth_fillTransaction`', () => {
         "blobVersionedHashes": [
           "0x01d34d7bd213433308d1f63023dc70fd585064cd108ee69be0637a09f4028ea3",
         ],
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
+        },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21001n,
@@ -678,6 +1253,47 @@ describe('without `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
+        },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
         "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
@@ -704,6 +1320,47 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
+        },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
@@ -735,6 +1392,47 @@ describe('without `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
+        },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
         "maxFeePerGas": 13000000000n,
@@ -765,6 +1463,47 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
+        },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
@@ -813,6 +1552,47 @@ describe('without `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
+        },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "kzg": {
@@ -1243,6 +2023,48 @@ describe('with `eth_fillTransaction`', () => {
     })
     expect(transactionRequest).toMatchInlineSnapshot(`
       {
+        "account": undefined,
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
+        },
         "chainId": 1,
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "gas": 21000n,
@@ -1280,6 +2102,47 @@ describe('with `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
+        },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
@@ -1316,6 +2179,47 @@ describe('with `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
+        },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -1355,6 +2259,47 @@ describe('with `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
+        },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
@@ -1393,6 +2338,47 @@ describe('with `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
+        },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
@@ -1429,6 +2415,47 @@ describe('with `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
+        },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
@@ -1464,6 +2491,47 @@ describe('with `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
+        },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -1521,6 +2589,47 @@ describe('with `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
+        },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
@@ -1557,6 +2666,47 @@ describe('with `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
+        },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -1595,6 +2745,47 @@ describe('with `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
+        },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -1654,6 +2845,47 @@ describe('with `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
+        },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
@@ -1690,6 +2922,47 @@ describe('with `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
+        },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
@@ -1722,6 +2995,47 @@ describe('with `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
+        },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -1756,6 +3070,47 @@ describe('with `eth_fillTransaction`', () => {
           "source": "privateKey",
           "type": "local",
         },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
+        },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "gas": 21000n,
@@ -1788,6 +3143,47 @@ describe('with `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
+        },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
         },
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -1838,6 +3234,47 @@ describe('with `eth_fillTransaction`', () => {
           "signTypedData": [Function],
           "source": "privateKey",
           "type": "local",
+        },
+        "chain": {
+          "blockExplorers": {
+            "default": {
+              "apiUrl": "https://api.etherscan.io/api",
+              "name": "Etherscan",
+              "url": "https://etherscan.io",
+            },
+          },
+          "blockTime": 12000,
+          "contracts": {
+            "ensUniversalResolver": {
+              "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+              "blockCreated": 23085558,
+            },
+            "multicall3": {
+              "address": "0xca11bde05977b3631167028862be2a173976ca11",
+              "blockCreated": 14353601,
+            },
+          },
+          "extend": [Function],
+          "fees": undefined,
+          "formatters": undefined,
+          "id": 1,
+          "name": "Ethereum (Local)",
+          "nativeCurrency": {
+            "decimals": 18,
+            "name": "Ether",
+            "symbol": "ETH",
+          },
+          "rpcUrls": {
+            "default": {
+              "http": [
+                "http://127.0.0.1:8545/1159",
+              ],
+              "webSocket": [
+                "ws://127.0.0.1:8545/1159",
+              ],
+            },
+          },
+          "serializers": undefined,
         },
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "kzg": {

@@ -10,7 +10,7 @@ test('default', () => {
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: ['https://localhost:8545'] } },
   })
-  attest.instantiations([392, 'instantiations'])
+  attest.instantiations([643, 'instantiations'])
 })
 
 test('behavior: extend', () => {
@@ -23,5 +23,5 @@ test('behavior: extend', () => {
   }).extend({
     foo: 'bar',
   })
-  attest.instantiations([658, 'instantiations'])
+  attest.instantiations([760, 'instantiations'])
 })

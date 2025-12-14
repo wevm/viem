@@ -36,8 +36,6 @@ export type ReadParameters = Pick<
   'account' | 'blockNumber' | 'blockOverrides' | 'blockTag' | 'stateOverride'
 >
 
-export type TokenIdOrAddress = bigint | Address
-
 export type WriteParameters<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,

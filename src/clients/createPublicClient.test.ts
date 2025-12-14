@@ -164,6 +164,7 @@ describe('transports', () => {
         "call": [Function],
         "ccipRead": undefined,
         "chain": {
+          "extend": [Function],
           "fees": undefined,
           "formatters": undefined,
           "id": 1337,
@@ -275,6 +276,7 @@ describe('transports', () => {
         "call": [Function],
         "ccipRead": undefined,
         "chain": {
+          "extend": [Function],
           "fees": undefined,
           "formatters": undefined,
           "id": 1337,
@@ -523,6 +525,7 @@ test('extend', () => {
       "call": [Function],
       "ccipRead": undefined,
       "chain": {
+        "extend": [Function],
         "fees": undefined,
         "formatters": undefined,
         "id": 1337,

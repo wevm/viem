@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "bench": "vitest bench",
-    "bench:types": "TYPES=true vitest -c ./test/vitest.config.ts bench-d.ts",
+    "bench:types": "vitest -c ./test/vitest.config.ts --project type-bench",
     "build": "pnpm clean && pnpm build:cjs && pnpm build:esm && pnpm build:types",
     "build:cjs": "pnpm build:trustedSetups:start && tsc --project ./tsconfig.build.json --module commonjs --moduleResolution node --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./src/_cjs/package.json && pnpm build:trustedSetups:end",
     "build:esm": "tsc --project ./tsconfig.build.json --outDir ./src/_esm && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./src/_esm/package.json",
@@ -117,7 +117,7 @@
       "src": {
         "entry": [
           "index.ts!",
-          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,utils,window,zksync}/index.ts!",
+          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,tempo,utils,window,zksync}/index.ts!",
           "chains/utils.ts!"
         ],
         "ignore": [

@@ -1,20 +1,24 @@
 import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
 
-export type Parameters = { address: Address; chainId: number }
+type Parameters = { address: Address; chainId: number }
 
-export type Store = Map<string, { counter: number; resetScheduled: boolean }>
+type Store = Map<string, { counter: number; resetScheduled: boolean }>
 
+/** @internal */
 export const store = /*#__PURE__*/ create()
 
+/** @internal */
 export function create(): Store {
   return new Map()
 }
 
+/** @internal */
 export function getCacheKey(parameters: Parameters) {
   return `${parameters.address.toLowerCase()}-${parameters.chainId}`
 }
 
+/** @internal */
 export function getEntry(store: Store, parameters: Parameters) {
   const key = getCacheKey(parameters)
   let entry = store.get(key)
@@ -25,12 +29,14 @@ export function getEntry(store: Store, parameters: Parameters) {
   return entry
 }
 
+/** @internal */
 export function reset(store: Store, parameters: Parameters) {
   const entry = getEntry(store, parameters)
   entry.counter = 0
   entry.resetScheduled = false
 }
 
+/** @internal */
 export function getNonceKey(store: Store, parameters: Parameters) {
   const entry = getEntry(store, parameters)
   if (!entry.resetScheduled) {
