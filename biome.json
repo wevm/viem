@@ -17,6 +17,7 @@
       "!**/contracts",
       "!**/test/kzg/**/*.json",
       "!**/test/kzg/**/*.txt",
+      "!**/test/tempo/**/*",
       "!**/coverage",
       "!**/tsconfig.json",
       "!**/tsconfig.*.json",
