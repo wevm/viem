@@ -7,8 +7,8 @@ import { defineTransactionRequest } from '../utils/formatters/transactionRequest
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import type { Account } from './Account.js'
 import * as Formatters from './Formatters.js'
-import * as Transaction from './Transaction.js'
 import * as NonceKeyStore from './internal/nonceKeyStore.js'
+import * as Transaction from './Transaction.js'
 
 export const chainConfig = {
   blockTime: 1_000,

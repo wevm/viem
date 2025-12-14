@@ -2,8 +2,8 @@ import { Hex, P256, Secp256k1, WebCryptoP256 } from 'ox'
 import { verifyMessage, verifyTypedData } from 'viem/actions'
 import { Account, tempoActions } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
-import * as actions from './account.js'
 import { getClient } from '~test/tempo/config.js'
+import * as actions from './account.js'
 
 const client = getClient().extend(tempoActions())
 
