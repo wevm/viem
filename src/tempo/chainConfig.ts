@@ -1,6 +1,7 @@
-import type { TokenId } from 'ox/tempo'
 import * as Hex from 'ox/Hex'
+import type { TokenId } from 'ox/tempo'
 import type { ChainConfig as viem_ChainConfig } from '../types/chain.js'
+import { extendSchema } from '../utils/chain/defineChain.js'
 import { defineTransaction } from '../utils/formatters/transaction.js'
 import { defineTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
 import { defineTransactionRequest } from '../utils/formatters/transactionRequest.js'
@@ -8,7 +9,6 @@ import type { SerializeTransactionFn } from '../utils/transaction/serializeTrans
 import type { Account } from './Account.js'
 import * as Formatters from './Formatters.js'
 import * as Transaction from './Transaction.js'
-import { extendSchema } from '../utils/chain/defineChain.js'
 
 // TODO(tempo): scope by address+chainId
 const nonceKeyManager = {
