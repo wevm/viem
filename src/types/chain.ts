@@ -17,7 +17,7 @@ import type { SerializeTransactionFn } from '../utils/transaction/serializeTrans
 
 export type Chain<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
-  custom extends Record<string, unknown> | undefined =
+  extendSchema extends Record<string, unknown> | undefined =
     | Record<string, unknown>
     | undefined,
 > = {
@@ -65,7 +65,7 @@ export type Chain<
   sourceId?: number | undefined
   /** Flag for test networks */
   testnet?: boolean | undefined
-} & ChainConfig<formatters, custom>
+} & ChainConfig<formatters, extendSchema>
 
 /////////////////////////////////////////////////////////////////////
 // Config
@@ -82,12 +82,14 @@ type PrepareTransactionRequestFn = (
 
 export type ChainConfig<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
-  custom extends Record<string, unknown> | undefined =
+  extendSchema extends Record<string, unknown> | undefined =
     | Record<string, unknown>
     | undefined,
 > = {
-  /** Custom chain data. */
-  custom?: custom | undefined
+  /** Custom chain data. @deprecated use `.extend` instead. */
+  custom?: extendSchema | undefined
+  /** Extend schema. */
+  extendSchema?: extendSchema | undefined
   /** Modifies how fees are derived. */
   fees?: ChainFees<formatters | undefined> | undefined
   /** Modifies how data is formatted and typed (e.g. blocks and transactions) */

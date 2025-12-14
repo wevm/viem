@@ -1,5 +1,4 @@
-import { createServer } from 'prool'
-import { type AnvilParameters, anvil } from 'prool/instances'
+import { Instance, Server } from 'prool'
 
 import { mainnet, optimism, sepolia, zksync } from '../../src/chains/index.js'
 import { ipc } from '../../src/clients/transports/ipc.js'
@@ -69,7 +68,7 @@ function getEnv(key: string, fallback: string): string {
 }
 
 type DefineAnvilParameters<chain extends Chain> = Omit<
-  AnvilParameters,
+  Instance.anvil.Parameters,
   'forkBlockNumber' | 'forkUrl'
 > & {
   chain: chain
@@ -284,8 +283,8 @@ function defineAnvil<const chain extends Chain>(
       await fetch(`${rpcUrl.http}/restart`)
     },
     async start() {
-      return await createServer({
-        instance: anvil({
+      return await Server.create({
+        instance: Instance.anvil({
           chainId: chain.id,
           forkUrl,
           forkBlockNumber,

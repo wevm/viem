@@ -28,6 +28,6 @@ test('return type', () => {
       },
     ],
   })
-  attest.instantiations([96782, 'instantiations'])
+  attest.instantiations([46542, 'instantiations'])
   attest<Promise<[bigint, bigint, string]>>(res)
 })

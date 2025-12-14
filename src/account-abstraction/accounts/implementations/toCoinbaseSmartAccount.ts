@@ -394,8 +394,8 @@ export function toWebAuthnSignature({
       {
         authenticatorData: webauthn.authenticatorData,
         clientDataJSON: stringToHex(webauthn.clientDataJSON),
-        challengeIndex: BigInt(webauthn.challengeIndex),
-        typeIndex: BigInt(webauthn.typeIndex),
+        challengeIndex: BigInt(webauthn.challengeIndex ?? 0n),
+        typeIndex: BigInt(webauthn.typeIndex ?? 0n),
         r,
         s,
       },

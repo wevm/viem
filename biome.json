@@ -49,7 +49,7 @@
       },
       "performance": {
         "noBarrelFile": "error",
-        "noReExportAll": "error",
+        "noReExportAll": "off",
         "noDelete": "off"
       },
       "style": {
