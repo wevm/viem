@@ -65,10 +65,7 @@ export type TransactionTempo<
   isPending extends boolean = boolean,
   type = 'tempo',
 > = PartialBy<
-  Omit<
-    TransactionBase<quantity, index, isPending>,
-    'data' | 'input' | 'value' | 'to'
-  >,
+  Omit<TransactionBase<quantity, index, isPending>, 'input' | 'value' | 'to'>,
   'r' | 's' | 'v' | 'yParity'
 > & {
   accessList: AccessList
@@ -163,7 +160,8 @@ export function getType(
   transaction: Record<string, unknown>,
 ): Transaction['type'] {
   if (
-    (transaction.account as { keyType?: string })?.keyType !== 'secp256k1' ||
+    (transaction.account &&
+      (transaction.account as { keyType?: string })?.keyType !== 'secp256k1') ||
     typeof transaction.calls !== 'undefined' ||
     typeof transaction.feePayer !== 'undefined' ||
     typeof transaction.feeToken !== 'undefined' ||

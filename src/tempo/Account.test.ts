@@ -2,6 +2,7 @@ import { Value, WebCryptoP256 } from 'ox'
 import { SignatureEnvelope } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import * as Account from './Account.js'
+import { parseGwei } from '../utils/index.js'
 
 const privateKey_secp256k1 =
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
@@ -23,11 +24,6 @@ describe('fromSecp256k1', () => {
         "signTransaction": [Function],
         "signTypedData": [Function],
         "source": "root",
-        "storage": {
-          "getItem": [Function],
-          "removeItem": [Function],
-          "setItem": [Function],
-        },
         "type": "local",
       }
     `)
@@ -97,11 +93,6 @@ describe('fromP256', () => {
         "signTransaction": [Function],
         "signTypedData": [Function],
         "source": "root",
-        "storage": {
-          "getItem": [Function],
-          "removeItem": [Function],
-          "setItem": [Function],
-        },
         "type": "local",
       }
     `)
@@ -169,11 +160,6 @@ describe('fromHeadlessWebAuthn', () => {
         "signTransaction": [Function],
         "signTypedData": [Function],
         "source": "root",
-        "storage": {
-          "getItem": [Function],
-          "removeItem": [Function],
-          "setItem": [Function],
-        },
         "type": "local",
       }
     `)
@@ -233,6 +219,104 @@ describe('fromWebCryptoP256', () => {
     const keyPair = await WebCryptoP256.createKeyPair()
     const account = Account.fromWebCryptoP256(keyPair)
     expect(account.keyType).toBe('p256')
+  })
+
+  test('behavior: access key', async () => {
+    const keyPair = await WebCryptoP256.createKeyPair()
+    const rootAccount = Account.fromSecp256k1(privateKey_secp256k1)
+    const account = Account.fromWebCryptoP256(keyPair, { access: rootAccount })
+    expect(account.keyType).toBe('p256')
+    expect(account.source).toBe('accessKey')
+    expect(account.address).toBe(rootAccount.address)
+  })
+})
+
+describe('signMessage', () => {
+  test('default', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const signature = await account.signMessage({ message: 'hello world' })
+    expect(signature).toMatchInlineSnapshot(
+      `"0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"`,
+    )
+  })
+})
+
+describe('signTransaction', () => {
+  test('default', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const serialized = await account.signTransaction({
+      chainId: 1,
+      maxFeePerGas: parseGwei('10'),
+      to: '0x0000000000000000000000000000000000000001',
+      value: 0n,
+    })
+    expect(serialized).toBeDefined()
+    expect(typeof serialized).toBe('string')
+  })
+})
+
+describe('signTypedData', () => {
+  test('default', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const signature = await account.signTypedData({
+      domain: {
+        name: 'Test',
+        version: '1',
+        chainId: 1,
+      },
+      types: {
+        Test: [{ name: 'value', type: 'string' }],
+      },
+      primaryType: 'Test',
+      message: { value: 'hello' },
+    })
+    expect(signature).toMatchInlineSnapshot(
+      `"0xb8952a54215f98f3de2cba7d2dda7587f46654b1622963b44c81e8907bae7ef866af78c1e27e54ef46b04ae2bf5d513b72e6f59944e46a54104348010af170251c"`,
+    )
+  })
+})
+
+describe('signAuthorization', () => {
+  test('default', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const authorization = await account.signAuthorization({
+      address: '0x0000000000000000000000000000000000000001',
+      chainId: 1,
+      nonce: 0,
+    })
+    expect(authorization).toMatchInlineSnapshot(`
+      {
+        "address": "0x0000000000000000000000000000000000000001",
+        "chainId": 1,
+        "nonce": 0,
+        "r": "0x362e961de7bc54dda5fbf6e65a43534f16003a9b9fcd8b32cd1cfa0f78aad683",
+        "s": "0x0f7f9257e143adec1e2035e0b2fa19bc5df8946c4bf7f08da47331a413ff9eeb",
+        "yParity": 1,
+      }
+    `)
+  })
+
+  test('behavior: contractAddress', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const authorization = await account.signAuthorization({
+      contractAddress: '0x0000000000000000000000000000000000000002',
+      chainId: 1,
+      nonce: 0,
+    })
+    expect(authorization.address).toBe(
+      '0x0000000000000000000000000000000000000002',
+    )
+  })
+
+  test('error: non-secp256k1', async () => {
+    const account = Account.fromP256(privateKey_p256)
+    await expect(
+      account.signAuthorization({
+        address: '0x0000000000000000000000000000000000000001',
+        chainId: 1,
+        nonce: 0,
+      }),
+    ).rejects.toThrow('Unsupported signature type. Expected `secp256k1`')
   })
 })
 
@@ -431,6 +515,47 @@ describe('signKeyAuthorization', () => {
             "r": 103446563773805832555738463837136311499830712555215862064308154410957015968940n,
             "s": 19247215858016211284757060583528935834485291841858715669623661689922072500812n,
             "yParity": 0,
+          },
+          "type": "secp256k1",
+        },
+        "type": "secp256k1",
+      }
+    `)
+  })
+})
+
+describe('signKeyAuthorization (standalone)', () => {
+  test('default', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
+
+    const authorization = await Account.signKeyAuthorization(account, {
+      key,
+      expiry: 1234567890,
+      limits: [
+        {
+          token: '0x20c0000000000000000000000000000000000001',
+          limit: Value.from('10', 6),
+        },
+      ],
+    })
+    expect(authorization).toMatchInlineSnapshot(`
+      {
+        "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "expiry": 1234567890,
+        "limits": [
+          {
+            "limit": 10000000n,
+            "token": "0x20c0000000000000000000000000000000000001",
+          },
+        ],
+        "signature": {
+          "signature": {
+            "r": 48603032183460068649726257603541287031240449157747147951793434940348798421977n,
+            "s": 52252948283033674801195452183159160801795536276956563866652050470169279213377n,
+            "yParity": 1,
           },
           "type": "secp256k1",
         },

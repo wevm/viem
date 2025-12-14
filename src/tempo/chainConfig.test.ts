@@ -1,10 +1,14 @@
-import {
-  getTransaction,
-  prepareTransactionRequest,
-  sendTransactionSync,
-} from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import { accounts, getClient } from '~test/tempo/config.js'
+import {
+  getTransaction,
+  getTransactionReceipt,
+  prepareTransactionRequest,
+  sendTransactionSync,
+  signTransaction,
+} from '../actions/index.js'
+import { tempoLocalnet } from '../chains/index.js'
+import { defineChain } from '../utils/chain/defineChain.js'
 
 const client = getClient({
   account: accounts.at(0)!,
@@ -127,5 +131,67 @@ describe('prepareTransactionRequest', () => {
     expect(transactions[0].nonceKey).toBe(undefined)
     expect(transactions[1].nonceKey).toBeGreaterThan(0n)
     expect(transactions[2].nonceKey).toBeGreaterThan(0n)
+  })
+
+  test('behavior: feeToken from chain config', async () => {
+    const chainWithFeeToken = defineChain({
+      ...tempoLocalnet,
+      feeToken: '0x20c0000000000000000000000000000000000001',
+    })
+    const clientWithFeeToken = getClient({
+      account: accounts.at(0)!,
+      chain: chainWithFeeToken,
+    })
+    const request = await prepareTransactionRequest(clientWithFeeToken, {})
+    expect(request.feeToken).toBe('0x20c0000000000000000000000000000000000001')
+  })
+})
+
+describe('formatters', () => {
+  test('transaction formatter (getTransaction)', async () => {
+    const receipt = await sendTransactionSync(client, {
+      to: '0x0000000000000000000000000000000000000000',
+      feeToken: 1n,
+    })
+    const transaction = await getTransaction(client, {
+      hash: receipt.transactionHash,
+    })
+    expect(transaction.hash).toBe(receipt.transactionHash)
+    expect(transaction.type).toBe('tempo')
+    expect(transaction.calls).toBeDefined()
+    expect(transaction.signature).toBeDefined()
+    expect(transaction.feeToken).toBe(
+      '0x20c0000000000000000000000000000000000001',
+    )
+  })
+
+  test('transactionReceipt formatter (getTransactionReceipt)', async () => {
+    const feePayerClient = getClient({
+      account: accounts.at(1)!,
+    })
+    const receipt = await sendTransactionSync(feePayerClient, {
+      to: '0x0000000000000000000000000000000000000000',
+      feePayer: accounts.at(0)!,
+    })
+    const fullReceipt = await getTransactionReceipt(client, {
+      hash: receipt.transactionHash,
+    })
+    expect(fullReceipt.transactionHash).toBe(receipt.transactionHash)
+    expect(fullReceipt.feePayer?.toLowerCase()).toBe(
+      accounts.at(0)!.address.toLowerCase(),
+    )
+  })
+})
+
+describe('serializers', () => {
+  test('transaction serializer (signTransaction)', async () => {
+    const request = await prepareTransactionRequest(client, {
+      feeToken: 1n,
+      to: '0x0000000000000000000000000000000000000000',
+    })
+    const serialized = await signTransaction(client, request as never)
+    expect(serialized).toBeDefined()
+    expect(typeof serialized).toBe('string')
+    expect(serialized.startsWith('0x76')).toBe(true)
   })
 })

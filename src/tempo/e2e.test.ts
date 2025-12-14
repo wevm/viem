@@ -75,8 +75,6 @@ describe('sendTransaction', () => {
     expect(transaction).toMatchInlineSnapshot(`
       {
         "accessList": [],
-        "data": "0xdeadbeef",
-        "feePayerSignature": undefined,
         "input": "0xdeadbeef",
         "to": "0x0000000000000000000000000000000000000000",
         "type": "eip1559",

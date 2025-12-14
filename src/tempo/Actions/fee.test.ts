@@ -28,12 +28,14 @@ describe('getUserToken', () => {
     // Set token (address)
     await actions.fee.setUserTokenSync(client, {
       account: account2,
+      feeToken: 1n,
       token: '0x20c0000000000000000000000000000000000001',
     })
 
     // Set another token (id)
     await actions.fee.setUserTokenSync(client, {
       account: account3,
+      feeToken: 1n,
       token: 2n,
     })
 
@@ -69,6 +71,7 @@ describe('setUserToken', () => {
 
     const { receipt: setReceipt, ...setResult } =
       await actions.fee.setUserTokenSync(client, {
+        feeToken: 1n,
         token: 2n,
       })
     expect(setReceipt).toBeDefined()
@@ -150,6 +153,7 @@ describe('watchSetUserToken', async () => {
 
       await actions.fee.setUserTokenSync(client, {
         account: account3,
+        feeToken: 1n,
         token: '0x20c0000000000000000000000000000000000002',
       })
 
@@ -215,6 +219,7 @@ describe('watchSetUserToken', async () => {
       // Set token for account3 (should NOT be captured)
       await actions.fee.setUserTokenSync(client, {
         account: account3,
+        feeToken: 1n,
         token: '0x20c0000000000000000000000000000000000002',
       })
 

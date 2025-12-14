@@ -149,7 +149,7 @@ describe('cancel', () => {
         account: account2,
         orderId,
       }),
-    ).rejects.toThrow('The contract function "cancel" reverted')
+    ).rejects.toThrow('Execution reverted')
   })
 
   test('behavior: cannot cancel non-existent order', async () => {
