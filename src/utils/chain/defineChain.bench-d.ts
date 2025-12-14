@@ -1,7 +1,7 @@
 import { attest } from '@ark/attest'
 import { test } from 'vitest'
 
-import { defineChain } from './defineChain.js'
+import { defineChain, extendSchema } from './defineChain.js'
 
 test('default', () => {
   defineChain({
@@ -16,6 +16,7 @@ test('default', () => {
 test('behavior: extend', () => {
   defineChain({
     id: 1,
+    extendSchema: extendSchema<{ foo: string }>(),
     name: 'Test',
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     rpcUrls: { default: { http: ['https://localhost:8545'] } },

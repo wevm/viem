@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import { defineChain, extendSchema } from './defineChain.js'
+import type { Address } from 'abitype'
 
 test('default', () => {
   expect(
@@ -38,71 +39,19 @@ test('default', () => {
     `)
 })
 
-describe('extend', () => {
-  test('default', () => {
-    const chain = defineChain({
-      id: 1,
-      name: 'Test',
-      nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: ['https://localhost:8545'] } },
-    })
-
-    const extended = chain.extend(() => ({
-      foo: 'bar',
-    }))
-
-    expect(extended.foo).toBe('bar')
-    expect(extended.id).toBe(1)
-    expect(extended.name).toBe('Test')
+test('behavior: extend', () => {
+  const chain = defineChain({
+    extendSchema: extendSchema<{ feeToken: Address }>(),
+    id: 1,
+    name: 'Test',
+    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    rpcUrls: { default: { http: ['https://localhost:8545'] } },
   })
 
-  test('behavior: schema', () => {
-    const chain = defineChain({
-      extendSchema: extendSchema<{ foo: string }>(),
-      id: 1,
-      name: 'Test',
-      nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: ['https://localhost:8545'] } },
-    })
-
-    const extended = chain.extend(() => ({
-      foo: 'bar',
-    }))
-
-    expect(extended.foo).toBe('bar')
-    expect(extended.id).toBe(1)
-    expect(extended.name).toBe('Test')
+  const extended = chain.extend({
+    feeToken: '0x0000000000000000000000000000000000000000',
   })
 
-  test('behavior: extend (fn)', () => {
-    const chain = defineChain({
-      id: 1,
-      name: 'Test',
-      nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: ['https://localhost:8545'] } },
-    })
-
-    const extended = chain.extend((c) => ({
-      anotherId: c.id + 1,
-    }))
-
-    expect(extended.id).toBe(1)
-    expect(extended.anotherId).toBe(2)
-  })
-
-  test('behavior: extend (object)', () => {
-    const chain = defineChain({
-      id: 1,
-      name: 'Test',
-      nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: ['https://localhost:8545'] } },
-    })
-
-    const extended = chain.extend({
-      feeToken: '0x0000000000000000000000000000000000000000',
-    })
-
-    expect(extended.feeToken).toBe('0x0000000000000000000000000000000000000000')
-    expect(extended.id).toBe(1)
-  })
+  expect(extended.feeToken).toBe('0x0000000000000000000000000000000000000000')
+  expect(extended.id).toBe(1)
 })

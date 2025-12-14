@@ -35,10 +35,6 @@ export type Account_base<source extends string = string> = RequiredBy<
 }
 
 export type RootAccount = Account_base<'root'> & {
-  /** Assign key authorization to the next transaction. */
-  assignKeyAuthorization: (
-    keyAuthorization: KeyAuthorization.Signed,
-  ) => Promise<void>
   /** Sign key authorization. */
   signKeyAuthorization: (
     key: Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>,
@@ -499,9 +495,6 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
   return {
     ...account,
     source: 'root',
-    async assignKeyAuthorization(keyAuthorization) {
-      account.storage.setItem('pendingKeyAuthorization', keyAuthorization)
-    },
     async signKeyAuthorization(key, parameters = {}) {
       const { expiry, limits } = parameters
       const { accessKeyAddress, keyType: type } = key

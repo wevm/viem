@@ -1,20 +1,15 @@
 import type { Chain, ChainFormatters } from '../../types/chain.js'
-import type { Assign, ExactPartial, Prettify } from '../../types/utils.js'
-
-type ExtendedProperties<chain extends Chain = Chain> = Prettify<
-  chain['extendSchema'] extends Record<string, unknown>
-    ? chain['extendSchema']
-    : { [key: string]: unknown }
->
+import type { Assign, Prettify } from '../../types/utils.js'
 
 export type DefineChainReturnType<chain extends Chain = Chain> = Prettify<
-  chain & {
-    extend: <
-      const extended extends ExtendedProperties<chain> & ExactPartial<Chain>,
-    >(
-      extended: extended,
-    ) => Assign<chain, extended>
-  }
+  chain &
+    (chain['extendSchema'] extends Record<string, unknown>
+      ? {
+          extend: <const extended extends chain['extendSchema']>(
+            extended: extended,
+          ) => Assign<chain, extended>
+        }
+      : {})
 >
 
 export function defineChain<
@@ -33,8 +28,7 @@ export function defineChain<
     return (fnOrExtended: ExtendFn | Record<string, unknown>) => {
       const properties = (
         typeof fnOrExtended === 'function' ? fnOrExtended(base) : fnOrExtended
-      ) as ExtendedProperties
-      for (const key in chainInstance) delete properties[key]
+      ) as (typeof chainInstance)['extendSchema']
       const combined = { ...base, ...properties }
       return Object.assign(combined, { extend: extend(combined) })
     }

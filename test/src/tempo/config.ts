@@ -72,12 +72,13 @@ export const http = (url = rpcUrl) =>
   })
 
 export function getClient<
+  chain extends Chain | undefined = typeof chain,
   accountOrAddress extends viem_Account | Address | undefined = undefined,
 >(
   parameters: Partial<
     Pick<
-      ClientConfig<Transport, typeof chain, accountOrAddress>,
-      'account' | 'transport'
+      ClientConfig<Transport, chain, accountOrAddress>,
+      'account' | 'chain' | 'transport'
     >
   > = {},
 ) {

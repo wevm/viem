@@ -1,38 +1,41 @@
 import * as Http from 'node:http'
 import { createRequestListener } from '@remix-run/node-fetch-server'
 import { RpcRequest, RpcResponse, WebCryptoP256 } from 'ox'
-import { publicActions, walletActions } from 'viem'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
-import { defaultPrepareTransactionRequestParameters } from 'viem/actions'
-import { Account, Transaction } from 'viem/tempo'
+import {
+  defaultPrepareTransactionRequestParameters,
+  getTransaction,
+  prepareTransactionRequest,
+  sendRawTransaction,
+  sendTransaction,
+  sendTransactionSync,
+  signTransaction,
+  waitForTransactionReceipt,
+} from 'viem/actions'
+import { Account, Actions, Transaction } from 'viem/tempo'
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest'
 import {
   accounts,
-  client as client_,
+  chain,
   fundAddress,
   getClient,
   http,
 } from '../../test/src/tempo/config.js'
 import { rpcUrl } from '../../test/src/tempo/prool.js'
-import * as actions from './Actions/index.js'
-import { tempoActions } from './index.js'
 import { withFeePayer } from './Transport.js'
 
-const client = client_
-  .extend(publicActions)
-  .extend(walletActions)
-  .extend(tempoActions())
+const client = getClient()
 
 describe('sendTransaction', () => {
   test('default', async () => {
     const account = accounts[0]
 
-    const hash = await client.sendTransaction({
+    const hash = await sendTransaction(client, {
       account,
       data: '0xdeadbeef',
       to: '0x0000000000000000000000000000000000000000',
     })
-    await client.waitForTransactionReceipt({ hash })
+    await waitForTransactionReceipt(client, { hash })
 
     const {
       blockHash,
@@ -52,7 +55,7 @@ describe('sendTransaction', () => {
       yParity,
       transactionIndex,
       ...transaction
-    } = await client.getTransaction({ hash })
+    } = await getTransaction(client, { hash })
 
     expect(blockHash).toBeDefined()
     expect(blockNumber).toBeDefined()
@@ -83,16 +86,16 @@ describe('sendTransaction', () => {
     `)
   })
 
-  test('with fee token', async () => {
+  test('behavior: with `feeToken`', async () => {
     const account = accounts[0]
 
-    const hash = await client.sendTransaction({
+    const hash = await sendTransaction(client, {
       account,
       data: '0xdeadbeef',
       feeToken: '0x20c0000000000000000000000000000000000001',
       to: '0x0000000000000000000000000000000000000000',
     })
-    await client.waitForTransactionReceipt({ hash })
+    await waitForTransactionReceipt(client, { hash })
 
     const {
       blockHash,
@@ -110,7 +113,7 @@ describe('sendTransaction', () => {
       signature,
       transactionIndex,
       ...transaction
-    } = await client.getTransaction({ hash })
+    } = await getTransaction(client, { hash })
 
     expect(blockHash).toBeDefined()
     expect(blockNumber).toBeDefined()
@@ -152,13 +155,85 @@ describe('sendTransaction', () => {
     `)
   })
 
-  test('with calls', async () => {
+  test('behavior: with `feeToken` (chain)', async () => {
+    const client = getClient({
+      account: accounts[0],
+      chain: chain.extend({
+        feeToken: '0x20c0000000000000000000000000000000000001',
+      }),
+    })
+
+    const hash = await sendTransaction(client, {
+      data: '0xdeadbeef',
+      to: '0x0000000000000000000000000000000000000000',
+    })
+    await waitForTransactionReceipt(client, { hash })
+
+    const {
+      blockHash,
+      blockNumber,
+      chainId,
+      from,
+      gas,
+      gasPrice,
+      hash: hash_,
+      keyAuthorization: __,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      nonceKey,
+      signature,
+      transactionIndex,
+      ...transaction
+    } = await getTransaction(client, { hash })
+
+    expect(blockHash).toBeDefined()
+    expect(blockNumber).toBeDefined()
+    expect(chainId).toBeDefined()
+    expect(from).toBe(accounts[0].address.toLowerCase())
+    expect(gas).toBeDefined()
+    expect(gasPrice).toBeDefined()
+    expect(hash_).toBe(hash)
+    expect(maxFeePerGas).toBeDefined()
+    expect(maxPriorityFeePerGas).toBeDefined()
+    expect(nonce).toBeDefined()
+    expect(nonceKey).toBeDefined()
+    expect(signature).toBeDefined()
+    expect(transactionIndex).toBeDefined()
+    expect(transaction).toMatchInlineSnapshot(`
+      {
+        "accessList": [],
+        "authorizationList": [],
+        "calls": [
+          {
+            "data": "0xdeadbeef",
+            "to": "0x0000000000000000000000000000000000000000",
+            "value": 0n,
+          },
+        ],
+        "data": undefined,
+        "feePayerSignature": undefined,
+        "feeToken": "0x20c0000000000000000000000000000000000001",
+        "maxFeePerBlobGas": undefined,
+        "to": null,
+        "type": "tempo",
+        "typeHex": "0x76",
+        "v": undefined,
+        "validAfter": null,
+        "validBefore": null,
+        "value": 0n,
+        "yParity": undefined,
+      }
+    `)
+  })
+
+  test('behavior: with `calls`', async () => {
     const account = accounts[0]
 
-    const hash = await client.sendTransaction({
+    const hash = await sendTransaction(client, {
       account,
       calls: [
-        actions.token.create.call({
+        Actions.token.create.call({
           admin: accounts[0].address,
           currency: 'USD',
           name: 'Test Token 3',
@@ -166,7 +241,7 @@ describe('sendTransaction', () => {
         }),
       ],
     })
-    await client.waitForTransactionReceipt({ hash })
+    await waitForTransactionReceipt(client, { hash })
 
     const {
       blockHash,
@@ -185,7 +260,7 @@ describe('sendTransaction', () => {
       signature,
       transactionIndex,
       ...transaction
-    } = await client.getTransaction({ hash })
+    } = await getTransaction(client, { hash })
 
     expect(blockHash).toBeDefined()
     expect(blockNumber).toBeDefined()
@@ -221,16 +296,16 @@ describe('sendTransaction', () => {
       `)
   })
 
-  test('with feePayer', async () => {
+  test('behavior: with `feePayer`', async () => {
     const account = privateKeyToAccount(generatePrivateKey())
     const feePayer = accounts[0]
 
-    const hash = await client.sendTransaction({
+    const hash = await sendTransaction(client, {
       account,
       feePayer,
       to: '0x0000000000000000000000000000000000000000',
     })
-    await client.waitForTransactionReceipt({ hash })
+    await waitForTransactionReceipt(client, { hash })
 
     const {
       blockHash,
@@ -249,7 +324,7 @@ describe('sendTransaction', () => {
       signature,
       transactionIndex,
       ...transaction
-    } = await client.getTransaction({ hash })
+    } = await getTransaction(client, { hash })
 
     expect(blockHash).toBeDefined()
     expect(blockNumber).toBeDefined()
@@ -291,24 +366,24 @@ describe('sendTransaction', () => {
       `)
   })
 
-  test('with access key', async () => {
+  test('behavior: with access key', async () => {
     const account = accounts[0]
     const accessKey = Account.fromP256(generatePrivateKey(), {
       access: account,
     })
 
     const keyAuthorization = await account.signKeyAuthorization(accessKey)
-    await account.assignKeyAuthorization(keyAuthorization)
 
     {
-      const receipt = await client.sendTransactionSync({
+      const receipt = await sendTransactionSync(client, {
         account: accessKey,
+        keyAuthorization,
       })
       expect(receipt).toBeDefined()
     }
 
     {
-      const receipt = await client.token.transferSync({
+      const receipt = await Actions.token.transferSync(client, {
         account: accessKey,
         amount: 100n,
         token: '0x20c0000000000000000000000000000000000001',
@@ -318,7 +393,7 @@ describe('sendTransaction', () => {
     }
 
     {
-      const receipt = await client.token.createSync({
+      const receipt = await Actions.token.createSync(client, {
         account: accessKey,
         admin: accessKey.address,
         currency: 'USD',
@@ -338,7 +413,7 @@ describe('sendTransaction', () => {
       // fund account
       await fundAddress(client, { address: account.address })
 
-      const receipt = await client.sendTransactionSync({
+      const receipt = await sendTransactionSync(client, {
         account,
         data: '0xdeadbeef',
         to: '0x0000000000000000000000000000000000000000',
@@ -360,7 +435,7 @@ describe('sendTransaction', () => {
         signature,
         transactionIndex,
         ...transaction
-      } = await client.getTransaction({
+      } = await getTransaction(client, {
         hash: receipt.transactionHash,
       })
 
@@ -404,7 +479,7 @@ describe('sendTransaction', () => {
       `)
     })
 
-    test('with calls', async () => {
+    test('behavior: with `calls`', async () => {
       const account = Account.fromP256(
         '0x6a3086fb3f2f95a3f36ef5387d18151ff51dc98a1e0eb987b159ba196beb0c99',
       )
@@ -412,10 +487,10 @@ describe('sendTransaction', () => {
       // fund account
       await fundAddress(client, { address: account.address })
 
-      const receipt = await client.sendTransactionSync({
+      const receipt = await sendTransactionSync(client, {
         account,
         calls: [
-          actions.token.create.call({
+          Actions.token.create.call({
             admin: account.address,
             currency: 'USD',
             name: 'Test Token 4',
@@ -443,7 +518,7 @@ describe('sendTransaction', () => {
         signature,
         transactionIndex,
         ...transaction
-      } = await client.getTransaction({
+      } = await getTransaction(client, {
         hash: receipt.transactionHash,
       })
 
@@ -481,19 +556,19 @@ describe('sendTransaction', () => {
       `)
     })
 
-    test('with feePayer', async () => {
+    test('behavior: with `feePayer`', async () => {
       const account = Account.fromP256(
         // unfunded account with different key
         '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b',
       )
       const feePayer = accounts[0]
 
-      const hash = await client.sendTransaction({
+      const hash = await sendTransaction(client, {
         account,
         feePayer,
         to: '0x0000000000000000000000000000000000000000',
       })
-      await client.waitForTransactionReceipt({ hash })
+      await waitForTransactionReceipt(client, { hash })
 
       const {
         blockHash,
@@ -512,7 +587,7 @@ describe('sendTransaction', () => {
         signature,
         transactionIndex,
         ...transaction
-      } = await client.getTransaction({ hash })
+      } = await getTransaction(client, { hash })
 
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
@@ -554,24 +629,24 @@ describe('sendTransaction', () => {
       `)
     })
 
-    test('with access key', async () => {
+    test('behavior: with access key', async () => {
       const account = accounts[0]
       const accessKey = Account.fromP256(generatePrivateKey(), {
         access: account,
       })
 
       const keyAuthorization = await account.signKeyAuthorization(accessKey)
-      await account.assignKeyAuthorization(keyAuthorization)
 
       {
-        const receipt = await client.sendTransactionSync({
+        const receipt = await sendTransactionSync(client, {
           account: accessKey,
+          keyAuthorization,
         })
         expect(receipt).toBeDefined()
       }
 
       {
-        const receipt = await client.sendTransactionSync({
+        const receipt = await sendTransactionSync(client, {
           account: accessKey,
           to: '0x0000000000000000000000000000000000000000',
         })
@@ -579,7 +654,7 @@ describe('sendTransaction', () => {
       }
     })
 
-    test('with access key + fee payer', async () => {
+    test('behavior: with access key + `feePayer`', async () => {
       const account = Account.fromP256(
         // unfunded account with different key
         '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b',
@@ -590,19 +665,19 @@ describe('sendTransaction', () => {
       const feePayer = accounts[0]
 
       const keyAuthorization = await account.signKeyAuthorization(accessKey)
-      await account.assignKeyAuthorization(keyAuthorization)
 
       {
-        const receipt = await client.sendTransactionSync({
+        const receipt = await sendTransactionSync(client, {
           account: accessKey,
           feePayer,
+          keyAuthorization,
           to: '0x0000000000000000000000000000000000000000',
         })
         expect(receipt).toBeDefined()
       }
 
       {
-        const receipt = await client.sendTransactionSync({
+        const receipt = await sendTransactionSync(client, {
           account: accessKey,
           feePayer,
           to: '0x0000000000000000000000000000000000000000',
@@ -620,7 +695,7 @@ describe('sendTransaction', () => {
       // fund account
       await fundAddress(client, { address: account.address })
 
-      const receipt = await client.sendTransactionSync({
+      const receipt = await sendTransactionSync(client, {
         account,
         data: '0xdeadbeef',
         to: '0x0000000000000000000000000000000000000000',
@@ -641,7 +716,7 @@ describe('sendTransaction', () => {
         signature,
         transactionIndex,
         ...transaction
-      } = await client.getTransaction({
+      } = await getTransaction(client, {
         hash: receipt.transactionHash,
       })
 
@@ -685,17 +760,17 @@ describe('sendTransaction', () => {
       `)
     })
 
-    test('with calls', async () => {
+    test('behavior: with `calls`', async () => {
       const keyPair = await WebCryptoP256.createKeyPair()
       const account = Account.fromWebCryptoP256(keyPair)
 
       // fund account
       await fundAddress(client, { address: account.address })
 
-      const receipt = await client.sendTransactionSync({
+      const receipt = await sendTransactionSync(client, {
         account,
         calls: [
-          actions.token.create.call({
+          Actions.token.create.call({
             admin: account.address,
             currency: 'USD',
             name: 'Test Token 5',
@@ -721,7 +796,7 @@ describe('sendTransaction', () => {
         nonce,
         signature,
         ...transaction
-      } = await client.getTransaction({
+      } = await getTransaction(client, {
         hash: receipt.transactionHash,
       })
 
@@ -740,17 +815,17 @@ describe('sendTransaction', () => {
       expect(transaction).toBeDefined()
     })
 
-    test('with feePayer', async () => {
+    test('behavior: with `feePayer`', async () => {
       const keyPair = await WebCryptoP256.createKeyPair()
       const account = Account.fromWebCryptoP256(keyPair)
       const feePayer = accounts[0]
 
-      const hash = await client.sendTransaction({
+      const hash = await sendTransaction(client, {
         account,
         feePayer,
         to: '0x0000000000000000000000000000000000000000',
       })
-      await client.waitForTransactionReceipt({ hash })
+      await waitForTransactionReceipt(client, { hash })
 
       const {
         blockHash,
@@ -765,7 +840,7 @@ describe('sendTransaction', () => {
         nonce,
         signature,
         ...transaction
-      } = await client.getTransaction({ hash })
+      } = await getTransaction(client, { hash })
 
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
@@ -780,7 +855,7 @@ describe('sendTransaction', () => {
       expect(transaction).toBeDefined()
     })
 
-    test('with access key', async () => {
+    test('behavior: with access key', async () => {
       const keyPair = await WebCryptoP256.createKeyPair()
       const account = Account.fromWebCryptoP256(keyPair)
       const accessKey = Account.fromWebCryptoP256(keyPair, {
@@ -791,17 +866,17 @@ describe('sendTransaction', () => {
       await fundAddress(client, { address: account.address })
 
       const keyAuthorization = await account.signKeyAuthorization(accessKey)
-      await account.assignKeyAuthorization(keyAuthorization)
 
       {
-        const receipt = await client.sendTransactionSync({
+        const receipt = await sendTransactionSync(client, {
           account: accessKey,
+          keyAuthorization,
         })
         expect(receipt).toBeDefined()
       }
 
       {
-        const receipt = await client.sendTransactionSync({
+        const receipt = await sendTransactionSync(client, {
           account: accessKey,
           to: '0x0000000000000000000000000000000000000000',
         })
@@ -823,7 +898,7 @@ describe('sendTransaction', () => {
       // fund account
       await fundAddress(client, { address: account.address })
 
-      const receipt = await client.sendTransactionSync({
+      const receipt = await sendTransactionSync(client, {
         account,
         data: '0xdeadbeef',
         to: '0x0000000000000000000000000000000000000000',
@@ -845,7 +920,7 @@ describe('sendTransaction', () => {
         signature,
         transactionIndex,
         ...transaction
-      } = await client.getTransaction({
+      } = await getTransaction(client, {
         hash: receipt.transactionHash,
       })
 
@@ -889,7 +964,7 @@ describe('sendTransaction', () => {
       `)
     })
 
-    test('with calls', async () => {
+    test('behavior: with `calls`', async () => {
       const account = Account.fromHeadlessWebAuthn(
         '0x6a3086fb3f2f95a3f36ef5387d18151ff51dc98a1e0eb987b159ba196beb0c99',
         {
@@ -901,10 +976,10 @@ describe('sendTransaction', () => {
       // fund account
       await fundAddress(client, { address: account.address })
 
-      const receipt = await client.sendTransactionSync({
+      const receipt = await sendTransactionSync(client, {
         account,
         calls: [
-          actions.token.create.call({
+          Actions.token.create.call({
             admin: account.address,
             currency: 'USD',
             name: 'Test Token 6',
@@ -932,7 +1007,7 @@ describe('sendTransaction', () => {
         signature,
         transactionIndex,
         ...transaction
-      } = await client.getTransaction({
+      } = await getTransaction(client, {
         hash: receipt.transactionHash,
       })
 
@@ -970,7 +1045,7 @@ describe('sendTransaction', () => {
       `)
     })
 
-    test('with feePayer', async () => {
+    test('behavior: with `feePayer`', async () => {
       const account = Account.fromHeadlessWebAuthn(
         // unfunded account with different key
         '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b',
@@ -981,12 +1056,12 @@ describe('sendTransaction', () => {
       )
       const feePayer = accounts[0]
 
-      const hash = await client.sendTransaction({
+      const hash = await sendTransaction(client, {
         account,
         feePayer,
         to: '0x0000000000000000000000000000000000000000',
       })
-      await client.waitForTransactionReceipt({ hash })
+      await waitForTransactionReceipt(client, { hash })
 
       const {
         blockHash,
@@ -1005,7 +1080,7 @@ describe('sendTransaction', () => {
         signature,
         transactionIndex,
         ...transaction
-      } = await client.getTransaction({ hash })
+      } = await getTransaction(client, { hash })
 
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
@@ -1047,7 +1122,7 @@ describe('sendTransaction', () => {
       `)
     })
 
-    test('with access key', async () => {
+    test('behavior: with access key', async () => {
       const account = Account.fromHeadlessWebAuthn(
         '0x6a3086fb3f2f95a3f36ef5387d18151ff51dc98a1e0eb987b159ba196beb0c99',
         {
@@ -1063,17 +1138,17 @@ describe('sendTransaction', () => {
       await fundAddress(client, { address: account.address })
 
       const keyAuthorization = await account.signKeyAuthorization(accessKey)
-      await account.assignKeyAuthorization(keyAuthorization)
 
       {
-        const receipt = await client.sendTransactionSync({
+        const receipt = await sendTransactionSync(client, {
           account: accessKey,
+          keyAuthorization,
         })
         expect(receipt).toBeDefined()
       }
 
       {
-        const receipt = await client.sendTransactionSync({
+        const receipt = await sendTransactionSync(client, {
           account: accessKey,
           to: '0x0000000000000000000000000000000000000000',
         })
@@ -1089,12 +1164,12 @@ describe('sendTransaction', () => {
     await fundAddress(client, { address: account.address })
 
     const receipts = await Promise.all([
-      client.sendTransactionSync({
+      sendTransactionSync(client, {
         account,
         nonceKey: 'random',
         to: '0x0000000000000000000000000000000000000000',
       }),
-      client.sendTransactionSync({
+      sendTransactionSync(client, {
         account,
         nonceKey: 'random',
         to: '0x0000000000000000000000000000000000000000',
@@ -1113,24 +1188,24 @@ describe('sendTransaction', () => {
     await fundAddress(client, { address: account.address })
 
     const receipts = await Promise.all([
-      client.sendTransactionSync({
+      sendTransactionSync(client, {
         account,
         to: '0x0000000000000000000000000000000000000000',
       }),
-      client.sendTransactionSync({
+      sendTransactionSync(client, {
         account,
         to: '0x0000000000000000000000000000000000000000',
       }),
-      client.sendTransactionSync({
+      sendTransactionSync(client, {
         account,
         to: '0x0000000000000000000000000000000000000000',
       }),
     ])
 
     const transactions = await Promise.all([
-      client.getTransaction({ hash: receipts[0].transactionHash }),
-      client.getTransaction({ hash: receipts[1].transactionHash }),
-      client.getTransaction({ hash: receipts[2].transactionHash }),
+      getTransaction(client, { hash: receipts[0].transactionHash }),
+      getTransaction(client, { hash: receipts[1].transactionHash }),
+      getTransaction(client, { hash: receipts[2].transactionHash }),
     ])
 
     expect(transactions[0].nonceKey).toBe(undefined)
@@ -1147,25 +1222,25 @@ describe('signTransaction', () => {
     )
     const feePayer = accounts[0]
 
-    const request = await client.prepareTransactionRequest({
+    const request = await prepareTransactionRequest(client, {
       account,
       data: '0xdeadbeef',
       feePayer: true,
       parameters: defaultPrepareTransactionRequestParameters,
       to: '0xcafebabecafebabecafebabecafebabecafebabe',
     })
-    let transaction = await client.signTransaction(request as never)
+    let transaction = await signTransaction(client, request as never)
 
-    transaction = await client.signTransaction({
+    transaction = await signTransaction(client, {
       ...Transaction.deserialize(transaction),
       account,
       feePayer,
     } as never)
-    const hash = await client.sendRawTransaction({
+    const hash = await sendRawTransaction(client, {
       serializedTransaction: transaction,
     })
 
-    await client.waitForTransactionReceipt({ hash })
+    await waitForTransactionReceipt(client, { hash })
 
     const {
       blockHash,
@@ -1183,7 +1258,7 @@ describe('signTransaction', () => {
       signature,
       transactionIndex,
       ...transaction2
-    } = await client.getTransaction({ hash })
+    } = await getTransaction(client, { hash })
 
     expect(blockHash).toBeDefined()
     expect(blockNumber).toBeDefined()
@@ -1230,9 +1305,6 @@ describe('relay', () => {
   const client = getClient({
     transport: withFeePayer(http(), http('http://localhost:3050')),
   })
-    .extend(tempoActions())
-    .extend(walletActions)
-    .extend(publicActions)
   let server: Http.Server
 
   afterEach(async () => {
@@ -1244,7 +1316,7 @@ describe('relay', () => {
       createRequestListener(async (r) => {
         const client = getClient({
           account: accounts[0],
-        }).extend(walletActions)
+        })
 
         const request = RpcRequest.from(await r.json())
 
@@ -1280,7 +1352,7 @@ describe('relay', () => {
           )
 
         const transaction = Transaction.deserialize(serialized)
-        const serializedTransaction = await client.signTransaction({
+        const serializedTransaction = await signTransaction(client, {
           ...transaction,
           feePayer: client.account,
         })
@@ -1323,7 +1395,7 @@ describe('relay', () => {
         '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
       )
 
-      const { receipt } = await client.token.approveSync({
+      const { receipt } = await Actions.token.approveSync(client, {
         account,
         amount: 100n,
         feePayer: true,
@@ -1348,7 +1420,7 @@ describe('relay', () => {
         signature,
         transactionIndex,
         ...transaction
-      } = await client.getTransaction({ hash: receipt.transactionHash })
+      } = await getTransaction(client, { hash: receipt.transactionHash })
 
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
@@ -1397,17 +1469,17 @@ describe('relay', () => {
       )
 
       const receipts = await Promise.all([
-        client.sendTransactionSync({
+        sendTransactionSync(client, {
           account,
           feePayer: true,
           to: '0x0000000000000000000000000000000000000000',
         }),
-        client.sendTransactionSync({
+        sendTransactionSync(client, {
           account,
           feePayer: true,
           to: '0x0000000000000000000000000000000000000001',
         }),
-        client.sendTransactionSync({
+        sendTransactionSync(client, {
           account,
           feePayer: true,
           to: '0x0000000000000000000000000000000000000002',
@@ -1424,14 +1496,14 @@ describe('relay', () => {
         transport: withFeePayer(http(), http('http://localhost:3050'), {
           policy: 'sign-and-broadcast',
         }),
-      }).extend(tempoActions())
+      })
 
       // unfunded account that needs sponsorship
       const account = privateKeyToAccount(
         '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
       )
 
-      const { receipt } = await client.token.approveSync({
+      const { receipt } = await Actions.token.approveSync(client, {
         account,
         amount: 100n,
         feePayer: true,
@@ -1449,7 +1521,7 @@ describe('relay', () => {
         '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b',
       )
 
-      const { receipt } = await client.token.approveSync({
+      const { receipt } = await Actions.token.approveSync(client, {
         account,
         amount: 100n,
         feePayer: true,
@@ -1474,7 +1546,7 @@ describe('relay', () => {
         signature,
         transactionIndex,
         ...transaction
-      } = await client.getTransaction({ hash: receipt.transactionHash })
+      } = await getTransaction(client, { hash: receipt.transactionHash })
 
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
@@ -1522,7 +1594,7 @@ describe('relay', () => {
       const keyPair = await WebCryptoP256.createKeyPair()
       const account = Account.fromWebCryptoP256(keyPair)
 
-      const { receipt } = await client.token.approveSync({
+      const { receipt } = await Actions.token.approveSync(client, {
         account,
         amount: 100n,
         feePayer: true,
@@ -1530,7 +1602,7 @@ describe('relay', () => {
         token: 1n,
       })
 
-      const transaction = await client.getTransaction({
+      const transaction = await getTransaction(client, {
         hash: receipt.transactionHash,
       })
 
@@ -1548,7 +1620,7 @@ describe('relay', () => {
         },
       )
 
-      const { receipt } = await client.token.approveSync({
+      const { receipt } = await Actions.token.approveSync(client, {
         account,
         amount: 100n,
         feePayer: true,
@@ -1573,7 +1645,7 @@ describe('relay', () => {
         signature,
         transactionIndex,
         ...transaction
-      } = await client.getTransaction({ hash: receipt.transactionHash })
+      } = await getTransaction(client, { hash: receipt.transactionHash })
 
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()

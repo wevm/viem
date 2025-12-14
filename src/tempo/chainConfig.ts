@@ -1,6 +1,6 @@
 import * as Hex from 'ox/Hex'
 import type { TokenId } from 'ox/tempo'
-import type { ChainConfig as viem_ChainConfig } from '../types/chain.js'
+import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
 import { extendSchema } from '../utils/chain/defineChain.js'
 import { defineTransaction } from '../utils/formatters/transaction.js'
 import { defineTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
@@ -50,33 +50,29 @@ export const chainConfig = {
   async prepareTransactionRequest(r) {
     const request = r as Transaction.TransactionRequest & {
       account?: Account | undefined
+      chain?:
+        | (Chain & { feeToken?: TokenId.TokenIdOrAddress | undefined })
+        | undefined
     }
-    const nonceKey = (() => {
+
+    request.nonceKey = (() => {
       if (typeof request.nonceKey !== 'undefined') return request.nonceKey
       const nonceKey = nonceKeyManager.get()
       if (nonceKey === 0n) return undefined
       return nonceKey
     })()
 
-    const nonce = (() => {
+    request.nonce = (() => {
       if (typeof request.nonce === 'number') return request.nonce
       // TODO: remove this line once `eth_fillTransaction` supports nonce keys.
-      if (nonceKey) return 0
+      if (request.nonceKey) return 0
       return undefined
     })()
 
-    const keyAuthorization =
-      (await request.account?.storage?.getItem('pendingKeyAuthorization')) ??
-      undefined
-    if (keyAuthorization && !request.keyAuthorization)
-      await request.account?.storage?.removeItem('pendingKeyAuthorization')
+    if (!request.feeToken && request.chain?.feeToken)
+      request.feeToken = request.chain.feeToken
 
-    return {
-      ...request,
-      keyAuthorization,
-      nonce,
-      nonceKey,
-    } as unknown as typeof r
+    return request as unknown as typeof r
   },
   serializers: {
     // TODO: casting to satisfy viem – viem v3 to have more flexible serializer type.
