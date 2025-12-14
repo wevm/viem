@@ -91,7 +91,7 @@ jobs:
         run: pnpm bench:types
 
   test:
-    name: Test
+    name: 'Test Local (transport: ${{ matrix.transport-mode }}, multicall: ${{ matrix.multicall }}, ${{ matrix.shard }}/${{ matrix.total-shards }})'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -116,12 +116,12 @@ jobs:
         shell: bash
         run: pnpm contracts:build
 
-      - name: Test Runtime (core)
+      - name: Test Local
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: pnpm test:ci --project core --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
+          command: pnpm test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
           VITE_ANVIL_FORK_URL_OPTIMISM: ${{ secrets.VITE_ANVIL_FORK_URL_OPTIMISM }}
@@ -131,11 +131,39 @@ jobs:
           VITE_BATCH_MULTICALL: ${{ matrix.multicall }}
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
           VITE_SHARD_ID: ${{ matrix.shard }}
+          VITE_TEMPO_ENV: localnet
+          VITE_TEMPO_TAG: latest
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  test-tempo-deployed:
+    name: 'Test Deployed Tempo (env: ${{ matrix.node-env }}, e2e)'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        node-env: 
+          - testnet
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Run tests
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: pnpm test:ci --project tempo e2e
+        env:
+          VITE_TEMPO_ENV: ${{ matrix.node-env }}
 
   test-envs:
     name: Test Environments

@@ -104,11 +104,11 @@ importers:
         specifier: ^0.14.0
         version: 0.14.0
       ox:
-        specifier: ~0.10.0
-        version: 0.10.0(typescript@5.9.3)(zod@3.25.76)
+        specifier: ~0.10.1
+        version: 0.10.1(typescript@5.9.3)(zod@3.25.76)
       permissionless:
         specifier: ^0.2.57
-        version: 0.2.57(ox@0.10.0(typescript@5.9.3)(zod@3.25.76))
+        version: 0.2.57(ox@0.10.1(typescript@5.9.3)(zod@3.25.76))
       prool:
         specifier: ~0.2.1
         version: 0.2.1(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0)
@@ -5666,6 +5666,14 @@ packages:
 
   ox@0.10.0:
     resolution: {integrity: sha512-ICCIdcaemYBTgKfwmtdms75V2FkmgoMoS6ZsfeAKaNskDM1phYFCP2emSLtzKQ0Qx4CJaVuj/ShzydmkT83Dbg==}
+    peerDependencies:
+      typescript: '>=5.4.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
+  ox@0.10.1:
+    resolution: {integrity: sha512-R7ZaSaPV/idtwzxp7p08k2koAEbKlelSd3XXsneS8EFe9o2F+8YNBBs73Xxda0j4YcK8kNeKdn9mI065LFxuVQ==}
     peerDependencies:
       typescript: '>=5.4.0'
     peerDependenciesMeta:
@@ -12959,6 +12967,21 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
+  ox@0.10.1(typescript@5.9.3)(zod@3.25.76):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.0
+      '@noble/ciphers': 1.3.0
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.1.0(typescript@5.9.3)(zod@3.25.76)
+      eventemitter3: 5.0.1
+    optionalDependencies:
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - zod
+
   ox@0.9.6(typescript@5.6.2)(zod@3.25.76):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
@@ -13112,9 +13135,9 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.57(ox@0.10.0(typescript@5.9.3)(zod@3.25.76)):
+  permissionless@0.2.57(ox@0.10.1(typescript@5.9.3)(zod@3.25.76)):
     optionalDependencies:
-      ox: 0.10.0(typescript@5.9.3)(zod@3.25.76)
+      ox: 0.10.1(typescript@5.9.3)(zod@3.25.76)
 
   picocolors@1.1.1: {}
 

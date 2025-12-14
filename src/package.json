@@ -115,6 +115,16 @@
       "import": "./_esm/siwe/index.js",
       "default": "./_cjs/siwe/index.js"
     },
+    "./tempo": {
+      "types": "./_types/tempo/index.d.ts",
+      "import": "./_esm/tempo/index.js",
+      "default": "./_cjs/tempo/index.js"
+    },
+    "./tempo/actions": {
+      "types": "./_types/tempo/Actions/index.d.ts",
+      "import": "./_esm/tempo/Actions/index.js",
+      "default": "./_cjs/tempo/Actions/index.js"
+    },
     "./utils": {
       "types": "./_types/utils/index.d.ts",
       "import": "./_esm/utils/index.js",
