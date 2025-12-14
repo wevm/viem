@@ -12,7 +12,7 @@ export type DefineChainReturnType<chain extends Chain = Chain> = Prettify<
     extend: <
       const extended extends ExtendedProperties<chain> & ExactPartial<Chain>,
     >(
-      fnOrProperties: ((chain: chain) => extended) | extended,
+      extended: extended,
     ) => Assign<chain, extended>
   }
 >

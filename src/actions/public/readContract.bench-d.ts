@@ -15,6 +15,6 @@ test('return type', () => {
     functionName: 'balanceOf',
     args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
   })
-  attest.instantiations([53192, 'instantiations'])
+  attest.instantiations([21379, 'instantiations'])
   attest<Promise<bigint>>(res)
 })

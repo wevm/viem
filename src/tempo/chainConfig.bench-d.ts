@@ -8,5 +8,5 @@ test('decorator', () => {
     chain: tempoTestnet,
     transport: http('https://cloudflare-eth.com'),
   })
-  attest.instantiations([62236, 'instantiations'])
+  attest.instantiations([79013, 'instantiations'])
 })

@@ -10,12 +10,12 @@ test('createPublicClient', () => {
   createPublicClient({
     transport: http('https://cloudflare-eth.com'),
   })
-  attest.instantiations([18000, 'instantiations'])
+  attest.instantiations([15172, 'instantiations'])
 })
 
 test('createClient.extend + publicActions', () => {
   createClient({
     transport: http('https://cloudflare-eth.com'),
   }).extend(publicActions)
-  attest.instantiations([328328, 'instantiations'])
+  attest.instantiations([60082, 'instantiations'])
 })
