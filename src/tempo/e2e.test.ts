@@ -20,8 +20,8 @@ import {
   fundAddress,
   getClient,
   http,
-} from '../../test/src/tempo/config.js'
-import { rpcUrl } from '../../test/src/tempo/prool.js'
+} from '~test/tempo/config.js'
+import { rpcUrl } from '~test/tempo/prool.js'
 import { withFeePayer } from './Transport.js'
 
 const client = getClient()
