@@ -1,7 +1,6 @@
-import { describe, expect, test } from 'vitest'
-
-import { defineChain, extendSchema } from './defineChain.js'
 import type { Address } from 'abitype'
+import { expect, test } from 'vitest'
+import { defineChain, extendSchema } from './defineChain.js'
 
 test('default', () => {
   expect(
