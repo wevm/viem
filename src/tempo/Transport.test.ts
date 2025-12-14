@@ -168,8 +168,9 @@ describe('withFeePayer', () => {
 
 describe('walletNamespaceCompat', () => {
   const client = getClient({
-    account: accounts[0],
-    transport: walletNamespaceCompat(http()),
+    transport: walletNamespaceCompat(http(), {
+      account: accounts[0],
+    }),
   })
 
   describe('wallet_sendCalls', () => {
@@ -202,18 +203,6 @@ describe('walletNamespaceCompat', () => {
       })
 
       expect(result.id).toBeDefined()
-    })
-
-    test('error: no account', async () => {
-      const clientNoAccount = getClient({
-        transport: walletNamespaceCompat(http()),
-      })
-
-      await expect(
-        sendCallsSync(clientNoAccount, {
-          calls: [{ to: '0x0000000000000000000000000000000000000000' }],
-        }),
-      ).rejects.toThrow()
     })
 
     test('error: no chainId', async () => {

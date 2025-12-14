@@ -3,6 +3,7 @@ import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
 import * as Provider from 'ox/Provider'
 import * as RpcRequest from 'ox/RpcRequest'
+import type { LocalAccount } from '../accounts/types.js'
 import { getTransactionReceipt } from '../actions/public/getTransactionReceipt.js'
 import { sendTransaction } from '../actions/wallet/sendTransaction.js'
 import { sendTransactionSync } from '../actions/wallet/sendTransactionSync.js'
@@ -105,13 +106,16 @@ export declare namespace withFeePayer {
  * @param transport - Transport to wrap.
  * @returns Transport.
  */
-export function walletNamespaceCompat(transport: Transport): Transport {
+export function walletNamespaceCompat(
+  transport: Transport,
+  options: walletNamespaceCompat.Parameters,
+): Transport {
+  const { account } = options
+
   const sendCallsMagic = Hash.keccak256(Hex.fromString('TEMPO_5792'))
 
   return (options) => {
     const t = transport(options)
-
-    const account = options.account
 
     const chain = options.chain as Chain & ChainConfig
 
@@ -121,7 +125,6 @@ export function walletNamespaceCompat(transport: Transport): Transport {
         const request = RpcRequest.from(args)
 
         const client = createClient({
-          account,
           chain,
           transport,
         })
@@ -131,7 +134,6 @@ export function walletNamespaceCompat(transport: Transport): Transport {
           const { capabilities, chainId, from } = params
           const { sync } = capabilities ?? {}
 
-          if (!account) throw new Provider.DisconnectedError()
           if (!chainId) throw new Provider.UnsupportedChainIdError()
           if (Number(chainId) !== client.chain.id)
             throw new Provider.UnsupportedChainIdError()
@@ -190,5 +192,11 @@ export function walletNamespaceCompat(transport: Transport): Transport {
         return t.request(args)
       },
     } as never
+  }
+}
+
+export declare namespace walletNamespaceCompat {
+  export type Parameters = {
+    account: LocalAccount
   }
 }
