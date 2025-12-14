@@ -1,8 +1,8 @@
 import { Value, WebCryptoP256 } from 'ox'
 import { SignatureEnvelope } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
-import * as Account from './Account.js'
 import { parseGwei } from '../utils/index.js'
+import * as Account from './Account.js'
 
 const privateKey_secp256k1 =
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
