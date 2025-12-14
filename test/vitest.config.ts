@@ -46,6 +46,7 @@ export default defineConfig({
             process.env.TEST_RLP !== 'true'
               ? '**/utils/encoding/toRlp.test.ts'
               : '',
+            'src/tempo/**',
           ],
           include: ['src/**/*.test.ts'],
           setupFiles: [join(__dirname, './setup.ts')],

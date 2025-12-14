@@ -117,6 +117,8 @@ describe('prepareTransactionRequest', () => {
         to: '0x0000000000000000000000000000000000000002',
       }),
     ])
+    // biome-ignore lint/suspicious/noTsIgnore: previous versions of TS (in CI) mark this as infinite instantiation
+    // @ts-ignore
     const transactions = await Promise.all([
       getTransaction(client, {
         hash: receipts[0].transactionHash,
