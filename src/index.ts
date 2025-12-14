@@ -1454,9 +1454,9 @@ export {
   assertCurrentChain,
 } from './utils/chain/assertCurrentChain.js'
 export {
+  type DefineChainReturnType,
   defineChain,
   extendSchema,
-  type DefineChainReturnType,
 } from './utils/chain/defineChain.js'
 export {
   type ExtractChainErrorType,
