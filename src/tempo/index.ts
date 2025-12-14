@@ -23,6 +23,35 @@ export * as Formatters from './Formatters.js'
 export * as P256 from './P256.js'
 export * as Secp256k1 from './Secp256k1.js'
 export * as TokenIds from './TokenIds.js'
+// Export types required for inference.
+export type {
+  /** @deprecated */
+  Transaction as z_Transaction,
+  /** @deprecated */
+  TransactionReceipt as z_TransactionReceipt,
+  /** @deprecated */
+  TransactionReceiptRpc as z_TransactionReceiptRpc,
+  /** @deprecated */
+  TransactionRequest as z_TransactionRequest,
+  /** @deprecated */
+  TransactionRequestRpc as z_TransactionRequestRpc,
+  /** @deprecated */
+  TransactionRequestTempo as z_TransactionRequestTempo,
+  /** @deprecated */
+  TransactionRpc as z_TransactionRpc,
+  /** @deprecated */
+  TransactionSerializable as z_TransactionSerializable,
+  /** @deprecated */
+  TransactionSerializableTempo as z_TransactionSerializableTempo,
+  /** @deprecated */
+  TransactionSerialized as z_TransactionSerialized,
+  /** @deprecated */
+  TransactionSerializedTempo as z_TransactionSerializedTempo,
+  /** @deprecated */
+  TransactionTempo as z_TransactionTempo,
+  /** @deprecated */
+  TransactionType as z_TransactionType,
+} from './Transaction.js'
 export * as Transaction from './Transaction.js'
 export * as Transport from './Transport.js'
 export { withFeePayer } from './Transport.js'
