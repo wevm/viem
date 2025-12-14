@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest'
-import { accounts } from '~test/src/constants.js'
+import { accounts } from '~test/constants.js'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import { celo } from '../chains/index.js'
 import {

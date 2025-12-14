@@ -1,8 +1,6 @@
 import { expect, test } from 'vitest'
-
-import { accounts } from '~test/src/constants.js'
-
-import { wagmiContractConfig } from '../../../test/src/abis.js'
+import { wagmiContractConfig } from '~test/abis.js'
+import { accounts } from '~test/constants.js'
 import { signAuthorization } from '../../accounts/utils/signAuthorization.js'
 import { verifyAuthorization } from './verifyAuthorization.js'
 

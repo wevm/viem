@@ -3,8 +3,8 @@ import {
   getSmartAccounts_06,
   getSmartAccounts_07,
   getSmartAccounts_08,
-} from '../../../../test/src/account-abstraction.js'
-import { bundlerMainnet } from '../../../../test/src/bundler.js'
+} from '~test/account-abstraction.js'
+import { bundlerMainnet } from '~test/bundler.js'
 import type { Hex } from '../../../types/misc.js'
 import type { UserOperation } from '../../types/userOperation.js'
 import { prepareUserOperation } from './prepareUserOperation.js'

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
-import { wagmiContractConfig } from '~test/src/abis.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { wagmiContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
 
 import { getStorageAt } from './getStorageAt.js'
 

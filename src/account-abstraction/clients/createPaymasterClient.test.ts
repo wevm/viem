@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { bundlerMainnet } from '../../../test/src/bundler.js'
+import { bundlerMainnet } from '~test/bundler.js'
 import { http } from '../../clients/transports/http.js'
 import { createPaymasterClient } from './createPaymasterClient.js'
 

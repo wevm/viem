@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from 'vitest'
-import { createHttpServer, setVitalikResolver } from '~test/src/utils.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { createHttpServer, setVitalikResolver } from '~test/utils.js'
 import { linea, optimism } from '../../chains/index.js'
 import { http } from '../../clients/transports/http.js'
 import {

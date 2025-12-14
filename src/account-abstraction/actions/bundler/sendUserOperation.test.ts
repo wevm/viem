@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest'
-import { wagmiContractConfig } from '../../../../test/src/abis.js'
+import { wagmiContractConfig } from '~test/abis.js'
 import {
   createVerifyingPaymasterServer,
   getSmartAccounts_06,
@@ -7,10 +7,10 @@ import {
   getSmartAccounts_08,
   getVerifyingPaymaster_07,
   getVerifyingPaymaster_08,
-} from '../../../../test/src/account-abstraction.js'
-import { anvilMainnet } from '../../../../test/src/anvil.js'
-import { bundlerMainnet } from '../../../../test/src/bundler.js'
-import { accounts } from '../../../../test/src/constants.js'
+} from '~test/account-abstraction.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { bundlerMainnet } from '~test/bundler.js'
+import { accounts } from '~test/constants.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import {
   getBalance,

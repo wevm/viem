@@ -1,9 +1,8 @@
 import { assertType, describe, expect, test } from 'vitest'
-
-import { accounts } from '~test/src/constants.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
+import { deploy } from '~test/utils.js'
 import { Delegation } from '../../../contracts/generated.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
-import { deploy } from '../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, holesky } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'

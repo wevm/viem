@@ -4,7 +4,7 @@ import {
   mockClientPublicActionsL2,
   mockTestnetPaymasterAddress,
   zksyncClientLocalNode,
-} from '../../../test/src/zksync.js'
+} from '~test/zksync.js'
 import type { EIP1193RequestFn } from '../../types/eip1193.js'
 import { getTestnetPaymasterAddress } from './getTestnetPaymasterAddress.js'
 

@@ -1,7 +1,6 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
-
-import { accounts } from '~test/src/constants.js'
-import { anvilMainnet } from '../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import type { JsonRpcAccount, PrivateKeyAccount } from '../accounts/types.js'
 import { localhost } from '../chains/index.js'

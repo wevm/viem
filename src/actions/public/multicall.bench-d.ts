@@ -1,10 +1,7 @@
 import { attest } from '@ark/attest'
 import { test } from 'vitest'
 
-import {
-  baycContractConfig,
-  usdcContractConfig,
-} from '../../../test/src/abis.js'
+import { baycContractConfig, usdcContractConfig } from '~test/abis.js'
 import { mainnet } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { anvilOptimism } from '../../test/src/anvil.js'
+import { anvilOptimism } from '~test/anvil.js'
 import { getBlock } from '../actions/public/getBlock.js'
 import { getTransaction } from '../actions/public/getTransaction.js'
 import { getTransactionReceipt } from '../actions/public/getTransactionReceipt.js'

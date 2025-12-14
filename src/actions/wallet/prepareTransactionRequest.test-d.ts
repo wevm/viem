@@ -1,6 +1,6 @@
 import { expectTypeOf, test } from 'vitest'
-import { kzg } from '~test/src/kzg.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { kzg } from '~test/kzg.js'
 import type { BlobSidecar, Hex, TransactionRequest } from '../../index.js'
 import type { Kzg } from '../../types/kzg.js'
 import type { ByteArray } from '../../types/misc.js'

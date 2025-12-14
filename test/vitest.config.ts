@@ -5,7 +5,7 @@ export default defineConfig({
   test: {
     alias: [
       { find: '~contracts', replacement: join(__dirname, '../contracts') },
-      { find: '~test', replacement: join(__dirname, '.') },
+      { find: '~test', replacement: join(__dirname, './src') },
       { find: /^viem$/, replacement: join(__dirname, '../src/index.ts') },
       { find: /^viem\/(.*)/, replacement: join(__dirname, '../src/$1') },
     ],

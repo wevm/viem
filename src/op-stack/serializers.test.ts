@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { accounts } from '../../test/src/constants.js'
+import { accounts } from '~test/constants.js'
 import { getTransaction } from '../actions/index.js'
 import { base } from '../chains/index.js'
 import {

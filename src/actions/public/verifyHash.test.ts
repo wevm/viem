@@ -7,16 +7,16 @@ import {
   SoladyAccount07,
   SoladyAccountFactory07,
 } from '~contracts/generated.js'
-import { ensPublicResolverConfig, smartAccountConfig } from '~test/src/abis.js'
-import { anvilMainnet } from '~test/src/anvil.js'
-import { accounts, address } from '~test/src/constants.js'
+import { ensPublicResolverConfig, smartAccountConfig } from '~test/abis.js'
+import { getSmartAccounts_07 } from '~test/account-abstraction.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { bundlerMainnet } from '~test/bundler.js'
+import { accounts, address } from '~test/constants.js'
 import {
   deploy,
   deployErc6492SignatureVerifier,
   deploySoladyAccount_07,
-} from '~test/src/utils.js'
-import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
-import { bundlerMainnet } from '../../../test/src/bundler.js'
+} from '~test/utils.js'
 import {
   entryPoint07Abi,
   entryPoint07Address,

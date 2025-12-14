@@ -1,9 +1,9 @@
 import type { Address } from 'abitype'
 import { beforeAll, beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { anvilMainnet } from '../../../../test/src/anvil.js'
-import { accounts, typedData } from '../../../../test/src/constants.js'
-import { deploySimple7702Account_08 } from '../../../../test/src/utils.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts, typedData } from '~test/constants.js'
+import { deploySimple7702Account_08 } from '~test/utils.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import {
   mine,

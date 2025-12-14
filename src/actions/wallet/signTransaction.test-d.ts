@@ -1,7 +1,7 @@
 import type { Address } from 'abitype'
 
 import { expectTypeOf, test } from 'vitest'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 import type { Account } from '../../accounts/types.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'

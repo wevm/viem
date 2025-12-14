@@ -2,7 +2,7 @@ import { Transaction } from 'ethers'
 
 import { bench, describe } from 'vitest'
 
-import { accounts } from '~test/src/constants.js'
+import { accounts } from '~test/constants.js'
 import type { TransactionSerializableBase } from '../../types/transaction.js'
 import { parseEther } from '../unit/parseEther.js'
 

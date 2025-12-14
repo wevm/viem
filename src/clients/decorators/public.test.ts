@@ -4,10 +4,10 @@ import {
   smartAccountConfig,
   usdcContractConfig,
   wagmiContractConfig,
-} from '~test/src/abis.js'
-import { anvilMainnet } from '~test/src/anvil.js'
-import { accounts, address, typedData } from '~test/src/constants.js'
-import { deploySoladyAccount_07 } from '~test/src/utils.js'
+} from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts, address, typedData } from '~test/constants.js'
+import { deploySoladyAccount_07 } from '~test/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { signMessage } from '../../accounts/utils/signMessage.js'
 import {

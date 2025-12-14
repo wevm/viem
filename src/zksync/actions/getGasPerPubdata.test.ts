@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 import {
   mockClientPublicActionsL2,
   zksyncClientLocalNode,
-} from '../../../test/src/zksync.js'
+} from '~test/zksync.js'
 import { gasPerPubdataDefault } from '../constants/number.js'
 import { getGasPerPubdata } from './getGasPerPubdata.js'
 

@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
-import { usdcContractConfig } from '~test/src/abis.js'
-import { accounts } from '~test/src/constants.js'
-import { anvilOptimism } from '../../../test/src/anvil.js'
+import { usdcContractConfig } from '~test/abis.js'
+import { anvilOptimism } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import { publicActionsL2 } from './publicL2.js'
 
 const optimismClient = anvilOptimism.getClient()

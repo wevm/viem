@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
-import { anvilMainnet } from '../../../../test/src/anvil.js'
-import { bundlerMainnet } from '../../../../test/src/bundler.js'
-import { accounts, typedData } from '../../../../test/src/constants.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { bundlerMainnet } from '~test/bundler.js'
+import { accounts, typedData } from '~test/constants.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import {
   mine,
