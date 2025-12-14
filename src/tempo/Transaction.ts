@@ -321,7 +321,6 @@ async function serializeTempo(
     ...(nonce ? { nonce: BigInt(nonce) } : {}),
   } satisfies TxTempo.TxEnvelopeTempo
 
-  // TODO(tempo): confirm behavior
   // If we have marked the transaction as intended to be paid
   // by a fee payer (feePayer: true), we will not use the fee token
   // as the fee payer will choose their fee token.

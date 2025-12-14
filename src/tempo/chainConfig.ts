@@ -1,3 +1,4 @@
+import type { TokenId } from 'ox/tempo'
 import * as Hex from 'ox/Hex'
 import type { ChainConfig as viem_ChainConfig } from '../types/chain.js'
 import { defineTransaction } from '../utils/formatters/transaction.js'
@@ -7,6 +8,7 @@ import type { SerializeTransactionFn } from '../utils/transaction/serializeTrans
 import type { Account } from './Account.js'
 import * as Formatters from './Formatters.js'
 import * as Transaction from './Transaction.js'
+import { extendSchema } from '../utils/chain/defineChain.js'
 
 // TODO(tempo): scope by address+chainId
 const nonceKeyManager = {
@@ -30,6 +32,9 @@ const nonceKeyManager = {
 
 export const chainConfig = {
   blockTime: 1_000,
+  extendSchema: extendSchema<{
+    feeToken?: TokenId.TokenIdOrAddress | undefined
+  }>(),
   formatters: {
     transaction: defineTransaction({
       exclude: ['aaAuthorizationList' as never],
