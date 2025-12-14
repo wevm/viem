@@ -29,6 +29,7 @@ export default defineConfig({
         '**/test/**',
       ],
     },
+    exclude: ['**/node_modules/**', '**/_esm/**', '**/_cjs/**', '**/_types/**'],
     retry: 3,
     projects: [
       {
