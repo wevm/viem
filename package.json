@@ -1,4 +1,5 @@
 {
+  "name": "viem",
   "private": true,
   "type": "module",
   "scripts": {
@@ -47,7 +48,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
-    "@ark/attest": "^0.10.2",
+    "@ark/attest": "^0.56.0",
     "@biomejs/biome": "^2.2.4",
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.29.7",

@@ -7,8 +7,8 @@ settings:
 catalogs:
   default:
     typescript:
-      specifier: 5.9.2
-      version: 5.9.2
+      specifier: 5.9.3
+      version: 5.9.3
 
 overrides:
   '@opentelemetry/api@^1.8.0': ~1.7.0
@@ -56,8 +56,8 @@ importers:
         specifier: ^0.18.2
         version: 0.18.2
       '@ark/attest':
-        specifier: ^0.10.2
-        version: 0.10.2(typescript@5.9.2)
+        specifier: ^0.56.0
+        version: 0.56.0(typescript@5.9.3)
       '@biomejs/biome':
         specifier: ^2.2.4
         version: 2.2.4
@@ -75,7 +75,7 @@ importers:
         version: 0.1.2
       '@pimlico/alto':
         specifier: 0.0.18
-        version: 0.0.18(typescript@5.9.2)
+        version: 0.0.18(typescript@5.9.3)
       '@size-limit/preset-big-lib':
         specifier: ^11.2.0
         version: 11.2.0(size-limit@11.2.0)
@@ -96,7 +96,7 @@ importers:
         version: 6.15.0
       knip:
         specifier: ^5.64.0
-        version: 5.64.0(@types/node@24.5.2)(typescript@5.9.2)
+        version: 5.64.0(@types/node@24.5.2)(typescript@5.9.3)
       micro-eth-signer:
         specifier: ^0.14.0
         version: 0.14.0
@@ -105,7 +105,7 @@ importers:
         version: 0.2.57
       prool:
         specifier: 0.0.24
-        version: 0.0.24(@pimlico/alto@0.0.18(typescript@5.9.2))
+        version: 0.0.24(@pimlico/alto@0.0.18(typescript@5.9.3))
       publint:
         specifier: ^0.2.12
         version: 0.2.12
@@ -120,7 +120,7 @@ importers:
         version: 11.2.0
       typescript:
         specifier: 'catalog:'
-        version: 5.9.2
+        version: 5.9.3
       vitest:
         specifier: ^4.0.10
         version: 4.0.10(@types/debug@4.1.12)(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(yaml@2.8.1)
@@ -564,7 +564,7 @@ importers:
         version: link:../src
       vocs:
         specifier: ^1.1.0
-        version: 1.1.0(@types/node@24.5.2)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(jiti@2.6.0)(lightningcss@1.30.2)(next@16.0.10(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.52.2)(terser@5.36.0)(typescript@5.9.2)
+        version: 1.1.0(@types/node@24.5.2)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(jiti@2.6.0)(lightningcss@1.30.2)(next@16.0.10(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.52.2)(terser@5.36.0)(typescript@5.9.3)
 
   src:
     dependencies:
@@ -623,20 +623,20 @@ packages:
     resolution: {integrity: sha512-GiwTmBFOU1/+UVNqqCGzFJYfBXEytUkiI+iRZ6Qx7KmUVtLm00sYySkfe203C9QtPG11yOz1ZaMek8dT/xnlgg==}
     engines: {node: '>=20'}
 
-  '@ark/attest@0.10.2':
-    resolution: {integrity: sha512-GLsLvxVFhgNx6JlCkhriKQW+XQFxGuOEH4SQNekLkmz1VLvdhy6fwOPWjXQlFiSUjFsF2DX4jOgBsxQs65n3xA==}
+  '@ark/attest@0.56.0':
+    resolution: {integrity: sha512-Pngs8f1UJiWbeO8LKVdyBL0K3rT/PDVACR7TPyCEULNcN8V1rVec6dKvUnQVpQSj60p4ejlK6dKs+fQoqdUMqA==}
     hasBin: true
     peerDependencies:
       typescript: '*'
 
-  '@ark/fs@0.1.2':
-    resolution: {integrity: sha512-u0clA/Ka4fxianc31di2B44FKBMJ4+jFzq8I7cmYb+gCTanmyQxcJ5SmHwxK+vcWObGr75T5TxQd2ozIENQAHw==}
+  '@ark/fs@0.56.0':
+    resolution: {integrity: sha512-zY/wDDhcvmt6/upQwZM766PAnvIzdEMcgydUGd9pqY9FMGNo9I9uE4RYAfms9AeUUtbZJu2h2Ua0tvFsO5XF4Q==}
 
-  '@ark/schema@0.2.2':
-    resolution: {integrity: sha512-3GyWVptFzmUZTBAwobiuk2Xa1wXeWNOOaHWcYl3pYTTdl5QNuB/53JnHXL0NrFW4Yvv7cgTcRsZQby7pNAeeJA==}
+  '@ark/schema@0.56.0':
+    resolution: {integrity: sha512-ECg3hox/6Z/nLajxXqNhgPtNdHWC9zNsDyskwO28WinoFEnWow4IsERNz9AnXRhTZJnYIlAJ4uGn3nlLk65vZA==}
 
-  '@ark/util@0.1.2':
-    resolution: {integrity: sha512-JhcPZhF8T8Eb9UxJqh3X8tOwZpnuW89azKlPnRhFXymhy/wBFPRC9+J+Vu+iUc/kplW3uloZb9n5R3EVVWUBgw==}
+  '@ark/util@0.56.0':
+    resolution: {integrity: sha512-BghfRC8b9pNs3vBoDJhcta0/c1J1rsoS1+HgVUreMFPdhz/CRAKReAu57YEllNaSy98rWAdY1gE+gFup7OXpgA==}
 
   '@babel/code-frame@7.26.2':
     resolution: {integrity: sha512-RJlIHRueQgwWitWgF8OdFYGZX328Ax5BCemNGlqHfplnRT9ESi8JkFlvaVYbS+UubVY6dpv87Fs2u5M29iNFVQ==}
@@ -1943,8 +1943,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@prettier/sync@0.5.2':
-    resolution: {integrity: sha512-Yb569su456XNx5BsH/Vyem7xD6g/y9iLmLUzRKM1a/dhU/D7HqqvkAG72znulXlMXztbV0iiu9O5AL8K98TzZQ==}
+  '@prettier/sync@0.6.1':
+    resolution: {integrity: sha512-yF9G8vK/LYUTF3Cijd7VC9La3b20F20/J/fgoR4H0B8JGOWnZVZX6+I6+vODPosjmMcpdlUV+gUqJQZp3kLOcw==}
     peerDependencies:
       prettier: '*'
 
@@ -3177,11 +3177,6 @@ packages:
     resolution: {integrity: sha512-RnlSOPh14QbopGCApgkSx5UBgGda5MX1cHqp2fsqfiDyCwGL/m1jaeB9fzu7didVS81LQqGZZuxFBcg8YU8EVw==}
     hasBin: true
 
-  '@typescript/vfs@1.5.3':
-    resolution: {integrity: sha512-OSZ/o3wwD5VPZVdGGsXWk7sRGRtwrGnqA4zwmb33FTs7Wxmad0QTkQCbaNyqWA8hL09TCwAthdp8yjFA5G1lvw==}
-    peerDependencies:
-      typescript: '*'
-
   '@typescript/vfs@1.6.1':
     resolution: {integrity: sha512-JwoxboBh7Oz1v38tPbkrZ62ZXNHAk9bJ7c9x0eI5zBfBnBYGhURdbnh7Z4smN/MV48Y5OCcZb58n972UtbazsA==}
     peerDependencies:
@@ -3431,8 +3426,11 @@ packages:
     resolution: {integrity: sha512-y+CcFFwelSXpLZk/7fMB2mUbGtX9lKycf1MWJ7CaTIERyitVlyQx6C+sxcROU2BAJ24OiZyK+8wj2i8AlBoS3A==}
     engines: {node: '>=10'}
 
-  arktype@2.0.0-beta.2:
-    resolution: {integrity: sha512-WLxtViYiR8T+COYzZgHGnl3eVGwAJJXHRPfGMqRCoMeNpVb1EE+9kMhiEOq0yzEoP6Y91yTPTuhINt3WbBCYxA==}
+  arkregex@0.0.4:
+    resolution: {integrity: sha512-biS/FkvSwQq59TZ453piUp8bxMui11pgOMV9WHAnli1F8o0ayNCZzUwQadL/bGIUic5TkS/QlPcyMuI8ZIwedQ==}
+
+  arktype@2.1.28:
+    resolution: {integrity: sha512-LVZqXl2zWRpNFnbITrtFmqeqNkPPo+KemuzbGSY6jvJwCb4v8NsDzrWOLHnQgWl26TkJeWWcUNUeBpq2Mst1/Q==}
 
   array-union@2.1.0:
     resolution: {integrity: sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==}
@@ -5059,8 +5057,8 @@ packages:
     resolution: {integrity: sha512-hXdUTZYIVOt1Ex//jAQi+wTZZpUpwBj/0QsOzqegb3rGMMeJiSEu5xLHnYfBrRV4RH2+OCSOO95Is/7x1WJ4bw==}
     engines: {node: '>=10'}
 
-  make-synchronized@0.2.9:
-    resolution: {integrity: sha512-4wczOs8SLuEdpEvp3vGo83wh8rjJ78UsIk7DIX5fxdfmfMJGog4bQzxfvOwq7Q3yCHLC4jp1urPHIxRS/A93gA==}
+  make-synchronized@0.8.0:
+    resolution: {integrity: sha512-DZu4lwc0ffoFz581BSQa/BJl+1ZqIkoRQ+VejMlH0VrP4E86StAODnZujZ4sepumQj8rcP7wUnUBGM8Gu+zKUA==}
 
   mark.js@8.11.1:
     resolution: {integrity: sha512-1I+1qpDt4idfgLQG+BNWmrqku+7/2bi5nLf4YwF8y8zXvmfiTBY3PV3ZibfrjBueCByROpuBjLLFCajqkgYoLQ==}
@@ -5746,8 +5744,8 @@ packages:
     engines: {node: '>=10.13.0'}
     hasBin: true
 
-  prettier@3.3.3:
-    resolution: {integrity: sha512-i2tDNA0O5IrMO757lfrdQZCc2jPNDVntV0m/+4whiDfWaTKfMNgR7Qz0NAeGz/nRqF4m5/6CLzbP4/liHt12Ew==}
+  prettier@3.6.2:
+    resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -6534,11 +6532,6 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typescript@5.9.2:
-    resolution: {integrity: sha512-CWBzXQrc/qOkhidw1OzBTQuYRbfyxDXJMVJ1XNwUHGROVmuaeiEm3OslpZ1RV96d7SKKjZKrSJu3+t/xlw3R9A==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-
   typescript@5.9.3:
     resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
     engines: {node: '>=14.17'}
@@ -7029,26 +7022,26 @@ snapshots:
       typescript: 5.6.1-rc
       validate-npm-package-name: 5.0.1
 
-  '@ark/attest@0.10.2(typescript@5.9.2)':
+  '@ark/attest@0.56.0(typescript@5.9.3)':
     dependencies:
-      '@ark/fs': 0.1.2
-      '@ark/util': 0.1.2
-      '@prettier/sync': 0.5.2(prettier@3.3.3)
+      '@ark/fs': 0.56.0
+      '@ark/util': 0.56.0
+      '@prettier/sync': 0.6.1(prettier@3.6.2)
       '@typescript/analyze-trace': 0.10.1
-      '@typescript/vfs': 1.5.3(typescript@5.9.2)
-      arktype: 2.0.0-beta.2
-      prettier: 3.3.3
-      typescript: 5.9.2
+      '@typescript/vfs': 1.6.1(typescript@5.9.3)
+      arktype: 2.1.28
+      prettier: 3.6.2
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
-  '@ark/fs@0.1.2': {}
+  '@ark/fs@0.56.0': {}
 
-  '@ark/schema@0.2.2':
+  '@ark/schema@0.56.0':
     dependencies:
-      '@ark/util': 0.1.2
+      '@ark/util': 0.56.0
 
-  '@ark/util@0.1.2': {}
+  '@ark/util@0.56.0': {}
 
   '@babel/code-frame@7.26.2':
     dependencies:
@@ -8374,7 +8367,7 @@ snapshots:
 
   '@paulmillr/trusted-setups@0.1.2': {}
 
-  '@pimlico/alto@0.0.18(typescript@5.9.2)':
+  '@pimlico/alto@0.0.18(typescript@5.9.3)':
     dependencies:
       '@fastify/websocket': 10.0.1
       '@opentelemetry/api': 1.7.0
@@ -8392,7 +8385,7 @@ snapshots:
       '@sentry/node': 7.119.2
       '@types/node': 18.19.64
       '@types/ws': 8.5.13
-      abitype: 0.8.11(typescript@5.9.2)(zod@3.23.8)
+      abitype: 0.8.11(typescript@5.9.3)(zod@3.23.8)
       async-mutex: 0.4.1
       bull: 4.16.5
       dotenv: 16.4.5
@@ -8404,7 +8397,7 @@ snapshots:
       pino-pretty: 10.3.1
       prom-client: 14.2.0
       type-fest: 4.39.0
-      viem: 2.41.2(typescript@5.9.2)(zod@3.23.8)
+      viem: 2.41.2(typescript@5.9.3)(zod@3.23.8)
       yargs: 17.7.2
       zod: 3.23.8
       zod-validation-error: 1.5.0(zod@3.23.8)
@@ -8425,10 +8418,10 @@ snapshots:
     dependencies:
       playwright: 1.55.1
 
-  '@prettier/sync@0.5.2(prettier@3.3.3)':
+  '@prettier/sync@0.6.1(prettier@3.6.2)':
     dependencies:
-      make-synchronized: 0.2.9
-      prettier: 3.3.3
+      make-synchronized: 0.8.0
+      prettier: 3.6.2
 
   '@protobufjs/aspromise@1.1.2': {}
 
@@ -8469,7 +8462,7 @@ snapshots:
 
   '@puppeteer/browsers@2.4.0':
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.3
       extract-zip: 2.0.1
       progress: 2.0.3
       proxy-agent: 6.4.0
@@ -9347,11 +9340,11 @@ snapshots:
       '@shikijs/core': 1.29.2
       '@shikijs/types': 1.29.2
 
-  '@shikijs/twoslash@1.29.2(typescript@5.9.2)':
+  '@shikijs/twoslash@1.29.2(typescript@5.9.3)':
     dependencies:
       '@shikijs/core': 1.29.2
       '@shikijs/types': 1.29.2
-      twoslash: 0.2.12(typescript@5.9.2)
+      twoslash: 0.2.12(typescript@5.9.3)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -9369,7 +9362,7 @@ snapshots:
 
   '@sitespeed.io/tracium@0.3.3':
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 
@@ -9740,17 +9733,10 @@ snapshots:
       treeify: 1.1.0
       yargs: 16.2.0
 
-  '@typescript/vfs@1.5.3(typescript@5.9.2)':
-    dependencies:
-      debug: 4.4.0
-      typescript: 5.9.2
-    transitivePeerDependencies:
-      - supports-color
-
-  '@typescript/vfs@1.6.1(typescript@5.9.2)':
+  '@typescript/vfs@1.6.1(typescript@5.9.3)':
     dependencies:
       debug: 4.4.3
-      typescript: 5.9.2
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
@@ -10001,9 +9987,9 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
-  abitype@0.8.11(typescript@5.9.2)(zod@3.23.8):
+  abitype@0.8.11(typescript@5.9.3)(zod@3.23.8):
     dependencies:
-      typescript: 5.9.2
+      typescript: 5.9.3
     optionalDependencies:
       zod: 3.23.8
 
@@ -10012,9 +9998,9 @@ snapshots:
       typescript: 5.6.2
       zod: 3.25.76
 
-  abitype@1.1.0(typescript@5.9.2)(zod@3.23.8):
+  abitype@1.1.0(typescript@5.9.3)(zod@3.23.8):
     optionalDependencies:
-      typescript: 5.9.2
+      typescript: 5.9.3
       zod: 3.23.8
 
   abitype@1.1.0(typescript@5.9.3)(zod@3.25.76):
@@ -10052,7 +10038,7 @@ snapshots:
 
   agent-base@7.1.1:
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 
@@ -10104,10 +10090,15 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  arktype@2.0.0-beta.2:
+  arkregex@0.0.4:
     dependencies:
-      '@ark/schema': 0.2.2
-      '@ark/util': 0.1.2
+      '@ark/util': 0.56.0
+
+  arktype@2.1.28:
+    dependencies:
+      '@ark/schema': 0.56.0
+      '@ark/util': 0.56.0
+      arkregex: 0.0.4
 
   array-union@2.1.0: {}
 
@@ -10984,7 +10975,7 @@ snapshots:
 
   extract-zip@2.0.1:
     dependencies:
-      debug: 4.4.0
+      debug: 4.4.3
       get-stream: 5.2.0
       yauzl: 2.10.0
     optionalDependencies:
@@ -11184,7 +11175,7 @@ snapshots:
     dependencies:
       basic-ftp: 5.0.5
       data-uri-to-buffer: 6.0.2
-      debug: 4.4.0
+      debug: 4.4.3
       fs-extra: 11.3.0
     transitivePeerDependencies:
       - supports-color
@@ -11416,7 +11407,7 @@ snapshots:
   http-proxy-agent@7.0.2:
     dependencies:
       agent-base: 7.1.1
-      debug: 4.4.0
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 
@@ -11431,7 +11422,7 @@ snapshots:
   https-proxy-agent@7.0.5:
     dependencies:
       agent-base: 7.1.1
-      debug: 4.4.0
+      debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
 
@@ -11647,7 +11638,7 @@ snapshots:
 
   khroma@2.1.0: {}
 
-  knip@5.64.0(@types/node@24.5.2)(typescript@5.9.2):
+  knip@5.64.0(@types/node@24.5.2)(typescript@5.9.3):
     dependencies:
       '@nodelib/fs.walk': 1.2.8
       '@types/node': 24.5.2
@@ -11661,7 +11652,7 @@ snapshots:
       picomatch: 4.0.2
       smol-toml: 1.4.2
       strip-json-comments: 5.0.2
-      typescript: 5.9.2
+      typescript: 5.9.3
       zod: 3.25.76
       zod-validation-error: 3.4.0(zod@3.25.76)
 
@@ -11817,7 +11808,7 @@ snapshots:
     dependencies:
       semver: 7.7.2
 
-  make-synchronized@0.2.9: {}
+  make-synchronized@0.8.0: {}
 
   mark.js@8.11.1: {}
 
@@ -12606,7 +12597,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.9.6(typescript@5.9.2)(zod@3.23.8):
+  ox@0.9.6(typescript@5.9.3)(zod@3.23.8):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
       '@noble/ciphers': 1.3.0
@@ -12614,10 +12605,10 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.1.0(typescript@5.9.2)(zod@3.23.8)
+      abitype: 1.1.0(typescript@5.9.3)(zod@3.23.8)
       eventemitter3: 5.0.1
     optionalDependencies:
-      typescript: 5.9.2
+      typescript: 5.9.3
     transitivePeerDependencies:
       - zod
 
@@ -12692,7 +12683,7 @@ snapshots:
     dependencies:
       '@tootallnate/quickjs-emscripten': 0.23.0
       agent-base: 7.1.1
-      debug: 4.4.0
+      debug: 4.4.3
       get-uri: 6.0.3
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.5
@@ -12879,7 +12870,7 @@ snapshots:
 
   prettier@2.8.8: {}
 
-  prettier@3.3.3: {}
+  prettier@3.6.2: {}
 
   pretty-ms@9.1.0:
     dependencies:
@@ -12897,7 +12888,7 @@ snapshots:
     dependencies:
       tdigest: 0.1.2
 
-  prool@0.0.24(@pimlico/alto@0.0.18(typescript@5.9.2)):
+  prool@0.0.24(@pimlico/alto@0.0.18(typescript@5.9.3)):
     dependencies:
       change-case: 5.4.4
       eventemitter3: 5.0.1
@@ -12906,7 +12897,7 @@ snapshots:
       http-proxy: 1.18.1
       tar: 7.2.0
     optionalDependencies:
-      '@pimlico/alto': 0.0.18(typescript@5.9.2)
+      '@pimlico/alto': 0.0.18(typescript@5.9.3)
     transitivePeerDependencies:
       - debug
 
@@ -12937,7 +12928,7 @@ snapshots:
   proxy-agent@6.4.0:
     dependencies:
       agent-base: 7.1.1
-      debug: 4.4.0
+      debug: 4.4.3
       http-proxy-agent: 7.0.2
       https-proxy-agent: 7.0.5
       lru-cache: 7.18.3
@@ -13548,7 +13539,7 @@ snapshots:
   socks-proxy-agent@8.0.4:
     dependencies:
       agent-base: 7.1.1
-      debug: 4.4.0
+      debug: 4.4.3
       socks: 2.8.3
     transitivePeerDependencies:
       - supports-color
@@ -13805,19 +13796,19 @@ snapshots:
 
   twoslash-protocol@0.3.4: {}
 
-  twoslash@0.2.12(typescript@5.9.2):
+  twoslash@0.2.12(typescript@5.9.3):
     dependencies:
-      '@typescript/vfs': 1.6.1(typescript@5.9.2)
+      '@typescript/vfs': 1.6.1(typescript@5.9.3)
       twoslash-protocol: 0.2.12
-      typescript: 5.9.2
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
-  twoslash@0.3.4(typescript@5.9.2):
+  twoslash@0.3.4(typescript@5.9.3):
     dependencies:
-      '@typescript/vfs': 1.6.1(typescript@5.9.2)
+      '@typescript/vfs': 1.6.1(typescript@5.9.3)
       twoslash-protocol: 0.3.4
-      typescript: 5.9.2
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
@@ -13826,8 +13817,6 @@ snapshots:
   typescript@5.6.1-rc: {}
 
   typescript@5.6.2: {}
-
-  typescript@5.9.2: {}
 
   typescript@5.9.3: {}
 
@@ -13987,18 +13976,18 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.41.2(typescript@5.9.2)(zod@3.23.8):
+  viem@2.41.2(typescript@5.9.3)(zod@3.23.8):
     dependencies:
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.1.0(typescript@5.9.2)(zod@3.23.8)
+      abitype: 1.1.0(typescript@5.9.3)(zod@3.23.8)
       isows: 1.0.7(ws@8.18.3)
-      ox: 0.9.6(typescript@5.9.2)(zod@3.23.8)
+      ox: 0.9.6(typescript@5.9.3)(zod@3.23.8)
       ws: 8.18.3
     optionalDependencies:
-      typescript: 5.9.2
+      typescript: 5.9.3
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -14129,7 +14118,7 @@ snapshots:
       - tsx
       - yaml
 
-  vocs@1.1.0(@types/node@24.5.2)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(jiti@2.6.0)(lightningcss@1.30.2)(next@16.0.10(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.52.2)(terser@5.36.0)(typescript@5.9.2):
+  vocs@1.1.0(@types/node@24.5.2)(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(jiti@2.6.0)(lightningcss@1.30.2)(next@16.0.10(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(rollup@4.52.2)(terser@5.36.0)(typescript@5.9.3):
     dependencies:
       '@floating-ui/react': 0.27.16(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@hono/node-server': 1.19.5(hono@4.10.3)
@@ -14147,7 +14136,7 @@ snapshots:
       '@radix-ui/react-tabs': 1.1.3(@types/react-dom@19.0.3(@types/react@19.0.8))(@types/react@19.0.8)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@shikijs/rehype': 1.29.2
       '@shikijs/transformers': 1.29.2
-      '@shikijs/twoslash': 1.29.2(typescript@5.9.2)
+      '@shikijs/twoslash': 1.29.2(typescript@5.9.3)
       '@tailwindcss/vite': 4.1.15(vite@7.1.11(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(yaml@2.8.1))
       '@vanilla-extract/css': 1.17.4
       '@vanilla-extract/dynamic': 2.1.5
@@ -14197,7 +14186,7 @@ snapshots:
       serve-static: 1.16.2
       shiki: 1.29.2
       toml: 3.0.0
-      twoslash: 0.3.4(typescript@5.9.2)
+      twoslash: 0.3.4(typescript@5.9.3)
       ua-parser-js: 1.0.40
       unified: 11.0.5
       unist-util-visit: 5.0.0
