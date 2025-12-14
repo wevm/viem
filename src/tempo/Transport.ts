@@ -180,6 +180,7 @@ export function walletNamespaceCompat(transport: Transport): Transport {
           return {
             atomic: true,
             chainId: Number(chainId),
+            id,
             receipts: [receipt],
             status: receipt.status === 'success' ? 200 : 500,
             version: '2.0.0',

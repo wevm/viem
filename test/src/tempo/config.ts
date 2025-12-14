@@ -10,6 +10,7 @@ import {
   type ClientConfig,
   createClient,
   type HttpTransportConfig,
+  type JsonRpcAccount,
   parseUnits,
   type Transport,
   type Account as viem_Account,
@@ -72,7 +73,7 @@ export const http = (url = rpcUrl) =>
   })
 
 export function getClient<
-  chain extends Chain | undefined = typeof chain,
+  chain extends Chain | undefined = typeof tempoLocalnet,
   accountOrAddress extends viem_Account | Address | undefined = undefined,
 >(
   parameters: Partial<
@@ -81,13 +82,19 @@ export function getClient<
       'account' | 'chain' | 'transport'
     >
   > = {},
-) {
+): Client<
+  Transport,
+  chain,
+  accountOrAddress extends Address
+    ? JsonRpcAccount<accountOrAddress>
+    : accountOrAddress
+> {
   return createClient({
     pollingInterval: 100,
     chain,
     transport: http(rpcUrl),
     ...parameters,
-  })
+  }) as never
 }
 
 export async function setupToken(

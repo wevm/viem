@@ -113,6 +113,8 @@ export function formatTransactionRequest(
       throw new Error(
         'Batch calls are not supported with JSON-RPC accounts yet.',
       )
+    rpc.data = rpc.calls?.at(0)?.data
+    rpc.to = rpc.calls?.at(0)?.to
     rpc.type = undefined
   }
 
