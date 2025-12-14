@@ -8,7 +8,7 @@ test('default', () => {
     chain: tempoTestnet,
     transport: http('https://cloudflare-eth.com'),
   })
-  attest.instantiations([79013, 'instantiations'])
+  attest.instantiations([145120, 'instantiations'])
 })
 
 test('behavior: with extend', () => {
@@ -16,5 +16,5 @@ test('behavior: with extend', () => {
     chain: tempoTestnet.extend({ feeToken: 1n }),
     transport: http('https://cloudflare-eth.com'),
   })
-  attest.instantiations([79013, 'instantiations'])
+  attest.instantiations([145848, 'instantiations'])
 })
