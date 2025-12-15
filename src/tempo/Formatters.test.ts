@@ -150,7 +150,7 @@ describe('formatTransactionRequest', () => {
     expect(rpc.calls?.[0]?.data).toBe('0xdeadbeef')
   })
 
-  test('behavior: action without to uses zero address', () => {
+  test('behavior: action without `to` and `data` uses zero address', () => {
     const rpc = Formatters.formatTransactionRequest(
       {
         chainId: 1,
@@ -161,6 +161,18 @@ describe('formatTransactionRequest', () => {
     expect(rpc.calls?.[0]?.to).toBe(
       '0x0000000000000000000000000000000000000000',
     )
+  })
+
+  test('behavior: action without `to`', () => {
+    const rpc = Formatters.formatTransactionRequest(
+      {
+        chainId: 1,
+        data: '0xdeadbeef',
+        feeToken: 1n,
+      } as never,
+      'sendTransaction',
+    )
+    expect(rpc.calls?.[0]?.to).toBe(undefined)
   })
 
   test('behavior: feePayer: true deletes feeToken', () => {

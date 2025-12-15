@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "bench": "vitest bench",
-    "bench:types": "vitest -c ./test/vitest.config.ts --project type-bench",
+    "bench:types": "TYPES=true vitest -c ./test/vitest.config.ts --project type-bench",
     "build": "pnpm clean && pnpm build:cjs && pnpm build:esm && pnpm build:types",
     "build:cjs": "pnpm build:trustedSetups:start && tsc --project ./tsconfig.build.json --module commonjs --moduleResolution node --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./src/_cjs/package.json && pnpm build:trustedSetups:end",
     "build:esm": "tsc --project ./tsconfig.build.json --outDir ./src/_esm && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./src/_esm/package.json",
@@ -30,7 +30,7 @@
     "prepare": "pnpm simple-git-hooks",
     "prepublishOnly": "bun scripts/prepublishOnly.ts",
     "size": "size-limit",
-    "test": "vitest -c ./test/vitest.config.ts --project core --project tempo",
+    "test": "vitest -c ./test/vitest.config.ts",
     "test:build": "publint --strict ./src && attw --pack ./src --ignore-rules false-esm",
     "test:chains": "vitest test/scripts/chains.test.ts",
     "test:env": "pnpm test:env:bun && pnpm test:env:next && pnpm test:env:node && pnpm test:env:tsc && pnpm test:env:vite",

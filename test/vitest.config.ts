@@ -1,5 +1,5 @@
 import { join } from 'node:path'
-import { defineConfig } from 'vitest/config'
+import { defineConfig, type TestProjectConfiguration } from 'vitest/config'
 
 export default defineConfig({
   test: {
@@ -32,14 +32,18 @@ export default defineConfig({
     exclude: ['**/node_modules/**', '**/_esm/**', '**/_cjs/**', '**/_types/**'],
     retry: 3,
     projects: [
-      {
-        extends: true,
-        test: {
-          name: 'type-bench',
-          include: ['src/**/*.bench-d.ts'],
-          globalSetup: [join(__dirname, './setup-bench-types.global.ts')],
-        },
-      },
+      ...((process.env.TYPES
+        ? [
+            {
+              extends: true,
+              test: {
+                name: 'type-bench',
+                include: ['src/**/*.bench-d.ts'],
+                globalSetup: [join(__dirname, './setup-bench-types.global.ts')],
+              },
+            },
+          ]
+        : []) satisfies TestProjectConfiguration[]),
       {
         extends: true,
         test: {

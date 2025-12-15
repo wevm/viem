@@ -300,7 +300,11 @@ async function serializeTempo(
       ? rest.calls
       : [
           {
-            to: rest.to || '0x0000000000000000000000000000000000000000',
+            to:
+              rest.to ||
+              (!rest.data || rest.data === '0x'
+                ? '0x0000000000000000000000000000000000000000'
+                : undefined),
             value: rest.value,
             data: rest.data,
           },
