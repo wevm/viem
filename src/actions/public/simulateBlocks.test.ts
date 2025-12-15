@@ -80,7 +80,7 @@ test('default', async () => {
             "address": "0x5a443704dd4b594b382c22a083e2bd3090a6fef3",
             "blockHash": "0x0852be75a1265a366192f3971d57dbaf69ba34b180dade2f2cf547006dc96ea6",
             "blockNumber": 22263623n,
-            "blockTimestamp": "0x67fc55db",
+            "blockTimestamp": 1744590299n,
             "data": "0x",
             "logIndex": 0,
             "removed": false,

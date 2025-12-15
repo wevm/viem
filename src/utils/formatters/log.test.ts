@@ -65,7 +65,7 @@ test('nullish values', () => {
       "address": "0x15d4c048f83bd7e37d49ea4c83a07267ec4203da",
       "blockHash": null,
       "blockNumber": null,
-      "blockTimestamp": null,
+      "blockTimestamp": undefined,
       "data": "0x0000000000000000000000000000000000000000000000000000002b3b6fb3d0",
       "logIndex": null,
       "removed": false,
