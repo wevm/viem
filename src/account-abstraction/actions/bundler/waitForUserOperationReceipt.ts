@@ -121,13 +121,14 @@ export function waitForUserOperationReceipt(
               getUserOperationReceipt,
               'getUserOperationReceipt',
             )({ hash })
+            clearTimeout(timeoutId)
             done(() => emit.resolve(receipt))
           } catch (err) {
             const error = err as GetUserOperationReceiptErrorType
-            if (error.name !== 'UserOperationReceiptNotFoundError')
+            if (error.name !== 'UserOperationReceiptNotFoundError') {
+              clearTimeout(timeoutId)
               done(() => emit.reject(error))
-          } finally {
-            clearTimeout(timeoutId)
+            }
           }
 
           count++
