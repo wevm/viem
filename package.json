@@ -226,6 +226,12 @@
       "path": "./src/_esm/siwe/index.js",
       "limit": "44 kB",
       "import": "{ verifySiweMessage }"
+    },
+    {
+      "name": "import { verifyHash } from 'viem/actions'",
+      "path": "./src/_esm/actions/index.js",
+      "limit": "44 kB",
+      "import": "{ verifyHash }"
     }
   ],
   "pnpm": {

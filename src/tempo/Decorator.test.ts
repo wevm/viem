@@ -25,7 +25,6 @@ describe('decorator', () => {
         "type",
         "uid",
         "extend",
-        "verifyHash",
         "amm",
         "dex",
         "faucet",

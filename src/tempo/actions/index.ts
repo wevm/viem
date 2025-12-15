@@ -1,5 +1,4 @@
 // biome-ignore lint/performance/noBarrelFile: _
-export { verifyHash } from './account.js'
 export * as amm from './amm.js'
 export * as dex from './dex.js'
 export * as faucet from './faucet.js'

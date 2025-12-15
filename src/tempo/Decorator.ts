@@ -1,13 +1,7 @@
 import type { Account } from '../accounts/types.js'
-import type {
-  VerifyHashParameters,
-  VerifyHashReturnType,
-} from '../actions/public/verifyHash.js'
 import type { Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
 import type { Chain } from '../types/chain.js'
-import type { PartialBy } from '../types/utils.js'
-import * as accountActions from './actions/account.js'
 import * as ammActions from './actions/amm.js'
 import * as dexActions from './actions/dex.js'
 import * as faucetActions from './actions/faucet.js'
@@ -20,34 +14,6 @@ export type Decorator<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
 > = {
-  /**
-   * Verifies that a signature is valid for a given hash and address.
-   * Supports Secp256k1, P256, WebCrypto P256, and WebAuthn signatures.
-   *
-   * @example
-   * ```ts
-   * import { createClient, http } from 'viem'
-   * import { tempo } from 'tempo.ts/chains'
-   * import { tempoActions } from 'tempo.ts/viem'
-   *
-   * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
-   *   transport: http(),
-   * }).extend(tempoActions())
-   *
-   * const valid = await client.verifyHash({
-   *   address: '0x...',
-   *   hash: '0x...',
-   *   signature: '0x...',
-   * })
-   * ```
-   *
-   * @param parameters - Parameters.
-   * @returns Whether the signature is valid.
-   */
-  verifyHash: (
-    parameters: PartialBy<VerifyHashParameters, 'address'>,
-  ) => Promise<VerifyHashReturnType>
   amm: {
     /**
      * Gets the reserves for a liquidity pool.
@@ -3001,7 +2967,6 @@ export function decorator() {
     client: Client<transport, chain, account>,
   ): Decorator<chain, account> => {
     return {
-      verifyHash: (parameters) => accountActions.verifyHash(client, parameters),
       amm: {
         getPool: (parameters) => ammActions.getPool(client, parameters),
         getLiquidityBalance: (parameters) =>
