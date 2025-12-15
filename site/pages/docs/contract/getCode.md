@@ -32,9 +32,9 @@ export const publicClient = createPublicClient({
 
 ## Return Value
 
-[`Hex`](/docs/glossary/types#hex)
+[`Hex`](/docs/glossary/types#hex) | `undefined`
 
-The contract's bytecode.
+The contract's bytecode, or `undefined` if no bytecode is found at the address (i.e., the address is an EOA or does not exist).
 
 ## Parameters
 
