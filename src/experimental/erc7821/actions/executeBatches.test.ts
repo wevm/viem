@@ -1,12 +1,12 @@
 import { expect, test } from 'vitest'
+import { wagmiContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
+import { deploy, deployErrorExample } from '~test/utils.js'
 import {
   ERC7821Example,
   ErrorsExample,
 } from '../../../../contracts/generated.js'
-import { wagmiContractConfig } from '../../../../test/src/abis.js'
-import { anvilMainnet } from '../../../../test/src/anvil.js'
-import { accounts } from '../../../../test/src/constants.js'
-import { deploy, deployErrorExample } from '../../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import {
   getBalance,

@@ -1,7 +1,7 @@
 import type { Abi } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
-import { seaportContractConfig } from '~test/src/abis.js'
+import { seaportContractConfig } from '~test/abis.js'
 import {
   type EncodeEventTopicsParameters,
   encodeEventTopics,

@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from 'vitest'
-import { address } from '../../test/src/constants.js'
+import { address } from '~test/constants.js'
 import { internal_estimateFeesPerGas } from '../actions/public/estimateFeesPerGas.js'
 import { createClient } from '../clients/createClient.js'
 import { http } from '../clients/transports/http.js'

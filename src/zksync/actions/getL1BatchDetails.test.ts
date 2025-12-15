@@ -3,7 +3,7 @@ import {
   mockClientPublicActionsL2,
   mockDetails,
   zksyncClientLocalNode,
-} from '../../../test/src/zksync.js'
+} from '~test/zksync.js'
 
 import { getL1BatchDetails } from './getL1BatchDetails.js'
 

@@ -10,20 +10,20 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { Delegation, ErrorsExample } from '~contracts/generated.js'
-import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
-import { accounts } from '~test/src/constants.js'
+import { baycContractConfig, wagmiContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import {
   deploy,
   deployBAYC,
   deployErrorExample,
   mainnetClient,
-} from '~test/src/utils.js'
-import { maxUint256 } from '~viem/constants/number.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+} from '~test/utils.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { publicActions } from '../../clients/decorators/public.js'
 import { walletActions } from '../../clients/decorators/wallet.js'
+import { maxUint256 } from '../../constants/number.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { mine } from '../test/mine.js'

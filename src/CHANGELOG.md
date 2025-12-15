@@ -1,5 +1,43 @@
 # viem
 
+## 2.42.1
+
+### Patch Changes
+
+- [#4162](https://github.com/wevm/viem/pull/4162) [`8f665cdbeae06528b83cdbf9804d621eb0231b82`](https://github.com/wevm/viem/commit/8f665cdbeae06528b83cdbf9804d621eb0231b82) Thanks [@jxom](https://github.com/jxom)! - Fixed WebSocket subscriptions being duplicated after reconnection when unwatching and rewatching.
+
+- [#4164](https://github.com/wevm/viem/pull/4164) [`85b4f81fc73bb3217c4ad1e25e75c147ff2aa037`](https://github.com/wevm/viem/commit/85b4f81fc73bb3217c4ad1e25e75c147ff2aa037) Thanks [@jxom](https://github.com/jxom)! - Fixed `createCursor` throwing when `bytes.buffer` is undefined in React Native environments.
+
+- [#4149](https://github.com/wevm/viem/pull/4149) [`3b91dc2624780eef4798485f3b44ac9e46c69906`](https://github.com/wevm/viem/commit/3b91dc2624780eef4798485f3b44ac9e46c69906) Thanks [@vriveraPeersyst](https://github.com/vriveraPeersyst)! - Added XRPL EVM.
+
+- [`b01e624f67c3cfa5205dbf09be14f86892529b26`](https://github.com/wevm/viem/commit/b01e624f67c3cfa5205dbf09be14f86892529b26) Thanks [@jxom](https://github.com/jxom)! - Fixed `waitForUserOperationReceipt` timeout not being respected.
+
+- [#4155](https://github.com/wevm/viem/pull/4155) [`ea6805fd92757cec795d47cd04b24310464508dd`](https://github.com/wevm/viem/commit/ea6805fd92757cec795d47cd04b24310464508dd) Thanks [@sanketsaagar](https://github.com/sanketsaagar)! - Fixed Polygon Amoy and Mainnet explorer API URLs.
+
+- [#4157](https://github.com/wevm/viem/pull/4157) [`8105d1e10a96c1f608ec10ed333433ac766a7615`](https://github.com/wevm/viem/commit/8105d1e10a96c1f608ec10ed333433ac766a7615) Thanks [@jxom](https://github.com/jxom)! - Added `blockTimestamp` to `Log` type.
+
+## 2.42.0
+
+### Minor Changes
+
+- [#4134](https://github.com/wevm/viem/pull/4134) [`d9d666beeccf748157d1292849f5a0d18768baf7`](https://github.com/wevm/viem/commit/d9d666beeccf748157d1292849f5a0d18768baf7) Thanks [@mikelxc](https://github.com/mikelxc)! - Added EntryPoint v0.9 support for Account Abstraction (ERC-4337).
+  - Added `entryPoint09Abi` and `entryPoint09Address` constants
+  - Added `'0.9'` to `EntryPointVersion` type
+  - Added `UserOperation<'0.9'>` with new `paymasterSignature` field for parallelizable paymaster signing
+  - Updated `getUserOperationHash` to support v0.9 (uses EIP-712 typed data like v0.8)
+  - Updated `toPackedUserOperation` to handle `paymasterSignature`
+  - Updated `prepareUserOperation` type definitions for v0.9
+
+### Patch Changes
+
+- [#4145](https://github.com/wevm/viem/pull/4145) [`6104df73f8f38b55dc04174523ade8f25436f6da`](https://github.com/wevm/viem/commit/6104df73f8f38b55dc04174523ade8f25436f6da) Thanks [@myronrotter](https://github.com/myronrotter)! - Added Taiko Hoodi Testnet.
+
+- [#4144](https://github.com/wevm/viem/pull/4144) [`6e6543861d95f8ebf6167a077dce39f1fe6febfa`](https://github.com/wevm/viem/commit/6e6543861d95f8ebf6167a077dce39f1fe6febfa) Thanks [@chawyehsu](https://github.com/chawyehsu)! - Add Stable Testnet
+
+- [#4137](https://github.com/wevm/viem/pull/4137) [`97cec97451ff88ddaebf3b2a2a10fdb81e28b0da`](https://github.com/wevm/viem/commit/97cec97451ff88ddaebf3b2a2a10fdb81e28b0da) Thanks [@akitothemoon](https://github.com/akitothemoon)! - Added Henesys network.
+
+- [#4138](https://github.com/wevm/viem/pull/4138) [`cf7bcc86422c32d70023e196dc2a85f6ad690b27`](https://github.com/wevm/viem/commit/cf7bcc86422c32d70023e196dc2a85f6ad690b27) Thanks [@ihooni](https://github.com/ihooni)! - Support preconf for GIWA testnet
+
 ## 2.41.2
 
 ### Patch Changes
@@ -366,7 +404,6 @@
 - [#3876](https://github.com/wevm/viem/pull/3876) [`77901c8fa3d8868d26e3821ccc1650457b07092c`](https://github.com/wevm/viem/commit/77901c8fa3d8868d26e3821ccc1650457b07092c) Thanks [@copilot-swe-agent](https://github.com/apps/copilot-swe-agent)! - Fixed `_unwatch is not a function` error in `waitForTransactionReceipt`.
 
 - [#3870](https://github.com/wevm/viem/pull/3870) [`f9a10532b4cd8fd8f9dc1430a966a9fad87962df`](https://github.com/wevm/viem/commit/f9a10532b4cd8fd8f9dc1430a966a9fad87962df) Thanks [@essserrr](https://github.com/essserrr)! - Added `blockTime` for:
-
   - `avalanche`
   - `berachain`
   - `bsc`
@@ -446,7 +483,6 @@
 - [#3810](https://github.com/wevm/viem/pull/3810) [`d02d1faaeb8d59edff0c2bdd714a08a9428c5419`](https://github.com/wevm/viem/commit/d02d1faaeb8d59edff0c2bdd714a08a9428c5419) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added `experimental_blockTag` config option to the Client.
 
   This will be used as the default block tag for the following actions:
-
   - `call`
   - `estimateGas`
   - `getBalance`
@@ -688,7 +724,6 @@
 - [#3621](https://github.com/wevm/viem/pull/3621) [`cede184b5ed9519ce8538bd9e99db4961d531798`](https://github.com/wevm/viem/commit/cede184b5ed9519ce8538bd9e99db4961d531798) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added `addSubAccount` Action as per [ERC-7895](https://github.com/ethereum/ERCs/blob/4d3d641ee3c84750baf461b8dd71d27c424417a9/ERCS/erc-7895.md).
 
 - [#3619](https://github.com/wevm/viem/pull/3619) [`4563ed5147f13c679043fae30d955b7a72cfc60f`](https://github.com/wevm/viem/commit/4563ed5147f13c679043fae30d955b7a72cfc60f) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added capabilities for the `connect` Action:
-
   - `unstable_addSubAccount`: Adds a sub-account to the connected account. [See more](https://github.com/ethereum/ERCs/blob/4d3d641ee3c84750baf461b8dd71d27c424417a9/ERCS/erc-7895.md).
   - `unstable_getSubAccounts`: Returns all sub-accounts of the connected account. [See more](https://github.com/ethereum/ERCs/blob/4d3d641ee3c84750baf461b8dd71d27c424417a9/ERCS/erc-7895.md).
   - `unstable_signInWithEthereum`: Connect + Authenticate using Sign-In with Ethereum.[See more](https://github.com/ethereum/ERCs/blob/abd1c9f4eda2d6ad06ade0e3af314637a27d1ee7/ERCS/erc-7846.md#signinwithethereum).
@@ -917,7 +952,6 @@
 ### Minor Changes
 
 - [#3427](https://github.com/wevm/viem/pull/3427) [`2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7`](https://github.com/wevm/viem/commit/2a5ded4eab7febcf2b77a88cfe3c34a621d4dfe7) Thanks [@jxom](https://github.com/jxom)! - Stabilized EIP-7702.
-
   - Added `prepareAuthorization` and `signAuthorization` Actions to the Wallet Client.
   - Added `hashAuthorization`, `recoverAuthorizationAddress`, and `verifyAuthorization` Utilities.
   - Renamed `account.experimental_signAuthorization` to `account.signAuthorization`.
@@ -2324,7 +2358,6 @@
 - [#2570](https://github.com/wevm/viem/pull/2570) [`fee80a9a`](https://github.com/wevm/viem/commit/fee80a9ae3e425354f21a6de5fa397244577eb28) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added EIP-7702 Extension. [See Docs](https://viem.sh/docs/eip7702)
 
 - [#2586](https://github.com/wevm/viem/pull/2586) [`0b1693aa`](https://github.com/wevm/viem/commit/0b1693aa51468cfe77dae74ad44bd89dfd21fd0e) Thanks [@tmm](https://github.com/tmm)! - Renamed "zkSync" to "ZKsync":
-
   - Context: "zkSync" was officially renamed to "ZKsync" a while ago.
   - Variable names: `zkSync` -> `zksync` (for simplicity and consistency between folder/file names and variables).
   - Types: `ZkSync` -> `Zksync`.
@@ -2531,7 +2564,6 @@
 - [`62b7a9d`](https://github.com/wevm/viem/commit/62b7a9d816e587142ae75753ff6e840ec49ebf0d) Thanks [@tmm](https://github.com/tmm)! - Bumped ABIType version
 
 - [`7e95377`](https://github.com/wevm/viem/commit/7e95377ca26a87570aa16b6805f6cee58aeb9aef) Thanks [@jxom](https://github.com/jxom)! - Bumped dependencies:
-
   - `@noble/curves`: `1.2.0` → `1.4.0`
   - `@noble/hashes`: `1.3.2` → `1.4.0`
   - `@scure/bip32`: `1.3.2` → `1.4.0`
@@ -2568,7 +2600,6 @@
 - [#2429](https://github.com/wevm/viem/pull/2429) [`3781bbb8`](https://github.com/wevm/viem/commit/3781bbb8b3ee8de065a581c97410389b84f7e9c8) Thanks [@jxom](https://github.com/jxom)! - Fixed an issue where `getAction` would ignore nullish return values from a synchronous Client Action.
 
 - [`ed5c70e0`](https://github.com/wevm/viem/commit/ed5c70e0c5f21e4e2f7eb0fd17afc66888d787d7) Thanks [@jxom](https://github.com/jxom)! - **Experimental:** Added Solady utilities:
-
   - `hashMessage`
   - `hashTypedData`
   - `wrapTypedDataSignature`
@@ -2578,7 +2609,6 @@
 ### Minor Changes
 
 - [#2424](https://github.com/wevm/viem/pull/2424) [`4b929790`](https://github.com/wevm/viem/commit/4b9297901e925e3e469822d8fe722bbcefb376ed) Thanks [@jxom](https://github.com/jxom)! - Stabilized ERC-6492 utilities:
-
   - `isErc6492Signature`
   - `parseErc6492Signature`
   - `serializeErc6492Signature`
@@ -2904,13 +2934,11 @@
 ### Minor Changes
 
 - [#2209](https://github.com/wevm/viem/pull/2209) [`76a92bb97de9adede6d6d60c3aad2961d493045e`](https://github.com/wevm/viem/commit/76a92bb97de9adede6d6d60c3aad2961d493045e) Thanks [@wilsoncusack](https://github.com/wilsoncusack)! - **Experimental:** Added [ERC-6492](https://eips.ethereum.org/EIPS/eip-6492) signature utilities:
-
   - `isErc6492Signature`
   - `parseErc6492Signature`
   - `serializeErc6492Signature`
 
 - [#2209](https://github.com/wevm/viem/pull/2209) [`76a92bb97de9adede6d6d60c3aad2961d493045e`](https://github.com/wevm/viem/commit/76a92bb97de9adede6d6d60c3aad2961d493045e) Thanks [@wilsoncusack](https://github.com/wilsoncusack)! - Deprecated utilities (will be removed in v3):
-
   - `hexToSignature` – use `parseSignature` instead.
   - `hexToCompactSignature` – use `parseCompactSignature` instead.
   - `compactSignatureToHex` – use `serializeCompactSignature` instead.
@@ -2997,7 +3025,6 @@
 - [#2153](https://github.com/wevm/viem/pull/2153) [`71a17c0a2abcd81963e23cb76a3e8a792abbd7b6`](https://github.com/wevm/viem/commit/71a17c0a2abcd81963e23cb76a3e8a792abbd7b6) Thanks [@billalxcode](https://github.com/billalxcode)! - Added DreyerX Mainnet chain.
 
 - [#2155](https://github.com/wevm/viem/pull/2155) [`803fa0de429942b800172f87c93c41fa69f9c030`](https://github.com/wevm/viem/commit/803fa0de429942b800172f87c93c41fa69f9c030) Thanks [@jxom](https://github.com/jxom)! - Added experimental 3074 utilties:
-
   - `signAuthMessage`
   - `recoverAuthMessageAddress`
   - `verifyAuthMessage`
@@ -3203,7 +3230,6 @@
 - [#1907](https://github.com/wevm/viem/pull/1907) [`b40210f7308eb73a857692552381e06727511706`](https://github.com/wevm/viem/commit/b40210f7308eb73a857692552381e06727511706) Thanks [@mpopovac-txfusion](https://github.com/mpopovac-txfusion)! - Added `deployContract` Action to zkSync Extensions.
 
 - [#1994](https://github.com/wevm/viem/pull/1994) [`119aea616be0d1db06716709a64e8ab1966c7d4f`](https://github.com/wevm/viem/commit/119aea616be0d1db06716709a64e8ab1966c7d4f) Thanks [@jxom](https://github.com/jxom)! - Added support for [Fault Proofs on OP Stack](https://docs.optimism.io/stack/protocol/fault-proofs/overview), and new actions:
-
   - [`getGame`](https://viem.sh/op-stack/actions/getGame) (supersedes `getL2Output`)
   - `getGames`
   - [`getTimeToNextGame`](https://viem.sh/op-stack/actions/getTimeToNextGame) (supersedes `getTimeToNextL2Output`)
@@ -3713,7 +3739,6 @@
 ### Major Changes
 
 - [#1610](https://github.com/wevm/viem/pull/1610) [`440b3ba7`](https://github.com/wevm/viem/commit/440b3ba7d7faa9e51fe87df07acd6a5d373b3b9a) Thanks [@tmm](https://github.com/tmm)! - Viem 2.0 featuring:
-
   - [Low-level OP Stack extensions](https://viem.sh/op-stack),
   - Enhanced types,
   - Miscellaneous improvements and bug fixes.
@@ -4297,7 +4322,6 @@
 ### Patch Changes
 
 - [`bf2f7ee1`](https://github.com/wevm/viem/commit/bf2f7ee124af5eb43f0541200e88bd4302680912) Thanks [@jxom](https://github.com/jxom)! - Updated dependencies:
-
   - `@adraffy/ens-normalize`
   - `@noble/curves`
   - `@noble/hashes`
@@ -4524,7 +4548,6 @@
 ### Minor Changes
 
 - [#847](https://github.com/wevm/viem/pull/847) [`1e5d4545`](https://github.com/wevm/viem/commit/1e5d4545736282c2d8dedb38907f2433ce1c72f4) Thanks [@jxom](https://github.com/jxom)! - Narrowed `getBlock`, `watchBlocks`, `getFilterChanges`, `getFilterLogs` & `getLogs` return types for when `blockTag` or `includeTransactions` is provided.
-
   - When `blockTag !== 'pending'`, the return type will now include some non-nullish properties if it were dependent on pending blocks. Example: For `getBlock`, the `block.number` type is now non-nullish since `blockTag !== 'pending'`.
   - On the other hand, when `blockTag: 'pending'`, some properties will be nullish. Example: For `getBlock`, the `block.number` type is now `null` since `blockTag === 'pending'`.
   - When `includeTransactions` is provided, the return type of will narrow the `transactions` property type. Example: `block.transactions` will be `Transaction[]` when `includeTransactions: true` instead of `Hash[] | Transaction[]`.
@@ -4588,7 +4611,6 @@
 - [`28a82125`](https://github.com/wevm/viem/commit/28a82125f2678ed6ceb3bfaab065bfb9ffc8a367) Thanks [@jxom](https://github.com/jxom)! - Exported number constants (ie. `maxInt128`, `maxUint256`, etc).
 
 - [#951](https://github.com/wevm/viem/pull/951) [`c75d3b60`](https://github.com/wevm/viem/commit/c75d3b60fbacaf4d3ff23460e91dc2b75baed15d) Thanks [@jxom](https://github.com/jxom)! - Added support for multiple `events` on Filters/Log Actions:
-
   - `createEventFilter`
   - `getLogs`
   - `watchEvent`
@@ -5494,7 +5516,6 @@
   ```
 
 - [#229](https://github.com/wevm/viem/pull/229) [`098f342`](https://github.com/wevm/viem/commit/098f3423ee84f9deb09c2c7d30e950a046c07ea9) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Updated utility type names to reflect their purposes:
-
   - `ExtractErrorNameFromAbi` is now `InferErrorName`
   - `ExtractEventNameFromAbi` is now `InferEventName`
   - `ExtractFunctionNameFromAbi` is now `InferFunctionName`
@@ -5506,7 +5527,6 @@
   - `ExtractArgsFromAbi` is now `GetFunctionArgs`
 
 - [#229](https://github.com/wevm/viem/pull/229) [`098f342`](https://github.com/wevm/viem/commit/098f3423ee84f9deb09c2c7d30e950a046c07ea9) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** The following functions are now `async` functions instead of synchronous functions:
-
   - `recoverAddress`
   - `recoverMessageAddress`
   - `verifyMessage`
@@ -5523,7 +5543,6 @@
 - [#229](https://github.com/wevm/viem/pull/229) [`098f342`](https://github.com/wevm/viem/commit/098f3423ee84f9deb09c2c7d30e950a046c07ea9) Thanks [@jxom](https://github.com/jxom)! - Added `getEnsText` & `getEnsAvatar`
 
 - [#229](https://github.com/wevm/viem/pull/229) [`098f342`](https://github.com/wevm/viem/commit/098f3423ee84f9deb09c2c7d30e950a046c07ea9) Thanks [@jxom](https://github.com/jxom)! - Added Local Account implementations:
-
   - `privateKeyToAccount`
   - `mnemonicToAccount`
   - `hdKeyToAccount`
@@ -5720,7 +5739,6 @@
 ### Patch Changes
 
 - [#139](https://github.com/wevm/viem/pull/139) [`304a436`](https://github.com/wevm/viem/commit/304a4365dba9aa7be191ae4436b952eea9cfe79e) Thanks [@jxom](https://github.com/jxom)! - Added the following chains:
-
   - `baseGoerli`
   - `boba`
   - `filecoinCalibration`
@@ -5812,7 +5830,6 @@
   ```
 
   Affected actions:
-
   - `call`
   - `estimateGas`
   - `sendTransaction`
@@ -5828,7 +5845,6 @@
 ### Patch Changes
 
 - [`057e01e`](https://github.com/wevm/viem/commit/057e01e9fff7346304e787d93053d84a09278335) Thanks [@jxom](https://github.com/jxom)! - - `testClient.getTxPoolContent` → `testClient.getTxpoolContent`
-
   - `testClient.getTxPoolStatus` → `testClient.getTxpoolStatus`
 
 - [#85](https://github.com/wevm/viem/pull/85) [`2350d1a`](https://github.com/wevm/viem/commit/2350d1af1ff67d725ff3563538b9886a405ab8bd) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Renamed `encodeAbi` & `decodeAbi` to `encodeAbiParameters` & `decodeAbiParameters`, and modified API from named arguments to inplace arguments:
@@ -5937,7 +5953,6 @@
 - [`6c902f8`](https://github.com/wevm/viem/commit/6c902f86e2067dcd366434722429fe873c8d6089) Thanks [@jxom](https://github.com/jxom)! - Added `decodeEventLog`.
 
 - [#68](https://github.com/wevm/viem/pull/68) [`1be77b3`](https://github.com/wevm/viem/commit/1be77b3e7f454ae6085daefe1f24ca9f757334f8) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Removed all public/wallet/test actions & utils from the `viem` entrypoint to their respective entrypoints:
-
   - `viem` = Clients & Transport exports
   - `viem/chains` = Chains exports
   - `viem/contract` = Contract Actions & Utils exports

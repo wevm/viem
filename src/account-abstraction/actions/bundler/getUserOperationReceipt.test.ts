@@ -3,9 +3,9 @@ import {
   getSmartAccounts_06,
   getSmartAccounts_07,
   getSmartAccounts_08,
-} from '../../../../test/src/account-abstraction.js'
-import { anvilMainnet } from '../../../../test/src/anvil.js'
-import { bundlerMainnet } from '../../../../test/src/bundler.js'
+} from '~test/account-abstraction.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { bundlerMainnet } from '~test/bundler.js'
 import { mine, signAuthorization } from '../../../actions/index.js'
 import { parseEther, parseGwei } from '../../../utils/index.js'
 import { getUserOperationReceipt } from './getUserOperationReceipt.js'

@@ -1,10 +1,9 @@
 import { describe, expect, test, vi } from 'vitest'
-
-import { accounts } from '~test/src/constants.js'
-import { kzg } from '~test/src/kzg.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
+import { kzg } from '~test/kzg.js'
+import { deploy } from '~test/utils.js'
 import { Delegation } from '../../../contracts/generated.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
-import { deploy } from '../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { maxUint256 } from '../../constants/number.js'
 import { toBlobs } from '../../utils/blob/toBlobs.js'
@@ -255,7 +254,7 @@ describe('local account', () => {
         to: accounts[1].address,
         maxFeePerBlobGas: parseGwei('20'),
       }),
-    ).toMatchInlineSnapshot('53001n')
+    ).toMatchInlineSnapshot('21001n')
   })
 
   test('args: data', async () => {

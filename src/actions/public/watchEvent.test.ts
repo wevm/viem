@@ -1,10 +1,10 @@
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 
 import { ERC20InvalidTransferEvent } from '~contracts/generated.js'
-import { usdcContractConfig, wagmiContractConfig } from '~test/src/abis.js'
-import { accounts, address } from '~test/src/constants.js'
-import { deployErc20InvalidTransferEvent } from '~test/src/utils.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { usdcContractConfig, wagmiContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts, address } from '~test/constants.js'
+import { deployErc20InvalidTransferEvent } from '~test/utils.js'
 import type { Client } from '../../index.js'
 
 import {

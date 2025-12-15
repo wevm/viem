@@ -1,13 +1,14 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "../tsconfig.base.json",
+  "include": [".", "../src", "../contracts/generated.ts"],
   "compilerOptions": {
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "target": "ESNext",
+    "composite": true,
+    "noEmit": true,
     "types": ["@types/bun"],
     "baseUrl": ".",
     "paths": {
-      "~viem/*": ["../src/*"]
+      "~contracts/*": ["../contracts/*"],
+      "~test/*": ["./src/*"]
     }
   }
 }

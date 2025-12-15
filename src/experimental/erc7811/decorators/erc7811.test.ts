@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { anvilMainnet } from '~test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 import { erc7811Actions } from './erc7811.js'
 
 const client = anvilMainnet.getClient().extend(erc7811Actions())

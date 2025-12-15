@@ -1,6 +1,6 @@
 import { expectTypeOf, test } from 'vitest'
 
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 import type { Account } from '../../types/account.js'
 import {
   type SoladySmartAccountImplementation,

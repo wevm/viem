@@ -1,10 +1,9 @@
 import { JsonRpcSigner } from 'ethers'
 
 import { bench, describe } from 'vitest'
-
-import { ethersProvider } from '~test/src/bench.js'
-import { accounts } from '~test/src/constants.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { ethersProvider } from '~test/bench.js'
+import { accounts } from '~test/constants.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { sendTransaction } from './sendTransaction.js'
 

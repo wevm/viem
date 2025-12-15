@@ -2,9 +2,9 @@ import type { AbiEvent } from 'abitype'
 
 import { describe, expect, test } from 'vitest'
 
-import { usdcContractConfig, wagmiContractConfig } from '~test/src/abis.js'
-import { accounts, address } from '~test/src/constants.js'
-import { anvilMainnet } from '../../test/src/anvil.js'
+import { usdcContractConfig, wagmiContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts, address } from '~test/constants.js'
 
 import {
   getContract,

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { accounts, typedData } from '~test/src/constants.js'
+import { accounts, typedData } from '~test/constants.js'
 import { getAddress } from '../utils/address/getAddress.js'
 import { parseEther } from '../utils/unit/parseEther.js'
 import { parseGwei } from '../utils/unit/parseGwei.js'

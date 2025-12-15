@@ -39,6 +39,8 @@ export function formatUserOperationRequest(
     rpcRequest.paymasterPostOpGasLimit = numberToHex(
       request.paymasterPostOpGasLimit,
     )
+  if (typeof request.paymasterSignature !== 'undefined')
+    rpcRequest.paymasterSignature = request.paymasterSignature
   if (typeof request.paymasterVerificationGasLimit !== 'undefined')
     rpcRequest.paymasterVerificationGasLimit = numberToHex(
       request.paymasterVerificationGasLimit,

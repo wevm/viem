@@ -1,7 +1,7 @@
 import { WebSocket } from 'isows'
 import { describe, expect, test, vi } from 'vitest'
 
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { mine } from '../../actions/test/mine.js'
 

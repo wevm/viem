@@ -1,9 +1,8 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
-
-import { accounts } from '~test/src/constants.js'
-import { wagmiContractConfig } from '../../../test/src/abis.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
-import { blobData, kzg } from '../../../test/src/kzg.js'
+import { wagmiContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
+import { blobData, kzg } from '~test/kzg.js'
 import { prepareTransactionRequest } from '../../actions/index.js'
 import { concatHex, stringToHex, toHex, toRlp } from '../../index.js'
 import type {

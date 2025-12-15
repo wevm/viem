@@ -1,8 +1,8 @@
 import type { Abi, Address } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
-import { usdcContractConfig } from '~test/src/abis.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { usdcContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
 
 import type { Log } from '../../types/log.js'
 import { watchContractEvent } from './watchContractEvent.js'

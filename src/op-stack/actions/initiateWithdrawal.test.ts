@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import { anvilOptimism } from '../../../test/src/anvil.js'
-import { accounts } from '../../../test/src/constants.js'
+import { anvilOptimism } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import {
   getTransactionReceipt,

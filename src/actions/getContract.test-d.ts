@@ -9,8 +9,8 @@ import {
 
 import { expectTypeOf, test } from 'vitest'
 
-import { wagmiContractConfig } from '~test/src/abis.js'
-import { anvilMainnet } from '../../test/src/anvil.js'
+import { wagmiContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
 import type { Account } from '../accounts/types.js'
 import { celo } from '../chains/index.js'
 

@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
 import { expect, test } from 'vitest'
-import { anvilZksync } from '~test/src/anvil.js'
+import { anvilZksync } from '~test/anvil.js'
 import {
   getZksyncMockProvider,
   mockAccountBalances,
@@ -15,11 +15,11 @@ import {
   mockRequestReturnData,
   mockTestnetPaymasterAddress,
   mockTransactionDetails,
-} from '~test/src/zksync.js'
-import type { EIP1193RequestFn } from '~viem/types/eip1193.js'
-import { padHex } from '~viem/utils/data/pad.js'
+} from '~test/zksync.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { custom } from '../../clients/transports/custom.js'
+import type { EIP1193RequestFn } from '../../types/eip1193.js'
+import { padHex } from '../../utils/data/pad.js'
 import { estimateFee } from '../actions/estimateFee.js'
 import { estimateGasL1ToL2 } from '../actions/estimateGasL1ToL2.js'
 import type { GetAllBalancesReturnType } from '../actions/getAllBalances.js'
