@@ -13,9 +13,9 @@ import {
   verifyTypedData,
 } from '../../../actions/index.js'
 import { zeroAddress } from '../../../constants/address.js'
-import { toSimple7702SmartAccount } from './toSimple7702SmartAccount.js'
 import { entryPoint06Abi } from '../../constants/abis.js'
 import { entryPoint06Address } from '../../constants/address.js'
+import { toSimple7702SmartAccount } from './toSimple7702SmartAccount.js'
 
 const client = anvilMainnet.getClient({ account: true })
 
