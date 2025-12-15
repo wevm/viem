@@ -133,7 +133,7 @@ test('default', async () => {
       },
       "blockHash": "0xcefce01338b9da7553647cf3912ae562abaa0139fc7360f1ca279a609473ef3f",
       "blockNumber": 22263618n,
-      "blockTimestamp": "0x67fc559f",
+      "blockTimestamp": 1744590239n,
       "data": "0x0000000000000000000000000000000000000000000000000000001c0a6ed6ca",
       "eventName": "Transfer",
       "logIndex": 0,
@@ -876,7 +876,7 @@ test('args: eventName', async () => {
       },
       "blockHash": "0xcefce01338b9da7553647cf3912ae562abaa0139fc7360f1ca279a609473ef3f",
       "blockNumber": 22263618n,
-      "blockTimestamp": "0x67fc559f",
+      "blockTimestamp": 1744590239n,
       "data": "0x0000000000000000000000000000000000000000000000000000001c0a6ed6ca",
       "eventName": "Transfer",
       "logIndex": 0,
@@ -907,7 +907,7 @@ test('args: eventName', async () => {
       },
       "blockHash": "0xcefce01338b9da7553647cf3912ae562abaa0139fc7360f1ca279a609473ef3f",
       "blockNumber": 22263618n,
-      "blockTimestamp": "0x67fc559f",
+      "blockTimestamp": 1744590239n,
       "data": "0xfffffffffffffffffffffffffffffffffffffffffff6ec1fdaddeba7574c59c5",
       "eventName": "Approval",
       "logIndex": 91,
@@ -938,7 +938,7 @@ test('args: eventName', async () => {
       },
       "blockHash": "0xcefce01338b9da7553647cf3912ae562abaa0139fc7360f1ca279a609473ef3f",
       "blockNumber": 22263618n,
-      "blockTimestamp": "0x67fc559f",
+      "blockTimestamp": 1744590239n,
       "data": "0x0000000000000000000000000000000000000000000000000000001c0a6ed6ca",
       "eventName": "Transfer",
       "logIndex": 0,
@@ -952,6 +952,193 @@ test('args: eventName', async () => {
       "transactionIndex": 0,
     }
   `)
+})
+
+describe('behavior: events with identical selectors', () => {
+  const erc20TransferAbi = {
+    name: 'Transfer',
+    type: 'event',
+    inputs: [
+      { indexed: true, name: 'from', type: 'address' },
+      { indexed: true, name: 'to', type: 'address' },
+      { indexed: false, name: 'value', type: 'uint256' },
+    ],
+  } as const
+
+  const erc721TransferAbi = {
+    name: 'Transfer',
+    type: 'event',
+    inputs: [
+      { indexed: true, name: 'from', type: 'address' },
+      { indexed: true, name: 'to', type: 'address' },
+      { indexed: true, name: 'tokenId', type: 'uint256' },
+    ],
+  } as const
+
+  const erc20Log = {
+    address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+    topics: [
+      '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+      '0x0000000000000000000000009f1fdab6458c5fc642fa0f4c5af7473c46837357',
+      '0x0000000000000000000000002aeee741fa1e21120a21e57db9ee545428e683c9',
+    ],
+    data: '0x0000000000000000000000000000000000000000000000000de0b6b3a7640000',
+    blockHash:
+      '0xc350d807505fb835650f0013632c5515592987ba169bbc6626d9fc54d91f0f0b',
+    blockNumber: 1n,
+    transactionHash:
+      '0xcdd096880f66c302c214338b8f860f39757aa10bc5f14561b21a42be88ef3f6a',
+    transactionIndex: 0,
+    logIndex: 1,
+    removed: false,
+  } as const satisfies Log
+
+  const erc721Log = {
+    address: '0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d',
+    topics: [
+      '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+      '0x000000000000000000000000bda319bc7cc8f0829df39ec0fff5d1e061ffadf7',
+      '0x00000000000000000000000060bdee58d18dd68af4a2ee39fe4e67def7f51dc2',
+      '0x0000000000000000000000000000000000000000000000000000000000000001',
+    ],
+    data: '0x',
+    blockHash:
+      '0xc350d807505fb835650f0013632c5515592987ba169bbc6626d9fc54d91f0f0b',
+    blockNumber: 2n,
+    transactionHash:
+      '0xcdd096880f66c302c214338b8f860f39757aa10bc5f14561b21a42be88ef3f6a',
+    transactionIndex: 1,
+    logIndex: 2,
+    removed: false,
+  } as const satisfies Log
+
+  test('behavior: decodes ERC20 and ERC721 Transfer events correctly', () => {
+    const parsedLogs = parseEventLogs({
+      abi: [erc20TransferAbi, erc721TransferAbi],
+      logs: [erc20Log, erc721Log],
+    })
+
+    expect(parsedLogs).toHaveLength(2)
+
+    expect(parsedLogs[0]).toMatchObject({
+      eventName: 'Transfer',
+      args: {
+        from: '0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357',
+        to: '0x2aEEe741fa1e21120a21E57Db9ee545428E683C9',
+        value: 1000000000000000000n,
+      },
+    })
+
+    expect(parsedLogs[1]).toMatchObject({
+      eventName: 'Transfer',
+      args: {
+        from: '0xBDA319Bc7Cc8F0829df39eC0FFF5D1E061FFadf7',
+        to: '0x60BDEe58D18Dd68AF4A2eE39FE4E67DeF7F51Dc2',
+        tokenId: 1n,
+      },
+    })
+  })
+
+  test('behavior: decodes correctly when ERC721 ABI is listed first', () => {
+    const parsedLogs = parseEventLogs({
+      abi: [erc721TransferAbi, erc20TransferAbi],
+      logs: [erc20Log, erc721Log],
+    })
+
+    expect(parsedLogs).toHaveLength(2)
+
+    expect(parsedLogs[0]).toMatchObject({
+      eventName: 'Transfer',
+      args: {
+        from: '0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357',
+        to: '0x2aEEe741fa1e21120a21E57Db9ee545428E683C9',
+        value: 1000000000000000000n,
+      },
+    })
+
+    expect(parsedLogs[1]).toMatchObject({
+      eventName: 'Transfer',
+      args: {
+        from: '0xBDA319Bc7Cc8F0829df39eC0FFF5D1E061FFadf7',
+        to: '0x60BDEe58D18Dd68AF4A2eE39FE4E67DeF7F51Dc2',
+        tokenId: 1n,
+      },
+    })
+  })
+
+  test('behavior: returns partial log when all decoding attempts fail in non-strict mode (named)', () => {
+    const malformedLog: Log = {
+      address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        '0x0000000000000000000000009f1fdab6458c5fc642fa0f4c5af7473c46837357',
+      ],
+      data: '0x',
+      blockHash:
+        '0xc350d807505fb835650f0013632c5515592987ba169bbc6626d9fc54d91f0f0b',
+      blockNumber: 1n,
+      transactionHash:
+        '0xcdd096880f66c302c214338b8f860f39757aa10bc5f14561b21a42be88ef3f6a',
+      transactionIndex: 0,
+      logIndex: 1,
+      removed: false,
+    }
+
+    const parsedLogs = parseEventLogs({
+      abi: [erc20TransferAbi, erc721TransferAbi],
+      logs: [malformedLog],
+      strict: false,
+    })
+
+    expect(parsedLogs).toHaveLength(1)
+    expect(parsedLogs[0]).toMatchObject({
+      eventName: 'Transfer',
+      args: {},
+    })
+  })
+
+  test('behavior: returns partial log when all decoding attempts fail in non-strict mode (unnamed)', () => {
+    const unnamedAbi = [
+      {
+        name: 'Transfer',
+        type: 'event',
+        inputs: [
+          { indexed: true, type: 'address' },
+          { indexed: true, type: 'address' },
+          { indexed: false, type: 'uint256' },
+        ],
+      },
+    ] as const
+
+    const malformedLog: Log = {
+      address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        '0x0000000000000000000000009f1fdab6458c5fc642fa0f4c5af7473c46837357',
+      ],
+      data: '0x',
+      blockHash:
+        '0xc350d807505fb835650f0013632c5515592987ba169bbc6626d9fc54d91f0f0b',
+      blockNumber: 1n,
+      transactionHash:
+        '0xcdd096880f66c302c214338b8f860f39757aa10bc5f14561b21a42be88ef3f6a',
+      transactionIndex: 0,
+      logIndex: 1,
+      removed: false,
+    }
+
+    const parsedLogs = parseEventLogs({
+      abi: unnamedAbi,
+      logs: [malformedLog],
+      strict: false,
+    })
+
+    expect(parsedLogs).toHaveLength(1)
+    expect(parsedLogs[0]).toMatchObject({
+      eventName: 'Transfer',
+      args: [],
+    })
+  })
 })
 
 test('args: strict', async () => {
@@ -976,7 +1163,7 @@ test('args: strict', async () => {
       },
       "blockHash": "0xcefce01338b9da7553647cf3912ae562abaa0139fc7360f1ca279a609473ef3f",
       "blockNumber": 22263618n,
-      "blockTimestamp": "0x67fc559f",
+      "blockTimestamp": 1744590239n,
       "data": "0x0000000000000000000000000000000000000000000000000000001c0a6ed6ca",
       "eventName": "Transfer",
       "logIndex": 0,

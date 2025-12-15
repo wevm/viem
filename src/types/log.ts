@@ -31,6 +31,8 @@ export type Log<
   blockHash: pending extends true ? null : Hash
   /** Number of block containing this log or `null` if pending */
   blockNumber: pending extends true ? null : quantity
+  /** Timestamp of block containing this log or `null` if pending */
+  blockTimestamp?: (pending extends true ? null : quantity) | undefined
   /** Contains the non-indexed arguments of the log */
   data: Hex
   /** Index of this log within its block or `null` if pending */
