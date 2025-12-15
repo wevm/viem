@@ -1066,7 +1066,7 @@ describe('behavior: events with identical selectors', () => {
     })
   })
 
-  test('returns partial log when all decoding attempts fail in non-strict mode (named)', () => {
+  test('behavior: returns partial log when all decoding attempts fail in non-strict mode (named)', () => {
     const malformedLog: Log = {
       address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
       topics: [
@@ -1085,7 +1085,7 @@ describe('behavior: events with identical selectors', () => {
     }
 
     const parsedLogs = parseEventLogs({
-      abi: combinedAbi,
+      abi: [erc20TransferAbi, erc721TransferAbi],
       logs: [malformedLog],
       strict: false,
     })
@@ -1097,7 +1097,7 @@ describe('behavior: events with identical selectors', () => {
     })
   })
 
-  test('returns partial log when all decoding attempts fail in non-strict mode (unnamed)', () => {
+  test('behavior: returns partial log when all decoding attempts fail in non-strict mode (unnamed)', () => {
     const unnamedAbi = [
       {
         name: 'Transfer',
