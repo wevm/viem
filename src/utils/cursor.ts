@@ -233,7 +233,7 @@ export function createCursor(
   const cursor: Cursor = Object.create(staticCursor)
   cursor.bytes = bytes
   cursor.dataView = new DataView(
-    bytes.buffer,
+    bytes.buffer ?? bytes,
     bytes.byteOffset,
     bytes.byteLength,
   )
