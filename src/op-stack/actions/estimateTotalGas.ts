@@ -3,11 +3,7 @@ import {
   type EstimateGasParameters,
   estimateGas,
 } from '../../actions/public/estimateGas.js'
-import {
-  type PrepareTransactionRequestErrorType,
-  type PrepareTransactionRequestParameters,
-  prepareTransactionRequest,
-} from '../../actions/wallet/prepareTransactionRequest.js'
+import type { PrepareTransactionRequestErrorType } from '../../actions/wallet/prepareTransactionRequest.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
@@ -65,15 +61,9 @@ export async function estimateTotalGas<
   client: Client<Transport, chain, account>,
   args: EstimateTotalGasParameters<chain, account, chainOverride>,
 ): Promise<EstimateTotalGasReturnType> {
-  // Populate transaction with required fields to accurately estimate gas.
-  const request = await prepareTransactionRequest(
-    client,
-    args as PrepareTransactionRequestParameters,
-  )
-
   const [l1Gas, l2Gas] = await Promise.all([
-    estimateL1Gas(client, request as EstimateL1GasParameters),
-    estimateGas(client, request as EstimateGasParameters),
+    estimateL1Gas(client, args as EstimateL1GasParameters),
+    estimateGas(client, args as EstimateGasParameters),
   ])
 
   return l1Gas + l2Gas

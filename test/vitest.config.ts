@@ -5,8 +5,7 @@ export default defineConfig({
   test: {
     alias: {
       '~contracts': join(__dirname, '../contracts'),
-      '~viem': join(__dirname, '../src'),
-      '~test': join(__dirname, '.'),
+      '~test': join(__dirname, './src'),
     },
     benchmark: {
       outputFile: './bench/report.json',

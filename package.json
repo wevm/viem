@@ -1,4 +1,5 @@
 {
+  "name": "viem",
   "private": true,
   "type": "module",
   "scripts": {
@@ -20,7 +21,7 @@
     "docs:build": "pnpm --filter site build",
     "check": "biome check --write --unsafe",
     "check:repo": "sherif",
-    "check:types": "tsc --noEmit",
+    "check:types": "tsc -b",
     "check:unused": "pnpm clean && knip",
     "postinstall": "git submodule update --init --recursive && pnpm contracts:build",
     "preconstruct": "bun scripts/preconstruct.ts",
@@ -47,7 +48,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
-    "@ark/attest": "^0.10.2",
+    "@ark/attest": "^0.56.0",
     "@biomejs/biome": "^2.2.4",
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.29.7",
@@ -261,7 +262,8 @@
       "tar-fs@>=3.0.0 <3.1.1": ">=3.1.1",
       "vite@>=6.0.0 <=6.4.0": "6.4.1",
       "hono@>=1.1.0 <4.10.2": "4.10.2",
-      "glob@>=10.3.7 <=11.0.3": ">=11.1.0"
+      "glob@>=10.3.7 <=11.0.3": ">=11.1.0",
+      "mdast-util-to-hast@>=13.0.0 <13.2.1": "13.2.1"
     },
     "onlyBuiltDependencies": [
       "bun",

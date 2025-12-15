@@ -11,17 +11,17 @@ import {
   multicall3ContractConfig,
   usdcContractConfig,
   wagmiContractConfig,
-} from '~test/src/abis.js'
-import { createCcipServer } from '~test/src/ccip.js'
-import { accounts } from '~test/src/constants.js'
-import { blobData, kzg } from '~test/src/kzg.js'
+} from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { createCcipServer } from '~test/ccip.js'
+import { accounts } from '~test/constants.js'
+import { blobData, kzg } from '~test/kzg.js'
 import {
   deploy,
   deployOffchainLookupExample,
   deploySoladyAccount_07,
   mainnetClient,
-} from '~test/src/utils.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+} from '~test/utils.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { aggregate3Signature } from '../../constants/contract.js'

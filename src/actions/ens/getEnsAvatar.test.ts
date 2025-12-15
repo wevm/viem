@@ -1,9 +1,9 @@
 import { beforeAll, describe, expect, test } from 'vitest'
 
-import { ensPublicResolverConfig } from '~test/src/abis.js'
-import { address } from '~test/src/constants.js'
-import { deployEnsAvatarTokenUri } from '~test/src/utils.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { ensPublicResolverConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { address } from '~test/constants.js'
+import { deployEnsAvatarTokenUri } from '~test/utils.js'
 
 import { namehash } from '../../utils/ens/namehash.js'
 import { impersonateAccount } from '../test/impersonateAccount.js'

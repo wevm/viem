@@ -1,7 +1,6 @@
 import { beforeAll, expect, test } from 'vitest'
-import { accounts } from '~test/src/constants.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import {
   getTransactionReceipt,
@@ -283,7 +282,8 @@ test('error: insufficient funds', async () => {
      - \`gas fee\` is the gas fee,
      - \`value\` is the amount of ether to send to the recipient.
      
-    Estimate Gas Arguments:
+    Request Arguments:
+      chain:  Ethereum (Local) (id: 1)
       from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
       to:     0x49048044D57e1C92A77f79988d21Fa8fAF74E97e
       value:  20000 ETH
@@ -295,7 +295,7 @@ test('error: insufficient funds', async () => {
       args:                        (0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 20000000000000000000000, 21000, false, 0x)
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-    Docs: https://viem.sh/docs/contract/estimateContractGas
+    Docs: https://viem.sh/docs/contract/writeContract
     Details: Insufficient funds for gas * price + value
     Version: viem@x.y.z]
   `)
@@ -313,16 +313,14 @@ test('error: small gas', async () => {
       gas: 69n,
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ContractFunctionExecutionError: Transaction creation failed.
+    [ContractFunctionExecutionError: The amount of gas (69) provided for the transaction is too low.
 
-    URL: http://localhost
-    Request body: {"method":"eth_estimateGas","params":[{"data":"0xe9e05c42000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005208000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000","from":"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266","gas":"0x45","to":"0x49048044D57e1C92A77f79988d21Fa8fAF74E97e"}]}
-     
-    Estimate Gas Arguments:
-      from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
-      to:    0x49048044D57e1C92A77f79988d21Fa8fAF74E97e
-      data:  0xe9e05c42000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005208000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000
-      gas:   69
+    Request Arguments:
+      chain:  Ethereum (Local) (id: 1)
+      from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      to:     0x49048044D57e1C92A77f79988d21Fa8fAF74E97e
+      data:   0xe9e05c42000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005208000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000
+      gas:    69
      
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
@@ -330,8 +328,8 @@ test('error: small gas', async () => {
       args:                        (0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 0, 21000, false, 0x)
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-    Docs: https://viem.sh/docs/contract/estimateContractGas
-    Details: Out of gas: gas required exceeds allowance: 69
+    Docs: https://viem.sh/docs/contract/writeContract
+    Details: intrinsic gas too low
     Version: viem@x.y.z]
   `)
 })

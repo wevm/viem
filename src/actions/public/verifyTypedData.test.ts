@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
-import { smartAccountConfig } from '~test/src/abis.js'
-import { address, typedData } from '~test/src/constants.js'
-import { mainnetClient } from '~test/src/utils.js'
+import { smartAccountConfig } from '~test/abis.js'
+import { address, typedData } from '~test/constants.js'
+import { mainnetClient } from '~test/utils.js'
 import { verifyTypedData } from './verifyTypedData.js'
 
 describe('verifyTypedData', async () => {

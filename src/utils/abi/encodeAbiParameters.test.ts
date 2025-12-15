@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
-import { seaportContractConfig } from '~test/src/abis.js'
-import { address } from '~test/src/constants.js'
+import { seaportContractConfig } from '~test/abis.js'
+import { address } from '~test/constants.js'
 
 import {
   maxInt128,

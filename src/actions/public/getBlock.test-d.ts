@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, test } from 'vitest'
 
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 import { optimism } from '../../chains/index.js'
 import { createPublicClient, http } from '../../index.js'
 import type { Hash, Hex } from '../../types/misc.js'
