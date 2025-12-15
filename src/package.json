@@ -121,9 +121,9 @@
       "default": "./_cjs/tempo/index.js"
     },
     "./tempo/actions": {
-      "types": "./_types/tempo/Actions/index.d.ts",
-      "import": "./_esm/tempo/Actions/index.js",
-      "default": "./_cjs/tempo/Actions/index.js"
+      "types": "./_types/tempo/actions/index.d.ts",
+      "import": "./_esm/tempo/actions/index.js",
+      "default": "./_cjs/tempo/actions/index.js"
     },
     "./utils": {
       "types": "./_types/utils/index.d.ts",
@@ -185,6 +185,12 @@
       ],
       "siwe": [
         "./_types/siwe/index.d.ts"
+      ],
+      "tempo": [
+        "./_types/tempo/index.d.ts"
+      ],
+      "tempo/actions": [
+        "./_types/tempo/actions/index.d.ts"
       ],
       "utils": [
         "./_types/utils/index.d.ts"
