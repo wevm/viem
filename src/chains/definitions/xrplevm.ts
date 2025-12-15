@@ -18,11 +18,5 @@ export const xrplevm = /*#__PURE__*/ defineChain({
       apiUrl: 'https://explorer.xrplevm.org/api/v2',
     },
   },
-  contracts: {
-    multicall3: {
-      address: '0x6B5eFbC0C82eBb26CA13a4F11836f36Fc6fdBC5D',
-      blockCreated: 912208,
-    },
-  },
   testnet: false,
 })
