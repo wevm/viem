@@ -18,11 +18,5 @@ export const skaleBaseSepoliaTestnet = /*#__PURE__*/ defineChain({
       url: 'https://base-sepolia-testnet-explorer.skalenodes.com/',
     },
   },
-  contracts: {
-    multicall3: {
-      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 1381,
-    },
-  },
   testnet: true,
 })
