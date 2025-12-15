@@ -117,6 +117,11 @@ import {
   getContractEvents,
 } from '../../actions/public/getContractEvents.js'
 import {
+  type GetDelegationParameters,
+  type GetDelegationReturnType,
+  getDelegation,
+} from '../../actions/public/getDelegation.js'
+import {
   type GetEip712DomainParameters,
   type GetEip712DomainReturnType,
   getEip712Domain,
@@ -758,6 +763,29 @@ export type PublicActions<
    * })
    */
   getCode: (args: GetCodeParameters) => Promise<GetCodeReturnType>
+  /**
+   * Returns the address that an account has delegated to via EIP-7702.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/getDelegation
+   *
+   * @param args - {@link GetDelegationParameters}
+   * @returns The delegated address, or undefined if not delegated. {@link GetDelegationReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const delegation = await client.getDelegation({
+   *   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   * })
+   */
+  getDelegation: (
+    args: GetDelegationParameters,
+  ) => Promise<GetDelegationReturnType>
   /**
    * Returns a list of event logs emitted by a contract.
    *
@@ -2062,6 +2090,7 @@ export function publicActions<
     getBytecode: (args) => getCode(client, args),
     getChainId: () => getChainId(client),
     getCode: (args) => getCode(client, args),
+    getDelegation: (args) => getDelegation(client, args),
     getContractEvents: (args) => getContractEvents(client, args),
     getEip712Domain: (args) => getEip712Domain(client, args),
     getEnsAddress: (args) => getEnsAddress(client, args),
