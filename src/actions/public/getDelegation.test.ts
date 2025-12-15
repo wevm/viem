@@ -1,14 +1,15 @@
 import { beforeAll, describe, expect, test } from 'vitest'
 
 import { EoaOptional } from '~contracts/generated.js'
-import { anvilMainnet } from '~test/src/anvil.js'
-import { accounts } from '~test/src/constants.js'
-import { deploy } from '~test/src/utils.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
+import { deploy } from '~test/utils.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
+import { getBlockNumber } from './getBlockNumber.js'
 import { getDelegation } from './getDelegation.js'
 
 const client = anvilMainnet.getClient({ account: true })
@@ -63,7 +64,7 @@ describe('getDelegation', () => {
   test('with blockNumber', async () => {
     const account = privateKeyToAccount(generatePrivateKey())
 
-    const blockNumberBefore = await client.getBlockNumber()
+    const blockNumberBefore = await getBlockNumber(client)
 
     // Create delegation
     const authorization = await signAuthorization(client, {
