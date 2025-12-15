@@ -13,6 +13,8 @@ import {
   verifyTypedData,
 } from '../../../actions/index.js'
 import { zeroAddress } from '../../../constants/address.js'
+import { entryPoint06Abi } from '../../constants/abis.js'
+import { entryPoint06Address } from '../../constants/address.js'
 import { toSimple7702SmartAccount } from './toSimple7702SmartAccount.js'
 
 const client = anvilMainnet.getClient({ account: true })
@@ -28,6 +30,138 @@ test('default', async () => {
   const account = await toSimple7702SmartAccount({
     client,
     owner: privateKeyToAccount(accounts[1].privateKey),
+  })
+
+  expect({
+    ...account,
+    _internal: null,
+    abi: null,
+    entryPoint: null,
+    client: null,
+    factory: null,
+  }).toMatchInlineSnapshot(`
+    {
+      "_internal": null,
+      "abi": null,
+      "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "authorization": {
+        "account": {
+          "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+          "nonceManager": undefined,
+          "publicKey": "0x04ba5734d8f7091719471e7f7ed6b9df170dc70cc661ca05e688601ad984f068b0d67351e5f06073092499336ab0839ef8a521afd334e53807205fa2f08eec74f4",
+          "sign": [Function],
+          "signAuthorization": [Function],
+          "signMessage": [Function],
+          "signTransaction": [Function],
+          "signTypedData": [Function],
+          "source": "privateKey",
+          "type": "local",
+        },
+        "address": "0xe6Cae83BdE06E4c305530e199D7217f42808555B",
+      },
+      "client": null,
+      "decodeCalls": [Function],
+      "encodeCalls": [Function],
+      "entryPoint": null,
+      "factory": null,
+      "getAddress": [Function],
+      "getFactoryArgs": [Function],
+      "getNonce": [Function],
+      "getStubSignature": [Function],
+      "isDeployed": [Function],
+      "owner": {
+        "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "nonceManager": undefined,
+        "publicKey": "0x04ba5734d8f7091719471e7f7ed6b9df170dc70cc661ca05e688601ad984f068b0d67351e5f06073092499336ab0839ef8a521afd334e53807205fa2f08eec74f4",
+        "sign": [Function],
+        "signAuthorization": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
+      },
+      "signMessage": [Function],
+      "signTypedData": [Function],
+      "signUserOperation": [Function],
+      "type": "smart",
+    }
+  `)
+})
+
+test('args: entryPoint (0.9)', async () => {
+  const account = await toSimple7702SmartAccount({
+    client,
+    owner: privateKeyToAccount(accounts[1].privateKey),
+    entryPoint: '0.9',
+  })
+
+  expect({
+    ...account,
+    _internal: null,
+    abi: null,
+    entryPoint: null,
+    client: null,
+    factory: null,
+  }).toMatchInlineSnapshot(`
+    {
+      "_internal": null,
+      "abi": null,
+      "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "authorization": {
+        "account": {
+          "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+          "nonceManager": undefined,
+          "publicKey": "0x04ba5734d8f7091719471e7f7ed6b9df170dc70cc661ca05e688601ad984f068b0d67351e5f06073092499336ab0839ef8a521afd334e53807205fa2f08eec74f4",
+          "sign": [Function],
+          "signAuthorization": [Function],
+          "signMessage": [Function],
+          "signTransaction": [Function],
+          "signTypedData": [Function],
+          "source": "privateKey",
+          "type": "local",
+        },
+        "address": "0xa46cc63eBF4Bd77888AA327837d20b23A63a56B5",
+      },
+      "client": null,
+      "decodeCalls": [Function],
+      "encodeCalls": [Function],
+      "entryPoint": null,
+      "factory": null,
+      "getAddress": [Function],
+      "getFactoryArgs": [Function],
+      "getNonce": [Function],
+      "getStubSignature": [Function],
+      "isDeployed": [Function],
+      "owner": {
+        "address": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+        "nonceManager": undefined,
+        "publicKey": "0x04ba5734d8f7091719471e7f7ed6b9df170dc70cc661ca05e688601ad984f068b0d67351e5f06073092499336ab0839ef8a521afd334e53807205fa2f08eec74f4",
+        "sign": [Function],
+        "signAuthorization": [Function],
+        "signMessage": [Function],
+        "signTransaction": [Function],
+        "signTypedData": [Function],
+        "source": "privateKey",
+        "type": "local",
+      },
+      "signMessage": [Function],
+      "signTypedData": [Function],
+      "signUserOperation": [Function],
+      "type": "smart",
+    }
+  `)
+})
+
+test('args: entryPoint (custom)', async () => {
+  const account = await toSimple7702SmartAccount({
+    client,
+    owner: privateKeyToAccount(accounts[1].privateKey),
+    entryPoint: {
+      abi: entryPoint06Abi,
+      address: entryPoint06Address,
+      version: '0.6',
+    },
   })
 
   expect({
