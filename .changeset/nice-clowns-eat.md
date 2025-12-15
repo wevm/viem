@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixed polygon amoy and mainnet apiUrl
+Fixed Polygon Amoy and Mainnet explorer API URLs.
