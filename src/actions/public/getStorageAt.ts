@@ -5,12 +5,12 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import type { Hex } from '../../types/misc.js'
-import type { RequestErrorType } from '../../utils/buildRequest.js'
+import type { Hash, Hex } from '../../types/misc.js'
 import {
-  type NumberToHexErrorType,
-  numberToHex,
-} from '../../utils/encoding/toHex.js'
+  type FormatBlockParameterErrorType,
+  formatBlockParameter,
+} from '../../utils/block/formatBlockParameter.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 
 export type GetStorageAtParameters = {
   address: Address
@@ -19,17 +19,29 @@ export type GetStorageAtParameters = {
   | {
       blockNumber?: undefined
       blockTag?: BlockTag | undefined
+      blockHash?: undefined
+      requireCanonical?: undefined
     }
   | {
       blockNumber?: bigint | undefined
       blockTag?: undefined
+      blockHash?: undefined
+      requireCanonical?: undefined
+    }
+  | {
+      blockNumber?: undefined
+      blockTag?: undefined
+      /** The storage value at a block specified by block hash. */
+      blockHash: Hash
+      /** Whether or not to throw an error if the block is not in the canonical chain. Only allowed in conjunction with `blockHash`. */
+      requireCanonical?: boolean | undefined
     }
 )
 
 export type GetStorageAtReturnType = Hex | undefined
 
 export type GetStorageAtErrorType =
-  | NumberToHexErrorType
+  | FormatBlockParameterErrorType
   | RequestErrorType
   | ErrorType
 
@@ -59,13 +71,24 @@ export type GetStorageAtErrorType =
  */
 export async function getStorageAt<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  { address, blockNumber, blockTag = 'latest', slot }: GetStorageAtParameters,
+  {
+    address,
+    blockHash,
+    blockNumber,
+    blockTag = 'latest',
+    requireCanonical,
+    slot,
+  }: GetStorageAtParameters,
 ): Promise<GetStorageAtReturnType> {
-  const blockNumberHex =
-    blockNumber !== undefined ? numberToHex(blockNumber) : undefined
+  const block = formatBlockParameter({
+    blockHash,
+    blockNumber,
+    blockTag,
+    requireCanonical,
+  })
   const data = await client.request({
     method: 'eth_getStorageAt',
-    params: [address, slot, blockNumberHex || blockTag],
+    params: [address, slot, block],
   })
   return data
 }

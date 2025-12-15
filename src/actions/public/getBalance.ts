@@ -6,13 +6,14 @@ import { multicall3Abi } from '../../constants/abis.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { Hash } from '../../types/misc.js'
 import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
-import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
-  type NumberToHexErrorType,
-  numberToHex,
-} from '../../utils/encoding/toHex.js'
+  type FormatBlockParameterErrorType,
+  formatBlockParameter,
+} from '../../utils/block/formatBlockParameter.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { getAction } from '../../utils/getAction.js'
 import { type CallParameters, call } from './call.js'
 
@@ -24,18 +25,30 @@ export type GetBalanceParameters = {
       /** The balance of the account at a block number. */
       blockNumber?: bigint | undefined
       blockTag?: undefined
+      blockHash?: undefined
+      requireCanonical?: undefined
     }
   | {
       blockNumber?: undefined
       /** The balance of the account at a block tag. */
       blockTag?: BlockTag | undefined
+      blockHash?: undefined
+      requireCanonical?: undefined
+    }
+  | {
+      blockNumber?: undefined
+      blockTag?: undefined
+      /** The balance of the account at a block specified by block hash. */
+      blockHash: Hash
+      /** Whether or not to throw an error if the block is not in the canonical chain. Only allowed in conjunction with `blockHash`. */
+      requireCanonical?: boolean | undefined
     }
 )
 
 export type GetBalanceReturnType = bigint
 
 export type GetBalanceErrorType =
-  | NumberToHexErrorType
+  | FormatBlockParameterErrorType
   | RequestErrorType
   | ErrorType
 
@@ -78,10 +91,19 @@ export async function getBalance<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   {
     address,
+    blockHash,
     blockNumber,
     blockTag = client.experimental_blockTag ?? 'latest',
+    requireCanonical,
   }: GetBalanceParameters,
 ): Promise<GetBalanceReturnType> {
+  const block = formatBlockParameter({
+    blockHash,
+    blockNumber,
+    blockTag,
+    requireCanonical,
+  })
+
   if (client.batch?.multicall && client.chain?.contracts?.multicall3) {
     const multicall3Address = client.chain.contracts.multicall3.address
 
@@ -98,8 +120,10 @@ export async function getBalance<chain extends Chain | undefined>(
     )({
       to: multicall3Address,
       data: calldata,
+      blockHash,
       blockNumber,
       blockTag,
+      requireCanonical,
     } as unknown as CallParameters<chain>)
 
     return decodeFunctionResult({
@@ -110,12 +134,9 @@ export async function getBalance<chain extends Chain | undefined>(
     })
   }
 
-  const blockNumberHex =
-    typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
-
   const balance = await client.request({
     method: 'eth_getBalance',
-    params: [address, blockNumberHex || blockTag],
+    params: [address, block],
   })
   return BigInt(balance)
 }
