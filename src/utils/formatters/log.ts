@@ -16,6 +16,7 @@ export function formatLog(
     ...log,
     blockHash: log.blockHash ? log.blockHash : null,
     blockNumber: log.blockNumber ? BigInt(log.blockNumber) : null,
+    blockTimestamp: log.blockTimestamp ? BigInt(log.blockTimestamp) : null,
     logIndex: log.logIndex ? Number(log.logIndex) : null,
     transactionHash: log.transactionHash ? log.transactionHash : null,
     transactionIndex: log.transactionIndex
