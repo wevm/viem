@@ -18,11 +18,7 @@ import type { UnionEvaluate, UnionOmit } from '../../types/utils.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import { portal2Abi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
-import {
-  type EstimateProveWithdrawalGasErrorType,
-  type EstimateProveWithdrawalGasParameters,
-  estimateProveWithdrawalGas,
-} from './estimateProveWithdrawalGas.js'
+import type { EstimateProveWithdrawalGasErrorType } from './estimateProveWithdrawalGas.js'
 
 export type ProveWithdrawalParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -131,14 +127,6 @@ export async function proveWithdrawal<
     return Object.values(targetChain!.contracts.portal)[0].address
   })()
 
-  const gas_ =
-    typeof gas !== 'bigint' && gas !== null
-      ? await estimateProveWithdrawalGas(
-          client,
-          parameters as EstimateProveWithdrawalGasParameters,
-        )
-      : (gas ?? undefined)
-
   return writeContract(client, {
     account: account!,
     abi: portal2Abi,
@@ -146,7 +134,7 @@ export async function proveWithdrawal<
     chain,
     functionName: 'proveWithdrawalTransaction',
     args: [withdrawal, l2OutputIndex, outputRootProof, withdrawalProof],
-    gas: gas_,
+    gas: gas ?? undefined,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,

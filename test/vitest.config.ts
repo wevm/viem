@@ -5,15 +5,13 @@ export default defineConfig({
   test: {
     alias: {
       '~contracts': join(__dirname, '../contracts'),
-      '~viem': join(__dirname, '../src'),
-      '~test': join(__dirname, '.'),
+      '~test': join(__dirname, './src'),
     },
     benchmark: {
       outputFile: './bench/report.json',
       reporters: process.env.CI ? ['default'] : ['verbose'],
     },
     coverage: {
-      all: false,
       provider: 'v8',
       reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
       exclude: [

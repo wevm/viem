@@ -1,11 +1,9 @@
 import { describe, expect, test, vi } from 'vitest'
-
-import { accounts } from '~test/src/constants.js'
-import { maxUint256 } from '~viem/constants/number.js'
+import { getSmartAccounts_07 } from '~test/account-abstraction.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
+import { deploy, deployErrorExample } from '~test/utils.js'
 import { Delegation, ErrorsExample } from '../../../contracts/generated.js'
-import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
-import { deploy, deployErrorExample } from '../../../test/src/utils.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import {
@@ -19,6 +17,7 @@ import type { Client } from '../../clients/createClient.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { http } from '../../clients/transports/http.js'
+import { maxUint256 } from '../../constants/number.js'
 import {
   InvalidInputRpcError,
   MethodNotSupportedRpcError,
@@ -261,7 +260,7 @@ test('sends transaction (w/ serializer)', async () => {
   ).rejects.toThrowError()
 
   expect(serializer).toReturnWith(
-    '0x08f2018203b9843b9aca008469126a1c825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
+    '0x08f3018203b9843b9aca00850300e66100825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
   )
 })
 
@@ -809,8 +808,6 @@ describe('local account', () => {
   test('default', async () => {
     await setup()
 
-    const fees = await estimateFeesPerGas(client)
-
     expect(
       await getBalance(client, { address: targetAccount.address }),
     ).toMatchInlineSnapshot('10000000000000000000000n')
@@ -858,8 +855,8 @@ describe('local account', () => {
     const transaction = await getTransaction(client, {
       hash: receipt.transactionHash,
     })
-    expect(transaction.maxFeePerGas).toBe(fees.maxFeePerGas)
-    expect(transaction.maxPriorityFeePerGas).toBe(fees.maxPriorityFeePerGas)
+    expect(transaction.maxFeePerGas).toBe(12900000000n)
+    expect(transaction.maxPriorityFeePerGas).toBe(1000000000n)
     expect(transaction.gas).toBe(21000n)
   })
 

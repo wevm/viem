@@ -7,13 +7,14 @@ Bun.write(generatedPath, '')
 const generated = Bun.file(generatedPath)
 const writer = generated.writer()
 
-const fileNames = []
+const fileNames: string[] = []
 
 const glob = new Glob('contracts/out/**/*.json')
 for await (const file of glob.scan('.')) {
   if (file.includes('build-info')) continue
 
   const fileName = file.split('/').pop()?.replace('.json', '')
+  if (!fileName) continue
   if (fileNames.includes(fileName)) continue
 
   const { abi, bytecode } = await Bun.file(file, {

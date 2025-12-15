@@ -1,7 +1,6 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
-
-import { accounts } from '~test/src/constants.js'
-import { anvilMainnet } from '../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import type { JsonRpcAccount, PrivateKeyAccount } from '../accounts/types.js'
 import { localhost } from '../chains/index.js'
@@ -42,6 +41,7 @@ test('creates', () => {
       "chain": undefined,
       "deployContract": [Function],
       "extend": [Function],
+      "fillTransaction": [Function],
       "getAddresses": [Function],
       "getCallsStatus": [Function],
       "getCapabilities": [Function],
@@ -71,7 +71,7 @@ test('creates', () => {
         "key": "mock",
         "methods": undefined,
         "name": "Mock Transport",
-        "request": [MockFunction spy],
+        "request": [MockFunction],
         "retryCount": 3,
         "retryDelay": 150,
         "timeout": undefined,
@@ -109,6 +109,7 @@ describe('args: account', () => {
         "chain": undefined,
         "deployContract": [Function],
         "extend": [Function],
+        "fillTransaction": [Function],
         "getAddresses": [Function],
         "getCallsStatus": [Function],
         "getCapabilities": [Function],
@@ -138,7 +139,7 @@ describe('args: account', () => {
           "key": "mock",
           "methods": undefined,
           "name": "Mock Transport",
-          "request": [MockFunction spy],
+          "request": [MockFunction],
           "retryCount": 3,
           "retryDelay": 150,
           "timeout": undefined,
@@ -183,6 +184,7 @@ describe('args: account', () => {
         "chain": undefined,
         "deployContract": [Function],
         "extend": [Function],
+        "fillTransaction": [Function],
         "getAddresses": [Function],
         "getCallsStatus": [Function],
         "getCapabilities": [Function],
@@ -212,7 +214,7 @@ describe('args: account', () => {
           "key": "mock",
           "methods": undefined,
           "name": "Mock Transport",
-          "request": [MockFunction spy],
+          "request": [MockFunction],
           "retryCount": 3,
           "retryDelay": 150,
           "timeout": undefined,
@@ -245,6 +247,7 @@ describe('args: transport', () => {
         "chain": undefined,
         "deployContract": [Function],
         "extend": [Function],
+        "fillTransaction": [Function],
         "getAddresses": [Function],
         "getCallsStatus": [Function],
         "getCapabilities": [Function],
@@ -305,6 +308,7 @@ describe('args: transport', () => {
         "chain": undefined,
         "deployContract": [Function],
         "extend": [Function],
+        "fillTransaction": [Function],
         "getAddresses": [Function],
         "getCallsStatus": [Function],
         "getCapabilities": [Function],
@@ -386,6 +390,7 @@ describe('args: transport', () => {
         },
         "deployContract": [Function],
         "extend": [Function],
+        "fillTransaction": [Function],
         "getAddresses": [Function],
         "getCallsStatus": [Function],
         "getCapabilities": [Function],
@@ -486,6 +491,7 @@ test('extend', () => {
       "estimateGas": [Function],
       "estimateMaxPriorityFeePerGas": [Function],
       "extend": [Function],
+      "fillTransaction": [Function],
       "getAddresses": [Function],
       "getAutomine": [Function],
       "getBalance": [Function],

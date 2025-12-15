@@ -71,6 +71,15 @@ export type Chain<
 // Config
 /////////////////////////////////////////////////////////////////////
 
+type PrepareTransactionRequestPhase =
+  | 'beforeFillTransaction'
+  | 'beforeFillParameters'
+  | 'afterFillParameters'
+type PrepareTransactionRequestFn = (
+  args: PrepareTransactionRequestParameters,
+  options: { phase: PrepareTransactionRequestPhase },
+) => Promise<PrepareTransactionRequestParameters>
+
 export type ChainConfig<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
   custom extends Record<string, unknown> | undefined =
@@ -83,6 +92,23 @@ export type ChainConfig<
   fees?: ChainFees<formatters | undefined> | undefined
   /** Modifies how data is formatted and typed (e.g. blocks and transactions) */
   formatters?: formatters | undefined
+  /** Function to prepare a transaction request. Runs before the transaction is filled. */
+  prepareTransactionRequest?:
+    | PrepareTransactionRequestFn
+    | [
+        fn: PrepareTransactionRequestFn | undefined,
+        options: {
+          /**
+           * Phases to run the function at.
+           *
+           * - `beforeFillTransaction`: Before the transaction is attempted to be filled via `eth_fillTransaction`.
+           * - `beforeFillParameters`: Before missing parameters are filled.
+           * - `afterFillParameters`: After missing parameters are filled.
+           */
+          runAt: readonly PrepareTransactionRequestPhase[]
+        },
+      ]
+    | undefined
   /** Modifies how data is serialized (e.g. transactions). */
   serializers?: ChainSerializers<formatters> | undefined
 }

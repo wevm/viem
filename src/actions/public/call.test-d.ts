@@ -1,6 +1,6 @@
 import { test } from 'vitest'
 
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 
 import { call } from './call.js'
 

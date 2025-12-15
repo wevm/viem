@@ -1,12 +1,11 @@
-import { afterAll, beforeAll, beforeEach, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, vi } from 'vitest'
 
-import { setIntervalMining } from '~viem/actions/test/setIntervalMining.js'
-import { cleanupCache, listenersCache } from '~viem/utils/observe.js'
-import { promiseCache, responseCache } from '~viem/utils/promise/withCache.js'
-import { socketClientCache } from '~viem/utils/rpc/socket.js'
-
+import { setIntervalMining } from '../src/actions/test/setIntervalMining.js'
 import { setErrorConfig } from '../src/errors/base.js'
+import { cleanupCache, listenersCache } from '../src/utils/observe.js'
+import { promiseCache, responseCache } from '../src/utils/promise/withCache.js'
 import { idCache } from '../src/utils/rpc/id.js'
+import { socketClientCache } from '../src/utils/rpc/socket.js'
 import * as instances from './src/anvil.js'
 
 const client = instances.anvilMainnet.getClient()
@@ -40,6 +39,6 @@ beforeEach(async () => {
   await setIntervalMining(client, { interval: 0 })
 }, 20_000)
 
-afterAll(async () => {
+afterEach(() => {
   vi.restoreAllMocks()
 })

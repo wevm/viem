@@ -1,7 +1,7 @@
 import { anvil } from 'prool/instances'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 import { getBlockNumber, mine } from '../../actions/index.js'
 import { createClient, http } from '../../index.js'
 import type { RpcResponse } from '../../types/rpc.js'
@@ -64,7 +64,7 @@ describe('request', () => {
     expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.4.4",
+        "result": "anvil/v1.5.0",
       }
     `)
     expect(rpcClient.requests.size).toBe(0)
@@ -315,7 +315,7 @@ describe('requestAsync', () => {
     expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.4.4",
+        "result": "anvil/v1.5.0",
       }
     `)
     expect(client.requests.size).toBe(0)

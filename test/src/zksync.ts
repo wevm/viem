@@ -1,7 +1,7 @@
-import { zksyncLocalNode } from '~viem/chains/index.js'
-import { createClient } from '~viem/clients/createClient.js'
-import { http } from '~viem/index.js'
-import type { ZksyncTransactionReceipt } from '~viem/zksync/index.js'
+import { zksyncLocalNode } from '../../src/chains/index.js'
+import { createClient } from '../../src/clients/createClient.js'
+import { http } from '../../src/index.js'
+import type { ZksyncTransactionReceipt } from '../../src/zksync/index.js'
 import { accounts as acc } from './constants.js'
 
 export const zksyncClientLocalNode = createClient({

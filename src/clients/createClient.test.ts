@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { anvilMainnet } from '../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 import { base, localhost, mainnet } from '../chains/index.js'
 import type { EIP1193RequestFn, EIP1474Methods } from '../types/eip1193.js'
 import { getAction } from '../utils/getAction.js'
@@ -42,7 +42,7 @@ test('creates', () => {
         "key": "mock",
         "methods": undefined,
         "name": "Mock Transport",
-        "request": [MockFunction spy],
+        "request": [MockFunction],
         "retryCount": 3,
         "retryDelay": 150,
         "timeout": undefined,
@@ -230,7 +230,7 @@ describe('config', () => {
           "key": "mock",
           "methods": undefined,
           "name": "Mock Transport",
-          "request": [MockFunction spy],
+          "request": [MockFunction],
           "retryCount": 3,
           "retryDelay": 150,
           "timeout": undefined,
@@ -295,7 +295,7 @@ describe('config', () => {
           "key": "mock",
           "methods": undefined,
           "name": "Mock Transport",
-          "request": [MockFunction spy],
+          "request": [MockFunction],
           "retryCount": 3,
           "retryDelay": 150,
           "timeout": undefined,
@@ -342,7 +342,7 @@ describe('config', () => {
           "key": "mock",
           "methods": undefined,
           "name": "Mock Transport",
-          "request": [MockFunction spy],
+          "request": [MockFunction],
           "retryCount": 3,
           "retryDelay": 150,
           "timeout": undefined,
@@ -384,7 +384,7 @@ describe('config', () => {
           "key": "mock",
           "methods": undefined,
           "name": "Mock Transport",
-          "request": [MockFunction spy],
+          "request": [MockFunction],
           "retryCount": 3,
           "retryDelay": 150,
           "timeout": undefined,
@@ -426,7 +426,7 @@ describe('config', () => {
           "key": "mock",
           "methods": undefined,
           "name": "Mock Transport",
-          "request": [MockFunction spy],
+          "request": [MockFunction],
           "retryCount": 3,
           "retryDelay": 150,
           "timeout": undefined,
@@ -468,7 +468,7 @@ describe('config', () => {
           "key": "mock",
           "methods": undefined,
           "name": "Mock Transport",
-          "request": [MockFunction spy],
+          "request": [MockFunction],
           "retryCount": 3,
           "retryDelay": 150,
           "timeout": undefined,
@@ -510,7 +510,7 @@ describe('config', () => {
           "key": "mock",
           "methods": undefined,
           "name": "Mock Transport",
-          "request": [MockFunction spy],
+          "request": [MockFunction],
           "retryCount": 3,
           "retryDelay": 150,
           "timeout": undefined,
@@ -586,6 +586,7 @@ describe('extends', () => {
         "estimateGas": [Function],
         "estimateMaxPriorityFeePerGas": [Function],
         "extend": [Function],
+        "fillTransaction": [Function],
         "getBalance": [Function],
         "getBlobBaseFee": [Function],
         "getBlock": [Function],

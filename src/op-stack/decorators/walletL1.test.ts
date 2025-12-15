@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest'
-
-import { accounts } from '~test/src/constants.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import { reset } from '../../actions/index.js'
 import { base } from '../../op-stack/chains.js'
 import { walletActionsL1 } from './walletL1.js'

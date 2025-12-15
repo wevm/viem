@@ -1,7 +1,6 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
-
-import { accounts } from '~test/src/constants.js'
-import { anvilMainnet } from '../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import { localhost } from '../chains/index.js'
 import type { EIP1193RequestFn, TestRpcSchema } from '../index.js'
 import { createTestClient } from './createTestClient.js'
@@ -93,7 +92,7 @@ test('creates', () => {
         "key": "mock",
         "methods": undefined,
         "name": "Mock Transport",
-        "request": [MockFunction spy],
+        "request": [MockFunction],
         "retryCount": 3,
         "retryDelay": 150,
         "timeout": undefined,
@@ -332,6 +331,7 @@ test('extend', () => {
       "estimateGas": [Function],
       "estimateMaxPriorityFeePerGas": [Function],
       "extend": [Function],
+      "fillTransaction": [Function],
       "getAddresses": [Function],
       "getAutomine": [Function],
       "getBalance": [Function],

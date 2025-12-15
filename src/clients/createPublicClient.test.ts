@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { anvilMainnet } from '../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 import { localhost } from '../chains/index.js'
 import type { EIP1193RequestFn, PublicRpcSchema } from '../index.js'
 import * as utilsRpcWebSocket from '../utils/rpc/webSocket.js'
@@ -46,6 +46,7 @@ test('creates', () => {
       "estimateGas": [Function],
       "estimateMaxPriorityFeePerGas": [Function],
       "extend": [Function],
+      "fillTransaction": [Function],
       "getBalance": [Function],
       "getBlobBaseFee": [Function],
       "getBlock": [Function],
@@ -89,7 +90,7 @@ test('creates', () => {
         "key": "mock",
         "methods": undefined,
         "name": "Mock Transport",
-        "request": [MockFunction spy],
+        "request": [MockFunction],
         "retryCount": 3,
         "retryDelay": 150,
         "timeout": undefined,
@@ -191,6 +192,7 @@ describe('transports', () => {
         "estimateGas": [Function],
         "estimateMaxPriorityFeePerGas": [Function],
         "extend": [Function],
+        "fillTransaction": [Function],
         "getBalance": [Function],
         "getBlobBaseFee": [Function],
         "getBlock": [Function],
@@ -301,6 +303,7 @@ describe('transports', () => {
         "estimateGas": [Function],
         "estimateMaxPriorityFeePerGas": [Function],
         "extend": [Function],
+        "fillTransaction": [Function],
         "getBalance": [Function],
         "getBlobBaseFee": [Function],
         "getBlock": [Function],
@@ -436,6 +439,7 @@ describe('transports', () => {
         "estimateGas": [Function],
         "estimateMaxPriorityFeePerGas": [Function],
         "extend": [Function],
+        "fillTransaction": [Function],
         "getBalance": [Function],
         "getBlobBaseFee": [Function],
         "getBlock": [Function],
@@ -550,6 +554,7 @@ test('extend', () => {
       "estimateGas": [Function],
       "estimateMaxPriorityFeePerGas": [Function],
       "extend": [Function],
+      "fillTransaction": [Function],
       "getAddresses": [Function],
       "getAutomine": [Function],
       "getBalance": [Function],

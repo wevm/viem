@@ -1,5 +1,5 @@
 import { beforeAll, expect, test } from 'vitest'
-import { anvilMainnet, anvilOptimism } from '../../test/src/anvil.js'
+import { anvilMainnet, anvilOptimism } from '~test/anvil.js'
 import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import {

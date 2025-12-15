@@ -1,20 +1,20 @@
 import { parseAbi } from 'abitype'
 import { beforeAll, describe, expect, test } from 'vitest'
-import { address } from '~test/src/constants.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { address } from '~test/constants.js'
 import {
   createHttpServer,
   setVitalikName,
   setVitalikResolver,
-} from '~test/src/utils.js'
+} from '~test/utils.js'
+import { optimism } from '../../chains/index.js'
+import { http } from '../../clients/transports/http.js'
 import {
   createClient,
   encodeErrorResult,
   encodeFunctionResult,
   toCoinType,
-} from '~viem/index.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
-import { optimism } from '../../chains/index.js'
-import { http } from '../../clients/transports/http.js'
+} from '../../index.js'
 import { reset } from '../test/reset.js'
 import { getEnsName } from './getEnsName.js'
 

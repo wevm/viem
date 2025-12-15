@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from 'vitest'
-import { celo } from '~viem/chains/index.js'
-import { createTestClient, http } from '~viem/index.js'
+import { celo } from '../chains/index.js'
+import { createTestClient, http } from '../index.js'
 
 const client = createTestClient({
   transport: http(),

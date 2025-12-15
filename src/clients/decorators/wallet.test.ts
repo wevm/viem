@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
-import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
-import { accounts } from '~test/src/constants.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { baycContractConfig, wagmiContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { mine } from '../../actions/test/mine.js'
 import { avalanche } from '../../chains/index.js'
@@ -20,6 +20,7 @@ test('default', async () => {
     {
       "addChain": [Function],
       "deployContract": [Function],
+      "fillTransaction": [Function],
       "getAddresses": [Function],
       "getCallsStatus": [Function],
       "getCapabilities": [Function],

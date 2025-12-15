@@ -1,6 +1,6 @@
 import { type Abi, parseAbi } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
-import { wagmiContractConfig } from '~test/src/abis.js'
+import { wagmiContractConfig } from '~test/abis.js'
 import type { Hex } from '../../types/misc.js'
 import {
   type EncodeFunctionDataParameters,
