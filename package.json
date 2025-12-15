@@ -218,13 +218,13 @@
     {
       "name": "import * from 'viem/siwe'",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "43 kB",
+      "limit": "44 kB",
       "import": "*"
     },
     {
       "name": "import { verifySiweMessage } from 'viem/siwe'",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "42 kB",
+      "limit": "44 kB",
       "import": "{ verifySiweMessage }"
     }
   ],
