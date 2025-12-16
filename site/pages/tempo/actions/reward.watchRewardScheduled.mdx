@@ -1,0 +1,82 @@
+# `reward.watchRewardScheduled`
+
+Watches for reward scheduled events when new reward streams are started.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client, token } from './viem.config'
+
+const unwatch = client.reward.watchRewardScheduled({
+  onRewardScheduled: (args, log) => {
+    console.log('Stream ID:', args.id)
+    console.log('Funder:', args.funder)
+    console.log('Amount:', args.amount)
+    console.log('Duration:', args.durationSeconds, 'seconds')
+  },
+  token,
+})
+
+// Later, stop watching
+unwatch()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = () => void
+```
+
+Returns a function to unsubscribe from the event.
+
+## Parameters
+
+### onRewardScheduled
+
+- **Type:** `function`
+
+```ts
+declare function onRewardScheduled(args: Args, log: Log): void
+
+type Args = {
+  /** Total amount allocated to the stream */
+  amount: bigint
+  /** Duration of the stream in seconds (0 for immediate distributions) */
+  durationSeconds: number
+  /** Address that funded the stream */
+  funder: Address
+  /** Unique stream ID (0 for immediate distributions) */
+  id: bigint
+}
+```
+
+Callback to invoke when a reward stream is scheduled.
+
+### token
+
+- **Type:** `Address`
+
+Address of the TIP-20 token to watch.
+
+### args (optional)
+
+- **Type:** `object`
+
+```ts
+type Args = {
+  /** Filter by funder address */
+  funder?: Address | Address[]
+  /** Filter by stream ID */
+  id?: bigint | bigint[]
+}
+```
+
+Optional filters to narrow down events by funder address or stream ID.

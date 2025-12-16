@@ -1,0 +1,50 @@
+import ReadAccountParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `token.getBalance`
+
+Gets the token balance of an address.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const balance = await client.token.getBalance({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+console.log('Balance:', balance)
+// @log: Balance: 10500000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = bigint // Balance amount
+```
+
+## Parameters
+
+### account
+
+- **Type:** `Address`
+
+Account address.
+
+### token
+
+- **Type:** `Address | bigint`
+
+Address or ID of the TIP20 token.
+
+<ReadAccountParameters />
+

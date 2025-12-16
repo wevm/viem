@@ -1,0 +1,137 @@
+# `withFeePayer`
+
+Creates a transport that routes transactions to a fee payer service when a `feePayer` is requested on an action. 
+
+- [View Guide](https://docs.tempo.xyz/guide/payments/sponsor-user-fees)
+- [View Specification](https://docs.tempo.xyz/protocol/transactions/spec-tempo-transaction)
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempoTestnet } from 'viem/chains'
+import { withFeePayer } from 'viem/tempo'
+ 
+const client = createWalletClient({
+  account: privateKeyToAccount('0x...'),
+  chain: tempoTestnet,
+  transport: withFeePayer(
+    http(),                               // ← Default Transport
+    http('https://sponsor.example.com'),  // ← Fee Payer Transport // [!code hl]
+  ), 
+})
+ 
+// Regular transaction
+const receipt1 = await client.sendTransactionSync({
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+})
+ 
+// Sponsored transaction // [!code hl]
+const receipt2 = await client.sendTransactionSync({ // [!code hl]
+  // [!code hl]
+  feePayer: true, // [!code hl]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code hl]
+}) // [!code hl]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Example Fee Payer Service
+
+Below is an end-to-end example of a client/server fee payer setup. 
+
+See `server.ts` for the server-side implementation. It uses [`Handler.feePayer` provided by `tempo.ts/server`](https://docs.tempo.xyz/sdk/typescript/server/handler.feePayer) to handle fee payer requests.
+
+:::code-group
+
+```ts twoslash [client.ts]
+import { createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempoTestnet } from 'viem/chains'
+import { withFeePayer } from 'viem/tempo'
+ 
+const client = createWalletClient({
+  account: privateKeyToAccount('0x...'),
+  chain: tempoTestnet,
+  transport: withFeePayer(
+    http(), 
+    http('http://localhost:3000'), 
+  ), 
+})
+ 
+const hash = await client.sendTransactionSync({
+  feePayer: true,
+  to: '0x0000000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [server.ts]
+// @noErrors
+import { createServer } from 'node:http'
+import { createClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempoTestnet } from 'viem/chains'
+import { Handler } from 'tempo.ts/server'
+
+const client = createClient({
+  chain: tempoTestnet.extend({ 
+    // Note: the fee payer can specify their own fee token.
+    feeToken: '0x20c0000000000000000000000000000000000001'
+  }),
+  transport: http(),
+})
+
+const handler = Handler.feePayer({ // [!code hl]
+  account: privateKeyToAccount('0x...'), // [!code hl]
+  client, // [!code hl]
+}) // [!code hl]
+
+const server = createServer(handler.listener)
+server.listen(3000)
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = Transport<'feePayer'>
+```
+
+## Parameters
+
+### defaultTransport
+
+- **Type:** `Transport`
+
+The default transport to use for regular (non-sponsored) transactions.
+
+### relayTransport
+
+- **Type:** `Transport`
+
+The relay transport to use for sponsored transactions. This should point to a fee payer service that will sign and submit the transaction with a fee payer signature.
+
+### Parameters (optional)
+
+- **Type:** `withFeePayer.Parameters`
+
+Options for `withFeePayer` usage.
+
+#### `policy` (optional)
+
+- **Type:** `'sign-only' | 'sign-and-broadcast'`
+- **Default:** `'sign-only'`
+
+Controls how the fee payer handles sponsored transactions:
+
+- **`'sign-only'`**: Fee payer co-signs the transaction and returns it to the client transport, which then broadcasts it via the default transport.
+
+- **`'sign-and-broadcast'`**: Fee payer co-signs and broadcasts the transaction directly. The fee payer service handles both signing and submission to the blockchain.

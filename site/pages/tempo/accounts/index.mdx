@@ -1,0 +1,40 @@
+# Accounts
+
+Tempo.ts provides Viem-compatible [Local Accounts](https://viem.sh/docs/accounts/local) that support multiple signature schemes including **secp256k1**, **P256**, and **WebAuthn (passkeys)**. 
+
+These accounts are fully backwards compatible with Viem APIs, meaning you can use them any Viem Action that accepts an `account`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { createWalletClient, http } from 'viem'
+import { Account, WebAuthnP256 } from 'viem/tempo'
+import { tempoTestnet } from 'viem/chains'
+
+// Create a passkey account
+const credential = await WebAuthnP256.createCredential({ label: 'Example' })
+const account = Account.fromWebAuthnP256(credential)
+
+const client = createWalletClient({
+  chain: tempoTestnet,
+  transport: http(),
+})
+
+// Use with Viem APIs
+const hash = await client.sendTransactionSync({
+  account,
+  data: '0xcafebabe',
+  to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+})
+```
+
+:::
+
+## Account Types
+
+| Type | Description |
+| --- | --- |
+| [`fromSecp256k1`](/tempo/accounts/account.fromSecp256k1) | Create an account from a secp256k1 private key (standard Ethereum accounts) |
+| [`fromWebAuthnP256`](/tempo/accounts/account.fromWebAuthnP256) | Create an account from a WebAuthn credential (passkeys) |
+| [`fromWebCryptoP256`](/tempo/accounts/account.fromWebCryptoP256) | Create an account from a WebCrypto P256 key pair |
+| [`fromP256`](/tempo/accounts/account.fromP256) | Create an account from a P256 private key |
