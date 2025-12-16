@@ -3,7 +3,7 @@ import * as Address_ox from 'ox/Address'
 import { SignatureErc6492 } from 'ox/erc6492'
 import { SignatureErc8010 } from 'ox/erc8010'
 import * as P256 from 'ox/P256'
-import { SignatureEnvelope } from 'ox/tempo'
+import * as SignatureEnvelope from 'ox/tempo/SignatureEnvelope'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 
 import type { Client } from '../../clients/createClient.js'

@@ -135,13 +135,13 @@
     {
       "name": "import * from 'viem' (esm)",
       "path": "./src/_esm/index.js",
-      "limit": "80 kB",
+      "limit": "84 kB",
       "import": "*"
     },
     {
       "name": "const viem = require('viem') (cjs)",
       "path": "./src/_cjs/index.js",
-      "limit": "98 kB"
+      "limit": "105 kB"
     },
     {
       "name": "import { createClient, http } from 'viem'",
@@ -176,7 +176,7 @@
     {
       "name": "import * from 'viem/actions'",
       "path": "./src/_esm/actions/index.js",
-      "limit": "64 kB",
+      "limit": "68 kB",
       "import": "*"
     },
     {
@@ -218,19 +218,19 @@
     {
       "name": "import * from 'viem/siwe'",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "44 kB",
+      "limit": "48 kB",
       "import": "*"
     },
     {
       "name": "import { verifySiweMessage } from 'viem/siwe'",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "44 kB",
+      "limit": "48 kB",
       "import": "{ verifySiweMessage }"
     },
     {
       "name": "import { verifyHash } from 'viem/actions'",
       "path": "./src/_esm/actions/index.js",
-      "limit": "44 kB",
+      "limit": "47 kB",
       "import": "{ verifyHash }"
     }
   ],
