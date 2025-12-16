@@ -229,17 +229,16 @@ export type ContractFunctionParameters<
         | undefined
     }
   : {
-      args:
-        | allArgs
-        | (abi extends Abi
-            ? Abi extends abi
-              ? never
-              : Widen<IsUnion<abiFunction> extends true ? args : allArgs>
-            : never)
+      args: args
     }) &
   (deployless extends true
-    ? { address?: undefined; code: Hex }
-    : { address: Address })
+    ? {
+        address?: undefined
+        code: Hex
+      }
+    : {
+        address: Address
+      })
 
 export type ContractFunctionReturnType<
   abi extends Abi | readonly unknown[] = Abi,

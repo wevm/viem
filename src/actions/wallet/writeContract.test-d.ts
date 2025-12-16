@@ -1,5 +1,5 @@
 import { type Address, parseAbi } from 'abitype'
-import { seaportAbi } from 'abitype/abis'
+import { erc20Abi, seaportAbi } from 'abitype/abis'
 import { assertType, expectTypeOf, test } from 'vitest'
 import { baycContractConfig, wagmiContractConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
@@ -12,6 +12,12 @@ import { type WriteContractParameters, writeContract } from './writeContract.js'
 
 const clientWithAccount = anvilMainnet.getClient({
   account: true,
+})
+writeContract(clientWithAccount, {
+  address: '0x',
+  abi: erc20Abi,
+  functionName: 'approve',
+  args: ['0x', 123n],
 })
 
 test('WriteContractParameters', async () => {
