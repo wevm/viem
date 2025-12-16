@@ -223,13 +223,13 @@ export async function verifyErc8010(
     args: [
       [
         ...(initData
-          ? [
+          ? ([
               {
                 allowFailure: true,
                 target: to ?? address,
                 callData: initData,
               },
-            ]
+            ] as const)
           : []),
         {
           allowFailure: true,
