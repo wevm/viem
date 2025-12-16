@@ -1804,6 +1804,10 @@ export const sidebar = {
             text: 'Getting Started',
             link: '/tempo',
           },
+          {
+            text: 'Chains',
+            link: '/tempo/chains',
+          },
         ],
       },
       {
