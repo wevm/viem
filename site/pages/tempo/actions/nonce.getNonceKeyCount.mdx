@@ -1,0 +1,45 @@
+import ReadAccountParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `nonce.getNonceKeyCount`
+
+Gets the number of active nonce keys for an account. Active nonce keys are keys that have been used at least once.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const count = await client.nonce.getNonceKeyCount({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+})
+
+console.log('Active nonce keys:', count)
+// @log: Active nonce keys: 3n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = bigint
+```
+
+The number of active nonce keys for the account.
+
+## Parameters
+
+### account
+
+- **Type:** `Address`
+
+Account address to get the active nonce key count for.
+
+<ReadAccountParameters />
+

@@ -115,6 +115,16 @@
       "import": "./_esm/siwe/index.js",
       "default": "./_cjs/siwe/index.js"
     },
+    "./tempo": {
+      "types": "./_types/tempo/index.d.ts",
+      "import": "./_esm/tempo/index.js",
+      "default": "./_cjs/tempo/index.js"
+    },
+    "./tempo/actions": {
+      "types": "./_types/tempo/actions/index.d.ts",
+      "import": "./_esm/tempo/actions/index.js",
+      "default": "./_cjs/tempo/actions/index.js"
+    },
     "./utils": {
       "types": "./_types/utils/index.d.ts",
       "import": "./_esm/utils/index.js",
@@ -176,6 +186,12 @@
       "siwe": [
         "./_types/siwe/index.d.ts"
       ],
+      "tempo": [
+        "./_types/tempo/index.d.ts"
+      ],
+      "tempo/actions": [
+        "./_types/tempo/actions/index.d.ts"
+      ],
       "utils": [
         "./_types/utils/index.d.ts"
       ],
@@ -202,7 +218,7 @@
     "@scure/bip39": "1.6.0",
     "abitype": "1.2.3",
     "isows": "1.0.7",
-    "ox": "0.9.6",
+    "ox": "0.10.2",
     "ws": "8.18.3"
   },
   "license": "MIT",

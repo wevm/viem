@@ -1453,7 +1453,11 @@ export {
   type AssertCurrentChainParameters,
   assertCurrentChain,
 } from './utils/chain/assertCurrentChain.js'
-export { defineChain } from './utils/chain/defineChain.js'
+export {
+  type DefineChainReturnType,
+  defineChain,
+  extendSchema,
+} from './utils/chain/defineChain.js'
 export {
   type ExtractChainErrorType,
   type ExtractChainParameters,

@@ -71,6 +71,7 @@ import {
   getTransactionType,
 } from '../../utils/transaction/getTransactionType.js'
 import {
+  type FillTransactionErrorType,
   type FillTransactionParameters,
   fillTransaction,
 } from '../public/fillTransaction.js'
@@ -267,12 +268,12 @@ export async function prepareTransactionRequest<
   >
 > {
   let request = args as PrepareTransactionRequestParameters
-  const {
-    account: account_ = client.account,
-    chain = client.chain,
-    nonceManager,
-    parameters = defaultParameters,
-  } = request
+
+  request.account ??= client.account
+  request.chain ??= client.chain
+  request.parameters ??= defaultParameters
+
+  const { account: account_, chain, nonceManager, parameters } = request
 
   const prepareTransactionRequest = (() => {
     if (typeof chain?.prepareTransactionRequest === 'function')
@@ -402,7 +403,10 @@ export async function prepareTransactionRequest<
           }
         })
         .catch((e) => {
-          const error = e as BaseError & { cause: BaseError }
+          const error = e as FillTransactionErrorType
+
+          if (error.name !== 'TransactionExecutionError') return request
+
           const unsupported = error.walk?.((e) => {
             const error = e as BaseError
             return (
@@ -411,6 +415,7 @@ export async function prepareTransactionRequest<
             )
           })
           if (unsupported) supportsFillTransaction.set(client.uid, false)
+
           return request
         })
     : request
