@@ -596,8 +596,8 @@ importers:
         specifier: 1.0.7
         version: 1.0.7(ws@8.18.3)
       ox:
-        specifier: 0.10.3
-        version: 0.10.3(typescript@5.9.3)(zod@3.25.76)
+        specifier: 0.10.5
+        version: 0.10.5(typescript@5.9.3)(zod@3.25.76)
       ws:
         specifier: 8.18.3
         version: 8.18.3
@@ -5673,8 +5673,8 @@ packages:
       typescript:
         optional: true
 
-  ox@0.10.3:
-    resolution: {integrity: sha512-eACv0YPxO6geGnDrgTHrb7h6fD34dTmoOXOMdwqc+1UZC3J4RaP54AhMNXX/zbJRJSf3d2sipsdJcV4eov2uyg==}
+  ox@0.10.5:
+    resolution: {integrity: sha512-mXJRiZswmX46abrzNkJpTN9sPJ/Rhevsp5Dfg0z80D55aoLNmEV4oN+/+feSNW593c2CnHavMqSVBanpJ0lUkQ==}
     peerDependencies:
       typescript: '>=5.4.0'
     peerDependenciesMeta:
@@ -12959,7 +12959,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.10.3(typescript@5.6.2)(zod@3.25.76):
+  ox@0.10.5(typescript@5.6.2)(zod@3.25.76):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
       '@noble/ciphers': 1.3.0
@@ -12974,7 +12974,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.10.3(typescript@5.9.3)(zod@3.25.76):
+  ox@0.10.5(typescript@5.9.3)(zod@3.25.76):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
       '@noble/ciphers': 1.3.0
@@ -14487,7 +14487,7 @@ snapshots:
       '@scure/bip39': 1.6.0
       abitype: 1.2.3(typescript@5.6.2)(zod@3.25.76)
       isows: 1.0.7(ws@8.18.3)
-      ox: 0.10.3(typescript@5.6.2)(zod@3.25.76)
+      ox: 0.10.5(typescript@5.6.2)(zod@3.25.76)
       ws: 8.18.3
     optionalDependencies:
       typescript: 5.6.2

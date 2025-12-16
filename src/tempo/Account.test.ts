@@ -1,8 +1,12 @@
 import { Value, WebCryptoP256 } from 'ox'
 import { SignatureEnvelope } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
+import * as tempo from '~test/tempo/config.js'
+import { verifyHash, verifyMessage, verifyTypedData } from '../actions/index.js'
 import { parseGwei } from '../utils/index.js'
 import * as Account from './Account.js'
+
+const client = tempo.getClient()
 
 const privateKey_secp256k1 =
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
@@ -101,8 +105,16 @@ describe('fromP256', () => {
       hash: '0xdeadbeef',
     })
     expect(signature).toMatchInlineSnapshot(
-      `"0x01daab749a3dea3f76c52ff0cfc86f0d433ecaf4d20f2ea327042bf5c15bccf847098dc3591fc68bf94d8db6d16cf326808dbf0f44d8e8373e8a7fcaf39b38281020fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c81224000"`,
+      `"0x01daab749a3dea3f76c52ff0cfc86f0d433ecaf4d20f2ea327042bf5c15bccf847098dc3591fc68bf94d8db6d16cf326808dbf0f44d8e8373e8a7fcaf39b38281020fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c812240007777777777777777777777777777777777777777777777777777777777777777"`,
     )
+
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash: '0xdeadbeef',
+        signature,
+      }),
+    ).toBe(true)
   })
 
   test('behavior: access key', async () => {
@@ -168,8 +180,16 @@ describe('fromHeadlessWebAuthn', () => {
       hash: '0xdeadbeef',
     })
     expect(signature).toMatchInlineSnapshot(
-      `"0x0249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a223371322d3777222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d1b3346991a9ad1498e401dc0448e93d1bde113778d442f5bcafc44925cf3121961e9b1c21b054e54fe6c2eec0cd310c8535b7e7dd1f7dd7bf749e6d78154b48120fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c812240"`,
+      `"0x0249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a223371322d3777222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d1b3346991a9ad1498e401dc0448e93d1bde113778d442f5bcafc44925cf3121961e9b1c21b054e54fe6c2eec0cd310c8535b7e7dd1f7dd7bf749e6d78154b48120fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c8122407777777777777777777777777777777777777777777777777777777777777777"`,
     )
+
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash: '0xdeadbeef',
+        signature,
+      }),
+    ).toBe(true)
   })
 
   test('behavior: access key', async () => {
@@ -238,6 +258,49 @@ describe('signMessage', () => {
     expect(signature).toMatchInlineSnapshot(
       `"0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"`,
     )
+
+    expect(
+      await verifyMessage(client, {
+        address: account.address,
+        message: 'hello world',
+        signature,
+      }),
+    ).toBe(true)
+  })
+
+  test('behavior: p256', async () => {
+    const account = Account.fromP256(privateKey_p256)
+    const signature = await account.signMessage({ message: 'hello world' })
+    expect(signature).toMatchInlineSnapshot(
+      `"0x019e8afd9a5a2a6034a89d1dc09d6351eb83a3bcf3ee55e55973959c3b90b8103726f0de082476045ec872c42efb27ef2159a848df1d5c8326f3ad14dcfd00653220fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c812240007777777777777777777777777777777777777777777777777777777777777777"`,
+    )
+
+    expect(
+      await verifyMessage(client, {
+        address: account.address,
+        message: 'hello world',
+        signature,
+      }),
+    ).toBe(true)
+  })
+
+  test('behavior: webAuthn', async () => {
+    const account = Account.fromHeadlessWebAuthn(privateKey_p256, {
+      rpId: 'localhost',
+      origin: 'http://localhost',
+    })
+    const signature = await account.signMessage({ message: 'hello world' })
+    expect(signature).toMatchInlineSnapshot(
+      `"0x0249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a223265756862744473726b4d72636634416a4a6a4d687975307a43464e4d69436a627a5a544a732d41665767222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d465aa5cd2f5155792a3d5585c059bfacbca733664436aac190c6d2f6c8cd76156a519c9ece3e757a075423f12f87b0dbbb536e158e4b19e6ac94bcc59330843720fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c8122407777777777777777777777777777777777777777777777777777777777777777"`,
+    )
+
+    expect(
+      await verifyMessage(client, {
+        address: account.address,
+        message: 'hello world',
+        signature,
+      }),
+    ).toBe(true)
   })
 })
 
@@ -252,6 +315,37 @@ describe('signTransaction', () => {
     })
     expect(serialized).toBeDefined()
     expect(typeof serialized).toBe('string')
+  })
+
+  test('behavior: p256', async () => {
+    const account = Account.fromP256(privateKey_p256)
+    const serialized = await account.signTransaction({
+      chainId: 1,
+      calls: [],
+      maxFeePerGas: parseGwei('10'),
+      to: '0x0000000000000000000000000000000000000001',
+      value: 0n,
+    })
+    expect(serialized).toMatchInlineSnapshot(
+      `"0x76f8ae01808502540be40080d8d79400000000000000000000000000000000000000018080c0808080808080c0b88201a634e2f5952b461e0818ce86067736d5ce18a61e50ebf6211eca327b9c30802571b7a01eb9ca00481fca589e9682ff9acb5b496315a738ecdd9d5491ff46d6b420fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c81224000"`,
+    )
+  })
+
+  test('behavior: webAuthn', async () => {
+    const account = Account.fromHeadlessWebAuthn(privateKey_p256, {
+      rpId: 'localhost',
+      origin: 'http://localhost',
+    })
+    const serialized = await account.signTransaction({
+      chainId: 1,
+      calls: [],
+      maxFeePerGas: parseGwei('10'),
+      to: '0x0000000000000000000000000000000000000001',
+      value: 0n,
+    })
+    expect(serialized).toMatchInlineSnapshot(
+      `"0x76f9015401808502540be40080d8d79400000000000000000000000000000000000000018080c0808080808080c0b901270249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a2247394b526f3462364a4336446d4e596241477847514e42373962356a6d41425f486a6e364e562d7a5f3851222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d8825fcab1b36bd74f6171f6a02698f8a3f7c4494005ed58c10526fe292e7583f2421e978ad3f70421e98a22e5c0b940d483793eeb1ba0e0556a1650ebced6ae520fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c812240"`,
+    )
   })
 })
 
@@ -273,6 +367,98 @@ describe('signTypedData', () => {
     expect(signature).toMatchInlineSnapshot(
       `"0xb8952a54215f98f3de2cba7d2dda7587f46654b1622963b44c81e8907bae7ef866af78c1e27e54ef46b04ae2bf5d513b72e6f59944e46a54104348010af170251c"`,
     )
+
+    expect(
+      await verifyTypedData(client, {
+        address: account.address,
+        domain: {
+          name: 'Test',
+          version: '1',
+          chainId: 1,
+        },
+        types: {
+          Test: [{ name: 'value', type: 'string' }],
+        },
+        primaryType: 'Test',
+        message: { value: 'hello' },
+        signature,
+      }),
+    ).toBe(true)
+  })
+
+  test('behavior: p256', async () => {
+    const account = Account.fromP256(privateKey_p256)
+    const signature = await account.signTypedData({
+      domain: {
+        name: 'Test',
+        version: '1',
+        chainId: 1,
+      },
+      types: {
+        Test: [{ name: 'value', type: 'string' }],
+      },
+      primaryType: 'Test',
+      message: { value: 'hello' },
+    })
+    expect(signature).toMatchInlineSnapshot(
+      `"0x01d0e4eba4b8715e90b17d6fae63521ec4f51e119c4f3857ed04120bebc19f61d411606f5b07163c071f4c5e553b9b88ec5d8e0a31c9c3a7472af0b4c3e1bd4c2420fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c812240007777777777777777777777777777777777777777777777777777777777777777"`,
+    )
+
+    expect(
+      await verifyTypedData(client, {
+        address: account.address,
+        domain: {
+          name: 'Test',
+          version: '1',
+          chainId: 1,
+        },
+        types: {
+          Test: [{ name: 'value', type: 'string' }],
+        },
+        primaryType: 'Test',
+        message: { value: 'hello' },
+        signature,
+      }),
+    ).toBe(true)
+  })
+
+  test('behavior: webAuthn', async () => {
+    const account = Account.fromHeadlessWebAuthn(privateKey_p256, {
+      rpId: 'localhost',
+      origin: 'http://localhost',
+    })
+    const signature = await account.signTypedData({
+      domain: {
+        name: 'Test',
+        version: '1',
+        chainId: 1,
+      },
+      types: {
+        Test: [{ name: 'value', type: 'string' }],
+      },
+      primaryType: 'Test',
+      message: { value: 'hello' },
+    })
+    expect(signature).toMatchInlineSnapshot(
+      `"0x0249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a2255444b505432495376767437546f35656436695a70346869485f364c4e6d3570446851646e7878654b5741222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d497b47c010ed378fca3ffba3939edce1a61d994fa0e83c473ef976c9527492f554003f6e898d2b1986aeb8e1731d622d6501f65d09bdefb70d2f72849580ddb020fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c8122407777777777777777777777777777777777777777777777777777777777777777"`,
+    )
+
+    expect(
+      await verifyTypedData(client, {
+        address: account.address,
+        domain: {
+          name: 'Test',
+          version: '1',
+          chainId: 1,
+        },
+        types: {
+          Test: [{ name: 'value', type: 'string' }],
+        },
+        primaryType: 'Test',
+        message: { value: 'hello' },
+        signature,
+      }),
+    ).toBe(true)
   })
 })
 
