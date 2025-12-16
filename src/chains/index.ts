@@ -545,6 +545,8 @@ export { skaleNebula } from './definitions/skale/nebula.js'
 export { skaleNebulaTestnet } from './definitions/skale/nebulaTestnet.js'
 /** @deprecated Use `skaleEuropa` instead.*/
 export { skaleRazor } from './definitions/skale/razor.js'
+export { skaleBase } from './definitions/skale/skaleBase.js'
+export { skaleBaseSepoliaTestnet } from './definitions/skale/skaleBaseSepoliaTestnet.js'
 export { skaleTitan } from './definitions/skale/titan.js'
 export { skaleTitanTestnet } from './definitions/skale/titanTestnet.js'
 export { sketchpad } from './definitions/sketchpad.js'
