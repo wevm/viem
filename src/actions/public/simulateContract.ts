@@ -83,6 +83,8 @@ export type SimulateContractParameters<
   accountOverride extends Account | Address | null | undefined = undefined,
   ///
   derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
+  callParameters extends
+    CallParameters<derivedChain> = CallParameters<derivedChain>,
 > = {
   account?: accountOverride | null | undefined
   chain?: chainOverride | undefined
@@ -95,7 +97,7 @@ export type SimulateContractParameters<
   args
 > &
   UnionOmit<
-    CallParameters<derivedChain>,
+    callParameters,
     | 'account'
     | 'batch'
     | 'code'
@@ -109,9 +111,7 @@ export type SimulateContractParameters<
     abi,
     'nonpayable' | 'payable',
     functionName,
-    CallParameters<derivedChain> extends CallParameters
-      ? CallParameters<derivedChain>['value']
-      : CallParameters['value'],
+    callParameters['value'],
     args
   >
 

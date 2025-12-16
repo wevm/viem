@@ -11,6 +11,7 @@ catalog:
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   - '@vitest/*'
+  - abitype
   - glob  
   - hono
   - ox
