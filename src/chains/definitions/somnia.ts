@@ -16,11 +16,5 @@ export const somnia = defineChain({
       apiUrl: 'https://explorer.somnia.network/api',
     },
   },
-  contracts: {
-    multicall3: {
-      address: '0x5e44F178E8cF9B2F5409B6f18ce936aB817C5a11',
-      blockCreated: 38_516_341,
-    },
-  },
   testnet: false,
 })
