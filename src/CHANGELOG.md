@@ -1,5 +1,11 @@
 # viem
 
+## 2.43.1
+
+### Patch Changes
+
+- [`28cc8934f1cb9003addb37be681be902a752fa3c`](https://github.com/wevm/viem/commit/28cc8934f1cb9003addb37be681be902a752fa3c) Thanks [@tmm](https://github.com/tmm)! - Updated internal types for named tuples inference
+
 ## 2.43.0
 
 ### Minor Changes
