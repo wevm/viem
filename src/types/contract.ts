@@ -229,7 +229,7 @@ export type ContractFunctionParameters<
         | undefined
     }
   : {
-      args: args
+      args: IsUnion<abiFunction> extends true ? args : allArgs
     }) &
   (deployless extends true
     ? {

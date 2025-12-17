@@ -20,6 +20,17 @@ test('return type', () => {
   attest<Promise<bigint>>(res)
 })
 
+test('default', () => {
+  type Result = ReadContractParameters<typeof erc20Abi, 'allowance'>
+  const res = {} as Result
+  attest.instantiations([9217, 'instantiations'])
+  attest<readonly [owner: `0x${string}`, spender: `0x${string}`]>(res.args)
+  attest(res.args).type.toString.snap(`readonly [
+  owner: \`0x\${string}\`,
+  spender: \`0x\${string}\`
+]`)
+})
+
 const abi = parseAbi([
   'function foo() view returns (int8)',
   'function foo(address account) view returns (string)',
