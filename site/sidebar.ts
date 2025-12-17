@@ -1808,6 +1808,10 @@ export const sidebar = {
             text: 'Chains',
             link: '/tempo/chains',
           },
+          {
+            text: 'Tempo Docs & Guides',
+            link: 'https://docs.tempo.xyz',
+          },
         ],
       },
       {
