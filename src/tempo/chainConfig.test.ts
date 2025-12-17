@@ -6,9 +6,13 @@ import {
   prepareTransactionRequest,
   sendTransactionSync,
   signTransaction,
+  verifyHash,
 } from '../actions/index.js'
-import { tempoLocalnet } from '../chains/index.js'
+import { mainnet, tempoLocalnet } from '../chains/index.js'
+import { createClient, http } from '../index.js'
 import { defineChain } from '../utils/chain/defineChain.js'
+import { hashMessage } from '../utils/index.js'
+import { Account, P256, WebCryptoP256 } from './index.js'
 
 const client = getClient({
   account: accounts.at(0)!,
@@ -195,5 +199,217 @@ describe('serializers', () => {
     expect(serialized).toBeDefined()
     expect(typeof serialized).toBe('string')
     expect(serialized.startsWith('0x76')).toBe(true)
+  })
+})
+
+describe('verifyHash', () => {
+  test('p256: valid signature', async () => {
+    const privateKey = P256.randomPrivateKey()
+    const account = Account.fromP256(privateKey)
+
+    const hash = hashMessage('hello world')
+    const signature = await account.sign({ hash })
+
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      }),
+    ).toBe(true)
+  })
+
+  test('p256: invalid signature returns false', async () => {
+    const privateKey = P256.randomPrivateKey()
+    const account = Account.fromP256(privateKey)
+
+    const hash = hashMessage('hello world')
+    const wrongHash = hashMessage('wrong message')
+    const signature = await account.sign({ hash })
+
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash: wrongHash,
+        signature,
+      }),
+    ).toBe(false)
+  })
+
+  test('webCrypto: valid signature', async () => {
+    const keyPair = await WebCryptoP256.createKeyPair()
+    const account = Account.fromWebCryptoP256(keyPair)
+
+    const hash = hashMessage('hello world')
+    const signature = await account.sign({ hash })
+
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      }),
+    ).toBe(true)
+  })
+
+  test('webCrypto: invalid signature returns false', async () => {
+    const keyPair = await WebCryptoP256.createKeyPair()
+    const account = Account.fromWebCryptoP256(keyPair)
+
+    const hash = hashMessage('hello world')
+    const wrongHash = hashMessage('wrong message')
+    const signature = await account.sign({ hash })
+
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash: wrongHash,
+        signature,
+      }),
+    ).toBe(false)
+  })
+
+  test('headlessWebAuthn: valid signature', async () => {
+    const privateKey = P256.randomPrivateKey()
+    const account = Account.fromHeadlessWebAuthn(privateKey, {
+      rpId: 'example.com',
+      origin: 'https://example.com',
+    })
+
+    const hash = hashMessage('hello world')
+    const signature = await account.sign({ hash })
+
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      }),
+    ).toBe(true)
+  })
+
+  test('headlessWebAuthn: invalid signature returns false', async () => {
+    const privateKey = P256.randomPrivateKey()
+    const account = Account.fromHeadlessWebAuthn(privateKey, {
+      rpId: 'example.com',
+      origin: 'https://example.com',
+    })
+
+    const hash = hashMessage('hello world')
+    const wrongHash = hashMessage('wrong message')
+    const signature = await account.sign({ hash })
+
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash: wrongHash,
+        signature,
+      }),
+    ).toBe(false)
+  })
+
+  test('p256: wrong address returns false', async () => {
+    const privateKey = P256.randomPrivateKey()
+    const account = Account.fromP256(privateKey)
+
+    // Create a different account to use as the wrong address
+    const wrongAccount = Account.fromP256(P256.randomPrivateKey())
+
+    const hash = hashMessage('hello world')
+    const signature = await account.sign({ hash })
+
+    // Try to verify the signature with the wrong address - should fail
+    expect(
+      await verifyHash(client, {
+        address: wrongAccount.address,
+        hash,
+        signature,
+      }),
+    ).toBe(false)
+  })
+
+  test('webCrypto: wrong address returns false', async () => {
+    const keyPair = await WebCryptoP256.createKeyPair()
+    const account = Account.fromWebCryptoP256(keyPair)
+
+    // Create a different account to use as the wrong address
+    const wrongKeyPair = await WebCryptoP256.createKeyPair()
+    const wrongAccount = Account.fromWebCryptoP256(wrongKeyPair)
+
+    const hash = hashMessage('hello world')
+    const signature = await account.sign({ hash })
+
+    // Try to verify the signature with the wrong address - should fail
+    expect(
+      await verifyHash(client, {
+        address: wrongAccount.address,
+        hash,
+        signature,
+      }),
+    ).toBe(false)
+  })
+
+  test('headlessWebAuthn: wrong address returns false', async () => {
+    const privateKey = P256.randomPrivateKey()
+    const account = Account.fromHeadlessWebAuthn(privateKey, {
+      rpId: 'example.com',
+      origin: 'https://example.com',
+    })
+
+    // Create a different account to use as the wrong address
+    const wrongAccount = Account.fromHeadlessWebAuthn(P256.randomPrivateKey(), {
+      rpId: 'example.com',
+      origin: 'https://example.com',
+    })
+
+    const hash = hashMessage('hello world')
+    const signature = await account.sign({ hash })
+
+    // Try to verify the signature with the wrong address - should fail
+    expect(
+      await verifyHash(client, {
+        address: wrongAccount.address,
+        hash,
+        signature,
+      }),
+    ).toBe(false)
+  })
+
+  test('behavior: non-tempo chain', async () => {
+    const privateKey = P256.randomPrivateKey()
+    const account = Account.fromP256(privateKey)
+
+    const hash = hashMessage('hello world')
+    const signature = await account.sign({ hash })
+
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        chain: mainnet,
+        hash,
+        signature,
+      }),
+    ).toBe(false)
+  })
+
+  test('behavior: non-tempo chain (client)', async () => {
+    const client = createClient({
+      chain: mainnet,
+      transport: http(),
+    })
+
+    const privateKey = P256.randomPrivateKey()
+    const account = Account.fromP256(privateKey)
+
+    const hash = hashMessage('hello world')
+    const signature = await account.sign({ hash })
+
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      }),
+    ).toBe(false)
   })
 })

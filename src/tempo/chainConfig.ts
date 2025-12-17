@@ -1,9 +1,13 @@
-import type { TokenId } from 'ox/tempo'
+import * as SignatureEnvelope from 'ox/tempo/SignatureEnvelope'
+import type * as TokenId from 'ox/tempo/TokenId'
+import { getCode } from '../actions/public/getCode.js'
+import { verifyHash } from '../actions/public/verifyHash.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
 import { extendSchema } from '../utils/chain/defineChain.js'
 import { defineTransaction } from '../utils/formatters/transaction.js'
 import { defineTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
 import { defineTransactionRequest } from '../utils/formatters/transactionRequest.js'
+import { getAction } from '../utils/getAction.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import type { Account } from './Account.js'
 import * as Formatters from './Formatters.js'
@@ -66,6 +70,44 @@ export const chainConfig = {
     // TODO: casting to satisfy viem – viem v3 to have more flexible serializer type.
     transaction: ((transaction, signature) =>
       Transaction.serialize(transaction, signature)) as SerializeTransactionFn,
+  },
+  async verifyHash(client, parameters) {
+    const { address, hash, signature } = parameters
+
+    // `verifyHash` supports "signature envelopes" (a Tempo proposal) to natively verify arbitrary
+    // envelope-compatible (WebAuthn, P256, etc.) signatures.
+    // We can directly verify stateless, non-keychain signature envelopes without a
+    // network request to the chain.
+    if (
+      typeof signature === 'string' &&
+      signature.endsWith(SignatureEnvelope.magicBytes.slice(2))
+    ) {
+      const envelope = SignatureEnvelope.deserialize(signature)
+      if (envelope.type !== 'keychain') {
+        const code = await getCode(client, {
+          address,
+          blockNumber: parameters.blockNumber,
+          blockTag: parameters.blockTag,
+        } as never)
+        // Check if EOA, if not, we want to go down the ERC-1271 flow.
+        if (
+          // not a contract (EOA)
+          !code ||
+          // default delegation (tempo EOA)
+          code === '0xef01007702c00000000000000000000000000000000000'
+        )
+          return SignatureEnvelope.verify(envelope, {
+            address,
+            payload: hash,
+          })
+      }
+    }
+
+    return await getAction(
+      client,
+      verifyHash,
+      'verifyHash',
+    )({ ...parameters, chain: null })
   },
 } as const satisfies viem_ChainConfig & { blockTime: number }
 

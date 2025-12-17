@@ -1,7 +1,6 @@
 import type { Address } from 'abitype'
 import { SignatureErc6492 } from 'ox/erc6492'
 import { SignatureErc8010 } from 'ox/erc8010'
-import * as SignatureEnvelope from 'ox/tempo/SignatureEnvelope'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
@@ -68,6 +67,8 @@ export type VerifyHashParameters = Pick<
 > & {
   /** The address that signed the original message. */
   address: Address
+  /** The chain to use. */
+  chain?: Chain | null | undefined
   /** The address of the ERC-6492 signature verifier contract. */
   erc6492VerifierAddress?: Address | undefined
   /** The hash to be verified. */
@@ -112,13 +113,16 @@ export async function verifyHash<chain extends Chain | undefined>(
 ): Promise<VerifyHashReturnType> {
   const {
     address,
+    chain = client.chain,
     hash,
     erc6492VerifierAddress:
       verifierAddress = parameters.universalSignatureVerifierAddress ??
-      client.chain?.contracts?.erc6492Verifier?.address,
+      chain?.contracts?.erc6492Verifier?.address,
     multicallAddress = parameters.multicallAddress ??
-      client.chain?.contracts?.multicall3?.address,
+      chain?.contracts?.multicall3?.address,
   } = parameters
+
+  if (chain?.verifyHash) return await chain.verifyHash(client, parameters)
 
   const signature = (() => {
     const signature = parameters.signature
@@ -129,31 +133,6 @@ export async function verifyHash<chain extends Chain | undefined>(
   })()
 
   try {
-    // `verifyHash` supports "signature envelopes" (a Tempo proposal) to natively verify arbitrary
-    // envelope-compatible (WebAuthn, P256, etc.) signatures.
-    // We can directly verify stateless, non-keychain signature envelopes without a
-    // network request to the chain.
-    if (signature.endsWith(SignatureEnvelope.magicBytes.slice(2))) {
-      const envelope = SignatureEnvelope.deserialize(signature)
-      if (envelope.type !== 'keychain') {
-        const code = await getCode(client, {
-          address,
-          blockNumber: parameters.blockNumber,
-          blockTag: parameters.blockTag,
-        } as never)
-        // Check if EOA, if not, we want to go down the ERC-1271 flow.
-        if (
-          // not a contract (EOA)
-          !code ||
-          // default delegation (tempo EOA)
-          code === '0xef01007702c00000000000000000000000000000000000'
-        )
-          return SignatureEnvelope.verify(envelope, {
-            address,
-            payload: hash,
-          })
-      }
-    }
     if (SignatureErc8010.validate(signature))
       return await verifyErc8010(client, {
         ...parameters,

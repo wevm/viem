@@ -1,6 +1,10 @@
 import type { Address } from 'abitype'
 
 import type { EstimateFeesPerGasReturnType } from '../actions/public/estimateFeesPerGas.js'
+import type {
+  VerifyHashParameters,
+  VerifyHashReturnType,
+} from '../actions/public/verifyHash.js'
 import type { PrepareTransactionRequestParameters } from '../actions/wallet/prepareTransactionRequest.js'
 import type { Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
@@ -80,6 +84,11 @@ type PrepareTransactionRequestFn = (
   options: { phase: PrepareTransactionRequestPhase },
 ) => Promise<PrepareTransactionRequestParameters>
 
+type ChainVerifyHashFn = (
+  client: Client,
+  parameters: VerifyHashParameters,
+) => Promise<VerifyHashReturnType>
+
 export type ChainConfig<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
   extendSchema extends Record<string, unknown> | undefined =
@@ -113,6 +122,12 @@ export type ChainConfig<
     | undefined
   /** Modifies how data is serialized (e.g. transactions). */
   serializers?: ChainSerializers<formatters> | undefined
+  /**
+   * Chain-specific signature verification.
+   * Signatures will be verified using this function before
+   * falling back to the default verification logic.
+   */
+  verifyHash?: ChainVerifyHashFn | undefined
 }
 
 /////////////////////////////////////////////////////////////////////
