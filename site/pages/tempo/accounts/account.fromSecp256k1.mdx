@@ -58,23 +58,6 @@ const receipt = await client.sendTransactionSync({
 
 :::
 
-{/* TODO: export in tempo.ts 
-
-### With Persistent Storage
-
-Configure the account with persistent storage for key authorizations:
-
-```ts twoslash
-import { Account, Storage } from 'viem/tempo'
-
-const account = Account.fromSecp256k1(
-  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
-  {
-    storage: Storage.localStorage(),
-  }
-)
-``` */}
-
 ## Return Type
 
 The return type of `Account.fromSecp256k1` is backwards compatible with Viem's `Account` type.
@@ -91,8 +74,6 @@ type Account = {
   publicKey: Hex
   /** Account source */
   source: string
-  /** Account storage */
-  storage: Storage
   /** Account type */
   type: 'local'
   
@@ -131,11 +112,4 @@ The secp256k1 private key as a hex string.
 - **Type:** `Address | Account`
 
 Parent account to access. 
-
-#### options.storage
-
-- **Type:** `Storage`
-- **Default:** `Storage.memory()`
-
-Account storage for key authorizations and metadata.
 

@@ -75,8 +75,6 @@ type Account = {
   publicKey: Hex
   /** Account source */
   source: string
-  /** Account storage */
-  storage: Storage
   /** Account type */
   type: 'local'
   
@@ -117,9 +115,3 @@ Custom function to get the WebAuthn credential. Use this to override the default
 
 The relying party ID. This should match the domain of your application.
 
-#### options.storage
-
-- **Type:** `Storage`
-- **Default:** `Storage.memory()`
-
-Account storage for pending key authorizations and metadata.

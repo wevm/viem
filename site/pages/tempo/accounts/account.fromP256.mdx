@@ -74,8 +74,6 @@ type Account = {
   publicKey: Hex
   /** Account source */
   source: string
-  /** Account storage */
-  storage: Storage
   /** Account type */
   type: 'local'
   
@@ -114,10 +112,3 @@ The P256 private key as a hex string.
 - **Type:** `Address | Account`
 
 Parent account to access. 
-
-#### options.storage
-
-- **Type:** `Storage`
-- **Default:** `Storage.memory()`
-
-Account storage for key authorizations and metadata.

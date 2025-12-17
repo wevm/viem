@@ -73,8 +73,6 @@ type Account = {
   publicKey: Hex
   /** Account source */
   source: string
-  /** Account storage */
-  storage: Storage
   /** Account type */
   type: 'local'
   
@@ -114,9 +112,3 @@ The WebCrypto P256 key pair from `WebCryptoP256.createKeyPair()`.
 
 Parent account to access. 
 
-#### options.storage
-
-- **Type:** `Storage`
-- **Default:** `Storage.memory()`
-
-Account storage for pending key authorizations and metadata.
