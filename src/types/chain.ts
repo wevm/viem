@@ -122,11 +122,7 @@ export type ChainConfig<
     | undefined
   /** Modifies how data is serialized (e.g. transactions). */
   serializers?: ChainSerializers<formatters> | undefined
-  /**
-   * Chain-specific signature verification.
-   * Signatures will be verified using this function before
-   * falling back to the default verification logic.
-   */
+  /** Chain-specific signature verification. */
   verifyHash?: ChainVerifyHashFn | undefined
 }
 
