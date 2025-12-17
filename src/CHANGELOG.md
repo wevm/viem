@@ -1,5 +1,75 @@
 # viem
 
+## 2.43.0
+
+### Minor Changes
+
+- [#4107](https://github.com/wevm/viem/pull/4107) [`b423fc17eba4f9f0648f72f5358a8e5ed9d5f092`](https://github.com/wevm/viem/commit/b423fc17eba4f9f0648f72f5358a8e5ed9d5f092) Thanks [@tmm](https://github.com/tmm)! - Added experimental named tuple support for contract-related actions and utilities.
+
+- [#4147](https://github.com/wevm/viem/pull/4147) [`734d99d9da4b76f9aa985a800213b4ba581607df`](https://github.com/wevm/viem/commit/734d99d9da4b76f9aa985a800213b4ba581607df) Thanks [@jxom](https://github.com/jxom)! - Added first-class support and extension for [Tempo](https://docs.tempo.xyz).
+
+  ***
+
+  Attaching a Tempo chain to your client grants your transaction actions with [Tempo superpowers](https://docs.tempo.xyz/protocol/transactions) like batched calls and external fee payer capabilities.
+
+  ```ts
+  import { createClient, http } from "viem";
+  import { privateKeyToAccount } from "viem/accounts";
+  import { tempoTestnet } from "viem/chains";
+
+  const client = createClient({
+    account: privateKeyToAccount("0x…"),
+    chain: tempoTestnet.extend({
+      feeToken: "0x20c00000000000000000000000000000000000fa",
+    }),
+    transport: http(),
+  });
+
+  const receipt = client.sendTransactionSync({
+    calls: [
+      { data: "0x…", to: "0x…" },
+      { data: "0x…", to: "0x…" },
+      { data: "0x…", to: "0x…" },
+    ],
+    feePayer: privateKeyToAccount("0x…"),
+  });
+  ```
+
+  You can also use Tempo Actions to call to enshrined protocol features like the Stablecoin Token Factory:
+
+  ```ts
+  import { createClient, http } from "viem";
+  import { privateKeyToAccount } from "viem/accounts";
+  import { tempoTestnet } from "viem/chains";
+  import { tempoActions } from "viem/tempo";
+
+  const client = createClient({
+    account: privateKeyToAccount("0x…"),
+    chain: tempoTestnet,
+    transport: http(),
+  }).extend(tempoActions());
+
+  const { receipt, token } = await client.token.createSync({
+    currency: "USD",
+    name: "My Company USD",
+    symbol: "CUSD",
+  });
+  ```
+
+### Patch Changes
+
+- [#4168](https://github.com/wevm/viem/pull/4168) [`3ff6c2f19350dcbe49017e2b3d5a2cf761ab9070`](https://github.com/wevm/viem/commit/3ff6c2f19350dcbe49017e2b3d5a2cf761ab9070) Thanks [@albertov19](https://github.com/albertov19)! - Added DataHaven Testnet chain.
+
+- [`aa19d02951f5af26bdcfb472901d940ba446672b`](https://github.com/wevm/viem/commit/aa19d02951f5af26bdcfb472901d940ba446672b) Thanks [@jxom](https://github.com/jxom)! - Added missing /_#**PURE**_/ annotations to chains.
+
+- [`e0ccf5ba210a14ee17df49db90da2b37aa592222`](https://github.com/wevm/viem/commit/e0ccf5ba210a14ee17df49db90da2b37aa592222) Thanks [@jxom](https://github.com/jxom)! - Added support for EntryPoint 0.9 on `toSimple7702SmartAccount`.
+
+- [#4172](https://github.com/wevm/viem/pull/4172) [`9b7d6734c2ac4b6b26f7284842eb685c92a85e8e`](https://github.com/wevm/viem/commit/9b7d6734c2ac4b6b26f7284842eb685c92a85e8e) Thanks [@richiedunk](https://github.com/richiedunk)! - Added Somnia network.
+
+- [#4167](https://github.com/wevm/viem/pull/4167) [`bf53fd1d78de1f5b5658e6d9242a348d1667c565`](https://github.com/wevm/viem/commit/bf53fd1d78de1f5b5658e6d9242a348d1667c565) Thanks [@manuelbarbas](https://github.com/manuelbarbas)! - Added New SKALE Base Chains (Testnet and Mainnet)
+
+- [`4f7db6a9e9eacd4152ddf89c84f019e4b93b70f0`](https://github.com/wevm/viem/commit/4f7db6a9e9eacd4152ddf89c84f019e4b93b70f0) Thanks [@jxom](https://github.com/jxom)! - Added `defineChain#verifyHash` for chain-specific signature verification.
+
 ## 2.42.1
 
 ### Patch Changes
