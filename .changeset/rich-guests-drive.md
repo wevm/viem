@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Updates Moonbeam/Moonriver RPCs
+Updated Moonbeam/Moonriver RPC URLs.
