@@ -166,6 +166,7 @@ jobs:
           command: pnpm test --bail=1 --project tempo e2e
         env:
           CI: true
+          VITE_TEMPO_CREDENTIALS: ${{ secrets.VITE_TEMPO_CREDENTIALS }}
           VITE_TEMPO_ENV: ${{ matrix.node-env }}
 
   test-envs:
