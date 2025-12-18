@@ -194,4 +194,25 @@ describe('formatTransactionRequest', () => {
     } as never)
     expect((rpc as Record<string, unknown>).feePayer).toBeDefined()
   })
+
+  test('behavior: rpc call value of "0x" is coerced to 0n (json-rpc account)', () => {
+    const r = {
+      chainId: 42429,
+      account: {
+        address: '0x3DfFdac2026762B096E9D47d3ac9b9d6EB779537',
+        type: 'json-rpc',
+      },
+      calls: [
+        {
+          to: '0x20c0000000000000000000000000000000000001',
+          value: '0x',
+          data: '0x95777d5900000000000000000000000038d48fada993b749691e93e4e62259c488bcb76600000000000000000000000000000000000000000000000000000000000f42406500000000000000000000000000000000000000000000000000000000000000',
+        },
+      ],
+    }
+
+    const rpc = Formatters.formatTransactionRequest(r as never)
+    expect(rpc.to).toBe('0x20c0000000000000000000000000000000000001')
+    expect(rpc.type).toBeUndefined()
+  })
 })

@@ -96,6 +96,27 @@ export function formatTransactionRequest(
   // as the fee payer will choose their fee token.
   if (request.feePayer === true) delete request.feeToken
 
+  // `ox` expects "typed" values (e.g. `bigint`) and will format them into RPC
+  // quantities. However, some callers may provide already-RPC-shaped values
+  // (e.g. `value: "0x"`), so we coerce them back to typed values.
+  const coerceQuantity = (value: unknown) => {
+    if (typeof value !== 'string') return value
+    if (value === '0x') return 0n
+    return Hex.toBigInt(value as Hex.Hex)
+  }
+  if (typeof request.value !== 'undefined')
+    request.value = coerceQuantity(request.value) as never
+  if (request.calls?.length)
+    request.calls = request.calls.map((call) => {
+      const c = call as Record<string, unknown>
+      return {
+        ...call,
+        ...(typeof c.value !== 'undefined'
+          ? { value: coerceQuantity(c.value) }
+          : {}),
+      }
+    }) as never
+
   const rpc = ox_TransactionRequest.toRpc({
     ...request,
     type: 'tempo',
