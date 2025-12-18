@@ -96,9 +96,7 @@ export function formatTransactionRequest(
   // as the fee payer will choose their fee token.
   if (request.feePayer === true) delete request.feeToken
 
-  // `ox` expects "typed" values (e.g. `bigint`) and will format them into RPC
-  // quantities. However, some callers may provide already-RPC-shaped values
-  // (e.g. `value: "0x"`), so we coerce them back to typed values.
+  // Normalize RPC-shaped quantities (e.g. `"0x"`) back to typed values for `ox`.
   const coerceQuantity = (value: unknown) => {
     if (typeof value !== 'string') return value
     if (value === '0x') return 0n
