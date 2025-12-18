@@ -70,6 +70,15 @@ export const http = (url = rpcUrl) =>
     ...debugOptions({
       rpcUrl: url,
     }),
+    ...(nodeEnv === 'devnet'
+      ? {
+          fetchOptions: {
+            headers: {
+              Authorization: `Basic ${btoa(import.meta.env.VITE_TEMPO_CREDENTIALS!)}`,
+            },
+          },
+        }
+      : {}),
   })
 
 export function getClient<
@@ -259,8 +268,8 @@ export async function fundAddress(
   const account = accounts.at(0)!
   if (account.address === address) return
   await Promise.all(
-    // fund pathUSD, alphaUSD, betaUSD, thetaUSD
-    [0n, 1n, 2n, 3n].map((feeToken) =>
+    // fund pathUSD, alphaUSD
+    [0n, 1n].map((feeToken) =>
       Actions.token.transferSync(client, {
         account,
         amount: parseUnits('10000', 6),
