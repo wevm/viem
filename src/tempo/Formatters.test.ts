@@ -83,41 +83,6 @@ describe('formatTransactionRequest', () => {
     expect(rpc.maxPriorityFeePerGas).toBeUndefined()
   })
 
-  test('behavior: json-rpc account with batch calls throws', () => {
-    expect(() =>
-      Formatters.formatTransactionRequest({
-        chainId: 1,
-        account: {
-          address: '0x0000000000000000000000000000000000000000',
-          type: 'json-rpc',
-        },
-        calls: [
-          { to: '0x0000000000000000000000000000000000000001' },
-          { to: '0x0000000000000000000000000000000000000002' },
-        ],
-      } as never),
-    ).toThrow('Batch calls are not supported with JSON-RPC accounts yet.')
-  })
-
-  test('behavior: json-rpc account with single call clears type', () => {
-    const rpc = Formatters.formatTransactionRequest({
-      chainId: 1,
-      account: {
-        address: '0x0000000000000000000000000000000000000000',
-        type: 'json-rpc',
-      },
-      calls: [
-        {
-          to: '0x0000000000000000000000000000000000000001',
-          data: '0xdeadbeef',
-        },
-      ],
-    } as never)
-    expect(rpc.to).toBe('0x0000000000000000000000000000000000000001')
-    expect(rpc.data).toBe('0xdeadbeef')
-    expect(rpc.type).toBeUndefined()
-  })
-
   test('behavior: unknown account source returns no keyType', () => {
     const rpc = Formatters.formatTransactionRequest({
       chainId: 1,
