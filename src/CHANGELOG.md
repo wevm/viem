@@ -1,5 +1,21 @@
 # viem
 
+## 2.43.2
+
+### Patch Changes
+
+- [`e3a110394b9775ee2eb4141526b274a5480b25fb`](https://github.com/wevm/viem/commit/e3a110394b9775ee2eb4141526b274a5480b25fb) Thanks [@jxom](https://github.com/jxom)! - Updated Ox.
+
+- [`5087f50f98b3bd74e5bb9483c7e2c46418395a2d`](https://github.com/wevm/viem/commit/5087f50f98b3bd74e5bb9483c7e2c46418395a2d) Thanks [@jxom](https://github.com/jxom)! - Fixed JSON-RPC account formatting for Tempo transactions.
+
+- [#4173](https://github.com/wevm/viem/pull/4173) [`0e8149f9275a6453d52d9847dd02176e7089ce4e`](https://github.com/wevm/viem/commit/0e8149f9275a6453d52d9847dd02176e7089ce4e) Thanks [@sandyup](https://github.com/sandyup)! - Added Apollo mainnet.
+
+- [#4181](https://github.com/wevm/viem/pull/4181) [`cb2bb89abf311eb2de7b506418e28d500087ca91`](https://github.com/wevm/viem/commit/cb2bb89abf311eb2de7b506418e28d500087ca91) Thanks [@albertov19](https://github.com/albertov19)! - Updated Moonbeam/Moonriver RPC URLs.
+
+- [#4179](https://github.com/wevm/viem/pull/4179) [`0c10bf7a50b7eabf97cd23c88263122c79f775cd`](https://github.com/wevm/viem/commit/0c10bf7a50b7eabf97cd23c88263122c79f775cd) Thanks [@findmytrueself](https://github.com/findmytrueself)! - Added HPP Mainnet & Sepolia
+
+- [#4180](https://github.com/wevm/viem/pull/4180) [`f983ce9ad4eb4d53fd9d952e7e1cff4053ae7100`](https://github.com/wevm/viem/commit/f983ce9ad4eb4d53fd9d952e7e1cff4053ae7100) Thanks [@BigtoMantraDev](https://github.com/BigtoMantraDev)! - rename MANTRA DuKong native coin
+
 ## 2.43.1
 
 ### Patch Changes
