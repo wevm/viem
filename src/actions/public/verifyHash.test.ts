@@ -60,7 +60,7 @@ describe('local account', async () => {
       message: 'hello world',
     })
 
-    expect(
+    await expect(
       verifyHash(client, {
         address: localAccount.address,
         hash: hashMessage('hello world'),
@@ -75,7 +75,7 @@ describe('local account', async () => {
       message: 'hello world',
     })
 
-    expect(
+    await expect(
       verifyHash(client, {
         address: localAccount.address,
         hash: hashMessage('hello world'),
@@ -90,7 +90,7 @@ describe('local account', async () => {
       message: 'hello world',
     })
 
-    expect(
+    await expect(
       verifyHash(client, {
         address: localAccount.address,
         hash: hashMessage('hello world'),
@@ -120,7 +120,7 @@ describe('erc6492', async () => {
       verifier,
     })
 
-    expect(
+    await expect(
       verifyHash(client, {
         address: verifier,
         hash: hashMessage('hello world'),
@@ -154,7 +154,7 @@ describe('erc6492', async () => {
       verifier,
     })
 
-    expect(
+    await expect(
       verifyHash(client, {
         address: verifier,
         factory: factoryAddress,
@@ -192,7 +192,7 @@ describe('erc6492', async () => {
       verifier,
     })
 
-    expect(
+    await expect(
       verifyHash(client, {
         address: verifier,
         factory: factoryAddress,
@@ -242,7 +242,7 @@ describe('erc6492', async () => {
       verifier,
     })
 
-    expect(
+    await expect(
       verifyHash(overrideClient, {
         address: verifier,
         factory: factoryAddress,
@@ -280,7 +280,7 @@ describe('erc6492', async () => {
       verifier,
     })
 
-    expect(
+    await expect(
       verifyHash(client, {
         address: verifier,
         factory: factoryAddress,
@@ -329,7 +329,7 @@ describe('erc6492', async () => {
       verifier: account.address,
     })
 
-    expect(
+    await expect(
       verifyHash(client, {
         address: account.address,
         factory,
@@ -365,7 +365,7 @@ describe('erc6492', async () => {
       verifier,
     })
 
-    expect(
+    await expect(
       verifyHash(client, {
         address: verifier,
         factory: factoryAddress,
@@ -818,7 +818,7 @@ test('https://github.com/wevm/viem/issues/2484', async () => {
     message: 'hello world',
   })
 
-  expect(
+  await expect(
     verifyHash(client, {
       address: localAccount.address,
       hash: hashMessage('hello world'),
@@ -833,7 +833,7 @@ test('https://github.com/wevm/viem/issues/3593', async () => {
     message: 'hello world',
   })
 
-  expect(
+  await expect(
     verifyHash(client, {
       address: localAccount.address,
       hash: hashMessage('hello world'),
