@@ -264,34 +264,28 @@ export async function fundAddress(
   client: Client<Transport, Chain>,
   parameters: fundAddress.Parameters,
 ) {
-  const { address, sequential } = parameters
+  const { address } = parameters
   const account = accounts.at(0)!
   if (account.address === address) return
-
-  const tokens = [0n, 1n]
-  const shared = {
-    account,
-    amount: parseUnits('10000', 6),
-    to: address,
-  }
-
-  if (sequential)
-    for (const token of tokens)
-      await Actions.token.transferSync(client, { ...shared, token: token })
-  else
-    await Promise.all(
-      tokens.map((token) =>
-        Actions.token.transferSync(client, { ...shared, token }),
-      ),
-    )
+  await Promise.all(
+    // fund pathUSD, alphaUSD
+    [0n, 1n].map((feeToken) =>
+      Actions.token.transferSync(client, {
+        account,
+        amount: parseUnits('10000', 6),
+        // TODO: remove once `eth_fillTransaction` supports nonce keys.
+        gas: 100_000n,
+        to: address,
+        token: feeToken,
+      }),
+    ),
+  )
 }
 
 export declare namespace fundAddress {
   export type Parameters = {
     /** Account to fund. */
     address: Address
-    /** Run transfers sequentially to avoid 2D nonce gas costs. */
-    sequential?: boolean | undefined
   }
 }
 

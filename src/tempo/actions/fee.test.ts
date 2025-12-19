@@ -22,8 +22,8 @@ afterEach(async () => {
 describe('getUserToken', () => {
   test('default', async () => {
     // Fund accounts
-    await fundAddress(client, { address: account2.address, sequential: true })
-    await fundAddress(client, { address: account3.address, sequential: true })
+    await fundAddress(client, { address: account2.address })
+    await fundAddress(client, { address: account3.address })
 
     // Set token (address)
     await actions.fee.setUserTokenSync(client, {

@@ -126,31 +126,15 @@ export function formatTransactionRequest(
       ? account.accessKeyAddress
       : undefined
   const keyAuthorization = rpc.keyAuthorization
-    ? (() => {
-        const keyAuthorization = {
-          ...rpc.keyAuthorization,
-          // FIXME(ox): chainId not serialized in nested object
-          chainId:
-            rpc.keyAuthorization.chainId === '0x' ||
-            rpc.keyAuthorization.chainId === '0x0'
-              ? 0
-              : parseInt(rpc.keyAuthorization.chainId || '0x0', 16),
-        }
-        // FIXME(ox): expects `preHash` not `prehash`
-        if (
-          keyAuthorization.signature &&
-          keyAuthorization.signature.type === 'p256' &&
-          'prehash' in keyAuthorization.signature
-        ) {
-          const { prehash, ...rest } = keyAuthorization.signature
-          keyAuthorization.signature = {
-            ...rest,
-            // @ts-expect-error
-            preHash: prehash,
-          }
-        }
-        return keyAuthorization
-      })()
+    ? {
+        ...rpc.keyAuthorization,
+        // FIXME(ox): remove once https://github.com/tempoxyz/tempo/pull/1683 is deployed.
+        chainId:
+          rpc.keyAuthorization.chainId === '0x' ||
+          rpc.keyAuthorization.chainId === '0x0'
+            ? 0
+            : parseInt(rpc.keyAuthorization.chainId || '0x0', 16),
+      }
     : undefined
 
   return {
