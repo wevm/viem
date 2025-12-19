@@ -273,8 +273,6 @@ export async function fundAddress(
       Actions.token.transferSync(client, {
         account,
         amount: parseUnits('10000', 6),
-        // TODO: remove once `eth_fillTransaction` supports nonce keys.
-        gas: 100_000n,
         to: address,
         token: feeToken,
       }),
