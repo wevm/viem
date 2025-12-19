@@ -131,9 +131,6 @@ export function formatTransactionRequest(
     ...(keyType ? { keyType } : {}),
     ...(keyData ? { keyData } : {}),
     ...(keyId ? { keyId } : {}),
-    ...(request.keyAuthorization
-      ? { keyAuthorization: request.keyAuthorization }
-      : {}),
     ...(request.feePayer
       ? {
           feePayer:
