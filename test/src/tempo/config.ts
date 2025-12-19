@@ -41,7 +41,7 @@ export const addresses = {
 } as const
 
 export const chain = (() => {
-  if (nodeEnv === 'testnet') return tempoTestnet
+  if (nodeEnv === 'testnet' || nodeEnv === 'devnet') return tempoTestnet
   return tempoLocalnet
 })()
 

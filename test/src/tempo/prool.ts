@@ -6,7 +6,7 @@ export const port = 9545
 
 export const rpcUrl = (() => {
   if (import.meta.env.VITE_TEMPO_ENV === 'devnet')
-    return 'https://rpc.devnet.tempo.xyz'
+    return 'https://rpc.devnet.tempoxyz.dev'
   if (import.meta.env.VITE_TEMPO_ENV === 'testnet')
     return 'https://rpc.testnet.tempo.xyz'
   const id =
