@@ -427,7 +427,7 @@ describe('sendTransaction', () => {
       )
 
       // fund account
-      await fundAddress(client, { address: account.address })
+      await fundAddress(client, { address: account.address, sequential: true })
 
       const receipt = await sendTransactionSync(client, {
         account,
@@ -501,7 +501,7 @@ describe('sendTransaction', () => {
       )
 
       // fund account
-      await fundAddress(client, { address: account.address })
+      await fundAddress(client, { address: account.address, sequential: true })
 
       const receipt = await sendTransactionSync(client, {
         account,
@@ -709,7 +709,7 @@ describe('sendTransaction', () => {
       const account = Account.fromWebCryptoP256(keyPair)
 
       // fund account
-      await fundAddress(client, { address: account.address })
+      await fundAddress(client, { address: account.address, sequential: true })
 
       const receipt = await sendTransactionSync(client, {
         account,
@@ -781,7 +781,7 @@ describe('sendTransaction', () => {
       const account = Account.fromWebCryptoP256(keyPair)
 
       // fund account
-      await fundAddress(client, { address: account.address })
+      await fundAddress(client, { address: account.address, sequential: true })
 
       const receipt = await sendTransactionSync(client, {
         account,
@@ -879,7 +879,7 @@ describe('sendTransaction', () => {
       })
 
       // fund account
-      await fundAddress(client, { address: account.address })
+      await fundAddress(client, { address: account.address, sequential: true })
 
       const keyAuthorization = await account.signKeyAuthorization(accessKey)
 
@@ -912,7 +912,7 @@ describe('sendTransaction', () => {
       )
 
       // fund account
-      await fundAddress(client, { address: account.address })
+      await fundAddress(client, { address: account.address, sequential: true })
 
       const receipt = await sendTransactionSync(client, {
         account,
@@ -990,7 +990,7 @@ describe('sendTransaction', () => {
       )
 
       // fund account
-      await fundAddress(client, { address: account.address })
+      await fundAddress(client, { address: account.address, sequential: true })
 
       const receipt = await sendTransactionSync(client, {
         account,
@@ -1151,7 +1151,7 @@ describe('sendTransaction', () => {
       })
 
       // fund account
-      await fundAddress(client, { address: account.address })
+      await fundAddress(client, { address: account.address, sequential: true })
 
       const keyAuthorization = await account.signKeyAuthorization(accessKey)
 
