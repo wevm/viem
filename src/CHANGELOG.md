@@ -1,5 +1,15 @@
 # viem
 
+## 2.43.3
+
+### Patch Changes
+
+- [#4188](https://github.com/wevm/viem/pull/4188) [`0e589b25a209943ea939f6ca6e4c5376c89d8e10`](https://github.com/wevm/viem/commit/0e589b25a209943ea939f6ca6e4c5376c89d8e10) Thanks [@jenpaff](https://github.com/jenpaff)! - Fixed tempo formatter for access keys
+
+- [`53f280a72534259d2f6c06d411b10b9077dd0bff`](https://github.com/wevm/viem/commit/53f280a72534259d2f6c06d411b10b9077dd0bff) Thanks [@jxom](https://github.com/jxom)! - Restored behavior where `chain` was not passed as a return value of `prepareTransactionRequest.
+
+- [`6f0e7c2bb902d0f7eff7ffcc0cf0997be9c15c45`](https://github.com/wevm/viem/commit/6f0e7c2bb902d0f7eff7ffcc0cf0997be9c15c45) Thanks [@tmm](https://github.com/tmm)! - Updated tempo chain config
+
 ## 2.43.2
 
 ### Patch Changes
