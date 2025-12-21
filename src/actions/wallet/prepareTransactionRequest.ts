@@ -270,10 +270,14 @@ export async function prepareTransactionRequest<
   let request = args as PrepareTransactionRequestParameters
 
   request.account ??= client.account
-  request.chain ??= client.chain
   request.parameters ??= defaultParameters
 
-  const { account: account_, chain, nonceManager, parameters } = request
+  const {
+    account: account_,
+    chain = client.chain,
+    nonceManager,
+    parameters,
+  } = request
 
   const prepareTransactionRequest = (() => {
     if (typeof chain?.prepareTransactionRequest === 'function')
