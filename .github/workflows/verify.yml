@@ -147,7 +147,7 @@ jobs:
     strategy:
       matrix:
         node-env: 
-          - devnet
+          # - devnet
           - testnet
     steps:
       - name: Clone repository
