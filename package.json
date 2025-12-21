@@ -63,7 +63,7 @@
     "ethers": "^6.15.0",
     "knip": "^5.64.0",
     "micro-eth-signer": "^0.14.0",
-    "ox": "~0.11.0",
+    "ox": "~0.11.1",
     "permissionless": "^0.2.57",
     "prool": "~0.2.1",
     "publint": "^0.2.12",
