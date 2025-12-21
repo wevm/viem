@@ -31,41 +31,54 @@ export const chainConfig = {
       format: Formatters.formatTransactionRequest,
     }),
   },
-  async prepareTransactionRequest(r) {
-    const request = r as Transaction.TransactionRequest & {
-      account?: Account | undefined
-      chain?:
-        | (Chain & { feeToken?: TokenId.TokenIdOrAddress | undefined })
-        | undefined
-    }
+  prepareTransactionRequest: [
+    async (r, { phase }) => {
+      const request = r as Transaction.TransactionRequest & {
+        account?: Account | undefined
+        chain?:
+          | (Chain & { feeToken?: TokenId.TokenIdOrAddress | undefined })
+          | undefined
+      }
 
-    request.nonceKey = (() => {
-      if (typeof request.nonceKey !== 'undefined') return request.nonceKey
+      if (phase === 'afterFillParameters') {
+        if (typeof request.nonceKey === 'bigint' && request.nonceKey > 0n)
+          request.gas = (request.gas ?? 0n) + 40_000n
+        return request as unknown as typeof r
+      }
 
-      const address = request.account?.address ?? request.from
-      if (!address) return undefined
-      if (!request.chain) return undefined
-      const nonceKey = NonceKeyStore.getNonceKey(NonceKeyStore.store, {
-        address,
-        chainId: request.chain.id,
-      })
+      request.nonceKey = (() => {
+        if (
+          typeof request.nonceKey !== 'undefined' &&
+          request.nonceKey !== 'random'
+        )
+          return request.nonceKey
 
-      if (nonceKey === 0n) return undefined
-      return nonceKey
-    })()
+        const address = request.account?.address ?? request.from
+        if (!address) return undefined
+        if (!request.chain) return undefined
+        const nonceKey = NonceKeyStore.getNonceKey(NonceKeyStore.store, {
+          address,
+          chainId: request.chain.id,
+        })
 
-    request.nonce = (() => {
-      if (typeof request.nonce === 'number') return request.nonce
-      // TODO: remove this line once `eth_fillTransaction` supports nonce keys.
-      if (request.nonceKey) return 0
-      return undefined
-    })()
+        if (nonceKey === 0n) return undefined
+        return nonceKey
+      })()
 
-    if (!request.feeToken && request.chain?.feeToken)
-      request.feeToken = request.chain.feeToken
+      request.nonce = (() => {
+        if (typeof request.nonce === 'number') return request.nonce
+        // TODO: remove this line once `eth_fillTransaction` supports nonce keys.
+        if (request.nonceKey) return 0
+        return undefined
+      })()
 
-    return request as unknown as typeof r
-  },
+      if (!request.feeToken && request.chain?.feeToken)
+        request.feeToken = request.chain.feeToken
+
+      return request as unknown as typeof r
+    },
+    { runAt: ['beforeFillTransaction', 'afterFillParameters'] },
+  ],
   serializers: {
     // TODO: casting to satisfy viem – viem v3 to have more flexible serializer type.
     transaction: ((transaction, signature) =>

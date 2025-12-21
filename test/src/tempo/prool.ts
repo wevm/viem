@@ -39,7 +39,7 @@ export async function createServer() {
   return Server.create({
     instance: TestContainers.Instance.tempo({
       ...args,
-      image: `ghcr.io/tempoxyz/tempo:${tag}`,
+      image: `ghcr.io/tempoxyz/tempo:${tag ?? 'latest'}`,
     }),
     port,
   })

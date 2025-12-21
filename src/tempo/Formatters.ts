@@ -121,10 +121,16 @@ export function formatTransactionRequest(
     return [undefined, undefined]
   })()
 
+  const keyId =
+    account && 'accessKeyAddress' in account
+      ? account.accessKeyAddress
+      : undefined
+
   return {
     ...rpc,
-    ...(keyType ? { keyType } : {}),
     ...(keyData ? { keyData } : {}),
+    ...(keyId ? { keyId } : {}),
+    ...(keyType ? { keyType } : {}),
     ...(request.feePayer
       ? {
           feePayer:

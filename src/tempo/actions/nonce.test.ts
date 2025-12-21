@@ -81,31 +81,6 @@ describe('getNonce', () => {
   })
 })
 
-describe('getNonceKeyCount', () => {
-  test('default', async () => {
-    // Get active nonce key count for a fresh account
-    const count = await actions.nonce.getNonceKeyCount(client, {
-      account: accounts.at(10)!.address,
-    })
-
-    // Fresh account should have 0 active nonce keys
-    expect(count).toBe(0n)
-  })
-
-  test('behavior: different accounts are independent', async () => {
-    const count1 = await actions.nonce.getNonceKeyCount(client, {
-      account: accounts.at(10)!.address,
-    })
-    const count2 = await actions.nonce.getNonceKeyCount(client, {
-      account: accounts.at(11)!.address,
-    })
-
-    // Both should be 0 for fresh accounts
-    expect(count1).toBe(0n)
-    expect(count2).toBe(0n)
-  })
-})
-
 describe('watchNonceIncremented', () => {
   test('default', async () => {
     const events: Array<{
@@ -148,55 +123,6 @@ describe('watchNonceIncremented', () => {
       expect(events[0]!.args.nonceKey).toBe(5n)
       expect(events[0]!.args.newNonce).toBe(1n)
       expect(events[1]!.args.newNonce).toBe(2n)
-    } finally {
-      unwatch()
-    }
-  })
-})
-
-describe('watchActiveKeyCountChanged', () => {
-  test('default', async () => {
-    const events: Array<{
-      args: actions.nonce.watchActiveKeyCountChanged.Args
-      log: actions.nonce.watchActiveKeyCountChanged.Log
-    }> = []
-
-    const unwatch = actions.nonce.watchActiveKeyCountChanged(client, {
-      onActiveKeyCountChanged: (args, log) => {
-        events.push({ args, log })
-      },
-    })
-
-    const priorKeyCount = await actions.nonce.getNonceKeyCount(client, {
-      account: account.address,
-    })
-
-    try {
-      // First use of nonceKey 10 should increment active key count
-      await actions.token.transferSync(client, {
-        to: account2.address,
-        amount: 1n,
-        token: 1n,
-        nonceKey: 10n,
-        nonce: 0,
-      })
-
-      // First use of nonceKey 11 should increment again
-      await actions.token.transferSync(client, {
-        to: account2.address,
-        amount: 1n,
-        token: 1n,
-        nonceKey: 11n,
-        nonce: 0,
-      })
-
-      await setTimeout(1000)
-
-      expect(events).toHaveLength(2)
-      expect(events[0]!.args.account).toBe(account.address)
-      // Assert the number of new active keys
-      expect(events[0]!.args.newCount - priorKeyCount).toBe(1n)
-      expect(events[1]!.args.newCount - priorKeyCount).toBe(2n)
     } finally {
       unwatch()
     }

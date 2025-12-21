@@ -111,27 +111,7 @@ export namespace getNonce {
 }
 
 /**
- * Gets the number of active nonce keys for an account.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
- *
- * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
- *   transport: http(),
- * })
- *
- * const count = await Actions.nonce.getNonceKeyCount(client, {
- *   account: '0x...',
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns The number of active nonce keys.
+ * @deprecated This function has been deprecated post-AllegroModerato. It will be removed in a future version.
  */
 export async function getNonceKeyCount<
   chain extends Chain | undefined,
@@ -203,29 +183,7 @@ export namespace getNonceKeyCount {
 }
 
 /**
- * Watches for nonce incremented events.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
- *
- * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
- *   transport: http(),
- * })
- *
- * const unwatch = Actions.nonce.watchNonceIncremented(client, {
- *   onNonceIncremented: (args, log) => {
- *     console.log('Nonce incremented:', args)
- *   },
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns A function to unsubscribe from the event.
+ * @deprecated This function has been deprecated post-AllegroModerato. It will be removed in a future version.
  */
 export function watchNonceIncremented<
   chain extends Chain | undefined,
