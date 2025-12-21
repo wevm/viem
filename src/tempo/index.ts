@@ -54,6 +54,6 @@ export type {
 } from './Transaction.js'
 export * as Transaction from './Transaction.js'
 export * as Transport from './Transport.js'
-export { withFeePayer } from './Transport.js'
+export { withFeePayer, walletNamespaceCompat } from './Transport.js'
 export * as WebAuthnP256 from './WebAuthnP256.js'
 export * as WebCryptoP256 from './WebCryptoP256.js'
