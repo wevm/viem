@@ -41,14 +41,17 @@ export const chainConfig = {
       }
 
       if (phase === 'afterFillParameters') {
-        // TODO: remove once https://github.com/tempoxyz/tempo/pull/1684 is deployed.
         if (typeof request.nonceKey === 'bigint' && request.nonceKey > 0n)
-          request.gas = (request.gas ?? 0n) + 30_000n
+          request.gas = (request.gas ?? 0n) + 40_000n
         return request as unknown as typeof r
       }
 
       request.nonceKey = (() => {
-        if (typeof request.nonceKey !== 'undefined') return request.nonceKey
+        if (
+          typeof request.nonceKey !== 'undefined' &&
+          request.nonceKey !== 'random'
+        )
+          return request.nonceKey
 
         const address = request.account?.address ?? request.from
         if (!address) return undefined

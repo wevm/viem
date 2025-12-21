@@ -125,21 +125,9 @@ export function formatTransactionRequest(
     account && 'accessKeyAddress' in account
       ? account.accessKeyAddress
       : undefined
-  const keyAuthorization = rpc.keyAuthorization
-    ? {
-        ...rpc.keyAuthorization,
-        // FIXME(ox): remove once https://github.com/tempoxyz/tempo/pull/1683 is deployed.
-        chainId:
-          rpc.keyAuthorization.chainId === '0x' ||
-          rpc.keyAuthorization.chainId === '0x0'
-            ? 0
-            : parseInt(rpc.keyAuthorization.chainId || '0x0', 16),
-      }
-    : undefined
 
   return {
     ...rpc,
-    ...(keyAuthorization ? { keyAuthorization } : {}),
     ...(keyData ? { keyData } : {}),
     ...(keyId ? { keyId } : {}),
     ...(keyType ? { keyType } : {}),
