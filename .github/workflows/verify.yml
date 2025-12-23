@@ -284,6 +284,10 @@ jobs:
         run: pnpm check:types
         working-directory: ./wagmi
 
+      - name: Bench types
+        run: pnpm bench:types
+        working-directory: ./wagmi
+
       - name: Check build
         run: pnpm build
         working-directory: ./wagmi
