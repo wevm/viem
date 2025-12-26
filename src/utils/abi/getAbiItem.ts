@@ -171,9 +171,14 @@ export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
       if (abiParameterType === 'tuple' && 'components' in abiParameter)
         return Object.values(abiParameter.components).every(
           (component, index) => {
-            return isArgOfType(
-              Object.values(arg as unknown[] | Record<string, unknown>)[index],
-              component as AbiParameter,
+            return (
+              argType === 'object' &&
+              isArgOfType(
+                Object.values(arg as unknown[] | Record<string, unknown>)[
+                  index
+                ],
+                component as AbiParameter,
+              )
             )
           },
         )
