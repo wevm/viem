@@ -189,8 +189,19 @@ export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
 
       // `bytes<M>`: binary type of `M` bytes, `0 < M <= 32`
       // https://regexr.com/6va55
-      if (/^bytes([1-9]|1[0-9]|2[0-9]|3[0-2])?$/.test(abiParameterType))
-        return argType === 'string' || arg instanceof Uint8Array
+      const bytesMatch = /^bytes([1-9]|1[0-9]|2[0-9]|3[0-2])?$/.exec(
+        abiParameterType,
+      )
+      if (bytesMatch) {
+        const length = bytesMatch[1] ? Number(bytesMatch[1]) : undefined
+        return (
+          (argType === 'string' &&
+            (length === undefined ||
+              (arg as string).length === length * 2 + 2)) ||
+          (arg instanceof Uint8Array &&
+            (length === undefined || arg.length === length))
+        )
+      }
 
       // fixed-length (`<type>[M]`) and dynamic (`<type>[]`) arrays
       // https://regexr.com/6va6i
