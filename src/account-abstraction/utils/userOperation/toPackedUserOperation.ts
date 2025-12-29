@@ -7,8 +7,14 @@ import type {
 } from '../../types/userOperation.js'
 import { getInitCode } from './getInitCode.js'
 
+export type ToPackedUserOperationOptions = {
+  /** Prepare the packed user operation for hashing. */
+  forHash?: boolean | undefined
+}
+
 export function toPackedUserOperation(
   userOperation: UserOperation,
+  options: ToPackedUserOperationOptions = {},
 ): PackedUserOperation {
   const {
     callGasLimit,
@@ -29,7 +35,8 @@ export function toPackedUserOperation(
     pad(numberToHex(verificationGasLimit || 0n), { size: 16 }),
     pad(numberToHex(callGasLimit || 0n), { size: 16 }),
   ])
-  const initCode = getInitCode(userOperation)
+  const initCode = getInitCode(userOperation, options)
+
   const gasFees = concat([
     pad(numberToHex(maxPriorityFeePerGas || 0n), { size: 16 }),
     pad(numberToHex(maxFeePerGas || 0n), { size: 16 }),
