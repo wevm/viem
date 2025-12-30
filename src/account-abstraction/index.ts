@@ -245,6 +245,10 @@ export {
   formatUserOperationRequest,
 } from './utils/formatters/userOperationRequest.js'
 export {
+  type GetInitCodeOptions,
+  getInitCode,
+} from './utils/userOperation/getInitCode.js'
+export {
   type GetUserOperationHashParameters,
   type GetUserOperationHashReturnType,
   getUserOperationHash,
@@ -254,5 +258,8 @@ export {
   type GetUserOperationTypedDataReturnType,
   getUserOperationTypedData,
 } from './utils/userOperation/getUserOperationTypedData.js'
-export { toPackedUserOperation } from './utils/userOperation/toPackedUserOperation.js'
+export {
+  type ToPackedUserOperationOptions,
+  toPackedUserOperation,
+} from './utils/userOperation/toPackedUserOperation.js'
 export { toUserOperation } from './utils/userOperation/toUserOperation.js'
