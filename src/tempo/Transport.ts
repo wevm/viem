@@ -132,7 +132,7 @@ export function walletNamespaceCompat(
         if (request.method === 'wallet_sendCalls') {
           const params = request.params[0] ?? {}
           const { capabilities, chainId, from } = params
-          const { sync } = capabilities ?? {}
+          const { sync, ...properties } = capabilities ?? {}
 
           if (!chainId) throw new Provider.UnsupportedChainIdError()
           if (Number(chainId) !== client.chain.id)
@@ -150,11 +150,13 @@ export function walletNamespaceCompat(
             if (!sync)
               return sendTransaction(client, {
                 account,
+                ...(properties ? properties : {}),
                 calls,
               })
 
             const { transactionHash } = await sendTransactionSync(client, {
               account,
+              ...(properties ? properties : {}),
               calls,
             })
             return transactionHash
