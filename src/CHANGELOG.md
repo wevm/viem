@@ -1,5 +1,15 @@
 # viem
 
+## 2.43.4
+
+### Patch Changes
+
+- [#4194](https://github.com/wevm/viem/pull/4194) [`16b0819efbf535fd8a287921323380c281c697f7`](https://github.com/wevm/viem/commit/16b0819efbf535fd8a287921323380c281c697f7) Thanks [@0xRenji](https://github.com/0xRenji)! - Fixed `getAbiItem` for overloaded tuples with additional child tuple components beyond the number of args
+
+- [#4193](https://github.com/wevm/viem/pull/4193) [`61ee0cece16abf3d63ad9f569ca683ea9586fb9c`](https://github.com/wevm/viem/commit/61ee0cece16abf3d63ad9f569ca683ea9586fb9c) Thanks [@akitothemoon](https://github.com/akitothemoon)! - Added CpChain network.
+
+- [`892ebea16241fd4403c691022297463e2fad2d5b`](https://github.com/wevm/viem/commit/892ebea16241fd4403c691022297463e2fad2d5b) Thanks [@jxom](https://github.com/jxom)! - Fixed `getUserOperationHash` calculation for EIP-7702 UserOperations.
+
 ## 2.43.3
 
 ### Patch Changes
