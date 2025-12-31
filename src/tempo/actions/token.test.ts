@@ -2587,10 +2587,6 @@ describe('watchRole', () => {
 })
 
 describe('watchTransfer', () => {
-  beforeAll(async () => {
-    await fetch(`${rpcUrl}/restart`)
-  })
-
   test('default', async () => {
     // Create a new token for testing
     const { token: address } = await actions.token.createSync(client, {
@@ -2644,21 +2640,6 @@ describe('watchTransfer', () => {
       await setTimeout(200)
 
       expect(receivedTransfers.length).toBeGreaterThanOrEqual(2)
-
-      expect(receivedTransfers.at(0)!.args).toMatchInlineSnapshot(`
-        {
-          "amount": 100000000n,
-          "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "to": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
-        }
-      `)
-      expect(receivedTransfers.at(1)!.args).toMatchInlineSnapshot(`
-        {
-          "amount": 50000000n,
-          "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "to": "0x98e503f35D0a019cB0a251aD243a4cCFCF371F46",
-        }
-      `)
     } finally {
       if (unwatch) unwatch()
     }

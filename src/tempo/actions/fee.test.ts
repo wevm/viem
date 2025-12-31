@@ -4,7 +4,7 @@ import { writeContractSync } from 'viem/actions'
 import { Abis } from 'viem/tempo'
 import { afterEach, describe, expect, test } from 'vitest'
 import { accounts, fundAddress, getClient } from '~test/tempo/config.js'
-import { rpcUrl } from '~test/tempo/prool.js'
+import * as Prool from '~test/tempo/prool.js'
 import * as actions from './index.js'
 
 const account = accounts[0]
@@ -16,7 +16,7 @@ const client = getClient({
 })
 
 afterEach(async () => {
-  await fetch(`${rpcUrl}/restart`)
+  await Prool.restart(client)
 })
 
 describe('getUserToken', () => {

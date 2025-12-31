@@ -41,13 +41,6 @@ export const stablecoinExchange = [
     outputs: [],
   },
   {
-    name: 'executeBlock',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [],
-    outputs: [],
-  },
-  {
     name: 'swapExactAmountIn',
     type: 'function',
     stateMutability: 'nonpayable',
@@ -163,14 +156,7 @@ export const stablecoinExchange = [
     outputs: [{ type: 'bytes32' }],
   },
   {
-    name: 'activeOrderId',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'uint128' }],
-  },
-  {
-    name: 'pendingOrderId',
+    name: 'nextOrderId',
     type: 'function',
     stateMutability: 'view',
     inputs: [],
@@ -220,6 +206,13 @@ export const stablecoinExchange = [
     stateMutability: 'pure',
     inputs: [],
     outputs: [{ type: 'uint32' }],
+  },
+  {
+    name: 'MIN_ORDER_AMOUNT',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [],
+    outputs: [{ type: 'uint128' }],
   },
   {
     name: 'MIN_PRICE',
@@ -281,16 +274,6 @@ export const stablecoinExchange = [
       { type: 'bool', name: 'isBid' },
       { type: 'int16', name: 'tick' },
       { type: 'int16', name: 'flipTick' },
-    ],
-  },
-  {
-    name: 'OrderFilled',
-    type: 'event',
-    inputs: [
-      { type: 'uint128', name: 'orderId', indexed: true },
-      { type: 'address', name: 'maker', indexed: true },
-      { type: 'uint128', name: 'amountFilled' },
-      { type: 'bool', name: 'partialFill' },
     ],
   },
   {
@@ -525,20 +508,6 @@ export const tip20 = [
     outputs: [{ type: 'bool' }],
   },
   {
-    name: 'feeRecipient',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'address' }],
-  },
-  {
-    name: 'setFeeRecipient',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'address', name: 'newRecipient' }],
-    outputs: [{ type: 'address' }],
-  },
-  {
     name: 'changeTransferPolicyId',
     type: 'function',
     stateMutability: 'nonpayable',
@@ -609,14 +578,11 @@ export const tip20 = [
     outputs: [{ type: 'bytes32' }],
   },
   {
-    name: 'startReward',
+    name: 'distributeReward',
     type: 'function',
     stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'uint256', name: 'amount' },
-      { type: 'uint32', name: 'secs' },
-    ],
-    outputs: [{ type: 'uint64' }],
+    inputs: [{ type: 'uint256', name: 'amount' }],
+    outputs: [],
   },
   {
     name: 'setRewardRecipient',
@@ -626,48 +592,9 @@ export const tip20 = [
     outputs: [],
   },
   {
-    name: 'cancelReward',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [{ type: 'uint64', name: 'id' }],
-    outputs: [{ type: 'uint256' }],
-  },
-  {
     name: 'claimRewards',
     type: 'function',
     stateMutability: 'nonpayable',
-    inputs: [],
-    outputs: [{ type: 'uint256' }],
-  },
-  {
-    name: 'finalizeStreams',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [{ type: 'uint64', name: 'timestamp' }],
-    outputs: [],
-  },
-  {
-    name: 'getStream',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'uint64', name: 'id' }],
-    outputs: [
-      {
-        type: 'tuple',
-        components: [
-          { type: 'address', name: 'funder' },
-          { type: 'uint64', name: 'startTime' },
-          { type: 'uint64', name: 'endTime' },
-          { type: 'uint256', name: 'ratePerSecondScaled' },
-          { type: 'uint256', name: 'amountTotal' },
-        ],
-      },
-    ],
-  },
-  {
-    name: 'totalRewardPerSecond',
-    type: 'function',
-    stateMutability: 'view',
     inputs: [],
     outputs: [{ type: 'uint256' }],
   },
@@ -679,11 +606,11 @@ export const tip20 = [
     outputs: [{ type: 'uint128' }],
   },
   {
-    name: 'nextStreamId',
+    name: 'globalRewardPerToken',
     type: 'function',
     stateMutability: 'view',
     inputs: [],
-    outputs: [{ type: 'uint64' }],
+    outputs: [{ type: 'uint256' }],
   },
   {
     name: 'userRewardInfo',
@@ -700,6 +627,13 @@ export const tip20 = [
         ],
       },
     ],
+  },
+  {
+    name: 'getPendingRewards',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'account' }],
+    outputs: [{ type: 'uint128' }],
   },
   {
     name: 'Transfer',
@@ -794,22 +728,11 @@ export const tip20 = [
     ],
   },
   {
-    name: 'RewardScheduled',
+    name: 'RewardDistributed',
     type: 'event',
     inputs: [
       { type: 'address', name: 'funder', indexed: true },
-      { type: 'uint64', name: 'id', indexed: true },
       { type: 'uint256', name: 'amount' },
-      { type: 'uint32', name: 'durationSeconds' },
-    ],
-  },
-  {
-    name: 'RewardCanceled',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'funder', indexed: true },
-      { type: 'uint64', name: 'id', indexed: true },
-      { type: 'uint256', name: 'refund' },
     ],
   },
   {
@@ -818,14 +741,6 @@ export const tip20 = [
     inputs: [
       { type: 'address', name: 'holder', indexed: true },
       { type: 'address', name: 'recipient', indexed: true },
-    ],
-  },
-  {
-    name: 'FeeRecipientUpdated',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'updater', indexed: true },
-      { type: 'address', name: 'newRecipient', indexed: true },
     ],
   },
   {
@@ -849,14 +764,11 @@ export const tip20 = [
   { name: 'InvalidQuoteToken', type: 'error', inputs: [] },
   { name: 'TransfersDisabled', type: 'error', inputs: [] },
   { name: 'InvalidAmount', type: 'error', inputs: [] },
-  { name: 'NotStreamFunder', type: 'error', inputs: [] },
-  { name: 'StreamInactive', type: 'error', inputs: [] },
   { name: 'NoOptedInSupply', type: 'error', inputs: [] },
   { name: 'Unauthorized', type: 'error', inputs: [] },
-  { name: 'RewardsDisabled', type: 'error', inputs: [] },
-  { name: 'ScheduledRewardsDisabled', type: 'error', inputs: [] },
   { name: 'ProtectedAddress', type: 'error', inputs: [] },
   { name: 'InvalidToken', type: 'error', inputs: [] },
+  { name: 'InvalidTransferPolicyId', type: 'error', inputs: [] },
   {
     name: 'hasRole',
     type: 'function',
@@ -933,32 +845,6 @@ export const tip20 = [
   { name: 'Unauthorized', type: 'error', inputs: [] },
 ] as const
 
-export const tipAccountRegistrar = [
-  {
-    name: 'delegateToDefault',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'bytes32', name: 'hash' },
-      { type: 'bytes', name: 'signature' },
-    ],
-    outputs: [{ type: 'address', name: 'authority' }],
-  },
-  {
-    name: 'delegateToDefault',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'bytes', name: 'message' },
-      { type: 'bytes', name: 'signature' },
-    ],
-    outputs: [{ type: 'address', name: 'authority' }],
-  },
-  { name: 'InvalidSignature', type: 'error', inputs: [] },
-  { name: 'CodeNotEmpty', type: 'error', inputs: [] },
-  { name: 'NonceNotZero', type: 'error', inputs: [] },
-] as const
-
 export const feeManager = [
   {
     name: 'userTokens',
@@ -999,11 +885,24 @@ export const feeManager = [
     outputs: [{ type: 'address' }, { type: 'uint256' }],
   },
   {
-    name: 'executeBlock',
+    name: 'distributeFees',
     type: 'function',
     stateMutability: 'nonpayable',
-    inputs: [],
+    inputs: [
+      { type: 'address', name: 'validator' },
+      { type: 'address', name: 'token' },
+    ],
     outputs: [],
+  },
+  {
+    name: 'collectedFees',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'validator' },
+      { type: 'address', name: 'token' },
+    ],
+    outputs: [{ type: 'uint256' }],
   },
   {
     name: 'UserTokenSet',
@@ -1019,6 +918,15 @@ export const feeManager = [
     inputs: [
       { type: 'address', name: 'validator', indexed: true },
       { type: 'address', name: 'token', indexed: true },
+    ],
+  },
+  {
+    name: 'FeesDistributed',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'validator', indexed: true },
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'uint256', name: 'amount' },
     ],
   },
   { name: 'OnlyValidator', type: 'error', inputs: [] },
@@ -1106,19 +1014,6 @@ export const feeAmm = [
   },
   {
     name: 'mint',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [
-      { type: 'address', name: 'userToken' },
-      { type: 'address', name: 'validatorToken' },
-      { type: 'uint256', name: 'amountUserToken' },
-      { type: 'uint256', name: 'amountValidatorToken' },
-      { type: 'address', name: 'to' },
-    ],
-    outputs: [{ type: 'uint256', name: 'liquidity' }],
-  },
-  {
-    name: 'mintWithValidatorToken',
     type: 'function',
     stateMutability: 'nonpayable',
     inputs: [
@@ -1331,16 +1226,6 @@ export const accountKeychain = [
     ],
   },
   {
-    name: 'KeyAuthorized',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'bytes32', name: 'publicKey', indexed: true },
-      { type: 'uint8', name: 'signatureType' },
-      { type: 'uint64', name: 'expiry' },
-    ],
-  },
-  {
     name: 'KeyRevoked',
     type: 'event',
     inputs: [
@@ -1349,29 +1234,11 @@ export const accountKeychain = [
     ],
   },
   {
-    name: 'KeyRevoked',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'bytes32', name: 'publicKey', indexed: true },
-    ],
-  },
-  {
     name: 'SpendingLimitUpdated',
     type: 'event',
     inputs: [
       { type: 'address', name: 'account', indexed: true },
       { type: 'address', name: 'publicKey', indexed: true },
-      { type: 'address', name: 'token', indexed: true },
-      { type: 'uint256', name: 'newLimit' },
-    ],
-  },
-  {
-    name: 'SpendingLimitUpdated',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'bytes32', name: 'publicKey', indexed: true },
       { type: 'address', name: 'token', indexed: true },
       { type: 'uint256', name: 'newLimit' },
     ],
@@ -1399,13 +1266,6 @@ export const nonce = [
     outputs: [{ type: 'uint64', name: 'nonce' }],
   },
   {
-    name: 'getActiveNonceKeyCount',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [{ type: 'address', name: 'account' }],
-    outputs: [{ type: 'uint256', name: 'count' }],
-  },
-  {
     name: 'NonceIncremented',
     type: 'event',
     inputs: [
@@ -1414,29 +1274,9 @@ export const nonce = [
       { type: 'uint64', name: 'newNonce' },
     ],
   },
-  {
-    name: 'ActiveKeyCountChanged',
-    type: 'event',
-    inputs: [
-      { type: 'address', name: 'account', indexed: true },
-      { type: 'uint256', name: 'newCount' },
-    ],
-  },
   { name: 'ProtocolNonceNotSupported', type: 'error', inputs: [] },
   { name: 'InvalidNonceKey', type: 'error', inputs: [] },
   { name: 'NonceOverflow', type: 'error', inputs: [] },
-] as const
-
-export const tip20RewardsRegistry = [
-  {
-    name: 'finalizeStreams',
-    type: 'function',
-    stateMutability: 'nonpayable',
-    inputs: [],
-    outputs: [],
-  },
-  { name: 'Unauthorized', type: 'error', inputs: [] },
-  { name: 'StreamsAlreadyFinalized', type: 'error', inputs: [] },
 ] as const
 
 export const tip20Factory = [
@@ -1489,6 +1329,13 @@ export const tip403Registry = [
     stateMutability: 'view',
     inputs: [],
     outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'policyExists',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'uint64', name: 'policyId' }],
+    outputs: [{ type: 'bool' }],
   },
   {
     name: 'policyData',
@@ -1603,6 +1450,7 @@ export const tip403Registry = [
   },
   { name: 'Unauthorized', type: 'error', inputs: [] },
   { name: 'IncompatiblePolicyType', type: 'error', inputs: [] },
+  { name: 'PolicyNotFound', type: 'error', inputs: [] },
 ] as const
 
 export const validatorConfig = [
@@ -1678,6 +1526,7 @@ export const validatorConfig = [
   { name: 'Unauthorized', type: 'error', inputs: [] },
   { name: 'ValidatorAlreadyExists', type: 'error', inputs: [] },
   { name: 'ValidatorNotFound', type: 'error', inputs: [] },
+  { name: 'InvalidPublicKey', type: 'error', inputs: [] },
   {
     name: 'NotHostPort',
     type: 'error',
@@ -1695,22 +1544,5 @@ export const validatorConfig = [
       { type: 'string', name: 'input' },
       { type: 'string', name: 'backtrace' },
     ],
-  },
-] as const
-
-export const pathUsd = [
-  {
-    name: 'TRANSFER_ROLE',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'bytes32' }],
-  },
-  {
-    name: 'RECEIVE_WITH_MEMO_ROLE',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'bytes32' }],
   },
 ] as const

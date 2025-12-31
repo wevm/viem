@@ -568,7 +568,7 @@ export namespace mint {
     return defineCall({
       address: Addresses.feeManager,
       abi: Abis.feeAmm,
-      functionName: 'mintWithValidatorToken',
+      functionName: 'mint',
       args: [
         TokenId.toAddress(userTokenAddress),
         TokenId.toAddress(validatorTokenAddress),

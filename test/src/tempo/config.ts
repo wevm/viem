@@ -9,6 +9,7 @@ import {
   type Client,
   type ClientConfig,
   createClient,
+  defineChain,
   type HttpTransportConfig,
   type JsonRpcAccount,
   parseUnits,
@@ -42,7 +43,10 @@ export const addresses = {
 
 export const chain = (() => {
   if (nodeEnv === 'testnet' || nodeEnv === 'devnet') return tempoTestnet
-  return tempoLocalnet
+  return defineChain({
+    ...tempoLocalnet,
+    rpcUrls: { default: { http: [rpcUrl] } },
+  })
 })()
 
 export function debugOptions({

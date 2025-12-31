@@ -1,7 +1,7 @@
 import { chainConfig } from '../../tempo/chainConfig.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const tempoTestnet = /*#__PURE__*/ defineChain({
+export const tempoAndantino = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 42429,
   blockExplorers: {
@@ -10,7 +10,7 @@ export const tempoTestnet = /*#__PURE__*/ defineChain({
       url: 'https://explore.tempo.xyz',
     },
   },
-  name: 'Tempo Testnet',
+  name: 'Tempo Testnet (Andantino)',
   nativeCurrency: {
     name: 'USD',
     symbol: 'USD',

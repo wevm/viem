@@ -1,7 +1,7 @@
 import { setTimeout } from 'node:timers/promises'
 import { beforeEach, describe, expect, test } from 'vitest'
 import { accounts, getClient } from '~test/tempo/config.js'
-import { rpcUrl } from '~test/tempo/prool.js'
+import * as Prool from '~test/tempo/prool.js'
 import * as actions from './index.js'
 
 const account = accounts[0]
@@ -12,7 +12,7 @@ const client = getClient({
 })
 
 beforeEach(async () => {
-  await fetch(`${rpcUrl}/restart`)
+  await Prool.restart(client)
 })
 
 describe('getNonce', () => {
