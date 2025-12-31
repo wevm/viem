@@ -4,9 +4,8 @@ import { TokenRole } from 'ox/tempo'
 import { parseUnits } from 'viem'
 import { getCode, writeContractSync } from 'viem/actions'
 import { Abis, Addresses, TokenIds } from 'viem/tempo'
-import { beforeAll, describe, expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { accounts, addresses, chain, getClient } from '~test/tempo/config.js'
-import { rpcUrl } from '~test/tempo/prool.js'
 import * as actions from './index.js'
 
 const account = accounts[0]

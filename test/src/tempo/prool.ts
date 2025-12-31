@@ -2,9 +2,9 @@ import { RpcTransport } from 'ox'
 import { type Instance, Server } from 'prool'
 import * as TestContainers from 'prool/testcontainers'
 import {
-  parseUnits,
   type Chain,
   type Client,
+  parseUnits,
   type Transport,
 } from '../../../src/index.js'
 import { pathUsd } from '../../../src/tempo/Addresses.js'
