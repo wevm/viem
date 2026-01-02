@@ -418,6 +418,207 @@ export namespace cancelSync {
 }
 
 /**
+ * Cancels a stale order from the orderbook.
+ *
+ * A stale order is one where the owner's balance or allowance has dropped
+ * below the order amount.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/viem'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   transport: http(),
+ * })
+ *
+ * const hash = await Actions.dex.cancelStale(client, {
+ *   orderId: 123n,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction hash.
+ */
+export async function cancelStale<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: cancelStale.Parameters<chain, account>,
+): Promise<cancelStale.ReturnValue> {
+  return cancelStale.inner(writeContract, client, parameters)
+}
+
+export namespace cancelStale {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+
+  export type Args = {
+    /** Order ID to cancel. */
+    orderId: bigint
+  }
+
+  export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof writeContract | typeof writeContractSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: cancelStale.Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const { orderId, ...rest } = parameters
+    const call = cancelStale.call({ orderId })
+    return (await action(client, {
+      ...rest,
+      ...call,
+    } as never)) as never
+  }
+
+  /**
+   * Defines a call to the `cancelStaleOrder` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'tempo.ts/chains'
+   * import { Actions } from 'tempo.ts/viem'
+   *
+   * const client = createClient({
+   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     Actions.dex.cancelStale.call({
+   *       orderId: 123n,
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { orderId } = args
+    return defineCall({
+      address: Addresses.stablecoinExchange,
+      abi: Abis.stablecoinExchange,
+      functionName: 'cancelStaleOrder',
+      args: [orderId],
+    })
+  }
+
+  /**
+   * Extracts the `OrderCancelled` event from logs.
+   *
+   * @param logs - The logs.
+   * @returns The `OrderCancelled` event.
+   */
+  export function extractEvent(logs: viem_Log[]) {
+    const [log] = parseEventLogs({
+      abi: Abis.stablecoinExchange,
+      logs,
+      eventName: 'OrderCancelled',
+      strict: true,
+    })
+    if (!log) throw new Error('`OrderCancelled` event not found.')
+    return log
+  }
+}
+
+/**
+ * Cancels a stale order from the orderbook and waits for confirmation.
+ *
+ * A stale order is one where the owner's balance or allowance has dropped
+ * below the order amount.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ * import { tempo } from 'tempo.ts/chains'
+ * import { Actions } from 'tempo.ts/viem'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   transport: http(),
+ * })
+ *
+ * const result = await Actions.dex.cancelStaleSync(client, {
+ *   orderId: 123n,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction receipt and event data.
+ */
+export async function cancelStaleSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: cancelStaleSync.Parameters<chain, account>,
+): Promise<cancelStaleSync.ReturnValue> {
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await cancelStale.inner(writeContractSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
+  const { args } = cancelStale.extractEvent(receipt.logs)
+  return {
+    ...args,
+    receipt,
+  } as never
+}
+
+export namespace cancelStaleSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = cancelStale.Parameters<chain, account>
+
+  export type Args = cancelStale.Args
+
+  export type ReturnValue = Compute<
+    GetEventArgs<
+      typeof Abis.stablecoinExchange,
+      'OrderCancelled',
+      { IndexedOnly: false; Required: true }
+    > & {
+      /** Transaction receipt. */
+      receipt: TransactionReceipt
+    }
+  >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+}
+
+/**
  * Creates a new trading pair on the DEX.
  *
  * @example

@@ -6,7 +6,7 @@ The following Tempo chains are available:
 import {
   tempoDevnet, // [!code hl]
   tempoLocalnet, // [!code hl]
-  tempoTestnet, // [!code hl]
+  tempoModerato, // [!code hl]
 } from 'viem/chains'
 ```
 
@@ -17,9 +17,9 @@ It is possible to set a default fee token for a Tempo chain by adding a `feeToke
 Once set, all transactions will use this token as the default fee token, unless an override is provided at the transaction level.
 
 ```ts
-import { tempoTestnet } from 'viem/chains'
+import { tempoModerato } from 'viem/chains'
 
-const chain = tempoTestnet.extend({
+const chain = tempoModerato.extend({
   feeToken: '0x20c0000000000000000000000000000000000001',
 })
 ```

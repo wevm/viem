@@ -164,6 +164,67 @@ describe('cancel', () => {
   })
 })
 
+describe('cancelStale', () => {
+  test('default', async () => {
+    const { base, quote } = await setupTokenPair(client)
+
+    // Create a blacklist policy
+    const { policyId } = await Actions.policy.createSync(client, {
+      type: 'blacklist',
+    })
+
+    // Set the policy on the quote token (used for bid orders)
+    await Actions.token.changeTransferPolicySync(client, {
+      token: quote,
+      policyId,
+    })
+
+    // Place a bid order (escrows quote token)
+    const { orderId } = await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseUnits('100', 6),
+      type: 'buy',
+      tick: Tick.fromPrice('1.001'),
+    })
+
+    // Blacklist the maker (ourselves)
+    await Actions.policy.modifyBlacklistSync(client, {
+      policyId,
+      address: client.account.address,
+      restricted: true,
+    })
+
+    // Cancel the stale order
+    const { receipt, orderId: returnedOrderId } =
+      await Actions.dex.cancelStaleSync(client, {
+        orderId,
+      })
+
+    expect(receipt).toBeDefined()
+    expect(receipt.status).toBe('success')
+    expect(returnedOrderId).toBe(orderId)
+  })
+
+  test('behavior: cannot cancel non-stale order', async () => {
+    const { base } = await setupTokenPair(client)
+
+    // Place a bid order
+    const { orderId } = await Actions.dex.placeSync(client, {
+      token: base,
+      amount: parseUnits('100', 6),
+      type: 'buy',
+      tick: Tick.fromPrice('1.001'),
+    })
+
+    // Try to cancel as stale - should fail because maker is not blacklisted
+    await expect(
+      Actions.dex.cancelStaleSync(client, {
+        orderId,
+      }),
+    ).rejects.toThrow('The contract function "cancelStaleOrder" reverted')
+  })
+})
+
 describe('createPair', () => {
   test('default', async () => {
     const { token: baseToken } = await Actions.token.createSync(client, {

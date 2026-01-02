@@ -471,6 +471,66 @@ export type Decorator<
       parameters: dexActions.cancelSync.Parameters<chain, account>,
     ) => Promise<dexActions.cancelSync.ReturnValue>
     /**
+     * Cancels a stale order from the orderbook.
+     *
+     * A stale order is one where the maker has been blacklisted by a TIP-403 policy.
+     * Anyone can cancel stale orders.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.dex.cancelStale({
+     *   orderId: 123n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    cancelStale: (
+      parameters: dexActions.cancelStale.Parameters<chain, account>,
+    ) => Promise<dexActions.cancelStale.ReturnValue>
+    /**
+     * Cancels a stale order from the orderbook and waits for confirmation.
+     *
+     * A stale order is one where the maker has been blacklisted by a TIP-403 policy.
+     * Anyone can cancel stale orders.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const result = await client.dex.cancelStaleSync({
+     *   orderId: 123n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    cancelStaleSync: (
+      parameters: dexActions.cancelStaleSync.Parameters<chain, account>,
+    ) => Promise<dexActions.cancelStaleSync.ReturnValue>
+    /**
      * Creates a new trading pair on the DEX.
      *
      * @example
@@ -2964,6 +3024,9 @@ export function decorator() {
         buySync: (parameters) => dexActions.buySync(client, parameters),
         cancel: (parameters) => dexActions.cancel(client, parameters),
         cancelSync: (parameters) => dexActions.cancelSync(client, parameters),
+        cancelStale: (parameters) => dexActions.cancelStale(client, parameters),
+        cancelStaleSync: (parameters) =>
+          dexActions.cancelStaleSync(client, parameters),
         createPair: (parameters) => dexActions.createPair(client, parameters),
         createPairSync: (parameters) =>
           dexActions.createPairSync(client, parameters),

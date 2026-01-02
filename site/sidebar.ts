@@ -1915,14 +1915,6 @@ export const sidebar = {
                 link: '/tempo/actions/nonce.getNonce',
               },
               {
-                text: 'getNonceKeyCount',
-                link: '/tempo/actions/nonce.getNonceKeyCount',
-              },
-              {
-                text: 'watchActiveKeyCountChanged',
-                link: '/tempo/actions/nonce.watchActiveKeyCountChanged',
-              },
-              {
                 text: 'watchNonceIncremented',
                 link: '/tempo/actions/nonce.watchNonceIncremented',
               },
@@ -1993,8 +1985,16 @@ export const sidebar = {
                 link: '/tempo/actions/reward.claim',
               },
               {
-                text: 'getTotalPerSecond',
-                link: '/tempo/actions/reward.getTotalPerSecond',
+                text: 'distribute',
+                link: '/tempo/actions/reward.distribute',
+              },
+              {
+                text: 'getGlobalRewardPerToken',
+                link: '/tempo/actions/reward.getGlobalRewardPerToken',
+              },
+              {
+                text: 'getPendingRewards',
+                link: '/tempo/actions/reward.getPendingRewards',
               },
               {
                 text: 'getUserRewardInfo',
@@ -2005,16 +2005,12 @@ export const sidebar = {
                 link: '/tempo/actions/reward.setRecipient',
               },
               {
-                text: 'start',
-                link: '/tempo/actions/reward.start',
+                text: 'watchRewardDistributed',
+                link: '/tempo/actions/reward.watchRewardDistributed',
               },
               {
                 text: 'watchRewardRecipientSet',
                 link: '/tempo/actions/reward.watchRewardRecipientSet',
-              },
-              {
-                text: 'watchRewardScheduled',
-                link: '/tempo/actions/reward.watchRewardScheduled',
               },
             ],
           },
@@ -2029,6 +2025,10 @@ export const sidebar = {
               {
                 text: 'cancel',
                 link: '/tempo/actions/dex.cancel',
+              },
+              {
+                text: 'cancelStale',
+                link: '/tempo/actions/dex.cancelStale',
               },
               {
                 text: 'createPair',

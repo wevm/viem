@@ -20,8 +20,6 @@
 | [`fee.watchSetUserToken`](/tempo/actions/fee.watchSetUserToken) | Watches for user token set events |
 | **Nonce Actions** | |
 | [`nonce.getNonce`](/tempo/actions/nonce.getNonce) | Gets the nonce for an account and nonce key |
-| [`nonce.getNonceKeyCount`](/tempo/actions/nonce.getNonceKeyCount) | Gets the number of active nonce keys for an account |
-| [`nonce.watchActiveKeyCountChanged`](/tempo/actions/nonce.watchActiveKeyCountChanged) | Watches for active key count changed events |
 | [`nonce.watchNonceIncremented`](/tempo/actions/nonce.watchNonceIncremented) | Watches for nonce incremented events |
 | **Policy Actions** | |
 | [`policy.create`](/tempo/actions/policy.create) | Creates a new transfer policy for token access control |
@@ -36,15 +34,17 @@
 | [`policy.watchWhitelistUpdated`](/tempo/actions/policy.watchWhitelistUpdated) | Watches for whitelist update events |
 | **Reward Actions** | |
 | [`reward.claim`](/tempo/actions/reward.claim) | Claims accumulated rewards for the caller |
-| [`reward.getTotalPerSecond`](/tempo/actions/reward.getTotalPerSecond) | Gets the total reward per second rate for all active streams |
+| [`reward.distribute`](/tempo/actions/reward.distribute) | Distributes rewards to opted-in token holders |
+| [`reward.getGlobalRewardPerToken`](/tempo/actions/reward.getGlobalRewardPerToken) | Gets the global reward per token value |
+| [`reward.getPendingRewards`](/tempo/actions/reward.getPendingRewards) | Calculates the pending claimable rewards for an account |
 | [`reward.getUserRewardInfo`](/tempo/actions/reward.getUserRewardInfo) | Gets reward information for a specific account |
 | [`reward.setRecipient`](/tempo/actions/reward.setRecipient) | Sets or changes the reward recipient for a token holder |
-| [`reward.start`](/tempo/actions/reward.start) | Starts a new reward stream that distributes tokens to opted-in holders |
+| [`reward.watchRewardDistributed`](/tempo/actions/reward.watchRewardDistributed) | Watches for reward distributed events |
 | [`reward.watchRewardRecipientSet`](/tempo/actions/reward.watchRewardRecipientSet) | Watches for reward recipient set events |
-| [`reward.watchRewardScheduled`](/tempo/actions/reward.watchRewardScheduled) | Watches for reward scheduled events |
 | **Stablecoin DEX Actions** | |
 | [`dex.buy`](/tempo/actions/dex.buy) | Buys a specific amount of tokens from the Stablecoin DEX orderbook |
 | [`dex.cancel`](/tempo/actions/dex.cancel) | Cancels an order from the orderbook |
+| [`dex.cancelStale`](/tempo/actions/dex.cancelStale) | Cancels a stale order from a blacklisted maker |
 | [`dex.createPair`](/tempo/actions/dex.createPair) | Creates a new trading pair on the DEX |
 | [`dex.getBalance`](/tempo/actions/dex.getBalance) | Gets a user's token balance on the Stablecoin DEX |
 | [`dex.getBuyQuote`](/tempo/actions/dex.getBuyQuote) | Gets the quote for buying a specific amount of tokens |
