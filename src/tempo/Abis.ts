@@ -41,6 +41,13 @@ export const stablecoinExchange = [
     outputs: [],
   },
   {
+    name: 'cancelStaleOrder',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'uint128', name: 'orderId' }],
+    outputs: [],
+  },
+  {
     name: 'swapExactAmountIn',
     type: 'function',
     stateMutability: 'nonpayable',
@@ -315,6 +322,7 @@ export const stablecoinExchange = [
     inputs: [{ type: 'uint128', name: 'amount' }],
   },
   { name: 'InvalidBaseToken', type: 'error', inputs: [] },
+  { name: 'OrderNotStale', type: 'error', inputs: [] },
 ] as const
 
 export const tip20 = [
@@ -1072,10 +1080,10 @@ export const feeAmm = [
     name: 'Mint',
     type: 'event',
     inputs: [
-      { type: 'address', name: 'sender', indexed: true },
+      { type: 'address', name: 'sender' },
+      { type: 'address', name: 'to', indexed: true },
       { type: 'address', name: 'userToken', indexed: true },
       { type: 'address', name: 'validatorToken', indexed: true },
-      { type: 'uint256', name: 'amountUserToken' },
       { type: 'uint256', name: 'amountValidatorToken' },
       { type: 'uint256', name: 'liquidity' },
     ],

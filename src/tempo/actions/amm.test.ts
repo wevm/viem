@@ -92,8 +92,6 @@ describe('mint', () => {
     )
 
     expect(mintReceipt).toBeDefined()
-    // amountUserToken should be 0 for single-sided mint
-    expect(mintResult.amountUserToken).toBe(0n)
     expect(mintResult.amountValidatorToken).toBe(parseUnits('50', 6))
     expect(mintResult.liquidity).toBeGreaterThan(0n)
 
@@ -321,11 +319,11 @@ describe('watchMint', () => {
     await setTimeout(1000)
 
     expect(eventArgs).toBeDefined()
-    expect(eventArgs.userToken.address.toLowerCase()).toBe(token.toLowerCase())
-    expect(eventArgs.validatorToken.address.toLowerCase()).toBe(
+    expect(eventArgs.userToken.toLowerCase()).toBe(token.toLowerCase())
+    expect(eventArgs.validatorToken.toLowerCase()).toBe(
       '0x20c0000000000000000000000000000000000001',
     )
-    expect(eventArgs.validatorToken.amount).toBe(parseUnits('100', 6))
+    expect(eventArgs.amountValidatorToken).toBe(parseUnits('100', 6))
 
     unwatch()
   })

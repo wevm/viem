@@ -1067,16 +1067,14 @@ export function watchMint<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(client: Client<Transport, chain, account>, parameters: watchMint.Parameters) {
-  const { onMint, sender, userToken, validatorToken, ...rest } = parameters
+  const { onMint, to, userToken, validatorToken, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
     address: Addresses.feeManager,
     abi: Abis.feeAmm,
     eventName: 'Mint',
     args: {
-      ...(sender !== undefined && {
-        sender: TokenId.toAddress(sender),
-      }),
+      to,
       ...(userToken !== undefined && {
         userToken: TokenId.toAddress(userToken),
       }),
@@ -1085,40 +1083,18 @@ export function watchMint<
       }),
     },
     onLogs: (logs) => {
-      for (const log of logs)
-        onMint(
-          {
-            liquidity: log.args.liquidity,
-            sender: log.args.sender,
-            userToken: {
-              address: log.args.userToken,
-              amount: log.args.amountUserToken,
-            },
-            validatorToken: {
-              address: log.args.validatorToken,
-              amount: log.args.amountValidatorToken,
-            },
-          },
-          log,
-        )
+      for (const log of logs) onMint(log.args, log)
     },
     strict: true,
   })
 }
 
 export declare namespace watchMint {
-  export type Args = {
-    liquidity: bigint
-    sender: Address
-    userToken: {
-      address: Address
-      amount: bigint
-    }
-    validatorToken: {
-      address: Address
-      amount: bigint
-    }
-  }
+  export type Args = GetEventArgs<
+    typeof Abis.feeAmm,
+    'Mint',
+    { IndexedOnly: false; Required: true }
+  >
 
   export type Log = viem_Log<
     bigint,
@@ -1134,8 +1110,10 @@ export declare namespace watchMint {
   > & {
     /** Callback to invoke when liquidity is added. */
     onMint: (args: Args, log: Log) => void
-    /** Address or ID of the sender to filter events. */
-    sender?: TokenId.TokenIdOrAddress | undefined
+    /** Address of the sender to filter events. */
+    sender?: Address | undefined
+    /** Address of the recipient to filter events. */
+    to?: Address | undefined
     /** Address or ID of the user token to filter events. */
     userToken?: TokenId.TokenIdOrAddress | undefined
     /** Address or ID of the validator token to filter events. */
