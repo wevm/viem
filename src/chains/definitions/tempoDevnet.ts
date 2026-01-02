@@ -3,7 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const tempoDevnet = /*#__PURE__*/ defineChain({
   ...chainConfig,
-  id: 42429,
+  id: 31318,
   name: 'Tempo Devnet',
   nativeCurrency: {
     name: 'USD',
