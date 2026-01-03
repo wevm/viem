@@ -1,5 +1,11 @@
 # viem
 
+## 2.43.5
+
+### Patch Changes
+
+- [#4203](https://github.com/wevm/viem/pull/4203) [`d4875f4c0ffc191ddb1f11b7acae27e928329bff`](https://github.com/wevm/viem/commit/d4875f4c0ffc191ddb1f11b7acae27e928329bff) Thanks [@o-az](https://github.com/o-az)! - Updated Tempo Devnet chain id to 31318
+
 ## 2.43.4
 
 ### Patch Changes
