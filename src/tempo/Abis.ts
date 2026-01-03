@@ -776,6 +776,7 @@ export const tip20 = [
   { name: 'Unauthorized', type: 'error', inputs: [] },
   { name: 'ProtectedAddress', type: 'error', inputs: [] },
   { name: 'InvalidToken', type: 'error', inputs: [] },
+  { name: 'Uninitialized', type: 'error', inputs: [] },
   { name: 'InvalidTransferPolicyId', type: 'error', inputs: [] },
   {
     name: 'hasRole',
@@ -1529,6 +1530,20 @@ export const validatorConfig = [
     type: 'function',
     stateMutability: 'nonpayable',
     inputs: [{ type: 'address', name: 'newOwner' }],
+    outputs: [],
+  },
+  {
+    name: 'getNextFullDkgCeremony',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'setNextFullDkgCeremony',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'uint64', name: 'epoch' }],
     outputs: [],
   },
   { name: 'Unauthorized', type: 'error', inputs: [] },
