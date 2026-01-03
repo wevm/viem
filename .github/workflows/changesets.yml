@@ -9,12 +9,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  get-tempo-testnet-tag:
+    name: Get Testnet Tempo Version
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.fetch-tag.outputs.tag }}
+    steps:
+      - name: Fetch testnet Tempo SHA
+        id: fetch-tag
+        continue-on-error: true
+        run: |
+          SHA=$(curl -s https://rpc.testnet.tempo.xyz -X POST \
+            -H "Content-Type: application/json" \
+            -d '{"jsonrpc":"2.0","method":"web3_clientVersion","params":[],"id":1}' | \
+            jq -r '.result // empty' | grep -oP 'v[\d.]+-\K[a-f0-9]+') || true
+          echo "tag=sha-${SHA:-latest}" >> $GITHUB_OUTPUT
+
   verify:
     name: Verify
+    needs: get-tempo-testnet-tag
     uses: ./.github/workflows/verify.yml
     secrets: inherit
     permissions:
       contents: read
+    with:
+      tempo-tag: ${{ needs.get-tempo-testnet-tag.outputs.tag }}
 
   changesets:
     name: Create version pull request
