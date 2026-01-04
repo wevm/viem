@@ -2,7 +2,11 @@ import { Mnemonic } from 'ox'
 import { generateMnemonic } from '../../../src/accounts/generateMnemonic.js'
 import { english } from '../../../src/accounts/wordlists.js'
 import { sendTransactionSync } from '../../../src/actions/index.js'
-import { tempoLocalnet, tempoTestnet } from '../../../src/chains/index.js'
+import {
+  tempoDevnet,
+  tempoLocalnet,
+  tempoTestnet,
+} from '../../../src/chains/index.js'
 import {
   type Address,
   type Chain,
@@ -42,11 +46,17 @@ export const addresses = {
 } as const
 
 export const chain = (() => {
-  if (nodeEnv === 'testnet' || nodeEnv === 'devnet') return tempoTestnet
-  return defineChain({
-    ...tempoLocalnet,
-    rpcUrls: { default: { http: [rpcUrl] } },
-  })
+  switch (nodeEnv) {
+    case 'testnet':
+      return tempoTestnet
+    case 'devnet':
+      return tempoDevnet
+    default:
+      return defineChain({
+        ...tempoLocalnet,
+        rpcUrls: { default: { http: [rpcUrl] } },
+      })
+  }
 })()
 
 export function debugOptions({
