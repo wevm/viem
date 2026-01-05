@@ -2,7 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const kii = /*#__PURE__*/ defineChain({
   id: 1783,
-  name: 'Kii Chain',
+  name: 'KiiChain',
   network: 'kii-chain',
   nativeCurrency: {
     name: 'Kii',
