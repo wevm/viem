@@ -109,15 +109,8 @@ export async function estimateContractGas<
   client: Client<Transport, chain, account>,
   parameters: EstimateContractGasParameters<abi, functionName, args, chain>,
 ): Promise<EstimateContractGasReturnType> {
-  const {
-    abi,
-    address,
-    args,
-    functionName,
-    dataSuffix,
-    requestOptions,
-    ...request
-  } = parameters as EstimateContractGasParameters
+  const { abi, address, args, functionName, dataSuffix, ...request } =
+    parameters as EstimateContractGasParameters
   const data = encodeFunctionData({
     abi,
     args,
@@ -132,7 +125,6 @@ export async function estimateContractGas<
       data: `${data}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
       to: address,
       ...request,
-      requestOptions,
     } as unknown as EstimateGasParameters)
     return gas
   } catch (error) {
