@@ -19,6 +19,8 @@ export type WithRetryParameters = {
         error: Error
       }) => Promise<boolean> | boolean)
     | undefined
+  // AbortSignal to cancel retries.
+  signal?: AbortSignal | undefined
 }
 
 export type WithRetryErrorType = ErrorType
@@ -29,10 +31,25 @@ export function withRetry<data>(
     delay: delay_ = 100,
     retryCount = 2,
     shouldRetry = () => true,
+    signal,
   }: WithRetryParameters = {},
 ) {
   return new Promise<data>((resolve, reject) => {
+    const rejectWithAbort = () => {
+      reject(signal?.reason ?? new Error('Aborted'))
+    }
+
+    if (signal?.aborted) {
+      rejectWithAbort()
+      return
+    }
+
     const attemptRetry = async ({ count = 0 } = {}) => {
+      if (signal?.aborted) {
+        rejectWithAbort()
+        return
+      }
+
       const retry = async ({ error }: { error: Error }) => {
         const delay =
           typeof delay_ === 'function' ? delay_({ count, error }) : delay_

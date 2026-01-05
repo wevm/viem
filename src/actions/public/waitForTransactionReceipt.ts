@@ -258,6 +258,7 @@ export async function waitForTransactionReceipt<
                 {
                   delay: retryDelay,
                   retryCount,
+                  signal: requestOptions?.signal,
                 },
               )
               retrying = false
@@ -314,6 +315,7 @@ export async function waitForTransactionReceipt<
                     retryCount,
                     shouldRetry: ({ error }) =>
                       error instanceof BlockNotFoundError,
+                    signal: requestOptions?.signal,
                   },
                 )
                 retrying = false
