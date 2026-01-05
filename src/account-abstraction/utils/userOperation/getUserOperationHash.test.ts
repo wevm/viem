@@ -399,7 +399,7 @@ describe('entryPoint: 0.9', () => {
         },
       }),
     ).toMatchInlineSnapshot(
-      `"0x9a538c5deb10298bcc09baa188099e5a3935ec20d92f211a1d838ab214b260ba"`,
+      `"0x802c25af5d98cd349b2118227faa93172fb791c4130a482272095cec45c4fc6e"`,
     )
   })
 
