@@ -1,5 +1,15 @@
 # viem
 
+## 2.43.6
+
+### Patch Changes
+
+- [#4200](https://github.com/wevm/viem/pull/4200) [`88e877233e488ddc2a29582026db3a876d2b5ba6`](https://github.com/wevm/viem/commit/88e877233e488ddc2a29582026db3a876d2b5ba6) Thanks [@Sharqiewicz](https://github.com/Sharqiewicz)! - Added Paseo PassetHub chain.
+
+- [#4209](https://github.com/wevm/viem/pull/4209) [`8654ffcfdc102b10a84d4626e07c251d9f1a55c1`](https://github.com/wevm/viem/commit/8654ffcfdc102b10a84d4626e07c251d9f1a55c1) Thanks [@jxom](https://github.com/jxom)! - Fixed encoding of `paymasterSignature` in `toPackedUserOperation` to use the correct ERC-4337 format with magic suffix and length prefix.
+
+- [#4185](https://github.com/wevm/viem/pull/4185) [`99421a6c53359626394f41e7b310aa3dc14fdc48`](https://github.com/wevm/viem/commit/99421a6c53359626394f41e7b310aa3dc14fdc48) Thanks [@MrSaints](https://github.com/MrSaints)! - Added Codex chain.
+
 ## 2.43.5
 
 ### Patch Changes
