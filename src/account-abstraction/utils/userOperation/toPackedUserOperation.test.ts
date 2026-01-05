@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest'
-
-import { toPackedUserOperation } from './toPackedUserOperation.js'
 import type { UserOperation } from '../../types/userOperation.js'
+import { toPackedUserOperation } from './toPackedUserOperation.js'
 
 const paymasterSignatureMagic = '0x22e325a297439656'
 
@@ -54,7 +53,9 @@ describe('toPackedUserOperation', () => {
       expect(packed.paymasterAndData).toMatchInlineSnapshot(
         `"0x12345678901234567890123456789012345678900000000000000000000000000069ed750000000000000000000000000069ed75deadbeef22e325a297439656"`,
       )
-      expect(packed.paymasterAndData.endsWith(paymasterSignatureMagic.slice(2))).toBe(true)
+      expect(
+        packed.paymasterAndData.endsWith(paymasterSignatureMagic.slice(2)),
+      ).toBe(true)
     })
 
     test('forHash: false - includes signature + length + magic', () => {
@@ -64,7 +65,9 @@ describe('toPackedUserOperation', () => {
       expect(packed.paymasterAndData).toMatchInlineSnapshot(
         `"0x12345678901234567890123456789012345678900000000000000000000000000069ed750000000000000000000000000069ed75deadbeefcafebabe000422e325a297439656"`,
       )
-      expect(packed.paymasterAndData.endsWith(paymasterSignatureMagic.slice(2))).toBe(true)
+      expect(
+        packed.paymasterAndData.endsWith(paymasterSignatureMagic.slice(2)),
+      ).toBe(true)
       expect(packed.paymasterAndData).toContain('cafebabe')
       expect(packed.paymasterAndData).toContain('0004')
     })
