@@ -153,7 +153,7 @@ export function buildRequest<
         withRetry(
           async () => {
             try {
-              return await request(args, { signal })
+              return await request(args, signal ? { signal } : undefined)
             } catch (err_) {
               const err = err_ as unknown as RpcError<
                 RpcErrorCode | ProviderRpcErrorCode
