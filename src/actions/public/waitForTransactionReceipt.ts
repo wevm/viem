@@ -192,7 +192,10 @@ export async function waitForTransactionReceipt<
         client,
         getTransactionReceipt,
         'getTransactionReceipt',
-      )({ hash, requestOptions }).catch(() => undefined)
+      )({ hash, requestOptions }).catch((err) => {
+        if (err?.name === 'AbortError') throw err
+        return undefined
+      })
 
       if (receipt && confirmations <= 1) {
         clearTimeout(timer)
