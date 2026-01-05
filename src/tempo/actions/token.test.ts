@@ -1,6 +1,6 @@
 import { setTimeout } from 'node:timers/promises'
 import { Hex } from 'ox'
-import { TokenRole } from 'ox/tempo'
+import { TokenId, TokenRole } from 'ox/tempo'
 import { parseUnits } from 'viem'
 import { getCode, writeContractSync } from 'viem/actions'
 import { Abis, Addresses, TokenIds } from 'viem/tempo'
@@ -214,7 +214,7 @@ describe('approve', () => {
 
 describe('create', () => {
   test('default', async () => {
-    const { receipt, token, tokenId, ...result } =
+    const { receipt, salt, token, tokenId, ...result } =
       await actions.token.createSync(client, {
         currency: 'USD',
         name: 'Test USD',
@@ -230,6 +230,7 @@ describe('create', () => {
         "symbol": "TUSD",
       }
     `)
+    expect(salt).toBeDefined()
     expect(token).toBeDefined()
     expect(tokenId).toBeDefined()
     expect(receipt).toBeDefined()
@@ -1826,16 +1827,13 @@ describe('watchCreate', () => {
     }
   })
 
-  test('behavior: filter by tokenId', async () => {
-    // First, create a token to know what ID we're at
-    const { tokenId: firstId } = await actions.token.createSync(client, {
-      currency: 'USD',
-      name: 'Setup Token',
-      symbol: 'SETUP',
+  test('behavior: filter by token', async () => {
+    const salt = Hex.random(32)
+    const tokenId = TokenId.compute({
+      salt,
+      sender: client.account.address,
     })
-
-    // We want to watch for the token with ID = firstId + 2
-    const targetTokenId = firstId + 2n
+    const token = TokenId.toAddress(tokenId)
 
     const receivedTokens: Array<{
       args: actions.token.watchCreate.Args
@@ -1845,7 +1843,7 @@ describe('watchCreate', () => {
     // Start watching for token creation events only for targetTokenId
     const unwatch = actions.token.watchCreate(client, {
       args: {
-        tokenId: targetTokenId,
+        token,
       },
       onTokenCreated: (args, log) => {
         receivedTokens.push({ args, log })
@@ -1853,21 +1851,23 @@ describe('watchCreate', () => {
     })
 
     try {
-      // Create first token (should NOT be captured - ID will be firstId + 1)
+      // Create first token (should NOT be captured)
       await actions.token.createSync(client, {
         currency: 'USD',
         name: 'Filtered Watch Token 1',
         symbol: 'FWATCH1',
       })
 
-      // Create second token (should be captured - ID will be firstId + 2 = targetTokenId)
-      const { tokenId: id2 } = await actions.token.createSync(client, {
+      // Create second token (should be captured)
+      const result = await actions.token.createSync(client, {
         currency: 'USD',
         name: 'Filtered Watch Token 2',
+        salt,
         symbol: 'FWATCH2',
       })
+      expect(result.token.toLowerCase()).toBe(token)
 
-      // Create third token (should NOT be captured - ID will be firstId + 3)
+      // Create third token (should NOT be captured)
       await actions.token.createSync(client, {
         currency: 'USD',
         name: 'Filtered Watch Token 3',
@@ -1879,10 +1879,11 @@ describe('watchCreate', () => {
       // Should only receive 1 event (for targetTokenId)
       expect(receivedTokens).toHaveLength(1)
 
-      expect(receivedTokens.at(0)!.args.tokenId).toBe(targetTokenId)
-      expect(receivedTokens.at(0)!.args.tokenId).toBe(id2)
-
-      const { token, tokenId, ...rest } = receivedTokens.at(0)!.args
+      const {
+        token: tokenAddress,
+        salt: tokenSalt,
+        ...rest
+      } = receivedTokens.at(0)!.args
       expect(rest).toMatchInlineSnapshot(`
         {
           "admin": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -1892,8 +1893,8 @@ describe('watchCreate', () => {
           "symbol": "FWATCH2",
         }
       `)
-      expect(token).toBeDefined()
-      expect(tokenId).toBe(targetTokenId)
+      expect(salt).toBe(tokenSalt)
+      expect(token.toLowerCase()).toBe(tokenAddress.toLowerCase())
     } finally {
       if (unwatch) unwatch()
     }

@@ -1299,15 +1299,9 @@ export const tip20Factory = [
       { type: 'string', name: 'currency' },
       { type: 'address', name: 'quoteToken' },
       { type: 'address', name: 'admin' },
+      { type: 'bytes32', name: 'salt' },
     ],
     outputs: [{ type: 'address' }],
-  },
-  {
-    name: 'tokenIdCounter',
-    type: 'function',
-    stateMutability: 'view',
-    inputs: [],
-    outputs: [{ type: 'uint256' }],
   },
   {
     name: 'isTIP20',
@@ -1317,17 +1311,35 @@ export const tip20Factory = [
     outputs: [{ type: 'bool' }],
   },
   {
+    name: 'getTokenAddress',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'sender' },
+      { type: 'bytes32', name: 'salt' },
+    ],
+    outputs: [{ type: 'address' }],
+  },
+  {
     name: 'TokenCreated',
     type: 'event',
     inputs: [
       { type: 'address', name: 'token', indexed: true },
-      { type: 'uint256', name: 'tokenId', indexed: true },
       { type: 'string', name: 'name' },
       { type: 'string', name: 'symbol' },
       { type: 'string', name: 'currency' },
       { type: 'address', name: 'quoteToken' },
       { type: 'address', name: 'admin' },
+      { type: 'bytes32', name: 'salt' },
     ],
+  },
+  { name: 'AddressReserved', type: 'error', inputs: [] },
+  { name: 'AddressNotReserved', type: 'error', inputs: [] },
+  { name: 'InvalidQuoteToken', type: 'error', inputs: [] },
+  {
+    name: 'TokenAlreadyExists',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'token' }],
   },
 ] as const
 
