@@ -10,7 +10,7 @@ export const tempoTestnet = /*#__PURE__*/ defineChain({
       url: 'https://explore.moderato.tempo.xyz',
     },
   },
-  name: 'Tempo Testnet 2',
+  name: 'Tempo Moderato',
   nativeCurrency: {
     name: 'USD',
     symbol: 'USD',
