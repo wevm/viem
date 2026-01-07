@@ -1,5 +1,11 @@
 # viem
 
+## 2.43.7
+
+### Patch Changes
+
+- [`1199b07b6fcb61f55902a446078ad62d896d50a0`](https://github.com/wevm/viem/commit/1199b07b6fcb61f55902a446078ad62d896d50a0) Thanks [@jxom](https://github.com/jxom)! - Switched to named `ox/tempo` exports.
+
 ## 2.43.6
 
 ### Patch Changes
