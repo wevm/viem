@@ -1,5 +1,4 @@
-import * as SignatureEnvelope from 'ox/tempo/SignatureEnvelope'
-import type * as TokenId from 'ox/tempo/TokenId'
+import { SignatureEnvelope, type TokenId } from 'ox/tempo'
 import { getCode } from '../actions/public/getCode.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
