@@ -1875,10 +1875,6 @@ export const sidebar = {
                 link: '/tempo/actions/amm.watchBurn',
               },
               {
-                text: 'watchFeeSwap',
-                link: '/tempo/actions/amm.watchFeeSwap',
-              },
-              {
                 text: 'watchMint',
                 link: '/tempo/actions/amm.watchMint',
               },
@@ -2015,7 +2011,7 @@ export const sidebar = {
             ],
           },
           {
-            text: 'Stablecoin Exchange',
+            text: 'Stablecoin DEX',
             collapsed: true,
             items: [
               {

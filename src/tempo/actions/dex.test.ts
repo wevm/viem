@@ -952,7 +952,9 @@ describe('place', () => {
     expect(result).toMatchInlineSnapshot(`
       {
         "amount": 100000000n,
+        "flipTick": 0,
         "isBid": false,
+        "isFlipOrder": false,
         "maker": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "tick": 100,
       }
@@ -976,7 +978,9 @@ describe('place', () => {
     expect(result2).toMatchInlineSnapshot(`
       {
         "amount": 100000000n,
+        "flipTick": 0,
         "isBid": true,
+        "isFlipOrder": false,
         "maker": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "tick": 100,
       }
@@ -1128,6 +1132,7 @@ describe('placeFlip', () => {
         "amount": 100000000n,
         "flipTick": 200,
         "isBid": true,
+        "isFlipOrder": true,
         "maker": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "tick": 100,
       }

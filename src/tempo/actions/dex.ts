@@ -154,8 +154,8 @@ export namespace buy {
   export function call(args: Args) {
     const { tokenIn, tokenOut, amountOut, maxAmountIn } = args
     return defineCall({
-      address: Addresses.stablecoinExchange,
-      abi: Abis.stablecoinExchange,
+      address: Addresses.stablecoinDex,
+      abi: Abis.stablecoinDex,
       functionName: 'swapExactAmountOut',
       args: [tokenIn, tokenOut, amountOut, maxAmountIn],
     })
@@ -325,8 +325,8 @@ export namespace cancel {
   export function call(args: Args) {
     const { orderId } = args
     return defineCall({
-      address: Addresses.stablecoinExchange,
-      abi: Abis.stablecoinExchange,
+      address: Addresses.stablecoinDex,
+      abi: Abis.stablecoinDex,
       functionName: 'cancel',
       args: [orderId],
     })
@@ -340,7 +340,7 @@ export namespace cancel {
    */
   export function extractEvent(logs: viem_Log[]) {
     const [log] = parseEventLogs({
-      abi: Abis.stablecoinExchange,
+      abi: Abis.stablecoinDex,
       logs,
       eventName: 'OrderCancelled',
       strict: true,
@@ -404,7 +404,7 @@ export namespace cancelSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof Abis.stablecoinExchange,
+      typeof Abis.stablecoinDex,
       'OrderCancelled',
       { IndexedOnly: false; Required: true }
     > & {
@@ -523,8 +523,8 @@ export namespace cancelStale {
   export function call(args: Args) {
     const { orderId } = args
     return defineCall({
-      address: Addresses.stablecoinExchange,
-      abi: Abis.stablecoinExchange,
+      address: Addresses.stablecoinDex,
+      abi: Abis.stablecoinDex,
       functionName: 'cancelStaleOrder',
       args: [orderId],
     })
@@ -538,7 +538,7 @@ export namespace cancelStale {
    */
   export function extractEvent(logs: viem_Log[]) {
     const [log] = parseEventLogs({
-      abi: Abis.stablecoinExchange,
+      abi: Abis.stablecoinDex,
       logs,
       eventName: 'OrderCancelled',
       strict: true,
@@ -605,7 +605,7 @@ export namespace cancelStaleSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof Abis.stablecoinExchange,
+      typeof Abis.stablecoinDex,
       'OrderCancelled',
       { IndexedOnly: false; Required: true }
     > & {
@@ -721,8 +721,8 @@ export namespace createPair {
   export function call(args: Args) {
     const { base } = args
     return defineCall({
-      address: Addresses.stablecoinExchange,
-      abi: Abis.stablecoinExchange,
+      address: Addresses.stablecoinDex,
+      abi: Abis.stablecoinDex,
       functionName: 'createPair',
       args: [base],
     })
@@ -736,7 +736,7 @@ export namespace createPair {
    */
   export function extractEvent(logs: viem_Log[]) {
     const [log] = parseEventLogs({
-      abi: Abis.stablecoinExchange,
+      abi: Abis.stablecoinDex,
       logs,
       eventName: 'PairCreated',
       strict: true,
@@ -800,7 +800,7 @@ export namespace createPairSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof Abis.stablecoinExchange,
+      typeof Abis.stablecoinDex,
       'PairCreated',
       { IndexedOnly: false; Required: true }
     > & {
@@ -866,7 +866,7 @@ export namespace getBalance {
   }
 
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.stablecoinExchange,
+    typeof Abis.stablecoinDex,
     'balanceOf',
     never
   >
@@ -880,8 +880,8 @@ export namespace getBalance {
   export function call(args: Args) {
     const { account, token } = args
     return defineCall({
-      address: Addresses.stablecoinExchange,
-      abi: Abis.stablecoinExchange,
+      address: Addresses.stablecoinDex,
+      abi: Abis.stablecoinDex,
       args: [account, token],
       functionName: 'balanceOf',
     })
@@ -937,7 +937,7 @@ export namespace getBuyQuote {
   }
 
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.stablecoinExchange,
+    typeof Abis.stablecoinDex,
     'quoteSwapExactAmountOut',
     never
   >
@@ -951,8 +951,8 @@ export namespace getBuyQuote {
   export function call(args: Args) {
     const { tokenIn, tokenOut, amountOut } = args
     return defineCall({
-      address: Addresses.stablecoinExchange,
-      abi: Abis.stablecoinExchange,
+      address: Addresses.stablecoinDex,
+      abi: Abis.stablecoinDex,
       args: [tokenIn, tokenOut, amountOut],
       functionName: 'quoteSwapExactAmountOut',
     })
@@ -1002,7 +1002,7 @@ export namespace getOrder {
   }
 
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.stablecoinExchange,
+    typeof Abis.stablecoinDex,
     'getOrder',
     never
   >
@@ -1016,8 +1016,8 @@ export namespace getOrder {
   export function call(args: Args) {
     const { orderId } = args
     return defineCall({
-      address: Addresses.stablecoinExchange,
-      abi: Abis.stablecoinExchange,
+      address: Addresses.stablecoinDex,
+      abi: Abis.stablecoinDex,
       args: [orderId],
       functionName: 'getOrder',
     })
@@ -1070,7 +1070,7 @@ export namespace getOrderbook {
   }
 
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.stablecoinExchange,
+    typeof Abis.stablecoinDex,
     'books',
     never
   >
@@ -1085,8 +1085,8 @@ export namespace getOrderbook {
     const { base, quote } = args
     const pairKey = getPairKey(base, quote)
     return defineCall({
-      address: Addresses.stablecoinExchange,
-      abi: Abis.stablecoinExchange,
+      address: Addresses.stablecoinDex,
+      abi: Abis.stablecoinDex,
       args: [pairKey],
       functionName: 'books',
     })
@@ -1160,8 +1160,8 @@ export namespace getTickLevel {
   export function call(args: Args) {
     const { base, tick, isBid } = args
     return defineCall({
-      address: Addresses.stablecoinExchange,
-      abi: Abis.stablecoinExchange,
+      address: Addresses.stablecoinDex,
+      abi: Abis.stablecoinDex,
       args: [base, tick, isBid],
       functionName: 'getTickLevel',
     })
@@ -1217,7 +1217,7 @@ export namespace getSellQuote {
   }
 
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.stablecoinExchange,
+    typeof Abis.stablecoinDex,
     'quoteSwapExactAmountIn',
     never
   >
@@ -1231,8 +1231,8 @@ export namespace getSellQuote {
   export function call(args: Args) {
     const { tokenIn, tokenOut, amountIn } = args
     return defineCall({
-      address: Addresses.stablecoinExchange,
-      abi: Abis.stablecoinExchange,
+      address: Addresses.stablecoinDex,
+      abi: Abis.stablecoinDex,
       args: [tokenIn, tokenOut, amountIn],
       functionName: 'quoteSwapExactAmountIn',
     })
@@ -1355,8 +1355,8 @@ export namespace place {
     const { token, amount, type, tick } = args
     const isBid = type === 'buy'
     return defineCall({
-      address: Addresses.stablecoinExchange,
-      abi: Abis.stablecoinExchange,
+      address: Addresses.stablecoinDex,
+      abi: Abis.stablecoinDex,
       functionName: 'place',
       args: [token, amount, isBid, tick],
     })
@@ -1370,7 +1370,7 @@ export namespace place {
    */
   export function extractEvent(logs: viem_Log[]) {
     const [log] = parseEventLogs({
-      abi: Abis.stablecoinExchange,
+      abi: Abis.stablecoinDex,
       logs,
       eventName: 'OrderPlaced',
       strict: true,
@@ -1500,27 +1500,28 @@ export namespace placeFlip {
     const { token, amount, type, tick, flipTick } = args
     const isBid = type === 'buy'
     return defineCall({
-      address: Addresses.stablecoinExchange,
-      abi: Abis.stablecoinExchange,
+      address: Addresses.stablecoinDex,
+      abi: Abis.stablecoinDex,
       functionName: 'placeFlip',
       args: [token, amount, isBid, tick, flipTick],
     })
   }
 
   /**
-   * Extracts the `FlipOrderPlaced` event from logs.
+   * Extracts the `OrderPlaced` event (with `isFlipOrder: true`) from logs.
    *
    * @param logs - The logs.
-   * @returns The `FlipOrderPlaced` event.
+   * @returns The `OrderPlaced` event for a flip order.
    */
   export function extractEvent(logs: viem_Log[]) {
-    const [log] = parseEventLogs({
-      abi: Abis.stablecoinExchange,
+    const parsedLogs = parseEventLogs({
+      abi: Abis.stablecoinDex,
       logs,
-      eventName: 'FlipOrderPlaced',
+      eventName: 'OrderPlaced',
       strict: true,
     })
-    if (!log) throw new Error('`FlipOrderPlaced` event not found.')
+    const log = parsedLogs.find((l) => l.args.isFlipOrder)
+    if (!log) throw new Error('`OrderPlaced` event (flip order) not found.')
     return log
   }
 }
@@ -1583,8 +1584,8 @@ export namespace placeFlipSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof Abis.stablecoinExchange,
-      'FlipOrderPlaced',
+      typeof Abis.stablecoinDex,
+      'OrderPlaced',
       { IndexedOnly: false; Required: true }
     > & {
       /** Transaction receipt. */
@@ -1653,7 +1654,7 @@ export namespace placeSync {
 
   export type ReturnValue = Compute<
     GetEventArgs<
-      typeof Abis.stablecoinExchange,
+      typeof Abis.stablecoinDex,
       'OrderPlaced',
       { IndexedOnly: false; Required: true }
     > & {
@@ -1781,8 +1782,8 @@ export namespace sell {
   export function call(args: Args) {
     const { tokenIn, tokenOut, amountIn, minAmountOut } = args
     return defineCall({
-      address: Addresses.stablecoinExchange,
-      abi: Abis.stablecoinExchange,
+      address: Addresses.stablecoinDex,
+      abi: Abis.stablecoinDex,
       functionName: 'swapExactAmountIn',
       args: [tokenIn, tokenOut, amountIn, minAmountOut],
     })
@@ -1884,15 +1885,17 @@ export function watchFlipOrderPlaced<
   const { onFlipOrderPlaced, maker, token, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: Addresses.stablecoinExchange,
-    abi: Abis.stablecoinExchange,
-    eventName: 'FlipOrderPlaced',
+    address: Addresses.stablecoinDex,
+    abi: Abis.stablecoinDex,
+    eventName: 'OrderPlaced',
     args: {
       ...(maker !== undefined && { maker }),
       ...(token !== undefined && { token }),
     },
     onLogs: (logs) => {
-      for (const log of logs) onFlipOrderPlaced(log.args, log)
+      for (const log of logs) {
+        if (log.args.isFlipOrder) onFlipOrderPlaced(log.args, log)
+      }
     },
     strict: true,
   })
@@ -1900,8 +1903,8 @@ export function watchFlipOrderPlaced<
 
 export declare namespace watchFlipOrderPlaced {
   export type Args = GetEventArgs<
-    typeof Abis.stablecoinExchange,
-    'FlipOrderPlaced',
+    typeof Abis.stablecoinDex,
+    'OrderPlaced',
     { IndexedOnly: false; Required: true }
   >
 
@@ -1909,14 +1912,14 @@ export declare namespace watchFlipOrderPlaced {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof Abis.stablecoinExchange, 'FlipOrderPlaced'>,
+    ExtractAbiItem<typeof Abis.stablecoinDex, 'OrderPlaced'>,
     true
   >
 
   export type Parameters = UnionOmit<
     WatchContractEventParameters<
-      typeof Abis.stablecoinExchange,
-      'FlipOrderPlaced',
+      typeof Abis.stablecoinDex,
+      'OrderPlaced',
       true
     >,
     'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
@@ -1965,8 +1968,8 @@ export function watchOrderCancelled<
   const { onOrderCancelled, orderId, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: Addresses.stablecoinExchange,
-    abi: Abis.stablecoinExchange,
+    address: Addresses.stablecoinDex,
+    abi: Abis.stablecoinDex,
     eventName: 'OrderCancelled',
     args: orderId !== undefined ? { orderId } : undefined,
     onLogs: (logs) => {
@@ -1978,7 +1981,7 @@ export function watchOrderCancelled<
 
 export declare namespace watchOrderCancelled {
   export type Args = GetEventArgs<
-    typeof Abis.stablecoinExchange,
+    typeof Abis.stablecoinDex,
     'OrderCancelled',
     { IndexedOnly: false; Required: true }
   >
@@ -1987,13 +1990,13 @@ export declare namespace watchOrderCancelled {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof Abis.stablecoinExchange, 'OrderCancelled'>,
+    ExtractAbiItem<typeof Abis.stablecoinDex, 'OrderCancelled'>,
     true
   >
 
   export type Parameters = UnionOmit<
     WatchContractEventParameters<
-      typeof Abis.stablecoinExchange,
+      typeof Abis.stablecoinDex,
       'OrderCancelled',
       true
     >,
@@ -2041,8 +2044,8 @@ export function watchOrderFilled<
   const { onOrderFilled, maker, taker, orderId, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: Addresses.stablecoinExchange,
-    abi: Abis.stablecoinExchange,
+    address: Addresses.stablecoinDex,
+    abi: Abis.stablecoinDex,
     eventName: 'OrderFilled',
     args: {
       ...(orderId !== undefined && { orderId }),
@@ -2058,7 +2061,7 @@ export function watchOrderFilled<
 
 export declare namespace watchOrderFilled {
   export type Args = GetEventArgs<
-    typeof Abis.stablecoinExchange,
+    typeof Abis.stablecoinDex,
     'OrderFilled',
     { IndexedOnly: false; Required: true }
   >
@@ -2067,13 +2070,13 @@ export declare namespace watchOrderFilled {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof Abis.stablecoinExchange, 'OrderFilled'>,
+    ExtractAbiItem<typeof Abis.stablecoinDex, 'OrderFilled'>,
     true
   >
 
   export type Parameters = UnionOmit<
     WatchContractEventParameters<
-      typeof Abis.stablecoinExchange,
+      typeof Abis.stablecoinDex,
       'OrderFilled',
       true
     >,
@@ -2125,8 +2128,8 @@ export function watchOrderPlaced<
   const { onOrderPlaced, maker, token, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: Addresses.stablecoinExchange,
-    abi: Abis.stablecoinExchange,
+    address: Addresses.stablecoinDex,
+    abi: Abis.stablecoinDex,
     eventName: 'OrderPlaced',
     args: {
       ...(maker !== undefined && { maker }),
@@ -2141,7 +2144,7 @@ export function watchOrderPlaced<
 
 export declare namespace watchOrderPlaced {
   export type Args = GetEventArgs<
-    typeof Abis.stablecoinExchange,
+    typeof Abis.stablecoinDex,
     'OrderPlaced',
     { IndexedOnly: false; Required: true }
   >
@@ -2150,13 +2153,13 @@ export declare namespace watchOrderPlaced {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof Abis.stablecoinExchange, 'OrderPlaced'>,
+    ExtractAbiItem<typeof Abis.stablecoinDex, 'OrderPlaced'>,
     true
   >
 
   export type Parameters = UnionOmit<
     WatchContractEventParameters<
-      typeof Abis.stablecoinExchange,
+      typeof Abis.stablecoinDex,
       'OrderPlaced',
       true
     >,
@@ -2278,8 +2281,8 @@ export namespace withdraw {
   export function call(args: Args) {
     const { token, amount } = args
     return defineCall({
-      address: Addresses.stablecoinExchange,
-      abi: Abis.stablecoinExchange,
+      address: Addresses.stablecoinDex,
+      abi: Abis.stablecoinDex,
       functionName: 'withdraw',
       args: [token, amount],
     })

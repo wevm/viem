@@ -2457,6 +2457,8 @@ describe('watchRole', () => {
       symbol: 'ROLE',
     })
 
+    await setTimeout(100)
+
     const receivedRoleUpdates: Array<{
       args: actions.token.watchRole.Args
       log: actions.token.watchRole.Log

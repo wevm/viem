@@ -278,31 +278,6 @@ export type Decorator<
      */
     watchBurn: (parameters: ammActions.watchBurn.Parameters) => () => void
     /**
-     * Watches for fee swap events.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'tempo.ts/chains'
-     * import { tempoActions } from 'tempo.ts/viem'
-     *
-     * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const unwatch = client.amm.watchFeeSwap({
-     *   onFeeSwap: (args, log) => {
-     *     console.log('Fee swap:', args)
-     *   },
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
-     */
-    watchFeeSwap: (parameters: ammActions.watchFeeSwap.Parameters) => () => void
-    /**
      * Watches for liquidity mint events.
      *
      * @example
@@ -3013,8 +2988,6 @@ export function decorator() {
         rebalanceSwapSync: (parameters) =>
           ammActions.rebalanceSwapSync(client, parameters),
         watchBurn: (parameters) => ammActions.watchBurn(client, parameters),
-        watchFeeSwap: (parameters) =>
-          ammActions.watchFeeSwap(client, parameters),
         watchMint: (parameters) => ammActions.watchMint(client, parameters),
         watchRebalanceSwap: (parameters) =>
           ammActions.watchRebalanceSwap(client, parameters),

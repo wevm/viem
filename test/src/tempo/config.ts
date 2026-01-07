@@ -225,12 +225,12 @@ export async function setupTokenPair(
       }),
       Actions.token.approve.call({
         token: baseToken,
-        spender: Addresses.stablecoinExchange,
+        spender: Addresses.stablecoinDex,
         amount: parseUnits('10000', 6),
       }),
       Actions.token.approve.call({
         token: quoteToken,
-        spender: Addresses.stablecoinExchange,
+        spender: Addresses.stablecoinDex,
         amount: parseUnits('10000', 6),
       }),
     ],
