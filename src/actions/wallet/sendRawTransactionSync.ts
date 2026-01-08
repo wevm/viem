@@ -59,7 +59,9 @@ export async function sendRawTransactionSync<chain extends Chain | undefined>(
   const receipt = await client.request(
     {
       method: 'eth_sendRawTransactionSync',
-      params: timeout ? [serializedTransaction, timeout] : [serializedTransaction],
+      params: timeout
+        ? [serializedTransaction, timeout]
+        : [serializedTransaction],
     },
     { retryCount: 0 },
   )
