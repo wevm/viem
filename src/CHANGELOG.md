@@ -1,5 +1,31 @@
 # viem
 
+## 2.44.0
+
+### Minor Changes
+
+- [#4201](https://github.com/wevm/viem/pull/4201) [`0268ca88c67c7851ae03d8d41508657f2b62729d`](https://github.com/wevm/viem/commit/0268ca88c67c7851ae03d8d41508657f2b62729d) Thanks [@jxom](https://github.com/jxom)! - ### `viem/tempo` Extension
+
+  Added support for Tempo Moderato testnet.
+  - **(Breaking)**: Renamed `tempoTestnet` → `tempoModerato`. The old export is deprecated but still available as an alias.
+  - **(Breaking)**: Renamed `reward.start` → `reward.distribute`: Renamed for distributing rewards (no longer supports streaming).
+  - **(Breaking)**: Renamed `reward.getTotalPerSecond` → `reward.getGlobalRewardPerToken`: Returns the global reward per token value instead of per-second rate.
+  - **(Breaking)**: Renamed `reward.watchRewardScheduled` → `reward.watchRewardDistributed`: Watches for reward distributed events.
+  - **(Breaking)**: Removed `nonce.getNonceKeyCount`.
+  - **(Breaking)**: Removed `nonce.watchActiveKeyCountChanged`.
+  - **(Breaking)**: Removed `amm.watchFeeSwap` (FeeSwap event no longer emitted by protocol).
+  - **(Breaking)**: `OrderPlaced` event now includes `isFlipOrder` and `flipTick` fields. The `FlipOrderPlaced` event has been removed and merged into `OrderPlaced`.
+  - **(Breaking)**: Renamed `Address.stablecoinExchange` → `Address.stablecoinDex`.
+  - **(Breaking)**: Renamed `Abis.stablecoinExchange` → `Abis.stablecoinDex`.
+  - Added `dex.cancelStale` action to cancel stale orders from restricted makers.
+  - Added `salt` parameter to `token.create`.
+
+### Patch Changes
+
+- [`e9967a932db94b62e9bb8fb309865a3104f59788`](https://github.com/wevm/viem/commit/e9967a932db94b62e9bb8fb309865a3104f59788) Thanks [@tmm](https://github.com/tmm)! - Exported missing types for inference.
+
+- [`295bd73bc620f57448d43bcb80acfae3e4562b99`](https://github.com/wevm/viem/commit/295bd73bc620f57448d43bcb80acfae3e4562b99) Thanks [@jxom](https://github.com/jxom)! - Fixed sendTransactionSync timeout propagation.
+
 ## 2.43.7
 
 ### Patch Changes
