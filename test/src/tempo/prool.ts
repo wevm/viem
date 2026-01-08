@@ -1,6 +1,15 @@
 import { RpcTransport } from 'ox'
 import { type Instance, Server } from 'prool'
 import * as TestContainers from 'prool/testcontainers'
+import {
+  type Chain,
+  type Client,
+  parseUnits,
+  type Transport,
+} from '../../../src/index.js'
+import { pathUsd } from '../../../src/tempo/Addresses.js'
+import * as actions from '../../../src/tempo/actions/index.js'
+import { accounts, nodeEnv } from './config.js'
 
 export const port = 9545
 
@@ -43,4 +52,27 @@ export async function createServer() {
     }),
     port,
   })
+}
+
+export async function restart(client: Client<Transport, Chain>) {
+  if (nodeEnv !== 'localnet') return
+  await fetch(`${client.chain.rpcUrls.default.http[0]}/restart`)
+  await setup(client)
+}
+
+export async function setup(client: Client<Transport, Chain>) {
+  // Mint liquidity for fee tokens.
+  await Promise.all(
+    [1n, 2n, 3n].map((id) =>
+      actions.amm.mintSync(client, {
+        account: accounts[0],
+        feeToken: pathUsd,
+        nonceKey: 'random',
+        userTokenAddress: id,
+        validatorTokenAddress: pathUsd,
+        validatorTokenAmount: parseUnits('1000', 6),
+        to: accounts[0].address,
+      }),
+    ),
+  )
 }

@@ -20,7 +20,7 @@ import {
   getClient,
   http,
 } from '~test/tempo/config.js'
-import { rpcUrl } from '~test/tempo/prool.js'
+import * as Prool from '~test/tempo/prool.js'
 import { withFeePayer } from './Transport.js'
 
 const client = getClient()
@@ -762,7 +762,7 @@ describe('sendTransaction', () => {
           "data": undefined,
           "feePayerSignature": undefined,
           "feeToken": null,
-          "gas": 29012n,
+          "gas": 26406n,
           "maxFeePerBlobGas": undefined,
           "to": null,
           "type": "tempo",
@@ -1301,7 +1301,7 @@ describe('signTransaction', () => {
         ],
         "data": undefined,
         "feeToken": null,
-        "gas": 24002n,
+        "gas": 21326n,
         "maxFeePerBlobGas": undefined,
         "to": null,
         "type": "tempo",
@@ -1323,7 +1323,7 @@ describe('relay', () => {
   let server: Http.Server
 
   afterEach(async () => {
-    await fetch(`${rpcUrl}/restart`)
+    await Prool.restart(client)
   })
 
   beforeAll(async () => {

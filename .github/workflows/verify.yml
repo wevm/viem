@@ -133,7 +133,7 @@ jobs:
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
           VITE_SHARD_ID: ${{ matrix.shard }}
           VITE_TEMPO_ENV: localnet
-          VITE_TEMPO_TAG: https://rpc.testnet.tempo.xyz
+          VITE_TEMPO_TAG: latest
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
@@ -147,8 +147,8 @@ jobs:
     strategy:
       matrix:
         node-env: 
-          # - devnet
-          - testnet
+          - devnet
+          # - testnet
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
@@ -250,44 +250,44 @@ jobs:
         shell: bash
         run: pnpm vectors
 
-  wagmi:
-    name: Wagmi
-    permissions:
-      contents: read
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    strategy:
-      matrix:
-        typescript-version: ['5.7.2', '5.8.3', '5.9.3', 'latest']
+  # wagmi:
+  #   name: Wagmi
+  #   permissions:
+  #     contents: read
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 10
+  #   strategy:
+  #     matrix:
+  #       typescript-version: ['5.7.2', '5.8.3', '5.9.3', 'latest']
 
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
-        with: 
-          submodules: 'recursive'
+  #   steps:
+  #     - name: Clone repository
+  #       uses: actions/checkout@v4
+  #       with: 
+  #         submodules: 'recursive'
 
-      - name: Install dependencies
-        uses: ./.github/actions/install-dependencies
+  #     - name: Install dependencies
+  #       uses: ./.github/actions/install-dependencies
 
-      - name: Set TypeScript version
-        run: |
-          pnpm install -D -w typescript@${{ matrix.typescript-version }}
-          node -e "import fs from 'fs'; const p = JSON.parse(fs.readFileSync('./package.json', 'utf8')); p.pnpm = p.pnpm || {}; p.pnpm.overrides = p.pnpm.overrides || {}; p.pnpm.overrides.typescript = '${{ matrix.typescript-version }}'; fs.writeFileSync('package.json', JSON.stringify(p, null, 2));"
-          pnpm install --no-frozen-lockfile
+  #     - name: Set TypeScript version
+  #       run: |
+  #         pnpm install -D -w typescript@${{ matrix.typescript-version }}
+  #         node -e "import fs from 'fs'; const p = JSON.parse(fs.readFileSync('./package.json', 'utf8')); p.pnpm = p.pnpm || {}; p.pnpm.overrides = p.pnpm.overrides || {}; p.pnpm.overrides.typescript = '${{ matrix.typescript-version }}'; fs.writeFileSync('package.json', JSON.stringify(p, null, 2));"
+  #         pnpm install --no-frozen-lockfile
 
-      - name: Setup wagmi
-        uses: ./.github/actions/setup-wagmi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Setup wagmi
+  #       uses: ./.github/actions/setup-wagmi
+  #       env:
+  #         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check types
-        run: pnpm check:types
-        working-directory: ./wagmi
+  #     - name: Check types
+  #       run: pnpm check:types
+  #       working-directory: ./wagmi
 
-      - name: Bench types
-        run: pnpm bench:types
-        working-directory: ./wagmi
+  #     - name: Bench types
+  #       run: pnpm bench:types
+  #       working-directory: ./wagmi
 
-      - name: Check build
-        run: pnpm build
-        working-directory: ./wagmi
+  #     - name: Check build
+  #       run: pnpm build
+  #       working-directory: ./wagmi

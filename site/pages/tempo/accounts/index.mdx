@@ -9,14 +9,14 @@ These accounts are fully backwards compatible with Viem APIs, meaning you can us
 ```ts twoslash [example.ts]
 import { createWalletClient, http } from 'viem'
 import { Account, WebAuthnP256 } from 'viem/tempo'
-import { tempoTestnet } from 'viem/chains'
+import { tempoModerato } from 'viem/chains'
 
 // Create a passkey account
 const credential = await WebAuthnP256.createCredential({ label: 'Example' })
 const account = Account.fromWebAuthnP256(credential)
 
 const client = createWalletClient({
-  chain: tempoTestnet,
+  chain: tempoModerato,
   transport: http(),
 })
 

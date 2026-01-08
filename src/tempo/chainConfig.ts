@@ -31,18 +31,12 @@ export const chainConfig = {
     }),
   },
   prepareTransactionRequest: [
-    async (r, { phase }) => {
+    async (r) => {
       const request = r as Transaction.TransactionRequest & {
         account?: Account | undefined
         chain?:
           | (Chain & { feeToken?: TokenId.TokenIdOrAddress | undefined })
           | undefined
-      }
-
-      if (phase === 'afterFillParameters') {
-        if (typeof request.nonceKey === 'bigint' && request.nonceKey > 0n)
-          request.gas = (request.gas ?? 0n) + 40_000n
-        return request as unknown as typeof r
       }
 
       request.nonceKey = (() => {

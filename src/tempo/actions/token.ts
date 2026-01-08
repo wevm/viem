@@ -913,8 +913,10 @@ export namespace create {
     currency: string
     /** Token name. */
     name: string
-    /** quote token. */
+    /** Quote token. */
     quoteToken?: TokenId.TokenIdOrAddress | undefined
+    /** Unique salt. @default Hex.random(32) */
+    salt?: Hex.Hex | undefined
     /** Token symbol. */
     symbol: string
   }
@@ -997,11 +999,19 @@ export namespace create {
       currency,
       quoteToken = Addresses.pathUsd,
       admin,
+      salt = Hex.random(32),
     } = args
     return defineCall({
       address: Addresses.tip20Factory,
       abi: Abis.tip20Factory,
-      args: [name, symbol, currency, TokenId.toAddress(quoteToken), admin],
+      args: [
+        name,
+        symbol,
+        currency,
+        TokenId.toAddress(quoteToken),
+        admin,
+        salt,
+      ],
       functionName: 'createToken',
     })
   }
@@ -1065,10 +1075,12 @@ export async function createSync<
   } as never)
 
   const { args } = create.extractEvent(receipt.logs)
+  const tokenId = TokenId.fromAddress(args.token)
 
   return {
     ...args,
     receipt,
+    tokenId,
   } as never
 }
 
@@ -1086,6 +1098,8 @@ export namespace createSync {
       'TokenCreated',
       { IndexedOnly: false; Required: true }
     > & {
+      /** Token ID. */
+      tokenId: TokenId.TokenId
       /** Transaction receipt. */
       receipt: TransactionReceipt
     }

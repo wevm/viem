@@ -278,31 +278,6 @@ export type Decorator<
      */
     watchBurn: (parameters: ammActions.watchBurn.Parameters) => () => void
     /**
-     * Watches for fee swap events.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'tempo.ts/chains'
-     * import { tempoActions } from 'tempo.ts/viem'
-     *
-     * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const unwatch = client.amm.watchFeeSwap({
-     *   onFeeSwap: (args, log) => {
-     *     console.log('Fee swap:', args)
-     *   },
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
-     */
-    watchFeeSwap: (parameters: ammActions.watchFeeSwap.Parameters) => () => void
-    /**
      * Watches for liquidity mint events.
      *
      * @example
@@ -470,6 +445,66 @@ export type Decorator<
     cancelSync: (
       parameters: dexActions.cancelSync.Parameters<chain, account>,
     ) => Promise<dexActions.cancelSync.ReturnValue>
+    /**
+     * Cancels a stale order from the orderbook.
+     *
+     * A stale order is one where the maker has been blacklisted by a TIP-403 policy.
+     * Anyone can cancel stale orders.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.dex.cancelStale({
+     *   orderId: 123n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    cancelStale: (
+      parameters: dexActions.cancelStale.Parameters<chain, account>,
+    ) => Promise<dexActions.cancelStale.ReturnValue>
+    /**
+     * Cancels a stale order from the orderbook and waits for confirmation.
+     *
+     * A stale order is one where the maker has been blacklisted by a TIP-403 policy.
+     * Anyone can cancel stale orders.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const result = await client.dex.cancelStaleSync({
+     *   orderId: 123n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    cancelStaleSync: (
+      parameters: dexActions.cancelStaleSync.Parameters<chain, account>,
+    ) => Promise<dexActions.cancelStaleSync.ReturnValue>
     /**
      * Creates a new trading pair on the DEX.
      *
@@ -1589,30 +1624,61 @@ export type Decorator<
       parameters: rewardActions.claimSync.Parameters<chain, account>,
     ) => Promise<rewardActions.claimSync.ReturnValue>
     /**
-     * Gets the total reward per second rate for all active streams.
+     * Distributes rewards to opted-in token holders.
      *
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
      * import { tempo } from 'tempo.ts/chains'
      * import { tempoActions } from 'tempo.ts/viem'
      *
      * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
      *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const rate = await client.reward.getTotalPerSecond({
+     * const hash = await client.reward.distribute({
+     *   amount: 100000000000000000000n,
      *   token: '0x20c0000000000000000000000000000000000001',
      * })
      * ```
      *
      * @param parameters - Parameters.
-     * @returns The total reward per second (scaled by 1e18).
+     * @returns The transaction hash.
      */
-    getTotalPerSecond: (
-      parameters: rewardActions.getTotalPerSecond.Parameters,
-    ) => Promise<rewardActions.getTotalPerSecond.ReturnValue>
+    distribute: (
+      parameters: rewardActions.distribute.Parameters<chain, account>,
+    ) => Promise<rewardActions.distribute.ReturnValue>
+    /**
+     * Distributes rewards to opted-in token holders and waits for confirmation.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'tempo.ts/chains'
+     * import { tempoActions } from 'tempo.ts/viem'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { funder, amount, receipt } = await client.reward.distributeSync({
+     *   amount: 100000000000000000000n,
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The funder, amount, and transaction receipt.
+     */
+    distributeSync: (
+      parameters: rewardActions.distributeSync.Parameters<chain, account>,
+    ) => Promise<rewardActions.distributeSync.ReturnValue>
     /**
      * Gets the reward information for a specific account.
      *
@@ -1696,63 +1762,33 @@ export type Decorator<
       parameters: rewardActions.setRecipientSync.Parameters<chain, account>,
     ) => Promise<rewardActions.setRecipientSync.ReturnValue>
     /**
-     * Starts a new reward stream that distributes tokens to opted-in holders.
+     * Watches for reward distributed events.
      *
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
      * import { tempo } from 'tempo.ts/chains'
      * import { tempoActions } from 'tempo.ts/viem'
      *
      * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
      *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const hash = await client.reward.start({
-     *   amount: 100000000000000000000n,
-     *   seconds: 86400,
+     * const unwatch = client.reward.watchRewardDistributed({
      *   token: '0x20c0000000000000000000000000000000000001',
+     *   onRewardDistributed: (args, log) => {
+     *     console.log('Reward distributed:', args)
+     *   },
      * })
      * ```
      *
      * @param parameters - Parameters.
-     * @returns The transaction hash.
+     * @returns A function to unsubscribe from the event.
      */
-    start: (
-      parameters: rewardActions.start.Parameters<chain, account>,
-    ) => Promise<rewardActions.start.ReturnValue>
-    /**
-     * Starts a new reward stream that distributes tokens to opted-in holders and waits for confirmation.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { privateKeyToAccount } from 'viem/accounts'
-     * import { tempo } from 'tempo.ts/chains'
-     * import { tempoActions } from 'tempo.ts/viem'
-     *
-     * const client = createClient({
-     *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const result = await client.reward.startSync({
-     *   amount: 100000000000000000000n,
-     *   seconds: 86400,
-     *   token: '0x20c0000000000000000000000000000000000001',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The transaction receipt and event data.
-     */
-    startSync: (
-      parameters: rewardActions.startSync.Parameters<chain, account>,
-    ) => Promise<rewardActions.startSync.ReturnValue>
+    watchRewardDistributed: (
+      parameters: rewardActions.watchRewardDistributed.Parameters,
+    ) => () => void
     /**
      * Watches for reward recipient set events.
      *
@@ -1780,34 +1816,6 @@ export type Decorator<
      */
     watchRewardRecipientSet: (
       parameters: rewardActions.watchRewardRecipientSet.Parameters,
-    ) => () => void
-    /**
-     * Watches for reward scheduled events.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'tempo.ts/chains'
-     * import { tempoActions } from 'tempo.ts/viem'
-     *
-     * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const unwatch = client.reward.watchRewardScheduled({
-     *   token: '0x20c0000000000000000000000000000000000001',
-     *   onRewardScheduled: (args, log) => {
-     *     console.log('Reward scheduled:', args)
-     *   },
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
-     */
-    watchRewardScheduled: (
-      parameters: rewardActions.watchRewardScheduled.Parameters,
     ) => () => void
   }
   token: {
@@ -2980,8 +2988,6 @@ export function decorator() {
         rebalanceSwapSync: (parameters) =>
           ammActions.rebalanceSwapSync(client, parameters),
         watchBurn: (parameters) => ammActions.watchBurn(client, parameters),
-        watchFeeSwap: (parameters) =>
-          ammActions.watchFeeSwap(client, parameters),
         watchMint: (parameters) => ammActions.watchMint(client, parameters),
         watchRebalanceSwap: (parameters) =>
           ammActions.watchRebalanceSwap(client, parameters),
@@ -2991,6 +2997,9 @@ export function decorator() {
         buySync: (parameters) => dexActions.buySync(client, parameters),
         cancel: (parameters) => dexActions.cancel(client, parameters),
         cancelSync: (parameters) => dexActions.cancelSync(client, parameters),
+        cancelStale: (parameters) => dexActions.cancelStale(client, parameters),
+        cancelStaleSync: (parameters) =>
+          dexActions.cancelStaleSync(client, parameters),
         createPair: (parameters) => dexActions.createPair(client, parameters),
         createPairSync: (parameters) =>
           dexActions.createPairSync(client, parameters),
@@ -3065,20 +3074,20 @@ export function decorator() {
       reward: {
         claim: (parameters) => rewardActions.claim(client, parameters),
         claimSync: (parameters) => rewardActions.claimSync(client, parameters),
-        getTotalPerSecond: (parameters) =>
-          rewardActions.getTotalPerSecond(client, parameters),
+        distribute: (parameters) =>
+          rewardActions.distribute(client, parameters),
+        distributeSync: (parameters) =>
+          rewardActions.distributeSync(client, parameters),
         getUserRewardInfo: (parameters) =>
           rewardActions.getUserRewardInfo(client, parameters),
         setRecipient: (parameters) =>
           rewardActions.setRecipient(client, parameters),
         setRecipientSync: (parameters) =>
           rewardActions.setRecipientSync(client, parameters),
-        start: (parameters) => rewardActions.start(client, parameters),
-        startSync: (parameters) => rewardActions.startSync(client, parameters),
+        watchRewardDistributed: (parameters) =>
+          rewardActions.watchRewardDistributed(client, parameters),
         watchRewardRecipientSet: (parameters) =>
           rewardActions.watchRewardRecipientSet(client, parameters),
-        watchRewardScheduled: (parameters) =>
-          rewardActions.watchRewardScheduled(client, parameters),
       },
       token: {
         approve: (parameters) => tokenActions.approve(client, parameters),
