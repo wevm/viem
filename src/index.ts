@@ -39,6 +39,7 @@ export type {
   BlockOverrides,
   Rpc as RpcBlockOverrides,
 } from 'ox/BlockOverrides'
+export type { EntryPointVersion } from './account-abstraction/types/entryPointVersion.js'
 export type {
   RpcEstimateUserOperationGasReturnType,
   RpcGetUserOperationByHashReturnType,
@@ -46,6 +47,14 @@ export type {
   RpcUserOperationReceipt,
   RpcUserOperationRequest,
 } from './account-abstraction/types/rpc.js'
+export type {
+  EstimateUserOperationGasReturnType,
+  GetUserOperationByHashReturnType,
+  PackedUserOperation,
+  UserOperation,
+  UserOperationReceipt,
+  UserOperationRequest,
+} from './account-abstraction/types/userOperation.js'
 export type {
   Account,
   AccountSource,
