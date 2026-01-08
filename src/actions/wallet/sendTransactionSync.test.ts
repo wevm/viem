@@ -84,7 +84,7 @@ async function sendTransactionSync<
   parameters: SendTransactionSyncParameters<chain, account>,
 ) {
   const [result] = await Promise.all([
-    sendTransaction(client, { ...parameters, timeout: 5_000 }),
+    sendTransaction(client, parameters),
     (async () => {
       await wait(500)
       await mine(client as never, { blocks: 1 })
