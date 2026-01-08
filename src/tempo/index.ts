@@ -10,7 +10,7 @@ export type {
   TxEnvelopeTempo as z_TxEnvelopeTempo,
 } from 'ox/tempo'
 // biome-ignore lint/performance/noBarrelFile: _
-export { Tick } from 'ox/tempo'
+export { Tick, TokenId } from 'ox/tempo'
 export * as Abis from './Abis.js'
 export * as Account from './Account.js'
 export * as Addresses from './Addresses.js'
