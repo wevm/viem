@@ -1,5 +1,5 @@
 ---
-"viem": major
+"viem": minor
 ---
 
 - `viem/tempo` **(Breaking)**: Renamed `tempoTestnet` → `tempoModerato`. The old export is deprecated but still available as an alias.
