@@ -6,10 +6,7 @@ import type { Chain } from '../../types/chain.js'
 import type { TransactionSerializedGeneric } from '../../types/transaction.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { formatTransactionReceipt } from '../../utils/formatters/transactionReceipt.js'
-import {
-  type FormattedTransactionReceipt,
-  numberToHex,
-} from '../../utils/index.js'
+import type { FormattedTransactionReceipt } from '../../utils/index.js'
 
 export type SendRawTransactionSyncParameters = {
   /** The signed serialized transaction. */
@@ -62,9 +59,7 @@ export async function sendRawTransactionSync<chain extends Chain | undefined>(
   const receipt = await client.request(
     {
       method: 'eth_sendRawTransactionSync',
-      params: timeout
-        ? [serializedTransaction, numberToHex(timeout)]
-        : [serializedTransaction],
+      params: timeout ? [serializedTransaction, timeout] : [serializedTransaction],
     },
     { retryCount: 0 },
   )
