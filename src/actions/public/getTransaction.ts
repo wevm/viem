@@ -8,6 +8,7 @@ import {
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Hash } from '../../types/misc.js'
 import type { RpcTransaction } from '../../types/rpc.js'
 import type { OneOf, Prettify } from '../../types/utils.js'
@@ -56,7 +57,10 @@ export type GetTransactionParameters<blockTag extends BlockTag = 'latest'> =
         /** The nonce of the transaction on the sender. */
         nonce: number
       }
-  >
+  > & {
+    /** Request options. */
+    requestOptions?: EIP1193RequestOptions | undefined
+  }
 
 export type GetTransactionReturnType<
   chain extends Chain | undefined = undefined,
@@ -106,6 +110,7 @@ export async function getTransaction<
     index,
     sender,
     nonce,
+    requestOptions,
   }: GetTransactionParameters<blockTag>,
 ): Promise<GetTransactionReturnType<chain, blockTag>> {
   const blockTag = blockTag_ || 'latest'
@@ -120,7 +125,7 @@ export async function getTransaction<
         method: 'eth_getTransactionByHash',
         params: [hash],
       },
-      { dedupe: true },
+      { dedupe: true, ...requestOptions },
     )
   } else if (blockHash) {
     transaction = await client.request(
@@ -128,7 +133,7 @@ export async function getTransaction<
         method: 'eth_getTransactionByBlockHashAndIndex',
         params: [blockHash, numberToHex(index)],
       },
-      { dedupe: true },
+      { dedupe: true, ...requestOptions },
     )
   } else if ((blockNumberHex || blockTag) && typeof index === 'number') {
     transaction = await client.request(
@@ -136,7 +141,7 @@ export async function getTransaction<
         method: 'eth_getTransactionByBlockNumberAndIndex',
         params: [blockNumberHex || blockTag, numberToHex(index)],
       },
-      { dedupe: Boolean(blockNumberHex) },
+      { dedupe: Boolean(blockNumberHex), ...requestOptions },
     )
   } else if (sender && typeof nonce === 'number') {
     transaction = await client.request(

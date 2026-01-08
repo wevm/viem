@@ -22,6 +22,7 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
 import type { Hash } from '../../types/misc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
@@ -83,7 +84,10 @@ export type SendTransactionParameters<
 > = request &
   GetAccountParameter<account, Account | Address, true, true> &
   GetChainParameter<chain, chainOverride> &
-  GetTransactionRequestKzgParameter<request>
+  GetTransactionRequestKzgParameter<request> & {
+    /** Request options. */
+    requestOptions?: EIP1193RequestOptions | undefined
+  }
 
 export type SendTransactionReturnType = Hash
 
@@ -170,6 +174,7 @@ export async function sendTransaction<
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,
+    requestOptions,
     type,
     value,
     ...rest
@@ -253,7 +258,7 @@ export async function sendTransaction<
             method,
             params: [request],
           },
-          { retryCount: 0 },
+          { retryCount: 0, ...requestOptions },
         )
       } catch (e) {
         if (isWalletNamespaceSupported === false) throw e
@@ -273,7 +278,7 @@ export async function sendTransaction<
                 method: 'wallet_sendTransaction',
                 params: [request],
               },
-              { retryCount: 0 },
+              { retryCount: 0, ...requestOptions },
             )
             .then((hash) => {
               supportsWalletNamespace.set(client.uid, true)

@@ -4,6 +4,7 @@ import { BaseError } from '../../errors/base.js'
 import { BundleFailedError } from '../../errors/calls.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import { getAction } from '../../utils/getAction.js'
 import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { type PollErrorType, poll } from '../../utils/poll.js'
@@ -30,6 +31,10 @@ export type WaitForCallsStatusParameters = {
    * @default client.pollingInterval
    */
   pollingInterval?: number | undefined
+  /**
+   * Request options.
+   */
+  requestOptions?: EIP1193RequestOptions | undefined
   /**
    * Number of times to retry if the call bundle failed.
    * @default 4 (exponential backoff)
@@ -98,6 +103,7 @@ export async function waitForCallsStatus<chain extends Chain | undefined>(
   const {
     id,
     pollingInterval = client.pollingInterval,
+    requestOptions,
     status = ({ statusCode }) => statusCode === 200 || statusCode >= 300,
     retryCount = 4,
     retryDelay = ({ count }) => ~~(1 << count) * 200, // exponential backoff
@@ -128,7 +134,7 @@ export async function waitForCallsStatus<chain extends Chain | undefined>(
                 client,
                 getCallsStatus,
                 'getCallsStatus',
-              )({ id })
+              )({ id, requestOptions })
               if (throwOnFailure && result.status === 'failure')
                 throw new BundleFailedError(result)
               return result
@@ -136,6 +142,7 @@ export async function waitForCallsStatus<chain extends Chain | undefined>(
             {
               retryCount,
               delay: retryDelay,
+              signal: requestOptions?.signal,
             },
           )
           if (!status(result)) return

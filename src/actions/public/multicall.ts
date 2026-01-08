@@ -49,6 +49,7 @@ export type MulticallParameters<
   | 'blockOverrides'
   | 'blockTag'
   | 'stateOverride'
+  | 'requestOptions'
 > & {
   /** The account to use for the multicall. */
   account?: Address | undefined
@@ -142,6 +143,7 @@ export async function multicall<
     blockOverrides,
     blockTag,
     stateOverride,
+    requestOptions,
   } = parameters
   const contracts = parameters.contracts as ContractFunctionParameters[]
 
@@ -242,6 +244,7 @@ export async function multicall<
         blockTag,
         functionName: 'aggregate3',
         stateOverride,
+        requestOptions,
       }),
     ),
   )

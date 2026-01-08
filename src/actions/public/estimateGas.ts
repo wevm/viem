@@ -9,6 +9,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import { BaseError } from '../../errors/base.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { StateOverride } from '../../types/stateOverride.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
@@ -50,6 +51,7 @@ export type EstimateGasParameters<
     | boolean
     | readonly PrepareTransactionRequestParameterType[]
     | undefined
+  requestOptions?: EIP1193RequestOptions | undefined
   stateOverride?: StateOverride | undefined
 } & (
     | {
@@ -156,6 +158,7 @@ export async function estimateGas<
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce,
+      requestOptions,
       value,
       stateOverride,
       ...rest
@@ -206,18 +209,21 @@ export async function estimateGas<
     )
 
     return BigInt(
-      await client.request({
-        method: 'eth_estimateGas',
-        params: rpcStateOverride
-          ? [
-              request,
-              block ?? client.experimental_blockTag ?? 'latest',
-              rpcStateOverride,
-            ]
-          : block
-            ? [request, block]
-            : [request],
-      }),
+      await client.request(
+        {
+          method: 'eth_estimateGas',
+          params: rpcStateOverride
+            ? [
+                request,
+                block ?? client.experimental_blockTag ?? 'latest',
+                rpcStateOverride,
+              ]
+            : block
+              ? [request, block]
+              : [request],
+        },
+        requestOptions,
+      ),
     )
   } catch (err) {
     throw getEstimateGasError(err as BaseError, {

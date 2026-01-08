@@ -10,6 +10,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type { AccessList, TransactionRequest } from '../../types/transaction.js'
 import type { ExactPartial, Prettify, UnionOmit } from '../../types/utils.js'
@@ -42,6 +43,8 @@ export type CreateAccessListParameters<
 > & {
   /** Account attached to the call (msg.sender). */
   account?: Account | Address | undefined
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 } & (
     | {
         /** The balance of the account at a block number. */
@@ -111,6 +114,7 @@ export async function createAccessList<chain extends Chain | undefined>(
     maxFeePerBlobGas,
     maxFeePerGas,
     maxPriorityFeePerGas,
+    requestOptions,
     to,
     value,
     ...rest
@@ -145,10 +149,13 @@ export async function createAccessList<chain extends Chain | undefined>(
       'createAccessList',
     ) as TransactionRequest
 
-    const response = await client.request({
-      method: 'eth_createAccessList',
-      params: [request as ExactPartial<RpcTransactionRequest>, block],
-    })
+    const response = await client.request(
+      {
+        method: 'eth_createAccessList',
+        params: [request as ExactPartial<RpcTransactionRequest>, block],
+      },
+      requestOptions,
+    )
     return {
       accessList: response.accessList,
       gasUsed: BigInt(response.gasUsed),

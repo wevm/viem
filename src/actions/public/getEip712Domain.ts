@@ -17,7 +17,7 @@ import {
 
 export type GetEip712DomainParameters = {
   address: Address
-} & Pick<ReadContractParameters, 'factory' | 'factoryData'>
+} & Pick<ReadContractParameters, 'factory' | 'factoryData' | 'requestOptions'>
 
 export type GetEip712DomainReturnType = {
   domain: RequiredBy<
@@ -69,7 +69,7 @@ export async function getEip712Domain(
   client: Client<Transport>,
   parameters: GetEip712DomainParameters,
 ): Promise<GetEip712DomainReturnType> {
-  const { address, factory, factoryData } = parameters
+  const { address, factory, factoryData, requestOptions } = parameters
 
   try {
     const [
@@ -90,6 +90,7 @@ export async function getEip712Domain(
       functionName: 'eip712Domain',
       factory,
       factoryData,
+      requestOptions,
     })
 
     return {

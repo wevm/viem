@@ -41,12 +41,13 @@ import { getHttpRpcClient } from './rpc/http.js'
 
 function request(url: string) {
   const httpClient = getHttpRpcClient(url)
-  return async ({ method, params }: any) => {
+  return async ({ method, params }: any, options?: any) => {
     const { error, result } = await httpClient.request({
       body: {
         method,
         params,
       },
+      fetchOptions: { signal: options.signal },
     })
     if (error)
       throw new RpcRequestError({
@@ -251,6 +252,79 @@ describe('args', () => {
       }),
     ).rejects.toThrowError()
     expect(end > 1000 && end < 1020).toBeTruthy()
+  })
+})
+
+describe('options', () => {
+  test('passes signal to underlying request', async () => {
+    let receivedSignal: AbortSignal | undefined
+    const mockRequest = async (_args: any, options?: any) => {
+      receivedSignal = options?.signal
+      return 'success'
+    }
+
+    const controller = new AbortController()
+    const request_ = buildRequest(mockRequest)
+
+    await request_({ method: 'eth_blockNumber' }, { signal: controller.signal })
+
+    expect(receivedSignal).toBe(controller.signal)
+  })
+
+  test('passes other options alongside signal', async () => {
+    let receivedOptions: any
+    const mockRequest = async (_args: any, options?: any) => {
+      receivedOptions = options
+      return 'success'
+    }
+
+    const controller = new AbortController()
+    const request_ = buildRequest(mockRequest)
+
+    await request_(
+      { method: 'eth_blockNumber' },
+      {
+        signal: controller.signal,
+        retryCount: 1,
+        dedupe: true,
+      },
+    )
+
+    expect(receivedOptions).toEqual({ signal: controller.signal })
+  })
+
+  test('works without signal', async () => {
+    let receivedOptions: any
+    const mockRequest = async (_args: any, options?: any) => {
+      receivedOptions = options
+      return 'success'
+    }
+
+    const request_ = buildRequest(mockRequest)
+
+    await request_({ method: 'eth_blockNumber' }, { dedupe: true })
+
+    expect(receivedOptions).toBeUndefined()
+  })
+
+  test('prioritizes override options over initial options', async () => {
+    let receivedSignal: AbortSignal | undefined
+    const mockRequest = async (_args: any, options?: any) => {
+      receivedSignal = options?.signal
+      return 'success'
+    }
+
+    const controller1 = new AbortController()
+    const controller2 = new AbortController()
+
+    const request_ = buildRequest(mockRequest, { signal: controller1.signal })
+
+    await request_(
+      { method: 'eth_blockNumber' },
+      { signal: controller2.signal },
+    )
+
+    expect(receivedSignal).toBe(controller2.signal)
   })
 })
 

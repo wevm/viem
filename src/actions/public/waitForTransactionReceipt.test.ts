@@ -614,6 +614,54 @@ test('args: timeout', async () => {
   ).rejects.toThrowError(WaitForTransactionReceiptTimeoutError)
 })
 
+test('args: requestOptions.signal (already aborted)', async () => {
+  setup()
+
+  const hash = await sendTransaction(client, {
+    account: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('1'),
+  })
+
+  const controller = new AbortController()
+  controller.abort()
+
+  await expect(() =>
+    waitForTransactionReceipt(client, {
+      hash,
+      requestOptions: { signal: controller.signal },
+    }),
+  ).rejects.toThrow('This operation was aborted')
+})
+
+test('args: requestOptions.signal (aborted during wait)', async () => {
+  setup()
+
+  const hash = await sendTransaction(client, {
+    account: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('1'),
+  })
+
+  const controller = new AbortController()
+
+  const receiptPromise = waitForTransactionReceipt(client, {
+    hash,
+    pollingInterval: 50,
+    timeout: 10_000,
+    requestOptions: { signal: controller.signal },
+  })
+
+  await wait(100)
+  controller.abort()
+
+  const start = Date.now()
+  await expect(() => receiptPromise).rejects.toThrow()
+  const elapsed = Date.now() - start
+
+  expect(elapsed).toBeLessThan(2000)
+})
+
 describe('errors', () => {
   test('throws when transaction replaced and getBlock fails', async () => {
     setup()
