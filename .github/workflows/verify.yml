@@ -147,8 +147,8 @@ jobs:
     strategy:
       matrix:
         node-env: 
-          - devnet
-          # - testnet
+          # - devnet
+          - testnet
     steps:
       - name: Clone repository
         uses: actions/checkout@v4

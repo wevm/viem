@@ -5,7 +5,7 @@ import { sendTransactionSync } from '../../../src/actions/index.js'
 import {
   tempoDevnet,
   tempoLocalnet,
-  tempoTestnet,
+  tempoModerato,
 } from '../../../src/chains/index.js'
 import {
   type Address,
@@ -48,7 +48,7 @@ export const addresses = {
 export const chain = (() => {
   switch (nodeEnv) {
     case 'testnet':
-      return tempoTestnet
+      return tempoModerato
     case 'devnet':
       return tempoDevnet
     default:
