@@ -47,6 +47,7 @@ overrides:
   hono@>=1.1.0 <4.10.2: 4.10.2
   glob@>=10.3.7 <=11.0.3: '>=11.1.0'
   mdast-util-to-hast@>=13.0.0 <13.2.1: 13.2.1
+  react-router@>=7.0.0 <=7.11.0: 7.12.0
 
 importers:
 
@@ -5598,7 +5599,7 @@ packages:
       '@tanstack/react-router': ^1
       next: '>=14.2.0'
       react: '>=18.2.0 || ^19.0.0-0'
-      react-router: 7.5.2
+      react-router: 7.12.0
       react-router-dom: ^6 || ^7
     peerDependenciesMeta:
       '@remix-run/react':
@@ -6023,8 +6024,8 @@ packages:
       '@types/react':
         optional: true
 
-  react-router@7.9.4:
-    resolution: {integrity: sha512-SD3G8HKviFHg9xj7dNODUKDFgpG4xqD5nhyd0mYoB5iISepuZAvzSr8ywxgxKJ52yRzf/HWtVHc9AWwoTbljvA==}
+  react-router@7.12.0:
+    resolution: {integrity: sha512-kTPDYPFzDVGIIGNLS5VJykK0HfHLY5MF3b+xj0/tTyNYL1gF1qs7u67Z9jEhQk2sQ98SUaHxlG31g1JtF7IfVw==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: '>=18'
@@ -12851,13 +12852,13 @@ snapshots:
     dependencies:
       boolbase: 1.0.0
 
-  nuqs@2.7.2(next@16.0.10(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-router@7.9.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0):
+  nuqs@2.7.2(next@16.0.10(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-router@7.12.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0):
     dependencies:
       '@standard-schema/spec': 1.0.0
       react: 19.0.0
     optionalDependencies:
       next: 16.0.10(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      react-router: 7.9.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react-router: 7.12.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
 
   object-assign@4.1.1: {}
 
@@ -13423,7 +13424,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.0.8
 
-  react-router@7.9.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+  react-router@7.12.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
       cookie: 1.0.2
       react: 19.0.0
@@ -14595,7 +14596,7 @@ snapshots:
       mdast-util-to-hast: 13.2.1
       mdast-util-to-markdown: 2.1.2
       minisearch: 7.2.0
-      nuqs: 2.7.2(next@16.0.10(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-router@7.9.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
+      nuqs: 2.7.2(next@16.0.10(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react-router@7.12.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
       ora: 7.0.1
       p-limit: 5.0.0
       picomatch: 4.0.3
@@ -14605,7 +14606,7 @@ snapshots:
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
       react-intersection-observer: 9.15.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      react-router: 7.9.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react-router: 7.12.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       rehype-autolink-headings: 7.1.0
       rehype-class-names: 2.0.0
       rehype-mermaid: 3.0.0(playwright@1.55.1)
