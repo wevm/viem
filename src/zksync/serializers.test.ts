@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { accounts } from '~test/src/constants.js'
+import { accounts } from '~test/constants.js'
 import { signTransaction } from '../accounts/utils/signTransaction.js'
 import { zksync } from '../chains/index.js'
 import { BaseError } from '../errors/base.js'

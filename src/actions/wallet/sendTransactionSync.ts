@@ -375,6 +375,7 @@ export async function sendTransactionSync<
       )({
         serializedTransaction,
         throwOnReceiptRevert,
+        timeout: parameters.timeout,
       })) as never
     }
 

@@ -33,11 +33,6 @@ runs:
       run: pnpm install --no-frozen-lockfile
       working-directory: ./wagmi
 
-    - name: Build packages
-      shell: bash
-      run: pnpm build
-      working-directory: ./wagmi
-
     - name: Link packages
       shell: bash
       run: pnpm preconstruct

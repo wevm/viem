@@ -1,6 +1,6 @@
 import { beforeEach, expect, test, vi } from 'vitest'
 
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 import { mine } from '../test/mine.js'
 import { getBlockNumber, getBlockNumberCache } from './getBlockNumber.js'
 

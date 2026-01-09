@@ -3,9 +3,9 @@ import {
   getSmartAccounts_06,
   getSmartAccounts_07,
   getSmartAccounts_08,
-} from '../../../../test/src/account-abstraction.js'
-import { anvilMainnet } from '../../../../test/src/anvil.js'
-import { bundlerMainnet } from '../../../../test/src/bundler.js'
+} from '~test/account-abstraction.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { bundlerMainnet } from '~test/bundler.js'
 import { mine, signAuthorization } from '../../../actions/index.js'
 import { parseEther, parseGwei } from '../../../utils/index.js'
 import { wait } from '../../../utils/wait.js'
@@ -123,7 +123,7 @@ describe('entryPointVersion: 0.8', async () => {
     ).rejects.toThrowError('Timed out while waiting for User Operation')
   })
 
-  test.skip('error: timeout exceeded', async () => {
+  test('error: timeout exceeded', async () => {
     const authorization = await signAuthorization(client, account.authorization)
     const hash = await sendUserOperation(bundlerClient, {
       account,
@@ -284,7 +284,7 @@ describe('entryPointVersion: 0.7', async () => {
     ).rejects.toThrowError('Timed out while waiting for User Operation')
   })
 
-  test.skip('error: timeout exceeded', async () => {
+  test('error: timeout exceeded', async () => {
     const hash = await sendUserOperation(bundlerClient, {
       account,
       calls: [

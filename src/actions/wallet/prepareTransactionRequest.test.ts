@@ -1,8 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
-
-import { accounts } from '~test/src/constants.js'
-import { kzg } from '~test/src/kzg.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
+import { kzg } from '~test/kzg.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import * as getBlock from '../../actions/public/getBlock.js'
 import { mine } from '../../actions/test/mine.js'
@@ -76,14 +75,15 @@ describe('without `eth_fillTransaction`', () => {
       (block.baseFeePerGas! * 120n) / 100n + maxPriorityFeePerGas!,
     )
     expect(rest).toMatchInlineSnapshot(`
-        {
-          "chainId": 1,
-          "gas": 21000n,
-          "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-          "type": "eip1559",
-          "value": 1000000000000000000n,
-        }
-      `)
+      {
+        "account": undefined,
+        "chainId": 1,
+        "gas": 21000n,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
+        "value": 1000000000000000000n,
+      }
+    `)
   })
 
   test('legacy fees', async () => {
@@ -641,7 +641,7 @@ describe('without `eth_fillTransaction`', () => {
         ],
         "chainId": 1,
         "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "gas": 53001n,
+        "gas": 21001n,
         "kzg": {
           "blobToKzgCommitment": [Function],
           "computeBlobKzgProof": [Function],
@@ -1244,6 +1244,7 @@ describe('with `eth_fillTransaction`', () => {
     })
     expect(transactionRequest).toMatchInlineSnapshot(`
       {
+        "account": undefined,
         "chainId": 1,
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "gas": 21000n,

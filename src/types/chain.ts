@@ -1,6 +1,10 @@
 import type { Address } from 'abitype'
 
 import type { EstimateFeesPerGasReturnType } from '../actions/public/estimateFeesPerGas.js'
+import type {
+  VerifyHashParameters,
+  VerifyHashReturnType,
+} from '../actions/public/verifyHash.js'
 import type { PrepareTransactionRequestParameters } from '../actions/wallet/prepareTransactionRequest.js'
 import type { Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
@@ -17,7 +21,7 @@ import type { SerializeTransactionFn } from '../utils/transaction/serializeTrans
 
 export type Chain<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
-  custom extends Record<string, unknown> | undefined =
+  extendSchema extends Record<string, unknown> | undefined =
     | Record<string, unknown>
     | undefined,
 > = {
@@ -65,7 +69,7 @@ export type Chain<
   sourceId?: number | undefined
   /** Flag for test networks */
   testnet?: boolean | undefined
-} & ChainConfig<formatters, custom>
+} & ChainConfig<formatters, extendSchema>
 
 /////////////////////////////////////////////////////////////////////
 // Config
@@ -80,14 +84,21 @@ type PrepareTransactionRequestFn = (
   options: { phase: PrepareTransactionRequestPhase },
 ) => Promise<PrepareTransactionRequestParameters>
 
+type ChainVerifyHashFn = (
+  client: Client,
+  parameters: VerifyHashParameters,
+) => Promise<VerifyHashReturnType>
+
 export type ChainConfig<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
-  custom extends Record<string, unknown> | undefined =
+  extendSchema extends Record<string, unknown> | undefined =
     | Record<string, unknown>
     | undefined,
 > = {
-  /** Custom chain data. */
-  custom?: custom | undefined
+  /** Custom chain data. @deprecated use `.extend` instead. */
+  custom?: extendSchema | undefined
+  /** Extend schema. */
+  extendSchema?: extendSchema | undefined
   /** Modifies how fees are derived. */
   fees?: ChainFees<formatters | undefined> | undefined
   /** Modifies how data is formatted and typed (e.g. blocks and transactions) */
@@ -111,6 +122,8 @@ export type ChainConfig<
     | undefined
   /** Modifies how data is serialized (e.g. transactions). */
   serializers?: ChainSerializers<formatters> | undefined
+  /** Chain-specific signature verification. */
+  verifyHash?: ChainVerifyHashFn | undefined
 }
 
 /////////////////////////////////////////////////////////////////////

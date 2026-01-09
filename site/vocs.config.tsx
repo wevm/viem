@@ -309,6 +309,7 @@ export default defineConfig({
   },
   topNav: [
     { text: 'Docs', link: '/docs/getting-started', match: '/docs' },
+    { text: 'Tempo', link: '/tempo', match: '/tempo' },
     {
       text: 'Extensions',
       items: [
@@ -335,10 +336,6 @@ export default defineConfig({
       ],
     },
     {
-      text: 'Examples',
-      link: 'https://github.com/wevm/viem/tree/main/examples',
-    },
-    {
       text: pkg.version,
       items: [
         {
@@ -354,6 +351,10 @@ export default defineConfig({
         {
           text: 'Contributing',
           link: 'https://github.com/wevm/viem/blob/main/.github/CONTRIBUTING.md',
+        },
+        {
+          text: 'Examples',
+          link: 'https://github.com/wevm/viem/tree/main/examples',
         },
       ],
     },

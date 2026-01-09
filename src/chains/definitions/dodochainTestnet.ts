@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const dodochainTestnet = defineChain({
+export const dodochainTestnet = /*#__PURE__*/ defineChain({
   id: 53457,
   name: 'DODOchain Testnet',
   nativeCurrency: { decimals: 18, name: 'DODO', symbol: 'DODO' },

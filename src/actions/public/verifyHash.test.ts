@@ -7,21 +7,21 @@ import {
   SoladyAccount07,
   SoladyAccountFactory07,
 } from '~contracts/generated.js'
-import { ensPublicResolverConfig, smartAccountConfig } from '~test/src/abis.js'
-import { anvilMainnet } from '~test/src/anvil.js'
-import { accounts, address } from '~test/src/constants.js'
+import { ensPublicResolverConfig, smartAccountConfig } from '~test/abis.js'
+import { getSmartAccounts_07 } from '~test/account-abstraction.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { bundlerMainnet } from '~test/bundler.js'
+import { accounts, address } from '~test/constants.js'
 import {
   deploy,
   deployErc6492SignatureVerifier,
   deploySoladyAccount_07,
-} from '~test/src/utils.js'
+} from '~test/utils.js'
 import {
   entryPoint07Abi,
   entryPoint07Address,
   toPackedUserOperation,
-} from '~viem/account-abstraction/index.js'
-import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
-import { bundlerMainnet } from '../../../test/src/bundler.js'
+} from '../../account-abstraction/index.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { zksync } from '../../chains/index.js'
@@ -60,7 +60,7 @@ describe('local account', async () => {
       message: 'hello world',
     })
 
-    expect(
+    await expect(
       verifyHash(client, {
         address: localAccount.address,
         hash: hashMessage('hello world'),
@@ -75,7 +75,7 @@ describe('local account', async () => {
       message: 'hello world',
     })
 
-    expect(
+    await expect(
       verifyHash(client, {
         address: localAccount.address,
         hash: hashMessage('hello world'),
@@ -90,7 +90,7 @@ describe('local account', async () => {
       message: 'hello world',
     })
 
-    expect(
+    await expect(
       verifyHash(client, {
         address: localAccount.address,
         hash: hashMessage('hello world'),
@@ -120,7 +120,7 @@ describe('erc6492', async () => {
       verifier,
     })
 
-    expect(
+    await expect(
       verifyHash(client, {
         address: verifier,
         hash: hashMessage('hello world'),
@@ -154,7 +154,7 @@ describe('erc6492', async () => {
       verifier,
     })
 
-    expect(
+    await expect(
       verifyHash(client, {
         address: verifier,
         factory: factoryAddress,
@@ -192,7 +192,7 @@ describe('erc6492', async () => {
       verifier,
     })
 
-    expect(
+    await expect(
       verifyHash(client, {
         address: verifier,
         factory: factoryAddress,
@@ -242,7 +242,7 @@ describe('erc6492', async () => {
       verifier,
     })
 
-    expect(
+    await expect(
       verifyHash(overrideClient, {
         address: verifier,
         factory: factoryAddress,
@@ -280,7 +280,7 @@ describe('erc6492', async () => {
       verifier,
     })
 
-    expect(
+    await expect(
       verifyHash(client, {
         address: verifier,
         factory: factoryAddress,
@@ -329,7 +329,7 @@ describe('erc6492', async () => {
       verifier: account.address,
     })
 
-    expect(
+    await expect(
       verifyHash(client, {
         address: account.address,
         factory,
@@ -365,7 +365,7 @@ describe('erc6492', async () => {
       verifier,
     })
 
-    expect(
+    await expect(
       verifyHash(client, {
         address: verifier,
         factory: factoryAddress,
@@ -818,7 +818,7 @@ test('https://github.com/wevm/viem/issues/2484', async () => {
     message: 'hello world',
   })
 
-  expect(
+  await expect(
     verifyHash(client, {
       address: localAccount.address,
       hash: hashMessage('hello world'),
@@ -833,7 +833,7 @@ test('https://github.com/wevm/viem/issues/3593', async () => {
     message: 'hello world',
   })
 
-  expect(
+  await expect(
     verifyHash(client, {
       address: localAccount.address,
       hash: hashMessage('hello world'),

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
-import { accounts } from '~test/src/constants.js'
-import { mainnetClient } from '~test/src/utils.js'
+import { accounts } from '~test/constants.js'
+import { mainnetClient } from '~test/utils.js'
 
 import { signMessage } from '../../accounts/utils/signMessage.js'
 import { createSiweMessage } from '../../utils/siwe/createSiweMessage.js'

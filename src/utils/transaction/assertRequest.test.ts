@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { maxUint256 } from '~viem/constants/number.js'
+import { maxUint256 } from '../../constants/number.js'
 import { parseGwei } from '../unit/parseGwei.js'
 import { assertRequest } from './assertRequest.js'
 

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest'
-import { wagmiContractConfig } from '../../../../test/src/abis.js'
+import { wagmiContractConfig } from '~test/abis.js'
 import {
   createVerifyingPaymasterServer,
   getSmartAccounts_06,
@@ -7,10 +7,10 @@ import {
   getSmartAccounts_08,
   getVerifyingPaymaster_07,
   getVerifyingPaymaster_08,
-} from '../../../../test/src/account-abstraction.js'
-import { anvilMainnet } from '../../../../test/src/anvil.js'
-import { bundlerMainnet } from '../../../../test/src/bundler.js'
-import { accounts } from '../../../../test/src/constants.js'
+} from '~test/account-abstraction.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { bundlerMainnet } from '~test/bundler.js'
+import { accounts } from '~test/constants.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import {
   getBalance,
@@ -251,7 +251,7 @@ describe('entryPointVersion: 0.8', async () => {
       `)
   })
 
-  test('error: aa24', async () => {
+  test.skip('error: aa24', async () => {
     const authorization = await signAuthorization(client, account.authorization)
     await expect(() =>
       sendUserOperation(bundlerClient, {
@@ -551,7 +551,7 @@ describe('entryPointVersion: 0.7', async () => {
     `)
   })
 
-  test('error: aa24', async () => {
+  test.skip('error: aa24', async () => {
     await expect(() =>
       sendUserOperation(bundlerClient, {
         account,

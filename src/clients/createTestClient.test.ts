@@ -1,7 +1,6 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
-
-import { accounts } from '~test/src/constants.js'
-import { anvilMainnet } from '../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import { localhost } from '../chains/index.js'
 import type { EIP1193RequestFn, TestRpcSchema } from '../index.js'
 import { createTestClient } from './createTestClient.js'
@@ -35,6 +34,7 @@ test('creates', () => {
       "cacheTime": 4000,
       "ccipRead": undefined,
       "chain": {
+        "extend": [Function],
         "fees": undefined,
         "formatters": undefined,
         "id": 1337,
@@ -120,6 +120,7 @@ describe('transports', () => {
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": {
+          "extend": [Function],
           "fees": undefined,
           "formatters": undefined,
           "id": 1337,
@@ -206,6 +207,7 @@ describe('transports', () => {
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": {
+          "extend": [Function],
           "fees": undefined,
           "formatters": undefined,
           "id": 1337,
@@ -301,6 +303,7 @@ test('extend', () => {
       "call": [Function],
       "ccipRead": undefined,
       "chain": {
+        "extend": [Function],
         "fees": undefined,
         "formatters": undefined,
         "id": 1337,

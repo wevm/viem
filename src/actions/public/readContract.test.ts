@@ -10,15 +10,14 @@ import {
   baycContractConfig,
   multicall3ContractConfig,
   wagmiContractConfig,
-} from '~test/src/abis.js'
-import { accounts, address } from '~test/src/constants.js'
+} from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts, address } from '~test/constants.js'
 import {
   deploy,
   deployErrorExample,
   deploySoladyAccount_07,
-} from '~test/src/utils.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
+} from '~test/utils.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 

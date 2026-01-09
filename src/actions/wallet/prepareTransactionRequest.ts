@@ -71,6 +71,7 @@ import {
   getTransactionType,
 } from '../../utils/transaction/getTransactionType.js'
 import {
+  type FillTransactionErrorType,
   type FillTransactionParameters,
   fillTransaction,
 } from '../public/fillTransaction.js'
@@ -267,11 +268,15 @@ export async function prepareTransactionRequest<
   >
 > {
   let request = args as PrepareTransactionRequestParameters
+
+  request.account ??= client.account
+  request.parameters ??= defaultParameters
+
   const {
-    account: account_ = client.account,
+    account: account_,
     chain = client.chain,
     nonceManager,
-    parameters = defaultParameters,
+    parameters,
   } = request
 
   const prepareTransactionRequest = (() => {
@@ -319,9 +324,12 @@ export async function prepareTransactionRequest<
     prepareTransactionRequest?.fn &&
     prepareTransactionRequest.runAt?.includes('beforeFillTransaction')
   ) {
-    request = await prepareTransactionRequest.fn(request, {
-      phase: 'beforeFillTransaction',
-    })
+    request = await prepareTransactionRequest.fn(
+      { ...request, chain },
+      {
+        phase: 'beforeFillTransaction',
+      },
+    )
     nonce ??= request.nonce
   }
 
@@ -402,7 +410,10 @@ export async function prepareTransactionRequest<
           }
         })
         .catch((e) => {
-          const error = e as BaseError & { cause: BaseError }
+          const error = e as FillTransactionErrorType
+
+          if (error.name !== 'TransactionExecutionError') return request
+
           const unsupported = error.walk?.((e) => {
             const error = e as BaseError
             return (
@@ -411,6 +422,7 @@ export async function prepareTransactionRequest<
             )
           })
           if (unsupported) supportsFillTransaction.set(client.uid, false)
+
           return request
         })
     : request
@@ -428,9 +440,12 @@ export async function prepareTransactionRequest<
     prepareTransactionRequest?.fn &&
     prepareTransactionRequest.runAt?.includes('beforeFillParameters')
   ) {
-    request = await prepareTransactionRequest.fn(request, {
-      phase: 'beforeFillParameters',
-    })
+    request = await prepareTransactionRequest.fn(
+      { ...request, chain },
+      {
+        phase: 'beforeFillParameters',
+      },
+    )
   }
 
   let block: Block | undefined
@@ -575,9 +590,12 @@ export async function prepareTransactionRequest<
     prepareTransactionRequest?.fn &&
     prepareTransactionRequest.runAt?.includes('afterFillParameters')
   )
-    request = await prepareTransactionRequest.fn(request, {
-      phase: 'afterFillParameters',
-    })
+    request = await prepareTransactionRequest.fn(
+      { ...request, chain },
+      {
+        phase: 'afterFillParameters',
+      },
+    )
 
   assertRequest(request as AssertRequestParameters)
 

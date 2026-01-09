@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { bundlerMainnet } from '../../../../test/src/bundler.js'
+import { bundlerMainnet } from '~test/bundler.js'
 import { getSupportedEntryPoints } from './getSupportedEntryPoints.js'
 
 const bundlerClient = bundlerMainnet.getBundlerClient()

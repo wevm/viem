@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
 
-import { anvilMainnet } from '../../../test/src/anvil.js'
-import { accounts } from '../../../test/src/constants.js'
-import { deploySoladyAccount_07 } from '../../../test/src/utils.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
+import { deploySoladyAccount_07 } from '~test/utils.js'
 import { mine, writeContract } from '../../actions/index.js'
 import { createNonceManager, pad } from '../../utils/index.js'
 import { toSoladySmartAccount } from './implementations/toSoladySmartAccount.js'

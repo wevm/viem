@@ -7,12 +7,15 @@ catalog:
   '@types/react-dom': ^19
   react: ^19
   react-dom: ^19
-  typescript: 5.9.2
+  typescript: 5.9.3
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   - '@vitest/*'
+  - abitype
   - glob  
   - hono
+  - ox
+  - prool
   - vitest
   - vocs
 packages:

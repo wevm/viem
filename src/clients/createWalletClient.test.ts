@@ -1,7 +1,6 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
-
-import { accounts } from '~test/src/constants.js'
-import { anvilMainnet } from '../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import type { JsonRpcAccount, PrivateKeyAccount } from '../accounts/types.js'
 import { localhost } from '../chains/index.js'
@@ -371,6 +370,7 @@ describe('args: transport', () => {
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": {
+          "extend": [Function],
           "fees": undefined,
           "formatters": undefined,
           "id": 1337,
@@ -461,6 +461,7 @@ test('extend', () => {
       "call": [Function],
       "ccipRead": undefined,
       "chain": {
+        "extend": [Function],
         "fees": undefined,
         "formatters": undefined,
         "id": 1337,
