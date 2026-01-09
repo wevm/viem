@@ -31,12 +31,22 @@ export const chainConfig = {
     }),
   },
   prepareTransactionRequest: [
-    async (r) => {
+    async (r, { phase }) => {
       const request = r as Transaction.TransactionRequest & {
         account?: Account | undefined
         chain?:
           | (Chain & { feeToken?: TokenId.TokenIdOrAddress | undefined })
           | undefined
+      }
+
+      // FIXME: node does not account for fee payer + key authorization combinartion; bump gas for now.
+      if (phase === 'afterFillParameters') {
+        if (
+          request.feePayer &&
+          request.keyAuthorization?.signature.type === 'webAuthn'
+        )
+          request.gas = (request.gas ?? 0n) + 20_000n
+        return request as unknown as typeof r
       }
 
       request.nonceKey = (() => {
