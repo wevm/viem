@@ -1,5 +1,11 @@
 # viem
 
+## 2.44.1
+
+### Patch Changes
+
+- [#4225](https://github.com/wevm/viem/pull/4225) [`9d0a5a0b345d33c5ae396a81a3df87b66e4ee6b0`](https://github.com/wevm/viem/commit/9d0a5a0b345d33c5ae396a81a3df87b66e4ee6b0) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Bumped gas for `feePayer` + `keyAuthorization` tempo transactions.
+
 ## 2.44.0
 
 ### Minor Changes
