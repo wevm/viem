@@ -110,6 +110,11 @@ export function formatTransactionRequest(
   rpc.data = undefined
   rpc.value = undefined
 
+  const keyId =
+    account && 'accessKeyAddress' in account
+      ? account.accessKeyAddress
+      : undefined
+
   const [keyType, keyData] = (() => {
     const type =
       account && 'keyType' in account ? account.keyType : account?.source
@@ -117,14 +122,14 @@ export function formatTransactionRequest(
     if (type === 'webAuthn')
       // TODO: derive correct bytes size of key data based on webauthn create metadata.
       return ['webAuthn', `0x${'ff'.repeat(1400)}`]
-    if (['p256', 'secp256k1'].includes(type)) return [type, undefined]
+    if (['p256', 'secp256k1'].includes(type)) {
+      // If using an access key (keyId present), include keyData to account for
+      // keychain envelope overhead: type(1) + userAddress(20) + inner P256 sig(130) = 151 bytes
+      if (keyId) return [type, `0x${'ff'.repeat(151)}`]
+      return [type, undefined]
+    }
     return [undefined, undefined]
   })()
-
-  const keyId =
-    account && 'accessKeyAddress' in account
-      ? account.accessKeyAddress
-      : undefined
 
   return {
     ...rpc,

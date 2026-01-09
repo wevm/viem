@@ -159,4 +159,37 @@ describe('formatTransactionRequest', () => {
     } as never)
     expect((rpc as Record<string, unknown>).feePayer).toBeDefined()
   })
+
+  test('behavior: access key account populates keyType, keyId, and keyData', () => {
+    const rpc = Formatters.formatTransactionRequest({
+      chainId: 1,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      account: {
+        address: '0x0000000000000000000000000000000000000000',
+        type: 'local',
+        keyType: 'p256',
+        accessKeyAddress: '0x1111111111111111111111111111111111111111',
+      },
+    } as never)
+    expect((rpc as Record<string, unknown>).keyType).toBe('p256')
+    expect((rpc as Record<string, unknown>).keyId).toBe(
+      '0x1111111111111111111111111111111111111111',
+    )
+    expect((rpc as Record<string, unknown>).keyData).toBe(`0x${'ff'.repeat(151)}`)
+  })
+
+  test('behavior: p256 account without access key does not populate keyData', () => {
+    const rpc = Formatters.formatTransactionRequest({
+      chainId: 1,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      account: {
+        address: '0x0000000000000000000000000000000000000000',
+        type: 'local',
+        keyType: 'p256',
+      },
+    } as never)
+    expect((rpc as Record<string, unknown>).keyType).toBe('p256')
+    expect((rpc as Record<string, unknown>).keyId).toBeUndefined()
+    expect((rpc as Record<string, unknown>).keyData).toBeUndefined()
+  })
 })
