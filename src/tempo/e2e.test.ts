@@ -1701,5 +1701,37 @@ describe('relay', () => {
         }
       `)
     })
+
+    test('behavior: with access key', async () => {
+      const account = Account.fromHeadlessWebAuthn(
+        '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b',
+        {
+          rpId: 'localhost',
+          origin: 'http://localhost',
+        },
+      )
+      const accessKey = Account.fromWebCryptoP256(
+        await WebCryptoP256.createKeyPair(),
+        {
+          access: account,
+        },
+      )
+
+      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+
+      await fundAddress(client, { address: account.address })
+
+      {
+        const receipt = await Actions.token.transferSync(client, {
+          account: accessKey,
+          amount: 100n,
+          feePayer: true,
+          keyAuthorization,
+          token: '0x20c0000000000000000000000000000000000001',
+          to: '0x0000000000000000000000000000000000000001',
+        })
+        expect(receipt).toBeDefined()
+      }
+    })
   })
 })
