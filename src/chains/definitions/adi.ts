@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const adiTestnet = /*#__PURE__*/ defineChain({
+export const adi = /*#__PURE__*/ defineChain({
   id: 36900,
   name: 'ADI_Chain',
   nativeCurrency: {
