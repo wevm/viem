@@ -149,7 +149,8 @@ export function parseEventLogs<
         abiItem = abiItems[0]
         try {
           event = decodeEventLog({
-            ...log,
+            data: log.data,
+            topics: log.topics,
             abi: [abiItem.abi],
             strict: false,
           })
