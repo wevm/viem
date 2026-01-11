@@ -5,10 +5,10 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { ContractEventName, GetEventArgs } from '../../types/contract.js'
 import type { Log } from '../../types/log.js'
 import type { RpcLog } from '../../types/rpc.js'
-import { toEventSelector } from '../../utils/hash/toEventSelector.js'
 import { isAddressEqual } from '../address/isAddressEqual.js'
 import { toBytes } from '../encoding/toBytes.js'
 import { keccak256 } from '../hash/keccak256.js'
+import { toEventSelector } from '../hash/toEventSelector.js'
 import {
   type DecodeEventLogErrorType,
   decodeEventLog,
