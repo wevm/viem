@@ -1,21 +1,18 @@
 // TODO(v3): checksum address.
 
-import type { Abi, AbiEvent, AbiEventParameter, Address } from 'abitype'
-import type { ErrorType } from '../../errors/utils.js'
-import type { ContractEventName, GetEventArgs } from '../../types/contract.js'
-import type { Log } from '../../types/log.js'
-import type { RpcLog } from '../../types/rpc.js'
-import { isAddressEqual } from '../address/isAddressEqual.js'
-import { toBytes } from '../encoding/toBytes.js'
-import { keccak256 } from '../hash/keccak256.js'
+import type { Abi, AbiEvent, AbiEventParameter, Address } from "abitype";
+import type { ErrorType } from "../../errors/utils.js";
+import type { ContractEventName, GetEventArgs } from "../../types/contract.js";
+import type { Log } from "../../types/log.js";
+import type { RpcLog } from "../../types/rpc.js";
+import { isAddressEqual } from "../address/isAddressEqual.js";
+import { toBytes } from "../encoding/toBytes.js";
+import { keccak256 } from "../hash/keccak256.js";
 import {
   type DecodeEventLogErrorType,
   decodeEventLog,
-} from './decodeEventLog.js'
-import {
-  type EncodeEventTopicsReturnType,
-  encodeEventTopics,
-} from './encodeEventTopics.js'
+} from "./decodeEventLog.js";
+import { toEventSelector } from "../../utils/hash/toEventSelector.js";
 
 export type ParseEventLogsParameters<
   abi extends Abi | readonly unknown[] = Abi,
@@ -31,26 +28,26 @@ export type ParseEventLogsParameters<
       ? eventName
       : ContractEventName<abi>,
     {
-      EnableUnion: true
-      IndexedOnly: false
-      Required: false
+      EnableUnion: true;
+      IndexedOnly: false;
+      Required: false;
     }
   >,
 > = {
   /** Contract ABI. */
-  abi: abi
+  abi: abi;
   /** Arguments for the event. */
-  args?: allArgs | undefined
+  args?: allArgs | undefined;
   /** Contract event. */
   eventName?:
     | eventName
     | ContractEventName<abi>
     | ContractEventName<abi>[]
-    | undefined
+    | undefined;
   /** List of logs. */
-  logs: (Log | RpcLog)[]
-  strict?: strict | boolean | undefined
-}
+  logs: (Log | RpcLog)[];
+  strict?: strict | boolean | undefined;
+};
 
 export type ParseEventLogsReturnType<
   abi extends Abi | readonly unknown[] = Abi,
@@ -65,9 +62,9 @@ export type ParseEventLogsReturnType<
     | undefined = eventName extends ContractEventName<abi>[]
     ? eventName[number]
     : eventName,
-> = Log<bigint, number, false, undefined, strict, abi, derivedEventName>[]
+> = Log<bigint, number, false, undefined, strict, abi, derivedEventName>[];
 
-export type ParseEventLogsErrorType = DecodeEventLogErrorType | ErrorType
+export type ParseEventLogsErrorType = DecodeEventLogErrorType | ErrorType;
 
 /**
  * Extracts & decodes logs matching the provided signature(s) (`abi` + optional `eventName`)
@@ -103,20 +100,20 @@ export function parseEventLogs<
 >(
   parameters: ParseEventLogsParameters<abi, eventName, strict>,
 ): ParseEventLogsReturnType<abi, eventName, strict> {
-  const { abi, args, logs, strict = true } = parameters
+  const { abi, args, logs, strict = true } = parameters;
 
   const eventName = (() => {
-    if (!parameters.eventName) return undefined
-    if (Array.isArray(parameters.eventName)) return parameters.eventName
-    return [parameters.eventName as string]
-  })()
+    if (!parameters.eventName) return undefined;
+    if (Array.isArray(parameters.eventName)) return parameters.eventName;
+    return [parameters.eventName as string];
+  })();
 
   const abiTopics = (abi as Abi)
-    .filter((abiItem) => abiItem.type === 'event')
+    .filter((abiItem) => abiItem.type === "event")
     .map((abiItem) => ({
       abi: abiItem,
-      topics: encodeEventTopics({ abi: [abiItem], eventName: abiItem.name }),
-    }))
+      selector: toEventSelector(abiItem),
+    }));
 
   return logs
     .map((log) => {
@@ -124,26 +121,23 @@ export function parseEventLogs<
       // Multiple events can share the same selector but differ in indexed parameters
       // (e.g., ERC20 vs ERC721 Transfer events).
       const abiItems = abiTopics.filter(
-        (abiTopic) => log.topics[0] === abiTopic.topics[0],
-      ) as { abi: AbiEvent; topics: EncodeEventTopicsReturnType }[]
-      if (abiItems.length === 0) return null
+        (abiTopic) => log.topics[0] === abiTopic.selector,
+      );
+      if (abiItems.length === 0) return null;
 
       // Try each matching ABI item until one successfully decodes.
-      let event: { eventName: string; args: unknown } | undefined
-      let abiItem:
-        | { abi: AbiEvent; topics: EncodeEventTopicsReturnType }
-        | undefined
+      let event: { eventName: string; args: unknown } | undefined;
+      let abiItem: { abi: AbiEvent; selector: Address } | undefined;
 
       for (const item of abiItems) {
         try {
           event = decodeEventLog({
             ...log,
             abi: [item.abi],
-            topics: item.topics as any,
             strict: true,
-          })
-          abiItem = item
-          break
+          });
+          abiItem = item;
+          break;
         } catch {
           // Try next ABI item
         }
@@ -152,32 +146,31 @@ export function parseEventLogs<
       // If strict decoding failed for all, and we're in non-strict mode,
       // fall back to the first matching ABI item.
       if (!event && !strict) {
-        abiItem = abiItems[0]
+        abiItem = abiItems[0];
         try {
           event = decodeEventLog({
             ...log,
             abi: [abiItem.abi],
-            topics: abiItem.topics as any,
             strict: false,
-          })
+          });
         } catch {
           // If decoding still fails, return partial log in non-strict mode.
           const isUnnamed = abiItem.abi.inputs?.some(
-            (x) => !('name' in x && x.name),
-          )
+            (x) => !("name" in x && x.name),
+          );
           return {
             ...log,
             args: isUnnamed ? [] : {},
             eventName: abiItem.abi.name,
-          }
+          };
         }
       }
 
       // If no event was found, return null.
-      if (!event || !abiItem) return null
+      if (!event || !abiItem) return null;
 
       // Check that the decoded event name matches the provided event name.
-      if (eventName && !eventName.includes(event.eventName)) return null
+      if (eventName && !eventName.includes(event.eventName)) return null;
 
       // Check that the decoded event args match the provided args.
       if (
@@ -187,64 +180,64 @@ export function parseEventLogs<
           matchArgs: args,
         })
       )
-        return null
+        return null;
 
-      return { ...event, ...log }
+      return { ...event, ...log };
     })
     .filter(Boolean) as unknown as ParseEventLogsReturnType<
     abi,
     eventName,
     strict
-  >
+  >;
 }
 
 function includesArgs(parameters: {
-  args: unknown
-  inputs: AbiEvent['inputs']
-  matchArgs: unknown
+  args: unknown;
+  inputs: AbiEvent["inputs"];
+  matchArgs: unknown;
 }) {
-  const { args, inputs, matchArgs } = parameters
+  const { args, inputs, matchArgs } = parameters;
 
-  if (!matchArgs) return true
-  if (!args) return false
+  if (!matchArgs) return true;
+  if (!args) return false;
 
   function isEqual(input: AbiEventParameter, value: unknown, arg: unknown) {
     try {
-      if (input.type === 'address')
-        return isAddressEqual(value as Address, arg as Address)
-      if (input.type === 'string' || input.type === 'bytes')
-        return keccak256(toBytes(value as string)) === arg
-      return value === arg
+      if (input.type === "address")
+        return isAddressEqual(value as Address, arg as Address);
+      if (input.type === "string" || input.type === "bytes")
+        return keccak256(toBytes(value as string)) === arg;
+      return value === arg;
     } catch {
-      return false
+      return false;
     }
   }
 
   if (Array.isArray(args) && Array.isArray(matchArgs)) {
     return matchArgs.every((value, index) => {
-      if (value === null || value === undefined) return true
-      const input = inputs[index]
-      if (!input) return false
-      const value_ = Array.isArray(value) ? value : [value]
-      return value_.some((value) => isEqual(input, value, args[index]))
-    })
+      if (value === null || value === undefined) return true;
+      const input = inputs[index];
+      if (!input) return false;
+      const value_ = Array.isArray(value) ? value : [value];
+      return value_.some((value) => isEqual(input, value, args[index]));
+    });
   }
 
   if (
-    typeof args === 'object' &&
+    typeof args === "object" &&
     !Array.isArray(args) &&
-    typeof matchArgs === 'object' &&
+    typeof matchArgs === "object" &&
     !Array.isArray(matchArgs)
   )
     return Object.entries(matchArgs).every(([key, value]) => {
-      if (value === null || value === undefined) return true
-      const input = inputs.find((input) => input.name === key)
-      if (!input) return false
-      const value_ = Array.isArray(value) ? value : [value]
+      if (value === null || value === undefined) return true;
+      const input = inputs.find((input) => input.name === key);
+      if (!input) return false;
+      const value_ = Array.isArray(value) ? value : [value];
       return value_.some((value) =>
         isEqual(input, value, (args as Record<string, unknown>)[key]),
-      )
-    })
+      );
+    });
 
-  return false
+  return false;
 }
