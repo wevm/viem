@@ -77,9 +77,11 @@ export type HttpRpcClient = {
 }
 
 export function getHttpRpcClient(
-  url: string,
+  url_: string,
   options: HttpRpcClientOptions = {},
 ): HttpRpcClient {
+  const { url, headers: headers_url } = parseUrl(url_)
+
   return {
     async request(params) {
       const {
@@ -116,6 +118,7 @@ export function getHttpRpcClient(
                     ...body,
                   }),
               headers: {
+                ...headers_url,
                 'Content-Type': 'application/json',
                 ...headers,
               },
@@ -172,5 +175,21 @@ export function getHttpRpcClient(
         })
       }
     },
+  }
+}
+
+/** @internal */
+export function parseUrl(url_: string) {
+  const url = new URL(url_)
+
+  if (!url.username) return { url: url_ }
+
+  const credentials = `${decodeURIComponent(url.username)}:${decodeURIComponent(url.password)}`
+  url.username = ''
+  url.password = ''
+
+  return {
+    url: url.toString(),
+    headers: { Authorization: `Basic ${btoa(credentials)}` },
   }
 }
