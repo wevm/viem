@@ -618,6 +618,7 @@ export { teaSepolia } from './definitions/teaSepolia.js'
 export { telcoinTestnet } from './definitions/telcoinTestnet.js'
 export { telos } from './definitions/telos.js'
 export { telosTestnet } from './definitions/telosTestnet.js'
+export { tempo } from './definitions/tempo.js'
 export {
   /** @deprecated Use `tempoModerato` instead. */
   tempoAndantino,
