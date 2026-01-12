@@ -182,14 +182,21 @@ export function getHttpRpcClient(
 export function parseUrl(url_: string) {
   const url = new URL(url_)
 
-  if (!url.username) return { url: url_ }
+  const result = (() => {
+    // Handle Basic authentication credentials
+    if (url.username) {
+      const credentials = `${decodeURIComponent(url.username)}:${decodeURIComponent(url.password)}`
+      url.username = ''
+      url.password = ''
 
-  const credentials = `${decodeURIComponent(url.username)}:${decodeURIComponent(url.password)}`
-  url.username = ''
-  url.password = ''
+      return {
+        url: url.toString(),
+        headers: { Authorization: `Basic ${btoa(credentials)}` },
+      }
+    }
 
-  return {
-    url: url.toString(),
-    headers: { Authorization: `Basic ${btoa(credentials)}` },
-  }
+    return
+  })()
+
+  return { url: url.toString(), ...result }
 }

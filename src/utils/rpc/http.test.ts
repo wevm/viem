@@ -643,7 +643,7 @@ describe('http (batch)', () => {
 describe('parseUrl', () => {
   test('default', () => {
     expect(parseUrl('https://rpc.example.com')).toEqual({
-      url: 'https://rpc.example.com',
+      url: 'https://rpc.example.com/',
     })
   })
 
