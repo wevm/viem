@@ -33,8 +33,8 @@ import type { TransactionReceipt } from '../Transaction.js'
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
@@ -111,8 +111,8 @@ export namespace getUserToken {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
@@ -185,8 +185,8 @@ export namespace setUserToken {
    * @example
    * ```ts
    * import { createClient, http, walletActions } from 'viem'
-   * import { tempo } from 'tempo.ts/chains'
-   * import { Actions } from 'tempo.ts/viem'
+   * import { tempo } from 'viem/chains'
+   * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
    *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
@@ -236,8 +236,8 @@ export namespace setUserToken {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
@@ -302,8 +302,8 @@ export namespace setUserTokenSync {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
  *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })

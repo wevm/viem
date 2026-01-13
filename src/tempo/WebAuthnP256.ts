@@ -18,7 +18,7 @@ export type P256Credential = {
  *
  * @example
  * ```ts
- * import { WebAuthnP256 } from 'tempo.ts/viem'
+ * import { WebAuthnP256 } from 'viem/tempo'
  *
  * const credential = await WebAuthnP256.createCredential({ name: 'Example' })
  * // {
@@ -101,7 +101,7 @@ export declare namespace createCredential {
  *
  * @example
  * ```ts
- * import { WebAuthnP256 } from 'tempo.ts/viem'
+ * import { WebAuthnP256 } from 'viem/tempo'
  *
  * const credential = await WebAuthnP256.getCredential({
  *   async getPublicKey(credential) {
