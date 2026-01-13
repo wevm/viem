@@ -1,5 +1,19 @@
 # viem
 
+## 2.44.2
+
+### Patch Changes
+
+- [#4229](https://github.com/wevm/viem/pull/4229) [`ffdc0f11cf3d87c91288d5d6242687e20ae15b42`](https://github.com/wevm/viem/commit/ffdc0f11cf3d87c91288d5d6242687e20ae15b42) Thanks [@frangio](https://github.com/frangio)! - Fixed `hexToNumber` silent error when the value exceeds the safe range.
+
+- [#4227](https://github.com/wevm/viem/pull/4227) [`d235b894009c327145267a48c1739cd865ccf55b`](https://github.com/wevm/viem/commit/d235b894009c327145267a48c1739cd865ccf55b) Thanks [@tomiir](https://github.com/tomiir)! - Added support for ADI_Chain.
+
+- [`51b6bf6d452fbabf7516614e2f0ca976edd3f19a`](https://github.com/wevm/viem/commit/51b6bf6d452fbabf7516614e2f0ca976edd3f19a) Thanks [@jxom](https://github.com/jxom)! - Added `tempo` chain mainnet placeholder.
+
+- [#4211](https://github.com/wevm/viem/pull/4211) [`e5050455f226de77587b0069532e886b520e46c2`](https://github.com/wevm/viem/commit/e5050455f226de77587b0069532e886b520e46c2) Thanks [@akitothemoon](https://github.com/akitothemoon)! - Added zkXPLA network.
+
+- [#4234](https://github.com/wevm/viem/pull/4234) [`4d6349593f21c37fa2e97945521efc011a1bb350`](https://github.com/wevm/viem/commit/4d6349593f21c37fa2e97945521efc011a1bb350) Thanks [@jxom](https://github.com/jxom)! - Added support for embeddable Basic authentication on `http` transport.
+
 ## 2.44.1
 
 ### Patch Changes
