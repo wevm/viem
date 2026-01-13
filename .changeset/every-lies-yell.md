@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Adds support for ADI_Chain
+Added support for ADI_Chain.
