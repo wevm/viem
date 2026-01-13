@@ -2,9 +2,15 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Filter } from '../../types/filter.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { createFilterRequestScope } from '../../utils/filters/createFilterRequestScope.js'
+
+export type CreatePendingTransactionFilterParameters = {
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
+}
 
 export type CreatePendingTransactionFilterReturnType = Filter<'transaction'>
 
@@ -19,6 +25,7 @@ export type CreatePendingTransactionFilterErrorType =
  * - JSON-RPC Methods: [`eth_newPendingTransactionFilter`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_newpendingtransactionfilter)
  *
  * @param client - Client to use
+ * @param parameters - {@link CreatePendingTransactionFilterParameters}
  * @returns [`Filter`](https://viem.sh/docs/glossary/types#filter). {@link CreateBlockFilterReturnType}
  *
  * @example
@@ -38,12 +45,16 @@ export async function createPendingTransactionFilter<
   chain extends Chain | undefined,
 >(
   client: Client<transport, chain>,
+  { requestOptions }: CreatePendingTransactionFilterParameters = {},
 ): Promise<CreatePendingTransactionFilterReturnType> {
   const getRequest = createFilterRequestScope(client, {
     method: 'eth_newPendingTransactionFilter',
   })
-  const id = await client.request({
-    method: 'eth_newPendingTransactionFilter',
-  })
+  const id = await client.request(
+    {
+      method: 'eth_newPendingTransactionFilter',
+    },
+    requestOptions,
+  )
   return { id, request: getRequest(id), type: 'transaction' }
 }

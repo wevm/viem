@@ -50,6 +50,7 @@ export type ReadContractParameters<
     | 'factory'
     | 'factoryData'
     | 'stateOverride'
+    | 'requestOptions'
   >
 > &
   ContractFunctionParameters<abi, 'pure' | 'view', functionName, args, boolean>

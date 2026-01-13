@@ -154,3 +154,69 @@ test('delay: fn', async () => {
   ).rejects.toThrowError('test')
   expect(end > 1000 && end < 1020).toBe(true)
 })
+
+test('signal: already aborted', async () => {
+  let retryTimes = 0
+  const controller = new AbortController()
+  controller.abort()
+
+  await expect(
+    withRetry(
+      async () => {
+        retryTimes++
+        throw new Error('test')
+      },
+      { signal: controller.signal },
+    ),
+  ).rejects.toThrow('This operation was aborted')
+  expect(retryTimes).toBe(0)
+})
+
+test('signal: aborted during retries', async () => {
+  let retryTimes = 0
+  const controller = new AbortController()
+
+  await expect(
+    withRetry(
+      async () => {
+        retryTimes++
+        if (retryTimes === 1) controller.abort()
+        throw new Error('test')
+      },
+      { signal: controller.signal, delay: 0 },
+    ),
+  ).rejects.toThrow('This operation was aborted')
+  expect(retryTimes).toBe(1)
+})
+
+test('signal: not aborted', async () => {
+  let retryTimes = 0
+  const controller = new AbortController()
+
+  const result = await withRetry(
+    async () => {
+      retryTimes++
+      if (retryTimes < 2) throw new Error('test')
+      return 'success'
+    },
+    { signal: controller.signal, delay: 0 },
+  )
+
+  expect(result).toBe('success')
+  expect(retryTimes).toBe(2)
+})
+
+test('signal: aborted with custom reason', async () => {
+  const controller = new AbortController()
+  const customError = new Error('Custom abort reason')
+  controller.abort(customError)
+
+  await expect(
+    withRetry(
+      async () => {
+        throw new Error('test')
+      },
+      { signal: controller.signal },
+    ),
+  ).rejects.toThrow('Custom abort reason')
+})

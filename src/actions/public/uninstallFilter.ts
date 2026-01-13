@@ -2,11 +2,14 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Filter } from '../../types/filter.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 
 export type UninstallFilterParameters = {
   filter: Filter<any>
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 }
 export type UninstallFilterReturnType = boolean
 
@@ -41,10 +44,13 @@ export async function uninstallFilter<
   chain extends Chain | undefined,
 >(
   _client: Client<transport, chain>,
-  { filter }: UninstallFilterParameters,
+  { filter, requestOptions }: UninstallFilterParameters,
 ): Promise<UninstallFilterReturnType> {
-  return filter.request({
-    method: 'eth_uninstallFilter',
-    params: [filter.id],
-  })
+  return filter.request(
+    {
+      method: 'eth_uninstallFilter',
+      params: [filter.id],
+    },
+    requestOptions,
+  )
 }

@@ -133,6 +133,7 @@ export async function simulateCalls<
     blockNumber,
     blockTag,
     calls,
+    requestOptions,
     stateOverrides,
     traceAssetChanges,
     traceTransfers,
@@ -171,6 +172,7 @@ export async function simulateCalls<
             account: account!.address,
             ...call,
             data: call.abi ? encodeFunctionData(call) : call.data,
+            requestOptions,
           })
           return accessList.map(({ address, storageKeys }) =>
             storageKeys.length > 0 ? address : null,
@@ -182,6 +184,7 @@ export async function simulateCalls<
   const blocks = await simulateBlocks(client, {
     blockNumber,
     blockTag: blockTag as undefined,
+    requestOptions,
     blocks: [
       ...(traceAssetChanges
         ? [

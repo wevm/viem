@@ -4,6 +4,7 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Hash } from '../../types/misc.js'
 import type { Proof } from '../../types/proof.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
@@ -21,6 +22,8 @@ export type GetProofParameters = {
   address: Address
   /** Array of storage-keys that should be proofed and included. */
   storageKeys: Hash[]
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
 } & (
   | {
       /** The block number. */
@@ -77,6 +80,7 @@ export async function getProof<chain extends Chain | undefined>(
     blockNumber,
     blockTag: blockTag_,
     storageKeys,
+    requestOptions,
   }: GetProofParameters,
 ): Promise<GetProofReturnType> {
   const blockTag = blockTag_ ?? 'latest'
@@ -84,10 +88,13 @@ export async function getProof<chain extends Chain | undefined>(
   const blockNumberHex =
     blockNumber !== undefined ? numberToHex(blockNumber) : undefined
 
-  const proof = await client.request({
-    method: 'eth_getProof',
-    params: [address, storageKeys, blockNumberHex || blockTag],
-  })
+  const proof = await client.request(
+    {
+      method: 'eth_getProof',
+      params: [address, storageKeys, blockNumberHex || blockTag],
+    },
+    requestOptions,
+  )
 
   return formatProof(proof)
 }

@@ -64,7 +64,7 @@ import {
   UserRejectedRequestError,
   type UserRejectedRequestErrorType,
 } from '../errors/rpc.js'
-import type { ErrorType } from '../errors/utils.js'
+import type { AbortErrorType, ErrorType } from '../errors/utils.js'
 import type {
   EIP1193RequestFn,
   EIP1193RequestOptions,
@@ -111,18 +111,22 @@ export type RequestErrorType =
   | UserRejectedRequestErrorType
   | WebSocketRequestErrorType
   | WithRetryErrorType
+  | AbortErrorType
   | ErrorType
 
-export function buildRequest<request extends (args: any) => Promise<any>>(
-  request: request,
-  options: EIP1193RequestOptions = {},
-): EIP1193RequestFn {
-  return async (args, overrideOptions = {}) => {
+export function buildRequest<
+  request extends (
+    args: any,
+    options?: EIP1193RequestOptions | undefined,
+  ) => Promise<any>,
+>(request: request, options: EIP1193RequestOptions = {}): EIP1193RequestFn {
+  return async (args, overrideOptions: EIP1193RequestOptions = {}) => {
     const {
       dedupe = false,
       methods,
       retryDelay = 150,
       retryCount = 3,
+      signal,
       uid,
     } = {
       ...options,
@@ -147,7 +151,7 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
         withRetry(
           async () => {
             try {
-              return await request(args)
+              return await request(args, signal ? { signal } : undefined)
             } catch (err_) {
               const err = err_ as unknown as RpcError<
                 RpcErrorCode | ProviderRpcErrorCode
@@ -161,7 +165,9 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
                   throw new InvalidRequestRpcError(err)
                 // -32601
                 case MethodNotFoundRpcError.code:
-                  throw new MethodNotFoundRpcError(err, { method: args.method })
+                  throw new MethodNotFoundRpcError(err, {
+                    method: args.method,
+                  })
                 // -32602
                 case InvalidParamsRpcError.code:
                   throw new InvalidParamsRpcError(err)

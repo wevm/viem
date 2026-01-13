@@ -3,8 +3,16 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
-import type { WalletPermission } from '../../types/eip1193.js'
+import type {
+  EIP1193RequestOptions,
+  WalletPermission,
+} from '../../types/eip1193.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
+
+export type GetPermissionsParameters = {
+  /** Request options. */
+  requestOptions?: EIP1193RequestOptions | undefined
+}
 
 export type GetPermissionsReturnType = WalletPermission[]
 
@@ -33,10 +41,14 @@ export type GetPermissionsErrorType = RequestErrorType | ErrorType
 export async function getPermissions<
   chain extends Chain | undefined,
   account extends Account | undefined = undefined,
->(client: Client<Transport, chain, account>) {
+>(
+  client: Client<Transport, chain, account>,
+  parameters: GetPermissionsParameters = {},
+) {
+  const { requestOptions } = parameters
   const permissions = await client.request(
     { method: 'wallet_getPermissions' },
-    { dedupe: true },
+    { dedupe: true, ...requestOptions },
   )
   return permissions
 }
