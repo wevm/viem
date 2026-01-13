@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { accounts, getClient } from '~test/tempo/config.js'
+import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import {
   estimateGas,
   getTransaction,
@@ -103,7 +103,7 @@ describe('formatTransactionRequest', () => {
         to: '0x0000000000000000000000000000000000000001',
         value: 100n,
         data: '0xdeadbeef',
-        feeToken: 1n,
+        feeToken,
       } as never,
       'sendTransaction',
     )
@@ -119,7 +119,7 @@ describe('formatTransactionRequest', () => {
     const rpc = Formatters.formatTransactionRequest(
       {
         chainId: 1,
-        feeToken: 1n,
+        feeToken,
       } as never,
       'sendTransaction',
     )
@@ -133,7 +133,7 @@ describe('formatTransactionRequest', () => {
       {
         chainId: 1,
         data: '0xdeadbeef',
-        feeToken: 1n,
+        feeToken,
       } as never,
       'sendTransaction',
     )
@@ -145,7 +145,7 @@ describe('formatTransactionRequest', () => {
       chainId: 1,
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       feePayer: true,
-      feeToken: '0x20c0000000000000000000000000000000000001',
+      feeToken,
     } as never)
     expect((rpc as Record<string, unknown>).feeToken).toBeUndefined()
     expect((rpc as Record<string, unknown>).feePayer).toBe(true)

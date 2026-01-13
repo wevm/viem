@@ -1,7 +1,8 @@
 import { setTimeout } from 'node:timers/promises'
 import { afterAll, beforeAll } from 'vitest'
 import { faucet } from '../../../src/tempo/actions/index.js'
-import { accounts, getClient, nodeEnv } from './config.js'
+import { Actions } from '../../../src/tempo/index.js'
+import { accounts, addresses, getClient, nodeEnv } from './config.js'
 import * as Prool from './prool.js'
 
 const client = getClient()
@@ -17,6 +18,14 @@ beforeAll(async () => {
   })
   // TODO: remove once testnet load balancing is fixed.
   await setTimeout(2000)
+
+  if (nodeEnv === 'mainnet') {
+    await Actions.fee.setUserTokenSync(client, {
+      account: accounts[0],
+      token: addresses.DONOTUSE,
+    })
+    return
+  }
 })
 
 afterAll(async () => {
