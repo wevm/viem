@@ -181,19 +181,15 @@ export function decodeEventLog<
           }
           // Then, assign non-indexed parameters
           if (isUnnamed) {
-            for (let i = 0; i < inputs.length; i++) {
-              if (args[i] === undefined && dataIndex < decodedData.length) {
+            for (let i = 0; i < inputs.length; i++)
+              if (args[i] === undefined && dataIndex < decodedData.length)
                 args[i] = decodedData[dataIndex++]
-              }
-            }
-          } else {
-            for (let i = 0; i < nonIndexedInputs.length; i++) {
+          } else
+            for (let i = 0; i < nonIndexedInputs.length; i++)
               args[nonIndexedInputs[i].name!] = decodedData[dataIndex++]
-            }
-          }
         }
       } catch (err) {
-        if (strict) {
+        if (strict)
           if (
             err instanceof AbiDecodingDataSizeTooSmallError ||
             err instanceof PositionOutOfBoundsError
@@ -204,8 +200,7 @@ export function decodeEventLog<
               params: inputsToDecode,
               size: size(data),
             })
-          throw err
-        }
+        throw err
       }
     } else if (strict) {
       throw new DecodeLogDataMismatch({
