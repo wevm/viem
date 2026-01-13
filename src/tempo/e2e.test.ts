@@ -1409,12 +1409,13 @@ describe('relay', () => {
         amount: 100n,
         feePayer: true,
         spender: '0x0000000000000000000000000000000000000000',
-        token: 1n,
+        token: feeToken,
       })
 
       const {
         blockHash,
         blockNumber,
+        calls,
         chainId,
         feePayerSignature,
         feeToken: ___,
@@ -1434,6 +1435,7 @@ describe('relay', () => {
 
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
+      expect(calls?.length).toBe(1)
       expect(chainId).toBeDefined()
       expect(feePayerSignature).toBeDefined()
       expect(from).toBe(account.address.toLowerCase())
@@ -1450,13 +1452,6 @@ describe('relay', () => {
         {
           "accessList": [],
           "authorizationList": [],
-          "calls": [
-            {
-              "data": "0x095ea7b300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064",
-              "to": "0x20c0000000000000000000000000000000000001",
-              "value": 0n,
-            },
-          ],
           "data": undefined,
           "maxFeePerBlobGas": undefined,
           "to": null,
@@ -1535,12 +1530,13 @@ describe('relay', () => {
         amount: 100n,
         feePayer: true,
         spender: '0x0000000000000000000000000000000000000000',
-        token: 1n,
+        token: feeToken,
       })
 
       const {
         blockHash,
         blockNumber,
+        calls,
         chainId,
         feePayerSignature,
         feeToken: ___,
@@ -1560,6 +1556,7 @@ describe('relay', () => {
 
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
+      expect(calls?.length).toBe(1)
       expect(chainId).toBeDefined()
       expect(feePayerSignature).toBeDefined()
       expect(from).toBe(account.address.toLowerCase())
@@ -1576,13 +1573,6 @@ describe('relay', () => {
         {
           "accessList": [],
           "authorizationList": [],
-          "calls": [
-            {
-              "data": "0x095ea7b300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064",
-              "to": "0x20c0000000000000000000000000000000000001",
-              "value": 0n,
-            },
-          ],
           "data": undefined,
           "maxFeePerBlobGas": undefined,
           "to": null,
@@ -1608,7 +1598,7 @@ describe('relay', () => {
         amount: 100n,
         feePayer: true,
         spender: '0x0000000000000000000000000000000000000000',
-        token: 1n,
+        token: feeToken,
       })
 
       const transaction = await getTransaction(client, {
@@ -1634,12 +1624,13 @@ describe('relay', () => {
         amount: 100n,
         feePayer: true,
         spender: '0x0000000000000000000000000000000000000000',
-        token: 1n,
+        token: feeToken,
       })
 
       const {
         blockHash,
         blockNumber,
+        calls,
         chainId,
         feePayerSignature,
         feeToken: ___,
@@ -1659,6 +1650,7 @@ describe('relay', () => {
 
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
+      expect(calls?.length).toBe(1)
       expect(chainId).toBeDefined()
       expect(feePayerSignature).toBeDefined()
       expect(from).toBe(account.address.toLowerCase())
@@ -1675,13 +1667,6 @@ describe('relay', () => {
         {
           "accessList": [],
           "authorizationList": [],
-          "calls": [
-            {
-              "data": "0x095ea7b300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000064",
-              "to": "0x20c0000000000000000000000000000000000001",
-              "value": 0n,
-            },
-          ],
           "data": undefined,
           "maxFeePerBlobGas": undefined,
           "to": null,
