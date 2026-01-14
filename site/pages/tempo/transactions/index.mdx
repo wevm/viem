@@ -1,0 +1,115 @@
+# Tempo Transactions
+
+Tempo Transactions are a Tempo-native EIP-2718 transaction type designed for payments. They support configurable fee tokens, fee sponsorship, batched calls, concurrent nonces, access keys, and scheduled execution. They are recommended over legacy Ethereum transactions on Tempo. See the full spec at [docs.tempo.xyz](https://docs.tempo.xyz/protocol/transactions#tempo-transactions).
+
+## Prerequisites
+
+- Viem installed and the Tempo extension configured. If you have not set this up yet, follow the snippet below.
+
+```ts twoslash [viem.config.ts]
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+## Pay Fees with TIP-20 Stablecoins
+
+Use the `feeToken` field to pay fees in any USD-denominated TIP-20 token. Tempo's Fee AMM automatically swaps to the validator's preferred token.
+
+```ts twoslash [pay-fees.ts]
+import { client } from './viem.config'
+
+const alphaUsd = '0x20c0000000000000000000000000000000000001'
+
+const receipt = await client.sendTransactionSync({
+  data: '0xdeadbeef',
+  feeToken: alphaUsd,
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+})
+```
+
+:::tip
+You can also set a default `feeToken` on the Tempo chain config (see `feeToken` tip in the Getting Started guide).
+:::
+
+## Fee Sponsorship
+
+A fee payer can cover gas for the sender via the `feePayer` field. You can use a local account or a remote relay service.
+
+```ts twoslash [fee-sponsor.ts]
+import { client } from './viem.config'
+import { privateKeyToAccount } from 'viem/accounts'
+
+const feePayer = privateKeyToAccount('0x...')
+
+const receipt = await client.sendTransactionSync({
+  data: '0xdeadbeef',
+  feePayer,
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+})
+```
+
+:::note
+Tempo runs a public testnet sponsor at `https://sponsor.moderato.tempo.xyz` if you prefer using a remote relay.
+:::
+
+## Batch Calls
+
+Bundle multiple operations atomically with `calls`.
+
+```ts twoslash [batch-calls.ts]
+import { client } from './viem.config'
+
+const receipt = await client.sendTransactionSync({
+  calls: [
+    {
+      to: '0xcafebabecafebabecafebabecafebabecafebabe',
+      data: '0xdeadbeef0000000000000000000000000000000001',
+    },
+    {
+      to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+      data: '0xcafebabe0000000000000000000000000000000001',
+    },
+  ],
+})
+```
+
+## Concurrent Transactions
+
+Send transactions in parallel by using independent nonce keys.
+
+```ts twoslash [concurrent.ts]
+import { client } from './viem.config'
+
+const [hash1, hash2] = await Promise.all([
+  client.sendTransaction({
+    data: '0xdeadbeef0000000000000000000000000000000001',
+    nonceKey: 567n,
+    to: '0xcafebabecafebabecafebabecafebabecafebabe',
+  }),
+  client.sendTransaction({
+    data: '0xcafebabe0000000000000000000000000000000001',
+    nonceKey: 789n,
+    to: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+  }),
+])
+```
+
+## Scheduled Transactions
+
+Define a valid time window for inclusion using `validAfter` and `validBefore`.
+
+```ts twoslash [scheduled.ts]
+import { client } from './viem.config'
+
+const receipt = await client.sendTransactionSync({
+  data: '0xdeadbeef0000000000000000000000000000000001',
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+  validAfter: Math.floor(Number(new Date('2026-01-01')) / 1000),
+  validBefore: Math.floor(Number(new Date('2026-01-02')) / 1000),
+})
+```
+
+## More Resources
+
+- Tempo protocol docs: [Tempo Transactions](https://docs.tempo.xyz/protocol/transactions#tempo-transactions)
+- Tempo Viem setup: [Getting Started](/tempo)
+- Tempo transports: [`withFeePayer`](/tempo/transports/withFeePayer)

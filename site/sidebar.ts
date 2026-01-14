@@ -1812,6 +1812,15 @@ export const sidebar = {
             text: 'Tempo Docs & Guides',
             link: 'https://docs.tempo.xyz',
           },
+          {
+            text: 'Transactions',
+            items: [
+              {
+                text: 'Overview',
+                link: '/tempo/transactions',
+              },
+            ],
+          },
         ],
       },
       {
