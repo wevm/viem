@@ -1,5 +1,15 @@
 # viem
 
+## 2.44.3
+
+### Patch Changes
+
+- [#4244](https://github.com/wevm/viem/pull/4244) [`73d02fbb61a9fecbe03dfad648e1fe7d61497d3f`](https://github.com/wevm/viem/commit/73d02fbb61a9fecbe03dfad648e1fe7d61497d3f) Thanks [@gorried](https://github.com/gorried)! - `viem/tempo`: Added actions validator tokens on the `actions.fee` namespace.
+
+- [#4243](https://github.com/wevm/viem/pull/4243) [`76f087bfeb7a77bd25e60acade122724e15b5729`](https://github.com/wevm/viem/commit/76f087bfeb7a77bd25e60acade122724e15b5729) Thanks [@gorried](https://github.com/gorried)! - `viem/tempo`: Added `validator` actions.
+
+- [`c90fc03e0d5d80ab12dc4f24295a88549f4df8b7`](https://github.com/wevm/viem/commit/c90fc03e0d5d80ab12dc4f24295a88549f4df8b7) Thanks [@jxom](https://github.com/jxom)! - Improved partial decoding of events, in case indexes are missing.
+
 ## 2.44.2
 
 ### Patch Changes
