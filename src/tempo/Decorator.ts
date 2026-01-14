@@ -9,6 +9,7 @@ import * as feeActions from './actions/fee.js'
 import * as policyActions from './actions/policy.js'
 import * as rewardActions from './actions/reward.js'
 import * as tokenActions from './actions/token.js'
+import * as validatorActions from './actions/validator.js'
 
 export type Decorator<
   chain extends Chain | undefined = Chain | undefined,
@@ -2964,6 +2965,442 @@ export type Decorator<
       parameters: tokenActions.watchTransfer.Parameters,
     ) => () => void
   }
+  validator: {
+    /**
+     * Adds a new validator (owner only).
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.validator.add({
+     *   newValidatorAddress: '0x...',
+     *   publicKey: '0x...',
+     *   active: true,
+     *   inboundAddress: '192.168.1.1:8080',
+     *   outboundAddress: '192.168.1.1:8080',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    add: (
+      parameters: validatorActions.add.Parameters<chain, account>,
+    ) => Promise<validatorActions.add.ReturnValue>
+    /**
+     * Adds a new validator (owner only) and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt } = await client.validator.addSync({
+     *   newValidatorAddress: '0x...',
+     *   publicKey: '0x...',
+     *   active: true,
+     *   inboundAddress: '192.168.1.1:8080',
+     *   outboundAddress: '192.168.1.1:8080',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt.
+     */
+    addSync: (
+      parameters: validatorActions.addSync.Parameters<chain, account>,
+    ) => Promise<validatorActions.addSync.ReturnValue>
+    /**
+     * Changes the owner of the validator config precompile.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.validator.changeOwner({
+     *   newOwner: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    changeOwner: (
+      parameters: validatorActions.changeOwner.Parameters<chain, account>,
+    ) => Promise<validatorActions.changeOwner.ReturnValue>
+    /**
+     * Changes the owner of the validator config precompile and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt } = await client.validator.changeOwnerSync({
+     *   newOwner: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt.
+     */
+    changeOwnerSync: (
+      parameters: validatorActions.changeOwnerSync.Parameters<chain, account>,
+    ) => Promise<validatorActions.changeOwnerSync.ReturnValue>
+    /**
+     * Changes validator active status (owner only).
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.validator.changeStatus({
+     *   validator: '0x...',
+     *   active: false,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    changeStatus: (
+      parameters: validatorActions.changeStatus.Parameters<chain, account>,
+    ) => Promise<validatorActions.changeStatus.ReturnValue>
+    /**
+     * Changes validator active status and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt } = await client.validator.changeStatusSync({
+     *   validator: '0x...',
+     *   active: false,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt.
+     */
+    changeStatusSync: (
+      parameters: validatorActions.changeStatusSync.Parameters<chain, account>,
+    ) => Promise<validatorActions.changeStatusSync.ReturnValue>
+    /**
+     * Gets validator information by address.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const validator = await client.validator.get({
+     *   validator: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The validator information.
+     */
+    get: (
+      parameters: validatorActions.get.Parameters,
+    ) => Promise<validatorActions.get.ReturnValue>
+    /**
+     * Gets validator address by index.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const validatorAddress = await client.validator.getByIndex({
+     *   index: 0n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The validator address at the given index.
+     */
+    getByIndex: (
+      parameters: validatorActions.getByIndex.Parameters,
+    ) => Promise<validatorActions.getByIndex.ReturnValue>
+    /**
+     * Gets the total number of validators.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const count = await client.validator.getCount()
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The total number of validators.
+     */
+    getCount: (
+      parameters?: validatorActions.getCount.Parameters,
+    ) => Promise<validatorActions.getCount.ReturnValue>
+    /**
+     * Gets the next epoch for a full DKG ceremony.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const epoch = await client.validator.getNextFullDkgCeremony()
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The epoch number for the next full DKG ceremony.
+     */
+    getNextFullDkgCeremony: (
+      parameters?: validatorActions.getNextFullDkgCeremony.Parameters,
+    ) => Promise<validatorActions.getNextFullDkgCeremony.ReturnValue>
+    /**
+     * Gets the contract owner.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const owner = await client.validator.getOwner()
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The owner address.
+     */
+    getOwner: (
+      parameters?: validatorActions.getOwner.Parameters,
+    ) => Promise<validatorActions.getOwner.ReturnValue>
+    /**
+     * Gets the complete set of validators.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const validators = await client.validator.list()
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns Array of all validators with their information.
+     */
+    list: (
+      parameters?: validatorActions.list.Parameters,
+    ) => Promise<validatorActions.list.ReturnValue>
+    /**
+     * Sets the next epoch for a full DKG ceremony.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.validator.setNextFullDkgCeremony({
+     *   epoch: 100n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    setNextFullDkgCeremony: (
+      parameters: validatorActions.setNextFullDkgCeremony.Parameters<
+        chain,
+        account
+      >,
+    ) => Promise<validatorActions.setNextFullDkgCeremony.ReturnValue>
+    /**
+     * Sets the next epoch for a full DKG ceremony and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt } = await client.validator.setNextFullDkgCeremonySync({
+     *   epoch: 100n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt.
+     */
+    setNextFullDkgCeremonySync: (
+      parameters: validatorActions.setNextFullDkgCeremonySync.Parameters<
+        chain,
+        account
+      >,
+    ) => Promise<validatorActions.setNextFullDkgCeremonySync.ReturnValue>
+    /**
+     * Updates validator information (only callable by the validator themselves).
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.validator.update({
+     *   newValidatorAddress: '0x...',
+     *   publicKey: '0x...',
+     *   inboundAddress: '192.168.1.1:8080',
+     *   outboundAddress: '192.168.1.1:8080',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    update: (
+      parameters: validatorActions.update.Parameters<chain, account>,
+    ) => Promise<validatorActions.update.ReturnValue>
+    /**
+     * Updates validator information and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt } = await client.validator.updateSync({
+     *   newValidatorAddress: '0x...',
+     *   publicKey: '0x...',
+     *   inboundAddress: '192.168.1.1:8080',
+     *   outboundAddress: '192.168.1.1:8080',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt.
+     */
+    updateSync: (
+      parameters: validatorActions.updateSync.Parameters<chain, account>,
+    ) => Promise<validatorActions.updateSync.ReturnValue>
+  }
 }
 
 export function decorator() {
@@ -3153,6 +3590,33 @@ export function decorator() {
         watchRole: (parameters) => tokenActions.watchRole(client, parameters),
         watchTransfer: (parameters) =>
           tokenActions.watchTransfer(client, parameters),
+      },
+      validator: {
+        add: (parameters) => validatorActions.add(client, parameters),
+        addSync: (parameters) => validatorActions.addSync(client, parameters),
+        changeOwner: (parameters) =>
+          validatorActions.changeOwner(client, parameters),
+        changeOwnerSync: (parameters) =>
+          validatorActions.changeOwnerSync(client, parameters),
+        changeStatus: (parameters) =>
+          validatorActions.changeStatus(client, parameters),
+        changeStatusSync: (parameters) =>
+          validatorActions.changeStatusSync(client, parameters),
+        get: (parameters) => validatorActions.get(client, parameters),
+        getByIndex: (parameters) =>
+          validatorActions.getByIndex(client, parameters),
+        getCount: (parameters) => validatorActions.getCount(client, parameters),
+        getNextFullDkgCeremony: (parameters) =>
+          validatorActions.getNextFullDkgCeremony(client, parameters),
+        getOwner: (parameters) => validatorActions.getOwner(client, parameters),
+        list: (parameters) => validatorActions.list(client, parameters),
+        setNextFullDkgCeremony: (parameters) =>
+          validatorActions.setNextFullDkgCeremony(client, parameters),
+        setNextFullDkgCeremonySync: (parameters) =>
+          validatorActions.setNextFullDkgCeremonySync(client, parameters),
+        update: (parameters) => validatorActions.update(client, parameters),
+        updateSync: (parameters) =>
+          validatorActions.updateSync(client, parameters),
       },
     }
   }

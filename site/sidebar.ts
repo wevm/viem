@@ -2190,6 +2190,56 @@ export const sidebar = {
               },
             ],
           },
+          {
+            text: 'Validator',
+            collapsed: true,
+            items: [
+              {
+                text: 'add',
+                link: '/tempo/actions/validator.add',
+              },
+              {
+                text: 'changeOwner',
+                link: '/tempo/actions/validator.changeOwner',
+              },
+              {
+                text: 'changeStatus',
+                link: '/tempo/actions/validator.changeStatus',
+              },
+              {
+                text: 'get',
+                link: '/tempo/actions/validator.get',
+              },
+              {
+                text: 'getByIndex',
+                link: '/tempo/actions/validator.getByIndex',
+              },
+              {
+                text: 'getCount',
+                link: '/tempo/actions/validator.getCount',
+              },
+              {
+                text: 'getNextFullDkgCeremony',
+                link: '/tempo/actions/validator.getNextFullDkgCeremony',
+              },
+              {
+                text: 'getOwner',
+                link: '/tempo/actions/validator.getOwner',
+              },
+              {
+                text: 'list',
+                link: '/tempo/actions/validator.list',
+              },
+              {
+                text: 'setNextFullDkgCeremony',
+                link: '/tempo/actions/validator.setNextFullDkgCeremony',
+              },
+              {
+                text: 'update',
+                link: '/tempo/actions/validator.update',
+              },
+            ],
+          },
         ],
       },
       {
