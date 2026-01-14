@@ -1,5 +1,5 @@
 ---
-"viem": minor
+"viem": patch
 ---
 
-Added actions for getting, setting, and watching validator tokens in the tempo feeManager
+`viem/tempo`: Added actions validator tokens on the `actions.fee` namespace.

@@ -12,8 +12,7 @@ import * as actions from './index.js'
 const account = accounts[0]
 const account2 = accounts[1]
 const account3 = accounts[2]
-// accounts[19] is set up as a validator in prool.ts setup
-const validatorAccount = accounts[19]
+const validator = accounts[19]
 
 const client = getClient({
   account: account,
@@ -257,7 +256,7 @@ describe('getValidatorToken', () => {
   test('behavior: query validator account', async () => {
     // Query the validator token for the validator account set up in prool.ts
     const result = await actions.fee.getValidatorToken(client, {
-      validator: validatorAccount.address,
+      validator: validator.address,
     })
     // Should return pathUSD initially
     expect(result).toMatchInlineSnapshot(`
@@ -272,13 +271,13 @@ describe('getValidatorToken', () => {
 describe('setValidatorToken', () => {
   test('default', async () => {
     await actions.token.transferSync(client, {
-      to: validatorAccount.address,
+      to: validator.address,
       amount: 1000000n,
       token: feeToken,
     })
 
     const { receipt, ...result } = await actions.fee.setValidatorTokenSync(
-      getClient({ account: validatorAccount }),
+      getClient({ account: validator }),
       {
         token: '0x20c0000000000000000000000000000000000001',
       },
@@ -289,12 +288,10 @@ describe('setValidatorToken', () => {
     expect(result.token.toLowerCase()).toBe(
       '0x20c0000000000000000000000000000000000001',
     )
-    expect(result.validator.toLowerCase()).toBe(
-      validatorAccount.address.toLowerCase(),
-    )
+    expect(result.validator.toLowerCase()).toBe(validator.address.toLowerCase())
 
     const tokenAfter = await actions.fee.getValidatorToken(client, {
-      validator: validatorAccount.address,
+      validator: validator.address,
     })
     expect(tokenAfter).toMatchInlineSnapshot(`
       {
@@ -306,14 +303,14 @@ describe('setValidatorToken', () => {
 
   test('behavior: set token by id', async () => {
     await actions.token.transferSync(client, {
-      to: validatorAccount.address,
+      to: validator.address,
       amount: 1000000n,
       token: feeToken,
     })
 
     // Set validator token using token ID
     const { receipt, ...result } = await actions.fee.setValidatorTokenSync(
-      getClient({ account: validatorAccount }),
+      getClient({ account: validator }),
       {
         token: 2n,
       },
@@ -324,12 +321,10 @@ describe('setValidatorToken', () => {
     expect(result.token.toLowerCase()).toBe(
       '0x20c0000000000000000000000000000000000002',
     )
-    expect(result.validator.toLowerCase()).toBe(
-      validatorAccount.address.toLowerCase(),
-    )
+    expect(result.validator.toLowerCase()).toBe(validator.address.toLowerCase())
 
     const tokenAfter = await actions.fee.getValidatorToken(client, {
-      validator: validatorAccount.address,
+      validator: validator.address,
     })
     expect(tokenAfter).toMatchInlineSnapshot(`
       {
@@ -357,20 +352,20 @@ describe('watchSetValidatorToken', () => {
     try {
       // Fund the validator account
       await actions.token.transferSync(client, {
-        to: validatorAccount.address,
+        to: validator.address,
         amount: 1000000n,
         token: feeToken,
       })
 
       await actions.fee.setValidatorTokenSync(
-        getClient({ account: validatorAccount }),
+        getClient({ account: validator }),
         {
           token: 1n,
         },
       )
 
       await actions.fee.setValidatorTokenSync(
-        getClient({ account: validatorAccount }),
+        getClient({ account: validator }),
         {
           token: 2n,
         },
@@ -384,13 +379,13 @@ describe('watchSetValidatorToken', () => {
         '0x20c0000000000000000000000000000000000001',
       )
       expect(receivedSets.at(0)!.args.validator.toLowerCase()).toBe(
-        validatorAccount.address.toLowerCase(),
+        validator.address.toLowerCase(),
       )
       expect(receivedSets.at(1)!.args.token.toLowerCase()).toBe(
         '0x20c0000000000000000000000000000000000002',
       )
       expect(receivedSets.at(1)!.args.validator.toLowerCase()).toBe(
-        validatorAccount.address.toLowerCase(),
+        validator.address.toLowerCase(),
       )
     } finally {
       if (unwatch) unwatch()
@@ -406,7 +401,7 @@ describe('watchSetValidatorToken', () => {
     // Watching for validator token set events only for the validator account
     const unwatch = actions.fee.watchSetValidatorToken(client, {
       args: {
-        validator: validatorAccount.address,
+        validator: validator.address,
       },
       onValidatorTokenSet: (args, log) => {
         receivedSets.push({ args, log })
@@ -415,13 +410,13 @@ describe('watchSetValidatorToken', () => {
 
     try {
       await actions.token.transferSync(client, {
-        to: validatorAccount.address,
+        to: validator.address,
         amount: 1000000n,
         token: feeToken,
       })
 
       await actions.fee.setValidatorTokenSync(
-        getClient({ account: validatorAccount }),
+        getClient({ account: validator }),
         {
           token: 1n,
         },
@@ -431,7 +426,7 @@ describe('watchSetValidatorToken', () => {
 
       expect(receivedSets).toHaveLength(1)
       expect(receivedSets.at(0)!.args.validator.toLowerCase()).toBe(
-        validatorAccount.address.toLowerCase(),
+        validator.address.toLowerCase(),
       )
     } finally {
       if (unwatch) unwatch()
