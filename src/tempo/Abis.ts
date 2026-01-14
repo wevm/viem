@@ -1429,7 +1429,7 @@ export const tip403Registry = [
   { name: 'PolicyNotFound', type: 'error', inputs: [] },
 ] as const
 
-export const validatorConfig = [
+export const validator = [
   {
     name: 'getValidators',
     type: 'function',

@@ -1,5 +1,5 @@
 ---
-"viem": minor
+"viem": patch
 ---
 
-Added actions for the Tempo validatorConfig contract
+`viem/tempo`: Added `validator` actions.
