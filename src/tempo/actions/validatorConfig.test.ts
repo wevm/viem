@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, test } from 'vitest'
 import { accounts, getClient } from '~test/tempo/config.js'
 import * as Prool from '~test/tempo/prool.js'
+import { isAddress } from '../../utils/address/isAddress.js'
 import * as actions from './index.js'
 
 const account = accounts[0]
@@ -37,8 +38,8 @@ describe('getOwner', () => {
   test('default', async () => {
     const owner = await actions.validatorConfig.getOwner(client)
 
-    // Owner should be a valid address
-    expect(owner).toMatch(/^0x[a-fA-F0-9]{40}$/)
+    // Tempo genesis locally has the first account as the contract owner
+    expect(owner).toBe(account.address)
   })
 })
 
@@ -46,14 +47,12 @@ describe('getNextFullDkgCeremony', () => {
   test('default', async () => {
     const epoch = await actions.validatorConfig.getNextFullDkgCeremony(client)
 
-    // Should return a bigint
     expect(typeof epoch).toBe('bigint')
   })
 })
 
 describe('getValidator', () => {
   test('default', async () => {
-    // First get the list of validators to get a valid address
     const validators = await actions.validatorConfig.getValidators(client)
     expect(validators.length).toBeGreaterThan(0)
 
@@ -81,8 +80,7 @@ describe('getValidatorByIndex', () => {
       },
     )
 
-    // Should return a valid address
-    expect(validatorAddress).toMatch(/^0x[a-fA-F0-9]{40}$/)
+    expect(isAddress(validatorAddress)).toBe(true)
   })
 })
 
@@ -90,7 +88,6 @@ describe('getValidatorCount', () => {
   test('default', async () => {
     const count = await actions.validatorConfig.getValidatorCount(client)
 
-    // Should return a bigint and be at least 1 for localnet
     expect(typeof count).toBe('bigint')
     expect(count).toBeGreaterThan(0n)
   })
@@ -104,13 +101,11 @@ describe('getValidatorCount', () => {
 })
 
 describe('addValidator', () => {
-  test('default', async () => {
+  test('default', async (ctx) => {
     const owner = await actions.validatorConfig.getOwner(client)
 
-    // Skip test if account is not the owner
     if (owner.toLowerCase() !== account.address.toLowerCase()) {
-      console.log('Skipping addValidator test: account is not the owner')
-      return
+      ctx.skip()
     }
 
     const initialCount = await actions.validatorConfig.getValidatorCount(client)
@@ -137,13 +132,12 @@ describe('addValidator', () => {
     expect(validator.active).toBe(true)
   })
 
-  test('behavior: unauthorized caller', async () => {
+  test('behavior: unauthorized caller', async (ctx) => {
     const owner = await actions.validatorConfig.getOwner(client)
 
-    // Skip test if account is the owner (we need a non-owner to test unauthorized)
+    // Skip test if account2 is the owner (we need a non-owner to test unauthorized)
     if (owner.toLowerCase() === account2.address.toLowerCase()) {
-      console.log('Skipping unauthorized test: account2 is the owner')
-      return
+      ctx.skip()
     }
 
     await expect(
@@ -160,15 +154,11 @@ describe('addValidator', () => {
 })
 
 describe('changeValidatorStatus', () => {
-  test('default', async () => {
+  test('default', async (ctx) => {
     const owner = await actions.validatorConfig.getOwner(client)
 
-    // Skip test if account is not the owner
     if (owner.toLowerCase() !== account.address.toLowerCase()) {
-      console.log(
-        'Skipping changeValidatorStatus test: account is not the owner',
-      )
-      return
+      ctx.skip()
     }
 
     // Get an existing validator
@@ -204,13 +194,11 @@ describe('changeValidatorStatus', () => {
 })
 
 describe('changeOwner', () => {
-  test('default', async () => {
+  test('default', async (ctx) => {
     const owner = await actions.validatorConfig.getOwner(client)
 
-    // Skip test if account is not the owner
     if (owner.toLowerCase() !== account.address.toLowerCase()) {
-      console.log('Skipping changeOwner test: account is not the owner')
-      return
+      ctx.skip()
     }
 
     // Change owner to account2
@@ -246,15 +234,11 @@ describe('changeOwner', () => {
 })
 
 describe('setNextFullDkgCeremony', () => {
-  test('default', async () => {
+  test('default', async (ctx) => {
     const owner = await actions.validatorConfig.getOwner(client)
 
-    // Skip test if account is not the owner
     if (owner.toLowerCase() !== account.address.toLowerCase()) {
-      console.log(
-        'Skipping setNextFullDkgCeremony test: account is not the owner',
-      )
-      return
+      ctx.skip()
     }
 
     const initialEpoch =

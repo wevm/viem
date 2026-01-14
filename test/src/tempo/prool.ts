@@ -79,6 +79,7 @@ export async function setup(client: Client<Transport, Chain>) {
   )
 
   await actions.validatorConfig.addValidator(client, {
+    // accounts[0] is set as the contract owner in genesis
     account: accounts[0],
     newValidatorAddress: accounts[19].address,
     publicKey:
