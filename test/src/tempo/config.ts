@@ -3,6 +3,7 @@ import { generateMnemonic } from '../../../src/accounts/generateMnemonic.js'
 import { english } from '../../../src/accounts/wordlists.js'
 import { sendTransactionSync } from '../../../src/actions/index.js'
 import {
+  tempo,
   tempoDevnet,
   tempoLocalnet,
   tempoModerato,
@@ -15,6 +16,7 @@ import {
   createClient,
   defineChain,
   type HttpTransportConfig,
+  isAddressEqual,
   type JsonRpcAccount,
   parseUnits,
   type Transport,
@@ -42,11 +44,15 @@ export const accounts = Array.from({ length: 20 }, (_, i) => {
 }) as unknown as FixedArray<Account.RootAccount, 20>
 
 export const addresses = {
+  pathUsd: '0x20c0000000000000000000000000000000000000',
   alphaUsd: '0x20c0000000000000000000000000000000000001',
+  DONOTUSE: '0x20c000000000000000000000033abb6ac7d235e5',
 } as const
 
 export const chain = (() => {
   switch (nodeEnv) {
+    case 'mainnet':
+      return tempo
     case 'testnet':
       return tempoModerato
     case 'devnet':
@@ -79,16 +85,21 @@ ${rpcUrl} \\
   }
 }
 
+export const feeToken = (() => {
+  if (nodeEnv === 'mainnet') return addresses.DONOTUSE
+  return addresses.pathUsd
+})()
+
 export const http = (url = rpcUrl) =>
   viem_http(url, {
     ...debugOptions({
       rpcUrl: url,
     }),
-    ...(nodeEnv === 'devnet'
+    ...(import.meta.env.VITE_TEMPO_CREDENTIALS
       ? {
           fetchOptions: {
             headers: {
-              Authorization: `Basic ${btoa(import.meta.env.VITE_TEMPO_CREDENTIALS!)}`,
+              Authorization: `Basic ${btoa(import.meta.env.VITE_TEMPO_CREDENTIALS)}`,
             },
           },
         }
@@ -274,30 +285,35 @@ export async function setupOrders(
   return { bases }
 }
 
-export async function fundAddress(
+export async function setupFeeToken(
   client: Client<Transport, Chain>,
-  parameters: fundAddress.Parameters,
+  parameters: setupFeeToken.Parameters,
 ) {
-  const { address } = parameters
+  const { account: targetAccount } = parameters
+
   const account = accounts.at(0)!
-  if (account.address === address) return
-  await Promise.all(
-    // fund pathUSD, alphaUSD
-    [0n, 1n].map((feeToken) =>
-      Actions.token.transferSync(client, {
-        account,
-        amount: parseUnits('10000', 6),
-        to: address,
-        token: feeToken,
-      }),
-    ),
-  )
+
+  if (!isAddressEqual(account.address, targetAccount.address)) {
+    await Actions.token.transferSync(client, {
+      account,
+      amount: parseUnits('10000', 6),
+      to: targetAccount.address,
+      token: feeToken,
+    })
+  }
+
+  if (nodeEnv === 'mainnet')
+    await Actions.fee.setUserTokenSync(client, {
+      account: targetAccount,
+      feeToken,
+      token: feeToken,
+    })
 }
 
-export declare namespace fundAddress {
+export declare namespace setupFeeToken {
   export type Parameters = {
     /** Account to fund. */
-    address: Address
+    account: Account.Account
   }
 }
 

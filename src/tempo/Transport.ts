@@ -81,7 +81,10 @@ export function withFeePayer(
             }
           }
         }
-        return transport_default.request({ method, params }, options) as never
+        return (await transport_default.request(
+          { method, params },
+          options,
+        )) as never
       },
       type: withFeePayer.type,
     })

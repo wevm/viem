@@ -5,7 +5,13 @@ import { parseUnits } from 'viem'
 import { getCode, writeContractSync } from 'viem/actions'
 import { Abis, Addresses, TokenIds } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
-import { accounts, addresses, chain, getClient } from '~test/tempo/config.js'
+import {
+  accounts,
+  addresses,
+  chain,
+  feeToken,
+  getClient,
+} from '~test/tempo/config.js'
 import * as actions from './index.js'
 
 const account = accounts[0]
@@ -14,7 +20,7 @@ const account3 = accounts[2]
 
 const client = getClient({
   account,
-  chain: chain.extend({ feeToken: addresses.alphaUsd }),
+  chain: chain.extend({ feeToken }),
 })
 
 describe('approve', () => {
@@ -48,7 +54,7 @@ describe('approve', () => {
     // transfer tokens for gas
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -114,7 +120,7 @@ describe('approve', () => {
     // transfer tokens for gas
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -180,7 +186,7 @@ describe('approve', () => {
     // transfer tokens for gas
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -622,7 +628,7 @@ describe('transfer', () => {
     // Transfer tokens for gas
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -737,14 +743,14 @@ describe('burn', () => {
     // Transfer gas to account2
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
 
     await actions.token.mintSync(client, {
       account: account2,
-      feeToken: addresses.alphaUsd,
+      feeToken,
       token,
       to: client.account.address,
       amount: parseUnits('100', 6),
@@ -802,7 +808,7 @@ describe('pause', () => {
     // Transfer gas
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -869,14 +875,14 @@ describe('pause', () => {
     // Transfer gas to account2
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
 
     await actions.token.pauseSync(client, {
       account: account2,
-      feeToken: addresses.alphaUsd,
+      feeToken,
       token,
     })
 
@@ -971,7 +977,7 @@ describe('unpause', () => {
     // Transfer gas to account2
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -1056,7 +1062,7 @@ describe('unpause', () => {
     // Transfer gas to account2
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -1064,7 +1070,7 @@ describe('unpause', () => {
     // Now account2 should be able to unpause
     await actions.token.unpauseSync(client, {
       account: account2,
-      feeToken: addresses.alphaUsd,
+      feeToken,
       token: address,
     })
 
@@ -1100,14 +1106,14 @@ describe('unpause', () => {
     // Transfer gas to both accounts
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
 
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account3.address, parseUnits('1', 6)],
     })
@@ -1115,7 +1121,7 @@ describe('unpause', () => {
     // Account2 can pause
     await actions.token.pauseSync(client, {
       account: account2,
-      feeToken: addresses.alphaUsd,
+      feeToken,
       token: address,
     })
 
@@ -1130,7 +1136,7 @@ describe('unpause', () => {
     // Account3 can unpause
     await actions.token.unpauseSync(client, {
       account: account3,
-      feeToken: addresses.alphaUsd,
+      feeToken,
       token: address,
     })
 
@@ -1202,7 +1208,7 @@ describe('prepareUpdateQuoteToken', () => {
     // Transfer gas to account2
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -1333,7 +1339,7 @@ describe('finalizeUpdateQuoteToken', () => {
     // Transfer gas to account2
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
