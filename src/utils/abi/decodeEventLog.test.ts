@@ -707,6 +707,41 @@ test('strict', () => {
 })
 
 describe('GitHub repros', () => {
+  describe('https://github.com/wevm/viem/issues/4237', () => {
+    test('mismatch in indexed parameters', () => {
+      const result = decodeEventLog({
+        abi: [
+          {
+            anonymous: false,
+            inputs: [
+              {
+                indexed: true,
+                internalType: 'address',
+                name: 'owner',
+                type: 'address',
+              },
+            ],
+            name: 'AddedOwner',
+            type: 'event',
+          },
+        ],
+        topics: [
+          '0x9465fa0c962cc76958e6373a993326400c1c94f8be2fe3a952adfa7f60b2ea26',
+        ],
+        data: '0x0000000000000000000000007ac4cdaf979c525cccfa9e5a474b0173bd960aad',
+        strict: false,
+      })
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "args": {
+            "owner": "0x7aC4CDAf979c525CcCFa9e5A474B0173bD960aAd",
+          },
+          "eventName": "AddedOwner",
+        }
+      `)
+    })
+  })
+
   describe('https://github.com/wevm/viem/issues/168', () => {
     test('zero data string', () => {
       const result = decodeEventLog({
