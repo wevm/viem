@@ -100,7 +100,7 @@ export namespace getValidators {
 }
 
 /**
- * Gets the owner of the validator config precompile.
+ * Gets the contract owner.
  *
  * @example
  * ```ts
