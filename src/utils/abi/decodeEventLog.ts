@@ -189,7 +189,7 @@ export function decodeEventLog<
               args[nonIndexedInputs[i].name!] = decodedData[dataIndex++]
         }
       } catch (err) {
-        if (strict)
+        if (strict) {
           if (
             err instanceof AbiDecodingDataSizeTooSmallError ||
             err instanceof PositionOutOfBoundsError
@@ -200,7 +200,8 @@ export function decodeEventLog<
               params: inputsToDecode,
               size: size(data),
             })
-        throw err
+          throw err
+        }
       }
     } else if (strict) {
       throw new DecodeLogDataMismatch({
