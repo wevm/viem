@@ -92,13 +92,10 @@ describe.runIf(nodeEnv === 'localnet')('changeStatus', () => {
     const initialStatus = validators[0].active
 
     // Toggle the status
-    const { receipt } = await actions.validator.changeStatusSync(
-      client,
-      {
-        validator: validatorAddress,
-        active: !initialStatus,
-      },
-    )
+    const { receipt } = await actions.validator.changeStatusSync(client, {
+      validator: validatorAddress,
+      active: !initialStatus,
+    })
 
     expect(receipt.status).toBe('success')
 
@@ -155,12 +152,9 @@ describe('get', () => {
 
 describe('getByIndex', () => {
   test('default', async () => {
-    const validatorAddress = await actions.validator.getByIndex(
-      client,
-      {
-        index: 0n,
-      },
-    )
+    const validatorAddress = await actions.validator.getByIndex(client, {
+      index: 0n,
+    })
 
     expect(isAddress(validatorAddress)).toBe(true)
   })
