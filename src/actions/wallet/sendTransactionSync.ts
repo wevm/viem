@@ -93,6 +93,8 @@ export type SendTransactionSyncParameters<
   GetAccountParameter<account, Account | Address, true, true> &
   GetChainParameter<chain, chainOverride> &
   GetTransactionRequestKzgParameter<request> & {
+    /** Whether to assert that the client chain is on the correct chain. @default true */
+    assertChainId?: boolean | undefined
     /** Polling interval (ms) to poll for the transaction receipt. @default client.pollingInterval */
     pollingInterval?: number | undefined
     /** Whether to throw an error if the transaction was detected as reverted. @default true */
@@ -179,6 +181,7 @@ export async function sendTransactionSync<
 ): Promise<SendTransactionSyncReturnType<chain>> {
   const {
     account: account_ = client.account,
+    assertChainId = true,
     chain = client.chain,
     accessList,
     authorizationList,
@@ -234,10 +237,11 @@ export async function sendTransactionSync<
       let chainId: number | undefined
       if (chain !== null) {
         chainId = await getAction(client, getChainId, 'getChainId')({})
-        assertCurrentChain({
-          currentChainId: chainId,
-          chain,
-        })
+        if (assertChainId)
+          assertCurrentChain({
+            currentChainId: chainId,
+            chain,
+          })
       }
 
       const chainFormat = client.chain?.formatters?.transactionRequest?.format
