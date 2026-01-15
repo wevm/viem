@@ -1,5 +1,11 @@
 # viem
 
+## 2.44.4
+
+### Patch Changes
+
+- [#4245](https://github.com/wevm/viem/pull/4245) [`fcd86e90785b101d5f903ffc15478baa4442fe01`](https://github.com/wevm/viem/commit/fcd86e90785b101d5f903ffc15478baa4442fe01) Thanks [@jxom](https://github.com/jxom)! - Added `assertChainId` parameter to `sendTransaction` and `sendTransactionSync` to optionally skip chain ID assertion.
+
 ## 2.44.3
 
 ### Patch Changes
