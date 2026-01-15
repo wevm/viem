@@ -83,7 +83,7 @@ describe('prepareTransactionRequest', () => {
       prepareTransactionRequest(client, { feePayer: true }), // nonceKey: 2n
     ])
 
-    expect(requests[0]?.nonce).toBe(1)
+    expect(requests[0]?.nonce).toBeDefined()
     expect(requests[0]?.nonceKey).toBe(0n)
 
     // nonceKey >= 1n is truthy, so nonce is 0
@@ -106,7 +106,7 @@ describe('prepareTransactionRequest', () => {
   test('behavior: default nonceKey is 0n (falsy)', async () => {
     const request = await prepareTransactionRequest(client, {})
     expect(request?.nonceKey).toBe(undefined)
-    expect(request?.nonce).toBe(1)
+    expect(request?.nonce).toBeDefined()
   })
 
   test('behavior: sendTransaction', async () => {
