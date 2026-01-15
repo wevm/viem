@@ -26,6 +26,7 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../types/chain.js'
+import type { DataSuffix } from '../../types/dataSuffix.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
 import type { Hash } from '../../types/misc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
@@ -39,6 +40,7 @@ import {
   type AssertCurrentChainErrorType,
   assertCurrentChain,
 } from '../../utils/chain/assertCurrentChain.js'
+import { concat } from '../../utils/data/concat.js'
 import {
   type GetTransactionErrorReturnType,
   getTransactionError,
@@ -233,6 +235,15 @@ export async function sendTransactionSync<
       return undefined
     })()
 
+    // Apply client dataSuffix if no action-level dataSuffix was provided
+    const clientDataSuffix = (client as { dataSuffix?: DataSuffix }).dataSuffix
+    const dataSuffixHex =
+      typeof clientDataSuffix === 'string'
+        ? clientDataSuffix
+        : clientDataSuffix?.value
+    const finalData =
+      dataSuffixHex && data ? concat([data, dataSuffixHex]) : data
+
     if (account?.type === 'json-rpc' || account === null) {
       let chainId: number | undefined
       if (chain !== null) {
@@ -256,7 +267,7 @@ export async function sendTransactionSync<
           authorizationList,
           blobs,
           chainId,
-          data,
+          data: finalData,
           gas,
           gasPrice,
           maxFeePerBlobGas,
@@ -353,7 +364,7 @@ export async function sendTransactionSync<
         authorizationList,
         blobs,
         chain,
-        data,
+        data: finalData,
         gas,
         gasPrice,
         maxFeePerBlobGas,
