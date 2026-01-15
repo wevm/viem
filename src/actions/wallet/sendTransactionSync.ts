@@ -93,7 +93,7 @@ export type SendTransactionSyncParameters<
   GetAccountParameter<account, Account | Address, true, true> &
   GetChainParameter<chain, chainOverride> &
   GetTransactionRequestKzgParameter<request> & {
-    /** Whether to assert that the wallet is on the same chain as the transaction. @default true */
+    /** Whether to assert that the client chain is on the correct chain. @default true */
     assertChainId?: boolean | undefined
     /** Polling interval (ms) to poll for the transaction receipt. @default client.pollingInterval */
     pollingInterval?: number | undefined

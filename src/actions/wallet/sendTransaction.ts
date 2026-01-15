@@ -84,7 +84,7 @@ export type SendTransactionParameters<
   GetAccountParameter<account, Account | Address, true, true> &
   GetChainParameter<chain, chainOverride> &
   GetTransactionRequestKzgParameter<request> & {
-    /** Whether to assert that the wallet is on the same chain as the transaction. @default true */
+    /** Whether to assert that the client chain is on the correct chain. @default true */
     assertChainId?: boolean | undefined
   }
 
