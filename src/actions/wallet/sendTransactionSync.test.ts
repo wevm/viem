@@ -1800,3 +1800,135 @@ test('https://github.com/wevm/viem/issues/2721', async () => {
   })
   expect(receipt).toBeDefined()
 })
+
+describe('behavior: client dataSuffix', () => {
+  test('sends transaction with client dataSuffix (hex string)', async () => {
+    await setup()
+
+    let capturedData: string | undefined
+
+    // Create a client with dataSuffix
+    const walletClient = createWalletClient({
+      chain: anvilMainnet.chain,
+      transport: http(anvilMainnet.rpcUrl.http),
+      dataSuffix: '0x12345678',
+    })
+
+    // Override request to capture the data
+    const walletRequest = walletClient.request
+    walletClient.request = async (params: any) => {
+      if (
+        params.method === 'eth_sendTransaction' ||
+        params.method === 'wallet_sendTransaction'
+      ) {
+        capturedData = params.params[0].data
+      }
+      return walletRequest.call(walletClient, params)
+    }
+
+    const baseData = encodeFunctionData({
+      abi: Delegation.abi,
+      functionName: 'execute',
+      args: [
+        [
+          {
+            to: targetAccount.address,
+            data: '0x',
+            value: parseEther('0.001'),
+          },
+        ],
+      ],
+    })
+
+    await sendTransactionSync(walletClient, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      data: baseData,
+      gas: 100_000n,
+    })
+
+    expect(capturedData).toBe(concatHex([baseData, '0x12345678']))
+  })
+
+  test('sends transaction with client dataSuffix (object format)', async () => {
+    await setup()
+
+    let capturedData: string | undefined
+
+    // Create a client with dataSuffix in object format
+    const walletClient = createWalletClient({
+      chain: anvilMainnet.chain,
+      transport: http(anvilMainnet.rpcUrl.http),
+      dataSuffix: { value: '0x12345678', required: true },
+    })
+
+    // Override request to capture the data
+    const walletRequest = walletClient.request
+    walletClient.request = async (params: any) => {
+      if (
+        params.method === 'eth_sendTransaction' ||
+        params.method === 'wallet_sendTransaction'
+      ) {
+        capturedData = params.params[0].data
+      }
+      return walletRequest.call(walletClient, params)
+    }
+
+    const baseData = encodeFunctionData({
+      abi: Delegation.abi,
+      functionName: 'execute',
+      args: [
+        [
+          {
+            to: targetAccount.address,
+            data: '0x',
+            value: parseEther('0.001'),
+          },
+        ],
+      ],
+    })
+
+    await sendTransactionSync(walletClient, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      data: baseData,
+      gas: 100_000n,
+    })
+
+    expect(capturedData).toBe(concatHex([baseData, '0x12345678']))
+  })
+
+  test('sends transaction with client dataSuffix (local account)', async () => {
+    await setup()
+
+    // Create a client with dataSuffix
+    const walletClient = createWalletClient({
+      chain: anvilMainnet.chain,
+      transport: http(anvilMainnet.rpcUrl.http),
+      dataSuffix: '0x12345678',
+    })
+
+    const baseData = encodeFunctionData({
+      abi: Delegation.abi,
+      functionName: 'execute',
+      args: [
+        [
+          {
+            to: targetAccount.address,
+            data: '0x',
+            value: parseEther('0.001'),
+          },
+        ],
+      ],
+    })
+
+    const receipt = await sendTransactionSync(walletClient, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      data: baseData,
+    })
+
+    const tx = await getTransaction(client, { hash: receipt.transactionHash })
+    expect(tx.input).toBe(concatHex([baseData, '0x12345678']))
+  })
+})

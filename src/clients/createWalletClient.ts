@@ -4,6 +4,7 @@ import type { Account } from '../accounts/types.js'
 import type { ErrorType } from '../errors/utils.js'
 import type { ParseAccount } from '../types/account.js'
 import type { Chain } from '../types/chain.js'
+import type { DataSuffix } from '../types/dataSuffix.js'
 import type { RpcSchema, WalletRpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
 import {
@@ -35,7 +36,13 @@ export type WalletClientConfig<
     | 'pollingInterval'
     | 'rpcSchema'
     | 'transport'
-  >
+  > & {
+    /**
+     * Data suffix to append to transaction data.
+     * Useful for transaction attribution or tracking.
+     */
+    dataSuffix?: DataSuffix | undefined
+  }
 >
 
 export type WalletClient<
@@ -52,7 +59,10 @@ export type WalletClient<
       ? [...WalletRpcSchema, ...rpcSchema]
       : WalletRpcSchema,
     WalletActions<chain, account>
-  >
+  > & {
+    /** Data suffix to append to transaction data. */
+    dataSuffix?: DataSuffix | undefined
+  }
 >
 
 export type CreateWalletClientErrorType = CreateClientErrorType | ErrorType
@@ -105,7 +115,12 @@ export function createWalletClient<
 export function createWalletClient(
   parameters: WalletClientConfig,
 ): WalletClient {
-  const { key = 'wallet', name = 'Wallet Client', transport } = parameters
+  const {
+    dataSuffix,
+    key = 'wallet',
+    name = 'Wallet Client',
+    transport,
+  } = parameters
   const client = createClient({
     ...parameters,
     key,
@@ -113,5 +128,5 @@ export function createWalletClient(
     transport,
     type: 'walletClient',
   })
-  return client.extend(walletActions)
+  return Object.assign(client.extend(walletActions), { dataSuffix })
 }

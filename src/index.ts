@@ -1119,6 +1119,7 @@ export type {
   UnionWiden,
   Widen,
 } from './types/contract.js'
+export type { DataSuffix } from './types/dataSuffix.js'
 export type {
   AddEthereumChainParameter,
   BundlerRpcSchema,

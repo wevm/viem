@@ -12,6 +12,7 @@ import type { Account, GetAccountParameter } from '../../types/account.js'
 import type { Call, Calls } from '../../types/calls.js'
 import type { ExtractCapabilities } from '../../types/capabilities.js'
 import type { Chain, DeriveChain } from '../../types/chain.js'
+import type { DataSuffix } from '../../types/dataSuffix.js'
 import type { WalletSendCallsParameters } from '../../types/eip1193.js'
 import type { Hex } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
@@ -108,6 +109,28 @@ export async function sendCalls<
 
   const account = account_ ? parseAccount(account_) : null
 
+  // Get client dataSuffix if exists
+  const clientDataSuffix = (client as { dataSuffix?: DataSuffix }).dataSuffix
+
+  // Build dataSuffix capability from client config if not already in capabilities
+  let finalCapabilities = capabilities
+  if (clientDataSuffix && !capabilities?.dataSuffix) {
+    const dataSuffixValue =
+      typeof clientDataSuffix === 'string'
+        ? clientDataSuffix
+        : clientDataSuffix.value
+    const isRequired =
+      typeof clientDataSuffix === 'object' && clientDataSuffix.required === true
+
+    finalCapabilities = {
+      ...capabilities,
+      dataSuffix: {
+        value: dataSuffixValue,
+        ...(isRequired ? {} : { optional: true }),
+      },
+    }
+  }
+
   const calls = parameters.calls.map((call_: unknown) => {
     const call = call_ as Call
 
@@ -134,7 +157,7 @@ export async function sendCalls<
           {
             atomicRequired: forceAtomic,
             calls,
-            capabilities,
+            capabilities: finalCapabilities,
             chainId: numberToHex(chain!.id),
             from: account?.address,
             id,
@@ -179,8 +202,8 @@ export async function sendCalls<
             'jsonrpcengine: response has no error or result for request',
           ))
     ) {
-      if (capabilities) {
-        const hasNonOptionalCapability = Object.values(capabilities).some(
+      if (finalCapabilities) {
+        const hasNonOptionalCapability = Object.values(finalCapabilities).some(
           (capability) => !capability.optional,
         )
         if (hasNonOptionalCapability) {
