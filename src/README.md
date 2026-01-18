@@ -273,6 +273,50 @@ Check out the following places for more viem-related content:
     <img alt="gemini logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/gemini-light.svg" width="auto" height="50">
   </picture>
 </a>
+## Simple Viem Read Contract Example
+
+This example shows how to use **Viem** to connect to an Ethereum network and read data from a deployed smart contract using a public client.
+
+### Prerequisites
+- Node.js v18+
+- A deployed smart contract with a `greeting()` view function
+- Contract address and ABI
+
+### Example Code
+
+```ts
+import { createPublicClient, http } from "viem";
+import { sepolia } from "viem/chains";
+
+const client = createPublicClient({
+  chain: sepolia,
+  transport: http(),
+});
+
+const contractAddress = "0xYourContractAddressHere";
+
+const abi = [
+  {
+    name: "greeting",
+    type: "function",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "string" }],
+  },
+];
+
+async function readGreeting() {
+  const result = await client.readContract({
+    address: contractAddress,
+    abi,
+    functionName: "greeting",
+  });
+
+  console.log("Greeting:", result);
+}
+
+readGreeting();
+
 
 ## Contributing
 
