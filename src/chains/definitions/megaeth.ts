@@ -15,6 +15,13 @@ export const megaeth = /*#__PURE__*/ defineChain({
       webSocket: ['wss://mainnet.megaeth.com/ws'],
     },
   },
+  blockExplorers: {
+    default: {
+      name: 'Blockscout',
+      url: 'https://megaeth.blockscout.com',
+      apiUrl: 'https://megaeth.blockscout.com/api',
+    },
+  },
   contracts: {
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',

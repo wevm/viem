@@ -20,6 +20,11 @@ export const megaethTestnet = /*#__PURE__*/ defineChain({
       name: 'MegaETH Testnet Explorer',
       url: 'https://www.megaexplorer.xyz/',
     },
+    blockscout: {
+      name: 'Blockscout',
+      url: 'https://megaeth-testnet-v2.blockscout.com',
+      apiUrl: 'https://megaeth-testnet-v2.blockscout.com/api',
+    },
   },
   contracts: {
     multicall3: {
