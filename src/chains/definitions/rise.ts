@@ -23,5 +23,3 @@ export const rise = /*#__PURE__*/ defineChain({
     },
   },
 })
-
-
