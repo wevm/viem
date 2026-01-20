@@ -26,7 +26,6 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../types/chain.js'
-import type { DataSuffix } from '../../types/dataSuffix.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
 import type { Hash } from '../../types/misc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
@@ -236,7 +235,7 @@ export async function sendTransactionSync<
     })()
 
     // Apply client dataSuffix if no action-level dataSuffix was provided
-    const clientDataSuffix = (client as { dataSuffix?: DataSuffix }).dataSuffix
+    const clientDataSuffix = client.dataSuffix
     const dataSuffixHex =
       typeof clientDataSuffix === 'string'
         ? clientDataSuffix

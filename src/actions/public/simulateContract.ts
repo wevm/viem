@@ -17,7 +17,6 @@ import type {
   ContractFunctionReturnType,
   ExtractAbiFunctionForArgs,
 } from '../../types/contract.js'
-import type { DataSuffix } from '../../types/dataSuffix.js'
 import type { Hex } from '../../types/misc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type {
@@ -264,7 +263,7 @@ export async function simulateContract<
   const calldata = encodeFunctionData({ abi, args, functionName })
 
   // Apply client dataSuffix if no action-level dataSuffix was provided
-  const clientDataSuffix = (client as { dataSuffix?: DataSuffix }).dataSuffix
+  const clientDataSuffix = client.dataSuffix
   const dataSuffixHex = dataSuffix
     ? dataSuffix
     : typeof clientDataSuffix === 'string'

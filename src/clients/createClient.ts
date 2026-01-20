@@ -9,6 +9,7 @@ import type { ErrorType } from '../errors/utils.js'
 import type { Account } from '../types/account.js'
 import type { BlockTag } from '../types/block.js'
 import type { Chain } from '../types/chain.js'
+import type { DataSuffix } from '../types/dataSuffix.js'
 import type {
   EIP1193RequestFn,
   EIP1474Methods,
@@ -74,6 +75,11 @@ export type ClientConfig<
     | undefined
   /** Chain for the client. */
   chain?: Chain | undefined | chain
+  /**
+   * Data suffix to append to transaction data.
+   * Useful for transaction attribution or tracking.
+   */
+  dataSuffix?: DataSuffix | undefined
   /** A key for the client. */
   key?: string | undefined
   /** A name for the client. */
@@ -171,6 +177,8 @@ type Client_Base<
   ccipRead?: ClientConfig['ccipRead'] | undefined
   /** Chain for the client. */
   chain: chain
+  /** Data suffix to append to transaction data. */
+  dataSuffix?: DataSuffix | undefined
   /** Default block tag to use for RPC requests. */
   experimental_blockTag?: BlockTag | undefined
   /** A key for the client. */
@@ -232,6 +240,7 @@ export function createClient(parameters: ClientConfig): Client {
     batch,
     chain,
     ccipRead,
+    dataSuffix,
     key = 'base',
     name = 'Base Client',
     type = 'base',
@@ -267,6 +276,7 @@ export function createClient(parameters: ClientConfig): Client {
     cacheTime,
     ccipRead,
     chain,
+    dataSuffix,
     key,
     name,
     pollingInterval,

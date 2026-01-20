@@ -12,7 +12,6 @@ import type { Account, GetAccountParameter } from '../../types/account.js'
 import type { Call, Calls } from '../../types/calls.js'
 import type { ExtractCapabilities } from '../../types/capabilities.js'
 import type { Chain, DeriveChain } from '../../types/chain.js'
-import type { DataSuffix } from '../../types/dataSuffix.js'
 import type { WalletSendCallsParameters } from '../../types/eip1193.js'
 import type { Hex } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
@@ -110,7 +109,7 @@ export async function sendCalls<
   const account = account_ ? parseAccount(account_) : null
 
   // Get client dataSuffix if exists
-  const clientDataSuffix = (client as { dataSuffix?: DataSuffix }).dataSuffix
+  const clientDataSuffix = client.dataSuffix
 
   // Build dataSuffix capability from client config if not already in capabilities
   let finalCapabilities = capabilities

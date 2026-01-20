@@ -15,7 +15,6 @@ import type {
   ContractFunctionParameters,
   GetValue,
 } from '../../types/contract.js'
-import type { DataSuffix } from '../../types/dataSuffix.js'
 import type { Hex } from '../../types/misc.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {
@@ -116,7 +115,7 @@ export async function estimateContractGas<
   } as EncodeFunctionDataParameters)
 
   // Apply client dataSuffix if no action-level dataSuffix was provided
-  const clientDataSuffix = (client as { dataSuffix?: DataSuffix }).dataSuffix
+  const clientDataSuffix = client.dataSuffix
   const dataSuffixHex = dataSuffix
     ? dataSuffix
     : typeof clientDataSuffix === 'string'
