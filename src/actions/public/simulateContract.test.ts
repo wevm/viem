@@ -789,3 +789,75 @@ describe('node errors', () => {
     `)
   })
 })
+
+describe('behavior: client dataSuffix', () => {
+  test('applies client dataSuffix (hex string)', async () => {
+    const clientWithSuffix = Object.assign(
+      anvilMainnet.getClient().extend(publicActions),
+      { dataSuffix: '0x12345678' as const },
+    )
+    const spy = vi.spyOn(clientWithSuffix, 'call')
+
+    const { request } = await simulateContract(clientWithSuffix, {
+      abi: wagmiContractConfig.abi,
+      address: wagmiContractConfig.address,
+      account: accounts[0].address,
+      functionName: 'mint',
+    })
+
+    expect(spy).toHaveBeenCalledWith({
+      account: request.account,
+      batch: false,
+      data: '0x1249c58b12345678',
+      to: wagmiContractConfig.address,
+    })
+    expect(request.dataSuffix).toEqual('0x12345678')
+  })
+
+  test('applies client dataSuffix (object format)', async () => {
+    const clientWithSuffix = Object.assign(
+      anvilMainnet.getClient().extend(publicActions),
+      { dataSuffix: { value: '0x12345678' as const, required: true } },
+    )
+    const spy = vi.spyOn(clientWithSuffix, 'call')
+
+    const { request } = await simulateContract(clientWithSuffix, {
+      abi: wagmiContractConfig.abi,
+      address: wagmiContractConfig.address,
+      account: accounts[0].address,
+      functionName: 'mint',
+    })
+
+    expect(spy).toHaveBeenCalledWith({
+      account: request.account,
+      batch: false,
+      data: '0x1249c58b12345678',
+      to: wagmiContractConfig.address,
+    })
+    expect(request.dataSuffix).toEqual('0x12345678')
+  })
+
+  test('parameter dataSuffix takes precedence over client dataSuffix', async () => {
+    const clientWithSuffix = Object.assign(
+      anvilMainnet.getClient().extend(publicActions),
+      { dataSuffix: '0xaabbccdd' as const },
+    )
+    const spy = vi.spyOn(clientWithSuffix, 'call')
+
+    const { request } = await simulateContract(clientWithSuffix, {
+      abi: wagmiContractConfig.abi,
+      address: wagmiContractConfig.address,
+      account: accounts[0].address,
+      functionName: 'mint',
+      dataSuffix: '0x12345678',
+    })
+
+    expect(spy).toHaveBeenCalledWith({
+      account: request.account,
+      batch: false,
+      data: '0x1249c58b12345678',
+      to: wagmiContractConfig.address,
+    })
+    expect(request.dataSuffix).toEqual('0x12345678')
+  })
+})

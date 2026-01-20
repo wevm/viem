@@ -418,7 +418,7 @@ Data to append to the end of transaction calldata. Useful for adding [transactio
 
 When a simple hex string is provided, the suffix is appended on a best-effort basis. When using the object form with `required: true`, transactions will fail if the suffix cannot be appended.
 
-Applies to `sendTransaction`, `sendTransactionSync`, and `sendCalls` actions.
+Applies to `sendTransaction`, `sendTransactionSync`, `sendCalls`, `simulateContract`, and `estimateContractGas` actions.
 
 ```ts twoslash
 import 'viem/window'

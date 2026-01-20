@@ -17,6 +17,7 @@ import type {
   ContractFunctionReturnType,
   ExtractAbiFunctionForArgs,
 } from '../../types/contract.js'
+import type { DataSuffix } from '../../types/dataSuffix.js'
 import type { Hex } from '../../types/misc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type {
@@ -261,6 +262,15 @@ export async function simulateContract<
     ? parseAccount(callRequest.account)
     : client.account
   const calldata = encodeFunctionData({ abi, args, functionName })
+
+  // Apply client dataSuffix if no action-level dataSuffix was provided
+  const clientDataSuffix = (client as { dataSuffix?: DataSuffix }).dataSuffix
+  const dataSuffixHex = dataSuffix
+    ? dataSuffix
+    : typeof clientDataSuffix === 'string'
+      ? clientDataSuffix
+      : clientDataSuffix?.value
+
   try {
     const { data } = await getAction(
       client,
@@ -268,7 +278,7 @@ export async function simulateContract<
       'call',
     )({
       batch: false,
-      data: `${calldata}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
+      data: `${calldata}${dataSuffixHex ? dataSuffixHex.replace('0x', '') : ''}`,
       to: address,
       ...callRequest,
       account,
@@ -289,7 +299,7 @@ export async function simulateContract<
         abi: minimizedAbi,
         address,
         args,
-        dataSuffix,
+        dataSuffix: dataSuffixHex,
         functionName,
         ...callRequest,
         account,
