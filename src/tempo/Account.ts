@@ -62,7 +62,7 @@ export type Account = OneOf<RootAccount | AccessKeyAccount>
  *
  * @example
  * ```ts
- * import { Account } from 'tempo.ts/viem'
+ * import { Account } from 'viem/tempo'
  *
  * const account = Account.fromHeadlessWebAuthn('0x...')
  * ```
@@ -125,7 +125,7 @@ export declare namespace fromHeadlessWebAuthn {
  *
  * @example
  * ```ts
- * import { Account } from 'tempo.ts/viem'
+ * import { Account } from 'viem/tempo'
  *
  * const account = Account.fromP256('0x...')
  * ```
@@ -167,7 +167,7 @@ export declare namespace fromP256 {
  *
  * @example
  * ```ts
- * import { Account } from 'tempo.ts/viem'
+ * import { Account } from 'viem/tempo'
  *
  * const account = Account.fromSecp256k1('0x...')
  * ```
@@ -215,7 +215,7 @@ export declare namespace fromSecp256k1 {
  * for future use (ie. for future calls to `WebAuthnP256.getCredential`).
  *
  * ```ts
- * import { Account, WebAuthnP256 } from 'tempo.ts/viem'
+ * import { Account, WebAuthnP256 } from 'viem/tempo'
  * import { publicKeyStore } from './store'
  *
  * // 1. Create credential
@@ -240,7 +240,7 @@ export declare namespace fromSecp256k1 {
  * from an external store. The public key is required to derive the account's address.
  *
  * ```ts
- * import { Account, WebAuthnP256 } from 'tempo.ts/viem'
+ * import { Account, WebAuthnP256 } from 'viem/tempo'
  * import { publicKeyStore } from './store'
  *
  * // 1. Get credential
@@ -302,7 +302,7 @@ export declare namespace fromWebAuthnP256 {
  *
  * @example
  * ```ts
- * import { Account } from 'tempo.ts/viem'
+ * import { Account } from 'viem/tempo'
  * import { WebCryptoP256 } from 'ox'
  *
  * const keyPair = await WebCryptoP256.createKeyPair()

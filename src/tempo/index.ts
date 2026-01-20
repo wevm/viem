@@ -10,11 +10,12 @@ export type {
   TxEnvelopeTempo as z_TxEnvelopeTempo,
 } from 'ox/tempo'
 // biome-ignore lint/performance/noBarrelFile: _
-export { Tick } from 'ox/tempo'
+export { Tick, TokenId } from 'ox/tempo'
 export * as Abis from './Abis.js'
 export * as Account from './Account.js'
 export * as Addresses from './Addresses.js'
 export * as Actions from './actions/index.js'
+export * as Capabilities from './Capabilities.js'
 export {
   type Decorator as TempoActions,
   decorator as tempoActions,
@@ -54,6 +55,6 @@ export type {
 } from './Transaction.js'
 export * as Transaction from './Transaction.js'
 export * as Transport from './Transport.js'
-export { withFeePayer } from './Transport.js'
+export { walletNamespaceCompat, withFeePayer } from './Transport.js'
 export * as WebAuthnP256 from './WebAuthnP256.js'
 export * as WebCryptoP256 from './WebCryptoP256.js'

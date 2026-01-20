@@ -1,22 +1,21 @@
-# Agent Guidelines
+---
+name: tempo-codegen
+description: Skill for generating Tempo code.
+---
 
-This document provides guidelines for AI code generation agents working on this codebase.
-
-## Code Generation
-
-### `viem/tempo`
+# Tempo Code Generation
 
 When generating actions (in `src/tempo/actions/`), follow these guidelines.
 
 An example of a generated action set can be found in `src/tempo/actions/token.ts`.
 
-#### Source of Truth
+## Source of Truth
 
 - **All actions must be based on precompile contract specifications** in `test/tempo/docs/specs/`.
 - It could be likely that some interfaces may be inconsistent between the specs (`test/tempo/docs/specs`) and the precompiles (`test/tempo/crates/contracts/src/precompiles`). Always prefer the precompile interfaces over the specs.
 - If the specification is unclear or missing details, **prompt the developer** for guidance rather than making assumptions
 
-#### Documentation Requirements
+## Documentation Requirements
 
 All actions **must include comprehensive JSDoc** with:
 
@@ -57,9 +56,9 @@ Example:
  */
 ```
 
-#### Action Types
+## Action Types
 
-##### Read-Only Actions
+### Read-Only Actions
 
 For view/pure functions that only read state:
 
@@ -67,7 +66,7 @@ For view/pure functions that only read state:
 - Return type should use `ReadContractReturnType`
 - Parameters extend `ReadParameters`
 
-##### Mutate-Based Actions
+### Mutate-Based Actions
 
 For state-changing functions, **both variants must be implemented**:
 
@@ -118,11 +117,11 @@ export async function myActionSync<
 }
 ```
 
-#### Namespace Properties
+## Namespace Properties
 
 All actions **must include** the following components within their namespace:
 
-##### 1. `Parameters` Type
+### 1. `Parameters` Type
 
 ```typescript
 // Read actions
@@ -135,7 +134,7 @@ export type Parameters<
 > = WriteParameters<chain, account> & Args 
 ```
 
-##### 2. `Args` Type
+### 2. `Args` Type
 
 Arguments must be documented with JSDoc.
 
@@ -146,7 +145,7 @@ export type Args = {
 }
 ```
 
-##### 3. `ReturnValue` Type
+### 3. `ReturnValue` Type
 
 ```typescript
 // Read actions
@@ -156,7 +155,7 @@ export type ReturnValue = ReadContractReturnType<typeof Abis.myAbi, 'functionNam
 export type ReturnValue = WriteContractReturnType
 ```
 
-##### 4. `ErrorType` Type (for write actions)
+### 4. `ErrorType` Type (for write actions)
 
 Write actions must include an `ErrorType` export. Use `BaseErrorType` from `viem` as a placeholder with a TODO comment for future exhaustive error typing:
 
@@ -165,7 +164,7 @@ Write actions must include an `ErrorType` export. Use `BaseErrorType` from `viem
 export type ErrorType = BaseErrorType
 ```
 
-##### 5. `call` Function
+### 5. `call` Function
 
 **Required for all actions** - enables composition with other viem actions:
 
@@ -214,7 +213,7 @@ The `call` function enables these use cases:
 - `estimateContractGas` - Estimate gas costs
 - `simulateContract` - Simulate execution
 
-##### 6. `extractEvent` Function (for mutate-based actions)
+### 6. `extractEvent` Function (for mutate-based actions)
 
 **Required for all actions that emit events**:
 
@@ -237,7 +236,7 @@ export function extractEvent(logs: Log[]) {
 }
 ```
 
-##### 7. `inner` Function (for write actions)
+### 7. `inner` Function (for write actions)
 
 ```typescript
 /** @internal */
@@ -259,7 +258,7 @@ export async function inner<
 }
 ```
 
-#### Namespace Structure
+## Namespace Structure
 
 Organize actions using namespace pattern:
 
@@ -277,7 +276,7 @@ export namespace myAction {
 }
 ```
 
-#### Decision-Making
+## Decision-Making
 
 When encountering situations that require judgment:
 
@@ -287,20 +286,20 @@ When encountering situations that require judgment:
 - **Parameter transformations**: Confirm expected input/output formats
 - **Edge cases**: Discuss handling strategy with developer
 
-#### Naming Conventions
+## Naming Conventions
 
 - Action names should match contract function names (in camelCase)
 - Sync variants use `Sync` suffix (e.g., `myActionSync`)
 - Event names in `extractEvent` should match contract event names exactly
 - Namespace components should be exported within the action's namespace
 
-#### Testing
+## Testing
 
 Tests should be co-located with actions in `*action-name*.test.ts` files. Reference contract tests in `test/tempo/crates/precompiles/` for expected behavior. 
 
 See `src/tempo/actions/token.test.ts` for a comprehensive example of test patterns and structure.
 
-##### Test Structure
+### Test Structure
 
 Organize tests by action name with a default test case and behavior-specific tests:
 

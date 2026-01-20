@@ -1093,7 +1093,9 @@ describe('behavior: events with identical selectors', () => {
     expect(parsedLogs).toHaveLength(1)
     expect(parsedLogs[0]).toMatchObject({
       eventName: 'Transfer',
-      args: {},
+      args: {
+        from: '0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357',
+      },
     })
   })
 
@@ -1136,7 +1138,7 @@ describe('behavior: events with identical selectors', () => {
     expect(parsedLogs).toHaveLength(1)
     expect(parsedLogs[0]).toMatchObject({
       eventName: 'Transfer',
-      args: [],
+      args: ['0x9F1fdAb6458c5fc642fa0F4C5af7473C46837357'],
     })
   })
 })

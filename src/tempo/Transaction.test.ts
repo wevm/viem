@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { accounts, getClient } from '~test/tempo/config.js'
+import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import { prepareTransactionRequest, signTransaction } from '../actions/index.js'
 import * as Transaction from './Transaction.js'
 
@@ -73,7 +73,7 @@ describe('deserialize', () => {
   test('behavior: tempo transaction', async () => {
     const request = await prepareTransactionRequest(client, {
       to: '0x0000000000000000000000000000000000000000',
-      feeToken: 1n,
+      feeToken,
     })
     const serialized = await signTransaction(client, request)
     const deserialized = Transaction.deserialize(serialized as `0x76${string}`)
@@ -122,7 +122,7 @@ describe('serialize', () => {
     const serialized = await Transaction.serialize({
       chainId: 1,
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
-      feeToken: 1n,
+      feeToken,
     })
     expect(serialized.startsWith('0x76')).toBe(true)
   })
@@ -132,7 +132,7 @@ describe('serialize', () => {
       {
         chainId: 1,
         calls: [{ to: '0x0000000000000000000000000000000000000000' }],
-        feeToken: 1n,
+        feeToken,
       },
       {
         type: 'secp256k1',

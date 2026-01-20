@@ -63,7 +63,6 @@ describe('without `eth_fillTransaction`', () => {
 
     const block = await getBlock.getBlock(client)
     const {
-      chain,
       maxFeePerGas,
       maxPriorityFeePerGas,
       nonce: _nonce,
@@ -72,7 +71,6 @@ describe('without `eth_fillTransaction`', () => {
       to: targetAccount.address,
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(maxFeePerGas).toEqual(
       (block.baseFeePerGas! * 120n) / 100n + maxPriorityFeePerGas!,
     )
@@ -97,16 +95,14 @@ describe('without `eth_fillTransaction`', () => {
       baseFeePerGas: undefined,
     } as any)
 
-    const {
-      chain,
-      nonce: _nonce,
-      ...request
-    } = await prepareTransactionRequest(client, {
-      account: privateKeyToAccount(sourceAccount.privateKey),
-      to: targetAccount.address,
-      value: parseEther('1'),
-    })
-    expect(chain).toBe(client.chain)
+    const { nonce: _nonce, ...request } = await prepareTransactionRequest(
+      client,
+      {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        value: parseEther('1'),
+      },
+    )
     expect(request).toMatchInlineSnapshot(`
       {
         "account": {
@@ -138,7 +134,6 @@ describe('without `eth_fillTransaction`', () => {
     await setup()
 
     const {
-      chain,
       maxFeePerGas: _maxFeePerGas,
       nonce: _nonce,
       ...rest
@@ -147,7 +142,6 @@ describe('without `eth_fillTransaction`', () => {
       to: targetAccount.address,
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -177,7 +171,6 @@ describe('without `eth_fillTransaction`', () => {
     await setup()
 
     const {
-      chain,
       maxFeePerGas: _maxFeePerGas,
       nonce: _nonce,
       ...rest
@@ -186,7 +179,6 @@ describe('without `eth_fillTransaction`', () => {
       to: targetAccount.address,
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -216,7 +208,6 @@ describe('without `eth_fillTransaction`', () => {
     await setup()
 
     const {
-      chain,
       maxFeePerGas: _maxFeePerGas,
       nonce: _nonce,
       ...rest
@@ -226,7 +217,6 @@ describe('without `eth_fillTransaction`', () => {
       to: targetAccount.address,
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -255,17 +245,13 @@ describe('without `eth_fillTransaction`', () => {
   test('args: nonce', async () => {
     await setup()
 
-    const {
-      chain,
-      maxFeePerGas: _maxFeePerGas,
-      ...rest
-    } = await prepareTransactionRequest(client, {
-      account: privateKeyToAccount(sourceAccount.privateKey),
-      to: targetAccount.address,
-      nonce: 5,
-      value: parseEther('1'),
-    })
-    expect(chain).toBe(client.chain)
+    const { maxFeePerGas: _maxFeePerGas, ...rest } =
+      await prepareTransactionRequest(client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        nonce: 5,
+        value: parseEther('1'),
+      })
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -295,17 +281,15 @@ describe('without `eth_fillTransaction`', () => {
   test('args: gasPrice', async () => {
     await setup()
 
-    const {
-      chain,
-      nonce: _nonce,
-      ...request
-    } = await prepareTransactionRequest(client, {
-      account: privateKeyToAccount(sourceAccount.privateKey),
-      to: targetAccount.address,
-      gasPrice: parseGwei('10'),
-      value: parseEther('1'),
-    })
-    expect(chain).toBe(client.chain)
+    const { nonce: _nonce, ...request } = await prepareTransactionRequest(
+      client,
+      {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        gasPrice: parseGwei('10'),
+        value: parseEther('1'),
+      },
+    )
     expect(request).toMatchInlineSnapshot(`
       {
         "account": {
@@ -334,17 +318,15 @@ describe('without `eth_fillTransaction`', () => {
   test('args: gasPrice (on chain w/ block.baseFeePerGas)', async () => {
     await setup()
 
-    const {
-      chain,
-      nonce: _nonce,
-      ...request
-    } = await prepareTransactionRequest(client, {
-      account: privateKeyToAccount(sourceAccount.privateKey),
-      to: targetAccount.address,
-      gasPrice: parseGwei('10'),
-      value: parseEther('1'),
-    })
-    expect(chain).toBe(client.chain)
+    const { nonce: _nonce, ...request } = await prepareTransactionRequest(
+      client,
+      {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        gasPrice: parseGwei('10'),
+        value: parseEther('1'),
+      },
+    )
     expect(request).toMatchInlineSnapshot(`
       {
         "account": {
@@ -373,17 +355,12 @@ describe('without `eth_fillTransaction`', () => {
   test('args: maxFeePerGas', async () => {
     await setup()
 
-    const {
-      chain,
-      nonce: _nonce,
-      ...rest
-    } = await prepareTransactionRequest(client, {
+    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       maxFeePerGas: parseGwei('100'),
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -451,17 +428,12 @@ describe('without `eth_fillTransaction`', () => {
   test('args: maxPriorityFeePerGas', async () => {
     await setup()
 
-    const {
-      chain,
-      nonce: _nonce,
-      ...rest
-    } = await prepareTransactionRequest(client, {
+    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       maxPriorityFeePerGas: parseGwei('5'),
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -491,17 +463,12 @@ describe('without `eth_fillTransaction`', () => {
   test('args: maxPriorityFeePerGas === 0', async () => {
     await setup()
 
-    const {
-      chain,
-      nonce: _nonce,
-      ...rest
-    } = await prepareTransactionRequest(client, {
+    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       maxPriorityFeePerGas: 0n,
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -552,18 +519,13 @@ describe('without `eth_fillTransaction`', () => {
   test('args: maxFeePerGas + maxPriorityFeePerGas', async () => {
     await setup()
 
-    const {
-      chain,
-      nonce: _nonce,
-      ...rest
-    } = await prepareTransactionRequest(client, {
+    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       maxFeePerGas: parseGwei('10'),
       maxPriorityFeePerGas: parseGwei('5'),
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -613,17 +575,12 @@ describe('without `eth_fillTransaction`', () => {
   test('args: type', async () => {
     await setup()
 
-    const {
-      chain,
-      nonce: _nonce,
-      ...rest
-    } = await prepareTransactionRequest(client, {
+    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       type: 'eip1559',
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -654,7 +611,6 @@ describe('without `eth_fillTransaction`', () => {
     await setup()
 
     const {
-      chain,
       blobs: _blobs,
       nonce: _nonce,
       ...rest
@@ -666,7 +622,6 @@ describe('without `eth_fillTransaction`', () => {
       to: targetAccount.address,
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -704,13 +659,12 @@ describe('without `eth_fillTransaction`', () => {
   test('args: parameters', async () => {
     await setup()
 
-    const { chain, ...result } = await prepareTransactionRequest(client, {
+    const result = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: ['gas'],
       to: targetAccount.address,
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(result).toMatchInlineSnapshot(`
       {
         "account": {
@@ -732,16 +686,12 @@ describe('without `eth_fillTransaction`', () => {
       }
     `)
 
-    const { chain: chain2, ...result2 } = await prepareTransactionRequest(
-      client,
-      {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        parameters: ['gas', 'fees'],
-        to: targetAccount.address,
-        value: parseEther('1'),
-      },
-    )
-    expect(chain2).toBe(client.chain)
+    const result2 = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: ['gas', 'fees'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
     expect(result2).toMatchInlineSnapshot(`
       {
         "account": {
@@ -766,16 +716,12 @@ describe('without `eth_fillTransaction`', () => {
       }
     `)
 
-    const { chain: chain3, ...result3 } = await prepareTransactionRequest(
-      client,
-      {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        parameters: ['gas', 'fees', 'nonce'],
-        to: targetAccount.address,
-        value: parseEther('1'),
-      },
-    )
-    expect(chain3).toBe(client.chain)
+    const result3 = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: ['gas', 'fees', 'nonce'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
     expect(result3).toMatchInlineSnapshot(`
       {
         "account": {
@@ -801,16 +747,12 @@ describe('without `eth_fillTransaction`', () => {
       }
     `)
 
-    const { chain: chain4, ...result4 } = await prepareTransactionRequest(
-      client,
-      {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        parameters: ['gas', 'fees', 'nonce', 'type'],
-        to: targetAccount.address,
-        value: parseEther('1'),
-      },
-    )
-    expect(chain4).toBe(client.chain)
+    const result4 = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: ['gas', 'fees', 'nonce', 'type'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
     expect(result4).toMatchInlineSnapshot(`
       {
         "account": {
@@ -837,7 +779,6 @@ describe('without `eth_fillTransaction`', () => {
     `)
 
     const {
-      chain: chain5,
       blobs: _blobs,
       sidecars,
       ...result5
@@ -850,7 +791,6 @@ describe('without `eth_fillTransaction`', () => {
       to: targetAccount.address,
       value: parseEther('1'),
     })
-    expect(chain5).toBe(client.chain)
     expect(
       sidecars.map(({ blob: _blob, ...rest }) => rest),
     ).toMatchInlineSnapshot(`
@@ -1297,15 +1237,11 @@ describe('with `eth_fillTransaction`', () => {
   test('default', async () => {
     await setup()
 
-    const { chain, ...transactionRequest } = await prepareTransactionRequest(
-      client,
-      {
-        parameters: defaultParameters,
-        to: targetAccount.address,
-        value: parseEther('1'),
-      },
-    )
-    expect(chain).toBe(client.chain)
+    const transactionRequest = await prepareTransactionRequest(client, {
+      parameters: defaultParameters,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
     expect(transactionRequest).toMatchInlineSnapshot(`
       {
         "account": undefined,
@@ -1326,13 +1262,12 @@ describe('with `eth_fillTransaction`', () => {
   test('args: account', async () => {
     await setup()
 
-    const { chain, ...transaction } = await prepareTransactionRequest(client, {
+    const transaction = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: defaultParameters,
       to: targetAccount.address,
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(transaction).toMatchInlineSnapshot(`
       {
         "account": {
@@ -1364,13 +1299,12 @@ describe('with `eth_fillTransaction`', () => {
   test('args: chain', async () => {
     await setup()
 
-    const { chain, ...transaction } = await prepareTransactionRequest(client, {
+    const transaction = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: defaultParameters,
       to: targetAccount.address,
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(transaction).toMatchInlineSnapshot(`
       {
         "account": {
@@ -1402,14 +1336,13 @@ describe('with `eth_fillTransaction`', () => {
   test('args: nonce', async () => {
     await setup()
 
-    const { chain, ...transaction } = await prepareTransactionRequest(client, {
+    const transaction = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: defaultParameters,
       to: targetAccount.address,
       nonce: 5,
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(transaction).toMatchInlineSnapshot(`
       {
         "account": {
@@ -1441,14 +1374,13 @@ describe('with `eth_fillTransaction`', () => {
   test('args: gasPrice', async () => {
     await setup()
 
-    const { chain, ...transaction } = await prepareTransactionRequest(client, {
+    const transaction = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: defaultParameters,
       to: targetAccount.address,
       gasPrice: parseGwei('10'),
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(transaction).toMatchInlineSnapshot(`
       {
         "account": {
@@ -1478,14 +1410,13 @@ describe('with `eth_fillTransaction`', () => {
   test('args: gasPrice (on chain w/ block.baseFeePerGas)', async () => {
     await setup()
 
-    const { chain, ...transaction } = await prepareTransactionRequest(client, {
+    const transaction = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: defaultParameters,
       to: targetAccount.address,
       gasPrice: parseGwei('10'),
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(transaction).toMatchInlineSnapshot(`
       {
         "account": {
@@ -1515,14 +1446,13 @@ describe('with `eth_fillTransaction`', () => {
   test('args: maxFeePerGas', async () => {
     await setup()
 
-    const { chain, ...transaction } = await prepareTransactionRequest(client, {
+    const transaction = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: defaultParameters,
       to: targetAccount.address,
       maxFeePerGas: parseGwei('100'),
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(transaction).toMatchInlineSnapshot(`
       {
         "account": {
@@ -1572,18 +1502,13 @@ describe('with `eth_fillTransaction`', () => {
   test('args: maxPriorityFeePerGas', async () => {
     await setup()
 
-    const {
-      chain,
-      nonce: _nonce,
-      ...rest
-    } = await prepareTransactionRequest(client, {
+    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: defaultParameters,
       to: targetAccount.address,
       maxPriorityFeePerGas: parseGwei('5'),
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -1614,18 +1539,13 @@ describe('with `eth_fillTransaction`', () => {
   test('args: maxPriorityFeePerGas === 0', async () => {
     await setup()
 
-    const {
-      chain,
-      nonce: _nonce,
-      ...rest
-    } = await prepareTransactionRequest(client, {
+    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: defaultParameters,
       to: targetAccount.address,
       maxPriorityFeePerGas: 0n,
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -1656,11 +1576,7 @@ describe('with `eth_fillTransaction`', () => {
   test('args: maxFeePerGas + maxPriorityFeePerGas', async () => {
     await setup()
 
-    const {
-      chain,
-      nonce: _nonce,
-      ...rest
-    } = await prepareTransactionRequest(client, {
+    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: defaultParameters,
       to: targetAccount.address,
@@ -1668,7 +1584,6 @@ describe('with `eth_fillTransaction`', () => {
       maxPriorityFeePerGas: parseGwei('5'),
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -1720,18 +1635,13 @@ describe('with `eth_fillTransaction`', () => {
   test('args: type', async () => {
     await setup()
 
-    const {
-      chain,
-      nonce: _nonce,
-      ...rest
-    } = await prepareTransactionRequest(client, {
+    const { nonce: _nonce, ...rest } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: defaultParameters,
       to: targetAccount.address,
       type: 'eip1559',
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(rest).toMatchInlineSnapshot(`
       {
         "account": {
@@ -1762,13 +1672,12 @@ describe('with `eth_fillTransaction`', () => {
   test('args: parameters', async () => {
     await setup()
 
-    const { chain, ...result } = await prepareTransactionRequest(client, {
+    const result = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       parameters: ['gas'],
       to: targetAccount.address,
       value: parseEther('1'),
     })
-    expect(chain).toBe(client.chain)
     expect(result).toMatchInlineSnapshot(`
       {
         "account": {
@@ -1796,16 +1705,12 @@ describe('with `eth_fillTransaction`', () => {
       }
     `)
 
-    const { chain: chain2, ...result2 } = await prepareTransactionRequest(
-      client,
-      {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        parameters: ['gas', 'fees'],
-        to: targetAccount.address,
-        value: parseEther('1'),
-      },
-    )
-    expect(chain2).toBe(client.chain)
+    const result2 = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: ['gas', 'fees'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
     expect(result2).toMatchInlineSnapshot(`
       {
         "account": {
@@ -1833,16 +1738,12 @@ describe('with `eth_fillTransaction`', () => {
       }
     `)
 
-    const { chain: chain3, ...result3 } = await prepareTransactionRequest(
-      client,
-      {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        parameters: ['gas', 'fees', 'nonce'],
-        to: targetAccount.address,
-        value: parseEther('1'),
-      },
-    )
-    expect(chain3).toBe(client.chain)
+    const result3 = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: ['gas', 'fees', 'nonce'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
     expect(result3).toMatchInlineSnapshot(`
       {
         "account": {
@@ -1870,16 +1771,12 @@ describe('with `eth_fillTransaction`', () => {
       }
     `)
 
-    const { chain: chain4, ...result4 } = await prepareTransactionRequest(
-      client,
-      {
-        account: privateKeyToAccount(sourceAccount.privateKey),
-        parameters: ['gas', 'fees', 'nonce', 'type'],
-        to: targetAccount.address,
-        value: parseEther('1'),
-      },
-    )
-    expect(chain4).toBe(client.chain)
+    const result4 = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: ['gas', 'fees', 'nonce', 'type'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
     expect(result4).toMatchInlineSnapshot(`
       {
         "account": {
@@ -1908,7 +1805,6 @@ describe('with `eth_fillTransaction`', () => {
     `)
 
     const {
-      chain: chain5,
       blobs: _blobs,
       sidecars,
       ...result5
@@ -1921,7 +1817,6 @@ describe('with `eth_fillTransaction`', () => {
       to: targetAccount.address,
       value: parseEther('1'),
     })
-    expect(chain5).toBe(client.chain)
     expect(
       sidecars.map(({ blob: _blob, ...rest }) => rest),
     ).toMatchInlineSnapshot(`

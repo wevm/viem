@@ -159,9 +159,11 @@ export type TransactionType = viem_TransactionType | 'tempo'
 export function getType(
   transaction: Record<string, unknown>,
 ): Transaction['type'] {
+  const account = transaction.account as
+    | { keyType?: string | undefined }
+    | undefined
   if (
-    (transaction.account &&
-      (transaction.account as { keyType?: string })?.keyType !== 'secp256k1') ||
+    (account?.keyType && account.keyType !== 'secp256k1') ||
     typeof transaction.calls !== 'undefined' ||
     typeof transaction.feePayer !== 'undefined' ||
     typeof transaction.feeToken !== 'undefined' ||

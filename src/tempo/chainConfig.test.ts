@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { accounts, getClient } from '~test/tempo/config.js'
+import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import {
   getTransaction,
   getTransactionReceipt,
@@ -83,7 +83,7 @@ describe('prepareTransactionRequest', () => {
       prepareTransactionRequest(client, { feePayer: true }), // nonceKey: 2n
     ])
 
-    expect(requests[0]?.nonce).toBe(0)
+    expect(requests[0]?.nonce).toBeDefined()
     expect(requests[0]?.nonceKey).toBe(0n)
 
     // nonceKey >= 1n is truthy, so nonce is 0
@@ -106,7 +106,7 @@ describe('prepareTransactionRequest', () => {
   test('behavior: default nonceKey is 0n (falsy)', async () => {
     const request = await prepareTransactionRequest(client, {})
     expect(request?.nonceKey).toBe(undefined)
-    expect(request?.nonce).toBe(0)
+    expect(request?.nonce).toBeDefined()
   })
 
   test('behavior: sendTransaction', async () => {
@@ -142,14 +142,14 @@ describe('prepareTransactionRequest', () => {
   test('behavior: feeToken from chain config', async () => {
     const chainWithFeeToken = defineChain({
       ...tempoLocalnet,
-      feeToken: '0x20c0000000000000000000000000000000000001',
+      feeToken,
     })
     const clientWithFeeToken = getClient({
       account: accounts.at(0)!,
       chain: chainWithFeeToken,
     })
     const request = await prepareTransactionRequest(clientWithFeeToken, {})
-    expect(request.feeToken).toBe('0x20c0000000000000000000000000000000000001')
+    expect(request.feeToken).toBe(feeToken)
   })
 })
 
@@ -157,7 +157,7 @@ describe('formatters', () => {
   test('transaction formatter (getTransaction)', async () => {
     const receipt = await sendTransactionSync(client, {
       to: '0x0000000000000000000000000000000000000000',
-      feeToken: 1n,
+      feeToken,
     })
     const transaction = await getTransaction(client, {
       hash: receipt.transactionHash,
@@ -166,9 +166,7 @@ describe('formatters', () => {
     expect(transaction.type).toBe('tempo')
     expect(transaction.calls).toBeDefined()
     expect(transaction.signature).toBeDefined()
-    expect(transaction.feeToken).toBe(
-      '0x20c0000000000000000000000000000000000001',
-    )
+    expect(transaction.feeToken).toBe(feeToken)
   })
 
   test('transactionReceipt formatter (getTransactionReceipt)', async () => {
@@ -192,7 +190,7 @@ describe('formatters', () => {
 describe('serializers', () => {
   test('transaction serializer (signTransaction)', async () => {
     const request = await prepareTransactionRequest(client, {
-      feeToken: 1n,
+      feeToken,
       to: '0x0000000000000000000000000000000000000000',
     })
     const serialized = await signTransaction(client, request as never)

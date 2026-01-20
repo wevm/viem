@@ -59,7 +59,7 @@ async function writeContractSync<
   >,
 ) {
   const [result] = await Promise.all([
-    writeContract(client, { ...parameters, timeout: 5_000 } as never),
+    writeContract(client, parameters),
     (async () => {
       await wait(500)
       await mine({ ...client, mode: 'anvil' } as never, { blocks: 1 })

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { accounts, getClient } from '~test/tempo/config.js'
+import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import {
   estimateGas,
   getTransaction,
@@ -83,41 +83,6 @@ describe('formatTransactionRequest', () => {
     expect(rpc.maxPriorityFeePerGas).toBeUndefined()
   })
 
-  test('behavior: json-rpc account with batch calls throws', () => {
-    expect(() =>
-      Formatters.formatTransactionRequest({
-        chainId: 1,
-        account: {
-          address: '0x0000000000000000000000000000000000000000',
-          type: 'json-rpc',
-        },
-        calls: [
-          { to: '0x0000000000000000000000000000000000000001' },
-          { to: '0x0000000000000000000000000000000000000002' },
-        ],
-      } as never),
-    ).toThrow('Batch calls are not supported with JSON-RPC accounts yet.')
-  })
-
-  test('behavior: json-rpc account with single call clears type', () => {
-    const rpc = Formatters.formatTransactionRequest({
-      chainId: 1,
-      account: {
-        address: '0x0000000000000000000000000000000000000000',
-        type: 'json-rpc',
-      },
-      calls: [
-        {
-          to: '0x0000000000000000000000000000000000000001',
-          data: '0xdeadbeef',
-        },
-      ],
-    } as never)
-    expect(rpc.to).toBe('0x0000000000000000000000000000000000000001')
-    expect(rpc.data).toBe('0xdeadbeef')
-    expect(rpc.type).toBeUndefined()
-  })
-
   test('behavior: unknown account source returns no keyType', () => {
     const rpc = Formatters.formatTransactionRequest({
       chainId: 1,
@@ -138,7 +103,7 @@ describe('formatTransactionRequest', () => {
         to: '0x0000000000000000000000000000000000000001',
         value: 100n,
         data: '0xdeadbeef',
-        feeToken: 1n,
+        feeToken,
       } as never,
       'sendTransaction',
     )
@@ -154,7 +119,7 @@ describe('formatTransactionRequest', () => {
     const rpc = Formatters.formatTransactionRequest(
       {
         chainId: 1,
-        feeToken: 1n,
+        feeToken,
       } as never,
       'sendTransaction',
     )
@@ -168,7 +133,7 @@ describe('formatTransactionRequest', () => {
       {
         chainId: 1,
         data: '0xdeadbeef',
-        feeToken: 1n,
+        feeToken,
       } as never,
       'sendTransaction',
     )
@@ -180,7 +145,7 @@ describe('formatTransactionRequest', () => {
       chainId: 1,
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
       feePayer: true,
-      feeToken: '0x20c0000000000000000000000000000000000001',
+      feeToken,
     } as never)
     expect((rpc as Record<string, unknown>).feeToken).toBeUndefined()
     expect((rpc as Record<string, unknown>).feePayer).toBe(true)

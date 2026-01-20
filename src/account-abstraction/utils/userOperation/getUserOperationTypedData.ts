@@ -33,7 +33,7 @@ export function getUserOperationTypedData(
 ): GetUserOperationTypedDataReturnType {
   const { chainId, entryPointAddress, userOperation } = parameters
 
-  const packedUserOp = toPackedUserOperation(userOperation)
+  const packedUserOp = toPackedUserOperation(userOperation, { forHash: true })
 
   return {
     types,

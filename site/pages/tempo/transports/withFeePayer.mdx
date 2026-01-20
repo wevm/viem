@@ -12,12 +12,12 @@ Creates a transport that routes transactions to a fee payer service when a `feeP
 ```ts twoslash [example.ts]
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { tempoTestnet } from 'viem/chains'
+import { tempoModerato } from 'viem/chains'
 import { withFeePayer } from 'viem/tempo'
  
 const client = createWalletClient({
   account: privateKeyToAccount('0x...'),
-  chain: tempoTestnet,
+  chain: tempoModerato,
   transport: withFeePayer(
     http(),                               // ← Default Transport
     http('https://sponsor.example.com'),  // ← Fee Payer Transport // [!code hl]
@@ -54,12 +54,12 @@ See `server.ts` for the server-side implementation. It uses [`Handler.feePayer` 
 ```ts twoslash [client.ts]
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { tempoTestnet } from 'viem/chains'
+import { tempoModerato } from 'viem/chains'
 import { withFeePayer } from 'viem/tempo'
  
 const client = createWalletClient({
   account: privateKeyToAccount('0x...'),
-  chain: tempoTestnet,
+  chain: tempoModerato,
   transport: withFeePayer(
     http(), 
     http('http://localhost:3000'), 
@@ -77,11 +77,11 @@ const hash = await client.sendTransactionSync({
 import { createServer } from 'node:http'
 import { createClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
-import { tempoTestnet } from 'viem/chains'
+import { tempoModerato } from 'viem/chains'
 import { Handler } from 'tempo.ts/server'
 
 const client = createClient({
-  chain: tempoTestnet.extend({ 
+  chain: tempoModerato.extend({ 
     // Note: the fee payer can specify their own fee token.
     feeToken: '0x20c0000000000000000000000000000000000001'
   }),

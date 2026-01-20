@@ -42,8 +42,8 @@ import { defineCall } from '../internal/utils.js'
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
@@ -116,8 +116,8 @@ export namespace claim {
    * @example
    * ```ts
    * import { createClient, http, walletActions } from 'viem'
-   * import { tempo } from 'tempo.ts/chains'
-   * import { Actions } from 'tempo.ts/viem'
+   * import { tempo } from 'viem/chains'
+   * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
    *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
@@ -165,8 +165,8 @@ export namespace claim {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
@@ -216,43 +216,251 @@ export namespace claimSync {
 }
 
 /**
- * Gets the total reward per second rate for all active streams.
+ * Distributes rewards to opted-in token holders.
  *
- * Returns the current aggregate per-second emission rate scaled by `ACC_PRECISION` (1e18).
- * This value represents the sum of all active reward streams' emission rates.
- * The rate decreases when streams end (via `finalizeStreams`) or are canceled.
+ * This function transfers `amount` of tokens from the caller into the token contract's
+ * reward pool and immediately distributes them to current opted-in holders by increasing
+ * `globalRewardPerToken`.
+ *
+ * Notes:
+ * - Reverts with `InvalidAmount` if `amount == 0`.
+ * - The transfer from caller to pool is subject to TIP-403 policy checks.
  *
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
  *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
- * const rate = await Actions.rewards.getTotalPerSecond(client, {
+ * const hash = await Actions.reward.distribute(client, {
+ *   amount: 100000000000000000000n,
  *   token: '0x20c0000000000000000000000000000000000001',
  * })
  * ```
  *
  * @param client - Client.
  * @param parameters - Parameters.
- * @returns The total reward per second (scaled by 1e18).
+ * @returns The transaction hash.
  */
-export async function getTotalPerSecond<chain extends Chain | undefined>(
+export async function distribute<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: distribute.Parameters<chain, account>,
+): Promise<distribute.ReturnValue> {
+  return distribute.inner(writeContract, client, parameters)
+}
+
+/**
+ * Distributes rewards to opted-in token holders and waits for confirmation.
+ *
+ * This function transfers `amount` of tokens from the caller into the token contract's
+ * reward pool and immediately distributes them to current opted-in holders by increasing
+ * `globalRewardPerToken`.
+ *
+ * Notes:
+ * - Reverts with `InvalidAmount` if `amount == 0`.
+ * - The transfer from caller to pool is subject to TIP-403 policy checks.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   transport: http(),
+ * })
+ *
+ * const { amount, funder, receipt } = await Actions.reward.distributeSync(client, {
+ *   amount: 100000000000000000000n,
+ *   token: '0x20c0000000000000000000000000000000000001',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The funder, amount, and transaction receipt.
+ */
+export async function distributeSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: distributeSync.Parameters<chain, account>,
+): Promise<distributeSync.ReturnValue> {
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await distribute.inner(writeContractSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
+  const { args } = distribute.extractEvent(receipt.logs)
+  return {
+    ...args,
+    receipt,
+  } as never
+}
+
+export namespace distribute {
+  export type Args = {
+    /** The amount of tokens to distribute (must be > 0) */
+    amount: bigint
+    /** The TIP20 token address */
+    token: Address
+  }
+
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+
+  export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof writeContract | typeof writeContractSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const { amount, token, ...rest } = parameters
+    const call = distribute.call({ amount, token })
+    return (await action(client, {
+      ...rest,
+      ...call,
+    } as never)) as never
+  }
+
+  /**
+   * Defines a call to the `distributeReward` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'viem/chains'
+   * import { Actions } from 'viem/tempo'
+   *
+   * const client = createClient({
+   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const hash = await client.sendTransaction({
+   *   calls: [actions.reward.distribute.call({
+   *     amount: 100000000000000000000n,
+   *     token: '0x20c0000000000000000000000000000000000001',
+   *   })],
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { amount, token } = args
+    return defineCall({
+      address: token,
+      abi: Abis.tip20,
+      args: [amount],
+      functionName: 'distributeReward',
+    })
+  }
+
+  /**
+   * Extracts the `RewardDistributed` event from logs.
+   *
+   * @param logs - The logs.
+   * @returns The `RewardDistributed` event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: Abis.tip20,
+      logs,
+      eventName: 'RewardDistributed',
+      strict: true,
+    })
+    if (!log) throw new Error('`RewardDistributed` event not found.')
+    return log
+  }
+}
+
+export declare namespace distributeSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & distribute.Args
+
+  export type ReturnValue = {
+    /** The amount distributed */
+    amount: bigint
+    /** The address that funded the distribution */
+    funder: Address
+    /** The transaction receipt */
+    receipt: Awaited<ReturnType<typeof writeContractSync>>
+  }
+
+  export type ErrorType = distribute.ErrorType
+}
+
+/**
+ * Gets the global reward per token value.
+ *
+ * Returns the current global reward per token value scaled by `ACC_PRECISION` (1e18).
+ * This value increases each time rewards are distributed.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   transport: http(),
+ * })
+ *
+ * const rewardPerToken = await Actions.reward.getGlobalRewardPerToken(client, {
+ *   token: '0x20c0000000000000000000000000000000000001',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The global reward per token (scaled by 1e18).
+ */
+export async function getGlobalRewardPerToken<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  parameters: getTotalPerSecond.Parameters,
-): Promise<getTotalPerSecond.ReturnValue> {
+  parameters: getGlobalRewardPerToken.Parameters,
+): Promise<getGlobalRewardPerToken.ReturnValue> {
   return readContract(client, {
     ...parameters,
-    ...getTotalPerSecond.call(parameters),
+    ...getGlobalRewardPerToken.call(parameters),
   })
 }
 
-export namespace getTotalPerSecond {
+export namespace getGlobalRewardPerToken {
   export type Parameters = ReadParameters & Args
 
   export type Args = {
@@ -262,12 +470,12 @@ export namespace getTotalPerSecond {
 
   export type ReturnValue = ReadContractReturnType<
     typeof Abis.tip20,
-    'totalRewardPerSecond',
+    'globalRewardPerToken',
     never
   >
 
   /**
-   * Defines a call to the `totalRewardPerSecond` function.
+   * Defines a call to the `globalRewardPerToken` function.
    *
    * @param args - Arguments.
    * @returns The call.
@@ -278,7 +486,76 @@ export namespace getTotalPerSecond {
       address: token,
       abi: Abis.tip20,
       args: [],
-      functionName: 'totalRewardPerSecond',
+      functionName: 'globalRewardPerToken',
+    })
+  }
+}
+
+/**
+ * Calculates the pending claimable rewards for an account without modifying state.
+ *
+ * Returns the total pending claimable reward amount, including stored balance and newly accrued rewards.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   transport: http(),
+ * })
+ *
+ * const pending = await Actions.reward.getPendingRewards(client, {
+ *   token: '0x20c0000000000000000000000000000000000001',
+ *   account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The total pending claimable reward amount.
+ */
+export async function getPendingRewards<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getPendingRewards.Parameters,
+): Promise<getPendingRewards.ReturnValue> {
+  return readContract(client, {
+    ...parameters,
+    ...getPendingRewards.call(parameters),
+  })
+}
+
+export namespace getPendingRewards {
+  export type Parameters = ReadParameters & Args
+
+  export type Args = {
+    /** The account address to query pending rewards for */
+    account: Address
+    /** The TIP20 token address */
+    token: Address
+  }
+
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.tip20,
+    'getPendingRewards',
+    never
+  >
+
+  /**
+   * Defines a call to the `getPendingRewards` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { account, token } = args
+    return defineCall({
+      address: token,
+      abi: Abis.tip20,
+      args: [account],
+      functionName: 'getPendingRewards',
     })
   }
 }
@@ -295,8 +572,8 @@ export namespace getTotalPerSecond {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
  *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
@@ -371,8 +648,8 @@ export namespace getUserRewardInfo {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
@@ -381,7 +658,7 @@ export namespace getUserRewardInfo {
  *   transport: http(),
  * })
  *
- * const hash = await Actions.rewards.setRecipient(client, {
+ * const hash = await Actions.reward.setRecipient(client, {
  *   recipient: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
  *   token: '0x20c0000000000000000000000000000000000001',
  * })
@@ -416,8 +693,8 @@ export async function setRecipient<
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
  * import { privateKeyToAccount } from 'viem/accounts'
  *
  * const client = createClient({
@@ -426,7 +703,7 @@ export async function setRecipient<
  *   transport: http(),
  * })
  *
- * const { holder, recipient, receipt } = await Actions.rewards.setRecipientSync(client, {
+ * const { holder, recipient, receipt } = await Actions.reward.setRecipientSync(client, {
  *   recipient: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
  *   token: '0x20c0000000000000000000000000000000000001',
  * })
@@ -492,7 +769,7 @@ export namespace setRecipient {
   }
 
   /**
-   * Defines a call to the `setRecipient` function.
+   * Defines a call to the `setRewardRecipient` function.
    *
    * Can be passed as a parameter to:
    * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
@@ -502,8 +779,8 @@ export namespace setRecipient {
    * @example
    * ```ts
    * import { createClient, http, walletActions } from 'viem'
-   * import { tempo } from 'tempo.ts/chains'
-   * import { Actions } from 'tempo.ts/viem'
+   * import { tempo } from 'viem/chains'
+   * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
    *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
@@ -511,7 +788,7 @@ export namespace setRecipient {
    * }).extend(walletActions)
    *
    * const hash = await client.sendTransaction({
-   *   calls: [actions.rewards.setRecipient.call({
+   *   calls: [actions.reward.setRecipient.call({
    *     recipient: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
    *     token: '0x20c0000000000000000000000000000000000001',
    *   })],
@@ -568,247 +845,23 @@ export declare namespace setRecipientSync {
 }
 
 /**
- * Starts a new reward stream that distributes tokens to opted-in holders.
- *
- * Behavior:
- * - Transfers `amount` of tokens from the caller into the token contract's reward pool.
- * - If `seconds == 0`: Immediately distributes `amount` to current opted-in holders by increasing `rewardPerTokenStored`.
- *   Returns stream ID `0`. Distribution occurs when holders interact with the token (transfers, etc.).
- * - If `seconds > 0`: Starts a linear stream that emits evenly from `block.timestamp` to `block.timestamp + seconds`.
- *   Returns a unique stream ID for later cancellation.
- *
- * Notes:
- * - Reverts with `InvalidAmount` if `amount == 0`.
- * - Allowed even when `optedInSupply == 0` (tokens distributed while no one is opted in are locked permanently).
- * - The transfer from caller to pool is subject to TIP-403 policy checks.
+ * Watches for reward distributed events.
  *
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
- * import { privateKeyToAccount } from 'viem/accounts'
- *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
- *   transport: http(),
- * })
- *
- * const hash = await Actions.rewards.start(client, {
- *   amount: 100000000000000000000n,
- *   seconds: 86400,
- *   token: '0x20c0000000000000000000000000000000000001',
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns The transaction hash.
- */
-export async function start<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: start.Parameters<chain, account>,
-): Promise<start.ReturnValue> {
-  return start.inner(writeContract, client, parameters)
-}
-
-/**
- * Starts a new reward stream that distributes tokens to opted-in holders and waits for confirmation.
- *
- * Behavior:
- * - Transfers `amount` of tokens from the caller into the token contract's reward pool.
- * - If `seconds == 0`: Immediately distributes `amount` to current opted-in holders by increasing `rewardPerTokenStored`.
- *   Returns stream ID `0`. Distribution occurs when holders interact with the token (transfers, etc.).
- * - If `seconds > 0`: Starts a linear stream that emits evenly from `block.timestamp` to `block.timestamp + seconds`.
- *   Returns a unique stream ID for later cancellation.
- *
- * Notes:
- * - Reverts with `InvalidAmount` if `amount == 0`.
- * - Allowed even when `optedInSupply == 0` (tokens distributed while no one is opted in are locked permanently).
- * - The transfer from caller to pool is subject to TIP-403 policy checks.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
- * import { privateKeyToAccount } from 'viem/accounts'
- *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
- *   transport: http(),
- * })
- *
- * const { id, receipt } = await Actions.rewards.startSync(client, {
- *   amount: 100000000000000000000n,
- *   seconds: 86400,
- *   token: '0x20c0000000000000000000000000000000000001',
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns The stream ID, funder, amount, duration, and transaction receipt.
- */
-export async function startSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: startSync.Parameters<chain, account>,
-): Promise<startSync.ReturnValue> {
-  const { throwOnReceiptRevert = true, ...rest } = parameters
-  const receipt = await start.inner(writeContractSync, client, {
-    ...rest,
-    throwOnReceiptRevert,
-  } as never)
-  const { args } = start.extractEvent(receipt.logs)
-  return {
-    ...args,
-    receipt,
-  } as never
-}
-
-export namespace start {
-  export type Args = {
-    /** The amount of tokens to distribute (must be > 0) */
-    amount: bigint
-    /** The TIP20 token address */
-    token: Address
-  }
-
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
-
-  export type ReturnValue = WriteContractReturnType
-
-  // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
-
-  /** @internal */
-  export async function inner<
-    action extends typeof writeContract | typeof writeContractSync,
-    chain extends Chain | undefined,
-    account extends Account | undefined,
-  >(
-    action: action,
-    client: Client<Transport, chain, account>,
-    parameters: Parameters<chain, account>,
-  ): Promise<ReturnType<action>> {
-    const { amount, token, ...rest } = parameters
-    const call = start.call({ amount, token })
-    return (await action(client, {
-      ...rest,
-      ...call,
-    } as never)) as never
-  }
-
-  /**
-   * Defines a call to the `start` function.
-   *
-   * Can be passed as a parameter to:
-   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
-   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
-   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
-   *
-   * @example
-   * ```ts
-   * import { createClient, http, walletActions } from 'viem'
-   * import { tempo } from 'tempo.ts/chains'
-   * import { Actions } from 'tempo.ts/viem'
-   *
-   * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
-   *   transport: http(),
-   * }).extend(walletActions)
-   *
-   * const hash = await client.sendTransaction({
-   *   calls: [actions.rewards.start.call({
-   *     amount: 100000000000000000000n,
-   *     seconds: 86400,
-   *     token: '0x20c0000000000000000000000000000000000001',
-   *   })],
-   * })
-   * ```
-   *
-   * @param args - Arguments.
-   * @returns The call.
-   */
-  export function call(args: Args) {
-    const { amount, token } = args
-    return defineCall({
-      address: token,
-      abi: Abis.tip20,
-      args: [amount, 0],
-      functionName: 'startReward',
-    })
-  }
-
-  /**
-   * Extracts the `RewardScheduled` event from logs.
-   *
-   * @param logs - The logs.
-   * @returns The `RewardScheduled` event.
-   */
-  export function extractEvent(logs: Log[]) {
-    const [log] = parseEventLogs({
-      abi: Abis.tip20,
-      logs,
-      eventName: 'RewardScheduled',
-      strict: true,
-    })
-    if (!log) throw new Error('`RewardScheduled` event not found.')
-    return log
-  }
-}
-
-export declare namespace startSync {
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & start.Args
-
-  export type ReturnValue = {
-    /** The total amount allocated to the stream */
-    amount: bigint
-    /** The duration of the stream in seconds (0 for immediate distributions) */
-    durationSeconds: number
-    /** The address that funded the stream */
-    funder: Address
-    /** The unique stream ID (0 for immediate distributions, >0 for streaming distributions) */
-    id: bigint
-    /** The transaction receipt */
-    receipt: Awaited<ReturnType<typeof writeContractSync>>
-  }
-
-  export type ErrorType = start.ErrorType
-}
-
-/**
- * Watches for reward scheduled events.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
  *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
- * const unwatch = Actions.reward.watchRewardScheduled(client, {
+ * const unwatch = Actions.reward.watchRewardDistributed(client, {
  *   token: '0x20c0000000000000000000000000000000000001',
- *   onRewardScheduled: (args, log) => {
- *     console.log('Reward scheduled:', args)
+ *   onRewardDistributed: (args, log) => {
+ *     console.log('Reward distributed:', args)
  *   },
  * })
  * ```
@@ -817,30 +870,30 @@ export declare namespace startSync {
  * @param parameters - Parameters.
  * @returns A function to unsubscribe from the event.
  */
-export function watchRewardScheduled<
+export function watchRewardDistributed<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: watchRewardScheduled.Parameters,
+  parameters: watchRewardDistributed.Parameters,
 ) {
-  const { onRewardScheduled, token, ...rest } = parameters
+  const { onRewardDistributed, token, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
     address: token,
     abi: Abis.tip20,
-    eventName: 'RewardScheduled',
+    eventName: 'RewardDistributed',
     onLogs: (logs) => {
-      for (const log of logs) onRewardScheduled(log.args, log)
+      for (const log of logs) onRewardDistributed(log.args, log)
     },
     strict: true,
   })
 }
 
-export declare namespace watchRewardScheduled {
+export declare namespace watchRewardDistributed {
   export type Args = GetEventArgs<
     typeof Abis.tip20,
-    'RewardScheduled',
+    'RewardDistributed',
     { IndexedOnly: false; Required: true }
   >
 
@@ -848,16 +901,16 @@ export declare namespace watchRewardScheduled {
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof Abis.tip20, 'RewardScheduled'>,
+    ExtractAbiItem<typeof Abis.tip20, 'RewardDistributed'>,
     true
   >
 
   export type Parameters = UnionOmit<
-    WatchContractEventParameters<typeof Abis.tip20, 'RewardScheduled', true>,
+    WatchContractEventParameters<typeof Abis.tip20, 'RewardDistributed', true>,
     'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
   > & {
-    /** Callback to invoke when rewards are scheduled. */
-    onRewardScheduled: (args: Args, log: Log) => void
+    /** Callback to invoke when rewards are distributed. */
+    onRewardDistributed: (args: Args, log: Log) => void
     /** The TIP20 token address */
     token: Address
   }
@@ -871,8 +924,8 @@ export declare namespace watchRewardScheduled {
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
  *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })

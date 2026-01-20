@@ -1809,6 +1809,10 @@ export const sidebar = {
             link: '/tempo/chains',
           },
           {
+            text: 'Transactions',
+            link: '/tempo/transactions',
+          },
+          {
             text: 'Tempo Docs & Guides',
             link: 'https://docs.tempo.xyz',
           },
@@ -1875,10 +1879,6 @@ export const sidebar = {
                 link: '/tempo/actions/amm.watchBurn',
               },
               {
-                text: 'watchFeeSwap',
-                link: '/tempo/actions/amm.watchFeeSwap',
-              },
-              {
                 text: 'watchMint',
                 link: '/tempo/actions/amm.watchMint',
               },
@@ -1913,14 +1913,6 @@ export const sidebar = {
               {
                 text: 'getNonce',
                 link: '/tempo/actions/nonce.getNonce',
-              },
-              {
-                text: 'getNonceKeyCount',
-                link: '/tempo/actions/nonce.getNonceKeyCount',
-              },
-              {
-                text: 'watchActiveKeyCountChanged',
-                link: '/tempo/actions/nonce.watchActiveKeyCountChanged',
               },
               {
                 text: 'watchNonceIncremented',
@@ -1993,8 +1985,16 @@ export const sidebar = {
                 link: '/tempo/actions/reward.claim',
               },
               {
-                text: 'getTotalPerSecond',
-                link: '/tempo/actions/reward.getTotalPerSecond',
+                text: 'distribute',
+                link: '/tempo/actions/reward.distribute',
+              },
+              {
+                text: 'getGlobalRewardPerToken',
+                link: '/tempo/actions/reward.getGlobalRewardPerToken',
+              },
+              {
+                text: 'getPendingRewards',
+                link: '/tempo/actions/reward.getPendingRewards',
               },
               {
                 text: 'getUserRewardInfo',
@@ -2005,21 +2005,17 @@ export const sidebar = {
                 link: '/tempo/actions/reward.setRecipient',
               },
               {
-                text: 'start',
-                link: '/tempo/actions/reward.start',
+                text: 'watchRewardDistributed',
+                link: '/tempo/actions/reward.watchRewardDistributed',
               },
               {
                 text: 'watchRewardRecipientSet',
                 link: '/tempo/actions/reward.watchRewardRecipientSet',
               },
-              {
-                text: 'watchRewardScheduled',
-                link: '/tempo/actions/reward.watchRewardScheduled',
-              },
             ],
           },
           {
-            text: 'Stablecoin Exchange',
+            text: 'Stablecoin DEX',
             collapsed: true,
             items: [
               {
@@ -2029,6 +2025,10 @@ export const sidebar = {
               {
                 text: 'cancel',
                 link: '/tempo/actions/dex.cancel',
+              },
+              {
+                text: 'cancelStale',
+                link: '/tempo/actions/dex.cancelStale',
               },
               {
                 text: 'createPair',
@@ -2191,6 +2191,56 @@ export const sidebar = {
               {
                 text: 'watchTransfer',
                 link: '/tempo/actions/token.watchTransfer',
+              },
+            ],
+          },
+          {
+            text: 'Validator',
+            collapsed: true,
+            items: [
+              {
+                text: 'add',
+                link: '/tempo/actions/validator.add',
+              },
+              {
+                text: 'changeOwner',
+                link: '/tempo/actions/validator.changeOwner',
+              },
+              {
+                text: 'changeStatus',
+                link: '/tempo/actions/validator.changeStatus',
+              },
+              {
+                text: 'get',
+                link: '/tempo/actions/validator.get',
+              },
+              {
+                text: 'getByIndex',
+                link: '/tempo/actions/validator.getByIndex',
+              },
+              {
+                text: 'getCount',
+                link: '/tempo/actions/validator.getCount',
+              },
+              {
+                text: 'getNextFullDkgCeremony',
+                link: '/tempo/actions/validator.getNextFullDkgCeremony',
+              },
+              {
+                text: 'getOwner',
+                link: '/tempo/actions/validator.getOwner',
+              },
+              {
+                text: 'list',
+                link: '/tempo/actions/validator.list',
+              },
+              {
+                text: 'setNextFullDkgCeremony',
+                link: '/tempo/actions/validator.setNextFullDkgCeremony',
+              },
+              {
+                text: 'update',
+                link: '/tempo/actions/validator.update',
               },
             ],
           },

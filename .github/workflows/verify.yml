@@ -147,7 +147,9 @@ jobs:
     strategy:
       matrix:
         node-env: 
+          # - devnet
           - testnet
+          - mainnet
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
@@ -165,6 +167,7 @@ jobs:
           command: pnpm test --bail=1 --project tempo e2e
         env:
           CI: true
+          VITE_TEMPO_CREDENTIALS: ${{ secrets.VITE_TEMPO_CREDENTIALS }}
           VITE_TEMPO_ENV: ${{ matrix.node-env }}
 
   test-envs:
@@ -280,6 +283,10 @@ jobs:
 
       - name: Check types
         run: pnpm check:types
+        working-directory: ./wagmi
+
+      - name: Bench types
+        run: pnpm bench:types
         working-directory: ./wagmi
 
       - name: Check build

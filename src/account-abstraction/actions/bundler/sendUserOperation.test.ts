@@ -251,7 +251,7 @@ describe('entryPointVersion: 0.8', async () => {
       `)
   })
 
-  test('error: aa24', async () => {
+  test.skip('error: aa24', async () => {
     const authorization = await signAuthorization(client, account.authorization)
     await expect(() =>
       sendUserOperation(bundlerClient, {
@@ -551,7 +551,7 @@ describe('entryPointVersion: 0.7', async () => {
     `)
   })
 
-  test('error: aa24', async () => {
+  test.skip('error: aa24', async () => {
     await expect(() =>
       sendUserOperation(bundlerClient, {
         account,

@@ -1,5 +1,125 @@
 # viem
 
+## 2.44.4
+
+### Patch Changes
+
+- [#4245](https://github.com/wevm/viem/pull/4245) [`fcd86e90785b101d5f903ffc15478baa4442fe01`](https://github.com/wevm/viem/commit/fcd86e90785b101d5f903ffc15478baa4442fe01) Thanks [@jxom](https://github.com/jxom)! - Added `assertChainId` parameter to `sendTransaction` and `sendTransactionSync` to optionally skip chain ID assertion.
+
+## 2.44.3
+
+### Patch Changes
+
+- [#4244](https://github.com/wevm/viem/pull/4244) [`73d02fbb61a9fecbe03dfad648e1fe7d61497d3f`](https://github.com/wevm/viem/commit/73d02fbb61a9fecbe03dfad648e1fe7d61497d3f) Thanks [@gorried](https://github.com/gorried)! - `viem/tempo`: Added actions validator tokens on the `actions.fee` namespace.
+
+- [#4243](https://github.com/wevm/viem/pull/4243) [`76f087bfeb7a77bd25e60acade122724e15b5729`](https://github.com/wevm/viem/commit/76f087bfeb7a77bd25e60acade122724e15b5729) Thanks [@gorried](https://github.com/gorried)! - `viem/tempo`: Added `validator` actions.
+
+- [`c90fc03e0d5d80ab12dc4f24295a88549f4df8b7`](https://github.com/wevm/viem/commit/c90fc03e0d5d80ab12dc4f24295a88549f4df8b7) Thanks [@jxom](https://github.com/jxom)! - Improved partial decoding of events, in case indexes are missing.
+
+## 2.44.2
+
+### Patch Changes
+
+- [#4229](https://github.com/wevm/viem/pull/4229) [`ffdc0f11cf3d87c91288d5d6242687e20ae15b42`](https://github.com/wevm/viem/commit/ffdc0f11cf3d87c91288d5d6242687e20ae15b42) Thanks [@frangio](https://github.com/frangio)! - Fixed `hexToNumber` silent error when the value exceeds the safe range.
+
+- [#4227](https://github.com/wevm/viem/pull/4227) [`d235b894009c327145267a48c1739cd865ccf55b`](https://github.com/wevm/viem/commit/d235b894009c327145267a48c1739cd865ccf55b) Thanks [@tomiir](https://github.com/tomiir)! - Added support for ADI_Chain.
+
+- [`51b6bf6d452fbabf7516614e2f0ca976edd3f19a`](https://github.com/wevm/viem/commit/51b6bf6d452fbabf7516614e2f0ca976edd3f19a) Thanks [@jxom](https://github.com/jxom)! - Added `tempo` chain mainnet placeholder.
+
+- [#4211](https://github.com/wevm/viem/pull/4211) [`e5050455f226de77587b0069532e886b520e46c2`](https://github.com/wevm/viem/commit/e5050455f226de77587b0069532e886b520e46c2) Thanks [@akitothemoon](https://github.com/akitothemoon)! - Added zkXPLA network.
+
+- [#4234](https://github.com/wevm/viem/pull/4234) [`4d6349593f21c37fa2e97945521efc011a1bb350`](https://github.com/wevm/viem/commit/4d6349593f21c37fa2e97945521efc011a1bb350) Thanks [@jxom](https://github.com/jxom)! - Added support for embeddable Basic authentication on `http` transport.
+
+## 2.44.1
+
+### Patch Changes
+
+- [#4225](https://github.com/wevm/viem/pull/4225) [`9d0a5a0b345d33c5ae396a81a3df87b66e4ee6b0`](https://github.com/wevm/viem/commit/9d0a5a0b345d33c5ae396a81a3df87b66e4ee6b0) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Bumped gas for `feePayer` + `keyAuthorization` tempo transactions.
+
+## 2.44.0
+
+### Minor Changes
+
+- [#4201](https://github.com/wevm/viem/pull/4201) [`0268ca88c67c7851ae03d8d41508657f2b62729d`](https://github.com/wevm/viem/commit/0268ca88c67c7851ae03d8d41508657f2b62729d) Thanks [@jxom](https://github.com/jxom)! - ### `viem/tempo` Extension
+
+  Added support for Tempo Moderato testnet.
+  - **(Breaking)**: Renamed `tempoTestnet` → `tempoModerato`. The old export is deprecated but still available as an alias.
+  - **(Breaking)**: Renamed `reward.start` → `reward.distribute`: Renamed for distributing rewards (no longer supports streaming).
+  - **(Breaking)**: Renamed `reward.getTotalPerSecond` → `reward.getGlobalRewardPerToken`: Returns the global reward per token value instead of per-second rate.
+  - **(Breaking)**: Renamed `reward.watchRewardScheduled` → `reward.watchRewardDistributed`: Watches for reward distributed events.
+  - **(Breaking)**: Removed `nonce.getNonceKeyCount`.
+  - **(Breaking)**: Removed `nonce.watchActiveKeyCountChanged`.
+  - **(Breaking)**: Removed `amm.watchFeeSwap` (FeeSwap event no longer emitted by protocol).
+  - **(Breaking)**: `OrderPlaced` event now includes `isFlipOrder` and `flipTick` fields. The `FlipOrderPlaced` event has been removed and merged into `OrderPlaced`.
+  - **(Breaking)**: Renamed `Address.stablecoinExchange` → `Address.stablecoinDex`.
+  - **(Breaking)**: Renamed `Abis.stablecoinExchange` → `Abis.stablecoinDex`.
+  - Added `dex.cancelStale` action to cancel stale orders from restricted makers.
+  - Added `salt` parameter to `token.create`.
+
+### Patch Changes
+
+- [`e9967a932db94b62e9bb8fb309865a3104f59788`](https://github.com/wevm/viem/commit/e9967a932db94b62e9bb8fb309865a3104f59788) Thanks [@tmm](https://github.com/tmm)! - Exported missing types for inference.
+
+- [`295bd73bc620f57448d43bcb80acfae3e4562b99`](https://github.com/wevm/viem/commit/295bd73bc620f57448d43bcb80acfae3e4562b99) Thanks [@jxom](https://github.com/jxom)! - Fixed sendTransactionSync timeout propagation.
+
+## 2.43.7
+
+### Patch Changes
+
+- [`1199b07b6fcb61f55902a446078ad62d896d50a0`](https://github.com/wevm/viem/commit/1199b07b6fcb61f55902a446078ad62d896d50a0) Thanks [@jxom](https://github.com/jxom)! - Switched to named `ox/tempo` exports.
+
+## 2.43.6
+
+### Patch Changes
+
+- [#4200](https://github.com/wevm/viem/pull/4200) [`88e877233e488ddc2a29582026db3a876d2b5ba6`](https://github.com/wevm/viem/commit/88e877233e488ddc2a29582026db3a876d2b5ba6) Thanks [@Sharqiewicz](https://github.com/Sharqiewicz)! - Added Paseo PassetHub chain.
+
+- [#4209](https://github.com/wevm/viem/pull/4209) [`8654ffcfdc102b10a84d4626e07c251d9f1a55c1`](https://github.com/wevm/viem/commit/8654ffcfdc102b10a84d4626e07c251d9f1a55c1) Thanks [@jxom](https://github.com/jxom)! - Fixed encoding of `paymasterSignature` in `toPackedUserOperation` to use the correct ERC-4337 format with magic suffix and length prefix.
+
+- [#4185](https://github.com/wevm/viem/pull/4185) [`99421a6c53359626394f41e7b310aa3dc14fdc48`](https://github.com/wevm/viem/commit/99421a6c53359626394f41e7b310aa3dc14fdc48) Thanks [@MrSaints](https://github.com/MrSaints)! - Added Codex chain.
+
+## 2.43.5
+
+### Patch Changes
+
+- [#4203](https://github.com/wevm/viem/pull/4203) [`d4875f4c0ffc191ddb1f11b7acae27e928329bff`](https://github.com/wevm/viem/commit/d4875f4c0ffc191ddb1f11b7acae27e928329bff) Thanks [@o-az](https://github.com/o-az)! - Updated Tempo Devnet chain id to 31318
+
+## 2.43.4
+
+### Patch Changes
+
+- [#4194](https://github.com/wevm/viem/pull/4194) [`16b0819efbf535fd8a287921323380c281c697f7`](https://github.com/wevm/viem/commit/16b0819efbf535fd8a287921323380c281c697f7) Thanks [@0xRenji](https://github.com/0xRenji)! - Fixed `getAbiItem` for overloaded tuples with additional child tuple components beyond the number of args
+
+- [#4193](https://github.com/wevm/viem/pull/4193) [`61ee0cece16abf3d63ad9f569ca683ea9586fb9c`](https://github.com/wevm/viem/commit/61ee0cece16abf3d63ad9f569ca683ea9586fb9c) Thanks [@akitothemoon](https://github.com/akitothemoon)! - Added CpChain network.
+
+- [`892ebea16241fd4403c691022297463e2fad2d5b`](https://github.com/wevm/viem/commit/892ebea16241fd4403c691022297463e2fad2d5b) Thanks [@jxom](https://github.com/jxom)! - Fixed `getUserOperationHash` calculation for EIP-7702 UserOperations.
+
+## 2.43.3
+
+### Patch Changes
+
+- [#4188](https://github.com/wevm/viem/pull/4188) [`0e589b25a209943ea939f6ca6e4c5376c89d8e10`](https://github.com/wevm/viem/commit/0e589b25a209943ea939f6ca6e4c5376c89d8e10) Thanks [@jenpaff](https://github.com/jenpaff)! - Fixed tempo formatter for access keys
+
+- [`53f280a72534259d2f6c06d411b10b9077dd0bff`](https://github.com/wevm/viem/commit/53f280a72534259d2f6c06d411b10b9077dd0bff) Thanks [@jxom](https://github.com/jxom)! - Restored behavior where `chain` was not passed as a return value of `prepareTransactionRequest.
+
+- [`6f0e7c2bb902d0f7eff7ffcc0cf0997be9c15c45`](https://github.com/wevm/viem/commit/6f0e7c2bb902d0f7eff7ffcc0cf0997be9c15c45) Thanks [@tmm](https://github.com/tmm)! - Updated tempo chain config
+
+## 2.43.2
+
+### Patch Changes
+
+- [`e3a110394b9775ee2eb4141526b274a5480b25fb`](https://github.com/wevm/viem/commit/e3a110394b9775ee2eb4141526b274a5480b25fb) Thanks [@jxom](https://github.com/jxom)! - Updated Ox.
+
+- [`5087f50f98b3bd74e5bb9483c7e2c46418395a2d`](https://github.com/wevm/viem/commit/5087f50f98b3bd74e5bb9483c7e2c46418395a2d) Thanks [@jxom](https://github.com/jxom)! - Fixed JSON-RPC account formatting for Tempo transactions.
+
+- [#4173](https://github.com/wevm/viem/pull/4173) [`0e8149f9275a6453d52d9847dd02176e7089ce4e`](https://github.com/wevm/viem/commit/0e8149f9275a6453d52d9847dd02176e7089ce4e) Thanks [@sandyup](https://github.com/sandyup)! - Added Apollo mainnet.
+
+- [#4181](https://github.com/wevm/viem/pull/4181) [`cb2bb89abf311eb2de7b506418e28d500087ca91`](https://github.com/wevm/viem/commit/cb2bb89abf311eb2de7b506418e28d500087ca91) Thanks [@albertov19](https://github.com/albertov19)! - Updated Moonbeam/Moonriver RPC URLs.
+
+- [#4179](https://github.com/wevm/viem/pull/4179) [`0c10bf7a50b7eabf97cd23c88263122c79f775cd`](https://github.com/wevm/viem/commit/0c10bf7a50b7eabf97cd23c88263122c79f775cd) Thanks [@findmytrueself](https://github.com/findmytrueself)! - Added HPP Mainnet & Sepolia
+
+- [#4180](https://github.com/wevm/viem/pull/4180) [`f983ce9ad4eb4d53fd9d952e7e1cff4053ae7100`](https://github.com/wevm/viem/commit/f983ce9ad4eb4d53fd9d952e7e1cff4053ae7100) Thanks [@BigtoMantraDev](https://github.com/BigtoMantraDev)! - rename MANTRA DuKong native coin
+
 ## 2.43.1
 
 ### Patch Changes

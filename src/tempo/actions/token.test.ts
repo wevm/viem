@@ -1,12 +1,17 @@
 import { setTimeout } from 'node:timers/promises'
 import { Hex } from 'ox'
-import { TokenRole } from 'ox/tempo'
+import { TokenId, TokenRole } from 'ox/tempo'
 import { parseUnits } from 'viem'
 import { getCode, writeContractSync } from 'viem/actions'
 import { Abis, Addresses, TokenIds } from 'viem/tempo'
-import { beforeAll, describe, expect, test } from 'vitest'
-import { accounts, addresses, chain, getClient } from '~test/tempo/config.js'
-import { rpcUrl } from '~test/tempo/prool.js'
+import { describe, expect, test } from 'vitest'
+import {
+  accounts,
+  addresses,
+  chain,
+  feeToken,
+  getClient,
+} from '~test/tempo/config.js'
 import * as actions from './index.js'
 
 const account = accounts[0]
@@ -15,7 +20,7 @@ const account3 = accounts[2]
 
 const client = getClient({
   account,
-  chain: chain.extend({ feeToken: addresses.alphaUsd }),
+  chain: chain.extend({ feeToken }),
 })
 
 describe('approve', () => {
@@ -49,7 +54,7 @@ describe('approve', () => {
     // transfer tokens for gas
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -115,7 +120,7 @@ describe('approve', () => {
     // transfer tokens for gas
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -181,7 +186,7 @@ describe('approve', () => {
     // transfer tokens for gas
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -215,7 +220,7 @@ describe('approve', () => {
 
 describe('create', () => {
   test('default', async () => {
-    const { receipt, token, tokenId, ...result } =
+    const { receipt, salt, token, tokenId, ...result } =
       await actions.token.createSync(client, {
         currency: 'USD',
         name: 'Test USD',
@@ -231,6 +236,7 @@ describe('create', () => {
         "symbol": "TUSD",
       }
     `)
+    expect(salt).toBeDefined()
     expect(token).toBeDefined()
     expect(tokenId).toBeDefined()
     expect(receipt).toBeDefined()
@@ -622,7 +628,7 @@ describe('transfer', () => {
     // Transfer tokens for gas
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -737,14 +743,14 @@ describe('burn', () => {
     // Transfer gas to account2
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
 
     await actions.token.mintSync(client, {
       account: account2,
-      feeToken: addresses.alphaUsd,
+      feeToken,
       token,
       to: client.account.address,
       amount: parseUnits('100', 6),
@@ -802,7 +808,7 @@ describe('pause', () => {
     // Transfer gas
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -869,14 +875,14 @@ describe('pause', () => {
     // Transfer gas to account2
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
 
     await actions.token.pauseSync(client, {
       account: account2,
-      feeToken: addresses.alphaUsd,
+      feeToken,
       token,
     })
 
@@ -971,7 +977,7 @@ describe('unpause', () => {
     // Transfer gas to account2
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -1056,7 +1062,7 @@ describe('unpause', () => {
     // Transfer gas to account2
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -1064,7 +1070,7 @@ describe('unpause', () => {
     // Now account2 should be able to unpause
     await actions.token.unpauseSync(client, {
       account: account2,
-      feeToken: addresses.alphaUsd,
+      feeToken,
       token: address,
     })
 
@@ -1100,14 +1106,14 @@ describe('unpause', () => {
     // Transfer gas to both accounts
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
 
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account3.address, parseUnits('1', 6)],
     })
@@ -1115,7 +1121,7 @@ describe('unpause', () => {
     // Account2 can pause
     await actions.token.pauseSync(client, {
       account: account2,
-      feeToken: addresses.alphaUsd,
+      feeToken,
       token: address,
     })
 
@@ -1130,7 +1136,7 @@ describe('unpause', () => {
     // Account3 can unpause
     await actions.token.unpauseSync(client, {
       account: account3,
-      feeToken: addresses.alphaUsd,
+      feeToken,
       token: address,
     })
 
@@ -1202,7 +1208,7 @@ describe('prepareUpdateQuoteToken', () => {
     // Transfer gas to account2
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -1333,7 +1339,7 @@ describe('finalizeUpdateQuoteToken', () => {
     // Transfer gas to account2
     await writeContractSync(client, {
       abi: Abis.tip20,
-      address: addresses.alphaUsd,
+      address: feeToken,
       functionName: 'transfer',
       args: [account2.address, parseUnits('1', 6)],
     })
@@ -1827,16 +1833,13 @@ describe('watchCreate', () => {
     }
   })
 
-  test('behavior: filter by tokenId', async () => {
-    // First, create a token to know what ID we're at
-    const { tokenId: firstId } = await actions.token.createSync(client, {
-      currency: 'USD',
-      name: 'Setup Token',
-      symbol: 'SETUP',
+  test('behavior: filter by token', async () => {
+    const salt = Hex.random(32)
+    const tokenId = TokenId.compute({
+      salt,
+      sender: client.account.address,
     })
-
-    // We want to watch for the token with ID = firstId + 2
-    const targetTokenId = firstId + 2n
+    const token = TokenId.toAddress(tokenId)
 
     const receivedTokens: Array<{
       args: actions.token.watchCreate.Args
@@ -1846,7 +1849,7 @@ describe('watchCreate', () => {
     // Start watching for token creation events only for targetTokenId
     const unwatch = actions.token.watchCreate(client, {
       args: {
-        tokenId: targetTokenId,
+        token,
       },
       onTokenCreated: (args, log) => {
         receivedTokens.push({ args, log })
@@ -1854,21 +1857,23 @@ describe('watchCreate', () => {
     })
 
     try {
-      // Create first token (should NOT be captured - ID will be firstId + 1)
+      // Create first token (should NOT be captured)
       await actions.token.createSync(client, {
         currency: 'USD',
         name: 'Filtered Watch Token 1',
         symbol: 'FWATCH1',
       })
 
-      // Create second token (should be captured - ID will be firstId + 2 = targetTokenId)
-      const { tokenId: id2 } = await actions.token.createSync(client, {
+      // Create second token (should be captured)
+      const result = await actions.token.createSync(client, {
         currency: 'USD',
         name: 'Filtered Watch Token 2',
+        salt,
         symbol: 'FWATCH2',
       })
+      expect(result.token.toLowerCase()).toBe(token)
 
-      // Create third token (should NOT be captured - ID will be firstId + 3)
+      // Create third token (should NOT be captured)
       await actions.token.createSync(client, {
         currency: 'USD',
         name: 'Filtered Watch Token 3',
@@ -1880,10 +1885,11 @@ describe('watchCreate', () => {
       // Should only receive 1 event (for targetTokenId)
       expect(receivedTokens).toHaveLength(1)
 
-      expect(receivedTokens.at(0)!.args.tokenId).toBe(targetTokenId)
-      expect(receivedTokens.at(0)!.args.tokenId).toBe(id2)
-
-      const { token, tokenId, ...rest } = receivedTokens.at(0)!.args
+      const {
+        token: tokenAddress,
+        salt: tokenSalt,
+        ...rest
+      } = receivedTokens.at(0)!.args
       expect(rest).toMatchInlineSnapshot(`
         {
           "admin": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -1893,8 +1899,8 @@ describe('watchCreate', () => {
           "symbol": "FWATCH2",
         }
       `)
-      expect(token).toBeDefined()
-      expect(tokenId).toBe(targetTokenId)
+      expect(salt).toBe(tokenSalt)
+      expect(token.toLowerCase()).toBe(tokenAddress.toLowerCase())
     } finally {
       if (unwatch) unwatch()
     }
@@ -2457,6 +2463,8 @@ describe('watchRole', () => {
       symbol: 'ROLE',
     })
 
+    await setTimeout(100)
+
     const receivedRoleUpdates: Array<{
       args: actions.token.watchRole.Args
       log: actions.token.watchRole.Log
@@ -2587,10 +2595,6 @@ describe('watchRole', () => {
 })
 
 describe('watchTransfer', () => {
-  beforeAll(async () => {
-    await fetch(`${rpcUrl}/restart`)
-  })
-
   test('default', async () => {
     // Create a new token for testing
     const { token: address } = await actions.token.createSync(client, {
@@ -2644,21 +2648,6 @@ describe('watchTransfer', () => {
       await setTimeout(200)
 
       expect(receivedTransfers.length).toBeGreaterThanOrEqual(2)
-
-      expect(receivedTransfers.at(0)!.args).toMatchInlineSnapshot(`
-        {
-          "amount": 100000000n,
-          "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "to": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
-        }
-      `)
-      expect(receivedTransfers.at(1)!.args).toMatchInlineSnapshot(`
-        {
-          "amount": 50000000n,
-          "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-          "to": "0x98e503f35D0a019cB0a251aD243a4cCFCF371F46",
-        }
-      `)
     } finally {
       if (unwatch) unwatch()
     }

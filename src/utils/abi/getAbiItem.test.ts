@@ -449,6 +449,46 @@ test('overloads: tuple', () => {
           stateMutability: 'nonpayable',
           type: 'function',
         },
+        {
+          inputs: [
+            { name: 'foo', type: 'uint256' },
+            {
+              name: 'bar',
+              type: 'tuple',
+              components: [
+                { name: 'a', type: 'string' },
+                {
+                  name: 'b',
+                  type: 'tuple',
+                  components: [
+                    { name: 'merp', type: 'string' },
+                    { name: 'meep', type: 'string' },
+                  ],
+                },
+                {
+                  name: 'c',
+                  type: 'tuple',
+                  components: [
+                    { name: 'merp', type: 'string' },
+                    { name: 'meep', type: 'string' },
+                  ],
+                },
+                {
+                  name: 'd',
+                  type: 'tuple',
+                  components: [
+                    { name: 'merp', type: 'string' },
+                    { name: 'meep', type: 'string' },
+                  ],
+                },
+              ],
+            },
+          ],
+          name: 'foo',
+          outputs: [],
+          stateMutability: 'nonpayable',
+          type: 'function',
+        },
       ],
       name: 'foo',
       args: [

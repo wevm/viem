@@ -10,8 +10,8 @@ export const moonriver = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://moonriver.public.blastapi.io'],
-      webSocket: ['wss://moonriver.public.blastapi.io'],
+      http: ['https://rpc.api.moonriver.moonbeam.network'],
+      webSocket: ['wss://wss.api.moonriver.moonbeam.network'],
     },
   },
   blockExplorers: {

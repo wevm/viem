@@ -3,8 +3,14 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const tempoDevnet = /*#__PURE__*/ defineChain({
   ...chainConfig,
-  id: 1337,
+  id: 31318,
   name: 'Tempo Devnet',
+  blockExplorers: {
+    default: {
+      name: 'Tempo Explorer',
+      url: 'https://explore.devnet.tempo.xyz',
+    },
+  },
   nativeCurrency: {
     name: 'USD',
     symbol: 'USD',
@@ -12,8 +18,8 @@ export const tempoDevnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.devnet.tempo.xyz'],
-      webSocket: ['wss://rpc.devnet.tempo.xyz'],
+      http: ['https://rpc.devnet.tempoxyz.dev'],
+      webSocket: ['wss://rpc.devnet.tempoxyz.dev'],
     },
   },
 })
