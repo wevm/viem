@@ -4,6 +4,7 @@ import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 import { type Chain, mainnet } from '../../chains/index.js'
 import { type Client, createClient } from '../../clients/createClient.js'
+import { createWalletClient } from '../../clients/createWalletClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { custom } from '../../clients/transports/custom.js'
 import { RpcRequestError } from '../../errors/request.js'
@@ -747,8 +748,8 @@ describe('behavior: client dataSuffix', () => {
       | `0x${string}`
       | { value: `0x${string}`; required?: boolean | undefined }
     onRequest({ method, params }: any): void
-  }): Client<Transport, chain> =>
-    createClient({
+  }) =>
+    createWalletClient({
       chain,
       dataSuffix,
       transport: custom({
@@ -760,7 +761,7 @@ describe('behavior: client dataSuffix', () => {
           return null
         },
       }),
-    }) as never
+    })
 
   test('applies client dataSuffix as optional capability (hex string)', async () => {
     const requests: unknown[] = []

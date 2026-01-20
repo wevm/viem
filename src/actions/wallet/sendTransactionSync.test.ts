@@ -1814,16 +1814,16 @@ describe('behavior: client dataSuffix', () => {
       dataSuffix: '0x12345678',
     })
 
-    // Override request to capture the data
-    const walletRequest = walletClient.request
+    // Override request to capture the data and throw to prevent waiting for receipt
     walletClient.request = async (params: any) => {
       if (
         params.method === 'eth_sendTransaction' ||
         params.method === 'wallet_sendTransaction'
       ) {
         capturedData = params.params[0].data
+        throw new Error('Test interception - data captured')
       }
-      return walletRequest.call(walletClient, params)
+      throw new Error('Unexpected method')
     }
 
     const baseData = encodeFunctionData({
@@ -1840,12 +1840,14 @@ describe('behavior: client dataSuffix', () => {
       ],
     })
 
-    await sendTransactionSync(walletClient, {
-      account: sourceAccount.address,
-      to: targetAccount.address,
-      data: baseData,
-      gas: 100_000n,
-    })
+    await expect(
+      sendTransaction(walletClient, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        data: baseData,
+        gas: 100_000n,
+      }),
+    ).rejects.toThrow('Test interception - data captured')
 
     expect(capturedData).toBe(concatHex([baseData, '0x12345678']))
   })
@@ -1862,16 +1864,16 @@ describe('behavior: client dataSuffix', () => {
       dataSuffix: { value: '0x12345678', required: true },
     })
 
-    // Override request to capture the data
-    const walletRequest = walletClient.request
+    // Override request to capture the data and throw to prevent waiting for receipt
     walletClient.request = async (params: any) => {
       if (
         params.method === 'eth_sendTransaction' ||
         params.method === 'wallet_sendTransaction'
       ) {
         capturedData = params.params[0].data
+        throw new Error('Test interception - data captured')
       }
-      return walletRequest.call(walletClient, params)
+      throw new Error('Unexpected method')
     }
 
     const baseData = encodeFunctionData({
@@ -1888,12 +1890,14 @@ describe('behavior: client dataSuffix', () => {
       ],
     })
 
-    await sendTransactionSync(walletClient, {
-      account: sourceAccount.address,
-      to: targetAccount.address,
-      data: baseData,
-      gas: 100_000n,
-    })
+    await expect(
+      sendTransaction(walletClient, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        data: baseData,
+        gas: 100_000n,
+      }),
+    ).rejects.toThrow('Test interception - data captured')
 
     expect(capturedData).toBe(concatHex([baseData, '0x12345678']))
   })
@@ -1922,11 +1926,18 @@ describe('behavior: client dataSuffix', () => {
       ],
     })
 
-    const receipt = await sendTransactionSync(walletClient, {
-      account: privateKeyToAccount(sourceAccount.privateKey),
-      to: targetAccount.address,
-      data: baseData,
-    })
+    // Use Promise.all to mine with the anvil client while waiting for receipt
+    const [receipt] = await Promise.all([
+      sendTransaction(walletClient, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        data: baseData,
+      }),
+      (async () => {
+        await wait(500)
+        await mine(client, { blocks: 1 })
+      })(),
+    ])
 
     const tx = await getTransaction(client, { hash: receipt.transactionHash })
     expect(tx.input).toBe(concatHex([baseData, '0x12345678']))
