@@ -75,10 +75,7 @@ export type ClientConfig<
     | undefined
   /** Chain for the client. */
   chain?: Chain | undefined | chain
-  /**
-   * Data suffix to append to transaction data.
-   * Useful for transaction attribution or tracking.
-   */
+  /** Data suffix to append to transaction data. */
   dataSuffix?: DataSuffix | undefined
   /** A key for the client. */
   key?: string | undefined
