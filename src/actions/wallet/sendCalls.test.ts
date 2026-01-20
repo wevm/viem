@@ -915,4 +915,55 @@ describe('behavior: client dataSuffix', () => {
       ]
     `)
   })
+
+  test('applies client dataSuffix via decorated method (client.sendCalls)', async () => {
+    const requests: unknown[] = []
+
+    const client = getClientWithDataSuffix({
+      dataSuffix: '0x12345678',
+      onRequest({ params }) {
+        requests.push(params)
+      },
+    })
+
+    // Use the decorated method (client.sendCalls) instead of direct function call
+    const response = await client.sendCalls({
+      account: accounts[0].address,
+      chain: mainnet,
+      calls: [
+        {
+          to: accounts[1].address,
+          value: parseEther('1'),
+        },
+      ],
+    })
+
+    expect(response.id).toBeDefined()
+    expect(requests).toMatchInlineSnapshot(`
+      [
+        [
+          {
+            "atomicRequired": false,
+            "calls": [
+              {
+                "data": undefined,
+                "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+                "value": "0xde0b6b3a7640000",
+              },
+            ],
+            "capabilities": {
+              "dataSuffix": {
+                "optional": true,
+                "value": "0x12345678",
+              },
+            },
+            "chainId": "0x1",
+            "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+            "id": undefined,
+            "version": "2.0.0",
+          },
+        ],
+      ]
+    `)
+  })
 })

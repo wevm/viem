@@ -121,12 +121,15 @@ export function createWalletClient(
     name = 'Wallet Client',
     transport,
   } = parameters
-  const client = createClient({
+  const rawClient = createClient({
     ...parameters,
     key,
     name,
     transport,
     type: 'walletClient',
   })
-  return Object.assign(client.extend(walletActions), { dataSuffix })
+  const client = dataSuffix
+    ? Object.assign(rawClient, { dataSuffix })
+    : rawClient
+  return client.extend(walletActions) as WalletClient
 }
