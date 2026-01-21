@@ -395,6 +395,26 @@ const result = await publicClient.request({ // [!code focus]
 }) // [!code focus]
 ```
 
+### dataSuffix (optional)
+
+- **Type:** `Hex | { value: Hex; required?: boolean }`
+
+Data to append to the end of transaction calldata. Useful for adding [transaction attribution](https://oxlib.sh/ercs/erc8021/Attribution).
+
+When a simple hex string is provided, the suffix is appended on a best-effort basis. When using the object form with `required: true`, transactions will fail if the suffix cannot be appended.
+
+Applies to `simulateContract` and `estimateContractGas` actions. For transaction-sending actions like `sendTransaction`, see [Wallet Client](/docs/clients/wallet#datasuffix-optional).
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts:imports]
+// ---cut---
+const publicClient = createPublicClient({
+  chain: mainnet,
+  dataSuffix: '0xdeadbeef', // [!code focus]
+  transport: http(),
+})
+```
+
 ## Live Example
 
 Check out the usage of `createPublicClient` in the live [Public Client Example](https://stackblitz.com/github/wagmi-dev/viem/tree/main/examples/clients_public-client) below.
