@@ -16,6 +16,7 @@ import type { WalletSendCallsParameters } from '../../types/eip1193.js'
 import type { Hex } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
+import { parseClientDataSuffix } from '../../utils/parseClientDataSuffix.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { concat } from '../../utils/data/concat.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
@@ -114,10 +115,7 @@ export async function sendCalls<
   // Build dataSuffix capability from client config if not already in capabilities
   let finalCapabilities = capabilities
   if (clientDataSuffix && !capabilities?.dataSuffix) {
-    const dataSuffixValue =
-      typeof clientDataSuffix === 'string'
-        ? clientDataSuffix
-        : clientDataSuffix.value
+    const dataSuffixValue = parseClientDataSuffix(clientDataSuffix)
     const isRequired =
       typeof clientDataSuffix === 'object' && clientDataSuffix.required === true
 

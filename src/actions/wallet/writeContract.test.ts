@@ -297,12 +297,14 @@ test('args: dataSuffix', async () => {
     functionName: 'mint',
     dataSuffix: '0x12345678',
   })
+  // writeContract passes dataSuffix to sendTransaction, which handles concatenation
   expect(spy).toHaveBeenCalledWith({
     account: {
       address: accounts[0].address,
       type: 'json-rpc',
     },
-    data: '0x1249c58b12345678',
+    data: '0x1249c58b',
+    dataSuffix: '0x12345678',
     to: wagmiContractConfig.address,
   })
 })

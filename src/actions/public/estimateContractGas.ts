@@ -27,6 +27,7 @@ import {
   getContractError,
 } from '../../utils/errors/getContractError.js'
 import { getAction } from '../../utils/getAction.js'
+import { parseClientDataSuffix } from '../../utils/parseClientDataSuffix.js'
 import {
   type EstimateGasErrorType,
   type EstimateGasParameters,
@@ -114,13 +115,7 @@ export async function estimateContractGas<
     functionName,
   } as EncodeFunctionDataParameters)
 
-  // Apply client dataSuffix if no action-level dataSuffix was provided
-  const clientDataSuffix = client.dataSuffix
-  const dataSuffixHex = dataSuffix
-    ? dataSuffix
-    : typeof clientDataSuffix === 'string'
-      ? clientDataSuffix
-      : clientDataSuffix?.value
+  const dataSuffixHex = dataSuffix ?? parseClientDataSuffix(client.dataSuffix)
 
   try {
     const gas = await getAction(

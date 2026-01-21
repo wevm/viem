@@ -39,6 +39,7 @@ import {
   getContractError,
 } from '../../utils/errors/getContractError.js'
 import { getAction } from '../../utils/getAction.js'
+import { parseClientDataSuffix } from '../../utils/parseClientDataSuffix.js'
 import type { WriteContractParameters } from '../wallet/writeContract.js'
 import { type CallErrorType, type CallParameters, call } from './call.js'
 
@@ -262,13 +263,7 @@ export async function simulateContract<
     : client.account
   const calldata = encodeFunctionData({ abi, args, functionName })
 
-  // Apply client dataSuffix if no action-level dataSuffix was provided
-  const clientDataSuffix = client.dataSuffix
-  const dataSuffixHex = dataSuffix
-    ? dataSuffix
-    : typeof clientDataSuffix === 'string'
-      ? clientDataSuffix
-      : clientDataSuffix?.value
+  const dataSuffixHex = dataSuffix ?? parseClientDataSuffix(client.dataSuffix)
 
   try {
     const { data } = await getAction(

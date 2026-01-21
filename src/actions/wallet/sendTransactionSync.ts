@@ -27,7 +27,7 @@ import type {
   GetChainParameter,
 } from '../../types/chain.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
-import type { Hash } from '../../types/misc.js'
+import type { Hash, Hex } from '../../types/misc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {
@@ -56,6 +56,7 @@ import {
   type AssertRequestParameters,
   assertRequest,
 } from '../../utils/transaction/assertRequest.js'
+import { parseClientDataSuffix } from '../../utils/parseClientDataSuffix.js'
 import { type GetChainIdErrorType, getChainId } from '../public/getChainId.js'
 import {
   type WaitForTransactionReceiptErrorType,
@@ -96,6 +97,8 @@ export type SendTransactionSyncParameters<
   GetTransactionRequestKzgParameter<request> & {
     /** Whether to assert that the client chain is on the correct chain. @default true */
     assertChainId?: boolean | undefined
+    /** Data to append to the end of the calldata. Takes precedence over `client.dataSuffix`. */
+    dataSuffix?: Hex | undefined
     /** Polling interval (ms) to poll for the transaction receipt. @default client.pollingInterval */
     pollingInterval?: number | undefined
     /** Whether to throw an error if the transaction was detected as reverted. @default true */
@@ -188,6 +191,7 @@ export async function sendTransactionSync<
     authorizationList,
     blobs,
     data,
+    dataSuffix,
     gas,
     gasPrice,
     maxFeePerBlobGas,
@@ -234,12 +238,9 @@ export async function sendTransactionSync<
       return undefined
     })()
 
-    // Apply client dataSuffix if no action-level dataSuffix was provided
-    const clientDataSuffix = client.dataSuffix
-    const dataSuffixHex =
-      typeof clientDataSuffix === 'string'
-        ? clientDataSuffix
-        : clientDataSuffix?.value
+    // Action-level dataSuffix takes precedence over client.dataSuffix.
+    // If dataSuffix is explicitly passed (even as undefined), it takes precedence.
+    const dataSuffixHex = 'dataSuffix' in parameters ? dataSuffix : parseClientDataSuffix(client.dataSuffix)
     const finalData =
       dataSuffixHex && data ? concat([data, dataSuffixHex]) : data
 
