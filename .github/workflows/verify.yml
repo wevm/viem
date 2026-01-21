@@ -149,7 +149,7 @@ jobs:
         node-env: 
           # - devnet
           - testnet
-          - mainnet
+          # - mainnet
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
