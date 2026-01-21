@@ -197,7 +197,7 @@ export async function sendCalls<
           ))
     ) {
       if (capabilities) {
-      const hasNonOptionalCapability = Object.values(capabilities).some(
+        const hasNonOptionalCapability = Object.values(capabilities).some(
           (capability) => !capability.optional,
         )
         if (hasNonOptionalCapability) {
