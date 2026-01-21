@@ -254,21 +254,21 @@ export async function simulateContract<
     accountOverride
   >
 > {
-  const { abi, address, args, dataSuffix, functionName, ...callRequest } =
-    parameters as SimulateContractParameters
+  const {
+    abi,
+    address,
+    args,
+    functionName,
+    dataSuffix = typeof client.dataSuffix === 'string'
+      ? client.dataSuffix
+      : client.dataSuffix?.value,
+    ...callRequest
+  } = parameters as SimulateContractParameters
 
   const account = callRequest.account
     ? parseAccount(callRequest.account)
     : client.account
   const calldata = encodeFunctionData({ abi, args, functionName })
-
-  // Apply client dataSuffix if no action-level dataSuffix was provided
-  const clientDataSuffix = client.dataSuffix
-  const dataSuffixHex = dataSuffix
-    ? dataSuffix
-    : typeof clientDataSuffix === 'string'
-      ? clientDataSuffix
-      : clientDataSuffix?.value
 
   try {
     const { data } = await getAction(
@@ -277,7 +277,7 @@ export async function simulateContract<
       'call',
     )({
       batch: false,
-      data: `${calldata}${dataSuffixHex ? dataSuffixHex.replace('0x', '') : ''}`,
+      data: `${calldata}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
       to: address,
       ...callRequest,
       account,
@@ -298,7 +298,7 @@ export async function simulateContract<
         abi: minimizedAbi,
         address,
         args,
-        dataSuffix: dataSuffixHex,
+        dataSuffix,
         functionName,
         ...callRequest,
         account,

@@ -106,21 +106,21 @@ export async function estimateContractGas<
   client: Client<Transport, chain, account>,
   parameters: EstimateContractGasParameters<abi, functionName, args, chain>,
 ): Promise<EstimateContractGasReturnType> {
-  const { abi, address, args, functionName, dataSuffix, ...request } =
-    parameters as EstimateContractGasParameters
+  const {
+    abi,
+    address,
+    args,
+    functionName,
+    dataSuffix = typeof client.dataSuffix === 'string'
+      ? client.dataSuffix
+      : client.dataSuffix?.value,
+    ...request
+  } = parameters as EstimateContractGasParameters
   const data = encodeFunctionData({
     abi,
     args,
     functionName,
   } as EncodeFunctionDataParameters)
-
-  // Apply client dataSuffix if no action-level dataSuffix was provided
-  const clientDataSuffix = client.dataSuffix
-  const dataSuffixHex = dataSuffix
-    ? dataSuffix
-    : typeof clientDataSuffix === 'string'
-      ? clientDataSuffix
-      : clientDataSuffix?.value
 
   try {
     const gas = await getAction(
@@ -128,7 +128,7 @@ export async function estimateContractGas<
       estimateGas,
       'estimateGas',
     )({
-      data: `${data}${dataSuffixHex ? dataSuffixHex.replace('0x', '') : ''}`,
+      data: `${data}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
       to: address,
       ...request,
     } as unknown as EstimateGasParameters)

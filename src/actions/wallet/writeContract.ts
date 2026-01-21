@@ -210,7 +210,6 @@ export namespace writeContract {
       account: account_ = client.account,
       address,
       args,
-      dataSuffix,
       functionName,
       ...request
     } = parameters as WriteContractParameters
@@ -233,7 +232,7 @@ export namespace writeContract {
         actionFn as never,
         name,
       )({
-        data: `${data}${dataSuffix ? dataSuffix.replace('0x', '') : ''}`,
+        data,
         to: address,
         account,
         ...request,

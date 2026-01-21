@@ -23,7 +23,7 @@ import type {
   GetChainParameter,
 } from '../../types/chain.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
-import type { Hash } from '../../types/misc.js'
+import type { Hash, Hex } from '../../types/misc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {
@@ -87,6 +87,8 @@ export type SendTransactionParameters<
   GetTransactionRequestKzgParameter<request> & {
     /** Whether to assert that the client chain is on the correct chain. @default true */
     assertChainId?: boolean | undefined
+    /** Data to append to the end of the calldata. Takes precedence over `client.dataSuffix`. */
+    dataSuffix?: Hex | undefined
   }
 
 export type SendTransactionReturnType = Hash
@@ -169,6 +171,9 @@ export async function sendTransaction<
     authorizationList,
     blobs,
     data,
+    dataSuffix = typeof client.dataSuffix === 'string'
+      ? client.dataSuffix
+      : client.dataSuffix?.value,
     gas,
     gasPrice,
     maxFeePerBlobGas,
@@ -211,15 +216,6 @@ export async function sendTransaction<
       return undefined
     })()
 
-    // Apply client dataSuffix if no action-level dataSuffix was provided
-    const clientDataSuffix = client.dataSuffix
-    const dataSuffixHex =
-      typeof clientDataSuffix === 'string'
-        ? clientDataSuffix
-        : clientDataSuffix?.value
-    const finalData =
-      dataSuffixHex && data ? concat([data, dataSuffixHex]) : data
-
     if (account?.type === 'json-rpc' || account === null) {
       let chainId: number | undefined
       if (chain !== null) {
@@ -243,7 +239,7 @@ export async function sendTransaction<
           authorizationList,
           blobs,
           chainId,
-          data: finalData,
+          data: data ? concat([data, dataSuffix ?? '0x']) : data,
           gas,
           gasPrice,
           maxFeePerBlobGas,
@@ -324,7 +320,7 @@ export async function sendTransaction<
         authorizationList,
         blobs,
         chain,
-        data: finalData,
+        data: data ? concat([data, dataSuffix ?? '0x']) : data,
         gas,
         gasPrice,
         maxFeePerBlobGas,
