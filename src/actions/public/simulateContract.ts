@@ -34,6 +34,7 @@ import {
   type EncodeFunctionDataErrorType,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
+import { concat } from '../../utils/data/concat.js'
 import {
   type GetContractErrorReturnType,
   getContractError,
@@ -272,7 +273,7 @@ export async function simulateContract<
       'call',
     )({
       batch: false,
-      data: `${calldata}${dataSuffixHex ? dataSuffixHex.replace('0x', '') : ''}`,
+      data: dataSuffixHex ? concat([calldata, dataSuffixHex]) : calldata,
       to: address,
       ...callRequest,
       account,
