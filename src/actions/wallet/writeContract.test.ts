@@ -297,6 +297,7 @@ test('args: dataSuffix', async () => {
     functionName: 'mint',
     dataSuffix: '0x12345678',
   })
+  // writeContract passes dataSuffix to sendTransaction, which handles concatenation
   expect(spy).toHaveBeenCalledWith({
     account: {
       address: accounts[0].address,
