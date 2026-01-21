@@ -47,6 +47,7 @@ import {
 } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
 import { LruMap } from '../../utils/lru.js'
+import { parseClientDataSuffix } from '../../utils/parseClientDataSuffix.js'
 import {
   type AssertRequestErrorType,
   type AssertRequestParameters,
@@ -62,7 +63,6 @@ import {
   type SendRawTransactionErrorType,
   sendRawTransaction,
 } from './sendRawTransaction.js'
-import { parseClientDataSuffix } from '../../utils/parseClientDataSuffix.js'
 
 const supportsWalletNamespace = new LruMap<boolean>(128)
 
@@ -217,7 +217,10 @@ export async function sendTransaction<
 
     // Action-level dataSuffix takes precedence over client.dataSuffix.
     // If dataSuffix is explicitly passed (even as undefined), it takes precedence.
-    const dataSuffixHex = 'dataSuffix' in parameters ? dataSuffix : parseClientDataSuffix(client.dataSuffix)
+    const dataSuffixHex =
+      'dataSuffix' in parameters
+        ? dataSuffix
+        : parseClientDataSuffix(client.dataSuffix)
 
     const finalData =
       dataSuffixHex && data ? concat([data, dataSuffixHex]) : data

@@ -51,12 +51,12 @@ import {
 } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
 import { LruMap } from '../../utils/lru.js'
+import { parseClientDataSuffix } from '../../utils/parseClientDataSuffix.js'
 import {
   type AssertRequestErrorType,
   type AssertRequestParameters,
   assertRequest,
 } from '../../utils/transaction/assertRequest.js'
-import { parseClientDataSuffix } from '../../utils/parseClientDataSuffix.js'
 import { type GetChainIdErrorType, getChainId } from '../public/getChainId.js'
 import {
   type WaitForTransactionReceiptErrorType,
@@ -240,7 +240,10 @@ export async function sendTransactionSync<
 
     // Action-level dataSuffix takes precedence over client.dataSuffix.
     // If dataSuffix is explicitly passed (even as undefined), it takes precedence.
-    const dataSuffixHex = 'dataSuffix' in parameters ? dataSuffix : parseClientDataSuffix(client.dataSuffix)
+    const dataSuffixHex =
+      'dataSuffix' in parameters
+        ? dataSuffix
+        : parseClientDataSuffix(client.dataSuffix)
     const finalData =
       dataSuffixHex && data ? concat([data, dataSuffixHex]) : data
 

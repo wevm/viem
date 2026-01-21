@@ -1,7 +1,9 @@
-import type { DataSuffix } from "types/dataSuffix.js";
-import type { Hex } from "types/misc.js";
+import type { DataSuffix } from 'types/dataSuffix.js'
+import type { Hex } from 'types/misc.js'
 
-export function parseClientDataSuffix(dataSuffix?: DataSuffix): Hex | undefined {
+export function parseClientDataSuffix(
+  dataSuffix?: DataSuffix,
+): Hex | undefined {
   if (!dataSuffix) {
     return undefined
   }

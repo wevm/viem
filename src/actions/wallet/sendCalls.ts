@@ -16,12 +16,12 @@ import type { WalletSendCallsParameters } from '../../types/eip1193.js'
 import type { Hex } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
-import { parseClientDataSuffix } from '../../utils/parseClientDataSuffix.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { concat } from '../../utils/data/concat.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { getTransactionError } from '../../utils/errors/getTransactionError.js'
+import { parseClientDataSuffix } from '../../utils/parseClientDataSuffix.js'
 import { sendTransaction } from './sendTransaction.js'
 
 export const fallbackMagicIdentifier =
