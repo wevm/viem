@@ -51,7 +51,9 @@ function EmptySlot() {
       rel="noreferrer noopener"
       className="flex items-center justify-center h-[32px] w-[32px] rounded-full border border-dashed border-black/20 dark:border-white/20"
     >
-      <span className="text-black/30 dark:text-white/30 text-[18px] -mt-0.5">+</span>
+      <span className="text-black/30 dark:text-white/30 text-[18px] -mt-0.5">
+        +
+      </span>
       <span className="sr-only">Become a sponsor</span>
     </a>
   )
@@ -77,7 +79,11 @@ export function Sponsors() {
         <div className="text-[15px] text-[#919193] mb-4">Large Enterprise</div>
         <div className="flex flex-wrap gap-6 items-center">
           {sponsors.largeEnterprise.map((sponsor) => (
-            <SponsorLink key={sponsor.name} sponsor={sponsor as Sponsor} size="medium" />
+            <SponsorLink
+              key={sponsor.name}
+              sponsor={sponsor as Sponsor}
+              size="medium"
+            />
           ))}
           <EmptySlot />
         </div>

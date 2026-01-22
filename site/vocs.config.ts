@@ -147,7 +147,7 @@ export default defineConfig({
         moduleResolution: 99,
         baseUrl: '.',
         paths: {
-          'viem': ['../src/index.ts'],
+          viem: ['../src/index.ts'],
           'viem/*': ['../src/*'],
         },
       },

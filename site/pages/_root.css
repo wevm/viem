@@ -24,7 +24,7 @@
   margin-right: auto;
 }
 [data-layout="landing"] main > article {
-  max-width: 1120px !important;
+  max-width: 1120px;
 }
 [data-layout="landing"] article h2 {
   font-size: 2rem;
@@ -33,16 +33,19 @@
 
 /* Override the accent button styling - use !important to override inline style */
 [data-layout="landing"] a.vocs\:inline-flex[href="/docs/getting-started"] {
-  background-color: #ff9318 !important;
+  background-color: #ff9318;
 }
 @media (prefers-color-scheme: dark) {
   [data-layout="landing"] a.vocs\:inline-flex[href="/docs/getting-started"] {
-    background-color: #ffc517 !important;
+    background-color: #ffc517;
   }
 }
-[style*="color-scheme: dark"] [data-layout="landing"] a.vocs\:inline-flex[href="/docs/getting-started"],
-[style*="color-scheme: dark"][data-layout="landing"] a.vocs\:inline-flex[href="/docs/getting-started"] {
-  background-color: #ffc517 !important;
+[style*="color-scheme: dark"]
+  [data-layout="landing"]
+  a.vocs\:inline-flex[href="/docs/getting-started"],
+[style*="color-scheme: dark"][data-layout="landing"]
+  a.vocs\:inline-flex[href="/docs/getting-started"] {
+  background-color: #ffc517;
 }
 
 [data-layout="landing"] .vocs_Button_button {
