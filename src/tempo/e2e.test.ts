@@ -762,7 +762,7 @@ describe('sendTransaction', () => {
           ],
           "data": undefined,
           "feePayerSignature": undefined,
-          "gas": 26406n,
+          "gas": 279422n,
           "maxFeePerBlobGas": undefined,
           "to": null,
           "type": "tempo",
