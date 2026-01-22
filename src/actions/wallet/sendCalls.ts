@@ -97,7 +97,6 @@ export async function sendCalls<
 ): Promise<SendCallsReturnType> {
   const {
     account: account_ = client.account,
-    capabilities,
     chain = client.chain,
     experimental_fallback,
     experimental_fallbackDelay = 32,
@@ -107,6 +106,24 @@ export async function sendCalls<
   } = parameters
 
   const account = account_ ? parseAccount(account_) : null
+
+  let capabilities = parameters.capabilities
+
+  if (client.dataSuffix && !parameters.capabilities?.dataSuffix) {
+    if (typeof client.dataSuffix === 'string')
+      capabilities = {
+        ...parameters.capabilities,
+        dataSuffix: { value: client.dataSuffix, optional: true },
+      }
+    else
+      capabilities = {
+        ...parameters.capabilities,
+        dataSuffix: {
+          value: client.dataSuffix.value,
+          ...(client.dataSuffix.required ? {} : { optional: true }),
+        },
+      }
+  }
 
   const calls = parameters.calls.map((call_: unknown) => {
     const call = call_ as Call

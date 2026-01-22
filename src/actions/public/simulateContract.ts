@@ -254,13 +254,22 @@ export async function simulateContract<
     accountOverride
   >
 > {
-  const { abi, address, args, dataSuffix, functionName, ...callRequest } =
-    parameters as SimulateContractParameters
+  const {
+    abi,
+    address,
+    args,
+    functionName,
+    dataSuffix = typeof client.dataSuffix === 'string'
+      ? client.dataSuffix
+      : client.dataSuffix?.value,
+    ...callRequest
+  } = parameters as SimulateContractParameters
 
   const account = callRequest.account
     ? parseAccount(callRequest.account)
     : client.account
   const calldata = encodeFunctionData({ abi, args, functionName })
+
   try {
     const { data } = await getAction(
       client,
