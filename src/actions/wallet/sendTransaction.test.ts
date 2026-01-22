@@ -1575,7 +1575,7 @@ describe('behavior: client dataSuffix', () => {
 
     // Override request to capture the data
     const walletRequest = walletClient.request
-    walletClient.request = async (params: any) => {
+    ;(walletClient as any).request = async (params: any) => {
       if (
         params.method === 'eth_sendTransaction' ||
         params.method === 'wallet_sendTransaction'
@@ -1623,7 +1623,7 @@ describe('behavior: client dataSuffix', () => {
 
     // Override request to capture the data
     const walletRequest = walletClient.request
-    walletClient.request = async (params: any) => {
+    ;(walletClient as any).request = async (params: any) => {
       if (
         params.method === 'eth_sendTransaction' ||
         params.method === 'wallet_sendTransaction'
