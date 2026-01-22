@@ -253,9 +253,13 @@ test('behavior: contract function does not exist', async () => {
     [
       {
         "data": "0x",
-        "error": [ContractFunctionExecutionError: The contract function "mint" reverted with the following reason:
-    execution failed
+        "error": [ContractFunctionExecutionError: The contract function "mint" returned no data ("0x").
 
+    This could be due to any of the following:
+      - The contract does not have the function "mint",
+      - The parameters passed to the contract function may be invalid, or
+      - The address is not a contract.
+     
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
       function:  mint()
@@ -294,9 +298,13 @@ test('behavior: contract function does not exist', async () => {
     [
       {
         "data": "0x",
-        "error": [ContractFunctionExecutionError: The contract function "<unknown>" reverted with the following reason:
-    execution failed
+        "error": [ContractFunctionExecutionError: The contract function "<unknown>" returned no data ("0x").
 
+    This could be due to any of the following:
+      - The contract does not have the function "<unknown>",
+      - The parameters passed to the contract function may be invalid, or
+      - The address is not a contract.
+     
     Contract Call:
       address:  0x0000000000000000000000000000000000000000
 
@@ -337,7 +345,7 @@ test('behavior: contract revert', async () => {
       {
         "data": "0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011546f6b656e2049442069732074616b656e000000000000000000000000000000",
         "error": [ContractFunctionExecutionError: The contract function "mint" reverted with the following reason:
-    execution failed
+    Token ID is taken
 
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
@@ -352,6 +360,83 @@ test('behavior: contract revert', async () => {
     ]
   `,
   )
+})
+
+test('behavior: decodes error from returnData when error field is absent', async () => {
+  const mockClient = createPublicClient({
+    chain: client.chain,
+    transport: custom({
+      async request({ method }) {
+        if (method === 'eth_simulateV1') {
+          return [
+            {
+              baseFeePerGas: '0x1',
+              blobGasUsed: '0x0',
+              difficulty: '0x0',
+              excessBlobGas: '0x0',
+              extraData: '0x',
+              gasLimit: '0x1c9c380',
+              gasUsed: '0x5208',
+              hash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+              logsBloom: '0x00',
+              miner: '0x0000000000000000000000000000000000000000',
+              mixHash:
+                '0x0000000000000000000000000000000000000000000000000000000000000000',
+              nonce: '0x0000000000000000',
+              number: '0x1',
+              parentHash:
+                '0x0000000000000000000000000000000000000000000000000000000000000000',
+              receiptsRoot:
+                '0x0000000000000000000000000000000000000000000000000000000000000000',
+              sha3Uncles:
+                '0x0000000000000000000000000000000000000000000000000000000000000000',
+              size: '0x0',
+              stateRoot:
+                '0x0000000000000000000000000000000000000000000000000000000000000000',
+              timestamp: '0x0',
+              totalDifficulty: '0x0',
+              transactions: [],
+              transactionsRoot:
+                '0x0000000000000000000000000000000000000000000000000000000000000000',
+              uncles: [],
+              withdrawals: [],
+              withdrawalsRoot:
+                '0x0000000000000000000000000000000000000000000000000000000000000000',
+              calls: [
+                {
+                  status: '0x0',
+                  returnData:
+                    '0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011546f6b656e2049442069732074616b656e000000000000000000000000000000',
+                  gasUsed: '0x5208',
+                  logs: [],
+                },
+              ],
+            },
+          ]
+        }
+        return client.request({ method } as any)
+      },
+    }),
+  })
+
+  const result = await simulateBlocks(mockClient, {
+    blocks: [
+      {
+        calls: [
+          {
+            abi: wagmiContractConfig.abi,
+            functionName: 'mint',
+            to: wagmiContractConfig.address,
+            args: [1n],
+          },
+        ],
+      },
+    ],
+  })
+
+  expect(result[0].calls[0].status).toBe('failure')
+  expect(result[0].calls[0].error).toBeDefined()
+  expect(result[0].calls[0].error?.message).toContain('Token ID is taken')
 })
 
 test('behavior: dataSuffix', async () => {
