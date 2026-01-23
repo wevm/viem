@@ -70,6 +70,8 @@ export type SendUserOperationParameters<
             | undefined
           /** Paymaster context to pass to `getPaymasterData` and `getPaymasterStubData` calls. */
           paymasterContext?: unknown | undefined
+          /** Data to append to the end of User Operation calldata. */
+          dataSuffix?: Hex | undefined
         }
       >
   ) &

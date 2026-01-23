@@ -206,6 +206,8 @@ export type PrepareUserOperationRequest<
 > = Assign<
   UserOperationRequest<_derivedVersion>,
   OneOf<{ calls: Calls<Narrow<calls>> } | { callData: Hex }> & {
+    /** Data to append to the end of User Operation calldata. */
+    dataSuffix?: Hex | undefined
     parameters?: readonly PrepareUserOperationParameterType[] | undefined
     paymaster?:
       | Address
@@ -353,6 +355,16 @@ export async function prepareUserOperation<
   ////////////////////////////////////////////////////////////////////////////////
 
   const bundlerClient = client as unknown as BundlerClient
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // Declare dataSuffix.
+  ////////////////////////////////////////////////////////////////////////////////
+
+  const dataSuffix =
+    parameters.dataSuffix ??
+    (typeof bundlerClient?.dataSuffix === 'string'
+      ? bundlerClient.dataSuffix
+      : bundlerClient?.dataSuffix?.value)
 
   ////////////////////////////////////////////////////////////////////////////////
   // Declare Paymaster properties.
@@ -538,7 +550,10 @@ export async function prepareUserOperation<
   // Fill User Operation with the prepared properties from above.
   ////////////////////////////////////////////////////////////////////////////////
 
-  if (typeof callData !== 'undefined') request.callData = callData
+  if (typeof callData !== 'undefined')
+    request.callData = callData
+      ? concat([callData, dataSuffix ?? '0x'])
+      : callData
   if (typeof factory !== 'undefined')
     request = { ...request, ...(factory as any) }
   if (typeof fees !== 'undefined') request = { ...request, ...(fees as any) }

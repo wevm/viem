@@ -1287,6 +1287,61 @@ describe('entryPointVersion: 0.8', async () => {
     `)
   })
 
+  test('args: dataSuffix', async () => {
+    const request = await prepareUserOperation(bundlerClient, {
+      account,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      dataSuffix: '0xdeadbeef',
+      ...fees,
+    })
+
+    expect(request.callData.endsWith('deadbeef')).toBe(true)
+  })
+
+  test('args: dataSuffix (client-level)', async () => {
+    const bundlerClientWithSuffix = bundlerMainnet.getBundlerClient({
+      client,
+      dataSuffix: '0xcafe',
+    })
+    const request = await prepareUserOperation(bundlerClientWithSuffix, {
+      account,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      ...fees,
+    })
+
+    expect(request.callData.endsWith('cafe')).toBe(true)
+  })
+
+  test('args: dataSuffix (action-level overrides client-level)', async () => {
+    const bundlerClientWithSuffix = bundlerMainnet.getBundlerClient({
+      client,
+      dataSuffix: '0xcafe',
+    })
+    const request = await prepareUserOperation(bundlerClientWithSuffix, {
+      account,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      dataSuffix: '0xbeef',
+      ...fees,
+    })
+
+    expect(request.callData.endsWith('beef')).toBe(true)
+    expect(request.callData.endsWith('cafe')).toBe(false)
+  })
+
+  test('args: dataSuffix (client-level object form)', async () => {
+    const bundlerClientWithSuffix = bundlerMainnet.getBundlerClient({
+      client,
+      dataSuffix: { value: '0xabcd', required: true },
+    })
+    const request = await prepareUserOperation(bundlerClientWithSuffix, {
+      account,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      ...fees,
+    })
+
+    expect(request.callData.endsWith('abcd')).toBe(true)
+  })
+
   test('error: no account', async () => {
     await expect(() =>
       // @ts-expect-error

@@ -18,6 +18,7 @@ test('creates', () => {
       "ccipRead": undefined,
       "chain": undefined,
       "client": undefined,
+      "dataSuffix": undefined,
       "estimateUserOperationGas": [Function],
       "extend": [Function],
       "getChainId": [Function],
@@ -37,6 +38,22 @@ test('creates', () => {
       "waitForUserOperationReceipt": [Function],
     }
   `)
+})
+
+test('args: dataSuffix (hex)', () => {
+  const client = createBundlerClient({
+    dataSuffix: '0xdeadbeef',
+    transport: http(bundlerMainnet.rpcUrl.http),
+  })
+  expect(client.dataSuffix).toBe('0xdeadbeef')
+})
+
+test('args: dataSuffix (object)', () => {
+  const client = createBundlerClient({
+    dataSuffix: { value: '0xcafe', required: true },
+    transport: http(bundlerMainnet.rpcUrl.http),
+  })
+  expect(client.dataSuffix).toEqual({ value: '0xcafe', required: true })
 })
 
 test('smoke', async () => {
