@@ -153,7 +153,13 @@ export function createBundlerClient(
       transport,
       type: 'bundlerClient',
     }),
-    { client: client_, dataSuffix, paymaster, paymasterContext, userOperation },
+    {
+      client: client_,
+      dataSuffix: dataSuffix ?? client_?.dataSuffix,
+      paymaster,
+      paymasterContext,
+      userOperation,
+    },
   )
   return client.extend(bundlerActions) as any
 }

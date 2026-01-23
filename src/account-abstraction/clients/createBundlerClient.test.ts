@@ -1,5 +1,7 @@
 import { expect, test } from 'vitest'
 import { bundlerMainnet } from '~test/bundler.js'
+import { mainnet } from '../../chains/index.js'
+import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
 import { createBundlerClient } from './createBundlerClient.js'
 
@@ -54,6 +56,33 @@ test('args: dataSuffix (object)', () => {
     transport: http(bundlerMainnet.rpcUrl.http),
   })
   expect(client.dataSuffix).toEqual({ value: '0xcafe', required: true })
+})
+
+test('args: dataSuffix (inherited from client)', () => {
+  const walletClient = createWalletClient({
+    chain: mainnet,
+    transport: http(),
+    dataSuffix: '0xabcd',
+  })
+  const bundlerClient = createBundlerClient({
+    client: walletClient,
+    transport: http(bundlerMainnet.rpcUrl.http),
+  })
+  expect(bundlerClient.dataSuffix).toBe('0xabcd')
+})
+
+test('args: dataSuffix (explicit overrides inherited)', () => {
+  const walletClient = createWalletClient({
+    chain: mainnet,
+    transport: http(),
+    dataSuffix: '0xabcd',
+  })
+  const bundlerClient = createBundlerClient({
+    client: walletClient,
+    dataSuffix: '0x1234',
+    transport: http(bundlerMainnet.rpcUrl.http),
+  })
+  expect(bundlerClient.dataSuffix).toBe('0x1234')
 })
 
 test('smoke', async () => {
