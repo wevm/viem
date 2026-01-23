@@ -50,14 +50,6 @@ test('args: dataSuffix (hex)', () => {
   expect(client.dataSuffix).toBe('0xdeadbeef')
 })
 
-test('args: dataSuffix (object)', () => {
-  const client = createBundlerClient({
-    dataSuffix: { value: '0xcafe', required: true },
-    transport: http(bundlerMainnet.rpcUrl.http),
-  })
-  expect(client.dataSuffix).toEqual({ value: '0xcafe', required: true })
-})
-
 test('args: dataSuffix (inherited from client)', () => {
   const walletClient = createWalletClient({
     chain: mainnet,

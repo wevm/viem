@@ -8,8 +8,8 @@ import {
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
-import type { DataSuffix } from '../../types/dataSuffix.js'
 import type { BundlerRpcSchema, RpcSchema } from '../../types/eip1193.js'
+import type { Hex } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
 import type { SmartAccount } from '../accounts/types.js'
 import type { UserOperationRequest } from '../types/userOperation.js'
@@ -38,7 +38,7 @@ export type BundlerClientConfig<
   /** Client that points to an Execution RPC URL. */
   client?: client | Client | undefined
   /** Data to append to the end of User Operation calldata. */
-  dataSuffix?: DataSuffix | undefined
+  dataSuffix?: Hex | undefined
   /** Paymaster configuration. */
   paymaster?:
     | true
@@ -90,7 +90,7 @@ export type BundlerClient<
   >
 > & {
   client: client
-  dataSuffix: DataSuffix | undefined
+  dataSuffix: Hex | undefined
   paymaster: BundlerClientConfig['paymaster'] | undefined
   paymasterContext: BundlerClientConfig['paymasterContext'] | undefined
   userOperation: BundlerClientConfig['userOperation'] | undefined

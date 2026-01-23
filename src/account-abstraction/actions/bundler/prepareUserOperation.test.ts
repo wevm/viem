@@ -1328,20 +1328,6 @@ describe('entryPointVersion: 0.8', async () => {
     expect(request.callData.endsWith('cafe')).toBe(false)
   })
 
-  test('args: dataSuffix (client-level object form)', async () => {
-    const bundlerClientWithSuffix = bundlerMainnet.getBundlerClient({
-      client,
-      dataSuffix: { value: '0xabcd', required: true },
-    })
-    const request = await prepareUserOperation(bundlerClientWithSuffix, {
-      account,
-      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
-      ...fees,
-    })
-
-    expect(request.callData.endsWith('abcd')).toBe(true)
-  })
-
   test('error: no account', async () => {
     await expect(() =>
       // @ts-expect-error
