@@ -515,7 +515,7 @@ describe('sendTransaction', () => {
           }),
         ],
         // TODO: remove once `eth_estimateGas` supports passing key type.
-        gas: 100_000n,
+        gas: 300_000n,
       })
 
       const {
@@ -793,7 +793,7 @@ describe('sendTransaction', () => {
           }),
         ],
         // TODO: remove once `eth_estimateGas` supports passing key type.
-        gas: 100_000n,
+        gas: 300_000n,
       })
 
       const {
@@ -999,7 +999,7 @@ describe('sendTransaction', () => {
           }),
         ],
         // TODO: remove once `eth_estimateGas` supports passing key type.
-        gas: 100_000n,
+        gas: 300_000n,
       })
 
       const {
