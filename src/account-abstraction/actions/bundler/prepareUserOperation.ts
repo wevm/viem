@@ -339,6 +339,10 @@ export async function prepareUserOperation<
   const parameters = parameters_ as PrepareUserOperationParameters
   const {
     account: account_ = client.account,
+    dataSuffix = parameters.dataSuffix ??
+      (typeof client.dataSuffix === 'string'
+        ? client.dataSuffix
+        : client.dataSuffix?.value),
     parameters: properties = defaultParameters,
     stateOverride,
   } = parameters
@@ -355,16 +359,6 @@ export async function prepareUserOperation<
   ////////////////////////////////////////////////////////////////////////////////
 
   const bundlerClient = client as unknown as BundlerClient
-
-  ////////////////////////////////////////////////////////////////////////////////
-  // Declare dataSuffix.
-  ////////////////////////////////////////////////////////////////////////////////
-
-  const dataSuffix =
-    parameters.dataSuffix ??
-    (typeof bundlerClient?.dataSuffix === 'string'
-      ? bundlerClient.dataSuffix
-      : bundlerClient?.dataSuffix?.value)
 
   ////////////////////////////////////////////////////////////////////////////////
   // Declare Paymaster properties.
@@ -551,9 +545,7 @@ export async function prepareUserOperation<
   ////////////////////////////////////////////////////////////////////////////////
 
   if (typeof callData !== 'undefined')
-    request.callData = callData
-      ? concat([callData, dataSuffix ?? '0x'])
-      : callData
+    request.callData = dataSuffix ? concat([callData, dataSuffix]) : callData
   if (typeof factory !== 'undefined')
     request = { ...request, ...(factory as any) }
   if (typeof fees !== 'undefined') request = { ...request, ...(fees as any) }
