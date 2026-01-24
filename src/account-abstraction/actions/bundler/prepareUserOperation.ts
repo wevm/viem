@@ -339,10 +339,9 @@ export async function prepareUserOperation<
   const parameters = parameters_ as PrepareUserOperationParameters
   const {
     account: account_ = client.account,
-    dataSuffix = parameters.dataSuffix ??
-      (typeof client.dataSuffix === 'string'
-        ? client.dataSuffix
-        : client.dataSuffix?.value),
+    dataSuffix = typeof client.dataSuffix === 'string'
+      ? client.dataSuffix
+      : client.dataSuffix?.value,
     parameters: properties = defaultParameters,
     stateOverride,
   } = parameters
