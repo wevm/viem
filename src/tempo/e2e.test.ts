@@ -723,6 +723,7 @@ describe('sendTransaction', () => {
         chainId,
         feeToken: ___,
         from,
+        gas,
         gasPrice,
         hash,
         keyAuthorization: __,
@@ -741,6 +742,7 @@ describe('sendTransaction', () => {
       expect(blockNumber).toBeDefined()
       expect(chainId).toBeDefined()
       expect(from).toBeDefined()
+      expect(gas).toBeDefined()
       expect(gasPrice).toBeDefined()
       expect(hash).toBe(receipt.transactionHash)
       expect(maxFeePerGas).toBeDefined()
@@ -762,7 +764,6 @@ describe('sendTransaction', () => {
           ],
           "data": undefined,
           "feePayerSignature": undefined,
-          "gas": 279422n,
           "maxFeePerBlobGas": undefined,
           "to": null,
           "type": "tempo",
@@ -1257,6 +1258,7 @@ describe('signTransaction', () => {
       feePayerSignature,
       feeToken: ___,
       from,
+      gas,
       gasPrice,
       hash: hash_,
       keyAuthorization: __,
@@ -1274,6 +1276,7 @@ describe('signTransaction', () => {
     expect(chainId).toBeDefined()
     expect(feePayerSignature).toBeDefined()
     expect(from).toBe(account.address.toLowerCase())
+    expect(gas).toBeDefined()
     expect(gasPrice).toBeDefined()
     expect(hash_).toBe(hash)
     expect(maxFeePerGas).toBeDefined()
@@ -1294,7 +1297,6 @@ describe('signTransaction', () => {
           },
         ],
         "data": undefined,
-        "gas": 21326n,
         "maxFeePerBlobGas": undefined,
         "to": null,
         "type": "tempo",
