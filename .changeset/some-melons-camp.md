@@ -2,4 +2,4 @@
 "viem": minor
 ---
 
-Add `dataSuffix` param to `createBundlerClient` and related `prepareUserOperation`/`sendUserOperation` actions to attach additional calldata to transactions.
+Added `dataSuffix` param to `createBundlerClient` and related `prepareUserOperation`/`sendUserOperation` actions to attach additional calldata to transactions.
