@@ -36,23 +36,23 @@ export type DecodeErrorResultReturnType<
   allErrorNames extends ContractErrorName<abi> = ContractErrorName<abi>,
 > = IsNarrowable<abi, Abi> extends true
   ? UnionEvaluate<
-      {
-        [errorName in allErrorNames]: {
-          abiItem: abi extends Abi
-            ? Abi extends abi
-              ? AbiItem
-              : ExtractAbiError<abi, errorName>
-            : AbiItem
-          args: ContractErrorArgs<abi, errorName>
-          errorName: errorName
-        }
-      }[allErrorNames]
-    >
+    {
+      [errorName in allErrorNames]: {
+        abiItem: abi extends Abi
+        ? Abi extends abi
+        ? AbiItem
+        : ExtractAbiError<abi, errorName>
+        : AbiItem
+        args: ContractErrorArgs<abi, errorName>
+        errorName: errorName
+      }
+    }[allErrorNames]
+  >
   : {
-      abiItem: AbiItem
-      args: readonly unknown[] | undefined
-      errorName: string
-    }
+    abiItem: AbiItem
+    args: readonly unknown[] | undefined
+    errorName: string
+  }
 
 export type DecodeErrorResultErrorType =
   | AbiDecodingZeroDataErrorType
@@ -62,6 +62,14 @@ export type DecodeErrorResultErrorType =
   | ToFunctionSelectorErrorType
   | ErrorType
 
+/**
+ * Decodes ABI-encoded data as an error result.
+ *
+ * @param parameters - {@link DecodeErrorResultParameters}
+ * @returns The decoded error result. {@link DecodeErrorResultReturnType}
+ * @throws {AbiDecodingZeroDataError} If data is '0x'.
+ * @throws {AbiErrorSignatureNotFoundError} If the signature is not found in the ABI.
+ */
 export function decodeErrorResult<const abi extends Abi | readonly unknown[]>(
   parameters: DecodeErrorResultParameters<abi>,
 ): DecodeErrorResultReturnType<abi> {
