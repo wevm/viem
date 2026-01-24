@@ -175,7 +175,89 @@ test('Error(string)', () => {
   })
 })
 
-test.todo('Panic(uint256)')
+test('Panic(uint256)', () => {
+  expect(
+    decodeErrorResult({
+      data: '0x4e487b710000000000000000000000000000000000000000000000000000000000000011',
+    }),
+  ).toEqual({
+    abiItem: {
+      inputs: [
+        {
+          name: 'errorCode',
+          type: 'uint256',
+        },
+      ],
+      name: 'Panic',
+      type: 'error',
+    },
+    errorName: 'Panic',
+    args: [17n],
+  })
+})
+
+test('Panic(uint256) - Assertion Error', () => {
+  expect(
+    decodeErrorResult({
+      data: '0x4e487b710000000000000000000000000000000000000000000000000000000000000001',
+    }),
+  ).toEqual({
+    abiItem: {
+      inputs: [
+        {
+          name: 'errorCode',
+          type: 'uint256',
+        },
+      ],
+      name: 'Panic',
+      type: 'error',
+    },
+    errorName: 'Panic',
+    args: [1n],
+  })
+})
+
+test('Panic(uint256) - Division by Zero', () => {
+  expect(
+    decodeErrorResult({
+      data: '0x4e487b710000000000000000000000000000000000000000000000000000000000000012',
+    }),
+  ).toEqual({
+    abiItem: {
+      inputs: [
+        {
+          name: 'errorCode',
+          type: 'uint256',
+        },
+      ],
+      name: 'Panic',
+      type: 'error',
+    },
+    errorName: 'Panic',
+    args: [18n],
+  })
+})
+
+test('Panic(uint256) - Pop Empty Array', () => {
+  expect(
+    decodeErrorResult({
+      data: '0x4e487b710000000000000000000000000000000000000000000000000000000000000031',
+    }),
+  ).toEqual({
+    abiItem: {
+      inputs: [
+        {
+          name: 'errorCode',
+          type: 'uint256',
+        },
+      ],
+      name: 'Panic',
+      type: 'error',
+    },
+    errorName: 'Panic',
+    args: [49n],
+  })
+})
 
 test('zero data', () => {
   expect(() =>
