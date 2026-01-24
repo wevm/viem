@@ -17,6 +17,7 @@ test('creates', () => {
       "cacheTime": 4000,
       "ccipRead": undefined,
       "chain": undefined,
+      "dataSuffix": undefined,
       "extend": [Function],
       "getPaymasterData": [Function],
       "getPaymasterStubData": [Function],
