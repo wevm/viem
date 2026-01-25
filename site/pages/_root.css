@@ -34,10 +34,12 @@
 /* Override the accent button styling - use !important to override inline style */
 [data-layout="landing"] a.vocs\:inline-flex[href="/docs/getting-started"] {
   background-color: #ff9318;
+  color: black;
 }
 @media (prefers-color-scheme: dark) {
   [data-layout="landing"] a.vocs\:inline-flex[href="/docs/getting-started"] {
     background-color: #ffc517;
+    color: black;
   }
 }
 [style*="color-scheme: dark"]
