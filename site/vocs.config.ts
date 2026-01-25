@@ -139,20 +139,6 @@ export default defineConfig({
       ],
     },
   ],
-  twoslash: {
-    twoslashOptions: {
-      compilerOptions: {
-        strict: true,
-        module: 99,
-        moduleResolution: 99,
-        baseUrl: '.',
-        paths: {
-          viem: ['../src/index.ts'],
-          'viem/*': ['../src/*'],
-        },
-      },
-    },
-  },
 })
 
 function toPatchVersionRange(version: string) {
