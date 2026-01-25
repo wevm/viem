@@ -1,0 +1,89 @@
+@import "tailwindcss" important;
+
+@source "./";
+
+@custom-variant dark (&:where([style*="color-scheme: dark"], [style*="color-scheme: dark"] *));
+
+:root {
+  --vocs-color-accent: #ff9318;
+  --vocs-text-color-link: #ff9318;
+}
+
+[style*="color-scheme: dark"] {
+  --vocs-color-accent: #ffc517;
+  --vocs-text-color-link: #ffc517;
+}
+
+/* Landing page max-width */
+[data-layout="landing"] {
+  --vocs-content-width: 1120px;
+}
+[data-layout="landing"] main {
+  max-width: 1120px;
+  margin-left: auto;
+  margin-right: auto;
+}
+[data-layout="landing"] main > article {
+  max-width: 1120px;
+}
+[data-layout="landing"] article h2 {
+  font-size: 2rem;
+  padding-bottom: 0.5rem;
+}
+
+/* Override the accent button styling - use !important to override inline style */
+[data-layout="landing"] a.vocs\:inline-flex[href="/docs/getting-started"] {
+  background-color: #ff9318;
+  color: black;
+}
+@media (prefers-color-scheme: dark) {
+  [data-layout="landing"] a.vocs\:inline-flex[href="/docs/getting-started"] {
+    background-color: #ffc517;
+    color: black;
+  }
+}
+[style*="color-scheme: dark"]
+  [data-layout="landing"]
+  a.vocs\:inline-flex[href="/docs/getting-started"],
+[style*="color-scheme: dark"][data-layout="landing"]
+  a.vocs\:inline-flex[href="/docs/getting-started"] {
+  background-color: #ffc517;
+}
+
+[data-layout="landing"] .vocs_Button_button {
+  border-radius: 4px;
+  height: 36px;
+  padding: 0 16px;
+}
+
+[data-layout="landing"] .vocs_Content {
+  position: inherit;
+}
+
+#home-install {
+  display: flex;
+  flex-direction: column;
+}
+
+#home-install > div {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+#home-install [role="tabpanel"] {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+#home-install [role="tabpanel"] > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+#home-install pre {
+  flex: 1;
+  font-size: 18px;
+}
