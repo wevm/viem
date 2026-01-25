@@ -539,6 +539,7 @@ export type {
 export type {
   SignTransactionErrorType,
   SignTransactionParameters,
+  SignTransactionRequest,
   SignTransactionReturnType,
 } from './actions/wallet/signTransaction.js'
 export type {

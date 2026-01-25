@@ -24,6 +24,8 @@ minimumReleaseAgeExclude:
   - abitype
   - glob
   - hono
+  - lodash
+  - lodash-es
   - ox
   - prool
   - vitest

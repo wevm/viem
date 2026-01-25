@@ -644,6 +644,7 @@ describe('client', () => {
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": undefined,
+        "dataSuffix": undefined,
         "extend": [Function],
         "key": "base",
         "name": "Base Client",

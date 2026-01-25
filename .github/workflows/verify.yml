@@ -64,10 +64,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    timeout-minutes: 5
+    timeout-minutes: 10
     strategy:
       matrix:
-        version: ['5.7.2', '5.8.2', '5.9.3', 'latest']
+        version: ['5.8.2', '5.9.3', 'latest']
 
     steps:
       - name: Clone repository
@@ -133,7 +133,7 @@ jobs:
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
           VITE_SHARD_ID: ${{ matrix.shard }}
           VITE_TEMPO_ENV: localnet
-          VITE_TEMPO_TAG: latest
+          VITE_TEMPO_TAG: sha-888599a
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4

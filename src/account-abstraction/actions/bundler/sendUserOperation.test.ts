@@ -230,6 +230,32 @@ describe('entryPointVersion: 0.8', async () => {
     ).toBe(account.address)
   })
 
+  test('args: dataSuffix', async () => {
+    const authorization = await signAuthorization(client, account.authorization)
+
+    // First verify that dataSuffix is passed through to prepareUserOperation
+    const request = await prepareUserOperation(bundlerClient, {
+      account,
+      calls: [{ to: alice, value: parseEther('0.001') }],
+      dataSuffix: '0xdeadbeef',
+      ...fees,
+    })
+    expect(request.callData.endsWith('deadbeef')).toBe(true)
+
+    // Then verify that sendUserOperation also accepts dataSuffix
+    const hash = await sendUserOperation(bundlerClient, {
+      account,
+      authorization,
+      calls: [{ to: alice, value: parseEther('0.001') }],
+      dataSuffix: '0xdeadbeef',
+      ...fees,
+    })
+    expect(hash).toBeDefined()
+
+    await bundlerClient.request({ method: 'debug_bundler_sendBundleNow' })
+    await mine(client, { blocks: 1 })
+  })
+
   test('error: no account', async () => {
     await expect(() =>
       // @ts-expect-error

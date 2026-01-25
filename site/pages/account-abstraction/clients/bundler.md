@@ -72,6 +72,26 @@ const bundlerClient = createBundlerClient({
 
 The [Chain](/docs/chains/introduction) of the Bundler Client.
 
+### dataSuffix (optional)
+
+- **Type:** `Hex`
+
+Data to append to the end of User Operation calldata. Useful for adding [transaction attribution](https://oxlib.sh/ercs/erc8021/Attribution).
+
+The bundler client will also inherit `dataSuffix` from the underlying client (e.g., wallet client) if not explicitly set.
+
+Applies to `prepareUserOperation` and `sendUserOperation` actions.
+
+```ts twoslash
+import { createBundlerClient } from 'viem/account-abstraction'
+import { http } from 'viem'
+// ---cut---
+const bundlerClient = createBundlerClient({
+  dataSuffix: '0xdeadbeef', // [!code focus]
+  transport: http('https://public.pimlico.io/v2/1/rpc')
+})
+```
+
 ```ts twoslash
 import { createPublicClient, http } from 'viem' 
 import { createBundlerClient } from 'viem/account-abstraction'

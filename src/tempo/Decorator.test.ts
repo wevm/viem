@@ -17,6 +17,7 @@ describe('decorator', () => {
         "cacheTime",
         "ccipRead",
         "chain",
+        "dataSuffix",
         "key",
         "name",
         "pollingInterval",
