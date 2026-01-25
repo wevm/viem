@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-exported `SignTransactionRequest` type.
+Exported `SignTransactionRequest` type
