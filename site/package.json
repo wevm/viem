@@ -9,8 +9,10 @@
     "preview": "vocs preview"
   },
   "devDependencies": {
-    "react": "^19",
-    "react-dom": "^19",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "react-server-dom-webpack": "~19.2.3",
     "tailwindcss": "^4.1.16",
     "viem": "workspace:*",

@@ -6,6 +6,18 @@ settings:
 
 catalogs:
   default:
+    '@types/react':
+      specifier: ^19
+      version: 19.0.8
+    '@types/react-dom':
+      specifier: ^19
+      version: 19.0.3
+    react:
+      specifier: ^19.0.0
+      version: 19.2.3
+    react-dom:
+      specifier: ^19.0.0
+      version: 19.2.3
     typescript:
       specifier: 5.9.3
       version: 5.9.3
@@ -565,11 +577,17 @@ importers:
 
   site:
     devDependencies:
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.0.8
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.0.3(@types/react@19.0.8)
       react:
-        specifier: ^19
+        specifier: 'catalog:'
         version: 19.2.3
       react-dom:
-        specifier: ^19
+        specifier: 'catalog:'
         version: 19.2.3(react@19.2.3)
       react-server-dom-webpack:
         specifier: ~19.2.3

@@ -1,6 +1,6 @@
 import type { Config } from 'vocs/config'
 
-export const sidebar: Config['sidebar'] = {
+export const sidebar = {
   '/docs/': [
     {
       text: 'Introduction',
@@ -21,7 +21,6 @@ export const sidebar: Config['sidebar'] = {
         { text: 'Error Handling', link: '/docs/error-handling' },
         {
           text: 'EIP-7702',
-          link: '/docs/eip7702',
           collapsed: true,
           items: [
             { text: 'Overview', link: '/docs/eip7702' },
@@ -2474,4 +2473,4 @@ export const sidebar: Config['sidebar'] = {
       },
     ],
   },
-} as const satisfies Sidebar
+} as const satisfies Config['sidebar']

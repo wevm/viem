@@ -1,4 +1,4 @@
-import { sponsors } from '../../vocs.config'
+import { sponsors } from '../../vocs.config.js'
 
 const sponsorsUrl =
   'https://raw.githubusercontent.com/wevm/.github/main/content/sponsors'
