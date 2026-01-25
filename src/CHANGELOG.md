@@ -1,5 +1,25 @@
 # viem
 
+## 2.45.0
+
+### Minor Changes
+
+- [#4249](https://github.com/wevm/viem/pull/4249) [`0e1d62dae5091e43bd4f12102e270a17a1456ffe`](https://github.com/wevm/viem/commit/0e1d62dae5091e43bd4f12102e270a17a1456ffe) Thanks [@dgca](https://github.com/dgca)! - Added `dataSuffix` param to createWalletClient. When added, this will automatically add a dataSuffix to transaction actions submitted by this client.
+
+- [#4264](https://github.com/wevm/viem/pull/4264) [`dc4c100fec297efab4f38d92995832d9bb86d3c1`](https://github.com/wevm/viem/commit/dc4c100fec297efab4f38d92995832d9bb86d3c1) Thanks [@dgca](https://github.com/dgca)! - Added `dataSuffix` param to `createBundlerClient` and related `prepareUserOperation`/`sendUserOperation` actions to attach additional calldata to transactions.
+
+### Patch Changes
+
+- [#4256](https://github.com/wevm/viem/pull/4256) [`08e1bb654a6f8d7075cc5f634d5b83c4d9a0379f`](https://github.com/wevm/viem/commit/08e1bb654a6f8d7075cc5f634d5b83c4d9a0379f) Thanks [@paperCPU](https://github.com/paperCPU)! - Added stable mainnet and updated stable testnet definitions
+
+- [#4267](https://github.com/wevm/viem/pull/4267) [`fc9c6e373c94b6a278493c8f499730232de46b2b`](https://github.com/wevm/viem/commit/fc9c6e373c94b6a278493c8f499730232de46b2b) Thanks [@marthendalnunes](https://github.com/marthendalnunes)! - Exported `SignTransactionRequest` type
+
+- [#4257](https://github.com/wevm/viem/pull/4257) [`685c3f867f38d24df547643540b0bb53ec52af5a`](https://github.com/wevm/viem/commit/685c3f867f38d24df547643540b0bb53ec52af5a) Thanks [@gndelia](https://github.com/gndelia)! - Exported missing OP Stack actions
+
+- [#4247](https://github.com/wevm/viem/pull/4247) [`d2b3c835806d9397146830551466fc6afd346fa1`](https://github.com/wevm/viem/commit/d2b3c835806d9397146830551466fc6afd346fa1) Thanks [@kiyoakii](https://github.com/kiyoakii)! - Added MegaETH Mainnet chain and fixed MegaETH Testnet chain ID (6342 → 6343).
+
+- [#4254](https://github.com/wevm/viem/pull/4254) [`93c70b4b4a25cbdd25ee3007b4fc87a79dd14126`](https://github.com/wevm/viem/commit/93c70b4b4a25cbdd25ee3007b4fc87a79dd14126) Thanks [@awesamarth](https://github.com/awesamarth)! - Added RISE Mainnet
+
 ## 2.44.4
 
 ### Patch Changes
