@@ -64,7 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    timeout-minutes: 5
+    timeout-minutes: 10
     strategy:
       matrix:
         version: ['5.8.2', '5.9.3', 'latest']
