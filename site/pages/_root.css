@@ -53,7 +53,9 @@
 [data-layout="landing"] .vocs_Button_button {
   border-radius: 4px;
   height: 36px;
+  max-height: 36px;
   padding: 0 16px;
+  white-space: nowrap;
 }
 
 [data-layout="landing"] .vocs_Content {
