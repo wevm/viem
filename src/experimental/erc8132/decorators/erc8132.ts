@@ -38,7 +38,7 @@ export type Erc8132Actions<
    *     {
    *       data: '0xdeadbeef',
    *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-   *       gas: 100000n, // ERC-8132 gas limit override
+   *       gas: 100000n,
    *     },
    *   ],
    * })
@@ -75,12 +75,11 @@ export type Erc8132Actions<
  *     {
  *       data: '0xdeadbeef',
  *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
- *       gas: 100000n, // ERC-8132 gas limit override
+ *       gas: 100000n,
  *     },
  *     {
  *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
  *       value: 69420n,
- *       // No gas override - wallet will estimate
  *     },
  *   ],
  * })

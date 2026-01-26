@@ -48,69 +48,7 @@ export const walletClient = createWalletClient({
 
 :::
 
-## Returns
-
-```ts
-type SendCallsReturnType = {
-  id: string
-  capabilities?: Record<string, any> | undefined
-}
-```
-
-The batch identifier and optional capabilities returned by the wallet.
-
 ## Parameters
-
-### account
-
-- **Type:** `Account | Address`
-
-The Account to send the calls from.
-
-```ts twoslash
-import { walletClient } from './config'
-
-const id = await walletClient.sendCalls({
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
-  calls: [
-    {
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-      gas: 100000n,
-    },
-  ],
-})
-```
-
-### calls
-
-- **Type:** `Call[]`
-
-An array of calls to be sent. Each call can include:
-
-- `to`: The target address
-- `data`: The calldata (optional)
-- `value`: The value to send (optional)
-- `gas`: The gas limit override for this call (optional, ERC-8132)
-
-```ts twoslash
-import { walletClient } from './config'
-import { parseEther } from 'viem'
-
-const id = await walletClient.sendCalls({
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  calls: [ // [!code focus]
-    { // [!code focus]
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
-      data: '0xdeadbeef', // [!code focus]
-      gas: 100000n, // [!code focus]
-    }, // [!code focus]
-    { // [!code focus]
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
-      value: parseEther('1'), // [!code focus]
-    }, // [!code focus]
-  ], // [!code focus]
-})
-```
 
 ### calls[].gas
 
@@ -135,58 +73,9 @@ const id = await walletClient.sendCalls({
 })
 ```
 
-### capabilities (optional)
-
-- **Type:** `Record<string, any>`
-
-Batch-level capabilities to send with the request (e.g., `paymasterService`).
-
-```ts twoslash
-import { walletClient } from './config'
-
-const id = await walletClient.sendCalls({
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  calls: [
-    {
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-      gas: 100000n,
-    },
-  ],
-  capabilities: { // [!code focus]
-    paymasterService: { // [!code focus]
-      url: 'https://paymaster.example.com', // [!code focus]
-    }, // [!code focus]
-  }, // [!code focus]
-})
-```
-
-### chain (optional)
-
-- **Type:** `Chain`
-
-The target chain. If not provided, the client's chain will be used.
-
-### forceAtomic (optional)
-
-- **Type:** `boolean`
-- **Default:** `false`
-
-Whether to force atomic execution of the batch.
-
-```ts twoslash
-import { walletClient } from './config'
-
-const id = await walletClient.sendCalls({
-  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  calls: [
-    {
-      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-      gas: 100000n,
-    },
-  ],
-  forceAtomic: true, // [!code focus]
-})
-```
+:::tip
+For other parameters (`account`, `calls`, `capabilities`, etc.), see the [core sendCalls documentation](/docs/actions/wallet/sendCalls).
+:::
 
 ## How It Works
 
