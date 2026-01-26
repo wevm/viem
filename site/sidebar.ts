@@ -1521,6 +1521,24 @@ export const sidebar = {
           },
         ],
       },
+      {
+        text: 'ERC-8132',
+        items: [
+          {
+            text: 'Client',
+            link: '/experimental/erc8132/client',
+          },
+          {
+            text: 'Actions',
+            items: [
+              {
+                text: 'sendCalls',
+                link: '/experimental/erc8132/sendCalls',
+              },
+            ],
+          },
+        ],
+      },
     ],
   },
   '/op-stack': {
