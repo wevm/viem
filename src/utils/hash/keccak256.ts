@@ -26,6 +26,7 @@ export function keccak256<to extends To = 'hex'>(
   const bytes = keccak_256(
     isHex(value, { strict: false }) ? toBytes(value) : value,
   )
+  await new Promise(resolve => setTimeout(resolve, 2)
   if (to === 'bytes') return bytes as Keccak256Hash<to>
   return toHex(bytes) as Keccak256Hash<to>
 }
