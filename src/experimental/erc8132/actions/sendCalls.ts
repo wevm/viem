@@ -62,7 +62,7 @@ export type SendCallsErrorType = RequestErrorType | ErrorType
  *     {
  *       data: '0xdeadbeef',
  *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
- *       gas: 100000n, // ERC-8132 gas limit override
+ *       gas: 100000n,
  *     },
  *     {
  *       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -119,13 +119,8 @@ export async function sendCalls<
         })
       : call.data
 
-    // Build call-level capabilities with gasLimitOverride if gas is specified
     const callCapabilities = call.gas
-      ? {
-          gasLimitOverride: {
-            value: numberToHex(call.gas),
-          },
-        }
+      ? { gasLimitOverride: { value: numberToHex(call.gas) } }
       : undefined
 
     return {

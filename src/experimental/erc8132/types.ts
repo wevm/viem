@@ -15,6 +15,5 @@ export type GasLimitOverrideCapability = {
  * @see https://github.com/ethereum/ERCs/pull/1485
  */
 export type GasLimitOverrideCallCapability = {
-  /** Hex-encoded gas limit for the call */
   value: Hex
 }
