@@ -591,6 +591,7 @@ export { storyOdyssey } from './definitions/storyOdyssey.js'
 /** @deprecated Use `storyAeneid` instead. */
 export { storyTestnet } from './definitions/storyTestnet.js'
 export { stratis } from './definitions/stratis.js'
+export { subtensorEvm } from './definitions/subtensorEvm.js'
 export { superlumio } from './definitions/superlumio.js'
 export { superposition } from './definitions/superposition.js'
 export { superseed } from './definitions/superseed.js'
