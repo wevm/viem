@@ -136,15 +136,15 @@ export type WalletCallReceipt<quantity = Hex, status = Hex> = {
 }
 
 export type WalletRequestExecutionPermissionsParameters = {
-  chainId: Hex,
-  from?: | Hex | undefined,
-  to: Hex,
-  rules?: 
+  chainId: Hex
+  from?: Hex | undefined
+  to: Hex
+  rules?:
     | readonly {
-      data: unknown
-      type: string
-    }[]
-    | undefined,
+        data: unknown
+        type: string
+      }[]
+    | undefined
   permission: {
     data: unknown
     isAdjustmentAllowed: boolean
@@ -152,14 +152,15 @@ export type WalletRequestExecutionPermissionsParameters = {
   }
 }
 
-export type WalletRequestExecutionPermissionsReturnType = WalletRequestExecutionPermissionsParameters &{
-  context: Hex,
-  dependencies: readonly {
-    factory: Hex,
-    factoryData: Hex,
-  }[],
-  delegationManager: Hex,
-}
+export type WalletRequestExecutionPermissionsReturnType =
+  WalletRequestExecutionPermissionsParameters & {
+    context: Hex
+    dependencies: readonly {
+      factory: Hex
+      factoryData: Hex
+    }[]
+    delegationManager: Hex
+  }
 
 export type WalletGetAssetsParameters = {
   account: Address

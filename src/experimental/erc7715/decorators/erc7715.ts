@@ -67,7 +67,8 @@ export function erc7715Actions() {
     client: Client<transport, chain, account>,
   ): Erc7715Actions => {
     return {
-      requestExecutionPermissions: (parameters) => requestExecutionPermissions(client, parameters),
+      requestExecutionPermissions: (parameters) =>
+        requestExecutionPermissions(client, parameters),
     }
   }
 }

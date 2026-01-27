@@ -9,24 +9,25 @@ import type { Rule } from '../types/rules.js'
 
 export type RequestExecutionPermissionsParameters = {
   /** Permission to grant to the user. */
-  permission: Permission,
+  permission: Permission
   /** Address to that will be granted the permissions. */
-  to: Address,
-  chainId: number,
+  to: Address
+  chainId: number
   /** Address that will grant the permissions. */
-  from?: Address | undefined,
+  from?: Address | undefined
   /** Set of rules to apply to the permissions. */
-  rules?: readonly Rule[] | undefined,
+  rules?: readonly Rule[] | undefined
 }
 
-export type RequestExecutionPermissionsReturnType = RequestExecutionPermissionsParameters & {
-  context: Hex,
-  dependencies: readonly {
-    factory: Address,
-    factoryData: Hex,
-  }[],
-  delegationManager: Hex,
-}
+export type RequestExecutionPermissionsReturnType =
+  RequestExecutionPermissionsParameters & {
+    context: Hex
+    dependencies: readonly {
+      factory: Address
+      factoryData: Hex
+    }[]
+    delegationManager: Hex
+  }
 
 /**
  * Request permissions from a wallet to perform actions on behalf of a user.
