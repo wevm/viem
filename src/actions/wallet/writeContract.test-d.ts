@@ -1,9 +1,9 @@
 import { type Address, parseAbi } from 'abitype'
-import { seaportAbi } from 'abitype/abis'
+import { erc20Abi, seaportAbi } from 'abitype/abis'
 import { assertType, expectTypeOf, test } from 'vitest'
-import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
-import { accounts } from '~test/src/constants.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { baycContractConfig, wagmiContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import { mainnet } from '../../chains/definitions/mainnet.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { custom } from '../../clients/transports/custom.js'
@@ -12,6 +12,12 @@ import { type WriteContractParameters, writeContract } from './writeContract.js'
 
 const clientWithAccount = anvilMainnet.getClient({
   account: true,
+})
+writeContract(clientWithAccount, {
+  address: '0x',
+  abi: erc20Abi,
+  functionName: 'approve',
+  args: ['0x', 123n],
 })
 
 test('WriteContractParameters', async () => {
@@ -88,8 +94,8 @@ test('infers args', () => {
     transport: custom(window.ethereum!),
   })
   const abi = parseAbi([
-    'function foo(address) payable returns (int8)',
-    'function bar(address, uint256) returns (int8)',
+    'function foo(address account) payable returns (int8)',
+    'function bar(address account, uint256 amount) returns (int8)',
   ])
 
   type Result1 = WriteContractParameters<typeof abi, 'foo'>
@@ -275,8 +281,8 @@ test('overloads', async () => {
   })
   const abi = parseAbi([
     'function foo() returns (int8)',
-    'function foo(address) returns (string)',
-    'function foo(address, address) returns ((address foo, address bar))',
+    'function foo(address account) returns (string)',
+    'function foo(address sender, address account) returns ((address foo, address bar))',
     'function bar() returns (int8)',
   ])
 

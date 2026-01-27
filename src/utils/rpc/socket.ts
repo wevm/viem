@@ -247,12 +247,13 @@ export async function getSocketRpcClient<socket extends {}>(
                 body,
               })
 
-            // If we are unsubscribing from a topic, we want to remove the listener.
-            if (body.method === 'eth_unsubscribe')
-              subscriptions.delete(body.params?.[0])
-
             onResponse(response)
           }
+
+          // If we are unsubscribing from a topic, remove the listener immediately
+          // to prevent it from being re-subscribed on reconnect.
+          if (body.method === 'eth_unsubscribe')
+            subscriptions.delete(body.params?.[0])
 
           requests.set(id, { onResponse: callback, onError })
           try {

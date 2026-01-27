@@ -39,6 +39,7 @@ export type {
   BlockOverrides,
   Rpc as RpcBlockOverrides,
 } from 'ox/BlockOverrides'
+export type { EntryPointVersion } from './account-abstraction/types/entryPointVersion.js'
 export type {
   RpcEstimateUserOperationGasReturnType,
   RpcGetUserOperationByHashReturnType,
@@ -46,6 +47,14 @@ export type {
   RpcUserOperationReceipt,
   RpcUserOperationRequest,
 } from './account-abstraction/types/rpc.js'
+export type {
+  EstimateUserOperationGasReturnType,
+  GetUserOperationByHashReturnType,
+  PackedUserOperation,
+  UserOperation,
+  UserOperationReceipt,
+  UserOperationRequest,
+} from './account-abstraction/types/userOperation.js'
 export type {
   Account,
   AccountSource,
@@ -135,6 +144,11 @@ export type {
   EstimateMaxPriorityFeePerGasParameters,
   EstimateMaxPriorityFeePerGasReturnType,
 } from './actions/public/estimateMaxPriorityFeePerGas.js'
+export type {
+  FillTransactionErrorType,
+  FillTransactionParameters,
+  FillTransactionReturnType,
+} from './actions/public/fillTransaction.js'
 export type {
   GetBalanceErrorType,
   GetBalanceParameters,
@@ -525,6 +539,7 @@ export type {
 export type {
   SignTransactionErrorType,
   SignTransactionParameters,
+  SignTransactionRequest,
   SignTransactionReturnType,
 } from './actions/wallet/signTransaction.js'
 export type {
@@ -1105,6 +1120,7 @@ export type {
   UnionWiden,
   Widen,
 } from './types/contract.js'
+export type { DataSuffix } from './types/dataSuffix.js'
 export type {
   AddEthereumChainParameter,
   BundlerRpcSchema,
@@ -1227,7 +1243,11 @@ export type {
   TransactionType,
 } from './types/transaction.js'
 export type { GetPollOptions, GetTransportConfig } from './types/transport.js'
-export type { TypedDataDefinition } from './types/typedData.js'
+export type {
+  EIP712DomainDefinition,
+  MessageDefinition,
+  TypedDataDefinition,
+} from './types/typedData.js'
 export type {
   Assign,
   Branded,
@@ -1444,7 +1464,11 @@ export {
   type AssertCurrentChainParameters,
   assertCurrentChain,
 } from './utils/chain/assertCurrentChain.js'
-export { defineChain } from './utils/chain/defineChain.js'
+export {
+  type DefineChainReturnType,
+  defineChain,
+  extendSchema,
+} from './utils/chain/defineChain.js'
 export {
   type ExtractChainErrorType,
   type ExtractChainParameters,

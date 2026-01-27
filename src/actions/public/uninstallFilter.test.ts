@@ -1,7 +1,6 @@
 import { assertType, expect, test } from 'vitest'
-
-import { accounts } from '~test/src/constants.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 
 import type { EIP1193RequestFn } from '../../types/eip1193.js'
 import type { Hash } from '../../types/misc.js'

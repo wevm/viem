@@ -1,7 +1,7 @@
 import { type Abi, parseAbi } from 'abitype'
 import { test } from 'vitest'
-import { wagmiContractConfig } from '~test/src/abis.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { wagmiContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
 import { deployContract } from './deployContract.js'
 
 const client = anvilMainnet.getClient()

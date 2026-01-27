@@ -1,7 +1,7 @@
-import { anvil } from 'prool/instances'
+import { Instance } from 'prool'
 import { afterAll, assertType, beforeAll, describe, expect, test } from 'vitest'
 
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 import { mine } from '../../actions/test/mine.js'
 import { localhost } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'
@@ -15,7 +15,7 @@ const client = createClient({
   transport: http('http://127.0.0.1:6967'),
 }).extend(() => ({ mode: 'anvil' }))
 
-const instance = anvil({
+const instance = Instance.anvil({
   chainId: anvilMainnet.chain.id,
   port: 6967,
   ipc: anvilMainnet.rpcUrl.ipc,

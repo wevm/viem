@@ -3,6 +3,7 @@ import { chainConfig } from '../../zksync/chainConfig.js'
 
 export const abstract = /*#__PURE__*/ defineChain({
   ...chainConfig,
+  blockTime: 200,
   id: 2_741,
   name: 'Abstract',
   nativeCurrency: {

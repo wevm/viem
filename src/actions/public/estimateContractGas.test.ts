@@ -7,10 +7,10 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { ErrorsExample } from '~contracts/generated.js'
-import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
-import { accounts } from '~test/src/constants.js'
-import { deployBAYC, deployErrorExample } from '~test/src/utils.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { baycContractConfig, wagmiContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
+import { deployBAYC, deployErrorExample } from '~test/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { publicActions } from '../../index.js'
 import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
@@ -408,5 +408,71 @@ describe('contract errors', () => {
       Docs: https://viem.sh/docs/contract/estimateContractGas
       Version: viem@x.y.z]
     `)
+  })
+})
+
+describe('behavior: client dataSuffix', () => {
+  test('applies client dataSuffix (hex string)', async () => {
+    const clientWithSuffix = Object.assign(
+      anvilMainnet.getClient().extend(publicActions),
+      { dataSuffix: '0x12345678' as const },
+    )
+    const spy = vi.spyOn(clientWithSuffix, 'estimateGas')
+
+    await estimateContractGas(clientWithSuffix, {
+      abi: wagmiContractConfig.abi,
+      address: wagmiContractConfig.address,
+      account: accounts[0].address,
+      functionName: 'mint',
+    })
+
+    expect(spy).toHaveBeenCalledWith({
+      account: accounts[0].address,
+      data: '0x1249c58b12345678',
+      to: wagmiContractConfig.address,
+    })
+  })
+
+  test('applies client dataSuffix (object format)', async () => {
+    const clientWithSuffix = Object.assign(
+      anvilMainnet.getClient().extend(publicActions),
+      { dataSuffix: { value: '0x12345678' as const, required: true } },
+    )
+    const spy = vi.spyOn(clientWithSuffix, 'estimateGas')
+
+    await estimateContractGas(clientWithSuffix, {
+      abi: wagmiContractConfig.abi,
+      address: wagmiContractConfig.address,
+      account: accounts[0].address,
+      functionName: 'mint',
+    })
+
+    expect(spy).toHaveBeenCalledWith({
+      account: accounts[0].address,
+      data: '0x1249c58b12345678',
+      to: wagmiContractConfig.address,
+    })
+  })
+
+  test('parameter dataSuffix takes precedence over client dataSuffix', async () => {
+    const clientWithSuffix = Object.assign(
+      anvilMainnet.getClient().extend(publicActions),
+      { dataSuffix: '0xaabbccdd' as const },
+    )
+    const spy = vi.spyOn(clientWithSuffix, 'estimateGas')
+
+    await estimateContractGas(clientWithSuffix, {
+      abi: wagmiContractConfig.abi,
+      address: wagmiContractConfig.address,
+      account: accounts[0].address,
+      functionName: 'mint',
+      dataSuffix: '0x12345678',
+    })
+
+    expect(spy).toHaveBeenCalledWith({
+      account: accounts[0].address,
+      data: '0x1249c58b12345678',
+      to: wagmiContractConfig.address,
+    })
   })
 })

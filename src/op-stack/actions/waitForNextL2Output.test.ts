@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { mainnetClient } from '../../../test/src/utils.js'
+import { mainnetClient } from '~test/utils.js'
 import { optimism } from '../../chains/index.js'
 import { waitForNextL2Output } from './waitForNextL2Output.js'
 

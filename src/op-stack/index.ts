@@ -48,6 +48,24 @@ export {
   estimateContractTotalGas,
 } from './actions/estimateContractTotalGas.js'
 export {
+  type EstimateDepositTransactionGasErrorType,
+  type EstimateDepositTransactionGasParameters,
+  type EstimateDepositTransactionGasReturnType,
+  estimateDepositTransactionGas,
+} from './actions/estimateDepositTransactionGas.js'
+export {
+  type EstimateFinalizeWithdrawalGasErrorType,
+  type EstimateFinalizeWithdrawalGasParameters,
+  type EstimateFinalizeWithdrawalGasReturnType,
+  estimateFinalizeWithdrawalGas,
+} from './actions/estimateFinalizeWithdrawalGas.js'
+export {
+  type EstimateInitiateWithdrawalGasErrorType,
+  type EstimateInitiateWithdrawalGasParameters,
+  type EstimateInitiateWithdrawalGasReturnType,
+  estimateInitiateWithdrawalGas,
+} from './actions/estimateInitiateWithdrawalGas.js'
+export {
   type EstimateL1FeeErrorType,
   type EstimateL1FeeParameters,
   type EstimateL1FeeReturnType,
@@ -59,6 +77,18 @@ export {
   type EstimateL1GasReturnType,
   estimateL1Gas,
 } from './actions/estimateL1Gas.js'
+export {
+  type EstimateOperatorFeeErrorType,
+  type EstimateOperatorFeeParameters,
+  type EstimateOperatorFeeReturnType,
+  estimateOperatorFee,
+} from './actions/estimateOperatorFee.js'
+export {
+  type EstimateProveWithdrawalGasErrorType,
+  type EstimateProveWithdrawalGasParameters,
+  type EstimateProveWithdrawalGasReturnType,
+  estimateProveWithdrawalGas,
+} from './actions/estimateProveWithdrawalGas.js'
 export {
   type EstimateTotalFeeErrorType,
   type EstimateTotalFeeParameters,
@@ -176,7 +206,6 @@ export {
 
 export { chainConfig } from './chainConfig.js'
 
-// biome-ignore lint/performance/noReExportAll: intentionally re-exporting
 export * from './chains.js'
 
 export {

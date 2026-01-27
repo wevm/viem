@@ -11,7 +11,7 @@ import {
 } from 'abitype/abis'
 import { assertType, expectTypeOf, test } from 'vitest'
 
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 
 import { type ReadContractParameters, readContract } from './readContract.js'
 
@@ -207,7 +207,7 @@ test('behavior', () => {
           name: 'bar',
           type: 'function',
           stateMutability: 'view',
-          inputs: [{ type: 'address', name: '' }],
+          inputs: [{ type: 'address', name: 'account' }],
           outputs: [{ type: 'address', name: '' }],
         },
       ],
@@ -231,8 +231,8 @@ test('behavior', () => {
   test('overloads', async () => {
     const abi = parseAbi([
       'function foo() view returns (int8)',
-      'function foo(address) view returns (string)',
-      'function foo(address, address) view returns ((address foo, address bar))',
+      'function foo(address tokenId) view returns (string)',
+      'function foo(address spender, address account) view returns ((address foo, address bar))',
       'function bar() view returns (int8)',
     ])
 

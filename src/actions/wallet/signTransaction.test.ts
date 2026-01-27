@@ -1,9 +1,8 @@
 import { describe, expect, test } from 'vitest'
-
-import { accounts } from '~test/src/constants.js'
-import { wagmiContractConfig } from '../../../test/src/abis.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
-import { blobData, kzg } from '../../../test/src/kzg.js'
+import { wagmiContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
+import { blobData, kzg } from '~test/kzg.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, mainnet } from '../../chains/index.js'
 import {
@@ -65,12 +64,12 @@ describe('eip7702', async () => {
 
   test('w/ prepareTransactionRequest', async () => {
     const request = await prepareTransactionRequest(client, {
-      account: privateKeyToAccount(sourceAccount.privateKey),
+      account: eoa,
       ...baseEip7702,
     })
     const signature = await signTransaction(client, request)
     expect(signature).toMatchInlineSnapshot(
-      `"0x04f8cc01820311843b9aca008469126a1c8252089400000000000000000000000000000000000000008080c0f85ef85c0194fba3912ca04dd458c843e2ee08967fc04f3579c28201a480a08d7765afec6e09d93be91a1324f0dbbd6bcb96f4b37e8645a4c65d08a979ab69a070b81c53368b35a58af8630903c57d2b106842f9a081e3dc607c0c0cd990c77d01a092899fa1dac969c7d534b372995169ce2b5ee0b6007f21a7af97fab2d42b4434a071e44a7f22acf079c704be2e83ed1a2127cd563c863efef7d9fcdb74e999fd99"`,
+      `"0x04f8cb01820311843b9aca0084bb5055d88252089400000000000000000000000000000000000000008080c0f85ef85c0194fba3912ca04dd458c843e2ee08967fc04f3579c28201a480a08d7765afec6e09d93be91a1324f0dbbd6bcb96f4b37e8645a4c65d08a979ab69a070b81c53368b35a58af8630903c57d2b106842f9a081e3dc607c0c0cd990c77d019f617883d7662971f622fb00f3da34e96f5ebcb0ce0d0729dac242d4890025b4a0295de1bac7fa38400d0d0d9d250f77abfe4f9b20c3db1a8542a64b0bbfaef0c2"`,
     )
   })
 })

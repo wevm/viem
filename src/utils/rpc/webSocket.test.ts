@@ -1,7 +1,7 @@
 import { WebSocket } from 'isows'
 import { describe, expect, test, vi } from 'vitest'
 
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { mine } from '../../actions/test/mine.js'
 
@@ -204,7 +204,7 @@ describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
       expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.4.4",
+        "result": "anvil/v1.5.0",
       }
     `)
       expect(socketClient.requests.size).toBe(0)
@@ -718,7 +718,7 @@ describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
       expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.4.4",
+        "result": "anvil/v1.5.0",
       }
     `)
       expect(client.requests.size).toBe(0)

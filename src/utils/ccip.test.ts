@@ -1,13 +1,10 @@
 import { describe, expect, test } from 'vitest'
 
 import { OffchainLookupExample } from '~contracts/generated.js'
-import { createCcipServer } from '~test/src/ccip.js'
-import { accounts } from '~test/src/constants.js'
-import {
-  createHttpServer,
-  deployOffchainLookupExample,
-} from '~test/src/utils.js'
-import { anvilMainnet } from '../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { createCcipServer } from '~test/ccip.js'
+import { accounts } from '~test/constants.js'
+import { createHttpServer, deployOffchainLookupExample } from '~test/utils.js'
 import { createClient } from '../clients/createClient.js'
 import { http } from '../clients/transports/http.js'
 import { getUrl } from '../errors/utils.js'

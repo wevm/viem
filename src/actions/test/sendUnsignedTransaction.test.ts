@@ -1,7 +1,6 @@
 import { expect, test } from 'vitest'
-
-import { accounts, address } from '~test/src/constants.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts, address } from '~test/constants.js'
 import { celo } from '../../chains/index.js'
 import { createTestClient } from '../../clients/createTestClient.js'
 import { http } from '../../index.js'

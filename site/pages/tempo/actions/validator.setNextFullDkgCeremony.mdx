@@ -1,0 +1,59 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `validator.setNextFullDkgCeremony`
+
+Sets the next epoch for a full DKG ceremony. Requires owner permission.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.validator.setNextFullDkgCeremonySync({
+  epoch: 100n,
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+The example above uses a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+
+If you are optimizing for performance, you should use the non-sync `validator.setNextFullDkgCeremony` action and wait for inclusion manually:
+
+```ts twoslash
+import { client } from './viem.config'
+
+const hash = await client.validator.setNextFullDkgCeremony({
+  epoch: 100n,
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  receipt: TransactionReceipt
+}
+```
+
+## Parameters
+
+### epoch
+
+- **Type:** `bigint`
+
+The epoch number for the next full DKG ceremony.
+
+<WriteParameters />

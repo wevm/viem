@@ -1,9 +1,10 @@
 {
+  "name": "viem",
   "private": true,
   "type": "module",
   "scripts": {
     "bench": "vitest bench",
-    "bench:types": "TYPES=true vitest -c ./test/vitest.config.ts bench-d.ts",
+    "bench:types": "TYPES=true vitest -c ./test/vitest.config.ts --project type-bench",
     "build": "pnpm clean && pnpm build:cjs && pnpm build:esm && pnpm build:types",
     "build:cjs": "pnpm build:trustedSetups:start && tsc --project ./tsconfig.build.json --module commonjs --moduleResolution node --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./src/_cjs/package.json && pnpm build:trustedSetups:end",
     "build:esm": "tsc --project ./tsconfig.build.json --outDir ./src/_esm && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./src/_esm/package.json",
@@ -20,8 +21,9 @@
     "docs:build": "pnpm --filter site build",
     "check": "biome check --write --unsafe",
     "check:repo": "sherif",
-    "check:types": "tsc --noEmit",
+    "check:types": "tsc -b",
     "check:unused": "pnpm clean && knip",
+    "gen:tempo-abis": "bun scripts/generateTempoAbis.ts",
     "postinstall": "git submodule update --init --recursive && pnpm contracts:build",
     "preconstruct": "bun scripts/preconstruct.ts",
     "preinstall": "pnpx only-allow pnpm",
@@ -31,8 +33,6 @@
     "test": "vitest -c ./test/vitest.config.ts",
     "test:build": "publint --strict ./src && attw --pack ./src --ignore-rules false-esm",
     "test:chains": "vitest test/scripts/chains.test.ts",
-    "test:ci": "CI=true vitest -c ./test/vitest.config.ts --coverage --retry=3 --bail=1",
-    "test:cov": "vitest dev -c ./test/vitest.config.ts --coverage",
     "test:env": "pnpm test:env:bun && pnpm test:env:next && pnpm test:env:node && pnpm test:env:tsc && pnpm test:env:vite",
     "test:env:bun": "pnpm --filter test-bun test",
     "test:env:next": "pnpm --filter test-next test",
@@ -47,33 +47,34 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
-    "@ark/attest": "^0.10.2",
+    "@ark/attest": "^0.56.0",
     "@biomejs/biome": "^2.2.4",
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.29.7",
     "@ethereumjs/rlp": "^5.0.2",
     "@paulmillr/trusted-setups": "^0.1.2",
     "@pimlico/alto": "0.0.18",
+    "@remix-run/node-fetch-server": "^0.12.0",
     "@size-limit/preset-big-lib": "^11.2.0",
     "@types/bun": "^1.2.22",
     "@types/node": "^24.5.2",
-    "@vitest/coverage-v8": "^3.2.4",
-    "@vitest/ui": "^3.2.4",
+    "@vitest/coverage-v8": "^4.0.15",
     "bun": "^1.2.22",
     "ethers": "^6.15.0",
-    "glob": "^10.4.5",
     "knip": "^5.64.0",
     "micro-eth-signer": "^0.14.0",
+    "ox": "~0.11.3",
     "permissionless": "^0.2.57",
-    "prool": "0.0.24",
+    "prool": "~0.2.2",
     "publint": "^0.2.12",
     "sherif": "^0.8.4",
     "simple-git-hooks": "^2.13.1",
     "size-limit": "^11.2.0",
+    "testcontainers": "^11.10.0",
     "typescript": "catalog:",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.15"
   },
-  "packageManager": "pnpm@10.16.1",
+  "packageManager": "pnpm@10.22.0",
   "engines": {
     "node": ">=24.5"
   },
@@ -115,7 +116,7 @@
       "src": {
         "entry": [
           "index.ts!",
-          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,utils,window,zksync}/index.ts!",
+          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,tempo,utils,window,zksync}/index.ts!",
           "chains/utils.ts!"
         ],
         "ignore": [
@@ -134,13 +135,13 @@
     {
       "name": "import * from 'viem' (esm)",
       "path": "./src/_esm/index.js",
-      "limit": "80 kB",
+      "limit": "85 kB",
       "import": "*"
     },
     {
       "name": "const viem = require('viem') (cjs)",
       "path": "./src/_cjs/index.js",
-      "limit": "96 kB"
+      "limit": "105 kB"
     },
     {
       "name": "import { createClient, http } from 'viem'",
@@ -151,7 +152,7 @@
     {
       "name": "import * from 'viem/account-abstraction'",
       "path": "./src/_esm/account-abstraction/index.js",
-      "limit": "57 kB",
+      "limit": "58 kB",
       "import": "*"
     },
     {
@@ -175,7 +176,7 @@
     {
       "name": "import * from 'viem/actions'",
       "path": "./src/_esm/actions/index.js",
-      "limit": "62 kB",
+      "limit": "69 kB",
       "import": "*"
     },
     {
@@ -187,7 +188,7 @@
     {
       "name": "import * from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "51 kB",
+      "limit": "96 kB",
       "import": "*"
     },
     {
@@ -195,6 +196,12 @@
       "path": "./src/_esm/chains/index.js",
       "limit": "500 B",
       "import": "{ mainnet }"
+    },
+    {
+      "name": "import { tempoTestnet } from 'viem/chains'",
+      "path": "./src/_esm/chains/index.js",
+      "limit": "55 kB",
+      "import": "{ tempoTestnet }"
     },
     {
       "name": "import * from 'viem/chains/utils'",
@@ -205,26 +212,32 @@
     {
       "name": "import * from 'viem/ens'",
       "path": "./src/_esm/ens/index.js",
-      "limit": "52 kB",
+      "limit": "53 kB",
       "import": "*"
     },
     {
       "name": "import { getEnsAvatar } from 'viem/ens'",
       "path": "./src/_esm/ens/index.js",
-      "limit": "27 kB",
+      "limit": "28 kB",
       "import": "{ getEnsAvatar }"
     },
     {
       "name": "import * from 'viem/siwe'",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "43 kB",
+      "limit": "49 kB",
       "import": "*"
     },
     {
       "name": "import { verifySiweMessage } from 'viem/siwe'",
       "path": "./src/_esm/siwe/index.js",
-      "limit": "42 kB",
+      "limit": "48 kB",
       "import": "{ verifySiweMessage }"
+    },
+    {
+      "name": "import { verifyHash } from 'viem/actions'",
+      "path": "./src/_esm/actions/index.js",
+      "limit": "47 kB",
+      "import": "{ verifyHash }"
     }
   ],
   "pnpm": {
@@ -262,7 +275,15 @@
       "hono@<4.9.7": "4.9.7",
       "tar-fs@>=3.0.0 <3.1.1": ">=3.1.1",
       "vite@>=6.0.0 <=6.4.0": "6.4.1",
-      "hono@>=1.1.0 <4.10.2": "4.10.2"
+      "hono@>=1.1.0 <4.10.2": "4.10.2",
+      "glob@>=10.3.7 <=11.0.3": ">=11.1.0",
+      "mdast-util-to-hast@>=13.0.0 <13.2.1": "13.2.1",
+      "react-router@>=7.0.0 <=7.11.0": "7.12.0",
+      "hono@<4.11.4": "4.11.4",
+      "undici@>=7.0.0 <7.18.2": "7.18.2",
+      "tar@<=7.5.3": "7.5.4",
+      "lodash-es@>=4.0.0 <=4.17.22": "4.17.23",
+      "lodash@>=4.0.0 <=4.17.22": "4.17.23"
     },
     "onlyBuiltDependencies": [
       "bun",

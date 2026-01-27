@@ -41,7 +41,7 @@ export function getUserOperationHash<
     verificationGasLimit,
   } = userOperation
 
-  if (entryPointVersion === '0.8')
+  if (entryPointVersion === '0.8' || entryPointVersion === '0.9')
     return hashTypedData(
       getUserOperationTypedData({
         chainId,
@@ -54,11 +54,14 @@ export function getUserOperationHash<
     if (entryPointVersion === '0.6') {
       const factory = userOperation.initCode?.slice(0, 42) as Hex
       const factoryData = userOperation.initCode?.slice(42) as Hex | undefined
-      const initCode = getInitCode({
-        authorization,
-        factory,
-        factoryData,
-      })
+      const initCode = getInitCode(
+        {
+          authorization,
+          factory,
+          factoryData,
+        },
+        { forHash: true },
+      )
       return encodeAbiParameters(
         [
           { type: 'address' },
@@ -88,7 +91,9 @@ export function getUserOperationHash<
     }
 
     if (entryPointVersion === '0.7') {
-      const packedUserOp = toPackedUserOperation(userOperation)
+      const packedUserOp = toPackedUserOperation(userOperation, {
+        forHash: true,
+      })
       return encodeAbiParameters(
         [
           { type: 'address' },

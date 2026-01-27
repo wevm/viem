@@ -123,6 +123,25 @@ export async function estimateGas<
   })()
 
   try {
+    const to = await (async () => {
+      // If `to` exists on the parameters, use that.
+      if (args.to) return args.to
+
+      // If no `to` exists, and we are sending a EIP-7702 transaction, use the
+      // address of the first authorization in the list.
+      if (args.authorizationList && args.authorizationList.length > 0)
+        return await recoverAuthorizationAddress({
+          authorization: args.authorizationList[0],
+        }).catch(() => {
+          throw new BaseError(
+            '`to` is required. Could not infer from `authorizationList`',
+          )
+        })
+
+      // Otherwise, we are sending a deployment transaction.
+      return undefined
+    })()
+
     const {
       accessList,
       authorizationList,
@@ -144,33 +163,21 @@ export async function estimateGas<
       ? ((await prepareTransactionRequest(client, {
           ...args,
           parameters,
+          to,
         } as PrepareTransactionRequestParameters)) as EstimateGasParameters)
       : args
+
+    // If we get `gas` back from the prepared transaction request, which is
+    // different from the `gas` we provided, it was likely filled by other means
+    // during request preparation (e.g. `eth_fillTransaction` or `chain.transactionRequest.prepare`).
+    // (e.g. `eth_fillTransaction` or `chain.transactionRequest.prepare`).
+    if (gas && args.gas !== gas) return gas
 
     const blockNumberHex =
       typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
     const block = blockNumberHex || blockTag
 
     const rpcStateOverride = serializeStateOverride(stateOverride)
-
-    const to = await (async () => {
-      // If `to` exists on the parameters, use that.
-      if (rest.to) return rest.to
-
-      // If no `to` exists, and we are sending a EIP-7702 transaction, use the
-      // address of the first authorization in the list.
-      if (authorizationList && authorizationList.length > 0)
-        return await recoverAuthorizationAddress({
-          authorization: authorizationList[0],
-        }).catch(() => {
-          throw new BaseError(
-            '`to` is required. Could not infer from `authorizationList`',
-          )
-        })
-
-      // Otherwise, we are sending a deployment transaction.
-      return undefined
-    })()
 
     assertRequest(args as AssertRequestParameters)
 
@@ -187,7 +194,6 @@ export async function estimateGas<
         blobs,
         blobVersionedHashes,
         data,
-        gas,
         gasPrice,
         maxFeePerBlobGas,
         maxFeePerGas,

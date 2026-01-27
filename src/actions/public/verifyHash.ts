@@ -67,6 +67,8 @@ export type VerifyHashParameters = Pick<
 > & {
   /** The address that signed the original message. */
   address: Address
+  /** The chain to use. */
+  chain?: Chain | null | undefined
   /** The address of the ERC-6492 signature verifier contract. */
   erc6492VerifierAddress?: Address | undefined
   /** The hash to be verified. */
@@ -111,13 +113,16 @@ export async function verifyHash<chain extends Chain | undefined>(
 ): Promise<VerifyHashReturnType> {
   const {
     address,
+    chain = client.chain,
     hash,
     erc6492VerifierAddress:
       verifierAddress = parameters.universalSignatureVerifierAddress ??
-      client.chain?.contracts?.erc6492Verifier?.address,
+      chain?.contracts?.erc6492Verifier?.address,
     multicallAddress = parameters.multicallAddress ??
-      client.chain?.contracts?.multicall3?.address,
+      chain?.contracts?.multicall3?.address,
   } = parameters
+
+  if (chain?.verifyHash) return await chain.verifyHash(client, parameters)
 
   const signature = (() => {
     const signature = parameters.signature
@@ -223,13 +228,13 @@ export async function verifyErc8010(
     args: [
       [
         ...(initData
-          ? [
+          ? ([
               {
                 allowFailure: true,
                 target: to ?? address,
                 callData: initData,
               },
-            ]
+            ] as const)
           : []),
         {
           allowFailure: true,

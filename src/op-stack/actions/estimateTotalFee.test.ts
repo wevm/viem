@@ -1,10 +1,12 @@
 import { expect, test } from 'vitest'
-
-import { accounts } from '~test/src/constants.js'
-
-import { anvilOptimism } from '../../../test/src/anvil.js'
+import { anvilOptimism } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
+import { estimateGas } from '../../actions/public/estimateGas.js'
+import { getGasPrice } from '../../actions/public/getGasPrice.js'
 import { parseGwei, type TransactionRequestEIP1559 } from '../../index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
+import { estimateL1Fee } from './estimateL1Fee.js'
+import { estimateOperatorFee } from './estimateOperatorFee.js'
 import { estimateTotalFee } from './estimateTotalFee.js'
 
 const optimismClient = anvilOptimism.getClient()
@@ -60,6 +62,14 @@ test('args: nonce', async () => {
   expect(fee).toBeDefined()
 })
 
+test('args: l1BlockAddress', async () => {
+  const fee = await estimateTotalFee(optimismClientWithAccount, {
+    ...baseTransaction,
+    l1BlockAddress: '0x4200000000000000000000000000000000000015',
+  })
+  expect(fee).toBeDefined()
+})
+
 test('args: nullish chain', async () => {
   const fee = await estimateTotalFee(optimismClientWithoutChain, {
     ...baseTransaction,
@@ -67,4 +77,17 @@ test('args: nullish chain', async () => {
     chain: null,
   })
   expect(fee).toBeDefined()
+})
+
+test('includes operator fee in total', async () => {
+  const [totalFee, l1Fee, operatorFee, l2Gas, l2GasPrice] = await Promise.all([
+    estimateTotalFee(optimismClientWithAccount, baseTransaction),
+    estimateL1Fee(optimismClientWithAccount, baseTransaction),
+    estimateOperatorFee(optimismClientWithAccount, baseTransaction),
+    estimateGas(optimismClientWithAccount, baseTransaction),
+    getGasPrice(optimismClientWithAccount),
+  ])
+
+  const expectedTotal = l1Fee + operatorFee + l2Gas * l2GasPrice
+  expect(totalFee).toEqual(expectedTotal)
 })

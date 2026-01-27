@@ -4,9 +4,11 @@ content:
   width: 100%
 layout: landing
 logo: false
+outline: false
 ---
 
-import { HomePage } from 'vocs/components'
+import { HomePage } from 'vocs'
+import { Sponsors } from './components/Sponsors'
 
 <div className="absolute max-w-[1120px] mx-auto w-full top-20 bottom-0 bg-[url('/colosseum-light.svg')] dark:bg-[url('/colosseum.svg')] bg-no-repeat max-sm:w-[200%] max-sm:-left-[200px] max-sm:hidden" />
 
@@ -16,7 +18,7 @@ import { HomePage } from 'vocs/components'
       <div className="space-y-8 max-w-[400px] flex flex-col items-start max-md:items-center">
         <img className="h-[72px] dark:invert-[1] max-sm:h-[60px]" src="/logo-light-hug.svg" alt="viem logo" />
         <div className="font-regular text-[21px] max-sm:text-[18px] text-[#919193] max-md:text-center">Build reliable apps & libraries with <span className="text-black dark:text-white">lightweight</span>, <span className="text-black dark:text-white">composable</span>, and <span className="text-black dark:text-white">type-safe</span> modules that interface with Ethereum</div>
-        <div className="flex justify-center space-x-2">
+        <div className="flex justify-center space-x-2 flex-nowrap">
           <HomePage.Button href="/docs/getting-started" variant="accent">Get started</HomePage.Button>
           <HomePage.Button href="/docs/introduction">Why Viem?</HomePage.Button>
           <HomePage.Button href="https://github.com/wevm/viem">GitHub</HomePage.Button>
@@ -43,42 +45,18 @@ import { HomePage } from 'vocs/components'
 
     </div>
     <div className="flex justify-between space-x-2">
-    <a href="https://github.com/wevm/viem/stargazers" className="cursor-pointer h-[36px] max-w-[120px] flex-1 relative rounded-lg overflow-hidden border border-black/10 dark:border-white/20" style={{ color: 'inherit' }} rel="noreferrer noopener" target="_blank">
-      <div className="absolute flex z-[1] p-[6px] h-full w-full">
-        <div className="flex-1 bg-white/60 dark:bg-black/40 flex items-center w-full h-full rounded-md">
-          <span className="font-medium text-[15px] opacity-80 leading-none w-full text-center">stars</span>
-        </div>
-        <div className="flex items-center h-full px-2">
-          <span className="font-medium text-[15px] text-center leading-none w-full text-black dark:text-white">2.4k</span>
-        </div>
+      <div className="flex-1 h-[44px] p-1.5 flex items-center gap-2 rounded-lg border border-black/10 dark:border-white/10 bg-white/80 dark:bg-white/5">
+        <span className="font-medium text-[15px] opacity-60 bg-black/10 dark:bg-black/40 px-3 h-full flex items-center rounded-md">stars</span>
+        <span className="font-medium text-[15px] text-black dark:text-white flex-1 text-center">2.4k</span>
       </div>
-      <div className="absolute left-0 right-0 top-0 bottom-0 bg-black/5 dark:bg-white/5 z-0" />
-      <div className="absolute left-0 right-0 top-0 bottom-0 backdrop-blur-[2px] backdrop-filter z-0" />
-    </a>
-    <a href="https://app.codecov.io/gh/wevm/viem" className="cursor-pointer h-[36px] max-w-[160px] flex-1 relative rounded-lg overflow-hidden border border-green-400/50" style={{ color: 'inherit' }} rel="noreferrer noopener" target="_blank">
-      <div className="absolute flex z-[1] p-[6px] h-full w-full">
-        <div className="flex-1 bg-white/60 dark:bg-black/40 flex items-center w-full h-full rounded-md">
-          <span className="font-medium text-[15px] leading-none opacity-80 w-full text-center">coverage</span>
-        </div>
-        <div className="flex items-center h-full px-2">
-          <span className="font-medium text-[15px] leading-none text-center w-full text-green-400">100%</span>
-        </div>
+      <div className="flex-1 h-[44px] p-1.5 flex items-center gap-2 rounded-lg border border-green-400/30 bg-green-400/10">
+        <span className="font-medium text-[15px] opacity-80 bg-[#041204] px-3 h-full flex items-center rounded-md">coverage</span>
+        <span className="font-medium text-[15px] text-green-400 flex-1 text-center">100%</span>
       </div>
-      <div className="absolute left-0 right-0 top-0 bottom-0 bg-green-400 opacity-10 z-[0]" />
-      <div className="absolute left-0 right-0 top-0 bottom-0 backdrop-blur-[2px] backdrop-filter z-[0]" />
-    </a>
-    <a href="https://github.com/wevm/viem/blob/main/LICENSE" className="cursor-pointer h-[36px] max-w-[130px] flex-1 relative rounded-lg overflow-hidden border border-black/10 dark:border-white/20 max-lg:hidden" style={{ color: 'inherit' }} rel="noreferrer noopener" target="_blank">
-      <div className="absolute flex z-[1] p-[6px] h-full w-full">
-        <div className="flex-1 bg-white/60 dark:bg-black/40 flex items-center w-full h-full rounded-md">
-          <span className="font-medium text-[15px] leading-none opacity-80 w-full text-center">license</span>
-        </div>
-        <div className="flex items-center h-full px-2">
-          <span className="font-medium text-[15px] leading-none text-center w-full text-black dark:text-white">MIT</span>
-        </div>
+      <div className="flex-1 h-[44px] p-1.5 flex items-center gap-2 rounded-lg border border-black/10 dark:border-white/10 bg-white/80 dark:bg-white/5 max-lg:hidden">
+        <span className="font-medium text-[15px] opacity-60 bg-black/10 dark:bg-black/40 px-3 h-full flex items-center rounded-md">license</span>
+        <span className="font-medium text-[15px] text-black dark:text-white flex-1 text-center">MIT</span>
       </div>
-      <div className="absolute left-0 right-0 top-0 bottom-0 bg-black/5 dark:bg-white/5 z-[0]" />
-      <div className="absolute left-0 right-0 top-0 bottom-0 backdrop-blur-[2px] backdrop-filter z-[0]" />
-    </a>
     </div>
     </div>
     </div>
@@ -130,10 +108,9 @@ import { HomePage } from 'vocs/components'
   </div>
 </div>
 
-<article className="vocs_Content max-w-3xl mt-[-80px] mx-auto">
+<article className="vocs_Content max-w-[70ch] mx-auto space-y-4" data-v-content>
 
-#
-# Overview
+## Overview
 
 ```ts twoslash
 // 1. Import modules.
@@ -150,7 +127,7 @@ const client = createPublicClient({
 const blockNumber = await client.getBlockNumber()
 ```
 
-# Features
+## Features
 
 viem supports all these features out-of-the-box:
 
@@ -164,7 +141,7 @@ viem supports all these features out-of-the-box:
 - First-class support for [Anvil](https://book.getfoundry.sh/), [Hardhat](https://hardhat.org/) & [Ganache](https://trufflesuite.com/ganache/)
 - Test suite running against [forked](https://ethereum.org/en/glossary/#fork) Ethereum network
 
-# Community
+## Community
 
 Check out the following places for more wagmi-related content:
 
@@ -172,7 +149,7 @@ Check out the following places for more wagmi-related content:
 - Join the [discussions on GitHub](https://github.com/wevm/viem/discussions)
 - [Share your project/organization](https://github.com/wevm/viem/discussions/104) that uses viem
 
-# Support
+## Support
 
 Help support future development and make wagmi a sustainable open-source project:
 
@@ -180,9 +157,9 @@ Help support future development and make wagmi a sustainable open-source project
 - [Gitcoin Grant](https://wagmi.sh/gitcoin)
 - [wevm.eth](https://etherscan.io/enslookup-search?search=wevm.eth)
 
-# Sponsors
+## Sponsors
 
-::sponsors
+<Sponsors />
 
 <div className="flex justify-center mt-10">
   <a href="https://vercel.com/?utm_source=wevm&utm_campaign=oss">

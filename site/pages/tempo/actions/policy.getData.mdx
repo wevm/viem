@@ -1,0 +1,50 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `policy.getData`
+
+Gets the data for a transfer policy, including its type and admin address.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { admin, type } = await client.policy.getData({
+  policyId: 1n,
+})
+
+console.log('Policy admin:', admin)
+// @log: Policy admin: 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb
+console.log('Policy type:', type)
+// @log: Policy type: whitelist
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Address of the policy admin */
+  admin: Address
+  /** Type of policy */
+  type: PolicyType
+}
+```
+
+## Parameters
+
+### policyId
+
+- **Type:** `bigint`
+
+ID of the policy to query.
+
+<ReadParameters />
+

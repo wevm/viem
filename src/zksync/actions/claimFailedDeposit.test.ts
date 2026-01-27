@@ -1,16 +1,16 @@
 import { expect, test } from 'vitest'
-import { anvilMainnet, anvilZksync } from '~test/src/anvil.js'
-import { accounts } from '~test/src/constants.js'
+import { anvilMainnet, anvilZksync } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import {
   mockFailedDepositReceipt,
   mockFailedDepositTransaction,
   mockLogProof,
   mockRequestReturnData,
-} from '~test/src/zksync.js'
-import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
-import { type EIP1193RequestFn, publicActions } from '~viem/index.js'
-import { claimFailedDeposit } from '~viem/zksync/actions/claimFailedDeposit.js'
-import { publicActionsL2 } from '~viem/zksync/index.js'
+} from '~test/zksync.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { type EIP1193RequestFn, publicActions } from '../../index.js'
+import { claimFailedDeposit } from '../../zksync/actions/claimFailedDeposit.js'
+import { publicActionsL2 } from '../../zksync/index.js'
 
 const request = (async ({ method, params }) => {
   if (method === 'eth_sendRawTransaction')

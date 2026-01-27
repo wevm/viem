@@ -1,7 +1,7 @@
 import { PublicKey, Signature, WebAuthnP256 } from 'ox'
 import { expect, test } from 'vitest'
 
-import { typedData } from '../../../test/src/constants.js'
+import { typedData } from '~test/constants.js'
 import { hashMessage, hashTypedData, keccak256 } from '../../utils/index.js'
 import { toWebAuthnAccount } from './toWebAuthnAccount.js'
 

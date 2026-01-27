@@ -1,19 +1,32 @@
-auditConfig:
-  ignoreGhsas:
-    - GHSA-ffrw-9mx8-89p8
-catalog:
-  '@types/react': ^19
-  '@types/react-dom': ^19
-  react: ^19
-  react-dom: ^19
-  typescript: ^5.9.2
-minimumReleaseAge: 1440
-minimumReleaseAgeExclude:
-  - hono
-  - vocs
 packages:
   - examples/*
   - environments/*
   - site
   - src
   - test
+
+auditConfig:
+  ignoreGhsas:
+    - GHSA-ffrw-9mx8-89p8
+    - GHSA-mh29-5h37-fv8m
+
+catalog:
+  '@types/react': ^19
+  '@types/react-dom': ^19
+  react: ^19.0.0
+  react-dom: ^19.0.0
+  typescript: 5.9.3
+
+minimumReleaseAge: 1440
+
+minimumReleaseAgeExclude:
+  - '@vitest/*'
+  - abitype
+  - glob
+  - hono
+  - lodash
+  - lodash-es
+  - ox
+  - prool
+  - vitest
+  - vocs
