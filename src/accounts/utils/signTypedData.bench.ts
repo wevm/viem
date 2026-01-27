@@ -1,7 +1,7 @@
 import { Wallet } from 'ethers'
 import { bench, describe } from 'vitest'
 
-import { accounts, typedData } from '~test/src/constants.js'
+import { accounts, typedData } from '~test/constants.js'
 
 import { signTypedData } from './signTypedData.js'
 

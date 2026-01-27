@@ -77,6 +77,23 @@ const account = mnemonicToAccount(
 )
 ```
 
+### options.passphrase
+
+- **Type:** `string`
+
+The BIP-39 passphrase.
+
+```ts thoslash
+import { mnemonicToAccount } from 'viem/accounts'
+// ---cut---
+const account = mnemonicToAccount(
+  'legal winner thank year wave sausage worth useful legal winner thank yellow',
+  {
+    passphrase: 'passphrase' // [!code focus]
+  }
+)
+```
+
 ### options.accountIndex
 
 - **Type:** `number`

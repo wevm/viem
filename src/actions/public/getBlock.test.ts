@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test } from 'vitest'
 
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 import { celo } from '../../chains/index.js'
 
 import { createPublicClient } from '../../clients/createPublicClient.js'

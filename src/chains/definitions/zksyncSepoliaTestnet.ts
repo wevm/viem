@@ -3,6 +3,7 @@ import { chainConfig } from '../../zksync/chainConfig.js'
 
 export const zksyncSepoliaTestnet = /*#__PURE__*/ defineChain({
   ...chainConfig,
+  blockTime: 200,
   id: 300,
   name: 'ZKsync Sepolia Testnet',
   network: 'zksync-sepolia-testnet',

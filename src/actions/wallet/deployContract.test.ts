@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
 
-import { baycContractConfig, payableContractConfig } from '~test/src/abis.js'
-import { accounts } from '~test/src/constants.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { baycContractConfig, payableContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { getBalance } from '../public/getBalance.js'
 import { mine } from '../test/mine.js'

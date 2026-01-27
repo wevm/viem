@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
+import { wagmiContractConfig } from '~test/abis.js'
 import { ErrorsExample } from '../../../../contracts/generated.js'
-import { wagmiContractConfig } from '../../../../test/src/abis.js'
 import { BaseError } from '../../../errors/base.js'
 import { RpcRequestError } from '../../../errors/request.js'
 import { getUserOperationError } from './getUserOperationError.js'

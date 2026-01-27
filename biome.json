@@ -17,6 +17,7 @@
       "!**/contracts",
       "!**/test/kzg/**/*.json",
       "!**/test/kzg/**/*.txt",
+      "!**/test/tempo/**/*",
       "!**/coverage",
       "!**/tsconfig.json",
       "!**/tsconfig.*.json",
@@ -49,7 +50,7 @@
       },
       "performance": {
         "noBarrelFile": "error",
-        "noReExportAll": "error",
+        "noReExportAll": "off",
         "noDelete": "off"
       },
       "style": {

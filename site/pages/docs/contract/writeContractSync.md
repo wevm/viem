@@ -8,7 +8,7 @@ Executes a write function on a contract, and waits for the transaction to be inc
 
 A "write" function on a Solidity contract modifies the state of the blockchain. These types of functions require gas to be executed, and hence a [Transaction](/docs/glossary/terms) is needed to be broadcast in order to change the state.
 
-Internally, `writeContract` uses a [Wallet Client](/docs/clients/wallet) to call the [`sendTransaction` action](/docs/actions/wallet/sendTransaction) with [ABI-encoded `data`](/docs/contract/encodeFunctionData).
+Internally, `writeContractSync` uses a [Wallet Client](/docs/clients/wallet) to call the [`sendTransactionSync` action](/docs/actions/wallet/sendTransactionSync) with [ABI-encoded `data`](/docs/contract/encodeFunctionData).
 
 :::warning
 
@@ -20,7 +20,7 @@ This Action is only recommended to be used on chains with low block times and fa
 
 Below is a very basic example of how to execute a write function on a contract (with no arguments).
 
-While you can use `writeContract` [by itself](#standalone), it is highly recommended to pair it with [`simulateContract`](/docs/contract/simulateContract) to validate that the contract write will execute without errors.
+While you can use `writeContractSync` [by itself](#standalone), it is highly recommended to pair it with [`simulateContract`](/docs/contract/simulateContract) to validate that the contract write will execute without errors.
 
 :::code-group
 
@@ -329,7 +329,7 @@ await walletClient.writeContractSync({
 
 The target chain. If there is a mismatch between the wallet's current chain & the target chain, an error will be thrown.
 
-The chain is also used to infer its request type (e.g. the Celo chain has a `gatewayFee` that you can pass through to `sendTransaction`).
+The chain is also used to infer its request type (e.g. the Celo chain has a `gatewayFee` that you can pass through to `sendTransactionSync`).
 
 ```ts
 import { optimism } from 'viem/chains' // [!code focus]

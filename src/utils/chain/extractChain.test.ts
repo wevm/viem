@@ -29,6 +29,7 @@ test('default', async () => {
           "blockCreated": 14353601,
         },
       },
+      "extend": [Function],
       "fees": undefined,
       "formatters": undefined,
       "id": 1,
@@ -108,6 +109,7 @@ test('default', async () => {
           },
         },
       },
+      "extend": [Function],
       "fees": undefined,
       "formatters": {
         "block": {

@@ -23,7 +23,7 @@ import type {
   GetChainParameter,
 } from '../../types/chain.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
-import type { Hash } from '../../types/misc.js'
+import type { Hash, Hex } from '../../types/misc.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {
@@ -35,6 +35,7 @@ import {
   type AssertCurrentChainErrorType,
   assertCurrentChain,
 } from '../../utils/chain/assertCurrentChain.js'
+import { concat } from '../../utils/data/concat.js'
 import {
   type GetTransactionErrorReturnType,
   getTransactionError,
@@ -83,7 +84,12 @@ export type SendTransactionParameters<
 > = request &
   GetAccountParameter<account, Account | Address, true, true> &
   GetChainParameter<chain, chainOverride> &
-  GetTransactionRequestKzgParameter<request>
+  GetTransactionRequestKzgParameter<request> & {
+    /** Whether to assert that the client chain is on the correct chain. @default true */
+    assertChainId?: boolean | undefined
+    /** Data to append to the end of the calldata. Takes precedence over `client.dataSuffix`. */
+    dataSuffix?: Hex | undefined
+  }
 
 export type SendTransactionReturnType = Hash
 
@@ -159,11 +165,15 @@ export async function sendTransaction<
 ): Promise<SendTransactionReturnType> {
   const {
     account: account_ = client.account,
+    assertChainId = true,
     chain = client.chain,
     accessList,
     authorizationList,
     blobs,
     data,
+    dataSuffix = typeof client.dataSuffix === 'string'
+      ? client.dataSuffix
+      : client.dataSuffix?.value,
     gas,
     gasPrice,
     maxFeePerBlobGas,
@@ -210,10 +220,11 @@ export async function sendTransaction<
       let chainId: number | undefined
       if (chain !== null) {
         chainId = await getAction(client, getChainId, 'getChainId')({})
-        assertCurrentChain({
-          currentChainId: chainId,
-          chain,
-        })
+        if (assertChainId)
+          assertCurrentChain({
+            currentChainId: chainId,
+            chain,
+          })
       }
 
       const chainFormat = client.chain?.formatters?.transactionRequest?.format
@@ -228,7 +239,7 @@ export async function sendTransaction<
           authorizationList,
           blobs,
           chainId,
-          data,
+          data: data ? concat([data, dataSuffix ?? '0x']) : data,
           gas,
           gasPrice,
           maxFeePerBlobGas,
@@ -309,7 +320,7 @@ export async function sendTransaction<
         authorizationList,
         blobs,
         chain,
-        data,
+        data: data ? concat([data, dataSuffix ?? '0x']) : data,
         gas,
         gasPrice,
         maxFeePerBlobGas,

@@ -111,9 +111,8 @@ export function formatTransaction(
     delete transaction_.maxFeePerGas
     delete transaction_.maxPriorityFeePerGas
   }
-  if (transaction_.type === 'eip1559') {
-    delete transaction_.maxFeePerBlobGas
-  }
+  if (transaction_.type === 'eip1559') delete transaction_.maxFeePerBlobGas
+
   return transaction_
 }
 

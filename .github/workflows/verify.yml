@@ -33,7 +33,7 @@ jobs:
     name: Build
     needs: check
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 20
     permissions:
       contents: read
 
@@ -55,8 +55,8 @@ jobs:
       - name: Check for unused files, dependencies, and exports
         run: pnpm knip --production
 
-      # - name: Check size
-      #   run: pnpm size
+      - name: Check size
+        run: pnpm size
 
   types:
     name: Types
@@ -64,10 +64,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    timeout-minutes: 5
+    timeout-minutes: 10
     strategy:
       matrix:
-        version: ['5.7.2', '5.8.2', '5.9.2', 'latest']
+        version: ['5.8.2', '5.9.3', 'latest']
 
     steps:
       - name: Clone repository
@@ -88,13 +88,12 @@ jobs:
         run: pnpm check:types
 
       - name: Bench types
-        if: matrix.version != '5.0.4'
         run: pnpm bench:types
 
   test:
-    name: Test
+    name: 'Test Local (transport: ${{ matrix.transport-mode }}, multicall: ${{ matrix.multicall }}, ${{ matrix.shard }}/${{ matrix.total-shards }})'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     permissions:
       contents: read
     strategy:
@@ -117,13 +116,14 @@ jobs:
         shell: bash
         run: pnpm contracts:build
 
-      - name: Run tests
+      - name: Test Local
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: pnpm test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
+          command: pnpm test --bail=1 --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
         env:
+          CI: true
           VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL }}
           VITE_ANVIL_FORK_URL_OPTIMISM: ${{ secrets.VITE_ANVIL_FORK_URL_OPTIMISM }}
           VITE_ANVIL_FORK_URL_OPTIMISM_SEPOLIA: ${{ secrets.VITE_ANVIL_FORK_URL_OPTIMISM_SEPOLIA }}
@@ -132,11 +132,43 @@ jobs:
           VITE_BATCH_MULTICALL: ${{ matrix.multicall }}
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
           VITE_SHARD_ID: ${{ matrix.shard }}
+          VITE_TEMPO_ENV: localnet
+          VITE_TEMPO_TAG: sha-888599a
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+  test-tempo-deployed:
+    name: 'Test Deployed Tempo (env: ${{ matrix.node-env }}, e2e)'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        node-env: 
+          # - devnet
+          - testnet
+          # - mainnet
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Run tests
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: pnpm test --bail=1 --project tempo e2e
+        env:
+          CI: true
+          VITE_TEMPO_CREDENTIALS: ${{ secrets.VITE_TEMPO_CREDENTIALS }}
+          VITE_TEMPO_ENV: ${{ matrix.node-env }}
 
   test-envs:
     name: Test Environments
@@ -227,7 +259,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        typescript-version: ['5.7.2', '5.8.2', '5.9.2', 'latest']
+        typescript-version: ['5.7.2', '5.8.3', '5.9.3', 'latest']
 
     steps:
       - name: Clone repository
@@ -251,6 +283,10 @@ jobs:
 
       - name: Check types
         run: pnpm check:types
+        working-directory: ./wagmi
+
+      - name: Bench types
+        run: pnpm bench:types
         working-directory: ./wagmi
 
       - name: Check build

@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test } from 'vitest'
 
-import { createHttpServer } from '~test/src/utils.js'
+import { createHttpServer } from '~test/utils.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { localhost } from '../../chains/index.js'
 import {
@@ -644,6 +644,7 @@ describe('client', () => {
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": undefined,
+        "dataSuffix": undefined,
         "extend": [Function],
         "key": "base",
         "name": "Base Client",

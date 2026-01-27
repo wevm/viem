@@ -1,0 +1,128 @@
+# `amm.watchBurn`
+
+Watches for liquidity burn events on the Fee AMM.  
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const unwatch = client.amm.watchBurn({
+  onBurn: (args, log) => {
+    console.log('User token amount:', args.amountUserToken)
+    console.log('Validator token amount:', args.amountValidatorToken)
+    console.log('Liquidity burned:', args.liquidity)
+    console.log('Sender:', args.sender)
+    console.log('Recipient:', args.to)
+    console.log('User token:', args.userToken)
+    console.log('Validator token:', args.validatorToken)
+  },
+})
+
+// Later, stop watching
+unwatch()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = () => void
+```
+
+Returns a function to unsubscribe from the event.
+
+## Parameters
+
+### onBurn
+
+- **Type:** `function`
+
+```ts
+declare function onBurn(args: Args, log: Log): void
+
+type Args = {
+  /** Amount of user token received */
+  amountUserToken: bigint
+  /** Amount of validator token received */
+  amountValidatorToken: bigint
+  /** Amount of LP tokens burned */
+  liquidity: bigint
+  /** Address that removed liquidity */
+  sender: Address
+  /** Address that received the tokens */
+  to: Address
+  /** Address of the user token */
+  userToken: Address
+  /** Address of the validator token */
+  validatorToken: Address
+}
+```
+
+Callback to invoke when liquidity is removed.
+
+### args (optional)
+
+- **Type:** `object`
+
+```ts
+type Args = {
+  /** Filter by sender address */
+  sender?: Address | Address[] | null
+  /** Filter by user token address */
+  userToken?: Address | Address[] | null
+  /** Filter by validator token address */
+  validatorToken?: Address | Address[] | null
+}
+```
+
+Filter events by indexed parameters.
+
+### userToken (optional)
+
+- **Type:** `Address | bigint`
+
+Address or ID of the user token to filter events.
+
+### validatorToken (optional)
+
+- **Type:** `Address | bigint`
+
+Address or ID of the validator token to filter events.
+
+### fromBlock (optional)
+
+- **Type:** `bigint`
+
+Block to start listening from.
+
+### onError (optional)
+
+- **Type:** `function`
+
+```ts
+declare function onError(error: Error): void
+```
+
+The callback to call when an error occurred when trying to get for a new block.
+
+### poll (optional)
+
+- **Type:** `true`
+
+Enable polling mode.
+
+### pollingInterval (optional)
+
+- **Type:** `number`
+
+Polling frequency (in ms). Defaults to Client's pollingInterval config.
+
+

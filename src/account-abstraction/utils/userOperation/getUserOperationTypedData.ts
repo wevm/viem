@@ -7,7 +7,7 @@ import { toPackedUserOperation } from './toPackedUserOperation.js'
 export type GetUserOperationTypedDataParameters = {
   chainId: number
   entryPointAddress: Address
-  userOperation: UserOperation<'0.8'>
+  userOperation: UserOperation<'0.8'> | UserOperation<'0.9'>
 }
 
 export type GetUserOperationTypedDataReturnType = TypedDataDefinition<
@@ -33,7 +33,7 @@ export function getUserOperationTypedData(
 ): GetUserOperationTypedDataReturnType {
   const { chainId, entryPointAddress, userOperation } = parameters
 
-  const packedUserOp = toPackedUserOperation(userOperation)
+  const packedUserOp = toPackedUserOperation(userOperation, { forHash: true })
 
   return {
     types,

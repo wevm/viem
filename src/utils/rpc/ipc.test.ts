@@ -1,7 +1,7 @@
-import { anvil } from 'prool/instances'
+import { Instance } from 'prool'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 import { getBlockNumber, mine } from '../../actions/index.js'
 import { createClient, http } from '../../index.js'
 import type { RpcResponse } from '../../types/rpc.js'
@@ -14,7 +14,7 @@ const client = createClient({
   transport: http('http://127.0.0.1:6968'),
 }).extend(() => ({ mode: 'anvil' }))
 
-const instance = anvil({
+const instance = Instance.anvil({
   port: 6968,
   ipc: anvilMainnet.rpcUrl.ipc,
   forkBlockNumber: anvilMainnet.forkBlockNumber,
@@ -64,7 +64,7 @@ describe('request', () => {
     expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.4.4",
+        "result": "anvil/v1.5.0",
       }
     `)
     expect(rpcClient.requests.size).toBe(0)
@@ -315,7 +315,7 @@ describe('requestAsync', () => {
     expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.4.4",
+        "result": "anvil/v1.5.0",
       }
     `)
     expect(client.requests.size).toBe(0)

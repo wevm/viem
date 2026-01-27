@@ -4,7 +4,6 @@ import type * as WebAuthnP256 from 'ox/WebAuthnP256'
 
 import type { LocalAccount } from '../../../accounts/types.js'
 import { readContract } from '../../../actions/public/readContract.js'
-import { entryPoint06Address } from '../../../constants/address.js'
 import { BaseError } from '../../../errors/base.js'
 import type { Hash, Hex } from '../../../types/misc.js'
 import type { TypedDataDefinition } from '../../../types/typedData.js'
@@ -20,6 +19,7 @@ import { hashMessage } from '../../../utils/signature/hashMessage.js'
 import { hashTypedData } from '../../../utils/signature/hashTypedData.js'
 import { parseSignature } from '../../../utils/signature/parseSignature.js'
 import { entryPoint06Abi } from '../../constants/abis.js'
+import { entryPoint06Address } from '../../constants/address.js'
 import type { UserOperation } from '../../types/userOperation.js'
 import { getUserOperationHash } from '../../utils/userOperation/getUserOperationHash.js'
 import { toSmartAccount } from '../toSmartAccount.js'
@@ -394,8 +394,8 @@ export function toWebAuthnSignature({
       {
         authenticatorData: webauthn.authenticatorData,
         clientDataJSON: stringToHex(webauthn.clientDataJSON),
-        challengeIndex: BigInt(webauthn.challengeIndex),
-        typeIndex: BigInt(webauthn.typeIndex),
+        challengeIndex: BigInt(webauthn.challengeIndex ?? 0n),
+        typeIndex: BigInt(webauthn.typeIndex ?? 0n),
         r,
         s,
       },

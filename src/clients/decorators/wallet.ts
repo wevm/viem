@@ -2,6 +2,11 @@ import type { Abi, Address, TypedData } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
 import {
+  type FillTransactionParameters,
+  type FillTransactionReturnType,
+  fillTransaction,
+} from '../../actions/public/fillTransaction.js'
+import {
   type GetChainIdReturnType,
   getChainId,
 } from '../../actions/public/getChainId.js'
@@ -195,6 +200,40 @@ export type WalletActions<
   >(
     args: DeployContractParameters<abi, chain, account, chainOverride>,
   ) => Promise<DeployContractReturnType>
+  /**
+   * Fills a transaction request with the necessary fields to be signed over.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/fillTransaction
+   *
+   * @param client - Client to use
+   * @param parameters - {@link FillTransactionParameters}
+   * @returns The filled transaction. {@link FillTransactionReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   * const result = await client.fillTransaction({
+   *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+   *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+   *   value: parseEther('1'),
+   * })
+   */
+  fillTransaction: <
+    chainOverride extends Chain | undefined = undefined,
+    accountOverride extends Account | Address | undefined = undefined,
+  >(
+    args: FillTransactionParameters<
+      chain,
+      account,
+      chainOverride,
+      accountOverride
+    >,
+  ) => Promise<FillTransactionReturnType<chain, chainOverride>>
   /**
    * Returns a list of account addresses owned by the wallet or client.
    *
@@ -681,7 +720,7 @@ export type WalletActions<
     chainOverride extends Chain | undefined = undefined,
   >(
     args: SendTransactionSyncParameters<chain, account, chainOverride, request>,
-  ) => Promise<SendTransactionSyncReturnType>
+  ) => Promise<SendTransactionSyncReturnType<chain>>
   /**
    * Requests for the wallet to show information about a call batch
    * that was sent via `sendCalls`.
@@ -1146,6 +1185,7 @@ export function walletActions<
   return {
     addChain: (args) => addChain(client, args),
     deployContract: (args) => deployContract(client, args),
+    fillTransaction: (args) => fillTransaction(client, args),
     getAddresses: () => getAddresses(client),
     getCallsStatus: (args) => getCallsStatus(client, args),
     getCapabilities: (args) => getCapabilities(client, args),

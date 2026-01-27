@@ -1,6 +1,8 @@
 name: Deploy Docs
 
 on:
+  push:
+    branches: [main]
   workflow_call:
   workflow_dispatch:
 
@@ -24,6 +26,8 @@ jobs:
 
       - name: Build docs
         run: pnpm docs:build
+        env:
+          NODE_OPTIONS: '--max-old-space-size=8192'
 
       - name: Deploy
         uses: amondnet/vercel-action@v41.1.4

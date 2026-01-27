@@ -11,10 +11,10 @@ import {
   multicall3ContractConfig,
   usdcContractConfig,
   wagmiContractConfig,
-} from '~test/src/abis.js'
-import { accounts, address } from '~test/src/constants.js'
-import { deploy, deployErrorExample } from '~test/src/utils.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+} from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts, address } from '~test/constants.js'
+import { deploy, deployErrorExample } from '~test/utils.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { mainnet } from '../../chains/index.js'
@@ -101,6 +101,7 @@ test('args: allowFailure', async () => {
 })
 
 test('args: batchSize', async () => {
+  vi.resetAllMocks()
   const spy_1 = vi.spyOn(readContract, 'readContract')
   expect(
     await multicall(client, {
@@ -198,6 +199,7 @@ test('args: batchSize', async () => {
   `)
   expect(spy_1).toBeCalledTimes(3)
 
+  vi.resetAllMocks()
   const spy_2 = vi.spyOn(readContract, 'readContract')
   await multicall(client, {
     batchSize: 32,
@@ -220,6 +222,7 @@ test('args: batchSize', async () => {
   })
   expect(spy_2).toBeCalledTimes(2)
 
+  vi.resetAllMocks()
   const spy_3 = vi.spyOn(readContract, 'readContract')
   await multicall(client, {
     batchSize: 0,
@@ -552,8 +555,6 @@ describe('errors', async () => {
           - The parameters passed to the contract function may be invalid, or
           - The address is not a contract.
          
-        Contract Call:
-          address:  0x0000000000000000000000000000000000000000
 
         Docs: https://viem.sh/docs/contract/multicall
         Version: viem@x.y.z],
@@ -604,7 +605,6 @@ describe('errors', async () => {
           - The address is not a contract.
          
         Contract Call:
-          address:   0x0000000000000000000000000000000000000000
           function:  balanceOf(address account)
           args:               (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
 
@@ -658,7 +658,6 @@ describe('errors', async () => {
           - The address is not a contract.
          
         Contract Call:
-          address:   0x0000000000000000000000000000000000000000
           function:  balanceOf(address account)
           args:               (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
 
@@ -724,7 +723,6 @@ describe('errors', async () => {
         ERC721: transfer caller is not owner nor approved
 
         Contract Call:
-          address:   0x0000000000000000000000000000000000000000
           function:  transferFrom(address from, address to, uint256 tokenId)
           args:                  (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 1)
 
@@ -742,7 +740,6 @@ describe('errors', async () => {
         EnumerableSet: index out of bounds
 
         Contract Call:
-          address:   0x0000000000000000000000000000000000000000
           function:  tokenOfOwnerByIndex(address owner, uint256 index)
           args:                         (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 1)
 
@@ -801,7 +798,6 @@ describe('errors', async () => {
         You can look up the decoded signature here: https://openchain.xyz/signatures?query=0xf9006398.
          
         Contract Call:
-          address:   0x0000000000000000000000000000000000000000
           function:  simpleCustomRead()
 
         Docs: https://viem.sh/docs/contract/decodeErrorResult
@@ -951,8 +947,6 @@ describe('errors', async () => {
           - The parameters passed to the contract function may be invalid, or
           - The address is not a contract.
          
-        Contract Call:
-          address:  0x0000000000000000000000000000000000000000
 
         Docs: https://viem.sh/docs/contract/multicall
         Version: viem@x.y.z],
@@ -993,8 +987,6 @@ describe('errors', async () => {
         [ContractFunctionExecutionError: Function "lol" not found on ABI.
         Make sure you are using the correct ABI and that the function exists on it.
 
-        Contract Call:
-          address:  0x0000000000000000000000000000000000000000
 
         Docs: https://viem.sh/docs/contract/encodeFunctionData
         Version: viem@x.y.z]
@@ -1028,7 +1020,6 @@ describe('errors', async () => {
         Given length (values): 2
 
         Contract Call:
-          address:   0x0000000000000000000000000000000000000000
           function:  balanceOf(address account)
           args:               (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
 
@@ -1068,7 +1059,6 @@ describe('errors', async () => {
           - The address is not a contract.
          
         Contract Call:
-          address:   0x0000000000000000000000000000000000000000
           function:  balanceOf(address account)
           args:               (0xd8da6bf26964af9d7eed9e03e53415d37aa96045)
 
@@ -1112,7 +1102,6 @@ describe('errors', async () => {
         ERC721: transfer caller is not owner nor approved
 
         Contract Call:
-          address:   0x0000000000000000000000000000000000000000
           function:  transferFrom(address from, address to, uint256 tokenId)
           args:                  (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 1)
 
@@ -1159,7 +1148,6 @@ describe('errors', async () => {
       You can look up the decoded signature here: https://openchain.xyz/signatures?query=0xf9006398.
        
       Contract Call:
-        address:   0x0000000000000000000000000000000000000000
         function:  simpleCustomRead()
 
       Docs: https://viem.sh/docs/contract/decodeErrorResult

@@ -3,6 +3,7 @@ import { chainConfig } from '../../zksync/chainConfig.js'
 
 export const abstractTestnet = /*#__PURE__*/ defineChain({
   ...chainConfig,
+  blockTime: 200,
   id: 11_124,
   name: 'Abstract Testnet',
   nativeCurrency: {

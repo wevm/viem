@@ -1,14 +1,13 @@
 import { expect, test } from 'vitest'
-
-import { createPublicClient } from '~viem/clients/createPublicClient.js'
-import { custom } from '~viem/clients/transports/custom.js'
 import {
   baycContractConfig,
   usdcContractConfig,
   wagmiContractConfig,
-} from '../../../test/src/abis.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
-import { accounts } from '../../../test/src/constants.js'
+} from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
+import { createPublicClient } from '../../clients/createPublicClient.js'
+import { custom } from '../../clients/transports/custom.js'
 import { maxUint256 } from '../../constants/number.js'
 import { parseEther, parseGwei } from '../../utils/index.js'
 import { simulateBlocks } from './simulateBlocks.js'
@@ -81,7 +80,7 @@ test('default', async () => {
             "address": "0x5a443704dd4b594b382c22a083e2bd3090a6fef3",
             "blockHash": "0x0852be75a1265a366192f3971d57dbaf69ba34b180dade2f2cf547006dc96ea6",
             "blockNumber": 22263623n,
-            "blockTimestamp": "0x67fc55db",
+            "blockTimestamp": 1744590299n,
             "data": "0x",
             "logIndex": 0,
             "removed": false,

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { createHttpServer } from '~test/src/utils.js'
+import { createHttpServer } from '~test/utils.js'
 import { BaseError } from '../errors/base.js'
 import {
   HttpRequestError,
