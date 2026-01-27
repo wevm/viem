@@ -21,13 +21,19 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
+      - name: Cache Vocs
+        uses: actions/cache@v4
+        with:
+          path: site/.cache
+          key: vocs-${{ hashFiles('site/**/*.md', 'site/**/*.mdx', 'site/**/*.tsx') }}
+          restore-keys: |
+            vocs-
+
       - name: Build package
         run: pnpm build
 
       - name: Build docs
         run: pnpm docs:build
-        env:
-          NODE_OPTIONS: '--max-old-space-size=8192'
 
       - name: Deploy
         uses: amondnet/vercel-action@v41.1.4
