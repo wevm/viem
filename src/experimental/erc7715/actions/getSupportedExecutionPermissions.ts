@@ -1,20 +1,20 @@
-import type { WalletGetSupportedExecutionPermissionsReturnType } from "types/eip1193.js"
-import type { Client } from "../../../clients/createClient.js"
-import type { Transport } from "../../../clients/transports/createTransport.js"
-import { hexToNumber } from "../../../utils/index.js"
+import type { WalletGetSupportedExecutionPermissionsReturnType } from 'types/eip1193.js'
+import type { Client } from '../../../clients/createClient.js'
+import type { Transport } from '../../../clients/transports/createTransport.js'
+import { hexToNumber } from '../../../utils/index.js'
 
 export type GetSupportedExecutionPermissionsReturnType = Record<
-    string,
-    {
-        /**
-         * The chain IDs that the permission is supported on.
-         */
-        chainIds: readonly number[],
-        /**
-         * The rule types that can be applied to the permission.
-         */
-        ruleTypes: readonly string[],
-    }
+  string,
+  {
+    /**
+     * The chain IDs that the permission is supported on.
+     */
+    chainIds: readonly number[]
+    /**
+     * The rule types that can be applied to the permission.
+     */
+    ruleTypes: readonly string[]
+  }
 >
 
 /**
@@ -36,27 +36,26 @@ export type GetSupportedExecutionPermissionsReturnType = Record<
  */
 
 export async function getSupportedExecutionPermissions(
-    client: Client<Transport>,
-  ): Promise<GetSupportedExecutionPermissionsReturnType> {
-    const result = await client.request(
+  client: Client<Transport>,
+): Promise<GetSupportedExecutionPermissionsReturnType> {
+  const result = await client.request({
+    method: 'wallet_getSupportedExecutionPermissions',
+    params: [],
+  })
+
+  return formatRequest(result) as GetSupportedExecutionPermissionsReturnType
+}
+
+function formatRequest(
+  result: WalletGetSupportedExecutionPermissionsReturnType,
+) {
+  return Object.fromEntries(
+    Object.entries(result).map(([key, value]) => [
+      key,
       {
-        method: 'wallet_getSupportedExecutionPermissions',
-        params: [],
+        chainIds: value.chainIds.map((hex) => hexToNumber(hex)),
+        ruleTypes: value.ruleTypes,
       },
-    )
-
-    return formatRequest(result) as GetSupportedExecutionPermissionsReturnType
+    ]),
+  )
 }
-
-function formatRequest(result: WalletGetSupportedExecutionPermissionsReturnType) {
-    return Object.fromEntries(
-        Object.entries(result).map(([key, value]) => [
-            key,
-            {
-                chainIds: value.chainIds.map((hex) => hexToNumber(hex)),
-                ruleTypes: value.ruleTypes,
-            },
-        ]),
-    )
-}
-

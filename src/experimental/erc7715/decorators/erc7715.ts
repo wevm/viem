@@ -2,7 +2,10 @@ import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
-import { type GetSupportedExecutionPermissionsReturnType, getSupportedExecutionPermissions } from '../actions/getSupportedExecutionPermissions.js'
+import {
+  type GetSupportedExecutionPermissionsReturnType,
+  getSupportedExecutionPermissions,
+} from '../actions/getSupportedExecutionPermissions.js'
 import {
   type RequestExecutionPermissionsParameters,
   type RequestExecutionPermissionsReturnType,

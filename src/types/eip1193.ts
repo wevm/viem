@@ -160,12 +160,12 @@ export type WalletRequestExecutionPermissionsReturnType =
       factoryData: Hex
     }[]
     delegationManager: Hex
-}
+  }
 
 export type WalletGetSupportedExecutionPermissionsReturnType = Record<
   string,
   {
-    chainIds: readonly Hex[],
+    chainIds: readonly Hex[]
     ruleTypes: readonly string[]
   }
 >

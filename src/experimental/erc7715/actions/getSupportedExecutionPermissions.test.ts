@@ -32,9 +32,7 @@ test('default', async () => {
     },
   })
 
-  expect(
-    await getSupportedExecutionPermissions(client),
-  ).toMatchInlineSnapshot(`
+  expect(await getSupportedExecutionPermissions(client)).toMatchInlineSnapshot(`
     {
       "erc20-token-allowance": {
         "chainIds": [
