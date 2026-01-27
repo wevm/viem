@@ -43,4 +43,4 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          working-directory: ./site/dist
+          working-directory: .
