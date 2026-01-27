@@ -15,6 +15,18 @@ const client = createClient({
           delegationManager: '0xdb9B1e94B5b69Df7e401DDbedE43491141047dB3',
         }
 
+      if (method === 'wallet_getSupportedExecutionPermissions')
+        return {
+          'native-token-allowance': {
+            chainIds: [1],
+            ruleTypes: ['expiry'],
+          },
+          'erc20-token-allowance': {
+            chainIds: [1],
+            ruleTypes: [],
+          },
+        }
+
       return null
     },
   }),
@@ -23,6 +35,7 @@ const client = createClient({
 test('default', async () => {
   expect(erc7715Actions()(client)).toMatchInlineSnapshot(`
     {
+      "getSupportedExecutionPermissions": [Function],
       "requestExecutionPermissions": [Function],
     }
   `)
@@ -74,6 +87,29 @@ describe('smoke test', () => {
           },
         ],
         "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      }
+    `)
+  })
+
+  test('getSupportedExecutionPermissions', async () => {
+    expect(
+      await client.getSupportedExecutionPermissions(),
+    ).toMatchInlineSnapshot(`
+      {
+        "erc20-token-allowance": {
+          "chainIds": [
+            1,
+          ],
+          "ruleTypes": [],
+        },
+        "native-token-allowance": {
+          "chainIds": [
+            1,
+          ],
+          "ruleTypes": [
+            "expiry",
+          ],
+        },
       }
     `)
   })

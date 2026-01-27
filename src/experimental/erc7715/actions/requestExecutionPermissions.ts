@@ -37,32 +37,23 @@ export type RequestExecutionPermissionsReturnType =
  * @example
  * import { createWalletClient, custom } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { grantPermissions } from 'viem/experimental'
+ * import { requestExecutionPermissions } from 'viem/experimental'
  *
  * const client = createWalletClient({
  *   chain: mainnet,
  *   transport: custom(window.ethereum),
  * })
  *
- * const result = await grantPermissions(client, {
- *   expiry: 1716846083638,
- *   permissions: [
- *     {
- *       type: 'native-token-transfer',
- *       data: {
- *         ticker: 'ETH',
- *       },
- *       policies: [
- *         {
- *           type: 'token-allowance',
- *           data: {
- *             allowance: parseEther('1'),
- *           },
- *         }
- *       ],
- *       required: true,
+ * const result = await requestExecutionPermissions(client, {
+ *   chainId: 1,
+ *   to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+ *   permission: {
+ *     type: 'native-token-allowance',
+ *     isAdjustmentAllowed: false,
+ *     data: {
+ *       allowance: '0x1DCD6500',
  *     },
- *   ],
+ *   },
  * })
  */
 export async function requestExecutionPermissions(

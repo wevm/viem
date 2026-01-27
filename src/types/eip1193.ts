@@ -160,7 +160,15 @@ export type WalletRequestExecutionPermissionsReturnType =
       factoryData: Hex
     }[]
     delegationManager: Hex
+}
+
+export type WalletGetSupportedExecutionPermissionsReturnType = Record<
+  string,
+  {
+    chainIds: readonly Hex[],
+    ruleTypes: readonly string[]
   }
+>
 
 export type WalletGetAssetsParameters = {
   account: Address
@@ -1987,6 +1995,17 @@ export type WalletRpcSchema = [
     Method: 'wallet_requestExecutionPermissions'
     Parameters?: [WalletRequestExecutionPermissionsParameters]
     ReturnType: Prettify<WalletRequestExecutionPermissionsReturnType>
+  },
+  /**
+   * @description Gets the supported execution permissions for the wallet.
+   * @link https://eips.ethereum.org/EIPS/eip-7715
+   * @example
+   * provider.request({ method: 'wallet_getSupportedExecutionPermissions' })
+   * // => { ... }
+   */
+  {
+    Method: 'wallet_getSupportedExecutionPermissions'
+    ReturnType: Prettify<WalletGetSupportedExecutionPermissionsReturnType>
   },
   /**
    * @description Requests the given permissions from the user.

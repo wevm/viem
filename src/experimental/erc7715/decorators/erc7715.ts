@@ -2,6 +2,7 @@ import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
+import { type GetSupportedExecutionPermissionsReturnType, getSupportedExecutionPermissions } from '../actions/getSupportedExecutionPermissions.js'
 import {
   type RequestExecutionPermissionsParameters,
   type RequestExecutionPermissionsReturnType,
@@ -39,6 +40,25 @@ export type Erc7715Actions = {
   requestExecutionPermissions: (
     parameters: RequestExecutionPermissionsParameters,
   ) => Promise<RequestExecutionPermissionsReturnType>
+
+  /**
+   * Get the supported execution permissions for a wallet.
+   *
+   * - Docs: https://viem.sh/experimental/erc7715/getSupportedExecutionPermissions
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   * import { erc7715Actions } from 'viem/experimental'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * }).extend(erc7715Actions())
+   *
+   * const result = await client.getSupportedExecutionPermissions()
+   */
+  getSupportedExecutionPermissions: () => Promise<GetSupportedExecutionPermissionsReturnType>
 }
 
 /**
@@ -69,6 +89,8 @@ export function erc7715Actions() {
     return {
       requestExecutionPermissions: (parameters) =>
         requestExecutionPermissions(client, parameters),
+      getSupportedExecutionPermissions: () =>
+        getSupportedExecutionPermissions(client),
     }
   }
 }
