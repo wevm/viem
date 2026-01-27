@@ -170,6 +170,8 @@ export type WalletGetSupportedExecutionPermissionsReturnType = Record<
   }
 >
 
+export type WalletGetGrantedExecutionPermissionsReturnType = readonly WalletRequestExecutionPermissionsReturnType[]
+
 export type WalletGetAssetsParameters = {
   account: Address
   assetFilter?:
@@ -2006,6 +2008,17 @@ export type WalletRpcSchema = [
   {
     Method: 'wallet_getSupportedExecutionPermissions'
     ReturnType: Prettify<WalletGetSupportedExecutionPermissionsReturnType>
+  },
+  /**
+   * @description Gets the granted execution permissions for the wallet.
+   * @link https://eips.ethereum.org/EIPS/eip-7715
+   * @example
+   * provider.request({ method: 'wallet_getGrantedExecutionPermissions' })
+   * // => { ... }
+   */
+  {
+    Method: 'wallet_getGrantedExecutionPermissions'
+    ReturnType: Prettify<WalletGetGrantedExecutionPermissionsReturnType>
   },
   /**
    * @description Requests the given permissions from the user.
