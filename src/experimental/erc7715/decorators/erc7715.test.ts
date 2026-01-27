@@ -7,11 +7,12 @@ import { erc7715Actions } from './erc7715.js'
 const client = createClient({
   transport: custom({
     async request({ method, params }) {
-      if (method === 'wallet_grantPermissions')
+      if (method === 'wallet_requestExecutionPermissions')
         return {
-          grantedPermissions: params[0].permissions,
-          expiry: params[0].expiry,
-          permissionsContext: '0xdeadbeef',
+          ...params[0],
+          context: "0xdeadbeef",
+          dependencies: [],
+          delegationManager: "0xdb9B1e94B5b69Df7e401DDbedE43491141047dB3",
         }
 
       return null
@@ -22,60 +23,57 @@ const client = createClient({
 test('default', async () => {
   expect(erc7715Actions()(client)).toMatchInlineSnapshot(`
     {
-      "grantPermissions": [Function],
+      "requestExecutionPermissions": [Function],
     }
   `)
 })
 
 describe('smoke test', () => {
-  test('grantPermissions', async () => {
+  test('requestExecutionPermissions', async () => {
     expect(
-      await client.grantPermissions({
-        expiry: 1716846083638,
-        signer: {
-          type: 'account',
+      await client.requestExecutionPermissions({
+        chainId: 1,
+        to: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        from: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        permission: {
+          type: "native-token-allowance",
+          isAdjustmentAllowed: false,
           data: {
-            id: '0x0000000000000000000000000000000000000000',
+            allowance: "0x1DCD6500",
           },
         },
-        permissions: [
+        rules: [
           {
-            type: 'native-token-transfer',
+            type: "expiry",
             data: {
-              ticker: 'ETH',
+              timestamp: 1577840461,
             },
-            policies: [
-              {
-                type: 'token-allowance',
-                data: {
-                  allowance: 1n,
-                },
-              },
-            ],
           },
         ],
       }),
     ).toMatchInlineSnapshot(`
       {
-        "expiry": 1716846083638,
-        "grantedPermissions": [
+        "chainId": 1,
+        "context": "0xdeadbeef",
+        "delegationManager": "0xdb9B1e94B5b69Df7e401DDbedE43491141047dB3",
+        "dependencies": [],
+        "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "permission": {
+          "data": {
+            "allowance": "0x1DCD6500",
+          },
+          "isAdjustmentAllowed": false,
+          "type": "native-token-allowance",
+        },
+        "rules": [
           {
             "data": {
-              "ticker": "ETH",
+              "timestamp": 1577840461,
             },
-            "policies": [
-              {
-                "data": {
-                  "allowance": 1n,
-                },
-                "type": "token-allowance",
-              },
-            ],
-            "required": false,
-            "type": "native-token-transfer",
+            "type": "expiry",
           },
         ],
-        "permissionsContext": "0xdeadbeef",
+        "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       }
     `)
   })

@@ -135,45 +135,30 @@ export type WalletCallReceipt<quantity = Hex, status = Hex> = {
   transactionHash: Hex
 }
 
-export type WalletGrantPermissionsParameters = {
-  signer?:
-    | {
-        type: string
-        data?: unknown | undefined
-      }
-    | undefined
-  permissions: readonly {
-    data: unknown
-    policies: readonly {
+export type WalletRequestExecutionPermissionsParameters = {
+  chainId: Hex,
+  from?: | Hex | undefined,
+  to: Hex,
+  rules?: 
+    | readonly {
       data: unknown
       type: string
     }[]
-    required?: boolean | undefined
+    | undefined,
+  permission: {
+    data: unknown
+    isAdjustmentAllowed: boolean
     type: string
-  }[]
-  expiry: number
+  }
 }
 
-export type WalletGrantPermissionsReturnType = {
-  expiry: number
-  factory?: `0x${string}` | undefined
-  factoryData?: string | undefined
-  grantedPermissions: readonly {
-    data: unknown
-    policies: readonly {
-      data: unknown
-      type: string
-    }[]
-    required?: boolean | undefined
-    type: string
-  }[]
-  permissionsContext: string
-  signerData?:
-    | {
-        userOpBuilder?: `0x${string}` | undefined
-        submitToAddress?: `0x${string}` | undefined
-      }
-    | undefined
+export type WalletRequestExecutionPermissionsReturnType = WalletRequestExecutionPermissionsParameters &{
+  context: Hex,
+  dependencies: readonly {
+    factory: Hex,
+    factoryData: Hex,
+  }[],
+  delegationManager: Hex,
 }
 
 export type WalletGetAssetsParameters = {
@@ -1991,16 +1976,16 @@ export type WalletRpcSchema = [
     ReturnType: WalletPermission[]
   },
   /**
-   * @description Requests permissions from a wallet
+   * @description Requests execution permissions from a wallet
    * @link https://eips.ethereum.org/EIPS/eip-7715
    * @example
-   * provider.request({ method: 'wallet_grantPermissions', params: [{ ... }] })
+   * provider.request({ method: 'wallet_requestExecutionPermissions', params: [{ ... }] })
    * // => { ... }
    */
   {
-    Method: 'wallet_grantPermissions'
-    Parameters?: [WalletGrantPermissionsParameters]
-    ReturnType: Prettify<WalletGrantPermissionsReturnType>
+    Method: 'wallet_requestExecutionPermissions'
+    Parameters?: [WalletRequestExecutionPermissionsParameters]
+    ReturnType: Prettify<WalletRequestExecutionPermissionsReturnType>
   },
   /**
    * @description Requests the given permissions from the user.
