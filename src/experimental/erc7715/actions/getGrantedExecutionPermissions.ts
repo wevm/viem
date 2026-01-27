@@ -1,10 +1,11 @@
-import { type RequestExecutionPermissionsReturnType } from "./requestExecutionPermissions.js";
-import type { Client } from "../../../clients/createClient.js";
-import type { Transport } from "../../../clients/transports/createTransport.js";
-import type { WalletGetGrantedExecutionPermissionsReturnType } from "../../../types/eip1193.js";
-import { hexToNumber } from "../../../utils/index.js";
+import type { Client } from '../../../clients/createClient.js'
+import type { Transport } from '../../../clients/transports/createTransport.js'
+import type { WalletGetGrantedExecutionPermissionsReturnType } from '../../../types/eip1193.js'
+import { hexToNumber } from '../../../utils/index.js'
+import type { RequestExecutionPermissionsReturnType } from './requestExecutionPermissions.js'
 
-export type GetGrantedExecutionPermissionsReturnType = readonly RequestExecutionPermissionsReturnType[]
+export type GetGrantedExecutionPermissionsReturnType =
+  readonly RequestExecutionPermissionsReturnType[]
 
 /**
  * Get the granted execution permissions for a wallet.

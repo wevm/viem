@@ -170,7 +170,8 @@ export type WalletGetSupportedExecutionPermissionsReturnType = Record<
   }
 >
 
-export type WalletGetGrantedExecutionPermissionsReturnType = readonly WalletRequestExecutionPermissionsReturnType[]
+export type WalletGetGrantedExecutionPermissionsReturnType =
+  readonly WalletRequestExecutionPermissionsReturnType[]
 
 export type WalletGetAssetsParameters = {
   account: Address
