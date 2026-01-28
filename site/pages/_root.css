@@ -31,7 +31,9 @@
   padding-bottom: 0.5rem;
 }
 
-/* Override the accent button styling - use !important to override inline style */
+[data-layout="landing"] a.vocs\:inline-flex {
+  white-space: nowrap;
+}
 [data-layout="landing"] a.vocs\:inline-flex[href="/docs/getting-started"] {
   background-color: #ff9318;
   color: black;
@@ -48,18 +50,6 @@
 [style*="color-scheme: dark"][data-layout="landing"]
   a.vocs\:inline-flex[href="/docs/getting-started"] {
   background-color: #ffc517;
-}
-
-[data-layout="landing"] .vocs_Button_button {
-  border-radius: 4px;
-  height: 36px;
-  max-height: 36px;
-  padding: 0 16px;
-  white-space: nowrap;
-}
-
-[data-layout="landing"] .vocs_Content {
-  position: inherit;
 }
 
 #home-install {
