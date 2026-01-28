@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'vitest'
 import { accounts, getClient, nodeEnv } from '~test/tempo/config.js'
-import { generatePrivateKey, privateKeyToAddress } from '../../accounts/index.js'
+import {
+  generatePrivateKey,
+  privateKeyToAddress,
+} from '../../accounts/index.js'
 import { isAddress } from '../../utils/address/isAddress.js'
 import * as actions from './index.js'
 

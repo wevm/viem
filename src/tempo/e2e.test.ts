@@ -1,4 +1,5 @@
 import * as Http from 'node:http'
+import { setTimeout } from 'node:timers/promises'
 import { createRequestListener } from '@remix-run/node-fetch-server'
 import { RpcRequest, RpcResponse, WebCryptoP256 } from 'ox'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
@@ -23,7 +24,6 @@ import {
 } from '~test/tempo/config.js'
 import * as Prool from '~test/tempo/prool.js'
 import { withFeePayer } from './Transport.js'
-import { setTimeout } from 'node:timers/promises'
 
 const client = getClient()
 

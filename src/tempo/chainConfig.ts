@@ -1,6 +1,7 @@
 import { SignatureEnvelope, type TokenId } from 'ox/tempo'
 import { getCode } from '../actions/public/getCode.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
+import { maxUint256 } from '../constants/number.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
 import { extendSchema } from '../utils/chain/defineChain.js'
 import { defineTransaction } from '../utils/formatters/transaction.js'
@@ -9,10 +10,9 @@ import { defineTransactionRequest } from '../utils/formatters/transactionRequest
 import { getAction } from '../utils/getAction.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import type { Account } from './Account.js'
-import * as Concurrent from './internal/concurrent.js'
 import * as Formatters from './Formatters.js'
+import * as Concurrent from './internal/concurrent.js'
 import * as Transaction from './Transaction.js'
-import { maxUint256 } from '../constants/number.js'
 
 export const maxExpirySecs = 30
 

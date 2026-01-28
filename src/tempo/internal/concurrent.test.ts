@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 import { accounts, getClient } from '~test/tempo/config.js'
 import { getTransaction, sendTransactionSync } from '../../actions/index.js'
-import * as Concurrent from './concurrent.js'
 import { maxUint256 } from '../../constants/number.js'
+import * as Concurrent from './concurrent.js'
 
 const client = getClient({
   account: accounts.at(0)!,
