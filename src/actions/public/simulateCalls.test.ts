@@ -270,9 +270,13 @@ test('behavior: contract function does not exist', async () => {
     [
       {
         "data": "0x",
-        "error": [ContractFunctionExecutionError: The contract function "mint" reverted with the following reason:
-    execution failed
+        "error": [ContractFunctionExecutionError: The contract function "mint" returned no data ("0x").
 
+    This could be due to any of the following:
+      - The contract does not have the function "mint",
+      - The parameters passed to the contract function may be invalid, or
+      - The address is not a contract.
+     
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
       function:  mint()
@@ -307,9 +311,13 @@ test('behavior: contract function does not exist', async () => {
     [
       {
         "data": "0x",
-        "error": [ContractFunctionExecutionError: The contract function "<unknown>" reverted with the following reason:
-    execution failed
+        "error": [ContractFunctionExecutionError: The contract function "<unknown>" returned no data ("0x").
 
+    This could be due to any of the following:
+      - The contract does not have the function "<unknown>",
+      - The parameters passed to the contract function may be invalid, or
+      - The address is not a contract.
+     
     Contract Call:
       address:  0x0000000000000000000000000000000000000000
 
@@ -346,7 +354,7 @@ test('behavior: contract revert', async () => {
       {
         "data": "0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011546f6b656e2049442069732074616b656e000000000000000000000000000000",
         "error": [ContractFunctionExecutionError: The contract function "mint" reverted with the following reason:
-    execution failed
+    Token ID is taken
 
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
