@@ -1144,6 +1144,8 @@ export type {
   WalletGetAssetsParameters,
   WalletGetAssetsReturnType,
   WalletGetCallsStatusReturnType,
+  WalletGetGrantedExecutionPermissionsReturnType,
+  WalletGetSupportedExecutionPermissionsReturnType,
   WalletPermission,
   WalletPermissionCaveat,
   WalletRequestExecutionPermissionsParameters,

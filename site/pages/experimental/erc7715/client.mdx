@@ -12,5 +12,5 @@ const walletClient = createWalletClient({
   transport: custom(window.ethereum!),
 }).extend(erc7715Actions()) // [!code focus]
 
-const id = await walletClient.requestExecutionPermissions({/* ... */})
+const response = await walletClient.requestExecutionPermissions({/* ... */})
 ```
