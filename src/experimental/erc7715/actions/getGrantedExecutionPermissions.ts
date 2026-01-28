@@ -33,10 +33,10 @@ export async function getGrantedExecutionPermissions(
     params: [],
   })
 
-  return formatRequest(result) as GetGrantedExecutionPermissionsReturnType
+  return formatResponse(result) as GetGrantedExecutionPermissionsReturnType
 }
 
-function formatRequest(
+function formatResponse(
   result: WalletGetGrantedExecutionPermissionsReturnType,
 ): GetGrantedExecutionPermissionsReturnType {
   return result.map((permission) => ({

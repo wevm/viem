@@ -43,10 +43,10 @@ export async function getSupportedExecutionPermissions(
     params: [],
   })
 
-  return formatRequest(result) as GetSupportedExecutionPermissionsReturnType
+  return formatResponse(result) as GetSupportedExecutionPermissionsReturnType
 }
 
-function formatRequest(
+function formatResponse(
   result: WalletGetSupportedExecutionPermissionsReturnType,
 ) {
   return Object.fromEntries(

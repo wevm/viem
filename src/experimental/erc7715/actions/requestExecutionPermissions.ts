@@ -44,7 +44,7 @@ export type RequestExecutionPermissionsReturnType =
  *   transport: custom(window.ethereum),
  * })
  *
- * const result = await requestExecutionPermissions(client, {
+ * const result = await requestExecutionPermissions(client, [{
  *   chainId: 1,
  *   to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
  *   permission: {
@@ -54,23 +54,17 @@ export type RequestExecutionPermissionsReturnType =
  *       allowance: '0x1DCD6500',
  *     },
  *   },
- * })
+ * }])
  */
 export async function requestExecutionPermissions(
   client: Client<Transport>,
-  parameters: RequestExecutionPermissionsParameters,
-): Promise<RequestExecutionPermissionsReturnType> {
-  const { permission, to, chainId, from, rules } = parameters
-  const result = await client.request(
-    {
-      method: 'wallet_requestExecutionPermissions',
-      params: [
-        formatParameters({ from, to, chainId, permission, rules } as any),
-      ],
-    },
-    { retryCount: 0 },
-  )
-  return formatRequest(result) as RequestExecutionPermissionsReturnType
+  parameters: readonly RequestExecutionPermissionsParameters[],
+): Promise<readonly RequestExecutionPermissionsReturnType[]> {
+  const result = await client.request({
+    method: 'wallet_requestExecutionPermissions',
+    params: parameters.map(formatParameters),
+  })
+  return result.map(formatRespone) as RequestExecutionPermissionsReturnType[]
 }
 
 function formatParameters(parameters: RequestExecutionPermissionsParameters) {
@@ -85,7 +79,7 @@ function formatParameters(parameters: RequestExecutionPermissionsParameters) {
   }
 }
 
-function formatRequest(result: WalletRequestExecutionPermissionsReturnType) {
+function formatRespone(result: WalletRequestExecutionPermissionsReturnType) {
   return {
     chainId: hexToNumber(result.chainId),
     from: result.from ? result.from : undefined,

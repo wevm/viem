@@ -1996,8 +1996,8 @@ export type WalletRpcSchema = [
    */
   {
     Method: 'wallet_requestExecutionPermissions'
-    Parameters?: [WalletRequestExecutionPermissionsParameters]
-    ReturnType: Prettify<WalletRequestExecutionPermissionsReturnType>
+    Parameters: readonly WalletRequestExecutionPermissionsParameters[]
+    ReturnType: readonly WalletRequestExecutionPermissionsReturnType[]
   },
   /**
    * @description Gets the supported execution permissions for the wallet.
@@ -2008,7 +2008,7 @@ export type WalletRpcSchema = [
    */
   {
     Method: 'wallet_getSupportedExecutionPermissions'
-    ReturnType: Prettify<WalletGetSupportedExecutionPermissionsReturnType>
+    ReturnType: WalletGetSupportedExecutionPermissionsReturnType
   },
   /**
    * @description Gets the granted execution permissions for the wallet.
@@ -2019,7 +2019,7 @@ export type WalletRpcSchema = [
    */
   {
     Method: 'wallet_getGrantedExecutionPermissions'
-    ReturnType: Prettify<WalletGetGrantedExecutionPermissionsReturnType>
+    ReturnType: WalletGetGrantedExecutionPermissionsReturnType
   },
   /**
    * @description Requests the given permissions from the user.

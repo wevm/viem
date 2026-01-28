@@ -32,7 +32,7 @@ export type Erc7715Actions = {
    *   transport: custom(window.ethereum),
    * }).extend(erc7715Actions())
    *
-   * const result = await client.requestExecutionPermissions({
+   * const result = await client.requestExecutionPermissions([{
    *   chainId: 1,
    *   to: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
    *   permission: {
@@ -42,11 +42,11 @@ export type Erc7715Actions = {
    *       allowance: "0x1DCD6500",
    *     },
    *   },
-   * })
+   * }])
    */
   requestExecutionPermissions: (
-    parameters: RequestExecutionPermissionsParameters,
-  ) => Promise<RequestExecutionPermissionsReturnType>
+    parameters: readonly RequestExecutionPermissionsParameters[],
+  ) => Promise<readonly RequestExecutionPermissionsReturnType[]>
 
   /**
    * Get the supported execution permissions for a wallet.
