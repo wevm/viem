@@ -435,7 +435,7 @@ test('contract error (multiple calls - unknown error)', () => {
 
     Unable to decode signature "0xdeadbeef" as it was not found on the provided ABI.
     Make sure you are using the correct ABI and that the error exists on it.
-    You can look up the decoded signature here: https://openchain.xyz/signatures?query=0xdeadbeef.
+    You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0xdeadbeef.
      
      
     Request Arguments:

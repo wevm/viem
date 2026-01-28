@@ -419,7 +419,7 @@ describe('ContractFunctionRevertedError', () => {
 
       Unable to decode signature "0xdb731cfa" as it was not found on the provided ABI.
       Make sure you are using the correct ABI and that the error exists on it.
-      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0xdb731cfa.
+      You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0xdb731cfa.
 
       Docs: https://viem.sh/docs/contract/decodeErrorResult
       Version: viem@x.y.z]

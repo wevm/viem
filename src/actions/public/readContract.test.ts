@@ -498,7 +498,7 @@ describe('contract errors', () => {
 
       Unable to decode signature "0xf9006398" as it was not found on the provided ABI.
       Make sure you are using the correct ABI and that the error exists on it.
-      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0xf9006398.
+      You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0xf9006398.
        
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
