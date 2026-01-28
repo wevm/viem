@@ -263,8 +263,8 @@ export async function simulateBlocks<
           if (status === 'success') return undefined
 
           let error: Error | undefined
-          if (call.error?.data === '0x') error = new AbiDecodingZeroDataError()
-          else if (call.error) error = new RawContractError(call.error)
+          if (data === '0x') error = new AbiDecodingZeroDataError()
+          else if (data) error = new RawContractError({ data })
 
           if (!error) return undefined
           return getContractError(error, {
