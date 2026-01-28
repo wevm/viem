@@ -1,6 +1,6 @@
-import type { WalletGetSupportedExecutionPermissionsReturnType } from 'types/eip1193.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
+import type { WalletGetSupportedExecutionPermissionsReturnType } from '../../../types/eip1193.js'
 import { hexToNumber } from '../../../utils/index.js'
 
 export type GetSupportedExecutionPermissionsReturnType = Record<
