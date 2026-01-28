@@ -121,7 +121,7 @@ export type TransactionRequestTempo<
     calls?: readonly TxTempo.Call<quantity>[] | undefined
     feePayer?: Account | true | undefined
     feeToken?: Address | bigint | undefined
-    nonceKey?: 'random' | quantity | undefined
+    nonceKey?: 'expiring' | quantity | undefined
     validBefore?: index | undefined
     validAfter?: index | undefined
   }

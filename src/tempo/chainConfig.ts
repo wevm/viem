@@ -9,9 +9,12 @@ import { defineTransactionRequest } from '../utils/formatters/transactionRequest
 import { getAction } from '../utils/getAction.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import type { Account } from './Account.js'
+import * as Concurrent from './internal/concurrent.js'
 import * as Formatters from './Formatters.js'
-import * as NonceKeyStore from './internal/nonceKeyStore.js'
 import * as Transaction from './Transaction.js'
+import { maxUint256 } from '../constants/number.js'
+
+export const maxExpirySecs = 30
 
 export const chainConfig = {
   blockTime: 1_000,
@@ -49,31 +52,29 @@ export const chainConfig = {
         return request as unknown as typeof r
       }
 
-      request.nonceKey = (() => {
-        if (
-          typeof request.nonceKey !== 'undefined' &&
-          request.nonceKey !== 'random'
-        )
-          return request.nonceKey
-
-        const address = request.account?.address ?? request.from
-        if (!address) return undefined
-        if (!request.chain) return undefined
-        const nonceKey = NonceKeyStore.getNonceKey(NonceKeyStore.store, {
-          address,
-          chainId: request.chain.id,
-        })
-
-        if (nonceKey === 0n) return undefined
-        return nonceKey
+      // Use expiring nonces for concurrent transactions (TIP-1009).
+      // When nonceKey is 'expiring', feePayer is specified, or concurrent requests
+      // are detected, we use expiring nonces (nonceKey = uint256.max) with a
+      // validBefore timestamp.
+      const useExpiringNonce = await (async () => {
+        if (request.nonceKey === 'expiring') return true
+        if (request.feePayer && typeof request.nonceKey === 'undefined')
+          return true
+        const address = request.account?.address
+        if (address && typeof request.nonceKey === 'undefined')
+          return await Concurrent.detect(address)
+        return false
       })()
 
-      request.nonce = (() => {
-        if (typeof request.nonce === 'number') return request.nonce
-        // TODO: remove this line once `eth_fillTransaction` supports nonce keys.
-        if (request.nonceKey) return 0
-        return undefined
-      })()
+      if (useExpiringNonce) {
+        request.nonceKey = maxUint256
+        request.nonce = 0
+        if (typeof request.validBefore === 'undefined')
+          request.validBefore = Math.floor(Date.now() / 1000) + maxExpirySecs
+      } else if (typeof request.nonceKey !== 'undefined') {
+        // Explicit nonceKey provided (2D nonce mode)
+        request.nonce = typeof request.nonce === 'number' ? request.nonce : 0
+      }
 
       if (!request.feeToken && request.chain?.feeToken)
         request.feeToken = request.chain.feeToken
