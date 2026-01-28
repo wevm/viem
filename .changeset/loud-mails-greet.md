@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Slightly improved performance in `parseEventLogs` trough memoization.
+Improved performance in `parseEventLogs` by memoizing.
