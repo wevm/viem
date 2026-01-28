@@ -1,8 +1,9 @@
 {
 	"extends": "../tsconfig.base.json",
 	"compilerOptions": {
-    "noEmit": true,
-		"jsx": "react-jsx"
+		"noEmit": true,
+		"jsx": "react-jsx",
+		"resolveJsonModule": true
 	},
 	"include": ["./**/*.ts", "./**/*.tsx"],
 	"exclude": ["snippets"]
