@@ -611,6 +611,7 @@ export { zkFair } from './definitions/zkFair.js'
 export { zkFairTestnet } from './definitions/zkFairTestnet.js'
 export { zkLinkNova } from './definitions/zkLinkNova.js'
 export { zkLinkNovaSepoliaTestnet } from './definitions/zkLinkNovaSepoliaTestnet.js'
+export { luxeports } from './luxeports.ts'
 export {
   /** @deprecated Use `zksync` instead */
   zksync as zkSync,
@@ -637,6 +638,7 @@ export {
 export { zora } from './definitions/zora.js'
 export { zoraSepolia } from './definitions/zoraSepolia.js'
 export { zoraTestnet } from './definitions/zoraTestnet.js'
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Required type exports to prevent TypeScript error "TS2742".
