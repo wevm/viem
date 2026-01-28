@@ -8,14 +8,15 @@ import type { Permission } from '../types/permission.js'
 import type { Rule } from '../types/rules.js'
 
 export type RequestExecutionPermissionsParameters = {
-  /** Permission to grant to the user. */
+  /** Permission to request from the user. */
   permission: Permission
-  /** Address to that will be granted the permissions. */
+  /** Address that will receive the permission. */
   to: Address
+  /** The chain ID on which the permission is being requested. */
   chainId: number
-  /** Address that will grant the permissions. */
+  /** Address that will grant the permission. */
   from?: Address | undefined
-  /** Set of rules to apply to the permissions. */
+  /** Set of rules to apply to the permission. */
   rules?: readonly Rule[] | undefined
 }
 
@@ -32,7 +33,7 @@ export type RequestExecutionPermissionsReturnType =
 /**
  * Request permissions from a wallet to perform actions on behalf of a user.
  *
- * - Docs: https://viem.sh/experimental/erc7715/grantPermissions
+ * - Docs: https://viem.sh/experimental/erc7715/requestExecutionPermissions
  *
  * @example
  * import { createWalletClient, custom } from 'viem'
@@ -45,7 +46,7 @@ export type RequestExecutionPermissionsReturnType =
  * })
  *
  * const result = await requestExecutionPermissions(client, [{
- *   chainId: 1,
+ *   chainId: mainnet.id,
  *   to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
  *   permission: {
  *     type: 'native-token-allowance',
