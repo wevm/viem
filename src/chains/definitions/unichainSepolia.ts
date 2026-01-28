@@ -12,6 +12,7 @@ export const unichainSepolia = /*#__PURE__*/ defineChain({
     symbol: 'ETH',
     decimals: 18,
   },
+  blockTime: 1_000,
   rpcUrls: {
     default: {
       http: ['https://sepolia.unichain.org'],

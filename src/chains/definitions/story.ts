@@ -28,8 +28,8 @@ export const story = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Story explorer',
-      url: 'https://storyscan.xyz',
-      apiUrl: 'https://storyscan.xyz/api/v2',
+      url: 'https://storyscan.io',
+      apiUrl: 'https://storyscan.io/api/v2',
     },
   },
   ensTlds: ['.ip'],

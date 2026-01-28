@@ -3,6 +3,7 @@ import { chainConfig } from '../../zksync/chainConfig.js'
 
 export const abstract = /*#__PURE__*/ defineChain({
   ...chainConfig,
+  blockTime: 200,
   id: 2_741,
   name: 'Abstract',
   nativeCurrency: {
@@ -31,7 +32,7 @@ export const abstract = /*#__PURE__*/ defineChain({
       address: '0xAa4De41dba0Ca5dCBb288b7cC6b708F3aaC759E7',
       blockCreated: 5288,
     },
-    universalSignatureVerifier: {
+    erc6492Verifier: {
       address: '0xfB688330379976DA81eB64Fe4BF50d7401763B9C',
       blockCreated: 5263,
     },

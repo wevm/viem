@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { accounts } from '~test/src/constants.js'
+import { accounts } from '~test/constants.js'
 
 import { verifyHash } from '../../utils/signature/verifyHash.js'
 import { sign } from './sign.js'

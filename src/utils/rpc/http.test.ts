@@ -1,17 +1,13 @@
-import { describe, expect, test, vi } from 'vitest'
-
 import type { IncomingHttpHeaders } from 'node:http'
-
-import { createHttpServer } from '~test/src/utils.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { describe, expect, test, vi } from 'vitest'
+import { anvilMainnet } from '~test/anvil.js'
+import { createHttpServer } from '~test/utils.js'
 import { getBlockNumber, mine } from '../../actions/index.js'
-
-import { keccak256 } from '~viem/index.js'
+import { keccak256 } from '../../index.js'
 import { numberToHex, toHex } from '../encoding/toHex.js'
 import * as withTimeout from '../promise/withTimeout.js'
 import { wait } from '../wait.js'
-import { getHttpRpcClient } from './http.js'
+import { getHttpRpcClient, parseUrl } from './http.js'
 
 const client = anvilMainnet.getClient()
 
@@ -26,7 +22,7 @@ describe('request', () => {
       {
         "id": 1,
         "jsonrpc": "2.0",
-        "result": "anvil/v1.1.0",
+        "result": "anvil/v1.5.0",
       }
     `)
   })
@@ -39,9 +35,9 @@ describe('request', () => {
       }),
     ).toMatchInlineSnapshot(`
       {
-        "id": 3,
+        "id": 1,
         "jsonrpc": "2.0",
-        "result": "anvil/v1.1.0",
+        "result": "anvil/v1.5.0",
       }
     `)
   })
@@ -59,7 +55,7 @@ describe('request', () => {
           "code": -32602,
           "message": "odd number of digits",
         },
-        "id": 5,
+        "id": 1,
         "jsonrpc": "2.0",
       }
     `,
@@ -78,7 +74,7 @@ describe('request', () => {
           "code": -32601,
           "message": "Method not found",
         },
-        "id": 7,
+        "id": 1,
         "jsonrpc": "2.0",
       }
     `)
@@ -242,7 +238,7 @@ describe('request', () => {
       body: { method: 'web3_clientVersion' },
     })
     expect(headers['x-body-hash']).toBe(
-      '0x433b3dcc0ff6c41d44c000fe58867d8e937b6905459c564736f86f733704e585',
+      '0xd33705e291769e17b5e005a861bb933ce3925f325bf9127772f07f14bb7d0b25',
     )
   })
 
@@ -351,6 +347,20 @@ describe('request', () => {
     vi.unstubAllGlobals()
   })
 
+  test('fetch override', async () => {
+    const fetchOverride = vi.fn(fetch)
+
+    const client = getHttpRpcClient(anvilMainnet.rpcUrl.http, {
+      fetchFn: fetchOverride,
+    })
+
+    await client.request({
+      body: { method: 'web3_clientVersion' },
+    })
+
+    expect(fetchOverride).toHaveBeenCalled()
+  })
+
   // TODO: This is flaky.
   test.skip('timeout', async () => {
     const client = getHttpRpcClient(anvilMainnet.rpcUrl.http)
@@ -403,6 +413,53 @@ describe('request', () => {
 
     mock.mockRestore()
   })
+
+  describe('basic auth', () => {
+    test('sends Authorization header from embedded credentials', async () => {
+      let headers: IncomingHttpHeaders = {}
+      const server = await createHttpServer((req, res) => {
+        headers = req.headers
+        res.end(JSON.stringify({ result: '0x1' }))
+      })
+
+      const url = new URL(server.url)
+      url.username = 'testuser'
+      url.password = 'testpass'
+
+      const client = getHttpRpcClient(url.toString())
+      await client.request({
+        body: { method: 'web3_clientVersion' },
+      })
+
+      expect(headers.authorization).toBe(`Basic ${btoa('testuser:testpass')}`)
+
+      await server.close()
+    })
+
+    test('fetchOptions headers take precedence over embedded auth', async () => {
+      let headers: IncomingHttpHeaders = {}
+      const server = await createHttpServer((req, res) => {
+        headers = req.headers
+        res.end(JSON.stringify({ result: '0x1' }))
+      })
+
+      const url = new URL(server.url)
+      url.username = 'testuser'
+      url.password = 'testpass'
+
+      const client = getHttpRpcClient(url.toString())
+      await client.request({
+        body: { method: 'web3_clientVersion' },
+        fetchOptions: {
+          headers: { Authorization: 'Bearer custom-token' },
+        },
+      })
+
+      expect(headers.authorization).toBe('Bearer custom-token')
+
+      await server.close()
+    })
+  })
 })
 
 describe('http (batch)', () => {
@@ -419,14 +476,14 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 93,
+          "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.1.0",
+          "result": "anvil/v1.5.0",
         },
         {
-          "id": 94,
+          "id": 2,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.1.0",
+          "result": "anvil/v1.5.0",
         },
       ]
     `)
@@ -445,16 +502,16 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 96,
+          "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.1.0",
+          "result": "anvil/v1.5.0",
         },
         {
           "error": {
             "code": -32602,
             "message": "odd number of digits",
           },
-          "id": 97,
+          "id": 2,
           "jsonrpc": "2.0",
         },
       ]
@@ -471,16 +528,16 @@ describe('http (batch)', () => {
     ).toMatchInlineSnapshot(`
       [
         {
-          "id": 99,
+          "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.1.0",
+          "result": "anvil/v1.5.0",
         },
         {
           "error": {
             "code": -32601,
             "message": "Method not found",
           },
-          "id": 100,
+          "id": 2,
           "jsonrpc": "2.0",
         },
       ]
@@ -580,6 +637,44 @@ describe('http (batch)', () => {
     `)
 
     mock.mockRestore()
+  })
+})
+
+describe('parseUrl', () => {
+  test('default', () => {
+    expect(parseUrl('https://rpc.example.com')).toEqual({
+      url: 'https://rpc.example.com/',
+    })
+  })
+
+  test('behavior: with username and password', () => {
+    expect(parseUrl('https://foo:bar@rpc.example.com')).toEqual({
+      url: 'https://rpc.example.com/',
+      headers: { Authorization: `Basic ${btoa('foo:bar')}` },
+    })
+  })
+
+  test('behavior: with username only', () => {
+    expect(parseUrl('https://foo@rpc.example.com')).toEqual({
+      url: 'https://rpc.example.com/',
+      headers: { Authorization: `Basic ${btoa('foo:')}` },
+    })
+  })
+
+  test('behavior: with url-encoded credentials', () => {
+    expect(parseUrl('https://user%40email.com:p%40ss@rpc.example.com')).toEqual(
+      {
+        url: 'https://rpc.example.com/',
+        headers: { Authorization: `Basic ${btoa('user@email.com:p@ss')}` },
+      },
+    )
+  })
+
+  test('behavior: with port and path', () => {
+    expect(parseUrl('https://foo:bar@rpc.example.com:8545/v1')).toEqual({
+      url: 'https://rpc.example.com:8545/v1',
+      headers: { Authorization: `Basic ${btoa('foo:bar')}` },
+    })
   })
 })
 

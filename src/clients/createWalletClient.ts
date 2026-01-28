@@ -30,6 +30,7 @@ export type WalletClientConfig<
     | 'cacheTime'
     | 'ccipRead'
     | 'chain'
+    | 'dataSuffix'
     | 'key'
     | 'name'
     | 'pollingInterval'

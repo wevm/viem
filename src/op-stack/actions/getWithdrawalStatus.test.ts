@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, test, vi } from 'vitest'
-import { anvilMainnet, anvilOptimism } from '../../../test/src/anvil.js'
+import { anvilMainnet, anvilOptimism } from '~test/anvil.js'
 import { getTransactionReceipt, reset } from '../../actions/index.js'
 
 import { getWithdrawalStatus } from './getWithdrawalStatus.js'
@@ -28,19 +28,62 @@ test('waiting-to-prove', async () => {
   })
   expect(status).toBe('waiting-to-prove')
 })
-
-test('ready-to-prove', async () => {
+test('ready-to-prove (U16)', async () => {
   await reset(client, {
-    blockNumber: 19868020n,
+    blockNumber: 22991516n,
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
   await reset(optimismClient, {
-    blockNumber: 131027872n,
+    blockNumber: 138895794n,
     jsonRpcUrl: anvilOptimism.forkUrl,
   })
 
   const receipt = await getTransactionReceipt(optimismClient, {
-    hash: '0xb3cd0bf131e97b0339b6abde0aa7636fc87114ec6ff8cec28b5002c851c929a3',
+    hash: '0x94ad4281439a63fa2a4f172fe40dffaace4b0d4ba2cf7ef9373509cbce772b84',
+  })
+
+  const status = await getWithdrawalStatus(client, {
+    gameLimit: 10,
+    receipt,
+    targetChain: optimismClient.chain,
+  })
+  expect(status).toBe('ready-to-prove')
+})
+
+test('waiting-to-finalize (U16)', async () => {
+  await reset(client, {
+    blockNumber: 22991516n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
+  await reset(optimismClient, {
+    blockNumber: 138895794n,
+    jsonRpcUrl: anvilOptimism.forkUrl,
+  })
+
+  const receipt = await getTransactionReceipt(optimismClient, {
+    hash: '0xd62d19e87e2d6ff23935dd6891a6605562dd1f15bb554ff3cfd31794e167d9ab',
+  })
+
+  const status = await getWithdrawalStatus(client, {
+    gameLimit: 10,
+    receipt,
+    targetChain: optimismClient.chain,
+  })
+  expect(status).toBe('waiting-to-finalize')
+})
+
+test('waiting-to-prove (U16)', async () => {
+  await reset(client, {
+    blockNumber: 22991714n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
+  await reset(optimismClient, {
+    blockNumber: 138896489n,
+    jsonRpcUrl: anvilOptimism.forkUrl,
+  })
+
+  const receipt = await getTransactionReceipt(optimismClient, {
+    hash: '0x084536c07c302b4cc3462049d26de42638b4fd140cfc0b19c128be7249567102',
   })
 
   const status = await getWithdrawalStatus(client, {

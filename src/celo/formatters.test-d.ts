@@ -1,6 +1,5 @@
-import { describe, expectTypeOf, test } from 'vitest'
-
 import type { Address } from 'abitype'
+import { describe, expectTypeOf, test } from 'vitest'
 import { getTransaction } from '../actions/public/getTransaction.js'
 import { prepareTransactionRequest } from '../actions/wallet/prepareTransactionRequest.js'
 import { sendTransaction } from '../actions/wallet/sendTransaction.js'

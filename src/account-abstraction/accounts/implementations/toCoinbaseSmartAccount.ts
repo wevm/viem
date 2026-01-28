@@ -4,7 +4,6 @@ import type * as WebAuthnP256 from 'ox/WebAuthnP256'
 
 import type { LocalAccount } from '../../../accounts/types.js'
 import { readContract } from '../../../actions/public/readContract.js'
-import { entryPoint06Address } from '../../../constants/address.js'
 import { BaseError } from '../../../errors/base.js'
 import type { Hash, Hex } from '../../../types/misc.js'
 import type { TypedDataDefinition } from '../../../types/typedData.js'
@@ -20,6 +19,7 @@ import { hashMessage } from '../../../utils/signature/hashMessage.js'
 import { hashTypedData } from '../../../utils/signature/hashTypedData.js'
 import { parseSignature } from '../../../utils/signature/parseSignature.js'
 import { entryPoint06Abi } from '../../constants/abis.js'
+import { entryPoint06Address } from '../../constants/address.js'
 import type { UserOperation } from '../../types/userOperation.js'
 import { getUserOperationHash } from '../../utils/userOperation/getUserOperationHash.js'
 import { toSmartAccount } from '../toSmartAccount.js'
@@ -35,6 +35,7 @@ export type ToCoinbaseSmartAccountParameters = {
   ownerIndex?: number | undefined
   owners: readonly (Address | OneOf<LocalAccount | WebAuthnAccount>)[]
   nonce?: bigint | undefined
+  version: '1.1' | '1'
 }
 
 export type ToCoinbaseSmartAccountReturnType = Prettify<
@@ -53,6 +54,11 @@ export type CoinbaseSmartAccountImplementation = Assign<
   }
 >
 
+const factoryAddress = {
+  '1.1': '0xba5ed110efdba3d005bfc882d75358acbbb85842',
+  '1': '0x0ba5ed0c6aa8c49038f819e587e2633c4a9f428a',
+} as const
+
 /**
  * @description Create a Coinbase Smart Account.
  *
@@ -67,12 +73,19 @@ export type CoinbaseSmartAccountImplementation = Assign<
  * const account = toCoinbaseSmartAccount({
  *   client,
  *   owners: [privateKeyToAccount('0x...')],
+ *   version: '1.1',
  * })
  */
 export async function toCoinbaseSmartAccount(
   parameters: ToCoinbaseSmartAccountParameters,
 ): Promise<ToCoinbaseSmartAccountReturnType> {
-  const { client, ownerIndex = 0, owners, nonce = 0n } = parameters
+  const {
+    client,
+    ownerIndex = 0,
+    owners,
+    nonce = 0n,
+    version = '1',
+  } = parameters
 
   let address = parameters.address
 
@@ -83,7 +96,7 @@ export async function toCoinbaseSmartAccount(
   } as const
   const factory = {
     abi: factoryAbi,
-    address: '0x0ba5ed0c6aa8c49038f819e587e2633c4a9f428a',
+    address: factoryAddress[version],
   } as const
 
   const owners_bytes = owners.map((owner) => {
@@ -296,7 +309,10 @@ export async function signTypedData({
 export async function sign({
   hash,
   owner,
-}: { hash: Hash; owner: OneOf<LocalAccount | WebAuthnAccount> }) {
+}: {
+  hash: Hash
+  owner: OneOf<LocalAccount | WebAuthnAccount>
+}) {
   // WebAuthn Account (Passkey)
   if (owner.type === 'webAuthn') {
     const { signature, webauthn } = await owner.sign({
@@ -315,7 +331,11 @@ export function toReplaySafeTypedData({
   address,
   chainId,
   hash,
-}: { address: Address; chainId: number; hash: Hash }) {
+}: {
+  address: Address
+  chainId: number
+  hash: Hash
+}) {
   return {
     domain: {
       chainId,
@@ -374,8 +394,8 @@ export function toWebAuthnSignature({
       {
         authenticatorData: webauthn.authenticatorData,
         clientDataJSON: stringToHex(webauthn.clientDataJSON),
-        challengeIndex: BigInt(webauthn.challengeIndex),
-        typeIndex: BigInt(webauthn.typeIndex),
+        challengeIndex: BigInt(webauthn.challengeIndex ?? 0n),
+        typeIndex: BigInt(webauthn.typeIndex ?? 0n),
         r,
         s,
       },

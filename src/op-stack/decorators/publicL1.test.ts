@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
-import { accounts } from '~test/src/constants.js'
-import { mainnetClient } from '~test/src/utils.js'
-import { http, createPublicClient } from '../../index.js'
+import { accounts } from '~test/constants.js'
+import { mainnetClient } from '~test/utils.js'
+import { createPublicClient, http } from '../../index.js'
 import { optimism } from '../../op-stack/chains.js'
 import { getWithdrawals } from '../../op-stack/index.js'
 import { publicActionsL1 } from './publicL1.js'

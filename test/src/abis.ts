@@ -1,4 +1,4 @@
-import { multicall3Abi, smartAccountAbi } from '~viem/constants/abis.js'
+import { erc1271Abi, multicall3Abi } from '../../src/constants/abis.js'
 
 export const erc20Abi = [
   {
@@ -3466,7 +3466,7 @@ export const seaportContractConfig = {
 } as const
 
 export const ensPublicResolverConfig = {
-  address: '0x4976fb03c32e5b8cfe2b6ccb31c09ba78ebaba41',
+  address: '0x231b0Ee14048e9dCcD1d247744d114a4EB5E8E63',
   abi: [
     {
       inputs: [{ name: '_ens', type: 'address' }],
@@ -4327,7 +4327,7 @@ export const ensReverseRegistrarConfig = {
 
 export const smartAccountConfig = {
   address: '0x3FCf42e10CC70Fe75A62EB3aDD6D305Aa840d145',
-  abi: smartAccountAbi,
+  abi: erc1271Abi,
 } as const
 
 export const greeterContract = {

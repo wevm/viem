@@ -6,7 +6,7 @@ const sourceId = 11_155_111 // sepolia
 export const pgnTestnet = /*#__PURE__*/ defineChain({
   id: 58008,
   network: 'pgn-testnet',
-  name: 'PGN ',
+  name: 'PGN',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {

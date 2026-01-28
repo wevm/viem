@@ -1,32 +1,65 @@
-import type { Address, TypedData } from 'abitype'
+import type { Abi, Address, TypedData } from 'abitype'
 
 import type { PrivateKeyAccount } from '../../../accounts/types.js'
-import { entryPoint08Address } from '../../../constants/address.js'
 import { BaseError } from '../../../errors/base.js'
 import type { TypedDataDefinition } from '../../../types/typedData.js'
 import type { Prettify } from '../../../types/utils.js'
 import { decodeFunctionData } from '../../../utils/abi/decodeFunctionData.js'
 import { encodeFunctionData } from '../../../utils/abi/encodeFunctionData.js'
-import { entryPoint08Abi } from '../../constants/abis.js'
+import { entryPoint08Abi, entryPoint09Abi } from '../../constants/abis.js'
+import {
+  entryPoint08Address,
+  entryPoint09Address,
+} from '../../constants/address.js'
+import type { EntryPointVersion } from '../../types/entryPointVersion.js'
 import { getUserOperationTypedData } from '../../utils/userOperation/getUserOperationTypedData.js'
 import { toSmartAccount } from '../toSmartAccount.js'
 import type { SmartAccount, SmartAccountImplementation } from '../types.js'
 
-export type ToSimple7702SmartAccountParameters = {
+type EntryPoint =
+  | '0.8'
+  | '0.9'
+  | {
+      abi: Abi
+      address: Address
+      version: EntryPointVersion
+    }
+
+export type ToSimple7702SmartAccountParameters<
+  entryPoint extends EntryPoint = '0.8',
+> = {
   client: Simple7702SmartAccountImplementation['client']
+  entryPoint?: entryPoint | EntryPoint | undefined
   implementation?: Address | undefined
   getNonce?: SmartAccountImplementation['getNonce'] | undefined
   owner: PrivateKeyAccount
 }
 
-export type ToSimple7702SmartAccountReturnType = Prettify<
-  SmartAccount<Simple7702SmartAccountImplementation>
->
+export type ToSimple7702SmartAccountReturnType<
+  entryPoint extends EntryPoint = '0.8',
+> = Prettify<SmartAccount<Simple7702SmartAccountImplementation<entryPoint>>>
 
-export type Simple7702SmartAccountImplementation = SmartAccountImplementation<
-  typeof entryPoint08Abi,
-  '0.8',
-  { abi: typeof abi; owner: PrivateKeyAccount },
+export type Simple7702SmartAccountImplementation<
+  entryPoint extends EntryPoint = '0.8',
+> = SmartAccountImplementation<
+  entryPoint extends { abi: infer abi }
+    ? abi
+    : entryPoint extends '0.9'
+      ? typeof entryPoint09Abi
+      : typeof entryPoint08Abi,
+  entryPoint extends string
+    ? entryPoint
+    : entryPoint extends { version: infer version }
+      ? version
+      : EntryPointVersion,
+  {
+    abi: entryPoint extends { abi: infer abi }
+      ? abi
+      : entryPoint extends '0.9'
+        ? typeof entryPoint09Abi
+        : typeof entryPoint08Abi
+    owner: PrivateKeyAccount
+  },
   true
 >
 
@@ -45,21 +78,34 @@ export type Simple7702SmartAccountImplementation = SmartAccountImplementation<
  *   owner: '0x...',
  * })
  */
-export async function toSimple7702SmartAccount(
-  parameters: ToSimple7702SmartAccountParameters,
-): Promise<ToSimple7702SmartAccountReturnType> {
-  const {
-    client,
-    implementation = '0xe6Cae83BdE06E4c305530e199D7217f42808555B',
-    getNonce,
-    owner,
-  } = parameters
+export async function toSimple7702SmartAccount<
+  entryPoint extends EntryPoint = '0.8',
+>(
+  parameters: ToSimple7702SmartAccountParameters<entryPoint>,
+): Promise<ToSimple7702SmartAccountReturnType<entryPoint>> {
+  const { client, getNonce, owner } = parameters
 
-  const entryPoint = {
-    abi: entryPoint08Abi,
-    address: entryPoint08Address,
-    version: '0.8',
-  } as const
+  const entryPoint = (() => {
+    if (parameters.entryPoint === '0.9')
+      return {
+        abi: entryPoint09Abi,
+        address: entryPoint09Address,
+        version: '0.9',
+      } as const
+    if (typeof parameters.entryPoint === 'object') return parameters.entryPoint
+    return {
+      abi: entryPoint08Abi,
+      address: entryPoint08Address,
+      version: '0.8',
+    } as const
+  })()
+
+  const implementation = (() => {
+    if (parameters.implementation) return parameters.implementation
+    if (parameters.entryPoint === '0.9')
+      return '0xa46cc63eBF4Bd77888AA327837d20b23A63a56B5'
+    return '0xe6Cae83BdE06E4c305530e199D7217f42808555B'
+  })()
 
   return toSmartAccount({
     authorization: { account: owner, address: implementation },
@@ -150,7 +196,7 @@ export async function toSimple7702SmartAccount(
       })
       return await owner.signTypedData(typedData)
     },
-  })
+  }) as unknown as ToSimple7702SmartAccountReturnType<entryPoint>
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

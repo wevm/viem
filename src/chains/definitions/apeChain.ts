@@ -4,7 +4,7 @@ const sourceId = 42_161 // Arbitrum One
 
 export const apeChain = /*#__PURE__*/ defineChain({
   id: 33139,
-  name: 'Ape Chain',
+  name: 'ApeChain',
   nativeCurrency: {
     name: 'ApeCoin',
     symbol: 'APE',

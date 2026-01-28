@@ -1,6 +1,5 @@
-import { describe, expect, test } from 'vitest'
-
 import { parseAbi } from 'abitype'
+import { describe, expect, test } from 'vitest'
 import { multicall3Abi } from '../../constants/abis.js'
 import { decodeFunctionResult } from '../index.js'
 import { encodeFunctionResult } from './encodeFunctionResult.js'

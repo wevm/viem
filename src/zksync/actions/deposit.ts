@@ -33,10 +33,10 @@ import type {
 import type { Hex } from '../../types/misc.js'
 import type { UnionEvaluate, UnionOmit } from '../../types/utils.js'
 import {
-  type FormattedTransactionRequest,
   concatHex,
   encodeAbiParameters,
   encodeFunctionData,
+  type FormattedTransactionRequest,
   isAddressEqual,
   keccak256,
   parseAccount,

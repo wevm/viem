@@ -1,26 +1,25 @@
 import { assertType, beforeAll, describe, expect, test, vi } from 'vitest'
 
 import { ERC20InvalidTransferEvent } from '~contracts/generated.js'
-import { usdcContractConfig } from '~test/src/abis.js'
-import { accounts, address } from '~test/src/constants.js'
-import { deployErc20InvalidTransferEvent } from '~test/src/utils.js'
+import { usdcContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts, address } from '~test/constants.js'
+import { deployErc20InvalidTransferEvent } from '~test/utils.js'
+import {
+  type Client,
+  createClient,
+  fallback,
+  http,
+  InvalidInputRpcError,
+  RpcRequestError,
+  webSocket,
+} from '../../index.js'
 import { getAddress } from '../../utils/address/getAddress.js'
 import { wait } from '../../utils/wait.js'
 import { impersonateAccount } from '../test/impersonateAccount.js'
 import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
 import { writeContract } from '../wallet/writeContract.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
-import {
-  http,
-  type Client,
-  InvalidInputRpcError,
-  RpcRequestError,
-  createClient,
-  fallback,
-  webSocket,
-} from '../../index.js'
 import * as createContractEventFilter from './createContractEventFilter.js'
 import * as getBlockNumber from './getBlockNumber.js'
 import * as getFilterChanges from './getFilterChanges.js'
@@ -770,85 +769,81 @@ describe('poll', () => {
       expect(logs[1][0].eventName).toEqual('Approval')
     })
 
-    test(
-      'fallback',
-      async () => {
-        const logs: WatchContractEventOnLogsParameter<
-          typeof usdcContractConfig.abi
-        >[] = []
+    test('fallback', { retry: 3 }, async () => {
+      const logs: WatchContractEventOnLogsParameter<
+        typeof usdcContractConfig.abi
+      >[] = []
 
-        const client_2 = createClient({
-          chain: anvilMainnet.chain,
-          transport: fallback([http(), webSocket()]),
-          pollingInterval: 200,
-        }).extend(() => ({ mode: 'anvil' }))
+      const client_2 = createClient({
+        chain: anvilMainnet.chain,
+        transport: fallback([http(), webSocket()]),
+        pollingInterval: 200,
+      }).extend(() => ({ mode: 'anvil' }))
 
-        const unwatch = watchContractEvent(client_2, {
-          abi: usdcContractConfig.abi,
-          onLogs: (logs_) => {
-            assertType<(typeof logs_)[0]['args']>({
-              owner: '0x',
-              spender: '0x',
-              value: 0n,
-            })
-            assertType<(typeof logs_)[0]['args']>({
-              from: '0x',
-              to: '0x',
-              value: 0n,
-            })
-            logs.push(logs_)
-          },
-        })
+      const unwatch = watchContractEvent(client_2, {
+        abi: usdcContractConfig.abi,
+        onLogs: (logs_) => {
+          assertType<(typeof logs_)[0]['args']>({
+            owner: '0x',
+            spender: '0x',
+            value: 0n,
+          })
+          assertType<(typeof logs_)[0]['args']>({
+            from: '0x',
+            to: '0x',
+            value: 0n,
+          })
+          logs.push(logs_)
+        },
+      })
 
-        await writeContract(client_2, {
-          ...usdcContractConfig,
-          account: address.vitalik,
-          functionName: 'transfer',
-          args: [address.vitalik, 1n],
-        })
-        await writeContract(client_2, {
-          ...usdcContractConfig,
-          account: address.vitalik,
-          functionName: 'transfer',
-          args: [address.vitalik, 1n],
-        })
-        await mine(client_2, { blocks: 1 })
-        await wait(200)
-        await writeContract(client_2, {
-          ...usdcContractConfig,
-          account: address.vitalik,
-          functionName: 'approve',
-          args: [address.vitalik, 1n],
-        })
-        await mine(client_2, { blocks: 1 })
-        await wait(200)
-        unwatch()
+      await writeContract(client_2, {
+        ...usdcContractConfig,
+        account: address.vitalik,
+        functionName: 'transfer',
+        args: [address.vitalik, 1n],
+      })
+      await writeContract(client_2, {
+        ...usdcContractConfig,
+        account: address.vitalik,
+        functionName: 'transfer',
+        args: [address.vitalik, 1n],
+      })
+      await mine(client_2, { blocks: 1 })
+      await wait(200)
+      await writeContract(client_2, {
+        ...usdcContractConfig,
+        account: address.vitalik,
+        functionName: 'approve',
+        args: [address.vitalik, 1n],
+      })
+      await mine(client_2, { blocks: 1 })
+      await wait(200)
+      unwatch()
 
-        expect(logs.length).toBe(2)
-        expect(logs[0].length).toBe(2)
-        expect(logs[1].length).toBe(1)
+      expect(logs.length).toBe(2)
+      expect(logs[0].length).toBe(2)
+      expect(logs[1].length).toBe(1)
 
-        expect(logs[0][0].args).toEqual({
-          from: getAddress(address.vitalik),
-          to: getAddress(address.vitalik),
-          value: 1n,
-        })
-        expect(logs[0][0].eventName).toEqual('Transfer')
-        expect(logs[0][1].args).toEqual({
-          from: getAddress(address.vitalik),
-          to: getAddress(address.vitalik),
-          value: 1n,
-        })
-        expect(logs[0][1].eventName).toEqual('Transfer')
-        expect(logs[1][0].args).toEqual({
-          owner: getAddress(address.vitalik),
-          spender: getAddress(address.vitalik),
-          value: 1n,
-        })
-        expect(logs[1][0].eventName).toEqual('Approval')
-      },
-      { retry: 3 },
-    )
+      expect(logs[0][0].args).toEqual({
+        from: getAddress(address.vitalik),
+        to: getAddress(address.vitalik),
+        value: 1n,
+      })
+      expect(logs[0][0].eventName).toEqual('Transfer')
+      expect(logs[0][1].args).toEqual({
+        from: getAddress(address.vitalik),
+        to: getAddress(address.vitalik),
+        value: 1n,
+      })
+      expect(logs[0][1].eventName).toEqual('Transfer')
+      expect(logs[1][0].args).toEqual({
+        owner: getAddress(address.vitalik),
+        spender: getAddress(address.vitalik),
+        value: 1n,
+      })
+      expect(logs[1][0].eventName).toEqual('Approval')
+    })
   })
 
   describe('errors', () => {
@@ -930,68 +925,64 @@ describe('poll', () => {
 })
 
 describe('subscribe', () => {
-  test(
-    'default',
-    async () => {
-      const logs: WatchContractEventOnLogsParameter<
-        typeof usdcContractConfig.abi
-      >[] = []
+  test('default', { timeout: 10_000 }, async () => {
+    const logs: WatchContractEventOnLogsParameter<
+      typeof usdcContractConfig.abi
+    >[] = []
 
-      const unwatch = watchContractEvent(webSocketClient, {
-        ...usdcContractConfig,
-        onLogs: (logs_) => {
-          assertType<(typeof logs_)[0]['args']>({
-            owner: '0x',
-            spender: '0x',
-            value: 0n,
-          })
-          assertType<(typeof logs_)[0]['args']>({
-            from: '0x',
-            to: '0x',
-            value: 0n,
-          })
-          logs.push(logs_)
-        },
-      })
+    const unwatch = watchContractEvent(webSocketClient, {
+      ...usdcContractConfig,
+      onLogs: (logs_) => {
+        assertType<(typeof logs_)[0]['args']>({
+          owner: '0x',
+          spender: '0x',
+          value: 0n,
+        })
+        assertType<(typeof logs_)[0]['args']>({
+          from: '0x',
+          to: '0x',
+          value: 0n,
+        })
+        logs.push(logs_)
+      },
+    })
 
-      await wait(100)
-      await writeContract(client, {
-        ...usdcContractConfig,
-        account: address.vitalik,
-        functionName: 'transfer',
-        args: [address.vitalik, 1n],
-      })
-      await mine(client, { blocks: 1 })
-      await wait(200)
-      await writeContract(client, {
-        ...usdcContractConfig,
-        account: address.vitalik,
-        functionName: 'approve',
-        args: [address.vitalik, 1n],
-      })
-      await mine(client, { blocks: 1 })
-      await wait(200)
+    await wait(100)
+    await writeContract(client, {
+      ...usdcContractConfig,
+      account: address.vitalik,
+      functionName: 'transfer',
+      args: [address.vitalik, 1n],
+    })
+    await mine(client, { blocks: 1 })
+    await wait(200)
+    await writeContract(client, {
+      ...usdcContractConfig,
+      account: address.vitalik,
+      functionName: 'approve',
+      args: [address.vitalik, 1n],
+    })
+    await mine(client, { blocks: 1 })
+    await wait(200)
 
-      unwatch()
+    unwatch()
 
-      expect(logs.length).toBe(2)
+    expect(logs.length).toBe(2)
 
-      expect(logs[0][0].args).toEqual({
-        from: getAddress(address.vitalik),
-        to: getAddress(address.vitalik),
-        value: 1n,
-      })
-      expect(logs[0][0].eventName).toEqual('Transfer')
+    expect(logs[0][0].args).toEqual({
+      from: getAddress(address.vitalik),
+      to: getAddress(address.vitalik),
+      value: 1n,
+    })
+    expect(logs[0][0].eventName).toEqual('Transfer')
 
-      expect(logs[1][0].args).toEqual({
-        owner: getAddress(address.vitalik),
-        spender: getAddress(address.vitalik),
-        value: 1n,
-      })
-      expect(logs[1][0].eventName).toEqual('Approval')
-    },
-    { timeout: 10_000 },
-  )
+    expect(logs[1][0].args).toEqual({
+      owner: getAddress(address.vitalik),
+      spender: getAddress(address.vitalik),
+      value: 1n,
+    })
+    expect(logs[1][0].eventName).toEqual('Approval')
+  })
 
   test('args: eventName', async () => {
     const logs: WatchContractEventOnLogsParameter<
@@ -1271,144 +1262,136 @@ describe('subscribe', () => {
     expect(logs[1][0].eventName).toEqual('Transfer')
   })
 
-  test(
-    'fallback transport',
-    async () => {
-      const logs: WatchContractEventOnLogsParameter<
-        typeof usdcContractConfig.abi
-      >[] = []
+  test('fallback transport', { timeout: 10_000 }, async () => {
+    const logs: WatchContractEventOnLogsParameter<
+      typeof usdcContractConfig.abi
+    >[] = []
 
-      const client_2 = createClient({
-        chain: anvilMainnet.chain,
-        transport: fallback([webSocket(), http()]),
-        pollingInterval: 200,
-      })
+    const client_2 = createClient({
+      chain: anvilMainnet.chain,
+      transport: fallback([webSocket(), http()]),
+      pollingInterval: 200,
+    })
 
-      const unwatch = watchContractEvent(client_2, {
-        ...usdcContractConfig,
-        onLogs: (logs_) => {
-          assertType<(typeof logs_)[0]['args']>({
-            owner: '0x',
-            spender: '0x',
-            value: 0n,
-          })
-          assertType<(typeof logs_)[0]['args']>({
-            from: '0x',
-            to: '0x',
-            value: 0n,
-          })
-          logs.push(logs_)
-        },
-      })
+    const unwatch = watchContractEvent(client_2, {
+      ...usdcContractConfig,
+      onLogs: (logs_) => {
+        assertType<(typeof logs_)[0]['args']>({
+          owner: '0x',
+          spender: '0x',
+          value: 0n,
+        })
+        assertType<(typeof logs_)[0]['args']>({
+          from: '0x',
+          to: '0x',
+          value: 0n,
+        })
+        logs.push(logs_)
+      },
+    })
 
-      await wait(100)
-      await writeContract(client, {
-        ...usdcContractConfig,
-        account: address.vitalik,
-        functionName: 'transfer',
-        args: [address.vitalik, 1n],
-      })
-      await mine(client, { blocks: 1 })
-      await wait(200)
-      await writeContract(client, {
-        ...usdcContractConfig,
-        account: address.vitalik,
-        functionName: 'approve',
-        args: [address.vitalik, 1n],
-      })
-      await mine(client, { blocks: 1 })
-      await wait(200)
+    await wait(100)
+    await writeContract(client, {
+      ...usdcContractConfig,
+      account: address.vitalik,
+      functionName: 'transfer',
+      args: [address.vitalik, 1n],
+    })
+    await mine(client, { blocks: 1 })
+    await wait(200)
+    await writeContract(client, {
+      ...usdcContractConfig,
+      account: address.vitalik,
+      functionName: 'approve',
+      args: [address.vitalik, 1n],
+    })
+    await mine(client, { blocks: 1 })
+    await wait(200)
 
-      unwatch()
+    unwatch()
 
-      expect(logs.length).toBe(2)
+    expect(logs.length).toBe(2)
 
-      expect(logs[0][0].args).toEqual({
-        from: getAddress(address.vitalik),
-        to: getAddress(address.vitalik),
-        value: 1n,
-      })
-      expect(logs[0][0].eventName).toEqual('Transfer')
+    expect(logs[0][0].args).toEqual({
+      from: getAddress(address.vitalik),
+      to: getAddress(address.vitalik),
+      value: 1n,
+    })
+    expect(logs[0][0].eventName).toEqual('Transfer')
 
-      expect(logs[1][0].args).toEqual({
-        owner: getAddress(address.vitalik),
-        spender: getAddress(address.vitalik),
-        value: 1n,
-      })
-      expect(logs[1][0].eventName).toEqual('Approval')
-    },
-    { timeout: 10_000 },
-  )
+    expect(logs[1][0].args).toEqual({
+      owner: getAddress(address.vitalik),
+      spender: getAddress(address.vitalik),
+      value: 1n,
+    })
+    expect(logs[1][0].eventName).toEqual('Approval')
+  })
 
-  test(
-    'fallback transport (poll: false)',
-    async () => {
-      const logs: WatchContractEventOnLogsParameter<
-        typeof usdcContractConfig.abi
-      >[] = []
+  test('fallback transport (poll: false)', { timeout: 10_000 }, async () => {
+    const logs: WatchContractEventOnLogsParameter<
+      typeof usdcContractConfig.abi
+    >[] = []
 
-      const client_2 = createClient({
-        chain: anvilMainnet.chain,
-        transport: fallback([http(), webSocket()]),
-        pollingInterval: 200,
-      })
+    const client_2 = createClient({
+      chain: anvilMainnet.chain,
+      transport: fallback([http(), webSocket()]),
+      pollingInterval: 200,
+    })
 
-      const unwatch = watchContractEvent(client_2, {
-        ...usdcContractConfig,
-        poll: false,
-        onLogs: (logs_) => {
-          assertType<(typeof logs_)[0]['args']>({
-            owner: '0x',
-            spender: '0x',
-            value: 0n,
-          })
-          assertType<(typeof logs_)[0]['args']>({
-            from: '0x',
-            to: '0x',
-            value: 0n,
-          })
-          logs.push(logs_)
-        },
-      })
+    const unwatch = watchContractEvent(client_2, {
+      ...usdcContractConfig,
+      poll: false,
+      onLogs: (logs_) => {
+        assertType<(typeof logs_)[0]['args']>({
+          owner: '0x',
+          spender: '0x',
+          value: 0n,
+        })
+        assertType<(typeof logs_)[0]['args']>({
+          from: '0x',
+          to: '0x',
+          value: 0n,
+        })
+        logs.push(logs_)
+      },
+    })
 
-      await wait(100)
-      await writeContract(client, {
-        ...usdcContractConfig,
-        account: address.vitalik,
-        functionName: 'transfer',
-        args: [address.vitalik, 1n],
-      })
-      await mine(client, { blocks: 1 })
-      await wait(200)
-      await writeContract(client, {
-        ...usdcContractConfig,
-        account: address.vitalik,
-        functionName: 'approve',
-        args: [address.vitalik, 1n],
-      })
-      await mine(client, { blocks: 1 })
-      await wait(200)
+    await wait(100)
+    await writeContract(client, {
+      ...usdcContractConfig,
+      account: address.vitalik,
+      functionName: 'transfer',
+      args: [address.vitalik, 1n],
+    })
+    await mine(client, { blocks: 1 })
+    await wait(200)
+    await writeContract(client, {
+      ...usdcContractConfig,
+      account: address.vitalik,
+      functionName: 'approve',
+      args: [address.vitalik, 1n],
+    })
+    await mine(client, { blocks: 1 })
+    await wait(200)
 
-      unwatch()
+    unwatch()
 
-      expect(logs.length).toBe(2)
+    expect(logs.length).toBe(2)
 
-      expect(logs[0][0].args).toEqual({
-        from: getAddress(address.vitalik),
-        to: getAddress(address.vitalik),
-        value: 1n,
-      })
-      expect(logs[0][0].eventName).toEqual('Transfer')
+    expect(logs[0][0].args).toEqual({
+      from: getAddress(address.vitalik),
+      to: getAddress(address.vitalik),
+      value: 1n,
+    })
+    expect(logs[0][0].eventName).toEqual('Transfer')
 
-      expect(logs[1][0].args).toEqual({
-        owner: getAddress(address.vitalik),
-        spender: getAddress(address.vitalik),
-        value: 1n,
-      })
-      expect(logs[1][0].eventName).toEqual('Approval')
-    },
-    { timeout: 10_000 },
-  )
+    expect(logs[1][0].args).toEqual({
+      owner: getAddress(address.vitalik),
+      spender: getAddress(address.vitalik),
+      value: 1n,
+    })
+    expect(logs[1][0].eventName).toEqual('Approval')
+  })
 
   describe('args: strict', () => {
     test('indexed params mismatch', async () => {
@@ -1570,6 +1553,7 @@ describe('subscribe', () => {
 
   test(
     'https://github.com/wevm/viem/issues/2563',
+    { timeout: 10_000 },
     async () => {
       let error: Error | undefined
       const unwatch = watchContractEvent(webSocketClient, {
@@ -1595,6 +1579,5 @@ describe('subscribe', () => {
 
       unwatch()
     },
-    { timeout: 10_000 },
   )
 })

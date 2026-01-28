@@ -3,7 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11155111 // Sepolia testnet
 
-export const pyrope = defineChain({
+export const pyrope = /*#__PURE__*/ defineChain({
   ...chainConfig,
   name: 'Pyrope Testnet',
   testnet: true,

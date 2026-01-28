@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 import { wait } from '../wait.js'
 import { getSocketRpcClient } from './socket.js'
 
@@ -122,10 +122,10 @@ test('request', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 4,
+      "id": 1,
       "jsonrpc": "2.0",
       "result": {
-        "id": 4,
+        "id": 1,
         "jsonrpc": "2.0",
         "method": "test",
       },
@@ -138,6 +138,7 @@ test('request', async () => {
 test('reconnect', async () => {
   let active = true
   let count = -1
+
   const socketClient = await getSocketRpcClient({
     key: 'test-socket',
     async getSocket({ onError, onOpen, onResponse }) {
@@ -148,7 +149,7 @@ test('reconnect', async () => {
         onOpen()
         active = true
       } else {
-        onError(new Error('connection failed.'))
+        setTimeout(() => onError(new Error('connection failed.')), 200)
         active = false
       }
 
@@ -157,6 +158,7 @@ test('reconnect', async () => {
         request({ body }) {
           wait(100).then(() => {
             if (!active) return
+
             onResponse({ id: body.id ?? 0, jsonrpc: '2.0', result: body })
 
             wait(100).then(() => {
@@ -168,7 +170,7 @@ test('reconnect', async () => {
       }
     },
     reconnect: {
-      delay: 200,
+      delay: 100,
       attempts: 5,
     },
     url: anvilMainnet.rpcUrl.ws,
@@ -190,10 +192,10 @@ test('reconnect', async () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "id": 6,
+      "id": 1,
       "jsonrpc": "2.0",
       "result": {
-        "id": 6,
+        "id": 1,
         "jsonrpc": "2.0",
         "method": "test",
       },
@@ -233,10 +235,10 @@ test('reconnect', async () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "id": 8,
+      "id": 3,
       "jsonrpc": "2.0",
       "result": {
-        "id": 8,
+        "id": 3,
         "jsonrpc": "2.0",
         "method": "test",
       },
@@ -343,7 +345,7 @@ test('request (eth_subscribe)', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 13,
+      "id": 1,
       "jsonrpc": "2.0",
       "result": "0xabc",
     }
@@ -367,7 +369,7 @@ test('reconnect (eth_subscribe)', async () => {
         onOpen()
         active = true
       } else {
-        onError(new Error('connection failed.'))
+        setTimeout(() => onError(new Error('connection failed.')), 200)
         active = false
       }
 
@@ -387,7 +389,7 @@ test('reconnect (eth_subscribe)', async () => {
       }
     },
     reconnect: {
-      delay: 200,
+      delay: 100,
       attempts: 5,
     },
     url: anvilMainnet.rpcUrl.ws,
@@ -409,7 +411,7 @@ test('reconnect (eth_subscribe)', async () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "id": 15,
+      "id": 1,
       "jsonrpc": "2.0",
       "result": "0xabc",
     }
@@ -448,7 +450,7 @@ test('reconnect (eth_subscribe)', async () => {
     }),
   ).toMatchInlineSnapshot(`
     {
-      "id": 17,
+      "id": 4,
       "jsonrpc": "2.0",
       "result": "0xabc",
     }
@@ -481,7 +483,7 @@ test('request (eth_unsubscribe)', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 19,
+      "id": 1,
       "jsonrpc": "2.0",
       "result": "0xabc",
     }
@@ -526,7 +528,7 @@ test('request (eth_subscription)', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 21,
+      "id": 1,
       "jsonrpc": "2.0",
       "method": "eth_subscription",
       "params": {
@@ -667,10 +669,10 @@ test('requestAsync', async () => {
   })
   expect(response).toMatchInlineSnapshot(`
     {
-      "id": 29,
+      "id": 1,
       "jsonrpc": "2.0",
       "result": {
-        "id": 29,
+        "id": 1,
         "jsonrpc": "2.0",
         "method": "test",
       },
@@ -714,4 +716,175 @@ test('requestAsync (error on close)', async () => {
 
     Version: viem@x.y.z]
   `)
+})
+
+test('behavior: eth_unsubscribe removes subscription immediately', async () => {
+  const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
+    async getSocket({ onResponse }) {
+      return {
+        close() {},
+        request({ body }) {
+          onResponse({ id: body.id ?? 0, jsonrpc: '2.0', result: '0xabc' })
+        },
+      }
+    },
+    url: anvilMainnet.rpcUrl.ws,
+  })
+
+  // Subscribe first
+  await new Promise((res) => {
+    socketClient.request({
+      body: { method: 'eth_subscribe' },
+      onResponse: res,
+    })
+  })
+  expect(socketClient.subscriptions.size).toBe(1)
+
+  // Unsubscribe - subscription should be removed immediately, before response
+  let responseReceived = false
+  socketClient.request({
+    body: { method: 'eth_unsubscribe', params: ['0xabc'] },
+    onResponse: () => {
+      responseReceived = true
+    },
+  })
+
+  // Subscription should be removed immediately, not after response
+  expect(socketClient.subscriptions.size).toBe(0)
+  expect(responseReceived).toBe(true)
+
+  socketClient.close()
+})
+
+test('behavior: eth_unsubscribe removes subscription even when socket throws', async () => {
+  let shouldThrow = false
+
+  const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
+    async getSocket({ onResponse }) {
+      return {
+        close() {},
+        request({ body }) {
+          if (shouldThrow) {
+            throw new Error('socket closed')
+          }
+          onResponse({ id: body.id ?? 0, jsonrpc: '2.0', result: '0xabc' })
+        },
+      }
+    },
+    url: anvilMainnet.rpcUrl.ws,
+  })
+
+  // Subscribe first
+  await new Promise((res) => {
+    socketClient.request({
+      body: { method: 'eth_subscribe' },
+      onResponse: res,
+    })
+  })
+  expect(socketClient.subscriptions.size).toBe(1)
+
+  // Now make socket throw on next request
+  shouldThrow = true
+
+  // Unsubscribe - should still remove subscription even though socket throws
+  await new Promise<void>((res) => {
+    socketClient.request({
+      body: { method: 'eth_unsubscribe', params: ['0xabc'] },
+      onError: () => res(),
+      onResponse: () => res(),
+    })
+  })
+
+  // Subscription should still be removed
+  expect(socketClient.subscriptions.size).toBe(0)
+
+  socketClient.close()
+})
+
+test('behavior: unsubscribed subscription is not re-subscribed on reconnect', async () => {
+  let active = true
+  let count = -1
+  let subscribeCount = 0
+
+  const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
+    async getSocket({ onError, onOpen, onResponse }) {
+      count++
+
+      // reopen on 2nd attempt
+      if (active || count === 2) {
+        onOpen()
+        active = true
+      } else {
+        setTimeout(() => onError(new Error('connection failed.')), 50)
+        active = false
+      }
+
+      return {
+        close() {},
+        request({ body }) {
+          if (!active) {
+            throw new Error('socket closed')
+          }
+
+          if (body.method === 'eth_subscribe') {
+            subscribeCount++
+          }
+
+          wait(10).then(() => {
+            if (!active) return
+            onResponse({ id: body.id ?? 0, jsonrpc: '2.0', result: '0xabc' })
+
+            // Trigger disconnect after first subscribe
+            if (count === 0 && body.method === 'eth_subscribe') {
+              wait(10).then(() => {
+                onError(new Error('connection failed.'))
+                active = false
+              })
+            }
+          })
+        },
+      }
+    },
+    reconnect: {
+      delay: 50,
+      attempts: 5,
+    },
+    url: anvilMainnet.rpcUrl.ws,
+  })
+
+  // Subscribe
+  await new Promise((res, rej) => {
+    socketClient.request({
+      body: { method: 'eth_subscribe', params: ['newHeads'] },
+      onResponse: res,
+      onError: rej,
+    })
+  })
+  expect(socketClient.subscriptions.size).toBe(1)
+  expect(subscribeCount).toBe(1)
+
+  // Wait for disconnect
+  await wait(100)
+
+  // Unsubscribe while disconnected (will throw but should still remove from map)
+  await new Promise<void>((res) => {
+    socketClient.request({
+      body: { method: 'eth_unsubscribe', params: ['0xabc'] },
+      onError: () => res(),
+      onResponse: () => res(),
+    })
+  })
+  expect(socketClient.subscriptions.size).toBe(0)
+
+  // Wait for reconnect
+  await wait(300)
+
+  // The subscription should NOT have been re-subscribed
+  // (subscribeCount should still be 1, not 2)
+  expect(subscribeCount).toBe(1)
+
+  socketClient.close()
 })

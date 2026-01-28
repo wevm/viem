@@ -20,5 +20,11 @@ export const morph = /*#__PURE__*/ defineChain({
       url: 'https://explorer.morphl2.io',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 3654913,
+    },
+  },
   testnet: false,
 })

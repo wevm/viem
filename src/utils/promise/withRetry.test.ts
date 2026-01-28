@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { createHttpServer } from '~test/src/utils.js'
+import { createHttpServer } from '~test/utils.js'
 
 import { withRetry } from './withRetry.js'
 
@@ -145,7 +145,8 @@ test('delay: fn', async () => {
         retryCount: 1,
         delay: ({ error }) => {
           const retryAfter = (error as any).headers.get('Retry-After')
-          if (retryAfter?.match(/\d/)) return Number.parseInt(retryAfter) * 1000
+          if (retryAfter?.match(/\d/))
+            return Number.parseInt(retryAfter, 10) * 1000
           return 100
         },
       },

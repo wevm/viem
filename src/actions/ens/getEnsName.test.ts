@@ -1,21 +1,20 @@
+import { parseAbi } from 'abitype'
 import { beforeAll, describe, expect, test } from 'vitest'
-
-import { address } from '~test/src/constants.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { address } from '~test/constants.js'
 import {
   createHttpServer,
   setVitalikName,
   setVitalikResolver,
-} from '~test/src/utils.js'
+} from '~test/utils.js'
+import { optimism } from '../../chains/index.js'
+import { http } from '../../clients/transports/http.js'
 import {
   createClient,
   encodeErrorResult,
   encodeFunctionResult,
-} from '~viem/index.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
-import { optimism } from '../../chains/index.js'
-import { http } from '../../clients/transports/http.js'
-
-import { parseAbi } from 'abitype'
+  toCoinType,
+} from '../../index.js'
 import { reset } from '../test/reset.js'
 import { getEnsName } from './getEnsName.js'
 
@@ -23,7 +22,7 @@ const client = anvilMainnet.getClient()
 
 beforeAll(async () => {
   await reset(client, {
-    blockNumber: 19_258_213n,
+    blockNumber: 23_093_073n,
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
   await setVitalikResolver()
@@ -35,6 +34,24 @@ test('gets primary name for address', async () => {
       address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
     }),
   ).resolves.toMatchInlineSnapshot('"awkweb.eth"')
+})
+
+test('gets primary name for address using `toCoinType`', async () => {
+  await expect(
+    getEnsName(client, {
+      address: '0x69420f05A11f617B4B74fFe2E04B2D300dFA556F',
+      coinType: toCoinType(0),
+    }),
+  ).resolves.toMatchInlineSnapshot('"ilikelasagna.eth"')
+})
+
+test('gets primary name for address using custom coin type', async () => {
+  await expect(
+    getEnsName(client, {
+      address: '0x69420f05A11f617B4B74fFe2E04B2D300dFA556F',
+      coinType: 2147483648n,
+    }),
+  ).resolves.toMatchInlineSnapshot('"ilikelasagna.eth"')
 })
 
 test('gatewayUrls provided', async () => {
@@ -77,14 +94,15 @@ test('address with primary name that has no resolver - strict', async () => {
       strict: true,
     }),
   ).rejects.toMatchInlineSnapshot(`
-    [ContractFunctionExecutionError: The contract function "reverse" reverted.
+    [ContractFunctionExecutionError: The contract function "reverseWithGateways" reverted.
 
-    Error: ResolverWildcardNotSupported()
+    Error: ResolverNotFound(bytes name)
+                           (0x0b726574e286a9efb88f726e0365746800)
      
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
-      function:  reverse(bytes reverseName)
-      args:             (0x28303030303030303030303030363161643865653139303731303530386138313861653533323563330461646472077265766572736500)
+      function:  reverseWithGateways(bytes reverseName, uint256 coinType, string[] gateways)
+      args:                         (0x00000000000061aD8EE190710508A818aE5325C3, 60, ["x-batch-gateway:true"])
 
     Docs: https://viem.sh/docs/contract/readContract
     Version: viem@x.y.z]
@@ -109,15 +127,15 @@ describe('primary name with resolver that does not support text()', () => {
         strict: true,
       }),
     ).rejects.toMatchInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "reverse" reverted.
+      [ContractFunctionExecutionError: The contract function "reverseWithGateways" reverted.
 
-      Error: ResolverError(bytes returnData)
+      Error: ResolverError(bytes errorData)
                           (0x)
        
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
-        function:  reverse(bytes reverseName)
-        args:             (0x28643864613662663236393634616639643765656439653033653533343135643337616139363034350461646472077265766572736500)
+        function:  reverseWithGateways(bytes reverseName, uint256 coinType, string[] gateways)
+        args:                         (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 60, ["x-batch-gateway:true"])
 
       Docs: https://viem.sh/docs/contract/readContract
       Version: viem@x.y.z]
@@ -143,14 +161,15 @@ describe('primary name with non-contract resolver', () => {
         strict: true,
       }),
     ).rejects.toMatchInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "reverse" reverted.
+      [ContractFunctionExecutionError: The contract function "reverseWithGateways" reverted.
 
-      Error: ResolverNotContract()
+      Error: ResolverNotContract(bytes name, address resolver)
+                                (0x08766275746572696e0365746800, 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045)
        
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
-        function:  reverse(bytes reverseName)
-        args:             (0x28643864613662663236393634616639643765656439653033653533343135643337616139363034350461646472077265766572736500)
+        function:  reverseWithGateways(bytes reverseName, uint256 coinType, string[] gateways)
+        args:                         (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 60, ["x-batch-gateway:true"])
 
       Docs: https://viem.sh/docs/contract/readContract
       Version: viem@x.y.z]
@@ -165,7 +184,7 @@ describe('http error', () => {
     server = await createHttpServer((_, res) => {
       const parsed = parseAbi([
         'function query((address,string[],bytes)[]) returns (bool[],bytes[])',
-        'error HttpError((uint16,string)[])',
+        'error HttpError(uint16,string)',
       ])
 
       const encoded = encodeFunctionResult({
@@ -177,7 +196,7 @@ describe('http error', () => {
             encodeErrorResult({
               abi: parsed,
               errorName: 'HttpError',
-              args: [[[404, 'Not Found']]],
+              args: [404, 'Not Found'],
             }),
           ],
         ],
@@ -205,9 +224,9 @@ describe('http error', () => {
         gatewayUrls: [server!.url],
         strict: true,
       }),
-    ).rejects.toThrowError(`The contract function "reverse" reverted.
+    ).rejects.toThrowError(`The contract function "reverseWithGateways" reverted.
 
-Error: HttpError((uint16 status, string message)[])`)
+Error: HttpError(uint16 status, string message)`)
   })
 })
 
@@ -215,40 +234,9 @@ test('custom universal resolver address', async () => {
   await expect(
     getEnsName(client, {
       address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-      universalResolverAddress: '0x74E20Bd2A1fE0cdbe45b9A1d89cb7e0a45b36376',
+      universalResolverAddress: '0xED73a03F19e8D849E44a39252d222c6ad5217E1e',
     }),
   ).resolves.toMatchInlineSnapshot('"awkweb.eth"')
-})
-
-describe('universal resolver with generic errors', () => {
-  test('address with primary name that has no resolver', async () => {
-    await expect(
-      getEnsName(client, {
-        address: '0x00000000000061aD8EE190710508A818aE5325C3',
-        universalResolverAddress: '0xc0497E381f536Be9ce14B0dD3817cBcAe57d2F62',
-      }),
-    ).resolves.toMatchInlineSnapshot('null')
-  })
-  test('address with primary name that has no resolver - strict', async () => {
-    await expect(
-      getEnsName(client, {
-        address: '0x00000000000061aD8EE190710508A818aE5325C3',
-        universalResolverAddress: '0xc0497E381f536Be9ce14B0dD3817cBcAe57d2F62',
-        strict: true,
-      }),
-    ).rejects.toMatchInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "reverse" reverted with the following reason:
-      UniversalResolver: Wildcard on non-extended resolvers is not supported
-
-      Contract Call:
-        address:   0x0000000000000000000000000000000000000000
-        function:  reverse(bytes reverseName)
-        args:             (0x28303030303030303030303030363161643865653139303731303530386138313861653533323563330461646472077265766572736500)
-
-      Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@x.y.z]
-    `)
-  })
 })
 
 test('chain not provided', async () => {
@@ -295,7 +283,7 @@ test('universal resolver contract deployed on later block', async () => {
     [ChainDoesNotSupportContract: Chain "Ethereum (Local)" does not support contract "ensUniversalResolver".
 
     This could be due to any of the following:
-    - The contract "ensUniversalResolver" was not deployed until block 19258213 (current block 14353601).
+    - The contract "ensUniversalResolver" was not deployed until block 23085558 (current block 14353601).
 
     Version: viem@x.y.z]
   `)
@@ -308,12 +296,12 @@ test('invalid universal resolver address', async () => {
       universalResolverAddress: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ContractFunctionExecutionError: The contract function "reverse" reverted.
+    [ContractFunctionExecutionError: The contract function "reverseWithGateways" reverted.
 
     Contract Call:
       address:   0x0000000000000000000000000000000000000000
-      function:  reverse(bytes reverseName)
-      args:             (0x28613063663739383831366434623962393836366235333330656561343661313833383266323531650461646472077265766572736500)
+      function:  reverseWithGateways(bytes reverseName, uint256 coinType, string[] gateways)
+      args:                         (0xA0Cf798816D4b9b9866b5330EEa46a18382f251e, 60, ["x-batch-gateway:true"])
 
     Docs: https://viem.sh/docs/contract/readContract
     Version: viem@x.y.z]

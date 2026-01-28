@@ -1,16 +1,18 @@
-import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
 import {
   VerifyingPaymaster_07,
   VerifyingPaymaster_08,
 } from '../../contracts/generated.js'
 import {
   entryPoint06Abi,
+  entryPoint06Address,
   entryPoint07Address,
+  entryPoint08Address,
   formatUserOperation,
   toPackedUserOperation,
   toSimple7702SmartAccount,
   toSoladySmartAccount,
 } from '../../src/account-abstraction/index.js'
+import { privateKeyToAccount } from '../../src/accounts/privateKeyToAccount.js'
 import {
   mine,
   readContract,
@@ -19,21 +21,19 @@ import {
   writeContract,
 } from '../../src/actions/index.js'
 import {
-  entryPoint06Address,
-  entryPoint08Address,
-} from '../../src/constants/address.js'
-import {
   type Account,
   type Address,
   type Chain,
   type Client,
-  type RpcUserOperation,
-  type Transport,
   concat,
   encodeAbiParameters,
   numberToHex,
   parseEther,
+  type RpcUserOperation,
+  type Transport,
 } from '../../src/index.js'
+// biome-ignore lint/correctness/noUnusedImports: required for inference.
+import type * as _ from '../../src/node_modules/abitype/dist/types/abi.js'
 import { anvilMainnet } from './anvil.js'
 import { accounts } from './constants.js'
 import {
@@ -309,8 +309,7 @@ export async function createVerifyingPaymasterServer(
             }),
           )
         }
-      } catch (err) {
-        console.error(err)
+      } catch (_err) {
         res.writeHead(500, {
           'Content-Type': 'application/json',
         })

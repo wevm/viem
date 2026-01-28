@@ -1,0 +1,38 @@
+name: Deploy Docs
+
+on:
+  push:
+    branches: [main]
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Cache Vocs
+        uses: actions/cache@v4
+        with:
+          path: site/.cache
+          key: vocs
+
+      - name: Build package
+        run: pnpm build
+
+      - name: Build docs
+        run: pnpm docs:build
+
+      - name: Deploy
+        run: npx vercel deploy ./dist --prod --archive=tgz --yes --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./site

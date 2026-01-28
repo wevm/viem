@@ -7,10 +7,10 @@ import {
   type WebSocketRequestErrorType,
 } from '../errors/request.js'
 import {
-  AtomicReadyWalletRejectedUpgradeError,
-  type AtomicReadyWalletRejectedUpgradeErrorType,
   AtomicityNotSupportedError,
   type AtomicityNotSupportedErrorType,
+  AtomicReadyWalletRejectedUpgradeError,
+  type AtomicReadyWalletRejectedUpgradeErrorType,
   BundleTooLargeError,
   type BundleTooLargeErrorType,
   ChainDisconnectedError,
@@ -250,7 +250,7 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
               if (error && error instanceof HttpRequestError) {
                 const retryAfter = error?.headers?.get('Retry-After')
                 if (retryAfter?.match(/\d/))
-                  return Number.parseInt(retryAfter) * 1000
+                  return Number.parseInt(retryAfter, 10) * 1000
               }
 
               // Otherwise, let's retry with an exponential backoff.

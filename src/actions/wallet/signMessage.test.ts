@@ -1,9 +1,7 @@
 import { expect, test } from 'vitest'
-
-import { accounts } from '~test/src/constants.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
 import { signMessage } from './signMessage.js'
 
 const client = anvilMainnet.getClient()

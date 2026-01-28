@@ -30,6 +30,9 @@ generated.ts
 vectors/**/*.json
 
 # docs
+site/.cache
 site/dist
+site/pages.gen.ts
 .vercel
 vocs.config.tsx.timestamp*
+_

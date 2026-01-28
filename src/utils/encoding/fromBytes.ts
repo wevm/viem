@@ -5,9 +5,9 @@ import { type TrimErrorType, trim } from '../data/trim.js'
 
 import {
   type AssertSizeErrorType,
+  assertSize,
   type HexToBigIntErrorType,
   type HexToNumberErrorType,
-  assertSize,
   hexToBigInt,
   hexToNumber,
 } from './fromHex.js'

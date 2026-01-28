@@ -2,10 +2,9 @@ import { type Abi, type Address, parseAbi } from 'abitype'
 import { erc20Abi, seaportAbi, wagmiMintExampleAbi } from 'abitype/abis'
 import { expectTypeOf, test } from 'vitest'
 
-import { baycContractConfig, usdcContractConfig } from '~test/src/abis.js'
-import { address } from '~test/src/constants.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { baycContractConfig, usdcContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { address } from '~test/constants.js'
 
 import type { MulticallResponse } from '../../types/multicall.js'
 import { multicall } from './multicall.js'
@@ -251,7 +250,7 @@ test('many contracts of differing types', async () => {
         address: '0x',
         abi: parseAbi([
           'function foo() view returns (int8)',
-          'function foo(address) view returns (string)',
+          'function foo(address account) view returns (string)',
           'function foo(address, address) view returns ((address foo, address bar))',
           'function bar() view returns (int8)',
         ]),

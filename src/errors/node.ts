@@ -17,7 +17,7 @@ export type ExecutionRevertedErrorType = ExecutionRevertedError & {
 }
 export class ExecutionRevertedError extends BaseError {
   static code = 3
-  static nodeMessage = /execution reverted/
+  static nodeMessage = /execution reverted|gas required exceeds allowance/
 
   constructor({
     cause,

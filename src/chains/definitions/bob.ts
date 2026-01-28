@@ -3,7 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // mainnet
 
-export const bob = defineChain({
+export const bob = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 60808,
   name: 'BOB',

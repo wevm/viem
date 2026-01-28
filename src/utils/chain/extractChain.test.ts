@@ -18,19 +18,18 @@ test('default', async () => {
           "url": "https://etherscan.io",
         },
       },
+      "blockTime": 12000,
       "contracts": {
-        "ensRegistry": {
-          "address": "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
-        },
         "ensUniversalResolver": {
-          "address": "0xce01f8eee7E479C928F8919abD53E553a36CeF67",
-          "blockCreated": 19258213,
+          "address": "0xeeeeeeee14d718c2b47d9923deab1335e144eeee",
+          "blockCreated": 23085558,
         },
         "multicall3": {
           "address": "0xca11bde05977b3631167028862be2a173976ca11",
           "blockCreated": 14353601,
         },
       },
+      "extend": [Function],
       "fees": undefined,
       "formatters": undefined,
       "id": 1,
@@ -110,6 +109,7 @@ test('default', async () => {
           },
         },
       },
+      "extend": [Function],
       "fees": undefined,
       "formatters": {
         "block": {
