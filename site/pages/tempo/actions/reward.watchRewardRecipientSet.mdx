@@ -7,14 +7,14 @@ Watches for reward recipient set events when token holders change their reward r
 :::code-group
 
 ```ts twoslash [example.ts]
-import { client, token } from './viem.config'
+import { client } from './viem.config'
 
 const unwatch = client.reward.watchRewardRecipientSet({
   onRewardRecipientSet: (args, log) => {
     console.log('Holder:', args.holder)
     console.log('Recipient:', args.recipient)
   },
-  token,
+  token: '0x20c0000000000000000000000000000000000001',
 })
 
 // Later, stop watching

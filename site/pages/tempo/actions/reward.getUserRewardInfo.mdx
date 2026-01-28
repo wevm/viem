@@ -9,12 +9,12 @@ Gets reward information for a specific account.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { client, token } from './viem.config'
+import { client } from './viem.config'
 
 const { rewardBalance, rewardPerToken, rewardRecipient } =
   await client.reward.getUserRewardInfo({
     account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-    token,
+    token: '0x20c0000000000000000000000000000000000001',
   })
 
 console.log('Reward recipient:', rewardRecipient)

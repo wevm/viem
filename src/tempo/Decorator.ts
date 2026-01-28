@@ -6,6 +6,7 @@ import * as ammActions from './actions/amm.js'
 import * as dexActions from './actions/dex.js'
 import * as faucetActions from './actions/faucet.js'
 import * as feeActions from './actions/fee.js'
+import * as nonceActions from './actions/nonce.js'
 import * as policyActions from './actions/policy.js'
 import * as rewardActions from './actions/reward.js'
 import * as tokenActions from './actions/token.js'
@@ -1066,6 +1067,88 @@ export type Decorator<
     fund: (
       parameters: faucetActions.fund.Parameters,
     ) => Promise<faucetActions.fund.ReturnValue>
+    /**
+     * Funds an account with an initial amount of set token(s)
+     * on Tempo's testnet. Waits for the transactions to be included
+     * on a block before returning a response.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const receipts = await client.faucet.fundSync({
+     *   account: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipts.
+     */
+    fundSync: (
+      parameters: faucetActions.fundSync.Parameters,
+    ) => Promise<faucetActions.fundSync.ReturnValue>
+  }
+  nonce: {
+    /**
+     * Gets the nonce for an account and nonce key.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const nonce = await client.nonce.getNonce({
+     *   account: '0x...',
+     *   nonceKey: 1n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The nonce value.
+     */
+    getNonce: (
+      parameters: nonceActions.getNonce.Parameters,
+    ) => Promise<nonceActions.getNonce.ReturnValue>
+    /**
+     * Watches for nonce incremented events.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const unwatch = client.nonce.watchNonceIncremented({
+     *   onNonceIncremented: (args, log) => {
+     *     console.log('Nonce incremented:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchNonceIncremented: (
+      parameters: nonceActions.watchNonceIncremented.Parameters,
+    ) => () => void
   }
   fee: {
     /**
@@ -3468,6 +3551,12 @@ export function decorator() {
       },
       faucet: {
         fund: (parameters) => faucetActions.fund(client, parameters),
+        fundSync: (parameters) => faucetActions.fundSync(client, parameters),
+      },
+      nonce: {
+        getNonce: (parameters) => nonceActions.getNonce(client, parameters),
+        watchNonceIncremented: (parameters) =>
+          nonceActions.watchNonceIncremented(client, parameters),
       },
       fee: {
         // @ts-expect-error

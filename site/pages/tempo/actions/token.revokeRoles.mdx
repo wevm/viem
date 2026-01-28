@@ -13,7 +13,7 @@ import { client } from './viem.config'
 
 const { receipt, value } = await client.token.revokeRolesSync({
   from: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  role: 'issuer',
+  roles: ['issuer'],
   token: '0x20c0000000000000000000000000000000000000',
 })
 
@@ -39,7 +39,7 @@ import { client } from './viem.config'
 
 const hash = await client.token.revokeRoles({
   from: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  role: 'issuer',
+  roles: ['issuer'],
   token: '0x20c0000000000000000000000000000000000000',
 })
 const receipt = await client.waitForTransactionReceipt({ hash })

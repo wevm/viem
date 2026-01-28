@@ -11,10 +11,10 @@ Use the `reward.claim` action on the Viem `client` to claim rewards that have ac
 :::code-group
 
 ```ts twoslash [example.ts]
-import { client, token } from './viem.config'
+import { client } from './viem.config'
 
 const { receipt } = await client.reward.claimSync({
-  token,
+  token: '0x20c0000000000000000000000000000000000001',
 })
 
 console.log('Transaction hash:', receipt.transactionHash)
