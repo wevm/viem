@@ -7,6 +7,7 @@ import type { PublicZksyncRpcSchema } from '../types/eip1193.js'
 
 export type GetBaseTokenL1AddressReturnType = Address
 
+/* @deprecated Use `getBridgeHubContractAddress` and call `baseToken(chainId)` instead. */
 export async function getBaseTokenL1Address<
   chain extends Chain | undefined,
   account extends Account | undefined,

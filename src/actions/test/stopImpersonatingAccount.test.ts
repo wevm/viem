@@ -1,10 +1,8 @@
 import { expect, test } from 'vitest'
-
-import { accounts, address } from '~test/src/constants.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts, address } from '~test/constants.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
 import { impersonateAccount } from './impersonateAccount.js'
 import { stopImpersonatingAccount } from './stopImpersonatingAccount.js'
 

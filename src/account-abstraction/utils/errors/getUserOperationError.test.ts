@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
+import { wagmiContractConfig } from '~test/abis.js'
 import { ErrorsExample } from '../../../../contracts/generated.js'
-import { wagmiContractConfig } from '../../../../test/src/abis.js'
 import { BaseError } from '../../../errors/base.js'
 import { RpcRequestError } from '../../../errors/request.js'
 import { getUserOperationError } from './getUserOperationError.js'
@@ -43,7 +43,7 @@ test('default', () => {
 test('contract error (via error.message)', () => {
   const error = new BaseError('Unknown error', {
     cause: {
-      // @ts-ignore
+      // @ts-expect-error
       code: -32521,
       name: '',
       message:
@@ -100,7 +100,7 @@ test('contract error (via error.message)', () => {
 test('contract error (via error.data)', () => {
   const error = new BaseError('Unknown error', {
     cause: {
-      // @ts-ignore
+      // @ts-expect-error
       code: -32521,
       name: '',
       data: 'execution reverted: 0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011546f6b656e2049442069732074616b656e000000000000000000000000000000',
@@ -156,7 +156,7 @@ test('contract error (via error.data)', () => {
 test('contract error (via error.data.revertData)', () => {
   const error = new BaseError('Unknown error', {
     cause: {
-      // @ts-ignore
+      // @ts-expect-error
       code: -32521,
       name: '',
       data: {
@@ -215,7 +215,7 @@ test('contract error (via error.data.revertData)', () => {
 test('contract error (via error.data)', () => {
   const error = new BaseError('Unknown error', {
     cause: {
-      // @ts-ignore
+      // @ts-expect-error
       code: -32521,
       name: '',
       message: 'execution reverted: 0x',
@@ -275,7 +275,7 @@ test('contract error (via error.data)', () => {
 test('contract error (multiple calls)', () => {
   const error = new BaseError('Unknown error', {
     cause: {
-      // @ts-ignore
+      // @ts-expect-error
       code: -32521,
       name: '',
       message:
@@ -333,7 +333,7 @@ test('contract error (multiple calls)', () => {
 test('contract error (multiple calls)', () => {
   const error = new BaseError('Unknown error', {
     cause: {
-      // @ts-ignore
+      // @ts-expect-error
       code: -32521,
       name: '',
       message:
@@ -396,7 +396,7 @@ test('contract error (multiple calls)', () => {
 test('contract error (multiple calls - unknown error)', () => {
   const error = new BaseError('Unknown error', {
     cause: {
-      // @ts-ignore
+      // @ts-expect-error
       code: -32521,
       name: '',
       message:
@@ -459,7 +459,7 @@ test('contract error (multiple calls - unknown error)', () => {
 test('contract error (raw call)', () => {
   const error = new BaseError('Unknown error', {
     cause: {
-      // @ts-ignore
+      // @ts-expect-error
       code: -32521,
       name: '',
       message:

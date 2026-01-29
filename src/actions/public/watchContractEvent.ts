@@ -2,10 +2,6 @@ import type { Abi, Address, ExtractAbiEvent } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import type { Chain } from '../../types/chain.js'
-import type { Filter } from '../../types/filter.js'
-import type { Log } from '../../types/log.js'
-
 import {
   DecodeLogDataMismatch,
   DecodeLogTopicsMismatch,
@@ -13,10 +9,13 @@ import {
 import { InvalidInputRpcError } from '../../errors/rpc.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockNumber } from '../../types/block.js'
+import type { Chain } from '../../types/chain.js'
 import type {
   ContractEventArgs,
   ContractEventName,
 } from '../../types/contract.js'
+import type { Filter } from '../../types/filter.js'
+import type { Log } from '../../types/log.js'
 import type { LogTopic } from '../../types/misc.js'
 import type { GetPollOptions } from '../../types/transport.js'
 import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
@@ -157,10 +156,15 @@ export function watchContractEvent<
   const enablePolling = (() => {
     if (typeof poll_ !== 'undefined') return poll_
     if (typeof fromBlock === 'bigint') return true
-    if (client.transport.type === 'webSocket') return false
+    if (
+      client.transport.type === 'webSocket' ||
+      client.transport.type === 'ipc'
+    )
+      return false
     if (
       client.transport.type === 'fallback' &&
-      client.transport.transports[0].config.type === 'webSocket'
+      (client.transport.transports[0].config.type === 'webSocket' ||
+        client.transport.transports[0].config.type === 'ipc')
     )
       return false
     return true
@@ -300,7 +304,8 @@ export function watchContractEvent<
             if (client.transport.type === 'fallback') {
               const transport = client.transport.transports.find(
                 (transport: ReturnType<Transport>) =>
-                  transport.config.type === 'webSocket',
+                  transport.config.type === 'webSocket' ||
+                  transport.config.type === 'ipc',
               )
               if (!transport) return client.transport
               return transport.value

@@ -1,12 +1,12 @@
 ---
-description: Estimates the L1 + L2 fee to execute an L2 transaction.
+description: Estimates the L1 + L2 + operator fee to execute an L2 transaction.
 ---
 
 # estimateTotalFee
 
-Estimates the [L1 data fee](https://docs.optimism.io/stack/transactions/fees#l1-data-fee) + L2 fee to execute an L2 transaction.
+Estimates the [L1 data fee](https://docs.optimism.io/stack/transactions/fees#l1-data-fee) + L2 fee + [operator fee](https://docs.optimism.io/stack/transactions/fees#operator-fee) to execute an L2 transaction.
 
-It is the sum of [`estimateL1Fee`](/op-stack/actions/estimateL1Fee) (L1 Gas) and [`estimateGas`](/docs/actions/public/estimateGas.md) * [`getGasPrice`](/docs/actions/public/getGasPrice.md) (L2 Gas * L2 Gas Price).
+It is the sum of [`estimateL1Fee`](/op-stack/actions/estimateL1Fee) (L1 Gas), [`estimateOperatorFee`](/op-stack/actions/estimateOperatorFee) (Operator Fee), and [`estimateGas`](/docs/actions/public/estimateGas.md) * [`getGasPrice`](/docs/actions/public/getGasPrice.md) (L2 Gas * L2 Gas Price).
 
 ## Usage
 
@@ -45,7 +45,7 @@ export const publicClient = createPublicClient({
 
 `bigint`
 
-The L1 fee (in wei).
+The total fee (L1 + L2 + operator fee, in wei).
 
 ## Parameters
 
@@ -90,6 +90,21 @@ Address of the Gas Price Oracle predeploy contract.
 const fee = await publicClient.estimateTotalFee({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   gasPriceOracleAddress: '0x420000000000000000000000000000000000000F', // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: parseEther('1')
+})
+```
+
+### l1BlockAddress (optional)
+
+- **Type:** [`Address`](/docs/glossary/types#address)
+
+Address of the L1Block predeploy contract.
+
+```ts
+const fee = await publicClient.estimateTotalFee({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  l1BlockAddress: '0x4200000000000000000000000000000000000015', // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1')
 })

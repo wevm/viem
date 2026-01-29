@@ -1,4 +1,5 @@
 import type { ErrorType } from '../../errors/utils.js'
+import type { Account } from '../../types/account.js'
 import type { AuthorizationList } from '../../types/authorization.js'
 import type {
   Chain,
@@ -33,7 +34,8 @@ export const rpcTransactionType = {
 export type FormatTransactionRequestErrorType = ErrorType
 
 export function formatTransactionRequest(
-  request: ExactPartial<TransactionRequest>,
+  request: ExactPartial<TransactionRequest> & { account?: Account | undefined },
+  _?: string | undefined,
 ) {
   const rpcRequest = {} as RpcTransactionRequest
 
@@ -53,6 +55,7 @@ export function formatTransactionRequest(
     else rpcRequest.blobs = request.blobs
   }
   if (typeof request.data !== 'undefined') rpcRequest.data = request.data
+  if (request.account) rpcRequest.from = request.account.address
   if (typeof request.from !== 'undefined') rpcRequest.from = request.from
   if (typeof request.gas !== 'undefined')
     rpcRequest.gas = numberToHex(request.gas)

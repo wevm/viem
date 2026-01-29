@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-
+import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
 import { type ConcatErrorType, concat } from '../data/concat.js'
 import { type IsBytesErrorType, isBytes } from '../data/isBytes.js'
@@ -8,8 +8,6 @@ import { type SliceErrorType, slice } from '../data/slice.js'
 import { type ToBytesErrorType, toBytes } from '../encoding/toBytes.js'
 import { type ToRlpErrorType, toRlp } from '../encoding/toRlp.js'
 import { type Keccak256ErrorType, keccak256 } from '../hash/keccak256.js'
-
-import type { ErrorType } from '../../errors/utils.js'
 import { type GetAddressErrorType, getAddress } from './getAddress.js'
 
 export type GetCreateAddressOptions = {

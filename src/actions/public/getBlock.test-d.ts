@@ -1,8 +1,8 @@
 import { describe, expectTypeOf, test } from 'vitest'
 
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 import { optimism } from '../../chains/index.js'
-import { http, createPublicClient } from '../../index.js'
+import { createPublicClient, http } from '../../index.js'
 import type { Hash, Hex } from '../../types/misc.js'
 import type { Transaction } from '../../types/transaction.js'
 import type { Prettify } from '../../types/utils.js'

@@ -76,7 +76,9 @@ export function watchPendingTransactions<
   }: WatchPendingTransactionsParameters<transport>,
 ) {
   const enablePolling =
-    typeof poll_ !== 'undefined' ? poll_ : client.transport.type !== 'webSocket'
+    typeof poll_ !== 'undefined'
+      ? poll_
+      : client.transport.type !== 'webSocket' && client.transport.type !== 'ipc'
 
   const pollPendingTransactions = () => {
     const observerId = stringify([

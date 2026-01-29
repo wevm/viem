@@ -2,6 +2,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const berachainBepolia = /*#__PURE__*/ defineChain({
   id: 80069,
+  blockTime: 2_000,
   name: 'Berachain Bepolia',
   nativeCurrency: {
     decimals: 18,

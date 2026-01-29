@@ -3,7 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // Ethereum mainnet
 
-export const redstone = defineChain({
+export const redstone = /*#__PURE__*/ defineChain({
   ...chainConfig,
   name: 'Redstone',
   id: 690,

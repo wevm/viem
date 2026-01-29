@@ -2,7 +2,7 @@ import { HDKey } from '@scure/bip32'
 
 import { describe, expect, test } from 'vitest'
 
-import { accounts, typedData } from '~test/src/constants.js'
+import { accounts, typedData } from '~test/constants.js'
 import { getAddress } from '../utils/address/getAddress.js'
 import { toBytes } from '../utils/encoding/toBytes.js'
 import { parseEther } from '../utils/unit/parseEther.js'

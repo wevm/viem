@@ -89,20 +89,23 @@ export async function estimateGas<
     const chainFormat = client.chain?.formatters?.transactionRequest?.format
     const format = chainFormat || formatTransactionRequest
 
-    const request = format({
-      // Pick out extra data that might exist on the chain's transaction request type.
-      ...extract(rest, { format: chainFormat }),
-      from: account?.address,
-      accessList,
-      data,
-      gas,
-      gasPrice,
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      nonce,
-      to,
-      value,
-    } as TransactionRequest)
+    const request = format(
+      {
+        // Pick out extra data that might exist on the chain's transaction request type.
+        ...extract(rest, { format: chainFormat }),
+        account,
+        accessList,
+        data,
+        gas,
+        gasPrice,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        nonce,
+        to,
+        value,
+      } as TransactionRequest,
+      'estimateGas',
+    )
 
     type LineaEstimateGasSchema = Filter<
       LineaRpcSchema,

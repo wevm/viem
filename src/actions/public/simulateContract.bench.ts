@@ -2,11 +2,10 @@ import { Contract, Typed } from 'ethers'
 
 import { bench, describe } from 'vitest'
 
-import { wagmiContractConfig } from '~test/src/abis.js'
-import { ethersProvider } from '~test/src/bench.js'
-import { accounts } from '~test/src/constants.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { wagmiContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { ethersProvider } from '~test/bench.js'
+import { accounts } from '~test/constants.js'
 
 import { simulateContract } from './simulateContract.js'
 

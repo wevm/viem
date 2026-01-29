@@ -1,6 +1,6 @@
 import type { DefaultCapabilitiesSchema } from './capabilities.js'
 
-// biome-ignore lint/suspicious/noEmptyInterface:
+// biome-ignore lint/suspicious/noEmptyInterface: _
 export interface Register {}
 
 export type ResolvedRegister = {

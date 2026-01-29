@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { anvilMainnet } from '../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 import { localhost } from '../chains/index.js'
 import type { EIP1193RequestFn, PublicRpcSchema } from '../index.js'
 import * as utilsRpcWebSocket from '../utils/rpc/webSocket.js'
@@ -41,11 +41,13 @@ test('creates', () => {
       "createContractEventFilter": [Function],
       "createEventFilter": [Function],
       "createPendingTransactionFilter": [Function],
+      "dataSuffix": undefined,
       "estimateContractGas": [Function],
       "estimateFeesPerGas": [Function],
       "estimateGas": [Function],
       "estimateMaxPriorityFeePerGas": [Function],
       "extend": [Function],
+      "fillTransaction": [Function],
       "getBalance": [Function],
       "getBlobBaseFee": [Function],
       "getBlock": [Function],
@@ -80,6 +82,7 @@ test('creates', () => {
       "readContract": [Function],
       "request": [Function],
       "sendRawTransaction": [Function],
+      "sendRawTransactionSync": [Function],
       "simulate": [Function],
       "simulateBlocks": [Function],
       "simulateCalls": [Function],
@@ -88,7 +91,7 @@ test('creates', () => {
         "key": "mock",
         "methods": undefined,
         "name": "Mock Transport",
-        "request": [MockFunction spy],
+        "request": [MockFunction],
         "retryCount": 3,
         "retryDelay": 150,
         "timeout": undefined,
@@ -96,6 +99,7 @@ test('creates', () => {
       },
       "type": "publicClient",
       "uninstallFilter": [Function],
+      "verifyHash": [Function],
       "verifyMessage": [Function],
       "verifySiweMessage": [Function],
       "verifyTypedData": [Function],
@@ -161,6 +165,7 @@ describe('transports', () => {
         "call": [Function],
         "ccipRead": undefined,
         "chain": {
+          "extend": [Function],
           "fees": undefined,
           "formatters": undefined,
           "id": 1337,
@@ -184,11 +189,13 @@ describe('transports', () => {
         "createContractEventFilter": [Function],
         "createEventFilter": [Function],
         "createPendingTransactionFilter": [Function],
+        "dataSuffix": undefined,
         "estimateContractGas": [Function],
         "estimateFeesPerGas": [Function],
         "estimateGas": [Function],
         "estimateMaxPriorityFeePerGas": [Function],
         "extend": [Function],
+        "fillTransaction": [Function],
         "getBalance": [Function],
         "getBlobBaseFee": [Function],
         "getBlock": [Function],
@@ -223,6 +230,7 @@ describe('transports', () => {
         "readContract": [Function],
         "request": [Function],
         "sendRawTransaction": [Function],
+        "sendRawTransactionSync": [Function],
         "simulate": [Function],
         "simulateBlocks": [Function],
         "simulateCalls": [Function],
@@ -241,6 +249,7 @@ describe('transports', () => {
         },
         "type": "publicClient",
         "uninstallFilter": [Function],
+        "verifyHash": [Function],
         "verifyMessage": [Function],
         "verifySiweMessage": [Function],
         "verifyTypedData": [Function],
@@ -269,6 +278,7 @@ describe('transports', () => {
         "call": [Function],
         "ccipRead": undefined,
         "chain": {
+          "extend": [Function],
           "fees": undefined,
           "formatters": undefined,
           "id": 1337,
@@ -292,11 +302,13 @@ describe('transports', () => {
         "createContractEventFilter": [Function],
         "createEventFilter": [Function],
         "createPendingTransactionFilter": [Function],
+        "dataSuffix": undefined,
         "estimateContractGas": [Function],
         "estimateFeesPerGas": [Function],
         "estimateGas": [Function],
         "estimateMaxPriorityFeePerGas": [Function],
         "extend": [Function],
+        "fillTransaction": [Function],
         "getBalance": [Function],
         "getBlobBaseFee": [Function],
         "getBlock": [Function],
@@ -331,6 +343,7 @@ describe('transports', () => {
         "readContract": [Function],
         "request": [Function],
         "sendRawTransaction": [Function],
+        "sendRawTransactionSync": [Function],
         "simulate": [Function],
         "simulateBlocks": [Function],
         "simulateCalls": [Function],
@@ -350,6 +363,7 @@ describe('transports', () => {
         },
         "type": "publicClient",
         "uninstallFilter": [Function],
+        "verifyHash": [Function],
         "verifyMessage": [Function],
         "verifySiweMessage": [Function],
         "verifyTypedData": [Function],
@@ -365,7 +379,7 @@ describe('transports', () => {
 
   test('webSocket - getRpcClient() - keepAlive & reconnect disabled', async () => {
     const wsRpcClientOpts = { keepAlive: false, reconnect: false }
-    const { uid, ...client } = createPublicClient({
+    const { uid: _, ...client } = createPublicClient({
       chain: localhost,
       transport: webSocket(anvilMainnet.rpcUrl.ws, wsRpcClientOpts),
     })
@@ -378,7 +392,7 @@ describe('transports', () => {
 
   test('webSocket - subscribe() - keepAlive & reconnect disabled', async () => {
     const wsRpcClientOpts = { keepAlive: false, reconnect: false }
-    const { uid, ...client } = createPublicClient({
+    const { uid: _, ...client } = createPublicClient({
       chain: localhost,
       transport: webSocket(anvilMainnet.rpcUrl.ws, wsRpcClientOpts),
     })
@@ -395,7 +409,7 @@ describe('transports', () => {
 
   test('webSocket - request() - keepAlive & reconnect disabled', async () => {
     const wsRpcClientOpts = { keepAlive: false, reconnect: false }
-    const { uid, ...client } = createPublicClient({
+    const { uid: _, ...client } = createPublicClient({
       chain: localhost,
       transport: webSocket(anvilMainnet.rpcUrl.ws, wsRpcClientOpts),
     })
@@ -425,11 +439,13 @@ describe('transports', () => {
         "createContractEventFilter": [Function],
         "createEventFilter": [Function],
         "createPendingTransactionFilter": [Function],
+        "dataSuffix": undefined,
         "estimateContractGas": [Function],
         "estimateFeesPerGas": [Function],
         "estimateGas": [Function],
         "estimateMaxPriorityFeePerGas": [Function],
         "extend": [Function],
+        "fillTransaction": [Function],
         "getBalance": [Function],
         "getBlobBaseFee": [Function],
         "getBlock": [Function],
@@ -464,6 +480,7 @@ describe('transports', () => {
         "readContract": [Function],
         "request": [Function],
         "sendRawTransaction": [Function],
+        "sendRawTransactionSync": [Function],
         "simulate": [Function],
         "simulateBlocks": [Function],
         "simulateCalls": [Function],
@@ -480,6 +497,7 @@ describe('transports', () => {
         },
         "type": "publicClient",
         "uninstallFilter": [Function],
+        "verifyHash": [Function],
         "verifyMessage": [Function],
         "verifySiweMessage": [Function],
         "verifyTypedData": [Function],
@@ -511,6 +529,7 @@ test('extend', () => {
       "call": [Function],
       "ccipRead": undefined,
       "chain": {
+        "extend": [Function],
         "fees": undefined,
         "formatters": undefined,
         "id": 1337,
@@ -534,6 +553,7 @@ test('extend', () => {
       "createContractEventFilter": [Function],
       "createEventFilter": [Function],
       "createPendingTransactionFilter": [Function],
+      "dataSuffix": undefined,
       "deployContract": [Function],
       "dropTransaction": [Function],
       "dumpState": [Function],
@@ -542,6 +562,7 @@ test('extend', () => {
       "estimateGas": [Function],
       "estimateMaxPriorityFeePerGas": [Function],
       "extend": [Function],
+      "fillTransaction": [Function],
       "getAddresses": [Function],
       "getAutomine": [Function],
       "getBalance": [Function],
@@ -594,8 +615,11 @@ test('extend', () => {
       "reset": [Function],
       "revert": [Function],
       "sendCalls": [Function],
+      "sendCallsSync": [Function],
       "sendRawTransaction": [Function],
+      "sendRawTransactionSync": [Function],
       "sendTransaction": [Function],
+      "sendTransactionSync": [Function],
       "sendUnsignedTransaction": [Function],
       "setAutomine": [Function],
       "setBalance": [Function],
@@ -637,6 +661,7 @@ test('extend', () => {
       },
       "type": "publicClient",
       "uninstallFilter": [Function],
+      "verifyHash": [Function],
       "verifyMessage": [Function],
       "verifySiweMessage": [Function],
       "verifyTypedData": [Function],
@@ -649,6 +674,7 @@ test('extend', () => {
       "watchEvent": [Function],
       "watchPendingTransactions": [Function],
       "writeContract": [Function],
+      "writeContractSync": [Function],
     }
   `)
 })

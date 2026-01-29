@@ -9,17 +9,16 @@ import {
 } from 'vitest'
 
 import { ERC20InvalidTransferEvent } from '~contracts/generated.js'
-import { usdcContractConfig } from '~test/src/abis.js'
-import { accounts, address } from '~test/src/constants.js'
-import { deployErc20InvalidTransferEvent } from '~test/src/utils.js'
+import { usdcContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts, address } from '~test/constants.js'
+import { deployErc20InvalidTransferEvent } from '~test/utils.js'
 import type { Log } from '../../types/log.js'
 import { getAddress } from '../../utils/address/getAddress.js'
 import { impersonateAccount } from '../test/impersonateAccount.js'
 import { mine } from '../test/mine.js'
 import { setBalance } from '../test/setBalance.js'
 import { writeContract } from '../wallet/writeContract.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { createContractEventFilter } from './createContractEventFilter.js'
 import { createEventFilter } from './createEventFilter.js'

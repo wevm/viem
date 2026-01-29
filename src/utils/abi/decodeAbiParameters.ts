@@ -1,7 +1,8 @@
-import type { AbiParameter, AbiParametersToPrimitiveTypes } from 'abitype'
-
-import type { ByteArray, Hex } from '../../types/misc.js'
-
+import type {
+  AbiParameter,
+  AbiParameterKind,
+  AbiParametersToPrimitiveTypes,
+} from 'abitype'
 import {
   AbiDecodingDataSizeTooSmallError,
   AbiDecodingZeroDataError,
@@ -9,6 +10,7 @@ import {
   type InvalidAbiDecodingTypeErrorType,
 } from '../../errors/abi.js'
 import type { ErrorType } from '../../errors/utils.js'
+import type { ByteArray, Hex } from '../../types/misc.js'
 import {
   type ChecksumAddressErrorType,
   checksumAddress,
@@ -38,7 +40,9 @@ import { getArrayComponents } from './encodeAbiParameters.js'
 export type DecodeAbiParametersReturnType<
   params extends readonly AbiParameter[] = readonly AbiParameter[],
 > = AbiParametersToPrimitiveTypes<
-  params extends readonly AbiParameter[] ? params : AbiParameter[]
+  params extends readonly AbiParameter[] ? params : AbiParameter[],
+  AbiParameterKind,
+  true
 >
 
 export type DecodeAbiParametersErrorType =
@@ -78,7 +82,7 @@ export function decodeAbiParameters<
     consumed += consumed_
     values.push(data)
   }
-  return values as DecodeAbiParametersReturnType<params>
+  return values as never
 }
 
 type DecodeParameterErrorType =
@@ -254,7 +258,7 @@ function decodeBytes(
     return [bytesToHex(data), 32]
   }
 
-  const value = bytesToHex(cursor.readBytes(Number.parseInt(size), 32))
+  const value = bytesToHex(cursor.readBytes(Number.parseInt(size, 10), 32))
   return [value, 32]
 }
 
@@ -265,7 +269,7 @@ type DecodeNumberErrorType =
 
 function decodeNumber(cursor: Cursor, param: AbiParameter) {
   const signed = param.type.startsWith('int')
-  const size = Number.parseInt(param.type.split('int')[1] || '256')
+  const size = Number.parseInt(param.type.split('int')[1] || '256', 10)
   const value = cursor.readBytes(32)
   return [
     size > 48

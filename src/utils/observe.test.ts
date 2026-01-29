@@ -210,3 +210,57 @@ test('cleans up emit function when last listener unwatch', async () => {
 
   expect(cleanup).toHaveBeenCalledTimes(1)
 })
+
+test('handles async cleanup functions', async () => {
+  const id = 'mock'
+  const callback = vi.fn()
+  const cleanup = vi.fn().mockResolvedValue(undefined)
+
+  const emitter = vi.fn(({ emit }) => {
+    setTimeout(() => emit({ foo: 'bar' }), 100)
+    return async () => {
+      await cleanup()
+    }
+  })
+
+  const unwatch1 = observe(id, { emit: callback }, emitter)
+  const unwatch2 = observe(id, { emit: callback }, emitter)
+
+  await wait(110)
+  expect(callback).toHaveBeenCalledTimes(2)
+  expect(cleanup).not.toHaveBeenCalled()
+
+  unwatch1()
+  expect(cleanup).not.toHaveBeenCalled()
+
+  unwatch2()
+
+  // Give the async cleanup time to execute
+  await wait(10)
+  expect(cleanup).toHaveBeenCalledTimes(1)
+})
+
+test('handles async cleanup errors', async () => {
+  const id = 'mock'
+  const callback = vi.fn()
+  const cleanup = vi.fn().mockRejectedValue(new Error('Cleanup failed'))
+
+  const emitter = vi.fn(({ emit }) => {
+    setTimeout(() => emit({ foo: 'bar' }), 100)
+    return async () => {
+      await cleanup()
+    }
+  })
+
+  const unwatch = observe(id, { emit: callback }, emitter)
+
+  await wait(110)
+  expect(callback).toHaveBeenCalledTimes(1)
+
+  // This should not throw an error even though cleanup fails
+  expect(() => unwatch()).not.toThrow()
+
+  // Give the async cleanup time to execute and fail
+  await wait(10)
+  expect(cleanup).toHaveBeenCalledTimes(1)
+})

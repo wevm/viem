@@ -1,9 +1,8 @@
 import { describe, expect, test } from 'vitest'
-
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
+import { deploy } from '~test/utils.js'
 import { ERC7821Example } from '../../../../contracts/generated.js'
-import { anvilMainnet } from '../../../../test/src/anvil.js'
-import { accounts } from '../../../../test/src/constants.js'
-import { deploy } from '../../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import { mine, signAuthorization } from '../../../actions/index.js'
 import { erc7821Actions } from './erc7821.js'

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, test } from 'vitest'
-import { getSmartAccounts_07 } from '../../../../test/src/account-abstraction.js'
-import { anvilMainnet } from '../../../../test/src/anvil.js'
-import { bundlerMainnet } from '../../../../test/src/bundler.js'
+import { getSmartAccounts_07 } from '~test/account-abstraction.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { bundlerMainnet } from '~test/bundler.js'
 import { mine } from '../../../actions/index.js'
 import { bundlerActions } from './bundler.js'
 

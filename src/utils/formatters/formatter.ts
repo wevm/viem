@@ -5,7 +5,7 @@ export type DefineFormatterErrorType = ErrorType
 
 export function defineFormatter<type extends string, parameters, returnType>(
   type: type,
-  format: (_: parameters) => returnType,
+  format: (args: parameters, action?: string | undefined) => returnType,
 ) {
   return <
     parametersOverride,
@@ -16,12 +16,15 @@ export function defineFormatter<type extends string, parameters, returnType>(
     format: overrides,
   }: {
     exclude?: exclude | undefined
-    format: (_: parametersOverride) => returnTypeOverride
+    format: (
+      args: parametersOverride,
+      action?: string | undefined,
+    ) => returnTypeOverride
   }) => {
     return {
       exclude,
-      format: (args: parametersOverride) => {
-        const formatted = format(args as any)
+      format: (args: parametersOverride, action?: string | undefined) => {
+        const formatted = format(args as any, action)
         if (exclude) {
           for (const key of exclude) {
             delete (formatted as any)[key]
@@ -29,7 +32,7 @@ export function defineFormatter<type extends string, parameters, returnType>(
         }
         return {
           ...formatted,
-          ...overrides(args),
+          ...overrides(args, action),
         } as Prettify<returnTypeOverride> & {
           [_key in exclude[number]]: never
         }

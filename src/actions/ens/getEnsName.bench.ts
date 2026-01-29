@@ -1,8 +1,6 @@
 import { beforeAll, bench, describe } from 'vitest'
-
-import { ethersProvider } from '~test/src/bench.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { ethersProvider } from '~test/bench.js'
 
 import { reset } from '../test/reset.js'
 import { getEnsName } from './getEnsName.js'

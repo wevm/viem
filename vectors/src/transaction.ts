@@ -53,6 +53,7 @@ export async function generateTransactionVectors() {
         return `0x01${hash_}` as Hex
       }),
       chainId: Math.floor(Math.random() * 2 ** 4) + 1,
+      to: bytesToHex(generateBytes(20), { size: 20 }),
       type: 'eip4844',
     }
     if (i > 0) {
@@ -70,8 +71,6 @@ export async function generateTransactionVectors() {
             (BigInt(Math.floor(Math.random() * 2)) + 1n)
       if (Math.random() > 0.5)
         transaction.nonce = Math.floor(Math.random() * 2 ** 16)
-      if (Math.random() > 0.5)
-        transaction.to = bytesToHex(generateBytes(20), { size: 20 })
       if (Math.random() > 0.5) transaction.value = randomBigInt()
       if (Math.random() > 0.5) {
         const listLength = Math.floor(Math.random() * 16)

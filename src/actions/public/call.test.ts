@@ -11,28 +11,28 @@ import {
   multicall3ContractConfig,
   usdcContractConfig,
   wagmiContractConfig,
-} from '~test/src/abis.js'
-import { createCcipServer } from '~test/src/ccip.js'
-import { accounts } from '~test/src/constants.js'
-import { blobData, kzg } from '~test/src/kzg.js'
+} from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { createCcipServer } from '~test/ccip.js'
+import { accounts } from '~test/constants.js'
+import { blobData, kzg } from '~test/kzg.js'
 import {
   deploy,
   deployOffchainLookupExample,
   deploySoladyAccount_07,
   mainnetClient,
-} from '~test/src/utils.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+} from '~test/utils.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { aggregate3Signature } from '../../constants/contract.js'
 import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
 import {
-  http,
-  type Hex,
   createClient,
   decodeFunctionResult,
   encodeAbiParameters,
+  type Hex,
+  http,
   maxUint256,
   multicall3Abi,
   pad,
@@ -237,14 +237,13 @@ test('args: override', async () => {
   )
 })
 
-test.skip('args: blockOverrides', async () => {
-  // TODO: don't skip once block overrides are supported in Anvil.
+test('args: blockOverrides', async () => {
   const { data } = await call(client, {
     data: getCurrentBlockTimestamp4bytes,
     code: multicall3ContractConfig.bytecode,
     blockOverrides: { time: 420n },
   })
-  expect(data).toMatchInlineSnapshot(fourTwenty)
+  expect(data).toMatchInlineSnapshot(`"0x${fourTwenty}"`)
 })
 
 test.skip('args: blobs', async () => {
@@ -655,428 +654,354 @@ describe('errors', () => {
   })
 })
 
-describe('batch call', () => {
-  test('default', async () => {
-    const client_2 = anvilMainnet.getClient({ batch: { multicall: true } })
-
-    const spy = vi.spyOn(client_2, 'request')
-
-    const p = []
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: wagmiContractAddress,
-      }),
-    )
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: usdcContractConfig.address,
-      }),
-    )
-    await wait(1)
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: baycContractConfig.address,
-      }),
-    )
-    await wait(1)
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: wagmiContractAddress,
-      }),
-    )
-    await wait(50)
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: usdcContractConfig.address,
-      }),
-    )
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: baycContractConfig.address,
-      }),
-    )
-
-    const results = await Promise.all(p)
-
-    expect(spy).toBeCalledTimes(4)
-    expect(results).toMatchInlineSnapshot(`
-      [
-        {
-          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
-        },
-        {
-          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
-        },
-      ]
-    `)
-  })
-
-  test('args: blockNumber', async () => {
-    const client_2 = anvilMainnet.getClient({ batch: { multicall: true } })
-
-    const spy = vi.spyOn(client_2, 'request')
-
-    const p = []
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: wagmiContractAddress,
-        blockNumber: anvilMainnet.forkBlockNumber,
-      }),
-    )
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: wagmiContractAddress,
-        blockNumber: anvilMainnet.forkBlockNumber + 1n,
-      }),
-    )
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: usdcContractConfig.address,
-      }),
-    )
-    await wait(1)
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: baycContractConfig.address,
-        blockNumber: anvilMainnet.forkBlockNumber,
-      }),
-    )
-    await wait(1)
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: wagmiContractAddress,
-      }),
-    )
-    await wait(50)
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: usdcContractConfig.address,
-      }),
-    )
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: baycContractConfig.address,
-      }),
-    )
-
-    const results = await Promise.all(p)
-
-    expect(spy).toBeCalledTimes(6)
-    expect(results).toMatchInlineSnapshot(`
-      [
-        {
-          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
-        },
-        {
-          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
-        },
-      ]
-    `)
-  })
-
-  test('args: no address, no data, aggregate3 sig, other properties', async () => {
-    const client_2 = anvilMainnet.getClient({ batch: { multicall: true } })
-
-    const spy = vi.spyOn(client_2, 'request')
-
-    const p = []
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-      }),
-    )
-    p.push(
-      call(client_2, {
-        to: wagmiContractAddress,
-      }),
-    )
-    p.push(
-      call(client_2, {
-        data: aggregate3Signature,
-        to: wagmiContractAddress,
-      }),
-    )
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: wagmiContractAddress,
-        maxFeePerGas: 1n,
-      }),
-    )
-
-    try {
-      await Promise.all(p)
-    } catch {}
-
-    expect(spy).toBeCalledTimes(4)
-  })
-
-  test('contract revert', async () => {
-    const client_2 = anvilMainnet.getClient({ batch: { multicall: true } })
-
-    const spy = vi.spyOn(client_2, 'request')
-
-    const p = []
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: wagmiContractAddress,
-      }),
-    )
-    p.push(
-      call(client_2, {
-        data: `${mintWithParams4bytes}${fourTwenty}`,
-        to: wagmiContractAddress,
-      }),
-    )
-
-    const results = await Promise.allSettled(p)
-
-    expect(spy).toBeCalledTimes(1)
-    expect(results).toMatchInlineSnapshot(`
-      [
-        {
-          "status": "fulfilled",
-          "value": {
-            "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
+describe.each([{ deployless: true }, { deployless: false }])(
+  'batch call (deployless: %s)',
+  ({ deployless }) => {
+    test('default', async () => {
+      const client_2 = anvilMainnet.getClient({
+        batch: {
+          multicall: {
+            deployless,
           },
         },
-        {
-          "reason": [CallExecutionError: Execution reverted for an unknown reason.
+      })
 
-      Raw Call Arguments:
-        to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
-        data:  0xa0712d6800000000000000000000000000000000000000000000000000000000000001a4
+      const spy = vi.spyOn(client_2, 'request')
 
-      Version: viem@x.y.z],
-          "status": "rejected",
-        },
-      ]
-    `)
-  })
+      const p = []
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+        }),
+      )
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: usdcContractConfig.address,
+        }),
+      )
+      await wait(1)
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: baycContractConfig.address,
+        }),
+      )
+      await wait(1)
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+        }),
+      )
+      await wait(50)
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: usdcContractConfig.address,
+        }),
+      )
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: baycContractConfig.address,
+        }),
+      )
 
-  test('client config', async () => {
-    const client_2 = anvilMainnet.getClient({
-      batch: {
-        multicall: {
-          batchSize: 1024,
-          wait: 16,
-        },
-      },
+      const results = await Promise.all(p)
+
+      expect(spy).toBeCalledTimes(4)
+      expect(results).toMatchSnapshot()
     })
 
-    const spy = vi.spyOn(client_2, 'request')
+    test('args: blockNumber', async () => {
+      const client_2 = anvilMainnet.getClient({
+        batch: {
+          multicall: {
+            deployless,
+          },
+        },
+      })
 
-    const p = []
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: wagmiContractAddress,
-      }),
-    )
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: usdcContractConfig.address,
-      }),
-    )
-    await wait(1)
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: baycContractConfig.address,
-      }),
-    )
-    await wait(1)
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: wagmiContractAddress,
-      }),
-    )
-    await wait(50)
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: usdcContractConfig.address,
-      }),
-    )
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: baycContractConfig.address,
-      }),
-    )
+      const spy = vi.spyOn(client_2, 'request')
 
-    const results = await Promise.all(p)
+      const p = []
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+          blockNumber: anvilMainnet.forkBlockNumber,
+        }),
+      )
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+          blockNumber: anvilMainnet.forkBlockNumber + 1n,
+        }),
+      )
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: usdcContractConfig.address,
+        }),
+      )
+      await wait(1)
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: baycContractConfig.address,
+          blockNumber: anvilMainnet.forkBlockNumber,
+        }),
+      )
+      await wait(1)
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+        }),
+      )
+      await wait(50)
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: usdcContractConfig.address,
+        }),
+      )
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: baycContractConfig.address,
+        }),
+      )
 
-    expect(spy).toBeCalledTimes(2)
-    expect(results).toMatchInlineSnapshot(`
-      [
-        {
-          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
-        },
-        {
-          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
-        },
-      ]
-    `)
-  })
+      const results = await Promise.all(p)
 
-  test('no chain on client', async () => {
-    const client_2 = anvilMainnet.getClient({
-      batch: {
-        multicall: true,
-      },
-      chain: false,
+      expect(spy).toBeCalledTimes(6)
+      expect(results).toMatchSnapshot()
     })
 
-    const spy = vi.spyOn(client_2, 'request')
-
-    const p = []
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: wagmiContractAddress,
-      }),
-    )
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: usdcContractConfig.address,
-      }),
-    )
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: baycContractConfig.address,
-      }),
-    )
-
-    const results = await Promise.all(p)
-
-    expect(spy).toBeCalledTimes(3)
-    expect(results).toMatchInlineSnapshot(`
-      [
-        {
-          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
+    test('args: no address, no data, aggregate3 sig, other properties', async () => {
+      const client_2 = anvilMainnet.getClient({
+        batch: {
+          multicall: {
+            deployless,
+          },
         },
-        {
-          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
-        },
-      ]
-    `)
-  })
+      })
 
-  test('chain not configured with multicall', async () => {
-    const client_2 = anvilMainnet.getClient({
-      batch: {
-        multicall: true,
-      },
+      const spy = vi.spyOn(client_2, 'request')
+
+      const p = []
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+        }),
+      )
+      p.push(
+        call(client_2, {
+          to: wagmiContractAddress,
+        }),
+      )
+      p.push(
+        call(client_2, {
+          data: aggregate3Signature,
+          to: wagmiContractAddress,
+        }),
+      )
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+          maxFeePerGas: 1n,
+        }),
+      )
+
+      try {
+        await Promise.all(p)
+      } catch {}
+
+      expect(spy).toBeCalledTimes(4)
     })
-    client_2.chain = {
-      ...client_2.chain,
-      contracts: {
-        // @ts-expect-error
-        multicall3: undefined,
+
+    test('contract revert', async () => {
+      const client_2 = anvilMainnet.getClient({
+        batch: {
+          multicall: {
+            deployless,
+          },
+        },
+      })
+
+      const spy = vi.spyOn(client_2, 'request')
+
+      const p = []
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+        }),
+      )
+      p.push(
+        call(client_2, {
+          data: `${mintWithParams4bytes}${fourTwenty}`,
+          to: wagmiContractAddress,
+        }),
+      )
+
+      const results = await Promise.allSettled(p)
+
+      expect(spy).toBeCalledTimes(1)
+      expect(results).toMatchSnapshot()
+    })
+
+    test('client config', async () => {
+      const client_2 = anvilMainnet.getClient({
+        batch: {
+          multicall: {
+            deployless,
+            batchSize: 1024,
+            wait: 16,
+          },
+        },
+      })
+
+      const spy = vi.spyOn(client_2, 'request')
+
+      const p = []
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+        }),
+      )
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: usdcContractConfig.address,
+        }),
+      )
+      await wait(1)
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: baycContractConfig.address,
+        }),
+      )
+      await wait(1)
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+        }),
+      )
+      await wait(50)
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: usdcContractConfig.address,
+        }),
+      )
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: baycContractConfig.address,
+        }),
+      )
+
+      const results = await Promise.all(p)
+
+      expect(spy).toBeCalledTimes(2)
+      expect(results).toMatchSnapshot()
+    })
+
+    test.runIf(deployless === false)('no chain on client', async () => {
+      const client_2 = anvilMainnet.getClient({
+        batch: {
+          multicall: {
+            deployless,
+          },
+        },
+        chain: false,
+      })
+
+      const spy = vi.spyOn(client_2, 'request')
+
+      const p = []
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+        }),
+      )
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: usdcContractConfig.address,
+        }),
+      )
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: baycContractConfig.address,
+        }),
+      )
+
+      const results = await Promise.all(p)
+
+      expect(spy).toBeCalledTimes(3)
+      expect(results).toMatchSnapshot()
+    })
+
+    test.runIf(deployless === false)(
+      'chain not configured with multicall',
+      async () => {
+        const client_2 = anvilMainnet.getClient({
+          batch: {
+            multicall: {
+              deployless,
+            },
+          },
+        })
+        client_2.chain = {
+          ...client_2.chain,
+          contracts: {
+            // @ts-expect-error
+            multicall3: undefined,
+          },
+        }
+
+        const spy = vi.spyOn(client_2, 'request')
+
+        const p = []
+        p.push(
+          call(client_2, {
+            data: name4bytes,
+            to: wagmiContractAddress,
+          }),
+        )
+        p.push(
+          call(client_2, {
+            data: name4bytes,
+            to: usdcContractConfig.address,
+          }),
+        )
+        p.push(
+          call(client_2, {
+            data: name4bytes,
+            to: baycContractConfig.address,
+          }),
+        )
+
+        const results = await Promise.all(p)
+
+        expect(spy).toBeCalledTimes(3)
+        expect(results).toMatchSnapshot()
       },
-    }
-
-    const spy = vi.spyOn(client_2, 'request')
-
-    const p = []
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: wagmiContractAddress,
-      }),
     )
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: usdcContractConfig.address,
-      }),
-    )
-    p.push(
-      call(client_2, {
-        data: name4bytes,
-        to: baycContractConfig.address,
-      }),
-    )
-
-    const results = await Promise.all(p)
-
-    expect(spy).toBeCalledTimes(3)
-    expect(results).toMatchInlineSnapshot(`
-      [
-        {
-          "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000855534420436f696e000000000000000000000000000000000000000000000000",
-        },
-        {
-          "data": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011426f7265644170655961636874436c7562000000000000000000000000000000",
-        },
-      ]
-    `)
-  })
-})
+  },
+)
 
 describe('deployless call (factory)', () => {
   test('default', async () => {

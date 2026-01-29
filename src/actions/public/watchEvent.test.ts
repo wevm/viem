@@ -1,18 +1,18 @@
 import { beforeAll, describe, expect, test, vi } from 'vitest'
 
 import { ERC20InvalidTransferEvent } from '~contracts/generated.js'
-import { usdcContractConfig, wagmiContractConfig } from '~test/src/abis.js'
-import { accounts, address } from '~test/src/constants.js'
-import { deployErc20InvalidTransferEvent } from '~test/src/utils.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+import { usdcContractConfig, wagmiContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts, address } from '~test/constants.js'
+import { deployErc20InvalidTransferEvent } from '~test/utils.js'
 import type { Client } from '../../index.js'
 
 import {
+  createClient,
+  fallback,
   http,
   InvalidInputRpcError,
   RpcRequestError,
-  createClient,
-  fallback,
   webSocket,
 } from '../../index.js'
 import { getAddress } from '../../utils/address/getAddress.js'
@@ -873,52 +873,48 @@ describe('subscribe', () => {
     })
   })
 
-  test(
-    'args: events',
-    async () => {
-      const logs: WatchEventOnLogsParameter<
-        undefined,
-        [typeof event.transfer, typeof event.approval]
-      >[] = []
+  test('args: events', { timeout: 10_000 }, async () => {
+    const logs: WatchEventOnLogsParameter<
+      undefined,
+      [typeof event.transfer, typeof event.approval]
+    >[] = []
 
-      const unwatch = watchEvent(webSocketClient, {
-        events: [event.transfer, event.approval],
-        onLogs: (logs_) => logs.push(logs_),
-      })
+    const unwatch = watchEvent(webSocketClient, {
+      events: [event.transfer, event.approval],
+      onLogs: (logs_) => logs.push(logs_),
+    })
 
-      await wait(100)
-      await writeContract(client, {
-        ...wagmiContractConfig,
-        functionName: 'mint',
-        account: address.vitalik,
-      })
-      await writeContract(client, {
-        ...usdcContractConfig,
-        functionName: 'approve',
-        args: [accounts[1].address, 2n],
-        account: address.vitalik,
-      })
-      await mine(client, { blocks: 1 })
-      await wait(200)
-      unwatch()
+    await wait(100)
+    await writeContract(client, {
+      ...wagmiContractConfig,
+      functionName: 'mint',
+      account: address.vitalik,
+    })
+    await writeContract(client, {
+      ...usdcContractConfig,
+      functionName: 'approve',
+      args: [accounts[1].address, 2n],
+      account: address.vitalik,
+    })
+    await mine(client, { blocks: 1 })
+    await wait(200)
+    unwatch()
 
-      expect(logs.length).toBe(2)
+    expect(logs.length).toBe(2)
 
-      expect(logs[0][0].eventName).toEqual('Transfer')
-      expect(logs[0][0].args).toEqual({
-        from: address.burn,
-        to: getAddress(address.vitalik),
-      })
+    expect(logs[0][0].eventName).toEqual('Transfer')
+    expect(logs[0][0].args).toEqual({
+      from: address.burn,
+      to: getAddress(address.vitalik),
+    })
 
-      expect(logs[1][0].eventName).toEqual('Approval')
-      expect(logs[1][0].args).toEqual({
-        owner: getAddress(address.vitalik),
-        spender: getAddress(accounts[1].address),
-        value: 2n,
-      })
-    },
-    { timeout: 10_000 },
-  )
+    expect(logs[1][0].eventName).toEqual('Approval')
+    expect(logs[1][0].args).toEqual({
+      owner: getAddress(address.vitalik),
+      spender: getAddress(accounts[1].address),
+      value: 2n,
+    })
+  })
 
   test('fallback transport', async () => {
     const logs: WatchEventOnLogsParameter[] = []

@@ -1,19 +1,18 @@
-import { createServer } from 'prool'
-import { type AnvilParameters, anvil } from 'prool/instances'
+import { Instance, Server } from 'prool'
 
 import { mainnet, optimism, sepolia, zksync } from '../../src/chains/index.js'
 import { ipc } from '../../src/clients/transports/ipc.js'
 import {
-  http,
   type Account,
   type Address,
   type Chain,
   type Client,
   type ClientConfig,
+  createClient,
   type ExactPartial,
+  http,
   type ParseAccount,
   type Transport,
-  createClient,
   webSocket,
 } from '../../src/index.js'
 import { createSiweMessage } from '../../src/siwe/index.js'
@@ -61,6 +60,7 @@ export const anvilZksync = defineAnvil({
 
 function getEnv(key: string, fallback: string): string {
   if (typeof process.env[key] === 'string') return process.env[key] as string
+  // biome-ignore lint/suspicious/noConsole: _
   console.warn(
     `\`process.env.${key}\` not found. Falling back to \`${fallback}\`.`,
   )
@@ -68,7 +68,7 @@ function getEnv(key: string, fallback: string): string {
 }
 
 type DefineAnvilParameters<chain extends Chain> = Omit<
-  AnvilParameters,
+  Instance.anvil.Parameters,
   'forkBlockNumber' | 'forkUrl'
 > & {
   chain: chain
@@ -283,8 +283,8 @@ function defineAnvil<const chain extends Chain>(
       await fetch(`${rpcUrl.http}/restart`)
     },
     async start() {
-      return await createServer({
-        instance: anvil({
+      return await Server.create({
+        instance: Instance.anvil({
           chainId: chain.id,
           forkUrl,
           forkBlockNumber,

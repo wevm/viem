@@ -5,8 +5,8 @@ import { type ConcatErrorType, concat } from '../data/concat.js'
 import { size } from '../data/size.js'
 import {
   type BytesToHexErrorType,
-  type StringToHexErrorType,
   bytesToHex,
+  type StringToHexErrorType,
   stringToHex,
 } from '../encoding/toHex.js'
 

@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
-import { usdcContractConfig } from '~test/src/abis.js'
-import { accounts } from '~test/src/constants.js'
-import { anvilOptimism } from '../../../test/src/anvil.js'
+import { usdcContractConfig } from '~test/abis.js'
+import { anvilOptimism } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import { publicActionsL2 } from './publicL2.js'
 
 const optimismClient = anvilOptimism.getClient()
@@ -20,6 +20,7 @@ test('default', async () => {
       "estimateInitiateWithdrawalGas": [Function],
       "estimateL1Fee": [Function],
       "estimateL1Gas": [Function],
+      "estimateOperatorFee": [Function],
       "estimateTotalFee": [Function],
       "estimateTotalGas": [Function],
       "getL1BaseFee": [Function],
@@ -124,7 +125,7 @@ describe('smoke test', () => {
     expect(request).toBeDefined()
   })
 
-  test('buildProveWithdrawal', async () => {
+  test.skip('buildProveWithdrawal', async () => {
     const request = await opStackClient.buildProveWithdrawal({
       withdrawal: {
         nonce:

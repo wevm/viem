@@ -1,7 +1,10 @@
 {
+  "extends": "../tsconfig.base.json",
+  "include": ["."],
   "compilerOptions": {
     "composite": true,
-    "module": "nodenext",
-    "types": ["@types/bun"]
+    "noEmit": true,
+    "types": ["@types/bun"],
+    "baseUrl": "."
   }
 }

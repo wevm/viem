@@ -6,7 +6,7 @@ export type GetTransportConfig<transport extends Transport> =
   ReturnType<transport>['config']
 
 export type GetPollOptions<transport extends Transport> =
-  | (HasTransportType<transport, 'webSocket'> extends true
+  | (HasTransportType<transport, 'webSocket' | 'ipc'> extends true
       ? {
           batch?: undefined
           /**

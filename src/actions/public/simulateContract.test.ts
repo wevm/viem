@@ -10,24 +10,23 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { Delegation, ErrorsExample } from '~contracts/generated.js'
-import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
-import { accounts } from '~test/src/constants.js'
+import { baycContractConfig, wagmiContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import {
   deploy,
   deployBAYC,
   deployErrorExample,
   mainnetClient,
-} from '~test/src/utils.js'
-import { anvilMainnet } from '../../../test/src/anvil.js'
+} from '~test/utils.js'
+import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { publicActions } from '../../clients/decorators/public.js'
 import { walletActions } from '../../clients/decorators/wallet.js'
+import { maxUint256 } from '../../constants/number.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { mine } from '../test/mine.js'
-
-import { maxUint256 } from '~viem/constants/number.js'
-import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
-import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
 import { simulateContract } from './simulateContract.js'
 
@@ -788,5 +787,77 @@ describe('node errors', () => {
       Docs: https://viem.sh/docs/contract/simulateContract
       Version: viem@x.y.z]
     `)
+  })
+})
+
+describe('behavior: client dataSuffix', () => {
+  test('applies client dataSuffix (hex string)', async () => {
+    const clientWithSuffix = Object.assign(
+      anvilMainnet.getClient().extend(publicActions),
+      { dataSuffix: '0x12345678' as const },
+    )
+    const spy = vi.spyOn(clientWithSuffix, 'call')
+
+    const { request } = await simulateContract(clientWithSuffix, {
+      abi: wagmiContractConfig.abi,
+      address: wagmiContractConfig.address,
+      account: accounts[0].address,
+      functionName: 'mint',
+    })
+
+    expect(spy).toHaveBeenCalledWith({
+      account: request.account,
+      batch: false,
+      data: '0x1249c58b12345678',
+      to: wagmiContractConfig.address,
+    })
+    expect(request.dataSuffix).toEqual('0x12345678')
+  })
+
+  test('applies client dataSuffix (object format)', async () => {
+    const clientWithSuffix = Object.assign(
+      anvilMainnet.getClient().extend(publicActions),
+      { dataSuffix: { value: '0x12345678' as const, required: true } },
+    )
+    const spy = vi.spyOn(clientWithSuffix, 'call')
+
+    const { request } = await simulateContract(clientWithSuffix, {
+      abi: wagmiContractConfig.abi,
+      address: wagmiContractConfig.address,
+      account: accounts[0].address,
+      functionName: 'mint',
+    })
+
+    expect(spy).toHaveBeenCalledWith({
+      account: request.account,
+      batch: false,
+      data: '0x1249c58b12345678',
+      to: wagmiContractConfig.address,
+    })
+    expect(request.dataSuffix).toEqual('0x12345678')
+  })
+
+  test('parameter dataSuffix takes precedence over client dataSuffix', async () => {
+    const clientWithSuffix = Object.assign(
+      anvilMainnet.getClient().extend(publicActions),
+      { dataSuffix: '0xaabbccdd' as const },
+    )
+    const spy = vi.spyOn(clientWithSuffix, 'call')
+
+    const { request } = await simulateContract(clientWithSuffix, {
+      abi: wagmiContractConfig.abi,
+      address: wagmiContractConfig.address,
+      account: accounts[0].address,
+      functionName: 'mint',
+      dataSuffix: '0x12345678',
+    })
+
+    expect(spy).toHaveBeenCalledWith({
+      account: request.account,
+      batch: false,
+      data: '0x1249c58b12345678',
+      to: wagmiContractConfig.address,
+    })
+    expect(request.dataSuffix).toEqual('0x12345678')
   })
 })

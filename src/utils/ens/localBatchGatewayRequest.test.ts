@@ -6,7 +6,10 @@ import { encodeErrorResult } from '../abi/encodeErrorResult.js'
 import { encodeFunctionData } from '../abi/encodeFunctionData.js'
 import { encodeFunctionResult } from '../abi/encodeFunctionResult.js'
 import { ccipRequest } from '../ccip.js'
-import { localBatchGatewayRequest } from './localBatchGatewayRequest.js'
+import {
+  localBatchGatewayRequest,
+  localBatchGatewayUrl,
+} from './localBatchGatewayRequest.js'
 
 test('default', async () => {
   const sender = '0x0000000000000000000000000000000000000001'
@@ -40,6 +43,23 @@ test('default', async () => {
           data: '0x',
           urls: ['data:text/plain,chonk'], // OffchainLookupResponseMalformedError
         },
+        {
+          sender,
+          data: encodeFunctionData({
+            abi: batchGatewayAbi,
+            functionName: 'query',
+            args: [
+              [
+                {
+                  sender,
+                  data: '0x',
+                  urls: ['data:application/json,{"data":"0xabcdef"}'],
+                },
+              ],
+            ],
+          }),
+          urls: [localBatchGatewayUrl], // recursion
+        },
       ],
     ],
   })
@@ -52,7 +72,7 @@ test('default', async () => {
     data: result,
   })
 
-  expect(failures, 'failures').toEqual([false, false, true, true, true])
+  expect(failures, 'failures').toEqual([false, false, true, true, true, false])
   expect(responses[0]).toStrictEqual('0x')
   expect(responses[1]).toStrictEqual('0x12345678')
   expect(responses[2]).toStrictEqual(
@@ -76,6 +96,13 @@ test('default', async () => {
       args: [
         'Offchain gateway response is malformed. Response data must be a hex value.',
       ],
+    }),
+  )
+  expect(responses[5]).toStrictEqual(
+    encodeFunctionResult({
+      abi: batchGatewayAbi,
+      functionName: 'query',
+      result: [[false], ['0xabcdef']],
     }),
   )
 })
