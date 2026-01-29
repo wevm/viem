@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import type { ErrorType } from '../../errors/utils.js'
+
 import type {
   ByteArray,
   Hex,
@@ -11,6 +11,8 @@ import {
   type IsAddressEqualErrorType,
   isAddressEqual,
 } from '../address/isAddressEqual.js'
+
+import type { ErrorType } from '../../errors/utils.js'
 import {
   type RecoverMessageAddressErrorType,
   recoverMessageAddress,

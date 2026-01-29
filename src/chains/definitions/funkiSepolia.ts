@@ -3,7 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11_155_111 // sepolia
 
-export const funkiSepolia = /*#__PURE__*/ defineChain({
+export const funkiSepolia = defineChain({
   ...chainConfig,
   id: 3397901,
   network: 'funkiSepolia',

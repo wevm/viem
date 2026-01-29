@@ -1,4 +1,4 @@
-import { createPublicClient, type Hex, http, parseEther } from 'viem'
+import { http, type Hex, createPublicClient, parseEther } from 'viem'
 import {
   createBundlerClient,
   createPaymasterClient,
@@ -17,7 +17,6 @@ const owner = privateKeyToAccount(import.meta.env.VITE_PRIVATE_KEY as Hex)
 const account = await toCoinbaseSmartAccount({
   client,
   owners: [owner],
-  version: '1.1',
 })
 
 const paymasterClient = createPaymasterClient({

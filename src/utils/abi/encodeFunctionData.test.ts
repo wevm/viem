@@ -1,5 +1,6 @@
-import { erc20Abi } from 'abitype/abis'
 import { expect, test } from 'vitest'
+
+import { erc20Abi } from 'abitype/abis'
 import { encodeFunctionData } from './encodeFunctionData.js'
 import { prepareEncodeFunctionData } from './prepareEncodeFunctionData.js'
 

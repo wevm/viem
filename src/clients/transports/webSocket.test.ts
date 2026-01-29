@@ -2,7 +2,7 @@ import { WebSocket } from 'isows'
 
 import { assertType, describe, expect, test } from 'vitest'
 
-import { anvilMainnet } from '~test/anvil.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { mine } from '../../actions/test/mine.js'
 import { localhost } from '../../chains/index.js'
 import { wait } from '../../utils/wait.js'

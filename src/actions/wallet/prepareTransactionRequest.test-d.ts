@@ -1,6 +1,6 @@
 import { expectTypeOf, test } from 'vitest'
-import { anvilMainnet } from '~test/anvil.js'
-import { kzg } from '~test/kzg.js'
+import { kzg } from '~test/src/kzg.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import type { BlobSidecar, Hex, TransactionRequest } from '../../index.js'
 import type { Kzg } from '../../types/kzg.js'
 import type { ByteArray } from '../../types/misc.js'
@@ -113,9 +113,7 @@ test('args: type', async () => {
     readonly BlobSidecar<`0x${string}`>[] | undefined
   >()
   expectTypeOf(result_eip4844.gasPrice).toEqualTypeOf<never>()
-  expectTypeOf(result_eip4844.maxFeePerBlobGas).toEqualTypeOf<
-    bigint | undefined
-  >()
+  expectTypeOf(result_eip4844.maxFeePerBlobGas).toEqualTypeOf<bigint>()
   expectTypeOf(result_eip4844.maxFeePerGas).toEqualTypeOf<bigint>()
   expectTypeOf(result_eip4844.maxPriorityFeePerGas).toEqualTypeOf<bigint>()
 
@@ -138,9 +136,7 @@ test('args: type', async () => {
     readonly BlobSidecar<`0x${string}`>[]
   >()
   expectTypeOf(result_eip4844_2.gasPrice).toEqualTypeOf<never>()
-  expectTypeOf(result_eip4844_2.maxFeePerBlobGas).toEqualTypeOf<
-    bigint | undefined
-  >()
+  expectTypeOf(result_eip4844_2.maxFeePerBlobGas).toEqualTypeOf<bigint>()
   expectTypeOf(result_eip4844_2.maxFeePerGas).toEqualTypeOf<bigint>()
   expectTypeOf(result_eip4844_2.maxPriorityFeePerGas).toEqualTypeOf<bigint>()
 })
@@ -177,7 +173,7 @@ test('args: eip4844 attributes', async () => {
   expectTypeOf(result_1.gasPrice).toEqualTypeOf<never>()
   expectTypeOf(result_1.maxFeePerGas).toEqualTypeOf<bigint>()
   expectTypeOf(result_1.maxPriorityFeePerGas).toEqualTypeOf<bigint>()
-  expectTypeOf(result_1.maxFeePerBlobGas).toEqualTypeOf<bigint | undefined>()
+  expectTypeOf(result_1.maxFeePerBlobGas).toEqualTypeOf<bigint>()
 
   const result_2 = await prepareTransactionRequest(client, {
     blobs: ['0x'],
@@ -187,13 +183,13 @@ test('args: eip4844 attributes', async () => {
   })
   expectTypeOf(result_2.type).toEqualTypeOf<'eip4844'>()
   expectTypeOf(result_2.blobs).toEqualTypeOf<
-    readonly Hex[] | readonly ByteArray[] | undefined
+    readonly Hex[] | readonly ByteArray[]
   >()
   expectTypeOf(result_2.blobVersionedHashes).toEqualTypeOf<readonly Hex[]>()
   expectTypeOf(result_2.gasPrice).toEqualTypeOf<never>()
   expectTypeOf(result_2.maxFeePerGas).toEqualTypeOf<bigint>()
   expectTypeOf(result_2.maxPriorityFeePerGas).toEqualTypeOf<bigint>()
-  expectTypeOf(result_2.maxFeePerBlobGas).toEqualTypeOf<bigint | undefined>()
+  expectTypeOf(result_2.maxFeePerBlobGas).toEqualTypeOf<bigint>()
 })
 
 test('args: parameters', async () => {

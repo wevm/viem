@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createPublicClient, http, webSocket } from 'viem'
+import { http, createPublicClient, webSocket } from 'viem'
 import { mainnet } from 'viem/chains'
 
 export function Client() {
@@ -15,7 +15,9 @@ export function Client() {
 
       const webSocketClient = createPublicClient({
         chain: mainnet,
-        transport: webSocket('wss://ethereum-rpc.publicnode.com'),
+        transport: webSocket(
+          'wss://eth-mainnet.g.alchemy.com/v2/WV-bLot1hKjjCfpPq603Ro-jViFzwYX8',
+        ),
       })
 
       await client.getBlockNumber()

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { blobData, kzg } from '~test/kzg.js'
+import { blobData, kzg } from '../../../test/src/kzg.js'
 import { stringToBytes, stringToHex } from '../index.js'
 import { blobsToCommitments } from './blobsToCommitments.js'
 import { commitmentsToVersionedHashes } from './commitmentsToVersionedHashes.js'

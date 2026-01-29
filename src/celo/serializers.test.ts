@@ -1,23 +1,24 @@
 import { describe, expect, test } from 'vitest'
 
-import { accounts } from '~test/constants.js'
+import { accounts } from '~test/src/constants.js'
 import { signTransaction } from '../accounts/utils/signTransaction.js'
 import {
   FeeCapTooHighError,
   InvalidAddressError,
+  TipAboveFeeCapError,
+  type TransactionSerializableEIP1559,
   parseEther,
   parseGwei,
   parseTransaction as parseTransaction_,
-  TipAboveFeeCapError,
-  type TransactionSerializableEIP1559,
 } from '../index.js'
-import type { TransactionSerializableDeposit } from '../op-stack/types/transaction.js'
 import { parseTransaction } from './parsers.js'
 import { serializeTransaction } from './serializers.js'
 import type {
   TransactionSerializableCIP42,
   TransactionSerializableCIP64,
 } from './types.js'
+
+import type { TransactionSerializableDeposit } from '../op-stack/types/transaction.js'
 
 const commonBaseTx = {
   to: accounts[0].address,

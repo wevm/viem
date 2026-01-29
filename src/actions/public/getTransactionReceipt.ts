@@ -68,8 +68,5 @@ export async function getTransactionReceipt<chain extends Chain | undefined>(
   const format =
     client.chain?.formatters?.transactionReceipt?.format ||
     formatTransactionReceipt
-  return format(
-    receipt,
-    'getTransactionReceipt',
-  ) as GetTransactionReceiptReturnType<chain>
+  return format(receipt) as GetTransactionReceiptReturnType<chain>
 }

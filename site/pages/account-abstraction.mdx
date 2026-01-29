@@ -133,8 +133,7 @@ const owner = privateKeyToAccount('0x...')
 
 const account = await toCoinbaseSmartAccount({ // [!code focus]
   client, // [!code focus]
-  owners: [owner], // [!code focus]
-  version: '1.1', // [!code focus]
+  owners: [owner] // [!code focus]
 }) // [!code focus]
 ```
 
@@ -171,8 +170,7 @@ const owner = privateKeyToAccount('0x...')
 
 const account = await toCoinbaseSmartAccount({ 
   client, 
-  owners: [owner],
-  version: '1.1',
+  owners: [owner]
 }) 
 
 const hash = await bundlerClient.sendUserOperation({ // [!code focus]
@@ -211,8 +209,7 @@ const owner = privateKeyToAccount('0x...')
 
 const account = await toCoinbaseSmartAccount({ 
   client, 
-  owners: [owner],
-  version: '1.1',
+  owners: [owner]
 }) 
 
 const bundlerClient = createBundlerClient({
@@ -314,8 +311,7 @@ const owner = privateKeyToAccount('0x...')
 
 export const account = await toCoinbaseSmartAccount({ 
   client, 
-  owners: [owner],
-  version: '1.1',
+  owners: [owner]
 }) 
 ```
 
@@ -391,8 +387,7 @@ const owner = privateKeyToAccount('0x...')
 
 export const account = await toCoinbaseSmartAccount({ 
   client, 
-  owners: [owner],
-  version: '1.1',
+  owners: [owner]
 }) 
 ```
 

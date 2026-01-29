@@ -53,13 +53,3 @@ export const baseSepolia = /*#__PURE__*/ defineChain({
   testnet: true,
   sourceId,
 })
-
-export const baseSepoliaPreconf = /*#__PURE__*/ defineChain({
-  ...baseSepolia,
-  experimental_preconfirmationTime: 200,
-  rpcUrls: {
-    default: {
-      http: ['https://sepolia-preconf.base.org'],
-    },
-  },
-})

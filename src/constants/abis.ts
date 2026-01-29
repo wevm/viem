@@ -41,19 +41,6 @@ export const multicall3Abi = [
     stateMutability: 'view',
     type: 'function',
   },
-  {
-    inputs: [],
-    name: 'getCurrentBlockTimestamp',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: 'timestamp',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
 ] as const
 
 export const batchGatewayAbi = [
@@ -110,53 +97,24 @@ export const batchGatewayAbi = [
 
 const universalResolverErrors = [
   {
-    inputs: [
-      {
-        name: 'dns',
-        type: 'bytes',
-      },
-    ],
-    name: 'DNSDecodingFailed',
-    type: 'error',
-  },
-  {
-    inputs: [
-      {
-        name: 'ens',
-        type: 'string',
-      },
-    ],
-    name: 'DNSEncodingFailed',
+    inputs: [],
+    name: 'ResolverNotFound',
     type: 'error',
   },
   {
     inputs: [],
-    name: 'EmptyAddress',
-    type: 'error',
-  },
-  {
-    inputs: [
-      {
-        name: 'status',
-        type: 'uint16',
-      },
-      {
-        name: 'message',
-        type: 'string',
-      },
-    ],
-    name: 'HttpError',
+    name: 'ResolverWildcardNotSupported',
     type: 'error',
   },
   {
     inputs: [],
-    name: 'InvalidBatchGatewayResponse',
+    name: 'ResolverNotContract',
     type: 'error',
   },
   {
     inputs: [
       {
-        name: 'errorData',
+        name: 'returnData',
         type: 'bytes',
       },
     ],
@@ -166,50 +124,21 @@ const universalResolverErrors = [
   {
     inputs: [
       {
-        name: 'name',
-        type: 'bytes',
-      },
-      {
-        name: 'resolver',
-        type: 'address',
-      },
-    ],
-    name: 'ResolverNotContract',
-    type: 'error',
-  },
-  {
-    inputs: [
-      {
-        name: 'name',
-        type: 'bytes',
+        components: [
+          {
+            name: 'status',
+            type: 'uint16',
+          },
+          {
+            name: 'message',
+            type: 'string',
+          },
+        ],
+        name: 'errors',
+        type: 'tuple[]',
       },
     ],
-    name: 'ResolverNotFound',
-    type: 'error',
-  },
-  {
-    inputs: [
-      {
-        name: 'primary',
-        type: 'string',
-      },
-      {
-        name: 'primaryAddress',
-        type: 'bytes',
-      },
-    ],
-    name: 'ReverseAddressMismatch',
-    type: 'error',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'bytes4',
-        name: 'selector',
-        type: 'bytes4',
-      },
-    ],
-    name: 'UnsupportedResolverProfile',
+    name: 'HttpError',
     type: 'error',
   },
 ] as const
@@ -217,7 +146,20 @@ const universalResolverErrors = [
 export const universalResolverResolveAbi = [
   ...universalResolverErrors,
   {
-    name: 'resolveWithGateways',
+    name: 'resolve',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { name: 'name', type: 'bytes' },
+      { name: 'data', type: 'bytes' },
+    ],
+    outputs: [
+      { name: '', type: 'bytes' },
+      { name: 'address', type: 'address' },
+    ],
+  },
+  {
+    name: 'resolve',
     type: 'function',
     stateMutability: 'view',
     inputs: [
@@ -235,18 +177,30 @@ export const universalResolverResolveAbi = [
 export const universalResolverReverseAbi = [
   ...universalResolverErrors,
   {
-    name: 'reverseWithGateways',
+    name: 'reverse',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'bytes', name: 'reverseName' }],
+    outputs: [
+      { type: 'string', name: 'resolvedName' },
+      { type: 'address', name: 'resolvedAddress' },
+      { type: 'address', name: 'reverseResolver' },
+      { type: 'address', name: 'resolver' },
+    ],
+  },
+  {
+    name: 'reverse',
     type: 'function',
     stateMutability: 'view',
     inputs: [
       { type: 'bytes', name: 'reverseName' },
-      { type: 'uint256', name: 'coinType' },
       { type: 'string[]', name: 'gateways' },
     ],
     outputs: [
       { type: 'string', name: 'resolvedName' },
-      { type: 'address', name: 'resolver' },
+      { type: 'address', name: 'resolvedAddress' },
       { type: 'address', name: 'reverseResolver' },
+      { type: 'address', name: 'resolver' },
     ],
   },
 ] as const
@@ -287,7 +241,7 @@ export const addressResolverAbi = [
 // ERC-1271
 // isValidSignature(bytes32 hash, bytes signature) → bytes4 magicValue
 /** @internal */
-export const erc1271Abi = [
+export const smartAccountAbi = [
   {
     name: 'isValidSignature',
     type: 'function',
@@ -303,7 +257,7 @@ export const erc1271Abi = [
 // ERC-6492 - universal deployless signature validator contract
 // constructor(address _signer, bytes32 _hash, bytes _signature) → bytes4 returnValue
 // returnValue is either 0x1 (valid) or 0x0 (invalid)
-export const erc6492SignatureValidatorAbi = [
+export const universalSignatureValidatorAbi = [
   {
     inputs: [
       {
@@ -1459,7 +1413,7 @@ export const erc721Abi = [
         type: 'address',
       },
       {
-        name: 'tokenId',
+        name: 'tokeId',
         type: 'uint256',
       },
     ],

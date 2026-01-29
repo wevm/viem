@@ -51,13 +51,3 @@ export const base = /*#__PURE__*/ defineChain({
   },
   sourceId,
 })
-
-export const basePreconf = /*#__PURE__*/ defineChain({
-  ...base,
-  experimental_preconfirmationTime: 200,
-  rpcUrls: {
-    default: {
-      http: ['https://mainnet-preconf.base.org'],
-    },
-  },
-})

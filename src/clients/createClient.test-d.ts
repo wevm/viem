@@ -4,8 +4,8 @@ import { describe, expectTypeOf, test } from 'vitest'
 import type { Account, JsonRpcAccount } from '../accounts/types.js'
 import { localhost, optimism } from '../chains/index.js'
 import {
-  createPublicClient,
   type EIP1193RequestFn,
+  createPublicClient,
   publicActions,
 } from '../index.js'
 import type { Chain } from '../types/chain.js'

@@ -1,9 +1,11 @@
 import { expect, test } from 'vitest'
-import { anvilMainnet } from '~test/anvil.js'
-import { createHttpServer } from '~test/utils.js'
+
+import { createHttpServer } from '~test/src/utils.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { fallback } from '../../clients/transports/fallback.js'
 import { http } from '../../clients/transports/http.js'
+
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { createBlockFilter } from './createBlockFilter.js'
 

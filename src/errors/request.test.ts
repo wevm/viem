@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { anvilMainnet } from '~test/anvil.js'
+import { anvilMainnet } from '../../test/src/anvil.js'
 import { numberToHex } from '../utils/encoding/toHex.js'
 
 import {
@@ -26,7 +26,6 @@ test('RpcRequestError', () => {
     Details: Error
     Version: viem@x.y.z]
   `)
-  expect(err.url).toBeDefined()
 })
 
 test('HttpRequestError', () => {
@@ -49,7 +48,6 @@ test('HttpRequestError', () => {
     Details: Some error
     Version: viem@x.y.z]
   `)
-  expect(err.url).toBeDefined()
 })
 
 test('WebSocketRequestError', () => {
@@ -70,7 +68,6 @@ test('WebSocketRequestError', () => {
     Details: Some error
     Version: viem@x.y.z]
   `)
-  expect(err.url).toBeDefined()
 })
 
 test('SocketClosedError', () => {
@@ -84,7 +81,6 @@ test('SocketClosedError', () => {
 
     Version: viem@x.y.z]
   `)
-  expect(err.url).toBeDefined()
 })
 
 test('TimeoutError', () => {
@@ -104,5 +100,4 @@ test('TimeoutError', () => {
     Details: The request timed out.
     Version: viem@x.y.z]
   `)
-  expect(err.url).toBeDefined()
 })

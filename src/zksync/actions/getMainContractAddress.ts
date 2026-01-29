@@ -7,7 +7,6 @@ import type { PublicZksyncRpcSchema } from '../types/eip1193.js'
 
 export type GetMainContractAddressReturnType = Address
 
-/* @deprecated Use `getBridgeHubContractAddress` and call `getZKChain(chainId)` instead. */
 export async function getMainContractAddress<
   chain extends Chain | undefined,
   account extends Account | undefined,

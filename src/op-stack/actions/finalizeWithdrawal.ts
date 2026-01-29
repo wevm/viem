@@ -19,7 +19,11 @@ import type { FormattedTransactionRequest } from '../../utils/formatters/transac
 import { portal2Abi, portalAbi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import type { Withdrawal } from '../types/withdrawal.js'
-import type { EstimateFinalizeWithdrawalGasErrorType } from './estimateFinalizeWithdrawalGas.js'
+import {
+  type EstimateFinalizeWithdrawalGasErrorType,
+  type EstimateFinalizeWithdrawalGasParameters,
+  estimateFinalizeWithdrawalGas,
+} from './estimateFinalizeWithdrawalGas.js'
 
 export type FinalizeWithdrawalParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -110,6 +114,14 @@ export async function finalizeWithdrawal<
     return Object.values(targetChain!.contracts.portal)[0].address
   })()
 
+  const gas_ =
+    typeof gas !== 'number' && gas !== null
+      ? await estimateFinalizeWithdrawalGas(
+          client,
+          parameters as EstimateFinalizeWithdrawalGasParameters,
+        )
+      : undefined
+
   const [functionName, args, abi] = proofSubmitter
     ? [
         'finalizeWithdrawalTransactionExternalProof',
@@ -125,7 +137,7 @@ export async function finalizeWithdrawal<
     chain,
     functionName,
     args,
-    gas: gas ?? undefined,
+    gas: gas_,
     maxFeePerGas,
     maxPriorityFeePerGas,
     nonce,

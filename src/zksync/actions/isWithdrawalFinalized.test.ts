@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
-import { anvilMainnet, anvilZksync } from '~test/anvil.js'
-import { mockRequestReturnData } from '~test/zksync.js'
+import { anvilMainnet, anvilZksync } from '~test/src/anvil.js'
+import { mockRequestReturnData } from '~test/src/zksync.js'
 import { type EIP1193RequestFn, publicActions } from '../../index.js'
 import { publicActionsL2 } from '../index.js'
 import { finalizeWithdrawal } from './finalizeWithdrawal.js'

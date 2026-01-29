@@ -2,7 +2,7 @@
 
 import { describe, expect, test } from 'vitest'
 
-import { wagmiContractConfig } from '~test/abis.js'
+import { wagmiContractConfig } from '~test/src/abis.js'
 import { mainnet } from '../../../chains/index.js'
 import { createClient } from '../../../clients/createClient.js'
 import { custom } from '../../../clients/transports/custom.js'

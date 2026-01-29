@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { anvilMainnet, anvilOptimism } from '~test/anvil.js'
+import { anvilMainnet, anvilOptimism } from '../../../test/src/anvil.js'
 import { getTransactionReceipt, reset } from '../../actions/index.js'
 
 import { getTimeToProve } from './getTimeToProve.js'

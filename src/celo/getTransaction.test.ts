@@ -1,11 +1,11 @@
 import { describe, expect, test, vi } from 'vitest'
 import { celo } from '../chains/index.js'
 import {
-  createPublicClient,
-  createTransport,
   type EIP1193RequestFn,
   type PublicRpcSchema,
   type WalletRpcSchema,
+  createPublicClient,
+  createTransport,
 } from '../index.js'
 
 describe('getTransaction()', () => {

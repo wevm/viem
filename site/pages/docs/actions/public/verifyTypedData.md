@@ -6,13 +6,6 @@ description: Verifies a typed data signature
 
 Verify that typed data was signed by the provided address.
 
-Supports verification of: 
-- **Externally Owned Accounts** 
-- **Smart Contract Accounts:**
-  - **Deployed** (via [ERC-1271](https://eips.ethereum.org/EIPS/eip-1271))
-  - **Pre-deployed** (via [ERC-6492](https://eips.ethereum.org/EIPS/eip-6492))
-  - **Pre-delegated** (via [ERC-8010](https://github.com/ethereum/ERCs/pull/1186))
-
 :::info 
 **Why should I use this over the [`verifyTypedData`](/docs/utilities/verifyTypedData) util?**
 
@@ -464,3 +457,6 @@ const valid = await publicClient.verifyTypedData({
 })
 ```
 
+## JSON-RPC Method
+
+[`eth_call`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_call) to a deployless [universal signature validator contract](https://eips.ethereum.org/EIPS/eip-6492).

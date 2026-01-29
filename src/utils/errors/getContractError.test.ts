@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
-import { baycContractConfig } from '~test/abis.js'
-import { accounts } from '~test/constants.js'
+import { baycContractConfig } from '~test/src/abis.js'
+import { accounts } from '~test/src/constants.js'
 import { AbiDecodingZeroDataError } from '../../errors/abi.js'
 import { BaseError } from '../../errors/base.js'
 import { RawContractError } from '../../errors/contract.js'
@@ -83,41 +83,6 @@ describe('getContractError', () => {
         cause: {
           code: -32603,
           message: 'execution reverted: Sale must be active to mint Ape',
-          data: '0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001f53616c65206d7573742062652061637469766520746f206d696e742041706500',
-        } as unknown as Error,
-      }),
-      {
-        abi: baycContractConfig.abi,
-        functionName: 'mintApe',
-        args: [1n],
-        sender: accounts[0].address,
-      },
-    )
-    expect(error).toMatchInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "mintApe" reverted with the following reason:
-      Sale must be active to mint Ape
-
-      Contract Call:
-        function:  mintApe(uint256 numberOfTokens)
-        args:             (1)
-        sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
-
-      Version: viem@x.y.z]
-    `)
-    expect(error.cause).toMatchInlineSnapshot(`
-      [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
-      Sale must be active to mint Ape
-
-      Version: viem@x.y.z]
-    `)
-  })
-
-  test('default: rpc (invalid input rpc code with execution reverted)', () => {
-    const error = getContractError(
-      new BaseError('An RPC error occurred', {
-        cause: {
-          code: -32000,
-          details: 'execution reverted',
           data: '0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001f53616c65206d7573742062652061637469766520746f206d696e742041706500',
         } as unknown as Error,
       }),

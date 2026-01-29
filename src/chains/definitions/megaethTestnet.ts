@@ -1,8 +1,7 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const megaethTestnet = /*#__PURE__*/ defineChain({
-  id: 6343,
-  blockTime: 1_000,
+  id: 6342,
   name: 'MegaETH Testnet',
   nativeCurrency: {
     name: 'MegaETH Testnet Ether',
@@ -19,11 +18,6 @@ export const megaethTestnet = /*#__PURE__*/ defineChain({
     default: {
       name: 'MegaETH Testnet Explorer',
       url: 'https://www.megaexplorer.xyz/',
-    },
-    blockscout: {
-      name: 'Blockscout',
-      url: 'https://megaeth-testnet-v2.blockscout.com',
-      apiUrl: 'https://megaeth-testnet-v2.blockscout.com/api',
     },
   },
   contracts: {

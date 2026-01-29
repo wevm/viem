@@ -18,19 +18,24 @@ runs:
       with:
         cache: pnpm
         cache-dependency-path: ./wagmi/pnpm-lock.yaml
+        node-version: 22
 
     - name: Build viem
       shell: bash
       run: pnpm build
 
-    - shell: bash
-      working-directory: ./wagmi
-      run: |
-        node -e "import fs from 'fs'; const p = JSON.parse(fs.readFileSync('./package.json', 'utf8')); p.pnpm = p.pnpm || {}; p.pnpm.overrides = p.pnpm.overrides || {}; p.pnpm.overrides.viem = 'file:../src'; fs.writeFileSync('package.json', JSON.stringify(p, null, 2));"
-
     - name: Install dependencies
       shell: bash
-      run: pnpm install --no-frozen-lockfile
+      run: pnpm install
+      working-directory: ./wagmi
+
+    - shell: bash
+      run: pnpm i viem@file:../src -w
+      working-directory: ./wagmi
+
+    - name: Build packages
+      shell: bash
+      run: pnpm build
       working-directory: ./wagmi
 
     - name: Link packages

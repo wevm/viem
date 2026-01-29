@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const koi = /*#__PURE__*/ defineChain({
+export const koi = defineChain({
   id: 701,
   name: 'Koi Network',
   nativeCurrency: {

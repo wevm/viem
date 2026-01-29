@@ -80,12 +80,6 @@ export type PrepareUserOperationParameterType =
 type FactoryProperties<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > =
-  | (entryPointVersion extends '0.9'
-      ? {
-          factory: UserOperation['factory']
-          factoryData: UserOperation['factoryData']
-        }
-      : never)
   | (entryPointVersion extends '0.8'
       ? {
           factory: UserOperation['factory']
@@ -107,15 +101,6 @@ type FactoryProperties<
 type GasProperties<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > =
-  | (entryPointVersion extends '0.9'
-      ? {
-          callGasLimit: UserOperation['callGasLimit']
-          preVerificationGas: UserOperation['preVerificationGas']
-          verificationGasLimit: UserOperation['verificationGasLimit']
-          paymasterPostOpGasLimit: UserOperation['paymasterPostOpGasLimit']
-          paymasterVerificationGasLimit: UserOperation['paymasterVerificationGasLimit']
-        }
-      : never)
   | (entryPointVersion extends '0.8'
       ? {
           callGasLimit: UserOperation['callGasLimit']
@@ -154,14 +139,6 @@ type NonceProperties = {
 type PaymasterProperties<
   entryPointVersion extends EntryPointVersion = EntryPointVersion,
 > =
-  | (entryPointVersion extends '0.9'
-      ? {
-          paymaster: UserOperation['paymaster']
-          paymasterData: UserOperation['paymasterData']
-          paymasterPostOpGasLimit: UserOperation['paymasterPostOpGasLimit']
-          paymasterVerificationGasLimit: UserOperation['paymasterVerificationGasLimit']
-        }
-      : never)
   | (entryPointVersion extends '0.8'
       ? {
           paymaster: UserOperation['paymaster']
@@ -206,8 +183,6 @@ export type PrepareUserOperationRequest<
 > = Assign<
   UserOperationRequest<_derivedVersion>,
   OneOf<{ calls: Calls<Narrow<calls>> } | { callData: Hex }> & {
-    /** Data to append to the end of User Operation calldata. */
-    dataSuffix?: Hex | undefined
     parameters?: readonly PrepareUserOperationParameterType[] | undefined
     paymaster?:
       | Address
@@ -339,9 +314,6 @@ export async function prepareUserOperation<
   const parameters = parameters_ as PrepareUserOperationParameters
   const {
     account: account_ = client.account,
-    dataSuffix = typeof client.dataSuffix === 'string'
-      ? client.dataSuffix
-      : client.dataSuffix?.value,
     parameters: properties = defaultParameters,
     stateOverride,
   } = parameters
@@ -543,8 +515,7 @@ export async function prepareUserOperation<
   // Fill User Operation with the prepared properties from above.
   ////////////////////////////////////////////////////////////////////////////////
 
-  if (typeof callData !== 'undefined')
-    request.callData = dataSuffix ? concat([callData, dataSuffix]) : callData
+  if (typeof callData !== 'undefined') request.callData = callData
   if (typeof factory !== 'undefined')
     request = { ...request, ...(factory as any) }
   if (typeof fees !== 'undefined') request = { ...request, ...(fees as any) }
@@ -597,7 +568,7 @@ export async function prepareUserOperation<
   ) {
     const {
       isFinal = false,
-      sponsor: _,
+      sponsor,
       ...paymasterArgs
     } = await getPaymasterStubData({
       chainId: await getChainId(),

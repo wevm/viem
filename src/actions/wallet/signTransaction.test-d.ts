@@ -1,18 +1,20 @@
 import type { Address } from 'abitype'
 
 import { expectTypeOf, test } from 'vitest'
-import { anvilMainnet } from '~test/anvil.js'
+
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import type { Account } from '../../accounts/types.js'
 import { createWalletClient } from '../../clients/createWalletClient.js'
 import { http } from '../../clients/transports/http.js'
+import type { Chain } from '../../types/chain.js'
+
 import type {
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
   TransactionSerializedEIP4844,
   TransactionSerializedEIP7702,
   TransactionSerializedLegacy,
-} from '../../index.js'
-import type { Chain } from '../../types/chain.js'
+} from '~viem/index.js'
 import { signTransaction } from './signTransaction.js'
 
 const walletClient = createWalletClient({
@@ -103,12 +105,12 @@ test('eip7702', () => {
 
 test('eip4844', () => {
   const signature1 = signTransaction(walletClient, {
-    blobVersionedHashes: [],
+    blobs: [],
     maxFeePerBlobGas: 0n,
     to: '0x0000000000000000000000000000000000000000',
   })
   const signature2 = signTransaction(walletClient, {
-    blobVersionedHashes: [],
+    blobs: [],
     maxFeePerBlobGas: 0n,
     to: '0x0000000000000000000000000000000000000000',
     type: 'eip4844',

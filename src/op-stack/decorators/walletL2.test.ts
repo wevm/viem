@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
-import { anvilMainnet } from '~test/anvil.js'
-import { accounts } from '~test/constants.js'
+
+import { accounts } from '~test/src/constants.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { walletActionsL2 } from './walletL2.js'
 
 const client = anvilMainnet.getClient()

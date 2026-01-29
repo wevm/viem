@@ -1,7 +1,9 @@
 import type { Address, TypedData } from 'abitype'
-import type { ErrorType } from '../../errors/utils.js'
+
 import type { ByteArray, Hex, Signature } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
+
+import type { ErrorType } from '../../errors/utils.js'
 import { type HashTypedDataErrorType, hashTypedData } from './hashTypedData.js'
 import {
   type RecoverAddressErrorType,

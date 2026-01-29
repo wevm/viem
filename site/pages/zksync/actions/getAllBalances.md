@@ -6,12 +6,6 @@ description: Returns all known balances for a given account.
 
 Returns all known balances for a given account.
 
-:::warning
-**This Action has been deprecated.**
-
-This method calls an RPC method that [has been removed from the node API](https://github.com/zkSync-Community-Hub/zksync-developers/discussions/1019).
-:::
-
 ## Usage
 
 :::code-group

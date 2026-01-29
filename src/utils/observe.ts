@@ -12,14 +12,11 @@ export const listenersCache = /*#__PURE__*/ new Map<
   { id: number; fns: Callbacks }[]
 >()
 /** @internal */
-export const cleanupCache = /*#__PURE__*/ new Map<
-  string,
-  () => void | Promise<void>
->()
+export const cleanupCache = /*#__PURE__*/ new Map<string, () => void>()
 
 type EmitFunction<callbacks extends Callbacks> = (
   emit: callbacks,
-) => MaybePromise<void | (() => void) | (() => Promise<void>)>
+) => MaybePromise<void | (() => void)>
 
 let callbackCount = 0
 
@@ -49,10 +46,7 @@ export function observe<callbacks extends Callbacks>(
     const listeners = getListeners()
     if (!listeners.some((cb: any) => cb.id === callbackId)) return
     const cleanup = cleanupCache.get(observerId)
-    if (listeners.length === 1 && cleanup) {
-      const p = cleanup()
-      if (p instanceof Promise) p.catch(() => {})
-    }
+    if (listeners.length === 1 && cleanup) cleanup()
     unsubscribe()
   }
 

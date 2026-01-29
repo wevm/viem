@@ -1,6 +1,8 @@
 import { describe, expect, test, vi } from 'vitest'
-import { anvilMainnet } from '~test/anvil.js'
-import { createHttpServer } from '~test/utils.js'
+
+import { createHttpServer } from '~test/src/utils.js'
+
+import { anvilMainnet } from '../../../../test/src/anvil.js'
 
 import {
   getGateway,

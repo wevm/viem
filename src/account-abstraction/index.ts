@@ -2,8 +2,8 @@
 export {
   type CreateWebAuthnCredentialParameters,
   type CreateWebAuthnCredentialReturnType,
-  createWebAuthnCredential,
   type P256Credential,
+  createWebAuthnCredential,
 } from './accounts/createWebAuthnCredential.js'
 export {
   type CoinbaseSmartAccountImplementation,
@@ -12,33 +12,32 @@ export {
   toCoinbaseSmartAccount,
 } from './accounts/implementations/toCoinbaseSmartAccount.js'
 export {
-  type Simple7702SmartAccountImplementation,
-  type ToSimple7702SmartAccountParameters,
-  type ToSimple7702SmartAccountReturnType,
-  toSimple7702SmartAccount,
-} from './accounts/implementations/toSimple7702SmartAccount.js'
-export {
   type SoladySmartAccountImplementation,
   type ToSoladySmartAccountParameters,
   type ToSoladySmartAccountReturnType,
   toSoladySmartAccount,
 } from './accounts/implementations/toSoladySmartAccount.js'
 export {
+  type Simple7702SmartAccountImplementation,
+  type ToSimple7702SmartAccountParameters,
+  type ToSimple7702SmartAccountReturnType,
+  toSimple7702SmartAccount,
+} from './accounts/implementations/toSimple7702SmartAccount.js'
+export {
   type ToSmartAccountParameters,
   type ToSmartAccountReturnType,
   toSmartAccount,
 } from './accounts/toSmartAccount.js'
 export {
-  type ToWebAuthnAccountErrorType,
   type ToWebAuthnAccountParameters,
   type ToWebAuthnAccountReturnType,
+  type ToWebAuthnAccountErrorType,
   toWebAuthnAccount,
 } from './accounts/toWebAuthnAccount.js'
 export type {
   SmartAccount,
   SmartAccountImplementation,
   WebAuthnAccount,
-  WebAuthnSignReturnType,
 } from './accounts/types.js'
 
 export {
@@ -65,11 +64,11 @@ export {
   getUserOperationReceipt,
 } from './actions/bundler/getUserOperationReceipt.js'
 export {
-  type PrepareUserOperationErrorType,
   type PrepareUserOperationParameters,
   type PrepareUserOperationParameterType,
-  type PrepareUserOperationRequest,
   type PrepareUserOperationReturnType,
+  type PrepareUserOperationErrorType,
+  type PrepareUserOperationRequest,
   prepareUserOperation,
 } from './actions/bundler/prepareUserOperation.js'
 export {
@@ -86,29 +85,18 @@ export {
 } from './actions/bundler/waitForUserOperationReceipt.js'
 
 export {
-  type GetPaymasterDataErrorType,
   type GetPaymasterDataParameters,
   type GetPaymasterDataReturnType,
+  type GetPaymasterDataErrorType,
   getPaymasterData,
 } from './actions/paymaster/getPaymasterData.js'
 export {
-  type GetPaymasterStubDataErrorType,
   type GetPaymasterStubDataParameters,
   type GetPaymasterStubDataReturnType,
+  type GetPaymasterStubDataErrorType,
   getPaymasterStubData,
 } from './actions/paymaster/getPaymasterStubData.js'
-export {
-  type BundlerClient,
-  type BundlerClientConfig,
-  type CreateBundlerClientErrorType,
-  createBundlerClient,
-} from './clients/createBundlerClient.js'
-export {
-  type CreatePaymasterClientErrorType,
-  createPaymasterClient,
-  type PaymasterClient,
-  type PaymasterClientConfig,
-} from './clients/createPaymasterClient.js'
+
 export {
   type BundlerActions,
   bundlerActions,
@@ -117,18 +105,28 @@ export {
   type PaymasterActions,
   paymasterActions,
 } from './clients/decorators/paymaster.js'
+export {
+  type BundlerClient,
+  type BundlerClientConfig,
+  type CreateBundlerClientErrorType,
+  createBundlerClient,
+} from './clients/createBundlerClient.js'
+export {
+  type PaymasterClient,
+  type PaymasterClientConfig,
+  type CreatePaymasterClientErrorType,
+  createPaymasterClient,
+} from './clients/createPaymasterClient.js'
 
 export {
   entryPoint06Abi,
   entryPoint07Abi,
   entryPoint08Abi,
-  entryPoint09Abi,
 } from './constants/abis.js'
 export {
   entryPoint06Address,
   entryPoint07Address,
   entryPoint08Address,
-  entryPoint09Address,
 } from './constants/address.js'
 
 export {
@@ -140,8 +138,6 @@ export {
   type GasValuesOverflowErrorType,
   HandleOpsOutOfGasError,
   type HandleOpsOutOfGasErrorType,
-  InitCodeFailedError,
-  type InitCodeFailedErrorType,
   InitCodeMustCreateSenderError,
   type InitCodeMustCreateSenderErrorType,
   InitCodeMustReturnSenderError,
@@ -150,6 +146,8 @@ export {
   type InsufficientPrefundErrorType,
   InternalCallOnlyError,
   type InternalCallOnlyErrorType,
+  InitCodeFailedError,
+  type InitCodeFailedErrorType,
   InvalidAggregatorError,
   type InvalidAggregatorErrorType,
   InvalidBeneficiaryError,
@@ -168,8 +166,6 @@ export {
   type SenderAlreadyConstructedErrorType,
   SmartAccountFunctionRevertedError,
   type SmartAccountFunctionRevertedErrorType,
-  UnknownBundlerError,
-  type UnknownBundlerErrorType,
   UserOperationExpiredError,
   type UserOperationExpiredErrorType,
   UserOperationPaymasterExpiredError,
@@ -182,6 +178,8 @@ export {
   type VerificationGasLimitExceededErrorType,
   VerificationGasLimitTooLowError,
   type VerificationGasLimitTooLowErrorType,
+  UnknownBundlerError,
+  type UnknownBundlerErrorType,
 } from './errors/bundler.js'
 export {
   UserOperationExecutionError,
@@ -211,10 +209,10 @@ export type {
   RpcUserOperationRequest,
 } from './types/rpc.js'
 export type {
-  PackedUserOperation,
   UserOperation,
   UserOperationReceipt,
   UserOperationRequest,
+  PackedUserOperation,
 } from './types/userOperation.js'
 
 export {
@@ -223,9 +221,9 @@ export {
   getBundlerError,
 } from './utils/errors/getBundlerError.js'
 export {
-  type GetUserOperationErrorErrorType,
   type GetUserOperationErrorParameters,
   type GetUserOperationErrorReturnType,
+  type GetUserOperationErrorErrorType,
   getUserOperationError,
 } from './utils/errors/getUserOperationError.js'
 export {
@@ -245,10 +243,6 @@ export {
   formatUserOperationRequest,
 } from './utils/formatters/userOperationRequest.js'
 export {
-  type GetInitCodeOptions,
-  getInitCode,
-} from './utils/userOperation/getInitCode.js'
-export {
   type GetUserOperationHashParameters,
   type GetUserOperationHashReturnType,
   getUserOperationHash,
@@ -258,8 +252,4 @@ export {
   type GetUserOperationTypedDataReturnType,
   getUserOperationTypedData,
 } from './utils/userOperation/getUserOperationTypedData.js'
-export {
-  type ToPackedUserOperationOptions,
-  toPackedUserOperation,
-} from './utils/userOperation/toPackedUserOperation.js'
-export { toUserOperation } from './utils/userOperation/toUserOperation.js'
+export { toPackedUserOperation } from './utils/userOperation/toPackedUserOperation.js'

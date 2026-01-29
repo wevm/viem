@@ -8,7 +8,9 @@ const client = createPublicClient({
 
 const webSocketClient = createPublicClient({
   chain: mainnet,
-  transport: webSocket('wss://ethereum-rpc.publicnode.com'),
+  transport: webSocket(
+    'wss://eth-mainnet.g.alchemy.com/v2/WV-bLot1hKjjCfpPq603Ro-jViFzwYX8',
+  ),
 })
 ;(async () => {
   await client.getBlockNumber()

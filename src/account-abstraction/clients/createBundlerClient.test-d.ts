@@ -1,5 +1,5 @@
 import { expectTypeOf, test } from 'vitest'
-import { getSmartAccounts_07 } from '~test/account-abstraction.js'
+import { getSmartAccounts_07 } from '../../../test/src/account-abstraction.js'
 import { localhost } from '../../chains/index.js'
 import { createClient, rpcSchema } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'

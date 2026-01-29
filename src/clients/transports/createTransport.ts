@@ -1,5 +1,4 @@
 import type { ErrorType } from '../../errors/utils.js'
-import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import type { EIP1193RequestFn } from '../../types/eip1193.js'
 import type { OneOf } from '../../types/utils.js'
@@ -45,7 +44,6 @@ export type Transport<
 > = <chain extends Chain | undefined = Chain>({
   chain,
 }: {
-  account?: Account | undefined
   chain?: chain | undefined
   pollingInterval?: ClientConfig['pollingInterval'] | undefined
   retryCount?: TransportConfig['retryCount'] | undefined

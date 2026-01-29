@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { mainnetClient } from '~test/utils.js'
+import { mainnetClient } from '~test/src/utils.js'
 import { getL2TransactionHashes } from './getL2TransactionHashes.js'
 
 test('default', async () => {

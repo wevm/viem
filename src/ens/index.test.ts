@@ -15,7 +15,6 @@ test('exports ens', () => {
       "normalize": [Function],
       "packetToBytes": [Function],
       "parseAvatarRecord": [Function],
-      "toCoinType": [Function],
     }
   `)
 })

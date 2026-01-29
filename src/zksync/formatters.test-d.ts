@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, test } from 'vitest'
 
-import { accounts } from '~test/constants.js'
+import { accounts } from '~test/src/constants.js'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import { getBlock } from '../actions/public/getBlock.js'
 import { getTransaction } from '../actions/public/getTransaction.js'

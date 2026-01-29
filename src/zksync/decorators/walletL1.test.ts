@@ -1,19 +1,19 @@
 import { expect, test } from 'vitest'
-import { anvilMainnet, anvilZksync } from '~test/anvil.js'
+import { anvilMainnet, anvilZksync } from '~test/src/anvil.js'
 import {
   accounts,
   mockFailedDepositReceipt,
   mockFailedDepositTransaction,
   mockLogProof,
   mockRequestReturnData,
-} from '~test/zksync.js'
-import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
-import type { EIP1193RequestFn } from '../../index.js'
+} from '~test/src/zksync.js'
+import { privateKeyToAccount } from '~viem/accounts/privateKeyToAccount.js'
+import type { EIP1193RequestFn } from '~viem/index.js'
 import {
   legacyEthAddress,
   publicActionsL2,
   walletActionsL1,
-} from '../../zksync/index.js'
+} from '~viem/zksync/index.js'
 
 const baseClient = anvilMainnet.getClient({
   batch: { multicall: false },

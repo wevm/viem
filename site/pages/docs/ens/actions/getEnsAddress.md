@@ -38,31 +38,6 @@ export const publicClient = createPublicClient({
 Since ENS names prohibit certain forbidden characters (e.g. underscore) and have other validation rules, you likely want to [normalize ENS names](https://docs.ens.domains/contract-api-reference/name-processing#normalising-names) with [UTS-46 normalization](https://unicode.org/reports/tr46) before passing them to `getEnsAddress`. You can use the built-in [`normalize`](/docs/ens/utilities/normalize) function for this.
 :::
 
-### Chain-specific Resolution
-
-`getEnsAddress` also supports chain-specific address resolution via [ENSIP-19](https://docs.ens.domains/ensip/19/).
-
-In order to use chain-specific resolution, you must:
-1. Ensure your client is configured with `mainnet` (or another L1 that supports ENS Universal Resolver)
-2. Pass a `coinType` parameter to `getEnsAddress` (as seen in `example.ts`)
-
-```ts 
-import { createPublicClient, http } from 'viem'
-import { mainnet, base } from 'viem/chains'
-import { normalize, toCoinType } from 'viem/ens'
-
-export const publicClient = createPublicClient({
-  chain: mainnet, // [!code focus]
-  transport: http()
-})
- 
-const ensAddress = await publicClient.getEnsAddress({
-  name: normalize('wevm.eth'),
-  coinType: toCoinType(base.id), // [!code focus]
-})
-// '0xd2135CfB216b74109775236E36d4b433F1DF507B'
-```
-
 ## Returns
 
 [`Address`](/docs/glossary/types#address)
@@ -116,14 +91,12 @@ const ensAddress = await publicClient.getEnsAddress({
 
 - **Type:** `number`
 
-The [ENSIP-9](https://docs.ens.domains/ens-improvement-proposals/ensip-9-multichain-address-resolution) coin type (chain) to fetch the address for
+The [ENSIP-9](https://docs.ens.domains/ens-improvement-proposals/ensip-9-multichain-address-resolution) coin type to fetch the address for
 
 ```ts
-import { base } from 'viem/chains'
-
 const ensAddress = await publicClient.getEnsAddress({
   name: normalize('wevm.eth'), 
-  coinType: toCoinType(base.id), // [!code focus]
+  coinType: 60, // [!code focus]
 })
 ```
 

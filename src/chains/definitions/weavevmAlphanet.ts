@@ -1,6 +1,5 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-/** @deprecated Use `loadAlphanet` instead. */
 export const weaveVMAlphanet = /*#__PURE__*/ defineChain({
   id: 9496,
   name: 'WeaveVM Alphanet',

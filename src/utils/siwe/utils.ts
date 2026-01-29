@@ -2,7 +2,8 @@ export function isUri(value: string) {
   // based on https://github.com/ogt/valid-url
 
   // check for illegal characters
-  if (/[^a-z0-9:/?#[\]@!$&'()*+,;=.\-_~%]/i.test(value)) return false
+  if (/[^a-z0-9\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=\.\-\_\~\%]/i.test(value))
+    return false
 
   // check for hex escapes that aren't complete
   if (/%[^0-9a-f]/i.test(value)) return false
@@ -28,7 +29,7 @@ export function isUri(value: string) {
   }
 
   // scheme must begin with a letter, then consist of letters, digits, +, ., or -
-  if (!/^[a-z][a-z0-9+\-.]*$/.test(scheme.toLowerCase())) return false
+  if (!/^[a-z][a-z0-9\+\-\.]*$/.test(scheme.toLowerCase())) return false
 
   let out = ''
   // re-assemble the URL per section 5.3 in RFC 3986
@@ -45,6 +46,6 @@ export function isUri(value: string) {
 
 function splitUri(value: string) {
   return value.match(
-    /(?:([^:/?#]+):)?(?:\/\/([^/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?/,
+    /(?:([^:\/?#]+):)?(?:\/\/([^\/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?/,
   )!
 }

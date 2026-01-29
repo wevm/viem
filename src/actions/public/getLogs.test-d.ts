@@ -1,7 +1,7 @@
 import type { AbiEvent } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
-import { anvilMainnet } from '~test/anvil.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import type { Hash, Hex } from '../../types/misc.js'
 import { getLogs } from './getLogs.js'

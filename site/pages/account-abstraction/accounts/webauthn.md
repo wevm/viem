@@ -41,7 +41,6 @@ const owner = toWebAuthnAccount({
 const account = toCoinbaseSmartAccount({
   client,
   owners: [owner],
-  version: '1.1',
 })
 ```
 

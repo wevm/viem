@@ -1,5 +1,10 @@
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
 export {
+  type ToSmartAccountErrorType,
+  type ToSmartAccountParameters,
+  toSmartAccount,
+} from './accounts/toSmartAccount.js'
+export {
   type ToMultisigSmartAccountParameters,
   toMultisigSmartAccount,
 } from './accounts/toMultisigSmartAccount.js'
@@ -7,17 +12,7 @@ export {
   type ToSinglesigSmartAccountParameters,
   toSinglesigSmartAccount,
 } from './accounts/toSinglesigSmartAccount.js'
-export {
-  type ToSmartAccountErrorType,
-  type ToSmartAccountParameters,
-  toSmartAccount,
-} from './accounts/toSmartAccount.js'
-export {
-  type ClaimFailedDepositErrorType,
-  type ClaimFailedDepositParameters,
-  type ClaimFailedDepositReturnType,
-  claimFailedDeposit,
-} from './actions/claimFailedDeposit.js'
+
 export {
   type DeployContractErrorType,
   type DeployContractParameters,
@@ -25,9 +20,24 @@ export {
   deployContract,
 } from './actions/deployContract.js'
 export {
+  type EncodeDeployDataParameters,
+  type EncodeDeployDataErrorType,
+  encodeDeployData,
+} from './utils/abi/encodeDeployData.js'
+export {
+  type HashBytecodeErrorType,
+  hashBytecode,
+} from './utils/hashBytecode.js'
+export {
+  type ClaimFailedDepositErrorType,
+  type ClaimFailedDepositParameters,
+  type ClaimFailedDepositReturnType,
+  claimFailedDeposit,
+} from './actions/claimFailedDeposit.js'
+export {
   type DepositErrorType,
-  type DepositParameters,
   type DepositReturnType,
+  type DepositParameters,
   deposit,
 } from './actions/deposit.js'
 export {
@@ -35,12 +45,6 @@ export {
   type EstimateFeeReturnType,
   estimateFee,
 } from './actions/estimateFee.js'
-export {
-  type FinalizeWithdrawalErrorType,
-  type FinalizeWithdrawalParameters,
-  type FinalizeWithdrawalReturnType,
-  finalizeWithdrawal,
-} from './actions/finalizeWithdrawal.js'
 export {
   type GetAllBalancesParameters,
   type GetAllBalancesReturnType,
@@ -51,15 +55,11 @@ export {
   type GetBlockDetailsReturnType,
   getBlockDetails,
 } from './actions/getBlockDetails.js'
-export { getBridgehubContractAddress } from './actions/getBridgehubContractAddress.js'
 export {
   type GetDefaultBridgeAddressesReturnType,
   getDefaultBridgeAddresses,
 } from './actions/getDefaultBridgeAddresses.js'
-export {
-  type GetGasPerPubdataReturnType,
-  getGasPerPubdata,
-} from './actions/getGasPerPubdata.js'
+export { getBridgehubContractAddress } from './actions/getBridgehubContractAddress.js'
 export {
   type GetL1AllowanceErrorType,
   type GetL1AllowanceParameters,
@@ -85,24 +85,14 @@ export {
 export { getL1BatchNumber } from './actions/getL1BatchNumber.js'
 export { getL1ChainId } from './actions/getL1ChainId.js'
 export {
-  type GetL1TokenAddressParameters,
-  type GetL1TokenAddressReturnType,
-  getL1TokenAddress,
-} from './actions/getL1TokenAddress.js'
-export {
   type GetL1TokenBalanceErrorType,
   type GetL1TokenBalanceParameters,
   type GetL1TokenBalanceReturnType,
   getL1TokenBalance,
 } from './actions/getL1TokenBalance.js'
 export {
-  type GetL2TokenAddressParameters,
-  type GetL2TokenAddressReturnType,
-  getL2TokenAddress,
-} from './actions/getL2TokenAddress.js'
-export {
-  type GetLogProofParameters,
   type GetLogProofReturnType,
+  type GetLogProofParameters,
   getLogProof,
 } from './actions/getLogProof.js'
 export { getMainContractAddress } from './actions/getMainContractAddress.js'
@@ -119,28 +109,28 @@ export {
 } from './actions/getTransactionDetails.js'
 export {
   type IsWithdrawalFinalizedErrorType,
-  type IsWithdrawalFinalizedParameters,
   type IsWithdrawalFinalizedReturnType,
+  type IsWithdrawalFinalizedParameters,
   isWithdrawalFinalized,
 } from './actions/isWithdrawalFinalized.js'
 export {
   type RequestExecuteErrorType,
-  type RequestExecuteParameters,
   type RequestExecuteReturnType,
+  type RequestExecuteParameters,
   requestExecute,
 } from './actions/requestExecute.js'
-export {
-  type SendEip712TransactionErrorType,
-  type SendEip712TransactionParameters,
-  type SendEip712TransactionReturnType,
-  sendEip712Transaction,
-} from './actions/sendEip712Transaction.js'
 export {
   type SendTransactionErrorType,
   type SendTransactionParameters,
   type SendTransactionReturnType,
   sendTransaction,
 } from './actions/sendTransaction.js'
+export {
+  type SendEip712TransactionErrorType,
+  type SendEip712TransactionParameters,
+  type SendEip712TransactionReturnType,
+  sendEip712Transaction,
+} from './actions/sendEip712Transaction.js'
 export {
   type SignEip712TransactionErrorType,
   type SignEip712TransactionParameters,
@@ -154,22 +144,43 @@ export {
   signTransaction,
 } from './actions/signTransaction.js'
 export {
+  type GetL2TokenAddressReturnType,
+  type GetL2TokenAddressParameters,
+  getL2TokenAddress,
+} from './actions/getL2TokenAddress.js'
+export {
+  type GetL1TokenAddressReturnType,
+  type GetL1TokenAddressParameters,
+  getL1TokenAddress,
+} from './actions/getL1TokenAddress.js'
+export {
   type WithdrawErrorType,
   type WithdrawParameters,
   type WithdrawReturnType,
   withdraw,
 } from './actions/withdraw.js'
-export { chainConfig } from './chainConfig.js'
+export {
+  type FinalizeWithdrawalErrorType,
+  type FinalizeWithdrawalParameters,
+  type FinalizeWithdrawalReturnType,
+  finalizeWithdrawal,
+} from './actions/finalizeWithdrawal.js'
+
+export {
+  legacyEthAddress,
+  l2BaseTokenAddress,
+} from './constants/address.js'
+
 export {
   /** @deprecated Use `zksync` instead */
   zksync as zkSync,
   zksync,
   /** @deprecated Use `zksync` instead */
   zksyncInMemoryNode as zkSyncInMemoryNode,
-  zksyncInMemoryNode,
   zksyncLocalCustomHyperchain,
   zksyncLocalHyperchain,
   zksyncLocalHyperchainL1,
+  zksyncInMemoryNode,
   /** @deprecated Use `zksync` instead */
   zksyncLocalNode as zkSyncLocalNode,
   zksyncLocalNode,
@@ -178,42 +189,46 @@ export {
   zksyncSepoliaTestnet,
 } from './chains.js'
 
+export { chainConfig } from './chainConfig.js'
+
 export {
-  l2BaseTokenAddress,
-  legacyEthAddress,
-} from './constants/address.js'
-export {
-  type Eip712WalletActions,
   eip712WalletActions,
+  type Eip712WalletActions,
 } from './decorators/eip712.js'
+
 export {
-  type PublicActionsL1,
   publicActionsL1,
+  type PublicActionsL1,
 } from './decorators/publicL1.js'
+
 export {
-  type PublicActionsL2,
   publicActionsL2,
+  type PublicActionsL2,
 } from './decorators/publicL2.js'
+
 export {
-  type WalletActionsL1,
   walletActionsL1,
+  type WalletActionsL1,
 } from './decorators/walletL1.js'
+
 export {
-  type WalletActionsL2,
   walletActionsL2,
+  type WalletActionsL2,
 } from './decorators/walletL2.js'
+
 export { serializeTransaction } from './serializers.js'
+
 export type { ZksyncSmartAccount } from './types/account.js'
 export type {
-  ZksyncBatchDetails,
   /** @deprecated Use `ZksyncBlock` instead */
   ZksyncBlock as ZkSyncBlock,
   ZksyncBlock,
-  ZksyncBlockDetails,
-  ZksyncNumberParameter,
   /** @deprecated Use `ZksyncRpcBlock` instead */
   ZksyncRpcBlock as ZkSyncRpcBlock,
   ZksyncRpcBlock,
+  ZksyncBatchDetails,
+  ZksyncBlockDetails,
+  ZksyncNumberParameter,
 } from './types/block.js'
 export type { ChainEIP712 } from './types/chain.js'
 export type {
@@ -225,10 +240,10 @@ export type {
 } from './types/eip712.js'
 export type {
   CommonDataRawBlockTransaction,
+  RawBlockTransactions,
   PublicZksyncRpcSchema,
   /** @deprecated Use `PublicZksyncRpcSchema` instead */
   PublicZksyncRpcSchema as PublicZkSyncRpcSchema,
-  RawBlockTransactions,
 } from './types/eip1193.js'
 export type {
   /** @deprecated Use `ZksyncFeeValues` instead */
@@ -249,17 +264,15 @@ export type {
   ZksyncRpcLog as ZkSyncRpcLog,
   ZksyncRpcLog,
 } from './types/log.js'
+
 export type {
+  TransactionRequestEIP712,
   /** @deprecated Use `ZksyncTransactionRequest_internal` instead */
   TransactionRequest as ZkSyncTransactionRequest_internal,
   TransactionRequest as ZksyncTransactionRequest_internal,
-  TransactionRequestEIP712,
   /** @deprecated Use `ZksyncEIP712TransactionSignable` instead */
   ZksyncEIP712TransactionSignable as ZkSyncEIP712TransactionSignable,
   ZksyncEIP712TransactionSignable,
-  /** @deprecated Use `ZksyncRawBlockTransactions` instead */
-  ZksyncRawBlockTransactions as ZkSyncRawBlockTransactions,
-  ZksyncRawBlockTransactions,
   /** @deprecated Use `ZksyncRpcTransaction` instead */
   ZksyncRpcTransaction as ZkSyncRpcTransaction,
   ZksyncRpcTransaction,
@@ -269,9 +282,6 @@ export type {
   /** @deprecated Use `ZksyncRpcTransactionPriority` instead */
   ZksyncRpcTransactionPriority as ZkSyncRpcTransactionPriority,
   ZksyncRpcTransactionPriority,
-  /** @deprecated Use `ZksyncRpcTransactionReceipt` instead */
-  ZksyncRpcTransactionReceipt as ZkSyncRpcTransactionReceipt,
-  ZksyncRpcTransactionReceipt,
   /** @deprecated Use `ZksyncRpcTransactionReceiptOverrides` instead */
   ZksyncRpcTransactionReceiptOverrides as ZkSyncRpcTransactionReceiptOverrides,
   ZksyncRpcTransactionReceiptOverrides,
@@ -284,9 +294,6 @@ export type {
   /** @deprecated Use `ZksyncTransaction` instead */
   ZksyncTransaction as ZkSyncTransaction,
   ZksyncTransaction,
-  /** @deprecated Use `ZksyncTransactionDetails` instead */
-  ZksyncTransactionDetails as ZkSyncTransactionDetails,
-  ZksyncTransactionDetails,
   /** @deprecated Use `ZksyncTransactionEIP712` instead */
   ZksyncTransactionEIP712 as ZkSyncTransactionEIP712,
   ZksyncTransactionEIP712,
@@ -317,32 +324,22 @@ export type {
   /** @deprecated Use `ZksyncTransactionType` instead */
   ZksyncTransactionType as ZkSyncTransactionType,
   ZksyncTransactionType,
+  /** @deprecated Use `ZksyncRawBlockTransactions` instead */
+  ZksyncRawBlockTransactions as ZkSyncRawBlockTransactions,
+  ZksyncRawBlockTransactions,
+  /** @deprecated Use `ZksyncRpcTransactionReceipt` instead */
+  ZksyncRpcTransactionReceipt as ZkSyncRpcTransactionReceipt,
+  ZksyncRpcTransactionReceipt,
+  /** @deprecated Use `ZksyncTransactionDetails` instead */
+  ZksyncTransactionDetails as ZkSyncTransactionDetails,
+  ZksyncTransactionDetails,
 } from './types/transaction.js'
-export {
-  type EncodeDeployDataErrorType,
-  type EncodeDeployDataParameters,
-  encodeDeployData,
-} from './utils/abi/encodeDeployData.js'
+
 export {
   type GetL2HashFromPriorityOpErrorType,
   getL2HashFromPriorityOp,
 } from './utils/bridge/getL2HashFromPriorityOp.js'
-export {
-  type GetWithdrawalL2ToL1LogParameters,
-  type GetWithdrawalL2ToL1LogReturnType,
-  getWithdrawalL2ToL1Log,
-} from './utils/bridge/getWithdrawalL2ToL1Log.js'
-export {
-  type GetWithdrawalLogParameters,
-  type GetWithdrawalLogReturnType,
-  getWithdrawalLog,
-} from './utils/bridge/getWithdrawalLog.js'
 export { undoL1ToL2Alias } from './utils/bridge/undoL1ToL2Alias.js'
-export {
-  type HashBytecodeErrorType,
-  hashBytecode,
-} from './utils/hashBytecode.js'
-export { parseEip712Transaction } from './utils/parseEip712Transaction.js'
 export {
   type GetApprovalBasedPaymasterInputParameters,
   type GetApprovalBasedPaymasterInputReturnType,
@@ -353,3 +350,4 @@ export {
   type GetGeneralPaymasterInputReturnType,
   getGeneralPaymasterInput,
 } from './utils/paymaster/getGeneralPaymasterInput.js'
+export { parseEip712Transaction } from './utils/parseEip712Transaction.js'

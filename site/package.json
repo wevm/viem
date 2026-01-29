@@ -4,20 +4,15 @@
   "type": "module",
   "scripts": {
     "dev": "vocs dev",
-    "build": "NODE_OPTIONS='--max-old-space-size=8192' vocs build",
+    "build": "NODE_OPTIONS=\"--max-old-space-size=8192\" vocs build --searchIndex false && vocs search-index",
     "twoslash": "vocs twoslash",
     "preview": "vocs preview"
   },
   "devDependencies": {
-    "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
-    "react": "catalog:",
-    "react-dom": "catalog:",
-    "react-server-dom-webpack": "~19.2.3",
-    "tailwindcss": "^4.1.16",
+    "react": "^19",
+    "react-dom": "^19",
+    "tailwindcss": "^4.0.6",
     "viem": "workspace:*",
-    "vite": "^7.1.11",
-    "vocs": "https://pkg.pr.new/wevm/vocs@e0b0867",
-    "waku": "1.0.0-alpha.2"
+    "vocs": "^1.0.11"
   }
 }

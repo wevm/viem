@@ -5,7 +5,6 @@ export const pulsechain = /*#__PURE__*/ defineChain({
   name: 'PulseChain',
   nativeCurrency: { name: 'Pulse', symbol: 'PLS', decimals: 18 },
   testnet: false,
-  blockTime: 10_000,
   rpcUrls: {
     default: {
       http: ['https://rpc.pulsechain.com'],
@@ -15,7 +14,7 @@ export const pulsechain = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'PulseScan',
-      url: 'https://ipfs.scan.pulsechain.com',
+      url: 'https://scan.pulsechain.com',
       apiUrl: 'https://api.scan.pulsechain.com/api',
     },
   },

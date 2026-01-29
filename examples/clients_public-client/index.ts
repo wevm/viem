@@ -1,4 +1,4 @@
-import { createPublicClient, http, stringify } from 'viem'
+import { http, createPublicClient, stringify } from 'viem'
 import { mainnet, optimism, polygon } from 'viem/chains'
 
 const publicClients = [

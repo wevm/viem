@@ -1,6 +1,8 @@
 import { expect, test } from 'vitest'
-import { anvilZksync } from '~test/anvil.js'
-import { accounts } from '~test/constants.js'
+
+import { accounts } from '~test/src/constants.js'
+
+import { anvilZksync } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import type { TransactionRequest } from '../../index.js'
 import type { ZksyncTransactionRequestEIP712 } from '../../zksync/index.js'

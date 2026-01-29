@@ -5,9 +5,9 @@ import {
   getSmartAccounts_08,
   getVerifyingPaymaster_07,
   getVerifyingPaymaster_08,
-} from '~test/account-abstraction.js'
-import { anvilMainnet } from '~test/anvil.js'
-import { bundlerMainnet } from '~test/bundler.js'
+} from '../../../../test/src/account-abstraction.js'
+import { anvilMainnet } from '../../../../test/src/anvil.js'
+import { bundlerMainnet } from '../../../../test/src/bundler.js'
 import { http } from '../../../clients/transports/http.js'
 import { parseEther } from '../../../utils/index.js'
 import { createPaymasterClient } from '../../clients/createPaymasterClient.js'

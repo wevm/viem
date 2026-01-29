@@ -1,33 +1,25 @@
 import type { AbiStateMutability, Address } from 'abitype'
 import type { Hex } from './misc.js'
 import type { GetMulticallContractParameters } from './multicall.js'
-import type { Assign, OneOf, Prettify } from './utils.js'
+import type { OneOf, Prettify } from './utils.js'
 
 export type Call<
   call = unknown,
   extraProperties extends Record<string, unknown> = {},
 > = OneOf<
-  | Assign<
-      {
-        data?: Hex | undefined
-        dataSuffix?: Hex | undefined
-        to: Address
-        value?: bigint | undefined
-      },
-      extraProperties
-    >
-  | Assign<
-      Omit<
+  | (extraProperties & {
+      data?: Hex | undefined
+      to: Address
+      value?: bigint | undefined
+    })
+  | (extraProperties &
+      (Omit<
         GetMulticallContractParameters<call, AbiStateMutability>,
         'address'
       > & {
-        data?: Hex | undefined
-        dataSuffix?: Hex | undefined
         to: Address
         value?: bigint | undefined
-      },
-      extraProperties
-    >
+      }))
 >
 
 export type Calls<
@@ -49,9 +41,7 @@ export type Calls<
         ? calls
         : // If `calls` is *some* array but we couldn't assign `unknown[]` to it, then it must hold some known/homogenous type!
           // use this to infer the param types in the case of Array.map() argument
-          calls extends readonly (infer call extends OneOf<
-              Call<unknown, extraProperties>
-            >)[]
+          calls extends readonly (infer call extends OneOf<Call>)[]
           ? readonly Prettify<call>[]
           : // Fallback
             readonly OneOf<Call>[]

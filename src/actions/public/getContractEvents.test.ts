@@ -1,12 +1,17 @@
 import { beforeAll, expect, test } from 'vitest'
 
-import { daiContractConfig, erc20Abi, usdcContractConfig } from '~test/abis.js'
-import { anvilMainnet } from '~test/anvil.js'
-import { accounts, address } from '~test/constants.js'
-import { getAddress } from '../../index.js'
-import { setBalance, writeContract } from '../index.js'
+import {
+  daiContractConfig,
+  erc20Abi,
+  usdcContractConfig,
+} from '~test/src/abis.js'
+import { accounts, address } from '~test/src/constants.js'
 import { impersonateAccount } from '../test/impersonateAccount.js'
 import { mine } from '../test/mine.js'
+
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { getAddress } from '../../index.js'
+import { setBalance, writeContract } from '../index.js'
 import { getContractEvents } from './getContractEvents.js'
 
 const client = anvilMainnet.getClient()

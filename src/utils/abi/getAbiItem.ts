@@ -102,7 +102,7 @@ export function getAbiItem<
   if (abiItems.length === 1)
     return abiItems[0] as GetAbiItemReturnType<abi, name, args>
 
-  let matchedAbiItem: AbiItem | undefined
+  let matchedAbiItem: AbiItem | undefined = undefined
   for (const abiItem of abiItems) {
     if (!('inputs' in abiItem)) continue
     if (!args || args.length === 0) {
@@ -171,14 +171,9 @@ export function isArgOfType(arg: unknown, abiParameter: AbiParameter): boolean {
       if (abiParameterType === 'tuple' && 'components' in abiParameter)
         return Object.values(abiParameter.components).every(
           (component, index) => {
-            return (
-              argType === 'object' &&
-              isArgOfType(
-                Object.values(arg as unknown[] | Record<string, unknown>)[
-                  index
-                ],
-                component as AbiParameter,
-              )
+            return isArgOfType(
+              Object.values(arg as unknown[] | Record<string, unknown>)[index],
+              component as AbiParameter,
             )
           },
         )

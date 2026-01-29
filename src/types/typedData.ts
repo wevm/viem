@@ -13,12 +13,11 @@ export type TypedDataDefinition<
   primaryTypes = typedData extends TypedData ? keyof typedData : string,
 > = primaryType extends 'EIP712Domain'
   ? EIP712DomainDefinition<typedData, primaryType>
-  : MessageDefinition<typedData, primaryType, 'message', primaryTypes>
+  : MessageDefinition<typedData, primaryType, primaryTypes>
 
-export type MessageDefinition<
+type MessageDefinition<
   typedData extends TypedData | Record<string, unknown> = TypedData,
   primaryType extends keyof typedData = keyof typedData,
-  messageKey extends string = 'message',
   ///
   primaryTypes = typedData extends TypedData ? keyof typedData : string,
   schema extends Record<string, unknown> = typedData extends TypedData
@@ -38,13 +37,12 @@ export type MessageDefinition<
         ? domain
         : Prettify<TypedDataDomain>)
     | undefined
-} & {
-  [k in messageKey]: { [_: string]: any } extends message // Check if message was inferred
+  message: { [_: string]: any } extends message // Check if message was inferred
     ? Record<string, unknown>
     : message
 }
 
-export type EIP712DomainDefinition<
+type EIP712DomainDefinition<
   typedData extends TypedData | Record<string, unknown> = TypedData,
   primaryType extends 'EIP712Domain' = 'EIP712Domain',
   ///

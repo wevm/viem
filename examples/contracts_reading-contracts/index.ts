@@ -1,4 +1,4 @@
-import { createPublicClient, http } from 'viem'
+import { http, createPublicClient } from 'viem'
 import { mainnet } from 'viem/chains'
 import { wagmiContract } from './contract'
 

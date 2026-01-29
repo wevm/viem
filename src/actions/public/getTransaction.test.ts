@@ -1,8 +1,9 @@
 import { assertType, describe, expect, test } from 'vitest'
-import { anvilMainnet } from '~test/anvil.js'
-import { accounts } from '~test/constants.js'
-import { deploy } from '~test/utils.js'
+
+import { accounts } from '~test/src/constants.js'
 import { Delegation } from '../../../contracts/generated.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { deploy } from '../../../test/src/utils.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { celo, holesky } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
@@ -135,7 +136,7 @@ test('gets transaction (eip2930)', async () => {
   expect(transaction.value).toMatchInlineSnapshot('1000000000000000000n')
 })
 
-test.skip('gets transaction (eip4844)', async () => {
+test('gets transaction (eip4844)', async () => {
   const client = createClient({
     chain: holesky,
     transport: http(),
@@ -401,25 +402,4 @@ describe('args: blockTag', () => {
     })
     expect(transaction).toBeDefined()
   }, 10000)
-})
-
-describe('args: sender and nonce', () => {
-  test('gets transaction by sender and nonce', async () => {
-    const hash = await sendTransaction(client, {
-      account: sourceAccount.address,
-      to: targetAccount.address,
-      value: parseEther('1'),
-    })
-
-    await mine(client, { blocks: 1 })
-    await wait(200)
-
-    const transaction = await getTransaction(client, { hash })
-
-    const transaction2 = await getTransaction(client, {
-      sender: sourceAccount.address,
-      nonce: transaction.nonce,
-    })
-    expect(transaction2).toEqual(transaction)
-  })
 })

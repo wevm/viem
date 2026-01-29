@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const birdlayer = /*#__PURE__*/ defineChain({
+export const birdlayer = defineChain({
   id: 53456,
   name: 'BirdLayer',
   nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },

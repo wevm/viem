@@ -1,9 +1,9 @@
-import { Instance } from 'prool'
+import { anvil } from 'prool/instances'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 
-import { anvilMainnet } from '~test/anvil.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { getBlockNumber, mine } from '../../actions/index.js'
-import { createClient, http } from '../../index.js'
+import { http, createClient } from '../../index.js'
 import type { RpcResponse } from '../../types/rpc.js'
 import { numberToHex } from '../index.js'
 import { wait } from '../wait.js'
@@ -14,7 +14,7 @@ const client = createClient({
   transport: http('http://127.0.0.1:6968'),
 }).extend(() => ({ mode: 'anvil' }))
 
-const instance = Instance.anvil({
+const instance = anvil({
   port: 6968,
   ipc: anvilMainnet.rpcUrl.ipc,
   forkBlockNumber: anvilMainnet.forkBlockNumber,
@@ -64,7 +64,7 @@ describe('request', () => {
     expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.5.0",
+        "result": "anvil/v1.1.0",
       }
     `)
     expect(rpcClient.requests.size).toBe(0)
@@ -106,7 +106,7 @@ describe('request', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 1,
+        "id": 7,
         "jsonrpc": "2.0",
       }
     `,
@@ -134,7 +134,7 @@ describe('request', () => {
       [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
-      Request body: {"jsonrpc":"2.0","id":1,"method":"wagmi_lol"}
+      Request body: {"jsonrpc":"2.0","id":9,"method":"wagmi_lol"}
 
       Details: Socket is closed.
       Version: viem@x.y.z]
@@ -163,7 +163,7 @@ describe('request', () => {
       [WebSocketRequestError: WebSocket request failed.
 
       URL: http://localhost
-      Request body: {"jsonrpc":"2.0","id":1,"method":"wagmi_lol"}
+      Request body: {"jsonrpc":"2.0","id":11,"method":"wagmi_lol"}
 
       Details: Socket is closed.
       Version: viem@x.y.z]
@@ -298,7 +298,7 @@ describe('request (subscription)', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 1,
+        "id": 31,
         "jsonrpc": "2.0",
       }
     `)
@@ -315,7 +315,7 @@ describe('requestAsync', () => {
     expect(version).toMatchInlineSnapshot(`
       {
         "jsonrpc": "2.0",
-        "result": "anvil/v1.5.0",
+        "result": "anvil/v1.1.0",
       }
     `)
     expect(client.requests.size).toBe(0)
@@ -398,7 +398,7 @@ describe('requestAsync', () => {
           "code": -32602,
           "message": "data did not match any variant of untagged enum EthRpcCall",
         },
-        "id": 1,
+        "id": 151,
         "jsonrpc": "2.0",
       }
     `,

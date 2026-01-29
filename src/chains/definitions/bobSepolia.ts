@@ -3,7 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11_155_111 // sepolia
 
-export const bobSepolia = /*#__PURE__*/ defineChain({
+export const bobSepolia = defineChain({
   ...chainConfig,
   id: 808813,
   name: 'BOB Sepolia',

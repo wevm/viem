@@ -1,17 +1,19 @@
 import { assertType, describe, expect, it, test } from 'vitest'
-import { anvilMainnet } from '~test/anvil.js'
-import { accounts } from '~test/constants.js'
+
+import { accounts } from '~test/src/constants.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { holesky, zksync } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
-import { createClient } from '../../index.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
-import { wait } from '../../utils/wait.js'
 import type { ZksyncTransactionReceipt } from '../../zksync/types/transaction.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
+
+import { createClient } from '../../index.js'
+import { wait } from '../../utils/wait.js'
 import { getBlock } from './getBlock.js'
 import { getTransaction } from './getTransaction.js'
 import { getTransactionReceipt } from './getTransactionReceipt.js'
@@ -41,7 +43,6 @@ test('gets transaction receipt', async () => {
           "address": "0xf7134ce138832c1456f2a91d64621ee90c2bddea",
           "blockHash": "0x019d374731477005b8d3e3236aca44d11ef53fc9eb0ab0c9e11f942636b04b1b",
           "blockNumber": 22263622n,
-          "blockTimestamp": 1744590287n,
           "data": "0x",
           "logIndex": 0,
           "removed": false,
@@ -65,7 +66,7 @@ test('gets transaction receipt', async () => {
   `)
 })
 
-test.skip('gets transaction receipt (4844)', async () => {
+test('gets transaction receipt (4844)', async () => {
   const client = createClient({
     chain: holesky,
     transport: http(),
@@ -123,7 +124,7 @@ test('chain w/ custom block type', async () => {
           "address": "0x000000000000000000000000000000000000800a",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
-          "blockTimestamp": 1697564408n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x00000000000000000000000000000000000000000000000000017b3627a0a300",
           "l1BatchNumber": 273767n,
           "logIndex": 0,
@@ -142,7 +143,7 @@ test('chain w/ custom block type', async () => {
           "address": "0x000000000000000000000000000000000000800a",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
-          "blockTimestamp": 1697564408n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x00000000000000000000000000000000000000000000000000013949fc5ebec8",
           "l1BatchNumber": 273767n,
           "logIndex": 1,
@@ -161,7 +162,7 @@ test('chain w/ custom block type', async () => {
           "address": "0x54de43b6ba21a5553697a2b78338e046dd7e0278",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
-          "blockTimestamp": 1697564408n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x0000000000000000000000000000000000000000000000000de0b6b3a7640000",
           "l1BatchNumber": 273767n,
           "logIndex": 2,
@@ -180,7 +181,7 @@ test('chain w/ custom block type', async () => {
           "address": "0x000000000000000000000000000000000000800a",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
-          "blockTimestamp": 1697564408n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x0000000000000000000000000000000000000000000000000001228d38402ec8",
           "l1BatchNumber": 273767n,
           "logIndex": 3,
@@ -199,7 +200,7 @@ test('chain w/ custom block type', async () => {
           "address": "0x000000000000000000000000000000000000800a",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
-          "blockTimestamp": 1697564408n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x0000000000000000000000000000000000000000000000000001228d38402ec8",
           "l1BatchNumber": 273767n,
           "logIndex": 4,
@@ -218,7 +219,7 @@ test('chain w/ custom block type', async () => {
           "address": "0x9923573104957bf457a3c4df0e21c8b389dd43df",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
-          "blockTimestamp": 1697564408n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x0000000000000000000000000000000000000000000000000000e523da9a7ec8",
           "l1BatchNumber": 273767n,
           "logIndex": 5,
@@ -235,7 +236,7 @@ test('chain w/ custom block type', async () => {
           "address": "0x042b8289c97896529ec2fe49ba1a8b9c956a86cc",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
-          "blockTimestamp": 1697564408n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000002200010000000000000000000000000000000000000000000000000000000000030d40000000000000000000000000000000000000000000000000000000000000",
           "l1BatchNumber": 273767n,
           "logIndex": 6,
@@ -252,7 +253,7 @@ test('chain w/ custom block type', async () => {
           "address": "0xcb7ad38d45ab5bcf5880b0fa851263c29582c18a",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
-          "blockTimestamp": 1697564408n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x000000000000000000000000000000000000000000000000000000000000009e0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000001400000000000000000000000054de43b6ba21a5553697a2b78338e046dd7e027800000000000000000000000000000000000000000000000000003d695da5b000",
           "l1BatchNumber": 273767n,
           "logIndex": 7,
@@ -269,7 +270,7 @@ test('chain w/ custom block type', async () => {
           "address": "0x042b8289c97896529ec2fe49ba1a8b9c956a86cc",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
-          "blockTimestamp": 1697564408n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000d400000000000022d300a554de43b6ba21a5553697a2b78338e046dd7e0278009e921b486cc33580af7d8208df1619383470d5dcbe000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000000000014e665ced18b0998ede7236da308e311e9261dc984000000000000000000000000000000000000000000000000",
           "l1BatchNumber": 273767n,
           "logIndex": 8,
@@ -286,7 +287,7 @@ test('chain w/ custom block type', async () => {
           "address": "0x54de43b6ba21a5553697a2b78338e046dd7e0278",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
-          "blockTimestamp": 1697564408n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x00000000000000000000000000000000000000000000000000000000000000400000000000000000000000000000000000000000000000000de0b6b3a76400000000000000000000000000000000000000000000000000000000000000000014e665ced18b0998ede7236da308e311e9261dc984000000000000000000000000",
           "l1BatchNumber": 273767n,
           "logIndex": 9,
@@ -305,7 +306,7 @@ test('chain w/ custom block type', async () => {
           "address": "0x000000000000000000000000000000000000800a",
           "blockHash": "0xc621ee95e2d4ab65ecf499805dba770b20297c64029816b18c618fc49fe3d748",
           "blockNumber": 16628100n,
-          "blockTimestamp": 1697564408n,
+          "blockTimestamp": "0x652ec6f8",
           "data": "0x000000000000000000000000000000000000000000000000000115d39774af00",
           "l1BatchNumber": 273767n,
           "logIndex": 10,

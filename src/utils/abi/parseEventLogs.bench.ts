@@ -1,6 +1,6 @@
 import { bench } from 'vitest'
 
-import { anvilMainnet } from '~test/anvil.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { getLogs } from '../../actions/public/getLogs.js'
 import { mainnet } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'

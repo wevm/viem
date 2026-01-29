@@ -25,7 +25,7 @@ import { wagmiAbi } from './abi.ts'
 const data = encodeFunctionResult({
   abi: wagmiAbi,
   functionName: 'ownerOf',
-  result: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+  value: ['0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'],
 });
 // '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac'
 ```
@@ -56,15 +56,17 @@ import { decodeFunctionResult } from 'viem'
 const data = decodeFunctionResult({
   abi: wagmiAbi,
   functionName: 'getInfo',
-  result: {
-    foo: {
+  value: [
+    {
+      foo: {
+        sender: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+        x: 69420n,
+        y: true
+      },
       sender: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-      x: 69420n,
-      y: true
-    },
-    sender: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-    z: 69
-  }
+      z: 69
+    }
+  ]
 })
 // 0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac0000000000000000000000000000000000000000000000000000000000010f2c0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac0000000000000000000000000000000000000000000000000000000000000045
 ```
@@ -136,7 +138,7 @@ const abiItem = {
 const data = encodeFunctionResult({
   abi: wagmiAbi,
   functionName: 'ownerOf', // [!code --]
-  result: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+  value: ['0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'],
 });
 // '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac'
 ```
@@ -157,7 +159,7 @@ The contract's ABI.
 const data = encodeFunctionResult({
   abi: wagmiAbi, // [!code focus]
   functionName: 'ownerOf',
-  result: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+  value: ['0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'],
 });
 ```
 
@@ -171,7 +173,7 @@ The function to encode from the ABI.
 const data = encodeFunctionResult({
   abi: wagmiAbi,
   functionName: 'ownerOf', // [!code focus]
-  result: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+  value: ['0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'],
 });
 ```
 
@@ -185,6 +187,6 @@ Return values to encode.
 const data = encodeFunctionResult({
   abi: wagmiAbi,
   functionName: 'ownerOf',
-  result: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac', // [!code focus]
+  value: ['0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac'], // [!code focus]
 });
 ```

@@ -1,12 +1,12 @@
-import { expect, test, vi } from 'vitest'
+import { afterAll, expect, test, vi } from 'vitest'
 
-import { accounts } from '~test/constants.js'
+import { accounts } from '~test/src/constants.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 
 import * as readContract from '../../actions/public/readContract.js'
 import { sepolia } from '../../chains/index.js'
 import { erc20Abi } from '../../constants/abis.js'
-import { createClient, createPublicClient, http } from '../../index.js'
+import { http, createClient, createPublicClient } from '../../index.js'
 import {
   ethAddressInContracts,
   l2BaseTokenAddress,
@@ -17,10 +17,13 @@ import { getL1TokenBalance } from './getL1TokenBalance.js'
 const sourceAccount = accounts[0]
 const tokenL1 = '0x5C221E77624690fff6dd741493D735a17716c26B'
 const account = privateKeyToAccount(sourceAccount.privateKey)
+const spy = vi.spyOn(readContract, 'readContract').mockResolvedValue(170n)
+
+afterAll(() => {
+  spy.mockRestore()
+})
 
 test('default with account hoisting', async () => {
-  const spy = vi.spyOn(readContract, 'readContract').mockResolvedValue(170n)
-
   const client = createClient({
     chain: sepolia,
     transport: http(),
@@ -43,8 +46,6 @@ test('default with account hoisting', async () => {
 })
 
 test('args: blockTag with account hoisting', async () => {
-  const spy = vi.spyOn(readContract, 'readContract').mockResolvedValue(170n)
-
   const client = createClient({
     chain: sepolia,
     transport: http(),
@@ -68,8 +69,6 @@ test('args: blockTag with account hoisting', async () => {
 })
 
 test('default with account provided to the method', async () => {
-  const spy = vi.spyOn(readContract, 'readContract').mockResolvedValue(170n)
-
   const client = createPublicClient({
     chain: sepolia,
     transport: http(),
@@ -92,8 +91,6 @@ test('default with account provided to the method', async () => {
 })
 
 test('args: blockTag with account provided to the method', async () => {
-  const spy = vi.spyOn(readContract, 'readContract').mockResolvedValue(170n)
-
   const client = createPublicClient({
     chain: sepolia,
     transport: http(),

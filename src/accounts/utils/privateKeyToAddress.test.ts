@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { accounts } from '~test/constants.js'
+import { accounts } from '~test/src/constants.js'
 import { privateKeyToAddress } from './privateKeyToAddress.js'
 
 test('default', () => {

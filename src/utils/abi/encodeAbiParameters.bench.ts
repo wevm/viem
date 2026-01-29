@@ -1,7 +1,7 @@
 import { AbiCoder } from 'ethers'
 import { bench, describe } from 'vitest'
 
-import { address } from '~test/constants.js'
+import { address } from '~test/src/constants.js'
 
 import { encodeAbiParameters } from './encodeAbiParameters.js'
 

@@ -259,20 +259,14 @@ export type TransactionRequestEIP4844<
   index = number,
   type = 'eip4844',
 > = RequiredBy<TransactionRequestBase<quantity, index, type>, 'to'> &
-  ExactPartial<FeeValuesEIP4844<quantity>> & {
+  RequiredBy<ExactPartial<FeeValuesEIP4844<quantity>>, 'maxFeePerBlobGas'> & {
     accessList?: AccessList | undefined
+    /** The blobs associated with this transaction. */
+    blobs: readonly Hex[] | readonly ByteArray[]
+    blobVersionedHashes?: readonly Hex[] | undefined
+    kzg?: Kzg | undefined
     sidecars?: readonly BlobSidecar<Hex>[] | undefined
-  } & OneOf<
-    | {
-        blobs?: readonly Hex[] | readonly ByteArray[] | undefined
-        blobVersionedHashes: readonly Hex[]
-      }
-    | {
-        blobs: readonly Hex[] | readonly ByteArray[]
-        blobVersionedHashes?: readonly Hex[] | undefined
-        kzg?: Kzg | undefined
-      }
-  >
+  }
 
 export type TransactionRequestEIP7702<
   quantity = bigint,
@@ -366,15 +360,11 @@ export type TransactionSerializableEIP1559<
 export type TransactionSerializableEIP4844<
   quantity = bigint,
   index = number,
-  nullableSidecars extends boolean = boolean,
-> = RequiredBy<TransactionSerializableBase<quantity, index>, 'to'> &
+> = TransactionSerializableBase<quantity, index> &
   ExactPartial<FeeValuesEIP4844<quantity>> & {
     accessList?: AccessList | undefined
     chainId: number
-    sidecars?:
-      | readonly BlobSidecar<Hex>[]
-      | (nullableSidecars extends true ? false : never)
-      | undefined
+    sidecars?: readonly BlobSidecar<Hex>[] | false | undefined
     type?: 'eip4844' | undefined
     yParity?: number | undefined
   } & OneOf<

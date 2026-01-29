@@ -1,7 +1,7 @@
 import type { TypedData } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
-import { anvilMainnet } from '~test/anvil.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { walletActions } from '../../clients/decorators/wallet.js'
 import { type SignTypedDataParameters, signTypedData } from './signTypedData.js'
 

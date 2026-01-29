@@ -1,9 +1,9 @@
 import { parseAbi } from 'abitype'
 import { assertType, expectTypeOf, test } from 'vitest'
 
-import { baycContractConfig, wagmiContractConfig } from '~test/abis.js'
+import { baycContractConfig, wagmiContractConfig } from '~test/src/abis.js'
 
-import { anvilMainnet } from '~test/anvil.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { celo } from '../../chains/definitions/celo.js'
 
 import { createClient } from '../../clients/createClient.js'

@@ -8,7 +8,7 @@ import type {
   Transport,
 } from '../index.js'
 import { rpcSchema } from './createClient.js'
-import { createPublicClient, type PublicClient } from './createPublicClient.js'
+import { type PublicClient, createPublicClient } from './createPublicClient.js'
 import { http } from './transports/http.js'
 
 test('with chain', () => {

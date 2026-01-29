@@ -48,23 +48,18 @@ contract VerifyingPaymaster_08 is BasePaymaster {
         uint48 validAfter
     ) public view returns (bytes32) {
         //can't use userOp.hash(), since it contains also the paymasterAndData itself.
-        bytes memory initCode = userOp.initCode;
-        if (keccak256(initCode) == keccak256(hex"7702")) {
-            initCode = hex"7702000000000000000000000000000000000000";
-        }
         return
             keccak256(
                 abi.encode(
                     userOp.sender,
                     userOp.nonce,
-                    keccak256(initCode),
+                    keccak256(userOp.initCode),
                     keccak256(userOp.callData),
                     userOp.accountGasLimits,
                     uint256(
                         bytes32(
-                            userOp.paymasterAndData[
-                                PAYMASTER_VALIDATION_GAS_OFFSET:PAYMASTER_DATA_OFFSET
-                            ]
+                            userOp
+                                .paymasterAndData[PAYMASTER_VALIDATION_GAS_OFFSET:PAYMASTER_DATA_OFFSET]
                         )
                     ),
                     userOp.preVerificationGas,

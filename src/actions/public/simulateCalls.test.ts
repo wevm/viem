@@ -3,9 +3,9 @@ import {
   baycContractConfig,
   usdcContractConfig,
   wagmiContractConfig,
-} from '~test/abis.js'
-import { anvilMainnet } from '~test/anvil.js'
-import { accounts } from '~test/constants.js'
+} from '../../../test/src/abis.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { accounts } from '../../../test/src/constants.js'
 import { erc20Abi, erc721Abi } from '../../constants/abis.js'
 import { parseEther } from '../../utils/index.js'
 import { simulateCalls } from './simulateCalls.js'

@@ -1,6 +1,8 @@
 import { expect, test } from 'vitest'
-import { wagmiContractConfig } from '~test/abis.js'
-import { accounts } from '~test/constants.js'
+
+import { accounts } from '~test/src/constants.js'
+
+import { wagmiContractConfig } from '../../../test/src/abis.js'
 import { signAuthorization } from '../../accounts/utils/signAuthorization.js'
 import { getAddress } from '../address/getAddress.js'
 import { recoverAuthorizationAddress } from './recoverAuthorizationAddress.js'

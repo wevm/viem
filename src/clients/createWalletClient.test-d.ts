@@ -3,7 +3,7 @@ import { expectTypeOf, test } from 'vitest'
 import type { JsonRpcAccount } from '../accounts/types.js'
 import { localhost } from '../chains/index.js'
 import { rpcSchema } from './createClient.js'
-import { createWalletClient, type WalletClient } from './createWalletClient.js'
+import { type WalletClient, createWalletClient } from './createWalletClient.js'
 import { publicActions } from './decorators/public.js'
 import { http } from './transports/http.js'
 

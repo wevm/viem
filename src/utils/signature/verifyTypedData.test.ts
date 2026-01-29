@@ -1,7 +1,9 @@
 import type { Address } from 'abitype'
 import { expect, test } from 'vitest'
-import { anvilMainnet } from '~test/anvil.js'
-import { accounts, typedData } from '~test/constants.js'
+
+import { accounts, typedData } from '~test/src/constants.js'
+
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { signTypedData } from '../../actions/index.js'
 import { verifyTypedData } from './verifyTypedData.js'
 

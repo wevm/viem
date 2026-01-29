@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest'
 
-import { greeterContract } from '~test/abis.js'
-import { anvilZksync } from '~test/anvil.js'
-import { accounts } from '~test/constants.js'
+import { greeterContract } from '~test/src/abis.js'
+import { anvilZksync } from '~test/src/anvil.js'
+import { accounts } from '~test/src/constants.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { simulateContract } from '../../actions/index.js'
 import type { EIP1193RequestFn } from '../../types/eip1193.js'

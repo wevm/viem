@@ -2,7 +2,7 @@ import { type AbiParameter, parseAbi, parseAbiParameters } from 'abitype'
 
 import { describe, expect, test } from 'vitest'
 
-import { wagmiContractConfig } from '~test/abis.js'
+import { wagmiContractConfig } from '~test/src/abis.js'
 
 import { toBytes } from '../index.js'
 import { getAbiItem, getAmbiguousTypes, isArgOfType } from './getAbiItem.js'
@@ -441,46 +441,6 @@ test('overloads: tuple', () => {
                   ],
                 },
                 { name: 'c', type: 'address' },
-              ],
-            },
-          ],
-          name: 'foo',
-          outputs: [],
-          stateMutability: 'nonpayable',
-          type: 'function',
-        },
-        {
-          inputs: [
-            { name: 'foo', type: 'uint256' },
-            {
-              name: 'bar',
-              type: 'tuple',
-              components: [
-                { name: 'a', type: 'string' },
-                {
-                  name: 'b',
-                  type: 'tuple',
-                  components: [
-                    { name: 'merp', type: 'string' },
-                    { name: 'meep', type: 'string' },
-                  ],
-                },
-                {
-                  name: 'c',
-                  type: 'tuple',
-                  components: [
-                    { name: 'merp', type: 'string' },
-                    { name: 'meep', type: 'string' },
-                  ],
-                },
-                {
-                  name: 'd',
-                  type: 'tuple',
-                  components: [
-                    { name: 'merp', type: 'string' },
-                    { name: 'meep', type: 'string' },
-                  ],
-                },
               ],
             },
           ],

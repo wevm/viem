@@ -644,7 +644,7 @@ describe('transactionRequest', () => {
         feeCurrency: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         from: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         gas: 1n,
-        // @ts-expect-error
+        // @ts-ignore
         gatewayFee: 4n,
         gatewayFeeRecipient: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         maxFeePerGas: 2n,
@@ -670,7 +670,7 @@ describe('transactionRequest', () => {
         feeCurrency: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         from: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         gas: 1n,
-        // @ts-expect-error
+        // @ts-ignore
         gatewayFeeRecipient: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         maxFeePerGas: 2n,
         maxPriorityFeePerGas: 1n,
@@ -695,7 +695,7 @@ describe('transactionRequest', () => {
         feeCurrency: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         from: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         gas: 1n,
-        // @ts-expect-error
+        // @ts-ignore
         gatewayFee: 4n,
         gatewayFeeRecipient: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         maxFeePerGas: 2n,
@@ -721,7 +721,7 @@ describe('transactionRequest', () => {
         feeCurrency: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         from: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         gas: 1n,
-        // @ts-expect-error
+        // @ts-ignore
         gatewayFee: 4n,
         gatewayFeeRecipient: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         maxFeePerGas: 2n,
@@ -747,7 +747,7 @@ describe('transactionRequest', () => {
         feeCurrency: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         from: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         gas: 1n,
-        // @ts-expect-error
+        // @ts-ignore
         gatewayFee: 4n,
         gatewayFeeRecipient: '0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9',
         maxFeePerGas: 2n,

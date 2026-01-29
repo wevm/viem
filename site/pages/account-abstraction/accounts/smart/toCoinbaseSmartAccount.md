@@ -14,7 +14,6 @@ import { owner } from './owner.js'
 const account = await toCoinbaseSmartAccount({ // [!code focus]
   client, // [!code focus]
   owners: [owner], // [!code focus]
-  version: '1.1', // [!code focus]
 }) // [!code focus]
 ```
 
@@ -71,7 +70,6 @@ const client = createPublicClient({ // [!code focus]
 const account = await toCoinbaseSmartAccount({
   client, // [!code focus]
   owners: [owner],
-  version: '1.1',
 })
 ```
 
@@ -99,7 +97,6 @@ const account = await toCoinbaseSmartAccount({
   client,
   owners: [privateKeyToAccount('0x...'), privateKeyToAccount('0x...')],
   ownerIndex: 1, // [!code focus]
-  version: '1.1',
 })
 ```
 
@@ -114,24 +111,5 @@ const account = await toCoinbaseSmartAccount({
   client,
   owners: [owner],
   nonce: 1n, // [!code focus]
-  version: '1.1',
 })
 ```
-
-### version
-
-- **Type:** `'1.1' | '1'`
-- **Default:** `'1'`
-
-Version of the Smart Account to use.
-
-:::warning
-Version bumps DO contain breaking changes. 
-:::
-
-```ts
-const account = await toCoinbaseSmartAccount({
-  client,
-  owners: [owner],
-  version: '1', // [!code focus]
-})

@@ -1,12 +1,14 @@
 import { Hex } from 'ox'
 import { expect, test } from 'vitest'
-import { anvilOptimism } from '~test/anvil.js'
-import { accounts } from '~test/constants.js'
+
+import { accounts } from '~test/src/constants.js'
+
+import { anvilOptimism } from '../../../test/src/anvil.js'
 import { optimism } from '../../chains/index.js'
 import {
-  createClient,
   http,
   type TransactionRequestEIP1559,
+  createClient,
 } from '../../index.js'
 import { estimateL1Fee } from './estimateL1Fee.js'
 

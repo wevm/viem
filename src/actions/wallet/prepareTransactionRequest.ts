@@ -24,18 +24,14 @@ import {
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { AccountNotFoundErrorType } from '../../errors/account.js'
-import type { BaseError } from '../../errors/base.js'
 import {
   Eip1559FeesNotSupportedError,
   MaxFeePerGasTooLowError,
 } from '../../errors/fee.js'
 import type { DeriveAccount, GetAccountParameter } from '../../types/account.js'
 import type { Block } from '../../types/block.js'
-import type {
-  Chain,
-  DeriveChain,
-  GetChainParameter,
-} from '../../types/chain.js'
+import type { Chain, DeriveChain } from '../../types/chain.js'
+import type { GetChainParameter } from '../../types/chain.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
 import type {
   TransactionRequest,
@@ -59,7 +55,6 @@ import { commitmentsToVersionedHashes } from '../../utils/blob/commitmentsToVers
 import { toBlobSidecars } from '../../utils/blob/toBlobSidecars.js'
 import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
-import { LruMap } from '../../utils/lru.js'
 import type { NonceManager } from '../../utils/nonceManager.js'
 import {
   type AssertRequestErrorType,
@@ -70,11 +65,6 @@ import {
   type GetTransactionType,
   getTransactionType,
 } from '../../utils/transaction/getTransactionType.js'
-import {
-  type FillTransactionErrorType,
-  type FillTransactionParameters,
-  fillTransaction,
-} from '../public/fillTransaction.js'
 import { getChainId as getChainId_ } from '../public/getChainId.js'
 
 export const defaultParameters = [
@@ -88,9 +78,6 @@ export const defaultParameters = [
 
 /** @internal */
 export const eip1559NetworkCache = /*#__PURE__*/ new Map<string, boolean>()
-
-/** @internal */
-export const supportsFillTransaction = /*#__PURE__*/ new LruMap<boolean>(128)
 
 export type PrepareTransactionRequestParameterType =
   | 'blobVersionedHashes'
@@ -267,186 +254,20 @@ export async function prepareTransactionRequest<
     request
   >
 > {
-  let request = args as PrepareTransactionRequestParameters
-
-  request.account ??= client.account
-  request.parameters ??= defaultParameters
-
   const {
-    account: account_,
-    chain = client.chain,
+    account: account_ = client.account,
+    blobs,
+    chain,
+    gas,
+    kzg,
+    nonce,
     nonceManager,
-    parameters,
-  } = request
-
-  const prepareTransactionRequest = (() => {
-    if (typeof chain?.prepareTransactionRequest === 'function')
-      return {
-        fn: chain.prepareTransactionRequest,
-        runAt: ['beforeFillTransaction'],
-      }
-    if (Array.isArray(chain?.prepareTransactionRequest))
-      return {
-        fn: chain.prepareTransactionRequest[0],
-        runAt: chain.prepareTransactionRequest[1].runAt,
-      }
-    return undefined
-  })()
-
-  let chainId: number | undefined
-  async function getChainId(): Promise<number> {
-    if (chainId) return chainId
-    if (typeof request.chainId !== 'undefined') return request.chainId
-    if (chain) return chain.id
-    const chainId_ = await getAction(client, getChainId_, 'getChainId')({})
-    chainId = chainId_
-    return chainId
-  }
-
+    parameters = defaultParameters,
+    type,
+  } = args
   const account = account_ ? parseAccount(account_) : account_
 
-  let nonce = request.nonce
-  if (
-    parameters.includes('nonce') &&
-    typeof nonce === 'undefined' &&
-    account &&
-    nonceManager
-  ) {
-    const chainId = await getChainId()
-    nonce = await nonceManager.consume({
-      address: account.address,
-      chainId,
-      client,
-    })
-  }
-
-  if (
-    prepareTransactionRequest?.fn &&
-    prepareTransactionRequest.runAt?.includes('beforeFillTransaction')
-  ) {
-    request = await prepareTransactionRequest.fn(
-      { ...request, chain },
-      {
-        phase: 'beforeFillTransaction',
-      },
-    )
-    nonce ??= request.nonce
-  }
-
-  const attemptFill = (() => {
-    // Do not attempt if blobs are provided.
-    if (
-      (parameters.includes('blobVersionedHashes') ||
-        parameters.includes('sidecars')) &&
-      request.kzg &&
-      request.blobs
-    )
-      return false
-
-    // Do not attempt if `eth_fillTransaction` is not supported.
-    if (supportsFillTransaction.get(client.uid) === false) return false
-
-    // Should attempt `eth_fillTransaction` if "fees" or "gas" are required to be populated,
-    // otherwise, can just use the other individual calls.
-    const shouldAttempt = ['fees', 'gas'].some((parameter) =>
-      parameters.includes(parameter as PrepareTransactionRequestParameterType),
-    )
-    if (!shouldAttempt) return false
-
-    // Check if `eth_fillTransaction` needs to be called.
-    if (parameters.includes('chainId') && typeof request.chainId !== 'number')
-      return true
-    if (parameters.includes('nonce') && typeof nonce !== 'number') return true
-    if (
-      parameters.includes('fees') &&
-      typeof request.gasPrice !== 'bigint' &&
-      (typeof request.maxFeePerGas !== 'bigint' ||
-        typeof (request as any).maxPriorityFeePerGas !== 'bigint')
-    )
-      return true
-    if (parameters.includes('gas') && typeof request.gas !== 'bigint')
-      return true
-    return false
-  })()
-
-  const fillResult = attemptFill
-    ? await getAction(
-        client,
-        fillTransaction,
-        'fillTransaction',
-      )({ ...request, nonce } as FillTransactionParameters)
-        .then((result) => {
-          const {
-            chainId,
-            from,
-            gas,
-            gasPrice,
-            nonce,
-            maxFeePerBlobGas,
-            maxFeePerGas,
-            maxPriorityFeePerGas,
-            type,
-            ...rest
-          } = result.transaction
-          supportsFillTransaction.set(client.uid, true)
-          return {
-            ...request,
-            ...(from ? { from } : {}),
-            ...(type ? { type } : {}),
-            ...(typeof chainId !== 'undefined' ? { chainId } : {}),
-            ...(typeof gas !== 'undefined' ? { gas } : {}),
-            ...(typeof gasPrice !== 'undefined' ? { gasPrice } : {}),
-            ...(typeof nonce !== 'undefined' ? { nonce } : {}),
-            ...(typeof maxFeePerBlobGas !== 'undefined'
-              ? { maxFeePerBlobGas }
-              : {}),
-            ...(typeof maxFeePerGas !== 'undefined' ? { maxFeePerGas } : {}),
-            ...(typeof maxPriorityFeePerGas !== 'undefined'
-              ? { maxPriorityFeePerGas }
-              : {}),
-            ...('nonceKey' in rest && typeof rest.nonceKey !== 'undefined'
-              ? { nonceKey: rest.nonceKey }
-              : {}),
-          }
-        })
-        .catch((e) => {
-          const error = e as FillTransactionErrorType
-
-          if (error.name !== 'TransactionExecutionError') return request
-
-          const unsupported = error.walk?.((e) => {
-            const error = e as BaseError
-            return (
-              error.name === 'MethodNotFoundRpcError' ||
-              error.name === 'MethodNotSupportedRpcError'
-            )
-          })
-          if (unsupported) supportsFillTransaction.set(client.uid, false)
-
-          return request
-        })
-    : request
-
-  nonce ??= fillResult.nonce
-
-  request = {
-    ...(fillResult as any),
-    ...(account ? { from: account?.address } : {}),
-    ...(nonce ? { nonce } : {}),
-  }
-  const { blobs, gas, kzg, type } = request
-
-  if (
-    prepareTransactionRequest?.fn &&
-    prepareTransactionRequest.runAt?.includes('beforeFillParameters')
-  ) {
-    request = await prepareTransactionRequest.fn(
-      { ...request, chain },
-      {
-        phase: 'beforeFillParameters',
-      },
-    )
-  }
+  const request = { ...args, ...(account ? { from: account?.address } : {}) }
 
   let block: Block | undefined
   async function getBlock(): Promise<Block> {
@@ -459,20 +280,35 @@ export async function prepareTransactionRequest<
     return block
   }
 
-  if (
-    parameters.includes('nonce') &&
-    typeof nonce === 'undefined' &&
-    account &&
-    !nonceManager
-  )
-    request.nonce = await getAction(
-      client,
-      getTransactionCount,
-      'getTransactionCount',
-    )({
-      address: account.address,
-      blockTag: 'pending',
-    })
+  let chainId: number | undefined
+  async function getChainId(): Promise<number> {
+    if (chainId) return chainId
+    if (chain) return chain.id
+    if (typeof args.chainId !== 'undefined') return args.chainId
+    const chainId_ = await getAction(client, getChainId_, 'getChainId')({})
+    chainId = chainId_
+    return chainId
+  }
+
+  if (parameters.includes('nonce') && typeof nonce === 'undefined' && account) {
+    if (nonceManager) {
+      const chainId = await getChainId()
+      request.nonce = await nonceManager.consume({
+        address: account.address,
+        chainId,
+        client,
+      })
+    } else {
+      request.nonce = await getAction(
+        client,
+        getTransactionCount,
+        'getTransactionCount',
+      )({
+        address: account.address,
+        blockTag: 'pending',
+      })
+    }
+  }
 
   if (
     (parameters.includes('blobVersionedHashes') ||
@@ -540,9 +376,9 @@ export async function prepareTransactionRequest<
           })
 
         if (
-          typeof request.maxPriorityFeePerGas === 'undefined' &&
-          request.maxFeePerGas &&
-          request.maxFeePerGas < maxPriorityFeePerGas
+          typeof args.maxPriorityFeePerGas === 'undefined' &&
+          args.maxFeePerGas &&
+          args.maxFeePerGas < maxPriorityFeePerGas
         )
           throw new MaxFeePerGasTooLowError({
             maxPriorityFeePerGas,
@@ -554,12 +390,12 @@ export async function prepareTransactionRequest<
     } else {
       // Legacy fees
       if (
-        typeof request.maxFeePerGas !== 'undefined' ||
-        typeof request.maxPriorityFeePerGas !== 'undefined'
+        typeof args.maxFeePerGas !== 'undefined' ||
+        typeof args.maxPriorityFeePerGas !== 'undefined'
       )
         throw new Eip1559FeesNotSupportedError()
 
-      if (typeof request.gasPrice === 'undefined') {
+      if (typeof args.gasPrice === 'undefined') {
         const block = await getBlock()
         const { gasPrice: gasPrice_ } = await internal_estimateFeesPerGas(
           client,
@@ -582,20 +418,10 @@ export async function prepareTransactionRequest<
       'estimateGas',
     )({
       ...request,
-      account,
-      prepare: account?.type === 'local' ? [] : ['blobVersionedHashes'],
+      account: account
+        ? { address: account.address, type: 'json-rpc' }
+        : account,
     } as EstimateGasParameters)
-
-  if (
-    prepareTransactionRequest?.fn &&
-    prepareTransactionRequest.runAt?.includes('afterFillParameters')
-  )
-    request = await prepareTransactionRequest.fn(
-      { ...request, chain },
-      {
-        phase: 'afterFillParameters',
-      },
-    )
 
   assertRequest(request as AssertRequestParameters)
 

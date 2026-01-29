@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { anvilOptimism } from '~test/anvil.js'
+import { anvilOptimism } from '../../../test/src/anvil.js'
 import { getTransactionReceipt } from '../../actions/index.js'
 import { getWithdrawals } from './getWithdrawals.js'
 

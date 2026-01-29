@@ -10,8 +10,8 @@ export const moonbeam = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.api.moonbeam.network'],
-      webSocket: ['wss://wss.api.moonbeam.network'],
+      http: ['https://moonbeam.public.blastapi.io'],
+      webSocket: ['wss://moonbeam.public.blastapi.io'],
     },
   },
   blockExplorers: {

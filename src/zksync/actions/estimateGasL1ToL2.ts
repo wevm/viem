@@ -24,13 +24,10 @@ export async function estimateGasL1ToL2<
   const account = account_ ? parseAccount(account_) : client.account
 
   const formatters = client.chain?.formatters
-  const formatted = formatters?.transactionRequest?.format(
-    {
-      ...request,
-      from: account?.address,
-    },
-    'estimateGasL1ToL2',
-  )
+  const formatted = formatters?.transactionRequest?.format({
+    ...request,
+    from: account?.address,
+  })
 
   const result = await client.request({
     method: 'zks_estimateGasL1ToL2',

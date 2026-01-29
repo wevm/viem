@@ -2,9 +2,9 @@ import type { Address } from 'abitype'
 import { beforeAll, expect, test } from 'vitest'
 
 import { SoladyAccountFactory07 } from '~contracts/generated.js'
-import { anvilMainnet } from '~test/anvil.js'
-import { accounts, typedData } from '~test/constants.js'
-import { deploySoladyAccount_07 } from '~test/utils.js'
+import { anvilMainnet } from '~test/src/anvil.js'
+import { accounts, typedData } from '~test/src/constants.js'
+import { deploySoladyAccount_07 } from '../../../../test/src/utils.js'
 import {
   mine,
   simulateContract,

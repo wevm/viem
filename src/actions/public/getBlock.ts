@@ -97,10 +97,11 @@ export async function getBlock<
   {
     blockHash,
     blockNumber,
-    blockTag = client.experimental_blockTag ?? 'latest',
+    blockTag: blockTag_,
     includeTransactions: includeTransactions_,
   }: GetBlockParameters<includeTransactions, blockTag> = {},
 ): Promise<GetBlockReturnType<chain, includeTransactions, blockTag>> {
+  const blockTag = blockTag_ ?? 'latest'
   const includeTransactions = includeTransactions_ ?? false
 
   const blockNumberHex =
@@ -128,5 +129,5 @@ export async function getBlock<
   if (!block) throw new BlockNotFoundError({ blockHash, blockNumber })
 
   const format = client.chain?.formatters?.block?.format || formatBlock
-  return format(block, 'getBlock')
+  return format(block)
 }

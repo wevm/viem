@@ -1,6 +1,4 @@
 import {
-  IntegerOutOfRangeError,
-  type IntegerOutOfRangeErrorType,
   InvalidHexBooleanError,
   type InvalidHexBooleanErrorType,
   SizeOverflowError,
@@ -187,10 +185,7 @@ export function hexToBool(hex_: Hex, opts: HexToBoolOpts = {}): boolean {
 
 export type HexToNumberOpts = HexToBigIntOpts
 
-export type HexToNumberErrorType =
-  | HexToBigIntErrorType
-  | IntegerOutOfRangeErrorType
-  | ErrorType
+export type HexToNumberErrorType = HexToBigIntErrorType | ErrorType
 
 /**
  * Decodes a hex string into a number.
@@ -212,17 +207,7 @@ export type HexToNumberErrorType =
  * // 420
  */
 export function hexToNumber(hex: Hex, opts: HexToNumberOpts = {}): number {
-  const value = hexToBigInt(hex, opts)
-  const number = Number(value)
-  if (!Number.isSafeInteger(number))
-    throw new IntegerOutOfRangeError({
-      max: `${Number.MAX_SAFE_INTEGER}`,
-      min: `${Number.MIN_SAFE_INTEGER}`,
-      signed: opts.signed,
-      size: opts.size,
-      value: `${value}n`,
-    })
-  return number
+  return Number(hexToBigInt(hex, opts))
 }
 
 export type HexToStringOpts = {

@@ -1,8 +1,8 @@
 import type { ErrorType } from '../../errors/utils.js'
 import type { SignedAuthorizationList } from '../../types/authorization.js'
 import type { BlockTag } from '../../types/block.js'
+import type { Chain } from '../../types/chain.js'
 import type {
-  Chain,
   ExtractChainFormatterExclude,
   ExtractChainFormatterReturnType,
 } from '../../types/chain.js'
@@ -45,10 +45,7 @@ export const transactionType = {
 
 export type FormatTransactionErrorType = ErrorType
 
-export function formatTransaction(
-  transaction: ExactPartial<RpcTransaction>,
-  _?: string | undefined,
-) {
+export function formatTransaction(transaction: ExactPartial<RpcTransaction>) {
   const transaction_ = {
     ...transaction,
     blockHash: transaction.blockHash ? transaction.blockHash : null,
@@ -111,8 +108,9 @@ export function formatTransaction(
     delete transaction_.maxFeePerGas
     delete transaction_.maxPriorityFeePerGas
   }
-  if (transaction_.type === 'eip1559') delete transaction_.maxFeePerBlobGas
-
+  if (transaction_.type === 'eip1559') {
+    delete transaction_.maxFeePerBlobGas
+  }
   return transaction_
 }
 

@@ -1,4 +1,4 @@
-import type { Config } from 'vocs/config'
+import type { Sidebar } from 'vocs'
 
 export const sidebar = {
   '/docs/': [
@@ -21,6 +21,7 @@ export const sidebar = {
         { text: 'Error Handling', link: '/docs/error-handling' },
         {
           text: 'EIP-7702',
+          link: '/docs/eip7702',
           collapsed: true,
           items: [
             { text: 'Overview', link: '/docs/eip7702' },
@@ -313,10 +314,6 @@ export const sidebar = {
               link: '/docs/actions/wallet/sendCalls',
             },
             {
-              text: 'sendCallsSync',
-              link: '/docs/actions/wallet/sendCallsSync',
-            },
-            {
               text: 'showCallsStatus',
               link: '/docs/actions/wallet/showCallsStatus',
             },
@@ -377,16 +374,8 @@ export const sidebar = {
               link: '/docs/actions/wallet/sendRawTransaction',
             },
             {
-              text: 'sendRawTransactionSync',
-              link: '/docs/actions/wallet/sendRawTransactionSync',
-            },
-            {
               text: 'sendTransaction',
               link: '/docs/actions/wallet/sendTransaction',
-            },
-            {
-              text: 'sendTransactionSync',
-              link: '/docs/actions/wallet/sendTransactionSync',
             },
             {
               text: 'signTransaction',
@@ -652,10 +641,6 @@ export const sidebar = {
             {
               text: 'writeContract',
               link: '/docs/contract/writeContract',
-            },
-            {
-              text: 'writeContractSync',
-              link: '/docs/contract/writeContractSync',
             },
             {
               text: 'watchContractEvent',
@@ -1014,10 +999,6 @@ export const sidebar = {
         {
           text: 'Hash',
           items: [
-            {
-              text: 'isHash',
-              link: '/docs/utilities/isHash',
-            },
             {
               text: 'keccak256',
               link: '/docs/utilities/keccak256',
@@ -1438,24 +1419,6 @@ export const sidebar = {
         ],
       },
       {
-        text: 'ERC-7811',
-        items: [
-          {
-            text: 'Client',
-            link: '/experimental/erc7811/client',
-          },
-          {
-            text: 'Actions',
-            items: [
-              {
-                text: 'getAssets',
-                link: '/experimental/erc7811/getAssets',
-              },
-            ],
-          },
-        ],
-      },
-      {
         text: 'ERC-7821',
         items: [
           {
@@ -1588,10 +1551,6 @@ export const sidebar = {
           {
             text: 'estimateL1Gas',
             link: '/op-stack/actions/estimateL1Gas',
-          },
-          {
-            text: 'estimateOperatorFee',
-            link: '/op-stack/actions/estimateOperatorFee',
           },
           {
             text: 'estimateTotalFee',
@@ -1745,517 +1704,6 @@ export const sidebar = {
       },
     ],
   },
-  '/circle-usdc': {
-    backLink: true,
-    items: [
-      {
-        text: 'USDC (Circle)',
-        items: [
-          {
-            text: 'Introduction',
-            link: '/circle-usdc',
-          },
-        ],
-      },
-      {
-        text: 'Guides',
-        items: [
-          {
-            text: 'Integrating USDC',
-            link: '/circle-usdc/guides/integrating',
-          },
-          {
-            text: 'Cross Chain Transfers',
-            items: [
-              {
-                text: 'Overview',
-                link: '/circle-usdc/guides/cross-chain',
-              },
-              {
-                text: 'CCTP Integration with Bridge Kit',
-                link: '/circle-usdc/guides/bridge-kit',
-              },
-              {
-                text: 'CCTP Integration',
-                link: '/circle-usdc/guides/manual-cctp',
-              },
-            ],
-          },
-          {
-            text: 'Paying Gas with USDC',
-            link: '/circle-usdc/guides/paymaster',
-          },
-          {
-            text: 'Circle Smart Account',
-            link: '/circle-usdc/guides/smart-account',
-          },
-        ],
-      },
-    ],
-  },
-  '/tempo': {
-    backLink: true,
-    items: [
-      {
-        text: 'Tempo',
-        items: [
-          {
-            text: 'Getting Started',
-            link: '/tempo',
-          },
-          {
-            text: 'Chains',
-            link: '/tempo/chains',
-          },
-          {
-            text: 'Transactions',
-            link: '/tempo/transactions',
-          },
-          {
-            text: 'Tempo Docs & Guides',
-            link: 'https://docs.tempo.xyz',
-          },
-        ],
-      },
-      {
-        text: 'Accounts',
-        items: [
-          {
-            text: 'Overview',
-            link: '/tempo/accounts',
-          },
-          {
-            text: 'Secp256k1 (Standard Account)',
-            link: '/tempo/accounts/account.fromSecp256k1',
-          },
-          {
-            text: 'P256',
-            link: '/tempo/accounts/account.fromP256',
-          },
-          {
-            text: 'WebAuthnP256 (Passkey)',
-            link: '/tempo/accounts/account.fromWebAuthnP256',
-          },
-          {
-            text: 'WebCryptoP256',
-            link: '/tempo/accounts/account.fromWebCryptoP256',
-          },
-        ],
-      },
-      {
-        text: 'Actions',
-        items: [
-          {
-            text: 'Overview',
-            link: '/tempo/actions',
-          },
-          {
-            text: 'AMM',
-            collapsed: true,
-            items: [
-              {
-                text: 'burn',
-                link: '/tempo/actions/amm.burn',
-              },
-              {
-                text: 'getLiquidityBalance',
-                link: '/tempo/actions/amm.getLiquidityBalance',
-              },
-              {
-                text: 'getPool',
-                link: '/tempo/actions/amm.getPool',
-              },
-              {
-                text: 'mint',
-                link: '/tempo/actions/amm.mint',
-              },
-              {
-                text: 'rebalanceSwap',
-                link: '/tempo/actions/amm.rebalanceSwap',
-              },
-              {
-                text: 'watchBurn',
-                link: '/tempo/actions/amm.watchBurn',
-              },
-              {
-                text: 'watchMint',
-                link: '/tempo/actions/amm.watchMint',
-              },
-              {
-                text: 'watchRebalanceSwap',
-                link: '/tempo/actions/amm.watchRebalanceSwap',
-              },
-            ],
-          },
-          {
-            text: 'Fee',
-            collapsed: true,
-            items: [
-              {
-                text: 'getUserToken',
-                link: '/tempo/actions/fee.getUserToken',
-              },
-              {
-                text: 'setUserToken',
-                link: '/tempo/actions/fee.setUserToken',
-              },
-              {
-                text: 'watchSetUserToken',
-                link: '/tempo/actions/fee.watchSetUserToken',
-              },
-            ],
-          },
-          {
-            text: 'Nonce',
-            collapsed: true,
-            items: [
-              {
-                text: 'getNonce',
-                link: '/tempo/actions/nonce.getNonce',
-              },
-              {
-                text: 'watchNonceIncremented',
-                link: '/tempo/actions/nonce.watchNonceIncremented',
-              },
-            ],
-          },
-          {
-            text: 'Policy',
-            collapsed: true,
-            items: [
-              {
-                text: 'create',
-                link: '/tempo/actions/policy.create',
-              },
-              {
-                text: 'getData',
-                link: '/tempo/actions/policy.getData',
-              },
-              {
-                text: 'isAuthorized',
-                link: '/tempo/actions/policy.isAuthorized',
-              },
-              {
-                text: 'modifyBlacklist',
-                link: '/tempo/actions/policy.modifyBlacklist',
-              },
-              {
-                text: 'modifyWhitelist',
-                link: '/tempo/actions/policy.modifyWhitelist',
-              },
-              {
-                text: 'setAdmin',
-                link: '/tempo/actions/policy.setAdmin',
-              },
-              {
-                text: 'watchAdminUpdated',
-                link: '/tempo/actions/policy.watchAdminUpdated',
-              },
-              {
-                text: 'watchBlacklistUpdated',
-                link: '/tempo/actions/policy.watchBlacklistUpdated',
-              },
-              {
-                text: 'watchCreate',
-                link: '/tempo/actions/policy.watchCreate',
-              },
-              {
-                text: 'watchWhitelistUpdated',
-                link: '/tempo/actions/policy.watchWhitelistUpdated',
-              },
-            ],
-          },
-          {
-            text: 'Faucet',
-            collapsed: true,
-            items: [
-              {
-                text: 'fund',
-                link: '/tempo/actions/faucet.fund',
-              },
-            ],
-          },
-          {
-            text: 'Reward',
-            collapsed: true,
-            items: [
-              {
-                text: 'claim',
-                link: '/tempo/actions/reward.claim',
-              },
-              {
-                text: 'distribute',
-                link: '/tempo/actions/reward.distribute',
-              },
-              {
-                text: 'getGlobalRewardPerToken',
-                link: '/tempo/actions/reward.getGlobalRewardPerToken',
-              },
-              {
-                text: 'getPendingRewards',
-                link: '/tempo/actions/reward.getPendingRewards',
-              },
-              {
-                text: 'getUserRewardInfo',
-                link: '/tempo/actions/reward.getUserRewardInfo',
-              },
-              {
-                text: 'setRecipient',
-                link: '/tempo/actions/reward.setRecipient',
-              },
-              {
-                text: 'watchRewardDistributed',
-                link: '/tempo/actions/reward.watchRewardDistributed',
-              },
-              {
-                text: 'watchRewardRecipientSet',
-                link: '/tempo/actions/reward.watchRewardRecipientSet',
-              },
-            ],
-          },
-          {
-            text: 'Stablecoin DEX',
-            collapsed: true,
-            items: [
-              {
-                text: 'buy',
-                link: '/tempo/actions/dex.buy',
-              },
-              {
-                text: 'cancel',
-                link: '/tempo/actions/dex.cancel',
-              },
-              {
-                text: 'cancelStale',
-                link: '/tempo/actions/dex.cancelStale',
-              },
-              {
-                text: 'createPair',
-                link: '/tempo/actions/dex.createPair',
-              },
-              {
-                text: 'getBalance',
-                link: '/tempo/actions/dex.getBalance',
-              },
-              {
-                text: 'getBuyQuote',
-                link: '/tempo/actions/dex.getBuyQuote',
-              },
-              {
-                text: 'getOrder',
-                link: '/tempo/actions/dex.getOrder',
-              },
-              {
-                text: 'getTickLevel',
-                link: '/tempo/actions/dex.getTickLevel',
-              },
-              {
-                text: 'getSellQuote',
-                link: '/tempo/actions/dex.getSellQuote',
-              },
-              {
-                text: 'place',
-                link: '/tempo/actions/dex.place',
-              },
-              {
-                text: 'placeFlip',
-                link: '/tempo/actions/dex.placeFlip',
-              },
-              {
-                text: 'sell',
-                link: '/tempo/actions/dex.sell',
-              },
-              {
-                text: 'watchFlipOrderPlaced',
-                link: '/tempo/actions/dex.watchFlipOrderPlaced',
-              },
-              {
-                text: 'watchOrderCancelled',
-                link: '/tempo/actions/dex.watchOrderCancelled',
-              },
-              {
-                text: 'watchOrderFilled',
-                link: '/tempo/actions/dex.watchOrderFilled',
-              },
-              {
-                text: 'watchOrderPlaced',
-                link: '/tempo/actions/dex.watchOrderPlaced',
-              },
-              {
-                text: 'withdraw',
-                link: '/tempo/actions/dex.withdraw',
-              },
-            ],
-          },
-          {
-            text: 'Token',
-            collapsed: true,
-            items: [
-              {
-                text: 'approve',
-                link: '/tempo/actions/token.approve',
-              },
-              {
-                text: 'burn',
-                link: '/tempo/actions/token.burn',
-              },
-              {
-                text: 'burnBlocked',
-                link: '/tempo/actions/token.burnBlocked',
-              },
-              {
-                text: 'changeTransferPolicy',
-                link: '/tempo/actions/token.changeTransferPolicy',
-              },
-              {
-                text: 'create',
-                link: '/tempo/actions/token.create',
-              },
-              {
-                text: 'getAllowance',
-                link: '/tempo/actions/token.getAllowance',
-              },
-              {
-                text: 'getBalance',
-                link: '/tempo/actions/token.getBalance',
-              },
-              {
-                text: 'getMetadata',
-                link: '/tempo/actions/token.getMetadata',
-              },
-              {
-                text: 'grantRoles',
-                link: '/tempo/actions/token.grantRoles',
-              },
-              {
-                text: 'hasRole',
-                link: '/tempo/actions/token.hasRole',
-              },
-              {
-                text: 'mint',
-                link: '/tempo/actions/token.mint',
-              },
-              {
-                text: 'pause',
-                link: '/tempo/actions/token.pause',
-              },
-              {
-                text: 'renounceRoles',
-                link: '/tempo/actions/token.renounceRoles',
-              },
-              {
-                text: 'revokeRoles',
-                link: '/tempo/actions/token.revokeRoles',
-              },
-              {
-                text: 'setRoleAdmin',
-                link: '/tempo/actions/token.setRoleAdmin',
-              },
-              {
-                text: 'setSupplyCap',
-                link: '/tempo/actions/token.setSupplyCap',
-              },
-              {
-                text: 'transfer',
-                link: '/tempo/actions/token.transfer',
-              },
-              {
-                text: 'unpause',
-                link: '/tempo/actions/token.unpause',
-              },
-              {
-                text: 'watchAdminRole',
-                link: '/tempo/actions/token.watchAdminRole',
-              },
-              {
-                text: 'watchApprove',
-                link: '/tempo/actions/token.watchApprove',
-              },
-              {
-                text: 'watchBurn',
-                link: '/tempo/actions/token.watchBurn',
-              },
-              {
-                text: 'watchCreate',
-                link: '/tempo/actions/token.watchCreate',
-              },
-              {
-                text: 'watchMint',
-                link: '/tempo/actions/token.watchMint',
-              },
-              {
-                text: 'watchRole',
-                link: '/tempo/actions/token.watchRole',
-              },
-              {
-                text: 'watchTransfer',
-                link: '/tempo/actions/token.watchTransfer',
-              },
-            ],
-          },
-          {
-            text: 'Validator',
-            collapsed: true,
-            items: [
-              {
-                text: 'add',
-                link: '/tempo/actions/validator.add',
-              },
-              {
-                text: 'changeOwner',
-                link: '/tempo/actions/validator.changeOwner',
-              },
-              {
-                text: 'changeStatus',
-                link: '/tempo/actions/validator.changeStatus',
-              },
-              {
-                text: 'get',
-                link: '/tempo/actions/validator.get',
-              },
-              {
-                text: 'getByIndex',
-                link: '/tempo/actions/validator.getByIndex',
-              },
-              {
-                text: 'getCount',
-                link: '/tempo/actions/validator.getCount',
-              },
-              {
-                text: 'getNextFullDkgCeremony',
-                link: '/tempo/actions/validator.getNextFullDkgCeremony',
-              },
-              {
-                text: 'getOwner',
-                link: '/tempo/actions/validator.getOwner',
-              },
-              {
-                text: 'list',
-                link: '/tempo/actions/validator.list',
-              },
-              {
-                text: 'setNextFullDkgCeremony',
-                link: '/tempo/actions/validator.setNextFullDkgCeremony',
-              },
-              {
-                text: 'update',
-                link: '/tempo/actions/validator.update',
-              },
-            ],
-          },
-        ],
-      },
-      {
-        text: 'Transports',
-        items: [
-          {
-            text: 'withFeePayer',
-            link: '/tempo/transports/withFeePayer',
-          },
-        ],
-      },
-    ],
-  },
   '/zksync': {
     backLink: true,
     items: [
@@ -2312,8 +1760,20 @@ export const sidebar = {
         text: 'L2 Public Actions',
         items: [
           {
+            text: 'estimateFee',
+            link: '/zksync/actions/estimateFee',
+          },
+          {
             text: 'estimateGasL1ToL2',
             link: '/zksync/actions/estimateGasL1ToL2',
+          },
+          {
+            text: 'getAllBalances',
+            link: '/zksync/actions/getAllBalances',
+          },
+          {
+            text: 'getBaseTokenL1Address',
+            link: '/zksync/actions/getBaseTokenL1Address',
           },
           {
             text: 'getBlockDetails',
@@ -2328,10 +1788,6 @@ export const sidebar = {
             link: '/zksync/actions/getDefaultBridgeAddress',
           },
           {
-            text: 'getGasPerPubData',
-            link: '/zksync/actions/getGasPerPubData',
-          },
-          {
             text: 'getL1BatchDetails',
             link: '/zksync/actions/getL1BatchDetails',
           },
@@ -2342,6 +1798,10 @@ export const sidebar = {
           {
             text: 'getL1BatchNumber',
             link: '/zksync/actions/getL1BatchNumber',
+          },
+          {
+            text: 'getL1ChainId',
+            link: '/zksync/actions/getL1ChainId',
           },
           {
             text: 'getL1TokenAddress',
@@ -2356,36 +1816,20 @@ export const sidebar = {
             link: '/zksync/actions/getLogProof',
           },
           {
-            text: 'getTransactionDetails',
-            link: '/zksync/actions/getTransactionDetails',
-          },
-          {
-            text: 'estimateFee (deprecated)',
-            link: '/zksync/actions/estimateFee',
-          },
-          {
-            text: 'getAllBalances (deprecated)',
-            link: '/zksync/actions/getAllBalances',
-          },
-          {
-            text: 'getBaseTokenL1Address (deprecated)',
-            link: '/zksync/actions/getBaseTokenL1Address',
-          },
-          {
-            text: 'getL1ChainId (deprecated)',
-            link: '/zksync/actions/getL1ChainId',
-          },
-          {
-            text: 'getMainContractAddress (deprecated)',
+            text: 'getMainContractAddress',
             link: '/zksync/actions/getMainContractAddress',
           },
           {
-            text: 'getRawBlockTransaction (deprecated)',
+            text: 'getRawBlockTransaction',
             link: '/zksync/actions/getRawBlockTransactions',
           },
           {
-            text: 'getTestnetPaymasterAddress (deprecated)',
+            text: 'getTestnetPaymasterAddress',
             link: '/zksync/actions/getTestnetPaymasterAddress',
+          },
+          {
+            text: 'getTransactionDetails',
+            link: '/zksync/actions/getTransactionDetails',
           },
         ],
       },
@@ -2473,4 +1917,4 @@ export const sidebar = {
       },
     ],
   },
-} as const satisfies Config['sidebar']
+} as const satisfies Sidebar

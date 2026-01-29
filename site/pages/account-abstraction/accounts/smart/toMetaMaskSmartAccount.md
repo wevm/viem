@@ -1,32 +1,32 @@
 # MetaMask Smart Account
 
 :::warning
-**Note:** This implementation is maintained & distributed by [MetaMask Smart Accounts Kit](https://docs.metamask.io/smart-accounts-kit).
+**Note:** This implementation is maintained & distributed by [MetaMask Delegation Toolkit](https://docs.gator.metamask.io).
 :::
 
-MetaMask Smart Accounts has three types of implementations, each offering unique features 
-and use cases. See [Hybrid smart account](https://docs.metamask.io/smart-accounts-kit/guides/smart-accounts/create-smart-account/#create-a-hybrid-smart-account), [Multisig smart account](https://docs.metamask.io/smart-accounts-kit/guides/smart-accounts/create-smart-account/#create-a-multisig-smart-account), and [Stateless 7702 smart account](https://docs.metamask.io/smart-accounts-kit/guides/smart-accounts/create-smart-account/#create-a-stateless-7702-smart-account) to learn more about 
+MetaMask Smart Account has two types of implementations, each offering unique features 
+and use cases. See [Hybrid Smart Account](https://docs.gator.metamask.io/how-to/create-smart-account/configure-accounts-signers#configure-a-hybrid-smart-account) and [Multisig Smart Account](https://docs.gator.metamask.io/how-to/create-smart-account/configure-accounts-signers#configure-a-multisig-smart-account) to learn more about 
 the implementations.
 
-To implement MetaMask Smart Accounts, you can use the [`toMetaMaskSmartAccount`](https://docs.metamask.io/smart-accounts-kit/guides/smart-accounts/create-smart-account/) function from the [Smart Accounts Kit](https://docs.metamask.io/smart-accounts-kit/).
+To implement MetaMask Smart Account, you can use the [`toMetaMaskSmartAccount`](https://docs.gator.metamask.io/how-to/create-smart-account#create-a-metamasksmartaccount) function from [delegation toolkit](https://docs.gator.metamask.io).
 
 ## Install
 
 :::code-group
 ```bash [pnpm]
-pnpm add @metamask/smart-accounts-kit
+pnpm add @metamask/delegation-toolkit
 ```
 
 ```bash [npm]
-npm install @metamask/smart-accounts-kit
+npm install @metamask/delegation-toolkit
 ```
 
 ```bash [yarn]
-yarn add @metamask/smart-accounts-kit
+yarn add @metamask/delegation-toolkit
 ```
 
 ```bash [bun]
-bun add @metamask/smart-accounts-kit
+bun add @metamask/delegation-toolkit
 ```
 :::
 
@@ -38,7 +38,7 @@ bun add @metamask/smart-accounts-kit
 import { // [!code focus]
   Implementation, // [!code focus]
   toMetaMaskSmartAccount, // [!code focus]
-} from "@metamask/smart-accounts-kit" // [!code focus]
+} from "@metamask/delegation-toolkit" // [!code focus]
 import { client } from './client.js'
 import { owner } from './owner.js'
 
@@ -47,7 +47,7 @@ const account = await toMetaMaskSmartAccount({ // [!code focus]
   implementation: Implementation.Hybrid, // [!code focus]
   deployParams: [owner.address, [], [], []], // [!code focus]
   deploySalt: "0x", // [!code focus]
-  signer: { account: owner }, // [!code focus]
+  signatory: { account: owner }, // [!code focus]
 }) // [!code focus]
 ```
 
@@ -74,4 +74,5 @@ export const owner = privateKeyToAccount('0x...')
 
 ## Parameters
 
-[See Parameters](https://docs.metamask.io/smart-accounts-kit/reference/smart-account/#parameters-6)
+[See Parameters](https://docs.gator.metamask.io/reference/delegation-toolkit-api/smart-account#parameters-5)
+

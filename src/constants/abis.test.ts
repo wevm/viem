@@ -512,29 +512,6 @@ test('exports abis', () => {
           "type": "function",
         },
       ],
-      "erc1271Abi": [
-        {
-          "inputs": [
-            {
-              "name": "hash",
-              "type": "bytes32",
-            },
-            {
-              "name": "signature",
-              "type": "bytes",
-            },
-          ],
-          "name": "isValidSignature",
-          "outputs": [
-            {
-              "name": "",
-              "type": "bytes4",
-            },
-          ],
-          "stateMutability": "view",
-          "type": "function",
-        },
-      ],
       "erc20Abi": [
         {
           "inputs": [
@@ -1413,50 +1390,6 @@ test('exports abis', () => {
           "type": "function",
         },
       ],
-      "erc6492SignatureValidatorAbi": [
-        {
-          "inputs": [
-            {
-              "name": "_signer",
-              "type": "address",
-            },
-            {
-              "name": "_hash",
-              "type": "bytes32",
-            },
-            {
-              "name": "_signature",
-              "type": "bytes",
-            },
-          ],
-          "stateMutability": "nonpayable",
-          "type": "constructor",
-        },
-        {
-          "inputs": [
-            {
-              "name": "_signer",
-              "type": "address",
-            },
-            {
-              "name": "_hash",
-              "type": "bytes32",
-            },
-            {
-              "name": "_signature",
-              "type": "bytes",
-            },
-          ],
-          "name": "isValidSig",
-          "outputs": [
-            {
-              "type": "bool",
-            },
-          ],
-          "stateMutability": "nonpayable",
-          "type": "function",
-        },
-      ],
       "erc721Abi": [
         {
           "inputs": [
@@ -1763,7 +1696,7 @@ test('exports abis', () => {
               "type": "address",
             },
             {
-              "name": "tokenId",
+              "name": "tokeId",
               "type": "uint256",
             },
           ],
@@ -1815,14 +1748,24 @@ test('exports abis', () => {
           "stateMutability": "view",
           "type": "function",
         },
+      ],
+      "smartAccountAbi": [
         {
-          "inputs": [],
-          "name": "getCurrentBlockTimestamp",
+          "inputs": [
+            {
+              "name": "hash",
+              "type": "bytes32",
+            },
+            {
+              "name": "signature",
+              "type": "bytes",
+            },
+          ],
+          "name": "isValidSignature",
           "outputs": [
             {
-              "internalType": "uint256",
-              "name": "timestamp",
-              "type": "uint256",
+              "name": "",
+              "type": "bytes4",
             },
           ],
           "stateMutability": "view",
@@ -1854,53 +1797,24 @@ test('exports abis', () => {
       ],
       "universalResolverResolveAbi": [
         {
-          "inputs": [
-            {
-              "name": "dns",
-              "type": "bytes",
-            },
-          ],
-          "name": "DNSDecodingFailed",
-          "type": "error",
-        },
-        {
-          "inputs": [
-            {
-              "name": "ens",
-              "type": "string",
-            },
-          ],
-          "name": "DNSEncodingFailed",
+          "inputs": [],
+          "name": "ResolverNotFound",
           "type": "error",
         },
         {
           "inputs": [],
-          "name": "EmptyAddress",
-          "type": "error",
-        },
-        {
-          "inputs": [
-            {
-              "name": "status",
-              "type": "uint16",
-            },
-            {
-              "name": "message",
-              "type": "string",
-            },
-          ],
-          "name": "HttpError",
+          "name": "ResolverWildcardNotSupported",
           "type": "error",
         },
         {
           "inputs": [],
-          "name": "InvalidBatchGatewayResponse",
+          "name": "ResolverNotContract",
           "type": "error",
         },
         {
           "inputs": [
             {
-              "name": "errorData",
+              "name": "returnData",
               "type": "bytes",
             },
           ],
@@ -1910,51 +1824,47 @@ test('exports abis', () => {
         {
           "inputs": [
             {
+              "components": [
+                {
+                  "name": "status",
+                  "type": "uint16",
+                },
+                {
+                  "name": "message",
+                  "type": "string",
+                },
+              ],
+              "name": "errors",
+              "type": "tuple[]",
+            },
+          ],
+          "name": "HttpError",
+          "type": "error",
+        },
+        {
+          "inputs": [
+            {
               "name": "name",
               "type": "bytes",
             },
             {
-              "name": "resolver",
+              "name": "data",
+              "type": "bytes",
+            },
+          ],
+          "name": "resolve",
+          "outputs": [
+            {
+              "name": "",
+              "type": "bytes",
+            },
+            {
+              "name": "address",
               "type": "address",
             },
           ],
-          "name": "ResolverNotContract",
-          "type": "error",
-        },
-        {
-          "inputs": [
-            {
-              "name": "name",
-              "type": "bytes",
-            },
-          ],
-          "name": "ResolverNotFound",
-          "type": "error",
-        },
-        {
-          "inputs": [
-            {
-              "name": "primary",
-              "type": "string",
-            },
-            {
-              "name": "primaryAddress",
-              "type": "bytes",
-            },
-          ],
-          "name": "ReverseAddressMismatch",
-          "type": "error",
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes4",
-              "name": "selector",
-              "type": "bytes4",
-            },
-          ],
-          "name": "UnsupportedResolverProfile",
-          "type": "error",
+          "stateMutability": "view",
+          "type": "function",
         },
         {
           "inputs": [
@@ -1971,7 +1881,7 @@ test('exports abis', () => {
               "type": "string[]",
             },
           ],
-          "name": "resolveWithGateways",
+          "name": "resolve",
           "outputs": [
             {
               "name": "",
@@ -1988,53 +1898,24 @@ test('exports abis', () => {
       ],
       "universalResolverReverseAbi": [
         {
-          "inputs": [
-            {
-              "name": "dns",
-              "type": "bytes",
-            },
-          ],
-          "name": "DNSDecodingFailed",
-          "type": "error",
-        },
-        {
-          "inputs": [
-            {
-              "name": "ens",
-              "type": "string",
-            },
-          ],
-          "name": "DNSEncodingFailed",
+          "inputs": [],
+          "name": "ResolverNotFound",
           "type": "error",
         },
         {
           "inputs": [],
-          "name": "EmptyAddress",
-          "type": "error",
-        },
-        {
-          "inputs": [
-            {
-              "name": "status",
-              "type": "uint16",
-            },
-            {
-              "name": "message",
-              "type": "string",
-            },
-          ],
-          "name": "HttpError",
+          "name": "ResolverWildcardNotSupported",
           "type": "error",
         },
         {
           "inputs": [],
-          "name": "InvalidBatchGatewayResponse",
+          "name": "ResolverNotContract",
           "type": "error",
         },
         {
           "inputs": [
             {
-              "name": "errorData",
+              "name": "returnData",
               "type": "bytes",
             },
           ],
@@ -2044,50 +1925,21 @@ test('exports abis', () => {
         {
           "inputs": [
             {
-              "name": "name",
-              "type": "bytes",
-            },
-            {
-              "name": "resolver",
-              "type": "address",
-            },
-          ],
-          "name": "ResolverNotContract",
-          "type": "error",
-        },
-        {
-          "inputs": [
-            {
-              "name": "name",
-              "type": "bytes",
+              "components": [
+                {
+                  "name": "status",
+                  "type": "uint16",
+                },
+                {
+                  "name": "message",
+                  "type": "string",
+                },
+              ],
+              "name": "errors",
+              "type": "tuple[]",
             },
           ],
-          "name": "ResolverNotFound",
-          "type": "error",
-        },
-        {
-          "inputs": [
-            {
-              "name": "primary",
-              "type": "string",
-            },
-            {
-              "name": "primaryAddress",
-              "type": "bytes",
-            },
-          ],
-          "name": "ReverseAddressMismatch",
-          "type": "error",
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "bytes4",
-              "name": "selector",
-              "type": "bytes4",
-            },
-          ],
-          "name": "UnsupportedResolverProfile",
+          "name": "HttpError",
           "type": "error",
         },
         {
@@ -2096,31 +1948,104 @@ test('exports abis', () => {
               "name": "reverseName",
               "type": "bytes",
             },
-            {
-              "name": "coinType",
-              "type": "uint256",
-            },
-            {
-              "name": "gateways",
-              "type": "string[]",
-            },
           ],
-          "name": "reverseWithGateways",
+          "name": "reverse",
           "outputs": [
             {
               "name": "resolvedName",
               "type": "string",
             },
             {
-              "name": "resolver",
+              "name": "resolvedAddress",
               "type": "address",
             },
             {
               "name": "reverseResolver",
               "type": "address",
             },
+            {
+              "name": "resolver",
+              "type": "address",
+            },
           ],
           "stateMutability": "view",
+          "type": "function",
+        },
+        {
+          "inputs": [
+            {
+              "name": "reverseName",
+              "type": "bytes",
+            },
+            {
+              "name": "gateways",
+              "type": "string[]",
+            },
+          ],
+          "name": "reverse",
+          "outputs": [
+            {
+              "name": "resolvedName",
+              "type": "string",
+            },
+            {
+              "name": "resolvedAddress",
+              "type": "address",
+            },
+            {
+              "name": "reverseResolver",
+              "type": "address",
+            },
+            {
+              "name": "resolver",
+              "type": "address",
+            },
+          ],
+          "stateMutability": "view",
+          "type": "function",
+        },
+      ],
+      "universalSignatureValidatorAbi": [
+        {
+          "inputs": [
+            {
+              "name": "_signer",
+              "type": "address",
+            },
+            {
+              "name": "_hash",
+              "type": "bytes32",
+            },
+            {
+              "name": "_signature",
+              "type": "bytes",
+            },
+          ],
+          "stateMutability": "nonpayable",
+          "type": "constructor",
+        },
+        {
+          "inputs": [
+            {
+              "name": "_signer",
+              "type": "address",
+            },
+            {
+              "name": "_hash",
+              "type": "bytes32",
+            },
+            {
+              "name": "_signature",
+              "type": "bytes",
+            },
+          ],
+          "name": "isValidSig",
+          "outputs": [
+            {
+              "type": "bool",
+            },
+          ],
+          "stateMutability": "nonpayable",
           "type": "function",
         },
       ],

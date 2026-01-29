@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest'
 
-import { wagmiContractConfig } from '~test/abis.js'
-import { anvilMainnet } from '~test/anvil.js'
+import { wagmiContractConfig } from '../../test/src/abis.js'
+import { anvilMainnet } from '../../test/src/anvil.js'
 import * as getChainId from '../actions/public/getChainId.js'
 import { readContract } from '../actions/public/readContract.js'
 

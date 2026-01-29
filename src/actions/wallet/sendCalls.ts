@@ -97,6 +97,7 @@ export async function sendCalls<
 ): Promise<SendCallsReturnType> {
   const {
     account: account_ = client.account,
+    capabilities,
     chain = client.chain,
     experimental_fallback,
     experimental_fallbackDelay = 32,
@@ -106,24 +107,6 @@ export async function sendCalls<
   } = parameters
 
   const account = account_ ? parseAccount(account_) : null
-
-  let capabilities = parameters.capabilities
-
-  if (client.dataSuffix && !parameters.capabilities?.dataSuffix) {
-    if (typeof client.dataSuffix === 'string')
-      capabilities = {
-        ...parameters.capabilities,
-        dataSuffix: { value: client.dataSuffix, optional: true },
-      }
-    else
-      capabilities = {
-        ...parameters.capabilities,
-        dataSuffix: {
-          value: client.dataSuffix.value,
-          ...(client.dataSuffix.required ? {} : { optional: true }),
-        },
-      }
-  }
 
   const calls = parameters.calls.map((call_: unknown) => {
     const call = call_ as Call
@@ -137,7 +120,7 @@ export async function sendCalls<
       : call.data
 
     return {
-      data: call.dataSuffix && data ? concat([data, call.dataSuffix]) : data,
+      data,
       to: call.to,
       value: call.value ? numberToHex(call.value) : undefined,
     }
@@ -172,29 +155,13 @@ export async function sendCalls<
       experimental_fallback &&
       (error.name === 'MethodNotFoundRpcError' ||
         error.name === 'MethodNotSupportedRpcError' ||
-        error.name === 'UnknownRpcError' ||
         error.details
           .toLowerCase()
           .includes('does not exist / is not available') ||
         error.details.toLowerCase().includes('missing or invalid. request()') ||
         error.details
           .toLowerCase()
-          .includes('did not match any variant of untagged enum') ||
-        error.details
-          .toLowerCase()
-          .includes('account upgraded to unsupported contract') ||
-        error.details.toLowerCase().includes('eip-7702 not supported') ||
-        error.details.toLowerCase().includes('unsupported wc_ method') ||
-        // magic.link
-        error.details
-          .toLowerCase()
-          .includes('feature toggled misconfigured') ||
-        // Trust Wallet
-        error.details
-          .toLowerCase()
-          .includes(
-            'jsonrpcengine: response has no error or result for request',
-          ))
+          .includes('did not match any variant of untagged enum'))
     ) {
       if (capabilities) {
         const hasNonOptionalCapability = Object.values(capabilities).some(

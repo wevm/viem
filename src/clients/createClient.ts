@@ -7,9 +7,7 @@ import {
 } from '../accounts/utils/parseAccount.js'
 import type { ErrorType } from '../errors/utils.js'
 import type { Account } from '../types/account.js'
-import type { BlockTag } from '../types/block.js'
 import type { Chain } from '../types/chain.js'
-import type { DataSuffix } from '../types/dataSuffix.js'
 import type {
   EIP1193RequestFn,
   EIP1474Methods,
@@ -44,15 +42,6 @@ export type ClientConfig<
       }
     | undefined
   /**
-   * Default block tag to use for RPC requests.
-   *
-   * If the chain supports a pre-confirmation mechanism
-   * (set via `chain.experimental_preconfirmationTime`), defaults to `'pending'`.
-   *
-   * @default 'latest'
-   */
-  experimental_blockTag?: BlockTag | undefined
-  /**
    * Time (in ms) that cached data will remain in memory.
    * @default chain.blockTime / 3
    */
@@ -75,8 +64,6 @@ export type ClientConfig<
     | undefined
   /** Chain for the client. */
   chain?: Chain | undefined | chain
-  /** Data suffix to append to transaction data. */
-  dataSuffix?: DataSuffix | undefined
   /** A key for the client. */
   key?: string | undefined
   /** A name for the client. */
@@ -174,10 +161,6 @@ type Client_Base<
   ccipRead?: ClientConfig['ccipRead'] | undefined
   /** Chain for the client. */
   chain: chain
-  /** Data suffix to append to transaction data. */
-  dataSuffix?: DataSuffix | undefined
-  /** Default block tag to use for RPC requests. */
-  experimental_blockTag?: BlockTag | undefined
   /** A key for the client. */
   key: string
   /** A name for the client. */
@@ -206,8 +189,6 @@ type Extended = Prettify<
 export type MulticallBatchOptions = {
   /** The maximum size (in bytes) for each calldata chunk. @default 1_024 */
   batchSize?: number | undefined
-  /** Enable deployless multicall. */
-  deployless?: boolean | undefined
   /** The maximum number of milliseconds to wait before sending a batch. @default 0 */
   wait?: number | undefined
 }
@@ -237,17 +218,11 @@ export function createClient(parameters: ClientConfig): Client {
     batch,
     chain,
     ccipRead,
-    dataSuffix,
     key = 'base',
     name = 'Base Client',
     type = 'base',
   } = parameters
 
-  const experimental_blockTag =
-    parameters.experimental_blockTag ??
-    (typeof chain?.experimental_preconfirmationTime === 'number'
-      ? 'pending'
-      : undefined)
   const blockTime = chain?.blockTime ?? 12_000
 
   const defaultPollingInterval = Math.min(
@@ -261,7 +236,6 @@ export function createClient(parameters: ClientConfig): Client {
     ? parseAccount(parameters.account)
     : undefined
   const { config, request, value } = parameters.transport({
-    account,
     chain,
     pollingInterval,
   })
@@ -273,7 +247,6 @@ export function createClient(parameters: ClientConfig): Client {
     cacheTime,
     ccipRead,
     chain,
-    dataSuffix,
     key,
     name,
     pollingInterval,
@@ -281,7 +254,6 @@ export function createClient(parameters: ClientConfig): Client {
     transport,
     type,
     uid: uid(),
-    ...(experimental_blockTag ? { experimental_blockTag } : {}),
   }
 
   function extend(base: typeof client) {

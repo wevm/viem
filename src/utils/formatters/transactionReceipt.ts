@@ -29,7 +29,6 @@ export type FormatTransactionReceiptErrorType = ErrorType
 
 export function formatTransactionReceipt(
   transactionReceipt: ExactPartial<RpcTransactionReceipt>,
-  _?: string | undefined,
 ) {
   const receipt = {
     ...transactionReceipt,

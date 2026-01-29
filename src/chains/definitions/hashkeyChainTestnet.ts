@@ -10,13 +10,13 @@ export const hashkeyTestnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://testnet.hsk.xyz'],
+      http: ['https://hashkeychain-testnet.alt.technology'],
     },
   },
   blockExplorers: {
     default: {
-      name: 'HashKey Chain Testnet explorer',
-      url: 'https://testnet-explorer.hsk.xyz',
+      name: 'HashKey Chain Explorer',
+      url: 'https://hashkeychain-testnet-explorer.alt.technology',
     },
   },
   testnet: true,

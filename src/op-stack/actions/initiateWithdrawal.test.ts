@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import { anvilOptimism } from '~test/anvil.js'
-import { accounts } from '~test/constants.js'
+import { anvilOptimism } from '../../../test/src/anvil.js'
+import { accounts } from '../../../test/src/constants.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import {
   getTransactionReceipt,
@@ -8,7 +8,7 @@ import {
   waitForTransactionReceipt,
 } from '../../actions/index.js'
 import { sepolia } from '../../chains/index.js'
-import { createClient, decodeEventLog, http, parseEther } from '../../index.js'
+import { http, createClient, decodeEventLog, parseEther } from '../../index.js'
 import { l2ToL1MessagePasserAbi } from '../abis.js'
 import { optimismSepolia } from '../chains.js'
 import { getWithdrawals } from '../utils/getWithdrawals.js'
@@ -104,10 +104,12 @@ test('error: insufficient funds', async () => {
       gas: 69n,
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ContractFunctionExecutionError: The amount of gas (69) provided for the transaction is too low.
+    [ContractFunctionExecutionError: Transaction creation failed.
 
-    Request Arguments:
-      chain:  OP Mainnet (Local) (id: 10)
+    URL: http://localhost
+    Request body: {"method":"eth_estimateGas","params":[{"data":"0xc2b3e5ac000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266000000000000000000000000000000000000000000000000000000000000520800000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000004deadbeef00000000000000000000000000000000000000000000000000000000","from":"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266","gas":"0x45","to":"0x4200000000000000000000000000000000000016","value":"0x43c33c1937564800000"}]}
+     
+    Estimate Gas Arguments:
       from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
       to:     0x4200000000000000000000000000000000000016
       value:  20000 ETH
@@ -120,8 +122,8 @@ test('error: insufficient funds', async () => {
       args:                        (0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 21000, 0xdeadbeef)
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-    Docs: https://viem.sh/docs/contract/writeContract
-    Details: intrinsic gas too low
+    Docs: https://viem.sh/docs/contract/estimateContractGas
+    Details: Out of gas: gas required exceeds allowance: 69
     Version: viem@x.y.z]
   `)
 })
@@ -139,10 +141,12 @@ test('error: small gas', async () => {
       gas: 69n,
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ContractFunctionExecutionError: The amount of gas (69) provided for the transaction is too low.
+    [ContractFunctionExecutionError: Transaction creation failed.
 
-    Request Arguments:
-      chain:  OP Mainnet (Local) (id: 10)
+    URL: http://localhost
+    Request body: {"method":"eth_estimateGas","params":[{"data":"0xc2b3e5ac000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266000000000000000000000000000000000000000000000000000000000000520800000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000004deadbeef00000000000000000000000000000000000000000000000000000000","from":"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266","gas":"0x45","to":"0x4200000000000000000000000000000000000016","value":"0xde0b6b3a7640000"}]}
+     
+    Estimate Gas Arguments:
       from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
       to:     0x4200000000000000000000000000000000000016
       value:  1 ETH
@@ -155,8 +159,8 @@ test('error: small gas', async () => {
       args:                        (0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, 21000, 0xdeadbeef)
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
-    Docs: https://viem.sh/docs/contract/writeContract
-    Details: intrinsic gas too low
+    Docs: https://viem.sh/docs/contract/estimateContractGas
+    Details: Out of gas: gas required exceeds allowance: 69
     Version: viem@x.y.z]
   `)
 })
@@ -195,6 +199,7 @@ describe.skip('e2e', () => {
       targetChain: client_opSepolia.chain,
     })
 
+    // biome-ignore lint/suspicious/noConsoleLog:
     console.log('seconds to prove:', proveTime.seconds)
 
     const { game, withdrawal } = await waitToProve(client_sepolia, {
@@ -218,6 +223,7 @@ describe.skip('e2e', () => {
       withdrawalHash: withdrawal.withdrawalHash,
     })
 
+    // biome-ignore lint/suspicious/noConsoleLog:
     console.log('seconds to finalize:', finalizeTime.seconds)
 
     await waitToFinalize(client_sepolia, {
@@ -254,6 +260,7 @@ describe.skip('e2e', () => {
 
     const proveHash = await proveWithdrawal(client_sepolia, proveArgs)
 
+    // biome-ignore lint/suspicious/noConsoleLog:
     console.log('proveHash', proveHash)
   })
 })

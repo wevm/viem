@@ -102,11 +102,7 @@ export async function getEnsResolver<chain extends Chain | undefined>(
       {
         inputs: [{ type: 'bytes' }],
         name: 'findResolver',
-        outputs: [
-          { type: 'address' },
-          { type: 'bytes32' },
-          { type: 'uint256' },
-        ],
+        outputs: [{ type: 'address' }, { type: 'bytes32' }],
         stateMutability: 'view',
         type: 'function',
       },

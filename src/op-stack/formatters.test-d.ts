@@ -7,13 +7,13 @@ import { optimism } from '../chains/index.js'
 import { createPublicClient } from '../clients/createPublicClient.js'
 import { http } from '../clients/transports/http.js'
 import type { Hash } from '../types/misc.js'
-import type { formatters } from './formatters.js'
+import { formatters } from './formatters.js'
 import type { OpStackRpcBlock } from './types/block.js'
 
 describe('block', () => {
-  expectTypeOf<
-    Parameters<typeof formatters.block.format>[0]
-  >().toEqualTypeOf<OpStackRpcBlock>()
+  expectTypeOf(formatters.block.format)
+    .parameter(0)
+    .toEqualTypeOf<OpStackRpcBlock>()
 })
 
 describe('transaction', () => {

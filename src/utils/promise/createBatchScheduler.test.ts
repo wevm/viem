@@ -9,7 +9,7 @@ test('default', async () => {
   const fn = vi.fn()
   const { schedule } = createBatchScheduler({
     id: uid(),
-    // biome-ignore lint/complexity/noCommaOperator: _
+    // biome-ignore lint/style/noCommaOperator:
     fn: async (args: number[]) => (fn(), args),
   })
 
@@ -41,14 +41,14 @@ test('args: id', async () => {
   const fn1 = vi.fn()
   const { schedule: schedule1 } = createBatchScheduler({
     id: uid(),
-    // biome-ignore lint/complexity/noCommaOperator: _
+    // biome-ignore lint/style/noCommaOperator:
     fn: async (args: number[]) => (fn1(), args),
   })
 
   const fn2 = vi.fn()
   const { schedule: schedule2 } = createBatchScheduler({
     id: uid(),
-    // biome-ignore lint/complexity/noCommaOperator: _
+    // biome-ignore lint/style/noCommaOperator:
     fn: async (args: number[]) => (fn2(), args),
   })
 
@@ -121,7 +121,7 @@ test('args: shouldSplitBatch', async () => {
   const fn = vi.fn()
   const { schedule } = createBatchScheduler({
     id: uid(),
-    // biome-ignore lint/complexity/noCommaOperator: _
+    // biome-ignore lint/style/noCommaOperator:
     fn: async (args: number[]) => (fn(), args),
     shouldSplitBatch: (args) => args.length > 3,
   })
@@ -193,7 +193,7 @@ describe('behavior', () => {
     const { schedule } = createBatchScheduler({
       id: uid(),
       wait: 16,
-      // biome-ignore lint/complexity/noCommaOperator: _
+      // biome-ignore lint/style/noCommaOperator:
       fn: async (args: string[]) => (fn(), args),
       shouldSplitBatch: (args) =>
         args.reduce((acc, x) => acc + x.length, 0) > 20,

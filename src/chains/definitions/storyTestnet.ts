@@ -1,6 +1,5 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-/** @deprecated Use `storyAeneid` instead  */
 export const storyTestnet = /*#__PURE__*/ defineChain({
   id: 1513,
   name: 'Story Testnet',

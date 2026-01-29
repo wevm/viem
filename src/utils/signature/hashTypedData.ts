@@ -1,15 +1,10 @@
 // Implementation forked and adapted from https://github.com/MetaMask/eth-sig-util/blob/main/src/sign-typed-data.ts
 
-import type { AbiParameter, TypedData } from 'abitype'
+import type { AbiParameter, TypedData, TypedDataDomain } from 'abitype'
 
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
-import type {
-  EIP712DomainDefinition,
-  MessageDefinition,
-  TypedDataDefinition,
-} from '../../types/typedData.js'
-import type { UnionOmit } from '../../types/utils.js'
+import type { TypedDataDefinition } from '../../types/typedData.js'
 import {
   type EncodeAbiParametersErrorType,
   encodeAbiParameters,
@@ -19,8 +14,8 @@ import { type ToHexErrorType, toHex } from '../encoding/toHex.js'
 import { type Keccak256ErrorType, keccak256 } from '../hash/keccak256.js'
 import {
   type GetTypesForEIP712DomainErrorType,
-  getTypesForEIP712Domain,
   type ValidateTypedDataErrorType,
+  getTypesForEIP712Domain,
   validateTypedData,
 } from '../typedData.js'
 
@@ -91,16 +86,17 @@ export function hashTypedData<
 
 export type HashDomainErrorType = HashStructErrorType | ErrorType
 
-export function hashDomain<
-  const typedData extends TypedData | Record<string, unknown> = TypedData,
->({
+export function hashDomain({
   domain,
   types,
-}: UnionOmit<EIP712DomainDefinition<typedData>, 'primaryType'>) {
+}: {
+  domain: TypedDataDomain
+  types: Record<string, MessageTypeProperty[]>
+}) {
   return hashStruct({
-    data: domain as Record<string, unknown>,
+    data: domain,
     primaryType: 'EIP712Domain',
-    types: types as Record<string, readonly MessageTypeProperty[]>,
+    types,
   })
 }
 
@@ -109,18 +105,19 @@ export type HashStructErrorType =
   | Keccak256ErrorType
   | ErrorType
 
-export function hashStruct<
-  const typedData extends TypedData | Record<string, unknown>,
-  primaryType extends keyof typedData | 'EIP712Domain',
->({
+export function hashStruct({
   data,
   primaryType,
   types,
-}: MessageDefinition<typedData, primaryType, 'data'>) {
+}: {
+  data: Record<string, unknown>
+  primaryType: string
+  types: Record<string, readonly MessageTypeProperty[]>
+}) {
   const encoded = encodeData({
-    data: data as Record<string, unknown>,
+    data,
     primaryType,
-    types: types as Record<string, readonly MessageTypeProperty[]>,
+    types,
   })
   return keccak256(encoded)
 }
@@ -247,7 +244,11 @@ function encodeField({
     ]
   }
 
-  if (type === 'bytes') return [{ type: 'bytes32' }, keccak256(value)]
+  if (type === 'bytes') {
+    const prepend = value.length % 2 ? '0' : ''
+    value = `0x${prepend + value.slice(2)}`
+    return [{ type: 'bytes32' }, keccak256(value)]
+  }
 
   if (type === 'string') return [{ type: 'bytes32' }, keccak256(toHex(value))]
 

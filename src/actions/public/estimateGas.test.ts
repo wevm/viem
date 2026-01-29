@@ -1,18 +1,19 @@
 import { describe, expect, test, vi } from 'vitest'
-import { anvilMainnet } from '~test/anvil.js'
-import { accounts } from '~test/constants.js'
-import { kzg } from '~test/kzg.js'
-import { deploy } from '~test/utils.js'
-import { Delegation } from '../../../contracts/generated.js'
+
+import { accounts } from '~test/src/constants.js'
+import { kzg } from '~test/src/kzg.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { maxUint256 } from '../../constants/number.js'
+
+import { Delegation } from '../../../contracts/generated.js'
+import { deploy } from '../../../test/src/utils.js'
 import { toBlobs } from '../../utils/blob/toBlobs.js'
 import { toHex } from '../../utils/encoding/toHex.js'
 import { encodeFunctionData } from '../../utils/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { reset } from '../test/reset.js'
-import * as prepareTransactionRequestModule from '../wallet/prepareTransactionRequest.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
 import { estimateGas } from './estimateGas.js'
 import * as getBlock from './getBlock.js'
@@ -190,26 +191,6 @@ test('args: override', async () => {
   ).toMatchInlineSnapshot('51594n')
 })
 
-test('args: prepare', async () => {
-  const prepareTransactionRequestSpy = vi.spyOn(
-    prepareTransactionRequestModule,
-    'prepareTransactionRequest',
-  )
-
-  expect(
-    await estimateGas(client, {
-      account: accounts[0].address,
-      to: accounts[1].address,
-      value: parseEther('1'),
-      prepare: false,
-    }),
-  ).toMatchInlineSnapshot('21000n')
-
-  expect(prepareTransactionRequestSpy).not.toHaveBeenCalled()
-
-  vi.restoreAllMocks()
-})
-
 test('error: cannot infer `to` from `authorizationList`', async () => {
   await expect(() =>
     estimateGas(client, {
@@ -254,7 +235,7 @@ describe('local account', () => {
         to: accounts[1].address,
         maxFeePerBlobGas: parseGwei('20'),
       }),
-    ).toMatchInlineSnapshot('21001n')
+    ).toMatchInlineSnapshot('53001n')
   })
 
   test('args: data', async () => {
@@ -304,6 +285,31 @@ describe('local account', () => {
         value: parseEther('1'),
       }),
     ).toMatchInlineSnapshot('21000n')
+  })
+
+  test('args: maxFeePerGas (on legacy)', async () => {
+    vi.spyOn(getBlock, 'getBlock').mockResolvedValueOnce({
+      baseFeePerGas: undefined,
+    } as any)
+
+    await expect(() =>
+      estimateGas(client, {
+        account: privateKeyToAccount(accounts[0].privateKey),
+        to: accounts[1].address,
+        maxFeePerGas: parseGwei('33'),
+        value: parseEther('1'),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [EstimateGasExecutionError: Chain does not support EIP-1559 fees.
+
+      Estimate Gas Arguments:
+        from:          0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+        to:            0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+        value:         1 ETH
+        maxFeePerGas:  33 gwei
+
+      Version: viem@x.y.z]
+    `)
   })
 
   test('args: gas', async () => {

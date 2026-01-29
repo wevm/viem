@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
-import { anvilMainnet } from '~test/anvil.js'
+import { anvilMainnet } from '../../test/src/anvil.js'
 import { base, localhost, mainnet } from '../chains/index.js'
 import type { EIP1193RequestFn, EIP1474Methods } from '../types/eip1193.js'
 import { getAction } from '../utils/getAction.js'
@@ -33,7 +33,6 @@ test('creates', () => {
       "cacheTime": 4000,
       "ccipRead": undefined,
       "chain": undefined,
-      "dataSuffix": undefined,
       "extend": [Function],
       "key": "base",
       "name": "Base Client",
@@ -43,7 +42,7 @@ test('creates', () => {
         "key": "mock",
         "methods": undefined,
         "name": "Mock Transport",
-        "request": [MockFunction],
+        "request": [MockFunction spy],
         "retryCount": 3,
         "retryDelay": 150,
         "timeout": undefined,
@@ -69,7 +68,6 @@ describe('transports', () => {
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": {
-          "extend": [Function],
           "fees": undefined,
           "formatters": undefined,
           "id": 1337,
@@ -88,7 +86,6 @@ describe('transports', () => {
           },
           "serializers": undefined,
         },
-        "dataSuffix": undefined,
         "extend": [Function],
         "key": "base",
         "name": "Base Client",
@@ -125,7 +122,6 @@ describe('transports', () => {
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": {
-          "extend": [Function],
           "fees": undefined,
           "formatters": undefined,
           "id": 1337,
@@ -144,7 +140,6 @@ describe('transports', () => {
           },
           "serializers": undefined,
         },
-        "dataSuffix": undefined,
         "extend": [Function],
         "key": "base",
         "name": "Base Client",
@@ -181,7 +176,6 @@ describe('transports', () => {
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": undefined,
-        "dataSuffix": undefined,
         "extend": [Function],
         "key": "base",
         "name": "Base Client",
@@ -204,74 +198,6 @@ describe('transports', () => {
 })
 
 describe('config', () => {
-  test('experimental_blockTag', () => {
-    const mockTransport = () =>
-      createTransport({
-        key: 'mock',
-        name: 'Mock Transport',
-        request: vi.fn(async () => null) as unknown as EIP1193RequestFn,
-        type: 'mock',
-      })
-    const { uid, ...client } = createClient({
-      experimental_blockTag: 'safe',
-      transport: mockTransport,
-    })
-
-    expect(uid).toBeDefined()
-    expect(client.experimental_blockTag).toBe('safe')
-    expect(client).toMatchInlineSnapshot(`
-      {
-        "account": undefined,
-        "batch": undefined,
-        "cacheTime": 4000,
-        "ccipRead": undefined,
-        "chain": undefined,
-        "dataSuffix": undefined,
-        "experimental_blockTag": "safe",
-        "extend": [Function],
-        "key": "base",
-        "name": "Base Client",
-        "pollingInterval": 4000,
-        "request": [Function],
-        "transport": {
-          "key": "mock",
-          "methods": undefined,
-          "name": "Mock Transport",
-          "request": [MockFunction],
-          "retryCount": 3,
-          "retryDelay": 150,
-          "timeout": undefined,
-          "type": "mock",
-        },
-        "type": "base",
-      }
-    `)
-  })
-
-  test('experimental_blockTag: defaults to pending when chain has `experimental_preconfirmationTime`', () => {
-    const mockTransport = () =>
-      createTransport({
-        key: 'mock',
-        name: 'Mock Transport',
-        request: vi.fn(async () => null) as unknown as EIP1193RequestFn,
-        type: 'mock',
-      })
-    const mockChain = {
-      id: 1337,
-      name: 'Mock Chain',
-      nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: ['http://localhost:8545'] } },
-      experimental_preconfirmationTime: 1000,
-    }
-    const { uid, ...client } = createClient({
-      chain: mockChain,
-      transport: mockTransport,
-    })
-
-    expect(uid).toBeDefined()
-    expect(client.experimental_blockTag).toBe('pending')
-  })
-
   test('cacheTime', () => {
     const mockTransport = () =>
       createTransport({
@@ -293,7 +219,6 @@ describe('config', () => {
         "cacheTime": 10000,
         "ccipRead": undefined,
         "chain": undefined,
-        "dataSuffix": undefined,
         "extend": [Function],
         "key": "base",
         "name": "Base Client",
@@ -303,7 +228,7 @@ describe('config', () => {
           "key": "mock",
           "methods": undefined,
           "name": "Mock Transport",
-          "request": [MockFunction],
+          "request": [MockFunction spy],
           "retryCount": 3,
           "retryDelay": 150,
           "timeout": undefined,
@@ -341,7 +266,6 @@ describe('config', () => {
           "request": [Function],
         },
         "chain": undefined,
-        "dataSuffix": undefined,
         "extend": [Function],
         "key": "base",
         "name": "Base Client",
@@ -351,7 +275,7 @@ describe('config', () => {
           "key": "mock",
           "methods": undefined,
           "name": "Mock Transport",
-          "request": [MockFunction],
+          "request": [MockFunction spy],
           "retryCount": 3,
           "retryDelay": 150,
           "timeout": undefined,
@@ -384,7 +308,6 @@ describe('config', () => {
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": undefined,
-        "dataSuffix": undefined,
         "extend": [Function],
         "key": "bar",
         "name": "Base Client",
@@ -394,7 +317,7 @@ describe('config', () => {
           "key": "mock",
           "methods": undefined,
           "name": "Mock Transport",
-          "request": [MockFunction],
+          "request": [MockFunction spy],
           "retryCount": 3,
           "retryDelay": 150,
           "timeout": undefined,
@@ -427,7 +350,6 @@ describe('config', () => {
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": undefined,
-        "dataSuffix": undefined,
         "extend": [Function],
         "key": "base",
         "name": "Mock Client",
@@ -437,7 +359,7 @@ describe('config', () => {
           "key": "mock",
           "methods": undefined,
           "name": "Mock Transport",
-          "request": [MockFunction],
+          "request": [MockFunction spy],
           "retryCount": 3,
           "retryDelay": 150,
           "timeout": undefined,
@@ -470,7 +392,6 @@ describe('config', () => {
         "cacheTime": 10000,
         "ccipRead": undefined,
         "chain": undefined,
-        "dataSuffix": undefined,
         "extend": [Function],
         "key": "base",
         "name": "Base Client",
@@ -480,7 +401,7 @@ describe('config', () => {
           "key": "mock",
           "methods": undefined,
           "name": "Mock Transport",
-          "request": [MockFunction],
+          "request": [MockFunction spy],
           "retryCount": 3,
           "retryDelay": 150,
           "timeout": undefined,
@@ -513,7 +434,6 @@ describe('config', () => {
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": undefined,
-        "dataSuffix": undefined,
         "extend": [Function],
         "key": "base",
         "name": "Base Client",
@@ -523,7 +443,7 @@ describe('config', () => {
           "key": "mock",
           "methods": undefined,
           "name": "Mock Transport",
-          "request": [MockFunction],
+          "request": [MockFunction spy],
           "retryCount": 3,
           "retryDelay": 150,
           "timeout": undefined,
@@ -571,7 +491,6 @@ describe('extends', () => {
         "call": [Function],
         "ccipRead": undefined,
         "chain": {
-          "extend": [Function],
           "fees": undefined,
           "formatters": undefined,
           "id": 1337,
@@ -595,13 +514,11 @@ describe('extends', () => {
         "createContractEventFilter": [Function],
         "createEventFilter": [Function],
         "createPendingTransactionFilter": [Function],
-        "dataSuffix": undefined,
         "estimateContractGas": [Function],
         "estimateFeesPerGas": [Function],
         "estimateGas": [Function],
         "estimateMaxPriorityFeePerGas": [Function],
         "extend": [Function],
-        "fillTransaction": [Function],
         "getBalance": [Function],
         "getBlobBaseFee": [Function],
         "getBlock": [Function],
@@ -636,7 +553,6 @@ describe('extends', () => {
         "readContract": [Function],
         "request": [Function],
         "sendRawTransaction": [Function],
-        "sendRawTransactionSync": [Function],
         "simulate": [Function],
         "simulateBlocks": [Function],
         "simulateCalls": [Function],
@@ -655,7 +571,6 @@ describe('extends', () => {
         },
         "type": "base",
         "uninstallFilter": [Function],
-        "verifyHash": [Function],
         "verifyMessage": [Function],
         "verifySiweMessage": [Function],
         "verifyTypedData": [Function],

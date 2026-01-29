@@ -3,7 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 17000 // Holesky testnet
 
-export const garnet = /*#__PURE__*/ defineChain({
+export const garnet = defineChain({
   ...chainConfig,
   name: 'Garnet Testnet',
   testnet: true,

@@ -1,19 +1,19 @@
 import { join } from 'node:path'
-import { defineConfig, type TestProjectConfiguration } from 'vitest/config'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    alias: [
-      { find: '~contracts', replacement: join(__dirname, '../contracts') },
-      { find: '~test', replacement: join(__dirname, './src') },
-      { find: /^viem$/, replacement: join(__dirname, '../src/index.ts') },
-      { find: /^viem\/(.*)/, replacement: join(__dirname, '../src/$1') },
-    ],
+    alias: {
+      '~contracts': join(__dirname, '../contracts'),
+      '~viem': join(__dirname, '../src'),
+      '~test': join(__dirname, '.'),
+    },
     benchmark: {
       outputFile: './bench/report.json',
-      reporters: process.env.CI ? ['default'] : ['verbose'],
+      reporters: process.env.CI ? ['json'] : ['verbose'],
     },
     coverage: {
+      all: false,
       provider: 'v8',
       reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
       exclude: [
@@ -29,51 +29,16 @@ export default defineConfig({
         '**/test/**',
       ],
     },
-    exclude: ['**/node_modules/**', '**/_esm/**', '**/_cjs/**', '**/_types/**'],
-    retry: 3,
-    projects: [
-      ...((process.env.TYPES
-        ? [
-            {
-              extends: true,
-              test: {
-                name: 'type-bench',
-                include: ['src/**/*.bench-d.ts'],
-                globalSetup: [join(__dirname, './setup-bench-types.global.ts')],
-              },
-            },
-          ]
-        : []) satisfies TestProjectConfiguration[]),
-      {
-        extends: true,
-        test: {
-          name: 'core',
-          exclude: [
-            process.env.TEST_RLP !== 'true'
-              ? '**/utils/encoding/toRlp.test.ts'
-              : '',
-            'src/tempo/**',
-          ],
-          include: ['src/**/*.test.ts'],
-          setupFiles: [join(__dirname, './setup.ts')],
-          globalSetup: [join(__dirname, './setup.global.ts')],
-          hookTimeout: 60_000,
-          testTimeout: 60_000,
-          sequence: { groupOrder: 0 },
-        },
-      },
-      {
-        extends: true,
-        test: {
-          name: 'tempo',
-          include: ['src/tempo/**/*.test.ts'],
-          setupFiles: [join(__dirname, './src/tempo/setup.ts')],
-          globalSetup: [join(__dirname, './src/tempo/setup.global.ts')],
-          sequence: { groupOrder: 1 },
-          hookTimeout: 20_000,
-          testTimeout: 10_000,
-        },
-      },
+    environment: 'node',
+    include: [
+      ...(process.env.TYPES ? ['**/*.bench-d.ts'] : []),
+      'src/**/*.test.ts',
     ],
+    setupFiles: process.env.TYPES ? [] : [join(__dirname, './setup.ts')],
+    globalSetup: process.env.TYPES
+      ? [join(__dirname, './benchTypesGlobalSetup.ts')]
+      : [join(__dirname, './globalSetup.ts')],
+    hookTimeout: 60_000,
+    testTimeout: 60_000,
   },
 })

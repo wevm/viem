@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { mainnetClient } from '~test/utils.js'
+import { mainnetClient } from '~test/src/utils.js'
 
 import { extractTransactionDepositedLogs } from './extractTransactionDepositedLogs.js'
 import { getL2TransactionHash } from './getL2TransactionHash.js'

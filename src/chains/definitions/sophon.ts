@@ -3,7 +3,6 @@ import { chainConfig } from '../../zksync/chainConfig.js'
 
 export const sophon = /*#__PURE__*/ defineChain({
   ...chainConfig,
-  blockTime: 200,
   id: 50104,
   name: 'Sophon',
   nativeCurrency: {

@@ -9,7 +9,7 @@ The following Viem chains are implemented on Celo:
 ```ts
 import {
   celo, // [!code hl]
-  celoSepolia // [!code hl]
+  celoAlfajores, // [!code hl]
 } from 'viem/chains'
 ```
 

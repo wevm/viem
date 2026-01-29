@@ -1,6 +1,8 @@
 import { beforeAll, describe, expect, test } from 'vitest'
-import { anvilMainnet } from '~test/anvil.js'
-import { deployEnsAvatarTokenUri } from '~test/utils.js'
+
+import { deployEnsAvatarTokenUri } from '~test/src/utils.js'
+
+import { anvilMainnet } from '../../../../test/src/anvil.js'
 
 import { reset } from '../../../actions/index.js'
 import { parseAvatarRecord } from './parseAvatarRecord.js'
@@ -9,7 +11,7 @@ const client = anvilMainnet.getClient()
 
 beforeAll(async () => {
   await reset(client, {
-    blockNumber: 23_085_558n,
+    blockNumber: 19_258_213n,
     jsonRpcUrl: anvilMainnet.forkUrl,
   })
 })

@@ -6,18 +6,6 @@ description: Returns data of transactions in a block.
 
 Returns data of transactions in a block.
 
-:::warning
-**This Action is being deprecated.**
-
-This method calls an RPC method that [will be removed in a future release](https://github.com/zkSync-Community-Hub/zksync-developers/discussions/1066). Please use the alternatives mentioned below.
-
-**Alternatives / Workaround**
-
-The returned value can be retrieved using `debug_getRawTransaction` and `debug_getRawTransactions`.
-
-:::
-
-
 ## Usage
 
 :::code-group

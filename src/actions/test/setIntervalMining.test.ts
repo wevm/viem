@@ -1,7 +1,9 @@
 import { expect, test } from 'vitest'
-import { anvilMainnet } from '~test/anvil.js'
+
 import { wait } from '../../utils/wait.js'
 import { getBlockNumber } from '../public/getBlockNumber.js'
+
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { mine } from './mine.js'
 import { setIntervalMining } from './setIntervalMining.js'

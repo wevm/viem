@@ -1,6 +1,6 @@
 import { assertType, describe, expect, test } from 'vitest'
 
-import { createHttpServer } from '~test/utils.js'
+import { createHttpServer } from '~test/src/utils.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
 import { localhost } from '../../chains/index.js'
 import {
@@ -14,8 +14,8 @@ import { createPublicClient } from '../createPublicClient.js'
 import type { Transport } from './createTransport.js'
 import {
   type FallbackTransport,
-  fallback,
   type OnResponseFn,
+  fallback,
   rankTransports,
 } from './fallback.js'
 import { http } from './http.js'
@@ -644,7 +644,6 @@ describe('client', () => {
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": undefined,
-        "dataSuffix": undefined,
         "extend": [Function],
         "key": "base",
         "name": "Base Client",

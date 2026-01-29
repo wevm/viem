@@ -7,11 +7,8 @@ import {
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account } from '../../types/account.js'
 import type { Block } from '../../types/block.js'
-import type {
-  Chain,
-  ChainFeesFnParameters,
-  GetChainParameter,
-} from '../../types/chain.js'
+import type { Chain, ChainFeesFnParameters } from '../../types/chain.js'
+import type { GetChainParameter } from '../../types/chain.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type HexToBigIntErrorType,

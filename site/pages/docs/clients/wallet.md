@@ -409,23 +409,3 @@ const result = await client.request({ // [!code focus]
   params: ['hello'], // [!code focus]
 }) // [!code focus]
 ```
-
-### dataSuffix (optional)
-
-- **Type:** `Hex | { value: Hex; required?: boolean }`
-
-Data to append to the end of transaction calldata. Useful for adding [transaction attribution](https://oxlib.sh/ercs/erc8021/Attribution).
-
-When a simple hex string is provided, the suffix is appended on a best-effort basis. When using the object form with `required: true`, transactions will fail if the suffix cannot be appended.
-
-Applies to `sendTransaction`, `sendTransactionSync`, `sendCalls`, `simulateContract`, and `estimateContractGas` actions.
-
-```ts twoslash
-import 'viem/window'
-import { createWalletClient, custom } from 'viem'
-// ---cut---
-const client = createWalletClient({
-  dataSuffix: '0xdeadbeef', // [!code focus]
-  transport: custom(window.ethereum!)
-})
-```

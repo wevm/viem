@@ -1,8 +1,8 @@
 import type { Abi, AbiEvent, Address } from 'abitype'
 import { describe, expectTypeOf, test } from 'vitest'
 
-import { usdcContractConfig } from '~test/abis.js'
-import { anvilMainnet } from '~test/anvil.js'
+import { usdcContractConfig } from '~test/src/abis.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import type { Log } from '../../types/log.js'
 import type { Hash, Hex } from '../../types/misc.js'

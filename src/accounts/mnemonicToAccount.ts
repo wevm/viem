@@ -9,9 +9,7 @@ import {
 } from './hdKeyToAccount.js'
 import type { HDAccount } from './types.js'
 
-export type MnemonicToAccountOptions = HDKeyToAccountOptions & {
-  passphrase?: string
-}
+export type MnemonicToAccountOptions = HDKeyToAccountOptions
 
 export type MnemonicToAccountErrorType = HDKeyToAccountErrorType | ErrorType
 
@@ -22,8 +20,8 @@ export type MnemonicToAccountErrorType = HDKeyToAccountErrorType | ErrorType
  */
 export function mnemonicToAccount(
   mnemonic: string,
-  { passphrase, ...hdKeyOpts }: MnemonicToAccountOptions = {},
+  opts: MnemonicToAccountOptions = {},
 ): HDAccount {
-  const seed = mnemonicToSeedSync(mnemonic, passphrase)
-  return hdKeyToAccount(HDKey.fromMasterSeed(seed), hdKeyOpts)
+  const seed = mnemonicToSeedSync(mnemonic)
+  return hdKeyToAccount(HDKey.fromMasterSeed(seed), opts)
 }

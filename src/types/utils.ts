@@ -166,8 +166,6 @@ export type Prettify<T> = {
   [K in keyof T]: T[K]
 } & {}
 
-export type Compute<T> = Prettify<T>
-
 /** @internal */
 export type Evaluate<type> = {
   [key in keyof type]: type[key]

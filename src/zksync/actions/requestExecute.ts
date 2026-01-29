@@ -23,8 +23,8 @@ import type {
 import type { Hex } from '../../types/misc.js'
 import type { UnionEvaluate, UnionOmit } from '../../types/utils.js'
 import {
-  encodeFunctionData,
   type FormattedTransactionRequest,
+  encodeFunctionData,
   isAddressEqual,
   parseAccount,
 } from '../../utils/index.js'

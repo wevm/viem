@@ -1,7 +1,10 @@
 import { attest } from '@ark/attest'
 import { test } from 'vitest'
 
-import { baycContractConfig, usdcContractConfig } from '~test/abis.js'
+import {
+  baycContractConfig,
+  usdcContractConfig,
+} from '../../../test/src/abis.js'
 import { mainnet } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
@@ -28,6 +31,6 @@ test('return type', () => {
       },
     ],
   })
-  attest.instantiations([100974, 'instantiations'])
+  attest.instantiations([96782, 'instantiations'])
   attest<Promise<[bigint, bigint, string]>>(res)
 })

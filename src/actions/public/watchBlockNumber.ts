@@ -28,7 +28,7 @@ export type WatchBlockNumberParameters<
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: ((error: Error) => void) | undefined
 } & (
-  | (HasTransportType<transport, 'webSocket' | 'ipc'> extends true
+  | (HasTransportType<transport, 'webSocket'> extends true
       ? {
           emitMissed?: undefined
           emitOnBegin?: undefined
@@ -93,15 +93,10 @@ export function watchBlockNumber<
 ): WatchBlockNumberReturnType {
   const enablePolling = (() => {
     if (typeof poll_ !== 'undefined') return poll_
-    if (
-      client.transport.type === 'webSocket' ||
-      client.transport.type === 'ipc'
-    )
-      return false
+    if (client.transport.type === 'webSocket') return false
     if (
       client.transport.type === 'fallback' &&
-      (client.transport.transports[0].config.type === 'webSocket' ||
-        client.transport.transports[0].config.type === 'ipc')
+      client.transport.transports[0].config.type === 'webSocket'
     )
       return false
     return true
@@ -128,7 +123,7 @@ export function watchBlockNumber<
               'getBlockNumber',
             )({ cacheTime: 0 })
 
-            if (prevBlockNumber !== undefined) {
+            if (prevBlockNumber) {
               // If the current block number is the same as the previous,
               // we can skip.
               if (blockNumber === prevBlockNumber) return
@@ -145,10 +140,7 @@ export function watchBlockNumber<
 
             // If the next block number is greater than the previous,
             // it is not in the past, and we can emit the new block number.
-            if (
-              prevBlockNumber === undefined ||
-              blockNumber > prevBlockNumber
-            ) {
+            if (!prevBlockNumber || blockNumber > prevBlockNumber) {
               emit.onBlockNumber(blockNumber, prevBlockNumber)
               prevBlockNumber = blockNumber
             }
@@ -181,8 +173,7 @@ export function watchBlockNumber<
             if (client.transport.type === 'fallback') {
               const transport = client.transport.transports.find(
                 (transport: ReturnType<Transport>) =>
-                  transport.config.type === 'webSocket' ||
-                  transport.config.type === 'ipc',
+                  transport.config.type === 'webSocket',
               )
               if (!transport) return client.transport
               return transport.value

@@ -8,7 +8,6 @@ export const gnosis = /*#__PURE__*/ defineChain({
     name: 'xDAI',
     symbol: 'XDAI',
   },
-  blockTime: 5_000,
   rpcUrls: {
     default: {
       http: ['https://rpc.gnosischain.com'],

@@ -1,0 +1,101 @@
+name: Test RPC Providers
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      max-parallel: 3
+      matrix:
+        transport-mode: ['http', 'webSocket']
+        shard: [1, 2, 3]
+        total-shards: [3]
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Build contracts
+        shell: bash
+        run: pnpm contracts:build
+
+      - name: Run tests
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: pnpm test:ci --shard=${{ matrix.shard }}/${{ matrix.total-shards }}
+        env:
+          VITE_ANVIL_BLOCK_NUMBER: ${{ vars.VITE_ANVIL_BLOCK_NUMBER }}
+          VITE_ANVIL_BLOCK_TIME: ${{ vars.VITE_ANVIL_BLOCK_TIME }}
+          VITE_ANVIL_FORK_URL: ${{ secrets.VITE_ANVIL_FORK_URL__test }}
+          VITE_ANVIL_FORK_URL_OPTIMISM: ${{ secrets.VITE_ANVIL_FORK_URL_OPTIMISM__test }}
+          VITE_BATCH_MULTICALL: ${{ matrix.multicall }}
+          VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
+
+  test-envs:
+    name: Test Environments
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        type: ['bun', 'node-18', 'node-20', 'node-latest', 'next', 'tsc', 'vite']
+        include:
+          - type: bun
+            runtime: bun
+          - type: node-18
+            node-version: 18
+            runtime: node
+          - type: node-20
+            node-version: 20
+            runtime: node
+          - type: node-latest
+            node-version: latest
+            runtime: node
+          - type: next
+            runtime: next
+          - type: tsc
+            node-version: 20
+            runtime: tsc
+          - type: vite
+            runtime: vite
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with: 
+          submodules: 'recursive'
+
+      - name: Set up Bun
+        if: ${{ matrix.runtime == 'bun' }}
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.0.30
+
+      - name: Set up Node
+        if: ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install Playwright Browsers
+        if: ${{ matrix.runtime == 'next' || matrix.runtime == 'vite' }}
+        run: pnpx playwright@1.49.1 install --with-deps
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Build
+        run: pnpm build
+
+      - name: Link
+        run: pnpm install
+
+      - name: Run tests
+        run: pnpm test:env:${{ matrix.runtime }}

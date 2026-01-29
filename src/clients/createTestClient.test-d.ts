@@ -2,7 +2,7 @@ import { expectTypeOf, test } from 'vitest'
 
 import { localhost } from '../chains/index.js'
 import { rpcSchema } from './createClient.js'
-import { createTestClient, type TestClient } from './createTestClient.js'
+import { type TestClient, createTestClient } from './createTestClient.js'
 import { http } from './transports/http.js'
 
 test('with chain', () => {

@@ -27,8 +27,8 @@ import {
   type AssertCurrentChainErrorType,
   assertCurrentChain,
 } from '../../utils/chain/assertCurrentChain.js'
-import type { NumberToHexErrorType } from '../../utils/encoding/toHex.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
+import type { NumberToHexErrorType } from '../../utils/encoding/toHex.js'
 import {
   type FormattedTransactionRequest,
   formatTransactionRequest,
@@ -172,13 +172,7 @@ export async function signTransaction<
       method: 'eth_signTransaction',
       params: [
         {
-          ...format(
-            {
-              ...transaction,
-              account,
-            } as unknown as TransactionRequest,
-            'signTransaction',
-          ),
+          ...format(transaction as unknown as TransactionRequest),
           chainId: numberToHex(chainId),
           from: account.address,
         } as unknown as RpcTransactionRequest,

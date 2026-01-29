@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { address } from '~test/constants.js'
+import { address } from '~test/src/constants.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import { BaseError } from '../../errors/base.js'
 import { RpcRequestError } from '../../errors/request.js'

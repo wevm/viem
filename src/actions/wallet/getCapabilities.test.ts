@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { accounts } from '~test/constants.js'
+import { accounts } from '../../../test/src/constants.js'
 import type { JsonRpcAccount } from '../../accounts/types.js'
 import { type Client, createClient } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'

@@ -45,7 +45,7 @@ export function hashMessage(
 ): HashMessageReturnType {
   const {
     message,
-    verifierDomain: { salt: _, ...domain },
+    verifierDomain: { salt, ...domain },
   } = parameters
   return hashTypedData({
     domain,

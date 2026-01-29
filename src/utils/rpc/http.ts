@@ -15,10 +15,6 @@ import { stringify } from '../stringify.js'
 import { idCache } from './id.js'
 
 export type HttpRpcClientOptions = {
-  /** Override for the fetch function used to make requests. */
-  fetchFn?:
-    | ((input: string | URL | Request, init?: RequestInit) => Promise<Response>)
-    | undefined
   /** Request configuration to pass to `fetch`. */
   fetchOptions?: Omit<RequestInit, 'body'> | undefined
   /** A callback to handle the request. */
@@ -41,8 +37,6 @@ export type HttpRequestParameters<
 > = {
   /** The RPC request body. */
   body: body
-  /** Override for the fetch function used to make requests. */
-  fetchFn?: HttpRpcClientOptions['fetchFn'] | undefined
   /** Request configuration to pass to `fetch`. */
   fetchOptions?: HttpRpcClientOptions['fetchOptions'] | undefined
   /** A callback to handle the response. */
@@ -77,16 +71,13 @@ export type HttpRpcClient = {
 }
 
 export function getHttpRpcClient(
-  url_: string,
+  url: string,
   options: HttpRpcClientOptions = {},
 ): HttpRpcClient {
-  const { url, headers: headers_url } = parseUrl(url_)
-
   return {
     async request(params) {
       const {
         body,
-        fetchFn = options.fetchFn ?? fetch,
         onRequest = options.onRequest,
         onResponse = options.onResponse,
         timeout = options.timeout ?? 10_000,
@@ -118,7 +109,6 @@ export function getHttpRpcClient(
                     ...body,
                   }),
               headers: {
-                ...headers_url,
                 'Content-Type': 'application/json',
                 ...headers,
               },
@@ -127,7 +117,7 @@ export function getHttpRpcClient(
             }
             const request = new Request(url, init)
             const args = (await onRequest?.(request, init)) ?? { ...init, url }
-            const response = await fetchFn(args.url ?? url, args)
+            const response = await fetch(args.url ?? url, args)
             return response
           },
           {
@@ -175,32 +165,5 @@ export function getHttpRpcClient(
         })
       }
     },
-  }
-}
-
-/** @internal */
-export function parseUrl(url_: string) {
-  try {
-    const url = new URL(url_)
-
-    const result = (() => {
-      // Handle Basic authentication credentials
-      if (url.username) {
-        const credentials = `${decodeURIComponent(url.username)}:${decodeURIComponent(url.password)}`
-        url.username = ''
-        url.password = ''
-
-        return {
-          url: url.toString(),
-          headers: { Authorization: `Basic ${btoa(credentials)}` },
-        }
-      }
-
-      return
-    })()
-
-    return { url: url.toString(), ...result }
-  } catch {
-    return { url: url_ }
   }
 }

@@ -37,7 +37,7 @@ export type WatchBlocksParameters<
   /** The callback to call when an error occurred when trying to get for a new block. */
   onError?: ((error: Error) => void) | undefined
 } & (
-  | (HasTransportType<transport, 'webSocket' | 'ipc'> extends true
+  | (HasTransportType<transport, 'webSocket'> extends true
       ? {
           blockTag?: undefined
           emitMissed?: undefined
@@ -103,7 +103,7 @@ export function watchBlocks<
 >(
   client: Client<transport, chain>,
   {
-    blockTag = client.experimental_blockTag ?? 'latest',
+    blockTag = 'latest',
     emitMissed = false,
     emitOnBegin = false,
     onBlock,
@@ -115,15 +115,10 @@ export function watchBlocks<
 ): WatchBlocksReturnType {
   const enablePolling = (() => {
     if (typeof poll_ !== 'undefined') return poll_
-    if (
-      client.transport.type === 'webSocket' ||
-      client.transport.type === 'ipc'
-    )
-      return false
+    if (client.transport.type === 'webSocket') return false
     if (
       client.transport.type === 'fallback' &&
-      (client.transport.transports[0].config.type === 'webSocket' ||
-        client.transport.transports[0].config.type === 'ipc')
+      client.transport.transports[0].config.type === 'webSocket'
     )
       return false
     return true
@@ -232,8 +227,7 @@ export function watchBlocks<
           if (client.transport.type === 'fallback') {
             const transport = client.transport.transports.find(
               (transport: ReturnType<Transport>) =>
-                transport.config.type === 'webSocket' ||
-                transport.config.type === 'ipc',
+                transport.config.type === 'webSocket',
             )
             if (!transport) return client.transport
             return transport.value
@@ -250,7 +244,7 @@ export function watchBlocks<
               getBlock,
               'getBlock',
             )({
-              blockNumber: data.result?.number,
+              blockNumber: data.blockNumber,
               includeTransactions,
             }).catch(() => {})) as GetBlockReturnType<chain>
             if (!active) return

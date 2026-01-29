@@ -16,11 +16,5 @@ export const seiTestnet = /*#__PURE__*/ defineChain({
       url: 'https://seitrace.com',
     },
   },
-  contracts: {
-    multicall3: {
-      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 98697651,
-    },
-  },
   testnet: true,
 })

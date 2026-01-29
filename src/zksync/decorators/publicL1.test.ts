@@ -1,16 +1,16 @@
-import { beforeEach, expect, test, vi } from 'vitest'
+import { afterAll, expect, test, vi } from 'vitest'
 
-import { anvilMainnet, anvilZksync } from '~test/anvil.js'
-import { accounts } from '~test/constants.js'
-import { mockRequestReturnData } from '~test/zksync.js'
+import { anvilMainnet, anvilZksync } from '~test/src/anvil.js'
+import { accounts } from '~test/src/constants.js'
+import { mockRequestReturnData } from '~test/src/zksync.js'
+import { sepolia } from '~viem/chains/index.js'
+import { createPublicClient } from '~viem/clients/createPublicClient.js'
+import { createWalletClient } from '~viem/clients/createWalletClient.js'
+import { http } from '~viem/clients/transports/http.js'
+import type { EIP1193RequestFn } from '~viem/types/eip1193.js'
+import { publicActionsL2 } from '~viem/zksync/decorators/publicL2.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import * as readContract from '../../actions/public/readContract.js'
-import { sepolia } from '../../chains/index.js'
-import { createPublicClient } from '../../clients/createPublicClient.js'
-import { createWalletClient } from '../../clients/createWalletClient.js'
-import { http } from '../../clients/transports/http.js'
-import type { EIP1193RequestFn } from '../../types/eip1193.js'
-import { publicActionsL2 } from '../../zksync/decorators/publicL2.js'
 import { publicActionsL1 } from './publicL1.js'
 
 const client = createPublicClient({
@@ -24,7 +24,7 @@ const clientWithAccount = createWalletClient({
   account: privateKeyToAccount(accounts[0].privateKey),
 }).extend(publicActionsL1())
 
-beforeEach(() => vi.spyOn(readContract, 'readContract').mockResolvedValue(170n))
+const spy = vi.spyOn(readContract, 'readContract').mockResolvedValue(170n)
 
 const baseClient = anvilMainnet.getClient({
   batch: { multicall: false },
@@ -55,6 +55,10 @@ baseZksyncClient.request = (async ({ method, params }) => {
   )
 }) as EIP1193RequestFn
 const zksyncClient = baseZksyncClient.extend(publicActionsL2())
+
+afterAll(() => {
+  spy.mockRestore()
+})
 
 test('default', async () => {
   expect(publicActionsL1()(client)).toMatchInlineSnapshot(`

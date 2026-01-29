@@ -6,7 +6,6 @@ import {
   AbiFunctionOutputsNotFoundError,
   type AbiFunctionOutputsNotFoundErrorType,
 } from '../../errors/abi.js'
-import type { ErrorType } from '../../errors/utils.js'
 import type {
   ContractFunctionArgs,
   ContractFunctionName,
@@ -14,6 +13,8 @@ import type {
   Widen,
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
+
+import type { ErrorType } from '../../errors/utils.js'
 import type { IsNarrowable, UnionEvaluate } from '../../types/utils.js'
 import {
   type DecodeAbiParametersErrorType,

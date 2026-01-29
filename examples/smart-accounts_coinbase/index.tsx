@@ -1,11 +1,11 @@
 import * as React from 'react'
 import ReactDOM from 'react-dom/client'
-import { createClient, type Hex, http, parseEther, walletActions } from 'viem'
+import { http, type Hex, createClient, parseEther, walletActions } from 'viem'
 import {
-  createBundlerClient,
-  createWebAuthnCredential,
   type P256Credential,
   type SmartAccount,
+  createBundlerClient,
+  createWebAuthnCredential,
   toCoinbaseSmartAccount,
   toWebAuthnAccount,
 } from 'viem/account-abstraction'
@@ -39,7 +39,6 @@ function Example() {
     toCoinbaseSmartAccount({
       client,
       owners: [toWebAuthnAccount({ credential })],
-      version: '1.1',
     }).then(setAccount)
   }, [credential])
 

@@ -25,7 +25,6 @@ export type PublicClientConfig<
     | 'cacheTime'
     | 'ccipRead'
     | 'chain'
-    | 'experimental_blockTag'
     | 'key'
     | 'name'
     | 'pollingInterval'

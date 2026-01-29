@@ -37,7 +37,6 @@ const client = createPublicClient({
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [privateKeyToAccount('0x...')],
-  version: '1.1',
 })
 
 export const bundlerClient = createBundlerClient({
@@ -86,7 +85,6 @@ const client = createPublicClient({
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [privateKeyToAccount('0x...')],
-  version: '1.1',
 })
 
 export const bundlerClient = createBundlerClient({
@@ -146,7 +144,6 @@ const client = createPublicClient({
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [privateKeyToAccount('0x...')],
-  version: '1.1',
 })
 
 export const bundlerClient = createBundlerClient({

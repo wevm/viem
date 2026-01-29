@@ -1,10 +1,10 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import { Delegation, ErrorsExample, Payable } from '~contracts/generated.js'
-import { wagmiContractConfig } from '~test/abis.js'
-import { anvilMainnet } from '~test/anvil.js'
-import { accounts } from '~test/constants.js'
-import { deploy, deployErrorExample, deployPayable } from '~test/utils.js'
+import { wagmiContractConfig } from '~test/src/abis.js'
+import { accounts } from '~test/src/constants.js'
+import { deploy, deployErrorExample, deployPayable } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { optimism } from '../../chains/index.js'
@@ -297,14 +297,12 @@ test('args: dataSuffix', async () => {
     functionName: 'mint',
     dataSuffix: '0x12345678',
   })
-  // writeContract passes dataSuffix to sendTransaction, which handles concatenation
   expect(spy).toHaveBeenCalledWith({
     account: {
       address: accounts[0].address,
       type: 'json-rpc',
     },
-    data: '0x1249c58b',
-    dataSuffix: '0x12345678',
+    data: '0x1249c58b12345678',
     to: wagmiContractConfig.address,
   })
 })

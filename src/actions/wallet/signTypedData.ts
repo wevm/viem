@@ -22,10 +22,10 @@ import type { IsHexErrorType } from '../../utils/data/isHex.js'
 import type { StringifyErrorType } from '../../utils/stringify.js'
 import {
   type GetTypesForEIP712DomainErrorType,
-  getTypesForEIP712Domain,
   type SerializeTypedDataErrorType,
-  serializeTypedData,
   type ValidateTypedDataErrorType,
+  getTypesForEIP712Domain,
+  serializeTypedData,
   validateTypedData,
 } from '../../utils/typedData.js'
 

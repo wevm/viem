@@ -13,7 +13,7 @@ export const polygonAmoy = /*#__PURE__*/ defineChain({
     default: {
       name: 'PolygonScan',
       url: 'https://amoy.polygonscan.com',
-      apiUrl: 'https://api.etherscan.io/v2/api',
+      apiUrl: 'https://api-amoy.polygonscan.com/api',
     },
   },
   contracts: {

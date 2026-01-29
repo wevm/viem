@@ -55,17 +55,3 @@ export class EnsAvatarUnsupportedNamespaceError extends BaseError {
     )
   }
 }
-
-export type EnsInvalidChainIdErrorType = EnsInvalidChainIdError & {
-  name: 'EnsInvalidChainIdError'
-}
-export class EnsInvalidChainIdError extends BaseError {
-  constructor({ chainId }: { chainId: number }) {
-    super(
-      `Invalid ENSIP-11 chainId: ${chainId}. Must be between 0 and 0x7fffffff, or 1.`,
-      {
-        name: 'EnsInvalidChainIdError',
-      },
-    )
-  }
-}

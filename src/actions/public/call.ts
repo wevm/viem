@@ -13,7 +13,6 @@ import { aggregate3Signature } from '../../constants/contract.js'
 import {
   deploylessCallViaBytecodeBytecode,
   deploylessCallViaFactoryBytecode,
-  multicall3Bytecode,
 } from '../../constants/contracts.js'
 import { BaseError } from '../../errors/base.js'
 import {
@@ -72,11 +71,11 @@ import {
   type SerializeStateOverrideErrorType,
   serializeStateOverride,
 } from '../../utils/stateOverride.js'
+import { assertRequest } from '../../utils/transaction/assertRequest.js'
 import type {
   AssertRequestErrorType,
   AssertRequestParameters,
 } from '../../utils/transaction/assertRequest.js'
-import { assertRequest } from '../../utils/transaction/assertRequest.js'
 
 export type CallParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -161,7 +160,7 @@ export async function call<chain extends Chain | undefined>(
     authorizationList,
     batch = Boolean(client.batch?.multicall),
     blockNumber,
-    blockTag = client.experimental_blockTag ?? 'latest',
+    blockTag = 'latest',
     accessList,
     blobs,
     blockOverrides,
@@ -226,26 +225,23 @@ export async function call<chain extends Chain | undefined>(
     const chainFormat = client.chain?.formatters?.transactionRequest?.format
     const format = chainFormat || formatTransactionRequest
 
-    const request = format(
-      {
-        // Pick out extra data that might exist on the chain's transaction request type.
-        ...extract(rest, { format: chainFormat }),
-        accessList,
-        account,
-        authorizationList,
-        blobs,
-        data,
-        gas,
-        gasPrice,
-        maxFeePerBlobGas,
-        maxFeePerGas,
-        maxPriorityFeePerGas,
-        nonce,
-        to: deploylessCall ? undefined : to,
-        value,
-      } as TransactionRequest,
-      'call',
-    ) as TransactionRequest
+    const request = format({
+      // Pick out extra data that might exist on the chain's transaction request type.
+      ...extract(rest, { format: chainFormat }),
+      from: account?.address,
+      accessList,
+      authorizationList,
+      blobs,
+      data,
+      gas,
+      gasPrice,
+      maxFeePerBlobGas,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      to: deploylessCall ? undefined : to,
+      value,
+    } as TransactionRequest) as TransactionRequest
 
     if (
       batch &&
@@ -351,30 +347,26 @@ async function scheduleMulticall<chain extends Chain | undefined>(
   client: Client<Transport>,
   args: ScheduleMulticallParameters<chain>,
 ) {
-  const {
-    batchSize = 1024,
-    deployless = false,
-    wait = 0,
-  } = typeof client.batch?.multicall === 'object' ? client.batch.multicall : {}
+  const { batchSize = 1024, wait = 0 } =
+    typeof client.batch?.multicall === 'object' ? client.batch.multicall : {}
   const {
     blockNumber,
-    blockTag = client.experimental_blockTag ?? 'latest',
+    blockTag = 'latest',
     data,
+    multicallAddress: multicallAddress_,
     to,
   } = args
 
-  const multicallAddress = (() => {
-    if (deployless) return null
-    if (args.multicallAddress) return args.multicallAddress
-    if (client.chain) {
-      return getChainContractAddress({
-        blockNumber,
-        chain: client.chain,
-        contract: 'multicall3',
-      })
-    }
-    throw new ClientChainNotConfiguredError()
-  })()
+  let multicallAddress = multicallAddress_
+  if (!multicallAddress) {
+    if (!client.chain) throw new ClientChainNotConfiguredError()
+
+    multicallAddress = getChainContractAddress({
+      blockNumber,
+      chain: client.chain,
+      contract: 'multicall3',
+    })
+  }
 
   const blockNumberHex =
     typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
@@ -409,14 +401,8 @@ async function scheduleMulticall<chain extends Chain | undefined>(
         method: 'eth_call',
         params: [
           {
-            ...(multicallAddress === null
-              ? {
-                  data: toDeploylessCallViaBytecodeData({
-                    code: multicall3Bytecode,
-                    data: calldata,
-                  }),
-                }
-              : { to: multicallAddress, data: calldata }),
+            data: calldata,
+            to: multicallAddress,
           },
           block,
         ],
@@ -442,7 +428,10 @@ type ToDeploylessCallViaBytecodeDataErrorType =
   | EncodeDeployDataErrorType
   | ErrorType
 
-function toDeploylessCallViaBytecodeData(parameters: { code: Hex; data: Hex }) {
+function toDeploylessCallViaBytecodeData(parameters: {
+  code: Hex
+  data: Hex
+}) {
   const { code, data } = parameters
   return encodeDeployData({
     abi: parseAbi(['constructor(bytes, bytes)']),

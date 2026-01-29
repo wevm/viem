@@ -1,6 +1,7 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
-import { anvilMainnet } from '~test/anvil.js'
-import { accounts } from '~test/constants.js'
+
+import { accounts } from '~test/src/constants.js'
+import { anvilMainnet } from '../../test/src/anvil.js'
 import { localhost } from '../chains/index.js'
 import type { EIP1193RequestFn, TestRpcSchema } from '../index.js'
 import { createTestClient } from './createTestClient.js'
@@ -34,7 +35,6 @@ test('creates', () => {
       "cacheTime": 4000,
       "ccipRead": undefined,
       "chain": {
-        "extend": [Function],
         "fees": undefined,
         "formatters": undefined,
         "id": 1337,
@@ -53,7 +53,6 @@ test('creates', () => {
         },
         "serializers": undefined,
       },
-      "dataSuffix": undefined,
       "dropTransaction": [Function],
       "dumpState": [Function],
       "extend": [Function],
@@ -94,7 +93,7 @@ test('creates', () => {
         "key": "mock",
         "methods": undefined,
         "name": "Mock Transport",
-        "request": [MockFunction],
+        "request": [MockFunction spy],
         "retryCount": 3,
         "retryDelay": 150,
         "timeout": undefined,
@@ -121,7 +120,6 @@ describe('transports', () => {
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": {
-          "extend": [Function],
           "fees": undefined,
           "formatters": undefined,
           "id": 1337,
@@ -140,7 +138,6 @@ describe('transports', () => {
           },
           "serializers": undefined,
         },
-        "dataSuffix": undefined,
         "dropTransaction": [Function],
         "dumpState": [Function],
         "extend": [Function],
@@ -209,7 +206,6 @@ describe('transports', () => {
         "cacheTime": 4000,
         "ccipRead": undefined,
         "chain": {
-          "extend": [Function],
           "fees": undefined,
           "formatters": undefined,
           "id": 1337,
@@ -228,7 +224,6 @@ describe('transports', () => {
           },
           "serializers": undefined,
         },
-        "dataSuffix": undefined,
         "dropTransaction": [Function],
         "dumpState": [Function],
         "extend": [Function],
@@ -306,7 +301,6 @@ test('extend', () => {
       "call": [Function],
       "ccipRead": undefined,
       "chain": {
-        "extend": [Function],
         "fees": undefined,
         "formatters": undefined,
         "id": 1337,
@@ -330,7 +324,6 @@ test('extend', () => {
       "createContractEventFilter": [Function],
       "createEventFilter": [Function],
       "createPendingTransactionFilter": [Function],
-      "dataSuffix": undefined,
       "deployContract": [Function],
       "dropTransaction": [Function],
       "dumpState": [Function],
@@ -339,7 +332,6 @@ test('extend', () => {
       "estimateGas": [Function],
       "estimateMaxPriorityFeePerGas": [Function],
       "extend": [Function],
-      "fillTransaction": [Function],
       "getAddresses": [Function],
       "getAutomine": [Function],
       "getBalance": [Function],
@@ -393,11 +385,8 @@ test('extend', () => {
       "reset": [Function],
       "revert": [Function],
       "sendCalls": [Function],
-      "sendCallsSync": [Function],
       "sendRawTransaction": [Function],
-      "sendRawTransactionSync": [Function],
       "sendTransaction": [Function],
-      "sendTransactionSync": [Function],
       "sendUnsignedTransaction": [Function],
       "setAutomine": [Function],
       "setBalance": [Function],
@@ -439,7 +428,6 @@ test('extend', () => {
       },
       "type": "testClient",
       "uninstallFilter": [Function],
-      "verifyHash": [Function],
       "verifyMessage": [Function],
       "verifySiweMessage": [Function],
       "verifyTypedData": [Function],
@@ -452,7 +440,6 @@ test('extend', () => {
       "watchEvent": [Function],
       "watchPendingTransactions": [Function],
       "writeContract": [Function],
-      "writeContractSync": [Function],
     }
   `)
 })

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { accounts } from '~test/constants.js'
+import { accounts } from '../../../../test/src/constants.js'
 import { privateKeyToAccount } from '../../../accounts/privateKeyToAccount.js'
 import { createClient } from '../../../clients/createClient.js'
 import { custom } from '../../../clients/transports/custom.js'

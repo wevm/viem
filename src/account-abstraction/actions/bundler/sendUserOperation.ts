@@ -54,8 +54,6 @@ export type SendUserOperationParameters<
         // Accept a partially-formed User Operation (UserOperationRequest) to be filled.
         UserOperationRequest<_derivedVersion>,
         OneOf<{ calls: Calls<Narrow<calls>> } | { callData: Hex }> & {
-          /** Data to append to the end of User Operation calldata. */
-          dataSuffix?: Hex | undefined
           paymaster?:
             | Address
             | true

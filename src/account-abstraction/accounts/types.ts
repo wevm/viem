@@ -256,9 +256,7 @@ export type WebAuthnAccount = {
   sign: ({ hash }: { hash: Hash }) => Promise<WebAuthnSignReturnType>
   signMessage: ({
     message,
-  }: {
-    message: SignableMessage
-  }) => Promise<WebAuthnSignReturnType>
+  }: { message: SignableMessage }) => Promise<WebAuthnSignReturnType>
   signTypedData: <
     const typedData extends TypedDataDefinition | Record<string, unknown>,
     primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,

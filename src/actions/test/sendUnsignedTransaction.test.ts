@@ -1,12 +1,14 @@
 import { expect, test } from 'vitest'
-import { anvilMainnet } from '~test/anvil.js'
-import { accounts, address } from '~test/constants.js'
+
+import { accounts, address } from '~test/src/constants.js'
 import { celo } from '../../chains/index.js'
 import { createTestClient } from '../../clients/createTestClient.js'
-import { http } from '../../index.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { getBalance } from '../public/getBalance.js'
+
+import { anvilMainnet } from '../../../test/src/anvil.js'
+import { http } from '../../index.js'
 import { mine } from './mine.js'
 import { sendUnsignedTransaction } from './sendUnsignedTransaction.js'
 import { setBalance } from './setBalance.js'

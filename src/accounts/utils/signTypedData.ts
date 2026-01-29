@@ -1,11 +1,13 @@
 import type { TypedData } from 'abitype'
-import type { ErrorType } from '../../errors/utils.js'
+
 import type { Hex } from '../../types/misc.js'
 import type { TypedDataDefinition } from '../../types/typedData.js'
 import {
   type HashTypedDataErrorType,
   hashTypedData,
 } from '../../utils/signature/hashTypedData.js'
+
+import type { ErrorType } from '../../errors/utils.js'
 import { type SignErrorType, sign } from './sign.js'
 
 export type SignTypedDataParameters<
@@ -24,8 +26,8 @@ export type SignTypedDataErrorType =
   | ErrorType
 
 /**
- * @description Signs typed data and calculates an Ethereum-specific signature in [https://eips.ethereum.org/EIPS/eip-712](https://eips.ethereum.org/EIPS/eip-712):
- * `sign(keccak256("\x19\x01" ‖ domainSeparator ‖ hashStruct(message)))`.
+ * @description Signs typed data and calculates an Ethereum-specific signature in [EIP-191 format](https://eips.ethereum.org/EIPS/eip-191):
+ * `keccak256("\x19Ethereum Signed Message:\n" + len(message) + message))`.
  *
  * @returns The signature.
  */

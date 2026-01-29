@@ -13,8 +13,8 @@ import type { Chain } from '../../types/chain.js'
 import type { Hex, SignableMessage } from '../../types/misc.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
-  stringToHex,
   type ToHexErrorType,
+  stringToHex,
   toHex,
 } from '../../utils/encoding/toHex.js'
 

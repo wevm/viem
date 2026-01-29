@@ -1,6 +1,6 @@
 import { expectTypeOf, test } from 'vitest'
-import { usdcContractConfig } from '~test/abis.js'
-import { anvilMainnet } from '~test/anvil.js'
+import { usdcContractConfig } from '~test/src/abis.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { createContractEventFilter } from './createContractEventFilter.js'
 

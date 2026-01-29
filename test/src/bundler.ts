@@ -1,4 +1,5 @@
-import { Instance, Server } from 'prool'
+import { createServer } from 'prool'
+import { alto } from 'prool/instances'
 import {
   type BundlerClient,
   type BundlerClientConfig,
@@ -6,11 +7,11 @@ import {
 } from '../../src/account-abstraction/clients/createBundlerClient.js'
 import { mainnet } from '../../src/chains/index.js'
 import {
+  http,
   type Chain,
   type Client,
   type ClientConfig,
   type ExactPartial,
-  http,
   type Transport,
 } from '../../src/index.js'
 import type { DebugBundlerRpcSchema } from '../../src/types/eip1193.js'
@@ -100,9 +101,9 @@ function defineBundler<const chain extends Chain>({
       await fetch(`${bundlerRpcUrl}/restart`)
     },
     async start() {
-      return await Server.create({
+      return await createServer({
         instance: (key) =>
-          Instance.alto({
+          alto({
             enableDebugEndpoints: true,
             entrypoints: [
               '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789',

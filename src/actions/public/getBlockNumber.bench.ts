@@ -1,6 +1,8 @@
 import { bench, describe } from 'vitest'
-import { anvilMainnet } from '~test/anvil.js'
-import { ethersProvider } from '~test/bench.js'
+
+import { ethersProvider } from '~test/src/bench.js'
+
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { getBlockNumber } from './getBlockNumber.js'
 

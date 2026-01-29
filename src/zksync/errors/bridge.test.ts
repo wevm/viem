@@ -6,7 +6,7 @@ import {
   LogProofNotFoundError,
   TxHashNotFoundInLogsError,
   WithdrawalLogNotFoundError,
-} from '../../zksync/errors/bridge.js'
+} from '~viem/zksync/errors/bridge.js'
 
 test('BaseFeeHigherThanValueError', () => {
   expect(new BaseFeeHigherThanValueError(100n, 90n)).toMatchInlineSnapshot(`

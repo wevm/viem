@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
-import { wagmiContractConfig } from '~test/abis.js'
+import { wagmiContractConfig } from '../../../../test/src/abis.js'
 import {
   createVerifyingPaymasterServer,
   getSmartAccounts_06,
@@ -7,10 +7,10 @@ import {
   getSmartAccounts_08,
   getVerifyingPaymaster_07,
   getVerifyingPaymaster_08,
-} from '~test/account-abstraction.js'
-import { anvilMainnet } from '~test/anvil.js'
-import { bundlerMainnet } from '~test/bundler.js'
-import { accounts } from '~test/constants.js'
+} from '../../../../test/src/account-abstraction.js'
+import { anvilMainnet } from '../../../../test/src/anvil.js'
+import { bundlerMainnet } from '../../../../test/src/bundler.js'
+import { accounts } from '../../../../test/src/constants.js'
 import { mine } from '../../../actions/test/mine.js'
 import { writeContract } from '../../../actions/wallet/writeContract.js'
 import { http } from '../../../clients/transports/http.js'
@@ -41,7 +41,7 @@ describe('entryPointVersion: 0.8', async () => {
 
   test('default', async () => {
     const {
-      account: _,
+      account: account_,
       callGasLimit,
       maxFeePerGas,
       verificationGasLimit,
@@ -92,7 +92,7 @@ describe('entryPointVersion: 0.8', async () => {
 
   test('args: callData', async () => {
     const {
-      account: _,
+      account: account_,
       callGasLimit,
       maxFeePerGas,
       verificationGasLimit,
@@ -1287,47 +1287,6 @@ describe('entryPointVersion: 0.8', async () => {
     `)
   })
 
-  test('args: dataSuffix', async () => {
-    const request = await prepareUserOperation(bundlerClient, {
-      account,
-      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
-      dataSuffix: '0xdeadbeef',
-      ...fees,
-    })
-
-    expect(request.callData.endsWith('deadbeef')).toBe(true)
-  })
-
-  test('args: dataSuffix (client-level)', async () => {
-    const bundlerClientWithSuffix = bundlerMainnet.getBundlerClient({
-      client,
-      dataSuffix: '0xcafe',
-    })
-    const request = await prepareUserOperation(bundlerClientWithSuffix, {
-      account,
-      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
-      ...fees,
-    })
-
-    expect(request.callData.endsWith('cafe')).toBe(true)
-  })
-
-  test('args: dataSuffix (action-level overrides client-level)', async () => {
-    const bundlerClientWithSuffix = bundlerMainnet.getBundlerClient({
-      client,
-      dataSuffix: '0xcafe',
-    })
-    const request = await prepareUserOperation(bundlerClientWithSuffix, {
-      account,
-      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
-      dataSuffix: '0xbeef',
-      ...fees,
-    })
-
-    expect(request.callData.endsWith('beef')).toBe(true)
-    expect(request.callData.endsWith('cafe')).toBe(false)
-  })
-
   test('error: no account', async () => {
     await expect(() =>
       // @ts-expect-error
@@ -1349,7 +1308,7 @@ describe('entryPointVersion: 0.7', async () => {
 
   test('default', async () => {
     const {
-      account: _,
+      account: account_,
       callGasLimit,
       maxFeePerGas,
       nonce,
@@ -1393,7 +1352,7 @@ describe('entryPointVersion: 0.7', async () => {
 
   test('args: callData', async () => {
     const {
-      account: _,
+      account: account_,
       callGasLimit,
       maxFeePerGas,
       nonce,
@@ -1491,7 +1450,7 @@ describe('entryPointVersion: 0.7', async () => {
       account: _,
       callGasLimit,
       maxFeePerGas,
-      nonce: __,
+      nonce,
       verificationGasLimit,
       ...request
     } = await prepareUserOperation(bundlerClient, {

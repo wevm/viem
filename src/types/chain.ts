@@ -1,10 +1,6 @@
 import type { Address } from 'abitype'
 
 import type { EstimateFeesPerGasReturnType } from '../actions/public/estimateFeesPerGas.js'
-import type {
-  VerifyHashParameters,
-  VerifyHashReturnType,
-} from '../actions/public/verifyHash.js'
 import type { PrepareTransactionRequestParameters } from '../actions/wallet/prepareTransactionRequest.js'
 import type { Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
@@ -21,7 +17,7 @@ import type { SerializeTransactionFn } from '../utils/transaction/serializeTrans
 
 export type Chain<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
-  extendSchema extends Record<string, unknown> | undefined =
+  custom extends Record<string, unknown> | undefined =
     | Record<string, unknown>
     | undefined,
 > = {
@@ -46,7 +42,7 @@ export type Chain<
           ensRegistry?: ChainContract | undefined
           ensUniversalResolver?: ChainContract | undefined
           multicall3?: ChainContract | undefined
-          erc6492Verifier?: ChainContract | undefined
+          universalSignatureVerifier?: ChainContract | undefined
         }
       >
     | undefined
@@ -58,8 +54,6 @@ export type Chain<
   name: string
   /** Currency used by chain */
   nativeCurrency: ChainNativeCurrency
-  /** Preconfirmation time in milliseconds. */
-  experimental_preconfirmationTime?: number | undefined
   /** Collection of RPC endpoints */
   rpcUrls: {
     [key: string]: ChainRpcUrls
@@ -69,61 +63,26 @@ export type Chain<
   sourceId?: number | undefined
   /** Flag for test networks */
   testnet?: boolean | undefined
-} & ChainConfig<formatters, extendSchema>
+} & ChainConfig<formatters, custom>
 
 /////////////////////////////////////////////////////////////////////
 // Config
 /////////////////////////////////////////////////////////////////////
 
-type PrepareTransactionRequestPhase =
-  | 'beforeFillTransaction'
-  | 'beforeFillParameters'
-  | 'afterFillParameters'
-type PrepareTransactionRequestFn = (
-  args: PrepareTransactionRequestParameters,
-  options: { phase: PrepareTransactionRequestPhase },
-) => Promise<PrepareTransactionRequestParameters>
-
-type ChainVerifyHashFn = (
-  client: Client,
-  parameters: VerifyHashParameters,
-) => Promise<VerifyHashReturnType>
-
 export type ChainConfig<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
-  extendSchema extends Record<string, unknown> | undefined =
+  custom extends Record<string, unknown> | undefined =
     | Record<string, unknown>
     | undefined,
 > = {
-  /** Custom chain data. @deprecated use `.extend` instead. */
-  custom?: extendSchema | undefined
-  /** Extend schema. */
-  extendSchema?: extendSchema | undefined
+  /** Custom chain data. */
+  custom?: custom | undefined
   /** Modifies how fees are derived. */
   fees?: ChainFees<formatters | undefined> | undefined
   /** Modifies how data is formatted and typed (e.g. blocks and transactions) */
   formatters?: formatters | undefined
-  /** Function to prepare a transaction request. Runs before the transaction is filled. */
-  prepareTransactionRequest?:
-    | PrepareTransactionRequestFn
-    | [
-        fn: PrepareTransactionRequestFn | undefined,
-        options: {
-          /**
-           * Phases to run the function at.
-           *
-           * - `beforeFillTransaction`: Before the transaction is attempted to be filled via `eth_fillTransaction`.
-           * - `beforeFillParameters`: Before missing parameters are filled.
-           * - `afterFillParameters`: After missing parameters are filled.
-           */
-          runAt: readonly PrepareTransactionRequestPhase[]
-        },
-      ]
-    | undefined
   /** Modifies how data is serialized (e.g. transactions). */
   serializers?: ChainSerializers<formatters> | undefined
-  /** Chain-specific signature verification. */
-  verifyHash?: ChainVerifyHashFn | undefined
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -224,7 +183,7 @@ export type ChainFormatters = {
 }
 
 export type ChainFormatter<type extends string = string> = {
-  format: (args: any, action?: string | undefined) => any
+  format: (args: any) => any
   type: type
 }
 

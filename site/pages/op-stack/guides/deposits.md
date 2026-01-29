@@ -1,3 +1,17 @@
+---
+head:
+  - - meta
+    - property: og:title
+      content: Deposits
+  - - meta
+    - name: description
+      content: How to deposit from Mainnet to OP Stack chains.
+  - - meta
+    - property: og:description
+      content: How to deposit from Mainnet to OP Stack chains.
+
+---
+
 # Deposits
 
 This guide will demonstrate how to deposit (bridge) **1 Ether** from **Mainnet** to **[Optimism (OP Mainnet)](https://www.optimism.io/)**.

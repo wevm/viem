@@ -1,7 +1,7 @@
 import { keccak256 } from 'ethers'
 import { describe, expect, test } from 'vitest'
-import { anvilMainnet, anvilOptimism } from '~test/anvil.js'
-import { accounts } from '~test/constants.js'
+import { anvilMainnet, anvilOptimism } from '../../../test/src/anvil.js'
+import { accounts } from '../../../test/src/constants.js'
 import { getTransactionReceipt, reset } from '../../actions/index.js'
 
 import { getL2Output, getWithdrawals, proveWithdrawal } from '../index.js'
@@ -14,7 +14,7 @@ import { getGame } from './getGame.js'
 const client = anvilMainnet.getClient()
 const optimismClient = anvilOptimism.getClient()
 
-test.skip('default', async () => {
+test('default', async () => {
   await reset(optimismClient, {
     blockNumber: 132253445n,
     jsonRpcUrl: anvilOptimism.forkUrl,
@@ -75,7 +75,7 @@ test.skip('default', async () => {
   expect(hash).toBeDefined()
 }, 20_000)
 
-test.skip('args: output (legacy)', async () => {
+test('args: output (legacy)', async () => {
   await reset(client, {
     blockNumber: 18772363n,
     jsonRpcUrl: anvilMainnet.forkUrl,
@@ -155,7 +155,7 @@ describe('proof nodes', () => {
   })
 
   // test it within the context of getTransactionReceipt
-  test.skip('should add a proof node when final node is inside of a branch', async () => {
+  test('should add a proof node when final node is inside of a branch', async () => {
     // so we don't have to initialize a bnb client we are using an optimism tx but making the proof
     // returned match the bnb testnet withdrawal
     // https://optimistic.etherscan.io/tx/0x7b5cedccfaf9abe6ce3d07982f57bcb9176313b019ff0fc602a0b70342fe3147

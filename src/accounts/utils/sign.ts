@@ -4,11 +4,6 @@ import { secp256k1 } from '@noble/curves/secp256k1'
 
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex, Signature } from '../../types/misc.js'
-import { type IsHexErrorType, isHex } from '../../utils/data/isHex.js'
-import {
-  type HexToBytesErrorType,
-  hexToBytes,
-} from '../../utils/encoding/toBytes.js'
 import {
   type NumberToHexErrorType,
   numberToHex,
@@ -28,11 +23,7 @@ export type SignReturnType<to extends To = 'object'> =
   | (to extends 'bytes' ? ByteArray : never)
   | (to extends 'hex' ? Hex : never)
 
-export type SignErrorType =
-  | HexToBytesErrorType
-  | IsHexErrorType
-  | NumberToHexErrorType
-  | ErrorType
+export type SignErrorType = NumberToHexErrorType | ErrorType
 
 let extraEntropy: Hex | boolean = false
 
@@ -60,12 +51,7 @@ export async function sign<to extends To = 'object'>({
   const { r, s, recovery } = secp256k1.sign(
     hash.slice(2),
     privateKey.slice(2),
-    {
-      lowS: true,
-      extraEntropy: isHex(extraEntropy, { strict: false })
-        ? hexToBytes(extraEntropy)
-        : extraEntropy,
-    },
+    { lowS: true, extraEntropy },
   )
   const signature = {
     r: numberToHex(r, { size: 32 }),

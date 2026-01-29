@@ -2,13 +2,6 @@ import type { AbiEvent, Address } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import {
-  DecodeLogDataMismatch,
-  DecodeLogTopicsMismatch,
-} from '../../errors/abi.js'
-import { InvalidInputRpcError } from '../../errors/rpc.js'
-import type { ErrorType } from '../../errors/utils.js'
-import type { BlockNumber } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type {
   MaybeAbiEventName,
@@ -18,16 +11,24 @@ import type { Filter } from '../../types/filter.js'
 import type { Log } from '../../types/log.js'
 import type { LogTopic } from '../../types/misc.js'
 import type { GetPollOptions } from '../../types/transport.js'
-import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
 import {
   type EncodeEventTopicsParameters,
   encodeEventTopics,
 } from '../../utils/abi/encodeEventTopics.js'
-import { formatLog } from '../../utils/formatters/log.js'
-import { getAction } from '../../utils/getAction.js'
 import { type ObserveErrorType, observe } from '../../utils/observe.js'
 import { poll } from '../../utils/poll.js'
 import { type StringifyErrorType, stringify } from '../../utils/stringify.js'
+
+import {
+  DecodeLogDataMismatch,
+  DecodeLogTopicsMismatch,
+} from '../../errors/abi.js'
+import { InvalidInputRpcError } from '../../errors/rpc.js'
+import type { ErrorType } from '../../errors/utils.js'
+import type { BlockNumber } from '../../types/block.js'
+import { decodeEventLog } from '../../utils/abi/decodeEventLog.js'
+import { formatLog } from '../../utils/formatters/log.js'
+import { getAction } from '../../utils/getAction.js'
 import {
   type CreateEventFilterParameters,
   createEventFilter,
@@ -176,15 +177,10 @@ export function watchEvent<
   const enablePolling = (() => {
     if (typeof poll_ !== 'undefined') return poll_
     if (typeof fromBlock === 'bigint') return true
-    if (
-      client.transport.type === 'webSocket' ||
-      client.transport.type === 'ipc'
-    )
-      return false
+    if (client.transport.type === 'webSocket') return false
     if (
       client.transport.type === 'fallback' &&
-      (client.transport.transports[0].config.type === 'webSocket' ||
-        client.transport.transports[0].config.type === 'ipc')
+      client.transport.transports[0].config.type === 'webSocket'
     )
       return false
     return true
@@ -313,8 +309,7 @@ export function watchEvent<
           if (client.transport.type === 'fallback') {
             const transport = client.transport.transports.find(
               (transport: ReturnType<Transport>) =>
-                transport.config.type === 'webSocket' ||
-                transport.config.type === 'ipc',
+                transport.config.type === 'webSocket',
             )
             if (!transport) return client.transport
             return transport.value

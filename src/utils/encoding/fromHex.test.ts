@@ -66,23 +66,6 @@ describe('converts hex to number', () => {
       Version: viem@x.y.z]
     `)
   })
-
-  test('error: integer out of range', () => {
-    expect(() =>
-      hexToNumber('0x20000000000000'),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [IntegerOutOfRangeError: Number "9007199254740992n" is not in safe integer range (-9007199254740991 to 9007199254740991)
-
-      Version: viem@x.y.z]
-    `)
-    expect(() =>
-      hexToNumber('0xffdfffffffffffff', { signed: true }),
-    ).toThrowErrorMatchingInlineSnapshot(`
-      [IntegerOutOfRangeError: Number "-9007199254740993n" is not in safe integer range (-9007199254740991 to 9007199254740991)
-
-      Version: viem@x.y.z]
-    `)
-  })
 })
 
 describe('converts hex to bigint', () => {

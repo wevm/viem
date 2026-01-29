@@ -1,9 +1,9 @@
 import { assertType, expect, test } from 'vitest'
 
-import { usdcContractConfig } from '~test/abis.js'
-import { anvilMainnet } from '~test/anvil.js'
-import { accounts } from '~test/constants.js'
-import { createHttpServer } from '~test/utils.js'
+import { usdcContractConfig } from '~test/src/abis.js'
+import { accounts } from '~test/src/constants.js'
+import { createHttpServer } from '~test/src/utils.js'
+import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { fallback } from '../../clients/transports/fallback.js'

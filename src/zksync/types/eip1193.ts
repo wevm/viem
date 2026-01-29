@@ -160,9 +160,4 @@ export type PublicZksyncRpcSchema = [
     Parameters: undefined
     ReturnType: Address
   },
-  {
-    Method: 'zks_gasPerPubdata'
-    Parameters?: undefined
-    ReturnType: Hex
-  },
 ]

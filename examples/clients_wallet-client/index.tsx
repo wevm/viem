@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import { type Address, createWalletClient, custom, parseEther } from 'viem'
 import { goerli } from 'viem/chains'

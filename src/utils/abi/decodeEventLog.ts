@@ -12,7 +12,6 @@ import {
   DecodeLogTopicsMismatch,
   type DecodeLogTopicsMismatchErrorType,
 } from '../../errors/abi.js'
-import { PositionOutOfBoundsError } from '../../errors/cursor.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type {
   ContractEventArgsFromTopics,
@@ -30,6 +29,8 @@ import {
   type ToEventSelectorErrorType,
   toEventSelector,
 } from '../hash/toEventSelector.js'
+
+import { PositionOutOfBoundsError } from '../../errors/cursor.js'
 import {
   type DecodeAbiParametersErrorType,
   decodeAbiParameters,
@@ -133,60 +134,33 @@ export function decodeEventLog<
   const indexedInputs = inputs
     .map((x, i) => [x, i] as const)
     .filter(([x]) => 'indexed' in x && x.indexed)
-
-  const missingIndexedInputs: [AbiParameter, number][] = []
-
   for (let i = 0; i < indexedInputs.length; i++) {
     const [param, argIndex] = indexedInputs[i]
     const topic = argTopics[i]
-    if (!topic) {
-      if (strict)
-        throw new DecodeLogTopicsMismatch({
-          abiItem,
-          param: param as AbiParameter & { indexed: boolean },
-        })
-      // Track missing indexed inputs to decode from data when strict is false
-      missingIndexedInputs.push([param, argIndex])
-      continue
-    }
+    if (!topic)
+      throw new DecodeLogTopicsMismatch({
+        abiItem,
+        param: param as AbiParameter & { indexed: boolean },
+      })
     args[isUnnamed ? argIndex : param.name || argIndex] = decodeTopic({
       param,
       value: topic,
     })
   }
 
-  // Decode data (non-indexed args + missing indexed args when strict is false).
+  // Decode data (non-indexed args).
   const nonIndexedInputs = inputs.filter((x) => !('indexed' in x && x.indexed))
-
-  // When strict is false, missing indexed inputs should be decoded from data
-  const inputsToDecode = strict
-    ? nonIndexedInputs
-    : [...missingIndexedInputs.map(([param]) => param), ...nonIndexedInputs]
-
-  if (inputsToDecode.length > 0) {
+  if (nonIndexedInputs.length > 0) {
     if (data && data !== '0x') {
       try {
-        const decodedData = decodeAbiParameters(
-          inputsToDecode,
-          data,
-        ) as unknown[]
+        const decodedData = decodeAbiParameters(nonIndexedInputs, data)
         if (decodedData) {
-          let dataIndex = 0
-          // First, assign missing indexed parameters (when strict is false)
-          if (!strict) {
-            for (const [param, argIndex] of missingIndexedInputs) {
-              args[isUnnamed ? argIndex : param.name || argIndex] =
-                decodedData[dataIndex++]
-            }
-          }
-          // Then, assign non-indexed parameters
-          if (isUnnamed) {
+          if (isUnnamed)
             for (let i = 0; i < inputs.length; i++)
-              if (args[i] === undefined && dataIndex < decodedData.length)
-                args[i] = decodedData[dataIndex++]
-          } else
+              args[i] = args[i] ?? decodedData.shift()
+          else
             for (let i = 0; i < nonIndexedInputs.length; i++)
-              args[nonIndexedInputs[i].name!] = decodedData[dataIndex++]
+              args[nonIndexedInputs[i].name!] = decodedData[i]
         }
       } catch (err) {
         if (strict) {
@@ -197,7 +171,7 @@ export function decodeEventLog<
             throw new DecodeLogDataMismatch({
               abiItem,
               data: data,
-              params: inputsToDecode,
+              params: nonIndexedInputs,
               size: size(data),
             })
           throw err
@@ -207,7 +181,7 @@ export function decodeEventLog<
       throw new DecodeLogDataMismatch({
         abiItem,
         data: '0x',
-        params: inputsToDecode,
+        params: nonIndexedInputs,
         size: 0,
       })
     }

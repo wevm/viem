@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const crab = /*#__PURE__*/ defineChain({
+export const crab = defineChain({
   id: 44,
   name: 'Crab Network',
   nativeCurrency: {

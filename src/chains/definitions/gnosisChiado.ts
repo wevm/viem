@@ -8,7 +8,6 @@ export const gnosisChiado = /*#__PURE__*/ defineChain({
     name: 'Gnosis',
     symbol: 'xDAI',
   },
-  blockTime: 5_000,
   rpcUrls: {
     default: {
       http: ['https://rpc.chiadochain.net'],

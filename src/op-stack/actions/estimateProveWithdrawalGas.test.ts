@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
-import { anvilMainnet, anvilOptimism } from '~test/anvil.js'
-import { accounts } from '~test/constants.js'
+import { anvilMainnet, anvilOptimism } from '../../../test/src/anvil.js'
+import { accounts } from '../../../test/src/constants.js'
 
 import { estimateProveWithdrawalGas } from './estimateProveWithdrawalGas.js'
 

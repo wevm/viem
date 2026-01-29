@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest'
-import { wagmiContractConfig } from '~test/abis.js'
+import { ErrorsExample } from '../../../../contracts/generated.js'
+import { wagmiContractConfig } from '../../../../test/src/abis.js'
 import {
   createVerifyingPaymasterServer,
   getSmartAccounts_06,
@@ -7,12 +8,11 @@ import {
   getSmartAccounts_08,
   getVerifyingPaymaster_07,
   getVerifyingPaymaster_08,
-} from '~test/account-abstraction.js'
-import { anvilMainnet } from '~test/anvil.js'
-import { bundlerMainnet } from '~test/bundler.js'
-import { accounts } from '~test/constants.js'
-import { deployErrorExample } from '~test/utils.js'
-import { ErrorsExample } from '../../../../contracts/generated.js'
+} from '../../../../test/src/account-abstraction.js'
+import { anvilMainnet } from '../../../../test/src/anvil.js'
+import { bundlerMainnet } from '../../../../test/src/bundler.js'
+import { accounts } from '../../../../test/src/constants.js'
+import { deployErrorExample } from '../../../../test/src/utils.js'
 import { mine, writeContract } from '../../../actions/index.js'
 import { http } from '../../../clients/transports/http.js'
 import { pad, parseEther, parseGwei } from '../../../utils/index.js'

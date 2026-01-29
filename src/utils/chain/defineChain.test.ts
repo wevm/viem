@@ -1,6 +1,6 @@
-import type { Address } from 'abitype'
 import { expect, test } from 'vitest'
-import { defineChain, extendSchema } from './defineChain.js'
+
+import { defineChain } from './defineChain.js'
 
 test('default', () => {
   expect(
@@ -15,7 +15,6 @@ test('default', () => {
     }),
   ).toMatchInlineSnapshot(`
       {
-        "extend": [Function],
         "fees": undefined,
         "formatters": undefined,
         "id": 42220,
@@ -36,21 +35,4 @@ test('default', () => {
         "serializers": undefined,
       }
     `)
-})
-
-test('behavior: extend', () => {
-  const chain = defineChain({
-    extendSchema: extendSchema<{ feeToken: Address }>(),
-    id: 1,
-    name: 'Test',
-    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-    rpcUrls: { default: { http: ['https://localhost:8545'] } },
-  })
-
-  const extended = chain.extend({
-    feeToken: '0x0000000000000000000000000000000000000000',
-  })
-
-  expect(extended.feeToken).toBe('0x0000000000000000000000000000000000000000')
-  expect(extended.id).toBe(1)
 })

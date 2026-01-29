@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import {
+  http,
   type Address,
+  type Hash,
+  type TransactionReceipt,
   createPublicClient,
   createWalletClient,
   custom,
-  type Hash,
-  http,
   parseEther,
   stringify,
-  type TransactionReceipt,
 } from 'viem'
 import { goerli, optimismGoerli } from 'viem/chains'
 import {

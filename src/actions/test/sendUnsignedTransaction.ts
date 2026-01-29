@@ -72,23 +72,20 @@ export async function sendUnsignedTransaction<
   const chainFormat = client.chain?.formatters?.transactionRequest?.format
   const format = chainFormat || formatTransactionRequest
 
-  const request = format(
-    {
-      // Pick out extra data that might exist on the chain's transaction request type.
-      ...extract(rest, { format: chainFormat }),
-      accessList,
-      data,
-      from,
-      gas,
-      gasPrice,
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      nonce,
-      to,
-      value,
-    } as TransactionRequest,
-    'sendUnsignedTransaction',
-  )
+  const request = format({
+    // Pick out extra data that might exist on the chain's transaction request type.
+    ...extract(rest, { format: chainFormat }),
+    accessList,
+    data,
+    from,
+    gas,
+    gasPrice,
+    maxFeePerGas,
+    maxPriorityFeePerGas,
+    nonce,
+    to,
+    value,
+  } as TransactionRequest)
   const hash = await client.request({
     method: 'eth_sendUnsignedTransaction',
     params: [request],

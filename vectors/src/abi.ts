@@ -1,7 +1,8 @@
 /// <reference types="@types/bun" />
 
 import { join } from 'node:path'
-import { type AbiParameter, checksumAddress, stringify } from '../../src'
+import { type AbiParameter, checksumAddress } from '../../src'
+import { stringify } from '../../src'
 import { encodeAbiParameters } from '../../src/utils/abi/encodeAbiParameters'
 import { bytesToHex } from '../../src/utils/encoding/toHex.js'
 import { bytesRegex, integerRegex } from '../../src/utils/regex.js'
@@ -60,12 +61,12 @@ function generateValues(parameters: AbiParameter[]) {
       if (!arrayMatch) continue
       const [_, type, size] = arrayMatch
       const length = size
-        ? Number.parseInt(size, 10)
+        ? Number.parseInt(size)
         : Math.floor(Math.random() * 8)
       const nested = []
       for (let i = 0; i < length; i++) {
         nested.push(
-          // @ts-expect-error
+          // @ts-ignore
           generateValues([{ components: parameter.components, type }])[0],
         )
       }
@@ -79,9 +80,9 @@ function generateValues(parameters: AbiParameter[]) {
       const max =
         type === 'int'
           ? Math.random() > 0.5
-            ? -(2n ** (BigInt(Number.parseInt(size, 10)) - 1n))
-            : 2n ** (BigInt(Number.parseInt(size, 10)) - 1n) - 1n
-          : 2n ** BigInt(Number.parseInt(size, 10)) - 1n
+            ? -(2n ** (BigInt(Number.parseInt(size)) - 1n))
+            : 2n ** (BigInt(Number.parseInt(size)) - 1n) - 1n
+          : 2n ** BigInt(Number.parseInt(size)) - 1n
       values.push(generateBigInt(max))
       continue
     }
@@ -98,7 +99,7 @@ function generateValues(parameters: AbiParameter[]) {
       const bytesMatch = parameter.type.match(bytesRegex)
       if (!bytesMatch) continue
       const [_, size = '32'] = bytesMatch
-      const value = bytesToHex(generateBytes(Number.parseInt(size, 10)))
+      const value = bytesToHex(generateBytes(Number.parseInt(size)))
       values.push(value)
       continue
     }
