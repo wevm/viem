@@ -473,6 +473,7 @@ export { plumeSepolia } from './definitions/plumeSepolia.js'
 /** @deprecated Use `plumeSepolia` instead. */
 export { plumeTestnet } from './definitions/plumeTestnet.js'
 export { polterTestnet } from './definitions/polterTestnet.js'
+export { polkadotHub } from './definitions/polkadotHub.js'
 export { polygon } from './definitions/polygon.js'
 export { polygonAmoy } from './definitions/polygonAmoy.js'
 export { polygonMumbai } from './definitions/polygonMumbai.js'
