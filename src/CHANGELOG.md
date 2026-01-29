@@ -1,5 +1,23 @@
 # viem
 
+## 2.45.1
+
+### Patch Changes
+
+- [#4273](https://github.com/wevm/viem/pull/4273) [`bf3f117aa4d6a4693af29894b1c27e130623cbc7`](https://github.com/wevm/viem/commit/bf3f117aa4d6a4693af29894b1c27e130623cbc7) Thanks [@nicodlz](https://github.com/nicodlz)! - Added Subtensor EVM chain.
+
+- [#4272](https://github.com/wevm/viem/pull/4272) [`a3a4ff9a25c8f31d3caef533d3d100cf22c1ea5e`](https://github.com/wevm/viem/commit/a3a4ff9a25c8f31d3caef533d3d100cf22c1ea5e) Thanks [@matzapata](https://github.com/matzapata)! - Added Alpen Testnet
+
+- [#4228](https://github.com/wevm/viem/pull/4228) [`26ffdfbef41e08a4d6837051eda615fb659c2c31`](https://github.com/wevm/viem/commit/26ffdfbef41e08a4d6837051eda615fb659c2c31) Thanks [@sakulstra](https://github.com/sakulstra)! - Improved performance in `parseEventLogs` by memoizing.
+
+- [#4275](https://github.com/wevm/viem/pull/4275) [`ea8398b80c6fa90747e979d959c32e276bdd43e1`](https://github.com/wevm/viem/commit/ea8398b80c6fa90747e979d959c32e276bdd43e1) Thanks [@GiovaniGuizzo](https://github.com/GiovaniGuizzo)! - Added KiiChain mainnet chain definition
+
+- [#4259](https://github.com/wevm/viem/pull/4259) [`1ae28c2a9acb55b8fc599643549a52ec71a02e72`](https://github.com/wevm/viem/commit/1ae28c2a9acb55b8fc599643549a52ec71a02e72) Thanks [@cruzdanilo](https://github.com/cruzdanilo)! - Fixed error decoding in `simulateBlocks` when RPC returns revert data in `returnData` instead of `error.data`.
+
+- [#4260](https://github.com/wevm/viem/pull/4260) [`1f2a1839c201a2f5b97bddf26d605fb0394cdbd7`](https://github.com/wevm/viem/commit/1f2a1839c201a2f5b97bddf26d605fb0394cdbd7) Thanks [@akitothemoon](https://github.com/akitothemoon)! - Added Horizen Testnet.
+
+- [`4fe411bd4231ec0a89159723ec68fcfe13c10071`](https://github.com/wevm/viem/commit/4fe411bd4231ec0a89159723ec68fcfe13c10071) Thanks [@jxom](https://github.com/jxom)! - Added `nonce` and `faucet.fundSync` actions to decorator.
+
 ## 2.45.0
 
 ### Minor Changes
