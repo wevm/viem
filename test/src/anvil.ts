@@ -41,7 +41,7 @@ export const anvilOptimism = defineAnvil({
     'VITE_ANVIL_FORK_URL_OPTIMISM',
     'https://mainnet.optimism.io',
   ),
-  forkBlockNumber: 113624777n,
+  forkBlockNumber: 147000000n,
   port: 8645,
 })
 
