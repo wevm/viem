@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added Polkadot Hub chain.
+Added Polkadot Hub chain. Updated Paseo PassetHub chain configuration.
