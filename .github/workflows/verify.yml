@@ -133,42 +133,42 @@ jobs:
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
           VITE_SHARD_ID: ${{ matrix.shard }}
           VITE_TEMPO_ENV: localnet
-          VITE_TEMPO_TAG: sha-888599a
+          VITE_TEMPO_TAG: latest
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
-  # test-tempo-deployed:
-  #   name: 'Test Deployed Tempo (env: ${{ matrix.node-env }}, e2e)'
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 30
-  #   strategy:
-  #     matrix:
-  #       node-env: 
-  #         # - devnet
-  #         - testnet
-  #         # - mainnet
-  #   steps:
-  #     - name: Clone repository
-  #       uses: actions/checkout@v4
-  #       with:
-  #         submodules: 'recursive'
+  test-tempo-deployed:
+    name: 'Test Deployed Tempo (env: ${{ matrix.node-env }}, e2e)'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        node-env: 
+          - devnet
+          # - testnet
+          # - mainnet
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
 
-  #     - name: Install dependencies
-  #       uses: ./.github/actions/install-dependencies
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
 
-  #     - name: Run tests
-  #       uses: nick-fields/retry@v3
-  #       with:
-  #         timeout_minutes: 10
-  #         max_attempts: 3
-  #         command: pnpm test --bail=1 --project tempo e2e
-  #       env:
-  #         CI: true
-  #         VITE_TEMPO_CREDENTIALS: ${{ secrets.VITE_TEMPO_CREDENTIALS }}
-  #         VITE_TEMPO_ENV: ${{ matrix.node-env }}
+      - name: Run tests
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: pnpm test --bail=1 --project tempo e2e
+        env:
+          CI: true
+          VITE_TEMPO_CREDENTIALS: ${{ secrets.VITE_TEMPO_CREDENTIALS }}
+          VITE_TEMPO_ENV: ${{ matrix.node-env }}
 
   test-envs:
     name: Test Environments
