@@ -32,5 +32,5 @@ jobs:
         run: pnpm docs:build
 
       - name: Deploy
-        run: npx vercel deploy ./dist --prod --archive=tgz --yes --token=${{ secrets.VERCEL_TOKEN }}
+        run: npx vercel deploy . --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
         working-directory: ./site
