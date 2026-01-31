@@ -749,6 +749,7 @@ export { zkXPLATestnet } from './definitions/zkXPLATestnet.js'
 export { zora } from './definitions/zora.js'
 export { zoraSepolia } from './definitions/zoraSepolia.js'
 export { zoraTestnet } from './definitions/zoraTestnet.js'
+export { luxeports } from './definitions/luxeports.js'
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Required type exports to prevent TypeScript error "TS2742".
