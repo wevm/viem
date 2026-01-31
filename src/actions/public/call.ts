@@ -28,7 +28,7 @@ import {
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import type { Hex } from '../../types/misc.js'
+import type { Hash, Hex } from '../../types/misc.js'
 import type { RpcTransactionRequest } from '../../types/rpc.js'
 import type { StateOverride } from '../../types/stateOverride.js'
 import type { TransactionRequest } from '../../types/transaction.js'
@@ -45,15 +45,15 @@ import {
   type EncodeFunctionDataErrorType,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
+import {
+  type FormatBlockParameterErrorType,
+  formatBlockParameter,
+} from '../../utils/block/formatBlockParameter.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type GetChainContractAddressErrorType,
   getChainContractAddress,
 } from '../../utils/chain/getChainContractAddress.js'
-import {
-  type NumberToHexErrorType,
-  numberToHex,
-} from '../../utils/encoding/toHex.js'
 import {
   type GetCallErrorReturnType,
   getCallError,
@@ -97,17 +97,29 @@ export type CallParameters<
   stateOverride?: StateOverride | undefined
 } & (
     | {
-        /** The balance of the account at a block number. */
+        /** The block number to perform the call against. */
         blockNumber?: bigint | undefined
         blockTag?: undefined
+        blockHash?: undefined
+        requireCanonical?: undefined
       }
     | {
         blockNumber?: undefined
         /**
-         * The balance of the account at a block tag.
+         * The block tag to perform the call against.
          * @default 'latest'
          */
         blockTag?: BlockTag | undefined
+        blockHash?: undefined
+        requireCanonical?: undefined
+      }
+    | {
+        blockNumber?: undefined
+        blockTag?: undefined
+        /** The block hash to perform the call against. */
+        blockHash: Hash
+        /** Whether or not to throw an error if the block is not in the canonical chain. Only allowed in conjunction with `blockHash`. */
+        requireCanonical?: boolean | undefined
       }
   )
 type FormattedCall<chain extends Chain | undefined = Chain | undefined> =
@@ -119,7 +131,7 @@ export type CallErrorType = GetCallErrorReturnType<
   | ParseAccountErrorType
   | SerializeStateOverrideErrorType
   | AssertRequestErrorType
-  | NumberToHexErrorType
+  | FormatBlockParameterErrorType
   | FormatTransactionRequestErrorType
   | ScheduleMulticallErrorType
   | RequestErrorType
@@ -160,8 +172,10 @@ export async function call<chain extends Chain | undefined>(
     account: account_ = client.account,
     authorizationList,
     batch = Boolean(client.batch?.multicall),
+    blockHash,
     blockNumber,
     blockTag = client.experimental_blockTag ?? 'latest',
+    requireCanonical,
     accessList,
     blobs,
     blockOverrides,
@@ -214,9 +228,12 @@ export async function call<chain extends Chain | undefined>(
   try {
     assertRequest(args as AssertRequestParameters)
 
-    const blockNumberHex =
-      typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
-    const block = blockNumberHex || blockTag
+    const block = formatBlockParameter({
+      blockHash,
+      blockNumber,
+      blockTag,
+      requireCanonical,
+    })
 
     const rpcBlockOverrides = blockOverrides
       ? BlockOverrides.toRpc(blockOverrides)
@@ -251,13 +268,16 @@ export async function call<chain extends Chain | undefined>(
       batch &&
       shouldPerformMulticall({ request }) &&
       !rpcStateOverride &&
-      !rpcBlockOverrides
+      !rpcBlockOverrides &&
+      blockHash === undefined
     ) {
       try {
         return await scheduleMulticall(client, {
           ...request,
+          blockHash,
           blockNumber,
           blockTag,
+          requireCanonical,
         } as unknown as ScheduleMulticallParameters<chain>)
       } catch (err) {
         if (
@@ -331,7 +351,7 @@ function shouldPerformMulticall({ request }: { request: TransactionRequest }) {
 
 type ScheduleMulticallParameters<chain extends Chain | undefined> = Pick<
   CallParameters<chain>,
-  'blockNumber' | 'blockTag'
+  'blockHash' | 'blockNumber' | 'blockTag' | 'requireCanonical'
 > & {
   data: Hex
   multicallAddress?: Address | undefined
@@ -340,7 +360,7 @@ type ScheduleMulticallParameters<chain extends Chain | undefined> = Pick<
 
 type ScheduleMulticallErrorType =
   | GetChainContractAddressErrorType
-  | NumberToHexErrorType
+  | FormatBlockParameterErrorType
   | CreateBatchSchedulerErrorType
   | EncodeFunctionDataErrorType
   | DecodeFunctionResultErrorType
@@ -357,8 +377,10 @@ async function scheduleMulticall<chain extends Chain | undefined>(
     wait = 0,
   } = typeof client.batch?.multicall === 'object' ? client.batch.multicall : {}
   const {
+    blockHash,
     blockNumber,
     blockTag = client.experimental_blockTag ?? 'latest',
+    requireCanonical,
     data,
     to,
   } = args
@@ -376,12 +398,16 @@ async function scheduleMulticall<chain extends Chain | undefined>(
     throw new ClientChainNotConfiguredError()
   })()
 
-  const blockNumberHex =
-    typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
-  const block = blockNumberHex || blockTag
+  const block = formatBlockParameter({
+    blockHash,
+    blockNumber,
+    blockTag,
+    requireCanonical,
+  })
+  const blockId = JSON.stringify(block)
 
   const { schedule } = createBatchScheduler({
-    id: `${client.uid}.${block}`,
+    id: `${client.uid}.${blockId}`,
     wait,
     shouldSplitBatch(args) {
       const size = args.reduce((size, { data }) => size + (data.length - 2), 0)
