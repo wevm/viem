@@ -19,8 +19,8 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
-      - name: Cache Vocs
-        uses: actions/cache@v4
+      - name: Restore Vocs cache
+        uses: actions/cache/restore@v4
         with:
           path: site/.cache
           key: vocs
@@ -34,3 +34,10 @@ jobs:
       - name: Deploy
         run: npx vercel deploy . --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
         working-directory: ./site
+
+      - name: Save Vocs cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: site/.cache
+          key: vocs
