@@ -20,7 +20,7 @@ jobs:
         uses: ./.github/actions/install-dependencies
 
       - name: Restore Vocs cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: site/.cache
           key: vocs
@@ -41,7 +41,7 @@ jobs:
       
       - name: Save Vocs cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: site/.cache
           key: vocs
