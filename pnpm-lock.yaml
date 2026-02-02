@@ -232,7 +232,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.45.0(typescript@5.6.2)(zod@4.3.6)
+        version: 2.45.1(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -245,7 +245,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.45.0(typescript@5.6.2)(zod@4.3.6)
+        version: 2.45.1(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -258,7 +258,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.45.0(typescript@5.6.2)(zod@4.3.6)
+        version: 2.45.1(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -271,7 +271,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.45.0(typescript@5.6.2)(zod@4.3.6)
+        version: 2.45.1(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -284,7 +284,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.45.0(typescript@5.6.2)(zod@4.3.6)
+        version: 2.45.1(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -303,7 +303,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.45.0(typescript@5.6.2)(zod@4.3.6)
+        version: 2.45.1(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -331,7 +331,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.45.0(typescript@5.6.2)(zod@4.3.6)
+        version: 2.45.1(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -353,7 +353,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.45.0(typescript@5.6.2)(zod@4.3.6)
+        version: 2.45.1(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -366,7 +366,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.45.0(typescript@5.6.2)(zod@4.3.6)
+        version: 2.45.1(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -385,7 +385,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.45.0(typescript@5.6.2)(zod@4.3.6)
+        version: 2.45.1(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -407,7 +407,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.45.0(typescript@5.6.2)(zod@4.3.6)
+        version: 2.45.1(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -420,7 +420,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.45.0(typescript@5.6.2)(zod@4.3.6)
+        version: 2.45.1(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -433,7 +433,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.45.0(typescript@5.6.2)(zod@4.3.6)
+        version: 2.45.1(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -446,7 +446,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.45.0(typescript@5.6.2)(zod@4.3.6)
+        version: 2.45.1(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -493,7 +493,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.45.0(typescript@5.6.2)(zod@4.3.6)
+        version: 2.45.1(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -521,7 +521,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.45.0(typescript@5.6.2)(zod@4.3.6)
+        version: 2.45.1(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -543,7 +543,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.45.0(typescript@5.6.2)(zod@4.3.6)
+        version: 2.45.1(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -562,7 +562,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.45.0(typescript@5.6.2)(zod@4.3.6)
+        version: 2.45.1(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -607,8 +607,8 @@ importers:
         specifier: ^7.1.11
         version: 7.1.11(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.2)
       vocs:
-        specifier: https://pkg.pr.new/wevm/vocs@e0b0867
-        version: https://pkg.pr.new/wevm/vocs@e0b0867(@types/react@19.0.8)(next@16.1.5(@babel/core@7.28.5)(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.101.3))(react@19.2.3)(rollup@4.52.2)(typescript@5.9.3)(vite@7.1.11(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.2))(waku@1.0.0-alpha.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.101.3))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.2))
+        specifier: https://pkg.pr.new/wevm/vocs@0dfb01f
+        version: https://pkg.pr.new/wevm/vocs@0dfb01f(@types/react@19.0.8)(next@16.1.5(@babel/core@7.28.5)(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.101.3))(react@19.2.3)(rollup@4.52.2)(typescript@5.9.3)(vite@7.1.11(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.2))(waku@1.0.0-alpha.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.101.3))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.2))
       waku:
         specifier: 1.0.0-alpha.2
         version: 1.0.0-alpha.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.101.3))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.2)
@@ -3042,11 +3042,6 @@ packages:
     resolution: {integrity: sha512-PPvV6g8UGMGgjrMu+n/f9E/tCSkNQ2Y97eFvuVdJfG11+xdIeDcLyNdC8SHcrHbRqkfwLASdplyR6B6sKM1U4A==}
     engines: {node: '>=0.4.0'}
 
-  acorn@8.14.0:
-    resolution: {integrity: sha512-cl669nCJTZBsL97OF4kUQm5g5hC2uihk0NxY3WENAC0TYdILVkAyHymAntgxGkl7K+t0cXIrH5siy5S4XkFycA==}
-    engines: {node: '>=0.4.0'}
-    hasBin: true
-
   acorn@8.15.0:
     resolution: {integrity: sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg==}
     engines: {node: '>=0.4.0'}
@@ -4168,10 +4163,6 @@ packages:
   html-void-elements@3.0.0:
     resolution: {integrity: sha512-bEqo66MRXsUGxWHV5IP0PUiAWwoEjba4VCzg0LjFJBpchPaTfyfCKTG6bc5F8ucKec3q5y6qOdGyYTSBEvhCrg==}
 
-  http-errors@2.0.0:
-    resolution: {integrity: sha512-FtwrG/euBzaEjYeRqOgly7G0qviiXoJWnvEH2Z1plBdXgbyjv34pHTSb9zoeHMyDy33+DWy5Wt9Wo+TURtOYSQ==}
-    engines: {node: '>= 0.8'}
-
   http-errors@2.0.1:
     resolution: {integrity: sha512-4FbRdAX+bSdmo4AUFuS0WNiPz8NgFt+r8ThgNWmlrjQjt1Q7ZR9+zTlce2859x4KSXrwIsaeTqDoKQmtP8pLmQ==}
     engines: {node: '>= 0.8'}
@@ -4820,10 +4811,6 @@ packages:
 
   mime-db@1.52.0:
     resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}
-    engines: {node: '>= 0.6'}
-
-  mime-db@1.53.0:
-    resolution: {integrity: sha512-oHlN/w+3MQ3rba9rqFr6V/ypF10LSkdwUysQL7GkXoTgIWeV+tcXGA852TBxH+gsh8UWoyhR1hKcoMJTuWflpg==}
     engines: {node: '>= 0.6'}
 
   mime-db@1.54.0:
@@ -5831,10 +5818,6 @@ packages:
   static-browser-server@1.0.3:
     resolution: {integrity: sha512-ZUyfgGDdFRbZGGJQ1YhiM930Yczz5VlbJObrQLlk24+qNHVQx4OlLcYswEUo3bIyNAbQUIUR9Yr5/Hqjzqb4zA==}
 
-  statuses@2.0.1:
-    resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
-    engines: {node: '>= 0.8'}
-
   statuses@2.0.2:
     resolution: {integrity: sha512-DvEy55V3DB7uknRo+4iOGT5fP1slR8wQohVdknigZPMpMstaKJQWhwiYBACJE3Ul2pTnATihhBYnRhZQHGBiRw==}
     engines: {node: '>= 0.8'}
@@ -6268,8 +6251,8 @@ packages:
   vfile@6.0.3:
     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
 
-  viem@2.45.0:
-    resolution: {integrity: sha512-iVA9qrAgRdtpWa80lCZ6Jri6XzmLOwwA1wagX2HnKejKeliFLpON0KOdyfqvcy+gUpBVP59LBxP2aKiL3aj8fg==}
+  viem@2.45.1:
+    resolution: {integrity: sha512-LN6Pp7vSfv50LgwhkfSbIXftAM5J89lP9x8TeDa8QM7o41IxlHrDh0F9X+FfnCWtsz11pEVV5sn+yBUoOHNqYA==}
     peerDependencies:
       typescript: '>=5.0.4'
     peerDependenciesMeta:
@@ -6454,8 +6437,8 @@ packages:
       jsdom:
         optional: true
 
-  vocs@https://pkg.pr.new/wevm/vocs@e0b0867:
-    resolution: {tarball: https://pkg.pr.new/wevm/vocs@e0b0867}
+  vocs@https://pkg.pr.new/wevm/vocs@0dfb01f:
+    resolution: {tarball: https://pkg.pr.new/wevm/vocs@0dfb01f}
     version: 0.0.0
     hasBin: true
     peerDependencies:
@@ -7270,7 +7253,7 @@ snapshots:
       '@codesandbox/nodebox': 0.1.8
       buffer: 6.0.3
       dequal: 2.0.3
-      mime-db: 1.53.0
+      mime-db: 1.54.0
       outvariant: 1.4.0
       static-browser-server: 1.0.3
 
@@ -7699,7 +7682,7 @@ snapshots:
 
   '@jridgewell/source-map@0.3.6':
     dependencies:
-      '@jridgewell/gen-mapping': 0.3.8
+      '@jridgewell/gen-mapping': 0.3.13
       '@jridgewell/trace-mapping': 0.3.31
 
   '@jridgewell/sourcemap-codec@1.5.0': {}
@@ -8294,7 +8277,7 @@ snapshots:
       pino-pretty: 10.3.1
       prom-client: 14.2.0
       type-fest: 4.39.0
-      viem: 2.45.0(typescript@5.9.3)(zod@3.23.8)
+      viem: 2.45.1(typescript@5.9.3)(zod@3.23.8)
       yargs: 17.7.2
       zod: 3.23.8
       zod-validation-error: 1.5.0(zod@3.23.8)
@@ -9211,13 +9194,13 @@ snapshots:
       mime-types: 3.0.2
       negotiator: 1.0.0
 
-  acorn-import-assertions@1.9.0(acorn@8.14.0):
+  acorn-import-assertions@1.9.0(acorn@8.15.0):
     dependencies:
-      acorn: 8.14.0
+      acorn: 8.15.0
 
-  acorn-import-attributes@1.9.5(acorn@8.14.0):
+  acorn-import-attributes@1.9.5(acorn@8.15.0):
     dependencies:
-      acorn: 8.14.0
+      acorn: 8.15.0
 
   acorn-import-phases@1.0.4(acorn@8.15.0):
     dependencies:
@@ -9230,8 +9213,6 @@ snapshots:
   acorn-loose@8.5.2:
     dependencies:
       acorn: 8.15.0
-
-  acorn@8.14.0: {}
 
   acorn@8.15.0: {}
 
@@ -9416,7 +9397,7 @@ snapshots:
       bytes: 3.1.2
       content-type: 1.0.5
       debug: 4.4.3
-      http-errors: 2.0.0
+      http-errors: 2.0.1
       iconv-lite: 0.7.0
       on-finished: 2.4.1
       qs: 6.14.1
@@ -10115,7 +10096,7 @@ snapshots:
       etag: 1.8.1
       finalhandler: 2.1.1
       fresh: 2.0.0
-      http-errors: 2.0.0
+      http-errors: 2.0.1
       merge-descriptors: 2.0.0
       mime-types: 3.0.2
       on-finished: 2.4.1
@@ -10127,7 +10108,7 @@ snapshots:
       router: 2.2.0
       send: 1.2.1
       serve-static: 2.2.1
-      statuses: 2.0.1
+      statuses: 2.0.2
       type-is: 2.0.1
       vary: 1.1.2
     transitivePeerDependencies:
@@ -10251,7 +10232,7 @@ snapshots:
       escape-html: 1.0.3
       on-finished: 2.4.1
       parseurl: 1.3.3
-      statuses: 2.0.1
+      statuses: 2.0.2
     transitivePeerDependencies:
       - supports-color
 
@@ -10497,14 +10478,6 @@ snapshots:
 
   html-void-elements@3.0.0: {}
 
-  http-errors@2.0.0:
-    dependencies:
-      depd: 2.0.0
-      inherits: 2.0.4
-      setprototypeof: 1.2.0
-      statuses: 2.0.1
-      toidentifier: 1.0.1
-
   http-errors@2.0.1:
     dependencies:
       depd: 2.0.0
@@ -10562,15 +10535,15 @@ snapshots:
 
   import-in-the-middle@1.13.1:
     dependencies:
-      acorn: 8.14.0
-      acorn-import-attributes: 1.9.5(acorn@8.14.0)
+      acorn: 8.15.0
+      acorn-import-attributes: 1.9.5(acorn@8.15.0)
       cjs-module-lexer: 1.4.1
       module-details-from-path: 1.0.3
 
   import-in-the-middle@1.7.1:
     dependencies:
-      acorn: 8.14.0
-      acorn-import-assertions: 1.9.0(acorn@8.14.0)
+      acorn: 8.15.0
+      acorn-import-assertions: 1.9.0(acorn@8.15.0)
       cjs-module-lexer: 1.4.1
       module-details-from-path: 1.0.3
 
@@ -11415,8 +11388,6 @@ snapshots:
       picomatch: 2.3.1
 
   mime-db@1.52.0: {}
-
-  mime-db@1.53.0: {}
 
   mime-db@1.54.0: {}
 
@@ -12666,10 +12637,8 @@ snapshots:
     dependencies:
       '@open-draft/deferred-promise': 2.2.0
       dotenv: 16.4.5
-      mime-db: 1.53.0
+      mime-db: 1.54.0
       outvariant: 1.4.0
-
-  statuses@2.0.1: {}
 
   statuses@2.0.2: {}
 
@@ -13101,7 +13070,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
 
-  viem@2.45.0(typescript@5.6.2)(zod@4.3.6):
+  viem@2.45.1(typescript@5.6.2)(zod@4.3.6):
     dependencies:
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
@@ -13118,7 +13087,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.45.0(typescript@5.9.3)(zod@3.23.8):
+  viem@2.45.1(typescript@5.9.3)(zod@3.23.8):
     dependencies:
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
@@ -13272,7 +13241,7 @@ snapshots:
       - tsx
       - yaml
 
-  vocs@https://pkg.pr.new/wevm/vocs@e0b0867(@types/react@19.0.8)(next@16.1.5(@babel/core@7.28.5)(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.101.3))(react@19.2.3)(rollup@4.52.2)(typescript@5.9.3)(vite@7.1.11(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.2))(waku@1.0.0-alpha.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.101.3))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.2)):
+  vocs@https://pkg.pr.new/wevm/vocs@0dfb01f(@types/react@19.0.8)(next@16.1.5(@babel/core@7.28.5)(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.101.3))(react@19.2.3)(rollup@4.52.2)(typescript@5.9.3)(vite@7.1.11(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.2))(waku@1.0.0-alpha.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.101.3))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.2)):
     dependencies:
       '@base-ui/react': 1.1.0(@types/react@19.0.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@codesandbox/sandpack-react': 2.20.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)

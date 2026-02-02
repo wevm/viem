@@ -69,13 +69,12 @@
   flex-direction: column;
 }
 
-#home-install [role="tabpanel"] > div {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-#home-install pre {
+#home-install [role="tabpanel"] > pre {
   flex: 1;
   font-size: 18px;
+}
+
+#home-install [role="tabpanel"] > pre > button {
+  top: 2rem !important;
+  transform: none !important;
 }
