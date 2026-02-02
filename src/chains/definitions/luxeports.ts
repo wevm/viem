@@ -11,10 +11,8 @@ export const luxeports = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.luxeports.com',
-         'https://erpc.luxeports.com'],
-      webSocket: ['wss://rpc.luxeports.com/ws',
-         'wss://erpc.luxeports.com/ws'],
+      http: ['https://rpc.luxeports.com', 'https://erpc.luxeports.com'],
+      webSocket: ['wss://rpc.luxeports.com/ws', 'wss://erpc.luxeports.com/ws'],
     },
   },
   blockExplorers: {
@@ -25,5 +23,3 @@ export const luxeports = /*#__PURE__*/ defineChain({
   },
   testnet: false,
 })
-
-
