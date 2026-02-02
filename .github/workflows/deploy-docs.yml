@@ -19,9 +19,29 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
+      - name: Restore Vocs cache
+        uses: actions/cache/restore@v4
+        with:
+          path: site/.cache
+          key: vocs
+
       - name: Build package
         run: pnpm build
+
+      - name: Build docs
+        run: pnpm docs:build
 
       - name: Deploy
         run: npx vercel deploy . --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
         working-directory: ./site
+
+      - name: Ensure cache dir exists
+        if: always()
+        run: mkdir -p site/.cache
+      
+      - name: Save Vocs cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: site/.cache
+          key: vocs
