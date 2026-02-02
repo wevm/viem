@@ -75,6 +75,6 @@
 }
 
 #home-install [role="tabpanel"] > pre > button {
-  top: 2rem !important;
-  transform: none !important;
+  top: 2rem;
+  transform: none;
 }
