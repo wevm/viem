@@ -342,7 +342,7 @@ export const account = await toCoinbaseSmartAccount({
 :::
 
 ::::tip
-If your Bundler also supports Paymaster sponsorshop (`pm_` JSON-RPC methods), you can set `paymaster: true` instead of declaring a separate Paymaster Client.
+If your Bundler also supports Paymaster sponsorship (`pm_` JSON-RPC methods), you can set `paymaster: true` instead of declaring a separate Paymaster Client.
 
 :::code-group
 
