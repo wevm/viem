@@ -16,9 +16,9 @@ const client = createPublicClient({
 })
 ```
 
-[See here for a list of supported chains](https://github.com/wagmi-dev/viem/tree/main/src/chains/index.ts).
+[See here for a list of supported chains](https://github.com/wevm/viem/tree/main/src/chains/index.ts).
 
-> Want to add a chain that's not listed in viem? Read the [Contributing Guide](https://github.com/wagmi-dev/viem/blob/main/.github/CONTRIBUTING.md#chains), and then open a Pull Request with your chain.
+> Want to add a chain that's not listed in viem? Read the [Contributing Guide](https://github.com/wevm/viem/blob/main/.github/CONTRIBUTING.md#chains), and then open a Pull Request with your chain.
 
 ## Custom Chains
 

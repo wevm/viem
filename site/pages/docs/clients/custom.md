@@ -67,7 +67,7 @@ const response = await debugClient.traceCall({
 // { failed: false, gas: 69420, returnValue: '...', structLogs: [] }
 ```
 
-For a more succinct implementation of using `.extend`, check out viem's [Public Client implementation](https://github.com/wagmi-dev/viem/blob/29c053f5069a5b44e3791972c221368a2c71a254/src/clients/createPublicClient.ts#L48-L68) extended with [Public Actions](https://github.com/wagmi-dev/viem/blob/29c053f5069a5b44e3791972c221368a2c71a254/src/clients/decorators/public.ts#L1377-L1425).
+For a more succinct implementation of using `.extend`, check out viem's [Public Client implementation](https://github.com/wevm/viem/blob/29c053f5069a5b44e3791972c221368a2c71a254/src/clients/createPublicClient.ts#L48-L68) extended with [Public Actions](https://github.com/wevm/viem/blob/29c053f5069a5b44e3791972c221368a2c71a254/src/clients/decorators/public.ts#L1377-L1425).
 
 ### Tree-shaking
 
