@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Viem aims to the latest major release up-to-date with security-related patches.
+Viem aims to keep the latest major release up-to-date with security-related patches.
 
 If you urgently require a patch to be applied to a previous unsupported version, please contact dev@wevm.dev.
 
