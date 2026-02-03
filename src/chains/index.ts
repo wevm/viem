@@ -311,6 +311,7 @@ export { lumiaMainnet } from './definitions/lumiaMainnet.js'
 export { lumiaTestnet } from './definitions/lumiaTestnet.js'
 export { lumoz } from './definitions/lumoz.js'
 export { lumozTestnet } from './definitions/lumozTestnet.js'
+export { luxeports } from './definitions/luxeports.js'
 export { lycan } from './definitions/lycan.js'
 export { lyra } from './definitions/lyra.js'
 export { mainnet } from './definitions/mainnet.js'
@@ -637,7 +638,7 @@ export {
 export { zora } from './definitions/zora.js'
 export { zoraSepolia } from './definitions/zoraSepolia.js'
 export { zoraTestnet } from './definitions/zoraTestnet.js'
-export { luxeports } from './definitions/luxeports.js'
+
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Required type exports to prevent TypeScript error "TS2742".
