@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vocs dev",
-    "build": "NODE_OPTIONS='--max-old-space-size=8192' vocs build",
+    "build": "NODE_OPTIONS='--max-old-space-size=16384' vocs build",
     "twoslash": "vocs twoslash",
     "preview": "vocs preview"
   },
