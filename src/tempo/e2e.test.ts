@@ -300,7 +300,7 @@ describe('sendTransaction', () => {
       `)
   })
 
-  test.only('behavior: with `feePayer`', async () => {
+  test('behavior: with `feePayer`', async () => {
     const account = privateKeyToAccount(generatePrivateKey())
     const feePayer = accounts[0]
 
