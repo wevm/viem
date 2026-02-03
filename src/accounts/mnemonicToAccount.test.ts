@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { accounts, typedData } from '~test/src/constants.js'
+import { accounts, typedData } from '~test/constants.js'
 import { getAddress } from '../utils/address/getAddress.js'
 import { parseEther } from '../utils/unit/parseEther.js'
 import { parseGwei } from '../utils/unit/parseGwei.js'
@@ -71,6 +71,13 @@ test('args: changeIndex', () => {
   expect(
     mnemonicToAccount(mnemonic, { changeIndex: 3 }).address,
   ).toMatchInlineSnapshot('"0x4E0eBc370cAdc5d152505EA4FEbcf839E7E2D3F8"')
+})
+
+test('args: passphrase', () => {
+  expect(
+    mnemonicToAccount(mnemonic, { passphrase: 'passphrase', accountIndex: 1 })
+      .address,
+  ).toMatchInlineSnapshot('"0x3e6bd720D0659c05CCACf72cf71911780e315c34"')
 })
 
 test('sign message', async () => {

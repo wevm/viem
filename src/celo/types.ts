@@ -1,34 +1,32 @@
 import type { Address } from 'abitype'
-
-import type { Block, BlockTag } from '../types/block.js'
-import type { FeeValuesEIP1559 } from '../types/fee.js'
-import type { Hex } from '../types/misc.js'
-import type {
-  Index,
-  Quantity,
-  RpcBlock,
-  TransactionType,
-  RpcTransaction as core_RpcTransaction,
-  RpcTransactionRequest as core_RpcTransactionRequest,
-} from '../types/rpc.js'
-import type {
-  AccessList,
-  TransactionBase,
-  TransactionRequestBase,
-  TransactionSerializable,
-  TransactionSerializableBase,
-  TransactionSerialized,
-  Transaction as core_Transaction,
-  TransactionRequest as core_TransactionRequest,
-} from '../types/transaction.js'
-import type { ExactPartial, OneOf } from '../types/utils.js'
-
 import type {
   OpStackDepositTransaction,
   OpStackRpcTransaction,
   TransactionSerializableDeposit,
   TransactionSerializedDeposit,
 } from '../op-stack/types/transaction.js'
+import type { Block, BlockTag } from '../types/block.js'
+import type { FeeValuesEIP1559 } from '../types/fee.js'
+import type { Hex } from '../types/misc.js'
+import type {
+  RpcTransaction as core_RpcTransaction,
+  RpcTransactionRequest as core_RpcTransactionRequest,
+  Index,
+  Quantity,
+  RpcBlock,
+  TransactionType,
+} from '../types/rpc.js'
+import type {
+  AccessList,
+  Transaction as core_Transaction,
+  TransactionRequest as core_TransactionRequest,
+  TransactionBase,
+  TransactionRequestBase,
+  TransactionSerializable,
+  TransactionSerializableBase,
+  TransactionSerialized,
+} from '../types/transaction.js'
+import type { ExactPartial, OneOf } from '../types/utils.js'
 
 export type CeloBlock<
   includeTransactions extends boolean = boolean,

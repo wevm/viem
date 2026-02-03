@@ -8,15 +8,15 @@ import type { EIP1193RequestFn, RpcSchema } from '../../types/eip1193.js'
 import type { RpcRequest } from '../../types/rpc.js'
 import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.js'
 import {
-  type HttpRpcClientOptions,
   getHttpRpcClient,
+  type HttpRpcClientOptions,
 } from '../../utils/rpc/http.js'
 
 import {
   type CreateTransportErrorType,
+  createTransport,
   type Transport,
   type TransportConfig,
-  createTransport,
 } from './createTransport.js'
 
 export type HttpTransportConfig<
@@ -36,6 +36,7 @@ export type HttpTransportConfig<
         wait?: number | undefined
       }
     | undefined
+  fetchFn?: HttpRpcClientOptions['fetchFn'] | undefined
   /**
    * Request configuration to pass to `fetch`.
    * @link https://developer.mozilla.org/en-US/docs/Web/API/fetch
@@ -93,6 +94,7 @@ export function http<
 ): HttpTransport<rpcSchema, raw> {
   const {
     batch,
+    fetchFn,
     fetchOptions,
     key = 'http',
     methods,
@@ -111,6 +113,7 @@ export function http<
     if (!url_) throw new UrlRequiredError()
 
     const rpcClient = getHttpRpcClient(url_, {
+      fetchFn,
       fetchOptions,
       onRequest: onFetchRequest,
       onResponse: onFetchResponse,

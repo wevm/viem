@@ -3,6 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 export const polygon = /*#__PURE__*/ defineChain({
   id: 137,
   name: 'Polygon',
+  blockTime: 2000,
   nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
   rpcUrls: {
     default: {
@@ -13,7 +14,7 @@ export const polygon = /*#__PURE__*/ defineChain({
     default: {
       name: 'PolygonScan',
       url: 'https://polygonscan.com',
-      apiUrl: 'https://api.polygonscan.com/api',
+      apiUrl: 'https://api.etherscan.io/v2/api',
     },
   },
   contracts: {

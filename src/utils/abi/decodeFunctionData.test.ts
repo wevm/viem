@@ -215,7 +215,7 @@ test("errors: function doesn't exist", () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [AbiFunctionSignatureNotFoundError: Encoded function signature "0xa3741467" not found on ABI.
     Make sure you are using the correct ABI and that the function exists on it.
-    You can look up the signature here: https://openchain.xyz/signatures?query=0xa3741467.
+    You can look up the signature here: https://4byte.sourcify.dev/?q=0xa3741467.
 
     Docs: https://viem.sh/docs/contract/decodeFunctionData
     Version: viem@x.y.z]

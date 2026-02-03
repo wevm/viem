@@ -25,7 +25,7 @@ import type {
   TransactionSerializedLegacy,
   TransactionType,
 } from '../../types/transaction.js'
-import type { OneOf } from '../../types/utils.js'
+import type { MaybePromise, OneOf } from '../../types/utils.js'
 import {
   type SerializeAuthorizationListErrorType,
   serializeAuthorizationList,
@@ -48,7 +48,11 @@ import {
 } from '../blob/toBlobSidecars.js'
 import { type ConcatHexErrorType, concatHex } from '../data/concat.js'
 import { trim } from '../data/trim.js'
-import { type ToHexErrorType, bytesToHex, toHex } from '../encoding/toHex.js'
+import {
+  bytesToHex,
+  type NumberToHexErrorType,
+  numberToHex,
+} from '../encoding/toHex.js'
 import { type ToRlpErrorType, toRlp } from '../encoding/toRlp.js'
 
 import {
@@ -83,9 +87,14 @@ export type SerializeTransactionFn<
   transaction extends TransactionSerializableGeneric = TransactionSerializable,
   ///
   _transactionType extends TransactionType = never,
-> = typeof serializeTransaction<
-  OneOf<TransactionSerializable | transaction>,
-  _transactionType
+> = (
+  transaction: OneOf<TransactionSerializable | transaction>,
+  signature?: Signature | undefined,
+) => MaybePromise<
+  SerializedTransactionReturnType<
+    OneOf<TransactionSerializable | transaction>,
+    _transactionType
+  >
 >
 
 export type SerializeTransactionErrorType =
@@ -142,7 +151,7 @@ type SerializeTransactionEIP7702ErrorType =
   | SerializeAuthorizationListErrorType
   | ConcatHexErrorType
   | InvalidLegacyVErrorType
-  | ToHexErrorType
+  | NumberToHexErrorType
   | ToRlpErrorType
   | SerializeAccessListErrorType
   | ErrorType
@@ -173,13 +182,13 @@ function serializeTransactionEIP7702(
   return concatHex([
     '0x04',
     toRlp([
-      toHex(chainId),
-      nonce ? toHex(nonce) : '0x',
-      maxPriorityFeePerGas ? toHex(maxPriorityFeePerGas) : '0x',
-      maxFeePerGas ? toHex(maxFeePerGas) : '0x',
-      gas ? toHex(gas) : '0x',
+      numberToHex(chainId),
+      nonce ? numberToHex(nonce) : '0x',
+      maxPriorityFeePerGas ? numberToHex(maxPriorityFeePerGas) : '0x',
+      maxFeePerGas ? numberToHex(maxFeePerGas) : '0x',
+      gas ? numberToHex(gas) : '0x',
       to ?? '0x',
-      value ? toHex(value) : '0x',
+      value ? numberToHex(value) : '0x',
       data ?? '0x',
       serializedAccessList,
       serializedAuthorizationList,
@@ -196,7 +205,7 @@ type SerializeTransactionEIP4844ErrorType =
   | ToBlobSidecarsErrorType
   | ConcatHexErrorType
   | InvalidLegacyVErrorType
-  | ToHexErrorType
+  | NumberToHexErrorType
   | ToRlpErrorType
   | SerializeAccessListErrorType
   | ErrorType
@@ -252,16 +261,16 @@ function serializeTransactionEIP4844(
   const serializedAccessList = serializeAccessList(accessList)
 
   const serializedTransaction = [
-    toHex(chainId),
-    nonce ? toHex(nonce) : '0x',
-    maxPriorityFeePerGas ? toHex(maxPriorityFeePerGas) : '0x',
-    maxFeePerGas ? toHex(maxFeePerGas) : '0x',
-    gas ? toHex(gas) : '0x',
+    numberToHex(chainId),
+    nonce ? numberToHex(nonce) : '0x',
+    maxPriorityFeePerGas ? numberToHex(maxPriorityFeePerGas) : '0x',
+    maxFeePerGas ? numberToHex(maxFeePerGas) : '0x',
+    gas ? numberToHex(gas) : '0x',
     to ?? '0x',
-    value ? toHex(value) : '0x',
+    value ? numberToHex(value) : '0x',
     data ?? '0x',
     serializedAccessList,
-    maxFeePerBlobGas ? toHex(maxFeePerBlobGas) : '0x',
+    maxFeePerBlobGas ? numberToHex(maxFeePerBlobGas) : '0x',
     blobVersionedHashes ?? [],
     ...toYParitySignatureArray(transaction, signature),
   ] as const
@@ -291,7 +300,7 @@ type SerializeTransactionEIP1559ErrorType =
   | AssertTransactionEIP1559ErrorType
   | ConcatHexErrorType
   | InvalidLegacyVErrorType
-  | ToHexErrorType
+  | NumberToHexErrorType
   | ToRlpErrorType
   | SerializeAccessListErrorType
   | ErrorType
@@ -317,13 +326,13 @@ function serializeTransactionEIP1559(
   const serializedAccessList = serializeAccessList(accessList)
 
   const serializedTransaction = [
-    toHex(chainId),
-    nonce ? toHex(nonce) : '0x',
-    maxPriorityFeePerGas ? toHex(maxPriorityFeePerGas) : '0x',
-    maxFeePerGas ? toHex(maxFeePerGas) : '0x',
-    gas ? toHex(gas) : '0x',
+    numberToHex(chainId),
+    nonce ? numberToHex(nonce) : '0x',
+    maxPriorityFeePerGas ? numberToHex(maxPriorityFeePerGas) : '0x',
+    maxFeePerGas ? numberToHex(maxFeePerGas) : '0x',
+    gas ? numberToHex(gas) : '0x',
     to ?? '0x',
-    value ? toHex(value) : '0x',
+    value ? numberToHex(value) : '0x',
     data ?? '0x',
     serializedAccessList,
     ...toYParitySignatureArray(transaction, signature),
@@ -339,7 +348,7 @@ type SerializeTransactionEIP2930ErrorType =
   | AssertTransactionEIP2930ErrorType
   | ConcatHexErrorType
   | InvalidLegacyVErrorType
-  | ToHexErrorType
+  | NumberToHexErrorType
   | ToRlpErrorType
   | SerializeAccessListErrorType
   | ErrorType
@@ -356,12 +365,12 @@ function serializeTransactionEIP2930(
   const serializedAccessList = serializeAccessList(accessList)
 
   const serializedTransaction = [
-    toHex(chainId),
-    nonce ? toHex(nonce) : '0x',
-    gasPrice ? toHex(gasPrice) : '0x',
-    gas ? toHex(gas) : '0x',
+    numberToHex(chainId),
+    nonce ? numberToHex(nonce) : '0x',
+    gasPrice ? numberToHex(gasPrice) : '0x',
+    gas ? numberToHex(gas) : '0x',
     to ?? '0x',
-    value ? toHex(value) : '0x',
+    value ? numberToHex(value) : '0x',
     data ?? '0x',
     serializedAccessList,
     ...toYParitySignatureArray(transaction, signature),
@@ -376,7 +385,7 @@ function serializeTransactionEIP2930(
 type SerializeTransactionLegacyErrorType =
   | AssertTransactionLegacyErrorType
   | InvalidLegacyVErrorType
-  | ToHexErrorType
+  | NumberToHexErrorType
   | ToRlpErrorType
   | ErrorType
 
@@ -389,11 +398,11 @@ function serializeTransactionLegacy(
   assertTransactionLegacy(transaction)
 
   let serializedTransaction = [
-    nonce ? toHex(nonce) : '0x',
-    gasPrice ? toHex(gasPrice) : '0x',
-    gas ? toHex(gas) : '0x',
+    nonce ? numberToHex(nonce) : '0x',
+    gasPrice ? numberToHex(gasPrice) : '0x',
+    gas ? numberToHex(gas) : '0x',
     to ?? '0x',
-    value ? toHex(value) : '0x',
+    value ? numberToHex(value) : '0x',
     data ?? '0x',
   ]
 
@@ -421,14 +430,14 @@ function serializeTransactionLegacy(
 
     serializedTransaction = [
       ...serializedTransaction,
-      toHex(v),
+      numberToHex(v),
       r === '0x00' ? '0x' : r,
       s === '0x00' ? '0x' : s,
     ]
   } else if (chainId > 0) {
     serializedTransaction = [
       ...serializedTransaction,
-      toHex(chainId),
+      numberToHex(chainId),
       '0x',
       '0x',
     ]
@@ -452,11 +461,11 @@ export function toYParitySignatureArray(
   const s = trim(signature.s)
 
   const yParity_ = (() => {
-    if (typeof yParity === 'number') return yParity ? toHex(1) : '0x'
+    if (typeof yParity === 'number') return yParity ? numberToHex(1) : '0x'
     if (v === 0n) return '0x'
-    if (v === 1n) return toHex(1)
+    if (v === 1n) return numberToHex(1)
 
-    return v === 27n ? '0x' : toHex(1)
+    return v === 27n ? '0x' : numberToHex(1)
   })()
 
   return [yParity_, r === '0x00' ? '0x' : r, s === '0x00' ? '0x' : s]

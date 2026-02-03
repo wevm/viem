@@ -31,5 +31,7 @@ vectors/**/*.json
 
 # docs
 site/dist
+site/pages.gen.ts
 .vercel
 vocs.config.tsx.timestamp*
+_

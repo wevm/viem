@@ -33,6 +33,30 @@ export const publicClient = createPublicClient({
 
 :::
 
+### Chain-specific Resolution
+
+`getEnsName` also supports chain-specific name resolution via [ENSIP-19](https://docs.ens.domains/ensip/19/).
+
+In order to use chain-specific resolution, you must:
+1. Ensure your client is configured with `mainnet` (or another L1 that supports ENS Universal Resolver)
+2. Pass a `coinType` parameter to `getEnsName` (as seen in `example.ts`)
+
+```ts 
+import { createPublicClient, http, toCoinType } from 'viem'
+import { mainnet, base } from 'viem/chains'
+
+export const publicClient = createPublicClient({
+  chain: mainnet, // [!code focus]
+  transport: http()
+})
+ 
+const ensName = await publicClient.getEnsName({
+  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+  coinType: toCoinType(base.id), // [!code focus]
+})
+// 'wevm.eth'
+```
+
 ## Returns
 
 `string`
@@ -79,6 +103,22 @@ The block tag to perform the read against.
 const ensName = await publicClient.getEnsName({
   address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
   blockTag: 'safe', // [!code focus]
+})
+```
+
+### coinType (optional)
+
+- **Type:** `bigint`
+
+ENSIP-9 compliant coinType (chain) to get ENS name for.
+
+
+```ts
+import { base } from 'viem/chains'
+
+const ensName = await publicClient.getEnsName({
+  address: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
+  coinType: toCoinType(base.id), // [!code focus]
 })
 ```
 

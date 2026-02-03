@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { accounts } from '../../test/src/constants.js'
+import { accounts } from '~test/constants.js'
 import { parseEther, parseGwei } from '../index.js'
 import { parseTransaction } from './parsers.js'
 import { serializeTransaction } from './serializers.js'

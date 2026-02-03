@@ -27,7 +27,7 @@ type UriItem = {
 }
 
 const networkRegex =
-  /(?<protocol>https?:\/\/[^\/]*|ipfs:\/|ipns:\/|ar:\/)?(?<root>\/)?(?<subpath>ipfs\/|ipns\/)?(?<target>[\w\-.]+)(?<subtarget>\/.*)?/
+  /(?<protocol>https?:\/\/[^/]*|ipfs:\/|ipns:\/|ar:\/)?(?<root>\/)?(?<subpath>ipfs\/|ipns\/)?(?<target>[\w\-.]+)(?<subtarget>\/.*)?/
 const ipfsHashRegex =
   /^(Qm[1-9A-HJ-NP-Za-km-z]{44,}|b[A-Za-z2-7]{58,}|B[A-Z2-7]{58,}|z[1-9A-HJ-NP-Za-km-z]{48,}|F[0-9A-F]{50,})(\/(?<target>[\w\-.]+))?(?<subtarget>\/.*)?$/
 const base64Regex = /^data:([a-zA-Z\-/+]*);base64,([^"].*)/
@@ -51,8 +51,7 @@ export async function isImageUri(uri: string) {
       return false
     }
     // fail in NodeJS, since the error is not cors but any other network issue
-    // biome-ignore lint/suspicious/noPrototypeBuiltins:
-    if (!globalThis.hasOwnProperty('Image')) return false
+    if (!Object.hasOwn(globalThis, 'Image')) return false
     // in case of cors, use image api to validate if given url is an actual image
     return new Promise((resolve) => {
       const img = new Image()
@@ -246,7 +245,7 @@ export function parseNftUri(uri_: string): ParsedNft {
     throw new EnsAvatarInvalidNftUriError({ reason: 'ERC namespace not found' })
 
   return {
-    chainID: Number.parseInt(chainID),
+    chainID: Number.parseInt(chainID, 10),
     namespace: erc_namespace.toLowerCase(),
     contractAddress: contractAddress as Address,
     tokenID,

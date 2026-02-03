@@ -8,18 +8,18 @@ import type {
   RpcTransactionRequest as RpcTransactionRequest_,
 } from '../../types/rpc.js'
 import type {
+  Transaction as Transaction_,
   TransactionBase,
   TransactionEIP1559 as TransactionEIP1559_,
   TransactionEIP2930 as TransactionEIP2930_,
   TransactionLegacy as TransactionLegacy_,
   TransactionReceipt,
-  TransactionRequestBase,
   TransactionRequest as TransactionRequest_,
+  TransactionRequestBase,
   TransactionSerializable,
   TransactionSerializableEIP1559,
   TransactionSerialized,
   TransactionType,
-  Transaction as Transaction_,
 } from '../../types/transaction.js'
 import type { ExactPartial, OneOf, UnionOmit } from '../../types/utils.js'
 import type { ZksyncEip712Meta } from './eip712.js'

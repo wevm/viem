@@ -5,7 +5,7 @@ export const swanProximaTestnet = /*#__PURE__*/ defineChain({
   name: 'Swan Proxima Testnet',
   nativeCurrency: { name: 'Swan Ether', symbol: 'sETH', decimals: 18 },
   rpcUrls: {
-    default: { http: ['https://rpc-proxima.swanchain.io	'] },
+    default: { http: ['https://rpc-proxima.swanchain.io'] },
   },
   blockExplorers: {
     default: {

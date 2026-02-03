@@ -1,10 +1,8 @@
 import { expect, test } from 'vitest'
-
-import { accounts } from '~test/src/constants.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { getBalance } from '../public/getBalance.js'
-
-import { anvilMainnet } from '../../../test/src/anvil.js'
 
 import { setBalance } from './setBalance.js'
 

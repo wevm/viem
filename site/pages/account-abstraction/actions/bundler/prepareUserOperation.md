@@ -37,6 +37,7 @@ const client = createPublicClient({
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [privateKeyToAccount('0x...')],
+  version: '1.1',
 })
 
 export const bundlerClient = createBundlerClient({
@@ -85,6 +86,7 @@ const client = createPublicClient({
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [privateKeyToAccount('0x...')],
+  version: '1.1',
 })
 
 export const bundlerClient = createBundlerClient({
@@ -144,6 +146,7 @@ const client = createPublicClient({
 export const account = await toCoinbaseSmartAccount({
   client,
   owners: [privateKeyToAccount('0x...')],
+  version: '1.1',
 })
 
 export const bundlerClient = createBundlerClient({
@@ -232,6 +235,28 @@ const userOperation = await bundlerClient.prepareUserOperation({
     value: parseEther('1')
   }],
   callGasLimit: 69420n, // [!code focus]
+})
+```
+
+### dataSuffix (optional)
+
+- **Type:** `Hex`
+
+Data to append to the end of User Operation calldata. Useful for adding [transaction attribution](https://oxlib.sh/ercs/erc8021/Attribution).
+
+If not provided, the `dataSuffix` configured on the Bundler Client (or inherited from the underlying client) will be used.
+
+```ts twoslash
+import { bundlerClient } from './config'
+import { parseEther } from 'viem'
+// ---cut---
+const userOperation = await bundlerClient.prepareUserOperation({
+  account,
+  calls: [{
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: parseEther('1')
+  }],
+  dataSuffix: '0xdeadbeef', // [!code focus]
 })
 ```
 

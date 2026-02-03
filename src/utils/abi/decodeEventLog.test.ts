@@ -707,6 +707,361 @@ test('strict', () => {
 })
 
 describe('GitHub repros', () => {
+  describe('https://github.com/wevm/viem/issues/4237', () => {
+    test('mismatch in indexed parameters', () => {
+      const result = decodeEventLog({
+        abi: [
+          {
+            anonymous: false,
+            inputs: [
+              {
+                indexed: true,
+                internalType: 'address',
+                name: 'owner',
+                type: 'address',
+              },
+            ],
+            name: 'AddedOwner',
+            type: 'event',
+          },
+        ],
+        topics: [
+          '0x9465fa0c962cc76958e6373a993326400c1c94f8be2fe3a952adfa7f60b2ea26',
+        ],
+        data: '0x0000000000000000000000007ac4cdaf979c525cccfa9e5a474b0173bd960aad',
+        strict: false,
+      })
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "args": {
+            "owner": "0x7aC4CDAf979c525CcCFa9e5A474B0173bD960aAd",
+          },
+          "eventName": "AddedOwner",
+        }
+      `)
+    })
+
+    test('multiple missing indexed parameters decoded from data', () => {
+      const result = decodeEventLog({
+        abi: [
+          {
+            anonymous: false,
+            inputs: [
+              {
+                indexed: true,
+                name: 'from',
+                type: 'address',
+              },
+              {
+                indexed: true,
+                name: 'to',
+                type: 'address',
+              },
+              {
+                indexed: false,
+                name: 'value',
+                type: 'uint256',
+              },
+            ],
+            name: 'Transfer',
+            type: 'event',
+          },
+        ],
+        topics: [
+          '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        ],
+        data: '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac0000000000000000000000000000000000000000000000000000000000000064',
+        strict: false,
+      })
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "args": {
+            "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            "to": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+            "value": 100n,
+          },
+          "eventName": "Transfer",
+        }
+      `)
+    })
+
+    test('partial indexed parameters: some in topics, some in data', () => {
+      const result = decodeEventLog({
+        abi: [
+          {
+            anonymous: false,
+            inputs: [
+              {
+                indexed: true,
+                name: 'from',
+                type: 'address',
+              },
+              {
+                indexed: true,
+                name: 'to',
+                type: 'address',
+              },
+              {
+                indexed: false,
+                name: 'value',
+                type: 'uint256',
+              },
+            ],
+            name: 'Transfer',
+            type: 'event',
+          },
+        ],
+        topics: [
+          '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+          '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+        ],
+        data: '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac0000000000000000000000000000000000000000000000000000000000000064',
+        strict: false,
+      })
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "args": {
+            "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            "to": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+            "value": 100n,
+          },
+          "eventName": "Transfer",
+        }
+      `)
+    })
+
+    test('missing indexed parameters with strict: true should throw', () => {
+      expect(() =>
+        decodeEventLog({
+          abi: [
+            {
+              anonymous: false,
+              inputs: [
+                {
+                  indexed: true,
+                  name: 'owner',
+                  type: 'address',
+                },
+              ],
+              name: 'AddedOwner',
+              type: 'event',
+            },
+          ],
+          topics: [
+            '0x9465fa0c962cc76958e6373a993326400c1c94f8be2fe3a952adfa7f60b2ea26',
+          ],
+          data: '0x0000000000000000000000007ac4cdaf979c525cccfa9e5a474b0173bd960aad',
+          strict: true,
+        }),
+      ).toThrowErrorMatchingInlineSnapshot(`
+        [DecodeLogTopicsMismatch: Expected a topic for indexed event parameter "owner" on event "AddedOwner(address owner)".
+
+        Version: viem@x.y.z]
+      `)
+    })
+
+    test('missing indexed parameters with no data and strict: false', () => {
+      const result = decodeEventLog({
+        abi: [
+          {
+            anonymous: false,
+            inputs: [
+              {
+                indexed: true,
+                name: 'owner',
+                type: 'address',
+              },
+            ],
+            name: 'AddedOwner',
+            type: 'event',
+          },
+        ],
+        topics: [
+          '0x9465fa0c962cc76958e6373a993326400c1c94f8be2fe3a952adfa7f60b2ea26',
+        ],
+        strict: false,
+      })
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "args": undefined,
+          "eventName": "AddedOwner",
+        }
+      `)
+    })
+
+    test('unnamed args: missing indexed parameters decoded from data', () => {
+      const result = decodeEventLog({
+        abi: [
+          {
+            anonymous: false,
+            inputs: [
+              {
+                indexed: true,
+                type: 'address',
+              },
+              {
+                indexed: true,
+                type: 'address',
+              },
+              {
+                indexed: false,
+                type: 'uint256',
+              },
+            ],
+            name: 'Transfer',
+            type: 'event',
+          },
+        ],
+        topics: [
+          '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        ],
+        data: '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac0000000000000000000000000000000000000000000000000000000000000064',
+        strict: false,
+      })
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "args": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+            100n,
+          ],
+          "eventName": "Transfer",
+        }
+      `)
+    })
+
+    test('unnamed args: partial indexed parameters in topics and data', () => {
+      const result = decodeEventLog({
+        abi: [
+          {
+            anonymous: false,
+            inputs: [
+              {
+                indexed: true,
+                type: 'address',
+              },
+              {
+                indexed: true,
+                type: 'address',
+              },
+              {
+                indexed: false,
+                type: 'uint256',
+              },
+            ],
+            name: 'Transfer',
+            type: 'event',
+          },
+        ],
+        topics: [
+          '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+          '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+        ],
+        data: '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac0000000000000000000000000000000000000000000000000000000000000064',
+        strict: false,
+      })
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "args": [
+            "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+            100n,
+          ],
+          "eventName": "Transfer",
+        }
+      `)
+    })
+
+    test('all indexed parameters missing with non-indexed params', () => {
+      const abi = [
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              name: 'sender',
+              type: 'address',
+            },
+            {
+              indexed: false,
+              name: 'amount',
+              type: 'uint256',
+            },
+            {
+              indexed: false,
+              name: 'recipient',
+              type: 'address',
+            },
+          ],
+          name: 'Deposit',
+          type: 'event',
+        },
+      ] as const
+      const result = decodeEventLog({
+        abi,
+        topics: [toEventSelector(abi[0])],
+        data: '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000000000000000000000000000000000000000003e8000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+        strict: false,
+      })
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "args": {
+            "amount": 1000n,
+            "recipient": "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
+            "sender": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          },
+          "eventName": "Deposit",
+        }
+      `)
+    })
+
+    test('mixed indexed: first indexed in topic, second indexed in data', () => {
+      const abi = [
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              name: 'operator',
+              type: 'address',
+            },
+            {
+              indexed: true,
+              name: 'tokenId',
+              type: 'uint256',
+            },
+            {
+              indexed: false,
+              name: 'approved',
+              type: 'bool',
+            },
+          ],
+          name: 'Approval',
+          type: 'event',
+        },
+      ] as const
+      const result = decodeEventLog({
+        abi,
+        topics: [
+          toEventSelector(abi[0]),
+          '0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+        ],
+        data: '0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000001',
+        strict: false,
+      })
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "args": {
+            "approved": true,
+            "operator": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            "tokenId": 1n,
+          },
+          "eventName": "Approval",
+        }
+      `)
+    })
+  })
+
   describe('https://github.com/wevm/viem/issues/168', () => {
     test('zero data string', () => {
       const result = decodeEventLog({
@@ -1011,7 +1366,7 @@ test("errors: event doesn't exist", () => {
   ).toThrowErrorMatchingInlineSnapshot(`
     [AbiEventSignatureNotFoundError: Encoded event signature "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef" not found on ABI.
     Make sure you are using the correct ABI and that the event exists on it.
-    You can look up the signature here: https://openchain.xyz/signatures?query=0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
+    You can look up the signature here: https://4byte.sourcify.dev/?q=0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef.
 
     Docs: https://viem.sh/docs/contract/decodeEventLog
     Version: viem@x.y.z]

@@ -1,0 +1,1945 @@
+import { describe, expect, test, vi } from 'vitest'
+import { getSmartAccounts_07 } from '~test/account-abstraction.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
+import { deploy, deployErrorExample } from '~test/utils.js'
+import { Delegation, ErrorsExample } from '../../../contracts/generated.js'
+import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import {
+  type Chain,
+  celo,
+  localhost,
+  mainnet,
+  optimism,
+} from '../../chains/index.js'
+import type { Client } from '../../clients/createClient.js'
+import { createWalletClient } from '../../clients/createWalletClient.js'
+import type { Transport } from '../../clients/transports/createTransport.js'
+import { http } from '../../clients/transports/http.js'
+import { maxUint256 } from '../../constants/number.js'
+import {
+  InvalidInputRpcError,
+  MethodNotSupportedRpcError,
+} from '../../errors/rpc.js'
+import type { Account } from '../../types/account.js'
+import type { Hex } from '../../types/misc.js'
+import type { TransactionSerializable } from '../../types/transaction.js'
+import { defineChain } from '../../utils/chain/defineChain.js'
+import { concatHex } from '../../utils/data/concat.js'
+import { hexToNumber } from '../../utils/encoding/fromHex.js'
+import { toHex } from '../../utils/encoding/toHex.js'
+import { toRlp } from '../../utils/encoding/toRlp.js'
+import {
+  decodeEventLog,
+  encodeFunctionData,
+  getAddress,
+  nonceManager,
+} from '../../utils/index.js'
+import { parseEther } from '../../utils/unit/parseEther.js'
+import { parseGwei } from '../../utils/unit/parseGwei.js'
+import { wait } from '../../utils/wait.js'
+import { estimateFeesPerGas } from '../public/estimateFeesPerGas.js'
+import { getBalance } from '../public/getBalance.js'
+import { getBlock } from '../public/getBlock.js'
+import { getTransaction } from '../public/getTransaction.js'
+import { mine } from '../test/mine.js'
+import { reset } from '../test/reset.js'
+import { setBalance } from '../test/setBalance.js'
+import { setNextBlockBaseFeePerGas } from '../test/setNextBlockBaseFeePerGas.js'
+import {
+  type SendTransactionSyncParameters,
+  sendTransactionSync as sendTransaction,
+} from './sendTransactionSync.js'
+import { signAuthorization } from './signAuthorization.js'
+
+const client = anvilMainnet.getClient()
+const clientWithAccount = anvilMainnet.getClient({
+  account: accounts[0].address,
+})
+
+const sourceAccount = accounts[0]
+const targetAccount = accounts[1]
+
+async function setup() {
+  await setBalance(client, {
+    address: sourceAccount.address,
+    value: sourceAccount.balance,
+  })
+  await setBalance(client, {
+    address: targetAccount.address,
+    value: targetAccount.balance,
+  })
+  await setNextBlockBaseFeePerGas(client, {
+    baseFeePerGas: parseGwei('10'),
+  })
+  await mine(client, { blocks: 1 })
+}
+
+async function sendTransactionSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: SendTransactionSyncParameters<chain, account>,
+) {
+  const [result] = await Promise.all([
+    sendTransaction(client, parameters),
+    (async () => {
+      await wait(500)
+      await mine(client as never, { blocks: 1 })
+    })(),
+  ])
+  return result
+}
+
+test('sends transaction', async () => {
+  await setup()
+
+  expect(
+    await getBalance(client, { address: targetAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+  expect(
+    await getBalance(client, { address: sourceAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+
+  const receipt = await sendTransactionSync(client, {
+    account: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('1'),
+  })
+  expect({
+    ...receipt,
+    blockHash: null,
+    blockNumber: null,
+    transactionHash: null,
+  }).toMatchInlineSnapshot(`
+    {
+      "blobGasPrice": 1n,
+      "blockHash": null,
+      "blockNumber": null,
+      "contractAddress": null,
+      "cumulativeGasUsed": 21000n,
+      "effectiveGasPrice": 8750000000n,
+      "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "gasUsed": 21000n,
+      "logs": [],
+      "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "status": "success",
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "transactionHash": null,
+      "transactionIndex": 0,
+      "type": "eip1559",
+    }
+  `)
+
+  expect(
+    await getBalance(client, { address: targetAccount.address }),
+  ).toMatchInlineSnapshot('10001000000000000000000n')
+  expect(
+    await getBalance(client, { address: sourceAccount.address }),
+  ).toBeLessThan(sourceAccount.balance)
+})
+
+test('sends transaction (w/ formatter)', async () => {
+  await setup()
+
+  const chain = defineChain({
+    ...localhost,
+    id: 1,
+    formatters: {
+      transactionRequest: celo.formatters!.transactionRequest,
+    },
+    serializers: undefined,
+  })
+
+  expect(
+    await getBalance(client, { address: targetAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+  expect(
+    await getBalance(client, { address: sourceAccount.address }),
+  ).toMatchInlineSnapshot('10000000000000000000000n')
+
+  const receipt = await sendTransactionSync(client, {
+    chain,
+    account: sourceAccount.address,
+    to: targetAccount.address,
+    value: parseEther('1'),
+  })
+  expect({
+    ...receipt,
+    blockHash: null,
+    blockNumber: null,
+    transactionHash: null,
+  }).toMatchInlineSnapshot(`
+    {
+      "blobGasPrice": 1n,
+      "blockHash": null,
+      "blockNumber": null,
+      "contractAddress": null,
+      "cumulativeGasUsed": 21000n,
+      "effectiveGasPrice": 8750000000n,
+      "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "gasUsed": 21000n,
+      "logs": [],
+      "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "status": "success",
+      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+      "transactionHash": null,
+      "transactionIndex": 0,
+      "type": "eip1559",
+    }
+  `)
+
+  expect(
+    await getBalance(client, { address: targetAccount.address }),
+  ).toMatchInlineSnapshot('10001000000000000000000n')
+  expect(
+    await getBalance(client, { address: sourceAccount.address }),
+  ).toBeLessThan(sourceAccount.balance)
+})
+
+test('sends transaction (w/ serializer)', async () => {
+  await setup()
+
+  await reset(client, {
+    blockNumber: anvilMainnet.forkBlockNumber,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
+
+  const serializer = vi.fn(
+    (
+      txn: TransactionSerializable & {
+        additionalField?: Hex
+      },
+    ) => {
+      const {
+        chainId,
+        nonce,
+        gas,
+        to,
+        value,
+        additionalField,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        data,
+      } = txn
+
+      const serializedTransaction = [
+        chainId ? toHex(chainId) : '0x',
+        nonce ? toHex(nonce) : '0x',
+        maxPriorityFeePerGas ? toHex(maxPriorityFeePerGas) : '0x',
+        maxFeePerGas ? toHex(maxFeePerGas) : '0x',
+        gas ? toHex(gas) : '0x',
+        additionalField ?? '0x',
+        to ?? '0x',
+        value ? toHex(value) : '0x',
+        data ?? '0x',
+        [],
+      ]
+
+      return concatHex(['0x08', toRlp(serializedTransaction)])
+    },
+  )
+
+  const chain = defineChain({
+    ...localhost,
+    id: 1,
+    serializers: {
+      transaction: serializer,
+    },
+  })
+
+  await expect(() =>
+    sendTransactionSync(client, {
+      chain,
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      value: parseEther('1'),
+    }),
+  ).rejects.toThrowError()
+
+  expect(serializer).toReturnWith(
+    '0x08f3018203b9843b9aca00850300e66100825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
+  )
+})
+
+test('client chain mismatch', async () => {
+  const client = createWalletClient({
+    chain: celo,
+    transport: http(anvilMainnet.rpcUrl.http),
+  })
+  await expect(() =>
+    sendTransactionSync(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [TransactionExecutionError: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 42220 – Celo).
+
+    Current Chain ID:  1
+    Expected Chain ID: 42220 – Celo
+     
+    Request Arguments:
+      from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+      value:  1 ETH
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('inferred account', async () => {
+  await setup()
+
+  expect(
+    await sendTransactionSync(clientWithAccount, {
+      to: targetAccount.address,
+      value: parseEther('1'),
+      gas: 1_000_000n,
+    }),
+  ).toBeDefined()
+})
+
+test('no chain', async () => {
+  const client = createWalletClient({
+    transport: http(anvilMainnet.rpcUrl.http),
+  })
+  await expect(() =>
+    // @ts-expect-error
+    sendTransactionSync(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [TransactionExecutionError: No chain was provided to the request.
+    Please provide a chain with the \`chain\` argument on the Action, or by supplying a \`chain\` to WalletClient.
+
+    Request Arguments:
+      from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+      to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+      value:  1 ETH
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('args: throwOnReceiptRevert', async () => {
+  await setup()
+
+  const { contractAddress } = await deployErrorExample()
+
+  await expect(() =>
+    sendTransactionSync(client, {
+      account: sourceAccount.address,
+      data: encodeFunctionData({
+        abi: ErrorsExample.abi,
+        functionName: 'revertWrite',
+      }),
+      throwOnReceiptRevert: true,
+      to: contractAddress!,
+    }),
+  ).rejects.toThrow('The receipt marked the transaction as "reverted".')
+})
+
+describe('args: gasPrice', () => {
+  test('sends transaction', async () => {
+    await setup()
+
+    const block = await getBlock(client)
+
+    expect(
+      await getBalance(client, { address: targetAccount.address }),
+    ).toMatchInlineSnapshot('10000000000000000000000n')
+    expect(
+      await getBalance(client, { address: sourceAccount.address }),
+    ).toMatchInlineSnapshot('10000000000000000000000n')
+
+    const receipt = await sendTransactionSync(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      gasPrice: BigInt((block.baseFeePerGas ?? 0n) * 2n),
+    })
+    expect({
+      ...receipt,
+      blockHash: null,
+      blockNumber: null,
+      transactionHash: null,
+    }).toMatchInlineSnapshot(`
+      {
+        "blobGasPrice": 1n,
+        "blockHash": null,
+        "blockNumber": null,
+        "contractAddress": null,
+        "cumulativeGasUsed": 21000n,
+        "effectiveGasPrice": 20000000000n,
+        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "gasUsed": 21000n,
+        "logs": [],
+        "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "status": "success",
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "transactionHash": null,
+        "transactionIndex": 0,
+        "type": "legacy",
+      }
+    `)
+
+    expect(
+      await getBalance(client, { address: targetAccount.address }),
+    ).toMatchInlineSnapshot('10001000000000000000000n')
+    expect(
+      await getBalance(client, { address: sourceAccount.address }),
+    ).toBeLessThan(sourceAccount.balance)
+  })
+
+  test('errors when account has insufficient funds', async () => {
+    await setup()
+
+    const block = await getBlock(client)
+
+    await expect(() =>
+      sendTransactionSync(client, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        gasPrice: BigInt(block.baseFeePerGas ?? 0) + parseEther('10000'),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      [TransactionExecutionError: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
+
+      This error could arise when the account does not have enough funds to:
+       - pay for the total gas fee,
+       - pay for the value to send.
+       
+      The cost of the transaction is calculated as \`gas * gas fee + value\`, where:
+       - \`gas\` is the amount of gas needed for transaction to execute,
+       - \`gas fee\` is the gas fee,
+       - \`value\` is the amount of ether to send to the recipient.
+       
+      Request Arguments:
+        from:      0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        to:        0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+        value:     1 ETH
+        gasPrice:  10000000000010 gwei
+
+      Details: Insufficient funds for gas * price + value
+      Version: viem@x.y.z]
+    `,
+    )
+  })
+})
+
+describe('args: maxFeePerGas', () => {
+  test('sends transaction', async () => {
+    await setup()
+
+    const block = await getBlock(client)
+
+    expect(
+      await getBalance(client, { address: targetAccount.address }),
+    ).toMatchInlineSnapshot('10000000000000000000000n')
+    expect(
+      await getBalance(client, { address: sourceAccount.address }),
+    ).toMatchInlineSnapshot('10000000000000000000000n')
+
+    const receipt = await sendTransactionSync(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxFeePerGas: BigInt((block.baseFeePerGas ?? 0n) * 2n),
+    })
+    expect({
+      ...receipt,
+      blockHash: null,
+      blockNumber: null,
+      transactionHash: null,
+    }).toMatchInlineSnapshot(`
+      {
+        "blobGasPrice": 1n,
+        "blockHash": null,
+        "blockNumber": null,
+        "contractAddress": null,
+        "cumulativeGasUsed": 21000n,
+        "effectiveGasPrice": 8750000000n,
+        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "gasUsed": 21000n,
+        "logs": [],
+        "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "status": "success",
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "transactionHash": null,
+        "transactionIndex": 0,
+        "type": "eip1559",
+      }
+    `)
+
+    expect(
+      await getBalance(client, { address: targetAccount.address }),
+    ).toMatchInlineSnapshot('10001000000000000000000n')
+    expect(
+      await getBalance(client, { address: sourceAccount.address }),
+    ).toBeLessThan(sourceAccount.balance)
+
+    const transaction = await getTransaction(client, {
+      hash: receipt.transactionHash,
+    })
+    expect(transaction.maxFeePerGas).toBe(
+      BigInt((block.baseFeePerGas ?? 0n) * 2n),
+    )
+  })
+
+  test('errors when account has insufficient funds', async () => {
+    await setup()
+
+    const block = await getBlock(client)
+
+    await expect(() =>
+      sendTransactionSync(client, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        maxFeePerGas: BigInt(block.baseFeePerGas ?? 0) + parseEther('10000'),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      [TransactionExecutionError: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
+
+      This error could arise when the account does not have enough funds to:
+       - pay for the total gas fee,
+       - pay for the value to send.
+       
+      The cost of the transaction is calculated as \`gas * gas fee + value\`, where:
+       - \`gas\` is the amount of gas needed for transaction to execute,
+       - \`gas fee\` is the gas fee,
+       - \`value\` is the amount of ether to send to the recipient.
+       
+      Request Arguments:
+        from:          0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        to:            0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+        value:         1 ETH
+        maxFeePerGas:  10000000000010 gwei
+
+      Details: Insufficient funds for gas * price + value
+      Version: viem@x.y.z]
+    `,
+    )
+  })
+})
+
+describe('args: maxPriorityFeePerGas', () => {
+  test('sends transaction', async () => {
+    await setup()
+
+    expect(
+      await getBalance(client, { address: targetAccount.address }),
+    ).toMatchInlineSnapshot('10000000000000000000000n')
+    expect(
+      await getBalance(client, { address: sourceAccount.address }),
+    ).toMatchInlineSnapshot('10000000000000000000000n')
+
+    const receipt = await sendTransactionSync(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxPriorityFeePerGas: parseGwei('1'),
+    })
+    expect({
+      ...receipt,
+      blockHash: null,
+      blockNumber: null,
+      transactionHash: null,
+    }).toMatchInlineSnapshot(`
+      {
+        "blobGasPrice": 1n,
+        "blockHash": null,
+        "blockNumber": null,
+        "contractAddress": null,
+        "cumulativeGasUsed": 21000n,
+        "effectiveGasPrice": 9750000000n,
+        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "gasUsed": 21000n,
+        "logs": [],
+        "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "status": "success",
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "transactionHash": null,
+        "transactionIndex": 0,
+        "type": "eip1559",
+      }
+    `)
+
+    expect(
+      await getBalance(client, { address: targetAccount.address }),
+    ).toMatchInlineSnapshot('10001000000000000000000n')
+    expect(
+      await getBalance(client, { address: sourceAccount.address }),
+    ).toBeLessThan(sourceAccount.balance)
+  })
+
+  test('maxPriorityFeePerGas + maxFeePerGas: sends transaction', async () => {
+    await setup()
+
+    const block = await getBlock(client)
+
+    expect(
+      await getBalance(client, { address: targetAccount.address }),
+    ).toMatchInlineSnapshot('10000000000000000000000n')
+    expect(
+      await getBalance(client, { address: sourceAccount.address }),
+    ).toMatchInlineSnapshot('10000000000000000000000n')
+
+    const receipt = await sendTransactionSync(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      maxPriorityFeePerGas: parseGwei('10'),
+      maxFeePerGas: BigInt(block.baseFeePerGas ?? 0) + parseGwei('10'),
+    })
+    expect({
+      ...receipt,
+      blockHash: null,
+      blockNumber: null,
+      transactionHash: null,
+    }).toMatchInlineSnapshot(`
+      {
+        "blobGasPrice": 1n,
+        "blockHash": null,
+        "blockNumber": null,
+        "contractAddress": null,
+        "cumulativeGasUsed": 21000n,
+        "effectiveGasPrice": 18750000000n,
+        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "gasUsed": 21000n,
+        "logs": [],
+        "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "status": "success",
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "transactionHash": null,
+        "transactionIndex": 0,
+        "type": "eip1559",
+      }
+    `)
+
+    expect(
+      await getBalance(client, { address: targetAccount.address }),
+    ).toMatchInlineSnapshot('10001000000000000000000n')
+    expect(
+      await getBalance(client, { address: sourceAccount.address }),
+    ).toBeLessThan(sourceAccount.balance)
+  })
+})
+
+describe('args: nonce', () => {
+  test('sends transaction', async () => {
+    await setup()
+
+    const transactionCount = (await client.request({
+      method: 'eth_getTransactionCount',
+      params: [sourceAccount.address, 'latest'],
+    }))!
+
+    expect(
+      await getBalance(client, { address: targetAccount.address }),
+    ).toMatchInlineSnapshot('10000000000000000000000n')
+    expect(
+      await getBalance(client, { address: sourceAccount.address }),
+    ).toMatchInlineSnapshot('10000000000000000000000n')
+
+    const receipt = await sendTransactionSync(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      nonce: hexToNumber(transactionCount),
+    })
+    expect({
+      ...receipt,
+      blockHash: null,
+      blockNumber: null,
+      transactionHash: null,
+    }).toMatchInlineSnapshot(`
+      {
+        "blobGasPrice": 1n,
+        "blockHash": null,
+        "blockNumber": null,
+        "contractAddress": null,
+        "cumulativeGasUsed": 21000n,
+        "effectiveGasPrice": 8750000000n,
+        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "gasUsed": 21000n,
+        "logs": [],
+        "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "status": "success",
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "transactionHash": null,
+        "transactionIndex": 0,
+        "type": "eip1559",
+      }
+    `)
+
+    expect(
+      await getBalance(client, { address: targetAccount.address }),
+    ).toMatchInlineSnapshot('10001000000000000000000n')
+    expect(
+      await getBalance(client, { address: sourceAccount.address }),
+    ).toBeLessThan(sourceAccount.balance)
+  })
+})
+
+describe('args: chain', async () => {
+  test('default', async () => {
+    expect(
+      await sendTransactionSync(client, {
+        chain: anvilMainnet.chain,
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+      }),
+    ).toBeDefined
+  })
+
+  test('nullish', async () => {
+    expect(
+      await sendTransactionSync(client, {
+        chain: null,
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+      }),
+    ).toBeDefined
+  })
+
+  test('chain mismatch', async () => {
+    await expect(() =>
+      sendTransactionSync(client, {
+        chain: optimism,
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TransactionExecutionError: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
+
+      Current Chain ID:  1
+      Expected Chain ID: 10 – OP Mainnet
+       
+      Request Arguments:
+        chain:  OP Mainnet (id: 10)
+        from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+        value:  1 ETH
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('behavior: transport supports `wallet_sendTransactionSync`', async () => {
+    await setup()
+
+    const request = client.request
+    client.request = (parameters: any) => {
+      if (parameters.method === 'eth_sendTransaction')
+        throw new InvalidInputRpcError(new Error())
+      return request(parameters)
+    }
+
+    expect(
+      await sendTransactionSync(client, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        value: 0n,
+      }),
+    ).toBeDefined()
+  })
+
+  test("behavior: transport doesn't support `wallet_sendTransaction` so the original error is rethrown", async () => {
+    // Using a new client to reset the cached info about wallet_sendTransaction
+    // being supported.
+    const client = anvilMainnet.getClient()
+    await setup()
+
+    const originalError = new InvalidInputRpcError(new Error())
+
+    const request = client.request
+    client.request = async (parameters: any) => {
+      if (parameters.method === 'eth_sendTransaction') throw originalError
+      if (parameters.method === 'wallet_sendTransaction')
+        throw new MethodNotSupportedRpcError(new Error())
+      return request(parameters)
+    }
+
+    await expect(() =>
+      sendTransactionSync(client, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        value: 0n,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TransactionExecutionError: Missing or invalid parameters.
+      Double check you have provided the correct parameters.
+
+      Request Arguments:
+        from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+        value:  0 ETH
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('behavior: nullish account', async () => {
+    await setup()
+
+    expect(
+      await sendTransactionSync(client, {
+        account: null,
+        to: targetAccount.address,
+        value: 0n,
+      }),
+    ).toBeDefined()
+  })
+})
+
+describe('local account', () => {
+  test('default', async () => {
+    await setup()
+
+    expect(
+      await getBalance(client, { address: targetAccount.address }),
+    ).toMatchInlineSnapshot('10000000000000000000000n')
+    expect(
+      await getBalance(client, { address: sourceAccount.address }),
+    ).toMatchInlineSnapshot('10000000000000000000000n')
+
+    const receipt = await sendTransactionSync(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+    expect({
+      ...receipt,
+      blockHash: null,
+      blockNumber: null,
+      transactionHash: null,
+    }).toMatchInlineSnapshot(`
+      {
+        "blobGasPrice": 1n,
+        "blockHash": null,
+        "blockNumber": null,
+        "contractAddress": null,
+        "cumulativeGasUsed": 21000n,
+        "effectiveGasPrice": 9750000000n,
+        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "gasUsed": 21000n,
+        "logs": [],
+        "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "status": "success",
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "transactionHash": null,
+        "transactionIndex": 0,
+        "type": "eip1559",
+      }
+    `)
+
+    expect(
+      await getBalance(client, { address: targetAccount.address }),
+    ).toMatchInlineSnapshot('10001000000000000000000n')
+    expect(
+      await getBalance(client, { address: sourceAccount.address }),
+    ).toBeLessThan(sourceAccount.balance)
+
+    const transaction = await getTransaction(client, {
+      hash: receipt.transactionHash,
+    })
+    expect(transaction.maxFeePerGas).toBe(12900000000n)
+    expect(transaction.maxPriorityFeePerGas).toBe(1000000000n)
+    expect(transaction.gas).toBe(21000n)
+  })
+
+  test('sends transaction w/ no value', async () => {
+    await setup()
+
+    const receipt = await sendTransactionSync(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+    })
+    expect({
+      ...receipt,
+      blockHash: null,
+      blockNumber: null,
+      transactionHash: null,
+    }).toMatchInlineSnapshot(`
+      {
+        "blobGasPrice": 1n,
+        "blockHash": null,
+        "blockNumber": null,
+        "contractAddress": null,
+        "cumulativeGasUsed": 21000n,
+        "effectiveGasPrice": 9750000000n,
+        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "gasUsed": 21000n,
+        "logs": [],
+        "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "status": "success",
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "transactionHash": null,
+        "transactionIndex": 0,
+        "type": "eip1559",
+      }
+    `)
+
+    expect(
+      await getBalance(client, { address: targetAccount.address }),
+    ).toMatchInlineSnapshot('10000000000000000000000n')
+    expect(
+      await getBalance(client, { address: sourceAccount.address }),
+    ).toBeLessThan(sourceAccount.balance)
+  })
+
+  test('args: authorizationList', async () => {
+    const eoa = privateKeyToAccount(generatePrivateKey())
+    const relay = privateKeyToAccount(accounts[1].privateKey)
+    const recipient = privateKeyToAccount(generatePrivateKey())
+
+    await setBalance(client, { address: eoa.address, value: parseEther('10') })
+
+    const balance_eoa = await getBalance(client, {
+      address: eoa.address,
+    })
+    const balance_recipient = await getBalance(client, {
+      address: recipient.address,
+    })
+
+    const { contractAddress } = await deploy(client, {
+      abi: Delegation.abi,
+      bytecode: Delegation.bytecode.object,
+    })
+
+    const authorization = await signAuthorization(client, {
+      account: eoa,
+      contractAddress: contractAddress!,
+    })
+
+    const receipt = await sendTransactionSync(client, {
+      account: relay,
+      authorizationList: [authorization],
+      data: encodeFunctionData({
+        abi: Delegation.abi,
+        functionName: 'execute',
+        args: [
+          [
+            {
+              to: recipient.address,
+              data: '0x',
+              value: parseEther('1'),
+            },
+          ],
+        ],
+      }),
+      to: eoa.address,
+    })
+    expect(receipt).toBeDefined()
+
+    const log = receipt.logs[0]
+    expect(getAddress(log.address)).toBe(eoa.address)
+    expect(
+      decodeEventLog({
+        abi: Delegation.abi,
+        ...log,
+      }),
+    ).toEqual({
+      args: {
+        data: '0x',
+        to: recipient.address,
+        value: parseEther('1'),
+      },
+      eventName: 'CallEmitted',
+    })
+
+    expect(
+      await getBalance(client, {
+        address: recipient.address,
+      }),
+    ).toBe(balance_recipient + parseEther('1'))
+    expect(
+      await getBalance(client, {
+        address: eoa.address,
+      }),
+    ).toBe(balance_eoa - parseEther('1'))
+  })
+
+  test('args: gas', async () => {
+    await setup()
+
+    const receipt = await sendTransactionSync(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      value: parseEther('1'),
+      gas: 30_000n,
+    })
+
+    expect({
+      ...receipt,
+      blockHash: null,
+      blockNumber: null,
+      transactionHash: null,
+    }).toMatchInlineSnapshot(`
+      {
+        "blobGasPrice": 1n,
+        "blockHash": null,
+        "blockNumber": null,
+        "contractAddress": null,
+        "cumulativeGasUsed": 21000n,
+        "effectiveGasPrice": 9750000000n,
+        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "gasUsed": 21000n,
+        "logs": [],
+        "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "status": "success",
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "transactionHash": null,
+        "transactionIndex": 0,
+        "type": "eip1559",
+      }
+    `)
+
+    expect(
+      await getBalance(client, { address: targetAccount.address }),
+    ).toMatchInlineSnapshot('10001000000000000000000n')
+    expect(
+      await getBalance(client, { address: sourceAccount.address }),
+    ).toBeLessThan(sourceAccount.balance)
+
+    const transaction = await getTransaction(client, {
+      hash: receipt.transactionHash,
+    })
+    expect(transaction.gas).toBe(30_000n)
+  })
+
+  test('args: chain', async () => {
+    await setup()
+
+    expect(
+      await getBalance(client, { address: targetAccount.address }),
+    ).toMatchInlineSnapshot('10000000000000000000000n')
+    expect(
+      await getBalance(client, { address: sourceAccount.address }),
+    ).toMatchInlineSnapshot('10000000000000000000000n')
+
+    const receipt = await sendTransactionSync(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      chain: mainnet,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    expect({
+      ...receipt,
+      blockHash: null,
+      blockNumber: null,
+      transactionHash: null,
+    }).toMatchInlineSnapshot(`
+      {
+        "blobGasPrice": 1n,
+        "blockHash": null,
+        "blockNumber": null,
+        "contractAddress": null,
+        "cumulativeGasUsed": 21000n,
+        "effectiveGasPrice": 9750000000n,
+        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "gasUsed": 21000n,
+        "logs": [],
+        "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "status": "success",
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "transactionHash": null,
+        "transactionIndex": 0,
+        "type": "eip1559",
+      }
+    `)
+
+    expect(
+      await getBalance(client, { address: targetAccount.address }),
+    ).toMatchInlineSnapshot('10001000000000000000000n')
+    expect(
+      await getBalance(client, { address: sourceAccount.address }),
+    ).toBeLessThan(sourceAccount.balance)
+
+    const transaction = await getTransaction(client, {
+      hash: receipt.transactionHash,
+    })
+    expect(transaction.chainId).toBe(1)
+  })
+
+  test('args: chain (nullish)', async () => {
+    await setup()
+
+    expect(
+      await getBalance(client, { address: targetAccount.address }),
+    ).toMatchInlineSnapshot('10000000000000000000000n')
+    expect(
+      await getBalance(client, { address: sourceAccount.address }),
+    ).toMatchInlineSnapshot('10000000000000000000000n')
+
+    const receipt = await sendTransactionSync(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      chain: null,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    expect({
+      ...receipt,
+      blockHash: null,
+      blockNumber: null,
+      transactionHash: null,
+    }).toMatchInlineSnapshot(`
+      {
+        "blobGasPrice": 1n,
+        "blockHash": null,
+        "blockNumber": null,
+        "contractAddress": null,
+        "cumulativeGasUsed": 21000n,
+        "effectiveGasPrice": 9750000000n,
+        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "gasUsed": 21000n,
+        "logs": [],
+        "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "status": "success",
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "transactionHash": null,
+        "transactionIndex": 0,
+        "type": "eip1559",
+      }
+    `)
+
+    expect(
+      await getBalance(client, { address: targetAccount.address }),
+    ).toMatchInlineSnapshot('10001000000000000000000n')
+    expect(
+      await getBalance(client, { address: sourceAccount.address }),
+    ).toBeLessThan(sourceAccount.balance)
+
+    const transaction = await getTransaction(client, {
+      hash: receipt.transactionHash,
+    })
+    expect(transaction.chainId).toBe(1)
+  })
+
+  describe('args: maxFeePerGas', () => {
+    test('sends transaction', async () => {
+      await setup()
+
+      const fees = await estimateFeesPerGas(client)
+
+      expect(
+        await getBalance(client, { address: targetAccount.address }),
+      ).toMatchInlineSnapshot('10000000000000000000000n')
+      expect(
+        await getBalance(client, { address: sourceAccount.address }),
+      ).toMatchInlineSnapshot('10000000000000000000000n')
+
+      const receipt = await sendTransactionSync(client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        value: parseEther('1'),
+        maxFeePerGas: fees.maxFeePerGas,
+      })
+      expect({
+        ...receipt,
+        blockHash: null,
+        blockNumber: null,
+        transactionHash: null,
+      }).toMatchInlineSnapshot(`
+        {
+          "blobGasPrice": 1n,
+          "blockHash": null,
+          "blockNumber": null,
+          "contractAddress": null,
+          "cumulativeGasUsed": 21000n,
+          "effectiveGasPrice": 9750000000n,
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "gasUsed": 21000n,
+          "logs": [],
+          "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "status": "success",
+          "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "transactionHash": null,
+          "transactionIndex": 0,
+          "type": "eip1559",
+        }
+      `)
+
+      expect(
+        await getBalance(client, { address: targetAccount.address }),
+      ).toMatchInlineSnapshot('10001000000000000000000n')
+      expect(
+        await getBalance(client, { address: sourceAccount.address }),
+      ).toBeLessThan(sourceAccount.balance)
+
+      const transaction = await getTransaction(client, {
+        hash: receipt.transactionHash,
+      })
+      expect(transaction.maxFeePerGas).toBe(fees.maxFeePerGas)
+    })
+
+    test('errors when account has insufficient funds', async () => {
+      await setup()
+
+      const block = await getBlock(client)
+
+      await expect(() =>
+        sendTransactionSync(client, {
+          account: privateKeyToAccount(sourceAccount.privateKey),
+          to: targetAccount.address,
+          value: parseEther('1'),
+          maxFeePerGas: BigInt(block.baseFeePerGas ?? 0) + parseEther('10000'),
+        }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `
+        [TransactionExecutionError: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
+
+        This error could arise when the account does not have enough funds to:
+         - pay for the total gas fee,
+         - pay for the value to send.
+         
+        The cost of the transaction is calculated as \`gas * gas fee + value\`, where:
+         - \`gas\` is the amount of gas needed for transaction to execute,
+         - \`gas fee\` is the gas fee,
+         - \`value\` is the amount of ether to send to the recipient.
+         
+        Request Arguments:
+          from:          0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+          to:            0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+          value:         1 ETH
+          maxFeePerGas:  10000000000010 gwei
+
+        Details: Insufficient funds for gas * price + value
+        Version: viem@x.y.z]
+      `,
+      )
+    })
+  })
+
+  describe('args: maxPriorityFeePerGas', () => {
+    test('sends transaction', async () => {
+      await setup()
+
+      const receipt = await sendTransactionSync(client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        value: parseEther('1'),
+        maxPriorityFeePerGas: parseGwei('5'),
+      })
+      expect({
+        ...receipt,
+        blockHash: null,
+        blockNumber: null,
+        transactionHash: null,
+      }).toMatchInlineSnapshot(`
+        {
+          "blobGasPrice": 1n,
+          "blockHash": null,
+          "blockNumber": null,
+          "contractAddress": null,
+          "cumulativeGasUsed": 21000n,
+          "effectiveGasPrice": 13750000000n,
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "gasUsed": 21000n,
+          "logs": [],
+          "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "status": "success",
+          "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "transactionHash": null,
+          "transactionIndex": 0,
+          "type": "eip1559",
+        }
+      `)
+
+      expect(
+        await getBalance(client, { address: targetAccount.address }),
+      ).toMatchInlineSnapshot('10001000000000000000000n')
+      expect(
+        await getBalance(client, { address: sourceAccount.address }),
+      ).toBeLessThan(sourceAccount.balance)
+
+      const transaction = await getTransaction(client, {
+        hash: receipt.transactionHash,
+      })
+      expect(transaction.maxPriorityFeePerGas).toBe(parseGwei('5'))
+    })
+
+    test('maxPriorityFeePerGas + maxFeePerGas: sends transaction', async () => {
+      await setup()
+
+      const block = await getBlock(client)
+
+      expect(
+        await getBalance(client, { address: targetAccount.address }),
+      ).toMatchInlineSnapshot('10000000000000000000000n')
+      expect(
+        await getBalance(client, { address: sourceAccount.address }),
+      ).toMatchInlineSnapshot('10000000000000000000000n')
+
+      const receipt = await sendTransactionSync(client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        value: parseEther('1'),
+        maxPriorityFeePerGas: parseGwei('10'),
+        maxFeePerGas: BigInt(block.baseFeePerGas ?? 0) + parseGwei('10'),
+      })
+      expect({
+        ...receipt,
+        blockHash: null,
+        blockNumber: null,
+        transactionHash: null,
+      }).toMatchInlineSnapshot(`
+        {
+          "blobGasPrice": 1n,
+          "blockHash": null,
+          "blockNumber": null,
+          "contractAddress": null,
+          "cumulativeGasUsed": 21000n,
+          "effectiveGasPrice": 18750000000n,
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "gasUsed": 21000n,
+          "logs": [],
+          "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "status": "success",
+          "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "transactionHash": null,
+          "transactionIndex": 0,
+          "type": "eip1559",
+        }
+      `)
+
+      expect(
+        await getBalance(client, { address: targetAccount.address }),
+      ).toMatchInlineSnapshot('10001000000000000000000n')
+      expect(
+        await getBalance(client, { address: sourceAccount.address }),
+      ).toBeLessThan(sourceAccount.balance)
+
+      const transaction = await getTransaction(client, {
+        hash: receipt.transactionHash,
+      })
+      expect(transaction.maxPriorityFeePerGas).toBe(parseGwei('10'))
+      expect(transaction.maxFeePerGas).toBe(
+        BigInt(block.baseFeePerGas ?? 0) + parseGwei('10'),
+      )
+    })
+  })
+
+  describe('args: nonce', () => {
+    test('sends transaction', async () => {
+      await setup()
+
+      const transactionCount = (await client.request({
+        method: 'eth_getTransactionCount',
+        params: [sourceAccount.address, 'pending'],
+      }))!
+
+      expect(
+        await getBalance(client, { address: targetAccount.address }),
+      ).toMatchInlineSnapshot('10000000000000000000000n')
+      expect(
+        await getBalance(client, { address: sourceAccount.address }),
+      ).toMatchInlineSnapshot('10000000000000000000000n')
+
+      const receipt = await sendTransactionSync(client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        value: parseEther('1'),
+        nonce: hexToNumber(transactionCount),
+      })
+      expect({
+        ...receipt,
+        blockHash: null,
+        blockNumber: null,
+        transactionHash: null,
+      }).toMatchInlineSnapshot(`
+        {
+          "blobGasPrice": 1n,
+          "blockHash": null,
+          "blockNumber": null,
+          "contractAddress": null,
+          "cumulativeGasUsed": 21000n,
+          "effectiveGasPrice": 9750000000n,
+          "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+          "gasUsed": 21000n,
+          "logs": [],
+          "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "status": "success",
+          "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+          "transactionHash": null,
+          "transactionIndex": 0,
+          "type": "eip1559",
+        }
+      `)
+
+      expect(
+        await getBalance(client, { address: targetAccount.address }),
+      ).toMatchInlineSnapshot('10001000000000000000000n')
+      expect(
+        await getBalance(client, { address: sourceAccount.address }),
+      ).toBeLessThan(sourceAccount.balance)
+
+      const transaction = await getTransaction(client, {
+        hash: receipt.transactionHash,
+      })
+      expect(transaction.nonce).toBe(hexToNumber(transactionCount))
+    })
+  })
+
+  describe('behavior: nonceManager', async () => {
+    test('default', async () => {
+      await setup()
+
+      const alice = privateKeyToAccount(accounts[5].privateKey, {
+        nonceManager,
+      })
+      const bob = privateKeyToAccount(accounts[6].privateKey, { nonceManager })
+
+      const [receipt_1, receipt_2, receipt_3, receipt_4, receipt_5] =
+        await Promise.all([
+          sendTransactionSync(client, {
+            account: alice,
+            to: targetAccount.address,
+            value: parseEther('1'),
+          }),
+          sendTransactionSync(client, {
+            account: bob,
+            to: targetAccount.address,
+            value: parseEther('1'),
+          }),
+          sendTransactionSync(client, {
+            account: alice,
+            to: targetAccount.address,
+            value: parseEther('1'),
+          }),
+          sendTransactionSync(client, {
+            account: alice,
+            to: targetAccount.address,
+            value: parseEther('1'),
+          }),
+          sendTransactionSync(client, {
+            account: bob,
+            to: targetAccount.address,
+            value: parseEther('1'),
+          }),
+        ])
+
+      expect(
+        (await getTransaction(client, { hash: receipt_1.transactionHash }))
+          .nonce,
+      ).toBe(36)
+      expect(
+        (await getTransaction(client, { hash: receipt_2.transactionHash }))
+          .nonce,
+      ).toBe(13)
+      expect(
+        (await getTransaction(client, { hash: receipt_3.transactionHash }))
+          .nonce,
+      ).toBe(37)
+      expect(
+        (await getTransaction(client, { hash: receipt_4.transactionHash }))
+          .nonce,
+      ).toBe(38)
+      expect(
+        (await getTransaction(client, { hash: receipt_5.transactionHash }))
+          .nonce,
+      ).toBe(14)
+
+      const receipt_6 = await sendTransactionSync(client, {
+        account: alice,
+        to: targetAccount.address,
+        value: parseEther('1'),
+      })
+      const receipt_7 = await sendTransactionSync(client, {
+        account: alice,
+        to: targetAccount.address,
+        value: parseEther('1'),
+      })
+
+      expect(
+        (await getTransaction(client, { hash: receipt_6.transactionHash }))
+          .nonce,
+      ).toBe(39)
+      expect(
+        (await getTransaction(client, { hash: receipt_7.transactionHash }))
+          .nonce,
+      ).toBe(40)
+    })
+  })
+
+  test('args: throwOnReceiptRevert', async () => {
+    await setup()
+
+    const { contractAddress } = await deployErrorExample()
+
+    await expect(() =>
+      sendTransactionSync(client, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        data: encodeFunctionData({
+          abi: ErrorsExample.abi,
+          functionName: 'revertWrite',
+        }),
+        gas: 100_000n,
+        throwOnReceiptRevert: true,
+        to: contractAddress!,
+      }),
+    ).rejects.toThrow('The receipt marked the transaction as "reverted".')
+  })
+})
+
+describe('smart account', async () => {
+  const [account] = await getSmartAccounts_07()
+
+  test('default', async () => {
+    await expect(() =>
+      sendTransactionSync(client, {
+        account,
+        to: targetAccount.address,
+        value: parseEther('1'),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [AccountTypeNotSupportedError: Account type "smart" is not supported.
+
+      Consider using the \`sendUserOperation\` Action instead.
+
+      Docs: https://viem.sh/docs/actions/bundler/sendUserOperation
+      Version: viem@x.y.z]
+    `)
+  })
+})
+
+describe('errors', () => {
+  test('no account', async () => {
+    await expect(() =>
+      // @ts-expect-error
+      sendTransactionSync(client, {
+        to: targetAccount.address,
+        value: parseEther('1'),
+        maxFeePerGas: maxUint256 + 1n,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [AccountNotFoundError: Could not find an Account to execute with this Action.
+      Please provide an Account with the \`account\` argument on the Action, or by supplying an \`account\` to the Client.
+
+      Docs: https://viem.sh/docs/actions/wallet/sendTransactionSync
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('fee cap too high', async () => {
+    await setup()
+
+    await expect(() =>
+      sendTransactionSync(client, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        maxFeePerGas: maxUint256 + 1n,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TransactionExecutionError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
+
+      Request Arguments:
+        from:          0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        to:            0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+        value:         1 ETH
+        maxFeePerGas:  115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei
+
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('gas too low', async () => {
+    await setup()
+
+    await expect(() =>
+      sendTransactionSync(client, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        gas: 100n,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TransactionExecutionError: The amount of gas (100) provided for the transaction is too low.
+
+      Request Arguments:
+        from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+        value:  1 ETH
+        gas:    100
+
+      Details: intrinsic gas too low
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('gas too high', async () => {
+    await setup()
+
+    await expect(() =>
+      sendTransactionSync(client, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        gas: 100_000_000n,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TransactionExecutionError: The amount of gas (100000000) provided for the transaction exceeds the limit allowed for the block.
+
+      Request Arguments:
+        from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+        value:  1 ETH
+        gas:    100000000
+
+      Details: intrinsic gas too high -- tx.gas_limit > env.block.gas_limit
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('gas fee is less than block base fee', async () => {
+    await setup()
+
+    await expect(() =>
+      sendTransactionSync(client, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        maxFeePerGas: 1n,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      [TransactionExecutionError: The fee cap (\`maxFeePerGas\` = 0.000000001 gwei) cannot be lower than the block base fee.
+
+      Request Arguments:
+        from:          0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        to:            0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+        value:         1 ETH
+        maxFeePerGas:  0.000000001 gwei
+
+      Details: max fee per gas less than block base fee
+      Version: viem@x.y.z]
+    `,
+    )
+  })
+
+  test.skip('nonce too low', async () => {
+    await expect(() =>
+      sendTransactionSync(client, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        nonce: 1,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TransactionExecutionError: Nonce provided for the transaction (1) is lower than the current nonce of the account.
+      Try increasing the nonce or find the latest nonce with \`getTransactionCount\`.
+
+      Request Arguments:
+        from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+        value:  1 ETH
+        nonce:  1
+
+      Details: nonce too low
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('insufficient funds', async () => {
+    await setup()
+
+    await expect(() =>
+      sendTransactionSync(client, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('100000'),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [TransactionExecutionError: The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
+
+      This error could arise when the account does not have enough funds to:
+       - pay for the total gas fee,
+       - pay for the value to send.
+       
+      The cost of the transaction is calculated as \`gas * gas fee + value\`, where:
+       - \`gas\` is the amount of gas needed for transaction to execute,
+       - \`gas fee\` is the gas fee,
+       - \`value\` is the amount of ether to send to the recipient.
+       
+      Request Arguments:
+        from:   0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        to:     0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+        value:  100000 ETH
+
+      Details: Insufficient funds for gas * price + value
+      Version: viem@x.y.z]
+    `)
+  })
+
+  test('tip higher than fee cap', async () => {
+    await expect(() =>
+      sendTransactionSync(client, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        maxPriorityFeePerGas: parseGwei('11'),
+        maxFeePerGas: parseGwei('10'),
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      [TransactionExecutionError: The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
+
+      Request Arguments:
+        from:                  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        to:                    0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+        value:                 1 ETH
+        maxFeePerGas:          10 gwei
+        maxPriorityFeePerGas:  11 gwei
+
+      Version: viem@x.y.z]
+    `,
+    )
+  })
+
+  test('error: cannot infer `to` from `authorizationList`', async () => {
+    await expect(() =>
+      sendTransactionSync(client, {
+        account: sourceAccount.address,
+        authorizationList: [
+          {
+            address: '0x0000000000000000000000000000000000000000',
+            chainId: 1,
+            nonce: 0,
+          },
+        ],
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      [TransactionExecutionError: \`to\` is required. Could not infer from \`authorizationList\`.
+
+      Request Arguments:
+        from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+
+      Version: viem@x.y.z]
+    `,
+    )
+  })
+
+  test('error: unsupported account type', async () => {
+    await expect(() =>
+      sendTransactionSync(client, {
+        account: {
+          address: '0x0000000000000000000000000000000000000000',
+          // @ts-expect-error
+          type: 'foo',
+        },
+        to: '0x0000000000000000000000000000000000000000',
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      `
+      [AccountTypeNotSupportedError: Account type "foo" is not supported.
+
+      Docs: https://viem.sh/docs/actions/wallet/sendTransactionSync
+      Version: viem@x.y.z]
+    `,
+    )
+  })
+})
+
+test('https://github.com/wevm/viem/issues/2721', async () => {
+  const relay = privateKeyToAccount(generatePrivateKey())
+  const eoa = privateKeyToAccount(generatePrivateKey())
+  const recipient = privateKeyToAccount(generatePrivateKey())
+
+  await setBalance(client, {
+    address: relay.address,
+    value: parseEther('100'),
+  })
+  await setBalance(client, {
+    address: eoa.address,
+    value: parseEther('100'),
+  })
+
+  const { contractAddress } = await deploy(client, {
+    abi: Delegation.abi,
+    bytecode: Delegation.bytecode.object,
+  })
+
+  const authorization = await signAuthorization(client, {
+    account: eoa,
+    contractAddress: contractAddress!,
+  })
+
+  const receipt = await sendTransactionSync(client, {
+    account: relay,
+    authorizationList: [authorization],
+    data: encodeFunctionData({
+      abi: Delegation.abi,
+      functionName: 'execute',
+      args: [
+        [
+          {
+            to: recipient.address,
+            data: '0x',
+            value: parseEther('1'),
+          },
+        ],
+      ],
+    }),
+    to: eoa.address,
+  })
+  expect(receipt).toBeDefined()
+})
+
+describe('behavior: client dataSuffix', () => {
+  test('sends transaction with client dataSuffix (hex string)', async () => {
+    await setup()
+
+    let capturedData: string | undefined
+
+    // Create a client with dataSuffix
+    const walletClient = createWalletClient({
+      chain: anvilMainnet.chain,
+      transport: http(anvilMainnet.rpcUrl.http),
+      dataSuffix: '0x12345678',
+    })
+
+    // Override request to capture the data and throw to prevent waiting for receipt
+    walletClient.request = async (params: any) => {
+      if (
+        params.method === 'eth_sendTransaction' ||
+        params.method === 'wallet_sendTransaction'
+      ) {
+        capturedData = params.params[0].data
+        throw new Error('Test interception - data captured')
+      }
+      throw new Error('Unexpected method')
+    }
+
+    const baseData = encodeFunctionData({
+      abi: Delegation.abi,
+      functionName: 'execute',
+      args: [
+        [
+          {
+            to: targetAccount.address,
+            data: '0x',
+            value: parseEther('0.001'),
+          },
+        ],
+      ],
+    })
+
+    await expect(
+      sendTransaction(walletClient, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        data: baseData,
+        gas: 100_000n,
+      }),
+    ).rejects.toThrow('Test interception - data captured')
+
+    expect(capturedData).toBe(concatHex([baseData, '0x12345678']))
+  })
+
+  test('sends transaction with client dataSuffix (object format)', async () => {
+    await setup()
+
+    let capturedData: string | undefined
+
+    // Create a client with dataSuffix in object format
+    const walletClient = createWalletClient({
+      chain: anvilMainnet.chain,
+      transport: http(anvilMainnet.rpcUrl.http),
+      dataSuffix: { value: '0x12345678', required: true },
+    })
+
+    // Override request to capture the data and throw to prevent waiting for receipt
+    walletClient.request = async (params: any) => {
+      if (
+        params.method === 'eth_sendTransaction' ||
+        params.method === 'wallet_sendTransaction'
+      ) {
+        capturedData = params.params[0].data
+        throw new Error('Test interception - data captured')
+      }
+      throw new Error('Unexpected method')
+    }
+
+    const baseData = encodeFunctionData({
+      abi: Delegation.abi,
+      functionName: 'execute',
+      args: [
+        [
+          {
+            to: targetAccount.address,
+            data: '0x',
+            value: parseEther('0.001'),
+          },
+        ],
+      ],
+    })
+
+    await expect(
+      sendTransaction(walletClient, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        data: baseData,
+        gas: 100_000n,
+      }),
+    ).rejects.toThrow('Test interception - data captured')
+
+    expect(capturedData).toBe(concatHex([baseData, '0x12345678']))
+  })
+
+  test('sends transaction with client dataSuffix (local account)', async () => {
+    await setup()
+
+    // Create a client with dataSuffix
+    const walletClient = createWalletClient({
+      chain: anvilMainnet.chain,
+      transport: http(anvilMainnet.rpcUrl.http),
+      dataSuffix: '0x12345678',
+    })
+
+    const baseData = encodeFunctionData({
+      abi: Delegation.abi,
+      functionName: 'execute',
+      args: [
+        [
+          {
+            to: targetAccount.address,
+            data: '0x',
+            value: parseEther('0.001'),
+          },
+        ],
+      ],
+    })
+
+    // Use Promise.all to mine with the anvil client while waiting for receipt
+    const [receipt] = await Promise.all([
+      sendTransaction(walletClient, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        data: baseData,
+      }),
+      (async () => {
+        await wait(500)
+        await mine(client, { blocks: 1 })
+      })(),
+    ])
+
+    const tx = await getTransaction(client, { hash: receipt.transactionHash })
+    expect(tx.input).toBe(concatHex([baseData, '0x12345678']))
+  })
+})

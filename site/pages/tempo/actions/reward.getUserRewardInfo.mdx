@@ -1,0 +1,61 @@
+import ReadAccountParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `reward.getUserRewardInfo`
+
+Gets reward information for a specific account.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { rewardBalance, rewardPerToken, rewardRecipient } =
+  await client.reward.getUserRewardInfo({
+    account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+    token: '0x20c0000000000000000000000000000000000001',
+  })
+
+console.log('Reward recipient:', rewardRecipient)
+// @log: Reward recipient: 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb
+console.log('Reward balance:', rewardBalance)
+// @log: Reward balance: 1000000000000000000n
+console.log('Reward per token:', rewardPerToken)
+// @log: Reward per token: 385802469135802469135n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Accumulated reward balance claimable by the account */
+  rewardBalance: bigint
+  /** Reward per token checkpoint for the account */
+  rewardPerToken: bigint
+  /** Current reward recipient address (zero address if opted out) */
+  rewardRecipient: Address
+}
+```
+
+## Parameters
+
+### account
+
+- **Type:** `Address`
+
+Address of the account to get reward info for.
+
+### token
+
+- **Type:** `Address`
+
+Address of the TIP-20 token.
+
+<ReadAccountParameters />

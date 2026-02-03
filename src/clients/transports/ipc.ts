@@ -1,18 +1,19 @@
+import type { Address } from 'abitype'
 import { RpcRequestError } from '../../errors/request.js'
 import type { UrlRequiredErrorType } from '../../errors/transport.js'
 import type { ErrorType } from '../../errors/utils.js'
-import type { Hash } from '../../types/misc.js'
+import type { Hash, LogTopic } from '../../types/misc.js'
 import type { RpcResponse } from '../../types/rpc.js'
 import {
   type GetIpcRpcClientOptions,
-  type IpcRpcClient,
   getIpcRpcClient,
+  type IpcRpcClient,
 } from '../../utils/rpc/ipc.js'
 import {
   type CreateTransportErrorType,
+  createTransport,
   type Transport,
   type TransportConfig,
-  createTransport,
 } from './createTransport.js'
 
 type IpcTransportSubscribeParameters = {
@@ -27,13 +28,27 @@ type IpcTransportSubscribeReturnType = {
 
 type IpcTransportSubscribe = {
   subscribe(
-    args: IpcTransportSubscribeParameters & {
-      /**
-       * @description Add information about compiled contracts
-       * @link https://hardhat.org/hardhat-network/docs/reference#hardhat_addcompilationresult
-       */
-      params: ['newHeads']
-    },
+    args: IpcTransportSubscribeParameters &
+      (
+        | {
+            params: ['newHeads']
+          }
+        | {
+            params: ['newPendingTransactions']
+          }
+        | {
+            params: [
+              'logs',
+              {
+                address?: Address | Address[]
+                topics?: LogTopic[]
+              },
+            ]
+          }
+        | {
+            params: ['syncing']
+          }
+      ),
   ): Promise<IpcTransportSubscribeReturnType>
 }
 

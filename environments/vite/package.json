@@ -11,9 +11,9 @@
     "viem": "file:../../src/"
   },
   "devDependencies": {
-    "@playwright/test": "1.49.1",
+    "@playwright/test": "1.55.1",
     "@types/node": "^20.8.3",
     "typescript": "^5.0.3",
-    "vite": "^5.4.8"
+    "vite": "^7.1.11"
   }
 }

@@ -179,15 +179,6 @@ export async function simulateCalls<
       ).then((x) => x.flat().filter(Boolean))
     : []
 
-  const resultsStateOverrides = stateOverrides?.map((override) => {
-    if (override.address === account?.address)
-      return {
-        ...override,
-        nonce: 0,
-      }
-    return override
-  })
-
   const blocks = await simulateBlocks(client, {
     blockNumber,
     blockTag: blockTag as undefined,
@@ -225,12 +216,11 @@ export async function simulateCalls<
         : []),
 
       {
-        calls: [...calls, {}].map((call, index) => ({
+        calls: [...calls, {}].map((call) => ({
           ...(call as Call),
           from: account?.address,
-          nonce: index,
         })) as any,
-        stateOverrides: resultsStateOverrides,
+        stateOverrides,
       },
 
       ...(traceAssetChanges

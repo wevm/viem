@@ -1,7 +1,7 @@
 import { AbiCoder } from 'ethers'
 import { bench, describe } from 'vitest'
 
-import { seaportContractConfig } from '../../../test/src/abis.js'
+import { seaportContractConfig } from '~test/abis.js'
 import { decodeAbiParameters } from './decodeAbiParameters.js'
 import { getAbiItem } from './getAbiItem.js'
 

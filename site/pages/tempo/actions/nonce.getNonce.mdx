@@ -1,0 +1,52 @@
+import ReadAccountParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `nonce.getNonce`
+
+Gets the nonce for an account and nonce key. This is useful for managing multiple nonce lanes for parallel transaction submission.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const nonce = await client.nonce.getNonce({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  nonceKey: 1n,
+})
+
+console.log('Nonce:', nonce)
+// @log: Nonce: 42n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = bigint
+```
+
+The current nonce value for the given account and nonce key.
+
+## Parameters
+
+### account
+
+- **Type:** `Address`
+
+Account address to get the nonce for.
+
+### nonceKey
+
+- **Type:** `bigint`
+
+Nonce key (must be > 0, key 0 is reserved for protocol nonces).
+
+<ReadAccountParameters />
+

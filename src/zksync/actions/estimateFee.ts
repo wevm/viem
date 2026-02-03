@@ -15,7 +15,7 @@ export type EstimateFeeParameters<
 > = SendTransactionParameters<chain, account, chainOverride>
 
 export type EstimateFeeReturnType = ZksyncFee
-
+/* @deprecated Use `eth_gasPrice` for `maxFeePerGas`, `eth_estimateGas` to get the `gasLimit`, set `maxPriorityFeePerGas` to `0`, and use `zks_gasPerPubdata` for `gasPerPubdataLimit` instead. */
 export async function estimateFee<
   chain extends ChainEIP712 | undefined,
   account extends Account | undefined,
@@ -27,10 +27,13 @@ export async function estimateFee<
   const account = account_ ? parseAccount(account_) : client.account
 
   const formatters = client.chain?.formatters
-  const formatted = formatters?.transactionRequest?.format({
-    ...request,
-    from: account?.address,
-  })
+  const formatted = formatters?.transactionRequest?.format(
+    {
+      ...request,
+      from: account?.address,
+    },
+    'estimateFee',
+  )
 
   const result = await client.request({
     method: 'zks_estimateFee',

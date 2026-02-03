@@ -1,6 +1,6 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const omni = defineChain({
+export const omni = /*#__PURE__*/ defineChain({
   id: 166,
   name: 'Omni',
   nativeCurrency: { name: 'Omni', symbol: 'OMNI', decimals: 18 },

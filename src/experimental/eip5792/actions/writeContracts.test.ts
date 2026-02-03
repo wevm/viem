@@ -1,9 +1,9 @@
 // TODO(v3): Remove this.
 
 import { expect, test } from 'vitest'
-import { wagmiContractConfig } from '~test/src/abis.js'
-import { anvilMainnet } from '../../../../test/src/anvil.js'
-import { accounts } from '../../../../test/src/constants.js'
+import { wagmiContractConfig } from '~test/abis.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { accounts } from '~test/constants.js'
 import { mine, reset } from '../../../actions/index.js'
 import { getCallsStatus } from '../../../actions/wallet/getCallsStatus.js'
 import { mainnet } from '../../../chains/index.js'
@@ -24,7 +24,9 @@ const testClient = anvilMainnet.getClient()
 
 const getClient = ({
   onRequest,
-}: { onRequest({ method, params }: any): void }) =>
+}: {
+  onRequest({ method, params }: any): void
+}) =>
   createClient({
     transport: custom({
       async request({ method, params }) {

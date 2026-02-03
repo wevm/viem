@@ -1,0 +1,74 @@
+# `reward.watchRewardDistributed`
+
+Watches for reward distributed events when rewards are distributed to token holders.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const unwatch = client.reward.watchRewardDistributed({
+  onRewardDistributed: (args, log) => {
+    console.log('Funder:', args.funder)
+    console.log('Amount:', args.amount)
+  },
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+// Later, stop watching
+unwatch()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = () => void
+```
+
+Returns a function to unsubscribe from the event.
+
+## Parameters
+
+### onRewardDistributed
+
+- **Type:** `function`
+
+```ts
+declare function onRewardDistributed(args: Args, log: Log): void
+
+type Args = {
+  /** Amount distributed */
+  amount: bigint
+  /** Address that funded the distribution */
+  funder: Address
+}
+```
+
+Callback to invoke when rewards are distributed.
+
+### token
+
+- **Type:** `Address`
+
+Address of the TIP-20 token to watch.
+
+### args (optional)
+
+- **Type:** `object`
+
+```ts
+type Args = {
+  /** Filter by funder address */
+  funder?: Address | Address[]
+}
+```
+
+Optional filters to narrow down events by funder address.

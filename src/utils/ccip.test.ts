@@ -1,19 +1,14 @@
 import { describe, expect, test } from 'vitest'
 
 import { OffchainLookupExample } from '~contracts/generated.js'
-import { createCcipServer } from '~test/src/ccip.js'
-import { accounts } from '~test/src/constants.js'
-import {
-  createHttpServer,
-  deployOffchainLookupExample,
-} from '~test/src/utils.js'
-import { getUrl } from '../errors/utils.js'
-import type { Hex } from '../types/misc.js'
-
-import { anvilMainnet } from '../../test/src/anvil.js'
-
+import { anvilMainnet } from '~test/anvil.js'
+import { createCcipServer } from '~test/ccip.js'
+import { accounts } from '~test/constants.js'
+import { createHttpServer, deployOffchainLookupExample } from '~test/utils.js'
 import { createClient } from '../clients/createClient.js'
 import { http } from '../clients/transports/http.js'
+import { getUrl } from '../errors/utils.js'
+import type { Hex } from '../types/misc.js'
 import { encodeErrorResult } from './abi/encodeErrorResult.js'
 import { encodeFunctionData } from './abi/encodeFunctionData.js'
 import { ccipRequest, offchainLookup, offchainLookupAbiItem } from './ccip.js'
@@ -28,7 +23,7 @@ describe('offchainLookup', () => {
       urls: [`${server.url}/{sender}/{data}`],
     })
 
-    // biome-ignore lint/suspicious/noAsyncPromiseExecutor:
+    // biome-ignore lint/suspicious/noAsyncPromiseExecutor: _
     const data = await new Promise<Hex>(async (resolve) => {
       try {
         const data = encodeFunctionData({
@@ -59,7 +54,7 @@ describe('offchainLookup', () => {
       urls: [`${server.url}/{sender}/{data}`],
     })
 
-    // biome-ignore lint/suspicious/noAsyncPromiseExecutor:
+    // biome-ignore lint/suspicious/noAsyncPromiseExecutor: _
     const data = await new Promise<Hex>(async (resolve) => {
       try {
         const data = encodeFunctionData({
@@ -102,7 +97,7 @@ describe('offchainLookup', () => {
       urls: [`${server.url}/{sender}/{data}`],
     })
 
-    // biome-ignore lint/suspicious/noAsyncPromiseExecutor:
+    // biome-ignore lint/suspicious/noAsyncPromiseExecutor: _
     const data = await new Promise<Hex>(async (resolve) => {
       try {
         const data = encodeFunctionData({

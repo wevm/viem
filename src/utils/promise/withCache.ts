@@ -52,7 +52,7 @@ export async function withCache<data>(
   // If the max age is 0, the cache is disabled.
   const response = cache.response.get()
   if (response && cacheTime > 0) {
-    const age = new Date().getTime() - response.created.getTime()
+    const age = Date.now() - response.created.getTime()
     if (age < cacheTime) return response.data
   }
 

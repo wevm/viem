@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, expectTypeOf, test, vi } from 'vitest'
-import { ErrorsExample } from '../../../../contracts/generated.js'
-import { wagmiContractConfig } from '../../../../test/src/abis.js'
+import { wagmiContractConfig } from '~test/abis.js'
 import {
   createVerifyingPaymasterServer,
   getSmartAccounts_06,
@@ -8,11 +7,12 @@ import {
   getSmartAccounts_08,
   getVerifyingPaymaster_07,
   getVerifyingPaymaster_08,
-} from '../../../../test/src/account-abstraction.js'
-import { anvilMainnet } from '../../../../test/src/anvil.js'
-import { bundlerMainnet } from '../../../../test/src/bundler.js'
-import { accounts } from '../../../../test/src/constants.js'
-import { deployErrorExample } from '../../../../test/src/utils.js'
+} from '~test/account-abstraction.js'
+import { anvilMainnet } from '~test/anvil.js'
+import { bundlerMainnet } from '~test/bundler.js'
+import { accounts } from '~test/constants.js'
+import { deployErrorExample } from '~test/utils.js'
+import { ErrorsExample } from '../../../../contracts/generated.js'
 import { mine, writeContract } from '../../../actions/index.js'
 import { http } from '../../../clients/transports/http.js'
 import { pad, parseEther, parseGwei } from '../../../utils/index.js'
@@ -288,7 +288,7 @@ describe('entryPointVersion: 0.8', async () => {
 
       Unable to decode signature "0x5a154675" as it was not found on the provided ABI.
       Make sure you are using the correct ABI and that the error exists on it.
-      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+      You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x5a154675.
        
        
       Request Arguments:
@@ -373,7 +373,7 @@ describe('entryPointVersion: 0.8', async () => {
 
       Unable to decode signature "0x5a154675" as it was not found on the provided ABI.
       Make sure you are using the correct ABI and that the error exists on it.
-      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+      You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x5a154675.
        
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
@@ -419,7 +419,7 @@ describe('entryPointVersion: 0.8', async () => {
 
       Unable to decode signature "0x5a154675" as it was not found on the provided ABI.
       Make sure you are using the correct ABI and that the error exists on it.
-      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+      You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x5a154675.
        
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
@@ -465,7 +465,7 @@ describe('entryPointVersion: 0.8', async () => {
 
       Unable to decode signature "0x5a154675" as it was not found on the provided ABI.
       Make sure you are using the correct ABI and that the error exists on it.
-      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+      You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x5a154675.
        
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
@@ -511,7 +511,7 @@ describe('entryPointVersion: 0.8', async () => {
 
       Unable to decode signature "0x5a154675" as it was not found on the provided ABI.
       Make sure you are using the correct ABI and that the error exists on it.
-      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+      You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x5a154675.
        
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
@@ -557,7 +557,7 @@ describe('entryPointVersion: 0.8', async () => {
 
       Unable to decode signature "0x5a154675" as it was not found on the provided ABI.
       Make sure you are using the correct ABI and that the error exists on it.
-      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+      You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x5a154675.
        
       Contract Call:
         address:   0x0000000000000000000000000000000000000000
@@ -603,7 +603,7 @@ describe('entryPointVersion: 0.8', async () => {
 
       Unable to decode signature "0x5a154675" as it was not found on the provided ABI.
       Make sure you are using the correct ABI and that the error exists on it.
-      You can look up the decoded signature here: https://openchain.xyz/signatures?query=0x5a154675.
+      You can look up the decoded signature here: https://4byte.sourcify.dev/?q=0x5a154675.
        
       Contract Call:
         address:   0x0000000000000000000000000000000000000000

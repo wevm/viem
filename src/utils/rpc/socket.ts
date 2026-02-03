@@ -12,6 +12,7 @@ type Id = string | number
 type CallbackFn = {
   onResponse: (message: any) => void
   onError?: ((error?: Error | Event | undefined) => void) | undefined
+  body?: RpcRequest
 }
 type CallbackMap = Map<Id, CallbackFn>
 
@@ -108,7 +109,8 @@ export async function getSocketRpcClient<socket extends {}>(
   const { attempts = 5, delay = 2_000 } =
     typeof reconnect === 'object' ? reconnect : {}
 
-  let socketClient = socketClientCache.get(`${key}:${url}`)
+  const id = JSON.stringify({ keepAlive, key, url, reconnect })
+  let socketClient = socketClientCache.get(id)
 
   // If the socket already exists, return it.
   if (socketClient) return socketClient as {} as SocketRpcClient<socket>
@@ -118,7 +120,7 @@ export async function getSocketRpcClient<socket extends {}>(
     undefined,
     [SocketRpcClient<socket>]
   >({
-    id: `${key}:${url}`,
+    id,
     fn: async () => {
       // Set up a cache for incoming "synchronous" requests.
       const requests = new Map<Id, CallbackFn>()
@@ -130,6 +132,30 @@ export async function getSocketRpcClient<socket extends {}>(
       let socket: Socket<{}>
       let keepAliveTimer: ReturnType<typeof setInterval> | undefined
 
+      let reconnectInProgress = false
+      function attemptReconnect() {
+        // Attempt to reconnect.
+        if (reconnect && reconnectCount < attempts) {
+          if (reconnectInProgress) return
+          reconnectInProgress = true
+          reconnectCount++
+
+          // Make sure the previous socket is definitely closed.
+          socket?.close()
+
+          setTimeout(async () => {
+            // biome-ignore lint/suspicious/noConsole: _
+            await setup().catch(console.error)
+            reconnectInProgress = false
+          }, delay)
+        }
+        // Otherwise, clear all requests and subscriptions.
+        else {
+          requests.clear()
+          subscriptions.clear()
+        }
+      }
+
       // Set up socket implementation.
       async function setup() {
         const result = await getSocket({
@@ -140,17 +166,7 @@ export async function getSocketRpcClient<socket extends {}>(
             for (const subscription of subscriptions.values())
               subscription.onError?.(new SocketClosedError({ url }))
 
-            // Attempt to reconnect.
-            if (reconnect && reconnectCount < attempts)
-              setTimeout(async () => {
-                reconnectCount++
-                await setup().catch(console.error)
-              }, delay)
-            // Otherwise, clear all requests and subscriptions.
-            else {
-              requests.clear()
-              subscriptions.clear()
-            }
+            attemptReconnect()
           },
           onError(error_) {
             error = error_
@@ -160,20 +176,7 @@ export async function getSocketRpcClient<socket extends {}>(
             for (const subscription of subscriptions.values())
               subscription.onError?.(error)
 
-            // Make sure socket is definitely closed.
-            socketClient?.close()
-
-            // Attempt to reconnect.
-            if (reconnect && reconnectCount < attempts)
-              setTimeout(async () => {
-                reconnectCount++
-                await setup().catch(console.error)
-              }, delay)
-            // Otherwise, clear all requests and subscriptions.
-            else {
-              requests.clear()
-              subscriptions.clear()
-            }
+            attemptReconnect()
           },
           onOpen() {
             error = undefined
@@ -196,6 +199,19 @@ export async function getSocketRpcClient<socket extends {}>(
           keepAliveTimer = setInterval(() => socket.ping?.(), keepAliveInterval)
         }
 
+        if (reconnect && subscriptions.size > 0) {
+          const subscriptionEntries = subscriptions.entries()
+          for (const [
+            key,
+            { onResponse, body, onError },
+          ] of subscriptionEntries) {
+            if (!body) continue
+
+            subscriptions.delete(key)
+            socketClient?.request({ body, onResponse, onError })
+          }
+        }
+
         return result
       }
       await setup()
@@ -206,7 +222,7 @@ export async function getSocketRpcClient<socket extends {}>(
         close() {
           keepAliveTimer && clearInterval(keepAliveTimer)
           socket.close()
-          socketClientCache.delete(`${key}:${url}`)
+          socketClientCache.delete(id)
         },
         get socket() {
           return socket
@@ -228,14 +244,16 @@ export async function getSocketRpcClient<socket extends {}>(
               subscriptions.set(response.result, {
                 onResponse: callback,
                 onError,
+                body,
               })
-
-            // If we are unsubscribing from a topic, we want to remove the listener.
-            if (body.method === 'eth_unsubscribe')
-              subscriptions.delete(body.params?.[0])
 
             onResponse(response)
           }
+
+          // If we are unsubscribing from a topic, remove the listener immediately
+          // to prevent it from being re-subscribed on reconnect.
+          if (body.method === 'eth_unsubscribe')
+            subscriptions.delete(body.params?.[0])
 
           requests.set(id, { onResponse: callback, onError })
           try {
@@ -270,7 +288,7 @@ export async function getSocketRpcClient<socket extends {}>(
         subscriptions,
         url,
       }
-      socketClientCache.set(`${key}:${url}`, socketClient)
+      socketClientCache.set(id, socketClient)
 
       return [socketClient as {} as SocketRpcClient<socket>]
     },

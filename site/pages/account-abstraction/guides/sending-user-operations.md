@@ -41,7 +41,8 @@ const owner = privateKeyToAccount('0x...')
  
 const account = await toCoinbaseSmartAccount({ 
   client, 
-  owners: [owner]
+  owners: [owner],
+  version: '1.1',
 }) 
 
 export const bundlerClient = createBundlerClient({
@@ -152,7 +153,8 @@ const owner = privateKeyToAccount('0x...')
 
 const account = await toCoinbaseSmartAccount({ // [!code ++] // [!code focus]
   client, // [!code ++] // [!code focus]
-  owners: [owner] // [!code ++] // [!code focus]
+  owners: [owner], // [!code ++] // [!code focus]
+  version: '1.1', // [!code ++] // [!code focus]
 }) // [!code ++] // [!code focus]
 ```
 
@@ -189,7 +191,8 @@ const owner = privateKeyToAccount('0x...')
 
 const account = await toCoinbaseSmartAccount({ 
   client, 
-  owners: [owner]
+  owners: [owner],
+  version: '1.1',
 }) 
 
 const hash = await bundlerClient.sendUserOperation({ // [!code ++] // [!code focus]
@@ -228,7 +231,8 @@ const owner = privateKeyToAccount('0x...')
 
 const account = await toCoinbaseSmartAccount({ 
   client, 
-  owners: [owner]
+  owners: [owner],
+  version: '1.1',
 }) 
 
 const bundlerClient = createBundlerClient({
@@ -330,7 +334,8 @@ const owner = privateKeyToAccount('0x...')
 
 export const account = await toCoinbaseSmartAccount({ 
   client, 
-  owners: [owner]
+  owners: [owner],
+  version: '1.1',
 }) 
 ```
 
@@ -406,7 +411,8 @@ const owner = privateKeyToAccount('0x...')
 
 export const account = await toCoinbaseSmartAccount({ 
   client, 
-  owners: [owner]
+  owners: [owner],
+  version: '1.1',
 }) 
 ```
 
