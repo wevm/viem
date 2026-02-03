@@ -97,6 +97,9 @@ export default defineConfig({
       link: 'https://x.com/wevm_dev',
     },
   ],
+  twoslash: {
+    throws: false,
+  },
   topNav: [
     { text: 'Docs', link: '/docs/getting-started', match: '/docs' },
     { text: 'Tempo', link: '/tempo', match: '/tempo' },
