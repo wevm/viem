@@ -1,5 +1,4 @@
 import * as Http from 'node:http'
-import { setTimeout } from 'node:timers/promises'
 import { createRequestListener } from '@remix-run/node-fetch-server'
 import { RpcRequest, RpcResponse, WebCryptoP256 } from 'ox'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
@@ -112,7 +111,6 @@ describe('sendTransaction', () => {
       nonceKey,
       signature,
       transactionIndex,
-      validBefore,
       ...transaction
     } = await getTransaction(client, { hash })
 
@@ -130,7 +128,6 @@ describe('sendTransaction', () => {
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
-    expect(validBefore).toBeNull()
     expect(transaction).toMatchInlineSnapshot(`
       {
         "accessList": [],
@@ -150,6 +147,7 @@ describe('sendTransaction', () => {
         "typeHex": "0x76",
         "v": undefined,
         "validAfter": null,
+        "validBefore": null,
         "value": 0n,
         "yParity": undefined,
       }
@@ -186,7 +184,6 @@ describe('sendTransaction', () => {
       nonceKey,
       signature,
       transactionIndex,
-      validBefore,
       ...transaction
     } = await getTransaction(client, { hash })
 
@@ -204,7 +201,6 @@ describe('sendTransaction', () => {
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
-    expect(validBefore).toBeNull()
     expect(transaction).toMatchInlineSnapshot(`
       {
         "accessList": [],
@@ -224,6 +220,7 @@ describe('sendTransaction', () => {
         "typeHex": "0x76",
         "v": undefined,
         "validAfter": null,
+        "validBefore": null,
         "value": 0n,
         "yParity": undefined,
       }
@@ -263,7 +260,6 @@ describe('sendTransaction', () => {
       nonceKey,
       signature,
       transactionIndex,
-      validBefore,
       ...transaction
     } = await getTransaction(client, { hash })
 
@@ -281,7 +277,6 @@ describe('sendTransaction', () => {
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
-    expect(validBefore).toBeNull()
     expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -294,6 +289,7 @@ describe('sendTransaction', () => {
           "typeHex": "0x76",
           "v": undefined,
           "validAfter": null,
+          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -328,7 +324,6 @@ describe('sendTransaction', () => {
       nonceKey,
       signature,
       transactionIndex,
-      validBefore,
       ...transaction
     } = await getTransaction(client, { hash })
 
@@ -346,29 +341,29 @@ describe('sendTransaction', () => {
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
-    expect(validBefore).toBeTypeOf('number')
     expect(transaction).toMatchInlineSnapshot(`
-      {
-        "accessList": [],
-        "authorizationList": [],
-        "calls": [
-          {
-            "data": "0x",
-            "to": "0x0000000000000000000000000000000000000000",
-            "value": 0n,
-          },
-        ],
-        "data": undefined,
-        "maxFeePerBlobGas": undefined,
-        "to": null,
-        "type": "tempo",
-        "typeHex": "0x76",
-        "v": undefined,
-        "validAfter": null,
-        "value": 0n,
-        "yParity": undefined,
-      }
-    `)
+        {
+          "accessList": [],
+          "authorizationList": [],
+          "calls": [
+            {
+              "data": "0x",
+              "to": "0x0000000000000000000000000000000000000000",
+              "value": 0n,
+            },
+          ],
+          "data": undefined,
+          "maxFeePerBlobGas": undefined,
+          "to": null,
+          "type": "tempo",
+          "typeHex": "0x76",
+          "v": undefined,
+          "validAfter": null,
+          "validBefore": null,
+          "value": 0n,
+          "yParity": undefined,
+        }
+      `)
   })
 
   test('behavior: deploy contract', async () => {
@@ -458,7 +453,6 @@ describe('sendTransaction', () => {
         nonceKey,
         signature,
         transactionIndex,
-        validBefore,
         ...transaction
       } = await getTransaction(client, {
         hash: receipt.transactionHash,
@@ -477,7 +471,6 @@ describe('sendTransaction', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
-      expect(validBefore).toBeNull()
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -497,6 +490,7 @@ describe('sendTransaction', () => {
           "typeHex": "0x76",
           "v": undefined,
           "validAfter": null,
+          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -541,7 +535,6 @@ describe('sendTransaction', () => {
         nonceKey,
         signature,
         transactionIndex,
-        validBefore,
         ...transaction
       } = await getTransaction(client, {
         hash: receipt.transactionHash,
@@ -561,7 +554,6 @@ describe('sendTransaction', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
-      expect(validBefore).toBeNull()
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -574,6 +566,7 @@ describe('sendTransaction', () => {
           "typeHex": "0x76",
           "v": undefined,
           "validAfter": null,
+          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -611,7 +604,6 @@ describe('sendTransaction', () => {
         nonceKey,
         signature,
         transactionIndex,
-        validBefore,
         ...transaction
       } = await getTransaction(client, { hash })
 
@@ -629,7 +621,6 @@ describe('sendTransaction', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
-      expect(validBefore).toBeTypeOf('number')
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -648,6 +639,7 @@ describe('sendTransaction', () => {
           "typeHex": "0x76",
           "v": undefined,
           "validAfter": null,
+          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -741,7 +733,6 @@ describe('sendTransaction', () => {
         nonceKey,
         signature,
         transactionIndex,
-        validBefore,
         ...transaction
       } = await getTransaction(client, {
         hash: receipt.transactionHash,
@@ -760,7 +751,6 @@ describe('sendTransaction', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
-      expect(validBefore).toBeNull()
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -780,6 +770,7 @@ describe('sendTransaction', () => {
           "typeHex": "0x76",
           "v": undefined,
           "validAfter": null,
+          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -943,7 +934,6 @@ describe('sendTransaction', () => {
         nonceKey,
         signature,
         transactionIndex,
-        validBefore,
         ...transaction
       } = await getTransaction(client, {
         hash: receipt.transactionHash,
@@ -962,7 +952,6 @@ describe('sendTransaction', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
-      expect(validBefore).toBeNull()
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -982,6 +971,7 @@ describe('sendTransaction', () => {
           "typeHex": "0x76",
           "v": undefined,
           "validAfter": null,
+          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -1030,7 +1020,6 @@ describe('sendTransaction', () => {
         nonceKey,
         signature,
         transactionIndex,
-        validBefore: validBefore2,
         ...transaction
       } = await getTransaction(client, {
         hash: receipt.transactionHash,
@@ -1050,7 +1039,6 @@ describe('sendTransaction', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
-      expect(validBefore2).toBeNull()
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -1063,6 +1051,7 @@ describe('sendTransaction', () => {
           "typeHex": "0x76",
           "v": undefined,
           "validAfter": null,
+          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -1104,7 +1093,6 @@ describe('sendTransaction', () => {
         nonceKey,
         signature,
         transactionIndex,
-        validBefore,
         ...transaction
       } = await getTransaction(client, { hash })
 
@@ -1122,7 +1110,6 @@ describe('sendTransaction', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
-      expect(validBefore).toBeTypeOf('number')
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -1141,6 +1128,7 @@ describe('sendTransaction', () => {
           "typeHex": "0x76",
           "v": undefined,
           "validAfter": null,
+          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -1189,13 +1177,13 @@ describe('sendTransaction', () => {
     const receipts = await Promise.all([
       sendTransactionSync(client, {
         account,
-        nonceKey: 'expiring',
+        nonceKey: 'random',
         to: '0x0000000000000000000000000000000000000000',
       }),
       sendTransactionSync(client, {
         account,
-        nonceKey: 'expiring',
-        to: '0x0000000000000000000000000000000000000001',
+        nonceKey: 'random',
+        to: '0x0000000000000000000000000000000000000000',
       }),
     ])
 
@@ -1209,63 +1197,30 @@ describe('sendTransaction', () => {
 
     await setupFeeToken(client, { account })
 
-    {
-      const receipts = await Promise.all([
-        sendTransactionSync(client, {
-          account,
-          to: '0x0000000000000000000000000000000000000000',
-        }),
-        sendTransactionSync(client, {
-          account,
-          to: '0x0000000000000000000000000000000000000001',
-        }),
-        sendTransactionSync(client, {
-          account,
-          to: '0x0000000000000000000000000000000000000002',
-        }),
-      ])
+    const receipts = await Promise.all([
+      sendTransactionSync(client, {
+        account,
+        to: '0x0000000000000000000000000000000000000000',
+      }),
+      sendTransactionSync(client, {
+        account,
+        to: '0x0000000000000000000000000000000000000000',
+      }),
+      sendTransactionSync(client, {
+        account,
+        to: '0x0000000000000000000000000000000000000000',
+      }),
+    ])
 
-      const transactions = await Promise.all([
-        getTransaction(client, { hash: receipts[0].transactionHash }),
-        getTransaction(client, { hash: receipts[1].transactionHash }),
-        getTransaction(client, { hash: receipts[2].transactionHash }),
-      ])
+    const transactions = await Promise.all([
+      getTransaction(client, { hash: receipts[0].transactionHash }),
+      getTransaction(client, { hash: receipts[1].transactionHash }),
+      getTransaction(client, { hash: receipts[2].transactionHash }),
+    ])
 
-      const maxUint256 = 2n ** 256n - 1n
-      expect(transactions[0].nonceKey).toBe(maxUint256)
-      expect(transactions[1].nonceKey).toBe(maxUint256)
-      expect(transactions[2].nonceKey).toBe(maxUint256)
-    }
-
-    await setTimeout(1000)
-
-    {
-      const receipts = await Promise.all([
-        sendTransactionSync(client, {
-          account,
-          to: '0x0000000000000000000000000000000000000000',
-        }),
-        sendTransactionSync(client, {
-          account,
-          to: '0x0000000000000000000000000000000000000001',
-        }),
-        sendTransactionSync(client, {
-          account,
-          to: '0x0000000000000000000000000000000000000002',
-        }),
-      ])
-
-      const transactions = await Promise.all([
-        getTransaction(client, { hash: receipts[0].transactionHash }),
-        getTransaction(client, { hash: receipts[1].transactionHash }),
-        getTransaction(client, { hash: receipts[2].transactionHash }),
-      ])
-
-      const maxUint256 = 2n ** 256n - 1n
-      expect(transactions[0].nonceKey).toBe(maxUint256)
-      expect(transactions[1].nonceKey).toBe(maxUint256)
-      expect(transactions[2].nonceKey).toBe(maxUint256)
-    }
+    expect(transactions[0].nonceKey).toBe(undefined)
+    expect(transactions[1].nonceKey).toBeGreaterThan(0n)
+    expect(transactions[2].nonceKey).toBeGreaterThan(0n)
   })
 })
 
@@ -1313,7 +1268,6 @@ describe('signTransaction', () => {
       nonceKey,
       signature,
       transactionIndex,
-      validBefore,
       ...transaction2
     } = await getTransaction(client, { hash })
 
@@ -1331,7 +1285,6 @@ describe('signTransaction', () => {
     expect(nonceKey).toBeDefined()
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
-    expect(validBefore).toBeTypeOf('number')
     expect(transaction2).toMatchInlineSnapshot(`
       {
         "accessList": [],
@@ -1350,6 +1303,7 @@ describe('signTransaction', () => {
         "typeHex": "0x76",
         "v": undefined,
         "validAfter": null,
+        "validBefore": null,
         "value": 0n,
         "yParity": undefined,
       }
@@ -1478,7 +1432,6 @@ describe('relay', () => {
         nonceKey,
         signature,
         transactionIndex,
-        validBefore,
         ...transaction
       } = await getTransaction(client, { hash: receipt.transactionHash })
 
@@ -1497,7 +1450,6 @@ describe('relay', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
-      expect(validBefore).toBeTypeOf('number')
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -1509,6 +1461,7 @@ describe('relay', () => {
           "typeHex": "0x76",
           "v": undefined,
           "validAfter": null,
+          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -1600,7 +1553,6 @@ describe('relay', () => {
         nonceKey,
         signature,
         transactionIndex,
-        validBefore,
         ...transaction
       } = await getTransaction(client, { hash: receipt.transactionHash })
 
@@ -1619,7 +1571,6 @@ describe('relay', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
-      expect(validBefore).toBeTypeOf('number')
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -1631,6 +1582,7 @@ describe('relay', () => {
           "typeHex": "0x76",
           "v": undefined,
           "validAfter": null,
+          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }
@@ -1695,7 +1647,6 @@ describe('relay', () => {
         nonceKey,
         signature,
         transactionIndex,
-        validBefore,
         ...transaction
       } = await getTransaction(client, { hash: receipt.transactionHash })
 
@@ -1714,7 +1665,6 @@ describe('relay', () => {
       expect(nonceKey).toBeDefined()
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
-      expect(validBefore).toBeTypeOf('number')
       expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
@@ -1726,6 +1676,7 @@ describe('relay', () => {
           "typeHex": "0x76",
           "v": undefined,
           "validAfter": null,
+          "validBefore": null,
           "value": 0n,
           "yParity": undefined,
         }

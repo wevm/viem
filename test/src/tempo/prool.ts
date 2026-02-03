@@ -69,7 +69,7 @@ export async function setup(client: Client<Transport, Chain>) {
       actions.amm.mintSync(client, {
         account: accounts[0],
         feeToken: pathUsd,
-        nonceKey: 'expiring',
+        nonceKey: 'random',
         userTokenAddress: id,
         validatorTokenAddress: pathUsd,
         validatorTokenAmount: parseUnits('1000', 6),

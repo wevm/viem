@@ -20,4 +20,3 @@ export const xgr = /*#__PURE__*/ defineChain({
     },
   },
 })
-

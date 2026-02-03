@@ -107,7 +107,7 @@ describe('withFeePayer', () => {
       const receipt = await sendTransactionSync(client, {
         account,
         feePayer: true,
-        to: '0x0000000000000000000000000000000000000001',
+        to: '0x0000000000000000000000000000000000000000',
       })
 
       expect(receipt.status).toBe('success')
@@ -118,7 +118,7 @@ describe('withFeePayer', () => {
     test('behavior: non-sponsored transaction uses default transport', async () => {
       const receipt = await sendTransactionSync(client, {
         account: accounts[0],
-        to: '0x0000000000000000000000000000000000000002',
+        to: '0x0000000000000000000000000000000000000000',
       })
 
       expect(receipt.status).toBe('success')

@@ -1,16 +1,11 @@
 import { describe, expect, test } from 'vitest'
 import { accounts, getClient, nodeEnv } from '~test/tempo/config.js'
-import {
-  generatePrivateKey,
-  privateKeyToAddress,
-} from '../../accounts/index.js'
 import { isAddress } from '../../utils/address/isAddress.js'
 import * as actions from './index.js'
 
 const account = accounts[0]
 const account2 = accounts[1]
 const validator = accounts[19]
-const randomValidatorAddress = privateKeyToAddress(generatePrivateKey())
 
 const client = getClient({
   account,
@@ -21,7 +16,7 @@ describe.runIf(nodeEnv === 'localnet')('add', () => {
     const initialCount = await actions.validator.getCount(client)
 
     const { receipt } = await actions.validator.addSync(client, {
-      newValidatorAddress: randomValidatorAddress,
+      newValidatorAddress: account2.address,
       publicKey:
         '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
       active: true,
@@ -36,9 +31,9 @@ describe.runIf(nodeEnv === 'localnet')('add', () => {
 
     // Verify the validator was added
     const validator = await actions.validator.get(client, {
-      validator: randomValidatorAddress,
+      validator: account2.address,
     })
-    expect(validator.validatorAddress).toBe(randomValidatorAddress)
+    expect(validator.validatorAddress).toBe(account2.address)
     expect(validator.active).toBe(true)
   })
 
