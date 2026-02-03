@@ -63,6 +63,8 @@ import {
   type UnsupportedProviderMethodErrorType,
   UserRejectedRequestError,
   type UserRejectedRequestErrorType,
+  WalletConnectSessionSettlementError,
+  type WalletConnectSessionSettlementErrorType,
 } from '../errors/rpc.js'
 import type { ErrorType } from '../errors/utils.js'
 import type {
@@ -109,6 +111,7 @@ export type RequestErrorType =
   | UnsupportedNonOptionalCapabilityErrorType
   | UnsupportedProviderMethodErrorType
   | UserRejectedRequestErrorType
+  | WalletConnectSessionSettlementErrorType
   | WebSocketRequestErrorType
   | WithRetryErrorType
   | ErrorType
@@ -237,6 +240,11 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
                 // https://docs.walletconnect.com/2.0/specs/clients/sign/error-codes#rejected-caip-25
                 case 5000:
                   throw new UserRejectedRequestError(err)
+
+                // WalletConnect: Session Settlement Failed
+                // https://docs.walletconnect.com/2.0/specs/clients/sign/error-codes
+                case WalletConnectSessionSettlementError.code:
+                  throw new WalletConnectSessionSettlementError(err)
 
                 default:
                   if (err_ instanceof BaseError) throw err_

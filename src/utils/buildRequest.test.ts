@@ -34,6 +34,7 @@ import {
   UnsupportedNonOptionalCapabilityError,
   UnsupportedProviderMethodError,
   UserRejectedRequestError,
+  WalletConnectSessionSettlementError,
 } from '../errors/rpc.js'
 
 import { buildRequest, shouldRetry } from './buildRequest.js'
@@ -1330,6 +1331,29 @@ describe('behavior', () => {
       ).rejects.toThrowError()
       expect(retryCount).toBe(0)
     })
+
+    test('deterministic WalletConnectSessionSettlementError', async () => {
+      let retryCount = -1
+      const server = await createHttpServer((_req, res) => {
+        retryCount++
+        res.writeHead(200, {
+          'Content-Type': 'application/json',
+        })
+        res.end(
+          JSON.stringify({
+            error: {
+              code: WalletConnectSessionSettlementError.code,
+              message: 'Session settlement failed.',
+            },
+          }),
+        )
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url))({ method: 'eth_blockNumber' }),
+      ).rejects.toThrowError()
+      expect(retryCount).toBe(0)
+    })
   })
 })
 
@@ -1428,5 +1452,11 @@ describe('shouldRetry', () => {
 
   test('LimitExceededRpcError', () => {
     expect(shouldRetry(new LimitExceededRpcError({} as any))).toBe(true)
+  })
+
+  test('WalletConnectSessionSettlementError', () => {
+    expect(
+      shouldRetry(new WalletConnectSessionSettlementError({} as any)),
+    ).toBe(false)
   })
 })
