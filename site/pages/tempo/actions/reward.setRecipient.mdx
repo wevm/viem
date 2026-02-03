@@ -11,11 +11,11 @@ Use the `reward.setRecipient` action on the Viem `client` to opt in to rewards o
 :::code-group
 
 ```ts twoslash [example.ts]
-import { client, token } from './viem.config'
+import { client } from './viem.config'
 
 const { holder, receipt, recipient } = await client.reward.setRecipientSync({
   recipient: client.account.address, // receive rewards directly
-  token,
+  token: '0x20c0000000000000000000000000000000000001',
 })
 
 console.log('Holder:', holder)
@@ -39,7 +39,7 @@ import { client, token } from './viem.config'
 
 await client.reward.setRecipientSync({
   recipient: '0x0000000000000000000000000000000000000000',
-  token,
+  token: '0x20c0000000000000000000000000000000000001',
 })
 ```
 
@@ -48,11 +48,11 @@ await client.reward.setRecipientSync({
 Set `recipient` to another address to delegate your rewards to them:
 
 ```ts twoslash
-import { client, token } from './viem.config'
+import { client } from './viem.config'
 
 await client.reward.setRecipientSync({
   recipient: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
-  token,
+  token: '0x20c0000000000000000000000000000000000001',
 })
 ```
 

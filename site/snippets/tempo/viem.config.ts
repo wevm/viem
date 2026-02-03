@@ -12,4 +12,5 @@ export const client = createClient({
   .extend(publicActions)
   .extend(walletActions)
   .extend(tempoActions())
+
 // [!endregion setup]

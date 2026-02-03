@@ -215,7 +215,7 @@ export class AbiErrorSignatureNotFoundError extends BaseError {
       [
         `Encoded error signature "${signature}" not found on ABI.`,
         'Make sure you are using the correct ABI and that the error exists on it.',
-        `You can look up the decoded signature here: https://openchain.xyz/signatures?query=${signature}.`,
+        `You can look up the decoded signature here: https://4byte.sourcify.dev/?q=${signature}.`,
       ].join('\n'),
       {
         docsPath,
@@ -249,7 +249,7 @@ export class AbiEventSignatureNotFoundError extends BaseError {
       [
         `Encoded event signature "${signature}" not found on ABI.`,
         'Make sure you are using the correct ABI and that the event exists on it.',
-        `You can look up the signature here: https://openchain.xyz/signatures?query=${signature}.`,
+        `You can look up the signature here: https://4byte.sourcify.dev/?q=${signature}.`,
       ].join('\n'),
       {
         docsPath,
@@ -331,7 +331,7 @@ export class AbiFunctionSignatureNotFoundError extends BaseError {
       [
         `Encoded function signature "${signature}" not found on ABI.`,
         'Make sure you are using the correct ABI and that the function exists on it.',
-        `You can look up the signature here: https://openchain.xyz/signatures?query=${signature}.`,
+        `You can look up the signature here: https://4byte.sourcify.dev/?q=${signature}.`,
       ].join('\n'),
       {
         docsPath,

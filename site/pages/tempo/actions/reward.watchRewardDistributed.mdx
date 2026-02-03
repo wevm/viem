@@ -7,14 +7,14 @@ Watches for reward distributed events when rewards are distributed to token hold
 :::code-group
 
 ```ts twoslash [example.ts]
-import { client, token } from './viem.config'
+import { client } from './viem.config'
 
 const unwatch = client.reward.watchRewardDistributed({
   onRewardDistributed: (args, log) => {
     console.log('Funder:', args.funder)
     console.log('Amount:', args.amount)
   },
-  token,
+  token: '0x20c0000000000000000000000000000000000001',
 })
 
 // Later, stop watching

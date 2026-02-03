@@ -12,7 +12,7 @@ Grants a role to an address. Requires the admin role for the role being granted.
 import { client } from './viem.config'
 
 const { receipt, value } = await client.token.grantRolesSync({
-  role: 'issuer',
+  roles: ['issuer'],
   token: '0x20c0000000000000000000000000000000000000',
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
 })
@@ -38,7 +38,7 @@ import { Actions } from 'viem/tempo'
 import { client } from './viem.config'
 
 const hash = await client.token.grantRoles({
-  role: 'issuer',
+  roles: ['issuer'],
   token: '0x20c0000000000000000000000000000000000000',
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
 })

@@ -12,7 +12,7 @@ Renounces one or more roles from the caller's address. [Learn more about token r
 import { client } from './viem.config'
 
 const { receipt, value } = await client.token.renounceRolesSync({
-  role: 'issuer',
+  roles: ['issuer'],
   token: '0x20c0000000000000000000000000000000000000',
 })
 
@@ -37,7 +37,7 @@ import { Actions } from 'viem/tempo'
 import { client } from './viem.config'
 
 const hash = await client.token.renounceRoles({
-  role: 'issuer',
+  roles: ['issuer'],
   token: '0x20c0000000000000000000000000000000000000',
 })
 const receipt = await client.waitForTransactionReceipt({ hash })

@@ -9,10 +9,10 @@ Calculates the pending claimable rewards for an account without modifying state.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { client, token } from './viem.config'
+import { client } from './viem.config'
 
 const pending = await client.reward.getPendingRewards({
-  token,
+  token: '0x20c0000000000000000000000000000000000001',
   account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
 })
 

@@ -133,7 +133,7 @@ jobs:
           VITE_NETWORK_TRANSPORT_MODE: ${{ matrix.transport-mode }}
           VITE_SHARD_ID: ${{ matrix.shard }}
           VITE_TEMPO_ENV: localnet
-          VITE_TEMPO_TAG: sha-888599a
+          VITE_TEMPO_TAG: latest
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4
@@ -147,8 +147,8 @@ jobs:
     strategy:
       matrix:
         node-env: 
-          # - devnet
-          - testnet
+          - devnet
+          # - testnet
           # - mainnet
     steps:
       - name: Clone repository

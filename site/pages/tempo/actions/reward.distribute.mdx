@@ -12,12 +12,12 @@ Use the `reward.distribute` action on the Viem `client` to distribute rewards to
 
 ```ts twoslash [example.ts]
 import { parseEther } from 'viem'
-import { client, token } from './viem.config'
+import { client } from './viem.config'
 
 const { amount, funder, receipt } =
   await client.reward.distributeSync({
     amount: parseEther('1000'),
-    token,
+    token: '0x20c0000000000000000000000000000000000001',
   })
 
 console.log('Amount:', amount)
@@ -41,11 +41,11 @@ If you are optimizing for performance, you should use the non-sync `reward.distr
 ```ts twoslash
 import { Actions } from 'viem/tempo'
 import { parseEther } from 'viem'
-import { client, token } from './viem.config'
+import { client } from './viem.config'
 
 const hash = await client.reward.distribute({
   amount: parseEther('1000'),
-  token,
+  token: '0x20c0000000000000000000000000000000000001',
 })
 const receipt = await client.waitForTransactionReceipt({ hash })
 

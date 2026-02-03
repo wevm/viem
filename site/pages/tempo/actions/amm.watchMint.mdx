@@ -13,8 +13,7 @@ const unwatch = client.amm.watchMint({
   onMint: (args, log) => {
     console.log('Liquidity minted:', args.liquidity)
     console.log('Sender:', args.sender)
-    console.log('User token amount:', args.userToken.amount)
-    console.log('Validator token amount:', args.validatorToken.amount)
+    console.log('User token amount:', args.amountValidatorToken)
   },
 })
 

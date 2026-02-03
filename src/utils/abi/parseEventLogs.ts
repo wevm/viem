@@ -108,27 +108,32 @@ export function parseEventLogs<
     return [parameters.eventName as string]
   })()
 
+  const abiTopics = (abi as Abi)
+    .filter((abiItem) => abiItem.type === 'event')
+    .map((abiItem) => ({
+      abi: abiItem,
+      selector: toEventSelector(abiItem),
+    }))
+
   return logs
     .map((log) => {
       // Find all matching ABI items with the same selector.
       // Multiple events can share the same selector but differ in indexed parameters
       // (e.g., ERC20 vs ERC721 Transfer events).
-      const abiItems = (abi as Abi).filter(
-        (abiItem) =>
-          abiItem.type === 'event' &&
-          log.topics[0] === toEventSelector(abiItem),
-      ) as AbiEvent[]
+      const abiItems = abiTopics.filter(
+        (abiTopic) => log.topics[0] === abiTopic.selector,
+      )
       if (abiItems.length === 0) return null
 
       // Try each matching ABI item until one successfully decodes.
       let event: { eventName: string; args: unknown } | undefined
-      let abiItem: AbiEvent | undefined
+      let abiItem: { abi: AbiEvent; selector: Address } | undefined
 
       for (const item of abiItems) {
         try {
           event = decodeEventLog({
             ...log,
-            abi: [item],
+            abi: [item.abi],
             strict: true,
           })
           abiItem = item
@@ -144,19 +149,20 @@ export function parseEventLogs<
         abiItem = abiItems[0]
         try {
           event = decodeEventLog({
-            ...log,
-            abi: [abiItem],
+            data: log.data,
+            topics: log.topics,
+            abi: [abiItem.abi],
             strict: false,
           })
         } catch {
           // If decoding still fails, return partial log in non-strict mode.
-          const isUnnamed = abiItem.inputs?.some(
+          const isUnnamed = abiItem.abi.inputs?.some(
             (x) => !('name' in x && x.name),
           )
           return {
             ...log,
             args: isUnnamed ? [] : {},
-            eventName: abiItem.name,
+            eventName: abiItem.abi.name,
           }
         }
       }
@@ -171,7 +177,7 @@ export function parseEventLogs<
       if (
         !includesArgs({
           args: event.args,
-          inputs: abiItem.inputs,
+          inputs: abiItem.abi.inputs,
           matchArgs: args,
         })
       )

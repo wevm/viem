@@ -20,11 +20,6 @@ export const zksync = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Etherscan',
-      url: 'https://era.zksync.network/',
-      apiUrl: 'https://api-era.zksync.network/api',
-    },
-    native: {
       name: 'ZKsync Explorer',
       url: 'https://explorer.zksync.io/',
       apiUrl: 'https://block-explorer-api.mainnet.zksync.io/api',

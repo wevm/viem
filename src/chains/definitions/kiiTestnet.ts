@@ -17,7 +17,7 @@ export const kiiTestnetOro = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'KiiExplorer',
-      url: 'https://explorer.kiichain.io/testnet',
+      url: 'https://testnet.explorer.kiichain.io',
     },
   },
   testnet: true,
