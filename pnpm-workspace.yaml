@@ -22,6 +22,7 @@ minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
   - '@vitest/*'
   - abitype
+  - fastify
   - glob
   - hono
   - lodash
