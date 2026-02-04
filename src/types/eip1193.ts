@@ -1206,7 +1206,7 @@ export type PublicRpcSchema = [
     Method: 'eth_sendRawTransactionSync'
     Parameters:
       | [signedTransaction: Hex]
-      | [signedTransaction: Hex, timeout: Hex]
+      | [signedTransaction: Hex, timeout: number]
     ReturnType: TransactionReceipt
   },
   /**
@@ -1778,7 +1778,7 @@ export type WalletRpcSchema = [
     Method: 'eth_sendRawTransactionSync'
     Parameters:
       | [signedTransaction: Hex]
-      | [signedTransaction: Hex, timeout: Hex]
+      | [signedTransaction: Hex, timeout: number]
     ReturnType: TransactionReceipt
   },
   /**
