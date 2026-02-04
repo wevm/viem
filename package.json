@@ -288,7 +288,9 @@
       "next@>=15.6.0-canary.0 <16.1.5": ">=16.1.5",
       "next@>=16.0.0-beta.0 <16.1.5": ">=16.1.5",
       "tar@<7.5.7": "7.5.7",
-      "react-server-dom-webpack@>=19.2.0-canary-63779030-20250328 <19.2.4": "19.2.4"
+      "react-server-dom-webpack@>=19.2.0-canary-63779030-20250328 <19.2.4": "19.2.4",
+      "fastify@<5.7.2": "5.7.2",
+      "fastify@<=5.7.2": "5.7.3"
     },
     "onlyBuiltDependencies": [
       "bun",

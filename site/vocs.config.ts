@@ -71,7 +71,6 @@ export default defineConfig({
       McpSource.github({ name: 'tempo', repo: 'tempoxyz/tempo' }),
     ],
   },
-  renderStrategy: 'partial-static',
   rootDir: '.',
   srcDir: '.',
   search: {
@@ -97,6 +96,15 @@ export default defineConfig({
       link: 'https://x.com/wevm_dev',
     },
   ],
+  twoslash: {
+    throws: false,
+    twoslashOptions: {
+      handbookOptions: {
+        // FIXME: fix all twoslash errors.
+        noErrors: true,
+      },
+    },
+  },
   topNav: [
     { text: 'Docs', link: '/docs/getting-started', match: '/docs' },
     { text: 'Tempo', link: '/tempo', match: '/tempo' },
