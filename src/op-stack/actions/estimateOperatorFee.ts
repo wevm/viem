@@ -30,6 +30,11 @@ export type EstimateOperatorFeeParameters<
   GetChainParameter<TChain, TChainOverride> & {
     /** Gas price oracle address. */
     gasPriceOracleAddress?: Address | undefined
+    /**
+     * L1 block attributes contract address.
+     * @deprecated Use `gasPriceOracleAddress` instead.
+     */
+    l1BlockAddress?: Address | undefined
   }
 
 export type EstimateOperatorFeeReturnType = bigint
