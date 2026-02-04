@@ -2,6 +2,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
+import { getAction } from '../../utils/getAction.js'
 import type { GetCallsStatusReturnType } from './getCallsStatus.js'
 import {
   type SendCallsErrorType,
@@ -75,8 +76,12 @@ export async function sendCallsSync<
   const { chain = client.chain } = parameters
   const timeout =
     parameters.timeout ?? Math.max((chain?.blockTime ?? 0) * 3, 5_000)
-  const result = await sendCalls(client, parameters)
-  const status = await waitForCallsStatus(client, {
+  const result = await getAction(client, sendCalls, 'sendCalls')(parameters)
+  const status = await getAction(
+    client,
+    waitForCallsStatus,
+    'waitForCallsStatus',
+  )({
     ...parameters,
     id: result.id,
     timeout,
