@@ -10,6 +10,7 @@ jobs:
     uses: wevm/actions/.github/workflows/issue-labeled.yml@main
     permissions:
       contents: read
+      issues: write
     with:
       needs-reproduction-body: |
         Hello @${{ github.event.issue.user.login }}. 
