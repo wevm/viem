@@ -26,6 +26,12 @@ export const getEip712Domain: EIP712DomainFn<
       chainId: transaction.chainId,
     },
     types: {
+      EIP712Domain: [
+        { name: 'name', type: 'string' },
+        { name: 'version', type: 'string' },
+        { name: 'chainId', type: 'uint256' },
+        { name: 'verifyingContract', type: 'address' },
+      ],
       Transaction: [
         { name: 'txType', type: 'uint256' },
         { name: 'from', type: 'uint256' },
