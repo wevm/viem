@@ -17,9 +17,14 @@ export const megaeth = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Blockscout',
-      url: 'https://megaeth.blockscout.com',
-      apiUrl: 'https://megaeth.blockscout.com/api',
+      name: 'Etherscan',
+      url: 'https://mega.etherscan.io',
+      apiUrl: 'https://api.etherscan.io/v2/api',
+    },
+    blockscout: {
+      name: 'Etherscan',
+      url: 'https://mega.etherscan.io',
+      apiUrl: 'https://api.etherscan.io/v2/api',
     },
   },
   contracts: {

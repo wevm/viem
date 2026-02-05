@@ -17,8 +17,9 @@ export const megaethTestnet = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'MegaETH Testnet Explorer',
-      url: 'https://www.megaexplorer.xyz/',
+      name: 'Etherscan',
+      url: 'https://testnet-mega.etherscan.io',
+      apiUrl: 'https://api.etherscan.io/v2/api',
     },
     blockscout: {
       name: 'Blockscout',
