@@ -1,5 +1,11 @@
 # viem
 
+## 2.31.13
+
+### Patch Changes
+
+- [#15](https://github.com/bob-collective/viem/pull/15) [`60b3e414bfe2fe34f110adbc53272d20d5a8a83a`](https://github.com/bob-collective/viem/commit/60b3e414bfe2fe34f110adbc53272d20d5a8a83a) Thanks [@slavastartsev](https://github.com/slavastartsev)! - chore: throw withdrawal error status
+
 ## 2.31.12
 
 ### Patch Changes
