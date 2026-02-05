@@ -290,7 +290,8 @@
       "tar@<7.5.7": "7.5.7",
       "react-server-dom-webpack@>=19.2.0-canary-63779030-20250328 <19.2.4": "19.2.4",
       "fastify@<5.7.2": "5.7.2",
-      "fastify@<=5.7.2": "5.7.3"
+      "fastify@<=5.7.2": "5.7.3",
+      "@isaacs/brace-expansion@<=5.0.0": "5.0.1"
     },
     "onlyBuiltDependencies": [
       "bun",
