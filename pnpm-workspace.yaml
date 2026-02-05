@@ -20,6 +20,7 @@ catalog:
 minimumReleaseAge: 1440
 
 minimumReleaseAgeExclude:
+  - '@modelcontextprotocol/sdk'
   - '@vitest/*'
   - abitype
   - fastify
