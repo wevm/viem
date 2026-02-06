@@ -5,8 +5,8 @@ export const stable = /*#__PURE__*/ defineChain({
   name: 'Stable Mainnet',
   blockTime: 700,
   nativeCurrency: {
-    name: 'gUSDT',
-    symbol: 'gUSDT',
+    name: 'USDT0',
+    symbol: 'USDT0',
     decimals: 18,
   },
   rpcUrls: {
