@@ -110,8 +110,8 @@ Check out the following places for more viem-related content:
 </a>
 <a href="https://tempo.xyz">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://tempo.xyz/lockup-dark.svg">
-    <img alt="tempo logo" src="https://tempo.xyz/lockup-light.svg" width="auto" height="70">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/tempo-dark.svg">
+    <img alt="tempo logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/tempo-light.svg" width="auto" height="70">
   </picture>
 </a>
 
