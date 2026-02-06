@@ -183,10 +183,10 @@ Check out the following places for more viem-related content:
     <img alt="syndicate logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/syndicate-light.svg" width="auto" height="50">
   </picture>
 </a>
-<a href="https://reservoir.tools">
+<a href="https://relay.link">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/reservoir-dark.svg">
-    <img alt="reservoir logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/reservoir-light.svg" width="auto" height="50">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/relay-dark.svg">
+    <img alt="relay logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/relay-light.svg" width="auto" height="50">
   </picture>
 </a>
 <a href="https://uniswap.org">
@@ -217,6 +217,12 @@ Check out the following places for more viem-related content:
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/gemini-dark.svg">
     <img alt="gemini logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/gemini-light.svg" width="auto" height="50">
+  </picture>
+</a>
+<a href="https://web3auth.io">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/web3auth-dark.svg">
+    <img alt="web3auth logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/web3auth-light.svg" width="auto" height="50">
   </picture>
 </a>
 
