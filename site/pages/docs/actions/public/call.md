@@ -247,6 +247,41 @@ const data = await publicClient.call({
 })
 ```
 
+### blockHash (optional)
+
+- **Type:** `Hash`
+
+The block hash to perform the call against. Implements [EIP-1898](https://eips.ethereum.org/EIPS/eip-1898).
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+const data = await publicClient.call({
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d', // [!code focus]
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+})
+```
+
+### requireCanonical (optional)
+
+- **Type:** `boolean`
+
+Whether or not to throw an error if the block is not in the canonical chain. Only allowed in conjunction with `blockHash`. Implements [EIP-1898](https://eips.ethereum.org/EIPS/eip-1898).
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+const data = await publicClient.call({
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+  requireCanonical: true, // [!code focus]
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  data: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+})
+```
+
 ### code (optional)
 
 - **Type:**
