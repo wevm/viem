@@ -1,5 +1,21 @@
 # viem
 
+## 2.45.2
+
+### Patch Changes
+
+- [#4300](https://github.com/wevm/viem/pull/4300) [`cc60e25ca55c022a56ed9e991ec23cb615593da6`](https://github.com/wevm/viem/commit/cc60e25ca55c022a56ed9e991ec23cb615593da6) Thanks [@LXPDevs](https://github.com/LXPDevs)! - Added LuxePorts chain.
+
+- [#4306](https://github.com/wevm/viem/pull/4306) [`e3901661ba0442d6ae66c4d702396e8ee247d03f`](https://github.com/wevm/viem/commit/e3901661ba0442d6ae66c4d702396e8ee247d03f) Thanks [@izharan-fireblocks](https://github.com/izharan-fireblocks)! - Added `WalletConnectSessionSettlementError` as a non-retryable transport error.
+
+- [#4301](https://github.com/wevm/viem/pull/4301) [`662215f12310c3c2b17424093d3f4922693432f2`](https://github.com/wevm/viem/commit/662215f12310c3c2b17424093d3f4922693432f2) Thanks [@xGreen-project](https://github.com/xGreen-project)! - Add XGR Mainnet chain
+
+- [#4315](https://github.com/wevm/viem/pull/4315) [`56d0920fd654ab93e89fff77769b0c982b8928d5`](https://github.com/wevm/viem/commit/56d0920fd654ab93e89fff77769b0c982b8928d5) Thanks [@jxom](https://github.com/jxom)! - Fixed `sendCallsSync` to respect client-level action overrides (e.g. smart account clients).
+
+- [#4294](https://github.com/wevm/viem/pull/4294) [`8c3fa2684820c80e8908cc799fd47815594e4871`](https://github.com/wevm/viem/commit/8c3fa2684820c80e8908cc799fd47815594e4871) Thanks [@Oighty](https://github.com/Oighty)! - Added Citrea Mainnet chain support.
+
+- [#4324](https://github.com/wevm/viem/pull/4324) [`4c797f972e8915c26c95bf1e18e084b43cd437e3`](https://github.com/wevm/viem/commit/4c797f972e8915c26c95bf1e18e084b43cd437e3) Thanks [@t0rbik](https://github.com/t0rbik)! - Fixed `gasPrice` leaking into EIP-1559 transactions when formatted by RPC.
+
 ## 2.45.1
 
 ### Patch Changes
