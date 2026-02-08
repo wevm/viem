@@ -14,7 +14,7 @@ import * as Formatters from './Formatters.js'
 import * as Concurrent from './internal/concurrent.js'
 import * as Transaction from './Transaction.js'
 
-export const maxExpirySecs = 30
+export const maxExpirySecs = 25
 
 export const chainConfig = {
   blockTime: 1_000,
