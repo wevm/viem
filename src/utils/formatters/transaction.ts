@@ -112,6 +112,8 @@ export function formatTransaction(
     delete transaction_.maxPriorityFeePerGas
   }
   if (transaction_.type === 'eip1559') delete transaction_.maxFeePerBlobGas
+  if (transaction_.type !== 'legacy' && transaction_.type !== 'eip2930')
+    transaction_.gasPrice = undefined
 
   return transaction_
 }

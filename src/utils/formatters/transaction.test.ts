@@ -572,6 +572,53 @@ test('eip1559 transaction', () => {
       "yParity": 1,
     }
   `)
+  expect(
+    formatTransaction({
+      accessList: [],
+      blockHash: '0x1',
+      blockNumber: '0x10f2c',
+      chainId: '0x1',
+      from: '0x1',
+      gas: '0x4234584',
+      gasPrice: '0x0',
+      hash: '0x1',
+      input: '0x1',
+      maxFeePerGas: '0x5',
+      maxPriorityFeePerGas: '0x1',
+      nonce: '0x1',
+      r: '0x1',
+      s: '0x1',
+      to: '0x1',
+      transactionIndex: '0x1',
+      type: '0x2',
+      v: '0x1',
+      value: '0x1',
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "accessList": [],
+      "blockHash": "0x1",
+      "blockNumber": 69420n,
+      "chainId": 1,
+      "from": "0x1",
+      "gas": 69420420n,
+      "gasPrice": undefined,
+      "hash": "0x1",
+      "input": "0x1",
+      "maxFeePerGas": 5n,
+      "maxPriorityFeePerGas": 1n,
+      "nonce": 1,
+      "r": "0x1",
+      "s": "0x1",
+      "to": "0x1",
+      "transactionIndex": 1,
+      "type": "eip1559",
+      "typeHex": "0x2",
+      "v": 1n,
+      "value": 1n,
+      "yParity": 1,
+    }
+  `)
 })
 
 test('eip4844 transaction', () => {
