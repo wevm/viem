@@ -16,6 +16,12 @@ export type GetUserOperationTypedDataReturnType = TypedDataDefinition<
 >
 
 const types = {
+  EIP712Domain: [
+    { type: 'string', name: 'name' },
+    { type: 'string', name: 'version' },
+    { type: 'uint256', name: 'chainId' },
+    { type: 'address', name: 'verifyingContract' },
+  ],
   PackedUserOperation: [
     { type: 'address', name: 'sender' },
     { type: 'uint256', name: 'nonce' },

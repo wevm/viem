@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Add XGR Mainnet chain
+Added XGR Mainnet chain.

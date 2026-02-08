@@ -2,22 +2,24 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const luxeports = /*#__PURE__*/ defineChain({
   id: 1122,
-  name: 'LuxePorts Network',
+  name: 'LuxePorts',
+  network: 'luxeports',
   nativeCurrency: {
-    decimals: 18,
     name: 'LuxePorts',
     symbol: 'LXP',
+    decimals: 18,
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.luxeports.com'],
-      webSocket: ['wss://rpc.luxeports.com/ws'],
+      http: ['https://rpc.luxeports.com', 'https://erpc.luxeports.com'],
+      webSocket: ['wss://rpc.luxeports.com/ws', 'wss://erpc.luxeports.com/ws'],
     },
   },
   blockExplorers: {
     default: {
-      name: 'LuxePorts Explorer',
-      url: 'https://explorer.luxeports.com',
+      name: 'LXPScan',
+      url: 'https://lxpscan.com',
     },
   },
+  testnet: false,
 })
