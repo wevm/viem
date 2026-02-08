@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-"Added LuxePorts chain."
+Added LuxePorts chain.

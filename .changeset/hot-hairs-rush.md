@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Adds etherscan explorer for MegaETH
+Added etherscan explorer for MegaETH.
