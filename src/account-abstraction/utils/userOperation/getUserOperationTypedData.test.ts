@@ -41,24 +41,6 @@ describe('entryPoint: 0.8', () => {
         },
         "primaryType": "PackedUserOperation",
         "types": {
-          "EIP712Domain": [
-            {
-              "name": "name",
-              "type": "string",
-            },
-            {
-              "name": "version",
-              "type": "string",
-            },
-            {
-              "name": "chainId",
-              "type": "uint256",
-            },
-            {
-              "name": "verifyingContract",
-              "type": "address",
-            },
-          ],
           "PackedUserOperation": [
             {
               "name": "sender",
@@ -152,24 +134,6 @@ describe('entryPoint: 0.8', () => {
         },
         "primaryType": "PackedUserOperation",
         "types": {
-          "EIP712Domain": [
-            {
-              "name": "name",
-              "type": "string",
-            },
-            {
-              "name": "version",
-              "type": "string",
-            },
-            {
-              "name": "chainId",
-              "type": "uint256",
-            },
-            {
-              "name": "verifyingContract",
-              "type": "address",
-            },
-          ],
           "PackedUserOperation": [
             {
               "name": "sender",
@@ -260,24 +224,6 @@ describe('entryPoint: 0.8', () => {
         },
         "primaryType": "PackedUserOperation",
         "types": {
-          "EIP712Domain": [
-            {
-              "name": "name",
-              "type": "string",
-            },
-            {
-              "name": "version",
-              "type": "string",
-            },
-            {
-              "name": "chainId",
-              "type": "uint256",
-            },
-            {
-              "name": "verifyingContract",
-              "type": "address",
-            },
-          ],
           "PackedUserOperation": [
             {
               "name": "sender",
