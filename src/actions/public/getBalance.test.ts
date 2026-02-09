@@ -10,6 +10,9 @@ import { getBalance } from './getBalance.js'
 import { getBlockNumber } from './getBlockNumber.js'
 
 const client = anvilMainnet.getClient()
+const batchClient = anvilMainnet.getClient({
+  batch: { multicall: true },
+})
 
 const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
@@ -84,4 +87,22 @@ test('gets balance at block number', async () => {
       blockNumber: currentBlockNumber - 3n,
     }),
   ).toMatchInlineSnapshot('10000000000000000000000n')
+})
+
+test('batch: gets balance via multicall', async () => {
+  await setup()
+  const balance = await getBalance(batchClient, {
+    address: targetAccount.address,
+  })
+  expect(balance).toMatchInlineSnapshot('10006000000000000000000n')
+})
+
+test('batch: batches multiple getBalance calls', async () => {
+  await setup()
+  const [balance1, balance2] = await Promise.all([
+    getBalance(batchClient, { address: targetAccount.address }),
+    getBalance(batchClient, { address: sourceAccount.address }),
+  ])
+  expect(balance1).toBeGreaterThan(0n)
+  expect(balance2).toBeGreaterThan(0n)
 })
