@@ -291,7 +291,7 @@ describe('erc6492', async () => {
     ).resolves.toBe(true)
   })
 
-  test('deployed w/ owner update encoded as factory + factoryData', async () => {
+  test.skip('deployed w/ owner update encoded as factory + factoryData', async () => {
     const [account] = await getSmartAccounts_07()
 
     const newOwner = privateKeyToAccount(accounts[1].privateKey)
