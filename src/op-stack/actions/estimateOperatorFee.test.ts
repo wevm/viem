@@ -45,10 +45,10 @@ test('args: data', async () => {
   expect(fee).toBeDefined()
 })
 
-test('args: l1BlockAddress', async () => {
+test('args: gasPriceOracleAddress', async () => {
   const fee = await estimateOperatorFee(optimismClientWithAccount, {
     ...baseTransaction,
-    l1BlockAddress: '0x4200000000000000000000000000000000000015',
+    gasPriceOracleAddress: '0x420000000000000000000000000000000000000F',
   })
   expect(fee).toBeDefined()
 })

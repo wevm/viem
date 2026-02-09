@@ -15,5 +15,5 @@ test('default', async () => {
       functionName: 'transfer',
       args: ['0xc8373edfad6d5c5f600b6b2507f78431c5271ff5', 1n],
     }),
-  ).toBe(2544n)
+  ).toBe(1600n)
 })

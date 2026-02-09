@@ -18,7 +18,7 @@ import type { TransactionRequestEIP1559 } from '../../types/transaction.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { getChainContractAddress } from '../../utils/chain/getChainContractAddress.js'
 import type { HexToNumberErrorType } from '../../utils/encoding/fromHex.js'
-import { l1BlockAbi } from '../abis.js'
+import { gasPriceOracleAbi } from '../abis.js'
 import { contracts } from '../contracts.js'
 
 export type EstimateOperatorFeeParameters<
@@ -28,7 +28,12 @@ export type EstimateOperatorFeeParameters<
 > = Omit<TransactionRequestEIP1559, 'from'> &
   GetAccountParameter<TAccount> &
   GetChainParameter<TChain, TChainOverride> & {
-    /** L1 block attributes contract address. */
+    /** Gas price oracle address. */
+    gasPriceOracleAddress?: Address | undefined
+    /**
+     * L1 block attributes contract address.
+     * @deprecated Use `gasPriceOracleAddress` instead.
+     */
     l1BlockAddress?: Address | undefined
   }
 
@@ -46,7 +51,6 @@ export type EstimateOperatorFeeErrorType =
  *
  * Operator fees are part of the Isthmus upgrade and allow OP Stack operators
  * to recover costs related to Alt-DA, ZK proving, or custom gas tokens.
- * Returns 0 for pre-Isthmus chains or when operator fee functions don't exist.
  *
  * @param client - Client to use
  * @param parameters - {@link EstimateOperatorFeeParameters}
@@ -75,45 +79,28 @@ export async function estimateOperatorFee<
   client: Client<Transport, TChain, TAccount>,
   args: EstimateOperatorFeeParameters<TChain, TAccount, TChainOverride>,
 ): Promise<EstimateOperatorFeeReturnType> {
-  const { chain = client.chain, l1BlockAddress: l1BlockAddress_ } = args
+  const {
+    chain = client.chain,
+    gasPriceOracleAddress: gasPriceOracleAddress_,
+  } = args
 
-  const l1BlockAddress = (() => {
-    if (l1BlockAddress_) return l1BlockAddress_
-    if (chain?.contracts?.l1Block)
+  const gasPriceOracleAddress = (() => {
+    if (gasPriceOracleAddress_) return gasPriceOracleAddress_
+    if (chain)
       return getChainContractAddress({
         chain,
-        contract: 'l1Block',
+        contract: 'gasPriceOracle',
       })
-    return contracts.l1Block.address
-  })()
+    return contracts.gasPriceOracle.address
+  })() as Address
 
-  // Try to get operator fee parameters. If any of these calls fail,
-  // it means this is a pre-Isthmus chain and operator fees don't apply
-  try {
-    // Get operator fee parameters first to fail fast if not supported
-    const [operatorFeeScalar, operatorFeeConstant] = await Promise.all([
-      readContract(client, {
-        abi: l1BlockAbi,
-        address: l1BlockAddress,
-        functionName: 'operatorFeeScalar',
-      }),
-      readContract(client, {
-        abi: l1BlockAbi,
-        address: l1BlockAddress,
-        functionName: 'operatorFeeConstant',
-      }),
-    ])
+  // Estimate gas for the transaction
+  const gasUsed = await estimateGas(client, args as EstimateGasParameters)
 
-    // Estimate gas for the actual transaction
-    const gasUsed = await estimateGas(client, args as EstimateGasParameters)
-
-    // Calculate operator fee: saturatingAdd(saturatingMul(gasUsed, scalar) / 1e6, constant)
-    // Using saturating arithmetic to prevent overflow
-    const scaledFee = (gasUsed * BigInt(operatorFeeScalar)) / 1_000_000n
-    return scaledFee + BigInt(operatorFeeConstant)
-  } catch {
-    // If any call fails, this is likely a pre-Isthmus chain or the contract
-    // doesn't support these functions. Return 0 for operator fee.
-    return 0n
-  }
+  return readContract(client, {
+    abi: gasPriceOracleAbi,
+    address: gasPriceOracleAddress,
+    functionName: 'getOperatorFee',
+    args: [gasUsed],
+  })
 }
