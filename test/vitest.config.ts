@@ -17,6 +17,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
       exclude: [
+        '**/account-abstraction/**',
         '**/errors/utils.ts',
         '**/zksync/**',
         '**/_cjs/**',
@@ -53,6 +54,7 @@ export default defineConfig({
               ? '**/utils/encoding/toRlp.test.ts'
               : '',
             'src/tempo/**',
+            'src/account-abstraction/**',
           ],
           include: ['src/**/*.test.ts'],
           setupFiles: [join(__dirname, './setup.ts')],

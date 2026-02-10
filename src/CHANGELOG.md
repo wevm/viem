@@ -1,5 +1,25 @@
 # viem
 
+## 2.45.2
+
+### Patch Changes
+
+- [#4300](https://github.com/wevm/viem/pull/4300) [`cc60e25ca55c022a56ed9e991ec23cb615593da6`](https://github.com/wevm/viem/commit/cc60e25ca55c022a56ed9e991ec23cb615593da6) Thanks [@LXPDevs](https://github.com/LXPDevs)! - Added LuxePorts chain.
+
+- [#4306](https://github.com/wevm/viem/pull/4306) [`e3901661ba0442d6ae66c4d702396e8ee247d03f`](https://github.com/wevm/viem/commit/e3901661ba0442d6ae66c4d702396e8ee247d03f) Thanks [@izharan-fireblocks](https://github.com/izharan-fireblocks)! - Added `WalletConnectSessionSettlementError` as a non-retryable transport error.
+
+- [#4301](https://github.com/wevm/viem/pull/4301) [`662215f12310c3c2b17424093d3f4922693432f2`](https://github.com/wevm/viem/commit/662215f12310c3c2b17424093d3f4922693432f2) Thanks [@xGreen-project](https://github.com/xGreen-project)! - Added XGR Mainnet chain.
+
+- [#4315](https://github.com/wevm/viem/pull/4315) [`56d0920fd654ab93e89fff77769b0c982b8928d5`](https://github.com/wevm/viem/commit/56d0920fd654ab93e89fff77769b0c982b8928d5) Thanks [@jxom](https://github.com/jxom)! - Fixed `sendCallsSync` to respect client-level action overrides (e.g. smart account clients).
+
+- [#4294](https://github.com/wevm/viem/pull/4294) [`8c3fa2684820c80e8908cc799fd47815594e4871`](https://github.com/wevm/viem/commit/8c3fa2684820c80e8908cc799fd47815594e4871) Thanks [@Oighty](https://github.com/Oighty)! - Added Citrea Mainnet chain support.
+
+- [#4321](https://github.com/wevm/viem/pull/4321) [`059274e18c19270e7f7e98f0b087e7986d5a6dd7`](https://github.com/wevm/viem/commit/059274e18c19270e7f7e98f0b087e7986d5a6dd7) Thanks [@highonrice](https://github.com/highonrice)! - Updated the native currency of Stable Mainnet.
+
+- [#4319](https://github.com/wevm/viem/pull/4319) [`746f5ae3b220313748bf7e0eb2d86f07848b6628`](https://github.com/wevm/viem/commit/746f5ae3b220313748bf7e0eb2d86f07848b6628) Thanks [@brotherlymite](https://github.com/brotherlymite)! - Added etherscan explorer for MegaETH.
+
+- [#4305](https://github.com/wevm/viem/pull/4305) [`428ef7cd7b4d6e9860296df841ce2f4a8d494bc1`](https://github.com/wevm/viem/commit/428ef7cd7b4d6e9860296df841ce2f4a8d494bc1) Thanks [@LxpSrDev](https://github.com/LxpSrDev)! - Added LuxePorts chain.
+
 ## 2.45.1
 
 ### Patch Changes

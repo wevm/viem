@@ -33,4 +33,5 @@ minimumReleaseAgeExclude:
   - tar
   - vitest
   - vocs
+  - webpack
 
