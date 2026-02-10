@@ -2,14 +2,19 @@ import type { Address } from 'abitype'
 
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import { multicall3Abi } from '../../constants/abis.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import { decodeFunctionResult } from '../../utils/abi/decodeFunctionResult.js'
+import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type NumberToHexErrorType,
   numberToHex,
 } from '../../utils/encoding/toHex.js'
+import { getAction } from '../../utils/getAction.js'
+import { type CallParameters, call } from './call.js'
 
 export type GetBalanceParameters = {
   /** The address of the account. */
@@ -77,6 +82,34 @@ export async function getBalance<chain extends Chain | undefined>(
     blockTag = client.experimental_blockTag ?? 'latest',
   }: GetBalanceParameters,
 ): Promise<GetBalanceReturnType> {
+  if (client.batch?.multicall && client.chain?.contracts?.multicall3) {
+    const multicall3Address = client.chain.contracts.multicall3.address
+
+    const calldata = encodeFunctionData({
+      abi: multicall3Abi,
+      functionName: 'getEthBalance',
+      args: [address],
+    })
+
+    const { data } = await getAction(
+      client,
+      call,
+      'call',
+    )({
+      to: multicall3Address,
+      data: calldata,
+      blockNumber,
+      blockTag,
+    } as unknown as CallParameters<chain>)
+
+    return decodeFunctionResult({
+      abi: multicall3Abi,
+      functionName: 'getEthBalance',
+      args: [address],
+      data: data || '0x',
+    })
+  }
+
   const blockNumberHex =
     typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
 
