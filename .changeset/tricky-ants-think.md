@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-feat: Add blockCreated field to multicall3 contract
+Added `blockCreated` field to `zkSync` multicall3 contract.
