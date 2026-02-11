@@ -1,5 +1,15 @@
 # viem
 
+## 2.45.3
+
+### Patch Changes
+
+- [#4329](https://github.com/wevm/viem/pull/4329) [`d12bb351c0b8c973b995583695606f9d083af1bb`](https://github.com/wevm/viem/commit/d12bb351c0b8c973b995583695606f9d083af1bb) Thanks [@sakulstra](https://github.com/sakulstra)! - Added multicall batching support for `getBalance` via multicall3's `getEthBalance`. When the client has `batch.multicall` enabled, `getBalance` calls are now batched via `eth_call` instead of making individual `eth_getBalance` RPC calls.
+
+- [#4333](https://github.com/wevm/viem/pull/4333) [`71a324d6b98332f4f98e10c9de4d61287de8534a`](https://github.com/wevm/viem/commit/71a324d6b98332f4f98e10c9de4d61287de8534a) Thanks [@kiyoakii](https://github.com/kiyoakii)! - Added `blockCreated` field to MegaETH Mainnet and Testnet multicall3 contract definitions.
+
+- [#4330](https://github.com/wevm/viem/pull/4330) [`aab32a4a5eb3df06cdf8eab5d6f91259d438590b`](https://github.com/wevm/viem/commit/aab32a4a5eb3df06cdf8eab5d6f91259d438590b) Thanks [@boredland](https://github.com/boredland)! - Added `blockCreated` field to `zkSync` multicall3 contract.
+
 ## 2.45.2
 
 ### Patch Changes
