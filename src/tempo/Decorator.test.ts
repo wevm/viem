@@ -29,7 +29,6 @@ describe('decorator', () => {
         "amm",
         "dex",
         "faucet",
-        "nonce",
         "fee",
         "policy",
         "reward",
