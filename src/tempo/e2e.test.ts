@@ -1213,15 +1213,15 @@ describe('sendTransaction', () => {
       const receipts = await Promise.all([
         sendTransactionSync(client, {
           account,
-          to: '0x0000000000000000000000000000000000000000',
+          to: '0x0000000000000000000000000000000000000004',
         }),
         sendTransactionSync(client, {
           account,
-          to: '0x0000000000000000000000000000000000000001',
+          to: '0x0000000000000000000000000000000000000005',
         }),
         sendTransactionSync(client, {
           account,
-          to: '0x0000000000000000000000000000000000000002',
+          to: '0x0000000000000000000000000000000000000006',
         }),
       ])
 
