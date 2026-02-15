@@ -954,6 +954,61 @@ describe.each([{ deployless: true }, { deployless: false }])(
       expect(results).toMatchSnapshot()
     })
 
+    test('args: stateOverride', async () => {
+      const client_2 = anvilMainnet.getClient({
+        batch: {
+          multicall: {
+            deployless,
+          },
+        },
+      })
+
+      const spy = vi.spyOn(client_2, 'request')
+
+      const stateOverride = [
+        {
+          address: wagmiContractAddress,
+          balance: parseEther('100'),
+        },
+      ] as const
+
+      const p = []
+      // Two calls with the same stateOverride should batch together
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+          stateOverride: [...stateOverride],
+        }),
+      )
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: usdcContractConfig.address,
+          stateOverride: [...stateOverride],
+        }),
+      )
+      // A call with a different stateOverride should go to a separate batch
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: baycContractConfig.address,
+          stateOverride: [
+            {
+              address: wagmiContractAddress,
+              balance: parseEther('200'),
+            },
+          ],
+        }),
+      )
+
+      const results = await Promise.all(p)
+
+      // 2 batched eth_call requests: one for the shared stateOverride, one for the different stateOverride
+      expect(spy).toBeCalledTimes(2)
+      expect(results).toMatchSnapshot()
+    })
+
     test.runIf(deployless === false)(
       'chain not configured with multicall',
       async () => {
