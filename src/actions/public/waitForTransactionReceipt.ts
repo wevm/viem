@@ -2,6 +2,8 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { BlockNotFoundError } from '../../errors/block.js'
 import {
+  TransactionDroppedError,
+  type TransactionDroppedErrorType,
   TransactionNotFoundError,
   TransactionReceiptNotFoundError,
   WaitForTransactionReceiptTimeoutError,
@@ -94,6 +96,7 @@ export type WaitForTransactionReceiptErrorType =
   | GetBlockErrorType
   | GetTransactionErrorType
   | GetTransactionReceiptErrorType
+  | TransactionDroppedErrorType
   | WatchBlockNumberErrorType
   | WaitForTransactionReceiptTimeoutErrorType
   | ErrorType
@@ -165,6 +168,7 @@ export async function waitForTransactionReceipt<
   let replacedTransaction: GetTransactionReturnType<chain> | undefined
   let receipt: GetTransactionReceiptReturnType<chain> | undefined
   let retrying = false
+  let notFoundCount = 0
 
   let _unobserve: () => void
   let _unwatch: () => void
@@ -281,6 +285,22 @@ export async function waitForTransactionReceipt<
             ) {
               if (!transaction) {
                 retrying = false
+
+                // When replacement checking is enabled and the transaction
+                // cannot be found after multiple consecutive blocks, it has
+                // likely been dropped from the mempool (e.g. evicted during
+                // a gas spike or replaced by a different transaction with
+                // the same nonce).
+                if (checkReplacement) {
+                  notFoundCount++
+                  if (notFoundCount > retryCount) {
+                    done(() =>
+                      emit.reject(new TransactionDroppedError({ hash })),
+                    )
+                    return
+                  }
+                }
+
                 return
               }
 

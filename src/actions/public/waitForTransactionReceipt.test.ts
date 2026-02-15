@@ -3,7 +3,10 @@ import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { prepareTransactionRequest } from '../../actions/index.js'
-import { WaitForTransactionReceiptTimeoutError } from '../../errors/transaction.js'
+import {
+  TransactionDroppedError,
+  WaitForTransactionReceiptTimeoutError,
+} from '../../errors/transaction.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
 import { keccak256 } from '../../utils/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
@@ -18,6 +21,7 @@ import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 import * as getBlock from './getBlock.js'
 import * as getTransactionModule from './getTransaction.js'
+import * as getTransactionReceiptModule from './getTransactionReceipt.js'
 import { waitForTransactionReceipt } from './waitForTransactionReceipt.js'
 
 const client = anvilMainnet.getClient()
@@ -656,5 +660,107 @@ describe('errors', () => {
         })(),
       ]),
     ).rejects.toThrowErrorMatchingInlineSnapshot('[Error: foo]')
+  })
+})
+
+describe('dropped transactions', () => {
+  test('rejects with TransactionDroppedError when transaction is evicted from mempool', async () => {
+    setup()
+
+    const getTransaction = vi.spyOn(getTransactionModule, 'getTransaction')
+    const getReceipt = vi.spyOn(
+      getTransactionReceiptModule,
+      'getTransactionReceipt',
+    )
+
+    // Simulate a transaction that was evicted from the mempool:
+    // both getTransaction and getTransactionReceipt consistently fail.
+    const fakeHash =
+      '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef' as const
+
+    getTransaction.mockRejectedValue(
+      new (
+        await import('../../errors/transaction.js')
+      ).TransactionNotFoundError({ hash: fakeHash }),
+    )
+    getReceipt.mockRejectedValue(
+      new (
+        await import('../../errors/transaction.js')
+      ).TransactionReceiptNotFoundError({ hash: fakeHash }),
+    )
+
+    await expect(() =>
+      waitForTransactionReceipt(client, {
+        hash: fakeHash,
+        retryCount: 2,
+        pollingInterval: 100,
+        timeout: 30_000,
+      }),
+    ).rejects.toThrowError(TransactionDroppedError)
+
+    getTransaction.mockRestore()
+    getReceipt.mockRestore()
+  })
+
+  test('does not reject prematurely when transaction appears after initial failures', async () => {
+    setup()
+
+    const getTransaction = vi.spyOn(getTransactionModule, 'getTransaction')
+
+    // First, send a real transaction.
+    const hash = await sendTransaction(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    // Mock getTransaction to fail twice (simulating slow RPC propagation),
+    // then fall through to the real implementation.
+    const txNotFound = new (
+      await import('../../errors/transaction.js')
+    ).TransactionNotFoundError({ hash })
+    getTransaction
+      .mockRejectedValueOnce(txNotFound)
+      .mockRejectedValueOnce(txNotFound)
+
+    const { status } = await waitForTransactionReceipt(client, {
+      hash,
+      retryCount: 3,
+      pollingInterval: 100,
+    })
+    expect(status).toBe('success')
+
+    getTransaction.mockRestore()
+  })
+
+  test('checkReplacement: false does not trigger drop detection', async () => {
+    setup()
+
+    const getReceipt = vi.spyOn(
+      getTransactionReceiptModule,
+      'getTransactionReceipt',
+    )
+
+    const fakeHash =
+      '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef' as const
+
+    getReceipt.mockRejectedValue(
+      new (
+        await import('../../errors/transaction.js')
+      ).TransactionReceiptNotFoundError({ hash: fakeHash }),
+    )
+
+    // With checkReplacement: false, dropped tx detection is disabled.
+    // The function should fall through to the timeout instead.
+    await expect(() =>
+      waitForTransactionReceipt(client, {
+        hash: fakeHash,
+        checkReplacement: false,
+        timeout: 2000,
+        pollingInterval: 100,
+      }),
+    ).rejects.toThrowError(WaitForTransactionReceiptTimeoutError)
+
+    getReceipt.mockRestore()
   })
 })
