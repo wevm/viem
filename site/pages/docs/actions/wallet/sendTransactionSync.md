@@ -83,9 +83,9 @@ export const walletClient = createWalletClient({
 
 ## Returns
 
-[`Hash`](/docs/glossary/types#hash)
+[`TransactionReceipt`](/docs/glossary/types#transaction-receipt)
 
-The [Transaction](/docs/glossary/terms#transaction) hash.
+The [Transaction receipt](/docs/glossary/terms#transaction-receipt).
 
 ## Parameters
 
