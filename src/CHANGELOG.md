@@ -1,5 +1,11 @@
 # viem
 
+## 2.46.1
+
+### Patch Changes
+
+- [`44cbba75ab219c4e297f6cfd21c04f47548585e2`](https://github.com/wevm/viem/commit/44cbba75ab219c4e297f6cfd21c04f47548585e2) Thanks [@jxom](https://github.com/jxom)! - Removed Ekta chain.
+
 ## 2.46.0
 
 ### Minor Changes
