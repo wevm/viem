@@ -248,6 +248,27 @@ export class TransactionReceiptNotFoundError extends BaseError {
   }
 }
 
+export type TransactionDroppedErrorType = TransactionDroppedError & {
+  name: 'TransactionDroppedError'
+}
+export class TransactionDroppedError extends BaseError {
+  constructor({ hash }: { hash: Hash }) {
+    super(
+      `Transaction with hash "${hash}" could not be found on the network. The transaction may have been dropped from the mempool.`,
+      {
+        metaMessages: [
+          'This can happen when:',
+          '- The transaction fee was too low and it was evicted from the mempool during a gas spike',
+          '- The transaction was replaced by another transaction with the same nonce',
+          ' ',
+          'If the transaction was replaced, use `waitForTransactionReceipt` with the new transaction hash instead.',
+        ],
+        name: 'TransactionDroppedError',
+      },
+    )
+  }
+}
+
 export type TransactionReceiptRevertedErrorType =
   TransactionReceiptRevertedError & {
     name: 'TransactionReceiptRevertedError'
