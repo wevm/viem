@@ -1,5 +1,22 @@
 # viem
 
+## 2.46.0
+
+### Minor Changes
+
+- [#4304](https://github.com/wevm/viem/pull/4304) [`b6b50d40fb6bbadc851377b74b2dd4da584958b0`](https://github.com/wevm/viem/commit/b6b50d40fb6bbadc851377b74b2dd4da584958b0) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`viem/tempo`):** Renamed `nonceKey: 'random'` to `nonceKey: 'expiring'` to align with [TIP-1009](https://docs.tempo.xyz/protocol/tips/tip-1009) terminology.
+
+  TIP-1009 defines "expiring nonces" as time-based replay protection using `validBefore` timestamps. The name `'expiring'` better describes the mechanism than `'random'`.
+
+  ```diff
+  await sendTransaction(client, {
+    account,
+  - nonceKey: 'random',
+  + nonceKey: 'expiring',
+    to: '0x...',
+  })
+  ```
+
 ## 2.45.3
 
 ### Patch Changes
