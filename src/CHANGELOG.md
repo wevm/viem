@@ -1,5 +1,11 @@
 # viem
 
+## 2.46.2
+
+### Patch Changes
+
+- [`1a10fb7812cc13bd72495552c4a590aa5ce8cf15`](https://github.com/wevm/viem/commit/1a10fb7812cc13bd72495552c4a590aa5ce8cf15) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Removed fee payer magic in favor of pure support for `0x78`-prefixed fee payer envelopes.
+
 ## 2.46.1
 
 ### Patch Changes
