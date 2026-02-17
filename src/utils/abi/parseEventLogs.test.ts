@@ -1180,3 +1180,135 @@ test('args: strict', async () => {
     }
   `)
 })
+
+describe('RpcLog inputs', () => {
+  test('formats hex-encoded RpcLog fields to native types', () => {
+    const rpcLog = {
+      address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        '0x0000000000000000000000009a772018fbd77fcd2d25657e5c547baff3fd7d16',
+        '0x00000000000000000000000051c72848c68a965f66fa7a88855f9f7784502a7f',
+      ],
+      data: '0x0000000000000000000000000000000000000000000000000000001c0a6ed6ca',
+      blockHash:
+        '0xcefce01338b9da7553647cf3912ae562abaa0139fc7360f1ca279a609473ef3f',
+      blockNumber: '0xa' as const,
+      blockTimestamp: '0x64' as const,
+      transactionHash:
+        '0x5a85da72e82150fc8272f4baa637f0bb9e5b7159912650f2c11f45e7a2b6d1a5',
+      transactionIndex: '0x5' as const,
+      logIndex: '0x3' as const,
+      removed: false,
+    }
+
+    const [log] = parseEventLogs({
+      abi,
+      logs: [rpcLog],
+    })
+
+    // blockNumber should be bigint, not hex string
+    expect(log.blockNumber).toBe(10n)
+    expect(typeof log.blockNumber).toBe('bigint')
+
+    // blockTimestamp should be bigint, not hex string
+    expect(log.blockTimestamp).toBe(100n)
+    expect(typeof log.blockTimestamp).toBe('bigint')
+
+    // logIndex should be number, not hex string
+    expect(log.logIndex).toBe(3)
+    expect(typeof log.logIndex).toBe('number')
+
+    // transactionIndex should be number, not hex string
+    expect(log.transactionIndex).toBe(5)
+    expect(typeof log.transactionIndex).toBe('number')
+
+    // decoded event data should still work
+    expect(log.eventName).toBe('Transfer')
+    expect(log.args).toEqual({
+      from: '0x9a772018FbD77fcD2d25657e5C547BAfF3Fd7D16',
+      to: '0x51C72848c68a965f66FA7a88855F9f7784502a7F',
+      value: 120434120394n,
+    })
+  })
+
+  test('already-formatted Log inputs are passed through unchanged', () => {
+    const formattedLog: Log = {
+      address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        '0x0000000000000000000000009a772018fbd77fcd2d25657e5c547baff3fd7d16',
+        '0x00000000000000000000000051c72848c68a965f66fa7a88855f9f7784502a7f',
+      ],
+      data: '0x0000000000000000000000000000000000000000000000000000001c0a6ed6ca',
+      blockHash:
+        '0xcefce01338b9da7553647cf3912ae562abaa0139fc7360f1ca279a609473ef3f',
+      blockNumber: 22263618n,
+      blockTimestamp: 1744590239n,
+      transactionHash:
+        '0x5a85da72e82150fc8272f4baa637f0bb9e5b7159912650f2c11f45e7a2b6d1a5',
+      transactionIndex: 0,
+      logIndex: 0,
+      removed: false,
+    }
+
+    const [log] = parseEventLogs({
+      abi,
+      logs: [formattedLog],
+    })
+
+    expect(log.blockNumber).toBe(22263618n)
+    expect(log.logIndex).toBe(0)
+    expect(log.transactionIndex).toBe(0)
+    expect(log.eventName).toBe('Transfer')
+  })
+
+  test('handles mixed RpcLog and Log inputs', () => {
+    const rpcLog = {
+      address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        '0x0000000000000000000000009a772018fbd77fcd2d25657e5c547baff3fd7d16',
+        '0x00000000000000000000000051c72848c68a965f66fa7a88855f9f7784502a7f',
+      ],
+      data: '0x0000000000000000000000000000000000000000000000000000001c0a6ed6ca',
+      blockHash:
+        '0xcefce01338b9da7553647cf3912ae562abaa0139fc7360f1ca279a609473ef3f',
+      blockNumber: '0x1' as const,
+      transactionHash:
+        '0x5a85da72e82150fc8272f4baa637f0bb9e5b7159912650f2c11f45e7a2b6d1a5',
+      transactionIndex: '0x0' as const,
+      logIndex: '0x0' as const,
+      removed: false,
+    }
+
+    const formattedLog: Log = {
+      address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+      topics: [
+        '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef',
+        '0x0000000000000000000000009a772018fbd77fcd2d25657e5c547baff3fd7d16',
+        '0x00000000000000000000000051c72848c68a965f66fa7a88855f9f7784502a7f',
+      ],
+      data: '0x0000000000000000000000000000000000000000000000000000001c0a6ed6ca',
+      blockHash:
+        '0xcefce01338b9da7553647cf3912ae562abaa0139fc7360f1ca279a609473ef3f',
+      blockNumber: 2n,
+      transactionHash:
+        '0xcdd096880f66c302c214338b8f860f39757aa10bc5f14561b21a42be88ef3f6a',
+      transactionIndex: 0,
+      logIndex: 1,
+      removed: false,
+    }
+
+    const parsedLogs = parseEventLogs({
+      abi,
+      logs: [rpcLog, formattedLog],
+    })
+
+    expect(parsedLogs).toHaveLength(2)
+    expect(typeof parsedLogs[0].blockNumber).toBe('bigint')
+    expect(typeof parsedLogs[1].blockNumber).toBe('bigint')
+    expect(parsedLogs[0].blockNumber).toBe(1n)
+    expect(parsedLogs[1].blockNumber).toBe(2n)
+  })
+})
