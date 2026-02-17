@@ -294,7 +294,8 @@
       "@isaacs/brace-expansion@<=5.0.0": "5.0.1",
       "@modelcontextprotocol/sdk@>=1.10.0 <=1.25.3": "1.26.0",
       "webpack@>=5.49.0 <=5.104.0": "5.104.1",
-      "qs@<=6.14.1": "6.14.2"
+      "qs@<=6.14.1": "6.14.2",
+      "ajv@<8.18.0": "8.18.0"
     },
     "onlyBuiltDependencies": [
       "bun",
