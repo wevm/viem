@@ -140,6 +140,7 @@ export type TransactionSerializableTempo<
     chainId: number
     feeToken?: Address | bigint | undefined
     feePayerSignature?: viem_Signature | null | undefined
+    from?: Address | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     nonceKey?: quantity | undefined
     signature?: SignatureEnvelope.SignatureEnvelope<quantity, index> | undefined
@@ -153,6 +154,7 @@ export type TransactionSerialized<
 > = viem_TransactionSerialized<type> | TransactionSerializedTempo
 
 export type TransactionSerializedTempo = `0x76${string}`
+export type TransactionSerializedFeePayer = `0x78${string}`
 
 export type TransactionType = viem_TransactionType | 'tempo'
 
@@ -191,16 +193,8 @@ export function deserialize<
   const serialized extends TransactionSerializedGeneric,
 >(serializedTransaction: serialized): deserialize.ReturnValue<serialized> {
   const type = Hex.slice(serializedTransaction, 0, 1)
-  if (type === '0x76') {
-    const from =
-      Hex.slice(serializedTransaction, -6) === '0xfeefeefeefee'
-        ? Hex.slice(serializedTransaction, -26, -6)
-        : undefined
-    return {
-      ...deserializeTempo(serializedTransaction as `0x76${string}`),
-      from,
-    } as never
-  }
+  if (type === '0x76' || type === '0x78')
+    return deserializeTempo(serializedTransaction as `0x76${string}`) as never
   return viem_parseTransaction(serializedTransaction) as never
 }
 
@@ -210,7 +204,9 @@ export declare namespace deserialize {
       TransactionSerializedGeneric = TransactionSerializedGeneric,
   > = serialized extends TransactionSerializedTempo
     ? TransactionSerializableTempo
-    : ParseTransactionReturnType<serialized>
+    : serialized extends TransactionSerializedFeePayer
+      ? TransactionSerializableTempo
+      : ParseTransactionReturnType<serialized>
 }
 
 export async function serialize(
@@ -359,16 +355,15 @@ async function serializeTempo(
   }
 
   if (feePayer === true) {
-    const serialized = TxTempo.serialize(transaction_ox, {
+    if (signature)
+      return TxTempo.serialize(transaction_ox, {
+        format: 'feePayer',
+        sender: transaction.from,
+        signature,
+      })
+    return TxTempo.serialize(transaction_ox, {
       feePayerSignature: null,
-      signature,
     })
-    // if the transaction is ready to be sent off (signed), add the sender
-    // and a fee marker to the serialized transaction, so the fee payer proxy
-    // can infer the sender address.
-    if (transaction.from && signature)
-      return Hex.concat(serialized, transaction.from, '0xfeefeefeefee')
-    return serialized
   }
 
   return TxTempo.serialize(

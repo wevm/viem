@@ -1395,12 +1395,13 @@ describe('relay', () => {
           )
 
         const serialized = request.params?.[0] as `0x76${string}`
-        if (!serialized.startsWith('0x76'))
+        if (!serialized.startsWith('0x76') && !serialized.startsWith('0x78'))
           return Response.json(
             RpcResponse.from(
               {
                 error: new RpcResponse.InvalidParamsError({
-                  message: 'service only supports `0x76` transactions',
+                  message:
+                    'service only supports `0x76` and `0x78` transactions',
                 }),
               },
               { request },
