@@ -1,5 +1,44 @@
 # viem
 
+## 2.46.2
+
+### Patch Changes
+
+- [`1a10fb7812cc13bd72495552c4a590aa5ce8cf15`](https://github.com/wevm/viem/commit/1a10fb7812cc13bd72495552c4a590aa5ce8cf15) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Removed fee payer magic in favor of pure support for `0x78`-prefixed fee payer envelopes.
+
+## 2.46.1
+
+### Patch Changes
+
+- [`44cbba75ab219c4e297f6cfd21c04f47548585e2`](https://github.com/wevm/viem/commit/44cbba75ab219c4e297f6cfd21c04f47548585e2) Thanks [@jxom](https://github.com/jxom)! - Removed Ekta chain.
+
+## 2.46.0
+
+### Minor Changes
+
+- [#4304](https://github.com/wevm/viem/pull/4304) [`b6b50d40fb6bbadc851377b74b2dd4da584958b0`](https://github.com/wevm/viem/commit/b6b50d40fb6bbadc851377b74b2dd4da584958b0) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`viem/tempo`):** Renamed `nonceKey: 'random'` to `nonceKey: 'expiring'` to align with [TIP-1009](https://docs.tempo.xyz/protocol/tips/tip-1009) terminology.
+
+  TIP-1009 defines "expiring nonces" as time-based replay protection using `validBefore` timestamps. The name `'expiring'` better describes the mechanism than `'random'`.
+
+  ```diff
+  await sendTransaction(client, {
+    account,
+  - nonceKey: 'random',
+  + nonceKey: 'expiring',
+    to: '0x...',
+  })
+  ```
+
+## 2.45.3
+
+### Patch Changes
+
+- [#4329](https://github.com/wevm/viem/pull/4329) [`d12bb351c0b8c973b995583695606f9d083af1bb`](https://github.com/wevm/viem/commit/d12bb351c0b8c973b995583695606f9d083af1bb) Thanks [@sakulstra](https://github.com/sakulstra)! - Added multicall batching support for `getBalance` via multicall3's `getEthBalance`. When the client has `batch.multicall` enabled, `getBalance` calls are now batched via `eth_call` instead of making individual `eth_getBalance` RPC calls.
+
+- [#4333](https://github.com/wevm/viem/pull/4333) [`71a324d6b98332f4f98e10c9de4d61287de8534a`](https://github.com/wevm/viem/commit/71a324d6b98332f4f98e10c9de4d61287de8534a) Thanks [@kiyoakii](https://github.com/kiyoakii)! - Added `blockCreated` field to MegaETH Mainnet and Testnet multicall3 contract definitions.
+
+- [#4330](https://github.com/wevm/viem/pull/4330) [`aab32a4a5eb3df06cdf8eab5d6f91259d438590b`](https://github.com/wevm/viem/commit/aab32a4a5eb3df06cdf8eab5d6f91259d438590b) Thanks [@boredland](https://github.com/boredland)! - Added `blockCreated` field to `zkSync` multicall3 contract.
+
 ## 2.45.2
 
 ### Patch Changes

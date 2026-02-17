@@ -30,6 +30,7 @@ minimumReleaseAgeExclude:
   - lodash-es
   - ox
   - prool
+  - qs
   - tar
   - vitest
   - vocs

@@ -1816,6 +1816,23 @@ test('exports abis', () => {
           "type": "function",
         },
         {
+          "inputs": [
+            {
+              "name": "addr",
+              "type": "address",
+            },
+          ],
+          "name": "getEthBalance",
+          "outputs": [
+            {
+              "name": "balance",
+              "type": "uint256",
+            },
+          ],
+          "stateMutability": "view",
+          "type": "function",
+        },
+        {
           "inputs": [],
           "name": "getCurrentBlockTimestamp",
           "outputs": [

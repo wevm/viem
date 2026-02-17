@@ -81,15 +81,19 @@ describe('deserialize', () => {
     expect(deserialized.calls).toBeDefined()
   })
 
-  test('behavior: tempo transaction with `from`', async () => {
+  test('behavior: tempo transaction in fee payer format', async () => {
     const request = await prepareTransactionRequest(client, {
       to: '0x0000000000000000000000000000000000000000',
       feePayer: true,
     })
     const serialized = await signTransaction(client, request)
-    const deserialized = Transaction.deserialize(serialized)
+    expect(serialized.startsWith('0x78')).toBe(true)
+    const deserialized = Transaction.deserialize(serialized as `0x78${string}`)
     expect(deserialized.type).toBe('tempo')
-    expect((deserialized as { from?: string }).from).toBeDefined()
+    expect(
+      (deserialized as { feePayerSignature: null }).feePayerSignature,
+    ).toBeNull()
+    expect(deserialized.from).toBe(accounts.at(0)!.address.toLowerCase())
   })
 
   test('behavior: non-tempo transaction', async () => {
@@ -199,7 +203,7 @@ describe('serialize', () => {
     expect(serialized.startsWith('0x76')).toBe(true)
   })
 
-  test('behavior: serializes with feePayer: true and signature adds from marker', async () => {
+  test('behavior: serializes with feePayer: true and signature uses feePayer format', async () => {
     const serialized = await Transaction.serialize(
       {
         chainId: 1,
@@ -209,7 +213,7 @@ describe('serialize', () => {
       },
       { type: 'secp256k1', signature: { r: 1n, s: 1n, yParity: 0 } },
     )
-    expect(serialized.endsWith('feefeefeefee')).toBe(true)
+    expect(serialized.startsWith('0x78')).toBe(true)
   })
 
   test('behavior: serializes with feePayer as object (co-signed)', async () => {
