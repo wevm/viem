@@ -93,8 +93,6 @@ Relying Party ID.
 // @noErrors
 import { createWebAuthnCredential, toWebAuthnAccount } from 'viem/account-abstraction'
 // ---cut---
-import * as passkey from 'react-native-passkeys' // [!code focus]
-
 const credential = await createWebAuthnCredential({
   name: 'Example',
 })
