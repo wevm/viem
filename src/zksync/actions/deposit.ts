@@ -562,7 +562,7 @@ async function approveTokens<
   if (isAddressEqual(token, ethAddressInContracts)) {
     // Deposit ETH on custom chain
     if (approveBaseToken) {
-      const overrides = typeof approveToken === 'boolean' ? {} : approveToken
+      const overrides = typeof approveBaseToken === 'boolean' ? {} : approveBaseToken
       const allowance = await getL1Allowance(client, {
         token: baseToken,
         bridgeAddress,
@@ -616,7 +616,7 @@ async function approveTokens<
 
   // Deposit token on custom chain
   if (approveBaseToken) {
-    const overrides = typeof approveToken === 'boolean' ? {} : approveToken
+    const overrides = typeof approveBaseToken === 'boolean' ? {} : approveBaseToken
     const allowance = await getL1Allowance(client, {
       token: baseToken,
       bridgeAddress,
