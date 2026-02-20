@@ -1,5 +1,11 @@
 # viem
 
+## 2.46.3
+
+### Patch Changes
+
+- [`cbcd16bb9480881537df5a4f922f9f4e2cc9c52f`](https://github.com/wevm/viem/commit/cbcd16bb9480881537df5a4f922f9f4e2cc9c52f) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Exported `from` from `Account`.
+
 ## 2.46.2
 
 ### Patch Changes
