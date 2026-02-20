@@ -29,7 +29,10 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
-import type { RpcTransactionRequest } from '../../types/rpc.js'
+import type {
+  RpcStateOverride,
+  RpcTransactionRequest,
+} from '../../types/rpc.js'
 import type { StateOverride } from '../../types/stateOverride.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { ExactPartial, UnionOmit } from '../../types/utils.js'
@@ -247,17 +250,13 @@ export async function call<chain extends Chain | undefined>(
       'call',
     ) as TransactionRequest
 
-    if (
-      batch &&
-      shouldPerformMulticall({ request }) &&
-      !rpcStateOverride &&
-      !rpcBlockOverrides
-    ) {
+    if (batch && shouldPerformMulticall({ request }) && !rpcBlockOverrides) {
       try {
         return await scheduleMulticall(client, {
           ...request,
           blockNumber,
           blockTag,
+          rpcStateOverride,
         } as unknown as ScheduleMulticallParameters<chain>)
       } catch (err) {
         if (
@@ -336,6 +335,7 @@ type ScheduleMulticallParameters<chain extends Chain | undefined> = Pick<
   data: Hex
   multicallAddress?: Address | undefined
   to: Address
+  rpcStateOverride?: RpcStateOverride | undefined
 }
 
 type ScheduleMulticallErrorType =
@@ -360,6 +360,7 @@ async function scheduleMulticall<chain extends Chain | undefined>(
     blockNumber,
     blockTag = client.experimental_blockTag ?? 'latest',
     data,
+    rpcStateOverride,
     to,
   } = args
 
@@ -380,8 +381,12 @@ async function scheduleMulticall<chain extends Chain | undefined>(
     typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
   const block = blockNumberHex || blockTag
 
+  const stateOverrideKey = rpcStateOverride
+    ? `.${JSON.stringify(rpcStateOverride)}`
+    : ''
+
   const { schedule } = createBatchScheduler({
-    id: `${client.uid}.${block}`,
+    id: `${client.uid}.${block}${stateOverrideKey}`,
     wait,
     shouldSplitBatch(args) {
       const size = args.reduce((size, { data }) => size + (data.length - 2), 0)
@@ -407,19 +412,34 @@ async function scheduleMulticall<chain extends Chain | undefined>(
 
       const data = await client.request({
         method: 'eth_call',
-        params: [
-          {
-            ...(multicallAddress === null
-              ? {
-                  data: toDeploylessCallViaBytecodeData({
-                    code: multicall3Bytecode,
-                    data: calldata,
-                  }),
-                }
-              : { to: multicallAddress, data: calldata }),
-          },
-          block,
-        ],
+        params: rpcStateOverride
+          ? [
+              {
+                ...(multicallAddress === null
+                  ? {
+                      data: toDeploylessCallViaBytecodeData({
+                        code: multicall3Bytecode,
+                        data: calldata,
+                      }),
+                    }
+                  : { to: multicallAddress, data: calldata }),
+              },
+              block,
+              rpcStateOverride,
+            ]
+          : [
+              {
+                ...(multicallAddress === null
+                  ? {
+                      data: toDeploylessCallViaBytecodeData({
+                        code: multicall3Bytecode,
+                        data: calldata,
+                      }),
+                    }
+                  : { to: multicallAddress, data: calldata }),
+              },
+              block,
+            ],
       })
 
       return decodeFunctionResult({
