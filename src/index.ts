@@ -1015,6 +1015,8 @@ export {
   type InvalidSerializedTransactionTypeErrorType,
   InvalidStorageKeySizeError,
   type InvalidStorageKeySizeErrorType,
+  TransactionDroppedError,
+  type TransactionDroppedErrorType,
   TransactionExecutionError,
   type TransactionExecutionErrorType,
   TransactionNotFoundError,
