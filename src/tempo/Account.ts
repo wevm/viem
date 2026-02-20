@@ -57,6 +57,31 @@ export type AccessKeyAccount = Account_base<'accessKey'> & {
 
 export type Account = OneOf<RootAccount | AccessKeyAccount>
 
+/** Instantiates an Account. */
+export function from<const parameters extends from.Parameters>(
+  parameters: parameters | from.Parameters,
+): from.ReturnValue<parameters> {
+  const { access } = parameters
+  if (access) return fromAccessKey(parameters) as never
+  return fromRoot(parameters) as never
+}
+
+export declare namespace from {
+  export type Parameters = OneOf<fromRoot.Parameters | fromAccessKey.Parameters>
+
+  export type ReturnValue<
+    parameters extends {
+      access?: fromAccessKey.Parameters['access'] | undefined
+    } = {
+      access?: fromAccessKey.Parameters['access'] | undefined
+    },
+  > = parameters extends {
+    access: fromAccessKey.Parameters['access']
+  }
+    ? AccessKeyAccount
+    : RootAccount
+}
+
 /**
  * Instantiates an Account from a headless WebAuthn credential (P256 private key).
  *
@@ -535,31 +560,6 @@ declare namespace fromAccessKey {
   }
 
   export type ReturnValue = AccessKeyAccount
-}
-
-// biome-ignore lint/correctness/noUnusedVariables: _
-function from<const parameters extends from.Parameters>(
-  parameters: parameters | from.Parameters,
-): from.ReturnValue<parameters> {
-  const { access } = parameters
-  if (access) return fromAccessKey(parameters) as never
-  return fromRoot(parameters) as never
-}
-
-declare namespace from {
-  export type Parameters = OneOf<fromRoot.Parameters | fromAccessKey.Parameters>
-
-  export type ReturnValue<
-    parameters extends {
-      access?: fromAccessKey.Parameters['access'] | undefined
-    } = {
-      access?: fromAccessKey.Parameters['access'] | undefined
-    },
-  > = parameters extends {
-    access: fromAccessKey.Parameters['access']
-  }
-    ? AccessKeyAccount
-    : RootAccount
 }
 
 // Export types required for inference.
