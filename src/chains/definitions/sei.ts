@@ -12,9 +12,9 @@ export const sei = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'Seitrace',
-      url: 'https://seitrace.com',
-      apiUrl: 'https://seitrace.com/pacific-1/api',
+      name: 'Seiscan',
+      url: 'https://seiscan.io',
+      apiUrl: 'https://api.etherscan.io/v2/api',
     },
   },
   contracts: {
