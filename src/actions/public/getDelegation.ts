@@ -7,6 +7,7 @@ import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import { type SizeErrorType, size } from '../../utils/data/size.js'
 import { type SliceErrorType, slice } from '../../utils/data/slice.js'
+import { type GetAddressErrorType, getAddress } from '../../utils/address/getAddress.js'
 import { type GetCodeErrorType, getCode } from './getCode.js'
 
 export type GetDelegationParameters = {
@@ -26,6 +27,7 @@ export type GetDelegationParameters = {
 export type GetDelegationReturnType = Address | undefined
 
 export type GetDelegationErrorType =
+  | GetAddressErrorType
   | GetCodeErrorType
   | SliceErrorType
   | SizeErrorType
@@ -70,6 +72,6 @@ export async function getDelegation<chain extends Chain | undefined>(
   // Check for EIP-7702 delegation designator prefix
   if (!code.startsWith('0xef0100')) return undefined
 
-  // Extract the delegated address (bytes 3-23)
-  return slice(code, 3, 23) as Address
+  // Extract the delegated address (bytes 3-23) and checksum it
+  return getAddress(slice(code, 3, 23))
 }

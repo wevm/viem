@@ -6,6 +6,7 @@ import { accounts } from '~test/constants.js'
 import { deploy } from '~test/utils.js'
 import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
+import { getAddress } from '../../utils/address/getAddress.js'
 import { mine } from '../test/mine.js'
 import { sendTransaction } from '../wallet/sendTransaction.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
@@ -58,7 +59,7 @@ describe('getDelegation', () => {
     const result = await getDelegation(client, {
       address: account.address,
     })
-    expect(result).toBe(delegation)
+    expect(result).toBe(getAddress(delegation))
   })
 
   test('with blockNumber', async () => {
@@ -89,7 +90,7 @@ describe('getDelegation', () => {
     const resultAfter = await getDelegation(client, {
       address: account.address,
     })
-    expect(resultAfter).toBe(delegation)
+    expect(resultAfter).toBe(getAddress(delegation))
   })
 
   test('with blockTag', async () => {
@@ -111,6 +112,6 @@ describe('getDelegation', () => {
       address: account.address,
       blockTag: 'latest',
     })
-    expect(result).toBe(delegation)
+    expect(result).toBe(getAddress(delegation))
   })
 })
