@@ -514,6 +514,7 @@ test('extend', () => {
       "getChainId": [Function],
       "getCode": [Function],
       "getContractEvents": [Function],
+      "getDelegation": [Function],
       "getEip712Domain": [Function],
       "getEnsAddress": [Function],
       "getEnsAvatar": [Function],
