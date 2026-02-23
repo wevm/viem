@@ -19,4 +19,5 @@ export const krown = /*#__PURE__*/ defineChain({
       url: 'https://explorer.krown.network',
     },
   },
+  testnet: false,
 })
