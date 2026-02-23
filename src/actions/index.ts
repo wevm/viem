@@ -148,6 +148,12 @@ export {
   getContractEvents,
 } from './public/getContractEvents.js'
 export {
+  type GetDelegationErrorType,
+  type GetDelegationParameters,
+  type GetDelegationReturnType,
+  getDelegation,
+} from './public/getDelegation.js'
+export {
   type GetEip712DomainErrorType,
   type GetEip712DomainParameters,
   type GetEip712DomainReturnType,
