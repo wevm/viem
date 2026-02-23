@@ -77,6 +77,9 @@ overrides:
   webpack@>=5.49.0 <=5.104.0: 5.104.1
   qs@<=6.14.1: 6.14.2
   ajv@<8.18.0: 8.18.0
+  hono@<4.11.10: 4.11.10
+  minimatch@<10.2.1: 10.2.1
+  tar@<7.5.8: 7.5.8
 
 importers:
 
@@ -239,7 +242,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.46.1(typescript@5.6.2)(zod@4.3.6)
+        version: 2.46.2(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -252,7 +255,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.46.1(typescript@5.6.2)(zod@4.3.6)
+        version: 2.46.2(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -265,7 +268,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.46.1(typescript@5.6.2)(zod@4.3.6)
+        version: 2.46.2(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -278,7 +281,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.46.1(typescript@5.6.2)(zod@4.3.6)
+        version: 2.46.2(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -291,7 +294,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.46.1(typescript@5.6.2)(zod@4.3.6)
+        version: 2.46.2(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -310,7 +313,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.46.1(typescript@5.6.2)(zod@4.3.6)
+        version: 2.46.2(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -338,7 +341,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.46.1(typescript@5.6.2)(zod@4.3.6)
+        version: 2.46.2(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -360,7 +363,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.46.1(typescript@5.6.2)(zod@4.3.6)
+        version: 2.46.2(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -373,7 +376,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.46.1(typescript@5.6.2)(zod@4.3.6)
+        version: 2.46.2(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -392,7 +395,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.46.1(typescript@5.6.2)(zod@4.3.6)
+        version: 2.46.2(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -414,7 +417,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.46.1(typescript@5.6.2)(zod@4.3.6)
+        version: 2.46.2(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -427,7 +430,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.46.1(typescript@5.6.2)(zod@4.3.6)
+        version: 2.46.2(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -440,7 +443,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.46.1(typescript@5.6.2)(zod@4.3.6)
+        version: 2.46.2(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -453,7 +456,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.46.1(typescript@5.6.2)(zod@4.3.6)
+        version: 2.46.2(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -500,7 +503,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.46.1(typescript@5.6.2)(zod@4.3.6)
+        version: 2.46.2(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -528,7 +531,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.46.1(typescript@5.6.2)(zod@4.3.6)
+        version: 2.46.2(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -550,7 +553,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.46.1(typescript@5.6.2)(zod@4.3.6)
+        version: 2.46.2(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -569,7 +572,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.46.1(typescript@5.6.2)(zod@4.3.6)
+        version: 2.46.2(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -1432,13 +1435,13 @@ packages:
     resolution: {integrity: sha512-iBuhh+uaaggeAuf+TftcjZyWh2GEgZcVGXkNtskLVoWaXhnJtC5HLHrU8W1KHDoucqO1MswwglmkWLFyiDn4WQ==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
-      hono: 4.11.7
+      hono: 4.11.10
 
   '@hono/node-server@1.19.9':
     resolution: {integrity: sha512-vHL6w3ecZsky+8P5MD+eFfaGTyCeOHUIFYMGpQGbrBTSmNNoxv0if69rEZ5giu36weC5saFuznL411gRX7bJDw==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
-      hono: 4.11.7
+      hono: 4.11.10
 
   '@iconify-json/lucide@1.2.86':
     resolution: {integrity: sha512-W/Jz7/gGOkI9u43r+UHmQtZtcyw2YLvMwiHa01WV6V4DYltrPNXiD+bCa+djV8LZB1uwF8CiympOMIbgiQ74nA==}
@@ -1606,14 +1609,6 @@ packages:
 
   '@ioredis/commands@1.2.0':
     resolution: {integrity: sha512-Sx1pU8EM64o2BrqNpEO1CNLtKQwyhuXuqyfH7oGKCk+1a33d2r5saW8zNwm3j6BTExtjrv2BxTgzzkMwts6vGg==}
-
-  '@isaacs/balanced-match@4.0.1':
-    resolution: {integrity: sha512-yzMTt9lEb8Gv7zRioUilSglI0c0smZ9k5D65677DLWLtWJaXIS3CqcGyUFByYKlnUj6TkjLVs54fBl6+TiGQDQ==}
-    engines: {node: 20 || >=22}
-
-  '@isaacs/brace-expansion@5.0.1':
-    resolution: {integrity: sha512-WMz71T1JS624nWj2n2fnYAuPovhv7EUhk69R6i9dsVyzxt5eM3bjwvgk9L+APE1TRscGysAVMANkB0jh0LQZrQ==}
-    engines: {node: 20 || >=22}
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -3150,8 +3145,9 @@ packages:
   bail@2.0.2:
     resolution: {integrity: sha512-0xO6mYd7JB2YesxDKplafRpsiOzPt9V02ddPCLbY1xYGPOX24NTyN50qnUxgCPcSoYMhKpAuBTjQoRZCAkUDRw==}
 
-  balanced-match@1.0.2:
-    resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
+  balanced-match@4.0.3:
+    resolution: {integrity: sha512-1pHv8LX9CpKut1Zp4EXey7Z8OfH11ONNH6Dhi2WDUt31VVZFXZzKwXcysBgqSumFCmR+0dqjMK5v5JiFHzi0+g==}
+    engines: {node: 20 || >=22}
 
   bare-events@2.7.0:
     resolution: {integrity: sha512-b3N5eTW1g7vXkw+0CXh/HazGTcO5KYuu/RCNaJbDMPI6LHDi+7qe8EmxKUVe1sUbY2KZOVZFyj62x0OEz9qyAA==}
@@ -3214,8 +3210,9 @@ packages:
     resolution: {integrity: sha512-oP5VkATKlNwcgvxi0vM0p/D3n2C3EReYVX+DNYs5TjZFn/oQt2j+4sVJtSMr18pdRr8wjTcBl6LoV+FUwzPmNA==}
     engines: {node: '>=18'}
 
-  brace-expansion@2.0.2:
-    resolution: {integrity: sha512-Jt0vHyM+jmUBqojB7E1NIYadt0vI0Qxjxd2TErW94wDz+E2LAm5vKMXXwg6ZZBTHPuUlDgQHKXvjGBdfcF1ZDQ==}
+  brace-expansion@5.0.2:
+    resolution: {integrity: sha512-Pdk8c9poy+YhOgVWw1JNN22/HcivgKWwpxKq04M/jTmHyCZn12WPJebZxdjSa5TmBqISrUSgNYU3eRORljfCCw==}
+    engines: {node: 20 || >=22}
 
   braces@3.0.3:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
@@ -4127,8 +4124,8 @@ packages:
   highlight.js@10.7.3:
     resolution: {integrity: sha512-tzcUFauisWKNHaRkN4Wjl/ZA07gENAjFl3J/c480dprkGTg5EQstgaNFqBfUqCq54kZRIEcreTsAgF/m2quD7A==}
 
-  hono@4.11.7:
-    resolution: {integrity: sha512-l7qMiNee7t82bH3SeyUCt9UF15EVmaBvsppY2zQtrbIhl/yzBTny+YUxsVjSjQ6gaqaeVtZmGocom8TzBlA4Yw==}
+  hono@4.11.10:
+    resolution: {integrity: sha512-kyWP5PAiMooEvGrA9jcD3IXF7ATu8+o7B3KCbPXid5se52NPqnOpM/r9qeW2heMnOekF4kqR1fXJqCYeCLKrZg==}
     engines: {node: '>=16.9.0'}
 
   html-escaper@2.0.2:
@@ -4807,19 +4804,15 @@ packages:
     resolution: {integrity: sha512-Lbgzdk0h4juoQ9fCKXW4by0UJqj+nOOrI9MJ1sSj4nI8aI2eo1qmvQEie4VD1glsS250n15LsWsYtCugiStS5A==}
     engines: {node: '>=18'}
 
-  minimatch@10.1.1:
-    resolution: {integrity: sha512-enIvLvRAFZYXJzkCYG5RKmPfrFArdLv+R+lbQ53BmIMLIry74bjKzX6iHAm8WYamJkhSSEabrWN5D97XnKObjQ==}
+  minimatch@10.2.1:
+    resolution: {integrity: sha512-MClCe8IL5nRRmawL6ib/eT4oLyeKMGCghibcDWK+J0hh0Q8kqSdia6BvbRMVk6mPa6WqUa5uR2oxt6C5jd533A==}
     engines: {node: 20 || >=22}
-
-  minimatch@5.1.6:
-    resolution: {integrity: sha512-lKwV/1brpG6mBUFHtb7NUmtABCb2WZZmm2wNiOA5hAb8VdCS4B3dtMWyvcoViccwAW/COERjXLt0zP1zXUN26g==}
-    engines: {node: '>=10'}
 
   minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
 
-  minipass@7.1.2:
-    resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
+  minipass@7.1.3:
+    resolution: {integrity: sha512-tEBHqDnIoM/1rXME1zgka9g6Q2lcoCkxHLuc7ODJ5BxbP5d4c2Z5cGgtXAku59200Cx7diuHTOYfSBD8n6mm8A==}
     engines: {node: '>=16 || 14 >=14.17'}
 
   minisearch@7.2.0:
@@ -5031,14 +5024,6 @@ packages:
 
   outvariant@1.4.0:
     resolution: {integrity: sha512-AlWY719RF02ujitly7Kk/0QlV+pXGFDHrHf9O2OKqyqgBieaPOIeuSkL8sRK6j2WK+/ZAURq2kZsY0d8JapUiw==}
-
-  ox@0.12.1:
-    resolution: {integrity: sha512-uU0llpthaaw4UJoXlseCyBHmQ3bLrQmz9rRLIAUHqv46uHuae9SE+ukYBRIPVCnlEnHKuWjDUcDFHWx9gbGNoA==}
-    peerDependencies:
-      typescript: '>=5.4.0'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
 
   ox@0.12.4:
     resolution: {integrity: sha512-+P+C7QzuwPV8lu79dOwjBKfB2CbnbEXe/hfyyrff1drrO1nOOj3Hc87svHfcW1yneRr3WXaKr6nz11nq+/DF9Q==}
@@ -5939,10 +5924,9 @@ packages:
   tar-stream@3.1.7:
     resolution: {integrity: sha512-qJj60CXt7IU1Ffyc3NJMjh6EkuCFej46zUqJ4J7pqYlThyd9bO0XBTmcOIhSzZJVWfsLks0+nle/j538YAW9RQ==}
 
-  tar@7.5.7:
-    resolution: {integrity: sha512-fov56fJiRuThVFXD6o6/Q354S7pnWMJIVlDBYijsTNx6jKSE4pvrDTs6lUnmGvNyfJwFQQwWy3owKz1ucIhveQ==}
+  tar@7.5.8:
+    resolution: {integrity: sha512-SYkBtK99u0yXa+IWL0JRzzcl7RxNpvX/U08Z+8DKnysfno7M+uExnTZH8K+VGgShf2qFPKtbNr9QBl8n7WBP6Q==}
     engines: {node: '>=18'}
-    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   tdigest@0.1.2:
     resolution: {integrity: sha512-+G0LLgjjo9BZX2MfdvPfH+MKLCrxlXSYec5DaPYP1fe6Iyhf0/fSmJ0bFiZ1F8BT6cGXl2LpltQptzjXKWEkKA==}
@@ -6231,8 +6215,8 @@ packages:
   vfile@6.0.3:
     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
 
-  viem@2.46.1:
-    resolution: {integrity: sha512-c5YPQR/VueqoPG09Tp1JBw2iItKVRGVI0YkWekquRDZw0ciNBhO3muu2QjO9xFelOXh18q3d/kLbW83B2Oxf0g==}
+  viem@2.46.2:
+    resolution: {integrity: sha512-w8Qv5Vyo7TfXcH3vgmxRa1NRvzJCDy2aSGSRsJn3503nC/qVbgEQ+n3aj/CkqWXbloudZh97h5o5aQrQSVGy0w==}
     peerDependencies:
       typescript: '>=5.0.4'
     peerDependenciesMeta:
@@ -7479,13 +7463,13 @@ snapshots:
       protobufjs: 7.4.0
       yargs: 17.7.2
 
-  '@hono/node-server@1.19.5(hono@4.11.7)':
+  '@hono/node-server@1.19.5(hono@4.11.10)':
     dependencies:
-      hono: 4.11.7
+      hono: 4.11.10
 
-  '@hono/node-server@1.19.9(hono@4.11.7)':
+  '@hono/node-server@1.19.9(hono@4.11.10)':
     dependencies:
-      hono: 4.11.7
+      hono: 4.11.10
 
   '@iconify-json/lucide@1.2.86':
     dependencies:
@@ -7605,12 +7589,6 @@ snapshots:
 
   '@ioredis/commands@1.2.0': {}
 
-  '@isaacs/balanced-match@4.0.1': {}
-
-  '@isaacs/brace-expansion@5.0.1':
-    dependencies:
-      '@isaacs/balanced-match': 4.0.1
-
   '@isaacs/cliui@8.0.2':
     dependencies:
       string-width: 5.1.2
@@ -7622,7 +7600,7 @@ snapshots:
 
   '@isaacs/fs-minipass@4.0.1':
     dependencies:
-      minipass: 7.1.2
+      minipass: 7.1.3
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -7755,7 +7733,7 @@ snapshots:
 
   '@modelcontextprotocol/sdk@1.26.0':
     dependencies:
-      '@hono/node-server': 1.19.9(hono@4.11.7)
+      '@hono/node-server': 1.19.9(hono@4.11.10)
       ajv: 8.18.0
       ajv-formats: 3.0.1
       content-type: 1.0.5
@@ -7765,7 +7743,7 @@ snapshots:
       eventsource-parser: 3.0.6
       express: 5.2.1
       express-rate-limit: 8.2.1(express@5.2.1)
-      hono: 4.11.7
+      hono: 4.11.10
       jose: 6.1.3
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
@@ -8233,7 +8211,7 @@ snapshots:
       pino-pretty: 10.3.1
       prom-client: 14.2.0
       type-fest: 4.39.0
-      viem: 2.46.1(typescript@5.9.3)(zod@3.23.8)
+      viem: 2.46.2(typescript@5.9.3)(zod@3.23.8)
       yargs: 17.7.2
       zod: 3.23.8
       zod-validation-error: 1.5.0(zod@3.23.8)
@@ -9295,7 +9273,7 @@ snapshots:
 
   bail@2.0.2: {}
 
-  balanced-match@1.0.2: {}
+  balanced-match@4.0.3: {}
 
   bare-events@2.7.0: {}
 
@@ -9364,9 +9342,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  brace-expansion@2.0.2:
+  brace-expansion@5.0.2:
     dependencies:
-      balanced-match: 1.0.2
+      balanced-match: 4.0.3
 
   braces@3.0.3:
     dependencies:
@@ -10306,8 +10284,8 @@ snapshots:
     dependencies:
       foreground-child: 3.3.1
       jackspeak: 4.1.1
-      minimatch: 10.1.1
-      minipass: 7.1.2
+      minimatch: 10.2.1
+      minipass: 7.1.3
       package-json-from-dist: 1.0.1
       path-scurry: 2.0.1
 
@@ -10316,7 +10294,7 @@ snapshots:
       fs.realpath: 1.0.0
       inflight: 1.0.6
       inherits: 2.0.4
-      minimatch: 5.1.6
+      minimatch: 10.2.1
       once: 1.4.0
 
   globals@11.12.0: {}
@@ -10417,7 +10395,7 @@ snapshots:
 
   highlight.js@10.7.3: {}
 
-  hono@4.11.7: {}
+  hono@4.11.10: {}
 
   html-escaper@2.0.2: {}
 
@@ -10465,7 +10443,7 @@ snapshots:
 
   ignore-walk@5.0.1:
     dependencies:
-      minimatch: 5.1.6
+      minimatch: 10.2.1
 
   ignore@5.3.2: {}
 
@@ -11348,23 +11326,19 @@ snapshots:
     dependencies:
       mime-db: 1.54.0
 
-  minimatch@10.1.1:
+  minimatch@10.2.1:
     dependencies:
-      '@isaacs/brace-expansion': 5.0.1
-
-  minimatch@5.1.6:
-    dependencies:
-      brace-expansion: 2.0.2
+      brace-expansion: 5.0.2
 
   minimist@1.2.8: {}
 
-  minipass@7.1.2: {}
+  minipass@7.1.3: {}
 
   minisearch@7.2.0: {}
 
   minizlib@3.1.0:
     dependencies:
-      minipass: 7.1.2
+      minipass: 7.1.3
 
   mitt@3.0.1: {}
 
@@ -11571,36 +11545,6 @@ snapshots:
 
   outvariant@1.4.0: {}
 
-  ox@0.12.1(typescript@5.6.2)(zod@4.3.6):
-    dependencies:
-      '@adraffy/ens-normalize': 1.11.0
-      '@noble/ciphers': 1.3.0
-      '@noble/curves': 1.9.1
-      '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@5.6.2)(zod@4.3.6)
-      eventemitter3: 5.0.1
-    optionalDependencies:
-      typescript: 5.6.2
-    transitivePeerDependencies:
-      - zod
-
-  ox@0.12.1(typescript@5.9.3)(zod@3.23.8):
-    dependencies:
-      '@adraffy/ens-normalize': 1.11.0
-      '@noble/ciphers': 1.3.0
-      '@noble/curves': 1.9.1
-      '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@5.9.3)(zod@3.23.8)
-      eventemitter3: 5.0.1
-    optionalDependencies:
-      typescript: 5.9.3
-    transitivePeerDependencies:
-      - zod
-
   ox@0.12.4(typescript@5.6.2)(zod@4.3.6):
     dependencies:
       '@adraffy/ens-normalize': 1.11.0
@@ -11613,6 +11557,21 @@ snapshots:
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.6.2
+    transitivePeerDependencies:
+      - zod
+
+  ox@0.12.4(typescript@5.9.3)(zod@3.23.8):
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.0
+      '@noble/ciphers': 1.3.0
+      '@noble/curves': 1.9.1
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.2.3(typescript@5.9.3)(zod@3.23.8)
+      eventemitter3: 5.0.1
+    optionalDependencies:
+      typescript: 5.9.3
     transitivePeerDependencies:
       - zod
 
@@ -11743,7 +11702,7 @@ snapshots:
   path-scurry@2.0.1:
     dependencies:
       lru-cache: 11.2.2
-      minipass: 7.1.2
+      minipass: 7.1.3
 
   path-to-regexp@8.3.0: {}
 
@@ -11905,7 +11864,7 @@ snapshots:
       execa: 9.5.2
       get-port: 7.1.0
       http-proxy: 1.18.1
-      tar: 7.5.7
+      tar: 7.5.8
     optionalDependencies:
       '@pimlico/alto': 0.0.18(typescript@5.9.3)
       testcontainers: 11.10.0
@@ -12076,7 +12035,7 @@ snapshots:
 
   readdir-glob@1.1.3:
     dependencies:
-      minimatch: 5.1.6
+      minimatch: 10.2.1
 
   readdirp@4.0.2: {}
 
@@ -12745,11 +12704,11 @@ snapshots:
       fast-fifo: 1.3.2
       streamx: 2.23.0
 
-  tar@7.5.7:
+  tar@7.5.8:
     dependencies:
       '@isaacs/fs-minipass': 4.0.1
       chownr: 3.0.0
-      minipass: 7.1.2
+      minipass: 7.1.3
       minizlib: 3.1.0
       yallist: 5.0.0
 
@@ -13025,7 +12984,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
 
-  viem@2.46.1(typescript@5.6.2)(zod@4.3.6):
+  viem@2.46.2(typescript@5.6.2)(zod@4.3.6):
     dependencies:
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
@@ -13033,7 +12992,7 @@ snapshots:
       '@scure/bip39': 1.6.0
       abitype: 1.2.3(typescript@5.6.2)(zod@4.3.6)
       isows: 1.0.7(ws@8.18.3)
-      ox: 0.12.1(typescript@5.6.2)(zod@4.3.6)
+      ox: 0.12.4(typescript@5.6.2)(zod@4.3.6)
       ws: 8.18.3
     optionalDependencies:
       typescript: 5.6.2
@@ -13042,7 +13001,7 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.46.1(typescript@5.9.3)(zod@3.23.8):
+  viem@2.46.2(typescript@5.9.3)(zod@3.23.8):
     dependencies:
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
@@ -13050,7 +13009,7 @@ snapshots:
       '@scure/bip39': 1.6.0
       abitype: 1.2.3(typescript@5.9.3)(zod@3.23.8)
       isows: 1.0.7(ws@8.18.3)
-      ox: 0.12.1(typescript@5.9.3)(zod@3.23.8)
+      ox: 0.12.4(typescript@5.9.3)(zod@3.23.8)
       ws: 8.18.3
     optionalDependencies:
       typescript: 5.9.3
@@ -13229,7 +13188,7 @@ snapshots:
       estree-util-visit: 2.0.0
       extend: 3.0.2
       github-slugger: 2.0.0
-      hono: 4.11.7
+      hono: 4.11.10
       image-size: 2.0.2
       mdast-util-from-markdown: 2.0.2
       mdast-util-gfm: 3.1.0
@@ -13294,11 +13253,11 @@ snapshots:
 
   waku@1.0.0-alpha.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.2):
     dependencies:
-      '@hono/node-server': 1.19.5(hono@4.11.7)
+      '@hono/node-server': 1.19.5(hono@4.11.10)
       '@vitejs/plugin-react': 5.1.2(vite@7.3.1(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.2))
       '@vitejs/plugin-rsc': 0.5.16(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(vite@7.3.1(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.2))
       dotenv: 17.2.3
-      hono: 4.11.7
+      hono: 4.11.10
       magic-string: 0.30.21
       picocolors: 1.1.1
       react: 19.2.3
