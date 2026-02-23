@@ -3,6 +3,7 @@ import { describe, expect, test } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { getLogs } from '../../actions/public/getLogs.js'
 import type { Log } from '../../types/log.js'
+import type { RpcLog } from '../../types/rpc.js'
 import { parseEventLogs } from './parseEventLogs.js'
 
 const client = anvilMainnet.getClient()
@@ -1200,7 +1201,7 @@ describe('RpcLog inputs', () => {
       transactionIndex: '0x5' as const,
       logIndex: '0x3' as const,
       removed: false,
-    }
+    } as const satisfies RpcLog
 
     const [log] = parseEventLogs({
       abi,
@@ -1280,7 +1281,7 @@ describe('RpcLog inputs', () => {
       transactionIndex: '0x0' as const,
       logIndex: '0x0' as const,
       removed: false,
-    }
+    } as const satisfies RpcLog
 
     const formattedLog: Log = {
       address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',

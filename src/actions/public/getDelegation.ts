@@ -5,9 +5,12 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import {
+  type GetAddressErrorType,
+  getAddress,
+} from '../../utils/address/getAddress.js'
 import { type SizeErrorType, size } from '../../utils/data/size.js'
 import { type SliceErrorType, slice } from '../../utils/data/slice.js'
-import { type GetAddressErrorType, getAddress } from '../../utils/address/getAddress.js'
 import { type GetCodeErrorType, getCode } from './getCode.js'
 
 export type GetDelegationParameters = {

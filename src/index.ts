@@ -189,15 +189,15 @@ export type {
   GetCodeReturnType,
 } from './actions/public/getCode.js'
 export type {
-  GetDelegationErrorType,
-  GetDelegationParameters,
-  GetDelegationReturnType,
-} from './actions/public/getDelegation.js'
-export type {
   GetContractEventsErrorType,
   GetContractEventsParameters,
   GetContractEventsReturnType,
 } from './actions/public/getContractEvents.js'
+export type {
+  GetDelegationErrorType,
+  GetDelegationParameters,
+  GetDelegationReturnType,
+} from './actions/public/getDelegation.js'
 export type {
   GetEip712DomainErrorType,
   GetEip712DomainParameters,
