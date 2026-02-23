@@ -850,6 +850,10 @@ export const sidebar = {
           text: 'Actions',
           items: [
             {
+              text: 'getDelegation',
+              link: '/docs/eip7702/getDelegation',
+            },
+            {
               text: 'prepareAuthorization',
               link: '/docs/eip7702/prepareAuthorization',
             },
@@ -862,10 +866,6 @@ export const sidebar = {
         {
           text: 'Utilities',
           items: [
-            {
-              text: 'getDelegation',
-              link: '/docs/eip7702/getDelegation',
-            },
             {
               text: 'hashAuthorization',
               link: '/docs/eip7702/hashAuthorization',
