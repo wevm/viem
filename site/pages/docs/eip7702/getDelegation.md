@@ -77,28 +77,3 @@ const delegation = await publicClient.getDelegation({
   blockTag: 'safe', // [!code focus]
 })
 ```
-
-## How It Works
-
-This action retrieves the bytecode at the given address using [`eth_getCode`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getcode) and checks if it matches the EIP-7702 delegation designator format:
-
-- **Delegation designator prefix:** `0xef0100`
-- **Total length:** 23 bytes (3 byte prefix + 20 byte address)
-
-If the bytecode matches this format, the delegated address is extracted and returned.
-
-## Example: Check if Account is Delegated
-
-```ts
-import { publicClient } from './client'
-
-const delegation = await publicClient.getDelegation({
-  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-})
-
-if (delegation) {
-  console.log(`Account is delegated to: ${delegation}`)
-} else {
-  console.log('Account is not delegated')
-}
-```
