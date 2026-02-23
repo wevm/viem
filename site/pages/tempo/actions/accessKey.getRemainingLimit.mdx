@@ -1,0 +1,58 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `accessKey.getRemainingLimit`
+
+Gets the remaining spending limit for a key-token pair.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const remaining = await client.accessKey.getRemainingLimit({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  accessKey: '0x1234567890abcdef1234567890abcdef12345678',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+console.log('Remaining limit:', remaining)
+// @log: Remaining limit: 1000000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = bigint
+```
+
+The remaining spending amount.
+
+## Parameters
+
+### accessKey
+
+- **Type:** `Address | AccessKeyAccount`
+
+The access key address or account.
+
+### account
+
+- **Type:** `Address | Account`
+
+Account address.
+
+### token
+
+- **Type:** `Address`
+
+The token address.
+
+<ReadParameters />

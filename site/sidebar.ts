@@ -1850,6 +1850,28 @@ export const sidebar = {
             link: '/tempo/actions',
           },
           {
+            text: 'Access Key',
+            collapsed: true,
+            items: [
+              {
+                text: 'getMetadata',
+                link: '/tempo/actions/accessKey.getMetadata',
+              },
+              {
+                text: 'getRemainingLimit',
+                link: '/tempo/actions/accessKey.getRemainingLimit',
+              },
+              {
+                text: 'revoke',
+                link: '/tempo/actions/accessKey.revoke',
+              },
+              {
+                text: 'updateLimit',
+                link: '/tempo/actions/accessKey.updateLimit',
+              },
+            ],
+          },
+          {
             text: 'AMM',
             collapsed: true,
             items: [
