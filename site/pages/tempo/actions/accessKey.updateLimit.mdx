@@ -1,0 +1,90 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `accessKey.updateLimit`
+
+Updates the spending limit for a specific token on an authorized access key.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { client } from './viem.config'
+
+const { receipt } = await client.accessKey.updateLimitSync({
+  accessKey: '0x1234567890abcdef1234567890abcdef12345678',
+  token: '0x20c0000000000000000000000000000000000000',
+  limit: parseUnits('100', 6),
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+The example above uses a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+
+If you are optimizing for performance, you should use the non-sync `accessKey.updateLimit` action and wait for inclusion manually:
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { parseUnits } from 'viem'
+import { client } from './viem.config'
+
+const hash = await client.accessKey.updateLimit({
+  accessKey: '0x1234567890abcdef1234567890abcdef12345678',
+  token: '0x20c0000000000000000000000000000000000000',
+  limit: parseUnits('100', 6),
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+
+const { args } 
+  = Actions.accessKey.updateLimit.extractEvent(receipt.logs)
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** The account that owned the key. */
+  account: Address
+  /** The public key. */
+  publicKey: Address
+  /** The token address. */
+  token: Address
+  /** The new spending limit. */
+  limit: bigint
+  /** Transaction receipt */
+  receipt: TransactionReceipt
+}
+```
+
+## Parameters
+
+### accessKey
+
+- **Type:** `Address | AccessKeyAccount`
+
+The access key to update.
+
+### token
+
+- **Type:** `Address`
+
+The token address.
+
+### limit
+
+- **Type:** `bigint`
+
+The new spending limit.
+
+<WriteParameters />

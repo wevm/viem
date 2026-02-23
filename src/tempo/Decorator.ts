@@ -2,6 +2,7 @@ import type { Account } from '../accounts/types.js'
 import type { Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
 import type { Chain } from '../types/chain.js'
+import * as accessKeyActions from './actions/accessKey.js'
 import * as ammActions from './actions/amm.js'
 import * as dexActions from './actions/dex.js'
 import * as faucetActions from './actions/faucet.js'
@@ -16,6 +17,239 @@ export type Decorator<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
 > = {
+  accessKey: {
+    /**
+     * Authorizes an access key by signing a key authorization and sending a transaction.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions, Account } from 'viem/tempo'
+     * import { generatePrivateKey } from 'viem/accounts'
+     *
+     * const account = Account.from({ privateKey: '0x...' })
+     * const client = createClient({
+     *   account,
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const accessKey = Account.fromP256(generatePrivateKey(), {
+     *   access: account,
+     * })
+     *
+     * const hash = await client.accessKey.authorize({
+     *   accessKey,
+     *   expiry: Math.floor((Date.now() + 30_000) / 1000),
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    authorize: (
+      parameters: accessKeyActions.authorize.Parameters<chain, account>,
+    ) => Promise<accessKeyActions.authorize.ReturnValue>
+    /**
+     * Authorizes an access key and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions, Account } from 'viem/tempo'
+     * import { generatePrivateKey } from 'viem/accounts'
+     *
+     * const account = Account.from({ privateKey: '0x...' })
+     * const client = createClient({
+     *   account,
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const accessKey = Account.fromP256(generatePrivateKey(), {
+     *   access: account,
+     * })
+     *
+     * const { receipt, ...result } = await client.accessKey.authorizeSync({
+     *   accessKey,
+     *   expiry: Math.floor((Date.now() + 30_000) / 1000),
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    authorizeSync: (
+      parameters: accessKeyActions.authorizeSync.Parameters<chain, account>,
+    ) => Promise<accessKeyActions.authorizeSync.ReturnValue>
+    /**
+     * Gets access key information.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const key = await client.accessKey.getMetadata({
+     *   account: '0x...',
+     *   accessKey: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The key information.
+     */
+    getMetadata: (
+      parameters: accessKeyActions.getMetadata.Parameters<account>,
+    ) => Promise<accessKeyActions.getMetadata.ReturnValue>
+    /**
+     * Gets the remaining spending limit for a key-token pair.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const remaining = await client.accessKey.getRemainingLimit({
+     *   account: '0x...',
+     *   accessKey: '0x...',
+     *   token: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The remaining spending amount.
+     */
+    getRemainingLimit: (
+      parameters: accessKeyActions.getRemainingLimit.Parameters<account>,
+    ) => Promise<accessKeyActions.getRemainingLimit.ReturnValue>
+    /**
+     * Revokes an authorized access key.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.accessKey.revoke({
+     *   accessKey: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    revoke: (
+      parameters: accessKeyActions.revoke.Parameters<chain, account>,
+    ) => Promise<accessKeyActions.revoke.ReturnValue>
+    /**
+     * Revokes an authorized access key and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt, ...result } = await client.accessKey.revokeSync({
+     *   accessKey: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    revokeSync: (
+      parameters: accessKeyActions.revokeSync.Parameters<chain, account>,
+    ) => Promise<accessKeyActions.revokeSync.ReturnValue>
+    /**
+     * Updates the spending limit for a specific token on an authorized access key.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.accessKey.updateLimit({
+     *   accessKey: '0x...',
+     *   token: '0x...',
+     *   limit: 1000000000000000000n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    updateLimit: (
+      parameters: accessKeyActions.updateLimit.Parameters<chain, account>,
+    ) => Promise<accessKeyActions.updateLimit.ReturnValue>
+    /**
+     * Updates the spending limit and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt, ...result } = await client.accessKey.updateLimitSync({
+     *   accessKey: '0x...',
+     *   token: '0x...',
+     *   limit: 1000000000000000000n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    updateLimitSync: (
+      parameters: accessKeyActions.updateLimitSync.Parameters<chain, account>,
+    ) => Promise<accessKeyActions.updateLimitSync.ReturnValue>
+  }
   amm: {
     /**
      * Gets the reserves for a liquidity pool.
@@ -53,7 +287,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -86,7 +320,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -116,7 +350,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -146,7 +380,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -176,7 +410,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -206,7 +440,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -236,7 +470,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -264,7 +498,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -289,7 +523,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -314,7 +548,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -345,7 +579,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -375,7 +609,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -405,7 +639,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -432,7 +666,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -462,7 +696,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -492,7 +726,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -519,7 +753,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -546,7 +780,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -571,7 +805,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -597,7 +831,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -624,7 +858,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -649,7 +883,7 @@ export type Decorator<
      * import { tempoActions, Tick } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -676,7 +910,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -705,7 +939,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -735,7 +969,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -765,7 +999,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -796,7 +1030,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -827,7 +1061,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -857,7 +1091,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -887,7 +1121,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -915,7 +1149,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -941,7 +1175,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -968,7 +1202,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -995,7 +1229,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1022,7 +1256,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1052,7 +1286,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1079,7 +1313,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1106,7 +1340,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1132,7 +1366,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1163,7 +1397,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1191,7 +1425,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1219,7 +1453,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1244,7 +1478,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1276,7 +1510,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1304,7 +1538,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1332,7 +1566,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1360,7 +1594,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1388,7 +1622,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1417,7 +1651,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1446,7 +1680,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1475,7 +1709,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1502,7 +1736,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1527,7 +1761,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1553,7 +1787,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1580,7 +1814,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1607,7 +1841,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1634,7 +1868,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1665,7 +1899,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1692,7 +1926,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1719,7 +1953,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1747,7 +1981,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1773,7 +2007,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1801,7 +2035,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1829,7 +2063,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1855,7 +2089,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1883,7 +2117,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1915,7 +2149,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1944,7 +2178,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1973,7 +2207,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2003,7 +2237,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2033,7 +2267,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2062,7 +2296,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2091,7 +2325,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2120,7 +2354,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2152,7 +2386,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2182,7 +2416,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2212,7 +2446,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2240,7 +2474,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2264,7 +2498,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2290,7 +2524,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2319,7 +2553,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2348,7 +2582,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2378,7 +2612,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2407,7 +2641,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2437,7 +2671,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2467,7 +2701,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2495,7 +2729,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2523,7 +2757,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2552,7 +2786,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2580,7 +2814,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2610,7 +2844,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2639,7 +2873,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2668,7 +2902,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2697,7 +2931,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2727,7 +2961,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2757,7 +2991,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2786,7 +3020,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2815,7 +3049,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2843,7 +3077,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2869,7 +3103,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2897,7 +3131,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2923,7 +3157,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2949,7 +3183,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2975,7 +3209,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3003,7 +3237,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3029,7 +3263,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3061,7 +3295,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3092,7 +3326,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3123,7 +3357,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3150,7 +3384,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3177,7 +3411,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3205,7 +3439,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3231,7 +3465,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3256,7 +3490,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3281,7 +3515,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3304,7 +3538,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3327,7 +3561,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3350,7 +3584,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3375,7 +3609,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3405,7 +3639,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3435,7 +3669,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3465,7 +3699,7 @@ export type Decorator<
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
-     *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3495,6 +3729,23 @@ export function decorator() {
     client: Client<transport, chain, account>,
   ): Decorator<chain, account> => {
     return {
+      accessKey: {
+        authorize: (parameters) =>
+          accessKeyActions.authorize(client, parameters),
+        authorizeSync: (parameters) =>
+          accessKeyActions.authorizeSync(client, parameters),
+        getMetadata: (parameters) =>
+          accessKeyActions.getMetadata(client, parameters),
+        getRemainingLimit: (parameters) =>
+          accessKeyActions.getRemainingLimit(client, parameters),
+        revoke: (parameters) => accessKeyActions.revoke(client, parameters),
+        revokeSync: (parameters) =>
+          accessKeyActions.revokeSync(client, parameters),
+        updateLimit: (parameters) =>
+          accessKeyActions.updateLimit(client, parameters),
+        updateLimitSync: (parameters) =>
+          accessKeyActions.updateLimitSync(client, parameters),
+      },
       amm: {
         getPool: (parameters) => ammActions.getPool(client, parameters),
         getLiquidityBalance: (parameters) =>
