@@ -1854,6 +1854,10 @@ export const sidebar = {
             collapsed: true,
             items: [
               {
+                text: 'authorize',
+                link: '/tempo/actions/accessKey.authorize',
+              },
+              {
                 text: 'getMetadata',
                 link: '/tempo/actions/accessKey.getMetadata',
               },
@@ -1864,6 +1868,10 @@ export const sidebar = {
               {
                 text: 'revoke',
                 link: '/tempo/actions/accessKey.revoke',
+              },
+              {
+                text: 'signAuthorization',
+                link: '/tempo/actions/accessKey.signAuthorization',
               },
               {
                 text: 'updateLimit',

@@ -1,5 +1,4 @@
 import { generatePrivateKey } from 'viem/accounts'
-import { sendTransactionSync } from 'viem/actions'
 import { Account } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
@@ -20,18 +19,110 @@ async function setupAccessKey(
     access: account,
   })
 
-  const keyAuthorization = await account.signKeyAuthorization(accessKey, {
+  await actions.accessKey.authorizeSync(client, {
+    accessKey,
     expiry: Math.floor((Date.now() + 30 * 1000) / 1000), // 30 seconds from now
     limits,
   })
 
-  await sendTransactionSync(client, {
-    account,
-    keyAuthorization,
-  })
-
   return accessKey
 }
+
+describe('authorize', () => {
+  test('default', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const { receipt, ...result } = await actions.accessKey.authorizeSync(
+      client,
+      {
+        accessKey,
+        expiry: Math.floor((Date.now() + 30_000) / 1000),
+      },
+    )
+
+    expect(receipt.status).toBe('success')
+    expect(result.publicKey.toLowerCase()).toBe(
+      accessKey.accessKeyAddress.toLowerCase(),
+    )
+
+    // Verify key exists
+    const key = await actions.accessKey.getMetadata(client, {
+      account: account.address,
+      accessKey,
+    })
+    expect(key.keyType).toBe('p256')
+    expect(key.isRevoked).toBe(false)
+  })
+
+  test('behavior: with limits', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const { receipt, ...result } = await actions.accessKey.authorizeSync(
+      client,
+      {
+        accessKey,
+        expiry: Math.floor((Date.now() + 30_000) / 1000),
+        limits: [{ token: feeToken, limit: 1000000n }],
+      },
+    )
+
+    expect(receipt.status).toBe('success')
+    expect(result.publicKey.toLowerCase()).toBe(
+      accessKey.accessKeyAddress.toLowerCase(),
+    )
+
+    // Verify limit was set
+    const remaining = await actions.accessKey.getRemainingLimit(client, {
+      account: account.address,
+      accessKey,
+      token: feeToken,
+    })
+    expect(remaining).toBe(1000000n)
+  })
+})
+
+describe('signAuthorization', () => {
+  test('default', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const keyAuthorization = await actions.accessKey.signAuthorization(
+      account,
+      {
+        accessKey,
+        expiry: Math.floor((Date.now() + 30_000) / 1000),
+      },
+    )
+
+    expect(keyAuthorization).toBeDefined()
+    expect(keyAuthorization.address.toLowerCase()).toBe(
+      accessKey.accessKeyAddress.toLowerCase(),
+    )
+  })
+
+  test('behavior: with limits', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const keyAuthorization = await actions.accessKey.signAuthorization(
+      account,
+      {
+        accessKey,
+        expiry: Math.floor((Date.now() + 30_000) / 1000),
+        limits: [{ token: feeToken, limit: 1000000n }],
+      },
+    )
+
+    expect(keyAuthorization).toBeDefined()
+    expect(keyAuthorization.limits).toHaveLength(1)
+  })
+})
 
 describe('getMetadata', () => {
   test('default', async () => {

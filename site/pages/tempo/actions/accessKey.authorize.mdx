@@ -1,0 +1,161 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `accessKey.authorize`
+
+Authorizes an access key by signing a key authorization and sending a transaction.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { generatePrivateKey } from 'viem/accounts'
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+// 1. Define root account
+const account = Account.from({ privateKey: '0x...' })
+
+// 2. Define access key attached to the root account
+const accessKey = Account.fromP256(generatePrivateKey(), {
+  access: account,
+})
+
+// 3. Authorize the access key
+const { receipt } = await client.accessKey.authorizeSync({
+  accessKey,
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+:::tip
+By deferring a key authorization to a later transaction, you can bundle it with another operation, 
+which enables an end-user to not pay for the authorization upfront.
+
+```ts twoslash
+import { Account, Actions } from 'viem/tempo'
+import { generatePrivateKey } from 'viem/accounts'
+import { client } from './viem.config'
+
+const account = Account.from({ privateKey: '0x...' })
+const accessKey = Account.fromP256(generatePrivateKey(), {
+  access: account,
+})
+
+// [!code focus:start]
+// 1. Sign the key authorization (offline, no transaction sent)
+const keyAuthorization = await Actions.accessKey.signAuthorization(
+  account,
+  {
+    accessKey,
+    expiry: Math.floor((Date.now() + 30_000) / 1000),
+  },
+)
+
+// 2. Attach keyAuthorization to any write action (can be sent with the access key)
+const { receipt } = await client.token.transferSync({
+  account: accessKey,
+  token: '0x20c0000000000000000000000000000000000001',
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+  amount: 100n,
+  keyAuthorization,
+})
+// [!code focus:end]
+```
+:::
+
+### With Expiry and Spending Limits
+
+You can set an expiry and per-token spending limits when authorizing an access key:
+
+```ts twoslash
+import { generatePrivateKey } from 'viem/accounts'
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.from({ privateKey: '0x...' })
+const accessKey = Account.fromP256(generatePrivateKey(), {
+  access: account,
+})
+
+const { receipt } = await client.accessKey.authorizeSync({
+  accessKey,
+  expiry: Math.floor((Date.now() + 30_000) / 1000), // [!code focus]
+  limits: [ // [!code focus]
+    { token: '0x20c0000000000000000000000000000000000001', limit: 1000000n }, // [!code focus]
+  ], // [!code focus]
+})
+```
+
+### Asynchronous Usage
+
+The example above uses a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+
+If you are optimizing for performance, you should use the non-sync `accessKey.authorize` action and wait for inclusion manually:
+
+```ts twoslash
+import { Actions, Account } from 'viem/tempo'
+import { generatePrivateKey } from 'viem/accounts'
+import { client } from './viem.config'
+
+const account = Account.from({ privateKey: '0x...' })
+const accessKey = Account.fromP256(generatePrivateKey(), {
+  access: account,
+})
+
+const hash = await client.accessKey.authorize({
+  accessKey,
+  expiry: Math.floor((Date.now() + 30_000) / 1000),
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+
+const { args }
+  = Actions.accessKey.authorize.extractEvent(receipt.logs)
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** The account that authorized the key. */
+  account: Address
+  /** The public key that was authorized. */
+  publicKey: Address
+  /** The signature type. */
+  signatureType: number
+  /** The expiry timestamp. */
+  expiry: bigint
+  /** Transaction receipt */
+  receipt: TransactionReceipt
+}
+```
+
+## Parameters
+
+### accessKey
+
+- **Type:** `Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>`
+
+The access key to authorize.
+
+### expiry (optional)
+
+- **Type:** `number`
+
+Unix timestamp when the key expires.
+
+### limits (optional)
+
+- **Type:** `{ token: Address; limit: bigint }[]`
+
+Spending limits per token.
+
+<WriteParameters />

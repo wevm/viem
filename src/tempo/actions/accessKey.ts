@@ -3,6 +3,8 @@ import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
 import { readContract } from '../../actions/public/readContract.js'
+import { sendTransaction } from '../../actions/wallet/sendTransaction.js'
+import { sendTransactionSync } from '../../actions/wallet/sendTransactionSync.js'
 import type { WriteContractReturnType } from '../../actions/wallet/writeContract.js'
 import { writeContract } from '../../actions/wallet/writeContract.js'
 import { writeContractSync } from '../../actions/wallet/writeContractSync.js'
@@ -15,7 +17,8 @@ import type { Log } from '../../types/log.js'
 import type { Compute } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
-import type { AccessKeyAccount } from '../Account.js'
+import type { AccessKeyAccount, RootAccount } from '../Account.js'
+import { signKeyAuthorization } from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import type {
   GetAccountParameter,
@@ -37,6 +40,176 @@ const spendPolicies = {
   true: 'limited',
   false: 'unlimited',
 } as const
+
+/**
+ * Authorizes an access key by signing a key authorization and sending a transaction.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions, Account } from 'viem/tempo'
+ * import { generatePrivateKey } from 'viem/accounts'
+ *
+ * const account = Account.from({ privateKey: '0x...' })
+ * const client = createClient({
+ *   account,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   transport: http(),
+ * })
+ *
+ * const accessKey = Account.fromP256(generatePrivateKey(), {
+ *   access: account,
+ * })
+ *
+ * const hash = await Actions.accessKey.authorize(client, {
+ *   accessKey,
+ *   expiry: Math.floor((Date.now() + 30_000) / 1000),
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction hash.
+ */
+export async function authorize<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: authorize.Parameters<chain, account>,
+): Promise<authorize.ReturnValue> {
+  return authorize.inner(sendTransaction, client, parameters)
+}
+
+export namespace authorize {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+
+  export type Args = {
+    /** The access key to authorize. */
+    accessKey: Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>
+    /** Unix timestamp when the key expires. */
+    expiry?: number | undefined
+    /** Spending limits per token. */
+    limits?: { token: Address; limit: bigint }[] | undefined
+  }
+
+  export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof sendTransaction | typeof sendTransactionSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: authorize.Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const { accessKey, expiry, limits, ...rest } = parameters
+    const account_ = rest.account ?? client.account
+    if (!account_) throw new Error('account is required.')
+    const parsed = parseAccount(account_)
+    const keyAuthorization = await signKeyAuthorization(parsed as never, {
+      key: accessKey,
+      expiry,
+      limits,
+    })
+    return (await action(client, {
+      ...rest,
+      keyAuthorization,
+    } as never)) as never
+  }
+
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: Abis.accountKeychain,
+      logs,
+      eventName: 'KeyAuthorized',
+      strict: true,
+    })
+    if (!log) throw new Error('`KeyAuthorized` event not found.')
+    return log
+  }
+}
+
+/**
+ * Authorizes an access key and waits for the transaction receipt.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions, Account } from 'viem/tempo'
+ * import { generatePrivateKey } from 'viem/accounts'
+ *
+ * const account = Account.from({ privateKey: '0x...' })
+ * const client = createClient({
+ *   account,
+ *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   transport: http(),
+ * })
+ *
+ * const accessKey = Account.fromP256(generatePrivateKey(), {
+ *   access: account,
+ * })
+ *
+ * const { receipt, ...result } = await Actions.accessKey.authorizeSync(client, {
+ *   accessKey,
+ *   expiry: Math.floor((Date.now() + 30_000) / 1000),
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction receipt and event data.
+ */
+export async function authorizeSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: authorizeSync.Parameters<chain, account>,
+): Promise<authorizeSync.ReturnValue> {
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await authorize.inner(sendTransactionSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
+  const { args } = authorize.extractEvent(receipt.logs)
+  return {
+    ...args,
+    receipt,
+  } as never
+}
+
+export namespace authorizeSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = authorize.Parameters<chain, account>
+
+  export type Args = authorize.Args
+
+  export type ReturnValue = Compute<
+    GetEventArgs<
+      typeof Abis.accountKeychain,
+      'KeyAuthorized',
+      { IndexedOnly: false; Required: true }
+    > & {
+      receipt: TransactionReceipt
+    }
+  >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+}
 
 /**
  * Revokes an authorized access key.
@@ -602,6 +775,53 @@ export namespace getRemainingLimit {
       args: [account, resolveAccessKey(accessKey), token],
     })
   }
+}
+
+/**
+ * Signs a key authorization for an access key.
+ *
+ * @example
+ * ```ts
+ * import { generatePrivateKey } from 'viem/accounts'
+ * import { Account, Actions } from 'viem/tempo'
+ *
+ * const account = Account.from({ privateKey: '0x...' })
+ * const accessKey = Account.fromP256(generatePrivateKey(), {
+ *   access: account,
+ * })
+ *
+ * const keyAuthorization = await Actions.accessKey.signAuthorization(
+ *   account,
+ *   {
+ *     accessKey,
+ *     expiry: Math.floor((Date.now() + 30_000) / 1000),
+ *   },
+ * )
+ * ```
+ *
+ * @param account - The root account signing the authorization.
+ * @param parameters - Parameters.
+ * @returns The signed key authorization.
+ */
+export async function signAuthorization(
+  account: RootAccount,
+  parameters: signAuthorization.Parameters,
+): Promise<signAuthorization.ReturnValue> {
+  const { accessKey, ...rest } = parameters
+  return signKeyAuthorization(account, { key: accessKey, ...rest })
+}
+
+export namespace signAuthorization {
+  export type Parameters = {
+    /** The access key to authorize. */
+    accessKey: Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>
+    /** Unix timestamp when the key expires. */
+    expiry?: number | undefined
+    /** Spending limits per token. */
+    limits?: { token: Address; limit: bigint }[] | undefined
+  }
+
+  export type ReturnValue = Awaited<ReturnType<typeof signKeyAuthorization>>
 }
 
 /** @internal */

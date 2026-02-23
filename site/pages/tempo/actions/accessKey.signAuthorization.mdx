@@ -1,0 +1,84 @@
+# `accessKey.signAuthorization`
+
+Signs a key authorization for an access key. This is a local signing operation — no transaction is sent.
+
+:::info
+If you want to authorize a key and send the transaction in one step, use [`accessKey.authorize`](/tempo/actions/accessKey.authorize) instead.
+:::
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { generatePrivateKey } from 'viem/accounts'
+import { Account, Actions } from 'viem/tempo'
+
+// 1. Define root account
+const account = Account.from({ privateKey: '0x...' })
+
+// 2. Define access key attached to the root account
+const accessKey = Account.fromP256(generatePrivateKey(), {
+  access: account,
+})
+
+// 3. Sign the key authorization
+const keyAuthorization = await Actions.accessKey.signAuthorization(
+  account,
+  {
+    accessKey,
+    expiry: Math.floor((Date.now() + 30_000) / 1000),
+  },
+)
+```
+
+:::
+
+### Submitting the Authorization
+
+The signed `keyAuthorization` can be attached to any write action.
+
+```ts
+// Authorize the key alongside a transfer, sent with the access key
+const { receipt } = await client.token.transferSync({
+  account: accessKey,
+  token: '0x20c0000000000000000000000000000000000001',
+  to: '0xcafebabecafebabecafebabecafebabecafebabe',
+  amount: 100n,
+  keyAuthorization,
+})
+```
+
+## Return Type
+
+```ts
+type ReturnType = KeyAuthorization.Signed
+```
+
+A signed key authorization object that can be passed as `keyAuthorization` to any write action.
+
+## Parameters
+
+### account
+
+- **Type:** `RootAccount`
+
+The root account signing the authorization. Must be a local account with signing capabilities (e.g. created via `Account.from`).
+
+### accessKey
+
+- **Type:** `Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>`
+
+The access key to authorize.
+
+### expiry (optional)
+
+- **Type:** `number`
+
+Unix timestamp when the key expires.
+
+### limits (optional)
+
+- **Type:** `{ token: Address; limit: bigint }[]`
+
+Spending limits per token.
