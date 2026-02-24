@@ -47,6 +47,7 @@ import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
 import { call, getRevertErrorData } from './call.js'
+import { getBlock } from './getBlock.js'
 import { readContract } from './readContract.js'
 
 const client = anvilMainnet.getClient({ account: accounts[0].address })
@@ -198,6 +199,41 @@ test.skip('args: blockNumber', async () => {
     to: wagmiContractAddress,
   })
   expect(data).toMatchInlineSnapshot('undefined')
+})
+
+test('args: blockHash (EIP-1898)', async () => {
+  const block = await getBlock(client, {
+    blockNumber: anvilMainnet.forkBlockNumber,
+  })
+
+  const { data } = await call(client, {
+    blockHash: block.hash!,
+    data: name4bytes,
+    account: sourceAccount.address,
+    to: wagmiContractAddress,
+  })
+
+  expect(data).toMatchInlineSnapshot(
+    '"0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000"',
+  )
+})
+
+test('args: blockHash + requireCanonical (EIP-1898)', async () => {
+  const block = await getBlock(client, {
+    blockNumber: anvilMainnet.forkBlockNumber,
+  })
+
+  const { data } = await call(client, {
+    blockHash: block.hash!,
+    requireCanonical: true,
+    data: name4bytes,
+    account: sourceAccount.address,
+    to: wagmiContractAddress,
+  })
+
+  expect(data).toMatchInlineSnapshot(
+    '"0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000"',
+  )
 })
 
 test('args: override', async () => {

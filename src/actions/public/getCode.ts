@@ -5,12 +5,12 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
-import type { Hex } from '../../types/misc.js'
-import type { RequestErrorType } from '../../utils/buildRequest.js'
+import type { Hash, Hex } from '../../types/misc.js'
 import {
-  type NumberToHexErrorType,
-  numberToHex,
-} from '../../utils/encoding/toHex.js'
+  type FormatBlockParameterErrorType,
+  formatBlockParameter,
+} from '../../utils/block/formatBlockParameter.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 
 export type GetCodeParameters = {
   address: Address
@@ -18,17 +18,29 @@ export type GetCodeParameters = {
   | {
       blockNumber?: undefined
       blockTag?: BlockTag | undefined
+      blockHash?: undefined
+      requireCanonical?: undefined
     }
   | {
       blockNumber?: bigint | undefined
       blockTag?: undefined
+      blockHash?: undefined
+      requireCanonical?: undefined
+    }
+  | {
+      blockNumber?: undefined
+      blockTag?: undefined
+      /** The bytecode at a block specified by block hash. */
+      blockHash: Hash
+      /** Whether or not to throw an error if the block is not in the canonical chain. Only allowed in conjunction with `blockHash`. */
+      requireCanonical?: boolean | undefined
     }
 )
 
 export type GetCodeReturnType = Hex | undefined
 
 export type GetCodeErrorType =
-  | NumberToHexErrorType
+  | FormatBlockParameterErrorType
   | RequestErrorType
   | ErrorType
 
@@ -57,16 +69,28 @@ export type GetCodeErrorType =
  */
 export async function getCode<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  { address, blockNumber, blockTag = 'latest' }: GetCodeParameters,
+  {
+    address,
+    blockHash,
+    blockNumber,
+    blockTag = 'latest',
+    requireCanonical,
+  }: GetCodeParameters,
 ): Promise<GetCodeReturnType> {
-  const blockNumberHex =
-    blockNumber !== undefined ? numberToHex(blockNumber) : undefined
+  const block = formatBlockParameter({
+    blockHash,
+    blockNumber,
+    blockTag,
+    requireCanonical,
+  })
   const hex = await client.request(
     {
       method: 'eth_getCode',
-      params: [address, blockNumberHex || blockTag],
+      params: [address, block],
     },
-    { dedupe: Boolean(blockNumberHex) },
+    {
+      dedupe: typeof blockNumber === 'bigint' || blockHash !== undefined,
+    },
   )
   if (hex === '0x') return undefined
   return hex
