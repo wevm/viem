@@ -1,5 +1,5 @@
 ---
-"viem": minor
+"viem": patch
 ---
 
-Added getDelegation utility for EIP7702
+Added `getDelegation` utility for EIP7702
