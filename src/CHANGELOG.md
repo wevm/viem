@@ -1,5 +1,27 @@
 # viem
 
+## 2.46.3
+
+### Patch Changes
+
+- [#4345](https://github.com/wevm/viem/pull/4345) [`0e5d47967ec4294fe3896d284cad7df9d5a48e87`](https://github.com/wevm/viem/commit/0e5d47967ec4294fe3896d284cad7df9d5a48e87) Thanks [@mrehmankrown](https://github.com/mrehmankrown)! - Added Krown chain.
+
+- [#4359](https://github.com/wevm/viem/pull/4359) [`2e96ebdf3eb7b727bb9e0cf0395922f1c9c4b71d`](https://github.com/wevm/viem/commit/2e96ebdf3eb7b727bb9e0cf0395922f1c9c4b71d) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added `accessKey` actions (`getMetadata`, `getRemainingLimit`, `revoke`, `updateLimit`).
+
+- [`cbcd16bb9480881537df5a4f922f9f4e2cc9c52f`](https://github.com/wevm/viem/commit/cbcd16bb9480881537df5a4f922f9f4e2cc9c52f) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Exported `from` from `Account`.
+
+- [#4346](https://github.com/wevm/viem/pull/4346) [`45ff3ff2480bc43c9dfd36ae30330f309318ce2f`](https://github.com/wevm/viem/commit/45ff3ff2480bc43c9dfd36ae30330f309318ce2f) Thanks [@Kropiunig](https://github.com/Kropiunig)! - Fixed `parseEventLogs` to normalize RpcLog inputs before decoding.
+
+- [#4352](https://github.com/wevm/viem/pull/4352) [`cbda35cf01f9da2de2464cf18f1ffbcdee4d46e0`](https://github.com/wevm/viem/commit/cbda35cf01f9da2de2464cf18f1ffbcdee4d46e0) Thanks [@ClockRide](https://github.com/ClockRide)! - Updated Polygon chain default RPC URL.
+
+- [#4269](https://github.com/wevm/viem/pull/4269) [`1ce50f716b002295b0bcc4dc6c6db65ae041d2bc`](https://github.com/wevm/viem/commit/1ce50f716b002295b0bcc4dc6c6db65ae041d2bc) Thanks [@yigiterdev](https://github.com/yigiterdev)! - Fixed `sendRawTransactionSync` to send timeout as integer instead of hex.
+
+- [#4170](https://github.com/wevm/viem/pull/4170) [`4c821db0aa2763a1ab0bb18762be7d6665ac2617`](https://github.com/wevm/viem/commit/4c821db0aa2763a1ab0bb18762be7d6665ac2617) Thanks [@Kemperino](https://github.com/Kemperino)! - Added `getDelegation` utility for EIP7702
+
+- [#4351](https://github.com/wevm/viem/pull/4351) [`c5f3bef7508c640f4b13068758e550ee5a726141`](https://github.com/wevm/viem/commit/c5f3bef7508c640f4b13068758e550ee5a726141) Thanks [@dwi](https://github.com/dwi)! - Changed Ronin Saigon Testnet chainId after L2 migration.
+
+- [#4357](https://github.com/wevm/viem/pull/4357) [`ea5f5a2b5b0481aa4bf0e129f8c8a8b48c88a806`](https://github.com/wevm/viem/commit/ea5f5a2b5b0481aa4bf0e129f8c8a8b48c88a806) Thanks [@alexander-sei](https://github.com/alexander-sei)! - Updated Sei block explorer from Seitrace to Seiscan. Removed `seiDevnet` chain (network is defunct).
+
 ## 2.46.2
 
 ### Patch Changes
