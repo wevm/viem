@@ -135,46 +135,43 @@ export type WalletCallReceipt<quantity = Hex, status = Hex> = {
   transactionHash: Hex
 }
 
-export type WalletGrantPermissionsParameters = {
-  signer?:
-    | {
+export type WalletRequestExecutionPermissionsParameters = {
+  chainId: Hex
+  from?: Hex | undefined
+  to: Hex
+  rules?:
+    | readonly {
+        data: unknown
         type: string
-        data?: unknown | undefined
-      }
+      }[]
     | undefined
-  permissions: readonly {
+  permission: {
     data: unknown
-    policies: readonly {
-      data: unknown
-      type: string
-    }[]
-    required?: boolean | undefined
+    isAdjustmentAllowed: boolean
     type: string
-  }[]
-  expiry: number
+  }
 }
 
-export type WalletGrantPermissionsReturnType = {
-  expiry: number
-  factory?: `0x${string}` | undefined
-  factoryData?: string | undefined
-  grantedPermissions: readonly {
-    data: unknown
-    policies: readonly {
-      data: unknown
-      type: string
+export type WalletRequestExecutionPermissionsReturnType =
+  WalletRequestExecutionPermissionsParameters & {
+    context: Hex
+    dependencies: readonly {
+      factory: Hex
+      factoryData: Hex
     }[]
-    required?: boolean | undefined
-    type: string
-  }[]
-  permissionsContext: string
-  signerData?:
-    | {
-        userOpBuilder?: `0x${string}` | undefined
-        submitToAddress?: `0x${string}` | undefined
-      }
-    | undefined
-}
+    delegationManager: Hex
+  }
+
+export type WalletGetSupportedExecutionPermissionsReturnType = Record<
+  string,
+  {
+    chainIds: readonly Hex[]
+    ruleTypes: readonly string[]
+  }
+>
+
+export type WalletGetGrantedExecutionPermissionsReturnType =
+  readonly WalletRequestExecutionPermissionsReturnType[]
 
 export type WalletGetAssetsParameters = {
   account: Address
@@ -1991,16 +1988,38 @@ export type WalletRpcSchema = [
     ReturnType: WalletPermission[]
   },
   /**
-   * @description Requests permissions from a wallet
+   * @description Requests execution permissions from a wallet
    * @link https://eips.ethereum.org/EIPS/eip-7715
    * @example
-   * provider.request({ method: 'wallet_grantPermissions', params: [{ ... }] })
+   * provider.request({ method: 'wallet_requestExecutionPermissions', params: [{ ... }] })
    * // => { ... }
    */
   {
-    Method: 'wallet_grantPermissions'
-    Parameters?: [WalletGrantPermissionsParameters]
-    ReturnType: Prettify<WalletGrantPermissionsReturnType>
+    Method: 'wallet_requestExecutionPermissions'
+    Parameters: readonly WalletRequestExecutionPermissionsParameters[]
+    ReturnType: readonly WalletRequestExecutionPermissionsReturnType[]
+  },
+  /**
+   * @description Gets the supported execution permissions for the wallet.
+   * @link https://eips.ethereum.org/EIPS/eip-7715
+   * @example
+   * provider.request({ method: 'wallet_getSupportedExecutionPermissions' })
+   * // => { ... }
+   */
+  {
+    Method: 'wallet_getSupportedExecutionPermissions'
+    ReturnType: WalletGetSupportedExecutionPermissionsReturnType
+  },
+  /**
+   * @description Gets the granted execution permissions for the wallet.
+   * @link https://eips.ethereum.org/EIPS/eip-7715
+   * @example
+   * provider.request({ method: 'wallet_getGrantedExecutionPermissions' })
+   * // => { ... }
+   */
+  {
+    Method: 'wallet_getGrantedExecutionPermissions'
+    ReturnType: WalletGetGrantedExecutionPermissionsReturnType
   },
   /**
    * @description Requests the given permissions from the user.

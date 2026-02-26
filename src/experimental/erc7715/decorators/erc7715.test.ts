@@ -7,13 +7,52 @@ import { erc7715Actions } from './erc7715.js'
 const client = createClient({
   transport: custom({
     async request({ method, params }) {
-      if (method === 'wallet_grantPermissions')
+      if (method === 'wallet_requestExecutionPermissions')
+        return params.map((param: any) => ({
+          ...param,
+          context: '0xdeadbeef',
+          dependencies: [],
+          delegationManager: '0xdb9B1e94B5b69Df7e401DDbedE43491141047dB3',
+        }))
+
+      if (method === 'wallet_getSupportedExecutionPermissions')
         return {
-          grantedPermissions: params[0].permissions,
-          expiry: params[0].expiry,
-          permissionsContext: '0xdeadbeef',
+          'native-token-allowance': {
+            chainIds: [1],
+            ruleTypes: ['expiry'],
+          },
+          'erc20-token-allowance': {
+            chainIds: [1],
+            ruleTypes: [],
+          },
         }
 
+      if (method === 'wallet_getGrantedExecutionPermissions')
+        return [
+          {
+            chainId: '1',
+            from: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+            to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+            permission: {
+              type: 'native-token-allowance',
+              isAdjustmentAllowed: false,
+              data: {
+                allowance: '0x1DCD6500',
+              },
+            },
+            rules: [
+              {
+                type: 'expiry',
+                data: {
+                  timestamp: 1577840461,
+                },
+              },
+            ],
+            context: '0xdeadbeef',
+            dependencies: [],
+            delegationManager: '0xdb9B1e94B5b69Df7e401DDbedE43491141047dB3',
+          },
+        ]
       return null
     },
   }),
@@ -22,61 +61,119 @@ const client = createClient({
 test('default', async () => {
   expect(erc7715Actions()(client)).toMatchInlineSnapshot(`
     {
-      "grantPermissions": [Function],
+      "getGrantedExecutionPermissions": [Function],
+      "getSupportedExecutionPermissions": [Function],
+      "requestExecutionPermissions": [Function],
     }
   `)
 })
 
 describe('smoke test', () => {
-  test('grantPermissions', async () => {
+  test('requestExecutionPermissions', async () => {
     expect(
-      await client.grantPermissions({
-        expiry: 1716846083638,
-        signer: {
-          type: 'account',
-          data: {
-            id: '0x0000000000000000000000000000000000000000',
-          },
-        },
-        permissions: [
-          {
-            type: 'native-token-transfer',
+      await client.requestExecutionPermissions([
+        {
+          chainId: 1,
+          to: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+          from: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+          permission: {
+            type: 'native-token-allowance',
+            isAdjustmentAllowed: false,
             data: {
-              ticker: 'ETH',
+              allowance: '0x1DCD6500',
             },
-            policies: [
-              {
-                type: 'token-allowance',
-                data: {
-                  allowance: 1n,
-                },
-              },
-            ],
           },
-        ],
-      }),
+          rules: [
+            {
+              type: 'expiry',
+              data: {
+                timestamp: 1577840461,
+              },
+            },
+          ],
+        },
+      ]),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "chainId": 1,
+          "context": "0xdeadbeef",
+          "delegationManager": "0xdb9B1e94B5b69Df7e401DDbedE43491141047dB3",
+          "dependencies": [],
+          "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "permission": {
+            "data": {
+              "allowance": "0x1DCD6500",
+            },
+            "isAdjustmentAllowed": false,
+            "type": "native-token-allowance",
+          },
+          "rules": [
+            {
+              "data": {
+                "timestamp": 1577840461,
+              },
+              "type": "expiry",
+            },
+          ],
+          "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        },
+      ]
+    `)
+  })
+
+  test('getSupportedExecutionPermissions', async () => {
+    expect(
+      await client.getSupportedExecutionPermissions(),
     ).toMatchInlineSnapshot(`
       {
-        "expiry": 1716846083638,
-        "grantedPermissions": [
-          {
-            "data": {
-              "ticker": "ETH",
-            },
-            "policies": [
-              {
-                "data": {
-                  "allowance": 1n,
-                },
-                "type": "token-allowance",
-              },
-            ],
-            "required": false,
-            "type": "native-token-transfer",
-          },
-        ],
-        "permissionsContext": "0xdeadbeef",
+        "erc20-token-allowance": {
+          "chainIds": [
+            1,
+          ],
+          "ruleTypes": [],
+        },
+        "native-token-allowance": {
+          "chainIds": [
+            1,
+          ],
+          "ruleTypes": [
+            "expiry",
+          ],
+        },
       }
+    `)
+  })
+
+  test('getGrantedExecutionPermissions', async () => {
+    expect(
+      await client.getGrantedExecutionPermissions(),
+    ).toMatchInlineSnapshot(`
+      [
+        {
+          "chainId": 1,
+          "context": "0xdeadbeef",
+          "delegationManager": "0xdb9B1e94B5b69Df7e401DDbedE43491141047dB3",
+          "dependencies": [],
+          "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "permission": {
+            "data": {
+              "allowance": "0x1DCD6500",
+            },
+            "isAdjustmentAllowed": false,
+            "type": "native-token-allowance",
+          },
+          "rules": [
+            {
+              "data": {
+                "timestamp": 1577840461,
+              },
+              "type": "expiry",
+            },
+          ],
+          "to": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        },
+      ]
     `)
   })
 })
