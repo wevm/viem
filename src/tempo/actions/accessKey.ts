@@ -91,6 +91,8 @@ export namespace authorize {
   export type Args = {
     /** The access key to authorize. */
     accessKey: Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>
+    /** Chain ID for replay protection. Defaults to the client's chain ID. */
+    chainId?: bigint | undefined
     /** Unix timestamp when the key expires. */
     expiry?: number | undefined
     /** Spending limits per token. */
@@ -112,12 +114,18 @@ export namespace authorize {
     client: Client<Transport, chain, account>,
     parameters: authorize.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { accessKey, expiry, limits, ...rest } = parameters
+    const { accessKey, chainId, expiry, limits, ...rest } = parameters
     const account_ = rest.account ?? client.account
     if (!account_) throw new Error('account is required.')
     const parsed = parseAccount(account_)
+    const chainId_ = chainId ?? (client.chain ? BigInt(client.chain.id) : undefined)
+    if (!chainId_)
+      throw new Error(
+        'chainId is required. Set client.chain or pass chainId explicitly.',
+      )
     const keyAuthorization = await signKeyAuthorization(parsed as never, {
       key: accessKey,
+      chainId: chainId_,
       expiry,
       limits,
     })
@@ -815,6 +823,8 @@ export namespace signAuthorization {
   export type Parameters = {
     /** The access key to authorize. */
     accessKey: Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>
+    /** Chain ID for replay protection. */
+    chainId?: bigint | undefined
     /** Unix timestamp when the key expires. */
     expiry?: number | undefined
     /** Spending limits per token. */
