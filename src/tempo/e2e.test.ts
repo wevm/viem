@@ -396,7 +396,9 @@ describe('sendTransaction', () => {
       access: account,
     })
 
-    const keyAuthorization = await account.signKeyAuthorization(accessKey)
+    const keyAuthorization = await account.signKeyAuthorization(accessKey, {
+      chainId: BigInt(chain.id),
+    })
 
     {
       const receipt = await sendTransactionSync(client, {
@@ -660,7 +662,9 @@ describe('sendTransaction', () => {
         access: account,
       })
 
-      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+      const keyAuthorization = await account.signKeyAuthorization(accessKey, {
+        chainId: BigInt(chain.id),
+      })
 
       {
         const receipt = await sendTransactionSync(client, {
@@ -689,7 +693,9 @@ describe('sendTransaction', () => {
       })
       const feePayer = accounts[0]
 
-      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+      const keyAuthorization = await account.signKeyAuthorization(accessKey, {
+        chainId: BigInt(chain.id),
+      })
 
       {
         const receipt = await sendTransactionSync(client, {
@@ -889,7 +895,9 @@ describe('sendTransaction', () => {
 
       await setupFeeToken(client, { account })
 
-      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+      const keyAuthorization = await account.signKeyAuthorization(accessKey, {
+        chainId: BigInt(chain.id),
+      })
 
       {
         const receipt = await sendTransactionSync(client, {
@@ -1161,7 +1169,9 @@ describe('sendTransaction', () => {
 
       await setupFeeToken(client, { account })
 
-      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+      const keyAuthorization = await account.signKeyAuthorization(accessKey, {
+        chainId: BigInt(chain.id),
+      })
 
       {
         const receipt = await sendTransactionSync(client, {
@@ -1748,7 +1758,9 @@ describe('relay', () => {
         },
       )
 
-      const keyAuthorization = await account.signKeyAuthorization(accessKey)
+      const keyAuthorization = await account.signKeyAuthorization(accessKey, {
+        chainId: BigInt(chain.id),
+      })
 
       await setupFeeToken(client, { account })
 

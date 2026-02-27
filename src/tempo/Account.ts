@@ -46,7 +46,10 @@ export type RootAccount = Account_base<'root'> & {
   /** Sign key authorization. */
   signKeyAuthorization: (
     key: Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>,
-    parameters?: Pick<KeyAuthorization.KeyAuthorization, 'expiry' | 'limits'>,
+    parameters?: Pick<
+      KeyAuthorization.KeyAuthorization,
+      'chainId' | 'expiry' | 'limits'
+    >,
   ) => Promise<KeyAuthorization.Signed>
 }
 
@@ -374,12 +377,13 @@ export async function signKeyAuthorization(
   account: LocalAccount,
   parameters: signKeyAuthorization.Parameters,
 ): Promise<signKeyAuthorization.ReturnValue> {
-  const { key, expiry, limits } = parameters
+  const { key, chainId, expiry, limits } = parameters
   const { accessKeyAddress, keyType: type } = key
 
   const signature = await account.sign!({
     hash: KeyAuthorization.getSignPayload({
       address: accessKeyAddress,
+      chainId,
       expiry,
       limits,
       type,
@@ -387,6 +391,7 @@ export async function signKeyAuthorization(
   })
   return KeyAuthorization.from({
     address: accessKeyAddress,
+    chainId,
     expiry,
     limits,
     signature: SignatureEnvelope.from(signature),
@@ -397,7 +402,7 @@ export async function signKeyAuthorization(
 export declare namespace signKeyAuthorization {
   type Parameters = Pick<
     KeyAuthorization.KeyAuthorization,
-    'expiry' | 'limits'
+    'chainId' | 'expiry' | 'limits'
   > & {
     key: Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>
   }
@@ -508,12 +513,13 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
     ...account,
     source: 'root',
     async signKeyAuthorization(key, parameters = {}) {
-      const { expiry, limits } = parameters
+      const { chainId, expiry, limits } = parameters
       const { accessKeyAddress, keyType: type } = key
 
       const signature = await account.sign({
         hash: KeyAuthorization.getSignPayload({
           address: accessKeyAddress,
+          chainId,
           expiry,
           limits,
           type,
@@ -521,6 +527,7 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
       })
       const keyAuthorization = KeyAuthorization.from({
         address: accessKeyAddress,
+        chainId,
         expiry,
         limits,
         signature: SignatureEnvelope.from(signature),
