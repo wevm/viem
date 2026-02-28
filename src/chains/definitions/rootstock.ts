@@ -18,7 +18,11 @@ export const rootstock = /*#__PURE__*/ defineChain({
       url: 'https://explorer.rsk.co',
     },
   },
+  ensTlds: ['.rsk'],
   contracts: {
+    ensRegistry: {
+      address: '0xcb868aeabd31e2b66f74e9a55cf064abb31a4ad5',
+    },
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 4249540,
