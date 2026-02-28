@@ -417,6 +417,7 @@ export async function prepareTransactionRequest<
           const unsupported = error.walk?.((e) => {
             const error = e as BaseError
             return (
+              error.name === 'InvalidRequestRpcError' ||
               error.name === 'MethodNotFoundRpcError' ||
               error.name === 'MethodNotSupportedRpcError'
             )

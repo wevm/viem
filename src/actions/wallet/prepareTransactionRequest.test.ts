@@ -11,9 +11,11 @@ import {
   BaseError,
   createClient,
   http,
+  InvalidRequestRpcError,
   MethodNotFoundRpcError,
   toBlobs,
 } from '../../index.js'
+import { getTransactionError } from '../../utils/errors/getTransactionError.js'
 import { defineChain, nonceManager } from '../../utils/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { parseGwei } from '../../utils/unit/parseGwei.js'
@@ -2352,6 +2354,48 @@ describe('behavior: attemptFill', () => {
     // 1. fees check passes (maxFeePerGas and maxPriorityFeePerGas are provided)
     // 2. blob check returns false (blobs/kzg are missing)
     expect(fillTransactionSpy).not.toHaveBeenCalled()
+  })
+
+  test('behavior: do not attempt fill when supportsFillTransaction=false is cached on InvalidRequestRpcError (-32600)', async () => {
+    await setup()
+
+    const fillTransactionSpy = vi
+      .spyOn(fillTransaction, 'fillTransaction')
+      .mockRejectedValueOnce(
+        getTransactionError(
+          new InvalidRequestRpcError(
+            new Error(
+              'eth_fillTransaction is not available on NETWORK_NAME. For more information see our docs: https://docs.alchemy.com/alchemy/documentation/apis/ethereum',
+            ),
+          ),
+          {
+            account: privateKeyToAccount(sourceAccount.privateKey),
+            to: targetAccount.address,
+            value: parseEther('1'),
+          },
+        ),
+      )
+
+    expect(supportsFillTransaction.get(client.uid)).toBeUndefined()
+
+    // First call: triggers error and caches supportsFillTransaction=false
+    await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    expect(supportsFillTransaction.get(client.uid)).toBe(false)
+    expect(fillTransactionSpy).toHaveBeenCalledTimes(1)
+
+    // Second call: skips fillTransaction entirely due to cache
+    await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    expect(fillTransactionSpy).toHaveBeenCalledTimes(1)
   })
 
   test('behavior: attempt fill when only blobVersionedHashes parameter is set without blobs/kzg but gas is missing', async () => {
