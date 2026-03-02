@@ -15,13 +15,13 @@ import {
 import { Account, Actions, Transaction } from 'viem/tempo'
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest'
 import {
+  accessKeyVersion,
   accounts,
   chain,
   feeToken,
   getClient,
   http,
   setupFeeToken,
-  accessKeyVersion,
 } from '~test/tempo/config.js'
 import * as Prool from '~test/tempo/prool.js'
 import { withFeePayer } from './Transport.js'

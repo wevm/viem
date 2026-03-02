@@ -2,10 +2,10 @@ import { generatePrivateKey } from 'viem/accounts'
 import { Account } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import {
+  accessKeyVersion,
   accounts,
   feeToken,
   getClient,
-  accessKeyVersion,
 } from '~test/tempo/config.js'
 import * as actions from './index.js'
 
