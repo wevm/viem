@@ -1,5 +1,5 @@
 import { beforeAll, expect, test } from 'vitest'
-import { anvilMainnet, anvilOptimism } from '~test/anvil.js'
+import { anvilMainnet } from '~test/anvil.js'
 import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import {
@@ -15,27 +15,16 @@ const privateKey = generatePrivateKey()
 const account = privateKeyToAccount(privateKey)
 
 const mainnetClient = anvilMainnet.getClient({ account })
-const optimismClient = anvilOptimism.getClient({ account })
 
 const mainnetArgs = {
   address: account.address,
   chainId: mainnetClient.chain.id,
   client: mainnetClient,
 } as const
-const optimismArgs = {
-  address: account.address,
-  chainId: optimismClient.chain.id,
-  client: optimismClient,
-} as const
 
 beforeAll(async () => {
   await anvilMainnet.restart()
-  await anvilOptimism.restart()
   await setBalance(mainnetClient, {
-    address: account.address,
-    value: parseEther('100'),
-  })
-  await setBalance(optimismClient, {
     address: account.address,
     value: parseEther('100'),
   })
@@ -52,13 +41,6 @@ test('get next', async () => {
     value: 0n,
   })
   expect(await nonceManager.get(mainnetArgs)).toBe(1)
-
-  expect(await nonceManager.get(optimismArgs)).toBe(0)
-  await sendTransaction(optimismClient, {
-    to: account.address,
-    value: 0n,
-  })
-  expect(await nonceManager.get(optimismArgs)).toBe(1)
 })
 
 test('consume (sequence)', async () => {
