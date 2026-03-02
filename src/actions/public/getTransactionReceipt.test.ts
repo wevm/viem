@@ -363,6 +363,7 @@ describe('e2e', () => {
       blockNumber,
       effectiveGasPrice,
       transactionHash,
+      blockTimestamp,
       ...receipt
     } = await getTransactionReceipt(client, {
       hash,
@@ -372,10 +373,10 @@ describe('e2e', () => {
     expect(blockNumber).toBeDefined()
     expect(effectiveGasPrice).toBeDefined()
     expect(transactionHash).toBeDefined()
+    expect(blockTimestamp).toBeDefined()
     expect(receipt).toMatchInlineSnapshot(`
       {
         "blobGasPrice": 1n,
-        "blockTimestamp": 1744590305,
         "contractAddress": null,
         "cumulativeGasUsed": 21000n,
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
