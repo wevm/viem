@@ -392,16 +392,24 @@ export async function prepareTransactionRequest<
           return {
             ...request,
             ...(from ? { from } : {}),
-            ...(type ? { type } : {}),
+            ...(type && !request.type ? { type } : {}),
             ...(typeof chainId !== 'undefined' ? { chainId } : {}),
             ...(typeof gas !== 'undefined' ? { gas } : {}),
             ...(typeof gasPrice !== 'undefined' ? { gasPrice } : {}),
             ...(typeof nonce !== 'undefined' ? { nonce } : {}),
-            ...(typeof maxFeePerBlobGas !== 'undefined'
+            ...(typeof maxFeePerBlobGas !== 'undefined' &&
+            request.type !== 'legacy' &&
+            request.type !== 'eip2930'
               ? { maxFeePerBlobGas }
               : {}),
-            ...(typeof maxFeePerGas !== 'undefined' ? { maxFeePerGas } : {}),
-            ...(typeof maxPriorityFeePerGas !== 'undefined'
+            ...(typeof maxFeePerGas !== 'undefined' &&
+            request.type !== 'legacy' &&
+            request.type !== 'eip2930'
+              ? { maxFeePerGas }
+              : {}),
+            ...(typeof maxPriorityFeePerGas !== 'undefined' &&
+            request.type !== 'legacy' &&
+            request.type !== 'eip2930'
               ? { maxPriorityFeePerGas }
               : {}),
             ...('nonceKey' in rest && typeof rest.nonceKey !== 'undefined'

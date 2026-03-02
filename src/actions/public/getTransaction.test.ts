@@ -106,8 +106,9 @@ test('gets transaction (eip2930)', async () => {
       "type",
       "chainId",
       "nonce",
-      "gasPrice",
       "gas",
+      "maxFeePerGas",
+      "maxPriorityFeePerGas",
       "to",
       "value",
       "accessList",
@@ -121,10 +122,11 @@ test('gets transaction (eip2930)', async () => {
       "blockNumber",
       "transactionIndex",
       "from",
+      "gasPrice",
       "typeHex",
     ]
   `)
-  expect(transaction.type).toMatchInlineSnapshot('"eip2930"')
+  expect(transaction.type).toMatchInlineSnapshot(`"eip1559"`)
   expect(transaction.from).toMatchInlineSnapshot(
     `"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"`,
   )

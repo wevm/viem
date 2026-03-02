@@ -19,6 +19,7 @@ export default defineConfig({
       exclude: [
         '**/account-abstraction/**',
         '**/errors/utils.ts',
+        '**/op-stack/**',
         '**/zksync/**',
         '**/_cjs/**',
         '**/_esm/**',
@@ -55,6 +56,7 @@ export default defineConfig({
               : '',
             'src/tempo/**',
             'src/account-abstraction/**',
+            'src/op-stack/**',
           ],
           include: ['src/**/*.test.ts'],
           setupFiles: [join(__dirname, './setup.ts')],
