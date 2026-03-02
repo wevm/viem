@@ -396,10 +396,10 @@ describe('sendTransaction', () => {
       access: account,
     })
 
-    const keyAuthorization = await Actions.accessKey.signAuthorization(
-      client,
-      { account, accessKey },
-    )
+    const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+    })
 
     {
       const receipt = await sendTransactionSync(client, {

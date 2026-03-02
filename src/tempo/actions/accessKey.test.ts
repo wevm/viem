@@ -91,14 +91,11 @@ describe('signAuthorization', () => {
       access: account,
     })
 
-    const keyAuthorization = await actions.accessKey.signAuthorization(
-      client,
-      {
-        account,
-        accessKey,
-        expiry: Math.floor((Date.now() + 30_000) / 1000),
-      },
-    )
+    const keyAuthorization = await actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
 
     expect(keyAuthorization).toBeDefined()
     expect(keyAuthorization.address.toLowerCase()).toBe(
@@ -111,15 +108,12 @@ describe('signAuthorization', () => {
       access: account,
     })
 
-    const keyAuthorization = await actions.accessKey.signAuthorization(
-      client,
-      {
-        account,
-        accessKey,
-        expiry: Math.floor((Date.now() + 30_000) / 1000),
-        limits: [{ token: feeToken, limit: 1000000n }],
-      },
-    )
+    const keyAuthorization = await actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+      limits: [{ token: feeToken, limit: 1000000n }],
+    })
 
     expect(keyAuthorization).toBeDefined()
     expect(keyAuthorization.limits).toHaveLength(1)
