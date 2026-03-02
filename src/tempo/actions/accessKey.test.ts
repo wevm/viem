@@ -92,8 +92,9 @@ describe('signAuthorization', () => {
     })
 
     const keyAuthorization = await actions.accessKey.signAuthorization(
-      account,
+      client,
       {
+        account,
         accessKey,
         expiry: Math.floor((Date.now() + 30_000) / 1000),
       },
@@ -111,8 +112,9 @@ describe('signAuthorization', () => {
     })
 
     const keyAuthorization = await actions.accessKey.signAuthorization(
-      account,
+      client,
       {
+        account,
         accessKey,
         expiry: Math.floor((Date.now() + 30_000) / 1000),
         limits: [{ token: feeToken, limit: 1000000n }],

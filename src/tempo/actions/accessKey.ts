@@ -17,7 +17,7 @@ import type { Log } from '../../types/log.js'
 import type { Compute } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
-import type { AccessKeyAccount, RootAccount } from '../Account.js'
+import type { AccessKeyAccount } from '../Account.js'
 import { signKeyAuthorization } from '../Account.js'
 import * as Addresses from '../Addresses.js'
 import type {
@@ -91,6 +91,8 @@ export namespace authorize {
   export type Args = {
     /** The access key to authorize. */
     accessKey: Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>
+    /** The chain ID. */
+    chainId?: number | undefined
     /** Unix timestamp when the key expires. */
     expiry?: number | undefined
     /** Spending limits per token. */
@@ -112,11 +114,19 @@ export namespace authorize {
     client: Client<Transport, chain, account>,
     parameters: authorize.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { accessKey, expiry, limits, ...rest } = parameters
+    const {
+      accessKey,
+      chainId = client.chain?.id,
+      expiry,
+      limits,
+      ...rest
+    } = parameters
     const account_ = rest.account ?? client.account
     if (!account_) throw new Error('account is required.')
+    if (!chainId) throw new Error('chainId is required.')
     const parsed = parseAccount(account_)
     const keyAuthorization = await signKeyAuthorization(parsed as never, {
+      chainId: BigInt(chainId),
       key: accessKey,
       expiry,
       limits,
@@ -791,30 +801,46 @@ export namespace getRemainingLimit {
  * })
  *
  * const keyAuthorization = await Actions.accessKey.signAuthorization(
- *   account,
+ *   client,
  *   {
+ *     account,
  *     accessKey,
  *     expiry: Math.floor((Date.now() + 30_000) / 1000),
  *   },
  * )
  * ```
  *
- * @param account - The root account signing the authorization.
+ * @param client - Client.
  * @param parameters - Parameters.
  * @returns The signed key authorization.
  */
-export async function signAuthorization(
-  account: RootAccount,
-  parameters: signAuthorization.Parameters,
+export async function signAuthorization<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: signAuthorization.Parameters<account>,
 ): Promise<signAuthorization.ReturnValue> {
-  const { accessKey, ...rest } = parameters
-  return signKeyAuthorization(account, { key: accessKey, ...rest })
+  const { accessKey, chainId = client.chain?.id, ...rest } = parameters
+  const account_ = rest.account ?? client.account
+  if (!account_) throw new Error('account is required.')
+  if (!chainId) throw new Error('chainId is required.')
+  const parsed = parseAccount(account_)
+  return signKeyAuthorization(parsed as never, {
+    chainId: BigInt(chainId),
+    key: accessKey,
+    ...rest,
+  })
 }
 
 export namespace signAuthorization {
-  export type Parameters = {
+  export type Parameters<
+    account extends Account | undefined = Account | undefined,
+  > = GetAccountParameter<account> & {
     /** The access key to authorize. */
     accessKey: Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>
+    /** The chain ID. */
+    chainId?: number | undefined
     /** Unix timestamp when the key expires. */
     expiry?: number | undefined
     /** Spending limits per token. */

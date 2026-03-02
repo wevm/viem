@@ -77,6 +77,7 @@ describe('fromSecp256k1', () => {
         },
         "type": "keychain",
         "userAddress": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "version": "v1",
       }
     `)
   })
@@ -149,6 +150,7 @@ describe('fromP256', () => {
         },
         "type": "keychain",
         "userAddress": "0xc3Cf8B814B729A1ad648b49fbBdED3767BCd35fd",
+        "version": "v1",
       }
     `)
   })
@@ -229,6 +231,7 @@ describe('fromHeadlessWebAuthn', () => {
         },
         "type": "keychain",
         "userAddress": "0xc3Cf8B814B729A1ad648b49fbBdED3767BCd35fd",
+        "version": "v1",
       }
     `)
   })
@@ -513,18 +516,21 @@ describe('signKeyAuthorization', () => {
       access: account,
     })
 
-    const authorization = await account.signKeyAuthorization(key)
+    const authorization = await account.signKeyAuthorization(key, {
+      chainId: BigInt(client.chain!.id),
+    })
 
-    expect(authorization).toMatchInlineSnapshot(`
+    const { chainId: _, ...rest } = authorization
+    expect(rest).toMatchInlineSnapshot(`
       {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "expiry": undefined,
         "limits": undefined,
         "signature": {
           "signature": {
-            "r": 79205852917725370379355270588870592116219723320468023492479334723587833964208n,
-            "s": 4843127791679253574310716587415423223041264865988930666086461408483250881493n,
-            "yParity": 1,
+            "r": 23246779009484945273859541677500795286425598981825493234251719807816228886987n,
+            "s": 29480164492509967162498000959810425640118635906018539896066188777481822109573n,
+            "yParity": 0,
           },
           "type": "secp256k1",
         },
@@ -540,6 +546,7 @@ describe('signKeyAuthorization', () => {
     })
 
     const authorization = await account.signKeyAuthorization(key, {
+      chainId: BigInt(client.chain!.id),
       expiry: 1234567890,
       limits: [
         {
@@ -548,7 +555,8 @@ describe('signKeyAuthorization', () => {
         },
       ],
     })
-    expect(authorization).toMatchInlineSnapshot(`
+    const { chainId: _, ...rest } = authorization
+    expect(rest).toMatchInlineSnapshot(`
       {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "expiry": 1234567890,
@@ -560,8 +568,8 @@ describe('signKeyAuthorization', () => {
         ],
         "signature": {
           "signature": {
-            "r": 48603032183460068649726257603541287031240449157747147951793434940348798421977n,
-            "s": 52252948283033674801195452183159160801795536276956563866652050470169279213377n,
+            "r": 27500180303491826355348882979551066035208667565690648180381706167647002605946n,
+            "s": 11396346575491751663729016480092549802690434016402533853617549759994413767273n,
             "yParity": 1,
           },
           "type": "secp256k1",
@@ -578,6 +586,7 @@ describe('signKeyAuthorization', () => {
     })
 
     const authorization = await account.signKeyAuthorization(key, {
+      chainId: BigInt(client.chain!.id),
       expiry: 1234567890,
       limits: [
         {
@@ -586,7 +595,8 @@ describe('signKeyAuthorization', () => {
         },
       ],
     })
-    expect(authorization).toMatchInlineSnapshot(`
+    const { chainId: _, ...rest } = authorization
+    expect(rest).toMatchInlineSnapshot(`
       {
         "address": "0x7b9f73245dee5855ef858f5c00eea6205f9bb4d2",
         "expiry": 1234567890,
@@ -604,8 +614,8 @@ describe('signKeyAuthorization', () => {
             "y": 57892587925019714505251703757706314187537979987563648366993255393643804566080n,
           },
           "signature": {
-            "r": 61783347383434217927888325272237644430195567463134160594444735116547420206984n,
-            "s": 11737632122119624918549121055165681708107124199303685870565323985056705147576n,
+            "r": 539019544446795555618295905722997473197245856915125934446715353136544149644n,
+            "s": 43857275008412640549768210335159081087274462507205259003956274154003032961331n,
           },
           "type": "p256",
         },
@@ -624,6 +634,7 @@ describe('signKeyAuthorization', () => {
     })
 
     const authorization = await account.signKeyAuthorization(key, {
+      chainId: BigInt(client.chain!.id),
       expiry: 1234567890,
       limits: [
         {
@@ -632,7 +643,8 @@ describe('signKeyAuthorization', () => {
         },
       ],
     })
-    expect(authorization).toMatchInlineSnapshot(`
+    const { chainId: _, ...rest } = authorization
+    expect(rest).toMatchInlineSnapshot(`
       {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "expiry": 1234567890,
@@ -645,7 +657,7 @@ describe('signKeyAuthorization', () => {
         "signature": {
           "metadata": {
             "authenticatorData": "0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000",
-            "clientDataJSON": "{"type":"webauthn.get","challenge":"lGAMxkLdccXnNTMWbfQ1rYi8HBqAdMPo1CDv0cJ2IsE","origin":"http://localhost","crossOrigin":false}",
+            "clientDataJSON": "{"type":"webauthn.get","challenge":"yM4oLrtT1wZh3Ca6Zj5kO6kP_ebISFaCx1Aok-AXjaw","origin":"http://localhost","crossOrigin":false}",
           },
           "publicKey": {
             "prefix": 4,
@@ -653,8 +665,8 @@ describe('signKeyAuthorization', () => {
             "y": 57892587925019714505251703757706314187537979987563648366993255393643804566080n,
           },
           "signature": {
-            "r": 78216200649325922174765550266136727201161525335688064274452437990389629688142n,
-            "s": 45615041673857220498429503388722739621903077428603741554126666038202271956449n,
+            "r": 107118292977381551150970214368677766242763143711014002758102542197964942557992n,
+            "s": 30595257478749759082465782751905372583374431901854926324903966619924165980672n,
           },
           "type": "webAuthn",
         },
@@ -670,6 +682,7 @@ describe('signKeyAuthorization', () => {
     })
 
     const authorization = await account.signKeyAuthorization(key, {
+      chainId: BigInt(client.chain!.id),
       expiry: 1234567890,
       limits: [
         {
@@ -682,7 +695,8 @@ describe('signKeyAuthorization', () => {
         },
       ],
     })
-    expect(authorization).toMatchInlineSnapshot(`
+    const { chainId: _, ...rest } = authorization
+    expect(rest).toMatchInlineSnapshot(`
       {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "expiry": 1234567890,
@@ -698,9 +712,9 @@ describe('signKeyAuthorization', () => {
         ],
         "signature": {
           "signature": {
-            "r": 103446563773805832555738463837136311499830712555215862064308154410957015968940n,
-            "s": 19247215858016211284757060583528935834485291841858715669623661689922072500812n,
-            "yParity": 0,
+            "r": 15118012128001996683018315003630474892756625926769093217670340734112621258206n,
+            "s": 9846096404778268706849137297387174675378165069700486701094627436587941070449n,
+            "yParity": 1,
           },
           "type": "secp256k1",
         },
@@ -718,6 +732,7 @@ describe('signKeyAuthorization (standalone)', () => {
     })
 
     const authorization = await Account.signKeyAuthorization(account, {
+      chainId: BigInt(client.chain!.id),
       key,
       expiry: 1234567890,
       limits: [
@@ -727,7 +742,8 @@ describe('signKeyAuthorization (standalone)', () => {
         },
       ],
     })
-    expect(authorization).toMatchInlineSnapshot(`
+    const { chainId: _, ...rest } = authorization
+    expect(rest).toMatchInlineSnapshot(`
       {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "expiry": 1234567890,
@@ -739,8 +755,8 @@ describe('signKeyAuthorization (standalone)', () => {
         ],
         "signature": {
           "signature": {
-            "r": 48603032183460068649726257603541287031240449157747147951793434940348798421977n,
-            "s": 52252948283033674801195452183159160801795536276956563866652050470169279213377n,
+            "r": 27500180303491826355348882979551066035208667565690648180381706167647002605946n,
+            "s": 11396346575491751663729016480092549802690434016402533853617549759994413767273n,
             "yParity": 1,
           },
           "type": "secp256k1",
