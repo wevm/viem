@@ -104,12 +104,13 @@ export function fromHeadlessWebAuthn<
   privateKey: Hex.Hex,
   options: options | fromHeadlessWebAuthn.Options,
 ): fromHeadlessWebAuthn.ReturnValue<options> {
-  const { access, rpId, origin } = options
+  const { access, rpId, origin, internal_version } = options
 
   const publicKey = P256.getPublicKey({ privateKey })
 
   return from({
     access,
+    internal_version,
     keyType: 'webAuthn',
     publicKey,
     async sign({ hash }) {
@@ -139,7 +140,7 @@ export declare namespace fromHeadlessWebAuthn {
     WebAuthnP256.getSignPayload.Options,
     'challenge' | 'rpId' | 'origin'
   > &
-    Pick<from.Parameters, 'access'> & {
+    Pick<from.Parameters, 'access' | 'internal_version'> & {
       rpId: string
       origin: string
     }
@@ -165,11 +166,12 @@ export function fromP256<const options extends fromP256.Options>(
   privateKey: Hex.Hex,
   options: options | fromP256.Options = {},
 ): fromP256.ReturnValue<options> {
-  const { access } = options
+  const { access, internal_version } = options
   const publicKey = P256.getPublicKey({ privateKey })
 
   return from({
     access,
+    internal_version,
     keyType: 'p256',
     publicKey,
     async sign({ hash }) {
@@ -184,7 +186,7 @@ export function fromP256<const options extends fromP256.Options>(
 }
 
 export declare namespace fromP256 {
-  export type Options = Pick<from.Parameters, 'access'>
+  export type Options = Pick<from.Parameters, 'access' | 'internal_version'>
 
   export type ReturnValue<options extends Options = Options> =
     from.ReturnValue<options>
@@ -207,11 +209,12 @@ export function fromSecp256k1<const options extends fromSecp256k1.Options>(
   privateKey: Hex.Hex,
   options: options | fromSecp256k1.Options = {},
 ): fromSecp256k1.ReturnValue<options> {
-  const { access } = options
+  const { access, internal_version } = options
   const publicKey = Secp256k1.getPublicKey({ privateKey })
 
   return from({
     access,
+    internal_version,
     keyType: 'secp256k1',
     publicKey,
     async sign(parameters) {
@@ -223,7 +226,7 @@ export function fromSecp256k1<const options extends fromSecp256k1.Options>(
 }
 
 export declare namespace fromSecp256k1 {
-  export type Options = Pick<from.Parameters, 'access'>
+  export type Options = Pick<from.Parameters, 'access' | 'internal_version'>
 
   export type ReturnValue<options extends Options = Options> =
     from.ReturnValue<options>
@@ -347,11 +350,12 @@ export function fromWebCryptoP256<
   keyPair: Awaited<ReturnType<typeof WebCryptoP256.createKeyPair>>,
   options: options | fromWebCryptoP256.Options = {},
 ): fromWebCryptoP256.ReturnValue<options> {
-  const { access } = options
+  const { access, internal_version } = options
   const { publicKey, privateKey } = keyPair
 
   return from({
     access,
+    internal_version,
     keyType: 'p256',
     publicKey,
     async sign({ hash }) {
@@ -367,7 +371,7 @@ export function fromWebCryptoP256<
 }
 
 export declare namespace fromWebCryptoP256 {
-  export type Options = Pick<from.Parameters, 'access'>
+  export type Options = Pick<from.Parameters, 'access' | 'internal_version'>
 
   export type ReturnValue<options extends Options = Options> =
     from.ReturnValue<options>
@@ -417,6 +421,7 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
     keyType = 'secp256k1',
     parentAddress,
     source = 'privateKey',
+    internal_version = 'v1',
   } = parameters
 
   const address = parentAddress ?? Address.fromPublicKey(parameters.publicKey)
@@ -425,13 +430,18 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
   })
 
   async function sign({ hash }: { hash: Hex.Hex }) {
-    const signature = await parameters.sign({ hash })
+    const innerHash =
+      parentAddress && internal_version === 'v2'
+        ? keccak256(Hex.concat('0x04', hash, parentAddress))
+        : hash
+    const signature = await parameters.sign({ hash: innerHash })
     if (parentAddress)
       return SignatureEnvelope.serialize(
         SignatureEnvelope.from({
           userAddress: parentAddress,
           inner: SignatureEnvelope.from(signature),
           type: 'keychain',
+          version: internal_version,
         }),
       )
     // Don't need to append magic bytes to secp256k1 signatures as they are
@@ -500,6 +510,8 @@ declare namespace fromBase {
     sign: NonNullable<LocalAccount['sign']>
     /** Source. */
     source?: string | undefined
+    /** Access key version. Will be removed in a future release. @deprecated @internal */
+    internal_version?: 'v1' | 'v2' | undefined
   }
 
   export type ReturnValue = Account_base
