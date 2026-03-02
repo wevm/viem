@@ -10,6 +10,7 @@ auditConfig:
     - GHSA-ffrw-9mx8-89p8
     - GHSA-mh29-5h37-fv8m
     - GHSA-7r86-cg39-jmmj
+    - GHSA-23c5-xmqv-rm74 
 
 catalog:
   '@types/react': ^19
