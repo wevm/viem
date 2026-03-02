@@ -49,6 +49,8 @@ export type TransactionReceipt<
   blockHash: Hash
   /** Number of block containing this transaction */
   blockNumber: quantity
+  /** Unix timestamp of when this block was collated */
+  blockTimestamp?: quantity | undefined
   /** Address of new contract or `null` if no contract was created */
   contractAddress: Address | null | undefined
   /** Gas used by this and all preceding transactions in this block */
