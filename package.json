@@ -301,7 +301,7 @@
       "tar@<7.5.8": "7.5.8",
       "rollup@>=4.0.0 <4.59.0": "4.59.0",
       "basic-ftp@<5.2.0": "5.2.0",
-      "minimatch@>=10.0.0 <10.2.3": ">=10.2.3",
+      "minimatch@>=10.0.0 <10.2.3": "10.2.3",
       "serialize-javascript@<=7.0.2": "7.0.3"
     },
     "onlyBuiltDependencies": [
