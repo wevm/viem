@@ -1,5 +1,31 @@
 # viem
 
+## 2.47.0
+
+### Minor Changes
+
+- [`1adb83804d5f6c3f36d5f293de88532330d52dc7`](https://github.com/wevm/viem/commit/1adb83804d5f6c3f36d5f293de88532330d52dc7) Thanks [@jxom](https://github.com/jxom)! - **Breaking (`viem/tempo`):** `chainId` is now required when signing access key authorizations with `signKeyAuthorization`. It is recommended to use `client.accessKey.signAuthorization` instead for inferred chain ID.
+
+  ```diff
+  import { client } from './viem.config'
+  import { Account } from 'viem/tempo'
+
+  const account = Account.from({ privateKey: '0x...' })
+  const accessKey = Account.fromP256(generatePrivateKey(), {
+    access: account,
+  })
+
+  - const keyAuthorization = await account.signKeyAuthorization(accessKey)
+  + const keyAuthorization = await client.accessKey.signAuthorization({
+  +   account,
+  +   accessKey,
+  + })
+  ```
+
+### Patch Changes
+
+- [#4374](https://github.com/wevm/viem/pull/4374) [`141a367cd4fec97224477d5cef008c0f66a43926`](https://github.com/wevm/viem/commit/141a367cd4fec97224477d5cef008c0f66a43926) Thanks [@jxom](https://github.com/jxom)! - **`viem/tempo`:** Exported `TempoAddress` from `ox/tempo`.
+
 ## 2.46.3
 
 ### Patch Changes
