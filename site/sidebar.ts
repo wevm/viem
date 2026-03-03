@@ -2288,6 +2288,29 @@ export const sidebar = {
           },
         ],
       },
+      {
+        text: 'Utilities',
+        items: [
+          {
+            text: 'TempoAddress',
+            collapsed: true,
+            items: [
+              {
+                text: 'format',
+                link: '/tempo/utilities/TempoAddress.format',
+              },
+              {
+                text: 'parse',
+                link: '/tempo/utilities/TempoAddress.parse',
+              },
+              {
+                text: 'validate',
+                link: '/tempo/utilities/TempoAddress.validate',
+              },
+            ],
+          },
+        ],
+      },
     ],
   },
   '/zksync': {
