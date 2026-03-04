@@ -29,8 +29,11 @@ import { rpcUrl } from './prool.js'
 
 export const nodeEnv = import.meta.env.VITE_TEMPO_ENV || 'localnet'
 
-export const accessKeyVersion =
-  nodeEnv === 'localnet' || nodeEnv === 'devnet' ? 'v2' : undefined
+export const accessKeyVersion = (() => {
+  if (nodeEnv === 'localnet' || nodeEnv === 'devnet') return 'v2'
+  if (nodeEnv === 'testnet') return 'v1'
+  return undefined
+})()
 
 const accountsMnemonic = (() => {
   if (nodeEnv === 'localnet')
