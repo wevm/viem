@@ -182,7 +182,7 @@ test('waits for transaction (polling many blocks while others waiting does not t
 
   // important step: Mine a bunch of blocks together to trigger getTransactionReceipt many times for the same receipt.
   // getting many receipt will trigger many unwatch from the same listener
-  await mine(client, { blocks: 1000 })
+  await mine(client, { blocks: 100 })
   await wait(200)
 
   // Send good transaction and mine, if the polling is working fine should get the receipt but if not we will get a timeout.
