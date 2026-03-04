@@ -1,16 +1,10 @@
 import { describe, expect, test } from 'vitest'
+import { accounts } from '~test/constants.js'
 import { mainnet } from '../../../chains/index.js'
 import { createClient } from '../../../clients/createClient.js'
 import { custom } from '../../../clients/transports/custom.js'
 import { parseEther } from '../../../utils/index.js'
 import { sendCalls } from './sendCalls.js'
-
-const accounts = [
-  { address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266' },
-  { address: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' },
-  { address: '0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc' },
-  { address: '0x90f79bf6eb2c4f870365e785982e1f101e93b906' },
-] as const
 
 const getClient = ({
   onRequest,
@@ -32,7 +26,7 @@ const getClient = ({
 
 describe('sendCalls with gasLimitOverride', () => {
   test('calls without gas - no gasLimitOverride capability', async () => {
-    const requests: { method: string; params: unknown }[] = []
+    const requests: unknown[] = []
 
     const client = getClient({
       onRequest(request) {
@@ -54,16 +48,41 @@ describe('sendCalls with gasLimitOverride', () => {
       ],
     })
 
-    expect(requests).toHaveLength(1)
-    expect(requests[0].method).toBe('wallet_sendCalls')
-
-    const params = (requests[0].params as any)[0]
-    expect(params.calls[0].capabilities).toBeUndefined()
-    expect(params.calls[1].capabilities).toBeUndefined()
+    expect(requests).toMatchInlineSnapshot(`
+      [
+        {
+          "method": "wallet_sendCalls",
+          "params": [
+            {
+              "atomicRequired": false,
+              "calls": [
+                {
+                  "capabilities": undefined,
+                  "data": undefined,
+                  "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+                  "value": "0xde0b6b3a7640000",
+                },
+                {
+                  "capabilities": undefined,
+                  "data": "0xcafebabe",
+                  "to": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+                  "value": undefined,
+                },
+              ],
+              "capabilities": undefined,
+              "chainId": "0x1",
+              "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+              "id": undefined,
+              "version": "2.0.0",
+            },
+          ],
+        },
+      ]
+    `)
   })
 
   test('calls with gas - gasLimitOverride capability added', async () => {
-    const requests: { method: string; params: unknown }[] = []
+    const requests: unknown[] = []
 
     const client = getClient({
       onRequest(request) {
@@ -87,20 +106,49 @@ describe('sendCalls with gasLimitOverride', () => {
       ],
     })
 
-    expect(requests).toHaveLength(1)
-    expect(requests[0].method).toBe('wallet_sendCalls')
-
-    const params = (requests[0].params as any)[0]
-    expect(params.calls[0].capabilities).toEqual({
-      gasLimitOverride: { value: '0x186a0' }, // 100000 in hex
-    })
-    expect(params.calls[1].capabilities).toEqual({
-      gasLimitOverride: { value: '0x30d40' }, // 200000 in hex
-    })
+    expect(requests).toMatchInlineSnapshot(`
+      [
+        {
+          "method": "wallet_sendCalls",
+          "params": [
+            {
+              "atomicRequired": false,
+              "calls": [
+                {
+                  "capabilities": {
+                    "gasLimitOverride": {
+                      "value": "0x186a0",
+                    },
+                  },
+                  "data": undefined,
+                  "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+                  "value": "0xde0b6b3a7640000",
+                },
+                {
+                  "capabilities": {
+                    "gasLimitOverride": {
+                      "value": "0x30d40",
+                    },
+                  },
+                  "data": "0xcafebabe",
+                  "to": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+                  "value": undefined,
+                },
+              ],
+              "capabilities": undefined,
+              "chainId": "0x1",
+              "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+              "id": undefined,
+              "version": "2.0.0",
+            },
+          ],
+        },
+      ]
+    `)
   })
 
   test('mixed calls - some with gas, some without', async () => {
-    const requests: { method: string; params: unknown }[] = []
+    const requests: unknown[] = []
 
     const client = getClient({
       onRequest(request) {
@@ -119,7 +167,6 @@ describe('sendCalls with gasLimitOverride', () => {
         {
           to: accounts[2].address,
           data: '0xcafebabe',
-          // No gas - wallet should estimate
         },
         {
           to: accounts[3].address,
@@ -129,17 +176,51 @@ describe('sendCalls with gasLimitOverride', () => {
       ],
     })
 
-    expect(requests).toHaveLength(1)
-    expect(requests[0].method).toBe('wallet_sendCalls')
-
-    const params = (requests[0].params as any)[0]
-    expect(params.calls[0].capabilities).toEqual({
-      gasLimitOverride: { value: '0x186a0' }, // 100000 in hex
-    })
-    expect(params.calls[1].capabilities).toBeUndefined()
-    expect(params.calls[2].capabilities).toEqual({
-      gasLimitOverride: { value: '0xc350' }, // 50000 in hex
-    })
+    expect(requests).toMatchInlineSnapshot(`
+      [
+        {
+          "method": "wallet_sendCalls",
+          "params": [
+            {
+              "atomicRequired": false,
+              "calls": [
+                {
+                  "capabilities": {
+                    "gasLimitOverride": {
+                      "value": "0x186a0",
+                    },
+                  },
+                  "data": undefined,
+                  "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+                  "value": "0xde0b6b3a7640000",
+                },
+                {
+                  "capabilities": undefined,
+                  "data": "0xcafebabe",
+                  "to": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+                  "value": undefined,
+                },
+                {
+                  "capabilities": {
+                    "gasLimitOverride": {
+                      "value": "0xc350",
+                    },
+                  },
+                  "data": undefined,
+                  "to": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+                  "value": "0x6f05b59d3b20000",
+                },
+              ],
+              "capabilities": undefined,
+              "chainId": "0x1",
+              "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+              "id": undefined,
+              "version": "2.0.0",
+            },
+          ],
+        },
+      ]
+    `)
   })
 
   test('returns response id', async () => {
@@ -158,11 +239,15 @@ describe('sendCalls with gasLimitOverride', () => {
       ],
     })
 
-    expect(result).toEqual({ id: 'test-id' })
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "id": "test-id",
+      }
+    `)
   })
 
   test('batch-level capabilities are preserved', async () => {
-    const requests: { method: string; params: unknown }[] = []
+    const requests: unknown[] = []
 
     const client = getClient({
       onRequest(request) {
@@ -186,24 +271,43 @@ describe('sendCalls with gasLimitOverride', () => {
       },
     })
 
-    expect(requests).toHaveLength(1)
-    const params = (requests[0].params as any)[0]
-
-    // Call-level capabilities
-    expect(params.calls[0].capabilities).toEqual({
-      gasLimitOverride: { value: '0x186a0' },
-    })
-
-    // Batch-level capabilities
-    expect(params.capabilities).toEqual({
-      paymasterService: {
-        url: 'https://paymaster.example.com',
-      },
-    })
+    expect(requests).toMatchInlineSnapshot(`
+      [
+        {
+          "method": "wallet_sendCalls",
+          "params": [
+            {
+              "atomicRequired": false,
+              "calls": [
+                {
+                  "capabilities": {
+                    "gasLimitOverride": {
+                      "value": "0x186a0",
+                    },
+                  },
+                  "data": undefined,
+                  "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+                  "value": "0xde0b6b3a7640000",
+                },
+              ],
+              "capabilities": {
+                "paymasterService": {
+                  "url": "https://paymaster.example.com",
+                },
+              },
+              "chainId": "0x1",
+              "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+              "id": undefined,
+              "version": "2.0.0",
+            },
+          ],
+        },
+      ]
+    `)
   })
 
   test('with abi encoding', async () => {
-    const requests: { method: string; params: unknown }[] = []
+    const requests: unknown[] = []
 
     const client = getClient({
       onRequest(request) {
@@ -234,16 +338,34 @@ describe('sendCalls with gasLimitOverride', () => {
       ],
     })
 
-    expect(requests).toHaveLength(1)
-    const params = (requests[0].params as any)[0]
-
-    // Data should be encoded
-    expect(params.calls[0].data).toBeDefined()
-    expect(params.calls[0].data.startsWith('0xa9059cbb')).toBe(true) // transfer selector
-
-    // Gas capability should be present
-    expect(params.calls[0].capabilities).toEqual({
-      gasLimitOverride: { value: '0x186a0' },
-    })
+    expect(requests).toMatchInlineSnapshot(`
+      [
+        {
+          "method": "wallet_sendCalls",
+          "params": [
+            {
+              "atomicRequired": false,
+              "calls": [
+                {
+                  "capabilities": {
+                    "gasLimitOverride": {
+                      "value": "0x186a0",
+                    },
+                  },
+                  "data": "0xa9059cbb0000000000000000000000003c44cdddb6a900fa2b585dd299e03d12fa4293bc0000000000000000000000000000000000000000000000000de0b6b3a7640000",
+                  "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+                  "value": undefined,
+                },
+              ],
+              "capabilities": undefined,
+              "chainId": "0x1",
+              "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+              "id": undefined,
+              "version": "2.0.0",
+            },
+          ],
+        },
+      ]
+    `)
   })
 })

@@ -2,6 +2,7 @@ import type { Address, Narrow } from 'abitype'
 import { parseAccount } from '../../../accounts/utils/parseAccount.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
+import type { BaseError } from '../../../errors/base.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../../types/account.js'
 import type { Call, Calls } from '../../../types/calls.js'
@@ -13,6 +14,7 @@ import { encodeFunctionData } from '../../../utils/abi/encodeFunctionData.js'
 import type { RequestErrorType } from '../../../utils/buildRequest.js'
 import { concat } from '../../../utils/data/concat.js'
 import { numberToHex } from '../../../utils/encoding/toHex.js'
+import { getTransactionError } from '../../../utils/errors/getTransactionError.js'
 
 export type SendCallsParameters<
   chain extends Chain | undefined = Chain | undefined,
@@ -108,7 +110,7 @@ export async function sendCalls<
       }
   }
 
-  const calls = parameters.calls.map((call_: unknown) => {
+  const calls = parameters.calls.map((call_) => {
     const call = call_ as Call & { gas?: bigint | undefined }
 
     const data = call.abi
@@ -131,23 +133,31 @@ export async function sendCalls<
     }
   })
 
-  const response = await client.request(
-    {
-      method: 'wallet_sendCalls',
-      params: [
-        {
-          atomicRequired: forceAtomic,
-          calls,
-          capabilities,
-          chainId: numberToHex(chain!.id),
-          from: account?.address,
-          id,
-          version,
-        },
-      ],
-    },
-    { retryCount: 0 },
-  )
-  if (typeof response === 'string') return { id: response }
-  return response as never
+  try {
+    const response = await client.request(
+      {
+        method: 'wallet_sendCalls',
+        params: [
+          {
+            atomicRequired: forceAtomic,
+            calls,
+            capabilities,
+            chainId: numberToHex(chain!.id),
+            from: account?.address,
+            id,
+            version,
+          },
+        ],
+      },
+      { retryCount: 0 },
+    )
+    if (typeof response === 'string') return { id: response }
+    return response as never
+  } catch (err) {
+    throw getTransactionError(err as BaseError, {
+      ...(parameters as any),
+      account,
+      chain: parameters.chain!,
+    })
+  }
 }
