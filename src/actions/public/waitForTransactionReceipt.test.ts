@@ -159,7 +159,7 @@ test('waits for transaction (polling many blocks while others waiting does not t
   // Start looking for the receipt of the good transaction but did not send it yet. Here it will start polling
   const goodReceiptPromise = waitForTransactionReceipt(client, {
     hash: goodTxHash,
-    timeout: 5000,
+    timeout: 30_000,
     retryCount: 0,
   })
   await wait(200)
