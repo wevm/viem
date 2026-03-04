@@ -110,6 +110,39 @@ const proof = await publicClient.getProof({
 })
 ```
 
+### blockHash (optional)
+
+- **Type:** `Hash`
+
+Proof at a given block hash. Implements [EIP-1898](https://eips.ethereum.org/EIPS/eip-1898).
+
+```ts
+const proof = await publicClient.getProof({
+  address: '0x4200000000000000000000000000000000000016',
+  storageKeys: [
+    '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
+  ],
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d' // [!code focus]
+})
+```
+
+### requireCanonical (optional)
+
+- **Type:** `boolean`
+
+Whether or not to throw an error if the block is not in the canonical chain. Only allowed in conjunction with `blockHash`. Implements [EIP-1898](https://eips.ethereum.org/EIPS/eip-1898).
+
+```ts
+const proof = await publicClient.getProof({
+  address: '0x4200000000000000000000000000000000000016',
+  storageKeys: [
+    '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
+  ],
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+  requireCanonical: true // [!code focus]
+})
+```
+
 ## JSON-RPC Method
 
 - Calls [`eth_getProof`](https://eips.ethereum.org/EIPS/eip-1186).
