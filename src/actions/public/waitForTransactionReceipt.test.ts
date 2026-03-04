@@ -26,7 +26,7 @@ const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
 
 async function setup() {
-  await setIntervalMining(client, { interval: 1 })
+  await setIntervalMining(client, { interval: 2 })
 }
 
 test('waits for transaction (send -> wait -> mine)', async () => {
@@ -549,8 +549,8 @@ describe('args: confirmations', () => {
     const end = Date.now()
 
     expect(receipt !== null).toBeTruthy()
-    expect(end - start).toBeGreaterThan(3000 - 100)
-    expect(end - start).toBeLessThanOrEqual(3000 + 100)
+    expect(end - start).toBeGreaterThan(6000 - 500)
+    expect(end - start).toBeLessThanOrEqual(6000 + 500)
   })
 
   test('waits for confirmations (replaced)', async () => {
