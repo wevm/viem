@@ -23,10 +23,11 @@ export class LruMap<value = unknown> extends Map<string, value> {
   }
 
   override set(key: string, value: value) {
+    if (super.has(key)) super.delete(key)
     super.set(key, value)
     if (this.maxSize && this.size > this.maxSize) {
-      const firstKey = this.keys().next().value
-      if (firstKey) this.delete(firstKey)
+      const firstKey = super.keys().next().value
+      if (firstKey !== undefined) super.delete(firstKey)
     }
     return this
   }
