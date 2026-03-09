@@ -67,12 +67,14 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: execution reverted: Sale must be active to mint Ape
       Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
+      Details: execution reverted: Sale must be active to mint Ape
       Version: viem@x.y.z]
     `)
   })
@@ -102,12 +104,14 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: execution reverted: Sale must be active to mint Ape
       Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
+      Details: execution reverted: Sale must be active to mint Ape
       Version: viem@x.y.z]
     `)
   })
@@ -171,12 +175,14 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: ah no
       Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       ah no
 
+      Details: ah no
       Version: viem@x.y.z]
     `)
   })
@@ -240,12 +246,14 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: ah no
       Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       ah no
 
+      Details: ah no
       Version: viem@x.y.z]
     `)
   })
@@ -275,12 +283,14 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: execution reverted: Sale must be active to mint Ape
       Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
+      Details: execution reverted: Sale must be active to mint Ape
       Version: viem@x.y.z]
     `)
   })
