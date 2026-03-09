@@ -394,7 +394,6 @@ describe('sendTransaction', () => {
     const account = accounts[0]
     const accessKey = Account.fromP256(generatePrivateKey(), {
       access: account,
-  
     })
 
     const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
@@ -662,7 +661,6 @@ describe('sendTransaction', () => {
       const account = accounts[0]
       const accessKey = Account.fromP256(generatePrivateKey(), {
         access: account,
-    
       })
 
       const keyAuthorization = await Actions.accessKey.signAuthorization(
@@ -694,7 +692,6 @@ describe('sendTransaction', () => {
       )
       const accessKey = Account.fromP256(generatePrivateKey(), {
         access: account,
-    
       })
       const feePayer = accounts[0]
 
@@ -897,7 +894,6 @@ describe('sendTransaction', () => {
       const account = Account.fromWebCryptoP256(keyPair)
       const accessKey = Account.fromWebCryptoP256(keyPair, {
         access: account,
-    
       })
 
       await setupFeeToken(client, { account })
@@ -1173,7 +1169,6 @@ describe('sendTransaction', () => {
       )
       const accessKey = Account.fromP256(generatePrivateKey(), {
         access: account,
-    
       })
 
       await setupFeeToken(client, { account })
@@ -1765,7 +1760,6 @@ describe('relay', () => {
         await WebCryptoP256.createKeyPair(),
         {
           access: account,
-      
         },
       )
 
