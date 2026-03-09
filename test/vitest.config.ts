@@ -19,6 +19,7 @@ export default defineConfig({
       exclude: [
         '**/account-abstraction/**',
         '**/errors/utils.ts',
+        '**/linea/**',
         '**/op-stack/**',
         '**/zksync/**',
         '**/_cjs/**',
@@ -56,6 +57,7 @@ export default defineConfig({
               : '',
             'src/tempo/**',
             'src/account-abstraction/**',
+            'src/linea/**',
             'src/op-stack/**',
           ],
           include: ['src/**/*.test.ts'],

@@ -421,7 +421,7 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
     keyType = 'secp256k1',
     parentAddress,
     source = 'privateKey',
-    internal_version = 'v1',
+    internal_version = 'v2',
   } = parameters
 
   const address = parentAddress ?? Address.fromPublicKey(parameters.publicKey)
