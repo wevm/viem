@@ -19,4 +19,5 @@ export const xpla = /*#__PURE__*/ defineChain({
       url: 'https://explorer.conx.xyz',
     },
   },
+  testnet: false,
 })
