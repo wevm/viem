@@ -1,5 +1,11 @@
 # viem
 
+## 2.47.1
+
+### Patch Changes
+
+- [#4383](https://github.com/wevm/viem/pull/4383) [`66457cbb5de7a3086732f9016af798c9ec5222a5`](https://github.com/wevm/viem/commit/66457cbb5de7a3086732f9016af798c9ec5222a5) Thanks [@jxom](https://github.com/jxom)! - Changed default `internal_version` on access keys to `v2`.
+
 ## 2.47.0
 
 ### Minor Changes
