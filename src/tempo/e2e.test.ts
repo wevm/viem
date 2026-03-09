@@ -15,7 +15,6 @@ import {
 import { Account, Actions, Transaction } from 'viem/tempo'
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest'
 import {
-  accessKeyVersion,
   accounts,
   chain,
   feeToken,
@@ -395,7 +394,7 @@ describe('sendTransaction', () => {
     const account = accounts[0]
     const accessKey = Account.fromP256(generatePrivateKey(), {
       access: account,
-      internal_version: accessKeyVersion,
+  
     })
 
     const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
@@ -663,7 +662,7 @@ describe('sendTransaction', () => {
       const account = accounts[0]
       const accessKey = Account.fromP256(generatePrivateKey(), {
         access: account,
-        internal_version: accessKeyVersion,
+    
       })
 
       const keyAuthorization = await Actions.accessKey.signAuthorization(
@@ -695,7 +694,7 @@ describe('sendTransaction', () => {
       )
       const accessKey = Account.fromP256(generatePrivateKey(), {
         access: account,
-        internal_version: accessKeyVersion,
+    
       })
       const feePayer = accounts[0]
 
@@ -898,7 +897,7 @@ describe('sendTransaction', () => {
       const account = Account.fromWebCryptoP256(keyPair)
       const accessKey = Account.fromWebCryptoP256(keyPair, {
         access: account,
-        internal_version: accessKeyVersion,
+    
       })
 
       await setupFeeToken(client, { account })
@@ -1174,7 +1173,7 @@ describe('sendTransaction', () => {
       )
       const accessKey = Account.fromP256(generatePrivateKey(), {
         access: account,
-        internal_version: accessKeyVersion,
+    
       })
 
       await setupFeeToken(client, { account })
@@ -1766,7 +1765,7 @@ describe('relay', () => {
         await WebCryptoP256.createKeyPair(),
         {
           access: account,
-          internal_version: accessKeyVersion,
+      
         },
       )
 

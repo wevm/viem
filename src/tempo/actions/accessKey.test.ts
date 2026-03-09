@@ -2,7 +2,6 @@ import { generatePrivateKey } from 'viem/accounts'
 import { Account } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import {
-  accessKeyVersion,
   accounts,
   feeToken,
   getClient,
@@ -22,7 +21,7 @@ async function setupAccessKey(
   const { limits } = parameters
   const accessKey = Account.fromP256(generatePrivateKey(), {
     access: account,
-    internal_version: accessKeyVersion,
+
   })
 
   await actions.accessKey.authorizeSync(client, {
@@ -38,7 +37,7 @@ describe('authorize', () => {
   test('default', async () => {
     const accessKey = Account.fromP256(generatePrivateKey(), {
       access: account,
-      internal_version: accessKeyVersion,
+  
     })
 
     const { receipt, ...result } = await actions.accessKey.authorizeSync(
@@ -66,7 +65,7 @@ describe('authorize', () => {
   test('behavior: with limits', async () => {
     const accessKey = Account.fromP256(generatePrivateKey(), {
       access: account,
-      internal_version: accessKeyVersion,
+  
     })
 
     const { receipt, ...result } = await actions.accessKey.authorizeSync(
@@ -97,7 +96,7 @@ describe('signAuthorization', () => {
   test('default', async () => {
     const accessKey = Account.fromP256(generatePrivateKey(), {
       access: account,
-      internal_version: accessKeyVersion,
+  
     })
 
     const keyAuthorization = await actions.accessKey.signAuthorization(client, {
@@ -115,7 +114,7 @@ describe('signAuthorization', () => {
   test('behavior: with limits', async () => {
     const accessKey = Account.fromP256(generatePrivateKey(), {
       access: account,
-      internal_version: accessKeyVersion,
+  
     })
 
     const keyAuthorization = await actions.accessKey.signAuthorization(client, {
