@@ -27,6 +27,11 @@ export const lisk = /*#__PURE__*/ defineChain({
   },
   contracts: {
     ...chainConfig.contracts,
+    disputeGameFactory: {
+      [sourceId]: {
+        address: '0x0CF7D3706a27CCE2017aEB11E8a9c8b5388c282C',
+      },
+    },
     multicall3: {
       address: '0xA9d71E1dd7ca26F26e656E66d6AA81ed7f745bf0',
     },
