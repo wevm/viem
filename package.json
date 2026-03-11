@@ -1,6 +1,10 @@
 {
   "private": true,
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bob-collective/viem.git"
+  },
   "scripts": {
     "bench": "vitest bench",
     "bench:types": "TYPES=true vitest -c ./test/vitest.config.ts bench-d.ts",
