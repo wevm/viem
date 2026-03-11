@@ -148,30 +148,22 @@ export async function getTimeToFinalize<
     args: [withdrawalHash, numProofSubmitters - 1n],
   }).catch(() => undefined)
 
-  const [
-    [_disputeGameProxy, proveTimestamp],
-    proofMaturityDelaySeconds,
-    disputeGameFinalityDelaySeconds,
-  ] = await Promise.all([
-    proofSubmitter
-      ? readContract(client, {
-          abi: portal2Abi,
-          address: portalAddress,
-          functionName: 'provenWithdrawals',
-          args: [withdrawalHash, proofSubmitter],
-        })
-      : Promise.resolve(['0x', 0n]),
-    readContract(client, {
-      abi: portal2Abi,
-      address: portalAddress,
-      functionName: 'proofMaturityDelaySeconds',
-    }),
-    readContract(client, {
-      abi: portal2Abi,
-      address: portalAddress,
-      functionName: 'disputeGameFinalityDelaySeconds',
-    }),
-  ])
+  const [[_disputeGameProxy, proveTimestamp], disputeGameFinalityDelaySeconds] =
+    await Promise.all([
+      proofSubmitter
+        ? readContract(client, {
+            abi: portal2Abi,
+            address: portalAddress,
+            functionName: 'provenWithdrawals',
+            args: [withdrawalHash, proofSubmitter],
+          })
+        : ['0x', 0n],
+      readContract(client, {
+        abi: portal2Abi,
+        address: portalAddress,
+        functionName: 'disputeGameFinalityDelaySeconds',
+      }),
+    ])
 
   const maxClockDuration = await readContract(client, {
     abi: kailuaGameAbi,
@@ -182,16 +174,13 @@ export async function getTimeToFinalize<
   if (proveTimestamp === 0n)
     throw new BaseError('Withdrawal has not been proven on L1.')
 
-  const period = Math.max(
-    Number(proofMaturityDelaySeconds),
-    Number(disputeGameFinalityDelaySeconds),
-  )
+  const period =
+    Number(disputeGameFinalityDelaySeconds) + Number(maxClockDuration)
   const secondsSinceProven = Date.now() / 1000 - Number(proveTimestamp)
-  const secondsToFinalize =
-    period + Number(maxClockDuration) - secondsSinceProven
+  const secondsToFinalize = period - secondsSinceProven
 
   const seconds = Math.floor(
-    secondsToFinalize < 0n ? 0 : secondsToFinalize + buffer,
+    secondsToFinalize < 0 ? 0 : secondsToFinalize + buffer,
   )
   const timestamp = Date.now() + seconds * 1000
 
