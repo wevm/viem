@@ -4,6 +4,12 @@
 
 ### Patch Changes
 
+- [#21](https://github.com/bob-collective/viem/pull/21) [`3cddeff3fdbb692abe47d86950935ac166bff2a5`](https://github.com/bob-collective/viem/commit/3cddeff3fdbb692abe47d86950935ac166bff2a5) Thanks [@slavastartsev](https://github.com/slavastartsev)! - trigger release workflow
+
+## 2.31.14
+
+### Patch Changes
+
 - [#17](https://github.com/bob-collective/viem/pull/17) [`26e5171a468b51240eb8472cb42a27c5d404641b`](https://github.com/bob-collective/viem/commit/26e5171a468b51240eb8472cb42a27c5d404641b) Thanks [@slavastartsev](https://github.com/slavastartsev)! - fix: update time to finalize calculation
 
 ## 2.31.13
