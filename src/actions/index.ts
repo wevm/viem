@@ -272,6 +272,7 @@ export {
   type VerifyHashErrorType,
   type VerifyHashParameters,
   type VerifyHashReturnType,
+  type VerifyHashVerificationMethod,
   verifyHash,
 } from './public/verifyHash.js'
 export {

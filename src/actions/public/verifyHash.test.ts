@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test } from 'vitest'
+import { beforeAll, describe, expect, test, vi } from 'vitest'
 
 import {
   Eoa,
@@ -26,6 +26,7 @@ import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { zksync } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
+import { custom } from '../../clients/transports/custom.js'
 import { http } from '../../clients/transports/http.js'
 import { signMessage as signMessageErc1271 } from '../../experimental/erc7739/actions/signMessage.js'
 import type { Hex } from '../../types/misc.js'
@@ -95,6 +96,43 @@ describe('local account', async () => {
         address: localAccount.address,
         hash: hashMessage('hello world'),
         signature: parseSignature(signature),
+      }),
+    ).resolves.toBe(true)
+  })
+})
+
+describe('verificationMethod', async () => {
+  test('eoa verifies locally without RPC when local recovery succeeds', async () => {
+    const request = vi.fn(async () => {
+      throw new Error('unexpected rpc request')
+    })
+    const mockClient = createClient({
+      transport: custom({ request }),
+    })
+
+    const hash = hashMessage('hello world')
+    const signature = await localAccount.sign({ hash })
+
+    await expect(
+      verifyHash(mockClient, {
+        address: localAccount.address,
+        hash,
+        signature,
+        preferVerificationMethod: 'eoa',
+      }),
+    ).resolves.toBe(true)
+
+    expect(request).not.toHaveBeenCalled()
+  })
+
+  test('eoa falls back to universal verification', async () => {
+    await expect(
+      verifyHash(client, {
+        address: smartAccountConfig.address,
+        hash: hashMessage('This is a test message for viem!'),
+        signature:
+          '0xefd5fb29a274ea6682673d8b3caa9263e936d48d486e5df68893003e0a76496439594d12245008c6fba1c8e3ef28241cffe1bef27ff6bca487b167f261f329251c',
+        preferVerificationMethod: 'eoa',
       }),
     ).resolves.toBe(true)
   })

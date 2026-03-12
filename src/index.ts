@@ -292,6 +292,7 @@ export type {
   VerifyHashErrorType as VerifyHashActionErrorType,
   VerifyHashParameters as VerifyHashActionParameters,
   VerifyHashReturnType as VerifyHashActionReturnType,
+  VerifyHashVerificationMethod as VerifyHashActionVerificationMethod,
 } from './actions/public/verifyHash.js'
 export type {
   VerifyMessageErrorType as VerifyMessageActionErrorType,
