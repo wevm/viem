@@ -1,5 +1,11 @@
 # viem
 
+## 2.47.2
+
+### Patch Changes
+
+- [`1b522780cd9c24339a2d01dbc6ee9638ebf7143c`](https://github.com/wevm/viem/commit/1b522780cd9c24339a2d01dbc6ee9638ebf7143c) Thanks [@jxom](https://github.com/jxom)! - Updated `ox` to `0.14.1`.
+
 ## 2.47.1
 
 ### Patch Changes
