@@ -1,5 +1,11 @@
 # viem
 
+## 2.47.3
+
+### Patch Changes
+
+- [#4393](https://github.com/wevm/viem/pull/4393) [`07ca7341f3df99bf2b868d66a9d770fca959bc65`](https://github.com/wevm/viem/commit/07ca7341f3df99bf2b868d66a9d770fca959bc65) Thanks [@d1r1](https://github.com/d1r1)! - Added Fluent Devnet chain and fixed Fluent Testnet chain definition.
+
 ## 2.47.2
 
 ### Patch Changes
