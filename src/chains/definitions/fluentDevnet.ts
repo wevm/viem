@@ -1,8 +1,8 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const fluentTestnet = /*#__PURE__*/ defineChain({
-  id: 20_994,
-  name: 'Fluent Testnet',
+export const fluentDevnet = /*#__PURE__*/ defineChain({
+  id: 20_993,
+  name: 'Fluent Devnet',
   nativeCurrency: {
     name: 'Ether',
     symbol: 'ETH',
@@ -10,13 +10,13 @@ export const fluentTestnet = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.testnet.fluent.xyz'],
+      http: ['https://rpc.devnet.fluent.xyz'],
     },
   },
   blockExplorers: {
     default: {
-      name: 'Fluent Testnet Explorer',
-      url: 'https://testnet.fluentscan.xyz',
+      name: 'Fluent Devnet Explorer',
+      url: 'https://devnet.fluentscan.xyz',
     },
   },
   testnet: true,
