@@ -1,5 +1,11 @@
 # viem
 
+## 2.47.4
+
+### Patch Changes
+
+- [`6c3dc97e9d19718580ea8aa4db04f5e065594a49`](https://github.com/wevm/viem/commit/6c3dc97e9d19718580ea8aa4db04f5e065594a49) Thanks [@jxom](https://github.com/jxom)! - Updated Ox.
+
 ## 2.47.3
 
 ### Patch Changes
