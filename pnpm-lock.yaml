@@ -124,11 +124,11 @@ importers:
         specifier: ^0.14.0
         version: 0.14.0
       ox:
-        specifier: ~0.14.1
-        version: 0.14.1(typescript@5.9.3)(zod@4.3.6)
+        specifier: ~0.14.5
+        version: 0.14.5(typescript@5.9.3)(zod@4.3.6)
       permissionless:
         specifier: ^0.2.57
-        version: 0.2.57(ox@0.14.1(typescript@5.9.3)(zod@4.3.6))
+        version: 0.2.57(ox@0.14.5(typescript@5.9.3)(zod@4.3.6))
       prool:
         specifier: ~0.2.3
         version: 0.2.3(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0)
@@ -631,8 +631,8 @@ importers:
         specifier: 1.0.7
         version: 1.0.7(ws@8.18.3)
       ox:
-        specifier: 0.14.4
-        version: 0.14.4(typescript@5.9.3)(zod@4.3.6)
+        specifier: 0.14.5
+        version: 0.14.5(typescript@5.9.3)(zod@4.3.6)
       ws:
         specifier: 8.18.3
         version: 8.18.3
@@ -642,8 +642,8 @@ packages:
   '@adraffy/ens-normalize@1.10.1':
     resolution: {integrity: sha512-96Z2IP3mYmF1Xg2cDm8f1gWGf/HUVedQ3FMifV4kG/PQ4yEP51xDtRAEfhVNt5f/uzpNkZHwWQuUcu6D6K+Ekw==}
 
-  '@adraffy/ens-normalize@1.11.0':
-    resolution: {integrity: sha512-/3DDPKHqqIqxUULp8yP4zODUY1i+2xvVWsv8A79xGWdCAG+8sb0hRh0Rk2QyOJUnnbyPUAZYcpBuRe3nS2OIUg==}
+  '@adraffy/ens-normalize@1.11.1':
+    resolution: {integrity: sha512-nhCBV3quEgesuf7c7KYfperqSS14T8bYuvJ8PcLJp6znkZpFc0AuW4qBtr8eKVyPPe/8RSr7sglCWPU5eaxwKQ==}
 
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
@@ -5031,16 +5031,8 @@ packages:
       typescript:
         optional: true
 
-  ox@0.14.1:
-    resolution: {integrity: sha512-93eZUbyDMYBWbFoPivZb8lyE3wFIYg795rjdPu2YRMBAkDnpUHoAmuoEfoMJ/RRWpsA8+jnSFjOWJEfLT72XyA==}
-    peerDependencies:
-      typescript: '>=5.4.0'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
-  ox@0.14.4:
-    resolution: {integrity: sha512-XVZBS0iH3agW0MVFqNyA7Ai8opqXLVXMYT685srSKxY/P2VQEUMmnBFFHV/JQHVi+q+whVhzqHwMOtoB+YGBXg==}
+  ox@0.14.5:
+    resolution: {integrity: sha512-HgmHmBveYO40H/R3K6TMrwYtHsx/u6TAB+GpZlgJCoW0Sq5Ttpjih0IZZiwGQw7T6vdW4IAyobYrE2mdAvyF8Q==}
     peerDependencies:
       typescript: '>=5.4.0'
     peerDependenciesMeta:
@@ -6612,7 +6604,7 @@ snapshots:
 
   '@adraffy/ens-normalize@1.10.1': {}
 
-  '@adraffy/ens-normalize@1.11.0': {}
+  '@adraffy/ens-normalize@1.11.1': {}
 
   '@ampproject/remapping@2.3.0':
     dependencies:
@@ -11563,7 +11555,7 @@ snapshots:
 
   ox@0.14.0(typescript@5.6.2)(zod@4.3.6):
     dependencies:
-      '@adraffy/ens-normalize': 1.11.0
+      '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
@@ -11578,7 +11570,7 @@ snapshots:
 
   ox@0.14.0(typescript@5.9.3)(zod@3.23.8):
     dependencies:
-      '@adraffy/ens-normalize': 1.11.0
+      '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
@@ -11591,24 +11583,9 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.14.1(typescript@5.9.3)(zod@4.3.6):
+  ox@0.14.5(typescript@5.6.2)(zod@4.3.6):
     dependencies:
-      '@adraffy/ens-normalize': 1.11.0
-      '@noble/ciphers': 1.3.0
-      '@noble/curves': 1.9.1
-      '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@5.9.3)(zod@4.3.6)
-      eventemitter3: 5.0.1
-    optionalDependencies:
-      typescript: 5.9.3
-    transitivePeerDependencies:
-      - zod
-
-  ox@0.14.4(typescript@5.6.2)(zod@4.3.6):
-    dependencies:
-      '@adraffy/ens-normalize': 1.11.0
+      '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
@@ -11621,9 +11598,9 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.14.4(typescript@5.9.3)(zod@4.3.6):
+  ox@0.14.5(typescript@5.9.3)(zod@4.3.6):
     dependencies:
-      '@adraffy/ens-normalize': 1.11.0
+      '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
@@ -11764,9 +11741,9 @@ snapshots:
       is-reference: 3.0.3
       zimmerframe: 1.1.4
 
-  permissionless@0.2.57(ox@0.14.1(typescript@5.9.3)(zod@4.3.6)):
+  permissionless@0.2.57(ox@0.14.5(typescript@5.9.3)(zod@4.3.6)):
     optionalDependencies:
-      ox: 0.14.1(typescript@5.9.3)(zod@4.3.6)
+      ox: 0.14.5(typescript@5.9.3)(zod@4.3.6)
 
   picocolors@1.1.1: {}
 
@@ -13069,7 +13046,7 @@ snapshots:
       '@scure/bip39': 1.6.0
       abitype: 1.2.3(typescript@5.6.2)(zod@4.3.6)
       isows: 1.0.7(ws@8.18.3)
-      ox: 0.14.4(typescript@5.6.2)(zod@4.3.6)
+      ox: 0.14.5(typescript@5.6.2)(zod@4.3.6)
       ws: 8.18.3
     optionalDependencies:
       typescript: 5.6.2
