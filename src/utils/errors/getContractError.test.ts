@@ -250,6 +250,28 @@ describe('getContractError', () => {
     `)
   })
 
+  test('preserves provider error as nested cause', () => {
+    const providerError = new Error('Execution error in custom provider') as Error & {
+      code: number
+      data: string
+      name: string
+    }
+    providerError.name = 'CustomProviderExecutionError'
+    providerError.code = 3
+    providerError.data =
+      '0x08c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000087265766572746564000000000000000000000000000000000000000000000000'
+
+    const error = getContractError(new BaseError('An RPC error occurred', { cause: providerError }), {
+      abi: baycContractConfig.abi,
+      functionName: 'mintApe',
+      args: [1n],
+      sender: accounts[0].address,
+    })
+
+    expect(error.cause.name).toBe('ContractFunctionRevertedError')
+    expect(error.cause.cause?.name).toBe('CustomProviderExecutionError')
+  })
+
   test('unknown function', () => {
     const error = getContractError(
       new BaseError('An RPC error occurred', {

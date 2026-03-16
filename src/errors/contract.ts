@@ -176,16 +176,18 @@ export class ContractFunctionRevertedError extends BaseError {
 
   constructor({
     abi,
+    cause,
     data,
     functionName,
     message,
   }: {
     abi: Abi
+    cause?: Error | undefined
     data?: Hex | undefined
     functionName: string
     message?: string | undefined
   }) {
-    let cause: Error | undefined
+    let cause_ = cause
     let decodedData: DecodeErrorResultReturnType | undefined
     let metaMessages: string[] | undefined
     let reason: string | undefined
@@ -222,13 +224,13 @@ export class ContractFunctionRevertedError extends BaseError {
           ]
         }
       } catch (err) {
-        cause = err as Error
+        cause_ = err as Error
       }
     } else if (message) reason = message
 
     let signature: Hex | undefined
-    if (cause instanceof AbiErrorSignatureNotFoundError) {
-      signature = cause.signature
+    if (cause_ instanceof AbiErrorSignatureNotFoundError) {
+      signature = cause_.signature
       metaMessages = [
         `Unable to decode signature "${signature}" as it was not found on the provided ABI.`,
         'Make sure you are using the correct ABI and that the error exists on it.',
@@ -246,7 +248,7 @@ export class ContractFunctionRevertedError extends BaseError {
           ].join('\n')
         : `The contract function "${functionName}" reverted.`,
       {
-        cause,
+        cause: cause_,
         metaMessages,
         name: 'ContractFunctionRevertedError',
       },
