@@ -14,9 +14,7 @@ export const zircuit = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: [
-        'https://mainnet.zircuit.com',
-      ],
+      http: ['https://mainnet.zircuit.com'],
     },
   },
   blockExplorers: {
