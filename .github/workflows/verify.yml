@@ -148,7 +148,7 @@ jobs:
       matrix:
         node-env: 
           - devnet
-          # - testnet
+          - testnet
           # - mainnet
     steps:
       - name: Clone repository
