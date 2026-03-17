@@ -16,7 +16,7 @@ export class LruMap<value = unknown> extends Map<string, value> {
 
     if (super.has(key)) {
       super.delete(key)
-      super.set(key, value)
+      super.set(key, value as value)
     }
 
     return value
