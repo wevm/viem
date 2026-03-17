@@ -5,8 +5,8 @@ export const mantraEVM = /*#__PURE__*/ defineChain({
   name: 'MANTRA EVM',
   nativeCurrency: {
     decimals: 18,
-    name: 'OM',
-    symbol: 'OM',
+    name: 'MANTRA',
+    symbol: 'MANTRA',
   },
   rpcUrls: {
     default: {
@@ -16,8 +16,8 @@ export const mantraEVM = /*#__PURE__*/ defineChain({
   },
   blockExplorers: {
     default: {
-      name: 'MANTRA Scan',
-      url: 'https://mantrascan.io/mainnet',
+      name: 'MANTRA Blockscout Explorer',
+      url: 'https://blockscout.mantrascan.io',
     },
   },
 })
