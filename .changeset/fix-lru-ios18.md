@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fix unbounded LRU cache growth on iOS 18+
+Fixed unbounded LRU cache growth on iOS 18+.
