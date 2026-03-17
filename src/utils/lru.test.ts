@@ -48,6 +48,14 @@ test('set existing key refreshes its position', () => {
   expect(cache.has('d')).toBe(true)
 })
 
+test('evicts empty-string key correctly', () => {
+  const cache = new LruMap<number>(1)
+  cache.set('', 1)
+  cache.set('x', 2)
+  expect(cache.has('')).toBe(false)
+  expect(cache.has('x')).toBe(true)
+})
+
 test('update touched keys', () => {
   const cache = new LruMap(5)
   cache.set('a', 1)
