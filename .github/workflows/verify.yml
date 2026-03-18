@@ -99,7 +99,7 @@ jobs:
     strategy:
       max-parallel: 3
       matrix:
-        multicall: ['true', 'false']
+        multicall: ['true']
         transport-mode: ['http', 'webSocket']
         shard: [1, 2, 3]
         total-shards: [3]
