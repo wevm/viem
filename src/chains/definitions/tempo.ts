@@ -7,7 +7,7 @@ export const tempo = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Tempo Explorer',
-      url: 'https://explore.mainnet.tempo.xyz',
+      url: 'https://explore.tempo.xyz',
     },
   },
   name: 'Tempo Mainnet',
