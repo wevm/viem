@@ -425,6 +425,7 @@ test('w/ simulateContract (overloaded)', async () => {
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
     Docs: https://viem.sh/docs/contract/simulateContract
+    Details: execution reverted: Token ID is taken
     Version: viem@x.y.z]
   `)
 })
