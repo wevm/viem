@@ -1,5 +1,23 @@
 # viem
 
+## 2.47.5
+
+### Patch Changes
+
+- [#4376](https://github.com/wevm/viem/pull/4376) [`64383c9e53cb42e5c371cc8da5a91cdfa47a3331`](https://github.com/wevm/viem/commit/64383c9e53cb42e5c371cc8da5a91cdfa47a3331) Thanks [@nowooj](https://github.com/nowooj)! - Added CONX chain.
+
+- [#4377](https://github.com/wevm/viem/pull/4377) [`94248ab65c00c6254158e4cd985d8f5eec41f870`](https://github.com/wevm/viem/commit/94248ab65c00c6254158e4cd985d8f5eec41f870) Thanks [@Aboudjem](https://github.com/Aboudjem)! - Fixed unbounded LRU cache growth on iOS 18+.
+
+- [`a168f08272962f495306f72301a9d6c148428564`](https://github.com/wevm/viem/commit/a168f08272962f495306f72301a9d6c148428564) Thanks [@tmm](https://github.com/tmm)! - Updated chain definition.
+
+- [#4391](https://github.com/wevm/viem/pull/4391) [`a8c8e6ed4ee40f6259899742a2be20d0772841ce`](https://github.com/wevm/viem/commit/a8c8e6ed4ee40f6259899742a2be20d0772841ce) Thanks [@mohamedhesham840](https://github.com/mohamedhesham840)! - Fixed incorrect error message for PaymasterStakeTooLowError (code -32505)
+
+- [#4403](https://github.com/wevm/viem/pull/4403) [`e8435e340592986fcd9c21a7626ff40b1af1e850`](https://github.com/wevm/viem/commit/e8435e340592986fcd9c21a7626ff40b1af1e850) Thanks [@GuillermoEscobero](https://github.com/GuillermoEscobero)! - Removed Zircuit Mainnet deprecated RPCs and Zircuit old testnet.
+
+- [#4385](https://github.com/wevm/viem/pull/4385) [`ee1f2950dc5f8bf51ed9682ac0e9c4d9ef96a7bf`](https://github.com/wevm/viem/commit/ee1f2950dc5f8bf51ed9682ac0e9c4d9ef96a7bf) Thanks [@pxrl](https://github.com/pxrl)! - Defined DisputeGameFactory for Lisk, Mode & Zora
+
+- [#4388](https://github.com/wevm/viem/pull/4388) [`60f701f16217ef099c25184be97dc0e70e686b40`](https://github.com/wevm/viem/commit/60f701f16217ef099c25184be97dc0e70e686b40) Thanks [@alcuadrado](https://github.com/alcuadrado)! - Added error preservation in `getContractError`.
+
 ## 2.47.4
 
 ### Patch Changes
