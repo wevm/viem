@@ -1,5 +1,15 @@
 # viem
 
+## 2.47.6
+
+### Patch Changes
+
+- [`09d9f3520ce8837cb352e0bf3a7d735b511abd6f`](https://github.com/wevm/viem/commit/09d9f3520ce8837cb352e0bf3a7d735b511abd6f) Thanks [@jxom](https://github.com/jxom)! - Updated Ox
+
+- [#4401](https://github.com/wevm/viem/pull/4401) [`928ae87a32a13c72c9adf9390172d7b92bf99ce7`](https://github.com/wevm/viem/commit/928ae87a32a13c72c9adf9390172d7b92bf99ce7) Thanks [@ndavd](https://github.com/ndavd)! - Ensured that `dataSuffix` is applied to all transactions regardless of `data` presence.
+
+- [#4405](https://github.com/wevm/viem/pull/4405) [`4ad0de0ebc543a9054bd7d57976eede1d3612440`](https://github.com/wevm/viem/commit/4ad0de0ebc543a9054bd7d57976eede1d3612440) Thanks [@jxom](https://github.com/jxom)! - Added `mode` parameter to `verifyMessage` and `verifyHash`.
+
 ## 2.47.5
 
 ### Patch Changes
