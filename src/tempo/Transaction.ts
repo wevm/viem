@@ -73,7 +73,7 @@ export type TransactionTempo<
   authorizationList?: AuthorizationTempo.ListSigned<quantity, index> | undefined
   calls: readonly TxTempo.Call<quantity>[]
   chainId: index
-  feeToken?: TempoAddress.Address | undefined
+  feeToken?: Address | undefined
   feePayerSignature?: viem_Signature | undefined
   keyAuthorization?: KeyAuthorization.Signed<quantity, index> | null | undefined
   nonceKey?: quantity | undefined
@@ -100,8 +100,8 @@ export type TransactionReceipt<
   status = 'success' | 'reverted',
   type = TransactionType,
 > = viem_TransactionReceipt<quantity, index, status, type> & {
-  feePayer?: TempoAddress.Address | undefined
-  feeToken?: TempoAddress.Address | undefined
+  feePayer?: Address | undefined
+  feeToken?: Address | undefined
 }
 
 export type TransactionReceiptRpc = TransactionReceipt<
@@ -137,11 +137,11 @@ export type TransactionSerializableTempo<
 > = TransactionSerializableBase<quantity, index> &
   ExactPartial<FeeValuesEIP1559<quantity>> & {
     accessList?: AccessList | undefined
-    calls: readonly TxTempo.Call<quantity, TempoAddress.Address>[]
+    calls: readonly TxTempo.Call<quantity>[]
     chainId: number
-    feeToken?: TempoAddress.Address | bigint | undefined
+    feeToken?: Address | bigint | undefined
     feePayerSignature?: viem_Signature | null | undefined
-    from?: TempoAddress.Address | undefined
+    from?: Address | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     nonceKey?: quantity | undefined
     signature?: SignatureEnvelope.SignatureEnvelope<quantity, index> | undefined
