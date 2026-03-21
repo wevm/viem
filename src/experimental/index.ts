@@ -187,3 +187,18 @@ export {
   type Erc7895Actions,
   erc7895Actions,
 } from './erc7895/decorators/erc7895.js'
+
+export {
+  type SendCallsErrorType as Erc8132SendCallsErrorType,
+  type SendCallsParameters as Erc8132SendCallsParameters,
+  type SendCallsReturnType as Erc8132SendCallsReturnType,
+  sendCalls as erc8132SendCalls,
+} from './erc8132/actions/sendCalls.js'
+export {
+  type Erc8132Actions,
+  erc8132Actions,
+} from './erc8132/decorators/erc8132.js'
+export type {
+  GasLimitOverrideCallCapability,
+  GasLimitOverrideCapability,
+} from './erc8132/types.js'
