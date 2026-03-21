@@ -329,7 +329,14 @@ test('overload: different types', () => {
       type: 'function',
     },
     {
-      inputs: [{ name: 'tokenId', type: 'string' }],
+      inputs: [{ name: 'tokenId', type: 'address' }],
+      name: 'mint',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function',
+    },
+    {
+      inputs: [{ name: 'tokenId', type: 'bytes32' }],
       name: 'mint',
       outputs: [],
       stateMutability: 'nonpayable',
@@ -377,14 +384,37 @@ test('overload: different types', () => {
     getAbiItem({
       abi,
       name: 'mint',
-      args: ['foo'],
+      args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
     }),
   ).toMatchInlineSnapshot(`
     {
       "inputs": [
         {
           "name": "tokenId",
-          "type": "string",
+          "type": "address",
+        },
+      ],
+      "name": "mint",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function",
+    }
+  `)
+
+  expect(
+    getAbiItem({
+      abi,
+      name: 'mint',
+      args: [
+        '0x000000000000000000000000A0Cf798816D4b9b9866b5330EEa46a18382f251e',
+      ],
+    }),
+  ).toMatchInlineSnapshot(`
+    {
+      "inputs": [
+        {
+          "name": "tokenId",
+          "type": "bytes32",
         },
       ],
       "name": "mint",
