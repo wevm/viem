@@ -156,10 +156,10 @@ export {
 } from './eip5792/decorators/eip5792.js'
 
 export {
-  type GrantPermissionsParameters,
-  type GrantPermissionsReturnType,
-  grantPermissions,
-} from './erc7715/actions/grantPermissions.js'
+  type RequestExecutionPermissionsParameters as RequestExecutionPermissionParameters,
+  type RequestExecutionPermissionsReturnType as RequestExecutionPermissionReturnType,
+  requestExecutionPermissions,
+} from './erc7715/actions/requestExecutionPermissions.js'
 export {
   type Erc7715Actions,
   erc7715Actions,
