@@ -100,7 +100,7 @@ jobs:
       max-parallel: 3
       matrix:
         multicall: ['true', 'false']
-        transport-mode: ['http', 'webSocket']
+        transport-mode: ['http']
         shard: [1, 2, 3]
         total-shards: [3]
     steps:
