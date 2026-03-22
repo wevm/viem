@@ -1,4 +1,4 @@
-import { beforeAll, expect, test } from 'vitest'
+import { beforeAll, expect, test, vi } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
 import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
@@ -223,4 +223,36 @@ test('dropped tx', async () => {
     value: 0n,
   })
   expect(await nonceManager.get(args)).toBe(10)
+})
+
+test('reset clears cached nonces', async () => {
+  let sourceNonce = 5
+  const source = {
+    get: vi.fn(async () => sourceNonce),
+    set: vi.fn(),
+  }
+
+  const nm = createNonceManager({ source })
+
+  const args = {
+    address: account.address,
+    chainId: 1,
+    client: mainnetClient,
+  }
+
+  // Consume a nonce so nonceMap gets populated.
+  const nonce = await nm.consume(args)
+  expect(nonce).toBe(5)
+
+  // Source now reports a different nonce (simulating that the
+  // consumed transaction was never actually submitted).
+  sourceNonce = 5
+
+  // Without the fix, reset() would leave nonceMap intact, and
+  // the next get() would return previousNonce + 1 = 6 instead
+  // of re-fetching from the source.
+  nm.reset(args)
+
+  const fresh = await nm.get(args)
+  expect(fresh).toBe(5)
 })
