@@ -136,6 +136,17 @@ export async function sendUserOperation<
       )(parameters as unknown as PrepareUserOperationParameters)
     : parameters
 
+  if (
+    request.authorization &&
+    account?.authorization &&
+    !parameters.authorization
+  ) {
+    request.authorization =
+      await account.authorization.account.signAuthorization(
+        request.authorization,
+      )
+  }
+
   const signature = (parameters.signature ||
     (await account?.signUserOperation?.(request as UserOperation)))!
 
