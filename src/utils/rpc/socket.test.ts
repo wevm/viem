@@ -248,7 +248,7 @@ test('reconnect', async () => {
   socketClient.close()
 })
 
-test('reconnect on close', async () => {
+test('close does not trigger reconnect', async () => {
   let status = 'idle'
 
   const socketClient = await getSocketRpcClient({
@@ -273,8 +273,8 @@ test('reconnect on close', async () => {
 
   socketClient.close()
   expect(status).toBe('closed')
-  await wait(100)
-  expect(status).toBe('open')
+  await wait(200)
+  expect(status).toBe('closed')
 })
 
 test('keepAlive enabled', async () => {
