@@ -1,35 +1,33 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 
 import { wait } from './wait.js'
 
-describe('wait', () => {
-  beforeEach(() => {
-    vi.useFakeTimers()
+beforeEach(() => {
+  vi.useFakeTimers()
+})
+
+afterEach(() => {
+  vi.useRealTimers()
+})
+
+test('wait: returns a promise', () => {
+  const result = wait(100)
+  expect(result).toBeInstanceOf(Promise)
+})
+
+test('wait: resolves after the specified time', async () => {
+  let resolved = false
+  const promise = wait(1000).then(() => {
+    resolved = true
   })
 
-  afterEach(() => {
-    vi.useRealTimers()
-  })
+  expect(resolved).toBe(false)
 
-  test('returns a promise', () => {
-    const result = wait(100)
-    expect(result).toBeInstanceOf(Promise)
-  })
+  await vi.advanceTimersByTimeAsync(999)
+  expect(resolved).toBe(false)
 
-  test('resolves after the specified time', async () => {
-    let resolved = false
-    const promise = wait(1000).then(() => {
-      resolved = true
-    })
+  await vi.advanceTimersByTimeAsync(1)
+  expect(resolved).toBe(true)
 
-    expect(resolved).toBe(false)
-
-    await vi.advanceTimersByTimeAsync(999)
-    expect(resolved).toBe(false)
-
-    await vi.advanceTimersByTimeAsync(1)
-    expect(resolved).toBe(true)
-
-    await promise
-  })
+  await promise
 })
