@@ -60,7 +60,7 @@ test('InvalidSerializedTransactionTypeError', () => {
       serializedType: '0x111',
     }),
   ).toMatchInlineSnapshot(`
-    [InvalidSerializedTransactionType: Serialized transaction type "0x111" is invalid.
+    [InvalidSerializedTransactionTypeError: Serialized transaction type "0x111" is invalid.
 
     Version: viem@x.y.z]
   `)

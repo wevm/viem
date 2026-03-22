@@ -1167,7 +1167,7 @@ describe('errors', () => {
   test('invalid transaction', () => {
     expect(() => parseTransaction('0x')).toThrowErrorMatchingInlineSnapshot(
       `
-      [InvalidSerializedTransactionType: Serialized transaction type "0x" is invalid.
+      [InvalidSerializedTransactionTypeError: Serialized transaction type "0x" is invalid.
 
       Version: viem@x.y.z]
     `,
@@ -1177,7 +1177,7 @@ describe('errors', () => {
   test('invalid transaction', () => {
     expect(() => parseTransaction('0x69')).toThrowErrorMatchingInlineSnapshot(
       `
-      [InvalidSerializedTransactionType: Serialized transaction type "0x69" is invalid.
+      [InvalidSerializedTransactionTypeError: Serialized transaction type "0x69" is invalid.
 
       Version: viem@x.y.z]
     `,

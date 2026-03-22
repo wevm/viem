@@ -1520,7 +1520,7 @@ test('invalid type', () => {
       '0x0000000000000000000000000000000000000000000000000000000000000000',
     ),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [InvalidAbiDecodingType: Type "lol" is not a valid decoding type.
+    [InvalidAbiDecodingTypeError: Type "lol" is not a valid decoding type.
     Please provide a valid ABI type.
 
     Docs: https://viem.sh/docs/contract/decodeAbiParameters

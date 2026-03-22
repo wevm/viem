@@ -1699,7 +1699,7 @@ test('invalid type', () => {
   expect(() =>
     encodeAbiParameters([{ name: 'x', type: 'lol' }], [69]),
   ).toThrowErrorMatchingInlineSnapshot(`
-    [InvalidAbiEncodingType: Type "lol" is not a valid encoding type.
+    [InvalidAbiEncodingTypeError: Type "lol" is not a valid encoding type.
     Please provide a valid ABI type.
 
     Docs: https://viem.sh/docs/contract/encodeAbiParameters

@@ -88,7 +88,7 @@ export class InvalidSerializedTransactionTypeError extends BaseError {
 
   constructor({ serializedType }: { serializedType: Hex }) {
     super(`Serialized transaction type "${serializedType}" is invalid.`, {
-      name: 'InvalidSerializedTransactionType',
+      name: 'InvalidSerializedTransactionTypeError',
     })
 
     this.serializedType = serializedType

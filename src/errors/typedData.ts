@@ -10,6 +10,7 @@ export class InvalidDomainError extends BaseError {
   constructor({ domain }: { domain: unknown }) {
     super(`Invalid domain "${stringify(domain)}".`, {
       metaMessages: ['Must be a valid EIP-712 domain.'],
+      name: 'InvalidDomainError',
     })
   }
 }
@@ -27,6 +28,7 @@ export class InvalidPrimaryTypeError extends BaseError {
       {
         docsPath: '/api/glossary/Errors#typeddatainvalidprimarytypeerror',
         metaMessages: ['Check that the primary type is a key in `types`.'],
+        name: 'InvalidPrimaryTypeError',
       },
     )
   }

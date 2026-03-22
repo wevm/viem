@@ -50,7 +50,7 @@ test('InvalidAbiDecodingTypeError', () => {
   expect(
     new InvalidAbiDecodingTypeError('lol', { docsPath: '/lol' }),
   ).toMatchInlineSnapshot(`
-    [InvalidAbiDecodingType: Type "lol" is not a valid decoding type.
+    [InvalidAbiDecodingTypeError: Type "lol" is not a valid decoding type.
     Please provide a valid ABI type.
 
     Docs: https://viem.sh/lol
@@ -204,7 +204,7 @@ test('InvalidAbiEncodingTypeError', () => {
   expect(
     new InvalidAbiEncodingTypeError('lol', { docsPath: '/lol' }),
   ).toMatchInlineSnapshot(`
-    [InvalidAbiEncodingType: Type "lol" is not a valid encoding type.
+    [InvalidAbiEncodingTypeError: Type "lol" is not a valid encoding type.
     Please provide a valid ABI type.
 
     Docs: https://viem.sh/lol
