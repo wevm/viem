@@ -11,5 +11,11 @@ export const jasmyChainTestnet = /*#__PURE__*/ defineChain({
       webSocket: ['wss://rpc_testnet.jasmychain.io'],
     },
   },
+  blockExplorers: {
+    default: {
+      name: 'Jasmyscan',
+      url: 'https://jasmy-chain-testnet-explorer.alt.technology',
+    },
+  },
   testnet: true,
 })
