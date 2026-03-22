@@ -13,5 +13,11 @@ export const lumozTestnet = /*#__PURE__*/ defineChain({
       http: ['https://testnet-rpc.lumoz.org'],
     },
   },
+  blockExplorers: {
+    default: {
+      name: 'Lumoz Testnet Explorer',
+      url: 'https://testnet-scan.lumoz.info',
+    },
+  },
   testnet: true,
 })
