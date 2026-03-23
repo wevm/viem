@@ -426,7 +426,8 @@ export async function prepareTransactionRequest<
             const error = e as BaseError
             return (
               error.name === 'MethodNotFoundRpcError' ||
-              error.name === 'MethodNotSupportedRpcError'
+              error.name === 'MethodNotSupportedRpcError' ||
+              error.message?.includes('eth_fillTransaction is not available')
             )
           })
           if (unsupported) supportsFillTransaction.set(client.uid, false)

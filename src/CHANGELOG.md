@@ -1,5 +1,45 @@
 # viem
 
+## 2.47.6
+
+### Patch Changes
+
+- [`09d9f3520ce8837cb352e0bf3a7d735b511abd6f`](https://github.com/wevm/viem/commit/09d9f3520ce8837cb352e0bf3a7d735b511abd6f) Thanks [@jxom](https://github.com/jxom)! - Updated Ox
+
+- [#4401](https://github.com/wevm/viem/pull/4401) [`928ae87a32a13c72c9adf9390172d7b92bf99ce7`](https://github.com/wevm/viem/commit/928ae87a32a13c72c9adf9390172d7b92bf99ce7) Thanks [@ndavd](https://github.com/ndavd)! - Ensured that `dataSuffix` is applied to all transactions regardless of `data` presence.
+
+- [#4405](https://github.com/wevm/viem/pull/4405) [`4ad0de0ebc543a9054bd7d57976eede1d3612440`](https://github.com/wevm/viem/commit/4ad0de0ebc543a9054bd7d57976eede1d3612440) Thanks [@jxom](https://github.com/jxom)! - Added `mode` parameter to `verifyMessage` and `verifyHash`.
+
+## 2.47.5
+
+### Patch Changes
+
+- [#4376](https://github.com/wevm/viem/pull/4376) [`64383c9e53cb42e5c371cc8da5a91cdfa47a3331`](https://github.com/wevm/viem/commit/64383c9e53cb42e5c371cc8da5a91cdfa47a3331) Thanks [@nowooj](https://github.com/nowooj)! - Added CONX chain.
+
+- [#4377](https://github.com/wevm/viem/pull/4377) [`94248ab65c00c6254158e4cd985d8f5eec41f870`](https://github.com/wevm/viem/commit/94248ab65c00c6254158e4cd985d8f5eec41f870) Thanks [@Aboudjem](https://github.com/Aboudjem)! - Fixed unbounded LRU cache growth on iOS 18+.
+
+- [`a168f08272962f495306f72301a9d6c148428564`](https://github.com/wevm/viem/commit/a168f08272962f495306f72301a9d6c148428564) Thanks [@tmm](https://github.com/tmm)! - Updated chain definition.
+
+- [#4391](https://github.com/wevm/viem/pull/4391) [`a8c8e6ed4ee40f6259899742a2be20d0772841ce`](https://github.com/wevm/viem/commit/a8c8e6ed4ee40f6259899742a2be20d0772841ce) Thanks [@mohamedhesham840](https://github.com/mohamedhesham840)! - Fixed incorrect error message for PaymasterStakeTooLowError (code -32505)
+
+- [#4403](https://github.com/wevm/viem/pull/4403) [`e8435e340592986fcd9c21a7626ff40b1af1e850`](https://github.com/wevm/viem/commit/e8435e340592986fcd9c21a7626ff40b1af1e850) Thanks [@GuillermoEscobero](https://github.com/GuillermoEscobero)! - Removed Zircuit Mainnet deprecated RPCs and Zircuit old testnet.
+
+- [#4385](https://github.com/wevm/viem/pull/4385) [`ee1f2950dc5f8bf51ed9682ac0e9c4d9ef96a7bf`](https://github.com/wevm/viem/commit/ee1f2950dc5f8bf51ed9682ac0e9c4d9ef96a7bf) Thanks [@pxrl](https://github.com/pxrl)! - Defined DisputeGameFactory for Lisk, Mode & Zora
+
+- [#4388](https://github.com/wevm/viem/pull/4388) [`60f701f16217ef099c25184be97dc0e70e686b40`](https://github.com/wevm/viem/commit/60f701f16217ef099c25184be97dc0e70e686b40) Thanks [@alcuadrado](https://github.com/alcuadrado)! - Added error preservation in `getContractError`.
+
+## 2.47.4
+
+### Patch Changes
+
+- [`6c3dc97e9d19718580ea8aa4db04f5e065594a49`](https://github.com/wevm/viem/commit/6c3dc97e9d19718580ea8aa4db04f5e065594a49) Thanks [@jxom](https://github.com/jxom)! - Updated Ox.
+
+## 2.47.3
+
+### Patch Changes
+
+- [#4393](https://github.com/wevm/viem/pull/4393) [`07ca7341f3df99bf2b868d66a9d770fca959bc65`](https://github.com/wevm/viem/commit/07ca7341f3df99bf2b868d66a9d770fca959bc65) Thanks [@d1r1](https://github.com/d1r1)! - Added Fluent Devnet chain and fixed Fluent Testnet chain definition.
+
 ## 2.47.2
 
 ### Patch Changes

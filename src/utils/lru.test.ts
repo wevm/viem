@@ -20,6 +20,42 @@ test('default', () => {
   expect(cache.get('g')).toBe(7)
 })
 
+test('eviction does not exceed maxSize under heavy load', () => {
+  const cache = new LruMap<boolean>(100)
+  for (let i = 0; i < 10_000; i++) {
+    cache.set(`key${i}`, true)
+  }
+  expect(cache.size).toBe(100)
+  expect(cache.has('key0')).toBe(false)
+  expect(cache.has('key9999')).toBe(true)
+  expect(cache.has('key9900')).toBe(true)
+  expect(cache.has('key9899')).toBe(false)
+})
+
+test('set existing key refreshes its position', () => {
+  const cache = new LruMap(3)
+  cache.set('a', 1)
+  cache.set('b', 2)
+  cache.set('c', 3)
+  // Refresh 'a' by re-setting it
+  cache.set('a', 10)
+  // Now 'b' is the oldest
+  cache.set('d', 4)
+  expect(cache.has('a')).toBe(true)
+  expect(cache.get('a')).toBe(10)
+  expect(cache.has('b')).toBe(false)
+  expect(cache.has('c')).toBe(true)
+  expect(cache.has('d')).toBe(true)
+})
+
+test('evicts empty-string key correctly', () => {
+  const cache = new LruMap<number>(1)
+  cache.set('', 1)
+  cache.set('x', 2)
+  expect(cache.has('')).toBe(false)
+  expect(cache.has('x')).toBe(true)
+})
+
 test('update touched keys', () => {
   const cache = new LruMap(5)
   cache.set('a', 1)

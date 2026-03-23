@@ -9,6 +9,7 @@ import {
   type KeyAuthorization,
   type TransactionReceipt as ox_TransactionReceipt,
   SignatureEnvelope,
+  type TempoAddress,
   TxEnvelopeTempo as TxTempo,
 } from 'ox/tempo'
 import type { Account } from '../accounts/types.js'
@@ -118,9 +119,9 @@ export type TransactionRequestTempo<
   ExactPartial<FeeValuesEIP1559<quantity>> & {
     accessList?: AccessList | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
-    calls?: readonly TxTempo.Call<quantity>[] | undefined
+    calls?: readonly TxTempo.Call<quantity, TempoAddress.Address>[] | undefined
     feePayer?: Account | true | undefined
-    feeToken?: Address | bigint | undefined
+    feeToken?: TempoAddress.Address | bigint | undefined
     nonceKey?: 'expiring' | quantity | undefined
     validBefore?: index | undefined
     validAfter?: index | undefined
@@ -212,7 +213,7 @@ export declare namespace deserialize {
 export async function serialize(
   transaction: TransactionSerializable & {
     feePayer?: Account | true | undefined
-    from?: Address | undefined
+    from?: TempoAddress.Address | undefined
   },
   signature?:
     | OneOf<SignatureEnvelope.SignatureEnvelope | viem_Signature>
@@ -238,11 +239,7 @@ export async function serialize(
   }
 
   const type = getType(transaction)
-  if (type === 'tempo')
-    return serializeTempo(
-      transaction as TransactionSerializableTempo,
-      signature,
-    )
+  if (type === 'tempo') return serializeTempo(transaction as never, signature)
 
   throw new Error('Unsupported transaction type')
 }

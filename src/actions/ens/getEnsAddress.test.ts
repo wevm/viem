@@ -101,20 +101,7 @@ test('name with resolver that does not support addr', async () => {
 test('name with resolver that does not support addr - strict', async () => {
   await expect(
     getEnsAddress(client, { name: 'vitalik.eth', strict: true }),
-  ).rejects.toMatchInlineSnapshot(`
-    [ContractFunctionExecutionError: The contract function "resolveWithGateways" reverted.
-
-    Error: ResolverError(bytes errorData)
-                        (0x)
-     
-    Contract Call:
-      address:   0x0000000000000000000000000000000000000000
-      function:  resolveWithGateways(bytes name, bytes data, string[] gateways)
-      args:                         (0x07766974616c696b0365746800, 0x3b3b57deee6c4522aab0003e8d14cd40a6af439055fd2577951148c14b6cea9a53475835, ["x-batch-gateway:true"])
-
-    Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@x.y.z]
-  `)
+  ).rejects.toThrow('The contract function "resolveWithGateways" reverted')
 })
 
 test('name that looks like a hex', async () => {
@@ -244,17 +231,7 @@ test('invalid universal resolver address', async () => {
       name: 'awkweb.eth',
       universalResolverAddress: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
     }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ContractFunctionExecutionError: The contract function "resolveWithGateways" reverted.
-
-    Contract Call:
-      address:   0x0000000000000000000000000000000000000000
-      function:  resolveWithGateways(bytes name, bytes data, string[] gateways)
-      args:                         (0x0661776b7765620365746800, 0x3b3b57de52d0f5fbf348925621be297a61b88ec492ebbbdfa9477d82892e2786020ad61c, ["x-batch-gateway:true"])
-
-    Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@x.y.z]
-  `)
+  ).rejects.toThrow('The contract function "resolveWithGateways" reverted')
 })
 
 test('invalid TLD', async () => {

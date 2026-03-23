@@ -100,9 +100,10 @@ export type AbiDecodingZeroDataErrorType = AbiDecodingZeroDataError & {
   name: 'AbiDecodingZeroDataError'
 }
 export class AbiDecodingZeroDataError extends BaseError {
-  constructor() {
+  constructor({ cause }: { cause?: BaseError | Error | undefined } = {}) {
     super('Cannot decode zero data ("0x") with ABI parameters.', {
       name: 'AbiDecodingZeroDataError',
+      cause,
     })
   }
 }
@@ -210,7 +211,13 @@ export type AbiErrorSignatureNotFoundErrorType =
 export class AbiErrorSignatureNotFoundError extends BaseError {
   signature: Hex
 
-  constructor(signature: Hex, { docsPath }: { docsPath: string }) {
+  constructor(
+    signature: Hex,
+    {
+      docsPath,
+      cause,
+    }: { docsPath: string; cause?: BaseError | Error | undefined },
+  ) {
     super(
       [
         `Encoded error signature "${signature}" not found on ABI.`,
@@ -220,6 +227,7 @@ export class AbiErrorSignatureNotFoundError extends BaseError {
       {
         docsPath,
         name: 'AbiErrorSignatureNotFoundError',
+        cause,
       },
     )
     this.signature = signature

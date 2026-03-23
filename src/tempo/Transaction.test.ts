@@ -247,3 +247,22 @@ describe('serialize', () => {
     ).rejects.toThrow('Unable to extract sender from transaction or signature.')
   })
 })
+
+describe('signTransaction', () => {
+  test('behavior: `feePayer` same as sender preserves from', async () => {
+    const account = accounts.at(0)!
+    const client = getClient()
+    const signed = await signTransaction(client, {
+      account,
+      to: account.address,
+      nonce: 0,
+      gas: 271000n,
+      maxFeePerGas: 20000000000n,
+      maxPriorityFeePerGas: 1_000_000_000n,
+      feePayer: account,
+      type: 'tempo',
+    })
+    const parsed = Transaction.deserialize(signed as `0x76${string}`)
+    expect(parsed.from).toBe(account.address.toLowerCase())
+  })
+})

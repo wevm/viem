@@ -155,6 +155,14 @@ export function getHttpRpcClient(
         }
 
         if (!response.ok) {
+          // If the response body contains a valid JSON-RPC error, return it
+          // so it flows through the normal RPC error handling pipeline.
+          if (
+            typeof data.error?.code === 'number' &&
+            typeof data.error?.message === 'string'
+          )
+            return data
+
           throw new HttpRequestError({
             body,
             details: stringify(data.error) || response.statusText,

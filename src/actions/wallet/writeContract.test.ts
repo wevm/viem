@@ -388,6 +388,7 @@ test('w/ simulateContract (overloaded)', async () => {
       sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
     Docs: https://viem.sh/docs/contract/simulateContract
+    Details: execution reverted: Token ID is taken
     Version: viem@x.y.z]
   `)
 })
@@ -506,6 +507,7 @@ describe('behavior: contract revert', () => {
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
       Docs: https://viem.sh/docs/contract/writeContract
+      Details: execution reverted: This is a revert message
       Version: viem@x.y.z]
     `)
   })
@@ -530,6 +532,7 @@ describe('behavior: contract revert', () => {
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
       Docs: https://viem.sh/docs/contract/writeContract
+      Details: execution reverted: panic: assertion failed (0x01)
       Version: viem@x.y.z]
     `)
   })
@@ -554,6 +557,7 @@ describe('behavior: contract revert', () => {
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
       Docs: https://viem.sh/docs/contract/writeContract
+      Details: execution reverted: panic: arithmetic underflow or overflow (0x11)
       Version: viem@x.y.z]
     `)
   })
@@ -578,6 +582,7 @@ describe('behavior: contract revert', () => {
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
       Docs: https://viem.sh/docs/contract/writeContract
+      Details: execution reverted: panic: division or modulo by zero (0x12)
       Version: viem@x.y.z]
     `)
   })
@@ -601,6 +606,7 @@ describe('behavior: contract revert', () => {
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
       Docs: https://viem.sh/docs/contract/writeContract
+      Details: execution reverted
       Version: viem@x.y.z]
     `)
   })
@@ -627,6 +633,7 @@ describe('behavior: contract revert', () => {
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
       Docs: https://viem.sh/docs/contract/writeContract
+      Details: execution reverted: custom error 0xf9006398:                                                                bugger                          
       Version: viem@x.y.z]
     `)
   })
@@ -653,6 +660,7 @@ describe('behavior: contract revert', () => {
         sender:    0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
       Docs: https://viem.sh/docs/contract/writeContract
+      Details: execution reverted: custom error 0xdb731cf4: 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000004500000000000000000000000000000000000000000000000000000000000000066275676765720000000000000000000000000000000000000000000000000000
       Version: viem@x.y.z]
     `)
   })

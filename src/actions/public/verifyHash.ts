@@ -79,6 +79,8 @@ export type VerifyHashParameters = Pick<
   signature: Hex | ByteArray | Signature
   /** @deprecated use `erc6492VerifierAddress` instead. */
   universalSignatureVerifierAddress?: Address | undefined
+  /** Chooses which verification path to try first before falling back. */
+  mode?: 'auto' | 'eoa' | undefined
 } & OneOf<{ factory: Address; factoryData: Hex } | {}>
 
 export type VerifyHashReturnType = boolean
@@ -120,6 +122,7 @@ export async function verifyHash<chain extends Chain | undefined>(
       chain?.contracts?.erc6492Verifier?.address,
     multicallAddress = parameters.multicallAddress ??
       chain?.contracts?.multicall3?.address,
+    mode = 'auto',
   } = parameters
 
   if (chain?.verifyHash) return await chain.verifyHash(client, parameters)
@@ -131,8 +134,17 @@ export async function verifyHash<chain extends Chain | undefined>(
       return serializeSignature(signature)
     return bytesToHex(signature)
   })()
-
   try {
+    if (mode === 'eoa') {
+      try {
+        const verified = isAddressEqual(
+          getAddress(address),
+          await recoverAddress({ hash, signature }),
+        )
+        if (verified) return true
+      } catch {}
+    }
+
     if (SignatureErc8010.validate(signature))
       return await verifyErc8010(client, {
         ...parameters,
@@ -145,14 +157,16 @@ export async function verifyHash<chain extends Chain | undefined>(
       signature,
     })
   } catch (error) {
-    // Fallback attempt to verify the signature via ECDSA recovery.
-    try {
-      const verified = isAddressEqual(
-        getAddress(address),
-        await recoverAddress({ hash, signature }),
-      )
-      if (verified) return true
-    } catch {}
+    if (mode !== 'eoa') {
+      // Fallback attempt to verify the signature via ECDSA recovery.
+      try {
+        const verified = isAddressEqual(
+          getAddress(address),
+          await recoverAddress({ hash, signature }),
+        )
+        if (verified) return true
+      } catch {}
+    }
 
     if (error instanceof VerificationError) {
       // if the execution fails, the signature was not valid and an internal method inside of the validator reverted
