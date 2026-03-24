@@ -1454,6 +1454,18 @@ describe('shouldRetry', () => {
     expect(shouldRetry(new LimitExceededRpcError({} as any))).toBe(true)
   })
 
+  test('RpcRequestError (429)', () => {
+    expect(
+      shouldRetry(
+        new RpcRequestError({
+          body: {},
+          error: { code: 429, message: 'rate limit exceeded' },
+          url: '',
+        }),
+      ),
+    ).toBe(true)
+  })
+
   test('WalletConnectSessionSettlementError', () => {
     expect(
       shouldRetry(new WalletConnectSessionSettlementError({} as any)),
