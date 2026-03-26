@@ -628,16 +628,13 @@ export { teaSepolia } from './definitions/teaSepolia.js'
 export { telcoinTestnet } from './definitions/telcoinTestnet.js'
 export { telos } from './definitions/telos.js'
 export { telosTestnet } from './definitions/telosTestnet.js'
-export { tempo } from './definitions/tempo.js'
-export {
-  /** @deprecated Use `tempoModerato` instead. */
-  tempoAndantino,
-  /** @deprecated Use `tempoModerato` instead. */
-  tempoAndantino as tempoTestnet,
-} from './definitions/tempoAndantino.js'
+export { tempo, tempo as tempoMainnet } from './definitions/tempo.js'
 export { tempoDevnet } from './definitions/tempoDevnet.js'
 export { tempoLocalnet } from './definitions/tempoLocalnet.js'
-export { tempoModerato } from './definitions/tempoModerato.js'
+export {
+  tempoModerato,
+  tempoModerato as tempoTestnet,
+} from './definitions/tempoModerato.js'
 export { tenet } from './definitions/tenet.js'
 export { ternoa } from './definitions/ternoa.js'
 export { thaiChain } from './definitions/thaiChain.js'
