@@ -1,5 +1,27 @@
 # viem
 
+## 2.47.7
+
+### Patch Changes
+
+- [#4419](https://github.com/wevm/viem/pull/4419) [`4f77ac880ed81e104a68a530665b42661e0c1ebf`](https://github.com/wevm/viem/commit/4f77ac880ed81e104a68a530665b42661e0c1ebf) Thanks [@emdin](https://github.com/emdin)! - Added Igra Network chain.
+
+- [#4422](https://github.com/wevm/viem/pull/4422) [`3c950f70495df4a357b57b6c90ffb828f0a8a884`](https://github.com/wevm/viem/commit/3c950f70495df4a357b57b6c90ffb828f0a8a884) Thanks [@ryanRfox](https://github.com/ryanRfox)! - Added Mezo and Mezo Testnet chains.
+
+- [#4426](https://github.com/wevm/viem/pull/4426) [`63ab458812b15fe5d737de08356f8b4e635c6da3`](https://github.com/wevm/viem/commit/63ab458812b15fe5d737de08356f8b4e635c6da3) Thanks [@PatrickAlphaC](https://github.com/PatrickAlphaC)! - Added BattleChain Testnet
+
+- [#4423](https://github.com/wevm/viem/pull/4423) [`16f6ca238cd5e6d86b36dbb92098a180af6d8ef7`](https://github.com/wevm/viem/commit/16f6ca238cd5e6d86b36dbb92098a180af6d8ef7) Thanks [@pxrl](https://github.com/pxrl)! - Added basic OP definitions to MegaETH, fixed Blockscout defs.
+
+- [`621b0856e55e710c61bd0a2d57c125d559bd9ae4`](https://github.com/wevm/viem/commit/621b0856e55e710c61bd0a2d57c125d559bd9ae4) Thanks [@jxom](https://github.com/jxom)! - Propagated execution reverted errors (code 3) from `eth_fillTransaction` in `prepareTransactionRequest` instead of silently falling through.
+
+- [#4409](https://github.com/wevm/viem/pull/4409) [`25634335611498ecaead8435b1403e5f28d30fc1`](https://github.com/wevm/viem/commit/25634335611498ecaead8435b1403e5f28d30fc1) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Added Gensyn Mainnet
+
+- [#4425](https://github.com/wevm/viem/pull/4425) [`ce08d9a4dc9ab986d5d9f6cfe380ae6ec1fec2d9`](https://github.com/wevm/viem/commit/ce08d9a4dc9ab986d5d9f6cfe380ae6ec1fec2d9) Thanks [@o-az](https://github.com/o-az)! - Removed Tempo Andantino network and updated references
+
+- [#4420](https://github.com/wevm/viem/pull/4420) [`c158236bd6e0d5c80881243d85a535723f61dd7e`](https://github.com/wevm/viem/commit/c158236bd6e0d5c80881243d85a535723f61dd7e) Thanks [@mycodecrafting](https://github.com/mycodecrafting)! - Added Eden chain.
+
+- [#4421](https://github.com/wevm/viem/pull/4421) [`26bf275307bf6e31430fa5283770f5caa4033aee`](https://github.com/wevm/viem/commit/26bf275307bf6e31430fa5283770f5caa4033aee) Thanks [@KirienzoEth](https://github.com/KirienzoEth)! - Add the multicall3 configuration to the Katana chain's config
+
 ## 2.47.6
 
 ### Patch Changes
