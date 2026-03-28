@@ -131,6 +131,37 @@ console.log(
 
 :::
 
+### Use Zone Clients
+
+Chains with configured zones expose `getZoneClient`, which returns a wallet-capable zone client with Zone Actions on `zoneClient.zone.*`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const zoneClient = client.getZoneClient({
+  zone: 26,
+})
+
+const zoneInfo = await zoneClient.zone.getZoneInfo()
+
+console.log('Zone ID:', zoneInfo.zoneId)
+// @log: Zone ID: 26
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+:::tip
+
+[See the Tempo Zone Client](/tempo/client)
+
+:::
+
 ### Next Steps
 
 After you have set up Tempo with Viem, you can now:

@@ -1,0 +1,42 @@
+# `zone.getZoneInfo`
+
+Returns the current zone metadata.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const zoneClient = client.getZoneClient({ zone: 26 })
+const zoneInfo = await zoneClient.zone.getZoneInfo()
+
+console.log('Zone ID:', zoneInfo.zoneId)
+// @log: Zone ID: 26
+console.log('Zone chain ID:', zoneInfo.chainId)
+// @log: Zone chain ID: 4217000026
+console.log('Sequencer:', zoneInfo.sequencer)
+// @log: Sequencer: 0x1111111111111111111111111111111111111111
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Zone chain ID. */
+  chainId: number
+  /** Zone sequencer address. */
+  sequencer: Address
+  /** Zone ID. */
+  zoneId: number
+  /** Tokens accepted by the zone. */
+  zoneTokens: readonly Address[]
+}
+```

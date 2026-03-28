@@ -1,0 +1,66 @@
+# `zone.getDepositStatus`
+
+Returns deposit processing status for a given Tempo block number.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const zoneClient = client.getZoneClient({ zone: 26 })
+const status = await zoneClient.zone.getDepositStatus({
+  tempoBlockNumber: 42n,
+})
+
+console.log('Processed:', status.processed)
+// @log: Processed: true
+console.log('Deposits:', status.deposits.length)
+// @log: Deposits: 1
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  deposits: readonly {
+    /** Deposit amount. */
+    amount: bigint
+    /** Deposit hash. */
+    depositHash: Hex
+    /** Deposit kind. */
+    kind: 'encrypted' | 'regular'
+    /** Optional deposit memo. */
+    memo: Hex | null
+    /** Recipient address, if available. */
+    recipient: Address | null
+    /** Sender address. */
+    sender: Address
+    /** Processing status. */
+    status: 'failed' | 'pending' | 'processed'
+    /** Deposited token address. */
+    token: Address
+  }[]
+  /** Whether the requested block has been processed by the zone. */
+  processed: boolean
+  /** Tempo block number queried. */
+  tempoBlockNumber: bigint
+  /** Highest Tempo block processed by the zone. */
+  zoneProcessedThrough: bigint
+}
+```
+
+## Parameters
+
+### tempoBlockNumber
+
+- **Type:** `bigint`
+
+Tempo block number to inspect.

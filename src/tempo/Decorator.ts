@@ -12,11 +12,21 @@ import * as policyActions from './actions/policy.js'
 import * as rewardActions from './actions/reward.js'
 import * as tokenActions from './actions/token.js'
 import * as validatorActions from './actions/validator.js'
+import {
+  type GetZoneClientDecorator,
+  type GetZoneClientParameters,
+  getZoneClient,
+} from './internal/zone.js'
 
 export type Decorator<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
-> = {
+  client extends Client<Transport, chain, account> = Client<
+    Transport,
+    chain,
+    account
+  >,
+> = GetZoneClientDecorator<client> & {
   accessKey: {
     /**
      * Authorizes an access key by signing a key authorization and sending a transaction.
@@ -3725,10 +3735,25 @@ export function decorator() {
     transport extends Transport,
     chain extends Chain | undefined,
     account extends Account | undefined,
+    client extends Client<transport, chain, account>,
   >(
-    client: Client<transport, chain, account>,
-  ): Decorator<chain, account> => {
+    client: client,
+  ): Decorator<chain, account, client> => {
+    const hasZoneClient = Boolean(
+      client.account?.sign &&
+        client.chain &&
+        'zones' in client.chain &&
+        client.chain.zones &&
+        typeof client.sendTransaction === 'function',
+    )
+
     return {
+      ...(hasZoneClient
+        ? {
+            getZoneClient: (parameters: GetZoneClientParameters) =>
+              getZoneClient(client as never, parameters as never),
+          }
+        : {}),
       accessKey: {
         authorize: (parameters) =>
           accessKeyActions.authorize(client, parameters),
@@ -3958,6 +3983,6 @@ export function decorator() {
         updateSync: (parameters) =>
           validatorActions.updateSync(client, parameters),
       },
-    }
+    } as Decorator<chain, account, client>
   }
 }

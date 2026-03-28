@@ -12,6 +12,7 @@ import type { SerializeTransactionFn } from '../utils/transaction/serializeTrans
 import type { Account } from './Account.js'
 import * as Formatters from './Formatters.js'
 import * as Concurrent from './internal/concurrent.js'
+import type { ZoneConfig } from './internal/zone.js'
 import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
@@ -20,6 +21,7 @@ export const chainConfig = {
   blockTime: 1_000,
   extendSchema: extendSchema<{
     feeToken?: TokenId.TokenIdOrAddress | undefined
+    zones?: Record<number, ZoneConfig> | undefined
   }>(),
   formatters: {
     transaction: defineTransaction({

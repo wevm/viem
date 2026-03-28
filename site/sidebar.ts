@@ -1812,6 +1812,10 @@ export const sidebar = {
             link: '/tempo/chains',
           },
           {
+            text: 'Client',
+            link: '/tempo/client',
+          },
+          {
             text: 'Transactions',
             link: '/tempo/transactions',
           },
@@ -1852,6 +1856,24 @@ export const sidebar = {
           {
             text: 'Overview',
             link: '/tempo/actions',
+          },
+          {
+            text: 'Zone',
+            collapsed: true,
+            items: [
+              {
+                text: 'getAuthorizationTokenInfo',
+                link: '/tempo/actions/zone.getAuthorizationTokenInfo',
+              },
+              {
+                text: 'getZoneInfo',
+                link: '/tempo/actions/zone.getZoneInfo',
+              },
+              {
+                text: 'getDepositStatus',
+                link: '/tempo/actions/zone.getDepositStatus',
+              },
+            ],
           },
           {
             text: 'Access Key',

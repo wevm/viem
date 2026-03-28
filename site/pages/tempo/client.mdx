@@ -1,0 +1,98 @@
+# Client [Setting up your Viem Client with Tempo Zones]
+
+To use Tempo zone RPCs, extend your client with `tempoActions()`. On wallet-capable Tempo clients whose chain has configured `zones`, the client exposes `getZoneClient`.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const zoneClient = client.getZoneClient({
+  zone: 26,
+})
+
+const info = await zoneClient.zone.getZoneInfo()
+
+console.log('Zone ID:', info.zoneId)
+// @log: Zone ID: 26
+console.log('Zone chain ID:', info.chainId)
+// @log: Zone chain ID: 4217000026
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## `getZoneClient`
+
+Creates a wallet-capable client for a Tempo zone configured on the current chain.
+
+The returned client:
+
+- Reuses the parent client's HTTP transport settings where possible.
+- Disables HTTP batching because zone authorization tokens are account-scoped.
+- Automatically signs and caches short-lived zone authorization tokens.
+- Exposes Public Actions, Wallet Actions, and Zone Actions on `zoneClient.zone.*`.
+
+### Parameters
+
+#### zone
+
+- **Type:** `number`
+
+Zone ID configured on the parent chain.
+
+#### transport (optional)
+
+- **Type:** `object`
+
+Optional HTTP transport overrides for the derived zone client, such as `timeout`, `retryCount`, `retryDelay`, `fetchOptions`, `key`, `methods`, or `name`.
+
+## Return Type
+
+```ts
+type ReturnType = Client & {
+  zone: {
+    getAuthorizationTokenInfo: () => Promise<{
+      account: Address
+      expiresAt: bigint
+    }>
+    getDepositStatus: (parameters: {
+      tempoBlockNumber: bigint
+    }) => Promise<{
+      deposits: readonly {
+        amount: bigint
+        depositHash: Hex
+        kind: 'encrypted' | 'regular'
+        memo: Hex | null
+        recipient: Address | null
+        sender: Address
+        status: 'failed' | 'pending' | 'processed'
+        token: Address
+      }[]
+      processed: boolean
+      tempoBlockNumber: bigint
+      zoneProcessedThrough: bigint
+    }>
+    getZoneInfo: () => Promise<{
+      chainId: number
+      sequencer: Address
+      zoneId: number
+      zoneTokens: readonly Address[]
+    }>
+  }
+}
+```
+
+## Requirements
+
+`getZoneClient` is only available when:
+
+- The client is extended with `tempoActions()`.
+- The client has wallet actions.
+- The client has a signing account.
+- The selected chain has configured `zones`.

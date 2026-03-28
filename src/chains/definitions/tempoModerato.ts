@@ -22,4 +22,17 @@ export const tempoModerato = /*#__PURE__*/ defineChain({
       webSocket: ['wss://rpc.moderato.tempo.xyz'],
     },
   },
+  zones: {
+    26: {
+      chainId: 4217000026,
+      name: 'Tempo Zone 003',
+      portalAddress: '0x0F1B0cEdd7e8226e39eCB161f522c8B1Ac45e9C8',
+      rpcUrls: {
+        default: {
+          http: ['https://rpc-zone-003.tempoxyz.dev'],
+          webSocket: ['wss://rpc-zone-003.tempoxyz.dev'],
+        },
+      },
+    },
+  },
 })

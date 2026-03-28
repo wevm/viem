@@ -15,11 +15,18 @@ export * as Abis from './Abis.js'
 export * as Account from './Account.js'
 export * as Addresses from './Addresses.js'
 export * as Actions from './actions/index.js'
+export * as zoneActions from './actions/zone.js'
 export * as Capabilities from './Capabilities.js'
 export {
   type Decorator as TempoActions,
   decorator as tempoActions,
 } from './Decorator.js'
+export {
+  ZoneNotConfiguredError,
+  type ZoneNotConfiguredErrorType,
+  ZoneRpcUrlNotConfiguredError,
+  type ZoneRpcUrlNotConfiguredErrorType,
+} from './errors/zone.js'
 export * as Formatters from './Formatters.js'
 export * as P256 from './P256.js'
 export * as Secp256k1 from './Secp256k1.js'
