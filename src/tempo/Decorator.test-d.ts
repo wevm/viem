@@ -70,6 +70,14 @@ test('getZoneClient: available on wallet clients with configured zones', () => {
     }>
   >()
 
+  const preparedToken = zoneClient.zone.prepareAuthorizationToken()
+  expectTypeOf(preparedToken).toEqualTypeOf<
+    Promise<{
+      account: Address
+      expiresAt: bigint
+    }>
+  >()
+
   const zoneInfoAction = zoneClient.zone.getZoneInfo()
   expectTypeOf(zoneInfoAction).toEqualTypeOf<
     Promise<{

@@ -27,8 +27,12 @@ import {
   ZoneRpcUrlNotConfiguredError,
 } from '../errors/zone.js'
 
-const authorizationTokenTtl = 600
+const authorizationTokenTtl = 1800
 const authorizationTokenRefreshBuffer = 30
+const authorizationTokenCache = /*#__PURE__*/ new Map<
+  string,
+  CachedAuthorizationTokenState
+>()
 
 const p256Order =
   0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551n // secretlint-disable-line
@@ -37,6 +41,10 @@ const p256HalfOrder =
 
 type HashSignAccount = {
   sign: (parameters: { hash: Hex }) => Promise<Hex>
+}
+
+type AuthorizationTokenAccount = HashSignAccount & {
+  address: Address
 }
 
 type ZoneDecorator = { zone: zoneActions.ZoneActions }
@@ -229,6 +237,11 @@ type CachedAuthorizationToken = {
   token: string
 }
 
+type CachedAuthorizationTokenState = {
+  cachedToken?: CachedAuthorizationToken | undefined
+  inflight?: Promise<CachedAuthorizationToken> | undefined
+}
+
 function normalizeSignatureEnvelope(
   envelope: SignatureEnvelope.SignatureEnvelope,
 ): SignatureEnvelope.SignatureEnvelope {
@@ -261,26 +274,50 @@ function normalizeSignature(signature: Hex): Hex {
   return SignatureEnvelope.serialize(normalized)
 }
 
-function createAuthorizationTokenGetter(
-  account: HashSignAccount,
+function getAuthorizationTokenCacheKey(
+  account: AuthorizationTokenAccount,
   zoneId: number,
   zone: ZoneConfig,
 ) {
-  let cachedToken: CachedAuthorizationToken | undefined
-  let inflight: Promise<string> | undefined
+  return [
+    account.address.toLowerCase(),
+    zone.chainId,
+    zoneId,
+    zone.portalAddress.toLowerCase(),
+  ].join(':')
+}
+
+function getAuthorizationTokenCacheState(cacheKey: string) {
+  const cached = authorizationTokenCache.get(cacheKey)
+  if (cached) return cached
+
+  const state: CachedAuthorizationTokenState = {}
+  authorizationTokenCache.set(cacheKey, state)
+  return state
+}
+
+function createAuthorizationTokenGetter(
+  account: AuthorizationTokenAccount,
+  zoneId: number,
+  zone: ZoneConfig,
+) {
+  const state = getAuthorizationTokenCacheState(
+    getAuthorizationTokenCacheKey(account, zoneId, zone),
+  )
 
   return async () => {
     const now = Math.floor(Date.now() / 1000)
+    const cachedToken = state.cachedToken
     if (
       cachedToken &&
       cachedToken.expiresAt - now > authorizationTokenRefreshBuffer
     ) {
-      return cachedToken.token
+      return cachedToken
     }
 
-    if (inflight) return inflight
+    if (state.inflight) return state.inflight
 
-    inflight = (async () => {
+    state.inflight = (async () => {
       try {
         const issuedAt = Math.floor(Date.now() / 1000)
         const expiresAt = issuedAt + authorizationTokenTtl
@@ -300,14 +337,15 @@ function createAuthorizationTokenGetter(
         const token = ZoneRpcAuthenticationTempo.serialize(authentication, {
           signature,
         }).slice(2)
-        cachedToken = { expiresAt, token }
-        return token
+        const cachedToken = { expiresAt, token }
+        state.cachedToken = cachedToken
+        return cachedToken
       } finally {
-        inflight = undefined
+        state.inflight = undefined
       }
     })()
 
-    return inflight
+    return state.inflight
   }
 }
 
@@ -336,7 +374,7 @@ function getZoneTransportConfig(
 
 function createZoneTransport(parameters: {
   client: Client
-  getAuthorizationToken: () => Promise<string>
+  getAuthorizationToken: () => Promise<CachedAuthorizationToken>
   transport?: ZoneTransportConfig | undefined
   url: string
 }): HttpTransport {
@@ -352,7 +390,7 @@ function createZoneTransport(parameters: {
       const headers = new Headers(next.headers)
       headers.set(
         ZoneRpcAuthenticationTempo.headerName,
-        await getAuthorizationToken(),
+        (await getAuthorizationToken()).token,
       )
       return {
         ...next,
@@ -393,6 +431,12 @@ export function getZoneClient<
     zones: undefined,
   }) as unknown as ZoneChain<chain, zone>
 
+  const getAuthorizationToken = createAuthorizationTokenGetter(
+    client.account,
+    zoneId,
+    zone,
+  )
+
   const resolvedTransport: ResolveZoneTransport<zoneTransport> =
     typeof parameters.transport === 'function'
       ? (parameters.transport as ResolveZoneTransport<zoneTransport>)
@@ -406,11 +450,7 @@ export function getZoneClient<
 
           return createZoneTransport({
             client,
-            getAuthorizationToken: createAuthorizationTokenGetter(
-              client.account,
-              zoneId,
-              zone,
-            ),
+            getAuthorizationToken,
             transport: parameters.transport,
             url,
           })
@@ -472,6 +512,14 @@ export function getZoneClient<
               tokenActions.transferSync(client as never, parameters as never),
           },
           zone: {
+            prepareAuthorizationToken: async () => {
+              const { expiresAt } = await getAuthorizationToken()
+
+              return {
+                account: client.account.address,
+                expiresAt: BigInt(expiresAt),
+              }
+            },
             getAuthorizationTokenInfo: () =>
               zoneActions.getAuthorizationTokenInfo(client),
             getDepositStatus: (

@@ -27,6 +27,9 @@ export type GetAuthorizationTokenInfoReturnType = {
   expiresAt: bigint
 }
 
+export type PrepareAuthorizationTokenReturnType =
+  GetAuthorizationTokenInfoReturnType
+
 export type GetAuthorizationTokenInfoErrorType =
   | RequestErrorType
   | HexToBigIntErrorType
@@ -191,6 +194,10 @@ export namespace getDepositStatus {
 }
 
 export type ZoneActions = {
+  /**
+   * Signs and caches a zone authorization token without making an RPC request.
+   */
+  prepareAuthorizationToken: () => Promise<PrepareAuthorizationTokenReturnType>
   /**
    * Returns the authenticated account address and token expiry.
    */

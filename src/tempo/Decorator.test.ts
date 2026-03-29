@@ -344,6 +344,87 @@ describe('decorator', () => {
     }
   })
 
+  test('zone client can prepare and share authorization tokens before the first RPC request', async () => {
+    let hits = 0
+    const account = createAccount()
+    const sign = vi.spyOn(account, 'sign')
+
+    const server = await createHttpServer(async (req, res) => {
+      hits += 1
+      expect(req.headers['x-authorization-token']).toEqual(expect.any(String))
+
+      let body = ''
+      req.setEncoding('utf8')
+      for await (const chunk of req) body += chunk
+
+      const request = JSON.parse(body)
+      const rpcRequest = Array.isArray(request) ? request[0] : request
+
+      const response = {
+        id: rpcRequest.id,
+        jsonrpc: '2.0',
+        result: {
+          chainId: '0xfb5a505a',
+          sequencer: '0x1111111111111111111111111111111111111111',
+          zoneId: '0x1a',
+          zoneTokens: ['0x20c0000000000000000000000000000000000000'],
+        },
+      }
+
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify(response))
+    })
+
+    try {
+      const chain = defineChain({
+        ...tempoModerato,
+        zones: {
+          ...tempoModerato.zones,
+          26: {
+            ...tempoModerato.zones[26],
+            rpcUrls: { default: { http: [server.url] } },
+          },
+        },
+      })
+
+      const client = createWalletClient({
+        account,
+        chain,
+        transport: http(),
+      }).extend(tempoActions())
+
+      const zoneClientA = client.getZoneClient({ zone: 26 })
+      const zoneClientB = client.getZoneClient({ zone: 26 })
+
+      const [preparedA, preparedB] = await Promise.all([
+        zoneClientA.zone.prepareAuthorizationToken(),
+        zoneClientB.zone.prepareAuthorizationToken(),
+      ])
+
+      expect(sign).toHaveBeenCalledTimes(1)
+      expect(hits).toBe(0)
+      expect(preparedA.account).toBe(account.address)
+      expect(preparedA.expiresAt).toBe(preparedB.expiresAt)
+      const expiresIn =
+        preparedA.expiresAt - BigInt(Math.floor(Date.now() / 1000))
+      expect(expiresIn).toBeGreaterThanOrEqual(1799n)
+      expect(expiresIn).toBeLessThanOrEqual(1800n)
+
+      await expect(zoneClientB.zone.getZoneInfo()).resolves.toEqual({
+        chainId: 4217000026,
+        sequencer: '0x1111111111111111111111111111111111111111',
+        zoneId: 26,
+        zoneTokens: ['0x20c0000000000000000000000000000000000000'],
+      })
+
+      expect(sign).toHaveBeenCalledTimes(1)
+      expect(hits).toBe(1)
+    } finally {
+      await server.close()
+      sign.mockRestore()
+    }
+  })
+
   test('zone client exposes token actions', async () => {
     const server = await createHttpServer(async (req, res) => {
       let body = ''
