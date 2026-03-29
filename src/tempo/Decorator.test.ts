@@ -1,10 +1,21 @@
-import { createClient, createWalletClient, defineChain, http } from 'viem'
+import {
+  createClient,
+  createWalletClient,
+  custom,
+  defineChain,
+  http,
+} from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { tempoLocalnet, tempoModerato } from 'viem/chains'
 import { tempoActions, ZoneNotConfiguredError } from 'viem/tempo'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 import { createHttpServer } from '~test/utils.js'
 import type { GetZoneInfoRpcReturnType } from './actions/zone.js'
+import * as Secp256k1 from './Secp256k1.js'
+
+function createAccount() {
+  return privateKeyToAccount(Secp256k1.randomPrivateKey())
+}
 
 describe('decorator', () => {
   const client2 = createClient({
@@ -45,9 +56,7 @@ describe('decorator', () => {
 
   test('exposes getZoneClient on wallet-capable Tempo clients with zones', () => {
     const client = createWalletClient({
-      account: privateKeyToAccount(
-        '0x59c6995e998f97a5a0044966f0945388cf0d6b5b3e89e1e5b7f4f49f0b6f0a1d',
-      ),
+      account: createAccount(),
       chain: tempoModerato,
       transport: http(),
     }).extend(tempoActions())
@@ -119,16 +128,12 @@ describe('decorator', () => {
       })
 
       const clientA = createWalletClient({
-        account: privateKeyToAccount(
-          '0x59c6995e998f97a5a0044966f0945388cf0d6b5b3e89e1e5b7f4f49f0b6f0a1d',
-        ),
+        account: createAccount(),
         chain,
         transport,
       }).extend(tempoActions())
       const clientB = createWalletClient({
-        account: privateKeyToAccount(
-          '0x8b3a350cf5c34c9194ca3a545d4f1a1bb5b7e5d5f6db2d5f7e3a2b1c4d5e6f70',
-        ),
+        account: createAccount(),
         chain,
         transport,
       }).extend(tempoActions())
@@ -147,11 +152,52 @@ describe('decorator', () => {
     }
   })
 
+  test('supports fully overriding the zone transport', async () => {
+    const request = vi.fn(async () => ({
+      chainId: '0xfb5a505a',
+      sequencer: '0x1111111111111111111111111111111111111111',
+      zoneId: '0x1a',
+      zoneTokens: ['0x20c0000000000000000000000000000000000000'],
+    }))
+
+    const chain = defineChain({
+      ...tempoModerato,
+      zones: {
+        ...tempoModerato.zones,
+        26: {
+          ...tempoModerato.zones[26],
+          rpcUrls: { default: { http: [] } },
+        },
+      },
+    })
+
+    const client = createWalletClient({
+      account: createAccount(),
+      chain,
+      transport: http(),
+    }).extend(tempoActions())
+
+    const zoneClient = client.getZoneClient({
+      zone: 26,
+      transport: custom({ request }),
+    })
+
+    await expect(zoneClient.zone.getZoneInfo()).resolves.toEqual({
+      chainId: 4217000026,
+      sequencer: '0x1111111111111111111111111111111111111111',
+      zoneId: 26,
+      zoneTokens: ['0x20c0000000000000000000000000000000000000'],
+    })
+    expect(zoneClient.transport.type).toBe('custom')
+    expect(request).toHaveBeenCalledWith({
+      method: 'zone_getZoneInfo',
+      params: [],
+    })
+  })
+
   test('throws a helpful error for unknown zones', () => {
     const client = createWalletClient({
-      account: privateKeyToAccount(
-        '0x59c6995e998f97a5a0044966f0945388cf0d6b5b3e89e1e5b7f4f49f0b6f0a1d',
-      ),
+      account: createAccount(),
       chain: tempoModerato,
       transport: http(),
     }).extend(tempoActions())
@@ -242,9 +288,7 @@ describe('decorator', () => {
       })
 
       const client = createWalletClient({
-        account: privateKeyToAccount(
-          '0x59c6995e998f97a5a0044966f0945388cf0d6b5b3e89e1e5b7f4f49f0b6f0a1d',
-        ),
+        account: createAccount(),
         chain,
         transport: http(),
       }).extend(tempoActions())
@@ -295,6 +339,59 @@ describe('decorator', () => {
         zoneProcessedThrough: BigInt(depositStatus.zoneProcessedThrough),
       })
       expect(rawResponse).toEqual(zoneInfo)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('zone client exposes token actions', async () => {
+    const server = await createHttpServer(async (req, res) => {
+      let body = ''
+      req.setEncoding('utf8')
+      for await (const chunk of req) body += chunk
+
+      const request = JSON.parse(body)
+      const rpcRequest = Array.isArray(request) ? request[0] : request
+
+      expect(req.headers['x-authorization-token']).toEqual(expect.any(String))
+      expect(rpcRequest.method).toBe('eth_call')
+
+      const response = {
+        id: rpcRequest.id,
+        jsonrpc: '2.0',
+        result:
+          '0x000000000000000000000000000000000000000000000000000000000000002a',
+      }
+
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify(Array.isArray(request) ? [response] : response))
+    })
+
+    try {
+      const chain = defineChain({
+        ...tempoModerato,
+        zones: {
+          ...tempoModerato.zones,
+          26: {
+            ...tempoModerato.zones[26],
+            rpcUrls: { default: { http: [server.url] } },
+          },
+        },
+      })
+
+      const client = createWalletClient({
+        account: createAccount(),
+        chain,
+        transport: http(),
+      }).extend(tempoActions())
+
+      const zoneClient = client.getZoneClient({ zone: 26 })
+
+      await expect(
+        zoneClient.token.getBalance({
+          token: '0x20c0000000000000000000000000000000000000',
+        }),
+      ).resolves.toBe(42n)
     } finally {
       await server.close()
     }

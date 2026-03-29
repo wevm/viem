@@ -20,6 +20,7 @@ import type { Chain } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
 import type { Assign, Prettify } from '../../types/utils.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
+import * as tokenActions from '../actions/token.js'
 import * as zoneActions from '../actions/zone.js'
 import {
   ZoneNotConfiguredError,
@@ -39,15 +40,53 @@ type HashSignAccount = {
 }
 
 type ZoneDecorator = { zone: zoneActions.ZoneActions }
+type ZoneTokenDecorator<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+> = {
+  token: {
+    approve: (
+      parameters: tokenActions.approve.Parameters<chain, account>,
+    ) => Promise<tokenActions.approve.ReturnValue>
+    approveSync: (
+      parameters: tokenActions.approveSync.Parameters<chain, account>,
+    ) => Promise<tokenActions.approveSync.ReturnValue>
+    getAllowance: (
+      parameters: tokenActions.getAllowance.Parameters<account>,
+    ) => Promise<tokenActions.getAllowance.ReturnValue>
+    getBalance: (
+      parameters: tokenActions.getBalance.Parameters<account>,
+    ) => Promise<tokenActions.getBalance.ReturnValue>
+    getMetadata: (
+      parameters: tokenActions.getMetadata.Parameters,
+    ) => Promise<tokenActions.getMetadata.ReturnValue>
+    transfer: (
+      parameters: tokenActions.transfer.Parameters<chain, account>,
+    ) => Promise<tokenActions.transfer.ReturnValue>
+    transferSync: (
+      parameters: tokenActions.transferSync.Parameters<chain, account>,
+    ) => Promise<tokenActions.transferSync.ReturnValue>
+  }
+}
+
+type ZoneExtension<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+> = ZoneDecorator & ZoneTokenDecorator<chain, account>
+
+type ZoneTransportOverride = Transport | ZoneTransportConfig
 
 export type ZoneTransportConfig = Omit<
   HttpTransportConfig,
   'batch' | 'raw' | 'rpcSchema'
 >
 
-export type GetZoneClientParameters = {
-  transport?: ZoneTransportConfig | undefined
-  zone: number
+export type GetZoneClientParameters<
+  zone extends number = number,
+  zoneTransport extends ZoneTransportOverride | undefined = undefined,
+> = {
+  transport?: zoneTransport
+  zone: zone
 }
 
 export type ZoneConfig = {
@@ -91,7 +130,7 @@ export type ZoneChain<
   Assign<
     chain,
     {
-      blockExplorers: ZoneById<chain, zone>['blockExplorers']
+      blockExplorers?: Chain['blockExplorers'] | undefined
       id: ZoneById<chain, zone>['chainId']
       name: ZoneName<chain, zone>
       rpcUrls: ZoneById<chain, zone>['rpcUrls']
@@ -104,14 +143,16 @@ export type ZoneChain<
 export type ZoneClient<
   chain extends Chain,
   account extends Account | undefined,
+  transport extends Transport = HttpTransport,
 > = Prettify<
   Client<
-    HttpTransport,
+    transport,
     chain,
     account,
     undefined,
-    PublicActions<HttpTransport, chain, account> &
+    PublicActions<transport, chain, account> &
       WalletActions<chain, account> &
+      ZoneTokenDecorator<chain, account> &
       ZoneDecorator
   >
 >
@@ -133,15 +174,24 @@ type HasWalletActions<client extends Client> = client extends WalletActions<
   ? true
   : false
 
+type ResolveZoneTransport<
+  zoneTransport extends ZoneTransportOverride | undefined,
+> = zoneTransport extends Transport ? zoneTransport : HttpTransport
+
 type GetZoneClientReturnType<
   client extends Client,
   zone extends number,
+  zoneTransport extends ZoneTransportOverride | undefined = undefined,
 > = client extends Client<
   Transport,
   infer chain extends Chain,
   infer account extends Account | undefined
 >
-  ? ZoneClient<ZoneChain<chain, zone & ZoneId<chain>>, account>
+  ? ZoneClient<
+      ZoneChain<chain, zone & ZoneId<chain>>,
+      account,
+      ResolveZoneTransport<zoneTransport>
+    >
   : never
 
 export type GetZoneClientDecorator<client extends Client> =
@@ -153,18 +203,23 @@ export type GetZoneClientDecorator<client extends Client> =
             /**
              * Creates a wallet-capable client for a Tempo zone configured on the current chain.
              *
-             * The returned client automatically signs and caches short-lived zone authorization
-             * tokens, and exposes both public and wallet actions against the zone RPC.
+             * The returned client exposes both public and wallet actions against the zone RPC.
+             *
+             * When using the built-in HTTP transport, it automatically signs and caches
+             * short-lived zone authorization tokens.
              *
              * By default, the zone client reuses the current HTTP transport settings where possible,
              * but disables HTTP batching because zone authorization tokens are account-scoped.
+             * Passing a transport factory via `transport` fully overrides this behavior.
              */
             getZoneClient: <
               const zone extends ZoneId<client['chain']>,
-            >(parameters: {
-              transport?: ZoneTransportConfig | undefined
-              zone: zone
-            }) => GetZoneClientReturnType<client, zone>
+              zoneTransport extends
+                | ZoneTransportOverride
+                | undefined = undefined,
+            >(
+              parameters: GetZoneClientParameters<zone, zoneTransport>,
+            ) => GetZoneClientReturnType<client, zone, zoneTransport>
           }
       : {}
     : {}
@@ -312,23 +367,18 @@ export function getZoneClient<
   chain extends Chain & { zones: Record<number, ZoneConfig> },
   account extends Account & HashSignAccount,
   zone extends ZoneId<chain>,
+  zoneTransport extends ZoneTransportOverride | undefined = undefined,
 >(
   client: Client<transport, chain, account> & WalletActions<chain, account>,
-  parameters: GetZoneClientParameters & { zone: zone },
-): GetZoneClientReturnType<Client<transport, chain, account>, zone> {
+  parameters: GetZoneClientParameters<zone, zoneTransport>,
+): GetZoneClientReturnType<
+  Client<transport, chain, account>,
+  zone,
+  zoneTransport
+> {
   const zoneId = parameters.zone
   const zone = client.chain.zones[zoneId] as ZoneById<chain, zone> | undefined
   if (!zone) throw new ZoneNotConfiguredError({ chain: client.chain, zoneId })
-
-  const getAuthorizationToken = createAuthorizationTokenGetter(
-    client.account,
-    zoneId,
-    zone,
-  )
-
-  const url = zone.rpcUrls.default.http[0]
-  if (!url)
-    throw new ZoneRpcUrlNotConfiguredError({ chain: client.chain, zoneId })
 
   const { extend: _extend, ...baseChain } = client.chain as chain & {
     extend?: unknown
@@ -343,6 +393,29 @@ export function getZoneClient<
     zones: undefined,
   }) as unknown as ZoneChain<chain, zone>
 
+  const resolvedTransport: ResolveZoneTransport<zoneTransport> =
+    typeof parameters.transport === 'function'
+      ? (parameters.transport as ResolveZoneTransport<zoneTransport>)
+      : ((() => {
+          const url = zone.rpcUrls.default.http[0]
+          if (!url)
+            throw new ZoneRpcUrlNotConfiguredError({
+              chain: client.chain,
+              zoneId,
+            })
+
+          return createZoneTransport({
+            client,
+            getAuthorizationToken: createAuthorizationTokenGetter(
+              client.account,
+              zoneId,
+              zone,
+            ),
+            transport: parameters.transport,
+            url,
+          })
+        })() as ResolveZoneTransport<zoneTransport>)
+
   const zoneClient = createClient({
     account: client.account,
     batch: client.batch,
@@ -354,25 +427,60 @@ export function getZoneClient<
     key: 'tempoZone',
     name: `Tempo Zone Client (${zoneId})`,
     pollingInterval: client.pollingInterval,
-    transport: createZoneTransport({
-      client,
-      getAuthorizationToken,
-      transport: parameters.transport,
-      url,
-    }),
+    transport: resolvedTransport,
     type: 'zoneClient',
   })
     .extend(publicActions)
     .extend(walletActions)
-    .extend((client) => ({
-      zone: {
-        getAuthorizationTokenInfo: () =>
-          zoneActions.getAuthorizationTokenInfo(client),
-        getDepositStatus: (parameters) =>
-          zoneActions.getDepositStatus(client, parameters),
-        getZoneInfo: () => zoneActions.getZoneInfo(client),
-      },
-    }))
+    .extend(
+      (client) =>
+        ({
+          token: {
+            approve: (
+              parameters: tokenActions.approve.Parameters<
+                ZoneChain<chain, zone>,
+                account
+              >,
+            ) => tokenActions.approve(client as never, parameters as never),
+            approveSync: (
+              parameters: tokenActions.approveSync.Parameters<
+                ZoneChain<chain, zone>,
+                account
+              >,
+            ) => tokenActions.approveSync(client as never, parameters as never),
+            getAllowance: (
+              parameters: tokenActions.getAllowance.Parameters<account>,
+            ) =>
+              tokenActions.getAllowance(client as never, parameters as never),
+            getBalance: (
+              parameters: tokenActions.getBalance.Parameters<account>,
+            ) => tokenActions.getBalance(client as never, parameters as never),
+            getMetadata: (parameters) =>
+              tokenActions.getMetadata(client as never, parameters),
+            transfer: (
+              parameters: tokenActions.transfer.Parameters<
+                ZoneChain<chain, zone>,
+                account
+              >,
+            ) => tokenActions.transfer(client as never, parameters as never),
+            transferSync: (
+              parameters: tokenActions.transferSync.Parameters<
+                ZoneChain<chain, zone>,
+                account
+              >,
+            ) =>
+              tokenActions.transferSync(client as never, parameters as never),
+          },
+          zone: {
+            getAuthorizationTokenInfo: () =>
+              zoneActions.getAuthorizationTokenInfo(client),
+            getDepositStatus: (
+              parameters: zoneActions.getDepositStatus.Parameters,
+            ) => zoneActions.getDepositStatus(client, parameters),
+            getZoneInfo: () => zoneActions.getZoneInfo(client),
+          },
+        }) satisfies ZoneExtension<ZoneChain<chain, zone>, account>,
+    )
 
   return zoneClient as never
 }

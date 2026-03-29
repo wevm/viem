@@ -31,12 +31,14 @@ console.log('Zone chain ID:', info.chainId)
 
 Creates a wallet-capable client for a Tempo zone configured on the current chain.
 
-The returned client:
+By default, the returned client:
 
 - Reuses the parent client's HTTP transport settings where possible.
 - Disables HTTP batching because zone authorization tokens are account-scoped.
-- Automatically signs and caches short-lived zone authorization tokens.
+- Automatically signs and caches short-lived zone authorization tokens when using the built-in HTTP transport.
 - Exposes Public Actions, Wallet Actions, and Zone Actions on `zoneClient.zone.*`.
+
+Passing a transport factory via `transport` fully overrides the default zone HTTP transport.
 
 ### Parameters
 
@@ -48,9 +50,12 @@ Zone ID configured on the parent chain.
 
 #### transport (optional)
 
-- **Type:** `object`
+- **Type:** `Transport | object`
 
-Optional HTTP transport overrides for the derived zone client, such as `timeout`, `retryCount`, `retryDelay`, `fetchOptions`, `key`, `methods`, or `name`.
+Optional transport configuration for the derived zone client.
+
+- Pass an object to override the built-in auth-aware HTTP transport, such as `timeout`, `retryCount`, `retryDelay`, `fetchOptions`, `key`, `methods`, or `name`.
+- Pass a transport factory to fully override zone transport behavior. Explicit transport overrides are responsible for any zone-specific authentication they need.
 
 ## Return Type
 

@@ -4,14 +4,24 @@ import { privateKeyToAccount } from '../accounts/privateKeyToAccount.js'
 import { tempoLocalnet, tempoModerato } from '../chains/index.js'
 import { createClient } from '../clients/createClient.js'
 import { createWalletClient } from '../clients/createWalletClient.js'
+import { custom } from '../clients/transports/custom.js'
 import { http } from '../clients/transports/http.js'
 import type { Hex } from '../types/misc.js'
 import type { GetZoneInfoRpcReturnType } from './actions/zone.js'
-import { tempoActions } from './Decorator.js'
+import { decorator as tempoActions } from './Decorator.js'
+import * as Secp256k1 from './Secp256k1.js'
 
-const account = privateKeyToAccount(
-  '0x59c6995e998f97a5a0044966f0945388cf0d6b5b3e89e1e5b7f4f49f0b6f0a1d',
-)
+type GetZoneInfoRpc = {
+  Method: 'zone_getZoneInfo'
+  Parameters: []
+  ReturnType: GetZoneInfoRpcReturnType
+}
+
+function createAccount() {
+  return privateKeyToAccount(Secp256k1.randomPrivateKey())
+}
+
+const account = createAccount()
 
 test('getZoneClient: available on wallet clients with configured zones', () => {
   const client = createWalletClient({
@@ -32,11 +42,18 @@ test('getZoneClient: available on wallet clients with configured zones', () => {
   })
   expectTypeOf(zoneClientWithTransport.chain.id).toEqualTypeOf<4217000026>()
 
-  const zoneInfo = zoneClient.request<{
-    Method: 'zone_getZoneInfo'
-    Parameters: []
-    ReturnType: GetZoneInfoRpcReturnType
-  }>({
+  const zoneClientWithCustomTransport = client.getZoneClient({
+    zone: 26,
+    transport: custom({ request: async () => null }),
+  })
+  expectTypeOf(
+    zoneClientWithCustomTransport.chain.id,
+  ).toEqualTypeOf<4217000026>()
+  expectTypeOf(
+    zoneClientWithCustomTransport.transport.type,
+  ).toEqualTypeOf<'custom'>()
+
+  const zoneInfo = zoneClient.request<GetZoneInfoRpc>({
     method: 'zone_getZoneInfo',
     params: [],
   })
@@ -84,6 +101,18 @@ test('getZoneClient: available on wallet clients with configured zones', () => {
     }>
   >()
 
+  const tokenBalance = zoneClient.token.getBalance({
+    token: '0x20c0000000000000000000000000000000000000',
+  })
+  expectTypeOf(tokenBalance).toEqualTypeOf<Promise<bigint>>()
+
+  const tokenTransfer = zoneClient.token.transfer({
+    amount: 1n,
+    to: '0x1111111111111111111111111111111111111111',
+    token: '0x20c0000000000000000000000000000000000000',
+  })
+  expectTypeOf(tokenTransfer).toEqualTypeOf<Promise<Hex>>()
+
   // @ts-expect-error
   zoneClient.zone.getDepositStatus()
 
@@ -94,21 +123,7 @@ test('getZoneClient: available on wallet clients with configured zones', () => {
   client.getZoneClient({ zone: 26, transport: { batch: true } })
 
   // @ts-expect-error
-  zoneClient.request({ method: 'zone_getZoneInfo', params: [] })
-
-  // @ts-expect-error
-  zoneClient.request<{
-    Method: 'zone_getZoneInfo'
-    Parameters: []
-    ReturnType: GetZoneInfoRpcReturnType
-  }>({ method: 'zone_getZoneInfo' })
-
-  // @ts-expect-error
-  zoneClient.request<{
-    Method: 'zone_getZoneInfo'
-    Parameters: []
-    ReturnType: GetZoneInfoRpcReturnType
-  }>({ method: 'zone_getZoneInfo', params: ['0x1'] })
+  zoneClient.request<GetZoneInfoRpc>({ method: 'zone_getZoneInfo' })
 
   // @ts-expect-error
   client.getZoneClient({ zone: 27 })

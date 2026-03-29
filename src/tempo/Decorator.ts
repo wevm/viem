@@ -3730,6 +3730,13 @@ export type Decorator<
   }
 }
 
+type GetZoneClientFn<client extends Client> =
+  GetZoneClientDecorator<client> extends {
+    getZoneClient: infer fn
+  }
+    ? fn
+    : never
+
 export function decorator() {
   return <
     transport extends Transport,
@@ -3744,16 +3751,10 @@ export function decorator() {
         client.chain &&
         'zones' in client.chain &&
         client.chain.zones &&
-        typeof client.sendTransaction === 'function',
+        'sendTransaction' in client,
     )
 
-    return {
-      ...(hasZoneClient
-        ? {
-            getZoneClient: (parameters: GetZoneClientParameters) =>
-              getZoneClient(client as never, parameters as never),
-          }
-        : {}),
+    const decorator: Omit<Decorator<chain, account>, 'getZoneClient'> = {
       accessKey: {
         authorize: (parameters) =>
           accessKeyActions.authorize(client, parameters),
@@ -3835,10 +3836,8 @@ export function decorator() {
           nonceActions.watchNonceIncremented(client, parameters),
       },
       fee: {
-        // @ts-expect-error
-        getUserToken: (parameters) =>
-          // @ts-expect-error
-          feeActions.getUserToken(client, parameters),
+        getUserToken: (...parameters) =>
+          feeActions.getUserToken(client, ...parameters),
         setUserToken: (parameters) =>
           feeActions.setUserToken(client, parameters),
         setUserTokenSync: (parameters) =>
@@ -3983,6 +3982,18 @@ export function decorator() {
         updateSync: (parameters) =>
           validatorActions.updateSync(client, parameters),
       },
+    }
+
+    const getZoneClient_ = (parameters: GetZoneClientParameters) =>
+      getZoneClient(client as never, parameters as never)
+
+    return {
+      ...decorator,
+      ...(hasZoneClient
+        ? {
+            getZoneClient: getZoneClient_ as GetZoneClientFn<client>,
+          }
+        : {}),
     } as Decorator<chain, account, client>
   }
 }

@@ -28,6 +28,14 @@ export {
   type ZoneRpcUrlNotConfiguredErrorType,
 } from './errors/zone.js'
 export * as Formatters from './Formatters.js'
+export type {
+  GetZoneClientParameters,
+  ZoneChain,
+  ZoneClient,
+  ZoneConfig,
+  ZoneId,
+  ZoneTransportConfig,
+} from './internal/zone.js'
 export * as P256 from './P256.js'
 export * as Secp256k1 from './Secp256k1.js'
 export * as TokenIds from './TokenIds.js'
