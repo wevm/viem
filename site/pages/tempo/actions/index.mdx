@@ -1,6 +1,11 @@
 # Overview
 
-Zone actions are available on a derived zone client created with [`getZoneClient`](/tempo/client).
+Zone RPC helpers are available on a derived zone client created with
+[`getZoneClient`](/tempo/client) via `zoneClient.zone.*`.
+
+They are also exported as free functions via `Actions.zone.*` and `zoneActions.*`.
+
+The derived zone client also exposes Tempo token helpers on `zoneClient.token.*`.
 
 | Action | Description |
 |--------|-------------|

@@ -133,7 +133,10 @@ console.log(
 
 ### Use Zone Clients
 
-Chains with configured zones expose `getZoneClient`, which returns a wallet-capable zone client with Zone Actions on `zoneClient.zone.*`.
+Chains with configured zones expose `getZoneClient`, which returns a wallet-capable
+zone client. Public and wallet actions remain available directly on the derived
+client, Tempo token helpers are available on `zoneClient.token.*`, and zone RPC
+helpers are available on `zoneClient.zone.*`.
 
 :::code-group
 
@@ -145,9 +148,14 @@ const zoneClient = client.getZoneClient({
 })
 
 const zoneInfo = await zoneClient.zone.getZoneInfo()
+const zoneBalance = await zoneClient.token.getBalance({
+  token: '0x20c0000000000000000000000000000000000000',
+})
 
 console.log('Zone ID:', zoneInfo.zoneId)
 // @log: Zone ID: 26
+console.log('Zone balance:', zoneBalance)
+// @log: Zone balance: 1000000n
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

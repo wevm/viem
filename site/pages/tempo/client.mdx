@@ -14,11 +14,16 @@ const zoneClient = client.getZoneClient({
 })
 
 const info = await zoneClient.zone.getZoneInfo()
+const balance = await zoneClient.token.getBalance({
+  token: '0x20c0000000000000000000000000000000000000',
+})
 
 console.log('Zone ID:', info.zoneId)
 // @log: Zone ID: 26
 console.log('Zone chain ID:', info.chainId)
 // @log: Zone chain ID: 4217000026
+console.log('Zone balance:', balance)
+// @log: Zone balance: 1000000n
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -36,7 +41,9 @@ By default, the returned client:
 - Reuses the parent client's HTTP transport settings where possible.
 - Disables HTTP batching because zone authorization tokens are account-scoped.
 - Automatically signs and caches short-lived zone authorization tokens when using the built-in HTTP transport.
-- Exposes Public Actions, Wallet Actions, and Zone Actions on `zoneClient.zone.*`.
+- Exposes Public Actions and Wallet Actions directly on `zoneClient`.
+- Exposes Tempo token helpers on `zoneClient.token.*`.
+- Exposes zone RPC helpers on `zoneClient.zone.*`.
 
 Passing a transport factory via `transport` fully overrides the default zone HTTP transport.
 
@@ -50,7 +57,7 @@ Zone ID configured on the parent chain.
 
 #### transport (optional)
 
-- **Type:** `Transport | object`
+- **Type:** `Transport | ZoneTransportConfig`
 
 Optional transport configuration for the derived zone client.
 
@@ -61,6 +68,45 @@ Optional transport configuration for the derived zone client.
 
 ```ts
 type ReturnType = Client & {
+  // Public Actions & Wallet Actions are available directly on the client.
+  token: {
+    approve: (parameters: {
+      amount: bigint
+      spender: Address
+      token: Address
+    }) => Promise<Hex>
+    approveSync: (parameters: {
+      amount: bigint
+      spender: Address
+      token: Address
+    }) => Promise<unknown>
+    getAllowance: (parameters: {
+      spender: Address
+      token: Address
+    }) => Promise<bigint>
+    getBalance: (parameters: {
+      token: Address
+    }) => Promise<bigint>
+    getMetadata: (parameters: {
+      token: Address
+    }) => Promise<{
+      currency?: string | undefined
+      decimals: number
+      name: string
+      symbol: string
+      totalSupply: bigint
+    }>
+    transfer: (parameters: {
+      amount: bigint
+      to: Address
+      token: Address
+    }) => Promise<Hex>
+    transferSync: (parameters: {
+      amount: bigint
+      to: Address
+      token: Address
+    }) => Promise<unknown>
+  }
   zone: {
     getAuthorizationTokenInfo: () => Promise<{
       account: Address
@@ -101,3 +147,16 @@ type ReturnType = Client & {
 - The client has wallet actions.
 - The client has a signing account.
 - The selected chain has configured `zones`.
+
+## Related Exports
+
+The same zone RPC helpers are also exported as free functions via `Actions.zone.*`
+and `zoneActions.*`.
+
+The following zone types are exported from `viem/tempo`:
+
+- `GetZoneClientParameters`
+- `ZoneChain`
+- `ZoneClient`
+- `ZoneId`
+- `ZoneTransportConfig`
