@@ -5,7 +5,7 @@
   "compilerOptions": {
     "composite": true,
     "noEmit": true,
-    "types": ["@types/bun"],
+    "types": ["@types/bun", "node"],
     "paths": {
       "~contracts/*": ["../contracts/*"],
       "~test/*": ["./src/*"],

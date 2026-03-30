@@ -3,6 +3,7 @@ import { describe, expectTypeOf, test } from 'vitest'
 
 import { usdcContractConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
+import type { NormalizeType } from '~test/typeUtils.js'
 
 import type { Log } from '../../types/log.js'
 import type { Hash, Hex } from '../../types/misc.js'
@@ -123,7 +124,7 @@ describe('createEventFilter', () => {
       [`0x${string}`, `0x${string}`, `0x${string}`, `0x${string}`]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Foo'>()
-    expectTypeOf(logs[0].args).toEqualTypeOf<{
+    expectTypeOf<NormalizeType<(typeof logs)[number]['args']>>().toEqualTypeOf<{
       owner?: Address
       spender?: Address
       foo?: Address
@@ -174,7 +175,7 @@ describe('createEventFilter', () => {
       [`0x${string}`, `0x${string}`, `0x${string}`, `0x${string}`]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Foo'>()
-    expectTypeOf(logs[0].args).toEqualTypeOf<{
+    expectTypeOf<NormalizeType<(typeof logs)[number]['args']>>().toEqualTypeOf<{
       owner?: Address
       spender?: Address
       foo?: Address
@@ -284,7 +285,7 @@ describe('createEventFilter', () => {
       [`0x${string}`, `0x${string}`, `0x${string}`]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Transfer' | 'Approval'>()
-    expectTypeOf(logs[0].args).toEqualTypeOf<
+    expectTypeOf<NormalizeType<(typeof logs)[number]['args']>>().toEqualTypeOf<
       | {
           from?: Address
           to?: Address
@@ -297,9 +298,10 @@ describe('createEventFilter', () => {
         }
     >()
 
-    expectTypeOf(
-      logs[0].eventName === 'Transfer' && logs[0].args,
-    ).toEqualTypeOf<
+    const transferArgs = logs[0].eventName === 'Transfer' && logs[0].args
+    const approvalArgs = logs[0].eventName === 'Approval' && logs[0].args
+
+    expectTypeOf<NormalizeType<typeof transferArgs>>().toEqualTypeOf<
       | false
       | {
           from?: Address
@@ -307,9 +309,7 @@ describe('createEventFilter', () => {
           value?: bigint
         }
     >()
-    expectTypeOf(
-      logs[0].eventName === 'Approval' && logs[0].args,
-    ).toEqualTypeOf<
+    expectTypeOf<NormalizeType<typeof approvalArgs>>().toEqualTypeOf<
       | false
       | {
           owner?: Address
@@ -459,7 +459,7 @@ describe('createContractEventFilter', () => {
     expectTypeOf(logs[0].eventName).toEqualTypeOf<
       'Transfer' | 'Approval' | 'Foo'
     >()
-    expectTypeOf(logs[0].args).toEqualTypeOf<
+    expectTypeOf<NormalizeType<(typeof logs)[number]['args']>>().toEqualTypeOf<
       | {
           from?: Address
           to?: Address
@@ -479,9 +479,11 @@ describe('createContractEventFilter', () => {
         }
     >()
 
-    expectTypeOf(
-      logs[0].eventName === 'Transfer' && logs[0].args,
-    ).toEqualTypeOf<
+    const transferArgs = logs[0].eventName === 'Transfer' && logs[0].args
+    const approvalArgs = logs[0].eventName === 'Approval' && logs[0].args
+    const fooArgs = logs[0].eventName === 'Foo' && logs[0].args
+
+    expectTypeOf<NormalizeType<typeof transferArgs>>().toEqualTypeOf<
       | false
       | {
           from?: Address
@@ -489,9 +491,7 @@ describe('createContractEventFilter', () => {
           value?: bigint
         }
     >()
-    expectTypeOf(
-      logs[0].eventName === 'Approval' && logs[0].args,
-    ).toEqualTypeOf<
+    expectTypeOf<NormalizeType<typeof approvalArgs>>().toEqualTypeOf<
       | false
       | {
           owner?: Address
@@ -499,7 +499,7 @@ describe('createContractEventFilter', () => {
           value?: bigint
         }
     >()
-    expectTypeOf(logs[0].eventName === 'Foo' && logs[0].args).toEqualTypeOf<
+    expectTypeOf<NormalizeType<typeof fooArgs>>().toEqualTypeOf<
       | false
       | {
           owner?: Address
@@ -586,7 +586,7 @@ describe('createContractEventFilter', () => {
       [`0x${string}`, `0x${string}`, `0x${string}`, `0x${string}`]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Foo'>()
-    expectTypeOf(logs[0].args).toEqualTypeOf<{
+    expectTypeOf<NormalizeType<(typeof logs)[number]['args']>>().toEqualTypeOf<{
       owner?: Address
       spender?: Address
       foo?: Address
@@ -639,7 +639,7 @@ describe('createContractEventFilter', () => {
       [`0x${string}`, `0x${string}`, `0x${string}`, `0x${string}`]
     >()
     expectTypeOf(logs[0].eventName).toEqualTypeOf<'Foo'>()
-    expectTypeOf(logs[0].args).toEqualTypeOf<{
+    expectTypeOf<NormalizeType<(typeof logs)[number]['args']>>().toEqualTypeOf<{
       owner?: Address
       spender?: Address
       foo?: Address
