@@ -6,7 +6,6 @@
     "composite": true,
     "noEmit": true,
     "types": ["@types/bun"],
-    "baseUrl": ".",
     "paths": {
       "~contracts/*": ["../contracts/*"],
       "~test/*": ["./src/*"],

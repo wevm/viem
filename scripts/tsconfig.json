@@ -4,7 +4,6 @@
   "compilerOptions": {
     "composite": true,
     "noEmit": true,
-    "types": ["@types/bun"],
-    "baseUrl": "."
+    "types": ["@types/bun"]
   }
 }
