@@ -4,6 +4,7 @@
   "exclude": ["./**/*.test.ts", "./**/*.test-d.ts", "./**/*.bench.ts", "./**/*.bench-d.ts"],
   "compilerOptions": {
     "composite": true,
-    "noEmit": true
+    "noEmit": true,
+    "types": ["node"]
   }
 }

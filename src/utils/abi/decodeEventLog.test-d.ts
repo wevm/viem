@@ -1,5 +1,6 @@
 import type { Abi, Address } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
+import type { NormalizeType } from '~test/typeUtils.js'
 
 import { decodeEventLog } from './decodeEventLog.js'
 
@@ -124,7 +125,7 @@ test('named (strict = false)', async () => {
     ],
   })
 
-  expectTypeOf(event).toEqualTypeOf<{
+  expectTypeOf<NormalizeType<typeof event>>().toEqualTypeOf<{
     args: {
       from?: Address
       to?: Address
@@ -342,7 +343,7 @@ test('unknown eventName (strict = false)', async () => {
     ],
   })
 
-  expectTypeOf(event).toEqualTypeOf<
+  expectTypeOf<NormalizeType<typeof event>>().toEqualTypeOf<
     | {
         args: {
           from?: Address
