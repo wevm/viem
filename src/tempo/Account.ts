@@ -444,10 +444,7 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
           version: internal_version,
         }),
       )
-    // Don't need to append magic bytes to secp256k1 signatures as they are
-    // backwards compatible with existing verification logic.
-    if (keyType === 'secp256k1') return signature
-    return Hex.concat(signature, SignatureEnvelope.magicBytes)
+    return signature
   }
 
   return {
