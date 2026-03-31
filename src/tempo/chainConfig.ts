@@ -1,20 +1,33 @@
+import * as Hex from 'ox/Hex'
 import { SignatureEnvelope, type TokenId } from 'ox/tempo'
 import { getCode } from '../actions/public/getCode.js'
+import { readContract } from '../actions/public/readContract.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
+import { zeroAddress } from '../constants/address.js'
 import { maxUint256 } from '../constants/number.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
+import { isAddressEqual } from '../utils/address/isAddressEqual.js'
 import { extendSchema } from '../utils/chain/defineChain.js'
 import { defineTransaction } from '../utils/formatters/transaction.js'
 import { defineTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
 import { defineTransactionRequest } from '../utils/formatters/transactionRequest.js'
 import { getAction } from '../utils/getAction.js'
+import { keccak256 } from '../utils/hash/keccak256.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
+import * as Abis from './Abis.js'
 import type { Account } from './Account.js'
+import * as Addresses from './Addresses.js'
 import * as Formatters from './Formatters.js'
 import * as Concurrent from './internal/concurrent.js'
 import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
+
+const keySignatureTypes = {
+  0: 'secp256k1',
+  1: 'p256',
+  2: 'webAuthn',
+} as const satisfies Record<number, SignatureEnvelope.Type>
 
 export const chainConfig = {
   blockTime: 1_000,
@@ -95,12 +108,66 @@ export const chainConfig = {
     // envelope-compatible (WebAuthn, P256, etc.) signatures.
     // We can directly verify stateless, non-keychain signature envelopes without a
     // network request to the chain.
-    if (
-      typeof signature === 'string' &&
-      signature.endsWith(SignatureEnvelope.magicBytes.slice(2))
-    ) {
-      const envelope = SignatureEnvelope.deserialize(signature)
-      if (envelope.type !== 'keychain') {
+    if (typeof signature === 'string') {
+      const envelope = (() => {
+        try {
+          return SignatureEnvelope.deserialize(signature)
+        } catch {
+          return undefined
+        }
+      })()
+      if (!envelope) {
+        return await getAction(
+          client,
+          verifyHash,
+          'verifyHash',
+        )({ ...parameters, chain: null })
+      }
+
+      if (envelope.type === 'keychain') {
+        const innerHash = getKeychainHash({
+          hash,
+          userAddress: envelope.userAddress,
+          version: envelope.version,
+        })
+        const accessKeyAddress = SignatureEnvelope.from(envelope, {
+          payload: innerHash,
+        }).keyId
+
+        if (!isAddressEqual(envelope.userAddress, address)) return false
+        if (!accessKeyAddress) return false
+
+        const key = await readContract(client, {
+          address: Addresses.accountKeychain,
+          abi: Abis.accountKeychain,
+          functionName: 'getKey',
+          args: [address, accessKeyAddress],
+          blockNumber: parameters.blockNumber,
+          blockTag: parameters.blockTag,
+        })
+
+        if (key.keyId === zeroAddress || key.isRevoked) return false
+
+        if (
+          keySignatureTypes[
+            key.signatureType as keyof typeof keySignatureTypes
+          ] !== envelope.inner.type
+        )
+          return false
+
+        if (
+          key.expiry !== 0n &&
+          key.expiry <= BigInt(Math.floor(Date.now() / 1000))
+        )
+          return false
+
+        return SignatureEnvelope.verify(envelope.inner, {
+          address: accessKeyAddress,
+          payload: innerHash,
+        })
+      }
+
+      if (envelope.type !== 'secp256k1') {
         const code = await getCode(client, {
           address,
           blockNumber: parameters.blockNumber,
@@ -129,3 +196,13 @@ export const chainConfig = {
 } as const satisfies viem_ChainConfig & { blockTime: number }
 
 export type ChainConfig = typeof chainConfig
+
+function getKeychainHash(parameters: {
+  hash: `0x${string}`
+  userAddress: `0x${string}`
+  version?: 'v1' | 'v2' | undefined
+}) {
+  const { hash, userAddress, version } = parameters
+  if (version === 'v2') return keccak256(Hex.concat('0x04', hash, userAddress))
+  return hash
+}

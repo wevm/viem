@@ -1,3 +1,4 @@
+import { generatePrivateKey } from 'viem/accounts'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import {
@@ -7,18 +8,32 @@ import {
   sendTransactionSync,
   signTransaction,
   verifyHash,
+  verifyTypedData,
 } from '../actions/index.js'
 import { mainnet, tempoLocalnet } from '../chains/index.js'
 import { createClient, http } from '../index.js'
 import { defineChain } from '../utils/chain/defineChain.js'
 import { hashMessage } from '../utils/index.js'
-import { Account, P256, WebCryptoP256 } from './index.js'
+import { Account, Actions, P256, WebCryptoP256 } from './index.js'
 
-const client = getClient({
-  account: accounts.at(0)!,
-})
+const account = accounts.at(0)!
+
+const client = getClient({ account })
 
 const maxUint256 = 2n ** 256n - 1n
+
+async function setupAccessKey() {
+  const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+    access: account,
+  })
+
+  await Actions.accessKey.authorizeSync(client, {
+    accessKey,
+    expiry: Math.floor((Date.now() + 30_000) / 1000),
+  })
+
+  return accessKey
+}
 
 describe('prepareTransactionRequest', () => {
   test('behavior: expiring nonces for feePayer transactions', async () => {
@@ -189,6 +204,72 @@ describe('serializers', () => {
 })
 
 describe('verifyHash', () => {
+  test('secp256k1 access key: valid signature', async () => {
+    const accessKey = await setupAccessKey()
+
+    const hash = hashMessage('hello world')
+    const signature = await accessKey.sign({ hash })
+
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      }),
+    ).toBe(true)
+  })
+
+  test('secp256k1 access key: revoked key returns false', async () => {
+    const accessKey = await setupAccessKey()
+
+    const hash = hashMessage('hello world')
+    const signature = await accessKey.sign({ hash })
+
+    await Actions.accessKey.revokeSync(client, { accessKey })
+
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash,
+        signature,
+      }),
+    ).toBe(false)
+  })
+
+  test('secp256k1 access key: verifyTypedData', async () => {
+    const accessKey = await setupAccessKey()
+
+    const signature = await accessKey.signTypedData({
+      domain: {
+        name: 'MPP',
+        version: '1',
+        chainId: client.chain.id,
+      },
+      types: {
+        Proof: [{ name: 'challengeId', type: 'string' }],
+      },
+      primaryType: 'Proof',
+      message: { challengeId: 'challenge-id' },
+    })
+
+    expect(
+      await verifyTypedData(client, {
+        address: account.address,
+        domain: {
+          name: 'MPP',
+          version: '1',
+          chainId: client.chain.id,
+        },
+        types: {
+          Proof: [{ name: 'challengeId', type: 'string' }],
+        },
+        primaryType: 'Proof',
+        message: { challengeId: 'challenge-id' },
+        signature,
+      }),
+    ).toBe(true)
+  })
+
   test('p256: valid signature', async () => {
     const privateKey = P256.randomPrivateKey()
     const account = Account.fromP256(privateKey)
