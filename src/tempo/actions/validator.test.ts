@@ -129,7 +129,9 @@ describe('getNextFullDkgCeremony', () => {
 describe('getOwner', () => {
   test('default', async () => {
     const owner = await actions.validator.getOwner(client)
-    expect(isAddress(owner)).toBe(true)
+
+    // Tempo genesis locally has the first account as the contract owner
+    expect(owner).toBe(account.address)
   })
 })
 
