@@ -136,7 +136,7 @@ jobs:
           VITE_TEMPO_TAG: latest
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
