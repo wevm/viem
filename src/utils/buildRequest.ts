@@ -279,6 +279,7 @@ export function shouldRetry(error: Error) {
     if (error.code === -1) return true // Unknown error
     if (error.code === LimitExceededRpcError.code) return true
     if (error.code === InternalRpcError.code) return true
+    if (error.code === 429) return true // Too Many Requests (batch responses return 429 in JSON-RPC body)
     return false
   }
   if (error instanceof HttpRequestError && error.status) {
