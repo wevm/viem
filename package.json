@@ -63,7 +63,7 @@
     "ethers": "^6.15.0",
     "knip": "^5.64.0",
     "micro-eth-signer": "^0.14.0",
-    "ox": "~0.14.7",
+    "ox": "https://pkg.pr.new/tempoxyz/ox-tmp-zones/ox@568199d",
     "permissionless": "^0.2.57",
     "prool": "~0.2.3",
     "publint": "^0.2.12",
@@ -242,6 +242,7 @@
   ],
   "pnpm": {
     "overrides": {
+      "ox": "https://pkg.pr.new/tempoxyz/ox-tmp-zones/ox@568199d",
       "@opentelemetry/api@^1.8.0": "~1.7.0",
       "permissionless>viem": "workspace:*",
       "@babel/helpers@<7.26.10": "7.26.10",
