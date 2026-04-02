@@ -1,6 +1,7 @@
 import { Secp256k1 } from 'ox'
 import { createClient, createWalletClient, defineChain } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
+import { getBlockNumber } from 'viem/actions'
 import { describe, expect, test } from 'vitest'
 import { createHttpServer } from '~test/utils.js'
 import { decorator } from '../Decorator.js'
@@ -39,7 +40,7 @@ describe('http transport', () => {
         transport: http(undefined, { storage }),
       })
 
-      await client.request({ method: 'eth_blockNumber', params: [] })
+      await getBlockNumber(client)
 
       expect(headers).toHaveLength(1)
       expect(headers[0]!['x-authorization-token']).toBe('deadbeef1234')
@@ -79,7 +80,7 @@ describe('http transport', () => {
         transport: http(undefined, { storage }),
       })
 
-      await client.request({ method: 'eth_blockNumber', params: [] })
+      await getBlockNumber(client)
 
       expect(headers).toHaveLength(1)
       expect(headers[0]!['x-authorization-token']).toBeUndefined()
@@ -116,10 +117,7 @@ describe('http transport', () => {
         transport: http(undefined, { storage }),
       })
 
-      await Promise.all([
-        client.request({ method: 'eth_blockNumber', params: [] }),
-        client.request({ method: 'eth_blockNumber', params: [] }),
-      ])
+      await Promise.all([getBlockNumber(client), getBlockNumber(client)])
 
       expect(requestCount).toBe(2)
     } finally {
@@ -159,7 +157,7 @@ describe('http transport', () => {
       }).extend(decorator())
 
       await client.zone.signAuthorizationToken({ storage })
-      await client.request({ method: 'eth_blockNumber' })
+      await getBlockNumber(client)
 
       expect(receivedHeaders).toHaveLength(1)
       expect(receivedHeaders[0]).toBeDefined()

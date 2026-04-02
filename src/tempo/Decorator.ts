@@ -12,7 +12,7 @@ import * as policyActions from './actions/policy.js'
 import * as rewardActions from './actions/reward.js'
 import * as tokenActions from './actions/token.js'
 import * as validatorActions from './actions/validator.js'
-import * as zoneActions from './actions/zones.js'
+import * as zoneActions from './actions/zone.js'
 
 export type Decorator<
   chain extends Chain | undefined = Chain | undefined,
@@ -3724,7 +3724,7 @@ export type Decorator<
      * Signs and stores a zone authorization token.
      */
     signAuthorizationToken: (
-      parameters: zoneActions.signAuthorizationToken.Parameters<account>,
+      parameters?: zoneActions.signAuthorizationToken.Parameters<account>,
     ) => Promise<zoneActions.signAuthorizationToken.ReturnType>
     /**
      * Returns the authenticated account address and token expiry.
@@ -3983,10 +3983,7 @@ export function decorator() {
       },
       zone: {
         signAuthorizationToken: (parameters) =>
-          zoneActions.signAuthorizationToken(
-            client,
-            ...(parameters ? [parameters] : []),
-          ),
+          zoneActions.signAuthorizationToken(client, parameters),
         getAuthorizationTokenInfo: () =>
           zoneActions.getAuthorizationTokenInfo(client),
         getZoneInfo: () => zoneActions.getZoneInfo(client),
