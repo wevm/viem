@@ -44,7 +44,10 @@ export async function signAuthorizationToken<
   accountOverride extends Account | Address | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: signAuthorizationToken.Parameters<account, accountOverride>,
+  parameters: signAuthorizationToken.Parameters<
+    account,
+    accountOverride
+  > = {} as any,
 ): Promise<signAuthorizationToken.ReturnType> {
   const {
     account = client.account,
