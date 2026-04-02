@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
-import { SignatureEnvelope, ZoneId, ZoneRpcAuthentication } from 'ox/tempo'
+import { ZoneId, ZoneRpcAuthentication } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
@@ -79,7 +79,7 @@ export async function signAuthorizationToken<
   const signature = await account_.sign({ hash: payload })
 
   const token = ZoneRpcAuthentication.serialize(authentication, {
-    signature: SignatureEnvelope.from(signature),
+    signature,
   })
 
   await storage.setItem(storageKey, token)

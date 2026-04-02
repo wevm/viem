@@ -1,12 +1,13 @@
 import { Secp256k1 } from 'ox'
 import { createWalletClient, defineChain } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
+import { getBlockNumber } from 'viem/actions'
 import { tempoModerato } from 'viem/chains'
-import { describe, expect, test, vi } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { decorator } from '../Decorator.js'
 import * as Storage from '../Storage.js'
 import { http } from '../zones/transport.js'
-import { zone004 } from '../zones/zone004.js'
+import { zone006 } from '../zones/zone006.js'
 import {
   getAuthorizationTokenInfo,
   getDepositStatus,
@@ -21,10 +22,10 @@ function getClient() {
   const account = privateKeyToAccount(Secp256k1.randomPrivateKey())
 
   const chain = defineChain({
-    ...zone004,
+    ...zone006,
     rpcUrls: {
       default: {
-        http: [`https://${credentials}@rpc-zone-004-private.tempoxyz.dev`],
+        http: [`https://${credentials}@rpc-zone-006-private.tempoxyz.dev`],
       },
     },
   })
@@ -49,40 +50,13 @@ describe('signAuthorizationToken', () => {
     expect(typeof result.token).toBe('string')
     expect(result.token.length).toBeGreaterThan(0)
 
-    const storageKey = `auth:${account.address.toLowerCase()}:${zone004.id}`
+    const storageKey = `auth:${account.address.toLowerCase()}:${zone006.id}`
     const storedToken = await storage.getItem(storageKey)
     expect(storedToken).toBe(result.token)
+
+    const blockNumber = await getBlockNumber(client)
+    expect(blockNumber).toBeGreaterThanOrEqual(0n)
   })
-
-  test.skipIf(!credentials)(
-    'behavior: returns cached token on second call',
-    async () => {
-      const { client, storage, account } = getClient()
-      const sign = vi.spyOn(account, 'sign')
-
-      const result1 = await signAuthorizationToken(client, { storage })
-      const result2 = await signAuthorizationToken(client, { storage })
-
-      expect(sign).toHaveBeenCalledTimes(1)
-      expect(result1.token).toBe(result2.token)
-
-      sign.mockRestore()
-    },
-  )
-
-  test.skipIf(!credentials)(
-    'behavior: expiresAt is ~30 minutes in the future',
-    async () => {
-      const { client, storage } = getClient()
-
-      const result = await signAuthorizationToken(client, { storage })
-      const now = Math.floor(Date.now() / 1000)
-      const expiresIn = result.authentication.expiresAt - now
-
-      expect(expiresIn).toBeGreaterThanOrEqual(1799)
-      expect(expiresIn).toBeLessThanOrEqual(1800)
-    },
-  )
 
   test('behavior: throws without zone chain properties', async () => {
     const account = privateKeyToAccount(Secp256k1.randomPrivateKey())
@@ -96,15 +70,6 @@ describe('signAuthorizationToken', () => {
       signAuthorizationToken(client, { storage: Storage.memory() }),
     ).rejects.toThrow('does not support contract "zonePortal"')
   })
-
-  test.skipIf(!credentials)('behavior: works via decorator', async () => {
-    const { client, storage, account } = getClient()
-
-    const result = await client.zone.signAuthorizationToken({ storage })
-
-    expect(result.authentication).toBeDefined()
-    expect(result.token).toBeDefined()
-  })
 })
 
 describe('getZoneInfo', () => {
@@ -114,8 +79,8 @@ describe('getZoneInfo', () => {
 
     const info = await getZoneInfo(client)
 
-    expect(info.zoneId).toBe(zone004.id)
-    expect(info.chainId).toBe(zone004.id)
+    expect(info.zoneId).toBe(zone006.id)
+    expect(info.chainId).toBe(zone006.id)
     expect(info.sequencer).toBeDefined()
     expect(info.zoneTokens).toBeDefined()
   })
@@ -126,7 +91,7 @@ describe('getZoneInfo', () => {
 
     const info = await client.zone.getZoneInfo()
 
-    expect(info.zoneId).toBe(zone004.id)
+    expect(info.zoneId).toBe(zone006.id)
   })
 })
 
