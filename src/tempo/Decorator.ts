@@ -14,6 +14,7 @@ import * as rewardActions from './actions/reward.js'
 import * as simulateActions from './actions/simulate.js'
 import * as tokenActions from './actions/token.js'
 import * as validatorActions from './actions/validator.js'
+import * as zoneActions from './actions/zones.js'
 
 export type Decorator<
   chain extends Chain | undefined = Chain | undefined,
@@ -3804,6 +3805,28 @@ export type Decorator<
       parameters: validatorActions.updateSync.Parameters<chain, account>,
     ) => Promise<validatorActions.updateSync.ReturnValue>
   }
+  zone: {
+    /**
+     * Signs and stores a zone authorization token.
+     */
+    signAuthorizationToken: (
+      parameters: zoneActions.signAuthorizationToken.Parameters<account>,
+    ) => Promise<zoneActions.signAuthorizationToken.ReturnType>
+    /**
+     * Returns the authenticated account address and token expiry.
+     */
+    getAuthorizationTokenInfo: () => Promise<zoneActions.getAuthorizationTokenInfo.ReturnType>
+    /**
+     * Returns the current zone metadata.
+     */
+    getZoneInfo: () => Promise<zoneActions.getZoneInfo.ReturnType>
+    /**
+     * Returns deposit processing status for a given Tempo L1 block.
+     */
+    getDepositStatus: (
+      parameters: zoneActions.getDepositStatus.Parameters,
+    ) => Promise<zoneActions.getDepositStatus.ReturnType>
+  }
 }
 
 export function decorator() {
@@ -4049,6 +4072,18 @@ export function decorator() {
         update: (parameters) => validatorActions.update(client, parameters),
         updateSync: (parameters) =>
           validatorActions.updateSync(client, parameters),
+      },
+      zone: {
+        signAuthorizationToken: (parameters) =>
+          zoneActions.signAuthorizationToken(
+            client,
+            ...(parameters ? [parameters] : []),
+          ),
+        getAuthorizationTokenInfo: () =>
+          zoneActions.getAuthorizationTokenInfo(client),
+        getZoneInfo: () => zoneActions.getZoneInfo(client),
+        getDepositStatus: (parameters) =>
+          zoneActions.getDepositStatus(client, parameters),
       },
     }
   }
