@@ -1454,6 +1454,14 @@ describe('shouldRetry', () => {
     expect(shouldRetry(new LimitExceededRpcError({} as any))).toBe(true)
   })
 
+  test('RPC code 429 (batch rate-limit, e.g. Alchemy HTTP 200 + JSON body)', () => {
+    // Some providers (e.g. Alchemy in batch mode) respond with HTTP 200 and a
+    // JSON-RPC body containing `{ code: 429 }` rather than a real HTTP 429.
+    // shouldRetry must return true so that retryCount is honoured.
+    const err = Object.assign(new Error('rate limited'), { code: 429 })
+    expect(shouldRetry(err)).toBe(true)
+  })
+
   test('WalletConnectSessionSettlementError', () => {
     expect(
       shouldRetry(new WalletConnectSessionSettlementError({} as any)),
