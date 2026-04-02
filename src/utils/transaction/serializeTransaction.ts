@@ -15,6 +15,7 @@ import type {
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
   TransactionSerializableEIP7702,
+  TransactionSerializableEIP8141,
   TransactionSerializableGeneric,
   TransactionSerializableLegacy,
   TransactionSerialized,
@@ -22,6 +23,7 @@ import type {
   TransactionSerializedEIP2930,
   TransactionSerializedEIP4844,
   TransactionSerializedEIP7702,
+  TransactionSerializedEIP8141,
   TransactionSerializedLegacy,
   TransactionType,
 } from '../../types/transaction.js'
@@ -60,11 +62,13 @@ import {
   type AssertTransactionEIP2930ErrorType,
   type AssertTransactionEIP4844ErrorType,
   type AssertTransactionEIP7702ErrorType,
+  type AssertTransactionEIP8141ErrorType,
   type AssertTransactionLegacyErrorType,
   assertTransactionEIP1559,
   assertTransactionEIP2930,
   assertTransactionEIP4844,
   assertTransactionEIP7702,
+  assertTransactionEIP8141,
   assertTransactionLegacy,
 } from './assertTransaction.js'
 import {
@@ -103,6 +107,7 @@ export type SerializeTransactionErrorType =
   | SerializeTransactionEIP2930ErrorType
   | SerializeTransactionEIP4844ErrorType
   | SerializeTransactionEIP7702ErrorType
+  | SerializeTransactionEIP8141ErrorType
   | SerializeTransactionLegacyErrorType
   | ErrorType
 
@@ -140,10 +145,60 @@ export function serializeTransaction<
       signature,
     ) as SerializedTransactionReturnType<transaction>
 
+  if (type === 'eip8141')
+    return serializeTransactionEIP8141(
+      transaction as TransactionSerializableEIP8141,
+    ) as SerializedTransactionReturnType<transaction>
+
   return serializeTransactionLegacy(
     transaction as TransactionSerializableLegacy,
     signature as SignatureLegacy,
   ) as SerializedTransactionReturnType<transaction>
+}
+
+type SerializeTransactionEIP8141ErrorType =
+  | AssertTransactionEIP8141ErrorType
+  | ConcatHexErrorType
+  | NumberToHexErrorType
+  | ToRlpErrorType
+  | ErrorType
+
+function serializeTransactionEIP8141(
+  transaction: TransactionSerializableEIP8141,
+): TransactionSerializedEIP8141 {
+  const {
+    chainId,
+    nonce,
+    sender,
+    frames,
+    maxPriorityFeePerGas,
+    maxFeePerGas,
+    maxFeePerBlobGas,
+    blobVersionedHashes,
+  } = transaction
+
+  assertTransactionEIP8141(transaction)
+
+  const serializedFrames = frames.map((frame) => [
+    numberToHex(frame.mode),
+    frame.target ?? '0x',
+    numberToHex(frame.gasLimit),
+    frame.data ?? '0x',
+  ])
+
+  return concatHex([
+    '0x06',
+    toRlp([
+      numberToHex(chainId),
+      nonce ? numberToHex(nonce) : '0x',
+      sender,
+      serializedFrames,
+      maxPriorityFeePerGas ? numberToHex(maxPriorityFeePerGas) : '0x',
+      maxFeePerGas ? numberToHex(maxFeePerGas) : '0x',
+      maxFeePerBlobGas ? numberToHex(maxFeePerBlobGas) : '0x',
+      blobVersionedHashes ?? [],
+    ]),
+  ]) as TransactionSerializedEIP8141
 }
 
 type SerializeTransactionEIP7702ErrorType =

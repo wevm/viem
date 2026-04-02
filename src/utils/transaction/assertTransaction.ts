@@ -29,12 +29,51 @@ import type {
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
   TransactionSerializableEIP7702,
+  TransactionSerializableEIP8141,
   TransactionSerializableLegacy,
 } from '../../types/transaction.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
 import { size } from '../data/size.js'
 import { slice } from '../data/slice.js'
 import { hexToNumber } from '../encoding/fromHex.js'
+
+export type AssertTransactionEIP8141ErrorType =
+  | InvalidAddressErrorType
+  | InvalidChainIdErrorType
+  | BaseErrorType
+  | ErrorType
+
+export function assertTransactionEIP8141(
+  transaction: TransactionSerializableEIP8141,
+) {
+  const { chainId, sender, frames, maxFeePerGas, maxPriorityFeePerGas } =
+    transaction
+  if (chainId <= 0) throw new InvalidChainIdError({ chainId })
+  if (!isAddress(sender)) throw new InvalidAddressError({ address: sender })
+  if (!frames || frames.length === 0)
+    throw new BaseError('`frames` must contain at least one frame.')
+  if (frames.length > 1000)
+    throw new BaseError(
+      '`frames` must not exceed MAX_FRAMES (1000) per EIP-8141.',
+    )
+  for (const frame of frames) {
+    const execMode = frame.mode & 0xff
+    if (execMode > 2)
+      throw new BaseError(
+        `Invalid frame execution mode ${execMode}. Must be 0 (DEFAULT), 1 (VERIFY), or 2 (SENDER).`,
+      )
+    if (frame.target !== null && !isAddress(frame.target))
+      throw new InvalidAddressError({ address: frame.target })
+  }
+  if (maxFeePerGas && maxFeePerGas > maxUint256)
+    throw new FeeCapTooHighError({ maxFeePerGas })
+  if (
+    maxPriorityFeePerGas &&
+    maxFeePerGas &&
+    maxPriorityFeePerGas > maxFeePerGas
+  )
+    throw new TipAboveFeeCapError({ maxFeePerGas, maxPriorityFeePerGas })
+}
 
 export type AssertTransactionEIP7702ErrorType =
   | AssertTransactionEIP1559ErrorType
