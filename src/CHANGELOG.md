@@ -1,5 +1,13 @@
 # viem
 
+## 2.47.8
+
+### Patch Changes
+
+- [#4432](https://github.com/wevm/viem/pull/4432) [`3aa680df95bda40adc9306749e0fd46b93cc6bde`](https://github.com/wevm/viem/commit/3aa680df95bda40adc9306749e0fd46b93cc6bde) Thanks [@jxom](https://github.com/jxom)! - **viem/tempo:** Added access key signature verification support to `verifyHash` via `mode: 'allowAccessKey'`.
+
+- [#4442](https://github.com/wevm/viem/pull/4442) [`0ece4d9d08f53c817b0401fdd39ac3abb59c05f2`](https://github.com/wevm/viem/commit/0ece4d9d08f53c817b0401fdd39ac3abb59c05f2) Thanks [@decofe](https://github.com/decofe)! - **viem/tempo:** Added TIP-1004 (EIP-2612) permit functions to the `tip20` ABI (`permit`, `nonces`, `DOMAIN_SEPARATOR`, `PermitExpired`, `InvalidSignature`).
+
 ## 2.47.7
 
 ### Patch Changes
