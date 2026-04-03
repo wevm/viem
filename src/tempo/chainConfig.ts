@@ -47,18 +47,6 @@ export const chainConfig = {
           | undefined
       }
 
-      // Access key accounts may carry a one-time keyAuthorization that
-      // registers the key on-chain. Pull it onto the request for the first
-      // transaction, then delete it from the account so subsequent
-      // transactions are sent without it.
-      if (
-        (request.account as any)?.keyAuthorization &&
-        !request.keyAuthorization
-      ) {
-        request.keyAuthorization = (request.account as any).keyAuthorization
-        delete (request.account as any).keyAuthorization
-      }
-
       // FIXME: node estimates gas with secp256k1 dummy sig + null feePayerSignature.
       // Actual tx has larger keychain/webAuthn sigs + real fee payer sig, costing more intrinsic gas.
       if (phase === 'afterFillParameters') {
