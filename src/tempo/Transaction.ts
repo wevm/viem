@@ -163,10 +163,11 @@ export function getType(
   transaction: Record<string, unknown>,
 ): Transaction['type'] {
   const account = transaction.account as
-    | { keyType?: string | undefined }
+    | { keyType?: string | undefined; source?: string | undefined }
     | undefined
   if (
     (account?.keyType && account.keyType !== 'secp256k1') ||
+    account?.source === 'accessKey' ||
     typeof transaction.calls !== 'undefined' ||
     typeof transaction.feePayer !== 'undefined' ||
     typeof transaction.feeToken !== 'undefined' ||
