@@ -422,6 +422,12 @@ export async function prepareTransactionRequest<
 
           if (error.name !== 'TransactionExecutionError') return request
 
+          const executionReverted = error.walk?.((e) => {
+            const error = e as BaseError
+            return error.name === 'ExecutionRevertedError'
+          })
+          if (executionReverted) throw e
+
           const unsupported = error.walk?.((e) => {
             const error = e as BaseError
             return (

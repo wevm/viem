@@ -1,23 +1,20 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
-export const katana = /*#__PURE__*/ defineChain({
-  id: 747474,
-  name: 'Katana',
-  network: 'katana',
+export const gensyn = /*#__PURE__*/ defineChain({
+  id: 685_689,
+  name: 'Gensyn Mainnet',
   nativeCurrency: {
+    decimals: 18,
     name: 'Ether',
     symbol: 'ETH',
-    decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ['https://rpc.katana.network'],
-    },
+    default: { http: ['https://gensyn-mainnet.g.alchemy.com/public'] },
   },
   blockExplorers: {
     default: {
-      name: 'katana explorer',
-      url: 'https://katanascan.com',
+      name: 'Blockscout',
+      url: 'https://gensyn-mainnet.explorer.alchemy.com',
     },
   },
   contracts: {
@@ -26,5 +23,4 @@ export const katana = /*#__PURE__*/ defineChain({
       blockCreated: 0,
     },
   },
-  testnet: false,
 })

@@ -1,3 +1,6 @@
+import * as Address from 'ox/Address'
+import * as Hex from 'ox/Hex'
+import * as PublicKey from 'ox/PublicKey'
 import { SignatureEnvelope, type TokenId } from 'ox/tempo'
 import { getCode } from '../actions/public/getCode.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
@@ -8,8 +11,10 @@ import { defineTransaction } from '../utils/formatters/transaction.js'
 import { defineTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
 import { defineTransactionRequest } from '../utils/formatters/transactionRequest.js'
 import { getAction } from '../utils/getAction.js'
+import { keccak256 } from '../utils/hash/keccak256.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import type { Account } from './Account.js'
+import { getMetadata } from './actions/accessKey.js'
 import * as Formatters from './Formatters.js'
 import * as Concurrent from './internal/concurrent.js'
 import * as Transaction from './Transaction.js'
@@ -42,13 +47,15 @@ export const chainConfig = {
           | undefined
       }
 
-      // FIXME: node does not account for fee payer + key authorization combinartion; bump gas for now.
+      // FIXME: node estimates gas with secp256k1 dummy sig + null feePayerSignature.
+      // Actual tx has larger keychain/webAuthn sigs + real fee payer sig, costing more intrinsic gas.
       if (phase === 'afterFillParameters') {
-        if (
-          request.feePayer &&
-          request.keyAuthorization?.signature.type === 'webAuthn'
-        )
-          request.gas = (request.gas ?? 0n) + 20_000n
+        if (request.feePayer) {
+          if (request.keyAuthorization?.signature.type === 'webAuthn')
+            request.gas = (request.gas ?? 0n) + 20_000n
+          else if (request.account?.source === 'accessKey')
+            request.gas = (request.gas ?? 0n) + 10_000n
+        }
         return request as unknown as typeof r
       }
 
@@ -89,18 +96,53 @@ export const chainConfig = {
       Transaction.serialize(transaction, signature)) as SerializeTransactionFn,
   },
   async verifyHash(client, parameters) {
-    const { address, hash, signature } = parameters
+    const { address, hash, signature, mode } = parameters
+
+    const envelope = (() => {
+      if (typeof signature !== 'string') return
+      try {
+        return SignatureEnvelope.deserialize(signature)
+      } catch {
+        return undefined
+      }
+    })()
 
     // `verifyHash` supports "signature envelopes" (a Tempo proposal) to natively verify arbitrary
     // envelope-compatible (WebAuthn, P256, etc.) signatures.
-    // We can directly verify stateless, non-keychain signature envelopes without a
-    // network request to the chain.
-    if (
-      typeof signature === 'string' &&
-      signature.endsWith(SignatureEnvelope.magicBytes.slice(2))
-    ) {
-      const envelope = SignatureEnvelope.deserialize(signature)
-      if (envelope.type !== 'keychain') {
+    if (envelope) {
+      // Access key (keychain) signature verification: check the key is
+      // authorized, not expired, and not revoked on the AccountKeychain.
+      if (envelope?.type === 'keychain' && mode === 'allowAccessKey') {
+        const accessKeyAddress = Address.fromPublicKey(
+          PublicKey.from(envelope.inner.publicKey as PublicKey.PublicKey),
+        )
+
+        const keyInfo = await getMetadata(client, {
+          account: address,
+          accessKey: accessKeyAddress,
+          blockNumber: parameters.blockNumber,
+          blockTag: parameters.blockTag,
+        } as never)
+
+        if (keyInfo.isRevoked) return false
+        if (keyInfo.expiry <= BigInt(Math.floor(Date.now() / 1000)))
+          return false
+
+        // For v2 keychain envelopes, the inner signature signs
+        // keccak256(0x04 || hash || userAddress).
+        const innerPayload =
+          envelope.version === 'v2'
+            ? keccak256(Hex.concat('0x04', hash, address))
+            : hash
+        return SignatureEnvelope.verify(envelope.inner, {
+          address: accessKeyAddress,
+          payload: innerPayload,
+        })
+      }
+
+      // Stateless, non-keychain signature envelopes (P256, WebAuthn) can be
+      // verified directly without a network request.
+      if (envelope.type === 'p256' || envelope.type === 'webAuthn') {
         const code = await getCode(client, {
           address,
           blockNumber: parameters.blockNumber,

@@ -80,7 +80,7 @@ export type VerifyHashParameters = Pick<
   /** @deprecated use `erc6492VerifierAddress` instead. */
   universalSignatureVerifierAddress?: Address | undefined
   /** Chooses which verification path to try first before falling back. */
-  mode?: 'auto' | 'eoa' | undefined
+  mode?: 'auto' | 'eoa' | (string & {}) | undefined
 } & OneOf<{ factory: Address; factoryData: Hex } | {}>
 
 export type VerifyHashReturnType = boolean
