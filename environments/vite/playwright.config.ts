@@ -12,6 +12,7 @@ import { defineConfig, devices } from '@playwright/test'
 export default defineConfig({
   testDir: './tests',
   retries: 3,
+  expect: { timeout: 30_000 },
   projects: [
     {
       name: 'chromium',

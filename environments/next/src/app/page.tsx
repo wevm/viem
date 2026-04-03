@@ -5,7 +5,7 @@ import { Client } from './client'
 export default async function Home() {
   const client = createPublicClient({
     chain: mainnet,
-    transport: http(),
+    transport: http('https://eth.llamarpc.com'),
   })
 
   const webSocketClient = createPublicClient({
