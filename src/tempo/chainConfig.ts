@@ -47,13 +47,15 @@ export const chainConfig = {
           | undefined
       }
 
-      // FIXME: node does not account for fee payer + key authorization combinartion; bump gas for now.
+      // FIXME: node estimates gas with secp256k1 dummy sig + null feePayerSignature.
+      // Actual tx has larger keychain/webAuthn sigs + real fee payer sig, costing more intrinsic gas.
       if (phase === 'afterFillParameters') {
-        if (
-          request.feePayer &&
-          request.keyAuthorization?.signature.type === 'webAuthn'
-        )
-          request.gas = (request.gas ?? 0n) + 20_000n
+        if (request.feePayer) {
+          if (request.keyAuthorization?.signature.type === 'webAuthn')
+            request.gas = (request.gas ?? 0n) + 20_000n
+          else if (request.account?.source === 'accessKey')
+            request.gas = (request.gas ?? 0n) + 10_000n
+        }
         return request as unknown as typeof r
       }
 
