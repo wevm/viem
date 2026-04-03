@@ -1,5 +1,13 @@
 # viem
 
+## 2.47.9
+
+### Patch Changes
+
+- [#4448](https://github.com/wevm/viem/pull/4448) [`3b1908405105bf9d2a08dd1943b4b3fad2cee38a`](https://github.com/wevm/viem/commit/3b1908405105bf9d2a08dd1943b4b3fad2cee38a) Thanks [@jxom](https://github.com/jxom)! - Fixed transaction type detection for secp256k1 access key accounts.
+
+- [#4450](https://github.com/wevm/viem/pull/4450) [`4555ee6329235335d4278a3f9f33af69091a1c79`](https://github.com/wevm/viem/commit/4555ee6329235335d4278a3f9f33af69091a1c79) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed gas estimation for access key transactions with a fee payer.
+
 ## 2.47.8
 
 ### Patch Changes
