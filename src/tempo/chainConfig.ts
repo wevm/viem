@@ -47,13 +47,27 @@ export const chainConfig = {
           | undefined
       }
 
-      // FIXME: node does not account for fee payer + key authorization combinartion; bump gas for now.
+      // Access key accounts may carry a one-time keyAuthorization that
+      // registers the key on-chain. Pull it onto the request for the first
+      // transaction, then delete it from the account so subsequent
+      // transactions are sent without it.
+      if (
+        (request.account as any)?.keyAuthorization &&
+        !request.keyAuthorization
+      ) {
+        request.keyAuthorization = (request.account as any).keyAuthorization
+        delete (request.account as any).keyAuthorization
+      }
+
+      // FIXME: node estimates gas with secp256k1 dummy sig + null feePayerSignature.
+      // Actual tx has larger keychain/webAuthn sigs + real fee payer sig, costing more intrinsic gas.
       if (phase === 'afterFillParameters') {
-        if (
-          request.feePayer &&
-          request.keyAuthorization?.signature.type === 'webAuthn'
-        )
-          request.gas = (request.gas ?? 0n) + 20_000n
+        if (request.feePayer) {
+          if (request.keyAuthorization?.signature.type === 'webAuthn')
+            request.gas = (request.gas ?? 0n) + 20_000n
+          else if (request.account?.source === 'accessKey')
+            request.gas = (request.gas ?? 0n) + 10_000n
+        }
         return request as unknown as typeof r
       }
 
