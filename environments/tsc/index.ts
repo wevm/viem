@@ -3,7 +3,7 @@ import { mainnet } from 'viem/chains'
 ;(async () => {
   const client = createPublicClient({
     chain: mainnet,
-    transport: http('https://eth.llamarpc.com'),
+    transport: http(),
   })
 
   const webSocketClient = createPublicClient({
