@@ -39,10 +39,13 @@ export function observe<callbacks extends Callbacks>(
 
   const unsubscribe = () => {
     const listeners = getListeners()
-    listenersCache.set(
-      observerId,
-      listeners.filter((cb: any) => cb.id !== callbackId),
-    )
+    const filteredListeners = listeners.filter((cb: any) => cb.id !== callbackId)
+    if (filteredListeners.length === 0) {
+      listenersCache.delete(observerId)
+      cleanupCache.delete(observerId)
+    } else {
+      listenersCache.set(observerId, filteredListeners)
+    }
   }
 
   const unwatch = () => {
@@ -71,12 +74,22 @@ export function observe<callbacks extends Callbacks>(
     ) => {
       const listeners = getListeners()
       if (listeners.length === 0) return
-      for (const listener of listeners) listener.fns[key]?.(...args)
-    }) as callbacks[Extract<keyof callbacks, string>]
+      for (const listener of listeners) {
+        const fn = listener.fns[key]
+        if (!fn) continue
+        fn(...args)
+      }
+    }) as NonNullable<callbacks[key]>
   }
 
-  const cleanup = fn(emit)
-  if (typeof cleanup === 'function') cleanupCache.set(observerId, cleanup)
+  const result = fn(emit)
+  if (result instanceof Promise) {
+    result.then((cleanup) => {
+      if (cleanup) cleanupCache.set(observerId, cleanup)
+    })
+  } else if (result) {
+    cleanupCache.set(observerId, result)
+  }
 
   return unwatch
 }
