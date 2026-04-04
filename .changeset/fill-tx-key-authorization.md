@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Extracted `keyAuthorization` from `eth_fillTransaction` response in `prepareTransactionRequest`.
+`viem/tempo`: Extracted `keyAuthorization` from `eth_fillTransaction` response in `prepareTransactionRequest`.
