@@ -417,7 +417,8 @@ export async function prepareTransactionRequest<
               : {}),
             ...('keyAuthorization' in rest &&
             typeof rest.keyAuthorization !== 'undefined' &&
-            rest.keyAuthorization !== null
+            rest.keyAuthorization !== null &&
+            !('keyAuthorization' in request)
               ? { keyAuthorization: rest.keyAuthorization }
               : {}),
           }
