@@ -76,7 +76,7 @@ describe('authorize', () => {
     )
 
     // Verify limit was set
-    const remaining = await actions.accessKey.getRemainingLimit(client, {
+    const { remaining } = await actions.accessKey.getRemainingLimit(client, {
       account: account.address,
       accessKey,
       token: feeToken,
@@ -185,11 +185,12 @@ describe('updateLimit', () => {
     })
 
     // Check initial limit
-    const initialLimit = await actions.accessKey.getRemainingLimit(client, {
-      account: account.address,
-      accessKey,
-      token,
-    })
+    const { remaining: initialLimit } =
+      await actions.accessKey.getRemainingLimit(client, {
+        account: account.address,
+        accessKey,
+        token,
+      })
     expect(initialLimit).toBe(1000000n)
 
     // Update the limit
@@ -206,11 +207,12 @@ describe('updateLimit', () => {
     expect(result.limit).toBe(2000000n)
 
     // Verify updated limit
-    const updatedLimit = await actions.accessKey.getRemainingLimit(client, {
-      account: account.address,
-      accessKey,
-      token,
-    })
+    const { remaining: updatedLimit } =
+      await actions.accessKey.getRemainingLimit(client, {
+        account: account.address,
+        accessKey,
+        token,
+      })
     expect(updatedLimit).toBe(2000000n)
   })
 })
@@ -222,7 +224,7 @@ describe('getRemainingLimit', () => {
       limits: [{ token, limit: 5000000n }],
     })
 
-    const remaining = await actions.accessKey.getRemainingLimit(client, {
+    const { remaining } = await actions.accessKey.getRemainingLimit(client, {
       account: account.address,
       accessKey,
       token,
@@ -234,7 +236,7 @@ describe('getRemainingLimit', () => {
   test('behavior: no limit set for token', async () => {
     const accessKey = await setupAccessKey()
 
-    const remaining = await actions.accessKey.getRemainingLimit(client, {
+    const { remaining } = await actions.accessKey.getRemainingLimit(client, {
       account: account.address,
       accessKey,
       token: '0x0000000000000000000000000000000000000001',
