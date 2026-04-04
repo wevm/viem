@@ -90,6 +90,10 @@ export {
   formatAbiItemWithArgs,
 } from './abi/formatAbiItemWithArgs.js'
 export {
+  type FormatEventSignatureErrorType,
+  formatEventSignature,
+} from './abi/formatEventSignature.js'
+export {
   type GetAbiItemErrorType,
   type GetAbiItemParameters,
   getAbiItem,
