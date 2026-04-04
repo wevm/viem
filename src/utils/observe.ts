@@ -39,10 +39,15 @@ export function observe<callbacks extends Callbacks>(
 
   const unsubscribe = () => {
     const listeners = getListeners()
-    listenersCache.set(
-      observerId,
-      listeners.filter((cb: any) => cb.id !== callbackId),
-    )
+    const filteredListeners = listeners.filter((cb: any) => cb.id !== callbackId)
+    
+    // Clean up cache when no more listeners to prevent memory leak
+    if (filteredListeners.length === 0) {
+      listenersCache.delete(observerId)
+      cleanupCache.delete(observerId)
+    } else {
+      listenersCache.set(observerId, filteredListeners)
+    }
   }
 
   const unwatch = () => {
