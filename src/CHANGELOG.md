@@ -1,5 +1,15 @@
 # viem
 
+## 2.47.10
+
+### Patch Changes
+
+- [#4443](https://github.com/wevm/viem/pull/4443) [`19dd6e54001a82f20ab13e42eacdbe61814e6e52`](https://github.com/wevm/viem/commit/19dd6e54001a82f20ab13e42eacdbe61814e6e52) Thanks [@TJ-Frederick](https://github.com/TJ-Frederick)! - Added Radius Network (chain ID 723487) and Radius Test Network (chain ID 72344) chain definitions.
+
+- [#4456](https://github.com/wevm/viem/pull/4456) [`7b2cca5ab72c56b4c1a18d9765f4f323ca6b162d`](https://github.com/wevm/viem/commit/7b2cca5ab72c56b4c1a18d9765f4f323ca6b162d) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Extracted `keyAuthorization` from `eth_fillTransaction` response in `prepareTransactionRequest`.
+
+- [#4457](https://github.com/wevm/viem/pull/4457) [`39d42e515f33f54102d56705cf25c51f8d8f4087`](https://github.com/wevm/viem/commit/39d42e515f33f54102d56705cf25c51f8d8f4087) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added hardfork-aware `getRemainingLimit` that uses `getRemainingLimitWithPeriod` on T3+ chains. Returns `{ remaining, periodEnd }` object.
+
 ## 2.47.9
 
 ### Patch Changes
