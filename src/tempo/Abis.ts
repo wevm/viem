@@ -1204,6 +1204,20 @@ export const accountKeychain = [
     outputs: [{ type: 'uint256' }],
   },
   {
+    name: 'getRemainingLimitWithPeriod',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'keyId' },
+      { type: 'address', name: 'token' },
+    ],
+    outputs: [
+      { type: 'uint256', name: 'remaining' },
+      { type: 'uint64', name: 'periodEnd' },
+    ],
+  },
+  {
     name: 'getTransactionKey',
     type: 'function',
     stateMutability: 'view',

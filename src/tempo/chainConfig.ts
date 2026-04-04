@@ -16,6 +16,7 @@ import type { SerializeTransactionFn } from '../utils/transaction/serializeTrans
 import type { Account } from './Account.js'
 import { getMetadata } from './actions/accessKey.js'
 import * as Formatters from './Formatters.js'
+import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
 import * as Transaction from './Transaction.js'
 
@@ -25,6 +26,7 @@ export const chainConfig = {
   blockTime: 1_000,
   extendSchema: extendSchema<{
     feeToken?: TokenId.TokenIdOrAddress | undefined
+    hardfork?: Hardfork | undefined
   }>(),
   formatters: {
     transaction: defineTransaction({
