@@ -744,8 +744,7 @@ export async function getRemainingLimit<
   const account = parseAccount(account_)
 
   // TODO: remove pre-t3 branch once mainnet is on t3.
-  const hardfork = (client.chain as { hardfork?: string } | undefined)
-    ?.hardfork
+  const hardfork = (client.chain as { hardfork?: string } | undefined)?.hardfork
   if (hardfork && Hardfork.lt(hardfork, 't3')) {
     const remaining = await readContract(client, {
       ...rest,
