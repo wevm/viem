@@ -415,6 +415,11 @@ export async function prepareTransactionRequest<
             ...('nonceKey' in rest && typeof rest.nonceKey !== 'undefined'
               ? { nonceKey: rest.nonceKey }
               : {}),
+            ...('keyAuthorization' in rest &&
+            typeof rest.keyAuthorization !== 'undefined' &&
+            rest.keyAuthorization !== null
+              ? { keyAuthorization: rest.keyAuthorization }
+              : {}),
           }
         })
         .catch((e) => {
