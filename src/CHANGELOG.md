@@ -1,5 +1,11 @@
 # viem
 
+## 2.47.11
+
+### Patch Changes
+
+- [#4440](https://github.com/wevm/viem/pull/4440) [`75ae99e2654043d927ac7e20d630fc93932fce9c`](https://github.com/wevm/viem/commit/75ae99e2654043d927ac7e20d630fc93932fce9c) Thanks [@luanxu-dev](https://github.com/luanxu-dev)! - Fixed `shouldRetry` to handle RPC code 429 in batch mode, where some providers (e.g. Alchemy) return HTTP 200 with a JSON-RPC body of `{ code: 429 }` instead of an HTTP 429.
+
 ## 2.47.10
 
 ### Patch Changes
