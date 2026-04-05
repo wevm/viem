@@ -66,7 +66,32 @@ export type EncodeEventTopicsParameters<
 > &
   (hasEvents extends true ? unknown : never)
 
-export type EncodeEventTopicsReturnType = (Hex | Hex[] | null)[]
+type ExtractAbiEventByName<
+  items extends readonly unknown[],
+  name extends string,
+> = items extends readonly (infer Item)[]
+  ? Item extends { name: name; type: 'event' }
+    ? Item
+    : never
+  : never
+
+export type EncodeEventTopicsReturnType<
+  abi extends Abi | readonly unknown[] = Abi,
+  eventName extends string | undefined = string | undefined,
+> = Abi extends abi
+  ? [Hex, ...(Hex | Hex[] | null)[]]
+  : eventName extends string
+    ? ExtractAbiEventByName<
+        abi extends readonly unknown[] ? abi : never,
+        eventName
+      > extends { anonymous: true }
+      ? (Hex | Hex[] | null)[]
+      : [Hex, ...(Hex | Hex[] | null)[]]
+    : abi extends readonly [infer First extends { anonymous?: boolean }]
+      ? [First] extends [{ anonymous: true }]
+        ? (Hex | Hex[] | null)[]
+        : [Hex, ...(Hex | Hex[] | null)[]]
+      : [Hex, ...(Hex | Hex[] | null)[]]
 
 export type EncodeEventTopicsErrorType =
   | AbiEventNotFoundErrorType
@@ -81,7 +106,7 @@ export function encodeEventTopics<
   eventName extends ContractEventName<abi> | undefined = undefined,
 >(
   parameters: EncodeEventTopicsParameters<abi, eventName>,
-): EncodeEventTopicsReturnType {
+): EncodeEventTopicsReturnType<abi, eventName> {
   const { abi, eventName, args } = parameters as EncodeEventTopicsParameters
 
   let abiItem = abi[0]
@@ -119,11 +144,12 @@ export function encodeEventTopics<
     }
   }
 
-  if (abiItem.anonymous) return topics
+  if (abiItem.anonymous)
+    return topics as EncodeEventTopicsReturnType<abi, eventName>
 
   const definition = formatAbiItem(abiItem)
   const signature = toEventSelector(definition as EventDefinition)
-  return [signature, ...topics]
+  return [signature, ...topics] as EncodeEventTopicsReturnType<abi, eventName>
 }
 
 export type EncodeArgErrorType =

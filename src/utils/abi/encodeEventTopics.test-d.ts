@@ -160,6 +160,48 @@ test('multiple abi errors, eventName required', () => {
   expectTypeOf<Result['eventName']>().not.toEqualTypeOf<undefined>()
 })
 
+test('return type: non-anonymous event is a tuple with leading Hex', () => {
+  const abi = [
+    {
+      name: 'Transfer',
+      type: 'event',
+      anonymous: false,
+      inputs: [{ name: 'from', type: 'address', indexed: true }],
+    },
+  ] as const
+
+  const result = encodeEventTopics({ abi })
+  expectTypeOf(result).toEqualTypeOf<[`0x${string}`, ...(`0x${string}` | `0x${string}`[] | null)[]]>()
+})
+
+test('return type: anonymous event is a plain array', () => {
+  const abi = [
+    {
+      name: 'RawEvent',
+      type: 'event',
+      anonymous: true,
+      inputs: [{ name: 'topic0', type: 'bytes32', indexed: true }],
+    },
+  ] as const
+
+  const result = encodeEventTopics({ abi })
+  expectTypeOf(result).toEqualTypeOf<(`0x${string}` | `0x${string}`[] | null)[]>()
+})
+
+test('return type: dynamic Abi preserves original tuple', () => {
+  const abi = [
+    {
+      name: 'Transfer',
+      type: 'event',
+      anonymous: false,
+      inputs: [{ name: 'from', type: 'address', indexed: true }],
+    },
+  ] as Abi
+
+  const result = encodeEventTopics({ abi, eventName: 'Transfer' })
+  expectTypeOf(result).toEqualTypeOf<[`0x${string}`, ...(`0x${string}` | `0x${string}`[] | null)[]]>()
+})
+
 test('abi has no errors', () => {
   // @ts-expect-error
   encodeEventTopics({
