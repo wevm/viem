@@ -500,6 +500,78 @@ test("errors: event doesn't exist", () => {
   `)
 })
 
+test('anonymous event: no args', () => {
+  const abi = [
+    {
+      name: 'RawEvent',
+      type: 'event',
+      anonymous: true,
+      inputs: [
+        { name: 'topic0', type: 'bytes32', indexed: true },
+        { name: 'topic1', type: 'bytes32', indexed: true },
+      ],
+    },
+  ] as const
+
+  expect(encodeEventTopics({ abi })).toEqual([])
+})
+
+test('anonymous event: partial args', () => {
+  const abi = [
+    {
+      name: 'RawEvent',
+      type: 'event',
+      anonymous: true,
+      inputs: [
+        { name: 'topic0', type: 'bytes32', indexed: true },
+        { name: 'topic1', type: 'bytes32', indexed: true },
+      ],
+    },
+  ] as const
+
+  expect(
+    encodeEventTopics({
+      abi,
+      args: {
+        topic0:
+          '0x000000000000000000000000000000000000000000000000000000000000abcd',
+      },
+    }),
+  ).toEqual([
+    '0x000000000000000000000000000000000000000000000000000000000000abcd',
+    null,
+  ])
+})
+
+test('anonymous event: all args', () => {
+  const abi = [
+    {
+      name: 'RawEvent',
+      type: 'event',
+      anonymous: true,
+      inputs: [
+        { name: 'topic0', type: 'bytes32', indexed: true },
+        { name: 'topic1', type: 'bytes32', indexed: true },
+      ],
+    },
+  ] as const
+
+  expect(
+    encodeEventTopics({
+      abi,
+      args: {
+        topic0:
+          '0x0000000000000000000000000000000000000000000000000000000000000001',
+        topic1:
+          '0x0000000000000000000000000000000000000000000000000000000000000002',
+      },
+    }),
+  ).toEqual([
+    '0x0000000000000000000000000000000000000000000000000000000000000001',
+    '0x0000000000000000000000000000000000000000000000000000000000000002',
+  ])
+})
+
 test('https://github.com/wevm/viem/issues/3278', () => {
   const bugAbi = [
     {
