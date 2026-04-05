@@ -279,6 +279,10 @@ export function shouldRetry(error: Error) {
     if (error.code === -1) return true // Unknown error
     if (error.code === LimitExceededRpcError.code) return true
     if (error.code === InternalRpcError.code) return true
+    // Too Many Requests — some providers (e.g. Alchemy in batch mode) return
+    // HTTP 200 with a JSON-RPC body of `{ code: 429 }` instead of an HTTP 429,
+    // so we need to handle this code in addition to the HTTP status check below.
+    if (error.code === 429) return true
     return false
   }
   if (error instanceof HttpRequestError && error.status) {
