@@ -129,11 +129,11 @@ export type BytesToHexErrorType = AssertSizeErrorType | PadErrorType | ErrorType
  * // '0x48656c6c6f20576f726c64210000000000000000000000000000000000000000'
  */
 export function bytesToHex(value: ByteArray, opts: BytesToHexOpts = {}): Hex {
-  let string = ''
+  const chars = new Array<string>(value.length)
   for (let i = 0; i < value.length; i++) {
-    string += hexes[value[i]]
+    chars[i] = hexes[value[i]]
   }
-  const hex = `0x${string}` as const
+  const hex = `0x${chars.join('')}` as const
 
   if (typeof opts.size === 'number') {
     assertSize(hex, { size: opts.size })
