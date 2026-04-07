@@ -242,6 +242,7 @@
   ],
   "pnpm": {
     "overrides": {
+      "typescript": "^5.9.3",
       "@opentelemetry/api@^1.8.0": "~1.7.0",
       "permissionless>viem": "workspace:*",
       "@babel/helpers@<7.26.10": "7.26.10",

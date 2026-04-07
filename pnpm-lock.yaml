@@ -18,11 +18,9 @@ catalogs:
     react-dom:
       specifier: ^19.0.0
       version: 19.2.3
-    typescript:
-      specifier: 5.9.3
-      version: 5.9.3
 
 overrides:
+  typescript: ^5.9.3
   '@opentelemetry/api@^1.8.0': ~1.7.0
   permissionless>viem: workspace:*
   '@babel/helpers@<7.26.10': 7.26.10
@@ -162,7 +160,7 @@ importers:
         specifier: ^11.10.0
         version: 11.10.0
       typescript:
-        specifier: 'catalog:'
+        specifier: ^5.9.3
         version: 5.9.3
       vitest:
         specifier: ^4.0.15
@@ -187,7 +185,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: file:../../src/
-        version: file:src(typescript@5.6.2)(zod@4.3.6)
+        version: link:../../src
     devDependencies:
       '@playwright/test':
         specifier: 1.59.1
@@ -202,8 +200,8 @@ importers:
         specifier: ^19
         version: 19.0.3(@types/react@19.0.8)
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
 
   environments/node:
     dependencies:
@@ -214,8 +212,8 @@ importers:
   environments/tsc:
     dependencies:
       typescript:
-        specifier: latest
-        version: 6.0.2
+        specifier: ^5.9.3
+        version: 5.9.3
       viem:
         specifier: file:../../src/
         version: link:../../src
@@ -224,7 +222,7 @@ importers:
     dependencies:
       viem:
         specifier: file:../../src/
-        version: file:src(typescript@5.6.2)(zod@4.3.6)
+        version: link:../../src
     devDependencies:
       '@playwright/test':
         specifier: 1.59.1
@@ -233,8 +231,8 @@ importers:
         specifier: ^20.8.3
         version: 20.16.12
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@20.16.12)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -243,11 +241,11 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.6(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.6(typescript@5.9.3)(zod@4.3.6)
     devDependencies:
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -256,11 +254,11 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.6(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.6(typescript@5.9.3)(zod@4.3.6)
     devDependencies:
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -269,11 +267,11 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.6(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.6(typescript@5.9.3)(zod@4.3.6)
     devDependencies:
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -282,11 +280,11 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.6(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.6(typescript@5.9.3)(zod@4.3.6)
     devDependencies:
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -295,11 +293,11 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.6(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.6(typescript@5.9.3)(zod@4.3.6)
     devDependencies:
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -314,7 +312,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.47.6(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.6(typescript@5.9.3)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -326,8 +324,8 @@ importers:
         specifier: ^4.3.2
         version: 4.3.2(vite@7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -342,7 +340,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.47.6(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.6(typescript@5.9.3)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -354,8 +352,8 @@ importers:
         specifier: ^4.3.2
         version: 4.3.2(vite@7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -364,11 +362,11 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.6(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.6(typescript@5.9.3)(zod@4.3.6)
     devDependencies:
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -377,11 +375,11 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.6(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.6(typescript@5.9.3)(zod@4.3.6)
     devDependencies:
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -396,7 +394,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.47.6(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.6(typescript@5.9.3)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -408,8 +406,8 @@ importers:
         specifier: ^4.3.2
         version: 4.3.2(vite@7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -418,11 +416,11 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.6(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.6(typescript@5.9.3)(zod@4.3.6)
     devDependencies:
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -431,11 +429,11 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.6(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.6(typescript@5.9.3)(zod@4.3.6)
     devDependencies:
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -444,11 +442,11 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.6(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.6(typescript@5.9.3)(zod@4.3.6)
     devDependencies:
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -457,11 +455,11 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.6(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.6(typescript@5.9.3)(zod@4.3.6)
     devDependencies:
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -488,8 +486,8 @@ importers:
         specifier: ^4.3.2
         version: 4.3.2(vite@7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -504,7 +502,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.47.6(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.6(typescript@5.9.3)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -516,8 +514,8 @@ importers:
         specifier: ^4.3.2
         version: 4.3.2(vite@7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -532,7 +530,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.47.6(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.6(typescript@5.9.3)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -544,8 +542,8 @@ importers:
         specifier: ^4.3.2
         version: 4.3.2(vite@7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -554,11 +552,11 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.6(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.6(typescript@5.9.3)(zod@4.3.6)
     devDependencies:
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -573,7 +571,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.47.6(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.6(typescript@5.9.3)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -585,8 +583,8 @@ importers:
         specifier: ^4.3.2
         version: 4.3.2(vite@7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
       typescript:
-        specifier: ^5.0.3
-        version: 5.6.2
+        specifier: ^5.9.3
+        version: 5.9.3
       vite:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -618,11 +616,11 @@ importers:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
       vocs:
-        specifier: https://pkg.pr.new/wevm/vocs@59e3450
-        version: https://pkg.pr.new/wevm/vocs@59e3450(@types/react@19.0.8)(next@16.2.3(@babel/core@7.28.5)(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(rollup@4.59.0)(typescript@6.0.2)(vite@7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))(waku@1.0.0-alpha.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
+        specifier: https://pkg.pr.new/vocs@e90555e
+        version: https://pkg.pr.new/vocs@e90555e(@types/react@19.0.8)(next@16.2.3(@babel/core@7.28.5)(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(rollup@4.59.0)(typescript@5.9.3)(vite@7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))(waku@1.0.0-alpha.6(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
       waku:
-        specifier: 1.0.0-alpha.2
-        version: 1.0.0-alpha.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
+        specifier: 1.0.0-alpha.6
+        version: 1.0.0-alpha.6(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
 
   src:
     dependencies:
@@ -640,13 +638,13 @@ importers:
         version: 1.6.0
       abitype:
         specifier: 1.2.3
-        version: 1.2.3(typescript@6.0.2)(zod@4.3.6)
+        version: 1.2.3(typescript@5.9.3)(zod@4.3.6)
       isows:
         specifier: 1.0.7
         version: 1.0.7(ws@8.18.3)
       ox:
         specifier: https://pkg.pr.new/tempoxyz/ox-tmp-zones/ox@72b35e0
-        version: https://pkg.pr.new/tempoxyz/ox-tmp-zones/ox@72b35e0(typescript@6.0.2)(zod@4.3.6)
+        version: https://pkg.pr.new/tempoxyz/ox-tmp-zones/ox@72b35e0(typescript@5.9.3)(zod@4.3.6)
       ws:
         specifier: 8.18.3
         version: 8.18.3
@@ -678,7 +676,7 @@ packages:
     resolution: {integrity: sha512-Pngs8f1UJiWbeO8LKVdyBL0K3rT/PDVACR7TPyCEULNcN8V1rVec6dKvUnQVpQSj60p4ejlK6dKs+fQoqdUMqA==}
     hasBin: true
     peerDependencies:
-      typescript: '*'
+      typescript: ^5.9.3
 
   '@ark/fs@0.56.0':
     resolution: {integrity: sha512-zY/wDDhcvmt6/upQwZM766PAnvIzdEMcgydUGd9pqY9FMGNo9I9uE4RYAfms9AeUUtbZJu2h2Ua0tvFsO5XF4Q==}
@@ -2384,7 +2382,7 @@ packages:
   '@shikijs/twoslash@3.21.0':
     resolution: {integrity: sha512-iH360udAYON2JwfIldoCiMZr9MljuQA5QRBivKLpEuEpmVCSwrR+0WTQ0eS1ptgGBdH9weFiIsA5wJDzsEzTYg==}
     peerDependencies:
-      typescript: '>=5.5.0'
+      typescript: ^5.9.3
 
   '@shikijs/types@3.21.0':
     resolution: {integrity: sha512-zGrWOxZ0/+0ovPY7PvBU2gIS9tmhSUUt30jAcNV0Bq0gb2S98gwfjIs1vxlmH5zM7/4YxLamT6ChlqqAJmPPjA==}
@@ -2783,12 +2781,12 @@ packages:
   '@typescript/vfs@1.6.1':
     resolution: {integrity: sha512-JwoxboBh7Oz1v38tPbkrZ62ZXNHAk9bJ7c9x0eI5zBfBnBYGhURdbnh7Z4smN/MV48Y5OCcZb58n972UtbazsA==}
     peerDependencies:
-      typescript: '*'
+      typescript: ^5.9.3
 
   '@typescript/vfs@1.6.2':
     resolution: {integrity: sha512-hoBwJwcbKHmvd2QVebiytN1aELvpk9B74B4L1mFm/XT1Q/VOYAWl2vQ9AWRFtQq8zmz6enTpfTV8WRc4ATjW/g==}
     peerDependencies:
-      typescript: '*'
+      typescript: ^5.9.3
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
@@ -2908,7 +2906,7 @@ packages:
   abitype@0.8.11:
     resolution: {integrity: sha512-bM4v2dKvX08sZ9IU38IN5BKmN+ZkOSd2oI4a9f0ejHYZQYV6cDr7j+d95ga0z2XHG36Y4jzoG5Z7qDqxp7fi/A==}
     peerDependencies:
-      typescript: '>=5.0.4'
+      typescript: ^5.9.3
       zod: ^3 >=3.19.1
     peerDependenciesMeta:
       zod:
@@ -2917,7 +2915,7 @@ packages:
   abitype@1.2.3:
     resolution: {integrity: sha512-Ofer5QUnuUdTFsBRwARMoWKOH1ND5ehwYhJ3OJ/BQO+StkwQjHw0XyVh4vDttzHB7QOFhPHa/o413PJ82gU/Tg==}
     peerDependencies:
-      typescript: '>=5.0.4'
+      typescript: ^5.9.3
       zod: ^3.22.0 || ^4.0.0
     peerDependenciesMeta:
       typescript:
@@ -3403,7 +3401,7 @@ packages:
     resolution: {integrity: sha512-kcZ6+W5QzcJ3P1Mt+83OUv/oHFqZHIx8DuxG6eZ5RGMERoLqp4BuGjhHLYGK+Kf5XVkQvqBSmAy/nGWN3qDgEA==}
     engines: {node: '>=14'}
     peerDependencies:
-      typescript: '>=4.9.5'
+      typescript: ^5.9.3
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -3527,8 +3525,8 @@ packages:
     resolution: {integrity: sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==}
     engines: {node: '>=12'}
 
-  dotenv@17.2.3:
-    resolution: {integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==}
+  dotenv@17.4.2:
+    resolution: {integrity: sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==}
     engines: {node: '>=12'}
 
   dotenv@8.6.0:
@@ -4318,7 +4316,7 @@ packages:
     hasBin: true
     peerDependencies:
       '@types/node': '>=18'
-      typescript: '>=5.0.4'
+      typescript: ^5.9.3
 
   lazystream@1.0.1:
     resolution: {integrity: sha512-b94GiNHQNy6JNTrt5w6zNyffMrNkXZb3KTkCZJb2V1xaEGCk093vkZ2jk3tpaeP33/OiXC+WvK9AxUebnf5nbw==}
@@ -4941,7 +4939,7 @@ packages:
   ox@0.14.15:
     resolution: {integrity: sha512-3TubCmbKen/cuZQzX0qDbOS5lojjdSZ90lqKxWIDWd5siuJ0IJBaTXMYs8eMPLcraqnOwGZazz3apHPGiRCkGQ==}
     peerDependencies:
-      typescript: '>=5.4.0'
+      typescript: ^5.9.3
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -4949,7 +4947,7 @@ packages:
   ox@0.14.7:
     resolution: {integrity: sha512-zSQ/cfBdolj7U4++NAvH7sI+VG0T3pEohITCgcQj8KlawvTDY4vGVhDT64Atsm0d6adWfIYHDpu88iUBMMp+AQ==}
     peerDependencies:
-      typescript: '>=5.4.0'
+      typescript: ^5.9.3
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -4958,7 +4956,7 @@ packages:
     resolution: {tarball: https://pkg.pr.new/tempoxyz/ox-tmp-zones/ox@72b35e0}
     version: 0.14.11-dc1dc5f.0
     peerDependencies:
-      typescript: '>=5.4.0'
+      typescript: ^5.9.3
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -5982,7 +5980,7 @@ packages:
   twoslash@0.3.6:
     resolution: {integrity: sha512-VuI5OKl+MaUO9UIW3rXKoPgHI3X40ZgB/j12VY6h98Ae1mCBihjPvhOPeJWlxCYcmSbmeZt5ZKkK0dsVtp+6pA==}
     peerDependencies:
-      typescript: ^5.5.0
+      typescript: ^5.9.3
 
   type-fest@4.39.0:
     resolution: {integrity: sha512-w2IGJU1tIgcrepg9ZJ82d8UmItNQtOFJG0HCUE3SzMokKkTsruVDALl2fAdiEzJlfduoU+VyXJWIIUZ+6jV+nw==}
@@ -5995,23 +5993,8 @@ packages:
   type@2.7.3:
     resolution: {integrity: sha512-8j+1QmAbPvLZow5Qpi6NCaN8FB60p/6x8/vfNqOk/hC+HuvFZhL4+WfekuhQLiqFZXOgQdrs3B+XxEmCc6b3FQ==}
 
-  typescript@5.6.1-rc:
-    resolution: {integrity: sha512-E3b2+1zEFu84jB0YQi9BORDjz9+jGbwwy1Zi3G0LUNw7a7cePUrHMRNy8aPh53nXpkFGVHSxIZo5vKTfYaFiBQ==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-
-  typescript@5.6.2:
-    resolution: {integrity: sha512-NW8ByodCSNCwZeghjN3o+JX5OFH0Ojg6sadjEKY4huZ52TqbJTJnDo5+Tw98lSy63NZvi4n+ez5m2u5d4PkZyw==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-
   typescript@5.9.3:
     resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-
-  typescript@6.0.2:
-    resolution: {integrity: sha512-bGdAIrZ0wiGDo5l8c++HWtbaNCWTS4UTv7RaTH/ThVIgjkveJt83m74bBHMJkuCbslY8ixgLBVZJIOiQlQTjfQ==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -6150,7 +6133,7 @@ packages:
   viem@2.47.17:
     resolution: {integrity: sha512-yNUKw6b1nd1i96GcJPqp096w5VVjUky/6PLT8UeUsEArzhD9YRrC0QJ50o8YEF7xA6M0FK8e6u5tAMyBLLl7tw==}
     peerDependencies:
-      typescript: '>=5.0.4'
+      typescript: ^5.9.3
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -6158,15 +6141,7 @@ packages:
   viem@2.47.6:
     resolution: {integrity: sha512-zExmbI99NGvMdYa7fmqSTLgkwh48dmhgEqFrUgkpL4kfG4XkVefZ8dZqIKVUhZo6Uhf0FrrEXOsHm9LUyIvI2Q==}
     peerDependencies:
-      typescript: '>=5.0.4'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
-  viem@file:src:
-    resolution: {directory: src, type: directory}
-    peerDependencies:
-      typescript: '>=5.0.4'
+      typescript: ^5.9.3
     peerDependenciesMeta:
       typescript:
         optional: true
@@ -6301,8 +6276,8 @@ packages:
       jsdom:
         optional: true
 
-  vocs@https://pkg.pr.new/wevm/vocs@59e3450:
-    resolution: {tarball: https://pkg.pr.new/wevm/vocs@59e3450}
+  vocs@https://pkg.pr.new/vocs@e90555e:
+    resolution: {integrity: sha512-mBm5ixwBWQt6zZ4geQva71bmq1jyAzmGivw7pnIyyBxwdMmxcMZTvS7Qm4qqdEwpr40M3oVONyZoYV/KRsVmVA==, tarball: https://pkg.pr.new/vocs@e90555e}
     version: 0.0.0
     hasBin: true
     peerDependencies:
@@ -6325,13 +6300,13 @@ packages:
   w3c-keyname@2.2.8:
     resolution: {integrity: sha512-dpojBhNsCNN7T82Tm7k26A6G9ML3NkhDsnw9n/eoxSRlVBB4CEtIQ/KTCLI2Fwf3ataSXRhYFkQi3SlnFwPvPQ==}
 
-  waku@1.0.0-alpha.2:
-    resolution: {integrity: sha512-AqS1+jEH+gBeqbxt+Tg8cbDp9Kxqgilr/awifeaWyZsKfsMDfzi0thw/OZlW9KT2W8xJNV1lG4OwSNxgvigJpA==}
+  waku@1.0.0-alpha.6:
+    resolution: {integrity: sha512-Mp57otg27DMixncNvOaliIK5X9awtGIEtjuBoW9OgCPaghGvb4W4lFXmOTHseOWuZh3LynerfdqbvWOmEoIHUw==}
     engines: {node: ^24.0.0 || ^22.12.0 || ^20.19.0}
     hasBin: true
     peerDependencies:
-      react: ~19.2.3
-      react-dom: ~19.2.3
+      react: ~19.2.4
+      react-dom: ~19.2.4
       react-server-dom-webpack: 19.2.5
 
   walk-up-path@4.0.0:
@@ -6524,7 +6499,7 @@ snapshots:
       fflate: 0.8.2
       lru-cache: 11.2.2
       semver: 7.6.3
-      typescript: 5.6.1-rc
+      typescript: 5.9.3
       validate-npm-package-name: 5.0.1
 
   '@ark/attest@0.56.0(typescript@5.9.3)':
@@ -8253,12 +8228,12 @@ snapshots:
       '@shikijs/core': 3.21.0
       '@shikijs/types': 3.21.0
 
-  '@shikijs/twoslash@3.21.0(typescript@6.0.2)':
+  '@shikijs/twoslash@3.21.0(typescript@5.9.3)':
     dependencies:
       '@shikijs/core': 3.21.0
       '@shikijs/types': 3.21.0
-      twoslash: 0.3.6(typescript@6.0.2)
-      typescript: 6.0.2
+      twoslash: 0.3.6(typescript@5.9.3)
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
@@ -8368,12 +8343,12 @@ snapshots:
       '@svgr/babel-plugin-transform-react-native-svg': 8.1.0(@babel/core@7.28.5)
       '@svgr/babel-plugin-transform-svg-component': 8.0.0(@babel/core@7.28.5)
 
-  '@svgr/core@8.1.0(typescript@6.0.2)':
+  '@svgr/core@8.1.0(typescript@5.9.3)':
     dependencies:
       '@babel/core': 7.28.5
       '@svgr/babel-preset': 8.1.0(@babel/core@7.28.5)
       camelcase: 6.3.0
-      cosmiconfig: 8.3.6(typescript@6.0.2)
+      cosmiconfig: 8.3.6(typescript@5.9.3)
       snake-case: 3.0.4
     transitivePeerDependencies:
       - supports-color
@@ -8384,11 +8359,11 @@ snapshots:
       '@babel/types': 7.28.5
       entities: 4.5.0
 
-  '@svgr/plugin-jsx@8.1.0(@svgr/core@8.1.0(typescript@6.0.2))':
+  '@svgr/plugin-jsx@8.1.0(@svgr/core@8.1.0(typescript@5.9.3))':
     dependencies:
       '@babel/core': 7.28.5
       '@svgr/babel-preset': 8.1.0(@babel/core@7.28.5)
-      '@svgr/core': 8.1.0(typescript@6.0.2)
+      '@svgr/core': 8.1.0(typescript@5.9.3)
       '@svgr/hast-util-to-babel-ast': 8.0.0
       svg-parser: 2.0.4
     transitivePeerDependencies:
@@ -8672,10 +8647,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript/vfs@1.6.2(typescript@6.0.2)':
+  '@typescript/vfs@1.6.2(typescript@5.9.3)':
     dependencies:
       debug: 4.4.3
-      typescript: 6.0.2
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
@@ -8862,11 +8837,6 @@ snapshots:
     optionalDependencies:
       zod: 3.23.8
 
-  abitype@1.2.3(typescript@5.6.2)(zod@4.3.6):
-    optionalDependencies:
-      typescript: 5.6.2
-      zod: 4.3.6
-
   abitype@1.2.3(typescript@5.9.3)(zod@3.23.8):
     optionalDependencies:
       typescript: 5.9.3
@@ -8875,11 +8845,6 @@ snapshots:
   abitype@1.2.3(typescript@5.9.3)(zod@4.3.6):
     optionalDependencies:
       typescript: 5.9.3
-      zod: 4.3.6
-
-  abitype@1.2.3(typescript@6.0.2)(zod@4.3.6):
-    optionalDependencies:
-      typescript: 6.0.2
       zod: 4.3.6
 
   abort-controller@3.0.0:
@@ -9333,14 +9298,14 @@ snapshots:
       object-assign: 4.1.1
       vary: 1.1.2
 
-  cosmiconfig@8.3.6(typescript@6.0.2):
+  cosmiconfig@8.3.6(typescript@5.9.3):
     dependencies:
       import-fresh: 3.3.1
       js-yaml: 4.1.1
       parse-json: 5.2.0
       path-type: 4.0.0
     optionalDependencies:
-      typescript: 6.0.2
+      typescript: 5.9.3
 
   cpu-features@0.0.10:
     dependencies:
@@ -9406,10 +9371,10 @@ snapshots:
 
   detect-indent@6.1.0: {}
 
-  detect-libc@2.1.1: {}
-
-  detect-libc@2.1.2:
+  detect-libc@2.1.1:
     optional: true
+
+  detect-libc@2.1.2: {}
 
   devlop@1.1.0:
     dependencies:
@@ -9453,7 +9418,7 @@ snapshots:
 
   dotenv@16.4.5: {}
 
-  dotenv@17.2.3: {}
+  dotenv@17.4.2: {}
 
   dotenv@8.6.0: {}
 
@@ -10460,7 +10425,7 @@ snapshots:
 
   lightningcss@1.30.2:
     dependencies:
-      detect-libc: 2.1.1
+      detect-libc: 2.1.2
     optionalDependencies:
       lightningcss-android-arm64: 1.30.2
       lightningcss-darwin-arm64: 1.30.2
@@ -11305,7 +11270,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.14.7(typescript@5.6.2)(zod@4.3.6):
+  ox@0.14.7(typescript@5.9.3)(zod@4.3.6):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
@@ -11313,25 +11278,10 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@5.6.2)(zod@4.3.6)
+      abitype: 1.2.3(typescript@5.9.3)(zod@4.3.6)
       eventemitter3: 5.0.1
     optionalDependencies:
-      typescript: 5.6.2
-    transitivePeerDependencies:
-      - zod
-
-  ox@https://pkg.pr.new/tempoxyz/ox-tmp-zones/ox@72b35e0(typescript@5.6.2)(zod@4.3.6):
-    dependencies:
-      '@adraffy/ens-normalize': 1.11.1
-      '@noble/ciphers': 1.3.0
-      '@noble/curves': 1.9.1
-      '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@5.6.2)(zod@4.3.6)
-      eventemitter3: 5.0.1
-    optionalDependencies:
-      typescript: 5.6.2
+      typescript: 5.9.3
     transitivePeerDependencies:
       - zod
 
@@ -11347,21 +11297,6 @@ snapshots:
       eventemitter3: 5.0.1
     optionalDependencies:
       typescript: 5.9.3
-    transitivePeerDependencies:
-      - zod
-
-  ox@https://pkg.pr.new/tempoxyz/ox-tmp-zones/ox@72b35e0(typescript@6.0.2)(zod@4.3.6):
-    dependencies:
-      '@adraffy/ens-normalize': 1.11.1
-      '@noble/ciphers': 1.3.0
-      '@noble/curves': 1.9.1
-      '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@6.0.2)(zod@4.3.6)
-      eventemitter3: 5.0.1
-    optionalDependencies:
-      typescript: 6.0.2
     transitivePeerDependencies:
       - zod
 
@@ -12598,11 +12533,11 @@ snapshots:
 
   twoslash-protocol@0.3.6: {}
 
-  twoslash@0.3.6(typescript@6.0.2):
+  twoslash@0.3.6(typescript@5.9.3):
     dependencies:
-      '@typescript/vfs': 1.6.2(typescript@6.0.2)
+      '@typescript/vfs': 1.6.2(typescript@5.9.3)
       twoslash-protocol: 0.3.6
-      typescript: 6.0.2
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
@@ -12616,13 +12551,7 @@ snapshots:
 
   type@2.7.3: {}
 
-  typescript@5.6.1-rc: {}
-
-  typescript@5.6.2: {}
-
   typescript@5.9.3: {}
-
-  typescript@6.0.2: {}
 
   ufo@1.6.3: {}
 
@@ -12696,7 +12625,7 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  unplugin-icons@22.5.0(@svgr/core@8.1.0(typescript@6.0.2)):
+  unplugin-icons@22.5.0(@svgr/core@8.1.0(typescript@5.9.3)):
     dependencies:
       '@antfu/install-pkg': 1.1.0
       '@iconify/utils': 3.1.0
@@ -12704,7 +12633,7 @@ snapshots:
       local-pkg: 1.1.2
       unplugin: 2.3.11
     optionalDependencies:
-      '@svgr/core': 8.1.0(typescript@6.0.2)
+      '@svgr/core': 8.1.0(typescript@5.9.3)
     transitivePeerDependencies:
       - supports-color
 
@@ -12766,35 +12695,18 @@ snapshots:
       - utf-8-validate
       - zod
 
-  viem@2.47.6(typescript@5.6.2)(zod@4.3.6):
+  viem@2.47.6(typescript@5.9.3)(zod@4.3.6):
     dependencies:
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@5.6.2)(zod@4.3.6)
+      abitype: 1.2.3(typescript@5.9.3)(zod@4.3.6)
       isows: 1.0.7(ws@8.18.3)
-      ox: 0.14.7(typescript@5.6.2)(zod@4.3.6)
+      ox: 0.14.7(typescript@5.9.3)(zod@4.3.6)
       ws: 8.18.3
     optionalDependencies:
-      typescript: 5.6.2
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
-      - zod
-
-  viem@file:src(typescript@5.6.2)(zod@4.3.6):
-    dependencies:
-      '@noble/curves': 1.9.1
-      '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@5.6.2)(zod@4.3.6)
-      isows: 1.0.7(ws@8.18.3)
-      ox: https://pkg.pr.new/tempoxyz/ox-tmp-zones/ox@72b35e0(typescript@5.6.2)(zod@4.3.6)
-      ws: 8.18.3
-    optionalDependencies:
-      typescript: 5.6.2
+      typescript: 5.9.3
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -12899,7 +12811,7 @@ snapshots:
       - tsx
       - yaml
 
-  vocs@https://pkg.pr.new/wevm/vocs@59e3450(@types/react@19.0.8)(next@16.2.3(@babel/core@7.28.5)(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(rollup@4.59.0)(typescript@6.0.2)(vite@7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))(waku@1.0.0-alpha.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)):
+  vocs@https://pkg.pr.new/vocs@e90555e(@types/react@19.0.8)(next@16.2.3(@babel/core@7.28.5)(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(rollup@4.59.0)(typescript@5.9.3)(vite@7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))(waku@1.0.0-alpha.6(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)):
     dependencies:
       '@base-ui/react': 1.1.0(@types/react@19.0.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@codesandbox/sandpack-react': 2.20.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -12915,10 +12827,10 @@ snapshots:
       '@remix-run/node-fetch-server': 0.13.0
       '@shikijs/rehype': 3.21.0
       '@shikijs/transformers': 3.21.0
-      '@shikijs/twoslash': 3.21.0(typescript@6.0.2)
+      '@shikijs/twoslash': 3.21.0(typescript@5.9.3)
       '@shikijs/types': 3.21.0
-      '@svgr/core': 8.1.0(typescript@6.0.2)
-      '@svgr/plugin-jsx': 8.1.0(@svgr/core@8.1.0(typescript@6.0.2))
+      '@svgr/core': 8.1.0(typescript@5.9.3)
+      '@svgr/plugin-jsx': 8.1.0(@svgr/core@8.1.0(typescript@5.9.3))
       '@tailwindcss/vite': 4.1.15(vite@7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
       '@takumi-rs/image-response': 0.62.8
       '@takumi-rs/wasm': 0.62.8
@@ -12962,10 +12874,10 @@ snapshots:
       tailwindcss: 4.1.16
       tailwindcss-logical: 4.2.0(tailwindcss@4.1.16)
       tsx: 4.21.0
-      twoslash: 0.3.6(typescript@6.0.2)
+      twoslash: 0.3.6(typescript@5.9.3)
       unified: 11.0.5
       unist-util-visit: 5.0.0
-      unplugin-icons: 22.5.0(@svgr/core@8.1.0(typescript@6.0.2))
+      unplugin-icons: 22.5.0(@svgr/core@8.1.0(typescript@5.9.3))
       urlpattern-polyfill: 10.1.0
       vfile: 6.0.3
       vite-plugin-arraybuffer: 0.1.4
@@ -12974,7 +12886,7 @@ snapshots:
       zod: 4.3.6
     optionalDependencies:
       vite: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
-      waku: 1.0.0-alpha.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
+      waku: 1.0.0-alpha.6(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
     transitivePeerDependencies:
       - '@cfworker/json-schema'
       - '@remix-run/react'
@@ -12995,12 +12907,12 @@ snapshots:
 
   w3c-keyname@2.2.8: {}
 
-  waku@1.0.0-alpha.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3):
+  waku@1.0.0-alpha.6(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3):
     dependencies:
       '@hono/node-server': 1.19.13(hono@4.12.14)
       '@vitejs/plugin-react': 5.1.2(vite@7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
       '@vitejs/plugin-rsc': 0.5.23(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(vite@7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
-      dotenv: 17.2.3
+      dotenv: 17.4.2
       hono: 4.12.14
       magic-string: 0.30.21
       picocolors: 1.1.1
