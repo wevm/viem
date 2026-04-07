@@ -1,3 +1,5 @@
+import * as PublicKey from 'ox/PublicKey'
+import * as Secp256k1 from 'ox/Secp256k1'
 import { createClient } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { tempoModerato } from 'viem/chains'
@@ -130,6 +132,36 @@ describe('getWithdrawalFee', () => {
   })
 })
 
+describe('encryptedDeposit', () => {
+  test('behavior: deposits tokens into zone with encrypted recipient', async () => {
+    const result = await zoneActions.encryptedDepositSync(mainnetClient, {
+      token: '0x20c0000000000000000000000000000000000000',
+      amount: parseUnits('1', 6),
+      zoneId: 7,
+    })
+
+    expect(result.receipt).toBeDefined()
+    expect(result.receipt.status).toBe('success')
+  })
+
+  test('error: no account', async () => {
+    const noAccountClient = createClient({
+      chain: tempoModerato,
+      pollingInterval: 100,
+      transport: http(),
+    })
+
+    await expect(
+      // @ts-expect-error
+      zoneActions.encryptedDeposit(noAccountClient, {
+        token: '0x20c0000000000000000000000000000000000000',
+        amount: 1n,
+        zoneId: 7,
+      }),
+    ).rejects.toThrow('`account` is required.')
+  })
+})
+
 describe('deposit', () => {
   test('behavior: deposits tokens into zone via parent chain', async () => {
     const result = await zoneActions.depositSync(mainnetClient, {
@@ -189,6 +221,49 @@ describe('requestWithdrawal', () => {
       zoneActions.requestWithdrawal(noAccountClient, {
         token: '0x20c0000000000000000000000000000000000000',
         amount: 1n,
+      }),
+    ).rejects.toThrow('`account` is required.')
+  })
+})
+
+describe('requestEncryptedWithdrawal', () => {
+  test('behavior: requests encrypted withdrawal from zone', async () => {
+    await zoneActions.signAuthorizationToken(zoneClient)
+
+    const info = await zoneActions.getZoneInfo(zoneClient)
+    const zoneToken = info.zoneTokens[0]!
+
+    const { publicKey: revealToKey } = Secp256k1.createKeyPair()
+    const compressed = PublicKey.compress(revealToKey)
+    const revealTo = PublicKey.toHex(compressed)
+
+    const amount = parseUnits('0.01', 6)
+
+    const result = await zoneActions.requestEncryptedWithdrawalSync(
+      zoneClient,
+      {
+        token: zoneToken,
+        amount,
+        revealTo,
+      },
+    )
+
+    expect(result.receipt).toBeDefined()
+    expect(result.receipt.status).toBe('success')
+  })
+
+  test('error: no account', async () => {
+    const noAccountClient = getZoneClient({})
+    await zoneActions.signAuthorizationToken(noAccountClient, {
+      account,
+    })
+
+    await expect(
+      // @ts-expect-error
+      zoneActions.requestEncryptedWithdrawal(noAccountClient, {
+        token: '0x20c0000000000000000000000000000000000000',
+        amount: 1n,
+        revealTo: '0x02abc',
       }),
     ).rejects.toThrow('`account` is required.')
   })
