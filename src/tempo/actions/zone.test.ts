@@ -5,12 +5,11 @@ import { describe, expect, test } from 'vitest'
 import { getClient } from '~test/tempo/zones.js'
 import { zoneModerato } from '../zones/zone.js'
 
-const credentials = import.meta.env.VITE_TEMPO_CREDENTIALS
 const account = privateKeyToAccount(Secp256k1.randomPrivateKey())
 const zone = zoneModerato(7)
 
 describe('signAuthorizationToken', () => {
-  test.skipIf(!credentials)('behavior: signs and stores token', async () => {
+  test('behavior: signs and stores token', async () => {
     const client = getClient({ account })
 
     const result = await Actions.zone.signAuthorizationToken(client)
@@ -37,7 +36,6 @@ describe('getZoneInfo', () => {
     expect(info.sequencer).toBeDefined()
     expect(info.zoneTokens).toBeDefined()
   })
-
 })
 
 describe('getAuthorizationTokenInfo', () => {
@@ -66,5 +64,4 @@ describe('getDepositStatus', () => {
     expect(typeof status.zoneProcessedThrough).toBe('bigint')
     expect(Array.isArray(status.deposits)).toBe(true)
   })
-
 })
