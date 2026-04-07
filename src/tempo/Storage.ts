@@ -1,19 +1,15 @@
-/**
- * Storage interface for persisting zone authorization tokens.
- *
- * Compatible with wagmi's `BaseStorage` interface — `window.localStorage`,
- * `window.sessionStorage`, or any wagmi-compatible storage works directly.
- */
+import type { MaybePromise } from '../types/utils.js'
+
 export type Storage = {
-  getItem(
-    key: string,
-  ): string | null | undefined | Promise<string | null | undefined>
-  setItem(key: string, value: string): void | Promise<void>
-  removeItem(key: string): void | Promise<void>
+  getItem(key: string): MaybePromise<string | null | undefined>
+  setItem(key: string, value: string): MaybePromise<void>
+  removeItem(key: string): MaybePromise<void>
 }
 
 /**
- * Wraps a base storage with a key prefix.
+ * Wraps a base storage with an optional key prefix and request
+ * deduplication — concurrent `getItem` calls for the same key share
+ * a single in-flight promise.
  *
  * @example
  * ```ts
@@ -26,17 +22,28 @@ export type Storage = {
  */
 export function from(storage: Storage, options: from.Options = {}): Storage {
   const { key } = options
-  if (!key) return storage
-  const prefix = `${key}:`
+  const prefix = key ? `${key}:` : ''
+  const inflight = new Map<string, Promise<string | null | undefined>>()
   return {
     getItem(k) {
-      return storage.getItem(`${prefix}${k}`)
+      const fullKey = `${prefix}${k}`
+      const existing = inflight.get(fullKey)
+      if (existing) return existing
+      const result = Promise.resolve(storage.getItem(fullKey)).finally(() => {
+        inflight.delete(fullKey)
+      })
+      inflight.set(fullKey, result)
+      return result
     },
     setItem(k, value) {
-      return storage.setItem(`${prefix}${k}`, value)
+      const fullKey = `${prefix}${k}`
+      inflight.delete(fullKey)
+      return storage.setItem(fullKey, value)
     },
     removeItem(k) {
-      return storage.removeItem(`${prefix}${k}`)
+      const fullKey = `${prefix}${k}`
+      inflight.delete(fullKey)
+      return storage.removeItem(fullKey)
     },
   }
 }

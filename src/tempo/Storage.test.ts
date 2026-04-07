@@ -66,4 +66,100 @@ describe('Storage.from', () => {
     await storage.setItem('raw', 'val')
     expect(await base.getItem('raw')).toBe('val')
   })
+
+  test('deduplicates concurrent getItem calls for the same key', async () => {
+    let calls = 0
+    const slow: Storage.Storage = {
+      async getItem(_key) {
+        calls++
+        await new Promise((r) => setTimeout(r, 50))
+        return 'val'
+      },
+      async setItem() {},
+      async removeItem() {},
+    }
+
+    const storage = Storage.from(slow)
+
+    const [a, b, c] = await Promise.all([
+      storage.getItem('x'),
+      storage.getItem('x'),
+      storage.getItem('x'),
+    ])
+
+    expect(a).toBe('val')
+    expect(b).toBe('val')
+    expect(c).toBe('val')
+    expect(calls).toBe(1)
+  })
+
+  test('does not deduplicate different keys', async () => {
+    let calls = 0
+    const slow: Storage.Storage = {
+      async getItem(_key) {
+        calls++
+        await new Promise((r) => setTimeout(r, 10))
+        return 'val'
+      },
+      async setItem() {},
+      async removeItem() {},
+    }
+
+    const storage = Storage.from(slow)
+    await Promise.all([storage.getItem('a'), storage.getItem('b')])
+    expect(calls).toBe(2)
+  })
+
+  test('allows new getItem after previous resolves', async () => {
+    let calls = 0
+    const slow: Storage.Storage = {
+      async getItem(_key) {
+        calls++
+        await new Promise((r) => setTimeout(r, 10))
+        return `val-${calls}`
+      },
+      async setItem() {},
+      async removeItem() {},
+    }
+
+    const storage = Storage.from(slow)
+
+    const first = await storage.getItem('x')
+    const second = await storage.getItem('x')
+
+    expect(first).toBe('val-1')
+    expect(second).toBe('val-2')
+    expect(calls).toBe(2)
+  })
+
+  test('setItem invalidates in-flight read', async () => {
+    let calls = 0
+    const store = new Map<string, string>()
+    const slow: Storage.Storage = {
+      async getItem(key) {
+        calls++
+        await new Promise((r) => setTimeout(r, 50))
+        return store.get(key) ?? null
+      },
+      setItem(key, value) {
+        store.set(key, value)
+      },
+      removeItem(key) {
+        store.delete(key)
+      },
+    }
+
+    const storage = Storage.from(slow)
+
+    // Start a read, then write, then read again.
+    const p1 = storage.getItem('x')
+    storage.setItem('x', 'new')
+    const p2 = storage.getItem('x')
+
+    await p1
+    const result = await p2
+    // Second read should have triggered a new call.
+    expect(calls).toBe(2)
+    expect(result).toBe('new')
+  })
 })
