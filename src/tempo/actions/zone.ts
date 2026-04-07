@@ -947,7 +947,7 @@ export namespace requestWithdrawalSync {
 }
 
 /**
- * Requests an encrypted withdrawal from a zone to the parent Tempo chain via
+ * Requests a verifiable withdrawal from a zone to the parent Tempo chain via
  * the ZoneOutbox contract. Includes a `revealTo` public key so the sequencer
  * can encrypt the withdrawal details.
  *
@@ -974,7 +974,7 @@ export namespace requestWithdrawalSync {
  * ```
  *
  * @param client - Wallet client connected to the zone chain.
- * @param parameters - Encrypted withdrawal parameters.
+ * @param parameters - Verifiable withdrawal parameters.
  * @returns The transaction hash.
  */
 export async function requestVerifiableWithdrawal<
@@ -1020,7 +1020,7 @@ export namespace requestVerifiableWithdrawal {
   export type ErrorType = BaseErrorType
 
   /**
-   * Defines the calls to approve and request an encrypted withdrawal from a zone.
+   * Defines the calls to approve and request a verifiable withdrawal from a zone.
    *
    * @param args - Arguments.
    * @returns The calls.
@@ -1063,7 +1063,7 @@ export namespace requestVerifiableWithdrawal {
 }
 
 /**
- * Requests an encrypted withdrawal from a zone to the parent Tempo chain and
+ * Requests a verifiable withdrawal from a zone to the parent Tempo chain and
  * waits for the transaction receipt.
  *
  * @example
@@ -1087,7 +1087,7 @@ export namespace requestVerifiableWithdrawal {
  * ```
  *
  * @param client - Wallet client connected to the zone chain.
- * @param parameters - Encrypted withdrawal parameters.
+ * @param parameters - Verifiable withdrawal parameters.
  * @returns The transaction receipt.
  */
 export async function requestVerifiableWithdrawalSync<

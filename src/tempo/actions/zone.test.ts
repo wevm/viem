@@ -228,8 +228,7 @@ describe('requestWithdrawal', () => {
 })
 
 describe('requestVerifiableWithdrawal', () => {
-  // TODO: unskip once zone contracts support verifiable withdrawals
-  test.skip('behavior: requests encrypted withdrawal from zone', async () => {
+  test('behavior: requests verifiable withdrawal from zone', async () => {
     await zoneActions.signAuthorizationToken(zoneClient)
 
     const info = await zoneActions.getZoneInfo(zoneClient)

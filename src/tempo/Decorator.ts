@@ -4048,7 +4048,7 @@ export type Decorator<
       parameters: zoneActions.requestWithdrawalSync.Parameters<chain, account>,
     ) => Promise<zoneActions.requestWithdrawalSync.ReturnValue>
     /**
-     * Requests an encrypted withdrawal from a zone.
+     * Requests a verifiable withdrawal from a zone.
      *
      * @example
      * ```ts
@@ -4069,7 +4069,7 @@ export type Decorator<
       >,
     ) => Promise<zoneActions.requestVerifiableWithdrawal.ReturnValue>
     /**
-     * Requests an encrypted withdrawal and waits for the transaction receipt.
+     * Requests a verifiable withdrawal and waits for the transaction receipt.
      *
      * @example
      * ```ts
