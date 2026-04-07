@@ -4063,7 +4063,10 @@ export type Decorator<
      * @returns The transaction hash.
      */
     requestEncryptedWithdrawal: (
-      parameters: zoneActions.requestEncryptedWithdrawal.Parameters<chain, account>,
+      parameters: zoneActions.requestEncryptedWithdrawal.Parameters<
+        chain,
+        account
+      >,
     ) => Promise<zoneActions.requestEncryptedWithdrawal.ReturnValue>
     /**
      * Requests an encrypted withdrawal and waits for the transaction receipt.
@@ -4081,7 +4084,10 @@ export type Decorator<
      * @returns The transaction receipt.
      */
     requestEncryptedWithdrawalSync: (
-      parameters: zoneActions.requestEncryptedWithdrawalSync.Parameters<chain, account>,
+      parameters: zoneActions.requestEncryptedWithdrawalSync.Parameters<
+        chain,
+        account
+      >,
     ) => Promise<zoneActions.requestEncryptedWithdrawalSync.ReturnValue>
     /**
      * Signs and stores a zone authorization token.
