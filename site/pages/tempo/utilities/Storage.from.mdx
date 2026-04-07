@@ -1,0 +1,40 @@
+# `Storage.from`
+
+Wraps a base storage with a key prefix. All keys are automatically prefixed with `{key}:`.
+
+## Usage
+
+```ts twoslash
+import { Storage } from 'viem/tempo'
+
+const base = Storage.memory()
+const storage = Storage.from(base, { key: 'tempo' })
+
+await storage.setItem('foo', 'bar')
+
+// Stored under "tempo:foo" in the base storage.
+const value = await base.getItem('tempo:foo')
+// @log: 'bar'
+```
+
+## Parameters
+
+### storage
+
+- **Type:** `Storage`
+
+The base storage to wrap.
+
+### options.key (optional)
+
+- **Type:** `string`
+
+Key prefix prepended to all storage keys. If omitted, the base storage is returned as-is.
+
+## Return Type
+
+```ts
+type ReturnType = Storage
+```
+
+A `Storage` instance that prefixes all keys.

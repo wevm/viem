@@ -25,6 +25,7 @@ export * as Formatters from './Formatters.js'
 export * as Hardfork from './Hardfork.js'
 export * as P256 from './P256.js'
 export * as Secp256k1 from './Secp256k1.js'
+export * as Storage from './Storage.js'
 export * as TokenIds from './TokenIds.js'
 // Export types required for inference.
 export type {
