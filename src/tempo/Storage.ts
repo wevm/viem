@@ -87,18 +87,25 @@ export function session(options: from.Options = {}): Storage {
   )
 }
 
+let _default: Storage | undefined
+
 /**
  * Returns the default storage for the current environment.
+ *
+ * Returns a singleton so that the zone transport and actions share the
+ * same instance without requiring explicit plumbing.
  *
  * - Browser: `sessionStorage`
  * - Server/unsupported: in-memory `Map`-based storage
  */
-export function defaultStorage(options: from.Options = {}): Storage {
+export function defaultStorage(): Storage {
+  if (_default) return _default
   if (
     typeof globalThis !== 'undefined' &&
     'sessionStorage' in globalThis &&
     globalThis.sessionStorage
   )
-    return session(options)
-  return memory(options)
+    _default = session()
+  else _default = memory()
+  return _default
 }

@@ -9,14 +9,14 @@ import {
   type ZoneHttpConfig,
   http as zoneHttp,
 } from '../../../src/tempo/zones/transport.js'
-import { zone006 } from '../../../src/tempo/zones/zone006.js'
+import { zoneModerato } from '../../../src/tempo/zones/zone.js'
 import { debugOptions } from './config.js'
 
 const credentials = import.meta.env.VITE_TEMPO_CREDENTIALS
 
-export const chain = zone006
+export const chain = zoneModerato(7)
 
-export const rpcUrl = chain.rpcUrls.default.http[0]!
+export const rpcUrl = 'https://rpc-zone-006-private.tempoxyz.dev'
 
 export const http = (url = rpcUrl, config: ZoneHttpConfig = {}) =>
   zoneHttp(url, {
