@@ -3866,6 +3866,43 @@ export type Decorator<
       parameters: zoneActions.depositSync.Parameters<chain, account>,
     ) => Promise<zoneActions.depositSync.ReturnValue>
     /**
+     * Deposits tokens into a zone with encrypted recipient and memo.
+     *
+     * @example
+     * ```ts
+     * const hash = await client.zone.encryptedDeposit({
+     *   token: '0x20c0...0001',
+     *   amount: 1_000_000n,
+     *   zoneId: 7,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    encryptedDeposit: (
+      parameters: zoneActions.encryptedDeposit.Parameters<chain, account>,
+    ) => Promise<zoneActions.encryptedDeposit.ReturnValue>
+    /**
+     * Deposits tokens into a zone with encrypted recipient and memo and
+     * waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * const { receipt } = await client.zone.encryptedDepositSync({
+     *   token: '0x20c0...0001',
+     *   amount: 1_000_000n,
+     *   zoneId: 7,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt.
+     */
+    encryptedDepositSync: (
+      parameters: zoneActions.encryptedDepositSync.Parameters<chain, account>,
+    ) => Promise<zoneActions.encryptedDepositSync.ReturnValue>
+    /**
      * Returns the authenticated account address and authorization token expiry.
      *
      * @example
@@ -4010,6 +4047,42 @@ export type Decorator<
     requestWithdrawalSync: (
       parameters: zoneActions.requestWithdrawalSync.Parameters<chain, account>,
     ) => Promise<zoneActions.requestWithdrawalSync.ReturnValue>
+    /**
+     * Requests an encrypted withdrawal from a zone.
+     *
+     * @example
+     * ```ts
+     * const hash = await client.zone.requestEncryptedWithdrawal({
+     *   token: '0x20c0...0001',
+     *   amount: 1_000_000n,
+     *   revealTo: '0x02abc...def',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    requestEncryptedWithdrawal: (
+      parameters: zoneActions.requestEncryptedWithdrawal.Parameters<chain, account>,
+    ) => Promise<zoneActions.requestEncryptedWithdrawal.ReturnValue>
+    /**
+     * Requests an encrypted withdrawal and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * const { receipt } = await client.zone.requestEncryptedWithdrawalSync({
+     *   token: '0x20c0...0001',
+     *   amount: 1_000_000n,
+     *   revealTo: '0x02abc...def',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt.
+     */
+    requestEncryptedWithdrawalSync: (
+      parameters: zoneActions.requestEncryptedWithdrawalSync.Parameters<chain, account>,
+    ) => Promise<zoneActions.requestEncryptedWithdrawalSync.ReturnValue>
     /**
      * Signs and stores a zone authorization token.
      *
@@ -4286,6 +4359,10 @@ export function decorator() {
         deposit: (parameters) => zoneActions.deposit(client, parameters),
         depositSync: (parameters) =>
           zoneActions.depositSync(client, parameters),
+        encryptedDeposit: (parameters) =>
+          zoneActions.encryptedDeposit(client, parameters),
+        encryptedDepositSync: (parameters) =>
+          zoneActions.encryptedDepositSync(client, parameters),
         getAuthorizationTokenInfo: () =>
           zoneActions.getAuthorizationTokenInfo(client),
         getDepositStatus: (parameters) =>
@@ -4297,6 +4374,10 @@ export function decorator() {
           zoneActions.requestWithdrawal(client, parameters),
         requestWithdrawalSync: (parameters) =>
           zoneActions.requestWithdrawalSync(client, parameters),
+        requestEncryptedWithdrawal: (parameters) =>
+          zoneActions.requestEncryptedWithdrawal(client, parameters),
+        requestEncryptedWithdrawalSync: (parameters) =>
+          zoneActions.requestEncryptedWithdrawalSync(client, parameters),
         signAuthorizationToken: (parameters) =>
           zoneActions.signAuthorizationToken(client, parameters),
       },

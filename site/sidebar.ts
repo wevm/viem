@@ -2300,6 +2300,14 @@ export const sidebar = {
             collapsed: true,
             items: [
               {
+                text: 'deposit',
+                link: '/tempo/actions/zone.deposit',
+              },
+              {
+                text: 'encryptedDeposit',
+                link: '/tempo/actions/zone.encryptedDeposit',
+              },
+              {
                 text: 'getAuthorizationTokenInfo',
                 link: '/tempo/actions/zone.getAuthorizationTokenInfo',
               },
@@ -2308,8 +2316,20 @@ export const sidebar = {
                 link: '/tempo/actions/zone.getDepositStatus',
               },
               {
+                text: 'getWithdrawalFee',
+                link: '/tempo/actions/zone.getWithdrawalFee',
+              },
+              {
                 text: 'getZoneInfo',
                 link: '/tempo/actions/zone.getZoneInfo',
+              },
+              {
+                text: 'requestEncryptedWithdrawal',
+                link: '/tempo/actions/zone.requestEncryptedWithdrawal',
+              },
+              {
+                text: 'requestWithdrawal',
+                link: '/tempo/actions/zone.requestWithdrawal',
               },
               {
                 text: 'signAuthorizationToken',
