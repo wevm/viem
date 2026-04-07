@@ -1,8 +1,8 @@
 import { ZoneId } from 'ox/tempo'
+import { tempo } from '../../chains/definitions/tempo.js'
+import { tempoModerato } from '../../chains/definitions/tempoModerato.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 import { chainConfig } from '../chainConfig.js'
-import { tempoModerato } from '../../chains/definitions/tempoModerato.js'
-import { tempo } from '../../chains/definitions/tempo.js'
 
 export const portalAddresses = {
   [tempoModerato.id]: {
@@ -15,7 +15,9 @@ export function getPortalAddress(
   chainId: number,
   zoneId: number,
 ): `0x${string}` {
-  const address = (portalAddresses as Record<number, Record<number, `0x${string}`>>)[chainId]?.[zoneId]
+  const address = (
+    portalAddresses as Record<number, Record<number, `0x${string}`>>
+  )[chainId]?.[zoneId]
   if (!address)
     throw new Error(
       `No portal address configured for zone ${zoneId} on chain ${chainId}.`,
