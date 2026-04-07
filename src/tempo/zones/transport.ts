@@ -24,10 +24,10 @@ export type ZoneHttpConfig = Omit<
  * @example
  * ```ts
  * import { createPublicClient } from 'viem'
- * import { http, zone003 } from 'viem/tempo/zones'
+ * import { http, zone } from 'viem/tempo/zones' // or zoneModerato
  *
  * const client = createPublicClient({
- *   chain: zone003,
+ *   chain: zone(6),
  *   transport: http(),
  * })
  * ```

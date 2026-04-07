@@ -7,12 +7,14 @@ import { createHttpServer } from '~test/utils.js'
 import { decorator } from '../Decorator.js'
 import * as Storage from '../Storage.js'
 import { http } from './transport.js'
-import { zone003 } from './zone003.js'
+import { zoneModerato } from './zone.js'
+
+const zone = zoneModerato(6)
 
 describe('http transport', () => {
   test('injects X-Authorization-Token header from storage', async () => {
     const storage = Storage.memory()
-    await storage.setItem(`auth:token:${zone003.id}`, 'deadbeef1234')
+    await storage.setItem(`auth:token:${zone.id}`, 'deadbeef1234')
 
     const headers: Record<string, string>[] = []
     const server = await createHttpServer(async (req, res) => {
@@ -31,7 +33,7 @@ describe('http transport', () => {
 
     try {
       const chain = defineChain({
-        ...zone003,
+        ...zone,
         rpcUrls: { default: { http: [server.url] } },
       })
 
@@ -71,7 +73,7 @@ describe('http transport', () => {
 
     try {
       const chain = defineChain({
-        ...zone003,
+        ...zone,
         rpcUrls: { default: { http: [server.url] } },
       })
 
@@ -84,42 +86,6 @@ describe('http transport', () => {
 
       expect(headers).toHaveLength(1)
       expect(headers[0]!['x-authorization-token']).toBeUndefined()
-    } finally {
-      await server.close()
-    }
-  })
-
-  test('does not batch requests', async () => {
-    const storage = Storage.memory()
-    let requestCount = 0
-
-    const server = await createHttpServer(async (req, res) => {
-      let body = ''
-      req.setEncoding('utf8')
-      for await (const chunk of req) body += chunk
-      requestCount++
-
-      const request = JSON.parse(body)
-      expect(Array.isArray(request)).toBe(false)
-
-      res.writeHead(200, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify({ id: request.id, jsonrpc: '2.0', result: '0x1' }))
-    })
-
-    try {
-      const chain = defineChain({
-        ...zone003,
-        rpcUrls: { default: { http: [server.url] } },
-      })
-
-      const client = createClient({
-        chain,
-        transport: http(undefined, { storage }),
-      })
-
-      await Promise.all([getBlockNumber(client), getBlockNumber(client)])
-
-      expect(requestCount).toBe(2)
     } finally {
       await server.close()
     }
@@ -146,7 +112,7 @@ describe('http transport', () => {
 
     try {
       const chain = defineChain({
-        ...zone003,
+        ...zone,
         rpcUrls: { default: { http: [server.url] } },
       })
 

@@ -8,7 +8,6 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
-import { getChainContractAddress } from '../../utils/chain/getChainContractAddress.js'
 import type { GetAccountParameter } from '../internal/types.js'
 import * as Storage from '../Storage.js'
 
@@ -22,12 +21,12 @@ import * as Storage from '../Storage.js'
  * ```ts
  * import { createWalletClient } from 'viem'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { http, zone003 } from 'viem/tempo/zones'
+ * import { http, zone } from 'viem/tempo/zones' // or zoneModerato
  * import * as zones from 'viem/tempo/zones'
  *
  * const client = createWalletClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: zone003,
+ *   chain: zone(6),
  *   transport: http(),
  * })
  *
@@ -59,11 +58,6 @@ export async function signAuthorizationToken<
   const chain = parameters.chain ?? client.chain
   if (!chain) throw new Error('`signAuthorizationToken` requires a chain.')
 
-  const portalAddress = (() => {
-    if (parameters.portalAddress) return parameters.portalAddress
-    return getChainContractAddress({ chain, contract: 'zonePortal' })
-  })()
-
   const account_ = account ? parseAccount(account) : undefined
   if (!account_ || !account_.sign)
     throw new Error('`account` with `sign` is required.')
@@ -75,7 +69,6 @@ export async function signAuthorizationToken<
     expiresAt,
     issuedAt,
     zoneId: ZoneId.fromChainId(chain.id),
-    zonePortal: portalAddress,
   })
 
   const payload = ZoneRpcAuthentication.getSignPayload(authentication)
@@ -105,8 +98,6 @@ export namespace signAuthorizationToken {
     expiresAt?: number | undefined
     /** Token issue time as a unix timestamp (seconds). @default `Date.now() / 1000`. */
     issuedAt?: number | undefined
-    /** Zone portal contract address. @default `chain.contracts.zonePortal.address`. */
-    portalAddress?: Address | undefined
     /** Storage to persist the token. @default sessionStorage (web) or memory (server). */
     storage?: Storage.Storage | undefined
   }
@@ -125,11 +116,11 @@ export namespace signAuthorizationToken {
  * @example
  * ```ts
  * import { createPublicClient } from 'viem'
- * import { http, zone003 } from 'viem/tempo/zones'
+ * import { http, zone } from 'viem/tempo/zones' // or zoneModerato
  * import * as zones from 'viem/tempo/zones'
  *
  * const client = createPublicClient({
- *   chain: zone003,
+ *   chain: zone(6),
  *   transport: http(),
  * })
  *
@@ -180,11 +171,11 @@ export namespace getAuthorizationTokenInfo {
  * @example
  * ```ts
  * import { createPublicClient } from 'viem'
- * import { http, zone003 } from 'viem/tempo/zones'
+ * import { http, zone } from 'viem/tempo/zones' // or zoneModerato
  * import * as zones from 'viem/tempo/zones'
  *
  * const client = createPublicClient({
- *   chain: zone003,
+ *   chain: zone(6),
  *   transport: http(),
  * })
  *
@@ -239,11 +230,11 @@ export namespace getZoneInfo {
  * @example
  * ```ts
  * import { createPublicClient } from 'viem'
- * import { http, zone003 } from 'viem/tempo/zones'
+ * import { http, zone } from 'viem/tempo/zones' // or zoneModerato
  * import * as zones from 'viem/tempo/zones'
  *
  * const client = createPublicClient({
- *   chain: zone003,
+ *   chain: zone(6),
  *   transport: http(),
  * })
  *
