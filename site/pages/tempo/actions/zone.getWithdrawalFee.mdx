@@ -1,0 +1,49 @@
+# `zone.getWithdrawalFee`
+
+Returns the withdrawal fee.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './zones.config'
+
+const fee = await client.zone.getWithdrawalFee()
+
+console.log('Fee:', fee)
+// @log: Fee: 1000000n
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+### Custom Gas Limit
+
+```ts twoslash
+import { client } from './zones.config'
+
+const fee = await client.zone.getWithdrawalFee({
+  gas: 100_000n,
+})
+```
+
+## Return Type
+
+```ts
+type ReturnType = bigint
+```
+
+The withdrawal fee as a bigint.
+
+## Parameters
+
+### gas (optional)
+
+- **Type:** `bigint`
+- **Default:** `0n`
+
+Gas limit for the withdrawal callback on the parent chain.

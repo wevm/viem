@@ -1,3 +1,4 @@
+// TODO: configure to be compatible with localnet.
 import {
   type Address,
   type ClientConfig,
@@ -14,7 +15,7 @@ import { debugOptions } from './config.js'
 
 const credentials = import.meta.env.VITE_TEMPO_CREDENTIALS
 
-export const chain = zoneModerato(7)
+export const zone = zoneModerato(7)
 
 export const rpcUrl = 'https://rpc-zone-006-private.tempoxyz.dev'
 
@@ -38,14 +39,14 @@ export function getClient<
 >(
   parameters: Partial<
     Pick<
-      ClientConfig<Transport, typeof chain, accountOrAddress>,
+      ClientConfig<Transport, typeof zone, accountOrAddress>,
       'account' | 'chain' | 'transport'
     >
   > = {},
 ) {
   return createClient({
     pollingInterval: 100,
-    chain,
+    chain: zone,
     transport: http(),
     ...parameters,
   })
