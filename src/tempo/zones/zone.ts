@@ -2,11 +2,23 @@ import { ZoneId } from 'ox/tempo'
 import { defineChain } from '../../utils/chain/defineChain.js'
 import { chainConfig } from '../chainConfig.js'
 
-function from(options: {
-  sourceId: number
-  rpcHost: string
-  portalAddresses: Record<number, `0x${string}`>
-}) {
+export const zone = /*#__PURE__*/ from({
+  sourceId: 4217,
+  rpcHost: 'tempo.xyz',
+  portalAddresses: {},
+})
+
+export const zoneModerato = /*#__PURE__*/ from({
+  sourceId: 42431,
+  rpcHost: 'tempoxyz.dev',
+  portalAddresses: {
+    6: '0x7069DeC4E64Fd07334A0933eDe836C17259c9B23',
+    7: '0x3F5296303400B56271b476F5A0B9cBF74350D6Ac',
+  },
+})
+
+/** Creates a zone chain factory for a given Tempo network. */
+export function from(options: from.Options) {
   return (id: number) => {
     const portalAddress = options.portalAddresses[id]
     if (!portalAddress)
@@ -39,17 +51,14 @@ function from(options: {
   }
 }
 
-export const zone = from({
-  sourceId: 4217,
-  rpcHost: 'tempo.xyz',
-  portalAddresses: {},
-})
-
-export const zoneModerato = from({
-  sourceId: 42431,
-  rpcHost: 'tempoxyz.dev',
-  portalAddresses: {
-    6: '0x7069DeC4E64Fd07334A0933eDe836C17259c9B23',
-    7: '0x3F5296303400B56271b476F5A0B9cBF74350D6Ac',
-  },
-})
+declare namespace from {
+  type Options = {
+    /** Mapping of zone IDs to their ZonePortal contract addresses on the parent chain. */
+    // TODO: these addresses should ideally be derived from zone id via precompile address.
+    portalAddresses: Record<number, `0x${string}`>
+    /** RPC hostname used to construct zone RPC URLs (e.g. `tempo.xyz`). */
+    rpcHost: string
+    /** Chain ID of the parent Tempo chain (e.g. `4217` for mainnet, `42431` for moderato). */
+    sourceId: number
+  }
+}
