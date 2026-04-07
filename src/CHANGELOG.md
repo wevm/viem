@@ -1,5 +1,53 @@
 # viem
 
+## 2.47.10
+
+### Patch Changes
+
+- [#4443](https://github.com/wevm/viem/pull/4443) [`19dd6e54001a82f20ab13e42eacdbe61814e6e52`](https://github.com/wevm/viem/commit/19dd6e54001a82f20ab13e42eacdbe61814e6e52) Thanks [@TJ-Frederick](https://github.com/TJ-Frederick)! - Added Radius Network (chain ID 723487) and Radius Test Network (chain ID 72344) chain definitions.
+
+- [#4456](https://github.com/wevm/viem/pull/4456) [`7b2cca5ab72c56b4c1a18d9765f4f323ca6b162d`](https://github.com/wevm/viem/commit/7b2cca5ab72c56b4c1a18d9765f4f323ca6b162d) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Extracted `keyAuthorization` from `eth_fillTransaction` response in `prepareTransactionRequest`.
+
+- [#4457](https://github.com/wevm/viem/pull/4457) [`39d42e515f33f54102d56705cf25c51f8d8f4087`](https://github.com/wevm/viem/commit/39d42e515f33f54102d56705cf25c51f8d8f4087) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added hardfork-aware `getRemainingLimit` that uses `getRemainingLimitWithPeriod` on T3+ chains. Returns `{ remaining, periodEnd }` object.
+
+## 2.47.9
+
+### Patch Changes
+
+- [#4448](https://github.com/wevm/viem/pull/4448) [`3b1908405105bf9d2a08dd1943b4b3fad2cee38a`](https://github.com/wevm/viem/commit/3b1908405105bf9d2a08dd1943b4b3fad2cee38a) Thanks [@jxom](https://github.com/jxom)! - Fixed transaction type detection for secp256k1 access key accounts.
+
+- [#4450](https://github.com/wevm/viem/pull/4450) [`4555ee6329235335d4278a3f9f33af69091a1c79`](https://github.com/wevm/viem/commit/4555ee6329235335d4278a3f9f33af69091a1c79) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed gas estimation for access key transactions with a fee payer.
+
+## 2.47.8
+
+### Patch Changes
+
+- [#4432](https://github.com/wevm/viem/pull/4432) [`3aa680df95bda40adc9306749e0fd46b93cc6bde`](https://github.com/wevm/viem/commit/3aa680df95bda40adc9306749e0fd46b93cc6bde) Thanks [@jxom](https://github.com/jxom)! - **viem/tempo:** Added access key signature verification support to `verifyHash` via `mode: 'allowAccessKey'`.
+
+- [#4442](https://github.com/wevm/viem/pull/4442) [`0ece4d9d08f53c817b0401fdd39ac3abb59c05f2`](https://github.com/wevm/viem/commit/0ece4d9d08f53c817b0401fdd39ac3abb59c05f2) Thanks [@decofe](https://github.com/decofe)! - **viem/tempo:** Added TIP-1004 (EIP-2612) permit functions to the `tip20` ABI (`permit`, `nonces`, `DOMAIN_SEPARATOR`, `PermitExpired`, `InvalidSignature`).
+
+## 2.47.7
+
+### Patch Changes
+
+- [#4419](https://github.com/wevm/viem/pull/4419) [`4f77ac880ed81e104a68a530665b42661e0c1ebf`](https://github.com/wevm/viem/commit/4f77ac880ed81e104a68a530665b42661e0c1ebf) Thanks [@emdin](https://github.com/emdin)! - Added Igra Network chain.
+
+- [#4422](https://github.com/wevm/viem/pull/4422) [`3c950f70495df4a357b57b6c90ffb828f0a8a884`](https://github.com/wevm/viem/commit/3c950f70495df4a357b57b6c90ffb828f0a8a884) Thanks [@ryanRfox](https://github.com/ryanRfox)! - Added Mezo and Mezo Testnet chains.
+
+- [#4426](https://github.com/wevm/viem/pull/4426) [`63ab458812b15fe5d737de08356f8b4e635c6da3`](https://github.com/wevm/viem/commit/63ab458812b15fe5d737de08356f8b4e635c6da3) Thanks [@PatrickAlphaC](https://github.com/PatrickAlphaC)! - Added BattleChain Testnet
+
+- [#4423](https://github.com/wevm/viem/pull/4423) [`16f6ca238cd5e6d86b36dbb92098a180af6d8ef7`](https://github.com/wevm/viem/commit/16f6ca238cd5e6d86b36dbb92098a180af6d8ef7) Thanks [@pxrl](https://github.com/pxrl)! - Added basic OP definitions to MegaETH, fixed Blockscout defs.
+
+- [`621b0856e55e710c61bd0a2d57c125d559bd9ae4`](https://github.com/wevm/viem/commit/621b0856e55e710c61bd0a2d57c125d559bd9ae4) Thanks [@jxom](https://github.com/jxom)! - Propagated execution reverted errors (code 3) from `eth_fillTransaction` in `prepareTransactionRequest` instead of silently falling through.
+
+- [#4409](https://github.com/wevm/viem/pull/4409) [`25634335611498ecaead8435b1403e5f28d30fc1`](https://github.com/wevm/viem/commit/25634335611498ecaead8435b1403e5f28d30fc1) Thanks [@abs3ntdev](https://github.com/abs3ntdev)! - Added Gensyn Mainnet
+
+- [#4425](https://github.com/wevm/viem/pull/4425) [`ce08d9a4dc9ab986d5d9f6cfe380ae6ec1fec2d9`](https://github.com/wevm/viem/commit/ce08d9a4dc9ab986d5d9f6cfe380ae6ec1fec2d9) Thanks [@o-az](https://github.com/o-az)! - Removed Tempo Andantino network and updated references
+
+- [#4420](https://github.com/wevm/viem/pull/4420) [`c158236bd6e0d5c80881243d85a535723f61dd7e`](https://github.com/wevm/viem/commit/c158236bd6e0d5c80881243d85a535723f61dd7e) Thanks [@mycodecrafting](https://github.com/mycodecrafting)! - Added Eden chain.
+
+- [#4421](https://github.com/wevm/viem/pull/4421) [`26bf275307bf6e31430fa5283770f5caa4033aee`](https://github.com/wevm/viem/commit/26bf275307bf6e31430fa5283770f5caa4033aee) Thanks [@KirienzoEth](https://github.com/KirienzoEth)! - Add the multicall3 configuration to the Katana chain's config
+
 ## 2.47.6
 
 ### Patch Changes

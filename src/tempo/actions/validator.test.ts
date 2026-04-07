@@ -32,7 +32,7 @@ describe.runIf(nodeEnv === 'localnet')('add', () => {
     expect(receipt.status).toBe('success')
 
     const newCount = await actions.validator.getCount(client)
-    expect(newCount).toBe(initialCount + 1n)
+    expect(newCount).toBeGreaterThanOrEqual(initialCount + 1n)
 
     // Verify the validator was added
     const validator = await actions.validator.get(client, {

@@ -3,7 +3,7 @@ import { mainnet } from 'viem/chains'
 
 const client = createPublicClient({
   chain: mainnet,
-  transport: http(),
+  transport: http('https://ethereum-rpc.publicnode.com'),
 })
 
 const webSocketClient = createPublicClient({

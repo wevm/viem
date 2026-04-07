@@ -125,7 +125,7 @@ export type Decorator<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const remaining = await client.accessKey.getRemainingLimit({
+     * const { remaining, periodEnd } = await client.accessKey.getRemainingLimit({
      *   account: '0x...',
      *   accessKey: '0x...',
      *   token: '0x...',
@@ -133,7 +133,7 @@ export type Decorator<
      * ```
      *
      * @param parameters - Parameters.
-     * @returns The remaining spending amount.
+     * @returns The remaining spending amount and period end timestamp.
      */
     getRemainingLimit: (
       parameters: accessKeyActions.getRemainingLimit.Parameters<account>,

@@ -2,6 +2,7 @@ import type { AbiEvent } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
 import { anvilMainnet } from '~test/anvil.js'
+import type { NormalizeType } from '~test/typeUtils.js'
 
 import type { Hash, Hex } from '../../types/misc.js'
 import { getLogs } from './getLogs.js'
@@ -47,7 +48,7 @@ test('event: const assertion', async () => {
   expectTypeOf(logs[0].topics).toEqualTypeOf<
     [`0x${string}`, `0x${string}`, `0x${string}`]
   >()
-  expectTypeOf(logs[0].args).toEqualTypeOf<{
+  expectTypeOf<NormalizeType<(typeof logs)[number]['args']>>().toEqualTypeOf<{
     from?: `0x${string}`
     to?: `0x${string}`
     value?: bigint
@@ -94,7 +95,7 @@ test('event: defined inline', async () => {
   expectTypeOf(logs[0].topics).toEqualTypeOf<
     [`0x${string}`, `0x${string}`, `0x${string}`]
   >()
-  expectTypeOf(logs[0].args).toEqualTypeOf<{
+  expectTypeOf<NormalizeType<(typeof logs)[number]['args']>>().toEqualTypeOf<{
     from?: `0x${string}`
     to?: `0x${string}`
     value?: bigint

@@ -6,7 +6,7 @@
     "bench": "vitest bench",
     "bench:types": "TYPES=true vitest -c ./test/vitest.config.ts --project type-bench",
     "build": "pnpm clean && pnpm build:cjs && pnpm build:esm && pnpm build:types",
-    "build:cjs": "pnpm build:trustedSetups:start && tsc --project ./tsconfig.build.json --module commonjs --moduleResolution node --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./src/_cjs/package.json && pnpm build:trustedSetups:end",
+    "build:cjs": "pnpm build:trustedSetups:start && node scripts/runTsc.js --project ./tsconfig.build.json --module commonjs --moduleResolution node --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./src/_cjs/package.json && pnpm build:trustedSetups:end",
     "build:esm": "tsc --project ./tsconfig.build.json --outDir ./src/_esm && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./src/_esm/package.json",
     "build:trustedSetups:start": "mv src/node/trustedSetups.ts src/node/trustedSetups_esm.ts && mv src/node/trustedSetups_cjs.ts src/node/trustedSetups.ts",
     "build:trustedSetups:end": "mv src/node/trustedSetups.ts src/node/trustedSetups_cjs.ts && mv src/node/trustedSetups_esm.ts src/node/trustedSetups.ts",
@@ -188,7 +188,7 @@
     {
       "name": "import * from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "100 kB",
+      "limit": "105 kB",
       "import": "*"
     },
     {
@@ -200,7 +200,7 @@
     {
       "name": "import { tempoTestnet } from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "57 kB",
+      "limit": "63 kB",
       "import": "{ tempoTestnet }"
     },
     {
@@ -258,7 +258,7 @@
       "cross-spawn@>=7.0.0 <7.0.5": ">=7.0.5",
       "estree-util-value-to-estree@<3.3.3": "3.3.3",
       "express-rate-limit@>=8.2.0 <8.2.2": ">=8.2.2",
-      "fastify": ">=5.8.1",
+      "fastify": ">=5.8.3",
       "find-my-way@>=5.5.0 <8.2.2": "^8.2.2",
       "glob@>=10.3.7 <=11.0.3": ">=11.1.0",
       "hono": ">=4.12.7",
@@ -276,20 +276,27 @@
       "react-server-dom-webpack@>=19.2.0-canary-63779030-20250328 <19.2.4": "19.2.4",
       "rollup@>=4.0.0 <4.59.0": "4.59.0",
       "send@<0.19.0": "^0.19.0",
-      "serialize-javascript@<=7.0.2": "7.0.3",
+      "serialize-javascript@<7.0.5": "7.0.5",
       "serve-static@<1.16.0": "^1.16.0",
-      "smol-toml@<=1.3.0": "1.3.1",
+      "smol-toml@<1.6.1": "1.6.1",
       "tar": ">=7.5.10",
       "tar-fs@>=3.0.0 <3.1.1": ">=3.1.1",
       "undici@>=7.0.0 <7.24.0": "7.24.0",
-      "vite@>=6.0.0 <=6.4.0": "6.4.1",
+      "vite@>=6.0.0 <=6.4.1": "6.4.2",
+      "vite@>=7.0.0 <=7.3.1": "7.3.2",
       "webpack@>=5.49.0 <=5.104.0": "5.104.1",
       "ws@>=7.0.0 <7.5.10": "^7.5.10",
       "ws@>=8.0.0 <8.17.1": "^8.17.1",
       "yauzl@<3.2.1": "3.2.1",
       "next@>=16.0.1 <16.1.7": "16.1.7",
       "next@>=16.0.0-beta.0 <16.1.7": "16.1.7",
-      "next@>=10.0.0 <16.1.7": "16.1.7"
+      "next@>=10.0.0 <16.1.7": "16.1.7",
+      "path-to-regexp@>=8.0.0 <8.4.0": "8.4.0",
+      "picomatch@<2.3.2": "2.3.2",
+      "picomatch@>=4.0.0 <4.0.4": "4.0.4",
+      "srvx@<0.11.13": "0.11.13",
+      "brace-expansion@>=4.0.0 <5.0.5": "5.0.5",
+      "yaml@>=2.0.0 <2.8.3": "2.8.3"
     },
     "onlyBuiltDependencies": [
       "bun",

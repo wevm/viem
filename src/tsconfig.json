@@ -5,6 +5,6 @@
   "compilerOptions": {
     "composite": true,
     "noEmit": true,
-    "baseUrl": ".",
+    "types": ["node"]
   }
 }

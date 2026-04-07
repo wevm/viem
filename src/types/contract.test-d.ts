@@ -6,6 +6,7 @@ import {
 } from 'abitype'
 import type { seaportAbi } from 'abitype/abis'
 import { expectTypeOf, test } from 'vitest'
+import type { NormalizeType } from '~test/typeUtils.js'
 
 import type {
   AbiEventParametersToPrimitiveTypes,
@@ -213,22 +214,28 @@ test('GetEventArgs', () => {
     ],
     'Transfer'
   >
-  expectTypeOf<Result>().toEqualTypeOf<{
-    from?: `0x${string}` | `0x${string}`[] | null | undefined
-    to?: `0x${string}` | `0x${string}`[] | null | undefined
-  }>()
+  expectTypeOf<Result['from']>().toEqualTypeOf<
+    `0x${string}` | `0x${string}`[] | null | undefined
+  >()
+  expectTypeOf<Result['to']>().toEqualTypeOf<
+    `0x${string}` | `0x${string}`[] | null | undefined
+  >()
 })
 
 test('GetValue', () => {
   // payable
   type Result = GetValue<typeof seaportAbi, 'fulfillAdvancedOrder'>
-  expectTypeOf<Result>().toEqualTypeOf<{ value?: bigint }>()
+  expectTypeOf<NormalizeType<Result>>().toEqualTypeOf<{ value?: bigint }>()
 
   // other
-  expectTypeOf<GetValue<typeof seaportAbi, 'getOrderStatus'>>().toEqualTypeOf<{
+  expectTypeOf<
+    NormalizeType<GetValue<typeof seaportAbi, 'getOrderStatus'>>
+  >().toEqualTypeOf<{
     value?: never
   }>()
-  expectTypeOf<GetValue<typeof seaportAbi, 'cancel'>>().toEqualTypeOf<{
+  expectTypeOf<
+    NormalizeType<GetValue<typeof seaportAbi, 'cancel'>>
+  >().toEqualTypeOf<{
     value?: never
   }>()
 
@@ -347,7 +354,7 @@ test('AbiEventParametersToPrimitiveTypes', () => {
       Required: false
     }
   >
-  expectTypeOf<Named_DisableUnion>().toEqualTypeOf<{
+  expectTypeOf<NormalizeType<Named_DisableUnion>>().toEqualTypeOf<{
     foo?: string
     bar?: number
   }>()
