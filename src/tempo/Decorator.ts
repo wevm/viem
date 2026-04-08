@@ -10,6 +10,7 @@ import * as feeActions from './actions/fee.js'
 import * as nonceActions from './actions/nonce.js'
 import * as policyActions from './actions/policy.js'
 import * as rewardActions from './actions/reward.js'
+import * as simulateActions from './actions/simulate.js'
 import * as tokenActions from './actions/token.js'
 import * as validatorActions from './actions/validator.js'
 
@@ -17,6 +18,44 @@ export type Decorator<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
 > = {
+  /**
+   * Simulates a set of calls with TIP-20 token metadata enrichment.
+   *
+   * Uses `tempo_simulateV1` which extends `eth_simulateV1` by returning
+   * TIP-20 token metadata (name, symbol, decimals, currency) for all
+   * tokens involved in Transfer events — one roundtrip instead of two.
+   *
+   * @example
+   * ```ts
+   * import { createClient, http } from 'viem'
+   * import { tempo } from 'viem/chains'
+   * import { tempoActions } from 'viem/tempo'
+   *
+   * const client = createClient({
+   *   chain: tempo(),
+   *   transport: http(),
+   * }).extend(tempoActions())
+   *
+   * const result = await client.simulateBlocks({
+   *   blocks: [{
+   *     calls: [{
+   *       to: '0x20c0000000000000000000000000000000000001',
+   *       data: '0x...',
+   *     }],
+   *   }],
+   *   traceTransfers: true,
+   * })
+   *
+   * result.tokenMetadata
+   * // => { '0x20c0...': { name: 'Path USD', symbol: 'pUSD', decimals: 6, currency: 'USD' } }
+   * ```
+   *
+   * @param parameters - Parameters.
+   * @returns Simulated blocks with token metadata.
+   */
+  simulateBlocks: <const calls extends readonly unknown[]>(
+    parameters: simulateActions.simulateBlocks.Parameters<calls>,
+  ) => Promise<simulateActions.simulateBlocks.ReturnType<calls>>
   accessKey: {
     /**
      * Authorizes an access key by signing a key authorization and sending a transaction.
@@ -3729,6 +3768,8 @@ export function decorator() {
     client: Client<transport, chain, account>,
   ): Decorator<chain, account> => {
     return {
+      simulateBlocks: (parameters) =>
+        simulateActions.simulateBlocks(client, parameters),
       accessKey: {
         authorize: (parameters) =>
           accessKeyActions.authorize(client, parameters),
