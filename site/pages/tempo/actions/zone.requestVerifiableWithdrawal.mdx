@@ -1,6 +1,6 @@
 import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
-# `zone.requestEncryptedWithdrawal`
+# `zone.requestVerifiableWithdrawal`
 
 Requests an encrypted withdrawal from a zone to the parent Tempo chain. The zone sequencer encrypts the sender's identity for the provided `revealTo` public key.
 
@@ -18,7 +18,7 @@ import { client } from './zones.config'
 const { privateKey, publicKey } = Secp256k1.createKeyPair()
 const revealTo = PublicKey.toHex(PublicKey.compress(publicKey))
 
-const { receipt } = await client.zone.requestEncryptedWithdrawalSync({
+const { receipt } = await client.zone.requestVerifiableWithdrawalSync({
   amount: parseUnits('100', 6),
   token: '0x20c0000000000000000000000000000000000001',
   revealTo,
@@ -37,7 +37,7 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 The example above uses a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
 
-If you are optimizing for performance, you should use the non-sync `zone.requestEncryptedWithdrawal` action and wait for inclusion manually:
+If you are optimizing for performance, you should use the non-sync `zone.requestVerifiableWithdrawal` action and wait for inclusion manually:
 
 ```ts twoslash
 import { PublicKey, Secp256k1 } from 'ox'
@@ -47,7 +47,7 @@ import { client } from './zones.config'
 const { privateKey, publicKey } = Secp256k1.createKeyPair()
 const revealTo = PublicKey.toHex(PublicKey.compress(publicKey))
 
-const hash = await client.zone.requestEncryptedWithdrawal({
+const hash = await client.zone.requestVerifiableWithdrawal({
   amount: parseUnits('100', 6),
   token: '0x20c0000000000000000000000000000000000001',
   revealTo,

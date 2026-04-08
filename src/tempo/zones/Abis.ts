@@ -69,7 +69,7 @@ export const zoneOutbox = [
     outputs: [],
   },
   {
-    name: 'requestEncryptedWithdrawal',
+    name: 'requestVerifiableWithdrawal',
     type: 'function',
     stateMutability: 'nonpayable',
     inputs: [
