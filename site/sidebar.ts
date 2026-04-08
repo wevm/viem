@@ -2310,8 +2310,8 @@ export const sidebar = {
                 link: '/tempo/actions/zone.getZoneInfo',
               },
               {
-                text: 'requestEncryptedWithdrawal',
-                link: '/tempo/actions/zone.requestEncryptedWithdrawal',
+                text: 'requestVerifiableWithdrawal',
+                link: '/tempo/actions/zone.requestVerifiableWithdrawal',
               },
               {
                 text: 'requestWithdrawal',

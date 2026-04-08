@@ -3966,7 +3966,7 @@ export type Decorator<
      *
      * @example
      * ```ts
-     * const hash = await client.zone.requestEncryptedWithdrawal({
+     * const hash = await client.zone.requestVerifiableWithdrawal({
      *   token: '0x20c0...0001',
      *   amount: 1_000_000n,
      *   revealTo: '0x02abc...def',
@@ -3976,18 +3976,18 @@ export type Decorator<
      * @param parameters - Parameters.
      * @returns The transaction hash.
      */
-    requestEncryptedWithdrawal: (
-      parameters: zoneActions.requestEncryptedWithdrawal.Parameters<
+    requestVerifiableWithdrawal: (
+      parameters: zoneActions.requestVerifiableWithdrawal.Parameters<
         chain,
         account
       >,
-    ) => Promise<zoneActions.requestEncryptedWithdrawal.ReturnValue>
+    ) => Promise<zoneActions.requestVerifiableWithdrawal.ReturnValue>
     /**
      * Requests an encrypted withdrawal and waits for the transaction receipt.
      *
      * @example
      * ```ts
-     * const { receipt } = await client.zone.requestEncryptedWithdrawalSync({
+     * const { receipt } = await client.zone.requestVerifiableWithdrawalSync({
      *   token: '0x20c0...0001',
      *   amount: 1_000_000n,
      *   revealTo: '0x02abc...def',
@@ -3997,12 +3997,12 @@ export type Decorator<
      * @param parameters - Parameters.
      * @returns The transaction receipt.
      */
-    requestEncryptedWithdrawalSync: (
-      parameters: zoneActions.requestEncryptedWithdrawalSync.Parameters<
+    requestVerifiableWithdrawalSync: (
+      parameters: zoneActions.requestVerifiableWithdrawalSync.Parameters<
         chain,
         account
       >,
-    ) => Promise<zoneActions.requestEncryptedWithdrawalSync.ReturnValue>
+    ) => Promise<zoneActions.requestVerifiableWithdrawalSync.ReturnValue>
     /**
      * Signs and stores a zone authorization token.
      *
@@ -4288,10 +4288,10 @@ export function decorator() {
           zoneActions.requestWithdrawal(client, parameters),
         requestWithdrawalSync: (parameters) =>
           zoneActions.requestWithdrawalSync(client, parameters),
-        requestEncryptedWithdrawal: (parameters) =>
-          zoneActions.requestEncryptedWithdrawal(client, parameters),
-        requestEncryptedWithdrawalSync: (parameters) =>
-          zoneActions.requestEncryptedWithdrawalSync(client, parameters),
+        requestVerifiableWithdrawal: (parameters) =>
+          zoneActions.requestVerifiableWithdrawal(client, parameters),
+        requestVerifiableWithdrawalSync: (parameters) =>
+          zoneActions.requestVerifiableWithdrawalSync(client, parameters),
         signAuthorizationToken: (parameters) =>
           zoneActions.signAuthorizationToken(client, parameters),
       },

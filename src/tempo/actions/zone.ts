@@ -966,7 +966,7 @@ export namespace requestWithdrawalSync {
  *   transport: http(),
  * })
  *
- * const hash = await Actions.zone.requestEncryptedWithdrawal(client, {
+ * const hash = await Actions.zone.requestVerifiableWithdrawal(client, {
  *   token: '0x20c0...0001',
  *   amount: 1_000_000n,
  *   revealTo: '0x02abc...def',
@@ -977,13 +977,13 @@ export namespace requestWithdrawalSync {
  * @param parameters - Encrypted withdrawal parameters.
  * @returns The transaction hash.
  */
-export async function requestEncryptedWithdrawal<
+export async function requestVerifiableWithdrawal<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: requestEncryptedWithdrawal.Parameters<chain, account>,
-): Promise<requestEncryptedWithdrawal.ReturnValue> {
+  parameters: requestVerifiableWithdrawal.Parameters<chain, account>,
+): Promise<requestVerifiableWithdrawal.ReturnValue> {
   const { account = client.account, ...rest } = parameters
 
   const account_ = account ? parseAccount(account) : undefined
@@ -995,11 +995,11 @@ export async function requestEncryptedWithdrawal<
   const args = { ...parameters, to }
   return sendTransaction(client, {
     ...rest,
-    calls: requestEncryptedWithdrawal.calls(args),
+    calls: requestVerifiableWithdrawal.calls(args),
   } as never) as never
 }
 
-export namespace requestEncryptedWithdrawal {
+export namespace requestVerifiableWithdrawal {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -1046,7 +1046,7 @@ export namespace requestEncryptedWithdrawal {
       defineCall({
         address: Addresses.zoneOutbox,
         abi: ZoneAbis.zoneOutbox,
-        functionName: 'requestEncryptedWithdrawal',
+        functionName: 'requestVerifiableWithdrawal',
         args: [
           TokenId.toAddress(token),
           to,
@@ -1079,7 +1079,7 @@ export namespace requestEncryptedWithdrawal {
  *   transport: http(),
  * })
  *
- * const result = await Actions.zone.requestEncryptedWithdrawalSync(client, {
+ * const result = await Actions.zone.requestVerifiableWithdrawalSync(client, {
  *   token: '0x20c0...0001',
  *   amount: 1_000_000n,
  *   revealTo: '0x02abc...def',
@@ -1090,13 +1090,13 @@ export namespace requestEncryptedWithdrawal {
  * @param parameters - Encrypted withdrawal parameters.
  * @returns The transaction receipt.
  */
-export async function requestEncryptedWithdrawalSync<
+export async function requestVerifiableWithdrawalSync<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: requestEncryptedWithdrawalSync.Parameters<chain, account>,
-): Promise<requestEncryptedWithdrawalSync.ReturnValue> {
+  parameters: requestVerifiableWithdrawalSync.Parameters<chain, account>,
+): Promise<requestVerifiableWithdrawalSync.ReturnValue> {
   const {
     account = client.account,
     throwOnReceiptRevert = true,
@@ -1112,19 +1112,19 @@ export async function requestEncryptedWithdrawalSync<
   const args = { ...parameters, to }
   const receipt = await sendTransactionSync(client, {
     ...rest,
-    calls: requestEncryptedWithdrawal.calls(args),
+    calls: requestVerifiableWithdrawal.calls(args),
     throwOnReceiptRevert,
   } as never)
   return { receipt }
 }
 
-export namespace requestEncryptedWithdrawalSync {
+export namespace requestVerifiableWithdrawalSync {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = requestEncryptedWithdrawal.Parameters<chain, account>
+  > = requestVerifiableWithdrawal.Parameters<chain, account>
 
-  export type Args = requestEncryptedWithdrawal.Args
+  export type Args = requestVerifiableWithdrawal.Args
 
   export type ReturnValue = Compute<{
     /** Transaction receipt. */
