@@ -12,7 +12,6 @@ export type {
 // biome-ignore lint/performance/noBarrelFile: _
 export { Period, TempoAddress, Tick, TokenId } from 'ox/tempo'
 export * as Abis from './Abis.js'
-export * as Expiry from './Expiry.js'
 export * as Account from './Account.js'
 export * as Addresses from './Addresses.js'
 export * as Actions from './actions/index.js'
@@ -21,6 +20,7 @@ export {
   type Decorator as TempoActions,
   decorator as tempoActions,
 } from './Decorator.js'
+export * as Expiry from './Expiry.js'
 export * as Formatters from './Formatters.js'
 export * as Hardfork from './Hardfork.js'
 export * as P256 from './P256.js'

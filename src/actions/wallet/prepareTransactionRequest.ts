@@ -421,6 +421,11 @@ export async function prepareTransactionRequest<
             !('keyAuthorization' in request)
               ? { keyAuthorization: rest.keyAuthorization }
               : {}),
+            ...('feePayerSignature' in rest &&
+            typeof rest.feePayerSignature !== 'undefined' &&
+            rest.feePayerSignature !== null
+              ? { feePayerSignature: rest.feePayerSignature }
+              : {}),
           }
         })
         .catch((e) => {
