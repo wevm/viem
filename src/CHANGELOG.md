@@ -1,5 +1,15 @@
 # viem
 
+## 2.47.11
+
+### Patch Changes
+
+- [#4440](https://github.com/wevm/viem/pull/4440) [`75ae99e2654043d927ac7e20d630fc93932fce9c`](https://github.com/wevm/viem/commit/75ae99e2654043d927ac7e20d630fc93932fce9c) Thanks [@luanxu-dev](https://github.com/luanxu-dev)! - Fixed `shouldRetry` to handle RPC code 429 in batch mode, where some providers (e.g. Alchemy) return HTTP 200 with a JSON-RPC body of `{ code: 429 }` instead of an HTTP 429.
+
+- [#4407](https://github.com/wevm/viem/pull/4407) [`fa6edb93203fbd108aba1f4cbbfc47f29bec8253`](https://github.com/wevm/viem/commit/fa6edb93203fbd108aba1f4cbbfc47f29bec8253) Thanks [@d1r1](https://github.com/d1r1)! - Added Fluent Mainnet chain.
+
+- [#4474](https://github.com/wevm/viem/pull/4474) [`51ee597f6e01ddcd98feb1e9663d5be97e3db4ea`](https://github.com/wevm/viem/commit/51ee597f6e01ddcd98feb1e9663d5be97e3db4ea) Thanks [@jxom](https://github.com/jxom)! - **viem/tempo:** Added `scopes` and `limits.period` to access key authorizations for contract call scoping and periodic spending limits (TIP-1011).
+
 ## 2.47.10
 
 ### Patch Changes
