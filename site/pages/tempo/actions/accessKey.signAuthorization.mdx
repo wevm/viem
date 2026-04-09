@@ -79,6 +79,12 @@ Unix timestamp when the key expires.
 
 ### limits (optional)
 
-- **Type:** `{ token: Address; limit: bigint }[]`
+- **Type:** `{ token: Address; limit: bigint; period?: number }[]`
 
-Spending limits per token.
+Spending limits per token. Optionally include `period` (in seconds) to make the limit periodic — it resets after each period.
+
+### scopes (optional)
+
+- **Type:** `{ contractAddress: Address; selector?: Hex; recipients?: Address[] }[]`
+
+Call scopes restricting which contracts/selectors this key can call.

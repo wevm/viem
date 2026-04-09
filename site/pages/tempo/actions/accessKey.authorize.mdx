@@ -95,6 +95,64 @@ const { receipt } = await client.accessKey.authorizeSync({
 })
 ```
 
+### With Periodic Spending Limits
+
+Use the `period` field on limits to set a recurring spending cap that resets after the given number of seconds:
+
+```ts twoslash
+import { generatePrivateKey } from 'viem/accounts'
+import { Account } from 'viem/tempo'
+import { Period } from 'ox/tempo'
+import { Value } from 'ox'
+import { client } from './viem.config'
+
+const account = Account.from({ privateKey: '0x...' })
+const accessKey = Account.fromP256(generatePrivateKey(), {
+  access: account,
+})
+
+const { receipt } = await client.accessKey.authorizeSync({
+  accessKey,
+  limits: [ // [!code focus]
+    { // [!code focus]
+      token: '0x20c0000000000000000000000000000000000001', // [!code focus]
+      limit: Value.from('1000', 6), // [!code focus]
+      period: Period.months(1), // resets every month // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+})
+```
+
+### With Call Scopes
+
+Use `scopes` to restrict which contracts and functions the access key can call:
+
+```ts twoslash
+import { generatePrivateKey } from 'viem/accounts'
+import { Account } from 'viem/tempo'
+import { Value } from 'ox'
+import { client } from './viem.config'
+
+const account = Account.from({ privateKey: '0x...' })
+const accessKey = Account.fromP256(generatePrivateKey(), {
+  access: account,
+})
+
+const { receipt } = await client.accessKey.authorizeSync({
+  accessKey,
+  limits: [ // [!code focus]
+    { token: '0x20c0000000000000000000000000000000000001', limit: Value.from('10000', 6) }, // [!code focus]
+  ], // [!code focus]
+  scopes: [ // [!code focus]
+    { // [!code focus]
+      contractAddress: '0x20c0000000000000000000000000000000000001', // [!code focus]
+      selector: '0xa9059cbb', // transfer(address,uint256) // [!code focus]
+      recipients: ['0xcafebabecafebabecafebabecafebabecafebabe'], // optional // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+})
+```
+
 ### Asynchronous Usage
 
 The example above uses a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
@@ -154,8 +212,14 @@ Unix timestamp when the key expires.
 
 ### limits (optional)
 
-- **Type:** `{ token: Address; limit: bigint }[]`
+- **Type:** `{ token: Address; limit: bigint; period?: number }[]`
 
-Spending limits per token.
+Spending limits per token. Optionally include `period` (in seconds) to make the limit periodic — it resets after each period. Use `Period.months(1)`, `Period.seconds(n)`, etc. from `ox/tempo` for convenience.
+
+### scopes (optional)
+
+- **Type:** `{ contractAddress: Address; selector?: Hex; recipients?: Address[] }[]`
+
+Call scopes restricting which contracts/selectors this key can call. Each scope entry specifies a contract address, an optional 4-byte function selector, and optional recipient addresses (for transfer-like functions). If `scopes` is set to `[]` (empty array), the key cannot make any calls.
 
 <WriteParameters />
