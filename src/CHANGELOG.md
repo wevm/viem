@@ -1,5 +1,11 @@
 # viem
 
+## 2.47.12
+
+### Patch Changes
+
+- [`ee5e2575faa5489c0f8316b07f342fc1dff1ec96`](https://github.com/wevm/viem/commit/ee5e2575faa5489c0f8316b07f342fc1dff1ec96) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added `Expiry` module for generating unix timestamp expiries (e.g. `Expiry.hours(1)`, `Expiry.days(30)`).
+
 ## 2.47.11
 
 ### Patch Changes
