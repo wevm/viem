@@ -34,6 +34,70 @@ const keyAuthorization = await Actions.accessKey.signAuthorization(
 
 :::
 
+### With Periodic Spending Limits
+
+Use the `period` field on limits to set a recurring spending cap that resets after the given number of seconds:
+
+```ts twoslash
+import { parseUnits } from 'viem'
+import { generatePrivateKey } from 'viem/accounts'
+import { Account, Actions, Period } from 'viem/tempo'
+
+const account = Account.from({ privateKey: '0x...' })
+const accessKey = Account.fromP256(generatePrivateKey(), {
+  access: account,
+})
+
+const keyAuthorization = await Actions.accessKey.signAuthorization(
+  account,
+  {
+    accessKey,
+    limits: [ // [!code focus]
+      { // [!code focus]
+        token: '0x20c0000000000000000000000000000000000001', // [!code focus]
+        limit: parseUnits('1000', 6), // [!code focus]
+        period: Period.months(1), // resets every month // [!code focus]
+      }, // [!code focus]
+    ], // [!code focus]
+  },
+)
+```
+
+### With Call Scopes
+
+Use `scopes` to restrict which contracts and functions the access key can call:
+
+```ts twoslash
+import { parseUnits } from 'viem'
+import { generatePrivateKey } from 'viem/accounts'
+import { Account, Actions } from 'viem/tempo'
+
+const account = Account.from({ privateKey: '0x...' })
+const accessKey = Account.fromP256(generatePrivateKey(), {
+  access: account,
+})
+
+const keyAuthorization = await Actions.accessKey.signAuthorization(
+  account,
+  {
+    accessKey,
+    limits: [ // [!code focus]
+      { // [!code focus]
+        token: '0x20c0000000000000000000000000000000000001', // [!code focus]
+        limit: parseUnits('10000', 6), // [!code focus]
+      }, // [!code focus]
+    ], // [!code focus]
+    scopes: [ // [!code focus]
+      { // [!code focus]
+        address: '0x20c0000000000000000000000000000000000001', // [!code focus]
+        selector: 'transfer(address,uint256)', // or "0xa9059cbb" // [!code focus]
+        recipients: ['0xcafebabecafebabecafebabecafebabecafebabe'], // optional // [!code focus]
+      }, // [!code focus]
+    ], // [!code focus]
+  },
+)
+```
+
 ### Submitting the Authorization
 
 The signed `keyAuthorization` can be attached to any write action.

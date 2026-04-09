@@ -100,10 +100,9 @@ const { receipt } = await client.accessKey.authorizeSync({
 Use the `period` field on limits to set a recurring spending cap that resets after the given number of seconds:
 
 ```ts twoslash
+import { parseUnits } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
-import { Account } from 'viem/tempo'
-import { Period } from 'ox/tempo'
-import { Value } from 'ox'
+import { Account, Period } from 'viem/tempo'
 import { client } from './viem.config'
 
 const account = Account.from({ privateKey: '0x...' })
@@ -116,7 +115,7 @@ const { receipt } = await client.accessKey.authorizeSync({
   limits: [ // [!code focus]
     { // [!code focus]
       token: '0x20c0000000000000000000000000000000000001', // [!code focus]
-      limit: Value.from('1000', 6), // [!code focus]
+      limit: parseUnits('1000', 6), // [!code focus]
       period: Period.months(1), // resets every month // [!code focus]
     }, // [!code focus]
   ], // [!code focus]
@@ -128,9 +127,9 @@ const { receipt } = await client.accessKey.authorizeSync({
 Use `scopes` to restrict which contracts and functions the access key can call:
 
 ```ts twoslash
+import { parseUnits } from 'viem'
 import { generatePrivateKey } from 'viem/accounts'
 import { Account } from 'viem/tempo'
-import { Value } from 'ox'
 import { client } from './viem.config'
 
 const account = Account.from({ privateKey: '0x...' })
@@ -141,7 +140,10 @@ const accessKey = Account.fromP256(generatePrivateKey(), {
 const { receipt } = await client.accessKey.authorizeSync({
   accessKey,
   limits: [ // [!code focus]
-    { token: '0x20c0000000000000000000000000000000000001', limit: Value.from('10000', 6) }, // [!code focus]
+    { // [!code focus]
+      token: '0x20c0000000000000000000000000000000000001', // [!code focus]
+      limit: parseUnits('10000', 6), // [!code focus]
+    }, // [!code focus]
   ], // [!code focus]
   scopes: [ // [!code focus]
     { // [!code focus]
