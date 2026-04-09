@@ -1,5 +1,5 @@
-import { generatePrivateKey } from 'viem/accounts'
 import { Period } from 'ox/tempo'
+import { generatePrivateKey } from 'viem/accounts'
 import { Account } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
@@ -15,7 +15,11 @@ const client = getClient({
 async function setupAccessKey(
   parameters: {
     limits?: { token: `0x${string}`; limit: bigint; period?: number }[]
-    scopes?: { contractAddress: `0x${string}`; selector?: `0x${string}`; recipients?: `0x${string}`[] }[]
+    scopes?: {
+      contractAddress: `0x${string}`
+      selector?: `0x${string}`
+      recipients?: `0x${string}`[]
+    }[]
   } = {},
 ) {
   const { limits, scopes } = parameters
@@ -151,9 +155,7 @@ describe('signAuthorization', () => {
       account,
       accessKey,
       expiry: Math.floor((Date.now() + 30_000) / 1000),
-      scopes: [
-        { contractAddress: feeToken, selector: '0xa9059cbb' },
-      ],
+      scopes: [{ contractAddress: feeToken, selector: '0xa9059cbb' }],
     })
 
     expect(keyAuthorization).toBeDefined()
@@ -172,9 +174,7 @@ describe('signAuthorization', () => {
       accessKey,
       expiry: Math.floor((Date.now() + 30_000) / 1000),
       limits: [{ token: feeToken, limit: 500000n, period: Period.hours(1) }],
-      scopes: [
-        { contractAddress: feeToken },
-      ],
+      scopes: [{ contractAddress: feeToken }],
     })
 
     expect(keyAuthorization).toBeDefined()

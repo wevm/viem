@@ -1796,119 +1796,128 @@ describe('relay', () => {
   })
 })
 
-// TODO: remove skipIf once T3 is deployed to testnet
-describe.skipIf(nodeEnv === 'testnet')('accessKeys: periodic spending limits', () => {
-  test('behavior: access key with periodic spending limit', async () => {
-    const account = accounts[0]
-    const accessKey = Account.fromP256(generatePrivateKey(), {
-      access: account,
-    })
-
-    const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
-      account,
-      accessKey,
-      limits: feeTokenLimits(Value.from('10000', 6), Period.months(1)),
-    })
-
-    // Provision key + transfer in same tx (access key signs, root sends)
-    const { receipt } = await Actions.token.transferSync(client, {
-      account: accessKey,
-      feeToken,
-      keyAuthorization,
-      amount: 100n,
-      token: feeToken,
-      to: '0x0000000000000000000000000000000000000001',
-    })
-    expect(receipt.status).toBe('success')
-  })
-
-  test('behavior: reverts transfer exceeding periodic spending limit', async () => {
-    const account = accounts[0]
-    const accessKey = Account.fromP256(generatePrivateKey(), {
-      access: account,
-    })
-
-    const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
-      account,
-      accessKey,
-      limits: feeTokenLimits(Value.from('5', 6), Period.months(1)),
-    })
-
-    // Provision key + try to transfer 10 (exceeds 5 limit) — should throw.
-    await expect(
-      Actions.token.transferSync(client, {
-        account: accessKey,
-        keyAuthorization,
-        amount: Value.from('10', 6),
-        token: feeToken,
-        to: '0x0000000000000000000000000000000000000001',
-      }),
-    ).rejects.toThrow()
-  })
-
-  test(
-    'behavior: periodic spending limit resets after period',
-    { timeout: 20_000 },
-    async () => {
+// TODO: remove skipIf once T3 is deployed to testnet/devnet
+describe.skipIf(nodeEnv === 'testnet' || nodeEnv === 'devnet')(
+  'accessKeys: periodic spending limits',
+  () => {
+    test('behavior: access key with periodic spending limit', async () => {
       const account = accounts[0]
       const accessKey = Account.fromP256(generatePrivateKey(), {
         access: account,
       })
 
-      // Authorize with periodic limit that resets every 5 seconds
       const keyAuthorization = await Actions.accessKey.signAuthorization(
         client,
         {
           account,
           accessKey,
-          limits: feeTokenLimits(Value.from('5', 6), Period.seconds(5)),
+          limits: feeTokenLimits(Value.from('10000', 6), Period.months(1)),
         },
       )
 
-      // Provision key + transfer 4 (within 5 limit)
-      {
-        const { receipt } = await Actions.token.transferSync(client, {
-          account: accessKey,
-          feeToken,
-          keyAuthorization,
-          amount: Value.from('4', 6),
-          token: feeToken,
-          to: '0x0000000000000000000000000000000000000001',
-        })
-        expect(receipt.status).toBe('success')
-      }
+      // Provision key + transfer in same tx (access key signs, root sends)
+      const { receipt } = await Actions.token.transferSync(client, {
+        account: accessKey,
+        feeToken,
+        keyAuthorization,
+        amount: 100n,
+        token: feeToken,
+        to: '0x0000000000000000000000000000000000000001',
+      })
+      expect(receipt.status).toBe('success')
+    })
 
-      // Immediately try another 4 (total 8 > limit 5 — should throw).
+    test('behavior: reverts transfer exceeding periodic spending limit', async () => {
+      const account = accounts[0]
+      const accessKey = Account.fromP256(generatePrivateKey(), {
+        access: account,
+      })
+
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          limits: feeTokenLimits(Value.from('5', 6), Period.months(1)),
+        },
+      )
+
+      // Provision key + try to transfer 10 (exceeds 5 limit) — should throw.
       await expect(
         Actions.token.transferSync(client, {
           account: accessKey,
-          feeToken,
-          amount: Value.from('4', 6),
+          keyAuthorization,
+          amount: Value.from('10', 6),
           token: feeToken,
           to: '0x0000000000000000000000000000000000000001',
         }),
       ).rejects.toThrow()
+    })
 
-      // Wait for period to reset
-      await setTimeout(6000)
-
-      // Transfer again after period reset — should succeed
-      {
-        const { receipt } = await Actions.token.transferSync(client, {
-          account: accessKey,
-          feeToken,
-          amount: Value.from('4', 6),
-          token: feeToken,
-          to: '0x0000000000000000000000000000000000000001',
+    test(
+      'behavior: periodic spending limit resets after period',
+      { timeout: 20_000 },
+      async () => {
+        const account = accounts[0]
+        const accessKey = Account.fromP256(generatePrivateKey(), {
+          access: account,
         })
-        expect(receipt.status).toBe('success')
-      }
-    },
-  )
-})
 
-// TODO: remove skipIf once T3 is deployed to testnet
-describe.skipIf(nodeEnv === 'testnet')('accessKeys: call scopes', () => {
+        // Authorize with periodic limit that resets every 5 seconds
+        const keyAuthorization = await Actions.accessKey.signAuthorization(
+          client,
+          {
+            account,
+            accessKey,
+            limits: feeTokenLimits(Value.from('5', 6), Period.seconds(5)),
+          },
+        )
+
+        // Provision key + transfer 4 (within 5 limit)
+        {
+          const { receipt } = await Actions.token.transferSync(client, {
+            account: accessKey,
+            feeToken,
+            keyAuthorization,
+            amount: Value.from('4', 6),
+            token: feeToken,
+            to: '0x0000000000000000000000000000000000000001',
+          })
+          expect(receipt.status).toBe('success')
+        }
+
+        // Immediately try another 4 (total 8 > limit 5 — should throw).
+        await expect(
+          Actions.token.transferSync(client, {
+            account: accessKey,
+            feeToken,
+            amount: Value.from('4', 6),
+            token: feeToken,
+            to: '0x0000000000000000000000000000000000000001',
+          }),
+        ).rejects.toThrow()
+
+        // Wait for period to reset
+        await setTimeout(6000)
+
+        // Transfer again after period reset — should succeed
+        {
+          const { receipt } = await Actions.token.transferSync(client, {
+            account: accessKey,
+            feeToken,
+            amount: Value.from('4', 6),
+            token: feeToken,
+            to: '0x0000000000000000000000000000000000000001',
+          })
+          expect(receipt.status).toBe('success')
+        }
+      },
+    )
+  },
+)
+
+// TODO: remove skipIf once T3 is deployed to testnet/devnet
+describe.skipIf(nodeEnv === 'testnet' || nodeEnv === 'devnet')('accessKeys: call scopes', () => {
   test('behavior: access key with call scopes (transfer)', async () => {
     const account = accounts[0]
     const accessKey = Account.fromP256(generatePrivateKey(), {
