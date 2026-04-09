@@ -16,7 +16,7 @@ async function setupAccessKey(
   parameters: {
     limits?: { token: `0x${string}`; limit: bigint; period?: number }[]
     scopes?: {
-      contractAddress: `0x${string}`
+      address: `0x${string}`
       selector?: `0x${string}`
       recipients?: `0x${string}`[]
     }[]
@@ -155,12 +155,12 @@ describe('signAuthorization', () => {
       account,
       accessKey,
       expiry: Math.floor((Date.now() + 30_000) / 1000),
-      scopes: [{ contractAddress: feeToken, selector: '0xa9059cbb' }],
+      scopes: [{ address: feeToken, selector: '0xa9059cbb' }],
     })
 
     expect(keyAuthorization).toBeDefined()
     expect(keyAuthorization.scopes).toMatchObject([
-      { contractAddress: feeToken, selector: '0xa9059cbb' },
+      { address: feeToken, selector: '0xa9059cbb' },
     ])
   })
 
@@ -174,16 +174,14 @@ describe('signAuthorization', () => {
       accessKey,
       expiry: Math.floor((Date.now() + 30_000) / 1000),
       limits: [{ token: feeToken, limit: 500000n, period: Period.hours(1) }],
-      scopes: [{ contractAddress: feeToken }],
+      scopes: [{ address: feeToken }],
     })
 
     expect(keyAuthorization).toBeDefined()
     expect(keyAuthorization.limits).toMatchObject([
       { token: feeToken, limit: 500000n, period: 3600 },
     ])
-    expect(keyAuthorization.scopes).toMatchObject([
-      { contractAddress: feeToken },
-    ])
+    expect(keyAuthorization.scopes).toMatchObject([{ address: feeToken }])
   })
 })
 

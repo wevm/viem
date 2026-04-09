@@ -145,8 +145,8 @@ const { receipt } = await client.accessKey.authorizeSync({
   ], // [!code focus]
   scopes: [ // [!code focus]
     { // [!code focus]
-      contractAddress: '0x20c0000000000000000000000000000000000001', // [!code focus]
-      selector: '0xa9059cbb', // transfer(address,uint256) // [!code focus]
+      address: '0x20c0000000000000000000000000000000000001', // [!code focus]
+      selector: 'transfer(address,uint256)', // or "0xa9059cbb" // [!code focus]
       recipients: ['0xcafebabecafebabecafebabecafebabecafebabe'], // optional // [!code focus]
     }, // [!code focus]
   ], // [!code focus]
@@ -218,7 +218,7 @@ Spending limits per token. Optionally include `period` (in seconds) to make the 
 
 ### scopes (optional)
 
-- **Type:** `{ contractAddress: Address; selector?: Hex; recipients?: Address[] }[]`
+- **Type:** `{ address: Address; selector?: Hex | string; recipients?: Address[] }[]`
 
 Call scopes restricting which contracts/selectors this key can call. Each scope entry specifies a contract address, an optional 4-byte function selector, and optional recipient addresses (for transfer-like functions). If `scopes` is set to `[]` (empty array), the key cannot make any calls.
 

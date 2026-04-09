@@ -768,14 +768,14 @@ describe('signKeyAuthorization', () => {
       expiry: 1234567890,
       scopes: [
         {
-          contractAddress: '0x20c0000000000000000000000000000000000001',
+          address: '0x20c0000000000000000000000000000000000001',
         },
         {
-          contractAddress: '0x20c0000000000000000000000000000000000002',
+          address: '0x20c0000000000000000000000000000000000002',
           selector: '0xa9059cbb',
         },
         {
-          contractAddress: '0x20c0000000000000000000000000000000000003',
+          address: '0x20c0000000000000000000000000000000000003',
           selector: '0xa9059cbb',
           recipients: ['0x0000000000000000000000000000000000000001'],
         },
@@ -785,14 +785,14 @@ describe('signKeyAuthorization', () => {
     expect(rest.scopes).toMatchInlineSnapshot(`
       [
         {
-          "contractAddress": "0x20c0000000000000000000000000000000000001",
+          "address": "0x20c0000000000000000000000000000000000001",
         },
         {
-          "contractAddress": "0x20c0000000000000000000000000000000000002",
+          "address": "0x20c0000000000000000000000000000000000002",
           "selector": "0xa9059cbb",
         },
         {
-          "contractAddress": "0x20c0000000000000000000000000000000000003",
+          "address": "0x20c0000000000000000000000000000000000003",
           "recipients": [
             "0x0000000000000000000000000000000000000001",
           ],
@@ -820,7 +820,7 @@ describe('signKeyAuthorization', () => {
       ],
       scopes: [
         {
-          contractAddress: '0x20c0000000000000000000000000000000000001',
+          address: '0x20c0000000000000000000000000000000000001',
           selector: '0xa9059cbb',
         },
       ],
@@ -838,7 +838,7 @@ describe('signKeyAuthorization', () => {
     expect(rest.scopes).toMatchInlineSnapshot(`
       [
         {
-          "contractAddress": "0x20c0000000000000000000000000000000000001",
+          "address": "0x20c0000000000000000000000000000000000001",
           "selector": "0xa9059cbb",
         },
       ]
@@ -930,7 +930,7 @@ describe('signKeyAuthorization (standalone)', () => {
       key,
       scopes: [
         {
-          contractAddress: '0x20c0000000000000000000000000000000000001',
+          address: '0x20c0000000000000000000000000000000000001',
           selector: '0xa9059cbb',
           recipients: ['0x0000000000000000000000000000000000000001'],
         },
@@ -940,7 +940,7 @@ describe('signKeyAuthorization (standalone)', () => {
     expect(rest.scopes).toMatchInlineSnapshot(`
       [
         {
-          "contractAddress": "0x20c0000000000000000000000000000000000001",
+          "address": "0x20c0000000000000000000000000000000000001",
           "recipients": [
             "0x0000000000000000000000000000000000000001",
           ],
