@@ -1,5 +1,5 @@
 import { Value, WebCryptoP256 } from 'ox'
-import { SignatureEnvelope } from 'ox/tempo'
+import { Period, SignatureEnvelope } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
 import { verifyHash, verifyMessage, verifyTypedData } from '../actions/index.js'
@@ -526,6 +526,7 @@ describe('signKeyAuthorization', () => {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "expiry": undefined,
         "limits": undefined,
+        "scopes": undefined,
         "signature": {
           "signature": {
             "r": 23246779009484945273859541677500795286425598981825493234251719807816228886987n,
@@ -566,6 +567,7 @@ describe('signKeyAuthorization', () => {
             "token": "0x20c0000000000000000000000000000000000001",
           },
         ],
+        "scopes": undefined,
         "signature": {
           "signature": {
             "r": 27500180303491826355348882979551066035208667565690648180381706167647002605946n,
@@ -606,6 +608,7 @@ describe('signKeyAuthorization', () => {
             "token": "0x20c0000000000000000000000000000000000001",
           },
         ],
+        "scopes": undefined,
         "signature": {
           "prehash": false,
           "publicKey": {
@@ -654,6 +657,7 @@ describe('signKeyAuthorization', () => {
             "token": "0x20c0000000000000000000000000000000000001",
           },
         ],
+        "scopes": undefined,
         "signature": {
           "metadata": {
             "authenticatorData": "0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000",
@@ -710,6 +714,7 @@ describe('signKeyAuthorization', () => {
             "token": "0x20c0000000000000000000000000000000000002",
           },
         ],
+        "scopes": undefined,
         "signature": {
           "signature": {
             "r": 15118012128001996683018315003630474892756625926769093217670340734112621258206n,
@@ -720,6 +725,124 @@ describe('signKeyAuthorization', () => {
         },
         "type": "secp256k1",
       }
+    `)
+  })
+
+  test('periodic limit', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
+
+    const authorization = await account.signKeyAuthorization(key, {
+      chainId: BigInt(client.chain!.id),
+      expiry: 1234567890,
+      limits: [
+        {
+          token: '0x20c0000000000000000000000000000000000001',
+          limit: Value.from('10', 6),
+          period: Period.days(1),
+        },
+      ],
+    })
+    const { chainId: _, ...rest } = authorization
+    expect(rest.limits).toMatchInlineSnapshot(`
+      [
+        {
+          "limit": 10000000n,
+          "period": 86400,
+          "token": "0x20c0000000000000000000000000000000000001",
+        },
+      ]
+    `)
+  })
+
+  test('scopes', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
+
+    const authorization = await account.signKeyAuthorization(key, {
+      chainId: BigInt(client.chain!.id),
+      expiry: 1234567890,
+      scopes: [
+        {
+          address: '0x20c0000000000000000000000000000000000001',
+        },
+        {
+          address: '0x20c0000000000000000000000000000000000002',
+          selector: '0xa9059cbb',
+        },
+        {
+          address: '0x20c0000000000000000000000000000000000003',
+          selector: '0xa9059cbb',
+          recipients: ['0x0000000000000000000000000000000000000001'],
+        },
+      ],
+    })
+    const { chainId: _, ...rest } = authorization
+    expect(rest.scopes).toMatchInlineSnapshot(`
+      [
+       {
+         "address": "0x20c0000000000000000000000000000000000001",
+         "selector": undefined,
+       },
+       {
+         "address": "0x20c0000000000000000000000000000000000002",
+         "selector": "0xa9059cbb",
+       },
+       {
+         "address": "0x20c0000000000000000000000000000000000003",
+         "recipients": [
+           "0x0000000000000000000000000000000000000001",
+         ],
+         "selector": "0xa9059cbb",
+       },
+      ]
+    `)
+  })
+
+  test('periodic limits + scopes', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
+
+    const authorization = await account.signKeyAuthorization(key, {
+      chainId: BigInt(client.chain!.id),
+      expiry: 1234567890,
+      limits: [
+        {
+          token: '0x20c0000000000000000000000000000000000001',
+          limit: Value.from('10', 6),
+          period: Period.hours(1),
+        },
+      ],
+      scopes: [
+        {
+          address: '0x20c0000000000000000000000000000000000001',
+          selector: '0xa9059cbb',
+        },
+      ],
+    })
+    const { chainId: _, ...rest } = authorization
+    expect(rest.limits).toMatchInlineSnapshot(`
+      [
+        {
+          "limit": 10000000n,
+          "period": 3600,
+          "token": "0x20c0000000000000000000000000000000000001",
+        },
+      ]
+    `)
+    expect(rest.scopes).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x20c0000000000000000000000000000000000001",
+          "selector": "0xa9059cbb",
+        },
+      ]
     `)
   })
 })
@@ -753,6 +876,7 @@ describe('signKeyAuthorization (standalone)', () => {
             "token": "0x20c0000000000000000000000000000000000001",
           },
         ],
+        "scopes": undefined,
         "signature": {
           "signature": {
             "r": 27500180303491826355348882979551066035208667565690648180381706167647002605946n,
@@ -763,6 +887,67 @@ describe('signKeyAuthorization (standalone)', () => {
         },
         "type": "secp256k1",
       }
+    `)
+  })
+
+  test('periodic limit', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
+
+    const authorization = await Account.signKeyAuthorization(account, {
+      chainId: BigInt(client.chain!.id),
+      key,
+      expiry: 1234567890,
+      limits: [
+        {
+          token: '0x20c0000000000000000000000000000000000001',
+          limit: Value.from('10', 6),
+          period: Period.days(1),
+        },
+      ],
+    })
+    const { chainId: _, ...rest } = authorization
+    expect(rest.limits).toMatchInlineSnapshot(`
+      [
+        {
+          "limit": 10000000n,
+          "period": 86400,
+          "token": "0x20c0000000000000000000000000000000000001",
+        },
+      ]
+    `)
+  })
+
+  test('scopes', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
+
+    const authorization = await Account.signKeyAuthorization(account, {
+      chainId: BigInt(client.chain!.id),
+      key,
+      scopes: [
+        {
+          address: '0x20c0000000000000000000000000000000000001',
+          selector: '0xa9059cbb',
+          recipients: ['0x0000000000000000000000000000000000000001'],
+        },
+      ],
+    })
+    const { chainId: _, ...rest } = authorization
+    expect(rest.scopes).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x20c0000000000000000000000000000000000001",
+          "recipients": [
+            "0x0000000000000000000000000000000000000001",
+          ],
+          "selector": "0xa9059cbb",
+        },
+      ]
     `)
   })
 })

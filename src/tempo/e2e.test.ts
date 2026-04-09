@@ -1,7 +1,8 @@
 import * as Http from 'node:http'
 import { setTimeout } from 'node:timers/promises'
 import { createRequestListener } from '@remix-run/node-fetch-server'
-import { RpcRequest, RpcResponse, WebCryptoP256 } from 'ox'
+import { RpcRequest, RpcResponse, Value, WebCryptoP256 } from 'ox'
+import { Period } from 'ox/tempo'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import {
   getTransaction,
@@ -16,16 +17,26 @@ import { Account, Actions, Transaction } from 'viem/tempo'
 import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest'
 import {
   accounts,
+  addresses,
   chain,
   feeToken,
   getClient,
   http,
+  nodeEnv,
   setupFeeToken,
 } from '~test/tempo/config.js'
 import * as Prool from '~test/tempo/prool.js'
 import { withFeePayer } from './Transport.js'
 
 const client = getClient()
+
+/** Spending limits covering both fee tokens (pathUsd + alphaUsd). */
+function feeTokenLimits(limit: bigint, period?: number) {
+  return [
+    { token: addresses.pathUsd, limit, ...(period != null && { period }) },
+    { token: addresses.alphaUsd, limit, ...(period != null && { period }) },
+  ]
+}
 
 describe('sendTransaction', () => {
   test('default', async () => {
@@ -1784,3 +1795,293 @@ describe('relay', () => {
     })
   })
 })
+
+// TODO: remove skipIf once T3 is deployed to testnet/devnet
+describe.skipIf(nodeEnv === 'testnet' || nodeEnv === 'devnet')(
+  'accessKeys: periodic spending limits',
+  () => {
+    test('behavior: access key with periodic spending limit', async () => {
+      const account = accounts[0]
+      const accessKey = Account.fromP256(generatePrivateKey(), {
+        access: account,
+      })
+
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          limits: feeTokenLimits(Value.from('10000', 6), Period.months(1)),
+        },
+      )
+
+      // Provision key + transfer in same tx (access key signs, root sends)
+      const { receipt } = await Actions.token.transferSync(client, {
+        account: accessKey,
+        feeToken,
+        keyAuthorization,
+        amount: 100n,
+        token: feeToken,
+        to: '0x0000000000000000000000000000000000000001',
+      })
+      expect(receipt.status).toBe('success')
+    })
+
+    test('behavior: reverts transfer exceeding periodic spending limit', async () => {
+      const account = accounts[0]
+      const accessKey = Account.fromP256(generatePrivateKey(), {
+        access: account,
+      })
+
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          limits: feeTokenLimits(Value.from('5', 6), Period.months(1)),
+        },
+      )
+
+      // Provision key + try to transfer 10 (exceeds 5 limit) — should throw.
+      await expect(
+        Actions.token.transferSync(client, {
+          account: accessKey,
+          keyAuthorization,
+          amount: Value.from('10', 6),
+          token: feeToken,
+          to: '0x0000000000000000000000000000000000000001',
+        }),
+      ).rejects.toThrow()
+    })
+
+    test(
+      'behavior: periodic spending limit resets after period',
+      { timeout: 20_000 },
+      async () => {
+        const account = accounts[0]
+        const accessKey = Account.fromP256(generatePrivateKey(), {
+          access: account,
+        })
+
+        // Authorize with periodic limit that resets every 5 seconds
+        const keyAuthorization = await Actions.accessKey.signAuthorization(
+          client,
+          {
+            account,
+            accessKey,
+            limits: feeTokenLimits(Value.from('5', 6), Period.seconds(5)),
+          },
+        )
+
+        // Provision key + transfer 4 (within 5 limit)
+        {
+          const { receipt } = await Actions.token.transferSync(client, {
+            account: accessKey,
+            feeToken,
+            keyAuthorization,
+            amount: Value.from('4', 6),
+            token: feeToken,
+            to: '0x0000000000000000000000000000000000000001',
+          })
+          expect(receipt.status).toBe('success')
+        }
+
+        // Immediately try another 4 (total 8 > limit 5 — should throw).
+        await expect(
+          Actions.token.transferSync(client, {
+            account: accessKey,
+            feeToken,
+            amount: Value.from('4', 6),
+            token: feeToken,
+            to: '0x0000000000000000000000000000000000000001',
+          }),
+        ).rejects.toThrow()
+
+        // Wait for period to reset
+        await setTimeout(6000)
+
+        // Transfer again after period reset — should succeed
+        {
+          const { receipt } = await Actions.token.transferSync(client, {
+            account: accessKey,
+            feeToken,
+            amount: Value.from('4', 6),
+            token: feeToken,
+            to: '0x0000000000000000000000000000000000000001',
+          })
+          expect(receipt.status).toBe('success')
+        }
+      },
+    )
+  },
+)
+
+// TODO: remove skipIf once T3 is deployed to testnet/devnet
+describe.skipIf(nodeEnv === 'testnet' || nodeEnv === 'devnet')(
+  'accessKeys: call scopes',
+  () => {
+    test('behavior: access key with call scopes (transfer)', async () => {
+      const account = accounts[0]
+      const accessKey = Account.fromP256(generatePrivateKey(), {
+        access: account,
+      })
+
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          limits: feeTokenLimits(Value.from('10000', 6)),
+          scopes: [
+            {
+              address: feeToken,
+              selector: '0xa9059cbb', // transfer(address,uint256)
+            },
+          ],
+        },
+      )
+
+      // Provision key + transfer in same tx
+      const { receipt } = await Actions.token.transferSync(client, {
+        account: accessKey,
+        feeToken,
+        keyAuthorization,
+        amount: 100n,
+        token: feeToken,
+        to: '0x0000000000000000000000000000000000000001',
+      })
+      expect(receipt.status).toBe('success')
+    })
+
+    test('behavior: access key with call scopes + recipient allowlist', async () => {
+      const recipient = '0x0000000000000000000000000000000000000001'
+      const account = accounts[0]
+      const accessKey = Account.fromP256(generatePrivateKey(), {
+        access: account,
+      })
+
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          limits: feeTokenLimits(Value.from('10000', 6)),
+          scopes: [
+            {
+              address: feeToken,
+              selector: '0xa9059cbb', // transfer(address,uint256)
+              recipients: [recipient],
+            },
+          ],
+        },
+      )
+
+      // Provision key + transfer in same tx
+      const { receipt } = await Actions.token.transferSync(client, {
+        account: accessKey,
+        feeToken,
+        keyAuthorization,
+        amount: 100n,
+        token: feeToken,
+        to: recipient,
+      })
+      expect(receipt.status).toBe('success')
+    })
+
+    test('behavior: rejects transfer to wrong recipient', async () => {
+      const allowedRecipient = '0x0000000000000000000000000000000000000001'
+      const wrongRecipient = '0x0000000000000000000000000000000000000002'
+      const account = accounts[0]
+      const accessKey = Account.fromP256(generatePrivateKey(), {
+        access: account,
+      })
+
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          limits: feeTokenLimits(Value.from('10000', 6)),
+          scopes: [
+            {
+              address: feeToken,
+              selector: '0xa9059cbb',
+              recipients: [allowedRecipient],
+            },
+          ],
+        },
+      )
+
+      await expect(
+        Actions.token.transferSync(client, {
+          account: accessKey,
+          keyAuthorization,
+          amount: 100n,
+          token: feeToken,
+          to: wrongRecipient,
+        }),
+      ).rejects.toThrow('CallNotAllowed')
+    })
+
+    test('behavior: rejects approve when only transfer is scoped', async () => {
+      const account = accounts[0]
+      const accessKey = Account.fromP256(generatePrivateKey(), {
+        access: account,
+      })
+
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          limits: feeTokenLimits(Value.from('10000', 6)),
+          scopes: [
+            {
+              address: feeToken,
+              selector: '0xa9059cbb', // only transfer
+            },
+          ],
+        },
+      )
+
+      await expect(
+        Actions.token.approveSync(client, {
+          account: accessKey,
+          feeToken,
+          keyAuthorization,
+          amount: 100n,
+          token: feeToken,
+          spender: '0x0000000000000000000000000000000000000001',
+        }),
+      ).rejects.toThrow('CallNotAllowed')
+    })
+
+    test('behavior: rejects any call when scopes = [] (empty)', async () => {
+      const account = accounts[0]
+      const accessKey = Account.fromP256(generatePrivateKey(), {
+        access: account,
+      })
+
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          limits: feeTokenLimits(Value.from('10000', 6)),
+          scopes: [], // no calls allowed
+        },
+      )
+
+      await expect(
+        Actions.token.transferSync(client, {
+          account: accessKey,
+          feeToken,
+          keyAuthorization,
+          amount: 100n,
+          token: feeToken,
+          to: '0x0000000000000000000000000000000000000001',
+        }),
+      ).rejects.toThrow('CallNotAllowed')
+    })
+  },
+)
