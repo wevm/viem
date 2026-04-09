@@ -784,20 +784,21 @@ describe('signKeyAuthorization', () => {
     const { chainId: _, ...rest } = authorization
     expect(rest.scopes).toMatchInlineSnapshot(`
       [
-        {
-          "address": "0x20c0000000000000000000000000000000000001",
-        },
-        {
-          "address": "0x20c0000000000000000000000000000000000002",
-          "selector": "0xa9059cbb",
-        },
-        {
-          "address": "0x20c0000000000000000000000000000000000003",
-          "recipients": [
-            "0x0000000000000000000000000000000000000001",
-          ],
-          "selector": "0xa9059cbb",
-        },
+       {
+         "address": "0x20c0000000000000000000000000000000000001",
+         "selector": undefined,
+       },
+       {
+         "address": "0x20c0000000000000000000000000000000000002",
+         "selector": "0xa9059cbb",
+       },
+       {
+         "address": "0x20c0000000000000000000000000000000000003",
+         "recipients": [
+           "0x0000000000000000000000000000000000000001",
+         ],
+         "selector": "0xa9059cbb",
+       },
       ]
     `)
   })
