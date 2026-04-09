@@ -560,6 +560,386 @@ export const tip20 = [
   { name: 'Unauthorized', type: 'error', inputs: [] },
 ] as const
 
+export const validatorConfigV2 = [
+  {
+    name: 'getActiveValidators',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [
+      {
+        type: 'tuple[]',
+        name: 'validators',
+        components: [
+          { type: 'bytes32', name: 'publicKey' },
+          { type: 'address', name: 'validatorAddress' },
+          { type: 'string', name: 'ingress' },
+          { type: 'string', name: 'egress' },
+          { type: 'address', name: 'feeRecipient' },
+          { type: 'uint64', name: 'index' },
+          { type: 'uint64', name: 'addedAtHeight' },
+          { type: 'uint64', name: 'deactivatedAtHeight' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'getInitializedAtHeight',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'owner',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'validatorCount',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'validatorByIndex',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'uint64', name: 'index' }],
+    outputs: [
+      {
+        type: 'tuple',
+        components: [
+          { type: 'bytes32', name: 'publicKey' },
+          { type: 'address', name: 'validatorAddress' },
+          { type: 'string', name: 'ingress' },
+          { type: 'string', name: 'egress' },
+          { type: 'address', name: 'feeRecipient' },
+          { type: 'uint64', name: 'index' },
+          { type: 'uint64', name: 'addedAtHeight' },
+          { type: 'uint64', name: 'deactivatedAtHeight' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'validatorByAddress',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'validatorAddress' }],
+    outputs: [
+      {
+        type: 'tuple',
+        components: [
+          { type: 'bytes32', name: 'publicKey' },
+          { type: 'address', name: 'validatorAddress' },
+          { type: 'string', name: 'ingress' },
+          { type: 'string', name: 'egress' },
+          { type: 'address', name: 'feeRecipient' },
+          { type: 'uint64', name: 'index' },
+          { type: 'uint64', name: 'addedAtHeight' },
+          { type: 'uint64', name: 'deactivatedAtHeight' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'validatorByPublicKey',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'bytes32', name: 'publicKey' }],
+    outputs: [
+      {
+        type: 'tuple',
+        components: [
+          { type: 'bytes32', name: 'publicKey' },
+          { type: 'address', name: 'validatorAddress' },
+          { type: 'string', name: 'ingress' },
+          { type: 'string', name: 'egress' },
+          { type: 'address', name: 'feeRecipient' },
+          { type: 'uint64', name: 'index' },
+          { type: 'uint64', name: 'addedAtHeight' },
+          { type: 'uint64', name: 'deactivatedAtHeight' },
+        ],
+      },
+    ],
+  },
+  {
+    name: 'getNextNetworkIdentityRotationEpoch',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
+    name: 'isInitialized',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'addValidator',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'validatorAddress' },
+      { type: 'bytes32', name: 'publicKey' },
+      { type: 'string', name: 'ingress' },
+      { type: 'string', name: 'egress' },
+      { type: 'address', name: 'feeRecipient' },
+      { type: 'bytes', name: 'signature' },
+    ],
+    outputs: [{ type: 'uint64', name: 'index' }],
+  },
+  {
+    name: 'deactivateValidator',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'uint64', name: 'idx' }],
+    outputs: [],
+  },
+  {
+    name: 'rotateValidator',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint64', name: 'idx' },
+      { type: 'bytes32', name: 'publicKey' },
+      { type: 'string', name: 'ingress' },
+      { type: 'string', name: 'egress' },
+      { type: 'bytes', name: 'signature' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'setFeeRecipient',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint64', name: 'idx' },
+      { type: 'address', name: 'feeRecipient' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'setIpAddresses',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint64', name: 'idx' },
+      { type: 'string', name: 'ingress' },
+      { type: 'string', name: 'egress' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'transferValidatorOwnership',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint64', name: 'idx' },
+      { type: 'address', name: 'newAddress' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'transferOwnership',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'address', name: 'newOwner' }],
+    outputs: [],
+  },
+  {
+    name: 'setNetworkIdentityRotationEpoch',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'uint64', name: 'epoch' }],
+    outputs: [],
+  },
+  {
+    name: 'migrateValidator',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'uint64', name: 'idx' }],
+    outputs: [],
+  },
+  {
+    name: 'initializeIfMigrated',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [],
+    outputs: [],
+  },
+  {
+    name: 'ValidatorAdded',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'index', indexed: true },
+      { type: 'address', name: 'validatorAddress', indexed: true },
+      { type: 'bytes32', name: 'publicKey' },
+      { type: 'string', name: 'ingress' },
+      { type: 'string', name: 'egress' },
+      { type: 'address', name: 'feeRecipient' },
+    ],
+  },
+  {
+    name: 'ValidatorDeactivated',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'index', indexed: true },
+      { type: 'address', name: 'validatorAddress', indexed: true },
+    ],
+  },
+  {
+    name: 'ValidatorRotated',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'index', indexed: true },
+      { type: 'uint64', name: 'deactivatedIndex', indexed: true },
+      { type: 'address', name: 'validatorAddress', indexed: true },
+      { type: 'bytes32', name: 'oldPublicKey' },
+      { type: 'bytes32', name: 'newPublicKey' },
+      { type: 'string', name: 'ingress' },
+      { type: 'string', name: 'egress' },
+      { type: 'address', name: 'caller' },
+    ],
+  },
+  {
+    name: 'FeeRecipientUpdated',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'index', indexed: true },
+      { type: 'address', name: 'feeRecipient' },
+      { type: 'address', name: 'caller' },
+    ],
+  },
+  {
+    name: 'IpAddressesUpdated',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'index', indexed: true },
+      { type: 'string', name: 'ingress' },
+      { type: 'string', name: 'egress' },
+      { type: 'address', name: 'caller' },
+    ],
+  },
+  {
+    name: 'ValidatorOwnershipTransferred',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'index', indexed: true },
+      { type: 'address', name: 'oldAddress', indexed: true },
+      { type: 'address', name: 'newAddress', indexed: true },
+      { type: 'address', name: 'caller' },
+    ],
+  },
+  {
+    name: 'OwnershipTransferred',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'oldOwner', indexed: true },
+      { type: 'address', name: 'newOwner', indexed: true },
+    ],
+  },
+  {
+    name: 'ValidatorMigrated',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'index', indexed: true },
+      { type: 'address', name: 'validatorAddress', indexed: true },
+      { type: 'bytes32', name: 'publicKey' },
+    ],
+  },
+  {
+    name: 'NetworkIdentityRotationEpochSet',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'previousEpoch', indexed: true },
+      { type: 'uint64', name: 'nextEpoch', indexed: true },
+    ],
+  },
+  {
+    name: 'Initialized',
+    type: 'event',
+    inputs: [{ type: 'uint64', name: 'height' }],
+  },
+  {
+    name: 'SkippedValidatorMigration',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'index', indexed: true },
+      { type: 'address', name: 'validatorAddress', indexed: true },
+      { type: 'bytes32', name: 'publicKey' },
+    ],
+  },
+  { name: 'AlreadyInitialized', type: 'error', inputs: [] },
+  {
+    name: 'IngressAlreadyExists',
+    type: 'error',
+    inputs: [{ type: 'string', name: 'ingress' }],
+  },
+  { name: 'EmptyV1ValidatorSet', type: 'error', inputs: [] },
+  { name: 'InvalidMigrationIndex', type: 'error', inputs: [] },
+  { name: 'InvalidOwner', type: 'error', inputs: [] },
+  { name: 'InvalidPublicKey', type: 'error', inputs: [] },
+  { name: 'InvalidSignature', type: 'error', inputs: [] },
+  { name: 'InvalidSignatureFormat', type: 'error', inputs: [] },
+  { name: 'InvalidValidatorAddress', type: 'error', inputs: [] },
+  { name: 'MigrationNotComplete', type: 'error', inputs: [] },
+  { name: 'NotInitialized', type: 'error', inputs: [] },
+  {
+    name: 'NotIp',
+    type: 'error',
+    inputs: [
+      { type: 'string', name: 'input' },
+      { type: 'string', name: 'backtrace' },
+    ],
+  },
+  {
+    name: 'NotIpPort',
+    type: 'error',
+    inputs: [
+      { type: 'string', name: 'input' },
+      { type: 'string', name: 'backtrace' },
+    ],
+  },
+  { name: 'PublicKeyAlreadyExists', type: 'error', inputs: [] },
+  { name: 'Unauthorized', type: 'error', inputs: [] },
+  { name: 'AddressAlreadyHasValidator', type: 'error', inputs: [] },
+  { name: 'ValidatorAlreadyDeactivated', type: 'error', inputs: [] },
+  { name: 'ValidatorNotFound', type: 'error', inputs: [] },
+] as const
+
+export const signatureVerifier = [
+  {
+    name: 'recover',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'bytes32', name: 'hash' },
+      { type: 'bytes', name: 'signature' },
+    ],
+    outputs: [{ type: 'address', name: 'signer' }],
+  },
+  {
+    name: 'verify',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'signer' },
+      { type: 'bytes32', name: 'hash' },
+      { type: 'bytes', name: 'signature' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  { name: 'InvalidFormat', type: 'error', inputs: [] },
+  { name: 'InvalidSignature', type: 'error', inputs: [] },
+] as const
+
 export const stablecoinDex = [
   {
     name: 'createPair',
@@ -874,6 +1254,71 @@ export const stablecoinDex = [
   { name: 'OrderNotStale', type: 'error', inputs: [] },
 ] as const
 
+export const addressRegistry = [
+  {
+    name: 'registerVirtualMaster',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'bytes32', name: 'salt' }],
+    outputs: [{ type: 'bytes4', name: 'masterId' }],
+  },
+  {
+    name: 'getMaster',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'bytes4', name: 'masterId' }],
+    outputs: [{ type: 'address' }],
+  },
+  {
+    name: 'resolveRecipient',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'to' }],
+    outputs: [{ type: 'address', name: 'effectiveRecipient' }],
+  },
+  {
+    name: 'resolveVirtualAddress',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'virtualAddr' }],
+    outputs: [{ type: 'address', name: 'master' }],
+  },
+  {
+    name: 'isVirtualAddress',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [{ type: 'address', name: 'addr' }],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'decodeVirtualAddress',
+    type: 'function',
+    stateMutability: 'pure',
+    inputs: [{ type: 'address', name: 'addr' }],
+    outputs: [
+      { type: 'bool', name: 'isVirtual' },
+      { type: 'bytes4', name: 'masterId' },
+      { type: 'bytes6', name: 'userTag' },
+    ],
+  },
+  {
+    name: 'MasterRegistered',
+    type: 'event',
+    inputs: [
+      { type: 'bytes4', name: 'masterId', indexed: true },
+      { type: 'address', name: 'masterAddress', indexed: true },
+    ],
+  },
+  {
+    name: 'MasterIdCollision',
+    type: 'error',
+    inputs: [{ type: 'address', name: 'master' }],
+  },
+  { name: 'InvalidMasterAddress', type: 'error', inputs: [] },
+  { name: 'ProofOfWorkFailed', type: 'error', inputs: [] },
+  { name: 'VirtualAddressUnregistered', type: 'error', inputs: [] },
+] as const
+
 export const feeManager = [
   {
     name: 'userTokens',
@@ -1154,6 +1599,49 @@ export const accountKeychain = [
     outputs: [],
   },
   {
+    name: 'authorizeKey',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'keyId' },
+      { type: 'uint8', name: 'signatureType' },
+      {
+        type: 'tuple',
+        name: 'config',
+        components: [
+          { type: 'uint64', name: 'expiry' },
+          { type: 'bool', name: 'enforceLimits' },
+          {
+            type: 'tuple[]',
+            name: 'limits',
+            components: [
+              { type: 'address', name: 'token' },
+              { type: 'uint256', name: 'amount' },
+              { type: 'uint64', name: 'period' },
+            ],
+          },
+          { type: 'bool', name: 'allowAnyCalls' },
+          {
+            type: 'tuple[]',
+            name: 'allowedCalls',
+            components: [
+              { type: 'address', name: 'target' },
+              {
+                type: 'tuple[]',
+                name: 'selectorRules',
+                components: [
+                  { type: 'bytes4', name: 'selector' },
+                  { type: 'address[]', name: 'recipients' },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    outputs: [],
+  },
+  {
     name: 'revokeKey',
     type: 'function',
     stateMutability: 'nonpayable',
@@ -1168,6 +1656,40 @@ export const accountKeychain = [
       { type: 'address', name: 'keyId' },
       { type: 'address', name: 'token' },
       { type: 'uint256', name: 'newLimit' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'setAllowedCalls',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'keyId' },
+      {
+        type: 'tuple[]',
+        name: 'scopes',
+        components: [
+          { type: 'address', name: 'target' },
+          {
+            type: 'tuple[]',
+            name: 'selectorRules',
+            components: [
+              { type: 'bytes4', name: 'selector' },
+              { type: 'address[]', name: 'recipients' },
+            ],
+          },
+        ],
+      },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'removeAllowedCalls',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'keyId' },
+      { type: 'address', name: 'target' },
     ],
     outputs: [],
   },
@@ -1201,7 +1723,7 @@ export const accountKeychain = [
       { type: 'address', name: 'keyId' },
       { type: 'address', name: 'token' },
     ],
-    outputs: [{ type: 'uint256' }],
+    outputs: [{ type: 'uint256', name: 'remaining' }],
   },
   {
     name: 'getRemainingLimitWithPeriod',
@@ -1215,6 +1737,33 @@ export const accountKeychain = [
     outputs: [
       { type: 'uint256', name: 'remaining' },
       { type: 'uint64', name: 'periodEnd' },
+    ],
+  },
+  {
+    name: 'getAllowedCalls',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'keyId' },
+    ],
+    outputs: [
+      { type: 'bool', name: 'isScoped' },
+      {
+        type: 'tuple[]',
+        name: 'scopes',
+        components: [
+          { type: 'address', name: 'target' },
+          {
+            type: 'tuple[]',
+            name: 'selectorRules',
+            components: [
+              { type: 'bytes4', name: 'selector' },
+              { type: 'address[]', name: 'recipients' },
+            ],
+          },
+        ],
+      },
     ],
   },
   {
@@ -1252,15 +1801,42 @@ export const accountKeychain = [
       { type: 'uint256', name: 'newLimit' },
     ],
   },
+  {
+    name: 'AccessKeySpend',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'address', name: 'publicKey', indexed: true },
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'uint256', name: 'amount' },
+      { type: 'uint256', name: 'remainingLimit' },
+    ],
+  },
   { name: 'UnauthorizedCaller', type: 'error', inputs: [] },
   { name: 'KeyAlreadyExists', type: 'error', inputs: [] },
   { name: 'KeyNotFound', type: 'error', inputs: [] },
   { name: 'KeyExpired', type: 'error', inputs: [] },
   { name: 'SpendingLimitExceeded', type: 'error', inputs: [] },
+  { name: 'InvalidSpendingLimit', type: 'error', inputs: [] },
   { name: 'InvalidSignatureType', type: 'error', inputs: [] },
   { name: 'ZeroPublicKey', type: 'error', inputs: [] },
   { name: 'ExpiryInPast', type: 'error', inputs: [] },
   { name: 'KeyAlreadyRevoked', type: 'error', inputs: [] },
+  {
+    name: 'SignatureTypeMismatch',
+    type: 'error',
+    inputs: [
+      { type: 'uint8', name: 'expected' },
+      { type: 'uint8', name: 'actual' },
+    ],
+  },
+  { name: 'CallNotAllowed', type: 'error', inputs: [] },
+  { name: 'InvalidCallScope', type: 'error', inputs: [] },
+  {
+    name: 'LegacyAuthorizeKeySelectorChanged',
+    type: 'error',
+    inputs: [{ type: 'bytes4', name: 'newSelector' }],
+  },
 ] as const
 
 export const nonce = [
@@ -1286,6 +1862,9 @@ export const nonce = [
   { name: 'ProtocolNonceNotSupported', type: 'error', inputs: [] },
   { name: 'InvalidNonceKey', type: 'error', inputs: [] },
   { name: 'NonceOverflow', type: 'error', inputs: [] },
+  { name: 'ExpiringNonceReplay', type: 'error', inputs: [] },
+  { name: 'ExpiringNonceSetFull', type: 'error', inputs: [] },
+  { name: 'InvalidExpiringNonceExpiry', type: 'error', inputs: [] },
 ] as const
 
 export const tip20Factory = [
@@ -1379,6 +1958,47 @@ export const tip403Registry = [
     outputs: [{ type: 'bool' }],
   },
   {
+    name: 'isAuthorizedSender',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'uint64', name: 'policyId' },
+      { type: 'address', name: 'user' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'isAuthorizedRecipient',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'uint64', name: 'policyId' },
+      { type: 'address', name: 'user' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'isAuthorizedMintRecipient',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'uint64', name: 'policyId' },
+      { type: 'address', name: 'user' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'compoundPolicyData',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'uint64', name: 'policyId' }],
+    outputs: [
+      { type: 'uint64', name: 'senderPolicyId' },
+      { type: 'uint64', name: 'recipientPolicyId' },
+      { type: 'uint64', name: 'mintRecipientPolicyId' },
+    ],
+  },
+  {
     name: 'createPolicy',
     type: 'function',
     stateMutability: 'nonpayable',
@@ -1432,6 +2052,17 @@ export const tip403Registry = [
     outputs: [],
   },
   {
+    name: 'createCompoundPolicy',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint64', name: 'senderPolicyId' },
+      { type: 'uint64', name: 'recipientPolicyId' },
+      { type: 'uint64', name: 'mintRecipientPolicyId' },
+    ],
+    outputs: [{ type: 'uint64' }],
+  },
+  {
     name: 'PolicyAdminUpdated',
     type: 'event',
     inputs: [
@@ -1469,12 +2100,26 @@ export const tip403Registry = [
       { type: 'bool', name: 'restricted' },
     ],
   },
+  {
+    name: 'CompoundPolicyCreated',
+    type: 'event',
+    inputs: [
+      { type: 'uint64', name: 'policyId', indexed: true },
+      { type: 'address', name: 'creator', indexed: true },
+      { type: 'uint64', name: 'senderPolicyId' },
+      { type: 'uint64', name: 'recipientPolicyId' },
+      { type: 'uint64', name: 'mintRecipientPolicyId' },
+    ],
+  },
   { name: 'Unauthorized', type: 'error', inputs: [] },
-  { name: 'IncompatiblePolicyType', type: 'error', inputs: [] },
   { name: 'PolicyNotFound', type: 'error', inputs: [] },
+  { name: 'PolicyNotSimple', type: 'error', inputs: [] },
+  { name: 'InvalidPolicyType', type: 'error', inputs: [] },
+  { name: 'IncompatiblePolicyType', type: 'error', inputs: [] },
+  { name: 'VirtualAddressNotAllowed', type: 'error', inputs: [] },
 ] as const
 
-export const validator = [
+export const validatorConfig = [
   {
     name: 'getValidators',
     type: 'function',
@@ -1526,6 +2171,16 @@ export const validator = [
     stateMutability: 'nonpayable',
     inputs: [
       { type: 'address', name: 'validator' },
+      { type: 'bool', name: 'active' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'changeValidatorStatusByIndex',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint64', name: 'index' },
       { type: 'bool', name: 'active' },
     ],
     outputs: [],

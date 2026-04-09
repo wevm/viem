@@ -1,4 +1,5 @@
 import { generatePrivateKey } from 'viem/accounts'
+import { Period } from 'ox/tempo'
 import { Account } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
@@ -12,9 +13,12 @@ const client = getClient({
 
 /** Authorizes an access key and returns it. */
 async function setupAccessKey(
-  parameters: { limits?: { token: `0x${string}`; limit: bigint }[] } = {},
+  parameters: {
+    limits?: { token: `0x${string}`; limit: bigint; period?: number }[]
+    scopes?: { contractAddress: `0x${string}`; selector?: `0x${string}`; recipients?: `0x${string}`[] }[]
+  } = {},
 ) {
-  const { limits } = parameters
+  const { limits, scopes } = parameters
   const accessKey = Account.fromP256(generatePrivateKey(), {
     access: account,
   })
@@ -23,6 +27,7 @@ async function setupAccessKey(
     accessKey,
     expiry: Math.floor((Date.now() + 30 * 1000) / 1000), // 30 seconds from now
     limits,
+    scopes,
   })
 
   return accessKey
@@ -117,6 +122,68 @@ describe('signAuthorization', () => {
 
     expect(keyAuthorization).toBeDefined()
     expect(keyAuthorization.limits).toHaveLength(1)
+  })
+
+  test('behavior: with periodic limits', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const keyAuthorization = await actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+      limits: [{ token: feeToken, limit: 1000000n, period: Period.days(1) }],
+    })
+
+    expect(keyAuthorization).toBeDefined()
+    expect(keyAuthorization.limits).toMatchObject([
+      { token: feeToken, limit: 1000000n, period: 86400 },
+    ])
+  })
+
+  test('behavior: with scopes', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const keyAuthorization = await actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+      scopes: [
+        { contractAddress: feeToken, selector: '0xa9059cbb' },
+      ],
+    })
+
+    expect(keyAuthorization).toBeDefined()
+    expect(keyAuthorization.scopes).toMatchObject([
+      { contractAddress: feeToken, selector: '0xa9059cbb' },
+    ])
+  })
+
+  test('behavior: with periodic limits + scopes', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const keyAuthorization = await actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+      limits: [{ token: feeToken, limit: 500000n, period: Period.hours(1) }],
+      scopes: [
+        { contractAddress: feeToken },
+      ],
+    })
+
+    expect(keyAuthorization).toBeDefined()
+    expect(keyAuthorization.limits).toMatchObject([
+      { token: feeToken, limit: 500000n, period: 3600 },
+    ])
+    expect(keyAuthorization.scopes).toMatchObject([
+      { contractAddress: feeToken },
+    ])
   })
 })
 

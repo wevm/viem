@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import type { KeyAuthorization } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import { readContract } from '../../actions/public/readContract.js'
@@ -96,7 +97,11 @@ export namespace authorize {
     /** Unix timestamp when the key expires. */
     expiry?: number | undefined
     /** Spending limits per token. */
-    limits?: { token: Address; limit: bigint }[] | undefined
+    limits?:
+      | { token: Address; limit: bigint; period?: number | undefined }[]
+      | undefined
+    /** Call scopes restricting which contracts/selectors this key can call. */
+    scopes?: KeyAuthorization.Scope[] | undefined
   }
 
   export type ReturnValue = WriteContractReturnType
@@ -119,6 +124,7 @@ export namespace authorize {
       chainId = client.chain?.id,
       expiry,
       limits,
+      scopes,
       ...rest
     } = parameters
     const account_ = rest.account ?? client.account
@@ -130,6 +136,7 @@ export namespace authorize {
       key: accessKey,
       expiry,
       limits,
+      scopes,
     })
     return (await action(client, {
       ...rest,
@@ -875,7 +882,11 @@ export namespace signAuthorization {
     /** Unix timestamp when the key expires. */
     expiry?: number | undefined
     /** Spending limits per token. */
-    limits?: { token: Address; limit: bigint }[] | undefined
+    limits?:
+      | { token: Address; limit: bigint; period?: number | undefined }[]
+      | undefined
+    /** Call scopes restricting which contracts/selectors this key can call. */
+    scopes?: KeyAuthorization.Scope[] | undefined
   }
 
   export type ReturnValue = Awaited<ReturnType<typeof signKeyAuthorization>>
