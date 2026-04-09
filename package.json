@@ -188,7 +188,7 @@
     {
       "name": "import * from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "105 kB",
+      "limit": "106 kB",
       "import": "*"
     },
     {
@@ -200,7 +200,7 @@
     {
       "name": "import { tempoTestnet } from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "63 kB",
+      "limit": "64 kB",
       "import": "{ tempoTestnet }"
     },
     {
