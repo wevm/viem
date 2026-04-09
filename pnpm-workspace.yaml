@@ -39,4 +39,5 @@ minimumReleaseAgeExclude:
   - vitest
   - vocs
   - webpack
+  - basic-ftp
 
