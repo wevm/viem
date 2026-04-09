@@ -11,25 +11,25 @@ If you want to authorize a key and send the transaction in one step, use [`acces
 :::code-group
 
 ```ts twoslash [example.ts]
-import { generatePrivateKey } from 'viem/accounts'
-import { Account, Actions } from 'viem/tempo'
+import { Account, P256 } from 'viem/tempo'
+import { client } from './viem.config'
 
 // 1. Define root account
-const account = Account.from({ privateKey: '0x...' })
+const account = Account.fromSecp256k1('0x...')
 
 // 2. Define access key attached to the root account
-const accessKey = Account.fromP256(generatePrivateKey(), {
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
   access: account,
 })
 
 // 3. Sign the key authorization
-const keyAuthorization = await Actions.accessKey.signAuthorization(
-  account,
-  {
-    accessKey,
-    expiry: Math.floor((Date.now() + 30_000) / 1000),
-  },
-)
+const keyAuthorization = await client.accessKey.signAuthorization({
+  accessKey,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
 ```
 
 :::
@@ -40,15 +40,15 @@ Use the `period` field on limits to set a recurring spending cap that resets aft
 
 ```ts twoslash
 import { parseUnits } from 'viem'
-import { generatePrivateKey } from 'viem/accounts'
-import { Account, Actions, Period } from 'viem/tempo'
+import { Account, Period, P256 } from 'viem/tempo'
+import { client } from './viem.config'
 
-const account = Account.from({ privateKey: '0x...' })
-const accessKey = Account.fromP256(generatePrivateKey(), {
+const account = Account.fromSecp256k1('0x...')
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
   access: account,
 })
 
-const keyAuthorization = await Actions.accessKey.signAuthorization(
+const keyAuthorization = await client.accessKey.signAuthorization(
   account,
   {
     accessKey,
@@ -69,15 +69,15 @@ Use `scopes` to restrict which contracts and functions the access key can call:
 
 ```ts twoslash
 import { parseUnits } from 'viem'
-import { generatePrivateKey } from 'viem/accounts'
-import { Account, Actions } from 'viem/tempo'
+import { Account, P256 } from 'viem/tempo'
+import { client } from './viem.config'
 
-const account = Account.from({ privateKey: '0x...' })
-const accessKey = Account.fromP256(generatePrivateKey(), {
+const account = Account.fromSecp256k1('0x...')
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
   access: account,
 })
 
-const keyAuthorization = await Actions.accessKey.signAuthorization(
+const keyAuthorization = await client.accessKey.signAuthorization(
   account,
   {
     accessKey,
