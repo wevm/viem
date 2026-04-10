@@ -2,6 +2,7 @@ import type { Abi } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
 import { seaportContractConfig } from '~test/abis.js'
+import type { Hex } from '../../types/misc.js'
 import {
   type EncodeEventTopicsParameters,
   encodeEventTopics,
@@ -173,4 +174,34 @@ test('abi has no errors', () => {
       },
     ],
   })
+})
+
+test('return type: anonymous event', () => {
+  const result = encodeEventTopics({
+    abi: [
+      {
+        anonymous: true,
+        inputs: [{ indexed: true, name: 'topic0', type: 'bytes32' }],
+        name: 'RawEvent',
+        type: 'event',
+      },
+    ] as const,
+  })
+
+  expectTypeOf(result).toEqualTypeOf<(Hex | Hex[] | null)[]>()
+})
+
+test('return type: non-anonymous event', () => {
+  const result = encodeEventTopics({
+    abi: [
+      {
+        anonymous: false,
+        inputs: [{ indexed: true, name: 'topic0', type: 'bytes32' }],
+        name: 'RawEvent',
+        type: 'event',
+      },
+    ] as const,
+  })
+
+  expectTypeOf(result).toEqualTypeOf<[Hex, ...(Hex | Hex[] | null)[]]>()
 })

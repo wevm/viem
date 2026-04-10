@@ -2,6 +2,7 @@ import type {
   Abi,
   AbiParameter,
   AbiParameterToPrimitiveType,
+  ExtractAbiEvent,
   ExtractAbiEvents,
 } from 'abitype'
 
@@ -66,7 +67,26 @@ export type EncodeEventTopicsParameters<
 > &
   (hasEvents extends true ? unknown : never)
 
-export type EncodeEventTopicsReturnType = [Hex, ...(Hex | Hex[] | null)[]]
+type EncodeEventTopic = Hex | Hex[] | null
+type EncodeEventTopicsArray = EncodeEventTopic[]
+type NonAnonymousEncodeEventTopicsReturnType = [Hex, ...EncodeEventTopicsArray]
+
+type EncodeEventTopicsAbiEvent<
+  abi extends Abi | readonly unknown[],
+  eventName extends ContractEventName<abi> | undefined,
+> = ExtractAbiEvent<
+  abi extends Abi ? abi : Abi,
+  eventName extends ContractEventName<abi> ? eventName : ContractEventName<abi>
+>
+
+export type EncodeEventTopicsReturnType<
+  abi extends Abi | readonly unknown[] = Abi,
+  eventName extends ContractEventName<abi> | undefined = ContractEventName<abi>,
+> = EncodeEventTopicsAbiEvent<abi, eventName> extends infer abiEvent
+  ? abiEvent extends { anonymous: true }
+    ? EncodeEventTopicsArray
+    : NonAnonymousEncodeEventTopicsReturnType
+  : NonAnonymousEncodeEventTopicsReturnType
 
 export type EncodeEventTopicsErrorType =
   | AbiEventNotFoundErrorType
@@ -81,7 +101,7 @@ export function encodeEventTopics<
   eventName extends ContractEventName<abi> | undefined = undefined,
 >(
   parameters: EncodeEventTopicsParameters<abi, eventName>,
-): EncodeEventTopicsReturnType {
+): EncodeEventTopicsReturnType<abi, eventName> {
   const { abi, eventName, args } = parameters as EncodeEventTopicsParameters
 
   let abiItem = abi[0]
@@ -94,10 +114,7 @@ export function encodeEventTopics<
   if (abiItem.type !== 'event')
     throw new AbiEventNotFoundError(undefined, { docsPath })
 
-  const definition = formatAbiItem(abiItem)
-  const signature = toEventSelector(definition as EventDefinition)
-
-  let topics: (Hex | Hex[] | null)[] = []
+  let topics: EncodeEventTopicsArray = []
   if (args && 'inputs' in abiItem) {
     const indexedInputs = abiItem.inputs?.filter(
       (param) => 'indexed' in param && param.indexed,
@@ -121,7 +138,13 @@ export function encodeEventTopics<
         }) ?? []
     }
   }
-  return [signature, ...topics]
+
+  if (abiItem.anonymous)
+    return topics as EncodeEventTopicsReturnType<abi, eventName>
+
+  const definition = formatAbiItem(abiItem)
+  const signature = toEventSelector(definition as EventDefinition)
+  return [signature, ...topics] as EncodeEventTopicsReturnType<abi, eventName>
 }
 
 export type EncodeArgErrorType =
