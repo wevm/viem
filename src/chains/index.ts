@@ -593,6 +593,11 @@ export { spicy } from './definitions/spicy.js'
 export { stable } from './definitions/stable.js'
 export { stableTestnet } from './definitions/stableTestnet.js'
 export {
+  statusHoodi,
+  statusHoodi as statusNetworkHoodi,
+} from './definitions/statusNetworkHoodi.js'
+/** @deprecated Use `statusHoodi` instead. */
+export {
   statusSepolia,
   statusSepolia as statusNetworkSepolia,
 } from './definitions/statusNetworkSepolia.js'
