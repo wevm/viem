@@ -1,5 +1,11 @@
 # viem
 
+## 2.47.13
+
+### Patch Changes
+
+- [#4480](https://github.com/wevm/viem/pull/4480) [`19d87ddf00c7195b60afb84887f249e8f2b16fb8`](https://github.com/wevm/viem/commit/19d87ddf00c7195b60afb84887f249e8f2b16fb8) Thanks [@jxom](https://github.com/jxom)! - **viem/tempo:** Added `simulate.simulateBlocks` and `simulate.simulateCalls` actions for `tempo_simulateV1`.
+
 ## 2.47.12
 
 ### Patch Changes
