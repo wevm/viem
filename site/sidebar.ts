@@ -1937,6 +1937,18 @@ export const sidebar = {
                 text: 'watchSetUserToken',
                 link: '/tempo/actions/fee.watchSetUserToken',
               },
+              {
+                text: 'getValidatorToken',
+                link: '/tempo/actions/fee.getValidatorToken',
+              },
+              {
+                text: 'setValidatorToken',
+                link: '/tempo/actions/fee.setValidatorToken',
+              },
+              {
+                text: 'watchSetValidatorToken',
+                link: '/tempo/actions/fee.watchSetValidatorToken',
+              },
             ],
           },
           {
