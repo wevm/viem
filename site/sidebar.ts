@@ -2048,6 +2048,20 @@ export const sidebar = {
             ],
           },
           {
+            text: 'Simulate',
+            collapsed: true,
+            items: [
+              {
+                text: 'simulateBlocks',
+                link: '/tempo/actions/simulate.simulateBlocks',
+              },
+              {
+                text: 'simulateCalls',
+                link: '/tempo/actions/simulate.simulateCalls',
+              },
+            ],
+          },
+          {
             text: 'Stablecoin DEX',
             collapsed: true,
             items: [

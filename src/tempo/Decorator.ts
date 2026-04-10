@@ -1,3 +1,4 @@
+import type { Address } from 'abitype'
 import type { Account } from '../accounts/types.js'
 import type { Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
@@ -10,6 +11,7 @@ import * as feeActions from './actions/fee.js'
 import * as nonceActions from './actions/nonce.js'
 import * as policyActions from './actions/policy.js'
 import * as rewardActions from './actions/reward.js'
+import * as simulateActions from './actions/simulate.js'
 import * as tokenActions from './actions/token.js'
 import * as validatorActions from './actions/validator.js'
 
@@ -2136,6 +2138,90 @@ export type Decorator<
       parameters: rewardActions.watchRewardRecipientSet.Parameters,
     ) => () => void
   }
+  simulate: {
+    /**
+     * Simulates a set of calls on block(s) via `tempo_simulateV1`.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http, parseUnits } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { Actions, tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: '0x...',
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { blocks, tokenMetadata } = await client.simulate.simulateBlocks({
+     *   blocks: [{
+     *     calls: [
+     *       Actions.token.transfer.call({
+     *         token: '0x20c0...01',
+     *         to: '0x...',
+     *         amount: parseUnits('100', 6),
+     *       }),
+     *     ],
+     *   }],
+     *   traceTransfers: true,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns Simulated blocks and token metadata.
+     */
+    simulateBlocks: <const calls extends readonly unknown[]>(
+      parameters: simulateActions.simulateBlocks.Parameters<calls>,
+    ) => Promise<simulateActions.simulateBlocks.ReturnType<calls>>
+    /**
+     * Simulates execution of a batch of calls via `tempo_simulateV1`.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http, parseUnits } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { Actions, Addresses, tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: '0x...',
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { results, tokenMetadata } = await client.simulate.simulateCalls({
+     *   calls: [
+     *     Actions.token.approve.call({
+     *       token: '0x20c0...01',
+     *       spender: Addresses.stablecoinDex,
+     *       amount: parseUnits('100', 6),
+     *     }),
+     *     Actions.dex.buy.call({
+     *       tokenIn: '0x20c0...01',
+     *       tokenOut: '0x20c0...02',
+     *       amountOut: parseUnits('10', 6),
+     *       maxAmountIn: parseUnits('100', 6),
+     *     }),
+     *     Actions.token.transfer.call({
+     *       token: '0x20c0...02',
+     *       to: '0x...',
+     *       amount: parseUnits('10', 6),
+     *     }),
+     *   ],
+     *   traceTransfers: true,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns Results, block, and token metadata.
+     */
+    simulateCalls: <
+      const calls extends readonly unknown[],
+      account extends Account | Address | undefined = undefined,
+    >(
+      parameters: simulateActions.simulateCalls.Parameters<calls, account>,
+    ) => Promise<simulateActions.simulateCalls.ReturnType<calls>>
+  }
   token: {
     /**
      * Approves a spender to transfer TIP20 tokens on behalf of the caller.
@@ -3865,6 +3951,12 @@ export function decorator() {
           rewardActions.watchRewardDistributed(client, parameters),
         watchRewardRecipientSet: (parameters) =>
           rewardActions.watchRewardRecipientSet(client, parameters),
+      },
+      simulate: {
+        simulateBlocks: (parameters) =>
+          simulateActions.simulateBlocks(client, parameters),
+        simulateCalls: (parameters) =>
+          simulateActions.simulateCalls(client, parameters),
       },
       token: {
         approve: (parameters) => tokenActions.approve(client, parameters),
