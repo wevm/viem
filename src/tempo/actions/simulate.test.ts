@@ -437,6 +437,87 @@ describe('simulateCalls', () => {
     `)
   })
 
+  test('behavior: balance diff across approve + dex swap + transfer', async () => {
+    // Set up token pair + liquidity on-chain
+    const { base, quote } = await setupTokenPair(client as never)
+
+    // Place sell order so there's liquidity to buy against
+    await actions.dex.placeSync(client, {
+      token: base,
+      amount: parseUnits('500', 6),
+      type: 'sell',
+      tick: Tick.fromPrice('1.001'),
+    })
+
+    const buyAmount = parseUnits('10', 6)
+
+    // Get balances before simulation
+    const [senderBaseBefore, senderQuoteBefore, recipientBaseBefore] =
+      await Promise.all([
+        actions.token.getBalance(client, {
+          token: base,
+          account: account.address,
+        }),
+        actions.token.getBalance(client, {
+          token: quote,
+          account: account.address,
+        }),
+        actions.token.getBalance(client, {
+          token: base,
+          account: accounts[1].address,
+        }),
+      ])
+
+    // Execute: approve DEX → buy → transfer out
+    const approveReceipt = await actions.token.approveSync(client, {
+      token: quote,
+      spender: Addresses.stablecoinDex,
+      amount: parseUnits('100', 6),
+    })
+    expect(approveReceipt.receipt.status).toBe('success')
+
+    const buyReceipt = await actions.dex.buySync(client, {
+      tokenIn: quote,
+      tokenOut: base,
+      amountOut: buyAmount,
+      maxAmountIn: parseUnits('100', 6),
+    })
+    expect(buyReceipt.receipt.status).toBe('success')
+
+    const transferReceipt = await actions.token.transferSync(client, {
+      token: base,
+      to: accounts[1].address,
+      amount: buyAmount,
+    })
+    expect(transferReceipt.receipt.status).toBe('success')
+
+    // Get balances after execution
+    const [senderBaseAfter, senderQuoteAfter, recipientBaseAfter] =
+      await Promise.all([
+        actions.token.getBalance(client, {
+          token: base,
+          account: account.address,
+        }),
+        actions.token.getBalance(client, {
+          token: quote,
+          account: account.address,
+        }),
+        actions.token.getBalance(client, {
+          token: base,
+          account: accounts[1].address,
+        }),
+      ])
+
+    // Sender's base balance should be unchanged (bought and then transferred out)
+    expect(senderBaseAfter).toBe(senderBaseBefore)
+
+    // Sender's quote balance should have decreased (spent on buy)
+    expect(senderQuoteAfter).toBeLessThan(senderQuoteBefore)
+
+    // Recipient's base balance should have increased by buyAmount
+    expect(recipientBaseAfter - recipientBaseBefore).toBe(buyAmount)
+  })
+
   test('behavior: multiple getBalance reads', async () => {
     const result = await actions.simulate.simulateCalls(client, {
       calls: [

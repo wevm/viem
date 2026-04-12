@@ -59,7 +59,7 @@ export type FillTransactionReturnType<
   ///
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = {
-  meta: Record<string, unknown>
+  meta?: Record<string, unknown> | undefined
   raw: Hex
   transaction: FormattedTransaction<_derivedChain>
 }
