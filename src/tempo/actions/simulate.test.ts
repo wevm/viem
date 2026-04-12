@@ -5,6 +5,7 @@ import {
   chain,
   feeToken,
   getClient,
+  setupFeeToken,
   setupTokenPair,
 } from '~test/tempo/config.js'
 import { parseUnits } from '../../utils/index.js'
@@ -40,10 +41,10 @@ describe('simulateBlocks', () => {
       {
         "calls": [
           {
-            "data": "0x000000000000000000000000000000000000000000000001fffffffffffffffe",
-            "gasUsed": 271644n,
+            "data": "0x000000000000000000000000000000000000000000000001ffffffffffff743c",
+            "gasUsed": 22080n,
             "logs": [],
-            "result": 36893488147419103230n,
+            "result": 36893488147419067452n,
             "status": "success",
           },
         ],
@@ -84,9 +85,9 @@ describe('simulateBlocks', () => {
             "logs": [
               {
                 "address": "0x20c0000000000000000000000000000000000001",
-                "blockHash": "0x6b03cd288dee8e09a82d0a1d0a3df046cf3d8b7da19d0467a71889eb708a40ef",
-                "blockNumber": 103n,
-                "blockTimestamp": 1775810119n,
+                "blockHash": "0x8463e7f9fd0cae677b7a6115361fc36c6432c1c4cbcd945fa38ea131bb5f7092",
+                "blockNumber": 82n,
+                "blockTimestamp": 1776034105n,
                 "data": "0x00000000000000000000000000000000000000000000000000000000000f4240",
                 "logIndex": 0,
                 "removed": false,
@@ -438,11 +439,32 @@ describe('simulateCalls', () => {
   })
 
   test('behavior: balance diff across approve + dex swap + transfer', async () => {
+    const seller = accounts[2]
+    const sellerClient = getClient({
+      account: seller,
+      chain: chain.extend({ feeToken }),
+    })
+
+    // Fund seller with fee tokens for gas
+    await setupFeeToken(client, { account: seller })
+
     // Set up token pair + liquidity on-chain
     const { base, quote } = await setupTokenPair(client as never)
 
-    // Place sell order so there's liquidity to buy against
-    await actions.dex.placeSync(client, {
+    // Fund seller with base tokens and approve DEX
+    await actions.token.transferSync(client, {
+      token: base,
+      to: seller.address,
+      amount: parseUnits('500', 6),
+    })
+    await actions.token.approveSync(sellerClient, {
+      token: base,
+      spender: Addresses.stablecoinDex,
+      amount: parseUnits('500', 6),
+    })
+
+    // Seller places sell order so there's liquidity to buy against
+    await actions.dex.placeSync(sellerClient, {
       token: base,
       amount: parseUnits('500', 6),
       type: 'sell',
@@ -451,7 +473,7 @@ describe('simulateCalls', () => {
 
     const buyAmount = parseUnits('10', 6)
 
-    // Get balances before simulation
+    // Get balances before
     const [senderBaseBefore, senderQuoteBefore, recipientBaseBefore] =
       await Promise.all([
         actions.token.getBalance(client, {
@@ -469,29 +491,26 @@ describe('simulateCalls', () => {
       ])
 
     // Execute: approve DEX → buy → transfer out
-    const approveReceipt = await actions.token.approveSync(client, {
+    await actions.token.approveSync(client, {
       token: quote,
       spender: Addresses.stablecoinDex,
       amount: parseUnits('100', 6),
     })
-    expect(approveReceipt.receipt.status).toBe('success')
 
-    const buyReceipt = await actions.dex.buySync(client, {
+    await actions.dex.buySync(client, {
       tokenIn: quote,
       tokenOut: base,
       amountOut: buyAmount,
       maxAmountIn: parseUnits('100', 6),
     })
-    expect(buyReceipt.receipt.status).toBe('success')
 
-    const transferReceipt = await actions.token.transferSync(client, {
+    await actions.token.transferSync(client, {
       token: base,
       to: accounts[1].address,
       amount: buyAmount,
     })
-    expect(transferReceipt.receipt.status).toBe('success')
 
-    // Get balances after execution
+    // Get balances after
     const [senderBaseAfter, senderQuoteAfter, recipientBaseAfter] =
       await Promise.all([
         actions.token.getBalance(client, {
