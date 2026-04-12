@@ -13,6 +13,7 @@ import type {
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
   TransactionSerializableEIP7702,
+  TransactionSerializableEIP8141,
   TransactionSerializableGeneric,
 } from '../../types/transaction.js'
 import type { Assign, ExactPartial, IsNever, OneOf } from '../../types/utils.js'
@@ -27,6 +28,7 @@ export type GetTransactionType<
     | (transaction extends EIP2930Properties ? 'eip2930' : never)
     | (transaction extends EIP4844Properties ? 'eip4844' : never)
     | (transaction extends EIP7702Properties ? 'eip7702' : never)
+    | (transaction extends EIP8141Properties ? 'eip8141' : never)
     | (transaction['type'] extends TransactionSerializableGeneric['type']
         ? Extract<transaction['type'], string>
         : never),
@@ -47,6 +49,12 @@ export function getTransactionType<
 >(transaction: transaction): GetTransactionType<transaction> {
   if (transaction.type)
     return transaction.type as GetTransactionType<transaction>
+
+  if (
+    typeof (transaction as TransactionSerializableEIP8141).frames !==
+    'undefined'
+  )
+    return 'eip8141' as any
 
   if (typeof transaction.authorizationList !== 'undefined')
     return 'eip7702' as any
@@ -132,3 +140,6 @@ type EIP7702Properties = Assign<
     authorizationList: TransactionSerializableEIP7702['authorizationList']
   }
 >
+type EIP8141Properties = {
+  frames: TransactionSerializableEIP8141['frames']
+}
