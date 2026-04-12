@@ -74,42 +74,48 @@ describe('simulateBlocks', () => {
       ],
     })
 
+    const call = result.blocks[0].calls[0]
+    const { data: _, ...callWithoutData } = call
+    const log = call.logs![0]
+
     expect({
-      calls: result.blocks[0].calls.map(({ data, ...c }) => c),
-      tokenMetadata: result.tokenMetadata,
+      ...callWithoutData,
+      logs: callWithoutData.logs?.map(
+        ({ blockHash, blockNumber, blockTimestamp, ...l }) => l,
+      ),
     }).toMatchInlineSnapshot(`
       {
-        "calls": [
+        "gasUsed": 297770n,
+        "logs": [
           {
-            "gasUsed": 297770n,
-            "logs": [
-              {
-                "address": "0x20c0000000000000000000000000000000000001",
-                "blockHash": "0x8463e7f9fd0cae677b7a6115361fc36c6432c1c4cbcd945fa38ea131bb5f7092",
-                "blockNumber": 82n,
-                "blockTimestamp": 1776034105n,
-                "data": "0x00000000000000000000000000000000000000000000000000000000000f4240",
-                "logIndex": 0,
-                "removed": false,
-                "topics": [
-                  "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-                  "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-                  "0x0000000000000000000000008c8d35429f74ec245f8ef2f4fd1e551cff97d650",
-                ],
-                "transactionHash": "0x1cf44b23d9c272c374ae0e2539b96673f0bf2e07a17afc696e4e3a4e256b7cef",
-                "transactionIndex": 0,
-              },
+            "address": "0x20c0000000000000000000000000000000000001",
+            "data": "0x00000000000000000000000000000000000000000000000000000000000f4240",
+            "logIndex": 0,
+            "removed": false,
+            "topics": [
+              "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+              "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+              "0x0000000000000000000000008c8d35429f74ec245f8ef2f4fd1e551cff97d650",
             ],
-            "result": true,
-            "status": "success",
+            "transactionHash": "0x1cf44b23d9c272c374ae0e2539b96673f0bf2e07a17afc696e4e3a4e256b7cef",
+            "transactionIndex": 0,
           },
         ],
-        "tokenMetadata": {
-          "0x20c0000000000000000000000000000000000001": {
-            "currency": "USD",
-            "name": "AlphaUSD",
-            "symbol": "AlphaUSD",
-          },
+        "result": true,
+        "status": "success",
+      }
+    `)
+
+    expect(log.blockHash).toBeDefined()
+    expect(log.blockNumber).toBeTypeOf('bigint')
+    expect(log.blockTimestamp).toBeTypeOf('bigint')
+
+    expect(result.tokenMetadata).toMatchInlineSnapshot(`
+      {
+        "0x20c0000000000000000000000000000000000001": {
+          "currency": "USD",
+          "name": "AlphaUSD",
+          "symbol": "AlphaUSD",
         },
       }
     `)
