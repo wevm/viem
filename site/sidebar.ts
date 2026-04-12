@@ -243,6 +243,10 @@ export const sidebar = {
               link: '/docs/actions/wallet/prepareTransactionRequest',
             },
             {
+              text: 'fillTransaction',
+              link: '/docs/actions/public/fillTransaction',
+            },
+            {
               text: 'getTransaction',
               link: '/docs/actions/public/getTransaction',
             },
