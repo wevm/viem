@@ -1395,8 +1395,16 @@ export const sidebar = {
             text: 'Actions',
             items: [
               {
-                text: 'grantPermissions',
-                link: '/experimental/erc7715/grantPermissions',
+                text: 'getGrantedExecutionPermissions',
+                link: '/experimental/erc7715/getGrantedExecutionPermissions',
+              },
+              {
+                text: 'getSupportedExecutionPermissions',
+                link: '/experimental/erc7715/getSupportedExecutionPermissions',
+              },
+              {
+                text: 'requestExecutionPermissions',
+                link: '/experimental/erc7715/requestExecutionPermissions',
               },
             ],
           },
