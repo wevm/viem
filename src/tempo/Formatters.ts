@@ -126,6 +126,8 @@ export function formatTransactionRequest(
       ? account.accessKeyAddress
       : undefined
 
+  if (account) rpc.from = account.address
+
   return {
     ...rpc,
     ...(keyData ? { keyData } : {}),

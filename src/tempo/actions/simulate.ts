@@ -303,7 +303,7 @@ export declare namespace simulateBlocks {
         }
       >
     })[]
-    tokenMetadata: Record<Address, TokenMetadata>
+    tokenMetadata: TokenMetadata
   }
 
   export type ErrorType =
@@ -445,7 +445,7 @@ export declare namespace simulateCalls {
       }
     >
     /** Token metadata resolved from the simulation. */
-    tokenMetadata: Record<Address, TokenMetadata>
+    tokenMetadata: TokenMetadata
   }
 
   export type ErrorType = simulateBlocks.ErrorType | ErrorType_

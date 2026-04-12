@@ -59,6 +59,7 @@ export type FillTransactionReturnType<
   ///
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = {
+  meta: Record<string, unknown>
   raw: Hex
   transaction: FormattedTransaction<_derivedChain>
 }
@@ -227,10 +228,12 @@ export async function fillTransaction<
       BigInt(denominator)
 
     // Apply fee multiplier.
-    if (transaction.maxFeePerGas && !parameters.maxFeePerGas)
-      transaction.maxFeePerGas = multiplyFee(transaction.maxFeePerGas)
-    if (transaction.gasPrice && !parameters.gasPrice)
-      transaction.gasPrice = multiplyFee(transaction.gasPrice)
+    if (!transaction.feePayerSignature) {
+      if (transaction.maxFeePerGas && !parameters.maxFeePerGas)
+        transaction.maxFeePerGas = multiplyFee(transaction.maxFeePerGas)
+      if (transaction.gasPrice && !parameters.gasPrice)
+        transaction.gasPrice = multiplyFee(transaction.gasPrice)
+    }
 
     return {
       raw: response.raw,
@@ -238,6 +241,7 @@ export async function fillTransaction<
         from: request.from,
         ...transaction,
       },
+      ...(response.meta ? { meta: response.meta } : {}),
     }
   } catch (err) {
     throw getTransactionError(
