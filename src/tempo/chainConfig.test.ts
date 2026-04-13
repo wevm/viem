@@ -459,7 +459,7 @@ describe('verifyHash', () => {
   test('behavior: non-tempo chain (client)', async () => {
     const client = createClient({
       chain: mainnet,
-      transport: http(),
+      transport: http('https://eth.drpc.org'),
     })
 
     const privateKey = P256.randomPrivateKey()
