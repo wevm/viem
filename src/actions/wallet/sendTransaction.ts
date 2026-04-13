@@ -336,9 +336,12 @@ export async function sendTransaction<
       } as any)
 
       const serializer = chain?.serializers?.transaction
-      const serializedTransaction = (await account.signTransaction(request as never, {
-        serializer,
-      })) as Hash
+      const serializedTransaction = (await account.signTransaction(
+        request as never,
+        {
+          serializer,
+        },
+      )) as Hash
       return await getAction(
         client,
         sendRawTransaction,
