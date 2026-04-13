@@ -432,6 +432,12 @@ export async function prepareTransactionRequest<
             rest.feePayerSignature !== null
               ? { feePayerSignature: rest.feePayerSignature }
               : {}),
+            ...('feeToken' in rest &&
+            typeof rest.feeToken !== 'undefined' &&
+            rest.feeToken !== null &&
+            !('feeToken' in request)
+              ? { feeToken: rest.feeToken }
+              : {}),
             ...(result.capabilities
               ? { _capabilities: result.capabilities }
               : {}),
