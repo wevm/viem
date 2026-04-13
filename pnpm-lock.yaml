@@ -243,7 +243,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.11(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.12(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -256,7 +256,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.11(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.12(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -269,7 +269,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.11(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.12(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -282,7 +282,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.11(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.12(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -295,7 +295,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.11(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.12(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -314,7 +314,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.47.11(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.12(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -342,7 +342,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.47.11(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.12(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -364,7 +364,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.11(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.12(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -377,7 +377,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.11(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.12(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -396,7 +396,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.47.11(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.12(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -418,7 +418,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.11(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.12(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -431,7 +431,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.11(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.12(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -444,7 +444,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.11(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.12(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -457,7 +457,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.11(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.12(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -504,7 +504,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.47.11(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.12(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -532,7 +532,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.47.11(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.12(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -554,7 +554,7 @@ importers:
     dependencies:
       viem:
         specifier: latest
-        version: 2.47.11(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.12(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       typescript:
         specifier: ^5.0.3
@@ -573,7 +573,7 @@ importers:
         version: 19.0.0(react@19.0.0)
       viem:
         specifier: latest
-        version: 2.47.11(typescript@5.6.2)(zod@4.3.6)
+        version: 2.47.12(typescript@5.6.2)(zod@4.3.6)
     devDependencies:
       '@types/react':
         specifier: ^19
@@ -619,7 +619,7 @@ importers:
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
       vocs:
         specifier: https://pkg.pr.new/wevm/vocs@59e3450
-        version: https://pkg.pr.new/wevm/vocs@59e3450(@types/react@19.0.8)(next@16.2.3(@babel/core@7.28.5)(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(rollup@4.59.0)(typescript@6.0.2)(vite@7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))(waku@1.0.0-alpha.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
+        version: https://pkg.pr.new/wevm/vocs@59e3450(@types/react@19.0.8)(next@16.2.3(@babel/core@7.28.5)(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(rollup@4.59.0)(typescript@5.9.3)(vite@7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))(waku@1.0.0-alpha.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
       waku:
         specifier: 1.0.0-alpha.2
         version: 1.0.0-alpha.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -6258,14 +6258,6 @@ packages:
   vfile@6.0.3:
     resolution: {integrity: sha512-KzIbH/9tXat2u30jf+smMwFCsno4wHVdNmzFyL+T/L3UGqqk6JKfVqOFOZEpZSHADH1k40ab6NUIXZq422ov3Q==}
 
-  viem@2.47.11:
-    resolution: {integrity: sha512-UbEKBW11wKI+TkGMl3ONPvFYN2tV0Srhtm6Bbvct/cirhBRNfv0hB3S1Pnn/zIl+U0RvNEm+yRXEOQVIr8rK+g==}
-    peerDependencies:
-      typescript: '>=5.0.4'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
   viem@2.47.12:
     resolution: {integrity: sha512-tz3CBeGUMU357aZqzlHskgAiEoC3k0/PuEwBSOxh4EQ3uuNr4GJ2Gc67ArNYmdm4MVTVL+rsRdKYoqbloUva6g==}
     peerDependencies:
@@ -8496,12 +8488,12 @@ snapshots:
       '@shikijs/core': 3.21.0
       '@shikijs/types': 3.21.0
 
-  '@shikijs/twoslash@3.21.0(typescript@6.0.2)':
+  '@shikijs/twoslash@3.21.0(typescript@5.9.3)':
     dependencies:
       '@shikijs/core': 3.21.0
       '@shikijs/types': 3.21.0
-      twoslash: 0.3.6(typescript@6.0.2)
-      typescript: 6.0.2
+      twoslash: 0.3.6(typescript@5.9.3)
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
@@ -8611,12 +8603,12 @@ snapshots:
       '@svgr/babel-plugin-transform-react-native-svg': 8.1.0(@babel/core@7.28.5)
       '@svgr/babel-plugin-transform-svg-component': 8.0.0(@babel/core@7.28.5)
 
-  '@svgr/core@8.1.0(typescript@6.0.2)':
+  '@svgr/core@8.1.0(typescript@5.9.3)':
     dependencies:
       '@babel/core': 7.28.5
       '@svgr/babel-preset': 8.1.0(@babel/core@7.28.5)
       camelcase: 6.3.0
-      cosmiconfig: 8.3.6(typescript@6.0.2)
+      cosmiconfig: 8.3.6(typescript@5.9.3)
       snake-case: 3.0.4
     transitivePeerDependencies:
       - supports-color
@@ -8627,11 +8619,11 @@ snapshots:
       '@babel/types': 7.28.5
       entities: 4.5.0
 
-  '@svgr/plugin-jsx@8.1.0(@svgr/core@8.1.0(typescript@6.0.2))':
+  '@svgr/plugin-jsx@8.1.0(@svgr/core@8.1.0(typescript@5.9.3))':
     dependencies:
       '@babel/core': 7.28.5
       '@svgr/babel-preset': 8.1.0(@babel/core@7.28.5)
-      '@svgr/core': 8.1.0(typescript@6.0.2)
+      '@svgr/core': 8.1.0(typescript@5.9.3)
       '@svgr/hast-util-to-babel-ast': 8.0.0
       svg-parser: 2.0.4
     transitivePeerDependencies:
@@ -8915,10 +8907,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript/vfs@1.6.2(typescript@6.0.2)':
+  '@typescript/vfs@1.6.2(typescript@5.9.3)':
     dependencies:
       debug: 4.4.3
-      typescript: 6.0.2
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
@@ -9583,14 +9575,14 @@ snapshots:
       object-assign: 4.1.1
       vary: 1.1.2
 
-  cosmiconfig@8.3.6(typescript@6.0.2):
+  cosmiconfig@8.3.6(typescript@5.9.3):
     dependencies:
       import-fresh: 3.3.1
       js-yaml: 4.1.1
       parse-json: 5.2.0
       path-type: 4.0.0
     optionalDependencies:
-      typescript: 6.0.2
+      typescript: 5.9.3
 
   cpu-features@0.0.10:
     dependencies:
@@ -12856,11 +12848,11 @@ snapshots:
 
   twoslash-protocol@0.3.6: {}
 
-  twoslash@0.3.6(typescript@6.0.2):
+  twoslash@0.3.6(typescript@5.9.3):
     dependencies:
-      '@typescript/vfs': 1.6.2(typescript@6.0.2)
+      '@typescript/vfs': 1.6.2(typescript@5.9.3)
       twoslash-protocol: 0.3.6
-      typescript: 6.0.2
+      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
 
@@ -12954,7 +12946,7 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  unplugin-icons@22.5.0(@svgr/core@8.1.0(typescript@6.0.2)):
+  unplugin-icons@22.5.0(@svgr/core@8.1.0(typescript@5.9.3)):
     dependencies:
       '@antfu/install-pkg': 1.1.0
       '@iconify/utils': 3.1.0
@@ -12962,7 +12954,7 @@ snapshots:
       local-pkg: 1.1.2
       unplugin: 2.3.11
     optionalDependencies:
-      '@svgr/core': 8.1.0(typescript@6.0.2)
+      '@svgr/core': 8.1.0(typescript@5.9.3)
     transitivePeerDependencies:
       - supports-color
 
@@ -13013,7 +13005,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.2
 
-  viem@2.47.11(typescript@5.6.2)(zod@4.3.6):
+  viem@2.47.12(typescript@5.6.2)(zod@4.3.6):
     dependencies:
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
@@ -13163,7 +13155,7 @@ snapshots:
       - tsx
       - yaml
 
-  vocs@https://pkg.pr.new/wevm/vocs@59e3450(@types/react@19.0.8)(next@16.2.3(@babel/core@7.28.5)(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(rollup@4.59.0)(typescript@6.0.2)(vite@7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))(waku@1.0.0-alpha.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)):
+  vocs@https://pkg.pr.new/wevm/vocs@59e3450(@types/react@19.0.8)(next@16.2.3(@babel/core@7.28.5)(@opentelemetry/api@1.7.0)(@playwright/test@1.55.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(rollup@4.59.0)(typescript@5.9.3)(vite@7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))(waku@1.0.0-alpha.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(react-dom@19.2.3(react@19.2.3))(react-server-dom-webpack@19.2.5(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(webpack@5.104.1))(react@19.2.3)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)):
     dependencies:
       '@base-ui/react': 1.1.0(@types/react@19.0.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@codesandbox/sandpack-react': 2.20.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -13179,10 +13171,10 @@ snapshots:
       '@remix-run/node-fetch-server': 0.13.0
       '@shikijs/rehype': 3.21.0
       '@shikijs/transformers': 3.21.0
-      '@shikijs/twoslash': 3.21.0(typescript@6.0.2)
+      '@shikijs/twoslash': 3.21.0(typescript@5.9.3)
       '@shikijs/types': 3.21.0
-      '@svgr/core': 8.1.0(typescript@6.0.2)
-      '@svgr/plugin-jsx': 8.1.0(@svgr/core@8.1.0(typescript@6.0.2))
+      '@svgr/core': 8.1.0(typescript@5.9.3)
+      '@svgr/plugin-jsx': 8.1.0(@svgr/core@8.1.0(typescript@5.9.3))
       '@tailwindcss/vite': 4.1.15(vite@7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
       '@takumi-rs/image-response': 0.62.8
       '@takumi-rs/wasm': 0.62.8
@@ -13226,10 +13218,10 @@ snapshots:
       tailwindcss: 4.1.16
       tailwindcss-logical: 4.2.0(tailwindcss@4.1.16)
       tsx: 4.21.0
-      twoslash: 0.3.6(typescript@6.0.2)
+      twoslash: 0.3.6(typescript@5.9.3)
       unified: 11.0.5
       unist-util-visit: 5.0.0
-      unplugin-icons: 22.5.0(@svgr/core@8.1.0(typescript@6.0.2))
+      unplugin-icons: 22.5.0(@svgr/core@8.1.0(typescript@5.9.3))
       urlpattern-polyfill: 10.1.0
       vfile: 6.0.3
       vite-plugin-arraybuffer: 0.1.4
