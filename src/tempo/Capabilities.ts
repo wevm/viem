@@ -16,6 +16,7 @@ export type Schema = Omit<DefaultCapabilitiesSchema, 'sendCalls'> & {
 export type FillTransactionCapabilities = {
   autoSwap?:
     | {
+        calls: readonly { to: Address; data: Hex, value: Hex }[]
         maxIn: SwapAmount
         minOut: SwapAmount
         slippage: number
