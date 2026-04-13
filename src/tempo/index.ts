@@ -16,15 +16,15 @@ export * as Account from './Account.js'
 export * as Addresses from './Addresses.js'
 export * as Actions from './actions/index.js'
 export * as Capabilities from './Capabilities.js'
-export {
-  type Decorator as TempoActions,
-  decorator as tempoActions,
-} from './Decorator.js'
 export type {
   BalanceDiff,
   CapabilitiesSchema,
   SwapAmount,
 } from './CapabilitiesSchema.js'
+export {
+  type Decorator as TempoActions,
+  decorator as tempoActions,
+} from './Decorator.js'
 export * as Expiry from './Expiry.js'
 export * as Formatters from './Formatters.js'
 export * as Hardfork from './Hardfork.js'

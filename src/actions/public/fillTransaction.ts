@@ -6,6 +6,7 @@ import type { BaseError } from '../../errors/base.js'
 import { BaseFeeScalarError } from '../../errors/fee.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../types/account.js'
+import type { ExtractCapabilities } from '../../types/capabilities.js'
 import type {
   Chain,
   ChainFeesFnParameters,
@@ -13,7 +14,6 @@ import type {
   GetChainParameter,
 } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
-import type { ExtractCapabilities } from '../../types/capabilities.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {
@@ -60,7 +60,9 @@ export type FillTransactionReturnType<
   ///
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = {
-  capabilities?: ExtractCapabilities<'fillTransaction', 'ReturnType'> | undefined
+  capabilities?:
+    | ExtractCapabilities<'fillTransaction', 'ReturnType'>
+    | undefined
   raw: Hex
   transaction: FormattedTransaction<_derivedChain>
 }

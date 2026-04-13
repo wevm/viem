@@ -31,6 +31,7 @@ import {
 } from '../../errors/fee.js'
 import type { DeriveAccount, GetAccountParameter } from '../../types/account.js'
 import type { Block } from '../../types/block.js'
+import type { ExtractCapabilities } from '../../types/capabilities.js'
 import type {
   Chain,
   DeriveChain,
@@ -53,7 +54,6 @@ import type {
   UnionOmit,
   UnionRequiredBy,
 } from '../../types/utils.js'
-import type { ExtractCapabilities } from '../../types/capabilities.js'
 import { blobsToCommitments } from '../../utils/blob/blobsToCommitments.js'
 import { blobsToProofs } from '../../utils/blob/blobsToProofs.js'
 import { commitmentsToVersionedHashes } from '../../utils/blob/commitmentsToVersionedHashes.js'
@@ -193,7 +193,10 @@ export type PrepareTransactionRequestReturnType<
     >
   > &
     (unknown extends request['kzg'] ? {} : Pick<request, 'kzg'>) & {
-      _capabilities?: ExtractCapabilities<'fillTransaction', 'ReturnType'> | undefined
+      // TODO(v3): Extract `prepareTransactionRequest` response into a named object of `{ capabilities, request }.
+      _capabilities?:
+        | ExtractCapabilities<'fillTransaction', 'ReturnType'>
+        | undefined
     }
 >
 
@@ -429,7 +432,9 @@ export async function prepareTransactionRequest<
             rest.feePayerSignature !== null
               ? { feePayerSignature: rest.feePayerSignature }
               : {}),
-            ...(result.capabilities ? { _capabilities: result.capabilities } : {}),
+            ...(result.capabilities
+              ? { _capabilities: result.capabilities }
+              : {}),
           }
         })
         .catch((e) => {
