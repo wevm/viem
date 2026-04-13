@@ -288,6 +288,10 @@ export async function encryptedDeposit<
     }),
   ])
 
+  if (keyIndex === 0n) {
+    throw new Error('No sequencer encryption key configured.')
+  }
+
   const encrypted = await encryptDepositPayload(
     { x: publicKey[0], yParity: publicKey[1] },
     recipient,
@@ -298,7 +302,7 @@ export async function encryptedDeposit<
     ...parameters,
     chainId,
     encrypted,
-    keyIndex,
+    keyIndex: keyIndex - 1n,
     recipient,
   }
   return sendTransaction(client, {
@@ -443,6 +447,10 @@ export async function encryptedDepositSync<
     }),
   ])
 
+  if (keyIndex === 0n) {
+    throw new Error('No sequencer encryption key configured.')
+  }
+
   const encrypted = await encryptDepositPayload(
     { x: publicKey[0], yParity: publicKey[1] },
     recipient,
@@ -453,7 +461,7 @@ export async function encryptedDepositSync<
     ...parameters,
     chainId,
     encrypted,
-    keyIndex,
+    keyIndex: keyIndex - 1n,
     recipient,
   }
   const receipt = await sendTransactionSync(client, {
