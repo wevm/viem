@@ -129,6 +129,9 @@ export async function getTimeToNextGame<
     // then we assume that the dispute game has already been submitted.
     if (latestGame.l2BlockNumber > l2BlockNumber) return 0
 
+    // If there is only a single game, no interval data
+    if (intervalWithBuffer === 0) return 0                                                                          
+
     const elapsedBlocks = Number(l2BlockNumber - latestGame.l2BlockNumber)
 
     const elapsed = Math.ceil((now - latestGameTimestamp) / 1000)
