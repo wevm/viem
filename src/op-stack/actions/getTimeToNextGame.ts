@@ -87,6 +87,10 @@ export async function getTimeToNextGame<
     limit: 10,
   })
 
+  if (games.length === 0) {                                                                                                                              
+    return { interval: 0, seconds: 0, timestamp: undefined }                                                                                             
+  }           
+
   const deltas = games
     .map(({ l2BlockNumber, timestamp }, index) => {
       return index === games.length - 1
@@ -97,18 +101,17 @@ export async function getTimeToNextGame<
           ]
     })
     .filter(Boolean)
-  const interval = Math.ceil(
-    (deltas as [bigint, bigint][]).reduce(
-      (a, [b]) => Number(a) - Number(b),
-      0,
-    ) / deltas.length,
-  )
-  const blockInterval = Math.ceil(
-    (deltas as [bigint, bigint][]).reduce(
-      (a, [_, b]) => Number(a) - Number(b),
-      0,
-    ) / deltas.length,
-  )
+
+  const interval = deltas.length > 0                  
+    ? Math.ceil(                                                                                                                                         
+        (deltas as [bigint, bigint][]).reduce((a, [b]) => Number(a) - Number(b), 0) / deltas.length,
+      )                                                                                                                                                  
+    : 0                                               
+  const blockInterval = deltas.length > 0                                                                                                                
+    ? Math.ceil(                                 
+        (deltas as [bigint, bigint][]).reduce((a, [_, b]) => Number(a) - Number(b), 0) / deltas.length,
+      )                                                                                                                                                  
+    : 0
 
   const latestGame = games[0]
   const latestGameTimestamp = Number(latestGame.timestamp) * 1000
