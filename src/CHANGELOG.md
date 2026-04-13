@@ -1,5 +1,17 @@
 # viem
 
+## 2.47.14
+
+### Patch Changes
+
+- [`d916060143305c4d321d30fd29b061069427d2a3`](https://github.com/wevm/viem/commit/d916060143305c4d321d30fd29b061069427d2a3) Thanks [@jxom](https://github.com/jxom)! - Fixed `formatTransactionRequest` to include `from` field from account address.
+
+- [`d916060143305c4d321d30fd29b061069427d2a3`](https://github.com/wevm/viem/commit/d916060143305c4d321d30fd29b061069427d2a3) Thanks [@jxom](https://github.com/jxom)! - Fixed `fillTransaction` to skip fee multiplier when `feePayerSignature` is present.
+
+- [`d916060143305c4d321d30fd29b061069427d2a3`](https://github.com/wevm/viem/commit/d916060143305c4d321d30fd29b061069427d2a3) Thanks [@jxom](https://github.com/jxom)! - Added `meta` property to `fillTransaction` return type.
+
+- [`d916060143305c4d321d30fd29b061069427d2a3`](https://github.com/wevm/viem/commit/d916060143305c4d321d30fd29b061069427d2a3) Thanks [@jxom](https://github.com/jxom)! - Fixed `simulateBlocks` and `simulateCalls` `tokenMetadata` return type.
+
 ## 2.47.13
 
 ### Patch Changes
