@@ -1,5 +1,15 @@
 # viem
 
+## 2.47.17
+
+### Patch Changes
+
+- [`0b4bde619e71eefa206381e1be43b02ff4b1305b`](https://github.com/wevm/viem/commit/0b4bde619e71eefa206381e1be43b02ff4b1305b) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed `prepareTransactionRequest` dropping `feeToken` from `eth_fillTransaction` response.
+
+- [`0b4bde619e71eefa206381e1be43b02ff4b1305b`](https://github.com/wevm/viem/commit/0b4bde619e71eefa206381e1be43b02ff4b1305b) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed `Account.signTransaction` computing wrong presign hash when `feePayerSignature` is present by normalizing it to `null` before hashing.
+
+- [`0b4bde619e71eefa206381e1be43b02ff4b1305b`](https://github.com/wevm/viem/commit/0b4bde619e71eefa206381e1be43b02ff4b1305b) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed `serializeTempo` collapsing `feePayerSignature: null` (presign marker) to `undefined`, causing the `0x00` fee-payer marker to be omitted from serialization.
+
 ## 2.47.16
 
 ### Patch Changes
