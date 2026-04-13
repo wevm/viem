@@ -194,6 +194,19 @@ describe('deposit', () => {
 })
 
 describe('requestWithdrawal', () => {
+  test('behavior: encodes the 8-argument outbox requestWithdrawal call', () => {
+    const [, call] = zoneActions.requestWithdrawal.calls({
+      amount: 1n,
+      to: account.address,
+      token: '0x20c0000000000000000000000000000000000001',
+    })
+
+    expect(call.functionName).toBe('requestWithdrawal')
+    expect(call.args).toHaveLength(8)
+    expect(call.args[6]).toBe('0x')
+    expect(call.args[7]).toBe('0x')
+  })
+
   test('behavior: requests withdrawal from zone to parent chain', async () => {
     await zoneActions.signAuthorizationToken(zoneClient)
 
@@ -228,6 +241,20 @@ describe('requestWithdrawal', () => {
 })
 
 describe('requestVerifiableWithdrawal', () => {
+  test('behavior: encodes the same outbox requestWithdrawal call with revealTo', () => {
+    const revealTo = '0x02abc'
+    const [, call] = zoneActions.requestVerifiableWithdrawal.calls({
+      amount: 1n,
+      revealTo,
+      to: account.address,
+      token: '0x20c0000000000000000000000000000000000001',
+    })
+
+    expect(call.functionName).toBe('requestWithdrawal')
+    expect(call.args).toHaveLength(8)
+    expect(call.args[7]).toBe(revealTo)
+  })
+
   test('behavior: requests verifiable withdrawal from zone', async () => {
     await zoneActions.signAuthorizationToken(zoneClient)
 

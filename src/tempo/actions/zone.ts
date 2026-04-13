@@ -868,6 +868,7 @@ export namespace requestWithdrawal {
           gas,
           fallbackRecipient,
           data,
+          '0x',
         ],
       }),
     ]
@@ -1046,7 +1047,7 @@ export namespace requestVerifiableWithdrawal {
       defineCall({
         address: Addresses.zoneOutbox,
         abi: ZoneAbis.zoneOutbox,
-        functionName: 'requestVerifiableWithdrawal',
+        functionName: 'requestWithdrawal',
         args: [
           TokenId.toAddress(token),
           to,
