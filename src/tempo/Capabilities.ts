@@ -22,12 +22,14 @@ export type FillTransactionCapabilities = {
       }
     | undefined
   balanceDiffs?: Readonly<Record<Address, readonly BalanceDiff[]>> | undefined
-  fee?: {
-    amount: Hex
-    decimals: number
-    formatted: string
-    symbol: string
-  } | undefined
+  fee?:
+    | {
+        amount: Hex
+        decimals: number
+        formatted: string
+        symbol: string
+      }
+    | undefined
   sponsor?:
     | {
         address: Address
