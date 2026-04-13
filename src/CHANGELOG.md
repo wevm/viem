@@ -1,5 +1,11 @@
 # viem
 
+## 2.47.16
+
+### Patch Changes
+
+- [`ca6dfc6c51b4cf2b4200f48d363769abf23989ca`](https://github.com/wevm/viem/commit/ca6dfc6c51b4cf2b4200f48d363769abf23989ca) Thanks [@jxom](https://github.com/jxom)! - Renamed `_capabilities` to `capabilities` on `prepareTransactionRequest` response.
+
 ## 2.47.15
 
 ### Patch Changes
