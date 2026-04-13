@@ -1,5 +1,11 @@
 # viem
 
+## 2.47.15
+
+### Patch Changes
+
+- [`c1893fa232bd0f4fe747167cf4ea44a9a7cf05be`](https://github.com/wevm/viem/commit/c1893fa232bd0f4fe747167cf4ea44a9a7cf05be) Thanks [@jxom](https://github.com/jxom)! - Added EIP-5792 `capabilities` to `fillTransaction` return type.
+
 ## 2.47.14
 
 ### Patch Changes
