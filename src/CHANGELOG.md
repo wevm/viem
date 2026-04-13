@@ -1,5 +1,11 @@
 # viem
 
+## 2.47.16
+
+### Patch Changes
+
+- [`d4754544554200a01d226464ec6bded3eb44c88f`](https://github.com/wevm/viem/commit/d4754544554200a01d226464ec6bded3eb44c88f) Thanks [@jxom](https://github.com/jxom)! - Fixed types.
+
 ## 2.47.15
 
 ### Patch Changes
