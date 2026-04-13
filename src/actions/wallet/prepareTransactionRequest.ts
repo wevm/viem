@@ -194,7 +194,7 @@ export type PrepareTransactionRequestReturnType<
   > &
     (unknown extends request['kzg'] ? {} : Pick<request, 'kzg'>) & {
       // TODO(v3): Extract `prepareTransactionRequest` response into a named object of `{ capabilities, request }.
-      _capabilities?:
+      capabilities?:
         | ExtractCapabilities<'fillTransaction', 'ReturnType'>
         | undefined
     }
@@ -433,7 +433,7 @@ export async function prepareTransactionRequest<
               ? { feePayerSignature: rest.feePayerSignature }
               : {}),
             ...(result.capabilities
-              ? { _capabilities: result.capabilities }
+              ? { capabilities: result.capabilities }
               : {}),
           }
         })
