@@ -13,6 +13,7 @@ import type {
   GetChainParameter,
 } from '../../types/chain.js'
 import type { Hex } from '../../types/misc.js'
+import type { ExtractCapabilities } from '../../types/capabilities.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
 import {
@@ -59,7 +60,7 @@ export type FillTransactionReturnType<
   ///
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
 > = {
-  meta?: Record<string, unknown> | undefined
+  capabilities?: ExtractCapabilities<'fillTransaction', 'ReturnType'> | undefined
   raw: Hex
   transaction: FormattedTransaction<_derivedChain>
 }
@@ -241,7 +242,7 @@ export async function fillTransaction<
         from: request.from,
         ...transaction,
       },
-      ...(response.meta ? { meta: response.meta } : {}),
+      ...(response.capabilities ? { capabilities: response.capabilities } : {}),
     }
   } catch (err) {
     throw getTransactionError(

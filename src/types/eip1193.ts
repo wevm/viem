@@ -764,7 +764,7 @@ export type PublicRpcSchema = [
     Method: 'eth_fillTransaction'
     Parameters: [transaction: TransactionRequest]
     ReturnType: {
-      meta?: Record<string, unknown> | undefined
+      capabilities?: Record<string, unknown> | undefined
       raw: Hex
       tx: Transaction
     }
@@ -1728,7 +1728,7 @@ export type WalletRpcSchema = [
     Method: 'eth_fillTransaction'
     Parameters: [transaction: TransactionRequest]
     ReturnType: {
-      meta?: Record<string, unknown> | undefined
+      capabilities?: Record<string, unknown> | undefined
       raw: Hex
       tx: Transaction
     }

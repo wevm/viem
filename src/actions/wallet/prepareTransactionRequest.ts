@@ -53,6 +53,7 @@ import type {
   UnionOmit,
   UnionRequiredBy,
 } from '../../types/utils.js'
+import type { ExtractCapabilities } from '../../types/capabilities.js'
 import { blobsToCommitments } from '../../utils/blob/blobsToCommitments.js'
 import { blobsToProofs } from '../../utils/blob/blobsToProofs.js'
 import { commitmentsToVersionedHashes } from '../../utils/blob/commitmentsToVersionedHashes.js'
@@ -191,7 +192,9 @@ export type PrepareTransactionRequestReturnType<
         : (typeof defaultParameters)[number]
     >
   > &
-    (unknown extends request['kzg'] ? {} : Pick<request, 'kzg'>)
+    (unknown extends request['kzg'] ? {} : Pick<request, 'kzg'>) & {
+      _capabilities?: ExtractCapabilities<'fillTransaction', 'ReturnType'> | undefined
+    }
 >
 
 export type PrepareTransactionRequestErrorType =
@@ -426,6 +429,7 @@ export async function prepareTransactionRequest<
             rest.feePayerSignature !== null
               ? { feePayerSignature: rest.feePayerSignature }
               : {}),
+            ...(result.capabilities ? { _capabilities: result.capabilities } : {}),
           }
         })
         .catch((e) => {

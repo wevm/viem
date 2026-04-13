@@ -20,6 +20,11 @@ export {
   type Decorator as TempoActions,
   decorator as tempoActions,
 } from './Decorator.js'
+export type {
+  BalanceDiff,
+  CapabilitiesSchema,
+  SwapAmount,
+} from './CapabilitiesSchema.js'
 export * as Expiry from './Expiry.js'
 export * as Formatters from './Formatters.js'
 export * as Hardfork from './Hardfork.js'
