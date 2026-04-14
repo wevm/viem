@@ -253,7 +253,21 @@ function defineAnvil<const chain extends Chain>(
               address: accounts[1].address,
             } as any
 
-          return request({ method, params }, opts)
+          // Retry on transient HTTP 400 errors from prool/anvil proxy
+          // during instance startup.
+          for (let i = 0; ; i++) {
+            try {
+              return await request({ method, params }, opts)
+            } catch (err) {
+              const isRetryable =
+                i < 3 &&
+                err instanceof Error &&
+                'status' in err &&
+                (err as any).status === 400
+              if (!isRetryable) throw err
+              await new Promise((resolve) => setTimeout(resolve, 1000))
+            }
+          }
         },
         value,
       }
