@@ -46,6 +46,31 @@ export function withFeePayer(
       key: withFeePayer.type,
       name: 'Relay Proxy',
       async request({ method, params }, options) {
+        if (method === 'eth_fillTransaction') {
+          const request = (params as readonly unknown[] | undefined)?.[0]
+          if (
+            request &&
+            typeof request === 'object' &&
+            'feePayer' in request &&
+            (request.feePayer === true || typeof request.feePayer === 'string')
+          ) {
+            return transport_relay.request(
+              {
+                method,
+                params: [
+                  {
+                    ...request,
+                    feePayer: true,
+                    chainId: config.chain?.id
+                      ? `0x${config.chain.id.toString(16)}`
+                      : undefined,
+                  },
+                ],
+              },
+              options,
+            ) as never
+          }
+        }
         if (
           method === 'eth_sendRawTransactionSync' ||
           method === 'eth_sendRawTransaction'
