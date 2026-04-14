@@ -16,7 +16,10 @@ import { walletNamespaceCompat, withFeePayer } from './Transport.js'
 
 describe('withFeePayer', () => {
   let server: Http.Server
-  let feePayerRequests: string[] = []
+  let feePayerRequests: Array<{
+    method: string
+    params: readonly unknown[] | undefined
+  }> = []
 
   beforeAll(async () => {
     server = Http.createServer(
@@ -25,9 +28,24 @@ describe('withFeePayer', () => {
           account: accounts[0],
         })
 
-        const request = RpcRequest.from(await r.json())
+        const request = RpcRequest.from(
+          await r.json(),
+        ) as RpcRequest.RpcRequest<any>
 
-        feePayerRequests.push(request.method)
+        feePayerRequests.push({
+          method: request.method,
+          params: request.params,
+        })
+
+        if (request.method === 'eth_fillTransaction') {
+          return Response.json(
+            RpcResponse.from({
+              id: request.id,
+              jsonrpc: request.jsonrpc,
+              result: request.params?.[0],
+            }),
+          )
+        }
 
         if (
           (request as any).method !== 'eth_signRawTransaction' &&
@@ -35,14 +53,13 @@ describe('withFeePayer', () => {
           request.method !== 'eth_sendRawTransactionSync'
         )
           return Response.json(
-            RpcResponse.from(
-              {
-                error: new RpcResponse.InvalidParamsError({
-                  message: 'unsupported method',
-                }),
-              },
-              { request },
-            ),
+            RpcResponse.from({
+              error: new RpcResponse.InvalidParamsError({
+                message: 'unsupported method',
+              }),
+              id: request.id,
+              jsonrpc: request.jsonrpc,
+            }),
           )
 
         const serialized = request.params?.[0] as `0x76${string}`
@@ -55,7 +72,11 @@ describe('withFeePayer', () => {
 
         if ((request as any).method === 'eth_signRawTransaction') {
           return Response.json(
-            RpcResponse.from({ result: serializedTransaction }, { request }),
+            RpcResponse.from({
+              id: request.id,
+              jsonrpc: request.jsonrpc,
+              result: serializedTransaction,
+            }),
           )
         }
 
@@ -64,7 +85,13 @@ describe('withFeePayer', () => {
           params: [serializedTransaction],
         } as never)
 
-        return Response.json(RpcResponse.from({ result }, { request }))
+        return Response.json(
+          RpcResponse.from({
+            id: request.id,
+            jsonrpc: request.jsonrpc,
+            result,
+          }),
+        )
       }),
     ).listen(3051)
   })
@@ -96,7 +123,33 @@ describe('withFeePayer', () => {
       expect(receipt.status).toBe('success')
       expect(receipt.feePayer).toBe(accounts[0].address.toLowerCase())
       expect(feePayerRequests).toHaveLength(1)
-      expect(feePayerRequests).toContain('eth_signRawTransaction')
+      expect(feePayerRequests).toContainEqual({
+        method: 'eth_signRawTransaction',
+        params: expect.any(Array),
+      })
+    })
+
+    test('behavior: eth_fillTransaction with feePayer: true', async () => {
+      await client.request({
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            feePayer: true,
+            to: '0x0000000000000000000000000000000000000000',
+          },
+        ],
+      })
+
+      expect(feePayerRequests).toHaveLength(1)
+      expect(feePayerRequests).toContainEqual({
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            feePayer: true,
+            to: '0x0000000000000000000000000000000000000000',
+          },
+        ],
+      })
     })
 
     test('behavior: sendTransactionSync with feePayer: true', async () => {
@@ -112,7 +165,10 @@ describe('withFeePayer', () => {
 
       expect(receipt.status).toBe('success')
       expect(feePayerRequests).toHaveLength(1)
-      expect(feePayerRequests).toContain('eth_signRawTransaction')
+      expect(feePayerRequests).toContainEqual({
+        method: 'eth_signRawTransaction',
+        params: expect.any(Array),
+      })
     })
 
     test('behavior: non-sponsored transaction uses default transport', async () => {
@@ -145,7 +201,10 @@ describe('withFeePayer', () => {
       })
 
       expect(feePayerRequests).toHaveLength(1)
-      expect(feePayerRequests).toContain('eth_sendRawTransaction')
+      expect(feePayerRequests).toContainEqual({
+        method: 'eth_sendRawTransaction',
+        params: expect.any(Array),
+      })
     })
 
     test('behavior: sendTransactionSync with feePayer: true', async () => {
@@ -161,7 +220,10 @@ describe('withFeePayer', () => {
 
       expect(receipt.status).toBe('success')
       expect(feePayerRequests).toHaveLength(1)
-      expect(feePayerRequests).toContain('eth_sendRawTransactionSync')
+      expect(feePayerRequests).toContainEqual({
+        method: 'eth_sendRawTransactionSync',
+        params: expect.any(Array),
+      })
     })
   })
 })

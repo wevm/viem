@@ -23,6 +23,7 @@ export type FeePayer = Transport<typeof withFeePayer.type>
  * the default transport or the fee payer transport.
  *
  * The policy parameter controls how the fee payer handles transactions:
+ * - `eth_fillTransaction` requests are forwarded to the fee payer transport when `feePayer: true`
  * - `'sign-only'`: Fee payer co-signs the transaction and returns it to the client transport, which then broadcasts it via the default transport
  * - `'sign-and-broadcast'`: Fee payer co-signs and broadcasts the transaction directly
  *
@@ -46,6 +47,16 @@ export function withFeePayer(
       key: withFeePayer.type,
       name: 'Relay Proxy',
       async request({ method, params }, options) {
+        if (method === 'eth_fillTransaction') {
+          const request = (params as readonly unknown[] | undefined)?.[0]
+          if (
+            request &&
+            typeof request === 'object' &&
+            'feePayer' in request &&
+            request.feePayer === true
+          )
+            return transport_relay.request({ method, params }, options) as never
+        }
         if (
           method === 'eth_sendRawTransactionSync' ||
           method === 'eth_sendRawTransaction'
@@ -53,7 +64,8 @@ export function withFeePayer(
           const serialized = (params as any)[0] as `0x76${string}`
           const transaction = Transaction.deserialize(serialized)
 
-          // If the transaction is intended to be sponsored, forward it to the relay.
+          // Serialized Tempo envelopes encode `feePayer: true` as a missing fee payer
+          // signature until the relay co-signs the transaction.
           if (transaction.feePayerSignature === null) {
             // For 'sign-and-broadcast', relay signs and broadcasts
             if (policy === 'sign-and-broadcast')
