@@ -134,7 +134,7 @@ describe('withFeePayer', () => {
         method: 'eth_fillTransaction',
         params: [
           {
-            feePayer: accounts[0].address,
+            feePayer: true,
             to: '0x0000000000000000000000000000000000000000',
           },
         ],
@@ -147,7 +147,6 @@ describe('withFeePayer', () => {
           {
             feePayer: true,
             to: '0x0000000000000000000000000000000000000000',
-            chainId: Hex.fromNumber(chain.id),
           },
         ],
       })

@@ -23,6 +23,7 @@ export type FeePayer = Transport<typeof withFeePayer.type>
  * the default transport or the fee payer transport.
  *
  * The policy parameter controls how the fee payer handles transactions:
+ * - `eth_fillTransaction` requests are forwarded to the fee payer transport when `feePayer: true`
  * - `'sign-only'`: Fee payer co-signs the transaction and returns it to the client transport, which then broadcasts it via the default transport
  * - `'sign-and-broadcast'`: Fee payer co-signs and broadcasts the transaction directly
  *
@@ -52,24 +53,9 @@ export function withFeePayer(
             request &&
             typeof request === 'object' &&
             'feePayer' in request &&
-            (request.feePayer === true || typeof request.feePayer === 'string')
-          ) {
-            return transport_relay.request(
-              {
-                method,
-                params: [
-                  {
-                    ...request,
-                    feePayer: true,
-                    chainId: config.chain?.id
-                      ? `0x${config.chain.id.toString(16)}`
-                      : undefined,
-                  },
-                ],
-              },
-              options,
-            ) as never
-          }
+            request.feePayer === true
+          )
+            return transport_relay.request({ method, params }, options) as never
         }
         if (
           method === 'eth_sendRawTransactionSync' ||
@@ -78,7 +64,8 @@ export function withFeePayer(
           const serialized = (params as any)[0] as `0x76${string}`
           const transaction = Transaction.deserialize(serialized)
 
-          // If the transaction is intended to be sponsored, forward it to the relay.
+          // Serialized Tempo envelopes encode `feePayer: true` as a missing fee payer
+          // signature until the relay co-signs the transaction.
           if (transaction.feePayerSignature === null) {
             // For 'sign-and-broadcast', relay signs and broadcasts
             if (policy === 'sign-and-broadcast')
