@@ -1,4 +1,4 @@
-import { describe, expect, test, vi } from 'vitest'
+import { beforeAll, describe, expect, test, vi } from 'vitest'
 import { getSmartAccounts_07 } from '~test/account-abstraction.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
@@ -1528,8 +1528,12 @@ describe('local account', () => {
   })
 })
 
-describe('smart account', async () => {
-  const [account] = await getSmartAccounts_07()
+describe('smart account', () => {
+  let account: Awaited<ReturnType<typeof getSmartAccounts_07>>[0]
+
+  beforeAll(async () => {
+    ;[account] = await getSmartAccounts_07()
+  })
 
   test('default', async () => {
     await expect(() =>
