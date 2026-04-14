@@ -12,11 +12,11 @@ import {
 import { Transaction } from 'viem/tempo'
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { accounts, chain, getClient, http } from '~test/tempo/config.js'
-import { walletNamespaceCompat, withFeePayer } from './Transport.js'
+import { walletNamespaceCompat, withFeePayer, withRelay } from './Transport.js'
 
-describe('withFeePayer', () => {
+describe('withRelay', () => {
   let server: Http.Server
-  let feePayerRequests: Array<{
+  let relayRequests: Array<{
     method: string
     params: readonly unknown[] | undefined
   }> = []
@@ -32,7 +32,7 @@ describe('withFeePayer', () => {
           await r.json(),
         ) as RpcRequest.RpcRequest<any>
 
-        feePayerRequests.push({
+        relayRequests.push({
           method: request.method,
           params: request.params,
         })
@@ -101,12 +101,12 @@ describe('withFeePayer', () => {
   })
 
   beforeEach(() => {
-    feePayerRequests = []
+    relayRequests = []
   })
 
   describe('policy: sign-only (default)', () => {
     const client = getClient({
-      transport: withFeePayer(http(), http('http://localhost:3051')),
+      transport: withRelay(http(), http('http://localhost:3051')),
     })
 
     test('behavior: sendTransaction with feePayer: true', async () => {
@@ -122,8 +122,8 @@ describe('withFeePayer', () => {
 
       expect(receipt.status).toBe('success')
       expect(receipt.feePayer).toBe(accounts[0].address.toLowerCase())
-      expect(feePayerRequests).toHaveLength(1)
-      expect(feePayerRequests).toContainEqual({
+      expect(relayRequests).toHaveLength(1)
+      expect(relayRequests).toContainEqual({
         method: 'eth_signRawTransaction',
         params: expect.any(Array),
       })
@@ -140,12 +140,75 @@ describe('withFeePayer', () => {
         ],
       })
 
-      expect(feePayerRequests).toHaveLength(1)
-      expect(feePayerRequests).toContainEqual({
+      expect(relayRequests).toHaveLength(1)
+      expect(relayRequests).toContainEqual({
         method: 'eth_fillTransaction',
         params: [
           {
             feePayer: true,
+            to: '0x0000000000000000000000000000000000000000',
+          },
+        ],
+      })
+    })
+
+    test('behavior: eth_fillTransaction without feePayer preserves omission', async () => {
+      await client.request({
+        method: 'eth_fillTransaction',
+        params: [{ to: '0x0000000000000000000000000000000000000000' }],
+      })
+
+      expect(relayRequests).toHaveLength(1)
+      expect(relayRequests).toContainEqual({
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            to: '0x0000000000000000000000000000000000000000',
+          },
+        ],
+      })
+    })
+
+    test('behavior: eth_fillTransaction preserves explicit feePayer: null', async () => {
+      await client.request({
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            feePayer: null,
+            to: '0x0000000000000000000000000000000000000000',
+          },
+        ],
+      })
+
+      expect(relayRequests).toHaveLength(1)
+      expect(relayRequests).toContainEqual({
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            feePayer: null,
+            to: '0x0000000000000000000000000000000000000000',
+          },
+        ],
+      })
+    })
+
+    test('behavior: eth_fillTransaction preserves explicit feePayer', async () => {
+      await client.request({
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            feePayer: accounts[0].address,
+            to: '0x0000000000000000000000000000000000000000',
+          },
+        ],
+      })
+
+      expect(relayRequests).toHaveLength(1)
+      expect(relayRequests).toContainEqual({
+        method: 'eth_fillTransaction',
+        params: [
+          {
+            feePayer: accounts[0].address,
             to: '0x0000000000000000000000000000000000000000',
           },
         ],
@@ -164,8 +227,8 @@ describe('withFeePayer', () => {
       })
 
       expect(receipt.status).toBe('success')
-      expect(feePayerRequests).toHaveLength(1)
-      expect(feePayerRequests).toContainEqual({
+      expect(relayRequests).toHaveLength(1)
+      expect(relayRequests).toContainEqual({
         method: 'eth_signRawTransaction',
         params: expect.any(Array),
       })
@@ -178,13 +241,13 @@ describe('withFeePayer', () => {
       })
 
       expect(receipt.status).toBe('success')
-      expect(feePayerRequests).toHaveLength(0)
+      expect(relayRequests).toHaveLength(0)
     })
   })
 
   describe('policy: sign-and-broadcast', () => {
     const client = getClient({
-      transport: withFeePayer(http(), http('http://localhost:3051'), {
+      transport: withRelay(http(), http('http://localhost:3051'), {
         policy: 'sign-and-broadcast',
       }),
     })
@@ -200,8 +263,8 @@ describe('withFeePayer', () => {
         to: '0x0000000000000000000000000000000000000000',
       })
 
-      expect(feePayerRequests).toHaveLength(1)
-      expect(feePayerRequests).toContainEqual({
+      expect(relayRequests).toHaveLength(1)
+      expect(relayRequests).toContainEqual({
         method: 'eth_sendRawTransaction',
         params: expect.any(Array),
       })
@@ -219,9 +282,34 @@ describe('withFeePayer', () => {
       })
 
       expect(receipt.status).toBe('success')
-      expect(feePayerRequests).toHaveLength(1)
-      expect(feePayerRequests).toContainEqual({
+      expect(relayRequests).toHaveLength(1)
+      expect(relayRequests).toContainEqual({
         method: 'eth_sendRawTransactionSync',
+        params: expect.any(Array),
+      })
+    })
+  })
+
+  describe('withFeePayer', () => {
+    const client = getClient({
+      transport: withFeePayer(http(), http('http://localhost:3051')),
+    })
+
+    test('behavior: backwards compatible alias', async () => {
+      const account = privateKeyToAccount(
+        '0xecc3fe55647412647e5c6b657c496803b08ef956f927b7a821da298cfbdd9666',
+      )
+
+      const receipt = await sendTransactionSync(client, {
+        account,
+        feePayer: true,
+        to: '0x0000000000000000000000000000000000000003',
+      })
+
+      expect(receipt.status).toBe('success')
+      expect(relayRequests).toHaveLength(1)
+      expect(relayRequests).toContainEqual({
+        method: 'eth_signRawTransaction',
         params: expect.any(Array),
       })
     })

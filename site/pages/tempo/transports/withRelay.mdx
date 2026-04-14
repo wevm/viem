@@ -1,11 +1,15 @@
-# `withFeePayer`
+# `withRelay`
 
-Deprecated alias for [`withRelay`](https://docs.tempo.xyz/tempo/transports/withRelay).
-
-Creates a transport that routes transactions to a relay service when a `feePayer` is requested on an action.
+Creates a transport that routes Tempo relay traffic between a default transport and a relay service.
 
 - [View Guide](https://docs.tempo.xyz/guide/payments/sponsor-user-fees)
 - [View Specification](https://docs.tempo.xyz/protocol/transactions/spec-tempo-transaction)
+
+`withRelay` forwards every `eth_fillTransaction` request to the relay and preserves the request's `feePayer` value so the relay can decide whether to sponsor the transaction.
+
+- `feePayer: true` asks the relay to sponsor the transaction.
+- If `feePayer` is omitted, `undefined`, or `null`, that value is forwarded as-is.
+- An explicit `feePayer` address is preserved.
 
 ## Usage
 
@@ -15,14 +19,14 @@ Creates a transport that routes transactions to a relay service when a `feePayer
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { tempoModerato } from 'viem/chains'
-import { withFeePayer } from 'viem/tempo'
+import { withRelay } from 'viem/tempo'
 
 const client = createWalletClient({
   account: privateKeyToAccount('0x...'),
   chain: tempoModerato,
-  transport: withFeePayer(
-    http(),                               // ← Default Transport
-    http('https://sponsor.example.com'),  // ← Fee Payer Transport // [!code hl]
+  transport: withRelay(
+    http(),                             // ← Default Transport
+    http('https://relay.example.com'),  // ← Relay Transport // [!code hl]
   ),
 })
 
@@ -33,10 +37,9 @@ const receipt1 = await client.sendTransactionSync({
 
 // Sponsored transaction // [!code hl]
 const receipt2 = await client.sendTransactionSync({ // [!code hl]
-  // [!code hl]
   feePayer: true, // [!code hl]
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code hl]
-}) // [!code hl]
+})
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -45,9 +48,9 @@ const receipt2 = await client.sendTransactionSync({ // [!code hl]
 
 :::
 
-### Example Fee Payer Service
+### Example Relay Service
 
-Below is an end-to-end example of a client/server fee payer setup.
+Below is an end-to-end example of a client/server relay setup.
 
 See `server.ts` for the server-side implementation. It uses [`Handler.relay` provided by `tempo.ts/server`](https://docs.tempo.xyz/sdk/typescript/server/handler.relay) to handle relay requests.
 
@@ -57,12 +60,12 @@ See `server.ts` for the server-side implementation. It uses [`Handler.relay` pro
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { tempoModerato } from 'viem/chains'
-import { withFeePayer } from 'viem/tempo'
+import { withRelay } from 'viem/tempo'
 
 const client = createWalletClient({
   account: privateKeyToAccount('0x...'),
   chain: tempoModerato,
-  transport: withFeePayer(
+  transport: withRelay(
     http(),
     http('http://localhost:3000'),
   ),
@@ -84,8 +87,8 @@ import { Handler } from 'tempo.ts/server'
 
 const client = createClient({
   chain: tempoModerato.extend({
-    // Note: the fee payer can specify their own fee token.
-    feeToken: '0x20c0000000000000000000000000000000000001'
+    // Note: the relay can specify its own fee token.
+    feeToken: '0x20c0000000000000000000000000000000000001',
   }),
   transport: http(),
 })
@@ -104,7 +107,7 @@ server.listen(3000)
 ## Return Type
 
 ```ts
-type ReturnType = Transport<'feePayer'>
+type ReturnType = Transport<'relay'>
 ```
 
 ## Parameters
@@ -113,27 +116,27 @@ type ReturnType = Transport<'feePayer'>
 
 - **Type:** `Transport`
 
-The default transport to use for regular (non-sponsored) transactions.
+The default transport to use for regular relay traffic and for broadcasting transactions when `policy` is `'sign-only'`.
 
 ### relayTransport
 
 - **Type:** `Transport`
 
-The relay transport to use for sponsored transactions. This should point to a fee payer service that will sign and submit the transaction with a fee payer signature.
+The relay transport to use for `eth_fillTransaction` and sponsored transaction handling.
 
 ### Parameters (optional)
 
-- **Type:** `withFeePayer.Parameters`
+- **Type:** `withRelay.Parameters`
 
-Options for `withFeePayer` usage.
+Options for `withRelay` usage.
 
 #### `policy` (optional)
 
 - **Type:** `'sign-only' | 'sign-and-broadcast'`
 - **Default:** `'sign-only'`
 
-Controls how the fee payer handles sponsored transactions:
+Controls how the relay handles sponsored transactions:
 
-- **`'sign-only'`**: Fee payer co-signs the transaction and returns it to the client transport, which then broadcasts it via the default transport.
+- **`'sign-only'`**: The relay co-signs the transaction and returns it to the client transport, which then broadcasts it via the default transport.
 
-- **`'sign-and-broadcast'`**: Fee payer co-signs and broadcasts the transaction directly. The fee payer service handles both signing and submission to the blockchain.
+- **`'sign-and-broadcast'`**: The relay co-signs and broadcasts the transaction directly. The relay service handles both signing and submission to the blockchain.

@@ -16,27 +16,35 @@ import type { Chain } from '../types/chain.js'
 import type { ChainConfig } from './chainConfig.js'
 import * as Transaction from './Transaction.js'
 
+type RelayProxyParameters = {
+  /** Policy for how the relay should handle sponsored transactions. Defaults to `'sign-only'`. */
+  policy?: 'sign-only' | 'sign-and-broadcast' | undefined
+}
+
 export type FeePayer = Transport<typeof withFeePayer.type>
+export type Relay = Transport<typeof withRelay.type>
 
 /**
- * Creates a fee payer transport that routes requests between
- * the default transport or the fee payer transport.
+ * Creates a relay transport that routes requests between
+ * the default transport or the relay transport.
  *
- * The policy parameter controls how the fee payer handles transactions:
- * - `eth_fillTransaction` requests are forwarded to the fee payer transport when `feePayer: true`
- * - `'sign-only'`: Fee payer co-signs the transaction and returns it to the client transport, which then broadcasts it via the default transport
- * - `'sign-and-broadcast'`: Fee payer co-signs and broadcasts the transaction directly
+ * All `eth_fillTransaction` requests are sent to the relay with the request's
+ * `feePayer` value preserved so the relay can decide whether to sponsor the transaction.
+ *
+ * The policy parameter controls how the relay handles sponsored transactions:
+ * - `'sign-only'`: Relay co-signs the transaction and returns it to the client transport, which then broadcasts it via the default transport
+ * - `'sign-and-broadcast'`: Relay co-signs and broadcasts the transaction directly
  *
  * @param defaultTransport - The default transport to use.
- * @param feePayerTransport - The fee payer transport to use.
+ * @param relayTransport - The relay transport to use.
  * @param parameters - Configuration parameters.
  * @returns A relay transport.
  */
-export function withFeePayer(
+export function withRelay(
   defaultTransport: Transport,
   relayTransport: Transport,
-  parameters?: withFeePayer.Parameters,
-): withFeePayer.ReturnValue {
+  parameters?: withRelay.Parameters,
+): withRelay.ReturnValue {
   const { policy = 'sign-only' } = parameters ?? {}
 
   return (config) => {
@@ -44,19 +52,12 @@ export function withFeePayer(
     const transport_relay = relayTransport(config)
 
     return createTransport({
-      key: withFeePayer.type,
+      key: withRelay.type,
       name: 'Relay Proxy',
       async request({ method, params }, options) {
-        if (method === 'eth_fillTransaction') {
-          const request = (params as readonly unknown[] | undefined)?.[0]
-          if (
-            request &&
-            typeof request === 'object' &&
-            'feePayer' in request &&
-            request.feePayer === true
-          )
-            return transport_relay.request({ method, params }, options) as never
-        }
+        if (method === 'eth_fillTransaction')
+          return transport_relay.request({ method, params }, options) as never
+
         if (
           method === 'eth_sendRawTransactionSync' ||
           method === 'eth_sendRawTransaction'
@@ -93,23 +94,42 @@ export function withFeePayer(
             }
           }
         }
+
         return (await transport_default.request(
           { method, params },
           options,
         )) as never
       },
-      type: withFeePayer.type,
+      type: withRelay.type,
     })
   }
+}
+
+export declare namespace withRelay {
+  export const type = 'relay'
+
+  export type Parameters = RelayProxyParameters
+
+  export type ReturnValue = Relay
+}
+
+/** @deprecated Use `withRelay` instead. */
+export function withFeePayer(
+  defaultTransport: Transport,
+  relayTransport: Transport,
+  parameters?: withFeePayer.Parameters,
+): withFeePayer.ReturnValue {
+  return withRelay(
+    defaultTransport,
+    relayTransport,
+    parameters,
+  ) as unknown as withFeePayer.ReturnValue
 }
 
 export declare namespace withFeePayer {
   export const type = 'feePayer'
 
-  export type Parameters = {
-    /** Policy for how the fee payer should handle transactions. Defaults to `'sign-only'`. */
-    policy?: 'sign-only' | 'sign-and-broadcast' | undefined
-  }
+  export type Parameters = RelayProxyParameters
 
   export type ReturnValue = FeePayer
 }
