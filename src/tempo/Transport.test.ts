@@ -171,23 +171,6 @@ describe('withFeePayer', () => {
       })
     })
 
-    test('behavior: unsigned sponsored raw transaction uses default transport', async () => {
-      const serialized = await Transaction.serialize({
-        chainId: chain.id,
-        calls: [{ to: '0x0000000000000000000000000000000000000000' }],
-        feePayer: true,
-      })
-
-      await expect(
-        client.request({
-          method: 'eth_sendRawTransaction',
-          params: [serialized],
-        }),
-      ).rejects.toThrow()
-
-      expect(feePayerRequests).toHaveLength(0)
-    })
-
     test('behavior: non-sponsored transaction uses default transport', async () => {
       const receipt = await sendTransactionSync(client, {
         account: accounts[0],

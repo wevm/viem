@@ -64,10 +64,9 @@ export function withFeePayer(
           const serialized = (params as any)[0] as `0x76${string}`
           const transaction = Transaction.deserialize(serialized)
 
-          // Serialized Tempo envelopes do not retain the original `feePayer` field.
-          // The closest equivalent is a sender-signed envelope that is still missing
-          // the fee payer co-signature.
-          if (transaction.feePayerSignature === null && transaction.signature) {
+          // Serialized Tempo envelopes encode `feePayer: true` as a missing fee payer
+          // signature until the relay co-signs the transaction.
+          if (transaction.feePayerSignature === null) {
             // For 'sign-and-broadcast', relay signs and broadcasts
             if (policy === 'sign-and-broadcast')
               return transport_relay.request(
