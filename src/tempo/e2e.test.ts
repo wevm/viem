@@ -1402,6 +1402,17 @@ describe('relay', () => {
 
         const request = RpcRequest.from(await r.json())
 
+        // Proxy `eth_fillTransaction` to the Tempo node.
+        if (request.method === 'eth_fillTransaction') {
+          const result = await client.request({
+            method: request.method,
+            params: request.params,
+          } as never)
+          return Response.json(
+            RpcResponse.from({ result }, { request }),
+          )
+        }
+
         // Validate method
         if (
           (request as any).method !== 'eth_signRawTransaction' &&
@@ -1413,7 +1424,7 @@ describe('relay', () => {
               {
                 error: new RpcResponse.InvalidParamsError({
                   message:
-                    'service only supports `eth_signTransaction`, `eth_sendRawTransaction`, and `eth_sendRawTransactionSync`',
+                    'service only supports `eth_fillTransaction`, `eth_signTransaction`, `eth_sendRawTransaction`, and `eth_sendRawTransactionSync`',
                 }),
               },
               { request },

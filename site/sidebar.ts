@@ -2297,8 +2297,8 @@ export const sidebar = {
         text: 'Transports',
         items: [
           {
-            text: 'withFeePayer',
-            link: '/tempo/transports/withFeePayer',
+            text: 'withRelay',
+            link: '/tempo/transports/withRelay',
           },
         ],
       },
