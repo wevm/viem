@@ -18,8 +18,8 @@ export const tempo = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.presto.tempo.xyz'],
-      webSocket: ['wss://rpc.presto.tempo.xyz'],
+      http: ['https://rpc.tempo.xyz'],
+      webSocket: ['wss://rpc.tempo.xyz'],
     },
   },
 })
