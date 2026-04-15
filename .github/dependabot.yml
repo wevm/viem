@@ -3,10 +3,11 @@ updates:
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
-      interval: 'monthly'
-    open-pull-requests-limit: 0
+      interval: 'daily'
+    commit-message:
+      prefix: 'chore(sec)'
 
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
-      interval: 'monthly'
+      interval: 'daily'
