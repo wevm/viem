@@ -1,5 +1,11 @@
 # viem
 
+## 2.48.0
+
+### Minor Changes
+
+- [#4510](https://github.com/wevm/viem/pull/4510) [`23fbf03f915acd046087d25f859a90c51a44d030`](https://github.com/wevm/viem/commit/23fbf03f915acd046087d25f859a90c51a44d030) Thanks [@Zygimantass](https://github.com/Zygimantass)! - Added Tempo zones support
+
 ## 2.47.19
 
 ### Patch Changes
