@@ -52,7 +52,7 @@ const receipt2 = await client.sendTransactionSync({ // [!code hl]
 
 Below is an end-to-end example of a client/server relay setup.
 
-See `server.ts` for the server-side implementation. It uses [`Handler.relay` provided by `tempo.ts/server`](https://docs.tempo.xyz/sdk/typescript/server/handler.relay) to handle relay requests.
+See `server.ts` for the server-side implementation. It uses [`Handler.relay` provided by `accounts/server`](https://docs.tempo.xyz/accounts/server/handler.relay) to handle relay requests.
 
 :::code-group
 
@@ -83,7 +83,7 @@ import { createServer } from 'node:http'
 import { createClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { tempoModerato } from 'viem/chains'
-import { Handler } from 'tempo.ts/server'
+import { Handler } from 'accounts/server'
 
 const client = createClient({
   chain: tempoModerato.extend({
@@ -94,8 +94,9 @@ const client = createClient({
 })
 
 const handler = Handler.relay({ // [!code hl]
-  account: privateKeyToAccount('0x...'), // [!code hl]
-  client, // [!code hl]
+  feePayer: { // [!code hl]
+    account: privateKeyToAccount('0x...'), // [!code hl]
+  }, // [!code hl]
 }) // [!code hl]
 
 const server = createServer(handler.listener)
@@ -123,20 +124,3 @@ The default transport to use for regular relay traffic and for broadcasting tran
 - **Type:** `Transport`
 
 The relay transport to use for `eth_fillTransaction` and sponsored transaction handling.
-
-### Parameters (optional)
-
-- **Type:** `withRelay.Parameters`
-
-Options for `withRelay` usage.
-
-#### `policy` (optional)
-
-- **Type:** `'sign-only' | 'sign-and-broadcast'`
-- **Default:** `'sign-only'`
-
-Controls how the relay handles sponsored transactions:
-
-- **`'sign-only'`**: The relay co-signs the transaction and returns it to the client transport, which then broadcasts it via the default transport.
-
-- **`'sign-and-broadcast'`**: The relay co-signs and broadcasts the transaction directly. The relay service handles both signing and submission to the blockchain.
