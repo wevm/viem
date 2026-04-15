@@ -47,13 +47,15 @@ export type FrameMode =
  * Each frame captures one unit of execution, validation, or payment.
  */
 export type Frame = {
+  /** Execution mode: 0=DEFAULT, 1=VERIFY, 2=SENDER. */
+  mode: FrameMode
   /**
-   * Execution mode plus flag bits.
-   * Bits 0-7: FrameMode (0=DEFAULT, 1=VERIFY, 2=SENDER).
-   * Bits 8-9: approval scope constraint.
-   * Bit 10:   atomic batch flag (SENDER mode only).
+   * Flag bits configuring execution constraints.
+   * Bits 0-1: approval scope (APPROVE_SCOPE_MASK = 0x03).
+   * Bit 2:    atomic batch flag (SENDER mode only).
+   * Bits 3-7: reserved, must be zero.
    */
-  mode: number
+  flags: number
   /** Target address for this frame, or `null` to use `tx.sender`. */
   target: Address | null
   /** Gas allocated exclusively to this frame. */
@@ -522,7 +524,7 @@ export type TransactionSerializableEIP8141<
   nonce?: index | undefined
   /** Explicit sender address committed to in the transaction envelope. */
   sender: Address
-  /** Ordered list of execution frames (1 to MAX_FRAMES = 1000). */
+  /** Ordered list of execution frames (1 to MAX_FRAMES = 64). */
   frames: readonly Frame[]
   /** Maximum priority fee per gas unit. */
   maxPriorityFeePerGas?: quantity | undefined

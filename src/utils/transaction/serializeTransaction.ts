@@ -181,6 +181,7 @@ function serializeTransactionEIP8141(
 
   const serializedFrames = frames.map((frame) => [
     numberToHex(frame.mode),
+    numberToHex(frame.flags),
     frame.target ?? '0x',
     numberToHex(frame.gasLimit),
     frame.data ?? '0x',

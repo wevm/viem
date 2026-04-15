@@ -27,6 +27,12 @@ describe('type', () => {
     expect(type).toEqual('eip7702')
   })
 
+  test('eip8141', () => {
+    const type = getTransactionType({ chainId: 1, type: 'eip8141' })
+    assertType<'eip8141'>(type)
+    expect(type).toEqual('eip8141')
+  })
+
   test('legacy', () => {
     const type = getTransactionType({ type: 'legacy' })
     assertType<'legacy'>(type)
@@ -118,6 +124,15 @@ describe('attributes', () => {
     })
     assertType<'eip7702'>(type)
     expect(type).toEqual('eip7702')
+  })
+
+  test('eip8141 (frames property)', () => {
+    const type = getTransactionType({
+      frames: [{ mode: 1, flags: 3, target: null, gasLimit: 1n, data: '0x' }],
+      sender: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+      chainId: 1,
+    } as any)
+    expect(type).toEqual('eip8141')
   })
 
   test('legacy', () => {

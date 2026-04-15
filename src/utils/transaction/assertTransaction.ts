@@ -43,27 +43,70 @@ export type AssertTransactionEIP8141ErrorType =
   | BaseErrorType
   | ErrorType
 
+const maxUint64 = 2n ** 64n - 1n
+const maxInt64 = 2n ** 63n - 1n
+const MAX_FRAMES = 64
+const VERIFY = 1
+const SENDER = 2
+const APPROVE_SCOPE_MASK = 0x03
+const ATOMIC_BATCH_FLAG = 0x04
+
 export function assertTransactionEIP8141(
   transaction: TransactionSerializableEIP8141,
 ) {
-  const { chainId, sender, frames, maxFeePerGas, maxPriorityFeePerGas } =
+  const { chainId, sender, frames, nonce, maxFeePerGas, maxPriorityFeePerGas } =
     transaction
   if (chainId <= 0) throw new InvalidChainIdError({ chainId })
   if (!isAddress(sender)) throw new InvalidAddressError({ address: sender })
+  if (sender === '0x0000000000000000000000000000000000000000')
+    throw new BaseError('`sender` must not be the zero address.')
+  if (typeof nonce === 'number' && BigInt(nonce) > maxUint64)
+    throw new BaseError('`nonce` must be less than 2^64.')
   if (!frames || frames.length === 0)
     throw new BaseError('`frames` must contain at least one frame.')
-  if (frames.length > 1000)
+  if (frames.length > MAX_FRAMES)
     throw new BaseError(
-      '`frames` must not exceed MAX_FRAMES (1000) per EIP-8141.',
+      `\`frames\` must not exceed MAX_FRAMES (${MAX_FRAMES}) per EIP-8141.`,
     )
-  for (const frame of frames) {
-    const execMode = frame.mode & 0xff
-    if (execMode > 2)
+  let totalFrameGas = 0n
+  for (let i = 0; i < frames.length; i++) {
+    const frame = frames[i]
+    if (frame.mode > 2)
       throw new BaseError(
-        `Invalid frame execution mode ${execMode}. Must be 0 (DEFAULT), 1 (VERIFY), or 2 (SENDER).`,
+        `Invalid frame mode ${frame.mode}. Must be 0 (DEFAULT), 1 (VERIFY), or 2 (SENDER).`,
       )
+    if (frame.flags >= 8)
+      throw new BaseError(
+        `Invalid frame flags ${frame.flags}. Bits 3-7 are reserved and must be zero.`,
+      )
+    if (
+      frame.mode === VERIFY &&
+      (frame.flags & APPROVE_SCOPE_MASK) === 0
+    )
+      throw new BaseError(
+        'VERIFY frames must permit a non-zero APPROVE scope (flags bits 0-1).',
+      )
+    if (frame.flags & ATOMIC_BATCH_FLAG) {
+      if (frame.mode !== SENDER)
+        throw new BaseError(
+          'Atomic batch flag (bit 2) is only valid with SENDER mode.',
+        )
+      if (i + 1 >= frames.length)
+        throw new BaseError(
+          'Frame with atomic batch flag must not be the last frame.',
+        )
+      if (frames[i + 1].mode !== SENDER)
+        throw new BaseError(
+          'Frame following an atomic batch frame must be SENDER mode.',
+        )
+    }
     if (frame.target !== null && !isAddress(frame.target))
       throw new InvalidAddressError({ address: frame.target })
+    if (frame.gasLimit > maxInt64)
+      throw new BaseError('`frame.gasLimit` must be <= 2^63 - 1.')
+    totalFrameGas += frame.gasLimit
+    if (totalFrameGas > maxInt64)
+      throw new BaseError('Total frame gas must be <= 2^63 - 1.')
   }
   if (maxFeePerGas && maxFeePerGas > maxUint256)
     throw new FeeCapTooHighError({ maxFeePerGas })

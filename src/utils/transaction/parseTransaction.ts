@@ -173,9 +173,10 @@ function parseTransactionEIP8141(
 
   const frames: Frame[] = (framesArray as RecursiveArray<Hex>[]).map(
     (frameArray) => {
-      const [mode, target, gasLimit, data] = frameArray as Hex[]
+      const [mode, flags, target, gasLimit, data] = frameArray as Hex[]
       return {
         mode: mode === '0x' ? 0 : hexToNumber(mode),
+        flags: flags === '0x' ? 0 : hexToNumber(flags),
         target: isHex(target) && target !== '0x' ? target : null,
         gasLimit: gasLimit === '0x' ? 0n : hexToBigInt(gasLimit),
         data: isHex(data) && data !== '0x' ? data : '0x',
