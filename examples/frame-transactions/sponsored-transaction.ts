@@ -151,6 +151,7 @@ async function main() {
   console.log('Transaction hash:', hash)
 }
 
-main().catch((_err) => {
+main().catch((err) => {
+  console.log('Failed to send frame transaction.', err)
   process.exit(1)
 })
