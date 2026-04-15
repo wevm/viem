@@ -1408,9 +1408,7 @@ describe('relay', () => {
             method: request.method,
             params: request.params,
           } as never)
-          return Response.json(
-            RpcResponse.from({ result }, { request }),
-          )
+          return Response.json(RpcResponse.from({ result }, { request }))
         }
 
         // Validate method

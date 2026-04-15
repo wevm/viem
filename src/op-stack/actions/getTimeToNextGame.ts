@@ -87,9 +87,9 @@ export async function getTimeToNextGame<
     limit: 10,
   })
 
-  if (games.length === 0) {                                                                                                                              
-    return { interval: 0, seconds: 0, timestamp: undefined }                                                                                             
-  }           
+  if (games.length === 0) {
+    return { interval: 0, seconds: 0, timestamp: undefined }
+  }
 
   const deltas = games
     .map(({ l2BlockNumber, timestamp }, index) => {
@@ -102,16 +102,24 @@ export async function getTimeToNextGame<
     })
     .filter(Boolean)
 
-  const interval = deltas.length > 0                  
-    ? Math.ceil(                                                                                                                                         
-        (deltas as [bigint, bigint][]).reduce((a, [b]) => Number(a) - Number(b), 0) / deltas.length,
-      )                                                                                                                                                  
-    : 0                                               
-  const blockInterval = deltas.length > 0                                                                                                                
-    ? Math.ceil(                                 
-        (deltas as [bigint, bigint][]).reduce((a, [_, b]) => Number(a) - Number(b), 0) / deltas.length,
-      )                                                                                                                                                  
-    : 0
+  const interval =
+    deltas.length > 0
+      ? Math.ceil(
+          (deltas as [bigint, bigint][]).reduce(
+            (a, [b]) => Number(a) - Number(b),
+            0,
+          ) / deltas.length,
+        )
+      : 0
+  const blockInterval =
+    deltas.length > 0
+      ? Math.ceil(
+          (deltas as [bigint, bigint][]).reduce(
+            (a, [_, b]) => Number(a) - Number(b),
+            0,
+          ) / deltas.length,
+        )
+      : 0
 
   const latestGame = games[0]
   const latestGameTimestamp = Number(latestGame.timestamp) * 1000
@@ -130,7 +138,7 @@ export async function getTimeToNextGame<
     if (latestGame.l2BlockNumber > l2BlockNumber) return 0
 
     // If there is only a single game, no interval data
-    if (intervalWithBuffer === 0) return 0                                                                          
+    if (intervalWithBuffer === 0) return 0
 
     const elapsedBlocks = Number(l2BlockNumber - latestGame.l2BlockNumber)
 

@@ -122,7 +122,11 @@ describe('withRelay', () => {
 
       expect(receipt.status).toBe('success')
       expect(receipt.feePayer).toBe(accounts[0].address.toLowerCase())
-      expect(relayRequests).toHaveLength(1)
+      expect(relayRequests).toHaveLength(2)
+      expect(relayRequests).toContainEqual({
+        method: 'eth_fillTransaction',
+        params: expect.any(Array),
+      })
       expect(relayRequests).toContainEqual({
         method: 'eth_signRawTransaction',
         params: expect.any(Array),
@@ -227,7 +231,11 @@ describe('withRelay', () => {
       })
 
       expect(receipt.status).toBe('success')
-      expect(relayRequests).toHaveLength(1)
+      expect(relayRequests).toHaveLength(2)
+      expect(relayRequests).toContainEqual({
+        method: 'eth_fillTransaction',
+        params: expect.any(Array),
+      })
       expect(relayRequests).toContainEqual({
         method: 'eth_signRawTransaction',
         params: expect.any(Array),
@@ -263,7 +271,11 @@ describe('withRelay', () => {
         to: '0x0000000000000000000000000000000000000000',
       })
 
-      expect(relayRequests).toHaveLength(1)
+      expect(relayRequests).toHaveLength(2)
+      expect(relayRequests).toContainEqual({
+        method: 'eth_fillTransaction',
+        params: expect.any(Array),
+      })
       expect(relayRequests).toContainEqual({
         method: 'eth_sendRawTransaction',
         params: expect.any(Array),
@@ -282,7 +294,11 @@ describe('withRelay', () => {
       })
 
       expect(receipt.status).toBe('success')
-      expect(relayRequests).toHaveLength(1)
+      expect(relayRequests).toHaveLength(2)
+      expect(relayRequests).toContainEqual({
+        method: 'eth_fillTransaction',
+        params: expect.any(Array),
+      })
       expect(relayRequests).toContainEqual({
         method: 'eth_sendRawTransactionSync',
         params: expect.any(Array),
@@ -307,7 +323,11 @@ describe('withRelay', () => {
       })
 
       expect(receipt.status).toBe('success')
-      expect(relayRequests).toHaveLength(1)
+      expect(relayRequests).toHaveLength(2)
+      expect(relayRequests).toContainEqual({
+        method: 'eth_fillTransaction',
+        params: expect.any(Array),
+      })
       expect(relayRequests).toContainEqual({
         method: 'eth_signRawTransaction',
         params: expect.any(Array),
