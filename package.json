@@ -49,7 +49,7 @@
     "@arethetypeswrong/cli": "^0.18.2",
     "@ark/attest": "^0.56.0",
     "@biomejs/biome": "^2.2.4",
-    "@changesets/changelog-github": "^0.4.8",
+    "@changesets/changelog-github": "^0.6.0",
     "@changesets/cli": "^2.29.7",
     "@ethereumjs/rlp": "^5.0.2",
     "@paulmillr/trusted-setups": "^0.1.2",
