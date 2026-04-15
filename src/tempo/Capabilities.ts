@@ -26,8 +26,11 @@ export type FillTransactionCapabilities = {
   balanceDiffs?: Readonly<Record<Address, readonly BalanceDiff[]>> | undefined
   error?:
     | OneOf<
-        | (DecodeErrorResultReturnType & { message: string })
-        | { message: string }
+        | (DecodeErrorResultReturnType & {
+            data: Hex
+            message: string
+          })
+        | { errorName: 'unknown'; message: string }
       >
     | undefined
   fee?:
