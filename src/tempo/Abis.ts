@@ -2269,3 +2269,18 @@ export const validatorConfig = [
     ],
   },
 ] as const
+
+export const abis = [
+  ...tip20,
+  ...validatorConfigV2,
+  ...signatureVerifier,
+  ...stablecoinDex,
+  ...addressRegistry,
+  ...feeManager,
+  ...feeAmm,
+  ...accountKeychain,
+  ...nonce,
+  ...tip20Factory,
+  ...tip403Registry,
+  ...validatorConfig,
+] as const

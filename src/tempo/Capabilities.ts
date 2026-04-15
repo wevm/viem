@@ -1,8 +1,9 @@
 import type { Address } from 'abitype'
 import type { DefaultCapabilitiesSchema } from '../types/capabilities.js'
 import type { Hex } from '../types/misc.js'
-import type { ExactPartial } from '../types/utils.js'
+import type { ExactPartial, OneOf } from '../types/utils.js'
 import type { TransactionRequestTempo } from './Transaction.js'
+import type { DecodeErrorResultReturnType } from '../utils/index.js'
 
 export type Schema = Omit<DefaultCapabilitiesSchema, 'sendCalls'> & {
   fillTransaction: {
@@ -23,11 +24,26 @@ export type FillTransactionCapabilities = {
       }
     | undefined
   balanceDiffs?: Readonly<Record<Address, readonly BalanceDiff[]>> | undefined
+  error?:
+    | OneOf<
+        | (DecodeErrorResultReturnType & { message: string })
+        | { message: string }
+      >
+    | undefined
   fee?:
     | {
         amount: Hex
         decimals: number
         formatted: string
+        symbol: string
+      }
+    | undefined
+  requireFunds?:
+    | {
+        amount: Hex
+        decimals: number
+        formatted: string
+        token: Address
         symbol: string
       }
     | undefined

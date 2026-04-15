@@ -1402,8 +1402,7 @@ describe('relay', () => {
 
         const request = RpcRequest.from(await r.json())
 
-        // Proxy `eth_fillTransaction` to the Tempo node.
-        if (request.method === 'eth_fillTransaction') {
+        if ((request as any).method === 'eth_fillTransaction') {
           const result = await client.request({
             method: request.method,
             params: request.params,

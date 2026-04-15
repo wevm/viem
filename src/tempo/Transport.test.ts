@@ -249,7 +249,11 @@ describe('withRelay', () => {
       })
 
       expect(receipt.status).toBe('success')
-      expect(relayRequests).toHaveLength(0)
+      expect(relayRequests).toHaveLength(1)
+      expect(relayRequests).toContainEqual({
+        method: 'eth_fillTransaction',
+        params: expect.any(Array),
+      })
     })
   })
 
