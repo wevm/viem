@@ -173,7 +173,14 @@ function parseTransactionEIP8141(
 
   const frames: Frame[] = (framesArray as RecursiveArray<Hex>[]).map(
     (frameArray) => {
-      const [mode, flags, target, gasLimit, data] = frameArray as Hex[]
+      const tuple = frameArray as Hex[]
+      if (tuple.length !== 5)
+        throw new InvalidSerializedTransactionError({
+          attributes: { frame: tuple },
+          serializedTransaction,
+          type: 'eip8141',
+        })
+      const [mode, flags, target, gasLimit, data] = tuple
       return {
         mode: mode === '0x' ? 0 : hexToNumber(mode),
         flags: flags === '0x' ? 0 : hexToNumber(flags),
@@ -191,7 +198,20 @@ function parseTransactionEIP8141(
     type: 'eip8141',
   }
 
-  if (isHex(nonce)) transaction.nonce = nonce === '0x' ? 0 : hexToNumber(nonce)
+  if (isHex(nonce)) {
+    if (nonce === '0x') {
+      transaction.nonce = 0
+    } else {
+      const nonceValue = hexToBigInt(nonce)
+      if (nonceValue > BigInt(Number.MAX_SAFE_INTEGER))
+        throw new InvalidSerializedTransactionError({
+          attributes: { nonce: nonceValue },
+          serializedTransaction,
+          type: 'eip8141',
+        })
+      transaction.nonce = Number(nonceValue)
+    }
+  }
   if (isHex(maxFeePerGas) && maxFeePerGas !== '0x')
     transaction.maxFeePerGas = hexToBigInt(maxFeePerGas)
   if (isHex(maxPriorityFeePerGas) && maxPriorityFeePerGas !== '0x')

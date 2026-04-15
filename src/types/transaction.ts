@@ -64,6 +64,16 @@ export type Frame = {
   data: Hex
 }
 
+/** Per-frame receipt as defined by EIP-8141: `[status, gas_used, logs]`. */
+export type FrameReceipt<quantity = bigint, index = number> = {
+  /** Return status of the frame's top-level call. */
+  status: 'success' | 'reverted'
+  /** Gas consumed by this frame. */
+  gasUsed: quantity
+  /** Logs emitted during this frame's execution. */
+  logs: Log<quantity, index, false>[]
+}
+
 export type TransactionReceipt<
   quantity = bigint,
   index = number,
@@ -106,6 +116,10 @@ export type TransactionReceipt<
   transactionIndex: index
   /** Transaction type */
   type: type
+  /** Address that paid the fee. Only present for EIP-8141 frame transactions. */
+  payer?: Address | undefined
+  /** Per-frame receipts. Only present for EIP-8141 frame transactions. */
+  frameReceipts?: FrameReceipt<quantity, index>[] | undefined
 }
 
 export type TransactionBase<

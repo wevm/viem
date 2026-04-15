@@ -17,7 +17,13 @@ describe('eip8141', () => {
     chainId: 1,
     sender,
     frames: [
-      { mode: 1 as const, flags: 0x03, target: null, gasLimit: 50000n, data: '0xab' as const },
+      {
+        mode: 1 as const,
+        flags: 0x03,
+        target: null,
+        gasLimit: 50000n,
+        data: '0xab' as const,
+      },
     ],
   }
 
@@ -42,9 +48,9 @@ describe('eip8141', () => {
       gasLimit: 1n,
       data: '0x' as const,
     }))
-    expect(() =>
-      assertTransactionEIP8141({ ...validTx, frames }),
-    ).toThrow('MAX_FRAMES (64)')
+    expect(() => assertTransactionEIP8141({ ...validTx, frames })).toThrow(
+      'MAX_FRAMES (64)',
+    )
   })
 
   test('VERIFY with zero scope rejected', () => {
@@ -52,7 +58,13 @@ describe('eip8141', () => {
       assertTransactionEIP8141({
         ...validTx,
         frames: [
-          { mode: 1, flags: 0x00, target: null, gasLimit: 1n, data: '0x' as const },
+          {
+            mode: 1,
+            flags: 0x00,
+            target: null,
+            gasLimit: 1n,
+            data: '0x' as const,
+          },
         ],
       }),
     ).toThrow('non-zero APPROVE scope')
@@ -63,7 +75,13 @@ describe('eip8141', () => {
       assertTransactionEIP8141({
         ...validTx,
         frames: [
-          { mode: 2, flags: 0x08, target: null, gasLimit: 1n, data: '0x' as const },
+          {
+            mode: 2,
+            flags: 0x08,
+            target: null,
+            gasLimit: 1n,
+            data: '0x' as const,
+          },
         ],
       }),
     ).toThrow('reserved')
@@ -74,8 +92,20 @@ describe('eip8141', () => {
       assertTransactionEIP8141({
         ...validTx,
         frames: [
-          { mode: 0, flags: 0x04, target: sender, gasLimit: 1n, data: '0x' as const },
-          { mode: 2, flags: 0x00, target: null, gasLimit: 1n, data: '0x' as const },
+          {
+            mode: 0,
+            flags: 0x04,
+            target: sender,
+            gasLimit: 1n,
+            data: '0x' as const,
+          },
+          {
+            mode: 2,
+            flags: 0x00,
+            target: null,
+            gasLimit: 1n,
+            data: '0x' as const,
+          },
         ],
       }),
     ).toThrow('only valid with SENDER')
@@ -86,7 +116,13 @@ describe('eip8141', () => {
       assertTransactionEIP8141({
         ...validTx,
         frames: [
-          { mode: 1, flags: 0x03, target: null, gasLimit: 2n ** 63n, data: '0x' as const },
+          {
+            mode: 1,
+            flags: 0x03,
+            target: null,
+            gasLimit: 2n ** 63n,
+            data: '0x' as const,
+          },
         ],
       }),
     ).toThrow('gasLimit')

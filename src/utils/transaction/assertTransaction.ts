@@ -79,10 +79,7 @@ export function assertTransactionEIP8141(
       throw new BaseError(
         `Invalid frame flags ${frame.flags}. Bits 3-7 are reserved and must be zero.`,
       )
-    if (
-      frame.mode === VERIFY &&
-      (frame.flags & APPROVE_SCOPE_MASK) === 0
-    )
+    if (frame.mode === VERIFY && (frame.flags & APPROVE_SCOPE_MASK) === 0)
       throw new BaseError(
         'VERIFY frames must permit a non-zero APPROVE scope (flags bits 0-1).',
       )
@@ -116,6 +113,18 @@ export function assertTransactionEIP8141(
     maxPriorityFeePerGas > maxFeePerGas
   )
     throw new TipAboveFeeCapError({ maxFeePerGas, maxPriorityFeePerGas })
+
+  const { maxFeePerBlobGas, blobVersionedHashes } = transaction
+  const hasBlobs =
+    blobVersionedHashes !== undefined && blobVersionedHashes.length > 0
+  if (!hasBlobs && maxFeePerBlobGas !== undefined && maxFeePerBlobGas !== 0n)
+    throw new BaseError(
+      '`maxFeePerBlobGas` must be 0 when no blob versioned hashes are included.',
+    )
+  if (hasBlobs && (maxFeePerBlobGas === undefined || maxFeePerBlobGas === 0n))
+    throw new BaseError(
+      '`maxFeePerBlobGas` must be non-zero when blob versioned hashes are present.',
+    )
 }
 
 export type AssertTransactionEIP7702ErrorType =

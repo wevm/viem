@@ -4,6 +4,9 @@ import type {
   TransactionSerializableEIP8141,
   TransactionSerializedEIP8141,
 } from '../../types/transaction.js'
+import { fromRlp } from '../encoding/fromRlp.js'
+import { numberToHex } from '../encoding/toHex.js'
+import { toRlp } from '../encoding/toRlp.js'
 import { parseGwei } from '../unit/parseGwei.js'
 import { assertTransactionEIP8141 } from './assertTransaction.js'
 import { getSerializedTransactionType } from './getSerializedTransactionType.js'
@@ -44,7 +47,11 @@ describe('eip8141 serialization', () => {
     const serialized = serializeTransaction(baseEIP8141)
     expect(serialized.startsWith('0x06')).toBe(true)
     const parsed = parseTransaction(serialized)
-    const { maxFeePerBlobGas: _, blobVersionedHashes: __, ...expected } = baseEIP8141
+    const {
+      maxFeePerBlobGas: _,
+      blobVersionedHashes: __,
+      ...expected
+    } = baseEIP8141
     expect(parsed).toEqual({
       ...expected,
       type: 'eip8141',
@@ -268,9 +275,9 @@ describe('eip8141 assertTransaction', () => {
       gasLimit: 1n,
       data: '0x' as const,
     }))
-    expect(() =>
-      assertTransactionEIP8141({ ...baseEIP8141, frames }),
-    ).toThrow('MAX_FRAMES (64)')
+    expect(() => assertTransactionEIP8141({ ...baseEIP8141, frames })).toThrow(
+      'MAX_FRAMES (64)',
+    )
   })
 
   test('exactly MAX_FRAMES (64) passes', () => {
@@ -290,7 +297,9 @@ describe('eip8141 assertTransaction', () => {
     expect(() =>
       assertTransactionEIP8141({
         ...baseEIP8141,
-        frames: [{ mode: 3 as any, flags: 0, target: null, gasLimit: 1n, data: '0x' }],
+        frames: [
+          { mode: 3 as any, flags: 0, target: null, gasLimit: 1n, data: '0x' },
+        ],
       }),
     ).toThrow('Invalid frame mode')
   })
@@ -299,9 +308,7 @@ describe('eip8141 assertTransaction', () => {
     expect(() =>
       assertTransactionEIP8141({
         ...baseEIP8141,
-        frames: [
-          { mode: 2, flags: 8, target: null, gasLimit: 1n, data: '0x' },
-        ],
+        frames: [{ mode: 2, flags: 8, target: null, gasLimit: 1n, data: '0x' }],
       }),
     ).toThrow('Bits 3-7 are reserved')
   })
@@ -451,7 +458,13 @@ describe('eip8141 assertTransaction', () => {
       assertTransactionEIP8141({
         ...baseEIP8141,
         frames: [
-          { mode: 1, flags: 0x03, target: null, gasLimit: gasPerFrame, data: '0x' },
+          {
+            mode: 1,
+            flags: 0x03,
+            target: null,
+            gasLimit: gasPerFrame,
+            data: '0x',
+          },
           { mode: 2, flags: 0x00, target: null, gasLimit: 1n, data: '0x' },
         ],
       }),
@@ -463,7 +476,13 @@ describe('eip8141 assertTransaction', () => {
       assertTransactionEIP8141({
         ...baseEIP8141,
         frames: [
-          { mode: 1, flags: 0x03, target: '0xbad' as any, gasLimit: 1n, data: '0x' },
+          {
+            mode: 1,
+            flags: 0x03,
+            target: '0xbad' as any,
+            gasLimit: 1n,
+            data: '0x',
+          },
         ],
       }),
     ).toThrow('invalid')
@@ -693,6 +712,121 @@ describe('eip8141 spec examples', () => {
   })
 })
 
+describe('eip8141 blob-field invariants', () => {
+  test('maxFeePerBlobGas non-zero without blobs rejected', () => {
+    expect(() =>
+      assertTransactionEIP8141({
+        ...baseEIP8141,
+        maxFeePerBlobGas: 1000n,
+        blobVersionedHashes: [],
+      }),
+    ).toThrow('`maxFeePerBlobGas` must be 0 when no blob versioned hashes')
+  })
+
+  test('maxFeePerBlobGas non-zero with undefined blobs rejected', () => {
+    const { blobVersionedHashes: _, ...tx } = baseEIP8141
+    expect(() =>
+      assertTransactionEIP8141({
+        ...tx,
+        maxFeePerBlobGas: 1000n,
+      }),
+    ).toThrow('`maxFeePerBlobGas` must be 0 when no blob versioned hashes')
+  })
+
+  test('blobs present but maxFeePerBlobGas is 0 rejected', () => {
+    expect(() =>
+      assertTransactionEIP8141({
+        ...baseEIP8141,
+        maxFeePerBlobGas: 0n,
+        blobVersionedHashes: [
+          '0x01febabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe',
+        ],
+      }),
+    ).toThrow(
+      '`maxFeePerBlobGas` must be non-zero when blob versioned hashes are present',
+    )
+  })
+
+  test('blobs present but maxFeePerBlobGas undefined rejected', () => {
+    expect(() =>
+      assertTransactionEIP8141({
+        ...baseEIP8141,
+        maxFeePerBlobGas: undefined,
+        blobVersionedHashes: [
+          '0x01febabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe',
+        ],
+      }),
+    ).toThrow(
+      '`maxFeePerBlobGas` must be non-zero when blob versioned hashes are present',
+    )
+  })
+
+  test('blobs present with valid maxFeePerBlobGas passes', () => {
+    expect(() =>
+      assertTransactionEIP8141({
+        ...baseEIP8141,
+        maxFeePerBlobGas: 1000n,
+        blobVersionedHashes: [
+          '0x01febabecafebabecafebabecafebabecafebabecafebabecafebabecafebabe',
+        ],
+      }),
+    ).not.toThrow()
+  })
+
+  test('no blobs and maxFeePerBlobGas=0 passes', () => {
+    expect(() =>
+      assertTransactionEIP8141({
+        ...baseEIP8141,
+        maxFeePerBlobGas: 0n,
+        blobVersionedHashes: [],
+      }),
+    ).not.toThrow()
+  })
+
+  test('no blobs and maxFeePerBlobGas undefined passes', () => {
+    const { maxFeePerBlobGas: _, blobVersionedHashes: __, ...tx } = baseEIP8141
+    expect(() => assertTransactionEIP8141(tx)).not.toThrow()
+  })
+})
+
+describe('eip8141 parser strictness', () => {
+  test('rejects frame tuple with fewer than 5 elements', () => {
+    const tx: TransactionSerializableEIP8141 = {
+      chainId: 1,
+      sender,
+      frames: [
+        { mode: 1, flags: 0x03, target: null, gasLimit: 21000n, data: '0xaa' },
+      ],
+    }
+    const serialized = serializeTransaction(tx)
+    const hex = serialized.slice(4)
+    const items = fromRlp(`0x${hex}`, 'hex') as any[]
+    const frames = items[3] as any[]
+    frames[0] = frames[0].slice(0, 3)
+    const reEncoded =
+      `0x06${toRlp(items).slice(2)}` as TransactionSerializedEIP8141
+    expect(() => parseTransaction(reEncoded)).toThrow()
+  })
+
+  test('rejects nonce above Number.MAX_SAFE_INTEGER', () => {
+    const tx: TransactionSerializableEIP8141 = {
+      chainId: 1,
+      sender,
+      frames: [
+        { mode: 1, flags: 0x03, target: null, gasLimit: 21000n, data: '0xaa' },
+      ],
+      nonce: 42,
+    }
+    const serialized = serializeTransaction(tx)
+    const hex = serialized.slice(4)
+    const items = fromRlp(`0x${hex}`, 'hex') as any[]
+    items[1] = numberToHex(BigInt(Number.MAX_SAFE_INTEGER) + 1n)
+    const reEncoded =
+      `0x06${toRlp(items).slice(2)}` as TransactionSerializedEIP8141
+    expect(() => parseTransaction(reEncoded)).toThrow()
+  })
+})
+
 describe('eip8141 edge cases', () => {
   test('null target resolves correctly (serialized as empty 0x)', () => {
     const tx: TransactionSerializableEIP8141 = {
@@ -712,9 +846,7 @@ describe('eip8141 edge cases', () => {
     const tx: TransactionSerializableEIP8141 = {
       chainId: 1,
       sender,
-      frames: [
-        { mode: 1, flags: 0x03, target, gasLimit: 21000n, data: '0x' },
-      ],
+      frames: [{ mode: 1, flags: 0x03, target, gasLimit: 21000n, data: '0x' }],
     }
     const serialized = serializeTransaction(tx)
     const parsed = parseTransaction(serialized)
