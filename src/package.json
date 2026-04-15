@@ -223,7 +223,7 @@
     "@scure/bip39": "1.6.0",
     "abitype": "1.2.3",
     "isows": "1.0.7",
-    "ox": "https://pkg.pr.new/ox@220",
+    "ox": "0.14.17",
     "ws": "8.18.3"
   },
   "license": "MIT",
