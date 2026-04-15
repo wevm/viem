@@ -136,11 +136,11 @@ importers:
         specifier: ^0.14.0
         version: 0.14.0
       ox:
-        specifier: https://pkg.pr.new/ox@72b35e0
-        version: https://pkg.pr.new/ox@72b35e0(typescript@5.9.3)(zod@4.3.6)
+        specifier: https://pkg.pr.new/ox@220
+        version: https://pkg.pr.new/ox@220(typescript@5.9.3)(zod@4.3.6)
       permissionless:
         specifier: ^0.2.57
-        version: 0.2.57(ox@https://pkg.pr.new/ox@72b35e0(typescript@5.9.3)(zod@4.3.6))
+        version: 0.2.57(ox@https://pkg.pr.new/ox@220(typescript@5.9.3)(zod@4.3.6))
       prool:
         specifier: ~0.2.3
         version: 0.2.3(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0)
@@ -643,8 +643,8 @@ importers:
         specifier: 1.0.7
         version: 1.0.7(ws@8.18.3)
       ox:
-        specifier: https://pkg.pr.new/tempoxyz/ox-tmp-zones/ox@72b35e0
-        version: https://pkg.pr.new/tempoxyz/ox-tmp-zones/ox@72b35e0(typescript@5.9.3)(zod@4.3.6)
+        specifier: https://pkg.pr.new/ox@220
+        version: https://pkg.pr.new/ox@220(typescript@5.9.3)(zod@4.3.6)
       ws:
         specifier: 8.18.3
         version: 8.18.3
@@ -4952,18 +4952,9 @@ packages:
       typescript:
         optional: true
 
-  ox@https://pkg.pr.new/ox@72b35e0:
-    resolution: {integrity: sha512-7QHsM8j3rgPiAcoJUYS3j69KiUarm36uTmZ/bMWEVeON9uk3COgf5RuO5aSdQaeiC1mPihto+Oi/6IreVylEsQ==, tarball: https://pkg.pr.new/ox@72b35e0}
+  ox@https://pkg.pr.new/ox@220:
+    resolution: {integrity: sha512-7QHsM8j3rgPiAcoJUYS3j69KiUarm36uTmZ/bMWEVeON9uk3COgf5RuO5aSdQaeiC1mPihto+Oi/6IreVylEsQ==, tarball: https://pkg.pr.new/ox@220}
     version: 0.14.17-6483466.0
-    peerDependencies:
-      typescript: ^5.9.3
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
-  ox@https://pkg.pr.new/tempoxyz/ox-tmp-zones/ox@72b35e0:
-    resolution: {tarball: https://pkg.pr.new/tempoxyz/ox-tmp-zones/ox@72b35e0}
-    version: 0.14.11-dc1dc5f.0
     peerDependencies:
       typescript: ^5.9.3
     peerDependenciesMeta:
@@ -11294,22 +11285,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@https://pkg.pr.new/ox@72b35e0(typescript@5.9.3)(zod@4.3.6):
-    dependencies:
-      '@adraffy/ens-normalize': 1.11.1
-      '@noble/ciphers': 1.3.0
-      '@noble/curves': 1.9.1
-      '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
-      abitype: 1.2.3(typescript@5.9.3)(zod@4.3.6)
-      eventemitter3: 5.0.1
-    optionalDependencies:
-      typescript: 5.9.3
-    transitivePeerDependencies:
-      - zod
-
-  ox@https://pkg.pr.new/tempoxyz/ox-tmp-zones/ox@72b35e0(typescript@5.9.3)(zod@4.3.6):
+  ox@https://pkg.pr.new/ox@220(typescript@5.9.3)(zod@4.3.6):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
@@ -11446,9 +11422,9 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.57(ox@https://pkg.pr.new/ox@72b35e0(typescript@5.9.3)(zod@4.3.6)):
+  permissionless@0.2.57(ox@https://pkg.pr.new/ox@220(typescript@5.9.3)(zod@4.3.6)):
     optionalDependencies:
-      ox: https://pkg.pr.new/ox@72b35e0(typescript@5.9.3)(zod@4.3.6)
+      ox: https://pkg.pr.new/ox@220(typescript@5.9.3)(zod@4.3.6)
 
   picocolors@1.1.1: {}
 
