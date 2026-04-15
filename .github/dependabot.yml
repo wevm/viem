@@ -4,6 +4,7 @@ updates:
     directory: '/'
     schedule:
       interval: 'daily'
+    open-pull-requests-limit: 0
     commit-message:
       prefix: 'chore(sec)'
 
