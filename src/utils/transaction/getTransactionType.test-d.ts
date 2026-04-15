@@ -8,6 +8,7 @@ import type {
 import type {
   TransactionSerializableEIP4844,
   TransactionSerializableEIP7702,
+  TransactionSerializableEIP8141,
 } from '../../types/transaction.js'
 import { getTransactionType } from './getTransactionType.js'
 
@@ -17,7 +18,7 @@ test('empty', () => {
 
 test('opaque', () => {
   expectTypeOf(getTransactionType({} as TransactionSerializable)).toEqualTypeOf<
-    'legacy' | 'eip1559' | 'eip2930' | 'eip4844' | 'eip7702'
+    'legacy' | 'eip1559' | 'eip2930' | 'eip4844' | 'eip7702' | 'eip8141'
   >()
   expectTypeOf(
     getTransactionType({} as TransactionSerializableLegacy),
@@ -34,6 +35,9 @@ test('opaque', () => {
   expectTypeOf(
     getTransactionType({} as TransactionSerializableEIP7702),
   ).toEqualTypeOf<'eip7702'>()
+  expectTypeOf(
+    getTransactionType({} as TransactionSerializableEIP8141),
+  ).toEqualTypeOf<'eip8141'>()
 })
 
 test('const: type', () => {

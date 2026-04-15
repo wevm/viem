@@ -302,6 +302,8 @@ export type TransactionRequestBase<
   index = number,
   type = string,
 > = {
+  /** Chain ID that this transaction is valid on. */
+  chainId?: number | undefined
   /** Contract code or a hashed method call with encoded args */
   data?: Hex | undefined
   /** Transaction sender */
@@ -409,7 +411,6 @@ export type TransactionRequest<quantity = bigint, index = number> = OneOf<
   | TransactionRequestEIP1559<quantity, index>
   | TransactionRequestEIP4844<quantity, index>
   | TransactionRequestEIP7702<quantity, index>
-  | TransactionRequestEIP8141<quantity, index>
 >
 
 export type TransactionRequestGeneric<

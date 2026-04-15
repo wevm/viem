@@ -181,8 +181,15 @@ function parseTransactionEIP8141(
           type: 'eip8141',
         })
       const [mode, flags, target, gasLimit, data] = tuple
+      const parsedMode = mode === '0x' ? 0 : hexToNumber(mode)
+      if (parsedMode > 2)
+        throw new InvalidSerializedTransactionError({
+          attributes: { frameMode: parsedMode },
+          serializedTransaction,
+          type: 'eip8141',
+        })
       return {
-        mode: mode === '0x' ? 0 : hexToNumber(mode),
+        mode: parsedMode as Frame['mode'],
         flags: flags === '0x' ? 0 : hexToNumber(flags),
         target: isHex(target) && target !== '0x' ? target : null,
         gasLimit: gasLimit === '0x' ? 0n : hexToBigInt(gasLimit),

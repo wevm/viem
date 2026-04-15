@@ -111,7 +111,15 @@ export type PrepareTransactionRequestRequest<
   chainOverride extends Chain | undefined = Chain | undefined,
   ///
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
-> = UnionOmit<FormattedTransactionRequest<_derivedChain>, 'from'> &
+  _formattedTransactionRequest extends
+    FormattedTransactionRequest<_derivedChain> = FormattedTransactionRequest<_derivedChain>,
+> = UnionOmit<
+  Exclude<
+    _formattedTransactionRequest,
+    { frames: readonly unknown[] } | { type?: 'eip8141' }
+  >,
+  'from'
+> &
   GetTransactionRequestKzgParameter & {
     /**
      * Nonce manager to use for the transaction request.
@@ -174,7 +182,13 @@ export type PrepareTransactionRequestReturnType<
 > = Prettify<
   UnionRequiredBy<
     Extract<
-      UnionOmit<FormattedTransactionRequest<_derivedChain>, 'from'> &
+      UnionOmit<
+        Exclude<
+          FormattedTransactionRequest<_derivedChain>,
+          { frames: readonly unknown[] } | { type?: 'eip8141' }
+        >,
+        'from'
+      > &
         (_derivedChain extends Chain
           ? { chain: _derivedChain }
           : { chain?: undefined }) &

@@ -176,6 +176,8 @@ export async function claimFailedDeposit<
     throw new CannotClaimSuccessfulDepositError({ hash: depositHash })
 
   const tx = await getTransaction(l2Client, { hash: depositHash })
+  if (!tx.input)
+    throw new Error('Deposit transaction is missing input calldata.')
 
   // Undo the aliasing, since the Mailbox contract set it as for contract address.
   const l1BridgeAddress = undoL1ToL2Alias(receipt.from)
