@@ -1,5 +1,11 @@
 # viem
 
+## 2.47.19
+
+### Patch Changes
+
+- [#4513](https://github.com/wevm/viem/pull/4513) [`dd2452464f114361473423a6ce4da045a5a435a4`](https://github.com/wevm/viem/commit/dd2452464f114361473423a6ce4da045a5a435a4) Thanks [@decofe](https://github.com/decofe)! - Updated Tempo RPC URLs.
+
 ## 2.47.18
 
 ### Patch Changes
