@@ -1,0 +1,23 @@
+# `Storage.memory`
+
+Creates an in-memory storage backed by a `Map`. Useful for server-side environments or testing.
+
+## Usage
+
+```ts twoslash
+import { Storage } from 'viem/tempo'
+
+const storage = Storage.memory()
+
+await storage.setItem('key', 'value')
+const value = await storage.getItem('key')
+// @log: 'value'
+```
+
+## Return Type
+
+```ts
+type ReturnType = Storage
+```
+
+A `Storage` instance backed by an in-memory `Map`.

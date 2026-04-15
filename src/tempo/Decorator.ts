@@ -14,6 +14,7 @@ import * as rewardActions from './actions/reward.js'
 import * as simulateActions from './actions/simulate.js'
 import * as tokenActions from './actions/token.js'
 import * as validatorActions from './actions/validator.js'
+import * as zoneActions from './actions/zone.js'
 
 export type Decorator<
   chain extends Chain | undefined = Chain | undefined,
@@ -3804,6 +3805,316 @@ export type Decorator<
       parameters: validatorActions.updateSync.Parameters<chain, account>,
     ) => Promise<validatorActions.updateSync.ReturnValue>
   }
+  zone: {
+    /**
+     * Deposits tokens into a zone.
+     * Batches approve and deposit into a single transaction.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.zone.deposit({
+     *   token: '0x20c0...0001',
+     *   amount: 1_000_000n,
+     *   zoneId: 7,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    deposit: (
+      parameters: zoneActions.deposit.Parameters<chain, account>,
+    ) => Promise<zoneActions.deposit.ReturnValue>
+    /**
+     * Deposits tokens into a zone and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt } = await client.zone.depositSync({
+     *   token: '0x20c0...0001',
+     *   amount: 1_000_000n,
+     *   zoneId: 7,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt.
+     */
+    depositSync: (
+      parameters: zoneActions.depositSync.Parameters<chain, account>,
+    ) => Promise<zoneActions.depositSync.ReturnValue>
+    /**
+     * Deposits tokens into a zone with encrypted recipient and memo.
+     *
+     * @example
+     * ```ts
+     * const hash = await client.zone.encryptedDeposit({
+     *   token: '0x20c0...0001',
+     *   amount: 1_000_000n,
+     *   zoneId: 7,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    encryptedDeposit: (
+      parameters: zoneActions.encryptedDeposit.Parameters<chain, account>,
+    ) => Promise<zoneActions.encryptedDeposit.ReturnValue>
+    /**
+     * Deposits tokens into a zone with encrypted recipient and memo and
+     * waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * const { receipt } = await client.zone.encryptedDepositSync({
+     *   token: '0x20c0...0001',
+     *   amount: 1_000_000n,
+     *   zoneId: 7,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt.
+     */
+    encryptedDepositSync: (
+      parameters: zoneActions.encryptedDepositSync.Parameters<chain, account>,
+    ) => Promise<zoneActions.encryptedDepositSync.ReturnValue>
+    /**
+     * Returns the authenticated account address and authorization token expiry.
+     *
+     * @example
+     * ```ts
+     * import { createClient } from 'viem'
+     * import { http, zoneModerato } from 'viem/tempo/zones'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: zoneModerato(7),
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const info = await client.zone.getAuthorizationTokenInfo()
+     * ```
+     *
+     * @returns The account address and token expiry.
+     */
+    getAuthorizationTokenInfo: () => Promise<zoneActions.getAuthorizationTokenInfo.ReturnType>
+    /**
+     * Returns deposit processing status for a given Tempo block number.
+     *
+     * @example
+     * ```ts
+     * import { createClient } from 'viem'
+     * import { http, zoneModerato } from 'viem/tempo/zones'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: zoneModerato(7),
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const status = await client.zone.getDepositStatus({
+     *   tempoBlockNumber: 1n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The deposit status.
+     */
+    getDepositStatus: (
+      parameters: zoneActions.getDepositStatus.Parameters,
+    ) => Promise<zoneActions.getDepositStatus.ReturnType>
+    /**
+     * Returns the withdrawal fee for a given gas limit.
+     *
+     * @example
+     * ```ts
+     * import { createClient } from 'viem'
+     * import { http, zoneModerato } from 'viem/tempo/zones'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: zoneModerato(7),
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const fee = await client.zone.getWithdrawalFee()
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The withdrawal fee.
+     */
+    getWithdrawalFee: (
+      parameters?: zoneActions.getWithdrawalFee.Parameters,
+    ) => Promise<zoneActions.getWithdrawalFee.ReturnType>
+    /**
+     * Returns the current zone metadata.
+     *
+     * @example
+     * ```ts
+     * import { createClient } from 'viem'
+     * import { http, zoneModerato } from 'viem/tempo/zones'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: zoneModerato(7),
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const info = await client.zone.getZoneInfo()
+     * ```
+     *
+     * @returns The zone metadata.
+     */
+    getZoneInfo: () => Promise<zoneActions.getZoneInfo.ReturnType>
+    /**
+     * Requests a withdrawal from a zone to the parent Tempo chain.
+     * Batches approve and withdrawal into a single transaction.
+     *
+     * @example
+     * ```ts
+     * import { createClient } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { http, zoneModerato } from 'viem/tempo/zones'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: zoneModerato(7),
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.zone.requestWithdrawal({
+     *   token: '0x20c0...0001',
+     *   amount: 1_000_000n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    requestWithdrawal: (
+      parameters: zoneActions.requestWithdrawal.Parameters<chain, account>,
+    ) => Promise<zoneActions.requestWithdrawal.ReturnValue>
+    /**
+     * Requests a withdrawal and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { http, zoneModerato } from 'viem/tempo/zones'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: zoneModerato(7),
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt } = await client.zone.requestWithdrawalSync({
+     *   token: '0x20c0...0001',
+     *   amount: 1_000_000n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt.
+     */
+    requestWithdrawalSync: (
+      parameters: zoneActions.requestWithdrawalSync.Parameters<chain, account>,
+    ) => Promise<zoneActions.requestWithdrawalSync.ReturnValue>
+    /**
+     * Requests a verifiable withdrawal from a zone.
+     *
+     * @example
+     * ```ts
+     * const hash = await client.zone.requestVerifiableWithdrawal({
+     *   token: '0x20c0...0001',
+     *   amount: 1_000_000n,
+     *   revealTo: '0x02abc...def',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    requestVerifiableWithdrawal: (
+      parameters: zoneActions.requestVerifiableWithdrawal.Parameters<
+        chain,
+        account
+      >,
+    ) => Promise<zoneActions.requestVerifiableWithdrawal.ReturnValue>
+    /**
+     * Requests a verifiable withdrawal and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * const { receipt } = await client.zone.requestVerifiableWithdrawalSync({
+     *   token: '0x20c0...0001',
+     *   amount: 1_000_000n,
+     *   revealTo: '0x02abc...def',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt.
+     */
+    requestVerifiableWithdrawalSync: (
+      parameters: zoneActions.requestVerifiableWithdrawalSync.Parameters<
+        chain,
+        account
+      >,
+    ) => Promise<zoneActions.requestVerifiableWithdrawalSync.ReturnValue>
+    /**
+     * Signs and stores a zone authorization token.
+     *
+     * @example
+     * ```ts
+     * import { createClient } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { http, zoneModerato } from 'viem/tempo/zones'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: zoneModerato(7),
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const result = await client.zone.signAuthorizationToken()
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The authentication object and serialized token.
+     */
+    signAuthorizationToken: (
+      parameters?: zoneActions.signAuthorizationToken.Parameters<account>,
+    ) => Promise<zoneActions.signAuthorizationToken.ReturnType>
+  }
 }
 
 export function decorator() {
@@ -4049,6 +4360,32 @@ export function decorator() {
         update: (parameters) => validatorActions.update(client, parameters),
         updateSync: (parameters) =>
           validatorActions.updateSync(client, parameters),
+      },
+      zone: {
+        deposit: (parameters) => zoneActions.deposit(client, parameters),
+        depositSync: (parameters) =>
+          zoneActions.depositSync(client, parameters),
+        encryptedDeposit: (parameters) =>
+          zoneActions.encryptedDeposit(client, parameters),
+        encryptedDepositSync: (parameters) =>
+          zoneActions.encryptedDepositSync(client, parameters),
+        getAuthorizationTokenInfo: () =>
+          zoneActions.getAuthorizationTokenInfo(client),
+        getDepositStatus: (parameters) =>
+          zoneActions.getDepositStatus(client, parameters),
+        getWithdrawalFee: (parameters) =>
+          zoneActions.getWithdrawalFee(client, parameters),
+        getZoneInfo: () => zoneActions.getZoneInfo(client),
+        requestWithdrawal: (parameters) =>
+          zoneActions.requestWithdrawal(client, parameters),
+        requestWithdrawalSync: (parameters) =>
+          zoneActions.requestWithdrawalSync(client, parameters),
+        requestVerifiableWithdrawal: (parameters) =>
+          zoneActions.requestVerifiableWithdrawal(client, parameters),
+        requestVerifiableWithdrawalSync: (parameters) =>
+          zoneActions.requestVerifiableWithdrawalSync(client, parameters),
+        signAuthorizationToken: (parameters) =>
+          zoneActions.signAuthorizationToken(client, parameters),
       },
     }
   }

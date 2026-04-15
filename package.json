@@ -63,7 +63,7 @@
     "ethers": "^6.15.0",
     "knip": "^5.64.0",
     "micro-eth-signer": "^0.14.0",
-    "ox": "~0.14.15",
+    "ox": "0.14.17",
     "permissionless": "^0.2.57",
     "prool": "~0.2.3",
     "publint": "^0.2.12",
@@ -116,7 +116,7 @@
       "src": {
         "entry": [
           "index.ts!",
-          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,tempo,utils,window,zksync}/index.ts!",
+          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,tempo,tempo/actions,tempo/zones,utils,window,zksync}/index.ts!",
           "chains/utils.ts!"
         ],
         "ignore": [
@@ -242,6 +242,7 @@
   ],
   "pnpm": {
     "overrides": {
+      "typescript": "^5.9.3",
       "@opentelemetry/api@^1.8.0": "~1.7.0",
       "permissionless>viem": "workspace:*",
       "@babel/helpers@<7.26.10": "7.26.10",
