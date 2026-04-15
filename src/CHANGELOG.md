@@ -1,5 +1,19 @@
 # viem
 
+## 2.47.18
+
+### Patch Changes
+
+- [#4499](https://github.com/wevm/viem/pull/4499) [`24a1544c8a26fbf93f8029078ca310dba4df5b45`](https://github.com/wevm/viem/commit/24a1544c8a26fbf93f8029078ca310dba4df5b45) Thanks [@deodad](https://github.com/deodad)! - Added `withRelay` to `viem/tempo` as the primary relay transport, and deprecated `withFeePayer` in favor of it.
+
+- [`2c4239dc07737ffc6631677324828bde6a17b9f7`](https://github.com/wevm/viem/commit/2c4239dc07737ffc6631677324828bde6a17b9f7) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added combined `abis` export to `Abis` in `viem/tempo` that concatenates all Tempo precompile ABIs into a single array.
+
+- [`2c4239dc07737ffc6631677324828bde6a17b9f7`](https://github.com/wevm/viem/commit/2c4239dc07737ffc6631677324828bde6a17b9f7) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added `error` capability to `FillTransactionCapabilities` in `viem/tempo` for structured execution error reporting from the relay.
+
+- [#4492](https://github.com/wevm/viem/pull/4492) [`7b95669c23f86885bdd059f17d41f93c846b8dd6`](https://github.com/wevm/viem/commit/7b95669c23f86885bdd059f17d41f93c846b8dd6) Thanks [@Dhruv-2003](https://github.com/Dhruv-2003)! - Fixed `getTimeToNextGame` crash when dispute game factory has zero or one games.
+
+- [#4497](https://github.com/wevm/viem/pull/4497) [`0a465ce232e1f1a239d7a45bac946ae9405f3eee`](https://github.com/wevm/viem/commit/0a465ce232e1f1a239d7a45bac946ae9405f3eee) Thanks [@deodad](https://github.com/deodad)! - Updated `withFeePayer` transports to forward `eth_fillTransaction` requests to the fee payer transport only when `feePayer: true` is requested.
+
 ## 2.47.17
 
 ### Patch Changes
