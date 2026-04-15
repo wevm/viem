@@ -2,8 +2,8 @@ import type { Address } from 'abitype'
 import type { DefaultCapabilitiesSchema } from '../types/capabilities.js'
 import type { Hex } from '../types/misc.js'
 import type { ExactPartial, OneOf } from '../types/utils.js'
-import type { TransactionRequestTempo } from './Transaction.js'
 import type { DecodeErrorResultReturnType } from '../utils/index.js'
+import type { TransactionRequestTempo } from './Transaction.js'
 
 export type Schema = Omit<DefaultCapabilitiesSchema, 'sendCalls'> & {
   fillTransaction: {
