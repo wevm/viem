@@ -7,12 +7,11 @@ sponsored gas, and atomic multi-operation batches at the protocol level.
 
 ## Prerequisites
 
-EIP-8141 support is not yet in upstream viem. These examples depend on the
-[`frames`](https://github.com/ch4r10t33r/viem/tree/frames) branch of the fork:
+These examples use the local `viem` package from this repository:
 
 ```bash
 cd examples/frame-transactions
-pnpm install          # pulls viem from the fork
+pnpm install          # links viem from ../../src
 ```
 
 ## RPC Endpoint

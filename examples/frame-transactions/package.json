@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "viem": "github:ch4r10t33r/viem#frames"
+    "viem": "file:../../src"
   },
   "devDependencies": {
     "tsx": "^4.19.0",
