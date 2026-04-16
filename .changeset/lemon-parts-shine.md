@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-fix native native currencies on a few chains
+Fixed native currencies on chains.
