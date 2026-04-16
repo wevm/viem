@@ -22,4 +22,5 @@ export const autheoTestnet = /*#__PURE__*/ defineChain({
       url: 'https://testnet-explorer.autheo.com/',
     },
   },
+  testnet: true,
 })
