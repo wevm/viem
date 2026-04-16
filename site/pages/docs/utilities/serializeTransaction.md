@@ -23,8 +23,8 @@ const serialized = serializeTransaction({
   maxFeePerGas: parseGwei('20'),
   maxPriorityFeePerGas: parseGwei('2'),
   nonce: 69,
-  to: "0x1234512345123451234512345123451234512345",
-  value: parseEther('0.01'),
+  to: "0xd5De71be898c4BA0551FDC3fd427a0c9e6606c9D",
+value: parseEther('0.01'),
 })
 ```
 
@@ -53,7 +53,7 @@ const serialized = serializeTransaction({
   maxFeePerGas: parseGwei('20'),
   maxPriorityFeePerGas: parseGwei('2'),
   nonce: 69,
-  to: '0x1234512345123451234512345123451234512345',
+  to: '0xd5De71be898c4BA0551FDC3fd427a0c9e6606c9D',
   value: parseEther('0.01'),
 })
 ```
@@ -71,7 +71,7 @@ const serialized = serializeTransaction({
   maxFeePerGas: parseGwei('20'),
   maxPriorityFeePerGas: parseGwei('2'),
   nonce: 69,
-  to: '0x1234512345123451234512345123451234512345',
+  to: '0xd5De71be898c4BA0551FDC3fd427a0c9e6606c9D',
   value: parseEther('0.01'),
 }, { // [!code focus:5]
   r: '0x123451234512345123451234512345123451234512345123451234512345',
