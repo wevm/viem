@@ -141,5 +141,9 @@ export function formatTransactionRequest(
               : request.feePayer,
         }
       : {}),
+    ...('feePayerSignature' in request &&
+    request.feePayerSignature !== undefined
+      ? { feePayerSignature: request.feePayerSignature }
+      : {}),
   } as never
 }
