@@ -130,6 +130,24 @@ describe('eip1559', () => {
     )
   })
 
+  test('default: local includes account context in sign request', async () => {
+    const account = privateKeyToAccount(sourceAccount.privateKey)
+    const signTransaction_ = account.signTransaction
+    let request: unknown
+
+    account.signTransaction = async (transaction, options) => {
+      request = transaction
+      return signTransaction_(transaction, options)
+    }
+
+    await signTransaction(client, {
+      account,
+      ...baseEip1559,
+    })
+
+    expect((request as { account?: unknown } | undefined)?.account).toBe(account)
+  })
+
   test('w/ prepareTransactionRequest', async () => {
     await mine(client, { blocks: 1 })
 
