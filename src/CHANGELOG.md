@@ -1,5 +1,19 @@
 # viem
 
+## 2.48.1
+
+### Patch Changes
+
+- [`099684399e5d4807de02e97f4902e3c0e56ee65c`](https://github.com/wevm/viem/commit/099684399e5d4807de02e97f4902e3c0e56ee65c) Thanks [@jxom](https://github.com/jxom)! - Fixed `feePayerSignature` being dropped in Tempo's `formatTransactionRequest`.
+
+- [#4525](https://github.com/wevm/viem/pull/4525) [`64556ad0973ea7b9926ed46f23ed9f1689b7047f`](https://github.com/wevm/viem/commit/64556ad0973ea7b9926ed46f23ed9f1689b7047f) Thanks [@jxom](https://github.com/jxom)! - Fixed Tempo formatter to forward `feePayer: false` in transaction requests.
+
+- [#4516](https://github.com/wevm/viem/pull/4516) [`336b748469483a622153c10bf7bf9110a3fb9b72`](https://github.com/wevm/viem/commit/336b748469483a622153c10bf7bf9110a3fb9b72) Thanks [@0xtomm](https://github.com/0xtomm)! - Added missing `testnet: false` for testnet / devnets.
+
+- [#4517](https://github.com/wevm/viem/pull/4517) [`25cc59c6eb235770b1a843b99bef606d2f1d7206`](https://github.com/wevm/viem/commit/25cc59c6eb235770b1a843b99bef606d2f1d7206) Thanks [@0xtomm](https://github.com/0xtomm)! - Fixed native currencies on chains.
+
+- [#4518](https://github.com/wevm/viem/pull/4518) [`eb655cc7e04e08c7008b0a19f69b8b7e4d3c95d3`](https://github.com/wevm/viem/commit/eb655cc7e04e08c7008b0a19f69b8b7e4d3c95d3) Thanks [@RekCuy63](https://github.com/RekCuy63)! - Preserved explicit `nonce` in `fillTransaction`.
+
 ## 2.48.0
 
 ### Minor Changes
