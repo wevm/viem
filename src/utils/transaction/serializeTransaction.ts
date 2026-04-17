@@ -28,6 +28,7 @@ import type {
   TransactionType,
 } from '../../types/transaction.js'
 import type { MaybePromise, OneOf } from '../../types/utils.js'
+import { type GetAddressErrorType, getAddress } from '../address/getAddress.js'
 import {
   type SerializeAuthorizationListErrorType,
   serializeAuthorizationList,
@@ -56,7 +57,6 @@ import {
   numberToHex,
 } from '../encoding/toHex.js'
 import { type ToRlpErrorType, toRlp } from '../encoding/toRlp.js'
-
 import {
   type AssertTransactionEIP1559ErrorType,
   type AssertTransactionEIP2930ErrorType,
@@ -80,7 +80,6 @@ import {
   type SerializeAccessListErrorType,
   serializeAccessList,
 } from './serializeAccessList.js'
-import { type GetAddressErrorType, getAddress } from '../address/getAddress.js'
 
 export type SerializedTransactionReturnType<
   transaction extends TransactionSerializable = TransactionSerializable,

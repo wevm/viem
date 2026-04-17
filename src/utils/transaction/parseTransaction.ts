@@ -36,6 +36,7 @@ import type {
   TransactionType,
 } from '../../types/transaction.js'
 import type { IsNarrowable, Mutable } from '../../types/utils.js'
+import { type GetAddressErrorType, getAddress } from '../address/getAddress.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
 import { toBlobSidecars } from '../blob/toBlobSidecars.js'
 import { type IsHexErrorType, isHex } from '../data/isHex.js'
@@ -50,7 +51,6 @@ import {
 import { type FromRlpErrorType, fromRlp } from '../encoding/fromRlp.js'
 import type { RecursiveArray } from '../encoding/toRlp.js'
 import { isHash } from '../hash/isHash.js'
-
 import {
   type AssertTransactionEIP1559ErrorType,
   type AssertTransactionEIP2930ErrorType,
@@ -70,7 +70,6 @@ import {
   type GetSerializedTransactionTypeErrorType,
   getSerializedTransactionType,
 } from './getSerializedTransactionType.js'
-import { type GetAddressErrorType, getAddress } from '../address/getAddress.js'
 
 export type ParseTransactionReturnType<
   serialized extends TransactionSerializedGeneric = TransactionSerialized,
@@ -193,8 +192,7 @@ function parseTransactionEIP8141(
       return {
         mode: parsedMode as Frame['mode'],
         flags: flags === '0x' ? 0 : hexToNumber(flags),
-        target:
-          isHex(target) && target !== '0x' ? getAddress(target) : null,
+        target: isHex(target) && target !== '0x' ? getAddress(target) : null,
         gasLimit: gasLimit === '0x' ? 0n : hexToBigInt(gasLimit),
         value: value === '0x' ? 0n : hexToBigInt(value),
         data: isHex(data) && data !== '0x' ? data : '0x',
