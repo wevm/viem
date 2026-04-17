@@ -145,7 +145,9 @@ describe('eip1559', () => {
       ...baseEip1559,
     })
 
-    expect((request as { account?: unknown } | undefined)?.account).toBe(account)
+    expect((request as { account?: unknown } | undefined)?.account).toBe(
+      account,
+    )
   })
 
   test('w/ prepareTransactionRequest', async () => {
