@@ -15,7 +15,7 @@ export function Client() {
 
       const webSocketClient = createPublicClient({
         chain: mainnet,
-        transport: webSocket('wss://ethereum-rpc.publicnode.com'),
+        transport: webSocket('wss://mainnet.gateway.tenderly.co'),
       })
 
       await client.getBlockNumber()
