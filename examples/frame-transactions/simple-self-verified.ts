@@ -16,12 +16,14 @@ import {
   encodeFunctionData,
   type Hex,
   http,
+  parseEther,
   parseGwei,
   serializeTransaction,
   type TransactionSerializableEIP8141,
 } from 'viem'
 
-const RPC_URL = 'https://demo.eip-8141.ethrex.xyz/rpc'
+const RPC_URL = 'https://rpc1.eip-8141.ethrex.xyz'
+const CHAIN_ID = 3151908
 
 // Demo addresses -- replace with your own for a real network.
 const sender: Address = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
@@ -43,7 +45,7 @@ const validatorAbi = [
 
 const tx: TransactionSerializableEIP8141 = {
   type: 'eip8141',
-  chainId: 7,
+  chainId: CHAIN_ID,
   nonce: 0,
   sender,
   maxPriorityFeePerGas: parseGwei('1'),
@@ -58,6 +60,7 @@ const tx: TransactionSerializableEIP8141 = {
       flags: 0x01,
       target: validator,
       gasLimit: 50_000n,
+      value: 0n,
       data: encodeFunctionData({
         abi: validatorAbi,
         functionName: 'validate',
@@ -67,13 +70,13 @@ const tx: TransactionSerializableEIP8141 = {
       }),
     },
 
-    // Frame 1 -- SENDER: execute as the sender (transfer ETH to recipient).
-    // An empty `data` field with a target is a plain value transfer.
+    // Frame 1 -- SENDER: transfer ETH to recipient.
     {
       mode: 2,
       flags: 0x00,
       target: recipient,
       gasLimit: 21_000n,
+      value: parseEther('0.001'),
       data: '0x',
     },
   ],
@@ -88,7 +91,7 @@ async function main() {
 
   const client = createClient({ transport: http(RPC_URL) })
 
-  console.log('Sending to', RPC_URL, '...')
+  console.log('Sending to', RPC_URL, `(chainId ${CHAIN_ID}) ...`)
   const hash = await client.request({
     method: 'eth_sendRawTransaction' as any,
     params: [serialized as Hex],

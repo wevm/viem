@@ -60,6 +60,10 @@ export type Frame = {
   target: Address | null
   /** Gas allocated exclusively to this frame. */
   gasLimit: bigint
+  /**
+   * Must be `0` for `DEFAULT` and `VERIFY` modes; only `SENDER` may be non-zero.
+   */
+  value?: bigint | undefined
   /** Input data passed to the frame. */
   data: Hex
 }

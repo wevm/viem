@@ -70,6 +70,7 @@ import {
   type GetSerializedTransactionTypeErrorType,
   getSerializedTransactionType,
 } from './getSerializedTransactionType.js'
+import { type GetAddressErrorType, getAddress } from '../address/getAddress.js'
 
 export type ParseTransactionReturnType<
   serialized extends TransactionSerializedGeneric = TransactionSerialized,
@@ -137,6 +138,7 @@ type ParseTransactionEIP8141ErrorType =
   | HexToNumberErrorType
   | InvalidSerializedTransactionErrorType
   | IsHexErrorType
+  | GetAddressErrorType
   | ErrorType
 
 function parseTransactionEIP8141(
@@ -174,13 +176,13 @@ function parseTransactionEIP8141(
   const frames: Frame[] = (framesArray as RecursiveArray<Hex>[]).map(
     (frameArray) => {
       const tuple = frameArray as Hex[]
-      if (tuple.length !== 5)
+      if (tuple.length !== 6)
         throw new InvalidSerializedTransactionError({
           attributes: { frame: tuple },
           serializedTransaction,
           type: 'eip8141',
         })
-      const [mode, flags, target, gasLimit, data] = tuple
+      const [mode, flags, target, gasLimit, value, data] = tuple
       const parsedMode = mode === '0x' ? 0 : hexToNumber(mode)
       if (parsedMode > 2)
         throw new InvalidSerializedTransactionError({
@@ -191,8 +193,10 @@ function parseTransactionEIP8141(
       return {
         mode: parsedMode as Frame['mode'],
         flags: flags === '0x' ? 0 : hexToNumber(flags),
-        target: isHex(target) && target !== '0x' ? target : null,
+        target:
+          isHex(target) && target !== '0x' ? getAddress(target) : null,
         gasLimit: gasLimit === '0x' ? 0n : hexToBigInt(gasLimit),
+        value: value === '0x' ? 0n : hexToBigInt(value),
         data: isHex(data) && data !== '0x' ? data : '0x',
       }
     },

@@ -80,6 +80,7 @@ import {
   type SerializeAccessListErrorType,
   serializeAccessList,
 } from './serializeAccessList.js'
+import { type GetAddressErrorType, getAddress } from '../address/getAddress.js'
 
 export type SerializedTransactionReturnType<
   transaction extends TransactionSerializable = TransactionSerializable,
@@ -159,6 +160,7 @@ export function serializeTransaction<
 type SerializeTransactionEIP8141ErrorType =
   | AssertTransactionEIP8141ErrorType
   | ConcatHexErrorType
+  | GetAddressErrorType
   | NumberToHexErrorType
   | ToRlpErrorType
   | ErrorType
@@ -180,10 +182,11 @@ function serializeTransactionEIP8141(
   assertTransactionEIP8141(transaction)
 
   const serializedFrames = frames.map((frame) => [
-    numberToHex(frame.mode),
-    numberToHex(frame.flags),
-    frame.target ?? '0x',
-    numberToHex(frame.gasLimit),
+    frame.mode ? numberToHex(frame.mode) : '0x',
+    frame.flags ? numberToHex(frame.flags) : '0x',
+    frame.target ? getAddress(frame.target) : '0x',
+    frame.gasLimit ? numberToHex(frame.gasLimit) : '0x',
+    frame.value ? numberToHex(frame.value) : '0x',
     frame.data ?? '0x',
   ])
 
