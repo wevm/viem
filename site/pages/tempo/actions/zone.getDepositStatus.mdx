@@ -1,0 +1,45 @@
+# `zone.getDepositStatus`
+
+Returns deposit processing status for a given Tempo block number.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './zones.config'
+
+const status = await client.zone.getDepositStatus({
+  tempoBlockNumber: 123456n,
+})
+
+console.log('Processed:', status.processed)
+console.log('Deposits:', status.deposits)
+// @log: Processed: true
+// @log: Deposits: [...]
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  deposits: Deposit[]
+  processed: boolean
+  tempoBlockNumber: bigint
+  zoneProcessedThrough: bigint
+}
+```
+
+## Parameters
+
+### tempoBlockNumber
+
+- **Type:** `bigint`
+
+The Tempo L1 block number to check deposit status for.

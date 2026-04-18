@@ -6,7 +6,7 @@
     "bench": "vitest bench",
     "bench:types": "TYPES=true vitest -c ./test/vitest.config.ts --project type-bench",
     "build": "pnpm clean && pnpm build:cjs && pnpm build:esm && pnpm build:types",
-    "build:cjs": "pnpm build:trustedSetups:start && tsc --project ./tsconfig.build.json --module commonjs --moduleResolution node --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./src/_cjs/package.json && pnpm build:trustedSetups:end",
+    "build:cjs": "pnpm build:trustedSetups:start && node scripts/runTsc.js --project ./tsconfig.build.json --module commonjs --moduleResolution node --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./src/_cjs/package.json && pnpm build:trustedSetups:end",
     "build:esm": "tsc --project ./tsconfig.build.json --outDir ./src/_esm && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./src/_esm/package.json",
     "build:trustedSetups:start": "mv src/node/trustedSetups.ts src/node/trustedSetups_esm.ts && mv src/node/trustedSetups_cjs.ts src/node/trustedSetups.ts",
     "build:trustedSetups:end": "mv src/node/trustedSetups.ts src/node/trustedSetups_cjs.ts && mv src/node/trustedSetups_esm.ts src/node/trustedSetups.ts",
@@ -63,7 +63,7 @@
     "ethers": "^6.15.0",
     "knip": "^5.64.0",
     "micro-eth-signer": "^0.14.0",
-    "ox": "~0.14.7",
+    "ox": "0.14.17",
     "permissionless": "^0.2.57",
     "prool": "~0.2.3",
     "publint": "^0.2.12",
@@ -74,7 +74,7 @@
     "typescript": "catalog:",
     "vitest": "^4.0.15"
   },
-  "packageManager": "pnpm@10.22.0",
+  "packageManager": "pnpm@10.33.0",
   "engines": {
     "node": ">=24.5"
   },
@@ -116,7 +116,7 @@
       "src": {
         "entry": [
           "index.ts!",
-          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,tempo,utils,window,zksync}/index.ts!",
+          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,tempo,tempo/actions,tempo/zones,utils,window,zksync}/index.ts!",
           "chains/utils.ts!"
         ],
         "ignore": [
@@ -188,7 +188,7 @@
     {
       "name": "import * from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "105 kB",
+      "limit": "106 kB",
       "import": "*"
     },
     {
@@ -200,7 +200,7 @@
     {
       "name": "import { tempoTestnet } from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "63 kB",
+      "limit": "64 kB",
       "import": "{ tempoTestnet }"
     },
     {
@@ -242,15 +242,16 @@
   ],
   "pnpm": {
     "overrides": {
+      "typescript": "^5.9.3",
       "@opentelemetry/api@^1.8.0": "~1.7.0",
       "permissionless>viem": "workspace:*",
       "@babel/helpers@<7.26.10": "7.26.10",
       "@babel/runtime@<7.26.10": "7.26.10",
-      "@hono/node-server@<1.19.10": "1.19.10",
+      "@hono/node-server@<1.19.13": "1.19.13",
       "@isaacs/brace-expansion@<=5.0.0": "5.0.1",
       "@modelcontextprotocol/sdk@>=1.10.0 <=1.25.3": "1.26.0",
       "ajv@<8.18.0": "8.18.0",
-      "basic-ftp@<5.2.0": "5.2.0",
+      "basic-ftp@=5.2.0": "5.2.1",
       "brace-expansion@>=2.0.0 <=2.0.1": "2.0.2",
       "cookie@<0.7.0": "^0.7.0",
       "cross-spawn@<6.0.6": ">=6.0.6",
@@ -260,8 +261,8 @@
       "fastify": ">=5.8.3",
       "find-my-way@>=5.5.0 <8.2.2": "^8.2.2",
       "glob@>=10.3.7 <=11.0.3": ">=11.1.0",
-      "hono": ">=4.12.7",
-      "lodash@>=4.0.0 <=4.17.22": "4.17.23",
+      "hono": ">=4.12.12",
+      "lodash@>=4.0.0 <=4.17.23": "4.18.1",
       "lodash-es@>=4.0.0 <=4.17.22": "4.17.23",
       "mdast-util-to-hast@>=13.0.0 <13.2.1": "13.2.1",
       "micromatch@<4.0.8": "^4.0.8",
@@ -281,7 +282,8 @@
       "tar": ">=7.5.10",
       "tar-fs@>=3.0.0 <3.1.1": ">=3.1.1",
       "undici@>=7.0.0 <7.24.0": "7.24.0",
-      "vite@>=6.0.0 <=6.4.0": "6.4.1",
+      "vite@>=6.0.0 <=6.4.1": "6.4.2",
+      "vite@>=7.0.0 <=7.3.1": "7.3.2",
       "webpack@>=5.49.0 <=5.104.0": "5.104.1",
       "ws@>=7.0.0 <7.5.10": "^7.5.10",
       "ws@>=8.0.0 <8.17.1": "^8.17.1",
@@ -294,7 +296,11 @@
       "picomatch@>=4.0.0 <4.0.4": "4.0.4",
       "srvx@<0.11.13": "0.11.13",
       "brace-expansion@>=4.0.0 <5.0.5": "5.0.5",
-      "yaml@>=2.0.0 <2.8.3": "2.8.3"
+      "yaml@>=2.0.0 <2.8.3": "2.8.3",
+      "@vitejs/plugin-rsc@<=0.5.22": "0.5.23",
+      "next@>=16.0.0-beta.0 <16.2.3": "16.2.3",
+      "react-server-dom-webpack@>=19.2.0 <19.2.5": "19.2.5",
+      "basic-ftp@<=5.2.1": "5.2.2"
     },
     "onlyBuiltDependencies": [
       "bun",

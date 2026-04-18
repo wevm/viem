@@ -1812,6 +1812,10 @@ export const sidebar = {
             link: '/tempo/chains',
           },
           {
+            text: 'Zones',
+            link: '/tempo/zones',
+          },
+          {
             text: 'Transactions',
             link: '/tempo/transactions',
           },
@@ -2048,6 +2052,20 @@ export const sidebar = {
             ],
           },
           {
+            text: 'Simulate',
+            collapsed: true,
+            items: [
+              {
+                text: 'simulateBlocks',
+                link: '/tempo/actions/simulate.simulateBlocks',
+              },
+              {
+                text: 'simulateCalls',
+                link: '/tempo/actions/simulate.simulateCalls',
+              },
+            ],
+          },
+          {
             text: 'Stablecoin DEX',
             collapsed: true,
             items: [
@@ -2277,14 +2295,56 @@ export const sidebar = {
               },
             ],
           },
+          {
+            text: 'Zone',
+            collapsed: true,
+            items: [
+              {
+                text: 'deposit',
+                link: '/tempo/actions/zone.deposit',
+              },
+              {
+                text: 'encryptedDeposit',
+                link: '/tempo/actions/zone.encryptedDeposit',
+              },
+              {
+                text: 'getAuthorizationTokenInfo',
+                link: '/tempo/actions/zone.getAuthorizationTokenInfo',
+              },
+              {
+                text: 'getDepositStatus',
+                link: '/tempo/actions/zone.getDepositStatus',
+              },
+              {
+                text: 'getWithdrawalFee',
+                link: '/tempo/actions/zone.getWithdrawalFee',
+              },
+              {
+                text: 'getZoneInfo',
+                link: '/tempo/actions/zone.getZoneInfo',
+              },
+              {
+                text: 'requestVerifiableWithdrawal',
+                link: '/tempo/actions/zone.requestVerifiableWithdrawal',
+              },
+              {
+                text: 'requestWithdrawal',
+                link: '/tempo/actions/zone.requestWithdrawal',
+              },
+              {
+                text: 'signAuthorizationToken',
+                link: '/tempo/actions/zone.signAuthorizationToken',
+              },
+            ],
+          },
         ],
       },
       {
         text: 'Transports',
         items: [
           {
-            text: 'withFeePayer',
-            link: '/tempo/transports/withFeePayer',
+            text: 'withRelay',
+            link: '/tempo/transports/withRelay',
           },
         ],
       },
@@ -2306,6 +2366,28 @@ export const sidebar = {
               {
                 text: 'validate',
                 link: '/tempo/utilities/TempoAddress.validate',
+              },
+            ],
+          },
+          {
+            text: 'Storage',
+            collapsed: true,
+            items: [
+              {
+                text: 'defaultStorage',
+                link: '/tempo/utilities/Storage.defaultStorage',
+              },
+              {
+                text: 'from',
+                link: '/tempo/utilities/Storage.from',
+              },
+              {
+                text: 'memory',
+                link: '/tempo/utilities/Storage.memory',
+              },
+              {
+                text: 'session',
+                link: '/tempo/utilities/Storage.session',
               },
             ],
           },

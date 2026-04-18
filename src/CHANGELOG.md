@@ -1,5 +1,119 @@
 # viem
 
+## 2.48.1
+
+### Patch Changes
+
+- [`099684399e5d4807de02e97f4902e3c0e56ee65c`](https://github.com/wevm/viem/commit/099684399e5d4807de02e97f4902e3c0e56ee65c) Thanks [@jxom](https://github.com/jxom)! - Fixed `feePayerSignature` being dropped in Tempo's `formatTransactionRequest`.
+
+- [#4525](https://github.com/wevm/viem/pull/4525) [`64556ad0973ea7b9926ed46f23ed9f1689b7047f`](https://github.com/wevm/viem/commit/64556ad0973ea7b9926ed46f23ed9f1689b7047f) Thanks [@jxom](https://github.com/jxom)! - Fixed Tempo formatter to forward `feePayer: false` in transaction requests.
+
+- [#4516](https://github.com/wevm/viem/pull/4516) [`336b748469483a622153c10bf7bf9110a3fb9b72`](https://github.com/wevm/viem/commit/336b748469483a622153c10bf7bf9110a3fb9b72) Thanks [@0xtomm](https://github.com/0xtomm)! - Added missing `testnet: false` for testnet / devnets.
+
+- [#4517](https://github.com/wevm/viem/pull/4517) [`25cc59c6eb235770b1a843b99bef606d2f1d7206`](https://github.com/wevm/viem/commit/25cc59c6eb235770b1a843b99bef606d2f1d7206) Thanks [@0xtomm](https://github.com/0xtomm)! - Fixed native currencies on chains.
+
+- [#4518](https://github.com/wevm/viem/pull/4518) [`eb655cc7e04e08c7008b0a19f69b8b7e4d3c95d3`](https://github.com/wevm/viem/commit/eb655cc7e04e08c7008b0a19f69b8b7e4d3c95d3) Thanks [@RekCuy63](https://github.com/RekCuy63)! - Preserved explicit `nonce` in `fillTransaction`.
+
+## 2.48.0
+
+### Minor Changes
+
+- [#4510](https://github.com/wevm/viem/pull/4510) [`23fbf03f915acd046087d25f859a90c51a44d030`](https://github.com/wevm/viem/commit/23fbf03f915acd046087d25f859a90c51a44d030) Thanks [@Zygimantass](https://github.com/Zygimantass)! - Added Tempo zones support
+
+## 2.47.19
+
+### Patch Changes
+
+- [#4513](https://github.com/wevm/viem/pull/4513) [`dd2452464f114361473423a6ce4da045a5a435a4`](https://github.com/wevm/viem/commit/dd2452464f114361473423a6ce4da045a5a435a4) Thanks [@decofe](https://github.com/decofe)! - Updated Tempo RPC URLs.
+
+## 2.47.18
+
+### Patch Changes
+
+- [#4499](https://github.com/wevm/viem/pull/4499) [`24a1544c8a26fbf93f8029078ca310dba4df5b45`](https://github.com/wevm/viem/commit/24a1544c8a26fbf93f8029078ca310dba4df5b45) Thanks [@deodad](https://github.com/deodad)! - Added `withRelay` to `viem/tempo` as the primary relay transport, and deprecated `withFeePayer` in favor of it.
+
+- [`2c4239dc07737ffc6631677324828bde6a17b9f7`](https://github.com/wevm/viem/commit/2c4239dc07737ffc6631677324828bde6a17b9f7) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added combined `abis` export to `Abis` in `viem/tempo` that concatenates all Tempo precompile ABIs into a single array.
+
+- [`2c4239dc07737ffc6631677324828bde6a17b9f7`](https://github.com/wevm/viem/commit/2c4239dc07737ffc6631677324828bde6a17b9f7) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added `error` capability to `FillTransactionCapabilities` in `viem/tempo` for structured execution error reporting from the relay.
+
+- [#4492](https://github.com/wevm/viem/pull/4492) [`7b95669c23f86885bdd059f17d41f93c846b8dd6`](https://github.com/wevm/viem/commit/7b95669c23f86885bdd059f17d41f93c846b8dd6) Thanks [@Dhruv-2003](https://github.com/Dhruv-2003)! - Fixed `getTimeToNextGame` crash when dispute game factory has zero or one games.
+
+- [#4497](https://github.com/wevm/viem/pull/4497) [`0a465ce232e1f1a239d7a45bac946ae9405f3eee`](https://github.com/wevm/viem/commit/0a465ce232e1f1a239d7a45bac946ae9405f3eee) Thanks [@deodad](https://github.com/deodad)! - Updated `withFeePayer` transports to forward `eth_fillTransaction` requests to the fee payer transport only when `feePayer: true` is requested.
+
+## 2.47.17
+
+### Patch Changes
+
+- [`0b4bde619e71eefa206381e1be43b02ff4b1305b`](https://github.com/wevm/viem/commit/0b4bde619e71eefa206381e1be43b02ff4b1305b) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed `prepareTransactionRequest` dropping `feeToken` from `eth_fillTransaction` response.
+
+- [`0b4bde619e71eefa206381e1be43b02ff4b1305b`](https://github.com/wevm/viem/commit/0b4bde619e71eefa206381e1be43b02ff4b1305b) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed `Account.signTransaction` computing wrong presign hash when `feePayerSignature` is present by normalizing it to `null` before hashing.
+
+- [`0b4bde619e71eefa206381e1be43b02ff4b1305b`](https://github.com/wevm/viem/commit/0b4bde619e71eefa206381e1be43b02ff4b1305b) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed `serializeTempo` collapsing `feePayerSignature: null` (presign marker) to `undefined`, causing the `0x00` fee-payer marker to be omitted from serialization.
+
+## 2.47.16
+
+### Patch Changes
+
+- [`d4754544554200a01d226464ec6bded3eb44c88f`](https://github.com/wevm/viem/commit/d4754544554200a01d226464ec6bded3eb44c88f) Thanks [@jxom](https://github.com/jxom)! - Fixed types.
+
+## 2.47.15
+
+### Patch Changes
+
+- [`c1893fa232bd0f4fe747167cf4ea44a9a7cf05be`](https://github.com/wevm/viem/commit/c1893fa232bd0f4fe747167cf4ea44a9a7cf05be) Thanks [@jxom](https://github.com/jxom)! - Added EIP-5792 `capabilities` to `fillTransaction` return type.
+
+## 2.47.14
+
+### Patch Changes
+
+- [`d916060143305c4d321d30fd29b061069427d2a3`](https://github.com/wevm/viem/commit/d916060143305c4d321d30fd29b061069427d2a3) Thanks [@jxom](https://github.com/jxom)! - Fixed `formatTransactionRequest` to include `from` field from account address.
+
+- [`d916060143305c4d321d30fd29b061069427d2a3`](https://github.com/wevm/viem/commit/d916060143305c4d321d30fd29b061069427d2a3) Thanks [@jxom](https://github.com/jxom)! - Fixed `fillTransaction` to skip fee multiplier when `feePayerSignature` is present.
+
+- [`d916060143305c4d321d30fd29b061069427d2a3`](https://github.com/wevm/viem/commit/d916060143305c4d321d30fd29b061069427d2a3) Thanks [@jxom](https://github.com/jxom)! - Added `meta` property to `fillTransaction` return type.
+
+- [`d916060143305c4d321d30fd29b061069427d2a3`](https://github.com/wevm/viem/commit/d916060143305c4d321d30fd29b061069427d2a3) Thanks [@jxom](https://github.com/jxom)! - Fixed `simulateBlocks` and `simulateCalls` `tokenMetadata` return type.
+
+## 2.47.13
+
+### Patch Changes
+
+- [#4480](https://github.com/wevm/viem/pull/4480) [`19d87ddf00c7195b60afb84887f249e8f2b16fb8`](https://github.com/wevm/viem/commit/19d87ddf00c7195b60afb84887f249e8f2b16fb8) Thanks [@jxom](https://github.com/jxom)! - **viem/tempo:** Added `simulate.simulateBlocks` and `simulate.simulateCalls` actions for `tempo_simulateV1`.
+
+## 2.47.12
+
+### Patch Changes
+
+- [`ee5e2575faa5489c0f8316b07f342fc1dff1ec96`](https://github.com/wevm/viem/commit/ee5e2575faa5489c0f8316b07f342fc1dff1ec96) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added `Expiry` module for generating unix timestamp expiries (e.g. `Expiry.hours(1)`, `Expiry.days(30)`).
+
+## 2.47.11
+
+### Patch Changes
+
+- [#4440](https://github.com/wevm/viem/pull/4440) [`75ae99e2654043d927ac7e20d630fc93932fce9c`](https://github.com/wevm/viem/commit/75ae99e2654043d927ac7e20d630fc93932fce9c) Thanks [@luanxu-dev](https://github.com/luanxu-dev)! - Fixed `shouldRetry` to handle RPC code 429 in batch mode, where some providers (e.g. Alchemy) return HTTP 200 with a JSON-RPC body of `{ code: 429 }` instead of an HTTP 429.
+
+- [#4407](https://github.com/wevm/viem/pull/4407) [`fa6edb93203fbd108aba1f4cbbfc47f29bec8253`](https://github.com/wevm/viem/commit/fa6edb93203fbd108aba1f4cbbfc47f29bec8253) Thanks [@d1r1](https://github.com/d1r1)! - Added Fluent Mainnet chain.
+
+- [#4474](https://github.com/wevm/viem/pull/4474) [`51ee597f6e01ddcd98feb1e9663d5be97e3db4ea`](https://github.com/wevm/viem/commit/51ee597f6e01ddcd98feb1e9663d5be97e3db4ea) Thanks [@jxom](https://github.com/jxom)! - **viem/tempo:** Added `scopes` and `limits.period` to access key authorizations for contract call scoping and periodic spending limits (TIP-1011).
+
+## 2.47.10
+
+### Patch Changes
+
+- [#4443](https://github.com/wevm/viem/pull/4443) [`19dd6e54001a82f20ab13e42eacdbe61814e6e52`](https://github.com/wevm/viem/commit/19dd6e54001a82f20ab13e42eacdbe61814e6e52) Thanks [@TJ-Frederick](https://github.com/TJ-Frederick)! - Added Radius Network (chain ID 723487) and Radius Test Network (chain ID 72344) chain definitions.
+
+- [#4456](https://github.com/wevm/viem/pull/4456) [`7b2cca5ab72c56b4c1a18d9765f4f323ca6b162d`](https://github.com/wevm/viem/commit/7b2cca5ab72c56b4c1a18d9765f4f323ca6b162d) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Extracted `keyAuthorization` from `eth_fillTransaction` response in `prepareTransactionRequest`.
+
+- [#4457](https://github.com/wevm/viem/pull/4457) [`39d42e515f33f54102d56705cf25c51f8d8f4087`](https://github.com/wevm/viem/commit/39d42e515f33f54102d56705cf25c51f8d8f4087) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added hardfork-aware `getRemainingLimit` that uses `getRemainingLimitWithPeriod` on T3+ chains. Returns `{ remaining, periodEnd }` object.
+
+## 2.47.9
+
+### Patch Changes
+
+- [#4448](https://github.com/wevm/viem/pull/4448) [`3b1908405105bf9d2a08dd1943b4b3fad2cee38a`](https://github.com/wevm/viem/commit/3b1908405105bf9d2a08dd1943b4b3fad2cee38a) Thanks [@jxom](https://github.com/jxom)! - Fixed transaction type detection for secp256k1 access key accounts.
+
+- [#4450](https://github.com/wevm/viem/pull/4450) [`4555ee6329235335d4278a3f9f33af69091a1c79`](https://github.com/wevm/viem/commit/4555ee6329235335d4278a3f9f33af69091a1c79) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Fixed gas estimation for access key transactions with a fee payer.
+
 ## 2.47.8
 
 ### Patch Changes

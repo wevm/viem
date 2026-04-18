@@ -170,6 +170,7 @@ export async function signTransaction<
     return account.signTransaction(
       {
         ...transaction,
+        account,
         chainId,
       } as TransactionSerializable,
       { serializer: client.chain?.serializers?.transaction },

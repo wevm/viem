@@ -16,6 +16,7 @@ import type { SerializeTransactionFn } from '../utils/transaction/serializeTrans
 import type { Account } from './Account.js'
 import { getMetadata } from './actions/accessKey.js'
 import * as Formatters from './Formatters.js'
+import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
 import * as Transaction from './Transaction.js'
 
@@ -25,6 +26,7 @@ export const chainConfig = {
   blockTime: 1_000,
   extendSchema: extendSchema<{
     feeToken?: TokenId.TokenIdOrAddress | undefined
+    hardfork?: Hardfork | undefined
   }>(),
   formatters: {
     transaction: defineTransaction({
@@ -47,13 +49,15 @@ export const chainConfig = {
           | undefined
       }
 
-      // FIXME: node does not account for fee payer + key authorization combinartion; bump gas for now.
+      // FIXME: node estimates gas with secp256k1 dummy sig + null feePayerSignature.
+      // Actual tx has larger keychain/webAuthn sigs + real fee payer sig, costing more intrinsic gas.
       if (phase === 'afterFillParameters') {
-        if (
-          request.feePayer &&
-          request.keyAuthorization?.signature.type === 'webAuthn'
-        )
-          request.gas = (request.gas ?? 0n) + 20_000n
+        if (request.feePayer) {
+          if (request.keyAuthorization?.signature.type === 'webAuthn')
+            request.gas = (request.gas ?? 0n) + 20_000n
+          else if (request.account?.source === 'accessKey')
+            request.gas = (request.gas ?? 0n) + 10_000n
+        }
         return request as unknown as typeof r
       }
 

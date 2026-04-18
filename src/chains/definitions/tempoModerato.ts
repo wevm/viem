@@ -22,4 +22,5 @@ export const tempoModerato = /*#__PURE__*/ defineChain({
       webSocket: ['wss://rpc.moderato.tempo.xyz'],
     },
   },
+  testnet: true,
 })

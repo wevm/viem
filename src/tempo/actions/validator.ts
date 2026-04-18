@@ -155,7 +155,7 @@ export namespace add {
     } = args
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [
         newValidatorAddress,
         publicKey,
@@ -329,7 +329,7 @@ export namespace changeOwner {
     const { newOwner } = args
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [newOwner],
       functionName: 'changeOwner',
     })
@@ -497,7 +497,7 @@ export namespace changeStatus {
     const { validator, active } = args
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [validator, active],
       functionName: 'changeValidatorStatus',
     })
@@ -596,7 +596,7 @@ export namespace getNextFullDkgCeremony {
   export type Parameters = ReadParameters
 
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.validator,
+    typeof Abis.validatorConfig,
     'getNextFullDkgCeremony',
     never
   >
@@ -630,7 +630,7 @@ export namespace getNextFullDkgCeremony {
   export function call() {
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [],
       functionName: 'getNextFullDkgCeremony',
     })
@@ -675,7 +675,7 @@ export namespace getOwner {
   export type Parameters = ReadParameters
 
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.validator,
+    typeof Abis.validatorConfig,
     'owner',
     never
   >
@@ -709,7 +709,7 @@ export namespace getOwner {
   export function call() {
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [],
       functionName: 'owner',
     })
@@ -762,7 +762,7 @@ export namespace get {
   }
 
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.validator,
+    typeof Abis.validatorConfig,
     'validators',
     never
   >
@@ -800,7 +800,7 @@ export namespace get {
     const { validator } = args
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [validator],
       functionName: 'validators',
     })
@@ -853,7 +853,7 @@ export namespace getByIndex {
   }
 
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.validator,
+    typeof Abis.validatorConfig,
     'validatorsArray',
     never
   >
@@ -892,7 +892,7 @@ export namespace getByIndex {
     const { index } = args
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [index],
       functionName: 'validatorsArray',
     })
@@ -937,7 +937,7 @@ export namespace getCount {
   export type Parameters = ReadParameters
 
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.validator,
+    typeof Abis.validatorConfig,
     'validatorCount',
     never
   >
@@ -971,7 +971,7 @@ export namespace getCount {
   export function call() {
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [],
       functionName: 'validatorCount',
     })
@@ -1016,7 +1016,7 @@ export namespace list {
   export type Parameters = ReadParameters
 
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.validator,
+    typeof Abis.validatorConfig,
     'getValidators',
     never
   >
@@ -1050,7 +1050,7 @@ export namespace list {
   export function call() {
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [],
       functionName: 'getValidators',
     })
@@ -1161,7 +1161,7 @@ export namespace setNextFullDkgCeremony {
     const { epoch } = args
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [epoch],
       functionName: 'setNextFullDkgCeremony',
     })
@@ -1353,7 +1353,7 @@ export namespace update {
       args
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [newValidatorAddress, publicKey, inboundAddress, outboundAddress],
       functionName: 'updateValidator',
     })

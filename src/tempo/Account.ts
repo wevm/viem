@@ -48,7 +48,7 @@ export type RootAccount = Account_base<'root'> & {
     key: Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>,
     parameters: Pick<
       KeyAuthorization.KeyAuthorization,
-      'chainId' | 'expiry' | 'limits'
+      'chainId' | 'expiry' | 'limits' | 'scopes'
     >,
   ) => Promise<KeyAuthorization.Signed>
 }
@@ -381,7 +381,7 @@ export async function signKeyAuthorization(
   account: LocalAccount,
   parameters: signKeyAuthorization.Parameters,
 ): Promise<signKeyAuthorization.ReturnValue> {
-  const { chainId, key, expiry, limits } = parameters
+  const { chainId, key, expiry, limits, scopes } = parameters
   const { accessKeyAddress, keyType: type } = key
 
   const signature = await account.sign!({
@@ -390,6 +390,7 @@ export async function signKeyAuthorization(
       chainId,
       expiry,
       limits,
+      scopes,
       type,
     }),
   })
@@ -398,6 +399,7 @@ export async function signKeyAuthorization(
     chainId,
     expiry,
     limits,
+    scopes,
     signature: SignatureEnvelope.from(signature),
     type,
   })
@@ -406,7 +408,7 @@ export async function signKeyAuthorization(
 export declare namespace signKeyAuthorization {
   type Parameters = Pick<
     KeyAuthorization.KeyAuthorization,
-    'chainId' | 'expiry' | 'limits'
+    'chainId' | 'expiry' | 'limits' | 'scopes'
   > & {
     key: Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>
   }
@@ -480,8 +482,13 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
     },
     async signTransaction(transaction, options) {
       const { serializer = Transaction.serialize } = options ?? {}
+      const presign = (() => {
+        if ('feePayerSignature' in transaction && transaction.feePayerSignature)
+          return { ...transaction, feePayerSignature: null }
+        return transaction
+      })()
       const signature = await sign({
-        hash: keccak256(await serializer(transaction)),
+        hash: keccak256(await serializer(presign)),
       })
       const envelope = SignatureEnvelope.from(signature)
       return await serializer(transaction, envelope as never)
@@ -522,7 +529,7 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
     ...account,
     source: 'root',
     async signKeyAuthorization(key, parameters) {
-      const { chainId, expiry, limits } = parameters
+      const { chainId, expiry, limits, scopes } = parameters
       const { accessKeyAddress, keyType: type } = key
 
       const signature = await account.sign({
@@ -531,6 +538,7 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
           chainId,
           expiry,
           limits,
+          scopes,
           type,
         }),
       })
@@ -539,6 +547,7 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
         chainId,
         expiry,
         limits,
+        scopes,
         signature: SignatureEnvelope.from(signature),
         type,
       })

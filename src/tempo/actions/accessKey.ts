@@ -1,7 +1,7 @@
 import type { Address } from 'abitype'
+import type { KeyAuthorization } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
-import type { ReadContractReturnType } from '../../actions/public/readContract.js'
 import { readContract } from '../../actions/public/readContract.js'
 import { sendTransaction } from '../../actions/wallet/sendTransaction.js'
 import { sendTransactionSync } from '../../actions/wallet/sendTransactionSync.js'
@@ -20,6 +20,7 @@ import * as Abis from '../Abis.js'
 import type { AccessKeyAccount } from '../Account.js'
 import { signKeyAuthorization } from '../Account.js'
 import * as Addresses from '../Addresses.js'
+import * as Hardfork from '../Hardfork.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -96,7 +97,11 @@ export namespace authorize {
     /** Unix timestamp when the key expires. */
     expiry?: number | undefined
     /** Spending limits per token. */
-    limits?: { token: Address; limit: bigint }[] | undefined
+    limits?:
+      | { token: Address; limit: bigint; period?: number | undefined }[]
+      | undefined
+    /** Call scopes restricting which contracts/selectors this key can call. */
+    scopes?: KeyAuthorization.Scope[] | undefined
   }
 
   export type ReturnValue = WriteContractReturnType
@@ -119,6 +124,7 @@ export namespace authorize {
       chainId = client.chain?.id,
       expiry,
       limits,
+      scopes,
       ...rest
     } = parameters
     const account_ = rest.account ?? client.account
@@ -130,6 +136,7 @@ export namespace authorize {
       key: accessKey,
       expiry,
       limits,
+      scopes,
     })
     return (await action(client, {
       ...rest,
@@ -742,10 +749,26 @@ export async function getRemainingLimit<
   } = parameters
   if (!account_) throw new Error('account is required.')
   const account = parseAccount(account_)
-  return readContract(client, {
+
+  // TODO: remove pre-t3 branch once mainnet is on t3.
+  const hardfork = (client.chain as { hardfork?: string } | undefined)?.hardfork
+  if (hardfork && Hardfork.lt(hardfork, 't3')) {
+    const remaining = await readContract(client, {
+      ...rest,
+      ...getRemainingLimit.call({ account: account.address, accessKey, token }),
+    })
+    return { remaining, periodEnd: undefined }
+  }
+
+  const [remaining, periodEnd] = await readContract(client, {
     ...rest,
-    ...getRemainingLimit.call({ account: account.address, accessKey, token }),
+    ...getRemainingLimit.callWithPeriod({
+      account: account.address,
+      accessKey,
+      token,
+    }),
   })
+  return { remaining, periodEnd }
 }
 
 export namespace getRemainingLimit {
@@ -764,14 +787,13 @@ export namespace getRemainingLimit {
     token: Address
   }
 
-  export type ReturnValue = ReadContractReturnType<
-    typeof Abis.accountKeychain,
-    'getRemainingLimit',
-    never
-  >
+  export type ReturnValue = {
+    remaining: bigint
+    periodEnd: bigint | undefined
+  }
 
   /**
-   * Defines a call to the `getRemainingLimit` function.
+   * Defines a call to the `getRemainingLimit` function (pre-T3).
    *
    * @param args - Arguments.
    * @returns The call.
@@ -782,6 +804,22 @@ export namespace getRemainingLimit {
       address: Addresses.accountKeychain,
       abi: Abis.accountKeychain,
       functionName: 'getRemainingLimit',
+      args: [account, resolveAccessKey(accessKey), token],
+    })
+  }
+
+  /**
+   * Defines a call to the `getRemainingLimitWithPeriod` function (T3+).
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function callWithPeriod(args: Args) {
+    const { account, accessKey, token } = args
+    return defineCall({
+      address: Addresses.accountKeychain,
+      abi: Abis.accountKeychain,
+      functionName: 'getRemainingLimitWithPeriod',
       args: [account, resolveAccessKey(accessKey), token],
     })
   }
@@ -844,7 +882,11 @@ export namespace signAuthorization {
     /** Unix timestamp when the key expires. */
     expiry?: number | undefined
     /** Spending limits per token. */
-    limits?: { token: Address; limit: bigint }[] | undefined
+    limits?:
+      | { token: Address; limit: bigint; period?: number | undefined }[]
+      | undefined
+    /** Call scopes restricting which contracts/selectors this key can call. */
+    scopes?: KeyAuthorization.Scope[] | undefined
   }
 
   export type ReturnValue = Awaited<ReturnType<typeof signKeyAuthorization>>

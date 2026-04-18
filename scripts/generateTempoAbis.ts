@@ -236,6 +236,38 @@ for (const [interfaceName, interfaceData] of interfaces.entries()) {
   processedInterfaces.add(interfaceName)
 }
 
+// Generate concatenated `abis` export
+const exportNames: string[] = []
+for (const [interfaceName] of interfaces.entries()) {
+  const isUsedAsExtension = Object.values(extensions)
+    .flat()
+    .includes(interfaceName)
+  const isExtendedItself = interfaceName in extensions
+  if (isUsedAsExtension && !isExtendedItself) continue
+  if (!processedInterfaces.has(interfaceName)) continue
+
+  let cleanName = interfaceName.startsWith('I')
+    ? interfaceName.slice(1)
+    : interfaceName
+  if (cleanName.startsWith('TIP') && cleanName.length > 3) {
+    const charAfterTip = cleanName.charAt(3)
+    if (charAfterTip >= 'A' && charAfterTip <= 'Z')
+      cleanName = cleanName.slice(3)
+  }
+  const exportName = cleanName
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .toLowerCase()
+    .split(/[_\-. \s]+/)
+    .map((w, i) => (i ? w[0]!.toUpperCase() + w.slice(1) : w))
+    .join('')
+  exportNames.push(exportName)
+}
+
+Fs.appendFileSync(
+  out,
+  `export const abis = [\n${exportNames.map((n) => `  ...${n},`).join('\n')}\n] as const\n`,
+)
+
 console.log(
   `✓ Generated ${processedInterfaces.size} ABIs from ${files.length} precompile files`,
 )

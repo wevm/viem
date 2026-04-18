@@ -1,0 +1,126 @@
+# `withRelay`
+
+Creates a transport that routes Tempo relay traffic between a default transport and a relay service.
+
+- [View Guide](https://docs.tempo.xyz/guide/payments/sponsor-user-fees)
+- [View Specification](https://docs.tempo.xyz/protocol/transactions/spec-tempo-transaction)
+
+`withRelay` forwards every `eth_fillTransaction` request to the relay and preserves the request's `feePayer` value so the relay can decide whether to sponsor the transaction.
+
+- `feePayer: true` asks the relay to sponsor the transaction.
+- If `feePayer` is omitted, `undefined`, or `null`, that value is forwarded as-is.
+- An explicit `feePayer` address is preserved.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempoModerato } from 'viem/chains'
+import { withRelay } from 'viem/tempo'
+
+const client = createWalletClient({
+  account: privateKeyToAccount('0x...'),
+  chain: tempoModerato,
+  transport: withRelay(
+    http(),                             // ← Default Transport
+    http('https://relay.example.com'),  // ← Relay Transport // [!code hl]
+  ),
+})
+
+// Regular transaction
+const receipt1 = await client.sendTransactionSync({
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+})
+
+// Sponsored transaction // [!code hl]
+const receipt2 = await client.sendTransactionSync({ // [!code hl]
+  feePayer: true, // [!code hl]
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb', // [!code hl]
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Example Relay Service
+
+Below is an end-to-end example of a client/server relay setup.
+
+See `server.ts` for the server-side implementation. It uses [`Handler.relay` provided by `accounts/server`](https://docs.tempo.xyz/accounts/server/handler.relay) to handle relay requests.
+
+:::code-group
+
+```ts twoslash [client.ts]
+import { createWalletClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempoModerato } from 'viem/chains'
+import { withRelay } from 'viem/tempo'
+
+const client = createWalletClient({
+  account: privateKeyToAccount('0x...'),
+  chain: tempoModerato,
+  transport: withRelay(
+    http(),
+    http('http://localhost:3000'),
+  ),
+})
+
+const hash = await client.sendTransactionSync({
+  feePayer: true,
+  to: '0x0000000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [server.ts]
+// @noErrors
+import { createServer } from 'node:http'
+import { createClient, http } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempoModerato } from 'viem/chains'
+import { Handler } from 'accounts/server'
+
+const client = createClient({
+  chain: tempoModerato.extend({
+    // Note: the relay can specify its own fee token.
+    feeToken: '0x20c0000000000000000000000000000000000001',
+  }),
+  transport: http(),
+})
+
+const handler = Handler.relay({ // [!code hl]
+  feePayer: { // [!code hl]
+    account: privateKeyToAccount('0x...'), // [!code hl]
+  }, // [!code hl]
+}) // [!code hl]
+
+const server = createServer(handler.listener)
+server.listen(3000)
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = Transport<'relay'>
+```
+
+## Parameters
+
+### defaultTransport
+
+- **Type:** `Transport`
+
+The default transport to use for regular relay traffic and for broadcasting transactions when `policy` is `'sign-only'`.
+
+### relayTransport
+
+- **Type:** `Transport`
+
+The relay transport to use for `eth_fillTransaction` and sponsored transaction handling.

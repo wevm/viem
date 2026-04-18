@@ -1,0 +1,65 @@
+# `zone.signAuthorizationToken`
+
+Signs a zone authorization token and stores it for the zone HTTP transport. The token is used to authenticate all subsequent zone RPC requests via the `X-Authorization-Token` header.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './zones.config'
+
+const result = await client.zone.signAuthorizationToken()
+
+console.log('Token:', result.token)
+// @log: Token: 0x...
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  authentication: Authentication
+  token: string
+}
+```
+
+The signed authentication object and the serialized token string.
+
+## Parameters
+
+### account (optional)
+
+- **Type:** `Account`
+
+Account to sign the authorization token with. Defaults to the client's account.
+
+### chain (optional)
+
+- **Type:** `Chain`
+
+Zone chain to sign the token for. Defaults to the client's chain.
+
+### expiresAt (optional)
+
+- **Type:** `number`
+
+Unix timestamp when the token expires.
+
+### issuedAt (optional)
+
+- **Type:** `number`
+
+Unix timestamp when the token was issued.
+
+### storage (optional)
+
+- **Type:** `Storage`
+
+Storage instance to persist the signed token. Defaults to `Storage.defaultStorage()`.

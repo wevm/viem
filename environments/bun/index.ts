@@ -3,12 +3,12 @@ import { mainnet } from 'viem/chains'
 
 const client = createPublicClient({
   chain: mainnet,
-  transport: http(),
+  transport: http('https://ethereum-rpc.publicnode.com'),
 })
 
 const webSocketClient = createPublicClient({
   chain: mainnet,
-  transport: webSocket('wss://ethereum-rpc.publicnode.com'),
+  transport: webSocket('wss://mainnet.gateway.tenderly.co'),
 })
 
 await client.getBlockNumber()

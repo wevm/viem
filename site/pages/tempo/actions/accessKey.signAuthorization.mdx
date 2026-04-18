@@ -11,28 +11,92 @@ If you want to authorize a key and send the transaction in one step, use [`acces
 :::code-group
 
 ```ts twoslash [example.ts]
-import { generatePrivateKey } from 'viem/accounts'
-import { Account, Actions } from 'viem/tempo'
+import { Account, P256 } from 'viem/tempo'
+import { client } from './viem.config'
 
 // 1. Define root account
-const account = Account.from({ privateKey: '0x...' })
+const account = Account.fromSecp256k1('0x...')
 
 // 2. Define access key attached to the root account
-const accessKey = Account.fromP256(generatePrivateKey(), {
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
   access: account,
 })
 
 // 3. Sign the key authorization
-const keyAuthorization = await Actions.accessKey.signAuthorization(
+const keyAuthorization = await client.accessKey.signAuthorization({
+  accessKey,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### With Periodic Spending Limits
+
+Use the `period` field on limits to set a recurring spending cap that resets after the given number of seconds:
+
+```ts twoslash
+import { parseUnits } from 'viem'
+import { Account, Period, P256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const keyAuthorization = await client.accessKey.signAuthorization(
   account,
   {
     accessKey,
-    expiry: Math.floor((Date.now() + 30_000) / 1000),
+    limits: [ // [!code focus]
+      { // [!code focus]
+        token: '0x20c0000000000000000000000000000000000001', // [!code focus]
+        limit: parseUnits('1000', 6), // [!code focus]
+        period: Period.months(1), // resets every month // [!code focus]
+      }, // [!code focus]
+    ], // [!code focus]
   },
 )
 ```
 
-:::
+### With Call Scopes
+
+Use `scopes` to restrict which contracts and functions the access key can call:
+
+```ts twoslash
+import { parseUnits } from 'viem'
+import { Account, P256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const keyAuthorization = await client.accessKey.signAuthorization(
+  account,
+  {
+    accessKey,
+    limits: [ // [!code focus]
+      { // [!code focus]
+        token: '0x20c0000000000000000000000000000000000001', // [!code focus]
+        limit: parseUnits('10000', 6), // [!code focus]
+      }, // [!code focus]
+    ], // [!code focus]
+    scopes: [ // [!code focus]
+      { // [!code focus]
+        address: '0x20c0000000000000000000000000000000000001', // [!code focus]
+        selector: 'transfer(address,uint256)', // or "0xa9059cbb" // [!code focus]
+        recipients: ['0xcafebabecafebabecafebabecafebabecafebabe'], // optional // [!code focus]
+      }, // [!code focus]
+    ], // [!code focus]
+  },
+)
+```
 
 ### Submitting the Authorization
 
@@ -79,6 +143,12 @@ Unix timestamp when the key expires.
 
 ### limits (optional)
 
-- **Type:** `{ token: Address; limit: bigint }[]`
+- **Type:** `{ token: Address; limit: bigint; period?: number }[]`
 
-Spending limits per token.
+Spending limits per token. Optionally include `period` (in seconds) to make the limit periodic — it resets after each period.
+
+### scopes (optional)
+
+- **Type:** `{ address: Address; selector?: Hex | string; recipients?: Address[] }[]`
+
+Call scopes restricting which contracts/selectors this key can call.

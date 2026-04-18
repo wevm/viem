@@ -1,0 +1,115 @@
+# Getting Started with Zones
+
+## Overview
+
+Zones are private, account-scoped chains on [Tempo](https://tempo.xyz). Each zone is an isolated execution environment tied to a specific account, enabling private state and custom logic while inheriting the security guarantees of the Tempo L1.
+
+All zone RPC methods require an `X-Authorization-Token` header. The zone `http` transport handles this automatically once you have signed an authorization token.
+
+## Setup
+
+Set up the Zones extension for Viem by following the steps below.
+
+::::steps
+
+### Install
+
+To use Zones, ensure that you have Viem installed.
+
+:::code-group
+
+```bash [npm]
+npm i viem
+```
+
+```bash n[pnpm]
+pnpm i viem
+```
+
+```bash [bun]
+bun i viem
+```
+
+:::
+
+### Configure
+
+Next, we will configure a [Viem Client](/docs/clients/custom) for a zone.
+
+In the snippet below, we set up a zone chain using `zoneModerato` and the zone `http` transport.
+
+```ts twoslash [zones.config.ts] 
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::info
+Viem ships with two zone chain builders: `zone` for Tempo mainnet and `zoneModerato` for the Moderato testnet.
+:::
+
+### Sign Authorization Token
+
+Before making any zone RPC requests, you must sign an authorization token. This authenticates your account with the zone sequencer.
+
+The zone `http` transport automatically attaches the signed token as the `X-Authorization-Token` header on all subsequent requests.
+
+:::code-group
+
+```ts twoslash [example.ts]
+// @filename: zones.config.ts
+import { createClient } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
+import { tempoActions } from 'viem/tempo'
+import { http, zoneModerato } from 'viem/tempo/zones'
+
+export const client = createClient({
+  account: privateKeyToAccount('0x...'),
+  chain: zoneModerato(7),
+  transport: http(),
+}).extend(tempoActions())
+// @filename: example.ts
+// ---cut---
+import { client } from './zones.config'
+
+await client.zone.signAuthorizationToken()
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+:::tip
+The signed token is persisted using `Storage`. By default, `Storage.defaultStorage()` is used, which auto-detects the environment (in-memory for Node.js, `sessionStorage` for browsers). You can provide a custom storage via the `storage` parameter.
+:::
+
+### Use Zone Actions
+
+Once authenticated, you can use [Zone Actions](/tempo/actions) to interact with your zone:
+
+:::code-group
+
+```ts twoslash [example.ts]
+// @filename: zones.config.ts
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+// @filename: example.ts
+// ---cut---
+import { client } from './zones.config'
+
+const info = await client.zone.getZoneInfo()
+
+console.log('Zone ID:', info.zoneId)
+console.log('Chain ID:', info.chainId)
+console.log('Sequencer:', info.sequencer)
+// @log: Zone ID: 7
+// @log: Chain ID: 1337
+// @log: Sequencer: 0x...
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+::::

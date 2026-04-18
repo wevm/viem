@@ -126,18 +126,24 @@ export function formatTransactionRequest(
       ? account.accessKeyAddress
       : undefined
 
+  if (account) rpc.from = account.address
+
   return {
     ...rpc,
     ...(keyData ? { keyData } : {}),
     ...(keyId ? { keyId } : {}),
     ...(keyType ? { keyType } : {}),
-    ...(request.feePayer
+    ...(typeof request.feePayer !== 'undefined'
       ? {
           feePayer:
             typeof request.feePayer === 'object'
               ? parseAccount(request.feePayer)
               : request.feePayer,
         }
+      : {}),
+    ...('feePayerSignature' in request &&
+    request.feePayerSignature !== undefined
+      ? { feePayerSignature: request.feePayerSignature }
       : {}),
   } as never
 }

@@ -1,3 +1,4 @@
+import { Period } from 'ox/tempo'
 import { generatePrivateKey } from 'viem/accounts'
 import { Account } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
@@ -12,9 +13,16 @@ const client = getClient({
 
 /** Authorizes an access key and returns it. */
 async function setupAccessKey(
-  parameters: { limits?: { token: `0x${string}`; limit: bigint }[] } = {},
+  parameters: {
+    limits?: { token: `0x${string}`; limit: bigint; period?: number }[]
+    scopes?: {
+      address: `0x${string}`
+      selector?: `0x${string}`
+      recipients?: `0x${string}`[]
+    }[]
+  } = {},
 ) {
-  const { limits } = parameters
+  const { limits, scopes } = parameters
   const accessKey = Account.fromP256(generatePrivateKey(), {
     access: account,
   })
@@ -23,6 +31,7 @@ async function setupAccessKey(
     accessKey,
     expiry: Math.floor((Date.now() + 30 * 1000) / 1000), // 30 seconds from now
     limits,
+    scopes,
   })
 
   return accessKey
@@ -76,7 +85,7 @@ describe('authorize', () => {
     )
 
     // Verify limit was set
-    const remaining = await actions.accessKey.getRemainingLimit(client, {
+    const { remaining } = await actions.accessKey.getRemainingLimit(client, {
       account: account.address,
       accessKey,
       token: feeToken,
@@ -117,6 +126,62 @@ describe('signAuthorization', () => {
 
     expect(keyAuthorization).toBeDefined()
     expect(keyAuthorization.limits).toHaveLength(1)
+  })
+
+  test('behavior: with periodic limits', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const keyAuthorization = await actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+      limits: [{ token: feeToken, limit: 1000000n, period: Period.days(1) }],
+    })
+
+    expect(keyAuthorization).toBeDefined()
+    expect(keyAuthorization.limits).toMatchObject([
+      { token: feeToken, limit: 1000000n, period: 86400 },
+    ])
+  })
+
+  test('behavior: with scopes', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const keyAuthorization = await actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+      scopes: [{ address: feeToken, selector: '0xa9059cbb' }],
+    })
+
+    expect(keyAuthorization).toBeDefined()
+    expect(keyAuthorization.scopes).toMatchObject([
+      { address: feeToken, selector: '0xa9059cbb' },
+    ])
+  })
+
+  test('behavior: with periodic limits + scopes', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const keyAuthorization = await actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+      limits: [{ token: feeToken, limit: 500000n, period: Period.hours(1) }],
+      scopes: [{ address: feeToken }],
+    })
+
+    expect(keyAuthorization).toBeDefined()
+    expect(keyAuthorization.limits).toMatchObject([
+      { token: feeToken, limit: 500000n, period: 3600 },
+    ])
+    expect(keyAuthorization.scopes).toMatchObject([{ address: feeToken }])
   })
 })
 
@@ -185,11 +250,12 @@ describe('updateLimit', () => {
     })
 
     // Check initial limit
-    const initialLimit = await actions.accessKey.getRemainingLimit(client, {
-      account: account.address,
-      accessKey,
-      token,
-    })
+    const { remaining: initialLimit } =
+      await actions.accessKey.getRemainingLimit(client, {
+        account: account.address,
+        accessKey,
+        token,
+      })
     expect(initialLimit).toBe(1000000n)
 
     // Update the limit
@@ -206,11 +272,12 @@ describe('updateLimit', () => {
     expect(result.limit).toBe(2000000n)
 
     // Verify updated limit
-    const updatedLimit = await actions.accessKey.getRemainingLimit(client, {
-      account: account.address,
-      accessKey,
-      token,
-    })
+    const { remaining: updatedLimit } =
+      await actions.accessKey.getRemainingLimit(client, {
+        account: account.address,
+        accessKey,
+        token,
+      })
     expect(updatedLimit).toBe(2000000n)
   })
 })
@@ -222,7 +289,7 @@ describe('getRemainingLimit', () => {
       limits: [{ token, limit: 5000000n }],
     })
 
-    const remaining = await actions.accessKey.getRemainingLimit(client, {
+    const { remaining } = await actions.accessKey.getRemainingLimit(client, {
       account: account.address,
       accessKey,
       token,
@@ -234,7 +301,7 @@ describe('getRemainingLimit', () => {
   test('behavior: no limit set for token', async () => {
     const accessKey = await setupAccessKey()
 
-    const remaining = await actions.accessKey.getRemainingLimit(client, {
+    const { remaining } = await actions.accessKey.getRemainingLimit(client, {
       account: account.address,
       accessKey,
       token: '0x0000000000000000000000000000000000000001',

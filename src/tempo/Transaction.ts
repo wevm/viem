@@ -163,10 +163,11 @@ export function getType(
   transaction: Record<string, unknown>,
 ): Transaction['type'] {
   const account = transaction.account as
-    | { keyType?: string | undefined }
+    | { keyType?: string | undefined; source?: string | undefined }
     | undefined
   if (
     (account?.keyType && account.keyType !== 'secp256k1') ||
+    account?.source === 'accessKey' ||
     typeof transaction.calls !== 'undefined' ||
     typeof transaction.feePayer !== 'undefined' ||
     typeof transaction.feeToken !== 'undefined' ||
@@ -287,7 +288,19 @@ async function serializeTempo(
     return undefined
   })()
 
-  const { chainId, feePayer, feePayerSignature, nonce, ...rest } = transaction
+  const { chainId, feePayer, nonce, ...rest } = transaction
+
+  const feePayerSignature = (() => {
+    const feePayerSignature = transaction.feePayerSignature
+    if (feePayerSignature)
+      return {
+        r: BigInt(feePayerSignature.r!),
+        s: BigInt(feePayerSignature.s!),
+        yParity: Number(feePayerSignature.yParity),
+      }
+    if (feePayerSignature === null || feePayer) return null
+    return undefined
+  })()
 
   const transaction_ox = {
     ...rest,
@@ -305,15 +318,7 @@ async function serializeTempo(
           },
         ],
     chainId: Number(chainId),
-    feePayerSignature: feePayerSignature
-      ? {
-          r: BigInt(feePayerSignature.r!),
-          s: BigInt(feePayerSignature.s!),
-          yParity: Number(feePayerSignature.yParity),
-        }
-      : feePayer
-        ? null
-        : undefined,
+    feePayerSignature,
     type: 'tempo',
     ...(nonce ? { nonce: BigInt(nonce) } : {}),
   } satisfies TxTempo.TxEnvelopeTempo

@@ -2510,8 +2510,9 @@ export namespace revokeRoles {
     client: Client<Transport, chain, account>,
     parameters: revokeRoles.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
+    const { from: _, ...rest } = parameters
     return (await action(client, {
-      ...parameters,
+      ...rest,
       calls: parameters.roles.map((role) => {
         const call = revokeRoles.call({ ...parameters, role })
         return {
