@@ -28,6 +28,7 @@ import type {
   TransactionType,
 } from '../../types/transaction.js'
 import type { MaybePromise, OneOf } from '../../types/utils.js'
+import { type GetAddressErrorType, getAddress } from '../address/getAddress.js'
 import {
   type SerializeAuthorizationListErrorType,
   serializeAuthorizationList,
@@ -56,7 +57,6 @@ import {
   numberToHex,
 } from '../encoding/toHex.js'
 import { type ToRlpErrorType, toRlp } from '../encoding/toRlp.js'
-
 import {
   type AssertTransactionEIP1559ErrorType,
   type AssertTransactionEIP2930ErrorType,
@@ -159,6 +159,7 @@ export function serializeTransaction<
 type SerializeTransactionEIP8141ErrorType =
   | AssertTransactionEIP8141ErrorType
   | ConcatHexErrorType
+  | GetAddressErrorType
   | NumberToHexErrorType
   | ToRlpErrorType
   | ErrorType
@@ -180,10 +181,11 @@ function serializeTransactionEIP8141(
   assertTransactionEIP8141(transaction)
 
   const serializedFrames = frames.map((frame) => [
-    numberToHex(frame.mode),
-    numberToHex(frame.flags),
-    frame.target ?? '0x',
-    numberToHex(frame.gasLimit),
+    frame.mode ? numberToHex(frame.mode) : '0x',
+    frame.flags ? numberToHex(frame.flags) : '0x',
+    frame.target ? getAddress(frame.target) : '0x',
+    frame.gasLimit ? numberToHex(frame.gasLimit) : '0x',
+    frame.value ? numberToHex(frame.value) : '0x',
     frame.data ?? '0x',
   ])
 

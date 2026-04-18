@@ -26,7 +26,8 @@ import {
   type TransactionSerializableEIP8141,
 } from 'viem'
 
-const RPC_URL = 'https://demo.eip-8141.ethrex.xyz/rpc'
+const RPC_URL = 'https://rpc1.eip-8141.ethrex.xyz'
+const CHAIN_ID = 3151908
 
 // Demo addresses.
 const sender: Address = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
@@ -73,7 +74,7 @@ const paymasterAbi = [
 
 const tx: TransactionSerializableEIP8141 = {
   type: 'eip8141',
-  chainId: 7,
+  chainId: CHAIN_ID,
   nonce: 1,
   sender,
   maxPriorityFeePerGas: parseGwei('1'),
@@ -88,6 +89,7 @@ const tx: TransactionSerializableEIP8141 = {
       flags: 0x03,
       target: validator,
       gasLimit: 50_000n,
+      value: 0n,
       data: encodeFunctionData({
         abi: validatorAbi,
         functionName: 'validate',
@@ -103,6 +105,7 @@ const tx: TransactionSerializableEIP8141 = {
       flags: 0x00,
       target: targetContract,
       gasLimit: 100_000n,
+      value: 0n,
       data: encodeFunctionData({
         abi: storageAbi,
         functionName: 'store',
@@ -118,6 +121,7 @@ const tx: TransactionSerializableEIP8141 = {
       flags: 0x00,
       target: paymaster,
       gasLimit: 80_000n,
+      value: 0n,
       data: encodeFunctionData({
         abi: paymasterAbi,
         functionName: 'sponsorGas',
@@ -143,7 +147,7 @@ async function main() {
 
   const client = createClient({ transport: http(RPC_URL) })
 
-  console.log('Sending to', RPC_URL, '...')
+  console.log('Sending to', RPC_URL, `(chainId ${CHAIN_ID}) ...`)
   const hash = await client.request({
     method: 'eth_sendRawTransaction' as any,
     params: [serialized as Hex],
