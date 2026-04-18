@@ -4,6 +4,7 @@ import type {
   TransactionSerializableEIP8141,
   TransactionSerializedEIP8141,
 } from '../../types/transaction.js'
+import { getAddress } from '../address/getAddress.js'
 import { fromRlp } from '../encoding/fromRlp.js'
 import { numberToHex } from '../encoding/toHex.js'
 import { toRlp } from '../encoding/toRlp.js'
@@ -26,6 +27,7 @@ const baseEIP8141: TransactionSerializableEIP8141 = {
       flags: 0x03,
       target: null,
       gasLimit: 50000n,
+      value: 0n,
       data: '0xdeadbeef',
     },
     {
@@ -33,6 +35,7 @@ const baseEIP8141: TransactionSerializableEIP8141 = {
       flags: 0x00,
       target: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
       gasLimit: 100000n,
+      value: 0n,
       data: '0xcafebabe',
     },
   ],
@@ -43,6 +46,33 @@ const baseEIP8141: TransactionSerializableEIP8141 = {
 }
 
 describe('eip8141 serialization', () => {
+  test('roundtrip: SENDER frame value preserved', () => {
+    const tx: TransactionSerializableEIP8141 = {
+      chainId: 1,
+      sender,
+      frames: [
+        {
+          mode: 1,
+          flags: 0x03,
+          target: null,
+          gasLimit: 21000n,
+          value: 0n,
+          data: '0x',
+        },
+        {
+          mode: 2,
+          flags: 0x00,
+          target: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+          gasLimit: 21000n,
+          value: 1234567890123456789n,
+          data: '0x',
+        },
+      ],
+    }
+    const parsed = parseTransaction(serializeTransaction(tx))
+    expect(parsed.frames[1].value).toBe(1234567890123456789n)
+  })
+
   test('roundtrip: serialize then parse', () => {
     const serialized = serializeTransaction(baseEIP8141)
     expect(serialized.startsWith('0x06')).toBe(true)
@@ -55,6 +85,10 @@ describe('eip8141 serialization', () => {
     expect(parsed).toEqual({
       ...expected,
       type: 'eip8141',
+      frames: expected.frames.map((f) => ({
+        ...f,
+        target: f.target ? getAddress(f.target) : null,
+      })),
     })
   })
 
@@ -68,6 +102,7 @@ describe('eip8141 serialization', () => {
           flags: 0x03,
           target: null,
           gasLimit: 21000n,
+          value: 0n,
           data: '0x00',
         },
       ],
@@ -94,6 +129,7 @@ describe('eip8141 serialization', () => {
           flags: 0x01,
           target: null,
           gasLimit: 50000n,
+          value: 0n,
           data: '0xab',
         },
         {
@@ -101,6 +137,7 @@ describe('eip8141 serialization', () => {
           flags: 0x02,
           target: null,
           gasLimit: 50000n,
+          value: 0n,
           data: '0xcd',
         },
         {
@@ -108,6 +145,7 @@ describe('eip8141 serialization', () => {
           flags: 0x03,
           target: null,
           gasLimit: 50000n,
+          value: 0n,
           data: '0xef',
         },
       ],
@@ -124,12 +162,20 @@ describe('eip8141 serialization', () => {
       chainId: 1,
       sender,
       frames: [
-        { mode: 1, flags: 0x03, target: null, gasLimit: 50000n, data: '0xaa' },
+        {
+          mode: 1,
+          flags: 0x03,
+          target: null,
+          gasLimit: 50000n,
+          value: 0n,
+          data: '0xaa',
+        },
         {
           mode: 2,
           flags: 0x04,
           target: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
           gasLimit: 100000n,
+          value: 0n,
           data: '0xbb',
         },
         {
@@ -137,6 +183,7 @@ describe('eip8141 serialization', () => {
           flags: 0x00,
           target: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
           gasLimit: 100000n,
+          value: 0n,
           data: '0xcc',
         },
       ],
@@ -152,12 +199,20 @@ describe('eip8141 serialization', () => {
       chainId: 1,
       sender,
       frames: [
-        { mode: 0, flags: 0x00, target: sender, gasLimit: 10000n, data: '0x' },
+        {
+          mode: 0,
+          flags: 0x00,
+          target: sender,
+          gasLimit: 10000n,
+          value: 0n,
+          data: '0x',
+        },
         {
           mode: 1,
           flags: 0x03,
           target: null,
           gasLimit: 50000n,
+          value: 0n,
           data: '0xdeadbeef',
         },
         {
@@ -165,6 +220,7 @@ describe('eip8141 serialization', () => {
           flags: 0x00,
           target: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
           gasLimit: 100000n,
+          value: 0n,
           data: '0xcafebabe',
         },
       ],
@@ -273,6 +329,7 @@ describe('eip8141 assertTransaction', () => {
       flags: 0,
       target: sender,
       gasLimit: 1n,
+      value: 0n,
       data: '0x' as const,
     }))
     expect(() => assertTransactionEIP8141({ ...baseEIP8141, frames })).toThrow(
@@ -286,6 +343,7 @@ describe('eip8141 assertTransaction', () => {
       flags: 0,
       target: sender,
       gasLimit: 1n,
+      value: 0n,
       data: '0x' as const,
     }))
     expect(() =>
@@ -298,7 +356,14 @@ describe('eip8141 assertTransaction', () => {
       assertTransactionEIP8141({
         ...baseEIP8141,
         frames: [
-          { mode: 3 as any, flags: 0, target: null, gasLimit: 1n, data: '0x' },
+          {
+            mode: 3 as any,
+            flags: 0,
+            target: null,
+            gasLimit: 1n,
+            value: 0n,
+            data: '0x',
+          },
         ],
       }),
     ).toThrow('Invalid frame mode')
@@ -308,7 +373,16 @@ describe('eip8141 assertTransaction', () => {
     expect(() =>
       assertTransactionEIP8141({
         ...baseEIP8141,
-        frames: [{ mode: 2, flags: 8, target: null, gasLimit: 1n, data: '0x' }],
+        frames: [
+          {
+            mode: 2,
+            flags: 8,
+            target: null,
+            gasLimit: 1n,
+            value: 0n,
+            data: '0x',
+          },
+        ],
       }),
     ).toThrow('Bits 3-7 are reserved')
   })
@@ -318,7 +392,14 @@ describe('eip8141 assertTransaction', () => {
       assertTransactionEIP8141({
         ...baseEIP8141,
         frames: [
-          { mode: 2, flags: 0xff, target: null, gasLimit: 1n, data: '0x' },
+          {
+            mode: 2,
+            flags: 0xff,
+            target: null,
+            gasLimit: 1n,
+            value: 0n,
+            data: '0x',
+          },
         ],
       }),
     ).toThrow('Bits 3-7 are reserved')
@@ -329,7 +410,14 @@ describe('eip8141 assertTransaction', () => {
       assertTransactionEIP8141({
         ...baseEIP8141,
         frames: [
-          { mode: 1, flags: 0x00, target: null, gasLimit: 1n, data: '0x' },
+          {
+            mode: 1,
+            flags: 0x00,
+            target: null,
+            gasLimit: 1n,
+            value: 0n,
+            data: '0x',
+          },
         ],
       }),
     ).toThrow('non-zero APPROVE scope')
@@ -340,7 +428,14 @@ describe('eip8141 assertTransaction', () => {
       assertTransactionEIP8141({
         ...baseEIP8141,
         frames: [
-          { mode: 1, flags: 0x01, target: null, gasLimit: 1n, data: '0x' },
+          {
+            mode: 1,
+            flags: 0x01,
+            target: null,
+            gasLimit: 1n,
+            value: 0n,
+            data: '0x',
+          },
         ],
       }),
     ).not.toThrow()
@@ -351,7 +446,14 @@ describe('eip8141 assertTransaction', () => {
       assertTransactionEIP8141({
         ...baseEIP8141,
         frames: [
-          { mode: 1, flags: 0x02, target: null, gasLimit: 1n, data: '0x' },
+          {
+            mode: 1,
+            flags: 0x02,
+            target: null,
+            gasLimit: 1n,
+            value: 0n,
+            data: '0x',
+          },
         ],
       }),
     ).not.toThrow()
@@ -362,7 +464,14 @@ describe('eip8141 assertTransaction', () => {
       assertTransactionEIP8141({
         ...baseEIP8141,
         frames: [
-          { mode: 1, flags: 0x03, target: null, gasLimit: 1n, data: '0x' },
+          {
+            mode: 1,
+            flags: 0x03,
+            target: null,
+            gasLimit: 1n,
+            value: 0n,
+            data: '0x',
+          },
         ],
       }),
     ).not.toThrow()
@@ -373,8 +482,22 @@ describe('eip8141 assertTransaction', () => {
       assertTransactionEIP8141({
         ...baseEIP8141,
         frames: [
-          { mode: 0, flags: 0x04, target: sender, gasLimit: 1n, data: '0x' },
-          { mode: 2, flags: 0x00, target: null, gasLimit: 1n, data: '0x' },
+          {
+            mode: 0,
+            flags: 0x04,
+            target: sender,
+            gasLimit: 1n,
+            value: 0n,
+            data: '0x',
+          },
+          {
+            mode: 2,
+            flags: 0x00,
+            target: null,
+            gasLimit: 1n,
+            value: 0n,
+            data: '0x',
+          },
         ],
       }),
     ).toThrow('only valid with SENDER mode')
@@ -385,8 +508,22 @@ describe('eip8141 assertTransaction', () => {
       assertTransactionEIP8141({
         ...baseEIP8141,
         frames: [
-          { mode: 1, flags: 0x03, target: null, gasLimit: 1n, data: '0x' },
-          { mode: 2, flags: 0x04, target: null, gasLimit: 1n, data: '0x' },
+          {
+            mode: 1,
+            flags: 0x03,
+            target: null,
+            gasLimit: 1n,
+            value: 0n,
+            data: '0x',
+          },
+          {
+            mode: 2,
+            flags: 0x04,
+            target: null,
+            gasLimit: 1n,
+            value: 0n,
+            data: '0x',
+          },
         ],
       }),
     ).toThrow('must not be the last frame')
@@ -397,9 +534,30 @@ describe('eip8141 assertTransaction', () => {
       assertTransactionEIP8141({
         ...baseEIP8141,
         frames: [
-          { mode: 1, flags: 0x03, target: null, gasLimit: 1n, data: '0x' },
-          { mode: 2, flags: 0x04, target: null, gasLimit: 1n, data: '0x' },
-          { mode: 0, flags: 0x00, target: sender, gasLimit: 1n, data: '0x' },
+          {
+            mode: 1,
+            flags: 0x03,
+            target: null,
+            gasLimit: 1n,
+            value: 0n,
+            data: '0x',
+          },
+          {
+            mode: 2,
+            flags: 0x04,
+            target: null,
+            gasLimit: 1n,
+            value: 0n,
+            data: '0x',
+          },
+          {
+            mode: 0,
+            flags: 0x00,
+            target: sender,
+            gasLimit: 1n,
+            value: 0n,
+            data: '0x',
+          },
         ],
       }),
     ).toThrow('following an atomic batch frame must be SENDER')
@@ -410,9 +568,30 @@ describe('eip8141 assertTransaction', () => {
       assertTransactionEIP8141({
         ...baseEIP8141,
         frames: [
-          { mode: 1, flags: 0x03, target: null, gasLimit: 1n, data: '0x' },
-          { mode: 2, flags: 0x04, target: null, gasLimit: 1n, data: '0x' },
-          { mode: 2, flags: 0x00, target: null, gasLimit: 1n, data: '0x' },
+          {
+            mode: 1,
+            flags: 0x03,
+            target: null,
+            gasLimit: 1n,
+            value: 0n,
+            data: '0x',
+          },
+          {
+            mode: 2,
+            flags: 0x04,
+            target: null,
+            gasLimit: 1n,
+            value: 0n,
+            data: '0x',
+          },
+          {
+            mode: 2,
+            flags: 0x00,
+            target: null,
+            gasLimit: 1n,
+            value: 0n,
+            data: '0x',
+          },
         ],
       }),
     ).not.toThrow()
@@ -428,6 +607,7 @@ describe('eip8141 assertTransaction', () => {
             flags: 0x03,
             target: null,
             gasLimit: 2n ** 63n,
+            value: 0n,
             data: '0x',
           },
         ],
@@ -445,6 +625,7 @@ describe('eip8141 assertTransaction', () => {
             flags: 0x03,
             target: null,
             gasLimit: 2n ** 63n - 1n,
+            value: 0n,
             data: '0x',
           },
         ],
@@ -465,7 +646,14 @@ describe('eip8141 assertTransaction', () => {
             gasLimit: gasPerFrame,
             data: '0x',
           },
-          { mode: 2, flags: 0x00, target: null, gasLimit: 1n, data: '0x' },
+          {
+            mode: 2,
+            flags: 0x00,
+            target: null,
+            gasLimit: 1n,
+            value: 0n,
+            data: '0x',
+          },
         ],
       }),
     ).toThrow('Total frame gas must be <= 2^63 - 1')
@@ -481,6 +669,7 @@ describe('eip8141 assertTransaction', () => {
             flags: 0x03,
             target: '0xbad' as any,
             gasLimit: 1n,
+            value: 0n,
             data: '0x',
           },
         ],
@@ -520,6 +709,7 @@ describe('eip8141 spec examples', () => {
           flags: 0x03,
           target: null,
           gasLimit: 50000n,
+          value: 0n,
           data: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefde',
         },
         {
@@ -527,6 +717,7 @@ describe('eip8141 spec examples', () => {
           flags: 0x00,
           target: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
           gasLimit: 100000n,
+          value: 0n,
           data: '0xcafebabe',
         },
       ],
@@ -554,6 +745,7 @@ describe('eip8141 spec examples', () => {
           flags: 0x03,
           target: null,
           gasLimit: 50000n,
+          value: 0n,
           data: '0xabcdef',
         },
         {
@@ -561,6 +753,7 @@ describe('eip8141 spec examples', () => {
           flags: 0x04,
           target: erc20,
           gasLimit: 60000n,
+          value: 0n,
           data: '0x095ea7b3',
         },
         {
@@ -568,6 +761,7 @@ describe('eip8141 spec examples', () => {
           flags: 0x00,
           target: dex,
           gasLimit: 200000n,
+          value: 0n,
           data: '0x12345678',
         },
       ],
@@ -592,6 +786,7 @@ describe('eip8141 spec examples', () => {
           flags: 0x02,
           target: null,
           gasLimit: 30000n,
+          value: 0n,
           data: '0xdeadbeef',
         },
         {
@@ -599,6 +794,7 @@ describe('eip8141 spec examples', () => {
           flags: 0x01,
           target: sponsor,
           gasLimit: 40000n,
+          value: 0n,
           data: '0xfeedface',
         },
         {
@@ -606,6 +802,7 @@ describe('eip8141 spec examples', () => {
           flags: 0x00,
           target: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
           gasLimit: 100000n,
+          value: 0n,
           data: '0xcafebabe',
         },
       ],
@@ -630,6 +827,7 @@ describe('eip8141 spec examples', () => {
           flags: 0x00,
           target: deployer,
           gasLimit: 200000n,
+          value: 0n,
           data: '0x600060005260206000f3',
         },
         {
@@ -637,6 +835,7 @@ describe('eip8141 spec examples', () => {
           flags: 0x03,
           target: null,
           gasLimit: 50000n,
+          value: 0n,
           data: '0xaabbccdd',
         },
         {
@@ -644,6 +843,7 @@ describe('eip8141 spec examples', () => {
           flags: 0x00,
           target: null,
           gasLimit: 100000n,
+          value: 0n,
           data: '0x11223344',
         },
       ],
@@ -665,12 +865,20 @@ describe('eip8141 spec examples', () => {
       nonce: 0,
       sender,
       frames: [
-        { mode: 1, flags: 0x03, target: null, gasLimit: 50000n, data: '0xaa' },
+        {
+          mode: 1,
+          flags: 0x03,
+          target: null,
+          gasLimit: 50000n,
+          value: 0n,
+          data: '0xaa',
+        },
         {
           mode: 2,
           flags: 0x04,
           target: target1,
           gasLimit: 60000n,
+          value: 0n,
           data: '0xbb',
         },
         {
@@ -678,6 +886,7 @@ describe('eip8141 spec examples', () => {
           flags: 0x00,
           target: target1,
           gasLimit: 60000n,
+          value: 0n,
           data: '0xcc',
         },
         {
@@ -685,6 +894,7 @@ describe('eip8141 spec examples', () => {
           flags: 0x04,
           target: target2,
           gasLimit: 80000n,
+          value: 0n,
           data: '0xdd',
         },
         {
@@ -692,6 +902,7 @@ describe('eip8141 spec examples', () => {
           flags: 0x04,
           target: target2,
           gasLimit: 80000n,
+          value: 0n,
           data: '0xee',
         },
         {
@@ -699,6 +910,7 @@ describe('eip8141 spec examples', () => {
           flags: 0x00,
           target: target2,
           gasLimit: 80000n,
+          value: 0n,
           data: '0xff',
         },
       ],
@@ -790,19 +1002,26 @@ describe('eip8141 blob-field invariants', () => {
 })
 
 describe('eip8141 parser strictness', () => {
-  test('rejects frame tuple with fewer than 5 elements', () => {
+  test('rejects frame tuple with fewer than 6 elements', () => {
     const tx: TransactionSerializableEIP8141 = {
       chainId: 1,
       sender,
       frames: [
-        { mode: 1, flags: 0x03, target: null, gasLimit: 21000n, data: '0xaa' },
+        {
+          mode: 1,
+          flags: 0x03,
+          target: null,
+          gasLimit: 21000n,
+          value: 0n,
+          data: '0xaa',
+        },
       ],
     }
     const serialized = serializeTransaction(tx)
     const hex = serialized.slice(4)
     const items = fromRlp(`0x${hex}`, 'hex') as any[]
     const frames = items[3] as any[]
-    frames[0] = frames[0].slice(0, 3)
+    frames[0] = frames[0].slice(0, 5)
     const reEncoded =
       `0x06${toRlp(items).slice(2)}` as TransactionSerializedEIP8141
     expect(() => parseTransaction(reEncoded)).toThrow()
@@ -813,7 +1032,14 @@ describe('eip8141 parser strictness', () => {
       chainId: 1,
       sender,
       frames: [
-        { mode: 1, flags: 0x03, target: null, gasLimit: 21000n, data: '0xaa' },
+        {
+          mode: 1,
+          flags: 0x03,
+          target: null,
+          gasLimit: 21000n,
+          value: 0n,
+          data: '0xaa',
+        },
       ],
       nonce: 42,
     }
@@ -833,7 +1059,14 @@ describe('eip8141 edge cases', () => {
       chainId: 1,
       sender,
       frames: [
-        { mode: 1, flags: 0x03, target: null, gasLimit: 21000n, data: '0x' },
+        {
+          mode: 1,
+          flags: 0x03,
+          target: null,
+          gasLimit: 21000n,
+          value: 0n,
+          data: '0x',
+        },
       ],
     }
     const serialized = serializeTransaction(tx)
@@ -846,11 +1079,20 @@ describe('eip8141 edge cases', () => {
     const tx: TransactionSerializableEIP8141 = {
       chainId: 1,
       sender,
-      frames: [{ mode: 1, flags: 0x03, target, gasLimit: 21000n, data: '0x' }],
+      frames: [
+        {
+          mode: 1,
+          flags: 0x03,
+          target,
+          gasLimit: 21000n,
+          value: 0n,
+          data: '0x',
+        },
+      ],
     }
     const serialized = serializeTransaction(tx)
     const parsed = parseTransaction(serialized)
-    expect(parsed.frames[0].target).toBe(target)
+    expect(parsed.frames[0].target).toBe(getAddress(target))
   })
 
   test('empty data preserved as 0x', () => {
@@ -858,7 +1100,14 @@ describe('eip8141 edge cases', () => {
       chainId: 1,
       sender,
       frames: [
-        { mode: 1, flags: 0x03, target: null, gasLimit: 21000n, data: '0x' },
+        {
+          mode: 1,
+          flags: 0x03,
+          target: null,
+          gasLimit: 21000n,
+          value: 0n,
+          data: '0x',
+        },
       ],
     }
     const serialized = serializeTransaction(tx)
@@ -871,7 +1120,14 @@ describe('eip8141 edge cases', () => {
       chainId: 1,
       sender,
       frames: [
-        { mode: 1, flags: 0x03, target: null, gasLimit: 0n, data: '0xaa' },
+        {
+          mode: 1,
+          flags: 0x03,
+          target: null,
+          gasLimit: 0n,
+          value: 0n,
+          data: '0xaa',
+        },
       ],
     }
     const serialized = serializeTransaction(tx)

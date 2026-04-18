@@ -19,7 +19,9 @@ pnpm install          # links viem from ../../src
 All examples target the public demo node:
 
 ```
-https://demo.eip-8141.ethrex.xyz/rpc
+https://rpc1.eip-8141.ethrex.xyz
+https://rpc2.eip-8141.ethrex.xyz
+https://rpc3.eip-8141.ethrex.xyz
 ```
 
 ## Running

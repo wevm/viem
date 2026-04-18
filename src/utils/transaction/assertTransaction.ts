@@ -101,6 +101,15 @@ export function assertTransactionEIP8141(
       throw new InvalidAddressError({ address: frame.target })
     if (frame.gasLimit > maxInt64)
       throw new BaseError('`frame.gasLimit` must be <= 2^63 - 1.')
+    const frameValue = frame.value ?? 0n
+    if (frameValue > maxUint256)
+      throw new BaseError('`frame.value` must be less than 2^256.')
+    if (frameValue < 0n)
+      throw new BaseError('`frame.value` must not be negative.')
+    if (frame.mode !== SENDER && frameValue !== 0n)
+      throw new BaseError(
+        '`frame.value` must be 0 for DEFAULT and VERIFY frames per EIP-8141.',
+      )
     totalFrameGas += frame.gasLimit
     if (totalFrameGas > maxInt64)
       throw new BaseError('Total frame gas must be <= 2^63 - 1.')
