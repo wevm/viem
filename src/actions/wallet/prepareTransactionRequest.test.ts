@@ -2294,6 +2294,25 @@ describe('behavior: attemptFill', () => {
     expect(fillTransactionSpy).toHaveBeenCalled()
   })
 
+  test('behavior: preserves nonce === 0 from fillTransaction', async () => {
+    vi.spyOn(fillTransaction, 'fillTransaction').mockResolvedValue({
+      raw: '0x',
+      transaction: {
+        gas: 21000n,
+        nonce: 0,
+      } as any,
+    })
+
+    const request = await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: ['gas', 'nonce'],
+      to: targetAccount.address,
+      value: parseEther('1'),
+    })
+
+    expect(request.nonce).toBe(0)
+  })
+
   test('behavior: do not attempt fill when blobs and kzg are provided with blobVersionedHashes parameter', async () => {
     await setup()
 
