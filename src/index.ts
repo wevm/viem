@@ -1710,7 +1710,11 @@ export {
   type NonceManagerSource,
   nonceManager,
 } from './utils/nonceManager.js'
-export { withCache } from './utils/promise/withCache.js'
+export {
+  type WithCacheParameters,
+  type WithCacheStore,
+  withCache,
+} from './utils/promise/withCache.js'
 export {
   type WithRetryErrorType,
   withRetry,

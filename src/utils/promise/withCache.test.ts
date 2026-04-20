@@ -1,10 +1,19 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 
+import { LruMap } from '../lru.js'
 import { wait } from '../wait.js'
 
-import { getCache, withCache } from './withCache.js'
+import {
+  getCache,
+  promiseCache,
+  responseCache,
+  withCache,
+} from './withCache.js'
 
-beforeEach(() => getCache('foo').clear())
+beforeEach(() => {
+  promiseCache.clear()
+  responseCache.clear()
+})
 
 test('caches responses', async () => {
   const fn = vi.fn().mockResolvedValue('bar')
@@ -94,4 +103,31 @@ test('behavior: programmatic removal', async () => {
   expect(data).toBe('bar')
 
   expect(fn).toBeCalledTimes(2)
+})
+
+test('behavior: clears expired responses before refreshing', async () => {
+  const error = new Error('boom')
+
+  await withCache(() => Promise.resolve('bar'), { cacheKey: 'foo' })
+  await wait(150)
+
+  await expect(
+    withCache(() => Promise.reject(error), {
+      cacheKey: 'foo',
+      cacheTime: 100,
+    }),
+  ).rejects.toThrow(error)
+
+  expect(getCache('foo').response.get()).toBeUndefined()
+})
+
+test('behavior: uses custom cache stores', async () => {
+  const fn = vi.fn().mockResolvedValue('bar')
+  const responseCache = new LruMap<{ created: Date; data: string }>(1)
+
+  await withCache(fn, { cacheKey: 'foo', responseCache })
+  await withCache(fn, { cacheKey: 'bar', responseCache })
+  await withCache(fn, { cacheKey: 'foo', responseCache })
+
+  expect(fn).toBeCalledTimes(3)
 })

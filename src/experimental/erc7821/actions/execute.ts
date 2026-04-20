@@ -18,7 +18,6 @@ import type {
 import type { Hex } from '../../../types/misc.js'
 import type { UnionEvaluate, UnionPick } from '../../../types/utils.js'
 import type { FormattedTransactionRequest } from '../../../utils/formatters/transactionRequest.js'
-import { withCache } from '../../../utils/promise/withCache.js'
 import { executionMode } from '../constants.js'
 import { ExecuteUnsupportedError } from '../errors.js'
 import {
@@ -147,16 +146,10 @@ export async function execute<
   const address = authorizationList?.[0]?.address ?? parameters.address
   const mode = opData ? executionMode.opData : executionMode.default
 
-  const supported = await withCache(
-    () =>
-      supportsExecutionMode(client, {
-        address,
-        mode,
-      }),
-    {
-      cacheKey: `supportsExecutionMode.${client.uid}.${address}.${mode}`,
-    },
-  )
+  const supported = await supportsExecutionMode(client, {
+    address,
+    mode,
+  })
   if (!supported) throw new ExecuteUnsupportedError()
 
   try {

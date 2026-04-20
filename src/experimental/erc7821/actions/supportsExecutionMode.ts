@@ -5,6 +5,7 @@ import type { Transport } from '../../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../../errors/utils.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
+import { LruMap } from '../../../utils/lru.js'
 import { withCache } from '../../../utils/promise/withCache.js'
 import { abi, executionMode } from '../constants.js'
 
@@ -16,6 +17,11 @@ export type SupportsExecutionModeParameters = {
 export type SupportsExecutionModeReturnType = boolean
 
 export type SupportsExecutionModeErrorType = ErrorType
+
+const responseCache = /*#__PURE__*/ new LruMap<{
+  created: Date
+  data: SupportsExecutionModeReturnType
+}>(8192)
 
 const toSerializedMode = {
   default: executionMode.default,
@@ -64,7 +70,8 @@ export async function supportsExecutionMode<
           args: [mode],
         }),
       {
-        cacheKey: `supportsExecutionMode.${address}.${mode}`,
+        cacheKey: `supportsExecutionMode.${client.uid}.${address}.${mode}`,
+        responseCache,
       },
     )
   } catch {

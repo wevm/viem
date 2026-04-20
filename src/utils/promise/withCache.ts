@@ -7,17 +7,38 @@ export const responseCache = /*#__PURE__*/ new Map()
 
 export type GetCacheErrorType = ErrorType
 
-export function getCache<data>(cacheKey: string) {
-  const buildCache = <data>(cacheKey: string, cache: Map<string, data>) => ({
+export type WithCacheStore<data> = Pick<
+  Map<string, data>,
+  'delete' | 'get' | 'set'
+>
+
+type GetCacheParameters<data> = {
+  promiseCache?: WithCacheStore<Promise<data>> | undefined
+  responseCache?:
+    | WithCacheStore<{
+        created: Date
+        data: data
+      }>
+    | undefined
+}
+
+export function getCache<data>(
+  cacheKey: string,
+  {
+    promiseCache: promiseCache_ = promiseCache,
+    responseCache: responseCache_ = responseCache,
+  }: GetCacheParameters<data> = {},
+) {
+  const buildCache = <data>(cacheKey: string, cache: WithCacheStore<data>) => ({
     clear: () => cache.delete(cacheKey),
     get: () => cache.get(cacheKey),
     set: (data: data) => cache.set(cacheKey, data),
   })
 
-  const promise = buildCache<Promise<data>>(cacheKey, promiseCache)
+  const promise = buildCache<Promise<data>>(cacheKey, promiseCache_)
   const response = buildCache<{ created: Date; data: data }>(
     cacheKey,
-    responseCache,
+    responseCache_,
   )
 
   return {
@@ -30,7 +51,7 @@ export function getCache<data>(cacheKey: string) {
   }
 }
 
-type WithCacheParameters = {
+export type WithCacheParameters<data = unknown> = GetCacheParameters<data> & {
   /** The key to cache the data against. */
   cacheKey: string
   /** The time that cached data will remain in memory. Default: Infinity (no expiry) */
@@ -43,17 +64,29 @@ type WithCacheParameters = {
  */
 export async function withCache<data>(
   fn: () => Promise<data>,
-  { cacheKey, cacheTime = Number.POSITIVE_INFINITY }: WithCacheParameters,
+  {
+    cacheKey,
+    cacheTime = Number.POSITIVE_INFINITY,
+    promiseCache,
+    responseCache,
+  }: WithCacheParameters<data>,
 ) {
-  const cache = getCache<data>(cacheKey)
+  const cache = getCache<data>(cacheKey, {
+    promiseCache,
+    responseCache,
+  })
 
   // If a response exists in the cache, and it's not expired, return it
   // and do not invoke the promise.
   // If the max age is 0, the cache is disabled.
   const response = cache.response.get()
-  if (response && cacheTime > 0) {
-    const age = Date.now() - response.created.getTime()
-    if (age < cacheTime) return response.data
+  if (response) {
+    if (cacheTime > 0) {
+      const age = Date.now() - response.created.getTime()
+      if (age < cacheTime) return response.data
+    }
+
+    cache.response.clear()
   }
 
   let promise = cache.promise.get()
