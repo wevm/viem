@@ -50,7 +50,11 @@ export function getUserOperationError<err extends ErrorType<string>>(
         (call: any) => call.abi,
       ) as readonly Call[]
       if (revertData && contractCalls.length > 0)
-        return getContractError({ calls: contractCalls, revertData })
+        return getContractError({
+          calls: contractCalls,
+          cause,
+          revertData,
+        })
     }
     return cause
   })()
@@ -88,9 +92,10 @@ function getRevertData(error: BaseError) {
 
 function getContractError(parameters: {
   calls: readonly Call[]
+  cause: BaseError
   revertData: Hex
 }) {
-  const { calls, revertData } = parameters
+  const { calls, cause: error, revertData } = parameters
 
   const { abi, functionName, args, to } = (() => {
     const contractCalls = calls?.filter((call) =>
@@ -131,9 +136,10 @@ function getContractError(parameters: {
 
   const cause = (() => {
     if (revertData === '0x')
-      return new ContractFunctionZeroDataError({ functionName })
+      return new ContractFunctionZeroDataError({ functionName, cause: error })
     return new ContractFunctionRevertedError({
       abi,
+      cause: error,
       data: revertData,
       functionName,
     })

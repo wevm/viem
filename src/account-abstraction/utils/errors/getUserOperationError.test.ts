@@ -2,7 +2,13 @@ import { expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/abis.js'
 import { ErrorsExample } from '../../../../contracts/generated.js'
 import { BaseError } from '../../../errors/base.js'
+import {
+  ContractFunctionExecutionError,
+  ContractFunctionRevertedError,
+  ContractFunctionZeroDataError,
+} from '../../../errors/contract.js'
 import { RpcRequestError } from '../../../errors/request.js'
+import { ExecutionRevertedError } from '../../errors/bundler.js'
 import { getUserOperationError } from './getUserOperationError.js'
 
 test('default', () => {
@@ -504,6 +510,81 @@ test('contract error (raw call)', () => {
     Details: execution reverted: 0xdeadbeef000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011546f6b656e2049442069732074616b656e000000000000000000000000000000
     Version: viem@x.y.z]
   `)
+})
+
+test('contract error preserves cause (revert data)', () => {
+  const error = new BaseError('Unknown error', {
+    cause: {
+      // @ts-expect-error
+      code: -32521,
+      name: '',
+      message:
+        'execution reverted: 0x08c379a000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000011546f6b656e2049442069732074616b656e000000000000000000000000000000',
+    },
+  })
+  const result = getUserOperationError(error, {
+    calls: [
+      {
+        to: wagmiContractConfig.address,
+        abi: wagmiContractConfig.abi,
+        functionName: 'mint',
+        args: [420n],
+      },
+    ],
+    callData: '0xdeadbeef',
+    callGasLimit: 1n,
+    nonce: 1n,
+    preVerificationGas: 1n,
+    verificationGasLimit: 1n,
+    signature: '0xdeadbeef',
+    sender: '0xdeadbeef',
+    factory: '0x0000000000000000000000000000000000000000',
+    factoryData: '0xdeadbeef',
+    maxFeePerGas: 1n,
+    maxPriorityFeePerGas: 2n,
+  })
+
+  expect(result.cause).toBeInstanceOf(ContractFunctionExecutionError)
+  const contractError = result.cause as ContractFunctionExecutionError
+  expect(contractError.cause).toBeInstanceOf(ContractFunctionRevertedError)
+  expect(contractError.cause.cause).toBeInstanceOf(ExecutionRevertedError)
+})
+
+test('contract error preserves cause (zero data)', () => {
+  const error = new BaseError('Unknown error', {
+    cause: {
+      // @ts-expect-error
+      code: -32521,
+      name: '',
+      message: 'execution reverted: 0x',
+    },
+  })
+  const result = getUserOperationError(error, {
+    calls: [
+      {
+        to: wagmiContractConfig.address,
+        abi: wagmiContractConfig.abi,
+        functionName: 'mint',
+        args: [420n],
+      },
+    ],
+    callData: '0xdeadbeef',
+    callGasLimit: 1n,
+    nonce: 1n,
+    preVerificationGas: 1n,
+    verificationGasLimit: 1n,
+    signature: '0xdeadbeef',
+    sender: '0xdeadbeef',
+    factory: '0x0000000000000000000000000000000000000000',
+    factoryData: '0xdeadbeef',
+    maxFeePerGas: 1n,
+    maxPriorityFeePerGas: 2n,
+  })
+
+  expect(result.cause).toBeInstanceOf(ContractFunctionExecutionError)
+  const contractError = result.cause as ContractFunctionExecutionError
+  expect(contractError.cause).toBeInstanceOf(ContractFunctionZeroDataError)
+  expect(contractError.cause.cause).toBeInstanceOf(ExecutionRevertedError)
 })
 
 test('bundler error', () => {
