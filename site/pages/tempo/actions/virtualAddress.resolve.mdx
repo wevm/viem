@@ -1,0 +1,48 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `virtualAddress.resolve`
+
+Resolves an address to its effective recipient. [Learn more about virtual addresses](https://tips.sh/1022)
+
+- Non-virtual addresses are returned unchanged.
+- Virtual addresses with a registered master return the master address.
+- Virtual addresses with an unregistered master return `null`.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const recipient = await client.virtualAddress.resolve({
+  address: '0x58e21090fdfdfdfdfdfdfdfdfdfd010203040506',
+})
+
+console.log('Resolved to:', recipient)
+// @log: Resolved to: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = Address | null
+```
+
+Returns `null` if the address is virtual and the master ID is not registered. Returns the address unchanged if it is not a virtual address.
+
+## Parameters
+
+### address
+
+- **Type:** `Address`
+
+The address to resolve. Can be a regular address or a TIP-1022 virtual address.
+
+<ReadParameters />
