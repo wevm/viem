@@ -28,7 +28,7 @@ import { defineCall } from '../internal/utils.js'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -125,7 +125,7 @@ export namespace add {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -180,7 +180,7 @@ export namespace add {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -237,7 +237,7 @@ export namespace addSync {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -309,7 +309,7 @@ export namespace changeOwner {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -348,7 +348,7 @@ export namespace changeOwner {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -401,7 +401,7 @@ export namespace changeOwnerSync {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -476,7 +476,7 @@ export namespace changeStatus {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -516,7 +516,7 @@ export namespace changeStatus {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -568,7 +568,7 @@ export namespace changeStatusSync {
  * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -616,7 +616,7 @@ export namespace getNextFullDkgCeremony {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * })
    *
@@ -647,7 +647,7 @@ export namespace getNextFullDkgCeremony {
  * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -695,7 +695,7 @@ export namespace getOwner {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * })
    *
@@ -726,7 +726,7 @@ export namespace getOwner {
  * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -782,7 +782,7 @@ export namespace get {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * })
    *
@@ -817,7 +817,7 @@ export namespace get {
  * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -873,7 +873,7 @@ export namespace getByIndex {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * })
    *
@@ -909,7 +909,7 @@ export namespace getByIndex {
  * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -957,7 +957,7 @@ export namespace getCount {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * })
    *
@@ -988,7 +988,7 @@ export namespace getCount {
  * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -1036,7 +1036,7 @@ export namespace list {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * })
    *
@@ -1069,7 +1069,7 @@ export namespace list {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -1141,7 +1141,7 @@ export namespace setNextFullDkgCeremony {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -1180,7 +1180,7 @@ export namespace setNextFullDkgCeremony {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -1237,7 +1237,7 @@ export namespace setNextFullDkgCeremonySync {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -1329,7 +1329,7 @@ export namespace update {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -1372,7 +1372,7 @@ export namespace update {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *

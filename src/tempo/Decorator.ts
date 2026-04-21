@@ -264,7 +264,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c...001' }),
+     *   chain: tempo.extend({ feeToken: '0x20c...001' }),
      *   transport: http(),
      * }).extend(tempoActions())
      *
