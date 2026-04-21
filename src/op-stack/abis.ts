@@ -464,6 +464,22 @@ export const l2ToL1MessagePasserAbi = [
   { stateMutability: 'payable', type: 'receive' },
 ] as const
 
+export const disputeGameAbi = [
+  {
+    type: 'function',
+    name: 'l2SequenceNumber',
+    inputs: [],
+    outputs: [
+      {
+        name: 'l2SequenceNumber_',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    stateMutability: 'pure',
+  },
+] as const
+
 export const disputeGameFactoryAbi = [
   {
     type: 'constructor',
