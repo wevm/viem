@@ -1,5 +1,21 @@
 # viem
 
+## 2.48.2
+
+### Patch Changes
+
+- [#4526](https://github.com/wevm/viem/pull/4526) [`28fcb0d487ecc525d687201b4eb47136ace7f7b9`](https://github.com/wevm/viem/commit/28fcb0d487ecc525d687201b4eb47136ace7f7b9) Thanks [@mk0walsk](https://github.com/mk0walsk)! - Added OP Stack chain config to Zircuit.
+
+- [#4520](https://github.com/wevm/viem/pull/4520) [`3e88a77f8eb92fa1ce4410ad14bdbab8f04cce4b`](https://github.com/wevm/viem/commit/3e88a77f8eb92fa1ce4410ad14bdbab8f04cce4b) Thanks [@pxrl](https://github.com/pxrl)! - Added Tron block time
+
+- [`67d979c678c4835ace58c00e43eaf2291cd5764b`](https://github.com/wevm/viem/commit/67d979c678c4835ace58c00e43eaf2291cd5764b) Thanks [@jxom](https://github.com/jxom)! - Fixed `prepareTransactionRequest` to preserve `nonce: 0` instead of dropping it.
+
+- [#4455](https://github.com/wevm/viem/pull/4455) [`c0c09a6adf8cafc75f3ace8b892e57f41538baa7`](https://github.com/wevm/viem/commit/c0c09a6adf8cafc75f3ace8b892e57f41538baa7) Thanks [@nikicat](https://github.com/nikicat)! - Fixed `LogTopic` type to accept readonly arrays.
+
+- [`59b69da17293f626650f211f0129b7ccfdaf957d`](https://github.com/wevm/viem/commit/59b69da17293f626650f211f0129b7ccfdaf957d) Thanks [@jxom](https://github.com/jxom)! - Added `resolveAccessKey` to support alternative access key formats (`{ address, type }`, `{ publicKey, type }`) in addition to `{ accessKeyAddress, keyType }` for `signKeyAuthorization` and access key actions.
+
+- [#4428](https://github.com/wevm/viem/pull/4428) [`30ac0cf8517a013d9869cf2a9c2a652c80abaf46`](https://github.com/wevm/viem/commit/30ac0cf8517a013d9869cf2a9c2a652c80abaf46) Thanks [@hashcashier](https://github.com/hashcashier)! - Replaced manual `extraData` decoding with `l2SequenceNumber()` contract call in `getGames`.
+
 ## 2.48.1
 
 ### Patch Changes
