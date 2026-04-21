@@ -5,13 +5,13 @@ import * as tempo from './index.js'
 test('exports tempo', () => {
   expect(Object.keys(tempo)).toMatchInlineSnapshot(`
     [
+      "Bytes",
+      "PublicKey",
+      "Secp256k1",
       "Period",
       "TempoAddress",
       "Tick",
       "TokenId",
-      "Bytes",
-      "PublicKey",
-      "Secp256k1",
       "Abis",
       "Account",
       "Addresses",

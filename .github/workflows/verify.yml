@@ -251,7 +251,6 @@ jobs:
 
   wagmi:
     name: Wagmi
-    if: false # TODO: re-enable once wagmi tests are updated for readonly LogTopicType
     permissions:
       contents: read
     runs-on: ubuntu-latest
