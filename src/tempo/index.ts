@@ -11,14 +11,8 @@ export type {
   /** @deprecated */
   TxEnvelopeTempo as z_TxEnvelopeTempo,
 } from 'ox/tempo'
-export {
-  Period,
-  TempoAddress,
-  Tick,
-  TokenId,
-  VirtualAddress,
-  VirtualMaster,
-} from 'ox/tempo'
+export { Period, TempoAddress, Tick, TokenId } from 'ox/tempo'
+export { VirtualAddress, VirtualMaster } from 'ox/tempo'
 export * as Abis from './Abis.js'
 export * as Account from './Account.js'
 export * as Addresses from './Addresses.js'
