@@ -136,11 +136,11 @@ importers:
         specifier: ^0.14.0
         version: 0.14.0
       ox:
-        specifier: 0.14.19
-        version: 0.14.19(typescript@5.9.3)(zod@4.3.6)
+        specifier: 0.14.20
+        version: 0.14.20(typescript@5.9.3)(zod@4.3.6)
       permissionless:
         specifier: ^0.2.57
-        version: 0.2.57(ox@0.14.19(typescript@5.9.3)(zod@4.3.6))
+        version: 0.2.57(ox@0.14.20(typescript@5.9.3)(zod@4.3.6))
       prool:
         specifier: ~0.2.3
         version: 0.2.3(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0)
@@ -643,8 +643,8 @@ importers:
         specifier: 1.0.7
         version: 1.0.7(ws@8.18.3)
       ox:
-        specifier: 0.14.19
-        version: 0.14.19(typescript@5.9.3)(zod@4.3.6)
+        specifier: 0.14.20
+        version: 0.14.20(typescript@5.9.3)(zod@4.3.6)
       ws:
         specifier: 8.18.3
         version: 8.18.3
@@ -4929,8 +4929,8 @@ packages:
       typescript:
         optional: true
 
-  ox@0.14.19:
-    resolution: {integrity: sha512-AM9hRcPk5ly5c66j84PywoDENU85xosyJybr+Yz/Bp/Cjs+9EFe98o+kKxUSwclpTNIF11dOVAOEeHwII6a62Q==}
+  ox@0.14.20:
+    resolution: {integrity: sha512-rby38C3nDn8eQkf29Zgw4hkCZJ64Qqi0zRPWL8ENUQ7JVuoITqrVtwWQgM/He19SCMUEc7hS/Sjw0jIOSLJhOw==}
     peerDependencies:
       typescript: ^5.9.3
     peerDependenciesMeta:
@@ -11188,7 +11188,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.14.19(typescript@5.9.3)(zod@4.3.6):
+  ox@0.14.20(typescript@5.9.3)(zod@4.3.6):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
@@ -11325,9 +11325,9 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.57(ox@0.14.19(typescript@5.9.3)(zod@4.3.6)):
+  permissionless@0.2.57(ox@0.14.20(typescript@5.9.3)(zod@4.3.6)):
     optionalDependencies:
-      ox: 0.14.19(typescript@5.9.3)(zod@4.3.6)
+      ox: 0.14.20(typescript@5.9.3)(zod@4.3.6)
 
   picocolors@1.1.1: {}
 
