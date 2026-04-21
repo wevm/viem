@@ -136,11 +136,11 @@ importers:
         specifier: ^0.14.0
         version: 0.14.0
       ox:
-        specifier: 0.14.18
-        version: 0.14.18(typescript@5.9.3)(zod@4.3.6)
+        specifier: 0.14.19
+        version: 0.14.19(typescript@5.9.3)(zod@4.3.6)
       permissionless:
         specifier: ^0.2.57
-        version: 0.2.57(ox@0.14.18(typescript@5.9.3)(zod@4.3.6))
+        version: 0.2.57(ox@0.14.19(typescript@5.9.3)(zod@4.3.6))
       prool:
         specifier: ~0.2.3
         version: 0.2.3(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0)
@@ -4963,8 +4963,8 @@ packages:
       typescript:
         optional: true
 
-  ox@0.14.18:
-    resolution: {integrity: sha512-1Irk/tvMsw7xJDuCTT/u9azSjz0YX9hrYFgJOacIuFwibaW2zZBXAMrpzegndYb5o8GLpxB6/0qro4/c40q6VQ==}
+  ox@0.14.19:
+    resolution: {integrity: sha512-AM9hRcPk5ly5c66j84PywoDENU85xosyJybr+Yz/Bp/Cjs+9EFe98o+kKxUSwclpTNIF11dOVAOEeHwII6a62Q==}
     peerDependencies:
       typescript: ^5.9.3
     peerDependenciesMeta:
@@ -6286,7 +6286,7 @@ packages:
         optional: true
 
   vocs@https://pkg.pr.new/vocs@e90555e:
-    resolution: {integrity: sha512-mBm5ixwBWQt6zZ4geQva71bmq1jyAzmGivw7pnIyyBxwdMmxcMZTvS7Qm4qqdEwpr40M3oVONyZoYV/KRsVmVA==, tarball: https://pkg.pr.new/vocs@e90555e}
+    resolution: {tarball: https://pkg.pr.new/vocs@e90555e}
     version: 0.0.0
     hasBin: true
     peerDependencies:
@@ -11311,7 +11311,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@0.14.18(typescript@5.9.3)(zod@4.3.6):
+  ox@0.14.19(typescript@5.9.3)(zod@4.3.6):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
@@ -11448,9 +11448,9 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.57(ox@0.14.18(typescript@5.9.3)(zod@4.3.6)):
+  permissionless@0.2.57(ox@0.14.19(typescript@5.9.3)(zod@4.3.6)):
     optionalDependencies:
-      ox: 0.14.18(typescript@5.9.3)(zod@4.3.6)
+      ox: 0.14.19(typescript@5.9.3)(zod@4.3.6)
 
   picocolors@1.1.1: {}
 
