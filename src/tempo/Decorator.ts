@@ -14,6 +14,7 @@ import * as rewardActions from './actions/reward.js'
 import * as simulateActions from './actions/simulate.js'
 import * as tokenActions from './actions/token.js'
 import * as validatorActions from './actions/validator.js'
+import * as virtualAddressActions from './actions/virtualAddress.js'
 import * as zoneActions from './actions/zone.js'
 
 export type Decorator<
@@ -264,7 +265,7 @@ export type Decorator<
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
-     *   chain: tempo({ feeToken: '0x20c...001' }),
+     *   chain: tempo.extend({ feeToken: '0x20c...001' }),
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3805,6 +3806,119 @@ export type Decorator<
       parameters: validatorActions.updateSync.Parameters<chain, account>,
     ) => Promise<validatorActions.updateSync.ReturnValue>
   }
+  virtualAddress: {
+    /**
+     * Gets the registered master address for a given master ID.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const master = await client.virtualAddress.getMasterAddress({
+     *   masterId: '0x58e21090',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The master address, or null if unregistered.
+     */
+    getMasterAddress: (
+      parameters: virtualAddressActions.getMasterAddress.Parameters,
+    ) => Promise<virtualAddressActions.getMasterAddress.ReturnValue>
+    /**
+     * Registers the caller as a virtual address master.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.virtualAddress.registerMaster({
+     *   salt: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    registerMaster: (
+      parameters: virtualAddressActions.registerMaster.Parameters<
+        chain,
+        account
+      >,
+    ) => Promise<virtualAddressActions.registerMaster.ReturnValue>
+    /**
+     * Registers the caller as a virtual address master and waits for confirmation.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt, masterId, masterAddress } =
+     *   await client.virtualAddress.registerMasterSync({
+     *     salt: '0x...',
+     *   })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    registerMasterSync: (
+      parameters: virtualAddressActions.registerMasterSync.Parameters<
+        chain,
+        account
+      >,
+    ) => Promise<virtualAddressActions.registerMasterSync.ReturnValue>
+    /**
+     * Resolves an address to its effective recipient.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const recipient = await client.virtualAddress.resolve({
+     *   address: '0x58e21090fdfdfdfdfdfdfdfdfdfd010203040506',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The resolved address, or null if virtual and unregistered.
+     */
+    resolve: (
+      parameters: virtualAddressActions.resolve.Parameters,
+    ) => Promise<virtualAddressActions.resolve.ReturnValue>
+  }
   zone: {
     /**
      * Deposits tokens into a zone.
@@ -4360,6 +4474,16 @@ export function decorator() {
         update: (parameters) => validatorActions.update(client, parameters),
         updateSync: (parameters) =>
           validatorActions.updateSync(client, parameters),
+      },
+      virtualAddress: {
+        getMasterAddress: (parameters) =>
+          virtualAddressActions.getMasterAddress(client, parameters),
+        registerMaster: (parameters) =>
+          virtualAddressActions.registerMaster(client, parameters),
+        registerMasterSync: (parameters) =>
+          virtualAddressActions.registerMasterSync(client, parameters),
+        resolve: (parameters) =>
+          virtualAddressActions.resolve(client, parameters),
       },
       zone: {
         deposit: (parameters) => zoneActions.deposit(client, parameters),
