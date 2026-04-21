@@ -98,6 +98,42 @@ const keyAuthorization = await client.accessKey.signAuthorization(
 )
 ```
 
+### Authorize Public Keys
+
+Instead of passing an `AccessKeyAccount`, you can sign an authorization for a key by its public key or address directly:
+
+```ts twoslash
+import { Account, P256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+
+// Sign authorization by public key // [!code focus]
+const keyAuthorization = await client.accessKey.signAuthorization({ // [!code focus]
+  accessKey: { // [!code focus]
+    publicKey: '0x...', // [!code focus]
+    type: 'p256', // [!code focus]
+  }, // [!code focus]
+}) // [!code focus]
+```
+
+You can also sign by address:
+
+```ts twoslash
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+
+// Sign authorization by address // [!code focus]
+const keyAuthorization = await client.accessKey.signAuthorization({ // [!code focus]
+  accessKey: { // [!code focus]
+    address: '0x...', // [!code focus]
+    type: 'p256', // [!code focus]
+  }, // [!code focus]
+}) // [!code focus]
+```
+
 ### Submitting the Authorization
 
 The signed `keyAuthorization` can be attached to any write action.
@@ -131,9 +167,9 @@ The root account signing the authorization. Must be a local account with signing
 
 ### accessKey
 
-- **Type:** `Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>`
+- **Type:** `{ accessKeyAddress: Address; keyType: string } | { address: Address; type: string } | { publicKey: Hex; type: string }`
 
-The access key to authorize.
+The access key to authorize. Accepts an `AccessKeyAccount`, or an object with `{ address, type }` or `{ publicKey, type }`.
 
 ### expiry (optional)
 

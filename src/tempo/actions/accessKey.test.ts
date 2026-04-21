@@ -1,3 +1,5 @@
+import * as P256 from 'ox/P256'
+import * as PublicKey from 'ox/PublicKey'
 import { Period } from 'ox/tempo'
 import { generatePrivateKey } from 'viem/accounts'
 import { Account } from 'viem/tempo'
@@ -65,6 +67,47 @@ describe('authorize', () => {
     expect(key.isRevoked).toBe(false)
   })
 
+  test('behavior: format: { address, type }', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const { receipt } = await actions.accessKey.authorizeSync(client, {
+      accessKey: {
+        address: accessKey.accessKeyAddress,
+        type: 'p256',
+      },
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    expect(receipt.status).toBe('success')
+  })
+
+  test('behavior: format: { publicKey, type }', async () => {
+    const privateKey = generatePrivateKey()
+    const publicKey = P256.getPublicKey({ privateKey })
+    const accessKeyAccount = Account.fromP256(privateKey, {
+      access: account,
+    })
+
+    const { receipt } = await actions.accessKey.authorizeSync(client, {
+      accessKey: {
+        publicKey: PublicKey.toHex(publicKey, { includePrefix: false }),
+        type: 'p256',
+      },
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    expect(receipt.status).toBe('success')
+
+    const key = await actions.accessKey.getMetadata(client, {
+      account: account.address,
+      accessKey: accessKeyAccount.accessKeyAddress,
+    })
+    expect(key.keyType).toBe('p256')
+    expect(key.isRevoked).toBe(false)
+  })
+
   test('behavior: with limits', async () => {
     const accessKey = Account.fromP256(generatePrivateKey(), {
       access: account,
@@ -110,6 +153,48 @@ describe('signAuthorization', () => {
     expect(keyAuthorization.address.toLowerCase()).toBe(
       accessKey.accessKeyAddress.toLowerCase(),
     )
+  })
+
+  test('behavior: format: { address, type }', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const keyAuthorization = await actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey: {
+        address: accessKey.accessKeyAddress,
+        type: 'p256',
+      },
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    expect(keyAuthorization).toBeDefined()
+    expect(keyAuthorization.address.toLowerCase()).toBe(
+      accessKey.accessKeyAddress.toLowerCase(),
+    )
+    expect(keyAuthorization.type).toBe('p256')
+  })
+
+  test('behavior: format: { publicKey, type }', async () => {
+    const privateKey = generatePrivateKey()
+    const publicKey = P256.getPublicKey({ privateKey })
+    const accessKey = Account.fromP256(privateKey, { access: account })
+
+    const keyAuthorization = await actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey: {
+        publicKey: PublicKey.toHex(publicKey, { includePrefix: false }),
+        type: 'p256',
+      },
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    expect(keyAuthorization).toBeDefined()
+    expect(keyAuthorization.address.toLowerCase()).toBe(
+      accessKey.accessKeyAddress.toLowerCase(),
+    )
+    expect(keyAuthorization.type).toBe('p256')
   })
 
   test('behavior: with limits', async () => {

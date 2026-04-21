@@ -45,7 +45,7 @@ export type Account_base<source extends string = string> = RequiredBy<
 export type RootAccount = Account_base<'root'> & {
   /** Sign key authorization. */
   signKeyAuthorization: (
-    key: Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>,
+    key: resolveAccessKey.Parameters,
     parameters: Pick<
       KeyAuthorization.KeyAuthorization,
       'chainId' | 'expiry' | 'limits' | 'scopes'
@@ -382,7 +382,7 @@ export async function signKeyAuthorization(
   parameters: signKeyAuthorization.Parameters,
 ): Promise<signKeyAuthorization.ReturnValue> {
   const { chainId, key, expiry, limits, scopes } = parameters
-  const { accessKeyAddress, keyType: type } = key
+  const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
 
   const signature = await account.sign!({
     hash: KeyAuthorization.getSignPayload({
@@ -410,7 +410,7 @@ export declare namespace signKeyAuthorization {
     KeyAuthorization.KeyAuthorization,
     'chainId' | 'expiry' | 'limits' | 'scopes'
   > & {
-    key: Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>
+    key: resolveAccessKey.Parameters
   }
 
   type ReturnValue = KeyAuthorization.Signed
@@ -530,7 +530,7 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
     source: 'root',
     async signKeyAuthorization(key, parameters) {
       const { chainId, expiry, limits, scopes } = parameters
-      const { accessKeyAddress, keyType: type } = key
+      const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
 
       const signature = await account.sign({
         hash: KeyAuthorization.getSignPayload({
@@ -585,6 +585,52 @@ declare namespace fromAccessKey {
   }
 
   export type ReturnValue = AccessKeyAccount
+}
+
+/** @internal */
+export function resolveAccessKey(
+  accessKey: resolveAccessKey.Parameters,
+): resolveAccessKey.ReturnType {
+  if ('accessKeyAddress' in accessKey)
+    return {
+      accessKeyAddress: accessKey.accessKeyAddress,
+      keyType: accessKey.keyType,
+    }
+  if ('publicKey' in accessKey && accessKey.publicKey)
+    return {
+      accessKeyAddress: Address.fromPublicKey(
+        PublicKey.fromHex(accessKey.publicKey),
+      ),
+      keyType: accessKey.type,
+    }
+  return {
+    accessKeyAddress: accessKey.address,
+    keyType: accessKey.type,
+  }
+}
+
+export declare namespace resolveAccessKey {
+  type Parameters =
+    | Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>
+    | OneOf<
+        | {
+            /** Access key address. */
+            address: Address.Address
+            /** Key type. */
+            type: SignatureEnvelope.Type
+          }
+        | {
+            /** Access key public key. */
+            publicKey: Hex.Hex
+            /** Key type. */
+            type: SignatureEnvelope.Type
+          }
+      >
+
+  type ReturnType = {
+    accessKeyAddress: Address.Address
+    keyType: SignatureEnvelope.Type
+  }
 }
 
 // Export types required for inference.

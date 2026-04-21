@@ -149,6 +149,42 @@ const { receipt } = await client.accessKey.authorizeSync({
 })
 ```
 
+### Authorize Public Keys
+
+Instead of passing an `AccessKeyAccount`, you can authorize a key by its public key or address directly:
+
+```ts twoslash
+import { Account, P256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+
+// Authorize by public key // [!code focus]
+const { receipt } = await client.accessKey.authorizeSync({ // [!code focus]
+  accessKey: { // [!code focus]
+    publicKey: '0x...', // [!code focus]
+    type: 'p256', // [!code focus]
+  }, // [!code focus]
+}) // [!code focus]
+```
+
+You can also authorize by address:
+
+```ts twoslash
+import { Account } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+
+// Authorize by address // [!code focus]
+const { receipt } = await client.accessKey.authorizeSync({ // [!code focus]
+  accessKey: { // [!code focus]
+    address: '0x...', // [!code focus]
+    type: 'p256', // [!code focus]
+  }, // [!code focus]
+}) // [!code focus]
+```
+
 ### Asynchronous Usage
 
 The example above uses a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
@@ -195,9 +231,9 @@ type ReturnType = {
 
 ### accessKey
 
-- **Type:** `Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>`
+- **Type:** `{ accessKeyAddress: Address; keyType: string } | { address: Address; type: string } | { publicKey: Hex; type: string }`
 
-The access key to authorize.
+The access key to authorize. Accepts an `AccessKeyAccount`, or an object with `{ address, type }` or `{ publicKey, type }`.
 
 ### expiry (optional)
 
