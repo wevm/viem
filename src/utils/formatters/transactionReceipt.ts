@@ -1,10 +1,15 @@
+import type { Address } from 'abitype'
+
 import type { ErrorType } from '../../errors/utils.js'
 import type {
   Chain,
   ExtractChainFormatterReturnType,
 } from '../../types/chain.js'
 import type { RpcTransactionReceipt } from '../../types/rpc.js'
-import type { TransactionReceipt } from '../../types/transaction.js'
+import type {
+  FrameReceipt,
+  TransactionReceipt,
+} from '../../types/transaction.js'
 import type { ExactPartial } from '../../types/utils.js'
 import { hexToNumber } from '../encoding/fromHex.js'
 
@@ -69,6 +74,20 @@ export function formatTransactionReceipt(
     receipt.blobGasPrice = BigInt(transactionReceipt.blobGasPrice)
   if (transactionReceipt.blobGasUsed)
     receipt.blobGasUsed = BigInt(transactionReceipt.blobGasUsed)
+
+  if ((transactionReceipt as any).payer)
+    receipt.payer = (transactionReceipt as any).payer as Address
+  if ((transactionReceipt as any).frameReceipts) {
+    receipt.frameReceipts = (
+      (transactionReceipt as any).frameReceipts as any[]
+    ).map(
+      (fr: any): FrameReceipt => ({
+        status: fr.status === '0x1' ? 'success' : 'reverted',
+        gasUsed: BigInt(fr.gasUsed),
+        logs: fr.logs ? fr.logs.map((log: any) => formatLog(log)) : [],
+      }),
+    )
+  }
 
   return receipt
 }

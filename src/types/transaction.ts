@@ -33,7 +33,50 @@ export type TransactionType =
   | 'eip2930'
   | 'eip4844'
   | 'eip7702'
+  | 'eip8141'
   | (string & {})
+
+/** EIP-8141 frame execution mode (lower 8 bits of `mode` field). */
+export type FrameMode =
+  | 0 // DEFAULT: execute as ENTRY_POINT (address 0xaa)
+  | 1 // VERIFY:  read-only validation; must call APPROVE opcode
+  | 2 // SENDER:  execute as tx.sender (requires prior approval)
+
+/**
+ * A single frame in an EIP-8141 Frame Transaction.
+ * Each frame captures one unit of execution, validation, or payment.
+ */
+export type Frame = {
+  /** Execution mode: 0=DEFAULT, 1=VERIFY, 2=SENDER. */
+  mode: FrameMode
+  /**
+   * Flag bits configuring execution constraints.
+   * Bits 0-1: approval scope (APPROVE_SCOPE_MASK = 0x03).
+   * Bit 2:    atomic batch flag (SENDER mode only).
+   * Bits 3-7: reserved, must be zero.
+   */
+  flags: number
+  /** Target address for this frame, or `null` to use `tx.sender`. */
+  target: Address | null
+  /** Gas allocated exclusively to this frame. */
+  gasLimit: bigint
+  /**
+   * Must be `0` for `DEFAULT` and `VERIFY` modes; only `SENDER` may be non-zero.
+   */
+  value?: bigint | undefined
+  /** Input data passed to the frame. */
+  data: Hex
+}
+
+/** Per-frame receipt as defined by EIP-8141: `[status, gas_used, logs]`. */
+export type FrameReceipt<quantity = bigint, index = number> = {
+  /** Return status of the frame's top-level call. */
+  status: 'success' | 'reverted'
+  /** Gas consumed by this frame. */
+  gasUsed: quantity
+  /** Logs emitted during this frame's execution. */
+  logs: Log<quantity, index, false>[]
+}
 
 export type TransactionReceipt<
   quantity = bigint,
@@ -77,6 +120,10 @@ export type TransactionReceipt<
   transactionIndex: index
   /** Transaction type */
   type: type
+  /** Address that paid the fee. Only present for EIP-8141 frame transactions. */
+  payer?: Address | undefined
+  /** Per-frame receipts. Only present for EIP-8141 frame transactions. */
+  frameReceipts?: FrameReceipt<quantity, index>[] | undefined
 }
 
 export type TransactionBase<
@@ -194,6 +241,49 @@ export type TransactionEIP7702<
   type: type
 } & FeeValuesEIP1559<quantity>
 
+/**
+ * EIP-8141 Frame Transaction as returned by `eth_getTransactionByHash`.
+ * Authorization is embedded in frame data rather than a top-level ECDSA signature,
+ * so `r`, `s`, `v`, `yParity`, `to`, `value`, and `input` are absent.
+ */
+export type TransactionEIP8141<
+  quantity = bigint,
+  index = number,
+  isPending extends boolean = boolean,
+  type = 'eip8141',
+> = {
+  /** Hash of block containing this transaction, or `null` if pending. */
+  blockHash: isPending extends true ? null : Hash
+  /** Number of block containing this transaction, or `null` if pending. */
+  blockNumber: isPending extends true ? null : quantity
+  /** Chain ID that this transaction is valid on. */
+  chainId: index
+  /** List of versioned blob hashes (empty when no blobs are attached). */
+  blobVersionedHashes: readonly Hex[]
+  /** Transaction sender address (explicit in the EIP-8141 envelope). */
+  from: Address
+  /** Maximum fee per blob gas unit (EIP-4844 blob fee field). */
+  maxFeePerBlobGas: quantity
+  /** Maximum total fee per gas unit. */
+  maxFeePerGas: quantity
+  /** Maximum priority fee per gas unit (miner tip). */
+  maxPriorityFeePerGas: quantity
+  /** Hash of this transaction. */
+  hash: Hash
+  /** Unique number identifying this transaction. */
+  nonce: index
+  /** Explicit sender address committed to in the transaction envelope. */
+  sender: Address
+  /** Ordered list of execution frames. */
+  frames: readonly Frame[]
+  /** Index of this transaction in the block, or `null` if pending. */
+  transactionIndex: isPending extends true ? null : index
+  /** The type represented as hex. */
+  typeHex: Hex | null
+  /** Transaction type identifier. */
+  type: type
+}
+
 export type Transaction<
   quantity = bigint,
   index = number,
@@ -204,6 +294,7 @@ export type Transaction<
   | TransactionEIP1559<quantity, index, isPending>
   | TransactionEIP4844<quantity, index, isPending>
   | TransactionEIP7702<quantity, index, isPending>
+  | TransactionEIP8141<quantity, index, isPending>
 >
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -215,6 +306,8 @@ export type TransactionRequestBase<
   index = number,
   type = string,
 > = {
+  /** Chain ID that this transaction is valid on. */
+  chainId?: number | undefined
   /** Contract code or a hashed method call with encoded args */
   data?: Hex | undefined
   /** Transaction sender */
@@ -286,6 +379,36 @@ export type TransactionRequestEIP7702<
     authorizationList?: AuthorizationList<index, boolean> | undefined
   }
 
+/**
+ * EIP-8141 Frame Transaction request (for `eth_sendRawTransaction`).
+ * Authorization is carried inside frame data, so there is no top-level ECDSA
+ * signature and no `to`/`value`/`data` fields at the envelope level.
+ */
+export type TransactionRequestEIP8141<
+  quantity = bigint,
+  index = number,
+  type = 'eip8141',
+> = {
+  /** Transaction type identifier. */
+  type?: type | undefined
+  /** Chain ID that this transaction is valid on. */
+  chainId?: number | undefined
+  /** Unique number identifying this transaction. */
+  nonce?: index | undefined
+  /** Explicit sender address committed to in the transaction envelope. */
+  sender: Address
+  /** Ordered list of execution frames. */
+  frames: readonly Frame[]
+  /** Maximum priority fee per gas unit. */
+  maxPriorityFeePerGas?: quantity | undefined
+  /** Maximum total fee per gas unit. */
+  maxFeePerGas?: quantity | undefined
+  /** Maximum fee per blob gas unit (use 0 / omit when no blobs). */
+  maxFeePerBlobGas?: quantity | undefined
+  /** List of versioned blob hashes (omit or leave empty when no blobs). */
+  blobVersionedHashes?: readonly Hex[] | undefined
+}
+
 export type TransactionRequest<quantity = bigint, index = number> = OneOf<
   | TransactionRequestLegacy<quantity, index>
   | TransactionRequestEIP2930<quantity, index>
@@ -316,6 +439,7 @@ export type TransactionSerializedEIP1559 = `0x02${string}`
 export type TransactionSerializedEIP2930 = `0x01${string}`
 export type TransactionSerializedEIP4844 = `0x03${string}`
 export type TransactionSerializedEIP7702 = `0x04${string}`
+export type TransactionSerializedEIP8141 = `0x06${string}`
 export type TransactionSerializedLegacy = Branded<`0x${string}`, 'legacy'>
 export type TransactionSerializedGeneric = `0x${string}`
 export type TransactionSerialized<
@@ -325,6 +449,7 @@ export type TransactionSerialized<
     | (type extends 'eip2930' ? TransactionSerializedEIP2930 : never)
     | (type extends 'eip4844' ? TransactionSerializedEIP4844 : never)
     | (type extends 'eip7702' ? TransactionSerializedEIP7702 : never)
+    | (type extends 'eip8141' ? TransactionSerializedEIP8141 : never)
     | (type extends 'legacy' ? TransactionSerializedLegacy : never),
 > = IsNever<result> extends true ? TransactionSerializedGeneric : result
 
@@ -403,12 +528,42 @@ export type TransactionSerializableEIP7702<
     yParity?: number | undefined
   }
 
+/**
+ * EIP-8141 Frame Transaction ready for RLP serialization.
+ * Does not extend `TransactionSerializableBase` because there is no ECDSA
+ * signature envelope; authorization lives inside the VERIFY frame data.
+ */
+export type TransactionSerializableEIP8141<
+  quantity = bigint,
+  index = number,
+> = {
+  /** Chain ID that this transaction is valid on. */
+  chainId: number
+  /** Unique number identifying this transaction. */
+  nonce?: index | undefined
+  /** Explicit sender address committed to in the transaction envelope. */
+  sender: Address
+  /** Ordered list of execution frames (1 to MAX_FRAMES = 64). */
+  frames: readonly Frame[]
+  /** Maximum priority fee per gas unit. */
+  maxPriorityFeePerGas?: quantity | undefined
+  /** Maximum total fee per gas unit. */
+  maxFeePerGas?: quantity | undefined
+  /** Maximum fee per blob gas unit (must be 0 when no blobs are included). */
+  maxFeePerBlobGas?: quantity | undefined
+  /** Versioned blob hashes (must be empty when `maxFeePerBlobGas` is 0). */
+  blobVersionedHashes?: readonly Hex[] | undefined
+  /** Transaction type discriminant. */
+  type?: 'eip8141' | undefined
+}
+
 export type TransactionSerializable<quantity = bigint, index = number> = OneOf<
   | TransactionSerializableLegacy<quantity, index>
   | TransactionSerializableEIP2930<quantity, index>
   | TransactionSerializableEIP1559<quantity, index>
   | TransactionSerializableEIP4844<quantity, index>
   | TransactionSerializableEIP7702<quantity, index>
+  | TransactionSerializableEIP8141<quantity, index>
 >
 
 export type TransactionSerializableGeneric<

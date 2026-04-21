@@ -16,12 +16,14 @@ import type {
   TransactionEIP2930,
   TransactionEIP4844,
   TransactionEIP7702,
+  TransactionEIP8141,
   TransactionLegacy,
   TransactionReceipt,
   TransactionRequestEIP1559,
   TransactionRequestEIP2930,
   TransactionRequestEIP4844,
   TransactionRequestEIP7702,
+  TransactionRequestEIP8141,
   TransactionRequestLegacy,
 } from './transaction.js'
 import type { Omit, OneOf, PartialBy } from './utils.js'
@@ -35,6 +37,7 @@ export type TransactionType =
   | '0x2'
   | '0x3'
   | '0x4'
+  | '0x6'
   | (string & {})
 
 export type RpcAuthorization = {
@@ -79,6 +82,7 @@ export type RpcTransactionRequest = OneOf<
       TransactionRequestEIP7702<Quantity, Index, '0x4'>,
       'authorizationList'
     > & { authorizationList?: RpcAuthorizationList | undefined })
+  | TransactionRequestEIP8141<Quantity, Index, '0x6'>
 >
 // `yParity` is optional on the RPC type as some nodes do not return it
 // for 1559 & 2930 transactions (they should!).
@@ -103,6 +107,7 @@ export type RpcTransaction<pending extends boolean = boolean> = OneOf<
       > & { authorizationList?: RpcAuthorizationList | undefined },
       'yParity'
     >
+  | Omit<TransactionEIP8141<Quantity, Index, pending, '0x6'>, 'typeHex'>
 >
 
 type SuccessResult<result> = {

@@ -46,7 +46,15 @@ export type SignTransactionRequest<
   chainOverride extends Chain | undefined = Chain | undefined,
   ///
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
-> = UnionOmit<FormattedTransactionRequest<_derivedChain>, 'from'>
+  _formattedTransactionRequest extends
+    FormattedTransactionRequest<_derivedChain> = FormattedTransactionRequest<_derivedChain>,
+> = UnionOmit<
+  Exclude<
+    _formattedTransactionRequest,
+    { frames: readonly unknown[] } | { type?: 'eip8141' }
+  >,
+  'from'
+>
 
 export type SignTransactionParameters<
   chain extends Chain | undefined,

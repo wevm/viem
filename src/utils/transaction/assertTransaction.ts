@@ -29,12 +29,112 @@ import type {
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
   TransactionSerializableEIP7702,
+  TransactionSerializableEIP8141,
   TransactionSerializableLegacy,
 } from '../../types/transaction.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
 import { size } from '../data/size.js'
 import { slice } from '../data/slice.js'
 import { hexToNumber } from '../encoding/fromHex.js'
+
+export type AssertTransactionEIP8141ErrorType =
+  | InvalidAddressErrorType
+  | InvalidChainIdErrorType
+  | BaseErrorType
+  | ErrorType
+
+const maxUint64 = 2n ** 64n - 1n
+const maxInt64 = 2n ** 63n - 1n
+const MAX_FRAMES = 64
+const VERIFY = 1
+const SENDER = 2
+const APPROVE_SCOPE_MASK = 0x03
+const ATOMIC_BATCH_FLAG = 0x04
+
+export function assertTransactionEIP8141(
+  transaction: TransactionSerializableEIP8141,
+) {
+  const { chainId, sender, frames, nonce, maxFeePerGas, maxPriorityFeePerGas } =
+    transaction
+  if (chainId <= 0) throw new InvalidChainIdError({ chainId })
+  if (!isAddress(sender)) throw new InvalidAddressError({ address: sender })
+  if (sender === '0x0000000000000000000000000000000000000000')
+    throw new BaseError('`sender` must not be the zero address.')
+  if (typeof nonce === 'number' && BigInt(nonce) > maxUint64)
+    throw new BaseError('`nonce` must be less than 2^64.')
+  if (!frames || frames.length === 0)
+    throw new BaseError('`frames` must contain at least one frame.')
+  if (frames.length > MAX_FRAMES)
+    throw new BaseError(
+      `\`frames\` must not exceed MAX_FRAMES (${MAX_FRAMES}) per EIP-8141.`,
+    )
+  let totalFrameGas = 0n
+  for (let i = 0; i < frames.length; i++) {
+    const frame = frames[i]
+    if (frame.mode > 2)
+      throw new BaseError(
+        `Invalid frame mode ${frame.mode}. Must be 0 (DEFAULT), 1 (VERIFY), or 2 (SENDER).`,
+      )
+    if (frame.flags >= 8)
+      throw new BaseError(
+        `Invalid frame flags ${frame.flags}. Bits 3-7 are reserved and must be zero.`,
+      )
+    if (frame.mode === VERIFY && (frame.flags & APPROVE_SCOPE_MASK) === 0)
+      throw new BaseError(
+        'VERIFY frames must permit a non-zero APPROVE scope (flags bits 0-1).',
+      )
+    if (frame.flags & ATOMIC_BATCH_FLAG) {
+      if (frame.mode !== SENDER)
+        throw new BaseError(
+          'Atomic batch flag (bit 2) is only valid with SENDER mode.',
+        )
+      if (i + 1 >= frames.length)
+        throw new BaseError(
+          'Frame with atomic batch flag must not be the last frame.',
+        )
+      if (frames[i + 1].mode !== SENDER)
+        throw new BaseError(
+          'Frame following an atomic batch frame must be SENDER mode.',
+        )
+    }
+    if (frame.target !== null && !isAddress(frame.target))
+      throw new InvalidAddressError({ address: frame.target })
+    if (frame.gasLimit > maxInt64)
+      throw new BaseError('`frame.gasLimit` must be <= 2^63 - 1.')
+    const frameValue = frame.value ?? 0n
+    if (frameValue > maxUint256)
+      throw new BaseError('`frame.value` must be less than 2^256.')
+    if (frameValue < 0n)
+      throw new BaseError('`frame.value` must not be negative.')
+    if (frame.mode !== SENDER && frameValue !== 0n)
+      throw new BaseError(
+        '`frame.value` must be 0 for DEFAULT and VERIFY frames per EIP-8141.',
+      )
+    totalFrameGas += frame.gasLimit
+    if (totalFrameGas > maxInt64)
+      throw new BaseError('Total frame gas must be <= 2^63 - 1.')
+  }
+  if (maxFeePerGas && maxFeePerGas > maxUint256)
+    throw new FeeCapTooHighError({ maxFeePerGas })
+  if (
+    maxPriorityFeePerGas &&
+    maxFeePerGas &&
+    maxPriorityFeePerGas > maxFeePerGas
+  )
+    throw new TipAboveFeeCapError({ maxFeePerGas, maxPriorityFeePerGas })
+
+  const { maxFeePerBlobGas, blobVersionedHashes } = transaction
+  const hasBlobs =
+    blobVersionedHashes !== undefined && blobVersionedHashes.length > 0
+  if (!hasBlobs && maxFeePerBlobGas !== undefined && maxFeePerBlobGas !== 0n)
+    throw new BaseError(
+      '`maxFeePerBlobGas` must be 0 when no blob versioned hashes are included.',
+    )
+  if (hasBlobs && (maxFeePerBlobGas === undefined || maxFeePerBlobGas === 0n))
+    throw new BaseError(
+      '`maxFeePerBlobGas` must be non-zero when blob versioned hashes are present.',
+    )
+}
 
 export type AssertTransactionEIP7702ErrorType =
   | AssertTransactionEIP1559ErrorType

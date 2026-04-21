@@ -13,6 +13,7 @@ import { walletActions } from '../../clients/decorators/wallet.js'
 import type {
   TransactionSerializable,
   TransactionSerializableEIP4844,
+  TransactionSerializableEIP8141,
   TransactionSerializedLegacy,
 } from '../../types/transaction.js'
 import { sidecarsToVersionedHashes } from '../blob/sidecarsToVersionedHashes.js'
@@ -127,6 +128,8 @@ test('via `getTransaction`', async () => {
     blockNumber: anvilMainnet.forkBlockNumber - 15n,
     index: 0,
   })
+  if (transaction.type === 'eip8141')
+    throw new Error('Unexpected eip8141 transaction in legacy fixture block.')
   const serializedTransaction = serializeTransaction({
     ...transaction,
     data: transaction.input,
@@ -144,4 +147,26 @@ test('legacy', async () => {
         '0xf8a90c8507558bdb0082d57a948813f5bcbe6c7071d8bd32d2a4f07599bb5797b080b844a9059cbb00000000000000000000000068674fb6a9ee3749d5d8f71eeed5f254a75ffeea0000000000000000000000000000000000000000000001894b59bd5cd2fc000026a00d39b9cb3369c546185f4ddd6ee6908052c39fe856642726fa93f9a2a83db755a06a8c3928a80275ecef8a0ff00486483f8db6274b5ffd44fbcb8765418e9bec26' as TransactionSerializedLegacy,
     }),
   ).toMatchInlineSnapshot(`"0xb03B8ffAB1f3Ac3CabE4A0B2ED441fDFd3C96C8E"`)
+})
+
+test('eip8141 requires explicit signature', async () => {
+  const serializedTransaction = serializeTransaction({
+    chainId: 1,
+    sender: accounts[0].address,
+    frames: [
+      {
+        mode: 1,
+        flags: 0x03,
+        target: null,
+        gasLimit: 21000n,
+        data: '0x',
+      },
+    ],
+  } satisfies TransactionSerializableEIP8141)
+
+  await expect(() =>
+    recoverTransactionAddress({
+      serializedTransaction,
+    }),
+  ).rejects.toThrow('EIP-8141 transactions require an explicit `signature`')
 })

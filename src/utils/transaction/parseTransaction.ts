@@ -16,6 +16,7 @@ import type {
 import type { Hex, Signature } from '../../types/misc.js'
 import type {
   AccessList,
+  Frame,
   TransactionRequestEIP2930,
   TransactionRequestLegacy,
   TransactionSerializable,
@@ -23,16 +24,19 @@ import type {
   TransactionSerializableEIP2930,
   TransactionSerializableEIP4844,
   TransactionSerializableEIP7702,
+  TransactionSerializableEIP8141,
   TransactionSerializableLegacy,
   TransactionSerialized,
   TransactionSerializedEIP1559,
   TransactionSerializedEIP2930,
   TransactionSerializedEIP4844,
   TransactionSerializedEIP7702,
+  TransactionSerializedEIP8141,
   TransactionSerializedGeneric,
   TransactionType,
 } from '../../types/transaction.js'
 import type { IsNarrowable, Mutable } from '../../types/utils.js'
+import { type GetAddressErrorType, getAddress } from '../address/getAddress.js'
 import { type IsAddressErrorType, isAddress } from '../address/isAddress.js'
 import { toBlobSidecars } from '../blob/toBlobSidecars.js'
 import { type IsHexErrorType, isHex } from '../data/isHex.js'
@@ -47,17 +51,18 @@ import {
 import { type FromRlpErrorType, fromRlp } from '../encoding/fromRlp.js'
 import type { RecursiveArray } from '../encoding/toRlp.js'
 import { isHash } from '../hash/isHash.js'
-
 import {
   type AssertTransactionEIP1559ErrorType,
   type AssertTransactionEIP2930ErrorType,
   type AssertTransactionEIP4844ErrorType,
   type AssertTransactionEIP7702ErrorType,
+  type AssertTransactionEIP8141ErrorType,
   type AssertTransactionLegacyErrorType,
   assertTransactionEIP1559,
   assertTransactionEIP2930,
   assertTransactionEIP4844,
   assertTransactionEIP7702,
+  assertTransactionEIP8141,
   assertTransactionLegacy,
 } from './assertTransaction.js'
 import {
@@ -77,6 +82,7 @@ export type ParseTransactionReturnType<
           ? TransactionSerializableEIP4844<bigint, number, false>
           : never)
       | (type extends 'eip7702' ? TransactionSerializableEIP7702 : never)
+      | (type extends 'eip8141' ? TransactionSerializableEIP8141 : never)
       | (type extends 'legacy' ? TransactionSerializableLegacy : never)
   : TransactionSerializable
 
@@ -86,6 +92,7 @@ export type ParseTransactionErrorType =
   | ParseTransactionEIP2930ErrorType
   | ParseTransactionEIP4844ErrorType
   | ParseTransactionEIP7702ErrorType
+  | ParseTransactionEIP8141ErrorType
   | ParseTransactionLegacyErrorType
 
 export function parseTransaction<
@@ -113,9 +120,119 @@ export function parseTransaction<
       serializedTransaction as TransactionSerializedEIP7702,
     ) as ParseTransactionReturnType<serialized>
 
+  if (type === 'eip8141')
+    return parseTransactionEIP8141(
+      serializedTransaction as TransactionSerializedEIP8141,
+    ) as ParseTransactionReturnType<serialized>
+
   return parseTransactionLegacy(
     serializedTransaction,
   ) as ParseTransactionReturnType<serialized>
+}
+
+type ParseTransactionEIP8141ErrorType =
+  | ToTransactionArrayErrorType
+  | AssertTransactionEIP8141ErrorType
+  | HexToBigIntErrorType
+  | HexToNumberErrorType
+  | InvalidSerializedTransactionErrorType
+  | IsHexErrorType
+  | GetAddressErrorType
+  | ErrorType
+
+function parseTransactionEIP8141(
+  serializedTransaction: TransactionSerializedEIP8141,
+): TransactionSerializableEIP8141 {
+  const transactionArray = toTransactionArray(serializedTransaction)
+
+  const [
+    chainId,
+    nonce,
+    sender,
+    framesArray,
+    maxPriorityFeePerGas,
+    maxFeePerGas,
+    maxFeePerBlobGas,
+    blobVersionedHashes,
+  ] = transactionArray
+
+  if (transactionArray.length !== 8)
+    throw new InvalidSerializedTransactionError({
+      attributes: {
+        chainId,
+        nonce,
+        sender,
+        frames: framesArray,
+        maxPriorityFeePerGas,
+        maxFeePerGas,
+        maxFeePerBlobGas,
+        blobVersionedHashes,
+      },
+      serializedTransaction,
+      type: 'eip8141',
+    })
+
+  const frames: Frame[] = (framesArray as RecursiveArray<Hex>[]).map(
+    (frameArray) => {
+      const tuple = frameArray as Hex[]
+      if (tuple.length !== 6)
+        throw new InvalidSerializedTransactionError({
+          attributes: { frame: tuple },
+          serializedTransaction,
+          type: 'eip8141',
+        })
+      const [mode, flags, target, gasLimit, value, data] = tuple
+      const parsedMode = mode === '0x' ? 0 : hexToNumber(mode)
+      if (parsedMode > 2)
+        throw new InvalidSerializedTransactionError({
+          attributes: { frameMode: parsedMode },
+          serializedTransaction,
+          type: 'eip8141',
+        })
+      return {
+        mode: parsedMode as Frame['mode'],
+        flags: flags === '0x' ? 0 : hexToNumber(flags),
+        target: isHex(target) && target !== '0x' ? getAddress(target) : null,
+        gasLimit: gasLimit === '0x' ? 0n : hexToBigInt(gasLimit),
+        value: value === '0x' ? 0n : hexToBigInt(value),
+        data: isHex(data) && data !== '0x' ? data : '0x',
+      }
+    },
+  )
+
+  const transaction: TransactionSerializableEIP8141 = {
+    chainId: hexToNumber(chainId as Hex),
+    sender: sender as Hex,
+    frames,
+    type: 'eip8141',
+  }
+
+  if (isHex(nonce)) {
+    if (nonce === '0x') {
+      transaction.nonce = 0
+    } else {
+      const nonceValue = hexToBigInt(nonce)
+      if (nonceValue > BigInt(Number.MAX_SAFE_INTEGER))
+        throw new InvalidSerializedTransactionError({
+          attributes: { nonce: nonceValue },
+          serializedTransaction,
+          type: 'eip8141',
+        })
+      transaction.nonce = Number(nonceValue)
+    }
+  }
+  if (isHex(maxFeePerGas) && maxFeePerGas !== '0x')
+    transaction.maxFeePerGas = hexToBigInt(maxFeePerGas)
+  if (isHex(maxPriorityFeePerGas) && maxPriorityFeePerGas !== '0x')
+    transaction.maxPriorityFeePerGas = hexToBigInt(maxPriorityFeePerGas)
+  if (isHex(maxFeePerBlobGas) && maxFeePerBlobGas !== '0x')
+    transaction.maxFeePerBlobGas = hexToBigInt(maxFeePerBlobGas)
+  if (Array.isArray(blobVersionedHashes) && blobVersionedHashes.length > 0)
+    transaction.blobVersionedHashes = blobVersionedHashes as Hex[]
+
+  assertTransactionEIP8141(transaction)
+
+  return transaction
 }
 
 type ParseTransactionEIP7702ErrorType =
