@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import * as Prool from '~test/tempo/prool.js'
-import { VirtualAddress } from '../index.js'
+import { VirtualAddress } from 'ox/tempo'
 import * as actions from './index.js'
 
 const account = accounts[0]
