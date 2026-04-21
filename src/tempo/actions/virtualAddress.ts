@@ -11,7 +11,6 @@ import { zeroAddress } from '../../constants/address.js'
 import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { GetEventArgs } from '../../types/contract.js'
-import type { Hex } from '../../types/misc.js'
 import type { Compute } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
@@ -63,7 +62,7 @@ export namespace getMasterAddress {
 
   export type Args = {
     /** The master ID (bytes4). */
-    masterId: Hex
+    masterId: Hex.Hex
   }
 
   export type ReturnValue = Address | null
@@ -185,7 +184,7 @@ export namespace registerMaster {
 
   export type Args = {
     /** The salt (bytes32) used for proof-of-work master ID derivation. */
-    salt: Hex
+    salt: Hex.Hex
   }
 
   export type ReturnValue = WriteContractReturnType
