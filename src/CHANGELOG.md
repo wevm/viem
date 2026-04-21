@@ -1,5 +1,11 @@
 # viem
 
+## 2.48.3
+
+### Patch Changes
+
+- [#4537](https://github.com/wevm/viem/pull/4537) [`bc4be026420daba9c682412ceb5840526ae7fdd1`](https://github.com/wevm/viem/commit/bc4be026420daba9c682412ceb5840526ae7fdd1) Thanks [@tmm](https://github.com/tmm)! - Re-exported `Bytes`, `PublicKey`, and `Secp256k1` from `viem/tempo`.
+
 ## 2.48.2
 
 ### Patch Changes
