@@ -374,7 +374,10 @@ test('AbiEventParametersToPrimitiveTypes', () => {
   >().toEqualTypeOf<
     | readonly []
     | readonly [string | readonly string[] | null]
-    | readonly [string | readonly string[] | null, number | readonly number[] | null]
+    | readonly [
+        string | readonly string[] | null,
+        number | readonly number[] | null,
+      ]
   >()
 
   type Unnamed_AllowNonIndexed = AbiEventParametersToPrimitiveTypes<
@@ -392,7 +395,10 @@ test('AbiEventParametersToPrimitiveTypes', () => {
   expectTypeOf<Unnamed_AllowNonIndexed>().toEqualTypeOf<
     | readonly []
     | readonly [string | readonly string[] | null]
-    | readonly [string | readonly string[] | null, number | readonly number[] | null]
+    | readonly [
+        string | readonly string[] | null,
+        number | readonly number[] | null,
+      ]
     | readonly [
         string | readonly string[] | null,
         number | readonly number[] | null,
@@ -427,6 +433,9 @@ test('AbiEventParametersToPrimitiveTypes', () => {
   >().toEqualTypeOf<
     | readonly []
     | readonly [string | readonly string[] | null]
-    | readonly [string | readonly string[] | null, number | readonly number[] | null]
+    | readonly [
+        string | readonly string[] | null,
+        number | readonly number[] | null,
+      ]
   >()
 })
