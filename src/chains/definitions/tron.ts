@@ -17,10 +17,4 @@ export const tron = /*#__PURE__*/ defineChain({
       apiUrl: 'https://apilist.tronscanapi.com/api',
     },
   },
-  contracts: {
-    multicall3: {
-      address: '0x32a4F47A74a6810BD0bF861CABAb99656a75DE9E',
-      blockCreated: 51_067_989,
-    },
-  },
 })

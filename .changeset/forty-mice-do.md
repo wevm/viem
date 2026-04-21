@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Added Tron block time + multicall3
+Added Tron block time
