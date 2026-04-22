@@ -12,6 +12,8 @@ test('exports tempo', () => {
       "TempoAddress",
       "Tick",
       "TokenId",
+      "VirtualAddress",
+      "VirtualMaster",
       "Abis",
       "Account",
       "Addresses",
