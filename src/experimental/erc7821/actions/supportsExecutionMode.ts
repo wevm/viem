@@ -64,7 +64,7 @@ export async function supportsExecutionMode<
           args: [mode],
         }),
       {
-        cacheKey: `supportsExecutionMode.${address}.${mode}`,
+        cacheKey: `supportsExecutionMode.${client.uid}.${address}.${mode}`,
       },
     )
   } catch {
