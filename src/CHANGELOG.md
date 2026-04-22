@@ -1,5 +1,11 @@
 # viem
 
+## 2.48.4
+
+### Patch Changes
+
+- [#4532](https://github.com/wevm/viem/pull/4532) [`cb3206e1039b21e45e4ed17898aa1ff561cdecb4`](https://github.com/wevm/viem/commit/cb3206e1039b21e45e4ed17898aa1ff561cdecb4) Thanks [@jxom](https://github.com/jxom)! - viem/tempo: Added virtual address actions for the TIP-1022 Address Registry precompile: `virtualAddress.getMasterAddress`, `virtualAddress.resolve`, `virtualAddress.registerMaster`, `virtualAddress.registerMasterSync`. Re-exported `VirtualAddress` and `VirtualMaster` from `ox/tempo`.
+
 ## 2.48.3
 
 ### Patch Changes
