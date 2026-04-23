@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0
 
       - name: Check Reproduction
-        uses: anthropics/claude-code-action@39431830520a7ae6c0c572f11a7707e7043325e3
+        uses: anthropics/claude-code-action@b4d67413279fc18c6e5de930ae307c4f108714eb
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
