@@ -121,6 +121,11 @@ export function encodeEventTopics<
         }) ?? []
     }
   }
+
+  // only prepend signature for non-anonymous events
+  if (abiItem.anonymous)
+    return topics
+
   return [signature, ...topics]
 }
 
