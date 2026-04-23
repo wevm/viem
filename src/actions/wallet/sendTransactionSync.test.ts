@@ -1975,3 +1975,66 @@ describe('behavior: client dataSuffix', () => {
     expect(tx.input).toBe(concatHex([baseData, '0x12345678']))
   })
 })
+
+describe('behavior: sendTransactionSync dataSuffix', () => {
+  test('sends transaction with sendTransactionSync dataSuffix (hex string)', async () => {
+    await setup()
+
+    let capturedData: string | undefined
+
+    const walletClient = createWalletClient({
+      chain: anvilMainnet.chain,
+      transport: http(anvilMainnet.rpcUrl.http),
+      dataSuffix: '0xabc',
+    })
+
+    walletClient.request = async (params: any) => {
+      if (
+        params.method === 'eth_sendTransaction' ||
+        params.method === 'wallet_sendTransaction'
+      ) {
+        capturedData = params.params[0].data
+        throw new Error('Test interception - data captured')
+      }
+      throw new Error('Unexpected method')
+    }
+
+    await expect(
+      sendTransaction(walletClient, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        gas: 100_000n,
+        dataSuffix: '0x12345678',
+      }),
+    ).rejects.toThrow('Test interception - data captured')
+
+    expect(capturedData).toBe('0x12345678')
+  })
+
+  test('sends transaction with sendTransactionSync dataSuffix (local account)', async () => {
+    await setup()
+
+    const walletClient = createWalletClient({
+      chain: anvilMainnet.chain,
+      transport: http(anvilMainnet.rpcUrl.http),
+      dataSuffix: '0xabc',
+    })
+
+    const [receipt] = await Promise.all([
+      sendTransaction(walletClient, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        value: parseEther('1'),
+        dataSuffix: '0x12345678',
+      }),
+      (async () => {
+        await wait(500)
+        await mine(client, { blocks: 1 })
+      })(),
+    ])
+
+    const tx = await getTransaction(client, { hash: receipt.transactionHash })
+    expect(tx.input).toBe('0x12345678')
+  })
+})
