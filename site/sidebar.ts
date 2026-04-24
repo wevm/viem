@@ -2296,6 +2296,24 @@ export const sidebar = {
             ],
           },
           {
+            text: 'Virtual Address',
+            collapsed: true,
+            items: [
+              {
+                text: 'getMasterAddress',
+                link: '/tempo/actions/virtualAddress.getMasterAddress',
+              },
+              {
+                text: 'registerMaster',
+                link: '/tempo/actions/virtualAddress.registerMaster',
+              },
+              {
+                text: 'resolve',
+                link: '/tempo/actions/virtualAddress.resolve',
+              },
+            ],
+          },
+          {
             text: 'Zone',
             collapsed: true,
             items: [

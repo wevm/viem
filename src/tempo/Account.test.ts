@@ -1,4 +1,8 @@
 import { Value, WebCryptoP256 } from 'ox'
+import * as Address from 'ox/Address'
+import * as P256 from 'ox/P256'
+import * as PublicKey from 'ox/PublicKey'
+import * as Secp256k1 from 'ox/Secp256k1'
 import { Period, SignatureEnvelope } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
@@ -844,6 +848,134 @@ describe('signKeyAuthorization', () => {
         },
       ]
     `)
+  })
+
+  test('format: { address, type }', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
+
+    const authorization = await Account.signKeyAuthorization(account, {
+      chainId: BigInt(client.chain!.id),
+      key: { address: key.accessKeyAddress, type: 'secp256k1' },
+      expiry: 1234567890,
+    })
+    expect(authorization.address.toLowerCase()).toBe(
+      key.accessKeyAddress.toLowerCase(),
+    )
+    expect(authorization.type).toBe('secp256k1')
+  })
+
+  test('format: { publicKey, type }', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const publicKey = Secp256k1.getPublicKey({
+      privateKey: privateKey_secp256k1,
+    })
+    const expectedAddress = Address.fromPublicKey(publicKey)
+
+    const authorization = await Account.signKeyAuthorization(account, {
+      chainId: BigInt(client.chain!.id),
+      key: {
+        publicKey: PublicKey.toHex(publicKey, { includePrefix: false }),
+        type: 'secp256k1',
+      },
+      expiry: 1234567890,
+    })
+    expect(authorization.address.toLowerCase()).toBe(
+      expectedAddress.toLowerCase(),
+    )
+    expect(authorization.type).toBe('secp256k1')
+  })
+})
+
+describe('resolveAccessKey', () => {
+  test('format: { accessKeyAddress, keyType }', () => {
+    const result = Account.resolveAccessKey({
+      accessKeyAddress: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      keyType: 'secp256k1',
+    })
+    expect(result).toEqual({
+      accessKeyAddress: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      keyType: 'secp256k1',
+    })
+  })
+
+  test('format: { address, type }', () => {
+    const result = Account.resolveAccessKey({
+      address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      type: 'p256',
+    })
+    expect(result).toEqual({
+      accessKeyAddress: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      keyType: 'p256',
+    })
+  })
+
+  test('format: { publicKey, type }', () => {
+    const publicKey = P256.getPublicKey({ privateKey: privateKey_p256 })
+    const expectedAddress = Address.fromPublicKey(publicKey)
+    const result = Account.resolveAccessKey({
+      publicKey: PublicKey.toHex(publicKey, { includePrefix: false }),
+      type: 'p256',
+    })
+    expect(result).toEqual({
+      accessKeyAddress: expectedAddress,
+      keyType: 'p256',
+    })
+  })
+
+  test('format: AccessKeyAccount', () => {
+    const rootAccount = Account.fromSecp256k1(privateKey_secp256k1)
+    const accessKey = Account.fromSecp256k1(
+      '0x06a952d58c24d287245276dd8b4272d82a921d27d90874a6c27a3bc19ff4bfde',
+      { access: rootAccount },
+    )
+    const result = Account.resolveAccessKey(accessKey)
+    expect(result).toEqual({
+      accessKeyAddress: accessKey.accessKeyAddress,
+      keyType: 'secp256k1',
+    })
+  })
+})
+
+describe('signKeyAuthorization (instance): alternative key formats', () => {
+  test('format: { address, type }', async () => {
+    const rootAccount = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromP256(privateKey_p256, { access: rootAccount })
+
+    const authorization = await rootAccount.signKeyAuthorization(
+      { address: key.accessKeyAddress, type: 'p256' },
+      {
+        chainId: BigInt(client.chain!.id),
+        expiry: 1234567890,
+      },
+    )
+    expect(authorization.address.toLowerCase()).toBe(
+      key.accessKeyAddress.toLowerCase(),
+    )
+    expect(authorization.type).toBe('p256')
+  })
+
+  test('format: { publicKey, type }', async () => {
+    const rootAccount = Account.fromSecp256k1(privateKey_secp256k1)
+    const publicKey = P256.getPublicKey({ privateKey: privateKey_p256 })
+    const expectedAddress = Address.fromPublicKey(publicKey)
+
+    const authorization = await rootAccount.signKeyAuthorization(
+      {
+        publicKey: PublicKey.toHex(publicKey, { includePrefix: false }),
+        type: 'p256',
+      },
+      {
+        chainId: BigInt(client.chain!.id),
+        expiry: 1234567890,
+      },
+    )
+    expect(authorization.address.toLowerCase()).toBe(
+      expectedAddress.toLowerCase(),
+    )
+    expect(authorization.type).toBe('p256')
   })
 })
 

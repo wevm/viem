@@ -1804,8 +1804,8 @@ describe('relay', () => {
   })
 })
 
-// TODO: remove skipIf once T3 is deployed to testnet/devnet
-describe.skipIf(nodeEnv === 'testnet' || nodeEnv === 'devnet')(
+// TODO: remove skipIf once T3 is deployed to testnet
+describe.skipIf(nodeEnv === 'testnet')(
   'accessKeys: periodic spending limits',
   () => {
     test('behavior: access key with periodic spending limit', async () => {
@@ -1924,172 +1924,154 @@ describe.skipIf(nodeEnv === 'testnet' || nodeEnv === 'devnet')(
   },
 )
 
-// TODO: remove skipIf once T3 is deployed to testnet/devnet
-describe.skipIf(nodeEnv === 'testnet' || nodeEnv === 'devnet')(
-  'accessKeys: call scopes',
-  () => {
-    test('behavior: access key with call scopes (transfer)', async () => {
-      const account = accounts[0]
-      const accessKey = Account.fromP256(generatePrivateKey(), {
-        access: account,
-      })
+// TODO: remove skipIf once T3 is deployed to testnet
+describe.skipIf(nodeEnv === 'testnet')('accessKeys: call scopes', () => {
+  test('behavior: access key with call scopes (transfer)', async () => {
+    const account = accounts[0]
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
 
-      const keyAuthorization = await Actions.accessKey.signAuthorization(
-        client,
+    const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      limits: feeTokenLimits(Value.from('10000', 6)),
+      scopes: [
         {
-          account,
-          accessKey,
-          limits: feeTokenLimits(Value.from('10000', 6)),
-          scopes: [
-            {
-              address: feeToken,
-              selector: '0xa9059cbb', // transfer(address,uint256)
-            },
-          ],
+          address: feeToken,
+          selector: '0xa9059cbb', // transfer(address,uint256)
         },
-      )
+      ],
+    })
 
-      // Provision key + transfer in same tx
-      const { receipt } = await Actions.token.transferSync(client, {
+    // Provision key + transfer in same tx
+    const { receipt } = await Actions.token.transferSync(client, {
+      account: accessKey,
+      feeToken,
+      keyAuthorization,
+      amount: 100n,
+      token: feeToken,
+      to: '0x0000000000000000000000000000000000000001',
+    })
+    expect(receipt.status).toBe('success')
+  })
+
+  test('behavior: access key with call scopes + recipient allowlist', async () => {
+    const recipient = '0x0000000000000000000000000000000000000001'
+    const account = accounts[0]
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      limits: feeTokenLimits(Value.from('10000', 6)),
+      scopes: [
+        {
+          address: feeToken,
+          selector: '0xa9059cbb', // transfer(address,uint256)
+          recipients: [recipient],
+        },
+      ],
+    })
+
+    // Provision key + transfer in same tx
+    const { receipt } = await Actions.token.transferSync(client, {
+      account: accessKey,
+      feeToken,
+      keyAuthorization,
+      amount: 100n,
+      token: feeToken,
+      to: recipient,
+    })
+    expect(receipt.status).toBe('success')
+  })
+
+  test('behavior: rejects transfer to wrong recipient', async () => {
+    const allowedRecipient = '0x0000000000000000000000000000000000000001'
+    const wrongRecipient = '0x0000000000000000000000000000000000000002'
+    const account = accounts[0]
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      limits: feeTokenLimits(Value.from('10000', 6)),
+      scopes: [
+        {
+          address: feeToken,
+          selector: '0xa9059cbb',
+          recipients: [allowedRecipient],
+        },
+      ],
+    })
+
+    await expect(
+      Actions.token.transferSync(client, {
+        account: accessKey,
+        keyAuthorization,
+        amount: 100n,
+        token: feeToken,
+        to: wrongRecipient,
+      }),
+    ).rejects.toThrow('CallNotAllowed')
+  })
+
+  test('behavior: rejects approve when only transfer is scoped', async () => {
+    const account = accounts[0]
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      limits: feeTokenLimits(Value.from('10000', 6)),
+      scopes: [
+        {
+          address: feeToken,
+          selector: '0xa9059cbb', // only transfer
+        },
+      ],
+    })
+
+    await expect(
+      Actions.token.approveSync(client, {
+        account: accessKey,
+        feeToken,
+        keyAuthorization,
+        amount: 100n,
+        token: feeToken,
+        spender: '0x0000000000000000000000000000000000000001',
+      }),
+    ).rejects.toThrow('CallNotAllowed')
+  })
+
+  test('behavior: rejects any call when scopes = [] (empty)', async () => {
+    const account = accounts[0]
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const keyAuthorization = await Actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      limits: feeTokenLimits(Value.from('10000', 6)),
+      scopes: [], // no calls allowed
+    })
+
+    await expect(
+      Actions.token.transferSync(client, {
         account: accessKey,
         feeToken,
         keyAuthorization,
         amount: 100n,
         token: feeToken,
         to: '0x0000000000000000000000000000000000000001',
-      })
-      expect(receipt.status).toBe('success')
-    })
-
-    test('behavior: access key with call scopes + recipient allowlist', async () => {
-      const recipient = '0x0000000000000000000000000000000000000001'
-      const account = accounts[0]
-      const accessKey = Account.fromP256(generatePrivateKey(), {
-        access: account,
-      })
-
-      const keyAuthorization = await Actions.accessKey.signAuthorization(
-        client,
-        {
-          account,
-          accessKey,
-          limits: feeTokenLimits(Value.from('10000', 6)),
-          scopes: [
-            {
-              address: feeToken,
-              selector: '0xa9059cbb', // transfer(address,uint256)
-              recipients: [recipient],
-            },
-          ],
-        },
-      )
-
-      // Provision key + transfer in same tx
-      const { receipt } = await Actions.token.transferSync(client, {
-        account: accessKey,
-        feeToken,
-        keyAuthorization,
-        amount: 100n,
-        token: feeToken,
-        to: recipient,
-      })
-      expect(receipt.status).toBe('success')
-    })
-
-    test('behavior: rejects transfer to wrong recipient', async () => {
-      const allowedRecipient = '0x0000000000000000000000000000000000000001'
-      const wrongRecipient = '0x0000000000000000000000000000000000000002'
-      const account = accounts[0]
-      const accessKey = Account.fromP256(generatePrivateKey(), {
-        access: account,
-      })
-
-      const keyAuthorization = await Actions.accessKey.signAuthorization(
-        client,
-        {
-          account,
-          accessKey,
-          limits: feeTokenLimits(Value.from('10000', 6)),
-          scopes: [
-            {
-              address: feeToken,
-              selector: '0xa9059cbb',
-              recipients: [allowedRecipient],
-            },
-          ],
-        },
-      )
-
-      await expect(
-        Actions.token.transferSync(client, {
-          account: accessKey,
-          keyAuthorization,
-          amount: 100n,
-          token: feeToken,
-          to: wrongRecipient,
-        }),
-      ).rejects.toThrow('CallNotAllowed')
-    })
-
-    test('behavior: rejects approve when only transfer is scoped', async () => {
-      const account = accounts[0]
-      const accessKey = Account.fromP256(generatePrivateKey(), {
-        access: account,
-      })
-
-      const keyAuthorization = await Actions.accessKey.signAuthorization(
-        client,
-        {
-          account,
-          accessKey,
-          limits: feeTokenLimits(Value.from('10000', 6)),
-          scopes: [
-            {
-              address: feeToken,
-              selector: '0xa9059cbb', // only transfer
-            },
-          ],
-        },
-      )
-
-      await expect(
-        Actions.token.approveSync(client, {
-          account: accessKey,
-          feeToken,
-          keyAuthorization,
-          amount: 100n,
-          token: feeToken,
-          spender: '0x0000000000000000000000000000000000000001',
-        }),
-      ).rejects.toThrow('CallNotAllowed')
-    })
-
-    test('behavior: rejects any call when scopes = [] (empty)', async () => {
-      const account = accounts[0]
-      const accessKey = Account.fromP256(generatePrivateKey(), {
-        access: account,
-      })
-
-      const keyAuthorization = await Actions.accessKey.signAuthorization(
-        client,
-        {
-          account,
-          accessKey,
-          limits: feeTokenLimits(Value.from('10000', 6)),
-          scopes: [], // no calls allowed
-        },
-      )
-
-      await expect(
-        Actions.token.transferSync(client, {
-          account: accessKey,
-          feeToken,
-          keyAuthorization,
-          amount: 100n,
-          token: feeToken,
-          to: '0x0000000000000000000000000000000000000001',
-        }),
-      ).rejects.toThrow('CallNotAllowed')
-    })
-  },
-)
+      }),
+    ).rejects.toThrow('CallNotAllowed')
+  })
+})

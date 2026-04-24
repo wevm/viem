@@ -23,4 +23,5 @@ export const xdcTestnet = /*#__PURE__*/ defineChain({
       blockCreated: 59765389,
     },
   },
+  testnet: true,
 })

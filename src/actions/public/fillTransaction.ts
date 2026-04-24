@@ -207,7 +207,7 @@ export async function fillTransaction<
     if (transaction.maxPriorityFeePerGas)
       transaction.maxPriorityFeePerGas =
         parameters.maxPriorityFeePerGas ?? transaction.maxPriorityFeePerGas
-    if (transaction.nonce)
+    if (typeof transaction.nonce !== 'undefined')
       transaction.nonce = parameters.nonce ?? transaction.nonce
 
     // Build fee multiplier function.

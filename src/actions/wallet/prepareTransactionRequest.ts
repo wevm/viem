@@ -473,7 +473,7 @@ export async function prepareTransactionRequest<
   request = {
     ...(fillResult as any),
     ...(account ? { from: account?.address } : {}),
-    ...(nonce ? { nonce } : {}),
+    ...(typeof nonce !== 'undefined' ? { nonce } : {}),
   }
   const { blobs, gas, kzg, type } = request
 

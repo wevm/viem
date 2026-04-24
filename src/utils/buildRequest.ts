@@ -71,7 +71,6 @@ import type {
   EIP1193RequestFn,
   EIP1193RequestOptions,
 } from '../types/eip1193.js'
-import { stringToHex } from './encoding/toHex.js'
 import type { CreateBatchSchedulerErrorType } from './promise/createBatchScheduler.js'
 import { withDedupe } from './promise/withDedupe.js'
 import { type WithRetryErrorType, withRetry } from './promise/withRetry.js'
@@ -143,7 +142,7 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
       })
 
     const requestId = dedupe
-      ? stringToHex(`${uid}.${stringify(args)}`)
+      ? hashString(`${uid}.${stringify(args)}`)
       : undefined
     return withDedupe(
       () =>
@@ -305,4 +304,20 @@ export function shouldRetry(error: Error) {
     return false
   }
   return true
+}
+
+/** @internal cyrb53 – fast, non-cryptographic 53-bit string hash */
+function hashString(str: string, seed = 0): string {
+  let h1 = 0xdeadbeef ^ seed
+  let h2 = 0x41c6ce57 ^ seed
+  for (let i = 0; i < str.length; i++) {
+    const ch = str.charCodeAt(i)
+    h1 = Math.imul(h1 ^ ch, 2654435761)
+    h2 = Math.imul(h2 ^ ch, 1597334677)
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507)
+  h1 ^= Math.imul(h2 ^ (h2 >>> 16), 3266489909)
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507)
+  h2 ^= Math.imul(h1 ^ (h1 >>> 16), 3266489909)
+  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36)
 }

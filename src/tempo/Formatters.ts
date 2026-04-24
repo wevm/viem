@@ -133,7 +133,7 @@ export function formatTransactionRequest(
     ...(keyData ? { keyData } : {}),
     ...(keyId ? { keyId } : {}),
     ...(keyType ? { keyType } : {}),
-    ...(request.feePayer
+    ...(typeof request.feePayer !== 'undefined'
       ? {
           feePayer:
             typeof request.feePayer === 'object'

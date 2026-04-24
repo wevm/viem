@@ -22,4 +22,5 @@ export const artheraTestnet = /*#__PURE__*/ defineChain({
       blockCreated: 22051,
     },
   },
+  testnet: true,
 })

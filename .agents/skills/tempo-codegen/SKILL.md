@@ -36,11 +36,11 @@ Example:
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * })
  *
@@ -180,11 +180,11 @@ export type ErrorType = BaseErrorType
  * @example
  * ```ts
  * import { createClient, http, walletActions } from 'viem'
- * import { tempo } from 'tempo.ts/chains'
- * import { Actions } from 'tempo.ts/viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
  *   transport: http(),
  * }).extend(walletActions)
  *

@@ -20,4 +20,5 @@ export const edgelessTestnet = /*#__PURE__*/ defineChain({
       url: 'https://testnet.explorer.edgeless.network',
     },
   },
+  testnet: true,
 })

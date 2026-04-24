@@ -1,3 +1,5 @@
+// biome-ignore lint/performance/noBarrelFile: entrypoint module
+export { Bytes, PublicKey, Secp256k1 } from 'ox'
 // Export types required for inference.
 export type {
   /** @deprecated */
@@ -9,8 +11,14 @@ export type {
   /** @deprecated */
   TxEnvelopeTempo as z_TxEnvelopeTempo,
 } from 'ox/tempo'
-// biome-ignore lint/performance/noBarrelFile: _
-export { Period, TempoAddress, Tick, TokenId } from 'ox/tempo'
+export {
+  Period,
+  TempoAddress,
+  Tick,
+  TokenId,
+  VirtualAddress,
+  VirtualMaster,
+} from 'ox/tempo'
 export * as Abis from './Abis.js'
 export * as Account from './Account.js'
 export * as Addresses from './Addresses.js'
@@ -24,7 +32,6 @@ export * as Expiry from './Expiry.js'
 export * as Formatters from './Formatters.js'
 export * as Hardfork from './Hardfork.js'
 export * as P256 from './P256.js'
-export * as Secp256k1 from './Secp256k1.js'
 export * as Storage from './Storage.js'
 export * as TokenIds from './TokenIds.js'
 // Export types required for inference.

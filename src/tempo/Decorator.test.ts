@@ -37,6 +37,7 @@ describe('decorator', () => {
         "simulate",
         "token",
         "validator",
+        "virtualAddress",
         "zone",
       ]
     `)

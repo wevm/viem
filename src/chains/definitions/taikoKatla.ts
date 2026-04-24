@@ -16,4 +16,5 @@ export const taikoKatla = /*#__PURE__*/ defineChain({
       url: 'https://explorer.katla.taiko.xyz',
     },
   },
+  testnet: true,
 })
