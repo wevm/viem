@@ -14,6 +14,7 @@ import { createClient, http } from '../index.js'
 import { defineChain } from '../utils/chain/defineChain.js'
 import { hashMessage } from '../utils/index.js'
 import * as accessKeyActions from './actions/accessKey.js'
+import { chainConfig } from './chainConfig.js'
 import { Account, P256, WebCryptoP256 } from './index.js'
 
 const client = getClient({
@@ -22,7 +23,87 @@ const client = getClient({
 
 const maxUint256 = 2n ** 256n - 1n
 
+async function prepareAfterFillParameters(request: Record<string, unknown>) {
+  const [prepare] = chainConfig.prepareTransactionRequest
+  return await prepare(
+    request as never,
+    { phase: 'afterFillParameters' } as never,
+  )
+}
+
 describe('prepareTransactionRequest', () => {
+  test('behavior: self-paid local webAuthn transactions add the intrinsic gas bump', async () => {
+    const request = await prepareAfterFillParameters({
+      account: Account.fromHeadlessWebAuthn(generatePrivateKey(), {
+        origin: 'http://localhost',
+        rpId: 'localhost',
+      }),
+      gas: 50_000n,
+    })
+
+    expect(request.gas).toBe(70_000n)
+  })
+
+  test('behavior: self-paid local access key transactions add the intrinsic gas bump', async () => {
+    const request = await prepareAfterFillParameters({
+      account: Account.fromP256(generatePrivateKey(), {
+        access: accounts.at(0)!,
+      }),
+      gas: 50_000n,
+    })
+
+    expect(request.gas).toBe(60_000n)
+  })
+
+  test('behavior: self-paid local webAuthn access key transactions keep the smaller intrinsic gas bump', async () => {
+    const request = await prepareAfterFillParameters({
+      account: Account.fromHeadlessWebAuthn(generatePrivateKey(), {
+        access: accounts.at(0)!,
+        origin: 'http://localhost',
+        rpId: 'localhost',
+      }),
+      gas: 50_000n,
+    })
+
+    expect(request.gas).toBe(60_000n)
+  })
+
+  test('behavior: feePayer webAuthn transactions keep the intrinsic gas bump', async () => {
+    const request = await prepareAfterFillParameters({
+      feePayer: true,
+      gas: 50_000n,
+      keyAuthorization: {
+        signature: { type: 'webAuthn' },
+      },
+    })
+
+    expect(request.gas).toBe(70_000n)
+  })
+
+  test('behavior: feePayer webAuthn key authorizations keep the larger bump for access key accounts', async () => {
+    const request = await prepareAfterFillParameters({
+      account: Account.fromP256(generatePrivateKey(), {
+        access: accounts.at(0)!,
+      }),
+      feePayer: true,
+      gas: 50_000n,
+      keyAuthorization: {
+        signature: { type: 'webAuthn' },
+      },
+    })
+
+    expect(request.gas).toBe(70_000n)
+  })
+
+  test('behavior: self-paid local p256 root transactions do not add the intrinsic gas bump', async () => {
+    const request = await prepareAfterFillParameters({
+      account: Account.fromP256(generatePrivateKey()),
+      gas: 50_000n,
+    })
+
+    expect(request.gas).toBe(50_000n)
+  })
+
   test('behavior: expiring nonces for feePayer transactions', async () => {
     const now = Math.floor(Date.now() / 1000)
     const requests = await Promise.all([
