@@ -1,13 +1,3 @@
-import { describe, expect, test, beforeEach, beforeAll } from 'vitest'
-
-import { anvilMainnet } from '~test/anvil.js'
-import { createCcipReadTunnel } from './ccipTunnel.js'
-import {
-  getCode,
-  getEnsAddress,
-  getEnsResolver,
-  readContract,
-} from 'viem/actions'
 import {
   ccipRequest,
   decodeFunctionResult,
@@ -16,6 +6,10 @@ import {
   parseAbi,
   toHex,
 } from 'viem'
+import { getEnsAddress, getEnsResolver, readContract } from 'viem/actions'
+import { beforeEach, describe, expect, test } from 'vitest'
+import { anvilMainnet } from '~test/anvil.js'
+import { createCcipReadTunnel } from './ccipTunnel.js'
 import { packetToBytes } from './ens/packetToBytes.js'
 
 const batchGateways = ['https://ccip-v3.ens.xyz']

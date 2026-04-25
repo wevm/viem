@@ -1,4 +1,5 @@
 import { batchGatewayAbi } from '../constants/abis.js'
+import { solidityError } from '../constants/solidity.js'
 import { HttpRequestError } from '../errors/request.js'
 import { decodeErrorResult } from './abi/decodeErrorResult.js'
 import { decodeFunctionResult } from './abi/decodeFunctionResult.js'
@@ -50,7 +51,18 @@ export function createCcipReadTunnel({
               status,
               url: urls.join(' | '),
             })
-          } catch {}
+          } catch {
+            let message: string | undefined
+            try {
+              ;({
+                args: [message],
+              } = decodeErrorResult({
+                abi: [solidityError],
+                data: responses[0],
+              }))
+            } catch {}
+            throw new Error(message ?? 'An unknown error occurred.')
+          }
         }
         return responses[0]
       }
