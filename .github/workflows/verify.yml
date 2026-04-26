@@ -20,6 +20,9 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
 
+      - name: Audit dependencies
+        run: pnpm audit
+
       - name: Check repo
         run: pnpm check:repo
 

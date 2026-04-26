@@ -74,7 +74,7 @@
     "typescript": "catalog:",
     "vitest": "^4.0.15"
   },
-  "packageManager": "pnpm@10.33.0",
+  "packageManager": "pnpm@10.33.2",
   "engines": {
     "node": ">=24.5"
   },
@@ -251,14 +251,17 @@
       "@isaacs/brace-expansion@<=5.0.0": "5.0.1",
       "@modelcontextprotocol/sdk@>=1.10.0 <=1.25.3": "1.26.0",
       "ajv@<8.18.0": "8.18.0",
-      "basic-ftp@=5.2.0": "5.2.1",
       "brace-expansion@>=2.0.0 <=2.0.1": "2.0.2",
       "cookie@<0.7.0": "^0.7.0",
       "cross-spawn@<6.0.6": ">=6.0.6",
       "cross-spawn@>=7.0.0 <7.0.5": ">=7.0.5",
       "estree-util-value-to-estree@<3.3.3": "3.3.3",
       "express-rate-limit@>=8.2.0 <8.2.2": ">=8.2.2",
-      "fastify": ">=5.8.3",
+      "fastify": ">=5.8.5",
+      "follow-redirects@<1.16.0": "1.16.0",
+      "uuid@<14.0.0": "14.0.0",
+      "postcss@<8.5.10": "8.5.10",
+      "protobufjs@<7.5.5": "7.5.5",
       "find-my-way@>=5.5.0 <8.2.2": "^8.2.2",
       "glob@>=10.3.7 <=11.0.3": ">=11.1.0",
       "hono": ">=4.12.12",
@@ -300,7 +303,7 @@
       "@vitejs/plugin-rsc@<=0.5.22": "0.5.23",
       "next@>=16.0.0-beta.0 <16.2.3": "16.2.3",
       "react-server-dom-webpack@>=19.2.0 <19.2.5": "19.2.5",
-      "basic-ftp@<=5.2.1": "5.2.2"
+      "basic-ftp@<5.3.0": "5.3.0"
     },
     "onlyBuiltDependencies": [
       "bun",
