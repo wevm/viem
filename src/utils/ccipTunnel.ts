@@ -39,6 +39,7 @@ export function createCcipReadTunnel({
           }),
         })
         if (failures[0]) {
+          let error: Error | undefined
           try {
             const {
               args: [status, message],
@@ -46,23 +47,29 @@ export function createCcipReadTunnel({
               abi: batchGatewayAbi,
               data: responses[0],
             })
-            throw new HttpRequestError({
+            error = new HttpRequestError({
               body: { message },
               status,
               url: urls.join(' | '),
             })
-          } catch {
-            let message: string | undefined
+          } catch {}
+          if (!error) {
             try {
-              ;({
+              const {
                 args: [message],
               } = decodeErrorResult({
                 abi: [solidityError],
                 data: responses[0],
-              }))
+              })
+              if (message) {
+                error = new Error(message)
+              }
             } catch {}
-            throw new Error(message ?? 'An unknown error occurred.')
+            if (!error) {
+              throw new Error('An unknown error occurred.')
+            }
           }
+          throw error
         }
         return responses[0]
       }
