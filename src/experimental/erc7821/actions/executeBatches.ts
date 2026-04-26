@@ -18,7 +18,6 @@ import type {
 import type { Hex } from '../../../types/misc.js'
 import type { UnionEvaluate, UnionPick } from '../../../types/utils.js'
 import type { FormattedTransactionRequest } from '../../../utils/formatters/transactionRequest.js'
-import { withCache } from '../../../utils/promise/withCache.js'
 import { ExecuteUnsupportedError } from '../errors.js'
 import {
   type EncodeExecuteBatchesDataErrorType,
@@ -169,16 +168,10 @@ export async function executeBatches<
 
   const address = authorizationList?.[0]?.address ?? parameters.address
 
-  const supported = await withCache(
-    () =>
-      supportsExecutionMode(client, {
-        address,
-        mode: 'batchOfBatches',
-      }),
-    {
-      cacheKey: `supportsExecutionMode.${client.uid}.${address}.batchOfBatches`,
-    },
-  )
+  const supported = await supportsExecutionMode(client, {
+    address,
+    mode: 'batchOfBatches',
+  })
   if (!supported) throw new ExecuteUnsupportedError()
 
   try {
