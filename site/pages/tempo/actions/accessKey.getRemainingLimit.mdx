@@ -11,14 +11,16 @@ Gets the remaining spending limit for a key-token pair.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const remaining = await client.accessKey.getRemainingLimit({
+const { remaining, periodEnd } = await client.accessKey.getRemainingLimit({
   account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   accessKey: '0x1234567890abcdef1234567890abcdef12345678',
   token: '0x20c0000000000000000000000000000000000000',
 })
 
 console.log('Remaining limit:', remaining)
+console.log('Period end:', periodEnd)
 // @log: Remaining limit: 1000000n
+// @log: Period end: 1712345678n
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -30,10 +32,15 @@ console.log('Remaining limit:', remaining)
 ## Return Type
 
 ```ts
-type ReturnType = bigint
+type ReturnType = {
+  remaining: bigint
+  periodEnd: bigint | undefined
+}
 ```
 
-The remaining spending amount.
+The remaining spending amount and period end timestamp.
+
+`periodEnd` is `undefined` on pre-T3 chains.
 
 ## Parameters
 

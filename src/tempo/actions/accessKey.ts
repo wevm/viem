@@ -723,16 +723,18 @@ export namespace getMetadata {
  *   transport: http(),
  * })
  *
- * const remaining = await Actions.accessKey.getRemainingLimit(client, {
+ * const { remaining, periodEnd } = await Actions.accessKey.getRemainingLimit(client, {
  *   account: '0x...',
  *   accessKey: '0x...',
  *   token: '0x...',
  * })
+ *
+ * console.log(remaining, periodEnd)
  * ```
  *
  * @param client - Client.
  * @param parameters - Parameters.
- * @returns The remaining spending amount.
+ * @returns The remaining spending amount and period end timestamp.
  */
 export async function getRemainingLimit<
   chain extends Chain | undefined,
