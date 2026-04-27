@@ -4,6 +4,7 @@ import { setIntervalMining } from '../src/actions/test/setIntervalMining.js'
 import { setErrorConfig } from '../src/errors/base.js'
 import { cleanupCache, listenersCache } from '../src/utils/observe.js'
 import { promiseCache, responseCache } from '../src/utils/promise/withCache.js'
+import { withRetry } from '../src/utils/promise/withRetry.js'
 import { idCache } from '../src/utils/rpc/id.js'
 import { socketClientCache } from '../src/utils/rpc/socket.js'
 import * as instances from './src/anvil.js'
@@ -36,7 +37,10 @@ beforeEach(async () => {
   socketClientCache.clear()
 
   if (process.env.SKIP_GLOBAL_SETUP) return
-  await setIntervalMining(client, { interval: 0 })
+  await withRetry(() => setIntervalMining(client, { interval: 0 }), {
+    delay: ({ count }) => (count + 1) * 200,
+    retryCount: 4,
+  })
 }, 20_000)
 
 afterEach(() => {
