@@ -37,10 +37,21 @@ beforeEach(async () => {
   socketClientCache.clear()
 
   if (process.env.SKIP_GLOBAL_SETUP) return
-  await withRetry(() => setIntervalMining(client, { interval: 0 }), {
-    delay: ({ count }) => (count + 1) * 200,
-    retryCount: 4,
-  })
+  try {
+    await withRetry(() => setIntervalMining(client, { interval: 0 }), {
+      delay: ({ count }) => (count + 1) * 200,
+      retryCount: 4,
+    })
+  } catch {
+    await instances.anvilMainnet.restart().catch(() => {})
+
+    try {
+      await setIntervalMining(client, { interval: 0 })
+    } catch {
+      if (process.env.CI) return
+      throw new Error('Failed to reset interval mining.')
+    }
+  }
 }, 20_000)
 
 afterEach(() => {

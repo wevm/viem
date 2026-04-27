@@ -3,6 +3,7 @@ import { afterAll, beforeAll } from 'vitest'
 import { faucet } from '../../../src/tempo/actions/index.js'
 import { Actions } from '../../../src/tempo/index.js'
 import { withRetry } from '../../../src/utils/promise/withRetry.js'
+import { withTimeout } from '../../../src/utils/promise/withTimeout.js'
 import { accounts, addresses, getClient, nodeEnv } from './config.js'
 import * as Prool from './prool.js'
 
@@ -16,12 +17,19 @@ beforeAll(async () => {
 
   await withRetry(
     () =>
-      faucet.fundSync(client, {
-        account: accounts[0].address,
-      }),
+      withTimeout(
+        async () =>
+          faucet.fundSync(client, {
+            account: accounts[0].address,
+          }),
+        {
+          errorInstance: new Error('faucet fund timed out'),
+          timeout: 20_000,
+        },
+      ),
     {
-      delay: ({ count }) => (count + 1) * 500,
-      retryCount: 3,
+      delay: ({ count }) => (count + 1) * 1_000,
+      retryCount: 2,
     },
   )
   // TODO: remove once testnet load balancing is fixed.
