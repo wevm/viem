@@ -271,10 +271,42 @@ test('reconnect on close', async () => {
     url: anvilMainnet.rpcUrl.ws,
   })
 
-  socketClient.close()
+  socketClient.socket.close()
   expect(status).toBe('closed')
   await wait(100)
   expect(status).toBe('open')
+
+  socketClient.close()
+})
+
+test('close does not reconnect', async () => {
+  let status = 'idle'
+  let count = 0
+
+  const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
+    async getSocket({ onClose }) {
+      count++
+      status = 'open'
+      return {
+        close() {
+          status = 'closed'
+          onClose()
+        },
+        request() {},
+      }
+    },
+    reconnect: {
+      delay: 100,
+    },
+    url: anvilMainnet.rpcUrl.ws,
+  })
+
+  socketClient.close()
+  expect(status).toBe('closed')
+  await wait(100)
+  expect(status).toBe('closed')
+  expect(count).toBe(1)
 })
 
 test('keepAlive enabled', async () => {
