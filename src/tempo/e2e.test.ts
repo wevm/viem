@@ -30,15 +30,6 @@ import { withFeePayer } from './Transport.js'
 
 const client = getClient()
 
-function withoutVolatileTransactionFields<
-  transaction extends { blockTimestamp?: bigint | undefined },
->(transaction: transaction) {
-  const { blockTimestamp, ...transaction_ } = transaction
-  expect(blockTimestamp).toBeTypeOf('bigint')
-  expect(blockTimestamp).toBeGreaterThan(0n)
-  return transaction_
-}
-
 /** Spending limits covering both fee tokens (pathUsd + alphaUsd). */
 function feeTokenLimits(limit: bigint, period?: number) {
   return [
@@ -61,6 +52,7 @@ describe('sendTransaction', () => {
     const {
       blockHash,
       blockNumber,
+      blockTimestamp,
       chainId,
       from,
       gas,
@@ -80,6 +72,8 @@ describe('sendTransaction', () => {
 
     expect(blockHash).toBeDefined()
     expect(blockNumber).toBeDefined()
+    expect(blockTimestamp).toBeTypeOf('bigint')
+    expect(blockTimestamp).toBeGreaterThan(0n)
     expect(chainId).toBeDefined()
     expect(from).toBe(account.address.toLowerCase())
     expect(gas).toBeDefined()
@@ -93,9 +87,7 @@ describe('sendTransaction', () => {
     expect(v).toBeDefined()
     expect(yParity).toBeDefined()
     expect(transactionIndex).toBeDefined()
-    expect(
-      withoutVolatileTransactionFields(transaction),
-    ).toMatchInlineSnapshot(`
+    expect(transaction).toMatchInlineSnapshot(`
       {
         "accessList": [],
         "input": "0xdeadbeef",
@@ -121,6 +113,7 @@ describe('sendTransaction', () => {
     const {
       blockHash,
       blockNumber,
+      blockTimestamp,
       chainId,
       feeToken: feeToken_,
       from,
@@ -140,6 +133,8 @@ describe('sendTransaction', () => {
 
     expect(blockHash).toBeDefined()
     expect(blockNumber).toBeDefined()
+    expect(blockTimestamp).toBeTypeOf('bigint')
+    expect(blockTimestamp).toBeGreaterThan(0n)
     expect(chainId).toBeDefined()
     expect(feeToken_).toBe(feeToken)
     expect(from).toBe(account.address.toLowerCase())
@@ -153,9 +148,7 @@ describe('sendTransaction', () => {
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
     expect(validBefore).toBeNull()
-    expect(
-      withoutVolatileTransactionFields(transaction),
-    ).toMatchInlineSnapshot(`
+    expect(transaction).toMatchInlineSnapshot(`
       {
         "accessList": [],
         "authorizationList": [],
@@ -197,6 +190,7 @@ describe('sendTransaction', () => {
     const {
       blockHash,
       blockNumber,
+      blockTimestamp,
       chainId,
       feeToken: feeToken_,
       from,
@@ -216,6 +210,8 @@ describe('sendTransaction', () => {
 
     expect(blockHash).toBeDefined()
     expect(blockNumber).toBeDefined()
+    expect(blockTimestamp).toBeTypeOf('bigint')
+    expect(blockTimestamp).toBeGreaterThan(0n)
     expect(chainId).toBeDefined()
     expect(feeToken_).toBe(feeToken)
     expect(from).toBe(accounts[0].address.toLowerCase())
@@ -229,9 +225,7 @@ describe('sendTransaction', () => {
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
     expect(validBefore).toBeNull()
-    expect(
-      withoutVolatileTransactionFields(transaction),
-    ).toMatchInlineSnapshot(`
+    expect(transaction).toMatchInlineSnapshot(`
       {
         "accessList": [],
         "authorizationList": [],
@@ -275,6 +269,7 @@ describe('sendTransaction', () => {
     const {
       blockHash,
       blockNumber,
+      blockTimestamp,
       calls,
       chainId,
       feeToken: ___,
@@ -295,6 +290,8 @@ describe('sendTransaction', () => {
 
     expect(blockHash).toBeDefined()
     expect(blockNumber).toBeDefined()
+    expect(blockTimestamp).toBeTypeOf('bigint')
+    expect(blockTimestamp).toBeGreaterThan(0n)
     expect(calls?.length).toBe(1)
     expect(chainId).toBeDefined()
     expect(from).toBe(account.address.toLowerCase())
@@ -308,9 +305,7 @@ describe('sendTransaction', () => {
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
     expect(validBefore).toBeNull()
-    expect(
-      withoutVolatileTransactionFields(transaction),
-    ).toMatchInlineSnapshot(`
+    expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -342,6 +337,7 @@ describe('sendTransaction', () => {
     const {
       blockHash,
       blockNumber,
+      blockTimestamp,
       chainId,
       feePayerSignature,
       feeToken: ___,
@@ -362,6 +358,8 @@ describe('sendTransaction', () => {
 
     expect(blockHash).toBeDefined()
     expect(blockNumber).toBeDefined()
+    expect(blockTimestamp).toBeTypeOf('bigint')
+    expect(blockTimestamp).toBeGreaterThan(0n)
     expect(chainId).toBeDefined()
     expect(feePayerSignature).toBeDefined()
     expect(from).toBe(account.address.toLowerCase())
@@ -375,9 +373,7 @@ describe('sendTransaction', () => {
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
     expect(validBefore).toBeTypeOf('number')
-    expect(
-      withoutVolatileTransactionFields(transaction),
-    ).toMatchInlineSnapshot(`
+    expect(transaction).toMatchInlineSnapshot(`
       {
         "accessList": [],
         "authorizationList": [],
@@ -478,6 +474,7 @@ describe('sendTransaction', () => {
       const {
         blockHash,
         blockNumber,
+        blockTimestamp,
         chainId,
         feeToken: ___,
         from,
@@ -499,6 +496,8 @@ describe('sendTransaction', () => {
 
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
+      expect(blockTimestamp).toBeTypeOf('bigint')
+      expect(blockTimestamp).toBeGreaterThan(0n)
       expect(chainId).toBeDefined()
       expect(from).toBe(account.address.toLowerCase())
       expect(gas).toBeDefined()
@@ -511,9 +510,7 @@ describe('sendTransaction', () => {
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(validBefore).toBeNull()
-      expect(
-        withoutVolatileTransactionFields(transaction),
-      ).toMatchInlineSnapshot(`
+      expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -562,6 +559,7 @@ describe('sendTransaction', () => {
       const {
         blockHash,
         blockNumber,
+        blockTimestamp,
         calls,
         chainId,
         feeToken: ___,
@@ -584,6 +582,8 @@ describe('sendTransaction', () => {
 
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
+      expect(blockTimestamp).toBeTypeOf('bigint')
+      expect(blockTimestamp).toBeGreaterThan(0n)
       expect(calls?.length).toBe(1)
       expect(chainId).toBeDefined()
       expect(from).toBe(account.address.toLowerCase())
@@ -597,9 +597,7 @@ describe('sendTransaction', () => {
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(validBefore).toBeNull()
-      expect(
-        withoutVolatileTransactionFields(transaction),
-      ).toMatchInlineSnapshot(`
+      expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -634,6 +632,7 @@ describe('sendTransaction', () => {
       const {
         blockHash,
         blockNumber,
+        blockTimestamp,
         chainId,
         feePayerSignature,
         feeToken: ___,
@@ -654,6 +653,8 @@ describe('sendTransaction', () => {
 
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
+      expect(blockTimestamp).toBeTypeOf('bigint')
+      expect(blockTimestamp).toBeGreaterThan(0n)
       expect(chainId).toBeDefined()
       expect(feePayerSignature).toBeDefined()
       expect(from).toBe(account.address.toLowerCase())
@@ -667,9 +668,7 @@ describe('sendTransaction', () => {
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(validBefore).toBeTypeOf('number')
-      expect(
-        withoutVolatileTransactionFields(transaction),
-      ).toMatchInlineSnapshot(`
+      expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -773,6 +772,7 @@ describe('sendTransaction', () => {
       const {
         blockHash,
         blockNumber,
+        blockTimestamp,
         chainId,
         feeToken: ___,
         from,
@@ -794,6 +794,8 @@ describe('sendTransaction', () => {
 
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
+      expect(blockTimestamp).toBeTypeOf('bigint')
+      expect(blockTimestamp).toBeGreaterThan(0n)
       expect(chainId).toBeDefined()
       expect(from).toBeDefined()
       expect(gas).toBeDefined()
@@ -806,9 +808,7 @@ describe('sendTransaction', () => {
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(validBefore).toBeNull()
-      expect(
-        withoutVolatileTransactionFields(transaction),
-      ).toMatchInlineSnapshot(`
+      expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -980,6 +980,7 @@ describe('sendTransaction', () => {
       const {
         blockHash,
         blockNumber,
+        blockTimestamp,
         chainId,
         feeToken: ___,
         from,
@@ -1001,6 +1002,8 @@ describe('sendTransaction', () => {
 
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
+      expect(blockTimestamp).toBeTypeOf('bigint')
+      expect(blockTimestamp).toBeGreaterThan(0n)
       expect(chainId).toBeDefined()
       expect(from).toBe(account.address.toLowerCase())
       expect(gas).toBeDefined()
@@ -1013,9 +1016,7 @@ describe('sendTransaction', () => {
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(validBefore).toBeNull()
-      expect(
-        withoutVolatileTransactionFields(transaction),
-      ).toMatchInlineSnapshot(`
+      expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -1068,6 +1069,7 @@ describe('sendTransaction', () => {
       const {
         blockHash,
         blockNumber,
+        blockTimestamp,
         calls,
         chainId,
         feeToken: ___,
@@ -1090,6 +1092,8 @@ describe('sendTransaction', () => {
 
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
+      expect(blockTimestamp).toBeTypeOf('bigint')
+      expect(blockTimestamp).toBeGreaterThan(0n)
       expect(calls?.length).toBe(1)
       expect(chainId).toBeDefined()
       expect(from).toBe(account.address.toLowerCase())
@@ -1103,9 +1107,7 @@ describe('sendTransaction', () => {
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(validBefore2).toBeNull()
-      expect(
-        withoutVolatileTransactionFields(transaction),
-      ).toMatchInlineSnapshot(`
+      expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -1144,6 +1146,7 @@ describe('sendTransaction', () => {
       const {
         blockHash,
         blockNumber,
+        blockTimestamp,
         chainId,
         feePayerSignature,
         feeToken: ___,
@@ -1164,6 +1167,8 @@ describe('sendTransaction', () => {
 
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
+      expect(blockTimestamp).toBeTypeOf('bigint')
+      expect(blockTimestamp).toBeGreaterThan(0n)
       expect(chainId).toBeDefined()
       expect(feePayerSignature).toBeDefined()
       expect(from).toBe(account.address.toLowerCase())
@@ -1177,9 +1182,7 @@ describe('sendTransaction', () => {
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(validBefore).toBeTypeOf('number')
-      expect(
-        withoutVolatileTransactionFields(transaction),
-      ).toMatchInlineSnapshot(`
+      expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -1358,6 +1361,7 @@ describe('signTransaction', () => {
     const {
       blockHash,
       blockNumber,
+      blockTimestamp,
       chainId,
       feePayerSignature,
       feeToken: ___,
@@ -1378,6 +1382,8 @@ describe('signTransaction', () => {
 
     expect(blockHash).toBeDefined()
     expect(blockNumber).toBeDefined()
+    expect(blockTimestamp).toBeTypeOf('bigint')
+    expect(blockTimestamp).toBeGreaterThan(0n)
     expect(chainId).toBeDefined()
     expect(feePayerSignature).toBeDefined()
     expect(from).toBe(account.address.toLowerCase())
@@ -1391,9 +1397,7 @@ describe('signTransaction', () => {
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
     expect(validBefore).toBeTypeOf('number')
-    expect(
-      withoutVolatileTransactionFields(transaction2),
-    ).toMatchInlineSnapshot(`
+    expect(transaction2).toMatchInlineSnapshot(`
       {
         "accessList": [],
         "authorizationList": [],
@@ -1533,6 +1537,7 @@ describe('relay', () => {
       const {
         blockHash,
         blockNumber,
+        blockTimestamp,
         calls,
         chainId,
         feePayerSignature,
@@ -1554,6 +1559,8 @@ describe('relay', () => {
 
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
+      expect(blockTimestamp).toBeTypeOf('bigint')
+      expect(blockTimestamp).toBeGreaterThan(0n)
       expect(calls?.length).toBe(1)
       expect(chainId).toBeDefined()
       expect(feePayerSignature).toBeDefined()
@@ -1568,9 +1575,7 @@ describe('relay', () => {
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(validBefore).toBeTypeOf('number')
-      expect(
-        withoutVolatileTransactionFields(transaction),
-      ).toMatchInlineSnapshot(`
+      expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -1657,6 +1662,7 @@ describe('relay', () => {
       const {
         blockHash,
         blockNumber,
+        blockTimestamp,
         calls,
         chainId,
         feePayerSignature,
@@ -1678,6 +1684,8 @@ describe('relay', () => {
 
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
+      expect(blockTimestamp).toBeTypeOf('bigint')
+      expect(blockTimestamp).toBeGreaterThan(0n)
       expect(calls?.length).toBe(1)
       expect(chainId).toBeDefined()
       expect(feePayerSignature).toBeDefined()
@@ -1692,9 +1700,7 @@ describe('relay', () => {
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(validBefore).toBeTypeOf('number')
-      expect(
-        withoutVolatileTransactionFields(transaction),
-      ).toMatchInlineSnapshot(`
+      expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -1754,6 +1760,7 @@ describe('relay', () => {
       const {
         blockHash,
         blockNumber,
+        blockTimestamp,
         calls,
         chainId,
         feePayerSignature,
@@ -1775,6 +1782,8 @@ describe('relay', () => {
 
       expect(blockHash).toBeDefined()
       expect(blockNumber).toBeDefined()
+      expect(blockTimestamp).toBeTypeOf('bigint')
+      expect(blockTimestamp).toBeGreaterThan(0n)
       expect(calls?.length).toBe(1)
       expect(chainId).toBeDefined()
       expect(feePayerSignature).toBeDefined()
@@ -1789,9 +1798,7 @@ describe('relay', () => {
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(validBefore).toBeTypeOf('number')
-      expect(
-        withoutVolatileTransactionFields(transaction),
-      ).toMatchInlineSnapshot(`
+      expect(transaction).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],

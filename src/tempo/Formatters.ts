@@ -27,6 +27,7 @@ export function formatTransaction(
 ): Transaction<bigint, number, boolean> {
   if (!isTempo(transaction)) return viem_formatTransaction(transaction as never)
 
+  // TODO: upstream `blockTimestamp` formatting into `ox`.
   const blockTimestamp =
     transaction.blockTimestamp == null
       ? undefined

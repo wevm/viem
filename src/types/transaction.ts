@@ -49,7 +49,7 @@ export type TransactionReceipt<
   blockHash: Hash
   /** Number of block containing this transaction */
   blockNumber: quantity
-  /** Unix timestamp of when this block was collated */
+  /** Unix timestamp of when this block was included */
   blockTimestamp?: quantity | undefined
   /** Address of new contract or `null` if no contract was created */
   contractAddress: Address | null | undefined
@@ -88,7 +88,7 @@ export type TransactionBase<
   blockHash: isPending extends true ? null : Hash
   /** Number of block containing this transaction or `null` if pending */
   blockNumber: isPending extends true ? null : quantity
-  /** Unix timestamp of when this block was collated */
+  /** Unix timestamp of when this block was included */
   blockTimestamp?: quantity | undefined
   /** Transaction sender */
   from: Address
