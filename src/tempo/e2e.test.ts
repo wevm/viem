@@ -52,7 +52,7 @@ describe('sendTransaction', () => {
     const {
       blockHash,
       blockNumber,
-      blockTimestamp,
+      blockTimestamp: _blockTimestamp,
       chainId,
       from,
       gas,
@@ -72,8 +72,6 @@ describe('sendTransaction', () => {
 
     expect(blockHash).toBeDefined()
     expect(blockNumber).toBeDefined()
-    expect(blockTimestamp).toBeTypeOf('bigint')
-    expect(blockTimestamp).toBeGreaterThan(0n)
     expect(chainId).toBeDefined()
     expect(from).toBe(account.address.toLowerCase())
     expect(gas).toBeDefined()

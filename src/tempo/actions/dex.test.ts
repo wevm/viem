@@ -1139,7 +1139,7 @@ describe('placeFlip', () => {
     `)
   })
 
-  test('behavior: flip bid requires flipTick > tick', async () => {
+  test('behavior: flip bid requires flipTick >= tick', async () => {
     const { base } = await setupTokenPair(client)
 
     // Valid: flipTick > tick for bid
@@ -1152,17 +1152,17 @@ describe('placeFlip', () => {
     })
     expect(receipt1.status).toBe('success')
 
-    // Invalid: flipTick <= tick for bid should fail
-    await expect(
-      Actions.dex.placeFlipSync(client, {
-        token: base,
-        amount: parseUnits('100', 6),
-        type: 'buy',
-        tick: Tick.fromPrice('1.001'),
-        flipTick: Tick.fromPrice('1.001'), // Equal
-      }),
-    ).rejects.toThrow('The contract function "placeFlip" reverted')
+    // Valid (T5+, TIP-1030): flipTick == tick for bid
+    const { receipt: receipt2 } = await Actions.dex.placeFlipSync(client, {
+      token: base,
+      amount: parseUnits('100', 6),
+      type: 'buy',
+      tick: Tick.fromPrice('1.001'),
+      flipTick: Tick.fromPrice('1.001'), // Equal
+    })
+    expect(receipt2.status).toBe('success')
 
+    // Invalid: flipTick < tick for bid should fail
     await expect(
       Actions.dex.placeFlipSync(client, {
         token: base,
@@ -1174,7 +1174,7 @@ describe('placeFlip', () => {
     ).rejects.toThrow('The contract function "placeFlip" reverted')
   })
 
-  test('behavior: flip ask requires flipTick < tick', async () => {
+  test('behavior: flip ask requires flipTick <= tick', async () => {
     const { base } = await setupTokenPair(client)
 
     // Valid: flipTick < tick for ask
@@ -1187,17 +1187,17 @@ describe('placeFlip', () => {
     })
     expect(receipt1.status).toBe('success')
 
-    // Invalid: flipTick >= tick for ask should fail
-    await expect(
-      Actions.dex.placeFlipSync(client, {
-        token: base,
-        amount: parseUnits('100', 6),
-        type: 'sell',
-        tick: Tick.fromPrice('1.0005'),
-        flipTick: Tick.fromPrice('1.0005'), // Equal
-      }),
-    ).rejects.toThrow('The contract function "placeFlip" reverted')
+    // Valid (T5+, TIP-1030): flipTick == tick for ask
+    const { receipt: receipt2 } = await Actions.dex.placeFlipSync(client, {
+      token: base,
+      amount: parseUnits('100', 6),
+      type: 'sell',
+      tick: Tick.fromPrice('1.0005'),
+      flipTick: Tick.fromPrice('1.0005'), // Equal
+    })
+    expect(receipt2.status).toBe('success')
 
+    // Invalid: flipTick > tick for ask should fail
     await expect(
       Actions.dex.placeFlipSync(client, {
         token: base,
