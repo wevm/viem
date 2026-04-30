@@ -31,17 +31,15 @@ type Override = {
 }
 
 const overrides = {
-  [tempoModerato.id]: {
-    6: {
-      name: 'Zone A',
-      rpcUrl: 'https://rpc-zone-a.testnet.tempo.xyz',
-    },
-    7: {
-      name: 'Zone B',
-      rpcUrl: 'https://rpc-zone-b.testnet.tempo.xyz',
-    },
+  6: {
+    name: 'Zone A',
+    rpcUrl: 'https://rpc-zone-a.testnet.tempo.xyz',
   },
-} as const satisfies Record<number, Record<number, Override>>
+  7: {
+    name: 'Zone B',
+    rpcUrl: 'https://rpc-zone-b.testnet.tempo.xyz',
+  },
+} as const satisfies Record<number, Override>
 
 export const zone = /*#__PURE__*/ from({
   sourceId: tempo.id,
@@ -59,9 +57,7 @@ export function from(options: from.Options) {
     const chainId = ZoneId.toChainId(id)
     const paddedId = String(id).padStart(3, '0')
 
-    const override = (
-      overrides as Record<number, Record<number, Override>>
-    )[options.sourceId]?.[id]
+    const override = (overrides as Record<number, Override>)[id]
 
     return defineChain({
       ...chainConfig,
