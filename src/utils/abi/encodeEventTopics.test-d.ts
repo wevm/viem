@@ -2,6 +2,7 @@ import type { Abi } from 'abitype'
 import { expectTypeOf, test } from 'vitest'
 
 import { seaportContractConfig } from '~test/abis.js'
+import type { Hex } from '../../types/misc.js'
 import {
   type EncodeEventTopicsParameters,
   encodeEventTopics,
@@ -18,7 +19,7 @@ test('default', () => {
 })
 
 test('defined inline', () => {
-  encodeEventTopics({
+  const topics = encodeEventTopics({
     abi: [
       {
         anonymous: false,
@@ -45,6 +46,39 @@ test('defined inline', () => {
       offerer: '0x',
     },
   })
+  expectTypeOf(topics).toEqualTypeOf<[Hex, ...(Hex | Hex[] | null)[]]>()
+})
+
+test('defined inline: anonymous event', () => {
+  const abi = [
+    {
+      anonymous: true,
+      inputs: [
+        {
+          indexed: true,
+          name: 'offerer',
+          type: 'address',
+        },
+      ],
+      name: 'CounterIncremented',
+      type: 'event',
+    },
+  ] as const
+  const topics = encodeEventTopics({
+    abi,
+    eventName: 'CounterIncremented',
+    args: {
+      offerer: '0x',
+    },
+  })
+  const inferredTopics = encodeEventTopics({
+    abi,
+    args: {
+      offerer: '0x',
+    },
+  })
+  expectTypeOf(topics).toEqualTypeOf<(Hex | Hex[] | null)[]>()
+  expectTypeOf(inferredTopics).toEqualTypeOf<(Hex | Hex[] | null)[]>()
 })
 
 test('declared as Abi', () => {
@@ -69,11 +103,12 @@ test('declared as Abi', () => {
       type: 'event',
     },
   ] as Abi
-  encodeEventTopics({
+  const topics = encodeEventTopics({
     abi,
     eventName: 'SoldOutError',
     args: ['0x'],
   })
+  expectTypeOf(topics).toEqualTypeOf<[Hex, ...(Hex | Hex[] | null)[]]>()
 
   encodeEventTopics({
     abi,
@@ -103,11 +138,12 @@ test('no const assertion', () => {
       type: 'event',
     },
   ]
-  encodeEventTopics({
+  const topics = encodeEventTopics({
     abi,
     eventName: 'SoldOutError',
     args: ['0x'],
   })
+  expectTypeOf(topics).toEqualTypeOf<[Hex, ...(Hex | Hex[] | null)[]]>()
 
   encodeEventTopics({
     abi,

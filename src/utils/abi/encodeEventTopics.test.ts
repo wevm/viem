@@ -312,6 +312,61 @@ test('Foo(string)', () => {
   ])
 })
 
+test('anonymous: Foo(address,string)', () => {
+  expect(
+    encodeEventTopics({
+      abi: [
+        {
+          anonymous: true,
+          inputs: [
+            {
+              indexed: true,
+              name: 'sender',
+              type: 'address',
+            },
+            {
+              indexed: true,
+              name: 'message',
+              type: 'string',
+            },
+            {
+              indexed: false,
+              name: 'value',
+              type: 'uint256',
+            },
+          ],
+          name: 'Foo',
+          type: 'event',
+        },
+      ],
+      eventName: 'Foo',
+      args: {
+        sender: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+        message: 'hello',
+      },
+    }),
+  ).toEqual([
+    '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+    '0x1c8aff950685c2ed4bc3174f3472287b56d9517b9c948127319a09a7a36deac8',
+  ])
+})
+
+test('anonymous: Foo() returns no topics', () => {
+  expect(
+    encodeEventTopics({
+      abi: [
+        {
+          anonymous: true,
+          inputs: [],
+          name: 'Foo',
+          type: 'event',
+        },
+      ],
+      eventName: 'Foo',
+    }),
+  ).toEqual([])
+})
+
 test('Foo((uint,string))', () => {
   expect(() =>
     encodeEventTopics({
