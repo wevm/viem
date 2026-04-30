@@ -8,6 +8,7 @@ test('legacy transaction', () => {
       accessList: undefined,
       blockHash: '0x1',
       blockNumber: '0x10f2c',
+      blockTimestamp: '0x10f2c',
       from: '0x1',
       gas: '0x4234584',
       gasPrice: '0x45',
@@ -26,6 +27,7 @@ test('legacy transaction', () => {
     {
       "blockHash": "0x1",
       "blockNumber": 69420n,
+      "blockTimestamp": 69420n,
       "chainId": undefined,
       "from": "0x1",
       "gas": 69420420n,

@@ -30,6 +30,15 @@ import { withFeePayer } from './Transport.js'
 
 const client = getClient()
 
+function withoutVolatileTransactionFields<
+  transaction extends { blockTimestamp?: bigint | undefined },
+>(transaction: transaction) {
+  const { blockTimestamp, ...transaction_ } = transaction
+  expect(blockTimestamp).toBeTypeOf('bigint')
+  expect(blockTimestamp).toBeGreaterThan(0n)
+  return transaction_
+}
+
 /** Spending limits covering both fee tokens (pathUsd + alphaUsd). */
 function feeTokenLimits(limit: bigint, period?: number) {
   return [
@@ -84,7 +93,9 @@ describe('sendTransaction', () => {
     expect(v).toBeDefined()
     expect(yParity).toBeDefined()
     expect(transactionIndex).toBeDefined()
-    expect(transaction).toMatchInlineSnapshot(`
+    expect(
+      withoutVolatileTransactionFields(transaction),
+    ).toMatchInlineSnapshot(`
       {
         "accessList": [],
         "input": "0xdeadbeef",
@@ -142,7 +153,9 @@ describe('sendTransaction', () => {
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
     expect(validBefore).toBeNull()
-    expect(transaction).toMatchInlineSnapshot(`
+    expect(
+      withoutVolatileTransactionFields(transaction),
+    ).toMatchInlineSnapshot(`
       {
         "accessList": [],
         "authorizationList": [],
@@ -216,7 +229,9 @@ describe('sendTransaction', () => {
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
     expect(validBefore).toBeNull()
-    expect(transaction).toMatchInlineSnapshot(`
+    expect(
+      withoutVolatileTransactionFields(transaction),
+    ).toMatchInlineSnapshot(`
       {
         "accessList": [],
         "authorizationList": [],
@@ -293,7 +308,9 @@ describe('sendTransaction', () => {
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
     expect(validBefore).toBeNull()
-    expect(transaction).toMatchInlineSnapshot(`
+    expect(
+      withoutVolatileTransactionFields(transaction),
+    ).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -358,7 +375,9 @@ describe('sendTransaction', () => {
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
     expect(validBefore).toBeTypeOf('number')
-    expect(transaction).toMatchInlineSnapshot(`
+    expect(
+      withoutVolatileTransactionFields(transaction),
+    ).toMatchInlineSnapshot(`
       {
         "accessList": [],
         "authorizationList": [],
@@ -492,7 +511,9 @@ describe('sendTransaction', () => {
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(validBefore).toBeNull()
-      expect(transaction).toMatchInlineSnapshot(`
+      expect(
+        withoutVolatileTransactionFields(transaction),
+      ).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -576,7 +597,9 @@ describe('sendTransaction', () => {
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(validBefore).toBeNull()
-      expect(transaction).toMatchInlineSnapshot(`
+      expect(
+        withoutVolatileTransactionFields(transaction),
+      ).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -644,7 +667,9 @@ describe('sendTransaction', () => {
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(validBefore).toBeTypeOf('number')
-      expect(transaction).toMatchInlineSnapshot(`
+      expect(
+        withoutVolatileTransactionFields(transaction),
+      ).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -781,7 +806,9 @@ describe('sendTransaction', () => {
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(validBefore).toBeNull()
-      expect(transaction).toMatchInlineSnapshot(`
+      expect(
+        withoutVolatileTransactionFields(transaction),
+      ).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -986,7 +1013,9 @@ describe('sendTransaction', () => {
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(validBefore).toBeNull()
-      expect(transaction).toMatchInlineSnapshot(`
+      expect(
+        withoutVolatileTransactionFields(transaction),
+      ).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -1074,7 +1103,9 @@ describe('sendTransaction', () => {
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(validBefore2).toBeNull()
-      expect(transaction).toMatchInlineSnapshot(`
+      expect(
+        withoutVolatileTransactionFields(transaction),
+      ).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -1146,7 +1177,9 @@ describe('sendTransaction', () => {
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(validBefore).toBeTypeOf('number')
-      expect(transaction).toMatchInlineSnapshot(`
+      expect(
+        withoutVolatileTransactionFields(transaction),
+      ).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -1358,7 +1391,9 @@ describe('signTransaction', () => {
     expect(signature).toBeDefined()
     expect(transactionIndex).toBeDefined()
     expect(validBefore).toBeTypeOf('number')
-    expect(transaction2).toMatchInlineSnapshot(`
+    expect(
+      withoutVolatileTransactionFields(transaction2),
+    ).toMatchInlineSnapshot(`
       {
         "accessList": [],
         "authorizationList": [],
@@ -1533,7 +1568,9 @@ describe('relay', () => {
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(validBefore).toBeTypeOf('number')
-      expect(transaction).toMatchInlineSnapshot(`
+      expect(
+        withoutVolatileTransactionFields(transaction),
+      ).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -1655,7 +1692,9 @@ describe('relay', () => {
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(validBefore).toBeTypeOf('number')
-      expect(transaction).toMatchInlineSnapshot(`
+      expect(
+        withoutVolatileTransactionFields(transaction),
+      ).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],
@@ -1750,7 +1789,9 @@ describe('relay', () => {
       expect(signature).toBeDefined()
       expect(transactionIndex).toBeDefined()
       expect(validBefore).toBeTypeOf('number')
-      expect(transaction).toMatchInlineSnapshot(`
+      expect(
+        withoutVolatileTransactionFields(transaction),
+      ).toMatchInlineSnapshot(`
         {
           "accessList": [],
           "authorizationList": [],

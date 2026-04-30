@@ -27,6 +27,10 @@ export function formatTransaction(
 ): Transaction<bigint, number, boolean> {
   if (!isTempo(transaction)) return viem_formatTransaction(transaction as never)
 
+  const blockTimestamp =
+    transaction.blockTimestamp == null
+      ? undefined
+      : BigInt(transaction.blockTimestamp)
   const {
     feePayerSignature,
     gasPrice: _,
@@ -37,6 +41,7 @@ export function formatTransaction(
   return {
     ...tx,
     accessList: tx.accessList!,
+    ...(typeof blockTimestamp !== 'undefined' && { blockTimestamp }),
     feePayerSignature: feePayerSignature
       ? {
           r: Hex.fromNumber(feePayerSignature.r, { size: 32 }),

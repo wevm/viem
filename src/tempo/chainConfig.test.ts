@@ -153,6 +153,7 @@ describe('formatters', () => {
       hash: receipt.transactionHash,
     })
     expect(transaction.hash).toBe(receipt.transactionHash)
+    expect(transaction.blockTimestamp).toBeTypeOf('bigint')
     expect(transaction.type).toBe('tempo')
     expect(transaction.calls).toBeDefined()
     expect(transaction.signature).toBeDefined()

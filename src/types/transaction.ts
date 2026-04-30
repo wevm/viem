@@ -88,6 +88,8 @@ export type TransactionBase<
   blockHash: isPending extends true ? null : Hash
   /** Number of block containing this transaction or `null` if pending */
   blockNumber: isPending extends true ? null : quantity
+  /** Unix timestamp of when this block was collated */
+  blockTimestamp?: quantity | undefined
   /** Transaction sender */
   from: Address
   /** Gas provided for transaction execution */
