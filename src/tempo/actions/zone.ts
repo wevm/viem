@@ -18,7 +18,6 @@ import { zeroHash } from '../../constants/bytes.js'
 import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { Compute } from '../../types/utils.js'
-import { encodeAbiParameters } from '../../utils/abi/encodeAbiParameters.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
@@ -295,6 +294,8 @@ export async function encryptedDeposit<
   const encrypted = await encryptDepositPayload(
     { x: publicKey[0], yParity: publicKey[1] },
     recipient,
+    portalAddress,
+    keyIndex - 1n,
     parameters.memo,
   )
 
@@ -454,6 +455,8 @@ export async function encryptedDepositSync<
   const encrypted = await encryptDepositPayload(
     { x: publicKey[0], yParity: publicKey[1] },
     recipient,
+    portalAddress,
+    keyIndex - 1n,
     parameters.memo,
   )
 
@@ -1251,6 +1254,8 @@ export namespace signAuthorizationToken {
 async function encryptDepositPayload(
   publicKey: { x: Hex.Hex; yParity: number },
   recipient: Address,
+  portalAddress: Address,
+  keyIndex: bigint,
   memo: Hex.Hex = zeroHash,
 ): Promise<EncryptedPayload> {
   const sequencerPublicKey = PublicKey.from({
@@ -1260,6 +1265,7 @@ async function encryptDepositPayload(
 
   const { privateKey: ephemeralPrivateKey, publicKey: ephemeralPublicKey } =
     Secp256k1.createKeyPair()
+  const compressedEphemeral = PublicKey.compress(ephemeralPublicKey)
 
   const sharedSecret = Secp256k1.getSharedSecret({
     privateKey: ephemeralPrivateKey,
@@ -1269,7 +1275,7 @@ async function encryptDepositPayload(
 
   const hkdfKey = await globalThis.crypto.subtle.importKey(
     'raw',
-    sharedSecret.buffer as ArrayBuffer,
+    sharedSecret.slice(1),
     'HKDF',
     false,
     ['deriveKey'],
@@ -1278,8 +1284,12 @@ async function encryptDepositPayload(
     {
       name: 'HKDF',
       hash: 'SHA-256',
-      salt: new Uint8Array(12),
-      info: new TextEncoder().encode('ecies-aes-key'),
+      salt: new TextEncoder().encode('ecies-aes-key'),
+      info: buildDepositHkdfInfo(
+        portalAddress,
+        keyIndex,
+        Hex.fromNumber(compressedEphemeral.x, { size: 32 }),
+      ) as BufferSource,
     },
     hkdfKey,
     { name: 'AES-GCM', length: 256 },
@@ -1288,11 +1298,7 @@ async function encryptDepositPayload(
   )
 
   const nonce = Bytes.random(12)
-
-  const plaintext = encodeAbiParameters(
-    [{ type: 'address' }, { type: 'bytes32' }],
-    [recipient, memo],
-  )
+  const plaintext = buildDepositPlaintext(recipient, memo)
 
   const ciphertextWithTag = new Uint8Array(
     await globalThis.crypto.subtle.encrypt(
@@ -1305,8 +1311,6 @@ async function encryptDepositPayload(
   const ciphertext = ciphertextWithTag.slice(0, -16)
   const tag = ciphertextWithTag.slice(-16)
 
-  const compressedEphemeral = PublicKey.compress(ephemeralPublicKey)
-
   return {
     ciphertext: Hex.fromBytes(ciphertext),
     ephemeralPubkeyX: Hex.fromNumber(compressedEphemeral.x, { size: 32 }),
@@ -1314,4 +1318,24 @@ async function encryptDepositPayload(
     nonce: Hex.fromBytes(nonce),
     tag: Hex.fromBytes(tag),
   }
+}
+
+function buildDepositPlaintext(recipient: Address, memo: Hex.Hex): Bytes.Bytes {
+  return Bytes.concat(
+    Bytes.from(recipient),
+    Bytes.from(memo),
+    new Uint8Array(12),
+  )
+}
+
+function buildDepositHkdfInfo(
+  portalAddress: Address,
+  keyIndex: bigint,
+  ephemeralPubkeyX: Hex.Hex,
+): Bytes.Bytes {
+  return Bytes.concat(
+    Bytes.from(portalAddress),
+    Bytes.fromNumber(keyIndex, { size: 32 }),
+    Bytes.from(ephemeralPubkeyX),
+  )
 }
