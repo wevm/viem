@@ -1,5 +1,11 @@
 # viem
 
+## 2.48.7
+
+### Patch Changes
+
+- [#4567](https://github.com/wevm/viem/pull/4567) [`ef3f4334f81bffc40bc2666103d3f2210f6da004`](https://github.com/wevm/viem/commit/ef3f4334f81bffc40bc2666103d3f2210f6da004) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Preserved `keyType`, `keyId`, and `keyData` from the input request when no account is present in `formatTransactionRequest`.
+
 ## 2.48.6
 
 ### Patch Changes
