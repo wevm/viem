@@ -1,5 +1,13 @@
 # viem
 
+## 2.48.6
+
+### Patch Changes
+
+- [#4564](https://github.com/wevm/viem/pull/4564) [`d55c4a5a74112d594e306b7ed7a714d5b17a0d43`](https://github.com/wevm/viem/commit/d55c4a5a74112d594e306b7ed7a714d5b17a0d43) Thanks [@jxom](https://github.com/jxom)! - Stripped basic-auth credentials (`user:pass@`) from URLs surfaced in
+  error meta-messages (`HttpRequestError`, `WebSocketRequestError`,
+  `RpcRequestError`, `TimeoutError`).
+
 ## 2.48.5
 
 ### Patch Changes
