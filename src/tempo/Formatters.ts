@@ -72,6 +72,9 @@ export function formatTransactionRequest(
 ): TransactionRequestRpc {
   const request = r as TransactionRequest & {
     account?: viem_Account | Address | undefined
+    keyData?: Hex.Hex | undefined
+    keyId?: Address | undefined
+    keyType?: 'p256' | 'secp256k1' | 'webAuthn' | undefined
   }
   const account = request.account
     ? parseAccount<Account | viem_Account | Address>(request.account)
@@ -119,18 +122,18 @@ export function formatTransactionRequest(
   const [keyType, keyData] = (() => {
     const type =
       account && 'keyType' in account ? account.keyType : account?.source
-    if (!type) return [undefined, undefined]
+    if (!type) return [request.keyType, request.keyData]
     if (type === 'webAuthn')
       // TODO: derive correct bytes size of key data based on webauthn create metadata.
       return ['webAuthn', `0x${'ff'.repeat(1400)}`]
     if (['p256', 'secp256k1'].includes(type)) return [type, undefined]
-    return [undefined, undefined]
+    return [request.keyType, request.keyData]
   })()
 
   const keyId =
     account && 'accessKeyAddress' in account
       ? account.accessKeyAddress
-      : undefined
+      : request.keyId
 
   if (account) rpc.from = account.address
 
