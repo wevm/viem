@@ -532,3 +532,46 @@ test('https://github.com/wevm/viem/issues/3278', () => {
     ]
   `)
 })
+
+test('https://github.com/wevm/viem/issues/4461 anonymous events omit signature topic', () => {
+  const inputs = [
+    { indexed: true, name: 'from', type: 'address' },
+    { indexed: false, name: 'amount', type: 'uint256' },
+  ] as const
+  const addr = '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'
+
+  expect(
+    encodeEventTopics({
+      abi: [
+        {
+          anonymous: true,
+          inputs: [...inputs],
+          name: 'Deposit',
+          type: 'event',
+        },
+      ],
+      eventName: 'Deposit',
+      args: { from: addr },
+    }),
+  ).toEqual([
+    '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+  ])
+
+  expect(
+    encodeEventTopics({
+      abi: [
+        {
+          anonymous: false,
+          inputs: [...inputs],
+          name: 'Deposit',
+          type: 'event',
+        },
+      ],
+      eventName: 'Deposit',
+      args: { from: addr },
+    }),
+  ).toEqual([
+    '0xe1fffcc4923d04b559f4d29a8bfc6cda04eb5b0d3c460751c2402c5c5cc9109c',
+    '0x000000000000000000000000a5cc3c03994db5b0d9a5eedd10cabab0813678ac',
+  ])
+})
