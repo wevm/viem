@@ -13,6 +13,7 @@ import {
   TxEnvelopeTempo as TxTempo,
 } from 'ox/tempo'
 import type { Account } from '../accounts/types.js'
+import type { ExtractCapabilities } from '../types/capabilities.js'
 import type { FeeValuesEIP1559 } from '../types/fee.js'
 import type { Signature as viem_Signature } from '../types/misc.js'
 import type {
@@ -118,10 +119,11 @@ export type TransactionRequestTempo<
 > = TransactionRequestBase<quantity, index, type> &
   ExactPartial<FeeValuesEIP1559<quantity>> & {
     accessList?: AccessList | undefined
-    keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     calls?: readonly TxTempo.Call<quantity, TempoAddress.Address>[] | undefined
+    capabilities?: ExtractCapabilities<'fillTransaction', 'Request'> | undefined
     feePayer?: Account | true | undefined
     feeToken?: TempoAddress.Address | bigint | undefined
+    keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     nonceKey?: 'expiring' | quantity | undefined
     validBefore?: index | undefined
     validAfter?: index | undefined

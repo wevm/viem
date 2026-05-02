@@ -139,6 +139,7 @@ export function formatTransactionRequest(
 
   return {
     ...rpc,
+    ...(request.capabilities ? { capabilities: request.capabilities } : {}),
     ...(keyData ? { keyData } : {}),
     ...(keyId ? { keyId } : {}),
     ...(keyType ? { keyType } : {}),
