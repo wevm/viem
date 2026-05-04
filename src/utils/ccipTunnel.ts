@@ -12,7 +12,7 @@ export type CcipReadTunnelParameters = {
   ccipRequest?: typeof ccipRequest_
 }
 
-export function createCcipReadTunnel({
+export function ccipReadTunnel({
   batchGateways,
   ccipRequest = ccipRequest_,
 }: CcipReadTunnelParameters): { request: typeof ccipRequest_ } {
