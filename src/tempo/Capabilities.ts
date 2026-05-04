@@ -64,6 +64,8 @@ export type FillTransactionCapabilities = {
       }
     | undefined
   sponsored?: boolean | undefined
+  /** Virtual-address resolutions keyed by lowercase literal virtual address. */
+  virtualAddresses?: Readonly<Record<Address, Address | null>> | undefined
 }
 
 export type BalanceDiff = {
