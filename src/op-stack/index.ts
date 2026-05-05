@@ -208,6 +208,8 @@ export { chainConfig } from './chainConfig.js'
 
 export * from './chains.js'
 
+export { isSuperGameType, superGameTypes } from './gameTypes.js'
+
 export {
   type PublicActionsL1,
   publicActionsL1,
