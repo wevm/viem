@@ -108,6 +108,7 @@ export type {
 } from './actions/public/createAccessList.js'
 export type {
   CreateBlockFilterErrorType,
+  CreateBlockFilterParameters,
   CreateBlockFilterReturnType,
 } from './actions/public/createBlockFilter.js'
 export type {
@@ -122,6 +123,7 @@ export type {
 } from './actions/public/createEventFilter.js'
 export type {
   CreatePendingTransactionFilterErrorType,
+  CreatePendingTransactionFilterParameters,
   CreatePendingTransactionFilterReturnType,
 } from './actions/public/createPendingTransactionFilter.js'
 export type {
@@ -156,6 +158,7 @@ export type {
 } from './actions/public/getBalance.js'
 export type {
   GetBlobBaseFeeErrorType,
+  GetBlobBaseFeeParameters,
   GetBlobBaseFeeReturnType,
 } from './actions/public/getBlobBaseFee.js'
 export type {
@@ -175,6 +178,7 @@ export type {
 } from './actions/public/getBlockTransactionCount.js'
 export type {
   GetChainIdErrorType,
+  GetChainIdParameters,
   GetChainIdReturnType,
 } from './actions/public/getChainId.js'
 export type {
@@ -220,6 +224,7 @@ export type {
 } from './actions/public/getFilterLogs.js'
 export type {
   GetGasPriceErrorType,
+  GetGasPriceParameters,
   GetGasPriceReturnType,
 } from './actions/public/getGasPrice.js'
 export type {
@@ -457,6 +462,7 @@ export type {
 } from './actions/wallet/deployContract.js'
 export type {
   GetAddressesErrorType,
+  GetAddressesParameters,
   GetAddressesReturnType,
 } from './actions/wallet/getAddresses.js'
 export type {
@@ -471,6 +477,7 @@ export type {
 } from './actions/wallet/getCapabilities.js'
 export type {
   GetPermissionsErrorType,
+  GetPermissionsParameters,
   GetPermissionsReturnType,
 } from './actions/wallet/getPermissions.js'
 export type {
@@ -487,6 +494,7 @@ export type {
 } from './actions/wallet/prepareTransactionRequest.js'
 export type {
   RequestAddressesErrorType,
+  RequestAddressesParameters,
   RequestAddressesReturnType,
 } from './actions/wallet/requestAddresses.js'
 export type {

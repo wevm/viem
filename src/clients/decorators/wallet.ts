@@ -7,6 +7,7 @@ import {
   fillTransaction,
 } from '../../actions/public/fillTransaction.js'
 import {
+  type GetChainIdParameters,
   type GetChainIdReturnType,
   getChainId,
 } from '../../actions/public/getChainId.js'
@@ -20,6 +21,7 @@ import {
   deployContract,
 } from '../../actions/wallet/deployContract.js'
 import {
+  type GetAddressesParameters,
   type GetAddressesReturnType,
   getAddresses,
 } from '../../actions/wallet/getAddresses.js'
@@ -34,6 +36,7 @@ import {
   getCapabilities,
 } from '../../actions/wallet/getCapabilities.js'
 import {
+  type GetPermissionsParameters,
   type GetPermissionsReturnType,
   getPermissions,
 } from '../../actions/wallet/getPermissions.js'
@@ -49,6 +52,7 @@ import {
   prepareTransactionRequest,
 } from '../../actions/wallet/prepareTransactionRequest.js'
 import {
+  type RequestAddressesParameters,
   type RequestAddressesReturnType,
   requestAddresses,
 } from '../../actions/wallet/requestAddresses.js'
@@ -252,7 +256,9 @@ export type WalletActions<
    * })
    * const accounts = await client.getAddresses()
    */
-  getAddresses: () => Promise<GetAddressesReturnType>
+  getAddresses: (
+    args?: GetAddressesParameters | undefined,
+  ) => Promise<GetAddressesReturnType>
   /**
    * Returns the status of a call batch that was sent via `sendCalls`.
    *
@@ -320,7 +326,9 @@ export type WalletActions<
    * const chainId = await client.getChainId()
    * // 1
    */
-  getChainId: () => Promise<GetChainIdReturnType>
+  getChainId: (
+    args?: GetChainIdParameters | undefined,
+  ) => Promise<GetChainIdReturnType>
   /**
    * Gets the wallets current permissions.
    *
@@ -339,7 +347,9 @@ export type WalletActions<
    * })
    * const permissions = await client.getPermissions()
    */
-  getPermissions: () => Promise<GetPermissionsReturnType>
+  getPermissions: (
+    args?: GetPermissionsParameters | undefined,
+  ) => Promise<GetPermissionsReturnType>
   /**
    * Prepares an [EIP-7702 Authorization](https://eips.ethereum.org/EIPS/eip-7702) object for signing.
    * This Action will fill the required fields of the Authorization object if they are not provided (e.g. `nonce` and `chainId`).
@@ -468,7 +478,9 @@ export type WalletActions<
    * })
    * const accounts = await client.requestAddresses()
    */
-  requestAddresses: () => Promise<RequestAddressesReturnType>
+  requestAddresses: (
+    args?: RequestAddressesParameters | undefined,
+  ) => Promise<RequestAddressesReturnType>
   /**
    * Requests permissions for a wallet.
    *
@@ -1186,15 +1198,15 @@ export function walletActions<
     addChain: (args) => addChain(client, args),
     deployContract: (args) => deployContract(client, args),
     fillTransaction: (args) => fillTransaction(client, args),
-    getAddresses: () => getAddresses(client),
+    getAddresses: (args) => getAddresses(client, args),
     getCallsStatus: (args) => getCallsStatus(client, args),
     getCapabilities: (args) => getCapabilities(client, args),
-    getChainId: () => getChainId(client),
-    getPermissions: () => getPermissions(client),
+    getChainId: (args) => getChainId(client, args),
+    getPermissions: (args) => getPermissions(client, args),
     prepareAuthorization: (args) => prepareAuthorization(client, args),
     prepareTransactionRequest: (args) =>
       prepareTransactionRequest(client as any, args as any) as any,
-    requestAddresses: () => requestAddresses(client),
+    requestAddresses: (args) => requestAddresses(client, args),
     requestPermissions: (args) => requestPermissions(client, args),
     sendCalls: (args) => sendCalls(client, args),
     sendCallsSync: (args) => sendCallsSync(client, args),

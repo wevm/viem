@@ -36,6 +36,7 @@ import {
   createAccessList,
 } from '../../actions/public/createAccessList.js'
 import {
+  type CreateBlockFilterParameters,
   type CreateBlockFilterReturnType,
   createBlockFilter,
 } from '../../actions/public/createBlockFilter.js'
@@ -50,6 +51,7 @@ import {
   createEventFilter,
 } from '../../actions/public/createEventFilter.js'
 import {
+  type CreatePendingTransactionFilterParameters,
   type CreatePendingTransactionFilterReturnType,
   createPendingTransactionFilter,
 } from '../../actions/public/createPendingTransactionFilter.js'
@@ -84,6 +86,7 @@ import {
   getBalance,
 } from '../../actions/public/getBalance.js'
 import {
+  type GetBlobBaseFeeParameters,
   type GetBlobBaseFeeReturnType,
   getBlobBaseFee,
 } from '../../actions/public/getBlobBaseFee.js'
@@ -103,6 +106,7 @@ import {
   getBlockTransactionCount,
 } from '../../actions/public/getBlockTransactionCount.js'
 import {
+  type GetChainIdParameters,
   type GetChainIdReturnType,
   getChainId,
 } from '../../actions/public/getChainId.js'
@@ -142,6 +146,7 @@ import {
   getFilterLogs,
 } from '../../actions/public/getFilterLogs.js'
 import {
+  type GetGasPriceParameters,
   type GetGasPriceReturnType,
   getGasPrice,
 } from '../../actions/public/getGasPrice.js'
@@ -365,7 +370,9 @@ export type PublicActions<
    * const filter = await createBlockFilter(client)
    * // { id: "0x345a6572337856574a76364e457a4366", type: 'block' }
    */
-  createBlockFilter: () => Promise<CreateBlockFilterReturnType>
+  createBlockFilter: (
+    args?: CreateBlockFilterParameters | undefined,
+  ) => Promise<CreateBlockFilterReturnType>
   /**
    * Creates a Filter to retrieve event logs that can be used with [`getFilterChanges`](https://viem.sh/docs/actions/public/getFilterChanges) or [`getFilterLogs`](https://viem.sh/docs/actions/public/getFilterLogs).
    *
@@ -488,7 +495,9 @@ export type PublicActions<
    * const filter = await client.createPendingTransactionFilter()
    * // { id: "0x345a6572337856574a76364e457a4366", type: 'transaction' }
    */
-  createPendingTransactionFilter: () => Promise<CreatePendingTransactionFilterReturnType>
+  createPendingTransactionFilter: (
+    args?: CreatePendingTransactionFilterParameters | undefined,
+  ) => Promise<CreatePendingTransactionFilterReturnType>
   /**
    * Estimates the gas required to successfully execute a contract write function call.
    *
@@ -642,7 +651,9 @@ export type PublicActions<
    * })
    * const blobBaseFee = await client.getBlobBaseFee()
    */
-  getBlobBaseFee: () => Promise<GetBlobBaseFeeReturnType>
+  getBlobBaseFee: (
+    args?: GetBlobBaseFeeParameters | undefined,
+  ) => Promise<GetBlobBaseFeeReturnType>
   /**
    * Returns information about a block at a block number, hash, or tag.
    *
@@ -740,7 +751,9 @@ export type PublicActions<
    * const chainId = await client.getChainId()
    * // 1
    */
-  getChainId: () => Promise<GetChainIdReturnType>
+  getChainId: (
+    args?: GetChainIdParameters | undefined,
+  ) => Promise<GetChainIdReturnType>
   /**
    * Retrieves the bytecode at an address.
    *
@@ -1223,7 +1236,9 @@ export type PublicActions<
    * })
    * const gasPrice = await client.getGasPrice()
    */
-  getGasPrice: () => Promise<GetGasPriceReturnType>
+  getGasPrice: (
+    args?: GetGasPriceParameters | undefined,
+  ) => Promise<GetGasPriceReturnType>
   /**
    * Returns a list of event logs matching the provided parameters.
    *
@@ -2074,21 +2089,21 @@ export function publicActions<
   return {
     call: (args) => call(client, args),
     createAccessList: (args) => createAccessList(client, args),
-    createBlockFilter: () => createBlockFilter(client),
+    createBlockFilter: (args) => createBlockFilter(client, args),
     createContractEventFilter: (args) =>
       createContractEventFilter(client, args),
     createEventFilter: (args) => createEventFilter(client, args),
-    createPendingTransactionFilter: () =>
-      createPendingTransactionFilter(client),
+    createPendingTransactionFilter: (args) =>
+      createPendingTransactionFilter(client, args),
     estimateContractGas: (args) => estimateContractGas(client, args as any),
     estimateGas: (args) => estimateGas(client, args),
     getBalance: (args) => getBalance(client, args),
-    getBlobBaseFee: () => getBlobBaseFee(client),
+    getBlobBaseFee: (args) => getBlobBaseFee(client, args),
     getBlock: (args) => getBlock(client, args),
     getBlockNumber: (args) => getBlockNumber(client, args),
     getBlockTransactionCount: (args) => getBlockTransactionCount(client, args),
     getBytecode: (args) => getCode(client, args),
-    getChainId: () => getChainId(client),
+    getChainId: (args) => getChainId(client, args),
     getCode: (args) => getCode(client, args),
     getContractEvents: (args) => getContractEvents(client, args),
     getDelegation: (args) => getDelegation(client, args),
@@ -2102,7 +2117,7 @@ export function publicActions<
     estimateFeesPerGas: (args) => estimateFeesPerGas(client, args),
     getFilterChanges: (args) => getFilterChanges(client, args),
     getFilterLogs: (args) => getFilterLogs(client, args),
-    getGasPrice: () => getGasPrice(client),
+    getGasPrice: (args) => getGasPrice(client, args),
     getLogs: (args) => getLogs(client, args as any),
     getProof: (args) => getProof(client, args),
     estimateMaxPriorityFeePerGas: (args) =>
