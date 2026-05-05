@@ -42,7 +42,13 @@ export type GetGameParameters<
     strategy?: 'latest' | 'random'
   }
 export type GetGameReturnType = Game & {
+  /**
+   * L2 block number anchored by the dispute game. For super-root games, this
+   * value is the L2 timestamp instead. Check `usesSuperRoots` to distinguish
+   * the unit.
+   */
   l2BlockNumber: bigint
+  /** Whether the dispute game anchors on super roots. */
   usesSuperRoots: boolean
 }
 
