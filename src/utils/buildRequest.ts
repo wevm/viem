@@ -66,7 +66,12 @@ import {
   WalletConnectSessionSettlementError,
   type WalletConnectSessionSettlementErrorType,
 } from '../errors/rpc.js'
-import type { ErrorType } from '../errors/utils.js'
+import {
+  type AbortErrorType,
+  type ErrorType,
+  getAbortError,
+  isAbortError,
+} from '../errors/utils.js'
 import type {
   EIP1193RequestFn,
   EIP1193RequestOptions,
@@ -113,18 +118,22 @@ export type RequestErrorType =
   | WalletConnectSessionSettlementErrorType
   | WebSocketRequestErrorType
   | WithRetryErrorType
+  | AbortErrorType
   | ErrorType
 
-export function buildRequest<request extends (args: any) => Promise<any>>(
-  request: request,
-  options: EIP1193RequestOptions = {},
-): EIP1193RequestFn {
+export function buildRequest<
+  request extends (
+    args: any,
+    options?: { signal?: AbortSignal | undefined } | undefined,
+  ) => Promise<any>,
+>(request: request, options: EIP1193RequestOptions = {}): EIP1193RequestFn {
   return async (args, overrideOptions = {}) => {
     const {
       dedupe = false,
       methods,
       retryDelay = 150,
       retryCount = 3,
+      signal,
       uid,
     } = {
       ...options,
@@ -149,8 +158,11 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
         withRetry(
           async () => {
             try {
-              return await request(args)
+              return await request(args, signal ? { signal } : undefined)
             } catch (err_) {
+              if (signal?.aborted) throw getAbortError(signal)
+              if (isAbortError(err_)) throw err_
+
               const err = err_ as unknown as RpcError<
                 RpcErrorCode | ProviderRpcErrorCode
               >
@@ -264,6 +276,7 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
               return ~~(1 << count) * retryDelay
             },
             retryCount,
+            signal,
             shouldRetry: ({ error }) => shouldRetry(error),
           },
         ),
@@ -274,6 +287,7 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
 
 /** @internal */
 export function shouldRetry(error: Error) {
+  if (isAbortError(error)) return false
   if ('code' in error && typeof error.code === 'number') {
     if (error.code === -1) return true // Unknown error
     if (error.code === LimitExceededRpcError.code) return true

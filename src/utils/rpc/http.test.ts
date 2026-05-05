@@ -190,6 +190,26 @@ describe('request', () => {
     await server.close()
   })
 
+  test('fetchOptions: signal aborts request', async () => {
+    const server = await createHttpServer(async (_req, res) => {
+      await wait(1_000)
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+    const client = getHttpRpcClient(server.url)
+    const controller = new AbortController()
+
+    setTimeout(() => controller.abort(), 50)
+
+    await expect(
+      client.request({
+        body: { method: 'web3_clientVersion' },
+        fetchOptions: { signal: controller.signal },
+      }),
+    ).rejects.toThrowError('This operation was aborted')
+
+    await server.close()
+  })
+
   test('onRequest', async () => {
     const server = await createHttpServer((_, res) => {
       res.end(JSON.stringify({ result: '0x1' }))

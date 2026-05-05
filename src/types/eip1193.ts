@@ -2140,6 +2140,8 @@ export type EIP1193RequestOptions = {
   retryDelay?: number | undefined
   /** The max number of times to retry. */
   retryCount?: number | undefined
+  /** Abort signal to cancel the request. */
+  signal?: AbortSignal | undefined
   /** Unique identifier for the request. */
   uid?: string | undefined
 }

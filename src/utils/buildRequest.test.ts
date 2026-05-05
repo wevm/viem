@@ -42,12 +42,19 @@ import { getHttpRpcClient } from './rpc/http.js'
 
 function request(url: string) {
   const httpClient = getHttpRpcClient(url)
-  return async ({ method, params }: any) => {
+  return async (
+    { method, params }: any,
+    options?: { signal?: AbortSignal | undefined },
+  ) => {
+    const fetchOptions = options?.signal
+      ? { signal: options.signal }
+      : undefined
     const { error, result } = await httpClient.request({
       body: {
         method,
         params,
       },
+      fetchOptions,
     })
     if (error)
       throw new RpcRequestError({
@@ -252,6 +259,52 @@ describe('args', () => {
       }),
     ).rejects.toThrowError()
     expect(end > 1000 && end < 1020).toBeTruthy()
+  })
+})
+
+describe('options', () => {
+  test('passes signal to underlying request', async () => {
+    let receivedSignal: AbortSignal | undefined
+    const request_ = buildRequest(async (_args, options) => {
+      receivedSignal = options?.signal
+      return 'success'
+    })
+    const controller = new AbortController()
+
+    await request_({ method: 'eth_blockNumber' }, { signal: controller.signal })
+
+    expect(receivedSignal).toBe(controller.signal)
+  })
+
+  test('prioritizes override signal over initial signal', async () => {
+    let receivedSignal: AbortSignal | undefined
+    const request_ = buildRequest(
+      async (_args, options) => {
+        receivedSignal = options?.signal
+        return 'success'
+      },
+      { signal: new AbortController().signal },
+    )
+    const controller = new AbortController()
+
+    await request_({ method: 'eth_blockNumber' }, { signal: controller.signal })
+
+    expect(receivedSignal).toBe(controller.signal)
+  })
+
+  test('does not call underlying request if signal is already aborted', async () => {
+    let count = 0
+    const request_ = buildRequest(async () => {
+      count++
+      return 'success'
+    })
+    const controller = new AbortController()
+    controller.abort()
+
+    await expect(
+      request_({ method: 'eth_blockNumber' }, { signal: controller.signal }),
+    ).rejects.toThrowError('This operation was aborted')
+    expect(count).toBe(0)
   })
 })
 

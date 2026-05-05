@@ -31,6 +31,7 @@ import {
   createClient,
   decodeFunctionResult,
   encodeAbiParameters,
+  encodeFunctionResult,
   type Hex,
   http,
   maxUint256,
@@ -156,6 +157,41 @@ test('zero data', async () => {
     to: wagmiContractAddress,
   })
   expect(data).toMatchInlineSnapshot('undefined')
+})
+
+test('args: requestOptions', async () => {
+  const client_2 = anvilMainnet.getClient()
+  const requestOptions = {
+    signal: new AbortController().signal,
+  }
+  const spy = vi.spyOn(client_2, 'request').mockResolvedValue('0x1234')
+
+  await call(client_2, {
+    batch: false,
+    data: name4bytes,
+    requestOptions,
+    to: wagmiContractAddress,
+  })
+
+  expect(spy).toHaveBeenCalledWith(
+    expect.objectContaining({ method: 'eth_call' }),
+    requestOptions,
+  )
+})
+
+test('args: requestOptions abort error is not wrapped', async () => {
+  const client_2 = anvilMainnet.getClient()
+  const error = new DOMException('This operation was aborted', 'AbortError')
+  vi.spyOn(client_2, 'request').mockRejectedValue(error)
+
+  await expect(
+    call(client_2, {
+      batch: false,
+      data: name4bytes,
+      requestOptions: { signal: new AbortController().signal },
+      to: wagmiContractAddress,
+    }),
+  ).rejects.toBe(error)
 })
 
 test('args: authorizationList', async () => {
@@ -713,6 +749,46 @@ describe.each([{ deployless: true }, { deployless: false }])(
 
       expect(spy).toBeCalledTimes(4)
       expect(results).toMatchSnapshot()
+    })
+
+    test('args: requestOptions', async () => {
+      const client_2 = anvilMainnet.getClient({
+        batch: {
+          multicall: {
+            deployless,
+          },
+        },
+      })
+      const requestOptions = {
+        signal: new AbortController().signal,
+      }
+
+      const spy = vi.spyOn(client_2, 'request').mockResolvedValue(
+        encodeFunctionResult({
+          abi: multicall3Abi,
+          functionName: 'aggregate3',
+          result: [{ returnData: '0x1234', success: true }],
+        }),
+      )
+
+      await Promise.all([
+        call(client_2, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+        }),
+        call(client_2, {
+          data: name4bytes,
+          requestOptions,
+          to: wagmiContractAddress,
+        }),
+      ])
+
+      expect(spy).toBeCalledTimes(2)
+      const calls = spy.mock.calls as unknown as [unknown, unknown][]
+      expect(calls.some(([, options]) => options === undefined)).toBe(true)
+      expect(
+        calls.some(([, options]) => options === requestOptions),
+      ).toBe(true)
     })
 
     test('args: blockNumber', async () => {

@@ -557,6 +557,29 @@ describe('request', () => {
     `)
   })
 
+  test('behavior: request signal aborts request', async () => {
+    const server = await createHttpServer(async (_req, res) => {
+      await wait(1_000)
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+    const transport = http(server.url, {
+      key: 'jsonRpc',
+      name: 'JSON RPC',
+    })({ chain: localhost })
+    const controller = new AbortController()
+
+    setTimeout(() => controller.abort(), 50)
+
+    await expect(() =>
+      transport.request(
+        { method: 'eth_blockNumber' },
+        { signal: controller.signal },
+      ),
+    ).rejects.toThrowError('This operation was aborted')
+
+    await server.close()
+  })
+
   test('behavior: raw', async () => {
     const transport = http(anvilMainnet.rpcUrl.http, {
       key: 'jsonRpc',
