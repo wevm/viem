@@ -1,5 +1,13 @@
 # viem
 
+## 2.48.10
+
+### Patch Changes
+
+- [#4579](https://github.com/wevm/viem/pull/4579) [`d413d1be25674e33dfcbe0fdf883aa18268034bc`](https://github.com/wevm/viem/commit/d413d1be25674e33dfcbe0fdf883aa18268034bc) Thanks [@deodad](https://github.com/deodad)! - Added `virtualAddresses` metadata to Tempo fill transaction capabilities.
+
+- [#4547](https://github.com/wevm/viem/pull/4547) [`bb4a63f0632910079d2a33653fadfc4f7ee31aa1`](https://github.com/wevm/viem/commit/bb4a63f0632910079d2a33653fadfc4f7ee31aa1) Thanks [@IrshadKohl51](https://github.com/IrshadKohl51)! - Aligned `sendTransactionSync` `dataSuffix` behavior with `sendTransaction` so that calls passing only `dataSuffix` (without `data`) correctly append to `data ?? '0x'` instead of being silently dropped.
+
 ## 2.48.9
 
 ### Patch Changes
