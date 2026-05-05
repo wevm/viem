@@ -43,6 +43,7 @@ export type GetGameParameters<
   }
 export type GetGameReturnType = Game & {
   l2BlockNumber: bigint
+  usesSuperRoots: boolean
 }
 
 export type GetGameErrorType =

@@ -133,6 +133,7 @@ export async function waitToProve<
         metadata: '0x',
         rootClaim: output.outputRoot,
         timestamp: output.timestamp,
+        usesSuperRoots: false,
       },
       output,
       withdrawal,

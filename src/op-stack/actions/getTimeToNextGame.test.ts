@@ -81,6 +81,7 @@ test('single game (no interval data)', async () => {
         '0x0000000000000000000000000000000000000000000000000000000000000000' as `0x${string}`,
       extraData: '0x' as `0x${string}`,
       l2BlockNumber: 500n,
+      usesSuperRoots: false,
     },
   ])
   const result = await getTimeToNextGame(client, {

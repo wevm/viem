@@ -54,6 +54,7 @@ test('legacy (portal v2)', async () => {
         "metadata": "0x",
         "rootClaim": "0xdc3b54fd33b5d8a60f275ca83c74b625e3942be5b70b2f7f0b9cadd869eb7b1a",
         "timestamp": 1702377887n,
+        "usesSuperRoots": false,
       },
       "output": {
         "l2BlockNumber": 113389063n,
