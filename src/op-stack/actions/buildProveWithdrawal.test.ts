@@ -3,6 +3,10 @@ import { describe, expect, test } from 'vitest'
 import { anvilMainnet, anvilOptimism } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 import { getTransactionReceipt, reset } from '../../actions/index.js'
+import { createClient } from '../../clients/createClient.js'
+import { custom } from '../../clients/transports/custom.js'
+import type { RpcBlock, RpcProof } from '../../types/rpc.js'
+import { numberToHex } from '../../utils/encoding/toHex.js'
 
 import { getL2Output, getWithdrawals, proveWithdrawal } from '../index.js'
 import {
@@ -13,6 +17,123 @@ import { getGame } from './getGame.js'
 
 const client = anvilMainnet.getClient()
 const optimismClient = anvilOptimism.getClient()
+
+const blockHash =
+  '0x000000000000000000000000000000000000000000000000000000000000000b'
+const stateRoot =
+  '0x000000000000000000000000000000000000000000000000000000000000000c'
+const storageHash =
+  '0x000000000000000000000000000000000000000000000000000000000000000d'
+const withdrawalHash =
+  '0x000000000000000000000000000000000000000000000000000000000000000e'
+
+function block(number: bigint, timestamp: bigint) {
+  return {
+    hash: blockHash,
+    number: numberToHex(number),
+    stateRoot,
+    timestamp: numberToHex(timestamp),
+    transactions: [],
+  } as unknown as RpcBlock
+}
+
+function proof() {
+  return {
+    accountProof: [],
+    address: '0x4200000000000000000000000000000000000016',
+    balance: '0x0',
+    codeHash:
+      '0x0000000000000000000000000000000000000000000000000000000000000000',
+    nonce: '0x0',
+    storageHash,
+    storageProof: [
+      {
+        key: '0x0000000000000000000000000000000000000000000000000000000000000000',
+        proof: ['0xc0'],
+        value: '0x0',
+      },
+    ],
+  } as RpcProof
+}
+
+function superGameClient({ targetTimestamp = 180n } = {}) {
+  const blockNumbers: (string | undefined)[] = []
+  const proofBlockNumbers: (string | undefined)[] = []
+
+  const client = createClient({
+    transport: custom({
+      async request({ method, params }) {
+        if (method === 'eth_getBlockByNumber') {
+          blockNumbers.push(params[0])
+          if (params[0] === 'latest') return block(100n, 200n)
+          if (params[0] === numberToHex(99n)) return block(99n, 198n)
+          if (params[0] === numberToHex(90n)) return block(90n, targetTimestamp)
+        }
+        if (method === 'eth_getProof') {
+          proofBlockNumbers.push(params[2])
+          return proof()
+        }
+        return null
+      },
+    }),
+  })
+
+  return { blockNumbers, client, proofBlockNumbers }
+}
+
+const withdrawal = {
+  data: '0x',
+  gasLimit: 0n,
+  nonce: 0n,
+  sender: '0x0000000000000000000000000000000000000001',
+  target: '0x0000000000000000000000000000000000000002',
+  value: 0n,
+  withdrawalHash,
+} as const
+
+const game = {
+  extraData: '0x',
+  index: 1n,
+  l2BlockNumber: 180n,
+  metadata: '0x',
+  rootClaim:
+    '0x000000000000000000000000000000000000000000000000000000000000000f',
+  timestamp: 0n,
+  usesSuperRoots: true,
+} as const
+
+test('args: super game', async () => {
+  const { blockNumbers, client, proofBlockNumbers } = superGameClient()
+  const request = await buildProveWithdrawal(client, {
+    account: accounts[0].address,
+    game,
+    withdrawal,
+  })
+
+  expect(blockNumbers).toEqual(['latest', '0x63', '0x5a'])
+  expect(proofBlockNumbers).toEqual(['0x5a'])
+  expect(request.l2OutputIndex).toBe(1n)
+  expect(request.outputRootProof).toEqual({
+    latestBlockhash: blockHash,
+    messagePasserStorageRoot: storageHash,
+    stateRoot,
+    version:
+      '0x0000000000000000000000000000000000000000000000000000000000000000',
+  })
+})
+
+test('args: super game timestamp mismatch', async () => {
+  const { client } = superGameClient({ targetTimestamp: 182n })
+  await expect(
+    buildProveWithdrawal(client, {
+      account: accounts[0].address,
+      game,
+      withdrawal,
+    }),
+  ).rejects.toThrow(
+    'L2 block timestamp 182 does not match dispute game timestamp 180.',
+  )
+})
 
 test.skip('default', async () => {
   await reset(optimismClient, {
