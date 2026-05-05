@@ -786,9 +786,7 @@ describe.each([{ deployless: true }, { deployless: false }])(
       expect(spy).toBeCalledTimes(2)
       const calls = spy.mock.calls as unknown as [unknown, unknown][]
       expect(calls.some(([, options]) => options === undefined)).toBe(true)
-      expect(
-        calls.some(([, options]) => options === requestOptions),
-      ).toBe(true)
+      expect(calls.some(([, options]) => options === requestOptions)).toBe(true)
     })
 
     test('args: blockNumber', async () => {
