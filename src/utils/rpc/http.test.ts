@@ -22,7 +22,7 @@ describe('request', () => {
       {
         "id": 1,
         "jsonrpc": "2.0",
-        "result": "anvil/v1.6.0",
+        "result": "anvil/v1.7.1",
       }
     `)
   })
@@ -37,7 +37,7 @@ describe('request', () => {
       {
         "id": 1,
         "jsonrpc": "2.0",
-        "result": "anvil/v1.6.0",
+        "result": "anvil/v1.7.1",
       }
     `)
   })
@@ -478,12 +478,12 @@ describe('http (batch)', () => {
         {
           "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.6.0",
+          "result": "anvil/v1.7.1",
         },
         {
           "id": 2,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.6.0",
+          "result": "anvil/v1.7.1",
         },
       ]
     `)
@@ -504,7 +504,7 @@ describe('http (batch)', () => {
         {
           "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.6.0",
+          "result": "anvil/v1.7.1",
         },
         {
           "error": {
@@ -530,7 +530,7 @@ describe('http (batch)', () => {
         {
           "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.6.0",
+          "result": "anvil/v1.7.1",
         },
         {
           "error": {
