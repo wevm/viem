@@ -497,6 +497,22 @@ importers:
         specifier: 7.3.2
         version: 7.3.2(@types/node@24.5.2)(jiti@2.6.0)(lightningcss@1.30.2)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
 
+  examples/op-stack_super-withdrawal:
+    dependencies:
+      viem:
+        specifier: workspace:*
+        version: link:../../src
+    devDependencies:
+      '@types/node':
+        specifier: ^24.5.2
+        version: 24.5.2
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   examples/signing_typed-data:
     dependencies:
       react:
