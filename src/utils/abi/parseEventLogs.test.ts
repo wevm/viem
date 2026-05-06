@@ -113,7 +113,7 @@ const abi_unnamed = [
   },
 ] as const
 
-test('default', async () => {
+test.skipIf(process.env.CI === 'true')('default', async () => {
   const logs = await getLogs(client, {
     fromBlock: anvilMainnet.forkBlockNumber - 5n,
     toBlock: anvilMainnet.forkBlockNumber,

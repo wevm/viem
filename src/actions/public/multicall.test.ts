@@ -28,7 +28,11 @@ import { signAuthorization } from '../wallet/signAuthorization.js'
 import { multicall } from './multicall.js'
 import * as readContract from './readContract.js'
 
-const client = anvilMainnet.getClient()
+const client = anvilMainnet.getClient({
+  batch: {
+    multicall: false,
+  },
+})
 
 test('default', async () => {
   const spy = vi.spyOn(readContract, 'readContract')

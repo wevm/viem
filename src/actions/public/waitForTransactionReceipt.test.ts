@@ -30,7 +30,7 @@ async function setup() {
 }
 
 test('waits for transaction (send -> wait -> mine)', async () => {
-  setup()
+  await setup()
 
   const hash = await sendTransaction(client, {
     account: sourceAccount.address,
@@ -44,7 +44,7 @@ test('waits for transaction (send -> wait -> mine)', async () => {
 })
 
 test('waits for transaction (send -> mine -> wait)', async () => {
-  setup()
+  await setup()
 
   const hash = await sendTransaction(client, {
     account: sourceAccount.address,
@@ -59,7 +59,7 @@ test('waits for transaction (send -> mine -> wait)', async () => {
 })
 
 test('waits for transaction (multiple waterfall)', async () => {
-  setup()
+  await setup()
 
   const hash = await sendTransaction(client, {
     account: sourceAccount.address,
@@ -84,7 +84,7 @@ test('waits for transaction (multiple waterfall)', async () => {
 })
 
 test('waits for transaction (multiple parallel)', async () => {
-  setup()
+  await setup()
 
   const hash = await sendTransaction(client, {
     account: sourceAccount.address,
@@ -199,7 +199,7 @@ test('waits for transaction (polling many blocks while others waiting does not t
 
 describe('replaced transactions', () => {
   test('repriced', async () => {
-    setup()
+    await setup()
 
     await mine(client, { blocks: 10 })
 
@@ -246,7 +246,7 @@ describe('replaced transactions', () => {
   })
 
   test('repriced (skipped blocks)', async () => {
-    setup()
+    await setup()
 
     await mine(client, { blocks: 10 })
 
@@ -290,7 +290,7 @@ describe('replaced transactions', () => {
   })
 
   test('repriced (same input)', async () => {
-    setup()
+    await setup()
 
     await mine(client, { blocks: 10 })
 
@@ -339,7 +339,7 @@ describe('replaced transactions', () => {
   })
 
   test('replaced (different input)', async () => {
-    setup()
+    await setup()
 
     await mine(client, { blocks: 10 })
 
@@ -388,7 +388,7 @@ describe('replaced transactions', () => {
   })
 
   test('cancelled', async () => {
-    setup()
+    await setup()
 
     await mine(client, { blocks: 10 })
 
@@ -435,7 +435,7 @@ describe('replaced transactions', () => {
   })
 
   test('replaced', async () => {
-    setup()
+    await setup()
 
     await mine(client, { blocks: 10 })
 
@@ -482,7 +482,7 @@ describe('replaced transactions', () => {
   })
 
   test('checkReplacement: false', async () => {
-    setup()
+    await setup()
 
     await mine(client, { blocks: 10 })
 
@@ -532,7 +532,7 @@ describe('replaced transactions', () => {
 
 describe('args: confirmations', () => {
   test('waits for confirmations', async () => {
-    setup()
+    await setup()
 
     const hash = await sendTransaction(client, {
       account: sourceAccount.address,
@@ -554,7 +554,7 @@ describe('args: confirmations', () => {
   })
 
   test('waits for confirmations (replaced)', async () => {
-    setup()
+    await setup()
 
     await mine(client, { blocks: 10 })
 
@@ -599,7 +599,7 @@ describe('args: confirmations', () => {
 })
 
 test('args: timeout', async () => {
-  setup()
+  await setup()
 
   const hash = await sendTransaction(client, {
     account: sourceAccount.address,
@@ -616,7 +616,7 @@ test('args: timeout', async () => {
 
 describe('errors', () => {
   test('throws when transaction replaced and getBlock fails', async () => {
-    setup()
+    await setup()
 
     vi.spyOn(getBlock, 'getBlock').mockRejectedValueOnce(new Error('foo'))
 

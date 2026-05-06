@@ -227,7 +227,8 @@ export async function sendTransaction<
           })
       }
 
-      const chainFormat = client.chain?.formatters?.transactionRequest?.format
+      const formatters = chain?.formatters || client.chain?.formatters
+      const chainFormat = formatters?.transactionRequest?.format
       const format = chainFormat || formatTransactionRequest
 
       const request = format(

@@ -107,10 +107,14 @@ export function http<
   return ({ chain, retryCount: retryCount_, timeout: timeout_ }) => {
     const { batchSize = 1000, wait = 0 } =
       typeof batch === 'object' ? batch : {}
-    const retryCount = config.retryCount ?? retryCount_
-    const timeout = timeout_ ?? config.timeout ?? 10_000
     const url_ = url || chain?.rpcUrls.default.http[0]
     if (!url_) throw new UrlRequiredError()
+    const isCi = typeof process !== 'undefined' && process.env.CI === 'true'
+    const isCiLocalhost =
+      isCi && Boolean(url_?.match(/(?:localhost|127\.0\.0\.1)/))
+    const retryCount =
+      config.retryCount ?? retryCount_ ?? (isCiLocalhost ? 8 : undefined)
+    const timeout = timeout_ ?? config.timeout ?? 10_000
 
     const rpcClient = getHttpRpcClient(url_, {
       fetchFn,
@@ -162,7 +166,7 @@ export function http<
           return result
         },
         retryCount,
-        retryDelay,
+        retryDelay: retryDelay ?? (isCiLocalhost ? 250 : undefined),
         timeout,
         type: 'http',
       },

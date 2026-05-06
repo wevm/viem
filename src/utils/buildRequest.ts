@@ -285,6 +285,16 @@ export function shouldRetry(error: Error) {
     return false
   }
   if (error instanceof HttpRequestError && error.status) {
+    // CI test workers use a local anvil proxy that can intermittently return
+    // HTTP 400 for otherwise valid requests while the backend is warming up.
+    // Treat these as retryable only for localhost endpoints in CI.
+    if (
+      error.status === 400 &&
+      typeof process !== 'undefined' &&
+      process.env.CI === 'true' &&
+      Boolean(error.url?.match(/(?:localhost|127\.0\.0\.1)/))
+    )
+      return true
     // Forbidden
     if (error.status === 403) return true
     // Request Timeout

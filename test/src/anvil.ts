@@ -17,6 +17,7 @@ import {
 } from '../../src/index.js'
 import { createSiweMessage } from '../../src/siwe/index.js'
 import { ProviderRpcError } from '../../src/types/eip1193.js'
+import { withRetry } from '../../src/utils/promise/withRetry.js'
 import { accounts, poolId } from './constants.js'
 
 export const anvilMainnet = defineAnvil({
@@ -253,7 +254,14 @@ function defineAnvil<const chain extends Chain>(
               address: accounts[1].address,
             } as any
 
-          return request({ method, params }, opts)
+          if (!process.env.CI) return request({ method, params }, opts)
+          return withRetry(() => request({ method, params }, opts), {
+            delay: ({ count }) => (count + 1) * 300,
+            retryCount: 8,
+            shouldRetry: ({ error }) =>
+              typeof (error as any)?.status === 'number' &&
+              (error as any).status === 400,
+          })
         },
         value,
       }
