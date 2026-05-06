@@ -150,6 +150,8 @@ export function buildRequest<
         method,
       })
 
+    if (signal?.aborted) throw getAbortError(signal)
+
     const requestId = dedupe
       ? hashString(`${uid}.${stringify(args)}`)
       : undefined

@@ -81,6 +81,17 @@ export type HttpTransportErrorType =
   | UrlRequiredErrorType
   | ErrorType
 
+let signalId = 0
+const signalIds = new WeakMap<AbortSignal, number>()
+function getSignalId(signal: AbortSignal | undefined) {
+  if (!signal) return 'default'
+  const id = signalIds.get(signal)
+  if (id !== undefined) return id
+  const nextId = signalId++
+  signalIds.set(signal, nextId)
+  return nextId
+}
+
 /**
  * @description Creates a HTTP transport that connects to a JSON-RPC API.
  */
@@ -132,7 +143,7 @@ export function http<
             : undefined
 
           const { schedule } = createBatchScheduler({
-            id: url_,
+            id: `${url_}.${getSignalId(options?.signal)}`,
             wait,
             shouldSplitBatch(requests) {
               return requests.length > batchSize

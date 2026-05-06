@@ -1124,6 +1124,35 @@ describe('behavior', () => {
     `)
   })
 
+  test('dedupe does not join in-flight request when signal is already aborted', async () => {
+    let count = 0
+    let resolve!: (value: string) => void
+    const request_ = buildRequest(
+      async () => {
+        count++
+        return new Promise<string>((resolve_) => {
+          resolve = resolve_
+        })
+      },
+      { uid: 'foo' },
+    )
+
+    const first = request_({ method: 'eth_blockNumber' }, { dedupe: true })
+    const controller = new AbortController()
+    controller.abort()
+
+    await expect(
+      request_(
+        { method: 'eth_blockNumber' },
+        { dedupe: true, signal: controller.signal },
+      ),
+    ).rejects.toThrowError('This operation was aborted')
+
+    resolve('0x1')
+    await expect(first).resolves.toBe('0x1')
+    expect(count).toBe(1)
+  })
+
   describe('retry', () => {
     test('non-deterministic InternalRpcError', async () => {
       let retryCount = -1

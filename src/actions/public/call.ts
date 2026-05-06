@@ -314,7 +314,9 @@ export async function call<chain extends Chain | undefined>(
       data?.slice(0, 10) === offchainLookupSignature &&
       to
     )
-      return { data: await offchainLookup(client, { data, to }) }
+      return {
+        data: await offchainLookup(client, { data, requestOptions, to }),
+      }
 
     // Check for counterfactual deployment error.
     if (deploylessCall && data?.slice(0, 10) === '0x101bb98d')

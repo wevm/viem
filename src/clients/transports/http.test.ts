@@ -235,6 +235,45 @@ describe('request', () => {
     await server.close()
   })
 
+  test('batch separates requests by signal', async () => {
+    let count = 0
+    const server = await createHttpServer((req, res) => {
+      let body = ''
+      req.on('data', (chunk) => {
+        body += chunk
+      })
+      req.on('end', () => {
+        count++
+        const requests = JSON.parse(body)
+        res.appendHeader('Content-Type', 'application/json')
+        res.end(
+          JSON.stringify(
+            requests.map((request: { id: number; method: string }) => ({
+              id: request.id,
+              result: request.method,
+            })),
+          ),
+        )
+      })
+    })
+
+    const transport = http(server.url, {
+      key: 'mock',
+      batch: true,
+    })({ chain: localhost })
+    const controller = new AbortController()
+
+    const results = await Promise.all([
+      transport.request({ method: 'eth_a' }),
+      transport.request({ method: 'eth_b' }, { signal: controller.signal }),
+    ])
+
+    expect(results).toEqual(['eth_a', 'eth_b'])
+    expect(count).toEqual(2)
+
+    await server.close()
+  })
+
   test('batch (with wait)', async () => {
     let count = 0
     const server = await createHttpServer((_, res) => {
