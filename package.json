@@ -304,7 +304,7 @@
       "@vitejs/plugin-rsc@<=0.5.22": "0.5.23",
       "next@>=16.0.0-beta.0 <16.2.3": "16.2.3",
       "react-server-dom-webpack@>=19.2.0 <19.2.5": "19.2.5",
-      "basic-ftp@<5.3.0": "5.3.0"
+      "basic-ftp@<=5.3.0": "5.3.1"
     },
     "onlyBuiltDependencies": [
       "bun",
