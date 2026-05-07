@@ -1,5 +1,5 @@
 ---
-"viem": minor
+"viem": patch
 ---
 
-Added Tempo wallet actions for opening wallet send, swap, and deposit flows.
+`viem/tempo`: Added `wallet_` JSON-RPC Actions for opening send, swap, and deposit flows.
