@@ -1,5 +1,11 @@
 # viem
 
+## 2.48.11
+
+### Patch Changes
+
+- [#4585](https://github.com/wevm/viem/pull/4585) [`18ccb586bd40d8410703e426261b0f03e530ade5`](https://github.com/wevm/viem/commit/18ccb586bd40d8410703e426261b0f03e530ade5) Thanks [@gakonst](https://github.com/gakonst)! - `viem/tempo`: Added `wallet_` JSON-RPC Actions for opening send, swap, and deposit flows.
+
 ## 2.48.10
 
 ### Patch Changes
