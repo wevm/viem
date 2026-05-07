@@ -19,7 +19,20 @@ const result = await Actions.wallet.deposit(client, {
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/tempo/viem.config.ts:setup]
+import { Provider } from 'accounts'
+import { createClient, custom, publicActions, walletActions } from 'viem'
+import { tempo } from 'viem/chains'
+import { tempoActions } from 'viem/tempo'
+
+const provider = Provider.create()
+
+export const client = createClient({
+  chain: tempo,
+  transport: custom(provider),
+})
+  .extend(publicActions)
+  .extend(walletActions)
+  .extend(tempoActions())
 ```
 
 :::
