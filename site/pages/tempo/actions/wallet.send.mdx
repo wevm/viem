@@ -1,0 +1,65 @@
+# `wallet.send`
+
+Opens the wallet's send flow, with optional pre-filled fields.
+
+This action invokes the `wallet_send` JSON-RPC method on the connected wallet, prompting the user to review and submit a token transfer. Any fields you omit are left for the user to fill in.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { chainId, receipt } = await Actions.wallet.send(client, {
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000001',
+  value: '1.5',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Chain ID the send was submitted to. */
+  chainId: number
+  /** Receipt of the submitted send. */
+  receipt: TransactionReceipt
+}
+```
+
+## Parameters
+
+### to (optional)
+
+- **Type:** `Address`
+
+Recipient address to pre-fill.
+
+### token (optional)
+
+- **Type:** `Address`
+
+Token contract address to pre-fill. Omit to let the user choose.
+
+### value (optional)
+
+- **Type:** `string`
+
+Human-readable amount to pre-fill (for example, `"1.5"`).
+
+### feePayer (optional)
+
+- **Type:** `boolean | string`
+
+Fee payer override. Pass `false` to disable the wallet's default fee payer, or a URL string to use a custom fee payer service.
