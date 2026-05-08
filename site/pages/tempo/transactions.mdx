@@ -80,6 +80,31 @@ export const client = createWalletClient({
 See a full guide on [paying fees in any stablecoin](https://docs.tempo.xyz/guide/payments/pay-fees-in-any-stablecoin).
 :::
 
+You can validate a fee token before submitting a transaction or saving it as a fee preference.
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+import { Actions } from 'viem/tempo'
+
+const feeToken = '0x20c0000000000000000000000000000000000001'
+
+await Actions.fee.validateToken(client, {
+  token: feeToken,
+})
+```
+
+#### Common Errors
+
+`invalid fee token` means the token cannot be used to pay fees. Fee tokens must be unpaused USD-denominated TIP-20 tokens.
+
+`FeeTokenNotTip20Error` means the token is not registered as a TIP-20 token. TIP-20 token addresses use the `0x20c0...` address prefix.
+
+`FeeTokenNotUsdError` means the token is a TIP-20 token, but its currency is not `USD`.
+
+`FeeTokenPausedError` means the token is currently paused and cannot be used for fees.
+
+If validation passes but submission fails, check that the account has enough fee token balance and that the Fee AMM has liquidity for the selected token.
+
 ### Fee Sponsorship
 
 A fee payer can cover gas fees for the sender via the `feePayer` field. You can use a local account or a remote relay service.

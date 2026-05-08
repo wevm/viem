@@ -7,6 +7,11 @@ import {
   setupFeeToken,
 } from '~test/tempo/config.js'
 import * as Prool from '~test/tempo/prool.js'
+import {
+  FeeTokenNotTip20Error,
+  FeeTokenNotUsdError,
+  FeeTokenPausedError,
+} from '../errors.js'
 import * as actions from './index.js'
 
 const account = accounts[0]
@@ -20,6 +25,96 @@ const client = getClient({
 
 afterEach(async () => {
   await Prool.restart(client)
+})
+
+describe('validateToken', () => {
+  test('default', async () => {
+    await expect(
+      actions.fee.validateToken(client, {
+        token: feeToken,
+      }),
+    ).resolves.toMatchInlineSnapshot(`
+      {
+        "address": "0x20c0000000000000000000000000000000000000",
+        "id": 0n,
+        "metadata": {
+          "currency": "USD",
+          "decimals": 6,
+          "name": "pathUSD",
+          "symbol": "pathUSD",
+          "totalSupply": 184467440737095516150n,
+        },
+      }
+    `)
+  })
+
+  test('behavior: validates token IDs', async () => {
+    await expect(
+      actions.fee.validateToken(client, {
+        token: 1n,
+      }),
+    ).resolves.toMatchObject({
+      address: '0x20c0000000000000000000000000000000000001',
+      id: 1n,
+      metadata: {
+        currency: 'USD',
+        paused: false,
+      },
+    })
+  })
+
+  test('behavior: rejects non TIP20-prefixed addresses', async () => {
+    await expect(
+      actions.fee.validateToken(client, {
+        token: '0x0000000000000000000000000000000000000000',
+      }),
+    ).rejects.toThrow(FeeTokenNotTip20Error)
+  })
+
+  test('behavior: rejects unregistered TIP20-prefixed addresses', async () => {
+    await expect(
+      actions.fee.validateToken(client, {
+        token: '0x20c000000000000000000000000000000000dead',
+      }),
+    ).rejects.toThrow(FeeTokenNotTip20Error)
+  })
+
+  test('behavior: rejects non-USD tokens', async () => {
+    const { token } = await actions.token.createSync(client, {
+      currency: 'EUR',
+      name: 'Euro Token',
+      symbol: 'EURT',
+    })
+
+    await expect(
+      actions.fee.validateToken(client, {
+        token,
+      }),
+    ).rejects.toThrow(FeeTokenNotUsdError)
+  })
+
+  test('behavior: rejects paused tokens', async () => {
+    const { token } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Paused Fee Token',
+      symbol: 'PFT',
+    })
+
+    await actions.token.grantRolesSync(client, {
+      roles: ['pause'],
+      to: client.account.address,
+      token,
+    })
+    await actions.token.pauseSync(client, {
+      token,
+    })
+
+    await expect(
+      actions.fee.validateToken(client, {
+        token,
+      }),
+    ).rejects.toThrow(FeeTokenPausedError)
+  })
 })
 
 describe('getUserToken', () => {
@@ -115,6 +210,41 @@ describe('setUserToken', () => {
       }
     `,
     )
+  })
+
+  test('behavior: validates token before setting user preference', async () => {
+    const userToken = await actions.fee.getUserToken(client)
+
+    await expect(
+      actions.fee.setUserTokenSync(client, {
+        token: '0x0000000000000000000000000000000000000000',
+      }),
+    ).rejects.toThrow(FeeTokenNotTip20Error)
+
+    expect(await actions.fee.getUserToken(client)).toStrictEqual(userToken)
+  })
+
+  test('behavior: rejects paused token before setting user preference', async () => {
+    const { token } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Paused User Fee Token',
+      symbol: 'PUFT',
+    })
+
+    await actions.token.grantRolesSync(client, {
+      roles: ['pause'],
+      to: client.account.address,
+      token,
+    })
+    await actions.token.pauseSync(client, {
+      token,
+    })
+
+    await expect(
+      actions.fee.setUserTokenSync(client, {
+        token,
+      }),
+    ).rejects.toThrow(FeeTokenPausedError)
   })
 })
 
@@ -332,6 +462,14 @@ describe('setValidatorToken', () => {
         "id": 2n,
       }
     `)
+  })
+
+  test('behavior: validates token before setting validator preference', async () => {
+    await expect(
+      actions.fee.setValidatorTokenSync(getClient({ account: validator }), {
+        token: '0x0000000000000000000000000000000000000000',
+      }),
+    ).rejects.toThrow(FeeTokenNotTip20Error)
   })
 })
 

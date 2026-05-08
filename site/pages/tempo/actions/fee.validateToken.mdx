@@ -1,0 +1,63 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `fee.validateToken`
+
+Validates that a token can be used as a Tempo fee token. Fee tokens must be unpaused USD-denominated TIP-20 tokens.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const result = await client.fee.validateToken({
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log('Fee token address:', result.address)
+// @log: Fee token address: 0x20c0000000000000000000000000000000000001
+console.log('Fee token currency:', result.metadata.currency)
+// @log: Fee token currency: USD
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Address of the fee token */
+  address: Address
+  /** ID of the fee token */
+  id: bigint
+  /** TIP-20 token metadata */
+  metadata: {
+    currency: string
+    decimals: number
+    name: string
+    paused?: boolean
+    quoteToken?: Address
+    supplyCap?: bigint
+    symbol: string
+    totalSupply: bigint
+    transferPolicyId?: bigint
+  }
+}
+```
+
+Throws `FeeTokenNotTip20Error`, `FeeTokenNotUsdError`, or `FeeTokenPausedError` when the token cannot be used for fees.
+
+## Parameters
+
+### token
+
+- **Type:** `Address | bigint`
+
+Fee token address or ID to validate.
+
+<ReadParameters />

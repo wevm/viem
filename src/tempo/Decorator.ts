@@ -1390,6 +1390,31 @@ export type Decorator<
   }
   fee: {
     /**
+     * Validates that a token can be used as a Tempo fee token.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { address } = await client.fee.validateToken({
+     *   token: '0x20c0000000000000000000000000000000000001',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The fee token address, ID, and metadata.
+     */
+    validateToken: (
+      parameters: feeActions.validateToken.Parameters,
+    ) => Promise<feeActions.validateToken.ReturnValue>
+    /**
      * Gets the user's default fee token.
      *
      * @example
@@ -4321,6 +4346,8 @@ export function decorator() {
           nonceActions.watchNonceIncremented(client, parameters),
       },
       fee: {
+        validateToken: (parameters) =>
+          feeActions.validateToken(client, parameters),
         // @ts-expect-error
         getUserToken: (parameters) =>
           // @ts-expect-error
