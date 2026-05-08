@@ -1,4 +1,4 @@
-import { secp256k1 } from '@noble/curves/secp256k1'
+import { secp256k1 } from '@noble/curves/secp256k1.js'
 
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex, Signature } from '../../types/misc.js'
@@ -20,7 +20,10 @@ export type ParseSignatureErrorType = NumberToHexErrorType | ErrorType
  * // { r: '0x...', s: '0x...', v: 28n }
  */
 export function parseSignature(signatureHex: Hex) {
-  const { r, s } = secp256k1.Signature.fromCompact(signatureHex.slice(2, 130))
+  const { r, s } = secp256k1.Signature.fromHex(
+    signatureHex.slice(2, 130),
+    'compact',
+  )
   const yParityOrV = Number(`0x${signatureHex.slice(130)}`)
   const [v, yParity] = (() => {
     if (yParityOrV === 0 || yParityOrV === 1) return [undefined, yParityOrV]

@@ -1,8 +1,9 @@
-import { secp256k1 } from '@noble/curves/secp256k1'
+import { secp256k1 } from '@noble/curves/secp256k1.js'
 import type { Address } from 'abitype'
 
 import type { ErrorType } from '../../errors/utils.js'
 import type { Hex } from '../../types/misc.js'
+import { hexToBytes } from '../../utils/encoding/toBytes.js'
 import {
   type BytesToHexErrorType,
   bytesToHex,
@@ -26,7 +27,7 @@ export type PrivateKeyToAddressErrorType =
  */
 export function privateKeyToAddress(privateKey: Hex): Address {
   const publicKey = bytesToHex(
-    secp256k1.getPublicKey(privateKey.slice(2), false),
+    secp256k1.getPublicKey(hexToBytes(privateKey), false),
   )
   return publicKeyToAddress(publicKey)
 }

@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { trustedSetup as fastSetup } from '@paulmillr/trusted-setups/fast.js'
-import { KZG } from 'micro-eth-signer/kzg'
+import { trustedSetup as fastSetup } from '@paulmillr/trusted-setups/fast-kzg.js'
+// micro-eth-signer 0.18 moved KZG under its advanced export.
+import { KZG } from 'micro-eth-signer/advanced/kzg.js'
 import { bytesToHex, defineKzg, hexToBytes } from '../../src/index.js'
 
 const k = new KZG(fastSetup)

@@ -1,4 +1,4 @@
-import { ripemd160 as noble_ripemd160 } from '@noble/hashes/ripemd160'
+import { ripemd160 as noble_ripemd160 } from '@noble/hashes/legacy.js'
 
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'

@@ -1,4 +1,4 @@
-import { secp256k1 } from '@noble/curves/secp256k1'
+import { secp256k1 } from '@noble/curves/secp256k1.js'
 
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex, Signature } from '../../types/misc.js'
@@ -50,7 +50,7 @@ export function serializeSignature<to extends To = 'hex'>({
   const signature = `0x${new secp256k1.Signature(
     hexToBigInt(r),
     hexToBigInt(s),
-  ).toCompactHex()}${yParity_ === 0 ? '1b' : '1c'}` as const
+  ).toHex('compact')}${yParity_ === 0 ? '1b' : '1c'}` as const
 
   if (to === 'hex') return signature as SerializeSignatureReturnType<to>
   return hexToBytes(signature) as SerializeSignatureReturnType<to>

@@ -1,4 +1,4 @@
-import { keccak_256 } from '@noble/hashes/sha3'
+import { keccak_256 } from '@noble/hashes/sha3.js'
 
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'

@@ -1,4 +1,4 @@
-import { secp256k1 } from '@noble/curves/secp256k1'
+import { secp256k1 } from '@noble/curves/secp256k1.js'
 
 import type { ErrorType } from '../../errors/utils.js'
 import type { CompactSignature, Hex } from '../../types/misc.js'
@@ -17,7 +17,10 @@ export type ParseCompactSignatureErrorType = NumberToHexErrorType | ErrorType
  * // { r: '0x...', yParityAndS: '0x...' }
  */
 export function parseCompactSignature(signatureHex: Hex): CompactSignature {
-  const { r, s } = secp256k1.Signature.fromCompact(signatureHex.slice(2, 130))
+  const { r, s } = secp256k1.Signature.fromHex(
+    signatureHex.slice(2, 130),
+    'compact',
+  )
   return {
     r: numberToHex(r, { size: 32 }),
     yParityAndS: numberToHex(s, { size: 32 }),

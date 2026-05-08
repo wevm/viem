@@ -7,6 +7,7 @@ import {
   hexToBigInt,
   hexToNumber,
 } from '../encoding/fromHex.js'
+import { hexToBytes } from '../encoding/toBytes.js'
 import { toHex } from '../encoding/toHex.js'
 
 export type RecoverPublicKeyParameters = {
@@ -27,17 +28,16 @@ export async function recoverPublicKey({
 }: RecoverPublicKeyParameters): Promise<RecoverPublicKeyReturnType> {
   const hashHex = isHex(hash) ? hash : toHex(hash)
 
-  const { secp256k1 } = await import('@noble/curves/secp256k1')
+  const { secp256k1 } = await import('@noble/curves/secp256k1.js')
   const signature_ = (() => {
     // typeof signature: `Signature`
     if (typeof signature === 'object' && 'r' in signature && 's' in signature) {
       const { r, s, v, yParity } = signature
       const yParityOrV = Number(yParity ?? v)!
       const recoveryBit = toRecoveryBit(yParityOrV)
-      return new secp256k1.Signature(
-        hexToBigInt(r),
-        hexToBigInt(s),
-      ).addRecoveryBit(recoveryBit)
+      return new secp256k1.Signature(hexToBigInt(r), hexToBigInt(s))
+        .addRecoveryBit(recoveryBit)
+        .toBytes('recovered')
     }
 
     // typeof signature: `Hex | ByteArray`
@@ -45,14 +45,19 @@ export async function recoverPublicKey({
     if (size(signatureHex) !== 65) throw new Error('invalid signature length')
     const yParityOrV = hexToNumber(`0x${signatureHex.slice(130)}`)
     const recoveryBit = toRecoveryBit(yParityOrV)
-    return secp256k1.Signature.fromCompact(
+    return secp256k1.Signature.fromHex(
       signatureHex.substring(2, 130),
-    ).addRecoveryBit(recoveryBit)
+      'compact',
+    )
+      .addRecoveryBit(recoveryBit)
+      .toBytes('recovered')
   })()
 
-  const publicKey = signature_
-    .recoverPublicKey(hashHex.substring(2))
-    .toHex(false)
+  const publicKey = secp256k1.Point.fromBytes(
+    secp256k1.recoverPublicKey(signature_, hexToBytes(hashHex), {
+      prehash: false,
+    }),
+  ).toHex(false)
   return `0x${publicKey}`
 }
 
