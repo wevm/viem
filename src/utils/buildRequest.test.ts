@@ -1176,6 +1176,34 @@ describe('behavior', () => {
       expect(retryCount).toBe(3)
     })
 
+    test('non-deterministic RpcError (HTTP 429 w/ Retry-After header)', async () => {
+      const start = Date.now()
+      let end = 0
+      let retryCount = -1
+      const server = await createHttpServer((_req, res) => {
+        retryCount++
+        end = Date.now() - start
+        res.writeHead(429, {
+          'Content-Type': 'application/json',
+          'Retry-After': 1,
+        })
+        res.end(
+          JSON.stringify({
+            error: { code: InvalidParamsRpcError.code, message: 'message' },
+          }),
+        )
+      })
+
+      await expect(() =>
+        buildRequest(request(server.url), { retryCount: 1, retryDelay: 1 })({
+          method: 'eth_blockNumber',
+        }),
+      ).rejects.toThrowError()
+      expect(retryCount).toBe(1)
+      expect(end).toBeGreaterThan(900)
+      await server.close()
+    })
+
     test('non-deterministic HttpRequestError (403)', async () => {
       let retryCount = -1
       const server = await createHttpServer((_req, res) => {
@@ -1444,6 +1472,32 @@ describe('shouldRetry', () => {
         new HttpRequestError({ body: {}, details: '', status: 413, url: '' }),
       ),
     ).toBe(true)
+  })
+
+  test('RpcRequestError (status 429)', () => {
+    expect(
+      shouldRetry(
+        new RpcRequestError({
+          body: {},
+          error: { code: InvalidParamsRpcError.code, message: '' },
+          status: 429,
+          url: '',
+        }),
+      ),
+    ).toBe(true)
+  })
+
+  test('RpcRequestError prioritizes HTTP status over RPC code', () => {
+    expect(
+      shouldRetry(
+        new RpcRequestError({
+          body: {},
+          error: { code: InternalRpcError.code, message: '' },
+          status: 401,
+          url: '',
+        }),
+      ),
+    ).toBe(false)
   })
 
   test('InternalRpcError', () => {

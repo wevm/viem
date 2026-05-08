@@ -36,6 +36,8 @@ type RpcErrorOptions<code extends number = RpcErrorCode> = {
 export type RpcErrorType = RpcError & { name: 'RpcError' }
 export class RpcError<code_ extends number = RpcErrorCode> extends BaseError {
   code: code_ | (number & {})
+  headers?: Headers | undefined
+  status?: number | undefined
 
   constructor(
     cause: Error,
@@ -58,6 +60,10 @@ export class RpcError<code_ extends number = RpcErrorCode> extends BaseError {
     this.code = (
       cause instanceof RpcRequestError ? cause.code : (code ?? unknownErrorCode)
     ) as code_
+    if ('headers' in cause && cause.headers instanceof Headers)
+      this.headers = cause.headers
+    if ('status' in cause && typeof cause.status === 'number')
+      this.status = cause.status
   }
 }
 

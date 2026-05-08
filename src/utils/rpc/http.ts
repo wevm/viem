@@ -76,6 +76,14 @@ export type HttpRpcClient = {
   ): Promise<HttpRequestReturnType<body>>
 }
 
+/** @internal */
+export const rpcErrorHttpMetadata = Symbol.for('viem.rpcErrorHttpMetadata')
+
+type RpcErrorHttpMetadata = {
+  headers: Headers
+  status: number
+}
+
 export function getHttpRpcClient(
   url_: string,
   options: HttpRpcClientOptions = {},
@@ -157,11 +165,17 @@ export function getHttpRpcClient(
         if (!response.ok) {
           // If the response body contains a valid JSON-RPC error, return it
           // so it flows through the normal RPC error handling pipeline.
-          if (
-            typeof data.error?.code === 'number' &&
-            typeof data.error?.message === 'string'
-          )
+          if (hasRpcError(data.error)) {
+            Object.defineProperty(data.error, rpcErrorHttpMetadata, {
+              configurable: true,
+              enumerable: false,
+              value: {
+                headers: response.headers,
+                status: response.status,
+              } as RpcErrorHttpMetadata,
+            })
             return data
+          }
 
           throw new HttpRequestError({
             body,
@@ -211,4 +225,20 @@ export function parseUrl(url_: string) {
   } catch {
     return { url: url_ }
   }
+}
+
+function hasRpcError(error: unknown): error is {
+  code: number
+  data?: unknown
+  message: string
+  [rpcErrorHttpMetadata]?: RpcErrorHttpMetadata | undefined
+} {
+  return (
+    !!error &&
+    typeof error === 'object' &&
+    'code' in error &&
+    typeof error.code === 'number' &&
+    'message' in error &&
+    typeof error.message === 'string'
+  )
 }

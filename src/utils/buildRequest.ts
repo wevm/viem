@@ -1,10 +1,9 @@
 import { BaseError } from '../errors/base.js'
-import {
-  HttpRequestError,
-  type HttpRequestErrorType,
-  type RpcRequestErrorType,
-  type TimeoutErrorType,
-  type WebSocketRequestErrorType,
+import type {
+  HttpRequestErrorType,
+  RpcRequestErrorType,
+  TimeoutErrorType,
+  WebSocketRequestErrorType,
 } from '../errors/request.js'
 import {
   AtomicityNotSupportedError,
@@ -254,11 +253,11 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
           {
             delay: ({ count, error }) => {
               // If we find a Retry-After header, let's retry after the given time.
-              if (error && error instanceof HttpRequestError) {
-                const retryAfter = error?.headers?.get('Retry-After')
-                if (retryAfter?.match(/\d/))
-                  return Number.parseInt(retryAfter, 10) * 1000
-              }
+              const retryAfter = error
+                ? getHttpErrorHeaders(error)?.get('Retry-After')
+                : undefined
+              if (retryAfter?.match(/\d/))
+                return Number.parseInt(retryAfter, 10) * 1000
 
               // Otherwise, let's retry with an exponential backoff.
               return ~~(1 << count) * retryDelay
@@ -274,6 +273,27 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
 
 /** @internal */
 export function shouldRetry(error: Error) {
+  const status = getHttpErrorStatus(error)
+  if (status) {
+    // Forbidden
+    if (status === 403) return true
+    // Request Timeout
+    if (status === 408) return true
+    // Request Entity Too Large
+    if (status === 413) return true
+    // Too Many Requests
+    if (status === 429) return true
+    // Internal Server Error
+    if (status === 500) return true
+    // Bad Gateway
+    if (status === 502) return true
+    // Service Unavailable
+    if (status === 503) return true
+    // Gateway Timeout
+    if (status === 504) return true
+    return false
+  }
+
   if ('code' in error && typeof error.code === 'number') {
     if (error.code === -1) return true // Unknown error
     if (error.code === LimitExceededRpcError.code) return true
@@ -284,26 +304,21 @@ export function shouldRetry(error: Error) {
     if (error.code === 429) return true
     return false
   }
-  if (error instanceof HttpRequestError && error.status) {
-    // Forbidden
-    if (error.status === 403) return true
-    // Request Timeout
-    if (error.status === 408) return true
-    // Request Entity Too Large
-    if (error.status === 413) return true
-    // Too Many Requests
-    if (error.status === 429) return true
-    // Internal Server Error
-    if (error.status === 500) return true
-    // Bad Gateway
-    if (error.status === 502) return true
-    // Service Unavailable
-    if (error.status === 503) return true
-    // Gateway Timeout
-    if (error.status === 504) return true
-    return false
-  }
   return true
+}
+
+function getHttpErrorHeaders(error: Error): Headers | undefined {
+  if (!('headers' in error)) return
+  const { headers } = error as { headers?: unknown }
+  if (!(headers instanceof Headers)) return
+  return headers
+}
+
+function getHttpErrorStatus(error: Error): number | undefined {
+  if (!('status' in error)) return
+  const { status } = error as { status?: unknown }
+  if (typeof status !== 'number') return
+  return status
 }
 
 /** @internal cyrb53 – fast, non-cryptographic 53-bit string hash */

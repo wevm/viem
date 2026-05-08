@@ -10,6 +10,7 @@ import { createBatchScheduler } from '../../utils/promise/createBatchScheduler.j
 import {
   getHttpRpcClient,
   type HttpRpcClientOptions,
+  rpcErrorHttpMetadata,
 } from '../../utils/rpc/http.js'
 
 import {
@@ -153,12 +154,25 @@ export function http<
           const [{ error, result }] = await fn(body)
 
           if (raw) return { error, result }
-          if (error)
+          if (error) {
+            const metadata = (
+              error as {
+                [rpcErrorHttpMetadata]?:
+                  | {
+                      headers: Headers
+                      status: number
+                    }
+                  | undefined
+              }
+            )[rpcErrorHttpMetadata]
             throw new RpcRequestError({
               body,
               error,
+              headers: metadata?.headers,
+              status: metadata?.status,
               url: url_,
             })
+          }
           return result
         },
         retryCount,
