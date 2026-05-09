@@ -9,6 +9,7 @@ export function isEIP712Transaction(
     OneOf<ZksyncTransactionRequest | ZksyncTransactionSerializable>
   >,
 ) {
+  if (transaction.type === 'priority') return false
   if (transaction.type === 'eip712') return true
   if (
     ('customSignature' in transaction && transaction.customSignature) ||
