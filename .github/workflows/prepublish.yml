@@ -1,0 +1,24 @@
+name: Prepublish
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          submodules: 'recursive'
+
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+
+      - name: Prepublish
+        run: |
+          cd src && pnpm version prerelease --preid $(git rev-parse --short=7 HEAD) && cd ..
+          pnpm changeset:prepublish
+          pnpx pkg-pr-new publish --pnpm --compact './src'

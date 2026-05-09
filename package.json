@@ -1,0 +1,315 @@
+{
+  "name": "viem",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bench": "vitest bench",
+    "bench:types": "TYPES=true vitest -c ./test/vitest.config.ts --project type-bench",
+    "build": "pnpm clean && pnpm build:cjs && pnpm build:esm && pnpm build:types",
+    "build:cjs": "pnpm build:trustedSetups:start && node scripts/runTsc.js --project ./tsconfig.build.json --module commonjs --moduleResolution node --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./src/_cjs/package.json && pnpm build:trustedSetups:end",
+    "build:esm": "tsc --project ./tsconfig.build.json --outDir ./src/_esm && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./src/_esm/package.json",
+    "build:trustedSetups:start": "mv src/node/trustedSetups.ts src/node/trustedSetups_esm.ts && mv src/node/trustedSetups_cjs.ts src/node/trustedSetups.ts",
+    "build:trustedSetups:end": "mv src/node/trustedSetups.ts src/node/trustedSetups_cjs.ts && mv src/node/trustedSetups_esm.ts src/node/trustedSetups.ts",
+    "build:types": "tsc --project ./tsconfig.build.json --declarationDir ./src/_types --emitDeclarationOnly --declaration --declarationMap",
+    "changeset:prepublish": "pnpm version:update && pnpm build && bun scripts/prepublishOnly.ts",
+    "changeset:publish": "pnpm changeset:prepublish && changeset publish",
+    "changeset:version": "pnpm install --lockfile-only && changeset version && pnpm version:update && pnpm check",
+    "clean": "rm -rf *.tsbuildinfo src/*.tsbuildinfo src/_esm src/_cjs src/_types",
+    "contracts:build": "forge build --config-path ./contracts/foundry.toml && bun scripts/generateTypedArtifacts.ts",
+    "deps": "pnpx taze -r",
+    "docs:dev": "pnpm --filter site dev",
+    "docs:build": "pnpm --filter site build",
+    "check": "biome check --write --unsafe",
+    "check:repo": "sherif",
+    "check:types": "tsc -b",
+    "check:unused": "pnpm clean && knip",
+    "gen:tempo-abis": "bun scripts/generateTempoAbis.ts",
+    "postinstall": "git submodule update --init --recursive && pnpm contracts:build",
+    "preconstruct": "bun scripts/preconstruct.ts",
+    "preinstall": "pnpx only-allow pnpm",
+    "prepare": "pnpm simple-git-hooks",
+    "prepublishOnly": "bun scripts/prepublishOnly.ts",
+    "size": "size-limit",
+    "test": "vitest -c ./test/vitest.config.ts",
+    "test:build": "publint --strict ./src && attw --pack ./src --ignore-rules false-esm",
+    "test:chains": "vitest test/scripts/chains.test.ts",
+    "test:env": "pnpm test:env:bun && pnpm test:env:next && pnpm test:env:node && pnpm test:env:tsc && pnpm test:env:vite",
+    "test:env:bun": "pnpm --filter test-bun test",
+    "test:env:next": "pnpm --filter test-next test",
+    "test:env:node": "pnpm --filter test-node test",
+    "test:env:tsc": "pnpm --filter test-tsc test",
+    "test:env:vite": "pnpm --filter test-vite test",
+    "test:typecheck": "SKIP_GLOBAL_SETUP=true vitest --typecheck.only -c ./test/vitest.config.ts",
+    "test:ui": "vitest dev -c ./test/vitest.config.ts --ui",
+    "vectors": "bun test vectors/**/*.test.ts",
+    "vectors:generate": "bun vectors/generate.ts",
+    "version:update": "bun scripts/updateVersion.ts"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.2",
+    "@ark/attest": "^0.56.0",
+    "@biomejs/biome": "^2.2.4",
+    "@changesets/changelog-github": "^0.4.8",
+    "@changesets/cli": "^2.29.7",
+    "@ethereumjs/rlp": "^5.0.2",
+    "@paulmillr/trusted-setups": "^0.1.2",
+    "@pimlico/alto": "0.0.18",
+    "@remix-run/node-fetch-server": "^0.12.0",
+    "@size-limit/preset-big-lib": "^11.2.0",
+    "@types/bun": "^1.2.22",
+    "@types/node": "^24.5.2",
+    "@vitest/coverage-v8": "^4.0.15",
+    "bun": "^1.2.22",
+    "ethers": "^6.15.0",
+    "knip": "^5.64.0",
+    "micro-eth-signer": "^0.14.0",
+    "ox": "0.14.20",
+    "permissionless": "^0.2.57",
+    "prool": "~0.2.3",
+    "publint": "^0.2.12",
+    "sherif": "^0.8.4",
+    "simple-git-hooks": "^2.13.1",
+    "size-limit": "^11.2.0",
+    "testcontainers": "^11.10.0",
+    "typescript": "catalog:",
+    "vitest": "^4.0.15"
+  },
+  "packageManager": "pnpm@10.33.2",
+  "engines": {
+    "node": ">=24.5"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm check"
+  },
+  "knip": {
+    "ignore": [
+      ".github/**",
+      "environments/**",
+      "vectors/**"
+    ],
+    "ignoreBinaries": [
+      "dev",
+      "forge",
+      "only-allow",
+      "printf"
+    ],
+    "ignoreDependencies": [
+      "bun",
+      "@size-limit/preset-big-lib"
+    ],
+    "ignoreWorkspaces": [
+      "examples/**",
+      "test"
+    ],
+    "vitest": {
+      "config": [
+        "test/vitest.config.ts"
+      ],
+      "entry": [
+        "**/*.{bench,bench-d,test,test-d,spec}.?(c|m)[jt]s?(x)"
+      ]
+    },
+    "workspaces": {
+      ".": {
+        "project": "scripts/*.ts"
+      },
+      "src": {
+        "entry": [
+          "index.ts!",
+          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,tempo,tempo/actions,tempo/zones,utils,window,zksync}/index.ts!",
+          "chains/utils.ts!"
+        ],
+        "ignore": [
+          "node/trustedSetups_cjs.ts"
+        ]
+      },
+      "site": {
+        "project": [
+          "**/*.ts",
+          "**/*.tsx"
+        ]
+      }
+    }
+  },
+  "size-limit": [
+    {
+      "name": "import * from 'viem' (esm)",
+      "path": "./src/_esm/index.js",
+      "limit": "85 kB",
+      "import": "*"
+    },
+    {
+      "name": "const viem = require('viem') (cjs)",
+      "path": "./src/_cjs/index.js",
+      "limit": "105 kB"
+    },
+    {
+      "name": "import { createClient, http } from 'viem'",
+      "path": "./src/_esm/index.js",
+      "limit": "6.6 kB",
+      "import": "{ createClient, http }"
+    },
+    {
+      "name": "import * from 'viem/account-abstraction'",
+      "path": "./src/_esm/account-abstraction/index.js",
+      "limit": "60 kB",
+      "import": "*"
+    },
+    {
+      "name": "import * from 'viem/accounts'",
+      "path": "./src/_esm/accounts/index.js",
+      "limit": "97 kB",
+      "import": "*"
+    },
+    {
+      "name": "import { privateKeyToAccount } from 'viem/accounts'",
+      "path": "./src/_esm/accounts/index.js",
+      "limit": "22 kB",
+      "import": "{ privateKeyToAccount }"
+    },
+    {
+      "name": "import { mnemonicToAccount } from 'viem/accounts'",
+      "path": "./src/_esm/accounts/index.js",
+      "limit": "30 kB",
+      "import": "{ mnemonicToAccount }"
+    },
+    {
+      "name": "import * from 'viem/actions'",
+      "path": "./src/_esm/actions/index.js",
+      "limit": "69 kB",
+      "import": "*"
+    },
+    {
+      "name": "import { getBlockNumber } from 'viem/actions'",
+      "path": "./src/_esm/actions/index.js",
+      "limit": "1 kB",
+      "import": "{ getBlockNumber }"
+    },
+    {
+      "name": "import * from 'viem/chains'",
+      "path": "./src/_esm/chains/index.js",
+      "limit": "106 kB",
+      "import": "*"
+    },
+    {
+      "name": "import { mainnet } from 'viem/chains'",
+      "path": "./src/_esm/chains/index.js",
+      "limit": "500 B",
+      "import": "{ mainnet }"
+    },
+    {
+      "name": "import { tempoTestnet } from 'viem/chains'",
+      "path": "./src/_esm/chains/index.js",
+      "limit": "64 kB",
+      "import": "{ tempoTestnet }"
+    },
+    {
+      "name": "import * from 'viem/chains/utils'",
+      "path": "./src/_esm/chains/utils.js",
+      "limit": "8 kB",
+      "import": "*"
+    },
+    {
+      "name": "import * from 'viem/ens'",
+      "path": "./src/_esm/ens/index.js",
+      "limit": "53 kB",
+      "import": "*"
+    },
+    {
+      "name": "import { getEnsAvatar } from 'viem/ens'",
+      "path": "./src/_esm/ens/index.js",
+      "limit": "28 kB",
+      "import": "{ getEnsAvatar }"
+    },
+    {
+      "name": "import * from 'viem/siwe'",
+      "path": "./src/_esm/siwe/index.js",
+      "limit": "49 kB",
+      "import": "*"
+    },
+    {
+      "name": "import { verifySiweMessage } from 'viem/siwe'",
+      "path": "./src/_esm/siwe/index.js",
+      "limit": "48 kB",
+      "import": "{ verifySiweMessage }"
+    },
+    {
+      "name": "import { verifyHash } from 'viem/actions'",
+      "path": "./src/_esm/actions/index.js",
+      "limit": "47 kB",
+      "import": "{ verifyHash }"
+    }
+  ],
+  "pnpm": {
+    "overrides": {
+      "typescript": "^5.9.3",
+      "@opentelemetry/api@^1.8.0": "~1.7.0",
+      "permissionless>viem": "workspace:*",
+      "@babel/helpers@<7.26.10": "7.26.10",
+      "@babel/runtime@<7.26.10": "7.26.10",
+      "@hono/node-server@<1.19.13": "1.19.13",
+      "@isaacs/brace-expansion@<=5.0.0": "5.0.1",
+      "@modelcontextprotocol/sdk@>=1.10.0 <=1.25.3": "1.26.0",
+      "ajv@<8.18.0": "8.18.0",
+      "brace-expansion@>=2.0.0 <=2.0.1": "2.0.2",
+      "cookie@<0.7.0": "^0.7.0",
+      "cross-spawn@<6.0.6": ">=6.0.6",
+      "cross-spawn@>=7.0.0 <7.0.5": ">=7.0.5",
+      "estree-util-value-to-estree@<3.3.3": "3.3.3",
+      "express-rate-limit@>=8.2.0 <8.2.2": ">=8.2.2",
+      "fastify": ">=5.8.5",
+      "follow-redirects@<1.16.0": "1.16.0",
+      "uuid@<14.0.0": "14.0.0",
+      "postcss@<8.5.10": "8.5.10",
+      "protobufjs@<7.5.5": "7.5.5",
+      "find-my-way@>=5.5.0 <8.2.2": "^8.2.2",
+      "glob@>=10.3.7 <=11.0.3": ">=11.1.0",
+      "hono": ">=4.12.16",
+      "ip-address@<=10.1.0": "10.1.1",
+      "lodash@>=4.0.0 <=4.17.23": "4.18.1",
+      "lodash-es@>=4.0.0 <=4.17.22": "4.17.23",
+      "mdast-util-to-hast@>=13.0.0 <13.2.1": "13.2.1",
+      "micromatch@<4.0.8": "^4.0.8",
+      "minimatch": ">=10.2.3",
+      "nanoid@>=4.0.0 <5.0.9": "5.0.9",
+      "next@>=15.6.0-canary.0 <16.1.5": ">=16.1.5",
+      "next@>=16.0.0-beta.0 <16.1.5": ">=16.1.5",
+      "on-headers@<1.1.0": "1.1.0",
+      "qs@<=6.14.1": "6.14.2",
+      "react-router@>=7.0.0 <=7.11.0": "7.12.0",
+      "react-server-dom-webpack@>=19.2.0-canary-63779030-20250328 <19.2.4": "19.2.4",
+      "rollup@>=4.0.0 <4.59.0": "4.59.0",
+      "send@<0.19.0": "^0.19.0",
+      "serialize-javascript@<7.0.5": "7.0.5",
+      "serve-static@<1.16.0": "^1.16.0",
+      "smol-toml@<1.6.1": "1.6.1",
+      "tar": ">=7.5.10",
+      "tar-fs@>=3.0.0 <3.1.1": ">=3.1.1",
+      "undici@>=7.0.0 <7.24.0": "7.24.0",
+      "vite@>=6.0.0 <=6.4.1": "6.4.2",
+      "vite@>=7.0.0 <=7.3.1": "7.3.2",
+      "webpack@>=5.49.0 <=5.104.0": "5.104.1",
+      "ws@>=7.0.0 <7.5.10": "^7.5.10",
+      "ws@>=8.0.0 <8.17.1": "^8.17.1",
+      "yauzl@<3.2.1": "3.2.1",
+      "next@>=16.0.1 <16.1.7": "16.1.7",
+      "next@>=16.0.0-beta.0 <16.1.7": "16.1.7",
+      "next@>=10.0.0 <16.1.7": "16.1.7",
+      "path-to-regexp@>=8.0.0 <8.4.0": "8.4.0",
+      "picomatch@<2.3.2": "2.3.2",
+      "picomatch@>=4.0.0 <4.0.4": "4.0.4",
+      "srvx@<0.11.13": "0.11.13",
+      "brace-expansion@>=4.0.0 <5.0.5": "5.0.5",
+      "yaml@>=2.0.0 <2.8.3": "2.8.3",
+      "@vitejs/plugin-rsc@<=0.5.22": "0.5.23",
+      "next@>=16.0.0-beta.0 <16.2.3": "16.2.3",
+      "react-server-dom-webpack@>=19.2.0 <19.2.5": "19.2.5",
+      "basic-ftp@<=5.3.0": "5.3.1"
+    },
+    "onlyBuiltDependencies": [
+      "bun",
+      "protobufjs",
+      "simple-git-hooks"
+    ]
+  }
+}

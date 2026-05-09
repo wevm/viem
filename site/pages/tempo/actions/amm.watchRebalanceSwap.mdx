@@ -1,0 +1,122 @@
+# `amm.watchRebalanceSwap`
+
+Watches for rebalance swap events on the Fee AMM.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const unwatch = client.amm.watchRebalanceSwap({
+  onRebalanceSwap: (args, log) => {
+    console.log('Amount in:', args.amountIn)
+    console.log('Amount out:', args.amountOut)
+    console.log('Swapper:', args.swapper)
+    console.log('User token:', args.userToken)
+    console.log('Validator token:', args.validatorToken)
+  },
+})
+
+// Later, stop watching
+unwatch()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = () => void
+```
+
+Returns a function to unsubscribe from the event.
+
+## Parameters
+
+### onRebalanceSwap
+
+- **Type:** `function`
+
+```ts
+declare function onRebalanceSwap(args: Args, log: Log): void
+
+type Args = {
+  /** Address of the user token */
+  userToken: Address
+  /** Address of the validator token */
+  validatorToken: Address
+  /** Address of the swapper */
+  swapper: Address
+  /** Amount of validator token swapped in */
+  amountIn: bigint
+  /** Amount of user token received */
+  amountOut: bigint
+}
+```
+
+Callback to invoke when a rebalance swap occurs.
+
+### userToken (optional)
+
+- **Type:** `Address | bigint`
+
+Address or ID of the user token to filter events.
+
+### validatorToken (optional)
+
+- **Type:** `Address | bigint`
+
+Address or ID of the validator token to filter events.
+
+### args (optional)
+
+- **Type:** `object`
+
+```ts
+type Args = {
+  /** Filter by user token address */
+  userToken?: Address | Address[] | null
+  /** Filter by validator token address */
+  validatorToken?: Address | Address[] | null
+  /** Filter by swapper address */
+  swapper?: Address | Address[] | null
+}
+```
+
+Filter parameters for the event.
+
+### fromBlock (optional)
+
+- **Type:** `bigint`
+
+Block to start listening from.
+
+### onError (optional)
+
+- **Type:** `function`
+
+```ts
+declare function onError(error: Error): void
+```
+
+The callback to call when an error occurred when trying to get for a new block.
+
+### poll (optional)
+
+- **Type:** `true`
+
+Whether to use polling.
+
+### pollingInterval (optional)
+
+- **Type:** `number`
+
+Polling frequency (in ms). Defaults to Client's pollingInterval config.
+
+

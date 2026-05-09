@@ -1,0 +1,69 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `token.pause`
+
+Pauses a TIP-20 token, preventing all transfers. Requires the `PAUSE` role. [Learn more about token roles](https://docs.tempo.xyz/protocol/tip403/spec)
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { isPaused, receipt } = await client.token.pauseSync({
+  token: '0x20c0000000000000000000000000000000000000',
+})
+
+console.log('Is paused:', isPaused)
+// @log: Is paused: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+The example above uses a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+
+If you are optimizing for performance, you should use the non-sync `token.pause` action and wait for inclusion manually:
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await client.token.pause({
+  token: '0x20c0000000000000000000000000000000000000',
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+
+const { args } 
+  = Actions.token.pause.extractEvent(receipt.logs)
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Whether the token is paused */
+  isPaused: boolean
+  /** Transaction receipt */
+  receipt: TransactionReceipt
+  /** Address that paused the token */
+  updater: Address
+}
+```
+
+## Parameters
+
+### token
+
+- **Type:** `Address | bigint`
+
+Address or ID of the TIP-20 token.
+
+<WriteParameters />
+

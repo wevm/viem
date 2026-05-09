@@ -1,0 +1,44 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `reward.getGlobalRewardPerToken`
+
+Gets the global reward per token value.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const rewardPerToken = await client.reward.getGlobalRewardPerToken({
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+console.log('Global reward per token:', rewardPerToken)
+// @log: Global reward per token: 385802469135802469135n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnValue = bigint
+```
+
+Returns the current global reward per token value scaled by `ACC_PRECISION` (1e18). This value increases each time rewards are distributed.
+
+## Parameters
+
+### token
+
+- **Type:** `Address`
+
+Address of the TIP-20 token.
+
+<ReadParameters />

@@ -1,0 +1,39 @@
+_cjs
+_esm
+_types
+*.local
+.DS_Store
+.attest
+.eslintcache
+.next
+bench
+cache
+coverage
+node_modules
+tsconfig*.tsbuildinfo
+wagmi
+src/node/trustedSetups_esm.ts
+**/trusted-setups/**/*.txt
+.idea
+.pnpm-store
+tasks
+
+# local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.envrc
+
+# tests
+generated.ts
+vectors/**/*.json
+
+# docs
+site/.cache
+site/dist
+site/pages.gen.ts
+.vercel
+vocs.config.tsx.timestamp*
+_

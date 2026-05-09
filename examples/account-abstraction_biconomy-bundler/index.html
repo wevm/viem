@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <h1>Biconomy Bundler Example</h1>
+    <div id="app"><button>Send User Operation</button></div>
+    <script type="module">
+      document.querySelector('button').addEventListener('click', async () => {
+        document.querySelector('#app').innerHTML = 'Sending...'
+        const response = await import('./index.ts').then((x) => x.default);
+        document.querySelector('#app').innerHTML = response
+          .map((x) => `<div style="margin-top: 16px;">${x}</div>`)
+          .join('');
+      })
+    </script>
+  </body>
+</html>

@@ -1,0 +1,28 @@
+# `TempoAddress.validate`
+
+Validates a Tempo address string.
+
+## Usage
+
+```ts twoslash
+import { TempoAddress } from 'viem/tempo'
+
+const valid = TempoAddress.validate(
+  'tempo1qp6z6dwvvc6vq5efyk3ms39une6etu4a9qtj2kk0',
+)
+// @log: true
+```
+
+## Parameters
+
+### tempoAddress
+
+- **Type:** `string`
+
+The Tempo address string to validate.
+
+## Return Type
+
+`boolean`
+
+Whether the address is valid.

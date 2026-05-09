@@ -1,0 +1,33 @@
+# `zone.getAuthorizationTokenInfo`
+
+Returns the authenticated account address and token expiry from the current authorization token.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './zones.config'
+
+const info = await client.zone.getAuthorizationTokenInfo()
+
+console.log('Account:', info.account)
+console.log('Expires At:', info.expiresAt)
+// @log: Account: 0x...
+// @log: Expires At: 1717027200
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  account: Address
+  expiresAt: number
+}
+```

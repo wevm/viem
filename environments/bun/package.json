@@ -1,0 +1,11 @@
+{
+  "name": "test-bun",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "bun index.ts"
+  },
+  "dependencies": {
+    "viem": "file:../../src/"
+  }
+}

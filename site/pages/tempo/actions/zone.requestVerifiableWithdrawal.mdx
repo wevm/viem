@@ -1,0 +1,122 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `zone.requestVerifiableWithdrawal`
+
+Requests a verifiable withdrawal from a zone to the parent Tempo chain. The zone sequencer encrypts the sender's identity for the provided `revealTo` public key.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { PublicKey, Secp256k1 } from 'ox'
+import { parseUnits } from 'viem'
+import { client } from './zones.config'
+
+// Generate a keypair for decrypting the sender identity later.
+// Store the private key securely — the holder can reveal the sender.
+const { privateKey, publicKey } = Secp256k1.createKeyPair()
+const revealTo = PublicKey.toHex(PublicKey.compress(publicKey))
+
+const { receipt } = await client.zone.requestVerifiableWithdrawalSync({
+  amount: parseUnits('100', 6),
+  token: '0x20c0000000000000000000000000000000000001',
+  revealTo,
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+The example above uses a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+
+If you are optimizing for performance, you should use the non-sync `zone.requestVerifiableWithdrawal` action and wait for inclusion manually:
+
+```ts twoslash
+import { PublicKey, Secp256k1 } from 'ox'
+import { parseUnits } from 'viem'
+import { client } from './zones.config'
+
+const { privateKey, publicKey } = Secp256k1.createKeyPair()
+const revealTo = PublicKey.toHex(PublicKey.compress(publicKey))
+
+const hash = await client.zone.requestVerifiableWithdrawal({
+  amount: parseUnits('100', 6),
+  token: '0x20c0000000000000000000000000000000000001',
+  revealTo,
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Transaction receipt */
+  receipt: TransactionReceipt
+}
+```
+
+## Parameters
+
+### amount
+
+- **Type:** `bigint`
+
+Amount of tokens to withdraw.
+
+### token
+
+- **Type:** `Address | bigint`
+
+Token address or ID to withdraw.
+
+### revealTo
+
+- **Type:** `Hex`
+
+33-byte compressed secp256k1 public key. The zone sequencer encrypts the sender's identity for this key.
+
+### to (optional)
+
+- **Type:** `Address`
+- **Default:** `account.address`
+
+Recipient address on the parent Tempo chain.
+
+### data (optional)
+
+- **Type:** `Hex`
+- **Default:** `'0x'`
+
+Optional callback data for the recipient.
+
+### fallbackRecipient (optional)
+
+- **Type:** `Address`
+- **Default:** `to`
+
+Fallback address if callback fails.
+
+### gas (optional)
+
+- **Type:** `bigint`
+- **Default:** `0n`
+
+Gas limit reserved for the withdrawal callback on the parent chain.
+
+### memo (optional)
+
+- **Type:** `Hex`
+- **Default:** `0x00...00`
+
+Optional withdrawal memo.
+
+<WriteParameters />

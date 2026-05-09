@@ -1,0 +1,10 @@
+{
+  "name": "test-node",
+  "private": true,
+  "scripts": {
+    "test": "node index.js && node index.mjs"
+  },
+  "dependencies": {
+    "viem": "file:../../src/"
+  }
+}

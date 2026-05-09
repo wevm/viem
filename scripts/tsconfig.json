@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.base.json",
+  "include": ["."],
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": true,
+    "types": ["@types/bun", "node"]
+  }
+}

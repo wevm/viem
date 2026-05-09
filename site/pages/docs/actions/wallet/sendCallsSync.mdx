@@ -1,0 +1,569 @@
+---
+description: Sign and broadcast a batch of calls to the network, and waits for the calls to be included in a block. 
+---
+
+# sendCallsSync
+
+Requests for the wallet to sign and broadcast a batch of calls to the network, and waits for the calls to be included in a block. 
+
+[Read more](https://eips.ethereum.org/EIPS/eip-5792#wallet_sendcalls)
+
+:::warning
+
+This Action is only recommended to be used on chains with low block times and fast finality (most chains apart from `mainnet`).
+
+:::
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseEther } from 'viem'
+import { account, walletClient } from './config'
+ 
+const status = await walletClient.sendCallsSync({ // [!code focus:99]
+  account,
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: parseEther('1')
+    },
+    {
+      data: '0xdeadbeef',
+      to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+    },
+  ],
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+import 'viem/window'
+// ---cut---
+import { createWalletClient, custom } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const walletClient = createWalletClient({
+  chain: mainnet,
+  transport: custom(window.ethereum!),
+})
+
+export const [account] = await walletClient.getAddresses()
+```
+
+:::
+
+Notes:
+
+- `account` and `chain` are top level properties as all calls should be sent by the same account and chain.
+- Properties of `calls` items are only those shared by all transaction types (e.g. `data`, `to`, `value`). The Wallet should handle other required properties like gas & fees.
+- [Read `wallet_sendCalls` on EIP-5792.](https://eips.ethereum.org/EIPS/eip-5792#wallet_sendcalls)
+
+### Account Hoisting
+
+If you do not wish to pass an `account` to every `sendCalls`, you can also hoist the Account on the Wallet Client (see `config.ts`).
+
+[Learn more](/docs/clients/wallet#account).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { walletClient } from './config'
+ 
+const status = await walletClient.sendCallsSync({ // [!code focus:99]
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: parseEther('1')
+    },
+    {
+      data: '0xdeadbeef',
+      to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+    },
+  ],
+})
+```
+
+```ts [config.ts] filename="config.ts"
+import 'viem/window'
+import { createWalletClient, custom } from 'viem'
+
+// Retrieve Account from an EIP-1193 Provider.
+const [account] = await window.ethereum!.request({ 
+  method: 'eth_requestAccounts' 
+})
+
+export const walletClient = createWalletClient({
+  account,
+  transport: custom(window.ethereum!)
+})
+```
+
+:::
+
+### Contract Calls
+
+The `calls` property also accepts **Contract Calls**, and can be used via the `abi`, `functionName`, and `args` properties.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseAbi } from 'viem'
+import { walletClient } from './config'
+
+const abi = parseAbi([
+  'function approve(address, uint256) returns (bool)',
+  'function transferFrom(address, address, uint256) returns (bool)',
+])
+ 
+const status = await walletClient.sendCallsSync({ // [!code focus:99]
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: parseEther('1')
+    },
+    {
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      abi,
+      functionName: 'approve',
+      args: [
+        '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', 
+        100n
+      ],
+    },
+    {
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      abi,
+      functionName: 'transferFrom',
+      args: [
+        '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+        '0x0000000000000000000000000000000000000000',
+        100n
+      ],
+    },
+  ],
+})
+```
+
+```ts twoslash [abi.ts] filename="abi.ts"
+export const wagmiAbi = [
+  // ...
+  {
+    inputs: [],
+    name: "mint",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  // ...
+] as const;
+```
+
+```ts [config.ts] filename="config.ts"
+import 'viem/window'
+import { createWalletClient, custom } from 'viem'
+
+// Retrieve Account from an EIP-1193 Provider.
+const [account] = await window.ethereum!.request({ 
+  method: 'eth_requestAccounts' 
+})
+
+export const walletClient = createWalletClient({
+  account,
+  transport: custom(window.ethereum!)
+})
+```
+
+:::
+
+### Compatibility Fallback
+
+If the Wallet does not support EIP-5792 and `wallet_sendCalls`, passing the `experimental_fallback` 
+flag to `sendCalls` will allow Viem to fall back to executing the calls sequentially
+via `eth_sendTransaction`. 
+
+:::warning
+When using `experimental_fallback` with a wallet that does not support EIP-5792, 
+Viem will return a custom bundle identifier (`id`). While this identifier works with Viem's [`getCallsStatus` 
+Action](/docs/actions/wallet/getCallsStatus), it cannot be used with the native `wallet_getCallsStatus` RPC method.
+:::
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseEther } from 'viem'
+import { account, walletClient } from './config'
+ 
+const status = await walletClient.sendCallsSync({
+  account,
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: parseEther('1')
+    },
+    {
+      data: '0xdeadbeef',
+      to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+    },
+  ],
+  experimental_fallback: true, // [!code focus]
+})
+```
+
+```ts twoslash [config.ts] filename="config.ts"
+import 'viem/window'
+// ---cut---
+import { createWalletClient, custom } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const walletClient = createWalletClient({
+  chain: mainnet,
+  transport: custom(window.ethereum!),
+})
+
+export const [account] = await walletClient.getAddresses()
+```
+
+:::
+
+## Returns
+
+`WalletGetCallsStatusReturnType`
+
+Status of the calls.
+
+## Parameters
+
+### account
+
+- **Type:** `Account | Address | null`
+
+The Account to sign & broadcast the call from. If set to `null`, it is assumed that the wallet will handle filling the sender of the calls.
+
+Accepts a [JSON-RPC Account](/docs/clients/wallet#json-rpc-accounts).
+
+```ts twoslash
+import { walletClient } from './config'
+
+const status = await walletClient.sendCallsSync({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: parseEther('1')
+    },
+    {
+      data: '0xdeadbeef',
+      to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+    },
+  ],
+})
+```
+
+### chain
+
+- **Type:** [`Chain`](/docs/glossary/types#chain)
+- **Default:** `walletClient.chain`
+
+The target chain to broadcast the calls.
+
+```ts twoslash
+import { mainnet } from 'viem/chains'
+import { walletClient } from './config'
+
+const status = await walletClient.sendCallsSync({
+  chain: mainnet, // [!code focus]
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: parseEther('1')
+    },
+    {
+      data: '0xdeadbeef',
+      to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+    },
+  ],
+})
+```
+
+### calls
+
+- **Type:** `Call[]`
+
+An array of calls to be signed and broadcasted.
+
+```ts twoslash
+import { mainnet } from 'viem/chains'
+import { walletClient } from './config'
+
+const status = await walletClient.sendCallsSync({
+  chain: mainnet,
+  calls: [ // [!code focus]
+    { // [!code focus]
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+      value: parseEther('1') // [!code focus]
+    }, // [!code focus]
+    { // [!code focus]
+      data: '0xdeadbeef', // [!code focus]
+      to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+})
+```
+
+#### calls.data
+
+- **Type:** `Hex`
+
+Calldata to broadcast (typically a contract function selector with encoded arguments, or contract deployment bytecode).
+
+```ts twoslash
+import { mainnet } from 'viem/chains'
+import { walletClient } from './config'
+
+const status = await walletClient.sendCallsSync({
+  chain: mainnet,
+  calls: [ 
+    { 
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
+      value: parseEther('1') 
+    }, 
+    { 
+      data: '0xdeadbeef', // [!code focus]
+      to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+    },
+  ],
+})
+```
+
+When calling functions on contracts, it may be more convenient to pass in a [Contract Call](#contract-calls), providing the the `abi`, `functionName`, and `args` properties which will then be encoded into the appropriate `calls.data`.
+
+```ts twoslash
+import { parseAbi } from 'viem'
+import { walletClient } from './config'
+
+const abi = parseAbi([
+  'function approve(address, uint256) returns (bool)',
+])
+ 
+const status = await walletClient.sendCallsSync({
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: parseEther('1')
+    },
+    {
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      abi, // [!code focus:6]
+      functionName: 'approve',
+      args: [
+        '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', 
+        100n
+      ],
+    }
+  ],
+})
+```
+
+#### calls.to
+
+- **Type:** `Address`
+
+Recipient address of the call.
+
+```ts twoslash
+import { mainnet } from 'viem/chains'
+import { walletClient } from './config'
+
+const status = await walletClient.sendCallsSync({
+  chain: mainnet,
+  calls: [ 
+    { 
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', // [!code focus]
+      value: parseEther('1') 
+    }, 
+    { 
+      data: '0xdeadbeef', 
+      to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', // [!code focus]
+    },
+  ],
+})
+```
+
+#### calls.value
+
+- **Type:** `Address`
+
+Value to send with the call.
+
+```ts twoslash
+import { mainnet } from 'viem/chains'
+import { walletClient } from './config'
+
+const status = await walletClient.sendCallsSync({
+  chain: mainnet,
+  calls: [ 
+    { 
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
+      value: parseEther('1') // [!code focus]
+    }, 
+    { 
+      data: '0xdeadbeef', 
+      to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+    },
+  ],
+})
+```
+
+#### calls.dataSuffix
+
+- **Type:** Hex
+
+Data to append to the end of the calldata. Useful for adding a "domain" tag.
+
+```ts twoslash [example.ts]
+import { parseAbi } from 'viem'
+import { walletClient } from './config'
+
+const abi = parseAbi([
+  'function approve(address, uint256) returns (bool)',
+])
+ // ---cut---
+const status = await walletClient.sendCallsSync({
+  calls: [
+    {
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      abi,
+      functionName: 'approve',
+      args: [
+        '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', 
+        100n
+      ],
+      dataSuffix: '0xdeadbeef' // [!code focus]
+    }
+  ],
+})
+```
+
+### capabilities 
+
+- **Type:** `WalletCapabilities`
+
+Capability metadata for the calls (e.g. specifying a paymaster).
+
+```ts twoslash
+import { walletClient } from './config'
+
+const status = await walletClient.sendCallsSync({
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: parseEther('1')
+    },
+    {
+      data: '0xdeadbeef',
+      to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+    },
+  ],
+  capabilities: { // [!code focus]
+    paymasterService: { // [!code focus]
+      url: 'https://...' // [!code focus]
+    } // [!code focus]
+  } // [!code focus]
+})
+```
+
+### forceAtomic
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Force the calls to be executed atomically. [See more](https://eips.ethereum.org/EIPS/eip-5792#call-execution-atomicity)
+
+```ts twoslash
+import { walletClient } from './config'
+
+const status = await walletClient.sendCallsSync({
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: parseEther('1')
+    },
+    {
+      data: '0xdeadbeef',
+      to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+    },
+  ],
+  forceAtomic: true, // [!code focus]
+})
+```
+
+### id
+
+- **Type:** `string`
+
+Attribute the call batch with an identifier.
+
+```ts twoslash
+import { walletClient } from './config'
+
+const status = await walletClient.sendCallsSync({
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: parseEther('1')
+    },
+    {
+      data: '0xdeadbeef',
+      to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+    },
+  ],
+  id: '<my-batch-id>', // [!code focus]
+})
+```
+
+### pollingInterval (optional)
+
+- **Type:** `number`
+- **Default:** `walletClient.pollingInterval`
+
+The polling interval to poll for the calls status.
+
+```ts twoslash
+import { walletClient } from './config'
+
+const status = await walletClient.sendCallsSync({
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: parseEther('1')
+    },
+    {
+      data: '0xdeadbeef',
+      to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+    },
+  ],
+  pollingInterval: 1_000, // [!code focus]
+})
+```
+
+### timeout (optional)
+
+- **Type:** `number`
+- **Default:** `chain.blockTime * 3`
+
+The timeout to wait for the calls status.
+
+```ts twoslash
+import { walletClient } from './config'
+
+const status = await walletClient.sendCallsSync({
+  calls: [
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: parseEther('1')
+    },
+  ],
+  timeout: 20_000, // [!code focus]
+})
+```

@@ -1,0 +1,76 @@
+{
+  "rewrites": [
+    {
+      "source": "/:match*.html",
+      "destination": "/:match"
+    },
+    {
+      "source": "/:match/hexToSignature",
+      "destination": "/:match/parseSignature"
+    },
+    {
+      "source": "/:match/hexToCompactSignature",
+      "destination": "/:match/parseCompactSignature"
+    },
+    {
+      "source": "/:match/signatureToHex",
+      "destination": "/:match/serializeSignature"
+    },
+    {
+      "source": "/:match/compactSignatureToHex",
+      "destination": "/:match/serializeCompactSignature"
+    },
+    {
+      "source": "/:match/getBytecode",
+      "destination": "/:match/getCode"
+    },
+    {
+      "source": "/:match/accounts/createNonceManager",
+      "destination": "/:match/accounts/local/createNonceManager"
+    },
+    {
+      "source": "/:match/accounts/custom",
+      "destination": "/:match/accounts/local/toAccount"
+    },
+    {
+      "source": "/:match/accounts/mnemonic",
+      "destination": "/:match/accounts/local/mnemonicToAccount"
+    },
+    {
+      "source": "/:match/accounts/privateKey",
+      "destination": "/:match/accounts/local/privateKeyToAccount"
+    },
+    {
+      "source": "/:match/accounts/hd",
+      "destination": "/:match/accounts/local/hdKeyToAccount"
+    },
+    {
+      "source": "/:match/accounts/signMessage",
+      "destination": "/:match/accounts/local/signMessage"
+    },
+    {
+      "source": "/:match/accounts/signTransaction",
+      "destination": "/:match/accounts/local/signTransaction"
+    },
+    {
+      "source": "/:match/accounts/signTypedData",
+      "destination": "/:match/accounts/local/signTypedData"
+    },
+    {
+      "source": "/:match/experimental/eip5792/writeContracts",
+      "destination": "/:match/experimental/eip5792/sendCalls#contract-calls"
+    },
+    {
+      "source": "/:match/simulate",
+      "destination": "/:match/simulateBlocks"
+    },
+    {
+      "source": "/docs/eip7702/:path*",
+      "destination": "/docs/eip7702/:path*"
+    },
+    {
+      "source": "/experimental/eip5792/:path*",
+      "destination": "/docs/actions/wallet/:path*"
+    }
+  ]
+}

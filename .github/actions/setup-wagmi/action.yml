@@ -1,0 +1,39 @@
+name: "Setup Wagmi"
+description: "Prepare Wagmi repository and all dependencies"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Clone wagmi repo
+      shell: bash
+      run: gh repo clone wevm/wagmi
+
+    - name: Set up pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        package_json_file: ./wagmi/package.json
+
+    - name: Set up node
+      uses: actions/setup-node@v4
+      with:
+        cache: pnpm
+        cache-dependency-path: ./wagmi/pnpm-lock.yaml
+
+    - name: Build viem
+      shell: bash
+      run: pnpm build
+
+    - shell: bash
+      working-directory: ./wagmi
+      run: |
+        node -e "import fs from 'fs'; const p = JSON.parse(fs.readFileSync('./package.json', 'utf8')); p.pnpm = p.pnpm || {}; p.pnpm.overrides = p.pnpm.overrides || {}; p.pnpm.overrides.viem = 'file:../src'; fs.writeFileSync('package.json', JSON.stringify(p, null, 2));"
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --no-frozen-lockfile
+      working-directory: ./wagmi
+
+    - name: Link packages
+      shell: bash
+      run: pnpm preconstruct
+      working-directory: ./wagmi

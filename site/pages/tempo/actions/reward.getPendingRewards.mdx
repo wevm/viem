@@ -1,0 +1,51 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `reward.getPendingRewards`
+
+Calculates the pending claimable rewards for an account without modifying state.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const pending = await client.reward.getPendingRewards({
+  token: '0x20c0000000000000000000000000000000000001',
+  account: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
+})
+
+console.log('Pending rewards:', pending)
+// @log: Pending rewards: 1000000000000000000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnValue = bigint
+```
+
+Returns the total pending claimable reward amount, including stored balance and newly accrued rewards.
+
+## Parameters
+
+### account
+
+- **Type:** `Address`
+
+The account address to query pending rewards for.
+
+### token
+
+- **Type:** `Address`
+
+Address of the TIP-20 token.
+
+<ReadParameters />

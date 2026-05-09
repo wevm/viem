@@ -1,0 +1,28 @@
+# `Storage.defaultStorage`
+
+Returns the default storage for the current environment as a singleton.
+
+- **Browser:** `sessionStorage`
+- **Server/unsupported:** in-memory `Map`-based storage
+
+Returns the same instance on every call so that the zone transport and actions share the same storage without explicit plumbing.
+
+## Usage
+
+```ts twoslash
+import { Storage } from 'viem/tempo'
+
+const storage = Storage.defaultStorage()
+
+await storage.setItem('key', 'value')
+const value = await storage.getItem('key')
+// @log: 'value'
+```
+
+## Return Type
+
+```ts
+type ReturnType = Storage
+```
+
+A singleton `Storage` instance for the current environment.

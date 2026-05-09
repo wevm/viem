@@ -1,0 +1,34 @@
+packages:
+  - examples/*
+  - environments/*
+  - site
+  - src
+  - test
+
+catalog:
+  '@types/react': ^19
+  '@types/react-dom': ^19
+  react: ^19.0.0
+  react-dom: ^19.0.0
+  typescript: 5.9.3
+
+minimumReleaseAge: 1440
+
+minimumReleaseAgeExclude:
+  - '@modelcontextprotocol/sdk'
+  - '@vitest/*'
+  - abitype
+  - fastify
+  - glob
+  - hono
+  - lodash
+  - lodash-es
+  - ox
+  - prool
+  - qs
+  - tar
+  - vitest
+  - vocs
+  - webpack
+  - basic-ftp
+

@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "types": "../../_types/chains/utils.d.ts",
+  "module": "../../_esm/chains/utils.js",
+  "main": "../../_cjs/chains/utils.js"
+}

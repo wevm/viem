@@ -1,0 +1,32 @@
+import { expect, test } from 'vitest'
+
+import { formatGwei } from './formatGwei.js'
+
+test('converts wei to gwei', () => {
+  expect(formatGwei(69420123456700n)).toMatchInlineSnapshot('"69420.1234567"')
+  expect(formatGwei(69420000000000n)).toMatchInlineSnapshot('"69420"')
+  expect(formatGwei(1000000000n)).toMatchInlineSnapshot('"1"')
+  expect(formatGwei(500000000n)).toMatchInlineSnapshot('"0.5"')
+  expect(formatGwei(100000000n)).toMatchInlineSnapshot('"0.1"')
+  expect(formatGwei(10000000n)).toMatchInlineSnapshot('"0.01"')
+  expect(formatGwei(1000000n)).toMatchInlineSnapshot('"0.001"')
+  expect(formatGwei(100000n)).toMatchInlineSnapshot('"0.0001"')
+  expect(formatGwei(10000n)).toMatchInlineSnapshot('"0.00001"')
+  expect(formatGwei(1000n)).toMatchInlineSnapshot('"0.000001"')
+  expect(formatGwei(100n)).toMatchInlineSnapshot('"0.0000001"')
+  expect(formatGwei(10n)).toMatchInlineSnapshot('"0.00000001"')
+  expect(formatGwei(1n)).toMatchInlineSnapshot('"0.000000001"')
+  expect(formatGwei(-69420123456700n)).toMatchInlineSnapshot('"-69420.1234567"')
+  expect(formatGwei(-69420000000000n)).toMatchInlineSnapshot('"-69420"')
+  expect(formatGwei(-1000000000n)).toMatchInlineSnapshot('"-1"')
+  expect(formatGwei(-500000000n)).toMatchInlineSnapshot('"-0.5"')
+  expect(formatGwei(-100000000n)).toMatchInlineSnapshot('"-0.1"')
+  expect(formatGwei(-10000000n)).toMatchInlineSnapshot('"-0.01"')
+  expect(formatGwei(-1000000n)).toMatchInlineSnapshot('"-0.001"')
+  expect(formatGwei(-100000n)).toMatchInlineSnapshot('"-0.0001"')
+  expect(formatGwei(-10000n)).toMatchInlineSnapshot('"-0.00001"')
+  expect(formatGwei(-1000n)).toMatchInlineSnapshot('"-0.000001"')
+  expect(formatGwei(-100n)).toMatchInlineSnapshot('"-0.0000001"')
+  expect(formatGwei(-10n)).toMatchInlineSnapshot('"-0.00000001"')
+  expect(formatGwei(-1n)).toMatchInlineSnapshot('"-0.000000001"')
+})

@@ -1,0 +1,15 @@
+name: "Install dependencies"
+description: "Prepare repository and all dependencies"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up foundry
+      uses: foundry-rs/foundry-toolchain@v1
+      with:
+        version: nightly
+
+    - name: Set up pnpm
+      uses: wevm/actions/.github/actions/pnpm@main
+      with:
+        node-version: 24.5

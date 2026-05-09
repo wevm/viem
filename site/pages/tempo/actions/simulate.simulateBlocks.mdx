@@ -1,0 +1,147 @@
+# `simulate.simulateBlocks`
+
+Simulates a set of calls on block(s) via `tempo_simulateV1`.
+
+Returns simulated block results and token metadata for any TIP-20 tokens involved in the simulation.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { blocks, tokenMetadata } = await client.simulate.simulateBlocks({
+  blocks: [{
+    calls: [
+      Actions.token.transfer.call({
+        token: '0x20c0000000000000000000000000000000000001',
+        to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+        amount: parseUnits('100', 6),
+      }),
+    ],
+  }],
+  traceTransfers: true,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Multiple Blocks
+
+You can simulate calls across multiple blocks, each with their own state and block overrides:
+
+```ts twoslash
+import { parseUnits } from 'viem'
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { blocks } = await client.simulate.simulateBlocks({
+  blocks: [
+    {
+      calls: [
+        Actions.token.transfer.call({
+          token: '0x20c0000000000000000000000000000000000001',
+          to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+          amount: parseUnits('50', 6),
+        }),
+      ],
+    },
+    {
+      calls: [
+        Actions.token.getBalance.call({
+          token: '0x20c0000000000000000000000000000000000001',
+          account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+        }),
+      ],
+    },
+  ],
+})
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Simulated blocks with call results. */
+  blocks: (Block & {
+    calls: {
+      /** Encoded return data. */
+      data: Hex
+      /** Gas consumed by the call. */
+      gasUsed: bigint
+      /** Logs emitted by the call. */
+      logs?: Log[]
+      /** Decoded result (if ABI provided). */
+      result: unknown
+      /** Call status. */
+      status: 'success' | 'failure'
+      /** Error (if status is 'failure'). */
+      error?: Error
+    }[]
+  })[]
+  /** Token metadata for TIP-20 tokens involved in the simulation. */
+  tokenMetadata: Record<Address, {
+    name: string
+    symbol: string
+    currency: string
+  }>
+}
+```
+
+## Parameters
+
+### blocks
+
+- **Type:** `Block[]`
+
+Array of blocks to simulate. Each block contains:
+
+#### blocks[].calls
+
+- **Type:** `Call[]`
+
+Calls to execute in the block. Supports ABI-encoded calls (with `abi`, `functionName`, `args`) or raw calls (with `to`, `data`).
+
+#### blocks[].blockOverrides (optional)
+
+- **Type:** `BlockOverrides`
+
+Block header overrides (e.g. `baseFeePerGas`, `gasLimit`).
+
+#### blocks[].stateOverrides (optional)
+
+- **Type:** `StateOverride[]`
+
+Account state overrides for the block.
+
+### traceTransfers (optional)
+
+- **Type:** `boolean`
+
+Whether to trace token transfers. When enabled, the response includes `tokenMetadata` for all TIP-20 tokens involved.
+
+### validation (optional)
+
+- **Type:** `boolean`
+
+Whether to enable validation mode.
+
+### blockNumber (optional)
+
+- **Type:** `bigint`
+
+Block number to simulate against.
+
+### blockTag (optional)
+
+- **Type:** `BlockTag`
+- **Default:** `"latest"`
+
+Block tag to simulate against.

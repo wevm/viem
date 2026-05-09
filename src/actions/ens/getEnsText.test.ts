@@ -1,0 +1,251 @@
+import { beforeAll, describe, expect, test } from 'vitest'
+import { anvilMainnet } from '~test/anvil.js'
+import { createHttpServer, setVitalikResolver } from '~test/utils.js'
+import { linea, optimism } from '../../chains/index.js'
+import { http } from '../../clients/transports/http.js'
+import {
+  createClient,
+  encodeErrorResult,
+  encodeFunctionResult,
+  parseAbi,
+} from '../../index.js'
+import { reset } from '../test/reset.js'
+import { getEnsText } from './getEnsText.js'
+
+const client = anvilMainnet.getClient()
+
+beforeAll(async () => {
+  await reset(client, {
+    blockNumber: 23_085_558n,
+    jsonRpcUrl: anvilMainnet.forkUrl,
+  })
+  await setVitalikResolver()
+})
+
+test('gets text record for name', async () => {
+  await expect(
+    getEnsText(client, { name: 'wagmi-dev.eth', key: 'com.twitter' }),
+  ).resolves.toMatchInlineSnapshot('"wagmi_sh"')
+})
+
+test('gatewayUrls provided', async () => {
+  let called = false
+
+  const server = await createHttpServer((_, res) => {
+    called = true
+    res.end()
+  })
+
+  await getEnsText(client, {
+    name: '1.offchainexample.eth',
+    key: 'email',
+    gatewayUrls: [server.url],
+  }).catch(() => {})
+
+  expect(called).toBe(true)
+})
+
+test('name without text record', async () => {
+  await expect(
+    getEnsText(client, {
+      name: 'unregistered-name.eth',
+      key: 'com.twitter',
+    }),
+  ).resolves.toBeNull()
+})
+
+test('name with resolver that does not support text()', async () => {
+  await expect(
+    getEnsText(client, {
+      name: 'vitalik.eth',
+      key: 'com.twitter',
+    }),
+  ).resolves.toBeNull()
+})
+
+test('name with resolver that does not support text() - strict', async () => {
+  await expect(
+    getEnsText(client, {
+      name: 'vitalik.eth',
+      key: 'com.twitter',
+      strict: true,
+    }),
+  ).rejects.toThrow('The contract function "resolveWithGateways" reverted')
+})
+
+test('name without resolver', async () => {
+  await expect(
+    getEnsText(client, {
+      name: 'random1223232222.eth',
+      key: 'com.twitter',
+    }),
+  ).resolves.toBeNull()
+})
+
+test('name without resolver - strict', async () => {
+  await expect(
+    getEnsText(client, {
+      name: 'random1223232222.eth',
+      key: 'com.twitter',
+      strict: true,
+    }),
+  ).rejects.toThrow('The contract function "resolveWithGateways" reverted')
+})
+
+test('name with non-contract resolver', async () => {
+  await expect(
+    getEnsText(client, {
+      name: 'vbuterin.eth',
+      key: 'com.twitter',
+    }),
+  ).resolves.toBeNull()
+})
+test('name with non-contract resolver - strict', async () => {
+  await expect(
+    getEnsText(client, {
+      name: 'vbuterin.eth',
+      key: 'com.twitter',
+      strict: true,
+    }),
+  ).rejects.toThrow('The contract function "resolveWithGateways" reverted')
+})
+
+describe('http error', () => {
+  let server: Awaited<ReturnType<typeof createHttpServer>> | undefined
+  beforeAll(async () => {
+    server = await createHttpServer((_, res) => {
+      const parsed = parseAbi([
+        'function query((address,string[],bytes)[]) returns (bool[],bytes[])',
+        'error HttpError(uint16,string)',
+      ])
+
+      const encoded = encodeFunctionResult({
+        abi: parsed,
+        functionName: 'query',
+        result: [
+          [true],
+          [
+            encodeErrorResult({
+              abi: parsed,
+              errorName: 'HttpError',
+              args: [404, 'Not Found'],
+            }),
+          ],
+        ],
+      })
+
+      const response = JSON.stringify({ data: encoded })
+      res.statusCode = 200
+      res.setHeader('Content-Type', 'application/json')
+      res.write(response)
+      res.end()
+    })
+  })
+  test('non-strict', async () => {
+    await expect(
+      getEnsText(client, {
+        name: '1.offchainexample.eth',
+        key: 'email',
+        gatewayUrls: [server!.url],
+      }),
+    ).resolves.toBeNull()
+  })
+  test('strict', async () => {
+    await expect(
+      getEnsText(client, {
+        name: '1.offchainexample.eth',
+        key: 'email',
+        gatewayUrls: [server!.url],
+        strict: true,
+      }),
+    ).rejects.toThrowError(`The contract function "resolveWithGateways" reverted.
+
+Error: HttpError(uint16 status, string message)
+                (404, Not Found)`)
+  })
+})
+
+test('custom universal resolver address', async () => {
+  await expect(
+    getEnsText(client, {
+      name: 'wagmi-dev.eth',
+      key: 'com.twitter',
+      universalResolverAddress: '0xED73a03F19e8D849E44a39252d222c6ad5217E1e',
+    }),
+  ).resolves.toMatchInlineSnapshot('"wagmi_sh"')
+})
+
+test('chain not provided', async () => {
+  await expect(
+    getEnsText(
+      createClient({
+        transport: http(anvilMainnet.rpcUrl.http),
+      }),
+      {
+        name: 'wagmi-dev.eth',
+        key: 'com.twitter',
+      },
+    ),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(
+    '[Error: client chain not configured. universalResolverAddress is required.]',
+  )
+})
+
+test('universal resolver contract not configured for chain', async () => {
+  await expect(
+    getEnsText(
+      createClient({
+        chain: optimism,
+        transport: http(),
+      }),
+      {
+        name: 'wagmi-dev.eth',
+        key: 'com.twitter',
+      },
+    ),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [ChainDoesNotSupportContract: Chain "OP Mainnet" does not support contract "ensUniversalResolver".
+
+    This could be due to any of the following:
+    - The chain does not have the contract "ensUniversalResolver" configured.
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('universal resolver contract deployed on later block', async () => {
+  await expect(
+    getEnsText(client, {
+      name: 'wagmi-dev.eth',
+      key: 'com.twitter',
+      blockNumber: 14353601n,
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [ChainDoesNotSupportContract: Chain "Ethereum (Local)" does not support contract "ensUniversalResolver".
+
+    This could be due to any of the following:
+    - The contract "ensUniversalResolver" was not deployed until block 23085558 (current block 14353601).
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('invalid universal resolver address', async () => {
+  await expect(
+    getEnsText(client, {
+      name: 'wagmi-dev.eth',
+      key: 'com.twitter',
+      universalResolverAddress: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
+    }),
+  ).rejects.toThrow('The contract function "resolveWithGateways" reverted')
+})
+
+test('invalid TLD', async () => {
+  const client = createClient({
+    chain: linea,
+    transport: http(),
+  })
+  await expect(
+    getEnsText(client, { name: 'vitalik.eth', key: 'com.twitter' }),
+  ).resolves.toBeNull()
+})

@@ -1,0 +1,55 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `validator.get`
+
+Gets validator information by address.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const validator = await client.validator.get({
+  validator: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+})
+
+console.log('Validator:', validator)
+// @log: Validator: { publicKey: '0x...', active: true, index: 0n, validatorAddress: '0x...', inboundAddress: '...', outboundAddress: '...' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** The validator's communication public key */
+  publicKey: Hex
+  /** Whether the validator is active */
+  active: boolean
+  /** The validator's index */
+  index: bigint
+  /** The validator's address */
+  validatorAddress: Address
+  /** The validator's inbound address for incoming connections */
+  inboundAddress: string
+  /** The validator's outbound IP address for firewall whitelisting */
+  outboundAddress: string
+}
+```
+
+## Parameters
+
+### validator
+
+- **Type:** `Address`
+
+Validator address.
+
+<ReadParameters />
