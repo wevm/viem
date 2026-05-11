@@ -2314,6 +2314,24 @@ export const sidebar = {
             ],
           },
           {
+            text: 'Wallet',
+            collapsed: true,
+            items: [
+              {
+                text: 'deposit',
+                link: '/tempo/actions/wallet.deposit',
+              },
+              {
+                text: 'send',
+                link: '/tempo/actions/wallet.send',
+              },
+              {
+                text: 'swap',
+                link: '/tempo/actions/wallet.swap',
+              },
+            ],
+          },
+          {
             text: 'Zone',
             collapsed: true,
             items: [
