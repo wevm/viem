@@ -13,6 +13,7 @@ import { encodeErrorResult } from './abi/encodeErrorResult.js'
 import { encodeFunctionData } from './abi/encodeFunctionData.js'
 import { ccipRequest, offchainLookup, offchainLookupAbiItem } from './ccip.js'
 import { trim } from './data/trim.js'
+import { wait } from './wait.js'
 
 const client = anvilMainnet.getClient()
 
@@ -72,10 +73,13 @@ describe('offchainLookup', () => {
     })
 
     let count = 0
+    let requestOptions_: unknown
+    const requestOptions = { signal: new AbortController().signal }
     const client_2 = createClient({
       ccipRead: {
-        request: async ({ data, sender, urls }) => {
+        request: async ({ data, requestOptions, sender, urls }) => {
           count++
+          requestOptions_ = requestOptions
           return ccipRequest({ data, sender, urls })
         },
       },
@@ -84,11 +88,13 @@ describe('offchainLookup', () => {
 
     const result = await offchainLookup(client_2, {
       data,
+      requestOptions,
       to: contractAddress!,
     })
 
     expect(trim(result)).toEqual(accounts[0].address)
     expect(count).toBe(1)
+    expect(requestOptions_).toBe(requestOptions)
   })
 
   test('error: invalid signature', async () => {
@@ -254,6 +260,27 @@ describe('ccipRequest', async () => {
     expect(body).toEqual(
       '{"data":"0xdeadbeef","sender":"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"}',
     )
+
+    await server.close()
+  })
+
+  test('requestOptions: signal aborts request', async () => {
+    const server = await createHttpServer(async (_req, res) => {
+      await wait(1_000)
+      res.end(JSON.stringify({ data: '0xcafebabe' }))
+    })
+    const controller = new AbortController()
+
+    setTimeout(() => controller.abort(), 50)
+
+    await expect(() =>
+      ccipRequest({
+        data: '0xdeadbeef',
+        requestOptions: { signal: controller.signal },
+        sender: accounts[0].address,
+        urls: [`${server.url}/{sender}/{data}`],
+      }),
+    ).rejects.toThrowError('This operation was aborted')
 
     await server.close()
   })

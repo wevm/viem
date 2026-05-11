@@ -3,7 +3,7 @@ import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const tempoDevnet = /*#__PURE__*/ defineChain({
   ...chainConfig,
-  id: 31318,
+  id: 31319,
   name: 'Tempo Devnet',
   hardfork: 't3',
   blockExplorers: {

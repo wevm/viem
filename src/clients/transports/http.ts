@@ -81,6 +81,17 @@ export type HttpTransportErrorType =
   | UrlRequiredErrorType
   | ErrorType
 
+let signalId = 0
+const signalIds = new WeakMap<AbortSignal, number>()
+function getSignalId(signal: AbortSignal | undefined) {
+  if (!signal) return 'default'
+  const id = signalIds.get(signal)
+  if (id !== undefined) return id
+  const nextId = signalId++
+  signalIds.set(signal, nextId)
+  return nextId
+}
+
 /**
  * @description Creates a HTTP transport that connects to a JSON-RPC API.
  */
@@ -125,11 +136,14 @@ export function http<
         key,
         methods,
         name,
-        async request({ method, params }) {
+        async request({ method, params }, options) {
           const body = { method, params }
+          const fetchOptions = options?.signal
+            ? { signal: options.signal }
+            : undefined
 
           const { schedule } = createBatchScheduler({
-            id: url_,
+            id: `${url_}.${getSignalId(options?.signal)}`,
             wait,
             shouldSplitBatch(requests) {
               return requests.length > batchSize
@@ -137,6 +151,7 @@ export function http<
             fn: (body: RpcRequest[]) =>
               rpcClient.request({
                 body,
+                fetchOptions,
               }),
             sort: (a, b) => a.id - b.id,
           })
@@ -147,6 +162,7 @@ export function http<
               : [
                   await rpcClient.request({
                     body,
+                    fetchOptions,
                   }),
                 ]
 

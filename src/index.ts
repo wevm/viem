@@ -1135,6 +1135,7 @@ export type {
   EIP1193Parameters,
   EIP1193Provider,
   EIP1193RequestFn,
+  EIP1193RequestOptions,
   EIP1474Methods,
   NetworkSync,
   PaymasterRpcSchema,
