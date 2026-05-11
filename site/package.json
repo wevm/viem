@@ -14,7 +14,7 @@
     "accounts": "^0.9.0",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-server-dom-webpack": "~19.2.3",
+    "react-server-dom-webpack": "~19.2.6",
     "tailwindcss": "^4.1.16",
     "viem": "workspace:*",
     "vite": "^7.1.11",
