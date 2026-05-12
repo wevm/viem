@@ -71,16 +71,15 @@ describe.each(chains)('$name', ({ name, ...chain }) => {
     async () => {
       if (!blockExplorer?.apiUrl) return
 
-      const response = await fetch(
-        `${
-          blockExplorer.apiUrl
-        }?module=block&action=getblocknobytime&closest=before&timestamp=${Math.floor(
-          Date.now() / 1000,
-        )}`,
-        {
-          headers: { 'Content-Type': 'application/json' },
-        },
-      )
+      const apiUrl = new URL(blockExplorer.apiUrl)
+      apiUrl.searchParams.set('module', 'block')
+      apiUrl.searchParams.set('action', 'getblocknobytime')
+      apiUrl.searchParams.set('closest', 'before')
+      apiUrl.searchParams.set('timestamp', `${Math.floor(Date.now() / 1000)}`)
+
+      const response = await fetch(apiUrl, {
+        headers: { 'Content-Type': 'application/json' },
+      })
       const data = await response.json()
       expect(data).toMatchObject({
         status: '1',
