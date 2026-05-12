@@ -133,9 +133,10 @@ export async function getSocketRpcClient<socket extends {}>(
       let keepAliveTimer: ReturnType<typeof setInterval> | undefined
 
       let reconnectInProgress = false
+      let intentionallyClosed = false
       function attemptReconnect() {
         // Attempt to reconnect.
-        if (reconnect && reconnectCount < attempts) {
+        if (reconnect && !intentionallyClosed && reconnectCount < attempts) {
           if (reconnectInProgress) return
           reconnectInProgress = true
           reconnectCount++
@@ -220,6 +221,7 @@ export async function getSocketRpcClient<socket extends {}>(
       // Create a new socket instance.
       socketClient = {
         close() {
+          intentionallyClosed = true
           keepAliveTimer && clearInterval(keepAliveTimer)
           socket.close()
           socketClientCache.delete(id)

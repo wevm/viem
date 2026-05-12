@@ -248,7 +248,40 @@ test('reconnect', async () => {
   socketClient.close()
 })
 
-test('reconnect on close', async () => {
+test('reconnect on socket-level close', async () => {
+  let status = 'idle'
+  let onCloseCallback: (() => void) | undefined
+
+  const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
+    async getSocket({ onClose, onResponse }) {
+      status = 'open'
+      onCloseCallback = onClose
+      return {
+        close() {
+          status = 'closed'
+        },
+        request({ body }) {
+          onResponse({ id: body.id ?? 0, jsonrpc: '2.0', result: body })
+        },
+      }
+    },
+    reconnect: {
+      delay: 100,
+    },
+    url: anvilMainnet.rpcUrl.ws,
+  })
+
+  // Simulate unexpected socket drop (not an intentional client close)
+  status = 'closed'
+  onCloseCallback?.()
+  await wait(200)
+  expect(status).toBe('open')
+
+  socketClient.close()
+})
+
+test('does not reconnect on intentional close', async () => {
   let status = 'idle'
 
   const socketClient = await getSocketRpcClient({
@@ -273,8 +306,8 @@ test('reconnect on close', async () => {
 
   socketClient.close()
   expect(status).toBe('closed')
-  await wait(100)
-  expect(status).toBe('open')
+  await wait(200)
+  expect(status).toBe('closed')
 })
 
 test('keepAlive enabled', async () => {
