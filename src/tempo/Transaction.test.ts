@@ -1,3 +1,5 @@
+import * as Hash from 'ox/Hash'
+import * as Hex from 'ox/Hex'
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import { prepareTransactionRequest, signTransaction } from '../actions/index.js'
@@ -245,6 +247,76 @@ describe('serialize', () => {
         },
       ),
     ).rejects.toThrow('Unable to extract sender from transaction or signature.')
+  })
+})
+
+describe('encodeForSigning', () => {
+  test('behavior: matches sender signing payload preimage', async () => {
+    const transaction = {
+      chainId: 1,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      nonce: 0,
+      type: 'tempo',
+    } as const
+
+    const encoded = Transaction.encodeForSigning(transaction)
+
+    expect(Hash.keccak256(encoded)).toBe(
+      Transaction.z_TxEnvelopeTempo.getSignPayload(
+        Transaction.z_TxEnvelopeTempo.deserialize(
+          (await Transaction.serialize(transaction)) as never,
+        ),
+      ),
+    )
+  })
+
+  test('behavior: normalizes signatures and fee payer-selected fee token', async () => {
+    const transaction = {
+      chainId: 1,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      feePayer: true,
+      feeToken,
+      nonce: 0,
+      type: 'tempo',
+    } as const
+    const signed = Transaction.deserialize(
+      (await Transaction.serialize(transaction, {
+        type: 'secp256k1',
+        signature: { r: 1n, s: 1n, yParity: 0 },
+      })) as `0x78${string}`,
+    )
+
+    expect(
+      Transaction.encodeForSigning({
+        ...signed,
+        feePayerSignature: { r: '0x01', s: '0x01', yParity: 0 },
+        feeToken: '0x0000000000000000000000000000000000000001',
+      }),
+    ).toBe(Transaction.encodeForSigning(transaction))
+  })
+})
+
+describe('getSenderScopedHash', () => {
+  test('behavior: hashes encodeForSigning with sender', () => {
+    const transaction = {
+      chainId: 1,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      nonce: 0,
+      type: 'tempo',
+    } as const
+    const sender = accounts.at(0)!.address
+
+    expect(Transaction.getSenderScopedHash(transaction, { sender })).toBe(
+      Hash.keccak256(
+        Hex.concat(Transaction.encodeForSigning(transaction), sender),
+      ),
+    )
+    expect(Transaction.getExpiringNonceHash(transaction, { sender })).toBe(
+      Transaction.getSenderScopedHash(transaction, { sender }),
+    )
+    expect(Transaction.getChannelOpenContextHash(transaction, { sender })).toBe(
+      Transaction.getSenderScopedHash(transaction, { sender }),
+    )
   })
 })
 
