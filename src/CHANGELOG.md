@@ -1,5 +1,11 @@
 # viem
 
+## 2.49.1
+
+### Patch Changes
+
+- [#4614](https://github.com/wevm/viem/pull/4614) [`8e914dfb47a3a5a95bc0f7527d74aaec626cc570`](https://github.com/wevm/viem/commit/8e914dfb47a3a5a95bc0f7527d74aaec626cc570) Thanks [@decofe](https://github.com/decofe)! - `viem/tempo`: Encoded WebAuthn `keyData` as a 2-byte length hint instead of a raw blob, and auto-shimmed user-provided values longer than 4 bytes.
+
 ## 2.49.0
 
 ### Minor Changes
