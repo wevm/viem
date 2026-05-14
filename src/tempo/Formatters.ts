@@ -167,9 +167,7 @@ export function formatTransactionRequest(
  * 1, 2, or 4-byte key_data as a size hint; anything else silently falls
  * back to the 800-byte default.
  */
-function shimKeyData(
-  data: Hex.Hex | undefined,
-): Hex.Hex | undefined {
+function shimKeyData(data: Hex.Hex | undefined): Hex.Hex | undefined {
   if (!data) return data
   const byteLength = (data.length - 2) / 2 // subtract "0x" prefix
   if (byteLength <= 4) return data
