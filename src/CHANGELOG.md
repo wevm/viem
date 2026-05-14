@@ -1,5 +1,26 @@
 # viem
 
+## 2.49.0
+
+### Minor Changes
+
+- [#4584](https://github.com/wevm/viem/pull/4584) [`4cd686d4acf2c0f14955509a91a3c7ee6d0257f9`](https://github.com/wevm/viem/commit/4cd686d4acf2c0f14955509a91a3c7ee6d0257f9) Thanks [@tmm](https://github.com/tmm)! - Added AbortSignal support to request options and `call` action.
+
+### Patch Changes
+
+- [#4608](https://github.com/wevm/viem/pull/4608) [`0e282d69d534e7fc277300260e31c07c4d8cb325`](https://github.com/wevm/viem/commit/0e282d69d534e7fc277300260e31c07c4d8cb325) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Updated `Actions.wallet.send` parameters to match the latest wallet RPC schema: renamed `value` to `amount`, added an optional `memo` field (UTF-8, max 32 bytes; rejected for non-TIP-20 tokens), and widened `token` to also accept curated tokenlist symbols.
+
+  ```diff
+  await Actions.wallet.send(client, {
+  +  amount: '1.5',
+  +  memo: 'thanks',
+     to: '0x...',
+  -  token: '0x...',
+  +  token: 'pathUsd',
+  -  value: '1.5',
+  })
+  ```
+
 ## 2.48.11
 
 ### Patch Changes
