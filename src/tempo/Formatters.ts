@@ -122,7 +122,7 @@ export function formatTransactionRequest(
   const [keyType, keyData] = (() => {
     const type =
       account && 'keyType' in account ? account.keyType : account?.source
-    if (!type) return [request.keyType, request.keyData]
+    if (!type) return [request.keyType, shimKeyData(request.keyData)]
     if (type === 'webAuthn')
       // Send a 2-byte big-endian length hint (1400 = 0x0578) instead of a
       // 1400-byte dummy blob.  The node's gas estimator expects key_data to
@@ -130,7 +130,7 @@ export function formatTransactionRequest(
       // anything else falls back to the 800-byte default.
       return ['webAuthn', '0x0578']
     if (['p256', 'secp256k1'].includes(type)) return [type, undefined]
-    return [request.keyType, request.keyData]
+    return [request.keyType, shimKeyData(request.keyData)]
   })()
 
   const keyId =
@@ -159,4 +159,19 @@ export function formatTransactionRequest(
       ? { feePayerSignature: request.feePayerSignature }
       : {}),
   } as never
+}
+
+/**
+ * Auto-shim user-provided keyData that is longer than 4 bytes into a
+ * 2-byte big-endian length hint.  The node gas estimator only accepts
+ * 1, 2, or 4-byte key_data as a size hint; anything else silently falls
+ * back to the 800-byte default.
+ */
+function shimKeyData(
+  data: Hex.Hex | undefined,
+): Hex.Hex | undefined {
+  if (!data) return data
+  const byteLength = (data.length - 2) / 2 // subtract "0x" prefix
+  if (byteLength <= 4) return data
+  return Hex.fromNumber(byteLength, { size: 2 })
 }
