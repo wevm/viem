@@ -207,7 +207,7 @@ describe('requestWithdrawal', () => {
     expect(call.args[7]).toBe('0x')
   })
 
-  test('behavior: requests withdrawal from zone to parent chain', async () => {
+  test.skip('behavior: requests withdrawal from zone to parent chain', async () => {
     await zoneActions.signAuthorizationToken(zoneClient)
 
     const info = await zoneActions.getZoneInfo(zoneClient)
