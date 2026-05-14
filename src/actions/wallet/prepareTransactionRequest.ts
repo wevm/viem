@@ -38,15 +38,7 @@ import type {
   GetChainParameter,
 } from '../../types/chain.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
-import type {
-  TransactionRequest,
-  TransactionRequestEIP1559,
-  TransactionRequestEIP2930,
-  TransactionRequestEIP4844,
-  TransactionRequestEIP7702,
-  TransactionRequestLegacy,
-  TransactionSerializable,
-} from '../../types/transaction.js'
+import type { TransactionSerializable } from '../../types/transaction.js'
 import type {
   ExactPartial,
   IsNever,
@@ -106,6 +98,12 @@ type ParameterTypeToParameters<
 > = parameterType extends 'fees'
   ? 'maxFeePerGas' | 'maxPriorityFeePerGas' | 'gasPrice'
   : parameterType
+type ExtractTransactionRequest<transactionRequest, transactionType> =
+  transactionRequest extends { type?: infer type | undefined }
+    ? Extract<transactionType, type> extends never
+      ? never
+      : transactionRequest
+    : never
 
 export type PrepareTransactionRequestRequest<
   chain extends Chain | undefined = Chain | undefined,
@@ -166,12 +164,10 @@ export type PrepareTransactionRequestReturnType<
     : GetTransactionType<request> extends 'legacy'
       ? unknown
       : GetTransactionType<request>,
-  _transactionRequest extends TransactionRequest =
-    | (_transactionType extends 'legacy' ? TransactionRequestLegacy : never)
-    | (_transactionType extends 'eip1559' ? TransactionRequestEIP1559 : never)
-    | (_transactionType extends 'eip2930' ? TransactionRequestEIP2930 : never)
-    | (_transactionType extends 'eip4844' ? TransactionRequestEIP4844 : never)
-    | (_transactionType extends 'eip7702' ? TransactionRequestEIP7702 : never),
+  _transactionRequest = ExtractTransactionRequest<
+    UnionOmit<FormattedTransactionRequest<_derivedChain>, 'from'>,
+    _transactionType
+  >,
 > = Prettify<
   UnionRequiredBy<
     Extract<
