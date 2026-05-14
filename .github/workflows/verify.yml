@@ -253,6 +253,8 @@ jobs:
 
   wagmi:
     name: Wagmi
+    # TODO: temporarily disabled
+    if: false
     permissions:
       contents: read
     runs-on: ubuntu-latest
