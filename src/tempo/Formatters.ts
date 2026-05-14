@@ -124,8 +124,11 @@ export function formatTransactionRequest(
       account && 'keyType' in account ? account.keyType : account?.source
     if (!type) return [request.keyType, request.keyData]
     if (type === 'webAuthn')
-      // TODO: derive correct bytes size of key data based on webauthn create metadata.
-      return ['webAuthn', `0x${'ff'.repeat(1400)}`]
+      // Send a 2-byte big-endian length hint (1400 = 0x0578) instead of a
+      // 1400-byte dummy blob.  The node's gas estimator expects key_data to
+      // be 1, 2, or 4 bytes encoding the desired WebAuthn signature size;
+      // anything else falls back to the 800-byte default.
+      return ['webAuthn', '0x0578']
     if (['p256', 'secp256k1'].includes(type)) return [type, undefined]
     return [request.keyType, request.keyData]
   })()
