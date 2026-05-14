@@ -42,10 +42,11 @@ const client = (requests: unknown[]) =>
 test('send', async () => {
   const requests: unknown[] = []
   const result = await wallet.send(client(requests), {
+    amount: '1.5',
     feePayer: false,
+    memo: 'thanks',
     to: '0x0000000000000000000000000000000000000003',
     token: '0x0000000000000000000000000000000000000004',
-    value: '1.5',
   })
 
   expect({ requests, result }).toMatchInlineSnapshot(`
@@ -55,10 +56,11 @@ test('send', async () => {
           "method": "wallet_send",
           "params": [
             {
+              "amount": "1.5",
               "feePayer": false,
+              "memo": "thanks",
               "to": "0x0000000000000000000000000000000000000003",
               "token": "0x0000000000000000000000000000000000000004",
-              "value": "1.5",
             },
           ],
         },

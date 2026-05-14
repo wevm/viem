@@ -19,9 +19,9 @@ import type { TransactionReceipt } from '../Transaction.js'
  * })
  *
  * const { receipt } = await Actions.wallet.send(client, {
+ *   amount: '1.5',
  *   to: '0x...',
  *   token: '0x...',
- *   value: '1.5',
  * })
  * ```
  *
@@ -48,17 +48,27 @@ export async function send<chain extends Chain | undefined>(
 
 export declare namespace send {
   export type Parameters = {
+    /** Human-readable amount to pre-fill (for example, "1.5"). */
+    amount?: string | undefined
     /**
      * Fee payer override. `false` to disable the wallet's default fee payer,
      * a URL string to use a custom fee payer service.
      */
     feePayer?: boolean | string | undefined
+    /**
+     * UTF-8 memo (max 32 bytes) to attach to the transfer. Wallet rejects
+     * the request if the selected token does not support memos (non-TIP-20).
+     */
+    memo?: string | undefined
     /** Recipient address to pre-fill. */
     to?: Address | undefined
-    /** Token contract address to pre-fill. Omit to let the user choose. */
-    token?: Address | undefined
-    /** Human-readable amount to pre-fill (for example, "1.5"). */
-    value?: string | undefined
+    /**
+     * Token to pre-fill, accepted as either a contract address or a curated
+     * tokenlist symbol (case-insensitive, for example `"pathUsd"`). Symbols
+     * are resolved against the curated tokenlist on the active chain. Omit
+     * to let the user choose.
+     */
+    token?: Address | string | undefined
   }
 
   export type ReturnValue = {
