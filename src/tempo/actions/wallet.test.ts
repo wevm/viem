@@ -29,7 +29,8 @@ const client = (requests: unknown[]) =>
       async request(request) {
         requests.push(request)
 
-        if (request.method === 'wallet_transfer') return { chainId: 4321, receipt }
+        if (request.method === 'wallet_transfer')
+          return { chainId: 4321, receipt }
         if (request.method === 'wallet_swap') return { receipt }
         if (request.method === 'wallet_deposit')
           return { receipts: [receipt] } as never
