@@ -1,0 +1,20 @@
+import { defineChain } from '../../utils/chain/defineChain.js'
+
+export const mizuhikiTestnetAwaji = /*#__PURE__*/ defineChain({
+  id: 6497,
+  name: 'MIZUHIKI Testnet Awaji',
+  nativeCurrency: { name: 'MIZU', symbol: 'MIZU', decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.awaji.mizuhiki.io'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Blockscout',
+      url: 'https://awaji.blockscout.com',
+      apiUrl: 'https://awaji.blockscout.com/api',
+    },
+  },
+  testnet: true,
+})
