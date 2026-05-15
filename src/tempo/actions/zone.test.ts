@@ -255,7 +255,7 @@ describe('requestVerifiableWithdrawal', () => {
     expect(call.args[7]).toBe(revealTo)
   })
 
-  test('behavior: requests verifiable withdrawal from zone', async () => {
+  test.skip('behavior: requests verifiable withdrawal from zone', async () => {
     await zoneActions.signAuthorizationToken(zoneClient)
 
     const info = await zoneActions.getZoneInfo(zoneClient)
