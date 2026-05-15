@@ -1,5 +1,11 @@
 # viem
 
+## 2.49.2
+
+### Patch Changes
+
+- [`215469280e57b4ec729bd2537857a4ca363c984b`](https://github.com/wevm/viem/commit/215469280e57b4ec729bd2537857a4ca363c984b) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Renamed `Actions.wallet.send` to `Actions.wallet.transfer`.
+
 ## 2.49.1
 
 ### Patch Changes
