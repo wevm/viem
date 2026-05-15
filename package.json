@@ -314,6 +314,9 @@
       "bun",
       "protobufjs",
       "simple-git-hooks"
-    ]
+    ],
+    "patchedDependencies": {
+      "ox@0.14.20": "patches/ox@0.14.20.patch"
+    }
   }
 }

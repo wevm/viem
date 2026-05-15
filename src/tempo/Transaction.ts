@@ -1,6 +1,7 @@
 // TODO: Find opportunities to make this file less duplicated + more simplified with Viem v3.
 
 import type { Address } from 'abitype'
+import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
@@ -9,7 +10,7 @@ import {
   type KeyAuthorization,
   type TransactionReceipt as ox_TransactionReceipt,
   SignatureEnvelope,
-  type TempoAddress,
+  TempoAddress,
   TxEnvelopeTempo as TxTempo,
 } from 'ox/tempo'
 import type { Account } from '../accounts/types.js'
@@ -213,6 +214,43 @@ export declare namespace deserialize {
       : ParseTransactionReturnType<serialized>
 }
 
+export function encodeForSigning(
+  transaction: TransactionSerializableTempo & {
+    feePayer?: Account | true | undefined
+  },
+): encodeForSigning.ReturnValue {
+  return TxTempo.encodeForSigning(getTempoEnvelope(transaction))
+}
+
+export declare namespace encodeForSigning {
+  type ReturnValue = Hex.Hex
+}
+
+export function getSenderScopedHash(
+  transaction: TransactionSerializableTempo & {
+    feePayer?: Account | true | undefined
+  },
+  options: getSenderScopedHash.Options,
+): getSenderScopedHash.ReturnValue {
+  return Hash.keccak256(
+    Hex.concat(
+      encodeForSigning(transaction),
+      TempoAddress.resolve(options.sender),
+    ),
+  )
+}
+
+export declare namespace getSenderScopedHash {
+  type Options = {
+    sender: TempoAddress.Address
+  }
+
+  type ReturnValue = Hex.Hex
+}
+
+export const getExpiringNonceHash = getSenderScopedHash
+export const getChannelOpenContextHash = getSenderScopedHash
+
 export async function serialize(
   transaction: TransactionSerializable & {
     feePayer?: Account | true | undefined
@@ -270,26 +308,11 @@ function deserializeTempo(
   } satisfies TransactionSerializableTempo
 }
 
-/** @internal */
-async function serializeTempo(
+function getTempoEnvelope(
   transaction: TransactionSerializableTempo & {
     feePayer?: Account | true | undefined
-    from?: Address | undefined
   },
-  sig?: OneOf<SignatureEnvelope.SignatureEnvelope | viem_Signature> | undefined,
-) {
-  const signature = (() => {
-    if (transaction.signature) return transaction.signature
-    if (sig && 'type' in sig) return sig as SignatureEnvelope.SignatureEnvelope
-    if (sig)
-      return SignatureEnvelope.from({
-        r: BigInt(sig.r!),
-        s: BigInt(sig.s!),
-        yParity: Number(sig.yParity!),
-      })
-    return undefined
-  })()
-
+): TxTempo.TxEnvelopeTempo {
   const { chainId, feePayer, nonce, ...rest } = transaction
 
   const feePayerSignature = (() => {
@@ -304,7 +327,7 @@ async function serializeTempo(
     return undefined
   })()
 
-  const transaction_ox = {
+  const envelope = {
     ...rest,
     calls: rest.calls?.length
       ? rest.calls
@@ -328,7 +351,33 @@ async function serializeTempo(
   // If we have marked the transaction as intended to be paid
   // by a fee payer (feePayer: true), we will not use the fee token
   // as the fee payer will choose their fee token.
-  if (feePayer === true) delete transaction_ox.feeToken
+  if (feePayer === true) delete envelope.feeToken
+
+  return envelope
+}
+
+/** @internal */
+async function serializeTempo(
+  transaction: TransactionSerializableTempo & {
+    feePayer?: Account | true | undefined
+    from?: Address | undefined
+  },
+  sig?: OneOf<SignatureEnvelope.SignatureEnvelope | viem_Signature> | undefined,
+) {
+  const signature = (() => {
+    if (transaction.signature) return transaction.signature
+    if (sig && 'type' in sig) return sig as SignatureEnvelope.SignatureEnvelope
+    if (sig)
+      return SignatureEnvelope.from({
+        r: BigInt(sig.r!),
+        s: BigInt(sig.s!),
+        yParity: Number(sig.yParity!),
+      })
+    return undefined
+  })()
+
+  const { feePayer } = transaction
+  const transaction_ox = getTempoEnvelope(transaction)
 
   if (signature && typeof transaction.feePayer === 'object') {
     const tx = TxTempo.from(transaction_ox, {
