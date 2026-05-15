@@ -2322,8 +2322,8 @@ export const sidebar = {
                 link: '/tempo/actions/wallet.deposit',
               },
               {
-                text: 'send',
-                link: '/tempo/actions/wallet.send',
+                text: 'transfer',
+                link: '/tempo/actions/wallet.transfer',
               },
               {
                 text: 'swap',

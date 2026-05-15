@@ -29,7 +29,7 @@ const client = (requests: unknown[]) =>
       async request(request) {
         requests.push(request)
 
-        if (request.method === 'wallet_send') return { chainId: 4321, receipt }
+        if (request.method === 'wallet_transfer') return { chainId: 4321, receipt }
         if (request.method === 'wallet_swap') return { receipt }
         if (request.method === 'wallet_deposit')
           return { receipts: [receipt] } as never
@@ -39,9 +39,9 @@ const client = (requests: unknown[]) =>
     }),
   })
 
-test('send', async () => {
+test('transfer', async () => {
   const requests: unknown[] = []
-  const result = await wallet.send(client(requests), {
+  const result = await wallet.transfer(client(requests), {
     amount: '1.5',
     feePayer: false,
     memo: 'thanks',
@@ -53,7 +53,7 @@ test('send', async () => {
     {
       "requests": [
         {
-          "method": "wallet_send",
+          "method": "wallet_transfer",
           "params": [
             {
               "amount": "1.5",

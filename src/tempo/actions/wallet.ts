@@ -3,11 +3,18 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType as CoreErrorType } from '../../errors/utils.js'
 import type { Chain } from '../../types/chain.js'
+import type { OneOf } from '../../types/utils.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import type { TransactionReceipt } from '../Transaction.js'
 
 /**
- * Opens the wallet send flow with optional pre-filled send fields.
+ * Transfers a TIP-20 token. Discriminated on `editable`:
+ *
+ * - omitted or `false` (default): read-only. Uses an access key when
+ *   one matches (signs without showing the wallet UI), otherwise falls
+ *   back to a confirm dialog the user has to approve.
+ * - `true`: editable. Opens the wallet send UI with the supplied fields
+ *   pre-filled for the user to confirm or edit before signing.
  *
  * @example
  * ```ts
@@ -18,46 +25,83 @@ import type { TransactionReceipt } from '../Transaction.js'
  *   transport: custom(window.ethereum),
  * })
  *
- * const { receipt } = await Actions.wallet.send(client, {
+ * // Read-only (no UI when an access key matches)
+ * const { receipt } = await Actions.wallet.transfer(client, {
  *   amount: '1.5',
  *   to: '0x...',
  *   token: '0x...',
+ * })
+ *
+ * // Editable (opens wallet UI)
+ * await Actions.wallet.transfer(client, {
+ *   editable: true,
+ *   token: 'pathUSD',
  * })
  * ```
  *
  * @param client - Client.
  * @param parameters - Parameters.
- * @returns The submitted send receipt and chain ID.
+ * @returns The submitted transfer receipt and chain ID.
  */
-export async function send<chain extends Chain | undefined>(
+export async function transfer<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  parameters: send.Parameters = {},
-): Promise<send.ReturnValue> {
+  parameters: transfer.Parameters,
+): Promise<transfer.ReturnValue> {
   return client.request<{
-    Method: 'wallet_send'
-    Parameters: [send.Parameters]
-    ReturnType: send.ReturnValue
+    Method: 'wallet_transfer'
+    Parameters: [transfer.Parameters]
+    ReturnType: transfer.ReturnValue
   }>(
     {
-      method: 'wallet_send',
+      method: 'wallet_transfer',
       params: [parameters],
     },
     { retryCount: 0 },
   )
 }
 
-export declare namespace send {
-  export type Parameters = {
-    /** Human-readable amount to pre-fill (for example, "1.5"). */
-    amount?: string | undefined
+export declare namespace transfer {
+  /**
+   * Read-only variant — uses an access key when one matches, otherwise
+   * shows a confirm dialog.
+   */
+  type ReadOnly = {
+    /** Human-readable amount to transfer (for example, `"1.5"`). */
+    amount: string
     /**
-     * Fee payer override. `false` to disable the wallet's default fee payer,
-     * a URL string to use a custom fee payer service.
+     * Skip the editable wallet UI. The wallet still shows a confirm
+     * dialog when no matching access key is available.
+     * @default false
      */
-    feePayer?: boolean | string | undefined
+    editable?: false | undefined
     /**
-     * UTF-8 memo (max 32 bytes) to attach to the transfer. Wallet rejects
-     * the request if the selected token does not support memos (non-TIP-20).
+     * Address to transfer tokens from. Defaults to the active account. When
+     * set to a different address, the call uses `transferFrom` and requires
+     * the active account to have an allowance from `from`.
+     */
+    from?: Address | undefined
+    /**
+     * UTF-8 memo (max 32 bytes) to attach to the transfer.
+     */
+    memo?: string | undefined
+    /** Recipient address. */
+    to: Address
+    /**
+     * Token to transfer, accepted as either a contract address or a curated
+     * tokenlist symbol (case-insensitive, for example `"pathUsd"`). Symbols
+     * are resolved against the curated tokenlist on the active chain.
+     */
+    token: Address | string
+  }
+
+  /** Editable variant — opens the wallet send UI with optional pre-filled fields. */
+  type Editable = {
+    /** Human-readable amount to pre-fill (for example, `"1.5"`). */
+    amount?: string | undefined
+    /** Show the wallet UI for the user to confirm or edit. */
+    editable: true
+    /**
+     * UTF-8 memo (max 32 bytes) to attach to the transfer.
      */
     memo?: string | undefined
     /** Recipient address to pre-fill. */
@@ -71,10 +115,20 @@ export declare namespace send {
     token?: Address | string | undefined
   }
 
+  export type Parameters = {
+    /** Chain id. Defaults to the active chain. */
+    chainId?: number | undefined
+    /**
+     * Fee payer override. `false` to disable the wallet's default fee payer,
+     * a URL string to use a custom fee payer service.
+     */
+    feePayer?: boolean | string | undefined
+  } & OneOf<ReadOnly | Editable>
+
   export type ReturnValue = {
-    /** Chain ID the send was submitted to. */
+    /** Chain ID the transfer was submitted to. */
     chainId: number
-    /** Receipt of the submitted send. */
+    /** Receipt of the submitted transfer. */
     receipt: TransactionReceipt
   }
 
