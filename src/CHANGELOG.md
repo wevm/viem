@@ -1,5 +1,13 @@
 # viem
 
+## 2.49.3
+
+### Patch Changes
+
+- [#4621](https://github.com/wevm/viem/pull/4621) [`6d80eaeea315c552a57e9683607ed36f7d219a9e`](https://github.com/wevm/viem/commit/6d80eaeea315c552a57e9683607ed36f7d219a9e) Thanks [@Blessing-Circle](https://github.com/Blessing-Circle)! - Added Arc chain.
+
+- [#4622](https://github.com/wevm/viem/pull/4622) [`c5dc4d63506f787e92417eff77dd0ef84e3a2c8c`](https://github.com/wevm/viem/commit/c5dc4d63506f787e92417eff77dd0ef84e3a2c8c) Thanks [@struong](https://github.com/struong)! - `viem/tempo`: Preserved `feeToken` on broadcast envelope when `feePayerSignature` is present. Previously stripped unconditionally when `feePayer === true`, breaking fee payer signature verification on-chain.
+
 ## 2.49.2
 
 ### Patch Changes
