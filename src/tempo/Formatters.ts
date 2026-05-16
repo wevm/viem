@@ -72,6 +72,10 @@ export function formatTransactionRequest(
 ): TransactionRequestRpc {
   const request = r as TransactionRequest & {
     account?: viem_Account | Address | undefined
+    feePayerSignature?:
+      | { r: Hex.Hex; s: Hex.Hex; yParity: number; v?: number | undefined }
+      | null
+      | undefined
     keyData?: Hex.Hex | undefined
     keyId?: Address | undefined
     keyType?: 'p256' | 'secp256k1' | 'webAuthn' | undefined
@@ -100,10 +104,17 @@ export function formatTransactionRequest(
       },
     ]
 
-  // If we have marked the transaction as intended to be paid
-  // by a fee payer (feePayer: true), we will not use the fee token
-  // as the fee payer will choose their fee token.
-  if (request.feePayer === true) delete request.feeToken
+  // If we have marked the transaction as intended to be paid by a fee
+  // payer (feePayer: true), we strip the fee token from the sender's
+  // sign payload — per TIP-76 the sender does not commit to it; the fee
+  // payer chooses and commits to the token via its own signature.
+  //
+  // Once the fee payer has signed (`feePayerSignature` is populated),
+  // the relay has chosen a token and signed over it. The broadcast
+  // envelope must therefore include `feeToken` so the chain can verify
+  // the fee payer's signature and identify which token to charge.
+  if (request.feePayer === true && !request.feePayerSignature)
+    delete request.feeToken
 
   const rpc = ox_TransactionRequest.toRpc({
     ...request,
