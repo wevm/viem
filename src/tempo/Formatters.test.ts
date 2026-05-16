@@ -140,7 +140,7 @@ describe('formatTransactionRequest', () => {
     expect(rpc.calls?.[0]?.to).toBe(undefined)
   })
 
-  test('behavior: feePayer: true deletes feeToken', () => {
+  test('behavior: feePayer: true deletes feeToken (no fee payer signature)', () => {
     const rpc = Formatters.formatTransactionRequest({
       chainId: 1,
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
@@ -148,6 +148,22 @@ describe('formatTransactionRequest', () => {
       feeToken,
     } as never)
     expect((rpc as Record<string, unknown>).feeToken).toBeUndefined()
+    expect((rpc as Record<string, unknown>).feePayer).toBe(true)
+  })
+
+  test('behavior: feePayer: true preserves feeToken once feePayerSignature is set', () => {
+    const rpc = Formatters.formatTransactionRequest({
+      chainId: 1,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      feePayer: true,
+      feeToken,
+      feePayerSignature: {
+        r: '0x0000000000000000000000000000000000000000000000000000000000000001',
+        s: '0x0000000000000000000000000000000000000000000000000000000000000002',
+        yParity: 0,
+      },
+    } as never)
+    expect((rpc as Record<string, unknown>).feeToken).toBe(feeToken)
     expect((rpc as Record<string, unknown>).feePayer).toBe(true)
   })
 

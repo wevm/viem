@@ -216,6 +216,38 @@ describe('serialize', () => {
     expect(serialized.startsWith('0x78')).toBe(true)
   })
 
+  test('behavior: feePayer: true preserves feeToken once feePayerSignature is set', async () => {
+    // Sender-side serialization (no feePayerSignature yet) — feeToken
+    // must be stripped per TIP-76; sender does not commit to a token.
+    const unsigned = await Transaction.serialize({
+      chainId: 1,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      feePayer: true,
+      feeToken,
+    })
+    const unsignedParsed = Transaction.deserialize(unsigned as `0x76${string}`)
+    expect(unsignedParsed.feeToken).toBeUndefined()
+
+    // Final broadcast envelope (fee payer has signed) — feeToken must
+    // remain so the chain can verify the fee payer's signature and
+    // identify which token to charge.
+    const signed = await Transaction.serialize(
+      {
+        chainId: 1,
+        calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+        feePayer: true,
+        feeToken,
+        from: accounts.at(0)!.address,
+        feePayerSignature: { r: '0x1', s: '0x1', yParity: 0 } as never,
+      },
+      { type: 'secp256k1', signature: { r: 1n, s: 1n, yParity: 0 } },
+    )
+    const signedParsed = Transaction.deserialize(signed as `0x78${string}`)
+    expect((signedParsed.feeToken as string)?.toLowerCase()).toBe(
+      feeToken.toLowerCase(),
+    )
+  })
+
   test('behavior: serializes with feePayer as object (co-signed)', async () => {
     const serialized = await Transaction.serialize(
       {

@@ -325,10 +325,16 @@ async function serializeTempo(
     ...(nonce ? { nonce: BigInt(nonce) } : {}),
   } satisfies TxTempo.TxEnvelopeTempo
 
-  // If we have marked the transaction as intended to be paid
-  // by a fee payer (feePayer: true), we will not use the fee token
-  // as the fee payer will choose their fee token.
-  if (feePayer === true) delete transaction_ox.feeToken
+  // If we have marked the transaction as intended to be paid by a fee
+  // payer (feePayer: true), we strip the fee token from the sender's
+  // sign payload — per TIP-76 the sender does not commit to it; the fee
+  // payer chooses and commits to the token via its own signature.
+  //
+  // Once the fee payer has signed (`feePayerSignature` is populated),
+  // the relay has chosen a token and signed over it. The broadcast
+  // envelope must therefore include `feeToken` so the chain can verify
+  // the fee payer's signature and identify which token to charge.
+  if (feePayer === true && !feePayerSignature) delete transaction_ox.feeToken
 
   if (signature && typeof transaction.feePayer === 'object') {
     const tx = TxTempo.from(transaction_ox, {
@@ -372,8 +378,12 @@ async function serializeTempo(
 
   return TxTempo.serialize(
     // If we have specified a fee payer, the user will not be signing over the fee token.
-    // Defer the fee token signing to the fee payer.
-    { ...transaction_ox, ...(feePayer ? { feeToken: undefined } : {}) },
+    // Defer the fee token signing to the fee payer. Once the fee payer has signed,
+    // keep `feeToken` so the broadcast envelope carries the token the chain must charge.
+    {
+      ...transaction_ox,
+      ...(feePayer && !feePayerSignature ? { feeToken: undefined } : {}),
+    },
     {
       feePayerSignature: undefined,
       signature,
