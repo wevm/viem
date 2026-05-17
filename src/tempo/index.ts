@@ -29,6 +29,7 @@ export {
   decorator as tempoActions,
 } from './Decorator.js'
 export * as Expiry from './Expiry.js'
+export * from './errors.js'
 export * as Formatters from './Formatters.js'
 export * as Hardfork from './Hardfork.js'
 export * as P256 from './P256.js'
