@@ -60,13 +60,10 @@ export function formatBlockParameter(
       '`requireCanonical` can only be provided when `blockHash` is set.',
     )
 
-  if (blockHash) {
+  if (blockHash)
     return requireCanonical ? { blockHash, requireCanonical } : { blockHash }
-  }
 
-  if (typeof blockNumber === 'bigint') {
-    return numberToHex(blockNumber)
-  }
+  if (typeof blockNumber === 'bigint') return numberToHex(blockNumber)
 
   return blockTag ?? 'latest'
 }
