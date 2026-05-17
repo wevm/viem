@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-Fixed WebSocket transport not reconnecting after intentional socket close followed by reconnect attempt.
+Fixed `socketClient.close()` triggering an unwanted reconnect loop that prevented the Node.js process from exiting.

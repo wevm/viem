@@ -131,6 +131,7 @@ export async function getSocketRpcClient<socket extends {}>(
       let error: Error | Event | undefined
       let socket: Socket<{}>
       let keepAliveTimer: ReturnType<typeof setInterval> | undefined
+      let reconnectTimer: ReturnType<typeof setTimeout> | undefined
 
       let reconnectInProgress = false
       let intentionallyClosed = false
@@ -144,7 +145,13 @@ export async function getSocketRpcClient<socket extends {}>(
           // Make sure the previous socket is definitely closed.
           socket?.close()
 
-          setTimeout(async () => {
+          reconnectTimer = setTimeout(async () => {
+            reconnectTimer = undefined
+            // Bail if the client was intentionally closed during the delay.
+            if (intentionallyClosed) {
+              reconnectInProgress = false
+              return
+            }
             // biome-ignore lint/suspicious/noConsole: _
             await setup().catch(console.error)
             reconnectInProgress = false
@@ -223,6 +230,11 @@ export async function getSocketRpcClient<socket extends {}>(
         close() {
           intentionallyClosed = true
           keepAliveTimer && clearInterval(keepAliveTimer)
+          if (reconnectTimer) {
+            clearTimeout(reconnectTimer)
+            reconnectTimer = undefined
+            reconnectInProgress = false
+          }
           socket.close()
           socketClientCache.delete(id)
         },
