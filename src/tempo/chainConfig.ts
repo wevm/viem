@@ -1,7 +1,4 @@
-import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
-import * as PublicKey from 'ox/PublicKey'
-import * as Secp256k1 from 'ox/Secp256k1'
 import { SignatureEnvelope, type TokenId } from 'ox/tempo'
 import { getCode } from '../actions/public/getCode.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
@@ -123,21 +120,17 @@ export const chainConfig = {
             ? keccak256(Hex.concat('0x04', hash, address))
             : hash
 
-        let accessKeyAddress: Address.Address
-        try {
-          if ('publicKey' in envelope.inner && envelope.inner.publicKey)
-            accessKeyAddress = Address.fromPublicKey(
-              PublicKey.from(envelope.inner.publicKey as PublicKey.PublicKey),
-            )
-          else if (envelope.inner.type === 'secp256k1')
-            accessKeyAddress = Secp256k1.recoverAddress({
+        const accessKeyAddress = (() => {
+          try {
+            return SignatureEnvelope.extractAddress({
               payload: innerPayload,
-              signature: envelope.inner.signature,
+              signature: envelope.inner,
             })
-          else return false
-        } catch {
-          return false
-        }
+          } catch {
+            return undefined
+          }
+        })()
+        if (!accessKeyAddress) return false
 
         const keyInfo = await getMetadata(client, {
           account: address,
