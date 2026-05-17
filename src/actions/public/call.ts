@@ -33,7 +33,7 @@ import {
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { EIP1193RequestOptions } from '../../types/eip1193.js'
-import type { Hex } from '../../types/misc.js'
+import type { Hash, Hex } from '../../types/misc.js'
 import type {
   RpcStateOverride,
   RpcTransactionRequest,
@@ -54,15 +54,15 @@ import {
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
+import {
+  type FormatBlockParameterErrorType,
+  formatBlockParameter,
+} from '../../utils/block/formatBlockParameter.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type GetChainContractAddressErrorType,
   getChainContractAddress,
 } from '../../utils/chain/getChainContractAddress.js'
-import {
-  type NumberToHexErrorType,
-  numberToHex,
-} from '../../utils/encoding/toHex.js'
 import {
   type GetCallErrorReturnType,
   getCallError,
@@ -108,17 +108,29 @@ export type CallParameters<
   stateOverride?: StateOverride | undefined
 } & (
     | {
-        /** The balance of the account at a block number. */
+        /** The block number to perform the call against. */
         blockNumber?: bigint | undefined
         blockTag?: undefined
+        blockHash?: undefined
+        requireCanonical?: undefined
       }
     | {
         blockNumber?: undefined
         /**
-         * The balance of the account at a block tag.
+         * The block tag to perform the call against.
          * @default 'latest'
          */
         blockTag?: BlockTag | undefined
+        blockHash?: undefined
+        requireCanonical?: undefined
+      }
+    | {
+        blockNumber?: undefined
+        blockTag?: undefined
+        /** The block hash to perform the call against. */
+        blockHash: Hash
+        /** Whether or not to throw an error if the block is not in the canonical chain. Only allowed in conjunction with `blockHash`. */
+        requireCanonical?: boolean | undefined
       }
   )
 type FormattedCall<chain extends Chain | undefined = Chain | undefined> =
@@ -130,7 +142,7 @@ export type CallErrorType = GetCallErrorReturnType<
   | ParseAccountErrorType
   | SerializeStateOverrideErrorType
   | AssertRequestErrorType
-  | NumberToHexErrorType
+  | FormatBlockParameterErrorType
   | FormatTransactionRequestErrorType
   | ScheduleMulticallErrorType
   | RequestErrorType
@@ -171,8 +183,10 @@ export async function call<chain extends Chain | undefined>(
     account: account_ = client.account,
     authorizationList,
     batch = Boolean(client.batch?.multicall),
+    blockHash,
     blockNumber,
     blockTag = client.experimental_blockTag ?? 'latest',
+    requireCanonical,
     accessList,
     blobs,
     blockOverrides,
@@ -226,9 +240,12 @@ export async function call<chain extends Chain | undefined>(
   try {
     assertRequest(args as AssertRequestParameters)
 
-    const blockNumberHex =
-      typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
-    const block = blockNumberHex || blockTag
+    const block = formatBlockParameter({
+      blockHash,
+      blockNumber,
+      blockTag,
+      requireCanonical,
+    })
 
     const rpcBlockOverrides = blockOverrides
       ? BlockOverrides.toRpc(blockOverrides)
@@ -259,7 +276,12 @@ export async function call<chain extends Chain | undefined>(
       'call',
     ) as TransactionRequest
 
-    if (batch && shouldPerformMulticall({ request }) && !rpcBlockOverrides) {
+    if (
+      batch &&
+      shouldPerformMulticall({ request }) &&
+      !rpcBlockOverrides &&
+      blockHash === undefined
+    ) {
       try {
         const { deployless = false } =
           typeof client.batch?.multicall === 'object'
@@ -276,10 +298,12 @@ export async function call<chain extends Chain | undefined>(
         )
           return await scheduleMulticall(client, {
             ...request,
+            blockHash,
             blockNumber,
             blockTag,
             multicallAddress,
             requestOptions,
+            requireCanonical,
             rpcStateOverride,
           } as unknown as ScheduleMulticallParameters<chain>)
       } catch (err) {
@@ -376,7 +400,7 @@ function getRequestOptionsId(
 
 type ScheduleMulticallParameters<chain extends Chain | undefined> = Pick<
   CallParameters<chain>,
-  'blockNumber' | 'blockTag'
+  'blockHash' | 'blockNumber' | 'blockTag' | 'requireCanonical'
 > & {
   data: Hex
   multicallAddress?: Address | null | undefined
@@ -387,7 +411,7 @@ type ScheduleMulticallParameters<chain extends Chain | undefined> = Pick<
 
 type ScheduleMulticallErrorType =
   | GetChainContractAddressErrorType
-  | NumberToHexErrorType
+  | FormatBlockParameterErrorType
   | CreateBatchSchedulerErrorType
   | EncodeFunctionDataErrorType
   | DecodeFunctionResultErrorType
@@ -404,8 +428,10 @@ async function scheduleMulticall<chain extends Chain | undefined>(
     wait = 0,
   } = typeof client.batch?.multicall === 'object' ? client.batch.multicall : {}
   const {
+    blockHash,
     blockNumber,
     blockTag = client.experimental_blockTag ?? 'latest',
+    requireCanonical,
     data,
     multicallAddress: multicallAddress_,
     requestOptions,
@@ -421,16 +447,20 @@ async function scheduleMulticall<chain extends Chain | undefined>(
           deployless,
         })
 
-  const blockNumberHex =
-    typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
-  const block = blockNumberHex || blockTag
+  const block = formatBlockParameter({
+    blockHash,
+    blockNumber,
+    blockTag,
+    requireCanonical,
+  })
+  const blockId = typeof block === 'string' ? block : JSON.stringify(block)
 
   const stateOverrideKey = rpcStateOverride
     ? `.${JSON.stringify(rpcStateOverride)}`
     : ''
 
   const { schedule } = createBatchScheduler({
-    id: `${client.uid}.${block}.${getRequestOptionsId(requestOptions)}${stateOverrideKey}`,
+    id: `${client.uid}.${blockId}.${getRequestOptionsId(requestOptions)}${stateOverrideKey}`,
     wait,
     shouldSplitBatch(args) {
       const size = args.reduce((size, { data }) => size + (data.length - 2), 0)

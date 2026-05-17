@@ -77,6 +77,37 @@ const transactionCount = await publicClient.getTransactionCount({
 })
 ```
 
+### blockHash (optional)
+
+- **Type:** `Hash`
+
+Get the count at a block hash. Implements [EIP-1898](https://eips.ethereum.org/EIPS/eip-1898).
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+const transactionCount = await publicClient.getTransactionCount({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d'  // [!code focus]
+})
+```
+
+### requireCanonical (optional)
+
+- **Type:** `boolean`
+
+Whether or not to throw an error if the block is not in the canonical chain. Only allowed in conjunction with `blockHash`. Implements [EIP-1898](https://eips.ethereum.org/EIPS/eip-1898).
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+const transactionCount = await publicClient.getTransactionCount({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+  requireCanonical: true  // [!code focus]
+})
+```
+
 ## Notes
 
 - The transaction count of an account can also be used as a nonce.
