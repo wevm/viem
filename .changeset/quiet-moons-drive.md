@@ -2,4 +2,4 @@
 "viem": patch
 ---
 
-fix(chains): correct Sova block explorer default URL
+Fixed `sova` block explorer default URL.
