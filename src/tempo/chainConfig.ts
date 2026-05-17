@@ -1,6 +1,4 @@
-import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
-import * as PublicKey from 'ox/PublicKey'
 import { SignatureEnvelope, type TokenId } from 'ox/tempo'
 import { getCode } from '../actions/public/getCode.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
@@ -115,9 +113,24 @@ export const chainConfig = {
       // Access key (keychain) signature verification: check the key is
       // authorized, not expired, and not revoked on the AccountKeychain.
       if (envelope?.type === 'keychain' && mode === 'allowAccessKey') {
-        const accessKeyAddress = Address.fromPublicKey(
-          PublicKey.from(envelope.inner.publicKey as PublicKey.PublicKey),
-        )
+        // For v2 keychain envelopes, the inner signature signs
+        // keccak256(0x04 || hash || userAddress).
+        const innerPayload =
+          envelope.version === 'v2'
+            ? keccak256(Hex.concat('0x04', hash, address))
+            : hash
+
+        const accessKeyAddress = (() => {
+          try {
+            return SignatureEnvelope.extractAddress({
+              payload: innerPayload,
+              signature: envelope.inner,
+            })
+          } catch {
+            return undefined
+          }
+        })()
+        if (!accessKeyAddress) return false
 
         const keyInfo = await getMetadata(client, {
           account: address,
@@ -129,13 +142,6 @@ export const chainConfig = {
         if (keyInfo.isRevoked) return false
         if (keyInfo.expiry <= BigInt(Math.floor(Date.now() / 1000)))
           return false
-
-        // For v2 keychain envelopes, the inner signature signs
-        // keccak256(0x04 || hash || userAddress).
-        const innerPayload =
-          envelope.version === 'v2'
-            ? keccak256(Hex.concat('0x04', hash, address))
-            : hash
         return SignatureEnvelope.verify(envelope.inner, {
           address: accessKeyAddress,
           payload: innerPayload,

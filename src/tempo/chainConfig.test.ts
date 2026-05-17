@@ -388,6 +388,30 @@ describe('verifyHash', () => {
     ).toBe(true)
   })
 
+  test('accessKey: secp256k1 valid signature', async () => {
+    const rootAccount = accounts.at(0)!
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: rootAccount,
+    })
+
+    await accessKeyActions.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    const hash = hashMessage('hello world')
+    const signature = await accessKey.sign({ hash })
+
+    expect(
+      await verifyHash(client, {
+        address: accessKey.address,
+        hash,
+        signature,
+        mode: 'allowAccessKey',
+      }),
+    ).toBe(true)
+  })
+
   test('accessKey: invalid signature returns false', async () => {
     const rootAccount = accounts.at(0)!
     const accessKey = Account.fromP256(generatePrivateKey(), {
