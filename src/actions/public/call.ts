@@ -48,6 +48,7 @@ import {
   type EncodeFunctionDataErrorType,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
+import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type GetChainContractAddressErrorType,
@@ -252,12 +253,26 @@ export async function call<chain extends Chain | undefined>(
 
     if (batch && shouldPerformMulticall({ request }) && !rpcBlockOverrides) {
       try {
-        return await scheduleMulticall(client, {
-          ...request,
+        const { deployless = false } =
+          typeof client.batch?.multicall === 'object'
+            ? client.batch.multicall
+            : {}
+        const multicallAddress = getMulticallAddress(client, {
           blockNumber,
-          blockTag,
-          rpcStateOverride,
-        } as unknown as ScheduleMulticallParameters<chain>)
+          deployless,
+        })
+
+        if (
+          !multicallAddress ||
+          !hasStateOverrideForAddress(rpcStateOverride, multicallAddress)
+        )
+          return await scheduleMulticall(client, {
+            ...request,
+            blockNumber,
+            blockTag,
+            multicallAddress,
+            rpcStateOverride,
+          } as unknown as ScheduleMulticallParameters<chain>)
       } catch (err) {
         if (
           !(err instanceof ClientChainNotConfiguredError) &&
@@ -333,7 +348,7 @@ type ScheduleMulticallParameters<chain extends Chain | undefined> = Pick<
   'blockNumber' | 'blockTag'
 > & {
   data: Hex
-  multicallAddress?: Address | undefined
+  multicallAddress?: Address | null | undefined
   to: Address
   rpcStateOverride?: RpcStateOverride | undefined
 }
@@ -360,22 +375,18 @@ async function scheduleMulticall<chain extends Chain | undefined>(
     blockNumber,
     blockTag = client.experimental_blockTag ?? 'latest',
     data,
+    multicallAddress: multicallAddress_,
     rpcStateOverride,
     to,
   } = args
 
-  const multicallAddress = (() => {
-    if (deployless) return null
-    if (args.multicallAddress) return args.multicallAddress
-    if (client.chain) {
-      return getChainContractAddress({
-        blockNumber,
-        chain: client.chain,
-        contract: 'multicall3',
-      })
-    }
-    throw new ClientChainNotConfiguredError()
-  })()
+  const multicallAddress =
+    multicallAddress_ !== undefined
+      ? multicallAddress_
+      : getMulticallAddress(client, {
+          blockNumber,
+          deployless,
+        })
 
   const blockNumberHex =
     typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
@@ -456,6 +467,34 @@ async function scheduleMulticall<chain extends Chain | undefined>(
   if (!success) throw new RawContractError({ data: returnData })
   if (returnData === '0x') return { data: undefined }
   return { data: returnData }
+}
+
+function getMulticallAddress(
+  client: Client<Transport>,
+  parameters: {
+    blockNumber?: bigint | undefined
+    deployless?: boolean | undefined
+  },
+): Address | null {
+  const { blockNumber, deployless } = parameters
+  if (deployless) return null
+  if (client.chain)
+    return getChainContractAddress({
+      blockNumber,
+      chain: client.chain,
+      contract: 'multicall3',
+    })
+  throw new ClientChainNotConfiguredError()
+}
+
+function hasStateOverrideForAddress(
+  rpcStateOverride: RpcStateOverride | undefined,
+  address: Address,
+) {
+  if (!rpcStateOverride) return false
+  return Object.keys(rpcStateOverride).some((stateOverrideAddress) =>
+    isAddressEqual(stateOverrideAddress as Address, address),
+  )
 }
 
 type ToDeploylessCallViaBytecodeDataErrorType =

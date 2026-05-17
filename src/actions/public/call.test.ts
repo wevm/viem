@@ -1010,6 +1010,55 @@ describe.each([{ deployless: true }, { deployless: false }])(
     })
 
     test.runIf(deployless === false)(
+      'args: stateOverride for multicall address',
+      async () => {
+        const client_2 = anvilMainnet.getClient({
+          batch: {
+            multicall: {
+              deployless,
+            },
+          },
+        })
+
+        const multicallAddress = client_2.chain!.contracts!.multicall3!.address
+        const spy = vi
+          .spyOn(client_2, 'request')
+          .mockImplementation(async ({ params }) => {
+            const [{ to }] = params as [{ to?: Hex }]
+            if (to?.toLowerCase() === multicallAddress.toLowerCase())
+              throw new Error('multicall should not be used')
+            return '0x'
+          })
+
+        const results = await Promise.all([
+          call(client_2, {
+            data: name4bytes,
+            to: wagmiContractAddress,
+            stateOverride: [
+              {
+                address: multicallAddress,
+                code: '0x',
+              },
+            ],
+          }),
+          call(client_2, {
+            data: name4bytes,
+            to: usdcContractConfig.address,
+            stateOverride: [
+              {
+                address: multicallAddress,
+                code: '0x',
+              },
+            ],
+          }),
+        ])
+
+        expect(spy).toBeCalledTimes(2)
+        expect(results).toEqual([{ data: undefined }, { data: undefined }])
+      },
+    )
+
+    test.runIf(deployless === false)(
       'chain not configured with multicall',
       async () => {
         const client_2 = anvilMainnet.getClient({
