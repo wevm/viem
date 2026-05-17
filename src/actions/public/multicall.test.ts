@@ -24,12 +24,14 @@ import { http } from '../../clients/transports/http.js'
 import type { Hex } from '../../types/misc.js'
 import { pad } from '../../utils/data/pad.js'
 import { toHex } from '../../utils/encoding/toHex.js'
+import { mine } from '../test/mine.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
 import { getBlock } from './getBlock.js'
 import { multicall } from './multicall.js'
 import * as readContract from './readContract.js'
 
 const client = anvilMainnet.getClient()
+const returnsBlockNumberBytecode = '0x4360005260206000f3'
 
 test('default', async () => {
   const spy = vi.spyOn(readContract, 'readContract')
@@ -72,29 +74,30 @@ test('default', async () => {
 })
 
 test('args: blockHash', async () => {
-  const block = await getBlock(client, {
-    blockNumber: anvilMainnet.forkBlockNumber,
-  })
+  const address = '0x0000000000000000000000000000000000000421'
+  const block = await getBlock(client)
+  await mine(client, { blocks: 1 })
 
   await expect(
     multicall(client, {
       blockHash: block.hash!,
       contracts: [
         {
-          ...usdcContractConfig,
-          functionName: 'totalSupply',
+          abi: GH434.abi,
+          address,
+          functionName: 'baz',
         },
       ],
+      deployless: true,
       requireCanonical: true,
+      stateOverride: [
+        {
+          address,
+          code: returnsBlockNumberBytecode,
+        },
+      ],
     }),
-  ).resolves.toMatchInlineSnapshot(`
-    [
-      {
-        "result": 39507977228957576n,
-        "status": "success",
-      },
-    ]
-  `)
+  ).resolves.toEqual([{ result: block.number, status: 'success' }])
 })
 
 test('args: allowFailure', async () => {
