@@ -283,7 +283,6 @@ export namespace setUserToken {
     parameters: setUserToken.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { token, ...rest } = parameters
-    await validateToken(client, { token })
     const call = setUserToken.call({ token })
     return (await action(client, {
       ...rest,
@@ -616,7 +615,6 @@ export namespace setValidatorToken {
     parameters: setValidatorToken.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
     const { token, ...rest } = parameters
-    await validateToken(client, { token })
     const call = setValidatorToken.call({ token })
     return (await action(client, {
       ...rest,

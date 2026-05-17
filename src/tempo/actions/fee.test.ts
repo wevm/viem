@@ -211,41 +211,6 @@ describe('setUserToken', () => {
     `,
     )
   })
-
-  test('behavior: validates token before setting user preference', async () => {
-    const userToken = await actions.fee.getUserToken(client)
-
-    await expect(
-      actions.fee.setUserTokenSync(client, {
-        token: '0x0000000000000000000000000000000000000000',
-      }),
-    ).rejects.toThrow(FeeTokenNotTip20Error)
-
-    expect(await actions.fee.getUserToken(client)).toStrictEqual(userToken)
-  })
-
-  test('behavior: rejects paused token before setting user preference', async () => {
-    const { token } = await actions.token.createSync(client, {
-      currency: 'USD',
-      name: 'Paused User Fee Token',
-      symbol: 'PUFT',
-    })
-
-    await actions.token.grantRolesSync(client, {
-      roles: ['pause'],
-      to: client.account.address,
-      token,
-    })
-    await actions.token.pauseSync(client, {
-      token,
-    })
-
-    await expect(
-      actions.fee.setUserTokenSync(client, {
-        token,
-      }),
-    ).rejects.toThrow(FeeTokenPausedError)
-  })
 })
 
 describe('watchSetUserToken', async () => {
@@ -462,14 +427,6 @@ describe('setValidatorToken', () => {
         "id": 2n,
       }
     `)
-  })
-
-  test('behavior: validates token before setting validator preference', async () => {
-    await expect(
-      actions.fee.setValidatorTokenSync(getClient({ account: validator }), {
-        token: '0x0000000000000000000000000000000000000000',
-      }),
-    ).rejects.toThrow(FeeTokenNotTip20Error)
   })
 })
 
