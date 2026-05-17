@@ -7,6 +7,7 @@ import {
   AbiErrorSignatureNotFoundError,
   type AbiErrorSignatureNotFoundErrorType,
 } from '../../errors/abi.js'
+import type { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type {
   AbiItem,
@@ -28,7 +29,7 @@ import { type FormatAbiItemErrorType, formatAbiItem } from './formatAbiItem.js'
 
 export type DecodeErrorResultParameters<
   abi extends Abi | readonly unknown[] = Abi,
-> = { abi?: abi | undefined; data: Hex }
+> = { abi?: abi | undefined; data: Hex; cause?: BaseError | Error | undefined }
 
 export type DecodeErrorResultReturnType<
   abi extends Abi | readonly unknown[] = Abi,
@@ -65,10 +66,10 @@ export type DecodeErrorResultErrorType =
 export function decodeErrorResult<const abi extends Abi | readonly unknown[]>(
   parameters: DecodeErrorResultParameters<abi>,
 ): DecodeErrorResultReturnType<abi> {
-  const { abi, data } = parameters as DecodeErrorResultParameters
+  const { abi, data, cause } = parameters as DecodeErrorResultParameters
 
   const signature = slice(data, 0, 4)
-  if (signature === '0x') throw new AbiDecodingZeroDataError()
+  if (signature === '0x') throw new AbiDecodingZeroDataError({ cause })
 
   const abi_ = [...(abi || []), solidityError, solidityPanic]
   const abiItem = abi_.find(
@@ -78,6 +79,7 @@ export function decodeErrorResult<const abi extends Abi | readonly unknown[]>(
   if (!abiItem)
     throw new AbiErrorSignatureNotFoundError(signature, {
       docsPath: '/docs/contract/decodeErrorResult',
+      cause,
     })
   return {
     abiItem,

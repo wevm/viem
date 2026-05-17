@@ -48,13 +48,13 @@ describe('integration', () => {
   test('concurrent transactions use expiring nonces', async () => {
     const receipts = await Promise.all([
       sendTransactionSync(client, {
-        to: '0x0000000000000000000000000000000000000000',
-      }),
-      sendTransactionSync(client, {
         to: '0x0000000000000000000000000000000000000001',
       }),
       sendTransactionSync(client, {
         to: '0x0000000000000000000000000000000000000002',
+      }),
+      sendTransactionSync(client, {
+        to: '0x0000000000000000000000000000000000000003',
       }),
     ])
 

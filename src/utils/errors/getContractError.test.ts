@@ -2,9 +2,17 @@ import { describe, expect, test } from 'vitest'
 
 import { baycContractConfig } from '~test/abis.js'
 import { accounts } from '~test/constants.js'
-import { AbiDecodingZeroDataError } from '../../errors/abi.js'
+import {
+  AbiDecodingZeroDataError,
+  AbiErrorSignatureNotFoundError,
+} from '../../errors/abi.js'
 import { BaseError } from '../../errors/base.js'
-import { RawContractError } from '../../errors/contract.js'
+import {
+  ContractFunctionExecutionError,
+  ContractFunctionRevertedError,
+  ContractFunctionZeroDataError,
+  RawContractError,
+} from '../../errors/contract.js'
 import { RpcRequestError } from '../../errors/request.js'
 
 import { getContractError } from './getContractError.js'
@@ -67,12 +75,14 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: execution reverted: Sale must be active to mint Ape
       Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
+      Details: execution reverted: Sale must be active to mint Ape
       Version: viem@x.y.z]
     `)
   })
@@ -102,12 +112,14 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: execution reverted: Sale must be active to mint Ape
       Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
+      Details: execution reverted: Sale must be active to mint Ape
       Version: viem@x.y.z]
     `)
   })
@@ -171,12 +183,14 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: ah no
       Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       ah no
 
+      Details: ah no
       Version: viem@x.y.z]
     `)
   })
@@ -240,12 +254,14 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: ah no
       Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       ah no
 
+      Details: ah no
       Version: viem@x.y.z]
     `)
   })
@@ -275,12 +291,14 @@ describe('getContractError', () => {
         args:             (1)
         sender:    0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
 
+      Details: execution reverted: Sale must be active to mint Ape
       Version: viem@x.y.z]
     `)
     expect(error.cause).toMatchInlineSnapshot(`
       [ContractFunctionRevertedError: The contract function "mintApe" reverted with the following reason:
       Sale must be active to mint Ape
 
+      Details: execution reverted: Sale must be active to mint Ape
       Version: viem@x.y.z]
     `)
   })
@@ -358,6 +376,89 @@ describe('getContractError', () => {
 
       Version: viem@x.y.z]
     `)
+  })
+
+  describe('preserves error cause', () => {
+    test('preserves the cause when receiving an AbiDecodingZeroDataError', () => {
+      const originalError = new AbiDecodingZeroDataError()
+      const error = getContractError(originalError, {
+        abi: baycContractConfig.abi,
+        functionName: 'mintApe',
+        args: [1n],
+        sender: accounts[0].address,
+      })
+      expect(error).toBeInstanceOf(ContractFunctionExecutionError)
+      expect(error.cause).toBeInstanceOf(ContractFunctionZeroDataError)
+      expect(error.cause.cause).toBe(originalError)
+    })
+
+    describe('when wrapping it in a ContractFunctionRevertedError error', () => {
+      test('preserves the cause when the return data decoding succeeds', () => {
+        const originalError = new RawContractError({
+          message: 'execution reverted: Sale must be active to mint Ape',
+          data: '0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001f53616c65206d7573742062652061637469766520746f206d696e742041706500',
+        })
+        const error = getContractError(originalError, {
+          abi: baycContractConfig.abi,
+          functionName: 'mintApe',
+          args: [1n],
+          sender: accounts[0].address,
+        })
+        expect(error).toBeInstanceOf(ContractFunctionExecutionError)
+        expect(error.cause).toBeInstanceOf(ContractFunctionRevertedError)
+        expect(error.cause.cause).toBe(originalError)
+      })
+
+      test('preserves the cause when decoding the return data throws an AbiErrorSignatureNotFoundError error', () => {
+        // Data with unknown error signature (not in ABI) + padding
+        const originalError = new RawContractError({
+          message: 'execution reverted',
+          data: '0xdeadbeef0000000000000000000000000000000000000000000000000000000000000000',
+        })
+        const error = getContractError(originalError, {
+          abi: baycContractConfig.abi,
+          functionName: 'mintApe',
+          args: [1n],
+          sender: accounts[0].address,
+        })
+        expect(error).toBeInstanceOf(ContractFunctionExecutionError)
+        expect(error.cause).toBeInstanceOf(ContractFunctionRevertedError)
+        expect(error.cause.cause).toBeInstanceOf(AbiErrorSignatureNotFoundError)
+        expect(
+          (error.cause.cause as AbiErrorSignatureNotFoundError).cause,
+        ).toBe(originalError)
+      })
+
+      test('looses the cause when decoding the return data throws an other error (known limitation)', () => {
+        // Valid Error(string) selector but malformed/truncated params so decodeAbiParameters throws
+        const originalError = new RawContractError({
+          message: 'execution reverted',
+          data: '0x08c379a0000000000000000000000000000000000000000000000000000000000000ffff',
+        })
+        const error = getContractError(originalError, {
+          abi: baycContractConfig.abi,
+          functionName: 'mintApe',
+          args: [1n],
+          sender: accounts[0].address,
+        })
+        expect(error).toBeInstanceOf(ContractFunctionExecutionError)
+        expect(error.cause).toBeInstanceOf(ContractFunctionRevertedError)
+        // The cause is the decode error, not the original error — known limitation
+        expect(error.cause.cause).not.toBe(originalError)
+      })
+    })
+
+    test('preserves the cause as the direct error.cause on every other case', () => {
+      const originalError = new BaseError('some unknown error')
+      const error = getContractError(originalError, {
+        abi: baycContractConfig.abi,
+        functionName: 'mintApe',
+        args: [1n],
+        sender: accounts[0].address,
+      })
+      expect(error).toBeInstanceOf(ContractFunctionExecutionError)
+      expect(error.cause).toBe(originalError)
+    })
   })
 
   test('zero data', () => {

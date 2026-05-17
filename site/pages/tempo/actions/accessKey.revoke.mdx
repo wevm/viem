@@ -1,0 +1,68 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `accessKey.revoke`
+
+Revokes an authorized access key.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.accessKey.revokeSync({
+  accessKey: '0x1234567890abcdef1234567890abcdef12345678',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+The example above uses a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+
+If you are optimizing for performance, you should use the non-sync `accessKey.revoke` action and wait for inclusion manually:
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await client.accessKey.revoke({
+  accessKey: '0x1234567890abcdef1234567890abcdef12345678',
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+
+const { args } 
+  = Actions.accessKey.revoke.extractEvent(receipt.logs)
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** The account that owned the key. */
+  account: Address
+  /** The public key that was revoked. */
+  publicKey: Address
+  /** Transaction receipt */
+  receipt: TransactionReceipt
+}
+```
+
+## Parameters
+
+### accessKey
+
+- **Type:** `Address | AccessKeyAccount`
+
+The access key to revoke.
+
+<WriteParameters />

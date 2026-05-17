@@ -1,0 +1,44 @@
+# `TempoAddress.format`
+
+Formats a raw Ethereum address (and optional zone ID) into a Tempo address string.
+
+## Usage
+
+```ts twoslash
+import { TempoAddress } from 'viem/tempo'
+
+const address = TempoAddress.format('0x742d35Cc6634C0532925a3b844Bc9e7595f2bD28')
+// @log: 'tempo1qp6z6dwvvc6vq5efyk3ms39une6etu4a9qtj2kk0'
+```
+
+### Zone Address
+
+```ts twoslash
+import { TempoAddress } from 'viem/tempo'
+
+const address = TempoAddress.format(
+  '0x742d35Cc6634C0532925a3b844Bc9e7595f2bD28',
+  { zoneId: 1 },
+)
+// @log: 'tempoz1qqqhgtf4e3nrfszn9yj68wzyhj08t90jh55q74d9uj'
+```
+
+## Parameters
+
+### address
+
+- **Type:** `Address`
+
+The raw 20-byte Ethereum address.
+
+### options.zoneId (optional)
+
+- **Type:** `number | bigint`
+
+Zone ID for zone addresses.
+
+## Return Type
+
+`TempoAddress`
+
+The encoded Tempo address string.

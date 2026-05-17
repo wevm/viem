@@ -25,7 +25,7 @@ import { defineCall } from '../internal/utils.js'
  * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -84,7 +84,7 @@ export namespace getNonce {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * })
    *

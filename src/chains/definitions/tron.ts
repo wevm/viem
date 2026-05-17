@@ -9,6 +9,7 @@ export const tron = /*#__PURE__*/ defineChain({
       http: ['https://api.trongrid.io/jsonrpc'],
     },
   },
+  blockTime: 3000,
   blockExplorers: {
     default: {
       name: 'Tronscan',

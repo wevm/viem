@@ -17,4 +17,5 @@ export const evmosTestnet = /*#__PURE__*/ defineChain({
       url: 'https://evm.evmos.dev/',
     },
   },
+  testnet: true,
 })

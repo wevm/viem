@@ -72,7 +72,7 @@ export async function createCredential(
 export declare namespace createCredential {
   export type Parameters = Omit<
     WebAuthnP256.createCredential.Options,
-    'rp' | 'user'
+    'publicKey' | 'rp' | 'signal' | 'user'
   > & {
     /**
      * Credential creation function. Useful for environments that do not support
@@ -132,7 +132,10 @@ export async function getCredential(
 }
 
 export declare namespace getCredential {
-  export type Parameters = Omit<WebAuthnP256.sign.Options, 'challenge'> & {
+  export type Parameters = Omit<
+    WebAuthnP256.sign.Options,
+    'challenge' | 'mediation' | 'publicKey' | 'signal'
+  > & {
     hash?: Hex.Hex | undefined
     getPublicKey: (
       credential: WebAuthnP256.P256Credential['raw'],

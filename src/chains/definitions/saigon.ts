@@ -1,8 +1,8 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const saigon = /*#__PURE__*/ defineChain({
-  id: 2021,
-  name: 'Saigon Testnet',
+  id: 202601,
+  name: 'Ronin Saigon Testnet',
   nativeCurrency: { name: 'RON', symbol: 'RON', decimals: 18 },
   rpcUrls: {
     default: {
@@ -12,7 +12,7 @@ export const saigon = /*#__PURE__*/ defineChain({
   blockExplorers: {
     default: {
       name: 'Saigon Explorer',
-      url: 'https://saigon-app.roninchain.com',
+      url: 'https://saigon-explorer.roninchain.com',
     },
   },
   contracts: {

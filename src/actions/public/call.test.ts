@@ -31,6 +31,7 @@ import {
   createClient,
   decodeFunctionResult,
   encodeAbiParameters,
+  encodeFunctionResult,
   type Hex,
   http,
   maxUint256,
@@ -157,6 +158,41 @@ test('zero data', async () => {
     to: wagmiContractAddress,
   })
   expect(data).toMatchInlineSnapshot('undefined')
+})
+
+test('args: requestOptions', async () => {
+  const client_2 = anvilMainnet.getClient()
+  const requestOptions = {
+    signal: new AbortController().signal,
+  }
+  const spy = vi.spyOn(client_2, 'request').mockResolvedValue('0x1234')
+
+  await call(client_2, {
+    batch: false,
+    data: name4bytes,
+    requestOptions,
+    to: wagmiContractAddress,
+  })
+
+  expect(spy).toHaveBeenCalledWith(
+    expect.objectContaining({ method: 'eth_call' }),
+    requestOptions,
+  )
+})
+
+test('args: requestOptions abort error is not wrapped', async () => {
+  const client_2 = anvilMainnet.getClient()
+  const error = new DOMException('This operation was aborted', 'AbortError')
+  vi.spyOn(client_2, 'request').mockRejectedValue(error)
+
+  await expect(
+    call(client_2, {
+      batch: false,
+      data: name4bytes,
+      requestOptions: { signal: new AbortController().signal },
+      to: wagmiContractAddress,
+    }),
+  ).rejects.toBe(error)
 })
 
 test('args: authorizationList', async () => {
@@ -751,6 +787,44 @@ describe.each([{ deployless: true }, { deployless: false }])(
       expect(results).toMatchSnapshot()
     })
 
+    test('args: requestOptions', async () => {
+      const client_2 = anvilMainnet.getClient({
+        batch: {
+          multicall: {
+            deployless,
+          },
+        },
+      })
+      const requestOptions = {
+        signal: new AbortController().signal,
+      }
+
+      const spy = vi.spyOn(client_2, 'request').mockResolvedValue(
+        encodeFunctionResult({
+          abi: multicall3Abi,
+          functionName: 'aggregate3',
+          result: [{ returnData: '0x1234', success: true }],
+        }),
+      )
+
+      await Promise.all([
+        call(client_2, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+        }),
+        call(client_2, {
+          data: name4bytes,
+          requestOptions,
+          to: wagmiContractAddress,
+        }),
+      ])
+
+      expect(spy).toBeCalledTimes(2)
+      const calls = spy.mock.calls as unknown as [unknown, unknown][]
+      expect(calls.some(([, options]) => options === undefined)).toBe(true)
+      expect(calls.some(([, options]) => options === requestOptions)).toBe(true)
+    })
+
     test('args: blockNumber', async () => {
       const client_2 = anvilMainnet.getClient({
         batch: {
@@ -989,6 +1063,110 @@ describe.each([{ deployless: true }, { deployless: false }])(
       expect(spy).toBeCalledTimes(3)
       expect(results).toMatchSnapshot()
     })
+
+    test('args: stateOverride', async () => {
+      const client_2 = anvilMainnet.getClient({
+        batch: {
+          multicall: {
+            deployless,
+          },
+        },
+      })
+
+      const spy = vi.spyOn(client_2, 'request')
+
+      const stateOverride = [
+        {
+          address: wagmiContractAddress,
+          balance: parseEther('100'),
+        },
+      ] as const
+
+      const p = []
+      // Two calls with the same stateOverride should batch together
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+          stateOverride: [...stateOverride],
+        }),
+      )
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: usdcContractConfig.address,
+          stateOverride: [...stateOverride],
+        }),
+      )
+      // A call with a different stateOverride should go to a separate batch
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: baycContractConfig.address,
+          stateOverride: [
+            {
+              address: wagmiContractAddress,
+              balance: parseEther('200'),
+            },
+          ],
+        }),
+      )
+
+      const results = await Promise.all(p)
+
+      // 2 batched eth_call requests: one for the shared stateOverride, one for the different stateOverride
+      expect(spy).toBeCalledTimes(2)
+      expect(results).toMatchSnapshot()
+    })
+
+    test.runIf(deployless === false)(
+      'args: stateOverride for multicall address',
+      async () => {
+        const client_2 = anvilMainnet.getClient({
+          batch: {
+            multicall: {
+              deployless,
+            },
+          },
+        })
+
+        const multicallAddress = client_2.chain!.contracts!.multicall3!.address
+        const spy = vi
+          .spyOn(client_2, 'request')
+          .mockImplementation(async ({ params }) => {
+            const [{ to }] = params as [{ to?: Hex }]
+            if (to?.toLowerCase() === multicallAddress.toLowerCase())
+              throw new Error('multicall should not be used')
+            return '0x'
+          })
+
+        const results = await Promise.all([
+          call(client_2, {
+            data: name4bytes,
+            to: wagmiContractAddress,
+            stateOverride: [
+              {
+                address: multicallAddress,
+                code: '0x',
+              },
+            ],
+          }),
+          call(client_2, {
+            data: name4bytes,
+            to: usdcContractConfig.address,
+            stateOverride: [
+              {
+                address: multicallAddress,
+                code: '0x',
+              },
+            ],
+          }),
+        ])
+
+        expect(spy).toBeCalledTimes(2)
+        expect(results).toEqual([{ data: undefined }, { data: undefined }])
+      },
+    )
 
     test.runIf(deployless === false)(
       'chain not configured with multicall',

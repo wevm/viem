@@ -115,7 +115,8 @@ test('behavior: with mutation calls', async () => {
   `)
 })
 
-test('behavior: with mutation calls + asset changes', async () => {
+// TODO: Re-enable once Anvil supports contract creation in eth_simulateV1.
+test.skip('behavior: with mutation calls + asset changes', async () => {
   const account = '0xdead000000000000000042069420694206942069' as const
   const { assetChanges, results } = await simulateCalls(client, {
     account,

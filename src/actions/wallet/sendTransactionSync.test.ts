@@ -112,15 +112,17 @@ test('sends transaction', async () => {
     ...receipt,
     blockHash: null,
     blockNumber: null,
+    blockTimestamp: null,
     transactionHash: null,
   }).toMatchInlineSnapshot(`
     {
       "blobGasPrice": 1n,
       "blockHash": null,
       "blockNumber": null,
+      "blockTimestamp": null,
       "contractAddress": null,
       "cumulativeGasUsed": 21000n,
-      "effectiveGasPrice": 8750000000n,
+      "effectiveGasPrice": 9750000000n,
       "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
       "gasUsed": 21000n,
       "logs": [],
@@ -170,15 +172,17 @@ test('sends transaction (w/ formatter)', async () => {
     ...receipt,
     blockHash: null,
     blockNumber: null,
+    blockTimestamp: null,
     transactionHash: null,
   }).toMatchInlineSnapshot(`
     {
       "blobGasPrice": 1n,
       "blockHash": null,
       "blockNumber": null,
+      "blockTimestamp": null,
       "contractAddress": null,
       "cumulativeGasUsed": 21000n,
-      "effectiveGasPrice": 8750000000n,
+      "effectiveGasPrice": 9750000000n,
       "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
       "gasUsed": 21000n,
       "logs": [],
@@ -260,7 +264,7 @@ test('sends transaction (w/ serializer)', async () => {
   ).rejects.toThrowError()
 
   expect(serializer).toReturnWith(
-    '0x08f3018203b9843b9aca00850300e66100825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
+    '0x08f3018203b9843b9aca0085026b24abe0825208809470997970c51812dc3a010c7d01b50e0d17dc79c8880de0b6b3a764000080c0',
   )
 })
 
@@ -367,12 +371,14 @@ describe('args: gasPrice', () => {
       ...receipt,
       blockHash: null,
       blockNumber: null,
+      blockTimestamp: null,
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
         "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
+        "blockTimestamp": null,
         "contractAddress": null,
         "cumulativeGasUsed": 21000n,
         "effectiveGasPrice": 20000000000n,
@@ -457,15 +463,17 @@ describe('args: maxFeePerGas', () => {
       ...receipt,
       blockHash: null,
       blockNumber: null,
+      blockTimestamp: null,
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
         "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
+        "blockTimestamp": null,
         "contractAddress": null,
         "cumulativeGasUsed": 21000n,
-        "effectiveGasPrice": 8750000000n,
+        "effectiveGasPrice": 9750000000n,
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "gasUsed": 21000n,
         "logs": [],
@@ -552,12 +560,14 @@ describe('args: maxPriorityFeePerGas', () => {
       ...receipt,
       blockHash: null,
       blockNumber: null,
+      blockTimestamp: null,
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
         "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
+        "blockTimestamp": null,
         "contractAddress": null,
         "cumulativeGasUsed": 21000n,
         "effectiveGasPrice": 9750000000n,
@@ -604,12 +614,14 @@ describe('args: maxPriorityFeePerGas', () => {
       ...receipt,
       blockHash: null,
       blockNumber: null,
+      blockTimestamp: null,
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
         "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
+        "blockTimestamp": null,
         "contractAddress": null,
         "cumulativeGasUsed": 21000n,
         "effectiveGasPrice": 18750000000n,
@@ -660,15 +672,17 @@ describe('args: nonce', () => {
       ...receipt,
       blockHash: null,
       blockNumber: null,
+      blockTimestamp: null,
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
         "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
+        "blockTimestamp": null,
         "contractAddress": null,
         "cumulativeGasUsed": 21000n,
-        "effectiveGasPrice": 8750000000n,
+        "effectiveGasPrice": 9750000000n,
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "gasUsed": 21000n,
         "logs": [],
@@ -824,12 +838,14 @@ describe('local account', () => {
       ...receipt,
       blockHash: null,
       blockNumber: null,
+      blockTimestamp: null,
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
         "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
+        "blockTimestamp": null,
         "contractAddress": null,
         "cumulativeGasUsed": 21000n,
         "effectiveGasPrice": 9750000000n,
@@ -855,7 +871,7 @@ describe('local account', () => {
     const transaction = await getTransaction(client, {
       hash: receipt.transactionHash,
     })
-    expect(transaction.maxFeePerGas).toBe(12900000000n)
+    expect(transaction.maxFeePerGas).toBe(11700000000n)
     expect(transaction.maxPriorityFeePerGas).toBe(1000000000n)
     expect(transaction.gas).toBe(21000n)
   })
@@ -871,12 +887,14 @@ describe('local account', () => {
       ...receipt,
       blockHash: null,
       blockNumber: null,
+      blockTimestamp: null,
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
         "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
+        "blockTimestamp": null,
         "contractAddress": null,
         "cumulativeGasUsed": 21000n,
         "effectiveGasPrice": 9750000000n,
@@ -986,12 +1004,14 @@ describe('local account', () => {
       ...receipt,
       blockHash: null,
       blockNumber: null,
+      blockTimestamp: null,
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
         "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
+        "blockTimestamp": null,
         "contractAddress": null,
         "cumulativeGasUsed": 21000n,
         "effectiveGasPrice": 9750000000n,
@@ -1041,12 +1061,14 @@ describe('local account', () => {
       ...receipt,
       blockHash: null,
       blockNumber: null,
+      blockTimestamp: null,
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
         "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
+        "blockTimestamp": null,
         "contractAddress": null,
         "cumulativeGasUsed": 21000n,
         "effectiveGasPrice": 9750000000n,
@@ -1096,12 +1118,14 @@ describe('local account', () => {
       ...receipt,
       blockHash: null,
       blockNumber: null,
+      blockTimestamp: null,
       transactionHash: null,
     }).toMatchInlineSnapshot(`
       {
         "blobGasPrice": 1n,
         "blockHash": null,
         "blockNumber": null,
+        "blockTimestamp": null,
         "contractAddress": null,
         "cumulativeGasUsed": 21000n,
         "effectiveGasPrice": 9750000000n,
@@ -1153,12 +1177,14 @@ describe('local account', () => {
         ...receipt,
         blockHash: null,
         blockNumber: null,
+        blockTimestamp: null,
         transactionHash: null,
       }).toMatchInlineSnapshot(`
         {
           "blobGasPrice": 1n,
           "blockHash": null,
           "blockNumber": null,
+          "blockTimestamp": null,
           "contractAddress": null,
           "cumulativeGasUsed": 21000n,
           "effectiveGasPrice": 9750000000n,
@@ -1239,15 +1265,17 @@ describe('local account', () => {
         ...receipt,
         blockHash: null,
         blockNumber: null,
+        blockTimestamp: null,
         transactionHash: null,
       }).toMatchInlineSnapshot(`
         {
           "blobGasPrice": 1n,
           "blockHash": null,
           "blockNumber": null,
+          "blockTimestamp": null,
           "contractAddress": null,
           "cumulativeGasUsed": 21000n,
-          "effectiveGasPrice": 13750000000n,
+          "effectiveGasPrice": 11700000000n,
           "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
           "gasUsed": 21000n,
           "logs": [],
@@ -1296,12 +1324,14 @@ describe('local account', () => {
         ...receipt,
         blockHash: null,
         blockNumber: null,
+        blockTimestamp: null,
         transactionHash: null,
       }).toMatchInlineSnapshot(`
         {
           "blobGasPrice": 1n,
           "blockHash": null,
           "blockNumber": null,
+          "blockTimestamp": null,
           "contractAddress": null,
           "cumulativeGasUsed": 21000n,
           "effectiveGasPrice": 18750000000n,
@@ -1360,12 +1390,14 @@ describe('local account', () => {
         ...receipt,
         blockHash: null,
         blockNumber: null,
+        blockTimestamp: null,
         transactionHash: null,
       }).toMatchInlineSnapshot(`
         {
           "blobGasPrice": 1n,
           "blockHash": null,
           "blockNumber": null,
+          "blockTimestamp": null,
           "contractAddress": null,
           "cumulativeGasUsed": 21000n,
           "effectiveGasPrice": 9750000000n,
@@ -1941,5 +1973,68 @@ describe('behavior: client dataSuffix', () => {
 
     const tx = await getTransaction(client, { hash: receipt.transactionHash })
     expect(tx.input).toBe(concatHex([baseData, '0x12345678']))
+  })
+})
+
+describe('behavior: sendTransactionSync dataSuffix', () => {
+  test('sends transaction with sendTransactionSync dataSuffix (hex string)', async () => {
+    await setup()
+
+    let capturedData: string | undefined
+
+    const walletClient = createWalletClient({
+      chain: anvilMainnet.chain,
+      transport: http(anvilMainnet.rpcUrl.http),
+      dataSuffix: '0xabc',
+    })
+
+    walletClient.request = async (params: any) => {
+      if (
+        params.method === 'eth_sendTransaction' ||
+        params.method === 'wallet_sendTransaction'
+      ) {
+        capturedData = params.params[0].data
+        throw new Error('Test interception - data captured')
+      }
+      throw new Error('Unexpected method')
+    }
+
+    await expect(
+      sendTransaction(walletClient, {
+        account: sourceAccount.address,
+        to: targetAccount.address,
+        value: parseEther('1'),
+        gas: 100_000n,
+        dataSuffix: '0x12345678',
+      }),
+    ).rejects.toThrow('Test interception - data captured')
+
+    expect(capturedData).toBe('0x12345678')
+  })
+
+  test('sends transaction with sendTransactionSync dataSuffix (local account)', async () => {
+    await setup()
+
+    const walletClient = createWalletClient({
+      chain: anvilMainnet.chain,
+      transport: http(anvilMainnet.rpcUrl.http),
+      dataSuffix: '0xabc',
+    })
+
+    const [receipt] = await Promise.all([
+      sendTransaction(walletClient, {
+        account: privateKeyToAccount(sourceAccount.privateKey),
+        to: targetAccount.address,
+        value: parseEther('1'),
+        dataSuffix: '0x12345678',
+      }),
+      (async () => {
+        await wait(500)
+        await mine(client, { blocks: 1 })
+      })(),
+    ])
+
+    const tx = await getTransaction(client, { hash: receipt.transactionHash })
+    expect(tx.input).toBe('0x12345678')
   })
 })

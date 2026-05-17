@@ -28,7 +28,7 @@ import { defineCall } from '../internal/utils.js'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -125,7 +125,7 @@ export namespace add {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -155,7 +155,7 @@ export namespace add {
     } = args
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [
         newValidatorAddress,
         publicKey,
@@ -180,7 +180,7 @@ export namespace add {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -237,7 +237,7 @@ export namespace addSync {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -309,7 +309,7 @@ export namespace changeOwner {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -329,7 +329,7 @@ export namespace changeOwner {
     const { newOwner } = args
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [newOwner],
       functionName: 'changeOwner',
     })
@@ -348,7 +348,7 @@ export namespace changeOwner {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -401,7 +401,7 @@ export namespace changeOwnerSync {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -476,7 +476,7 @@ export namespace changeStatus {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -497,7 +497,7 @@ export namespace changeStatus {
     const { validator, active } = args
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [validator, active],
       functionName: 'changeValidatorStatus',
     })
@@ -516,7 +516,7 @@ export namespace changeStatus {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -568,7 +568,7 @@ export namespace changeStatusSync {
  * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -596,7 +596,7 @@ export namespace getNextFullDkgCeremony {
   export type Parameters = ReadParameters
 
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.validator,
+    typeof Abis.validatorConfig,
     'getNextFullDkgCeremony',
     never
   >
@@ -616,7 +616,7 @@ export namespace getNextFullDkgCeremony {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * })
    *
@@ -630,7 +630,7 @@ export namespace getNextFullDkgCeremony {
   export function call() {
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [],
       functionName: 'getNextFullDkgCeremony',
     })
@@ -647,7 +647,7 @@ export namespace getNextFullDkgCeremony {
  * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -675,7 +675,7 @@ export namespace getOwner {
   export type Parameters = ReadParameters
 
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.validator,
+    typeof Abis.validatorConfig,
     'owner',
     never
   >
@@ -695,7 +695,7 @@ export namespace getOwner {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * })
    *
@@ -709,7 +709,7 @@ export namespace getOwner {
   export function call() {
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [],
       functionName: 'owner',
     })
@@ -726,7 +726,7 @@ export namespace getOwner {
  * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -762,7 +762,7 @@ export namespace get {
   }
 
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.validator,
+    typeof Abis.validatorConfig,
     'validators',
     never
   >
@@ -782,7 +782,7 @@ export namespace get {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * })
    *
@@ -800,7 +800,7 @@ export namespace get {
     const { validator } = args
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [validator],
       functionName: 'validators',
     })
@@ -817,7 +817,7 @@ export namespace get {
  * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -853,7 +853,7 @@ export namespace getByIndex {
   }
 
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.validator,
+    typeof Abis.validatorConfig,
     'validatorsArray',
     never
   >
@@ -873,7 +873,7 @@ export namespace getByIndex {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * })
    *
@@ -892,7 +892,7 @@ export namespace getByIndex {
     const { index } = args
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [index],
       functionName: 'validatorsArray',
     })
@@ -909,7 +909,7 @@ export namespace getByIndex {
  * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -937,7 +937,7 @@ export namespace getCount {
   export type Parameters = ReadParameters
 
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.validator,
+    typeof Abis.validatorConfig,
     'validatorCount',
     never
   >
@@ -957,7 +957,7 @@ export namespace getCount {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * })
    *
@@ -971,7 +971,7 @@ export namespace getCount {
   export function call() {
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [],
       functionName: 'validatorCount',
     })
@@ -988,7 +988,7 @@ export namespace getCount {
  * import { Actions } from 'viem/tempo'
  *
  * const client = createClient({
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -1016,7 +1016,7 @@ export namespace list {
   export type Parameters = ReadParameters
 
   export type ReturnValue = ReadContractReturnType<
-    typeof Abis.validator,
+    typeof Abis.validatorConfig,
     'getValidators',
     never
   >
@@ -1036,7 +1036,7 @@ export namespace list {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * })
    *
@@ -1050,7 +1050,7 @@ export namespace list {
   export function call() {
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [],
       functionName: 'getValidators',
     })
@@ -1069,7 +1069,7 @@ export namespace list {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -1141,7 +1141,7 @@ export namespace setNextFullDkgCeremony {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -1161,7 +1161,7 @@ export namespace setNextFullDkgCeremony {
     const { epoch } = args
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [epoch],
       functionName: 'setNextFullDkgCeremony',
     })
@@ -1180,7 +1180,7 @@ export namespace setNextFullDkgCeremony {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -1237,7 +1237,7 @@ export namespace setNextFullDkgCeremonySync {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *
@@ -1329,7 +1329,7 @@ export namespace update {
    * import { Actions } from 'viem/tempo'
    *
    * const client = createClient({
-   *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
    *   transport: http(),
    * }).extend(walletActions)
    *
@@ -1353,7 +1353,7 @@ export namespace update {
       args
     return defineCall({
       address: Addresses.validator,
-      abi: Abis.validator,
+      abi: Abis.validatorConfig,
       args: [newValidatorAddress, publicKey, inboundAddress, outboundAddress],
       functionName: 'updateValidator',
     })
@@ -1372,7 +1372,7 @@ export namespace update {
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
- *   chain: tempo({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
  *   transport: http(),
  * })
  *

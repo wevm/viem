@@ -22,10 +22,10 @@ import { mainnet } from '../../chains/index.js'
 import { createPublicClient } from '../../clients/createPublicClient.js'
 import { http } from '../../clients/transports/http.js'
 import type { Hex } from '../../types/misc.js'
-import { encodeFunctionResult } from '../../utils/abi/encodeFunctionResult.js'
 import { pad } from '../../utils/data/pad.js'
 import { toHex } from '../../utils/encoding/toHex.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
+import { getBlock } from './getBlock.js'
 import { multicall } from './multicall.js'
 import * as readContract from './readContract.js'
 
@@ -72,25 +72,13 @@ test('default', async () => {
 })
 
 test('args: blockHash', async () => {
-  vi.resetAllMocks()
-
-  const blockHash =
-    '0xf65631529d476553ca5b0056d6480c3970dd5ac884fee51d5b30ca7fceab8894'
-  const totalSupply = 39507977228957576n
-  const spy = vi.spyOn(readContract, 'readContract').mockResolvedValue([
-    {
-      returnData: encodeFunctionResult({
-        abi: usdcContractConfig.abi,
-        functionName: 'totalSupply',
-        result: totalSupply,
-      }),
-      success: true,
-    },
-  ] as never)
+  const block = await getBlock(client, {
+    blockNumber: anvilMainnet.forkBlockNumber,
+  })
 
   await expect(
     multicall(client, {
-      blockHash,
+      blockHash: block.hash!,
       contracts: [
         {
           ...usdcContractConfig,
@@ -99,14 +87,14 @@ test('args: blockHash', async () => {
       ],
       requireCanonical: true,
     }),
-  ).resolves.toEqual([{ result: totalSupply, status: 'success' }])
-  expect(spy).toHaveBeenCalledWith(
-    client,
-    expect.objectContaining({
-      blockHash,
-      requireCanonical: true,
-    }),
-  )
+  ).resolves.toMatchInlineSnapshot(`
+    [
+      {
+        "result": 39507977228957576n,
+        "status": "success",
+      },
+    ]
+  `)
 })
 
 test('args: allowFailure', async () => {

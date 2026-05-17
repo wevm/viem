@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
+import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
 import {
   getTransaction,
   getTransactionReceipt,
@@ -12,6 +13,7 @@ import { mainnet, tempoLocalnet } from '../chains/index.js'
 import { createClient, http } from '../index.js'
 import { defineChain } from '../utils/chain/defineChain.js'
 import { hashMessage } from '../utils/index.js'
+import * as accessKeyActions from './actions/accessKey.js'
 import { Account, P256, WebCryptoP256 } from './index.js'
 
 const client = getClient({
@@ -151,6 +153,7 @@ describe('formatters', () => {
       hash: receipt.transactionHash,
     })
     expect(transaction.hash).toBe(receipt.transactionHash)
+    expect(transaction.blockTimestamp).toBeTypeOf('bigint')
     expect(transaction.type).toBe('tempo')
     expect(transaction.calls).toBeDefined()
     expect(transaction.signature).toBeDefined()
@@ -361,6 +364,106 @@ describe('verifyHash', () => {
     ).toBe(false)
   })
 
+  test('accessKey: valid signature', async () => {
+    const rootAccount = accounts.at(0)!
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: rootAccount,
+    })
+
+    await accessKeyActions.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    const hash = hashMessage('hello world')
+    const signature = await accessKey.sign({ hash })
+
+    expect(
+      await verifyHash(client, {
+        address: accessKey.address,
+        hash,
+        signature,
+        mode: 'allowAccessKey',
+      }),
+    ).toBe(true)
+  })
+
+  test('accessKey: secp256k1 valid signature', async () => {
+    const rootAccount = accounts.at(0)!
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: rootAccount,
+    })
+
+    await accessKeyActions.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    const hash = hashMessage('hello world')
+    const signature = await accessKey.sign({ hash })
+
+    expect(
+      await verifyHash(client, {
+        address: accessKey.address,
+        hash,
+        signature,
+        mode: 'allowAccessKey',
+      }),
+    ).toBe(true)
+  })
+
+  test('accessKey: invalid signature returns false', async () => {
+    const rootAccount = accounts.at(0)!
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: rootAccount,
+    })
+
+    await accessKeyActions.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    const hash = hashMessage('hello world')
+    const wrongHash = hashMessage('wrong message')
+    const signature = await accessKey.sign({ hash })
+
+    expect(
+      await verifyHash(client, {
+        address: accessKey.address,
+        hash: wrongHash,
+        signature,
+        mode: 'allowAccessKey',
+      }),
+    ).toBe(false)
+  })
+
+  test('accessKey: revoked key returns false', async () => {
+    const rootAccount = accounts.at(0)!
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: rootAccount,
+    })
+
+    await accessKeyActions.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    const hash = hashMessage('hello world')
+    const signature = await accessKey.sign({ hash })
+
+    // Revoke the key
+    await accessKeyActions.revokeSync(client, { accessKey })
+
+    expect(
+      await verifyHash(client, {
+        address: accessKey.address,
+        hash,
+        signature,
+        mode: 'allowAccessKey',
+      }),
+    ).toBe(false)
+  })
+
   test('behavior: non-tempo chain', async () => {
     const privateKey = P256.randomPrivateKey()
     const account = Account.fromP256(privateKey)
@@ -381,7 +484,7 @@ describe('verifyHash', () => {
   test('behavior: non-tempo chain (client)', async () => {
     const client = createClient({
       chain: mainnet,
-      transport: http(),
+      transport: http('https://eth.drpc.org'),
     })
 
     const privateKey = P256.randomPrivateKey()

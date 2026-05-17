@@ -24,4 +24,5 @@ export const metisGoerli = /*#__PURE__*/ defineChain({
       blockCreated: 1006207,
     },
   },
+  testnet: true,
 })

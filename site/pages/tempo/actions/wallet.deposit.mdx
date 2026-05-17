@@ -1,0 +1,83 @@
+# `wallet.deposit`
+
+Opens the Wallet's deposit flow, with optional pre-filled fields.
+
+This action invokes the `wallet_deposit` JSON-RPC method on the connected wallet, prompting the user to review and submit a deposit. Any fields you omit are left for the user to fill in.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const result = await Actions.wallet.deposit(client, {
+  token: '0x20c0000000000000000000000000000000000001',
+  value: '1.5',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Provider } from 'accounts'
+import { createClient, custom, publicActions, walletActions } from 'viem'
+import { tempo } from 'viem/chains'
+import { tempoActions } from 'viem/tempo'
+
+const provider = Provider.create()
+
+export const client = createClient({
+  chain: tempo,
+  transport: custom(provider),
+})
+  .extend(publicActions)
+  .extend(walletActions)
+  .extend(tempoActions())
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType =
+  | {
+      /** Receipts of any onchain operations performed during the deposit. */
+      receipts?: readonly TransactionReceipt[] | undefined
+    }
+  | undefined
+```
+
+The wallet may return `undefined` (or an object with no `receipts`) if the deposit did not require any onchain operations.
+
+## Parameters
+
+### address (optional)
+
+- **Type:** `Address`
+
+Deposit address to pre-fill.
+
+### token (optional)
+
+- **Type:** `Address`
+
+Token contract address to pre-fill. Omit to let the user choose.
+
+### value (optional)
+
+- **Type:** `string`
+
+Human-readable amount to pre-fill (for example, `"1.5"`).
+
+### chainId (optional)
+
+- **Type:** `number`
+
+Source chain ID to pre-fill.
+
+### displayName (optional)
+
+- **Type:** `string`
+
+Human-readable account display name.

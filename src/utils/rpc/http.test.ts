@@ -22,7 +22,7 @@ describe('request', () => {
       {
         "id": 1,
         "jsonrpc": "2.0",
-        "result": "anvil/v1.5.0",
+        "result": "anvil/v1.7.2",
       }
     `)
   })
@@ -37,7 +37,7 @@ describe('request', () => {
       {
         "id": 1,
         "jsonrpc": "2.0",
-        "result": "anvil/v1.5.0",
+        "result": "anvil/v1.7.2",
       }
     `)
   })
@@ -186,6 +186,26 @@ describe('request', () => {
       }),
     ).toBeDefined()
     expect(headers['x-wagmi']).toBeDefined()
+
+    await server.close()
+  })
+
+  test('fetchOptions: signal aborts request', async () => {
+    const server = await createHttpServer(async (_req, res) => {
+      await wait(1_000)
+      res.end(JSON.stringify({ result: '0x1' }))
+    })
+    const client = getHttpRpcClient(server.url)
+    const controller = new AbortController()
+
+    setTimeout(() => controller.abort(), 50)
+
+    await expect(
+      client.request({
+        body: { method: 'web3_clientVersion' },
+        fetchOptions: { signal: controller.signal },
+      }),
+    ).rejects.toThrowError('This operation was aborted')
 
     await server.close()
   })
@@ -478,12 +498,12 @@ describe('http (batch)', () => {
         {
           "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.5.0",
+          "result": "anvil/v1.7.2",
         },
         {
           "id": 2,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.5.0",
+          "result": "anvil/v1.7.2",
         },
       ]
     `)
@@ -504,7 +524,7 @@ describe('http (batch)', () => {
         {
           "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.5.0",
+          "result": "anvil/v1.7.2",
         },
         {
           "error": {
@@ -530,7 +550,7 @@ describe('http (batch)', () => {
         {
           "id": 1,
           "jsonrpc": "2.0",
-          "result": "anvil/v1.5.0",
+          "result": "anvil/v1.7.2",
         },
         {
           "error": {

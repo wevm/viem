@@ -66,12 +66,16 @@ import {
   WalletConnectSessionSettlementError,
   type WalletConnectSessionSettlementErrorType,
 } from '../errors/rpc.js'
-import type { ErrorType } from '../errors/utils.js'
+import {
+  type AbortErrorType,
+  type ErrorType,
+  getAbortError,
+  isAbortError,
+} from '../errors/utils.js'
 import type {
   EIP1193RequestFn,
   EIP1193RequestOptions,
 } from '../types/eip1193.js'
-import { stringToHex } from './encoding/toHex.js'
 import type { CreateBatchSchedulerErrorType } from './promise/createBatchScheduler.js'
 import { withDedupe } from './promise/withDedupe.js'
 import { type WithRetryErrorType, withRetry } from './promise/withRetry.js'
@@ -114,18 +118,22 @@ export type RequestErrorType =
   | WalletConnectSessionSettlementErrorType
   | WebSocketRequestErrorType
   | WithRetryErrorType
+  | AbortErrorType
   | ErrorType
 
-export function buildRequest<request extends (args: any) => Promise<any>>(
-  request: request,
-  options: EIP1193RequestOptions = {},
-): EIP1193RequestFn {
+export function buildRequest<
+  request extends (
+    args: any,
+    options?: { signal?: AbortSignal | undefined } | undefined,
+  ) => Promise<any>,
+>(request: request, options: EIP1193RequestOptions = {}): EIP1193RequestFn {
   return async (args, overrideOptions = {}) => {
     const {
       dedupe = false,
       methods,
       retryDelay = 150,
       retryCount = 3,
+      signal,
       uid,
     } = {
       ...options,
@@ -142,16 +150,21 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
         method,
       })
 
+    if (signal?.aborted) throw getAbortError(signal)
+
     const requestId = dedupe
-      ? stringToHex(`${uid}.${stringify(args)}`)
+      ? hashString(`${uid}.${stringify(args)}`)
       : undefined
     return withDedupe(
       () =>
         withRetry(
           async () => {
             try {
-              return await request(args)
+              return await request(args, signal ? { signal } : undefined)
             } catch (err_) {
+              if (signal?.aborted) throw getAbortError(signal)
+              if (isAbortError(err_)) throw err_
+
               const err = err_ as unknown as RpcError<
                 RpcErrorCode | ProviderRpcErrorCode
               >
@@ -265,6 +278,7 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
               return ~~(1 << count) * retryDelay
             },
             retryCount,
+            signal,
             shouldRetry: ({ error }) => shouldRetry(error),
           },
         ),
@@ -275,10 +289,15 @@ export function buildRequest<request extends (args: any) => Promise<any>>(
 
 /** @internal */
 export function shouldRetry(error: Error) {
+  if (isAbortError(error)) return false
   if ('code' in error && typeof error.code === 'number') {
     if (error.code === -1) return true // Unknown error
     if (error.code === LimitExceededRpcError.code) return true
     if (error.code === InternalRpcError.code) return true
+    // Too Many Requests — some providers (e.g. Alchemy in batch mode) return
+    // HTTP 200 with a JSON-RPC body of `{ code: 429 }` instead of an HTTP 429,
+    // so we need to handle this code in addition to the HTTP status check below.
+    if (error.code === 429) return true
     return false
   }
   if (error instanceof HttpRequestError && error.status) {
@@ -301,4 +320,20 @@ export function shouldRetry(error: Error) {
     return false
   }
   return true
+}
+
+/** @internal cyrb53 – fast, non-cryptographic 53-bit string hash */
+function hashString(str: string, seed = 0): string {
+  let h1 = 0xdeadbeef ^ seed
+  let h2 = 0x41c6ce57 ^ seed
+  for (let i = 0; i < str.length; i++) {
+    const ch = str.charCodeAt(i)
+    h1 = Math.imul(h1 ^ ch, 2654435761)
+    h2 = Math.imul(h2 ^ ch, 1597334677)
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507)
+  h1 ^= Math.imul(h2 ^ (h2 >>> 16), 3266489909)
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507)
+  h2 ^= Math.imul(h1 ^ (h1 >>> 16), 3266489909)
+  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36)
 }

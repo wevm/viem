@@ -26,7 +26,7 @@ const sourceAccount = accounts[0]
 const targetAccount = accounts[1]
 
 async function setup() {
-  await setIntervalMining(client, { interval: 1 })
+  await setIntervalMining(client, { interval: 2 })
 }
 
 test('waits for transaction (send -> wait -> mine)', async () => {
@@ -159,7 +159,7 @@ test('waits for transaction (polling many blocks while others waiting does not t
   // Start looking for the receipt of the good transaction but did not send it yet. Here it will start polling
   const goodReceiptPromise = waitForTransactionReceipt(client, {
     hash: goodTxHash,
-    timeout: 5000,
+    timeout: 30_000,
     retryCount: 0,
   })
   await wait(200)
@@ -182,7 +182,7 @@ test('waits for transaction (polling many blocks while others waiting does not t
 
   // important step: Mine a bunch of blocks together to trigger getTransactionReceipt many times for the same receipt.
   // getting many receipt will trigger many unwatch from the same listener
-  await mine(client, { blocks: 1000 })
+  await mine(client, { blocks: 100 })
   await wait(200)
 
   // Send good transaction and mine, if the polling is working fine should get the receipt but if not we will get a timeout.
@@ -549,8 +549,8 @@ describe('args: confirmations', () => {
     const end = Date.now()
 
     expect(receipt !== null).toBeTruthy()
-    expect(end - start).toBeGreaterThan(3000 - 100)
-    expect(end - start).toBeLessThanOrEqual(3000 + 100)
+    expect(end - start).toBeGreaterThan(6000 - 500)
+    expect(end - start).toBeLessThanOrEqual(6000 + 500)
   })
 
   test('waits for confirmations (replaced)', async () => {

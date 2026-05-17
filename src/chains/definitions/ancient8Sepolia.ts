@@ -41,4 +41,5 @@ export const ancient8Sepolia = /*#__PURE__*/ defineChain({
     },
   },
   sourceId,
+  testnet: true,
 })

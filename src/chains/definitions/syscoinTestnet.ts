@@ -26,4 +26,5 @@ export const syscoinTestnet = /*#__PURE__*/ defineChain({
       blockCreated: 271288,
     },
   },
+  testnet: true,
 })

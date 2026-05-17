@@ -1,6 +1,8 @@
 # `withFeePayer`
 
-Creates a transport that routes transactions to a fee payer service when a `feePayer` is requested on an action. 
+Deprecated alias for [`withRelay`](https://docs.tempo.xyz/tempo/transports/withRelay).
+
+Creates a transport that routes transactions to a relay service when a `feePayer` is requested on an action.
 
 - [View Guide](https://docs.tempo.xyz/guide/payments/sponsor-user-fees)
 - [View Specification](https://docs.tempo.xyz/protocol/transactions/spec-tempo-transaction)
@@ -14,21 +16,21 @@ import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { tempoModerato } from 'viem/chains'
 import { withFeePayer } from 'viem/tempo'
- 
+
 const client = createWalletClient({
   account: privateKeyToAccount('0x...'),
   chain: tempoModerato,
   transport: withFeePayer(
     http(),                               // ← Default Transport
     http('https://sponsor.example.com'),  // ← Fee Payer Transport // [!code hl]
-  ), 
+  ),
 })
- 
+
 // Regular transaction
 const receipt1 = await client.sendTransactionSync({
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
 })
- 
+
 // Sponsored transaction // [!code hl]
 const receipt2 = await client.sendTransactionSync({ // [!code hl]
   // [!code hl]
@@ -45,9 +47,9 @@ const receipt2 = await client.sendTransactionSync({ // [!code hl]
 
 ### Example Fee Payer Service
 
-Below is an end-to-end example of a client/server fee payer setup. 
+Below is an end-to-end example of a client/server fee payer setup.
 
-See `server.ts` for the server-side implementation. It uses [`Handler.feePayer` provided by `tempo.ts/server`](https://docs.tempo.xyz/sdk/typescript/server/handler.feePayer) to handle fee payer requests.
+See `server.ts` for the server-side implementation. It uses [`Handler.relay` provided by `tempo.ts/server`](https://docs.tempo.xyz/sdk/typescript/server/handler.relay) to handle relay requests.
 
 :::code-group
 
@@ -56,16 +58,16 @@ import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { tempoModerato } from 'viem/chains'
 import { withFeePayer } from 'viem/tempo'
- 
+
 const client = createWalletClient({
   account: privateKeyToAccount('0x...'),
   chain: tempoModerato,
   transport: withFeePayer(
-    http(), 
-    http('http://localhost:3000'), 
-  ), 
+    http(),
+    http('http://localhost:3000'),
+  ),
 })
- 
+
 const hash = await client.sendTransactionSync({
   feePayer: true,
   to: '0x0000000000000000000000000000000000000000',
@@ -81,14 +83,14 @@ import { tempoModerato } from 'viem/chains'
 import { Handler } from 'tempo.ts/server'
 
 const client = createClient({
-  chain: tempoModerato.extend({ 
+  chain: tempoModerato.extend({
     // Note: the fee payer can specify their own fee token.
     feeToken: '0x20c0000000000000000000000000000000000001'
   }),
   transport: http(),
 })
 
-const handler = Handler.feePayer({ // [!code hl]
+const handler = Handler.relay({ // [!code hl]
   account: privateKeyToAccount('0x...'), // [!code hl]
   client, // [!code hl]
 }) // [!code hl]

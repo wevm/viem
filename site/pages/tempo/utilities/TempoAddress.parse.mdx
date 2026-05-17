@@ -1,0 +1,44 @@
+# `TempoAddress.parse`
+
+Parses a Tempo address string into a raw Ethereum address and optional zone ID.
+
+## Usage
+
+### Mainnet Address
+
+```ts twoslash
+import { TempoAddress } from 'viem/tempo'
+
+const result = TempoAddress.parse(
+  'tempo1qp6z6dwvvc6vq5efyk3ms39une6etu4a9qtj2kk0',
+)
+// @log: { address: '0x742d35CC6634c0532925a3B844bc9e7595F2Bd28', zoneId: undefined }
+```
+
+### Zone Address
+
+```ts twoslash
+import { TempoAddress } from 'viem/tempo'
+
+const result = TempoAddress.parse(
+  'tempoz1qqqhgtf4e3nrfszn9yj68wzyhj08t90jh55q74d9uj',
+)
+// @log: { address: '0x742d35CC6634c0532925a3B844bc9e7595F2Bd28', zoneId: 1 }
+```
+
+## Parameters
+
+### tempoAddress
+
+- **Type:** `string`
+
+The Tempo address string to parse.
+
+## Return Type
+
+```ts
+{
+  address: Address
+  zoneId: number | bigint | undefined
+}
+```

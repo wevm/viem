@@ -1,0 +1,64 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `accessKey.getMetadata`
+
+Gets access key information.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const key = await client.accessKey.getMetadata({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  accessKey: '0x1234567890abcdef1234567890abcdef12345678',
+})
+
+console.log('Key type:', key.keyType)
+// @log: Key type: p256
+console.log('Spend policy:', key.spendPolicy)
+// @log: Spend policy: unlimited
+console.log('Revoked:', key.isRevoked)
+// @log: Revoked: false
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** The access key address. */
+  address: Address
+  /** The key type. */
+  keyType: 'secp256k1' | 'p256' | 'webAuthn'
+  /** The expiry timestamp. */
+  expiry: bigint
+  /** The spending policy. */
+  spendPolicy: 'limited' | 'unlimited'
+  /** Whether the key is revoked. */
+  isRevoked: boolean
+}
+```
+
+## Parameters
+
+### accessKey
+
+- **Type:** `Address | AccessKeyAccount`
+
+The access key address or account.
+
+### account
+
+- **Type:** `Address | Account`
+
+Account address.
+
+<ReadParameters />

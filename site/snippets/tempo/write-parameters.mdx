@@ -10,7 +10,7 @@ Account that will be used to send the transaction.
 
 Fee token for the transaction. 
 
-Can be a TIP-20 token address or ID.
+Can be an unpaused USD-denominated TIP-20 token address or ID. Use `client.fee.validateToken({ token })` to validate a token before submitting a transaction or setting it as a fee preference.
 
 ### feePayer (optional)
 

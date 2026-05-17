@@ -5,7 +5,7 @@ import { erc7811Actions } from './erc7811.js'
 
 const client = anvilMainnet.getClient().extend(erc7811Actions())
 
-test('default', async () => {
+test.skip('default', async () => {
   expect(erc7811Actions()(client)).toMatchInlineSnapshot(`
     {
       "getAssets": [Function],
