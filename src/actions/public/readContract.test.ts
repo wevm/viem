@@ -22,6 +22,7 @@ import { generatePrivateKey } from '../../accounts/generatePrivateKey.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 
 import type { Hex } from '../../types/misc.js'
+import { encodeFunctionResult } from '../../utils/abi/encodeFunctionResult.js'
 import { pad } from '../../utils/data/pad.js'
 import { toHex } from '../../utils/encoding/toHex.js'
 import { encodeFunctionData } from '../../utils/index.js'
@@ -163,6 +164,39 @@ describe('wagmi', () => {
         blockOverrides: { time: 420n },
       }),
     ).toEqual(420n)
+  })
+
+  test('args: blockHash', async () => {
+    const blockHash =
+      '0xf65631529d476553ca5b0056d6480c3970dd5ac884fee51d5b30ca7fceab8894'
+    let callParameters: unknown
+
+    const result = await readContract(
+      {
+        call(parameters: unknown) {
+          callParameters = parameters
+          return Promise.resolve({
+            data: encodeFunctionResult({
+              abi: wagmiContractConfig.abi,
+              functionName: 'name',
+              result: 'wagmi',
+            }),
+          })
+        },
+      } as never,
+      {
+        ...wagmiContractConfig,
+        blockHash,
+        functionName: 'name',
+        requireCanonical: true,
+      },
+    )
+
+    expect(result).toEqual('wagmi')
+    expect(callParameters).toMatchObject({
+      blockHash,
+      requireCanonical: true,
+    })
   })
 })
 
