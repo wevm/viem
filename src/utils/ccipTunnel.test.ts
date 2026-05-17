@@ -7,8 +7,9 @@ import {
   toHex,
 } from 'viem'
 import { getEnsAddress, getEnsResolver, readContract } from 'viem/actions'
-import { beforeEach, describe, expect, test } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
+import { reset } from '../actions/test/reset.js'
 import { ccipReadTunnel } from './ccipTunnel.js'
 import { packetToBytes } from './ens/packetToBytes.js'
 
@@ -30,6 +31,13 @@ const NAME = 'raffy.base.eth'
 const ADDR = '0x51050ec063d393217B436747617aD1C2285Aeeee'
 
 describe('ccipTunnel', () => {
+  beforeAll(async () => {
+    await reset(client, {
+      blockNumber: 23_085_558n,
+      jsonRpcUrl: anvilMainnet.forkUrl,
+    })
+  })
+
   beforeEach(() => requested.clear())
 
   test('passthrough', async () => {
