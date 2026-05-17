@@ -200,6 +200,11 @@ export async function getSocketRpcClient<socket extends {}>(
           },
         })
 
+        if (intentionallyClosed) {
+          result.close()
+          return result
+        }
+
         socket = result
 
         if (keepAlive) {

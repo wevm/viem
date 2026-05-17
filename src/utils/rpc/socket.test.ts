@@ -352,6 +352,54 @@ test('does not reconnect when close is called during reconnect delay', async () 
   expect(getSocketCount).toBe(1)
 })
 
+test('does not keep reconnect socket when close is called during reconnect setup', async () => {
+  let getSocketCount = 0
+  let onCloseCallback: (() => void) | undefined
+  let resolveReconnect: (() => void) | undefined
+  const closedSockets = new Set<number>()
+
+  const socketClient = await getSocketRpcClient({
+    key: 'test-socket',
+    async getSocket({ onClose, onResponse }) {
+      getSocketCount++
+      const socketId = getSocketCount
+      onCloseCallback = onClose
+
+      if (socketId === 2)
+        await new Promise<void>((resolve) => {
+          resolveReconnect = resolve
+        })
+
+      return {
+        id: socketId,
+        close() {
+          closedSockets.add(socketId)
+        },
+        request({ body }) {
+          onResponse({ id: body.id ?? 0, jsonrpc: '2.0', result: body })
+        },
+      }
+    },
+    reconnect: {
+      delay: 50,
+    },
+    url: anvilMainnet.rpcUrl.ws,
+  })
+
+  expect(getSocketCount).toBe(1)
+
+  onCloseCallback?.()
+  await wait(100)
+  expect(getSocketCount).toBe(2)
+
+  socketClient.close()
+  resolveReconnect?.()
+  await wait(50)
+
+  expect(closedSockets).toEqual(new Set([1, 2]))
+  expect(socketClient.socket.id).toBe(1)
+})
+
 test('keepAlive enabled', async () => {
   const socketClient = await getSocketRpcClient({
     key: 'test-socket',
