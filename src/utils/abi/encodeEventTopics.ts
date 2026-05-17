@@ -66,7 +66,22 @@ export type EncodeEventTopicsParameters<
 > &
   (hasEvents extends true ? unknown : never)
 
-export type EncodeEventTopicsReturnType = (Hex | Hex[] | null)[]
+export type EncodeEventTopicsReturnType<
+  abi extends Abi | readonly unknown[] = Abi,
+  eventName extends ContractEventName<abi> | undefined = undefined,
+  ///
+  resolvedEvent = abi extends Abi
+    ? eventName extends string
+      ? Extract<ExtractAbiEvents<abi>, { name: eventName }>
+      : abi['length'] extends 1
+        ? abi[0]
+        : ExtractAbiEvents<abi>
+    : unknown,
+> = IsNarrowable<abi, Abi> extends true
+  ? [resolvedEvent] extends [{ anonymous: true }]
+    ? (Hex | Hex[] | null)[]
+    : [Hex, ...(Hex | Hex[] | null)[]]
+  : (Hex | Hex[] | null)[]
 
 export type EncodeEventTopicsErrorType =
   | AbiEventNotFoundErrorType
@@ -81,7 +96,7 @@ export function encodeEventTopics<
   eventName extends ContractEventName<abi> | undefined = undefined,
 >(
   parameters: EncodeEventTopicsParameters<abi, eventName>,
-): EncodeEventTopicsReturnType {
+): EncodeEventTopicsReturnType<abi, eventName> {
   const { abi, eventName, args } = parameters as EncodeEventTopicsParameters
 
   let abiItem = abi[0]
@@ -120,11 +135,12 @@ export function encodeEventTopics<
   }
   // Anonymous events are not identified by a signature topic, so the event
   // selector must not be prepended.
-  if (abiItem.anonymous) return topics
+  if (abiItem.anonymous)
+    return topics as EncodeEventTopicsReturnType<abi, eventName>
 
   const definition = formatAbiItem(abiItem)
   const signature = toEventSelector(definition as EventDefinition)
-  return [signature, ...topics]
+  return [signature, ...topics] as EncodeEventTopicsReturnType<abi, eventName>
 }
 
 export type EncodeArgErrorType =
