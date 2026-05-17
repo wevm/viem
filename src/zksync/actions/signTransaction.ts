@@ -12,7 +12,6 @@ import type {
   GetChainParameter,
 } from '../../types/chain.js'
 import type { UnionOmit } from '../../types/utils.js'
-import { InvalidEip712TransactionError } from '../errors/transaction.js'
 import type { ChainEIP712 } from '../types/chain.js'
 import type { TransactionRequestEIP712 } from '../types/transaction.js'
 import { isEIP712Transaction } from '../utils/isEip712Transaction.js'
@@ -91,9 +90,6 @@ export async function signTransaction<
   client: Client<Transport, chain, account>,
   args: SignTransactionParameters<chain, account, chainOverride>,
 ): Promise<SignTransactionReturnType> {
-  if ((args as { type?: string | undefined }).type === 'priority')
-    throw new InvalidEip712TransactionError()
-
   if (isEIP712Transaction(args)) return signEip712Transaction(client, args)
   return await signTransaction_(client, args as any)
 }

@@ -1727,12 +1727,15 @@ describe('transactionRequest', () => {
       }),
     ).toMatchInlineSnapshot(`
       {
+        "eip712Meta": {
+          "gasPerPubdata": "0xc350",
+        },
         "from": "0x0f16e9b0d03470827a95cdfd0cb8a8a3b46969b9",
         "gas": "0x32c8",
         "maxFeePerGas": "0x2",
         "maxPriorityFeePerGas": "0x1",
         "nonce": "0x4",
-        "type": undefined,
+        "type": "0x71",
         "value": "0x0",
       }
     `)

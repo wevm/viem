@@ -49,21 +49,3 @@ test('other', async () => {
     `"0x9afe47f3d95eccfc9210851ba5f877f76d372514a26b48bad848a07f77c33b87"`,
   )
 })
-
-test('errors: priority type unsupported', async () => {
-  await expect(() =>
-    sendTransaction(client, {
-      account: privateKeyToAccount(sourceAccount.privateKey),
-      ...eip712,
-      type: 'priority' as any,
-    }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [InvalidEip712TransactionError: Transaction is not an EIP712 transaction.
-
-    Transaction must:
-      - include \`type: "eip712"\`
-      - include one of the following: \`customSignature\`, \`paymaster\`, \`paymasterInput\`, \`gasPerPubdata\`, \`factoryDeps\`
-
-    Version: viem@x.y.z]
-  `)
-})

@@ -106,9 +106,6 @@ export const formatters = {
       'paymasterInput',
     ],
     format(args: ZksyncTransactionRequest): ZksyncRpcTransactionRequest {
-      if ((args as { type?: string | undefined }).type === 'priority')
-        return {} as ZksyncRpcTransactionRequest
-
       if (
         args.gasPerPubdata ||
         (args.paymaster && args.paymasterInput) ||

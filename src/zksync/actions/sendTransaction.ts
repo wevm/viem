@@ -8,7 +8,6 @@ import type {
 import { sendTransaction as core_sendTransaction } from '../../actions/wallet/sendTransaction.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import { InvalidEip712TransactionError } from '../errors/transaction.js'
 import type { ChainEIP712 } from '../types/chain.js'
 import { isEIP712Transaction } from '../utils/isEip712Transaction.js'
 import {
@@ -83,9 +82,6 @@ export async function sendTransaction<
   client: Client<Transport, chain, account>,
   parameters: SendTransactionParameters<chain, account, chainOverride, request>,
 ): Promise<SendTransactionReturnType> {
-  if ((parameters as { type?: string | undefined }).type === 'priority')
-    throw new InvalidEip712TransactionError()
-
   if (isEIP712Transaction(parameters))
     return sendEip712Transaction(
       client,

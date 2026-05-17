@@ -53,16 +53,4 @@ test('false', () => {
       value: 69n,
     }),
   ).toBeFalsy()
-  expect(
-    isEIP712Transaction({
-      type: 'priority',
-    }),
-  ).toBeFalsy()
-  expect(
-    isEIP712Transaction({
-      from: '0x0000000000000000000000000000000000000000',
-      gasPerPubdata: 1n,
-      type: 'priority',
-    }),
-  ).toBeFalsy()
 })
