@@ -9,13 +9,13 @@ import {
 import { getEnsAddress, getEnsResolver, readContract } from 'viem/actions'
 import { beforeEach, describe, expect, test } from 'vitest'
 import { anvilMainnet } from '~test/anvil.js'
-import { createCcipReadTunnel } from './ccipTunnel.js'
+import { ccipReadTunnel } from './ccipTunnel.js'
 import { packetToBytes } from './ens/packetToBytes.js'
 
 const batchGateways = ['https://ccip-v3.ens.xyz']
 const requested = new Set<string>()
 const client = anvilMainnet.getClient({
-  ccipRead: createCcipReadTunnel({
+  ccipRead: ccipReadTunnel({
     batchGateways,
     ccipRequest: async (args) => {
       for (const x of args.urls) {
