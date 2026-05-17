@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { accounts, feeToken, getClient } from '~test/tempo/config.js'
+import { generatePrivateKey } from '../accounts/generatePrivateKey.js'
 import {
   getTransaction,
   getTransactionReceipt,
@@ -12,48 +13,40 @@ import { mainnet, tempoLocalnet } from '../chains/index.js'
 import { createClient, http } from '../index.js'
 import { defineChain } from '../utils/chain/defineChain.js'
 import { hashMessage } from '../utils/index.js'
+import * as accessKeyActions from './actions/accessKey.js'
 import { Account, P256, WebCryptoP256 } from './index.js'
 
 const client = getClient({
   account: accounts.at(0)!,
 })
 
+const maxUint256 = 2n ** 256n - 1n
+
 describe('prepareTransactionRequest', () => {
-  test('behavior: sequential nonce keys for feePayer transactions', async () => {
+  test('behavior: expiring nonces for feePayer transactions', async () => {
+    const now = Math.floor(Date.now() / 1000)
     const requests = await Promise.all([
       prepareTransactionRequest(client, { feePayer: true }),
       prepareTransactionRequest(client, { feePayer: true }),
       prepareTransactionRequest(client, { feePayer: true }),
     ])
 
-    expect(requests[0]?.nonceKey).toBe(0n)
-    expect(requests[1]?.nonceKey).toBeGreaterThan(0n)
-    expect(requests[2]?.nonceKey).toBeGreaterThan(0n)
+    // All feePayer transactions use expiring nonces (nonceKey = uint256.max)
+    expect(requests[0]?.nonceKey).toBe(maxUint256)
+    expect(requests[1]?.nonceKey).toBe(maxUint256)
+    expect(requests[2]?.nonceKey).toBe(maxUint256)
+
+    // All should have nonce = 0 for expiring nonces
+    expect(requests[0]?.nonce).toBe(0)
+    expect(requests[1]?.nonce).toBe(0)
+    expect(requests[2]?.nonce).toBe(0)
+
+    // All should have validBefore set within 30 seconds
+    expect(requests[0]?.validBefore).toBeGreaterThanOrEqual(now)
+    expect(requests[0]?.validBefore).toBeLessThanOrEqual(now + 31)
   })
 
-  test('behavior: nonce key counter resets after event loop tick', async () => {
-    const requests1 = await Promise.all([
-      prepareTransactionRequest(client, { feePayer: true }),
-      prepareTransactionRequest(client, { feePayer: true }),
-    ])
-
-    expect(requests1[0]?.nonceKey).toBe(0n)
-    expect(requests1[1]?.nonceKey).toBeGreaterThan(0n)
-
-    // Wait for microtask queue to flush
-    await new Promise((resolve) => queueMicrotask(() => resolve(undefined)))
-
-    const requests2 = await Promise.all([
-      prepareTransactionRequest(client, { feePayer: true }),
-      prepareTransactionRequest(client, { feePayer: true }),
-    ])
-
-    // Counter should have reset
-    expect(requests2[0]?.nonceKey).toBe(0n)
-    expect(requests2[1]?.nonceKey).toBeGreaterThan(0n)
-  })
-
-  test('behavior: explicit nonceKey overrides counter', async () => {
+  test('behavior: explicit nonceKey overrides expiring nonce', async () => {
     const requests = await Promise.all([
       prepareTransactionRequest(client, {
         feePayer: true,
@@ -66,50 +59,46 @@ describe('prepareTransactionRequest', () => {
       }),
     ])
 
+    // Explicit nonceKey uses 2D nonce mode
     expect(requests[0]?.nonceKey).toBe(42n)
-    expect(requests[1]?.nonceKey).toBe(0n)
+    expect(requests[0]?.validBefore).toBeUndefined()
+
+    // Default feePayer uses expiring nonces
+    expect(requests[1]?.nonceKey).toBe(maxUint256)
+    expect(requests[1]?.validBefore).toBeDefined()
+
     expect(requests[2]?.nonceKey).toBe(100n)
+    expect(requests[2]?.validBefore).toBeUndefined()
   })
 
-  test('behavior: default nonceKey when feePayer is not true', async () => {
+  test('behavior: default nonceKey when feePayer is not set', async () => {
     const request = await prepareTransactionRequest(client, {})
     expect(request?.nonceKey).toBe(undefined)
+    expect(request?.validBefore).toBeUndefined()
   })
 
-  test('behavior: nonce with sequential nonceKey', async () => {
-    const requests = await Promise.all([
-      prepareTransactionRequest(client, { feePayer: true }), // nonceKey: 0n
-      prepareTransactionRequest(client, { feePayer: true }), // nonceKey: 1n
-      prepareTransactionRequest(client, { feePayer: true }), // nonceKey: 2n
-    ])
-
-    expect(requests[0]?.nonce).toBeDefined()
-    expect(requests[0]?.nonceKey).toBe(0n)
-
-    // nonceKey >= 1n is truthy, so nonce is 0
-    expect(requests[1]?.nonce).toBe(0)
-    expect(requests[1]?.nonceKey).toBeGreaterThan(0n)
-
-    expect(requests[2]?.nonce).toBe(0)
-    expect(requests[2]?.nonceKey).toBeGreaterThan(0n)
+  test('behavior: nonceKey expiring uses expiring nonces', async () => {
+    const now = Math.floor(Date.now() / 1000)
+    const request = await prepareTransactionRequest(client, {
+      nonceKey: 'expiring',
+    })
+    expect(request?.nonceKey).toBe(maxUint256)
+    expect(request?.nonce).toBe(0)
+    expect(request?.validBefore).toBeGreaterThanOrEqual(now)
+    expect(request?.validBefore).toBeLessThanOrEqual(now + 31)
   })
 
-  test('behavior: explicit nonce is preserved', async () => {
+  test('behavior: explicit validBefore is preserved', async () => {
+    const customValidBefore = Math.floor(Date.now() / 1000) + 15
     const request = await prepareTransactionRequest(client, {
       feePayer: true,
-      nonce: 123,
+      validBefore: customValidBefore,
     })
-    expect(request?.nonce).toBe(123)
-    expect(request?.nonceKey).toBe(0n)
+    expect(request?.nonceKey).toBe(maxUint256)
+    expect(request?.validBefore).toBe(customValidBefore)
   })
 
-  test('behavior: default nonceKey is 0n (falsy)', async () => {
-    const request = await prepareTransactionRequest(client, {})
-    expect(request?.nonceKey).toBe(undefined)
-    expect(request?.nonce).toBeDefined()
-  })
-
-  test('behavior: sendTransaction', async () => {
+  test('behavior: sendTransaction with expiring nonces', async () => {
     const receipts = await Promise.all([
       sendTransactionSync(client, {
         to: '0x0000000000000000000000000000000000000000',
@@ -134,9 +123,10 @@ describe('prepareTransactionRequest', () => {
         hash: receipts[2].transactionHash,
       }),
     ])
-    expect(transactions[0].nonceKey).toBe(undefined)
-    expect(transactions[1].nonceKey).toBeGreaterThan(0n)
-    expect(transactions[2].nonceKey).toBeGreaterThan(0n)
+    // Concurrent transactions automatically use expiring nonces
+    expect(transactions[0].nonceKey).toBe(maxUint256)
+    expect(transactions[1].nonceKey).toBe(maxUint256)
+    expect(transactions[2].nonceKey).toBe(maxUint256)
   })
 
   test('behavior: feeToken from chain config', async () => {
@@ -163,6 +153,7 @@ describe('formatters', () => {
       hash: receipt.transactionHash,
     })
     expect(transaction.hash).toBe(receipt.transactionHash)
+    expect(transaction.blockTimestamp).toBeTypeOf('bigint')
     expect(transaction.type).toBe('tempo')
     expect(transaction.calls).toBeDefined()
     expect(transaction.signature).toBeDefined()
@@ -373,6 +364,106 @@ describe('verifyHash', () => {
     ).toBe(false)
   })
 
+  test('accessKey: valid signature', async () => {
+    const rootAccount = accounts.at(0)!
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: rootAccount,
+    })
+
+    await accessKeyActions.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    const hash = hashMessage('hello world')
+    const signature = await accessKey.sign({ hash })
+
+    expect(
+      await verifyHash(client, {
+        address: accessKey.address,
+        hash,
+        signature,
+        mode: 'allowAccessKey',
+      }),
+    ).toBe(true)
+  })
+
+  test('accessKey: secp256k1 valid signature', async () => {
+    const rootAccount = accounts.at(0)!
+    const accessKey = Account.fromSecp256k1(generatePrivateKey(), {
+      access: rootAccount,
+    })
+
+    await accessKeyActions.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    const hash = hashMessage('hello world')
+    const signature = await accessKey.sign({ hash })
+
+    expect(
+      await verifyHash(client, {
+        address: accessKey.address,
+        hash,
+        signature,
+        mode: 'allowAccessKey',
+      }),
+    ).toBe(true)
+  })
+
+  test('accessKey: invalid signature returns false', async () => {
+    const rootAccount = accounts.at(0)!
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: rootAccount,
+    })
+
+    await accessKeyActions.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    const hash = hashMessage('hello world')
+    const wrongHash = hashMessage('wrong message')
+    const signature = await accessKey.sign({ hash })
+
+    expect(
+      await verifyHash(client, {
+        address: accessKey.address,
+        hash: wrongHash,
+        signature,
+        mode: 'allowAccessKey',
+      }),
+    ).toBe(false)
+  })
+
+  test('accessKey: revoked key returns false', async () => {
+    const rootAccount = accounts.at(0)!
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: rootAccount,
+    })
+
+    await accessKeyActions.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    const hash = hashMessage('hello world')
+    const signature = await accessKey.sign({ hash })
+
+    // Revoke the key
+    await accessKeyActions.revokeSync(client, { accessKey })
+
+    expect(
+      await verifyHash(client, {
+        address: accessKey.address,
+        hash,
+        signature,
+        mode: 'allowAccessKey',
+      }),
+    ).toBe(false)
+  })
+
   test('behavior: non-tempo chain', async () => {
     const privateKey = P256.randomPrivateKey()
     const account = Account.fromP256(privateKey)
@@ -393,7 +484,7 @@ describe('verifyHash', () => {
   test('behavior: non-tempo chain (client)', async () => {
     const client = createClient({
       chain: mainnet,
-      transport: http(),
+      transport: http('https://eth.drpc.org'),
     })
 
     const privateKey = P256.randomPrivateKey()

@@ -10,7 +10,7 @@ Account that will be used to send the transaction.
 
 Fee token for the transaction. 
 
-Can be a TIP-20 token address or ID.
+Can be an unpaused USD-denominated TIP-20 token address or ID. Use `client.fee.validateToken({ token })` to validate a token before submitting a transaction or setting it as a fee preference.
 
 ### feePayer (optional)
 
@@ -46,9 +46,9 @@ Nonce for the transaction.
 
 ### nonceKey (optional)
 
-- **Type:** `'random' | bigint`
+- **Type:** `'expiring' | bigint`
 
-Nonce key for the transaction. Use `'random'` to generate a random nonce key.
+Nonce key for the transaction. Use `'expiring'` to use [expiring nonces (TIP-1009)](https://docs.tempo.xyz/protocol/tips/tip-1009), which enables concurrent transaction submission without nonce ordering.
 
 ### validBefore (optional)
 

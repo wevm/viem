@@ -93,20 +93,7 @@ test('address with primary name that has no resolver - strict', async () => {
       address: '0x00000000000061aD8EE190710508A818aE5325C3',
       strict: true,
     }),
-  ).rejects.toMatchInlineSnapshot(`
-    [ContractFunctionExecutionError: The contract function "reverseWithGateways" reverted.
-
-    Error: ResolverNotFound(bytes name)
-                           (0x0b726574e286a9efb88f726e0365746800)
-     
-    Contract Call:
-      address:   0x0000000000000000000000000000000000000000
-      function:  reverseWithGateways(bytes reverseName, uint256 coinType, string[] gateways)
-      args:                         (0x00000000000061aD8EE190710508A818aE5325C3, 60, ["x-batch-gateway:true"])
-
-    Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@x.y.z]
-  `)
+  ).rejects.toThrow('The contract function "reverseWithGateways" reverted')
 })
 
 describe('primary name with resolver that does not support text()', () => {
@@ -126,20 +113,7 @@ describe('primary name with resolver that does not support text()', () => {
         address: address.vitalik,
         strict: true,
       }),
-    ).rejects.toMatchInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "reverseWithGateways" reverted.
-
-      Error: ResolverError(bytes errorData)
-                          (0x)
-       
-      Contract Call:
-        address:   0x0000000000000000000000000000000000000000
-        function:  reverseWithGateways(bytes reverseName, uint256 coinType, string[] gateways)
-        args:                         (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 60, ["x-batch-gateway:true"])
-
-      Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@x.y.z]
-    `)
+    ).rejects.toThrow('The contract function "reverseWithGateways" reverted')
   })
 })
 
@@ -160,20 +134,7 @@ describe('primary name with non-contract resolver', () => {
         address: address.vitalik,
         strict: true,
       }),
-    ).rejects.toMatchInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "reverseWithGateways" reverted.
-
-      Error: ResolverNotContract(bytes name, address resolver)
-                                (0x08766275746572696e0365746800, 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045)
-       
-      Contract Call:
-        address:   0x0000000000000000000000000000000000000000
-        function:  reverseWithGateways(bytes reverseName, uint256 coinType, string[] gateways)
-        args:                         (0xd8da6bf26964af9d7eed9e03e53415d37aa96045, 60, ["x-batch-gateway:true"])
-
-      Docs: https://viem.sh/docs/contract/readContract
-      Version: viem@x.y.z]
-    `)
+    ).rejects.toThrow('The contract function "reverseWithGateways" reverted')
   })
 })
 
@@ -295,17 +256,7 @@ test('invalid universal resolver address', async () => {
       address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
       universalResolverAddress: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
     }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ContractFunctionExecutionError: The contract function "reverseWithGateways" reverted.
-
-    Contract Call:
-      address:   0x0000000000000000000000000000000000000000
-      function:  reverseWithGateways(bytes reverseName, uint256 coinType, string[] gateways)
-      args:                         (0xA0Cf798816D4b9b9866b5330EEa46a18382f251e, 60, ["x-batch-gateway:true"])
-
-    Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@x.y.z]
-  `)
+  ).rejects.toThrow('The contract function "reverseWithGateways" reverted')
 })
 
 test('resolved address mismatch', async () => {

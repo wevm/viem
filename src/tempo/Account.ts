@@ -45,8 +45,11 @@ export type Account_base<source extends string = string> = RequiredBy<
 export type RootAccount = Account_base<'root'> & {
   /** Sign key authorization. */
   signKeyAuthorization: (
-    key: Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>,
-    parameters?: Pick<KeyAuthorization.KeyAuthorization, 'expiry' | 'limits'>,
+    key: resolveAccessKey.Parameters,
+    parameters: Pick<
+      KeyAuthorization.KeyAuthorization,
+      'chainId' | 'expiry' | 'limits' | 'scopes'
+    >,
   ) => Promise<KeyAuthorization.Signed>
 }
 
@@ -56,6 +59,31 @@ export type AccessKeyAccount = Account_base<'accessKey'> & {
 }
 
 export type Account = OneOf<RootAccount | AccessKeyAccount>
+
+/** Instantiates an Account. */
+export function from<const parameters extends from.Parameters>(
+  parameters: parameters | from.Parameters,
+): from.ReturnValue<parameters> {
+  const { access } = parameters
+  if (access) return fromAccessKey(parameters) as never
+  return fromRoot(parameters) as never
+}
+
+export declare namespace from {
+  export type Parameters = OneOf<fromRoot.Parameters | fromAccessKey.Parameters>
+
+  export type ReturnValue<
+    parameters extends {
+      access?: fromAccessKey.Parameters['access'] | undefined
+    } = {
+      access?: fromAccessKey.Parameters['access'] | undefined
+    },
+  > = parameters extends {
+    access: fromAccessKey.Parameters['access']
+  }
+    ? AccessKeyAccount
+    : RootAccount
+}
 
 /**
  * Instantiates an Account from a headless WebAuthn credential (P256 private key).
@@ -76,12 +104,13 @@ export function fromHeadlessWebAuthn<
   privateKey: Hex.Hex,
   options: options | fromHeadlessWebAuthn.Options,
 ): fromHeadlessWebAuthn.ReturnValue<options> {
-  const { access, rpId, origin } = options
+  const { access, rpId, origin, internal_version } = options
 
   const publicKey = P256.getPublicKey({ privateKey })
 
   return from({
     access,
+    internal_version,
     keyType: 'webAuthn',
     publicKey,
     async sign({ hash }) {
@@ -111,7 +140,7 @@ export declare namespace fromHeadlessWebAuthn {
     WebAuthnP256.getSignPayload.Options,
     'challenge' | 'rpId' | 'origin'
   > &
-    Pick<from.Parameters, 'access'> & {
+    Pick<from.Parameters, 'access' | 'internal_version'> & {
       rpId: string
       origin: string
     }
@@ -137,11 +166,12 @@ export function fromP256<const options extends fromP256.Options>(
   privateKey: Hex.Hex,
   options: options | fromP256.Options = {},
 ): fromP256.ReturnValue<options> {
-  const { access } = options
+  const { access, internal_version } = options
   const publicKey = P256.getPublicKey({ privateKey })
 
   return from({
     access,
+    internal_version,
     keyType: 'p256',
     publicKey,
     async sign({ hash }) {
@@ -156,7 +186,7 @@ export function fromP256<const options extends fromP256.Options>(
 }
 
 export declare namespace fromP256 {
-  export type Options = Pick<from.Parameters, 'access'>
+  export type Options = Pick<from.Parameters, 'access' | 'internal_version'>
 
   export type ReturnValue<options extends Options = Options> =
     from.ReturnValue<options>
@@ -179,11 +209,12 @@ export function fromSecp256k1<const options extends fromSecp256k1.Options>(
   privateKey: Hex.Hex,
   options: options | fromSecp256k1.Options = {},
 ): fromSecp256k1.ReturnValue<options> {
-  const { access } = options
+  const { access, internal_version } = options
   const publicKey = Secp256k1.getPublicKey({ privateKey })
 
   return from({
     access,
+    internal_version,
     keyType: 'secp256k1',
     publicKey,
     async sign(parameters) {
@@ -195,7 +226,7 @@ export function fromSecp256k1<const options extends fromSecp256k1.Options>(
 }
 
 export declare namespace fromSecp256k1 {
-  export type Options = Pick<from.Parameters, 'access'>
+  export type Options = Pick<from.Parameters, 'access' | 'internal_version'>
 
   export type ReturnValue<options extends Options = Options> =
     from.ReturnValue<options>
@@ -319,11 +350,12 @@ export function fromWebCryptoP256<
   keyPair: Awaited<ReturnType<typeof WebCryptoP256.createKeyPair>>,
   options: options | fromWebCryptoP256.Options = {},
 ): fromWebCryptoP256.ReturnValue<options> {
-  const { access } = options
+  const { access, internal_version } = options
   const { publicKey, privateKey } = keyPair
 
   return from({
     access,
+    internal_version,
     keyType: 'p256',
     publicKey,
     async sign({ hash }) {
@@ -339,7 +371,7 @@ export function fromWebCryptoP256<
 }
 
 export declare namespace fromWebCryptoP256 {
-  export type Options = Pick<from.Parameters, 'access'>
+  export type Options = Pick<from.Parameters, 'access' | 'internal_version'>
 
   export type ReturnValue<options extends Options = Options> =
     from.ReturnValue<options>
@@ -349,21 +381,25 @@ export async function signKeyAuthorization(
   account: LocalAccount,
   parameters: signKeyAuthorization.Parameters,
 ): Promise<signKeyAuthorization.ReturnValue> {
-  const { key, expiry, limits } = parameters
-  const { accessKeyAddress, keyType: type } = key
+  const { chainId, key, expiry, limits, scopes } = parameters
+  const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
 
   const signature = await account.sign!({
     hash: KeyAuthorization.getSignPayload({
       address: accessKeyAddress,
+      chainId,
       expiry,
       limits,
+      scopes,
       type,
     }),
   })
   return KeyAuthorization.from({
     address: accessKeyAddress,
+    chainId,
     expiry,
     limits,
+    scopes,
     signature: SignatureEnvelope.from(signature),
     type,
   })
@@ -372,9 +408,9 @@ export async function signKeyAuthorization(
 export declare namespace signKeyAuthorization {
   type Parameters = Pick<
     KeyAuthorization.KeyAuthorization,
-    'expiry' | 'limits'
+    'chainId' | 'expiry' | 'limits' | 'scopes'
   > & {
-    key: Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>
+    key: resolveAccessKey.Parameters
   }
 
   type ReturnValue = KeyAuthorization.Signed
@@ -387,6 +423,7 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
     keyType = 'secp256k1',
     parentAddress,
     source = 'privateKey',
+    internal_version = 'v2',
   } = parameters
 
   const address = parentAddress ?? Address.fromPublicKey(parameters.publicKey)
@@ -395,19 +432,21 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
   })
 
   async function sign({ hash }: { hash: Hex.Hex }) {
-    const signature = await parameters.sign({ hash })
+    const innerHash =
+      parentAddress && internal_version === 'v2'
+        ? keccak256(Hex.concat('0x04', hash, parentAddress))
+        : hash
+    const signature = await parameters.sign({ hash: innerHash })
     if (parentAddress)
       return SignatureEnvelope.serialize(
         SignatureEnvelope.from({
           userAddress: parentAddress,
           inner: SignatureEnvelope.from(signature),
           type: 'keychain',
+          version: internal_version,
         }),
       )
-    // Don't need to append magic bytes to secp256k1 signatures as they are
-    // backwards compatible with existing verification logic.
-    if (keyType === 'secp256k1') return signature
-    return Hex.concat(signature, SignatureEnvelope.magicBytes)
+    return signature
   }
 
   return {
@@ -443,8 +482,13 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
     },
     async signTransaction(transaction, options) {
       const { serializer = Transaction.serialize } = options ?? {}
+      const presign = (() => {
+        if ('feePayerSignature' in transaction && transaction.feePayerSignature)
+          return { ...transaction, feePayerSignature: null }
+        return transaction
+      })()
       const signature = await sign({
-        hash: keccak256(await serializer(transaction)),
+        hash: keccak256(await serializer(presign)),
       })
       const envelope = SignatureEnvelope.from(signature)
       return await serializer(transaction, envelope as never)
@@ -470,6 +514,8 @@ declare namespace fromBase {
     sign: NonNullable<LocalAccount['sign']>
     /** Source. */
     source?: string | undefined
+    /** Access key version. Will be removed in a future release. @deprecated @internal */
+    internal_version?: 'v1' | 'v2' | undefined
   }
 
   export type ReturnValue = Account_base
@@ -482,22 +528,26 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
   return {
     ...account,
     source: 'root',
-    async signKeyAuthorization(key, parameters = {}) {
-      const { expiry, limits } = parameters
-      const { accessKeyAddress, keyType: type } = key
+    async signKeyAuthorization(key, parameters) {
+      const { chainId, expiry, limits, scopes } = parameters
+      const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
 
       const signature = await account.sign({
         hash: KeyAuthorization.getSignPayload({
           address: accessKeyAddress,
+          chainId,
           expiry,
           limits,
+          scopes,
           type,
         }),
       })
       const keyAuthorization = KeyAuthorization.from({
         address: accessKeyAddress,
+        chainId,
         expiry,
         limits,
+        scopes,
         signature: SignatureEnvelope.from(signature),
         type,
       })
@@ -537,29 +587,50 @@ declare namespace fromAccessKey {
   export type ReturnValue = AccessKeyAccount
 }
 
-// biome-ignore lint/correctness/noUnusedVariables: _
-function from<const parameters extends from.Parameters>(
-  parameters: parameters | from.Parameters,
-): from.ReturnValue<parameters> {
-  const { access } = parameters
-  if (access) return fromAccessKey(parameters) as never
-  return fromRoot(parameters) as never
+/** @internal */
+export function resolveAccessKey(
+  accessKey: resolveAccessKey.Parameters,
+): resolveAccessKey.ReturnType {
+  if ('accessKeyAddress' in accessKey)
+    return {
+      accessKeyAddress: accessKey.accessKeyAddress,
+      keyType: accessKey.keyType,
+    }
+  if ('publicKey' in accessKey && accessKey.publicKey)
+    return {
+      accessKeyAddress: Address.fromPublicKey(
+        PublicKey.fromHex(accessKey.publicKey),
+      ),
+      keyType: accessKey.type,
+    }
+  return {
+    accessKeyAddress: accessKey.address,
+    keyType: accessKey.type,
+  }
 }
 
-declare namespace from {
-  export type Parameters = OneOf<fromRoot.Parameters | fromAccessKey.Parameters>
+export declare namespace resolveAccessKey {
+  type Parameters =
+    | Pick<AccessKeyAccount, 'accessKeyAddress' | 'keyType'>
+    | OneOf<
+        | {
+            /** Access key address. */
+            address: Address.Address
+            /** Key type. */
+            type: SignatureEnvelope.Type
+          }
+        | {
+            /** Access key public key. */
+            publicKey: Hex.Hex
+            /** Key type. */
+            type: SignatureEnvelope.Type
+          }
+      >
 
-  export type ReturnValue<
-    parameters extends {
-      access?: fromAccessKey.Parameters['access'] | undefined
-    } = {
-      access?: fromAccessKey.Parameters['access'] | undefined
-    },
-  > = parameters extends {
-    access: fromAccessKey.Parameters['access']
+  type ReturnType = {
+    accessKeyAddress: Address.Address
+    keyType: SignatureEnvelope.Type
   }
-    ? AccessKeyAccount
-    : RootAccount
 }
 
 // Export types required for inference.

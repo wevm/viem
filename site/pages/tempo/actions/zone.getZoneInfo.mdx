@@ -1,0 +1,37 @@
+# `zone.getZoneInfo`
+
+Returns metadata about the current zone.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './zones.config'
+
+const info = await client.zone.getZoneInfo()
+
+console.log('Zone ID:', info.zoneId)
+console.log('Chain ID:', info.chainId)
+console.log('Sequencer:', info.sequencer)
+// @log: Zone ID: 7
+// @log: Chain ID: 1337
+// @log: Sequencer: 0x...
+```
+
+```ts twoslash [zones.config.ts] filename="zones.config.ts"
+// [!include ~/snippets/tempo/zones.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  chainId: number
+  sequencer: Address
+  zoneId: number
+  zoneTokens: Address[]
+}
+```

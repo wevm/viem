@@ -189,34 +189,16 @@ Check out the following places for more viem-related content:
     <img alt="relay logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/relay-light.svg" width="auto" height="50">
   </picture>
 </a>
-<a href="https://uniswap.org">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/uniswap-dark.svg">
-    <img alt="uniswap logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/uniswap-light.svg" width="auto" height="50">
-  </picture>
-</a>
 <a href="https://polymarket.com">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/polymarket-dark.svg">
     <img alt="polymarket logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/polymarket-light.svg" width="auto" height="50">
   </picture>
 </a>
-<a href="https://routescan.io">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/routescan-dark.svg">
-    <img alt="routescan logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/routescan-light.svg" width="auto" height="50">
-  </picture>
-</a>
 <a href="https://sequence.xyz">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/sequence-dark.svg">
     <img alt="sequence logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/sequence-light.svg" width="auto" height="50">
-  </picture>
-</a>
-<a href="https://gemini.com">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/gemini-dark.svg">
-    <img alt="gemini logo" src="https://raw.githubusercontent.com/wevm/.github/main/content/sponsors/gemini-light.svg" width="auto" height="50">
   </picture>
 </a>
 <a href="https://web3auth.io">

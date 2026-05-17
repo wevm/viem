@@ -81,15 +81,19 @@ describe('deserialize', () => {
     expect(deserialized.calls).toBeDefined()
   })
 
-  test('behavior: tempo transaction with `from`', async () => {
+  test('behavior: tempo transaction in fee payer format', async () => {
     const request = await prepareTransactionRequest(client, {
       to: '0x0000000000000000000000000000000000000000',
       feePayer: true,
     })
     const serialized = await signTransaction(client, request)
-    const deserialized = Transaction.deserialize(serialized)
+    expect(serialized.startsWith('0x78')).toBe(true)
+    const deserialized = Transaction.deserialize(serialized as `0x78${string}`)
     expect(deserialized.type).toBe('tempo')
-    expect((deserialized as { from?: string }).from).toBeDefined()
+    expect(
+      (deserialized as { feePayerSignature: null }).feePayerSignature,
+    ).toBeNull()
+    expect(deserialized.from).toBe(accounts.at(0)!.address.toLowerCase())
   })
 
   test('behavior: non-tempo transaction', async () => {
@@ -199,7 +203,7 @@ describe('serialize', () => {
     expect(serialized.startsWith('0x76')).toBe(true)
   })
 
-  test('behavior: serializes with feePayer: true and signature adds from marker', async () => {
+  test('behavior: serializes with feePayer: true and signature uses feePayer format', async () => {
     const serialized = await Transaction.serialize(
       {
         chainId: 1,
@@ -209,7 +213,39 @@ describe('serialize', () => {
       },
       { type: 'secp256k1', signature: { r: 1n, s: 1n, yParity: 0 } },
     )
-    expect(serialized.endsWith('feefeefeefee')).toBe(true)
+    expect(serialized.startsWith('0x78')).toBe(true)
+  })
+
+  test('behavior: feePayer: true preserves feeToken once feePayerSignature is set', async () => {
+    // Sender-side serialization (no feePayerSignature yet) — feeToken
+    // must be stripped per TIP-76; sender does not commit to a token.
+    const unsigned = await Transaction.serialize({
+      chainId: 1,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      feePayer: true,
+      feeToken,
+    })
+    const unsignedParsed = Transaction.deserialize(unsigned as `0x76${string}`)
+    expect(unsignedParsed.feeToken).toBeUndefined()
+
+    // Final broadcast envelope (fee payer has signed) — feeToken must
+    // remain so the chain can verify the fee payer's signature and
+    // identify which token to charge.
+    const signed = await Transaction.serialize(
+      {
+        chainId: 1,
+        calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+        feePayer: true,
+        feeToken,
+        from: accounts.at(0)!.address,
+        feePayerSignature: { r: '0x1', s: '0x1', yParity: 0 } as never,
+      },
+      { type: 'secp256k1', signature: { r: 1n, s: 1n, yParity: 0 } },
+    )
+    const signedParsed = Transaction.deserialize(signed as `0x78${string}`)
+    expect((signedParsed.feeToken as string)?.toLowerCase()).toBe(
+      feeToken.toLowerCase(),
+    )
   })
 
   test('behavior: serializes with feePayer as object (co-signed)', async () => {
@@ -241,5 +277,24 @@ describe('serialize', () => {
         },
       ),
     ).rejects.toThrow('Unable to extract sender from transaction or signature.')
+  })
+})
+
+describe('signTransaction', () => {
+  test('behavior: `feePayer` same as sender preserves from', async () => {
+    const account = accounts.at(0)!
+    const client = getClient()
+    const signed = await signTransaction(client, {
+      account,
+      to: account.address,
+      nonce: 0,
+      gas: 271000n,
+      maxFeePerGas: 20000000000n,
+      maxPriorityFeePerGas: 1_000_000_000n,
+      feePayer: account,
+      type: 'tempo',
+    })
+    const parsed = Transaction.deserialize(signed as `0x76${string}`)
+    expect(parsed.from).toBe(account.address.toLowerCase())
   })
 })

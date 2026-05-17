@@ -6,6 +6,7 @@ import {
 } from 'abitype'
 import type { seaportAbi } from 'abitype/abis'
 import { expectTypeOf, test } from 'vitest'
+import type { NormalizeType } from '~test/typeUtils.js'
 
 import type {
   AbiEventParametersToPrimitiveTypes,
@@ -213,22 +214,28 @@ test('GetEventArgs', () => {
     ],
     'Transfer'
   >
-  expectTypeOf<Result>().toEqualTypeOf<{
-    from?: `0x${string}` | `0x${string}`[] | null | undefined
-    to?: `0x${string}` | `0x${string}`[] | null | undefined
-  }>()
+  expectTypeOf<Result['from']>().toEqualTypeOf<
+    `0x${string}` | readonly `0x${string}`[] | null | undefined
+  >()
+  expectTypeOf<Result['to']>().toEqualTypeOf<
+    `0x${string}` | readonly `0x${string}`[] | null | undefined
+  >()
 })
 
 test('GetValue', () => {
   // payable
   type Result = GetValue<typeof seaportAbi, 'fulfillAdvancedOrder'>
-  expectTypeOf<Result>().toEqualTypeOf<{ value?: bigint }>()
+  expectTypeOf<NormalizeType<Result>>().toEqualTypeOf<{ value?: bigint }>()
 
   // other
-  expectTypeOf<GetValue<typeof seaportAbi, 'getOrderStatus'>>().toEqualTypeOf<{
+  expectTypeOf<
+    NormalizeType<GetValue<typeof seaportAbi, 'getOrderStatus'>>
+  >().toEqualTypeOf<{
     value?: never
   }>()
-  expectTypeOf<GetValue<typeof seaportAbi, 'cancel'>>().toEqualTypeOf<{
+  expectTypeOf<
+    NormalizeType<GetValue<typeof seaportAbi, 'cancel'>>
+  >().toEqualTypeOf<{
     value?: never
   }>()
 
@@ -253,7 +260,7 @@ test('GetValue', () => {
 
 test('LogTopicType', () => {
   expectTypeOf<LogTopicType<string, Hex>>().toEqualTypeOf<string>()
-  expectTypeOf<LogTopicType<string, Hex[]>>().toEqualTypeOf<string[]>()
+  expectTypeOf<LogTopicType<string, Hex[]>>().toEqualTypeOf<readonly string[]>()
   expectTypeOf<LogTopicType<string, null>>().toEqualTypeOf<null>()
 
   expectTypeOf<LogTopicType<string, Hex | null>>().toEqualTypeOf<
@@ -264,7 +271,7 @@ test('LogTopicType', () => {
 test('AbiEventParameterToPrimitiveType', () => {
   expectTypeOf<
     AbiEventParameterToPrimitiveType<{ name: 'foo'; type: 'string' }>
-  >().toEqualTypeOf<string | string[] | null>()
+  >().toEqualTypeOf<string | readonly string[] | null>()
   expectTypeOf<
     AbiEventParameterToPrimitiveType<
       { name: 'foo'; type: 'string' },
@@ -279,7 +286,7 @@ test('AbiEventTopicToPrimitiveType', () => {
   >().toEqualTypeOf<`0x${string}`>()
   expectTypeOf<
     AbiEventTopicToPrimitiveType<{ name: 'foo'; type: 'string' }, Hex[]>
-  >().toEqualTypeOf<`0x${string}`[][]>() // TODO: Is this correct?
+  >().toEqualTypeOf<readonly `0x${string}`[][]>() // TODO: Is this correct?
   expectTypeOf<
     AbiEventTopicToPrimitiveType<{ name: 'foo'; type: 'string' }, null>
   >().toEqualTypeOf<null>()
@@ -293,7 +300,7 @@ test('AbiEventTopicToPrimitiveType', () => {
   >().toEqualTypeOf<boolean>()
   expectTypeOf<
     AbiEventTopicToPrimitiveType<{ name: 'foo'; type: 'bool' }, Hex[]>
-  >().toEqualTypeOf<boolean[]>()
+  >().toEqualTypeOf<readonly boolean[]>()
 })
 
 test('AbiEventParametersToPrimitiveTypes', () => {
@@ -303,7 +310,7 @@ test('AbiEventParametersToPrimitiveTypes', () => {
       [{ name: 'foo'; type: 'string'; indexed: true }]
     >
   >().toEqualTypeOf<{
-    foo?: string | string[] | null | undefined
+    foo?: string | readonly string[] | null | undefined
   }>()
   expectTypeOf<
     AbiEventParametersToPrimitiveTypes<
@@ -314,8 +321,8 @@ test('AbiEventParametersToPrimitiveTypes', () => {
       ]
     >
   >().toEqualTypeOf<{
-    foo?: string | string[] | null | undefined
-    bar?: number | number[] | null | undefined
+    foo?: string | readonly string[] | null | undefined
+    bar?: number | readonly number[] | null | undefined
   }>()
 
   type Named_AllowNonIndexed = AbiEventParametersToPrimitiveTypes<
@@ -331,9 +338,9 @@ test('AbiEventParametersToPrimitiveTypes', () => {
     }
   >
   expectTypeOf<Named_AllowNonIndexed>().toEqualTypeOf<{
-    foo?: string | string[] | null | undefined
-    bar?: number | number[] | null | undefined
-    baz?: `0x${string}` | `0x${string}`[] | null | undefined
+    foo?: string | readonly string[] | null | undefined
+    bar?: number | readonly number[] | null | undefined
+    baz?: `0x${string}` | readonly `0x${string}`[] | null | undefined
   }>()
   type Named_DisableUnion = AbiEventParametersToPrimitiveTypes<
     [
@@ -347,7 +354,7 @@ test('AbiEventParametersToPrimitiveTypes', () => {
       Required: false
     }
   >
-  expectTypeOf<Named_DisableUnion>().toEqualTypeOf<{
+  expectTypeOf<NormalizeType<Named_DisableUnion>>().toEqualTypeOf<{
     foo?: string
     bar?: number
   }>()
@@ -366,8 +373,11 @@ test('AbiEventParametersToPrimitiveTypes', () => {
     >
   >().toEqualTypeOf<
     | readonly []
-    | readonly [string | string[] | null]
-    | readonly [string | string[] | null, number | number[] | null]
+    | readonly [string | readonly string[] | null]
+    | readonly [
+        string | readonly string[] | null,
+        number | readonly number[] | null,
+      ]
   >()
 
   type Unnamed_AllowNonIndexed = AbiEventParametersToPrimitiveTypes<
@@ -384,12 +394,15 @@ test('AbiEventParametersToPrimitiveTypes', () => {
   >
   expectTypeOf<Unnamed_AllowNonIndexed>().toEqualTypeOf<
     | readonly []
-    | readonly [string | string[] | null]
-    | readonly [string | string[] | null, number | number[] | null]
+    | readonly [string | readonly string[] | null]
     | readonly [
-        string | string[] | null,
-        number | number[] | null,
-        `0x${string}` | `0x${string}`[] | null,
+        string | readonly string[] | null,
+        number | readonly number[] | null,
+      ]
+    | readonly [
+        string | readonly string[] | null,
+        number | readonly number[] | null,
+        `0x${string}` | readonly `0x${string}`[] | null,
       ]
   >()
 
@@ -419,7 +432,10 @@ test('AbiEventParametersToPrimitiveTypes', () => {
     >
   >().toEqualTypeOf<
     | readonly []
-    | readonly [string | string[] | null]
-    | readonly [string | string[] | null, number | number[] | null]
+    | readonly [string | readonly string[] | null]
+    | readonly [
+        string | readonly string[] | null,
+        number | readonly number[] | null,
+      ]
   >()
 })

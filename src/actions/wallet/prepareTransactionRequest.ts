@@ -31,21 +31,14 @@ import {
 } from '../../errors/fee.js'
 import type { DeriveAccount, GetAccountParameter } from '../../types/account.js'
 import type { Block } from '../../types/block.js'
+import type { ExtractCapabilities } from '../../types/capabilities.js'
 import type {
   Chain,
   DeriveChain,
   GetChainParameter,
 } from '../../types/chain.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
-import type {
-  TransactionRequest,
-  TransactionRequestEIP1559,
-  TransactionRequestEIP2930,
-  TransactionRequestEIP4844,
-  TransactionRequestEIP7702,
-  TransactionRequestLegacy,
-  TransactionSerializable,
-} from '../../types/transaction.js'
+import type { TransactionSerializable } from '../../types/transaction.js'
 import type {
   ExactPartial,
   IsNever,
@@ -105,6 +98,12 @@ type ParameterTypeToParameters<
 > = parameterType extends 'fees'
   ? 'maxFeePerGas' | 'maxPriorityFeePerGas' | 'gasPrice'
   : parameterType
+type ExtractTransactionRequest<transactionRequest, transactionType> =
+  transactionRequest extends { type?: infer type | undefined }
+    ? Extract<transactionType, type> extends never
+      ? never
+      : transactionRequest
+    : never
 
 export type PrepareTransactionRequestRequest<
   chain extends Chain | undefined = Chain | undefined,
@@ -165,12 +164,10 @@ export type PrepareTransactionRequestReturnType<
     : GetTransactionType<request> extends 'legacy'
       ? unknown
       : GetTransactionType<request>,
-  _transactionRequest extends TransactionRequest =
-    | (_transactionType extends 'legacy' ? TransactionRequestLegacy : never)
-    | (_transactionType extends 'eip1559' ? TransactionRequestEIP1559 : never)
-    | (_transactionType extends 'eip2930' ? TransactionRequestEIP2930 : never)
-    | (_transactionType extends 'eip4844' ? TransactionRequestEIP4844 : never)
-    | (_transactionType extends 'eip7702' ? TransactionRequestEIP7702 : never),
+  _transactionRequest = ExtractTransactionRequest<
+    UnionOmit<FormattedTransactionRequest<_derivedChain>, 'from'>,
+    _transactionType
+  >,
 > = Prettify<
   UnionRequiredBy<
     Extract<
@@ -191,7 +188,12 @@ export type PrepareTransactionRequestReturnType<
         : (typeof defaultParameters)[number]
     >
   > &
-    (unknown extends request['kzg'] ? {} : Pick<request, 'kzg'>)
+    (unknown extends request['kzg'] ? {} : Pick<request, 'kzg'>) & {
+      // TODO(v3): Extract `prepareTransactionRequest` response into a named object of `{ capabilities, request }.
+      _capabilities?:
+        | ExtractCapabilities<'fillTransaction', 'ReturnType'>
+        | undefined
+    }
 >
 
 export type PrepareTransactionRequestErrorType =
@@ -392,20 +394,48 @@ export async function prepareTransactionRequest<
           return {
             ...request,
             ...(from ? { from } : {}),
-            ...(type ? { type } : {}),
+            ...(type && !request.type ? { type } : {}),
             ...(typeof chainId !== 'undefined' ? { chainId } : {}),
             ...(typeof gas !== 'undefined' ? { gas } : {}),
             ...(typeof gasPrice !== 'undefined' ? { gasPrice } : {}),
             ...(typeof nonce !== 'undefined' ? { nonce } : {}),
-            ...(typeof maxFeePerBlobGas !== 'undefined'
+            ...(typeof maxFeePerBlobGas !== 'undefined' &&
+            request.type !== 'legacy' &&
+            request.type !== 'eip2930'
               ? { maxFeePerBlobGas }
               : {}),
-            ...(typeof maxFeePerGas !== 'undefined' ? { maxFeePerGas } : {}),
-            ...(typeof maxPriorityFeePerGas !== 'undefined'
+            ...(typeof maxFeePerGas !== 'undefined' &&
+            request.type !== 'legacy' &&
+            request.type !== 'eip2930'
+              ? { maxFeePerGas }
+              : {}),
+            ...(typeof maxPriorityFeePerGas !== 'undefined' &&
+            request.type !== 'legacy' &&
+            request.type !== 'eip2930'
               ? { maxPriorityFeePerGas }
               : {}),
             ...('nonceKey' in rest && typeof rest.nonceKey !== 'undefined'
               ? { nonceKey: rest.nonceKey }
+              : {}),
+            ...('keyAuthorization' in rest &&
+            typeof rest.keyAuthorization !== 'undefined' &&
+            rest.keyAuthorization !== null &&
+            !('keyAuthorization' in request)
+              ? { keyAuthorization: rest.keyAuthorization }
+              : {}),
+            ...('feePayerSignature' in rest &&
+            typeof rest.feePayerSignature !== 'undefined' &&
+            rest.feePayerSignature !== null
+              ? { feePayerSignature: rest.feePayerSignature }
+              : {}),
+            ...('feeToken' in rest &&
+            typeof rest.feeToken !== 'undefined' &&
+            rest.feeToken !== null &&
+            !('feeToken' in request)
+              ? { feeToken: rest.feeToken }
+              : {}),
+            ...(result.capabilities
+              ? { _capabilities: result.capabilities }
               : {}),
           }
         })
@@ -414,11 +444,18 @@ export async function prepareTransactionRequest<
 
           if (error.name !== 'TransactionExecutionError') return request
 
+          const executionReverted = error.walk?.((e) => {
+            const error = e as BaseError
+            return error.name === 'ExecutionRevertedError'
+          })
+          if (executionReverted) throw e
+
           const unsupported = error.walk?.((e) => {
             const error = e as BaseError
             return (
               error.name === 'MethodNotFoundRpcError' ||
-              error.name === 'MethodNotSupportedRpcError'
+              error.name === 'MethodNotSupportedRpcError' ||
+              error.message?.includes('eth_fillTransaction is not available')
             )
           })
           if (unsupported) supportsFillTransaction.set(client.uid, false)
@@ -432,7 +469,7 @@ export async function prepareTransactionRequest<
   request = {
     ...(fillResult as any),
     ...(account ? { from: account?.address } : {}),
-    ...(nonce ? { nonce } : {}),
+    ...(typeof nonce !== 'undefined' ? { nonce } : {}),
   }
   const { blobs, gas, kzg, type } = request
 

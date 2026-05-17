@@ -1,0 +1,118 @@
+# `simulate.simulateCalls`
+
+Simulates execution of a batch of calls in a single block via `tempo_simulateV1`.
+
+A convenience wrapper around [`simulate.simulateBlocks`](/tempo/actions/simulate.simulateBlocks) that runs all calls in a single block and returns flattened results.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { Actions, Addresses } from 'viem/tempo'
+import { client } from './viem.config'
+
+const { results, tokenMetadata } = await client.simulate.simulateCalls({
+  calls: [
+    Actions.token.approve.call({
+      token: '0x20c0000000000000000000000000000000000001',
+      spender: Addresses.stablecoinDex,
+      amount: parseUnits('100', 6),
+    }),
+    Actions.dex.buy.call({
+      tokenIn: '0x20c0000000000000000000000000000000000001',
+      tokenOut: '0x20c0000000000000000000000000000000000002',
+      amountOut: parseUnits('10', 6),
+      maxAmountIn: parseUnits('100', 6),
+    }),
+    Actions.token.transfer.call({
+      token: '0x20c0000000000000000000000000000000000002',
+      to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+      amount: parseUnits('10', 6),
+    }),
+  ],
+  traceTransfers: true,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Block metadata for the simulated block. */
+  block: Block
+  /** Call results. */
+  results: {
+    /** Encoded return data. */
+    data: Hex
+    /** Gas consumed by the call. */
+    gasUsed: bigint
+    /** Logs emitted by the call. */
+    logs?: Log[]
+    /** Decoded result (if ABI provided). */
+    result: unknown
+    /** Call status. */
+    status: 'success' | 'failure'
+    /** Error (if status is 'failure'). */
+    error?: Error
+  }[]
+  /** Token metadata for TIP-20 tokens involved in the simulation. */
+  tokenMetadata: Record<Address, {
+    name: string
+    symbol: string
+    currency: string
+  }>
+}
+```
+
+## Parameters
+
+### calls
+
+- **Type:** `Call[]`
+
+Calls to simulate. Supports ABI-encoded calls (with `abi`, `functionName`, `args`) or raw calls (with `to`, `data`). Use `.call()` helpers from other actions for ergonomic usage.
+
+### account (optional)
+
+- **Type:** `Account | Address`
+
+Account attached to all calls (`msg.sender`). Falls back to the client account if not provided.
+
+### stateOverrides (optional)
+
+- **Type:** `StateOverride[]`
+
+Account state overrides for the simulation.
+
+### traceTransfers (optional)
+
+- **Type:** `boolean`
+
+Whether to trace token transfers. When enabled, the response includes `tokenMetadata` for all TIP-20 tokens involved.
+
+### validation (optional)
+
+- **Type:** `boolean`
+
+Whether to enable validation mode.
+
+### blockNumber (optional)
+
+- **Type:** `bigint`
+
+Block number to simulate against.
+
+### blockTag (optional)
+
+- **Type:** `BlockTag`
+- **Default:** `"latest"`
+
+Block tag to simulate against.

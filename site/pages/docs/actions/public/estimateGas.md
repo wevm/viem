@@ -1,6 +1,7 @@
 # estimateGas [An Action for estimating gas for a transaction.]
 
 Estimates the gas necessary to complete a transaction without submitting it to the network.
+For a Local Account, `prepare` defaults to `true`; set `prepare: false` to estimate directly with `eth_estimateGas`.
 
 ## Usage
 
@@ -58,6 +59,26 @@ import { parseEther } from 'viem'
 
 const gas = await publicClient.estimateGas({
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', // [!code focus]
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: parseEther('1')
+})
+```
+
+### prepare (optional)
+
+- **Type:** `boolean | ("blobVersionedHashes" | "chainId" | "fees" | "gas" | "nonce" | "sidecars" | "type")[]`
+- **Default:** `true`
+
+Whether to prepare the transaction request before estimating gas. Set to `false` to estimate directly with `eth_estimateGas`.
+
+```ts twoslash
+// [!include ~/snippets/publicClient.ts]
+// ---cut---
+import { parseEther } from 'viem'
+
+const gas = await publicClient.estimateGas({
+  account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+  prepare: false, // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: parseEther('1')
 })

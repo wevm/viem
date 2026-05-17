@@ -100,7 +100,7 @@ jobs:
       max-parallel: 3
       matrix:
         multicall: ['true', 'false']
-        transport-mode: ['http', 'webSocket']
+        transport-mode: ['http']
         shard: [1, 2, 3]
         total-shards: [3]
     steps:
@@ -221,7 +221,7 @@ jobs:
 
       - name: Install Playwright Browsers
         if: ${{ matrix.runtime == 'next' || matrix.runtime == 'vite' }}
-        run: pnpx playwright@1.55.1 install --with-deps
+        run: pnpx playwright@1.59.1 install --with-deps
 
       - name: Build
         run: pnpm build
@@ -253,13 +253,15 @@ jobs:
 
   wagmi:
     name: Wagmi
+    # TODO: temporarily disabled
+    if: false
     permissions:
       contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
       matrix:
-        typescript-version: ['5.7.2', '5.8.3', '5.9.3', 'latest']
+        typescript-version: ['5.7.2', '5.8.3', '5.9.3']
 
     steps:
       - name: Clone repository

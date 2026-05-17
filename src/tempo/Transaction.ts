@@ -9,9 +9,11 @@ import {
   type KeyAuthorization,
   type TransactionReceipt as ox_TransactionReceipt,
   SignatureEnvelope,
+  type TempoAddress,
   TxEnvelopeTempo as TxTempo,
 } from 'ox/tempo'
 import type { Account } from '../accounts/types.js'
+import type { ExtractCapabilities } from '../types/capabilities.js'
 import type { FeeValuesEIP1559 } from '../types/fee.js'
 import type { Signature as viem_Signature } from '../types/misc.js'
 import type {
@@ -117,11 +119,12 @@ export type TransactionRequestTempo<
 > = TransactionRequestBase<quantity, index, type> &
   ExactPartial<FeeValuesEIP1559<quantity>> & {
     accessList?: AccessList | undefined
-    keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
-    calls?: readonly TxTempo.Call<quantity>[] | undefined
+    calls?: readonly TxTempo.Call<quantity, TempoAddress.Address>[] | undefined
+    capabilities?: ExtractCapabilities<'fillTransaction', 'Request'> | undefined
     feePayer?: Account | true | undefined
-    feeToken?: Address | bigint | undefined
-    nonceKey?: 'random' | quantity | undefined
+    feeToken?: TempoAddress.Address | bigint | undefined
+    keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
+    nonceKey?: 'expiring' | quantity | undefined
     validBefore?: index | undefined
     validAfter?: index | undefined
   }
@@ -140,6 +143,7 @@ export type TransactionSerializableTempo<
     chainId: number
     feeToken?: Address | bigint | undefined
     feePayerSignature?: viem_Signature | null | undefined
+    from?: Address | undefined
     keyAuthorization?: KeyAuthorization.Signed<quantity, index> | undefined
     nonceKey?: quantity | undefined
     signature?: SignatureEnvelope.SignatureEnvelope<quantity, index> | undefined
@@ -153,6 +157,7 @@ export type TransactionSerialized<
 > = viem_TransactionSerialized<type> | TransactionSerializedTempo
 
 export type TransactionSerializedTempo = `0x76${string}`
+export type TransactionSerializedFeePayer = `0x78${string}`
 
 export type TransactionType = viem_TransactionType | 'tempo'
 
@@ -160,10 +165,11 @@ export function getType(
   transaction: Record<string, unknown>,
 ): Transaction['type'] {
   const account = transaction.account as
-    | { keyType?: string | undefined }
+    | { keyType?: string | undefined; source?: string | undefined }
     | undefined
   if (
     (account?.keyType && account.keyType !== 'secp256k1') ||
+    account?.source === 'accessKey' ||
     typeof transaction.calls !== 'undefined' ||
     typeof transaction.feePayer !== 'undefined' ||
     typeof transaction.feeToken !== 'undefined' ||
@@ -191,16 +197,8 @@ export function deserialize<
   const serialized extends TransactionSerializedGeneric,
 >(serializedTransaction: serialized): deserialize.ReturnValue<serialized> {
   const type = Hex.slice(serializedTransaction, 0, 1)
-  if (type === '0x76') {
-    const from =
-      Hex.slice(serializedTransaction, -6) === '0xfeefeefeefee'
-        ? Hex.slice(serializedTransaction, -26, -6)
-        : undefined
-    return {
-      ...deserializeTempo(serializedTransaction as `0x76${string}`),
-      from,
-    } as never
-  }
+  if (type === '0x76' || type === '0x78')
+    return deserializeTempo(serializedTransaction as `0x76${string}`) as never
   return viem_parseTransaction(serializedTransaction) as never
 }
 
@@ -210,13 +208,15 @@ export declare namespace deserialize {
       TransactionSerializedGeneric = TransactionSerializedGeneric,
   > = serialized extends TransactionSerializedTempo
     ? TransactionSerializableTempo
-    : ParseTransactionReturnType<serialized>
+    : serialized extends TransactionSerializedFeePayer
+      ? TransactionSerializableTempo
+      : ParseTransactionReturnType<serialized>
 }
 
 export async function serialize(
   transaction: TransactionSerializable & {
     feePayer?: Account | true | undefined
-    from?: Address | undefined
+    from?: TempoAddress.Address | undefined
   },
   signature?:
     | OneOf<SignatureEnvelope.SignatureEnvelope | viem_Signature>
@@ -242,11 +242,7 @@ export async function serialize(
   }
 
   const type = getType(transaction)
-  if (type === 'tempo')
-    return serializeTempo(
-      transaction as TransactionSerializableTempo,
-      signature,
-    )
+  if (type === 'tempo') return serializeTempo(transaction as never, signature)
 
   throw new Error('Unsupported transaction type')
 }
@@ -294,7 +290,19 @@ async function serializeTempo(
     return undefined
   })()
 
-  const { chainId, feePayer, feePayerSignature, nonce, ...rest } = transaction
+  const { chainId, feePayer, nonce, ...rest } = transaction
+
+  const feePayerSignature = (() => {
+    const feePayerSignature = transaction.feePayerSignature
+    if (feePayerSignature)
+      return {
+        r: BigInt(feePayerSignature.r!),
+        s: BigInt(feePayerSignature.s!),
+        yParity: Number(feePayerSignature.yParity),
+      }
+    if (feePayerSignature === null || feePayer) return null
+    return undefined
+  })()
 
   const transaction_ox = {
     ...rest,
@@ -312,23 +320,21 @@ async function serializeTempo(
           },
         ],
     chainId: Number(chainId),
-    feePayerSignature: feePayerSignature
-      ? {
-          r: BigInt(feePayerSignature.r!),
-          s: BigInt(feePayerSignature.s!),
-          yParity: Number(feePayerSignature.yParity),
-        }
-      : feePayer
-        ? null
-        : undefined,
+    feePayerSignature,
     type: 'tempo',
     ...(nonce ? { nonce: BigInt(nonce) } : {}),
   } satisfies TxTempo.TxEnvelopeTempo
 
-  // If we have marked the transaction as intended to be paid
-  // by a fee payer (feePayer: true), we will not use the fee token
-  // as the fee payer will choose their fee token.
-  if (feePayer === true) delete transaction_ox.feeToken
+  // If we have marked the transaction as intended to be paid by a fee
+  // payer (feePayer: true), we strip the fee token from the sender's
+  // sign payload — per TIP-76 the sender does not commit to it; the fee
+  // payer chooses and commits to the token via its own signature.
+  //
+  // Once the fee payer has signed (`feePayerSignature` is populated),
+  // the relay has chosen a token and signed over it. The broadcast
+  // envelope must therefore include `feeToken` so the chain can verify
+  // the fee payer's signature and identify which token to charge.
+  if (feePayer === true && !feePayerSignature) delete transaction_ox.feeToken
 
   if (signature && typeof transaction.feePayer === 'object') {
     const tx = TxTempo.from(transaction_ox, {
@@ -359,22 +365,25 @@ async function serializeTempo(
   }
 
   if (feePayer === true) {
-    const serialized = TxTempo.serialize(transaction_ox, {
+    if (signature)
+      return TxTempo.serialize(transaction_ox, {
+        format: 'feePayer',
+        sender: transaction.from,
+        signature,
+      })
+    return TxTempo.serialize(transaction_ox, {
       feePayerSignature: null,
-      signature,
     })
-    // if the transaction is ready to be sent off (signed), add the sender
-    // and a fee marker to the serialized transaction, so the fee payer proxy
-    // can infer the sender address.
-    if (transaction.from && signature)
-      return Hex.concat(serialized, transaction.from, '0xfeefeefeefee')
-    return serialized
   }
 
   return TxTempo.serialize(
     // If we have specified a fee payer, the user will not be signing over the fee token.
-    // Defer the fee token signing to the fee payer.
-    { ...transaction_ox, ...(feePayer ? { feeToken: undefined } : {}) },
+    // Defer the fee token signing to the fee payer. Once the fee payer has signed,
+    // keep `feeToken` so the broadcast envelope carries the token the chain must charge.
+    {
+      ...transaction_ox,
+      ...(feePayer && !feePayerSignature ? { feeToken: undefined } : {}),
+    },
     {
       feePayerSignature: undefined,
       signature,

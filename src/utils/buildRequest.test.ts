@@ -42,12 +42,19 @@ import { getHttpRpcClient } from './rpc/http.js'
 
 function request(url: string) {
   const httpClient = getHttpRpcClient(url)
-  return async ({ method, params }: any) => {
+  return async (
+    { method, params }: any,
+    options?: { signal?: AbortSignal | undefined },
+  ) => {
+    const fetchOptions = options?.signal
+      ? { signal: options.signal }
+      : undefined
     const { error, result } = await httpClient.request({
       body: {
         method,
         params,
       },
+      fetchOptions,
     })
     if (error)
       throw new RpcRequestError({
@@ -252,6 +259,52 @@ describe('args', () => {
       }),
     ).rejects.toThrowError()
     expect(end > 1000 && end < 1020).toBeTruthy()
+  })
+})
+
+describe('options', () => {
+  test('passes signal to underlying request', async () => {
+    let receivedSignal: AbortSignal | undefined
+    const request_ = buildRequest(async (_args, options) => {
+      receivedSignal = options?.signal
+      return 'success'
+    })
+    const controller = new AbortController()
+
+    await request_({ method: 'eth_blockNumber' }, { signal: controller.signal })
+
+    expect(receivedSignal).toBe(controller.signal)
+  })
+
+  test('prioritizes override signal over initial signal', async () => {
+    let receivedSignal: AbortSignal | undefined
+    const request_ = buildRequest(
+      async (_args, options) => {
+        receivedSignal = options?.signal
+        return 'success'
+      },
+      { signal: new AbortController().signal },
+    )
+    const controller = new AbortController()
+
+    await request_({ method: 'eth_blockNumber' }, { signal: controller.signal })
+
+    expect(receivedSignal).toBe(controller.signal)
+  })
+
+  test('does not call underlying request if signal is already aborted', async () => {
+    let count = 0
+    const request_ = buildRequest(async () => {
+      count++
+      return 'success'
+    })
+    const controller = new AbortController()
+    controller.abort()
+
+    await expect(
+      request_({ method: 'eth_blockNumber' }, { signal: controller.signal }),
+    ).rejects.toThrowError('This operation was aborted')
+    expect(count).toBe(0)
   })
 })
 
@@ -1071,6 +1124,35 @@ describe('behavior', () => {
     `)
   })
 
+  test('dedupe does not join in-flight request when signal is already aborted', async () => {
+    let count = 0
+    let resolve!: (value: string) => void
+    const request_ = buildRequest(
+      async () => {
+        count++
+        return new Promise<string>((resolve_) => {
+          resolve = resolve_
+        })
+      },
+      { uid: 'foo' },
+    )
+
+    const first = request_({ method: 'eth_blockNumber' }, { dedupe: true })
+    const controller = new AbortController()
+    controller.abort()
+
+    await expect(
+      request_(
+        { method: 'eth_blockNumber' },
+        { dedupe: true, signal: controller.signal },
+      ),
+    ).rejects.toThrowError('This operation was aborted')
+
+    resolve('0x1')
+    await expect(first).resolves.toBe('0x1')
+    expect(count).toBe(1)
+  })
+
   describe('retry', () => {
     test('non-deterministic InternalRpcError', async () => {
       let retryCount = -1
@@ -1452,6 +1534,14 @@ describe('shouldRetry', () => {
 
   test('LimitExceededRpcError', () => {
     expect(shouldRetry(new LimitExceededRpcError({} as any))).toBe(true)
+  })
+
+  test('RPC code 429 (batch rate-limit, e.g. Alchemy HTTP 200 + JSON body)', () => {
+    // Some providers (e.g. Alchemy in batch mode) respond with HTTP 200 and a
+    // JSON-RPC body containing `{ code: 429 }` rather than a real HTTP 429.
+    // shouldRetry must return true so that retryCount is honoured.
+    const err = Object.assign(new Error('rate limited'), { code: 429 })
+    expect(shouldRetry(err)).toBe(true)
   })
 
   test('WalletConnectSessionSettlementError', () => {

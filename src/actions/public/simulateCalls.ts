@@ -216,7 +216,7 @@ export async function simulateCalls<
         : []),
 
       {
-        calls: [...calls, {}].map((call) => ({
+        calls: [...calls, { to: zeroAddress }].map((call) => ({
           ...(call as Call),
           from: account?.address,
         })) as any,

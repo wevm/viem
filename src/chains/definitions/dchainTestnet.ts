@@ -24,4 +24,5 @@ export const dchainTestnet = /*#__PURE__*/ defineChain({
   contracts: {
     ...chainConfig.contracts,
   },
+  testnet: true,
 })

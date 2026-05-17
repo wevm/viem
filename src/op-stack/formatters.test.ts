@@ -609,7 +609,6 @@ describe('transaction receipt', async () => {
         "effectiveGasPrice": 58n,
         "from": "0x24476ac81915c512b0e13207aa917923fba4a16a",
         "gasUsed": 228719n,
-        "l1BaseFeeScalar": "0xa6fe0",
         "l1Fee": 44700351261503n,
         "l1FeeScalar": 0.684,
         "l1GasPrice": 15694378178n,

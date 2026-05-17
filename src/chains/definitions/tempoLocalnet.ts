@@ -5,6 +5,7 @@ export const tempoLocalnet = /*#__PURE__*/ defineChain({
   ...chainConfig,
   id: 1337,
   name: 'Tempo',
+  hardfork: 't3',
   nativeCurrency: {
     name: 'USD',
     symbol: 'USD',

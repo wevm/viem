@@ -1,3 +1,8 @@
+import type { Address } from 'abitype'
+import {
+  type MulticallErrorType,
+  multicall,
+} from '../../actions/public/multicall.js'
 import {
   type ReadContractErrorType,
   readContract,
@@ -11,8 +16,7 @@ import type {
   DeriveChain,
   GetChainParameter,
 } from '../../types/chain.js'
-import { decodeAbiParameters } from '../../utils/abi/decodeAbiParameters.js'
-import { disputeGameFactoryAbi, portal2Abi } from '../abis.js'
+import { disputeGameAbi, disputeGameFactoryAbi, portal2Abi } from '../abis.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import type { Game } from '../types/withdrawal.js'
 
@@ -38,7 +42,10 @@ export type GetGamesParameters<
 export type GetGamesReturnType = (Game & {
   l2BlockNumber: bigint
 })[]
-export type GetGamesErrorType = ReadContractErrorType | ErrorType
+export type GetGamesErrorType =
+  | ReadContractErrorType
+  | MulticallErrorType
+  | ErrorType
 
 /**
  * Retrieves dispute games for an L2.
@@ -106,23 +113,29 @@ export async function getGames<
     }),
   ])
 
-  const games = (
-    (await readContract(client, {
-      abi: disputeGameFactoryAbi,
-      functionName: 'findLatestGames',
-      address: disputeGameFactoryAddress,
-      args: [
-        gameType,
-        BigInt(Math.max(0, Number(gameCount - 1n))),
-        BigInt(Math.min(limit, Number(gameCount))),
-      ],
-    })) as Game[]
-  )
-    .map((game) => {
-      const [blockNumber] = decodeAbiParameters(
-        [{ type: 'uint256' }],
-        game.extraData,
-      )
+  const rawGames = (await readContract(client, {
+    abi: disputeGameFactoryAbi,
+    functionName: 'findLatestGames',
+    address: disputeGameFactoryAddress,
+    args: [
+      gameType,
+      BigInt(Math.max(0, Number(gameCount - 1n))),
+      BigInt(Math.min(limit, Number(gameCount))),
+    ],
+  })) as Game[]
+
+  const l2SequenceNumbers = await multicall(client, {
+    allowFailure: false,
+    contracts: rawGames.map((game) => ({
+      abi: disputeGameAbi,
+      address: `0x${game.metadata.slice(26)}` as Address,
+      functionName: 'l2SequenceNumber' as const,
+    })),
+  })
+
+  const games = rawGames
+    .map((game, i) => {
+      const blockNumber = l2SequenceNumbers[i] as bigint
       return !l2BlockNumber || blockNumber > l2BlockNumber
         ? { ...game, l2BlockNumber: blockNumber }
         : null

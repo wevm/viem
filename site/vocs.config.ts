@@ -8,10 +8,7 @@ export const sponsors = {
     { name: 'Paradigm', url: 'https://paradigm.xyz' },
     { name: 'Tempo', url: 'https://tempo.xyz' },
   ],
-  largeEnterprise: [
-    { name: 'Stripe', url: 'https://www.stripe.com' },
-    { name: 'Gemini', url: 'https://gemini.com' },
-  ],
+  largeEnterprise: [{ name: 'Stripe', url: 'https://www.stripe.com' }],
   smallEnterprise: [
     { name: 'Family', url: 'https://twitter.com/family' },
     { name: 'Context', url: 'https://twitter.com/context' },
@@ -28,11 +25,9 @@ export const sponsors = {
     { name: 'Zora', url: 'https://zora.co' },
     { name: 'Syndicate', url: 'https://syndicate.io' },
     { name: 'Relay', url: 'https://relay.link' },
-    { name: 'Uniswap', url: 'https://uniswap.org' },
     { name: 'Polymarket', url: 'https://polymarket.com' },
     { name: 'Sequence', url: 'https://sequence.xyz' },
     { name: 'Web3Auth', url: 'https://web3auth.io' },
-    { name: 'Routescan', url: 'https://routescan.io' },
   ],
 } as const
 

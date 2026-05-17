@@ -4,7 +4,11 @@ import {
   TimeoutError,
   type TimeoutErrorType,
 } from '../../errors/request.js'
-import type { ErrorType } from '../../errors/utils.js'
+import {
+  type ErrorType,
+  getAbortError,
+  isAbortError,
+} from '../../errors/utils.js'
 import type { RpcRequest, RpcResponse } from '../../types/rpc.js'
 import type { MaybePromise } from '../../types/utils.js'
 import {
@@ -155,6 +159,14 @@ export function getHttpRpcClient(
         }
 
         if (!response.ok) {
+          // If the response body contains a valid JSON-RPC error, return it
+          // so it flows through the normal RPC error handling pipeline.
+          if (
+            typeof data.error?.code === 'number' &&
+            typeof data.error?.message === 'string'
+          )
+            return data
+
           throw new HttpRequestError({
             body,
             details: stringify(data.error) || response.statusText,
@@ -166,6 +178,8 @@ export function getHttpRpcClient(
 
         return data
       } catch (err) {
+        if (signal_?.aborted) throw getAbortError(signal_)
+        if (isAbortError(err)) throw err
         if (err instanceof HttpRequestError) throw err
         if (err instanceof TimeoutError) throw err
         throw new HttpRequestError({

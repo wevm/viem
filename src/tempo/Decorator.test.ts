@@ -26,6 +26,7 @@ describe('decorator', () => {
         "type",
         "uid",
         "extend",
+        "accessKey",
         "amm",
         "dex",
         "faucet",
@@ -33,8 +34,11 @@ describe('decorator', () => {
         "fee",
         "policy",
         "reward",
+        "simulate",
         "token",
         "validator",
+        "virtualAddress",
+        "zone",
       ]
     `)
   })

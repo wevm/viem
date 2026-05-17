@@ -194,6 +194,11 @@ export type {
   GetContractEventsReturnType,
 } from './actions/public/getContractEvents.js'
 export type {
+  GetDelegationErrorType,
+  GetDelegationParameters,
+  GetDelegationReturnType,
+} from './actions/public/getDelegation.js'
+export type {
   GetEip712DomainErrorType,
   GetEip712DomainParameters,
   GetEip712DomainReturnType,
@@ -1130,6 +1135,7 @@ export type {
   EIP1193Parameters,
   EIP1193Provider,
   EIP1193RequestFn,
+  EIP1193RequestOptions,
   EIP1474Methods,
   NetworkSync,
   PaymasterRpcSchema,
@@ -1459,6 +1465,10 @@ export {
   offchainLookupAbiItem,
   offchainLookupSignature,
 } from './utils/ccip.js'
+export {
+  type CcipReadTunnelParameters,
+  ccipReadTunnel,
+} from './utils/ccipTunnel.js'
 export {
   type AssertCurrentChainErrorType,
   type AssertCurrentChainParameters,

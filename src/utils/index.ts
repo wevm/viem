@@ -156,6 +156,10 @@ export {
   offchainLookupSignature,
 } from './ccip.js'
 export {
+  type CcipReadTunnelParameters,
+  ccipReadTunnel,
+} from './ccipTunnel.js'
+export {
   type AssertCurrentChainErrorType,
   type AssertCurrentChainParameters,
   assertCurrentChain,

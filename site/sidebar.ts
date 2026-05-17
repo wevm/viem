@@ -850,6 +850,10 @@ export const sidebar = {
           text: 'Actions',
           items: [
             {
+              text: 'getDelegation',
+              link: '/docs/eip7702/getDelegation',
+            },
+            {
               text: 'prepareAuthorization',
               link: '/docs/eip7702/prepareAuthorization',
             },
@@ -1808,6 +1812,10 @@ export const sidebar = {
             link: '/tempo/chains',
           },
           {
+            text: 'Zones',
+            link: '/tempo/zones',
+          },
+          {
             text: 'Transactions',
             link: '/tempo/transactions',
           },
@@ -1848,6 +1856,36 @@ export const sidebar = {
           {
             text: 'Overview',
             link: '/tempo/actions',
+          },
+          {
+            text: 'Access Key',
+            collapsed: true,
+            items: [
+              {
+                text: 'authorize',
+                link: '/tempo/actions/accessKey.authorize',
+              },
+              {
+                text: 'getMetadata',
+                link: '/tempo/actions/accessKey.getMetadata',
+              },
+              {
+                text: 'getRemainingLimit',
+                link: '/tempo/actions/accessKey.getRemainingLimit',
+              },
+              {
+                text: 'revoke',
+                link: '/tempo/actions/accessKey.revoke',
+              },
+              {
+                text: 'signAuthorization',
+                link: '/tempo/actions/accessKey.signAuthorization',
+              },
+              {
+                text: 'updateLimit',
+                link: '/tempo/actions/accessKey.updateLimit',
+              },
+            ],
           },
           {
             text: 'AMM',
@@ -2010,6 +2048,20 @@ export const sidebar = {
               {
                 text: 'watchRewardRecipientSet',
                 link: '/tempo/actions/reward.watchRewardRecipientSet',
+              },
+            ],
+          },
+          {
+            text: 'Simulate',
+            collapsed: true,
+            items: [
+              {
+                text: 'simulateBlocks',
+                link: '/tempo/actions/simulate.simulateBlocks',
+              },
+              {
+                text: 'simulateCalls',
+                link: '/tempo/actions/simulate.simulateCalls',
               },
             ],
           },
@@ -2243,14 +2295,137 @@ export const sidebar = {
               },
             ],
           },
+          {
+            text: 'Virtual Address',
+            collapsed: true,
+            items: [
+              {
+                text: 'getMasterAddress',
+                link: '/tempo/actions/virtualAddress.getMasterAddress',
+              },
+              {
+                text: 'registerMaster',
+                link: '/tempo/actions/virtualAddress.registerMaster',
+              },
+              {
+                text: 'resolve',
+                link: '/tempo/actions/virtualAddress.resolve',
+              },
+            ],
+          },
+          {
+            text: 'Wallet',
+            collapsed: true,
+            items: [
+              {
+                text: 'deposit',
+                link: '/tempo/actions/wallet.deposit',
+              },
+              {
+                text: 'transfer',
+                link: '/tempo/actions/wallet.transfer',
+              },
+              {
+                text: 'swap',
+                link: '/tempo/actions/wallet.swap',
+              },
+            ],
+          },
+          {
+            text: 'Zone',
+            collapsed: true,
+            items: [
+              {
+                text: 'deposit',
+                link: '/tempo/actions/zone.deposit',
+              },
+              {
+                text: 'encryptedDeposit',
+                link: '/tempo/actions/zone.encryptedDeposit',
+              },
+              {
+                text: 'getAuthorizationTokenInfo',
+                link: '/tempo/actions/zone.getAuthorizationTokenInfo',
+              },
+              {
+                text: 'getDepositStatus',
+                link: '/tempo/actions/zone.getDepositStatus',
+              },
+              {
+                text: 'getWithdrawalFee',
+                link: '/tempo/actions/zone.getWithdrawalFee',
+              },
+              {
+                text: 'getZoneInfo',
+                link: '/tempo/actions/zone.getZoneInfo',
+              },
+              {
+                text: 'requestVerifiableWithdrawal',
+                link: '/tempo/actions/zone.requestVerifiableWithdrawal',
+              },
+              {
+                text: 'requestWithdrawal',
+                link: '/tempo/actions/zone.requestWithdrawal',
+              },
+              {
+                text: 'signAuthorizationToken',
+                link: '/tempo/actions/zone.signAuthorizationToken',
+              },
+            ],
+          },
         ],
       },
       {
         text: 'Transports',
         items: [
           {
-            text: 'withFeePayer',
-            link: '/tempo/transports/withFeePayer',
+            text: 'withRelay',
+            link: '/tempo/transports/withRelay',
+          },
+        ],
+      },
+      {
+        text: 'Utilities',
+        items: [
+          {
+            text: 'TempoAddress',
+            collapsed: true,
+            items: [
+              {
+                text: 'format',
+                link: '/tempo/utilities/TempoAddress.format',
+              },
+              {
+                text: 'parse',
+                link: '/tempo/utilities/TempoAddress.parse',
+              },
+              {
+                text: 'validate',
+                link: '/tempo/utilities/TempoAddress.validate',
+              },
+            ],
+          },
+          {
+            text: 'Storage',
+            collapsed: true,
+            items: [
+              {
+                text: 'defaultStorage',
+                link: '/tempo/utilities/Storage.defaultStorage',
+              },
+              {
+                text: 'from',
+                link: '/tempo/utilities/Storage.from',
+              },
+              {
+                text: 'memory',
+                link: '/tempo/utilities/Storage.memory',
+              },
+              {
+                text: 'session',
+                link: '/tempo/utilities/Storage.session',
+              },
+            ],
           },
         ],
       },

@@ -19,17 +19,17 @@ test('default', async () => {
 
   expect(result).toMatchInlineSnapshot(`
     {
-      "raw": "0x02f0018203b9843b9aca00849c18478a8252a89400000000000000000000000000000000000000008084deadbeefc0808080",
+      "raw": "0x02f0018203b9843b9aca0084607d7d8a8252a89400000000000000000000000000000000000000008084deadbeefc0808080",
       "transaction": {
         "accessList": [],
         "chainId": 1,
         "data": "0xdeadbeef",
         "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "gas": 21160n,
-        "gasPrice": 3142604248n,
-        "hash": "0xe9612dfada2688d94ed86c7cb20d85d31880a5f7affe51f2bb08fd6641be74a1",
+        "gasPrice": 1942604248n,
+        "hash": "0x742547d24fb3c352745ac8f604fd2db258d13fb6b586c53f82ac18c8dd8ace4f",
         "input": "0xdeadbeef",
-        "maxFeePerGas": 3142604248n,
+        "maxFeePerGas": 1942604248n,
         "maxPriorityFeePerGas": 1000000000n,
         "nonce": 953,
         "to": "0x0000000000000000000000000000000000000000",

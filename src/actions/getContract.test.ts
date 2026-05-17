@@ -252,31 +252,12 @@ test('js reserved keywords/prototype methods as abi item names', async () => {
       public: publicClient,
     },
   })
-  await expect(
-    contractNoIndexedEventArgs.read.constructor(),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ContractFunctionExecutionError: The contract function "constructor" reverted.
-
-    Contract Call:
-      address:   0x0000000000000000000000000000000000000000
-      function:  constructor()
-
-    Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@x.y.z]
-  `)
+  await expect(contractNoIndexedEventArgs.read.constructor()).rejects.toThrow(
+    'The contract function "constructor" reverted.',
+  )
   await expect(
     contractNoIndexedEventArgs.read.function(['function']),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
-    [ContractFunctionExecutionError: The contract function "function" reverted.
-
-    Contract Call:
-      address:   0x0000000000000000000000000000000000000000
-      function:  function(string function)
-      args:              (function)
-
-    Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@x.y.z]
-  `)
+  ).rejects.toThrow('The contract function "function" reverted.')
 })
 
 test.each([

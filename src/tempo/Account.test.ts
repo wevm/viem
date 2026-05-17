@@ -1,5 +1,9 @@
 import { Value, WebCryptoP256 } from 'ox'
-import { SignatureEnvelope } from 'ox/tempo'
+import * as Address from 'ox/Address'
+import * as P256 from 'ox/P256'
+import * as PublicKey from 'ox/PublicKey'
+import * as Secp256k1 from 'ox/Secp256k1'
+import { Period, SignatureEnvelope } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
 import { verifyHash, verifyMessage, verifyTypedData } from '../actions/index.js'
@@ -63,20 +67,21 @@ describe('fromSecp256k1', () => {
       hash: '0xdeadbeef',
     })
     expect(signature).toMatchInlineSnapshot(
-      `"0x03f39Fd6e51aad88F6F4ce6aB8827279cffFb9226627c4025daa5c473942fd6282cfb7c07edb48a1764fb3c228fc094a715300e0e56fcf8a7849bb8bcc2938d8a041fdbce56d2b6c70aadbae6a0b70b4a1e98256161b"`,
+      `"0x04f39Fd6e51aad88F6F4ce6aB8827279cffFb9226641097c9622845457bb7e79ed2f1781d2400fc02dd4f4cd1e39d613463c440dcc53979a655ca969c75b903819e0fcda873317795e94fc5d1eecd01d72aac403dd1c"`,
     )
     expect(SignatureEnvelope.deserialize(signature)).toMatchInlineSnapshot(`
       {
         "inner": {
           "signature": {
-            "r": 17986519448152736741806679848301503760738507672285374215138617395147700232421n,
-            "s": 50573419219106101097329274608677894804280434221354410855341207650465321473558n,
-            "yParity": 0,
+            "r": 29417096645669377906361384759367245817749261590563101918212648408253691334092n,
+            "s": 37809825940843088778727969056864931318827943948638755556824371775501689422813n,
+            "yParity": 1,
           },
           "type": "secp256k1",
         },
         "type": "keychain",
         "userAddress": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "version": "v2",
       }
     `)
   })
@@ -105,7 +110,7 @@ describe('fromP256', () => {
       hash: '0xdeadbeef',
     })
     expect(signature).toMatchInlineSnapshot(
-      `"0x01daab749a3dea3f76c52ff0cfc86f0d433ecaf4d20f2ea327042bf5c15bccf847098dc3591fc68bf94d8db6d16cf326808dbf0f44d8e8373e8a7fcaf39b38281020fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c812240007777777777777777777777777777777777777777777777777777777777777777"`,
+      `"0x01daab749a3dea3f76c52ff0cfc86f0d433ecaf4d20f2ea327042bf5c15bccf847098dc3591fc68bf94d8db6d16cf326808dbf0f44d8e8373e8a7fcaf39b38281020fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c81224000"`,
     )
 
     expect(
@@ -130,7 +135,7 @@ describe('fromP256', () => {
       hash: '0xdeadbeef',
     })
     expect(signature).toMatchInlineSnapshot(
-      `"0x03c3Cf8B814B729A1ad648b49fbBdED3767BCd35fd01daab749a3dea3f76c52ff0cfc86f0d433ecaf4d20f2ea327042bf5c15bccf847098dc3591fc68bf94d8db6d16cf326808dbf0f44d8e8373e8a7fcaf39b38281020fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c81224000"`,
+      `"0x04c3Cf8B814B729A1ad648b49fbBdED3767BCd35fd01daaf8d58a7f982c44ba4c1675e7f21627554dac835a031a90783b5d14df2a5c207a1a48d95c382d8a69b0a6030d67099160f726e32913a695fdda5d9f9aab7bc20fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c81224000"`,
     )
     expect(SignatureEnvelope.deserialize(signature)).toMatchInlineSnapshot(`
       {
@@ -142,13 +147,14 @@ describe('fromP256', () => {
             "y": 57892587925019714505251703757706314187537979987563648366993255393643804566080n,
           },
           "signature": {
-            "r": 98907136600157604623356371387339224256063842362088951992859252568183251204167n,
-            "s": 4321289316702385668777418513388640777474210589895706234285069930616319387664n,
+            "r": 98914374763888289603266838363846411728029509400129051196404214298186572015042n,
+            "s": 3451788021037498384046846580884268461606134539710367772483573196078111700924n,
           },
           "type": "p256",
         },
         "type": "keychain",
         "userAddress": "0xc3Cf8B814B729A1ad648b49fbBdED3767BCd35fd",
+        "version": "v2",
       }
     `)
   })
@@ -180,7 +186,7 @@ describe('fromHeadlessWebAuthn', () => {
       hash: '0xdeadbeef',
     })
     expect(signature).toMatchInlineSnapshot(
-      `"0x0249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a223371322d3777222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d1b3346991a9ad1498e401dc0448e93d1bde113778d442f5bcafc44925cf3121961e9b1c21b054e54fe6c2eec0cd310c8535b7e7dd1f7dd7bf749e6d78154b48120fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c8122407777777777777777777777777777777777777777777777777777777777777777"`,
+      `"0x0249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a223371322d3777222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d1b3346991a9ad1498e401dc0448e93d1bde113778d442f5bcafc44925cf3121961e9b1c21b054e54fe6c2eec0cd310c8535b7e7dd1f7dd7bf749e6d78154b48120fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c812240"`,
     )
 
     expect(
@@ -207,14 +213,14 @@ describe('fromHeadlessWebAuthn', () => {
       hash: '0xdeadbeef',
     })
     expect(signature).toMatchInlineSnapshot(
-      `"0x03c3Cf8B814B729A1ad648b49fbBdED3767BCd35fd0249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a223371322d3777222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d1b3346991a9ad1498e401dc0448e93d1bde113778d442f5bcafc44925cf3121961e9b1c21b054e54fe6c2eec0cd310c8535b7e7dd1f7dd7bf749e6d78154b48120fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c812240"`,
+      `"0x04c3Cf8B814B729A1ad648b49fbBdED3767BCd35fd0249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a2277793630753830487945504872462d4a4a464e676249465050356167597446454c774c4b52425a31504273222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d3f2e0769158e2c002582780b155bf4f05b650fd1887c25665e6365f770f55bc317571511f53bbd6ad23e3145ff658a776efbadc013979182ebf4384cff083dae20fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c812240"`,
     )
     expect(SignatureEnvelope.deserialize(signature)).toMatchInlineSnapshot(`
       {
         "inner": {
           "metadata": {
             "authenticatorData": "0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000",
-            "clientDataJSON": "{"type":"webauthn.get","challenge":"3q2-7w","origin":"http://localhost","crossOrigin":false}",
+            "clientDataJSON": "{"type":"webauthn.get","challenge":"wy60u80HyEPHrF-JJFNgbIFPP5agYtFELwLKRBZ1PBs","origin":"http://localhost","crossOrigin":false}",
           },
           "publicKey": {
             "prefix": 4,
@@ -222,13 +228,14 @@ describe('fromHeadlessWebAuthn', () => {
             "y": 57892587925019714505251703757706314187537979987563648366993255393643804566080n,
           },
           "signature": {
-            "r": 12303043361969813321008510595799352303777626167191077212436720864556362175001n,
-            "s": 44287248520848853208449965274039658906134850867725872574460252467151437608065n,
+            "r": 28577035571014459974462229191059385863190309615290997400883026309649557445571n,
+            "s": 10557056632869309345495904509321694026358952084051072176974564887673325501870n,
           },
           "type": "webAuthn",
         },
         "type": "keychain",
         "userAddress": "0xc3Cf8B814B729A1ad648b49fbBdED3767BCd35fd",
+        "version": "v2",
       }
     `)
   })
@@ -272,7 +279,7 @@ describe('signMessage', () => {
     const account = Account.fromP256(privateKey_p256)
     const signature = await account.signMessage({ message: 'hello world' })
     expect(signature).toMatchInlineSnapshot(
-      `"0x019e8afd9a5a2a6034a89d1dc09d6351eb83a3bcf3ee55e55973959c3b90b8103726f0de082476045ec872c42efb27ef2159a848df1d5c8326f3ad14dcfd00653220fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c812240007777777777777777777777777777777777777777777777777777777777777777"`,
+      `"0x019e8afd9a5a2a6034a89d1dc09d6351eb83a3bcf3ee55e55973959c3b90b8103726f0de082476045ec872c42efb27ef2159a848df1d5c8326f3ad14dcfd00653220fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c81224000"`,
     )
 
     expect(
@@ -291,7 +298,7 @@ describe('signMessage', () => {
     })
     const signature = await account.signMessage({ message: 'hello world' })
     expect(signature).toMatchInlineSnapshot(
-      `"0x0249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a223265756862744473726b4d72636634416a4a6a4d687975307a43464e4d69436a627a5a544a732d41665767222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d465aa5cd2f5155792a3d5585c059bfacbca733664436aac190c6d2f6c8cd76156a519c9ece3e757a075423f12f87b0dbbb536e158e4b19e6ac94bcc59330843720fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c8122407777777777777777777777777777777777777777777777777777777777777777"`,
+      `"0x0249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a223265756862744473726b4d72636634416a4a6a4d687975307a43464e4d69436a627a5a544a732d41665767222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d465aa5cd2f5155792a3d5585c059bfacbca733664436aac190c6d2f6c8cd76156a519c9ece3e757a075423f12f87b0dbbb536e158e4b19e6ac94bcc59330843720fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c812240"`,
     )
 
     expect(
@@ -401,7 +408,7 @@ describe('signTypedData', () => {
       message: { value: 'hello' },
     })
     expect(signature).toMatchInlineSnapshot(
-      `"0x01d0e4eba4b8715e90b17d6fae63521ec4f51e119c4f3857ed04120bebc19f61d411606f5b07163c071f4c5e553b9b88ec5d8e0a31c9c3a7472af0b4c3e1bd4c2420fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c812240007777777777777777777777777777777777777777777777777777777777777777"`,
+      `"0x01d0e4eba4b8715e90b17d6fae63521ec4f51e119c4f3857ed04120bebc19f61d411606f5b07163c071f4c5e553b9b88ec5d8e0a31c9c3a7472af0b4c3e1bd4c2420fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c81224000"`,
     )
 
     expect(
@@ -440,7 +447,7 @@ describe('signTypedData', () => {
       message: { value: 'hello' },
     })
     expect(signature).toMatchInlineSnapshot(
-      `"0x0249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a2255444b505432495376767437546f35656436695a70346869485f364c4e6d3570446851646e7878654b5741222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d497b47c010ed378fca3ffba3939edce1a61d994fa0e83c473ef976c9527492f554003f6e898d2b1986aeb8e1731d622d6501f65d09bdefb70d2f72849580ddb020fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c8122407777777777777777777777777777777777777777777777777777777777777777"`,
+      `"0x0249960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d976305000000007b2274797065223a22776562617574686e2e676574222c226368616c6c656e6765223a2255444b505432495376767437546f35656436695a70346869485f364c4e6d3570446851646e7878654b5741222c226f726967696e223a22687474703a2f2f6c6f63616c686f7374222c2263726f73734f726967696e223a66616c73657d497b47c010ed378fca3ffba3939edce1a61d994fa0e83c473ef976c9527492f554003f6e898d2b1986aeb8e1731d622d6501f65d09bdefb70d2f72849580ddb020fe09fa1af47a6b3b4e973040f0588a1c2c96df1ce78b10e50903566ad9b7d87ffe0b281b616196c2ccdb64cd51230d8dc1f1d258ca7e8cb33a63cf8c812240"`,
     )
 
     expect(
@@ -513,18 +520,22 @@ describe('signKeyAuthorization', () => {
       access: account,
     })
 
-    const authorization = await account.signKeyAuthorization(key)
+    const authorization = await account.signKeyAuthorization(key, {
+      chainId: BigInt(client.chain!.id),
+    })
 
-    expect(authorization).toMatchInlineSnapshot(`
+    const { chainId: _, ...rest } = authorization
+    expect(rest).toMatchInlineSnapshot(`
       {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "expiry": undefined,
         "limits": undefined,
+        "scopes": undefined,
         "signature": {
           "signature": {
-            "r": 79205852917725370379355270588870592116219723320468023492479334723587833964208n,
-            "s": 4843127791679253574310716587415423223041264865988930666086461408483250881493n,
-            "yParity": 1,
+            "r": 23246779009484945273859541677500795286425598981825493234251719807816228886987n,
+            "s": 29480164492509967162498000959810425640118635906018539896066188777481822109573n,
+            "yParity": 0,
           },
           "type": "secp256k1",
         },
@@ -540,6 +551,7 @@ describe('signKeyAuthorization', () => {
     })
 
     const authorization = await account.signKeyAuthorization(key, {
+      chainId: BigInt(client.chain!.id),
       expiry: 1234567890,
       limits: [
         {
@@ -548,7 +560,8 @@ describe('signKeyAuthorization', () => {
         },
       ],
     })
-    expect(authorization).toMatchInlineSnapshot(`
+    const { chainId: _, ...rest } = authorization
+    expect(rest).toMatchInlineSnapshot(`
       {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "expiry": 1234567890,
@@ -558,10 +571,11 @@ describe('signKeyAuthorization', () => {
             "token": "0x20c0000000000000000000000000000000000001",
           },
         ],
+        "scopes": undefined,
         "signature": {
           "signature": {
-            "r": 48603032183460068649726257603541287031240449157747147951793434940348798421977n,
-            "s": 52252948283033674801195452183159160801795536276956563866652050470169279213377n,
+            "r": 27500180303491826355348882979551066035208667565690648180381706167647002605946n,
+            "s": 11396346575491751663729016480092549802690434016402533853617549759994413767273n,
             "yParity": 1,
           },
           "type": "secp256k1",
@@ -578,6 +592,7 @@ describe('signKeyAuthorization', () => {
     })
 
     const authorization = await account.signKeyAuthorization(key, {
+      chainId: BigInt(client.chain!.id),
       expiry: 1234567890,
       limits: [
         {
@@ -586,7 +601,8 @@ describe('signKeyAuthorization', () => {
         },
       ],
     })
-    expect(authorization).toMatchInlineSnapshot(`
+    const { chainId: _, ...rest } = authorization
+    expect(rest).toMatchInlineSnapshot(`
       {
         "address": "0x7b9f73245dee5855ef858f5c00eea6205f9bb4d2",
         "expiry": 1234567890,
@@ -596,6 +612,7 @@ describe('signKeyAuthorization', () => {
             "token": "0x20c0000000000000000000000000000000000001",
           },
         ],
+        "scopes": undefined,
         "signature": {
           "prehash": false,
           "publicKey": {
@@ -604,8 +621,8 @@ describe('signKeyAuthorization', () => {
             "y": 57892587925019714505251703757706314187537979987563648366993255393643804566080n,
           },
           "signature": {
-            "r": 61783347383434217927888325272237644430195567463134160594444735116547420206984n,
-            "s": 11737632122119624918549121055165681708107124199303685870565323985056705147576n,
+            "r": 539019544446795555618295905722997473197245856915125934446715353136544149644n,
+            "s": 43857275008412640549768210335159081087274462507205259003956274154003032961331n,
           },
           "type": "p256",
         },
@@ -624,6 +641,7 @@ describe('signKeyAuthorization', () => {
     })
 
     const authorization = await account.signKeyAuthorization(key, {
+      chainId: BigInt(client.chain!.id),
       expiry: 1234567890,
       limits: [
         {
@@ -632,7 +650,8 @@ describe('signKeyAuthorization', () => {
         },
       ],
     })
-    expect(authorization).toMatchInlineSnapshot(`
+    const { chainId: _, ...rest } = authorization
+    expect(rest).toMatchInlineSnapshot(`
       {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "expiry": 1234567890,
@@ -642,10 +661,11 @@ describe('signKeyAuthorization', () => {
             "token": "0x20c0000000000000000000000000000000000001",
           },
         ],
+        "scopes": undefined,
         "signature": {
           "metadata": {
             "authenticatorData": "0x49960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97630500000000",
-            "clientDataJSON": "{"type":"webauthn.get","challenge":"lGAMxkLdccXnNTMWbfQ1rYi8HBqAdMPo1CDv0cJ2IsE","origin":"http://localhost","crossOrigin":false}",
+            "clientDataJSON": "{"type":"webauthn.get","challenge":"yM4oLrtT1wZh3Ca6Zj5kO6kP_ebISFaCx1Aok-AXjaw","origin":"http://localhost","crossOrigin":false}",
           },
           "publicKey": {
             "prefix": 4,
@@ -653,8 +673,8 @@ describe('signKeyAuthorization', () => {
             "y": 57892587925019714505251703757706314187537979987563648366993255393643804566080n,
           },
           "signature": {
-            "r": 78216200649325922174765550266136727201161525335688064274452437990389629688142n,
-            "s": 45615041673857220498429503388722739621903077428603741554126666038202271956449n,
+            "r": 107118292977381551150970214368677766242763143711014002758102542197964942557992n,
+            "s": 30595257478749759082465782751905372583374431901854926324903966619924165980672n,
           },
           "type": "webAuthn",
         },
@@ -670,6 +690,7 @@ describe('signKeyAuthorization', () => {
     })
 
     const authorization = await account.signKeyAuthorization(key, {
+      chainId: BigInt(client.chain!.id),
       expiry: 1234567890,
       limits: [
         {
@@ -682,7 +703,8 @@ describe('signKeyAuthorization', () => {
         },
       ],
     })
-    expect(authorization).toMatchInlineSnapshot(`
+    const { chainId: _, ...rest } = authorization
+    expect(rest).toMatchInlineSnapshot(`
       {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "expiry": 1234567890,
@@ -696,17 +718,264 @@ describe('signKeyAuthorization', () => {
             "token": "0x20c0000000000000000000000000000000000002",
           },
         ],
+        "scopes": undefined,
         "signature": {
           "signature": {
-            "r": 103446563773805832555738463837136311499830712555215862064308154410957015968940n,
-            "s": 19247215858016211284757060583528935834485291841858715669623661689922072500812n,
-            "yParity": 0,
+            "r": 15118012128001996683018315003630474892756625926769093217670340734112621258206n,
+            "s": 9846096404778268706849137297387174675378165069700486701094627436587941070449n,
+            "yParity": 1,
           },
           "type": "secp256k1",
         },
         "type": "secp256k1",
       }
     `)
+  })
+
+  test('periodic limit', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
+
+    const authorization = await account.signKeyAuthorization(key, {
+      chainId: BigInt(client.chain!.id),
+      expiry: 1234567890,
+      limits: [
+        {
+          token: '0x20c0000000000000000000000000000000000001',
+          limit: Value.from('10', 6),
+          period: Period.days(1),
+        },
+      ],
+    })
+    const { chainId: _, ...rest } = authorization
+    expect(rest.limits).toMatchInlineSnapshot(`
+      [
+        {
+          "limit": 10000000n,
+          "period": 86400,
+          "token": "0x20c0000000000000000000000000000000000001",
+        },
+      ]
+    `)
+  })
+
+  test('scopes', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
+
+    const authorization = await account.signKeyAuthorization(key, {
+      chainId: BigInt(client.chain!.id),
+      expiry: 1234567890,
+      scopes: [
+        {
+          address: '0x20c0000000000000000000000000000000000001',
+        },
+        {
+          address: '0x20c0000000000000000000000000000000000002',
+          selector: '0xa9059cbb',
+        },
+        {
+          address: '0x20c0000000000000000000000000000000000003',
+          selector: '0xa9059cbb',
+          recipients: ['0x0000000000000000000000000000000000000001'],
+        },
+      ],
+    })
+    const { chainId: _, ...rest } = authorization
+    expect(rest.scopes).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x20c0000000000000000000000000000000000001",
+          "selector": undefined,
+        },
+        {
+          "address": "0x20c0000000000000000000000000000000000002",
+          "selector": "0xa9059cbb",
+        },
+        {
+          "address": "0x20c0000000000000000000000000000000000003",
+          "recipients": [
+            "0x0000000000000000000000000000000000000001",
+          ],
+          "selector": "0xa9059cbb",
+        },
+      ]
+    `)
+  })
+
+  test('periodic limits + scopes', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
+
+    const authorization = await account.signKeyAuthorization(key, {
+      chainId: BigInt(client.chain!.id),
+      expiry: 1234567890,
+      limits: [
+        {
+          token: '0x20c0000000000000000000000000000000000001',
+          limit: Value.from('10', 6),
+          period: Period.hours(1),
+        },
+      ],
+      scopes: [
+        {
+          address: '0x20c0000000000000000000000000000000000001',
+          selector: '0xa9059cbb',
+        },
+      ],
+    })
+    const { chainId: _, ...rest } = authorization
+    expect(rest.limits).toMatchInlineSnapshot(`
+      [
+        {
+          "limit": 10000000n,
+          "period": 3600,
+          "token": "0x20c0000000000000000000000000000000000001",
+        },
+      ]
+    `)
+    expect(rest.scopes).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x20c0000000000000000000000000000000000001",
+          "selector": "0xa9059cbb",
+        },
+      ]
+    `)
+  })
+
+  test('format: { address, type }', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
+
+    const authorization = await Account.signKeyAuthorization(account, {
+      chainId: BigInt(client.chain!.id),
+      key: { address: key.accessKeyAddress, type: 'secp256k1' },
+      expiry: 1234567890,
+    })
+    expect(authorization.address.toLowerCase()).toBe(
+      key.accessKeyAddress.toLowerCase(),
+    )
+    expect(authorization.type).toBe('secp256k1')
+  })
+
+  test('format: { publicKey, type }', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const publicKey = Secp256k1.getPublicKey({
+      privateKey: privateKey_secp256k1,
+    })
+    const expectedAddress = Address.fromPublicKey(publicKey)
+
+    const authorization = await Account.signKeyAuthorization(account, {
+      chainId: BigInt(client.chain!.id),
+      key: {
+        publicKey: PublicKey.toHex(publicKey, { includePrefix: false }),
+        type: 'secp256k1',
+      },
+      expiry: 1234567890,
+    })
+    expect(authorization.address.toLowerCase()).toBe(
+      expectedAddress.toLowerCase(),
+    )
+    expect(authorization.type).toBe('secp256k1')
+  })
+})
+
+describe('resolveAccessKey', () => {
+  test('format: { accessKeyAddress, keyType }', () => {
+    const result = Account.resolveAccessKey({
+      accessKeyAddress: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      keyType: 'secp256k1',
+    })
+    expect(result).toEqual({
+      accessKeyAddress: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      keyType: 'secp256k1',
+    })
+  })
+
+  test('format: { address, type }', () => {
+    const result = Account.resolveAccessKey({
+      address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      type: 'p256',
+    })
+    expect(result).toEqual({
+      accessKeyAddress: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      keyType: 'p256',
+    })
+  })
+
+  test('format: { publicKey, type }', () => {
+    const publicKey = P256.getPublicKey({ privateKey: privateKey_p256 })
+    const expectedAddress = Address.fromPublicKey(publicKey)
+    const result = Account.resolveAccessKey({
+      publicKey: PublicKey.toHex(publicKey, { includePrefix: false }),
+      type: 'p256',
+    })
+    expect(result).toEqual({
+      accessKeyAddress: expectedAddress,
+      keyType: 'p256',
+    })
+  })
+
+  test('format: AccessKeyAccount', () => {
+    const rootAccount = Account.fromSecp256k1(privateKey_secp256k1)
+    const accessKey = Account.fromSecp256k1(
+      '0x06a952d58c24d287245276dd8b4272d82a921d27d90874a6c27a3bc19ff4bfde',
+      { access: rootAccount },
+    )
+    const result = Account.resolveAccessKey(accessKey)
+    expect(result).toEqual({
+      accessKeyAddress: accessKey.accessKeyAddress,
+      keyType: 'secp256k1',
+    })
+  })
+})
+
+describe('signKeyAuthorization (instance): alternative key formats', () => {
+  test('format: { address, type }', async () => {
+    const rootAccount = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromP256(privateKey_p256, { access: rootAccount })
+
+    const authorization = await rootAccount.signKeyAuthorization(
+      { address: key.accessKeyAddress, type: 'p256' },
+      {
+        chainId: BigInt(client.chain!.id),
+        expiry: 1234567890,
+      },
+    )
+    expect(authorization.address.toLowerCase()).toBe(
+      key.accessKeyAddress.toLowerCase(),
+    )
+    expect(authorization.type).toBe('p256')
+  })
+
+  test('format: { publicKey, type }', async () => {
+    const rootAccount = Account.fromSecp256k1(privateKey_secp256k1)
+    const publicKey = P256.getPublicKey({ privateKey: privateKey_p256 })
+    const expectedAddress = Address.fromPublicKey(publicKey)
+
+    const authorization = await rootAccount.signKeyAuthorization(
+      {
+        publicKey: PublicKey.toHex(publicKey, { includePrefix: false }),
+        type: 'p256',
+      },
+      {
+        chainId: BigInt(client.chain!.id),
+        expiry: 1234567890,
+      },
+    )
+    expect(authorization.address.toLowerCase()).toBe(
+      expectedAddress.toLowerCase(),
+    )
+    expect(authorization.type).toBe('p256')
   })
 })
 
@@ -718,6 +987,7 @@ describe('signKeyAuthorization (standalone)', () => {
     })
 
     const authorization = await Account.signKeyAuthorization(account, {
+      chainId: BigInt(client.chain!.id),
       key,
       expiry: 1234567890,
       limits: [
@@ -727,7 +997,8 @@ describe('signKeyAuthorization (standalone)', () => {
         },
       ],
     })
-    expect(authorization).toMatchInlineSnapshot(`
+    const { chainId: _, ...rest } = authorization
+    expect(rest).toMatchInlineSnapshot(`
       {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "expiry": 1234567890,
@@ -737,16 +1008,78 @@ describe('signKeyAuthorization (standalone)', () => {
             "token": "0x20c0000000000000000000000000000000000001",
           },
         ],
+        "scopes": undefined,
         "signature": {
           "signature": {
-            "r": 48603032183460068649726257603541287031240449157747147951793434940348798421977n,
-            "s": 52252948283033674801195452183159160801795536276956563866652050470169279213377n,
+            "r": 27500180303491826355348882979551066035208667565690648180381706167647002605946n,
+            "s": 11396346575491751663729016480092549802690434016402533853617549759994413767273n,
             "yParity": 1,
           },
           "type": "secp256k1",
         },
         "type": "secp256k1",
       }
+    `)
+  })
+
+  test('periodic limit', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
+
+    const authorization = await Account.signKeyAuthorization(account, {
+      chainId: BigInt(client.chain!.id),
+      key,
+      expiry: 1234567890,
+      limits: [
+        {
+          token: '0x20c0000000000000000000000000000000000001',
+          limit: Value.from('10', 6),
+          period: Period.days(1),
+        },
+      ],
+    })
+    const { chainId: _, ...rest } = authorization
+    expect(rest.limits).toMatchInlineSnapshot(`
+      [
+        {
+          "limit": 10000000n,
+          "period": 86400,
+          "token": "0x20c0000000000000000000000000000000000001",
+        },
+      ]
+    `)
+  })
+
+  test('scopes', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const key = Account.fromSecp256k1(privateKey_secp256k1, {
+      access: account,
+    })
+
+    const authorization = await Account.signKeyAuthorization(account, {
+      chainId: BigInt(client.chain!.id),
+      key,
+      scopes: [
+        {
+          address: '0x20c0000000000000000000000000000000000001',
+          selector: '0xa9059cbb',
+          recipients: ['0x0000000000000000000000000000000000000001'],
+        },
+      ],
+    })
+    const { chainId: _, ...rest } = authorization
+    expect(rest.scopes).toMatchInlineSnapshot(`
+      [
+        {
+          "address": "0x20c0000000000000000000000000000000000001",
+          "recipients": [
+            "0x0000000000000000000000000000000000000001",
+          ],
+          "selector": "0xa9059cbb",
+        },
+      ]
     `)
   })
 })

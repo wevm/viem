@@ -764,6 +764,7 @@ export type PublicRpcSchema = [
     Method: 'eth_fillTransaction'
     Parameters: [transaction: TransactionRequest]
     ReturnType: {
+      capabilities?: Record<string, unknown> | undefined
       raw: Hex
       tx: Transaction
     }
@@ -1206,7 +1207,7 @@ export type PublicRpcSchema = [
     Method: 'eth_sendRawTransactionSync'
     Parameters:
       | [signedTransaction: Hex]
-      | [signedTransaction: Hex, timeout: Hex]
+      | [signedTransaction: Hex, timeout: number]
     ReturnType: TransactionReceipt
   },
   /**
@@ -1727,6 +1728,7 @@ export type WalletRpcSchema = [
     Method: 'eth_fillTransaction'
     Parameters: [transaction: TransactionRequest]
     ReturnType: {
+      capabilities?: Record<string, unknown> | undefined
       raw: Hex
       tx: Transaction
     }
@@ -1778,7 +1780,7 @@ export type WalletRpcSchema = [
     Method: 'eth_sendRawTransactionSync'
     Parameters:
       | [signedTransaction: Hex]
-      | [signedTransaction: Hex, timeout: Hex]
+      | [signedTransaction: Hex, timeout: number]
     ReturnType: TransactionReceipt
   },
   /**
@@ -2138,6 +2140,8 @@ export type EIP1193RequestOptions = {
   retryDelay?: number | undefined
   /** The max number of times to retry. */
   retryCount?: number | undefined
+  /** Abort signal to cancel the request. */
+  signal?: AbortSignal | undefined
   /** Unique identifier for the request. */
   uid?: string | undefined
 }

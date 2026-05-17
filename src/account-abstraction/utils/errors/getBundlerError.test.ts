@@ -462,7 +462,7 @@ test('PaymasterStakeTooLowError', () => {
   })
   const result = getBundlerError(error, {})
   expect(result).toMatchInlineSnapshot(`
-    [PaymasterStakeTooLowError: UserOperation rejected because paymaster (or signature aggregator) is throttled/banned.
+    [PaymasterStakeTooLowError: UserOperation rejected because paymaster (or signature aggregator) stake or unstake-delay is too low.
 
     Details: stake too low
     Version: viem@x.y.z]

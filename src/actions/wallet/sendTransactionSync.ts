@@ -262,7 +262,7 @@ export async function sendTransactionSync<
           authorizationList,
           blobs,
           chainId,
-          data: data ? concat([data, dataSuffix ?? '0x']) : data,
+          data: dataSuffix ? concat([data ?? '0x', dataSuffix]) : data,
           gas,
           gasPrice,
           maxFeePerBlobGas,
@@ -359,7 +359,7 @@ export async function sendTransactionSync<
         authorizationList,
         blobs,
         chain,
-        data: data ? concat([data, dataSuffix ?? '0x']) : data,
+        data: dataSuffix ? concat([data ?? '0x', dataSuffix]) : data,
         gas,
         gasPrice,
         maxFeePerBlobGas,
@@ -375,9 +375,12 @@ export async function sendTransactionSync<
       } as any)
 
       const serializer = chain?.serializers?.transaction
-      const serializedTransaction = (await account.signTransaction(request, {
-        serializer,
-      })) as Hash
+      const serializedTransaction = (await account.signTransaction(
+        request as never,
+        {
+          serializer,
+        },
+      )) as Hash
       return (await getAction(
         client,
         sendRawTransactionSync,
