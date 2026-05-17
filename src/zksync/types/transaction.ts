@@ -136,7 +136,7 @@ export type ZksyncTransactionRequestEIP712<
     gasPerPubdata?: bigint | undefined
     customSignature?: Hex | undefined
     factoryDeps?: Hex[] | undefined
-    type?: 'eip712' | 'priority' | undefined
+    type?: 'eip712' | undefined
   } & (
     | { paymaster: Address; paymasterInput: Hex }
     | { paymaster?: undefined; paymasterInput?: undefined }
@@ -154,7 +154,7 @@ export type ZksyncRpcTransactionRequestEIP712 = TransactionRequestBase<
 > &
   ExactPartial<FeeValuesEIP1559<Quantity>> & {
     eip712Meta: ZksyncEip712Meta
-    type: EIP712Type | PriorityType
+    type: EIP712Type
   }
 
 export type ZksyncRpcTransactionRequest =
