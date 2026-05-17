@@ -34,7 +34,10 @@ import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { EIP1193RequestOptions } from '../../types/eip1193.js'
 import type { Hex } from '../../types/misc.js'
-import type { RpcTransactionRequest } from '../../types/rpc.js'
+import type {
+  RpcStateOverride,
+  RpcTransactionRequest,
+} from '../../types/rpc.js'
 import type { StateOverride } from '../../types/stateOverride.js'
 import type { TransactionRequest } from '../../types/transaction.js'
 import type { ExactPartial, UnionOmit } from '../../types/utils.js'
@@ -50,6 +53,7 @@ import {
   type EncodeFunctionDataErrorType,
   encodeFunctionData,
 } from '../../utils/abi/encodeFunctionData.js'
+import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type GetChainContractAddressErrorType,
@@ -255,19 +259,29 @@ export async function call<chain extends Chain | undefined>(
       'call',
     ) as TransactionRequest
 
-    if (
-      batch &&
-      shouldPerformMulticall({ request }) &&
-      !rpcStateOverride &&
-      !rpcBlockOverrides
-    ) {
+    if (batch && shouldPerformMulticall({ request }) && !rpcBlockOverrides) {
       try {
-        return await scheduleMulticall(client, {
-          ...request,
+        const { deployless = false } =
+          typeof client.batch?.multicall === 'object'
+            ? client.batch.multicall
+            : {}
+        const multicallAddress = getMulticallAddress(client, {
           blockNumber,
-          blockTag,
-          requestOptions,
-        } as unknown as ScheduleMulticallParameters<chain>)
+          deployless,
+        })
+
+        if (
+          !multicallAddress ||
+          !hasStateOverrideForAddress(rpcStateOverride, multicallAddress)
+        )
+          return await scheduleMulticall(client, {
+            ...request,
+            blockNumber,
+            blockTag,
+            multicallAddress,
+            requestOptions,
+            rpcStateOverride,
+          } as unknown as ScheduleMulticallParameters<chain>)
       } catch (err) {
         if (
           !(err instanceof ClientChainNotConfiguredError) &&
@@ -365,9 +379,10 @@ type ScheduleMulticallParameters<chain extends Chain | undefined> = Pick<
   'blockNumber' | 'blockTag'
 > & {
   data: Hex
-  multicallAddress?: Address | undefined
+  multicallAddress?: Address | null | undefined
   requestOptions?: EIP1193RequestOptions | undefined
   to: Address
+  rpcStateOverride?: RpcStateOverride | undefined
 }
 
 type ScheduleMulticallErrorType =
@@ -392,29 +407,30 @@ async function scheduleMulticall<chain extends Chain | undefined>(
     blockNumber,
     blockTag = client.experimental_blockTag ?? 'latest',
     data,
+    multicallAddress: multicallAddress_,
     requestOptions,
+    rpcStateOverride,
     to,
   } = args
 
-  const multicallAddress = (() => {
-    if (deployless) return null
-    if (args.multicallAddress) return args.multicallAddress
-    if (client.chain) {
-      return getChainContractAddress({
-        blockNumber,
-        chain: client.chain,
-        contract: 'multicall3',
-      })
-    }
-    throw new ClientChainNotConfiguredError()
-  })()
+  const multicallAddress =
+    multicallAddress_ !== undefined
+      ? multicallAddress_
+      : getMulticallAddress(client, {
+          blockNumber,
+          deployless,
+        })
 
   const blockNumberHex =
     typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : undefined
   const block = blockNumberHex || blockTag
 
+  const stateOverrideKey = rpcStateOverride
+    ? `.${JSON.stringify(rpcStateOverride)}`
+    : ''
+
   const { schedule } = createBatchScheduler({
-    id: `${client.uid}.${block}.${getRequestOptionsId(requestOptions)}`,
+    id: `${client.uid}.${block}.${getRequestOptionsId(requestOptions)}${stateOverrideKey}`,
     wait,
     shouldSplitBatch(args) {
       const size = args.reduce((size, { data }) => size + (data.length - 2), 0)
@@ -438,22 +454,22 @@ async function scheduleMulticall<chain extends Chain | undefined>(
         functionName: 'aggregate3',
       })
 
+      const multicallRequest = {
+        ...(multicallAddress === null
+          ? {
+              data: toDeploylessCallViaBytecodeData({
+                code: multicall3Bytecode,
+                data: calldata,
+              }),
+            }
+          : { to: multicallAddress, data: calldata }),
+      }
       const data = await client.request(
         {
           method: 'eth_call',
-          params: [
-            {
-              ...(multicallAddress === null
-                ? {
-                    data: toDeploylessCallViaBytecodeData({
-                      code: multicall3Bytecode,
-                      data: calldata,
-                    }),
-                  }
-                : { to: multicallAddress, data: calldata }),
-            },
-            block,
-          ],
+          params: rpcStateOverride
+            ? [multicallRequest, block, rpcStateOverride]
+            : [multicallRequest, block],
         },
         requestOptions,
       )
@@ -472,6 +488,34 @@ async function scheduleMulticall<chain extends Chain | undefined>(
   if (!success) throw new RawContractError({ data: returnData })
   if (returnData === '0x') return { data: undefined }
   return { data: returnData }
+}
+
+function getMulticallAddress(
+  client: Client<Transport>,
+  parameters: {
+    blockNumber?: bigint | undefined
+    deployless?: boolean | undefined
+  },
+): Address | null {
+  const { blockNumber, deployless } = parameters
+  if (deployless) return null
+  if (client.chain)
+    return getChainContractAddress({
+      blockNumber,
+      chain: client.chain,
+      contract: 'multicall3',
+    })
+  throw new ClientChainNotConfiguredError()
+}
+
+function hasStateOverrideForAddress(
+  rpcStateOverride: RpcStateOverride | undefined,
+  address: Address,
+) {
+  if (!rpcStateOverride) return false
+  return Object.keys(rpcStateOverride).some((stateOverrideAddress) =>
+    isAddressEqual(stateOverrideAddress as Address, address),
+  )
 }
 
 type ToDeploylessCallViaBytecodeDataErrorType =
