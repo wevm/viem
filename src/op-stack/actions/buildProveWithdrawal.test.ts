@@ -1,8 +1,8 @@
-import { keccak256 } from 'ethers'
 import { describe, expect, test } from 'vitest'
 import { anvilMainnet, anvilOptimism } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 import { getTransactionReceipt, reset } from '../../actions/index.js'
+import { keccak256 } from '../../utils/hash/keccak256.js'
 
 import { getL2Output, getWithdrawals, proveWithdrawal } from '../index.js'
 import {

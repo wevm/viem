@@ -87,9 +87,6 @@ jobs:
       - name: Check types
         run: pnpm check:types
 
-      - name: Bench types
-        run: pnpm bench:types
-
   test:
     name: 'Test Local (transport: ${{ matrix.transport-mode }}, multicall: ${{ matrix.multicall }}, ${{ matrix.shard }}/${{ matrix.total-shards }})'
     runs-on: ubuntu-latest
@@ -285,10 +282,6 @@ jobs:
 
       - name: Check types
         run: pnpm check:types
-        working-directory: ./wagmi
-
-      - name: Bench types
-        run: pnpm bench:types
         working-directory: ./wagmi
 
       - name: Check build

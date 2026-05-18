@@ -1,11 +1,23 @@
 {
-	"extends": "../tsconfig.base.json",
-	"compilerOptions": {
-		"noEmit": true,
-		"jsx": "react-jsx",
-		"resolveJsonModule": true,
-		"types": ["node"]
-	},
-	"include": ["./**/*.ts", "./**/*.tsx"],
-	"exclude": ["snippets"]
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+    "resolveJsonModule": true,
+    "types": ["node"]
+  },
+  "include": ["pages", "sidebar.ts", "vocs.config.ts"],
+  "exclude": ["pages.gen.ts"]
 }

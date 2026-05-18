@@ -1,331 +1,147 @@
-# Viem Agent Guidelines
+# viem -- Agent Guidelines
 
-This document contains guidelines for AI agents working on the Viem codebase.
+> **Update after learnings or mistakes** -- when a correction, new convention, or hard-won lesson emerges during development, append it to the relevant section of this file immediately. AGENTS.md is the source of truth for project conventions and should grow as the project does.
 
-## Tempo Code Generation
+## TypeScript Conventions
 
-When generating actions (in `src/tempo/actions/`), follow these guidelines.
+- **Exact optional properties** -- `exactOptionalPropertyTypes` is enabled in tsconfig. Optional properties must include `| undefined` in their type if they can be assigned `undefined` (e.g. `foo?: string | undefined`, not `foo?: string`).
+- **No unchecked indexed reads** -- `noUncheckedIndexedAccess` is enabled. Narrow indexed reads before use, or make the invariant obvious with the smallest possible assertion.
+- **`readonly` arrays** -- use `readonly T[]` for array types in type definitions.
+- **Existing `readonly` properties are fine** -- viem has RPC-shaped types, type snapshots, and inference-heavy literals that intentionally preserve `readonly` properties. Do not churn them just to satisfy a style preference.
+- **`type` over `interface` by default** -- use `type` for project-owned shapes. Ambient declarations and DOM-shaped compatibility types may use `interface`.
+- **`.js` extensions** -- all relative source imports include `.js` for ESM compatibility.
+- **Follow local import style** -- viem uses both namespace imports and named internal imports. Match the surrounding file instead of mass-converting import lists.
+- **Classes for errors only** -- all other APIs use functions and plain data.
+- **Errors live next to the code that throws them** -- module-specific failure classes live inside the module that owns the failure mode. Place each error class near the bottom of the module so the public functions and types are what the reader sees first. Set `name` to the namespaced form (`'Hex.InvalidHexValueError'`, `'SignatureEnvelope.VerificationError'`, etc.) when the module uses that pattern.
+- **No enums** -- use union types or `as const` objects for fixed sets.
+- **camelCase constants** -- prefer `camelCase` for local constants unless the surrounding file already uses protocol-style uppercase names for numeric constants.
+- **`const` generic modifier** -- use to preserve literal types for full inference.
+- **Options default `= {}`** -- use `options: Options = {}` not `options?: Options`.
+- **Namespace params and return types** -- place function parameter, return, and error types in a `declare namespace` matching the function name (e.g. `from.Options`, `serialize.ErrorType`). Do not lift the params type to a sibling export unless the surrounding module already has a shared type.
+- **`options` over `args`** -- use `options` for typed option bags. Use domain nouns only when the parameter is not an options bag.
+- **Minimal variable names** -- prefer short, obvious names. Use `options` not `serializeOptions`, `fn` not `callbackFunction`, etc. Context makes meaning clear.
+- **No redundant type annotations** -- if the return type of a function already covers it, do not annotate intermediate variables. Let the return type do the work.
+- **No inline object types on locals** -- when a local variable needs an explicit object-type annotation, declare a named `type` on the line directly above and reference it.
+- **Return directly** -- do not declare a variable just to return it. Use `return { ... }` unless the variable is needed for reuse or readability.
+- **IIFE expressions for fallible local derivations** -- when a local needs `try`/`catch` to parse or normalize a value, prefer an IIFE expression over `let value: T` followed by assignment inside `try`.
+- **Skip braces for single-statement blocks** -- omit `{}` for single-statement `if`, `for`, etc., when the surrounding file follows that style.
+- **No section separator comments** -- do not use `// ---` or `// ===` divider comments. Let JSDoc and whitespace provide structure.
+- **Static imports by default** -- use static `import` declarations. Dynamic imports are reserved for real runtime boundaries already present in viem, such as worker or WASM loading.
+- **Minimize `as any`** -- avoid new `as any` where a safer assertion is practical, but do not mass-rewrite existing crypto, tuple, and inference glue that already relies on it.
+- **Destructure when accessing multiple properties** -- prefer `const { a, b } = options` over repeated `options.a`, `options.b`.
+- **Read from `options.x` when normalizing a single field** -- when transforming exactly one option into a local of the same name, read it directly from `options` instead of destructuring and inventing a second name.
+- **Hex helpers over ad hoc conversion** -- use Ox helpers like `Hex.fromNumber`, `Hex.toBytes`, `Bytes.fromHex`, `Value.fromGwei`, etc. instead of open-coded conversions.
+- **Use Ox branded types** -- prefer existing Ox types such as `Hex.Hex`, `Bytes.Bytes`, and `Address.Address` over raw template literal types when the branded module type exists.
+- **Keep property order readable** -- preserve the local ordering style. Do not alphabetize arrays, RLP tuples, ABI parameters, transaction fields, or other order-sensitive wire shapes.
 
-An example of a generated action set can be found in `src/tempo/actions/token.ts`.
+## Type Inference Conventions
 
-### Source of Truth
+- **Preserve literals** -- use `const` generics and narrow helper signatures when an API should preserve literal inputs.
+- **Type tests in `.test-d.ts`** -- use Vitest's `expectTypeOf` in colocated `.test-d.ts` files to assert generic inference works. Type tests are first-class; write them alongside implementation.
+- **Snapshot inferred public types** -- use `.snap-d.ts` when the repo's existing type snapshot pattern fits the change.
+- **No `any` leakage** -- user-facing callback, return, and option types should not leak `any` unless the surrounding API already intentionally does.
+- **Type inference after every feature** -- after implementing any feature, check if new types can be narrowed. Add or update type tests alongside behavioral tests when public inference changes.
 
-- **All actions must be based on precompile contract specifications** in `test/tempo/docs/specs/`.
-- It could be likely that some interfaces may be inconsistent between the specs (`test/tempo/docs/specs`) and the precompiles (`test/tempo/crates/contracts/src/precompiles`). Always prefer the precompile interfaces over the specs.
-- If the specification is unclear or missing details, **prompt the developer** for guidance rather than making assumptions
+## API Conventions
 
-### Documentation Requirements
+- **Stateless module APIs** -- public APIs are module namespaces full of functions and types. Do not introduce stateful classes for normal library behavior.
+- **Public entrypoint docs** -- when adding a public module or export, update `src/index.ts` with the module export and TSDoc block.
+- **Package exports are generated** -- run `pnpm exports:update` only when intentionally adding, removing, or renaming public subpath exports.
+- **Keep public APIs lean** -- avoid exposing options for values the library can derive from existing inputs.
+- **Wire formats stay explicit** -- serialization, RPC, RLP, ABI, and transaction-envelope code should keep wire-order and field-shape decisions visible at the call site.
+- **Internal helpers stay internal** -- keep helper modules under `internal/` unless they are part of the public API.
 
-All actions **must include comprehensive JSDoc** with:
+## Viem v3 API Conventions
 
-1. **Function description** - What the action does
-2. **`@example` block** - Complete working example showing:
-   - Required imports (`createClient`, `http`, action imports)
-   - Client setup with chain and transport
-   - Action usage with realistic parameters
-   - Expected return value handling (if applicable)
-3. **`@param` tags** - For each parameter (client, parameters)
-4. **`@returns` tag** - Description of the return value
+- **Canonical imports** -- the v3 public shape is `import { Client, Actions, Account, http } from 'viem'`, `import { Hex, Value, Signature, Transaction } from 'viem/utils'`, and `import { mainnet, base } from 'viem/chains'`.
+- **Viem-owned APIs are module namespaces** -- expose viem-owned APIs through modules such as `Client`, `Actions`, `Account`, and domain modules. Keep namespace methods concise, e.g. `Client.create`, `Actions.getBlock`, and `Account.fromPrivateKey`.
+- **Transport factories stay flat** -- functions such as `http`, `webSocket`, `fallback`, and `custom` remain flat exports from `viem`.
+- **Chains stay flat** -- chain constants stay flat exports from `viem/chains`.
+- **Ox-backed utilities live in `viem/utils`** -- export Ox-backed modules such as `Abi`, `Address`, `Bytes`, `Hex`, `Value`, `Hash`, `Signature`, `Transaction`, `TransactionRequest`, `TransactionReceipt`, `Block`, `Log`, and RPC/provider modules from `viem/utils`.
+- **No runtime compatibility shims** -- do not add `viem/compat` or public compatibility aliases for removed v2 APIs. Migration support belongs in docs and `.agents/skills/viem-v3-migration`.
+- **Deprecations are removed in v3** -- resolve `@deprecated` exports, aliases, entrypoints, and v3 TODO compatibility paths instead of carrying them forward.
 
-Example:
-```typescript
-/**
- * Gets the pool ID for a token pair.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
- *
- * const client = createClient({
- *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
- *   transport: http(),
- * })
- *
- * const poolId = await Actions.amm.getPoolId(client, {
- *   userToken: '0x...',
- *   validatorToken: '0x...',
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns The pool ID.
- */
-```
+## Project Shape
 
-### Action Types
+- **Pure ESM package** -- viem v3 is a pure ESM package built with Zile.
+- **Root package manifest** -- root `package.json` is the package manifest. Do not add package manifests under `src/**`.
+- **Build output in `dist`** -- build output belongs in `dist/`. Do not reintroduce `_cjs`, `_esm`, or `_types` output trees.
+- **Source is not a workspace package** -- treat `src` as source code, not as a nested workspace package.
+- **Generated exports** -- `scripts/exports:update.ts` derives `package.json#exports` from `src/` entrypoints.
 
-#### Read-Only Actions
+## RPC And Formatter Conventions
 
-For view/pure functions that only read state:
+- **Directional RPC conversion names** -- use `fromRpc` for inbound RPC data and `toRpc` for outbound RPC payloads.
+- **Formatter property name stays `formatters`** -- keep public chain configuration under `chain.formatters`, but formatter entries should expose `fromRpc` and `toRpc`.
+- **Chain-specific deltas only** -- Celo, OP Stack, ZKsync, and Tempo formatter overrides should express only chain-specific RPC deltas.
+- **Prefer Ox conversion modules** -- use Ox modules for ABI, address, bytes, hex, hash, signature, transaction, typed-data, RPC, and value behavior where Ox has coverage.
 
-- Use `readContract` from `viem/actions`
-- Return type should use `ReadContractReturnType`
-- Parameters extend `ReadParameters`
+## Documentation Conventions
 
-#### Mutate-Based Actions
+- **TSDoc on public exports** -- every exported public function, type, and constant gets a TSDoc comment. Type properties get TSDoc when they are part of the public surface.
+- **Doc-driven API changes** -- write or update the TSDoc before or alongside the implementation, not as an afterthought.
+- **Examples should be small** -- public examples should show the minimum useful shape and avoid unrelated setup.
+- **Source docs first** -- public API documentation usually belongs in TSDoc near the exported source.
+- **Site pages** -- human guides live under `site/pages/`.
+- **Generated docs** -- generated docs and generated site output should not be edited by hand unless explicitly requested.
 
-For state-changing functions, **both variants must be implemented**:
+## Type Conventions
 
-**1. Standard Async Variant**
+- **No eager type definitions** -- do not extract a named type until it is used in more than one place or makes a difficult local shape easier to read.
+- **Shared domain types live near their module** -- keep reusable public types in the module that owns the domain concept.
+- **Error unions live in namespaces** -- exported function error unions should live in that function's namespace as `ErrorType`.
 
-- Uses `writeContract` from `viem/actions`
-- Returns transaction hash
-- Async operation that doesn't wait for confirmation
+## Abstraction Conventions
 
-```typescript
-export async function myAction<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: myAction.Parameters<chain, account>,
-): Promise<myAction.ReturnValue> {
-  return myAction.inner(writeContract, client, parameters)
-}
-```
+- **Prefer duplication over the wrong abstraction** -- duplicated code with a clear bug-fix burden is better than a bad abstraction that is scary to change.
+- **Do not abstract until the commonalities scream** -- wait for 3+ concrete use cases where the right abstraction becomes obvious. Do not abstract for 1-2 instances.
+- **Optimize for change** -- code that is easy to change beats code that is cleverly DRY. We do not know future requirements.
+- **No flags or mode parameters** -- if an abstraction needs `if` branches or boolean params to handle different call sites, it is usually the wrong abstraction. Inline it.
+- **Start concrete, extract later** -- begin inline. Extract only when a clear pattern emerges across multiple real usages.
 
-**2. Sync Variant (`*Sync`)**
+## Testing Conventions
 
-- Named with `Sync` suffix (e.g., `mintSync`, `burnSync`, `rebalanceSwapSync`)
-- Uses `writeContractSync` from `viem/actions`
-- **Waits for transaction confirmation**
-- Returns both the receipt and extracted event data
-- **Must use `extractEvent` to get return values** (not `simulateContract`)
+- **Use `pnpm test` for tests** -- run tests through package scripts, not `vitest` directly.
+- **Target the relevant project** -- prefer `pnpm test --project core --bail=1` or another focused project command over the full matrix while iterating.
+- **Colocate tests** -- unit tests live beside their modules. For new Ox-style modules, prefer `src/**/_test/*.test.ts`; keep existing viem test locations unless the module is being moved.
+- **Wrap function exports in `describe`** -- every test file targets one or more exported functions; each function gets its own `describe('functionName', () => { ... })` block when that matches local style.
+- **Inline snapshots over direct assertions** -- prefer `toMatchInlineSnapshot()` over `.toBe()`, `.toEqual()`, etc. for stable return values. Use `toThrowErrorMatchingInlineSnapshot()` for error assertions.
+- **Snapshot whole objects, omit nondeterministic properties** -- destructure out nondeterministic fields and snapshot the rest, rather than cherry-picking individual fields to assert.
+- **Fuzz regressions become deterministic** -- when a property fails, add the minimized case as a regular `*.test.ts` or vector fixture.
+- **Vectors use Bun** -- run vector tests with `pnpm vectors`.
+- **Unit and type tests as you go** -- write unit tests and `.test-d.ts` type tests alongside implementation for each public behavior change.
+- **Export snapshots for public entrypoints** -- add or update export snapshot tests when changing root or subpath public exports.
 
-```typescript
-export async function myActionSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: myActionSync.Parameters<chain, account>,
-): Promise<myActionSync.ReturnValue> {
-  const { throwOnReceiptRevert = true, ...rest } = parameters
-  const receipt = await myAction.inner(writeContractSync, client, {
-    ...rest,
-    throwOnReceiptRevert,
-  } as never)
-  const { args } = myAction.extractEvent(receipt.logs)
-  return {
-    ...args,
-    receipt,
-  } as never
-}
-```
+## Workflow Conventions
 
-### Namespace Properties
+- **Use targeted commands** -- prefer the smallest command that covers the touched behavior.
+- **Types** -- run `pnpm check:types` or a focused `tsc` command after TypeScript changes.
+- **Package shape** -- run `pnpm test:build` when package metadata, exports, or build output changes.
+- **Repo checks** -- run `pnpm check:repo` when package metadata or workspace shape changes.
+- **Docs dev server** -- use `pnpm docs:dev` for documentation UI work.
+- **`pnpm check` mutates** -- it runs `biome check --write --unsafe`. Use it only when intentionally applying lint/format fixes.
+- **`pnpm exports:update` mutates** -- it rewrites `package.json#exports`.
+- **`pnpm build` mutates** -- it emits `dist/` and refreshes generated exports.
+- **Install hooks can mutate** -- `pnpm install` runs `postinstall`, which initializes submodules and builds contracts.
 
-All actions **must include** the following components within their namespace:
+## Changeset Conventions
 
-#### 1. `Parameters` Type
+- **Changesets only for public behavior** -- add or update a changeset when a change affects public API or existing behavior.
+- **Update existing changesets first** -- if the branch already has a changeset for the same area, update it instead of adding a duplicate.
+- **One sentence, past tense** -- changeset entries are a single sentence written in past tense.
+- **Breaking changes include migration shape** -- major changes include a `diff` fence showing the before/after migration shape.
 
-```typescript
-// Read actions
-export type Parameters = ReadParameters & Args 
+## Git Conventions
 
-// Write actions
-export type Parameters<
-  chain extends Chain | undefined = Chain | undefined,
-  account extends Account | undefined = Account | undefined,
-> = WriteParameters<chain, account> & Args 
-```
+- **Conventional commits** -- use `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:` prefixes. Scope is optional (e.g. `feat(abi): add tuple formatter`).
+- **Preserve dirty work** -- do not revert, clean, or overwrite existing local changes unless explicitly asked.
 
-#### 2. `Args` Type
+## Learned Workspace Facts
 
-Arguments must be documented with JSDoc.
-
-```typescript
-export type Args = {
-  /** JSDoc for each argument */
-  argName: Type
-}
-```
-
-#### 3. `ReturnValue` Type
-
-```typescript
-// Read actions
-export type ReturnValue = ReadContractReturnType<typeof Abis.myAbi, 'functionName', never>
-
-// Write actions
-export type ReturnValue = WriteContractReturnType
-```
-
-#### 4. `ErrorType` Type (for write actions)
-
-Write actions must include an `ErrorType` export. Use `BaseErrorType` from `viem` as a placeholder with a TODO comment for future exhaustive error typing:
-
-```typescript
-// TODO: exhaustive error type
-export type ErrorType = BaseErrorType
-```
-
-#### 5. `call` Function
-
-**Required for all actions** - enables composition with other viem actions:
-
-```typescript
-/**
- * Defines a call to the `functionName` function.
- *
- * Can be passed as a parameter to:
- * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
- * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
- * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
- *
- * @example
- * ```ts
- * import { createClient, http, walletActions } from 'viem'
- * import { tempo } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
- *
- * const client = createClient({
- *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
- *   transport: http(),
- * }).extend(walletActions)
- *
- * const hash = await client.sendTransaction({
- *   calls: [actions.amm.myAction.call({ arg1, arg2 })],
- * })
- * ```
- *
- * @param args - Arguments.
- * @returns The call.
- */
-export function call(args: Args) {
-  return defineCall({
-    address: Addresses.contractName,
-    abi: Abis.contractName,
-    args: [/* transformed args */],
-    functionName: 'functionName',
-  })
-}
-```
-
-The `call` function enables these use cases:
-- `sendCalls` - Batch multiple calls in one transaction
-- `sendTransaction` with `calls` - Send transaction with multiple operations
-- `multicall` - Execute multiple calls in parallel
-- `estimateContractGas` - Estimate gas costs
-- `simulateContract` - Simulate execution
-
-#### 6. `extractEvent` Function (for mutate-based actions)
-
-**Required for all actions that emit events**:
-
-```typescript
-/**
- * Extracts the `EventName` event from logs.
- *
- * @param logs - The logs.
- * @returns The `EventName` event.
- */
-export function extractEvent(logs: Log[]) {
-  const [log] = parseEventLogs({
-    abi: Abis.contractName,
-    logs,
-    eventName: 'EventName',
-    strict: true,
-  })
-  if (!log) throw new Error('`EventName` event not found.')
-  return log
-}
-```
-
-#### 7. `inner` Function (for write actions)
-
-```typescript
-/** @internal */
-export async function inner<
-  action extends typeof writeContract | typeof writeContractSync,
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  action: action,
-  client: Client<Transport, chain, account>,
-  parameters: Parameters<chain, account>,
-): Promise<ReturnType<action>> {
-  const { arg1, arg2, ...rest } = parameters
-  const call = myAction.call({ arg1, arg2 })
-  return (await action(client, {
-    ...rest,
-    ...call,
-  } as never)) as never
-}
-```
-
-### Namespace Structure
-
-Organize actions using namespace pattern:
-
-```typescript
-export async function myAction(...) { ... }
-
-export namespace myAction {
-  export type Parameters = ...
-  export type Args = ...
-  export type ReturnValue = ...
-  
-  export async function inner(...) { ... }  // for write actions
-  export function call(args: Args) { ... }
-  export function extractEvent(logs: Log[]) { ... }  // for mutate actions
-}
-```
-
-### Decision-Making
-
-When encountering situations that require judgment:
-
-- **Specification ambiguities**: Prompt developer for clarification
-- **Missing contract details**: Request ABI or specification update
-- **Event structure uncertainty**: Ask for event definition
-- **Parameter transformations**: Confirm expected input/output formats
-- **Edge cases**: Discuss handling strategy with developer
-
-### Naming Conventions
-
-- Action names should match contract function names (in camelCase)
-- Sync variants use `Sync` suffix (e.g., `myActionSync`)
-- Event names in `extractEvent` should match contract event names exactly
-- Namespace components should be exported within the action's namespace
-
-### Testing
-
-Tests should be co-located with actions in `*action-name*.test.ts` files. Reference contract tests in `test/tempo/crates/precompiles/` for expected behavior. 
-
-See `src/tempo/actions/token.test.ts` for a comprehensive example of test patterns and structure.
-
-#### Test Structure
-
-Organize tests by action name with a default test case and behavior-specific tests:
-
-```typescript
-describe('actionName', () => {
-  test('default', async () => {
-    // Test the primary/happy path scenario
-    const { receipt, ...result } = await Actions.namespace.actionSync(client, {
-      param1: value1,
-      param2: value2,
-    })
-    
-    expect(receipt).toBeDefined()
-    expect(result).toMatchInlineSnapshot(`...`)
-  })
-
-  test('behavior: specific edge case', async () => {
-    // Test specific behaviors, edge cases, or variations
-  })
-
-  test('behavior: error conditions', async () => {
-    // Test error handling
-    await expect(
-      actions.namespace.actionSync(client, { ... })
-    ).rejects.toThrow()
-  })
-})
-
-describe.todo('unimplementedAction')
-```
+- **Source layout** -- source lives in `src/`; docs live in `site`; shared test utilities live in `test`; vectors live in `vectors`; contracts live in `contracts`.
+- **Node and pnpm** -- the repo currently expects Node.js `>=24.5` and `pnpm@10.33.2`.
+- **Generated exports** -- `scripts/exports:update.ts` derives `package.json#exports` from `src/`. It maps top-level `src/<entry>/index.ts`, selected nested entrypoints, and explicit files such as `src/chains/utils.ts`.
+- **Tempo instructions are scoped** -- Tempo-specific action-generation guidance lives in `src/tempo/AGENTS.md`.
+- **Migration skill** -- v3 consumer migration guidance and the deterministic scanner live in `.agents/skills/viem-v3-migration/`.
+- **Contracts submodule** -- contract dependencies may involve submodules. Treat submodule status changes as user work unless the task is specifically about contracts setup.
+- **Secrets are local** -- `.env` is local. Do not print, rewrite, or commit secrets.

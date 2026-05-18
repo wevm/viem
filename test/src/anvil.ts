@@ -1,5 +1,4 @@
 import { Instance, Server } from 'prool'
-
 import { mainnet, optimism, sepolia, zksync } from '../../src/chains/index.js'
 import { ipc } from '../../src/clients/transports/ipc.js'
 import {

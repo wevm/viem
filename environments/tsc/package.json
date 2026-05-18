@@ -7,6 +7,6 @@
   },
   "dependencies": {
     "typescript": "latest",
-    "viem": "file:../../src/"
+    "viem": "workspace:*"
   }
 }

@@ -1,6 +1,6 @@
 import { defineConfig, McpSource } from 'vocs/config'
 
-import pkg from '../src/package.json' with { type: 'json' }
+import pkg from '../package.json' with { type: 'json' }
 import { sidebar } from './sidebar.js'
 
 export const sponsors = {

@@ -1,42 +1,45 @@
 {
-  // This tsconfig file contains the shared config for the build (tsconfig.build.json) and type checking (tsconfig.json) config.
-  "include": [],
-  "exclude": ["site/pages.gen.ts"],
   "compilerOptions": {
-    // Incremental builds
-    // NOTE: Enabling incremental builds speeds up `tsc`. Keep in mind though that it does not reliably bust the cache when the `tsconfig.json` file changes.
-    "incremental": true,
-
-    // Type checking
-    "strict": true,
-    "useDefineForClassFields": true, // Not enabled by default in `strict` mode unless we bump `target` to ES2022.
-    "noFallthroughCasesInSwitch": true, // Not enabled by default in `strict` mode.
-    "noImplicitReturns": true, // Not enabled by default in `strict` mode.
-    "useUnknownInCatchVariables": true, // TODO: This would normally be enabled in `strict` mode but would require some adjustments to the codebase.
-    "noImplicitOverride": true, // Not enabled by default in `strict` mode.
-    "noUnusedLocals": true, // Not enabled by default in `strict` mode.
-    "noUnusedParameters": true, // Not enabled by default in `strict` mode.
-    "exactOptionalPropertyTypes": true,
-    // TODO: Uncomment and fix types.
-    // "noUncheckedIndexedAccess": true,
-
-    // JavaScript support
-    "allowJs": false,
-    "checkJs": false,
-
-    // Interop constraints
-    "forceConsistentCasingInFileNames": true,
-    "verbatimModuleSyntax": true,
-
-    // Language and environment
-    "moduleResolution": "NodeNext",
-    "module": "NodeNext",
-    "target": "ES2021", // Setting this to `ES2021` enables native support for `Node v16+`: https://github.com/microsoft/TypeScript/wiki/Node-Target-Mapping.
-    "types": ["node"],
+    // Module system
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "moduleDetection": "force",
+    "target": "esnext",
     "lib": [
       "ES2022", // By using ES2022 we get access to the `.cause` property on `Error` instances.
       "DOM" // We are adding `DOM` here to get the `fetch`, etc. types. This should be removed once these types are available via DefinitelyTyped.
     ],
+
+    // Emit
+    "noEmit": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+
+    // Type checking
+    "strict": true,
+    // TODO: Enable after narrowing existing indexed reads.
+    // "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "useDefineForClassFields": true,
+    "useUnknownInCatchVariables": true,
+
+    // Interop constraints
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": false,
+    "forceConsistentCasingInFileNames": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "importHelpers": true,
+
+    // JavaScript support
+    "allowJs": false,
+    "checkJs": false,
 
     // Skip type checking for node modules
     "skipLibCheck": true

@@ -2,7 +2,6 @@ packages:
   - examples/*
   - environments/*
   - site
-  - src
   - test
 
 catalog:
@@ -31,4 +30,3 @@ minimumReleaseAgeExclude:
   - vocs
   - webpack
   - basic-ftp
-

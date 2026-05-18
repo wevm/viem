@@ -20,11 +20,6 @@
   },
   "publish": {
     "include": ["LICENSE", "README.md", "CHANGELOG.md", "**/*.ts"],
-    "exclude": [
-      "**/*.bench.ts",
-      "**/*.bench-d.ts",
-      "**/*.test.ts",
-      "**/*.test-d.ts"
-    ]
+    "exclude": ["**/*.test.ts", "**/*.test-d.ts"]
   }
 }

@@ -1,5 +1,4 @@
-// biome-ignore lint/performance/noBarrelFile: entrypoint module
-export * as Actions from './Actions.js'
+// biome-ignore lint/performance/noBarrelFile: module namespace
 export {
   type GetEnsAddressErrorType,
   type GetEnsAddressParameters,

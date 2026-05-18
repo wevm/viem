@@ -1,21 +1,42 @@
 {
   "extends": "../tsconfig.base.json",
-  "exclude": ["./tempo"],
-  "include": [".", "../src", "../contracts/generated.ts"],
   "compilerOptions": {
-    "composite": true,
-    "noEmit": true,
-    "types": ["@types/bun", "node"],
+    "types": ["node", "vitest/importMeta"],
     "paths": {
       "~contracts/*": ["../contracts/*"],
       "~test/*": ["./src/*"],
       "viem": ["../src/index.ts"],
-      "viem/actions": ["../src/actions/index.ts"],
+      "viem/account-abstraction": ["../src/account-abstraction/index.ts"],
       "viem/accounts": ["../src/accounts/index.ts"],
+      "viem/actions": ["../src/actions/index.ts"],
+      "viem/celo": ["../src/celo/index.ts"],
       "viem/chains": ["../src/chains/index.ts"],
+      "viem/chains/utils": ["../src/chains/utils.ts"],
+      "viem/ens": ["../src/ens/index.ts"],
+      "viem/experimental": ["../src/experimental/index.ts"],
+      "viem/experimental/erc7739": ["../src/experimental/erc7739/index.ts"],
+      "viem/experimental/erc7811": ["../src/experimental/erc7811/index.ts"],
+      "viem/experimental/erc7821": ["../src/experimental/erc7821/index.ts"],
+      "viem/experimental/erc7846": ["../src/experimental/erc7846/index.ts"],
+      "viem/experimental/erc7895": ["../src/experimental/erc7895/index.ts"],
+      "viem/linea": ["../src/linea/index.ts"],
+      "viem/node": ["../src/node/index.ts"],
+      "viem/nonce": ["../src/nonce/index.ts"],
+      "viem/op-stack": ["../src/op-stack/index.ts"],
+      "viem/siwe": ["../src/siwe/index.ts"],
       "viem/tempo": ["../src/tempo/index.ts"],
+      "viem/tempo/actions": ["../src/tempo/actions/index.ts"],
       "viem/tempo/zones": ["../src/tempo/zones/index.ts"],
-      "viem/utils": ["../src/utils/index.ts"]
+      "viem/utils": ["../src/utils/index.ts"],
+      "viem/window": ["../src/window/index.ts"],
+      "viem/zksync": ["../src/zksync/index.ts"]
     }
-  }
+  },
+  "include": [
+    "./**/*.ts",
+    "../src/**/*.test.ts",
+    "../src/**/*.test-d.ts",
+    "../src/**/*.snap-d.ts",
+    "../src/**/*.browser.test.ts"
+  ]
 }

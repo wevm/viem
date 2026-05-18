@@ -5,7 +5,7 @@ import { usdcContractConfig, wagmiContractConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts, address } from '~test/constants.js'
 import { deployErc20InvalidTransferEvent } from '~test/utils.js'
-import type { Client } from '../../index.js'
+import type { Client } from '../../clients/createClient.js'
 
 import {
   createClient,

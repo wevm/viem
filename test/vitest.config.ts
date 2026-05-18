@@ -1,5 +1,5 @@
 import { join } from 'node:path'
-import { defineConfig, type TestProjectConfiguration } from 'vitest/config'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
@@ -9,10 +9,6 @@ export default defineConfig({
       { find: /^viem$/, replacement: join(__dirname, '../src/index.ts') },
       { find: /^viem\/(.*)/, replacement: join(__dirname, '../src/$1') },
     ],
-    benchmark: {
-      outputFile: './bench/report.json',
-      reporters: process.env.CI ? ['default'] : ['verbose'],
-    },
     coverage: {
       provider: 'v8',
       reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
@@ -25,28 +21,21 @@ export default defineConfig({
         '**/_cjs/**',
         '**/_esm/**',
         '**/_types/**',
-        '**/*.bench.ts',
-        '**/*.bench-d.ts',
+        '**/dist/**',
         '**/*.test.ts',
         '**/*.test-d.ts',
         '**/test/**',
       ],
     },
-    exclude: ['**/node_modules/**', '**/_esm/**', '**/_cjs/**', '**/_types/**'],
+    exclude: [
+      '**/node_modules/**',
+      '**/_esm/**',
+      '**/_cjs/**',
+      '**/_types/**',
+      '**/dist/**',
+    ],
     retry: 3,
     projects: [
-      ...((process.env.TYPES
-        ? [
-            {
-              extends: true,
-              test: {
-                name: 'type-bench',
-                include: ['src/**/*.bench-d.ts'],
-                globalSetup: [join(__dirname, './setup-bench-types.global.ts')],
-              },
-            },
-          ]
-        : []) satisfies TestProjectConfiguration[]),
       {
         extends: true,
         test: {

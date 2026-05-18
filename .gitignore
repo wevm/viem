@@ -1,6 +1,7 @@
 _cjs
 _esm
 _types
+dist
 *.local
 .DS_Store
 .attest

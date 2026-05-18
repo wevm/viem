@@ -1,20 +1,11 @@
 {
-  "name": "viem",
   "private": true,
-  "type": "module",
   "scripts": {
-    "bench": "vitest bench",
-    "bench:types": "TYPES=true vitest -c ./test/vitest.config.ts --project type-bench",
-    "build": "pnpm clean && pnpm build:cjs && pnpm build:esm && pnpm build:types",
-    "build:cjs": "pnpm build:trustedSetups:start && node scripts/runTsc.js --project ./tsconfig.build.json --module commonjs --moduleResolution node --outDir ./src/_cjs --removeComments --verbatimModuleSyntax false && printf '{\"type\":\"commonjs\"}' > ./src/_cjs/package.json && pnpm build:trustedSetups:end",
-    "build:esm": "tsc --project ./tsconfig.build.json --outDir ./src/_esm && printf '{\"type\": \"module\",\"sideEffects\":false}' > ./src/_esm/package.json",
-    "build:trustedSetups:start": "mv src/node/trustedSetups.ts src/node/trustedSetups_esm.ts && mv src/node/trustedSetups_cjs.ts src/node/trustedSetups.ts",
-    "build:trustedSetups:end": "mv src/node/trustedSetups.ts src/node/trustedSetups_cjs.ts && mv src/node/trustedSetups_esm.ts src/node/trustedSetups.ts",
-    "build:types": "tsc --project ./tsconfig.build.json --declarationDir ./src/_types --emitDeclarationOnly --declaration --declarationMap",
+    "build": "pnpm exports:update && zile --project tsconfig.build.json && tsc --project ./tsconfig.build.json --outDir ./dist && pnpm exports:update",
     "changeset:prepublish": "pnpm version:update && pnpm build && bun scripts/prepublishOnly.ts",
-    "changeset:publish": "pnpm changeset:prepublish && changeset publish",
+    "changeset:publish": "zile publish:prepare && changeset publish && zile publish:post",
     "changeset:version": "pnpm install --lockfile-only && changeset version && pnpm version:update && pnpm check",
-    "clean": "rm -rf *.tsbuildinfo src/*.tsbuildinfo src/_esm src/_cjs src/_types",
+    "clean": "rm -rf dist *.tsbuildinfo src/*.tsbuildinfo src/_esm src/_cjs src/_types",
     "contracts:build": "forge build --config-path ./contracts/foundry.toml && bun scripts/generateTypedArtifacts.ts",
     "deps": "pnpx taze -r",
     "docs:dev": "pnpm --filter site dev",
@@ -23,15 +14,17 @@
     "check:repo": "sherif",
     "check:types": "tsc -b",
     "check:unused": "pnpm clean && knip",
+    "exports:update": "node --import tsx ./scripts/exports:update.ts",
     "gen:tempo-abis": "bun scripts/generateTempoAbis.ts",
     "postinstall": "git submodule update --init --recursive && pnpm contracts:build",
-    "preconstruct": "bun scripts/preconstruct.ts",
+    "preconstruct": "pnpm dev",
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
     "prepublishOnly": "bun scripts/prepublishOnly.ts",
+    "dev": "pnpm exports:update && zile dev",
     "size": "size-limit",
     "test": "vitest -c ./test/vitest.config.ts",
-    "test:build": "publint --strict ./src && attw --pack ./src --ignore-rules false-esm",
+    "test:build": "publint --strict . && attw --pack . --profile esm-only",
     "test:chains": "vitest test/scripts/chains.test.ts",
     "test:env": "pnpm test:env:bun && pnpm test:env:next && pnpm test:env:node && pnpm test:env:tsc && pnpm test:env:vite",
     "test:env:bun": "pnpm --filter test-bun test",
@@ -47,11 +40,9 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
-    "@ark/attest": "^0.56.0",
     "@biomejs/biome": "^2.2.4",
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.29.7",
-    "@ethereumjs/rlp": "^5.0.2",
     "@paulmillr/trusted-setups": "^0.1.2",
     "@pimlico/alto": "0.0.18",
     "@remix-run/node-fetch-server": "^0.12.0",
@@ -60,10 +51,8 @@
     "@types/node": "^24.5.2",
     "@vitest/coverage-v8": "^4.0.15",
     "bun": "^1.2.22",
-    "ethers": "^6.15.0",
     "knip": "^5.64.0",
     "micro-eth-signer": "^0.14.0",
-    "ox": "0.14.20",
     "permissionless": "^0.2.57",
     "prool": "~0.2.3",
     "publint": "^0.2.12",
@@ -71,8 +60,10 @@
     "simple-git-hooks": "^2.13.1",
     "size-limit": "^11.2.0",
     "testcontainers": "^11.10.0",
+    "tsx": "^4.17.0",
     "typescript": "catalog:",
-    "vitest": "^4.0.15"
+    "vitest": "^4.0.15",
+    "zile": "^0.0.25"
   },
   "packageManager": "pnpm@10.33.2",
   "engines": {
@@ -85,7 +76,8 @@
     "ignore": [
       ".github/**",
       "environments/**",
-      "vectors/**"
+      "vectors/**",
+      "dist/**"
     ],
     "ignoreBinaries": [
       "dev",
@@ -106,21 +98,21 @@
         "test/vitest.config.ts"
       ],
       "entry": [
-        "**/*.{bench,bench-d,test,test-d,spec}.?(c|m)[jt]s?(x)"
+        "**/*.{test,test-d,spec}.?(c|m)[jt]s?(x)"
       ]
     },
     "workspaces": {
       ".": {
-        "project": "scripts/*.ts"
-      },
-      "src": {
+        "project": [
+          "scripts/*.ts"
+        ],
         "entry": [
-          "index.ts!",
-          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,tempo,tempo/actions,tempo/zones,utils,window,zksync}/index.ts!",
-          "chains/utils.ts!"
+          "src/index.ts!",
+          "src/{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,tempo,tempo/actions,tempo/zones,utils,window,zksync}/index.ts!",
+          "src/chains/utils.ts!"
         ],
         "ignore": [
-          "node/trustedSetups_cjs.ts"
+          "src/node/trustedSetups_cjs.ts"
         ]
       },
       "site": {
@@ -134,108 +126,103 @@
   "size-limit": [
     {
       "name": "import * from 'viem' (esm)",
-      "path": "./src/_esm/index.js",
+      "path": "./dist/index.js",
       "limit": "85 kB",
       "import": "*"
     },
     {
-      "name": "const viem = require('viem') (cjs)",
-      "path": "./src/_cjs/index.js",
-      "limit": "105 kB"
-    },
-    {
       "name": "import { createClient, http } from 'viem'",
-      "path": "./src/_esm/index.js",
+      "path": "./dist/index.js",
       "limit": "6.6 kB",
       "import": "{ createClient, http }"
     },
     {
       "name": "import * from 'viem/account-abstraction'",
-      "path": "./src/_esm/account-abstraction/index.js",
+      "path": "./dist/account-abstraction/index.js",
       "limit": "60 kB",
       "import": "*"
     },
     {
       "name": "import * from 'viem/accounts'",
-      "path": "./src/_esm/accounts/index.js",
+      "path": "./dist/accounts/index.js",
       "limit": "97 kB",
       "import": "*"
     },
     {
       "name": "import { privateKeyToAccount } from 'viem/accounts'",
-      "path": "./src/_esm/accounts/index.js",
+      "path": "./dist/accounts/index.js",
       "limit": "22 kB",
       "import": "{ privateKeyToAccount }"
     },
     {
       "name": "import { mnemonicToAccount } from 'viem/accounts'",
-      "path": "./src/_esm/accounts/index.js",
+      "path": "./dist/accounts/index.js",
       "limit": "30 kB",
       "import": "{ mnemonicToAccount }"
     },
     {
       "name": "import * from 'viem/actions'",
-      "path": "./src/_esm/actions/index.js",
+      "path": "./dist/actions/index.js",
       "limit": "69 kB",
       "import": "*"
     },
     {
       "name": "import { getBlockNumber } from 'viem/actions'",
-      "path": "./src/_esm/actions/index.js",
+      "path": "./dist/actions/index.js",
       "limit": "1 kB",
       "import": "{ getBlockNumber }"
     },
     {
       "name": "import * from 'viem/chains'",
-      "path": "./src/_esm/chains/index.js",
+      "path": "./dist/chains/index.js",
       "limit": "107 kB",
       "import": "*"
     },
     {
       "name": "import { mainnet } from 'viem/chains'",
-      "path": "./src/_esm/chains/index.js",
+      "path": "./dist/chains/index.js",
       "limit": "500 B",
       "import": "{ mainnet }"
     },
     {
       "name": "import { tempoTestnet } from 'viem/chains'",
-      "path": "./src/_esm/chains/index.js",
+      "path": "./dist/chains/index.js",
       "limit": "64 kB",
       "import": "{ tempoTestnet }"
     },
     {
       "name": "import * from 'viem/chains/utils'",
-      "path": "./src/_esm/chains/utils.js",
+      "path": "./dist/chains/utils.js",
       "limit": "8 kB",
       "import": "*"
     },
     {
       "name": "import * from 'viem/ens'",
-      "path": "./src/_esm/ens/index.js",
+      "path": "./dist/ens/index.js",
       "limit": "53 kB",
       "import": "*"
     },
     {
       "name": "import { getEnsAvatar } from 'viem/ens'",
-      "path": "./src/_esm/ens/index.js",
+      "path": "./dist/ens/index.js",
       "limit": "28 kB",
       "import": "{ getEnsAvatar }"
     },
     {
       "name": "import * from 'viem/siwe'",
-      "path": "./src/_esm/siwe/index.js",
+      "path": "./dist/siwe/index.js",
       "limit": "49 kB",
       "import": "*"
     },
     {
       "name": "import { verifySiweMessage } from 'viem/siwe'",
-      "path": "./src/_esm/siwe/index.js",
+      "path": "./dist/siwe/index.js",
       "limit": "48 kB",
       "import": "{ verifySiweMessage }"
     },
     {
       "name": "import { verifyHash } from 'viem/actions'",
-      "path": "./src/_esm/actions/index.js",
+      "path": "./dist/actions/index.js",
       "limit": "47 kB",
       "import": "{ verifyHash }"
     }
@@ -315,5 +302,191 @@
       "protobufjs",
       "simple-git-hooks"
     ]
+  },
+  "[!start-pkg]": "",
+  "name": "viem",
+  "description": "TypeScript Interface for Ethereum",
+  "type": "module",
+  "version": "2.49.3",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "src"
+  ],
+  "dependencies": {
+    "@noble/curves": "1.9.1",
+    "@noble/hashes": "1.8.0",
+    "@scure/bip32": "1.7.0",
+    "@scure/bip39": "1.6.0",
+    "abitype": "1.2.3",
+    "isows": "1.0.7",
+    "ox": "0.14.20",
+    "ws": "8.18.3"
+  },
+  "peerDependencies": {
+    "typescript": ">=5.0.4"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  },
+  "license": "MIT",
+  "homepage": "https://viem.sh",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wevm/viem.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wevm/viem/issues"
+  },
+  "authors": [
+    "awkweb.eth",
+    "jxom.eth"
+  ],
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/wevm"
+    }
+  ],
+  "keywords": [
+    "eth",
+    "ethereum",
+    "dapps",
+    "wallet",
+    "web3",
+    "typescript"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "src": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./account-abstraction": {
+      "types": "./dist/account-abstraction/index.d.ts",
+      "src": "./src/account-abstraction/index.ts",
+      "default": "./dist/account-abstraction/index.js"
+    },
+    "./accounts": {
+      "types": "./dist/accounts/index.d.ts",
+      "src": "./src/accounts/index.ts",
+      "default": "./dist/accounts/index.js"
+    },
+    "./actions": {
+      "types": "./dist/actions/index.d.ts",
+      "src": "./src/actions/index.ts",
+      "default": "./dist/actions/index.js"
+    },
+    "./celo": {
+      "types": "./dist/celo/index.d.ts",
+      "src": "./src/celo/index.ts",
+      "default": "./dist/celo/index.js"
+    },
+    "./chains": {
+      "types": "./dist/chains/index.d.ts",
+      "src": "./src/chains/index.ts",
+      "default": "./dist/chains/index.js"
+    },
+    "./chains/utils": {
+      "types": "./dist/chains/utils.d.ts",
+      "src": "./src/chains/utils.ts",
+      "default": "./dist/chains/utils.js"
+    },
+    "./ens": {
+      "types": "./dist/ens/index.d.ts",
+      "src": "./src/ens/index.ts",
+      "default": "./dist/ens/index.js"
+    },
+    "./experimental": {
+      "types": "./dist/experimental/index.d.ts",
+      "src": "./src/experimental/index.ts",
+      "default": "./dist/experimental/index.js"
+    },
+    "./experimental/erc7739": {
+      "types": "./dist/experimental/erc7739/index.d.ts",
+      "src": "./src/experimental/erc7739/index.ts",
+      "default": "./dist/experimental/erc7739/index.js"
+    },
+    "./experimental/erc7811": {
+      "types": "./dist/experimental/erc7811/index.d.ts",
+      "src": "./src/experimental/erc7811/index.ts",
+      "default": "./dist/experimental/erc7811/index.js"
+    },
+    "./experimental/erc7821": {
+      "types": "./dist/experimental/erc7821/index.d.ts",
+      "src": "./src/experimental/erc7821/index.ts",
+      "default": "./dist/experimental/erc7821/index.js"
+    },
+    "./experimental/erc7846": {
+      "types": "./dist/experimental/erc7846/index.d.ts",
+      "src": "./src/experimental/erc7846/index.ts",
+      "default": "./dist/experimental/erc7846/index.js"
+    },
+    "./experimental/erc7895": {
+      "types": "./dist/experimental/erc7895/index.d.ts",
+      "src": "./src/experimental/erc7895/index.ts",
+      "default": "./dist/experimental/erc7895/index.js"
+    },
+    "./linea": {
+      "types": "./dist/linea/index.d.ts",
+      "src": "./src/linea/index.ts",
+      "default": "./dist/linea/index.js"
+    },
+    "./node": {
+      "types": "./dist/node/index.d.ts",
+      "src": "./src/node/index.ts",
+      "default": "./dist/node/index.js"
+    },
+    "./nonce": {
+      "types": "./dist/nonce/index.d.ts",
+      "src": "./src/nonce/index.ts",
+      "default": "./dist/nonce/index.js"
+    },
+    "./op-stack": {
+      "types": "./dist/op-stack/index.d.ts",
+      "src": "./src/op-stack/index.ts",
+      "default": "./dist/op-stack/index.js"
+    },
+    "./siwe": {
+      "types": "./dist/siwe/index.d.ts",
+      "src": "./src/siwe/index.ts",
+      "default": "./dist/siwe/index.js"
+    },
+    "./tempo": {
+      "types": "./dist/tempo/index.d.ts",
+      "src": "./src/tempo/index.ts",
+      "default": "./dist/tempo/index.js"
+    },
+    "./tempo/actions": {
+      "types": "./dist/tempo/actions/index.d.ts",
+      "src": "./src/tempo/actions/index.ts",
+      "default": "./dist/tempo/actions/index.js"
+    },
+    "./tempo/zones": {
+      "types": "./dist/tempo/zones/index.d.ts",
+      "src": "./src/tempo/zones/index.ts",
+      "default": "./dist/tempo/zones/index.js"
+    },
+    "./utils": {
+      "types": "./dist/utils/index.d.ts",
+      "src": "./src/utils/index.ts",
+      "default": "./dist/utils/index.js"
+    },
+    "./window": {
+      "types": "./dist/window/index.d.ts",
+      "src": "./src/window/index.ts",
+      "default": "./dist/window/index.js"
+    },
+    "./zksync": {
+      "types": "./dist/zksync/index.d.ts",
+      "src": "./src/zksync/index.ts",
+      "default": "./dist/zksync/index.js"
+    },
+    "./package.json": "./package.json"
   }
 }

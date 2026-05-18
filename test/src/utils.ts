@@ -85,7 +85,10 @@ export async function deploy<const abi extends Abi | readonly unknown[]>(
     Account | undefined,
     false
   >,
-  args: DeployContractParameters<abi, (typeof client)['chain'], Account>,
+  args: Omit<
+    DeployContractParameters<abi, (typeof client)['chain'], Account>,
+    'account'
+  >,
 ) {
   const hash = await deployContract(client, {
     account: accounts[0].address,

@@ -1,10 +1,13 @@
 {
   "extends": "../tsconfig.base.json",
-  "include": ["./**/*.ts"],
-  "exclude": ["./**/*.test.ts", "./**/*.test-d.ts", "./**/*.bench.ts", "./**/*.bench-d.ts"],
   "compilerOptions": {
-    "composite": true,
-    "noEmit": true,
     "types": ["node"]
-  }
+  },
+  "include": ["./**/*.ts"],
+  "exclude": [
+    "./**/*.test.ts",
+    "./**/*.test-d.ts",
+    "./**/*.snap-d.ts",
+    "./**/*.browser.test.ts"
+  ]
 }

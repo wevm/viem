@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import type { Account } from '../../../accounts/index.js'
+import type { Account } from '../../../accounts/types.js'
 import { getTransactionReceipt } from '../../../actions/index.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'

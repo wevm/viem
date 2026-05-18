@@ -65,6 +65,7 @@ export type {
   LocalAccount,
   PrivateKeyAccount,
 } from './accounts/types.js'
+export * as Actions from './actions/Actions.js'
 export type {
   GetEnsAddressErrorType,
   GetEnsAddressParameters,

@@ -23,6 +23,7 @@ test('exports', () => {
       "SolidityProtectedKeywordError",
       "UnknownSignatureError",
       "UnknownTypeError",
+      "Actions",
       "getContract",
       "WaitForCallsStatusTimeoutError",
       "createClient",

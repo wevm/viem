@@ -6,6 +6,6 @@
     "test": "bun index.ts"
   },
   "dependencies": {
-    "viem": "file:../../src/"
+    "viem": "workspace:*"
   }
 }
