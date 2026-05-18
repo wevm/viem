@@ -1,4 +1,4 @@
-import { sha256 as noble_sha256 } from '@noble/hashes/sha256'
+import { sha256 as noble_sha256 } from '@noble/hashes/sha2.js'
 
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'

@@ -1,6 +1,7 @@
-import { secp256k1 } from '@noble/curves/secp256k1'
+import { secp256k1 } from '@noble/curves/secp256k1.js'
 import type { ErrorType } from '../errors/utils.js'
 import type { Hex } from '../types/misc.js'
+import { hexToBytes } from '../utils/encoding/toBytes.js'
 import { type ToHexErrorType, toHex } from '../utils/encoding/toHex.js'
 import type { NonceManager } from '../utils/nonceManager.js'
 import { type ToAccountErrorType, toAccount } from './toAccount.js'
@@ -45,7 +46,7 @@ export function privateKeyToAccount(
   options: PrivateKeyToAccountOptions = {},
 ): PrivateKeyAccount {
   const { nonceManager } = options
-  const publicKey = toHex(secp256k1.getPublicKey(privateKey.slice(2), false))
+  const publicKey = toHex(secp256k1.getPublicKey(hexToBytes(privateKey), false))
   const address = publicKeyToAddress(publicKey)
 
   const account = toAccount({

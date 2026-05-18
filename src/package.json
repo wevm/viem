@@ -217,10 +217,10 @@
     }
   },
   "dependencies": {
-    "@noble/curves": "1.9.1",
-    "@noble/hashes": "1.8.0",
-    "@scure/bip32": "1.7.0",
-    "@scure/bip39": "1.6.0",
+    "@noble/curves": "2.2.0",
+    "@noble/hashes": "2.2.0",
+    "@scure/bip32": "2.2.0",
+    "@scure/bip39": "2.2.0",
     "abitype": "1.2.3",
     "isows": "1.0.7",
     "ox": "0.14.20",
