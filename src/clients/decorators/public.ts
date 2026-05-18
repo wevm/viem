@@ -1862,6 +1862,9 @@ export type PublicActions<
    *     - Calls [`eth_getBlockByNumber`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getblockbynumber) and extracts the transactions
    *     - Checks if one of the Transactions is a replacement
    *     - If so, calls [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionReceipt).
+   *   - If replacement lookup information is provided and the original Transaction is unavailable:
+   *     - Calls `eth_getTransactionBySenderAndNonce` to find the replacement Transaction
+   *     - If so, calls [`eth_getTransactionReceipt`](https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_getTransactionReceipt).
    *
    * @remarks
    * The `waitForTransactionReceipt` action additionally supports Replacement detection (e.g. sped up Transactions).

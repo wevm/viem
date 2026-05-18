@@ -3,7 +3,10 @@ import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { prepareTransactionRequest } from '../../actions/index.js'
-import { WaitForTransactionReceiptTimeoutError } from '../../errors/transaction.js'
+import {
+  TransactionNotFoundError,
+  WaitForTransactionReceiptTimeoutError,
+} from '../../errors/transaction.js'
 import { hexToNumber } from '../../utils/encoding/fromHex.js'
 import { keccak256 } from '../../utils/index.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
@@ -479,6 +482,79 @@ describe('replaced transactions', () => {
     expect(replacement.replacedTransaction).toBeDefined()
     expect(replacement.transaction).toBeDefined()
     expect(replacement.transactionReceipt).toBeDefined()
+  })
+
+  test('repriced (original transaction unavailable)', async () => {
+    setup()
+
+    await mine(client, { blocks: 10 })
+
+    const nonce = hexToNumber(
+      (await client.request({
+        method: 'eth_getTransactionCount',
+        params: [sourceAccount.address, 'latest'],
+      })) ?? '0x0',
+    )
+    const hash =
+      '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+
+    const replacementHash = await sendTransaction(client, {
+      account: sourceAccount.address,
+      to: targetAccount.address,
+      value: parseEther('1'),
+      nonce,
+      maxFeePerGas: parseGwei('20'),
+    })
+    await mine(client, { blocks: 1 })
+
+    const replacementTransaction = await getTransactionModule.getTransaction(
+      client,
+      { hash: replacementHash },
+    )
+    const getTransaction_ = getTransactionModule.getTransaction
+    const getTransaction = vi
+      .spyOn(getTransactionModule, 'getTransaction')
+      .mockImplementation(async (client_, parameters) => {
+        if ('hash' in parameters && parameters.hash === hash)
+          throw new TransactionNotFoundError({ hash })
+        if (
+          'sender' in parameters &&
+          parameters.sender === sourceAccount.address &&
+          parameters.nonce === nonce
+        )
+          return replacementTransaction as never
+        return getTransaction_(client_ as never, parameters as never) as never
+      })
+
+    let replacement: any
+    try {
+      const receipt = await waitForTransactionReceipt(client, {
+        hash,
+        replacement: {
+          from: sourceAccount.address,
+          nonce,
+          to: targetAccount.address,
+          value: parseEther('1'),
+          input: '0x',
+        },
+        retryCount: 0,
+        onReplaced: (replacement_) => (replacement = replacement_),
+      })
+
+      expect(receipt.transactionHash).toBe(replacementHash)
+      expect(replacement.reason).toBe('repriced')
+      expect(replacement.replacedTransaction).toBeDefined()
+      expect(replacement.transaction.hash).toBe(replacementHash)
+      expect(replacement.transactionReceipt.transactionHash).toBe(
+        replacementHash,
+      )
+      expect(getTransaction).toHaveBeenCalledWith(client, {
+        sender: sourceAccount.address,
+        nonce,
+      })
+    } finally {
+      getTransaction.mockRestore()
+    }
   })
 
   test('checkReplacement: false', async () => {
