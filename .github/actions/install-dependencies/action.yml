@@ -7,8 +7,7 @@ runs:
     - name: Set up foundry
       uses: foundry-rs/foundry-toolchain@v1
       with:
-        # Pin the nightly release to avoid unauthenticated GitHub API lookups.
-        version: nightly-84b2b9c410ceee65e12a278e64ff4a7fbb4d9bfe
+        version: nightly
 
     - name: Set up pnpm
       uses: wevm/actions/.github/actions/pnpm@main
