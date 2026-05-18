@@ -1,7 +1,7 @@
 import { setTimeout } from 'node:timers/promises'
 import { Hex } from 'ox'
 import { TokenId, TokenRole } from 'ox/tempo'
-import { parseUnits } from 'viem'
+import { parseSignature, parseUnits } from 'viem'
 import { getCode, writeContractSync } from 'viem/actions'
 import { Abis, Addresses, TokenIds } from 'viem/tempo'
 import { describe, expect, test } from 'vitest'
@@ -218,6 +218,84 @@ describe('approve', () => {
   })
 })
 
+describe('permit', () => {
+  test('default', async () => {
+    const { token } = await actions.token.createSync(client, {
+      currency: 'USD',
+      name: 'Permit Test Token',
+      symbol: 'PERMIT',
+    })
+
+    const { name } = await actions.token.getMetadata(client, {
+      token,
+    })
+    const nonceBefore = await actions.token.getNonce(client, {
+      token,
+    })
+    const value = parseUnits('125', 6)
+    const deadline = BigInt(Math.floor(Date.now() / 1000) + 60 * 60)
+
+    if (!client.chain) throw new Error('chain is required.')
+
+    const signature = await account.signTypedData({
+      domain: {
+        chainId: client.chain.id,
+        name,
+        verifyingContract: token,
+        version: '1',
+      },
+      message: {
+        deadline,
+        nonce: nonceBefore,
+        owner: account.address,
+        spender: account2.address,
+        value,
+      },
+      primaryType: 'Permit',
+      types: {
+        Permit: [
+          { name: 'owner', type: 'address' },
+          { name: 'spender', type: 'address' },
+          { name: 'value', type: 'uint256' },
+          { name: 'nonce', type: 'uint256' },
+          { name: 'deadline', type: 'uint256' },
+        ],
+      },
+    })
+    const { r, s, v, yParity } = parseSignature(signature)
+
+    const { receipt, ...result } = await actions.token.permitSync(client, {
+      deadline,
+      owner: account.address,
+      r,
+      s,
+      spender: account2.address,
+      token,
+      v: Number(v ?? BigInt(27 + yParity)),
+      value,
+    })
+    expect(receipt).toBeDefined()
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "amount": 125000000n,
+        "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        "spender": "0x8C8d35429F74ec245F8Ef2f4Fd1e551cFF97d650",
+      }
+    `)
+
+    const allowance = await actions.token.getAllowance(client, {
+      spender: account2.address,
+      token,
+    })
+    expect(allowance).toBe(value)
+
+    const nonceAfter = await actions.token.getNonce(client, {
+      token,
+    })
+    expect(nonceAfter).toBe(nonceBefore + 1n)
+  })
+})
+
 describe('create', () => {
   test('default', async () => {
     const { receipt, salt, token, tokenId, ...result } =
@@ -309,6 +387,45 @@ describe('getBalance', () => {
 
       expect(balance).toBe(0n)
     }
+  })
+})
+
+describe('getDomainSeparator', () => {
+  test('default', async () => {
+    const domainSeparator = await actions.token.getDomainSeparator(client, {
+      token: addresses.alphaUsd,
+    })
+
+    expect(domainSeparator).toMatch(/^0x[0-9a-fA-F]{64}$/)
+  })
+})
+
+describe('getNonce', () => {
+  test('default', async () => {
+    const nonce = await actions.token.getNonce(client, {
+      token: addresses.alphaUsd,
+    })
+
+    expect(nonce).toBeGreaterThanOrEqual(0n)
+  })
+
+  test('behavior: explicit account', async () => {
+    const nonce = await actions.token.getNonce(client, {
+      account: account2.address,
+      token: addresses.alphaUsd,
+    })
+
+    expect(nonce).toBeGreaterThanOrEqual(0n)
+  })
+})
+
+describe('getOptedInSupply', () => {
+  test('default', async () => {
+    const optedInSupply = await actions.token.getOptedInSupply(client, {
+      token: addresses.alphaUsd,
+    })
+
+    expect(optedInSupply).toBeGreaterThanOrEqual(0n)
   })
 })
 
