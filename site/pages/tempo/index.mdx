@@ -42,8 +42,10 @@ In the snippet below, we will set up a Tempo chain, and extend our client with `
 It is also possible to set up a default fee token by adding a `feeToken` property to the chain.
 
 ```ts
+import { Chain } from 'viem/tempo'
+
 export const client = createClient({
-  chain: tempoModerato.extend({ // [!code hl]
+  chain: Chain.testnet.extend({ // [!code hl]
     feeToken: '0x20c0000000000000000000000000000000000001', // [!code hl]
   }), // [!code hl]
   // ...
