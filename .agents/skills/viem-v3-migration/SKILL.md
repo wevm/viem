@@ -24,21 +24,51 @@ Current utility modules:
 
 | Module | Backing | Notes |
 | --- | --- | --- |
+| `Abi` | `ox/Abi` | Exact proxy. ABI parsing, formatting, encoding, and selector helpers. |
+| `AbiConstructor` | `ox/AbiConstructor` | Exact proxy. ABI constructor helpers. |
+| `AbiError` | `ox/AbiError` | Exact proxy. ABI error helpers. |
+| `AbiEvent` | `ox/AbiEvent` | Exact proxy. ABI event helpers. |
+| `AbiFunction` | `ox/AbiFunction` | Exact proxy. ABI function helpers. |
+| `AbiItem` | `ox/AbiItem` | Exact proxy. ABI item helpers. |
+| `AbiParameters` | `ox/AbiParameters` | Exact proxy. ABI parameter encoding, decoding, formatting, and parsing. |
+| `AccessList` | `ox/AccessList` | Exact proxy. Access-list construction and RPC conversion. |
 | `Address` | `ox/Address` | Exact proxy. Address validation, checksum, equality, and public-key derivation. |
+| `Authorization` | `ox/Authorization` | Exact proxy. EIP-7702 authorization signing and RPC conversion. |
+| `Block` | `ox/Block` | Exact proxy. Block domain and RPC conversion. |
+| `BlockOverrides` | `ox/BlockOverrides` | Exact proxy. Block override RPC conversion. |
 | `Bytes` | `ox/Bytes` | Exact proxy. Byte-array construction, conversion, slicing, padding, and trimming. |
 | `ContractAddress` | `ox/ContractAddress` | Exact proxy. CREATE and CREATE2 address derivation. |
+| `Fee` | `ox/Fee` | Exact proxy. Fee history and RPC conversion. |
+| `Filter` | `ox/Filter` | Exact proxy. Filter domain and RPC conversion. |
 | `Hash` | `ox/Hash` | Exact proxy. Keccak, SHA-256, RIPEMD-160, HMAC-SHA256, and hash validation. |
 | `Hex` | `ox/Hex` | Exact proxy. Hex construction, conversion, slicing, padding, and trimming. |
+| `Log` | `ox/Log` | Exact proxy. Log domain and RPC conversion. |
 | `P256` | `ox/P256` | Exact proxy. P-256 key, signing, recovery, and verification helpers. |
 | `PersonalMessage` | `ox/PersonalMessage` | Exact proxy. EIP-191 encoding and signing payload hashing. |
+| `Provider` | `ox/Provider` | Exact proxy. EIP-1193 provider helpers and types. |
 | `PublicKey` | `ox/PublicKey` | Exact proxy. Structured public-key parsing, compression, and serialization. |
 | `Rlp` | `ox/Rlp` | Exact proxy. RLP encode and decode helpers. |
+| `RpcRequest` | `ox/RpcRequest` | Exact proxy. JSON-RPC request helpers. |
+| `RpcResponse` | `ox/RpcResponse` | Exact proxy. JSON-RPC response helpers. |
+| `RpcSchema` | `ox/RpcSchema` | Exact proxy. JSON-RPC schema types. |
+| `RpcTransport` | `ox/RpcTransport` | Exact proxy. JSON-RPC transport helpers. |
 | `Secp256k1` | `ox/Secp256k1` | Exact proxy. Secp256k1 key, signing, recovery, and verification helpers. |
 | `Signature` | `ox/Signature` | Exact proxy. Signature parsing, serialization, RPC conversion, DER conversion, and validation. |
+| `StateOverrides` | `ox/StateOverrides` | Exact proxy. State override RPC conversion. |
+| `Transaction` | `ox/Transaction` | Exact proxy. Transaction domain and RPC conversion. |
+| `TransactionReceipt` | `ox/TransactionReceipt` | Exact proxy. Transaction receipt domain and RPC conversion. |
+| `TransactionRequest` | `ox/TransactionRequest` | Exact proxy. Transaction request RPC conversion. |
+| `TxEnvelope` | `ox/TxEnvelope` | Exact proxy. Transaction envelope helpers. |
+| `TxEnvelopeEip1559` | `ox/TxEnvelopeEip1559` | Exact proxy. EIP-1559 transaction envelope helpers. |
+| `TxEnvelopeEip2930` | `ox/TxEnvelopeEip2930` | Exact proxy. EIP-2930 transaction envelope helpers. |
+| `TxEnvelopeEip4844` | `ox/TxEnvelopeEip4844` | Exact proxy. EIP-4844 transaction envelope helpers. |
+| `TxEnvelopeEip7702` | `ox/TxEnvelopeEip7702` | Exact proxy. EIP-7702 transaction envelope helpers. |
+| `TxEnvelopeLegacy` | `ox/TxEnvelopeLegacy` | Exact proxy. Legacy transaction envelope helpers. |
 | `TypedData` | `ox/TypedData` | Exact proxy. EIP-712 encoding, hashing, serialization, and validation. |
 | `Value` | `ox/Value` | Exact proxy. Unit formatting and parsing. |
 | `WebAuthnP256` | `ox/WebAuthnP256` | Exact proxy. WebAuthn P-256 credential, signing, and verification helpers. |
 | `WebCryptoP256` | `ox/WebCryptoP256` | Exact proxy. WebCrypto P-256 key, signing, and verification helpers. |
+| `Withdrawal` | `ox/Withdrawal` | Exact proxy. Withdrawal domain and RPC conversion. |
 
 ```diff
 - import { concatHex, formatEther } from 'viem'
@@ -141,6 +171,22 @@ Ox contract address helpers return lowercase addresses. Pass through
 
 `Hash.*` defaults to hex output for hex inputs and bytes output for byte-array
 inputs.
+
+### RPC Boundaries
+
+Old formatter helpers are replaced by explicit domain module conversion methods.
+
+| v2 | v3 |
+| --- | --- |
+| `formatBlock(block)` | `Block.fromRpc(block)` |
+| `formatLog(log)` | `Log.fromRpc(log)` |
+| `formatTransaction(transaction)` | `Transaction.fromRpc(transaction)` |
+| `formatTransactionReceipt(receipt)` | `TransactionReceipt.fromRpc(receipt)` |
+| `formatTransactionRequest(request)` | `TransactionRequest.toRpc(request)` |
+
+Use `fromRpc` for inbound RPC responses and `toRpc` for outbound RPC payloads.
+Chain-specific formatter work should override only the chain-specific RPC
+deltas.
 
 ### `PersonalMessage`
 

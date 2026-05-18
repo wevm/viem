@@ -282,10 +282,65 @@
       "src": "./src/utils/index.ts",
       "default": "./dist/utils/index.js"
     },
+    "./utils/Abi": {
+      "types": "./dist/utils/Abi.d.ts",
+      "src": "./src/utils/Abi.ts",
+      "default": "./dist/utils/Abi.js"
+    },
+    "./utils/AbiConstructor": {
+      "types": "./dist/utils/AbiConstructor.d.ts",
+      "src": "./src/utils/AbiConstructor.ts",
+      "default": "./dist/utils/AbiConstructor.js"
+    },
+    "./utils/AbiError": {
+      "types": "./dist/utils/AbiError.d.ts",
+      "src": "./src/utils/AbiError.ts",
+      "default": "./dist/utils/AbiError.js"
+    },
+    "./utils/AbiEvent": {
+      "types": "./dist/utils/AbiEvent.d.ts",
+      "src": "./src/utils/AbiEvent.ts",
+      "default": "./dist/utils/AbiEvent.js"
+    },
+    "./utils/AbiFunction": {
+      "types": "./dist/utils/AbiFunction.d.ts",
+      "src": "./src/utils/AbiFunction.ts",
+      "default": "./dist/utils/AbiFunction.js"
+    },
+    "./utils/AbiItem": {
+      "types": "./dist/utils/AbiItem.d.ts",
+      "src": "./src/utils/AbiItem.ts",
+      "default": "./dist/utils/AbiItem.js"
+    },
+    "./utils/AbiParameters": {
+      "types": "./dist/utils/AbiParameters.d.ts",
+      "src": "./src/utils/AbiParameters.ts",
+      "default": "./dist/utils/AbiParameters.js"
+    },
+    "./utils/AccessList": {
+      "types": "./dist/utils/AccessList.d.ts",
+      "src": "./src/utils/AccessList.ts",
+      "default": "./dist/utils/AccessList.js"
+    },
     "./utils/Address": {
       "types": "./dist/utils/Address.d.ts",
       "src": "./src/utils/Address.ts",
       "default": "./dist/utils/Address.js"
+    },
+    "./utils/Authorization": {
+      "types": "./dist/utils/Authorization.d.ts",
+      "src": "./src/utils/Authorization.ts",
+      "default": "./dist/utils/Authorization.js"
+    },
+    "./utils/Block": {
+      "types": "./dist/utils/Block.d.ts",
+      "src": "./src/utils/Block.ts",
+      "default": "./dist/utils/Block.js"
+    },
+    "./utils/BlockOverrides": {
+      "types": "./dist/utils/BlockOverrides.d.ts",
+      "src": "./src/utils/BlockOverrides.ts",
+      "default": "./dist/utils/BlockOverrides.js"
     },
     "./utils/Bytes": {
       "types": "./dist/utils/Bytes.d.ts",
@@ -297,6 +352,16 @@
       "src": "./src/utils/ContractAddress.ts",
       "default": "./dist/utils/ContractAddress.js"
     },
+    "./utils/Fee": {
+      "types": "./dist/utils/Fee.d.ts",
+      "src": "./src/utils/Fee.ts",
+      "default": "./dist/utils/Fee.js"
+    },
+    "./utils/Filter": {
+      "types": "./dist/utils/Filter.d.ts",
+      "src": "./src/utils/Filter.ts",
+      "default": "./dist/utils/Filter.js"
+    },
     "./utils/Hash": {
       "types": "./dist/utils/Hash.d.ts",
       "src": "./src/utils/Hash.ts",
@@ -306,6 +371,11 @@
       "types": "./dist/utils/Hex.d.ts",
       "src": "./src/utils/Hex.ts",
       "default": "./dist/utils/Hex.js"
+    },
+    "./utils/Log": {
+      "types": "./dist/utils/Log.d.ts",
+      "src": "./src/utils/Log.ts",
+      "default": "./dist/utils/Log.js"
     },
     "./utils/P256": {
       "types": "./dist/utils/P256.d.ts",
@@ -317,6 +387,11 @@
       "src": "./src/utils/PersonalMessage.ts",
       "default": "./dist/utils/PersonalMessage.js"
     },
+    "./utils/Provider": {
+      "types": "./dist/utils/Provider.d.ts",
+      "src": "./src/utils/Provider.ts",
+      "default": "./dist/utils/Provider.js"
+    },
     "./utils/PublicKey": {
       "types": "./dist/utils/PublicKey.d.ts",
       "src": "./src/utils/PublicKey.ts",
@@ -327,6 +402,26 @@
       "src": "./src/utils/Rlp.ts",
       "default": "./dist/utils/Rlp.js"
     },
+    "./utils/RpcRequest": {
+      "types": "./dist/utils/RpcRequest.d.ts",
+      "src": "./src/utils/RpcRequest.ts",
+      "default": "./dist/utils/RpcRequest.js"
+    },
+    "./utils/RpcResponse": {
+      "types": "./dist/utils/RpcResponse.d.ts",
+      "src": "./src/utils/RpcResponse.ts",
+      "default": "./dist/utils/RpcResponse.js"
+    },
+    "./utils/RpcSchema": {
+      "types": "./dist/utils/RpcSchema.d.ts",
+      "src": "./src/utils/RpcSchema.ts",
+      "default": "./dist/utils/RpcSchema.js"
+    },
+    "./utils/RpcTransport": {
+      "types": "./dist/utils/RpcTransport.d.ts",
+      "src": "./src/utils/RpcTransport.ts",
+      "default": "./dist/utils/RpcTransport.js"
+    },
     "./utils/Secp256k1": {
       "types": "./dist/utils/Secp256k1.d.ts",
       "src": "./src/utils/Secp256k1.ts",
@@ -336,6 +431,56 @@
       "types": "./dist/utils/Signature.d.ts",
       "src": "./src/utils/Signature.ts",
       "default": "./dist/utils/Signature.js"
+    },
+    "./utils/StateOverrides": {
+      "types": "./dist/utils/StateOverrides.d.ts",
+      "src": "./src/utils/StateOverrides.ts",
+      "default": "./dist/utils/StateOverrides.js"
+    },
+    "./utils/Transaction": {
+      "types": "./dist/utils/Transaction.d.ts",
+      "src": "./src/utils/Transaction.ts",
+      "default": "./dist/utils/Transaction.js"
+    },
+    "./utils/TransactionReceipt": {
+      "types": "./dist/utils/TransactionReceipt.d.ts",
+      "src": "./src/utils/TransactionReceipt.ts",
+      "default": "./dist/utils/TransactionReceipt.js"
+    },
+    "./utils/TransactionRequest": {
+      "types": "./dist/utils/TransactionRequest.d.ts",
+      "src": "./src/utils/TransactionRequest.ts",
+      "default": "./dist/utils/TransactionRequest.js"
+    },
+    "./utils/TxEnvelope": {
+      "types": "./dist/utils/TxEnvelope.d.ts",
+      "src": "./src/utils/TxEnvelope.ts",
+      "default": "./dist/utils/TxEnvelope.js"
+    },
+    "./utils/TxEnvelopeEip1559": {
+      "types": "./dist/utils/TxEnvelopeEip1559.d.ts",
+      "src": "./src/utils/TxEnvelopeEip1559.ts",
+      "default": "./dist/utils/TxEnvelopeEip1559.js"
+    },
+    "./utils/TxEnvelopeEip2930": {
+      "types": "./dist/utils/TxEnvelopeEip2930.d.ts",
+      "src": "./src/utils/TxEnvelopeEip2930.ts",
+      "default": "./dist/utils/TxEnvelopeEip2930.js"
+    },
+    "./utils/TxEnvelopeEip4844": {
+      "types": "./dist/utils/TxEnvelopeEip4844.d.ts",
+      "src": "./src/utils/TxEnvelopeEip4844.ts",
+      "default": "./dist/utils/TxEnvelopeEip4844.js"
+    },
+    "./utils/TxEnvelopeEip7702": {
+      "types": "./dist/utils/TxEnvelopeEip7702.d.ts",
+      "src": "./src/utils/TxEnvelopeEip7702.ts",
+      "default": "./dist/utils/TxEnvelopeEip7702.js"
+    },
+    "./utils/TxEnvelopeLegacy": {
+      "types": "./dist/utils/TxEnvelopeLegacy.d.ts",
+      "src": "./src/utils/TxEnvelopeLegacy.ts",
+      "default": "./dist/utils/TxEnvelopeLegacy.js"
     },
     "./utils/TypedData": {
       "types": "./dist/utils/TypedData.d.ts",
@@ -356,6 +501,11 @@
       "types": "./dist/utils/WebCryptoP256.d.ts",
       "src": "./src/utils/WebCryptoP256.ts",
       "default": "./dist/utils/WebCryptoP256.js"
+    },
+    "./utils/Withdrawal": {
+      "types": "./dist/utils/Withdrawal.d.ts",
+      "src": "./src/utils/Withdrawal.ts",
+      "default": "./dist/utils/Withdrawal.js"
     }
   }
 }
