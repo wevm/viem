@@ -3,12 +3,28 @@ import { anvilMainnet } from '~test/anvil.js'
 import { createHttpServer, setVitalikResolver } from '~test/utils.js'
 import { linea, mainnet, optimism } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
+import { custom } from '../../clients/transports/custom.js'
 import { http } from '../../clients/transports/http.js'
+import { universalResolverResolveAbi } from '../../constants/abis.js'
 import { toCoinType } from '../../ens/index.js'
+import { encodeFunctionResult } from '../../utils/abi/encodeFunctionResult.js'
 import { reset } from '../test/reset.js'
 import { getEnsAddress } from './getEnsAddress.js'
 
 const client = anvilMainnet.getClient()
+
+const addressResolverAbi = [
+  {
+    name: 'addr',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { name: 'name', type: 'bytes32' },
+      { name: 'coinType', type: 'uint256' },
+    ],
+    outputs: [{ name: '', type: 'address' }],
+  },
+] as const
 
 beforeAll(async () => {
   await reset(client, {
@@ -133,6 +149,39 @@ test('offchain: gets address for name', async () => {
   ).resolves.toMatchInlineSnapshot(
     `"0x41563129cDbbD0c5D3e1c86cf9563926b243834d"`,
   )
+})
+
+test('offchain: decodes address-encoded coinType response', async () => {
+  const address = '0x534631Bcf33BDb069fB20A93d2fdb9e4D4dD42CF'
+  const resolverAddress = '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e'
+  const data = encodeFunctionResult({
+    abi: universalResolverResolveAbi,
+    functionName: 'resolveWithGateways',
+    result: [
+      encodeFunctionResult({
+        abi: addressResolverAbi,
+        functionName: 'addr',
+        result: address,
+      }),
+      resolverAddress,
+    ],
+  })
+  const client = createClient({
+    transport: custom({
+      async request({ method }) {
+        if (method === 'eth_call') return data
+        return null
+      },
+    }),
+  })
+
+  await expect(
+    getEnsAddress(client, {
+      name: 'pokersback.com',
+      coinType: 60n,
+      universalResolverAddress: resolverAddress,
+    }),
+  ).resolves.toBe(address)
 })
 
 test('offchain: name without address', async () => {
