@@ -1,8 +1,5 @@
 packages:
-  - examples/*
-  - environments/*
   - site
-  - test
 
 catalog:
   '@types/react': ^19
@@ -15,7 +12,6 @@ minimumReleaseAge: 1440
 
 minimumReleaseAgeExclude:
   - '@modelcontextprotocol/sdk'
-  - '@vitest/*'
   - abitype
   - fastify
   - glob
@@ -26,7 +22,6 @@ minimumReleaseAgeExclude:
   - prool
   - qs
   - tar
-  - vitest
   - vocs
   - webpack
   - basic-ftp

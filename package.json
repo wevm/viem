@@ -1,68 +1,54 @@
 {
   "private": true,
   "scripts": {
-    "build": "pnpm exports:update && zile --project tsconfig.build.json && tsc --project ./tsconfig.build.json --outDir ./dist && pnpm exports:update",
-    "changeset:prepublish": "pnpm version:update && pnpm build && bun scripts/prepublishOnly.ts",
+    "build": "pnpm exports:update && zile",
+    "changeset:prepublish": "pnpm version:update && pnpm build",
     "changeset:publish": "zile publish:prepare && changeset publish && zile publish:post",
     "changeset:version": "pnpm install --lockfile-only && changeset version && pnpm version:update && pnpm check",
     "clean": "rm -rf dist *.tsbuildinfo src/*.tsbuildinfo src/_esm src/_cjs src/_types",
     "contracts:build": "forge build --config-path ./contracts/foundry.toml && bun scripts/generateTypedArtifacts.ts",
-    "deps": "pnpx taze -r",
     "docs:dev": "pnpm --filter site dev",
     "docs:build": "pnpm --filter site build",
-    "check": "biome check --write --unsafe",
-    "check:repo": "sherif",
+    "check": "vp check --fix",
+    "check:ci": "vp check",
     "check:types": "tsc -b",
-    "check:unused": "pnpm clean && knip",
+    "check:unused": "knip --production",
     "exports:update": "node --import tsx ./scripts/exports:update.ts",
     "gen:tempo-abis": "bun scripts/generateTempoAbis.ts",
     "postinstall": "git submodule update --init --recursive && pnpm contracts:build",
     "preconstruct": "pnpm dev",
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
-    "prepublishOnly": "bun scripts/prepublishOnly.ts",
     "dev": "pnpm exports:update && zile dev",
+    "format": "vp fmt",
+    "lint": "vp lint",
     "size": "size-limit",
-    "test": "vitest -c ./test/vitest.config.ts",
-    "test:build": "publint --strict . && attw --pack . --profile esm-only",
-    "test:chains": "vitest test/scripts/chains.test.ts",
-    "test:env": "pnpm test:env:bun && pnpm test:env:next && pnpm test:env:node && pnpm test:env:tsc && pnpm test:env:vite",
-    "test:env:bun": "pnpm --filter test-bun test",
-    "test:env:next": "pnpm --filter test-next test",
-    "test:env:node": "pnpm --filter test-node test",
-    "test:env:tsc": "pnpm --filter test-tsc test",
-    "test:env:vite": "pnpm --filter test-vite test",
-    "test:typecheck": "SKIP_GLOBAL_SETUP=true vitest --typecheck.only -c ./test/vitest.config.ts",
-    "test:ui": "vitest dev -c ./test/vitest.config.ts --ui",
+    "test": "vp test",
+    "test:typecheck": "SKIP_GLOBAL_SETUP=true vp test --typecheck.only",
     "vectors": "bun test vectors/**/*.test.ts",
     "vectors:generate": "bun vectors/generate.ts",
     "version:update": "bun scripts/updateVersion.ts"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "^0.18.2",
-    "@biomejs/biome": "^2.2.4",
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.29.7",
     "@paulmillr/trusted-setups": "^0.1.2",
     "@pimlico/alto": "0.0.18",
-    "@remix-run/node-fetch-server": "^0.12.0",
     "@size-limit/preset-big-lib": "^11.2.0",
     "@types/bun": "^1.2.22",
     "@types/node": "^24.5.2",
-    "@vitest/coverage-v8": "^4.0.15",
+    "@voidzero-dev/vite-plus-core": "0.1.21",
     "bun": "^1.2.22",
     "knip": "^5.64.0",
     "micro-eth-signer": "^0.14.0",
     "permissionless": "^0.2.57",
     "prool": "~0.2.3",
-    "publint": "^0.2.12",
-    "sherif": "^0.8.4",
     "simple-git-hooks": "^2.13.1",
     "size-limit": "^11.2.0",
     "testcontainers": "^11.10.0",
     "tsx": "^4.17.0",
     "typescript": "catalog:",
-    "vitest": "^4.0.15",
+    "vp": "npm:vite-plus@0.1.21",
     "zile": "^0.0.25"
   },
   "packageManager": "pnpm@10.33.2",
@@ -75,7 +61,7 @@
   "knip": {
     "ignore": [
       ".github/**",
-      "environments/**",
+      "scripts-old/**",
       "vectors/**",
       "dist/**"
     ],
@@ -86,21 +72,18 @@
       "printf"
     ],
     "ignoreDependencies": [
+      "@noble/curves",
+      "@noble/hashes",
+      "@scure/bip32",
+      "@scure/bip39",
       "bun",
-      "@size-limit/preset-big-lib"
+      "@size-limit/preset-big-lib",
+      "abitype",
+      "isows",
+      "ws"
     ],
-    "ignoreWorkspaces": [
-      "examples/**",
-      "test"
-    ],
-    "vitest": {
-      "config": [
-        "test/vitest.config.ts"
-      ],
-      "entry": [
-        "**/*.{test,test-d,spec}.?(c|m)[jt]s?(x)"
-      ]
-    },
+    "ignoreWorkspaces": [],
+    "vitest": false,
     "workspaces": {
       ".": {
         "project": [
@@ -125,111 +108,35 @@
   },
   "size-limit": [
     {
-      "name": "import * from 'viem' (esm)",
-      "path": "./dist/index.js",
-      "limit": "85 kB",
+      "name": "import * from 'viem/utils'",
+      "path": "./dist/utils/index.js",
+      "limit": "100 kB",
       "import": "*"
     },
     {
-      "name": "import { createClient, http } from 'viem'",
-      "path": "./dist/index.js",
-      "limit": "6.6 kB",
-      "import": "{ createClient, http }"
-    },
-    {
-      "name": "import * from 'viem/account-abstraction'",
-      "path": "./dist/account-abstraction/index.js",
-      "limit": "60 kB",
+      "name": "import * from 'viem/utils/Bytes'",
+      "path": "./dist/utils/Bytes.js",
+      "limit": "100 kB",
       "import": "*"
     },
     {
-      "name": "import * from 'viem/accounts'",
-      "path": "./dist/accounts/index.js",
-      "limit": "97 kB",
+      "name": "import * from 'viem/utils/Hex'",
+      "path": "./dist/utils/Hex.js",
+      "limit": "100 kB",
       "import": "*"
     },
     {
-      "name": "import { privateKeyToAccount } from 'viem/accounts'",
-      "path": "./dist/accounts/index.js",
-      "limit": "22 kB",
-      "import": "{ privateKeyToAccount }"
-    },
-    {
-      "name": "import { mnemonicToAccount } from 'viem/accounts'",
-      "path": "./dist/accounts/index.js",
-      "limit": "30 kB",
-      "import": "{ mnemonicToAccount }"
-    },
-    {
-      "name": "import * from 'viem/actions'",
-      "path": "./dist/actions/index.js",
-      "limit": "69 kB",
+      "name": "import * from 'viem/utils/Value'",
+      "path": "./dist/utils/Value.js",
+      "limit": "100 kB",
       "import": "*"
-    },
-    {
-      "name": "import { getBlockNumber } from 'viem/actions'",
-      "path": "./dist/actions/index.js",
-      "limit": "1 kB",
-      "import": "{ getBlockNumber }"
-    },
-    {
-      "name": "import * from 'viem/chains'",
-      "path": "./dist/chains/index.js",
-      "limit": "107 kB",
-      "import": "*"
-    },
-    {
-      "name": "import { mainnet } from 'viem/chains'",
-      "path": "./dist/chains/index.js",
-      "limit": "500 B",
-      "import": "{ mainnet }"
-    },
-    {
-      "name": "import { tempoTestnet } from 'viem/chains'",
-      "path": "./dist/chains/index.js",
-      "limit": "64 kB",
-      "import": "{ tempoTestnet }"
-    },
-    {
-      "name": "import * from 'viem/chains/utils'",
-      "path": "./dist/chains/utils.js",
-      "limit": "8 kB",
-      "import": "*"
-    },
-    {
-      "name": "import * from 'viem/ens'",
-      "path": "./dist/ens/index.js",
-      "limit": "53 kB",
-      "import": "*"
-    },
-    {
-      "name": "import { getEnsAvatar } from 'viem/ens'",
-      "path": "./dist/ens/index.js",
-      "limit": "28 kB",
-      "import": "{ getEnsAvatar }"
-    },
-    {
-      "name": "import * from 'viem/siwe'",
-      "path": "./dist/siwe/index.js",
-      "limit": "49 kB",
-      "import": "*"
-    },
-    {
-      "name": "import { verifySiweMessage } from 'viem/siwe'",
-      "path": "./dist/siwe/index.js",
-      "limit": "48 kB",
-      "import": "{ verifySiweMessage }"
-    },
-    {
-      "name": "import { verifyHash } from 'viem/actions'",
-      "path": "./dist/actions/index.js",
-      "limit": "47 kB",
-      "import": "{ verifyHash }"
     }
   ],
   "pnpm": {
     "overrides": {
       "typescript": "^5.9.3",
+      "vite": "npm:@voidzero-dev/vite-plus-core@0.1.21",
+      "vitest": "npm:@voidzero-dev/vite-plus-test@0.1.21",
       "@opentelemetry/api@^1.8.0": "~1.7.0",
       "permissionless>viem": "workspace:*",
       "@babel/helpers@<7.26.10": "7.26.10",
@@ -276,8 +183,6 @@
       "tar": ">=7.5.10",
       "tar-fs@>=3.0.0 <3.1.1": ">=3.1.1",
       "undici@>=7.0.0 <7.24.0": "7.24.0",
-      "vite@>=6.0.0 <=6.4.1": "6.4.2",
-      "vite@>=7.0.0 <=7.3.1": "7.3.2",
       "webpack@>=5.49.0 <=5.104.0": "5.104.1",
       "ws@>=7.0.0 <7.5.10": "^7.5.10",
       "ws@>=8.0.0 <8.17.1": "^8.17.1",
@@ -323,7 +228,7 @@
     "@scure/bip39": "1.6.0",
     "abitype": "1.2.3",
     "isows": "1.0.7",
-    "ox": "0.14.20",
+    "ox": "https://pkg.pr.new/ox@6a35dbd",
     "ws": "8.18.3"
   },
   "peerDependencies": {
@@ -367,26 +272,90 @@
       "src": "./src/index.ts",
       "default": "./dist/index.js"
     },
+    "./BaseError": {
+      "types": "./dist/core/BaseError.d.ts",
+      "src": "./src/core/BaseError.ts",
+      "default": "./dist/core/BaseError.js"
+    },
     "./utils": {
       "types": "./dist/utils/index.d.ts",
       "src": "./src/utils/index.ts",
       "default": "./dist/utils/index.js"
+    },
+    "./utils/Address": {
+      "types": "./dist/utils/Address.d.ts",
+      "src": "./src/utils/Address.ts",
+      "default": "./dist/utils/Address.js"
     },
     "./utils/Bytes": {
       "types": "./dist/utils/Bytes.d.ts",
       "src": "./src/utils/Bytes.ts",
       "default": "./dist/utils/Bytes.js"
     },
+    "./utils/ContractAddress": {
+      "types": "./dist/utils/ContractAddress.d.ts",
+      "src": "./src/utils/ContractAddress.ts",
+      "default": "./dist/utils/ContractAddress.js"
+    },
+    "./utils/Hash": {
+      "types": "./dist/utils/Hash.d.ts",
+      "src": "./src/utils/Hash.ts",
+      "default": "./dist/utils/Hash.js"
+    },
     "./utils/Hex": {
       "types": "./dist/utils/Hex.d.ts",
       "src": "./src/utils/Hex.ts",
       "default": "./dist/utils/Hex.js"
+    },
+    "./utils/P256": {
+      "types": "./dist/utils/P256.d.ts",
+      "src": "./src/utils/P256.ts",
+      "default": "./dist/utils/P256.js"
+    },
+    "./utils/PersonalMessage": {
+      "types": "./dist/utils/PersonalMessage.d.ts",
+      "src": "./src/utils/PersonalMessage.ts",
+      "default": "./dist/utils/PersonalMessage.js"
+    },
+    "./utils/PublicKey": {
+      "types": "./dist/utils/PublicKey.d.ts",
+      "src": "./src/utils/PublicKey.ts",
+      "default": "./dist/utils/PublicKey.js"
+    },
+    "./utils/Rlp": {
+      "types": "./dist/utils/Rlp.d.ts",
+      "src": "./src/utils/Rlp.ts",
+      "default": "./dist/utils/Rlp.js"
+    },
+    "./utils/Secp256k1": {
+      "types": "./dist/utils/Secp256k1.d.ts",
+      "src": "./src/utils/Secp256k1.ts",
+      "default": "./dist/utils/Secp256k1.js"
+    },
+    "./utils/Signature": {
+      "types": "./dist/utils/Signature.d.ts",
+      "src": "./src/utils/Signature.ts",
+      "default": "./dist/utils/Signature.js"
+    },
+    "./utils/TypedData": {
+      "types": "./dist/utils/TypedData.d.ts",
+      "src": "./src/utils/TypedData.ts",
+      "default": "./dist/utils/TypedData.js"
     },
     "./utils/Value": {
       "types": "./dist/utils/Value.d.ts",
       "src": "./src/utils/Value.ts",
       "default": "./dist/utils/Value.js"
     },
-    "./package.json": "./package.json"
+    "./utils/WebAuthnP256": {
+      "types": "./dist/utils/WebAuthnP256.d.ts",
+      "src": "./src/utils/WebAuthnP256.ts",
+      "default": "./dist/utils/WebAuthnP256.js"
+    },
+    "./utils/WebCryptoP256": {
+      "types": "./dist/utils/WebCryptoP256.d.ts",
+      "src": "./src/utils/WebCryptoP256.ts",
+      "default": "./dist/utils/WebCryptoP256.js"
+    }
   }
 }

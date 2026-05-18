@@ -11,6 +11,7 @@
 - **`type` over `interface` by default** -- use `type` for project-owned shapes. Ambient declarations and DOM-shaped compatibility types may use `interface`.
 - **`.js` extensions** -- all relative source imports include `.js` for ESM compatibility.
 - **Follow local import style** -- viem uses both namespace imports and named internal imports. Match the surrounding file instead of mass-converting import lists.
+- **Conflicting external aliases** -- when importing an external symbol that conflicts with a local module/export, alias it as `<library>_<Symbol>` with a lowercase library prefix, e.g. `import { BaseError as ox_BaseError } from 'ox/Errors'`.
 - **Classes for errors only** -- all other APIs use functions and plain data.
 - **Errors live next to the code that throws them** -- module-specific failure classes live inside the module that owns the failure mode. Place each error class near the bottom of the module so the public functions and types are what the reader sees first. Set `name` to the namespaced form (`'Hex.InvalidHexValueError'`, `'SignatureEnvelope.VerificationError'`, etc.) when the module uses that pattern.
 - **No enums** -- use union types or `as const` objects for fixed sets.
@@ -56,7 +57,7 @@
 - **Canonical root imports** -- the v3 root public shape is `import { Account, BaseError, Chain, Client, Transport, http } from 'viem'`. Root exports PascalCase viem-owned modules, the special `BaseError`, and flat transport factories.
 - **Root modules are PascalCase namespaces** -- expose viem-owned APIs through modules such as `Account`, `Chain`, `Client`, and `Transport`. Keep namespace methods concise, e.g. `Client.create`, `Account.fromPrivateKey`, and `Chain.define`.
 - **Core module subpaths are PascalCase** -- support direct module imports such as `import * as Client from 'viem/Client'`, `import * as Account from 'viem/Account'`, `import * as Chain from 'viem/Chain'`, and `import * as Transport from 'viem/Transport'`.
-- **No public `Key` module** -- do not introduce viem-owned public key APIs. Account creation and signing live under `Account`, and implementation should use Ox crypto modules such as `Secp256k1` directly where needed.
+- **No generic `Key` module** -- do not introduce a generic viem-owned `Key` abstraction. Curve-specific Ox modules (`Secp256k1`, `P256`, `WebAuthnP256`, `WebCryptoP256`, `PublicKey`) are re-exported under `viem/utils` and host all verify / recover / sign surfaces at the curve level. `Account.sign(...)` remains the high-level entrypoint for managed-key accounts; curve modules are the primitive entrypoint for raw-key flows.
 - **No root `Errors` namespace** -- use Ox's `BaseError` as viem's versioned base error and export it as the special flat root `BaseError`. Other errors stay colocated on the module that owns them, e.g. `Account.InvalidPrivateKeyError` or `actions.contract.ContractFunctionExecutionError`.
 - **Actions live in the lowercase collection subpath** -- do not export a root `Actions` module. Document actions through `import * as actions from 'viem/actions'`.
 - **Action namespaces are callable functions** -- expose standalone actions as nested properties on callable namespaces, e.g. `actions.public.getBalance`, `actions.wallet.sendTransaction`, `actions.ens.getAddress`, `actions.contract.read`, and `actions.test.mine`.
@@ -72,7 +73,7 @@
 - **No `viem/chains/utils`** -- keep `viem/chains` for chain constants only. Move chain helper behavior to `Chain.*`.
 - **Quantity inputs are flexible, normalized values are not** -- user-facing quantity inputs may accept hex, number, or bigint where appropriate. Normalize chain IDs, block numbers, gas, nonce, value, and fee quantities to bigint in viem domain objects, and serialize to hex only at RPC boundaries. Do not leak `Hex | number | bigint` unions into normalized return types.
 - **Clients are created through `Client.create`** -- replace `createClient`, `createPublicClient`, `createWalletClient`, and `createTestClient` with `Client.create(...).extend(actions.public())` and related decorators.
-- **Ox-backed utilities live in `viem/utils`** -- export Ox-backed modules such as `Abi`, `Address`, `Bytes`, `Hex`, `Value`, `Hash`, `Signature`, `Transaction`, `TransactionRequest`, `TransactionReceipt`, `Block`, `Log`, and RPC/provider modules from `viem/utils`.
+- **Ox-backed utilities live in `viem/utils`** -- export Ox-backed modules such as `Abi`, `Address`, `Bytes`, `Hex`, `Value`, `Hash`, `Signature`, `PublicKey`, `Secp256k1`, `P256`, `WebAuthnP256`, `WebCryptoP256`, `Transaction`, `TransactionRequest`, `TransactionReceipt`, `Block`, `Log`, and RPC/provider modules from `viem/utils`.
 - **Utility module subpaths mirror Ox** -- support `import { Hex } from 'viem/utils'` and `import * as Hex from 'viem/utils/Hex'`. Proxy Ox module names and method names exactly instead of preserving v2 utility wrapper names.
 - **Utility types live inside modules** -- do not export same-name flat type aliases from `viem/utils`; prefer module types such as `Hex.Hex`, `Address.Address`, and `Signature.Signature`.
 - **No `abitype` flat re-exports** -- do not expose flat `parseAbi`, `parseAbiItem`, or similar `abitype` re-exports from `viem/utils`. Use Ox ABI modules or module methods instead.
@@ -138,7 +139,7 @@
 - **Use `pnpm test` for tests** -- run tests through package scripts, not `vitest` directly.
 - **Target the relevant project** -- prefer `pnpm test --project core --bail=1` or another focused project command over the full matrix while iterating.
 - **Colocate tests** -- unit tests live beside their modules. For new Ox-style modules, prefer `src/**/_test/*.test.ts`; keep existing viem test locations unless the module is being moved.
-- **Wrap function exports in `describe`** -- every test file targets one or more exported functions; each function gets its own `describe('functionName', () => { ... })` block when that matches local style.
+- **Wrap function exports in `describe`** -- every unit and type test file targets one or more exported functions; each function gets its own `describe('functionName', () => { ... })` block.
 - **Inline snapshots over direct assertions** -- prefer `toMatchInlineSnapshot()` over `.toBe()`, `.toEqual()`, etc. for stable return values. Use `toThrowErrorMatchingInlineSnapshot()` for error assertions.
 - **Snapshot whole objects, omit nondeterministic properties** -- destructure out nondeterministic fields and snapshot the rest, rather than cherry-picking individual fields to assert.
 - **Fuzz regressions become deterministic** -- when a property fails, add the minimized case as a regular `*.test.ts` or vector fixture.
@@ -150,10 +151,11 @@
 
 - **Use targeted commands** -- prefer the smallest command that covers the touched behavior.
 - **Types** -- run `pnpm check:types` or a focused `tsc` command after TypeScript changes.
-- **Package shape** -- run `pnpm test:build` when package metadata, exports, or build output changes.
-- **Repo checks** -- run `pnpm check:repo` when package metadata or workspace shape changes.
+- **Package shape** -- run `pnpm build` when package metadata, exports, or build output changes.
 - **Docs dev server** -- use `pnpm docs:dev` for documentation UI work.
-- **`pnpm check` mutates** -- it runs `biome check --write --unsafe`. Use it only when intentionally applying lint/format fixes.
+- **`pnpm check` mutates** -- it runs `vp check --fix` using root `vite.config.ts`. Use it only when intentionally applying lint/format fixes.
+- **Vite+ owns test/lint/format config** -- keep test, lint, and format settings in root `vite.config.ts`; do not reintroduce `test/vitest.config.ts` or `biome.json`.
+- **Vite+ is aliased as `vp`** -- keep the package dependency under the `vp` alias. Import config helpers from `vp` and test helpers from `vp/test`.
 - **`pnpm exports:update` mutates** -- it rewrites `package.json#exports`.
 - **`pnpm build` mutates** -- it emits `dist/` and refreshes generated exports.
 - **Install hooks can mutate** -- `pnpm install` runs `postinstall`, which initializes submodules and builds contracts.
@@ -172,9 +174,10 @@
 
 ## Learned Workspace Facts
 
-- **Source layout** -- source lives in `src/`; docs live in `site`; shared test utilities live in `test`; vectors live in `vectors`; contracts live in `contracts`.
+- **Source layout** -- source lives in `src/`; docs live in `site`; v3 test scaffolding lives in `test`; legacy v2 test references live in `test-old`; vectors live in `vectors`; contracts live in `contracts`.
 - **Node and pnpm** -- the repo currently expects Node.js `>=24.5` and `pnpm@10.33.2`.
 - **Generated exports** -- `scripts/exports:update.ts` derives `package.json#exports` from `src/`. It maps top-level `src/<entry>/index.ts`, selected nested entrypoints, and PascalCase module files.
+- **Script layout** -- active v3 scripts live in `scripts/`; legacy v2 scripts live in `scripts-old/` for reference only.
 - **Tempo instructions are scoped** -- Tempo-specific action-generation guidance lives in `src/tempo/AGENTS.md`.
 - **Migration reference** -- v3 consumer and agent API reference lives in `.agents/skills/viem-v3-migration/`.
 - **Contracts submodule** -- contract dependencies may involve submodules. Treat submodule status changes as user work unless the task is specifically about contracts setup.

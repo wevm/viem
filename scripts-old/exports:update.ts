@@ -67,19 +67,18 @@ for (const nestedDir of [...nestedIndexDirs].sort()) {
   } catch {}
 }
 
-for (const file of findPascalCaseModules(srcPath)) {
-  const modulePath = file.replace(/\.ts$/, '')
-  const key = modulePath.startsWith('core/')
-    ? `./${modulePath.slice('core/'.length)}`
-    : `./${modulePath}`
-  entries.push(entry(key, `./src/${file}`))
-}
+for (const file of findPascalCaseModules(srcPath))
+  entries.push(entry(`./${file.replace(/\.ts$/, '')}`, `./src/${file}`))
+
+entries.push(['./package.json', './package.json'])
 
 const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'))
 packageJson.exports = Object.fromEntries(
   entries.sort(([a], [b]) => {
     if (a === '.') return -1
     if (b === '.') return 1
+    if (a === './package.json') return 1
+    if (b === './package.json') return -1
     return a.localeCompare(b)
   }),
 )
