@@ -1,8 +1,10 @@
 import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { createHttpServer } from '~test/utils.js'
+import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
-import { localhost } from '../../chains/index.js'
+import { sendTransaction } from '../../actions/wallet/sendTransaction.js'
+import { localhost, mainnet } from '../../chains/index.js'
 import {
   InternalRpcError,
   MethodNotSupportedRpcError,
@@ -12,7 +14,9 @@ import {
 import { wait } from '../../utils/wait.js'
 import { createClient } from '../createClient.js'
 import { createPublicClient } from '../createPublicClient.js'
+import { createWalletClient } from '../createWalletClient.js'
 import type { Transport } from './createTransport.js'
+import { custom } from './custom.js'
 import {
   type FallbackTransport,
   fallback,
@@ -810,6 +814,61 @@ describe('client', () => {
 
     expect(await getBlockNumber(client)).toBe(1n)
     expect(count).toBe(2)
+  })
+
+  test('sendTransaction retries the operation on a single transport', async () => {
+    const account = privateKeyToAccount(
+      '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    )
+    const calls: string[] = []
+    const hash =
+      '0x1111111111111111111111111111111111111111111111111111111111111111'
+
+    const client = createWalletClient({
+      account,
+      chain: mainnet,
+      transport: fallback([
+        custom({
+          async request({ method }) {
+            calls.push(`a:${method}`)
+            if (method === 'eth_getTransactionCount') return '0x0'
+            if (method === 'eth_sendRawTransaction')
+              throw { code: -32000, message: 'nonce too low' }
+            throw new Error(`unexpected method: ${method}`)
+          },
+        }),
+        custom({
+          async request({ method }) {
+            calls.push(`b:${method}`)
+            if (method === 'eth_getTransactionCount') return '0x1'
+            if (method === 'eth_sendRawTransaction') return hash
+            throw new Error(`unexpected method: ${method}`)
+          },
+        }),
+      ]),
+    })
+
+    expect(
+      await sendTransaction(client, {
+        chainId: mainnet.id,
+        gas: 21_000n,
+        maxFeePerGas: 1n,
+        maxPriorityFeePerGas: 1n,
+        to: account.address,
+        type: 'eip1559',
+        value: 1n,
+      }),
+    ).toBe(hash)
+    expect(calls).toMatchInlineSnapshot(`
+      [
+        "a:eth_fillTransaction",
+        "a:eth_getTransactionCount",
+        "a:eth_sendRawTransaction",
+        "b:eth_fillTransaction",
+        "b:eth_getTransactionCount",
+        "b:eth_sendRawTransaction",
+      ]
+    `)
   })
 
   test('all error (non deterministic)', async () => {

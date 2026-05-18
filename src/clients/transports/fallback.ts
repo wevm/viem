@@ -34,6 +34,18 @@ export type OnResponseFn = (
   ),
 ) => void
 
+export type FallbackTransportRetryFn = <returnType>(
+  fn: (parameters: {
+    index: number
+    transport: ReturnType<Transport>
+  }) => Promise<returnType>,
+) => Promise<returnType>
+
+const retryByRequest = new WeakMap<
+  ReturnType<Transport>['request'],
+  FallbackTransportRetryFn
+>()
+
 type RankOptions = {
   /**
    * The polling interval (in ms) at which the ranker should ping the RPC URL.
@@ -121,6 +133,62 @@ export function fallback<const transports extends readonly Transport[]>(
 
     let onResponse: OnResponseFn = () => {}
 
+    const getTransport = (i: number) => {
+      const transport = transports[i]({
+        ...rest,
+        chain,
+        retryCount: 0,
+        timeout,
+      })
+      return {
+        ...transport,
+        async request({ method, params }, options) {
+          try {
+            const response = await transport.request(
+              {
+                method,
+                params,
+              } as any,
+              options,
+            )
+
+            onResponse({
+              method,
+              params: params as unknown[],
+              response,
+              transport,
+              status: 'success',
+            })
+
+            return response
+          } catch (err) {
+            onResponse({
+              error: err as Error,
+              method,
+              params: params as unknown[],
+              transport,
+              status: 'error',
+            })
+
+            throw err
+          }
+        },
+      } as ReturnType<Transport>
+    }
+
+    const retry: FallbackTransportRetryFn = async (fn) => {
+      const fetch = async (i = 0): Promise<any> => {
+        try {
+          return await fn({ index: i, transport: getTransport(i) })
+        } catch (err) {
+          if (shouldThrow_(err as Error)) throw err
+          if (i === transports.length - 1) throw err
+          return fetch(i + 1)
+        }
+      }
+      return fetch()
+    }
+
     const transport = createTransport(
       {
         key,
@@ -129,36 +197,15 @@ export function fallback<const transports extends readonly Transport[]>(
           let includes: boolean | undefined
 
           const fetch = async (i = 0): Promise<any> => {
-            const transport = transports[i]({
-              ...rest,
-              chain,
-              retryCount: 0,
-              timeout,
-            })
+            const transport = getTransport(i)
             try {
               const response = await transport.request({
                 method,
                 params,
               } as any)
 
-              onResponse({
-                method,
-                params: params as unknown[],
-                response,
-                transport,
-                status: 'success',
-              })
-
               return response
             } catch (err) {
-              onResponse({
-                error: err as Error,
-                method,
-                params: params as unknown[],
-                transport,
-                status: 'error',
-              })
-
               if (shouldThrow_(err as Error)) throw err
 
               // If we've reached the end of the fallbacks, throw the error.
@@ -186,9 +233,12 @@ export function fallback<const transports extends readonly Transport[]>(
       },
       {
         onResponse: (fn: OnResponseFn) => (onResponse = fn),
-        transports: transports.map((fn) => fn({ chain, retryCount: 0 })),
+        transports: transports.map((_, i) => getTransport(i)) as {
+          [key in keyof transports]: ReturnType<transports[key]>
+        },
       },
     )
+    retryByRequest.set(transport.request, retry)
 
     if (rank) {
       const rankOptions = (typeof rank === 'object' ? rank : {}) as RankOptions
@@ -208,6 +258,7 @@ export function fallback<const transports extends readonly Transport[]>(
 }
 
 export function shouldThrow(error: Error) {
+  if (error.name === 'TransactionReceiptRevertedError') return true
   if ('code' in error && typeof error.code === 'number') {
     if (
       error.code === TransactionRejectedRpcError.code ||
@@ -219,6 +270,11 @@ export function shouldThrow(error: Error) {
       return true
   }
   return false
+}
+
+/** @internal */
+export function getFallbackRetry(request: ReturnType<Transport>['request']) {
+  return retryByRequest.get(request)
 }
 
 /** @internal */

@@ -52,6 +52,10 @@ import {
   type AssertRequestParameters,
   assertRequest,
 } from '../../utils/transaction/assertRequest.js'
+import {
+  getFallbackRetry,
+  withRetryingTransport,
+} from '../../utils/withRetryingTransport.js'
 import { type GetChainIdErrorType, getChainId } from '../public/getChainId.js'
 import {
   defaultParameters,
@@ -310,56 +314,80 @@ export async function sendTransaction<
     }
 
     if (account?.type === 'local') {
-      if (account.nonceManager && typeof nonce === 'undefined') {
-        const requestChainId = (rest as unknown as { chainId?: number }).chainId
-        const chainId = await (async () => {
-          if (typeof requestChainId === 'number') return requestChainId
-          if (chain) return chain.id
-          return getAction(client, getChainId, 'getChainId')({})
-        })()
-        nonceManagerParameters = { address: account.address, chainId }
+      const send = async (
+        client_: Client<Transport, chain, account>,
+      ): Promise<SendTransactionReturnType> => {
+        nonceManagerParameters = undefined
+        if (account.nonceManager && typeof nonce === 'undefined') {
+          const requestChainId = (rest as unknown as { chainId?: number })
+            .chainId
+          const chainId = await (async () => {
+            if (typeof requestChainId === 'number') return requestChainId
+            if (chain) return chain.id
+            return getAction(client_, getChainId, 'getChainId')({})
+          })()
+          nonceManagerParameters = { address: account.address, chainId }
+        }
+
+        // Prepare the request for signing (assign appropriate fees, etc.)
+        const request = await getAction(
+          client_,
+          prepareTransactionRequest,
+          'prepareTransactionRequest',
+        )({
+          account,
+          accessList,
+          authorizationList,
+          blobs,
+          chain,
+          data: dataSuffix ? concat([data ?? '0x', dataSuffix]) : data,
+          gas,
+          gasPrice,
+          maxFeePerBlobGas,
+          maxFeePerGas,
+          maxPriorityFeePerGas,
+          nonce,
+          nonceManager: account.nonceManager,
+          parameters: [...defaultParameters, 'sidecars'],
+          type,
+          value,
+          ...rest,
+          to,
+        } as any)
+
+        const serializer = chain?.serializers?.transaction
+        const serializedTransaction = (await account.signTransaction(
+          request as never,
+          {
+            serializer,
+          },
+        )) as Hash
+        return await getAction(
+          client_,
+          sendRawTransaction,
+          'sendRawTransaction',
+        )({
+          serializedTransaction,
+        })
       }
 
-      // Prepare the request for signing (assign appropriate fees, etc.)
-      const request = await getAction(
-        client,
-        prepareTransactionRequest,
-        'prepareTransactionRequest',
-      )({
-        account,
-        accessList,
-        authorizationList,
-        blobs,
-        chain,
-        data: dataSuffix ? concat([data ?? '0x', dataSuffix]) : data,
-        gas,
-        gasPrice,
-        maxFeePerBlobGas,
-        maxFeePerGas,
-        maxPriorityFeePerGas,
-        nonce,
-        nonceManager: account.nonceManager,
-        parameters: [...defaultParameters, 'sidecars'],
-        type,
-        value,
-        ...rest,
-        to,
-      } as any)
+      const retry = getFallbackRetry(client)
+      if (retry)
+        return await retry(async ({ index, transport }) => {
+          try {
+            return await send(
+              withRetryingTransport(client, { index, transport }) as never,
+            )
+          } catch (err) {
+            if (nonceManagerParameters) {
+              account.nonceManager?.reset(nonceManagerParameters)
+              nonceManagerParameters = undefined
+            }
+            throw err
+          }
+        })
 
-      const serializer = chain?.serializers?.transaction
-      const serializedTransaction = (await account.signTransaction(
-        request as never,
-        {
-          serializer,
-        },
-      )) as Hash
-      return await getAction(
-        client,
-        sendRawTransaction,
-        'sendRawTransaction',
-      )({
-        serializedTransaction,
-      })
+      return await send(client)
     }
 
     if (account?.type === 'smart')
