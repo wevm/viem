@@ -83,8 +83,17 @@
 - **Experimental root is removed** -- v3 removes the `viem/experimental` entrypoint instead of carrying an experimental namespace forward.
 - **Removed experimental modules** -- v3 removes the experimental ERC-7739, ERC-7715, ERC-7811, ERC-7821, and ERC-7895 modules.
 - **ERC-7846 folds into wallet actions** -- review the ERC-7846 API before migration, then stabilize it under `actions.wallet` and `client.wallet` instead of creating a new entrypoint.
-- **No runtime compatibility shims** -- do not add `viem/compat` or public compatibility aliases for removed v2 APIs. Migration support belongs in docs and `.agents/skills/viem-v3-migration`.
+- **No runtime compatibility shims** -- do not add `viem/compat` or public compatibility aliases for removed v2 APIs. Migration process notes belong in `AGENTS.md` and human docs; landed API reference belongs in `.agents/skills/viem-v3-migration`.
 - **Deprecations are removed in v3** -- resolve `@deprecated` exports, aliases, entrypoints, and v3 TODO compatibility paths instead of carrying them forward.
+
+## Viem v3 Migration Conventions
+
+- **Reference, not workflow** -- `.agents/skills/viem-v3-migration` is a consumer and agent API reference for landed v3 surfaces. Do not turn it into a step-by-step migration guide.
+- **Document only landed rewrites** -- add to the migration reference only after the module has been rewritten and exported in v3. Do not add future mappings from the plan.
+- **Migration notes live here** -- repo workflow guidance, compatibility policy, and migration process notes belong in `AGENTS.md`, not in the skill.
+- **No automatic rewrites by default** -- do not rewrite consumer code or add codemods unless the project owner explicitly asks for that.
+- **Migration batches stay small** -- when helping a consumer move to v3 APIs, prefer small typechecked batches and run the consuming project's tests/typecheck.
+- **Hard break** -- v3 does not ship runtime compatibility shims for removed v2 APIs.
 
 ## Project Shape
 
@@ -165,8 +174,8 @@
 
 - **Source layout** -- source lives in `src/`; docs live in `site`; shared test utilities live in `test`; vectors live in `vectors`; contracts live in `contracts`.
 - **Node and pnpm** -- the repo currently expects Node.js `>=24.5` and `pnpm@10.33.2`.
-- **Generated exports** -- `scripts/exports:update.ts` derives `package.json#exports` from `src/`. It maps top-level `src/<entry>/index.ts`, selected nested entrypoints, and explicit files such as `src/chains/utils.ts`.
+- **Generated exports** -- `scripts/exports:update.ts` derives `package.json#exports` from `src/`. It maps top-level `src/<entry>/index.ts`, selected nested entrypoints, and PascalCase module files.
 - **Tempo instructions are scoped** -- Tempo-specific action-generation guidance lives in `src/tempo/AGENTS.md`.
-- **Migration skill** -- v3 consumer migration guidance and the deterministic scanner live in `.agents/skills/viem-v3-migration/`.
+- **Migration reference** -- v3 consumer and agent API reference lives in `.agents/skills/viem-v3-migration/`.
 - **Contracts submodule** -- contract dependencies may involve submodules. Treat submodule status changes as user work unless the task is specifically about contracts setup.
 - **Secrets are local** -- `.env` is local. Do not print, rewrite, or commit secrets.

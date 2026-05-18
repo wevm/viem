@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 
 // Generates package.json#exports from source entrypoints.
@@ -7,7 +7,8 @@ import { join, relative } from 'node:path'
 // - ./src/index.ts                 -> .
 // - ./src/<dir>/index.ts           -> ./<dir>
 // - ./src/<dir>/<nested>/index.ts  -> ./<dir>/<nested>
-// - ./src/chains/utils.ts          -> ./chains/utils
+// - ./src/<PascalCase>.ts          -> ./<PascalCase>
+// - ./src/<dir>/<PascalCase>.ts    -> ./<dir>/<PascalCase>
 //
 // Lowercase implementation files are intentionally not exported. Viem v3 keeps
 // public file boundaries explicit while the rest of the migration moves APIs
@@ -25,8 +26,6 @@ const nestedIndexDirs = new Set([
   'tempo/actions',
   'tempo/zones',
 ])
-
-const explicitFiles = new Set(['chains/utils.ts'])
 
 function entry(key: string, sourcePath: string) {
   const distPath = sourcePath
@@ -68,11 +67,8 @@ for (const nestedDir of [...nestedIndexDirs].sort()) {
   } catch {}
 }
 
-for (const file of [...explicitFiles].sort()) {
-  const filePath = join(srcPath, file)
-  readFileSync(filePath)
+for (const file of findPascalCaseModules(srcPath))
   entries.push(entry(`./${file.replace(/\.ts$/, '')}`, `./src/${file}`))
-}
 
 entries.push(['./package.json', './package.json'])
 
@@ -91,3 +87,24 @@ writeFileSync(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`)
 
 const displayPath = relative(process.cwd(), packageJsonPath)
 console.log(`Updated ${displayPath}#exports with ${entries.length} entries.`)
+
+function findPascalCaseModules(path: string, prefix = '') {
+  const files: string[] = []
+  for (const dirent of readdirSync(path, { withFileTypes: true })) {
+    if (dirent.name.startsWith('_') || dirent.name.startsWith('.')) continue
+    const filePath = join(path, dirent.name)
+    const fileName = prefix ? `${prefix}/${dirent.name}` : dirent.name
+    if (dirent.isDirectory()) {
+      files.push(...findPascalCaseModules(filePath, fileName))
+      continue
+    }
+    if (!dirent.name.endsWith('.ts')) continue
+    if (dirent.name.endsWith('.test.ts')) continue
+    if (dirent.name.endsWith('.test-d.ts')) continue
+    if (dirent.name === 'index.ts') continue
+    if (!/^[A-Z]/.test(dirent.name)) continue
+    if (!statSync(filePath).isFile()) continue
+    files.push(fileName)
+  }
+  return files.sort()
+}

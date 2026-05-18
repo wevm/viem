@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["./**/*.ts"],
+  "exclude": [
+    "./**/*.test.ts",
+    "./**/*.test-d.ts",
+    "./**/*.snap-d.ts",
+    "./**/*.browser.test.ts"
+  ]
+}
