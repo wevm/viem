@@ -95,6 +95,14 @@ export default defineConfig({
   twoslash: {
     throws: false,
     twoslashOptions: {
+      vfsRoot: '..',
+      compilerOptions: {
+        baseUrl: '.',
+        paths: {
+          viem: ['../src/index.ts'],
+          'viem/*': ['../src/*/index.ts', '../src/*.ts'],
+        },
+      },
       handbookOptions: {
         // FIXME: fix all twoslash errors.
         noErrors: true,
