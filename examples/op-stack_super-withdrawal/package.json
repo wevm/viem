@@ -1,0 +1,16 @@
+{
+  "name": "example-op-stack-super-withdrawal",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx --tsconfig tsconfig.json index.ts"
+  },
+  "dependencies": {
+    "viem": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

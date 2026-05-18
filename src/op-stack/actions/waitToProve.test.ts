@@ -1,11 +1,97 @@
-import { expect, test } from 'vitest'
+import { afterEach, expect, test, vi } from 'vitest'
 import { anvilMainnet, anvilOptimism } from '~test/anvil.js'
 import { getTransactionReceipt, reset } from '../../actions/index.js'
 
+import * as getWithdrawalsModule from '../utils/getWithdrawals.js'
+import * as getPortalVersionModule from './getPortalVersion.js'
+import * as waitForNextGameModule from './waitForNextGame.js'
+import * as waitForNextL2OutputModule from './waitForNextL2Output.js'
 import { waitToProve } from './waitToProve.js'
 
 const client = anvilMainnet.getClient()
 const optimismClient = anvilOptimism.getClient()
+
+const withdrawal = {
+  data: '0x',
+  gasLimit: 0n,
+  nonce: 0n,
+  sender: '0x0000000000000000000000000000000000000001',
+  target: '0x0000000000000000000000000000000000000002',
+  value: 0n,
+  withdrawalHash:
+    '0x0000000000000000000000000000000000000000000000000000000000000003',
+} as const
+
+afterEach(() => {
+  vi.restoreAllMocks()
+})
+
+test('args: l2Timestamp', async () => {
+  vi.spyOn(getWithdrawalsModule, 'getWithdrawals').mockReturnValueOnce([
+    withdrawal,
+  ])
+  vi.spyOn(getPortalVersionModule, 'getPortalVersion').mockResolvedValueOnce({
+    major: 3,
+    minor: 0,
+    patch: 0,
+  })
+  const spy = vi
+    .spyOn(waitForNextGameModule, 'waitForNextGame')
+    .mockResolvedValueOnce({
+      extraData: '0x',
+      index: 1n,
+      l2BlockNumber: 20n,
+      metadata: '0x',
+      rootClaim:
+        '0x0000000000000000000000000000000000000000000000000000000000000004',
+      timestamp: 0n,
+      usesSuperRoots: true,
+    })
+
+  await waitToProve(client, {
+    disputeGameFactoryAddress: '0x0000000000000000000000000000000000000001',
+    l2Timestamp: 20n,
+    portalAddress: '0x0000000000000000000000000000000000000002',
+    receipt: { blockNumber: 10n } as never,
+  })
+
+  expect(spy).toHaveBeenCalledWith(
+    client,
+    expect.objectContaining({ l2BlockNumber: 20n }),
+  )
+})
+
+test('args: l2Timestamp (legacy)', async () => {
+  vi.spyOn(getWithdrawalsModule, 'getWithdrawals').mockReturnValueOnce([
+    withdrawal,
+  ])
+  vi.spyOn(getPortalVersionModule, 'getPortalVersion').mockResolvedValueOnce({
+    major: 2,
+    minor: 0,
+    patch: 0,
+  })
+  const spy = vi
+    .spyOn(waitForNextL2OutputModule, 'waitForNextL2Output')
+    .mockResolvedValueOnce({
+      l2BlockNumber: 20n,
+      outputIndex: 1n,
+      outputRoot:
+        '0x0000000000000000000000000000000000000000000000000000000000000004',
+      timestamp: 0n,
+    })
+
+  await waitToProve(client, {
+    l2OutputOracleAddress: '0x0000000000000000000000000000000000000001',
+    l2Timestamp: 20n,
+    portalAddress: '0x0000000000000000000000000000000000000002',
+    receipt: { blockNumber: 10n } as never,
+  })
+
+  expect(spy).toHaveBeenCalledWith(
+    client,
+    expect.objectContaining({ l2BlockNumber: 20n }),
+  )
+})
 
 test('default', async () => {
   await reset(optimismClient, {
@@ -54,6 +140,7 @@ test('legacy (portal v2)', async () => {
         "metadata": "0x",
         "rootClaim": "0xdc3b54fd33b5d8a60f275ca83c74b625e3942be5b70b2f7f0b9cadd869eb7b1a",
         "timestamp": 1702377887n,
+        "usesSuperRoots": false,
       },
       "output": {
         "l2BlockNumber": 113389063n,
