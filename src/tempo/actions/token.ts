@@ -241,6 +241,249 @@ export namespace approveSync {
 }
 
 /**
+ * Sets allowance via EIP-2612 permit signature.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   transport: http(),
+ * })
+ *
+ * const result = await Actions.token.permit(client, {
+ *   token: '0x...',
+ *   owner: '0x...',
+ *   spender: '0x...',
+ *   value: 100n,
+ *   deadline: 1710000000n,
+ *   v: 27,
+ *   r: '0x...',
+ *   s: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction hash.
+ */
+export async function permit<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: permit.Parameters<chain, account>,
+): Promise<permit.ReturnValue> {
+  return permit.inner(writeContract, client, parameters)
+}
+
+export namespace permit {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+
+  export type Args = {
+    /** Permit deadline (unix timestamp, seconds). */
+    deadline: bigint
+    /** Permit owner. */
+    owner: Address
+    /** Signature `r`. */
+    r: Hex.Hex
+    /** Signature `s`. */
+    s: Hex.Hex
+    /** Permit spender. */
+    spender: Address
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
+    /** Signature `v`. */
+    v: number
+    /** Allowance value. */
+    value: bigint
+  }
+
+  export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof writeContract | typeof writeContractSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: permit.Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const { deadline, owner, r, s, spender, token, v, value, ...rest } =
+      parameters
+    const call = permit.call({
+      deadline,
+      owner,
+      r,
+      s,
+      spender,
+      token,
+      v,
+      value,
+    })
+    return (await action(client, {
+      ...rest,
+      ...call,
+    } as never)) as never
+  }
+
+  /**
+   * Defines a call to the `permit` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'viem/chains'
+   * import { Actions } from 'viem/tempo'
+   *
+   * const client = createClient({
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const { result } = await client.sendCalls({
+   *   calls: [
+   *     actions.token.permit.call({
+   *       token: '0x20c0...babe',
+   *       owner: '0x20c0...dead',
+   *       spender: '0x20c0...beef',
+   *       value: 100n,
+   *       deadline: 1710000000n,
+   *       v: 27,
+   *       r: '0x...',
+   *       s: '0x...',
+   *     }),
+   *   ]
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { deadline, owner, r, s, spender, token, v, value } = args
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: Abis.tip20,
+      functionName: 'permit',
+      args: [owner, spender, value, deadline, v, r, s],
+    })
+  }
+
+  /**
+   * Extracts the `Approval` event from logs.
+   *
+   * @param logs - The logs.
+   * @returns The `Approval` event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: Abis.tip20,
+      logs,
+      eventName: 'Approval',
+      strict: true,
+    })
+    if (!log) throw new Error('`Approval` event not found.')
+    return log
+  }
+}
+
+/**
+ * Sets allowance via EIP-2612 permit signature.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   transport: http(),
+ * })
+ *
+ * const result = await Actions.token.permitSync(client, {
+ *   token: '0x...',
+ *   owner: '0x...',
+ *   spender: '0x...',
+ *   value: 100n,
+ *   deadline: 1710000000n,
+ *   v: 27,
+ *   r: '0x...',
+ *   s: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction receipt and event data.
+ */
+export async function permitSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: permitSync.Parameters<chain, account>,
+): Promise<permitSync.ReturnValue> {
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await permit.inner(writeContractSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
+  const { args } = permit.extractEvent(receipt.logs)
+  return {
+    ...args,
+    receipt,
+  } as never
+}
+
+export namespace permitSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = permit.Parameters<chain, account>
+
+  export type Args = permit.Args
+
+  export type ReturnValue = Compute<
+    GetEventArgs<
+      typeof Abis.tip20,
+      'Approval',
+      {
+        IndexedOnly: false
+        Required: true
+      }
+    > & {
+      /** Transaction receipt. */
+      receipt: TransactionReceipt
+    }
+  >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+}
+
+/**
  * Burns TIP20 tokens from a blocked address.
  *
  * @example
@@ -1259,6 +1502,209 @@ export namespace getBalance {
       abi: Abis.tip20,
       functionName: 'balanceOf',
       args: [account],
+    })
+  }
+}
+
+/**
+ * Gets the EIP-712 domain separator for a TIP20 token.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   transport: http(),
+ * })
+ *
+ * const domainSeparator = await Actions.token.getDomainSeparator(client, {
+ *   token: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The EIP-712 domain separator.
+ */
+export async function getDomainSeparator<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getDomainSeparator.Parameters,
+): Promise<getDomainSeparator.ReturnValue> {
+  return readContract(client, {
+    ...parameters,
+    ...getDomainSeparator.call(parameters),
+  })
+}
+
+export namespace getDomainSeparator {
+  export type Parameters = ReadParameters & Args
+
+  export type Args = {
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
+  }
+
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.tip20,
+    'DOMAIN_SEPARATOR',
+    never
+  >
+
+  /**
+   * Defines a call to the `DOMAIN_SEPARATOR` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { token } = args
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: Abis.tip20,
+      functionName: 'DOMAIN_SEPARATOR',
+      args: [],
+    })
+  }
+}
+
+/**
+ * Gets the EIP-2612 nonce for an account on a TIP20 token.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   transport: http(),
+ * })
+ *
+ * const nonce = await Actions.token.getNonce(client, {
+ *   token: '0x...',
+ *   account: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The nonce.
+ */
+export async function getNonce<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: getNonce.Parameters<account>,
+): Promise<getNonce.ReturnValue> {
+  const { account = client.account } = parameters
+  const address = account ? parseAccount(account).address : undefined
+  if (!address) throw new Error('account is required.')
+  return readContract(client, {
+    ...parameters,
+    ...getNonce.call({ ...parameters, account: address }),
+  })
+}
+
+export namespace getNonce {
+  export type Parameters<
+    account extends Account | undefined = Account | undefined,
+  > = ReadParameters & GetAccountParameter<account> & Omit<Args, 'account'>
+
+  export type Args = {
+    /** Account address. */
+    account: Address
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
+  }
+
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.tip20,
+    'nonces',
+    never
+  >
+
+  /**
+   * Defines a call to the `nonces` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { account, token } = args
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: Abis.tip20,
+      functionName: 'nonces',
+      args: [account],
+    })
+  }
+}
+
+/**
+ * Gets the opted-in supply for rewards on a TIP20 token.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
+ *   transport: http(),
+ * })
+ *
+ * const optedInSupply = await Actions.token.getOptedInSupply(client, {
+ *   token: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The opted-in supply.
+ */
+export async function getOptedInSupply<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getOptedInSupply.Parameters,
+): Promise<getOptedInSupply.ReturnValue> {
+  return readContract(client, {
+    ...parameters,
+    ...getOptedInSupply.call(parameters),
+  })
+}
+
+export namespace getOptedInSupply {
+  export type Parameters = ReadParameters & Args
+
+  export type Args = {
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
+  }
+
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.tip20,
+    'optedInSupply',
+    never
+  >
+
+  /**
+   * Defines a call to the `optedInSupply` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { token } = args
+    return defineCall({
+      address: TokenId.toAddress(token),
+      abi: Abis.tip20,
+      functionName: 'optedInSupply',
+      args: [],
     })
   }
 }

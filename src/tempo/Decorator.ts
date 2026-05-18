@@ -2309,6 +2309,76 @@ export type Decorator<
       parameters: tokenActions.approveSync.Parameters<chain, account>,
     ) => Promise<tokenActions.approveSync.ReturnValue>
     /**
+     * Sets allowance via EIP-2612 permit signature.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.token.permit({
+     *   token: '0x...',
+     *   owner: '0x...',
+     *   spender: '0x...',
+     *   value: 100n,
+     *   deadline: 1710000000n,
+     *   v: 27,
+     *   r: '0x...',
+     *   s: '0x...',
+     * })
+     * ```
+     *
+     * @param client - Client.
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    permit: (
+      parameters: tokenActions.permit.Parameters<chain, account>,
+    ) => Promise<tokenActions.permit.ReturnValue>
+    /**
+     * Sets allowance via EIP-2612 permit signature.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const result = await client.token.permitSync({
+     *   token: '0x...',
+     *   owner: '0x...',
+     *   spender: '0x...',
+     *   value: 100n,
+     *   deadline: 1710000000n,
+     *   v: 27,
+     *   r: '0x...',
+     *   s: '0x...',
+     * })
+     * ```
+     *
+     * @param client - Client.
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    permitSync: (
+      parameters: tokenActions.permitSync.Parameters<chain, account>,
+    ) => Promise<tokenActions.permitSync.ReturnValue>
+    /**
      * Burns TIP20 tokens from a blocked address.
      *
      * @example
@@ -2601,6 +2671,86 @@ export type Decorator<
     getBalance: (
       parameters: tokenActions.getBalance.Parameters<account>,
     ) => Promise<tokenActions.getBalance.ReturnValue>
+    /**
+     * Gets the EIP-712 domain separator for a TIP20 token.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const domainSeparator = await client.token.getDomainSeparator({
+     *   token: '0x...',
+     * })
+     * ```
+     *
+     * @param client - Client.
+     * @param parameters - Parameters.
+     * @returns The EIP-712 domain separator.
+     */
+    getDomainSeparator: (
+      parameters: tokenActions.getDomainSeparator.Parameters,
+    ) => Promise<tokenActions.getDomainSeparator.ReturnValue>
+    /**
+     * Gets the EIP-2612 nonce for an account on a TIP20 token.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const nonce = await client.token.getNonce({
+     *   token: '0x...',
+     * })
+     * ```
+     *
+     * @param client - Client.
+     * @param parameters - Parameters.
+     * @returns The nonce.
+     */
+    getNonce: (
+      parameters: tokenActions.getNonce.Parameters<account>,
+    ) => Promise<tokenActions.getNonce.ReturnValue>
+    /**
+     * Gets the opted-in supply for rewards on a TIP20 token.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const optedInSupply = await client.token.getOptedInSupply({
+     *   token: '0x...',
+     * })
+     * ```
+     *
+     * @param client - Client.
+     * @param parameters - Parameters.
+     * @returns The opted-in supply.
+     */
+    getOptedInSupply: (
+      parameters: tokenActions.getOptedInSupply.Parameters,
+    ) => Promise<tokenActions.getOptedInSupply.ReturnValue>
     /**
      * Gets TIP20 token metadata including name, symbol, currency, decimals, and total supply.
      *
@@ -4414,6 +4564,8 @@ export function decorator() {
         approve: (parameters) => tokenActions.approve(client, parameters),
         approveSync: (parameters) =>
           tokenActions.approveSync(client, parameters),
+        permit: (parameters) => tokenActions.permit(client, parameters),
+        permitSync: (parameters) => tokenActions.permitSync(client, parameters),
         burnBlocked: (parameters) =>
           tokenActions.burnBlocked(client, parameters),
         burnBlockedSync: (parameters) =>
@@ -4429,8 +4581,13 @@ export function decorator() {
         getAllowance: (parameters) =>
           tokenActions.getAllowance(client, parameters),
         getBalance: (parameters) => tokenActions.getBalance(client, parameters),
+        getDomainSeparator: (parameters) =>
+          tokenActions.getDomainSeparator(client, parameters),
         getMetadata: (parameters) =>
           tokenActions.getMetadata(client, parameters),
+        getNonce: (parameters) => tokenActions.getNonce(client, parameters),
+        getOptedInSupply: (parameters) =>
+          tokenActions.getOptedInSupply(client, parameters),
         getRoleAdmin: (parameters) =>
           tokenActions.getRoleAdmin(client, parameters),
         hasRole: (parameters) => tokenActions.hasRole(client, parameters),
