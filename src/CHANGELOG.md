@@ -1,5 +1,11 @@
 # viem
 
+## 2.50.3
+
+### Patch Changes
+
+- [#4642](https://github.com/wevm/viem/pull/4642) [`5bafcd444f7ebae9bb06a8efbc801a7ea845154d`](https://github.com/wevm/viem/commit/5bafcd444f7ebae9bb06a8efbc801a7ea845154d) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Updated `wallet.deposit` to use `amount` and supported token symbols for `wallet_deposit` requests.
+
 ## 2.50.2
 
 ### Patch Changes
