@@ -1,5 +1,11 @@
 # viem
 
+## 2.50.1
+
+### Patch Changes
+
+- [`118bc22b80f07c30bfca4a4f61ae98a49882fe61`](https://github.com/wevm/viem/commit/118bc22b80f07c30bfca4a4f61ae98a49882fe61) Thanks [@tmm](https://github.com/tmm)! - Added `viem/tempo/chains` entrypoint
+
 ## 2.50.0
 
 ### Minor Changes
