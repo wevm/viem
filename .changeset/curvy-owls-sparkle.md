@@ -1,5 +1,5 @@
 ---
-"viem": patch
+"viem": minor
 ---
 
 Added support for batching calls that share matching `stateOverride` values.
