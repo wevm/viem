@@ -5,22 +5,16 @@ import type { RpcBlockIdentifier } from '../../types/rpc.js'
 import type { NumberToHexErrorType } from '../encoding/toHex.js'
 import { numberToHex } from '../encoding/toHex.js'
 
-export type FormatBlockParameterParameters = {
+type FormatBlockParameterParameters = {
   blockHash?: Hash | undefined
   blockNumber?: bigint | undefined
   blockTag?: BlockTag | undefined
   requireCanonical?: boolean | undefined
 }
 
-export type RpcBlockHashIdentifier = Extract<
-  RpcBlockIdentifier,
-  { blockHash: Hash }
->
+type RpcBlockHashIdentifier = Extract<RpcBlockIdentifier, { blockHash: Hash }>
 
-export type FormatBlockParameterReturnType =
-  | Hex
-  | BlockTag
-  | RpcBlockHashIdentifier
+type FormatBlockParameterReturnType = Hex | BlockTag | RpcBlockHashIdentifier
 
 export type FormatBlockParameterErrorType = BaseErrorType | NumberToHexErrorType
 
