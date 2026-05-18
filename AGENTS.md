@@ -53,11 +53,36 @@
 
 ## Viem v3 API Conventions
 
-- **Canonical imports** -- the v3 public shape is `import { Client, Actions, Account, http } from 'viem'`, `import { Hex, Value, Signature, Transaction } from 'viem/utils'`, and `import { mainnet, base } from 'viem/chains'`.
-- **Viem-owned APIs are module namespaces** -- expose viem-owned APIs through modules such as `Client`, `Actions`, `Account`, and domain modules. Keep namespace methods concise, e.g. `Client.create`, `Actions.getBlock`, and `Account.fromPrivateKey`.
-- **Transport factories stay flat** -- functions such as `http`, `webSocket`, `fallback`, and `custom` remain flat exports from `viem`.
-- **Chains stay flat** -- chain constants stay flat exports from `viem/chains`.
+- **Canonical root imports** -- the v3 root public shape is `import { Account, BaseError, Chain, Client, Transport, http } from 'viem'`. Root exports PascalCase viem-owned modules, the special `BaseError`, and flat transport factories.
+- **Root modules are PascalCase namespaces** -- expose viem-owned APIs through modules such as `Account`, `Chain`, `Client`, and `Transport`. Keep namespace methods concise, e.g. `Client.create`, `Account.fromPrivateKey`, and `Chain.define`.
+- **Core module subpaths are PascalCase** -- support direct module imports such as `import * as Client from 'viem/Client'`, `import * as Account from 'viem/Account'`, `import * as Chain from 'viem/Chain'`, and `import * as Transport from 'viem/Transport'`.
+- **No public `Key` module** -- do not introduce viem-owned public key APIs. Account creation and signing live under `Account`, and implementation should use Ox crypto modules such as `Secp256k1` directly where needed.
+- **No root `Errors` namespace** -- use Ox's `BaseError` as viem's versioned base error and export it as the special flat root `BaseError`. Other errors stay colocated on the module that owns them, e.g. `Account.InvalidPrivateKeyError` or `actions.contract.ContractFunctionExecutionError`.
+- **Actions live in the lowercase collection subpath** -- do not export a root `Actions` module. Document actions through `import * as actions from 'viem/actions'`.
+- **Action namespaces are callable functions** -- expose standalone actions as nested properties on callable namespaces, e.g. `actions.public.getBalance`, `actions.wallet.sendTransaction`, `actions.ens.getAddress`, `actions.contract.read`, and `actions.test.mine`.
+- **Core action namespaces are fixed** -- keep core actions grouped under `public`, `wallet`, `contract`, `ens`, and `test`. Do not split blocks, filters, or transactions into extra root action namespaces unless the API direction changes explicitly.
+- **Action decorators live on namespaces** -- action namespaces are also decorator factories: use `Client.create(...).extend(actions.public())`, `actions.wallet()`, `actions.ens()`, `actions.contract()`, and `actions.test()`. Do not export flat root decorators such as `publicActions`, `walletActions`, or `testActions` in v3.
+- **Decorated clients use nested methods** -- decorators attach nested client capabilities such as `client.public.getBalance`, `client.wallet.sendTransaction`, `client.ens.getAddress`, `client.contract.read`, and `client.test.mine`.
+- **Extension client namespaces are domain-driven** -- remaining extension entrypoints follow the same module pattern, but decorators should attach client namespaces based on the capability domain rather than the package name. Do not force `client.<extension>` as a generic rule.
+- **Remove redundant domain words** -- when an action namespace already names the domain, remove the repeated word from the method name: `getEnsAddress` becomes `actions.ens.getAddress`, `readContract` becomes `actions.contract.read`, `simulateContract` becomes `actions.contract.simulate`, and `multicall` becomes `actions.contract.multicall`.
+- **Transport factories stay flat** -- functions such as `http`, `webSocket`, `fallback`, and `custom` remain flat exports from `viem`. Do not make `Transport.http()` the canonical API.
+- **Transport module is type/helper-oriented** -- keep `Transport` for public transport types and low-level helpers, not as the canonical place for transport factory functions.
+- **Chains stay flat** -- chain constants stay flat exports from `viem/chains`, e.g. `import { mainnet, base } from 'viem/chains'`. Do not bundle chain constants under `Chain`.
+- **Chain helpers live under `Chain`** -- use `Chain.define` for custom chain definitions. Delete the old flat `defineChain` API.
+- **No `viem/chains/utils`** -- keep `viem/chains` for chain constants only. Move chain helper behavior to `Chain.*`.
+- **Quantity inputs are flexible, normalized values are not** -- user-facing quantity inputs may accept hex, number, or bigint where appropriate. Normalize chain IDs, block numbers, gas, nonce, value, and fee quantities to bigint in viem domain objects, and serialize to hex only at RPC boundaries. Do not leak `Hex | number | bigint` unions into normalized return types.
+- **Clients are created through `Client.create`** -- replace `createClient`, `createPublicClient`, `createWalletClient`, and `createTestClient` with `Client.create(...).extend(actions.public())` and related decorators.
 - **Ox-backed utilities live in `viem/utils`** -- export Ox-backed modules such as `Abi`, `Address`, `Bytes`, `Hex`, `Value`, `Hash`, `Signature`, `Transaction`, `TransactionRequest`, `TransactionReceipt`, `Block`, `Log`, and RPC/provider modules from `viem/utils`.
+- **Utility module subpaths mirror Ox** -- support `import { Hex } from 'viem/utils'` and `import * as Hex from 'viem/utils/Hex'`. Proxy Ox module names and method names exactly instead of preserving v2 utility wrapper names.
+- **Utility types live inside modules** -- do not export same-name flat type aliases from `viem/utils`; prefer module types such as `Hex.Hex`, `Address.Address`, and `Signature.Signature`.
+- **No `abitype` flat re-exports** -- do not expose flat `parseAbi`, `parseAbiItem`, or similar `abitype` re-exports from `viem/utils`. Use Ox ABI modules or module methods instead.
+- **Removed extension entrypoints** -- v3 removes `viem/op-stack`, `viem/zksync`, `viem/celo`, and `viem/linea` instead of migrating them to the module API.
+- **Extension removal does not remove chains** -- chain constants for OP Stack, ZKsync, Celo, and Linea networks can remain flat under `viem/chains` unless separately removed.
+- **Tempo mirrors root viem** -- `viem/tempo` exports PascalCase modules from its root, exposes lowercase action collections such as `import * as actions from 'viem/tempo/actions'`, and does not export a root `Actions` module.
+- **Extension modules get PascalCase subpaths** -- every PascalCase module exported from a remaining extension root gets a matching PascalCase subpath.
+- **Experimental root is removed** -- v3 removes the `viem/experimental` entrypoint instead of carrying an experimental namespace forward.
+- **Removed experimental modules** -- v3 removes the experimental ERC-7739, ERC-7715, ERC-7811, ERC-7821, and ERC-7895 modules.
+- **ERC-7846 folds into wallet actions** -- review the ERC-7846 API before migration, then stabilize it under `actions.wallet` and `client.wallet` instead of creating a new entrypoint.
 - **No runtime compatibility shims** -- do not add `viem/compat` or public compatibility aliases for removed v2 APIs. Migration support belongs in docs and `.agents/skills/viem-v3-migration`.
 - **Deprecations are removed in v3** -- resolve `@deprecated` exports, aliases, entrypoints, and v3 TODO compatibility paths instead of carrying them forward.
 
@@ -73,7 +98,7 @@
 
 - **Directional RPC conversion names** -- use `fromRpc` for inbound RPC data and `toRpc` for outbound RPC payloads.
 - **Formatter property name stays `formatters`** -- keep public chain configuration under `chain.formatters`, but formatter entries should expose `fromRpc` and `toRpc`.
-- **Chain-specific deltas only** -- Celo, OP Stack, ZKsync, and Tempo formatter overrides should express only chain-specific RPC deltas.
+- **Chain-specific deltas only** -- remaining formatter overrides such as Tempo should express only chain-specific RPC deltas.
 - **Prefer Ox conversion modules** -- use Ox modules for ABI, address, bytes, hex, hash, signature, transaction, typed-data, RPC, and value behavior where Ox has coverage.
 
 ## Documentation Conventions

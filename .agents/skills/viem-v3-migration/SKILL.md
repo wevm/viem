@@ -12,7 +12,8 @@ shims.
 ## Workflow
 
 1. Search for v2 imports from `viem`, `viem/actions`, `viem/accounts`,
-   `viem/utils`, `viem/chains`, and `viem/experimental`.
+   `viem/utils`, `viem/chains`, `viem/experimental`, and removed extension
+   entrypoints.
 2. Update imports manually to the v3 entrypoints below.
 3. Run the consuming project's typecheck and tests.
 
@@ -20,15 +21,24 @@ shims.
 
 - Viem-owned APIs import from `viem` as modules.
 - Ox-backed utility modules import from `viem/utils` as modules.
-- Actions import as `Actions` from `viem` or `viem/actions`.
-- Accounts import as `Account` from `viem` or `viem/accounts`.
+- Actions import as lowercase namespace collections from `viem/actions`.
+- Accounts import as `Account` from `viem` or as `import * as Account from
+  'viem/Account'`.
 - Chain constants stay flat from `viem/chains`.
 - Transport factories stay flat from `viem`.
+- `viem/op-stack`, `viem/zksync`, `viem/celo`, and `viem/linea` are removed.
+  Their chain constants can still be imported from `viem/chains`.
+- `viem/experimental` is removed.
+- ERC-7739, ERC-7715, ERC-7811, ERC-7821, and ERC-7895 experimental modules are
+  removed.
+- ERC-7846 graduated out of experimental into `actions.wallet` and
+  `client.wallet`.
 
 ```ts
-import { Client, Actions, Account, http } from 'viem'
+import { Account, Client, http } from 'viem'
 import { Hex, Value, Signature, Transaction } from 'viem/utils'
 import { mainnet, base } from 'viem/chains'
+import * as actions from 'viem/actions'
 ```
 
 ## Root Imports
@@ -36,12 +46,12 @@ import { mainnet, base } from 'viem/chains'
 | v2 | v3 |
 | --- | --- |
 | `createClient` | `Client.create` |
-| `createPublicClient` | `Client.createPublic` |
-| `createWalletClient` | `Client.createWallet` |
-| `createTestClient` | `Client.createTest` |
-| `publicActions` | `Client.publicActions` |
-| `walletActions` | `Client.walletActions` |
-| `testActions` | `Client.testActions` |
+| `createPublicClient` | `Client.create(...).extend(actions.public())` |
+| `createWalletClient` | `Client.create(...).extend(actions.wallet())` |
+| `createTestClient` | `Client.create(...).extend(actions.test())` |
+| `publicActions` | `actions.public()` |
+| `walletActions` | `actions.wallet()` |
+| `testActions` | `actions.test()` |
 | `http` | `http` |
 | `webSocket` | `webSocket` |
 | `custom` | `custom` |
@@ -51,30 +61,30 @@ import { mainnet, base } from 'viem/chains'
 
 ```diff
 - import { getBlock, sendTransaction } from 'viem/actions'
-+ import { Actions } from 'viem/actions'
++ import * as actions from 'viem/actions'
 
 - await getBlock(client)
-+ await Actions.getBlock(client)
++ await actions.public.getBlock(client)
 ```
 
 Removed aliases:
 
 | v2 | v3 |
 | --- | --- |
-| `getBytecode` | `Actions.getCode` |
-| `GetBytecodeErrorType` | `Actions.GetCodeErrorType` |
-| `GetBytecodeParameters` | `Actions.GetCodeParameters` |
-| `GetBytecodeReturnType` | `Actions.GetCodeReturnType` |
-| `simulate` | `Actions.simulateBlocks` |
-| `SimulateErrorType` | `Actions.SimulateBlocksErrorType` |
-| `SimulateParameters` | `Actions.SimulateBlocksParameters` |
-| `SimulateReturnType` | `Actions.SimulateBlocksReturnType` |
+| `getBytecode` | `actions.public.getCode` |
+| `GetBytecodeErrorType` | `actions.public.getCode.ErrorType` |
+| `GetBytecodeParameters` | `actions.public.getCode.Options` |
+| `GetBytecodeReturnType` | `actions.public.getCode.ReturnType` |
+| `simulate` | `actions.public.simulateBlocks` |
+| `SimulateErrorType` | `actions.public.simulateBlocks.ErrorType` |
+| `SimulateParameters` | `actions.public.simulateBlocks.Options` |
+| `SimulateReturnType` | `actions.public.simulateBlocks.ReturnType` |
 
 ## Accounts
 
 ```diff
 - import { privateKeyToAccount, mnemonicToAccount } from 'viem/accounts'
-+ import { Account } from 'viem/accounts'
++ import { Account } from 'viem'
 
 - const account = privateKeyToAccount(privateKey)
 + const account = Account.fromPrivateKey(privateKey)
@@ -157,7 +167,16 @@ Chains remain flat from `viem/chains`, but deprecated aliases are removed.
 
 ## Removed Entrypoints
 
-- Replace `viem/experimental` imports with their stable module equivalents.
+- Remove `viem/experimental` imports.
+- Remove `viem/experimental/erc7739`, `viem/experimental/erc7715`,
+  `viem/experimental/erc7811`, `viem/experimental/erc7821`, and
+  `viem/experimental/erc7895` imports. Viem v3 does not ship replacement
+  entrypoints for these modules.
+- Replace `viem/experimental/erc7846` imports with `actions.wallet` or
+  `client.wallet` methods after the v3 API review lands.
+- Remove `viem/op-stack`, `viem/zksync`, `viem/celo`, and `viem/linea`
+  imports. Viem v3 does not ship replacement extension entrypoints for these
+  packages.
 - Do not add a replacement `viem/compat` entrypoint.
 - Do not import from private/generated paths like `viem/_cjs`, `viem/_esm`, or
   `viem/_types`.
