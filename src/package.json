@@ -125,6 +125,11 @@
       "import": "./_esm/tempo/actions/index.js",
       "default": "./_cjs/tempo/actions/index.js"
     },
+    "./tempo/chains": {
+      "types": "./_types/tempo/chains/index.d.ts",
+      "import": "./_esm/tempo/chains/index.js",
+      "default": "./_cjs/tempo/chains/index.js"
+    },
     "./tempo/zones": {
       "types": "./_types/tempo/zones/index.d.ts",
       "import": "./_esm/tempo/zones/index.js",
@@ -196,6 +201,9 @@
       ],
       "tempo/actions": [
         "./_types/tempo/actions/index.d.ts"
+      ],
+      "tempo/chains": [
+        "./_types/tempo/chains/index.d.ts"
       ],
       "utils": [
         "./_types/utils/index.d.ts"
