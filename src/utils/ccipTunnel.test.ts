@@ -1,69 +1,72 @@
-import {
-  ccipRequest,
-  decodeFunctionResult,
-  encodeFunctionData,
-  namehash,
-  parseAbi,
-  toHex,
-} from 'viem'
-import { getEnsAddress, getEnsResolver, readContract } from 'viem/actions'
-import { beforeAll, beforeEach, describe, expect, test } from 'vitest'
-import { anvilMainnet } from '~test/anvil.js'
-import { reset } from '../actions/test/reset.js'
+import { describe, expect, test } from 'vitest'
+
+import { batchGatewayAbi } from '../constants/abis.js'
+import { decodeFunctionData } from './abi/decodeFunctionData.js'
+import { encodeFunctionResult } from './abi/encodeFunctionResult.js'
 import { ccipReadTunnel } from './ccipTunnel.js'
-import { packetToBytes } from './ens/packetToBytes.js'
+import { localBatchGatewayUrl } from './ens/localBatchGatewayRequest.js'
 
 const batchGateways = ['https://ccip-v3.ens.xyz']
-const requested = new Set<string>()
-const client = anvilMainnet.getClient({
-  ccipRead: ccipReadTunnel({
-    batchGateways,
-    ccipRequest: async (args) => {
-      for (const x of args.urls) {
-        requested.add(x)
-      }
-      return ccipRequest(args)
-    },
-  }),
-})
-
-const NAME = 'raffy.base.eth'
-const ADDR = '0x51050ec063d393217B436747617aD1C2285Aeeee'
+const sender = '0x0000000000000000000000000000000000000001'
 
 describe('ccipTunnel', () => {
-  beforeAll(async () => {
-    await reset(client, {
-      blockNumber: 23_085_558n,
-      jsonRpcUrl: anvilMainnet.forkUrl,
-    })
-  })
-
-  beforeEach(() => requested.clear())
-
   test('passthrough', async () => {
-    const addr = await getEnsAddress(client, { name: NAME })
-    expect(addr).toStrictEqual(ADDR)
-    expect([...requested]).toStrictEqual(batchGateways)
+    let request: unknown
+    const tunnel = ccipReadTunnel({
+      batchGateways,
+      ccipRequest: async (args) => {
+        request = args
+        return '0xdeadbeef'
+      },
+    })
+
+    await expect(
+      tunnel.request({
+        data: '0xcafebabe',
+        sender,
+        urls: [localBatchGatewayUrl],
+      }),
+    ).resolves.toBe('0xdeadbeef')
+    expect(request).toStrictEqual({
+      data: '0xcafebabe',
+      sender,
+      urls: batchGateways,
+    })
   })
 
   test('tunnelled', async () => {
-    const abi = parseAbi(['function addr(bytes32) view returns (address)'])
-    const addr = decodeFunctionResult({
-      abi,
-      data: await readContract(client, {
-        address: await getEnsResolver(client, { name: NAME }),
-        abi: parseAbi(['function resolve(bytes, bytes) view returns (bytes)']),
-        functionName: 'resolve',
-        args: [
-          toHex(packetToBytes(NAME)),
-          encodeFunctionData({
-            abi,
-            args: [namehash(NAME)],
-          }),
-        ],
-      }),
+    const urls = ['https://example.com/{sender}/{data}']
+    let query: unknown
+    const tunnel = ccipReadTunnel({
+      batchGateways,
+      ccipRequest: async (args) => {
+        expect(args.sender).toBe(sender)
+        expect(args.urls).toStrictEqual(batchGateways)
+
+        const {
+          args: [queries],
+        } = decodeFunctionData({ abi: batchGatewayAbi, data: args.data })
+        query = queries[0]
+
+        return encodeFunctionResult({
+          abi: batchGatewayAbi,
+          functionName: 'query',
+          result: [[false], ['0xdeadbeef']],
+        })
+      },
     })
-    expect(addr).toStrictEqual(ADDR)
-    expect([...requested]).toStrictEqual(batchGateways)
+
+    await expect(
+      tunnel.request({
+        data: '0xcafebabe',
+        sender,
+        urls,
+      }),
+    ).resolves.toBe('0xdeadbeef')
+    expect(query).toStrictEqual({
+      data: '0xcafebabe',
+      sender,
+      urls,
+    })
   })
 })
