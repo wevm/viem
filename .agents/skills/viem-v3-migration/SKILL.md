@@ -191,18 +191,22 @@ logs with `eventName` and `args`.
 | v2 | v3 |
 | --- | --- |
 | `encodeErrorResult({ abi, errorName, args })` | `AbiError.encode(abi, errorName, args)` |
-| `decodeErrorResult({ abi, data })` | `AbiError.decode(AbiError.fromAbi(abi, data), data)` |
+| `decodeErrorResult({ abi, data })` | `AbiError.extract(abi, data)` |
 
 ```diff
-- import { encodeErrorResult } from 'viem'
+- import { decodeErrorResult, encodeErrorResult } from 'viem'
 + import { AbiError } from 'viem/utils'
 
 - encodeErrorResult({ abi, errorName: 'InvalidToken', args })
 + AbiError.encode(abi, 'InvalidToken', args)
+
+- const { abiItem, errorName, args } = decodeErrorResult({ abi, data })
++ const { error, args } = AbiError.extract(abi, data)
++ const errorName = error.name
 ```
 
-`AbiError.decode` returns decoded args. Use `AbiError.fromAbi(abi, data)` first
-when starting from revert data and an ABI.
+`AbiError.extract` returns `{ error, args }`. The `error` value replaces the v2
+`abiItem`/`errorName` pair. `AbiError.decode` remains for known ABI error items.
 
 ### `AbiConstructor`
 

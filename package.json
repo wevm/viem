@@ -229,7 +229,7 @@
     "@scure/bip39": "1.6.0",
     "abitype": "1.2.3",
     "isows": "1.0.7",
-    "ox": "https://pkg.pr.new/ox@a2754b67",
+    "ox": "https://pkg.pr.new/ox@9733278c",
     "ws": "8.18.3"
   },
   "peerDependencies": {
