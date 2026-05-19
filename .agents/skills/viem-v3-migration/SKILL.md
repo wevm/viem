@@ -226,6 +226,25 @@ logs with `eventName` and `args`.
 `AbiConstructor.decode` returns decoded constructor args. The bytecode remains an
 input option, not part of the decoded return value.
 
+### `AccessList`
+
+| v2 | v3 |
+| --- | --- |
+| `serializeAccessList(accessList)` | `AccessList.toTupleList(accessList)` |
+| `type AccessList` | `type AccessList.AccessList` |
+
+```diff
+- import { serializeAccessList } from 'viem'
++ import { AccessList } from 'viem/utils'
+
+- serializeAccessList(accessList)
++ AccessList.toTupleList(accessList)
+```
+
+Use `AccessList.fromTupleList(tupleList)` for the inverse conversion.
+`InvalidStorageKeySizeError` is colocated at
+`AccessList.InvalidStorageKeySizeError`.
+
 ### `Authorization`
 
 | v2 | v3 |
