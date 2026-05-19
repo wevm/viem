@@ -408,6 +408,11 @@
       "src": "./src/utils/Hash.ts",
       "default": "./dist/utils/Hash.js"
     },
+    "./utils/HdKey": {
+      "types": "./dist/utils/HdKey.d.ts",
+      "src": "./src/utils/HdKey.ts",
+      "default": "./dist/utils/HdKey.js"
+    },
     "./utils/Hex": {
       "types": "./dist/utils/Hex.d.ts",
       "src": "./src/utils/Hex.ts",
@@ -422,6 +427,11 @@
       "types": "./dist/utils/Log.d.ts",
       "src": "./src/utils/Log.ts",
       "default": "./dist/utils/Log.js"
+    },
+    "./utils/Mnemonic": {
+      "types": "./dist/utils/Mnemonic.d.ts",
+      "src": "./src/utils/Mnemonic.ts",
+      "default": "./dist/utils/Mnemonic.js"
     },
     "./utils/NonceManager": {
       "types": "./dist/utils/NonceManager.d.ts",

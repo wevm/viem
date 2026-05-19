@@ -102,9 +102,11 @@ Current utility modules:
 | `Fee` | `ox/Fee` | Exact proxy. Fee history and RPC conversion. |
 | `Filter` | `ox/Filter` | Exact proxy. Filter domain and RPC conversion. |
 | `Hash` | `ox/Hash` | Exact proxy. Keccak, SHA-256, RIPEMD-160, HMAC-SHA256, and hash validation. |
+| `HdKey` | `ox/HdKey` | Exact proxy. HD key construction and BIP-44 path helpers. |
 | `Hex` | `ox/Hex` | Exact proxy. Hex construction, conversion, slicing, padding, and trimming. |
 | `Kzg` | `ox/Kzg` | Exact proxy. KZG interface wrapper and versioned-hash constants. |
 | `Log` | `ox/Log` | Exact proxy. Log domain and RPC conversion, including optional `blockTimestamp`. |
+| `Mnemonic` | `ox/Mnemonic` | Exact proxy. Mnemonic generation, validation, seed conversion, HD key conversion, and wordlists. |
 | `NonceManager` | `src/utils/NonceManager.ts` | Viem-owned nonce manager. Create explicit manager instances with `NonceManager.create`. |
 | `P256` | `ox/P256` | Exact proxy. P-256 key, signing, recovery, and verification helpers. |
 | `PersonalMessage` | `ox/PersonalMessage` | Exact proxy. EIP-191 encoding and signing payload hashing. |
@@ -362,6 +364,25 @@ removed.
 
 `Kzg.from` expects the Ox KZG interface, including PeerDAS cell methods. The old
 `computeBlobKzgProof` public requirement is removed with `blobsToProofs`.
+
+### Key Material
+
+| v2 | v3 |
+| --- | --- |
+| `generatePrivateKey()` | `Secp256k1.randomPrivateKey()` |
+| `generateMnemonic(wordlist)` | `Mnemonic.random(wordlist)` |
+| `generateMnemonic(wordlist, strength)` | `Mnemonic.random(wordlist, { strength })` |
+| `HDKey.fromMasterSeed(seed)` | `HdKey.fromSeed(seed)` |
+| `HDKey.fromExtendedKey(key)` | `HdKey.fromExtendedKey(key)` |
+| `english`, `spanish`, etc. from `viem/accounts` | `Mnemonic.english`, `Mnemonic.spanish`, etc. |
+
+```diff
+- import { generateMnemonic, english } from 'viem/accounts'
++ import { Mnemonic } from 'viem/utils'
+
+- const phrase = generateMnemonic(english, 256)
++ const phrase = Mnemonic.random(Mnemonic.english, { strength: 256 })
+```
 
 ### `NonceManager`
 
