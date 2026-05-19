@@ -368,6 +368,16 @@
       "src": "./src/utils/Ens.ts",
       "default": "./dist/utils/Ens.js"
     },
+    "./utils/Erc6492": {
+      "types": "./dist/utils/Erc6492.d.ts",
+      "src": "./src/utils/Erc6492.ts",
+      "default": "./dist/utils/Erc6492.js"
+    },
+    "./utils/Erc8010": {
+      "types": "./dist/utils/Erc8010.d.ts",
+      "src": "./src/utils/Erc8010.ts",
+      "default": "./dist/utils/Erc8010.js"
+    },
     "./utils/Fee": {
       "types": "./dist/utils/Fee.d.ts",
       "src": "./src/utils/Fee.ts",

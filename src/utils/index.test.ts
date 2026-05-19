@@ -21,6 +21,8 @@ test('exports', () => {
       "Bytes",
       "ContractAddress",
       "Ens",
+      "Erc6492",
+      "Erc8010",
       "Fee",
       "Filter",
       "Hash",
