@@ -303,6 +303,11 @@
       "src": "./src/siwe/index.ts",
       "default": "./dist/siwe/index.js"
     },
+    "./Transport": {
+      "types": "./dist/core/Transport.d.ts",
+      "src": "./src/core/Transport.ts",
+      "default": "./dist/core/Transport.js"
+    },
     "./utils": {
       "types": "./dist/utils/index.d.ts",
       "src": "./src/utils/index.ts",

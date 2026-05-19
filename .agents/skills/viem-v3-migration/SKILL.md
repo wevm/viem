@@ -17,6 +17,8 @@ Only landed modules are documented here.
 | `Account` | `src/core/Account.ts` | Account module exported from `viem` and `viem/Account`. Use `Account.from*` constructors and `Account.sign*` helpers. |
 | `BaseError` | `ox/Errors.BaseError` | Viem-versioned base error exported from `viem`. Defaults docs links to `https://viem.sh` and message versions to `viem@<version>`. |
 | `Chain` | `src/core/Chain.ts` | Chain definition module exported from `viem` and `viem/Chain`. Use `Chain.define` for custom chain definitions. |
+| `Transport` | `src/core/Transport.ts` | Transport module exported from `viem` and `viem/Transport`. Use `Transport.create` and `Transport.shouldThrow` for low-level helpers. |
+| `http`, `webSocket`, `custom`, `fallback` | `src/core/transports.ts` | Flat root transport factories. Factory-specific types live on function namespaces like `http.Options`. |
 
 ### `Account`
 
@@ -116,6 +118,47 @@ Deprecated chain aliases are removed. Import the replacement chain constant that
 was named in the v2 deprecation notice.
 
 `experimental_preconfirmationTime` is renamed to `preconfirmationTime`.
+
+### `Transport`
+
+Transport factories stay as flat root exports. Low-level transport helpers and
+shared types move under the `Transport` module.
+
+```diff
+- import { createTransport, http, shouldThrow } from 'viem'
++ import { Transport, http } from 'viem'
+
+- const transport = createTransport(config, value)
++ const transport = Transport.create(config, value)
+
+- shouldThrow(error)
++ Transport.shouldThrow(error)
+```
+
+| v2 | v3 |
+| --- | --- |
+| `createTransport(config, value)` | `Transport.create(config, value)` |
+| `type TransportConfig` | `Transport.Config` |
+| `type Transport` | `Transport.Transport` |
+| `shouldThrow(error)` | `Transport.shouldThrow(error)` |
+| `http(url, config)` | `http(url, options)` |
+| `type HttpTransportConfig` | `http.Options` |
+| `type HttpTransport` | `http.Transport` |
+| `custom(provider, config)` | `custom(provider, options)` |
+| `type CustomTransportConfig` | `custom.Options` |
+| `type CustomTransport` | `custom.Transport` |
+| `fallback(transports, config)` | `fallback(transports, options)` |
+| `type FallbackTransportConfig` | `fallback.Options` |
+| `type OnResponseFn` | `fallback.OnResponse` |
+| `webSocket(url, config)` | `webSocket(url, options)` |
+| `type WebSocketTransportConfig` | `webSocket.Options` |
+| `type WebSocketTransport` | `webSocket.Transport` |
+| `webSocket().value.getSocket()` | Removed. Use `webSocket().value.getRpcClient()`. |
+| `ipc(...)` from `viem/node` | Removed. |
+| `getIpcRpcClient(...)` from `viem/node` | Removed. |
+
+Factory-specific types live on the factory namespace, not on `Transport`.
+`Transport` does not expose `http`, `webSocket`, `custom`, or `fallback`.
 
 ## Utilities
 
