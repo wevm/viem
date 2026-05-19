@@ -7,7 +7,7 @@ export const somniaTestnet = /*#__PURE__*/ defineChain({
   blockTime: 100,
   rpcUrls: {
     default: {
-      http: ['https://api.infra.testnet.somnia.network/'],
+      http: ['https://api.infra.testnet.somnia.network'],
     },
   },
   blockExplorers: {
