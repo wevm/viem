@@ -368,6 +368,11 @@
       "src": "./src/utils/Bytes.ts",
       "default": "./dist/utils/Bytes.js"
     },
+    "./utils/Ccip": {
+      "types": "./dist/utils/Ccip.d.ts",
+      "src": "./src/utils/Ccip.ts",
+      "default": "./dist/utils/Ccip.js"
+    },
     "./utils/ContractAddress": {
       "types": "./dist/utils/ContractAddress.d.ts",
       "src": "./src/utils/ContractAddress.ts",

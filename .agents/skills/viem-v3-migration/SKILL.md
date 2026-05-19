@@ -78,6 +78,7 @@ Current utility modules:
 | `BlockOverrides` | `ox/BlockOverrides` | Exact proxy. Block override RPC conversion. |
 | `Blobs` | `ox/Blobs` | Exact proxy. EIP-4844 blob construction, commitments, versioned hashes, and PeerDAS cell proofs. |
 | `Bytes` | `ox/Bytes` | Exact proxy. Byte-array construction, conversion, slicing, padding, and trimming. |
+| `Ccip` | `src/utils/Ccip.ts` | Viem-owned EIP-3668 CCIP-read gateway requests and batch tunnel creation. |
 | `ContractAddress` | `ox/ContractAddress` | Exact proxy. CREATE and CREATE2 address derivation. |
 | `Ens` | `ox/Ens` | Exact proxy. ENS normalization, namehashing, labelhashing, and coin type conversion. |
 | `Fee` | `ox/Fee` | Exact proxy. Fee history and RPC conversion. |
@@ -383,6 +384,31 @@ calling `get`, `consume`, `increment`, or `reset`.
 
 State overrides now use the Ox object shape keyed by address. Account storage is
 keyed by slot instead of an array of `{ slot, value }` entries.
+
+### `Ccip`
+
+| v2 | v3 |
+| --- | --- |
+| `ccipRequest(options)` | `Ccip.request(options)` |
+| `ccipReadTunnel(options)` | `Ccip.createTunnel(options)` |
+| `ccipFetch` | Removed. Use `Ccip.request`. |
+| `offchainLookupAbiItem` | `Ccip.offchainLookupAbiItem` |
+| `offchainLookupSignature` | `Ccip.offchainLookupSignature` |
+
+```diff
+- import { ccipRequest, ccipReadTunnel } from 'viem'
++ import { Ccip } from 'viem/utils'
+
+- const data = await ccipRequest({ data, sender, urls })
++ const data = await Ccip.request({ data, sender, urls })
+
+- const ccipRead = ccipReadTunnel({ batchGateways })
++ const ccipRead = Ccip.createTunnel({ batchGateways })
+```
+
+`offchainLookup(client, options)` is not part of the landed v3 utility surface.
+Client/action-owned CCIP callback handling will be documented with the relevant
+action module.
 
 ### `Ens`
 
