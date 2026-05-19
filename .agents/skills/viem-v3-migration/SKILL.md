@@ -86,7 +86,7 @@ Current utility modules:
 | `Hash` | `ox/Hash` | Exact proxy. Keccak, SHA-256, RIPEMD-160, HMAC-SHA256, and hash validation. |
 | `Hex` | `ox/Hex` | Exact proxy. Hex construction, conversion, slicing, padding, and trimming. |
 | `Kzg` | `ox/Kzg` | Exact proxy. KZG interface wrapper and versioned-hash constants. |
-| `Log` | `ox/Log` | Ox-backed. Log domain and RPC conversion, with viem `blockTimestamp` conversion. |
+| `Log` | `ox/Log` | Exact proxy. Log domain and RPC conversion, including optional `blockTimestamp`. |
 | `NonceManager` | `src/utils/NonceManager.ts` | Viem-owned nonce manager. Create explicit manager instances with `NonceManager.create`. |
 | `P256` | `ox/P256` | Exact proxy. P-256 key, signing, recovery, and verification helpers. |
 | `PersonalMessage` | `ox/PersonalMessage` | Exact proxy. EIP-191 encoding and signing payload hashing. |
@@ -653,7 +653,7 @@ deltas.
 + const log = Log.fromRpc(rpcLog)
 ```
 
-`Log.fromRpc` keeps viem's `blockTimestamp` behavior: hex timestamps become
+`Log.fromRpc` converts optional `blockTimestamp`: hex timestamps become
 `bigint`, while `null` and `undefined` are preserved.
 
 ### `Withdrawal`
