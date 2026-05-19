@@ -273,6 +273,11 @@
       "src": "./src/index.ts",
       "default": "./dist/index.js"
     },
+    "./Account": {
+      "types": "./dist/core/Account.d.ts",
+      "src": "./src/core/Account.ts",
+      "default": "./dist/core/Account.js"
+    },
     "./BaseError": {
       "types": "./dist/core/BaseError.d.ts",
       "src": "./src/core/BaseError.ts",

@@ -14,8 +14,48 @@ Only landed modules are documented here.
 
 | Export | Backing | Notes |
 | --- | --- | --- |
+| `Account` | `src/core/Account.ts` | Account module exported from `viem` and `viem/Account`. Use `Account.from*` constructors and `Account.sign*` helpers. |
 | `BaseError` | `ox/Errors.BaseError` | Viem-versioned base error exported from `viem`. Defaults docs links to `https://viem.sh` and message versions to `viem@<version>`. |
 | `Chain` | `src/core/Chain.ts` | Chain definition module exported from `viem` and `viem/Chain`. Use `Chain.define` for custom chain definitions. |
+
+### `Account`
+
+The `viem/accounts` entrypoint is removed. Account creation and high-level
+account signing move under the root `Account` module. Raw key material helpers
+live under `viem/utils`.
+
+```diff
+- import { privateKeyToAccount } from 'viem/accounts'
++ import { Account } from 'viem'
+
+- const account = privateKeyToAccount(privateKey)
++ const account = Account.fromPrivateKey(privateKey)
+```
+
+| v2 | v3 |
+| --- | --- |
+| `toAccount(address)` | `Account.from(address)` or `Account.fromJsonRpc(address)` |
+| `toAccount(source)` | `Account.fromLocal(source)` |
+| `parseAccount(accountOrAddress)` | `Account.from(accountOrAddress)` |
+| `privateKeyToAccount(privateKey)` | `Account.fromPrivateKey(privateKey)` |
+| `mnemonicToAccount(mnemonic, options)` | `Account.fromMnemonic(mnemonic, options)` |
+| `hdKeyToAccount(hdKey, options)` | `Account.fromHdKey(hdKey, options)` |
+| `sign({ privateKey, hash })` | `Secp256k1.sign({ privateKey, payload: hash, as: 'Hex' })` or `Account.sign(account, { payload })` |
+| `signMessage({ privateKey, message })` | `Account.signMessage(account, { message })` |
+| `signTypedData({ privateKey, ...typedData })` | `Account.signTypedData(account, typedData)` |
+| `signAuthorization({ privateKey, address, ... })` | `Account.signAuthorization(account, authorization)` |
+| `signTransaction({ privateKey, transaction })` | `Account.signTransaction(account, transaction)` |
+| `setSignEntropy(entropy)` | Removed. Pass `extraEntropy` to `Secp256k1.sign` or `Account.sign`. |
+| `privateKeyToAddress(privateKey)` | `Address.fromPublicKey(Secp256k1.getPublicKey({ privateKey }), { checksum: true })` |
+| `publicKeyToAddress(publicKey)` | `Address.fromPublicKey(publicKey, { checksum: true })` |
+| `signatureToHex` | `Signature.toHex` |
+
+`Account.fromLocal` requires raw async `sign`. If `signMessage`,
+`signTypedData`, `signAuthorization`, or `signTransaction` are omitted, Account
+derives them from raw `sign`.
+
+Mnemonic accounts now expose `source: 'mnemonic'`. HD-key accounts expose
+`source: 'hd'`.
 
 ### `Chain`
 
