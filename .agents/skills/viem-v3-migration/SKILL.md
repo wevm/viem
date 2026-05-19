@@ -86,7 +86,7 @@ Current utility modules:
 | `Hash` | `ox/Hash` | Exact proxy. Keccak, SHA-256, RIPEMD-160, HMAC-SHA256, and hash validation. |
 | `Hex` | `ox/Hex` | Exact proxy. Hex construction, conversion, slicing, padding, and trimming. |
 | `Kzg` | `ox/Kzg` | Exact proxy. KZG interface wrapper and versioned-hash constants. |
-| `Log` | `ox/Log` | Exact proxy. Log domain and RPC conversion. |
+| `Log` | `ox/Log` | Ox-backed. Log domain and RPC conversion, with viem `blockTimestamp` conversion. |
 | `NonceManager` | `src/utils/NonceManager.ts` | Viem-owned nonce manager. Create explicit manager instances with `NonceManager.create`. |
 | `P256` | `ox/P256` | Exact proxy. P-256 key, signing, recovery, and verification helpers. |
 | `PersonalMessage` | `ox/PersonalMessage` | Exact proxy. EIP-191 encoding and signing payload hashing. |
@@ -636,6 +636,25 @@ Old formatter helpers are replaced by explicit domain module conversion methods.
 Use `fromRpc` for inbound RPC responses and `toRpc` for outbound RPC payloads.
 Chain-specific formatter work should override only the chain-specific RPC
 deltas.
+
+### `Log`
+
+| v2 | v3 |
+| --- | --- |
+| `formatLog(log)` | `Log.fromRpc(log)` |
+| `type Log` | `type Log.Log` |
+| `type RpcLog` | `type Log.Rpc` |
+
+```diff
+- import { formatLog } from 'viem'
++ import { Log } from 'viem/utils'
+
+- const log = formatLog(rpcLog)
++ const log = Log.fromRpc(rpcLog)
+```
+
+`Log.fromRpc` keeps viem's `blockTimestamp` behavior: hex timestamps become
+`bigint`, while `null` and `undefined` are preserved.
 
 ### `Withdrawal`
 
