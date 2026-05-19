@@ -58,6 +58,20 @@ describe('from', () => {
 
     expect(Account.from(account)).toBe(account)
   })
+
+  test('behavior: creates local accounts from sources', async () => {
+    const account = Account.from({
+      address,
+      async sign() {
+        return '0xabcd'
+      },
+    })
+
+    expect(account.source).toBe('custom')
+    await expect(Account.sign(account, { payload: '0x00' })).resolves.toBe(
+      '0xabcd',
+    )
+  })
 })
 
 describe('fromJsonRpc', () => {
@@ -88,6 +102,52 @@ describe('fromLocal', () => {
     await expect(account.signMessage({ message: 'hello world' })).resolves.toBe(
       '0x1234',
     )
+  })
+
+  test('behavior: preserves custom high-level signers', async () => {
+    const account = Account.fromLocal({
+      address,
+      async sign() {
+        return '0x1234'
+      },
+      async signAuthorization() {
+        return {
+          address: zeroAddress,
+          chainId: 1,
+          nonce: 0n,
+          r: '0x0000000000000000000000000000000000000000000000000000000000000000',
+          s: '0x0000000000000000000000000000000000000000000000000000000000000000',
+          yParity: 0,
+        }
+      },
+      async signMessage() {
+        return '0xabcd'
+      },
+      async signTransaction() {
+        return '0xdead' as never
+      },
+      async signTypedData() {
+        return '0xbeef'
+      },
+    })
+
+    await expect(account.signMessage({ message: 'hello' })).resolves.toBe(
+      '0xabcd',
+    )
+    await expect(account.signTypedData(typedData)).resolves.toBe('0xbeef')
+    await expect(
+      account.signAuthorization({
+        address: zeroAddress,
+        chainId: 1,
+        nonce: 0n,
+      }),
+    ).resolves.toMatchObject({ address: zeroAddress })
+    await expect(
+      account.signTransaction({
+        chainId: 1,
+        maxFeePerGas: Value.fromGwei('20'),
+      }),
+    ).resolves.toBe('0xdead')
   })
 })
 
@@ -125,6 +185,18 @@ describe('fromPrivateKey', () => {
 
     await expect(
       Account.signMessage(account, { message: 'hello world' }),
+    ).resolves.toMatchInlineSnapshot(
+      `"0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"`,
+    )
+  })
+
+  test('behavior: signs raw messages', async () => {
+    const account = Account.fromPrivateKey(privateKey)
+
+    await expect(
+      Account.signMessage(account, {
+        message: { raw: '0x68656c6c6f20776f726c64' },
+      }),
     ).resolves.toMatchInlineSnapshot(
       `"0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b"`,
     )
@@ -229,12 +301,32 @@ describe('fromHdKey', () => {
 
 describe('sign', () => {
   test('behavior: rejects json-rpc accounts', async () => {
-    await expect(
-      Account.sign(Account.fromJsonRpc(zeroAddress), { payload: '0x00' }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    const account = Account.fromJsonRpc(zeroAddress)
+
+    await expect(Account.sign(account, { payload: '0x00' })).rejects
+      .toThrowErrorMatchingInlineSnapshot(`
       [Account.SignNotSupportedError: Account does not support local signing.
 
       Version: viem@2.49.3]
     `)
+    await expect(
+      Account.signMessage(account, { message: 'hello world' }),
+    ).rejects.toThrow(Account.SignNotSupportedError)
+    await expect(Account.signTypedData(account, typedData)).rejects.toThrow(
+      Account.SignNotSupportedError,
+    )
+    await expect(
+      Account.signAuthorization(account, {
+        address: zeroAddress,
+        chainId: 1,
+        nonce: 0n,
+      }),
+    ).rejects.toThrow(Account.SignNotSupportedError)
+    await expect(
+      Account.signTransaction(account, {
+        chainId: 1,
+        maxFeePerGas: Value.fromGwei('20'),
+      }),
+    ).rejects.toThrow(Account.SignNotSupportedError)
   })
 })
