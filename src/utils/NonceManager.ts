@@ -1,5 +1,5 @@
 import type * as Address from 'ox/Address'
-import * as Hex from 'ox/Hex'
+import type * as Hex from 'ox/Hex'
 
 import { LruMap } from '../core/internal/lru.js'
 import type { MaybePromise } from '../core/internal/types.js'
@@ -151,7 +151,5 @@ export declare namespace jsonRpc {
 }
 
 function toNumber(value: Hex.Hex | bigint | number) {
-  if (typeof value === 'number') return value
-  if (typeof value === 'bigint') return Number(value)
-  return Hex.toNumber(value)
+  return Number(value)
 }
