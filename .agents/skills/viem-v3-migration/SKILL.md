@@ -97,6 +97,7 @@ Current utility modules:
 | `RpcTransport` | `ox/RpcTransport` | Exact proxy. JSON-RPC transport helpers. |
 | `Secp256k1` | `ox/Secp256k1` | Exact proxy. Secp256k1 key, signing, recovery, and verification helpers. |
 | `Signature` | `ox/Signature` | Exact proxy. Signature parsing, serialization, RPC conversion, DER conversion, and validation. |
+| `Siwe` | `ox/Siwe` | Exact proxy. EIP-4361 SIWE message creation, parsing, validation, and nonce generation. |
 | `StateOverrides` | `ox/StateOverrides` | Exact proxy. State override RPC conversion. |
 | `Transaction` | `ox/Transaction` | Exact proxy. Transaction domain and RPC conversion. |
 | `TransactionReceipt` | `ox/TransactionReceipt` | Exact proxy. Transaction receipt domain and RPC conversion. |
@@ -344,6 +345,34 @@ removed.
 chain IDs before calling it.
 
 ENS actions and the `viem/ens` entrypoint are reviewed separately.
+
+### `Siwe`
+
+| v2 | v3 |
+| --- | --- |
+| `createSiweMessage(message)` | `Siwe.createMessage(message)` |
+| `generateSiweNonce()` | `Siwe.generateNonce()` |
+| `parseSiweMessage(message)` | `Siwe.parseMessage(message)` |
+| `validateSiweMessage(options)` | `Siwe.validateMessage(options)` |
+| `type SiweMessage` | `type Siwe.Message` |
+| `SiweInvalidMessageFieldError` | `Siwe.InvalidMessageFieldError` |
+
+```diff
+- import { createSiweMessage, parseSiweMessage } from 'viem'
++ import { Siwe } from 'viem/utils'
+
+- const message = createSiweMessage({ chainId: 1, ... })
++ const message = Siwe.createMessage({ chainId: 1n, ... })
+
+- const parsed = parseSiweMessage(message)
++ const parsed = Siwe.parseMessage(message)
+```
+
+`Siwe.Message.chainId` is `bigint`, and `Siwe.parseMessage` returns parsed
+chain IDs as `bigint`.
+
+SIWE verification actions and the `viem/siwe` entrypoint are reviewed
+separately.
 
 ### `Hex`
 

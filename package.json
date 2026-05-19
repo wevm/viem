@@ -229,7 +229,7 @@
     "@scure/bip39": "1.6.0",
     "abitype": "1.2.3",
     "isows": "1.0.7",
-    "ox": "https://pkg.pr.new/ox@ef0f1b6b",
+    "ox": "https://pkg.pr.new/ox@ce3b92ae",
     "ws": "8.18.3"
   },
   "peerDependencies": {
@@ -452,6 +452,11 @@
       "types": "./dist/utils/Signature.d.ts",
       "src": "./src/utils/Signature.ts",
       "default": "./dist/utils/Signature.js"
+    },
+    "./utils/Siwe": {
+      "types": "./dist/utils/Siwe.d.ts",
+      "src": "./src/utils/Siwe.ts",
+      "default": "./dist/utils/Siwe.js"
     },
     "./utils/StateOverrides": {
       "types": "./dist/utils/StateOverrides.d.ts",

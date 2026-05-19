@@ -38,6 +38,7 @@ test('exports', () => {
       "RpcTransport",
       "Secp256k1",
       "Signature",
+      "Siwe",
       "StateOverrides",
       "Transaction",
       "TransactionReceipt",
