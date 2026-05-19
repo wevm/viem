@@ -226,6 +226,31 @@ logs with `eventName` and `args`.
 `AbiConstructor.decode` returns decoded constructor args. The bytecode remains an
 input option, not part of the decoded return value.
 
+### `Authorization`
+
+| v2 | v3 |
+| --- | --- |
+| `hashAuthorization({ address, chainId, nonce })` | `Authorization.getSignPayload(Authorization.from({ address, chainId, nonce }))` |
+| `serializeAuthorizationList(list)` | `Authorization.toTupleList(list)` |
+| `recoverAuthorizationAddress({ authorization, signature })` | `Secp256k1.recoverAddress({ payload, signature })` |
+| `verifyAuthorization({ address, authorization, signature })` | `Secp256k1.verify({ address, payload, signature })` |
+
+```diff
+- import { hashAuthorization, verifyAuthorization } from 'viem'
++ import { Authorization, Secp256k1 } from 'viem/utils'
+
+- const hash = hashAuthorization({ address, chainId, nonce })
++ const authorization = Authorization.from({ address, chainId, nonce })
++ const payload = Authorization.getSignPayload(authorization)
+
+- await verifyAuthorization({ address: signer, authorization, signature })
++ Secp256k1.verify({ address: signer, payload, signature })
+```
+
+`contractAddress` is removed from authorization requests. Use `address`.
+`hashAuthorization({ to: 'bytes' })` is removed; convert the payload with
+`Bytes.fromHex(...)` when byte output is needed.
+
 ### `Hex`
 
 | v2 | v3 |
