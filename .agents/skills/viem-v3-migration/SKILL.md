@@ -637,6 +637,24 @@ Use `fromRpc` for inbound RPC responses and `toRpc` for outbound RPC payloads.
 Chain-specific formatter work should override only the chain-specific RPC
 deltas.
 
+### `Withdrawal`
+
+| v2 | v3 |
+| --- | --- |
+| `type Withdrawal` | `type Withdrawal.Rpc` |
+| withdrawal conversion inside `formatBlock` | `Withdrawal.fromRpc(withdrawal)` |
+
+```diff
+- import type { Withdrawal } from 'viem'
++ import { Withdrawal } from 'viem/utils'
+
+- type RpcWithdrawal = Withdrawal
++ type RpcWithdrawal = Withdrawal.Rpc
+```
+
+Use `Withdrawal.Withdrawal` for normalized domain values and `Withdrawal.Rpc`
+for RPC-shaped values with hex quantities.
+
 ### `PersonalMessage`
 
 | v2 | v3 |
