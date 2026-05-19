@@ -348,6 +348,11 @@
       "src": "./src/utils/BlockOverrides.ts",
       "default": "./dist/utils/BlockOverrides.js"
     },
+    "./utils/Blobs": {
+      "types": "./dist/utils/Blobs.d.ts",
+      "src": "./src/utils/Blobs.ts",
+      "default": "./dist/utils/Blobs.js"
+    },
     "./utils/Bytes": {
       "types": "./dist/utils/Bytes.d.ts",
       "src": "./src/utils/Bytes.ts",

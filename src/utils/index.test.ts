@@ -15,6 +15,7 @@ test('exports', () => {
       "AccessList",
       "Address",
       "Authorization",
+      "Blobs",
       "Block",
       "BlockOverrides",
       "Bytes",

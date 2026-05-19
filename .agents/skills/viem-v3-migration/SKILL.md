@@ -76,6 +76,7 @@ Current utility modules:
 | `Authorization` | `ox/Authorization` | Exact proxy. EIP-7702 authorization signing and RPC conversion. |
 | `Block` | `ox/Block` | Exact proxy. Block domain and RPC conversion. |
 | `BlockOverrides` | `ox/BlockOverrides` | Exact proxy. Block override RPC conversion. |
+| `Blobs` | `ox/Blobs` | Exact proxy. EIP-4844 blob construction, commitments, versioned hashes, and PeerDAS cell proofs. |
 | `Bytes` | `ox/Bytes` | Exact proxy. Byte-array construction, conversion, slicing, padding, and trimming. |
 | `ContractAddress` | `ox/ContractAddress` | Exact proxy. CREATE and CREATE2 address derivation. |
 | `Fee` | `ox/Fee` | Exact proxy. Fee history and RPC conversion. |
@@ -269,6 +270,33 @@ Use `AccessList.fromTupleList(tupleList)` for the inverse conversion.
 `contractAddress` is removed from authorization requests. Use `address`.
 `hashAuthorization({ to: 'bytes' })` is removed; convert the payload with
 `Bytes.fromHex(...)` when byte output is needed.
+
+### `Blobs`
+
+| v2 | v3 |
+| --- | --- |
+| `toBlobs({ data })` | `Blobs.from(data)` |
+| `fromBlobs({ blobs })` | `Blobs.to(blobs)` |
+| `blobsToCommitments({ blobs, kzg })` | `Blobs.toCommitments(blobs, { kzg })` |
+| `commitmentToVersionedHash({ commitment })` | `Blobs.commitmentToVersionedHash(commitment)` |
+| `commitmentsToVersionedHashes({ commitments })` | `Blobs.commitmentsToVersionedHashes(commitments)` |
+| `sidecarsToVersionedHashes({ sidecars })` | `Blobs.commitmentsToVersionedHashes(sidecars.map((x) => x.commitment))` |
+
+```diff
+- import { blobsToCommitments, toBlobs } from 'viem'
++ import { Blobs } from 'viem/utils'
+
+- const blobs = toBlobs({ data })
+- const commitments = blobsToCommitments({ blobs, kzg })
++ const blobs = Blobs.from(data)
++ const commitments = Blobs.toCommitments(blobs, { kzg })
+```
+
+Output discriminator options use Ox casing: `{ as: 'Hex' }` or
+`{ as: 'Bytes' }`.
+
+`blobsToProofs`, `toBlobSidecars`, `BlobSidecar`, and `BlobSidecars` are
+removed.
 
 ### `Hex`
 
