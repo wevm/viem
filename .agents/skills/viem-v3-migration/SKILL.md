@@ -18,7 +18,7 @@ Only landed modules are documented here.
 | `BaseError` | `ox/Errors.BaseError` | Viem-versioned base error exported from `viem`. Defaults docs links to `https://viem.sh` and message versions to `viem@<version>`. |
 | `Chain` | `src/core/Chain.ts` | Chain definition module exported from `viem` and `viem/Chain`. Use `Chain.define` for custom chain definitions. |
 | `Transport` | `src/core/Transport.ts` | Transport module exported from `viem` and `viem/Transport`. Use `Transport.create` and `Transport.shouldThrow` for low-level helpers. |
-| `http`, `webSocket`, `custom`, `fallback` | `src/core/transports.ts` | Flat root transport factories. Factory-specific types live on function namespaces like `http.Options`. |
+| `http`, `webSocket`, `custom`, `fallback` | `src/core/transports/*.ts` | Flat root transport factories. Factory-specific types live on function namespaces like `http.Options`. |
 
 ### `Account`
 
