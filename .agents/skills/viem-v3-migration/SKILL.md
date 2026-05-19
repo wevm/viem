@@ -706,8 +706,8 @@ available when the type is already known.
 ```
 
 `TxEnvelope` dispatches by explicit `type`, EIP-specific envelope fields, or
-serialized type prefix. Use a concrete envelope module when the transaction type
-is already known:
+serialized type prefix. Ambiguous structured envelopes default to EIP-1559. Use
+a concrete envelope module when the transaction type is already known:
 `TxEnvelopeLegacy`, `TxEnvelopeEip2930`, `TxEnvelopeEip1559`,
 `TxEnvelopeEip4844`, or `TxEnvelopeEip7702`.
 
