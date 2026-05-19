@@ -711,6 +711,34 @@ a concrete envelope module when the transaction type is already known:
 `TxEnvelopeLegacy`, `TxEnvelopeEip2930`, `TxEnvelopeEip1559`,
 `TxEnvelopeEip4844`, or `TxEnvelopeEip7702`.
 
+### `TransactionRequest`
+
+`TransactionRequest` owns outbound and inbound RPC request conversion.
+
+| v2 | v3 |
+| --- | --- |
+| `formatTransactionRequest(request)` | `TransactionRequest.toRpc(request)` |
+| `type TransactionRequest` | `type TransactionRequest.TransactionRequest` |
+| `type RpcTransactionRequest` | `type TransactionRequest.Rpc` |
+| `TransactionRequestLegacy` | `TransactionRequest.TransactionRequest<bigint, number, 'legacy'>` |
+| `TransactionRequestEIP2930` | `TransactionRequest.TransactionRequest<bigint, number, 'eip2930'>` |
+| `TransactionRequestEIP1559` | `TransactionRequest.TransactionRequest<bigint, number, 'eip1559'>` |
+| `TransactionRequestEIP4844` | `TransactionRequest.TransactionRequest<bigint, number, 'eip4844'>` |
+| `TransactionRequestEIP7702` | `TransactionRequest.TransactionRequest<bigint, number, 'eip7702'>` |
+| `rpcTransactionType` | `Transaction.toRpcType` |
+
+```diff
+- import { formatTransactionRequest } from 'viem'
++ import { TransactionRequest } from 'viem/utils'
+
+- const request = formatTransactionRequest(request)
++ const request = TransactionRequest.toRpc(request)
+```
+
+`TransactionRequest.toRpc` does not accept v2's `account` convenience field.
+Pass `from` explicitly. Byte-array blob conversion belongs to `Blobs` or later
+wallet/action preparation.
+
 ### `Log`
 
 | v2 | v3 |
