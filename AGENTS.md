@@ -115,6 +115,7 @@
 ## Documentation Conventions
 
 - **TSDoc on public exports** -- every exported public function, type, and constant gets a TSDoc comment. Type properties get TSDoc when they are part of the public surface.
+- **Mirror Ox JSDoc for Ox-backed APIs** -- when viem wraps an Ox API, keep the public JSDoc symmetric with the upstream Ox function: same description shape, examples, parameter docs, and return docs, adapted only for `viem` imports and intentional viem behavior differences.
 - **Doc-driven API changes** -- write or update the TSDoc before or alongside the implementation, not as an afterthought.
 - **Examples should be small** -- public examples should show the minimum useful shape and avoid unrelated setup.
 - **Source docs first** -- public API documentation usually belongs in TSDoc near the exported source.
@@ -140,6 +141,7 @@
 - **Use `pnpm test` for tests** -- run tests through package scripts, not `vitest` directly.
 - **Target the relevant project** -- prefer `pnpm test --project core --bail=1` or another focused project command over the full matrix while iterating.
 - **Colocate tests** -- unit tests live beside their modules. For new Ox-style modules, prefer `src/**/_test/*.test.ts`; keep existing viem test locations unless the module is being moved.
+- **Do not test exact proxies** -- do not add unit or type tests for modules that only re-export an Ox module, such as `export * from 'ox/Hex'`. Cover their availability through entrypoint export snapshots and rely on Ox for behavior/type coverage. Add viem tests only once viem adds wrapping, defaults, errors, or other behavior.
 - **Wrap function exports in `describe`** -- every unit and type test file targets one or more exported functions; each function gets its own `describe('functionName', () => { ... })` block. Index export snapshot tests stay top-level and do not use `describe('index', ...)`.
 - **Prefix test cases by category** -- every `test(...)` name starts with a category prefix such as `behavior:`, `types:`, `exports:`, or `regression:` so the intent is clear in runner output.
 - **Inline snapshots over direct assertions** -- prefer `toMatchInlineSnapshot()` over `.toBe()`, `.toEqual()`, etc. for stable return values. Use `toThrowErrorMatchingInlineSnapshot()` for error assertions.

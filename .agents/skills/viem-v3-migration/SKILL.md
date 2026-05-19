@@ -70,7 +70,7 @@ Current utility modules:
 | `AbiEvent` | `ox/AbiEvent` | Exact proxy. ABI event helpers. |
 | `AbiFunction` | `ox/AbiFunction` | Exact proxy. ABI function helpers. |
 | `AbiItem` | `ox/AbiItem` | Exact proxy. ABI item helpers. |
-| `AbiParameters` | `ox/AbiParameters` | Exact proxy. ABI parameter encoding, decoding, formatting, and parsing. |
+| `AbiParameters` | `ox/AbiParameters` | Ox-backed ABI parameter encoding, decoding, formatting, and parsing. `decode` checksums decoded addresses by default. |
 | `AccessList` | `ox/AccessList` | Exact proxy. Access-list construction and RPC conversion. |
 | `Address` | `ox/Address` | Exact proxy. Address validation, checksum, equality, and public-key derivation. |
 | `Authorization` | `ox/Authorization` | Exact proxy. EIP-7702 authorization signing and RPC conversion. |
@@ -120,6 +120,26 @@ Current utility modules:
 - formatEther(value)
 + Value.formatEther(value)
 ```
+
+### `AbiParameters`
+
+| v2 | v3 |
+| --- | --- |
+| `encodeAbiParameters(params, values)` | `AbiParameters.encode(params, values)` |
+| `decodeAbiParameters(params, data)` | `AbiParameters.decode(params, data)` |
+| `encodePacked(types, values)` | `AbiParameters.encodePacked(types, values)` |
+| `parseAbiParameters(value)` | `AbiParameters.from(value)` |
+
+```diff
+- import { encodeAbiParameters, parseAbiParameters } from 'viem'
++ import { AbiParameters } from 'viem/utils'
+
+- encodeAbiParameters(parseAbiParameters('address account'), [account])
++ AbiParameters.encode(AbiParameters.from('address account'), [account])
+```
+
+`AbiParameters.decode` checksums decoded addresses by default. Pass
+`{ checksumAddress: false }` when lowercase Ox output is needed.
 
 ### `Hex`
 
