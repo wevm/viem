@@ -665,7 +665,8 @@ Missing optional RPC fields may remain `undefined` instead of becoming `null`.
 ### `Transaction`
 
 RPC transaction conversion lives on `Transaction`. Serialized transaction
-envelopes live on the concrete `TxEnvelope*` modules.
+envelope routing lives on `TxEnvelope`; concrete `TxEnvelope*` modules remain
+available when the type is already known.
 
 | v2 | v3 |
 | --- | --- |
@@ -673,6 +674,8 @@ envelopes live on the concrete `TxEnvelope*` modules.
 | `defineTransaction(...)` | chain `formatters.transaction.fromRpc` / `formatters.transaction.toRpc` |
 | `type Transaction` | `type Transaction.Transaction` |
 | `type RpcTransaction` | `type Transaction.Rpc` |
+| `TransactionSerializable` | `TxEnvelope.TxEnvelope` |
+| `TransactionSerialized` | `TxEnvelope.Serialized` |
 | `TransactionSerializableLegacy` | `TxEnvelopeLegacy.TxEnvelopeLegacy` |
 | `TransactionSerializableEIP2930` | `TxEnvelopeEip2930.TxEnvelopeEip2930` |
 | `TransactionSerializableEIP1559` | `TxEnvelopeEip1559.TxEnvelopeEip1559` |
@@ -686,25 +689,25 @@ envelopes live on the concrete `TxEnvelope*` modules.
 | `assertTransactionLegacy(transaction)` | `TxEnvelopeLegacy.assert(transaction)` |
 | `assertTransactionEIP2930(transaction)` | `TxEnvelopeEip2930.assert(transaction)` |
 | `assertTransactionEIP1559(transaction)` | `TxEnvelopeEip1559.assert(transaction)` |
-| `parseTransaction(serialized)` | `TxEnvelope*.deserialize(serialized)` |
-| `serializeTransaction(transaction, signature?)` | `TxEnvelope*.serialize(transaction, { signature })` |
-| `getTransactionType(transaction)` | Select the concrete `TxEnvelope*` module. |
-| `getSerializedTransactionType(serialized)` | Select the concrete `TxEnvelope*` module or compare against `serializedType`. |
+| `parseTransaction(serialized)` | `TxEnvelope.deserialize(serialized)` |
+| `serializeTransaction(transaction, signature?)` | `TxEnvelope.serialize(transaction, { signature })` |
+| `getTransactionType(transaction)` | `TxEnvelope.getType(transaction)` |
+| `getSerializedTransactionType(serialized)` | `TxEnvelope.getSerializedType(serialized)` |
 
 ```diff
 - import { formatTransaction, serializeTransaction } from 'viem'
-+ import { Transaction, TxEnvelopeEip1559 } from 'viem/utils'
++ import { Transaction, TxEnvelope } from 'viem/utils'
 
 - const transaction = formatTransaction(rpcTransaction)
 + const transaction = Transaction.fromRpc(rpcTransaction)
 
 - const serialized = serializeTransaction(transaction, signature)
-+ const serialized = TxEnvelopeEip1559.serialize(transaction, { signature })
++ const serialized = TxEnvelope.serialize(transaction, { signature })
 ```
 
-`parseTransaction`, `serializeTransaction`, `getTransactionType`, and
-`getSerializedTransactionType` are not reintroduced as generic dispatchers.
-Use the concrete envelope module for the transaction type being handled:
+`TxEnvelope` dispatches by explicit `type`, EIP-specific envelope fields, or
+serialized type prefix. Use a concrete envelope module when the transaction type
+is already known:
 `TxEnvelopeLegacy`, `TxEnvelopeEip2930`, `TxEnvelopeEip1559`,
 `TxEnvelopeEip4844`, or `TxEnvelopeEip7702`.
 
