@@ -86,6 +86,7 @@ Current utility modules:
 | `Hex` | `ox/Hex` | Exact proxy. Hex construction, conversion, slicing, padding, and trimming. |
 | `Kzg` | `ox/Kzg` | Exact proxy. KZG interface wrapper and versioned-hash constants. |
 | `Log` | `ox/Log` | Exact proxy. Log domain and RPC conversion. |
+| `NonceManager` | `src/utils/NonceManager.ts` | Viem-owned nonce manager. Create explicit manager instances with `NonceManager.create`. |
 | `P256` | `ox/P256` | Exact proxy. P-256 key, signing, recovery, and verification helpers. |
 | `PersonalMessage` | `ox/PersonalMessage` | Exact proxy. EIP-191 encoding and signing payload hashing. |
 | `Provider` | `ox/Provider` | Exact proxy. EIP-1193 provider helpers and types. |
@@ -322,6 +323,34 @@ removed.
 
 `Kzg.from` expects the Ox KZG interface, including PeerDAS cell methods. The old
 `computeBlobKzgProof` public requirement is removed with `blobsToProofs`.
+
+### `NonceManager`
+
+| v2 | v3 |
+| --- | --- |
+| `createNonceManager({ source })` | `NonceManager.create({ source })` |
+| `jsonRpc()` | `NonceManager.jsonRpc()` |
+| `nonceManager` | Removed. Create and share an explicit manager. |
+| `type NonceManager` | `type NonceManager.NonceManager` |
+| `type NonceManagerSource` | `type NonceManager.Source` |
+| `type CreateNonceManagerParameters` | `type NonceManager.create.Options` |
+| `viem/nonce` | Removed. Use `viem/utils/NonceManager`. |
+
+```diff
+- import { createNonceManager, jsonRpc, nonceManager } from 'viem/nonce'
++ import { NonceManager } from 'viem/utils'
+
+- const manager = nonceManager
++ const manager = NonceManager.create({
++   source: NonceManager.jsonRpc(),
++ })
+
+- const custom = createNonceManager({ source: jsonRpc() })
++ const custom = NonceManager.create({ source: NonceManager.jsonRpc() })
+```
+
+`NonceManager` keys use bigint chain IDs. Convert v2 numeric chain IDs before
+calling `get`, `consume`, `increment`, or `reset`.
 
 ### `Ens`
 

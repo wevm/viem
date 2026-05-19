@@ -338,6 +338,11 @@
       "src": "./src/utils/Authorization.ts",
       "default": "./dist/utils/Authorization.js"
     },
+    "./utils/Blobs": {
+      "types": "./dist/utils/Blobs.d.ts",
+      "src": "./src/utils/Blobs.ts",
+      "default": "./dist/utils/Blobs.js"
+    },
     "./utils/Block": {
       "types": "./dist/utils/Block.d.ts",
       "src": "./src/utils/Block.ts",
@@ -347,11 +352,6 @@
       "types": "./dist/utils/BlockOverrides.d.ts",
       "src": "./src/utils/BlockOverrides.ts",
       "default": "./dist/utils/BlockOverrides.js"
-    },
-    "./utils/Blobs": {
-      "types": "./dist/utils/Blobs.d.ts",
-      "src": "./src/utils/Blobs.ts",
-      "default": "./dist/utils/Blobs.js"
     },
     "./utils/Bytes": {
       "types": "./dist/utils/Bytes.d.ts",
@@ -367,16 +367,6 @@
       "types": "./dist/utils/Ens.d.ts",
       "src": "./src/utils/Ens.ts",
       "default": "./dist/utils/Ens.js"
-    },
-    "./utils/SignatureErc6492": {
-      "types": "./dist/utils/SignatureErc6492.d.ts",
-      "src": "./src/utils/SignatureErc6492.ts",
-      "default": "./dist/utils/SignatureErc6492.js"
-    },
-    "./utils/SignatureErc8010": {
-      "types": "./dist/utils/SignatureErc8010.d.ts",
-      "src": "./src/utils/SignatureErc8010.ts",
-      "default": "./dist/utils/SignatureErc8010.js"
     },
     "./utils/Fee": {
       "types": "./dist/utils/Fee.d.ts",
@@ -407,6 +397,11 @@
       "types": "./dist/utils/Log.d.ts",
       "src": "./src/utils/Log.ts",
       "default": "./dist/utils/Log.js"
+    },
+    "./utils/NonceManager": {
+      "types": "./dist/utils/NonceManager.d.ts",
+      "src": "./src/utils/NonceManager.ts",
+      "default": "./dist/utils/NonceManager.js"
     },
     "./utils/P256": {
       "types": "./dist/utils/P256.d.ts",
@@ -462,6 +457,16 @@
       "types": "./dist/utils/Signature.d.ts",
       "src": "./src/utils/Signature.ts",
       "default": "./dist/utils/Signature.js"
+    },
+    "./utils/SignatureErc6492": {
+      "types": "./dist/utils/SignatureErc6492.d.ts",
+      "src": "./src/utils/SignatureErc6492.ts",
+      "default": "./dist/utils/SignatureErc6492.js"
+    },
+    "./utils/SignatureErc8010": {
+      "types": "./dist/utils/SignatureErc8010.d.ts",
+      "src": "./src/utils/SignatureErc8010.ts",
+      "default": "./dist/utils/SignatureErc8010.js"
     },
     "./utils/Siwe": {
       "types": "./dist/utils/Siwe.d.ts",

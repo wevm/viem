@@ -27,6 +27,7 @@ test('exports', () => {
       "Hex",
       "Kzg",
       "Log",
+      "NonceManager",
       "P256",
       "PersonalMessage",
       "Provider",
