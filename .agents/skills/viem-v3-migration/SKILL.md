@@ -637,6 +637,31 @@ Use `fromRpc` for inbound RPC responses and `toRpc` for outbound RPC payloads.
 Chain-specific formatter work should override only the chain-specific RPC
 deltas.
 
+### `Block`
+
+| v2 | v3 |
+| --- | --- |
+| `formatBlock(block)` | `Block.fromRpc(block)` |
+| `defineBlock(...)` | chain `formatters.block.fromRpc` / `formatters.block.toRpc` |
+| `type Block` | `type Block.Block` |
+| `type RpcBlock` | `type Block.Rpc` |
+| `type BlockIdentifier` | `type Block.Identifier` |
+| `type RpcBlockIdentifier` | `type Block.Identifier<Hex.Hex>` |
+| `type BlockNumber` | `type Block.Number` |
+| `type RpcBlockNumber` | `type Block.Number<Hex.Hex>` |
+| `type BlockTag` | `type Block.Tag` |
+
+```diff
+- import { formatBlock } from 'viem'
++ import { Block } from 'viem/utils'
+
+- const block = formatBlock(rpcBlock)
++ const block = Block.fromRpc(rpcBlock)
+```
+
+`Block.fromRpc` expects RPC-domain block objects, not formatter partials.
+Missing optional RPC fields may remain `undefined` instead of becoming `null`.
+
 ### `Log`
 
 | v2 | v3 |
