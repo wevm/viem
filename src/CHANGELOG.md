@@ -1,5 +1,11 @@
 # viem
 
+## 2.50.4
+
+### Patch Changes
+
+- [#4647](https://github.com/wevm/viem/pull/4647) [`423131df9e00e3df062274e483b98a4921674cea`](https://github.com/wevm/viem/commit/423131df9e00e3df062274e483b98a4921674cea) Thanks [@jxom](https://github.com/jxom)! - Fixed Tempo chain declarations to emit portable inferred types for exported derived chains.
+
 ## 2.50.3
 
 ### Patch Changes
