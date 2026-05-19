@@ -111,8 +111,8 @@ importers:
         specifier: 1.0.7
         version: 1.0.7(ws@8.18.3)
       ox:
-        specifier: https://pkg.pr.new/ox@224a4bc
-        version: https://pkg.pr.new/ox@224a4bc(typescript@5.9.3)(zod@4.3.6)
+        specifier: https://pkg.pr.new/ox@46fdf5e
+        version: https://pkg.pr.new/ox@46fdf5e(typescript@5.9.3)(zod@4.3.6)
       ws:
         specifier: 8.18.3
         version: 8.18.3
@@ -155,7 +155,7 @@ importers:
         version: 0.14.0
       permissionless:
         specifier: ^0.2.57
-        version: 0.2.57(ox@https://pkg.pr.new/ox@224a4bc(typescript@5.9.3)(zod@4.3.6))
+        version: 0.2.57(ox@https://pkg.pr.new/ox@46fdf5e(typescript@5.9.3)(zod@4.3.6))
       prool:
         specifier: ~0.2.3
         version: 0.2.3(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0)
@@ -4367,8 +4367,8 @@ packages:
       typescript:
         optional: true
 
-  ox@https://pkg.pr.new/ox@224a4bc:
-    resolution: {integrity: sha512-QlgFe16Q+XO5tu5mqj8N0drmPRaozRAyZ11ChPLhaZFDL+Zt7p4rS7hShtvPjF6KCkRdaYHUpfb5GdMAkPUkTg==, tarball: https://pkg.pr.new/ox@224a4bc}
+  ox@https://pkg.pr.new/ox@46fdf5e:
+    resolution: {integrity: sha512-m6UHWhj5K3J72wCyp2KuCr5IKR7ocVyE+9APw69xfB4yxperFSWLBocPwb7mGnBl7p+q2hHfVGejKvIpO51KfQ==, tarball: https://pkg.pr.new/ox@46fdf5e}
     version: 0.14.22
     peerDependencies:
       typescript: ^5.9.3
@@ -10335,7 +10335,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@https://pkg.pr.new/ox@224a4bc(typescript@5.9.3)(zod@4.3.6):
+  ox@https://pkg.pr.new/ox@46fdf5e(typescript@5.9.3)(zod@4.3.6):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 2.2.0
@@ -10516,9 +10516,9 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.57(ox@https://pkg.pr.new/ox@224a4bc(typescript@5.9.3)(zod@4.3.6)):
+  permissionless@0.2.57(ox@https://pkg.pr.new/ox@46fdf5e(typescript@5.9.3)(zod@4.3.6)):
     optionalDependencies:
-      ox: https://pkg.pr.new/ox@224a4bc(typescript@5.9.3)(zod@4.3.6)
+      ox: https://pkg.pr.new/ox@46fdf5e(typescript@5.9.3)(zod@4.3.6)
 
   picocolors@1.1.1: {}
 
