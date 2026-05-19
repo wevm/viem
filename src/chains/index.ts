@@ -767,6 +767,28 @@ export { zoraTestnet } from './definitions/zoraTestnet.js'
 // Required type exports to prevent TypeScript error "TS2742".
 
 export type {
+  /** @deprecated */
+  Signed as KeyAuthorizationSigned,
+} from 'ox/tempo/KeyAuthorization'
+export type {
+  /** @deprecated */
+  SignatureEnvelope,
+  /** @deprecated */
+  SignatureEnvelopeRpc,
+} from 'ox/tempo/SignatureEnvelope'
+export type {
+  /** @deprecated */
+  Address as TempoAddress,
+} from 'ox/tempo/TempoAddress'
+export type {
+  /** @deprecated */
+  TokenIdOrAddress,
+} from 'ox/tempo/TokenId'
+export type {
+  /** @deprecated */
+  Call as TxEnvelopeTempoCall,
+} from 'ox/tempo/TxEnvelopeTempo'
+export type {
   assertTransactionCIP42 as assertTransactionCIP42Celo,
   assertTransactionCIP64 as assertTransactionCIP64Celo,
   SerializeTransactionCIP64ReturnType,
@@ -823,6 +845,34 @@ export type {
   TransactionSerializableDeposit,
   TransactionSerializedDeposit,
 } from '../op-stack/types/transaction.js'
+export type {
+  /** @deprecated */
+  Transaction as z_Transaction,
+  /** @deprecated */
+  TransactionReceipt as z_TransactionReceipt,
+  /** @deprecated */
+  TransactionReceiptRpc as z_TransactionReceiptRpc,
+  /** @deprecated */
+  TransactionRequest as z_TransactionRequest,
+  /** @deprecated */
+  TransactionRequestRpc as z_TransactionRequestRpc,
+  /** @deprecated */
+  TransactionRequestTempo as z_TransactionRequestTempo,
+  /** @deprecated */
+  TransactionRpc as z_TransactionRpc,
+  /** @deprecated */
+  TransactionSerializable as z_TransactionSerializable,
+  /** @deprecated */
+  TransactionSerializableTempo as z_TransactionSerializableTempo,
+  /** @deprecated */
+  TransactionSerialized as z_TransactionSerialized,
+  /** @deprecated */
+  TransactionSerializedTempo as z_TransactionSerializedTempo,
+  /** @deprecated */
+  TransactionTempo as z_TransactionTempo,
+  /** @deprecated */
+  TransactionType as z_TransactionType,
+} from '../tempo/Transaction.js'
 export type {
   Assign,
   Omit,
