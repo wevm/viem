@@ -1,0 +1,26 @@
+import * as Chain from '../../core/Chain.js'
+
+export const okc = /*#__PURE__*/ Chain.define({
+  id: 66n,
+  name: 'OKC',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'OKT',
+    symbol: 'OKT',
+  },
+  rpcUrls: {
+    default: { http: ['https://exchainrpc.okex.org'] },
+  },
+  blockExplorers: {
+    default: {
+      name: 'oklink',
+      url: 'https://www.oklink.com/okc',
+    },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xca11bde05977b3631167028862be2a173976ca11',
+      blockCreated: 10364792,
+    },
+  },
+})

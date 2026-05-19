@@ -1,0 +1,47 @@
+import { chainConfig } from '../internal/opStack.js'
+import * as Chain from '../../core/Chain.js'
+
+const sourceId = 1n // mainnet
+
+export const bob = /*#__PURE__*/ Chain.define({
+  ...chainConfig,
+  id: 60808n,
+  name: 'BOB',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'ETH',
+    symbol: 'ETH',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.gobob.xyz'],
+      webSocket: ['wss://rpc.gobob.xyz'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'BOB Explorer',
+      url: 'https://explorer.gobob.xyz',
+    },
+  },
+  contracts: {
+    ...chainConfig.contracts,
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 23131,
+    },
+    l2OutputOracle: {
+      [sourceId.toString()]: {
+        address: '0xdDa53E23f8a32640b04D7256e651C1db98dB11C1',
+        blockCreated: 4462615,
+      },
+    },
+    portal: {
+      [sourceId.toString()]: {
+        address: '0x8AdeE124447435fE03e3CD24dF3f4cAE32E65a3E',
+        blockCreated: 4462615,
+      },
+    },
+  },
+  sourceId,
+})

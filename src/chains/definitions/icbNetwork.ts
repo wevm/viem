@@ -1,0 +1,22 @@
+import * as Chain from '../../core/Chain.js'
+
+export const icbNetwork = /*#__PURE__*/ Chain.define({
+  id: 73115n,
+  name: 'ICB Network',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'ICB Native Token',
+    symbol: 'ICBX',
+  },
+  rpcUrls: {
+    default: { http: ['https://rpc1-mainnet.icbnetwork.info'] },
+  },
+  blockExplorers: {
+    default: {
+      name: 'ICB Explorer',
+      url: 'https://icbscan.io',
+      apiUrl: 'https://icbscan.io/api',
+    },
+  },
+  testnet: false,
+})

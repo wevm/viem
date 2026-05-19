@@ -1,0 +1,56 @@
+import { chainConfig } from '../internal/opStack.js'
+import * as Chain from '../../core/Chain.js'
+
+const sourceId = 1n // mainnet
+
+export const zora = /*#__PURE__*/ Chain.define({
+  ...chainConfig,
+  id: 7777777n,
+  name: 'Zora',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Ether',
+    symbol: 'ETH',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.zora.energy'],
+      webSocket: ['wss://rpc.zora.energy'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Explorer',
+      url: 'https://explorer.zora.energy',
+      apiUrl: 'https://explorer.zora.energy/api',
+    },
+  },
+  contracts: {
+    ...chainConfig.contracts,
+    disputeGameFactory: {
+      [sourceId.toString()]: {
+        address: '0xB0F15106fa1e473Ddb39790f197275BC979Aa37e',
+      },
+    },
+    l2OutputOracle: {
+      [sourceId.toString()]: {
+        address: '0x9E6204F750cD866b299594e2aC9eA824E2e5f95c',
+      },
+    },
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 5882,
+    },
+    portal: {
+      [sourceId.toString()]: {
+        address: '0x1a0ad011913A150f69f6A19DF447A0CfD9551054',
+      },
+    },
+    l1StandardBridge: {
+      [sourceId.toString()]: {
+        address: '0x3e2Ea9B92B7E48A52296fD261dc26fd995284631',
+      },
+    },
+  },
+  sourceId,
+})

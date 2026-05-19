@@ -53,8 +53,25 @@ to bigint literals or `BigInt(...)` before calling it.
 +   ...
 + })
 +
- const extended = chain.extend({ feeToken })
+const extended = chain.extend({ feeToken })
 ```
+
+### `viem/chains`
+
+Chain constants stay as flat named exports from `viem/chains`, but `id` and
+`sourceId` are bigint values.
+
+```diff
+  import { mainnet } from 'viem/chains'
+
+- mainnet.id === 1
++ mainnet.id === 1n
+```
+
+Deprecated chain aliases are removed. Import the replacement chain constant that
+was named in the v2 deprecation notice.
+
+`experimental_preconfirmationTime` is renamed to `preconfirmationTime`.
 
 ## Utilities
 

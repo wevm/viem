@@ -283,6 +283,11 @@
       "src": "./src/core/Chain.ts",
       "default": "./dist/core/Chain.js"
     },
+    "./chains": {
+      "types": "./dist/chains/index.d.ts",
+      "src": "./src/chains/index.ts",
+      "default": "./dist/chains/index.js"
+    },
     "./ens": {
       "types": "./dist/ens/index.d.ts",
       "src": "./src/ens/index.ts",

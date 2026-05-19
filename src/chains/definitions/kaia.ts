@@ -1,0 +1,27 @@
+import * as Chain from '../../core/Chain.js'
+
+export const kaia = /*#__PURE__*/ Chain.define({
+  id: 8_217n,
+  name: 'Kaia',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Kaia',
+    symbol: 'KAIA',
+  },
+  rpcUrls: {
+    default: { http: ['https://public-en.node.kaia.io'] },
+  },
+  blockExplorers: {
+    default: {
+      name: 'KaiaScan',
+      url: 'https://kaiascan.io',
+      apiUrl: 'https://api-cypress.klaytnscope.com/api',
+    },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 96002415,
+    },
+  },
+})
