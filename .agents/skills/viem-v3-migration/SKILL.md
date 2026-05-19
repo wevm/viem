@@ -375,7 +375,17 @@ calling `get`, `consume`, `increment`, or `reset`.
 `Ens.toCoinType` accepts `bigint`, matching v3 chain IDs. Convert v2 numeric
 chain IDs before calling it.
 
-ENS actions and the `viem/ens` entrypoint are reviewed separately.
+The `viem/ens` entrypoint directly re-exports the same module surface.
+
+```diff
+- import { namehash } from 'viem/ens'
++ import * as Ens from 'viem/ens'
+
+- namehash('wevm.eth')
++ Ens.namehash('wevm.eth')
+```
+
+ENS actions are reviewed separately.
 
 ### `SignatureErc6492`
 
@@ -450,8 +460,17 @@ parsing is needed, use
 `Siwe.Message.chainId` is `bigint`, and `Siwe.parseMessage` returns parsed
 chain IDs as `bigint`.
 
-SIWE verification actions and the `viem/siwe` entrypoint are reviewed
-separately.
+The `viem/siwe` entrypoint directly re-exports the same module surface.
+
+```diff
+- import { createSiweMessage } from 'viem/siwe'
++ import * as Siwe from 'viem/siwe'
+
+- createSiweMessage(message)
++ Siwe.createMessage(message)
+```
+
+SIWE verification actions are reviewed separately.
 
 ### `Hex`
 

@@ -283,6 +283,16 @@
       "src": "./src/core/Chain.ts",
       "default": "./dist/core/Chain.js"
     },
+    "./ens": {
+      "types": "./dist/ens/index.d.ts",
+      "src": "./src/ens/index.ts",
+      "default": "./dist/ens/index.js"
+    },
+    "./siwe": {
+      "types": "./dist/siwe/index.d.ts",
+      "src": "./src/siwe/index.ts",
+      "default": "./dist/siwe/index.js"
+    },
     "./utils": {
       "types": "./dist/utils/index.d.ts",
       "src": "./src/utils/index.ts",
