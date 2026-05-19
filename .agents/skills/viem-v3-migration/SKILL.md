@@ -35,11 +35,12 @@ live under `viem/utils`.
 | v2 | v3 |
 | --- | --- |
 | `toAccount(address)` | `Account.from(address)` or `Account.fromJsonRpc(address)` |
-| `toAccount(source)` | `Account.fromLocal(source)` |
+| `toAccount(custom)` | `Account.fromLocal(options)` |
 | `parseAccount(accountOrAddress)` | `Account.from(accountOrAddress)` |
 | `privateKeyToAccount(privateKey)` | `Account.fromPrivateKey(privateKey)` |
 | `mnemonicToAccount(mnemonic, options)` | `Account.fromMnemonic(mnemonic, options)` |
 | `hdKeyToAccount(hdKey, options)` | `Account.fromHdKey(hdKey, options)` |
+| `account.source` | `account.origin` |
 | `sign({ privateKey, hash })` | `Secp256k1.sign({ privateKey, payload: hash, as: 'Hex' })` or `Account.sign(account, { payload })` |
 | `signMessage({ privateKey, message })` | `Account.signMessage(account, { message })` |
 | `signTypedData({ privateKey, ...typedData })` | `Account.signTypedData(account, typedData)` |
@@ -50,12 +51,15 @@ live under `viem/utils`.
 | `publicKeyToAddress(publicKey)` | `Address.fromPublicKey(publicKey, { checksum: true })` |
 | `signatureToHex` | `Signature.toHex` |
 
+`Account.from(...)` only accepts an address or existing account. Use
+`Account.fromLocal(...)` for custom local signers.
+
 `Account.fromLocal` requires raw async `sign`. If `signMessage`,
 `signTypedData`, `signAuthorization`, or `signTransaction` are omitted, Account
 derives them from raw `sign`.
 
-Mnemonic accounts now expose `source: 'mnemonic'`. HD-key accounts expose
-`source: 'hd'`.
+Mnemonic accounts expose `origin: 'mnemonic'`. HD-key accounts expose
+`origin: 'hdKey'`.
 
 ### `Chain`
 

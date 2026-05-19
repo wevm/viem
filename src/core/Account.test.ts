@@ -58,20 +58,6 @@ describe('from', () => {
 
     expect(Account.from(account)).toBe(account)
   })
-
-  test('behavior: creates local accounts from sources', async () => {
-    const account = Account.from({
-      address,
-      async sign() {
-        return '0xabcd'
-      },
-    })
-
-    expect(account.source).toBe('custom')
-    await expect(Account.sign(account, { payload: '0x00' })).resolves.toBe(
-      '0xabcd',
-    )
-  })
 })
 
 describe('fromJsonRpc', () => {
@@ -91,14 +77,13 @@ describe('fromLocal', () => {
   test('behavior: creates a custom local account with fallback signers', async () => {
     const account = Account.fromLocal({
       address,
-      source: 'custom',
       async sign() {
         return '0x1234'
       },
     })
 
     expect(account.type).toBe('local')
-    expect(account.source).toBe('custom')
+    expect(account.origin).toBe('custom')
     await expect(account.signMessage({ message: 'hello world' })).resolves.toBe(
       '0x1234',
     )
@@ -156,7 +141,7 @@ describe('fromPrivateKey', () => {
     const account = Account.fromPrivateKey(privateKey)
 
     expect(account.address).toBe(address)
-    expect(account.source).toBe('privateKey')
+    expect(account.origin).toBe('privateKey')
     expect(account.type).toBe('local')
     expect(account.publicKey).toMatchInlineSnapshot(`
       {
@@ -255,7 +240,7 @@ describe('fromMnemonic', () => {
     const account = Account.fromMnemonic(mnemonic)
 
     expect(account.address).toBe(address)
-    expect(account.source).toBe('mnemonic')
+    expect(account.origin).toBe('mnemonic')
     expect(account.getHdKey().privateKey).toBe(privateKey)
   })
 
@@ -286,7 +271,7 @@ describe('fromHdKey', () => {
     const hdKey = Mnemonic.toHdKey(mnemonic)
     const account = Account.fromHdKey(hdKey)
 
-    expect(account.source).toBe('hd')
+    expect(account.origin).toBe('hdKey')
     expect(account.getHdKey().privateKey).toBe(privateKey)
   })
 

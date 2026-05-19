@@ -4,7 +4,7 @@ import type * as Authorization from 'ox/Authorization'
 import * as ox_Authorization from 'ox/Authorization'
 import type * as Bytes from 'ox/Bytes'
 import * as Hex from 'ox/Hex'
-import type * as HdKey from 'ox/HdKey'
+import type * as ox_HdKey from 'ox/HdKey'
 import * as ox_Mnemonic from 'ox/Mnemonic'
 import * as PersonalMessage from 'ox/PersonalMessage'
 import type * as PublicKey from 'ox/PublicKey'
@@ -34,7 +34,7 @@ export type JsonRpc<address extends Address.Address = Address.Address> = {
 
 /** Local account with signing capabilities. */
 export type Local<
-  source extends string = string,
+  origin extends string = string,
   address extends Address.Address = Address.Address,
 > = Prettify<
   {
@@ -44,8 +44,8 @@ export type Local<
     nonceManager?: NonceManager.NonceManager | undefined
     /** Public key when known. */
     publicKey?: PublicKey.PublicKey | undefined
-    /** Account source metadata. */
-    source: source
+    /** Account construction origin metadata. */
+    origin: origin
     /** Account type. */
     type: 'local'
     /** Signs a raw payload. */
@@ -68,8 +68,8 @@ export type Local<
     signAuthorization(
       authorization: signAuthorization.Options,
     ): Promise<Authorization.Signed>
-  } & (source extends 'hd' | 'mnemonic'
-    ? { getHdKey(): HdKey.HdKey }
+  } & (origin extends 'hdKey' | 'mnemonic'
+    ? { getHdKey(): ox_HdKey.HdKey }
     : Record<never, never>)
 >
 
@@ -81,10 +81,10 @@ export type PrivateKey<address extends Address.Address = Address.Address> =
 
 /** HD local account. */
 export type Hd<address extends Address.Address = Address.Address> = Local<
-  'hd',
+  'hdKey',
   address
 > & {
-  getHdKey(): HdKey.HdKey
+  getHdKey(): ox_HdKey.HdKey
   publicKey: PublicKey.PublicKey
 }
 
@@ -93,55 +93,8 @@ export type Mnemonic<address extends Address.Address = Address.Address> = Local<
   'mnemonic',
   address
 > & {
-  getHdKey(): HdKey.HdKey
+  getHdKey(): ox_HdKey.HdKey
   publicKey: PublicKey.PublicKey
-}
-
-/** Account input accepted by {@link from}. */
-export type Source =
-  | Address.Address
-  | Account
-  | (LocalSource & { source?: string | undefined })
-
-/** Local account source accepted by {@link fromLocal}. */
-export type LocalSource<
-  address extends Address.Address = Address.Address,
-  source extends string = string,
-> = {
-  /** Account address. */
-  address: address
-  /** Optional nonce manager. */
-  nonceManager?: NonceManager.NonceManager | undefined
-  /** Public key when known. */
-  publicKey?: PublicKey.PublicKey | undefined
-  /** Account source metadata. */
-  source?: source | undefined
-  /** Signs a raw payload. */
-  sign(options: sign.Options): Promise<Hex.Hex>
-  /** Signs an EIP-191 personal message. */
-  signMessage?: ((options: signMessage.Options) => Promise<Hex.Hex>) | undefined
-  /** Signs a transaction envelope. */
-  signTransaction?:
-    | (<const transaction extends TxEnvelope.TxEnvelope>(
-        transaction: transaction,
-        options?: signTransaction.Options | undefined,
-      ) => Promise<signTransaction.ReturnType<transaction>>)
-    | undefined
-  /** Signs EIP-712 typed data. */
-  signTypedData?:
-    | (<
-        const typedData extends TypedData.TypedData | Record<string, unknown>,
-        primaryType extends keyof typedData | 'EIP712Domain',
-      >(
-        options: signTypedData.Options<typedData, primaryType>,
-      ) => Promise<Hex.Hex>)
-    | undefined
-  /** Signs an EIP-7702 authorization. */
-  signAuthorization?:
-    | ((
-        authorization: signAuthorization.Options,
-      ) => Promise<Authorization.Signed>)
-    | undefined
 }
 
 /** HD derivation options. */
@@ -156,26 +109,25 @@ export type HdOptions = {
   path?: `m/44'/60'/${string}` | undefined
 }
 
-/** Creates an account from an address, local source, or existing account. */
-export function from<const source extends Source>(
-  source: source,
-): from.ReturnType<source> {
-  if (typeof source === 'string') return fromJsonRpc(source) as never
-  if (typeof source === 'object' && 'type' in source) return source as never
-  return fromLocal(source) as never
+/** Creates an account from an address or existing account. */
+export function from<const account extends from.Input>(
+  account: account,
+): from.ReturnType<account> {
+  if (typeof account === 'string') return fromJsonRpc(account) as never
+  return account as never
 }
 
 export declare namespace from {
-  type ReturnType<source extends Source = Source> =
-    source extends Address.Address
-      ? JsonRpc<source>
-      : source extends Account
-        ? source
-        : source extends LocalSource<infer address, infer sourceName>
-          ? Local<sourceName, address>
-          : Account
+  type Input = Address.Address | Account
 
-  type ErrorType = fromJsonRpc.ErrorType | fromLocal.ErrorType
+  type ReturnType<account extends Input = Input> =
+    account extends Address.Address
+      ? JsonRpc<account>
+      : account extends Account
+        ? account
+        : Account
+
+  type ErrorType = fromJsonRpc.ErrorType
 }
 
 /** Creates a JSON-RPC account from an address. */
@@ -193,45 +145,51 @@ export declare namespace fromJsonRpc {
   type ErrorType = InvalidAddressError
 }
 
-/** Creates a local account from a signing source. */
+/** Creates a local account from signing options. */
 export function fromLocal<
-  const source extends string = 'custom',
   const address extends Address.Address = Address.Address,
->(source: LocalSource<address, source>): Local<source, address> {
-  assertAddress(source.address)
-
-  const account = {
-    address: source.address,
-    nonceManager: source.nonceManager,
-    publicKey: source.publicKey,
-    source: source.source ?? 'custom',
-    type: 'local',
-  } as Local<source, address>
-
-  return Object.assign(account, {
-    sign: (options: sign.Options) => source.sign(options),
-    signAuthorization:
-      source.signAuthorization ??
-      ((authorization: signAuthorization.Options) =>
-        signAuthorizationWith(account, authorization)),
-    signMessage:
-      source.signMessage ??
-      ((options: signMessage.Options) => signMessageWith(account, options)),
-    signTransaction:
-      source.signTransaction ??
-      ((
-        transaction: TxEnvelope.TxEnvelope,
-        options?: signTransaction.Options,
-      ) =>
-        signTransactionWith(account, transaction as never, options) as never),
-    signTypedData:
-      source.signTypedData ??
-      ((options: signTypedData.Options) =>
-        signTypedDataWith(account, options as never)),
-  })
+>(options: fromLocal.Options<address>): Local<'custom', address> {
+  return fromLocalInternal({ ...options, origin: 'custom' })
 }
 
 export declare namespace fromLocal {
+  type Options<address extends Address.Address = Address.Address> = {
+    /** Account address. */
+    address: address
+    /** Optional nonce manager. */
+    nonceManager?: NonceManager.NonceManager | undefined
+    /** Public key when known. */
+    publicKey?: PublicKey.PublicKey | undefined
+    /** Signs a raw payload. */
+    sign(options: sign.Options): Promise<Hex.Hex>
+    /** Signs an EIP-191 personal message. */
+    signMessage?:
+      | ((options: signMessage.Options) => Promise<Hex.Hex>)
+      | undefined
+    /** Signs a transaction envelope. */
+    signTransaction?:
+      | (<const transaction extends TxEnvelope.TxEnvelope>(
+          transaction: transaction,
+          options?: signTransaction.Options | undefined,
+        ) => Promise<signTransaction.ReturnType<transaction>>)
+      | undefined
+    /** Signs EIP-712 typed data. */
+    signTypedData?:
+      | (<
+          const typedData extends TypedData.TypedData | Record<string, unknown>,
+          primaryType extends keyof typedData | 'EIP712Domain',
+        >(
+          options: signTypedData.Options<typedData, primaryType>,
+        ) => Promise<Hex.Hex>)
+      | undefined
+    /** Signs an EIP-7702 authorization. */
+    signAuthorization?:
+      | ((
+          authorization: signAuthorization.Options,
+        ) => Promise<Authorization.Signed>)
+      | undefined
+  }
+
   type ErrorType = InvalidAddressError
 }
 
@@ -244,11 +202,11 @@ export function fromPrivateKey(
   const publicKey = Secp256k1.getPublicKey({ privateKey })
   const address = ox_Address.fromPublicKey(publicKey, { checksum: true })
 
-  return fromLocal({
+  return fromLocalInternal({
     address,
     nonceManager,
+    origin: 'privateKey',
     publicKey,
-    source: 'privateKey',
     async sign(options) {
       return Secp256k1.sign({
         ...options,
@@ -277,10 +235,11 @@ export function fromMnemonic(
   options: fromMnemonic.Options = {},
 ): Mnemonic {
   const { passphrase, ...hdOptions } = options
-  return fromHdKey(ox_Mnemonic.toHdKey(mnemonic, { passphrase }), {
-    ...hdOptions,
-    source: 'mnemonic',
-  }) as unknown as Mnemonic
+  return fromHdKeyWithOrigin(
+    ox_Mnemonic.toHdKey(mnemonic, { passphrase }),
+    hdOptions,
+    'mnemonic',
+  )
 }
 
 export declare namespace fromMnemonic {
@@ -295,15 +254,72 @@ export declare namespace fromMnemonic {
 
 /** Creates a local account from a HD key. */
 export function fromHdKey(
-  hdKey: HdKey.HdKey,
+  hdKey: ox_HdKey.HdKey,
   options: fromHdKey.Options = {},
 ): Hd {
+  return fromHdKeyWithOrigin(hdKey, options, 'hdKey')
+}
+
+export declare namespace fromHdKey {
+  type Options = HdOptions & fromPrivateKey.Options
+
+  type ErrorType = fromPrivateKey.ErrorType
+}
+
+function fromLocalInternal<
+  const origin extends string,
+  const address extends Address.Address = Address.Address,
+>(
+  options: fromLocal.Options<address> & { origin: origin },
+): Local<origin, address> {
+  assertAddress(options.address)
+
+  const account = {
+    address: options.address,
+    nonceManager: options.nonceManager,
+    origin: options.origin,
+    publicKey: options.publicKey,
+    type: 'local',
+  } as Local<origin, address>
+
+  return Object.assign(account, {
+    sign: (signOptions: sign.Options) => options.sign(signOptions),
+    signAuthorization:
+      options.signAuthorization ??
+      ((authorization: signAuthorization.Options) =>
+        signAuthorizationWith(account, authorization)),
+    signMessage:
+      options.signMessage ??
+      ((signOptions: signMessage.Options) =>
+        signMessageWith(account, signOptions)),
+    signTransaction:
+      options.signTransaction ??
+      ((
+        transaction: TxEnvelope.TxEnvelope,
+        signOptions?: signTransaction.Options,
+      ) =>
+        signTransactionWith(
+          account,
+          transaction as never,
+          signOptions,
+        ) as never),
+    signTypedData:
+      options.signTypedData ??
+      ((signOptions: signTypedData.Options) =>
+        signTypedDataWith(account, signOptions as never)),
+  })
+}
+
+function fromHdKeyWithOrigin<const origin extends 'hdKey' | 'mnemonic'>(
+  hdKey: ox_HdKey.HdKey,
+  options: fromHdKey.Options,
+  origin: origin,
+): origin extends 'mnemonic' ? Mnemonic : Hd {
   const {
     accountIndex = 0,
     addressIndex = 0,
     changeIndex = 0,
     path = `m/44'/60'/${accountIndex}'/${changeIndex}/${addressIndex}`,
-    source = 'hd',
     ...privateKeyOptions
   } = options
 
@@ -312,18 +328,8 @@ export function fromHdKey(
   return {
     ...account,
     getHdKey: () => derivedKey,
-    source,
-  } as Hd
-}
-
-export declare namespace fromHdKey {
-  type Options = HdOptions &
-    fromPrivateKey.Options & {
-      /** Account source metadata. */
-      source?: 'hd' | 'mnemonic' | undefined
-    }
-
-  type ErrorType = fromPrivateKey.ErrorType
+    origin,
+  } as never
 }
 
 /** Signs a raw payload with a local account. */
