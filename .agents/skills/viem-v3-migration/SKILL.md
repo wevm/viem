@@ -352,6 +352,38 @@ removed.
 `NonceManager` keys use bigint chain IDs. Convert v2 numeric chain IDs before
 calling `get`, `consume`, `increment`, or `reset`.
 
+### `StateOverrides`
+
+| v2 | v3 |
+| --- | --- |
+| `serializeStateOverride([{ address, ...account }])` | `StateOverrides.toRpc({ [address]: account })` |
+| `serializeStateMapping([{ slot, value }])` | `{ [slot]: value }` |
+| `type StateOverride` | `type StateOverrides.StateOverrides` |
+| `type StateMapping` | `type StateOverrides.AccountStorage` |
+| `type RpcStateOverride` | `type StateOverrides.Rpc` |
+
+```diff
+- import { serializeStateOverride } from 'viem'
++ import { StateOverrides } from 'viem/utils'
+
+- serializeStateOverride([
+-   {
+-     address,
+-     balance: 1n,
+-     stateDiff: [{ slot, value }],
+-   },
+- ])
++ StateOverrides.toRpc({
++   [address]: {
++     balance: 1n,
++     stateDiff: { [slot]: value },
++   },
++ })
+```
+
+State overrides now use the Ox object shape keyed by address. Account storage is
+keyed by slot instead of an array of `{ slot, value }` entries.
+
 ### `Ens`
 
 | v2 | v3 |
