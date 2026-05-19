@@ -14,6 +14,7 @@ import { wait } from '../internal/wait.js'
  *   http('https://eth.llamarpc.com'),
  * ])
  *
+ * // TODO(v3): Replace with Client.create({ transport }) once Client lands.
  * const client = transport({})
  * const blockNumber = await client.request({ method: 'eth_blockNumber' })
  * // @log: '0x1a2b3c'

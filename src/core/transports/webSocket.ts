@@ -33,6 +33,7 @@ const socketClientCache = new Map<string, Promise<SocketRpcClient>>()
  *
  * const transport = webSocket('wss://mainnet.gateway.tenderly.co')
  *
+ * // TODO(v3): Replace with Client.create({ transport }) once Client lands.
  * const client = transport({})
  * const blockNumber = await client.request({ method: 'eth_blockNumber' })
  * // @log: '0x1a2b3c'

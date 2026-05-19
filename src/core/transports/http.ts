@@ -35,6 +35,7 @@ const signalIds = new WeakMap<AbortSignal, number>()
  *
  * const transport = http('https://1.rpc.thirdweb.com')
  *
+ * // TODO(v3): Replace with Client.create({ transport }) once Client lands.
  * const client = transport({})
  * const blockNumber = await client.request({ method: 'eth_blockNumber' })
  * // @log: '0x1a2b3c'
