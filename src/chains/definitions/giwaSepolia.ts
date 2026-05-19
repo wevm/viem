@@ -3,7 +3,7 @@ import * as Chain from '../../core/Chain.js'
 
 const sourceId = 11_155_111n // sepolia
 
-const giwaSepoliaDefinition = {
+export const giwaSepolia = /*#__PURE__*/ Chain.define({
   ...chainConfig,
   id: 91342n,
   network: 'giwa-sepolia',
@@ -46,12 +46,9 @@ const giwaSepoliaDefinition = {
   },
   testnet: true,
   sourceId,
-} as const
+})
 
-export const giwaSepolia = /*#__PURE__*/ Chain.define(giwaSepoliaDefinition)
-
-export const giwaSepoliaPreconf = /*#__PURE__*/ Chain.define({
-  ...giwaSepoliaDefinition,
+export const giwaSepoliaPreconf = /*#__PURE__*/ giwaSepolia.extend({
   preconfirmationTime: 200,
   rpcUrls: {
     default: {

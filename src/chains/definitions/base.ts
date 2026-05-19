@@ -3,7 +3,7 @@ import * as Chain from '../../core/Chain.js'
 
 const sourceId = 1n // mainnet
 
-const baseDefinition = {
+export const base = /*#__PURE__*/ Chain.define({
   ...chainConfig,
   id: 8453n,
   name: 'Base',
@@ -50,12 +50,9 @@ const baseDefinition = {
     },
   },
   sourceId,
-} as const
+})
 
-export const base = /*#__PURE__*/ Chain.define(baseDefinition)
-
-export const basePreconf = /*#__PURE__*/ Chain.define({
-  ...baseDefinition,
+export const basePreconf = /*#__PURE__*/ base.extend({
   preconfirmationTime: 200,
   rpcUrls: {
     default: {

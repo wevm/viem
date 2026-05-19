@@ -3,7 +3,7 @@ import * as Chain from '../../core/Chain.js'
 
 const sourceId = 11_155_111n // sepolia
 
-const baseSepoliaDefinition = {
+export const baseSepolia = /*#__PURE__*/ Chain.define({
   ...chainConfig,
   id: 84532n,
   network: 'base-sepolia',
@@ -52,12 +52,9 @@ const baseSepoliaDefinition = {
   },
   testnet: true,
   sourceId,
-} as const
+})
 
-export const baseSepolia = /*#__PURE__*/ Chain.define(baseSepoliaDefinition)
-
-export const baseSepoliaPreconf = /*#__PURE__*/ Chain.define({
-  ...baseSepoliaDefinition,
+export const baseSepoliaPreconf = /*#__PURE__*/ baseSepolia.extend({
   preconfirmationTime: 200,
   rpcUrls: {
     default: {
