@@ -79,6 +79,7 @@ Current utility modules:
 | `Blobs` | `ox/Blobs` | Exact proxy. EIP-4844 blob construction, commitments, versioned hashes, and PeerDAS cell proofs. |
 | `Bytes` | `ox/Bytes` | Exact proxy. Byte-array construction, conversion, slicing, padding, and trimming. |
 | `ContractAddress` | `ox/ContractAddress` | Exact proxy. CREATE and CREATE2 address derivation. |
+| `Ens` | `ox/Ens` | Exact proxy. ENS normalization, namehashing, labelhashing, and coin type conversion. |
 | `Fee` | `ox/Fee` | Exact proxy. Fee history and RPC conversion. |
 | `Filter` | `ox/Filter` | Exact proxy. Filter domain and RPC conversion. |
 | `Hash` | `ox/Hash` | Exact proxy. Keccak, SHA-256, RIPEMD-160, HMAC-SHA256, and hash validation. |
@@ -318,6 +319,31 @@ removed.
 
 `Kzg.from` expects the Ox KZG interface, including PeerDAS cell methods. The old
 `computeBlobKzgProof` public requirement is removed with `blobsToProofs`.
+
+### `Ens`
+
+| v2 | v3 |
+| --- | --- |
+| `labelhash(label)` | `Ens.labelhash(label)` |
+| `namehash(name)` | `Ens.namehash(name)` |
+| `normalize(name)` | `Ens.normalize(name)` |
+| `toCoinType(chainId)` | `Ens.toCoinType(chainId)` |
+
+```diff
+- import { namehash, normalize, toCoinType } from 'viem'
++ import { Ens } from 'viem/utils'
+
+- namehash(normalize('wevm.eth'))
++ Ens.namehash(Ens.normalize('wevm.eth'))
+
+- toCoinType(chain.id)
++ Ens.toCoinType(chain.id)
+```
+
+`Ens.toCoinType` accepts `bigint`, matching v3 chain IDs. Convert v2 numeric
+chain IDs before calling it.
+
+ENS actions and the `viem/ens` entrypoint are reviewed separately.
 
 ### `Hex`
 

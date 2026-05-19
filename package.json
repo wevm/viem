@@ -229,7 +229,7 @@
     "@scure/bip39": "1.6.0",
     "abitype": "1.2.3",
     "isows": "1.0.7",
-    "ox": "https://pkg.pr.new/ox@71fe2f28",
+    "ox": "https://pkg.pr.new/ox@ef0f1b6b",
     "ws": "8.18.3"
   },
   "peerDependencies": {
@@ -362,6 +362,11 @@
       "types": "./dist/utils/ContractAddress.d.ts",
       "src": "./src/utils/ContractAddress.ts",
       "default": "./dist/utils/ContractAddress.js"
+    },
+    "./utils/Ens": {
+      "types": "./dist/utils/Ens.d.ts",
+      "src": "./src/utils/Ens.ts",
+      "default": "./dist/utils/Ens.js"
     },
     "./utils/Fee": {
       "types": "./dist/utils/Fee.d.ts",

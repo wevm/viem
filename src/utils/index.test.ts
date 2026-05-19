@@ -20,6 +20,7 @@ test('exports', () => {
       "BlockOverrides",
       "Bytes",
       "ContractAddress",
+      "Ens",
       "Fee",
       "Filter",
       "Hash",
