@@ -164,6 +164,28 @@ Current utility modules:
 `AbiFunction.decodeData` and `AbiFunction.decodeResult` checksum decoded
 addresses by default.
 
+### `AbiEvent`
+
+| v2 | v3 |
+| --- | --- |
+| `encodeEventTopics({ abi, eventName, args })` | `AbiEvent.encode(abi, eventName, args)` |
+| `decodeEventLog({ abi, data, topics })` | `AbiEvent.decodeLog(abi, { data, topics })` |
+| `decodeEventLog({ abi, eventName, data, topics })` | `AbiEvent.decode(abi, eventName, { data, topics })` |
+| `parseEventLogs({ abi, logs, ...options })` | `AbiEvent.extractLogs(abi, logs, options)` |
+
+```diff
+- import { decodeEventLog } from 'viem'
++ import { AbiEvent } from 'viem/utils'
+
+- decodeEventLog({ abi, data, topics })
++ AbiEvent.decodeLog(abi, { data, topics })
+```
+
+`AbiEvent.decodeLog` returns `{ event, args }`. The `event` value is the
+selected ABI event object, not the v2 `eventName` string.
+`AbiEvent.extractLogs` matches the v2 `parseEventLogs` behavior and returns
+logs with `eventName` and `args`.
+
 ### `Hex`
 
 | v2 | v3 |
