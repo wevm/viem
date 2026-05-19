@@ -34,7 +34,7 @@ jobs:
         run: |
           pnpm clean
           pnpm changeset:prepublish
-          pnpx pkg-pr-new publish --pnpm --compact './src'
+          pnpx pkg-pr-new publish --pnpm --compact '.'
 
   size:
     name: Size
