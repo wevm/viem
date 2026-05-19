@@ -24,6 +24,7 @@ test('exports', () => {
       "Filter",
       "Hash",
       "Hex",
+      "Kzg",
       "Log",
       "P256",
       "PersonalMessage",

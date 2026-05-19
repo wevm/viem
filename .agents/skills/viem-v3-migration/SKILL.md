@@ -83,6 +83,7 @@ Current utility modules:
 | `Filter` | `ox/Filter` | Exact proxy. Filter domain and RPC conversion. |
 | `Hash` | `ox/Hash` | Exact proxy. Keccak, SHA-256, RIPEMD-160, HMAC-SHA256, and hash validation. |
 | `Hex` | `ox/Hex` | Exact proxy. Hex construction, conversion, slicing, padding, and trimming. |
+| `Kzg` | `ox/Kzg` | Exact proxy. KZG interface wrapper and versioned-hash constants. |
 | `Log` | `ox/Log` | Exact proxy. Log domain and RPC conversion. |
 | `P256` | `ox/P256` | Exact proxy. P-256 key, signing, recovery, and verification helpers. |
 | `PersonalMessage` | `ox/PersonalMessage` | Exact proxy. EIP-191 encoding and signing payload hashing. |
@@ -297,6 +298,26 @@ Output discriminator options use Ox casing: `{ as: 'Hex' }` or
 
 `blobsToProofs`, `toBlobSidecars`, `BlobSidecar`, and `BlobSidecars` are
 removed.
+
+### `Kzg`
+
+| v2 | v3 |
+| --- | --- |
+| `defineKzg(kzg)` | `Kzg.from(kzg)` |
+| `setupKzg(kzg, path)` | `kzg.loadTrustedSetup(path); Kzg.from(kzg)` |
+| `type Kzg` | `type Kzg.Kzg` |
+
+```diff
+- import { setupKzg } from 'viem'
++ import { Kzg } from 'viem/utils'
+
+- const kzg = setupKzg(cKzg, trustedSetupPath)
++ cKzg.loadTrustedSetup(trustedSetupPath)
++ const kzg = Kzg.from(cKzg)
+```
+
+`Kzg.from` expects the Ox KZG interface, including PeerDAS cell methods. The old
+`computeBlobKzgProof` public requirement is removed with `blobsToProofs`.
 
 ### `Hex`
 

@@ -383,6 +383,11 @@
       "src": "./src/utils/Hex.ts",
       "default": "./dist/utils/Hex.js"
     },
+    "./utils/Kzg": {
+      "types": "./dist/utils/Kzg.d.ts",
+      "src": "./src/utils/Kzg.ts",
+      "default": "./dist/utils/Kzg.js"
+    },
     "./utils/Log": {
       "types": "./dist/utils/Log.d.ts",
       "src": "./src/utils/Log.ts",
