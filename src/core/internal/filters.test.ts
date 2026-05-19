@@ -6,12 +6,12 @@ import {
   type Request,
   type ResponseOptions,
   type Transport,
-  createFilterRequestScope,
+  createRequestScope,
 } from './filters.js'
 
 const id = '0x1' as Hex.Hex
 
-describe('createFilterRequestScope', () => {
+describe('createRequestScope', () => {
   test('behavior: returns the client request for non-fallback transports', () => {
     const request = vi.fn(async () => '0x0')
     const client = {
@@ -22,7 +22,7 @@ describe('createFilterRequestScope', () => {
       },
     } satisfies Client
 
-    const getRequest = createFilterRequestScope(client, {
+    const getRequest = createRequestScope(client, {
       method: 'eth_newBlockFilter',
     })
 
@@ -45,7 +45,7 @@ describe('createFilterRequestScope', () => {
       }),
     } satisfies Client
 
-    const getRequest = createFilterRequestScope(client, {
+    const getRequest = createRequestScope(client, {
       method: 'eth_newBlockFilter',
     })
     onResponse?.({
@@ -101,7 +101,7 @@ describe('createFilterRequestScope', () => {
       }),
     } satisfies Client
 
-    const getRequest = createFilterRequestScope(client, {
+    const getRequest = createRequestScope(client, {
       method: 'eth_newBlockFilter',
     })
     onResponse?.({

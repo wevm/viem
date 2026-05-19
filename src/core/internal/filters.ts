@@ -23,10 +23,10 @@ export type ResponseOptions = {
   transport: Transport
 }
 
-export function createFilterRequestScope(
+export function createRequestScope(
   client: Client,
-  options: createFilterRequestScope.Options,
-): createFilterRequestScope.ReturnType {
+  options: createRequestScope.Options,
+): createRequestScope.ReturnType {
   const { method } = options
   const requestMap = new Map<Hex.Hex, Request>()
 
@@ -41,7 +41,7 @@ export function createFilterRequestScope(
   return (id) => requestMap.get(id) ?? client.request
 }
 
-export declare namespace createFilterRequestScope {
+export declare namespace createRequestScope {
   type Options = {
     method:
       | 'eth_newBlockFilter'
