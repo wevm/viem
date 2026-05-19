@@ -4,15 +4,16 @@ export const somniaTestnet = /*#__PURE__*/ defineChain({
   id: 50312,
   name: 'Somnia Testnet',
   nativeCurrency: { name: 'STT', symbol: 'STT', decimals: 18 },
+  blockTime: 100,
   rpcUrls: {
     default: {
-      http: ['https://dream-rpc.somnia.network'],
+      http: ['https://api.infra.testnet.somnia.network/'],
     },
   },
   blockExplorers: {
     default: {
       name: 'Somnia Testnet Explorer',
-      url: 'https://shannon-explorer.somnia.network/',
+      url: 'https://shannon-explorer.somnia.network',
       apiUrl: 'https://shannon-explorer.somnia.network/api',
     },
   },
