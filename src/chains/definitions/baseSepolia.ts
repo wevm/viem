@@ -1,9 +1,9 @@
-import { chainConfig } from '../internal/opStack.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
 import * as Chain from '../../core/Chain.js'
 
 const sourceId = 11_155_111n // sepolia
 
-export const baseSepolia = /*#__PURE__*/ Chain.define({
+const baseSepoliaDefinition = {
   ...chainConfig,
   id: 84532n,
   network: 'base-sepolia',
@@ -52,10 +52,12 @@ export const baseSepolia = /*#__PURE__*/ Chain.define({
   },
   testnet: true,
   sourceId,
-})
+} as const
 
-export const baseSepoliaPreconf: Chain.Chain = /*#__PURE__*/ Chain.define({
-  ...baseSepolia,
+export const baseSepolia = /*#__PURE__*/ Chain.define(baseSepoliaDefinition)
+
+export const baseSepoliaPreconf = /*#__PURE__*/ Chain.define({
+  ...baseSepoliaDefinition,
   preconfirmationTime: 200,
   rpcUrls: {
     default: {

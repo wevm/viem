@@ -1,4 +1,4 @@
-import { chainConfig } from '../internal/opStack.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
 import * as Chain from '../../core/Chain.js'
 
 const sourceId = 17000n // holesky

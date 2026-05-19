@@ -1,5 +1,5 @@
 import * as Chain from '../../core/Chain.js'
-import { chainConfig } from '../internal/zksync.js'
+import { chainConfig } from '../../zksync/chainConfig.js'
 
 // The local hyperchain setup: https://github.com/matter-labs/local-setup/blob/main/zk-chains-docker-compose.yml
 

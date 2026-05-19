@@ -1,5 +1,5 @@
 import * as Chain from '../../core/Chain.js'
-import { chainConfig } from '../internal/zksync.js'
+import { chainConfig } from '../../zksync/chainConfig.js'
 
 export const treasure = /*#__PURE__*/ Chain.define({
   ...chainConfig,

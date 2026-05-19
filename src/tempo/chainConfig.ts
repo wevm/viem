@@ -1,4 +1,4 @@
-import * as Chain from '../../core/Chain.js'
+import * as Chain from '../core/Chain.js'
 
 export const hardforks = [
   'genesis',

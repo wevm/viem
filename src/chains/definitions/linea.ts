@@ -1,8 +1,6 @@
-import { chainConfig } from '../internal/linea.js'
 import * as Chain from '../../core/Chain.js'
 
 export const linea = /*#__PURE__*/ Chain.define({
-  ...chainConfig,
   id: 59_144n,
   name: 'Linea Mainnet',
   blockTime: 2000,

@@ -80,6 +80,7 @@
 - **No `abitype` flat re-exports** -- do not expose flat `parseAbi`, `parseAbiItem`, or similar `abitype` re-exports from `viem/utils`. Use Ox ABI modules or module methods instead.
 - **Removed extension entrypoints** -- v3 removes `viem/op-stack`, `viem/zksync`, `viem/celo`, and `viem/linea` instead of migrating them to the module API.
 - **Extension removal does not remove chains** -- chain constants for OP Stack, ZKsync, Celo, and Linea networks can remain flat under `viem/chains` unless separately removed.
+- **Extension chain config ownership** -- shared chain configuration for retained extension-owned behavior lives under `src/<extension>/chainConfig.ts`, not under `src/chains/internal`. Do not create configs for removed extensions when the chain definitions can own the data directly.
 - **Tempo mirrors root viem** -- `viem/tempo` exports PascalCase modules from its root, exposes lowercase action collections such as `import * as actions from 'viem/tempo/actions'`, and does not export a root `Actions` module.
 - **Extension modules get PascalCase subpaths** -- every PascalCase module exported from a remaining extension root gets a matching PascalCase subpath.
 - **Experimental root is removed** -- v3 removes the `viem/experimental` entrypoint instead of carrying an experimental namespace forward.

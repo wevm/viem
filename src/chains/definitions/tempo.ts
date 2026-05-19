@@ -1,4 +1,4 @@
-import { chainConfig } from '../internal/tempo.js'
+import { chainConfig } from '../../tempo/chainConfig.js'
 import * as Chain from '../../core/Chain.js'
 
 export const tempo = /*#__PURE__*/ Chain.define({

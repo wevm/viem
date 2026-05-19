@@ -1,8 +1,8 @@
-import { chainConfig } from '../internal/celo.js'
+import { contracts } from '../../op-stack/chainConfig.js'
 import * as Chain from '../../core/Chain.js'
 
 export const celo = /*#__PURE__*/ Chain.define({
-  ...chainConfig,
+  blockTime: 1_000,
   id: 42_220n,
   name: 'Celo',
   nativeCurrency: {
@@ -21,6 +21,7 @@ export const celo = /*#__PURE__*/ Chain.define({
     },
   },
   contracts: {
+    ...contracts,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 13112599,

@@ -1,10 +1,10 @@
-import { chainConfig } from '../internal/celo.js'
+import { contracts } from '../../op-stack/chainConfig.js'
 import * as Chain from '../../core/Chain.js'
 
 const sourceId = 11_155_111n // sepolia
 // source https://storage.googleapis.com/cel2-rollup-files/celo-sepolia/deployment-l1.json
 export const celoSepolia = /*#__PURE__*/ Chain.define({
-  ...chainConfig,
+  blockTime: 1_000,
   id: 11_142_220n,
   name: 'Celo Sepolia Testnet',
   nativeCurrency: {
@@ -25,7 +25,7 @@ export const celoSepolia = /*#__PURE__*/ Chain.define({
     },
   },
   contracts: {
-    ...chainConfig.contracts,
+    ...contracts,
     multicall3: {
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
       blockCreated: 1,

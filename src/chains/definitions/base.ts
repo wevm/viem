@@ -1,9 +1,9 @@
-import { chainConfig } from '../internal/opStack.js'
+import { chainConfig } from '../../op-stack/chainConfig.js'
 import * as Chain from '../../core/Chain.js'
 
 const sourceId = 1n // mainnet
 
-export const base = /*#__PURE__*/ Chain.define({
+const baseDefinition = {
   ...chainConfig,
   id: 8453n,
   name: 'Base',
@@ -50,10 +50,12 @@ export const base = /*#__PURE__*/ Chain.define({
     },
   },
   sourceId,
-})
+} as const
 
-export const basePreconf: Chain.Chain = /*#__PURE__*/ Chain.define({
-  ...base,
+export const base = /*#__PURE__*/ Chain.define(baseDefinition)
+
+export const basePreconf = /*#__PURE__*/ Chain.define({
+  ...baseDefinition,
   preconfirmationTime: 200,
   rpcUrls: {
     default: {
