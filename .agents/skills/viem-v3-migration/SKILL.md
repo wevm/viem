@@ -17,6 +17,7 @@ Only landed modules are documented here.
 | `Account` | `src/core/Account.ts` | Account module exported from `viem` and `viem/Account`. Use `Account.from*` constructors and `Account.sign*` helpers. |
 | `BaseError` | `ox/Errors.BaseError` | Viem-versioned base error exported from `viem`. Defaults docs links to `https://viem.sh` and message versions to `viem@<version>`. |
 | `Chain` | `src/core/Chain.ts` | Chain definition module exported from `viem` and `viem/Chain`. Use `Chain.define` for custom chain definitions. |
+| `Client` | `src/core/Client.ts` | Client creation module exported from `viem` and `viem/Client`. Use `Client.create` for base clients and `.extend(...)` for action namespaces as they land. |
 | `Transport` | `src/core/Transport.ts` | Transport module exported from `viem` and `viem/Transport`. Use `Transport.create` and `Transport.shouldThrow` for low-level helpers. |
 | `http`, `webSocket`, `custom`, `fallback` | `src/core/transports/*.ts` | Flat root transport factories. Factory-specific types live on function namespaces like `http.Options`. |
 
@@ -118,6 +119,35 @@ Deprecated chain aliases are removed. Import the replacement chain constant that
 was named in the v2 deprecation notice.
 
 `experimental_preconfirmationTime` is renamed to `preconfirmationTime`.
+
+### `Client`
+
+Base client creation moves under the root `Client` module. Public, wallet, and
+test action decorators are documented when `viem/actions` lands.
+
+```diff
+- import { createClient } from 'viem'
++ import { Client } from 'viem'
+
+- const client = createClient({ chain, transport })
++ const client = Client.create({ chain, transport })
+```
+
+| v2 | v3 |
+| --- | --- |
+| `createClient(options)` | `Client.create(options)` |
+| `type Client` | `Client.Client` |
+| `type ClientConfig` | `Client.Options` |
+| `type MulticallBatchOptions` | `Client.MulticallBatchOptions` |
+| `rpcSchema<schema>()` | `RpcSchema.from<schema>()` from `viem/utils` |
+| `experimental_blockTag` | `blockTag` |
+
+`Client.create` keeps base metadata defaults: `key: 'base'`,
+`name: 'Base Client'`, and `type: 'base'`. Removed public/wallet/test creator
+helpers no longer synthesize public, wallet, or test metadata.
+
+Transport retry and timeout options remain on transport factories, not on
+`Client.create`.
 
 ### `Transport`
 

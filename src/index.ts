@@ -1,5 +1,6 @@
 export * as Account from './core/Account.js'
 export { BaseError } from './core/BaseError.js'
 export * as Chain from './core/Chain.js'
+export * as Client from './core/Client.js'
 export * as Transport from './core/Transport.js'
 export { custom, fallback, http, webSocket } from './core/transports/index.js'

@@ -8,6 +8,7 @@ test('exports', () => {
       "Account",
       "BaseError",
       "Chain",
+      "Client",
       "Transport",
       "custom",
       "fallback",

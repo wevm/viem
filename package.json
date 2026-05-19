@@ -293,6 +293,11 @@
       "src": "./src/chains/index.ts",
       "default": "./dist/chains/index.js"
     },
+    "./Client": {
+      "types": "./dist/core/Client.d.ts",
+      "src": "./src/core/Client.ts",
+      "default": "./dist/core/Client.js"
+    },
     "./ens": {
       "types": "./dist/ens/index.d.ts",
       "src": "./src/ens/index.ts",
