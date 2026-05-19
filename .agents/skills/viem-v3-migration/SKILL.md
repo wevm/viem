@@ -739,6 +739,28 @@ a concrete envelope module when the transaction type is already known:
 Pass `from` explicitly. Byte-array blob conversion belongs to `Blobs` or later
 wallet/action preparation.
 
+### `TransactionReceipt`
+
+RPC transaction receipt conversion lives on `TransactionReceipt`.
+
+| v2 | v3 |
+| --- | --- |
+| `formatTransactionReceipt(receipt)` | `TransactionReceipt.fromRpc(receipt)` |
+| `type TransactionReceipt` | `type TransactionReceipt.TransactionReceipt` |
+| `type RpcTransactionReceipt` | `type TransactionReceipt.Rpc` |
+| `receiptStatuses` | `TransactionReceipt.fromRpcStatus` |
+
+```diff
+- import { formatTransactionReceipt } from 'viem'
++ import { TransactionReceipt } from 'viem/utils'
+
+- const receipt = formatTransactionReceipt(rpcReceipt)
++ const receipt = TransactionReceipt.fromRpc(rpcReceipt)
+```
+
+`TransactionReceipt.fromRpc` expects RPC-domain receipts. Do not rely on v2
+formatter partial behavior that filled missing fields with `null`.
+
 ### `Log`
 
 | v2 | v3 |
