@@ -9,14 +9,14 @@ import {
   buildRequest,
 } from './internal/buildRequest.js'
 
-/** Transport factory used by viem clients. */
+/** Root type for a viem Transport. */
 export type Transport<
   type extends string = string,
   value = unknown,
   request extends AnyRequestFn = AnyRequestFn,
 > = (options: Options) => Instance<type, value, request>
 
-/** Concrete transport instance used by viem clients. */
+/** Concrete Transport instance used by viem Clients. */
 export type Instance<
   type extends string = string,
   value = unknown,
@@ -30,16 +30,21 @@ export type Instance<
   value?: value | undefined
 }
 
-/** Transport construction options. */
+/** Options for creating a Transport instance for a Client. */
 export type Options<chain extends Chain.Chain | undefined = Chain.Chain> = {
+  /** Account to use for the Client. */
   account?: Account.Account | undefined
+  /** Chain to use for the Client. */
   chain?: chain | undefined
+  /** Polling interval in milliseconds. */
   pollingInterval?: number | undefined
+  /** Retry count. */
   retryCount?: number | undefined
+  /** Request timeout in milliseconds. */
   timeout?: number | undefined
 }
 
-/** Concrete transport configuration. */
+/** Configuration for a concrete Transport instance. */
 export type Config<
   type extends string = string,
   request extends AnyRequestFn = AnyRequestFn,
@@ -64,11 +69,13 @@ export type Config<
 
 /** JSON-RPC method filter. */
 export type Methods = {
+  /** Methods to exclude from this Transport. */
   exclude?: readonly string[] | undefined
+  /** Methods to include on this Transport. */
   include?: readonly string[] | undefined
 }
 
-/** JSON-RPC request shape accepted by transports. */
+/** JSON-RPC request shape accepted by Transports. */
 export type Request<
   schema extends RpcSchema.Generic = RpcSchema.Generic,
   methodName extends RpcSchema.MethodNameGeneric<schema> =
@@ -78,7 +85,7 @@ export type Request<
 /** JSON-RPC request options. */
 export type RequestOptions = buildRequest.OverrideOptions
 
-/** JSON-RPC request function. */
+/** JSON-RPC request function used by Transports. */
 export type RequestFn<
   schema extends RpcSchema.Generic = RpcSchema.Generic,
   raw extends boolean = false,
@@ -94,12 +101,34 @@ export type RequestFn<
     : RpcSchema.ExtractReturnType<schema, methodName>
 >
 
+/** JSON-RPC request function with an unknown return type. */
 export type AnyRequestFn = (
   request: Request,
   options?: RequestOptions | undefined,
 ) => Promise<unknown>
 
-/** Creates a concrete transport instance. */
+/**
+ * Creates a concrete Transport instance.
+ *
+ * @example
+ * ```ts twoslash
+ * import { Transport } from 'viem'
+ *
+ * const transport = Transport.create({
+ *   key: 'mock',
+ *   name: 'Mock',
+ *   request: async ({ method }) => method,
+ *   type: 'mock',
+ * })
+ *
+ * await transport.request({ method: 'eth_blockNumber' })
+ * // @log: 'eth_blockNumber'
+ * ```
+ *
+ * @param config - Transport configuration.
+ * @param value - Transport-specific metadata.
+ * @returns Concrete Transport instance.
+ */
 export function create<
   const type extends string,
   value,
@@ -145,7 +174,23 @@ export declare namespace create {
   type ErrorType = never
 }
 
-/** Returns whether fallback transports should stop on an error. */
+/**
+ * Returns whether a Fallback Transport should stop after an error.
+ *
+ * @example
+ * ```ts twoslash
+ * import { Transport } from 'viem'
+ *
+ * Transport.shouldThrow(Object.assign(new Error('rejected'), { code: 4001 }))
+ * // @log: true
+ *
+ * Transport.shouldThrow(Object.assign(new Error('internal'), { code: -32603 }))
+ * // @log: false
+ * ```
+ *
+ * @param error - Error to evaluate.
+ * @returns Whether a Fallback Transport should stop.
+ */
 export function shouldThrow(error: Error) {
   if ('code' in error && typeof error.code === 'number') {
     if (error.code === -32003) return true

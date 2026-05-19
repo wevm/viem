@@ -2,11 +2,31 @@ import type * as Chain from '../Chain.js'
 import * as Transport from '../Transport.js'
 import { wait } from '../internal/wait.js'
 
-/** Creates a fallback transport. */
+/**
+ * Creates a Fallback Transport from a list of Transports.
+ *
+ * @example
+ * ```ts twoslash
+ * import { fallback, http } from 'viem'
+ *
+ * const transport = fallback([
+ *   http('https://1.rpc.thirdweb.com'),
+ *   http('https://eth.llamarpc.com'),
+ * ])
+ *
+ * const client = transport({})
+ * const blockNumber = await client.request({ method: 'eth_blockNumber' })
+ * // @log: '0x1a2b3c'
+ * ```
+ *
+ * @param transports - Transports to use for JSON-RPC requests.
+ * @param options - Transport options.
+ * @returns Fallback Transport.
+ */
 export function fallback<
   const transports extends readonly Transport.Transport[],
 >(
-  transports_: transports,
+  transports: transports,
   options: fallback.Options = {},
 ): fallback.Transport<transports> {
   const {
@@ -19,7 +39,7 @@ export function fallback<
   } = options
 
   return (({ chain, pollingInterval = 4_000, timeout, ...rest }) => {
-    let transports = transports_
+    let transports_ = transports
     let onResponse: fallback.OnResponse = () => undefined
 
     const transport = Transport.create(
@@ -30,7 +50,7 @@ export function fallback<
           let includes: boolean | undefined
 
           const fetch = async (index = 0): Promise<unknown> => {
-            const transport = transports[index]?.({
+            const transport = transports_[index]?.({
               ...rest,
               chain,
               retryCount: 0,
@@ -61,9 +81,9 @@ export function fallback<
               })
 
               if (shouldThrow(error as Error)) throw error
-              if (index === transports.length - 1) throw error
+              if (index === transports_.length - 1) throw error
 
-              includes ??= transports.slice(index + 1).some((transport_) => {
+              includes ??= transports_.slice(index + 1).some((transport_) => {
                 const { exclude, include } =
                   transport_({ chain }).config.methods ?? {}
                 if (include) return include.includes(method)
@@ -85,7 +105,7 @@ export function fallback<
         onResponse: (fn: fallback.OnResponse) => {
           onResponse = fn
         },
-        transports: transports.map((transport) =>
+        transports: transports_.map((transport) =>
           transport({ chain, retryCount: 0 }),
         ),
       },
@@ -96,13 +116,13 @@ export function fallback<
       rankTransports({
         chain,
         interval: rankOptions.interval ?? pollingInterval,
-        onTransports: (transports_) => {
-          transports = transports_ as transports
+        onTransports: (transports) => {
+          transports_ = transports as transports
         },
         ping: rankOptions.ping,
         sampleCount: rankOptions.sampleCount,
         timeout: rankOptions.timeout,
-        transports,
+        transports: transports_,
         weights: rankOptions.weights,
       })
     }
@@ -112,19 +132,34 @@ export function fallback<
 }
 
 export declare namespace fallback {
+  /** Options for a Fallback Transport. */
   type Options = {
+    /** Transport key. */
     key?: string | undefined
+    /** Transport display name. */
     name?: string | undefined
+    /**
+     * Enables Transport ranking.
+     *
+     * @default false
+     */
     rank?: boolean | RankOptions | undefined
+    /** Retry count. */
     retryCount?: number | undefined
+    /** Retry delay in milliseconds. */
     retryDelay?: number | undefined
+    /** Function that determines whether a request error should stop the fallback sequence. */
     shouldThrow?: ((error: Error) => boolean) | undefined
   }
 
+  /** Function to call after each Fallback Transport response. */
   type OnResponse = (
     args: {
+      /** JSON-RPC method name. */
       method: string
+      /** JSON-RPC parameters. */
       params: unknown[]
+      /** Transport that handled the request. */
       transport: Transport.Instance
     } & (
       | {
@@ -140,6 +175,7 @@ export declare namespace fallback {
     ),
   ) => void
 
+  /** Fallback Transport. */
   type Transport<transports extends readonly Transport.Transport[]> =
     Transport.Transport<
       'fallback',

@@ -24,7 +24,24 @@ type JsonRpcResponse = RpcResponse.RpcResponse
 let id = 0
 const socketClientCache = new Map<string, Promise<SocketRpcClient>>()
 
-/** Creates a WebSocket JSON-RPC transport. */
+/**
+ * Creates a WebSocket JSON-RPC Transport from a URL.
+ *
+ * @example
+ * ```ts twoslash
+ * import { webSocket } from 'viem'
+ *
+ * const transport = webSocket('wss://mainnet.gateway.tenderly.co')
+ *
+ * const client = transport({})
+ * const blockNumber = await client.request({ method: 'eth_blockNumber' })
+ * // @log: '0x1a2b3c'
+ * ```
+ *
+ * @param url - URL to perform the JSON-RPC requests to.
+ * @param options - Transport options.
+ * @returns WebSocket JSON-RPC Transport.
+ */
 export function webSocket(
   url?: string | undefined,
   options: webSocket.Options = {},
@@ -89,17 +106,35 @@ export function webSocket(
 }
 
 export declare namespace webSocket {
+  /** Options for a WebSocket JSON-RPC Transport. */
   type Options = {
+    /**
+     * Enables socket keep-alive pings.
+     *
+     * @default true
+     */
     keepAlive?: SocketOptions['keepAlive'] | undefined
+    /** Transport key. */
     key?: string | undefined
+    /** Methods to include or exclude from this Transport. */
     methods?: Transport.Methods | undefined
+    /** Transport display name. */
     name?: string | undefined
+    /** Reconnect options. */
     reconnect?: SocketOptions['reconnect'] | undefined
+    /** Retry count. */
     retryCount?: number | undefined
+    /** Retry delay in milliseconds. */
     retryDelay?: number | undefined
+    /**
+     * Request timeout in milliseconds.
+     *
+     * @default 10_000
+     */
     timeout?: number | undefined
   }
 
+  /** WebSocket JSON-RPC Transport. */
   type Transport = Transport.Transport<
     'webSocket',
     {

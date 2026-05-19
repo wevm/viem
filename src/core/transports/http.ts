@@ -26,7 +26,24 @@ let id = 0
 let signalId = 0
 const signalIds = new WeakMap<AbortSignal, number>()
 
-/** Creates a HTTP JSON-RPC transport. */
+/**
+ * Creates a HTTP JSON-RPC Transport from a URL.
+ *
+ * @example
+ * ```ts twoslash
+ * import { http } from 'viem'
+ *
+ * const transport = http('https://1.rpc.thirdweb.com')
+ *
+ * const client = transport({})
+ * const blockNumber = await client.request({ method: 'eth_blockNumber' })
+ * // @log: '0x1a2b3c'
+ * ```
+ *
+ * @param url - URL to perform the JSON-RPC requests to.
+ * @param options - Transport options.
+ * @returns HTTP JSON-RPC Transport.
+ */
 export function http<
   schema extends RpcSchema.Generic | undefined = undefined,
   raw extends boolean = false,
@@ -125,39 +142,60 @@ export function http<
 }
 
 export declare namespace http {
+  /** Options for a HTTP JSON-RPC Transport. */
   type Options<
     schema extends RpcSchema.Generic | undefined = undefined,
     raw extends boolean = false,
   > = {
-    /** Enables JSON-RPC batching. */
+    /**
+     * Enables JSON-RPC batching.
+     *
+     * @default false
+     */
     batch?:
       | boolean
       | {
+          /** Maximum number of requests to include in a batch. */
           batchSize?: number | undefined
+          /** Time to wait before sending a batch in milliseconds. */
           wait?: number | undefined
         }
       | undefined
-    /** Fetch implementation. */
+    /** Function to use to make the request. */
     fetchFn?: HttpRpcClientOptions['fetchFn'] | undefined
-    /** Fetch options. */
+    /** Request configuration to pass to `fetch`. */
     fetchOptions?: HttpRpcClientOptions['fetchOptions'] | undefined
-    /** Request hook. */
+    /** Function to call before a `fetch` request. */
     onFetchRequest?: HttpRpcClientOptions['onRequest'] | undefined
-    /** Response hook. */
+    /** Function to call after a `fetch` response. */
     onFetchResponse?: HttpRpcClientOptions['onResponse'] | undefined
+    /** Transport key. */
     key?: string | undefined
+    /** Methods to include or exclude from this Transport. */
     methods?: Transport.Methods | undefined
+    /** Transport display name. */
     name?: string | undefined
-    /** Returns raw JSON-RPC `{ error, result }` responses. */
+    /**
+     * Returns raw JSON-RPC `{ error, result }` responses.
+     *
+     * @default false
+     */
     raw?: raw | boolean | undefined
+    /** Retry count. */
     retryCount?: number | undefined
+    /** Retry delay in milliseconds. */
     retryDelay?: number | undefined
     /** Typed JSON-RPC schema. */
     rpcSchema?: schema | RpcSchema.Generic | undefined
-    /** Request timeout in milliseconds. */
+    /**
+     * Request timeout in milliseconds.
+     *
+     * @default 10_000
+     */
     timeout?: number | undefined
   }
 
+  /** HTTP JSON-RPC Transport. */
   type Transport<
     schema extends RpcSchema.Generic | undefined = undefined,
     raw extends boolean = false,
