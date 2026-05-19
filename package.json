@@ -1,5 +1,4 @@
 {
-  "private": true,
   "scripts": {
     "build": "pnpm exports:update && zile",
     "changeset:prepublish": "pnpm version:update && pnpm build",
