@@ -632,6 +632,7 @@ Old formatter helpers are replaced by explicit domain module conversion methods.
 | `formatTransaction(transaction)` | `Transaction.fromRpc(transaction)` |
 | `formatTransactionReceipt(receipt)` | `TransactionReceipt.fromRpc(receipt)` |
 | `formatTransactionRequest(request)` | `TransactionRequest.toRpc(request)` |
+| `formatFeeHistory(history)` | `Fee.fromHistoryRpc(history)` |
 
 Use `fromRpc` for inbound RPC responses and `toRpc` for outbound RPC payloads.
 Chain-specific formatter work should override only the chain-specific RPC
@@ -661,6 +662,33 @@ deltas.
 
 `Block.fromRpc` expects RPC-domain block objects, not formatter partials.
 Missing optional RPC fields may remain `undefined` instead of becoming `null`.
+
+### `Fee`
+
+Fee history conversion lives on `Fee`.
+
+| v2 | v3 |
+| --- | --- |
+| `formatFeeHistory(history)` | `Fee.fromHistoryRpc(history)` |
+| `type FeeHistory` | `type Fee.FeeHistory` |
+| `type RpcFeeHistory` | `type Fee.FeeHistoryRpc` |
+| `type FeeValuesLegacy` | `type Fee.FeeValuesLegacy` |
+| `type FeeValuesEIP1559` | `type Fee.FeeValuesEip1559` |
+| `type FeeValuesEIP4844` | `type Fee.FeeValuesEip4844` |
+| `type FeeValues` | `type Fee.FeeValues` |
+| `type RpcFeeValues` | `type Fee.FeeValuesRpc` |
+| `type FeeValuesType` | `type Fee.FeeValuesType` |
+
+```diff
+- import { formatFeeHistory } from 'viem'
++ import { Fee } from 'viem/utils'
+
+- const history = formatFeeHistory(rpcHistory)
++ const history = Fee.fromHistoryRpc(rpcHistory)
+```
+
+Use `Fee.toHistoryRpc` for the inverse conversion. `Fee.estimateMaxFeePerGas`
+and `Fee.effectiveGasPrice` are Ox-backed fee math helpers.
 
 ### `Transaction`
 
