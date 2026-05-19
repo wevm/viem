@@ -13,6 +13,7 @@ test('exports', () => {
       "AbiItem",
       "AbiParameters",
       "AccessList",
+      "AccountProof",
       "Address",
       "Authorization",
       "Blobs",

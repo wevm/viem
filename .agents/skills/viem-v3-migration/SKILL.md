@@ -72,6 +72,7 @@ Current utility modules:
 | `AbiItem` | `ox/AbiItem` | Exact proxy. ABI item helpers. |
 | `AbiParameters` | `ox/AbiParameters` | Exact proxy. ABI parameter encoding, decoding, formatting, and parsing. `decode` checksums decoded addresses by default. |
 | `AccessList` | `ox/AccessList` | Exact proxy. Access-list construction and RPC conversion. |
+| `AccountProof` | `ox/AccountProof` | Exact proxy. EIP-1186 account/storage proof RPC conversion. |
 | `Address` | `ox/Address` | Exact proxy. Address validation, checksum, equality, and public-key derivation. |
 | `Authorization` | `ox/Authorization` | Exact proxy. EIP-7702 authorization signing and RPC conversion. |
 | `Block` | `ox/Block` | Exact proxy. Block domain and RPC conversion. |
@@ -252,6 +253,26 @@ input option, not part of the decoded return value.
 Use `AccessList.fromTupleList(tupleList)` for the inverse conversion.
 `InvalidStorageKeySizeError` is colocated at
 `AccessList.InvalidStorageKeySizeError`.
+
+### `AccountProof`
+
+| v2 | v3 |
+| --- | --- |
+| `formatProof(proof)` | `AccountProof.fromRpc(proof)` |
+| `type Proof` | `type AccountProof.AccountProof` |
+| `type RpcProof` | `type AccountProof.Rpc` |
+| `FormatProofErrorType` | `AccountProof.fromRpc.ErrorType` |
+
+```diff
+- import { formatProof } from 'viem'
++ import { AccountProof } from 'viem/utils'
+
+- const proof = formatProof(rpcProof)
++ const proof = AccountProof.fromRpc(rpcProof)
+```
+
+`AccountProof.fromRpc` expects a complete RPC-domain account proof. The v2
+formatter's partial-object behavior is removed.
 
 ### `Authorization`
 

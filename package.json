@@ -338,6 +338,11 @@
       "src": "./src/utils/AccessList.ts",
       "default": "./dist/utils/AccessList.js"
     },
+    "./utils/AccountProof": {
+      "types": "./dist/utils/AccountProof.d.ts",
+      "src": "./src/utils/AccountProof.ts",
+      "default": "./dist/utils/AccountProof.js"
+    },
     "./utils/Address": {
       "types": "./dist/utils/Address.d.ts",
       "src": "./src/utils/Address.ts",
