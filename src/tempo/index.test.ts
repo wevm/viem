@@ -19,6 +19,7 @@ test('exports tempo', () => {
       "Addresses",
       "Actions",
       "Capabilities",
+      "Chain",
       "tempoActions",
       "Expiry",
       "Formatters",
