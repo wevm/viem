@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vp/test'
 import { BaseError } from './BaseError.js'
 
 describe('BaseError', () => {
-  test('stamps viem version metadata', () => {
+  test('behavior: stamps viem version metadata', () => {
     expect(normalize(new BaseError('An error occurred.')))
       .toMatchInlineSnapshot(`
         [BaseError: An error occurred.
@@ -12,7 +12,7 @@ describe('BaseError', () => {
       `)
   })
 
-  test('uses viem docs origin', () => {
+  test('behavior: uses viem docs origin', () => {
     expect(
       normalize(
         new BaseError('An error occurred.', {
@@ -29,7 +29,7 @@ describe('BaseError', () => {
     `)
   })
 
-  test('inherits details and docs path from causes', () => {
+  test('behavior: inherits details and docs path from causes', () => {
     expect(
       normalize(
         new BaseError('An internal error occurred.', {
@@ -48,7 +48,7 @@ describe('BaseError', () => {
     `)
   })
 
-  test('walks nested causes', () => {
+  test('behavior: walks nested causes', () => {
     class FooError<cause extends Error | undefined> extends BaseError<cause> {}
     class BarError extends BaseError {}
 
@@ -70,7 +70,7 @@ describe('BaseError', () => {
       `)
   })
 
-  test('allows explicit docs origin and version overrides', () => {
+  test('behavior: allows explicit docs origin and version overrides', () => {
     expect(
       new BaseError('An error occurred.', {
         docsOrigin: 'https://example.com',

@@ -1,0 +1,55 @@
+import { expect, test } from 'vp/test'
+
+import * as utils from './index.js'
+
+test('exports', () => {
+  expect(Object.keys(utils).sort()).toMatchInlineSnapshot(`
+    [
+      "Abi",
+      "AbiConstructor",
+      "AbiError",
+      "AbiEvent",
+      "AbiFunction",
+      "AbiItem",
+      "AbiParameters",
+      "AccessList",
+      "Address",
+      "Authorization",
+      "Block",
+      "BlockOverrides",
+      "Bytes",
+      "ContractAddress",
+      "Fee",
+      "Filter",
+      "Hash",
+      "Hex",
+      "Log",
+      "P256",
+      "PersonalMessage",
+      "Provider",
+      "PublicKey",
+      "Rlp",
+      "RpcRequest",
+      "RpcResponse",
+      "RpcSchema",
+      "RpcTransport",
+      "Secp256k1",
+      "Signature",
+      "StateOverrides",
+      "Transaction",
+      "TransactionReceipt",
+      "TransactionRequest",
+      "TxEnvelope",
+      "TxEnvelopeEip1559",
+      "TxEnvelopeEip2930",
+      "TxEnvelopeEip4844",
+      "TxEnvelopeEip7702",
+      "TxEnvelopeLegacy",
+      "TypedData",
+      "Value",
+      "WebAuthnP256",
+      "WebCryptoP256",
+      "Withdrawal",
+    ]
+  `)
+})

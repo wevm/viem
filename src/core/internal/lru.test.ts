@@ -3,7 +3,13 @@ import { describe, expect, test } from 'vp/test'
 import { LruMap } from './lru.js'
 
 describe('LruMap', () => {
-  test('evicts least recently set entries', () => {
+  test('behavior: returns undefined for missing entries', () => {
+    const cache = new LruMap(1)
+
+    expect(cache.get('missing')).toMatchInlineSnapshot(`undefined`)
+  })
+
+  test('behavior: evicts least recently set entries', () => {
     const cache = new LruMap(5)
     cache.set('a', 1)
     cache.set('b', 2)
@@ -39,7 +45,7 @@ describe('LruMap', () => {
     `)
   })
 
-  test('refreshes entries on get and set', () => {
+  test('behavior: refreshes entries on get and set', () => {
     const cache = new LruMap(3)
     cache.set('a', 1)
     cache.set('b', 2)
@@ -66,7 +72,7 @@ describe('LruMap', () => {
     `)
   })
 
-  test('evicts empty string keys', () => {
+  test('behavior: evicts empty string keys', () => {
     const cache = new LruMap<number>(1)
     cache.set('', 1)
     cache.set('x', 2)

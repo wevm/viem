@@ -30,6 +30,21 @@ const ignores = [
 
 export default defineConfig({
   test: {
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.ts'],
+      exclude: [
+        'src/**/*.test.ts',
+        'src/**/*.test-d.ts',
+        'src/**/*.snap-d.ts',
+        'src/**/*.browser.test.ts',
+      ],
+      reporter: ['text', 'json'],
+      thresholds: {
+        100: true,
+        perFile: true,
+      },
+    },
     exclude: ['**/node_modules/**', '**/dist/**'],
     include: ['src/**/*.test.ts'],
     passWithNoTests: true,

@@ -70,8 +70,9 @@
 - **Transport module is type/helper-oriented** -- keep `Transport` for public transport types and low-level helpers, not as the canonical place for transport factory functions.
 - **Chains stay flat** -- chain constants stay flat exports from `viem/chains`, e.g. `import { mainnet, base } from 'viem/chains'`. Do not bundle chain constants under `Chain`.
 - **Chain helpers live under `Chain`** -- use `Chain.define` for custom chain definitions. Delete the old flat `defineChain` API.
+- **Chain extension typing can live on definitions** -- use `Chain.extendSchema<T>()` when a chain definition owns reusable extension metadata. Use generic `.extend<T>(...)` for one-off extension validation, or inferred `.extend(...)` when literals are enough.
 - **No `viem/chains/utils`** -- keep `viem/chains` for chain constants only. Move chain helper behavior to `Chain.*`.
-- **Quantity inputs are flexible, normalized values are not** -- user-facing quantity inputs may accept hex, number, or bigint where appropriate. Normalize chain IDs, block numbers, gas, nonce, value, and fee quantities to bigint in viem domain objects, and serialize to hex only at RPC boundaries. Do not leak `Hex | number | bigint` unions into normalized return types.
+- **Chain IDs are bigint** -- `Chain.define` and chain constants use bigint `id` and `sourceId` values. Do not add a chain quantity union or accept hex/number IDs at the Chain boundary.
 - **Clients are created through `Client.create`** -- replace `createClient`, `createPublicClient`, `createWalletClient`, and `createTestClient` with `Client.create(...).extend(actions.public())` and related decorators.
 - **Ox-backed utilities live in `viem/utils`** -- export Ox-backed modules such as `Abi`, `Address`, `Bytes`, `Hex`, `Value`, `Hash`, `Signature`, `PublicKey`, `Secp256k1`, `P256`, `WebAuthnP256`, `WebCryptoP256`, `Transaction`, `TransactionRequest`, `TransactionReceipt`, `Block`, `Log`, and RPC/provider modules from `viem/utils`.
 - **Utility module subpaths mirror Ox** -- support `import { Hex } from 'viem/utils'` and `import * as Hex from 'viem/utils/Hex'`. Proxy Ox module names and method names exactly instead of preserving v2 utility wrapper names.
@@ -139,7 +140,8 @@
 - **Use `pnpm test` for tests** -- run tests through package scripts, not `vitest` directly.
 - **Target the relevant project** -- prefer `pnpm test --project core --bail=1` or another focused project command over the full matrix while iterating.
 - **Colocate tests** -- unit tests live beside their modules. For new Ox-style modules, prefer `src/**/_test/*.test.ts`; keep existing viem test locations unless the module is being moved.
-- **Wrap function exports in `describe`** -- every unit and type test file targets one or more exported functions; each function gets its own `describe('functionName', () => { ... })` block.
+- **Wrap function exports in `describe`** -- every unit and type test file targets one or more exported functions; each function gets its own `describe('functionName', () => { ... })` block. Index export snapshot tests stay top-level and do not use `describe('index', ...)`.
+- **Prefix test cases by category** -- every `test(...)` name starts with a category prefix such as `behavior:`, `types:`, `exports:`, or `regression:` so the intent is clear in runner output.
 - **Inline snapshots over direct assertions** -- prefer `toMatchInlineSnapshot()` over `.toBe()`, `.toEqual()`, etc. for stable return values. Use `toThrowErrorMatchingInlineSnapshot()` for error assertions.
 - **Snapshot whole objects, omit nondeterministic properties** -- destructure out nondeterministic fields and snapshot the rest, rather than cherry-picking individual fields to assert.
 - **Fuzz regressions become deterministic** -- when a property fails, add the minimized case as a regular `*.test.ts` or vector fixture.

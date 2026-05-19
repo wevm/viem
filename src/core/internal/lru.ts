@@ -19,7 +19,7 @@ export class LruMap<value = unknown> extends Map<string, value> {
     super.set(key, value)
     if (this.maxSize && this.size > this.maxSize) {
       const firstKey = super.keys().next().value
-      if (firstKey !== undefined) super.delete(firstKey)
+      super.delete(firstKey as string)
     }
     return this
   }

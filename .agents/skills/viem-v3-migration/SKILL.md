@@ -15,6 +15,46 @@ Only landed modules are documented here.
 | Export | Backing | Notes |
 | --- | --- | --- |
 | `BaseError` | `ox/Errors.BaseError` | Viem-versioned base error exported from `viem`. Defaults docs links to `https://viem.sh` and message versions to `viem@<version>`. |
+| `Chain` | `src/core/Chain.ts` | Chain definition module exported from `viem` and `viem/Chain`. Use `Chain.define` for custom chain definitions. |
+
+### `Chain`
+
+Chain constants remain flat under `viem/chains`. Custom chain definitions move
+under the `Chain` module, and chain IDs are bigint.
+
+```diff
+- import { defineChain } from 'viem'
++ import { Chain } from 'viem'
+
+- const chain = defineChain({ id: 1, ... })
++ const chain = Chain.define({ id: 1n, ... })
+```
+
+| v2 | v3 |
+| --- | --- |
+| `defineChain(options)` | `Chain.define(options)` |
+| `extendSchema<schema>()` | `Chain.extendSchema<schema>()` |
+
+`Chain.define` requires `id` and `sourceId` as `bigint`. Convert v2 numeric IDs
+to bigint literals or `BigInt(...)` before calling it.
+
+```diff
+- Chain.define({ id: 1, sourceId: 1, ... })
++ Chain.define({ id: 1n, sourceId: 1n, ... })
+```
+
+```diff
+- const chain = defineChain({
+-   extendSchema: extendSchema<{ feeToken: Address.Address }>(),
+-   ...
+- })
++ const chain = Chain.define({
++   extendSchema: Chain.extendSchema<{ feeToken: Address.Address }>(),
++   ...
++ })
++
+ const extended = chain.extend({ feeToken })
+```
 
 ## Utilities
 

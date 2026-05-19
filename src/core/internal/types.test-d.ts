@@ -16,7 +16,7 @@ import type {
 } from './types.js'
 
 describe('Assign', () => {
-  test('overrides target properties', () => {
+  test('types: overrides target properties', () => {
     expectTypeOf<
       Assign<{ a: string; b: number }, { a: number }>
     >().toEqualTypeOf<{
@@ -27,7 +27,7 @@ describe('Assign', () => {
 })
 
 describe('ExactPartial', () => {
-  test('makes properties optional and keeps undefined explicit', () => {
+  test('types: makes properties optional and keeps undefined explicit', () => {
     expectTypeOf<ExactPartial<{ a: string; b: number }>>().toEqualTypeOf<{
       a?: string | undefined
       b?: number | undefined
@@ -36,7 +36,7 @@ describe('ExactPartial', () => {
 })
 
 describe('Filter', () => {
-  test('keeps matching tuple members', () => {
+  test('types: keeps matching tuple members', () => {
     expectTypeOf<Filter<[1, 'foo', false, 'baz'], 1 | boolean>>().toEqualTypeOf<
       readonly [1, false]
     >()
@@ -44,21 +44,21 @@ describe('Filter', () => {
 })
 
 describe('IsNarrowable', () => {
-  test('detects narrower types', () => {
+  test('types: detects narrower types', () => {
     expectTypeOf<IsNarrowable<'foo', string>>().toEqualTypeOf<true>()
     expectTypeOf<IsNarrowable<string, string>>().toEqualTypeOf<false>()
   })
 })
 
 describe('IsNever', () => {
-  test('detects never', () => {
+  test('types: detects never', () => {
     expectTypeOf<IsNever<never>>().toEqualTypeOf<true>()
     expectTypeOf<IsNever<string>>().toEqualTypeOf<false>()
   })
 })
 
 describe('IsUndefined', () => {
-  test('detects undefined', () => {
+  test('types: detects undefined', () => {
     expectTypeOf<IsUndefined<undefined>>().toEqualTypeOf<true>()
     expectTypeOf<IsUndefined<never>>().toEqualTypeOf<false>()
     expectTypeOf<IsUndefined<string>>().toEqualTypeOf<false>()
@@ -66,14 +66,14 @@ describe('IsUndefined', () => {
 })
 
 describe('IsUnion', () => {
-  test('detects unions', () => {
+  test('types: detects unions', () => {
     expectTypeOf<IsUnion<'foo' | 'bar'>>().toEqualTypeOf<true>()
     expectTypeOf<IsUnion<'foo'>>().toEqualTypeOf<false>()
   })
 })
 
 describe('MaybePartial', () => {
-  test('switches partial behavior by boolean flag', () => {
+  test('types: switches partial behavior by boolean flag', () => {
     expectTypeOf<MaybePartial<{ a: string; b: number }, true>>().toEqualTypeOf<{
       a?: string | undefined
       b?: number | undefined
@@ -88,7 +88,7 @@ describe('MaybePartial', () => {
 })
 
 describe('OneOf', () => {
-  test('marks sibling union keys as unavailable', () => {
+  test('types: marks sibling union keys as unavailable', () => {
     expectTypeOf<OneOf<{ a: string } | { b: number }>>().toEqualTypeOf<
       { a: string; b?: undefined } | { a?: undefined; b: number }
     >()
@@ -96,14 +96,14 @@ describe('OneOf', () => {
 })
 
 describe('Or', () => {
-  test('detects true tuple members', () => {
+  test('types: detects true tuple members', () => {
     expectTypeOf<Or<[false, true, false]>>().toEqualTypeOf<true>()
     expectTypeOf<Or<[false, false, false]>>().toEqualTypeOf<false>()
   })
 })
 
 describe('RequiredBy', () => {
-  test('requires selected properties', () => {
+  test('types: requires selected properties', () => {
     expectTypeOf<RequiredBy<{ a?: string; b: number }, 'a'>>().toEqualTypeOf<{
       a: string
       b: number
@@ -112,7 +112,7 @@ describe('RequiredBy', () => {
 })
 
 describe('UnionOmit', () => {
-  test('omits keys across union members', () => {
+  test('types: omits keys across union members', () => {
     expectTypeOf<
       UnionOmit<
         { a: string; b: number } | { a: string; b: undefined; c: number },
