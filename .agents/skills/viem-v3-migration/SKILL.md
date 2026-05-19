@@ -80,8 +80,6 @@ Current utility modules:
 | `Bytes` | `ox/Bytes` | Exact proxy. Byte-array construction, conversion, slicing, padding, and trimming. |
 | `ContractAddress` | `ox/ContractAddress` | Exact proxy. CREATE and CREATE2 address derivation. |
 | `Ens` | `ox/Ens` | Exact proxy. ENS normalization, namehashing, labelhashing, and coin type conversion. |
-| `Erc6492` | `ox/erc6492/SignatureErc6492` | Exact proxy. ERC-6492 wrapped signature parsing, wrapping, and validation. |
-| `Erc8010` | `ox/erc8010/SignatureErc8010` | Exact proxy. ERC-8010 wrapped signature parsing, wrapping, and validation. |
 | `Fee` | `ox/Fee` | Exact proxy. Fee history and RPC conversion. |
 | `Filter` | `ox/Filter` | Exact proxy. Filter domain and RPC conversion. |
 | `Hash` | `ox/Hash` | Exact proxy. Keccak, SHA-256, RIPEMD-160, HMAC-SHA256, and hash validation. |
@@ -99,6 +97,8 @@ Current utility modules:
 | `RpcTransport` | `ox/RpcTransport` | Exact proxy. JSON-RPC transport helpers. |
 | `Secp256k1` | `ox/Secp256k1` | Exact proxy. Secp256k1 key, signing, recovery, and verification helpers. |
 | `Signature` | `ox/Signature` | Exact proxy. Signature parsing, serialization, RPC conversion, DER conversion, and validation. |
+| `SignatureErc6492` | `ox/erc6492/SignatureErc6492` | Exact proxy. ERC-6492 wrapped signature parsing, wrapping, and validation. |
+| `SignatureErc8010` | `ox/erc8010/SignatureErc8010` | Exact proxy. ERC-8010 wrapped signature parsing, wrapping, and validation. |
 | `Siwe` | `ox/Siwe` | Exact proxy. EIP-4361 SIWE message creation, parsing, validation, and nonce generation. |
 | `StateOverrides` | `ox/StateOverrides` | Exact proxy. State override RPC conversion. |
 | `Transaction` | `ox/Transaction` | Exact proxy. Transaction domain and RPC conversion. |
@@ -348,51 +348,53 @@ chain IDs before calling it.
 
 ENS actions and the `viem/ens` entrypoint are reviewed separately.
 
-### `Erc6492`
+### `SignatureErc6492`
 
 | v2 | v3 |
 | --- | --- |
-| `isErc6492Signature(signature)` | `Erc6492.validate(signature)` |
-| `parseErc6492Signature(signature)` | `Erc6492.unwrap(signature)` |
-| `serializeErc6492Signature({ address, data, signature })` | `Erc6492.wrap({ to: address, data, signature })` |
-| `serializeErc6492Signature({ to: 'bytes', ... })` | `Bytes.fromHex(Erc6492.wrap(...))` |
+| `isErc6492Signature(signature)` | `SignatureErc6492.validate(signature)` |
+| `parseErc6492Signature(signature)` | `SignatureErc6492.unwrap(signature)` |
+| `serializeErc6492Signature({ address, data, signature })` | `SignatureErc6492.wrap({ to: address, data, signature })` |
+| `serializeErc6492Signature({ to: 'bytes', ... })` | `Bytes.fromHex(SignatureErc6492.wrap(...))` |
 
 ```diff
 - import { isErc6492Signature, serializeErc6492Signature } from 'viem'
-+ import { Erc6492 } from 'viem/utils'
++ import { SignatureErc6492 } from 'viem/utils'
 
 - isErc6492Signature(signature)
-+ Erc6492.validate(signature)
++ SignatureErc6492.validate(signature)
 
 - serializeErc6492Signature({ address, data, signature })
-+ Erc6492.wrap({ to: address, data, signature })
++ SignatureErc6492.wrap({ to: address, data, signature })
 ```
 
-`Erc6492.unwrap` expects a wrapped signature. If v2 pass-through parsing is
-needed, use `Erc6492.validate(signature) ? Erc6492.unwrap(signature) : { signature }`.
+`SignatureErc6492.unwrap` expects a wrapped signature. If v2 pass-through
+parsing is needed, use
+`SignatureErc6492.validate(signature) ? SignatureErc6492.unwrap(signature) : { signature }`.
 
-### `Erc8010`
+### `SignatureErc8010`
 
 | v2 | v3 |
 | --- | --- |
-| `isErc8010Signature(signature)` | `Erc8010.validate(signature)` |
-| `parseErc8010Signature(signature)` | `Erc8010.unwrap(signature)` |
-| `serializeErc8010Signature({ address, authorization, data, signature })` | `Erc8010.wrap({ to: address, authorization, data, signature })` |
-| `serializeErc8010Signature({ to: 'bytes', ... })` | `Bytes.fromHex(Erc8010.wrap(...))` |
+| `isErc8010Signature(signature)` | `SignatureErc8010.validate(signature)` |
+| `parseErc8010Signature(signature)` | `SignatureErc8010.unwrap(signature)` |
+| `serializeErc8010Signature({ address, authorization, data, signature })` | `SignatureErc8010.wrap({ to: address, authorization, data, signature })` |
+| `serializeErc8010Signature({ to: 'bytes', ... })` | `Bytes.fromHex(SignatureErc8010.wrap(...))` |
 
 ```diff
 - import { isErc8010Signature, serializeErc8010Signature } from 'viem'
-+ import { Erc8010 } from 'viem/utils'
++ import { SignatureErc8010 } from 'viem/utils'
 
 - isErc8010Signature(signature)
-+ Erc8010.validate(signature)
++ SignatureErc8010.validate(signature)
 
 - serializeErc8010Signature({ address, authorization, data, signature })
-+ Erc8010.wrap({ to: address, authorization, data, signature })
++ SignatureErc8010.wrap({ to: address, authorization, data, signature })
 ```
 
-`Erc8010.unwrap` expects a wrapped signature. If v2 pass-through parsing is
-needed, use `Erc8010.validate(signature) ? Erc8010.unwrap(signature) : { signature }`.
+`SignatureErc8010.unwrap` expects a wrapped signature. If v2 pass-through
+parsing is needed, use
+`SignatureErc8010.validate(signature) ? SignatureErc8010.unwrap(signature) : { signature }`.
 
 ### `Siwe`
 
