@@ -186,6 +186,42 @@ selected ABI event object, not the v2 `eventName` string.
 `AbiEvent.extractLogs` matches the v2 `parseEventLogs` behavior and returns
 logs with `eventName` and `args`.
 
+### `AbiError`
+
+| v2 | v3 |
+| --- | --- |
+| `encodeErrorResult({ abi, errorName, args })` | `AbiError.encode(abi, errorName, args)` |
+| `decodeErrorResult({ abi, data })` | `AbiError.decode(AbiError.fromAbi(abi, data), data)` |
+
+```diff
+- import { encodeErrorResult } from 'viem'
++ import { AbiError } from 'viem/utils'
+
+- encodeErrorResult({ abi, errorName: 'InvalidToken', args })
++ AbiError.encode(abi, 'InvalidToken', args)
+```
+
+`AbiError.decode` returns decoded args. Use `AbiError.fromAbi(abi, data)` first
+when starting from revert data and an ABI.
+
+### `AbiConstructor`
+
+| v2 | v3 |
+| --- | --- |
+| `encodeDeployData({ abi, bytecode, args })` | `AbiConstructor.encode(abi, { bytecode, args })` |
+| `decodeDeployData({ abi, bytecode, data })` | `AbiConstructor.decode(abi, { bytecode, data })` |
+
+```diff
+- import { encodeDeployData } from 'viem'
++ import { AbiConstructor } from 'viem/utils'
+
+- encodeDeployData({ abi, bytecode, args })
++ AbiConstructor.encode(abi, { bytecode, args })
+```
+
+`AbiConstructor.decode` returns decoded constructor args. The bytecode remains an
+input option, not part of the decoded return value.
+
 ### `Hex`
 
 | v2 | v3 |
