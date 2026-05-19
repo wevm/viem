@@ -68,9 +68,9 @@ Current utility modules:
 | `AbiConstructor` | `ox/AbiConstructor` | Exact proxy. ABI constructor helpers. |
 | `AbiError` | `ox/AbiError` | Exact proxy. ABI error helpers. |
 | `AbiEvent` | `ox/AbiEvent` | Exact proxy. ABI event helpers. |
-| `AbiFunction` | `ox/AbiFunction` | Exact proxy. ABI function helpers. |
+| `AbiFunction` | `ox/AbiFunction` | Exact proxy. ABI function helpers. `decodeData` and `decodeResult` checksum decoded addresses by default. |
 | `AbiItem` | `ox/AbiItem` | Exact proxy. ABI item helpers. |
-| `AbiParameters` | `ox/AbiParameters` | Ox-backed ABI parameter encoding, decoding, formatting, and parsing. `decode` checksums decoded addresses by default. |
+| `AbiParameters` | `ox/AbiParameters` | Exact proxy. ABI parameter encoding, decoding, formatting, and parsing. `decode` checksums decoded addresses by default. |
 | `AccessList` | `ox/AccessList` | Exact proxy. Access-list construction and RPC conversion. |
 | `Address` | `ox/Address` | Exact proxy. Address validation, checksum, equality, and public-key derivation. |
 | `Authorization` | `ox/Authorization` | Exact proxy. EIP-7702 authorization signing and RPC conversion. |
@@ -139,7 +139,30 @@ Current utility modules:
 ```
 
 `AbiParameters.decode` checksums decoded addresses by default. Pass
-`{ checksumAddress: false }` when lowercase Ox output is needed.
+`{ checksumAddress: false }` when lowercase address output is needed.
+
+### `AbiFunction`
+
+| v2 | v3 |
+| --- | --- |
+| `encodeFunctionData({ abi, functionName, args })` | `AbiFunction.encodeData(abi, functionName, args)` |
+| `decodeFunctionData({ abi, data })` | `AbiFunction.decodeData(abi, data)` |
+| `decodeFunctionResult({ abi, functionName, data })` | `AbiFunction.decodeResult(abi, functionName, data)` |
+| `encodeFunctionResult({ abi, functionName, result })` | `AbiFunction.encodeResult(abi, functionName, result)` |
+| `prepareEncodeFunctionData(options)` | `AbiFunction.fromAbi(...)` and `AbiFunction.getSelector(...)` |
+
+```diff
+- import { encodeFunctionData } from 'viem'
++ import { AbiFunction } from 'viem/utils'
+
+- encodeFunctionData({ abi, functionName: 'approve', args })
++ AbiFunction.encodeData(abi, 'approve', args)
+```
+
+`AbiFunction.decodeData(abi, data)` extracts the function from calldata's
+4-byte selector and returns decoded function inputs only.
+`AbiFunction.decodeData` and `AbiFunction.decodeResult` checksum decoded
+addresses by default.
 
 ### `Hex`
 
