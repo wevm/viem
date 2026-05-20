@@ -39,7 +39,7 @@ export async function getCode<
     { dedupe: block.blockNumber !== undefined },
   )
   if (code === '0x') return undefined
-  return code as Hex.Hex
+  return code
 }
 
 export declare namespace getCode {

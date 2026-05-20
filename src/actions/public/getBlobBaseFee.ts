@@ -28,7 +28,7 @@ export async function getBlobBaseFee<
   const baseFee = await client.request({
     method: 'eth_blobBaseFee',
   })
-  return Hex.toBigInt(baseFee as Hex.Hex)
+  return Hex.toBigInt(baseFee)
 }
 
 export declare namespace getBlobBaseFee {

@@ -1,9 +1,8 @@
 import { describe, expect, test } from 'vp/test'
 
 import { anvilMainnet, request } from '../../../test/anvil.js'
-import * as Client from '../../core/Client.js'
-import { http } from '../../core/transports/index.js'
-import { getBlockNumber } from './getBlockNumber.js'
+import { Client, http } from 'viem'
+import * as actions from 'viem/actions'
 
 describe('getBlockNumber', () => {
   test('behavior: returns the latest block number as a bigint', async () => {
@@ -11,7 +10,7 @@ describe('getBlockNumber', () => {
       transport: http(anvilMainnet.rpcUrl.http),
     })
 
-    const blockNumber = await getBlockNumber(client)
+    const blockNumber = await actions.public.getBlockNumber(client)
 
     expect(typeof blockNumber).toMatchInlineSnapshot(`"bigint"`)
   })
@@ -21,10 +20,10 @@ describe('getBlockNumber', () => {
       transport: http(anvilMainnet.rpcUrl.http),
     })
 
-    const cached = await getBlockNumber(client)
+    const cached = await actions.public.getBlockNumber(client)
     await request(anvilMainnet, 'evm_mine')
-    const stillCached = await getBlockNumber(client)
-    const latest = await getBlockNumber(client, { cacheTime: 0 })
+    const stillCached = await actions.public.getBlockNumber(client)
+    const latest = await actions.public.getBlockNumber(client, { cacheTime: 0 })
 
     expect({
       cacheHit: stillCached === cached,

@@ -1,6 +1,7 @@
 import { describe, expectTypeOf, test } from 'vp/test'
 
 import { Account, Chain, Client, http } from '../index.js'
+import type * as Hex from '../utils/Hex.js'
 import { RpcSchema } from '../utils/index.js'
 import * as ClientSubpath from 'viem/Client'
 
@@ -99,7 +100,11 @@ describe('Client', () => {
       method: 'example_getValue',
       params: [1],
     })
+    const blockNumber = await client.request({
+      method: 'eth_blockNumber',
+    })
     expectTypeOf(result).toEqualTypeOf<string>()
+    expectTypeOf(blockNumber).toEqualTypeOf<Hex.Hex>()
 
     // @ts-expect-error - params must match the RPC schema.
     client.request({ method: 'example_getValue', params: ['1'] })

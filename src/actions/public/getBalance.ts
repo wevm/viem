@@ -44,7 +44,7 @@ export async function getBalance<
     method: 'eth_getBalance',
     params: [address, rpcBlock],
   })
-  return Hex.toBigInt(balance as Hex.Hex)
+  return Hex.toBigInt(balance)
 }
 
 export declare namespace getBalance {

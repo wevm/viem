@@ -174,7 +174,9 @@ Current landed methods:
 | `createPublicClient(options)` | `Client.create(options).extend(actions.public())` |
 | `getBalance(client, options)` | `actions.public.getBalance(client, options)` or `client.public.getBalance(options)` |
 | `getBlobBaseFee(client)` | `actions.public.getBlobBaseFee(client)` or `client.public.getBlobBaseFee()` |
+| `getBlock(client, options)` | `actions.public.getBlock(client, options)` or `client.public.getBlock(options)` |
 | `getBlockNumber(client, options)` | `actions.public.getBlockNumber(client, options)` or `client.public.getBlockNumber(options)` |
+| `getBlockTransactionCount(client, options)` | `actions.public.getBlockTransactionCount(client, options)` or `client.public.getBlockTransactionCount(options)` |
 | `getChainId(client)` | `actions.public.getChainId(client)` or `client.public.getChainId()` |
 | `getCode(client, options)` | `actions.public.getCode(client, options)` or `client.public.getCode(options)` |
 | `getGasPrice(client)` | `actions.public.getGasPrice(client)` or `client.public.getGasPrice()` |
@@ -183,8 +185,12 @@ Current landed methods:
 | `type GetBalanceParameters` | `getBalance.Options` |
 | `type GetBalanceReturnType` | `getBalance.ReturnType` |
 | `type GetBlobBaseFeeReturnType` | `getBlobBaseFee.ReturnType` |
+| `type GetBlockParameters` | `getBlock.Options` |
+| `type GetBlockReturnType` | `getBlock.ReturnType` |
 | `type GetBlockNumberParameters` | `getBlockNumber.Options` |
 | `type GetBlockNumberReturnType` | `getBlockNumber.ReturnType` |
+| `type GetBlockTransactionCountParameters` | `getBlockTransactionCount.Options` |
+| `type GetBlockTransactionCountReturnType` | `getBlockTransactionCount.ReturnType` |
 | `type GetChainIdReturnType` | `getChainId.ReturnType` |
 | `type GetCodeParameters` | `getCode.Options` |
 | `type GetCodeReturnType` | `getCode.ReturnType` |
@@ -195,7 +201,8 @@ Current landed methods:
 | `type GetTransactionCountReturnType` | `getTransactionCount.ReturnType` |
 
 `actions.public.getChainId` returns `bigint` in v3.
-`actions.public.getTransactionCount` also returns `bigint`.
+`actions.public.getBlockTransactionCount` and
+`actions.public.getTransactionCount` also return `bigint`.
 Block-scoped public actions accept `blockNumber`, `blockTag`, or EIP-1898
 `blockHash` with optional `requireCanonical`.
 

@@ -39,7 +39,7 @@ export async function getStorageAt<
     method: 'eth_getStorageAt',
     params: [address, slot, toRpcBlock(block)],
   })
-  return value as Hex.Hex
+  return value
 }
 
 export declare namespace getStorageAt {

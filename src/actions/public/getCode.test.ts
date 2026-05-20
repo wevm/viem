@@ -1,11 +1,9 @@
 import { describe, expect, test } from 'vp/test'
 
 import { anvilMainnet, request } from '../../../test/anvil.js'
-import * as Client from '../../core/Client.js'
-import { http } from '../../core/transports/index.js'
-import type * as Hex from '../../utils/Hex.js'
-import { getBlockNumber } from './getBlockNumber.js'
-import { getCode } from './getCode.js'
+import { Client, http } from 'viem'
+import * as actions from 'viem/actions'
+import type { Hex } from 'viem/utils'
 
 const address = '0x0000000000000000000000000000000000000102'
 const emptyAddress = '0x0000000000000000000000000000000000000103'
@@ -20,18 +18,23 @@ describe('getCode', () => {
       transport: http(anvilMainnet.rpcUrl.http),
     })
     const blockHash = await getLatestBlockHash()
-    const blockNumber = await getBlockNumber(client, { cacheTime: 0 })
+    const blockNumber = await actions.public.getBlockNumber(client, {
+      cacheTime: 0,
+    })
 
     expect({
-      blockHash: await getCode(client, { address, blockHash }),
-      blockHashCanonical: await getCode(client, {
+      blockHash: await actions.public.getCode(client, { address, blockHash }),
+      blockHashCanonical: await actions.public.getCode(client, {
         address,
         blockHash,
         requireCanonical: true,
       }),
-      blockNumber: await getCode(client, { address, blockNumber }),
-      latest: await getCode(client, { address }),
-      missing: await getCode(client, { address: emptyAddress }),
+      blockNumber: await actions.public.getCode(client, {
+        address,
+        blockNumber,
+      }),
+      latest: await actions.public.getCode(client, { address }),
+      missing: await actions.public.getCode(client, { address: emptyAddress }),
     }).toMatchInlineSnapshot(`
       {
         "blockHash": "0x6001600055",

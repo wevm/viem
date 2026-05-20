@@ -2,7 +2,9 @@ import type * as Chain from '../core/Chain.js'
 import type * as Client from '../core/Client.js'
 import { getBalance } from './public/getBalance.js'
 import { getBlobBaseFee } from './public/getBlobBaseFee.js'
+import { getBlock } from './public/getBlock.js'
 import { getBlockNumber } from './public/getBlockNumber.js'
+import { getBlockTransactionCount } from './public/getBlockTransactionCount.js'
 import { getChainId } from './public/getChainId.js'
 import { getCode } from './public/getCode.js'
 import { getGasPrice } from './public/getGasPrice.js'
@@ -21,8 +23,13 @@ function decorator() {
     public: {
       getBalance: (options: getBalance.Options) => getBalance(client, options),
       getBlobBaseFee: () => getBlobBaseFee(client),
+      getBlock: (options?: getBlock.Options | undefined) =>
+        getBlock(client, options),
       getBlockNumber: (options?: getBlockNumber.Options | undefined) =>
         getBlockNumber(client, options),
+      getBlockTransactionCount: (
+        options?: getBlockTransactionCount.Options | undefined,
+      ) => getBlockTransactionCount(client, options),
       getChainId: () => getChainId(client),
       getCode: (options: getCode.Options) => getCode(client, options),
       getGasPrice: () => getGasPrice(client),
@@ -38,7 +45,9 @@ function decorator() {
 export const publicActions = /*#__PURE__*/ Object.assign(decorator, {
   getBalance,
   getBlobBaseFee,
+  getBlock,
   getBlockNumber,
+  getBlockTransactionCount,
   getChainId,
   getCode,
   getGasPrice,

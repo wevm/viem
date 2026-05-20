@@ -1,11 +1,9 @@
 import { describe, expect, test } from 'vp/test'
 
 import { anvilMainnet, request } from '../../../test/anvil.js'
-import * as Client from '../../core/Client.js'
-import { http } from '../../core/transports/index.js'
-import type * as Hex from '../../utils/Hex.js'
-import { getBalance } from './getBalance.js'
-import { getBlockNumber } from './getBlockNumber.js'
+import { Client, http } from 'viem'
+import * as actions from 'viem/actions'
+import type { Hex } from 'viem/utils'
 
 const address = '0x0000000000000000000000000000000000000101'
 
@@ -18,17 +16,25 @@ describe('getBalance', () => {
       transport: http(anvilMainnet.rpcUrl.http),
     })
     const blockHash = await getLatestBlockHash()
-    const blockNumber = await getBlockNumber(client, { cacheTime: 0 })
+    const blockNumber = await actions.public.getBlockNumber(client, {
+      cacheTime: 0,
+    })
 
     expect({
-      blockHash: await getBalance(client, { address, blockHash }),
-      blockHashCanonical: await getBalance(client, {
+      blockHash: await actions.public.getBalance(client, {
+        address,
+        blockHash,
+      }),
+      blockHashCanonical: await actions.public.getBalance(client, {
         address,
         blockHash,
         requireCanonical: true,
       }),
-      blockNumber: await getBalance(client, { address, blockNumber }),
-      latest: await getBalance(client, { address }),
+      blockNumber: await actions.public.getBalance(client, {
+        address,
+        blockNumber,
+      }),
+      latest: await actions.public.getBalance(client, { address }),
     }).toMatchInlineSnapshot(`
       {
         "blockHash": 42n,

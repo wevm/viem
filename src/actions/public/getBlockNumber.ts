@@ -40,7 +40,7 @@ export async function getBlockNumber<
       }),
     { cacheKey: cacheKey(client.uid), cacheTime },
   )
-  return Hex.toBigInt(blockNumber as Hex.Hex)
+  return Hex.toBigInt(blockNumber)
 }
 
 export declare namespace getBlockNumber {

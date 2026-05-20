@@ -31,7 +31,7 @@ export async function getChainId<
     },
     { dedupe: true },
   )
-  return Hex.toBigInt(chainId as Hex.Hex)
+  return Hex.toBigInt(chainId)
 }
 
 export declare namespace getChainId {

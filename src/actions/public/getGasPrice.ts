@@ -28,7 +28,7 @@ export async function getGasPrice<
   const gasPrice = await client.request({
     method: 'eth_gasPrice',
   })
-  return Hex.toBigInt(gasPrice as Hex.Hex)
+  return Hex.toBigInt(gasPrice)
 }
 
 export declare namespace getGasPrice {

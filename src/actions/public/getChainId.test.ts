@@ -1,9 +1,8 @@
 import { describe, expect, test } from 'vp/test'
 
 import { anvilMainnet } from '../../../test/anvil.js'
-import * as Client from '../../core/Client.js'
-import { http } from '../../core/transports/index.js'
-import { getChainId } from './getChainId.js'
+import { Client, http } from 'viem'
+import * as actions from 'viem/actions'
 
 describe('getChainId', () => {
   test('behavior: returns the current chain id as a bigint', async () => {
@@ -11,6 +10,8 @@ describe('getChainId', () => {
       transport: http(anvilMainnet.rpcUrl.http),
     })
 
-    await expect(getChainId(client)).resolves.toMatchInlineSnapshot(`31337n`)
+    await expect(
+      actions.public.getChainId(client),
+    ).resolves.toMatchInlineSnapshot(`31337n`)
   })
 })

@@ -1,9 +1,8 @@
 import { describe, expectTypeOf, test } from 'vp/test'
 
-import { Client, http } from '../index.js'
-import type * as Hex from '../utils/Hex.js'
-import * as actions from './index.js'
-import * as actionsSubpath from 'viem/actions'
+import { Client, http } from 'viem'
+import * as actions from 'viem/actions'
+import type { Block, Hex } from 'viem/utils'
 
 const address = '0x0000000000000000000000000000000000000000'
 const blockHash =
@@ -11,10 +10,6 @@ const blockHash =
 const slot = '0x0'
 
 describe('public', () => {
-  test('types: is exposed from the actions subpath', () => {
-    expectTypeOf(actions.public).toEqualTypeOf<typeof actionsSubpath.public>()
-  })
-
   test('types: exposes standalone actions', async () => {
     const client = Client.create({
       transport: http(),
@@ -25,7 +20,17 @@ describe('public', () => {
     const chainId = await actions.public.getChainId(client)
     const code = await actions.public.getCode(client, { address })
     const gasPrice = await actions.public.getGasPrice(client)
+    const block = await actions.public.getBlock(client)
+    const blockWithTransactions = await actions.public.getBlock(client, {
+      includeTransactions: true,
+    })
+    const pendingBlock = await actions.public.getBlock(client, {
+      blockTag: 'pending',
+      includeTransactions: true,
+    })
     const blockNumber = await actions.public.getBlockNumber(client)
+    const blockTransactionCount =
+      await actions.public.getBlockTransactionCount(client)
     const storage = await actions.public.getStorageAt(client, { address, slot })
     const transactionCount = await actions.public.getTransactionCount(client, {
       address,
@@ -42,7 +47,13 @@ describe('public', () => {
     expectTypeOf(chainId).toEqualTypeOf<bigint>()
     expectTypeOf(code).toEqualTypeOf<Hex.Hex | undefined>()
     expectTypeOf(gasPrice).toEqualTypeOf<bigint>()
+    expectTypeOf(block).toEqualTypeOf<Block.Block<false, 'latest'>>()
+    expectTypeOf(blockWithTransactions).toEqualTypeOf<
+      Block.Block<true, 'latest'>
+    >()
+    expectTypeOf(pendingBlock).toEqualTypeOf<Block.Block<true, 'pending'>>()
     expectTypeOf(blockNumber).toEqualTypeOf<bigint>()
+    expectTypeOf(blockTransactionCount).toEqualTypeOf<bigint>()
     expectTypeOf(storage).toEqualTypeOf<Hex.Hex>()
     expectTypeOf(transactionCount).toEqualTypeOf<bigint>()
   })
@@ -57,7 +68,12 @@ describe('public', () => {
     const chainId = await client.public.getChainId()
     const code = await client.public.getCode({ address })
     const gasPrice = await client.public.getGasPrice()
+    const block = await client.public.getBlock()
+    const blockWithTransactions = await client.public.getBlock({
+      includeTransactions: true,
+    })
     const blockNumber = await client.public.getBlockNumber()
+    const blockTransactionCount = await client.public.getBlockTransactionCount()
     const storage = await client.public.getStorageAt({ address, slot })
     const transactionCount = await client.public.getTransactionCount({
       address,
@@ -74,7 +90,12 @@ describe('public', () => {
     expectTypeOf(chainId).toEqualTypeOf<bigint>()
     expectTypeOf(code).toEqualTypeOf<Hex.Hex | undefined>()
     expectTypeOf(gasPrice).toEqualTypeOf<bigint>()
+    expectTypeOf(block).toEqualTypeOf<Block.Block<false, 'latest'>>()
+    expectTypeOf(blockWithTransactions).toEqualTypeOf<
+      Block.Block<true, 'latest'>
+    >()
     expectTypeOf(blockNumber).toEqualTypeOf<bigint>()
+    expectTypeOf(blockTransactionCount).toEqualTypeOf<bigint>()
     expectTypeOf(storage).toEqualTypeOf<Hex.Hex>()
     expectTypeOf(transactionCount).toEqualTypeOf<bigint>()
   })

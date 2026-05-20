@@ -1,9 +1,8 @@
 import { describe, expect, test } from 'vp/test'
 
 import { anvilMainnet } from '../../../test/anvil.js'
-import * as Client from '../../core/Client.js'
-import { http } from '../../core/transports/index.js'
-import { getBlobBaseFee } from './getBlobBaseFee.js'
+import { Client, http } from 'viem'
+import * as actions from 'viem/actions'
 
 describe('getBlobBaseFee', () => {
   test('behavior: returns the current blob base fee', async () => {
@@ -11,7 +10,7 @@ describe('getBlobBaseFee', () => {
       transport: http(anvilMainnet.rpcUrl.http),
     })
 
-    const fee = await getBlobBaseFee(client)
+    const fee = await actions.public.getBlobBaseFee(client)
 
     expect(typeof fee).toMatchInlineSnapshot(`"bigint"`)
   })

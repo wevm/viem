@@ -1,9 +1,8 @@
 import { describe, expect, test } from 'vp/test'
 
 import { anvilMainnet } from '../../../test/anvil.js'
-import * as Client from '../../core/Client.js'
-import { http } from '../../core/transports/index.js'
-import { getGasPrice } from './getGasPrice.js'
+import { Client, http } from 'viem'
+import * as actions from 'viem/actions'
 
 describe('getGasPrice', () => {
   test('behavior: returns the current gas price', async () => {
@@ -11,7 +10,7 @@ describe('getGasPrice', () => {
       transport: http(anvilMainnet.rpcUrl.http),
     })
 
-    const gasPrice = await getGasPrice(client)
+    const gasPrice = await actions.public.getGasPrice(client)
 
     expect(typeof gasPrice).toMatchInlineSnapshot(`"bigint"`)
   })

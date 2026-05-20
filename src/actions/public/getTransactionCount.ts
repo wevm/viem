@@ -41,7 +41,7 @@ export async function getTransactionCount<
     },
     { dedupe: block.blockNumber !== undefined },
   )
-  return Hex.toBigInt(count as Hex.Hex)
+  return Hex.toBigInt(count)
 }
 
 export declare namespace getTransactionCount {
