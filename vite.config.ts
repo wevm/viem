@@ -89,6 +89,7 @@ export default defineConfig({
     },
   },
   fmt: {
+    embeddedLanguageFormatting: 'off',
     ignorePatterns: ignores,
     printWidth: 80,
     semi: false,

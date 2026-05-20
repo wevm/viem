@@ -132,6 +132,7 @@
 - **Mirror Ox JSDoc for Ox-backed APIs** -- when viem wraps an Ox API, keep the public JSDoc symmetric with the upstream Ox function: same description shape, examples, parameter docs, and return docs, adapted only for `viem` imports and intentional viem behavior differences.
 - **Doc-driven API changes** -- write or update the TSDoc before or alongside the implementation, not as an afterthought.
 - **Examples should be small** -- public examples should show the minimum useful shape and avoid unrelated setup.
+- **Standard client in examples** -- public TSDoc and JSDoc examples must construct clients as `Client.create({ chain: mainnet, transport: http() })` using `mainnet` from `viem/chains`. Do not hardcode RPC URLs, custom chain definitions, or pre-built test clients in examples. Decorator examples extend that base client (e.g. `.extend(publicActions())`).
 - **Source docs first** -- public API documentation usually belongs in TSDoc near the exported source.
 - **Site pages** -- human guides live under `site/pages/`.
 - **Generated docs** -- generated docs and generated site output should not be edited by hand unless explicitly requested.
@@ -169,6 +170,7 @@
 
 - **Use targeted commands** -- prefer the smallest command that covers the touched behavior.
 - **Types** -- run `pnpm check:types` or a focused `tsc` command after TypeScript changes.
+- **JSDoc examples** -- run `pnpm examples:check` after editing public JSDoc examples. It extracts every fenced `ts twoslash` / `ts` block from `src/**/*.ts` JSDoc comments, writes them to a temporary `.examples/` directory, and runs `tsc --noEmit` against them with `customConditions: ["src"]` so `viem` resolves to source.
 - **Package shape** -- run `pnpm build` when package metadata, exports, or build output changes.
 - **Docs dev server** -- use `pnpm docs:dev` for documentation UI work.
 - **`pnpm check` mutates** -- it runs `vp check --fix` using root `vite.config.ts`. Use it only when intentionally applying lint/format fixes.

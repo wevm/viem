@@ -32,6 +32,7 @@
     // Interop constraints
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": false,
+    "ignoreDeprecations": "6.0",
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true,
     "isolatedModules": true,

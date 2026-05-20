@@ -39,3 +39,6 @@ site/pages.gen.ts
 .vercel
 vocs.config.tsx.timestamp*
 _
+
+# JSDoc example check working directory
+.examples

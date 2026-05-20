@@ -12,6 +12,7 @@
     "check:ci": "vp check",
     "check:types": "tsc -b",
     "check:unused": "knip --production",
+    "examples:check": "node --import tsx ./scripts/examples:check.ts",
     "exports:update": "node --import tsx ./scripts/exports:update.ts",
     "gen:tempo-abis": "bun scripts/generateTempoAbis.ts",
     "postinstall": "git submodule update --init --recursive && pnpm contracts:build",
@@ -42,6 +43,7 @@
     "bun": "^1.2.22",
     "knip": "^5.64.0",
     "micro-eth-signer": "^0.14.0",
+    "oxfmt": "^0.50.0",
     "permissionless": "^0.2.57",
     "prool": "~0.2.3",
     "simple-git-hooks": "^2.13.1",
@@ -135,7 +137,7 @@
   ],
   "pnpm": {
     "overrides": {
-      "typescript": "^5.9.3",
+      "typescript": "^6.0.3",
       "vite": "npm:@voidzero-dev/vite-plus-core@0.1.21",
       "vitest": "npm:@voidzero-dev/vite-plus-test@0.1.21",
       "@opentelemetry/api@^1.8.0": "~1.7.0",
