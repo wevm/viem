@@ -119,10 +119,15 @@ describe('test', () => {
       transport: http(),
     })
 
-    const mine = actions.mine(client, { blocks: 1n, interval: 1 })
+    const mine = actions.mine(client, {
+      blocks: 1n,
+      interval: 1,
+      mode: 'hardhat',
+    })
     const revert = actions.revert(client, { id: '0x1' })
     const setBalance = actions.setBalance(client, {
       address,
+      mode: 'ganache',
       value: 1n,
     })
     const setCode = actions.setCode(client, {
@@ -131,6 +136,7 @@ describe('test', () => {
     })
     const setNonce = actions.setNonce(client, {
       address,
+      mode: 'anvil',
       nonce: '0x1',
     })
     const setStorageAt = actions.setStorageAt(client, {
@@ -163,7 +169,7 @@ describe('test', () => {
     const testActions = actions.testActions
     const client = Client.create({
       transport: http(),
-    }).extend(testActions())
+    }).extend(testActions({ mode: 'ganache' }))
 
     const clientTest = client.test
     const mine = clientTest.mine({ blocks: 1n, interval: '0x1' })

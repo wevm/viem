@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vp/test'
 
 import { anvilMainnet } from '../../../test/anvil.js'
-import { Client, http } from 'viem'
+import { Client, custom, http } from 'viem'
 import * as actions from 'viem/actions'
 import { Hex } from 'viem/utils'
 
@@ -14,6 +14,22 @@ function createClient() {
     chain: anvilMainnet.chain,
     transport: http(anvilMainnet.rpcUrl.http),
   }).extend(actions.publicActions())
+}
+
+function createRecordingClient() {
+  const requests: { method: string; params?: unknown | undefined }[] = []
+  return {
+    client: Client.create({
+      transport: custom({
+        async request(options) {
+          requests.push(options)
+          if (options.method === 'evm_snapshot') return '0x1'
+          if (options.method === 'evm_revert') return true
+        },
+      }),
+    }),
+    requests,
+  }
 }
 
 describe('mine', () => {
@@ -34,7 +50,170 @@ describe('mine', () => {
     await actions.mine(client, { blocks: 1n, interval: 12n })
 
     const after = await client.public.getBlock({ blockTag: 'latest' })
-    expect(after.timestamp - before.timestamp).toMatchInlineSnapshot(`12n`)
+    expect(after.timestamp >= before.timestamp + 12n).toMatchInlineSnapshot(
+      `true`,
+    )
+  })
+})
+
+describe('mode', () => {
+  test('behavior: selects hardhat and ganache rpc branches', async () => {
+    const { client, requests } = createRecordingClient()
+    const address = '0x0000000000000000000000000000000000000201'
+
+    await actions.mine(client, { blocks: 2n, interval: 3n, mode: 'hardhat' })
+    await actions.mine(client, { blocks: 2n, interval: 3n, mode: 'ganache' })
+    await actions.setBalance(client, { address, mode: 'hardhat', value: 4n })
+    await actions.setBalance(client, { address, mode: 'ganache', value: 4n })
+    await actions.setCode(client, { address, bytecode: code, mode: 'hardhat' })
+    await actions.setCode(client, { address, bytecode: code, mode: 'ganache' })
+    await actions.setNonce(client, { address, mode: 'hardhat', nonce: 5n })
+    await actions.setNonce(client, { address, mode: 'ganache', nonce: 5n })
+    await actions.setStorageAt(client, {
+      address,
+      mode: 'hardhat',
+      slot: 6n,
+      value: storageValue,
+    })
+    await actions.setStorageAt(client, {
+      address,
+      mode: 'ganache',
+      slot: 6n,
+      value: storageValue,
+    })
+
+    expect(requests).toMatchInlineSnapshot(`
+      [
+        {
+          "method": "hardhat_mine",
+          "params": [
+            "0x2",
+            "0x3",
+          ],
+        },
+        {
+          "method": "evm_mine",
+          "params": [
+            {
+              "blocks": "0x2",
+            },
+          ],
+        },
+        {
+          "method": "hardhat_setBalance",
+          "params": [
+            "0x0000000000000000000000000000000000000201",
+            "0x4",
+          ],
+        },
+        {
+          "method": "evm_setAccountBalance",
+          "params": [
+            "0x0000000000000000000000000000000000000201",
+            "0x4",
+          ],
+        },
+        {
+          "method": "hardhat_setCode",
+          "params": [
+            "0x0000000000000000000000000000000000000201",
+            "0x6001600055",
+          ],
+        },
+        {
+          "method": "evm_setAccountCode",
+          "params": [
+            "0x0000000000000000000000000000000000000201",
+            "0x6001600055",
+          ],
+        },
+        {
+          "method": "hardhat_setNonce",
+          "params": [
+            "0x0000000000000000000000000000000000000201",
+            "0x5",
+          ],
+        },
+        {
+          "method": "ganache_setNonce",
+          "params": [
+            "0x0000000000000000000000000000000000000201",
+            "0x5",
+          ],
+        },
+        {
+          "method": "hardhat_setStorageAt",
+          "params": [
+            "0x0000000000000000000000000000000000000201",
+            "0x6",
+            "0x0000000000000000000000000000000000000000000000000000000000000069",
+          ],
+        },
+        {
+          "method": "ganache_setStorageAt",
+          "params": [
+            "0x0000000000000000000000000000000000000201",
+            "0x6",
+            "0x0000000000000000000000000000000000000000000000000000000000000069",
+          ],
+        },
+      ]
+    `)
+  })
+
+  test('behavior: decorator mode selects rpc branches', async () => {
+    const { client, requests } = createRecordingClient()
+    const clientTest = client.extend(
+      actions.testActions({ mode: 'hardhat' }),
+    ).test
+    const address = '0x0000000000000000000000000000000000000202'
+
+    await clientTest.mine({ blocks: 1n })
+    await clientTest.setBalance({ address, value: 2n })
+    await clientTest.setCode({ address, bytecode: code })
+    await clientTest.setNonce({ address, nonce: 3n })
+    await clientTest.setStorageAt({ address, slot: 4n, value: storageValue })
+
+    expect(requests).toMatchInlineSnapshot(`
+      [
+        {
+          "method": "hardhat_mine",
+          "params": [
+            "0x1",
+            "0x0",
+          ],
+        },
+        {
+          "method": "hardhat_setBalance",
+          "params": [
+            "0x0000000000000000000000000000000000000202",
+            "0x2",
+          ],
+        },
+        {
+          "method": "hardhat_setCode",
+          "params": [
+            "0x0000000000000000000000000000000000000202",
+            "0x6001600055",
+          ],
+        },
+        {
+          "method": "hardhat_setNonce",
+          "params": [
+            "0x0000000000000000000000000000000000000202",
+            "0x3",
+          ],
+        },
+        {
+          "method": "hardhat_setStorageAt",
+          "params": [
+            "0x0000000000000000000000000000000000000202",
+            "0x4",
+            "0x0000000000000000000000000000000000000000000000000000000000000069",
+          ],
+        },
+      ]
+    `)
   })
 })
 

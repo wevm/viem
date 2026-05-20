@@ -2,6 +2,11 @@ import type * as Address from 'ox/Address'
 
 import type * as Chain from '../../core/Chain.js'
 import type * as Client from '../../core/Client.js'
+import {
+  type Options as ModeOptions,
+  getMode,
+  getModeMethod,
+} from './internal/mode.js'
 import { request } from './internal/request.js'
 import { type Quantity, toQuantity } from './internal/quantity.js'
 
@@ -32,14 +37,22 @@ export async function setBalance<
   client: Client.Client<chain>,
   options: setBalance.Options,
 ): setBalance.ReturnType {
+  const mode = getMode(options.mode)
+  if (mode === 'ganache') {
+    await request(client, {
+      method: 'evm_setAccountBalance',
+      params: [options.address, toQuantity(options.value)],
+    })
+    return
+  }
   await request(client, {
-    method: 'anvil_setBalance',
+    method: getModeMethod(mode, 'setBalance'),
     params: [options.address, toQuantity(options.value)],
   })
 }
 
 export declare namespace setBalance {
-  type Options = {
+  type Options = ModeOptions & {
     /** Account address. */
     address: Address.Address
     /** Balance in wei. */
@@ -48,5 +61,8 @@ export declare namespace setBalance {
 
   type ReturnType = Promise<void>
 
-  type ErrorType = toQuantity.ErrorType
+  type ErrorType =
+    | getMode.ErrorType
+    | getModeMethod.ErrorType
+    | toQuantity.ErrorType
 }

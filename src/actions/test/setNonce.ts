@@ -2,6 +2,11 @@ import type * as Address from 'ox/Address'
 
 import type * as Chain from '../../core/Chain.js'
 import type * as Client from '../../core/Client.js'
+import {
+  type Options as ModeOptions,
+  getMode,
+  getModeMethod,
+} from './internal/mode.js'
 import { request } from './internal/request.js'
 import { type Quantity, toQuantity } from './internal/quantity.js'
 
@@ -32,14 +37,15 @@ export async function setNonce<
   client: Client.Client<chain>,
   options: setNonce.Options,
 ): setNonce.ReturnType {
+  const mode = getMode(options.mode)
   await request(client, {
-    method: 'anvil_setNonce',
+    method: getModeMethod(mode, 'setNonce'),
     params: [options.address, toQuantity(options.nonce)],
   })
 }
 
 export declare namespace setNonce {
-  type Options = {
+  type Options = ModeOptions & {
     /** Account address. */
     address: Address.Address
     /** Nonce. */
@@ -48,5 +54,8 @@ export declare namespace setNonce {
 
   type ReturnType = Promise<void>
 
-  type ErrorType = toQuantity.ErrorType
+  type ErrorType =
+    | getMode.ErrorType
+    | getModeMethod.ErrorType
+    | toQuantity.ErrorType
 }

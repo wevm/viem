@@ -15,7 +15,35 @@ export type Schema = RpcSchema.From<
     }
   | {
       Request: {
+        method: 'hardhat_mine'
+        params: [blocks: Hex.Hex, interval: Hex.Hex]
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
+        method: 'evm_mine'
+        params: [{ blocks: Hex.Hex }]
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
         method: 'anvil_setBalance'
+        params: [address: Address.Address, value: Hex.Hex]
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
+        method: 'hardhat_setBalance'
+        params: [address: Address.Address, value: Hex.Hex]
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
+        method: 'evm_setAccountBalance'
         params: [address: Address.Address, value: Hex.Hex]
       }
       ReturnType: void
@@ -29,6 +57,20 @@ export type Schema = RpcSchema.From<
     }
   | {
       Request: {
+        method: 'hardhat_setCode'
+        params: [address: Address.Address, bytecode: Hex.Hex]
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
+        method: 'evm_setAccountCode'
+        params: [address: Address.Address, bytecode: Hex.Hex]
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
         method: 'anvil_setNonce'
         params: [address: Address.Address, nonce: Hex.Hex]
       }
@@ -36,7 +78,35 @@ export type Schema = RpcSchema.From<
     }
   | {
       Request: {
+        method: 'hardhat_setNonce'
+        params: [address: Address.Address, nonce: Hex.Hex]
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
+        method: 'ganache_setNonce'
+        params: [address: Address.Address, nonce: Hex.Hex]
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
         method: 'anvil_setStorageAt'
+        params: [address: Address.Address, index: Hex.Hex, value: Hex.Hex]
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
+        method: 'hardhat_setStorageAt'
+        params: [address: Address.Address, index: Hex.Hex, value: Hex.Hex]
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
+        method: 'ganache_setStorageAt'
         params: [address: Address.Address, index: Hex.Hex, value: Hex.Hex]
       }
       ReturnType: void

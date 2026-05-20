@@ -3,6 +3,11 @@ import type * as Hex from 'ox/Hex'
 
 import type * as Chain from '../../core/Chain.js'
 import type * as Client from '../../core/Client.js'
+import {
+  type Options as ModeOptions,
+  getMode,
+  getModeMethod,
+} from './internal/mode.js'
 import { request } from './internal/request.js'
 
 /**
@@ -29,14 +34,22 @@ import { request } from './internal/request.js'
 export async function setCode<
   chain extends Chain.Chain | undefined = Chain.Chain | undefined,
 >(client: Client.Client<chain>, options: setCode.Options): setCode.ReturnType {
+  const mode = getMode(options.mode)
+  if (mode === 'ganache') {
+    await request(client, {
+      method: 'evm_setAccountCode',
+      params: [options.address, options.bytecode],
+    })
+    return
+  }
   await request(client, {
-    method: 'anvil_setCode',
+    method: getModeMethod(mode, 'setCode'),
     params: [options.address, options.bytecode],
   })
 }
 
 export declare namespace setCode {
-  type Options = {
+  type Options = ModeOptions & {
     /** Account address. */
     address: Address.Address
     /** Bytecode. */
@@ -45,5 +58,5 @@ export declare namespace setCode {
 
   type ReturnType = Promise<void>
 
-  type ErrorType = never
+  type ErrorType = getMode.ErrorType | getModeMethod.ErrorType
 }

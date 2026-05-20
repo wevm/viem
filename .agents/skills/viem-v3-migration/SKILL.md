@@ -207,11 +207,12 @@ Block-scoped public actions accept `blockNumber`, `blockTag`, or EIP-1898
 
 ### Test Actions
 
-Current landed methods target Anvil.
+Current landed methods support Anvil, Hardhat, and Ganache mode branches.
+Omitted `mode` defaults to Anvil.
 
 | v2 | v3 |
 | --- | --- |
-| `createTestClient({ mode: 'anvil', ... })` | `Client.create(options).extend(actions.testActions())` |
+| `createTestClient({ mode, ... })` | `Client.create(options).extend(actions.testActions({ mode }))` |
 | `mine(client, options)` | `actions.mine(client, options)` or `client.test.mine(options)` |
 | `revert(client, options)` | `actions.revert(client, options)` or `client.test.revert(options)` |
 | `setBalance(client, options)` | `actions.setBalance(client, options)` or `client.test.setBalance(options)` |
@@ -221,7 +222,8 @@ Current landed methods target Anvil.
 | `snapshot(client)` | `actions.snapshot(client)` or `client.test.snapshot()` |
 
 Test action quantity inputs accept `Hex.Hex | number | bigint` where the RPC
-method takes a quantity.
+method takes a quantity. Standalone test actions also accept `mode` in their
+options.
 
 ### `Transport`
 

@@ -3,6 +3,11 @@ import type * as Hex from 'ox/Hex'
 
 import type * as Chain from '../../core/Chain.js'
 import type * as Client from '../../core/Client.js'
+import {
+  type Options as ModeOptions,
+  getMode,
+  getModeMethod,
+} from './internal/mode.js'
 import { request } from './internal/request.js'
 import { type Quantity, toQuantity } from './internal/quantity.js'
 
@@ -34,14 +39,15 @@ export async function setStorageAt<
   client: Client.Client<chain>,
   options: setStorageAt.Options,
 ): setStorageAt.ReturnType {
+  const mode = getMode(options.mode)
   await request(client, {
-    method: 'anvil_setStorageAt',
+    method: getModeMethod(mode, 'setStorageAt'),
     params: [options.address, toQuantity(options.slot), options.value],
   })
 }
 
 export declare namespace setStorageAt {
-  type Options = {
+  type Options = ModeOptions & {
     /** Account address. */
     address: Address.Address
     /** Storage slot. */
@@ -52,5 +58,8 @@ export declare namespace setStorageAt {
 
   type ReturnType = Promise<void>
 
-  type ErrorType = toQuantity.ErrorType
+  type ErrorType =
+    | getMode.ErrorType
+    | getModeMethod.ErrorType
+    | toQuantity.ErrorType
 }
