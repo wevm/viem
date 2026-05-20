@@ -8,12 +8,14 @@ import * as Transport from '../Transport.js'
  * import { custom } from 'viem'
  *
  * const provider = {
- *   request: async ({ method }: { method: string }) => method,
+ *   request: async ({ method }: { method: string }) => method
  * }
  * const transport = custom(provider)
  *
  * const client = transport({})
- * const blockNumber = await client.request({ method: 'eth_blockNumber' })
+ * const blockNumber = await client.request({
+ *   method: 'eth_blockNumber'
+ * })
  * // @log: 'eth_blockNumber'
  * ```
  *

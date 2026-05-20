@@ -8,15 +8,18 @@ import { wait } from '../internal/wait.js'
  * @example
  * ```ts twoslash
  * import { fallback, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
  *
  * const transport = fallback([
  *   http('https://1.rpc.thirdweb.com'),
- *   http('https://eth.llamarpc.com'),
+ *   http('https://eth.llamarpc.com')
  * ])
  *
- * // TODO(v3): Replace with Client.create({ transport }) once Client lands.
+ * // TODO(v3): Replace with Client.create({ chain: mainnet, transport }) once Client lands.
  * const client = transport({})
- * const blockNumber = await client.request({ method: 'eth_blockNumber' })
+ * const blockNumber = await client.request({
+ *   method: 'eth_blockNumber'
+ * })
  * // @log: '0x1a2b3c'
  * ```
  *

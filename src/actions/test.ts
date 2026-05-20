@@ -28,9 +28,12 @@ export type TestActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, testActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(testActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(testActions())
    *
    * const enabled = await client.test.getAutomine()
    * ```
@@ -44,9 +47,12 @@ export type TestActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, testActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(testActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(testActions())
    *
    * await client.test.increaseTime({ seconds: 60n })
    * ```
@@ -61,9 +67,12 @@ export type TestActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, testActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(testActions({ mode: 'anvil' }))
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(testActions({ mode: 'anvil' }))
    *
    * await client.test.mine({ blocks: 1n })
    * ```
@@ -78,9 +87,12 @@ export type TestActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, testActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(testActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(testActions())
    *
    * await client.test.removeBlockTimestampInterval()
    * ```
@@ -94,9 +106,12 @@ export type TestActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, testActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(testActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(testActions())
    *
    * const id = await client.test.snapshot()
    * await client.test.revert({ id })
@@ -112,9 +127,12 @@ export type TestActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, testActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(testActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(testActions())
    *
    * await client.test.setAutomine(true)
    * ```
@@ -129,13 +147,16 @@ export type TestActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, testActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(testActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(testActions())
    *
    * await client.test.setBalance({
    *   address: '0x0000000000000000000000000000000000000000',
-   *   value: 1n,
+   *   value: 1n
    * })
    * ```
    *
@@ -149,11 +170,16 @@ export type TestActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, testActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(testActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(testActions())
    *
-   * await client.test.setBlockTimestampInterval({ interval: 12 })
+   * await client.test.setBlockTimestampInterval({
+   *   interval: 12
+   * })
    * ```
    *
    * @param options - Options.
@@ -168,13 +194,16 @@ export type TestActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, testActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(testActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(testActions())
    *
    * await client.test.setCode({
    *   address: '0x0000000000000000000000000000000000000000',
-   *   bytecode: '0x6001600055',
+   *   bytecode: '0x6001600055'
    * })
    * ```
    *
@@ -188,9 +217,12 @@ export type TestActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, testActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(testActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(testActions())
    *
    * await client.test.setIntervalMining({ interval: 1 })
    * ```
@@ -207,11 +239,16 @@ export type TestActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, testActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(testActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(testActions())
    *
-   * await client.test.setNextBlockTimestamp({ timestamp: 1_700_000_000n })
+   * await client.test.setNextBlockTimestamp({
+   *   timestamp: 1_700_000_000n
+   * })
    * ```
    *
    * @param options - Options.
@@ -226,13 +263,16 @@ export type TestActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, testActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(testActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(testActions())
    *
    * await client.test.setNonce({
    *   address: '0x0000000000000000000000000000000000000000',
-   *   nonce: 42n,
+   *   nonce: 42n
    * })
    * ```
    *
@@ -246,14 +286,18 @@ export type TestActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, testActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(testActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(testActions())
    *
    * await client.test.setStorageAt({
    *   address: '0x0000000000000000000000000000000000000000',
    *   slot: 0n,
-   *   value: '0x0000000000000000000000000000000000000000000000000000000000000000',
+   *   value:
+   *     '0x0000000000000000000000000000000000000000000000000000000000000000'
    * })
    * ```
    *
@@ -267,9 +311,12 @@ export type TestActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, testActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(testActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(testActions())
    *
    * const id = await client.test.snapshot()
    * ```
@@ -285,9 +332,12 @@ export type TestActions = {
  * @example
  * ```ts twoslash
  * import { Client, http, testActions } from 'viem'
+ * import { mainnet } from 'viem/chains'
  *
- * const client = Client.create({ transport: http() })
- *   .extend(testActions({ mode: 'anvil' }))
+ * const client = Client.create({
+ *   chain: mainnet,
+ *   transport: http()
+ * }).extend(testActions({ mode: 'anvil' }))
  *
  * await client.test.mine({ blocks: 1n })
  * ```

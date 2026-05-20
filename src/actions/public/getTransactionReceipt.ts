@@ -11,14 +11,19 @@ import { BaseError } from '../../core/BaseError.js'
  * @example
  * ```ts twoslash
  * import { actions, Client, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
  *
  * const client = Client.create({
- *   transport: http('https://1.rpc.thirdweb.com'),
+ *   chain: mainnet,
+ *   transport: http('https://1.rpc.thirdweb.com')
  * })
  *
- * const receipt = await actions.getTransactionReceipt(client, {
- *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
- * })
+ * const receipt = await actions.getTransactionReceipt(
+ *   client,
+ *   {
+ *     hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
+ *   }
+ * )
  * ```
  *
  * @param client - Client to use.

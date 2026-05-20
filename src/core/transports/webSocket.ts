@@ -30,12 +30,17 @@ const socketClientCache = new Map<string, Promise<SocketRpcClient>>()
  * @example
  * ```ts twoslash
  * import { webSocket } from 'viem'
+ * import { mainnet } from 'viem/chains'
  *
- * const transport = webSocket('wss://mainnet.gateway.tenderly.co')
+ * const transport = webSocket(
+ *   'wss://mainnet.gateway.tenderly.co'
+ * )
  *
- * // TODO(v3): Replace with Client.create({ transport }) once Client lands.
+ * // TODO(v3): Replace with Client.create({ chain: mainnet, transport }) once Client lands.
  * const client = transport({})
- * const blockNumber = await client.request({ method: 'eth_blockNumber' })
+ * const blockNumber = await client.request({
+ *   method: 'eth_blockNumber'
+ * })
  * // @log: '0x1a2b3c'
  * ```
  *

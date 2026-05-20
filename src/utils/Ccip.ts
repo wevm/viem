@@ -120,7 +120,7 @@ const solidityError = {
  * const data = await Ccip.request({
  *   data: '0xdeadbeef',
  *   sender: '0x0000000000000000000000000000000000000000',
- *   urls: ['https://example.com/{sender}/{data}'],
+ *   urls: ['https://example.com/{sender}/{data}']
  * })
  * ```
  *
@@ -233,7 +233,7 @@ export type RequestOptions = {
  * import { Ccip } from 'viem/utils'
  *
  * const ccipRead = Ccip.createTunnel({
- *   batchGateways: ['https://ccip-v3.ens.xyz'],
+ *   batchGateways: ['https://ccip-v3.ens.xyz']
  * })
  * ```
  *

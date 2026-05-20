@@ -11,14 +11,16 @@ import { toRpcBlock } from './internal/toRpcBlock.js'
  * @example
  * ```ts twoslash
  * import { actions, Client, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
  *
  * const client = Client.create({
- *   transport: http('https://1.rpc.thirdweb.com'),
+ *   chain: mainnet,
+ *   transport: http('https://1.rpc.thirdweb.com')
  * })
  *
  * const value = await actions.getStorageAt(client, {
  *   address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
- *   slot: '0x0',
+ *   slot: '0x0'
  * })
  * // @log: '0x0000000000000000000000000000000000000000000000000000000000000000'
  * ```

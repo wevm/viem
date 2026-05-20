@@ -16,14 +16,16 @@ import { type Quantity, toQuantity } from './internal/quantity.js'
  * @example
  * ```ts twoslash
  * import { actions, Client, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
  *
  * const client = Client.create({
- *   transport: http('http://127.0.0.1:8545'),
+ *   chain: mainnet,
+ *   transport: http('http://127.0.0.1:8545')
  * })
  *
  * await actions.setBalance(client, {
  *   address: '0x0000000000000000000000000000000000000000',
- *   value: 1_000_000_000_000_000_000n,
+ *   value: 1_000_000_000_000_000_000n
  * })
  * ```
  *

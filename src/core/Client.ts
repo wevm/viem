@@ -195,10 +195,12 @@ type Decorator<base extends object> = (client: base) => Record<string, unknown>
  *
  * const client = Client.create({
  *   chain: mainnet,
- *   transport: http(),
+ *   transport: http()
  * })
  *
- * const blockNumber = await client.request({ method: 'eth_blockNumber' })
+ * const blockNumber = await client.request({
+ *   method: 'eth_blockNumber'
+ * })
  * // @log: '0x1a2b3c'
  * ```
  *

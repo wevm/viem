@@ -27,12 +27,15 @@ export type PublicActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(publicActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
    *
    * const balance = await client.public.getBalance({
-   *   address: '0x0000000000000000000000000000000000000000',
+   *   address: '0x0000000000000000000000000000000000000000'
    * })
    * ```
    *
@@ -46,9 +49,12 @@ export type PublicActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(publicActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
    *
    * const blobBaseFee = await client.public.getBlobBaseFee()
    * ```
@@ -62,9 +68,12 @@ export type PublicActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(publicActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
    *
    * const block = await client.public.getBlock()
    * ```
@@ -84,9 +93,12 @@ export type PublicActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(publicActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
    *
    * const blockNumber = await client.public.getBlockNumber()
    * ```
@@ -103,9 +115,12 @@ export type PublicActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(publicActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
    *
    * const count = await client.public.getBlockTransactionCount()
    * ```
@@ -122,9 +137,12 @@ export type PublicActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(publicActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
    *
    * const chainId = await client.public.getChainId()
    * ```
@@ -138,12 +156,15 @@ export type PublicActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(publicActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
    *
    * const code = await client.public.getCode({
-   *   address: '0x0000000000000000000000000000000000000000',
+   *   address: '0x0000000000000000000000000000000000000000'
    * })
    * ```
    *
@@ -157,9 +178,12 @@ export type PublicActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(publicActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
    *
    * const gasPrice = await client.public.getGasPrice()
    * ```
@@ -173,13 +197,16 @@ export type PublicActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(publicActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
    *
    * const value = await client.public.getStorageAt({
    *   address: '0x0000000000000000000000000000000000000000',
-   *   slot: '0x0',
+   *   slot: '0x0'
    * })
    * ```
    *
@@ -193,12 +220,15 @@ export type PublicActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(publicActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
    *
    * const transaction = await client.public.getTransaction({
-   *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+   *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
    * })
    * ```
    *
@@ -212,13 +242,17 @@ export type PublicActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(publicActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
    *
-   * const confirmations = await client.public.getTransactionConfirmations({
-   *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
-   * })
+   * const confirmations =
+   *   await client.public.getTransactionConfirmations({
+   *     hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
+   *   })
    * ```
    *
    * @param options - Options.
@@ -233,12 +267,15 @@ export type PublicActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(publicActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
    *
    * const count = await client.public.getTransactionCount({
-   *   address: '0x0000000000000000000000000000000000000000',
+   *   address: '0x0000000000000000000000000000000000000000'
    * })
    * ```
    *
@@ -254,12 +291,15 @@ export type PublicActions = {
    * @example
    * ```ts twoslash
    * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
    *
-   * const client = Client.create({ transport: http() })
-   *   .extend(publicActions())
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
    *
    * const receipt = await client.public.getTransactionReceipt({
-   *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+   *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d'
    * })
    * ```
    *
@@ -277,9 +317,12 @@ export type PublicActions = {
  * @example
  * ```ts twoslash
  * import { Client, http, publicActions } from 'viem'
+ * import { mainnet } from 'viem/chains'
  *
- * const client = Client.create({ transport: http() })
- *   .extend(publicActions())
+ * const client = Client.create({
+ *   chain: mainnet,
+ *   transport: http()
+ * }).extend(publicActions())
  *
  * const blockNumber = await client.public.getBlockNumber()
  * ```

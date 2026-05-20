@@ -118,7 +118,7 @@ export type AnyRequestFn = (
  *   key: 'mock',
  *   name: 'Mock',
  *   request: async ({ method }) => method,
- *   type: 'mock',
+ *   type: 'mock'
  * })
  *
  * await transport.request({ method: 'eth_blockNumber' })
@@ -181,10 +181,14 @@ export declare namespace create {
  * ```ts twoslash
  * import { Transport } from 'viem'
  *
- * Transport.shouldThrow(Object.assign(new Error('rejected'), { code: 4001 }))
+ * Transport.shouldThrow(
+ *   Object.assign(new Error('rejected'), { code: 4001 })
+ * )
  * // @log: true
  *
- * Transport.shouldThrow(Object.assign(new Error('internal'), { code: -32603 }))
+ * Transport.shouldThrow(
+ *   Object.assign(new Error('internal'), { code: -32603 })
+ * )
  * // @log: false
  * ```
  *

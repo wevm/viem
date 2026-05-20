@@ -10,9 +10,11 @@ import * as Hex from '../../utils/Hex.js'
  * @example
  * ```ts twoslash
  * import { actions, Client, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
  *
  * const client = Client.create({
- *   transport: http('https://1.rpc.thirdweb.com'),
+ *   chain: mainnet,
+ *   transport: http('https://1.rpc.thirdweb.com')
  * })
  *
  * const block = await actions.getBlock(client)

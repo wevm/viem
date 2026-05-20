@@ -9,9 +9,11 @@ import { request } from './internal/schema.js'
  * @example
  * ```ts twoslash
  * import { actions, Client, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
  *
  * const client = Client.create({
- *   transport: http('http://127.0.0.1:8545'),
+ *   chain: mainnet,
+ *   transport: http('http://127.0.0.1:8545')
  * })
  *
  * await actions.setAutomine(client, true)

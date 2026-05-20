@@ -11,13 +11,15 @@ import { toRpcBlock } from './internal/toRpcBlock.js'
  * @example
  * ```ts twoslash
  * import { actions, Client, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
  *
  * const client = Client.create({
- *   transport: http('https://1.rpc.thirdweb.com'),
+ *   chain: mainnet,
+ *   transport: http('https://1.rpc.thirdweb.com')
  * })
  *
  * const code = await actions.getCode(client, {
- *   address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+ *   address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
  * })
  * // @log: undefined
  * ```
