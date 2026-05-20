@@ -1,10 +1,9 @@
 import * as Chain from '../../core/Chain.js'
-import { chainConfig } from '../../zksync/chainConfig.js'
 
 // The local hyperchain setup: https://github.com/matter-labs/local-setup/blob/main/zk-chains-docker-compose.yml
 
 export const zksyncLocalHyperchain = /*#__PURE__*/ Chain.define({
-  ...chainConfig,
+  blockTime: 1_000,
   id: 270n,
   name: 'ZKsync CLI Local Hyperchain',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },

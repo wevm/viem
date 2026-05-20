@@ -1,8 +1,7 @@
 import * as Chain from '../../core/Chain.js'
-import { chainConfig } from '../../zksync/chainConfig.js'
 
 export const zksyncInMemoryNode = /*#__PURE__*/ Chain.define({
-  ...chainConfig,
+  blockTime: 1_000,
   id: 260n,
   name: 'ZKsync InMemory Node',
   network: 'zksync-in-memory-node',

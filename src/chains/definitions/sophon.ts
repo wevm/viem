@@ -1,8 +1,6 @@
 import * as Chain from '../../core/Chain.js'
-import { chainConfig } from '../../zksync/chainConfig.js'
 
 export const sophon = /*#__PURE__*/ Chain.define({
-  ...chainConfig,
   blockTime: 200,
   id: 50104n,
   name: 'Sophon',

@@ -1,8 +1,6 @@
 import * as Chain from '../../core/Chain.js'
-import { chainConfig } from '../../zksync/chainConfig.js'
 
 export const zksyncSepoliaTestnet = /*#__PURE__*/ Chain.define({
-  ...chainConfig,
   blockTime: 200,
   id: 300n,
   name: 'ZKsync Sepolia Testnet',

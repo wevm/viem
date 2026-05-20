@@ -1,8 +1,6 @@
 import * as Chain from '../../core/Chain.js'
-import { chainConfig } from '../../zksync/chainConfig.js'
 
 export const abstractTestnet = /*#__PURE__*/ Chain.define({
-  ...chainConfig,
   blockTime: 200,
   id: 11_124n,
   name: 'Abstract Testnet',

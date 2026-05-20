@@ -1,8 +1,7 @@
 import * as Chain from '../../core/Chain.js'
-import { chainConfig } from '../../zksync/chainConfig.js'
 
 export const battlechainTestnet = /*#__PURE__*/ Chain.define({
-  ...chainConfig,
+  blockTime: 1_000,
   id: 627n,
   name: 'BattleChain Testnet',
   network: 'battlechain-testnet',
