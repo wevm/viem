@@ -2,46 +2,36 @@ import * as Chain from '../src/core/Chain.js'
 import * as Client from '../src/core/Client.js'
 import { http } from '../src/core/transports/http.js'
 
-export const anvilMainnet = define({
-  id: 31_337n,
-  port: 8545,
-})
+let nextId = 31_337n
+let nextPort = 8545
 
-export const anvilOptimism = define({
-  id: 31_338n,
-  port: 8546,
-})
+export const anvilMainnet = define()
+export const anvilOptimism = define()
 
 export const instances = [anvilMainnet, anvilOptimism] as const
 
 export type Anvil = ReturnType<typeof define>
 
-export function define<const id extends bigint>(options: {
-  id: id
-  port: number
-}) {
-  const { id, port } = options
+export function define() {
+  const id = nextId++
+  const port = nextPort++
+  const rpcUrl = {
+    http: `http://127.0.0.1:${port}/${getPoolId()}`,
+    webSocket: `ws://127.0.0.1:${port}/${getPoolId()}`,
+  } as const
   return {
     id,
     port,
+    rpcUrl,
     get chain() {
       return Chain.define({
         id,
         name: `Anvil ${id}`,
         nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
         rpcUrls: {
-          default: {
-            http: [getHttpUrl(port)],
-            webSocket: [getWebSocketUrl(port)],
-          },
+          default: { http: [rpcUrl.http], webSocket: [rpcUrl.webSocket] },
         },
       })
-    },
-    get rpcUrl() {
-      return {
-        http: getHttpUrl(port),
-        webSocket: getWebSocketUrl(port),
-      }
     },
   } as const
 }
@@ -95,10 +85,3 @@ export async function requestUrl<returnType = unknown>(
   return body.result as returnType
 }
 
-function getHttpUrl(port: number) {
-  return `http://127.0.0.1:${port}/${getPoolId()}`
-}
-
-function getWebSocketUrl(port: number) {
-  return `ws://127.0.0.1:${port}/${getPoolId()}`
-}
