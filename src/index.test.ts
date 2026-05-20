@@ -10,6 +10,7 @@ test('exports', () => {
       "Chain",
       "Client",
       "Transport",
+      "actions",
       "custom",
       "fallback",
       "http",
@@ -18,4 +19,5 @@ test('exports', () => {
       "webSocket",
     ]
   `)
+  expect(typeof viem.actions.getBlockNumber).toMatchInlineSnapshot(`"function"`)
 })

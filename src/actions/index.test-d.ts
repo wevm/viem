@@ -3,6 +3,7 @@ import { describe, expectTypeOf, test } from 'vp/test'
 import {
   Chain,
   Client,
+  actions as rootActions,
   http,
   publicActions,
   testActions,
@@ -22,6 +23,8 @@ const chain = Chain.define({
   nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
   rpcUrls: { default: { http: ['https://example.com'] } },
 })
+
+expectTypeOf(rootActions).toEqualTypeOf<typeof actions>()
 
 describe('public', () => {
   test('types: exposes standalone actions', async () => {

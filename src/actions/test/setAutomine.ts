@@ -8,8 +8,7 @@ import { request } from './internal/schema.js'
  *
  * @example
  * ```ts twoslash
- * import { Client, http } from 'viem'
- * import * as actions from 'viem/actions'
+ * import { Client, actions, http } from 'viem'
  *
  * const client = Client.create({
  *   transport: http('http://127.0.0.1:8545'),
