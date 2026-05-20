@@ -10,5 +10,23 @@ catalog:
 
 minimumReleaseAge: 1440
 
+onlyBuiltDependencies:
+  - bun
+  - esbuild
+  - msgpackr-extract
+  - oxc-resolver
+  - protobufjs
+  - simple-git-hooks
+
 overrides:
   'permissionless>viem': 'workspace:*'
+  '@opentelemetry/sdk-node': '>=0.217.0'
+  fast-uri: '>=3.1.2'
+  fastify: '>=5.8.3'
+  ip-address: '>=10.1.1'
+  nanoid: '>=5.0.9'
+  protobufjs: '>=7.5.8'
+  serialize-javascript: '>=7.0.5'
+  tar: '>=7.5.11'
+  tar-fs: '>=3.1.1'
+  ws: '>=8.20.1'
