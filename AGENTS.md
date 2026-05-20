@@ -43,6 +43,12 @@
 - **No `any` leakage** -- user-facing callback, return, and option types should not leak `any` unless the surrounding API already intentionally does.
 - **Type inference after every feature** -- after implementing any feature, check if new types can be narrowed. Add or update type tests alongside behavioral tests when public inference changes.
 
+## Test Conventions
+
+- **No mocks** -- do not use mocking or spying APIs such as `vi.fn`, `vi.mock`, or `vi.spyOn` in new or migrated tests. Exercise real module boundaries instead.
+- **Real integrations** -- prefer local HTTP/WebSocket servers, Prool-backed Anvil instances for Ethereum JSON-RPC behavior, real transport factories, real providers, real timers, and deterministic in-memory implementations over mocked call assertions.
+- **Assert behavior, not calls** -- prove integration boundaries by observing returned values, emitted data, state changes, or thrown errors. Avoid tests whose only signal is "function X was called with Y".
+
 ## API Conventions
 
 - **Stateless module APIs** -- public APIs are module namespaces full of functions and types. Do not introduce stateful classes for normal library behavior.
