@@ -1,4 +1,3 @@
-import type { AddressInfo } from 'node:net'
 import { Instance, Server } from 'prool'
 
 import { instances } from './anvil.js'
@@ -13,10 +12,9 @@ export default async function setup() {
       instance: Instance.anvil({
         chainId: Number(anvil.id),
       }),
+      port: anvil.port,
     })
     const stop = await server.start()
-    const { port } = server.address() as AddressInfo
-    process.env[anvil.portEnv] = String(port)
     stops.push(stop)
   }
 

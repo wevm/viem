@@ -2,32 +2,32 @@ import * as Chain from '../src/core/Chain.js'
 import * as Client from '../src/core/Client.js'
 import { http } from '../src/core/transports/http.js'
 
-export const anvilMainnet = defineAnvil({
+export const anvilMainnet = define({
   id: 31_337n,
   name: 'Anvil Mainnet',
-  portEnv: 'VIEM_TEST_ANVIL_MAINNET_PORT',
+  port: 8545,
 })
 
-export const anvilOptimism = defineAnvil({
+export const anvilOptimism = define({
   id: 31_338n,
   name: 'Anvil Optimism',
-  portEnv: 'VIEM_TEST_ANVIL_OPTIMISM_PORT',
+  port: 8546,
 })
 
 export const instances = [anvilMainnet, anvilOptimism] as const
 
-export type Anvil = ReturnType<typeof defineAnvil>
+export type Anvil = ReturnType<typeof define>
 
-export function defineAnvil<const id extends bigint>(options: {
+export function define<const id extends bigint>(options: {
   id: id
   name: string
-  portEnv: string
+  port: number
 }) {
-  const { id, name, portEnv } = options
+  const { id, name, port } = options
   return {
     id,
     name,
-    portEnv,
+    port,
     get chain() {
       return Chain.define({
         id,
@@ -35,16 +35,16 @@ export function defineAnvil<const id extends bigint>(options: {
         nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
         rpcUrls: {
           default: {
-            http: [getHttpUrl(portEnv)],
-            webSocket: [getWebSocketUrl(portEnv)],
+            http: [getHttpUrl(port)],
+            webSocket: [getWebSocketUrl(port)],
           },
         },
       })
     },
     get rpcUrl() {
       return {
-        http: getHttpUrl(portEnv),
-        webSocket: getWebSocketUrl(portEnv),
+        http: getHttpUrl(port),
+        webSocket: getWebSocketUrl(port),
       }
     },
   } as const
@@ -99,19 +99,10 @@ export async function requestUrl<returnType = unknown>(
   return body.result as returnType
 }
 
-function getHttpUrl(portEnv: string) {
-  return `http://127.0.0.1:${getPort(portEnv)}/${getPoolId()}`
+function getHttpUrl(port: number) {
+  return `http://127.0.0.1:${port}/${getPoolId()}`
 }
 
-function getWebSocketUrl(portEnv: string) {
-  return `ws://127.0.0.1:${getPort(portEnv)}/${getPoolId()}`
-}
-
-function getPort(portEnv: string) {
-  const port = process.env[portEnv]
-  if (!port)
-    throw new Error(
-      `Missing ${portEnv}. Ensure Vitest global setup started the Anvil test servers.`,
-    )
-  return port
+function getWebSocketUrl(port: number) {
+  return `ws://127.0.0.1:${port}/${getPoolId()}`
 }
