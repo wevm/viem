@@ -172,13 +172,30 @@ Current landed methods:
 | v2 | v3 |
 | --- | --- |
 | `createPublicClient(options)` | `Client.create(options).extend(actions.public())` |
+| `getBalance(client, options)` | `actions.public.getBalance(client, options)` or `client.public.getBalance(options)` |
+| `getBlobBaseFee(client)` | `actions.public.getBlobBaseFee(client)` or `client.public.getBlobBaseFee()` |
 | `getBlockNumber(client, options)` | `actions.public.getBlockNumber(client, options)` or `client.public.getBlockNumber(options)` |
 | `getChainId(client)` | `actions.public.getChainId(client)` or `client.public.getChainId()` |
+| `getCode(client, options)` | `actions.public.getCode(client, options)` or `client.public.getCode(options)` |
+| `getGasPrice(client)` | `actions.public.getGasPrice(client)` or `client.public.getGasPrice()` |
+| `getStorageAt(client, options)` | `actions.public.getStorageAt(client, options)` or `client.public.getStorageAt(options)` |
+| `getTransactionCount(client, options)` | `actions.public.getTransactionCount(client, options)` or `client.public.getTransactionCount(options)` |
+| `type GetBalanceParameters` | `getBalance.Options` |
+| `type GetBalanceReturnType` | `getBalance.ReturnType` |
+| `type GetBlobBaseFeeReturnType` | `getBlobBaseFee.ReturnType` |
 | `type GetBlockNumberParameters` | `getBlockNumber.Options` |
 | `type GetBlockNumberReturnType` | `getBlockNumber.ReturnType` |
 | `type GetChainIdReturnType` | `getChainId.ReturnType` |
+| `type GetCodeParameters` | `getCode.Options` |
+| `type GetCodeReturnType` | `getCode.ReturnType` |
+| `type GetGasPriceReturnType` | `getGasPrice.ReturnType` |
+| `type GetStorageAtParameters` | `getStorageAt.Options` |
+| `type GetStorageAtReturnType` | `getStorageAt.ReturnType` |
+| `type GetTransactionCountParameters` | `getTransactionCount.Options` |
+| `type GetTransactionCountReturnType` | `getTransactionCount.ReturnType` |
 
 `actions.public.getChainId` returns `bigint` in v3.
+`actions.public.getTransactionCount` also returns `bigint`.
 
 ### `Transport`
 
