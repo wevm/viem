@@ -218,12 +218,12 @@ Omitted `mode` defaults to Anvil. Import `testActions` from root `viem`.
 | `setBalance(client, options)` | `actions.setBalance(client, options)` or `client.test.setBalance(options)` |
 | `setCode(client, options)` | `actions.setCode(client, options)` or `client.test.setCode(options)` |
 | `setNonce(client, options)` | `actions.setNonce(client, options)` or `client.test.setNonce(options)` |
-| `setStorageAt(client, options)` | `actions.setStorageAt(client, options)` or `client.test.setStorageAt(options)` |
+| `setStorageAt(client, { address, index, value })` | `actions.setStorageAt(client, { address, slot, value })` or `client.test.setStorageAt({ address, slot, value })` |
 | `snapshot(client)` | `actions.snapshot(client)` or `client.test.snapshot()` |
 
 Test action quantity inputs accept `Hex.Hex | number | bigint` where the RPC
 method takes a quantity. Standalone test actions also accept `mode` in their
-options.
+options. `setStorageAt` renamed `index` to `slot`.
 
 ### `Transport`
 
