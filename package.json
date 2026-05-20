@@ -220,11 +220,6 @@
       "src": "./src/core/Client.ts",
       "default": "./dist/core/Client.js"
     },
-    "./ens": {
-      "types": "./dist/ens/index.d.ts",
-      "src": "./src/ens/index.ts",
-      "default": "./dist/ens/index.js"
-    },
     "./siwe": {
       "types": "./dist/siwe/index.d.ts",
       "src": "./src/siwe/index.ts",
