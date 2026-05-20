@@ -176,3 +176,30 @@ test('default', async () => {
 
   expect(response.receipts).toHaveLength(5)
 })
+
+test('behavior: invokes onTransactionConfirmed chain hook', async () => {
+  const confirmed: unknown[] = []
+  const chain = {
+    ...mainnet,
+    onTransactionConfirmed(parameters: unknown) {
+      confirmed.push(parameters)
+    },
+  }
+
+  const response = await sendCallsSync(client, {
+    account: accounts[0].address,
+    chain,
+    calls: [{ to: accounts[1].address }],
+  })
+
+  expect(response.receipts).toHaveLength(1)
+  expect(confirmed).toHaveLength(1)
+  expect(confirmed[0]).toMatchObject({
+    account: { address: accounts[0].address },
+    id: expect.any(String),
+    request: {
+      account: accounts[0].address,
+      calls: [{ to: accounts[1].address }],
+    },
+  })
+})

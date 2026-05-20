@@ -207,6 +207,36 @@ test('default', async () => {
   `)
 })
 
+test('behavior: invokes onTransactionSubmitted chain hook', async () => {
+  const submitted: unknown[] = []
+  const chain = {
+    ...mainnet,
+    onTransactionSubmitted(parameters: unknown) {
+      submitted.push(parameters)
+    },
+  }
+
+  const client = getClient({
+    chain,
+    onRequest() {},
+  })
+
+  const response = await sendCalls(client, {
+    account: accounts[0].address,
+    calls: [{ to: accounts[1].address }],
+  })
+
+  expect(submitted).toHaveLength(1)
+  expect(submitted[0]).toMatchObject({
+    account: { address: accounts[0].address },
+    id: response.id,
+    request: {
+      account: accounts[0].address,
+      calls: [{ to: accounts[1].address }],
+    },
+  })
+})
+
 test('behavior: chain on client', async () => {
   const requests: unknown[] = []
 

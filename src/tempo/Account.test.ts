@@ -158,6 +158,36 @@ describe('fromP256', () => {
       }
     `)
   })
+
+  test('behavior: access key with authorization', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const accessKey = Account.fromP256(privateKey_p256, { access: account })
+    const keyAuthorization = await account.signKeyAuthorization(accessKey, {
+      chainId: 1n,
+    })
+
+    const access = Account.fromP256(privateKey_p256, {
+      access: account,
+      authorization: keyAuthorization,
+    })
+
+    expect(access.accessKeyAuthorization?.status).toBe('ready')
+    expect(access.accessKeyAuthorization?.signed).toBe(keyAuthorization)
+  })
+
+  test('error: authorization without access', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const accessKey = Account.fromP256(privateKey_p256, { access: account })
+    const keyAuthorization = await account.signKeyAuthorization(accessKey, {
+      chainId: 1n,
+    })
+
+    expect(() =>
+      Account.fromP256(privateKey_p256, {
+        authorization: keyAuthorization,
+      } as never),
+    ).toThrow('`authorization` requires `access`.')
+  })
 })
 
 describe('fromHeadlessWebAuthn', () => {

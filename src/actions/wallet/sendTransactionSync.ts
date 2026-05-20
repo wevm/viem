@@ -23,6 +23,7 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type {
   Chain,
+  ChainTransactionRequest,
   DeriveChain,
   GetChainParameter,
 } from '../../types/chain.js'
@@ -345,6 +346,12 @@ export async function sendTransactionSync<
       })
       if (throwOnReceiptRevert && receipt.status === 'reverted')
         throw new TransactionReceiptRevertedError({ receipt })
+      await chain?.onTransactionConfirmed?.({
+        account: account ?? undefined,
+        client,
+        receipt,
+        request,
+      })
       return receipt
     }
 
@@ -392,7 +399,7 @@ export async function sendTransactionSync<
           serializer,
         },
       )) as Hash
-      return (await getAction(
+      const receipt = (await getAction(
         client,
         sendRawTransactionSync,
         'sendRawTransactionSync',
@@ -401,6 +408,13 @@ export async function sendTransactionSync<
         throwOnReceiptRevert,
         timeout: parameters.timeout,
       })) as never
+      await chain?.onTransactionConfirmed?.({
+        account,
+        client,
+        receipt,
+        request: request as ChainTransactionRequest,
+      })
+      return receipt
     }
 
     if (account?.type === 'smart')

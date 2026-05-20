@@ -19,6 +19,7 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type {
   Chain,
+  ChainTransactionRequest,
   DeriveChain,
   GetChainParameter,
 } from '../../types/chain.js'
@@ -260,13 +261,20 @@ export async function sendTransaction<
         : 'eth_sendTransaction'
 
       try {
-        return await client.request(
+        const hash = await client.request(
           {
             method,
             params: [request],
           },
           { retryCount: 0 },
         )
+        await chain?.onTransactionSubmitted?.({
+          account: account ?? undefined,
+          client,
+          hash,
+          request,
+        })
+        return hash
       } catch (e) {
         if (isWalletNamespaceSupported === false) throw e
 
@@ -279,7 +287,7 @@ export async function sendTransaction<
           error.name === 'MethodNotFoundRpcError' ||
           error.name === 'MethodNotSupportedRpcError'
         ) {
-          return await client
+          const hash = await client
             .request(
               {
                 method: 'wallet_sendTransaction',
@@ -303,6 +311,13 @@ export async function sendTransaction<
 
               throw walletNamespaceError
             })
+          await chain?.onTransactionSubmitted?.({
+            account: account ?? undefined,
+            client,
+            hash,
+            request,
+          })
+          return hash
         }
 
         throw error
@@ -353,13 +368,20 @@ export async function sendTransaction<
           serializer,
         },
       )) as Hash
-      return await getAction(
+      const hash = await getAction(
         client,
         sendRawTransaction,
         'sendRawTransaction',
       )({
         serializedTransaction,
       })
+      await chain?.onTransactionSubmitted?.({
+        account,
+        client,
+        hash,
+        request: request as ChainTransactionRequest,
+      })
+      return hash
     }
 
     if (account?.type === 'smart')

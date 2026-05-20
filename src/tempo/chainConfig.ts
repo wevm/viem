@@ -39,7 +39,7 @@ export const chainConfig = {
     }),
   },
   prepareTransactionRequest: [
-    async (r, { phase }) => {
+    async (r, { client, phase }) => {
       const request = r as Transaction.TransactionRequest & {
         account?: Account | undefined
         chain?:
@@ -57,6 +57,31 @@ export const chainConfig = {
             request.gas = (request.gas ?? 0n) + 10_000n
         }
         return request as unknown as typeof r
+      }
+
+      const accessKeyAuthorization = request.account?.accessKeyAuthorization
+      if (
+        phase === 'beforeFillTransaction' &&
+        request.account?.source === 'accessKey' &&
+        accessKeyAuthorization &&
+        typeof request.keyAuthorization === 'undefined' &&
+        request.chain?.id === Number(accessKeyAuthorization.signed.chainId)
+      ) {
+        if (accessKeyAuthorization.status === 'pending') {
+          const keyInfo = await getMetadata(client, {
+            account: request.account.address,
+            accessKey: request.account.accessKeyAddress,
+          } as never)
+          if (
+            !keyInfo.isRevoked &&
+            keyInfo.keyType === request.account.keyType &&
+            keyInfo.expiry > BigInt(Math.floor(Date.now() / 1000))
+          )
+            accessKeyAuthorization.status = 'consumed'
+        }
+
+        if (accessKeyAuthorization.status === 'ready')
+          request.keyAuthorization = accessKeyAuthorization.signed
       }
 
       // Use expiring nonces for concurrent transactions (TIP-1009).
@@ -90,6 +115,25 @@ export const chainConfig = {
     },
     { runAt: ['beforeFillTransaction', 'afterFillParameters'] },
   ],
+  onTransactionSubmitted({ account, request }) {
+    const accessKeyAccount = account as Account | undefined
+    if (accessKeyAccount?.source !== 'accessKey') return
+    const authorization = accessKeyAccount.accessKeyAuthorization
+    if (!authorization || request.keyAuthorization !== authorization.signed)
+      return
+    authorization.status = 'pending'
+  },
+  onTransactionConfirmed({ account, receipt, receipts, request }) {
+    const accessKeyAccount = account as Account | undefined
+    if (accessKeyAccount?.source !== 'accessKey') return
+    const authorization = accessKeyAccount.accessKeyAuthorization
+    if (!authorization || request.keyAuthorization !== authorization.signed)
+      return
+    if (receipt && receipt.status !== 'success') return
+    if (receipts && !receipts.some((receipt) => receipt.status === 'success'))
+      return
+    authorization.status = 'consumed'
+  },
   serializers: {
     // TODO: casting to satisfy viem – viem v3 to have more flexible serializer type.
     transaction: ((transaction, signature) =>

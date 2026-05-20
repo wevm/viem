@@ -10,7 +10,9 @@ import type { Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
 import type { Account } from '../types/account.js'
 import type { FeeValuesType } from '../types/fee.js'
+import type { Hash, Hex } from '../types/misc.js'
 import type {
+  TransactionReceipt,
   TransactionSerializable,
   TransactionSerializableGeneric,
   TransactionSerializedGeneric,
@@ -81,13 +83,44 @@ type PrepareTransactionRequestPhase =
   | 'afterFillParameters'
 type PrepareTransactionRequestFn = (
   args: PrepareTransactionRequestParameters,
-  options: { phase: PrepareTransactionRequestPhase },
+  options: { client: Client; phase: PrepareTransactionRequestPhase },
 ) => Promise<PrepareTransactionRequestParameters>
 
 type ChainVerifyHashFn = (
   client: Client,
   parameters: VerifyHashParameters,
 ) => Promise<VerifyHashReturnType>
+
+export type ChainTransactionRequest = {
+  account?: Account | Address | null | undefined
+  calls?: readonly unknown[] | undefined
+  data?: Hex | undefined
+  keyAuthorization?: unknown
+  to?: Address | null | undefined
+  value?: bigint | Hex | undefined
+}
+
+type ChainTransactionSubmittedFn = (parameters: {
+  account?: Account | undefined
+  client: Client
+  hash?: Hash | undefined
+  id?: string | undefined
+  request: ChainTransactionRequest
+}) => Promise<void> | void
+
+type ChainTransactionConfirmedFn = (parameters: {
+  account?: Account | undefined
+  client: Client
+  id?: string | undefined
+  receipt?: TransactionReceipt | undefined
+  receipts?:
+    | readonly {
+        status?: 'success' | 'reverted' | undefined
+        transactionHash: Hash
+      }[]
+    | undefined
+  request: ChainTransactionRequest
+}) => Promise<void> | void
 
 export type ChainConfig<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
@@ -124,6 +157,10 @@ export type ChainConfig<
   serializers?: ChainSerializers<formatters> | undefined
   /** Chain-specific signature verification. */
   verifyHash?: ChainVerifyHashFn | undefined
+  /** Chain-specific transaction lifecycle hook, called after a structured wallet action submits a transaction or call bundle. */
+  onTransactionSubmitted?: ChainTransactionSubmittedFn | undefined
+  /** Chain-specific transaction lifecycle hook, called after a structured wallet action confirms a transaction or call bundle. */
+  onTransactionConfirmed?: ChainTransactionConfirmedFn | undefined
 }
 
 /////////////////////////////////////////////////////////////////////

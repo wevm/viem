@@ -5,6 +5,7 @@ import {
   getTransaction,
   getTransactionReceipt,
   prepareTransactionRequest,
+  sendTransaction,
   sendTransactionSync,
   signTransaction,
   verifyHash,
@@ -140,6 +141,98 @@ describe('prepareTransactionRequest', () => {
     })
     const request = await prepareTransactionRequest(clientWithFeeToken, {})
     expect(request.feeToken).toBe(feeToken)
+  })
+
+  test('behavior: attaches account key authorization', async () => {
+    const rootAccount = accounts.at(0)!
+    const privateKey = generatePrivateKey()
+    const accessKey = Account.fromP256(privateKey, { access: rootAccount })
+    const keyAuthorization = await accessKeyActions.signAuthorization(client, {
+      account: rootAccount,
+      accessKey,
+    })
+    const account = Account.fromP256(privateKey, {
+      access: rootAccount,
+      authorization: keyAuthorization,
+    })
+
+    const request = await prepareTransactionRequest(client, {
+      account,
+      to: '0x0000000000000000000000000000000000000000',
+    })
+
+    expect(request.keyAuthorization).toBe(keyAuthorization)
+    expect(account.accessKeyAuthorization?.status).toBe('ready')
+  })
+
+  test('behavior: resolves pending account key authorization', async () => {
+    const rootAccount = accounts.at(0)!
+    const privateKey = generatePrivateKey()
+    const accessKey = Account.fromP256(privateKey, { access: rootAccount })
+    const keyAuthorization = await accessKeyActions.signAuthorization(client, {
+      account: rootAccount,
+      accessKey,
+    })
+    const account = Account.fromP256(privateKey, {
+      access: rootAccount,
+      authorization: keyAuthorization,
+    })
+
+    await accessKeyActions.authorizeSync(client, {
+      account: rootAccount,
+      accessKey,
+    })
+    account.accessKeyAuthorization!.status = 'pending'
+
+    const request = await prepareTransactionRequest(client, {
+      account,
+      to: '0x0000000000000000000000000000000000000000',
+    })
+
+    expect(request.keyAuthorization).toBeUndefined()
+    expect(account.accessKeyAuthorization?.status).toBe('consumed')
+  })
+
+  test('behavior: marks account key authorization pending after async send', async () => {
+    const rootAccount = accounts.at(0)!
+    const privateKey = generatePrivateKey()
+    const accessKey = Account.fromP256(privateKey, { access: rootAccount })
+    const keyAuthorization = await accessKeyActions.signAuthorization(client, {
+      account: rootAccount,
+      accessKey,
+    })
+    const account = Account.fromP256(privateKey, {
+      access: rootAccount,
+      authorization: keyAuthorization,
+    })
+
+    await sendTransaction(client, {
+      account,
+      to: '0x0000000000000000000000000000000000000000',
+    })
+
+    expect(account.accessKeyAuthorization?.status).toBe('pending')
+  })
+
+  test('behavior: consumes account key authorization after sync send', async () => {
+    const rootAccount = accounts.at(0)!
+    const privateKey = generatePrivateKey()
+    const accessKey = Account.fromP256(privateKey, { access: rootAccount })
+    const keyAuthorization = await accessKeyActions.signAuthorization(client, {
+      account: rootAccount,
+      accessKey,
+    })
+    const account = Account.fromP256(privateKey, {
+      access: rootAccount,
+      authorization: keyAuthorization,
+    })
+
+    await sendTransactionSync(client, {
+      account,
+      to: '0x0000000000000000000000000000000000000000',
+    })
+
+    expect(account.accessKeyAuthorization?.status).toBe('consumed')
   })
 })
 

@@ -11,7 +11,11 @@ import type { ErrorType } from '../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../types/account.js'
 import type { Call, Calls } from '../../types/calls.js'
 import type { ExtractCapabilities } from '../../types/capabilities.js'
-import type { Chain, DeriveChain } from '../../types/chain.js'
+import type {
+  Chain,
+  ChainTransactionRequest,
+  DeriveChain,
+} from '../../types/chain.js'
 import type { WalletSendCallsParameters } from '../../types/eip1193.js'
 import type { Hex } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
@@ -161,8 +165,14 @@ export async function sendCalls<
       },
       { retryCount: 0 },
     )
-    if (typeof response === 'string') return { id: response }
-    return response as never
+    const result = typeof response === 'string' ? { id: response } : response
+    await chain?.onTransactionSubmitted?.({
+      account: account ?? undefined,
+      client,
+      id: result.id,
+      request: parameters as ChainTransactionRequest,
+    })
+    return result as never
   } catch (err) {
     const error = err as BaseError
 

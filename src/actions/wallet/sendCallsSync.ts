@@ -1,7 +1,8 @@
+import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { Account } from '../../types/account.js'
-import type { Chain } from '../../types/chain.js'
+import type { Chain, ChainTransactionRequest } from '../../types/chain.js'
 import { getAction } from '../../utils/getAction.js'
 import type { GetCallsStatusReturnType } from './getCallsStatus.js'
 import {
@@ -73,7 +74,9 @@ export async function sendCallsSync<
   client: Client<Transport, chain, account>,
   parameters: SendCallsSyncParameters<chain, account, chainOverride, calls>,
 ): Promise<SendCallsSyncReturnType> {
-  const { chain = client.chain } = parameters
+  const { account: account_ = client.account, chain = client.chain } =
+    parameters
+  const account = account_ ? parseAccount(account_) : undefined
   const timeout =
     parameters.timeout ?? Math.max((chain?.blockTime ?? 0) * 3, 5_000)
   const result = await getAction(client, sendCalls, 'sendCalls')(parameters)
@@ -86,5 +89,13 @@ export async function sendCallsSync<
     id: result.id,
     timeout,
   })
+  if (status.status === 'success')
+    await chain?.onTransactionConfirmed?.({
+      account,
+      client,
+      id: result.id,
+      receipts: status.receipts,
+      request: parameters as ChainTransactionRequest,
+    })
   return status
 }
