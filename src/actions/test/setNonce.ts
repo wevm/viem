@@ -15,7 +15,7 @@ import { type Quantity, toQuantity } from './internal/quantity.js'
  *
  * @example
  * ```ts twoslash
- * import { Client, actions, http } from 'viem'
+ * import { actions, Client, http } from 'viem'
  *
  * const client = Client.create({
  *   transport: http('http://127.0.0.1:8545'),

@@ -10,7 +10,7 @@ import { toRpcBlock } from './internal/toRpcBlock.js'
  *
  * @example
  * ```ts twoslash
- * import { Client, actions, http } from 'viem'
+ * import { actions, Client, http } from 'viem'
  *
  * const client = Client.create({
  *   transport: http('https://1.rpc.thirdweb.com'),
