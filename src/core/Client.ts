@@ -12,27 +12,27 @@ import type { Prettify } from './internal/types.js'
 
 /** Client used by viem actions. */
 export type Client<
-  transport extends Transport.Transport = Transport.Transport,
   chain extends Chain.Chain | undefined = Chain.Chain | undefined,
   account extends Account.Account | undefined = Account.Account | undefined,
+  transport extends Transport.Transport = Transport.Transport,
   schema extends RpcSchema.Generic | undefined = undefined,
   extended extends Record<string, unknown> | undefined =
     | Record<string, unknown>
     | undefined,
 > = Prettify<
-  Base<transport, chain, account, schema> &
+  Base<chain, account, transport, schema> &
     (extended extends Record<string, unknown> ? extended : {}) & {
       /** Extends the Client with additional action namespaces. */
       extend: <
-        const extension extends Extension<transport, chain, account, schema>,
+        const extension extends Extension<chain, account, transport, schema>,
       >(
         decorator: (
-          client: Client<transport, chain, account, schema, extended>,
+          client: Client<chain, account, transport, schema, extended>,
         ) => extension,
       ) => Client<
-        transport,
         chain,
         account,
+        transport,
         schema,
         Prettify<
           extension & (extended extends Record<string, unknown> ? extended : {})
@@ -43,12 +43,12 @@ export type Client<
 
 /** Options for creating a Client. */
 export type Options<
-  transport extends Transport.Transport = Transport.Transport,
   chain extends Chain.Chain | undefined = Chain.Chain | undefined,
   accountOrAddress extends Account.Account | Address.Address | undefined =
     | Account.Account
     | Address.Address
     | undefined,
+  transport extends Transport.Transport = Transport.Transport,
   schema extends RpcSchema.Generic | undefined = undefined,
 > = {
   /** Account to use for actions that accept a default account. */
@@ -117,9 +117,9 @@ export type MulticallBatchOptions = {
 }
 
 type Base<
-  transport extends Transport.Transport = Transport.Transport,
   chain extends Chain.Chain | undefined = Chain.Chain | undefined,
   account extends Account.Account | undefined = Account.Account | undefined,
+  transport extends Transport.Transport = Transport.Transport,
   schema extends RpcSchema.Generic | undefined = undefined,
 > = {
   /** Account to use for actions that accept a default account. */
@@ -155,12 +155,12 @@ type Base<
 }
 
 type Extension<
-  transport extends Transport.Transport,
   chain extends Chain.Chain | undefined,
   account extends Account.Account | undefined,
+  transport extends Transport.Transport,
   schema extends RpcSchema.Generic | undefined,
 > = Prettify<
-  { [key in keyof Base<transport, chain, account, schema>]?: undefined } & {
+  { [key in keyof Base<chain, account, transport, schema>]?: undefined } & {
     [key: string]: unknown
   }
 >
@@ -206,14 +206,14 @@ type Decorator<base extends object> = (client: base) => Record<string, unknown>
  * @returns Client.
  */
 export function create<
-  transport extends Transport.Transport,
   chain extends Chain.Chain | undefined = undefined,
   accountOrAddress extends Account.Account | Address.Address | undefined =
     undefined,
+  transport extends Transport.Transport = Transport.Transport,
   schema extends RpcSchema.Generic | undefined = undefined,
 >(
-  options: Options<transport, chain, accountOrAddress, schema>,
-): Client<transport, chain, ParseAccount<accountOrAddress>, schema>
+  options: Options<chain, accountOrAddress, transport, schema>,
+): Client<chain, ParseAccount<accountOrAddress>, transport, schema>
 export function create(options: Options): Client {
   const {
     batch,

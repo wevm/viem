@@ -32,6 +32,21 @@ describe('Client', () => {
     expectTypeOf(client.account).toEqualTypeOf<undefined>()
   })
 
+  test('types: orders generics by client slots', () => {
+    const transport = http()
+    type Client_ = Client.Client<
+      typeof chain,
+      Account.JsonRpc<typeof address>,
+      typeof transport
+    >
+
+    expectTypeOf<Client_['chain']>().toEqualTypeOf<typeof chain>()
+    expectTypeOf<Client_['account']>().toEqualTypeOf<
+      Account.JsonRpc<typeof address>
+    >()
+    expectTypeOf<Client_['transport']['type']>().toEqualTypeOf<'http'>()
+  })
+
   test('types: preserves absent chain inference', () => {
     const client = Client.create({
       transport: http(),
