@@ -12,7 +12,10 @@ import { getBlockNumber } from './public/getBlockNumber.js'
 import { getBlockTransactionCount } from './public/getBlockTransactionCount.js'
 import { getChainId } from './public/getChainId.js'
 import { getCode } from './public/getCode.js'
+import { getFeeHistory } from './public/getFeeHistory.js'
 import { getGasPrice } from './public/getGasPrice.js'
+import { getLogs } from './public/getLogs.js'
+import { getProof } from './public/getProof.js'
 import { getStorageAt } from './public/getStorageAt.js'
 import { getTransaction } from './public/getTransaction.js'
 import { getTransactionConfirmations } from './public/getTransactionConfirmations.js'
@@ -173,6 +176,29 @@ export type PublicActions = {
    */
   getCode: (options: getCode.Options) => getCode.ReturnType
   /**
+   * Returns a collection of historical gas information.
+   *
+   * @example
+   * ```ts twoslash
+   * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
+   *
+   * const feeHistory = await client.public.getFeeHistory({
+   *   blockCount: 4,
+   *   rewardPercentiles: [25, 75]
+   * })
+   * ```
+   *
+   * @param options - Options.
+   * @returns Fee history.
+   */
+  getFeeHistory: (options: getFeeHistory.Options) => getFeeHistory.ReturnType
+  /**
    * Returns the current gas price.
    *
    * @example
@@ -191,6 +217,52 @@ export type PublicActions = {
    * @returns Gas price.
    */
   getGasPrice: () => getGasPrice.ReturnType
+  /**
+   * Returns a list of event logs matching the provided filter.
+   *
+   * @example
+   * ```ts twoslash
+   * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
+   *
+   * const logs = await client.public.getLogs()
+   * ```
+   *
+   * @param options - Options.
+   * @returns Event logs.
+   */
+  getLogs: (options?: getLogs.Options | undefined) => getLogs.ReturnType
+  /**
+   * Returns the account and storage values of the specified account
+   * including the Merkle proof.
+   *
+   * @example
+   * ```ts twoslash
+   * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
+   *
+   * const proof = await client.public.getProof({
+   *   address: '0x0000000000000000000000000000000000000000',
+   *   storageKeys: [
+   *     '0x0000000000000000000000000000000000000000000000000000000000000000'
+   *   ]
+   * })
+   * ```
+   *
+   * @param options - Options.
+   * @returns Account proof.
+   */
+  getProof: (options: getProof.Options) => getProof.ReturnType
   /**
    * Returns the value from a storage slot at an address.
    *
@@ -356,7 +428,12 @@ export function publicActions() {
       ) => getBlockTransactionCount(actionClient, options),
       getChainId: () => getChainId(actionClient),
       getCode: (options: getCode.Options) => getCode(actionClient, options),
+      getFeeHistory: (options: getFeeHistory.Options) =>
+        getFeeHistory(actionClient, options),
       getGasPrice: () => getGasPrice(actionClient),
+      getLogs: (options?: getLogs.Options | undefined) =>
+        getLogs(actionClient, options),
+      getProof: (options: getProof.Options) => getProof(actionClient, options),
       getStorageAt: (options: getStorageAt.Options) =>
         getStorageAt(actionClient, options),
       getTransaction: (options: getTransaction.Options) =>
@@ -382,7 +459,10 @@ export {
   getBlockTransactionCount,
   getChainId,
   getCode,
+  getFeeHistory,
   getGasPrice,
+  getLogs,
+  getProof,
   getStorageAt,
   getTransaction,
   getTransactionConfirmations,

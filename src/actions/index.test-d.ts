@@ -11,7 +11,15 @@ import {
 } from 'viem'
 import * as actions from 'viem/actions'
 import type { PublicActions, TestActions } from 'viem/actions'
-import type { Block, Hex, Transaction, TransactionReceipt } from 'viem/utils'
+import type {
+  AccountProof,
+  Block,
+  Fee,
+  Hex,
+  Log,
+  Transaction,
+  TransactionReceipt,
+} from 'viem/utils'
 
 const address = '0x0000000000000000000000000000000000000000'
 const blockHash =
@@ -66,6 +74,15 @@ describe('public', () => {
       blockHash,
       requireCanonical: true,
     })
+    const feeHistory = await actions.getFeeHistory(client, {
+      blockCount: 4,
+      rewardPercentiles: [25, 75],
+    })
+    const proof = await actions.getProof(client, {
+      address,
+      storageKeys: ['0x0'],
+    })
+    const logs = await actions.getLogs(client)
 
     expectTypeOf(balance).toEqualTypeOf<bigint>()
     expectTypeOf(balanceByBlockHash).toEqualTypeOf<bigint>()
@@ -87,6 +104,9 @@ describe('public', () => {
     expectTypeOf(
       transactionReceipt,
     ).toEqualTypeOf<TransactionReceipt.TransactionReceipt>()
+    expectTypeOf(feeHistory).toEqualTypeOf<Fee.FeeHistory>()
+    expectTypeOf(proof).toEqualTypeOf<AccountProof.AccountProof>()
+    expectTypeOf(logs).toEqualTypeOf<readonly Log.Log[]>()
   })
 
   test('types: decorates clients with nested actions', async () => {
@@ -122,6 +142,15 @@ describe('public', () => {
       blockHash,
       requireCanonical: true,
     })
+    const feeHistory = await client.public.getFeeHistory({
+      blockCount: 4,
+      rewardPercentiles: [25, 75],
+    })
+    const proof = await client.public.getProof({
+      address,
+      storageKeys: ['0x0'],
+    })
+    const logs = await client.public.getLogs()
 
     expectTypeOf(balance).toEqualTypeOf<bigint>()
     expectTypeOf(balanceByBlockHash).toEqualTypeOf<bigint>()
@@ -142,6 +171,9 @@ describe('public', () => {
     expectTypeOf(
       transactionReceipt,
     ).toEqualTypeOf<TransactionReceipt.TransactionReceipt>()
+    expectTypeOf(feeHistory).toEqualTypeOf<Fee.FeeHistory>()
+    expectTypeOf(proof).toEqualTypeOf<AccountProof.AccountProof>()
+    expectTypeOf(logs).toEqualTypeOf<readonly Log.Log[]>()
   })
 
   test('types: accepts clients with accounts', async () => {
