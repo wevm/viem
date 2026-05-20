@@ -20,7 +20,10 @@ describe('getDelegation', () => {
 
   test('behavior: returns undefined for non-delegation bytecode', async () => {
     const client = anvil.getClient(anvilMainnet)
-    await actions.setCode(client, { address: account, bytecode: '0x6001600055' })
+    await actions.setCode(client, {
+      address: account,
+      bytecode: '0x6001600055',
+    })
 
     const delegation = await actions.getDelegation(client, {
       address: account,

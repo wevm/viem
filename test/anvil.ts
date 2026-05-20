@@ -54,34 +54,3 @@ export declare namespace getClient {
 export function getPoolId() {
   return Number(process.env.VITEST_POOL_ID ?? 1)
 }
-
-export async function request<returnType = unknown>(
-  anvil: Anvil,
-  method: string,
-  params: readonly unknown[] = [],
-) {
-  return requestUrl<returnType>(anvil.rpcUrl.http, method, params)
-}
-
-export async function requestUrl<returnType = unknown>(
-  url: string,
-  method: string,
-  params: readonly unknown[] = [],
-) {
-  const response = await fetch(url, {
-    body: JSON.stringify({
-      id: 1,
-      jsonrpc: '2.0',
-      method,
-      params,
-    }),
-    headers: {
-      'content-type': 'application/json',
-    },
-    method: 'POST',
-  })
-  const body = await response.json()
-  if (body.error) throw new Error(body.error.message)
-  return body.result as returnType
-}
-

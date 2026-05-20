@@ -56,7 +56,8 @@ describe('public', () => {
   })
 
   test('behavior: decorates clients with public actions', async () => {
-    const client = anvil.getClient(anvilMainnet)
+    const client = anvil
+      .getClient(anvilMainnet)
       .extend(actions.publicActions())
       .extend(actions.testActions())
 
@@ -100,7 +101,8 @@ describe('public', () => {
   })
 
   test('behavior: decorates transaction read methods', async () => {
-    const client = anvil.getClient(anvilMainnet)
+    const client = anvil
+      .getClient(anvilMainnet)
       .extend(actions.publicActions())
       .extend(actions.testActions())
 

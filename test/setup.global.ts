@@ -1,13 +1,13 @@
 import { Instance, Server } from 'prool'
 
-import { instances } from './anvil.js'
+import * as Anvil from './anvil.js'
 
 export default async function setup() {
   if (process.env.SKIP_GLOBAL_SETUP) return
 
   const stops: (() => Promise<void>)[] = []
 
-  for (const anvil of instances) {
+  for (const anvil of Anvil.instances) {
     const server = Server.create({
       instance: Instance.anvil({
         chainId: Number(anvil.id),
