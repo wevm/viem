@@ -47,6 +47,7 @@
 
 - **No mocks** -- do not use mocking or spying APIs such as `vi.fn`, `vi.mock`, or `vi.spyOn` in new or migrated tests. Exercise real module boundaries instead.
 - **Real integrations** -- prefer local HTTP/WebSocket servers, Prool-backed Anvil instances for Ethereum JSON-RPC behavior, real transport factories, real providers, real timers, and deterministic in-memory implementations over mocked call assertions.
+- **Shared Anvil harness** -- use `test/anvil.ts` for Ethereum JSON-RPC tests. It starts Prool-backed Anvil servers through Vitest global setup, supports multiple chains, and scopes RPC URLs by `VITEST_POOL_ID` so parallel test pools get isolated instances.
 - **Assert behavior, not calls** -- prove integration boundaries by observing returned values, emitted data, state changes, or thrown errors. Avoid tests whose only signal is "function X was called with Y".
 
 ## API Conventions

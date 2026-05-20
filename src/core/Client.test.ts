@@ -1,22 +1,20 @@
-import type { AddressInfo } from 'node:net'
-import { Instance, Server } from 'prool'
-import { afterAll, beforeAll, describe, expect, test } from 'vp/test'
+import { describe, expect, test } from 'vp/test'
 
+import { anvilMainnet } from '../../test/anvil.js'
 import * as Account from './Account.js'
 import * as Chain from './Chain.js'
 import * as Client from './Client.js'
 import { custom, http } from './transports/index.js'
 
 const address = '0x0000000000000000000000000000000000000000'
-let anvilRpcUrl: string
-let stopAnvil: (() => Promise<void>) | undefined
 
 function defineChain(options: Partial<Chain.Chain> = {}) {
+  const chain = anvilMainnet.chain
   return Chain.define({
-    id: 31_337n,
-    name: 'Anvil',
-    nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
-    rpcUrls: { default: { http: [anvilRpcUrl] } },
+    id: chain.id,
+    name: chain.name,
+    nativeCurrency: chain.nativeCurrency,
+    rpcUrls: chain.rpcUrls,
     ...options,
   })
 }
@@ -24,7 +22,7 @@ function defineChain(options: Partial<Chain.Chain> = {}) {
 function anvilProviderTransport() {
   return custom({
     async request({ method, params }) {
-      const response = await fetch(anvilRpcUrl, {
+      const response = await fetch(anvilMainnet.rpcUrl.http, {
         body: JSON.stringify({
           id: 1,
           jsonrpc: '2.0',
@@ -43,25 +41,10 @@ function anvilProviderTransport() {
   })
 }
 
-beforeAll(async () => {
-  const server = Server.create({
-    instance: Instance.anvil({
-      chainId: 31_337,
-    }),
-  })
-  stopAnvil = await server.start()
-  const { port } = server.address() as AddressInfo
-  anvilRpcUrl = `http://127.0.0.1:${port}/1`
-}, 20_000)
-
-afterAll(async () => {
-  await stopAnvil?.()
-})
-
 describe('create', () => {
   test('behavior: creates a base client', () => {
     const client = Client.create({
-      transport: http(anvilRpcUrl),
+      transport: http(anvilMainnet.rpcUrl.http),
     })
 
     expect(client).toMatchObject({
@@ -81,7 +64,7 @@ describe('create', () => {
         retryDelay: 150,
         timeout: 10000,
         type: 'http',
-        url: anvilRpcUrl,
+        url: anvilMainnet.rpcUrl.http,
       },
       type: 'base',
     })
@@ -101,7 +84,7 @@ describe('create', () => {
   test('behavior: normalizes account strings', () => {
     const client = Client.create({
       account: address,
-      transport: http(anvilRpcUrl),
+      transport: http(anvilMainnet.rpcUrl.http),
     })
 
     expect(client.account).toEqual({
@@ -119,7 +102,7 @@ describe('create', () => {
     })
     const client = Client.create({
       account,
-      transport: http(anvilRpcUrl),
+      transport: http(anvilMainnet.rpcUrl.http),
     })
 
     expect(client.account).toBe(account)
@@ -142,7 +125,7 @@ describe('create', () => {
       type: 'walletClient',
     })
 
-    expect(client.transport.url).toBe(anvilRpcUrl)
+    expect(client.transport.url).toBe(anvilMainnet.rpcUrl.http)
     await expect(client.request({ method: 'eth_chainId' })).resolves.toBe(
       '0x7a69',
     )
@@ -151,7 +134,7 @@ describe('create', () => {
   test('behavior: resolves timing defaults from chain block time', () => {
     const client = Client.create({
       chain: defineChain({ blockTime: 1_000 }),
-      transport: http(anvilRpcUrl),
+      transport: http(anvilMainnet.rpcUrl.http),
     })
 
     expect(client.cacheTime).toBe(500)
@@ -161,7 +144,7 @@ describe('create', () => {
   test('behavior: clamps default polling interval to four seconds', () => {
     const client = Client.create({
       chain: defineChain({ blockTime: 20_000 }),
-      transport: http(anvilRpcUrl),
+      transport: http(anvilMainnet.rpcUrl.http),
     })
 
     expect(client.cacheTime).toBe(4000)
@@ -172,7 +155,7 @@ describe('create', () => {
     const client = Client.create({
       cacheTime: 123,
       pollingInterval: 456,
-      transport: http(anvilRpcUrl),
+      transport: http(anvilMainnet.rpcUrl.http),
     })
 
     expect(client.cacheTime).toBe(123)
@@ -191,7 +174,7 @@ describe('create', () => {
       dataSuffix: '0x1234',
       key: 'wallet',
       name: 'Wallet Client',
-      transport: http(anvilRpcUrl),
+      transport: http(anvilMainnet.rpcUrl.http),
       type: 'walletClient',
     })
 
@@ -208,7 +191,7 @@ describe('create', () => {
   test('behavior: sets explicit block tag', () => {
     const client = Client.create({
       blockTag: 'safe',
-      transport: http(anvilRpcUrl),
+      transport: http(anvilMainnet.rpcUrl.http),
     })
 
     expect(client.blockTag).toBe('safe')
@@ -217,7 +200,7 @@ describe('create', () => {
   test('behavior: defaults block tag to pending for preconfirmation chains', () => {
     const client = Client.create({
       chain: defineChain({ preconfirmationTime: 500 }),
-      transport: http(anvilRpcUrl),
+      transport: http(anvilMainnet.rpcUrl.http),
     })
 
     expect(client.blockTag).toBe('pending')
@@ -226,7 +209,7 @@ describe('create', () => {
   test('behavior: omits block tag without preconfirmations', () => {
     const client = Client.create({
       chain: defineChain(),
-      transport: http(anvilRpcUrl),
+      transport: http(anvilMainnet.rpcUrl.http),
     })
 
     expect('blockTag' in client).toBe(false)
@@ -237,7 +220,7 @@ describe('extend', () => {
   test('behavior: extends the client with action namespaces', async () => {
     const client = Client.create({
       chain: defineChain(),
-      transport: http(anvilRpcUrl),
+      transport: http(anvilMainnet.rpcUrl.http),
     }).extend((client) => ({
       public: {
         getChainId: async () => client.chain.id,
@@ -249,7 +232,7 @@ describe('extend', () => {
 
   test('behavior: chains extensions', () => {
     const client = Client.create({
-      transport: http(anvilRpcUrl),
+      transport: http(anvilMainnet.rpcUrl.http),
     })
       .extend(() => ({
         public: { getBlockNumber: async () => 1n },
@@ -263,7 +246,7 @@ describe('extend', () => {
 
   test('behavior: strips protected base client keys from extensions', () => {
     const client = Client.create({
-      transport: http(anvilRpcUrl),
+      transport: http(anvilMainnet.rpcUrl.http),
     }).extend(
       () =>
         ({

@@ -46,7 +46,8 @@ export default defineConfig({
       },
     },
     exclude: ['**/node_modules/**', '**/dist/**'],
-    include: ['src/**/*.test.ts'],
+    globalSetup: ['./test/setup.global.ts'],
+    include: ['src/**/*.test.ts', 'test/**/*.test.ts'],
     passWithNoTests: true,
     typecheck: {
       exclude: ['**/node_modules/**', '**/dist/**', 'test-old/**'],
