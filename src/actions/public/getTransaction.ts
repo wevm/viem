@@ -17,7 +17,7 @@ import type * as Block from '../../utils/Block.js'
  *
  * const client = Client.create({
  *   chain: mainnet,
- *   transport: http('https://1.rpc.thirdweb.com')
+ *   transport: http()
  * })
  *
  * const transaction = await actions.getTransaction(client, {

@@ -16,7 +16,7 @@ import { getTransaction } from './getTransaction.js'
  *
  * const client = Client.create({
  *   chain: mainnet,
- *   transport: http('https://1.rpc.thirdweb.com')
+ *   transport: http()
  * })
  *
  * const confirmations =

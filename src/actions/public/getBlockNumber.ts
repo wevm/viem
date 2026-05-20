@@ -16,7 +16,7 @@ const cacheKey = (uid: string) => `blockNumber.${uid}`
  *
  * const client = Client.create({
  *   chain: mainnet,
- *   transport: http('https://1.rpc.thirdweb.com')
+ *   transport: http()
  * })
  *
  * const blockNumber = await actions.getBlockNumber(client)

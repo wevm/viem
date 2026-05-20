@@ -34,7 +34,7 @@ const signalIds = new WeakMap<AbortSignal, number>()
  * import { http } from 'viem'
  * import { mainnet } from 'viem/chains'
  *
- * const transport = http('https://1.rpc.thirdweb.com')
+ * const transport = http()
  *
  * // TODO(v3): Replace with Client.create({ chain: mainnet, transport }) once Client lands.
  * const client = transport({})

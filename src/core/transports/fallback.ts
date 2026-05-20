@@ -11,7 +11,7 @@ import { wait } from '../internal/wait.js'
  * import { mainnet } from 'viem/chains'
  *
  * const transport = fallback([
- *   http('https://1.rpc.thirdweb.com'),
+ *   http(),
  *   http('https://eth.llamarpc.com')
  * ])
  *

@@ -13,7 +13,7 @@ import type * as Client from '../../core/Client.js'
  *
  * const client = Client.create({
  *   chain: mainnet,
- *   transport: http('https://1.rpc.thirdweb.com')
+ *   transport: http()
  * })
  *
  * const gasPrice = await actions.getGasPrice(client)

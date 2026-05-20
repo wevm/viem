@@ -14,7 +14,7 @@ import * as Hex from '../../utils/Hex.js'
  *
  * const client = Client.create({
  *   chain: mainnet,
- *   transport: http('https://1.rpc.thirdweb.com')
+ *   transport: http()
  * })
  *
  * const block = await actions.getBlock(client)
