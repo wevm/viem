@@ -213,8 +213,8 @@ export declare namespace swap {
  * })
  *
  * const result = await Actions.wallet.deposit(client, {
- *   token: '0x...',
- *   value: '1.5',
+ *   amount: '1.5',
+ *   token: 'pathUsd',
  * })
  * ```
  *
@@ -243,14 +243,17 @@ export declare namespace deposit {
   export type Parameters = {
     /** Deposit address to pre-fill. */
     address?: Address | undefined
+    /** Human-readable amount to pre-fill (for example, "1.5"). */
+    amount?: string | undefined
     /** Source chain ID to pre-fill. */
     chainId?: number | undefined
     /** Human-readable account display name. */
     displayName?: string | undefined
-    /** Token contract address to pre-fill. Omit to let the user choose. */
-    token?: Address | undefined
-    /** Human-readable amount to pre-fill (for example, "1.5"). */
-    value?: string | undefined
+    /**
+     * Token to pre-fill, accepted as either a contract address or a supported
+     * deposit token symbol. Omit to let the user choose.
+     */
+    token?: Address | string | undefined
   }
 
   export type ReturnValue =

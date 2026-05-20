@@ -6,11 +6,11 @@ import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
 import type { Hash } from '../../types/misc.js'
 import type { Proof } from '../../types/proof.js'
-import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
-  type NumberToHexErrorType,
-  numberToHex,
-} from '../../utils/encoding/toHex.js'
+  type FormatBlockParameterErrorType,
+  formatBlockParameter,
+} from '../../utils/block/formatBlockParameter.js'
+import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type FormatProofErrorType,
   formatProof,
@@ -26,6 +26,8 @@ export type GetProofParameters = {
       /** The block number. */
       blockNumber?: bigint | undefined
       blockTag?: undefined
+      blockHash?: undefined
+      requireCanonical?: undefined
     }
   | {
       blockNumber?: undefined
@@ -34,13 +36,23 @@ export type GetProofParameters = {
        * @default 'latest'
        */
       blockTag?: BlockTag | undefined
+      blockHash?: undefined
+      requireCanonical?: undefined
+    }
+  | {
+      blockNumber?: undefined
+      blockTag?: undefined
+      /** The proof at a block specified by block hash. */
+      blockHash: Hash
+      /** Whether or not to throw an error if the block is not in the canonical chain. Only allowed in conjunction with `blockHash`. */
+      requireCanonical?: boolean | undefined
     }
 )
 
 export type GetProofReturnType = Proof
 
 export type GetProofErrorType =
-  | NumberToHexErrorType
+  | FormatBlockParameterErrorType
   | FormatProofErrorType
   | RequestErrorType
   | ErrorType
@@ -74,19 +86,23 @@ export async function getProof<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
   {
     address,
+    blockHash,
     blockNumber,
-    blockTag: blockTag_,
+    blockTag = 'latest',
+    requireCanonical,
     storageKeys,
   }: GetProofParameters,
 ): Promise<GetProofReturnType> {
-  const blockTag = blockTag_ ?? 'latest'
-
-  const blockNumberHex =
-    blockNumber !== undefined ? numberToHex(blockNumber) : undefined
+  const block = formatBlockParameter({
+    blockHash,
+    blockNumber,
+    blockTag,
+    requireCanonical,
+  })
 
   const proof = await client.request({
     method: 'eth_getProof',
-    params: [address, storageKeys, blockNumberHex || blockTag],
+    params: [address, storageKeys, block],
   })
 
   return formatProof(proof)

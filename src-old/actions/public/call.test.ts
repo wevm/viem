@@ -48,6 +48,7 @@ import { parseGwei } from '../../utils/unit/parseGwei.js'
 import { wait } from '../../utils/wait.js'
 import { signAuthorization } from '../wallet/signAuthorization.js'
 import { call, getRevertErrorData } from './call.js'
+import { getBlock } from './getBlock.js'
 import { readContract } from './readContract.js'
 
 const client = anvilMainnet.getClient({ account: accounts[0].address })
@@ -234,6 +235,41 @@ test.skip('args: blockNumber', async () => {
     to: wagmiContractAddress,
   })
   expect(data).toMatchInlineSnapshot('undefined')
+})
+
+test('args: blockHash (EIP-1898)', async () => {
+  const block = await getBlock(client, {
+    blockNumber: anvilMainnet.forkBlockNumber,
+  })
+
+  const { data } = await call(client, {
+    blockHash: block.hash!,
+    data: name4bytes,
+    account: sourceAccount.address,
+    to: wagmiContractAddress,
+  })
+
+  expect(data).toMatchInlineSnapshot(
+    '"0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000"',
+  )
+})
+
+test('args: blockHash + requireCanonical (EIP-1898)', async () => {
+  const block = await getBlock(client, {
+    blockNumber: anvilMainnet.forkBlockNumber,
+  })
+
+  const { data } = await call(client, {
+    blockHash: block.hash!,
+    requireCanonical: true,
+    data: name4bytes,
+    account: sourceAccount.address,
+    to: wagmiContractAddress,
+  })
+
+  expect(data).toMatchInlineSnapshot(
+    '"0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000"',
+  )
 })
 
 test('args: override', async () => {
@@ -1027,6 +1063,110 @@ describe.each([{ deployless: true }, { deployless: false }])(
       expect(spy).toBeCalledTimes(3)
       expect(results).toMatchSnapshot()
     })
+
+    test('args: stateOverride', async () => {
+      const client_2 = anvilMainnet.getClient({
+        batch: {
+          multicall: {
+            deployless,
+          },
+        },
+      })
+
+      const spy = vi.spyOn(client_2, 'request')
+
+      const stateOverride = [
+        {
+          address: wagmiContractAddress,
+          balance: parseEther('100'),
+        },
+      ] as const
+
+      const p = []
+      // Two calls with the same stateOverride should batch together
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: wagmiContractAddress,
+          stateOverride: [...stateOverride],
+        }),
+      )
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: usdcContractConfig.address,
+          stateOverride: [...stateOverride],
+        }),
+      )
+      // A call with a different stateOverride should go to a separate batch
+      p.push(
+        call(client_2, {
+          data: name4bytes,
+          to: baycContractConfig.address,
+          stateOverride: [
+            {
+              address: wagmiContractAddress,
+              balance: parseEther('200'),
+            },
+          ],
+        }),
+      )
+
+      const results = await Promise.all(p)
+
+      // 2 batched eth_call requests: one for the shared stateOverride, one for the different stateOverride
+      expect(spy).toBeCalledTimes(2)
+      expect(results).toMatchSnapshot()
+    })
+
+    test.runIf(deployless === false)(
+      'args: stateOverride for multicall address',
+      async () => {
+        const client_2 = anvilMainnet.getClient({
+          batch: {
+            multicall: {
+              deployless,
+            },
+          },
+        })
+
+        const multicallAddress = client_2.chain!.contracts!.multicall3!.address
+        const spy = vi
+          .spyOn(client_2, 'request')
+          .mockImplementation(async ({ params }) => {
+            const [{ to }] = params as [{ to?: Hex }]
+            if (to?.toLowerCase() === multicallAddress.toLowerCase())
+              throw new Error('multicall should not be used')
+            return '0x'
+          })
+
+        const results = await Promise.all([
+          call(client_2, {
+            data: name4bytes,
+            to: wagmiContractAddress,
+            stateOverride: [
+              {
+                address: multicallAddress,
+                code: '0x',
+              },
+            ],
+          }),
+          call(client_2, {
+            data: name4bytes,
+            to: usdcContractConfig.address,
+            stateOverride: [
+              {
+                address: multicallAddress,
+                code: '0x',
+              },
+            ],
+          }),
+        ])
+
+        expect(spy).toBeCalledTimes(2)
+        expect(results).toEqual([{ data: undefined }, { data: undefined }])
+      },
+    )
 
     test.runIf(deployless === false)(
       'chain not configured with multicall',

@@ -3,7 +3,7 @@ import * as Hex from 'ox/Hex'
 
 import type * as Chain from '../../core/Chain.js'
 import type * as Client from '../../core/Client.js'
-import type * as Block from '../../utils/Block.js'
+import { toRpcBlock } from './internal/toRpcBlock.js'
 
 /**
  * Returns the value at a storage slot.
@@ -34,14 +34,10 @@ export async function getStorageAt<
   client: Client.Client<chain>,
   options: getStorageAt.Options,
 ): getStorageAt.ReturnType {
-  const { address, blockNumber, blockTag = 'latest', slot } = options
+  const { address, slot, ...block } = options
   const value = await client.request({
     method: 'eth_getStorageAt',
-    params: [
-      address,
-      slot,
-      blockNumber !== undefined ? Hex.fromNumber(blockNumber) : blockTag,
-    ],
+    params: [address, slot, toRpcBlock(block)],
   })
   return value as Hex.Hex
 }
@@ -52,20 +48,9 @@ export declare namespace getStorageAt {
     address: Address.Address
     /** Storage slot. */
     slot: Hex.Hex
-  } & (
-    | {
-        /** Block number. */
-        blockNumber?: bigint | undefined
-        blockTag?: undefined
-      }
-    | {
-        blockNumber?: undefined
-        /** Block tag. */
-        blockTag?: Block.Tag | undefined
-      }
-  )
+  } & toRpcBlock.Options
 
   type ReturnType = Promise<Hex.Hex>
 
-  type ErrorType = Hex.fromNumber.ErrorType
+  type ErrorType = toRpcBlock.ErrorType
 }

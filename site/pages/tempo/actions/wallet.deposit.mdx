@@ -13,21 +13,20 @@ import { Actions } from 'viem/tempo'
 import { client } from './viem.config'
 
 const result = await Actions.wallet.deposit(client, {
-  token: '0x20c0000000000000000000000000000000000001',
-  value: '1.5',
+  amount: '1.5',
+  token: 'pathUsd',
 })
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 import { Provider } from 'accounts'
 import { createClient, custom, publicActions, walletActions } from 'viem'
-import { tempo } from 'viem/chains'
-import { tempoActions } from 'viem/tempo'
+import { Chain, tempoActions } from 'viem/tempo'
 
 const provider = Provider.create()
 
 export const client = createClient({
-  chain: tempo,
+  chain: Chain.mainnet,
   transport: custom(provider),
 })
   .extend(publicActions)
@@ -58,13 +57,7 @@ The wallet may return `undefined` (or an object with no `receipts`) if the depos
 
 Deposit address to pre-fill.
 
-### token (optional)
-
-- **Type:** `Address`
-
-Token contract address to pre-fill. Omit to let the user choose.
-
-### value (optional)
+### amount (optional)
 
 - **Type:** `string`
 
@@ -81,3 +74,9 @@ Source chain ID to pre-fill.
 - **Type:** `string`
 
 Human-readable account display name.
+
+### token (optional)
+
+- **Type:** `Address | string`
+
+Token contract address or supported deposit token symbol to pre-fill. Omit to let the user choose.

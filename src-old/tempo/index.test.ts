@@ -19,6 +19,7 @@ test('exports tempo', () => {
       "Addresses",
       "Actions",
       "Capabilities",
+      "Chain",
       "tempoActions",
       "Expiry",
       "Formatters",
@@ -33,6 +34,10 @@ test('exports tempo', () => {
       "withRelay",
       "WebAuthnP256",
       "WebCryptoP256",
+      "InvalidFeeTokenError",
+      "FeeTokenNotTip20Error",
+      "FeeTokenNotUsdError",
+      "FeeTokenPausedError",
     ]
   `)
 })

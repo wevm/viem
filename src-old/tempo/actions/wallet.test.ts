@@ -141,10 +141,10 @@ test('deposit', async () => {
   const requests: unknown[] = []
   const result = await wallet.deposit(client(requests), {
     address: '0x0000000000000000000000000000000000000003',
+    amount: '3.5',
     chainId: 1,
     displayName: 'Account',
-    token: '0x0000000000000000000000000000000000000004',
-    value: '3.5',
+    token: 'pathUsd',
   })
 
   expect({ requests, result }).toMatchInlineSnapshot(`
@@ -155,10 +155,10 @@ test('deposit', async () => {
           "params": [
             {
               "address": "0x0000000000000000000000000000000000000003",
+              "amount": "3.5",
               "chainId": 1,
               "displayName": "Account",
-              "token": "0x0000000000000000000000000000000000000004",
-              "value": "3.5",
+              "token": "pathUsd",
             },
           ],
         },

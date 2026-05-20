@@ -71,7 +71,7 @@ overrides:
   undici@>=7.0.0 <7.24.0: 7.24.0
   webpack@>=5.49.0 <=5.104.0: 5.104.1
   ws@>=7.0.0 <7.5.10: ^7.5.10
-  ws@>=8.0.0 <8.17.1: ^8.17.1
+  ws@>=8.0.0 <8.20.1: ^8.20.1
   yauzl@<3.2.1: 3.2.1
   next@>=16.0.1 <16.1.7: 16.1.7
   next@>=16.0.0-beta.0 <16.1.7: 16.1.7
@@ -80,7 +80,7 @@ overrides:
   picomatch@<2.3.2: 2.3.2
   picomatch@>=4.0.0 <4.0.4: 4.0.4
   srvx@<0.11.13: 0.11.13
-  brace-expansion@>=4.0.0 <5.0.5: 5.0.5
+  brace-expansion@>=4.0.0 <5.0.6: 5.0.6
   yaml@>=2.0.0 <2.8.3: 2.8.3
   '@vitejs/plugin-rsc@<=0.5.25': 0.5.26
   next@>=16.0.0-beta.0 <16.2.6: 16.2.6
@@ -109,13 +109,13 @@ importers:
         version: 1.2.3(typescript@5.9.3)(zod@4.3.6)
       isows:
         specifier: 1.0.7
-        version: 1.0.7(ws@8.18.3)
+        version: 1.0.7(ws@8.20.1)
       ox:
         specifier: https://pkg.pr.new/ox@f16b7320
         version: https://pkg.pr.new/ox@f16b7320(typescript@5.9.3)(zod@4.3.6)
       ws:
-        specifier: 8.18.3
-        version: 8.18.3
+        specifier: 8.20.1
+        version: 8.20.1
     devDependencies:
       '@changesets/changelog-github':
         specifier: ^0.4.8
@@ -2658,8 +2658,8 @@ packages:
     resolution: {integrity: sha512-oP5VkATKlNwcgvxi0vM0p/D3n2C3EReYVX+DNYs5TjZFn/oQt2j+4sVJtSMr18pdRr8wjTcBl6LoV+FUwzPmNA==}
     engines: {node: '>=18'}
 
-  brace-expansion@5.0.5:
-    resolution: {integrity: sha512-VZznLgtwhn+Mact9tfiwx64fA9erHH/MCXEUfB/0bX/6Fz6ny5EGTXYltMocqg4xFAQZtnO3DHWWXi8RiuN7cQ==}
+  brace-expansion@5.0.6:
+    resolution: {integrity: sha512-kLpxurY4Z4r9sgMsyG0Z9uzsBlgiU/EFKhj/h91/8yHu0edo7XuixOIH3VcJ8kkxs6/jPzoI6U9Vj3WqbMQ94g==}
     engines: {node: 18 || 20 || >=22}
 
   braces@3.0.3:
@@ -5552,8 +5552,8 @@ packages:
   wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
 
-  ws@8.18.3:
-    resolution: {integrity: sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==}
+  ws@8.20.1:
+    resolution: {integrity: sha512-It4dO0K5v//JtTXuPkfEOaI3uUN87iYPnqo/ZzqCoG3g8uhA66QUMs/SrM0YK7/NAu+r4LMh/9dq2A7k+rHs+w==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -6231,7 +6231,7 @@ snapshots:
     dependencies:
       duplexify: 4.1.3
       fastify-plugin: 4.5.1
-      ws: 8.18.3
+      ws: 8.20.1
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -7922,7 +7922,7 @@ snapshots:
       tinyexec: 1.0.2
       tinyglobby: 0.2.15
       vite: '@voidzero-dev/vite-plus-core@0.1.21(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.6.0)(terser@5.36.0)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)'
-      ws: 8.18.3
+      ws: 8.20.1
     optionalDependencies:
       '@opentelemetry/api': 1.7.0
       '@types/node': 24.5.2
@@ -8282,7 +8282,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  brace-expansion@5.0.5:
+  brace-expansion@5.0.6:
     dependencies:
       balanced-match: 4.0.3
 
@@ -9390,9 +9390,9 @@ snapshots:
 
   isexe@2.0.0: {}
 
-  isows@1.0.7(ws@8.18.3):
+  isows@1.0.7(ws@8.20.1):
     dependencies:
-      ws: 8.18.3
+      ws: 8.20.1
 
   istanbul-lib-coverage@3.2.2: {}
 
@@ -10127,7 +10127,7 @@ snapshots:
 
   minimatch@10.2.3:
     dependencies:
-      brace-expansion: 5.0.5
+      brace-expansion: 5.0.6
 
   minimist@1.2.8: {}
 
@@ -10720,7 +10720,7 @@ snapshots:
       chromium-bidi: 0.5.17(devtools-protocol@0.0.1262051)
       debug: 4.3.4
       devtools-protocol: 0.0.1262051
-      ws: 8.18.3
+      ws: 8.20.1
     transitivePeerDependencies:
       - bare-buffer
       - bufferutil
@@ -11637,9 +11637,9 @@ snapshots:
       '@scure/bip32': 1.7.0
       '@scure/bip39': 1.6.0
       abitype: 1.2.3(typescript@5.9.3)(zod@3.25.76)
-      isows: 1.0.7(ws@8.18.3)
+      isows: 1.0.7(ws@8.20.1)
       ox: 0.14.20(typescript@5.9.3)(zod@3.25.76)
-      ws: 8.18.3
+      ws: 8.20.1
     optionalDependencies:
       typescript: 5.9.3
     transitivePeerDependencies:
@@ -11911,7 +11911,7 @@ snapshots:
 
   wrappy@1.0.2: {}
 
-  ws@8.18.3: {}
+  ws@8.20.1: {}
 
   y18n@5.0.8: {}
 

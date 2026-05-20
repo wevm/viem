@@ -6,6 +6,8 @@ import * as actions from './index.js'
 import * as actionsSubpath from 'viem/actions'
 
 const address = '0x0000000000000000000000000000000000000000'
+const blockHash =
+  '0xf65631529d476553ca5b0056d6480c3970dd5ac884fee51d5b30ca7fceab8894' as Hex.Hex
 const slot = '0x0'
 
 describe('public', () => {
@@ -28,8 +30,14 @@ describe('public', () => {
     const transactionCount = await actions.public.getTransactionCount(client, {
       address,
     })
+    const balanceByBlockHash = await actions.public.getBalance(client, {
+      address,
+      blockHash,
+      requireCanonical: true,
+    })
 
     expectTypeOf(balance).toEqualTypeOf<bigint>()
+    expectTypeOf(balanceByBlockHash).toEqualTypeOf<bigint>()
     expectTypeOf(blobBaseFee).toEqualTypeOf<bigint>()
     expectTypeOf(chainId).toEqualTypeOf<bigint>()
     expectTypeOf(code).toEqualTypeOf<Hex.Hex | undefined>()
@@ -54,8 +62,14 @@ describe('public', () => {
     const transactionCount = await client.public.getTransactionCount({
       address,
     })
+    const balanceByBlockHash = await client.public.getBalance({
+      address,
+      blockHash,
+      requireCanonical: true,
+    })
 
     expectTypeOf(balance).toEqualTypeOf<bigint>()
+    expectTypeOf(balanceByBlockHash).toEqualTypeOf<bigint>()
     expectTypeOf(blobBaseFee).toEqualTypeOf<bigint>()
     expectTypeOf(chainId).toEqualTypeOf<bigint>()
     expectTypeOf(code).toEqualTypeOf<Hex.Hex | undefined>()

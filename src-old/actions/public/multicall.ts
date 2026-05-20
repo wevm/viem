@@ -45,9 +45,11 @@ export type MulticallParameters<
 > = Pick<
   CallParameters,
   | 'authorizationList'
+  | 'blockHash'
   | 'blockNumber'
   | 'blockOverrides'
   | 'blockTag'
+  | 'requireCanonical'
   | 'stateOverride'
 > & {
   /** The account to use for the multicall. */
@@ -138,9 +140,11 @@ export async function multicall<
     account,
     authorizationList,
     allowFailure = true,
+    blockHash,
     blockNumber,
     blockOverrides,
     blockTag,
+    requireCanonical,
     stateOverride,
   } = parameters
   const contracts = parameters.contracts as ContractFunctionParameters[]
@@ -237,10 +241,12 @@ export async function multicall<
         account,
         args: [calls],
         authorizationList,
+        blockHash,
         blockNumber,
         blockOverrides,
         blockTag,
         functionName: 'aggregate3',
+        requireCanonical,
         stateOverride,
       }),
     ),

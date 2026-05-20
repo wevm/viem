@@ -3,7 +3,7 @@ import * as Hex from 'ox/Hex'
 
 import type * as Chain from '../../core/Chain.js'
 import type * as Client from '../../core/Client.js'
-import type * as Block from '../../utils/Block.js'
+import { toRpcBlock } from './internal/toRpcBlock.js'
 
 /**
  * Returns the bytecode at an address.
@@ -30,16 +30,13 @@ import type * as Block from '../../utils/Block.js'
 export async function getCode<
   chain extends Chain.Chain | undefined = Chain.Chain | undefined,
 >(client: Client.Client<chain>, options: getCode.Options): getCode.ReturnType {
-  const { address, blockNumber, blockTag = 'latest' } = options
+  const { address, ...block } = options
   const code = await client.request(
     {
       method: 'eth_getCode',
-      params: [
-        address,
-        blockNumber !== undefined ? Hex.fromNumber(blockNumber) : blockTag,
-      ],
+      params: [address, toRpcBlock(block)],
     },
-    { dedupe: blockNumber !== undefined },
+    { dedupe: block.blockNumber !== undefined },
   )
   if (code === '0x') return undefined
   return code as Hex.Hex
@@ -49,20 +46,9 @@ export declare namespace getCode {
   type Options = {
     /** Account address. */
     address: Address.Address
-  } & (
-    | {
-        /** Block number. */
-        blockNumber?: bigint | undefined
-        blockTag?: undefined
-      }
-    | {
-        blockNumber?: undefined
-        /** Block tag. */
-        blockTag?: Block.Tag | undefined
-      }
-  )
+  } & toRpcBlock.Options
 
   type ReturnType = Promise<Hex.Hex | undefined>
 
-  type ErrorType = Hex.fromNumber.ErrorType
+  type ErrorType = toRpcBlock.ErrorType
 }

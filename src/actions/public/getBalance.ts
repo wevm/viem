@@ -3,7 +3,7 @@ import * as Hex from 'ox/Hex'
 
 import type * as Chain from '../../core/Chain.js'
 import type * as Client from '../../core/Client.js'
-import type * as Block from '../../utils/Block.js'
+import { toRpcBlock } from './internal/toRpcBlock.js'
 
 /**
  * Returns the balance of an address in wei.
@@ -33,17 +33,16 @@ export async function getBalance<
   client: Client.Client<chain>,
   options: getBalance.Options,
 ): getBalance.ReturnType {
-  const {
-    address,
-    blockNumber,
-    blockTag = client.blockTag ?? 'latest',
-  } = options
+  const { address, ...block } = options
+  const rpcBlock =
+    block.blockHash ||
+    block.blockNumber !== undefined ||
+    block.requireCanonical !== undefined
+      ? toRpcBlock(block)
+      : toRpcBlock({ blockTag: block.blockTag ?? client.blockTag ?? 'latest' })
   const balance = await client.request({
     method: 'eth_getBalance',
-    params: [
-      address,
-      blockNumber !== undefined ? Hex.fromNumber(blockNumber) : blockTag,
-    ],
+    params: [address, rpcBlock],
   })
   return Hex.toBigInt(balance as Hex.Hex)
 }
@@ -52,20 +51,9 @@ export declare namespace getBalance {
   type Options = {
     /** Account address. */
     address: Address.Address
-  } & (
-    | {
-        /** Block number. */
-        blockNumber?: bigint | undefined
-        blockTag?: undefined
-      }
-    | {
-        blockNumber?: undefined
-        /** Block tag. */
-        blockTag?: Block.Tag | undefined
-      }
-  )
+  } & toRpcBlock.Options
 
   type ReturnType = Promise<bigint>
 
-  type ErrorType = Hex.fromNumber.ErrorType | Hex.toBigInt.ErrorType
+  type ErrorType = toRpcBlock.ErrorType | Hex.toBigInt.ErrorType
 }

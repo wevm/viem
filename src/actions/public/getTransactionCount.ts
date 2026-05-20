@@ -3,7 +3,7 @@ import * as Hex from 'ox/Hex'
 
 import type * as Chain from '../../core/Chain.js'
 import type * as Client from '../../core/Client.js'
-import type * as Block from '../../utils/Block.js'
+import { toRpcBlock } from './internal/toRpcBlock.js'
 
 /**
  * Returns the number of transactions sent from an address.
@@ -33,16 +33,13 @@ export async function getTransactionCount<
   client: Client.Client<chain>,
   options: getTransactionCount.Options,
 ): getTransactionCount.ReturnType {
-  const { address, blockNumber, blockTag = 'latest' } = options
+  const { address, ...block } = options
   const count = await client.request(
     {
       method: 'eth_getTransactionCount',
-      params: [
-        address,
-        blockNumber !== undefined ? Hex.fromNumber(blockNumber) : blockTag,
-      ],
+      params: [address, toRpcBlock(block)],
     },
-    { dedupe: blockNumber !== undefined },
+    { dedupe: block.blockNumber !== undefined },
   )
   return Hex.toBigInt(count as Hex.Hex)
 }
@@ -51,20 +48,9 @@ export declare namespace getTransactionCount {
   type Options = {
     /** Account address. */
     address: Address.Address
-  } & (
-    | {
-        /** Block number. */
-        blockNumber?: bigint | undefined
-        blockTag?: undefined
-      }
-    | {
-        blockNumber?: undefined
-        /** Block tag. */
-        blockTag?: Block.Tag | undefined
-      }
-  )
+  } & toRpcBlock.Options
 
   type ReturnType = Promise<bigint>
 
-  type ErrorType = Hex.fromNumber.ErrorType | Hex.toBigInt.ErrorType
+  type ErrorType = toRpcBlock.ErrorType | Hex.toBigInt.ErrorType
 }

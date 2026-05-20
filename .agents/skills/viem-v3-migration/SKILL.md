@@ -196,6 +196,8 @@ Current landed methods:
 
 `actions.public.getChainId` returns `bigint` in v3.
 `actions.public.getTransactionCount` also returns `bigint`.
+Block-scoped public actions accept `blockNumber`, `blockTag`, or EIP-1898
+`blockHash` with optional `requireCanonical`.
 
 ### `Transport`
 

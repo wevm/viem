@@ -213,6 +213,7 @@ export async function sendTransactionSync<
       docsPath: '/docs/actions/wallet/sendTransactionSync',
     })
   const account = account_ ? parseAccount(account_) : null
+  let nonceManagerParameters: { address: Address; chainId: number } | undefined
 
   try {
     assertRequest(parameters as AssertRequestParameters)
@@ -348,6 +349,16 @@ export async function sendTransactionSync<
     }
 
     if (account?.type === 'local') {
+      if (account.nonceManager && typeof nonce === 'undefined') {
+        const requestChainId = (rest as unknown as { chainId?: number }).chainId
+        const chainId = await (async () => {
+          if (typeof requestChainId === 'number') return requestChainId
+          if (chain) return chain.id
+          return getAction(client, getChainId, 'getChainId')({})
+        })()
+        nonceManagerParameters = { address: account.address, chainId }
+      }
+
       // Prepare the request for signing (assign appropriate fees, etc.)
       const request = await getAction(
         client,
@@ -407,6 +418,11 @@ export async function sendTransactionSync<
     })
   } catch (err) {
     if (err instanceof AccountTypeNotSupportedError) throw err
+    if (
+      nonceManagerParameters &&
+      !(err instanceof TransactionReceiptRevertedError)
+    )
+      account?.nonceManager?.reset(nonceManagerParameters)
     throw getTransactionError(err as BaseError, {
       ...parameters,
       account,
