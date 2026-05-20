@@ -4,13 +4,11 @@ import { http } from '../src/core/transports/http.js'
 
 export const anvilMainnet = define({
   id: 31_337n,
-  name: 'Anvil Mainnet',
   port: 8545,
 })
 
 export const anvilOptimism = define({
   id: 31_338n,
-  name: 'Anvil Optimism',
   port: 8546,
 })
 
@@ -20,18 +18,16 @@ export type Anvil = ReturnType<typeof define>
 
 export function define<const id extends bigint>(options: {
   id: id
-  name: string
   port: number
 }) {
-  const { id, name, port } = options
+  const { id, port } = options
   return {
     id,
-    name,
     port,
     get chain() {
       return Chain.define({
         id,
-        name,
+        name: `Anvil ${id}`,
         nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
         rpcUrls: {
           default: {
