@@ -1,21 +1,19 @@
 import { describe, expect, test } from 'vp/test'
 
-import { anvilMainnet, request } from '../../../test/anvil.js'
-import { Client, http } from 'viem'
 import * as actions from 'viem/actions'
-import type { Hex } from 'viem/utils'
+import { anvilMainnet } from '../../../test/anvil.js'
+import * as anvil from '../../../test/anvil.js'
 
 const address = '0x0000000000000000000000000000000000000105'
 
 describe('getTransactionCount', () => {
   test('behavior: returns the transaction count for an address', async () => {
-    await request(anvilMainnet, 'anvil_setNonce', [address, '0x2a'])
-    await request(anvilMainnet, 'evm_mine')
+    const client = anvil.getClient(anvilMainnet)
 
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
-    const blockHash = await getLatestBlockHash()
+    await actions.setNonce(client, { address, nonce: 42n })
+    await actions.mine(client, { blocks: 1n })
+
+    const { hash: blockHash } = await actions.getBlock(client)
     const blockNumber = await actions.getBlockNumber(client, {
       cacheTime: 0,
     })
@@ -45,12 +43,3 @@ describe('getTransactionCount', () => {
     `)
   })
 })
-
-async function getLatestBlockHash() {
-  const block = await request<{ hash: Hex.Hex }>(
-    anvilMainnet,
-    'eth_getBlockByNumber',
-    ['latest', false],
-  )
-  return block.hash
-}

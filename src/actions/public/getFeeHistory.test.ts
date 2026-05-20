@@ -1,14 +1,12 @@
 import { describe, expect, test } from 'vp/test'
 
-import { Client, http } from 'viem'
 import * as actions from 'viem/actions'
-import { anvilMainnet, request } from '../../../test/anvil.js'
+import { anvilMainnet } from '../../../test/anvil.js'
+import * as anvil from '../../../test/anvil.js'
 
 describe('getFeeHistory', () => {
   test('behavior: returns fee history for the latest block', async () => {
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
+    const client = anvil.getClient(anvilMainnet)
 
     const history = await actions.getFeeHistory(client, {
       blockCount: 4,
@@ -33,16 +31,10 @@ describe('getFeeHistory', () => {
   })
 
   test('behavior: accepts a block number', async () => {
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
+    const client = anvil.getClient(anvilMainnet)
 
-    await request(anvilMainnet, 'anvil_mine', ['0x4'])
-    const blockNumberHex = await request<`0x${string}`>(
-      anvilMainnet,
-      'eth_blockNumber',
-    )
-    const blockNumber = BigInt(blockNumberHex)
+    await actions.mine(client, { blocks: 4n })
+    const blockNumber = await actions.getBlockNumber(client, { cacheTime: 0 })
 
     const history = await actions.getFeeHistory(client, {
       blockCount: 2,
@@ -54,9 +46,7 @@ describe('getFeeHistory', () => {
   })
 
   test('behavior: accepts a block tag', async () => {
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
+    const client = anvil.getClient(anvilMainnet)
 
     const history = await actions.getFeeHistory(client, {
       blockCount: 1,

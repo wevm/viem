@@ -13,6 +13,7 @@ test('exports', () => {
       "getBlockTransactionCount",
       "getChainId",
       "getCode",
+      "getDelegation",
       "getFeeHistory",
       "getGasPrice",
       "getLogs",

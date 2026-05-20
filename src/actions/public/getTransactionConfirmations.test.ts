@@ -1,17 +1,15 @@
 import { describe, expect, test } from 'vp/test'
 
-import { anvilMainnet, request } from '../../../test/anvil.js'
-import { Client, http } from 'viem'
 import * as actions from 'viem/actions'
-import { Hex } from 'viem/utils'
+import type { Hex } from 'viem/utils'
+import { anvilMainnet } from '../../../test/anvil.js'
+import * as anvil from '../../../test/anvil.js'
 
 describe('getTransactionConfirmations', () => {
   test('behavior: returns confirmations for a mined transaction by hash', async () => {
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
-    const transactionHash = await mineTransaction()
-    await request(anvilMainnet, 'anvil_mine', ['0x4'])
+    const client = anvil.getClient(anvilMainnet)
+    const transactionHash = await mineTransaction(client)
+    await actions.mine(client, { blocks: 4n })
 
     const confirmations = await actions.getTransactionConfirmations(client, {
       hash: transactionHash,
@@ -21,14 +19,12 @@ describe('getTransactionConfirmations', () => {
   })
 
   test('behavior: returns confirmations from a transaction receipt', async () => {
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
-    const transactionHash = await mineTransaction()
+    const client = anvil.getClient(anvilMainnet)
+    const transactionHash = await mineTransaction(client)
     const receipt = await actions.getTransactionReceipt(client, {
       hash: transactionHash,
     })
-    await request(anvilMainnet, 'anvil_mine', ['0x4'])
+    await actions.mine(client, { blocks: 4n })
 
     const confirmations = await actions.getTransactionConfirmations(client, {
       transactionReceipt: receipt,
@@ -38,9 +34,7 @@ describe('getTransactionConfirmations', () => {
   })
 
   test('behavior: returns 0n when the transaction has no block number', async () => {
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
+    const client = anvil.getClient(anvilMainnet)
 
     // Pending receipt-like object (no block number).
     const confirmations = await actions.getTransactionConfirmations(client, {
@@ -51,16 +45,16 @@ describe('getTransactionConfirmations', () => {
   })
 })
 
-async function mineTransaction() {
-  const [from, to] = await request<readonly Hex.Hex[]>(
-    anvilMainnet,
-    'eth_accounts',
-  )
-  const transactionHash = await request<Hex.Hex>(
-    anvilMainnet,
-    'eth_sendTransaction',
-    [{ from, gas: '0x5208', to, value: '0x1' }],
-  )
-  await request(anvilMainnet, 'anvil_mine', ['0x1'])
+async function mineTransaction(
+  client: ReturnType<typeof anvil.getClient>,
+): Promise<Hex.Hex> {
+  // Wallet actions (`eth_accounts`, `eth_sendTransaction`) aren't wired up
+  // yet; fall through to the client's RPC layer until `actions.wallet` lands.
+  const [from, to] = await client.request({ method: 'eth_accounts' })
+  const transactionHash = await client.request({
+    method: 'eth_sendTransaction',
+    params: [{ from, gas: '0x5208', to, value: '0x1' }],
+  })
+  await actions.mine(client, { blocks: 1n })
   return transactionHash
 }

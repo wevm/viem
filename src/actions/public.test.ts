@@ -1,9 +1,8 @@
 import { describe, expect, test } from 'vp/test'
 
-import { anvilMainnet, request } from '../../test/anvil.js'
-import { Client, http } from 'viem'
 import * as actions from 'viem/actions'
-import { Hex } from 'viem/utils'
+import { anvilMainnet } from '../../test/anvil.js'
+import * as anvil from '../../test/anvil.js'
 
 const address = '0x0000000000000000000000000000000000000001'
 const code = '0x6001600055'
@@ -21,6 +20,7 @@ describe('public', () => {
       getBlockTransactionCount: typeof actions.getBlockTransactionCount,
       getChainId: typeof actions.getChainId,
       getCode: typeof actions.getCode,
+      getDelegation: typeof actions.getDelegation,
       getFeeHistory: typeof actions.getFeeHistory,
       getGasPrice: typeof actions.getGasPrice,
       getLogs: typeof actions.getLogs,
@@ -40,6 +40,7 @@ describe('public', () => {
         "getBlockTransactionCount": "function",
         "getChainId": "function",
         "getCode": "function",
+        "getDelegation": "function",
         "getFeeHistory": "function",
         "getGasPrice": "function",
         "getLogs": "function",
@@ -55,10 +56,7 @@ describe('public', () => {
   })
 
   test('behavior: decorates clients with public actions', async () => {
-    const client = Client.create({
-      chain: anvilMainnet.chain,
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
+    const client = anvil.getClient(anvilMainnet)
       .extend(actions.publicActions())
       .extend(actions.testActions())
 
@@ -102,19 +100,18 @@ describe('public', () => {
   })
 
   test('behavior: decorates transaction read methods', async () => {
-    const client = Client.create({
-      chain: anvilMainnet.chain,
-      transport: http(anvilMainnet.rpcUrl.http),
-    }).extend(actions.publicActions())
+    const client = anvil.getClient(anvilMainnet)
+      .extend(actions.publicActions())
+      .extend(actions.testActions())
 
-    const [from, to] = await request<readonly Hex.Hex[]>(
-      anvilMainnet,
-      'eth_accounts',
-    )
-    const hash = await request<Hex.Hex>(anvilMainnet, 'eth_sendTransaction', [
-      { from, gas: '0x5208', to, value: '0x1' },
-    ])
-    await request(anvilMainnet, 'anvil_mine', ['0x1'])
+    // Wallet actions (`eth_accounts`, `eth_sendTransaction`) aren't wired up
+    // yet; fall through to the client's RPC layer until `actions.wallet` lands.
+    const [from, to] = await client.request({ method: 'eth_accounts' })
+    const hash = await client.request({
+      method: 'eth_sendTransaction',
+      params: [{ from, gas: '0x5208', to, value: '0x1' }],
+    })
+    await client.test.mine({ blocks: 1n })
 
     const transaction = await client.public.getTransaction({ hash })
     const receipt = await client.public.getTransactionReceipt({ hash })

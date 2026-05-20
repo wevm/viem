@@ -12,6 +12,7 @@ import { getBlockNumber } from './public/getBlockNumber.js'
 import { getBlockTransactionCount } from './public/getBlockTransactionCount.js'
 import { getChainId } from './public/getChainId.js'
 import { getCode } from './public/getCode.js'
+import { getDelegation } from './public/getDelegation.js'
 import { getFeeHistory } from './public/getFeeHistory.js'
 import { getGasPrice } from './public/getGasPrice.js'
 import { getLogs } from './public/getLogs.js'
@@ -175,6 +176,28 @@ export type PublicActions = {
    * @returns Bytecode, if found.
    */
   getCode: (options: getCode.Options) => getCode.ReturnType
+  /**
+   * Returns the address that an account has delegated to via EIP-7702.
+   *
+   * @example
+   * ```ts twoslash
+   * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
+   *
+   * const delegation = await client.public.getDelegation({
+   *   address: '0x0000000000000000000000000000000000000000'
+   * })
+   * ```
+   *
+   * @param options - Options.
+   * @returns Delegated address or `undefined`.
+   */
+  getDelegation: (options: getDelegation.Options) => getDelegation.ReturnType
   /**
    * Returns a collection of historical gas information.
    *
@@ -428,6 +451,8 @@ export function publicActions() {
       ) => getBlockTransactionCount(actionClient, options),
       getChainId: () => getChainId(actionClient),
       getCode: (options: getCode.Options) => getCode(actionClient, options),
+      getDelegation: (options: getDelegation.Options) =>
+        getDelegation(actionClient, options),
       getFeeHistory: (options: getFeeHistory.Options) =>
         getFeeHistory(actionClient, options),
       getGasPrice: () => getGasPrice(actionClient),
@@ -459,6 +484,7 @@ export {
   getBlockTransactionCount,
   getChainId,
   getCode,
+  getDelegation,
   getFeeHistory,
   getGasPrice,
   getLogs,

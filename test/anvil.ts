@@ -1,4 +1,6 @@
 import * as Chain from '../src/core/Chain.js'
+import * as Client from '../src/core/Client.js'
+import { http } from '../src/core/transports/http.js'
 
 export const anvilMainnet = defineAnvil({
   id: 31_337n,
@@ -46,6 +48,21 @@ export function defineAnvil<const id extends bigint>(options: {
       }
     },
   } as const
+}
+
+export function getClient<const anvil extends Anvil>(
+  anvil: anvil,
+  options: getClient.Options = {},
+): Client.Client<anvil['chain']> {
+  return Client.create({
+    chain: anvil.chain,
+    transport: http(anvil.rpcUrl.http),
+    ...options,
+  }) as never
+}
+
+export declare namespace getClient {
+  type Options = Omit<Client.Options, 'chain' | 'transport'>
 }
 
 export function getPoolId() {

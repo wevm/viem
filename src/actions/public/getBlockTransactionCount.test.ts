@@ -1,24 +1,24 @@
 import { describe, expect, test } from 'vp/test'
 
-import { anvilMainnet, request } from '../../../test/anvil.js'
-import { Client, http } from 'viem'
 import * as actions from 'viem/actions'
-import { Hex } from 'viem/utils'
+import type { Hex } from 'viem/utils'
+import { anvilMainnet } from '../../../test/anvil.js'
+import * as anvil from '../../../test/anvil.js'
 
 describe('getBlockTransactionCount', () => {
   test('behavior: returns the transaction count by block number and hash', async () => {
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
+    const client = anvil.getClient(anvilMainnet)
+    const transactionHash = await mineTransaction(client)
+    const receipt = await actions.getTransactionReceipt(client, {
+      hash: transactionHash,
     })
-    const receipt = await mineTransaction()
-    const blockNumber = Hex.toBigInt(receipt.blockNumber)
 
     expect({
       blockHash: await actions.getBlockTransactionCount(client, {
         blockHash: receipt.blockHash,
       }),
       blockNumber: await actions.getBlockTransactionCount(client, {
-        blockNumber,
+        blockNumber: receipt.blockNumber,
       }),
     }).toMatchInlineSnapshot(`
       {
@@ -29,9 +29,7 @@ describe('getBlockTransactionCount', () => {
   })
 
   test('behavior: returns the latest block transaction count by default', async () => {
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
+    const client = anvil.getClient(anvilMainnet)
 
     const count = await actions.getBlockTransactionCount(client)
 
@@ -39,18 +37,14 @@ describe('getBlockTransactionCount', () => {
   })
 })
 
-async function mineTransaction() {
-  const [from, to] = await request<readonly Hex.Hex[]>(
-    anvilMainnet,
-    'eth_accounts',
-  )
-  const transactionHash = await request<Hex.Hex>(
-    anvilMainnet,
-    'eth_sendTransaction',
-    [{ from, gas: '0x5208', to, value: '0x1' }],
-  )
-  return request<{
-    blockHash: Hex.Hex
-    blockNumber: Hex.Hex
-  }>(anvilMainnet, 'eth_getTransactionReceipt', [transactionHash])
+async function mineTransaction(
+  client: ReturnType<typeof anvil.getClient>,
+): Promise<Hex.Hex> {
+  // Wallet actions (`eth_accounts`, `eth_sendTransaction`) aren't wired up
+  // yet; fall through to the client's RPC layer until `actions.wallet` lands.
+  const [from, to] = await client.request({ method: 'eth_accounts' })
+  return client.request({
+    method: 'eth_sendTransaction',
+    params: [{ from, gas: '0x5208', to, value: '0x1' }],
+  })
 }

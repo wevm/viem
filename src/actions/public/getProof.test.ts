@@ -1,9 +1,8 @@
 import { describe, expect, test } from 'vp/test'
 
-import { Client, http } from 'viem'
 import * as actions from 'viem/actions'
-import { Hex } from 'viem/utils'
-import { anvilMainnet, request } from '../../../test/anvil.js'
+import { anvilMainnet } from '../../../test/anvil.js'
+import * as anvil from '../../../test/anvil.js'
 
 const address = '0x0000000000000000000000000000000000000001'
 const slot =
@@ -13,11 +12,9 @@ const value =
 
 describe('getProof', () => {
   test('behavior: returns the account and storage proof', async () => {
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
+    const client = anvil.getClient(anvilMainnet)
 
-    await request(anvilMainnet, 'anvil_setStorageAt', [address, slot, value])
+    await actions.setStorageAt(client, { address, slot, value })
 
     const proof = await actions.getProof(client, {
       address,
@@ -54,15 +51,9 @@ describe('getProof', () => {
   })
 
   test('behavior: accepts a block number', async () => {
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
+    const client = anvil.getClient(anvilMainnet)
 
-    const blockNumberHex = await request<Hex.Hex>(
-      anvilMainnet,
-      'eth_blockNumber',
-    )
-    const blockNumber = Hex.toBigInt(blockNumberHex)
+    const blockNumber = await actions.getBlockNumber(client, { cacheTime: 0 })
 
     const proof = await actions.getProof(client, {
       address,
@@ -74,19 +65,13 @@ describe('getProof', () => {
   })
 
   test('behavior: accepts a block hash with requireCanonical', async () => {
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
+    const client = anvil.getClient(anvilMainnet)
 
-    const block = await request<{ hash: Hex.Hex }>(
-      anvilMainnet,
-      'eth_getBlockByNumber',
-      ['latest', false],
-    )
+    const { hash: blockHash } = await actions.getBlock(client)
 
     const proof = await actions.getProof(client, {
       address,
-      blockHash: block.hash,
+      blockHash,
       requireCanonical: true,
       storageKeys: [],
     })
@@ -95,9 +80,7 @@ describe('getProof', () => {
   })
 
   test('behavior: rejects requireCanonical without blockHash', async () => {
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
+    const client = anvil.getClient(anvilMainnet)
 
     await expect(
       actions.getProof(client, {

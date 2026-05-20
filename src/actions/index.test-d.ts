@@ -13,6 +13,7 @@ import * as actions from 'viem/actions'
 import type { PublicActions, TestActions } from 'viem/actions'
 import type {
   AccountProof,
+  Address,
   Block,
   Fee,
   Hex,
@@ -83,6 +84,7 @@ describe('public', () => {
       storageKeys: ['0x0'],
     })
     const logs = await actions.getLogs(client)
+    const delegation = await actions.getDelegation(client, { address })
 
     expectTypeOf(balance).toEqualTypeOf<bigint>()
     expectTypeOf(balanceByBlockHash).toEqualTypeOf<bigint>()
@@ -107,6 +109,7 @@ describe('public', () => {
     expectTypeOf(feeHistory).toEqualTypeOf<Fee.FeeHistory>()
     expectTypeOf(proof).toEqualTypeOf<AccountProof.AccountProof>()
     expectTypeOf(logs).toEqualTypeOf<readonly Log.Log[]>()
+    expectTypeOf(delegation).toEqualTypeOf<Address.Address | undefined>()
   })
 
   test('types: decorates clients with nested actions', async () => {
@@ -151,6 +154,7 @@ describe('public', () => {
       storageKeys: ['0x0'],
     })
     const logs = await client.public.getLogs()
+    const delegation = await client.public.getDelegation({ address })
 
     expectTypeOf(balance).toEqualTypeOf<bigint>()
     expectTypeOf(balanceByBlockHash).toEqualTypeOf<bigint>()
@@ -174,6 +178,7 @@ describe('public', () => {
     expectTypeOf(feeHistory).toEqualTypeOf<Fee.FeeHistory>()
     expectTypeOf(proof).toEqualTypeOf<AccountProof.AccountProof>()
     expectTypeOf(logs).toEqualTypeOf<readonly Log.Log[]>()
+    expectTypeOf(delegation).toEqualTypeOf<Address.Address | undefined>()
   })
 
   test('types: accepts clients with accounts', async () => {

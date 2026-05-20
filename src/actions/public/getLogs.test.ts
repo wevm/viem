@@ -1,15 +1,12 @@
 import { describe, expect, test } from 'vp/test'
 
-import { Client, http } from 'viem'
 import * as actions from 'viem/actions'
-import { Hex } from 'viem/utils'
-import { anvilMainnet, request } from '../../../test/anvil.js'
+import { anvilMainnet } from '../../../test/anvil.js'
+import * as anvil from '../../../test/anvil.js'
 
 describe('getLogs', () => {
   test('behavior: returns an empty array when no logs match', async () => {
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
+    const client = anvil.getClient(anvilMainnet)
 
     const logs = await actions.getLogs(client, {
       address: '0x0000000000000000000000000000000000000000',
@@ -21,28 +18,17 @@ describe('getLogs', () => {
   })
 
   test('behavior: returns logs by blockHash', async () => {
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
+    const client = anvil.getClient(anvilMainnet)
 
-    const blockHash = await request<Hex.Hex>(anvilMainnet, 'eth_blockNumber')
-    const block = await request<{ hash: Hex.Hex }>(
-      anvilMainnet,
-      'eth_getBlockByNumber',
-      [blockHash, false],
-    )
+    const { hash: blockHash } = await actions.getBlock(client)
 
-    const logs = await actions.getLogs(client, {
-      blockHash: block.hash,
-    })
+    const logs = await actions.getLogs(client, { blockHash })
 
     expect(Array.isArray(logs)).toBe(true)
   })
 
   test('behavior: filters by topics', async () => {
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
+    const client = anvil.getClient(anvilMainnet)
 
     const logs = await actions.getLogs(client, {
       topics: [

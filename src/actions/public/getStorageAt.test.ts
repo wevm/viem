@@ -1,9 +1,8 @@
 import { describe, expect, test } from 'vp/test'
 
-import { anvilMainnet, request } from '../../../test/anvil.js'
-import { Client, http } from 'viem'
 import * as actions from 'viem/actions'
-import type { Hex } from 'viem/utils'
+import { anvilMainnet } from '../../../test/anvil.js'
+import * as anvil from '../../../test/anvil.js'
 
 const address = '0x0000000000000000000000000000000000000104'
 const slot = '0x0'
@@ -12,13 +11,12 @@ const value =
 
 describe('getStorageAt', () => {
   test('behavior: returns storage for an address slot', async () => {
-    await request(anvilMainnet, 'anvil_setStorageAt', [address, slot, value])
-    await request(anvilMainnet, 'evm_mine')
+    const client = anvil.getClient(anvilMainnet)
 
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
-    const blockHash = await getLatestBlockHash()
+    await actions.setStorageAt(client, { address, slot, value })
+    await actions.mine(client, { blocks: 1n })
+
+    const { hash: blockHash } = await actions.getBlock(client)
     const blockNumber = await actions.getBlockNumber(client, {
       cacheTime: 0,
     })
@@ -51,12 +49,3 @@ describe('getStorageAt', () => {
     `)
   })
 })
-
-async function getLatestBlockHash() {
-  const block = await request<{ hash: Hex.Hex }>(
-    anvilMainnet,
-    'eth_getBlockByNumber',
-    ['latest', false],
-  )
-  return block.hash
-}

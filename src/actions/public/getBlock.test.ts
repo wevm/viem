@@ -1,15 +1,13 @@
 import { describe, expect, test } from 'vp/test'
 
-import { anvilMainnet, request } from '../../../test/anvil.js'
-import { Client, http } from 'viem'
 import * as actions from 'viem/actions'
 import { Hex } from 'viem/utils'
+import { anvilMainnet } from '../../../test/anvil.js'
+import * as anvil from '../../../test/anvil.js'
 
 describe('getBlock', () => {
   test('behavior: returns the latest block by default', async () => {
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
+    const client = anvil.getClient(anvilMainnet)
 
     const block = await actions.getBlock(client)
 
@@ -29,10 +27,7 @@ describe('getBlock', () => {
   })
 
   test('behavior: uses the client block tag by default', async () => {
-    const client = Client.create({
-      blockTag: 'earliest',
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
+    const client = anvil.getClient(anvilMainnet, { blockTag: 'earliest' })
 
     const block = await actions.getBlock(client)
 
@@ -40,17 +35,12 @@ describe('getBlock', () => {
   })
 
   test('behavior: returns a block by number and hash', async () => {
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
-    const latest = await request<{ hash: Hex.Hex; number: Hex.Hex }>(
-      anvilMainnet,
-      'eth_getBlockByNumber',
-      ['latest', false],
-    )
-    const blockNumber = Hex.toBigInt(latest.number)
+    const client = anvil.getClient(anvilMainnet)
+    const latest = await actions.getBlock(client)
 
-    const byNumber = await actions.getBlock(client, { blockNumber })
+    const byNumber = await actions.getBlock(client, {
+      blockNumber: latest.number,
+    })
     const byHash = await actions.getBlock(client, {
       blockHash: latest.hash,
     })
@@ -67,10 +57,11 @@ describe('getBlock', () => {
   })
 
   test('behavior: returns transaction objects when requested', async () => {
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
+    const client = anvil.getClient(anvilMainnet)
+    const transactionHash = await mineTransaction(client)
+    const receipt = await actions.getTransactionReceipt(client, {
+      hash: transactionHash,
     })
-    const receipt = await mineTransaction()
 
     const block = await actions.getBlock(client, {
       blockHash: receipt.blockHash,
@@ -90,9 +81,7 @@ describe('getBlock', () => {
   })
 
   test('behavior: throws when the block is not found', async () => {
-    const client = Client.create({
-      transport: http(anvilMainnet.rpcUrl.http),
-    })
+    const client = anvil.getClient(anvilMainnet)
 
     await expect(
       actions.getBlock(client, {
@@ -108,19 +97,14 @@ describe('getBlock', () => {
   })
 })
 
-async function mineTransaction() {
-  const [from, to] = await request<readonly Hex.Hex[]>(
-    anvilMainnet,
-    'eth_accounts',
-  )
-  const transactionHash = await request<Hex.Hex>(
-    anvilMainnet,
-    'eth_sendTransaction',
-    [{ from, gas: '0x5208', to, value: '0x1' }],
-  )
-  const receipt = await request<{
-    blockHash: Hex.Hex
-    blockNumber: Hex.Hex
-  }>(anvilMainnet, 'eth_getTransactionReceipt', [transactionHash])
-  return { ...receipt, transactionHash }
+async function mineTransaction(
+  client: ReturnType<typeof anvil.getClient>,
+): Promise<Hex.Hex> {
+  // Wallet actions (`eth_accounts`, `eth_sendTransaction`) aren't wired up
+  // yet; fall through to the client's RPC layer until `actions.wallet` lands.
+  const [from, to] = await client.request({ method: 'eth_accounts' })
+  return client.request({
+    method: 'eth_sendTransaction',
+    params: [{ from, gas: '0x5208', to, value: '0x1' }],
+  })
 }
