@@ -1,0 +1,52 @@
+import * as Hex from 'ox/Hex'
+
+import type * as Client from '../../core/Client.js'
+import { withCache } from '../../core/internal/promise.js'
+
+const cacheKey = (uid: string) => `blockNumber.${uid}`
+
+/**
+ * Returns the number of the most recent block.
+ *
+ * @example
+ * ```ts twoslash
+ * import { Client, http } from 'viem'
+ * import * as actions from 'viem/actions'
+ *
+ * const client = Client.create({
+ *   transport: http('https://1.rpc.thirdweb.com'),
+ * })
+ *
+ * const blockNumber = await actions.public.getBlockNumber(client)
+ * // @log: 69420n
+ * ```
+ *
+ * @param client - Client to use.
+ * @param options - Options.
+ * @returns Block number.
+ */
+export async function getBlockNumber<client extends Client.Client>(
+  client: client,
+  options: getBlockNumber.Options = {},
+): getBlockNumber.ReturnType {
+  const cacheTime = options.cacheTime ?? client.cacheTime
+  const blockNumber = await withCache(
+    () =>
+      client.request({
+        method: 'eth_blockNumber',
+      }),
+    { cacheKey: cacheKey(client.uid), cacheTime },
+  )
+  return Hex.toBigInt(blockNumber as Hex.Hex)
+}
+
+export declare namespace getBlockNumber {
+  type Options = {
+    /** Time in milliseconds that cached block number remains in memory. */
+    cacheTime?: number | undefined
+  }
+
+  type ReturnType = Promise<bigint>
+
+  type ErrorType = Hex.toBigInt.ErrorType
+}

@@ -149,6 +149,37 @@ helpers no longer synthesize public, wallet, or test metadata.
 Transport retry and timeout options remain on transport factories, not on
 `Client.create`.
 
+## Actions
+
+Actions live under lowercase callable namespaces from `viem/actions`. Landed
+public actions can be used standalone or through `Client.extend`.
+
+```diff
+- import { createPublicClient, getBlockNumber } from 'viem'
++ import { Client, http } from 'viem'
++ import * as actions from 'viem/actions'
+
+- const client = createPublicClient({ chain, transport })
+- const blockNumber = await getBlockNumber(client)
++ const client = Client.create({ chain, transport }).extend(actions.public())
++ const blockNumber = await client.public.getBlockNumber()
+```
+
+### `actions.public`
+
+Current landed methods:
+
+| v2 | v3 |
+| --- | --- |
+| `createPublicClient(options)` | `Client.create(options).extend(actions.public())` |
+| `getBlockNumber(client, options)` | `actions.public.getBlockNumber(client, options)` or `client.public.getBlockNumber(options)` |
+| `getChainId(client)` | `actions.public.getChainId(client)` or `client.public.getChainId()` |
+| `type GetBlockNumberParameters` | `getBlockNumber.Options` |
+| `type GetBlockNumberReturnType` | `getBlockNumber.ReturnType` |
+| `type GetChainIdReturnType` | `getChainId.ReturnType` |
+
+`actions.public.getChainId` returns `bigint` in v3.
+
 ### `Transport`
 
 Transport factories stay as flat root exports. Low-level transport helpers and
