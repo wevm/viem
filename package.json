@@ -146,7 +146,7 @@
     "@scure/bip39": "1.6.0",
     "abitype": "1.2.3",
     "isows": "1.0.7",
-    "ox": "https://pkg.pr.new/ox@f16b7320",
+    "ox": "https://pkg.pr.new/ox@4974b10e",
     "ws": "8.20.1"
   },
   "peerDependencies": {

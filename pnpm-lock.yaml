@@ -58,8 +58,8 @@ importers:
         specifier: 1.0.7
         version: 1.0.7(ws@8.20.1)
       ox:
-        specifier: https://pkg.pr.new/ox@f16b7320
-        version: https://pkg.pr.new/ox@f16b7320(typescript@6.0.3)(zod@4.3.6)
+        specifier: https://pkg.pr.new/ox@4974b10e
+        version: https://pkg.pr.new/ox@4974b10e(typescript@6.0.3)(zod@4.3.6)
       ws:
         specifier: '>=8.20.1'
         version: 8.20.1
@@ -105,7 +105,7 @@ importers:
         version: 0.50.0
       permissionless:
         specifier: ^0.2.57
-        version: 0.2.57(ox@https://pkg.pr.new/ox@f16b7320(typescript@6.0.3)(zod@4.3.6))
+        version: 0.2.57(ox@https://pkg.pr.new/ox@4974b10e(typescript@6.0.3)(zod@4.3.6))
       prool:
         specifier: ~0.2.3
         version: 0.2.3(@pimlico/alto@0.0.18(typescript@6.0.3))(testcontainers@11.10.0)
@@ -4537,8 +4537,8 @@ packages:
       typescript:
         optional: true
 
-  ox@https://pkg.pr.new/ox@f16b7320:
-    resolution: {integrity: sha512-6FPhtuzwj7fE70/SCeiefvDtOahP36NbAwtmpaomVZaMrkJiOnoMHcztZQn89mEZPua++vmdayuCqV2w4jN2LQ==, tarball: https://pkg.pr.new/ox@f16b7320}
+  ox@https://pkg.pr.new/ox@4974b10e:
+    resolution: {integrity: sha512-h2t5UQZhoMXoQbQGdUE56mQPzXc460C84cKKDFvYWHX2TK0G9xxQ/zk2zSy1DO55HDOTPeu30z+oZBhI1hZn8Q==, tarball: https://pkg.pr.new/ox@4974b10e}
     version: 0.14.22
     peerDependencies:
       typescript: '>=5.4.0'
@@ -10640,7 +10640,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@https://pkg.pr.new/ox@f16b7320(typescript@6.0.3)(zod@4.3.6):
+  ox@https://pkg.pr.new/ox@4974b10e(typescript@6.0.3)(zod@4.3.6):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 2.2.0
@@ -10845,9 +10845,9 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.57(ox@https://pkg.pr.new/ox@f16b7320(typescript@6.0.3)(zod@4.3.6)):
+  permissionless@0.2.57(ox@https://pkg.pr.new/ox@4974b10e(typescript@6.0.3)(zod@4.3.6)):
     optionalDependencies:
-      ox: https://pkg.pr.new/ox@f16b7320(typescript@6.0.3)(zod@4.3.6)
+      ox: https://pkg.pr.new/ox@4974b10e(typescript@6.0.3)(zod@4.3.6)
 
   picocolors@1.1.1: {}
 
