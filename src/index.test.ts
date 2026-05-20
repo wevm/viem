@@ -13,6 +13,7 @@ test('exports', () => {
       "custom",
       "fallback",
       "http",
+      "publicActions",
       "webSocket",
     ]
   `)

@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, test } from 'vp/test'
 
-import { Client, http } from 'viem'
+import { Chain, Client, http, publicActions, type Account } from 'viem'
 import * as actions from 'viem/actions'
 import type { PublicActions, TestActions } from 'viem/actions'
 import type { Block, Hex } from 'viem/utils'
@@ -9,6 +9,12 @@ const address = '0x0000000000000000000000000000000000000000'
 const blockHash =
   '0xf65631529d476553ca5b0056d6480c3970dd5ac884fee51d5b30ca7fceab8894' as Hex.Hex
 const slot = '0x0'
+const chain = Chain.define({
+  id: 1n,
+  name: 'Test',
+  nativeCurrency: { decimals: 18, name: 'Ether', symbol: 'ETH' },
+  rpcUrls: { default: { http: ['https://example.com'] } },
+})
 
 describe('public', () => {
   test('types: exposes standalone actions', async () => {
@@ -61,7 +67,7 @@ describe('public', () => {
   test('types: decorates clients with nested actions', async () => {
     const client = Client.create({
       transport: http(),
-    }).extend(actions.publicActions())
+    }).extend(publicActions())
 
     expectTypeOf(client.public).toEqualTypeOf<PublicActions>()
 
@@ -105,12 +111,17 @@ describe('public', () => {
   test('types: accepts clients with accounts', async () => {
     const client = Client.create({
       account: address,
+      chain,
       transport: http(),
     }).extend(actions.publicActions())
 
     const chainId = await client.public.getChainId()
     const blockNumber = await actions.getBlockNumber(client)
 
+    expectTypeOf(client.account).toEqualTypeOf<
+      Account.JsonRpc<typeof address>
+    >()
+    expectTypeOf(client.chain).toEqualTypeOf<typeof chain>()
     expectTypeOf(chainId).toEqualTypeOf<bigint>()
     expectTypeOf(blockNumber).toEqualTypeOf<bigint>()
   })
@@ -171,11 +182,17 @@ describe('test', () => {
   test('types: decorates clients with nested actions', async () => {
     const testActions = actions.testActions
     const client = Client.create({
+      account: address,
+      chain,
       transport: http(),
     }).extend(testActions({ mode: 'ganache' }))
 
     const clientTest = client.test
     expectTypeOf(clientTest).toEqualTypeOf<TestActions>()
+    expectTypeOf(client.account).toEqualTypeOf<
+      Account.JsonRpc<typeof address>
+    >()
+    expectTypeOf(client.chain).toEqualTypeOf<typeof chain>()
 
     const mine = clientTest.mine({ blocks: 1n, interval: '0x1' })
     const revert = clientTest.revert({ id: 1n })

@@ -151,17 +151,17 @@ Transport retry and timeout options remain on transport factories, not on
 
 ## Actions
 
-Actions are named exports from `viem/actions`. Decorators are named exports like
-`publicActions` and `testActions`.
+Actions are named exports from `viem/actions`. `publicActions` is also exported
+from root `viem`; other landed decorators are named exports from `viem/actions`.
 
 ```diff
 - import { createPublicClient, getBlockNumber } from 'viem'
-+ import { Client, http } from 'viem'
++ import { Client, http, publicActions } from 'viem'
 + import * as actions from 'viem/actions'
 
 - const client = createPublicClient({ chain, transport })
 - const blockNumber = await getBlockNumber(client)
-+ const client = Client.create({ chain, transport }).extend(actions.publicActions())
++ const client = Client.create({ chain, transport }).extend(publicActions())
 + const blockNumber = await client.public.getBlockNumber()
 ```
 
@@ -171,7 +171,7 @@ Current landed methods:
 
 | v2 | v3 |
 | --- | --- |
-| `createPublicClient(options)` | `Client.create(options).extend(actions.publicActions())` |
+| `createPublicClient(options)` | `Client.create(options).extend(publicActions())` |
 | `getBalance(client, options)` | `actions.getBalance(client, options)` or `client.public.getBalance(options)` |
 | `getBlobBaseFee(client)` | `actions.getBlobBaseFee(client)` or `client.public.getBlobBaseFee()` |
 | `getBlock(client, options)` | `actions.getBlock(client, options)` or `client.public.getBlock(options)` |
