@@ -169,6 +169,11 @@ export type {
   GetBlockNumberReturnType,
 } from './actions/public/getBlockNumber.js'
 export type {
+  GetBlockReceiptsErrorType,
+  GetBlockReceiptsParameters,
+  GetBlockReceiptsReturnType,
+} from './actions/public/getBlockReceipts.js'
+export type {
   GetBlockTransactionCountErrorType,
   GetBlockTransactionCountParameters,
   GetBlockTransactionCountReturnType,

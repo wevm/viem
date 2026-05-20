@@ -117,6 +117,12 @@ export {
   getBlockNumber,
 } from './public/getBlockNumber.js'
 export {
+  type GetBlockReceiptsErrorType,
+  type GetBlockReceiptsParameters,
+  type GetBlockReceiptsReturnType,
+  getBlockReceipts,
+} from './public/getBlockReceipts.js'
+export {
   type GetBlockTransactionCountErrorType,
   type GetBlockTransactionCountParameters,
   type GetBlockTransactionCountReturnType,

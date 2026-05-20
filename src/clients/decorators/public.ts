@@ -98,6 +98,11 @@ import {
   getBlockNumber,
 } from '../../actions/public/getBlockNumber.js'
 import {
+  type GetBlockReceiptsParameters,
+  type GetBlockReceiptsReturnType,
+  getBlockReceipts,
+} from '../../actions/public/getBlockReceipts.js'
+import {
   type GetBlockTransactionCountParameters,
   type GetBlockTransactionCountReturnType,
   getBlockTransactionCount,
@@ -671,6 +676,30 @@ export type PublicActions<
   >(
     args?: GetBlockParameters<includeTransactions, blockTag> | undefined,
   ) => Promise<GetBlockReturnType<chain, includeTransactions, blockTag>>
+  /**
+   * Returns the transaction receipts of a block at a block number, hash, or tag.
+   *
+   * - Docs: https://viem.sh/docs/actions/public/getBlockReceipts
+   * - JSON-RPC Methods: [`eth_getBlockReceipts`](https://ethereum.github.io/execution-apis/api/methods/eth_getBlockReceipts/)
+   *
+   * @param args - {@link GetBlockReceiptsParameters}
+   * @returns The transaction receipts. {@link GetBlockReceiptsReturnType}
+   *
+   * @example
+   * import { createPublicClient, http } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createPublicClient({
+   *   chain: mainnet,
+   *   transport: http(),
+   * })
+   * const receipts = await client.getBlockReceipts({
+   *   blockNumber: 69420n,
+   * })
+   */
+  getBlockReceipts: (
+    args?: GetBlockReceiptsParameters | undefined,
+  ) => Promise<GetBlockReceiptsReturnType<chain>>
   /**
    * Returns the number of the most recent block seen.
    *
@@ -2086,6 +2115,7 @@ export function publicActions<
     getBlobBaseFee: () => getBlobBaseFee(client),
     getBlock: (args) => getBlock(client, args),
     getBlockNumber: (args) => getBlockNumber(client, args),
+    getBlockReceipts: (args) => getBlockReceipts(client, args),
     getBlockTransactionCount: (args) => getBlockTransactionCount(client, args),
     getBytecode: (args) => getCode(client, args),
     getChainId: () => getChainId(client),
