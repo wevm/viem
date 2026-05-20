@@ -10,8 +10,8 @@ describe('getChainId', () => {
       transport: http(anvilMainnet.rpcUrl.http),
     })
 
-    await expect(
-      actions.public.getChainId(client),
-    ).resolves.toMatchInlineSnapshot(`31337n`)
+    await expect(actions.getChainId(client)).resolves.toMatchInlineSnapshot(
+      `31337n`,
+    )
   })
 })

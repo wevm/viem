@@ -15,7 +15,7 @@ import type * as Client from '../../core/Client.js'
  *   transport: http('https://1.rpc.thirdweb.com'),
  * })
  *
- * const gasPrice = await actions.public.getGasPrice(client)
+ * const gasPrice = await actions.getGasPrice(client)
  * // @log: 1000000000n
  * ```
  *

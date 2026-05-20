@@ -16,25 +16,25 @@ describe('getBalance', () => {
       transport: http(anvilMainnet.rpcUrl.http),
     })
     const blockHash = await getLatestBlockHash()
-    const blockNumber = await actions.public.getBlockNumber(client, {
+    const blockNumber = await actions.getBlockNumber(client, {
       cacheTime: 0,
     })
 
     expect({
-      blockHash: await actions.public.getBalance(client, {
+      blockHash: await actions.getBalance(client, {
         address,
         blockHash,
       }),
-      blockHashCanonical: await actions.public.getBalance(client, {
+      blockHashCanonical: await actions.getBalance(client, {
         address,
         blockHash,
         requireCanonical: true,
       }),
-      blockNumber: await actions.public.getBalance(client, {
+      blockNumber: await actions.getBalance(client, {
         address,
         blockNumber,
       }),
-      latest: await actions.public.getBalance(client, { address }),
+      latest: await actions.getBalance(client, { address }),
     }).toMatchInlineSnapshot(`
       {
         "blockHash": 42n,

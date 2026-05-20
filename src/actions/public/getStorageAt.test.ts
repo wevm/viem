@@ -19,28 +19,28 @@ describe('getStorageAt', () => {
       transport: http(anvilMainnet.rpcUrl.http),
     })
     const blockHash = await getLatestBlockHash()
-    const blockNumber = await actions.public.getBlockNumber(client, {
+    const blockNumber = await actions.getBlockNumber(client, {
       cacheTime: 0,
     })
 
     expect({
-      blockHash: await actions.public.getStorageAt(client, {
+      blockHash: await actions.getStorageAt(client, {
         address,
         blockHash,
         slot,
       }),
-      blockHashCanonical: await actions.public.getStorageAt(client, {
+      blockHashCanonical: await actions.getStorageAt(client, {
         address,
         blockHash,
         requireCanonical: true,
         slot,
       }),
-      blockNumber: await actions.public.getStorageAt(client, {
+      blockNumber: await actions.getStorageAt(client, {
         address,
         blockNumber,
         slot,
       }),
-      latest: await actions.public.getStorageAt(client, { address, slot }),
+      latest: await actions.getStorageAt(client, { address, slot }),
     }).toMatchInlineSnapshot(`
       {
         "blockHash": "0x000000000000000000000000000000000000000000000000000000000000002a",

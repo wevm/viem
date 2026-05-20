@@ -17,7 +17,7 @@ import { toRpcBlock } from './internal/toRpcBlock.js'
  *   transport: http('https://1.rpc.thirdweb.com'),
  * })
  *
- * const balance = await actions.public.getBalance(client, {
+ * const balance = await actions.getBalance(client, {
  *   address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
  * })
  * // @log: 1000000000000000000n

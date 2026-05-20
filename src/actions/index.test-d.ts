@@ -15,27 +15,26 @@ describe('public', () => {
       transport: http(),
     })
 
-    const balance = await actions.public.getBalance(client, { address })
-    const blobBaseFee = await actions.public.getBlobBaseFee(client)
-    const chainId = await actions.public.getChainId(client)
-    const code = await actions.public.getCode(client, { address })
-    const gasPrice = await actions.public.getGasPrice(client)
-    const block = await actions.public.getBlock(client)
-    const blockWithTransactions = await actions.public.getBlock(client, {
+    const balance = await actions.getBalance(client, { address })
+    const blobBaseFee = await actions.getBlobBaseFee(client)
+    const chainId = await actions.getChainId(client)
+    const code = await actions.getCode(client, { address })
+    const gasPrice = await actions.getGasPrice(client)
+    const block = await actions.getBlock(client)
+    const blockWithTransactions = await actions.getBlock(client, {
       includeTransactions: true,
     })
-    const pendingBlock = await actions.public.getBlock(client, {
+    const pendingBlock = await actions.getBlock(client, {
       blockTag: 'pending',
       includeTransactions: true,
     })
-    const blockNumber = await actions.public.getBlockNumber(client)
-    const blockTransactionCount =
-      await actions.public.getBlockTransactionCount(client)
-    const storage = await actions.public.getStorageAt(client, { address, slot })
-    const transactionCount = await actions.public.getTransactionCount(client, {
+    const blockNumber = await actions.getBlockNumber(client)
+    const blockTransactionCount = await actions.getBlockTransactionCount(client)
+    const storage = await actions.getStorageAt(client, { address, slot })
+    const transactionCount = await actions.getTransactionCount(client, {
       address,
     })
-    const balanceByBlockHash = await actions.public.getBalance(client, {
+    const balanceByBlockHash = await actions.getBalance(client, {
       address,
       blockHash,
       requireCanonical: true,
@@ -61,7 +60,7 @@ describe('public', () => {
   test('types: decorates clients with nested actions', async () => {
     const client = Client.create({
       transport: http(),
-    }).extend(actions.public())
+    }).extend(actions.publicActions())
 
     const balance = await client.public.getBalance({ address })
     const blobBaseFee = await client.public.getBlobBaseFee()
@@ -104,12 +103,97 @@ describe('public', () => {
     const client = Client.create({
       account: address,
       transport: http(),
-    }).extend(actions.public())
+    }).extend(actions.publicActions())
 
     const chainId = await client.public.getChainId()
-    const blockNumber = await actions.public.getBlockNumber(client)
+    const blockNumber = await actions.getBlockNumber(client)
 
     expectTypeOf(chainId).toEqualTypeOf<bigint>()
     expectTypeOf(blockNumber).toEqualTypeOf<bigint>()
+  })
+})
+
+describe('test', () => {
+  test('types: exposes standalone actions', async () => {
+    const client = Client.create({
+      transport: http(),
+    })
+
+    const mine = actions.mine(client, { blocks: 1n, interval: 1 })
+    const revert = actions.revert(client, { id: '0x1' })
+    const setBalance = actions.setBalance(client, {
+      address,
+      value: 1n,
+    })
+    const setCode = actions.setCode(client, {
+      address,
+      bytecode: '0x',
+    })
+    const setNonce = actions.setNonce(client, {
+      address,
+      nonce: '0x1',
+    })
+    const setStorageAt = actions.setStorageAt(client, {
+      address,
+      slot: 0,
+      value:
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+    })
+    const snapshot = actions.snapshot(client)
+
+    expectTypeOf({
+      mine,
+      revert,
+      setBalance,
+      setCode,
+      setNonce,
+      setStorageAt,
+    }).toEqualTypeOf<{
+      mine: Promise<void>
+      revert: Promise<void>
+      setBalance: Promise<void>
+      setCode: Promise<void>
+      setNonce: Promise<void>
+      setStorageAt: Promise<void>
+    }>()
+    expectTypeOf(snapshot).toEqualTypeOf<Promise<Hex.Hex>>()
+  })
+
+  test('types: decorates clients with nested actions', async () => {
+    const testActions = actions.testActions
+    const client = Client.create({
+      transport: http(),
+    }).extend(testActions())
+
+    const clientTest = client.test
+    const mine = clientTest.mine({ blocks: 1n, interval: '0x1' })
+    const revert = clientTest.revert({ id: 1n })
+    const setBalance = clientTest.setBalance({ address, value: 1 })
+    const setCode = clientTest.setCode({ address, bytecode: '0x' })
+    const setNonce = clientTest.setNonce({ address, nonce: 1n })
+    const setStorageAt = clientTest.setStorageAt({
+      address,
+      slot: '0x0',
+      value:
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+    })
+    const snapshot = clientTest.snapshot()
+
+    expectTypeOf({
+      mine,
+      revert,
+      setBalance,
+      setCode,
+      setNonce,
+      setStorageAt,
+    }).toEqualTypeOf<{
+      mine: Promise<void>
+      revert: Promise<void>
+      setBalance: Promise<void>
+      setCode: Promise<void>
+      setNonce: Promise<void>
+      setStorageAt: Promise<void>
+    }>()
+    expectTypeOf(snapshot).toEqualTypeOf<Promise<Hex.Hex>>()
   })
 })

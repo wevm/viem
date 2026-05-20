@@ -14,10 +14,10 @@ describe('getBlockTransactionCount', () => {
     const blockNumber = Hex.toBigInt(receipt.blockNumber)
 
     expect({
-      blockHash: await actions.public.getBlockTransactionCount(client, {
+      blockHash: await actions.getBlockTransactionCount(client, {
         blockHash: receipt.blockHash,
       }),
-      blockNumber: await actions.public.getBlockTransactionCount(client, {
+      blockNumber: await actions.getBlockTransactionCount(client, {
         blockNumber,
       }),
     }).toMatchInlineSnapshot(`
@@ -33,7 +33,7 @@ describe('getBlockTransactionCount', () => {
       transport: http(anvilMainnet.rpcUrl.http),
     })
 
-    const count = await actions.public.getBlockTransactionCount(client)
+    const count = await actions.getBlockTransactionCount(client)
 
     expect(typeof count).toMatchInlineSnapshot(`"bigint"`)
   })

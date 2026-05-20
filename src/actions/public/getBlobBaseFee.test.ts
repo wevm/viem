@@ -10,7 +10,7 @@ describe('getBlobBaseFee', () => {
       transport: http(anvilMainnet.rpcUrl.http),
     })
 
-    const fee = await actions.public.getBlobBaseFee(client)
+    const fee = await actions.getBlobBaseFee(client)
 
     expect(typeof fee).toMatchInlineSnapshot(`"bigint"`)
   })

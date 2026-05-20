@@ -10,7 +10,7 @@ describe('getGasPrice', () => {
       transport: http(anvilMainnet.rpcUrl.http),
     })
 
-    const gasPrice = await actions.public.getGasPrice(client)
+    const gasPrice = await actions.getGasPrice(client)
 
     expect(typeof gasPrice).toMatchInlineSnapshot(`"bigint"`)
   })

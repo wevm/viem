@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vp/test'
 
-import { anvilMainnet, request } from '../../test/anvil.js'
+import { anvilMainnet } from '../../test/anvil.js'
 import { Client, http } from 'viem'
 import * as actions from 'viem/actions'
 
@@ -12,32 +12,48 @@ const value =
 
 describe('public', () => {
   test('behavior: exposes action functions', () => {
-    expect(Object.keys(actions.public).sort()).toMatchInlineSnapshot(`
-      [
-        "getBalance",
-        "getBlobBaseFee",
-        "getBlock",
-        "getBlockNumber",
-        "getBlockTransactionCount",
-        "getChainId",
-        "getCode",
-        "getGasPrice",
-        "getStorageAt",
-        "getTransactionCount",
-      ]
+    expect({
+      getBalance: typeof actions.getBalance,
+      getBlobBaseFee: typeof actions.getBlobBaseFee,
+      getBlock: typeof actions.getBlock,
+      getBlockNumber: typeof actions.getBlockNumber,
+      getBlockTransactionCount: typeof actions.getBlockTransactionCount,
+      getChainId: typeof actions.getChainId,
+      getCode: typeof actions.getCode,
+      getGasPrice: typeof actions.getGasPrice,
+      getStorageAt: typeof actions.getStorageAt,
+      getTransactionCount: typeof actions.getTransactionCount,
+      publicActions: typeof actions.publicActions,
+    }).toMatchInlineSnapshot(`
+      {
+        "getBalance": "function",
+        "getBlobBaseFee": "function",
+        "getBlock": "function",
+        "getBlockNumber": "function",
+        "getBlockTransactionCount": "function",
+        "getChainId": "function",
+        "getCode": "function",
+        "getGasPrice": "function",
+        "getStorageAt": "function",
+        "getTransactionCount": "function",
+        "publicActions": "function",
+      }
     `)
   })
 
   test('behavior: decorates clients with public actions', async () => {
-    await request(anvilMainnet, 'anvil_setBalance', [address, '0x2a'])
-    await request(anvilMainnet, 'anvil_setCode', [address, code])
-    await request(anvilMainnet, 'anvil_setNonce', [address, '0x2a'])
-    await request(anvilMainnet, 'anvil_setStorageAt', [address, slot, value])
-
     const client = Client.create({
       chain: anvilMainnet.chain,
       transport: http(anvilMainnet.rpcUrl.http),
-    }).extend(actions.public())
+    })
+      .extend(actions.publicActions())
+      .extend(actions.testActions())
+
+    const clientTest = client.test
+    await clientTest.setBalance({ address, value: 42n })
+    await clientTest.setCode({ address, bytecode: code })
+    await clientTest.setNonce({ address, nonce: 42n })
+    await clientTest.setStorageAt({ address, slot, value })
 
     await expect(client.public.getChainId()).resolves.toMatchInlineSnapshot(
       `31337n`,

@@ -15,7 +15,7 @@ import type * as Client from '../../core/Client.js'
  *   transport: http('https://1.rpc.thirdweb.com'),
  * })
  *
- * const blobBaseFee = await actions.public.getBlobBaseFee(client)
+ * const blobBaseFee = await actions.getBlobBaseFee(client)
  * // @log: 1n
  * ```
  *

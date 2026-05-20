@@ -18,23 +18,23 @@ describe('getCode', () => {
       transport: http(anvilMainnet.rpcUrl.http),
     })
     const blockHash = await getLatestBlockHash()
-    const blockNumber = await actions.public.getBlockNumber(client, {
+    const blockNumber = await actions.getBlockNumber(client, {
       cacheTime: 0,
     })
 
     expect({
-      blockHash: await actions.public.getCode(client, { address, blockHash }),
-      blockHashCanonical: await actions.public.getCode(client, {
+      blockHash: await actions.getCode(client, { address, blockHash }),
+      blockHashCanonical: await actions.getCode(client, {
         address,
         blockHash,
         requireCanonical: true,
       }),
-      blockNumber: await actions.public.getCode(client, {
+      blockNumber: await actions.getCode(client, {
         address,
         blockNumber,
       }),
-      latest: await actions.public.getCode(client, { address }),
-      missing: await actions.public.getCode(client, { address: emptyAddress }),
+      latest: await actions.getCode(client, { address }),
+      missing: await actions.getCode(client, { address: emptyAddress }),
     }).toMatchInlineSnapshot(`
       {
         "blockHash": "0x6001600055",

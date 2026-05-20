@@ -16,7 +16,7 @@ import type * as Block from '../../utils/Block.js'
  *   transport: http('https://1.rpc.thirdweb.com'),
  * })
  *
- * const count = await actions.public.getBlockTransactionCount(client)
+ * const count = await actions.getBlockTransactionCount(client)
  * // @log: 42n
  * ```
  *

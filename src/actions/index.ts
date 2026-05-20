@@ -1,1 +1,2 @@
-export { publicActions as public } from './public.js'
+export * from './public.js'
+export * from './test.js'

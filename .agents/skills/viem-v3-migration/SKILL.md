@@ -122,8 +122,8 @@ was named in the v2 deprecation notice.
 
 ### `Client`
 
-Base client creation moves under the root `Client` module. Public, wallet, and
-test action decorators are documented when `viem/actions` lands.
+Base client creation moves under the root `Client` module. Action decorators are
+named exports from `viem/actions` as they land.
 
 ```diff
 - import { createClient } from 'viem'
@@ -151,8 +151,8 @@ Transport retry and timeout options remain on transport factories, not on
 
 ## Actions
 
-Actions live under lowercase callable namespaces from `viem/actions`. Landed
-public actions can be used standalone or through `Client.extend`.
+Actions are named exports from `viem/actions`. Decorators are named exports like
+`publicActions` and `testActions`.
 
 ```diff
 - import { createPublicClient, getBlockNumber } from 'viem'
@@ -161,27 +161,27 @@ public actions can be used standalone or through `Client.extend`.
 
 - const client = createPublicClient({ chain, transport })
 - const blockNumber = await getBlockNumber(client)
-+ const client = Client.create({ chain, transport }).extend(actions.public())
++ const client = Client.create({ chain, transport }).extend(actions.publicActions())
 + const blockNumber = await client.public.getBlockNumber()
 ```
 
-### `actions.public`
+### Public Actions
 
 Current landed methods:
 
 | v2 | v3 |
 | --- | --- |
-| `createPublicClient(options)` | `Client.create(options).extend(actions.public())` |
-| `getBalance(client, options)` | `actions.public.getBalance(client, options)` or `client.public.getBalance(options)` |
-| `getBlobBaseFee(client)` | `actions.public.getBlobBaseFee(client)` or `client.public.getBlobBaseFee()` |
-| `getBlock(client, options)` | `actions.public.getBlock(client, options)` or `client.public.getBlock(options)` |
-| `getBlockNumber(client, options)` | `actions.public.getBlockNumber(client, options)` or `client.public.getBlockNumber(options)` |
-| `getBlockTransactionCount(client, options)` | `actions.public.getBlockTransactionCount(client, options)` or `client.public.getBlockTransactionCount(options)` |
-| `getChainId(client)` | `actions.public.getChainId(client)` or `client.public.getChainId()` |
-| `getCode(client, options)` | `actions.public.getCode(client, options)` or `client.public.getCode(options)` |
-| `getGasPrice(client)` | `actions.public.getGasPrice(client)` or `client.public.getGasPrice()` |
-| `getStorageAt(client, options)` | `actions.public.getStorageAt(client, options)` or `client.public.getStorageAt(options)` |
-| `getTransactionCount(client, options)` | `actions.public.getTransactionCount(client, options)` or `client.public.getTransactionCount(options)` |
+| `createPublicClient(options)` | `Client.create(options).extend(actions.publicActions())` |
+| `getBalance(client, options)` | `actions.getBalance(client, options)` or `client.public.getBalance(options)` |
+| `getBlobBaseFee(client)` | `actions.getBlobBaseFee(client)` or `client.public.getBlobBaseFee()` |
+| `getBlock(client, options)` | `actions.getBlock(client, options)` or `client.public.getBlock(options)` |
+| `getBlockNumber(client, options)` | `actions.getBlockNumber(client, options)` or `client.public.getBlockNumber(options)` |
+| `getBlockTransactionCount(client, options)` | `actions.getBlockTransactionCount(client, options)` or `client.public.getBlockTransactionCount(options)` |
+| `getChainId(client)` | `actions.getChainId(client)` or `client.public.getChainId()` |
+| `getCode(client, options)` | `actions.getCode(client, options)` or `client.public.getCode(options)` |
+| `getGasPrice(client)` | `actions.getGasPrice(client)` or `client.public.getGasPrice()` |
+| `getStorageAt(client, options)` | `actions.getStorageAt(client, options)` or `client.public.getStorageAt(options)` |
+| `getTransactionCount(client, options)` | `actions.getTransactionCount(client, options)` or `client.public.getTransactionCount(options)` |
 | `type GetBalanceParameters` | `getBalance.Options` |
 | `type GetBalanceReturnType` | `getBalance.ReturnType` |
 | `type GetBlobBaseFeeReturnType` | `getBlobBaseFee.ReturnType` |
@@ -200,11 +200,28 @@ Current landed methods:
 | `type GetTransactionCountParameters` | `getTransactionCount.Options` |
 | `type GetTransactionCountReturnType` | `getTransactionCount.ReturnType` |
 
-`actions.public.getChainId` returns `bigint` in v3.
-`actions.public.getBlockTransactionCount` and
-`actions.public.getTransactionCount` also return `bigint`.
+`actions.getChainId` returns `bigint` in v3. `actions.getBlockTransactionCount`
+and `actions.getTransactionCount` also return `bigint`.
 Block-scoped public actions accept `blockNumber`, `blockTag`, or EIP-1898
 `blockHash` with optional `requireCanonical`.
+
+### Test Actions
+
+Current landed methods target Anvil.
+
+| v2 | v3 |
+| --- | --- |
+| `createTestClient({ mode: 'anvil', ... })` | `Client.create(options).extend(actions.testActions())` |
+| `mine(client, options)` | `actions.mine(client, options)` or `client.test.mine(options)` |
+| `revert(client, options)` | `actions.revert(client, options)` or `client.test.revert(options)` |
+| `setBalance(client, options)` | `actions.setBalance(client, options)` or `client.test.setBalance(options)` |
+| `setCode(client, options)` | `actions.setCode(client, options)` or `client.test.setCode(options)` |
+| `setNonce(client, options)` | `actions.setNonce(client, options)` or `client.test.setNonce(options)` |
+| `setStorageAt(client, options)` | `actions.setStorageAt(client, options)` or `client.test.setStorageAt(options)` |
+| `snapshot(client)` | `actions.snapshot(client)` or `client.test.snapshot()` |
+
+Test action quantity inputs accept `Hex.Hex | number | bigint` where the RPC
+method takes a quantity.
 
 ### `Transport`
 

@@ -10,7 +10,7 @@ describe('getBlockNumber', () => {
       transport: http(anvilMainnet.rpcUrl.http),
     })
 
-    const blockNumber = await actions.public.getBlockNumber(client)
+    const blockNumber = await actions.getBlockNumber(client)
 
     expect(typeof blockNumber).toMatchInlineSnapshot(`"bigint"`)
   })
@@ -20,10 +20,10 @@ describe('getBlockNumber', () => {
       transport: http(anvilMainnet.rpcUrl.http),
     })
 
-    const cached = await actions.public.getBlockNumber(client)
+    const cached = await actions.getBlockNumber(client)
     await request(anvilMainnet, 'evm_mine')
-    const stillCached = await actions.public.getBlockNumber(client)
-    const latest = await actions.public.getBlockNumber(client, { cacheTime: 0 })
+    const stillCached = await actions.getBlockNumber(client)
+    const latest = await actions.getBlockNumber(client, { cacheTime: 0 })
 
     expect({
       cacheHit: stillCached === cached,

@@ -16,25 +16,25 @@ describe('getTransactionCount', () => {
       transport: http(anvilMainnet.rpcUrl.http),
     })
     const blockHash = await getLatestBlockHash()
-    const blockNumber = await actions.public.getBlockNumber(client, {
+    const blockNumber = await actions.getBlockNumber(client, {
       cacheTime: 0,
     })
 
     expect({
-      blockHash: await actions.public.getTransactionCount(client, {
+      blockHash: await actions.getTransactionCount(client, {
         address,
         blockHash,
       }),
-      blockHashCanonical: await actions.public.getTransactionCount(client, {
+      blockHashCanonical: await actions.getTransactionCount(client, {
         address,
         blockHash,
         requireCanonical: true,
       }),
-      blockNumber: await actions.public.getTransactionCount(client, {
+      blockNumber: await actions.getTransactionCount(client, {
         address,
         blockNumber,
       }),
-      latest: await actions.public.getTransactionCount(client, { address }),
+      latest: await actions.getTransactionCount(client, { address }),
     }).toMatchInlineSnapshot(`
       {
         "blockHash": 42n,

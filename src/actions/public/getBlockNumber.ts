@@ -18,7 +18,7 @@ const cacheKey = (uid: string) => `blockNumber.${uid}`
  *   transport: http('https://1.rpc.thirdweb.com'),
  * })
  *
- * const blockNumber = await actions.public.getBlockNumber(client)
+ * const blockNumber = await actions.getBlockNumber(client)
  * // @log: 69420n
  * ```
  *

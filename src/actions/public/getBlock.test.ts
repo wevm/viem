@@ -11,7 +11,7 @@ describe('getBlock', () => {
       transport: http(anvilMainnet.rpcUrl.http),
     })
 
-    const block = await actions.public.getBlock(client)
+    const block = await actions.getBlock(client)
 
     expect({
       hash: typeof block.hash,
@@ -34,7 +34,7 @@ describe('getBlock', () => {
       transport: http(anvilMainnet.rpcUrl.http),
     })
 
-    const block = await actions.public.getBlock(client)
+    const block = await actions.getBlock(client)
 
     expect(block.number).toMatchInlineSnapshot(`0n`)
   })
@@ -50,8 +50,8 @@ describe('getBlock', () => {
     )
     const blockNumber = Hex.toBigInt(latest.number)
 
-    const byNumber = await actions.public.getBlock(client, { blockNumber })
-    const byHash = await actions.public.getBlock(client, {
+    const byNumber = await actions.getBlock(client, { blockNumber })
+    const byHash = await actions.getBlock(client, {
       blockHash: latest.hash,
     })
 
@@ -72,7 +72,7 @@ describe('getBlock', () => {
     })
     const receipt = await mineTransaction()
 
-    const block = await actions.public.getBlock(client, {
+    const block = await actions.getBlock(client, {
       blockHash: receipt.blockHash,
       includeTransactions: true,
     })
@@ -95,12 +95,12 @@ describe('getBlock', () => {
     })
 
     await expect(
-      actions.public.getBlock(client, {
+      actions.getBlock(client, {
         blockNumber: 999_999_999_999n,
       }),
     ).rejects.toMatchObject({ name: 'actions.public.BlockNotFoundError' })
     await expect(
-      actions.public.getBlock(client, {
+      actions.getBlock(client, {
         blockHash:
           '0x0000000000000000000000000000000000000000000000000000000000000000',
       }),

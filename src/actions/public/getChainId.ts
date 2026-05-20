@@ -15,7 +15,7 @@ import type * as Client from '../../core/Client.js'
  *   transport: http('https://1.rpc.thirdweb.com'),
  * })
  *
- * const chainId = await actions.public.getChainId(client)
+ * const chainId = await actions.getChainId(client)
  * // @log: 1n
  * ```
  *

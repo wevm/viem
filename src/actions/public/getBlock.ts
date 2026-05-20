@@ -16,7 +16,7 @@ import * as Hex from '../../utils/Hex.js'
  *   transport: http('https://1.rpc.thirdweb.com'),
  * })
  *
- * const block = await actions.public.getBlock(client)
+ * const block = await actions.getBlock(client)
  * // @log: { number: 69420n, ... }
  * ```
  *

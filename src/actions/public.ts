@@ -16,7 +16,7 @@ import { getTransactionCount } from './public/getTransactionCount.js'
  *
  * @returns Client decorator.
  */
-function decorator() {
+export function publicActions() {
   return <chain extends Chain.Chain | undefined = Chain.Chain | undefined>(
     client: Client.Client<chain>,
   ) => ({
@@ -41,8 +41,7 @@ function decorator() {
   })
 }
 
-/** Public action namespace and decorator. */
-export const publicActions = /*#__PURE__*/ Object.assign(decorator, {
+export {
   getBalance,
   getBlobBaseFee,
   getBlock,
@@ -53,4 +52,4 @@ export const publicActions = /*#__PURE__*/ Object.assign(decorator, {
   getGasPrice,
   getStorageAt,
   getTransactionCount,
-})
+}
