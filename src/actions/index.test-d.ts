@@ -1,6 +1,13 @@
 import { describe, expectTypeOf, test } from 'vp/test'
 
-import { Chain, Client, http, publicActions, type Account } from 'viem'
+import {
+  Chain,
+  Client,
+  http,
+  publicActions,
+  testActions,
+  type Account,
+} from 'viem'
 import * as actions from 'viem/actions'
 import type { PublicActions, TestActions } from 'viem/actions'
 import type { Block, Hex } from 'viem/utils'
@@ -180,7 +187,6 @@ describe('test', () => {
   })
 
   test('types: decorates clients with nested actions', async () => {
-    const testActions = actions.testActions
     const client = Client.create({
       account: address,
       chain,

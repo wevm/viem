@@ -14,6 +14,7 @@ test('exports', () => {
       "fallback",
       "http",
       "publicActions",
+      "testActions",
       "webSocket",
     ]
   `)

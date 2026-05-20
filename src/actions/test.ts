@@ -20,11 +20,10 @@ export type TestActions = {
    *
    * @example
    * ```ts twoslash
-   * import { Client, http } from 'viem'
-   * import * as actions from 'viem/actions'
+   * import { Client, http, testActions } from 'viem'
    *
    * const client = Client.create({ transport: http() })
-   *   .extend(actions.testActions({ mode: 'anvil' }))
+   *   .extend(testActions({ mode: 'anvil' }))
    *
    * await client.test.mine({ blocks: 1n })
    * ```
@@ -38,11 +37,10 @@ export type TestActions = {
    *
    * @example
    * ```ts twoslash
-   * import { Client, http } from 'viem'
-   * import * as actions from 'viem/actions'
+   * import { Client, http, testActions } from 'viem'
    *
    * const client = Client.create({ transport: http() })
-   *   .extend(actions.testActions())
+   *   .extend(testActions())
    *
    * const id = await client.test.snapshot()
    * await client.test.revert({ id })
@@ -57,11 +55,10 @@ export type TestActions = {
    *
    * @example
    * ```ts twoslash
-   * import { Client, http } from 'viem'
-   * import * as actions from 'viem/actions'
+   * import { Client, http, testActions } from 'viem'
    *
    * const client = Client.create({ transport: http() })
-   *   .extend(actions.testActions())
+   *   .extend(testActions())
    *
    * await client.test.setBalance({
    *   address: '0x0000000000000000000000000000000000000000',
@@ -78,11 +75,10 @@ export type TestActions = {
    *
    * @example
    * ```ts twoslash
-   * import { Client, http } from 'viem'
-   * import * as actions from 'viem/actions'
+   * import { Client, http, testActions } from 'viem'
    *
    * const client = Client.create({ transport: http() })
-   *   .extend(actions.testActions())
+   *   .extend(testActions())
    *
    * await client.test.setCode({
    *   address: '0x0000000000000000000000000000000000000000',
@@ -99,11 +95,10 @@ export type TestActions = {
    *
    * @example
    * ```ts twoslash
-   * import { Client, http } from 'viem'
-   * import * as actions from 'viem/actions'
+   * import { Client, http, testActions } from 'viem'
    *
    * const client = Client.create({ transport: http() })
-   *   .extend(actions.testActions())
+   *   .extend(testActions())
    *
    * await client.test.setNonce({
    *   address: '0x0000000000000000000000000000000000000000',
@@ -120,11 +115,10 @@ export type TestActions = {
    *
    * @example
    * ```ts twoslash
-   * import { Client, http } from 'viem'
-   * import * as actions from 'viem/actions'
+   * import { Client, http, testActions } from 'viem'
    *
    * const client = Client.create({ transport: http() })
-   *   .extend(actions.testActions())
+   *   .extend(testActions())
    *
    * await client.test.setStorageAt({
    *   address: '0x0000000000000000000000000000000000000000',
@@ -142,11 +136,10 @@ export type TestActions = {
    *
    * @example
    * ```ts twoslash
-   * import { Client, http } from 'viem'
-   * import * as actions from 'viem/actions'
+   * import { Client, http, testActions } from 'viem'
    *
    * const client = Client.create({ transport: http() })
-   *   .extend(actions.testActions())
+   *   .extend(testActions())
    *
    * const id = await client.test.snapshot()
    * ```
@@ -161,11 +154,10 @@ export type TestActions = {
  *
  * @example
  * ```ts twoslash
- * import { Client, http } from 'viem'
- * import * as actions from 'viem/actions'
+ * import { Client, http, testActions } from 'viem'
  *
  * const client = Client.create({ transport: http() })
- *   .extend(actions.testActions({ mode: 'anvil' }))
+ *   .extend(testActions({ mode: 'anvil' }))
  *
  * await client.test.mine({ blocks: 1n })
  * ```

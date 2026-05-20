@@ -151,8 +151,8 @@ Transport retry and timeout options remain on transport factories, not on
 
 ## Actions
 
-Actions are named exports from `viem/actions`. `publicActions` is also exported
-from root `viem`; other landed decorators are named exports from `viem/actions`.
+Actions are named exports from `viem/actions`. `publicActions` and `testActions`
+are also exported from root `viem`.
 
 ```diff
 - import { createPublicClient, getBlockNumber } from 'viem'
@@ -208,11 +208,11 @@ Block-scoped public actions accept `blockNumber`, `blockTag`, or EIP-1898
 ### Test Actions
 
 Current landed methods support Anvil, Hardhat, and Ganache mode branches.
-Omitted `mode` defaults to Anvil.
+Omitted `mode` defaults to Anvil. Import `testActions` from root `viem`.
 
 | v2 | v3 |
 | --- | --- |
-| `createTestClient({ mode, ... })` | `Client.create(options).extend(actions.testActions({ mode }))` |
+| `createTestClient({ mode, ... })` | `Client.create(options).extend(testActions({ mode }))` |
 | `mine(client, options)` | `actions.mine(client, options)` or `client.test.mine(options)` |
 | `revert(client, options)` | `actions.revert(client, options)` or `client.test.revert(options)` |
 | `setBalance(client, options)` | `actions.setBalance(client, options)` or `client.test.setBalance(options)` |
