@@ -7,7 +7,7 @@ import {
   getMode,
   getModeMethod,
 } from './internal/mode.js'
-import { request } from './internal/request.js'
+import { request } from './internal/schema.js'
 import { type Quantity, toQuantity } from './internal/quantity.js'
 
 /**

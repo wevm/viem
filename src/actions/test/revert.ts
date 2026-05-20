@@ -1,6 +1,6 @@
 import type * as Chain from '../../core/Chain.js'
 import type * as Client from '../../core/Client.js'
-import { request } from './internal/request.js'
+import { request } from './internal/schema.js'
 import { type Quantity, toQuantity } from './internal/quantity.js'
 
 /**

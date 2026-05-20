@@ -8,7 +8,7 @@ import {
   getMode,
   getModeMethod,
 } from './internal/mode.js'
-import { request } from './internal/request.js'
+import { request } from './internal/schema.js'
 
 /**
  * Sets the bytecode at an account address.

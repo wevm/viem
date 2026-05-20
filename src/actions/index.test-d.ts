@@ -2,6 +2,7 @@ import { describe, expectTypeOf, test } from 'vp/test'
 
 import { Client, http } from 'viem'
 import * as actions from 'viem/actions'
+import type { PublicActions, TestActions } from 'viem/actions'
 import type { Block, Hex } from 'viem/utils'
 
 const address = '0x0000000000000000000000000000000000000000'
@@ -61,6 +62,8 @@ describe('public', () => {
     const client = Client.create({
       transport: http(),
     }).extend(actions.publicActions())
+
+    expectTypeOf(client.public).toEqualTypeOf<PublicActions>()
 
     const balance = await client.public.getBalance({ address })
     const blobBaseFee = await client.public.getBlobBaseFee()
@@ -172,6 +175,8 @@ describe('test', () => {
     }).extend(testActions({ mode: 'ganache' }))
 
     const clientTest = client.test
+    expectTypeOf(clientTest).toEqualTypeOf<TestActions>()
+
     const mine = clientTest.mine({ blocks: 1n, interval: '0x1' })
     const revert = clientTest.revert({ id: 1n })
     const setBalance = clientTest.setBalance({ address, value: 1 })
