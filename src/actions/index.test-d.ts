@@ -11,7 +11,7 @@ import {
 } from 'viem'
 import * as actions from 'viem/actions'
 import type { PublicActions, TestActions } from 'viem/actions'
-import type { Block, Hex } from 'viem/utils'
+import type { Block, Hex, Transaction, TransactionReceipt } from 'viem/utils'
 
 const address = '0x0000000000000000000000000000000000000000'
 const blockHash =
@@ -48,8 +48,18 @@ describe('public', () => {
     const blockNumber = await actions.getBlockNumber(client)
     const blockTransactionCount = await actions.getBlockTransactionCount(client)
     const storage = await actions.getStorageAt(client, { address, slot })
+    const transaction = await actions.getTransaction(client, {
+      hash: '0x0',
+    })
+    const transactionConfirmations = await actions.getTransactionConfirmations(
+      client,
+      { hash: '0x0' },
+    )
     const transactionCount = await actions.getTransactionCount(client, {
       address,
+    })
+    const transactionReceipt = await actions.getTransactionReceipt(client, {
+      hash: '0x0',
     })
     const balanceByBlockHash = await actions.getBalance(client, {
       address,
@@ -71,7 +81,12 @@ describe('public', () => {
     expectTypeOf(blockNumber).toEqualTypeOf<bigint>()
     expectTypeOf(blockTransactionCount).toEqualTypeOf<bigint>()
     expectTypeOf(storage).toEqualTypeOf<Hex.Hex>()
+    expectTypeOf(transaction).toEqualTypeOf<Transaction.Transaction>()
+    expectTypeOf(transactionConfirmations).toEqualTypeOf<bigint>()
     expectTypeOf(transactionCount).toEqualTypeOf<bigint>()
+    expectTypeOf(
+      transactionReceipt,
+    ).toEqualTypeOf<TransactionReceipt.TransactionReceipt>()
   })
 
   test('types: decorates clients with nested actions', async () => {
@@ -93,8 +108,14 @@ describe('public', () => {
     const blockNumber = await client.public.getBlockNumber()
     const blockTransactionCount = await client.public.getBlockTransactionCount()
     const storage = await client.public.getStorageAt({ address, slot })
+    const transaction = await client.public.getTransaction({ hash: '0x0' })
+    const transactionConfirmations =
+      await client.public.getTransactionConfirmations({ hash: '0x0' })
     const transactionCount = await client.public.getTransactionCount({
       address,
+    })
+    const transactionReceipt = await client.public.getTransactionReceipt({
+      hash: '0x0',
     })
     const balanceByBlockHash = await client.public.getBalance({
       address,
@@ -115,7 +136,12 @@ describe('public', () => {
     expectTypeOf(blockNumber).toEqualTypeOf<bigint>()
     expectTypeOf(blockTransactionCount).toEqualTypeOf<bigint>()
     expectTypeOf(storage).toEqualTypeOf<Hex.Hex>()
+    expectTypeOf(transaction).toEqualTypeOf<Transaction.Transaction>()
+    expectTypeOf(transactionConfirmations).toEqualTypeOf<bigint>()
     expectTypeOf(transactionCount).toEqualTypeOf<bigint>()
+    expectTypeOf(
+      transactionReceipt,
+    ).toEqualTypeOf<TransactionReceipt.TransactionReceipt>()
   })
 
   test('types: accepts clients with accounts', async () => {

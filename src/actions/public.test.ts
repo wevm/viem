@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'vp/test'
 
-import { anvilMainnet } from '../../test/anvil.js'
+import { anvilMainnet, request } from '../../test/anvil.js'
 import { Client, http } from 'viem'
 import * as actions from 'viem/actions'
+import { Hex } from 'viem/utils'
 
 const address = '0x0000000000000000000000000000000000000001'
 const code = '0x6001600055'
@@ -22,7 +23,10 @@ describe('public', () => {
       getCode: typeof actions.getCode,
       getGasPrice: typeof actions.getGasPrice,
       getStorageAt: typeof actions.getStorageAt,
+      getTransaction: typeof actions.getTransaction,
+      getTransactionConfirmations: typeof actions.getTransactionConfirmations,
       getTransactionCount: typeof actions.getTransactionCount,
+      getTransactionReceipt: typeof actions.getTransactionReceipt,
       publicActions: typeof actions.publicActions,
     }).toMatchInlineSnapshot(`
       {
@@ -35,7 +39,10 @@ describe('public', () => {
         "getCode": "function",
         "getGasPrice": "function",
         "getStorageAt": "function",
+        "getTransaction": "function",
+        "getTransactionConfirmations": "function",
         "getTransactionCount": "function",
+        "getTransactionReceipt": "function",
         "publicActions": "function",
       }
     `)
@@ -86,5 +93,37 @@ describe('public', () => {
         "transactionCount": 42n,
       }
     `)
+  })
+
+  test('behavior: decorates transaction read methods', async () => {
+    const client = Client.create({
+      chain: anvilMainnet.chain,
+      transport: http(anvilMainnet.rpcUrl.http),
+    }).extend(actions.publicActions())
+
+    const [from, to] = await request<readonly Hex.Hex[]>(
+      anvilMainnet,
+      'eth_accounts',
+    )
+    const hash = await request<Hex.Hex>(anvilMainnet, 'eth_sendTransaction', [
+      { from, gas: '0x5208', to, value: '0x1' },
+    ])
+    await request(anvilMainnet, 'anvil_mine', ['0x1'])
+
+    const transaction = await client.public.getTransaction({ hash })
+    const receipt = await client.public.getTransactionReceipt({ hash })
+    const confirmations = await client.public.getTransactionConfirmations({
+      hash,
+    })
+
+    expect({
+      hash: transaction.hash,
+      receiptStatus: receipt.status,
+      confirmations: confirmations >= 1n,
+    }).toMatchObject({
+      hash,
+      receiptStatus: 'success',
+      confirmations: true,
+    })
   })
 })

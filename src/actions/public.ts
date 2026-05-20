@@ -14,7 +14,10 @@ import { getChainId } from './public/getChainId.js'
 import { getCode } from './public/getCode.js'
 import { getGasPrice } from './public/getGasPrice.js'
 import { getStorageAt } from './public/getStorageAt.js'
+import { getTransaction } from './public/getTransaction.js'
+import { getTransactionConfirmations } from './public/getTransactionConfirmations.js'
 import { getTransactionCount } from './public/getTransactionCount.js'
+import { getTransactionReceipt } from './public/getTransactionReceipt.js'
 
 /** Public action methods attached by `publicActions`. */
 export type PublicActions = {
@@ -185,6 +188,46 @@ export type PublicActions = {
    */
   getStorageAt: (options: getStorageAt.Options) => getStorageAt.ReturnType
   /**
+   * Returns information about a transaction given a hash or block identifier.
+   *
+   * @example
+   * ```ts twoslash
+   * import { Client, http, publicActions } from 'viem'
+   *
+   * const client = Client.create({ transport: http() })
+   *   .extend(publicActions())
+   *
+   * const transaction = await client.public.getTransaction({
+   *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+   * })
+   * ```
+   *
+   * @param options - Options.
+   * @returns Transaction.
+   */
+  getTransaction: (options: getTransaction.Options) => getTransaction.ReturnType
+  /**
+   * Returns the number of blocks elapsed since a transaction was mined.
+   *
+   * @example
+   * ```ts twoslash
+   * import { Client, http, publicActions } from 'viem'
+   *
+   * const client = Client.create({ transport: http() })
+   *   .extend(publicActions())
+   *
+   * const confirmations = await client.public.getTransactionConfirmations({
+   *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+   * })
+   * ```
+   *
+   * @param options - Options.
+   * @returns Number of confirmations.
+   */
+  getTransactionConfirmations: (
+    options: getTransactionConfirmations.Options,
+  ) => getTransactionConfirmations.ReturnType
+  /**
    * Returns the number of transactions sent from an address.
    *
    * @example
@@ -205,6 +248,27 @@ export type PublicActions = {
   getTransactionCount: (
     options: getTransactionCount.Options,
   ) => getTransactionCount.ReturnType
+  /**
+   * Returns the receipt for a given transaction hash.
+   *
+   * @example
+   * ```ts twoslash
+   * import { Client, http, publicActions } from 'viem'
+   *
+   * const client = Client.create({ transport: http() })
+   *   .extend(publicActions())
+   *
+   * const receipt = await client.public.getTransactionReceipt({
+   *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+   * })
+   * ```
+   *
+   * @param options - Options.
+   * @returns Transaction receipt.
+   */
+  getTransactionReceipt: (
+    options: getTransactionReceipt.Options,
+  ) => getTransactionReceipt.ReturnType
 }
 
 /**
@@ -252,8 +316,15 @@ export function publicActions() {
       getGasPrice: () => getGasPrice(actionClient),
       getStorageAt: (options: getStorageAt.Options) =>
         getStorageAt(actionClient, options),
+      getTransaction: (options: getTransaction.Options) =>
+        getTransaction(actionClient, options),
+      getTransactionConfirmations: (
+        options: getTransactionConfirmations.Options,
+      ) => getTransactionConfirmations(actionClient, options),
       getTransactionCount: (options: getTransactionCount.Options) =>
         getTransactionCount(actionClient, options),
+      getTransactionReceipt: (options: getTransactionReceipt.Options) =>
+        getTransactionReceipt(actionClient, options),
     }
 
     return { public: actions }
@@ -270,5 +341,8 @@ export {
   getCode,
   getGasPrice,
   getStorageAt,
+  getTransaction,
+  getTransactionConfirmations,
   getTransactionCount,
+  getTransactionReceipt,
 }

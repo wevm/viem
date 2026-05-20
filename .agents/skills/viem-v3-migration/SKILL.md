@@ -181,7 +181,10 @@ Current landed methods:
 | `getCode(client, options)` | `actions.getCode(client, options)` or `client.public.getCode(options)` |
 | `getGasPrice(client)` | `actions.getGasPrice(client)` or `client.public.getGasPrice()` |
 | `getStorageAt(client, options)` | `actions.getStorageAt(client, options)` or `client.public.getStorageAt(options)` |
+| `getTransaction(client, options)` | `actions.getTransaction(client, options)` or `client.public.getTransaction(options)` |
+| `getTransactionConfirmations(client, options)` | `actions.getTransactionConfirmations(client, options)` or `client.public.getTransactionConfirmations(options)` |
 | `getTransactionCount(client, options)` | `actions.getTransactionCount(client, options)` or `client.public.getTransactionCount(options)` |
+| `getTransactionReceipt(client, options)` | `actions.getTransactionReceipt(client, options)` or `client.public.getTransactionReceipt(options)` |
 | `type GetBalanceParameters` | `getBalance.Options` |
 | `type GetBalanceReturnType` | `getBalance.ReturnType` |
 | `type GetBlobBaseFeeReturnType` | `getBlobBaseFee.ReturnType` |
@@ -197,13 +200,25 @@ Current landed methods:
 | `type GetGasPriceReturnType` | `getGasPrice.ReturnType` |
 | `type GetStorageAtParameters` | `getStorageAt.Options` |
 | `type GetStorageAtReturnType` | `getStorageAt.ReturnType` |
+| `type GetTransactionParameters` | `getTransaction.Options` |
+| `type GetTransactionReturnType` | `getTransaction.ReturnType` |
+| `type GetTransactionConfirmationsParameters` | `getTransactionConfirmations.Options` |
+| `type GetTransactionConfirmationsReturnType` | `getTransactionConfirmations.ReturnType` |
 | `type GetTransactionCountParameters` | `getTransactionCount.Options` |
 | `type GetTransactionCountReturnType` | `getTransactionCount.ReturnType` |
+| `type GetTransactionReceiptParameters` | `getTransactionReceipt.Options` |
+| `type GetTransactionReceiptReturnType` | `getTransactionReceipt.ReturnType` |
 
 `actions.getChainId` returns `bigint` in v3. `actions.getBlockTransactionCount`
 and `actions.getTransactionCount` also return `bigint`.
 Block-scoped public actions accept `blockNumber`, `blockTag`, or EIP-1898
 `blockHash` with optional `requireCanonical`.
+
+`actions.getTransaction` returns `Transaction.Transaction` from
+`viem/utils/Transaction` (the Ox shape) instead of a chain-formatter-shaped
+`FormattedTransaction`. `actions.getTransactionReceipt` returns
+`TransactionReceipt.TransactionReceipt`. Chain-specific RPC deltas move to
+chain-specific actions.
 
 ### Test Actions
 

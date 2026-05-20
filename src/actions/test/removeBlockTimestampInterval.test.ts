@@ -19,9 +19,9 @@ describe('removeBlockTimestampInterval', () => {
       await actions.mine(client, { blocks: 1n })
       const after = await client.public.getBlock({ blockTag: 'latest' })
 
-      expect(after.timestamp < before.timestamp + 86_400n).toMatchInlineSnapshot(
-        `true`,
-      )
+      expect(
+        after.timestamp < before.timestamp + 86_400n,
+      ).toMatchInlineSnapshot(`true`)
     } finally {
       await actions.revert(client, { id: snapshot })
     }
