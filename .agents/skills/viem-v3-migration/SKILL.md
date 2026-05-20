@@ -213,10 +213,17 @@ Omitted `mode` defaults to Anvil. Import `testActions` from root `viem`.
 | v2 | v3 |
 | --- | --- |
 | `createTestClient({ mode, ... })` | `Client.create(options).extend(testActions({ mode }))` |
+| `getAutomine(client)` | `actions.getAutomine(client)` or `client.test.getAutomine()` |
+| `increaseTime(client, options)` | `actions.increaseTime(client, options)` or `client.test.increaseTime(options)` |
 | `mine(client, options)` | `actions.mine(client, options)` or `client.test.mine(options)` |
+| `removeBlockTimestampInterval(client)` | `actions.removeBlockTimestampInterval(client)` or `client.test.removeBlockTimestampInterval()` |
 | `revert(client, options)` | `actions.revert(client, options)` or `client.test.revert(options)` |
+| `setAutomine(client, enabled)` | `actions.setAutomine(client, enabled)` or `client.test.setAutomine(enabled)` |
 | `setBalance(client, options)` | `actions.setBalance(client, options)` or `client.test.setBalance(options)` |
+| `setBlockTimestampInterval(client, options)` | `actions.setBlockTimestampInterval(client, options)` or `client.test.setBlockTimestampInterval(options)` |
 | `setCode(client, options)` | `actions.setCode(client, options)` or `client.test.setCode(options)` |
+| `setIntervalMining(client, options)` | `actions.setIntervalMining(client, options)` or `client.test.setIntervalMining(options)` |
+| `setNextBlockTimestamp(client, options)` | `actions.setNextBlockTimestamp(client, options)` or `client.test.setNextBlockTimestamp(options)` |
 | `setNonce(client, options)` | `actions.setNonce(client, options)` or `client.test.setNonce(options)` |
 | `setStorageAt(client, { address, index, value })` | `actions.setStorageAt(client, { address, slot, value })` or `client.test.setStorageAt({ address, slot, value })` |
 | `snapshot(client)` | `actions.snapshot(client)` or `client.test.snapshot()` |

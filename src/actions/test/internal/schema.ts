@@ -29,6 +29,111 @@ export type Schema = RpcSchema.From<
     }
   | {
       Request: {
+        method: 'evm_increaseTime'
+        params: [seconds: Hex.Hex]
+      }
+      ReturnType: Hex.Hex
+    }
+  | {
+      Request: {
+        method: 'evm_setNextBlockTimestamp'
+        params: [timestamp: Hex.Hex]
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
+        method: 'anvil_setBlockTimestampInterval'
+        params: [interval: number]
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
+        method: 'hardhat_setBlockTimestampInterval'
+        params: [interval: number]
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
+        method: 'ganache_setBlockTimestampInterval'
+        params: [interval: number]
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
+        method: 'anvil_removeBlockTimestampInterval'
+        params?: undefined
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
+        method: 'hardhat_removeBlockTimestampInterval'
+        params?: undefined
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
+        method: 'ganache_removeBlockTimestampInterval'
+        params?: undefined
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
+        method: 'evm_setAutomine'
+        params: [enabled: boolean]
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
+        method: 'miner_start'
+        params?: undefined
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
+        method: 'miner_stop'
+        params?: undefined
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
+        method: 'anvil_getAutomine'
+        params?: undefined
+      }
+      ReturnType: boolean
+    }
+  | {
+      Request: {
+        method: 'hardhat_getAutomine'
+        params?: undefined
+      }
+      ReturnType: boolean
+    }
+  | {
+      Request: {
+        method: 'eth_mining'
+        params?: undefined
+      }
+      ReturnType: boolean
+    }
+  | {
+      Request: {
+        method: 'evm_setIntervalMining'
+        params: [interval: number]
+      }
+      ReturnType: void
+    }
+  | {
+      Request: {
         method: 'anvil_setBalance'
         params: [address: Address.Address, value: Hex.Hex]
       }

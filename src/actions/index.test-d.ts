@@ -140,20 +140,45 @@ describe('test', () => {
       transport: http(),
     })
 
+    const getAutomine = actions.getAutomine(client, { mode: 'hardhat' })
+    const increaseTime = actions.increaseTime(client, {
+      seconds: 1n,
+    })
     const mine = actions.mine(client, {
       blocks: 1n,
       interval: 1,
       mode: 'hardhat',
     })
+    const removeBlockTimestampInterval = actions.removeBlockTimestampInterval(
+      client,
+      { mode: 'hardhat' },
+    )
     const revert = actions.revert(client, { id: '0x1' })
+    const setAutomine = actions.setAutomine(client, true, {
+      mode: 'ganache',
+    })
     const setBalance = actions.setBalance(client, {
       address,
       mode: 'ganache',
       value: 1n,
     })
+    const setBlockTimestampInterval = actions.setBlockTimestampInterval(
+      client,
+      {
+        interval: 1,
+        mode: 'hardhat',
+      },
+    )
     const setCode = actions.setCode(client, {
       address,
       bytecode: '0x',
+    })
+    const setIntervalMining = actions.setIntervalMining(client, {
+      interval: 1,
+      mode: 'ganache',
+    })
+    const setNextBlockTimestamp = actions.setNextBlockTimestamp(client, {
+      timestamp: '0x1',
     })
     const setNonce = actions.setNonce(client, {
       address,
@@ -169,17 +194,31 @@ describe('test', () => {
     const snapshot = actions.snapshot(client)
 
     expectTypeOf({
+      getAutomine,
+      increaseTime,
       mine,
+      removeBlockTimestampInterval,
       revert,
+      setAutomine,
       setBalance,
+      setBlockTimestampInterval,
       setCode,
+      setIntervalMining,
+      setNextBlockTimestamp,
       setNonce,
       setStorageAt,
     }).toEqualTypeOf<{
+      getAutomine: Promise<boolean>
+      increaseTime: Promise<bigint>
       mine: Promise<void>
+      removeBlockTimestampInterval: Promise<void>
       revert: Promise<void>
+      setAutomine: Promise<void>
       setBalance: Promise<void>
+      setBlockTimestampInterval: Promise<void>
       setCode: Promise<void>
+      setIntervalMining: Promise<void>
+      setNextBlockTimestamp: Promise<void>
       setNonce: Promise<void>
       setStorageAt: Promise<void>
     }>()
@@ -200,10 +239,22 @@ describe('test', () => {
     >()
     expectTypeOf(client.chain).toEqualTypeOf<typeof chain>()
 
+    const getAutomine = clientTest.getAutomine()
+    const increaseTime = clientTest.increaseTime({ seconds: 1n })
     const mine = clientTest.mine({ blocks: 1n, interval: '0x1' })
+    const removeBlockTimestampInterval =
+      clientTest.removeBlockTimestampInterval()
     const revert = clientTest.revert({ id: 1n })
+    const setAutomine = clientTest.setAutomine(true)
     const setBalance = clientTest.setBalance({ address, value: 1 })
+    const setBlockTimestampInterval = clientTest.setBlockTimestampInterval({
+      interval: 1,
+    })
     const setCode = clientTest.setCode({ address, bytecode: '0x' })
+    const setIntervalMining = clientTest.setIntervalMining({ interval: 1 })
+    const setNextBlockTimestamp = clientTest.setNextBlockTimestamp({
+      timestamp: 1n,
+    })
     const setNonce = clientTest.setNonce({ address, nonce: 1n })
     const setStorageAt = clientTest.setStorageAt({
       address,
@@ -214,17 +265,31 @@ describe('test', () => {
     const snapshot = clientTest.snapshot()
 
     expectTypeOf({
+      getAutomine,
+      increaseTime,
       mine,
+      removeBlockTimestampInterval,
       revert,
+      setAutomine,
       setBalance,
+      setBlockTimestampInterval,
       setCode,
+      setIntervalMining,
+      setNextBlockTimestamp,
       setNonce,
       setStorageAt,
     }).toEqualTypeOf<{
+      getAutomine: Promise<boolean>
+      increaseTime: Promise<bigint>
       mine: Promise<void>
+      removeBlockTimestampInterval: Promise<void>
       revert: Promise<void>
+      setAutomine: Promise<void>
       setBalance: Promise<void>
+      setBlockTimestampInterval: Promise<void>
       setCode: Promise<void>
+      setIntervalMining: Promise<void>
+      setNextBlockTimestamp: Promise<void>
       setNonce: Promise<void>
       setStorageAt: Promise<void>
     }>()
