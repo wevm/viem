@@ -1,4 +1,24 @@
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vp'
+
+const pkg = JSON.parse(
+  readFileSync(
+    fileURLToPath(new URL('./package.json', import.meta.url)),
+    'utf8',
+  ),
+) as { exports: Record<string, { src?: string }> }
+
+const aliases: { find: RegExp; replacement: string }[] = []
+for (const [subpath, entry] of Object.entries(pkg.exports)) {
+  if (!entry.src) continue
+  const specifier =
+    subpath === '.' ? 'viem' : `viem/${subpath.replace(/^\.\//, '')}`
+  aliases.push({
+    find: new RegExp(`^${specifier.replace(/\//g, '\\/')}$`),
+    replacement: fileURLToPath(new URL(entry.src, import.meta.url)),
+  })
+}
 
 const ignores = [
   '**/_cjs/**',
@@ -29,6 +49,9 @@ const ignores = [
 ]
 
 export default defineConfig({
+  resolve: {
+    alias: aliases,
+  },
   test: {
     coverage: {
       provider: 'v8',

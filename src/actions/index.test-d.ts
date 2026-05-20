@@ -235,37 +235,36 @@ describe('test', () => {
       transport: http(),
     }).extend(testActions({ mode: 'ganache' }))
 
-    const clientTest = client.test
-    expectTypeOf(clientTest).toEqualTypeOf<TestActions>()
+    expectTypeOf(client.test).toEqualTypeOf<TestActions>()
     expectTypeOf(client.account).toEqualTypeOf<
       Account.JsonRpc<typeof address>
     >()
     expectTypeOf(client.chain).toEqualTypeOf<typeof chain>()
 
-    const getAutomine = clientTest.getAutomine()
-    const increaseTime = clientTest.increaseTime({ seconds: 1n })
-    const mine = clientTest.mine({ blocks: 1n, interval: '0x1' })
+    const getAutomine = client.test.getAutomine()
+    const increaseTime = client.test.increaseTime({ seconds: 1n })
+    const mine = client.test.mine({ blocks: 1n, interval: '0x1' })
     const removeBlockTimestampInterval =
-      clientTest.removeBlockTimestampInterval()
-    const revert = clientTest.revert({ id: 1n })
-    const setAutomine = clientTest.setAutomine(true)
-    const setBalance = clientTest.setBalance({ address, value: 1 })
-    const setBlockTimestampInterval = clientTest.setBlockTimestampInterval({
+      client.test.removeBlockTimestampInterval()
+    const revert = client.test.revert({ id: 1n })
+    const setAutomine = client.test.setAutomine(true)
+    const setBalance = client.test.setBalance({ address, value: 1 })
+    const setBlockTimestampInterval = client.test.setBlockTimestampInterval({
       interval: 1,
     })
-    const setCode = clientTest.setCode({ address, bytecode: '0x' })
-    const setIntervalMining = clientTest.setIntervalMining({ interval: 1 })
-    const setNextBlockTimestamp = clientTest.setNextBlockTimestamp({
+    const setCode = client.test.setCode({ address, bytecode: '0x' })
+    const setIntervalMining = client.test.setIntervalMining({ interval: 1 })
+    const setNextBlockTimestamp = client.test.setNextBlockTimestamp({
       timestamp: 1n,
     })
-    const setNonce = clientTest.setNonce({ address, nonce: 1n })
-    const setStorageAt = clientTest.setStorageAt({
+    const setNonce = client.test.setNonce({ address, nonce: 1n })
+    const setStorageAt = client.test.setStorageAt({
       address,
       slot: '0x0',
       value:
         '0x0000000000000000000000000000000000000000000000000000000000000000',
     })
-    const snapshot = clientTest.snapshot()
+    const snapshot = client.test.snapshot()
 
     expectTypeOf({
       getAutomine,

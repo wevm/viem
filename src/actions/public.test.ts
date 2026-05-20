@@ -49,11 +49,10 @@ describe('public', () => {
       .extend(actions.publicActions())
       .extend(actions.testActions())
 
-    const clientTest = client.test
-    await clientTest.setBalance({ address, value: 42n })
-    await clientTest.setCode({ address, bytecode: code })
-    await clientTest.setNonce({ address, nonce: 42n })
-    await clientTest.setStorageAt({ address, slot, value })
+    await client.test.setBalance({ address, value: 42n })
+    await client.test.setCode({ address, bytecode: code })
+    await client.test.setNonce({ address, nonce: 42n })
+    await client.test.setStorageAt({ address, slot, value })
 
     await expect(client.public.getChainId()).resolves.toMatchInlineSnapshot(
       `31337n`,
