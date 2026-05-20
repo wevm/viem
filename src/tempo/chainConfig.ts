@@ -1,6 +1,6 @@
 import * as Chain from '../core/Chain.js'
 
-export const hardforks = [
+const hardforks = [
   'genesis',
   't0',
   't1',

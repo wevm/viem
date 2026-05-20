@@ -1,4 +1,4 @@
-export type Mode = 'anvil' | 'ganache' | 'hardhat'
+type Mode = 'anvil' | 'ganache' | 'hardhat'
 
 export type Options = {
   /** Test node mode. */

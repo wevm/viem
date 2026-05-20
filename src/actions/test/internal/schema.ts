@@ -5,7 +5,7 @@ import type * as RpcSchema from 'ox/RpcSchema'
 import type * as Client from '../../../core/Client.js'
 import type * as Transport from '../../../core/Transport.js'
 
-export type Schema = RpcSchema.From<
+type Schema = RpcSchema.From<
   | {
       Request: {
         method: 'anvil_mine'

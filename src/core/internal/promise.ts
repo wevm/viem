@@ -2,9 +2,9 @@ import { getAbortError, isAbortError } from './errors.js'
 import { LruMap } from './lru.js'
 import { wait } from './wait.js'
 
-export const promiseCache = new Map<string, Promise<unknown>>()
+const promiseCache = new Map<string, Promise<unknown>>()
 
-export const responseCache = new Map<string, { created: Date; data: unknown }>()
+const responseCache = new Map<string, { created: Date; data: unknown }>()
 
 const dedupeCache = new LruMap<Promise<unknown>>(8192)
 

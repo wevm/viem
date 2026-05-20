@@ -2,9 +2,9 @@ import { BaseError } from '../BaseError.js'
 import { getUrl } from './errors.js'
 import { stringify } from './stringify.js'
 
-export type RequestBody = unknown
+type RequestBody = unknown
 
-export type RpcErrorObject = {
+type RpcErrorObject = {
   code: number
   data?: unknown | undefined
   message: string

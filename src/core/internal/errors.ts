@@ -1,6 +1,6 @@
 import { version } from './version.js'
 
-export type ErrorType<name extends string = 'Error'> = Error & { name: name }
+type ErrorType<name extends string = 'Error'> = Error & { name: name }
 export type AbortErrorType = ErrorType<'AbortError'>
 
 export function getAbortError(signal?: AbortSignal | undefined) {

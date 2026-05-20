@@ -7,7 +7,7 @@
     "check": "vp check --fix",
     "check:ci": "vp check",
     "check:types": "tsc -b",
-    "check:unused": "knip --production",
+    "check:unused": "knip",
     "clean": "rm -rf dist *.tsbuildinfo src/*.tsbuildinfo src/_esm src/_cjs src/_types",
     "contracts:build": "forge build --config-path ./contracts/foundry.toml && bun scripts/generateTypedArtifacts.ts",
     "dev": "pnpm exports:update && zile dev",
@@ -62,52 +62,43 @@
     "pre-commit": "pnpm check"
   },
   "knip": {
+    "workspaces": {
+      ".": {
+        "entry": [
+          "scripts/*.ts",
+          "src/**/*.test.ts",
+          "src/**/*.test-d.ts",
+          "src/core/internal/types.ts",
+          "test/**/*.ts",
+          "vite.config.ts"
+        ]
+      }
+    },
     "ignore": [
-      ".github/**",
+      "contracts/**",
       "scripts-old/**",
-      "vectors/**",
-      "dist/**"
+      "site/**",
+      "src-old/**",
+      "test-old/**",
+      "vectors/**"
     ],
     "ignoreBinaries": [
-      "dev",
-      "forge",
-      "only-allow",
-      "printf"
+      "forge"
     ],
     "ignoreDependencies": [
       "@noble/curves",
       "@noble/hashes",
+      "@paulmillr/trusted-setups",
       "@scure/bip32",
       "@scure/bip39",
-      "bun",
-      "@size-limit/preset-big-lib",
+      "@vitest/coverage-v8",
+      "@voidzero-dev/vite-plus-core",
       "abitype",
-      "isows",
-      "ws"
+      "bun",
+      "micro-eth-signer",
+      "permissionless"
     ],
-    "ignoreWorkspaces": [],
-    "vitest": false,
-    "workspaces": {
-      ".": {
-        "project": [
-          "scripts/*.ts"
-        ],
-        "entry": [
-          "src/index.ts!",
-          "src/{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,tempo,tempo/actions,tempo/zones,utils,window,zksync}/index.ts!",
-          "src/chains/utils.ts!"
-        ],
-        "ignore": [
-          "src/node/trustedSetups_cjs.ts"
-        ]
-      },
-      "site": {
-        "project": [
-          "**/*.ts",
-          "**/*.tsx"
-        ]
-      }
-    }
+    "ignoreExportsUsedInFile": true
   },
   "size-limit": [
     {

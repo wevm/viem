@@ -25,5 +25,3 @@ export const xLayerTestnet = /*#__PURE__*/ Chain.define({
   },
   testnet: true,
 })
-
-export { xLayerTestnet as x1Testnet }

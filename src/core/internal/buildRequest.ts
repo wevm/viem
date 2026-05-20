@@ -7,7 +7,7 @@ import { withDedupe, withRetry } from './promise.js'
 import { HttpRequestError } from './request.js'
 import { stringify } from './stringify.js'
 
-export type Request = {
+type Request = {
   method: string
   params?: unknown | undefined
 }
@@ -17,11 +17,11 @@ export type RequestFn = (
   options?: RequestOptions | undefined,
 ) => Promise<unknown>
 
-export type RequestOptions = {
+type RequestOptions = {
   signal?: AbortSignal | undefined
 }
 
-export type Methods = {
+type Methods = {
   exclude?: readonly string[] | undefined
   include?: readonly string[] | undefined
 }
