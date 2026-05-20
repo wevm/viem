@@ -2,44 +2,10 @@ import { describe, expect, test } from 'vp/test'
 
 import { anvilMainnet } from '../../test/anvil.js'
 import * as Account from './Account.js'
-import * as Chain from './Chain.js'
 import * as Client from './Client.js'
-import { custom, http } from './transports/index.js'
+import { http } from './transports/index.js'
 
 const address = '0x0000000000000000000000000000000000000000'
-
-function defineChain(options: Partial<Chain.Chain> = {}) {
-  const chain = anvilMainnet.chain
-  return Chain.define({
-    id: chain.id,
-    name: chain.name,
-    nativeCurrency: chain.nativeCurrency,
-    rpcUrls: chain.rpcUrls,
-    ...options,
-  })
-}
-
-function anvilProviderTransport() {
-  return custom({
-    async request({ method, params }) {
-      const response = await fetch(anvilMainnet.rpcUrl.http, {
-        body: JSON.stringify({
-          id: 1,
-          jsonrpc: '2.0',
-          method,
-          params: params ?? [],
-        }),
-        headers: {
-          'content-type': 'application/json',
-        },
-        method: 'POST',
-      })
-      const body = await response.json()
-      if (body.error) throw new Error(body.error.message)
-      return body.result
-    },
-  })
-}
 
 describe('create', () => {
   test('behavior: creates a base client', () => {
@@ -73,7 +39,7 @@ describe('create', () => {
 
   test('behavior: forwards requests through the transport', async () => {
     const client = Client.create({
-      transport: anvilProviderTransport(),
+      transport: http(anvilMainnet.rpcUrl.http),
     })
 
     await expect(client.request({ method: 'eth_chainId' })).resolves.toBe(
@@ -109,14 +75,13 @@ describe('create', () => {
   })
 
   test('behavior: resolves chain RPC URLs with the HTTP transport', async () => {
-    const chain = defineChain()
     const client = Client.create({
       account: address,
       batch: { multicall: true },
       blockTag: 'safe',
       cacheTime: 1,
       ccipRead: false,
-      chain,
+      chain: anvilMainnet.chain,
       dataSuffix: '0x1234',
       key: 'wallet',
       name: 'Wallet Client',
@@ -133,7 +98,7 @@ describe('create', () => {
 
   test('behavior: resolves timing defaults from chain block time', () => {
     const client = Client.create({
-      chain: defineChain({ blockTime: 1_000 }),
+      chain: anvilMainnet.chain.extend({ blockTime: 1_000 }),
       transport: http(anvilMainnet.rpcUrl.http),
     })
 
@@ -143,7 +108,7 @@ describe('create', () => {
 
   test('behavior: clamps default polling interval to four seconds', () => {
     const client = Client.create({
-      chain: defineChain({ blockTime: 20_000 }),
+      chain: anvilMainnet.chain.extend({ blockTime: 20_000 }),
       transport: http(anvilMainnet.rpcUrl.http),
     })
 
@@ -199,7 +164,7 @@ describe('create', () => {
 
   test('behavior: defaults block tag to pending for preconfirmation chains', () => {
     const client = Client.create({
-      chain: defineChain({ preconfirmationTime: 500 }),
+      chain: anvilMainnet.chain.extend({ preconfirmationTime: 500 }),
       transport: http(anvilMainnet.rpcUrl.http),
     })
 
@@ -208,7 +173,7 @@ describe('create', () => {
 
   test('behavior: omits block tag without preconfirmations', () => {
     const client = Client.create({
-      chain: defineChain(),
+      chain: anvilMainnet.chain,
       transport: http(anvilMainnet.rpcUrl.http),
     })
 
@@ -219,7 +184,7 @@ describe('create', () => {
 describe('extend', () => {
   test('behavior: extends the client with action namespaces', async () => {
     const client = Client.create({
-      chain: defineChain(),
+      chain: anvilMainnet.chain,
       transport: http(anvilMainnet.rpcUrl.http),
     }).extend((client) => ({
       public: {

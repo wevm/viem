@@ -244,7 +244,7 @@ export function create(options: Options): Client {
     chain,
     pollingInterval,
   })
-  const transport = { ...config, ...(value ?? {}) }
+  const transport = { ...config, ...(value as Record<string, unknown>) }
 
   const client = {
     account,
