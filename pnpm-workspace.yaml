@@ -10,6 +10,9 @@ catalog:
 
 minimumReleaseAge: 1440
 
+minimumReleaseAgeExclude:
+  - zile
+
 onlyBuiltDependencies:
   - bun
   - esbuild

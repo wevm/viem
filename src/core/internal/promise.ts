@@ -203,7 +203,7 @@ export function withTimeout<data>(
 
   return new Promise((resolve, reject) => {
     ;(async () => {
-      let timeoutId: NodeJS.Timeout | undefined
+      let timeoutId: ReturnType<typeof setTimeout> | undefined
       const controller = new AbortController()
       try {
         if (timeout > 0)
