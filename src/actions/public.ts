@@ -5,6 +5,9 @@ import type * as Chain from '../core/Chain.js'
 import type * as Client from '../core/Client.js'
 import type * as Transport from '../core/Transport.js'
 import type * as Block from '../utils/Block.js'
+import { createBlockFilter } from './public/createBlockFilter.js'
+import { createEventFilter } from './public/createEventFilter.js'
+import { createPendingTransactionFilter } from './public/createPendingTransactionFilter.js'
 import { getBalance } from './public/getBalance.js'
 import { getBlobBaseFee } from './public/getBlobBaseFee.js'
 import { getBlock } from './public/getBlock.js'
@@ -14,6 +17,8 @@ import { getChainId } from './public/getChainId.js'
 import { getCode } from './public/getCode.js'
 import { getDelegation } from './public/getDelegation.js'
 import { getFeeHistory } from './public/getFeeHistory.js'
+import { getFilterChanges } from './public/getFilterChanges.js'
+import { getFilterLogs } from './public/getFilterLogs.js'
 import { getGasPrice } from './public/getGasPrice.js'
 import { getLogs } from './public/getLogs.js'
 import { getProof } from './public/getProof.js'
@@ -22,9 +27,72 @@ import { getTransaction } from './public/getTransaction.js'
 import { getTransactionConfirmations } from './public/getTransactionConfirmations.js'
 import { getTransactionCount } from './public/getTransactionCount.js'
 import { getTransactionReceipt } from './public/getTransactionReceipt.js'
+import { uninstallFilter } from './public/uninstallFilter.js'
 
 /** Public action methods attached by `publicActions`. */
 export type PublicActions = {
+  /**
+   * Creates a filter to listen for new block hashes.
+   *
+   * @example
+   * ```ts twoslash
+   * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
+   *
+   * const filterId = await client.public.createBlockFilter()
+   * ```
+   *
+   * @returns Filter identifier.
+   */
+  createBlockFilter: () => createBlockFilter.ReturnType
+  /**
+   * Creates a filter to listen for event logs.
+   *
+   * @example
+   * ```ts twoslash
+   * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
+   *
+   * const filterId = await client.public.createEventFilter({
+   *   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
+   * })
+   * ```
+   *
+   * @param options - Options.
+   * @returns Filter identifier.
+   */
+  createEventFilter: (
+    options?: createEventFilter.Options | undefined,
+  ) => createEventFilter.ReturnType
+  /**
+   * Creates a filter to listen for new pending transaction hashes.
+   *
+   * @example
+   * ```ts twoslash
+   * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
+   *
+   * const filterId = await client.public.createPendingTransactionFilter()
+   * ```
+   *
+   * @returns Filter identifier.
+   */
+  createPendingTransactionFilter: () => createPendingTransactionFilter.ReturnType
   /**
    * Returns the balance of an address in wei.
    *
@@ -222,6 +290,50 @@ export type PublicActions = {
    */
   getFeeHistory: (options: getFeeHistory.Options) => getFeeHistory.ReturnType
   /**
+   * Returns logs or hashes accumulated by a filter since the last poll.
+   *
+   * @example
+   * ```ts twoslash
+   * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
+   *
+   * const filterId = await client.public.createBlockFilter()
+   * const changes = await client.public.getFilterChanges({ filterId })
+   * ```
+   *
+   * @param options - Options.
+   * @returns Logs or hashes since the last poll.
+   */
+  getFilterChanges: (
+    options: getFilterChanges.Options,
+  ) => getFilterChanges.ReturnType
+  /**
+   * Returns the full list of logs matching an event filter.
+   *
+   * @example
+   * ```ts twoslash
+   * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
+   *
+   * const filterId = await client.public.createEventFilter()
+   * const logs = await client.public.getFilterLogs({ filterId })
+   * ```
+   *
+   * @param options - Options.
+   * @returns Event logs.
+   */
+  getFilterLogs: (options: getFilterLogs.Options) => getFilterLogs.ReturnType
+  /**
    * Returns the current gas price.
    *
    * @example
@@ -404,6 +516,31 @@ export type PublicActions = {
   getTransactionReceipt: (
     options: getTransactionReceipt.Options,
   ) => getTransactionReceipt.ReturnType
+  /**
+   * Uninstalls a filter previously created by `createBlockFilter`,
+   * `createEventFilter`, or `createPendingTransactionFilter`.
+   *
+   * @example
+   * ```ts twoslash
+   * import { Client, http, publicActions } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = Client.create({
+   *   chain: mainnet,
+   *   transport: http()
+   * }).extend(publicActions())
+   *
+   * const filterId = await client.public.createBlockFilter()
+   * const uninstalled =
+   *   await client.public.uninstallFilter({ filterId })
+   * ```
+   *
+   * @param options - Options.
+   * @returns `true` if the filter was uninstalled, `false` otherwise.
+   */
+  uninstallFilter: (
+    options: uninstallFilter.Options,
+  ) => uninstallFilter.ReturnType
 }
 
 /**
@@ -435,6 +572,11 @@ export function publicActions() {
   ) => {
     const actionClient = client as unknown as Client.Client<chain>
     const actions: PublicActions = {
+      createBlockFilter: () => createBlockFilter(actionClient),
+      createEventFilter: (options?: createEventFilter.Options | undefined) =>
+        createEventFilter(actionClient, options),
+      createPendingTransactionFilter: () =>
+        createPendingTransactionFilter(actionClient),
       getBalance: (options: getBalance.Options) =>
         getBalance(actionClient, options),
       getBlobBaseFee: () => getBlobBaseFee(actionClient),
@@ -455,6 +597,10 @@ export function publicActions() {
         getDelegation(actionClient, options),
       getFeeHistory: (options: getFeeHistory.Options) =>
         getFeeHistory(actionClient, options),
+      getFilterChanges: (options: getFilterChanges.Options) =>
+        getFilterChanges(actionClient, options),
+      getFilterLogs: (options: getFilterLogs.Options) =>
+        getFilterLogs(actionClient, options),
       getGasPrice: () => getGasPrice(actionClient),
       getLogs: (options?: getLogs.Options | undefined) =>
         getLogs(actionClient, options),
@@ -470,6 +616,8 @@ export function publicActions() {
         getTransactionCount(actionClient, options),
       getTransactionReceipt: (options: getTransactionReceipt.Options) =>
         getTransactionReceipt(actionClient, options),
+      uninstallFilter: (options: uninstallFilter.Options) =>
+        uninstallFilter(actionClient, options),
     }
 
     return { public: actions }
@@ -477,6 +625,9 @@ export function publicActions() {
 }
 
 export {
+  createBlockFilter,
+  createEventFilter,
+  createPendingTransactionFilter,
   getBalance,
   getBlobBaseFee,
   getBlock,
@@ -486,6 +637,8 @@ export {
   getCode,
   getDelegation,
   getFeeHistory,
+  getFilterChanges,
+  getFilterLogs,
   getGasPrice,
   getLogs,
   getProof,
@@ -494,4 +647,5 @@ export {
   getTransactionConfirmations,
   getTransactionCount,
   getTransactionReceipt,
+  uninstallFilter,
 }

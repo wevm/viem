@@ -5,6 +5,9 @@ import * as actions from 'viem/actions'
 test('exports', () => {
   expect(Object.keys(actions).sort()).toMatchInlineSnapshot(`
     [
+      "createBlockFilter",
+      "createEventFilter",
+      "createPendingTransactionFilter",
       "getAutomine",
       "getBalance",
       "getBlobBaseFee",
@@ -15,6 +18,8 @@ test('exports', () => {
       "getCode",
       "getDelegation",
       "getFeeHistory",
+      "getFilterChanges",
+      "getFilterLogs",
       "getGasPrice",
       "getLogs",
       "getProof",
@@ -38,6 +43,7 @@ test('exports', () => {
       "setStorageAt",
       "snapshot",
       "testActions",
+      "uninstallFilter",
     ]
   `)
 })

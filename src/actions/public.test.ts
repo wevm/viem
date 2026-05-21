@@ -13,6 +13,10 @@ const value =
 describe('public', () => {
   test('behavior: exposes action functions', () => {
     expect({
+      createBlockFilter: typeof actions.createBlockFilter,
+      createEventFilter: typeof actions.createEventFilter,
+      createPendingTransactionFilter:
+        typeof actions.createPendingTransactionFilter,
       getBalance: typeof actions.getBalance,
       getBlobBaseFee: typeof actions.getBlobBaseFee,
       getBlock: typeof actions.getBlock,
@@ -22,6 +26,8 @@ describe('public', () => {
       getCode: typeof actions.getCode,
       getDelegation: typeof actions.getDelegation,
       getFeeHistory: typeof actions.getFeeHistory,
+      getFilterChanges: typeof actions.getFilterChanges,
+      getFilterLogs: typeof actions.getFilterLogs,
       getGasPrice: typeof actions.getGasPrice,
       getLogs: typeof actions.getLogs,
       getProof: typeof actions.getProof,
@@ -31,8 +37,12 @@ describe('public', () => {
       getTransactionCount: typeof actions.getTransactionCount,
       getTransactionReceipt: typeof actions.getTransactionReceipt,
       publicActions: typeof actions.publicActions,
+      uninstallFilter: typeof actions.uninstallFilter,
     }).toMatchInlineSnapshot(`
       {
+        "createBlockFilter": "function",
+        "createEventFilter": "function",
+        "createPendingTransactionFilter": "function",
         "getBalance": "function",
         "getBlobBaseFee": "function",
         "getBlock": "function",
@@ -42,6 +52,8 @@ describe('public', () => {
         "getCode": "function",
         "getDelegation": "function",
         "getFeeHistory": "function",
+        "getFilterChanges": "function",
+        "getFilterLogs": "function",
         "getGasPrice": "function",
         "getLogs": "function",
         "getProof": "function",
@@ -51,6 +63,7 @@ describe('public', () => {
         "getTransactionCount": "function",
         "getTransactionReceipt": "function",
         "publicActions": "function",
+        "uninstallFilter": "function",
       }
     `)
   })
