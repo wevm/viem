@@ -85,6 +85,39 @@ describe('fromSecp256k1', () => {
       }
     `)
   })
+
+  test('behavior: access key raw signature', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const access = Account.fromSecp256k1(
+      '0x06a952d58c24d287245276dd8b4272d82a921d27d90874a6c27a3bc19ff4bfde',
+      {
+        access: account,
+      },
+    )
+
+    const signature = await access.sign({
+      hash: '0xdeadbeef',
+      raw: true,
+    })
+
+    expect(SignatureEnvelope.deserialize(signature)).toMatchInlineSnapshot(`
+      {
+        "signature": {
+          "r": 17986519448152736741806679848301503760738507672285374215138617395147700232421n,
+          "s": 50573419219106101097329274608677894804280434221354410855341207650465321473558n,
+          "yParity": 0,
+        },
+        "type": "secp256k1",
+      }
+    `)
+    expect(
+      await verifyHash(client, {
+        address: access.accessKeyAddress,
+        hash: '0xdeadbeef',
+        signature,
+      }),
+    ).toBe(true)
+  })
 })
 
 describe('fromP256', () => {
@@ -157,6 +190,22 @@ describe('fromP256', () => {
         "version": "v2",
       }
     `)
+  })
+
+  test('behavior: access key raw signature', async () => {
+    const account = Account.fromP256(privateKey_p256)
+    const access = Account.fromP256(privateKey_p256, {
+      access: account,
+    })
+
+    const signature = await access.sign({
+      hash: '0xdeadbeef',
+      raw: true,
+    })
+
+    expect(SignatureEnvelope.deserialize(signature)).toMatchObject({
+      type: 'p256',
+    })
   })
 })
 
