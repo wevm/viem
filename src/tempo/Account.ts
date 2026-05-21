@@ -27,6 +27,8 @@ export type Account_base<source extends string = string> = RequiredBy<
 > & {
   /** Key type. */
   keyType: SignatureEnvelope.Type
+  /** Sign fn. */
+  sign: NonNullable<LocalAccount['sign']>
   /** Sign transaction fn. */
   signTransaction: <
     serializer extends
@@ -56,6 +58,21 @@ export type RootAccount = Account_base<'root'> & {
 export type AccessKeyAccount = Account_base<'accessKey'> & {
   /** Access key ID. */
   accessKeyAddress: Address.Address
+  /**
+   * Signs a hash.
+   *
+   * By default, access key accounts sign through a keychain envelope so the
+   * signature authorizes the parent account.
+   *
+   * Set `raw` to `true` to sign directly with the access key, without keychain
+   * hashing or keychain enveloping.
+   */
+  sign: (parameters: {
+    /** Hash to sign. */
+    hash: Hex.Hex
+    /** Sign directly with the access key, without keychain hashing or enveloping. */
+    raw?: boolean | undefined
+  }) => Promise<Hex.Hex>
 }
 
 export type Account = OneOf<RootAccount | AccessKeyAccount>
@@ -431,7 +448,8 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
     includePrefix: false,
   })
 
-  async function sign({ hash }: { hash: Hex.Hex }) {
+  async function sign({ hash, raw }: { hash: Hex.Hex; raw?: boolean }) {
+    if (raw) return await parameters.sign({ hash })
     const innerHash =
       parentAddress && internal_version === 'v2'
         ? keccak256(Hex.concat('0x04', hash, parentAddress))
