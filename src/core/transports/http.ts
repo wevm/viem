@@ -31,13 +31,14 @@ const signalIds = new WeakMap<AbortSignal, number>()
  *
  * @example
  * ```ts twoslash
- * import { http } from 'viem'
+ * import { Client, http } from 'viem'
  * import { mainnet } from 'viem/chains'
  *
- * const transport = http()
+ * const client = Client.create({
+ *   chain: mainnet,
+ *   transport: http()
+ * })
  *
- * // TODO(v3): Replace with Client.create({ chain: mainnet, transport }) once Client lands.
- * const client = transport({})
  * const blockNumber = await client.request({
  *   method: 'eth_blockNumber'
  * })

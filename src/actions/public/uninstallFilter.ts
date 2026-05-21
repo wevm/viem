@@ -18,7 +18,9 @@ import type * as Hex from '../../utils/Hex.js'
  * })
  *
  * const filterId = await actions.createBlockFilter(client)
- * const uninstalled = await actions.uninstallFilter(client, { filterId })
+ * const uninstalled = await actions.uninstallFilter(client, {
+ *   filterId
+ * })
  * ```
  *
  * @param client - Client to use.

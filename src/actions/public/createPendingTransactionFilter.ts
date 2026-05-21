@@ -16,7 +16,8 @@ import type * as Hex from '../../utils/Hex.js'
  *   transport: http()
  * })
  *
- * const filterId = await actions.createPendingTransactionFilter(client)
+ * const filterId =
+ *   await actions.createPendingTransactionFilter(client)
  * ```
  *
  * @param client - Client to use.

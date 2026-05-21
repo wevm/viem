@@ -87,7 +87,8 @@ export type PublicActions = {
    *   transport: http()
    * }).extend(publicActions())
    *
-   * const filterId = await client.public.createPendingTransactionFilter()
+   * const filterId =
+   *   await client.public.createPendingTransactionFilter()
    * ```
    *
    * @returns Filter identifier.
@@ -303,7 +304,9 @@ export type PublicActions = {
    * }).extend(publicActions())
    *
    * const filterId = await client.public.createBlockFilter()
-   * const changes = await client.public.getFilterChanges({ filterId })
+   * const changes = await client.public.getFilterChanges({
+   *   filterId
+   * })
    * ```
    *
    * @param options - Options.
@@ -531,8 +534,9 @@ export type PublicActions = {
    * }).extend(publicActions())
    *
    * const filterId = await client.public.createBlockFilter()
-   * const uninstalled =
-   *   await client.public.uninstallFilter({ filterId })
+   * const uninstalled = await client.public.uninstallFilter({
+   *   filterId
+   * })
    * ```
    *
    * @param options - Options.

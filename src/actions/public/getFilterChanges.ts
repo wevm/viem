@@ -22,7 +22,9 @@ import * as Log from '../../utils/Log.js'
  * })
  *
  * const filterId = await actions.createBlockFilter(client)
- * const hashes = await actions.getFilterChanges(client, { filterId })
+ * const hashes = await actions.getFilterChanges(client, {
+ *   filterId
+ * })
  * ```
  *
  * @param client - Client to use.

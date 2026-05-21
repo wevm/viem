@@ -20,7 +20,9 @@ import * as Log from '../../utils/Log.js'
  * const filterId = await actions.createEventFilter(client, {
  *   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
  * })
- * const logs = await actions.getFilterLogs(client, { filterId })
+ * const logs = await actions.getFilterLogs(client, {
+ *   filterId
+ * })
  * ```
  *
  * @param client - Client to use.
