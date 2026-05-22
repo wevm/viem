@@ -2369,4 +2369,48 @@ describe('behavior: attemptFill', () => {
     // fillTransaction will be called because 'gas' is in parameters and gas is not provided
     expect(fillTransactionSpy).toHaveBeenCalled()
   })
+
+  test('behavior: adopts `calls` from `eth_fillTransaction` response and clears `to`/`data`/`value`', async () => {
+    await setup()
+
+    const relayCalls = [
+      {
+        to: '0x20c000000000000000000000b9537d11c60e8b50',
+        data: '0x095ea7b3',
+      },
+      {
+        to: '0xdec0000000000000000000000000000000000000',
+        data: '0xf0122b75',
+      },
+      { to: targetAccount.address, data: '0xdeadbeef' },
+    ] as const
+
+    vi.spyOn(fillTransaction, 'fillTransaction').mockResolvedValueOnce({
+      transaction: {
+        chainId: 1,
+        from: sourceAccount.address,
+        gas: 408981n,
+        maxFeePerGas: parseGwei('20'),
+        maxPriorityFeePerGas: 0n,
+        nonce: 0,
+        type: 'tempo',
+        calls: relayCalls,
+        feeToken: '0x20c0000000000000000000000000000000000000',
+        feePayerSignature: { r: '0x1', s: '0x1', yParity: '0x0' },
+      },
+    } as never)
+
+    const request = (await prepareTransactionRequest(client, {
+      account: privateKeyToAccount(sourceAccount.privateKey),
+      parameters: defaultParameters,
+      to: targetAccount.address,
+      data: '0xdeadbeef',
+      value: 0n,
+    } as never)) as never as Record<string, unknown>
+
+    expect(request.calls).toEqual(relayCalls)
+    expect(request.to).toBeUndefined()
+    expect(request.data).toBeUndefined()
+    expect(request.value).toBeUndefined()
+  })
 })

@@ -428,6 +428,18 @@ export async function prepareTransactionRequest<
             rest.feePayerSignature !== null
               ? { feePayerSignature: rest.feePayerSignature }
               : {}),
+            // Adopt the relay's expanded calls (e.g. autoSwap) so the
+            // broadcast envelope matches what the fee payer signed over.
+            ...('calls' in rest &&
+            Array.isArray(rest.calls) &&
+            rest.calls.length > 0
+              ? {
+                  calls: rest.calls,
+                  to: undefined,
+                  data: undefined,
+                  value: undefined,
+                }
+              : {}),
             ...('feeToken' in rest &&
             typeof rest.feeToken !== 'undefined' &&
             rest.feeToken !== null &&
