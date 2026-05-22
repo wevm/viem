@@ -325,16 +325,14 @@ async function serializeTempo(
     ...(nonce ? { nonce: BigInt(nonce) } : {}),
   } satisfies TxTempo.TxEnvelopeTempo
 
-  // If we have marked the transaction as intended to be paid by a fee
-  // payer (feePayer: true), we strip the fee token from the sender's
-  // sign payload — per TIP-76 the sender does not commit to it; the fee
-  // payer chooses and commits to the token via its own signature.
-  //
-  // Once the fee payer has signed (`feePayerSignature` is populated),
-  // the relay has chosen a token and signed over it. The broadcast
-  // envelope must therefore include `feeToken` so the chain can verify
-  // the fee payer's signature and identify which token to charge.
-  if (feePayer === true && !feePayerSignature) delete transaction_ox.feeToken
+  // Sender does not commit to `feeToken` under sponsorship (Tempo
+  // Transaction spec: field is `0x80` iff `feePayerSignature` is
+  // present). Strip it for both the sign payload (no `signature`) and
+  // the partial relay-handoff envelope (no `feePayerSignature`). Keep
+  // it only on the final broadcast envelope so the chain can verify
+  // the fee payer.
+  if (feePayer === true && (!signature || !feePayerSignature))
+    delete transaction_ox.feeToken
 
   if (signature && typeof transaction.feePayer === 'object') {
     const tx = TxTempo.from(transaction_ox, {
@@ -365,6 +363,12 @@ async function serializeTempo(
   }
 
   if (feePayer === true) {
+    // Relay co-signed during `eth_fillTransaction` — emit a full
+    // envelope with both signatures to skip `eth_signRawTransaction`.
+    if (signature && feePayerSignature)
+      return TxTempo.serialize(transaction_ox, {
+        signature,
+      })
     if (signature)
       return TxTempo.serialize(transaction_ox, {
         format: 'feePayer',
