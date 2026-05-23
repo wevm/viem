@@ -26,4 +26,9 @@ export const valygoNft = defineChain({
       apiUrl: 'https://nft.vyoscan.com/api',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0x4469693a04BAE365795329a89b24F4Eb1303Ea08',
+    },
+  },
 })
