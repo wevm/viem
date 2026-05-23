@@ -34,6 +34,7 @@ test('gets transaction', async () => {
       "accessList": [],
       "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
       "blockNumber": 15131999n,
+      "blockTimestamp": 1657684515n,
       "chainId": 1,
       "from": "0xa152f8bb749c55e9943a3a0a3111d18ee2b3f94e",
       "gas": 100000n,
@@ -65,6 +66,7 @@ test('gets transaction (legacy)', async () => {
     {
       "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
       "blockNumber": 15131999n,
+      "blockTimestamp": 1657684515n,
       "chainId": 1,
       "from": "0x47a6b2f389cf4bb6e4b69411c87ae82371daf87e",
       "gas": 200000n,
@@ -265,6 +267,7 @@ describe('args: hash', () => {
         "accessList": [],
         "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
         "blockNumber": 15131999n,
+        "blockTimestamp": 1657684515n,
         "chainId": 1,
         "from": "0x0926218bdafe613a4152628d14a762b6718741b9",
         "gas": 70000n,
@@ -311,6 +314,7 @@ describe('args: blockHash', () => {
       {
         "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
         "blockNumber": 15131999n,
+        "blockTimestamp": 1657684515n,
         "chainId": undefined,
         "from": "0xb14f54018284f5964097506219e2fd4c1783ca55",
         "gas": 35859n,
@@ -355,6 +359,7 @@ describe('args: blockNumber', () => {
       {
         "blockHash": "0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d",
         "blockNumber": 15131999n,
+        "blockTimestamp": 1657684515n,
         "chainId": undefined,
         "from": "0xb14f54018284f5964097506219e2fd4c1783ca55",
         "gas": 35859n,

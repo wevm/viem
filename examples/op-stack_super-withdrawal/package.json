@@ -9,8 +9,8 @@
     "viem": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^24.5.2",
+    "@types/node": "^20.8.3",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.0.3"
   }
 }
