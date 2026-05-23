@@ -341,6 +341,7 @@ export {
 export {
   type DefineTransactionRequestErrorType,
   defineTransactionRequest,
+  type ExtractFormattedTransactionRequest,
   type FormatTransactionRequestErrorType,
   type FormattedTransactionRequest,
   formatTransactionRequest,

@@ -50,7 +50,10 @@ import { blobsToCommitments } from '../../utils/blob/blobsToCommitments.js'
 import { blobsToProofs } from '../../utils/blob/blobsToProofs.js'
 import { commitmentsToVersionedHashes } from '../../utils/blob/commitmentsToVersionedHashes.js'
 import { toBlobSidecars } from '../../utils/blob/toBlobSidecars.js'
-import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
+import type {
+  ExtractFormattedTransactionRequest,
+  FormattedTransactionRequest,
+} from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
 import { LruMap } from '../../utils/lru.js'
 import type { NonceManager } from '../../utils/nonceManager.js'
@@ -98,12 +101,6 @@ type ParameterTypeToParameters<
 > = parameterType extends 'fees'
   ? 'maxFeePerGas' | 'maxPriorityFeePerGas' | 'gasPrice'
   : parameterType
-type ExtractTransactionRequest<transactionRequest, transactionType> =
-  transactionRequest extends { type?: infer type | undefined }
-    ? Extract<transactionType, type> extends never
-      ? never
-      : transactionRequest
-    : never
 
 export type PrepareTransactionRequestRequest<
   chain extends Chain | undefined = Chain | undefined,
@@ -164,9 +161,9 @@ export type PrepareTransactionRequestReturnType<
     : GetTransactionType<request> extends 'legacy'
       ? unknown
       : GetTransactionType<request>,
-  _transactionRequest = ExtractTransactionRequest<
-    UnionOmit<FormattedTransactionRequest<_derivedChain>, 'from'>,
-    _transactionType
+  _transactionRequest = ExtractFormattedTransactionRequest<
+    _derivedChain,
+    { type?: _transactionType extends string ? _transactionType : undefined }
   >,
 > = Prettify<
   UnionRequiredBy<
