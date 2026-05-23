@@ -54,9 +54,9 @@ test('args: l2Timestamp (legacy)', async () => {
     })
 
   await getTimeToProve(client, {
-    l2OutputOracleAddress: '0x0000000000000000000000000000000000000001',
+    l2OutputOracleAddress:
+      '0x0000000000000000000000000000000000000001' as const,
     l2Timestamp: 20n,
-    portalAddress: '0x0000000000000000000000000000000000000002',
     receipt: { blockNumber: 10n } as never,
   })
 

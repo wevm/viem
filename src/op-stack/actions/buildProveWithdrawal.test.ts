@@ -106,6 +106,7 @@ test('args: super game', async () => {
   const { blockNumbers, client, proofBlockNumbers } = superGameClient()
   const request = await buildProveWithdrawal(client, {
     account: accounts[0].address,
+    chain: null,
     game,
     withdrawal,
   })
@@ -127,6 +128,7 @@ test('args: super game timestamp mismatch', async () => {
   await expect(
     buildProveWithdrawal(client, {
       account: accounts[0].address,
+      chain: null,
       game,
       withdrawal,
     }),
