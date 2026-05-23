@@ -101,6 +101,10 @@ export const sidebar = {
           items: [
             { text: 'getBlock', link: '/docs/actions/public/getBlock' },
             {
+              text: 'getBlockReceipts',
+              link: '/docs/actions/public/getBlockReceipts',
+            },
+            {
               text: 'getBlockNumber',
               link: '/docs/actions/public/getBlockNumber',
             },

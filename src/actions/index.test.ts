@@ -34,6 +34,7 @@ test('exports actions', () => {
       "getBlobBaseFee": [Function],
       "getBlock": [Function],
       "getBlockNumber": [Function],
+      "getBlockReceipts": [Function],
       "getBlockTransactionCount": [Function],
       "getBytecode": [Function],
       "getCallsStatus": [Function],
