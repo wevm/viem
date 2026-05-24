@@ -2602,7 +2602,7 @@ export type Decorator<
       parameters: tokenActions.getBalance.Parameters<account>,
     ) => Promise<tokenActions.getBalance.ReturnValue>
     /**
-     * Gets TIP20 token metadata including name, symbol, currency, decimals, and total supply.
+     * Gets TIP20 token metadata including name, symbol, logo URI, currency, decimals, and total supply.
      *
      * @example
      * ```ts
