@@ -241,8 +241,22 @@ describe('serialize', () => {
     expect(unsignedParsed.feeToken).toBeUndefined()
   })
 
+  test('behavior: pre-filled feePayerSignature strips feeToken from sender sign payload', async () => {
+    const unsigned = await Transaction.serialize({
+      chainId: 1,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      feeToken,
+      feePayerSignature: { r: '0x1', s: '0x1', yParity: 0 } as never,
+    })
+    const unsignedParsed = Transaction.deserialize(unsigned as `0x76${string}`)
+    expect(unsignedParsed.feeToken).toBeUndefined()
+    expect(
+      (unsignedParsed as { feePayerSignature: unknown }).feePayerSignature,
+    ).toBeNull()
+  })
+
   test('behavior: feePayer: true emits full envelope with both signatures (single round trip)', async () => {
-    // Relay co-signed during eth_fillTransaction — emit a full 0x76
+    // Relay co-signed during eth_fillTransaction -- emit a full 0x76
     // envelope so withRelay can skip eth_signRawTransaction.
     const signed = await Transaction.serialize(
       {

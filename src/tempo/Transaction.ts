@@ -303,6 +303,12 @@ async function serializeTempo(
     if (feePayerSignature === null || feePayer) return null
     return undefined
   })()
+  const hasPrefilledFeePayerSignature =
+    typeof transaction.feePayerSignature !== 'undefined' &&
+    transaction.feePayerSignature !== null
+  const shouldStripFeeTokenForSponsorship =
+    (feePayer === true && (!signature || !feePayerSignature)) ||
+    (!signature && hasPrefilledFeePayerSignature)
 
   const transaction_ox = {
     ...rest,
@@ -325,14 +331,11 @@ async function serializeTempo(
     ...(nonce ? { nonce: BigInt(nonce) } : {}),
   } satisfies TxTempo.TxEnvelopeTempo
 
-  // Sender does not commit to `feeToken` under sponsorship (Tempo
-  // Transaction spec: field is `0x80` iff `feePayerSignature` is
-  // present). Strip it for both the sign payload (no `signature`) and
-  // the partial relay-handoff envelope (no `feePayerSignature`). Keep
-  // it only on the final broadcast envelope so the chain can verify
+  // Sender does not commit to `feeToken` under sponsorship. Strip it
+  // for the sender sign payload and the partial relay-handoff envelope.
+  // Keep it only on the final broadcast envelope so the chain can verify
   // the fee payer.
-  if (feePayer === true && (!signature || !feePayerSignature))
-    delete transaction_ox.feeToken
+  if (shouldStripFeeTokenForSponsorship) delete transaction_ox.feeToken
 
   if (signature && typeof transaction.feePayer === 'object') {
     const tx = TxTempo.from(transaction_ox, {
@@ -362,8 +365,8 @@ async function serializeTempo(
     })
   }
 
-  if (feePayer === true) {
-    // Relay co-signed during `eth_fillTransaction` — emit a full
+  if (feePayer === true || (!signature && hasPrefilledFeePayerSignature)) {
+    // Relay co-signed during `eth_fillTransaction` -- emit a full
     // envelope with both signatures to skip `eth_signRawTransaction`.
     if (signature && feePayerSignature)
       return TxTempo.serialize(transaction_ox, {
