@@ -16,6 +16,7 @@ import { client } from './viem.config'
 const { admin, receipt, token, tokenId } = await client.token.createSync({
   admin: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   currency: 'USD',
+  logoURI: 'https://example.com/cusd.svg',
   name: 'My Company USD',
   symbol: 'CUSD',
 })
@@ -47,6 +48,7 @@ import { client } from './viem.config'
 const hash = await client.token.create({
   admin: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   currency: 'USD',
+  logoURI: 'https://example.com/cusd.svg',
   name: 'My Company USD',
   symbol: 'CUSD',
 })
@@ -98,6 +100,12 @@ Currency code for the token.
 - **Type:** `string`
 
 Name of the token.
+
+### logoURI (optional)
+
+- **Type:** `string`
+
+Logo URI for the token. Requires a T5-enabled Tempo chain.
 
 ### quoteToken (optional)
 
