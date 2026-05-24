@@ -2507,6 +2507,7 @@ export type Decorator<
      *   name: 'My Token',
      *   symbol: 'MTK',
      *   currency: 'USD',
+     *   logoURI: 'https://example.com/token.svg',
      * })
      * ```
      *
@@ -2537,6 +2538,7 @@ export type Decorator<
      *   name: 'My Token',
      *   symbol: 'MTK',
      *   currency: 'USD',
+     *   logoURI: 'https://example.com/token.svg',
      * })
      * ```
      *

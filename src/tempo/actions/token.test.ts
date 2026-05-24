@@ -428,15 +428,9 @@ describe('getMetadata', () => {
     const logoURI = 'https://example.com/test-usd.svg'
     const { token } = await actions.token.createSync(client, {
       currency: 'USD',
+      logoURI,
       name: 'Logo USD',
       symbol: 'LUSD',
-    })
-
-    await writeContractSync(client, {
-      abi: Abis.tip20,
-      address: token,
-      functionName: 'setLogoURI',
-      args: [logoURI],
     })
 
     const metadata = await actions.token.getMetadata(client, {
