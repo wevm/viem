@@ -428,18 +428,6 @@ export async function prepareTransactionRequest<
             rest.feePayerSignature !== null
               ? { feePayerSignature: rest.feePayerSignature }
               : {}),
-            // Adopt expanded calls from the fill response so the
-            // broadcast envelope matches what the fee payer signed over.
-            ...('calls' in rest &&
-            Array.isArray(rest.calls) &&
-            rest.calls.length > 0
-              ? {
-                  calls: rest.calls,
-                  to: undefined,
-                  data: undefined,
-                  value: undefined,
-                }
-              : {}),
             ...('feeToken' in rest &&
             typeof rest.feeToken !== 'undefined' &&
             rest.feeToken !== null &&

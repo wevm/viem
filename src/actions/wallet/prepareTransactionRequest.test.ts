@@ -2370,19 +2370,25 @@ describe('behavior: attemptFill', () => {
     expect(fillTransactionSpy).toHaveBeenCalled()
   })
 
-  test('behavior: adopts `calls` from `eth_fillTransaction` response and clears `to`/`data`/`value`', async () => {
-    await setup()
-
-    const filledCalls = [
+  test('behavior: ignores relay transaction `calls` and exposes autoSwap calls in capabilities', async () => {
+    const userCalls = [{ to: targetAccount.address, data: '0xdeadbeef' }]
+    const relayCalls = [
+      {
+        to: '0x0000000000000000000000000000000000000001',
+        data: '0xbadc0de',
+      },
+    ] as const
+    const autoSwapCalls = [
       {
         to: '0x20c000000000000000000000b9537d11c60e8b50',
         data: '0x095ea7b3',
+        value: '0x0',
       },
       {
         to: '0xdec0000000000000000000000000000000000000',
         data: '0xf0122b75',
+        value: '0x0',
       },
-      { to: targetAccount.address, data: '0xdeadbeef' },
     ] as const
 
     vi.spyOn(fillTransaction, 'fillTransaction').mockResolvedValueOnce({
@@ -2394,23 +2400,34 @@ describe('behavior: attemptFill', () => {
         maxPriorityFeePerGas: 0n,
         nonce: 0,
         type: 'tempo',
-        calls: filledCalls,
+        calls: relayCalls,
         feeToken: '0x20c0000000000000000000000000000000000000',
         feePayerSignature: { r: '0x1', s: '0x1', yParity: '0x0' },
+      },
+      capabilities: {
+        autoSwap: {
+          calls: autoSwapCalls,
+        },
       },
     } as never)
 
     const request = (await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
+      calls: userCalls,
+      feePayer: true,
       parameters: defaultParameters,
-      to: targetAccount.address,
-      data: '0xdeadbeef',
-      value: 0n,
     } as never)) as never as Record<string, unknown>
 
-    expect(request.calls).toEqual(filledCalls)
+    expect(request.calls).toEqual(userCalls)
     expect(request.to).toBeUndefined()
     expect(request.data).toBeUndefined()
     expect(request.value).toBeUndefined()
+    expect(
+      (
+        request._capabilities as {
+          autoSwap?: { calls?: typeof autoSwapCalls }
+        }
+      ).autoSwap?.calls,
+    ).toEqual(autoSwapCalls)
   })
 })
