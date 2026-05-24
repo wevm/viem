@@ -303,6 +303,12 @@ async function serializeTempo(
     if (feePayerSignature === null || feePayer) return null
     return undefined
   })()
+  const hasPrefilledFeePayerSignature =
+    typeof transaction.feePayerSignature !== 'undefined' &&
+    transaction.feePayerSignature !== null
+  const shouldStripFeeTokenForSponsorship =
+    (feePayer === true && (!signature || !feePayerSignature)) ||
+    (!signature && hasPrefilledFeePayerSignature)
 
   const transaction_ox = {
     ...rest,
@@ -325,16 +331,11 @@ async function serializeTempo(
     ...(nonce ? { nonce: BigInt(nonce) } : {}),
   } satisfies TxTempo.TxEnvelopeTempo
 
-  // If we have marked the transaction as intended to be paid by a fee
-  // payer (feePayer: true), we strip the fee token from the sender's
-  // sign payload — per TIP-76 the sender does not commit to it; the fee
-  // payer chooses and commits to the token via its own signature.
-  //
-  // Once the fee payer has signed (`feePayerSignature` is populated),
-  // the relay has chosen a token and signed over it. The broadcast
-  // envelope must therefore include `feeToken` so the chain can verify
-  // the fee payer's signature and identify which token to charge.
-  if (feePayer === true && !feePayerSignature) delete transaction_ox.feeToken
+  // Sender does not commit to `feeToken` under sponsorship. Strip it
+  // for the sender sign payload and the partial sponsorship handoff envelope.
+  // Keep it only on the final broadcast envelope so the chain can verify
+  // the fee payer.
+  if (shouldStripFeeTokenForSponsorship) delete transaction_ox.feeToken
 
   if (signature && typeof transaction.feePayer === 'object') {
     const tx = TxTempo.from(transaction_ox, {
@@ -364,7 +365,13 @@ async function serializeTempo(
     })
   }
 
-  if (feePayer === true) {
+  if (feePayer === true || (!signature && hasPrefilledFeePayerSignature)) {
+    // Fee payer signature was prefilled during `eth_fillTransaction` -- emit
+    // a full envelope with both signatures to skip `eth_signRawTransaction`.
+    if (signature && feePayerSignature)
+      return TxTempo.serialize(transaction_ox, {
+        signature,
+      })
     if (signature)
       return TxTempo.serialize(transaction_ox, {
         format: 'feePayer',
