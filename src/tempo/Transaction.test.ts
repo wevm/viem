@@ -229,7 +229,7 @@ describe('serialize', () => {
 
   test('behavior: feePayer: true strips feeToken from sender sign payload even when feePayerSignature is set', async () => {
     // Sender's payload must still omit feeToken so its recovered address
-    // matches the one the relay assumed when computing the fee payer sig.
+    // matches the one used when computing the fee payer signature.
     const unsigned = await Transaction.serialize({
       chainId: 1,
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
@@ -256,8 +256,8 @@ describe('serialize', () => {
   })
 
   test('behavior: feePayer: true emits full envelope with both signatures (single round trip)', async () => {
-    // Relay co-signed during eth_fillTransaction -- emit a full 0x76
-    // envelope so withRelay can skip eth_signRawTransaction.
+    // Fee payer signature was prefilled during eth_fillTransaction -- emit
+    // a full 0x76 envelope to skip eth_signRawTransaction.
     const signed = await Transaction.serialize(
       {
         chainId: 1,

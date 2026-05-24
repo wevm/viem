@@ -332,7 +332,7 @@ async function serializeTempo(
   } satisfies TxTempo.TxEnvelopeTempo
 
   // Sender does not commit to `feeToken` under sponsorship. Strip it
-  // for the sender sign payload and the partial relay-handoff envelope.
+  // for the sender sign payload and the partial sponsorship handoff envelope.
   // Keep it only on the final broadcast envelope so the chain can verify
   // the fee payer.
   if (shouldStripFeeTokenForSponsorship) delete transaction_ox.feeToken
@@ -366,8 +366,8 @@ async function serializeTempo(
   }
 
   if (feePayer === true || (!signature && hasPrefilledFeePayerSignature)) {
-    // Relay co-signed during `eth_fillTransaction` -- emit a full
-    // envelope with both signatures to skip `eth_signRawTransaction`.
+    // Fee payer signature was prefilled during `eth_fillTransaction` -- emit
+    // a full envelope with both signatures to skip `eth_signRawTransaction`.
     if (signature && feePayerSignature)
       return TxTempo.serialize(transaction_ox, {
         signature,

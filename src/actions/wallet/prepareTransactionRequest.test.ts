@@ -2373,7 +2373,7 @@ describe('behavior: attemptFill', () => {
   test('behavior: adopts `calls` from `eth_fillTransaction` response and clears `to`/`data`/`value`', async () => {
     await setup()
 
-    const relayCalls = [
+    const filledCalls = [
       {
         to: '0x20c000000000000000000000b9537d11c60e8b50',
         data: '0x095ea7b3',
@@ -2394,7 +2394,7 @@ describe('behavior: attemptFill', () => {
         maxPriorityFeePerGas: 0n,
         nonce: 0,
         type: 'tempo',
-        calls: relayCalls,
+        calls: filledCalls,
         feeToken: '0x20c0000000000000000000000000000000000000',
         feePayerSignature: { r: '0x1', s: '0x1', yParity: '0x0' },
       },
@@ -2408,7 +2408,7 @@ describe('behavior: attemptFill', () => {
       value: 0n,
     } as never)) as never as Record<string, unknown>
 
-    expect(request.calls).toEqual(relayCalls)
+    expect(request.calls).toEqual(filledCalls)
     expect(request.to).toBeUndefined()
     expect(request.data).toBeUndefined()
     expect(request.value).toBeUndefined()
