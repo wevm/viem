@@ -1264,7 +1264,7 @@ export namespace getBalance {
 }
 
 /**
- * Gets TIP20 token metadata including name, symbol, currency, decimals, and total supply.
+ * Gets TIP20 token metadata including name, symbol, logo URI, currency, decimals, and total supply.
  *
  * @example
  * ```ts
@@ -1313,6 +1313,11 @@ export async function getMetadata<chain extends Chain | undefined>(
         {
           address,
           abi,
+          functionName: 'logoURI',
+        },
+        {
+          address,
+          abi,
           functionName: 'name',
         },
         {
@@ -1326,14 +1331,15 @@ export async function getMetadata<chain extends Chain | undefined>(
           functionName: 'totalSupply',
         },
       ] as const,
-      allowFailure: false,
+      allowFailure: true,
       deployless: true,
-    }).then(([currency, decimals, name, symbol, totalSupply]) => ({
-      name,
-      symbol,
-      currency,
-      decimals,
-      totalSupply,
+    }).then(([currency, decimals, logoURI, name, symbol, totalSupply]) => ({
+      name: unwrapMulticallResult(name),
+      symbol: unwrapMulticallResult(symbol),
+      currency: unwrapMulticallResult(currency),
+      decimals: unwrapMulticallResult(decimals),
+      logoURI: unwrapMulticallResult(logoURI, ''),
+      totalSupply: unwrapMulticallResult(totalSupply),
     }))
 
   return multicall(client, {
@@ -1348,6 +1354,11 @@ export async function getMetadata<chain extends Chain | undefined>(
         address,
         abi,
         functionName: 'decimals',
+      },
+      {
+        address,
+        abi,
+        functionName: 'logoURI',
       },
       {
         address,
@@ -1385,12 +1396,13 @@ export async function getMetadata<chain extends Chain | undefined>(
         functionName: 'transferPolicyId',
       },
     ] as const,
-    allowFailure: false,
+    allowFailure: true,
     deployless: true,
   }).then(
     ([
       currency,
       decimals,
+      logoURI,
       quoteToken,
       name,
       paused,
@@ -1399,17 +1411,42 @@ export async function getMetadata<chain extends Chain | undefined>(
       totalSupply,
       transferPolicyId,
     ]) => ({
-      name,
-      symbol,
-      currency,
-      decimals,
-      quoteToken,
-      totalSupply,
-      paused,
-      supplyCap,
-      transferPolicyId,
+      name: unwrapMulticallResult(name),
+      symbol: unwrapMulticallResult(symbol),
+      currency: unwrapMulticallResult(currency),
+      decimals: unwrapMulticallResult(decimals),
+      logoURI: unwrapMulticallResult(logoURI, ''),
+      quoteToken: unwrapMulticallResult(quoteToken),
+      totalSupply: unwrapMulticallResult(totalSupply),
+      paused: unwrapMulticallResult(paused),
+      supplyCap: unwrapMulticallResult(supplyCap),
+      transferPolicyId: unwrapMulticallResult(transferPolicyId),
     }),
   )
+}
+
+function unwrapMulticallResult<result>(
+  response:
+    | { result: result; status: 'success' }
+    | { error: unknown; status: 'failure' },
+): result
+function unwrapMulticallResult<result>(
+  response:
+    | { result: result; status: 'success' }
+    | { error: unknown; status: 'failure' },
+  fallback: result,
+): result
+function unwrapMulticallResult<result>(
+  response:
+    | { result: result; status: 'success' }
+    | { error: unknown; status: 'failure' },
+  ...fallback: [] | [result]
+) {
+  if (response.status === 'failure') {
+    if (fallback.length > 0) return fallback[0]
+    throw response.error
+  }
+  return response.result
 }
 
 export declare namespace getMetadata {
@@ -1427,6 +1464,11 @@ export declare namespace getMetadata {
      * Decimals of the token.
      */
     decimals: number
+    /**
+     * Logo URI of the token. Returns an empty string if unset or unsupported
+     * by the active Tempo hardfork.
+     */
+    logoURI: string
     /**
      * Quote token.
      *
