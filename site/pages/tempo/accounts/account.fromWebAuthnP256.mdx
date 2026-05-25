@@ -88,6 +88,12 @@ type Account = {
   signTransaction: (transaction: TransactionRequest) => Promise<Hex>
   /** Signs a EIP-712 typed data */
   signTypedData: (typedData: TypedData) => Promise<Hex>
+  /** Signs a TIP-20 channel voucher */
+  signVoucher: (parameters: {
+    chainId: number | bigint
+    channelId: Hex
+    cumulativeAmount: bigint
+  }) => Promise<Hex>
 }
 ```
 
@@ -114,4 +120,3 @@ Custom function to get the WebAuthn credential. Use this to override the default
 - **Type:** `string`
 
 The relying party ID. This should match the domain of your application.
-
