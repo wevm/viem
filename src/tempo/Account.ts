@@ -408,12 +408,13 @@ export async function signVoucher(
 }
 
 function getVoucherSignPayload(parameters: signVoucher.Parameters) {
-  const { chainId, cumulativeAmount } = parameters
+  const { chainId, channel, cumulativeAmount } = parameters
   const channelId =
-    parameters.channelId ??
-    Channel.computeId(parameters.channel, {
-      chainId,
-    })
+    typeof channel === 'string'
+      ? channel
+      : Channel.computeId(channel, {
+          chainId,
+        })
 
   return Channel.getVoucherSignPayload({
     chainId,
@@ -423,20 +424,11 @@ function getVoucherSignPayload(parameters: signVoucher.Parameters) {
 }
 
 export declare namespace signVoucher {
-  type Parameters = (
-    | {
-        /** Channel descriptor. */
-        channel: Channel.computeId.Channel
-        channelId?: undefined
-      }
-    | {
-        channel?: undefined
-        /** Channel ID. */
-        channelId: Hex.Hex
-      }
-  ) & {
+  type Parameters = {
     /** Chain ID. */
     chainId: number | bigint
+    /** Channel descriptor or ID. */
+    channel: Channel.computeId.Channel | Hex.Hex
     /** Total voucher amount signed for the channel. */
     cumulativeAmount: bigint
   }

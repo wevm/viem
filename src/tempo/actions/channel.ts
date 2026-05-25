@@ -873,14 +873,9 @@ export async function signVoucher<
   if (!('sign' in parsed) || !parsed.sign)
     throw new Error('account.sign is required.')
 
-  const channelId =
-    typeof channel === 'string'
-      ? channel
-      : (ox_Channel.computeId(channel, { chainId }) as Hex.Hex)
-
   return signVoucher_(parsed as never, {
     chainId,
-    channelId,
+    channel,
     cumulativeAmount,
   })
 }

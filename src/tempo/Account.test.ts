@@ -524,7 +524,7 @@ describe('signTypedData', () => {
 describe('signVoucher', () => {
   const voucher = {
     chainId: 4217,
-    channelId:
+    channel:
       '0x0000000000000000000000000000000000000000000000000000000000000001',
     cumulativeAmount: 123n,
   } as const
@@ -532,7 +532,11 @@ describe('signVoucher', () => {
   test('default', async () => {
     const account = Account.fromSecp256k1(privateKey_secp256k1)
     const signature = await account.signVoucher(voucher)
-    const payload = Channel.getVoucherSignPayload(voucher)
+    const payload = Channel.getVoucherSignPayload({
+      chainId: voucher.chainId,
+      channelId: voucher.channel,
+      cumulativeAmount: voucher.cumulativeAmount,
+    })
 
     expect(signature).toBe(await account.sign({ hash: payload }))
     expect(
@@ -556,8 +560,9 @@ describe('signVoucher', () => {
     })
     const channelId = Channel.computeId(channel, { chainId: voucher.chainId })
     const payload = Channel.getVoucherSignPayload({
-      ...voucher,
+      chainId: voucher.chainId,
       channelId,
+      cumulativeAmount: voucher.cumulativeAmount,
     })
 
     expect(
@@ -577,7 +582,11 @@ describe('signVoucher', () => {
         access: account,
       },
     )
-    const payload = Channel.getVoucherSignPayload(voucher)
+    const payload = Channel.getVoucherSignPayload({
+      chainId: voucher.chainId,
+      channelId: voucher.channel,
+      cumulativeAmount: voucher.cumulativeAmount,
+    })
     const signature = await access.signVoucher(voucher)
 
     expect(signature).toBe(await access.sign({ hash: payload }))

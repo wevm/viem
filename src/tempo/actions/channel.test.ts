@@ -132,7 +132,7 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
       token,
     })
     const signature = await signVoucher({
-      channelId,
+      channel: channelId,
       cumulativeAmount: parseUnits('40', 6),
     })
 
@@ -189,7 +189,7 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
     expect(signature).toBe(
       await payer.signVoucher({
         chainId: chain.id,
-        channelId,
+        channel: channelId,
         cumulativeAmount,
       }),
     )
@@ -245,7 +245,7 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
       token,
     })
     const signature = await signVoucher({
-      channelId,
+      channel: channelId,
       cumulativeAmount: parseUnits('80', 6),
     })
 
@@ -392,13 +392,13 @@ async function supportsChannelReserve() {
 }
 
 async function signVoucher(parameters: {
-  channelId: Hex.Hex
+  channel: Hex.Hex
   cumulativeAmount: bigint
 }) {
-  const { channelId, cumulativeAmount } = parameters
+  const { channel, cumulativeAmount } = parameters
   return payer.signVoucher({
     chainId: chain.id,
-    channelId,
+    channel,
     cumulativeAmount,
   })
 }
