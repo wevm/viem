@@ -1,6 +1,6 @@
 import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
-import { ChannelDescriptor, Channel as OxChannel, TokenId } from 'ox/tempo'
+import { Channel as OxChannel, TokenId } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
@@ -68,7 +68,7 @@ export namespace close {
     /** Total voucher amount signed for the channel. */
     cumulativeAmount: bigint
     /** TIP-20 channel descriptor. */
-    descriptor: ChannelDescriptor.from.Value
+    descriptor: OxChannel.from.Value
     /** Voucher signature. */
     signature: Hex.Hex
   }
@@ -114,7 +114,7 @@ export namespace close {
       abi: Abis.tip20ChannelReserve,
       functionName: 'close',
       args: [
-        ChannelDescriptor.from(descriptor),
+        OxChannel.from(descriptor),
         cumulativeAmount,
         captureAmount,
         signature,
@@ -255,7 +255,7 @@ export namespace getStates {
     channel: channel
   }
 
-  export type Channel = Hex.Hex | ChannelDescriptor.from.Value
+  export type Channel = Hex.Hex | OxChannel.from.Value
 
   export type State = ReadContractReturnType<
     typeof Abis.tip20ChannelReserve,
@@ -303,7 +303,7 @@ export namespace getStates {
         if (typeof channel === 'string') return channel
         if (chainId === undefined)
           throw new Error('`chainId` is required for descriptor inputs.')
-        return OxChannel.computeId({ ...channel, chainId }) as Hex.Hex
+        return OxChannel.computeId(channel, { chainId }) as Hex.Hex
       })
 
       return defineCall({
@@ -329,7 +329,7 @@ export namespace getStates {
     return defineCall({
       address: OxChannel.address,
       abi: Abis.tip20ChannelReserve,
-      args: [OxChannel.computeId({ ...channel_, chainId }) as Hex.Hex],
+      args: [OxChannel.computeId(channel_, { chainId }) as Hex.Hex],
       functionName: 'getChannelState',
     })
   }
@@ -569,7 +569,7 @@ export namespace requestClose {
 
   export type Args = {
     /** TIP-20 channel descriptor. */
-    descriptor: ChannelDescriptor.from.Value
+    descriptor: OxChannel.from.Value
   }
 
   export type ReturnValue = WriteContractReturnType
@@ -606,7 +606,7 @@ export namespace requestClose {
       address: OxChannel.address,
       abi: Abis.tip20ChannelReserve,
       functionName: 'requestClose',
-      args: [ChannelDescriptor.from(descriptor)],
+      args: [OxChannel.from(descriptor)],
     })
   }
 
@@ -720,7 +720,7 @@ export namespace settle {
     /** Total voucher amount signed for the channel. */
     cumulativeAmount: bigint
     /** TIP-20 channel descriptor. */
-    descriptor: ChannelDescriptor.from.Value
+    descriptor: OxChannel.from.Value
     /** Voucher signature. */
     signature: Hex.Hex
   }
@@ -759,7 +759,7 @@ export namespace settle {
       address: OxChannel.address,
       abi: Abis.tip20ChannelReserve,
       functionName: 'settle',
-      args: [ChannelDescriptor.from(descriptor), cumulativeAmount, signature],
+      args: [OxChannel.from(descriptor), cumulativeAmount, signature],
     })
   }
 
@@ -876,7 +876,7 @@ export async function signVoucher<
   const channelId =
     typeof channel === 'string'
       ? channel
-      : (OxChannel.computeId({ ...channel, chainId }) as Hex.Hex)
+      : (OxChannel.computeId(channel, { chainId }) as Hex.Hex)
 
   return signVoucher_(parsed as never, {
     chainId,
@@ -942,7 +942,7 @@ export namespace topUp {
     /** Additional deposit to lock in the channel. */
     additionalDeposit: bigint
     /** TIP-20 channel descriptor. */
-    descriptor: ChannelDescriptor.from.Value
+    descriptor: OxChannel.from.Value
   }
 
   export type ReturnValue = WriteContractReturnType
@@ -979,7 +979,7 @@ export namespace topUp {
       address: OxChannel.address,
       abi: Abis.tip20ChannelReserve,
       functionName: 'topUp',
-      args: [ChannelDescriptor.from(descriptor), additionalDeposit],
+      args: [OxChannel.from(descriptor), additionalDeposit],
     })
   }
 
@@ -1089,7 +1089,7 @@ export namespace withdraw {
 
   export type Args = {
     /** TIP-20 channel descriptor. */
-    descriptor: ChannelDescriptor.from.Value
+    descriptor: OxChannel.from.Value
   }
 
   export type ReturnValue = WriteContractReturnType
@@ -1126,7 +1126,7 @@ export namespace withdraw {
       address: OxChannel.address,
       abi: Abis.tip20ChannelReserve,
       functionName: 'withdraw',
-      args: [ChannelDescriptor.from(descriptor)],
+      args: [OxChannel.from(descriptor)],
     })
   }
 

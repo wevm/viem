@@ -14,9 +14,9 @@ export const client = createClient({
 // [!endregion setup]
 
 // [!region channelDescriptor]
-import { ChannelDescriptor } from 'viem/tempo'
+import { Channel } from 'viem/tempo'
 
-export const descriptor = ChannelDescriptor.from({
+export const descriptor = Channel.from({
   expiringNonceHash:
     '0x0000000000000000000000000000000000000000000000000000000000000000',
   payee: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',

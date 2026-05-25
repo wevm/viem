@@ -1,6 +1,6 @@
 import type { Hex } from 'ox'
 import { parseUnits, zeroAddress, zeroHash } from 'viem'
-import { Channel, ChannelDescriptor } from 'viem/tempo'
+import { Channel } from 'viem/tempo'
 import { beforeAll, describe, expect, test } from 'vitest'
 import {
   accounts,
@@ -47,12 +47,7 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
     const { channelId, descriptor, receipt } = await setupChannel()
 
     expect(receipt.status).toBe('success')
-    expect(channelId).toBe(
-      Channel.computeId({
-        ...descriptor,
-        chainId: chain.id,
-      }),
-    )
+    expect(channelId).toBe(Channel.computeId(descriptor, { chainId: chain.id }))
 
     const stateById = await actions.channel.getStates(payerClient, {
       channel: channelId,
@@ -111,7 +106,7 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
       salt: zeroHash,
       token,
     })
-    const descriptor = ChannelDescriptor.from({
+    const descriptor = Channel.from({
       authorizedSigner: opened.authorizedSigner,
       expiringNonceHash: opened.expiringNonceHash,
       operator: opened.operator,
@@ -124,7 +119,7 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
     expect(receipt.status).toBe('success')
     expect(opened.salt).toBe(zeroHash)
     expect(opened.channelId).toBe(
-      Channel.computeId({ ...descriptor, chainId: chain.id }),
+      Channel.computeId(descriptor, { chainId: chain.id }),
     )
   })
 
@@ -365,7 +360,7 @@ async function setupChannel() {
     payee: payee.address,
     token,
   })
-  const descriptor = ChannelDescriptor.from({
+  const descriptor = Channel.from({
     authorizedSigner: opened.authorizedSigner,
     expiringNonceHash: opened.expiringNonceHash,
     operator: opened.operator,
