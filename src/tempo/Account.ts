@@ -403,12 +403,43 @@ export async function signVoucher(
   parameters: signVoucher.Parameters,
 ): Promise<signVoucher.ReturnValue> {
   return account.sign!({
-    hash: Channel.getVoucherSignPayload(parameters),
+    hash: getVoucherSignPayload(parameters),
+  })
+}
+
+function getVoucherSignPayload(parameters: signVoucher.Parameters) {
+  const { chainId, cumulativeAmount } = parameters
+  const channelId =
+    parameters.channelId ??
+    Channel.computeId(parameters.channel, {
+      chainId,
+    })
+
+  return Channel.getVoucherSignPayload({
+    chainId,
+    channelId,
+    cumulativeAmount,
   })
 }
 
 export declare namespace signVoucher {
-  type Parameters = Channel.getVoucherSignPayload.Value
+  type Parameters = (
+    | {
+        /** Channel descriptor. */
+        channel: Channel.computeId.Channel
+        channelId?: undefined
+      }
+    | {
+        channel?: undefined
+        /** Channel ID. */
+        channelId: Hex.Hex
+      }
+  ) & {
+    /** Chain ID. */
+    chainId: number | bigint
+    /** Total voucher amount signed for the channel. */
+    cumulativeAmount: bigint
+  }
 
   type ReturnValue = Hex.Hex
 }
@@ -535,7 +566,7 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
     },
     async signVoucher(parameters) {
       return await sign({
-        hash: Channel.getVoucherSignPayload(parameters),
+        hash: getVoucherSignPayload(parameters),
       })
     },
     publicKey,

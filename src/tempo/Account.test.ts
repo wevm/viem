@@ -544,6 +544,31 @@ describe('signVoucher', () => {
     ).toBe(true)
   })
 
+  test('behavior: channel', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const channel = Channel.from({
+      expiringNonceHash:
+        '0x0000000000000000000000000000000000000000000000000000000000000002',
+      payee: '0x2222222222222222222222222222222222222222',
+      payer: account.address,
+      salt: '0x0000000000000000000000000000000000000000000000000000000000000003',
+      token: 1n,
+    })
+    const channelId = Channel.computeId(channel, { chainId: voucher.chainId })
+    const payload = Channel.getVoucherSignPayload({
+      ...voucher,
+      channelId,
+    })
+
+    expect(
+      await account.signVoucher({
+        chainId: voucher.chainId,
+        channel,
+        cumulativeAmount: voucher.cumulativeAmount,
+      }),
+    ).toBe(await account.sign({ hash: payload }))
+  })
+
   test('behavior: access key', async () => {
     const account = Account.fromSecp256k1(privateKey_secp256k1)
     const access = Account.fromSecp256k1(
