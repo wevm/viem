@@ -601,6 +601,54 @@ export type Decorator<
     >(
       parameters: channelActions.getStates.Parameters<channel>,
     ) => Promise<channelActions.getStates.ReturnValue<channel>>
+    /** Opens and funds a TIP-20 channel reserve channel. */
+    open: (
+      parameters: channelActions.open.Parameters<chain, account>,
+    ) => Promise<channelActions.open.ReturnValue>
+    /** Opens and funds a TIP-20 channel reserve channel and waits for the transaction receipt. */
+    openSync: (
+      parameters: channelActions.openSync.Parameters<chain, account>,
+    ) => Promise<channelActions.openSync.ReturnValue>
+    /** Settles a TIP-20 channel reserve voucher. */
+    settle: (
+      parameters: channelActions.settle.Parameters<chain, account>,
+    ) => Promise<channelActions.settle.ReturnValue>
+    /** Settles a TIP-20 channel reserve voucher and waits for the transaction receipt. */
+    settleSync: (
+      parameters: channelActions.settleSync.Parameters<chain, account>,
+    ) => Promise<channelActions.settleSync.ReturnValue>
+    /** Adds deposit to a TIP-20 channel reserve channel. */
+    topUp: (
+      parameters: channelActions.topUp.Parameters<chain, account>,
+    ) => Promise<channelActions.topUp.ReturnValue>
+    /** Adds deposit to a TIP-20 channel reserve channel and waits for the transaction receipt. */
+    topUpSync: (
+      parameters: channelActions.topUpSync.Parameters<chain, account>,
+    ) => Promise<channelActions.topUpSync.ReturnValue>
+    /** Closes a TIP-20 channel reserve channel from the payee or operator side. */
+    close: (
+      parameters: channelActions.close.Parameters<chain, account>,
+    ) => Promise<channelActions.close.ReturnValue>
+    /** Closes a TIP-20 channel reserve channel and waits for the transaction receipt. */
+    closeSync: (
+      parameters: channelActions.closeSync.Parameters<chain, account>,
+    ) => Promise<channelActions.closeSync.ReturnValue>
+    /** Starts the payer close timer for a TIP-20 channel reserve channel. */
+    requestClose: (
+      parameters: channelActions.requestClose.Parameters<chain, account>,
+    ) => Promise<channelActions.requestClose.ReturnValue>
+    /** Starts the payer close timer and waits for the transaction receipt. */
+    requestCloseSync: (
+      parameters: channelActions.requestCloseSync.Parameters<chain, account>,
+    ) => Promise<channelActions.requestCloseSync.ReturnValue>
+    /** Withdraws payer funds after the close grace period elapses. */
+    withdraw: (
+      parameters: channelActions.withdraw.Parameters<chain, account>,
+    ) => Promise<channelActions.withdraw.ReturnValue>
+    /** Withdraws payer funds and waits for the transaction receipt. */
+    withdrawSync: (
+      parameters: channelActions.withdrawSync.Parameters<chain, account>,
+    ) => Promise<channelActions.withdrawSync.ReturnValue>
   }
   dex: {
     /**
@@ -4334,7 +4382,23 @@ export function decorator() {
           ammActions.watchRebalanceSwap(client, parameters),
       },
       channel: {
+        close: (parameters) => channelActions.close(client, parameters),
+        closeSync: (parameters) => channelActions.closeSync(client, parameters),
         getStates: (parameters) => channelActions.getStates(client, parameters),
+        open: (parameters) => channelActions.open(client, parameters),
+        openSync: (parameters) => channelActions.openSync(client, parameters),
+        requestClose: (parameters) =>
+          channelActions.requestClose(client, parameters),
+        requestCloseSync: (parameters) =>
+          channelActions.requestCloseSync(client, parameters),
+        settle: (parameters) => channelActions.settle(client, parameters),
+        settleSync: (parameters) =>
+          channelActions.settleSync(client, parameters),
+        topUp: (parameters) => channelActions.topUp(client, parameters),
+        topUpSync: (parameters) => channelActions.topUpSync(client, parameters),
+        withdraw: (parameters) => channelActions.withdraw(client, parameters),
+        withdrawSync: (parameters) =>
+          channelActions.withdrawSync(client, parameters),
       },
       dex: {
         buy: (parameters) => dexActions.buy(client, parameters),

@@ -2,4 +2,4 @@
 "viem": minor
 ---
 
-Added `Actions.channel.getStates` for reading TIP-20 channel reserve state by channel ID or descriptor.
+Added `Actions.channel` helpers for reading and mutating TIP-20 channel reserve state.

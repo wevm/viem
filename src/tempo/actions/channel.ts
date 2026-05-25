@@ -1,14 +1,24 @@
-import { Channel as OxChannel } from 'ox/tempo'
+import type { Address } from 'abitype'
+import { Channel as OxChannel, TempoAddress, TokenId } from 'ox/tempo'
+import type { Account } from '../../accounts/types.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
 import { readContract } from '../../actions/public/readContract.js'
+import type { WriteContractReturnType } from '../../actions/wallet/writeContract.js'
+import { writeContract } from '../../actions/wallet/writeContract.js'
+import { writeContractSync } from '../../actions/wallet/writeContractSync.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
+import type { GetEventArgs } from '../../types/contract.js'
+import type { Log } from '../../types/log.js'
 import type { Hex } from '../../types/misc.js'
+import type { Compute } from '../../types/utils.js'
+import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
-import type { ReadParameters } from '../internal/types.js'
+import type { ReadParameters, WriteParameters } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
+import type { TransactionReceipt } from '../Transaction.js'
 
 /**
  * Gets TIP-20 channel reserve state for a channel ID or descriptor.
@@ -146,5 +156,992 @@ export namespace getStates {
       args: [OxChannel.computeId({ ...channel_, chainId }) as Hex],
       functionName: 'getChannelState',
     })
+  }
+}
+
+/**
+ * Opens and funds a TIP-20 channel reserve channel.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   transport: http(),
+ * })
+ *
+ * const hash = await Actions.channel.open(client, {
+ *   authorizedSigner: '0x0000000000000000000000000000000000000000',
+ *   deposit: 100n,
+ *   operator: '0x0000000000000000000000000000000000000000',
+ *   payee: '0x...',
+ *   salt: '0x...',
+ *   token: 1n,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction hash.
+ */
+export async function open<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: open.Parameters<chain, account>,
+): Promise<open.ReturnValue> {
+  return open.inner(writeContract, client, parameters)
+}
+
+export namespace open {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+
+  export type Args = {
+    /** Optional signer for vouchers. Zero means `payer` signs. */
+    authorizedSigner: TempoAddress.Address
+    /** Amount of TIP-20 token to deposit. */
+    deposit: bigint
+    /** Optional relayer allowed to submit `settle` for the payee. */
+    operator: TempoAddress.Address
+    /** Account that receives settled voucher payments. */
+    payee: TempoAddress.Address
+    /** User-supplied salt to distinguish otherwise identical channels. */
+    salt: Hex
+    /** TIP-20 token address or ID held by the channel. */
+    token: TokenId.TokenIdOrAddress<TempoAddress.Address>
+  }
+
+  export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof writeContract | typeof writeContractSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const { authorizedSigner, deposit, operator, payee, salt, token, ...rest } =
+      parameters
+    return (await action(client, {
+      ...rest,
+      ...open.call({
+        authorizedSigner,
+        deposit,
+        operator,
+        payee,
+        salt,
+        token,
+      }),
+    } as never)) as never
+  }
+
+  /**
+   * Defines a call to the `open` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { authorizedSigner, deposit, operator, payee, salt, token } = args
+    return defineCall({
+      address: OxChannel.address,
+      abi: Abis.tip20ChannelReserve,
+      functionName: 'open',
+      args: [
+        TempoAddress.resolve(payee),
+        TempoAddress.resolve(operator),
+        TokenId.toAddress(token),
+        deposit,
+        salt,
+        TempoAddress.resolve(authorizedSigner),
+      ],
+    })
+  }
+
+  /**
+   * Extracts the `ChannelOpened` event from logs.
+   *
+   * @param logs - The logs.
+   * @returns The `ChannelOpened` event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: Abis.tip20ChannelReserve,
+      logs,
+      eventName: 'ChannelOpened',
+      strict: true,
+    })
+    if (!log) throw new Error('`ChannelOpened` event not found.')
+    return log
+  }
+}
+
+/**
+ * Opens and funds a TIP-20 channel reserve channel and waits for the
+ * transaction receipt.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   transport: http(),
+ * })
+ *
+ * const result = await Actions.channel.openSync(client, {
+ *   authorizedSigner: '0x0000000000000000000000000000000000000000',
+ *   deposit: 100n,
+ *   operator: '0x0000000000000000000000000000000000000000',
+ *   payee: '0x...',
+ *   salt: '0x...',
+ *   token: 1n,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction receipt and event data.
+ */
+export async function openSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: openSync.Parameters<chain, account>,
+): Promise<openSync.ReturnValue> {
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await open.inner(writeContractSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
+  const { args } = open.extractEvent(receipt.logs)
+  return { ...args, receipt } as never
+}
+
+export namespace openSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = open.Parameters<chain, account>
+
+  export type Args = open.Args
+
+  export type ReturnValue = Compute<
+    GetEventArgs<
+      typeof Abis.tip20ChannelReserve,
+      'ChannelOpened',
+      { IndexedOnly: false; Required: true }
+    > & {
+      /** Transaction receipt. */
+      receipt: TransactionReceipt
+    }
+  >
+}
+
+/**
+ * Settles a TIP-20 channel reserve voucher.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const hash = await Actions.channel.settle(client, {
+ *   cumulativeAmount: 100n,
+ *   descriptor,
+ *   signature: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction hash.
+ */
+export async function settle<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: settle.Parameters<chain, account>,
+): Promise<settle.ReturnValue> {
+  return settle.inner(writeContract, client, parameters)
+}
+
+export namespace settle {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+
+  export type Args = {
+    /** Total voucher amount signed for the channel. */
+    cumulativeAmount: bigint
+    /** TIP-20 channel descriptor. */
+    descriptor: OxChannel.Descriptor
+    /** Voucher signature. */
+    signature: Hex
+  }
+
+  export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof writeContract | typeof writeContractSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const { cumulativeAmount, descriptor, signature, ...rest } = parameters
+    return (await action(client, {
+      ...rest,
+      ...settle.call({ cumulativeAmount, descriptor, signature }),
+    } as never)) as never
+  }
+
+  /**
+   * Defines a call to the `settle` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { cumulativeAmount, descriptor, signature } = args
+    return defineCall({
+      address: OxChannel.address,
+      abi: Abis.tip20ChannelReserve,
+      functionName: 'settle',
+      args: [toContractDescriptor(descriptor), cumulativeAmount, signature],
+    })
+  }
+
+  /**
+   * Extracts the `Settled` event from logs.
+   *
+   * @param logs - The logs.
+   * @returns The `Settled` event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: Abis.tip20ChannelReserve,
+      logs,
+      eventName: 'Settled',
+      strict: true,
+    })
+    if (!log) throw new Error('`Settled` event not found.')
+    return log
+  }
+}
+
+/**
+ * Settles a TIP-20 channel reserve voucher and waits for the transaction receipt.
+ *
+ * @example
+ * ```ts
+ * import { Actions } from 'viem/tempo'
+ *
+ * const result = await Actions.channel.settleSync(client, {
+ *   cumulativeAmount: 100n,
+ *   descriptor,
+ *   signature: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction receipt and event data.
+ */
+export async function settleSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: settleSync.Parameters<chain, account>,
+): Promise<settleSync.ReturnValue> {
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await settle.inner(writeContractSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
+  const { args } = settle.extractEvent(receipt.logs)
+  return { ...args, receipt } as never
+}
+
+export namespace settleSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = settle.Parameters<chain, account>
+
+  export type Args = settle.Args
+
+  export type ReturnValue = Compute<
+    GetEventArgs<
+      typeof Abis.tip20ChannelReserve,
+      'Settled',
+      { IndexedOnly: false; Required: true }
+    > & {
+      /** Transaction receipt. */
+      receipt: TransactionReceipt
+    }
+  >
+}
+
+/**
+ * Adds deposit to a TIP-20 channel reserve channel.
+ *
+ * @example
+ * ```ts
+ * import { Actions } from 'viem/tempo'
+ *
+ * const hash = await Actions.channel.topUp(client, {
+ *   additionalDeposit: 100n,
+ *   descriptor,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction hash.
+ */
+export async function topUp<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: topUp.Parameters<chain, account>,
+): Promise<topUp.ReturnValue> {
+  return topUp.inner(writeContract, client, parameters)
+}
+
+export namespace topUp {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+
+  export type Args = {
+    /** Additional deposit to lock in the channel. */
+    additionalDeposit: bigint
+    /** TIP-20 channel descriptor. */
+    descriptor: OxChannel.Descriptor
+  }
+
+  export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof writeContract | typeof writeContractSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const { additionalDeposit, descriptor, ...rest } = parameters
+    return (await action(client, {
+      ...rest,
+      ...topUp.call({ additionalDeposit, descriptor }),
+    } as never)) as never
+  }
+
+  /**
+   * Defines a call to the `topUp` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { additionalDeposit, descriptor } = args
+    return defineCall({
+      address: OxChannel.address,
+      abi: Abis.tip20ChannelReserve,
+      functionName: 'topUp',
+      args: [toContractDescriptor(descriptor), additionalDeposit],
+    })
+  }
+
+  /**
+   * Extracts the `TopUp` event from logs.
+   *
+   * @param logs - The logs.
+   * @returns The `TopUp` event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: Abis.tip20ChannelReserve,
+      logs,
+      eventName: 'TopUp',
+      strict: true,
+    })
+    if (!log) throw new Error('`TopUp` event not found.')
+    return log
+  }
+}
+
+/**
+ * Adds deposit to a TIP-20 channel reserve channel and waits for the
+ * transaction receipt.
+ *
+ * @example
+ * ```ts
+ * import { Actions } from 'viem/tempo'
+ *
+ * const result = await Actions.channel.topUpSync(client, {
+ *   additionalDeposit: 100n,
+ *   descriptor,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction receipt and event data.
+ */
+export async function topUpSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: topUpSync.Parameters<chain, account>,
+): Promise<topUpSync.ReturnValue> {
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await topUp.inner(writeContractSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
+  const { args } = topUp.extractEvent(receipt.logs)
+  return { ...args, receipt } as never
+}
+
+export namespace topUpSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = topUp.Parameters<chain, account>
+
+  export type Args = topUp.Args
+
+  export type ReturnValue = Compute<
+    GetEventArgs<
+      typeof Abis.tip20ChannelReserve,
+      'TopUp',
+      { IndexedOnly: false; Required: true }
+    > & {
+      /** Transaction receipt. */
+      receipt: TransactionReceipt
+    }
+  >
+}
+
+/**
+ * Closes a TIP-20 channel reserve channel from the payee or operator side.
+ *
+ * @example
+ * ```ts
+ * import { Actions } from 'viem/tempo'
+ *
+ * const hash = await Actions.channel.close(client, {
+ *   captureAmount: 100n,
+ *   cumulativeAmount: 100n,
+ *   descriptor,
+ *   signature: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction hash.
+ */
+export async function close<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: close.Parameters<chain, account>,
+): Promise<close.ReturnValue> {
+  return close.inner(writeContract, client, parameters)
+}
+
+export namespace close {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+
+  export type Args = {
+    /** Amount to capture for the payee during close. */
+    captureAmount: bigint
+    /** Total voucher amount signed for the channel. */
+    cumulativeAmount: bigint
+    /** TIP-20 channel descriptor. */
+    descriptor: OxChannel.Descriptor
+    /** Voucher signature. */
+    signature: Hex
+  }
+
+  export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof writeContract | typeof writeContractSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const { captureAmount, cumulativeAmount, descriptor, signature, ...rest } =
+      parameters
+    return (await action(client, {
+      ...rest,
+      ...close.call({
+        captureAmount,
+        cumulativeAmount,
+        descriptor,
+        signature,
+      }),
+    } as never)) as never
+  }
+
+  /**
+   * Defines a call to the `close` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { captureAmount, cumulativeAmount, descriptor, signature } = args
+    return defineCall({
+      address: OxChannel.address,
+      abi: Abis.tip20ChannelReserve,
+      functionName: 'close',
+      args: [
+        toContractDescriptor(descriptor),
+        cumulativeAmount,
+        captureAmount,
+        signature,
+      ],
+    })
+  }
+
+  /**
+   * Extracts the `ChannelClosed` event from logs.
+   *
+   * @param logs - The logs.
+   * @returns The `ChannelClosed` event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: Abis.tip20ChannelReserve,
+      logs,
+      eventName: 'ChannelClosed',
+      strict: true,
+    })
+    if (!log) throw new Error('`ChannelClosed` event not found.')
+    return log
+  }
+}
+
+/**
+ * Closes a TIP-20 channel reserve channel and waits for the transaction receipt.
+ *
+ * @example
+ * ```ts
+ * import { Actions } from 'viem/tempo'
+ *
+ * const result = await Actions.channel.closeSync(client, {
+ *   captureAmount: 100n,
+ *   cumulativeAmount: 100n,
+ *   descriptor,
+ *   signature: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction receipt and event data.
+ */
+export async function closeSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: closeSync.Parameters<chain, account>,
+): Promise<closeSync.ReturnValue> {
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await close.inner(writeContractSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
+  const { args } = close.extractEvent(receipt.logs)
+  return { ...args, receipt } as never
+}
+
+export namespace closeSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = close.Parameters<chain, account>
+
+  export type Args = close.Args
+
+  export type ReturnValue = Compute<
+    GetEventArgs<
+      typeof Abis.tip20ChannelReserve,
+      'ChannelClosed',
+      { IndexedOnly: false; Required: true }
+    > & {
+      /** Transaction receipt. */
+      receipt: TransactionReceipt
+    }
+  >
+}
+
+/**
+ * Starts the payer close timer for a TIP-20 channel reserve channel.
+ *
+ * @example
+ * ```ts
+ * import { Actions } from 'viem/tempo'
+ *
+ * const hash = await Actions.channel.requestClose(client, {
+ *   descriptor,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction hash.
+ */
+export async function requestClose<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: requestClose.Parameters<chain, account>,
+): Promise<requestClose.ReturnValue> {
+  return requestClose.inner(writeContract, client, parameters)
+}
+
+export namespace requestClose {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+
+  export type Args = {
+    /** TIP-20 channel descriptor. */
+    descriptor: OxChannel.Descriptor
+  }
+
+  export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof writeContract | typeof writeContractSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const { descriptor, ...rest } = parameters
+    return (await action(client, {
+      ...rest,
+      ...requestClose.call({ descriptor }),
+    } as never)) as never
+  }
+
+  /**
+   * Defines a call to the `requestClose` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { descriptor } = args
+    return defineCall({
+      address: OxChannel.address,
+      abi: Abis.tip20ChannelReserve,
+      functionName: 'requestClose',
+      args: [toContractDescriptor(descriptor)],
+    })
+  }
+
+  /**
+   * Extracts the `CloseRequested` event from logs.
+   *
+   * @param logs - The logs.
+   * @returns The `CloseRequested` event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: Abis.tip20ChannelReserve,
+      logs,
+      eventName: 'CloseRequested',
+      strict: true,
+    })
+    if (!log) throw new Error('`CloseRequested` event not found.')
+    return log
+  }
+}
+
+/**
+ * Starts the payer close timer and waits for the transaction receipt.
+ *
+ * @example
+ * ```ts
+ * import { Actions } from 'viem/tempo'
+ *
+ * const result = await Actions.channel.requestCloseSync(client, {
+ *   descriptor,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction receipt and event data.
+ */
+export async function requestCloseSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: requestCloseSync.Parameters<chain, account>,
+): Promise<requestCloseSync.ReturnValue> {
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await requestClose.inner(writeContractSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
+  const { args } = requestClose.extractEvent(receipt.logs)
+  return { ...args, receipt } as never
+}
+
+export namespace requestCloseSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = requestClose.Parameters<chain, account>
+
+  export type Args = requestClose.Args
+
+  export type ReturnValue = Compute<
+    GetEventArgs<
+      typeof Abis.tip20ChannelReserve,
+      'CloseRequested',
+      { IndexedOnly: false; Required: true }
+    > & {
+      /** Transaction receipt. */
+      receipt: TransactionReceipt
+    }
+  >
+}
+
+/**
+ * Withdraws payer funds after the close grace period elapses.
+ *
+ * @example
+ * ```ts
+ * import { Actions } from 'viem/tempo'
+ *
+ * const hash = await Actions.channel.withdraw(client, {
+ *   descriptor,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction hash.
+ */
+export async function withdraw<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: withdraw.Parameters<chain, account>,
+): Promise<withdraw.ReturnValue> {
+  return withdraw.inner(writeContract, client, parameters)
+}
+
+export namespace withdraw {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+
+  export type Args = {
+    /** TIP-20 channel descriptor. */
+    descriptor: OxChannel.Descriptor
+  }
+
+  export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof writeContract | typeof writeContractSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const { descriptor, ...rest } = parameters
+    return (await action(client, {
+      ...rest,
+      ...withdraw.call({ descriptor }),
+    } as never)) as never
+  }
+
+  /**
+   * Defines a call to the `withdraw` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { descriptor } = args
+    return defineCall({
+      address: OxChannel.address,
+      abi: Abis.tip20ChannelReserve,
+      functionName: 'withdraw',
+      args: [toContractDescriptor(descriptor)],
+    })
+  }
+
+  /**
+   * Extracts the `ChannelClosed` event from logs.
+   *
+   * @param logs - The logs.
+   * @returns The `ChannelClosed` event.
+   */
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: Abis.tip20ChannelReserve,
+      logs,
+      eventName: 'ChannelClosed',
+      strict: true,
+    })
+    if (!log) throw new Error('`ChannelClosed` event not found.')
+    return log
+  }
+}
+
+/**
+ * Withdraws payer funds after the close grace period elapses and waits for the
+ * transaction receipt.
+ *
+ * @example
+ * ```ts
+ * import { Actions } from 'viem/tempo'
+ *
+ * const result = await Actions.channel.withdrawSync(client, {
+ *   descriptor,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction receipt and event data.
+ */
+export async function withdrawSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: withdrawSync.Parameters<chain, account>,
+): Promise<withdrawSync.ReturnValue> {
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await withdraw.inner(writeContractSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
+  const { args } = withdraw.extractEvent(receipt.logs)
+  return { ...args, receipt } as never
+}
+
+export namespace withdrawSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = withdraw.Parameters<chain, account>
+
+  export type Args = withdraw.Args
+
+  export type ReturnValue = Compute<
+    GetEventArgs<
+      typeof Abis.tip20ChannelReserve,
+      'ChannelClosed',
+      { IndexedOnly: false; Required: true }
+    > & {
+      /** Transaction receipt. */
+      receipt: TransactionReceipt
+    }
+  >
+}
+
+type ContractDescriptor = {
+  authorizedSigner: Address
+  expiringNonceHash: Hex
+  operator: Address
+  payee: Address
+  payer: Address
+  salt: Hex
+  token: Address
+}
+
+function toContractDescriptor(
+  descriptor: OxChannel.Descriptor,
+): ContractDescriptor {
+  return {
+    authorizedSigner: TempoAddress.resolve(descriptor.authorizedSigner),
+    expiringNonceHash: descriptor.expiringNonceHash,
+    operator: TempoAddress.resolve(descriptor.operator),
+    payee: TempoAddress.resolve(descriptor.payee),
+    payer: TempoAddress.resolve(descriptor.payer),
+    salt: descriptor.salt,
+    token: TokenId.toAddress(descriptor.token),
   }
 }
