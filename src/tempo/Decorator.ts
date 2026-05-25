@@ -572,11 +572,45 @@ export type Decorator<
     ) => () => void
   }
   channel: {
-    /** Closes a TIP-20 channel reserve channel from the payee or operator side. */
+    /**
+     * Closes a TIP-20 channel reserve channel from the payee or operator side.
+     *
+     * @example
+     * ```ts
+     * import { parseUnits } from 'viem'
+     *
+     * const hash = await client.channel.close({
+     *   captureAmount: parseUnits('40', 6),
+     *   cumulativeAmount: parseUnits('80', 6),
+     *   channel,
+     *   signature: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
     close: (
       parameters: channelActions.close.Parameters<chain, account>,
     ) => Promise<channelActions.close.ReturnValue>
-    /** Closes a TIP-20 channel reserve channel and waits for the transaction receipt. */
+    /**
+     * Closes a TIP-20 channel reserve channel and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { parseUnits } from 'viem'
+     *
+     * const result = await client.channel.closeSync({
+     *   captureAmount: parseUnits('40', 6),
+     *   cumulativeAmount: parseUnits('80', 6),
+     *   channel,
+     *   signature: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
     closeSync: (
       parameters: channelActions.closeSync.Parameters<chain, account>,
     ) => Promise<channelActions.closeSync.ReturnValue>
@@ -609,47 +643,204 @@ export type Decorator<
     >(
       parameters: channelActions.getStates.Parameters<channel>,
     ) => Promise<channelActions.getStates.ReturnValue<channel>>
-    /** Opens and funds a TIP-20 channel reserve channel. */
+    /**
+     * Opens and funds a TIP-20 channel reserve channel.
+     *
+     * @example
+     * ```ts
+     * import { parseUnits } from 'viem'
+     *
+     * const hash = await client.channel.open({
+     *   deposit: parseUnits('100', 6),
+     *   payee: '0x...',
+     *   token: 1n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
     open: (
       parameters: channelActions.open.Parameters<chain, account>,
     ) => Promise<channelActions.open.ReturnValue>
-    /** Opens and funds a TIP-20 channel reserve channel and waits for the transaction receipt. */
+    /**
+     * Opens and funds a TIP-20 channel reserve channel and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { parseUnits } from 'viem'
+     *
+     * const result = await client.channel.openSync({
+     *   deposit: parseUnits('100', 6),
+     *   payee: '0x...',
+     *   token: 1n,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
     openSync: (
       parameters: channelActions.openSync.Parameters<chain, account>,
     ) => Promise<channelActions.openSync.ReturnValue>
-    /** Starts the payer close timer for a TIP-20 channel reserve channel. */
+    /**
+     * Starts the payer close timer for a TIP-20 channel reserve channel.
+     *
+     * @example
+     * ```ts
+     * const hash = await client.channel.requestClose({
+     *   channel,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
     requestClose: (
       parameters: channelActions.requestClose.Parameters<chain, account>,
     ) => Promise<channelActions.requestClose.ReturnValue>
-    /** Starts the payer close timer and waits for the transaction receipt. */
+    /**
+     * Starts the payer close timer and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * const result = await client.channel.requestCloseSync({
+     *   channel,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
     requestCloseSync: (
       parameters: channelActions.requestCloseSync.Parameters<chain, account>,
     ) => Promise<channelActions.requestCloseSync.ReturnValue>
-    /** Settles a TIP-20 channel reserve voucher. */
+    /**
+     * Settles a TIP-20 channel reserve voucher.
+     *
+     * @example
+     * ```ts
+     * import { parseUnits } from 'viem'
+     *
+     * const hash = await client.channel.settle({
+     *   cumulativeAmount: parseUnits('40', 6),
+     *   channel,
+     *   signature: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
     settle: (
       parameters: channelActions.settle.Parameters<chain, account>,
     ) => Promise<channelActions.settle.ReturnValue>
-    /** Settles a TIP-20 channel reserve voucher and waits for the transaction receipt. */
+    /**
+     * Settles a TIP-20 channel reserve voucher and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { parseUnits } from 'viem'
+     *
+     * const result = await client.channel.settleSync({
+     *   cumulativeAmount: parseUnits('40', 6),
+     *   channel,
+     *   signature: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
     settleSync: (
       parameters: channelActions.settleSync.Parameters<chain, account>,
     ) => Promise<channelActions.settleSync.ReturnValue>
-    /** Signs a TIP-20 channel reserve voucher. */
+    /**
+     * Signs a TIP-20 channel reserve voucher.
+     *
+     * @example
+     * ```ts
+     * import { parseUnits } from 'viem'
+     *
+     * const signature = await client.channel.signVoucher({
+     *   channel,
+     *   cumulativeAmount: parseUnits('40', 6),
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The voucher signature.
+     */
     signVoucher: (
       parameters: channelActions.signVoucher.Parameters<account>,
     ) => Promise<channelActions.signVoucher.ReturnValue>
-    /** Adds deposit to a TIP-20 channel reserve channel. */
+    /**
+     * Adds deposit to a TIP-20 channel reserve channel.
+     *
+     * @example
+     * ```ts
+     * import { parseUnits } from 'viem'
+     *
+     * const hash = await client.channel.topUp({
+     *   additionalDeposit: parseUnits('50', 6),
+     *   channel,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
     topUp: (
       parameters: channelActions.topUp.Parameters<chain, account>,
     ) => Promise<channelActions.topUp.ReturnValue>
-    /** Adds deposit to a TIP-20 channel reserve channel and waits for the transaction receipt. */
+    /**
+     * Adds deposit to a TIP-20 channel reserve channel and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { parseUnits } from 'viem'
+     *
+     * const result = await client.channel.topUpSync({
+     *   additionalDeposit: parseUnits('50', 6),
+     *   channel,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
     topUpSync: (
       parameters: channelActions.topUpSync.Parameters<chain, account>,
     ) => Promise<channelActions.topUpSync.ReturnValue>
-    /** Withdraws payer funds after the close grace period elapses. */
+    /**
+     * Withdraws payer funds after the close grace period elapses.
+     *
+     * @example
+     * ```ts
+     * const hash = await client.channel.withdraw({
+     *   channel,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
     withdraw: (
       parameters: channelActions.withdraw.Parameters<chain, account>,
     ) => Promise<channelActions.withdraw.ReturnValue>
-    /** Withdraws payer funds and waits for the transaction receipt. */
+    /**
+     * Withdraws payer funds and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * const result = await client.channel.withdrawSync({
+     *   channel,
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
     withdrawSync: (
       parameters: channelActions.withdrawSync.Parameters<chain, account>,
     ) => Promise<channelActions.withdrawSync.ReturnValue>
