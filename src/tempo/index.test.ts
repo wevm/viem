@@ -8,6 +8,7 @@ test('exports tempo', () => {
       "Bytes",
       "PublicKey",
       "Secp256k1",
+      "Channel",
       "Period",
       "TempoAddress",
       "Tick",
