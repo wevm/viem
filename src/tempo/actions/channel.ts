@@ -2,6 +2,7 @@ import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
 import { ChannelDescriptor, Channel as OxChannel, TokenId } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
+import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
 import { readContract } from '../../actions/public/readContract.js'
 import type { WriteContractReturnType } from '../../actions/wallet/writeContract.js'
@@ -17,7 +18,12 @@ import type { Log } from '../../types/log.js'
 import type { Compute } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
-import type { ReadParameters, WriteParameters } from '../internal/types.js'
+import { signVoucher as signVoucher_ } from '../Account.js'
+import type {
+  GetAccountParameter,
+  ReadParameters,
+  WriteParameters,
+} from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
 
@@ -827,6 +833,76 @@ export namespace settleSync {
       receipt: TransactionReceipt
     }
   >
+}
+
+/**
+ * Signs a TIP-20 channel reserve voucher.
+ *
+ * @example
+ * ```ts
+ * import { parseUnits } from 'viem'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const signature = await Actions.channel.signVoucher(client, {
+ *   channel: descriptor,
+ *   cumulativeAmount: parseUnits('40', 6),
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The voucher signature.
+ */
+export async function signVoucher<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: signVoucher.Parameters<account>,
+): Promise<signVoucher.ReturnValue> {
+  const {
+    account: account_ = client.account,
+    chainId = client.chain?.id,
+    channel,
+    cumulativeAmount,
+  } = parameters
+  if (!account_) throw new Error('account is required.')
+  if (chainId === undefined) throw new Error('chainId is required.')
+
+  const parsed = parseAccount(account_)
+  if (!('sign' in parsed) || !parsed.sign)
+    throw new Error('account.sign is required.')
+
+  const channelId =
+    typeof channel === 'string'
+      ? channel
+      : (OxChannel.computeId({ ...channel, chainId }) as Hex.Hex)
+
+  return signVoucher_(parsed as never, {
+    chainId,
+    channelId,
+    cumulativeAmount,
+  })
+}
+
+export namespace signVoucher {
+  export type Parameters<
+    account extends Account | undefined = Account | undefined,
+  > = GetAccountParameter<account> & Args
+
+  export type Args = {
+    /** Channel ID or descriptor. */
+    channel: getStates.Channel
+    /** The chain ID. @default client.chain.id */
+    chainId?: number | bigint | undefined
+    /** Total voucher amount signed for the channel. */
+    cumulativeAmount: bigint
+  }
+
+  export type ReturnValue = Hex.Hex
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
 }
 
 /**

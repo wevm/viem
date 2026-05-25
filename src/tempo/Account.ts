@@ -4,7 +4,7 @@ import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
-import { KeyAuthorization, SignatureEnvelope } from 'ox/tempo'
+import { Channel, KeyAuthorization, SignatureEnvelope } from 'ox/tempo'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import * as WebCryptoP256 from 'ox/WebCryptoP256'
 import type {
@@ -42,6 +42,10 @@ export type Account_base<source extends string = string> = RequiredBy<
         }
       | undefined,
   ) => Promise<Hex.Hex>
+  /** Sign voucher fn. */
+  signVoucher: (
+    parameters: signVoucher.Parameters,
+  ) => Promise<signVoucher.ReturnValue>
 }
 
 export type RootAccount = Account_base<'root'> & {
@@ -394,6 +398,21 @@ export declare namespace fromWebCryptoP256 {
     from.ReturnValue<options>
 }
 
+export async function signVoucher(
+  account: LocalAccount,
+  parameters: signVoucher.Parameters,
+): Promise<signVoucher.ReturnValue> {
+  return account.sign!({
+    hash: Channel.getVoucherSignPayload(parameters),
+  })
+}
+
+export declare namespace signVoucher {
+  type Parameters = Channel.getVoucherSignPayload.Value
+
+  type ReturnValue = Hex.Hex
+}
+
 export async function signKeyAuthorization(
   account: LocalAccount,
   parameters: signKeyAuthorization.Parameters,
@@ -513,6 +532,11 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
     },
     async signTypedData(typedData) {
       return await sign({ hash: hashTypedData(typedData) })
+    },
+    async signVoucher(parameters) {
+      return await sign({
+        hash: Channel.getVoucherSignPayload(parameters),
+      })
     },
     publicKey,
     source,

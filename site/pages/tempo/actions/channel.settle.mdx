@@ -33,23 +33,15 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 ### Voucher Signature
 
-The `signature` should be produced by the payer, or the descriptor's `authorizedSigner`, over `Channel.getVoucherSignPayload`.
+The `signature` should be produced by the payer, or the descriptor's `authorizedSigner`.
 
 ```ts twoslash
 import { parseUnits } from 'viem'
-import { Channel } from 'viem/tempo'
-import { client } from './viem.config'
+import { client, descriptor } from './viem.config'
 
-const channelId =
-  '0x0000000000000000000000000000000000000000000000000000000000000000'
-const cumulativeAmount = parseUnits('40', 6)
-
-const signature = await client.account.sign({
-  hash: Channel.getVoucherSignPayload({
-    chainId: client.chain.id,
-    channelId,
-    cumulativeAmount,
-  }),
+const signature = await client.channel.signVoucher({
+  channel: descriptor,
+  cumulativeAmount: parseUnits('40', 6),
 })
 ```
 

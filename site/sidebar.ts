@@ -1954,6 +1954,10 @@ export const sidebar = {
                 link: '/tempo/actions/channel.settle',
               },
               {
+                text: 'signVoucher',
+                link: '/tempo/actions/channel.signVoucher',
+              },
+              {
                 text: 'topUp',
                 link: '/tempo/actions/channel.topUp',
               },

@@ -175,6 +175,31 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
     expect(payeeBalanceAfter).toBe(payeeBalance + parseUnits('40', 6))
   })
 
+  test('signVoucher', async (ctx) => {
+    if (!channelReserveSupported) ctx.skip()
+
+    const { channelId, descriptor } = await setupChannel()
+    const cumulativeAmount = parseUnits('40', 6)
+
+    const signature = await actions.channel.signVoucher(payerClient, {
+      channel: descriptor,
+      cumulativeAmount,
+    })
+    const signatureById = await actions.channel.signVoucher(payerClient, {
+      channel: channelId,
+      cumulativeAmount,
+    })
+
+    expect(signature).toBe(signatureById)
+    expect(signature).toBe(
+      await payer.signVoucher({
+        chainId: chain.id,
+        channelId,
+        cumulativeAmount,
+      }),
+    )
+  })
+
   test('topUp', async (ctx) => {
     if (!channelReserveSupported) ctx.skip()
 
@@ -376,11 +401,9 @@ async function signVoucher(parameters: {
   cumulativeAmount: bigint
 }) {
   const { channelId, cumulativeAmount } = parameters
-  return payer.sign({
-    hash: Channel.getVoucherSignPayload({
-      chainId: chain.id,
-      channelId,
-      cumulativeAmount,
-    }),
+  return payer.signVoucher({
+    chainId: chain.id,
+    channelId,
+    cumulativeAmount,
   })
 }

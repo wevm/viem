@@ -633,6 +633,10 @@ export type Decorator<
     settleSync: (
       parameters: channelActions.settleSync.Parameters<chain, account>,
     ) => Promise<channelActions.settleSync.ReturnValue>
+    /** Signs a TIP-20 channel reserve voucher. */
+    signVoucher: (
+      parameters: channelActions.signVoucher.Parameters<account>,
+    ) => Promise<channelActions.signVoucher.ReturnValue>
     /** Adds deposit to a TIP-20 channel reserve channel. */
     topUp: (
       parameters: channelActions.topUp.Parameters<chain, account>,
@@ -4394,6 +4398,8 @@ export function decorator() {
         settle: (parameters) => channelActions.settle(client, parameters),
         settleSync: (parameters) =>
           channelActions.settleSync(client, parameters),
+        signVoucher: (parameters) =>
+          channelActions.signVoucher(client, parameters),
         topUp: (parameters) => channelActions.topUp(client, parameters),
         topUpSync: (parameters) => channelActions.topUpSync(client, parameters),
         withdraw: (parameters) => channelActions.withdraw(client, parameters),
