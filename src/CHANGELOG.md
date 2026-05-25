@@ -1,5 +1,27 @@
 # viem
 
+## 2.51.0
+
+### Minor Changes
+
+- [#4663](https://github.com/wevm/viem/pull/4663) [`752712f1d2358715e9d63bd754f80c90a8d02e91`](https://github.com/wevm/viem/commit/752712f1d2358715e9d63bd754f80c90a8d02e91) Thanks [@jxom](https://github.com/jxom)! - `viem/tempo`: Added `Actions.channel` actions for reading and mutating TIP-20 channel reserve state.
+
+- [#4597](https://github.com/wevm/viem/pull/4597) [`d346038e71f31cb1c82fc94bb49c4ac553a23717`](https://github.com/wevm/viem/commit/d346038e71f31cb1c82fc94bb49c4ac553a23717) Thanks [@wwared](https://github.com/wwared)! - `viem/op-stack`: Added OP Stack super-root dispute game support for withdrawal prove flows.
+
+- [#4661](https://github.com/wevm/viem/pull/4661) [`9713c7562eac9fd328e6cc1be7388bc1659a9c27`](https://github.com/wevm/viem/commit/9713c7562eac9fd328e6cc1be7388bc1659a9c27) Thanks [@jxom](https://github.com/jxom)! - Updated generated Tempo precompile ABIs from latest Tempo main and added `logoURI` to TIP-20 metadata and token creation.
+
+- [#4653](https://github.com/wevm/viem/pull/4653) [`a29cf5eef5809b50bbb7931f35331203c32d7692`](https://github.com/wevm/viem/commit/a29cf5eef5809b50bbb7931f35331203c32d7692) Thanks [@islishude](https://github.com/islishude)! - Added support for `eth_getBlockReceipts`.
+
+### Patch Changes
+
+- [#4650](https://github.com/wevm/viem/pull/4650) [`73b8b89c0369597bf4df781b021130f544ebe6b0`](https://github.com/wevm/viem/commit/73b8b89c0369597bf4df781b021130f544ebe6b0) Thanks [@deodad](https://github.com/deodad)! - Exported `ExtractFormattedTransactionRequest`.
+
+- [#4664](https://github.com/wevm/viem/pull/4664) [`c3fda73603695bc68336f6e22f6475ba6ed0cdc7`](https://github.com/wevm/viem/commit/c3fda73603695bc68336f6e22f6475ba6ed0cdc7) Thanks [@jxom](https://github.com/jxom)! - Handled `eth_createAccessList` responses that include an `error` field.
+
+- [#4660](https://github.com/wevm/viem/pull/4660) [`c5cc58ebbc027029022f09eba54ed2e789b8b2b1`](https://github.com/wevm/viem/commit/c5cc58ebbc027029022f09eba54ed2e789b8b2b1) Thanks [@struong](https://github.com/struong)! - Emitted a full broadcast envelope when the fee payer co-signed during `eth_fillTransaction`, enabling single round-trip sponsorship, and stripped `feeToken` from the sender's sign payload under sponsorship per the Tempo Transaction spec.
+
+- [#4654](https://github.com/wevm/viem/pull/4654) [`038a062a8c2a875a3bbd58426e6060cf5d1d7986`](https://github.com/wevm/viem/commit/038a062a8c2a875a3bbd58426e6060cf5d1d7986) Thanks [@deodad](https://github.com/deodad)! - Added `raw` signing support to Tempo access key accounts.
+
 ## 2.50.4
 
 ### Patch Changes
