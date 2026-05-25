@@ -572,6 +572,14 @@ export type Decorator<
     ) => () => void
   }
   channel: {
+    /** Closes a TIP-20 channel reserve channel from the payee or operator side. */
+    close: (
+      parameters: channelActions.close.Parameters<chain, account>,
+    ) => Promise<channelActions.close.ReturnValue>
+    /** Closes a TIP-20 channel reserve channel and waits for the transaction receipt. */
+    closeSync: (
+      parameters: channelActions.closeSync.Parameters<chain, account>,
+    ) => Promise<channelActions.closeSync.ReturnValue>
     /**
      * Gets TIP-20 channel reserve state for a channel ID or descriptor.
      *
@@ -609,6 +617,14 @@ export type Decorator<
     openSync: (
       parameters: channelActions.openSync.Parameters<chain, account>,
     ) => Promise<channelActions.openSync.ReturnValue>
+    /** Starts the payer close timer for a TIP-20 channel reserve channel. */
+    requestClose: (
+      parameters: channelActions.requestClose.Parameters<chain, account>,
+    ) => Promise<channelActions.requestClose.ReturnValue>
+    /** Starts the payer close timer and waits for the transaction receipt. */
+    requestCloseSync: (
+      parameters: channelActions.requestCloseSync.Parameters<chain, account>,
+    ) => Promise<channelActions.requestCloseSync.ReturnValue>
     /** Settles a TIP-20 channel reserve voucher. */
     settle: (
       parameters: channelActions.settle.Parameters<chain, account>,
@@ -625,22 +641,6 @@ export type Decorator<
     topUpSync: (
       parameters: channelActions.topUpSync.Parameters<chain, account>,
     ) => Promise<channelActions.topUpSync.ReturnValue>
-    /** Closes a TIP-20 channel reserve channel from the payee or operator side. */
-    close: (
-      parameters: channelActions.close.Parameters<chain, account>,
-    ) => Promise<channelActions.close.ReturnValue>
-    /** Closes a TIP-20 channel reserve channel and waits for the transaction receipt. */
-    closeSync: (
-      parameters: channelActions.closeSync.Parameters<chain, account>,
-    ) => Promise<channelActions.closeSync.ReturnValue>
-    /** Starts the payer close timer for a TIP-20 channel reserve channel. */
-    requestClose: (
-      parameters: channelActions.requestClose.Parameters<chain, account>,
-    ) => Promise<channelActions.requestClose.ReturnValue>
-    /** Starts the payer close timer and waits for the transaction receipt. */
-    requestCloseSync: (
-      parameters: channelActions.requestCloseSync.Parameters<chain, account>,
-    ) => Promise<channelActions.requestCloseSync.ReturnValue>
     /** Withdraws payer funds after the close grace period elapses. */
     withdraw: (
       parameters: channelActions.withdraw.Parameters<chain, account>,

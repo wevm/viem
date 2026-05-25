@@ -1,7 +1,6 @@
-import { Hex } from 'ox'
-import type { Address } from 'viem'
+import type { Hex } from 'ox'
 import { parseUnits, zeroAddress, zeroHash } from 'viem'
-import { Channel } from 'viem/tempo'
+import { Channel, ChannelDescriptor } from 'viem/tempo'
 import { beforeAll, describe, expect, test } from 'vitest'
 import {
   accounts,
@@ -78,6 +77,57 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
     ])
   })
 
+  test('behavior: open defaults', async (ctx) => {
+    if (!channelReserveSupported) ctx.skip()
+
+    tokenId += 1
+    const { token } = await setupToken(payerClient, {
+      name: `Channel Test ${tokenId}`,
+      symbol: `CHT${tokenId}`,
+    })
+    const { receipt, ...opened } = await actions.channel.openSync(payerClient, {
+      deposit: parseUnits('100', 6),
+      payee: payee.address,
+      token,
+    })
+
+    expect(receipt.status).toBe('success')
+    expect(opened.authorizedSigner).toBe(zeroAddress)
+    expect(opened.operator).toBe(zeroAddress)
+    expect(opened.salt).toMatch(/^0x[0-9a-fA-F]{64}$/)
+  })
+
+  test('behavior: explicit salt', async (ctx) => {
+    if (!channelReserveSupported) ctx.skip()
+
+    tokenId += 1
+    const { token } = await setupToken(payerClient, {
+      name: `Channel Test ${tokenId}`,
+      symbol: `CHT${tokenId}`,
+    })
+    const { receipt, ...opened } = await actions.channel.openSync(payerClient, {
+      deposit: parseUnits('100', 6),
+      payee: payee.address,
+      salt: zeroHash,
+      token,
+    })
+    const descriptor = ChannelDescriptor.from({
+      authorizedSigner: opened.authorizedSigner,
+      expiringNonceHash: opened.expiringNonceHash,
+      operator: opened.operator,
+      payee: opened.payee,
+      payer: opened.payer,
+      salt: opened.salt,
+      token: opened.token,
+    })
+
+    expect(receipt.status).toBe('success')
+    expect(opened.salt).toBe(zeroHash)
+    expect(opened.channelId).toBe(
+      Channel.computeId({ ...descriptor, chainId: chain.id }),
+    )
+  })
+
   test('settle', async (ctx) => {
     if (!channelReserveSupported) ctx.skip()
 
@@ -118,7 +168,11 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
       deposit: parseUnits('100', 6),
       settled: parseUnits('40', 6),
     })
-    await expectTokenBalance(token, payee.address, payeeBalance, '40')
+    const payeeBalanceAfter = await actions.token.getBalance(payerClient, {
+      account: payee.address,
+      token,
+    })
+    expect(payeeBalanceAfter).toBe(payeeBalance + parseUnits('40', 6))
   })
 
   test('topUp', async (ctx) => {
@@ -202,8 +256,17 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
       deposit: 0n,
       settled: 0n,
     })
-    await expectTokenBalance(token, payer.address, payerBalance, '60')
-    await expectTokenBalance(token, payee.address, payeeBalance, '40')
+    const payerBalanceAfter = await actions.token.getBalance(payerClient, {
+      account: payer.address,
+      token,
+    })
+    expect(payerBalanceAfter).toBe(payerBalance + parseUnits('60', 6))
+
+    const payeeBalanceAfter = await actions.token.getBalance(payerClient, {
+      account: payee.address,
+      token,
+    })
+    expect(payeeBalanceAfter).toBe(payeeBalance + parseUnits('40', 6))
   })
 
   test('requestClose and withdraw', async (ctx) => {
@@ -246,9 +309,20 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
       ],
     })
 
-    expect(blocks[0].calls[0]).toMatchObject({
+    const call = blocks[0].calls[0]
+    expect(call).toMatchObject({
       result: null,
       status: 'success',
+    })
+    expect(call.logs).toBeDefined()
+
+    const { args } = actions.channel.withdraw.extractEvent(call.logs!)
+    expect(args).toMatchObject({
+      channelId,
+      payee: payee.address,
+      payer: payer.address,
+      refundedToPayer: parseUnits('100', 6),
+      settledToPayee: 0n,
     })
   })
 })
@@ -259,17 +333,14 @@ async function setupChannel() {
     name: `Channel Test ${tokenId}`,
     symbol: `CHT${tokenId}`,
   })
-  const salt = Hex.random(32)
   const deposit = parseUnits('100', 6)
   const { receipt, ...opened } = await actions.channel.openSync(payerClient, {
-    authorizedSigner: zeroAddress,
     deposit,
     operator: operator.address,
     payee: payee.address,
-    salt,
     token,
   })
-  const descriptor = {
+  const descriptor = ChannelDescriptor.from({
     authorizedSigner: opened.authorizedSigner,
     expiringNonceHash: opened.expiringNonceHash,
     operator: opened.operator,
@@ -277,7 +348,7 @@ async function setupChannel() {
     payer: opened.payer,
     salt: opened.salt,
     token: opened.token,
-  } as const satisfies Channel.Descriptor
+  })
 
   return {
     ...opened,
@@ -312,17 +383,4 @@ async function signVoucher(parameters: {
       cumulativeAmount,
     }),
   })
-}
-
-async function expectTokenBalance(
-  token: Address,
-  account: Address,
-  balanceBefore: bigint,
-  amount: string,
-) {
-  const balanceAfter = await actions.token.getBalance(payerClient, {
-    account,
-    token,
-  })
-  expect(balanceAfter).toBe(balanceBefore + parseUnits(amount, 6))
 }

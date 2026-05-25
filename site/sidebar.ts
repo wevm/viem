@@ -1930,6 +1930,40 @@ export const sidebar = {
             ],
           },
           {
+            text: 'Channel',
+            collapsed: true,
+            items: [
+              {
+                text: 'close',
+                link: '/tempo/actions/channel.close',
+              },
+              {
+                text: 'getStates',
+                link: '/tempo/actions/channel.getStates',
+              },
+              {
+                text: 'open',
+                link: '/tempo/actions/channel.open',
+              },
+              {
+                text: 'requestClose',
+                link: '/tempo/actions/channel.requestClose',
+              },
+              {
+                text: 'settle',
+                link: '/tempo/actions/channel.settle',
+              },
+              {
+                text: 'topUp',
+                link: '/tempo/actions/channel.topUp',
+              },
+              {
+                text: 'withdraw',
+                link: '/tempo/actions/channel.withdraw',
+              },
+            ],
+          },
+          {
             text: 'Fee',
             collapsed: true,
             items: [

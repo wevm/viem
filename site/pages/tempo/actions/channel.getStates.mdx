@@ -1,0 +1,82 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `channel.getStates`
+
+Gets TIP-20 channel reserve state for a channel ID, descriptor, or list of channels.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const state = await client.channel.getStates({
+  channel:
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+})
+
+console.log('Deposit:', state.deposit)
+console.log('Settled:', state.settled)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+// [!include ~/snippets/tempo/viem.config.ts:channelDescriptor]
+```
+
+:::
+
+### Descriptor Input
+
+Pass a channel descriptor when you want Viem to compute the channel ID before reading state.
+
+```ts twoslash
+import { client, descriptor } from './viem.config'
+
+const state = await client.channel.getStates({
+  channel: descriptor,
+})
+```
+
+### Batch Input
+
+Pass an array to fetch several channel states with one RPC call.
+
+```ts twoslash
+import { client } from './viem.config'
+
+const states = await client.channel.getStates({
+  channel: [
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+    '0x0000000000000000000000000000000000000000000000000000000000000001',
+  ],
+})
+
+console.log(states[0]?.deposit)
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Unix timestamp when payer close was requested, or 0 if not requested */
+  closeRequestedAt: number
+  /** Total amount deposited in the channel */
+  deposit: bigint
+  /** Total amount settled to the payee */
+  settled: bigint
+}
+```
+
+When `channel` is an array, the return type is `readonly ReturnType[]`.
+
+## Parameters
+
+### channel
+
+- **Type:** `Hex | ChannelDescriptor.from.Value | readonly (Hex | ChannelDescriptor.from.Value)[]`
+
+Channel ID, descriptor, or list of channel IDs and descriptors.
+
+<ReadParameters />

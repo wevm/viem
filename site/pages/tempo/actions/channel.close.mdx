@@ -1,0 +1,123 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `channel.close`
+
+Closes a TIP-20 channel reserve channel from the payee or operator side, settles the signed voucher amount, and refunds the remaining deposit to the payer.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { client, descriptor } from './viem.config'
+
+const { receipt, refundedToPayer, settledToPayee } =
+  await client.channel.closeSync({
+    captureAmount: parseUnits('40', 6),
+    cumulativeAmount: parseUnits('40', 6),
+    descriptor,
+    signature: '0x...',
+  })
+
+console.log('Settled:', settledToPayee)
+console.log('Refunded:', refundedToPayer)
+console.log('Transaction hash:', receipt.transactionHash)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+// [!include ~/snippets/tempo/viem.config.ts:channelDescriptor]
+```
+
+:::
+
+### Voucher Signature
+
+The `signature` should be produced by the payer, or the descriptor's `authorizedSigner`, over `Channel.getVoucherSignPayload`.
+
+```ts twoslash
+import { parseUnits } from 'viem'
+import { Channel } from 'viem/tempo'
+import { client } from './viem.config'
+
+const channelId =
+  '0x0000000000000000000000000000000000000000000000000000000000000000'
+const cumulativeAmount = parseUnits('40', 6)
+
+const signature = await client.account.sign({
+  hash: Channel.getVoucherSignPayload({
+    chainId: client.chain.id,
+    channelId,
+    cumulativeAmount,
+  }),
+})
+```
+
+### Asynchronous Usage
+
+The example above uses a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+
+If you are optimizing for performance, you should use the non-sync `channel.close` action and wait for inclusion manually:
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client, descriptor } from './viem.config'
+
+const hash = await client.channel.close({
+  captureAmount: 40000000n,
+  cumulativeAmount: 40000000n,
+  descriptor,
+  signature: '0x...',
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+
+const { args } = Actions.channel.close.extractEvent(receipt.logs)
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Channel ID */
+  channelId: Hex
+  /** Account that receives settled voucher payments */
+  payee: Address
+  /** Account that funded the channel and receives refunds */
+  payer: Address
+  /** Amount refunded to the payer */
+  refundedToPayer: bigint
+  /** Transaction receipt */
+  receipt: TransactionReceipt
+  /** Amount settled to the payee */
+  settledToPayee: bigint
+}
+```
+
+## Parameters
+
+### captureAmount
+
+- **Type:** `bigint`
+
+Amount to capture for the payee during close.
+
+### cumulativeAmount
+
+- **Type:** `bigint`
+
+Total voucher amount signed for the channel.
+
+### descriptor
+
+- **Type:** `ChannelDescriptor.from.Value`
+
+Channel descriptor containing the payer, payee, operator, token, salt, authorized signer, and expiring nonce hash.
+
+### signature
+
+- **Type:** `Hex`
+
+Voucher signature for the cumulative amount.
+
+<WriteParameters />

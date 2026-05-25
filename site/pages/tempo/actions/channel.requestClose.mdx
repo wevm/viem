@@ -1,0 +1,76 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `channel.requestClose`
+
+Starts the payer close timer for a TIP-20 channel reserve channel.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client, descriptor } from './viem.config'
+
+const { channelId, closeGraceEnd, receipt } =
+  await client.channel.requestCloseSync({
+    descriptor,
+  })
+
+console.log('Channel:', channelId)
+console.log('Close grace ends at:', closeGraceEnd)
+console.log('Transaction hash:', receipt.transactionHash)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+// [!include ~/snippets/tempo/viem.config.ts:channelDescriptor]
+```
+
+:::
+
+After the close grace period elapses, call `channel.withdraw` to close the channel and refund the payer's remaining deposit.
+
+### Asynchronous Usage
+
+The example above uses a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+
+If you are optimizing for performance, you should use the non-sync `channel.requestClose` action and wait for inclusion manually:
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client, descriptor } from './viem.config'
+
+const hash = await client.channel.requestClose({
+  descriptor,
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+
+const { args } = Actions.channel.requestClose.extractEvent(receipt.logs)
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Channel ID */
+  channelId: Hex
+  /** Unix timestamp when withdraw becomes available */
+  closeGraceEnd: number
+  /** Account that receives settled voucher payments */
+  payee: Address
+  /** Account that funded the channel and receives refunds */
+  payer: Address
+  /** Transaction receipt */
+  receipt: TransactionReceipt
+}
+```
+
+## Parameters
+
+### descriptor
+
+- **Type:** `ChannelDescriptor.from.Value`
+
+Channel descriptor containing the payer, payee, operator, token, salt, authorized signer, and expiring nonce hash.
+
+<WriteParameters />
