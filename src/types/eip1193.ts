@@ -706,6 +706,7 @@ export type PublicRpcSchema = [
         ]
     ReturnType: {
       accessList: AccessList
+      error?: string | undefined
       gasUsed: Quantity
     }
   },
