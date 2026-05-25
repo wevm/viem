@@ -5,6 +5,7 @@ import type { Transport } from '../clients/transports/createTransport.js'
 import type { Chain } from '../types/chain.js'
 import * as accessKeyActions from './actions/accessKey.js'
 import * as ammActions from './actions/amm.js'
+import * as channelActions from './actions/channel.js'
 import * as dexActions from './actions/dex.js'
 import * as faucetActions from './actions/faucet.js'
 import * as feeActions from './actions/fee.js'
@@ -569,6 +570,37 @@ export type Decorator<
     watchRebalanceSwap: (
       parameters: ammActions.watchRebalanceSwap.Parameters,
     ) => () => void
+  }
+  channel: {
+    /**
+     * Gets TIP-20 channel reserve state for a channel ID or descriptor.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo.extend({ feeToken: '0x20c...001' }),
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const state = await client.channel.getStates({
+     *   channel: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns Channel state for a single channel, or channel states for multiple channels.
+     */
+    getStates: <
+      const channel extends
+        | channelActions.getStates.Channel
+        | readonly channelActions.getStates.Channel[],
+    >(
+      parameters: channelActions.getStates.Parameters<channel>,
+    ) => Promise<channelActions.getStates.ReturnValue<channel>>
   }
   dex: {
     /**
@@ -4300,6 +4332,9 @@ export function decorator() {
         watchMint: (parameters) => ammActions.watchMint(client, parameters),
         watchRebalanceSwap: (parameters) =>
           ammActions.watchRebalanceSwap(client, parameters),
+      },
+      channel: {
+        getStates: (parameters) => channelActions.getStates(client, parameters),
       },
       dex: {
         buy: (parameters) => dexActions.buy(client, parameters),
