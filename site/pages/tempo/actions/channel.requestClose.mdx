@@ -9,11 +9,11 @@ Starts the payer close timer for a TIP-20 channel reserve channel.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { client, descriptor } from './viem.config'
+import { client, channel } from './viem.config'
 
 const { channelId, closeGraceEnd, receipt } =
   await client.channel.requestCloseSync({
-    descriptor,
+    channel,
   })
 
 console.log('Channel:', channelId)
@@ -23,7 +23,7 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 // [!include ~/snippets/tempo/viem.config.ts:setup]
-// [!include ~/snippets/tempo/viem.config.ts:channelDescriptor]
+// [!include ~/snippets/tempo/viem.config.ts:channel]
 ```
 
 :::
@@ -38,10 +38,10 @@ If you are optimizing for performance, you should use the non-sync `channel.requ
 
 ```ts twoslash
 import { Actions } from 'viem/tempo'
-import { client, descriptor } from './viem.config'
+import { client, channel } from './viem.config'
 
 const hash = await client.channel.requestClose({
-  descriptor,
+  channel,
 })
 const receipt = await client.waitForTransactionReceipt({ hash })
 
@@ -67,10 +67,10 @@ type ReturnType = {
 
 ## Parameters
 
-### descriptor
+### channel
 
 - **Type:** `Channel.from.Value`
 
-Channel descriptor containing the payer, payee, operator, token, salt, authorized signer, and expiring nonce hash.
+Channel containing the payer, payee, operator, token, salt, authorized signer, and expiring nonce hash.
 
 <WriteParameters />

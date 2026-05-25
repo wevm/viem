@@ -581,7 +581,7 @@ export type Decorator<
       parameters: channelActions.closeSync.Parameters<chain, account>,
     ) => Promise<channelActions.closeSync.ReturnValue>
     /**
-     * Gets TIP-20 channel reserve state for a channel ID or descriptor.
+     * Gets TIP-20 channel reserve state for a channel ID or channel.
      *
      * @example
      * ```ts

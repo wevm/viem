@@ -1,6 +1,6 @@
 import * as Address from 'ox/Address'
 import * as Hex from 'ox/Hex'
-import { Channel as OxChannel, TokenId } from 'ox/tempo'
+import { Channel as ox_Channel, TokenId } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
@@ -37,7 +37,7 @@ import type { TransactionReceipt } from '../Transaction.js'
  * const hash = await Actions.channel.close(client, {
  *   captureAmount: 100n,
  *   cumulativeAmount: 100n,
- *   descriptor,
+ *   channel,
  *   signature: '0x...',
  * })
  * ```
@@ -67,8 +67,8 @@ export namespace close {
     captureAmount: bigint
     /** Total voucher amount signed for the channel. */
     cumulativeAmount: bigint
-    /** TIP-20 channel descriptor. */
-    descriptor: OxChannel.from.Value
+    /** TIP-20 channel. */
+    channel: ox_Channel.from.Value
     /** Voucher signature. */
     signature: Hex.Hex
   }
@@ -88,14 +88,14 @@ export namespace close {
     client: Client<Transport, chain, account>,
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { captureAmount, cumulativeAmount, descriptor, signature, ...rest } =
+    const { captureAmount, cumulativeAmount, channel, signature, ...rest } =
       parameters
     return (await action(client, {
       ...rest,
       ...close.call({
         captureAmount,
         cumulativeAmount,
-        descriptor,
+        channel,
         signature,
       }),
     } as never)) as never
@@ -108,13 +108,13 @@ export namespace close {
    * @returns The call.
    */
   export function call(args: Args) {
-    const { captureAmount, cumulativeAmount, descriptor, signature } = args
+    const { captureAmount, cumulativeAmount, channel, signature } = args
     return defineCall({
-      address: OxChannel.address,
+      address: ox_Channel.address,
       abi: Abis.tip20ChannelReserve,
       functionName: 'close',
       args: [
-        OxChannel.from(descriptor),
+        ox_Channel.from(channel),
         cumulativeAmount,
         captureAmount,
         signature,
@@ -150,7 +150,7 @@ export namespace close {
  * const result = await Actions.channel.closeSync(client, {
  *   captureAmount: 100n,
  *   cumulativeAmount: 100n,
- *   descriptor,
+ *   channel,
  *   signature: '0x...',
  * })
  * ```
@@ -196,7 +196,7 @@ export namespace closeSync {
 }
 
 /**
- * Gets TIP-20 channel reserve state for a channel ID or descriptor.
+ * Gets TIP-20 channel reserve state for a channel ID or channel.
  *
  * @example
  * ```ts
@@ -238,7 +238,7 @@ export namespace getStates {
   export type Parameters<
     channel extends Channel | readonly Channel[] = Channel | readonly Channel[],
   > = ReadParameters & {
-    /** Channel ID, descriptor, or list of IDs and descriptors. */
+    /** Channel ID, channel, or list of IDs and channels. */
     channel: channel
   }
 
@@ -246,16 +246,16 @@ export namespace getStates {
     channel extends Channel | readonly Channel[] = Channel | readonly Channel[],
   > = {
     /**
-     * Chain ID used to compute IDs for descriptor inputs.
+     * Chain ID used to compute IDs for channel inputs.
      *
-     * Required for descriptor inputs when using `getStates.call` directly.
+     * Required for channel inputs when using `getStates.call` directly.
      */
     chainId?: number | undefined
-    /** Channel ID, descriptor, or list of IDs and descriptors. */
+    /** Channel ID, channel, or list of IDs and channels. */
     channel: channel
   }
 
-  export type Channel = Hex.Hex | OxChannel.from.Value
+  export type Channel = Hex.Hex | ox_Channel.from.Value
 
   export type State = ReadContractReturnType<
     typeof Abis.tip20ChannelReserve,
@@ -302,12 +302,12 @@ export namespace getStates {
       const channelIds = (channel as readonly Channel[]).map((channel) => {
         if (typeof channel === 'string') return channel
         if (chainId === undefined)
-          throw new Error('`chainId` is required for descriptor inputs.')
-        return OxChannel.computeId(channel, { chainId }) as Hex.Hex
+          throw new Error('`chainId` is required for channel inputs.')
+        return ox_Channel.computeId(channel, { chainId }) as Hex.Hex
       })
 
       return defineCall({
-        address: OxChannel.address,
+        address: ox_Channel.address,
         abi: Abis.tip20ChannelReserve,
         args: [channelIds],
         functionName: 'getChannelStatesBatch',
@@ -317,19 +317,19 @@ export namespace getStates {
     const channel_ = channel as Channel
     if (typeof channel_ === 'string')
       return defineCall({
-        address: OxChannel.address,
+        address: ox_Channel.address,
         abi: Abis.tip20ChannelReserve,
         args: [channel_],
         functionName: 'getChannelState',
       })
 
     if (chainId === undefined)
-      throw new Error('`chainId` is required for descriptor inputs.')
+      throw new Error('`chainId` is required for channel inputs.')
 
     return defineCall({
-      address: OxChannel.address,
+      address: ox_Channel.address,
       abi: Abis.tip20ChannelReserve,
-      args: [OxChannel.computeId(channel_, { chainId }) as Hex.Hex],
+      args: [ox_Channel.computeId(channel_, { chainId }) as Hex.Hex],
       functionName: 'getChannelState',
     })
   }
@@ -439,7 +439,7 @@ export namespace open {
       token,
     } = args
     return defineCall({
-      address: OxChannel.address,
+      address: ox_Channel.address,
       abi: Abis.tip20ChannelReserve,
       functionName: 'open',
       args: [
@@ -543,7 +543,7 @@ export namespace openSync {
  * import { Actions } from 'viem/tempo'
  *
  * const hash = await Actions.channel.requestClose(client, {
- *   descriptor,
+ *   channel,
  * })
  * ```
  *
@@ -568,8 +568,8 @@ export namespace requestClose {
   > = WriteParameters<chain, account> & Args
 
   export type Args = {
-    /** TIP-20 channel descriptor. */
-    descriptor: OxChannel.from.Value
+    /** TIP-20 channel. */
+    channel: ox_Channel.from.Value
   }
 
   export type ReturnValue = WriteContractReturnType
@@ -587,10 +587,10 @@ export namespace requestClose {
     client: Client<Transport, chain, account>,
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { descriptor, ...rest } = parameters
+    const { channel, ...rest } = parameters
     return (await action(client, {
       ...rest,
-      ...requestClose.call({ descriptor }),
+      ...requestClose.call({ channel }),
     } as never)) as never
   }
 
@@ -601,12 +601,12 @@ export namespace requestClose {
    * @returns The call.
    */
   export function call(args: Args) {
-    const { descriptor } = args
+    const { channel } = args
     return defineCall({
-      address: OxChannel.address,
+      address: ox_Channel.address,
       abi: Abis.tip20ChannelReserve,
       functionName: 'requestClose',
-      args: [OxChannel.from(descriptor)],
+      args: [ox_Channel.from(channel)],
     })
   }
 
@@ -636,7 +636,7 @@ export namespace requestClose {
  * import { Actions } from 'viem/tempo'
  *
  * const result = await Actions.channel.requestCloseSync(client, {
- *   descriptor,
+ *   channel,
  * })
  * ```
  *
@@ -691,7 +691,7 @@ export namespace requestCloseSync {
  *
  * const hash = await Actions.channel.settle(client, {
  *   cumulativeAmount: 100n,
- *   descriptor,
+ *   channel,
  *   signature: '0x...',
  * })
  * ```
@@ -719,8 +719,8 @@ export namespace settle {
   export type Args = {
     /** Total voucher amount signed for the channel. */
     cumulativeAmount: bigint
-    /** TIP-20 channel descriptor. */
-    descriptor: OxChannel.from.Value
+    /** TIP-20 channel. */
+    channel: ox_Channel.from.Value
     /** Voucher signature. */
     signature: Hex.Hex
   }
@@ -740,10 +740,10 @@ export namespace settle {
     client: Client<Transport, chain, account>,
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { cumulativeAmount, descriptor, signature, ...rest } = parameters
+    const { cumulativeAmount, channel, signature, ...rest } = parameters
     return (await action(client, {
       ...rest,
-      ...settle.call({ cumulativeAmount, descriptor, signature }),
+      ...settle.call({ cumulativeAmount, channel, signature }),
     } as never)) as never
   }
 
@@ -754,12 +754,12 @@ export namespace settle {
    * @returns The call.
    */
   export function call(args: Args) {
-    const { cumulativeAmount, descriptor, signature } = args
+    const { cumulativeAmount, channel, signature } = args
     return defineCall({
-      address: OxChannel.address,
+      address: ox_Channel.address,
       abi: Abis.tip20ChannelReserve,
       functionName: 'settle',
-      args: [OxChannel.from(descriptor), cumulativeAmount, signature],
+      args: [ox_Channel.from(channel), cumulativeAmount, signature],
     })
   }
 
@@ -790,7 +790,7 @@ export namespace settle {
  *
  * const result = await Actions.channel.settleSync(client, {
  *   cumulativeAmount: 100n,
- *   descriptor,
+ *   channel,
  *   signature: '0x...',
  * })
  * ```
@@ -844,7 +844,7 @@ export namespace settleSync {
  * import { Actions } from 'viem/tempo'
  *
  * const signature = await Actions.channel.signVoucher(client, {
- *   channel: descriptor,
+ *   channel,
  *   cumulativeAmount: parseUnits('40', 6),
  * })
  * ```
@@ -876,7 +876,7 @@ export async function signVoucher<
   const channelId =
     typeof channel === 'string'
       ? channel
-      : (OxChannel.computeId(channel, { chainId }) as Hex.Hex)
+      : (ox_Channel.computeId(channel, { chainId }) as Hex.Hex)
 
   return signVoucher_(parsed as never, {
     chainId,
@@ -891,7 +891,7 @@ export namespace signVoucher {
   > = GetAccountParameter<account> & Args
 
   export type Args = {
-    /** Channel ID or descriptor. */
+    /** Channel ID or channel. */
     channel: getStates.Channel
     /** The chain ID. @default client.chain.id */
     chainId?: number | bigint | undefined
@@ -914,7 +914,7 @@ export namespace signVoucher {
  *
  * const hash = await Actions.channel.topUp(client, {
  *   additionalDeposit: 100n,
- *   descriptor,
+ *   channel,
  * })
  * ```
  *
@@ -941,8 +941,8 @@ export namespace topUp {
   export type Args = {
     /** Additional deposit to lock in the channel. */
     additionalDeposit: bigint
-    /** TIP-20 channel descriptor. */
-    descriptor: OxChannel.from.Value
+    /** TIP-20 channel. */
+    channel: ox_Channel.from.Value
   }
 
   export type ReturnValue = WriteContractReturnType
@@ -960,10 +960,10 @@ export namespace topUp {
     client: Client<Transport, chain, account>,
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { additionalDeposit, descriptor, ...rest } = parameters
+    const { additionalDeposit, channel, ...rest } = parameters
     return (await action(client, {
       ...rest,
-      ...topUp.call({ additionalDeposit, descriptor }),
+      ...topUp.call({ additionalDeposit, channel }),
     } as never)) as never
   }
 
@@ -974,12 +974,12 @@ export namespace topUp {
    * @returns The call.
    */
   export function call(args: Args) {
-    const { additionalDeposit, descriptor } = args
+    const { additionalDeposit, channel } = args
     return defineCall({
-      address: OxChannel.address,
+      address: ox_Channel.address,
       abi: Abis.tip20ChannelReserve,
       functionName: 'topUp',
-      args: [OxChannel.from(descriptor), additionalDeposit],
+      args: [ox_Channel.from(channel), additionalDeposit],
     })
   }
 
@@ -1011,7 +1011,7 @@ export namespace topUp {
  *
  * const result = await Actions.channel.topUpSync(client, {
  *   additionalDeposit: 100n,
- *   descriptor,
+ *   channel,
  * })
  * ```
  *
@@ -1063,7 +1063,7 @@ export namespace topUpSync {
  * import { Actions } from 'viem/tempo'
  *
  * const hash = await Actions.channel.withdraw(client, {
- *   descriptor,
+ *   channel,
  * })
  * ```
  *
@@ -1088,8 +1088,8 @@ export namespace withdraw {
   > = WriteParameters<chain, account> & Args
 
   export type Args = {
-    /** TIP-20 channel descriptor. */
-    descriptor: OxChannel.from.Value
+    /** TIP-20 channel. */
+    channel: ox_Channel.from.Value
   }
 
   export type ReturnValue = WriteContractReturnType
@@ -1107,10 +1107,10 @@ export namespace withdraw {
     client: Client<Transport, chain, account>,
     parameters: Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { descriptor, ...rest } = parameters
+    const { channel, ...rest } = parameters
     return (await action(client, {
       ...rest,
-      ...withdraw.call({ descriptor }),
+      ...withdraw.call({ channel }),
     } as never)) as never
   }
 
@@ -1121,12 +1121,12 @@ export namespace withdraw {
    * @returns The call.
    */
   export function call(args: Args) {
-    const { descriptor } = args
+    const { channel } = args
     return defineCall({
-      address: OxChannel.address,
+      address: ox_Channel.address,
       abi: Abis.tip20ChannelReserve,
       functionName: 'withdraw',
-      args: [OxChannel.from(descriptor)],
+      args: [ox_Channel.from(channel)],
     })
   }
 
@@ -1157,7 +1157,7 @@ export namespace withdraw {
  * import { Actions } from 'viem/tempo'
  *
  * const result = await Actions.channel.withdrawSync(client, {
- *   descriptor,
+ *   channel,
  * })
  * ```
  *

@@ -44,19 +44,19 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
   test('open and getStates', async (ctx) => {
     if (!channelReserveSupported) ctx.skip()
 
-    const { channelId, descriptor, receipt } = await setupChannel()
+    const { channelId, channel, receipt } = await setupChannel()
 
     expect(receipt.status).toBe('success')
-    expect(channelId).toBe(Channel.computeId(descriptor, { chainId: chain.id }))
+    expect(channelId).toBe(Channel.computeId(channel, { chainId: chain.id }))
 
     const stateById = await actions.channel.getStates(payerClient, {
       channel: channelId,
     })
-    const stateByDescriptor = await actions.channel.getStates(payerClient, {
-      channel: descriptor,
+    const stateByChannel = await actions.channel.getStates(payerClient, {
+      channel,
     })
     const states = await actions.channel.getStates(payerClient, {
-      channel: [channelId, descriptor, zeroHash],
+      channel: [channelId, channel, zeroHash],
     })
 
     expect(stateById).toEqual({
@@ -64,7 +64,7 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
       deposit: parseUnits('100', 6),
       settled: 0n,
     })
-    expect(stateByDescriptor).toEqual(stateById)
+    expect(stateByChannel).toEqual(stateById)
     expect(states).toEqual([
       stateById,
       stateById,
@@ -106,7 +106,7 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
       salt: zeroHash,
       token,
     })
-    const descriptor = Channel.from({
+    const channel = Channel.from({
       authorizedSigner: opened.authorizedSigner,
       expiringNonceHash: opened.expiringNonceHash,
       operator: opened.operator,
@@ -119,14 +119,14 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
     expect(receipt.status).toBe('success')
     expect(opened.salt).toBe(zeroHash)
     expect(opened.channelId).toBe(
-      Channel.computeId(descriptor, { chainId: chain.id }),
+      Channel.computeId(channel, { chainId: chain.id }),
     )
   })
 
   test('settle', async (ctx) => {
     if (!channelReserveSupported) ctx.skip()
 
-    const { channelId, descriptor, token } = await setupChannel()
+    const { channelId, channel, token } = await setupChannel()
     const payeeBalance = await actions.token.getBalance(payerClient, {
       account: payee.address,
       token,
@@ -140,7 +140,7 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
       operatorClient,
       {
         cumulativeAmount: parseUnits('40', 6),
-        descriptor,
+        channel,
         signature,
       },
     )
@@ -156,7 +156,7 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
     })
 
     const state = await actions.channel.getStates(payerClient, {
-      channel: descriptor,
+      channel,
     })
     expect(state).toEqual({
       closeRequestedAt: 0,
@@ -173,11 +173,11 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
   test('signVoucher', async (ctx) => {
     if (!channelReserveSupported) ctx.skip()
 
-    const { channelId, descriptor } = await setupChannel()
+    const { channelId, channel } = await setupChannel()
     const cumulativeAmount = parseUnits('40', 6)
 
     const signature = await actions.channel.signVoucher(payerClient, {
-      channel: descriptor,
+      channel,
       cumulativeAmount,
     })
     const signatureById = await actions.channel.signVoucher(payerClient, {
@@ -198,19 +198,19 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
   test('topUp', async (ctx) => {
     if (!channelReserveSupported) ctx.skip()
 
-    const { channelId, descriptor } = await setupChannel()
+    const { channelId, channel } = await setupChannel()
 
     await actions.channel.requestCloseSync(payerClient, {
-      descriptor,
+      channel,
     })
     const requestedState = await actions.channel.getStates(payerClient, {
-      channel: descriptor,
+      channel,
     })
     expect(requestedState.closeRequestedAt).toBeGreaterThan(0)
 
     const { receipt, ...topUp } = await actions.channel.topUpSync(payerClient, {
       additionalDeposit: parseUnits('25', 6),
-      descriptor,
+      channel,
     })
 
     expect(receipt.status).toBe('success')
@@ -235,7 +235,7 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
   test('close', async (ctx) => {
     if (!channelReserveSupported) ctx.skip()
 
-    const { channelId, descriptor, token } = await setupChannel()
+    const { channelId, channel, token } = await setupChannel()
     const payerBalance = await actions.token.getBalance(payerClient, {
       account: payer.address,
       token,
@@ -254,7 +254,7 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
       {
         captureAmount: parseUnits('40', 6),
         cumulativeAmount: parseUnits('80', 6),
-        descriptor,
+        channel,
         signature,
       },
     )
@@ -269,7 +269,7 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
     })
 
     const state = await actions.channel.getStates(payerClient, {
-      channel: descriptor,
+      channel,
     })
     expect(state).toEqual({
       closeRequestedAt: 0,
@@ -292,11 +292,11 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
   test('requestClose and withdraw', async (ctx) => {
     if (!channelReserveSupported) ctx.skip()
 
-    const { channelId, descriptor } = await setupChannel()
+    const { channelId, channel } = await setupChannel()
 
     const { receipt, ...closeRequested } =
       await actions.channel.requestCloseSync(payerClient, {
-        descriptor,
+        channel,
       })
 
     expect(receipt.status).toBe('success')
@@ -314,7 +314,7 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
 
     await expect(
       actions.channel.withdrawSync(payerClient, {
-        descriptor,
+        channel,
       }),
     ).rejects.toThrow('The contract function "withdraw" reverted')
 
@@ -324,7 +324,7 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
           blockOverrides: {
             time: closeRequested.closeGraceEnd,
           },
-          calls: [actions.channel.withdraw.call({ descriptor })],
+          calls: [actions.channel.withdraw.call({ channel })],
         },
       ],
     })
@@ -360,7 +360,7 @@ async function setupChannel() {
     payee: payee.address,
     token,
   })
-  const descriptor = Channel.from({
+  const channel = Channel.from({
     authorizedSigner: opened.authorizedSigner,
     expiringNonceHash: opened.expiringNonceHash,
     operator: opened.operator,
@@ -372,7 +372,7 @@ async function setupChannel() {
 
   return {
     ...opened,
-    descriptor,
+    channel,
     receipt,
     token,
   }

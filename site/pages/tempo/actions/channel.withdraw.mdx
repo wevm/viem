@@ -9,11 +9,11 @@ Withdraws payer funds after the close grace period elapses.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { client, descriptor } from './viem.config'
+import { client, channel } from './viem.config'
 
 const { receipt, refundedToPayer, settledToPayee } =
   await client.channel.withdrawSync({
-    descriptor,
+    channel,
   })
 
 console.log('Settled:', settledToPayee)
@@ -23,7 +23,7 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 // [!include ~/snippets/tempo/viem.config.ts:setup]
-// [!include ~/snippets/tempo/viem.config.ts:channelDescriptor]
+// [!include ~/snippets/tempo/viem.config.ts:channel]
 ```
 
 :::
@@ -38,10 +38,10 @@ If you are optimizing for performance, you should use the non-sync `channel.with
 
 ```ts twoslash
 import { Actions } from 'viem/tempo'
-import { client, descriptor } from './viem.config'
+import { client, channel } from './viem.config'
 
 const hash = await client.channel.withdraw({
-  descriptor,
+  channel,
 })
 const receipt = await client.waitForTransactionReceipt({ hash })
 
@@ -69,10 +69,10 @@ type ReturnType = {
 
 ## Parameters
 
-### descriptor
+### channel
 
 - **Type:** `Channel.from.Value`
 
-Channel descriptor containing the payer, payee, operator, token, salt, authorized signer, and expiring nonce hash.
+Channel containing the payer, payee, operator, token, salt, authorized signer, and expiring nonce hash.
 
 <WriteParameters />

@@ -10,12 +10,12 @@ Adds deposit to a TIP-20 channel reserve channel.
 
 ```ts twoslash [example.ts]
 import { parseUnits } from 'viem'
-import { client, descriptor } from './viem.config'
+import { client, channel } from './viem.config'
 
 const { additionalDeposit, newDeposit, receipt } =
   await client.channel.topUpSync({
     additionalDeposit: parseUnits('50', 6),
-    descriptor,
+    channel,
   })
 
 console.log('Added:', additionalDeposit)
@@ -25,7 +25,7 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 // [!include ~/snippets/tempo/viem.config.ts:setup]
-// [!include ~/snippets/tempo/viem.config.ts:channelDescriptor]
+// [!include ~/snippets/tempo/viem.config.ts:channel]
 ```
 
 :::
@@ -38,11 +38,11 @@ If you are optimizing for performance, you should use the non-sync `channel.topU
 
 ```ts twoslash
 import { Actions } from 'viem/tempo'
-import { client, descriptor } from './viem.config'
+import { client, channel } from './viem.config'
 
 const hash = await client.channel.topUp({
   additionalDeposit: 50000000n,
-  descriptor,
+  channel,
 })
 const receipt = await client.waitForTransactionReceipt({ hash })
 
@@ -76,10 +76,10 @@ type ReturnType = {
 
 Additional deposit to lock in the channel.
 
-### descriptor
+### channel
 
 - **Type:** `Channel.from.Value`
 
-Channel descriptor containing the payer, payee, operator, token, salt, authorized signer, and expiring nonce hash.
+Channel containing the payer, payee, operator, token, salt, authorized signer, and expiring nonce hash.
 
 <WriteParameters />

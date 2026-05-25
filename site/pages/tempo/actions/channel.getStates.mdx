@@ -2,7 +2,7 @@ import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
 # `channel.getStates`
 
-Gets TIP-20 channel reserve state for a channel ID, descriptor, or list of channels.
+Gets TIP-20 channel reserve state for a channel ID, channel, or list of channels.
 
 ## Usage
 
@@ -22,20 +22,20 @@ console.log('Settled:', state.settled)
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 // [!include ~/snippets/tempo/viem.config.ts:setup]
-// [!include ~/snippets/tempo/viem.config.ts:channelDescriptor]
+// [!include ~/snippets/tempo/viem.config.ts:channel]
 ```
 
 :::
 
-### Descriptor Input
+### Channel Input
 
-Pass a channel descriptor when you want Viem to compute the channel ID before reading state.
+Pass a channel when you want Viem to compute the channel ID before reading state.
 
 ```ts twoslash
-import { client, descriptor } from './viem.config'
+import { client, channel } from './viem.config'
 
 const state = await client.channel.getStates({
-  channel: descriptor,
+  channel,
 })
 ```
 
@@ -77,6 +77,6 @@ When `channel` is an array, the return type is `readonly ReturnType[]`.
 
 - **Type:** `Hex | Channel.from.Value | readonly (Hex | Channel.from.Value)[]`
 
-Channel ID, descriptor, or list of channel IDs and descriptors.
+Channel ID, channel, or list of channel IDs and channels.
 
 <ReadParameters />

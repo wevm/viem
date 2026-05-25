@@ -10,12 +10,12 @@ Settles a signed TIP-20 channel reserve voucher and pays the delta to the payee.
 
 ```ts twoslash [example.ts]
 import { parseUnits } from 'viem'
-import { client, descriptor } from './viem.config'
+import { client, channel } from './viem.config'
 
 const { deltaPaid, newSettled, receipt } =
   await client.channel.settleSync({
     cumulativeAmount: parseUnits('40', 6),
-    descriptor,
+    channel,
     signature: '0x...',
   })
 
@@ -26,21 +26,21 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 // [!include ~/snippets/tempo/viem.config.ts:setup]
-// [!include ~/snippets/tempo/viem.config.ts:channelDescriptor]
+// [!include ~/snippets/tempo/viem.config.ts:channel]
 ```
 
 :::
 
 ### Voucher Signature
 
-The `signature` should be produced by the payer, or the descriptor's `authorizedSigner`.
+The `signature` should be produced by the payer, or the channel's `authorizedSigner`.
 
 ```ts twoslash
 import { parseUnits } from 'viem'
-import { client, descriptor } from './viem.config'
+import { client, channel } from './viem.config'
 
 const signature = await client.channel.signVoucher({
-  channel: descriptor,
+  channel,
   cumulativeAmount: parseUnits('40', 6),
 })
 ```
@@ -53,11 +53,11 @@ If you are optimizing for performance, you should use the non-sync `channel.sett
 
 ```ts twoslash
 import { Actions } from 'viem/tempo'
-import { client, descriptor } from './viem.config'
+import { client, channel } from './viem.config'
 
 const hash = await client.channel.settle({
   cumulativeAmount: 40000000n,
-  descriptor,
+  channel,
   signature: '0x...',
 })
 const receipt = await client.waitForTransactionReceipt({ hash })
@@ -94,11 +94,11 @@ type ReturnType = {
 
 Total voucher amount signed for the channel.
 
-### descriptor
+### channel
 
 - **Type:** `Channel.from.Value`
 
-Channel descriptor containing the payer, payee, operator, token, salt, authorized signer, and expiring nonce hash.
+Channel containing the payer, payee, operator, token, salt, authorized signer, and expiring nonce hash.
 
 ### signature
 

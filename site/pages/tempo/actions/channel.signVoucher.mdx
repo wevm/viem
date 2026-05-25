@@ -8,10 +8,10 @@ Signs a TIP-20 channel reserve voucher with the client account.
 
 ```ts twoslash [example.ts]
 import { parseUnits } from 'viem'
-import { client, descriptor } from './viem.config'
+import { client, channel } from './viem.config'
 
 const signature = await client.channel.signVoucher({
-  channel: descriptor,
+  channel,
   cumulativeAmount: parseUnits('40', 6),
 })
 
@@ -20,7 +20,7 @@ console.log('Signature:', signature)
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
 // [!include ~/snippets/tempo/viem.config.ts:setup]
-// [!include ~/snippets/tempo/viem.config.ts:channelDescriptor]
+// [!include ~/snippets/tempo/viem.config.ts:channel]
 ```
 
 :::
@@ -54,7 +54,7 @@ The voucher signature.
 
 - **Type:** `Hex | Channel.from.Value`
 
-Channel ID or descriptor.
+Channel ID or channel.
 
 ### cumulativeAmount
 
@@ -74,4 +74,4 @@ Account to sign the voucher.
 - **Type:** `number | bigint`
 - **Default:** `client.chain.id`
 
-Chain ID used for the EIP-712 voucher payload and descriptor-derived channel IDs.
+Chain ID used for the EIP-712 voucher payload and channel-derived IDs.

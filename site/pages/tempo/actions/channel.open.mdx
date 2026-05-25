@@ -33,7 +33,7 @@ console.log('Transaction hash:', receipt.transactionHash)
 
 ### Deterministic Salt
 
-By default, `channel.open` uses `Hex.random(32)` for `salt`. Pass an explicit salt when you need the channel ID to be deterministic for the same descriptor values.
+By default, `channel.open` uses `Hex.random(32)` for `salt`. Pass an explicit salt when you need the channel ID to be deterministic for the same channel values.
 
 ```ts twoslash
 import { parseUnits } from 'viem'
