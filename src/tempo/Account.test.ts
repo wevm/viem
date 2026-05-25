@@ -3,7 +3,7 @@ import * as Address from 'ox/Address'
 import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
-import { Period, SignatureEnvelope } from 'ox/tempo'
+import { Channel, Period, SignatureEnvelope } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
 import { verifyHash, verifyMessage, verifyTypedData } from '../actions/index.js'
@@ -31,6 +31,7 @@ describe('fromSecp256k1', () => {
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
+        "signVoucher": [Function],
         "source": "root",
         "type": "local",
       }
@@ -134,6 +135,7 @@ describe('fromP256', () => {
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
+        "signVoucher": [Function],
         "source": "root",
         "type": "local",
       }
@@ -226,6 +228,7 @@ describe('fromHeadlessWebAuthn', () => {
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
+        "signVoucher": [Function],
         "source": "root",
         "type": "local",
       }
@@ -515,6 +518,90 @@ describe('signTypedData', () => {
         signature,
       }),
     ).toBe(true)
+  })
+})
+
+describe('signVoucher', () => {
+  const voucher = {
+    chainId: 4217,
+    channel:
+      '0x0000000000000000000000000000000000000000000000000000000000000001',
+    cumulativeAmount: 123n,
+  } as const
+
+  test('default', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const signature = await account.signVoucher(voucher)
+    const payload = Channel.getVoucherSignPayload({
+      chainId: voucher.chainId,
+      channelId: voucher.channel,
+      cumulativeAmount: voucher.cumulativeAmount,
+    })
+
+    expect(signature).toBe(await account.sign({ hash: payload }))
+    expect(
+      await verifyHash(client, {
+        address: account.address,
+        hash: payload,
+        signature,
+      }),
+    ).toBe(true)
+  })
+
+  test('behavior: channel', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const channel = Channel.from({
+      expiringNonceHash:
+        '0x0000000000000000000000000000000000000000000000000000000000000002',
+      payee: '0x2222222222222222222222222222222222222222',
+      payer: account.address,
+      salt: '0x0000000000000000000000000000000000000000000000000000000000000003',
+      token: 1n,
+    })
+    const channelId = Channel.computeId(channel, { chainId: voucher.chainId })
+    const payload = Channel.getVoucherSignPayload({
+      chainId: voucher.chainId,
+      channelId,
+      cumulativeAmount: voucher.cumulativeAmount,
+    })
+
+    expect(
+      await account.signVoucher({
+        chainId: voucher.chainId,
+        channel,
+        cumulativeAmount: voucher.cumulativeAmount,
+      }),
+    ).toBe(await account.sign({ hash: payload }))
+  })
+
+  test('behavior: access key', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const access = Account.fromSecp256k1(
+      '0x06a952d58c24d287245276dd8b4272d82a921d27d90874a6c27a3bc19ff4bfde',
+      {
+        access: account,
+      },
+    )
+    const payload = Channel.getVoucherSignPayload({
+      chainId: voucher.chainId,
+      channelId: voucher.channel,
+      cumulativeAmount: voucher.cumulativeAmount,
+    })
+    const signature = await access.signVoucher(voucher)
+
+    expect(signature).toBe(await access.sign({ hash: payload }))
+    expect(SignatureEnvelope.deserialize(signature)).toMatchObject({
+      type: 'keychain',
+      userAddress: account.address,
+    })
+  })
+
+  test('standalone', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+
+    expect(await Account.signVoucher(account, voucher)).toBe(
+      await account.signVoucher(voucher),
+    )
   })
 })
 

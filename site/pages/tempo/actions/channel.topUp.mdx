@@ -1,0 +1,85 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `channel.topUp`
+
+Adds deposit to a TIP-20 channel reserve channel.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { client, channel } from './viem.config'
+
+const { additionalDeposit, newDeposit, receipt } =
+  await client.channel.topUpSync({
+    additionalDeposit: parseUnits('50', 6),
+    channel,
+  })
+
+console.log('Added:', additionalDeposit)
+console.log('New deposit:', newDeposit)
+console.log('Transaction hash:', receipt.transactionHash)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+// [!include ~/snippets/tempo/viem.config.ts:channel]
+```
+
+:::
+
+### Asynchronous Usage
+
+The example above uses a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+
+If you are optimizing for performance, you should use the non-sync `channel.topUp` action and wait for inclusion manually:
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client, channel } from './viem.config'
+
+const hash = await client.channel.topUp({
+  additionalDeposit: 50000000n,
+  channel,
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+
+const { args } = Actions.channel.topUp.extractEvent(receipt.logs)
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Additional deposit locked in the channel */
+  additionalDeposit: bigint
+  /** Channel ID */
+  channelId: Hex
+  /** New total channel deposit */
+  newDeposit: bigint
+  /** Account that receives settled voucher payments */
+  payee: Address
+  /** Account that funded the channel and receives refunds */
+  payer: Address
+  /** Transaction receipt */
+  receipt: TransactionReceipt
+}
+```
+
+## Parameters
+
+### additionalDeposit
+
+- **Type:** `bigint`
+
+Additional deposit to lock in the channel.
+
+### channel
+
+- **Type:** `Channel.from.Value`
+
+Channel containing the payer, payee, operator, token, salt, authorized signer, and expiring nonce hash.
+
+<WriteParameters />

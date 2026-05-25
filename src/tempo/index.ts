@@ -12,6 +12,7 @@ export type {
   TxEnvelopeTempo as z_TxEnvelopeTempo,
 } from 'ox/tempo'
 export {
+  Channel,
   Period,
   TempoAddress,
   Tick,

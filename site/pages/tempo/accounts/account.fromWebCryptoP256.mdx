@@ -93,6 +93,12 @@ type Account = {
   signTransaction: (transaction: TransactionRequest) => Promise<Hex>
   /** Signs a EIP-712 typed data */
   signTypedData: (typedData: TypedData) => Promise<Hex>
+  /** Signs a TIP-20 channel voucher */
+  signVoucher: (parameters: {
+    chainId: number | bigint
+    channel: Channel.from.Value | Hex
+    cumulativeAmount: bigint
+  }) => Promise<Hex>
 }
 ```
 
@@ -111,4 +117,3 @@ The WebCrypto P256 key pair from `WebCryptoP256.createKeyPair()`.
 - **Type:** `Address | Account`
 
 Parent account to access. 
-

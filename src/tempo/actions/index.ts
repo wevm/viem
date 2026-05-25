@@ -1,6 +1,7 @@
 // biome-ignore lint/performance/noBarrelFile: _
 export * as accessKey from './accessKey.js'
 export * as amm from './amm.js'
+export * as channel from './channel.js'
 export * as dex from './dex.js'
 export * as faucet from './faucet.js'
 export * as fee from './fee.js'

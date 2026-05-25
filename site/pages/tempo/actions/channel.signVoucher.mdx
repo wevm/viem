@@ -1,0 +1,77 @@
+# `channel.signVoucher`
+
+Signs a TIP-20 channel reserve voucher with the client account.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { client, channel } from './viem.config'
+
+const signature = await client.channel.signVoucher({
+  channel,
+  cumulativeAmount: parseUnits('40', 6),
+})
+
+console.log('Signature:', signature)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+// [!include ~/snippets/tempo/viem.config.ts:channel]
+```
+
+:::
+
+### Channel ID Input
+
+Pass a channel ID when you already have one.
+
+```ts twoslash
+import { parseUnits } from 'viem'
+import { client } from './viem.config'
+
+const signature = await client.channel.signVoucher({
+  channel:
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+  cumulativeAmount: parseUnits('40', 6),
+})
+```
+
+## Return Type
+
+```ts
+type ReturnType = Hex
+```
+
+The voucher signature.
+
+## Parameters
+
+### channel
+
+- **Type:** `Hex | Channel.from.Value`
+
+Channel ID or channel.
+
+### cumulativeAmount
+
+- **Type:** `bigint`
+
+Total voucher amount signed for the channel.
+
+### account
+
+- **Type:** `Account`
+- **Default:** `client.account`
+
+Account to sign the voucher.
+
+### chainId
+
+- **Type:** `number | bigint`
+- **Default:** `client.chain.id`
+
+Chain ID used for the EIP-712 voucher payload and channel-derived IDs.
