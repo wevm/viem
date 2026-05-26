@@ -1,6 +1,12 @@
 name: "Install dependencies"
 description: "Prepare repository and all dependencies"
 
+inputs:
+  skip-cache:
+    description: 'Skip dependency cache restore/save'
+    required: false
+    default: 'false'
+
 runs:
   using: "composite"
   steps:
@@ -10,6 +16,7 @@ runs:
         version: nightly
 
     - name: Set up pnpm
-      uses: wevm/actions/.github/actions/pnpm@main
+      uses: wevm/actions/.github/actions/pnpm@f95dc1dadcba18fe3f02b8205e653e98e4a93516
       with:
         node-version: 24.5
+        skip-cache: ${{ inputs.skip-cache }}
