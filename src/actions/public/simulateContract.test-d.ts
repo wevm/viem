@@ -8,7 +8,12 @@ import { celo } from '../../chains/definitions/celo.js'
 
 import { createClient } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
-import { simulateContract } from './simulateContract.js'
+import type { BlockTag } from '../../types/block.js'
+import type { Hash } from '../../types/misc.js'
+import {
+  type SimulateContractParameters,
+  simulateContract,
+} from './simulateContract.js'
 
 const args = {
   ...wagmiContractConfig,
@@ -18,6 +23,92 @@ const args = {
 
 const client = anvilMainnet.getClient()
 const clientWithAccount = anvilMainnet.getClient({ account: true })
+const blockHash = `0x${'0'.repeat(64)}` as Hash
+
+test('args: block parameters', () => {
+  type Parameters = SimulateContractParameters<
+    typeof args.abi,
+    typeof args.functionName,
+    typeof args.args
+  >
+  type BlockNumberParameters = Parameters & {
+    blockNumber: bigint
+  }
+  expectTypeOf<BlockNumberParameters['blockTag']>().toEqualTypeOf<undefined>()
+  expectTypeOf<BlockNumberParameters['blockHash']>().toEqualTypeOf<undefined>()
+  expectTypeOf<
+    BlockNumberParameters['requireCanonical']
+  >().toEqualTypeOf<undefined>()
+
+  type BlockTagParameters = Parameters & { blockTag: BlockTag }
+  expectTypeOf<BlockTagParameters['blockNumber']>().toEqualTypeOf<undefined>()
+  expectTypeOf<BlockTagParameters['blockHash']>().toEqualTypeOf<undefined>()
+  expectTypeOf<
+    BlockTagParameters['requireCanonical']
+  >().toEqualTypeOf<undefined>()
+
+  type BlockHashParameters = Parameters & { blockHash: Hash }
+  expectTypeOf<BlockHashParameters['blockNumber']>().toEqualTypeOf<undefined>()
+  expectTypeOf<BlockHashParameters['blockTag']>().toEqualTypeOf<undefined>()
+  expectTypeOf<BlockHashParameters['requireCanonical']>().toEqualTypeOf<
+    boolean | undefined
+  >()
+
+  simulateContract(client, {
+    ...args,
+    blockNumber: 0n,
+  })
+
+  simulateContract(client, {
+    ...args,
+    blockTag: 'latest',
+  })
+
+  simulateContract(client, {
+    ...args,
+    blockHash,
+  })
+
+  simulateContract(client, {
+    ...args,
+    blockHash,
+    requireCanonical: true,
+  })
+
+  // @ts-expect-error
+  simulateContract(client, {
+    ...args,
+    blockNumber: 0n,
+    blockHash,
+  })
+
+  // @ts-expect-error
+  simulateContract(client, {
+    ...args,
+    blockTag: 'latest',
+    blockHash,
+  })
+
+  // @ts-expect-error
+  simulateContract(client, {
+    ...args,
+    blockNumber: 0n,
+    requireCanonical: true,
+  })
+
+  // @ts-expect-error
+  simulateContract(client, {
+    ...args,
+    blockTag: 'latest',
+    requireCanonical: true,
+  })
+
+  // @ts-expect-error
+  simulateContract(client, {
+    ...args,
+    requireCanonical: true,
+  })
+})
 
 test('args: account - no client account, no account arg', async () => {
   const result = await simulateContract(client, {

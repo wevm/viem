@@ -40,7 +40,14 @@ import {
 } from '../../utils/errors/getContractError.js'
 import { getAction } from '../../utils/getAction.js'
 import type { WriteContractParameters } from '../wallet/writeContract.js'
-import { type CallErrorType, type CallParameters, call } from './call.js'
+import {
+  type CallBaseParameters,
+  type CallBlockParameters,
+  type CallBlockParametersLoose,
+  type CallErrorType,
+  type CallParameters,
+  call,
+} from './call.js'
 
 export type GetMutabilityAwareValue<
   abi extends Abi | readonly unknown[],
@@ -84,7 +91,10 @@ export type SimulateContractParameters<
   ///
   derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
   callParameters extends
-    CallParameters<derivedChain> = CallParameters<derivedChain>,
+    CallBaseParameters<derivedChain> = CallBaseParameters<derivedChain>,
+  blockParameters extends
+    | CallBlockParameters
+    | CallBlockParametersLoose = SimulateContractBlockParameters<abi>,
 > = {
   account?: accountOverride | null | undefined
   chain?: chainOverride | undefined
@@ -107,6 +117,7 @@ export type SimulateContractParameters<
     | 'factoryData'
     | 'value'
   > &
+  blockParameters &
   GetMutabilityAwareValue<
     abi,
     'nonpayable' | 'payable',
@@ -114,6 +125,12 @@ export type SimulateContractParameters<
     callParameters['value'],
     args
   >
+
+type SimulateContractBlockParameters<abi extends Abi | readonly unknown[]> = [
+  Abi,
+] extends [abi]
+  ? CallBlockParametersLoose
+  : CallBlockParameters
 
 export type SimulateContractReturnType<
   out abi extends Abi | readonly unknown[] = Abi,
@@ -281,7 +298,7 @@ export async function simulateContract<
       to: address,
       ...callRequest,
       account,
-    })
+    } as CallParameters<chain>)
     const result = decodeFunctionResult({
       abi,
       args,
