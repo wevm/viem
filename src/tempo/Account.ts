@@ -418,9 +418,9 @@ export async function signVoucher(
   account: LocalAccount,
   parameters: signVoucher.Parameters,
 ): Promise<signVoucher.ReturnValue> {
-  return account.sign!({
-    hash: getVoucherSignPayload(parameters),
-  })
+  const hash = getVoucherSignPayload(parameters)
+  if (isAccessKeyAccount(account)) return account.sign({ hash, raw: true })
+  return account.sign!({ hash })
 }
 
 function getVoucherSignPayload(parameters: signVoucher.Parameters) {
@@ -450,6 +450,12 @@ export declare namespace signVoucher {
   }
 
   type ReturnValue = Hex.Hex
+}
+
+function isAccessKeyAccount(
+  account: LocalAccount,
+): account is AccessKeyAccount {
+  return account.source === 'accessKey' && 'accessKeyAddress' in account
 }
 
 export async function signKeyAuthorization(
@@ -573,9 +579,9 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
       return await sign({ hash: hashTypedData(typedData) })
     },
     async signVoucher(parameters) {
-      return await sign({
-        hash: getVoucherSignPayload(parameters),
-      })
+      const hash = getVoucherSignPayload(parameters)
+      if (parentAddress) return await sign({ hash, raw: true })
+      return await sign({ hash })
     },
     publicKey,
     source,
