@@ -4,6 +4,7 @@ import { getCode } from '../actions/public/getCode.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
 import { maxUint256 } from '../constants/number.js'
 import type { Chain, ChainConfig as viem_ChainConfig } from '../types/chain.js'
+import { isAddressEqual } from '../utils/address/isAddressEqual.js'
 import { extendSchema } from '../utils/chain/defineChain.js'
 import { defineTransaction } from '../utils/formatters/transaction.js'
 import { defineTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
@@ -39,11 +40,14 @@ export const chainConfig = {
     }),
   },
   prepareTransactionRequest: [
-    async (r, { phase }) => {
+    async (r, { client, phase }) => {
       const request = r as Transaction.TransactionRequest & {
         account?: Account | undefined
+        chainId?: number | undefined
         chain?:
-          | (Chain & { feeToken?: TokenId.TokenIdOrAddress | undefined })
+          | (Chain & {
+              feeToken?: TokenId.TokenIdOrAddress | undefined
+            })
           | undefined
       }
 
@@ -57,6 +61,46 @@ export const chainConfig = {
             request.gas = (request.gas ?? 0n) + 10_000n
         }
         return request as unknown as typeof r
+      }
+
+      if (
+        !request.keyAuthorization &&
+        request.account?.source === 'accessKey'
+      ) {
+        const keyAuthorizationManager = request.account.keyAuthorizationManager
+        if (keyAuthorizationManager) {
+          const chainId = request.chainId ?? request.chain?.id
+          if (typeof chainId !== 'undefined') {
+            const address = request.account.address
+            const accessKey = request.account.accessKeyAddress
+            const key = { address, accessKey, chainId }
+            const keyAuthorization = await keyAuthorizationManager.get(key)
+
+            if (keyAuthorization) {
+              const now = BigInt(Math.floor(Date.now() / 1000))
+              if (
+                keyAuthorization.expiry != null &&
+                BigInt(keyAuthorization.expiry) <= now
+              ) {
+                await keyAuthorizationManager.remove(key)
+              } else {
+                const metadata = await getAction(
+                  client,
+                  getMetadata,
+                  'getMetadata',
+                )({ account: address, accessKey })
+
+                if (
+                  isAddressEqual(metadata.address, accessKey) &&
+                  !metadata.isRevoked &&
+                  metadata.expiry > now
+                )
+                  await keyAuthorizationManager.remove(key)
+                else request.keyAuthorization = keyAuthorization
+              }
+            }
+          }
+        }
       }
 
       // Use expiring nonces for concurrent transactions (TIP-1009).

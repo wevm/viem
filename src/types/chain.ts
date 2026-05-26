@@ -79,9 +79,10 @@ type PrepareTransactionRequestPhase =
   | 'beforeFillTransaction'
   | 'beforeFillParameters'
   | 'afterFillParameters'
+
 type PrepareTransactionRequestFn = (
   args: PrepareTransactionRequestParameters,
-  options: { phase: PrepareTransactionRequestPhase },
+  options: { client: Client; phase: PrepareTransactionRequestPhase },
 ) => Promise<PrepareTransactionRequestParameters>
 
 type ChainVerifyHashFn = (

@@ -326,6 +326,7 @@ export async function prepareTransactionRequest<
     request = await prepareTransactionRequest.fn(
       { ...request, chain },
       {
+        client,
         phase: 'beforeFillTransaction',
       },
     )
@@ -477,6 +478,7 @@ export async function prepareTransactionRequest<
     request = await prepareTransactionRequest.fn(
       { ...request, chain },
       {
+        client,
         phase: 'beforeFillParameters',
       },
     )
@@ -627,6 +629,7 @@ export async function prepareTransactionRequest<
     request = await prepareTransactionRequest.fn(
       { ...request, chain },
       {
+        client,
         phase: 'afterFillParameters',
       },
     )
