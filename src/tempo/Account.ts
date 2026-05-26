@@ -19,6 +19,7 @@ import { keccak256 } from '../utils/hash/keccak256.js'
 import { hashMessage } from '../utils/signature/hashMessage.js'
 import { hashTypedData } from '../utils/signature/hashTypedData.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
+import type { KeyAuthorizationManager } from './KeyAuthorizationManager.js'
 import * as Transaction from './Transaction.js'
 
 export type Account_base<source extends string = string> = RequiredBy<
@@ -62,6 +63,8 @@ export type RootAccount = Account_base<'root'> & {
 export type AccessKeyAccount = Account_base<'accessKey'> & {
   /** Access key ID. */
   accessKeyAddress: Address.Address
+  /** Pending key authorization manager. */
+  keyAuthorizationManager?: KeyAuthorizationManager | undefined
   /**
    * Signs a hash.
    *
@@ -125,12 +128,13 @@ export function fromHeadlessWebAuthn<
   privateKey: Hex.Hex,
   options: options | fromHeadlessWebAuthn.Options,
 ): fromHeadlessWebAuthn.ReturnValue<options> {
-  const { access, rpId, origin, internal_version } = options
+  const { access, keyAuthorizationManager, rpId, origin, internal_version } =
+    options
 
   const publicKey = P256.getPublicKey({ privateKey })
 
   return from({
-    access,
+    ...(access ? { access, keyAuthorizationManager } : {}),
     internal_version,
     keyType: 'webAuthn',
     publicKey,
@@ -161,7 +165,10 @@ export declare namespace fromHeadlessWebAuthn {
     WebAuthnP256.getSignPayload.Options,
     'challenge' | 'rpId' | 'origin'
   > &
-    Pick<from.Parameters, 'access' | 'internal_version'> & {
+    Pick<
+      from.Parameters,
+      'access' | 'internal_version' | 'keyAuthorizationManager'
+    > & {
       rpId: string
       origin: string
     }
@@ -187,11 +194,11 @@ export function fromP256<const options extends fromP256.Options>(
   privateKey: Hex.Hex,
   options: options | fromP256.Options = {},
 ): fromP256.ReturnValue<options> {
-  const { access, internal_version } = options
+  const { access, keyAuthorizationManager, internal_version } = options
   const publicKey = P256.getPublicKey({ privateKey })
 
   return from({
-    access,
+    ...(access ? { access, keyAuthorizationManager } : {}),
     internal_version,
     keyType: 'p256',
     publicKey,
@@ -207,7 +214,10 @@ export function fromP256<const options extends fromP256.Options>(
 }
 
 export declare namespace fromP256 {
-  export type Options = Pick<from.Parameters, 'access' | 'internal_version'>
+  export type Options = Pick<
+    from.Parameters,
+    'access' | 'internal_version' | 'keyAuthorizationManager'
+  >
 
   export type ReturnValue<options extends Options = Options> =
     from.ReturnValue<options>
@@ -230,11 +240,11 @@ export function fromSecp256k1<const options extends fromSecp256k1.Options>(
   privateKey: Hex.Hex,
   options: options | fromSecp256k1.Options = {},
 ): fromSecp256k1.ReturnValue<options> {
-  const { access, internal_version } = options
+  const { access, keyAuthorizationManager, internal_version } = options
   const publicKey = Secp256k1.getPublicKey({ privateKey })
 
   return from({
-    access,
+    ...(access ? { access, keyAuthorizationManager } : {}),
     internal_version,
     keyType: 'secp256k1',
     publicKey,
@@ -247,7 +257,10 @@ export function fromSecp256k1<const options extends fromSecp256k1.Options>(
 }
 
 export declare namespace fromSecp256k1 {
-  export type Options = Pick<from.Parameters, 'access' | 'internal_version'>
+  export type Options = Pick<
+    from.Parameters,
+    'access' | 'internal_version' | 'keyAuthorizationManager'
+  >
 
   export type ReturnValue<options extends Options = Options> =
     from.ReturnValue<options>
@@ -371,11 +384,11 @@ export function fromWebCryptoP256<
   keyPair: Awaited<ReturnType<typeof WebCryptoP256.createKeyPair>>,
   options: options | fromWebCryptoP256.Options = {},
 ): fromWebCryptoP256.ReturnValue<options> {
-  const { access, internal_version } = options
+  const { access, keyAuthorizationManager, internal_version } = options
   const { publicKey, privateKey } = keyPair
 
   return from({
-    access,
+    ...(access ? { access, keyAuthorizationManager } : {}),
     internal_version,
     keyType: 'p256',
     publicKey,
@@ -392,7 +405,10 @@ export function fromWebCryptoP256<
 }
 
 export declare namespace fromWebCryptoP256 {
-  export type Options = Pick<from.Parameters, 'access' | 'internal_version'>
+  export type Options = Pick<
+    from.Parameters,
+    'access' | 'internal_version' | 'keyAuthorizationManager'
+  >
 
   export type ReturnValue<options extends Options = Options> =
     from.ReturnValue<options>
@@ -581,6 +597,8 @@ declare namespace fromBase {
     publicKey: PublicKey.PublicKey
     /** Key type. */
     keyType?: SignatureEnvelope.Type | undefined
+    /** Pending key authorization manager. */
+    keyAuthorizationManager?: KeyAuthorizationManager | undefined
     /** Sign function. */
     sign: NonNullable<LocalAccount['sign']>
     /** Source. */
@@ -635,12 +653,13 @@ declare namespace fromRoot {
 
 // biome-ignore lint/correctness/noUnusedVariables: _
 function fromAccessKey(parameters: fromAccessKey.Parameters): AccessKeyAccount {
-  const { access } = parameters
+  const { access, keyAuthorizationManager } = parameters
   const { address: parentAddress } = parseAccount(access)
   const account = fromBase({ ...parameters, parentAddress })
   return {
     ...account,
     accessKeyAddress: Address.fromPublicKey(parameters.publicKey),
+    keyAuthorizationManager,
     source: 'accessKey',
   }
 }
@@ -653,6 +672,8 @@ declare namespace fromAccessKey {
      * the parent account's address as the keychain address.
      */
     access: viem_Account | Address.Address
+    /** Pending key authorization manager. */
+    keyAuthorizationManager?: KeyAuthorizationManager | undefined
   }
 
   export type ReturnValue = AccessKeyAccount

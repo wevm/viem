@@ -14,7 +14,12 @@ import { createClient, http } from '../index.js'
 import { defineChain } from '../utils/chain/defineChain.js'
 import { hashMessage } from '../utils/index.js'
 import * as accessKeyActions from './actions/accessKey.js'
-import { Account, P256, WebCryptoP256 } from './index.js'
+import {
+  Account,
+  KeyAuthorizationManager,
+  P256,
+  WebCryptoP256,
+} from './index.js'
 
 const client = getClient({
   account: accounts.at(0)!,
@@ -140,6 +145,68 @@ describe('prepareTransactionRequest', () => {
     })
     const request = await prepareTransactionRequest(clientWithFeeToken, {})
     expect(request.feeToken).toBe(feeToken)
+  })
+
+  test('behavior: keyAuthorizationManager attaches pending key authorization', async () => {
+    const rootAccount = accounts.at(0)!
+    const keyAuthorizationManager = KeyAuthorizationManager.memory()
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: rootAccount,
+      keyAuthorizationManager,
+    })
+    const expiry = Math.floor((Date.now() + 30_000) / 1000)
+    const keyAuthorization = await accessKeyActions.signAuthorization(client, {
+      account: rootAccount,
+      accessKey,
+      expiry,
+    })
+
+    await keyAuthorizationManager.set(
+      {
+        address: accessKey.address,
+        accessKey: accessKey.accessKeyAddress,
+        chainId: client.chain.id,
+      },
+      keyAuthorization,
+    )
+
+    const request = await prepareTransactionRequest(client, {
+      account: accessKey,
+      parameters: ['chainId'],
+    })
+
+    expect(request.keyAuthorization).toBe(keyAuthorization)
+  })
+
+  test('behavior: keyAuthorizationManager removes authorization for authorized key', async () => {
+    const rootAccount = accounts.at(0)!
+    const keyAuthorizationManager = KeyAuthorizationManager.memory()
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: rootAccount,
+      keyAuthorizationManager,
+    })
+    const expiry = Math.floor((Date.now() + 30_000) / 1000)
+    const key = {
+      address: accessKey.address,
+      accessKey: accessKey.accessKeyAddress,
+      chainId: client.chain.id,
+    }
+    const keyAuthorization = await accessKeyActions.signAuthorization(client, {
+      account: rootAccount,
+      accessKey,
+      expiry,
+    })
+
+    await accessKeyActions.authorizeSync(client, { accessKey, expiry })
+    await keyAuthorizationManager.set(key, keyAuthorization)
+
+    const request = await prepareTransactionRequest(client, {
+      account: accessKey,
+      parameters: ['chainId'],
+    })
+
+    expect(request.keyAuthorization).toBeUndefined()
+    expect(await keyAuthorizationManager.get(key)).toBeUndefined()
   })
 })
 
