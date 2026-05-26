@@ -89,9 +89,6 @@ import { assertRequest } from '../../utils/transaction/assertRequest.js'
 
 export type CallParameters<
   chain extends Chain | undefined = Chain | undefined,
-> = CallBaseParameters<chain> & CallBlockParameters
-export type CallBaseParameters<
-  chain extends Chain | undefined = Chain | undefined,
 > = UnionOmit<FormattedCall<chain>, 'from'> & {
   /** Account attached to the call (msg.sender). */
   account?: Account | Address | undefined
@@ -109,53 +106,33 @@ export type CallBaseParameters<
   requestOptions?: EIP1193RequestOptions | undefined
   /** State overrides for the call. */
   stateOverride?: StateOverride | undefined
-}
-export type CallBlockParameters =
-  | {
-      /** The block number to perform the call against. */
-      blockNumber?: bigint | undefined
-      blockTag?: undefined
-      blockHash?: undefined
-      requireCanonical?: undefined
-    }
-  | {
-      blockNumber?: undefined
-      /**
-       * The block tag to perform the call against.
-       * @default 'latest'
-       */
-      blockTag?: BlockTag | undefined
-      blockHash?: undefined
-      requireCanonical?: undefined
-    }
-  | {
-      blockNumber?: undefined
-      blockTag?: undefined
-      /** The block hash to perform the call against. */
-      blockHash: Hash
-      /** Whether or not to throw an error if the block is not in the canonical chain. Only allowed in conjunction with `blockHash`. */
-      requireCanonical?: boolean | undefined
-    }
-export type CallBlockParametersLoose =
-  | {
-      /** The block number to perform the call against. */
-      blockNumber?: bigint | undefined
-      /**
-       * The block tag to perform the call against.
-       * @default 'latest'
-       */
-      blockTag?: BlockTag | undefined
-      blockHash?: undefined
-      requireCanonical?: undefined
-    }
-  | {
-      blockNumber?: undefined
-      blockTag?: undefined
-      /** The block hash to perform the call against. */
-      blockHash: Hash
-      /** Whether or not to throw an error if the block is not in the canonical chain. Only allowed in conjunction with `blockHash`. */
-      requireCanonical?: boolean | undefined
-    }
+} & (
+    | {
+        /** The block number to perform the call against. */
+        blockNumber?: bigint | undefined
+        blockTag?: undefined
+        blockHash?: undefined
+        requireCanonical?: undefined
+      }
+    | {
+        blockNumber?: undefined
+        /**
+         * The block tag to perform the call against.
+         * @default 'latest'
+         */
+        blockTag?: BlockTag | undefined
+        blockHash?: undefined
+        requireCanonical?: undefined
+      }
+    | {
+        blockNumber?: undefined
+        blockTag?: undefined
+        /** The block hash to perform the call against. */
+        blockHash: Hash
+        /** Whether or not to throw an error if the block is not in the canonical chain. Only allowed in conjunction with `blockHash`. */
+        requireCanonical?: boolean | undefined
+      }
+  )
 type FormattedCall<chain extends Chain | undefined = Chain | undefined> =
   FormattedTransactionRequest<chain>
 
