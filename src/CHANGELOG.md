@@ -1,5 +1,11 @@
 # viem
 
+## 2.51.1
+
+### Patch Changes
+
+- [#4669](https://github.com/wevm/viem/pull/4669) [`44a197c6d3ca881472c5a849d199907b5ede453d`](https://github.com/wevm/viem/commit/44a197c6d3ca881472c5a849d199907b5ede453d) Thanks [@deodad](https://github.com/deodad)! - Use the published `ox@0.14.24` package instead of a `pkg.pr.new` build.
+
 ## 2.51.0
 
 ### Minor Changes
