@@ -11,29 +11,23 @@ export type Key = {
 export type KeyAuthorizationManager = {
   get(key: Key): MaybePromise<KeyAuthorization.Signed | undefined>
   remove(key: Key): MaybePromise<void>
-  set(
-    key: Key & { keyAuthorization: KeyAuthorization.Signed },
-  ): MaybePromise<void>
+  set(key: Key, keyAuthorization: KeyAuthorization.Signed): MaybePromise<void>
 }
 
-export type Source = KeyAuthorizationManager
-
-export type CreateParameters = {
-  source: Source
+export function from(options: from.Options): KeyAuthorizationManager {
+  return options.source
 }
 
-export function createKeyAuthorizationManager(
-  parameters: CreateParameters,
-): KeyAuthorizationManager {
-  return parameters.source
+export declare namespace from {
+  type Options = {
+    source: KeyAuthorizationManager
+  }
 }
-
-export const create = createKeyAuthorizationManager
 
 export function memory(): KeyAuthorizationManager {
   const keyAuthorizations = new Map<string, KeyAuthorization.Signed>()
 
-  return createKeyAuthorizationManager({
+  return from({
     source: {
       get(key) {
         return keyAuthorizations.get(serializeKey(key))
@@ -41,7 +35,7 @@ export function memory(): KeyAuthorizationManager {
       remove(key) {
         keyAuthorizations.delete(serializeKey(key))
       },
-      set({ keyAuthorization, ...key }) {
+      set(key, keyAuthorization) {
         keyAuthorizations.set(serializeKey(key), keyAuthorization)
       },
     },

@@ -161,12 +161,14 @@ describe('prepareTransactionRequest', () => {
       expiry,
     })
 
-    await keyAuthorizationManager.set({
-      address: accessKey.address,
-      accessKey: accessKey.accessKeyAddress,
-      chainId: client.chain.id,
+    await keyAuthorizationManager.set(
+      {
+        address: accessKey.address,
+        accessKey: accessKey.accessKeyAddress,
+        chainId: client.chain.id,
+      },
       keyAuthorization,
-    })
+    )
 
     const request = await prepareTransactionRequest(client, {
       account: accessKey,
@@ -196,7 +198,7 @@ describe('prepareTransactionRequest', () => {
     })
 
     await accessKeyActions.authorizeSync(client, { accessKey, expiry })
-    await keyAuthorizationManager.set({ ...key, keyAuthorization })
+    await keyAuthorizationManager.set(key, keyAuthorization)
 
     const request = await prepareTransactionRequest(client, {
       account: accessKey,
