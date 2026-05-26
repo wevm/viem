@@ -589,11 +589,17 @@ describe('signVoucher', () => {
     })
     const signature = await access.signVoucher(voucher)
 
-    expect(signature).toBe(await access.sign({ hash: payload }))
+    expect(signature).toBe(await access.sign({ hash: payload, raw: true }))
     expect(SignatureEnvelope.deserialize(signature)).toMatchObject({
-      type: 'keychain',
-      userAddress: account.address,
+      type: 'secp256k1',
     })
+    expect(
+      await verifyHash(client, {
+        address: access.accessKeyAddress,
+        hash: payload,
+        signature,
+      }),
+    ).toBe(true)
   })
 
   test('standalone', async () => {
@@ -602,6 +608,27 @@ describe('signVoucher', () => {
     expect(await Account.signVoucher(account, voucher)).toBe(
       await account.signVoucher(voucher),
     )
+  })
+
+  test('standalone: access key', async () => {
+    const account = Account.fromSecp256k1(privateKey_secp256k1)
+    const access = Account.fromSecp256k1(
+      '0x06a952d58c24d287245276dd8b4272d82a921d27d90874a6c27a3bc19ff4bfde',
+      {
+        access: account,
+      },
+    )
+    const payload = Channel.getVoucherSignPayload({
+      chainId: voucher.chainId,
+      channelId: voucher.channel,
+      cumulativeAmount: voucher.cumulativeAmount,
+    })
+    const signature = await Account.signVoucher(access, voucher)
+
+    expect(signature).toBe(await access.sign({ hash: payload, raw: true }))
+    expect(SignatureEnvelope.deserialize(signature)).toMatchObject({
+      type: 'secp256k1',
+    })
   })
 })
 
