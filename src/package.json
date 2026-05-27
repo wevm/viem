@@ -16,8 +16,7 @@
     "!**/*.test.ts.snap",
     "!**/*.test-d.ts",
     "!**/*.tsbuildinfo",
-    "!tsconfig.build.json",
-    "!jsr.json"
+    "!tsconfig.build.json"
   ],
   "exports": {
     ".": {
