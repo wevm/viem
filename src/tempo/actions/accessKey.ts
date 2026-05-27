@@ -654,6 +654,7 @@ export async function getMetadata<
   const account = parseAccount(account_)
   const result = await readContract(client, {
     ...rest,
+    account: null as never,
     ...getMetadata.call({ account: account.address, accessKey }),
   })
   return {
