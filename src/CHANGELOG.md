@@ -1,5 +1,11 @@
 # viem
 
+## 2.51.3
+
+### Patch Changes
+
+- [#4675](https://github.com/wevm/viem/pull/4675) [`cc15e56ae47e03d2ec8fe9b0e443b4e52b7c350a`](https://github.com/wevm/viem/commit/cc15e56ae47e03d2ec8fe9b0e443b4e52b7c350a) Thanks [@deodad](https://github.com/deodad)! - Fixed access key metadata reads incorrectly using the client account.
+
 ## 2.51.2
 
 ### Patch Changes
