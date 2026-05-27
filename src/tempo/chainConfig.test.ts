@@ -209,7 +209,10 @@ describe('prepareTransactionRequest', () => {
     const request = await prepareTransactionRequest(accessKeyClient, {
       parameters: ['chainId'],
     })
-    const metadataCall = requestSpy.mock.calls.find(([request]) => {
+    const requestCalls = requestSpy.mock.calls as [
+      { method: string; params?: readonly unknown[] },
+    ][]
+    const metadataCall = requestCalls.find(([request]) => {
       if (request.method !== 'eth_call') return false
       const call = request.params?.[0] as { to?: string } | undefined
       return call?.to?.toLowerCase() === Addresses.accountKeychain.toLowerCase()
