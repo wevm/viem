@@ -1,5 +1,13 @@
 # viem
 
+## 2.51.2
+
+### Patch Changes
+
+- [#4668](https://github.com/wevm/viem/pull/4668) [`672a7ef72cd7fb9b9330d5c90979729e6b96cbbc`](https://github.com/wevm/viem/commit/672a7ef72cd7fb9b9330d5c90979729e6b96cbbc) Thanks [@deodad](https://github.com/deodad)! - `viem/tempo`: Fixed `signVoucher` to raw sign channel vouchers with access key accounts.
+
+- [#4672](https://github.com/wevm/viem/pull/4672) [`c582dad966c136488b9f36c01f0f3986ff98e407`](https://github.com/wevm/viem/commit/c582dad966c136488b9f36c01f0f3986ff98e407) Thanks [@deodad](https://github.com/deodad)! - Added a Tempo key authorization manager that can be used by `prepareTransactionRequest` to attach pending key authorizations.
+
 ## 2.51.1
 
 ### Patch Changes
