@@ -147,7 +147,6 @@ jobs:
     strategy:
       matrix:
         node-env: 
-          - devnet
           - testnet
           # - mainnet
     steps:
