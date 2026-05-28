@@ -1,3 +1,4 @@
+import type { Address as address } from 'abitype'
 import * as Address from 'ox/Address'
 import * as Hash from 'ox/Hash'
 import * as Hex from 'ox/Hex'
@@ -12,9 +13,13 @@ import {
   createTransport,
   type Transport,
 } from '../clients/transports/createTransport.js'
+import { BaseError } from '../errors/base.js'
 import type { Chain } from '../types/chain.js'
+import type { MaybePromise } from '../types/utils.js'
 import type { ChainConfig } from './chainConfig.js'
+import type { AccessKeyErrorType } from './errors.js'
 import * as Transaction from './Transaction.js'
+import { getAccessKeyError } from './utils/errors/getAccessKeyError.js'
 
 type RelayProxyParameters = {
   /** Policy for how the relay should handle sponsored transactions. Defaults to `'sign-only'`. */
@@ -23,6 +28,95 @@ type RelayProxyParameters = {
 
 export type FeePayer = Transport<typeof withFeePayer.type>
 export type Relay = Transport<typeof withRelay.type>
+
+type AccessKeyErrorRequest = {
+  method: string
+  params?: unknown
+}
+
+type AccessKeyErrorAccount = {
+  account?: address | undefined
+  accessKey?: address | undefined
+}
+
+type AccessKeyErrorParameters = AccessKeyErrorAccount & {
+  error: AccessKeyErrorType
+  request: AccessKeyErrorRequest
+}
+
+/**
+ * Creates a transport that observes access key errors in one place.
+ *
+ * The wrapped transport still throws the normalized access key error after the
+ * callback runs.
+ *
+ * @param transport - Transport to wrap.
+ * @param parameters - Error hook parameters.
+ * @returns Transport.
+ */
+export function withAccessKeyErrors(
+  transport: Transport,
+  parameters: withAccessKeyErrors.Parameters,
+): withAccessKeyErrors.ReturnValue {
+  const { onAccessKeyError } = parameters
+
+  return (config) => {
+    const t = transport(config)
+    const account = getAccessKeyAccount(config.account)
+
+    return {
+      ...t,
+      async request(request: AccessKeyErrorRequest, options) {
+        try {
+          return await t.request(request as never, options)
+        } catch (error) {
+          if (!(error instanceof BaseError)) throw error
+          const accessKeyError = getAccessKeyError(error)
+          if (!accessKeyError) throw error
+
+          try {
+            await onAccessKeyError({
+              ...account,
+              error: accessKeyError,
+              request,
+            })
+          } catch {}
+
+          throw accessKeyError
+        }
+      },
+    }
+  }
+}
+
+export declare namespace withAccessKeyErrors {
+  export type Parameters = {
+    onAccessKeyError: (
+      parameters: AccessKeyErrorParameters,
+    ) => MaybePromise<void>
+  }
+
+  export type ReturnValue = Transport
+}
+
+function getAccessKeyAccount(
+  account: unknown,
+): AccessKeyErrorAccount | undefined {
+  if (!account || typeof account !== 'object') return undefined
+  if (
+    'source' in account &&
+    account.source === 'accessKey' &&
+    'address' in account &&
+    typeof account.address === 'string' &&
+    'accessKeyAddress' in account &&
+    typeof account.accessKeyAddress === 'string'
+  )
+    return {
+      account: account.address as address,
+      accessKey: account.accessKeyAddress as address,
+    }
+  return undefined
+}
 
 /**
  * Creates a relay transport that routes requests between

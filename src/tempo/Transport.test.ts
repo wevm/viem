@@ -10,9 +10,70 @@ import {
   signTransaction,
 } from 'viem/actions'
 import { Transaction } from 'viem/tempo'
-import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest'
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  test,
+  vi,
+} from 'vitest'
 import { accounts, chain, getClient, http } from '~test/tempo/config.js'
-import { walletNamespaceCompat, withFeePayer, withRelay } from './Transport.js'
+import { custom } from '../clients/transports/custom.js'
+import { RpcRequestError } from '../errors/request.js'
+import { AccessKeyExpiredError } from './errors.js'
+import {
+  walletNamespaceCompat,
+  withAccessKeyErrors,
+  withFeePayer,
+  withRelay,
+} from './Transport.js'
+
+function rpcError(message: string) {
+  return new RpcRequestError({
+    body: { method: 'eth_sendRawTransaction', params: [] },
+    error: { code: -32000, message },
+    url: 'http://localhost',
+  })
+}
+
+describe('withAccessKeyErrors', () => {
+  test('calls hook with typed error and rethrows typed error', async () => {
+    const onAccessKeyError = vi.fn()
+    const transport = withAccessKeyErrors(
+      custom({
+        async request() {
+          throw rpcError('keychain validation failed: KeyExpired()')
+        },
+      }),
+      { onAccessKeyError },
+    )({
+      account: {
+        address: accounts[0].address,
+        accessKeyAddress: accounts[1].address,
+        source: 'accessKey',
+      } as never,
+    })
+
+    await expect(
+      transport.request({
+        method: 'eth_sendRawTransaction',
+        params: ['0x'],
+      }),
+    ).rejects.toBeInstanceOf(AccessKeyExpiredError)
+
+    expect(onAccessKeyError).toHaveBeenCalledWith({
+      account: accounts[0].address,
+      accessKey: accounts[1].address,
+      error: expect.any(AccessKeyExpiredError),
+      request: {
+        method: 'eth_sendRawTransaction',
+        params: ['0x'],
+      },
+    })
+  })
+})
 
 describe('withRelay', () => {
   let server: Http.Server
