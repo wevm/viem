@@ -1529,6 +1529,95 @@ export declare namespace watchWitnessBurned {
   }
 }
 
+/**
+ * Verifies that a keychain signature was produced by an active access key
+ * for the expected account.
+ *
+ * By default (`admin: true`), returns `true` only if the signature was
+ * produced by the account's root key or an active admin access key. Set
+ * `admin: false` to accept any active access key.
+ *
+ * Returns `false` for account mismatches, unknown, revoked, or expired
+ * access keys. [TIP-1049](https://tips.sh/1049)
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   transport: http(),
+ * })
+ *
+ * const valid = await Actions.accessKey.verifyHash(client, {
+ *   account: '0x...',
+ *   hash: '0x...',
+ *   signature: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns Whether the keychain signature is valid for the account.
+ */
+export async function verifyHash<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: verifyHash.Parameters,
+): Promise<verifyHash.ReturnValue> {
+  const { account, admin, hash, signature, ...rest } = parameters
+  return readContract(client, {
+    ...rest,
+    ...verifyHash.call({ account, admin, hash, signature }),
+  })
+}
+
+export namespace verifyHash {
+  export type Parameters = ReadParameters & Args
+
+  export type Args = {
+    /** Account address the signature is expected to belong to. */
+    account: Address
+    /**
+     * Whether to require the signer to be the account's root key or an
+     * active admin access key. Defaults to `true`. Set to `false` to accept
+     * any active access key.
+     */
+    admin?: boolean | undefined
+    /** Original message hash that was signed. */
+    hash: Hex
+    /** Keychain signature envelope (V2). */
+    signature: Hex
+  }
+
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.signatureVerifier,
+    'verifyKeychain' | 'verifyKeychainAdmin',
+    never
+  >
+
+  /**
+   * Defines a call to `verifyKeychain` or `verifyKeychainAdmin` on the
+   * Signature Verifier precompile (controlled by `admin`).
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { account, admin = true, hash, signature } = args
+    return defineCall({
+      address: Addresses.signatureVerifier,
+      abi: Abis.signatureVerifier,
+      functionName: admin ? 'verifyKeychainAdmin' : 'verifyKeychain',
+      args: [account, hash, signature],
+    })
+  }
+}
+
 /** @internal */
 function resolveAccessKeyAddress(
   accessKey: Address | AccessKeyAccount,

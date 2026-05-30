@@ -1902,6 +1902,10 @@ export const sidebar = {
                 link: '/tempo/actions/accessKey.updateLimit',
               },
               {
+                text: 'verifyHash',
+                link: '/tempo/actions/accessKey.verifyHash',
+              },
+              {
                 text: 'watchAdminAuthorized',
                 link: '/tempo/actions/accessKey.watchAdminAuthorized',
               },
@@ -2160,20 +2164,6 @@ export const sidebar = {
               {
                 text: 'watchRewardRecipientSet',
                 link: '/tempo/actions/reward.watchRewardRecipientSet',
-              },
-            ],
-          },
-          {
-            text: 'Signature Verifier',
-            collapsed: true,
-            items: [
-              {
-                text: 'verifyKeychain',
-                link: '/tempo/actions/signatureVerifier.verifyKeychain',
-              },
-              {
-                text: 'verifyKeychainAdmin',
-                link: '/tempo/actions/signatureVerifier.verifyKeychainAdmin',
               },
             ],
           },

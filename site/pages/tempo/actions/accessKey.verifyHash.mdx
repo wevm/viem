@@ -1,10 +1,12 @@
 import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
-# `signatureVerifier.verifyKeychainAdmin`
+# `accessKey.verifyHash`
 
-Verifies that a keychain signature was produced by the account's root key or an active admin access key.
+Verifies that a keychain signature was produced by an active access key for the expected account.
 
-Returns `false` for account mismatches, non-admin, unknown, revoked, or expired access keys.
+By default (`admin: true`), returns `true` only if the signature was produced by the account's root key or an active admin access key. Set `admin: false` to accept any active access key.
+
+Returns `false` for account mismatches, unknown, revoked, or expired access keys.
 
 [TIP-1049](https://tips.sh/1049)
 
@@ -15,7 +17,7 @@ Returns `false` for account mismatches, non-admin, unknown, revoked, or expired 
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const valid = await client.signatureVerifier.verifyKeychainAdmin({
+const valid = await client.accessKey.verifyHash({
   account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   hash: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
   signature: '0x...',
@@ -45,6 +47,13 @@ type ReturnType = boolean
 
 Account address the signature is expected to belong to.
 
+### admin
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to require the signer to be the account's root key or an active admin access key. Set to `false` to accept any active access key.
+
 ### hash
 
 - **Type:** `Hex`
@@ -55,6 +64,6 @@ Original message hash that was signed.
 
 - **Type:** `Hex`
 
-Keychain signature envelope (V2) from the account's root key or an admin access key.
+Keychain signature envelope (V2). Legacy keychain signatures are rejected.
 
 <ReadParameters />

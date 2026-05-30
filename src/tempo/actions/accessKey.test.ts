@@ -9,6 +9,7 @@ import { accounts, feeToken, getClient } from '~test/tempo/config.js'
 import * as actions from './index.js'
 
 const account = accounts[0]
+const account2 = accounts[1]
 
 const client = getClient({
   account,
@@ -692,5 +693,125 @@ describe('watchAdminAuthorized', () => {
           accessKey.accessKeyAddress.toLowerCase(),
       ),
     ).toBe(true)
+  })
+})
+
+
+describe('verifyHash', () => {
+  const hash =
+    '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef' as const
+
+  test('default', async () => {
+    const adminKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    await actions.accessKey.authorizeSync(client, {
+      accessKey: adminKey,
+      admin: true,
+    })
+
+    const signature = await adminKey.sign({ hash })
+
+    const valid = await actions.accessKey.verifyHash(client, {
+      account: account.address,
+      hash,
+      signature,
+    })
+    expect(valid).toBe(true)
+  })
+
+  test('behavior: non-admin key returns false by default', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    await actions.accessKey.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    const signature = await accessKey.sign({ hash })
+
+    const valid = await actions.accessKey.verifyHash(client, {
+      account: account.address,
+      hash,
+      signature,
+    })
+    expect(valid).toBe(false)
+  })
+
+  test('behavior: admin: false accepts any active access key', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    await actions.accessKey.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    const signature = await accessKey.sign({ hash })
+
+    const valid = await actions.accessKey.verifyHash(client, {
+      account: account.address,
+      admin: false,
+      hash,
+      signature,
+    })
+    expect(valid).toBe(true)
+  })
+
+  test('behavior: account mismatch', async () => {
+    const adminKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    await actions.accessKey.authorizeSync(client, {
+      accessKey: adminKey,
+      admin: true,
+    })
+
+    const signature = await adminKey.sign({ hash })
+
+    const valid = await actions.accessKey.verifyHash(client, {
+      account: account2.address,
+      hash,
+      signature,
+    })
+    expect(valid).toBe(false)
+  })
+
+  test('behavior: unauthorized key', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const signature = await accessKey.sign({ hash })
+
+    const valid = await actions.accessKey.verifyHash(client, {
+      account: account.address,
+      admin: false,
+      hash,
+      signature,
+    })
+    expect(valid).toBe(false)
+  })
+
+  test('behavior: revoked key', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    await actions.accessKey.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+    await actions.accessKey.revokeSync(client, { accessKey })
+
+    const signature = await accessKey.sign({ hash })
+
+    const valid = await actions.accessKey.verifyHash(client, {
+      account: account.address,
+      admin: false,
+      hash,
+      signature,
+    })
+    expect(valid).toBe(false)
   })
 })
