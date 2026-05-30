@@ -188,3 +188,9 @@ Spending limits per token. Optionally include `period` (in seconds) to make the 
 - **Type:** `{ address: Address; selector?: Hex | string; recipients?: Address[] }[]`
 
 Call scopes restricting which contracts/selectors this key can call.
+
+### witness (optional)
+
+- **Type:** `Hex`
+
+Optional 32-byte witness bound into the authorization's signing hash. Can be burned onchain via [`accessKey.burnWitness`](/tempo/actions/accessKey.burnWitness) to invalidate the authorization before it is submitted ([TIP-1053](https://tips.sh/1053)).

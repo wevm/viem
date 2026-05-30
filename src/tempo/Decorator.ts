@@ -91,6 +91,61 @@ export type Decorator<
       parameters: accessKeyActions.authorizeSync.Parameters<chain, account>,
     ) => Promise<accessKeyActions.authorizeSync.ReturnValue>
     /**
+     * Burns a key-authorization witness, invalidating any authorization bound
+     * to it before it is submitted onchain.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.accessKey.burnWitness({
+     *   witness: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    burnWitness: (
+      parameters: accessKeyActions.burnWitness.Parameters<chain, account>,
+    ) => Promise<accessKeyActions.burnWitness.ReturnValue>
+    /**
+     * Burns a key-authorization witness and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt, ...result } = await client.accessKey.burnWitnessSync({
+     *   witness: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    burnWitnessSync: (
+      parameters: accessKeyActions.burnWitnessSync.Parameters<chain, account>,
+    ) => Promise<accessKeyActions.burnWitnessSync.ReturnValue>
+    /**
      * Gets access key information.
      *
      * @example
@@ -143,6 +198,32 @@ export type Decorator<
     getRemainingLimit: (
       parameters: accessKeyActions.getRemainingLimit.Parameters<account>,
     ) => Promise<accessKeyActions.getRemainingLimit.ReturnValue>
+    /**
+     * Checks whether a key-authorization witness has been burned for an account.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const isBurned = await client.accessKey.isWitnessBurned({
+     *   account: '0x...',
+     *   witness: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns Whether the witness has been burned.
+     */
+    isWitnessBurned: (
+      parameters: accessKeyActions.isWitnessBurned.Parameters<account>,
+    ) => Promise<accessKeyActions.isWitnessBurned.ReturnValue>
     /**
      * Revokes an authorized access key.
      *
@@ -255,6 +336,60 @@ export type Decorator<
     updateLimitSync: (
       parameters: accessKeyActions.updateLimitSync.Parameters<chain, account>,
     ) => Promise<accessKeyActions.updateLimitSync.ReturnValue>
+    /**
+     * Watches for key-authorization witness events.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const unwatch = client.accessKey.watchWitness({
+     *   onWitness: (args, log) => {
+     *     console.log('Witness used:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchWitness: (
+      parameters: accessKeyActions.watchWitness.Parameters,
+    ) => ReturnType<typeof accessKeyActions.watchWitness>
+    /**
+     * Watches for key-authorization witness burned events.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const unwatch = client.accessKey.watchWitnessBurned({
+     *   onBurned: (args, log) => {
+     *     console.log('Witness burned:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchWitnessBurned: (
+      parameters: accessKeyActions.watchWitnessBurned.Parameters,
+    ) => ReturnType<typeof accessKeyActions.watchWitnessBurned>
   }
   amm: {
     /**
@@ -4900,10 +5035,16 @@ export function decorator() {
           accessKeyActions.authorize(client, parameters),
         authorizeSync: (parameters) =>
           accessKeyActions.authorizeSync(client, parameters),
+        burnWitness: (parameters) =>
+          accessKeyActions.burnWitness(client, parameters),
+        burnWitnessSync: (parameters) =>
+          accessKeyActions.burnWitnessSync(client, parameters),
         getMetadata: (parameters) =>
           accessKeyActions.getMetadata(client, parameters),
         getRemainingLimit: (parameters) =>
           accessKeyActions.getRemainingLimit(client, parameters),
+        isWitnessBurned: (parameters) =>
+          accessKeyActions.isWitnessBurned(client, parameters),
         revoke: (parameters) => accessKeyActions.revoke(client, parameters),
         revokeSync: (parameters) =>
           accessKeyActions.revokeSync(client, parameters),
@@ -4911,6 +5052,10 @@ export function decorator() {
           accessKeyActions.updateLimit(client, parameters),
         updateLimitSync: (parameters) =>
           accessKeyActions.updateLimitSync(client, parameters),
+        watchWitness: (parameters) =>
+          accessKeyActions.watchWitness(client, parameters),
+        watchWitnessBurned: (parameters) =>
+          accessKeyActions.watchWitnessBurned(client, parameters),
       },
       amm: {
         getPool: (parameters) => ammActions.getPool(client, parameters),

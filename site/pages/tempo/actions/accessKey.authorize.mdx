@@ -149,6 +149,25 @@ const { receipt } = await client.accessKey.authorizeSync({
 })
 ```
 
+### With a Witness
+
+Use `witness` to bind a 32-byte value into the authorization's signing hash. This lets you bind a single signature to an arbitrary offchain context (e.g. a server-issued challenge), or use it as a revocation handle that can be burned onchain (via [`accessKey.burnWitness`](/tempo/actions/accessKey.burnWitness)) to invalidate the authorization before it is submitted ([TIP-1053](https://tips.sh/1053)):
+
+```ts twoslash
+import { Account, P256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const { receipt } = await client.accessKey.authorizeSync({
+  accessKey,
+  witness: '0x...', // [!code focus]
+})
+```
+
 ### Authorize Public Keys
 
 Instead of passing an `AccessKeyAccount`, you can authorize a key by its public key or address directly:
@@ -252,5 +271,11 @@ Spending limits per token. Optionally include `period` (in seconds) to make the 
 - **Type:** `{ address: Address; selector?: Hex | string; recipients?: Address[] }[]`
 
 Call scopes restricting which contracts/selectors this key can call. Each scope entry specifies a contract address, an optional 4-byte function selector, and optional recipient addresses (for transfer-like functions). If `scopes` is set to `[]` (empty array), the key cannot make any calls.
+
+### witness (optional)
+
+- **Type:** `Hex`
+
+Optional 32-byte witness bound into the authorization's signing hash. Can be burned onchain via [`accessKey.burnWitness`](/tempo/actions/accessKey.burnWitness) to invalidate the authorization before it is submitted ([TIP-1053](https://tips.sh/1053)).
 
 <WriteParameters />

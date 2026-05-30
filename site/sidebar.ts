@@ -1870,12 +1870,20 @@ export const sidebar = {
                 link: '/tempo/actions/accessKey.authorize',
               },
               {
+                text: 'burnWitness',
+                link: '/tempo/actions/accessKey.burnWitness',
+              },
+              {
                 text: 'getMetadata',
                 link: '/tempo/actions/accessKey.getMetadata',
               },
               {
                 text: 'getRemainingLimit',
                 link: '/tempo/actions/accessKey.getRemainingLimit',
+              },
+              {
+                text: 'isWitnessBurned',
+                link: '/tempo/actions/accessKey.isWitnessBurned',
               },
               {
                 text: 'revoke',
@@ -1888,6 +1896,14 @@ export const sidebar = {
               {
                 text: 'updateLimit',
                 link: '/tempo/actions/accessKey.updateLimit',
+              },
+              {
+                text: 'watchWitness',
+                link: '/tempo/actions/accessKey.watchWitness',
+              },
+              {
+                text: 'watchWitnessBurned',
+                link: '/tempo/actions/accessKey.watchWitnessBurned',
               },
             ],
           },
