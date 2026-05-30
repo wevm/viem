@@ -703,7 +703,6 @@ describe('signKeyAuthorization', () => {
           "type": "secp256k1",
         },
         "type": "secp256k1",
-        "witness": undefined,
       }
     `)
   })
@@ -745,7 +744,6 @@ describe('signKeyAuthorization', () => {
           "type": "secp256k1",
         },
         "type": "secp256k1",
-        "witness": undefined,
       }
     `)
   })
@@ -792,7 +790,6 @@ describe('signKeyAuthorization', () => {
           "type": "p256",
         },
         "type": "secp256k1",
-        "witness": undefined,
       }
     `)
   })
@@ -845,7 +842,6 @@ describe('signKeyAuthorization', () => {
           "type": "webAuthn",
         },
         "type": "secp256k1",
-        "witness": undefined,
       }
     `)
   })
@@ -895,7 +891,6 @@ describe('signKeyAuthorization', () => {
           "type": "secp256k1",
         },
         "type": "secp256k1",
-        "witness": undefined,
       }
     `)
   })
@@ -1186,7 +1181,6 @@ describe('signKeyAuthorization (standalone)', () => {
           "type": "secp256k1",
         },
         "type": "secp256k1",
-        "witness": undefined,
       }
     `)
   })

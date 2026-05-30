@@ -67,7 +67,7 @@ export default defineConfig({
       McpSource.github({ name: 'tempo', repo: 'tempoxyz/tempo' }),
     ],
   },
-  renderStrategy: 'partial-static',
+  renderStrategy: 'dynamic',
   rootDir: '.',
   srcDir: '.',
   search: {

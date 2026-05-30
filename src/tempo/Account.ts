@@ -496,7 +496,7 @@ export async function signKeyAuthorization(
     chainId,
     signature: SignatureEnvelope.from(signature),
     type,
-    witness,
+    ...(witness ? { witness } : {}),
     ...(admin ? { isAdmin: true } : {}),
     ...boundFields,
     ...restrictions,
@@ -665,7 +665,7 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
         chainId,
         signature: SignatureEnvelope.from(signature),
         type,
-        witness,
+        ...(witness ? { witness } : {}),
         ...(admin ? { isAdmin: true } : {}),
         ...restrictions,
       } as never)
