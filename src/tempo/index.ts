@@ -14,6 +14,7 @@ export type {
 export {
   Channel,
   Period,
+  ReceivePolicyReceipt,
   TempoAddress,
   Tick,
   TokenId,

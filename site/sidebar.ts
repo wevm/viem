@@ -2046,6 +2046,52 @@ export const sidebar = {
             ],
           },
           {
+            text: 'Receive Policy',
+            collapsed: true,
+            items: [
+              {
+                text: 'burn',
+                link: '/tempo/actions/receivePolicy.burn',
+              },
+              {
+                text: 'claim',
+                link: '/tempo/actions/receivePolicy.claim',
+              },
+              {
+                text: 'get',
+                link: '/tempo/actions/receivePolicy.get',
+              },
+              {
+                text: 'getBlockedBalance',
+                link: '/tempo/actions/receivePolicy.getBlockedBalance',
+              },
+              {
+                text: 'set',
+                link: '/tempo/actions/receivePolicy.set',
+              },
+              {
+                text: 'validate',
+                link: '/tempo/actions/receivePolicy.validate',
+              },
+              {
+                text: 'watchBlocked',
+                link: '/tempo/actions/receivePolicy.watchBlocked',
+              },
+              {
+                text: 'watchBurned',
+                link: '/tempo/actions/receivePolicy.watchBurned',
+              },
+              {
+                text: 'watchClaimed',
+                link: '/tempo/actions/receivePolicy.watchClaimed',
+              },
+              {
+                text: 'watchUpdated',
+                link: '/tempo/actions/receivePolicy.watchUpdated',
+              },
+            ],
+          },
+          {
             text: 'Faucet',
             collapsed: true,
             items: [

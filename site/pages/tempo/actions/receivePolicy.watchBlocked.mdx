@@ -1,0 +1,81 @@
+# `receivePolicy.watchBlocked`
+
+Watches for blocked transfer events (`TransferBlocked`) emitted by the `ReceivePolicyGuard` when an inbound transfer or mint violates a receive policy.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const unwatch = client.receivePolicy.watchBlocked({
+  onBlocked: (args, log) => {
+    console.log('Transfer blocked:', args)
+    // `args.claimReceipt` can be passed to `claim` or `burn`.
+  },
+})
+
+// Later, stop watching
+unwatch()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = () => void
+```
+
+Returns a function to unsubscribe from the event.
+
+## Parameters
+
+### onBlocked
+
+- **Type:** `function`
+
+```ts
+declare function onBlocked(args: Args, log: Log): void
+
+type Args = {
+  /** The encoded claim receipt (witness for `claim`/`burn`). */
+  claimReceipt: Hex
+  // ...remaining `TransferBlocked` event fields
+}
+```
+
+Callback to invoke when a transfer is blocked. The `claimReceipt` can be passed to [`receivePolicy.claim`](/tempo/actions/receivePolicy.claim) or [`receivePolicy.burn`](/tempo/actions/receivePolicy.burn).
+
+### fromBlock (optional)
+
+- **Type:** `bigint`
+
+Block to start listening from.
+
+### onError (optional)
+
+- **Type:** `function`
+
+```ts
+declare function onError(error: Error): void
+```
+
+The callback to call when an error occurred when trying to get for a new block.
+
+### poll (optional)
+
+- **Type:** `true`
+
+Whether to use polling.
+
+### pollingInterval (optional)
+
+- **Type:** `number`
+
+Polling frequency (in ms). Defaults to Client's pollingInterval config.
