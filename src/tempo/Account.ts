@@ -468,10 +468,10 @@ export async function signKeyAuthorization(
   const { chainId, key, expiry, limits, scopes, witness, admin } = parameters
   const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
 
-  // When the signer is an access key (e.g. an admin key managing the account's
-  // other keys), the authorization must be signed directly by that key and
-  // bound to the parent account it acts on behalf of, so the signed payload
-  // cannot be replayed against another account. [TIP-1049]
+  // When the signer is an admin access key, the authorization must be
+  // signed directly by that key and bound to the parent account it acts
+  // on behalf of, so the signed payload cannot be replayed against another
+  // account. [TIP-1049]
   const isAccessKey = isAccessKeyAccount(account)
   const boundFields = isAccessKey ? { account: account.address } : {}
 
@@ -487,7 +487,7 @@ export async function signKeyAuthorization(
     ...(admin ? { isAdmin: true } : {}),
     ...boundFields,
     ...restrictions,
-  })
+  } as never)
   const signature = isAccessKey
     ? await account.sign({ hash, raw: true })
     : await account.sign!({ hash })
@@ -500,7 +500,7 @@ export async function signKeyAuthorization(
     ...(admin ? { isAdmin: true } : {}),
     ...boundFields,
     ...restrictions,
-  })
+  } as never)
 }
 
 export declare namespace signKeyAuthorization {
@@ -658,7 +658,7 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
           witness,
           ...(admin ? { isAdmin: true } : {}),
           ...restrictions,
-        }),
+        } as never),
       })
       const keyAuthorization = KeyAuthorization.from({
         address: accessKeyAddress,
@@ -668,7 +668,7 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
         witness,
         ...(admin ? { isAdmin: true } : {}),
         ...restrictions,
-      })
+      } as never)
       return keyAuthorization
     },
   }
