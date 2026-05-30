@@ -484,7 +484,7 @@ export async function signKeyAuthorization(
     scopes,
     signature: SignatureEnvelope.from(signature),
     type,
-    witness,
+    ...(witness ? { witness } : {}),
   })
 }
 
@@ -642,7 +642,7 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
         scopes,
         signature: SignatureEnvelope.from(signature),
         type,
-        witness,
+        ...(witness ? { witness } : {}),
       })
       return keyAuthorization
     },

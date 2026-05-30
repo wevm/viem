@@ -703,7 +703,6 @@ describe('signKeyAuthorization', () => {
           "type": "secp256k1",
         },
         "type": "secp256k1",
-        "witness": undefined,
       }
     `)
   })
