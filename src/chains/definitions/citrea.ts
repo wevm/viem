@@ -16,5 +16,11 @@ export const citrea = /*#__PURE__*/ defineChain({
       apiUrl: 'https://explorer.mainnet.citrea.xyz/api',
     },
   },
+  contracts: {
+    multicall3: {
+      address: '0xA738e84fdE890Bc60b99AF7ccE43990E534304de',
+      blockCreated: 2450100,
+    },
+  },
   testnet: false,
 })
