@@ -1,3 +1,4 @@
+import * as Hex from 'ox/Hex'
 import { SignatureEnvelope, type TokenId } from 'ox/tempo'
 import { getCode } from '../actions/public/getCode.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
@@ -9,12 +10,10 @@ import { defineTransaction } from '../utils/formatters/transaction.js'
 import { defineTransactionReceipt } from '../utils/formatters/transactionReceipt.js'
 import { defineTransactionRequest } from '../utils/formatters/transactionRequest.js'
 import { getAction } from '../utils/getAction.js'
+import { keccak256 } from '../utils/hash/keccak256.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import type { Account } from './Account.js'
-import {
-  getMetadata,
-  verifyHash as verifyAccessKeyHash,
-} from './actions/accessKey.js'
+import { getMetadata } from './actions/accessKey.js'
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
@@ -155,20 +154,43 @@ export const chainConfig = {
     // `verifyHash` supports "signature envelopes" (a Tempo proposal) to natively verify arbitrary
     // envelope-compatible (WebAuthn, P256, etc.) signatures.
     if (envelope) {
-      // Access key (keychain) signature verification: defer to the
-      // SignatureVerifier precompile, which checks the signature and that
-      // the key is authorized, not expired, and not revoked on the
-      // AccountKeychain. The precompile reverts on malformed/unrecoverable
-      // signatures, which we coerce to `false` to match `verifyHash` semantics.
-      if (envelope?.type === 'keychain' && mode === 'allowAccessKey')
-        return await verifyAccessKeyHash(client, {
+      // Access key (keychain) signature verification: check the key is
+      // authorized, not expired, and not revoked on the AccountKeychain.
+      if (envelope?.type === 'keychain' && mode === 'allowAccessKey') {
+        // For v2 keychain envelopes, the inner signature signs
+        // keccak256(0x04 || hash || userAddress).
+        const innerPayload =
+          envelope.version === 'v2'
+            ? keccak256(Hex.concat('0x04', hash, address))
+            : hash
+
+        const accessKeyAddress = (() => {
+          try {
+            return SignatureEnvelope.extractAddress({
+              payload: innerPayload,
+              signature: envelope.inner,
+            })
+          } catch {
+            return undefined
+          }
+        })()
+        if (!accessKeyAddress) return false
+
+        const keyInfo = await getMetadata(client, {
           account: address,
-          admin: false,
-          hash,
-          signature,
+          accessKey: accessKeyAddress,
           blockNumber: parameters.blockNumber,
           blockTag: parameters.blockTag,
-        } as never).catch(() => false)
+        } as never)
+
+        if (keyInfo.isRevoked) return false
+        if (keyInfo.expiry <= BigInt(Math.floor(Date.now() / 1000)))
+          return false
+        return SignatureEnvelope.verify(envelope.inner, {
+          address: accessKeyAddress,
+          payload: innerPayload,
+        })
+      }
 
       // Stateless, non-keychain signature envelopes (P256, WebAuthn) can be
       // verified directly without a network request.
