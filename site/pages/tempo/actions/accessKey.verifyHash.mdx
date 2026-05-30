@@ -2,6 +2,10 @@ import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
 
 # `accessKey.verifyHash`
 
+:::warning
+**Coming soon:** [TIP-1049](https://tips.sh/1049) ships in the **T7** hardfork — live on **Testnet** June 25 and **Mainnet** June 29.
+:::
+
 Verifies that a keychain signature was produced by an active access key for the expected account.
 
 By default (`admin: true`), returns `true` only if the signature was produced by the account's root key or an active admin access key. Set `admin: false` to accept any active access key.
