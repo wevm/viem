@@ -1,0 +1,218 @@
+diff --git a/dist/waku/internal/patches/router.js b/dist/waku/internal/patches/router.js
+index 212ed6f81f4bf68559e3e68045b06b2f0e62cb3b..e9bb5c40431ca87a8bd269a74bcac2347386ce3a 100644
+--- a/dist/waku/internal/patches/router.js
++++ b/dist/waku/internal/patches/router.js
+@@ -3,6 +3,7 @@ import { createPages } from 'waku/router/server';
+ import * as DedupeHead from '../dedupe-head.js';
+ import { getApiHandlers, hasInvalidStaticApiExports, } from './api-routes.js';
+ import { isIgnoredPath } from './utils/fs-router.js';
++import { config as vocsConfig } from 'virtual:vocs/config';
+ const wrapRenderHtml = (renderHtml) => async (...args) => {
+     const response = await renderHtml(...args);
+     const body = response.body;
+@@ -64,6 +65,7 @@ modules, options) {
+         consumerPaths.add(srcPath.slice(pagesDirPrefix.length).replace(/\.\w+$/, ''));
+     }
+     const allModules = { ...defaultPages, ...modules };
++    const defaultRender = vocsConfig.renderStrategy === 'dynamic' ? 'dynamic' : 'static';
+     return wrapPages(createPages(async ({ createPage, createLayout, createRoot, createApi, createSlice }) => {
+         for (const file in allModules) {
+             const importFn = allModules[file];
+@@ -106,7 +108,7 @@ modules, options) {
+                 else if (pathItems.at(0) === slicesDir) {
+                     createSlice({
+                         component,
+-                        render: 'static',
++                        render: defaultRender,
+                         id: pathItems.slice(1).join('/'),
+                         ...sourceFileProperty,
+                     });
+@@ -114,7 +116,7 @@ modules, options) {
+                 else if (pathItems.at(-1) === '_root') {
+                     createRoot({
+                         component,
+-                        render: 'static',
++                        render: defaultRender,
+                         ...sourceFileProperty,
+                     });
+                 }
+@@ -122,23 +124,23 @@ modules, options) {
+                     createPage({
+                         path,
+                         component,
+-                        render: 'static',
++                        render: defaultRender,
+                         ...sourceFileProperty,
+                     });
+                 }
+                 continue;
+             }
+             const mod = (await importFn());
+-            const config = await mod.getConfig?.();
++            const routeConfig = await mod.getConfig?.();
+             if (pathItems.at(0) === apiDir) {
+                 // Strip the apiDir prefix from the path (e.g., _api/hello.txt -> hello.txt)
+                 const apiPath = '/' + pathItems.slice(1).join('/');
+-                if (config?.render === 'static') {
++                if (routeConfig?.render === 'static') {
+                     if (hasInvalidStaticApiExports(mod) || !mod.GET) {
+                         console.warn(`API ${path} is invalid. For static API routes, only a single GET handler is supported.`);
+                     }
+                     createApi({
+-                        ...config,
++                        ...routeConfig,
+                         path: apiPath,
+                         render: 'static',
+                         method: 'GET',
+@@ -165,9 +167,9 @@ modules, options) {
+             else if (pathItems.at(0) === slicesDir) {
+                 createSlice({
+                     component: mod.default,
+-                    render: 'static',
++                    render: defaultRender,
+                     id: pathItems.slice(1).join('/'),
+-                    ...config,
++                    ...routeConfig,
+                     ...sourceFileProperty,
+                 }); // FIXME avoid as never
+             }
+@@ -175,16 +177,16 @@ modules, options) {
+                 createLayout({
+                     path,
+                     component: mod.default,
+-                    render: 'static',
+-                    ...config,
++                    render: defaultRender,
++                    ...routeConfig,
+                     ...sourceFileProperty,
+                 });
+             }
+             else if (pathItems.at(-1) === '_root') {
+                 createRoot({
+                     component: mod.default,
+-                    render: 'static',
+-                    ...config,
++                    render: defaultRender,
++                    ...routeConfig,
+                     ...sourceFileProperty,
+                 });
+             }
+@@ -192,8 +194,8 @@ modules, options) {
+                 createPage({
+                     path,
+                     component: mod.default,
+-                    render: 'static',
+-                    ...config,
++                    render: defaultRender,
++                    ...routeConfig,
+                     ...sourceFileProperty,
+                 }); // FIXME avoid as never
+             }
+diff --git a/src/waku/internal/patches/router.ts b/src/waku/internal/patches/router.ts
+index b097a5645c202317f435f125a851916002e8e155..6304522b1684cb0ed839744208f4fac061e59476 100644
+--- a/src/waku/internal/patches/router.ts
++++ b/src/waku/internal/patches/router.ts
+@@ -8,6 +8,7 @@ import {
+   hasInvalidStaticApiExports,
+ } from './api-routes.js'
+ import { isIgnoredPath } from './utils/fs-router.js'
++import { config as vocsConfig } from 'virtual:vocs/config'
+ 
+ type Pages = ReturnType<typeof createPages>
+ type RouteModule = ApiRouteModule & {
+@@ -111,6 +112,7 @@ export function router(
+   }
+ 
+   const allModules = { ...defaultPages, ...modules }
++  const defaultRender = vocsConfig.renderStrategy === 'dynamic' ? 'dynamic' : 'static'
+ 
+   return wrapPages(
+     createPages(
+@@ -161,21 +163,21 @@ export function router(
+             } else if (pathItems.at(0) === slicesDir) {
+               createSlice({
+                 component,
+-                render: 'static',
++                render: defaultRender,
+                 id: pathItems.slice(1).join('/'),
+                 ...sourceFileProperty,
+               } as never)
+             } else if (pathItems.at(-1) === '_root') {
+               createRoot({
+                 component,
+-                render: 'static',
++                render: defaultRender,
+                 ...sourceFileProperty,
+               })
+             } else {
+               createPage({
+                 path,
+                 component,
+-                render: 'static',
++                render: defaultRender,
+                 ...sourceFileProperty,
+               } as never)
+             }
+@@ -184,18 +186,18 @@ export function router(
+ 
+           const mod = (await importFn()) as RouteModule
+ 
+-          const config = await mod.getConfig?.()
++          const routeConfig = await mod.getConfig?.()
+           if (pathItems.at(0) === apiDir) {
+             // Strip the apiDir prefix from the path (e.g., _api/hello.txt -> hello.txt)
+             const apiPath = '/' + pathItems.slice(1).join('/')
+-            if (config?.render === 'static') {
++            if (routeConfig?.render === 'static') {
+               if (hasInvalidStaticApiExports(mod) || !mod.GET) {
+                 console.warn(
+                   `API ${path} is invalid. For static API routes, only a single GET handler is supported.`,
+                 )
+               }
+               createApi({
+-                ...config,
++                ...routeConfig,
+                 path: apiPath,
+                 render: 'static',
+                 method: 'GET',
+@@ -220,32 +222,32 @@ export function router(
+           } else if (pathItems.at(0) === slicesDir) {
+             createSlice({
+               component: mod.default,
+-              render: 'static',
++              render: defaultRender,
+               id: pathItems.slice(1).join('/'),
+-              ...config,
++              ...routeConfig,
+               ...sourceFileProperty,
+             } as never) // FIXME avoid as never
+           } else if (pathItems.at(-1) === '_layout') {
+             createLayout({
+               path,
+               component: mod.default,
+-              render: 'static',
+-              ...config,
++              render: defaultRender,
++              ...routeConfig,
+               ...sourceFileProperty,
+             })
+           } else if (pathItems.at(-1) === '_root') {
+             createRoot({
+               component: mod.default,
+-              render: 'static',
+-              ...config,
++              render: defaultRender,
++              ...routeConfig,
+               ...sourceFileProperty,
+             })
+           } else {
+             createPage({
+               path,
+               component: mod.default,
+-              render: 'static',
+-              ...config,
++              render: defaultRender,
++              ...routeConfig,
+               ...sourceFileProperty,
+             } as never) // FIXME avoid as never
+           }

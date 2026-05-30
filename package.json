@@ -315,6 +315,9 @@
       "bun",
       "protobufjs",
       "simple-git-hooks"
-    ]
+    ],
+    "patchedDependencies": {
+      "vocs@2.0.4": "patches/vocs@2.0.4.patch"
+    }
   }
 }
