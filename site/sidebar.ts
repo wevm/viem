@@ -1882,6 +1882,10 @@ export const sidebar = {
                 link: '/tempo/actions/accessKey.getRemainingLimit',
               },
               {
+                text: 'isAdmin',
+                link: '/tempo/actions/accessKey.isAdmin',
+              },
+              {
                 text: 'isWitnessBurned',
                 link: '/tempo/actions/accessKey.isWitnessBurned',
               },
@@ -1896,6 +1900,10 @@ export const sidebar = {
               {
                 text: 'updateLimit',
                 link: '/tempo/actions/accessKey.updateLimit',
+              },
+              {
+                text: 'watchAdminAuthorized',
+                link: '/tempo/actions/accessKey.watchAdminAuthorized',
               },
               {
                 text: 'watchWitness',

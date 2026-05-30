@@ -56,7 +56,10 @@ export type RootAccount = Account_base<'root'> & {
     parameters: Pick<
       KeyAuthorization.KeyAuthorization,
       'chainId' | 'expiry' | 'limits' | 'scopes' | 'witness'
-    >,
+    > & {
+      /** Whether to authorize the key as an admin key (TIP-1049). */
+      admin?: boolean | undefined
+    },
   ) => Promise<KeyAuthorization.Signed>
 }
 
@@ -462,29 +465,31 @@ export async function signKeyAuthorization(
   account: LocalAccount,
   parameters: signKeyAuthorization.Parameters,
 ): Promise<signKeyAuthorization.ReturnValue> {
-  const { chainId, key, expiry, limits, scopes, witness } = parameters
+  const { chainId, key, expiry, limits, scopes, witness, admin } = parameters
   const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
+
+  // Admin key authorizations are unrestricted and must not carry expiry,
+  // limits, or call scopes (the protocol rejects them). [TIP-1049]
+  const restrictions = admin ? {} : { expiry, limits, scopes }
 
   const signature = await account.sign!({
     hash: KeyAuthorization.getSignPayload({
       address: accessKeyAddress,
       chainId,
-      expiry,
-      limits,
-      scopes,
       type,
       witness,
+      ...(admin ? { isAdmin: true } : {}),
+      ...restrictions,
     }),
   })
   return KeyAuthorization.from({
     address: accessKeyAddress,
     chainId,
-    expiry,
-    limits,
-    scopes,
     signature: SignatureEnvelope.from(signature),
     type,
     witness,
+    ...(admin ? { isAdmin: true } : {}),
+    ...restrictions,
   })
 }
 
@@ -494,6 +499,14 @@ export declare namespace signKeyAuthorization {
     'chainId' | 'expiry' | 'limits' | 'scopes' | 'witness'
   > & {
     key: resolveAccessKey.Parameters
+    /**
+     * Whether to authorize the key as an admin key. Admin keys are
+     * unrestricted and can manage the account's other access keys; `expiry`,
+     * `limits`, and `scopes` are ignored. Requires the T6 hardfork.
+     *
+     * [TIP-1049](https://tips.sh/1049)
+     */
+    admin?: boolean | undefined
   }
 
   type ReturnValue = KeyAuthorization.Signed
@@ -620,29 +633,31 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
     ...account,
     source: 'root',
     async signKeyAuthorization(key, parameters) {
-      const { chainId, expiry, limits, scopes, witness } = parameters
+      const { chainId, expiry, limits, scopes, witness, admin } = parameters
       const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
+
+      // Admin key authorizations are unrestricted and must not carry expiry,
+      // limits, or call scopes (the protocol rejects them). [TIP-1049]
+      const restrictions = admin ? {} : { expiry, limits, scopes }
 
       const signature = await account.sign({
         hash: KeyAuthorization.getSignPayload({
           address: accessKeyAddress,
           chainId,
-          expiry,
-          limits,
-          scopes,
           type,
           witness,
+          ...(admin ? { isAdmin: true } : {}),
+          ...restrictions,
         }),
       })
       const keyAuthorization = KeyAuthorization.from({
         address: accessKeyAddress,
         chainId,
-        expiry,
-        limits,
-        scopes,
         signature: SignatureEnvelope.from(signature),
         type,
         witness,
+        ...(admin ? { isAdmin: true } : {}),
+        ...restrictions,
       })
       return keyAuthorization
     },

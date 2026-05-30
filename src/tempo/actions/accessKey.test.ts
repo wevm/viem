@@ -564,3 +564,98 @@ describe('watchWitnessBurned', () => {
     ).toBe(true)
   })
 })
+
+describe('authorize (admin)', () => {
+  test('behavior: admin', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const { receipt } = await actions.accessKey.authorizeSync(client, {
+      accessKey,
+      admin: true,
+    })
+
+    expect(receipt.status).toBe('success')
+
+    const isAdmin = await actions.accessKey.isAdmin(client, {
+      account: account.address,
+      accessKey,
+    })
+    expect(isAdmin).toBe(true)
+  })
+})
+
+describe('signAuthorization (admin)', () => {
+  test('behavior: admin', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const keyAuthorization = await actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      admin: true,
+    })
+
+    expect(keyAuthorization.isAdmin).toBe(true)
+    // Admin authorizations are unrestricted.
+    expect(keyAuthorization.expiry ?? undefined).toBeUndefined()
+    expect(keyAuthorization.limits ?? undefined).toBeUndefined()
+    expect(keyAuthorization.scopes ?? undefined).toBeUndefined()
+  })
+})
+
+describe('isAdmin', () => {
+  test('default', async () => {
+    const accessKey = await setupAccessKey()
+
+    expect(
+      await actions.accessKey.isAdmin(client, {
+        account: account.address,
+        accessKey,
+      }),
+    ).toBe(false)
+  })
+
+  test('behavior: non-existent key', async () => {
+    expect(
+      await actions.accessKey.isAdmin(client, {
+        account: account.address,
+        accessKey: '0x0000000000000000000000000000000000000001',
+      }),
+    ).toBe(false)
+  })
+})
+
+describe('watchAdminAuthorized', () => {
+  test('default', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+
+    const logs: any[] = []
+    const unwatch = actions.accessKey.watchAdminAuthorized(client, {
+      onAuthorized: (args, log) => {
+        logs.push({ args, log })
+      },
+    })
+
+    await actions.accessKey.authorizeSync(client, {
+      accessKey,
+      admin: true,
+    })
+
+    await setTimeout(500)
+    unwatch()
+
+    expect(logs.length).toBeGreaterThanOrEqual(1)
+    expect(
+      logs.some(
+        (l) =>
+          l.args.publicKey.toLowerCase() ===
+          accessKey.accessKeyAddress.toLowerCase(),
+      ),
+    ).toBe(true)
+  })
+})
