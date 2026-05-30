@@ -757,6 +757,7 @@ export {
   zksyncSepoliaTestnet as zkSyncSepoliaTestnet,
   zksyncSepoliaTestnet,
 } from './definitions/zksyncSepoliaTestnet.js'
+export { zkTanenbaum } from './definitions/zkTanenbaum.js'
 export { zkXPLA } from './definitions/zkXPLA.js'
 export { zkXPLATestnet } from './definitions/zkXPLATestnet.js'
 export { zora } from './definitions/zora.js'
