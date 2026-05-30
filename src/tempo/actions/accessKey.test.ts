@@ -1,3 +1,4 @@
+import { setTimeout } from 'node:timers/promises'
 import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import { Period } from 'ox/tempo'
@@ -393,5 +394,173 @@ describe('getRemainingLimit', () => {
     })
 
     expect(remaining).toBe(0n)
+  })
+})
+
+/** Returns a random 32-byte witness. */
+function randomWitness(): `0x${string}` {
+  const bytes = crypto.getRandomValues(new Uint8Array(32))
+  return `0x${Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')}`
+}
+
+describe('authorize (witness)', () => {
+  test('behavior: with witness', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const witness = randomWitness()
+
+    const { receipt } = await actions.accessKey.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+      witness,
+    })
+
+    expect(receipt.status).toBe('success')
+
+    // Witness should not be burned after a successful authorization.
+    const isBurned = await actions.accessKey.isWitnessBurned(client, {
+      account: account.address,
+      witness,
+    })
+    expect(isBurned).toBe(false)
+  })
+
+  test('behavior: reverts when witness already burned', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const witness = randomWitness()
+
+    await actions.accessKey.burnWitnessSync(client, { witness })
+
+    await expect(
+      actions.accessKey.authorizeSync(client, {
+        accessKey,
+        expiry: Math.floor((Date.now() + 30_000) / 1000),
+        witness,
+      }),
+    ).rejects.toThrow()
+  })
+})
+
+describe('signAuthorization (witness)', () => {
+  test('behavior: with witness', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const witness = randomWitness()
+
+    const keyAuthorization = await actions.accessKey.signAuthorization(client, {
+      account,
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+      witness,
+    })
+
+    expect(keyAuthorization.witness).toBe(witness)
+  })
+})
+
+describe('burnWitness', () => {
+  test('default', async () => {
+    const witness = randomWitness()
+
+    const isBurnedBefore = await actions.accessKey.isWitnessBurned(client, {
+      account: account.address,
+      witness,
+    })
+    expect(isBurnedBefore).toBe(false)
+
+    const { receipt, ...result } = await actions.accessKey.burnWitnessSync(
+      client,
+      { witness },
+    )
+
+    expect(receipt.status).toBe('success')
+    expect(result.witness).toBe(witness)
+    expect(result.account.toLowerCase()).toBe(account.address.toLowerCase())
+
+    const isBurnedAfter = await actions.accessKey.isWitnessBurned(client, {
+      account: account.address,
+      witness,
+    })
+    expect(isBurnedAfter).toBe(true)
+  })
+
+  test('behavior: reverts when already burned', async () => {
+    const witness = randomWitness()
+
+    await actions.accessKey.burnWitnessSync(client, { witness })
+
+    await expect(
+      actions.accessKey.burnWitnessSync(client, { witness }),
+    ).rejects.toThrow()
+  })
+})
+
+describe('isWitnessBurned', () => {
+  test('default', async () => {
+    const witness = randomWitness()
+
+    expect(
+      await actions.accessKey.isWitnessBurned(client, {
+        account: account.address,
+        witness,
+      }),
+    ).toBe(false)
+  })
+})
+
+describe('watchWitness', () => {
+  test('default', async () => {
+    const accessKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const witness = randomWitness()
+
+    const logs: any[] = []
+    const unwatch = actions.accessKey.watchWitness(client, {
+      onWitness: (args, log) => {
+        logs.push({ args, log })
+      },
+    })
+
+    await actions.accessKey.authorizeSync(client, {
+      accessKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+      witness,
+    })
+
+    await setTimeout(500)
+    unwatch()
+
+    expect(logs.length).toBeGreaterThanOrEqual(1)
+    expect(
+      logs.some((l) => l.args.witness.toLowerCase() === witness.toLowerCase()),
+    ).toBe(true)
+  })
+})
+
+describe('watchWitnessBurned', () => {
+  test('default', async () => {
+    const witness = randomWitness()
+
+    const logs: any[] = []
+    const unwatch = actions.accessKey.watchWitnessBurned(client, {
+      onBurned: (args, log) => {
+        logs.push({ args, log })
+      },
+    })
+
+    await actions.accessKey.burnWitnessSync(client, { witness })
+
+    await setTimeout(500)
+    unwatch()
+
+    expect(logs.length).toBeGreaterThanOrEqual(1)
+    expect(
+      logs.some((l) => l.args.witness.toLowerCase() === witness.toLowerCase()),
+    ).toBe(true)
   })
 })

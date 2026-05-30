@@ -55,7 +55,7 @@ export type RootAccount = Account_base<'root'> & {
     key: resolveAccessKey.Parameters,
     parameters: Pick<
       KeyAuthorization.KeyAuthorization,
-      'chainId' | 'expiry' | 'limits' | 'scopes'
+      'chainId' | 'expiry' | 'limits' | 'scopes' | 'witness'
     >,
   ) => Promise<KeyAuthorization.Signed>
 }
@@ -462,7 +462,7 @@ export async function signKeyAuthorization(
   account: LocalAccount,
   parameters: signKeyAuthorization.Parameters,
 ): Promise<signKeyAuthorization.ReturnValue> {
-  const { chainId, key, expiry, limits, scopes } = parameters
+  const { chainId, key, expiry, limits, scopes, witness } = parameters
   const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
 
   const signature = await account.sign!({
@@ -473,6 +473,7 @@ export async function signKeyAuthorization(
       limits,
       scopes,
       type,
+      witness,
     }),
   })
   return KeyAuthorization.from({
@@ -483,13 +484,14 @@ export async function signKeyAuthorization(
     scopes,
     signature: SignatureEnvelope.from(signature),
     type,
+    witness,
   })
 }
 
 export declare namespace signKeyAuthorization {
   type Parameters = Pick<
     KeyAuthorization.KeyAuthorization,
-    'chainId' | 'expiry' | 'limits' | 'scopes'
+    'chainId' | 'expiry' | 'limits' | 'scopes' | 'witness'
   > & {
     key: resolveAccessKey.Parameters
   }
@@ -618,7 +620,7 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
     ...account,
     source: 'root',
     async signKeyAuthorization(key, parameters) {
-      const { chainId, expiry, limits, scopes } = parameters
+      const { chainId, expiry, limits, scopes, witness } = parameters
       const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
 
       const signature = await account.sign({
@@ -629,6 +631,7 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
           limits,
           scopes,
           type,
+          witness,
         }),
       })
       const keyAuthorization = KeyAuthorization.from({
@@ -639,6 +642,7 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
         scopes,
         signature: SignatureEnvelope.from(signature),
         type,
+        witness,
       })
       return keyAuthorization
     },
