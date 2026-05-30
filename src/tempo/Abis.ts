@@ -1294,6 +1294,28 @@ export const signatureVerifier = [
     ],
     outputs: [{ type: 'bool' }],
   },
+  {
+    name: 'verifyKeychain',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'bytes32', name: 'hash' },
+      { type: 'bytes', name: 'signature' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'verifyKeychainAdmin',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'bytes32', name: 'hash' },
+      { type: 'bytes', name: 'signature' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
   { name: 'InvalidFormat', type: 'error', inputs: [] },
   { name: 'InvalidSignature', type: 'error', inputs: [] },
 ] as const
@@ -1592,6 +1614,15 @@ export const stablecoinDex = [
       { type: 'bool', name: 'isBid' },
       { type: 'int16', name: 'tick' },
       { type: 'int16', name: 'flipTick' },
+    ],
+  },
+  {
+    name: 'FlipFailed',
+    type: 'event',
+    inputs: [
+      { type: 'uint128', name: 'orderId', indexed: true },
+      { type: 'address', name: 'maker', indexed: true },
+      { type: 'bytes4', name: 'reason' },
     ],
   },
   {
@@ -1949,6 +1980,82 @@ export const feeAmm = [
   { name: 'InvalidSwapCalculation', type: 'error', inputs: [] },
 ] as const
 
+export const receivePolicyGuard = [
+  {
+    name: 'balanceOf',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'bytes', name: 'receipt' }],
+    outputs: [{ type: 'uint256', name: 'amount' }],
+  },
+  {
+    name: 'claim',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'to' },
+      { type: 'bytes', name: 'receipt' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'burnBlockedReceipt',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [{ type: 'bytes', name: 'receipt' }],
+    outputs: [],
+  },
+  {
+    name: 'TransferBlocked',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'address', name: 'receiver', indexed: true },
+      { type: 'uint64', name: 'blockedNonce', indexed: true },
+      { type: 'uint256', name: 'amount' },
+      { type: 'uint8', name: 'receiptVersion' },
+      { type: 'bytes', name: 'receipt' },
+    ],
+  },
+  {
+    name: 'ReceiptClaimed',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'address', name: 'receiver', indexed: true },
+      { type: 'uint64', name: 'blockedNonce', indexed: true },
+      { type: 'uint64', name: 'blockedAt' },
+      { type: 'uint8', name: 'receiptVersion' },
+      { type: 'address', name: 'originator' },
+      { type: 'address', name: 'recipient' },
+      { type: 'address', name: 'recoveryAuthority' },
+      { type: 'address', name: 'caller' },
+      { type: 'address', name: 'to' },
+      { type: 'uint256', name: 'amount' },
+    ],
+  },
+  {
+    name: 'ReceiptBurned',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'token', indexed: true },
+      { type: 'address', name: 'receiver', indexed: true },
+      { type: 'uint64', name: 'blockedNonce', indexed: true },
+      { type: 'uint64', name: 'blockedAt' },
+      { type: 'uint8', name: 'receiptVersion' },
+      { type: 'address', name: 'originator' },
+      { type: 'address', name: 'recipient' },
+      { type: 'address', name: 'recoveryAuthority' },
+      { type: 'address', name: 'caller' },
+      { type: 'uint256', name: 'amount' },
+    ],
+  },
+  { name: 'InvalidReceipt', type: 'error', inputs: [] },
+  { name: 'InvalidClaimAddress', type: 'error', inputs: [] },
+  { name: 'UnauthorizedClaimer', type: 'error', inputs: [] },
+  { name: 'AddressReserved', type: 'error', inputs: [] },
+] as const
+
 export const accountKeychain = [
   {
     name: 'authorizeKey',
@@ -2053,6 +2160,17 @@ export const accountKeychain = [
           },
         ],
       },
+      { type: 'bytes32', name: 'witness' },
+    ],
+    outputs: [],
+  },
+  {
+    name: 'authorizeAdminKey',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'address', name: 'keyId' },
+      { type: 'uint8', name: 'signatureType' },
       { type: 'bytes32', name: 'witness' },
     ],
     outputs: [],
@@ -2200,6 +2318,16 @@ export const accountKeychain = [
     outputs: [{ type: 'bool' }],
   },
   {
+    name: 'isAdminKey',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'account' },
+      { type: 'address', name: 'keyId' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
     name: 'getTransactionKey',
     type: 'function',
     stateMutability: 'view',
@@ -2214,6 +2342,14 @@ export const accountKeychain = [
       { type: 'address', name: 'publicKey', indexed: true },
       { type: 'uint8', name: 'signatureType' },
       { type: 'uint64', name: 'expiry' },
+    ],
+  },
+  {
+    name: 'AdminKeyAuthorized',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'address', name: 'publicKey', indexed: true },
     ],
   },
   {
@@ -2281,6 +2417,7 @@ export const accountKeychain = [
   },
   { name: 'CallNotAllowed', type: 'error', inputs: [] },
   { name: 'InvalidCallScope', type: 'error', inputs: [] },
+  { name: 'InvalidKeyId', type: 'error', inputs: [] },
   { name: 'InvalidKeyAuthorizationWitness', type: 'error', inputs: [] },
   { name: 'KeyAuthorizationWitnessAlreadyBurned', type: 'error', inputs: [] },
   {
@@ -2465,6 +2602,34 @@ export const tip403Registry = [
     ],
   },
   {
+    name: 'receivePolicy',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [{ type: 'address', name: 'account' }],
+    outputs: [
+      { type: 'bool', name: 'hasReceivePolicy' },
+      { type: 'uint64', name: 'senderPolicyId' },
+      { type: 'uint8', name: 'senderPolicyType' },
+      { type: 'uint64', name: 'tokenFilterId' },
+      { type: 'uint8', name: 'tokenFilterType' },
+      { type: 'address', name: 'recoveryAuthority' },
+    ],
+  },
+  {
+    name: 'validateReceivePolicy',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { type: 'address', name: 'token' },
+      { type: 'address', name: 'sender' },
+      { type: 'address', name: 'receiver' },
+    ],
+    outputs: [
+      { type: 'bool', name: 'authorized' },
+      { type: 'uint8', name: 'blockedReason' },
+    ],
+  },
+  {
     name: 'createPolicy',
     type: 'function',
     stateMutability: 'nonpayable',
@@ -2529,6 +2694,17 @@ export const tip403Registry = [
     outputs: [{ type: 'uint64' }],
   },
   {
+    name: 'setReceivePolicy',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { type: 'uint64', name: 'senderPolicyId' },
+      { type: 'uint64', name: 'tokenFilterId' },
+      { type: 'address', name: 'recoveryAuthority' },
+    ],
+    outputs: [],
+  },
+  {
     name: 'PolicyAdminUpdated',
     type: 'event',
     inputs: [
@@ -2577,12 +2753,24 @@ export const tip403Registry = [
       { type: 'uint64', name: 'mintRecipientPolicyId' },
     ],
   },
+  {
+    name: 'ReceivePolicyUpdated',
+    type: 'event',
+    inputs: [
+      { type: 'address', name: 'account', indexed: true },
+      { type: 'uint64', name: 'senderPolicyId' },
+      { type: 'uint64', name: 'tokenFilterId' },
+      { type: 'address', name: 'recoveryAuthority' },
+    ],
+  },
   { name: 'Unauthorized', type: 'error', inputs: [] },
   { name: 'PolicyNotFound', type: 'error', inputs: [] },
   { name: 'PolicyNotSimple', type: 'error', inputs: [] },
   { name: 'InvalidPolicyType', type: 'error', inputs: [] },
   { name: 'IncompatiblePolicyType', type: 'error', inputs: [] },
   { name: 'VirtualAddressNotAllowed', type: 'error', inputs: [] },
+  { name: 'InvalidReceivePolicyType', type: 'error', inputs: [] },
+  { name: 'InvalidRecoveryAuthority', type: 'error', inputs: [] },
 ] as const
 
 export const validatorConfig = [
@@ -2745,6 +2933,7 @@ export const abis = [
   ...addressRegistry,
   ...feeManager,
   ...feeAmm,
+  ...receivePolicyGuard,
   ...accountKeychain,
   ...nonce,
   ...tip20Factory,
