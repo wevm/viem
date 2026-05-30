@@ -171,6 +171,12 @@ The root account signing the authorization. Must be a local account with signing
 
 The access key to authorize. Accepts an `AccessKeyAccount`, or an object with `{ address, type }` or `{ publicKey, type }`.
 
+### admin (optional)
+
+- **Type:** `boolean`
+
+Whether to authorize the key as an admin key. Admin keys are unrestricted and can manage the account's other access keys; `expiry`, `limits`, and `scopes` are ignored. Requires the T6 hardfork ([TIP-1049](https://tips.sh/1049)).
+
 ### expiry (optional)
 
 - **Type:** `number`

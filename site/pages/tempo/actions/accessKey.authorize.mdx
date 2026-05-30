@@ -168,6 +168,49 @@ const { receipt } = await client.accessKey.authorizeSync({
 })
 ```
 
+### Admin Keys
+
+Set `admin: true` to authorize an unrestricted admin key. Admin keys can manage the account's other access keys and cannot carry `expiry`, `limits`, or `scopes` (they are ignored). Requires the T6 hardfork ([TIP-1049](https://tips.sh/1049)):
+
+```ts twoslash
+import { Account, P256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+const accessKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const { receipt } = await client.accessKey.authorizeSync({
+  accessKey,
+  admin: true, // [!code focus]
+})
+```
+
+Once authorized, an admin key can authorize (and manage) other keys on behalf of the account. Pass the admin key as the `account`: viem binds the authorization to the parent account and signs it with the admin key directly.
+
+```ts twoslash
+import { Account, P256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+
+// Admin key (previously authorized with `admin: true`)
+const adminKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+// New key to authorize on behalf of the account
+const childKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const { receipt } = await client.accessKey.authorizeSync({
+  account: adminKey, // [!code focus]
+  accessKey: childKey,
+})
+```
+
 ### Authorize Public Keys
 
 Instead of passing an `AccessKeyAccount`, you can authorize a key by its public key or address directly:
@@ -253,6 +296,12 @@ type ReturnType = {
 - **Type:** `{ accessKeyAddress: Address; keyType: string } | { address: Address; type: string } | { publicKey: Hex; type: string }`
 
 The access key to authorize. Accepts an `AccessKeyAccount`, or an object with `{ address, type }` or `{ publicKey, type }`.
+
+### admin (optional)
+
+- **Type:** `boolean`
+
+Whether to authorize the key as an admin key. Admin keys are unrestricted and can manage the account's other access keys; `expiry`, `limits`, and `scopes` are ignored. Requires the T6 hardfork ([TIP-1049](https://tips.sh/1049)).
 
 ### expiry (optional)
 

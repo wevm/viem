@@ -1,0 +1,53 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `accessKey.isAdmin`
+
+Checks whether an access key is an admin key for an account.
+
+Returns `true` for the account's root key or for an active admin access key (see [`accessKey.authorize`](/tempo/actions/accessKey.authorize) with `admin: true`).
+
+[TIP-1049](https://tips.sh/1049)
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const isAdmin = await client.accessKey.isAdmin({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  accessKey: '0x1234567890abcdef1234567890abcdef12345678',
+})
+
+console.log('Admin:', isAdmin)
+// @log: Admin: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = boolean
+```
+
+## Parameters
+
+### accessKey
+
+- **Type:** `Address | AccessKeyAccount`
+
+The access key address or account.
+
+### account
+
+- **Type:** `Address | Account`
+
+Account address.
+
+<ReadParameters />
