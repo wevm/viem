@@ -67,6 +67,94 @@ export default defineConfig({
       McpSource.github({ name: 'tempo', repo: 'tempoxyz/tempo' }),
     ],
   },
+  redirects: [
+    // Strip legacy `.html` suffix from old bookmarked URLs.
+    { source: '/:path*.html', destination: '/:path', status: 308 },
+
+    // Renamed functions — keep deprecated paths working.
+    {
+      source: '/:match/hexToSignature',
+      destination: '/:match/parseSignature',
+      status: 308,
+    },
+    {
+      source: '/:match/hexToCompactSignature',
+      destination: '/:match/parseCompactSignature',
+      status: 308,
+    },
+    {
+      source: '/:match/signatureToHex',
+      destination: '/:match/serializeSignature',
+      status: 308,
+    },
+    {
+      source: '/:match/compactSignatureToHex',
+      destination: '/:match/serializeCompactSignature',
+      status: 308,
+    },
+    {
+      source: '/:match/getBytecode',
+      destination: '/:match/getCode',
+      status: 308,
+    },
+    {
+      source: '/:match/accounts/createNonceManager',
+      destination: '/:match/accounts/local/createNonceManager',
+      status: 308,
+    },
+    {
+      source: '/:match/accounts/custom',
+      destination: '/:match/accounts/local/toAccount',
+      status: 308,
+    },
+    {
+      source: '/:match/accounts/mnemonic',
+      destination: '/:match/accounts/local/mnemonicToAccount',
+      status: 308,
+    },
+    {
+      source: '/:match/accounts/privateKey',
+      destination: '/:match/accounts/local/privateKeyToAccount',
+      status: 308,
+    },
+    {
+      source: '/:match/accounts/hd',
+      destination: '/:match/accounts/local/hdKeyToAccount',
+      status: 308,
+    },
+    {
+      source: '/:match/accounts/signMessage',
+      destination: '/:match/accounts/local/signMessage',
+      status: 308,
+    },
+    {
+      source: '/:match/accounts/signTransaction',
+      destination: '/:match/accounts/local/signTransaction',
+      status: 308,
+    },
+    {
+      source: '/:match/accounts/signTypedData',
+      destination: '/:match/accounts/local/signTypedData',
+      status: 308,
+    },
+    {
+      source: '/:match/experimental/eip5792/writeContracts',
+      destination: '/:match/experimental/eip5792/sendCalls#contract-calls',
+      status: 308,
+    },
+    {
+      source: '/:match/simulate',
+      destination: '/:match/simulateBlocks',
+      status: 308,
+    },
+
+    // Section move.
+    {
+      source: '/experimental/eip5792/:path*',
+      destination: '/docs/actions/wallet/:path',
+      status: 308,
+    },
+  ],
   renderStrategy: 'dynamic',
   rootDir: '.',
   srcDir: '.',
