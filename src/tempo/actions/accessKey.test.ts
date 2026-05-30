@@ -696,7 +696,6 @@ describe('watchAdminAuthorized', () => {
   })
 })
 
-
 describe('verifyHash', () => {
   const hash =
     '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef' as const
