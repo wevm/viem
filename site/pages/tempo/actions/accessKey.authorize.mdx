@@ -187,6 +187,30 @@ const { receipt } = await client.accessKey.authorizeSync({
 })
 ```
 
+Once authorized, an admin key can authorize (and manage) other keys on behalf of the account. Pass the admin key as the `account`: viem binds the authorization to the parent account and signs it with the admin key directly.
+
+```ts twoslash
+import { Account, P256 } from 'viem/tempo'
+import { client } from './viem.config'
+
+const account = Account.fromSecp256k1('0x...')
+
+// Admin key (previously authorized with `admin: true`)
+const adminKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+// New key to authorize on behalf of the account
+const childKey = Account.fromP256(P256.randomPrivateKey(), {
+  access: account,
+})
+
+const { receipt } = await client.accessKey.authorizeSync({
+  account: adminKey, // [!code focus]
+  accessKey: childKey,
+})
+```
+
 ### Authorize Public Keys
 
 Instead of passing an `AccessKeyAccount`, you can authorize a key by its public key or address directly:

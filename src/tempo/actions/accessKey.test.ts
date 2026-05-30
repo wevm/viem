@@ -586,6 +586,41 @@ describe('authorize (admin)', () => {
   })
 })
 
+describe('authorize (admin manages keys)', () => {
+  test('behavior: admin key authorizes another key', async () => {
+    // 1. Root authorizes an admin key.
+    const adminKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    await actions.accessKey.authorizeSync(client, {
+      accessKey: adminKey,
+      admin: true,
+    })
+
+    // 2. The admin key authorizes a new (regular) key on behalf of the account.
+    const childKey = Account.fromP256(generatePrivateKey(), {
+      access: account,
+    })
+    const { receipt } = await actions.accessKey.authorizeSync(client, {
+      account: adminKey,
+      accessKey: childKey,
+      expiry: Math.floor((Date.now() + 30_000) / 1000),
+    })
+
+    expect(receipt.status).toBe('success')
+
+    // 3. Verify the child key is registered on the account.
+    const key = await actions.accessKey.getMetadata(client, {
+      account: account.address,
+      accessKey: childKey,
+    })
+    expect(key.isRevoked).toBe(false)
+    expect(key.address.toLowerCase()).toBe(
+      childKey.accessKeyAddress.toLowerCase(),
+    )
+  })
+})
+
 describe('signAuthorization (admin)', () => {
   test('behavior: admin', async () => {
     const accessKey = Account.fromP256(generatePrivateKey(), {

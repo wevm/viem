@@ -468,20 +468,29 @@ export async function signKeyAuthorization(
   const { chainId, key, expiry, limits, scopes, witness, admin } = parameters
   const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
 
+  // When the signer is an access key (e.g. an admin key managing the account's
+  // other keys), the authorization must be signed directly by that key and
+  // bound to the parent account it acts on behalf of, so the signed payload
+  // cannot be replayed against another account. [TIP-1049]
+  const isAccessKey = isAccessKeyAccount(account)
+  const boundFields = isAccessKey ? { account: account.address } : {}
+
   // Admin key authorizations are unrestricted and must not carry expiry,
   // limits, or call scopes (the protocol rejects them). [TIP-1049]
   const restrictions = admin ? {} : { expiry, limits, scopes }
 
-  const signature = await account.sign!({
-    hash: KeyAuthorization.getSignPayload({
-      address: accessKeyAddress,
-      chainId,
-      type,
-      witness,
-      ...(admin ? { isAdmin: true } : {}),
-      ...restrictions,
-    }),
+  const hash = KeyAuthorization.getSignPayload({
+    address: accessKeyAddress,
+    chainId,
+    type,
+    witness,
+    ...(admin ? { isAdmin: true } : {}),
+    ...boundFields,
+    ...restrictions,
   })
+  const signature = isAccessKey
+    ? await account.sign({ hash, raw: true })
+    : await account.sign!({ hash })
   return KeyAuthorization.from({
     address: accessKeyAddress,
     chainId,
@@ -489,6 +498,7 @@ export async function signKeyAuthorization(
     type,
     witness,
     ...(admin ? { isAdmin: true } : {}),
+    ...boundFields,
     ...restrictions,
   })
 }
