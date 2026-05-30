@@ -2164,6 +2164,20 @@ export const sidebar = {
             ],
           },
           {
+            text: 'Signature Verifier',
+            collapsed: true,
+            items: [
+              {
+                text: 'verifyKeychain',
+                link: '/tempo/actions/signatureVerifier.verifyKeychain',
+              },
+              {
+                text: 'verifyKeychainAdmin',
+                link: '/tempo/actions/signatureVerifier.verifyKeychainAdmin',
+              },
+            ],
+          },
+          {
             text: 'Simulate',
             collapsed: true,
             items: [

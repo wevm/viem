@@ -1,0 +1,60 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `signatureVerifier.verifyKeychainAdmin`
+
+Verifies that a keychain signature was produced by the account's root key or an active admin access key.
+
+Returns `false` for account mismatches, non-admin, unknown, revoked, or expired access keys.
+
+[TIP-1049](https://tips.sh/1049)
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const valid = await client.signatureVerifier.verifyKeychainAdmin({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  hash: '0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef',
+  signature: '0x...',
+})
+
+console.log('Valid:', valid)
+// @log: Valid: true
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = boolean
+```
+
+## Parameters
+
+### account
+
+- **Type:** `Address`
+
+Account address the signature is expected to belong to.
+
+### hash
+
+- **Type:** `Hex`
+
+Original message hash that was signed.
+
+### signature
+
+- **Type:** `Hex`
+
+Keychain signature envelope (V2) from the account's root key or an admin access key.
+
+<ReadParameters />
