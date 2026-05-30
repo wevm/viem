@@ -2193,7 +2193,7 @@ export type Decorator<
   }
   receivePolicy: {
     /**
-     * Sets the receive policy for the calling account.
+     * Burns the funds backing a blocked receipt.
      *
      * @example
      * ```ts
@@ -2208,21 +2208,17 @@ export type Decorator<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const hash = await client.receivePolicy.set({
-     *   senderPolicyId: 'allow-all',
-     *   tokenFilterId: 'allow-all',
-     *   recovery: 'self',
-     * })
+     * const hash = await client.receivePolicy.burn({ receipt: '0x...' })
      * ```
      *
      * @param parameters - Parameters.
      * @returns The transaction hash.
      */
-    set: (
-      parameters: receivePolicyActions.set.Parameters<chain, account>,
-    ) => Promise<receivePolicyActions.set.ReturnValue>
+    burn: (
+      parameters: receivePolicyActions.burn.Parameters<chain, account>,
+    ) => Promise<receivePolicyActions.burn.ReturnValue>
     /**
-     * Sets the receive policy for the calling account and waits for the receipt.
+     * Burns the funds backing a blocked receipt and waits for the receipt.
      *
      * @example
      * ```ts
@@ -2237,95 +2233,17 @@ export type Decorator<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const { receipt, ...result } = await client.receivePolicy.setSync({
-     *   senderPolicyId: 'allow-all',
-     *   tokenFilterId: 'allow-all',
-     *   recovery: 'self',
+     * const { receipt, ...result } = await client.receivePolicy.burnSync({
+     *   receipt: '0x...',
      * })
      * ```
      *
      * @param parameters - Parameters.
      * @returns The transaction receipt and event data.
      */
-    setSync: (
-      parameters: receivePolicyActions.setSync.Parameters<chain, account>,
-    ) => Promise<receivePolicyActions.setSync.ReturnValue>
-    /**
-     * Gets the receive policy configured for an account.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const policy = await client.receivePolicy.get({ account: '0x...' })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The receive policy.
-     */
-    get: (
-      parameters: receivePolicyActions.get.Parameters<account>,
-    ) => Promise<receivePolicyActions.get.ReturnValue>
-    /**
-     * Checks whether a transfer or mint to a receiver is allowed by the
-     * receiver's receive policy.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const { authorized, blockedReason } = await client.receivePolicy.validate({
-     *   token: '0x...',
-     *   sender: '0x...',
-     *   receiver: '0x...',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns Whether the transfer is authorized and, if not, why.
-     */
-    validate: (
-      parameters: receivePolicyActions.validate.Parameters,
-    ) => Promise<receivePolicyActions.validate.ReturnValue>
-    /**
-     * Gets the blocked balance for an encoded receipt.
-     *
-     * @example
-     * ```ts
-     * import { createClient, http } from 'viem'
-     * import { tempo } from 'viem/chains'
-     * import { tempoActions } from 'viem/tempo'
-     *
-     * const client = createClient({
-     *   chain: tempo
-     *   transport: http(),
-     * }).extend(tempoActions())
-     *
-     * const amount = await client.receivePolicy.getBlockedBalance({
-     *   receipt: '0x...',
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns The blocked amount for the receipt.
-     */
-    getBlockedBalance: (
-      parameters: receivePolicyActions.getBlockedBalance.Parameters,
-    ) => Promise<receivePolicyActions.getBlockedBalance.ReturnValue>
+    burnSync: (
+      parameters: receivePolicyActions.burnSync.Parameters<chain, account>,
+    ) => Promise<receivePolicyActions.burnSync.ReturnValue>
     /**
      * Claims blocked funds for a receipt, releasing them to a destination.
      *
@@ -2383,7 +2301,55 @@ export type Decorator<
       parameters: receivePolicyActions.claimSync.Parameters<chain, account>,
     ) => Promise<receivePolicyActions.claimSync.ReturnValue>
     /**
-     * Burns the funds backing a blocked receipt.
+     * Gets the receive policy configured for an account.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const policy = await client.receivePolicy.get({ account: '0x...' })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The receive policy.
+     */
+    get: (
+      parameters: receivePolicyActions.get.Parameters<account>,
+    ) => Promise<receivePolicyActions.get.ReturnValue>
+    /**
+     * Gets the blocked balance for an encoded receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const amount = await client.receivePolicy.getBlockedBalance({
+     *   receipt: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The blocked amount for the receipt.
+     */
+    getBlockedBalance: (
+      parameters: receivePolicyActions.getBlockedBalance.Parameters,
+    ) => Promise<receivePolicyActions.getBlockedBalance.ReturnValue>
+    /**
+     * Sets the receive policy for the calling account.
      *
      * @example
      * ```ts
@@ -2398,17 +2364,21 @@ export type Decorator<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const hash = await client.receivePolicy.burn({ receipt: '0x...' })
+     * const hash = await client.receivePolicy.set({
+     *   senderPolicyId: 'allow-all',
+     *   tokenPolicyId: 'allow-all',
+     *   claimer: 'self',
+     * })
      * ```
      *
      * @param parameters - Parameters.
      * @returns The transaction hash.
      */
-    burn: (
-      parameters: receivePolicyActions.burn.Parameters<chain, account>,
-    ) => Promise<receivePolicyActions.burn.ReturnValue>
+    set: (
+      parameters: receivePolicyActions.set.Parameters<chain, account>,
+    ) => Promise<receivePolicyActions.set.ReturnValue>
     /**
-     * Burns the funds backing a blocked receipt and waits for the receipt.
+     * Sets the receive policy for the calling account and waits for the receipt.
      *
      * @example
      * ```ts
@@ -2423,19 +2393,22 @@ export type Decorator<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const { receipt, ...result } = await client.receivePolicy.burnSync({
-     *   receipt: '0x...',
+     * const { receipt, ...result } = await client.receivePolicy.setSync({
+     *   senderPolicyId: 'allow-all',
+     *   tokenPolicyId: 'allow-all',
+     *   claimer: 'self',
      * })
      * ```
      *
      * @param parameters - Parameters.
      * @returns The transaction receipt and event data.
      */
-    burnSync: (
-      parameters: receivePolicyActions.burnSync.Parameters<chain, account>,
-    ) => Promise<receivePolicyActions.burnSync.ReturnValue>
+    setSync: (
+      parameters: receivePolicyActions.setSync.Parameters<chain, account>,
+    ) => Promise<receivePolicyActions.setSync.ReturnValue>
     /**
-     * Watches for receive policy update events.
+     * Checks whether a transfer or mint to a receiver is allowed by the
+     * receiver's receive policy.
      *
      * @example
      * ```ts
@@ -2448,19 +2421,19 @@ export type Decorator<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const unwatch = client.receivePolicy.watchUpdated({
-     *   onUpdated: (args, log) => {
-     *     console.log('Receive policy updated:', args)
-     *   },
+     * const { authorized, blockedReason } = await client.receivePolicy.validate({
+     *   token: '0x...',
+     *   sender: '0x...',
+     *   receiver: '0x...',
      * })
      * ```
      *
      * @param parameters - Parameters.
-     * @returns A function to unsubscribe from the event.
+     * @returns Whether the transfer is authorized and, if not, why.
      */
-    watchUpdated: (
-      parameters: receivePolicyActions.watchUpdated.Parameters,
-    ) => () => void
+    validate: (
+      parameters: receivePolicyActions.validate.Parameters,
+    ) => Promise<receivePolicyActions.validate.ReturnValue>
     /**
      * Watches for blocked transfer events.
      *
@@ -2487,6 +2460,33 @@ export type Decorator<
      */
     watchBlocked: (
       parameters: receivePolicyActions.watchBlocked.Parameters,
+    ) => () => void
+    /**
+     * Watches for receipt burned events.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const unwatch = client.receivePolicy.watchBurned({
+     *   onBurned: (args, log) => {
+     *     console.log('Receipt burned:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchBurned: (
+      parameters: receivePolicyActions.watchBurned.Parameters,
     ) => () => void
     /**
      * Watches for receipt claimed events.
@@ -2516,7 +2516,7 @@ export type Decorator<
       parameters: receivePolicyActions.watchClaimed.Parameters,
     ) => () => void
     /**
-     * Watches for receipt burned events.
+     * Watches for receive policy update events.
      *
      * @example
      * ```ts
@@ -2529,9 +2529,9 @@ export type Decorator<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const unwatch = client.receivePolicy.watchBurned({
-     *   onBurned: (args, log) => {
-     *     console.log('Receipt burned:', args)
+     * const unwatch = client.receivePolicy.watchUpdated({
+     *   onUpdated: (args, log) => {
+     *     console.log('Receive policy updated:', args)
      *   },
      * })
      * ```
@@ -2539,8 +2539,8 @@ export type Decorator<
      * @param parameters - Parameters.
      * @returns A function to unsubscribe from the event.
      */
-    watchBurned: (
-      parameters: receivePolicyActions.watchBurned.Parameters,
+    watchUpdated: (
+      parameters: receivePolicyActions.watchUpdated.Parameters,
     ) => () => void
   }
   reward: {
@@ -5038,28 +5038,28 @@ export function decorator() {
           policyActions.watchBlacklistUpdated(client, parameters),
       },
       receivePolicy: {
-        set: (parameters) => receivePolicyActions.set(client, parameters),
-        setSync: (parameters) =>
-          receivePolicyActions.setSync(client, parameters),
-        get: (parameters) => receivePolicyActions.get(client, parameters),
-        validate: (parameters) =>
-          receivePolicyActions.validate(client, parameters),
-        getBlockedBalance: (parameters) =>
-          receivePolicyActions.getBlockedBalance(client, parameters),
-        claim: (parameters) => receivePolicyActions.claim(client, parameters),
-        claimSync: (parameters) =>
-          receivePolicyActions.claimSync(client, parameters),
         burn: (parameters) => receivePolicyActions.burn(client, parameters),
         burnSync: (parameters) =>
           receivePolicyActions.burnSync(client, parameters),
-        watchUpdated: (parameters) =>
-          receivePolicyActions.watchUpdated(client, parameters),
+        claim: (parameters) => receivePolicyActions.claim(client, parameters),
+        claimSync: (parameters) =>
+          receivePolicyActions.claimSync(client, parameters),
+        get: (parameters) => receivePolicyActions.get(client, parameters),
+        getBlockedBalance: (parameters) =>
+          receivePolicyActions.getBlockedBalance(client, parameters),
+        set: (parameters) => receivePolicyActions.set(client, parameters),
+        setSync: (parameters) =>
+          receivePolicyActions.setSync(client, parameters),
+        validate: (parameters) =>
+          receivePolicyActions.validate(client, parameters),
         watchBlocked: (parameters) =>
           receivePolicyActions.watchBlocked(client, parameters),
-        watchClaimed: (parameters) =>
-          receivePolicyActions.watchClaimed(client, parameters),
         watchBurned: (parameters) =>
           receivePolicyActions.watchBurned(client, parameters),
+        watchClaimed: (parameters) =>
+          receivePolicyActions.watchClaimed(client, parameters),
+        watchUpdated: (parameters) =>
+          receivePolicyActions.watchUpdated(client, parameters),
       },
       reward: {
         claim: (parameters) => rewardActions.claim(client, parameters),

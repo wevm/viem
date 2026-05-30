@@ -31,7 +31,7 @@ beforeAll(async () => {
 async function createBlockedTransfer(amount = parseUnits('10', 6)) {
   const { token } = await setupToken(client)
 
-  // receiver rejects all senders; recovery defaults to the originator.
+  // receiver rejects all senders; claimer defaults to the originator.
   await actions.receivePolicy.setSync(receiverClient, {
     senderPolicyId: 'reject-all',
   })
@@ -50,8 +50,8 @@ describe('set / get', () => {
   test('default', async () => {
     await actions.receivePolicy.setSync(receiverClient, {
       senderPolicyId: 'allow-all',
-      tokenFilterId: 'allow-all',
-      recovery: 'self',
+      tokenPolicyId: 'allow-all',
+      claimer: 'self',
     })
 
     const policy = await actions.receivePolicy.get(client, {
@@ -59,8 +59,8 @@ describe('set / get', () => {
     })
     expect(policy.hasReceivePolicy).toBe(true)
     expect(policy.senderPolicyId).toBe('allow-all')
-    expect(policy.tokenFilterId).toBe('allow-all')
-    expect(policy.recovery).toBe('self')
+    expect(policy.tokenPolicyId).toBe('allow-all')
+    expect(policy.claimer).toBe('self')
     expect(policy.recoveryAuthority).toBe(receiverAccount.address)
   })
 
@@ -73,7 +73,7 @@ describe('set / get', () => {
       account: receiverAccount.address,
     })
     expect(policy.senderPolicyId).toBe('reject-all')
-    expect(policy.tokenFilterId).toBe('allow-all')
+    expect(policy.tokenPolicyId).toBe('allow-all')
   })
 
   test('behavior: custom policy id', async () => {
@@ -90,16 +90,16 @@ describe('set / get', () => {
     expect(policy.senderPolicyId).toBe(policyId)
   })
 
-  test('behavior: recovery sender (default)', async () => {
+  test('behavior: claimer sender (default)', async () => {
     await actions.receivePolicy.setSync(receiverClient, {
       senderPolicyId: 'allow-all',
-      tokenFilterId: 'allow-all',
+      tokenPolicyId: 'allow-all',
     })
 
     const policy = await actions.receivePolicy.get(client, {
       account: receiverAccount.address,
     })
-    expect(policy.recovery).toBe('sender')
+    expect(policy.claimer).toBe('sender')
     expect(policy.recoveryAuthority).toBe(zeroAddress)
   })
 })
@@ -148,7 +148,7 @@ describe('blocked transfer lifecycle', () => {
     // receiver rejects all senders; funds bounce back to originator.
     await actions.receivePolicy.setSync(receiverClient, {
       senderPolicyId: 'reject-all',
-      recovery: 'sender',
+      claimer: 'sender',
     })
 
     // transfer is blocked (still succeeds).
@@ -249,8 +249,8 @@ describe('watchUpdated', () => {
 
     await actions.receivePolicy.setSync(receiverClient, {
       senderPolicyId: 'allow-all',
-      tokenFilterId: 'allow-all',
-      recovery: 'self',
+      tokenPolicyId: 'allow-all',
+      claimer: 'self',
     })
 
     await setTimeout(500)
@@ -258,7 +258,7 @@ describe('watchUpdated', () => {
 
     expect(logs.length).toBeGreaterThanOrEqual(1)
     expect(logs[0].args.account).toBe(receiverAccount.address)
-    expect(logs[0].args.recovery).toBe('self')
+    expect(logs[0].args.claimer).toBe('self')
   })
 })
 

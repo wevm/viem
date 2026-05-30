@@ -58,21 +58,20 @@ export type BlockedReason = ReceivePolicyReceipt.BlockedReason
 const blockedReasons = ['none', 'tokenFilter', 'receivePolicy'] as const
 
 /**
- * Recovery authority for blocked funds.
+ * Claimer authorized to reclaim blocked funds.
  *
  * - `'sender'` – the originator of the funds may reclaim them (default).
  * - `'self'` – the account configuring the policy may reclaim them.
  * - `Address` – a delegated third party may reclaim them.
  */
-export type Recovery = 'sender' | 'self' | Address
+export type Claimer = 'sender' | 'self' | Address
 
 /**
- * Sets the receive policy for the calling account.
+ * Burns the funds backing a blocked receipt.
  *
- * A receive policy controls which TIP-20 tokens and which senders an account
- * accepts. Inbound transfers and mints that violate the policy are not
- * reverted – instead the funds are redirected to the `ReceivePolicyGuard` and
- * can be reclaimed later (see {@link claim}).
+ * Requires the caller to hold the token's `BURN_BLOCKED_ROLE`, and is only
+ * valid when the receipt's policy subject is currently unauthorized as a sender
+ * under the token's TIP-403 policy.
  *
  * @example
  * ```ts
@@ -87,10 +86,8 @@ export type Recovery = 'sender' | 'self' | Address
  *   transport: http(),
  * })
  *
- * const hash = await Actions.receivePolicy.set(client, {
- *   senderPolicyId: 'allow-all',
- *   tokenFilterId: 'allow-all',
- *   recovery: 'self',
+ * const hash = await Actions.receivePolicy.burn(client, {
+ *   receipt: '0x...',
  * })
  * ```
  *
@@ -98,38 +95,25 @@ export type Recovery = 'sender' | 'self' | Address
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function set<
+export async function burn<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: set.Parameters<chain, account>,
-): Promise<set.ReturnValue> {
-  return set.inner(writeContract, client, parameters)
+  parameters: burn.Parameters<chain, account>,
+): Promise<burn.ReturnValue> {
+  return burn.inner(writeContract, client, parameters)
 }
 
-export namespace set {
+export namespace burn {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Omit<Args, 'recoveryAuthority'>
+  > = WriteParameters<chain, account> & Args
 
   export type Args = {
-    /**
-     * TIP-403 policy restricting which senders are allowed.
-     * @default 'allow-all'
-     */
-    senderPolicyId?: PolicyRef | undefined
-    /**
-     * TIP-403 policy restricting which tokens are allowed.
-     * @default 'allow-all'
-     */
-    tokenFilterId?: PolicyRef | undefined
-    /**
-     * Who can reclaim funds blocked by this policy.
-     * @default 'sender'
-     */
-    recovery?: Recovery | undefined
+    /** The encoded claim receipt (witness from a `TransferBlocked` event). */
+    receipt: Hex
   }
 
   export type ReturnValue = WriteContractReturnType
@@ -150,22 +134,13 @@ export namespace set {
     const {
       account = client.account,
       chain = client.chain,
-      senderPolicyId = 'allow-all',
-      tokenFilterId = 'allow-all',
-      recovery = 'sender',
+      receipt,
       ...rest
     } = parameters
 
     if (!account) throw new Error('`account` is required')
 
-    const address = parseAccount(account).address
-    const recoveryAuthority = resolveRecovery(recovery, address)
-
-    const call = set.call({
-      senderPolicyId: resolvePolicyRef(senderPolicyId),
-      tokenFilterId: resolvePolicyRef(tokenFilterId),
-      recoveryAuthority,
-    })
+    const call = burn.call({ receipt })
     return action(client, {
       ...rest,
       account,
@@ -175,48 +150,41 @@ export namespace set {
   }
 
   /**
-   * Defines a call to the `setReceivePolicy` function.
+   * Defines a call to the `burnBlockedReceipt` function.
    *
    * @param args - Arguments.
    * @returns The call.
    */
-  export function call(args: {
-    /** Resolved TIP-403 sender policy id. */
-    senderPolicyId: bigint
-    /** Resolved TIP-403 token filter id. */
-    tokenFilterId: bigint
-    /** Resolved recovery authority. */
-    recoveryAuthority: Address
-  }) {
-    const { senderPolicyId, tokenFilterId, recoveryAuthority } = args
+  export function call(args: Args) {
+    const { receipt } = args
     return defineCall({
-      address: Addresses.tip403Registry,
-      abi: Abis.tip403Registry,
-      functionName: 'setReceivePolicy',
-      args: [senderPolicyId, tokenFilterId, recoveryAuthority],
+      address: Addresses.receivePolicyGuard,
+      abi: Abis.receivePolicyGuard,
+      functionName: 'burnBlockedReceipt',
+      args: [receipt],
     })
   }
 
   /**
-   * Extracts the `ReceivePolicyUpdated` event from logs.
+   * Extracts the `ReceiptBurned` event from logs.
    *
    * @param logs - The logs.
-   * @returns The `ReceivePolicyUpdated` event.
+   * @returns The `ReceiptBurned` event.
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: Abis.tip403Registry,
+      abi: Abis.receivePolicyGuard,
       logs,
-      eventName: 'ReceivePolicyUpdated',
+      eventName: 'ReceiptBurned',
       strict: true,
     })
-    if (!log) throw new Error('`ReceivePolicyUpdated` event not found.')
+    if (!log) throw new Error('`ReceiptBurned` event not found.')
     return log
   }
 }
 
 /**
- * Sets the receive policy for the calling account and waits for the receipt.
+ * Burns the funds backing a blocked receipt and waits for the receipt.
  *
  * @example
  * ```ts
@@ -231,10 +199,8 @@ export namespace set {
  *   transport: http(),
  * })
  *
- * const { receipt, ...result } = await Actions.receivePolicy.setSync(client, {
- *   senderPolicyId: 'allow-all',
- *   tokenFilterId: 'allow-all',
- *   recovery: 'self',
+ * const { receipt, ...result } = await Actions.receivePolicy.burnSync(client, {
+ *   receipt: '0x...',
  * })
  * ```
  *
@@ -242,302 +208,45 @@ export namespace set {
  * @param parameters - Parameters.
  * @returns The transaction receipt and event data.
  */
-export async function setSync<
+export async function burnSync<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: setSync.Parameters<chain, account>,
-): Promise<setSync.ReturnValue> {
+  parameters: burnSync.Parameters<chain, account>,
+): Promise<burnSync.ReturnValue> {
   const { throwOnReceiptRevert = true, ...rest } = parameters
-  const receipt = await set.inner(writeContractSync, client, {
+  const receipt = await burn.inner(writeContractSync, client, {
     ...rest,
     throwOnReceiptRevert,
   } as never)
-  const { args } = set.extractEvent(receipt.logs)
+  const { args } = burn.extractEvent(receipt.logs)
   return {
     ...args,
-    senderPolicyId: toPolicyRef(args.senderPolicyId),
-    tokenFilterId: toPolicyRef(args.tokenFilterId),
-    recovery: toRecovery(args.recoveryAuthority, args.account),
     receipt,
   } as never
 }
 
-export namespace setSync {
+export namespace burnSync {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = set.Parameters<chain, account>
+  > = burn.Parameters<chain, account>
 
-  export type Args = set.Args
+  export type Args = burn.Args
 
   export type ReturnValue = Compute<
-    UnionOmit<
-      GetEventArgs<
-        typeof Abis.tip403Registry,
-        'ReceivePolicyUpdated',
-        { IndexedOnly: false; Required: true }
-      >,
-      'senderPolicyId' | 'tokenFilterId'
+    GetEventArgs<
+      typeof Abis.receivePolicyGuard,
+      'ReceiptBurned',
+      { IndexedOnly: false; Required: true }
     > & {
-      /** TIP-403 policy restricting which senders are allowed. */
-      senderPolicyId: PolicyRef
-      /** TIP-403 policy restricting which tokens are allowed. */
-      tokenFilterId: PolicyRef
-      /** Resolved recovery authority. */
-      recovery: Recovery
       receipt: TransactionReceipt
     }
   >
 
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
-}
-
-/**
- * Gets the receive policy configured for an account.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
- *
- * const client = createClient({
- *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
- *   transport: http(),
- * })
- *
- * const policy = await Actions.receivePolicy.get(client, {
- *   account: '0x...',
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns The receive policy.
- */
-export async function get<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: get.Parameters<account>,
-): Promise<get.ReturnValue> {
-  const { account: account_ = client.account, ...rest } = parameters
-  if (!account_) throw new Error('`account` is required.')
-  const account = parseAccount(account_)
-  const [
-    hasReceivePolicy,
-    senderPolicyId,
-    senderPolicyType,
-    tokenFilterId,
-    tokenFilterType,
-    recoveryAuthority,
-  ] = await readContract(client, {
-    ...rest,
-    account: null as never,
-    ...get.call({ account: account.address }),
-  })
-  return {
-    hasReceivePolicy,
-    senderPolicyId: toPolicyRef(senderPolicyId),
-    senderPolicyType: policyTypes[senderPolicyType] ?? 'whitelist',
-    tokenFilterId: toPolicyRef(tokenFilterId),
-    tokenFilterType: policyTypes[tokenFilterType] ?? 'whitelist',
-    recovery: toRecovery(recoveryAuthority, account.address),
-    recoveryAuthority,
-  }
-}
-
-export namespace get {
-  export type Parameters<
-    account extends Account | undefined = Account | undefined,
-  > = ReadParameters & GetAccountParameter<account>
-
-  export type Args = {
-    /** Account address. */
-    account: Address
-  }
-
-  export type ReturnValue = Compute<{
-    /** Whether the account has a receive policy configured. */
-    hasReceivePolicy: boolean
-    /** TIP-403 policy restricting which senders are allowed. */
-    senderPolicyId: PolicyRef
-    /** Type of the sender policy. */
-    senderPolicyType: PolicyType
-    /** TIP-403 policy restricting which tokens are allowed. */
-    tokenFilterId: PolicyRef
-    /** Type of the token filter. */
-    tokenFilterType: PolicyType
-    /** Who can reclaim funds blocked by this policy. */
-    recovery: Recovery
-    /** Raw recovery authority address. */
-    recoveryAuthority: Address
-  }>
-
-  /**
-   * Defines a call to the `receivePolicy` function.
-   *
-   * @param args - Arguments.
-   * @returns The call.
-   */
-  export function call(args: Args) {
-    const { account } = args
-    return defineCall({
-      address: Addresses.tip403Registry,
-      abi: Abis.tip403Registry,
-      functionName: 'receivePolicy',
-      args: [account],
-    })
-  }
-}
-
-/**
- * Checks whether a transfer or mint to a receiver is allowed by the receiver's
- * receive policy.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
- *
- * const client = createClient({
- *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
- *   transport: http(),
- * })
- *
- * const { authorized, blockedReason } = await Actions.receivePolicy.validate(
- *   client,
- *   {
- *     token: '0x...',
- *     sender: '0x...',
- *     receiver: '0x...',
- *   },
- * )
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns Whether the transfer is authorized and, if not, why.
- */
-export async function validate<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: validate.Parameters,
-): Promise<validate.ReturnValue> {
-  const { token, sender, receiver, ...rest } = parameters
-  const [authorized, blockedReason] = await readContract(client, {
-    ...rest,
-    ...validate.call({ token, sender, receiver }),
-  })
-  return {
-    authorized,
-    blockedReason: blockedReasons[blockedReason] ?? 'none',
-  }
-}
-
-export namespace validate {
-  export type Parameters = ReadParameters & Args
-
-  export type Args = {
-    /** Token address. */
-    token: Address
-    /** Sender address. */
-    sender: Address
-    /** Receiver address. */
-    receiver: Address
-  }
-
-  export type ReturnValue = Compute<{
-    /** Whether the transfer is authorized. */
-    authorized: boolean
-    /** Reason the transfer would be blocked. */
-    blockedReason: BlockedReason
-  }>
-
-  /**
-   * Defines a call to the `validateReceivePolicy` function.
-   *
-   * @param args - Arguments.
-   * @returns The call.
-   */
-  export function call(args: Args) {
-    const { token, sender, receiver } = args
-    return defineCall({
-      address: Addresses.tip403Registry,
-      abi: Abis.tip403Registry,
-      functionName: 'validateReceivePolicy',
-      args: [token, sender, receiver],
-    })
-  }
-}
-
-/**
- * Gets the blocked balance for an encoded receipt.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
- *
- * const client = createClient({
- *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
- *   transport: http(),
- * })
- *
- * const amount = await Actions.receivePolicy.getBlockedBalance(client, {
- *   receipt: '0x...',
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns The blocked amount for the receipt.
- */
-export async function getBlockedBalance<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: getBlockedBalance.Parameters,
-): Promise<getBlockedBalance.ReturnValue> {
-  const { receipt, ...rest } = parameters
-  return readContract(client, {
-    ...rest,
-    ...getBlockedBalance.call({ receipt }),
-  })
-}
-
-export namespace getBlockedBalance {
-  export type Parameters = ReadParameters & Args
-
-  export type Args = {
-    /** The encoded claim receipt. */
-    receipt: Hex
-  }
-
-  export type ReturnValue = ReadContractReturnType<
-    typeof Abis.receivePolicyGuard,
-    'balanceOf',
-    never
-  >
-
-  /**
-   * Defines a call to the `balanceOf` function.
-   *
-   * @param args - Arguments.
-   * @returns The call.
-   */
-  export function call(args: Args) {
-    const { receipt } = args
-    return defineCall({
-      address: Addresses.receivePolicyGuard,
-      abi: Abis.receivePolicyGuard,
-      functionName: 'balanceOf',
-      args: [receipt],
-    })
-  }
 }
 
 /**
@@ -725,11 +434,177 @@ export namespace claimSync {
 }
 
 /**
- * Burns the funds backing a blocked receipt.
+ * Gets the receive policy configured for an account.
  *
- * Requires the caller to hold the token's `BURN_BLOCKED_ROLE`, and is only
- * valid when the receipt's policy subject is currently unauthorized as a sender
- * under the token's TIP-403 policy.
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   transport: http(),
+ * })
+ *
+ * const policy = await Actions.receivePolicy.get(client, {
+ *   account: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The receive policy.
+ */
+export async function get<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: get.Parameters<account>,
+): Promise<get.ReturnValue> {
+  const { account: account_ = client.account, ...rest } = parameters
+  if (!account_) throw new Error('`account` is required.')
+  const account = parseAccount(account_)
+  const [
+    hasReceivePolicy,
+    senderPolicyId,
+    senderPolicyType,
+    tokenPolicyId,
+    tokenPolicyType,
+    recoveryAuthority,
+  ] = await readContract(client, {
+    ...rest,
+    account: null as never,
+    ...get.call({ account: account.address }),
+  })
+  return {
+    hasReceivePolicy,
+    senderPolicyId: toPolicyRef(senderPolicyId),
+    senderPolicyType: policyTypes[senderPolicyType] ?? 'whitelist',
+    tokenPolicyId: toPolicyRef(tokenPolicyId),
+    tokenPolicyType: policyTypes[tokenPolicyType] ?? 'whitelist',
+    claimer: toClaimer(recoveryAuthority, account.address),
+    recoveryAuthority,
+  }
+}
+
+export namespace get {
+  export type Parameters<
+    account extends Account | undefined = Account | undefined,
+  > = ReadParameters & GetAccountParameter<account>
+
+  export type Args = {
+    /** Account address. */
+    account: Address
+  }
+
+  export type ReturnValue = Compute<{
+    /** Whether the account has a receive policy configured. */
+    hasReceivePolicy: boolean
+    /** TIP-403 policy restricting which senders are allowed. */
+    senderPolicyId: PolicyRef
+    /** Type of the sender policy. */
+    senderPolicyType: PolicyType
+    /** TIP-403 policy restricting which tokens are allowed. */
+    tokenPolicyId: PolicyRef
+    /** Type of the token policy. */
+    tokenPolicyType: PolicyType
+    /** Who can reclaim funds blocked by this policy. */
+    claimer: Claimer
+    /** Raw recovery authority address. */
+    recoveryAuthority: Address
+  }>
+
+  /**
+   * Defines a call to the `receivePolicy` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { account } = args
+    return defineCall({
+      address: Addresses.tip403Registry,
+      abi: Abis.tip403Registry,
+      functionName: 'receivePolicy',
+      args: [account],
+    })
+  }
+}
+
+/**
+ * Gets the blocked balance for an encoded receipt.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   transport: http(),
+ * })
+ *
+ * const amount = await Actions.receivePolicy.getBlockedBalance(client, {
+ *   receipt: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The blocked amount for the receipt.
+ */
+export async function getBlockedBalance<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: getBlockedBalance.Parameters,
+): Promise<getBlockedBalance.ReturnValue> {
+  const { receipt, ...rest } = parameters
+  return readContract(client, {
+    ...rest,
+    ...getBlockedBalance.call({ receipt }),
+  })
+}
+
+export namespace getBlockedBalance {
+  export type Parameters = ReadParameters & Args
+
+  export type Args = {
+    /** The encoded claim receipt. */
+    receipt: Hex
+  }
+
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.receivePolicyGuard,
+    'balanceOf',
+    never
+  >
+
+  /**
+   * Defines a call to the `balanceOf` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { receipt } = args
+    return defineCall({
+      address: Addresses.receivePolicyGuard,
+      abi: Abis.receivePolicyGuard,
+      functionName: 'balanceOf',
+      args: [receipt],
+    })
+  }
+}
+
+/**
+ * Sets the receive policy for the calling account.
+ *
+ * A receive policy controls which TIP-20 tokens and which senders an account
+ * accepts. Inbound transfers and mints that violate the policy are not
+ * reverted – instead the funds are redirected to the `ReceivePolicyGuard` and
+ * can be reclaimed later (see {@link claim}).
  *
  * @example
  * ```ts
@@ -744,8 +619,10 @@ export namespace claimSync {
  *   transport: http(),
  * })
  *
- * const hash = await Actions.receivePolicy.burn(client, {
- *   receipt: '0x...',
+ * const hash = await Actions.receivePolicy.set(client, {
+ *   senderPolicyId: 'allow-all',
+ *   tokenPolicyId: 'allow-all',
+ *   claimer: 'self',
  * })
  * ```
  *
@@ -753,25 +630,38 @@ export namespace claimSync {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function burn<
+export async function set<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: burn.Parameters<chain, account>,
-): Promise<burn.ReturnValue> {
-  return burn.inner(writeContract, client, parameters)
+  parameters: set.Parameters<chain, account>,
+): Promise<set.ReturnValue> {
+  return set.inner(writeContract, client, parameters)
 }
 
-export namespace burn {
+export namespace set {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
+  > = WriteParameters<chain, account> & Omit<Args, 'recoveryAuthority'>
 
   export type Args = {
-    /** The encoded claim receipt (witness from a `TransferBlocked` event). */
-    receipt: Hex
+    /**
+     * TIP-403 policy restricting which senders are allowed.
+     * @default 'allow-all'
+     */
+    senderPolicyId?: PolicyRef | undefined
+    /**
+     * TIP-403 policy restricting which tokens are allowed.
+     * @default 'allow-all'
+     */
+    tokenPolicyId?: PolicyRef | undefined
+    /**
+     * Who can reclaim funds blocked by this policy.
+     * @default 'sender'
+     */
+    claimer?: Claimer | undefined
   }
 
   export type ReturnValue = WriteContractReturnType
@@ -792,13 +682,22 @@ export namespace burn {
     const {
       account = client.account,
       chain = client.chain,
-      receipt,
+      senderPolicyId = 'allow-all',
+      tokenPolicyId = 'allow-all',
+      claimer = 'sender',
       ...rest
     } = parameters
 
     if (!account) throw new Error('`account` is required')
 
-    const call = burn.call({ receipt })
+    const address = parseAccount(account).address
+    const recoveryAuthority = resolveClaimer(claimer, address)
+
+    const call = set.call({
+      senderPolicyId: resolvePolicyRef(senderPolicyId),
+      tokenFilterId: resolvePolicyRef(tokenPolicyId),
+      recoveryAuthority,
+    })
     return action(client, {
       ...rest,
       account,
@@ -808,41 +707,48 @@ export namespace burn {
   }
 
   /**
-   * Defines a call to the `burnBlockedReceipt` function.
+   * Defines a call to the `setReceivePolicy` function.
    *
    * @param args - Arguments.
    * @returns The call.
    */
-  export function call(args: Args) {
-    const { receipt } = args
+  export function call(args: {
+    /** Resolved TIP-403 sender policy id. */
+    senderPolicyId: bigint
+    /** Resolved TIP-403 token filter id. */
+    tokenFilterId: bigint
+    /** Resolved recovery authority. */
+    recoveryAuthority: Address
+  }) {
+    const { senderPolicyId, tokenFilterId, recoveryAuthority } = args
     return defineCall({
-      address: Addresses.receivePolicyGuard,
-      abi: Abis.receivePolicyGuard,
-      functionName: 'burnBlockedReceipt',
-      args: [receipt],
+      address: Addresses.tip403Registry,
+      abi: Abis.tip403Registry,
+      functionName: 'setReceivePolicy',
+      args: [senderPolicyId, tokenFilterId, recoveryAuthority],
     })
   }
 
   /**
-   * Extracts the `ReceiptBurned` event from logs.
+   * Extracts the `ReceivePolicyUpdated` event from logs.
    *
    * @param logs - The logs.
-   * @returns The `ReceiptBurned` event.
+   * @returns The `ReceivePolicyUpdated` event.
    */
   export function extractEvent(logs: Log[]) {
     const [log] = parseEventLogs({
-      abi: Abis.receivePolicyGuard,
+      abi: Abis.tip403Registry,
       logs,
-      eventName: 'ReceiptBurned',
+      eventName: 'ReceivePolicyUpdated',
       strict: true,
     })
-    if (!log) throw new Error('`ReceiptBurned` event not found.')
+    if (!log) throw new Error('`ReceivePolicyUpdated` event not found.')
     return log
   }
 }
 
 /**
- * Burns the funds backing a blocked receipt and waits for the receipt.
+ * Sets the receive policy for the calling account and waits for the receipt.
  *
  * @example
  * ```ts
@@ -857,8 +763,10 @@ export namespace burn {
  *   transport: http(),
  * })
  *
- * const { receipt, ...result } = await Actions.receivePolicy.burnSync(client, {
- *   receipt: '0x...',
+ * const { receipt, ...result } = await Actions.receivePolicy.setSync(client, {
+ *   senderPolicyId: 'allow-all',
+ *   tokenPolicyId: 'allow-all',
+ *   claimer: 'self',
  * })
  * ```
  *
@@ -866,39 +774,51 @@ export namespace burn {
  * @param parameters - Parameters.
  * @returns The transaction receipt and event data.
  */
-export async function burnSync<
+export async function setSync<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: burnSync.Parameters<chain, account>,
-): Promise<burnSync.ReturnValue> {
+  parameters: setSync.Parameters<chain, account>,
+): Promise<setSync.ReturnValue> {
   const { throwOnReceiptRevert = true, ...rest } = parameters
-  const receipt = await burn.inner(writeContractSync, client, {
+  const receipt = await set.inner(writeContractSync, client, {
     ...rest,
     throwOnReceiptRevert,
   } as never)
-  const { args } = burn.extractEvent(receipt.logs)
+  const { tokenFilterId, ...args } = set.extractEvent(receipt.logs).args
   return {
     ...args,
+    senderPolicyId: toPolicyRef(args.senderPolicyId),
+    tokenPolicyId: toPolicyRef(tokenFilterId),
+    claimer: toClaimer(args.recoveryAuthority, args.account),
     receipt,
   } as never
 }
 
-export namespace burnSync {
+export namespace setSync {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = burn.Parameters<chain, account>
+  > = set.Parameters<chain, account>
 
-  export type Args = burn.Args
+  export type Args = set.Args
 
   export type ReturnValue = Compute<
-    GetEventArgs<
-      typeof Abis.receivePolicyGuard,
-      'ReceiptBurned',
-      { IndexedOnly: false; Required: true }
+    UnionOmit<
+      GetEventArgs<
+        typeof Abis.tip403Registry,
+        'ReceivePolicyUpdated',
+        { IndexedOnly: false; Required: true }
+      >,
+      'senderPolicyId' | 'tokenFilterId'
     > & {
+      /** TIP-403 policy restricting which senders are allowed. */
+      senderPolicyId: PolicyRef
+      /** TIP-403 policy restricting which tokens are allowed. */
+      tokenPolicyId: PolicyRef
+      /** Who can reclaim funds blocked by this policy. */
+      claimer: Claimer
       receipt: TransactionReceipt
     }
   >
@@ -908,7 +828,8 @@ export namespace burnSync {
 }
 
 /**
- * Watches for receive policy update events.
+ * Checks whether a transfer or mint to a receiver is allowed by the receiver's
+ * receive policy.
  *
  * @example
  * ```ts
@@ -921,83 +842,68 @@ export namespace burnSync {
  *   transport: http(),
  * })
  *
- * const unwatch = Actions.receivePolicy.watchUpdated(client, {
- *   onUpdated: (args, log) => {
- *     console.log('Receive policy updated:', args)
+ * const { authorized, blockedReason } = await Actions.receivePolicy.validate(
+ *   client,
+ *   {
+ *     token: '0x...',
+ *     sender: '0x...',
+ *     receiver: '0x...',
  *   },
- * })
+ * )
  * ```
  *
  * @param client - Client.
  * @param parameters - Parameters.
- * @returns A function to unsubscribe from the event.
+ * @returns Whether the transfer is authorized and, if not, why.
  */
-export function watchUpdated<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: watchUpdated.Parameters,
-) {
-  const { onUpdated, ...rest } = parameters
-  return watchContractEvent(client, {
+export async function validate<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: validate.Parameters,
+): Promise<validate.ReturnValue> {
+  const { token, sender, receiver, ...rest } = parameters
+  const [authorized, blockedReason] = await readContract(client, {
     ...rest,
-    address: Addresses.tip403Registry,
-    abi: Abis.tip403Registry,
-    eventName: 'ReceivePolicyUpdated',
-    onLogs: (logs) => {
-      for (const log of logs)
-        onUpdated(
-          {
-            ...log.args,
-            senderPolicyId: toPolicyRef(log.args.senderPolicyId),
-            tokenFilterId: toPolicyRef(log.args.tokenFilterId),
-            recovery: toRecovery(log.args.recoveryAuthority, log.args.account),
-          },
-          log,
-        )
-    },
-    strict: true,
+    ...validate.call({ token, sender, receiver }),
   })
+  return {
+    authorized,
+    blockedReason: blockedReasons[blockedReason] ?? 'none',
+  }
 }
 
-export declare namespace watchUpdated {
-  export type Args = Compute<
-    UnionOmit<
-      GetEventArgs<
-        typeof Abis.tip403Registry,
-        'ReceivePolicyUpdated',
-        { IndexedOnly: false; Required: true }
-      >,
-      'senderPolicyId' | 'tokenFilterId'
-    > & {
-      /** TIP-403 policy restricting which senders are allowed. */
-      senderPolicyId: PolicyRef
-      /** TIP-403 policy restricting which tokens are allowed. */
-      tokenFilterId: PolicyRef
-      /** Resolved recovery authority. */
-      recovery: Recovery
-    }
-  >
+export namespace validate {
+  export type Parameters = ReadParameters & Args
 
-  export type Log = viem_Log<
-    bigint,
-    number,
-    false,
-    ExtractAbiItem<typeof Abis.tip403Registry, 'ReceivePolicyUpdated'>,
-    true
-  >
+  export type Args = {
+    /** Token address. */
+    token: Address
+    /** Sender address. */
+    sender: Address
+    /** Receiver address. */
+    receiver: Address
+  }
 
-  export type Parameters = UnionOmit<
-    WatchContractEventParameters<
-      typeof Abis.tip403Registry,
-      'ReceivePolicyUpdated',
-      true
-    >,
-    'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
-  > & {
-    /** Callback to invoke when a receive policy is updated. */
-    onUpdated: (args: Args, log: Log) => void
+  export type ReturnValue = Compute<{
+    /** Whether the transfer is authorized. */
+    authorized: boolean
+    /** Reason the transfer would be blocked. */
+    blockedReason: BlockedReason
+  }>
+
+  /**
+   * Defines a call to the `validateReceivePolicy` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { token, sender, receiver } = args
+    return defineCall({
+      address: Addresses.tip403Registry,
+      abi: Abis.tip403Registry,
+      functionName: 'validateReceivePolicy',
+      args: [token, sender, receiver],
+    })
   }
 }
 
@@ -1086,6 +992,81 @@ export declare namespace watchBlocked {
 }
 
 /**
+ * Watches for receipt burned events.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   transport: http(),
+ * })
+ *
+ * const unwatch = Actions.receivePolicy.watchBurned(client, {
+ *   onBurned: (args, log) => {
+ *     console.log('Receipt burned:', args)
+ *   },
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchBurned<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: watchBurned.Parameters,
+) {
+  const { onBurned, ...rest } = parameters
+  return watchContractEvent(client, {
+    ...rest,
+    address: Addresses.receivePolicyGuard,
+    abi: Abis.receivePolicyGuard,
+    eventName: 'ReceiptBurned',
+    onLogs: (logs) => {
+      for (const log of logs) onBurned(log.args, log)
+    },
+    strict: true,
+  })
+}
+
+export declare namespace watchBurned {
+  export type Args = Compute<
+    GetEventArgs<
+      typeof Abis.receivePolicyGuard,
+      'ReceiptBurned',
+      { IndexedOnly: false; Required: true }
+    >
+  >
+
+  export type Log = viem_Log<
+    bigint,
+    number,
+    false,
+    ExtractAbiItem<typeof Abis.receivePolicyGuard, 'ReceiptBurned'>,
+    true
+  >
+
+  export type Parameters = UnionOmit<
+    WatchContractEventParameters<
+      typeof Abis.receivePolicyGuard,
+      'ReceiptBurned',
+      true
+    >,
+    'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
+  > & {
+    /** Callback to invoke when a receipt is burned. */
+    onBurned: (args: Args, log: Log) => void
+  }
+}
+
+/**
  * Watches for receipt claimed events.
  *
  * @example
@@ -1161,7 +1142,7 @@ export declare namespace watchClaimed {
 }
 
 /**
- * Watches for receipt burned events.
+ * Watches for receive policy update events.
  *
  * @example
  * ```ts
@@ -1174,9 +1155,9 @@ export declare namespace watchClaimed {
  *   transport: http(),
  * })
  *
- * const unwatch = Actions.receivePolicy.watchBurned(client, {
- *   onBurned: (args, log) => {
- *     console.log('Receipt burned:', args)
+ * const unwatch = Actions.receivePolicy.watchUpdated(client, {
+ *   onUpdated: (args, log) => {
+ *     console.log('Receive policy updated:', args)
  *   },
  * })
  * ```
@@ -1185,53 +1166,74 @@ export declare namespace watchClaimed {
  * @param parameters - Parameters.
  * @returns A function to unsubscribe from the event.
  */
-export function watchBurned<
+export function watchUpdated<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: watchBurned.Parameters,
+  parameters: watchUpdated.Parameters,
 ) {
-  const { onBurned, ...rest } = parameters
+  const { onUpdated, ...rest } = parameters
   return watchContractEvent(client, {
     ...rest,
-    address: Addresses.receivePolicyGuard,
-    abi: Abis.receivePolicyGuard,
-    eventName: 'ReceiptBurned',
+    address: Addresses.tip403Registry,
+    abi: Abis.tip403Registry,
+    eventName: 'ReceivePolicyUpdated',
     onLogs: (logs) => {
-      for (const log of logs) onBurned(log.args, log)
+      for (const log of logs) {
+        const { tokenFilterId, ...args } = log.args
+        onUpdated(
+          {
+            ...args,
+            senderPolicyId: toPolicyRef(args.senderPolicyId),
+            tokenPolicyId: toPolicyRef(tokenFilterId),
+            claimer: toClaimer(args.recoveryAuthority, args.account),
+          },
+          log,
+        )
+      }
     },
     strict: true,
   })
 }
 
-export declare namespace watchBurned {
+export declare namespace watchUpdated {
   export type Args = Compute<
-    GetEventArgs<
-      typeof Abis.receivePolicyGuard,
-      'ReceiptBurned',
-      { IndexedOnly: false; Required: true }
-    >
+    UnionOmit<
+      GetEventArgs<
+        typeof Abis.tip403Registry,
+        'ReceivePolicyUpdated',
+        { IndexedOnly: false; Required: true }
+      >,
+      'senderPolicyId' | 'tokenFilterId'
+    > & {
+      /** TIP-403 policy restricting which senders are allowed. */
+      senderPolicyId: PolicyRef
+      /** TIP-403 policy restricting which tokens are allowed. */
+      tokenPolicyId: PolicyRef
+      /** Who can reclaim funds blocked by this policy. */
+      claimer: Claimer
+    }
   >
 
   export type Log = viem_Log<
     bigint,
     number,
     false,
-    ExtractAbiItem<typeof Abis.receivePolicyGuard, 'ReceiptBurned'>,
+    ExtractAbiItem<typeof Abis.tip403Registry, 'ReceivePolicyUpdated'>,
     true
   >
 
   export type Parameters = UnionOmit<
     WatchContractEventParameters<
-      typeof Abis.receivePolicyGuard,
-      'ReceiptBurned',
+      typeof Abis.tip403Registry,
+      'ReceivePolicyUpdated',
       true
     >,
     'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
   > & {
-    /** Callback to invoke when a receipt is burned. */
-    onBurned: (args: Args, log: Log) => void
+    /** Callback to invoke when a receive policy is updated. */
+    onUpdated: (args: Args, log: Log) => void
   }
 }
 
@@ -1250,14 +1252,14 @@ function toPolicyRef(id: bigint): PolicyRef {
 }
 
 /** @internal */
-function resolveRecovery(recovery: Recovery, self: Address): Address {
-  if (recovery === 'sender') return zeroAddress
-  if (recovery === 'self') return self
-  return recovery
+function resolveClaimer(claimer: Claimer, self: Address): Address {
+  if (claimer === 'sender') return zeroAddress
+  if (claimer === 'self') return self
+  return claimer
 }
 
 /** @internal */
-function toRecovery(recoveryAuthority: Address, account: Address): Recovery {
+function toClaimer(recoveryAuthority: Address, account: Address): Claimer {
   if (recoveryAuthority === zeroAddress) return 'sender'
   if (isAddressEqual(recoveryAuthority, account)) return 'self'
   return recoveryAuthority

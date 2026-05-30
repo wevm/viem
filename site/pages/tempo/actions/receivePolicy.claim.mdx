@@ -1,0 +1,89 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `receivePolicy.claim`
+
+Claims blocked funds for a receipt, releasing them to a destination. The caller must be authorized to reclaim the funds per the policy's `claimer` setting. [Learn more about transfer policies](https://docs.tempo.xyz/protocol/tip403/spec)
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.receivePolicy.claimSync({
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  receipt: '0x...',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+The example above uses the `claimSync` variant, which waits for the transaction to be included before returning.
+
+If you are optimizing for performance, you should use the non-sync `receivePolicy.claim` action and wait for inclusion manually:
+
+```ts twoslash
+import { client } from './viem.config'
+
+const hash = await client.receivePolicy.claim({
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  receipt: '0x...',
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+```
+
+## Return Type
+
+### claim
+
+```ts
+type ReturnType = Hash
+```
+
+Returns the transaction hash.
+
+### claimSync
+
+```ts
+type ReturnType = {
+  /** Event data from the `ReceiptClaimed` event. */
+  // ...
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+}
+```
+
+Returns the `ReceiptClaimed` event arguments along with the transaction receipt.
+
+## Parameters
+
+### to
+
+- **Type:** `Address`
+
+Destination to release the blocked funds to.
+
+### receipt
+
+- **Type:** `Hex`
+
+The encoded claim receipt (the witness emitted by a [`TransferBlocked`](/tempo/actions/receivePolicy.watchBlocked) event).
+
+### throwOnReceiptRevert (optional, `claimSync` only)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to throw if the transaction's receipt status is reverted.
+
+<WriteParameters />
