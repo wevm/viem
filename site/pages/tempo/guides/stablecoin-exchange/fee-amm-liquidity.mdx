@@ -1,0 +1,166 @@
+---
+description: Add and remove liquidity in Tempo's Fee AMM so stablecoin fee conversions can settle.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Provide Fee AMM Liquidity
+
+## Overview
+
+The Fee AMM converts a user's fee token into the token a validator wants to be paid in. Liquidity
+providers supply both sides of a pool and earn from the conversions that flow through it. You can add
+liquidity, read pool reserves and your LP balance, remove liquidity, and rebalance a pool.
+
+[See the Fee AMM specification](https://docs.tempo.xyz/protocol/fees/spec-fee-amm)
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Add Liquidity
+
+Add liquidity to a pool with [`amm.mintSync`](/tempo/actions/amm.mint). LP shares are minted to the
+`to` address.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { client } from './viem.config'
+
+const { receipt } = await client.amm.mintSync({
+  userTokenAddress: '0x20c0000000000000000000000000000000000001',
+  validatorTokenAddress: '0x20c0000000000000000000000000000000000002',
+  validatorTokenAmount: parseUnits('100', 6),
+  to: client.account.address,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Read Pool State
+
+Read pool reserves with [`amm.getPool`](/tempo/actions/amm.getPool) and your LP balance with
+[`amm.getLiquidityBalance`](/tempo/actions/amm.getLiquidityBalance).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const userToken = '0x20c0000000000000000000000000000000000001'
+const validatorToken = '0x20c0000000000000000000000000000000000002'
+
+const pool = await client.amm.getPool({ userToken, validatorToken })
+
+const balance = await client.amm.getLiquidityBalance({
+  userToken,
+  validatorToken,
+  address: client.account.address,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Remove Liquidity
+
+Burn LP shares to withdraw your underlying tokens with [`amm.burnSync`](/tempo/actions/amm.burn).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.amm.burnSync({
+  userToken: '0x20c0000000000000000000000000000000000001',
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+  liquidity: 50n,
+  to: client.account.address,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Rebalance a Pool
+
+Swap against a pool to rebalance its reserves with
+[`amm.rebalanceSwapSync`](/tempo/actions/amm.rebalanceSwap).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.amm.rebalanceSwapSync({
+  userToken: '0x20c0000000000000000000000000000000000001',
+  validatorToken: '0x20c0000000000000000000000000000000000002',
+  amountOut: 100n,
+  to: client.account.address,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Mint to a Canonical Account
+
+LP shares are bound to the address you mint them to, and only that address can burn them. Mint to a
+canonical account you control. Never mint LP shares to a [virtual address](/tempo/guides/virtual-addresses),
+because such shares become permanently unburnable.
+
+### Read Reserves Before Rebalancing
+
+Check pool reserves with `amm.getPool` before a rebalance swap so you know the current ratio and
+don't push the pool further from balance than you intend.
+
+### Keep Popular Fee Tokens Liquid
+
+Fees only settle smoothly when the relevant pool has liquidity. If you issue or rely on a particular
+fee token, keeping its Fee AMM pool funded keeps fee conversions cheap and reliable for your users.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:hand-coins"
+    title="Pay Fees in a Stablecoin"
+    description="How the Fee AMM converts fee tokens behind the scenes."
+    to="/tempo/guides/pay-fees"
+  />
+  <Card
+    icon="lucide:arrow-left-right"
+    title="Swap Stablecoins"
+    description="Trade stablecoins on the enshrined Stablecoin DEX."
+    to="/tempo/guides/stablecoin-exchange/swap"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="amm.mint"
+    description="Add liquidity to a Fee AMM pool."
+    to="/tempo/actions/amm.mint"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Tempo Docs: Fee AMM"
+    description="The Fee AMM design and fee conversion model."
+    to="https://docs.tempo.xyz/protocol/fees/spec-fee-amm"
+  />
+</Cards>

@@ -1,0 +1,137 @@
+---
+description: Open and fund a TIP-20 payment channel on Tempo, top it up, and read its onchain state.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Open & Fund a Channel
+
+## Overview
+
+Opening a channel locks a deposit of a TIP-20 token between a payer and a payee. The payer funds the
+channel up front, and that deposit bounds how much can be paid out through vouchers. You can add more
+funds later with a top-up, and read the channel's state at any time.
+
+[See the Payment Channels guide](https://docs.tempo.xyz/guide/machine-payments/pay-as-you-go)
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Open a Channel
+
+Open and fund a channel with [`channel.openSync`](/tempo/actions/channel.open). The deposit is taken
+from the payer (your account) in the given TIP-20 token.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { client } from './viem.config'
+
+const result = await client.channel.openSync({
+  deposit: parseUnits('100', 6),
+  payee: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+
+// [!include ~/snippets/tempo/viem.config.ts:channel]
+```
+
+:::
+
+### Top Up a Channel
+
+Add more deposit to an open channel with [`channel.topUpSync`](/tempo/actions/channel.topUp).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { channel, client } from './viem.config'
+
+const result = await client.channel.topUpSync({
+  additionalDeposit: parseUnits('50', 6),
+  channel,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+
+// [!include ~/snippets/tempo/viem.config.ts:channel]
+```
+
+:::
+
+### Read Channel State
+
+Read the current state of a channel with [`channel.getStates`](/tempo/actions/channel.getStates),
+including its deposit and settled amount.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { channel, client } from './viem.config'
+
+const state = await client.channel.getStates({ channel })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+
+// [!include ~/snippets/tempo/viem.config.ts:channel]
+```
+
+:::
+
+## Best Practices
+
+### Size the Deposit to Expected Volume
+
+The deposit caps total payouts until you top up. Fund the channel for the volume you expect over its
+lifetime so the payee is not forced to settle and reopen mid-stream, while avoiding locking up more
+than you need.
+
+### Reuse a Channel for Many Payments
+
+The whole point of a channel is to amortize the onchain cost over many off-chain vouchers. Open once
+per payer/payee relationship and keep it open, rather than opening a new channel per payment.
+
+### Persist the Channel Identity
+
+You need the channel's fields (payer, payee, token, salt) to sign vouchers and settle later. Persist
+them after opening so both sides can reconstruct the same channel.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:receipt"
+    title="Send & Settle Vouchers"
+    description="Pay through the channel with signed off-chain vouchers."
+    to="/tempo/guides/payment-channels/vouchers"
+  />
+  <Card
+    icon="lucide:circle-x"
+    title="Close & Withdraw"
+    description="Close the channel and reclaim the remaining deposit."
+    to="/tempo/guides/payment-channels/close"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="channel.topUp"
+    description="Add more deposit to an open channel."
+    to="/tempo/actions/channel.topUp"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Tempo Docs: Payment Channels"
+    description="The channel deposit and voucher model."
+    to="https://docs.tempo.xyz/guide/machine-payments/pay-as-you-go"
+  />
+</Cards>

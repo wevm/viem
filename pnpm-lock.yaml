@@ -644,8 +644,8 @@ importers:
         specifier: ^8.0.14
         version: 8.0.14(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
       vocs:
-        specifier: ^2.0.5
-        version: 2.0.5(@cfworker/json-schema@4.1.1)(@types/react@19.0.8)(next@16.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react-server-dom-webpack@19.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(webpack@5.104.1(esbuild@0.27.2)))(react@19.2.6)(rollup@4.59.0)(typescript@5.9.3)(vite@8.0.14(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))(waku@1.0.0-beta.1(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(react-dom@19.2.6(react@19.2.6))(react-server-dom-webpack@19.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(webpack@5.104.1(esbuild@0.27.2)))(react@19.2.6)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
+        specifier: ^2.0.7
+        version: 2.0.7(@cfworker/json-schema@4.1.1)(@types/react@19.0.8)(next@16.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react-server-dom-webpack@19.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(webpack@5.104.1(esbuild@0.27.2)))(react@19.2.6)(rollup@4.59.0)(typescript@5.9.3)(vite@8.0.14(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))(waku@1.0.0-beta.1(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(react-dom@19.2.6(react@19.2.6))(react-server-dom-webpack@19.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(webpack@5.104.1(esbuild@0.27.2)))(react@19.2.6)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))
       waku:
         specifier: ^1.0.0-beta.1
         version: 1.0.0-beta.1(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(react-dom@19.2.6(react@19.2.6))(react-server-dom-webpack@19.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(webpack@5.104.1(esbuild@0.27.2)))(react@19.2.6)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)
@@ -6597,8 +6597,8 @@ packages:
       jsdom:
         optional: true
 
-  vocs@2.0.5:
-    resolution: {integrity: sha512-258GyhoNcB+3B6pYLdFW0WwigdlA0x615MMltOqyL3GliPqdIlYqHx+eHpXx5OF+SQbWP4IrBqXg+PSObPOqCw==}
+  vocs@2.0.7:
+    resolution: {integrity: sha512-zffRrBxb0cKnGiS3sp+NbT04hq2HPyG19yx9N9EJ/2COiFLYv+rzcD9IqgvqRc7QqCy2K5sltF/o7pZRxFfL5Q==}
     hasBin: true
     peerDependencies:
       '@vocs/twoslash-rust': ^0.1.0
@@ -13453,7 +13453,7 @@ snapshots:
       - tsx
       - yaml
 
-  vocs@2.0.5(@cfworker/json-schema@4.1.1)(@types/react@19.0.8)(next@16.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react-server-dom-webpack@19.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(webpack@5.104.1(esbuild@0.27.2)))(react@19.2.6)(rollup@4.59.0)(typescript@5.9.3)(vite@8.0.14(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))(waku@1.0.0-beta.1(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(react-dom@19.2.6(react@19.2.6))(react-server-dom-webpack@19.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(webpack@5.104.1(esbuild@0.27.2)))(react@19.2.6)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)):
+  vocs@2.0.7(@cfworker/json-schema@4.1.1)(@types/react@19.0.8)(next@16.2.6(@babel/core@7.28.5)(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react-server-dom-webpack@19.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(webpack@5.104.1(esbuild@0.27.2)))(react@19.2.6)(rollup@4.59.0)(typescript@5.9.3)(vite@8.0.14(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3))(waku@1.0.0-beta.1(@types/node@24.5.2)(esbuild@0.27.2)(jiti@2.7.0)(react-dom@19.2.6(react@19.2.6))(react-server-dom-webpack@19.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(webpack@5.104.1(esbuild@0.27.2)))(react@19.2.6)(terser@5.36.0)(tsx@4.21.0)(yaml@2.8.3)):
     dependencies:
       '@base-ui/react': 1.1.0(@types/react@19.0.8)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@codesandbox/sandpack-react': 2.20.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -13489,6 +13489,8 @@ snapshots:
       github-slugger: 2.0.0
       hono: 4.12.18
       image-size: 2.0.2
+      lz-string: 1.5.0
+      magic-string: 0.30.21
       mdast-util-from-markdown: 2.0.2
       mdast-util-gfm: 3.1.0
       mdast-util-mdx: 3.0.0

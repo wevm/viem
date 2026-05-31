@@ -1,0 +1,145 @@
+---
+description: Quote and swap one USD-denominated TIP-20 stablecoin for another on Tempo's enshrined DEX.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Swap Stablecoins
+
+## Overview
+
+A swap exchanges one stablecoin for another at the best price the DEX can offer. Use a "buy" swap
+when you want an exact output amount and a "sell" swap when you want to spend an exact input amount.
+Quote first to preview the price, then submit the swap with a slippage bound.
+
+[See the Stablecoin Exchange specification](https://docs.tempo.xyz/protocol/exchange)
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Quote a Swap
+
+Preview a swap without submitting it. [`dex.getBuyQuote`](/tempo/actions/dex.getBuyQuote) returns
+the input needed for an exact output, and [`dex.getSellQuote`](/tempo/actions/dex.getSellQuote)
+returns the output for an exact input.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { client } from './viem.config'
+
+const tokenIn = '0x20c0000000000000000000000000000000000001'
+const tokenOut = '0x20c0000000000000000000000000000000000002'
+
+const amountIn = await client.dex.getBuyQuote({
+  amountOut: parseUnits('100', 6),
+  tokenIn,
+  tokenOut,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Buy an Exact Amount
+
+Use [`dex.buySync`](/tempo/actions/dex.buy) to receive an exact `amountOut`, bounding the cost with
+`maxAmountIn` so the swap reverts if the price moves against you.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { client } from './viem.config'
+
+const { receipt } = await client.dex.buySync({
+  tokenIn: '0x20c0000000000000000000000000000000000001',
+  tokenOut: '0x20c0000000000000000000000000000000000002',
+  amountOut: parseUnits('100', 6),
+  maxAmountIn: parseUnits('105', 6),
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Sell an Exact Amount
+
+Use [`dex.sellSync`](/tempo/actions/dex.sell) to spend an exact `amountIn`, bounding the result with
+`minAmountOut`.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { client } from './viem.config'
+
+const { receipt } = await client.dex.sellSync({
+  amountIn: parseUnits('100', 6),
+  minAmountOut: parseUnits('95', 6),
+  tokenIn: '0x20c0000000000000000000000000000000000001',
+  tokenOut: '0x20c0000000000000000000000000000000000002',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Always Bound Slippage
+
+Quotes reflect the price at read time and can move before your swap lands. Pass a `maxAmountIn` on
+buys and a `minAmountOut` on sells so the swap reverts instead of filling at an unexpected price.
+Derive the bound from a fresh quote plus a small tolerance.
+
+### Quote Close to Submission
+
+Re-quote right before submitting rather than reusing a stale value. The smaller the gap between the
+quote and the swap, the tighter you can safely set your slippage bound.
+
+### Choose the Right Side
+
+Use a buy when the output amount matters (for example, paying an exact invoice) and a sell when the
+input amount matters (for example, converting an entire balance). The side you pick determines which
+bound protects you.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:list-ordered"
+    title="Place & Manage Orders"
+    description="Rest on the book with limit and flip orders instead of taking."
+    to="/tempo/guides/stablecoin-exchange/orders"
+  />
+  <Card
+    icon="lucide:wallet"
+    title="Manage Exchange Balances"
+    description="Withdraw the proceeds of a swap back to your wallet."
+    to="/tempo/guides/stablecoin-exchange/balances"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="dex.getBuyQuote"
+    description="Quote the input required for an exact output amount."
+    to="/tempo/actions/dex.getBuyQuote"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Tempo Docs: Stablecoin Exchange"
+    description="The enshrined DEX pricing, orders, and routing model."
+    to="https://docs.tempo.xyz/protocol/exchange"
+  />
+</Cards>
