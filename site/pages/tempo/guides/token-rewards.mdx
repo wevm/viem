@@ -1,0 +1,157 @@
+---
+description: Distribute rewards to TIP-20 holders and let them claim their share on Tempo.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Distribute Token Rewards
+
+## Overview
+
+Token rewards let an issuer distribute a stablecoin pro rata to every holder of a TIP-20 token.
+Funders distribute an amount into the reward pool, holders accrue a share proportional to their
+balance, and each holder claims their accrued rewards or routes them to a chosen recipient.
+
+[See the issuance guide](https://docs.tempo.xyz/guide/issuance)
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Distribute Rewards
+
+Fund the reward pool for a token with
+[`reward.distributeSync`](/tempo/actions/reward.distribute). The amount is split across all holders in
+proportion to their balances.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseEther } from 'viem'
+import { client } from './viem.config'
+
+const { amount, funder } = await client.reward.distributeSync({
+  amount: parseEther('1000'),
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Claim Rewards
+
+Holders claim their accrued rewards with [`reward.claimSync`](/tempo/actions/reward.claim).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.reward.claimSync({
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Route Rewards to a Recipient
+
+Direct your accrued rewards to a different address with
+[`reward.setRecipientSync`](/tempo/actions/reward.setRecipient), for example to send them to a
+treasury or custodian instead of the holder account.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { recipient } = await client.reward.setRecipientSync({
+  recipient: client.account.address,
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Read Reward State
+
+Check an account's pending rewards with
+[`reward.getPendingRewards`](/tempo/actions/reward.getPendingRewards), inspect its full reward info
+with [`reward.getUserRewardInfo`](/tempo/actions/reward.getUserRewardInfo), or read the global
+accrual rate with
+[`reward.getGlobalRewardPerToken`](/tempo/actions/reward.getGlobalRewardPerToken).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const pending = await client.reward.getPendingRewards({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Distribute in Regular Intervals
+
+Smaller, frequent distributions smooth out accrual and let holders claim predictably, rather than one
+large distribution that rewards only the holders present at that moment.
+
+### Set Recipients Before Distributing
+
+If holders route rewards to custodians or treasuries, have them call `reward.setRecipient` before the
+first distribution so accrued rewards land in the right place from the start.
+
+### Read Pending Rewards Before Claiming
+
+Use `reward.getPendingRewards` to show users what they will receive and to skip no-op claim
+transactions when the pending balance is zero.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:flame"
+    title="Mint & Burn Tokens"
+    description="Manage the supply that rewards accrue against."
+    to="/tempo/guides/manage-token-balances"
+  />
+  <Card
+    icon="lucide:coins"
+    title="Create a TIP-20 Token"
+    description="Deploy the token that distributes rewards."
+    to="/tempo/guides/create-token"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="reward.distribute"
+    description="Distribute rewards pro rata to token holders."
+    to="/tempo/actions/reward.distribute"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Tempo Docs: Issuance"
+    description="Issue and operate a stablecoin on Tempo."
+    to="https://docs.tempo.xyz/guide/issuance"
+  />
+</Cards>
