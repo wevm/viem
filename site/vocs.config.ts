@@ -3192,8 +3192,8 @@ export default defineConfig({
   twoslash: {
     // Persist twoslash results inline in the markdown source as
     // `// @twoslash-cache: ...` comments so the cache travels with the repo.
-    // This seeds cold Vercel builds and avoids the SSG OOM that happens when
-    // twoslash has to re-resolve every snippet from scratch.
+    // This lets cold Vercel builds skip twoslash entirely instead of
+    // re-resolving every snippet from scratch.
     inlineCache: true,
     throws: false,
     twoslashOptions: {
