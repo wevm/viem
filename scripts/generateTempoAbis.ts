@@ -81,16 +81,14 @@ for (const solMatch of content.matchAll(solBlockRegex)) {
       const [fullMatch, structName, structBody] = structMatch
       if (!structName || !structBody) continue
 
-      // Parse struct fields
+      // Parse struct fields. Strip comment lines before splitting on `;` so
+      // that semicolons inside doc comments aren't treated as field separators.
       const fields = structBody
+        .split('\n')
+        .filter((line) => !line.trim().startsWith('///'))
+        .join('\n')
         .split(';')
-        .map((f) =>
-          f
-            .split('\n')
-            .filter((line) => !line.trim().startsWith('///'))
-            .join(' ')
-            .trim(),
-        )
+        .map((f) => f.replace(/\s+/g, ' ').trim())
         .filter(Boolean)
 
       if (fields.length > 0) {

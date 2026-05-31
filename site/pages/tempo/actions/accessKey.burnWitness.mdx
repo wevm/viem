@@ -1,0 +1,76 @@
+import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
+
+# `accessKey.burnWitness`
+
+:::warning
+**Coming soon:** [TIP-1053](https://tips.sh/1053) ships in the **T6** hardfork — live on **Testnet** June 11 and **Mainnet** June 15.
+:::
+
+Burns a key-authorization witness, invalidating any authorization bound to it before it is submitted onchain.
+
+A witness is an optional 32-byte value bound into a key authorization's signing hash (see [`accessKey.authorize`](/tempo/actions/accessKey.authorize)). Once burned, an authorization carrying the same witness can no longer be submitted, giving applications a revocation handle for signed-but-not-yet-submitted authorizations.
+
+[TIP-1053](https://tips.sh/1053)
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.accessKey.burnWitnessSync({
+  witness: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+})
+
+console.log('Transaction hash:', receipt.transactionHash)
+// @log: Transaction hash: 0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Asynchronous Usage
+
+The example above uses a `*Sync` variant of the action, that will wait for the transaction to be included before returning.
+
+If you are optimizing for performance, you should use the non-sync `accessKey.burnWitness` action and wait for inclusion manually:
+
+```ts twoslash
+import { Actions } from 'viem/tempo'
+import { client } from './viem.config'
+
+const hash = await client.accessKey.burnWitness({
+  witness: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+})
+const receipt = await client.waitForTransactionReceipt({ hash })
+
+const { args }
+  = Actions.accessKey.burnWitness.extractEvent(receipt.logs)
+```
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** The account that burned the witness. */
+  account: Address
+  /** The witness that was burned. */
+  witness: Hex
+  /** Transaction receipt */
+  receipt: TransactionReceipt
+}
+```
+
+## Parameters
+
+### witness
+
+- **Type:** `Hex`
+
+The 32-byte witness to burn.
+
+<WriteParameters />

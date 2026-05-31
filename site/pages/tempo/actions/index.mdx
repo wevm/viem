@@ -48,6 +48,17 @@
 | [`policy.watchBlacklistUpdated`](/tempo/actions/policy.watchBlacklistUpdated) | Watches for blacklist update events |
 | [`policy.watchCreate`](/tempo/actions/policy.watchCreate) | Watches for policy creation events |
 | [`policy.watchWhitelistUpdated`](/tempo/actions/policy.watchWhitelistUpdated) | Watches for whitelist update events |
+| **Receive Policy Actions** | |
+| [`receivePolicy.burn`](/tempo/actions/receivePolicy.burn) | Burns the funds backing a blocked receipt |
+| [`receivePolicy.claim`](/tempo/actions/receivePolicy.claim) | Claims blocked funds for a receipt |
+| [`receivePolicy.get`](/tempo/actions/receivePolicy.get) | Gets the receive policy configured for an account |
+| [`receivePolicy.getBlockedBalance`](/tempo/actions/receivePolicy.getBlockedBalance) | Gets the blocked balance for an encoded receipt |
+| [`receivePolicy.set`](/tempo/actions/receivePolicy.set) | Sets the receive policy for the calling account |
+| [`receivePolicy.validate`](/tempo/actions/receivePolicy.validate) | Checks whether a transfer or mint to a receiver is allowed |
+| [`receivePolicy.watchBlocked`](/tempo/actions/receivePolicy.watchBlocked) | Watches for blocked transfer events |
+| [`receivePolicy.watchBurned`](/tempo/actions/receivePolicy.watchBurned) | Watches for receipt burned events |
+| [`receivePolicy.watchClaimed`](/tempo/actions/receivePolicy.watchClaimed) | Watches for receipt claimed events |
+| [`receivePolicy.watchUpdated`](/tempo/actions/receivePolicy.watchUpdated) | Watches for receive policy update events |
 | **Reward Actions** | |
 | [`reward.claim`](/tempo/actions/reward.claim) | Claims accumulated rewards for the caller |
 | [`reward.distribute`](/tempo/actions/reward.distribute) | Distributes rewards to opted-in token holders |

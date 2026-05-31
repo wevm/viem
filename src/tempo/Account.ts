@@ -55,8 +55,11 @@ export type RootAccount = Account_base<'root'> & {
     key: resolveAccessKey.Parameters,
     parameters: Pick<
       KeyAuthorization.KeyAuthorization,
-      'chainId' | 'expiry' | 'limits' | 'scopes'
-    >,
+      'chainId' | 'expiry' | 'limits' | 'scopes' | 'witness'
+    > & {
+      /** Whether to authorize the key as an admin key (TIP-1049). */
+      admin?: boolean | undefined
+    },
   ) => Promise<KeyAuthorization.Signed>
 }
 
@@ -462,36 +465,58 @@ export async function signKeyAuthorization(
   account: LocalAccount,
   parameters: signKeyAuthorization.Parameters,
 ): Promise<signKeyAuthorization.ReturnValue> {
-  const { chainId, key, expiry, limits, scopes } = parameters
+  const { chainId, key, expiry, limits, scopes, witness, admin } = parameters
   const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
 
-  const signature = await account.sign!({
-    hash: KeyAuthorization.getSignPayload({
-      address: accessKeyAddress,
-      chainId,
-      expiry,
-      limits,
-      scopes,
-      type,
-    }),
-  })
+  // When the signer is an admin access key, the authorization must be
+  // signed directly by that key and bound to the parent account it acts
+  // on behalf of, so the signed payload cannot be replayed against another
+  // account. [TIP-1049]
+  const isAccessKey = isAccessKeyAccount(account)
+  const boundFields = isAccessKey ? { account: account.address } : {}
+
+  // Admin key authorizations are unrestricted and must not carry expiry,
+  // limits, or call scopes (the protocol rejects them). [TIP-1049]
+  const restrictions = admin ? {} : { expiry, limits, scopes }
+
+  const hash = KeyAuthorization.getSignPayload({
+    address: accessKeyAddress,
+    chainId,
+    type,
+    witness,
+    ...(admin ? { isAdmin: true } : {}),
+    ...boundFields,
+    ...restrictions,
+  } as never)
+  const signature = isAccessKey
+    ? await account.sign({ hash, raw: true })
+    : await account.sign!({ hash })
   return KeyAuthorization.from({
     address: accessKeyAddress,
     chainId,
-    expiry,
-    limits,
-    scopes,
     signature: SignatureEnvelope.from(signature),
     type,
-  })
+    ...(witness ? { witness } : {}),
+    ...(admin ? { isAdmin: true } : {}),
+    ...boundFields,
+    ...restrictions,
+  } as never)
 }
 
 export declare namespace signKeyAuthorization {
   type Parameters = Pick<
     KeyAuthorization.KeyAuthorization,
-    'chainId' | 'expiry' | 'limits' | 'scopes'
+    'chainId' | 'expiry' | 'limits' | 'scopes' | 'witness'
   > & {
     key: resolveAccessKey.Parameters
+    /**
+     * Whether to authorize the key as an admin key. Admin keys are
+     * unrestricted and can manage the account's other access keys; `expiry`,
+     * `limits`, and `scopes` are ignored. Requires the T6 hardfork.
+     *
+     * [TIP-1049](https://tips.sh/1049)
+     */
+    admin?: boolean | undefined
   }
 
   type ReturnValue = KeyAuthorization.Signed
@@ -618,28 +643,32 @@ function fromRoot(parameters: fromRoot.Parameters): RootAccount {
     ...account,
     source: 'root',
     async signKeyAuthorization(key, parameters) {
-      const { chainId, expiry, limits, scopes } = parameters
+      const { chainId, expiry, limits, scopes, witness, admin } = parameters
       const { accessKeyAddress, keyType: type } = resolveAccessKey(key)
+
+      // Admin key authorizations are unrestricted and must not carry expiry,
+      // limits, or call scopes (the protocol rejects them). [TIP-1049]
+      const restrictions = admin ? {} : { expiry, limits, scopes }
 
       const signature = await account.sign({
         hash: KeyAuthorization.getSignPayload({
           address: accessKeyAddress,
           chainId,
-          expiry,
-          limits,
-          scopes,
           type,
-        }),
+          witness,
+          ...(admin ? { isAdmin: true } : {}),
+          ...restrictions,
+        } as never),
       })
       const keyAuthorization = KeyAuthorization.from({
         address: accessKeyAddress,
         chainId,
-        expiry,
-        limits,
-        scopes,
         signature: SignatureEnvelope.from(signature),
         type,
-      })
+        ...(witness ? { witness } : {}),
+        ...(admin ? { isAdmin: true } : {}),
+        ...restrictions,
+      } as never)
       return keyAuthorization
     },
   }

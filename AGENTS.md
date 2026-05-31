@@ -2,6 +2,45 @@
 
 This document contains guidelines for AI agents working on the Viem codebase.
 
+## Documentation (Site)
+
+Guidelines for authoring docs and guides under `site/pages/`.
+
+### Prose
+
+- **Do not use em dashes (`—`) in docs.** Rewrite with a colon, comma, parentheses, or separate
+  sentences instead.
+
+### Headings
+
+- **Use Title Case for all headings.** Capitalize the first and last word and all major words
+  (nouns, verbs, adjectives, adverbs, pronouns). Keep minor words lowercase unless they are the
+  first or last word: articles (`a`, `an`, `the`), short coordinating conjunctions
+  (`and`, `but`, `or`, `nor`, `for`, `so`, `yet`), and short prepositions (`in`, `on`, `to`,
+  `of`, `for`, `with`, `as`, etc.).
+- Examples: `Send a Transaction`, `Pay Fees with Stablecoins`, `Set a Default Fee Token`,
+  `See More`.
+- Code identifiers inside a heading keep their original casing (e.g. `### Prefer Sync Actions`,
+  but `## sendTransactionSync` when the heading *is* the identifier).
+
+### Links
+
+- Link out to every action (and other API) referenced in prose, on first mention. Tempo Actions
+  link to `/tempo/actions/<namespace>.<action>`; core Viem actions link to their `/docs/...` page.
+
+### Guides
+
+- A guide's main body is a **`## Recipes`** section: independent, self-contained tasks, each a
+  `###` subheading with no enforced order. Do not use step-by-step "Walkthrough" sections.
+- Do **not** repeat client setup as its own recipe. Open the Recipes section with a prerequisite
+  line linking to Getting Started, e.g. "These recipes assume you have
+  [set up a Tempo client](/tempo)." Code examples still include a `viem.config.ts` tab via
+  `[!include ~/snippets/tempo/viem.config.ts:setup]`.
+- **Always show imports in code examples.** Do not use the twoslash `// ---cut---` directive to hide
+  import statements. Each `example.ts` block starts with its imports (including
+  `import { client } from './viem.config'`), then a blank line, then the example body.
+- Guide section order: `## Overview` → `## Recipes` → `## Best Practices` → `## See More`.
+
 ## Tempo Code Generation
 
 When generating actions (in `src/tempo/actions/`), follow these guidelines.
