@@ -1,7 +1,12 @@
+import * as fs from 'node:fs'
 import { defineConfig, McpSource } from 'vocs/config'
 
 import pkg from '../src/package.json' with { type: 'json' }
 import { sidebar } from './sidebar.js'
+
+const hasBuiltTypes = fs.existsSync(
+  new URL('../src/_types/index.d.ts', import.meta.url),
+)
 
 export const sponsors = {
   collaborators: [
@@ -182,16 +187,21 @@ export default defineConfig({
     },
   ],
   twoslash: {
-    checkOnly: true,
     throws: false,
     twoslashOptions: {
       vfsRoot: '..',
       compilerOptions: {
         baseUrl: '.',
-        paths: {
-          viem: ['../src/index.ts'],
-          'viem/*': ['../src/*/index.ts', '../src/*.ts'],
-        },
+        skipLibCheck: true,
+        skipDefaultLibCheck: true,
+        ...(hasBuiltTypes
+          ? {}
+          : {
+              paths: {
+                viem: ['../src/index.ts'],
+                'viem/*': ['../src/*/index.ts', '../src/*.ts'],
+              },
+            }),
       },
       handbookOptions: {
         // FIXME: fix all twoslash errors.
