@@ -18,7 +18,7 @@
     "contracts:build": "forge build --config-path ./contracts/foundry.toml && bun scripts/generateTypedArtifacts.ts",
     "deps": "pnpx taze -r",
     "docs:dev": "pnpm --filter site dev",
-    "docs:build": "pnpm --filter site build",
+    "docs:build": "pnpm build:types && pnpm --filter site build",
     "check": "biome check --write --unsafe",
     "check:repo": "sherif",
     "check:types": "tsc -b",
