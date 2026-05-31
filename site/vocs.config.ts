@@ -48,6 +48,10 @@ export default defineConfig({
     process.env.VERCEL_ENV === 'production'
       ? 'https://viem.sh'
       : process.env.VERCEL_URL,
+  // Committed twoslash cache lives at `site/.cache/twoslash` (see .gitignore).
+  // Seeding Vercel's first build with a warm cache avoids the SSG OOM that
+  // happens when twoslash has to re-resolve every snippet from scratch.
+  cacheDir: '.cache',
   title: 'Viem',
   titleTemplate: '%s · Viem',
   description:

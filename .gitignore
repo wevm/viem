@@ -31,7 +31,8 @@ generated.ts
 vectors/**/*.json
 
 # docs
-site/.cache
+site/.cache/*
+!site/.cache/twoslash
 site/dist
 site/pages.gen.ts
 .vercel
