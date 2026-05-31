@@ -3191,6 +3191,7 @@ export default defineConfig({
     },
   ],
   twoslash: {
+    checkOnly: true,
     throws: false,
     twoslashOptions: {
       vfsRoot: '..',
