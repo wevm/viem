@@ -1,5 +1,17 @@
 # viem
 
+## 2.52.0
+
+### Minor Changes
+
+- [#4689](https://github.com/wevm/viem/pull/4689) [`fb032ee43ace76bbe72170c1b3ed48880033b763`](https://github.com/wevm/viem/commit/fb032ee43ace76bbe72170c1b3ed48880033b763) Thanks [@jxom](https://github.com/jxom)! - **`viem/tempo`:** Added admin access key actions, and an `accessKey.verifyHash` action.
+
+- [#4688](https://github.com/wevm/viem/pull/4688) [`19a26084eb448632883602b401516e17cc9f7e0d`](https://github.com/wevm/viem/commit/19a26084eb448632883602b401516e17cc9f7e0d) Thanks [@jxom](https://github.com/jxom)! - **`viem/tempo`:** Added access-key witness actions.
+
+- [#4683](https://github.com/wevm/viem/pull/4683) [`42d54ef89a85aa9ef8658a89b67271331b5a31d4`](https://github.com/wevm/viem/commit/42d54ef89a85aa9ef8658a89b67271331b5a31d4) Thanks [@jxom](https://github.com/jxom)! - **`viem/tempo`:** Updated precompile ABIs and added the `receivePolicyGuard` and `signatureVerifier` precompile addresses to `Addresses`, plus the `t4`/`t5`/`t6` hardforks to `Hardfork`.
+
+- [#4687](https://github.com/wevm/viem/pull/4687) [`0e826149964a6e76d8079b368ca6f034bde7f482`](https://github.com/wevm/viem/commit/0e826149964a6e76d8079b368ca6f034bde7f482) Thanks [@jxom](https://github.com/jxom)! - **`viem/tempo`:** Added `receivePolicy` actions.
+
 ## 2.51.3
 
 ### Patch Changes
