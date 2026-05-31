@@ -2102,14 +2102,17 @@ export default defineConfig({
                   link: '/tempo/guides/access-keys/manage',
                 },
                 {
+                  badge: { text: 'T7', variant: 'warning' },
                   text: 'Admin Access Keys',
                   link: '/tempo/guides/access-keys/admin',
                 },
                 {
+                  badge: { text: 'T6', variant: 'warning' },
                   text: 'Witnesses',
                   link: '/tempo/guides/access-keys/witnesses',
                 },
                 {
+                  badge: { text: 'T7', variant: 'warning' },
                   text: 'Verify Signatures',
                   link: '/tempo/guides/access-keys/verify',
                 },
@@ -2164,6 +2167,7 @@ export default defineConfig({
               ],
             },
             {
+              badge: { text: 'T6', variant: 'warning' },
               text: 'Receive Policies',
               collapsed: true,
               items: [
