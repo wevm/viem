@@ -18,7 +18,7 @@
     "tailwindcss": "^4.1.16",
     "viem": "workspace:*",
     "vite": "^8.0.14",
-    "vocs": "https://pkg.pr.new/vocs@beb3edd",
+    "vocs": "https://pkg.pr.new/vocs@f3e152d",
     "waku": "^1.0.0-beta.1"
   }
 }
