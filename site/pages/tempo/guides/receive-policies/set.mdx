@@ -1,0 +1,180 @@
+---
+description: Set and read an account's receive policy to control which senders and tokens it accepts.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Set a Receive Policy
+
+## Overview
+
+A receive policy is made of a sender policy (who may pay you) and a token policy (which tokens you
+accept), each referencing a TIP-403 policy. You also choose a claimer that is authorized to release
+funds that get blocked. Set the policy once and update it whenever your requirements change.
+
+[See the Policy Registry specification](https://docs.tempo.xyz/protocol/tip403/overview)
+
+:::warning
+Receive policies require the T6 hardfork ([TIP-1028](https://tips.sh/1028)), live on Testnet June 11
+and Mainnet June 15.
+:::
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Set a Receive Policy
+
+Set the sender and token policies for your account with
+[`receivePolicy.setSync`](/tempo/actions/receivePolicy.set). Policy references can be the built-in
+`'allow-all'` or `'reject-all'`, or a custom policy id created with
+[`policy.create`](/tempo/actions/policy.create).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.receivePolicy.setSync({
+  senderPolicyId: 'allow-all',
+  tokenPolicyId: 'allow-all',
+  claimer: 'self',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Use Custom Sender and Token Policies
+
+For finer control, create your own TIP-403 policies with
+[`policy.createSync`](/tempo/actions/policy.create) and reference their ids. Here a whitelist limits
+which senders may pay you, and another limits which tokens you accept.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+// Whitelist of senders allowed to pay this account.
+const { policyId: senderPolicyId } = await client.policy.createSync({
+  admin: client.account.address,
+  type: 'whitelist',
+  addresses: ['0xcafebabecafebabecafebabecafebabecafebabe'],
+})
+
+// Whitelist of tokens this account accepts.
+const { policyId: tokenPolicyId } = await client.policy.createSync({
+  admin: client.account.address,
+  type: 'whitelist',
+  addresses: ['0x20c0000000000000000000000000000000000001'],
+})
+
+const { receipt } = await client.receivePolicy.setSync({
+  senderPolicyId,
+  tokenPolicyId,
+  claimer: 'self',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Update a Custom Policy's Members
+
+Add or remove members from a policy you administer with
+[`policy.modifyWhitelistSync`](/tempo/actions/policy.modifyWhitelist) (or
+[`policy.modifyBlacklistSync`](/tempo/actions/policy.modifyBlacklist) for blacklists). Changes apply
+to every account referencing that policy.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.policy.modifyWhitelistSync({
+  policyId: 2n,
+  address: '0xcafebabecafebabecafebabecafebabecafebabe',
+  allowed: true,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Read a Receive Policy
+
+Read the current policy for an account with [`receivePolicy.get`](/tempo/actions/receivePolicy.get).
+It reports whether a policy is set and the configured sender and token policies.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const policy = await client.receivePolicy.get({
+  account: client.account.address,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Start Permissive, Then Tighten
+
+If you are unsure of your requirements, start with `'allow-all'` and tighten to a custom whitelist
+once you know which senders and tokens you expect. This avoids accidentally blocking legitimate
+transfers before your integration is ready.
+
+### Reuse Policies Across Accounts
+
+TIP-403 policies can be shared. Create a policy once with `policy.create` and reference it from
+multiple accounts so compliance rules stay consistent and are updated in one place.
+
+### Set a Claimer You Control
+
+The claimer is who can release blocked funds. Set it to `'self'` or to an address you control so that
+funds blocked by your policy can actually be recovered later.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:scan-line"
+    title="Validate Transfers"
+    description="Preview whether a transfer would pass your policy."
+    to="/tempo/guides/receive-policies/validate"
+  />
+  <Card
+    icon="lucide:lock"
+    title="Handle Blocked Funds"
+    description="Claim or burn funds that your policy blocked."
+    to="/tempo/guides/receive-policies/blocked"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="policy.create"
+    description="Create a custom TIP-403 whitelist or blacklist policy."
+    to="/tempo/actions/policy.create"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Tempo Docs: Policy Registry"
+    description="How TIP-403 policies gate transfers."
+    to="https://docs.tempo.xyz/protocol/tip403/overview"
+  />
+</Cards>

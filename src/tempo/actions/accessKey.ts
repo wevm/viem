@@ -2,7 +2,10 @@ import type { Address } from 'abitype'
 import type { KeyAuthorization } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
+import type { ReadContractReturnType } from '../../actions/public/readContract.js'
 import { readContract } from '../../actions/public/readContract.js'
+import type { WatchContractEventParameters } from '../../actions/public/watchContractEvent.js'
+import { watchContractEvent } from '../../actions/public/watchContractEvent.js'
 import { sendTransaction } from '../../actions/wallet/sendTransaction.js'
 import { sendTransactionSync } from '../../actions/wallet/sendTransactionSync.js'
 import type { WriteContractReturnType } from '../../actions/wallet/writeContract.js'
@@ -12,9 +15,10 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
-import type { GetEventArgs } from '../../types/contract.js'
-import type { Log } from '../../types/log.js'
-import type { Compute } from '../../types/utils.js'
+import type { ExtractAbiItem, GetEventArgs } from '../../types/contract.js'
+import type { Log, Log as viem_Log } from '../../types/log.js'
+import type { Hex } from '../../types/misc.js'
+import type { Compute, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import type { AccessKeyAccount, resolveAccessKey } from '../Account.js'
@@ -92,6 +96,14 @@ export namespace authorize {
   export type Args = {
     /** The access key to authorize. */
     accessKey: resolveAccessKey.Parameters
+    /**
+     * Whether to authorize the key as an admin key. Admin keys are unrestricted
+     * and can manage the account's other access keys; `expiry`, `limits`, and
+     * `scopes` are ignored. Requires the T6 hardfork.
+     *
+     * [TIP-1049](https://tips.sh/1049)
+     */
+    admin?: boolean | undefined
     /** The chain ID. */
     chainId?: number | undefined
     /** Unix timestamp when the key expires. */
@@ -102,6 +114,17 @@ export namespace authorize {
       | undefined
     /** Call scopes restricting which contracts/selectors this key can call. */
     scopes?: KeyAuthorization.Scope[] | undefined
+    /**
+     * Optional 32-byte witness bound into the authorization's signing hash.
+     *
+     * Applications use this to bind a single signature to an arbitrary offchain
+     * context (e.g. a server-issued challenge), or as a revocation handle that
+     * can be burned onchain (see {@link burnWitness}) to invalidate the
+     * authorization before it is submitted.
+     *
+     * [TIP-1053](https://tips.sh/1053)
+     */
+    witness?: Hex | undefined
   }
 
   export type ReturnValue = WriteContractReturnType
@@ -121,10 +144,12 @@ export namespace authorize {
   ): Promise<ReturnType<action>> {
     const {
       accessKey,
+      admin,
       chainId = client.chain?.id,
       expiry,
       limits,
       scopes,
+      witness,
       ...rest
     } = parameters
     const account_ = rest.account ?? client.account
@@ -134,9 +159,11 @@ export namespace authorize {
     const keyAuthorization = await signKeyAuthorization(parsed as never, {
       chainId: BigInt(chainId),
       key: accessKey,
+      admin,
       expiry,
       limits,
       scopes,
+      witness,
     })
     return (await action(client, {
       ...rest,
@@ -229,7 +256,14 @@ export namespace authorizeSync {
 }
 
 /**
- * Revokes an authorized access key.
+ * Burns a key-authorization witness, invalidating any authorization bound to
+ * it before it is submitted onchain.
+ *
+ * Once burned, an `authorizeKey` call carrying the same `witness` will revert.
+ * This lets applications issue a signed authorization offchain (see
+ * {@link authorize}) while retaining the ability to revoke it.
+ *
+ * [TIP-1053](https://tips.sh/1053)
  *
  * @example
  * ```ts
@@ -244,8 +278,8 @@ export namespace authorizeSync {
  *   transport: http(),
  * })
  *
- * const hash = await Actions.accessKey.revoke(client, {
- *   accessKey: '0x...',
+ * const hash = await Actions.accessKey.burnWitness(client, {
+ *   witness: '0x...',
  * })
  * ```
  *
@@ -253,25 +287,25 @@ export namespace authorizeSync {
  * @param parameters - Parameters.
  * @returns The transaction hash.
  */
-export async function revoke<
+export async function burnWitness<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: revoke.Parameters<chain, account>,
-): Promise<revoke.ReturnValue> {
-  return revoke.inner(writeContract, client, parameters)
+  parameters: burnWitness.Parameters<chain, account>,
+): Promise<burnWitness.ReturnValue> {
+  return burnWitness.inner(writeContract, client, parameters)
 }
 
-export namespace revoke {
+export namespace burnWitness {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = WriteParameters<chain, account> & Args
 
   export type Args = {
-    /** The access key to revoke. */
-    accessKey: Address | AccessKeyAccount
+    /** The 32-byte witness to burn. */
+    witness: Hex
   }
 
   export type ReturnValue = WriteContractReturnType
@@ -287,10 +321,10 @@ export namespace revoke {
   >(
     action: action,
     client: Client<Transport, chain, account>,
-    parameters: revoke.Parameters<chain, account>,
+    parameters: burnWitness.Parameters<chain, account>,
   ): Promise<ReturnType<action>> {
-    const { accessKey, ...rest } = parameters
-    const call = revoke.call({ accessKey })
+    const { witness, ...rest } = parameters
+    const call = burnWitness.call({ witness })
     return (await action(client, {
       ...rest,
       ...call,
@@ -298,7 +332,7 @@ export namespace revoke {
   }
 
   /**
-   * Defines a call to the `revokeKey` function.
+   * Defines a call to the `burnKeyAuthorizationWitness` function.
    *
    * Can be passed as a parameter to:
    * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
@@ -318,7 +352,7 @@ export namespace revoke {
    *
    * const hash = await client.sendTransaction({
    *   calls: [
-   *     Actions.accessKey.revoke.call({ accessKey: '0x...' }),
+   *     Actions.accessKey.burnWitness.call({ witness: '0x...' }),
    *   ],
    * })
    * ```
@@ -327,12 +361,12 @@ export namespace revoke {
    * @returns The call.
    */
   export function call(args: Args) {
-    const { accessKey } = args
+    const { witness } = args
     return defineCall({
       address: Addresses.accountKeychain,
       abi: Abis.accountKeychain,
-      functionName: 'revokeKey',
-      args: [resolveAccessKeyAddress(accessKey)],
+      functionName: 'burnKeyAuthorizationWitness',
+      args: [witness],
     })
   }
 
@@ -340,16 +374,17 @@ export namespace revoke {
     const [log] = parseEventLogs({
       abi: Abis.accountKeychain,
       logs,
-      eventName: 'KeyRevoked',
+      eventName: 'KeyAuthorizationWitnessBurned',
       strict: true,
     })
-    if (!log) throw new Error('`KeyRevoked` event not found.')
+    if (!log)
+      throw new Error('`KeyAuthorizationWitnessBurned` event not found.')
     return log
   }
 }
 
 /**
- * Revokes an authorized access key and waits for the transaction receipt.
+ * Burns a key-authorization witness and waits for the transaction receipt.
  *
  * @example
  * ```ts
@@ -364,8 +399,8 @@ export namespace revoke {
  *   transport: http(),
  * })
  *
- * const result = await Actions.accessKey.revokeSync(client, {
- *   accessKey: '0x...',
+ * const { receipt, ...result } = await Actions.accessKey.burnWitnessSync(client, {
+ *   witness: '0x...',
  * })
  * ```
  *
@@ -373,246 +408,42 @@ export namespace revoke {
  * @param parameters - Parameters.
  * @returns The transaction receipt and event data.
  */
-export async function revokeSync<
+export async function burnWitnessSync<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: revokeSync.Parameters<chain, account>,
-): Promise<revokeSync.ReturnValue> {
+  parameters: burnWitnessSync.Parameters<chain, account>,
+): Promise<burnWitnessSync.ReturnValue> {
   const { throwOnReceiptRevert = true, ...rest } = parameters
-  const receipt = await revoke.inner(writeContractSync, client, {
+  const receipt = await burnWitness.inner(writeContractSync, client, {
     ...rest,
     throwOnReceiptRevert,
   } as never)
-  const { args } = revoke.extractEvent(receipt.logs)
+  const { args } = burnWitness.extractEvent(receipt.logs)
   return {
     ...args,
     receipt,
   } as never
 }
 
-export namespace revokeSync {
+export namespace burnWitnessSync {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = revoke.Parameters<chain, account>
+  > = burnWitness.Parameters<chain, account>
 
-  export type Args = revoke.Args
+  export type Args = burnWitness.Args
 
   export type ReturnValue = Compute<
     GetEventArgs<
       typeof Abis.accountKeychain,
-      'KeyRevoked',
+      'KeyAuthorizationWitnessBurned',
       { IndexedOnly: false; Required: true }
     > & {
       receipt: TransactionReceipt
     }
   >
-
-  // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
-}
-
-/**
- * Updates the spending limit for a specific token on an authorized access key.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
- * import { privateKeyToAccount } from 'viem/accounts'
- *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
- *   transport: http(),
- * })
- *
- * const hash = await Actions.accessKey.updateLimit(client, {
- *   accessKey: '0x...',
- *   token: '0x...',
- *   limit: 1000000000000000000n,
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns The transaction hash.
- */
-export async function updateLimit<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: updateLimit.Parameters<chain, account>,
-): Promise<updateLimit.ReturnValue> {
-  return updateLimit.inner(writeContract, client, parameters)
-}
-
-export namespace updateLimit {
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args
-
-  export type Args = {
-    /** The access key to update. */
-    accessKey: Address | AccessKeyAccount
-    /** The token address. */
-    token: Address
-    /** The new spending limit. */
-    limit: bigint
-  }
-
-  export type ReturnValue = WriteContractReturnType
-
-  // TODO: exhaustive error type
-  export type ErrorType = BaseErrorType
-
-  /** @internal */
-  export async function inner<
-    action extends typeof writeContract | typeof writeContractSync,
-    chain extends Chain | undefined,
-    account extends Account | undefined,
-  >(
-    action: action,
-    client: Client<Transport, chain, account>,
-    parameters: updateLimit.Parameters<chain, account>,
-  ): Promise<ReturnType<action>> {
-    const { accessKey, token, limit, ...rest } = parameters
-    const call = updateLimit.call({ accessKey, token, limit })
-    return (await action(client, {
-      ...rest,
-      ...call,
-    } as never)) as never
-  }
-
-  /**
-   * Defines a call to the `updateSpendingLimit` function.
-   *
-   * Can be passed as a parameter to:
-   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
-   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
-   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
-   *
-   * @example
-   * ```ts
-   * import { createClient, http, walletActions } from 'viem'
-   * import { tempo } from 'viem/chains'
-   * import { Actions } from 'viem/tempo'
-   *
-   * const client = createClient({
-   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
-   *   transport: http(),
-   * }).extend(walletActions)
-   *
-   * const hash = await client.sendTransaction({
-   *   calls: [
-   *     Actions.accessKey.updateLimit.call({
-   *       accessKey: '0x...',
-   *       token: '0x...',
-   *       limit: 1000000000000000000n,
-   *     }),
-   *   ],
-   * })
-   * ```
-   *
-   * @param args - Arguments.
-   * @returns The call.
-   */
-  export function call(args: Args) {
-    const { accessKey, token, limit } = args
-    return defineCall({
-      address: Addresses.accountKeychain,
-      abi: Abis.accountKeychain,
-      functionName: 'updateSpendingLimit',
-      args: [resolveAccessKeyAddress(accessKey), token, limit],
-    })
-  }
-
-  export function extractEvent(logs: Log[]) {
-    const [log] = parseEventLogs({
-      abi: Abis.accountKeychain,
-      logs,
-      eventName: 'SpendingLimitUpdated',
-      strict: true,
-    })
-    if (!log) throw new Error('`SpendingLimitUpdated` event not found.')
-    return log
-  }
-}
-
-/**
- * Updates the spending limit and waits for the transaction receipt.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
- * import { privateKeyToAccount } from 'viem/accounts'
- *
- * const client = createClient({
- *   account: privateKeyToAccount('0x...'),
- *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
- *   transport: http(),
- * })
- *
- * const result = await Actions.accessKey.updateLimitSync(client, {
- *   accessKey: '0x...',
- *   token: '0x...',
- *   limit: 1000000000000000000n,
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns The transaction receipt and event data.
- */
-export async function updateLimitSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: updateLimitSync.Parameters<chain, account>,
-): Promise<updateLimitSync.ReturnValue> {
-  const { throwOnReceiptRevert = true, ...rest } = parameters
-  const receipt = await updateLimit.inner(writeContractSync, client, {
-    ...rest,
-    throwOnReceiptRevert,
-  } as never)
-  const { args } = updateLimit.extractEvent(receipt.logs)
-  return {
-    account: args.account,
-    publicKey: args.publicKey,
-    token: args.token,
-    limit: args.newLimit,
-    receipt,
-  }
-}
-
-export namespace updateLimitSync {
-  export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = updateLimit.Parameters<chain, account>
-
-  export type Args = updateLimit.Args
-
-  export type ReturnValue = {
-    /** The account that owns the key. */
-    account: Address
-    /** The access key address. */
-    publicKey: Address
-    /** The token address. */
-    token: Address
-    /** The new spending limit. */
-    limit: bigint
-    /** The transaction receipt. */
-    receipt: TransactionReceipt
-  }
 
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
@@ -829,6 +660,349 @@ export namespace getRemainingLimit {
 }
 
 /**
+ * Checks whether an access key is an admin key for an account.
+ *
+ * Returns `true` for the account's root key or for an active admin access key
+ * (see {@link authorize} with `admin: true`).
+ *
+ * [TIP-1049](https://tips.sh/1049)
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   transport: http(),
+ * })
+ *
+ * const isAdmin = await Actions.accessKey.isAdmin(client, {
+ *   account: '0x...',
+ *   accessKey: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns Whether the access key is an admin key.
+ */
+export async function isAdmin<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: isAdmin.Parameters<account>,
+): Promise<isAdmin.ReturnValue> {
+  const { account: account_ = client.account, accessKey, ...rest } = parameters
+  if (!account_) throw new Error('account is required.')
+  const account = parseAccount(account_)
+  return readContract(client, {
+    ...rest,
+    account: null as never,
+    ...isAdmin.call({ account: account.address, accessKey }),
+  })
+}
+
+export namespace isAdmin {
+  export type Parameters<
+    account extends Account | undefined = Account | undefined,
+  > = ReadParameters & GetAccountParameter<account> & Pick<Args, 'accessKey'>
+
+  export type Args = {
+    /** Account address. */
+    account: Address
+    /** The access key. */
+    accessKey: Address | AccessKeyAccount
+  }
+
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.accountKeychain,
+    'isAdminKey',
+    never
+  >
+
+  /**
+   * Defines a call to the `isAdminKey` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { account, accessKey } = args
+    return defineCall({
+      address: Addresses.accountKeychain,
+      abi: Abis.accountKeychain,
+      functionName: 'isAdminKey',
+      args: [account, resolveAccessKeyAddress(accessKey)],
+    })
+  }
+}
+
+/**
+ * Checks whether a key-authorization witness has been burned for an account.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   transport: http(),
+ * })
+ *
+ * const isBurned = await Actions.accessKey.isWitnessBurned(client, {
+ *   account: '0x...',
+ *   witness: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns Whether the witness has been burned.
+ */
+export async function isWitnessBurned<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: isWitnessBurned.Parameters<account>,
+): Promise<isWitnessBurned.ReturnValue> {
+  const { account: account_ = client.account, witness, ...rest } = parameters
+  if (!account_) throw new Error('account is required.')
+  const account = parseAccount(account_)
+  return readContract(client, {
+    ...rest,
+    account: null as never,
+    ...isWitnessBurned.call({ account: account.address, witness }),
+  })
+}
+
+export namespace isWitnessBurned {
+  export type Parameters<
+    account extends Account | undefined = Account | undefined,
+  > = ReadParameters & GetAccountParameter<account> & Pick<Args, 'witness'>
+
+  export type Args = {
+    /** Account address. */
+    account: Address
+    /** The 32-byte witness to check. */
+    witness: Hex
+  }
+
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.accountKeychain,
+    'isKeyAuthorizationWitnessBurned',
+    never
+  >
+
+  /**
+   * Defines a call to the `isKeyAuthorizationWitnessBurned` function.
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { account, witness } = args
+    return defineCall({
+      address: Addresses.accountKeychain,
+      abi: Abis.accountKeychain,
+      functionName: 'isKeyAuthorizationWitnessBurned',
+      args: [account, witness],
+    })
+  }
+}
+
+/**
+ * Revokes an authorized access key.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   transport: http(),
+ * })
+ *
+ * const hash = await Actions.accessKey.revoke(client, {
+ *   accessKey: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction hash.
+ */
+export async function revoke<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: revoke.Parameters<chain, account>,
+): Promise<revoke.ReturnValue> {
+  return revoke.inner(writeContract, client, parameters)
+}
+
+export namespace revoke {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+
+  export type Args = {
+    /** The access key to revoke. */
+    accessKey: Address | AccessKeyAccount
+  }
+
+  export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof writeContract | typeof writeContractSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: revoke.Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const { accessKey, ...rest } = parameters
+    const call = revoke.call({ accessKey })
+    return (await action(client, {
+      ...rest,
+      ...call,
+    } as never)) as never
+  }
+
+  /**
+   * Defines a call to the `revokeKey` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'viem/chains'
+   * import { Actions } from 'viem/tempo'
+   *
+   * const client = createClient({
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const hash = await client.sendTransaction({
+   *   calls: [
+   *     Actions.accessKey.revoke.call({ accessKey: '0x...' }),
+   *   ],
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { accessKey } = args
+    return defineCall({
+      address: Addresses.accountKeychain,
+      abi: Abis.accountKeychain,
+      functionName: 'revokeKey',
+      args: [resolveAccessKeyAddress(accessKey)],
+    })
+  }
+
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: Abis.accountKeychain,
+      logs,
+      eventName: 'KeyRevoked',
+      strict: true,
+    })
+    if (!log) throw new Error('`KeyRevoked` event not found.')
+    return log
+  }
+}
+
+/**
+ * Revokes an authorized access key and waits for the transaction receipt.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   transport: http(),
+ * })
+ *
+ * const result = await Actions.accessKey.revokeSync(client, {
+ *   accessKey: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction receipt and event data.
+ */
+export async function revokeSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: revokeSync.Parameters<chain, account>,
+): Promise<revokeSync.ReturnValue> {
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await revoke.inner(writeContractSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
+  const { args } = revoke.extractEvent(receipt.logs)
+  return {
+    ...args,
+    receipt,
+  } as never
+}
+
+export namespace revokeSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = revoke.Parameters<chain, account>
+
+  export type Args = revoke.Args
+
+  export type ReturnValue = Compute<
+    GetEventArgs<
+      typeof Abis.accountKeychain,
+      'KeyRevoked',
+      { IndexedOnly: false; Required: true }
+    > & {
+      receipt: TransactionReceipt
+    }
+  >
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+}
+
+/**
  * Signs a key authorization for an access key.
  *
  * @example
@@ -880,6 +1054,14 @@ export namespace signAuthorization {
   > = GetAccountParameter<account> & {
     /** The access key to authorize. */
     accessKey: resolveAccessKey.Parameters
+    /**
+     * Whether to authorize the key as an admin key. Admin keys are unrestricted
+     * and can manage the account's other access keys; `expiry`, `limits`, and
+     * `scopes` are ignored. Requires the T6 hardfork.
+     *
+     * [TIP-1049](https://tips.sh/1049)
+     */
+    admin?: boolean | undefined
     /** The chain ID. */
     chainId?: number | undefined
     /** Unix timestamp when the key expires. */
@@ -890,9 +1072,550 @@ export namespace signAuthorization {
       | undefined
     /** Call scopes restricting which contracts/selectors this key can call. */
     scopes?: KeyAuthorization.Scope[] | undefined
+    /**
+     * Optional 32-byte witness bound into the authorization's signing hash.
+     *
+     * Applications use this to bind a single signature to an arbitrary offchain
+     * context (e.g. a server-issued challenge), or as a revocation handle that
+     * can be burned onchain (see {@link burnWitness}) to invalidate the
+     * authorization before it is submitted.
+     *
+     * [TIP-1053](https://tips.sh/1053)
+     */
+    witness?: Hex | undefined
   }
 
   export type ReturnValue = Awaited<ReturnType<typeof signKeyAuthorization>>
+}
+
+/**
+ * Updates the spending limit for a specific token on an authorized access key.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   transport: http(),
+ * })
+ *
+ * const hash = await Actions.accessKey.updateLimit(client, {
+ *   accessKey: '0x...',
+ *   token: '0x...',
+ *   limit: 1000000000000000000n,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction hash.
+ */
+export async function updateLimit<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: updateLimit.Parameters<chain, account>,
+): Promise<updateLimit.ReturnValue> {
+  return updateLimit.inner(writeContract, client, parameters)
+}
+
+export namespace updateLimit {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = WriteParameters<chain, account> & Args
+
+  export type Args = {
+    /** The access key to update. */
+    accessKey: Address | AccessKeyAccount
+    /** The token address. */
+    token: Address
+    /** The new spending limit. */
+    limit: bigint
+  }
+
+  export type ReturnValue = WriteContractReturnType
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+
+  /** @internal */
+  export async function inner<
+    action extends typeof writeContract | typeof writeContractSync,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    action: action,
+    client: Client<Transport, chain, account>,
+    parameters: updateLimit.Parameters<chain, account>,
+  ): Promise<ReturnType<action>> {
+    const { accessKey, token, limit, ...rest } = parameters
+    const call = updateLimit.call({ accessKey, token, limit })
+    return (await action(client, {
+      ...rest,
+      ...call,
+    } as never)) as never
+  }
+
+  /**
+   * Defines a call to the `updateSpendingLimit` function.
+   *
+   * Can be passed as a parameter to:
+   * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
+   * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
+   * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
+   *
+   * @example
+   * ```ts
+   * import { createClient, http, walletActions } from 'viem'
+   * import { tempo } from 'viem/chains'
+   * import { Actions } from 'viem/tempo'
+   *
+   * const client = createClient({
+   *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+   *   transport: http(),
+   * }).extend(walletActions)
+   *
+   * const hash = await client.sendTransaction({
+   *   calls: [
+   *     Actions.accessKey.updateLimit.call({
+   *       accessKey: '0x...',
+   *       token: '0x...',
+   *       limit: 1000000000000000000n,
+   *     }),
+   *   ],
+   * })
+   * ```
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { accessKey, token, limit } = args
+    return defineCall({
+      address: Addresses.accountKeychain,
+      abi: Abis.accountKeychain,
+      functionName: 'updateSpendingLimit',
+      args: [resolveAccessKeyAddress(accessKey), token, limit],
+    })
+  }
+
+  export function extractEvent(logs: Log[]) {
+    const [log] = parseEventLogs({
+      abi: Abis.accountKeychain,
+      logs,
+      eventName: 'SpendingLimitUpdated',
+      strict: true,
+    })
+    if (!log) throw new Error('`SpendingLimitUpdated` event not found.')
+    return log
+  }
+}
+
+/**
+ * Updates the spending limit and waits for the transaction receipt.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ * import { privateKeyToAccount } from 'viem/accounts'
+ *
+ * const client = createClient({
+ *   account: privateKeyToAccount('0x...'),
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   transport: http(),
+ * })
+ *
+ * const result = await Actions.accessKey.updateLimitSync(client, {
+ *   accessKey: '0x...',
+ *   token: '0x...',
+ *   limit: 1000000000000000000n,
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The transaction receipt and event data.
+ */
+export async function updateLimitSync<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: updateLimitSync.Parameters<chain, account>,
+): Promise<updateLimitSync.ReturnValue> {
+  const { throwOnReceiptRevert = true, ...rest } = parameters
+  const receipt = await updateLimit.inner(writeContractSync, client, {
+    ...rest,
+    throwOnReceiptRevert,
+  } as never)
+  const { args } = updateLimit.extractEvent(receipt.logs)
+  return {
+    account: args.account,
+    publicKey: args.publicKey,
+    token: args.token,
+    limit: args.newLimit,
+    receipt,
+  }
+}
+
+export namespace updateLimitSync {
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = updateLimit.Parameters<chain, account>
+
+  export type Args = updateLimit.Args
+
+  export type ReturnValue = {
+    /** The account that owns the key. */
+    account: Address
+    /** The access key address. */
+    publicKey: Address
+    /** The token address. */
+    token: Address
+    /** The new spending limit. */
+    limit: bigint
+    /** The transaction receipt. */
+    receipt: TransactionReceipt
+  }
+
+  // TODO: exhaustive error type
+  export type ErrorType = BaseErrorType
+}
+
+/**
+ * Watches for admin key authorization events.
+ *
+ * Emitted when an admin key is authorized (see {@link authorize} with
+ * `admin: true`).
+ *
+ * [TIP-1049](https://tips.sh/1049)
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   transport: http(),
+ * })
+ *
+ * const unwatch = Actions.accessKey.watchAdminAuthorized(client, {
+ *   onAuthorized: (args, log) => {
+ *     console.log('Admin key authorized:', args)
+ *   },
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchAdminAuthorized<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: watchAdminAuthorized.Parameters,
+) {
+  const { onAuthorized, ...rest } = parameters
+  return watchContractEvent(client, {
+    ...rest,
+    address: Addresses.accountKeychain,
+    abi: Abis.accountKeychain,
+    eventName: 'AdminKeyAuthorized',
+    onLogs: (logs) => {
+      for (const log of logs) onAuthorized(log.args, log)
+    },
+    strict: true,
+  })
+}
+
+export declare namespace watchAdminAuthorized {
+  export type Args = Compute<
+    GetEventArgs<
+      typeof Abis.accountKeychain,
+      'AdminKeyAuthorized',
+      { IndexedOnly: false; Required: true }
+    >
+  >
+
+  export type Log = viem_Log<
+    bigint,
+    number,
+    false,
+    ExtractAbiItem<typeof Abis.accountKeychain, 'AdminKeyAuthorized'>,
+    true
+  >
+
+  export type Parameters = UnionOmit<
+    WatchContractEventParameters<
+      typeof Abis.accountKeychain,
+      'AdminKeyAuthorized',
+      true
+    >,
+    'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
+  > & {
+    /** Callback to invoke when an admin key is authorized. */
+    onAuthorized: (args: Args, log: Log) => void
+  }
+}
+
+/**
+ * Watches for key-authorization witness events.
+ *
+ * Emitted when a key is authorized with a `witness` (see {@link authorize}).
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   transport: http(),
+ * })
+ *
+ * const unwatch = Actions.accessKey.watchWitness(client, {
+ *   onWitness: (args, log) => {
+ *     console.log('Witness used:', args)
+ *   },
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchWitness<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: watchWitness.Parameters,
+) {
+  const { onWitness, ...rest } = parameters
+  return watchContractEvent(client, {
+    ...rest,
+    address: Addresses.accountKeychain,
+    abi: Abis.accountKeychain,
+    eventName: 'KeyAuthorizationWitness',
+    onLogs: (logs) => {
+      for (const log of logs) onWitness(log.args, log)
+    },
+    strict: true,
+  })
+}
+
+export declare namespace watchWitness {
+  export type Args = Compute<
+    GetEventArgs<
+      typeof Abis.accountKeychain,
+      'KeyAuthorizationWitness',
+      { IndexedOnly: false; Required: true }
+    >
+  >
+
+  export type Log = viem_Log<
+    bigint,
+    number,
+    false,
+    ExtractAbiItem<typeof Abis.accountKeychain, 'KeyAuthorizationWitness'>,
+    true
+  >
+
+  export type Parameters = UnionOmit<
+    WatchContractEventParameters<
+      typeof Abis.accountKeychain,
+      'KeyAuthorizationWitness',
+      true
+    >,
+    'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
+  > & {
+    /** Callback to invoke when a witness is used. */
+    onWitness: (args: Args, log: Log) => void
+  }
+}
+
+/**
+ * Watches for key-authorization witness burned events.
+ *
+ * Emitted when a witness is burned (see {@link burnWitness}).
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   transport: http(),
+ * })
+ *
+ * const unwatch = Actions.accessKey.watchWitnessBurned(client, {
+ *   onBurned: (args, log) => {
+ *     console.log('Witness burned:', args)
+ *   },
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns A function to unsubscribe from the event.
+ */
+export function watchWitnessBurned<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: watchWitnessBurned.Parameters,
+) {
+  const { onBurned, ...rest } = parameters
+  return watchContractEvent(client, {
+    ...rest,
+    address: Addresses.accountKeychain,
+    abi: Abis.accountKeychain,
+    eventName: 'KeyAuthorizationWitnessBurned',
+    onLogs: (logs) => {
+      for (const log of logs) onBurned(log.args, log)
+    },
+    strict: true,
+  })
+}
+
+export declare namespace watchWitnessBurned {
+  export type Args = Compute<
+    GetEventArgs<
+      typeof Abis.accountKeychain,
+      'KeyAuthorizationWitnessBurned',
+      { IndexedOnly: false; Required: true }
+    >
+  >
+
+  export type Log = viem_Log<
+    bigint,
+    number,
+    false,
+    ExtractAbiItem<
+      typeof Abis.accountKeychain,
+      'KeyAuthorizationWitnessBurned'
+    >,
+    true
+  >
+
+  export type Parameters = UnionOmit<
+    WatchContractEventParameters<
+      typeof Abis.accountKeychain,
+      'KeyAuthorizationWitnessBurned',
+      true
+    >,
+    'abi' | 'address' | 'batch' | 'eventName' | 'onLogs' | 'strict'
+  > & {
+    /** Callback to invoke when a witness is burned. */
+    onBurned: (args: Args, log: Log) => void
+  }
+}
+
+/**
+ * Verifies that a keychain signature was produced by an active access key
+ * for the expected account.
+ *
+ * By default (`admin: true`), returns `true` only if the signature was
+ * produced by the account's root key or an active admin access key. Set
+ * `admin: false` to accept any active access key.
+ *
+ * Returns `false` for account mismatches, unknown, revoked, or expired
+ * access keys. [TIP-1049](https://tips.sh/1049)
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' }),
+ *   transport: http(),
+ * })
+ *
+ * const valid = await Actions.accessKey.verifyHash(client, {
+ *   account: '0x...',
+ *   hash: '0x...',
+ *   signature: '0x...',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns Whether the keychain signature is valid for the account.
+ */
+export async function verifyHash<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: verifyHash.Parameters,
+): Promise<verifyHash.ReturnValue> {
+  const { account, admin, hash, signature, ...rest } = parameters
+  return readContract(client, {
+    ...rest,
+    ...verifyHash.call({ account, admin, hash, signature }),
+  })
+}
+
+export namespace verifyHash {
+  export type Parameters = ReadParameters & Args
+
+  export type Args = {
+    /** Account address the signature is expected to belong to. */
+    account: Address
+    /**
+     * Whether to require the signer to be the account's root key or an
+     * active admin access key. Defaults to `true`. Set to `false` to accept
+     * any active access key.
+     */
+    admin?: boolean | undefined
+    /** Original message hash that was signed. */
+    hash: Hex
+    /** Keychain signature envelope (V2). */
+    signature: Hex
+  }
+
+  export type ReturnValue = ReadContractReturnType<
+    typeof Abis.signatureVerifier,
+    'verifyKeychain' | 'verifyKeychainAdmin',
+    never
+  >
+
+  /**
+   * Defines a call to `verifyKeychain` or `verifyKeychainAdmin` on the
+   * Signature Verifier precompile (controlled by `admin`).
+   *
+   * @param args - Arguments.
+   * @returns The call.
+   */
+  export function call(args: Args) {
+    const { account, admin = true, hash, signature } = args
+    return defineCall({
+      address: Addresses.signatureVerifier,
+      abi: Abis.signatureVerifier,
+      functionName: admin ? 'verifyKeychainAdmin' : 'verifyKeychain',
+      args: [account, hash, signature],
+    })
+  }
 }
 
 /** @internal */

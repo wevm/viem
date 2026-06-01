@@ -1,0 +1,57 @@
+import ReadParameters from '../../../snippets/tempo/read-parameters.mdx'
+
+# `accessKey.isWitnessBurned`
+
+:::warning
+**Coming soon:** [TIP-1053](https://tips.sh/1053) ships in the **T6** hardfork — live on **Testnet** June 11 and **Mainnet** June 15.
+:::
+
+Checks whether a key-authorization witness has been burned for an account.
+
+See [`accessKey.burnWitness`](/tempo/actions/accessKey.burnWitness) for details on witnesses.
+
+[TIP-1053](https://tips.sh/1053)
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const isBurned = await client.accessKey.isWitnessBurned({
+  account: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  witness: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+})
+
+console.log('Burned:', isBurned)
+// @log: Burned: false
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = boolean
+```
+
+## Parameters
+
+### account
+
+- **Type:** `Address | Account`
+
+Account address.
+
+### witness
+
+- **Type:** `Hex`
+
+The 32-byte witness to check.
+
+<ReadParameters />

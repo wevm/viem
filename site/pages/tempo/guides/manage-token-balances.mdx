@@ -1,0 +1,116 @@
+---
+description: Mint and burn TIP-20 token supply on Tempo.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Mint & Burn Tokens
+
+## Overview
+
+Minting and burning control a TIP-20 token's circulating supply. Accounts with the issuer role can
+mint new supply to any account and burn supply from their own balance, while issuers can also burn
+funds that a transfer policy has blocked.
+
+[See the TIP-20 specification](https://docs.tempo.xyz/protocol/tip20/overview)
+
+## Recipes
+
+These recipes assume you have [set up a Tempo client](/tempo).
+
+### Mint Tokens
+
+Issue new supply with [`token.mintSync`](/tempo/actions/token.mint). The caller must hold the issuer
+role for the token. Amounts are in the token's base units, so use
+[`parseUnits`](/docs/utilities/parseUnits) with the token's decimals.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { client } from './viem.config'
+
+const { receipt } = await client.token.mintSync({
+  amount: parseUnits('10.5', 6),
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+### Burn Tokens
+
+Destroy tokens from your own balance with [`token.burnSync`](/tempo/actions/token.burn). Holders of
+the issuer role can also burn funds that a transfer policy has blocked with
+[`token.burnBlockedSync`](/tempo/actions/token.burnBlocked).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { parseUnits } from 'viem'
+import { client } from './viem.config'
+
+const { receipt } = await client.token.burnSync({
+  amount: parseUnits('10.5', 6),
+  token: '0x20c0000000000000000000000000000000000000',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/tempo/viem.config.ts:setup]
+```
+
+:::
+
+## Best Practices
+
+### Always Use Base Units
+
+Token amounts are integers in the token's smallest unit. Convert human-readable values with
+[`parseUnits`](/docs/utilities/parseUnits) and format them back with
+[`formatUnits`](/docs/utilities/formatUnits) using the token's decimals to avoid off-by-magnitude
+errors.
+
+### Respect the Supply Cap
+
+If the token has a supply cap, mints that would exceed it revert. Read the cap and current total
+supply with [`token.getMetadata`](/tempo/actions/token.getMetadata) before minting large amounts.
+
+### Burn Blocked Funds Deliberately
+
+`token.burnBlocked` permanently removes funds that a transfer policy has frozen. Use it only as part
+of a documented compliance process, since the burn cannot be reversed.
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:arrow-left-right"
+    title="Transfer Tokens"
+    description="Move balances and authorize spenders for your token."
+    to="/tempo/guides/transfer-tokens"
+  />
+  <Card
+    icon="lucide:user-cog"
+    title="Manage Token Roles & Supply"
+    description="Grant the issuer role required to mint and burn."
+    to="/tempo/guides/manage-token-roles"
+  />
+  <Card
+    icon="lucide:square-function"
+    title="token.mint"
+    description="Mint new TIP-20 token supply."
+    to="/tempo/actions/token.mint"
+  />
+  <Card
+    icon="lucide:book-open"
+    title="Tempo Docs: TIP-20"
+    description="The TIP-20 stablecoin token standard."
+    to="https://docs.tempo.xyz/protocol/tip20/overview"
+  />
+</Cards>

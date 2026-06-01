@@ -11,6 +11,7 @@ import * as faucetActions from './actions/faucet.js'
 import * as feeActions from './actions/fee.js'
 import * as nonceActions from './actions/nonce.js'
 import * as policyActions from './actions/policy.js'
+import * as receivePolicyActions from './actions/receivePolicy.js'
 import * as rewardActions from './actions/reward.js'
 import * as simulateActions from './actions/simulate.js'
 import * as tokenActions from './actions/token.js'
@@ -90,6 +91,61 @@ export type Decorator<
       parameters: accessKeyActions.authorizeSync.Parameters<chain, account>,
     ) => Promise<accessKeyActions.authorizeSync.ReturnValue>
     /**
+     * Burns a key-authorization witness, invalidating any authorization bound
+     * to it before it is submitted onchain.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.accessKey.burnWitness({
+     *   witness: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    burnWitness: (
+      parameters: accessKeyActions.burnWitness.Parameters<chain, account>,
+    ) => Promise<accessKeyActions.burnWitness.ReturnValue>
+    /**
+     * Burns a key-authorization witness and waits for the transaction receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt, ...result } = await client.accessKey.burnWitnessSync({
+     *   witness: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    burnWitnessSync: (
+      parameters: accessKeyActions.burnWitnessSync.Parameters<chain, account>,
+    ) => Promise<accessKeyActions.burnWitnessSync.ReturnValue>
+    /**
      * Gets access key information.
      *
      * @example
@@ -142,6 +198,58 @@ export type Decorator<
     getRemainingLimit: (
       parameters: accessKeyActions.getRemainingLimit.Parameters<account>,
     ) => Promise<accessKeyActions.getRemainingLimit.ReturnValue>
+    /**
+     * Checks whether an access key is an admin key for an account.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const isAdmin = await client.accessKey.isAdmin({
+     *   account: '0x...',
+     *   accessKey: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns Whether the access key is an admin key.
+     */
+    isAdmin: (
+      parameters: accessKeyActions.isAdmin.Parameters<account>,
+    ) => Promise<accessKeyActions.isAdmin.ReturnValue>
+    /**
+     * Checks whether a key-authorization witness has been burned for an account.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const isBurned = await client.accessKey.isWitnessBurned({
+     *   account: '0x...',
+     *   witness: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns Whether the witness has been burned.
+     */
+    isWitnessBurned: (
+      parameters: accessKeyActions.isWitnessBurned.Parameters<account>,
+    ) => Promise<accessKeyActions.isWitnessBurned.ReturnValue>
     /**
      * Revokes an authorized access key.
      *
@@ -254,6 +362,87 @@ export type Decorator<
     updateLimitSync: (
       parameters: accessKeyActions.updateLimitSync.Parameters<chain, account>,
     ) => Promise<accessKeyActions.updateLimitSync.ReturnValue>
+    /**
+     * Watches for admin key authorization events.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const unwatch = client.accessKey.watchAdminAuthorized({
+     *   onAuthorized: (args, log) => {
+     *     console.log('Admin key authorized:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchAdminAuthorized: (
+      parameters: accessKeyActions.watchAdminAuthorized.Parameters,
+    ) => ReturnType<typeof accessKeyActions.watchAdminAuthorized>
+    /**
+     * Watches for key-authorization witness events.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const unwatch = client.accessKey.watchWitness({
+     *   onWitness: (args, log) => {
+     *     console.log('Witness used:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchWitness: (
+      parameters: accessKeyActions.watchWitness.Parameters,
+    ) => ReturnType<typeof accessKeyActions.watchWitness>
+    /**
+     * Watches for key-authorization witness burned events.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo,
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const unwatch = client.accessKey.watchWitnessBurned({
+     *   onBurned: (args, log) => {
+     *     console.log('Witness burned:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchWitnessBurned: (
+      parameters: accessKeyActions.watchWitnessBurned.Parameters,
+    ) => ReturnType<typeof accessKeyActions.watchWitnessBurned>
   }
   amm: {
     /**
@@ -2188,6 +2377,358 @@ export type Decorator<
      */
     watchBlacklistUpdated: (
       parameters: policyActions.watchBlacklistUpdated.Parameters,
+    ) => () => void
+  }
+  receivePolicy: {
+    /**
+     * Burns the funds backing a blocked receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.receivePolicy.burn({ receipt: '0x...' })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    burn: (
+      parameters: receivePolicyActions.burn.Parameters<chain, account>,
+    ) => Promise<receivePolicyActions.burn.ReturnValue>
+    /**
+     * Burns the funds backing a blocked receipt and waits for the receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt, ...result } = await client.receivePolicy.burnSync({
+     *   receipt: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    burnSync: (
+      parameters: receivePolicyActions.burnSync.Parameters<chain, account>,
+    ) => Promise<receivePolicyActions.burnSync.ReturnValue>
+    /**
+     * Claims blocked funds for a receipt, releasing them to a destination.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.receivePolicy.claim({
+     *   to: '0x...',
+     *   receipt: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    claim: (
+      parameters: receivePolicyActions.claim.Parameters<chain, account>,
+    ) => Promise<receivePolicyActions.claim.ReturnValue>
+    /**
+     * Claims blocked funds for a receipt and waits for the receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt, ...result } = await client.receivePolicy.claimSync({
+     *   to: '0x...',
+     *   receipt: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    claimSync: (
+      parameters: receivePolicyActions.claimSync.Parameters<chain, account>,
+    ) => Promise<receivePolicyActions.claimSync.ReturnValue>
+    /**
+     * Gets the receive policy configured for an account.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const policy = await client.receivePolicy.get({ account: '0x...' })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The receive policy.
+     */
+    get: (
+      parameters: receivePolicyActions.get.Parameters<account>,
+    ) => Promise<receivePolicyActions.get.ReturnValue>
+    /**
+     * Gets the blocked balance for an encoded receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const amount = await client.receivePolicy.getBlockedBalance({
+     *   receipt: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The blocked amount for the receipt.
+     */
+    getBlockedBalance: (
+      parameters: receivePolicyActions.getBlockedBalance.Parameters,
+    ) => Promise<receivePolicyActions.getBlockedBalance.ReturnValue>
+    /**
+     * Sets the receive policy for the calling account.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const hash = await client.receivePolicy.set({
+     *   senderPolicyId: 'allow-all',
+     *   tokenPolicyId: 'allow-all',
+     *   claimer: 'self',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction hash.
+     */
+    set: (
+      parameters: receivePolicyActions.set.Parameters<chain, account>,
+    ) => Promise<receivePolicyActions.set.ReturnValue>
+    /**
+     * Sets the receive policy for the calling account and waits for the receipt.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { receipt, ...result } = await client.receivePolicy.setSync({
+     *   senderPolicyId: 'allow-all',
+     *   tokenPolicyId: 'allow-all',
+     *   claimer: 'self',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns The transaction receipt and event data.
+     */
+    setSync: (
+      parameters: receivePolicyActions.setSync.Parameters<chain, account>,
+    ) => Promise<receivePolicyActions.setSync.ReturnValue>
+    /**
+     * Checks whether a transfer or mint to a receiver is allowed by the
+     * receiver's receive policy.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const { authorized, blockedReason } = await client.receivePolicy.validate({
+     *   token: '0x...',
+     *   sender: '0x...',
+     *   receiver: '0x...',
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns Whether the transfer is authorized and, if not, why.
+     */
+    validate: (
+      parameters: receivePolicyActions.validate.Parameters,
+    ) => Promise<receivePolicyActions.validate.ReturnValue>
+    /**
+     * Watches for blocked transfer events.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const unwatch = client.receivePolicy.watchBlocked({
+     *   onBlocked: (args, log) => {
+     *     console.log('Transfer blocked:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchBlocked: (
+      parameters: receivePolicyActions.watchBlocked.Parameters,
+    ) => () => void
+    /**
+     * Watches for receipt burned events.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const unwatch = client.receivePolicy.watchBurned({
+     *   onBurned: (args, log) => {
+     *     console.log('Receipt burned:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchBurned: (
+      parameters: receivePolicyActions.watchBurned.Parameters,
+    ) => () => void
+    /**
+     * Watches for receipt claimed events.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const unwatch = client.receivePolicy.watchClaimed({
+     *   onClaimed: (args, log) => {
+     *     console.log('Receipt claimed:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchClaimed: (
+      parameters: receivePolicyActions.watchClaimed.Parameters,
+    ) => () => void
+    /**
+     * Watches for receive policy update events.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const unwatch = client.receivePolicy.watchUpdated({
+     *   onUpdated: (args, log) => {
+     *     console.log('Receive policy updated:', args)
+     *   },
+     * })
+     * ```
+     *
+     * @param parameters - Parameters.
+     * @returns A function to unsubscribe from the event.
+     */
+    watchUpdated: (
+      parameters: receivePolicyActions.watchUpdated.Parameters,
     ) => () => void
   }
   reward: {
@@ -4547,10 +5088,17 @@ export function decorator() {
           accessKeyActions.authorize(client, parameters),
         authorizeSync: (parameters) =>
           accessKeyActions.authorizeSync(client, parameters),
+        burnWitness: (parameters) =>
+          accessKeyActions.burnWitness(client, parameters),
+        burnWitnessSync: (parameters) =>
+          accessKeyActions.burnWitnessSync(client, parameters),
         getMetadata: (parameters) =>
           accessKeyActions.getMetadata(client, parameters),
         getRemainingLimit: (parameters) =>
           accessKeyActions.getRemainingLimit(client, parameters),
+        isAdmin: (parameters) => accessKeyActions.isAdmin(client, parameters),
+        isWitnessBurned: (parameters) =>
+          accessKeyActions.isWitnessBurned(client, parameters),
         revoke: (parameters) => accessKeyActions.revoke(client, parameters),
         revokeSync: (parameters) =>
           accessKeyActions.revokeSync(client, parameters),
@@ -4558,6 +5106,12 @@ export function decorator() {
           accessKeyActions.updateLimit(client, parameters),
         updateLimitSync: (parameters) =>
           accessKeyActions.updateLimitSync(client, parameters),
+        watchAdminAuthorized: (parameters) =>
+          accessKeyActions.watchAdminAuthorized(client, parameters),
+        watchWitness: (parameters) =>
+          accessKeyActions.watchWitness(client, parameters),
+        watchWitnessBurned: (parameters) =>
+          accessKeyActions.watchWitnessBurned(client, parameters),
       },
       amm: {
         getPool: (parameters) => ammActions.getPool(client, parameters),
@@ -4683,6 +5237,30 @@ export function decorator() {
           policyActions.watchWhitelistUpdated(client, parameters),
         watchBlacklistUpdated: (parameters) =>
           policyActions.watchBlacklistUpdated(client, parameters),
+      },
+      receivePolicy: {
+        burn: (parameters) => receivePolicyActions.burn(client, parameters),
+        burnSync: (parameters) =>
+          receivePolicyActions.burnSync(client, parameters),
+        claim: (parameters) => receivePolicyActions.claim(client, parameters),
+        claimSync: (parameters) =>
+          receivePolicyActions.claimSync(client, parameters),
+        get: (parameters) => receivePolicyActions.get(client, parameters),
+        getBlockedBalance: (parameters) =>
+          receivePolicyActions.getBlockedBalance(client, parameters),
+        set: (parameters) => receivePolicyActions.set(client, parameters),
+        setSync: (parameters) =>
+          receivePolicyActions.setSync(client, parameters),
+        validate: (parameters) =>
+          receivePolicyActions.validate(client, parameters),
+        watchBlocked: (parameters) =>
+          receivePolicyActions.watchBlocked(client, parameters),
+        watchBurned: (parameters) =>
+          receivePolicyActions.watchBurned(client, parameters),
+        watchClaimed: (parameters) =>
+          receivePolicyActions.watchClaimed(client, parameters),
+        watchUpdated: (parameters) =>
+          receivePolicyActions.watchUpdated(client, parameters),
       },
       reward: {
         claim: (parameters) => rewardActions.claim(client, parameters),
