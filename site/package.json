@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vocs dev",
-    "build": "NODE_OPTIONS='--max-old-space-size=16384' vocs build",
+    "build": "pnpm -w build:types && NODE_OPTIONS='--max-old-space-size=6144' vocs build",
     "twoslash": "vocs twoslash",
     "preview": "vocs preview"
   },
@@ -18,7 +18,7 @@
     "tailwindcss": "^4.1.16",
     "viem": "workspace:*",
     "vite": "^8.0.14",
-    "vocs": "^2.0.6",
+    "vocs": "^2.0.10",
     "waku": "^1.0.0-beta.1"
   }
 }
