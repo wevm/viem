@@ -63,7 +63,7 @@
     "ethers": "^6.15.0",
     "knip": "^5.64.0",
     "micro-eth-signer": "^0.14.0",
-    "ox": "0.14.25",
+    "ox": "0.14.27",
     "permissionless": "^0.2.57",
     "prool": "~0.2.3",
     "publint": "^0.2.12",
@@ -188,7 +188,7 @@
     {
       "name": "import * from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "107 kB",
+      "limit": "108 kB",
       "import": "*"
     },
     {
@@ -200,7 +200,7 @@
     {
       "name": "import { tempoTestnet } from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "65 kB",
+      "limit": "66 kB",
       "import": "{ tempoTestnet }"
     },
     {
@@ -288,6 +288,7 @@
       "smol-toml@<1.6.1": "1.6.1",
       "tar": ">=7.5.10",
       "tar-fs@>=3.0.0 <3.1.1": ">=3.1.1",
+      "tmp@<0.2.6": "0.2.6",
       "undici@>=7.0.0 <7.24.0": "7.24.0",
       "vite@>=6.0.0 <=6.4.1": "6.4.2",
       "vite@>=7.0.0 <=7.3.1": "7.3.2",

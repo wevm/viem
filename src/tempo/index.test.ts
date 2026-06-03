@@ -10,6 +10,7 @@ test('exports tempo', () => {
       "Secp256k1",
       "Channel",
       "Period",
+      "ReceivePolicyReceipt",
       "TempoAddress",
       "Tick",
       "TokenId",
