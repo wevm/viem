@@ -1,6 +1,5 @@
 ---
-  "viem": patch
-  ---
+"viem": patch
+---
 
-  Add LadyChain (chainId 589)
-  
+Added LadyChain.
