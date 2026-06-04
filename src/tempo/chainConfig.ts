@@ -1,5 +1,6 @@
+import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
-import { SignatureEnvelope, type TokenId } from 'ox/tempo'
+import { MultisigConfig, SignatureEnvelope, type TokenId } from 'ox/tempo'
 import { getCode } from '../actions/public/getCode.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
 import { maxUint256 } from '../constants/number.js'
@@ -49,6 +50,9 @@ export const chainConfig = {
               feeToken?: TokenId.TokenIdOrAddress | undefined
             })
           | undefined
+        from?: Address | undefined
+        multisig?: MultisigConfig.Config | undefined
+        signatures?: readonly unknown[] | undefined
       }
 
       // FIXME: node estimates gas with secp256k1 dummy sig + null feePayerSignature.
@@ -60,7 +64,23 @@ export const chainConfig = {
           else if (request.account?.source === 'accessKey')
             request.gas = (request.gas ?? 0n) + 10_000n
         }
+
         return request as unknown as typeof r
+      }
+
+      // Native multisig (TIP-1061). The transaction sender is the derived
+      // multisig account, not a signing account (owner accounts only contribute
+      // approvals later via `signTransaction`). Derive the sender from the
+      // config; core fills nonce/gas/fees for it via `request.from`, and the
+      // serializer auto-detects bootstrap (`init`) from `nonce == 0`.
+      if (request.multisig) {
+        request.from = MultisigConfig.getAddress(request.multisig)
+        // The sender is the config-derived multisig address (`request.from`),
+        // not a signing account. Drop any `account` (e.g. the client's default)
+        // so core's `prepareTransactionRequest` fills nonce/gas/fees for the
+        // multisig sender rather than the account, and so the prepared request
+        // doesn't surface a sender account to callers.
+        delete request.account
       }
 
       if (

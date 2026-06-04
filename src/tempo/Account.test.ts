@@ -3,12 +3,21 @@ import * as Address from 'ox/Address'
 import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
-import { Channel, Period, SignatureEnvelope } from 'ox/tempo'
+import { Channel, MultisigConfig, Period, SignatureEnvelope } from 'ox/tempo'
 import { describe, expect, test } from 'vitest'
 import * as tempo from '~test/tempo/config.js'
-import { verifyHash, verifyMessage, verifyTypedData } from '../actions/index.js'
-import { parseGwei } from '../utils/index.js'
+import {
+  getTransaction,
+  prepareTransactionRequest,
+  sendTransactionSync,
+  signTransaction,
+  verifyHash,
+  verifyMessage,
+  verifyTypedData,
+} from '../actions/index.js'
+import { parseGwei, parseUnits } from '../utils/index.js'
 import * as Account from './Account.js'
+import * as Actions from './actions/index.js'
 
 const client = tempo.getClient()
 
@@ -1244,5 +1253,213 @@ describe('signKeyAuthorization (standalone)', () => {
         },
       ]
     `)
+  })
+})
+
+// Native multisig (TIP-1061) runs only on a multisig-capable node. Opt in with
+// `VITE_TEMPO_MULTISIG=true` (e.g. a localnet using a multisig-enabled Tempo
+// image via `VITE_TEMPO_TAG`) so the default localnet suite is unaffected.
+describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
+  const { accounts, feeToken } = tempo
+
+  const to = '0x0000000000000000000000000000000000000001'
+
+  test('flat 2-of-2: init + subsequent', async () => {
+    const owner_1 = accounts[1]
+    const owner_2 = accounts[2]
+    const config = MultisigConfig.from({
+      threshold: 2,
+      owners: [
+        { owner: owner_1.address, weight: 1 },
+        { owner: owner_2.address, weight: 1 },
+      ],
+    })
+    const account = Account.fromMultisig(config)
+
+    // Fund the multisig address with the fee token from the genesis-funded
+    // account (no faucet RPC, so it works on localnet).
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: parseUnits('10000', 6),
+      to: account.address,
+      token: feeToken,
+    })
+
+    // First tx auto-bootstraps (registers) the multisig account: passing
+    // `multisig: config` on an uninitialized account (nonce 0) attaches `init`.
+    {
+      const request = await prepareTransactionRequest(client, {
+        calls: [
+          Actions.token.transfer.call({ amount: 1n, to, token: feeToken }),
+        ],
+        feeToken,
+        multisig: config,
+      })
+      const signatures = await Promise.all(
+        [owner_1, owner_2].map((owner) =>
+          signTransaction(client, { ...request, account: owner }),
+        ),
+      )
+      const receipt = await sendTransactionSync(client, {
+        ...request,
+        account,
+        signatures,
+      })
+      expect(receipt.status).toBe('success')
+      expect(receipt.from).toBe(account.address.toLowerCase())
+
+      const tx = await getTransaction(client, { hash: receipt.transactionHash })
+      expect(tx.signature?.type).toBe('multisig')
+      expect(tx.nonce).toBe(0)
+    }
+
+    // Subsequent tx: the account is now registered (nonce 1), so the same
+    // `multisig: config` is sent as a normal tx (no `init` attached).
+    {
+      const request = await prepareTransactionRequest(client, {
+        calls: [
+          Actions.token.transfer.call({ amount: 1n, to, token: feeToken }),
+        ],
+        feeToken,
+        multisig: config,
+      })
+      const signatures = await Promise.all(
+        [owner_1, owner_2].map((owner) =>
+          signTransaction(client, { ...request, account: owner }),
+        ),
+      )
+      const receipt = await sendTransactionSync(client, {
+        ...request,
+        account,
+        signatures,
+      })
+      expect(receipt.status).toBe('success')
+      expect(receipt.from).toBe(account.address.toLowerCase())
+
+      const tx = await getTransaction(client, { hash: receipt.transactionHash })
+      expect(tx.nonce).toBe(1)
+    }
+  })
+
+  test('2-of-3 (M-of-N): threshold subset of owners approves', async () => {
+    const owner_1 = accounts[3]
+    const owner_2 = accounts[4]
+    const owner_3 = accounts[5]
+    const config = MultisigConfig.from({
+      threshold: 2,
+      owners: [
+        { owner: owner_1.address, weight: 1 },
+        { owner: owner_2.address, weight: 1 },
+        { owner: owner_3.address, weight: 1 },
+      ],
+    })
+    const account = Account.fromMultisig(config)
+
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: parseUnits('10000', 6),
+      to: account.address,
+      token: feeToken,
+    })
+
+    const request = await prepareTransactionRequest(client, {
+      calls: [Actions.token.transfer.call({ amount: 1n, to, token: feeToken })],
+      feeToken,
+      multisig: config,
+    })
+    // Only 2 of the 3 owners approve. Spread `...request` first so the explicit
+    // `account` wins (the multisig request carries no signing account).
+    const signatures = await Promise.all(
+      [owner_1, owner_3].map((owner) =>
+        signTransaction(client, { ...request, account: owner }),
+      ),
+    )
+    const receipt = await sendTransactionSync(client, {
+      ...request,
+      account,
+      signatures,
+    })
+    expect(receipt.status).toBe('success')
+    expect(receipt.from).toBe(account.address.toLowerCase())
+  })
+
+  test('weighted threshold: single heavy owner meets threshold', async () => {
+    const owner_1 = accounts[6]
+    const owner_2 = accounts[7]
+    const config = MultisigConfig.from({
+      threshold: 2,
+      owners: [
+        { owner: owner_1.address, weight: 2 },
+        { owner: owner_2.address, weight: 1 },
+      ],
+    })
+    const account = Account.fromMultisig(config)
+
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: parseUnits('10000', 6),
+      to: account.address,
+      token: feeToken,
+    })
+
+    const request = await prepareTransactionRequest(client, {
+      calls: [Actions.token.transfer.call({ amount: 1n, to, token: feeToken })],
+      feeToken,
+      multisig: config,
+    })
+    // The heavy owner alone satisfies the threshold (weight 2 >= 2).
+    const signature = await signTransaction(client, {
+      ...request,
+      account: owner_1,
+    })
+    const receipt = await sendTransactionSync(client, {
+      ...request,
+      account,
+      signatures: [signature],
+    })
+    expect(receipt.status).toBe('success')
+    expect(receipt.from).toBe(account.address.toLowerCase())
+  })
+
+  test('account hoisted to client: send without explicit `account`', async () => {
+    const owner_1 = accounts[8]
+    const owner_2 = accounts[9]
+    const config = MultisigConfig.from({
+      threshold: 2,
+      owners: [
+        { owner: owner_1.address, weight: 1 },
+        { owner: owner_2.address, weight: 1 },
+      ],
+    })
+    const account = Account.fromMultisig(config)
+
+    // Hoist the multisig account to the client so it's used as the sender
+    // without passing `account` to `sendTransactionSync`.
+    const accountClient = tempo.getClient({ account })
+
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: parseUnits('10000', 6),
+      to: account.address,
+      token: feeToken,
+    })
+
+    const request = await prepareTransactionRequest(client, {
+      calls: [Actions.token.transfer.call({ amount: 1n, to, token: feeToken })],
+      feeToken,
+      multisig: config,
+    })
+    const signatures = await Promise.all(
+      [owner_1, owner_2].map((owner) =>
+        signTransaction(client, { ...request, account: owner }),
+      ),
+    )
+    // No `account` is passed — the hoisted multisig account is used as sender.
+    const receipt = await sendTransactionSync(accountClient, {
+      ...request,
+      signatures,
+    })
+    expect(receipt.status).toBe('success')
+    expect(receipt.from).toBe(account.address.toLowerCase())
   })
 })

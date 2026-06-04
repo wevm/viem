@@ -2053,6 +2053,11 @@ export default defineConfig({
                   text: 'Sponsor User Fees',
                   link: '/tempo/guides/sponsor-fees',
                 },
+                {
+                  badge: { text: 'EXP', variant: 'warning' },
+                  text: 'Multisig Transactions',
+                  link: '/tempo/guides/multisig-transactions',
+                },
               ],
             },
             {
@@ -2261,6 +2266,11 @@ export default defineConfig({
             {
               text: 'WebCryptoP256',
               link: '/tempo/accounts/account.fromWebCryptoP256',
+            },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
+              text: 'Multisig',
+              link: '/tempo/accounts/account.fromMultisig',
             },
           ],
         },
