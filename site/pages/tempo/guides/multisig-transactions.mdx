@@ -64,9 +64,9 @@ const account = Account.fromMultisig({ // [!code focus]
 // 2. Prepare the request, passing the multisig account. // [!code focus]
 const request = await client.prepareTransactionRequest({ // [!code focus]
   account, // [!code focus]
-  feeToken: '0x20c0000000000000000000000000000000000001', // [!code focus]
-  to: '0xcafebabecafebabecafebabecafebabecafebabe', // [!code focus]
-  value: 1n, // [!code focus]
+  calls: [ // [!code focus]
+    { to: '0xcafebabecafebabecafebabecafebabecafebabe', value: 1n }, // [!code focus]
+  ], // [!code focus]
 }) // [!code focus]
 
 // 3. Each owner approves the prepared request. Spread `...request` first so the // [!code focus]
@@ -120,9 +120,9 @@ const account = Account.fromMultisig({
 
 const request = await client.prepareTransactionRequest({
   account,
-  feeToken: '0x20c0000000000000000000000000000000000001',
-  to: '0xcafebabecafebabecafebabecafebabecafebabe',
-  value: 1n,
+  calls: [
+    { to: '0xcafebabecafebabecafebabecafebabecafebabe', value: 1n },
+  ],
 })
 
 // Only 2 of the 3 owners need to approve to meet the threshold. // [!code focus]
@@ -169,9 +169,9 @@ const account = Account.fromMultisig({
 
 const request = await client.prepareTransactionRequest({
   account,
-  feeToken: '0x20c0000000000000000000000000000000000001',
-  to: '0xcafebabecafebabecafebabecafebabecafebabe',
-  value: 1n,
+  calls: [
+    { to: '0xcafebabecafebabecafebabecafebabecafebabe', value: 1n },
+  ],
 })
 
 // The heavy owner alone satisfies the threshold (weight 2 >= 2). // [!code focus]
