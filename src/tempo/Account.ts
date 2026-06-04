@@ -4,7 +4,12 @@ import * as P256 from 'ox/P256'
 import * as PublicKey from 'ox/PublicKey'
 import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
-import { Channel, KeyAuthorization, SignatureEnvelope } from 'ox/tempo'
+import {
+  Channel,
+  KeyAuthorization,
+  MultisigConfig,
+  SignatureEnvelope,
+} from 'ox/tempo'
 import * as WebAuthnP256 from 'ox/WebAuthnP256'
 import * as WebCryptoP256 from 'ox/WebCryptoP256'
 import type {
@@ -267,6 +272,65 @@ export declare namespace fromSecp256k1 {
 
   export type ReturnValue<options extends Options = Options> =
     from.ReturnValue<options>
+}
+
+/**
+ * Instantiates a synthetic Account for a native multisig (TIP-1061) config.
+ *
+ * The returned account does not hold a key. It is used purely to drive the
+ * standard `sendTransaction` flow: it derives the multisig address from the
+ * config and passes the prepared request (carrying the collected owner
+ * `signatures`) through to the chain serializer, which combines the approvals
+ * into the multisig signature envelope.
+ *
+ * Owner approvals are produced separately by signing with `multisig` request
+ * metadata (see `signTransaction`), and provided here via `signatures`.
+ *
+ * @example
+ * ```ts
+ * import { Account, MultisigConfig } from 'viem/tempo'
+ *
+ * const config = MultisigConfig.from({ ... })
+ * const account = Account.fromMultisig(config)
+ *
+ * const transaction = await client.sendTransaction({
+ *   account,
+ *   ...request,
+ *   signatures: [signature_1, signature_2],
+ * })
+ * ```
+ *
+ * @param config Multisig config (from `MultisigConfig.from`).
+ * @returns Multisig account.
+ */
+export function fromMultisig(config: MultisigConfig.Config): MultisigAccount {
+  const normalized = MultisigConfig.from(config)
+  const address = Address.checksum(MultisigConfig.getAddress(normalized))
+  return {
+    address,
+    config: normalized,
+    publicKey: '0x',
+    source: 'multisig',
+    type: 'local',
+    async sign() {
+      throw new Error('`sign` is not supported for multisig accounts.')
+    },
+    async signMessage() {
+      throw new Error('`signMessage` is not supported for multisig accounts.')
+    },
+    async signTransaction(transaction, options) {
+      const { serializer = Transaction.serialize } = options ?? {}
+      return (await serializer(transaction as never)) as Hex.Hex
+    },
+    async signTypedData() {
+      throw new Error('`signTypedData` is not supported for multisig accounts.')
+    },
+  }
+}
+
+export type MultisigAccount = LocalAccount<'multisig'> & {
+  /** Multisig config (from `MultisigConfig.from`). */
+  config: MultisigConfig.Config
 }
 
 /**
@@ -594,9 +658,25 @@ function fromBase(parameters: fromBase.Parameters): Account_base {
           return { ...transaction, feePayerSignature: null }
         return transaction
       })()
-      const signature = await sign({
-        hash: keccak256(await serializer(presign)),
-      })
+
+      const payload = keccak256(await serializer(presign))
+
+      // Native multisig (TIP-1061): return this owner's approval — a serialized
+      // primitive signature over the multisig owner approval digest — instead of
+      // a full serialized transaction. Approvals are combined later in
+      // `sendTransaction({ signatures })`.
+      const multisig = (
+        transaction as { multisig?: MultisigConfig.Config | undefined }
+      ).multisig
+      if (multisig) {
+        const digest = MultisigConfig.getSignPayload({
+          payload,
+          genesisConfig: multisig,
+        })
+        return await sign({ hash: digest, raw: true })
+      }
+
+      const signature = await sign({ hash: payload })
       const envelope = SignatureEnvelope.from(signature)
       return await serializer(transaction, envelope as never)
     },
