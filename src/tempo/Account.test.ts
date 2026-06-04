@@ -1462,4 +1462,46 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
     expect(receipt.status).toBe('success')
     expect(receipt.from).toBe(account.address.toLowerCase())
   })
+
+  test('infer multisig from `account` (no `multisig` field)', async () => {
+    const owner_1 = accounts[10]
+    const owner_2 = accounts[11]
+    // Build the account straight from a raw config — `fromMultisig` normalizes
+    // it via `MultisigConfig.from` internally.
+    const account = Account.fromMultisig({
+      threshold: 2,
+      owners: [
+        { owner: owner_1.address, weight: 1 },
+        { owner: owner_2.address, weight: 1 },
+      ],
+    })
+
+    await Actions.token.transferSync(client, {
+      account: accounts[0],
+      amount: parseUnits('10000', 6),
+      to: account.address,
+      token: feeToken,
+    })
+
+    // Pass the multisig `account` to `prepareTransactionRequest` — the multisig
+    // config is inferred from it, so no `multisig` field is needed.
+    const request = await prepareTransactionRequest(client, {
+      account,
+      calls: [Actions.token.transfer.call({ amount: 1n, to, token: feeToken })],
+      feeToken,
+    })
+    // The prepared request carries the multisig account as sender, so `...request`
+    // is enough — no need to re-pass `account` to `sendTransaction`.
+    const signatures = await Promise.all(
+      [owner_1, owner_2].map((owner) =>
+        signTransaction(client, { ...request, account: owner }),
+      ),
+    )
+    const receipt = await sendTransactionSync(client, {
+      ...request,
+      signatures,
+    })
+    expect(receipt.status).toBe('success')
+    expect(receipt.from).toBe(account.address.toLowerCase())
+  })
 })

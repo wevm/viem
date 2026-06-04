@@ -23,7 +23,7 @@ broadcasting), see the [Multisig Transactions](/tempo/guides/multisig-transactio
 ## Usage
 
 ```ts twoslash
-import { Account, MultisigConfig } from 'viem/tempo'
+import { Account } from 'viem/tempo'
 
 const owner_1 = Account.fromSecp256k1(
   '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
@@ -32,8 +32,8 @@ const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
 
-// Define the multisig configuration (2-of-2).
-const config = MultisigConfig.from({
+// Instantiate the multisig account (2-of-2) from its owners and threshold.
+const account = Account.fromMultisig({
   threshold: 2,
   owners: [
     { owner: owner_1.address, weight: 1 },
@@ -41,11 +41,12 @@ const config = MultisigConfig.from({
   ],
 })
 
-// Instantiate the multisig account.
-const account = Account.fromMultisig(config)
-
 console.log('Address:', account.address)
 ```
+
+`Account.fromMultisig` accepts a raw config and normalizes it internally (via
+`MultisigConfig.from`), so you don't need to call `MultisigConfig.from` yourself. You can
+still pass a pre-built `MultisigConfig.Config` if you have one.
 
 ## Return Type
 

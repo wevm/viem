@@ -286,21 +286,34 @@ export declare namespace fromSecp256k1 {
  * Owner approvals are produced separately by signing with `multisig` request
  * metadata (see `signTransaction`), and provided here via `signatures`.
  *
+ * Accepts a raw config and normalizes it internally (via `MultisigConfig.from`),
+ * so callers don't need to call `MultisigConfig.from` themselves.
+ *
  * @example
  * ```ts
- * import { Account, MultisigConfig } from 'viem/tempo'
+ * import { Account } from 'viem/tempo'
  *
- * const config = MultisigConfig.from({ ... })
- * const account = Account.fromMultisig(config)
+ * const account = Account.fromMultisig({
+ *   threshold: 2,
+ *   owners: [
+ *     { owner: owner_1.address, weight: 1 },
+ *     { owner: owner_2.address, weight: 1 },
+ *   ],
+ * })
  *
+ * // Pass the account to `prepareTransactionRequest` — the multisig config is
+ * // inferred from it, so no `multisig` field is needed.
+ * const request = await client.prepareTransactionRequest({ account, ...rest })
+ *
+ * // The prepared request carries the multisig account as sender, so it doesn't
+ * // need to be re-passed to `sendTransaction`.
  * const transaction = await client.sendTransaction({
- *   account,
  *   ...request,
  *   signatures: [signature_1, signature_2],
  * })
  * ```
  *
- * @param config Multisig config (from `MultisigConfig.from`).
+ * @param config Multisig config (raw or from `MultisigConfig.from`).
  * @returns Multisig account.
  */
 export function fromMultisig(config: MultisigConfig.Config): MultisigAccount {
