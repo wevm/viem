@@ -176,3 +176,28 @@ test('default', async () => {
 
   expect(response.receipts).toHaveLength(5)
 })
+
+test('error: chain is required', async () => {
+  let requested = false
+  const client = createClient({
+    transport: custom({
+      async request() {
+        requested = true
+        return null
+      },
+    }),
+  })
+
+  await expect(() =>
+    sendCalls(client, {
+      account: accounts[0].address,
+      calls: [{ to: accounts[1].address }],
+    } as never),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    [ChainNotFoundError: No chain was provided to the request.
+    Please provide a chain with the \`chain\` argument on the Action, or by supplying a \`chain\` to WalletClient.
+
+    Version: viem@x.y.z]
+  `)
+  expect(requested).toBe(false)
+})

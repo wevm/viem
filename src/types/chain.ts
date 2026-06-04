@@ -90,6 +90,49 @@ type ChainVerifyHashFn = (
   parameters: VerifyHashParameters,
 ) => Promise<VerifyHashReturnType>
 
+export type ChainWalletConnectRequest = {
+  capabilities?: Record<string, unknown> | undefined
+  version: '1'
+  [key: string]: unknown
+}
+
+export type ChainWalletConnectContext = {
+  chain?: Chain | undefined
+  client: Client
+}
+
+export type ChainWalletConnectCapabilityFormatter = {
+  key?: string | undefined
+  format?:
+    | ((
+        capability: unknown,
+        context: ChainWalletConnectContext & { key: string },
+      ) => unknown)
+    | undefined
+}
+
+export type ChainWalletConnect = {
+  /**
+   * Whether `connect` should fallback to `eth_requestAccounts` when
+   * `wallet_connect` is not supported and no capabilities were requested.
+   */
+  fallback?: boolean | undefined
+  /** Formats the `wallet_connect` request object. */
+  formatRequest?:
+    | ((
+        request: ChainWalletConnectRequest,
+        context: ChainWalletConnectContext,
+      ) => ChainWalletConnectRequest)
+    | undefined
+  /** Formats chain-specific `wallet_connect` capabilities. */
+  capabilities?:
+    | {
+        request?: Record<string, ChainWalletConnectCapabilityFormatter>
+        response?: Record<string, ChainWalletConnectCapabilityFormatter>
+      }
+    | undefined
+}
+
 export type ChainConfig<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
   extendSchema extends Record<string, unknown> | undefined =
@@ -125,6 +168,8 @@ export type ChainConfig<
   serializers?: ChainSerializers<formatters> | undefined
   /** Chain-specific signature verification. */
   verifyHash?: ChainVerifyHashFn | undefined
+  /** Chain-specific `wallet_connect` formatting. */
+  walletConnect?: ChainWalletConnect | undefined
 }
 
 /////////////////////////////////////////////////////////////////////

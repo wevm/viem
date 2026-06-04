@@ -1,8 +1,12 @@
-import type { Address } from 'abitype'
+import type { Abi, Address } from 'abitype'
 import type { Account } from '../accounts/types.js'
 import type { Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
 import type { Chain } from '../types/chain.js'
+import type {
+  ContractFunctionArgs,
+  ContractFunctionName,
+} from '../types/contract.js'
 import * as accessKeyActions from './actions/accessKey.js'
 import * as ammActions from './actions/amm.js'
 import * as channelActions from './actions/channel.js'
@@ -17,12 +21,120 @@ import * as simulateActions from './actions/simulate.js'
 import * as tokenActions from './actions/token.js'
 import * as validatorActions from './actions/validator.js'
 import * as virtualAddressActions from './actions/virtualAddress.js'
+import * as walletActions from './actions/wallet.js'
 import * as zoneActions from './actions/zone.js'
 
 export type Decorator<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
 > = {
+  /**
+   * Authorizes an access key through the connected wallet.
+   *
+   * @example
+   * ```ts
+   * import { createWalletClient, custom } from 'viem'
+   * import { tempo } from 'viem/chains'
+   * import { tempoActions } from 'viem/tempo'
+   *
+   * const client = createWalletClient({
+   *   chain: tempo,
+   *   transport: custom(window.ethereum),
+   * }).extend(tempoActions())
+   *
+   * const { keyAuthorization } = await client.authorizeAccessKey({
+   *   accessKey: { address: '0x...', type: 'p256' },
+   *   expiry: Math.floor(Date.now() / 1000) + 86_400,
+   * })
+   * ```
+   *
+   * @param parameters - Parameters.
+   * @returns The signed key authorization and root account address.
+   */
+  authorizeAccessKey: (
+    parameters: walletActions.authorizeAccessKey.Parameters,
+  ) => Promise<walletActions.authorizeAccessKey.ReturnValue>
+  /**
+   * Revokes an access key through the connected wallet.
+   *
+   * @example
+   * ```ts
+   * import { createWalletClient, custom } from 'viem'
+   * import { tempo } from 'viem/chains'
+   * import { tempoActions } from 'viem/tempo'
+   *
+   * const client = createWalletClient({
+   *   account: '0x...',
+   *   chain: tempo,
+   *   transport: custom(window.ethereum),
+   * }).extend(tempoActions())
+   *
+   * await client.revokeAccessKey({
+   *   accessKey: '0x...',
+   * })
+   * ```
+   *
+   * @param parameters - Parameters.
+   * @returns Nothing.
+   */
+  revokeAccessKey: (
+    parameters: walletActions.revokeAccessKey.Parameters,
+  ) => Promise<walletActions.revokeAccessKey.ReturnValue>
+  /**
+   * Requests the connected wallet to send a batch of calls synchronously.
+   *
+   * @param parameters - Parameters.
+   * @returns Calls status.
+   */
+  sendCallsSync: <
+    const calls extends readonly unknown[],
+    chainOverride extends Chain | undefined = undefined,
+  >(
+    parameters: walletActions.sendCallsSync.Parameters<
+      chain,
+      account,
+      chainOverride,
+      calls
+    >,
+  ) => Promise<walletActions.sendCallsSync.ReturnValue>
+  /**
+   * Creates, signs, and sends a new Tempo transaction synchronously.
+   *
+   * @param parameters - Parameters.
+   * @returns The transaction receipt.
+   */
+  sendTransactionSync: <chainOverride extends Chain | undefined = undefined>(
+    parameters: walletActions.sendTransactionSync.Parameters<
+      chain,
+      account,
+      chainOverride
+    >,
+  ) => Promise<walletActions.sendTransactionSync.ReturnValue<chain>>
+  /**
+   * Executes a write function on a contract using Tempo's sync transaction RPC.
+   *
+   * @param parameters - Parameters.
+   * @returns The transaction receipt.
+   */
+  writeContractSync: <
+    const abi extends Abi | readonly unknown[],
+    functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+    args extends ContractFunctionArgs<
+      abi,
+      'nonpayable' | 'payable',
+      functionName
+    >,
+    chainOverride extends Chain | undefined = undefined,
+  >(
+    parameters: walletActions.writeContractSync.Parameters<
+      abi,
+      functionName,
+      args,
+      chain,
+      account,
+      chainOverride
+    >,
+  ) => Promise<walletActions.writeContractSync.ReturnValue<chain>>
   accessKey: {
     /**
      * Authorizes an access key by signing a key authorization and sending a transaction.
@@ -5083,6 +5195,16 @@ export function decorator() {
     client: Client<transport, chain, account>,
   ): Decorator<chain, account> => {
     return {
+      authorizeAccessKey: (parameters) =>
+        walletActions.authorizeAccessKey(client, parameters),
+      revokeAccessKey: (parameters) =>
+        walletActions.revokeAccessKey(client, parameters),
+      sendCallsSync: (parameters) =>
+        walletActions.sendCallsSync(client, parameters),
+      sendTransactionSync: (parameters) =>
+        walletActions.sendTransactionSync(client, parameters),
+      writeContractSync: (parameters) =>
+        walletActions.writeContractSync(client, parameters as never),
       accessKey: {
         authorize: (parameters) =>
           accessKeyActions.authorize(client, parameters),

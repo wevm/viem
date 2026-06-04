@@ -14,7 +14,7 @@ import {
   AccountTypeNotSupportedError,
   type AccountTypeNotSupportedErrorType,
 } from '../../errors/account.js'
-import { BaseError } from '../../errors/base.js'
+import type { BaseError } from '../../errors/base.js'
 import {
   TransactionReceiptRevertedError,
   type TransactionReceiptRevertedErrorType,
@@ -28,27 +28,16 @@ import type {
 } from '../../types/chain.js'
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
 import type { Hash, Hex } from '../../types/misc.js'
-import type { TransactionRequest } from '../../types/transaction.js'
 import type { UnionOmit } from '../../types/utils.js'
-import {
-  type RecoverAuthorizationAddressErrorType,
-  recoverAuthorizationAddress,
-} from '../../utils/authorization/recoverAuthorizationAddress.js'
+import type { RecoverAuthorizationAddressErrorType } from '../../utils/authorization/recoverAuthorizationAddress.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
-import {
-  type AssertCurrentChainErrorType,
-  assertCurrentChain,
-} from '../../utils/chain/assertCurrentChain.js'
+import type { AssertCurrentChainErrorType } from '../../utils/chain/assertCurrentChain.js'
 import { concat } from '../../utils/data/concat.js'
 import {
   type GetTransactionErrorReturnType,
   getTransactionError,
 } from '../../utils/errors/getTransactionError.js'
-import { extract } from '../../utils/formatters/extract.js'
-import {
-  type FormattedTransactionRequest,
-  formatTransactionRequest,
-} from '../../utils/formatters/transactionRequest.js'
+import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
 import { LruMap } from '../../utils/lru.js'
 import {
@@ -71,6 +60,7 @@ import {
   type SendRawTransactionSyncReturnType,
   sendRawTransactionSync,
 } from './sendRawTransactionSync.js'
+import { prepareSendTransactionRequest } from './utils/prepareSendTransactionRequest.js'
 
 const supportsWalletNamespace = new LruMap<boolean>(128)
 
@@ -184,7 +174,7 @@ export async function sendTransactionSync<
 ): Promise<SendTransactionSyncReturnType<chain>> {
   const {
     account: account_ = client.account,
-    assertChainId = true,
+    assertChainId: _assertChainId = true,
     chain = client.chain,
     accessList,
     authorizationList,
@@ -216,65 +206,11 @@ export async function sendTransactionSync<
   let nonceManagerParameters: { address: Address; chainId: number } | undefined
 
   try {
-    assertRequest(parameters as AssertRequestParameters)
-
-    const to = await (async () => {
-      // If `to` exists on the parameters, use that.
-      if (parameters.to) return parameters.to
-
-      // If `to` is null, we are sending a deployment transaction.
-      if (parameters.to === null) return undefined
-
-      // If no `to` exists, and we are sending a EIP-7702 transaction, use the
-      // address of the first authorization in the list.
-      if (authorizationList && authorizationList.length > 0)
-        return await recoverAuthorizationAddress({
-          authorization: authorizationList[0],
-        }).catch(() => {
-          throw new BaseError(
-            '`to` is required. Could not infer from `authorizationList`.',
-          )
-        })
-
-      // Otherwise, we are sending a deployment transaction.
-      return undefined
-    })()
-
     if (account?.type === 'json-rpc' || account === null) {
-      let chainId: number | undefined
-      if (chain !== null) {
-        chainId = await getAction(client, getChainId, 'getChainId')({})
-        if (assertChainId)
-          assertCurrentChain({
-            currentChainId: chainId,
-            chain,
-          })
-      }
-
-      const chainFormat = client.chain?.formatters?.transactionRequest?.format
-      const format = chainFormat || formatTransactionRequest
-
-      const request = format(
-        {
-          // Pick out extra data that might exist on the chain's transaction request type.
-          ...extract(rest, { format: chainFormat }),
-          accessList,
-          account,
-          authorizationList,
-          blobs,
-          chainId,
-          data: dataSuffix ? concat([data ?? '0x', dataSuffix]) : data,
-          gas,
-          gasPrice,
-          maxFeePerBlobGas,
-          maxFeePerGas,
-          maxPriorityFeePerGas,
-          nonce,
-          to,
-          type,
-          value,
-        } as TransactionRequest,
-        'sendTransaction',
+      const { request } = await prepareSendTransactionRequest(
+        client,
+        parameters as never,
+        { docsPath: '/docs/actions/wallet/sendTransactionSync' },
       )
 
       const isWalletNamespaceSupported = supportsWalletNamespace.get(client.uid)
@@ -347,6 +283,13 @@ export async function sendTransactionSync<
         throw new TransactionReceiptRevertedError({ receipt })
       return receipt
     }
+
+    assertRequest(parameters as AssertRequestParameters)
+
+    const to = await prepareSendTransactionRequest.resolveTo({
+      authorizationList,
+      to: parameters.to,
+    })
 
     if (account?.type === 'local') {
       if (account.nonceManager && typeof nonce === 'undefined') {

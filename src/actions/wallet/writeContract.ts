@@ -1,16 +1,10 @@
 import type { Abi, Address } from 'abitype'
 
 import type { Account } from '../../accounts/types.js'
-import {
-  type ParseAccountErrorType,
-  parseAccount,
-} from '../../accounts/utils/parseAccount.js'
+import type { ParseAccountErrorType } from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import {
-  AccountNotFoundError,
-  type AccountNotFoundErrorType,
-} from '../../errors/account.js'
+import type { AccountNotFoundErrorType } from '../../errors/account.js'
 import type { BaseError } from '../../errors/base.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { GetAccountParameter } from '../../types/account.js'
@@ -26,11 +20,7 @@ import type {
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
 import type { Prettify, UnionEvaluate, UnionOmit } from '../../types/utils.js'
-import {
-  type EncodeFunctionDataErrorType,
-  type EncodeFunctionDataParameters,
-  encodeFunctionData,
-} from '../../utils/abi/encodeFunctionData.js'
+import type { EncodeFunctionDataErrorType } from '../../utils/abi/encodeFunctionData.js'
 import {
   type GetContractErrorReturnType,
   getContractError,
@@ -44,6 +34,7 @@ import {
   sendTransaction,
 } from './sendTransaction.js'
 import type { sendTransactionSync } from './sendTransactionSync.js'
+import { prepareWriteContractRequest } from './utils/prepareWriteContractRequest.js'
 
 export type WriteContractParameters<
   abi extends Abi | readonly unknown[] = Abi,
@@ -205,38 +196,11 @@ export namespace writeContract {
       chainOverride
     >,
   ) {
-    const {
-      abi,
-      account: account_ = client.account,
-      address,
-      args,
-      functionName,
-      ...request
-    } = parameters as WriteContractParameters
-
-    if (typeof account_ === 'undefined')
-      throw new AccountNotFoundError({
-        docsPath: '/docs/contract/writeContract',
-      })
-    const account = account_ ? parseAccount(account_) : null
-
-    const data = encodeFunctionData({
-      abi,
-      args,
-      functionName,
-    } as EncodeFunctionDataParameters)
+    const { abi, account, address, args, functionName, request } =
+      prepareWriteContractRequest(client, parameters)
 
     try {
-      return await getAction(
-        client,
-        actionFn as never,
-        name,
-      )({
-        data,
-        to: address,
-        account,
-        ...request,
-      })
+      return await getAction(client, actionFn as never, name)(request as never)
     } catch (error) {
       throw getContractError(error as BaseError, {
         abi,

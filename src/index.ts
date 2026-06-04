@@ -456,6 +456,11 @@ export type {
   AddChainParameters,
 } from './actions/wallet/addChain.js'
 export type {
+  ConnectErrorType,
+  ConnectParameters,
+  ConnectReturnType,
+} from './actions/wallet/connect.js'
+export type {
   DeployContractErrorType,
   DeployContractParameters,
   DeployContractReturnType,
