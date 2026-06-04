@@ -50,7 +50,7 @@ const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
 
-// 1. Define the multisig configuration (2-of-2) and derive the account.
+// 1. Define the multisig configuration (2-of-2) and derive the account. // [!code focus]
 const config = MultisigConfig.from({ // [!code focus]
   threshold: 2, // [!code focus]
   owners: [ // [!code focus]
@@ -60,19 +60,19 @@ const config = MultisigConfig.from({ // [!code focus]
 }) // [!code focus]
 const account = Account.fromMultisig(config) // [!code focus]
 
-// 2. Prepare the request, passing the multisig config.
+// 2. Prepare the request, passing the multisig config. // [!code focus]
 const request = await client.prepareTransactionRequest({ // [!code focus]
   to: '0xcafebabecafebabecafebabecafebabecafebabe', // [!code focus]
   value: 1n, // [!code focus]
   multisig: config, // [!code focus]
 }) // [!code focus]
 
-// 3. Each owner approves the prepared request. Spread `...request` first so the
-//    explicit `account` wins (the request carries no signing account).
+// 3. Each owner approves the prepared request. Spread `...request` first so the // [!code focus]
+//    explicit `account` wins (the request carries no signing account). // [!code focus]
 const signature_1 = await client.signTransaction({ ...request, account: owner_1 }) // [!code focus]
 const signature_2 = await client.signTransaction({ ...request, account: owner_2 }) // [!code focus]
 
-// 4. Broadcast with the multisig account and the collected signatures.
+// 4. Broadcast with the multisig account and the collected signatures. // [!code focus]
 const hash = await client.sendTransaction({ // [!code focus]
   ...request, // [!code focus]
   account, // [!code focus]
@@ -128,7 +128,7 @@ const request = await client.prepareTransactionRequest({
   multisig: config,
 })
 
-// Only 2 of the 3 owners need to approve to meet the threshold.
+// Only 2 of the 3 owners need to approve to meet the threshold. // [!code focus]
 const signature_1 = await client.signTransaction({ ...request, account: owner_1 }) // [!code focus]
 const signature_3 = await client.signTransaction({ ...request, account: owner_3 }) // [!code focus]
 
@@ -178,7 +178,7 @@ const request = await client.prepareTransactionRequest({
   multisig: config,
 })
 
-// The heavy owner alone satisfies the threshold (weight 2 >= 2).
+// The heavy owner alone satisfies the threshold (weight 2 >= 2). // [!code focus]
 const signature = await client.signTransaction({ ...request, account: owner_1 }) // [!code focus]
 
 const hash = await client.sendTransaction({
