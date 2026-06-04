@@ -1,5 +1,19 @@
 # viem
 
+## 2.52.1
+
+### Patch Changes
+
+- [#4702](https://github.com/wevm/viem/pull/4702) [`fc2e04d67f56b98327e91c61fb769b63c3c8b6f0`](https://github.com/wevm/viem/commit/fc2e04d67f56b98327e91c61fb769b63c3c8b6f0) Thanks [@SaulBuilds](https://github.com/SaulBuilds)! - Added Citrate chain.
+
+- [#4699](https://github.com/wevm/viem/pull/4699) [`e13bb9c010e8c57524201fb56383ee2710f38bc9`](https://github.com/wevm/viem/commit/e13bb9c010e8c57524201fb56383ee2710f38bc9) Thanks [@rmullens220838](https://github.com/rmullens220838)! - Added LadyChain.
+
+- [#4681](https://github.com/wevm/viem/pull/4681) [`2c79bbfba1d51d3998834a2db9ec62e4f7d5b87c`](https://github.com/wevm/viem/commit/2c79bbfba1d51d3998834a2db9ec62e4f7d5b87c) Thanks [@AshinGau](https://github.com/AshinGau)! - Added Gravity mainnet chain.
+
+- [#4710](https://github.com/wevm/viem/pull/4710) [`25c2d6ac46ba293c830d7593cd2e71a772e6b960`](https://github.com/wevm/viem/commit/25c2d6ac46ba293c830d7593cd2e71a772e6b960) Thanks [@jxom](https://github.com/jxom)! - **`viem/tempo`:** Added experimental native multisig account support.
+
+- [#4658](https://github.com/wevm/viem/pull/4658) [`62d25464ed173fe103cb12be22ab66ef28618bf3`](https://github.com/wevm/viem/commit/62d25464ed173fe103cb12be22ab66ef28618bf3) Thanks [@VYO-Labs](https://github.com/VYO-Labs)! - Added VALYGO Smartchain and VALYGO NFT chain definitions.
+
 ## 2.52.0
 
 ### Minor Changes
