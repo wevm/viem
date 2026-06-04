@@ -1,5 +1,11 @@
 # viem
 
+## 2.52.2
+
+### Patch Changes
+
+- [#4718](https://github.com/wevm/viem/pull/4718) [`1969c01715736de8a16b841cfed81640f0d708c2`](https://github.com/wevm/viem/commit/1969c01715736de8a16b841cfed81640f0d708c2) Thanks [@jxom](https://github.com/jxom)! - **Tempo:** Set the `t5` hardfork on the Tempo Testnet (Moderato) chain.
+
 ## 2.52.1
 
 ### Patch Changes
