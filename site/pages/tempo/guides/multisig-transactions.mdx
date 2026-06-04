@@ -86,11 +86,6 @@ const hash = await client.sendTransaction({ // [!code focus]
 
 :::
 
-:::tip
-The first transaction from a multisig account automatically bootstraps (registers) it
-on-chain – no explicit `init` flag is required. Subsequent transactions are sent the same way.
-:::
-
 ### M-of-N Approvals
 
 A threshold below the owner count means only a subset of owners needs to approve. Below, a
