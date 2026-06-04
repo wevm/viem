@@ -14,17 +14,19 @@ It is not yet available on Tempo mainnet or testnet.
 ## Overview
 
 Tempo supports **native multisig** accounts ([TIP-1061](https://docs.tempo.xyz/protocol/transactions)).
-A multisig account is defined by a [`MultisigConfig`](/tempo/accounts/account.fromMultisig) –
-a set of owners with voting weights and a threshold. A transaction from the multisig is
-authorized when owner approvals collectively meet the threshold.
+A multisig account is defined by a set of owners with voting weights and a threshold. A
+transaction from the multisig is authorized when owner approvals collectively meet the
+threshold.
 
 With Viem, the flow is:
 
-1. Define the config with `MultisigConfig.from` and derive the account with
-   [`Account.fromMultisig`](/tempo/accounts/account.fromMultisig).
-2. Prepare the transaction request, passing `multisig: config`.
+1. Derive the account with [`Account.fromMultisig`](/tempo/accounts/account.fromMultisig),
+   passing the owners and threshold.
+2. Prepare the transaction request, passing the multisig `account` (the config is inferred
+   from it).
 3. Each owner signs the prepared request to produce an **owner approval** signature.
-4. Broadcast the transaction with the multisig account and the collected `signatures`.
+4. Broadcast the transaction with the collected `signatures` (the prepared request already
+   carries the multisig account as sender).
 
 The first transaction from a multisig account **auto-bootstraps** (registers) it on-chain –
 you don't need to pass an explicit `init` flag. Subsequent transactions are sent normally.
@@ -40,7 +42,7 @@ These recipes assume you have [set up a Tempo client](/tempo).
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Account, MultisigConfig } from 'viem/tempo'
+import { Account } from 'viem/tempo'
 import { client } from './viem.config'
 
 const owner_1 = Account.fromSecp256k1(
@@ -50,32 +52,32 @@ const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
 
-// 1. Define the multisig configuration (2-of-2) and derive the account. // [!code focus]
-const config = MultisigConfig.from({ // [!code focus]
+// 1. Derive the multisig account (2-of-2) from its owners and threshold. // [!code focus]
+const account = Account.fromMultisig({ // [!code focus]
   threshold: 2, // [!code focus]
   owners: [ // [!code focus]
     { owner: owner_1.address, weight: 1 }, // [!code focus]
     { owner: owner_2.address, weight: 1 }, // [!code focus]
   ], // [!code focus]
 }) // [!code focus]
-const account = Account.fromMultisig(config) // [!code focus]
 
-// 2. Prepare the request, passing the multisig config. // [!code focus]
+// 2. Prepare the request, passing the multisig account. // [!code focus]
 const request = await client.prepareTransactionRequest({ // [!code focus]
+  account, // [!code focus]
+  feeToken: '0x20c0000000000000000000000000000000000001', // [!code focus]
   to: '0xcafebabecafebabecafebabecafebabecafebabe', // [!code focus]
   value: 1n, // [!code focus]
-  multisig: config, // [!code focus]
 }) // [!code focus]
 
 // 3. Each owner approves the prepared request. Spread `...request` first so the // [!code focus]
-//    explicit `account` wins (the request carries no signing account). // [!code focus]
+//    explicit `account` wins (the owner signs over the multisig request). // [!code focus]
 const signature_1 = await client.signTransaction({ ...request, account: owner_1 }) // [!code focus]
 const signature_2 = await client.signTransaction({ ...request, account: owner_2 }) // [!code focus]
 
-// 4. Broadcast with the multisig account and the collected signatures. // [!code focus]
+// 4. Broadcast with the collected signatures. The prepared `request` already // [!code focus]
+//    carries the multisig account as sender, so it doesn't need re-passing. // [!code focus]
 const hash = await client.sendTransaction({ // [!code focus]
   ...request, // [!code focus]
-  account, // [!code focus]
   signatures: [signature_1, signature_2], // [!code focus]
 }) // [!code focus]
 ```
@@ -94,7 +96,7 @@ A threshold below the owner count means only a subset of owners needs to approve
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Account, MultisigConfig } from 'viem/tempo'
+import { Account } from 'viem/tempo'
 import { client } from './viem.config'
 
 const owner_1 = Account.fromSecp256k1(
@@ -107,7 +109,7 @@ const owner_3 = Account.fromSecp256k1(
   '0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'
 )
 
-const config = MultisigConfig.from({
+const account = Account.fromMultisig({
   threshold: 2, // [!code focus]
   owners: [
     { owner: owner_1.address, weight: 1 },
@@ -115,12 +117,12 @@ const config = MultisigConfig.from({
     { owner: owner_3.address, weight: 1 },
   ],
 })
-const account = Account.fromMultisig(config)
 
 const request = await client.prepareTransactionRequest({
+  account,
+  feeToken: '0x20c0000000000000000000000000000000000001',
   to: '0xcafebabecafebabecafebabecafebabecafebabe',
   value: 1n,
-  multisig: config,
 })
 
 // Only 2 of the 3 owners need to approve to meet the threshold. // [!code focus]
@@ -129,7 +131,6 @@ const signature_3 = await client.signTransaction({ ...request, account: owner_3 
 
 const hash = await client.sendTransaction({
   ...request,
-  account,
   signatures: [signature_1, signature_3], // [!code focus]
 })
 ```
@@ -148,7 +149,7 @@ authorize alone.
 :::code-group
 
 ```ts twoslash [example.ts]
-import { Account, MultisigConfig } from 'viem/tempo'
+import { Account } from 'viem/tempo'
 import { client } from './viem.config'
 
 const owner_1 = Account.fromSecp256k1(
@@ -158,19 +159,19 @@ const owner_2 = Account.fromSecp256k1(
   '0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d'
 )
 
-const config = MultisigConfig.from({
+const account = Account.fromMultisig({
   threshold: 2,
   owners: [
     { owner: owner_1.address, weight: 2 }, // [!code focus]
     { owner: owner_2.address, weight: 1 }, // [!code focus]
   ],
 })
-const account = Account.fromMultisig(config)
 
 const request = await client.prepareTransactionRequest({
+  account,
+  feeToken: '0x20c0000000000000000000000000000000000001',
   to: '0xcafebabecafebabecafebabecafebabecafebabe',
   value: 1n,
-  multisig: config,
 })
 
 // The heavy owner alone satisfies the threshold (weight 2 >= 2). // [!code focus]
@@ -178,7 +179,6 @@ const signature = await client.signTransaction({ ...request, account: owner_1 })
 
 const hash = await client.sendTransaction({
   ...request,
-  account,
   signatures: [signature], // [!code focus]
 })
 ```

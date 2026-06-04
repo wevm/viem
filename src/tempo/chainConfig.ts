@@ -13,7 +13,7 @@ import { defineTransactionRequest } from '../utils/formatters/transactionRequest
 import { getAction } from '../utils/getAction.js'
 import { keccak256 } from '../utils/hash/keccak256.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
-import type { Account } from './Account.js'
+import type { Account, MultisigAccount } from './Account.js'
 import { getMetadata } from './actions/accessKey.js'
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
@@ -43,7 +43,7 @@ export const chainConfig = {
   prepareTransactionRequest: [
     async (r, { client, phase }) => {
       const request = r as Transaction.TransactionRequest & {
-        account?: Account | undefined
+        account?: Account | MultisigAccount | undefined
         chainId?: number | undefined
         chain?:
           | (Chain & {
@@ -73,14 +73,23 @@ export const chainConfig = {
       // approvals later via `signTransaction`). Derive the sender from the
       // config; core fills nonce/gas/fees for it via `request.from`, and the
       // serializer auto-detects bootstrap (`init`) from `nonce == 0`.
-      if (request.multisig) {
-        request.from = MultisigConfig.getAddress(request.multisig)
-        // The sender is the config-derived multisig address (`request.from`),
-        // not a signing account. Drop any `account` (e.g. the client's default)
-        // so core's `prepareTransactionRequest` fills nonce/gas/fees for the
-        // multisig sender rather than the account, and so the prepared request
-        // doesn't surface a sender account to callers.
-        delete request.account
+      //
+      // The config is taken from an explicit `multisig` field, or inferred from
+      // a multisig account (so callers can just pass `account` to
+      // `prepareTransactionRequest` without also passing `multisig`).
+      const multisig =
+        request.multisig ??
+        (request.account?.source === 'multisig'
+          ? (request.account as MultisigAccount).config
+          : undefined)
+      if (multisig) {
+        request.multisig = multisig
+        request.from = MultisigConfig.getAddress(multisig)
+        // A non-multisig `account` (e.g. the client's default) isn't the sender,
+        // so drop it: core then fills nonce/gas/fees for the multisig sender via
+        // `request.from`. A multisig account *is* the sender — keep it so the
+        // prepared request can be sent without re-passing `account`.
+        if (request.account?.source !== 'multisig') delete request.account
       }
 
       if (
