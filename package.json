@@ -58,7 +58,7 @@
     "@size-limit/preset-big-lib": "^11.2.0",
     "@types/bun": "^1.2.22",
     "@types/node": "^24.5.2",
-    "@vitest/coverage-v8": "^4.0.15",
+    "@vitest/coverage-v8": "^4.1.8",
     "bun": "^1.2.22",
     "ethers": "^6.15.0",
     "knip": "^5.64.0",
@@ -72,7 +72,7 @@
     "size-limit": "^11.2.0",
     "testcontainers": "^11.10.0",
     "typescript": "catalog:",
-    "vitest": "^4.0.15"
+    "vitest": "^4.1.8"
   },
   "packageManager": "pnpm@10.33.2",
   "engines": {
