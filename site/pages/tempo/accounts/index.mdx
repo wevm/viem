@@ -1,6 +1,6 @@
 # Accounts
 
-Tempo.ts provides Viem-compatible [Local Accounts](https://viem.sh/docs/accounts/local) that support multiple signature schemes including **secp256k1**, **P256**, and **WebAuthn (passkeys)**. 
+Tempo.ts provides Viem-compatible [Local Accounts](https://viem.sh/docs/accounts/local) that support multiple signature schemes including **secp256k1**, **P256**, and **WebAuthn (passkeys)**, as well as **native multisig** accounts. 
 
 These accounts are fully backwards compatible with Viem APIs, meaning you can use them any Viem Action that accepts an `account`.
 
@@ -38,3 +38,4 @@ const hash = await client.sendTransactionSync({
 | [`fromWebAuthnP256`](/tempo/accounts/account.fromWebAuthnP256) | Create an account from a WebAuthn credential (passkeys) |
 | [`fromWebCryptoP256`](/tempo/accounts/account.fromWebCryptoP256) | Create an account from a WebCrypto P256 key pair |
 | [`fromP256`](/tempo/accounts/account.fromP256) | Create an account from a P256 private key |
+| [`fromMultisig`](/tempo/accounts/account.fromMultisig) | Create an account from a native multisig configuration |

@@ -79,6 +79,8 @@ export function formatTransactionRequest(
     keyData?: Hex.Hex | undefined
     keyId?: Address | undefined
     keyType?: 'p256' | 'secp256k1' | 'webAuthn' | undefined
+    multisig?: unknown
+    signatures?: unknown
   }
   const account = request.account
     ? parseAccount<Account | viem_Account | Address>(request.account)
@@ -116,8 +118,17 @@ export function formatTransactionRequest(
   if (request.feePayer === true && !request.feePayerSignature)
     delete request.feeToken
 
+  // `multisig` / `signatures` are client-side only (TIP-1061). They drive
+  // sender derivation, owner signing, and final envelope assembly, but are
+  // never sent as raw RPC fields — the wire payload is the serialized tx.
+  const {
+    multisig: _multisig,
+    signatures: _signatures,
+    ...rpcRequest
+  } = request
+
   const rpc = ox_TransactionRequest.toRpc({
-    ...request,
+    ...rpcRequest,
     type: 'tempo',
   } as never)
 

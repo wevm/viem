@@ -14,6 +14,10 @@ import { accounts, nodeEnv } from './config.js'
 export const port = 9545
 
 export const rpcUrl = (() => {
+  // Explicit override (e.g. a custom devnet) wins over env presets. Useful for
+  // pointing the suite at a feature devnet without editing chain definitions.
+  if (import.meta.env.VITE_TEMPO_RPC_URL)
+    return import.meta.env.VITE_TEMPO_RPC_URL
   if (import.meta.env.VITE_TEMPO_ENV === 'mainnet')
     return 'https://rpc.tempo.xyz'
   if (import.meta.env.VITE_TEMPO_ENV === 'devnet')
