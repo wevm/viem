@@ -1,0 +1,137 @@
+import type { Address } from 'abitype'
+import { BaseError } from '../../errors/base.js'
+import type { Hex } from '../../types/misc.js'
+import { concatHex } from '../../utils/data/concat.js'
+import { pad } from '../../utils/data/pad.js'
+import { size } from '../../utils/data/size.js'
+import {
+  actorScope,
+  canonicalAuthenticators,
+  ecrecoverAuthenticator,
+} from './constants.js'
+import type {
+  AaActor,
+  AaAuthorizeActor,
+  AaRevokeActor,
+} from './types/transaction.js'
+import { actorIdFromAddress, actorIdFromPublicKey } from './utils/actorId.js'
+
+/**
+ * Builders for canonical-authenticator actors. Each returns an {@link AaActor}
+ * (`{ actorId, authenticator }`) for use as an initial actor or as the identity
+ * of an `authorizeActor` change (see {@link authorizeActor}).
+ */
+export const key = {
+  /** secp256k1 (native ecrecover) actor for `address`. */
+  k1(address: Address): AaActor {
+    return {
+      actorId: actorIdFromAddress(address),
+      authenticator: ecrecoverAuthenticator,
+    }
+  },
+  /** P-256 actor for a public key (`{ x, y }` or 64-byte `x || y`). */
+  p256(
+    publicKey: { x: Hex; y: Hex } | Hex,
+    options: { authenticator?: Address } = {},
+  ): AaActor {
+    return {
+      actorId: actorIdFromPublicKey(publicKey),
+      authenticator: options.authenticator ?? canonicalAuthenticators.p256,
+    }
+  },
+  /** WebAuthn / FIDO2 passkey actor for a public key. */
+  passkey(
+    publicKey: { x: Hex; y: Hex } | Hex,
+    options: { authenticator?: Address } = {},
+  ): AaActor {
+    return {
+      actorId: actorIdFromPublicKey(publicKey),
+      authenticator: options.authenticator ?? canonicalAuthenticators.passkey,
+    }
+  },
+  /** Delegate actor: signatures valid for `delegatedAccount` act for this account. */
+  delegate(
+    delegatedAccount: Address,
+    options: { authenticator?: Address } = {},
+  ): AaActor {
+    return {
+      actorId: actorIdFromAddress(delegatedAccount),
+      authenticator: options.authenticator ?? canonicalAuthenticators.delegate,
+    }
+  },
+} as const
+
+/** Combines {@link actorScope} flags into a single scope bitmask. */
+export function toScope(...flags: number[]): number {
+  return flags.reduce((acc, flag) => acc | flag, 0)
+}
+
+export type Policy = {
+  /** Non-zero policy selector (interpreted by the manager, not the protocol). */
+  type: number
+  /** Manager contract the policy-bearing actor is gated to call. */
+  manager: Address
+  /** 32-byte commitment (`keccak256` of the policy parameters). */
+  commitment: Hex
+}
+
+/** Encodes a {@link Policy} into the wire `policyData` blob (`manager || commitment`). */
+export function encodePolicyData(policy: Policy): Hex {
+  if (policy.type === 0)
+    throw new BaseError('`policy.type` must be non-zero (0 = no policy).')
+  if (size(policy.commitment) !== 32)
+    throw new BaseError('`policy.commitment` must be 32 bytes.')
+  return concatHex([pad(policy.manager, { size: 20 }), policy.commitment])
+}
+
+export type AuthorizeActorOptions = {
+  /** Permission bitmask (see {@link actorScope}/{@link toScope}). `0` = unrestricted. */
+  scope?: number | undefined
+  /** Actor expiry (unix seconds). `0`/omitted = no expiry. */
+  expiry?: bigint | undefined
+  /** Policy gate. Omit for an unrestricted (non-policy) actor. */
+  policy?: Policy | undefined
+}
+
+/**
+ * Builds an `authorizeActor` change from a {@link key} actor plus scope, expiry,
+ * and optional policy. The result can be signed via `signActorChanges8130` /
+ * `to8130Account#authorize`.
+ *
+ * @example
+ * authorizeActor(key.p256({ x, y }), {
+ *   scope: actorScope.sender,
+ *   policy: { type: 1, manager, commitment },
+ * })
+ */
+export function authorizeActor(
+  actor: AaActor,
+  options: AuthorizeActorOptions = {},
+): AaAuthorizeActor {
+  const change: AaAuthorizeActor = {
+    changeType: 0x01,
+    actorId: actor.actorId,
+    authenticator: actor.authenticator,
+  }
+  if (options.scope) change.scope = options.scope
+  if (options.expiry) change.expiry = options.expiry
+  if (options.policy) {
+    if (
+      options.scope === undefined ||
+      options.scope === 0 ||
+      (options.scope & actorScope.config) !== 0
+    )
+      throw new BaseError(
+        'A policy-bearing actor MUST have a restricted scope that excludes CONFIG (e.g. `actorScope.sender`).',
+      )
+    change.policyType = options.policy.type
+    change.policyData = encodePolicyData(options.policy)
+  }
+  return change
+}
+
+/** Builds a `revokeActor` change for an actor (or raw `actorId`). */
+export function revokeActor(actor: AaActor | Hex): AaRevokeActor {
+  const actorId = typeof actor === 'string' ? actor : actor.actorId
+  return { changeType: 0x02, actorId }
+}

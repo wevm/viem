@@ -7,11 +7,22 @@ export {
   transactionContextAbi,
 } from './abis.js'
 export {
+  type To8130AccountParameters,
+  type To8130AccountReturnType,
+  to8130Account,
+} from './accounts/to8130Account.js'
+export {
   type Eip8130SmartAccountImplementation,
   type ToSmartAccount8130Parameters,
   type ToSmartAccount8130ReturnType,
   toSmartAccount8130,
 } from './accounts/toSmartAccount8130.js'
+export {
+  type PrepareTransaction8130Parameters,
+  prepareTransaction8130,
+  type SendCalls8130Parameters,
+  sendCalls8130,
+} from './actions/sendCalls.js'
 export {
   eip8130ChainIds,
   type Is8130EnabledParameters,
@@ -37,6 +48,15 @@ export {
   revokedAuthenticator,
   txContextAddress,
 } from './constants.js'
+export {
+  type AuthorizeActorOptions,
+  authorizeActor,
+  encodePolicyData,
+  key,
+  type Policy,
+  revokeActor,
+  toScope,
+} from './keys.js'
 export type {
   AaAccountChange,
   AaAccountChangeConfig,
@@ -65,7 +85,9 @@ export {
 } from './utils/accountConfigCalls.js'
 export {
   type ActorIdFromAddressErrorType,
+  type ActorIdFromPublicKeyErrorType,
   actorIdFromAddress,
+  actorIdFromPublicKey,
 } from './utils/actorId.js'
 export {
   type AssertTransaction8130ErrorType,
