@@ -2,9 +2,16 @@
 export {
   accountConfigurationAbi,
   authenticatorAbi,
+  erc4337AccountAbi,
   nonceManagerAbi,
   transactionContextAbi,
 } from './abis.js'
+export {
+  type Eip8130SmartAccountImplementation,
+  type ToSmartAccount8130Parameters,
+  type ToSmartAccount8130ReturnType,
+  toSmartAccount8130,
+} from './accounts/toSmartAccount8130.js'
 export {
   eip8130ChainIds,
   type Is8130EnabledParameters,
@@ -89,6 +96,7 @@ export {
   type ParseTransaction8130ErrorType,
   parseTransaction8130,
 } from './utils/parseTransaction.js'
+export { erc1167Bytecode } from './utils/proxy.js'
 export {
   encodeActorChangeData,
   type SerializeTransaction8130ErrorType,
