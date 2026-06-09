@@ -38,22 +38,30 @@ export function toCallsList(calls: AaCalls | undefined): RecursiveArray<Hex>[] {
 }
 
 /**
- * Encodes a single `actor_change` operation. The operation-specific `data` is an
- * opaque bytes field containing a nested RLP encoding.
+ * Encodes the operation-specific `data` bytes of an `actor_change`:
+ * `authorizeActor` -> `rlp([authenticator, scope, expiry, policyType, policyData])`,
+ * `revokeActor` -> `rlp([])`.
  */
-function toActorChange(change: AaActorChange): RecursiveArray<Hex> {
-  if (change.changeType === actorChangeType.authorizeActor) {
-    const data = toRlp([
+export function encodeActorChangeData(change: AaActorChange): Hex {
+  if (change.changeType === actorChangeType.authorizeActor)
+    return toRlp([
       change.authenticator,
       change.scope ? numberToHex(change.scope) : '0x',
       change.expiry ? numberToHex(change.expiry) : '0x',
       change.policyType ? numberToHex(change.policyType) : '0x',
       change.policyData ?? '0x',
     ])
-    return [numberToHex(change.changeType), change.actorId, data]
-  }
   // revokeActor: empty data (`rlp([])`)
-  return [numberToHex(change.changeType), change.actorId, toRlp([])]
+  return toRlp([])
+}
+
+/** Encodes a single `actor_change` operation into a nested RLP-ready array. */
+function toActorChange(change: AaActorChange): RecursiveArray<Hex> {
+  return [
+    numberToHex(change.changeType),
+    change.actorId,
+    encodeActorChangeData(change),
+  ]
 }
 
 /** Encodes the `account_changes` field into a nested RLP-ready array. */

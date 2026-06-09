@@ -1,5 +1,12 @@
 // biome-ignore lint/performance/noBarrelFile: entrypoint
 export {
+  accountConfigurationAbi,
+  authenticatorAbi,
+  nonceManagerAbi,
+  transactionContextAbi,
+} from './abis.js'
+
+export {
   aaBaseCost,
   aaPayerType,
   aaTransactionType,
@@ -7,6 +14,7 @@ export {
   accountConfigAddress,
   actorChangeType,
   actorScope,
+  canonicalAuthenticators,
   defaultAccountAddress,
   deploymentHeaderSize,
   ecrecoverAuthenticator,
@@ -31,6 +39,10 @@ export type {
   TransactionSerialized8130,
 } from './types/transaction.js'
 export {
+  type ActorIdFromAddressErrorType,
+  actorIdFromAddress,
+} from './utils/actorId.js'
+export {
   type AssertTransaction8130ErrorType,
   assertTransaction8130,
 } from './utils/assertTransaction.js'
@@ -40,7 +52,13 @@ export {
   computeAddress8130,
   deploymentHeader,
 } from './utils/computeAddress.js'
-
+export {
+  actorChangeTypehash,
+  type HashActorChanges8130ErrorType,
+  type HashActorChanges8130Parameters,
+  hashActorChanges8130,
+  signedActorChangesTypehash,
+} from './utils/hashActorChanges.js'
 export {
   type GetPayerSignatureHash8130ErrorType,
   type GetSenderSignatureHash8130ErrorType,
@@ -49,18 +67,23 @@ export {
   getPayerSignatureHash8130,
   getSenderSignatureHash8130,
 } from './utils/hashTransaction.js'
-
 export {
   type ParseTransaction8130ErrorType,
   parseTransaction8130,
 } from './utils/parseTransaction.js'
 export {
+  encodeActorChangeData,
   type SerializeTransaction8130ErrorType,
   serializeTransaction8130,
   toAccountChangesList,
   toCallsList,
   toTransactionBody,
 } from './utils/serializeTransaction.js'
+export {
+  type SignActorChanges8130ErrorType,
+  type SignActorChanges8130Parameters,
+  signActorChanges8130,
+} from './utils/signActorChanges.js'
 export {
   type Signer,
   type SignTransaction8130ErrorType,

@@ -64,6 +64,28 @@ export const ecrecoverAuthenticator =
 export const revokedAuthenticator =
   '0xffffffffffffffffffffffffffffffffffffffff' satisfies Hex
 
+/**
+ * Canonical authenticator set (the signature algorithms compliant nodes MUST
+ * accept). `k1` is the native `ECRECOVER_AUTHENTICATOR` sentinel; the others are
+ * onchain contracts.
+ *
+ * @remarks
+ * The non-native addresses are **placeholders**. The canonical set and its
+ * CREATE2-derived addresses are maintained in a companion ERC and resolved per
+ * deployment ([base/eip-8130](https://github.com/base/eip-8130)). Override as
+ * needed until the canonical values are finalized.
+ */
+export const canonicalAuthenticators = {
+  /** secp256k1 — native sentinel (`ECRECOVER_AUTHENTICATOR`). */
+  k1: '0x0000000000000000000000000000000000000001',
+  /** P-256 (raw). Placeholder address. */
+  p256: '0x8130000000000000000000000000000000000256',
+  /** WebAuthn / FIDO2 passkey. Placeholder address. */
+  passkey: '0x8130000000000000000000000000000000007e6b',
+  /** Signature delegation (1-hop). Placeholder address. */
+  delegate: '0x81300000000000000000000000000000000de1e6',
+} as const satisfies Record<string, Hex>
+
 /** Nonce Manager precompile address (`NONCE_MANAGER_ADDRESS`). */
 export const nonceManagerAddress =
   '0x813000000000000000000000000000000000aa01' satisfies Hex
