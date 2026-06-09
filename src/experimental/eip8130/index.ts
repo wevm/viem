@@ -5,7 +5,13 @@ export {
   nonceManagerAbi,
   transactionContextAbi,
 } from './abis.js'
-
+export {
+  eip8130ChainIds,
+  type Is8130EnabledParameters,
+  is8130Enabled,
+  register8130Chains,
+  unregister8130Chains,
+} from './chains.js'
 export {
   aaBaseCost,
   aaPayerType,
@@ -38,6 +44,18 @@ export type {
   TransactionSerializable8130,
   TransactionSerialized8130,
 } from './types/transaction.js'
+export {
+  type EncodeApplySignedActorChangesDataErrorType,
+  type EncodeApplySignedActorChangesDataParameters,
+  type EncodeCreateAccountDataErrorType,
+  type EncodeCreateAccountDataParameters,
+  encodeApplySignedActorChangesData,
+  encodeCreateAccountData,
+  type ToFactoryArgs8130ErrorType,
+  type ToFactoryArgs8130Parameters,
+  type ToFactoryArgs8130ReturnType,
+  toFactoryArgs8130,
+} from './utils/accountConfigCalls.js'
 export {
   type ActorIdFromAddressErrorType,
   actorIdFromAddress,
