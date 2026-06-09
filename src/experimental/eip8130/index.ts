@@ -46,7 +46,6 @@ export {
   type ParseTransaction8130ErrorType,
   parseTransaction8130,
 } from './utils/parseTransaction.js'
-
 export {
   type SerializeTransaction8130ErrorType,
   serializeTransaction8130,
@@ -54,3 +53,9 @@ export {
   toCallsList,
   toTransactionBody,
 } from './utils/serializeTransaction.js'
+export {
+  type Signer,
+  type SignTransaction8130ErrorType,
+  type SignTransaction8130Parameters,
+  signTransaction8130,
+} from './utils/signTransaction.js'
