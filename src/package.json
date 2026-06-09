@@ -64,6 +64,11 @@
       "import": "./_esm/experimental/index.js",
       "default": "./_cjs/experimental/index.js"
     },
+    "./experimental/eip8130": {
+      "types": "./_types/experimental/eip8130/index.d.ts",
+      "import": "./_esm/experimental/eip8130/index.js",
+      "default": "./_cjs/experimental/eip8130/index.js"
+    },
     "./experimental/erc7739": {
       "types": "./_types/experimental/erc7739/index.d.ts",
       "import": "./_esm/experimental/erc7739/index.js",
