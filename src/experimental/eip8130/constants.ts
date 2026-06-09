@@ -71,3 +71,33 @@ export const nonceManagerAddress =
 /** Transaction Context precompile address (`TX_CONTEXT_ADDRESS`). */
 export const txContextAddress =
   '0x813000000000000000000000000000000000aa02' satisfies Hex
+
+/**
+ * Account Configuration system contract address (`ACCOUNT_CONFIG_ADDRESS`),
+ * used as the CREATE2 deployer for account address derivation.
+ *
+ * @remarks
+ * **Placeholder.** This address is CREATE2-derived at deployment in the
+ * reference implementation ([base/eip-8130](https://github.com/base/eip-8130))
+ * and resolved per-network. Override via the `accountConfigAddress` parameter of
+ * {@link computeAddress8130} until the canonical value is finalized.
+ */
+export const accountConfigAddress =
+  '0x8130000000000000000000000000000000008130' satisfies Hex
+
+/**
+ * Default wallet implementation for EOA auto-delegation
+ * (`DEFAULT_ACCOUNT_ADDRESS`).
+ *
+ * @remarks
+ * **Placeholder.** CREATE2-derived at deployment; see
+ * {@link accountConfigAddress}.
+ */
+export const defaultAccountAddress =
+  '0x8130000000000000000000000000000000000acc' satisfies Hex
+
+/** Size of the deployment header in bytes (`DEPLOYMENT_HEADER_SIZE`). */
+export const deploymentHeaderSize = 14
+
+/** Maximum placed runtime code size for a create entry (EIP-170). */
+export const maxCodeSize = 24576

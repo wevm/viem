@@ -4,15 +4,18 @@ export {
   aaPayerType,
   aaTransactionType,
   accountChangeType,
+  accountConfigAddress,
   actorChangeType,
   actorScope,
+  defaultAccountAddress,
+  deploymentHeaderSize,
   ecrecoverAuthenticator,
+  maxCodeSize,
   nonceKeyMax,
   nonceManagerAddress,
   revokedAuthenticator,
   txContextAddress,
 } from './constants.js'
-
 export type {
   AaAccountChange,
   AaAccountChangeConfig,
@@ -27,11 +30,16 @@ export type {
   TransactionSerializable8130,
   TransactionSerialized8130,
 } from './types/transaction.js'
-
 export {
   type AssertTransaction8130ErrorType,
   assertTransaction8130,
 } from './utils/assertTransaction.js'
+export {
+  type ComputeAddress8130ErrorType,
+  type ComputeAddress8130Parameters,
+  computeAddress8130,
+  deploymentHeader,
+} from './utils/computeAddress.js'
 
 export {
   type GetPayerSignatureHash8130ErrorType,
