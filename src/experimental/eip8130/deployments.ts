@@ -34,17 +34,17 @@ export type Eip8130Deployment = {
 
 /** EIP-8130 deployment on Base Sepolia (chain id `84532`). */
 export const baseSepoliaDeployment = {
-  accountConfiguration: '0xe6BB4A62034c4F7494A411E28d0a18B1BB55DEE6',
+  accountConfiguration: '0xb0198a714872EE5bfDF829e7986DB5C5899a6b50',
   accounts: {
-    default: '0xE69fca5270f01c40E9884E503a9961195438E6fD',
-    defaultHighRate: '0x8aba250115EAE82A9C3df830DF8B47b255a593a4',
-    erc4337: '0x1feBaCc134664AaCf8C15910460426699F1Ef92b',
+    default: '0x124b52d5D57a76ed064c414975beA11Beffe0251',
+    defaultHighRate: '0x13dD0F222cCF60B7C08a95C2d1FcC85A38DD675D',
+    erc4337: '0x9748aeA1e1762E50a4d8927777FeDB63A2Ef06C0',
   },
   authenticators: {
     k1: '0x39221FB37Df105B22316328e88632C9684861466',
     p256: '0x3AE129D846CD1CAf0369b4Caa56c188E18E11B15',
     webAuthn: '0x1CB75BE39Fb950202BF4239010534B86EdA66c31',
-    delegate: '0x0d10CfB3D0CD016bf20b7254C4a869FBbc0ad8C7',
+    delegate: '0xE67D299Ff3F0a185398B6C5a28998696969265d7',
     alwaysValid: '0x520fBA4840729CB57b3Dc7B40D548AcF354DBA25',
   },
 } as const satisfies Eip8130Deployment
