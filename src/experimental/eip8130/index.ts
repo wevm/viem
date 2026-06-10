@@ -145,6 +145,12 @@ export {
   signActorChanges8130,
 } from './utils/signActorChanges.js'
 export {
+  type EncodeSignedActorChangesSignatureErrorType,
+  encodeSignedActorChangesSignature,
+  type SignedActorChangeSet,
+  signedActorChangesMagic,
+} from './utils/signedActorChangesSignature.js'
+export {
   type Signer,
   type SignTransaction8130ErrorType,
   type SignTransaction8130Parameters,
