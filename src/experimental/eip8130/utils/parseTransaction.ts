@@ -26,6 +26,7 @@ import type {
   AaCalls,
   TransactionSerializable8130,
 } from '../types/transaction.js'
+import { decodeAuthorizeActorData } from './actorChangeData.js'
 
 export type ParseTransaction8130ErrorType =
   | SliceErrorType
@@ -63,18 +64,16 @@ function parseActorChange(value: RlpHex): AaActorChange {
   const [changeType, actorId, data] = value as [Hex, Hex, Hex]
   const type = changeType === '0x' ? 0 : hexToNumber(changeType)
   if (type === actorChangeType.authorizeActor) {
-    const [authenticator, scope, expiry, policyType, policyData] = fromRlp(
-      data,
-      'hex',
-    ) as Hex[]
+    const { authenticator, scope, expiry, policyType, policyData } =
+      decodeAuthorizeActorData(data)
     const change: AaActorChange = {
       changeType: actorChangeType.authorizeActor,
       actorId,
-      authenticator: authenticator as Address,
+      authenticator,
     }
-    if (scope !== '0x') change.scope = hexToNumber(scope)
-    if (expiry !== '0x') change.expiry = hexToBigInt(expiry)
-    if (policyType !== '0x') change.policyType = hexToNumber(policyType)
+    if (scope !== 0) change.scope = scope
+    if (expiry !== 0n) change.expiry = expiry
+    if (policyType !== 0) change.policyType = policyType
     if (policyData !== '0x') change.policyData = policyData
     return change
   }

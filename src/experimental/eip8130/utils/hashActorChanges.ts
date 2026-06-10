@@ -18,7 +18,7 @@ import {
   keccak256,
 } from '../../../utils/hash/keccak256.js'
 import type { AaActorChange } from '../types/transaction.js'
-import { encodeActorChangeData } from './serializeTransaction.js'
+import { encodeActorChangeData } from './actorChangeData.js'
 
 /** `keccak256("ActorChange(uint8 changeType,bytes32 actorId,bytes data)")` */
 export const actorChangeTypehash = keccak256(

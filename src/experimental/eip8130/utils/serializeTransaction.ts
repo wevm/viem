@@ -13,11 +13,7 @@ import {
   type ToRlpErrorType,
   toRlp,
 } from '../../../utils/encoding/toRlp.js'
-import {
-  aaTransactionType,
-  accountChangeType,
-  actorChangeType,
-} from '../constants.js'
+import { aaTransactionType, accountChangeType } from '../constants.js'
 import type {
   AaAccountChange,
   AaActorChange,
@@ -25,6 +21,7 @@ import type {
   TransactionSerializable8130,
   TransactionSerialized8130,
 } from '../types/transaction.js'
+import { encodeActorChangeData } from './actorChangeData.js'
 import {
   type AssertTransaction8130ErrorType,
   assertTransaction8130,
@@ -35,24 +32,6 @@ export function toCallsList(calls: AaCalls | undefined): RecursiveArray<Hex>[] {
   return (calls ?? []).map((phase) =>
     phase.map((call) => [call.to, call.data ?? '0x']),
   )
-}
-
-/**
- * Encodes the operation-specific `data` bytes of an `actor_change`:
- * `authorizeActor` -> `rlp([authenticator, scope, expiry, policyType, policyData])`,
- * `revokeActor` -> `rlp([])`.
- */
-export function encodeActorChangeData(change: AaActorChange): Hex {
-  if (change.changeType === actorChangeType.authorizeActor)
-    return toRlp([
-      change.authenticator,
-      change.scope ? numberToHex(change.scope) : '0x',
-      change.expiry ? numberToHex(change.expiry) : '0x',
-      change.policyType ? numberToHex(change.policyType) : '0x',
-      change.policyData ?? '0x',
-    ])
-  // revokeActor: empty data (`rlp([])`)
-  return toRlp([])
 }
 
 /** Encodes a single `actor_change` operation into a nested RLP-ready array. */

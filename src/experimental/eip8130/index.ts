@@ -90,6 +90,13 @@ export {
   toFactoryArgs8130,
 } from './utils/accountConfigCalls.js'
 export {
+  type DecodeAuthorizeActorDataErrorType,
+  type DecodedAuthorizeActorData,
+  decodeAuthorizeActorData,
+  type EncodeActorChangeDataErrorType,
+  encodeActorChangeData,
+} from './utils/actorChangeData.js'
+export {
   type ActorIdFromAddressErrorType,
   type ActorIdFromPublicKeyErrorType,
   actorIdFromAddress,
@@ -126,7 +133,6 @@ export {
 } from './utils/parseTransaction.js'
 export { erc1167Bytecode } from './utils/proxy.js'
 export {
-  encodeActorChangeData,
   type SerializeTransaction8130ErrorType,
   serializeTransaction8130,
   toAccountChangesList,

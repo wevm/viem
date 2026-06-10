@@ -8,7 +8,7 @@ import {
 import { accountConfigurationAbi } from '../abis.js'
 import { accountConfigAddress as defaultAccountConfigAddress } from '../constants.js'
 import type { AaActor, AaActorChange } from '../types/transaction.js'
-import { encodeActorChangeData } from './serializeTransaction.js'
+import { encodeActorChangeData } from './actorChangeData.js'
 
 function toInitialActors(actors: readonly AaActor[]) {
   return actors.map((actor) => ({
