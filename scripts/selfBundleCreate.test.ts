@@ -42,6 +42,7 @@ describe.runIf(PRIVATE_KEY)(
           userSalt,
           initialActors: [key.k1(owner.address)],
           implementation: deployment.accounts.erc4337,
+          accountConfigAddress: deployment.accountConfiguration,
         })
 
         console.log('\n— self-bundled create + execute (Base Sepolia) —')

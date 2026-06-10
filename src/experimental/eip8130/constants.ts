@@ -104,7 +104,7 @@ export const txContextAddress =
  * parameter of {@link computeAddress8130}.
  */
 export const accountConfigAddress =
-  '0xe6BB4A62034c4F7494A411E28d0a18B1BB55DEE6' satisfies Hex
+  '0xb0198a714872EE5bfDF829e7986DB5C5899a6b50' satisfies Hex
 
 /**
  * Default wallet implementation for EOA auto-delegation
@@ -115,7 +115,7 @@ export const accountConfigAddress =
  * {@link accountConfigAddress}.
  */
 export const defaultAccountAddress =
-  '0xE69fca5270f01c40E9884E503a9961195438E6fD' satisfies Hex
+  '0x124b52d5D57a76ed064c414975beA11Beffe0251' satisfies Hex
 
 /** Size of the deployment header in bytes (`DEPLOYMENT_HEADER_SIZE`). */
 export const deploymentHeaderSize = 14

@@ -16,6 +16,26 @@ const pubKey = {
   y: '0x2222222222222222222222222222222222222222222222222222222222222222',
 } as const
 
+const decodeParameters = [
+  { type: 'bytes32' },
+  {
+    type: 'tuple[]',
+    components: [
+      {
+        name: 'changes',
+        type: 'tuple[]',
+        components: [
+          { name: 'changeType', type: 'uint8' },
+          { name: 'actorId', type: 'bytes32' },
+          { name: 'data', type: 'bytes' },
+        ],
+      },
+      { name: 'auth', type: 'bytes' },
+    ],
+  },
+  { name: 'opAuth', type: 'bytes' },
+] as const
+
 describe('signedActorChangesMagic', () => {
   test('matches the contract discriminator', () => {
     expect(signedActorChangesMagic).toBe(
@@ -26,12 +46,15 @@ describe('signedActorChangesMagic', () => {
 
 describe('encodeSignedActorChangesSignature', () => {
   test('prefixes the 32-byte magic', () => {
-    const signature = encodeSignedActorChangesSignature([
-      {
-        actorChanges: [authorizeActor(key.p256(pubKey))],
-        auth: '0xdeadbeef',
-      },
-    ])
+    const signature = encodeSignedActorChangesSignature(
+      [
+        {
+          actorChanges: [authorizeActor(key.p256(pubKey))],
+          auth: '0xdeadbeef',
+        },
+      ],
+      '0x',
+    )
     expect(slice(signature, 0, 32)).toBe(signedActorChangesMagic)
   })
 
@@ -40,29 +63,14 @@ describe('encodeSignedActorChangesSignature', () => {
       scope: actorScope.sender,
     })
     const auth = '0xc0ffee'
-    const signature = encodeSignedActorChangesSignature([
-      { actorChanges: [change], auth },
-    ])
+    const opAuth = '0xdeadbeef'
+    const signature = encodeSignedActorChangesSignature(
+      [{ actorChanges: [change], auth }],
+      opAuth,
+    )
 
-    const [magic, changeSets] = decodeAbiParameters(
-      [
-        { type: 'bytes32' },
-        {
-          type: 'tuple[]',
-          components: [
-            {
-              name: 'changes',
-              type: 'tuple[]',
-              components: [
-                { name: 'changeType', type: 'uint8' },
-                { name: 'actorId', type: 'bytes32' },
-                { name: 'data', type: 'bytes' },
-              ],
-            },
-            { name: 'auth', type: 'bytes' },
-          ],
-        },
-      ],
+    const [magic, changeSets, decodedOpAuth] = decodeAbiParameters(
+      decodeParameters,
       signature,
     )
 
@@ -73,6 +81,7 @@ describe('encodeSignedActorChangesSignature', () => {
     expect(changeSets[0].changes[0].changeType).toBe(change.changeType)
     expect(changeSets[0].changes[0].actorId).toBe(change.actorId)
     expect(changeSets[0].changes[0].data).toBe(encodeActorChangeData(change))
+    expect(decodedOpAuth).toBe(opAuth)
   })
 
   test('encodes multiple sets in order (chained rotations)', () => {
@@ -88,63 +97,23 @@ describe('encodeSignedActorChangesSignature', () => {
       auth: '0xbbbb',
     } as const
 
-    const signature = encodeSignedActorChangesSignature([setA, setB])
-    const [, changeSets] = decodeAbiParameters(
-      [
-        { type: 'bytes32' },
-        {
-          type: 'tuple[]',
-          components: [
-            {
-              name: 'changes',
-              type: 'tuple[]',
-              components: [
-                { name: 'changeType', type: 'uint8' },
-                { name: 'actorId', type: 'bytes32' },
-                { name: 'data', type: 'bytes' },
-              ],
-            },
-            { name: 'auth', type: 'bytes' },
-          ],
-        },
-      ],
-      signature,
-    )
+    const signature = encodeSignedActorChangesSignature([setA, setB], '0x1234')
+    const [, changeSets] = decodeAbiParameters(decodeParameters, signature)
 
     expect(changeSets).toHaveLength(2)
     expect(changeSets[0].auth).toBe(setA.auth)
     expect(changeSets[1].auth).toBe(setB.auth)
-    // revokeActor encodes empty `data`.
     expect(changeSets[1].changes[0].data).toBe('0x')
     expect(changeSets[1].changes[1].changeType).toBe(0x01)
   })
 
   test('p256 authorize data carries the canonical authenticator', () => {
     const change = authorizeActor(key.p256(pubKey))
-    const signature = encodeSignedActorChangesSignature([
-      { actorChanges: [change], auth: '0x' },
-    ])
-    const [, changeSets] = decodeAbiParameters(
-      [
-        { type: 'bytes32' },
-        {
-          type: 'tuple[]',
-          components: [
-            {
-              name: 'changes',
-              type: 'tuple[]',
-              components: [
-                { name: 'changeType', type: 'uint8' },
-                { name: 'actorId', type: 'bytes32' },
-                { name: 'data', type: 'bytes' },
-              ],
-            },
-            { name: 'auth', type: 'bytes' },
-          ],
-        },
-      ],
-      signature,
+    const signature = encodeSignedActorChangesSignature(
+      [{ actorChanges: [change], auth: '0x' }],
+      '0x',
     )
+    const [, changeSets] = decodeAbiParameters(decodeParameters, signature)
     expect(changeSets[0].changes[0].data.toLowerCase()).toContain(
       canonicalAuthenticators.p256.slice(2).toLowerCase(),
     )

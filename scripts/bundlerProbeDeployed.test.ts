@@ -43,6 +43,7 @@ describe.runIf(PRIVATE_KEY)('bundler probe: transact on a pre-deployed account',
         address: '0x64609Df27EFb3ecB241B349a3985DFdE2B98dc6b',
         userSalt: keccak256(stringToHex('viem-eip8130-demo-1')),
         initialActors: [key.k1(owner.address)],
+        accountConfigAddress: deployment.accountConfiguration,
         implementation: deployment.accounts.erc4337,
       })
 

@@ -54,6 +54,7 @@ const signatureParameters = [
       { name: 'auth', type: 'bytes' },
     ],
   },
+  { name: 'opAuth', type: 'bytes' },
 ] as const
 
 export type EncodeSignedActorChangesSignatureErrorType =
@@ -67,36 +68,36 @@ export type EncodeSignedActorChangesSignatureErrorType =
  * carries signed actor changes:
  *
  * ```
- * abi.encode(bytes32 SIGNED_ACTOR_CHANGES_MAGIC, SignedActorChanges[] changeSets)
+ * abi.encode(bytes32 SIGNED_ACTOR_CHANGES_MAGIC, SignedActorChanges[] changeSets, bytes opAuth)
  * ```
  *
- * where each `SignedActorChanges` is `(ActorChange[] changes, bytes auth)`.
+ * where each `SignedActorChanges` is `(ActorChange[] changes, bytes auth)` and
+ * `opAuth` is an `authenticator || data` blob that authorizes the operation over
+ * `userOpHash` (may be produced by a key the changes just added/rotated to).
  *
  * Use the result as a UserOperation's `signature`. During `validateUserOp` the
- * account applies each set in order via `AccountConfiguration.applySignedActorChanges`;
- * successfully applying the (non-empty) chain authorizes the op — there is no
- * separate op-over-`userOpHash` signature. Sets are applied in array order, so a
+ * account first applies each set in order via `AccountConfiguration.applySignedActorChanges`,
+ * then authenticates the op via `opAuth`. Sets are applied in array order, so a
  * later set may rely on an actor authorized by an earlier one (e.g. owner → key B,
  * then key B → key C).
- *
- * @remarks
- * The change digest does not bind `userOpHash`/`callData`, so this path is
- * intended for self-bundled (direct `EntryPoint.handleOps`) submission.
  *
  * @example
  * ```ts
  * const set = await signActorChanges8130({
- *   signer: owner,            // current k1 owner authorizes the change
+ *   signer: owner,
  *   account: smartAccount,
  *   chainId: baseSepolia.id,
  *   sequence,
  *   actorChanges: [authorizeActor(key.p256({ x, y }), { scope: actorScope.sender })],
  * })
- * const signature = encodeSignedActorChangesSignature([set])
+ * // opAuth: authenticator-prefixed signature over the userOpHash by any authorized actor
+ * const opAuth = concatHex([ecrecoverAuthenticator, await owner.sign({ hash: userOpHash })])
+ * const signature = encodeSignedActorChangesSignature([set], opAuth)
  * ```
  */
 export function encodeSignedActorChangesSignature(
   changeSets: readonly SignedActorChangeSet[],
+  opAuth: Hex,
 ): Hex {
   return encodeAbiParameters(signatureParameters, [
     signedActorChangesMagic,
@@ -108,5 +109,6 @@ export function encodeSignedActorChangesSignature(
       })),
       auth: set.auth,
     })),
+    opAuth,
   ])
 }
