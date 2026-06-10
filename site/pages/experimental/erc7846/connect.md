@@ -6,6 +6,12 @@ description: Requests to connect Account(s).
 
 Requests to connect Account(s) with optional [capabilities](#capabilities).
 
+:::note
+
+`connect` is now a [Wallet Action](/docs/actions/wallet/connect). This experimental export re-exports the same implementation for compatibility.
+
+:::
+
 ## Usage
 
 :::code-group
@@ -23,12 +29,11 @@ import 'viem/window'
 // ---cut---
 import { createWalletClient, custom } from 'viem'
 import { mainnet } from 'viem/chains'
-import { erc7846Actions } from 'viem/experimental'
 
 export const walletClient = createWalletClient({
   chain: mainnet,
   transport: custom(window.ethereum!),
-}).extend(erc7846Actions())
+})
 ```
 
 :::
@@ -41,7 +46,7 @@ List of connected accounts.
 type ReturnType = {
   accounts: readonly {
     address: Address
-    capabilities: Record<string, unknown>
+    capabilities?: Record<string, unknown> | undefined
   }[]
 }
 ```

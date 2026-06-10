@@ -1,6 +1,11 @@
 import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
-import { MultisigConfig, SignatureEnvelope, type TokenId } from 'ox/tempo'
+import {
+  type KeyAuthorization,
+  MultisigConfig,
+  SignatureEnvelope,
+  type TokenId,
+} from 'ox/tempo'
 import { getCode } from '../actions/public/getCode.js'
 import { verifyHash } from '../actions/public/verifyHash.js'
 import { maxUint256 } from '../constants/number.js'
@@ -18,6 +23,11 @@ import { getMetadata } from './actions/accessKey.js'
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
+import {
+  formatWalletAuthorizeAccessKeyParameters,
+  formatWalletKeyAuthorizationResponse,
+  type WalletAuthorizeAccessKeyParameters,
+} from './internal/walletAccessKey.js'
 import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
@@ -39,6 +49,37 @@ export const chainConfig = {
     transactionRequest: defineTransactionRequest({
       format: Formatters.formatTransactionRequest,
     }),
+  },
+  walletConnect: {
+    fallback: false,
+    formatRequest(request, { chain }) {
+      if (!chain) return request
+      return {
+        ...request,
+        chainId: Hex.fromNumber(chain.id),
+      }
+    },
+    capabilities: {
+      request: {
+        authorizeAccessKey: {
+          format(capability, { chain }) {
+            return formatWalletAuthorizeAccessKeyParameters(
+              capability as WalletAuthorizeAccessKeyParameters,
+              { defaultChainId: chain?.id },
+            )
+          },
+        },
+      },
+      response: {
+        keyAuthorization: {
+          format(capability) {
+            return formatWalletKeyAuthorizationResponse(
+              capability as KeyAuthorization.Rpc | KeyAuthorization.Signed,
+            )
+          },
+        },
+      },
+    },
   },
   prepareTransactionRequest: [
     async (r, { client, phase }) => {
