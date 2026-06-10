@@ -70,20 +70,19 @@ export const revokedAuthenticator =
  * onchain contracts.
  *
  * @remarks
- * The non-native addresses are **placeholders**. The canonical set and its
- * CREATE2-derived addresses are maintained in a companion ERC and resolved per
- * deployment ([base/eip-8130](https://github.com/base/eip-8130)). Override as
- * needed until the canonical values are finalized.
+ * The non-native addresses below are the [base/eip-8130](https://github.com/base/eip-8130)
+ * deployment (Base Sepolia). They may differ per chain — resolve via
+ * {@link eip8130Deployments} / {@link getEip8130Deployment}, or override per call.
  */
 export const canonicalAuthenticators = {
   /** secp256k1 — native sentinel (`ECRECOVER_AUTHENTICATOR`). */
   k1: '0x0000000000000000000000000000000000000001',
-  /** P-256 (raw). Placeholder address. */
-  p256: '0x8130000000000000000000000000000000000256',
-  /** WebAuthn / FIDO2 passkey. Placeholder address. */
-  passkey: '0x8130000000000000000000000000000000007e6b',
-  /** Signature delegation (1-hop). Placeholder address. */
-  delegate: '0x81300000000000000000000000000000000de1e6',
+  /** P-256 (raw). base/eip-8130 deployment (Base Sepolia). */
+  p256: '0x3AE129D846CD1CAf0369b4Caa56c188E18E11B15',
+  /** WebAuthn / FIDO2 passkey. base/eip-8130 deployment (Base Sepolia). */
+  passkey: '0x1CB75BE39Fb950202BF4239010534B86EdA66c31',
+  /** Signature delegation (1-hop). base/eip-8130 deployment (Base Sepolia). */
+  delegate: '0x0d10CfB3D0CD016bf20b7254C4a869FBbc0ad8C7',
 } as const satisfies Record<string, Hex>
 
 /** Nonce Manager precompile address (`NONCE_MANAGER_ADDRESS`). */
@@ -99,24 +98,24 @@ export const txContextAddress =
  * used as the CREATE2 deployer for account address derivation.
  *
  * @remarks
- * **Placeholder.** This address is CREATE2-derived at deployment in the
- * reference implementation ([base/eip-8130](https://github.com/base/eip-8130))
- * and resolved per-network. Override via the `accountConfigAddress` parameter of
- * {@link computeAddress8130} until the canonical value is finalized.
+ * Defaults to the [base/eip-8130](https://github.com/base/eip-8130) deployment
+ * (Base Sepolia). The address may differ per chain — resolve via
+ * {@link getEip8130Deployment}, or override via the `accountConfigAddress`
+ * parameter of {@link computeAddress8130}.
  */
 export const accountConfigAddress =
-  '0x8130000000000000000000000000000000008130' satisfies Hex
+  '0xe6BB4A62034c4F7494A411E28d0a18B1BB55DEE6' satisfies Hex
 
 /**
  * Default wallet implementation for EOA auto-delegation
  * (`DEFAULT_ACCOUNT_ADDRESS`).
  *
  * @remarks
- * **Placeholder.** CREATE2-derived at deployment; see
+ * Defaults to the base/eip-8130 deployment (Base Sepolia); see
  * {@link accountConfigAddress}.
  */
 export const defaultAccountAddress =
-  '0x8130000000000000000000000000000000000acc' satisfies Hex
+  '0xE69fca5270f01c40E9884E503a9961195438E6fD' satisfies Hex
 
 /** Size of the deployment header in bytes (`DEPLOYMENT_HEADER_SIZE`). */
 export const deploymentHeaderSize = 14

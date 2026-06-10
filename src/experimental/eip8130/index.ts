@@ -49,6 +49,12 @@ export {
   txContextAddress,
 } from './constants.js'
 export {
+  baseSepoliaDeployment,
+  type Eip8130Deployment,
+  eip8130Deployments,
+  getEip8130Deployment,
+} from './deployments.js'
+export {
   type AuthorizeActorOptions,
   authorizeActor,
   encodePolicyData,
