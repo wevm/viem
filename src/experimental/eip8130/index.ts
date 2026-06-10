@@ -128,6 +128,12 @@ export {
   getSenderSignatureHash8130,
 } from './utils/hashTransaction.js'
 export {
+  defaultEncodeExecute,
+  type EncodeExecute,
+  type EncodeExecuteParameters,
+  encodeWalletCalls,
+} from './utils/encodeWalletCalls.js'
+export {
   type ParseTransaction8130ErrorType,
   parseTransaction8130,
 } from './utils/parseTransaction.js'

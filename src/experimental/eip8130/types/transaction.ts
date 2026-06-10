@@ -2,14 +2,26 @@ import type { Address } from 'abitype'
 import type { Hex } from '../../../types/misc.js'
 
 /**
- * A single call within a phase. Calls carry no ETH value (per EIP-8130); value
- * transfers are initiated by the account's wallet bytecode.
+ * A single call within a phase.
+ *
+ * On the wire, EIP-8130 calls carry no ETH value — each call executes with
+ * `msg.value == 0`. A `value` MAY be supplied as ERC-5792-style intent: actions
+ * that build the wire (e.g. {@link sendCalls8130}) realize any non-zero `value`
+ * by routing the phase through the account's wallet bytecode (`executeBatch`),
+ * collapsing it back into a value-less `[to, data]`. A call whose `value` is `0`
+ * (or omitted) is encoded directly as `[to, data]`. A non-zero `value` that
+ * reaches serialization unwrapped is rejected (it would be silently dropped).
  */
 export type AaCall = {
   /** Target address. */
   to: Address
   /** Calldata. @default '0x' */
   data?: Hex | undefined
+  /**
+   * ERC-5792-style intent value (wei). Realized via the account's wallet
+   * bytecode; never carried on the EIP-8130 wire. @default 0n
+   */
+  value?: bigint | undefined
 }
 
 /**

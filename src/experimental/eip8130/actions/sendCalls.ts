@@ -17,6 +17,7 @@ import type {
   AaCalls,
   TransactionSerializable8130,
 } from '../types/transaction.js'
+import { type EncodeExecute, encodeWalletCalls } from '../utils/encodeWalletCalls.js'
 import type { Signer } from '../utils/signTransaction.js'
 
 type FeeOverrides = {
@@ -118,6 +119,12 @@ export type SendCalls8130Parameters = FeeOverrides & {
   nonceSequence?: bigint | undefined
   expiry?: bigint | undefined
   nonceManagerAddress?: `0x${string}` | undefined
+  /**
+   * Encoder for value-bearing phases. Defaults to a self-call to the account's
+   * `executeBatch`. Override when the wallet bytecode exposes a different
+   * executor. See {@link encodeWalletCalls}.
+   */
+  encodeExecute?: EncodeExecute | undefined
 }
 
 function toPhases(calls: SendCalls8130Parameters['calls']): AaCalls {
@@ -143,11 +150,15 @@ export async function sendCalls8130(
   client: Client<Transport, Chain | undefined, Account | undefined>,
   parameters: SendCalls8130Parameters,
 ): Promise<Hex> {
-  const { account, calls, payer, ...rest } = parameters
+  const { account, calls, payer, encodeExecute, ...rest } = parameters
   const transaction = await prepareTransaction8130(client, {
     ...rest,
     account,
-    calls: toPhases(calls),
+    calls: encodeWalletCalls({
+      account: account.address,
+      calls: toPhases(calls),
+      encodeExecute,
+    }),
     payer,
   })
   const serializedTransaction = await account.signTransaction(transaction, {
