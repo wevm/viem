@@ -49,6 +49,19 @@ export type ToSmartAccount8130Parameters<
    * native ECRECOVER authenticator (secp256k1 EOA).
    */
   authenticator?: Address | undefined
+  /**
+   * Produces the authenticator `data` (the bytes after the 20-byte authenticator
+   * prefix) for a given hash. Defaults to raw ECDSA (`r || s || v`) over the hash
+   * via `owner`. Override for non-ECDSA authenticators (e.g. P-256), where the
+   * account validates the signature over the raw `userOpHash`.
+   */
+  sign?: ((hash: Hex) => Promise<Hex>) | undefined
+  /**
+   * Stub authenticator `data` used for gas estimation. Defaults to a 65-byte
+   * ECDSA-shaped stub; override to match the `data` length of a custom
+   * {@link sign} (e.g. 129 bytes for P-256).
+   */
+  stubData?: Hex | undefined
   /** Account Configuration contract (the ERC-4337 factory). */
   accountConfigAddress?: Address | undefined
 } & (
@@ -137,6 +150,23 @@ export async function toSmartAccount8130<
   } as const
   const owner = parseAccount(parameters.owner)
 
+  const stubData =
+    parameters.stubData ??
+    '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c'
+
+  // Produces the auth `data` (after the authenticator prefix). The account
+  // validates this over the raw hash (no EIP-191 prefix), so the default path
+  // raw-signs with the owner's key.
+  const sign =
+    parameters.sign ??
+    (async (hash: Hex) => {
+      if (!owner.sign)
+        throw new BaseError(
+          '`owner` must be a local account exposing `sign`, or pass a custom `sign` function. EIP-8130 validates the raw `userOpHash` (no EIP-191 prefix).',
+        )
+      return owner.sign({ hash })
+    })
+
   // Resolve the account's deployment bytecode (ERC-1167 proxy to the wallet impl).
   const code =
     parameters.code ??
@@ -203,10 +233,7 @@ export async function toSmartAccount8130<
     },
 
     async getStubSignature() {
-      return concatHex([
-        authenticator,
-        '0xfffffffffffffffffffffffffffffff0000000000000000000000000000000007aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1c',
-      ])
+      return concatHex([authenticator, stubData])
     },
 
     async signMessage(parameters_) {
@@ -239,12 +266,7 @@ export async function toSmartAccount8130<
           sender: address,
         },
       })
-      const signature = await getAction(
-        client,
-        signMessage_,
-        'signMessage',
-      )({ account: owner, message: { raw: userOpHash } })
-      return concatHex([authenticator, signature])
+      return concatHex([authenticator, await sign(userOpHash)])
     },
   })
 }
