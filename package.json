@@ -118,7 +118,7 @@
     {
       "name": "import * from 'viem' (esm)",
       "path": "./dist/index.js",
-      "limit": "85 kB",
+      "limit": "92 kB",
       "import": "*"
     },
     {
@@ -130,7 +130,7 @@
     {
       "name": "import * from 'viem/account-abstraction'",
       "path": "./dist/account-abstraction/index.js",
-      "limit": "61 kB",
+      "limit": "66 kB",
       "import": "*"
     },
     {
@@ -166,7 +166,7 @@
     {
       "name": "import * from 'viem/chains'",
       "path": "./dist/chains/index.js",
-      "limit": "110 kB",
+      "limit": "117 kB",
       "import": "*"
     },
     {
@@ -178,7 +178,7 @@
     {
       "name": "import { tempoTestnet } from 'viem/chains'",
       "path": "./dist/chains/index.js",
-      "limit": "67 kB",
+      "limit": "74 kB",
       "import": "{ tempoTestnet }"
     },
     {
@@ -355,7 +355,7 @@
     "@scure/bip39": "1.6.0",
     "abitype": "1.2.3",
     "isows": "1.0.7",
-    "ox": "0.14.29",
+    "ox": "1.0.0-beta.0",
     "ws": "8.20.1"
   },
   "exports": {
