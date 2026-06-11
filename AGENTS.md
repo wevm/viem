@@ -2,6 +2,165 @@
 
 This document contains guidelines for AI agents working on the Viem codebase.
 
+> **Update after learnings or mistakes** -- when a correction, new convention, or hard-won lesson
+> emerges during development, append it to the relevant section of this file immediately. AGENTS.md
+> is the source of truth for project conventions and should grow as the project does.
+
+## Repository & Tooling (v3)
+
+- **Branch** -- v3 development happens on `v3-next`. The pre-existing `v3` branch is an old
+  big-bang prototype kept only as reference. v2 releases continue from `main`.
+- **Build** -- `pnpm build` runs `exports:update` + `zile` (ESM-only, output in `dist/`) + copies
+  `src/trusted-setups` into `dist/`. zile derives sources from `package.json#exports` (the
+  `include` in tsconfig is irrelevant to it) and reads `./tsconfig.json` for compiler options.
+  Never re-enable `incremental` for the root tsconfig: `.tsbuildinfo` reuse after zile cleans
+  `dist/` silently skips emit and produces a near-empty build.
+- **Package layout** -- the root `package.json` holds private workspace fields above the
+  `"[!start-pkg]": ""` marker and the published package fields below it. `zile publish:prepare`
+  strips the pre-marker fields. There is no `src/package.json`.
+- **Exports are generated** -- run `pnpm exports:update` only when intentionally adding, removing,
+  or renaming public entrypoints. It rewrites `package.json#exports` (+ `typesVersions`) from the
+  contents of `src/` (`src/<dir>/index.ts` → `./<dir>`; `types` condition first — publint
+  requires it). There is deliberately no `./package.json` export (zile would copy the dev manifest
+  into `dist/`).
+- **Lint/format** -- `pnpm check` runs `vp check --fix` (oxlint + oxfmt) and **mutates**. yaml,
+  md/mdx, css, and `site/pages/` are excluded from formatting. Type-aware linting and the
+  jsdoc/tsdoc plugins are intentionally off until modules migrate to v3 conventions.
+- **Tests** -- `pnpm test` runs `vp test` with projects `core` and `tempo` (config in root
+  `vite.config.ts`). Use `pnpm test --run <paths>` for targeted runs and
+  `SKIP_GLOBAL_SETUP=true` for offline runs that do not need anvil. The `tempo` project's global
+  setup only starts a node when `VITE_TEMPO_ENV=localnet`.
+- **Type checking** -- `pnpm check:types` runs `tsc -b` (project references: scripts, site, src,
+  test).
+- **Other gates** -- `pnpm knip` (production mode), `pnpm check:repo` (sherif), `pnpm test:build`
+  (publint + attw, esm-only profile), `pnpm size` (size-limit against `dist/`), `pnpm vectors`
+  (bun).
+- **Plan docs are local** -- `tasks/` is gitignored. The v3 plan lives at `tasks/v3.md`; the
+  breaking-change log at `tasks/v3-breaking-changes.md`; API sketches at `tasks/v3-api/`.
+
+## v3 Process Conventions
+
+- **Breaking-change log (same-PR rule)** -- any change to public behavior/API appends or updates
+  an entry in `tasks/v3-breaking-changes.md` in the same change set. Log discovered breaks
+  (snapshot diffs, error-class changes, type-inference changes) too, not just intentional ones.
+  Entries: status (`planned` → `landed`), phase/task ref, area, past-tense summary, and a `diff`
+  fence with the migration shape.
+- **API-first module reviews** -- no public module is implemented before a signature-only sketch
+  in `tasks/v3-api/<Module>.md` is approved by the maintainer. For utils façades the sketch is the
+  curated export manifest (which v2 names survive → ox mapping, which are deleted).
+- **Ox is the primitive layer** -- when migrating code, prefer ox v1 modules (`Hex`, `Bytes`,
+  `Abi*`, `Address`, `Hash`, `Signature`, `Secp256k1`, `TxEnvelope*`, …) over hand-rolled
+  implementations. Direct `@noble/*`/`@scure/*` usage is being removed in Phase B; do not add new
+  usage.
+
+## TypeScript Conventions
+
+- **Exact optional properties** -- `exactOptionalPropertyTypes` is enabled in tsconfig. Optional properties must include `| undefined` in their type if they can be assigned `undefined` (e.g. `foo?: string | undefined`, not `foo?: string`).
+- **No unchecked indexed reads** -- `noUncheckedIndexedAccess` is **not yet enabled** in viem (planned for v3). Write new code as if it were: narrow indexed reads before use, or make the invariant obvious with the smallest possible assertion.
+- **`readonly` arrays** -- use `readonly T[]` for array types in type definitions.
+- **Existing `readonly` properties are fine** -- viem has DOM-shaped WebAuthn types and inference-heavy literals that intentionally preserve `readonly` properties. Do not churn them just to satisfy a style preference.
+- **`type` over `interface` by default** -- use `type` for project-owned shapes. Ambient declarations and DOM-shaped compatibility types may use `interface`.
+- **`.js` extensions** -- all relative source imports include `.js` for ESM compatibility.
+- **Follow local import style** -- viem uses both namespace imports and named internal imports. Match the surrounding file instead of mass-converting import lists.
+- **Zod import aliases** -- import `zod/mini` as `z`, and import zod module namespaces as `z_<Module>` (for example, `import * as z_Hex from './Hex.js'`). Applies from the C2 `chain.schema` work onward.
+- **Classes for errors only** -- all other APIs use functions and plain data.
+- **Errors live next to the code that throws them** -- module-specific failure classes live inside the module that owns the failure mode. Place each error class near the bottom of the module so the public functions and types are what the reader sees first. Set `name` to the namespaced form (`'Hex.InvalidHexValueError'`, `'Client.ExtensionError'`, etc.). (v3 convention -- applies to new/migrated modules; v2 error classes migrate with their module.)
+- **No enums** -- use union types or `as const` objects for fixed sets.
+- **camelCase constants** -- prefer `camelCase` for local constants unless the surrounding file already uses protocol-style uppercase names for numeric constants.
+- **`const` generic modifier** -- use to preserve literal types for full inference.
+- **Options default `= {}`** -- use `options: Options = {}` not `options?: Options`.
+- **Namespace params and return types** -- place function parameter, return, and error types in a `declare namespace` matching the function name (e.g. `from.Options`, `serialize.ErrorType`). Do not lift the params type to a sibling export unless the surrounding module already has a shared type. (v3 convention -- v2's `<Action>Parameters`/`<Action>ReturnType` exports migrate to this shape per-module.)
+- **`options` over `args`** -- use `options` for typed option bags. Use domain nouns only when the parameter is not an options bag.
+- **Minimal variable names** -- prefer short, obvious names. Use `options` not `serializeOptions`, `fn` not `callbackFunction`, etc. Context makes meaning clear.
+- **No redundant type annotations** -- if the return type of a function already covers it, do not annotate intermediate variables. Let the return type do the work.
+- **No inline object types on locals** -- when a local variable needs an explicit object-type annotation, declare a named `type` on the line directly above and reference it.
+- **Return directly** -- do not declare a variable just to return it. Use `return { ... }` unless the variable is needed for reuse or readability.
+- **IIFE expressions for fallible local derivations** -- when a local needs `try`/`catch` to parse or normalize a value, prefer an IIFE expression over `let value: T` followed by assignment inside `try`.
+- **Skip braces for single-statement blocks** -- omit `{}` for single-statement `if`, `for`, etc., when the surrounding file follows that style.
+- **No section separator comments** -- do not use `// ---` or `// ===` divider comments. Let JSDoc and whitespace provide structure.
+- **Static imports by default** -- use static `import` declarations. Dynamic imports are reserved for real runtime boundaries (e.g. `viem/node` trusted setups, optional heavyweight paths).
+- **Minimize `as any`** -- avoid new `as any` where a safer assertion is practical, but do not mass-rewrite existing crypto, tuple, and inference glue that already relies on it.
+- **Destructure when accessing multiple properties** -- prefer `const { a, b } = options` over repeated `options.a`, `options.b`.
+- **Read from `options.x` when normalizing a single field** -- when transforming exactly one option into a local of the same name, read it directly from `options` instead of destructuring and inventing a second name.
+- **Ox helpers over ad hoc conversion** -- use ox helpers like `Hex.fromNumber`, `Hex.toBytes`, `Bytes.fromHex`, `Value.fromGwei`, etc. instead of open-coded conversions.
+- **Use ox branded types** -- prefer existing ox types such as `Hex.Hex`, `Bytes.Bytes`, and `Address.Address` over raw template literal types when the branded module type exists.
+- **Keep property order readable** -- preserve the local ordering style. Do not alphabetize arrays, RLP tuples, ABI parameters, transaction fields, or other order-sensitive wire shapes.
+
+## Type Inference Conventions
+
+- **Preserve literals** -- use `const` generics and narrow helper signatures when an API should preserve literal inputs.
+- **Type tests in `.test-d.ts`** -- use Vitest's `expectTypeOf` in colocated `.test-d.ts` files to assert generic inference works. Type tests are first-class; write them alongside implementation. Run via `pnpm test:typecheck`.
+- **Snapshot inferred public types** -- the ox `.snap-d.ts` type-snapshot pattern is adopted as modules migrate to v3 conventions.
+- **No `any` leakage** -- user-facing callback, return, and option types should not leak `any` unless the surrounding API already intentionally does.
+- **Type inference after every feature** -- after implementing any feature, check if new types can be narrowed. Add or update type tests alongside behavioral tests when public inference changes.
+
+## API Conventions
+
+- **Stateless module APIs** -- public APIs are module namespaces full of functions and types. Do not introduce stateful classes for normal library behavior.
+- **Public entrypoint docs** -- when adding a public module or export, update the owning `index.ts` (and `src/index.ts` for root exports) with the export and a TSDoc block.
+- **Package exports are generated** -- run `pnpm exports:update` only when intentionally adding, removing, or renaming public subpath exports.
+- **Keep public APIs lean** -- avoid exposing options for values the library can derive from existing inputs.
+- **Wire formats stay explicit** -- serialization, RPC, RLP, ABI, and transaction-envelope code should keep wire-order and field-shape decisions visible at the call site.
+- **Internal helpers stay internal** -- keep helper modules under `internal/` directories unless they are part of the public API.
+
+## Documentation Conventions
+
+- **TSDoc on public exports** -- every exported public function, type, and constant gets a TSDoc comment. Type properties get TSDoc when they are part of the public surface. (Enforced per-module as code migrates to v3 conventions -- the jsdoc lint plugins switch on with B/C.)
+- **Doc-driven API changes** -- write or update the TSDoc before or alongside the implementation, not as an afterthought.
+- **Examples should be small** -- public examples should show the minimum useful shape and avoid unrelated setup.
+- **Source docs first** -- public API documentation usually belongs in TSDoc near the exported source.
+- **Site pages** -- human-written docs live under `site/pages/`. `site/pages.gen.ts` is generated -- do not edit by hand. (ox-style generated API-reference pages arrive with the post-C7 docgen stretch.)
+
+## Type Conventions
+
+- **No eager type definitions** -- do not extract a named type until it is used in more than one place or makes a difficult local shape easier to read.
+- **Shared domain types live near their module** -- keep reusable public types in the module that owns the domain concept.
+- **Error unions live in namespaces** -- exported function error unions should live in that function's namespace as `ErrorType`.
+
+## Abstraction Conventions
+
+- **Prefer duplication over the wrong abstraction** -- duplicated code with a clear bug-fix burden is better than a bad abstraction that is scary to change.
+- **Do not abstract until the commonalities scream** -- wait for 3+ concrete use cases where the right abstraction becomes obvious. Do not abstract for 1-2 instances.
+- **Optimize for change** -- code that is easy to change beats code that is cleverly DRY. We do not know future requirements.
+- **No flags or mode parameters** -- if an abstraction needs `if` branches or boolean params to handle different call sites, it is usually the wrong abstraction. Inline it.
+- **Start concrete, extract later** -- begin inline. Extract only when a clear pattern emerges across multiple real usages.
+
+## Testing Conventions
+
+- **Use `pnpm test` for tests** -- run tests through package scripts, not `vitest` directly.
+- **Target the relevant project** -- prefer `pnpm test --run <paths>` or `pnpm test --project core --bail=1` / `--project tempo` over the full matrix while iterating. Use `SKIP_GLOBAL_SETUP=true` for offline runs that do not need anvil.
+- **Colocate tests** -- v2 tests are sibling `*.test.ts` files; modules migrated to v3 adopt the ox `src/**/_test/*.test.ts` (+ `_snap/`) layout as they move.
+- **Wrap function exports in `describe`** -- every test file targets one or more exported functions; each function gets its own `describe('functionName', () => { ... })` block.
+- **Inline snapshots over direct assertions** -- prefer `toMatchInlineSnapshot()` over `.toBe()`, `.toEqual()`, etc. for stable return values. Use `toThrowErrorMatchingInlineSnapshot()` for error assertions.
+- **Snapshot whole objects, omit nondeterministic properties** -- destructure out nondeterministic fields and snapshot the rest, rather than cherry-picking individual fields to assert.
+- **Browser tests use browser suffixes** -- browser-specific behavior uses `*.browser.test.ts` and the `browser` Vitest project (project lands with its first test).
+- **Fuzz tests stay gated** -- fuzz harnesses use `*.fuzz.ts` behind a `FUZZ=true` project so the default `pnpm test` run never picks them up (project lands with its first harness; fuzz regressions become deterministic `*.test.ts` cases or vector fixtures).
+- **Vectors use Bun** -- run vector tests with `pnpm vectors`.
+- **Unit and type tests as you go** -- write unit tests and `.test-d.ts` type tests alongside implementation for each public behavior change.
+
+## Workflow Conventions
+
+- **Use targeted commands** -- prefer the smallest command that covers the touched behavior.
+- **Types** -- run `pnpm check:types` after TypeScript changes.
+- **Repo checks** -- run `pnpm check:repo` when package metadata or workspace shape changes.
+- **Docs dev server** -- use `pnpm docs:dev` for documentation UI work; `pnpm docs:build` builds the site.
+- **`pnpm check` mutates** -- it runs `vp check --fix` (oxlint + oxfmt). Use it only when intentionally applying lint/format fixes.
+- **`pnpm exports:update` mutates** -- it rewrites `package.json#exports` (+ `typesVersions`).
+- **`pnpm contracts:build` mutates generated contract artifacts** -- it runs Forge and `scripts/contracts:build.ts`.
+- **Install hooks can mutate** -- `pnpm install` runs `postinstall`, which initializes submodules, builds contracts, and runs `pnpm dev`. **Use `pnpm install --ignore-scripts` when the `test/tempo` submodule has local work** (a bare install resets its checked-out commit). After `--ignore-scripts`, freshly added binary packages (e.g. `bun`) may need `node node_modules/<pkg>/install.js`.
+
+## Changeset Conventions
+
+- **Changesets only for public behavior** -- add or update a changeset when a change affects public API or existing behavior.
+- **Update existing changesets first** -- if the branch already has a changeset for the same area, update it instead of adding a duplicate.
+- **One sentence, past tense** -- changeset entries are a single sentence written in past tense.
+- **Breaking changes include migration shape** -- major changes include a `diff` fence showing the before/after migration shape -- and a matching entry in `tasks/v3-breaking-changes.md`.
+
+## Git Conventions
+
+- **Conventional commits** -- use `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:` prefixes. Scope is optional (e.g. `feat(abi): add tuple formatter`).
+- **Preserve dirty work** -- do not revert, clean, or overwrite existing local changes unless explicitly asked. Never stage the `test/tempo` submodule pointer or the user's untracked in-progress files; exclude them explicitly (e.g. `git add -A -- ':(exclude)test/tempo'`).
+
 ## Documentation (Site)
 
 Guidelines for authoring docs and guides under `site/pages/`.
@@ -40,331 +199,3 @@ Guidelines for authoring docs and guides under `site/pages/`.
   import statements. Each `example.ts` block starts with its imports (including
   `import { client } from './viem.config'`), then a blank line, then the example body.
 - Guide section order: `## Overview` → `## Recipes` → `## Best Practices` → `## See More`.
-
-## Tempo Code Generation
-
-When generating actions (in `src/tempo/actions/`), follow these guidelines.
-
-An example of a generated action set can be found in `src/tempo/actions/token.ts`.
-
-### Source of Truth
-
-- **All actions must be based on precompile contract specifications** in `test/tempo/docs/specs/`.
-- It could be likely that some interfaces may be inconsistent between the specs (`test/tempo/docs/specs`) and the precompiles (`test/tempo/crates/contracts/src/precompiles`). Always prefer the precompile interfaces over the specs.
-- If the specification is unclear or missing details, **prompt the developer** for guidance rather than making assumptions
-
-### Documentation Requirements
-
-All actions **must include comprehensive JSDoc** with:
-
-1. **Function description** - What the action does
-2. **`@example` block** - Complete working example showing:
-   - Required imports (`createClient`, `http`, action imports)
-   - Client setup with chain and transport
-   - Action usage with realistic parameters
-   - Expected return value handling (if applicable)
-3. **`@param` tags** - For each parameter (client, parameters)
-4. **`@returns` tag** - Description of the return value
-
-Example:
-```typescript
-/**
- * Gets the pool ID for a token pair.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempo } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
- *
- * const client = createClient({
- *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
- *   transport: http(),
- * })
- *
- * const poolId = await Actions.amm.getPoolId(client, {
- *   userToken: '0x...',
- *   validatorToken: '0x...',
- * })
- * ```
- *
- * @param client - Client.
- * @param parameters - Parameters.
- * @returns The pool ID.
- */
-```
-
-### Action Types
-
-#### Read-Only Actions
-
-For view/pure functions that only read state:
-
-- Use `readContract` from `viem/actions`
-- Return type should use `ReadContractReturnType`
-- Parameters extend `ReadParameters`
-
-#### Mutate-Based Actions
-
-For state-changing functions, **both variants must be implemented**:
-
-**1. Standard Async Variant**
-
-- Uses `writeContract` from `viem/actions`
-- Returns transaction hash
-- Async operation that doesn't wait for confirmation
-
-```typescript
-export async function myAction<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: myAction.Parameters<chain, account>,
-): Promise<myAction.ReturnValue> {
-  return myAction.inner(writeContract, client, parameters)
-}
-```
-
-**2. Sync Variant (`*Sync`)**
-
-- Named with `Sync` suffix (e.g., `mintSync`, `burnSync`, `rebalanceSwapSync`)
-- Uses `writeContractSync` from `viem/actions`
-- **Waits for transaction confirmation**
-- Returns both the receipt and extracted event data
-- **Must use `extractEvent` to get return values** (not `simulateContract`)
-
-```typescript
-export async function myActionSync<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: myActionSync.Parameters<chain, account>,
-): Promise<myActionSync.ReturnValue> {
-  const { throwOnReceiptRevert = true, ...rest } = parameters
-  const receipt = await myAction.inner(writeContractSync, client, {
-    ...rest,
-    throwOnReceiptRevert,
-  } as never)
-  const { args } = myAction.extractEvent(receipt.logs)
-  return {
-    ...args,
-    receipt,
-  } as never
-}
-```
-
-### Namespace Properties
-
-All actions **must include** the following components within their namespace:
-
-#### 1. `Parameters` Type
-
-```typescript
-// Read actions
-export type Parameters = ReadParameters & Args 
-
-// Write actions
-export type Parameters<
-  chain extends Chain | undefined = Chain | undefined,
-  account extends Account | undefined = Account | undefined,
-> = WriteParameters<chain, account> & Args 
-```
-
-#### 2. `Args` Type
-
-Arguments must be documented with JSDoc.
-
-```typescript
-export type Args = {
-  /** JSDoc for each argument */
-  argName: Type
-}
-```
-
-#### 3. `ReturnValue` Type
-
-```typescript
-// Read actions
-export type ReturnValue = ReadContractReturnType<typeof Abis.myAbi, 'functionName', never>
-
-// Write actions
-export type ReturnValue = WriteContractReturnType
-```
-
-#### 4. `ErrorType` Type (for write actions)
-
-Write actions must include an `ErrorType` export. Use `BaseErrorType` from `viem` as a placeholder with a TODO comment for future exhaustive error typing:
-
-```typescript
-// TODO: exhaustive error type
-export type ErrorType = BaseErrorType
-```
-
-#### 5. `call` Function
-
-**Required for all actions** - enables composition with other viem actions:
-
-```typescript
-/**
- * Defines a call to the `functionName` function.
- *
- * Can be passed as a parameter to:
- * - [`estimateContractGas`](https://viem.sh/docs/contract/estimateContractGas): estimate the gas cost of the call
- * - [`simulateContract`](https://viem.sh/docs/contract/simulateContract): simulate the call
- * - [`sendCalls`](https://viem.sh/docs/actions/wallet/sendCalls): send multiple calls
- *
- * @example
- * ```ts
- * import { createClient, http, walletActions } from 'viem'
- * import { tempo } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
- *
- * const client = createClient({
- *   chain: tempo.extend({ feeToken: '0x20c0000000000000000000000000000000000001' })
- *   transport: http(),
- * }).extend(walletActions)
- *
- * const hash = await client.sendTransaction({
- *   calls: [actions.amm.myAction.call({ arg1, arg2 })],
- * })
- * ```
- *
- * @param args - Arguments.
- * @returns The call.
- */
-export function call(args: Args) {
-  return defineCall({
-    address: Addresses.contractName,
-    abi: Abis.contractName,
-    args: [/* transformed args */],
-    functionName: 'functionName',
-  })
-}
-```
-
-The `call` function enables these use cases:
-- `sendCalls` - Batch multiple calls in one transaction
-- `sendTransaction` with `calls` - Send transaction with multiple operations
-- `multicall` - Execute multiple calls in parallel
-- `estimateContractGas` - Estimate gas costs
-- `simulateContract` - Simulate execution
-
-#### 6. `extractEvent` Function (for mutate-based actions)
-
-**Required for all actions that emit events**:
-
-```typescript
-/**
- * Extracts the `EventName` event from logs.
- *
- * @param logs - The logs.
- * @returns The `EventName` event.
- */
-export function extractEvent(logs: Log[]) {
-  const [log] = parseEventLogs({
-    abi: Abis.contractName,
-    logs,
-    eventName: 'EventName',
-    strict: true,
-  })
-  if (!log) throw new Error('`EventName` event not found.')
-  return log
-}
-```
-
-#### 7. `inner` Function (for write actions)
-
-```typescript
-/** @internal */
-export async function inner<
-  action extends typeof writeContract | typeof writeContractSync,
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  action: action,
-  client: Client<Transport, chain, account>,
-  parameters: Parameters<chain, account>,
-): Promise<ReturnType<action>> {
-  const { arg1, arg2, ...rest } = parameters
-  const call = myAction.call({ arg1, arg2 })
-  return (await action(client, {
-    ...rest,
-    ...call,
-  } as never)) as never
-}
-```
-
-### Namespace Structure
-
-Organize actions using namespace pattern:
-
-```typescript
-export async function myAction(...) { ... }
-
-export namespace myAction {
-  export type Parameters = ...
-  export type Args = ...
-  export type ReturnValue = ...
-  
-  export async function inner(...) { ... }  // for write actions
-  export function call(args: Args) { ... }
-  export function extractEvent(logs: Log[]) { ... }  // for mutate actions
-}
-```
-
-### Decision-Making
-
-When encountering situations that require judgment:
-
-- **Specification ambiguities**: Prompt developer for clarification
-- **Missing contract details**: Request ABI or specification update
-- **Event structure uncertainty**: Ask for event definition
-- **Parameter transformations**: Confirm expected input/output formats
-- **Edge cases**: Discuss handling strategy with developer
-
-### Naming Conventions
-
-- Action names should match contract function names (in camelCase)
-- Sync variants use `Sync` suffix (e.g., `myActionSync`)
-- Event names in `extractEvent` should match contract event names exactly
-- Namespace components should be exported within the action's namespace
-
-### Testing
-
-Tests should be co-located with actions in `*action-name*.test.ts` files. Reference contract tests in `test/tempo/crates/precompiles/` for expected behavior. 
-
-See `src/tempo/actions/token.test.ts` for a comprehensive example of test patterns and structure.
-
-#### Test Structure
-
-Organize tests by action name with a default test case and behavior-specific tests:
-
-```typescript
-describe('actionName', () => {
-  test('default', async () => {
-    // Test the primary/happy path scenario
-    const { receipt, ...result } = await Actions.namespace.actionSync(client, {
-      param1: value1,
-      param2: value2,
-    })
-    
-    expect(receipt).toBeDefined()
-    expect(result).toMatchInlineSnapshot(`...`)
-  })
-
-  test('behavior: specific edge case', async () => {
-    // Test specific behaviors, edge cases, or variations
-  })
-
-  test('behavior: error conditions', async () => {
-    // Test error handling
-    await expect(
-      actions.namespace.actionSync(client, { ... })
-    ).rejects.toThrow()
-  })
-})
-
-describe.todo('unimplementedAction')
-```

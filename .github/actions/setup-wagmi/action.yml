@@ -26,7 +26,7 @@ runs:
     - shell: bash
       working-directory: ./wagmi
       run: |
-        node -e "import fs from 'fs'; const p = JSON.parse(fs.readFileSync('./package.json', 'utf8')); p.pnpm = p.pnpm || {}; p.pnpm.overrides = p.pnpm.overrides || {}; p.pnpm.overrides.viem = 'file:../src'; fs.writeFileSync('package.json', JSON.stringify(p, null, 2));"
+        node -e "import fs from 'fs'; const p = JSON.parse(fs.readFileSync('./package.json', 'utf8')); p.pnpm = p.pnpm || {}; p.pnpm.overrides = p.pnpm.overrides || {}; p.pnpm.overrides.viem = 'file:..'; fs.writeFileSync('package.json', JSON.stringify(p, null, 2));"
 
     - name: Install dependencies
       shell: bash

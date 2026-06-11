@@ -19,6 +19,6 @@ jobs:
 
       - name: Prepublish
         run: |
-          cd src && pnpm version prerelease --preid $(git rev-parse --short=7 HEAD) && cd ..
+          pnpm version prerelease --preid $(git rev-parse --short=7 HEAD) --no-git-tag-version
           pnpm changeset:prepublish
-          pnpx pkg-pr-new publish --pnpm --compact './src'
+          pnpx pkg-pr-new publish --pnpm --compact '.'

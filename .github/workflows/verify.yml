@@ -49,6 +49,9 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Check exports drift
+        run: git diff --exit-code package.json
+
       - name: Publint
         run: pnpm test:build
 
