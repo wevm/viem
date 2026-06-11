@@ -49,8 +49,8 @@ export type BuildSponsoredCallsReturnType = {
   calls: AaCalls
   /** The selected token option, when paying with a token. */
   tokenOption?: PayerTokenOption | undefined
-  /** Phase-0 token transfer amount (`maxCost`), when paying with a token. */
-  maxCost?: bigint | undefined
+  /** Phase-0 token transfer amount (`paymentAmount`), when paying with a token. */
+  paymentAmount?: bigint | undefined
 }
 
 /**
@@ -60,7 +60,7 @@ export type BuildSponsoredCallsReturnType = {
  * | Model | Phase 0 | Last phase |
  * |---|---|---|
  * | Full sponsorship | — | user calls |
- * | Token payment | `transfer(payer, maxCost)` | user calls |
+ * | Token payment | `transfer(payer, paymentAmount)` | user calls |
  * | Required calls | required calls | user calls |
  * | Token + required | transfer + required calls | user calls |
  *
@@ -74,7 +74,7 @@ export function buildSponsoredCalls(
 
   const phase0: AaCall[] = []
   let tokenOption: PayerTokenOption | undefined
-  let maxCost: bigint | undefined
+  let paymentAmount: bigint | undefined
 
   if (!terms.sponsored) {
     const options = terms.tokenOptions ?? []
@@ -91,12 +91,12 @@ export function buildSponsoredCalls(
       throw new BaseError(
         `No token option matches the requested token "${parameters.token}".`,
       )
-    maxCost = hexToBigInt(tokenOption.maxCost)
+    paymentAmount = hexToBigInt(tokenOption.paymentAmount)
     phase0.push(
       encodeTokenTransfer({
         token: tokenOption.token,
         to: terms.payer,
-        amount: maxCost,
+        amount: paymentAmount,
       }),
     )
   }
@@ -106,5 +106,5 @@ export function buildSponsoredCalls(
 
   const phases: AaCalls = phase0.length > 0 ? [phase0, calls] : [calls]
 
-  return { payer: terms.payer, calls: phases, tokenOption, maxCost }
+  return { payer: terms.payer, calls: phases, tokenOption, paymentAmount }
 }

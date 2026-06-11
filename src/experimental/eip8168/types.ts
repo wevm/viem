@@ -31,33 +31,62 @@ export type PayerBalance = {
   name?: string | undefined
 }
 
+/**
+ * When/how unused gas is refunded. Presence means refunds are offered;
+ * absence means none are.
+ */
+export type RefundPolicy = {
+  /** `"in_block"`: settled by the builder in the same block. `"deferred"`: settled later. */
+  settlement: 'in_block' | 'deferred'
+  /** Deferred only: upper bound in seconds until settled (e.g. 86400 ≈ next day). */
+  window?: number | undefined
+}
+
 export type PayerGasEstimate = {
   gasLimit: Hex
   maxFeePerGas: Hex
   maxPriorityFeePerGas: Hex
+  /**
+   * Flat gas added on top of `gasLimit` to cover `payer_auth_cost` and payer
+   * operational overhead; included in reimbursement.
+   * Reimbursement is sized at `(gasLimit + overhead) × maxFeePerGas`.
+   */
+  overhead?: Hex | undefined
 }
 
 export type PayerTokenOption = {
   token: Address
   symbol: string
   decimals: number
-  /** Canonical phase-0 transfer amount, quoted at the gas cap. */
-  maxCost: Hex
+  /**
+   * Token amount the wallet transfers to `payer` in phase 0, quoted at the
+   * gas cap including `gasEstimate.overhead`. Transferring this amount always
+   * covers the transaction while terms are valid.
+   */
+  paymentAmount: Hex
   rate: {
     /** Token atomic units... */
     numerator: Hex
     /** ...per this many native wei. */
     denominator: Hex
   }
+  /**
+   * Optional: native token price in USD, 6-decimal fixed-point hex integer
+   * (e.g. `0x75BCD15` ≈ $1234.56). Shares the same `rateExpiry`.
+   */
+  usdRate?: Hex | undefined
   rateDisplay?: string | undefined
+  /** Relative, seconds from current time. */
   rateExpiry: number
+  refund?: RefundPolicy | undefined
 }
 
 export type PayerConditions = {
+  /** Relative, seconds from current time. */
   maxExpiry?: number | undefined
+  /** Relative, seconds from current time. */
   minExpiry?: number | undefined
   maxGasLimit?: Hex | undefined
-  requiredChainId?: Hex | undefined
 }
 
 export type PayerSponsor = {
@@ -78,9 +107,9 @@ export type GetTermsParameters = {
 
 export type GetTermsReturnType = {
   sponsored: boolean
-  /** Absolute, seconds. */
+  /** Relative, seconds from current time. Wallet computes on-chain expiry as `current_time + expiry`. */
   expiry: number
-  /** Lifetime in seconds from time of response. */
+  /** Lifetime of this quote in seconds from time of response. */
   ttl: number
   gasEstimate?: PayerGasEstimate | undefined
   tokenOptions?: readonly PayerTokenOption[] | undefined
@@ -118,6 +147,26 @@ export type SignTransactionReturnType = {
   tokenCharged?: TokenCharged | undefined
 }
 
+export type FillTransactionParameters = {
+  chainId: Hex
+  from: Address
+  calls: readonly PayerRpcCall[]
+  /** Omit to request full sponsorship; set to pay gas in this token. */
+  paymentToken?: Address | undefined
+  /** Wallet-selected parallel-nonce lane; payer MUST honor if present. */
+  nonceKey?: Hex | undefined
+  nonceSequence?: Hex | undefined
+  gasLimit?: Hex | undefined
+  context?: Record<string, unknown> | undefined
+}
+
+export type FillTransactionReturnType = {
+  /** EIP-8130 transaction with `payer` set, phases built, `payer_auth` empty. */
+  unsignedTransaction: Hex
+  /** Terms this transaction was filled against; wallet MUST verify before signing. */
+  terms: GetTermsReturnType
+}
+
 export type GetBalanceParameters = {
   from: Address
   chainId?: Hex | undefined
@@ -134,19 +183,21 @@ export type GetBalanceReturnType = {
   ttl: number
 }
 
-export type SponsorshipOption = {
-  type: 'full_sponsorship' | 'conditional'
+export type PayerOption = {
+  type: 'sponsored' | 'conditional'
   payer: Address
   endpoint: string
   sponsor?: PayerSponsor | undefined
   tokenPayment?:
     | {
         token: Address
-        tokenSymbol: string
+        symbol: string
         decimals: number
-        estimatedCost: Hex
+        estimatedAmount: Hex
         rate: { numerator: Hex; denominator: Hex }
+        usdRate?: Hex | undefined
         rateDisplay?: string | undefined
+        /** Relative, seconds from current time. */
         rateExpiry: number
       }
     | undefined
@@ -154,7 +205,7 @@ export type SponsorshipOption = {
   priority?: number | undefined
 }
 
-export type GetSponsorshipOptionsParameters = {
+export type GetOptionsParameters = {
   chainId: Hex
   from: Address
   calls: readonly PayerRpcCall[]
@@ -163,21 +214,33 @@ export type GetSponsorshipOptionsParameters = {
   context?: Record<string, unknown> | undefined
 }
 
-export type GetSponsorshipOptionsReturnType = {
-  options: readonly SponsorshipOption[]
+export type GetOptionsReturnType = {
+  options: readonly PayerOption[]
 }
 
 export type PayerChainCapabilities = {
   chainId: Hex
   payer: Address
-  endpoint: string
+  /** Omitted when served by a node acting as payer (the node's own RPC is the endpoint). */
+  endpoint?: string | undefined
+  /** Phase 0 token destination; defaults to `payer`. */
+  feeRecipient?: Address | undefined
+  /** Offers unconditional gas sponsorship, subject to policy. */
   fullSponsorship: boolean
+  /**
+   * `"unrestricted"`: firm guarantee the payer will not reject based on call
+   * content; behaves as a pure financial exchange.
+   * `"filtered"`: payer MAY reject based on call content.
+   */
+  callPolicy: 'unrestricted' | 'filtered'
   acceptedTokens: readonly {
     token: Address
     symbol: string
     decimals: number
   }[]
+  /** Authoritative list of `payer_*` methods this responder implements. */
   methods: readonly string[]
+  refund?: RefundPolicy | undefined
   conditions?: PayerConditions | undefined
   sponsor?: PayerSponsor | undefined
 }

@@ -34,7 +34,11 @@ export type SendSponsoredCallsParameters = {
   token?: `0x${string}` | undefined
   /** Opaque app context forwarded to `payer_*` calls (e.g. `policyId`). */
   context?: Record<string, unknown> | undefined
-  /** Override transaction expiry (defaults to `conditions.maxExpiry`). */
+  /**
+   * Override transaction expiry as an absolute Unix timestamp (seconds).
+   * When omitted the payer's recommended `terms.expiry` relative duration is
+   * applied: `current_time + terms.expiry`, clamped to `conditions.maxExpiry`.
+   */
   expiry?: bigint | undefined
   /** Override gas (defaults to the payer's `gasEstimate.gasLimit`). */
   gas?: bigint | undefined
@@ -113,11 +117,23 @@ export async function sendSponsoredCalls(
       ? hexToBigInt(terms.gasEstimate.maxPriorityFeePerGas)
       : undefined)
 
-  const expiry =
-    parameters.expiry ??
-    (terms.conditions?.maxExpiry !== undefined
-      ? BigInt(terms.conditions.maxExpiry)
-      : undefined)
+  // `terms.expiry` is a relative duration (seconds from now). Convert to an
+  // absolute on-chain timestamp, then clamp to [now+minExpiry, now+maxExpiry].
+  let expiry = parameters.expiry
+  if (expiry === undefined) {
+    const now = BigInt(Math.floor(Date.now() / 1000))
+    expiry = now + BigInt(terms.expiry)
+    if (
+      terms.conditions?.maxExpiry !== undefined &&
+      expiry > now + BigInt(terms.conditions.maxExpiry)
+    )
+      expiry = now + BigInt(terms.conditions.maxExpiry)
+    if (
+      terms.conditions?.minExpiry !== undefined &&
+      expiry < now + BigInt(terms.conditions.minExpiry)
+    )
+      expiry = now + BigInt(terms.conditions.minExpiry)
+  }
 
   const transaction = await prepareTransaction8130(client, {
     account,

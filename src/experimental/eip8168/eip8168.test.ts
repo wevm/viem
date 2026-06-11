@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { mainnet } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
@@ -37,19 +37,23 @@ const gasEstimate = {
   maxPriorityFeePerGas: '0x59682F00',
 } as const
 
+// Relative durations (seconds from now), as per ERC-8168 spec.
+const EXPIRY_REL = 30 // payer-recommended transaction lifetime
+const MAX_EXPIRY_REL = 60 // upper bound from conditions
+
 const sponsoredTerms: GetTermsReturnType = {
   sponsored: true,
-  expiry: 1735689900,
+  expiry: EXPIRY_REL,
   ttl: 300,
   gasEstimate,
-  conditions: { maxExpiry: 1735689720 },
+  conditions: { maxExpiry: MAX_EXPIRY_REL },
   payer: PAYER,
   endpoint: 'https://payer.example.com/v1',
 }
 
 const tokenTerms: GetTermsReturnType = {
   sponsored: false,
-  expiry: 1735689900,
+  expiry: EXPIRY_REL,
   ttl: 300,
   gasEstimate,
   tokenOptions: [
@@ -57,15 +61,27 @@ const tokenTerms: GetTermsReturnType = {
       token: USDC,
       symbol: 'USDC',
       decimals: 6,
-      maxCost: '0x30D40',
+      paymentAmount: '0x30D40',
       rate: { numerator: '0x7A308480', denominator: '0xDE0B6B3A7640000' },
-      rateExpiry: 1735689720,
+      rateExpiry: MAX_EXPIRY_REL,
     },
   ],
-  conditions: { maxExpiry: 1735689720 },
+  conditions: { maxExpiry: MAX_EXPIRY_REL },
   payer: PAYER,
   endpoint: 'https://payer.example.com/v1',
 }
+
+// Freeze time so expiry assertions are deterministic.
+const FROZEN_NOW_MS = 1_700_000_000_000 // arbitrary fixed epoch
+const FROZEN_NOW_S = Math.floor(FROZEN_NOW_MS / 1000)
+
+beforeEach(() => {
+  vi.useFakeTimers()
+  vi.setSystemTime(FROZEN_NOW_MS)
+})
+afterEach(() => {
+  vi.useRealTimers()
+})
 
 describe('buildSponsoredCalls', () => {
   test('full sponsorship -> single phase, no transfer', () => {
@@ -75,12 +91,12 @@ describe('buildSponsoredCalls', () => {
     })
     expect(built.payer).toBe(PAYER)
     expect(built.calls).toEqual([userCalls])
-    expect(built.maxCost).toBeUndefined()
+    expect(built.paymentAmount).toBeUndefined()
   })
 
-  test('token payment -> phase 0 transfer(payer, maxCost) + phase 1 user calls', () => {
+  test('token payment -> phase 0 transfer(payer, paymentAmount) + phase 1 user calls', () => {
     const built = buildSponsoredCalls({ terms: tokenTerms, calls: userCalls })
-    expect(built.maxCost).toBe(hexToBigInt('0x30D40'))
+    expect(built.paymentAmount).toBe(hexToBigInt('0x30D40'))
     expect(built.calls).toHaveLength(2)
     const transfer = built.calls[0][0]
     expect(transfer.to).toBe(USDC)
@@ -138,6 +154,25 @@ describe('createPayerClient', () => {
     await payer.getBalance({ from: owner.address, kind: ['credit'] })
     expect(seen[1].method).toBe('payer_getBalance')
   })
+
+  test('getOptions calls payer_getOptions', async () => {
+    const seen: { method: string }[] = []
+    const payer = createPayerClient({
+      transport: custom({
+        async request({ method }: { method: string }) {
+          seen.push({ method })
+          if (method === 'payer_getOptions') return { options: [] }
+          throw new Error(`unexpected ${method}`)
+        },
+      }),
+    })
+    await payer.getOptions({
+      chainId: '0x1',
+      from: owner.address,
+      calls: userCalls,
+    })
+    expect(seen[0].method).toBe('payer_getOptions')
+  })
 })
 
 describe('sendSponsoredCalls (end-to-end)', () => {
@@ -153,7 +188,7 @@ describe('sendSponsoredCalls (end-to-end)', () => {
     })
   }
 
-  test('full sponsorship: sender-signs, payer relays', async () => {
+  test('full sponsorship: sender-signs, payer relays; expiry = now + terms.expiry', async () => {
     let relayed: `0x${string}` | undefined
     const payer = createPayerClient({
       transport: custom({
@@ -183,7 +218,8 @@ describe('sendSponsoredCalls (end-to-end)', () => {
     expect(parsed.calls).toHaveLength(1) // single phase, full sponsorship
     expect(parsed.calls?.[0]?.[0]?.to).toBe(userCalls[0].to.toLowerCase())
     expect(parsed.gas).toBe(hexToBigInt(gasEstimate.gasLimit))
-    expect(parsed.expiry).toBe(BigInt(1735689720)) // conditions.maxExpiry
+    // expiry = now + terms.expiry (relative), clamped to maxExpiry
+    expect(parsed.expiry).toBe(BigInt(FROZEN_NOW_S + EXPIRY_REL))
   })
 
   test('token payment: phase 0 transfer present; co-sign mode returns signed tx', async () => {

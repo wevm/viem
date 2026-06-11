@@ -2,12 +2,14 @@ import { createClient } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { http } from '../../clients/transports/http.js'
 import type {
+  FillTransactionParameters,
+  FillTransactionReturnType,
   GetBalanceParameters,
   GetBalanceReturnType,
   GetCapabilitiesParameters,
   GetCapabilitiesReturnType,
-  GetSponsorshipOptionsParameters,
-  GetSponsorshipOptionsReturnType,
+  GetOptionsParameters,
+  GetOptionsReturnType,
   GetTermsParameters,
   GetTermsReturnType,
   SendTransactionParameters,
@@ -37,12 +39,20 @@ export type PayerClient = {
   signTransaction(
     parameters: SignTransactionParameters,
   ): Promise<SignTransactionReturnType>
+  /**
+   * Fill a transaction intent into a complete unsigned EIP-8130 transaction
+   * with phases assembled and `payer` set. Wallet MUST verify before signing.
+   * (OPTIONAL per ERC-8168.)
+   */
+  fillTransaction(
+    parameters: FillTransactionParameters,
+  ): Promise<FillTransactionReturnType>
   /** Standing, intent-free balances (sponsorship allowance / prepaid credit). */
   getBalance(parameters: GetBalanceParameters): Promise<GetBalanceReturnType>
-  /** Ranked sponsorship options for a transaction intent. */
-  getSponsorshipOptions(
-    parameters: GetSponsorshipOptionsParameters,
-  ): Promise<GetSponsorshipOptionsReturnType>
+  /** Ranked payer options for a transaction intent. */
+  getOptions(
+    parameters: GetOptionsParameters,
+  ): Promise<GetOptionsReturnType>
   /** Static, intent-free descriptor of what the payer accepts. */
   getCapabilities(
     parameters?: GetCapabilitiesParameters,
@@ -88,17 +98,23 @@ export function createPayerClient(
         params: [params],
       }) as Promise<SignTransactionReturnType>
     },
+    fillTransaction(params) {
+      return request({
+        method: 'payer_fillTransaction',
+        params: [params],
+      }) as Promise<FillTransactionReturnType>
+    },
     getBalance(params) {
       return request({
         method: 'payer_getBalance',
         params: [params],
       }) as Promise<GetBalanceReturnType>
     },
-    getSponsorshipOptions(params) {
+    getOptions(params) {
       return request({
-        method: 'payer_getSponsorshipOptions',
+        method: 'payer_getOptions',
         params: [params],
-      }) as Promise<GetSponsorshipOptionsReturnType>
+      }) as Promise<GetOptionsReturnType>
     },
     getCapabilities(params) {
       return request({

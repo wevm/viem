@@ -11,26 +11,29 @@ export {
 } from './client.js'
 export { type PayerErrorCode, payerErrorCode } from './constants.js'
 export type {
+  FillTransactionParameters,
+  FillTransactionReturnType,
   GetBalanceParameters,
   GetBalanceReturnType,
   GetCapabilitiesParameters,
   GetCapabilitiesReturnType,
-  GetSponsorshipOptionsParameters,
-  GetSponsorshipOptionsReturnType,
+  GetOptionsParameters,
+  GetOptionsReturnType,
   GetTermsParameters,
   GetTermsReturnType,
   PayerBalance,
   PayerChainCapabilities,
   PayerConditions,
   PayerGasEstimate,
+  PayerOption,
   PayerRpcCall,
   PayerSponsor,
   PayerTokenOption,
+  RefundPolicy,
   SendTransactionParameters,
   SendTransactionReturnType,
   SignTransactionParameters,
   SignTransactionReturnType,
-  SponsorshipOption,
   TokenCharged,
 } from './types.js'
 export {
