@@ -180,6 +180,8 @@ export async function estimateUserOperationGas<
           'nonce',
           'paymaster',
           'signature',
+          'maxFeePerGas',
+          'maxPriorityFeePerGas',
         ],
       } as unknown as PrepareUserOperationParameters)
     : parameters
