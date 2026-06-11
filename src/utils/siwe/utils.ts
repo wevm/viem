@@ -21,10 +21,10 @@ export function isUri(value: string) {
 
   // if authority is present, the path must be empty or begin with a /
   if (authority?.length) {
-    if (!(path.length === 0 || /^\//.test(path))) return false
+    if (!(path.length === 0 || path.startsWith('/'))) return false
   } else {
     // if authority is not present, the path must not start with //
-    if (/^\/\//.test(path)) return false
+    if (path.startsWith('//')) return false
   }
 
   // scheme must begin with a letter, then consist of letters, digits, +, ., or -

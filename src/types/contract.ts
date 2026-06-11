@@ -62,10 +62,8 @@ export type ContractEventName<abi extends Abi | readonly unknown[] = Abi> =
 export type ContractFunctionArgs<
   abi extends Abi | readonly unknown[] = Abi,
   mutability extends AbiStateMutability = AbiStateMutability,
-  functionName extends ContractFunctionName<
-    abi,
-    mutability
-  > = ContractFunctionName<abi, mutability>,
+  functionName extends ContractFunctionName<abi, mutability> =
+    ContractFunctionName<abi, mutability>,
 > =
   AbiParametersToPrimitiveTypes<
     ExtractAbiFunction<
@@ -201,15 +199,10 @@ type CheckArgs<
 export type ContractFunctionParameters<
   abi extends Abi | readonly unknown[] = Abi,
   mutability extends AbiStateMutability = AbiStateMutability,
-  functionName extends ContractFunctionName<
-    abi,
-    mutability
-  > = ContractFunctionName<abi, mutability>,
-  args extends ContractFunctionArgs<
-    abi,
-    mutability,
-    functionName
-  > = ContractFunctionArgs<abi, mutability, functionName>,
+  functionName extends ContractFunctionName<abi, mutability> =
+    ContractFunctionName<abi, mutability>,
+  args extends ContractFunctionArgs<abi, mutability, functionName> =
+    ContractFunctionArgs<abi, mutability, functionName>,
   deployless extends boolean = false,
   ///
   allFunctionNames = ContractFunctionName<abi, mutability>,
@@ -252,15 +245,10 @@ export type ContractFunctionParameters<
 export type ContractFunctionReturnType<
   abi extends Abi | readonly unknown[] = Abi,
   mutability extends AbiStateMutability = AbiStateMutability,
-  functionName extends ContractFunctionName<
-    abi,
-    mutability
-  > = ContractFunctionName<abi, mutability>,
-  args extends ContractFunctionArgs<
-    abi,
-    mutability,
-    functionName
-  > = ContractFunctionArgs<abi, mutability, functionName>,
+  functionName extends ContractFunctionName<abi, mutability> =
+    ContractFunctionName<abi, mutability>,
+  args extends ContractFunctionArgs<abi, mutability, functionName> =
+    ContractFunctionArgs<abi, mutability, functionName>,
 > = abi extends Abi
   ? Abi extends abi
     ? unknown

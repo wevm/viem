@@ -81,10 +81,8 @@ export type ToBlobSidecarsErrorType =
  */
 export function toBlobSidecars<
   const data extends Hex | ByteArray | undefined = undefined,
-  const blobs extends
-    | readonly Hex[]
-    | readonly ByteArray[]
-    | undefined = undefined,
+  const blobs extends readonly Hex[] | readonly ByteArray[] | undefined =
+    undefined,
   to extends To =
     | (data extends Hex ? 'hex' : never)
     | (data extends ByteArray ? 'bytes' : never)

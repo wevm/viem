@@ -7,7 +7,7 @@ import type {
 } from './types.js'
 
 export function isEmpty(
-  value: string | undefined | number | BigInt,
+  value: string | undefined | number | bigint,
 ): value is undefined {
   return (
     value === 0 ||
@@ -23,8 +23,8 @@ export function isEmpty(
 }
 
 export function isPresent(
-  value: string | undefined | number | BigInt,
-): value is string | number | BigInt {
+  value: string | undefined | number | bigint,
+): value is string | number | bigint {
   return !isEmpty(value)
 }
 

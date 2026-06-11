@@ -158,7 +158,8 @@ describe('http error', () => {
         gatewayUrls: [server!.url],
         strict: true,
       }),
-    ).rejects.toThrowError(`The contract function "resolveWithGateways" reverted.
+    ).rejects
+      .toThrowError(`The contract function "resolveWithGateways" reverted.
 
 Error: HttpError(uint16 status, string message)
                 (404, Not Found)`)

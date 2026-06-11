@@ -257,9 +257,8 @@ describe('TransactionNotFoundError', () => {
   })
 
   test('blockHash', async () => {
-    expect(
-      new TransactionNotFoundError({ blockHash: '0x123', index: 420 }),
-    ).toMatchInlineSnapshot(`
+    expect(new TransactionNotFoundError({ blockHash: '0x123', index: 420 }))
+      .toMatchInlineSnapshot(`
       [TransactionNotFoundError: Transaction at block hash "0x123" at index "420" could not be found.
 
       Version: viem@x.y.z]
@@ -267,9 +266,8 @@ describe('TransactionNotFoundError', () => {
   })
 
   test('blockTag', async () => {
-    expect(
-      new TransactionNotFoundError({ blockTag: 'latest', index: 420 }),
-    ).toMatchInlineSnapshot(`
+    expect(new TransactionNotFoundError({ blockTag: 'latest', index: 420 }))
+      .toMatchInlineSnapshot(`
       [TransactionNotFoundError: Transaction at block time "latest" at index "420" could not be found.
 
       Version: viem@x.y.z]
@@ -277,9 +275,8 @@ describe('TransactionNotFoundError', () => {
   })
 
   test('blockNumber', async () => {
-    expect(
-      new TransactionNotFoundError({ blockNumber: 42069n, index: 420 }),
-    ).toMatchInlineSnapshot(`
+    expect(new TransactionNotFoundError({ blockNumber: 42069n, index: 420 }))
+      .toMatchInlineSnapshot(`
       [TransactionNotFoundError: Transaction at block number "42069" at index "420" could not be found.
 
       Version: viem@x.y.z]
@@ -287,9 +284,8 @@ describe('TransactionNotFoundError', () => {
   })
 
   test('hash', async () => {
-    expect(
-      new TransactionNotFoundError({ hash: '0x123' }),
-    ).toMatchInlineSnapshot(`
+    expect(new TransactionNotFoundError({ hash: '0x123' }))
+      .toMatchInlineSnapshot(`
       [TransactionNotFoundError: Transaction with hash "0x123" could not be found.
 
       Version: viem@x.y.z]

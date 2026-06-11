@@ -19,8 +19,8 @@ import { type SliceHexErrorType, sliceHex } from '../data/slice.js'
 import { type HexToNumberErrorType, hexToNumber } from '../encoding/fromHex.js'
 
 export type GetSerializedTransactionType<
-  serializedTransaction extends
-    TransactionSerializedGeneric = TransactionSerialized,
+  serializedTransaction extends TransactionSerializedGeneric =
+    TransactionSerialized,
   result =
     | (serializedTransaction extends TransactionSerializedEIP1559
         ? 'eip1559'

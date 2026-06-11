@@ -57,10 +57,10 @@ export type DecodeEventLogReturnType<
   data extends Hex | undefined = undefined,
   strict extends boolean = true,
   ///
-  allEventNames extends
-    ContractEventName<abi> = eventName extends ContractEventName<abi>
-    ? eventName
-    : ContractEventName<abi>,
+  allEventNames extends ContractEventName<abi> =
+    eventName extends ContractEventName<abi>
+      ? eventName
+      : ContractEventName<abi>,
 > =
   IsNarrowable<abi, Abi> extends true
     ? {

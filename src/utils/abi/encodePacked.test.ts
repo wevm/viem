@@ -209,18 +209,16 @@ test.each([
     expected:
       '0xd8da6bf26964af9d7eed9e03e53415d37aa9604568656c6c6f20776f726c64deadbeef00000000000000000000000000000000000000000000000000000000cafebabe00000000000000000000000000000000000000000000000000000000',
   },
-])("encodePacked($types, $values) -> '$expected'", ({
-  types,
-  values,
-  expected,
-}) => {
-  expect(encodePacked(types, values)).toBe(expected)
-})
+])(
+  "encodePacked($types, $values) -> '$expected'",
+  ({ types, values, expected }) => {
+    expect(encodePacked(types, values)).toBe(expected)
+  },
+)
 
 test('error: invalid address', () => {
-  expect(() =>
-    encodePacked(['address'], ['0xdeadbeef']),
-  ).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => encodePacked(['address'], ['0xdeadbeef']))
+    .toThrowErrorMatchingInlineSnapshot(`
     [InvalidAddressError: Address "0xdeadbeef" is invalid.
 
     - Address must be a hex value of 20 bytes (40 hex characters).
@@ -244,9 +242,8 @@ test('error: length mismatch', () => {
 })
 
 test('error: bytes size mismatch', () => {
-  expect(() =>
-    encodePacked(['bytes8'], ['0xdeadbeef']),
-  ).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => encodePacked(['bytes8'], ['0xdeadbeef']))
+    .toThrowErrorMatchingInlineSnapshot(`
     [BytesSizeMismatchError: Expected bytes8, got bytes4.
 
     Version: viem@x.y.z]

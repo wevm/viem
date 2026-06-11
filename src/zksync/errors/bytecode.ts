@@ -9,7 +9,10 @@ export class BytecodeLengthExceedsMaxSizeError extends BaseError {
   constructor({
     givenLength,
     maxBytecodeSize,
-  }: { givenLength: number; maxBytecodeSize: bigint }) {
+  }: {
+    givenLength: number
+    maxBytecodeSize: bigint
+  }) {
     super(
       `Bytecode cannot be longer than ${maxBytecodeSize} bytes. Given length: ${givenLength}`,
       { name: 'BytecodeLengthExceedsMaxSizeError' },

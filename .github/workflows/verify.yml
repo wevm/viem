@@ -27,7 +27,7 @@ jobs:
         run: pnpm check:repo
 
       - name: Check code
-        run: pnpm biome check
+        run: pnpm check
 
   build:
     name: Build

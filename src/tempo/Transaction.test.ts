@@ -97,9 +97,8 @@ describe('deserialize', () => {
   })
 
   test('behavior: non-tempo transaction', async () => {
-    const { serializeTransaction } = await import(
-      '../utils/transaction/serializeTransaction.js'
-    )
+    const { serializeTransaction } =
+      await import('../utils/transaction/serializeTransaction.js')
     const serialized = serializeTransaction(
       {
         chainId: 1,

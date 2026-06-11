@@ -25,9 +25,8 @@ const docsPath = '/docs/contract/decodeFunctionResult'
 
 export type DecodeFunctionResultParameters<
   abi extends Abi | readonly unknown[] = Abi,
-  functionName extends
-    | ContractFunctionName<abi>
-    | undefined = ContractFunctionName<abi>,
+  functionName extends ContractFunctionName<abi> | undefined =
+    ContractFunctionName<abi>,
   args extends ContractFunctionArgs<
     abi,
     AbiStateMutability,
@@ -91,9 +90,8 @@ export type DecodeFunctionResultParameters<
 
 export type DecodeFunctionResultReturnType<
   abi extends Abi | readonly unknown[] = Abi,
-  functionName extends
-    | ContractFunctionName<abi>
-    | undefined = ContractFunctionName<abi>,
+  functionName extends ContractFunctionName<abi> | undefined =
+    ContractFunctionName<abi>,
   args extends ContractFunctionArgs<
     abi,
     AbiStateMutability,

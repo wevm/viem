@@ -213,8 +213,8 @@ export function deserialize<
 
 export declare namespace deserialize {
   export type ReturnValue<
-    serialized extends
-      TransactionSerializedGeneric = TransactionSerializedGeneric,
+    serialized extends TransactionSerializedGeneric =
+      TransactionSerializedGeneric,
   > = serialized extends TransactionSerializedTempo
     ? TransactionSerializableTempo
     : serialized extends TransactionSerializedFeePayer

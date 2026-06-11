@@ -21,7 +21,10 @@ export class InvalidPrimaryTypeError extends BaseError {
   constructor({
     primaryType,
     types,
-  }: { primaryType: string; types: TypedData | Record<string, unknown> }) {
+  }: {
+    primaryType: string
+    types: TypedData | Record<string, unknown>
+  }) {
     super(
       `Invalid primary type \`${primaryType}\` must be one of \`${JSON.stringify(Object.keys(types))}\`.`,
       {

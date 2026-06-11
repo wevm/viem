@@ -45,16 +45,11 @@ import { type CallErrorType, type CallParameters, call } from './call.js'
 export type GetMutabilityAwareValue<
   abi extends Abi | readonly unknown[],
   mutability extends AbiStateMutability = AbiStateMutability,
-  functionName extends ContractFunctionName<
-    abi,
-    mutability
-  > = ContractFunctionName<abi, mutability>,
+  functionName extends ContractFunctionName<abi, mutability> =
+    ContractFunctionName<abi, mutability>,
   valueType = TransactionRequest['value'],
-  args extends ContractFunctionArgs<
-    abi,
-    mutability,
-    functionName
-  > = ContractFunctionArgs<abi, mutability, functionName>,
+  args extends ContractFunctionArgs<abi, mutability, functionName> =
+    ContractFunctionArgs<abi, mutability, functionName>,
   abiFunction extends AbiFunction = abi extends Abi
     ? ExtractAbiFunctionForArgs<abi, mutability, functionName, args>
     : AbiFunction,
@@ -69,10 +64,8 @@ export type GetMutabilityAwareValue<
 
 export type SimulateContractParameters<
   abi extends Abi | readonly unknown[] = Abi,
-  functionName extends ContractFunctionName<
-    abi,
-    'nonpayable' | 'payable'
-  > = ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+  functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'> =
+    ContractFunctionName<abi, 'nonpayable' | 'payable'>,
   args extends ContractFunctionArgs<
     abi,
     'nonpayable' | 'payable',
@@ -83,8 +76,8 @@ export type SimulateContractParameters<
   accountOverride extends Account | Address | null | undefined = undefined,
   ///
   derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
-  callParameters extends
-    CallParameters<derivedChain> = CallParameters<derivedChain>,
+  callParameters extends CallParameters<derivedChain> =
+    CallParameters<derivedChain>,
 > = {
   account?: accountOverride | null | undefined
   chain?: chainOverride | undefined
@@ -144,12 +137,10 @@ export type SimulateContractReturnType<
       args
     >,
   ],
-  out resolvedAccount extends
-    | Account
-    | null
-    | undefined = accountOverride extends Account | Address | null
-    ? ParseAccount<accountOverride>
-    : account,
+  out resolvedAccount extends Account | null | undefined =
+    accountOverride extends Account | Address | null
+      ? ParseAccount<accountOverride>
+      : account,
 > = {
   result: ContractFunctionReturnType<
     minimizedAbi,

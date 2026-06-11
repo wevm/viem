@@ -185,7 +185,8 @@ describe('http error', () => {
         gatewayUrls: [server!.url],
         strict: true,
       }),
-    ).rejects.toThrowError(`The contract function "reverseWithGateways" reverted.
+    ).rejects
+      .toThrowError(`The contract function "reverseWithGateways" reverted.
 
 Error: HttpError(uint16 status, string message)`)
   })

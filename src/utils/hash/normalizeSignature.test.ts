@@ -132,25 +132,22 @@ test('error: invalid signatures', () => {
   `,
   )
 
-  expect(() =>
-    normalizeSignature('bar(uint foo'),
-  ).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => normalizeSignature('bar(uint foo'))
+    .toThrowErrorMatchingInlineSnapshot(`
     [BaseError: Unable to normalize signature.
 
     Version: viem@x.y.z]
   `)
 
-  expect(() =>
-    normalizeSignature('baruint foo)'),
-  ).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => normalizeSignature('baruint foo)'))
+    .toThrowErrorMatchingInlineSnapshot(`
     [BaseError: Unable to normalize signature.
 
     Version: viem@x.y.z]
   `)
 
-  expect(() =>
-    normalizeSignature('bar(uint foo, (uint baz)'),
-  ).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => normalizeSignature('bar(uint foo, (uint baz)'))
+    .toThrowErrorMatchingInlineSnapshot(`
     [BaseError: Unable to normalize signature.
 
     Version: viem@x.y.z]

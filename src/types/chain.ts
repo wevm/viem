@@ -236,13 +236,13 @@ export type ChainFormatter<type extends string = string> = {
 export type ChainSerializers<
   formatters extends ChainFormatters | undefined = undefined,
   ///
-  transaction extends
-    TransactionSerializableGeneric = formatters extends ChainFormatters
-    ? formatters['transactionRequest'] extends ChainFormatter
-      ? TransactionSerializableGeneric &
-          Parameters<formatters['transactionRequest']['format']>[0]
-      : TransactionSerializable
-    : TransactionSerializable,
+  transaction extends TransactionSerializableGeneric =
+    formatters extends ChainFormatters
+      ? formatters['transactionRequest'] extends ChainFormatter
+        ? TransactionSerializableGeneric &
+            Parameters<formatters['transactionRequest']['format']>[0]
+        : TransactionSerializable
+      : TransactionSerializable,
 > = {
   /** Modifies how Transactions are serialized. */
   transaction?:

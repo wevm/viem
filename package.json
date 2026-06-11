@@ -5,7 +5,7 @@
     "changeset:prepublish": "pnpm version:update && pnpm build && zile publish:prepare",
     "changeset:publish": "pnpm changeset:prepublish && changeset publish && zile publish:post",
     "changeset:version": "pnpm install --lockfile-only && changeset version && pnpm version:update && pnpm check",
-    "check": "biome check --write --unsafe",
+    "check": "vp check --fix",
     "check:repo": "sherif -r root-package-dependencies",
     "check:types": "tsc -b",
     "contracts:build": "forge build --config-path ./contracts/foundry.toml && bun scripts/contracts:build.ts",
@@ -20,23 +20,21 @@
     "preinstall": "pnpx only-allow pnpm",
     "prepare": "pnpm simple-git-hooks",
     "size": "size-limit",
-    "test": "vitest -c ./test/vitest.config.ts",
+    "test": "vp test",
     "test:build": "publint --strict . && attw --pack . --profile esm-only",
-    "test:chains": "vitest test/scripts/chains.test.ts",
     "test:env": "pnpm test:env:bun && pnpm test:env:next && pnpm test:env:node && pnpm test:env:tsc && pnpm test:env:vite",
     "test:env:bun": "pnpm --filter test-bun test",
     "test:env:next": "pnpm --filter test-next test",
     "test:env:node": "pnpm --filter test-node test",
     "test:env:tsc": "pnpm --filter test-tsc test",
     "test:env:vite": "pnpm --filter test-vite test",
-    "test:typecheck": "SKIP_GLOBAL_SETUP=true vitest --typecheck.only -c ./test/vitest.config.ts",
+    "test:typecheck": "SKIP_GLOBAL_SETUP=true vp test --typecheck.only",
     "vectors": "bun test vectors/**/*.test.ts",
     "vectors:generate": "bun vectors/generate.ts",
     "version:update": "bun scripts/version:update.ts"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "catalog:",
-    "@biomejs/biome": "catalog:",
     "@changesets/changelog-github": "catalog:",
     "@changesets/cli": "catalog:",
     "@paulmillr/trusted-setups": "catalog:",
@@ -57,7 +55,9 @@
     "size-limit": "catalog:",
     "testcontainers": "catalog:",
     "typescript": "catalog:",
+    "vite-plus": "catalog:",
     "vitest": "catalog:",
+    "vp": "catalog:",
     "zile": "catalog:"
   },
   "packageManager": "pnpm@10.33.2",
@@ -88,7 +88,7 @@
     ],
     "vitest": {
       "config": [
-        "test/vitest.config.ts"
+        "vite.config.ts"
       ],
       "entry": [
         "**/*.{test,test-d,spec}.?(c|m)[jt]s?(x)"

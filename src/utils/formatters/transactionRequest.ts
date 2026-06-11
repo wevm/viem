@@ -29,7 +29,7 @@ export type ExtractFormattedTransactionRequest<
   ///
   _transactionRequest = UnionOmit<FormattedTransactionRequest<chain>, 'from'>,
   _transactionType = request['type'],
-> = _transactionRequest extends { type?: infer type | undefined }
+> = _transactionRequest extends { type?: (infer type) | undefined }
   ? Extract<_transactionType, type> extends never
     ? never
     : _transactionRequest

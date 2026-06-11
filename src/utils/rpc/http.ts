@@ -97,8 +97,8 @@ export function getHttpRpcClient(
       } = params
 
       const fetchOptions = {
-        ...(options.fetchOptions ?? {}),
-        ...(params.fetchOptions ?? {}),
+        ...options.fetchOptions,
+        ...params.fetchOptions,
       }
 
       const { headers, method, signal: signal_ } = fetchOptions

@@ -1602,16 +1602,14 @@ test('zst', () => {
 
     Version: viem@x.y.z]
   `)
-  expect(() =>
-    decodeAbiParameters([{ type: 'uint256[0][]' }], payload),
-  ).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => decodeAbiParameters([{ type: 'uint256[0][]' }], payload))
+    .toThrowErrorMatchingInlineSnapshot(`
     [PositionOutOfBoundsError: Position \`64\` is out of bounds (\`0 < position < 64\`).
 
     Version: viem@x.y.z]
   `)
-  expect(() =>
-    decodeAbiParameters([{ type: 'uint256[0][]' }], payload),
-  ).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => decodeAbiParameters([{ type: 'uint256[0][]' }], payload))
+    .toThrowErrorMatchingInlineSnapshot(`
     [PositionOutOfBoundsError: Position \`64\` is out of bounds (\`0 < position < 64\`).
 
     Version: viem@x.y.z]
@@ -1695,9 +1693,8 @@ test('recursive', () => {
     `0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000a${'0000000000000000000000000000000000000000000000000000000000000020'.repeat(
       64,
     )}` as const
-  expect(() =>
-    decodeAbiParameters(arr10, payload),
-  ).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => decodeAbiParameters(arr10, payload))
+    .toThrowErrorMatchingInlineSnapshot(`
     [RecursiveReadLimitExceededError: Recursive read limit of \`8192\` exceeded (recursive read count: \`8193\`).
 
     Version: viem@x.y.z]
@@ -1708,23 +1705,20 @@ test('recursive', () => {
   const p2 = encodeAbiParameters(ptrArr, [
     Array.from({ length: 10 * 1024 }, (_, j) => BigInt(j + 1) * 32n),
   ])
-  expect(() =>
-    decodeAbiParameters(arr10, p2),
-  ).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => decodeAbiParameters(arr10, p2))
+    .toThrowErrorMatchingInlineSnapshot(`
     [PositionOutOfBoundsError: Position \`327744\` is out of bounds (\`0 < position < 327744\`).
 
     Version: viem@x.y.z]
   `)
-  expect(() =>
-    decodeAbiParameters(arr4, p2),
-  ).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => decodeAbiParameters(arr4, p2))
+    .toThrowErrorMatchingInlineSnapshot(`
     [RecursiveReadLimitExceededError: Recursive read limit of \`8192\` exceeded (recursive read count: \`8193\`).
 
     Version: viem@x.y.z]
   `)
-  expect(() =>
-    decodeAbiParameters(arr2, p2),
-  ).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => decodeAbiParameters(arr2, p2))
+    .toThrowErrorMatchingInlineSnapshot(`
     [RecursiveReadLimitExceededError: Recursive read limit of \`8192\` exceeded (recursive read count: \`8193\`).
 
     Version: viem@x.y.z]

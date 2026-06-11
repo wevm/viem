@@ -198,9 +198,8 @@ describe('eip7702', () => {
     })
 
     test('invalid transaction (all missing)', () => {
-      expect(() =>
-        parseTransaction(`0x04${toRlp([]).slice(2)}`),
-      ).toThrowErrorMatchingInlineSnapshot(`
+      expect(() => parseTransaction(`0x04${toRlp([]).slice(2)}`))
+        .toThrowErrorMatchingInlineSnapshot(`
         [InvalidSerializedTransactionError: Invalid serialized transaction of type "eip7702" was provided.
 
         Serialized Transaction: "0x04c0"
@@ -211,9 +210,8 @@ describe('eip7702', () => {
     })
 
     test('invalid transaction (some missing)', () => {
-      expect(() =>
-        parseTransaction(`0x04${toRlp(['0x0', '0x1']).slice(2)}`),
-      ).toThrowErrorMatchingInlineSnapshot(`
+      expect(() => parseTransaction(`0x04${toRlp(['0x0', '0x1']).slice(2)}`))
+        .toThrowErrorMatchingInlineSnapshot(`
         [InvalidSerializedTransactionError: Invalid serialized transaction of type "eip7702" was provided.
 
         Serialized Transaction: "0x04c20001"
@@ -431,9 +429,8 @@ describe('eip4844', () => {
     })
 
     test('invalid transaction (all missing)', () => {
-      expect(() =>
-        parseTransaction(`0x03${toRlp([]).slice(2)}`),
-      ).toThrowErrorMatchingInlineSnapshot(`
+      expect(() => parseTransaction(`0x03${toRlp([]).slice(2)}`))
+        .toThrowErrorMatchingInlineSnapshot(`
         [InvalidSerializedTransactionError: Invalid serialized transaction of type "eip4844" was provided.
 
         Serialized Transaction: "0x03c0"
@@ -444,9 +441,8 @@ describe('eip4844', () => {
     })
 
     test('invalid transaction (some missing)', () => {
-      expect(() =>
-        parseTransaction(`0x03${toRlp(['0x0', '0x1']).slice(2)}`),
-      ).toThrowErrorMatchingInlineSnapshot(`
+      expect(() => parseTransaction(`0x03${toRlp(['0x0', '0x1']).slice(2)}`))
+        .toThrowErrorMatchingInlineSnapshot(`
         [InvalidSerializedTransactionError: Invalid serialized transaction of type "eip4844" was provided.
 
         Serialized Transaction: "0x03c20001"
@@ -711,9 +707,8 @@ describe('eip1559', () => {
     })
 
     test('invalid transaction (all missing)', () => {
-      expect(() =>
-        parseTransaction(`0x02${toRlp([]).slice(2)}`),
-      ).toThrowErrorMatchingInlineSnapshot(`
+      expect(() => parseTransaction(`0x02${toRlp([]).slice(2)}`))
+        .toThrowErrorMatchingInlineSnapshot(`
         [InvalidSerializedTransactionError: Invalid serialized transaction of type "eip1559" was provided.
 
         Serialized Transaction: "0x02c0"
@@ -724,9 +719,8 @@ describe('eip1559', () => {
     })
 
     test('invalid transaction (some missing)', () => {
-      expect(() =>
-        parseTransaction(`0x02${toRlp(['0x0', '0x1']).slice(2)}`),
-      ).toThrowErrorMatchingInlineSnapshot(`
+      expect(() => parseTransaction(`0x02${toRlp(['0x0', '0x1']).slice(2)}`))
+        .toThrowErrorMatchingInlineSnapshot(`
         [InvalidSerializedTransactionError: Invalid serialized transaction of type "eip1559" was provided.
 
         Serialized Transaction: "0x02c20001"
@@ -856,9 +850,8 @@ describe('eip2930', () => {
 
   describe('errors', () => {
     test('invalid transaction (all missing)', () => {
-      expect(() =>
-        parseTransaction(`0x01${toRlp([]).slice(2)}`),
-      ).toThrowErrorMatchingInlineSnapshot(`
+      expect(() => parseTransaction(`0x01${toRlp([]).slice(2)}`))
+        .toThrowErrorMatchingInlineSnapshot(`
         [InvalidSerializedTransactionError: Invalid serialized transaction of type "eip2930" was provided.
 
         Serialized Transaction: "0x01c0"
@@ -869,9 +862,8 @@ describe('eip2930', () => {
     })
 
     test('invalid transaction (some missing)', () => {
-      expect(() =>
-        parseTransaction(`0x01${toRlp(['0x0', '0x1']).slice(2)}`),
-      ).toThrowErrorMatchingInlineSnapshot(`
+      expect(() => parseTransaction(`0x01${toRlp(['0x0', '0x1']).slice(2)}`))
+        .toThrowErrorMatchingInlineSnapshot(`
         [InvalidSerializedTransactionError: Invalid serialized transaction of type "eip2930" was provided.
 
         Serialized Transaction: "0x01c20001"
@@ -1067,9 +1059,8 @@ describe('legacy', () => {
 
   describe('errors', () => {
     test('invalid transaction (all missing)', () => {
-      expect(() =>
-        parseTransaction(toRlp([])),
-      ).toThrowErrorMatchingInlineSnapshot(`
+      expect(() => parseTransaction(toRlp([])))
+        .toThrowErrorMatchingInlineSnapshot(`
         [InvalidSerializedTransactionError: Invalid serialized transaction of type "legacy" was provided.
 
         Serialized Transaction: "0xc0"
@@ -1080,9 +1071,8 @@ describe('legacy', () => {
     })
 
     test('invalid transaction (some missing)', () => {
-      expect(() =>
-        parseTransaction(toRlp(['0x0', '0x1'])),
-      ).toThrowErrorMatchingInlineSnapshot(`
+      expect(() => parseTransaction(toRlp(['0x0', '0x1'])))
+        .toThrowErrorMatchingInlineSnapshot(`
         [InvalidSerializedTransactionError: Invalid serialized transaction of type "legacy" was provided.
 
         Serialized Transaction: "0xc20001"

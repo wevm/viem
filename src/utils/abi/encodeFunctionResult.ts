@@ -22,9 +22,8 @@ const docsPath = '/docs/contract/encodeFunctionResult'
 
 export type EncodeFunctionResultParameters<
   abi extends Abi | readonly unknown[] = Abi,
-  functionName extends
-    | ContractFunctionName<abi>
-    | undefined = ContractFunctionName<abi>,
+  functionName extends ContractFunctionName<abi> | undefined =
+    ContractFunctionName<abi>,
   ///
   hasFunctions = abi extends Abi
     ? Abi extends abi

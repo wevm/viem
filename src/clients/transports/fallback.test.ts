@@ -181,9 +181,8 @@ describe('request', () => {
     transport.value?.onResponse((args_) => args.push(args_))
 
     expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
-    expect(
-      args.map(({ transport: _transport, ...rest }) => rest),
-    ).toMatchInlineSnapshot(`
+    expect(args.map(({ transport: _transport, ...rest }) => rest))
+      .toMatchInlineSnapshot(`
       [
         {
           "error": [HttpRequestError: HTTP request failed.
@@ -298,9 +297,8 @@ describe('request', () => {
       chain: localhost,
     })
 
-    await expect(() =>
-      transport.request({ method: 'eth_a' }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    await expect(() => transport.request({ method: 'eth_a' })).rejects
+      .toThrowErrorMatchingInlineSnapshot(`
       [InternalRpcError: An internal error was received.
 
       URL: http://localhost
@@ -832,9 +830,8 @@ describe('client', () => {
     const transport = fallback([http(server1.url), http(server2.url)])
     const client = createPublicClient({ chain: localhost, transport })
 
-    await expect(
-      getBlockNumber(client),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+    await expect(getBlockNumber(client)).rejects
+      .toThrowErrorMatchingInlineSnapshot(`
       [InternalRpcError: An internal error was received.
 
       URL: http://localhost

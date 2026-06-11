@@ -25,7 +25,7 @@ export type EIP712Domain<transactionSignable> = {
 }
 
 export type EIP712DomainFn<
-  transactionSerializable extends
-    ZksyncTransactionSerializable = ZksyncTransactionSerializable,
+  transactionSerializable extends ZksyncTransactionSerializable =
+    ZksyncTransactionSerializable,
   transactionSignable = {},
 > = (transaction: transactionSerializable) => EIP712Domain<transactionSignable>

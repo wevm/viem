@@ -138,9 +138,8 @@ describe('attributes', () => {
 })
 
 test('invalid', () => {
-  expect(() =>
-    getTransactionType({ chainId: 1 }),
-  ).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => getTransactionType({ chainId: 1 }))
+    .toThrowErrorMatchingInlineSnapshot(`
     [InvalidSerializableTransactionError: Cannot infer a transaction type from provided transaction.
 
     Provided Transaction:

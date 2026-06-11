@@ -293,12 +293,12 @@ test.each([
       options: {},
     },
   },
-])('getFunctionParameters($values) -> $expected', async ({
-  values,
-  expected,
-}) => {
-  expect(getFunctionParameters(values as any)).toEqual(expected)
-})
+])(
+  'getFunctionParameters($values) -> $expected',
+  async ({ values, expected }) => {
+    expect(getFunctionParameters(values as any)).toEqual(expected)
+  },
+)
 
 test.each([
   // without options
@@ -353,12 +353,11 @@ test.each([
       options: {},
     },
   },
-])('getEventParameters($values, $abiEvent) -> $expected', async ({
-  values,
-  abiEvent,
-  expected,
-}) => {
-  expect(
-    getEventParameters(values as any, abiEvent as unknown as AbiEvent),
-  ).toEqual(expected)
-})
+])(
+  'getEventParameters($values, $abiEvent) -> $expected',
+  async ({ values, abiEvent, expected }) => {
+    expect(
+      getEventParameters(values as any, abiEvent as unknown as AbiEvent),
+    ).toEqual(expected)
+  },
+)

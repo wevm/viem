@@ -40,7 +40,4 @@ export {
   type PacketToBytesErrorType,
   packetToBytes,
 } from '../utils/ens/packetToBytes.js'
-export {
-  type ToCoinTypeError,
-  toCoinType,
-} from '../utils/ens/toCoinType.js'
+export { type ToCoinTypeError, toCoinType } from '../utils/ens/toCoinType.js'

@@ -233,9 +233,8 @@ test('chain does not support eip1559', async () => {
     baseFeePerGas: undefined,
   } as any)
 
-  await expect(() =>
-    estimateFeesPerGas(client),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+  await expect(() => estimateFeesPerGas(client)).rejects
+    .toThrowErrorMatchingInlineSnapshot(`
     [Eip1559FeesNotSupportedError: Chain does not support EIP-1559 fees.
 
     Version: viem@x.y.z]

@@ -881,10 +881,8 @@ export type WalletActions<
    */
   signTransaction: <
     chainOverride extends Chain | undefined,
-    const request extends SignTransactionRequest<
-      chain,
-      chainOverride
-    > = SignTransactionRequest<chain, chainOverride>,
+    const request extends SignTransactionRequest<chain, chainOverride> =
+      SignTransactionRequest<chain, chainOverride>,
   >(
     args: SignTransactionParameters<chain, account, chainOverride, request>,
   ) => Promise<SignTransactionReturnType<request>>

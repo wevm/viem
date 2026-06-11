@@ -312,17 +312,16 @@ describe('resolveAvatarUri()', () => {
         isEncoded: false,
       },
     },
-  ])('http/data: resolveAvatarUri($uri) -> onchain: $expected.isOnChain, encoded: $expected.isEncoded, $expected.uri', ({
-    uri,
-    expected,
-  }) => {
-    expect(resolveAvatarUri({ uri })).toStrictEqual(expected)
-  })
+  ])(
+    'http/data: resolveAvatarUri($uri) -> onchain: $expected.isOnChain, encoded: $expected.isEncoded, $expected.uri',
+    ({ uri, expected }) => {
+      expect(resolveAvatarUri({ uri })).toStrictEqual(expected)
+    },
+  )
 
   test('invalid uri', () => {
-    expect(() =>
-      resolveAvatarUri({ uri: 'invalid' }),
-    ).toThrowErrorMatchingInlineSnapshot(`
+    expect(() => resolveAvatarUri({ uri: 'invalid' }))
+      .toThrowErrorMatchingInlineSnapshot(`
       [EnsAvatarUriResolutionError: Unable to resolve ENS avatar URI "invalid". The URI may be malformed, invalid, or does not respond with a valid image.
 
       Version: viem@x.y.z]
@@ -330,9 +329,8 @@ describe('resolveAvatarUri()', () => {
   })
 
   test('empty uri', () => {
-    expect(() =>
-      resolveAvatarUri({ uri: '' }),
-    ).toThrowErrorMatchingInlineSnapshot(`
+    expect(() => resolveAvatarUri({ uri: '' }))
+      .toThrowErrorMatchingInlineSnapshot(`
       [EnsAvatarUriResolutionError: Unable to resolve ENS avatar URI "". The URI may be malformed, invalid, or does not respond with a valid image.
 
       Version: viem@x.y.z]
@@ -354,9 +352,8 @@ describe('getJsonImage', () => {
   })
 
   test('other property', () => {
-    expect(() =>
-      getJsonImage({ other: 'test' }),
-    ).toThrowErrorMatchingInlineSnapshot(`
+    expect(() => getJsonImage({ other: 'test' }))
+      .toThrowErrorMatchingInlineSnapshot(`
       [EnsAvatarInvalidMetadataError: Unable to extract image from metadata. The metadata may be malformed or invalid.
 
       - Metadata must be a JSON object with at least an \`image\`, \`image_url\` or \`image_data\` property.

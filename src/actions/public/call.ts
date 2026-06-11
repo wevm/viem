@@ -344,9 +344,8 @@ export async function call<chain extends Chain | undefined>(
     const data = getRevertErrorData(err)
 
     // Check for CCIP-Read offchain lookup signature.
-    const { offchainLookup, offchainLookupSignature } = await import(
-      '../../utils/ccip.js'
-    )
+    const { offchainLookup, offchainLookupSignature } =
+      await import('../../utils/ccip.js')
     if (
       client.ccipRead !== false &&
       data?.slice(0, 10) === offchainLookupSignature &&
@@ -484,16 +483,15 @@ async function scheduleMulticall<chain extends Chain | undefined>(
         functionName: 'aggregate3',
       })
 
-      const multicallRequest = {
-        ...(multicallAddress === null
+      const multicallRequest =
+        multicallAddress === null
           ? {
               data: toDeploylessCallViaBytecodeData({
                 code: multicall3Bytecode,
                 data: calldata,
               }),
             }
-          : { to: multicallAddress, data: calldata }),
-      }
+          : { to: multicallAddress, data: calldata }
       const data = await client.request(
         {
           method: 'eth_call',

@@ -138,17 +138,15 @@ describe('getUserToken', () => {
       token: 2n,
     })
 
-    expect(
-      await actions.fee.getUserToken(client, { account: account2 }),
-    ).toMatchInlineSnapshot(`
+    expect(await actions.fee.getUserToken(client, { account: account2 }))
+      .toMatchInlineSnapshot(`
       {
         "address": "0x20C0000000000000000000000000000000000001",
         "id": 1n,
       }
     `)
-    expect(
-      await actions.fee.getUserToken(client, { account: account3 }),
-    ).toMatchInlineSnapshot(`
+    expect(await actions.fee.getUserToken(client, { account: account3 }))
+      .toMatchInlineSnapshot(`
       {
         "address": "0x20C0000000000000000000000000000000000002",
         "id": 2n,

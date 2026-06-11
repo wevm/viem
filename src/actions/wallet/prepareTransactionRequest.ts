@@ -132,10 +132,8 @@ export type PrepareTransactionRequestParameters<
     | Account
     | Address
     | undefined,
-  request extends PrepareTransactionRequestRequest<
-    chain,
-    chainOverride
-  > = PrepareTransactionRequestRequest<chain, chainOverride>,
+  request extends PrepareTransactionRequestRequest<chain, chainOverride> =
+    PrepareTransactionRequestRequest<chain, chainOverride>,
 > = request &
   GetAccountParameter<account, accountOverride, false, true> &
   GetChainParameter<chain, chainOverride> &
@@ -155,7 +153,7 @@ type ExtractCustomFormattedTransactionType<
   _candidates = UnionOmit<FormattedTransactionRequest<chain>, 'from'>,
   _matched extends string = _candidates extends object
     ? request extends ExactPartial<_candidates>
-      ? _candidates extends { type?: infer type | undefined }
+      ? _candidates extends { type?: (infer type) | undefined }
         ? Extract<type, string>
         : never
       : never
@@ -174,10 +172,8 @@ export type PrepareTransactionRequestReturnType<
     | Account
     | Address
     | undefined,
-  request extends PrepareTransactionRequestRequest<
-    chain,
-    chainOverride
-  > = PrepareTransactionRequestRequest<chain, chainOverride>,
+  request extends PrepareTransactionRequestRequest<chain, chainOverride> =
+    PrepareTransactionRequestRequest<chain, chainOverride>,
   ///
   _derivedAccount extends Account | Address | undefined = DeriveAccount<
     account,

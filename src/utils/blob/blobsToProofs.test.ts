@@ -14,9 +14,8 @@ test('from hex', () => {
       "0xa660592b94033f9c5f7987005fa5d1f84435585ddaaf4b3adc0a198b983f2ae007db73b90067a96ec214b24d7b9820b9",
     ]
   `)
-  expect(
-    blobsToProofs({ blobs, commitments, kzg, to: 'bytes' }),
-  ).toMatchInlineSnapshot(`
+  expect(blobsToProofs({ blobs, commitments, kzg, to: 'bytes' }))
+    .toMatchInlineSnapshot(`
     [
       Uint8Array [
         145,
@@ -229,9 +228,8 @@ test('from bytes', () => {
       ],
     ]
   `)
-  expect(
-    blobsToProofs({ blobs, commitments, kzg, to: 'hex' }),
-  ).toMatchInlineSnapshot(`
+  expect(blobsToProofs({ blobs, commitments, kzg, to: 'hex' }))
+    .toMatchInlineSnapshot(`
     [
       "0x91a6c5d19e50b1b85ae2ef07477160381babf00f0906f5219ce09dee2e00d7d347cb0586d90b491637cdb1715e62d152",
       "0xa660592b94033f9c5f7987005fa5d1f84435585ddaaf4b3adc0a198b983f2ae007db73b90067a96ec214b24d7b9820b9",

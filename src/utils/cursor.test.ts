@@ -103,18 +103,16 @@ describe('incrementPosition', () => {
 
   test('overflow', () => {
     const cursor_1 = createCursor(new Uint8Array(generateBytes(420)))
-    expect(() =>
-      cursor_1.incrementPosition(420),
-    ).toThrowErrorMatchingInlineSnapshot(`
+    expect(() => cursor_1.incrementPosition(420))
+      .toThrowErrorMatchingInlineSnapshot(`
       [PositionOutOfBoundsError: Position \`420\` is out of bounds (\`0 < position < 420\`).
 
       Version: viem@x.y.z]
     `)
 
     const cursor_2 = createCursor(new Uint8Array(generateBytes(421)))
-    expect(() =>
-      cursor_2.incrementPosition(421),
-    ).toThrowErrorMatchingInlineSnapshot(`
+    expect(() => cursor_2.incrementPosition(421))
+      .toThrowErrorMatchingInlineSnapshot(`
       [PositionOutOfBoundsError: Position \`421\` is out of bounds (\`0 < position < 421\`).
 
       Version: viem@x.y.z]
@@ -123,9 +121,8 @@ describe('incrementPosition', () => {
 
   test('negative', () => {
     const cursor_1 = createCursor(new Uint8Array(generateBytes(420)))
-    expect(() =>
-      cursor_1.incrementPosition(-1),
-    ).toThrowErrorMatchingInlineSnapshot(`
+    expect(() => cursor_1.incrementPosition(-1))
+      .toThrowErrorMatchingInlineSnapshot(`
       [NegativeOffsetError: Offset \`-1\` cannot be negative.
 
       Version: viem@x.y.z]
@@ -150,9 +147,8 @@ describe('decrementPosition', () => {
 
   test('underflow', () => {
     const cursor_1 = createCursor(new Uint8Array(generateBytes(420)))
-    expect(() =>
-      cursor_1.decrementPosition(1),
-    ).toThrowErrorMatchingInlineSnapshot(`
+    expect(() => cursor_1.decrementPosition(1))
+      .toThrowErrorMatchingInlineSnapshot(`
       [PositionOutOfBoundsError: Position \`-1\` is out of bounds (\`0 < position < 420\`).
 
       Version: viem@x.y.z]
@@ -162,9 +158,8 @@ describe('decrementPosition', () => {
   test('negative', () => {
     const cursor = createCursor(new Uint8Array(generateBytes(420)))
     cursor.setPosition(419)
-    expect(() =>
-      cursor.decrementPosition(-1),
-    ).toThrowErrorMatchingInlineSnapshot(`
+    expect(() => cursor.decrementPosition(-1))
+      .toThrowErrorMatchingInlineSnapshot(`
       [NegativeOffsetError: Offset \`-1\` cannot be negative.
 
       Version: viem@x.y.z]
@@ -402,9 +397,8 @@ describe('pushBytes', () => {
   test('overflow', () => {
     const cursor = createCursor(new Uint8Array(420))
     cursor.setPosition(417)
-    expect(() =>
-      cursor.pushBytes(Uint8Array.from([69, 420, 69, 420])),
-    ).toThrowErrorMatchingInlineSnapshot(`
+    expect(() => cursor.pushBytes(Uint8Array.from([69, 420, 69, 420])))
+      .toThrowErrorMatchingInlineSnapshot(`
       [PositionOutOfBoundsError: Position \`420\` is out of bounds (\`0 < position < 420\`).
 
       Version: viem@x.y.z]
@@ -415,9 +409,8 @@ describe('pushBytes', () => {
     const cursor = createCursor(new Uint8Array(420))
     cursor.setPosition(416)
     cursor.pushBytes(Uint8Array.from([69]))
-    expect(() =>
-      cursor.pushBytes(Uint8Array.from([69, 420, 69, 420])),
-    ).toThrowErrorMatchingInlineSnapshot(`
+    expect(() => cursor.pushBytes(Uint8Array.from([69, 420, 69, 420])))
+      .toThrowErrorMatchingInlineSnapshot(`
       [PositionOutOfBoundsError: Position \`420\` is out of bounds (\`0 < position < 420\`).
 
       Version: viem@x.y.z]

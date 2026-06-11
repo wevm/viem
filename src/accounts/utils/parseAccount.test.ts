@@ -6,9 +6,8 @@ import { privateKeyToAccount } from '../privateKeyToAccount.js'
 import { parseAccount } from './parseAccount.js'
 
 test('address', () => {
-  expect(
-    parseAccount('0x0000000000000000000000000000000000000000'),
-  ).toMatchInlineSnapshot(`
+  expect(parseAccount('0x0000000000000000000000000000000000000000'))
+    .toMatchInlineSnapshot(`
       {
         "address": "0x0000000000000000000000000000000000000000",
         "type": "json-rpc",
@@ -17,9 +16,8 @@ test('address', () => {
 })
 
 test('account', () => {
-  expect(
-    parseAccount(privateKeyToAccount(accounts[0].privateKey)),
-  ).toMatchInlineSnapshot(`
+  expect(parseAccount(privateKeyToAccount(accounts[0].privateKey)))
+    .toMatchInlineSnapshot(`
     {
       "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       "nonceManager": undefined,

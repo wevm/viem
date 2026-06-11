@@ -28,8 +28,8 @@ import {
 import { getAction } from '../../../utils/getAction.js'
 
 export type WriteContractsParameters<
-  contracts extends
-    readonly unknown[] = readonly WriteContractFunctionParameters[],
+  contracts extends readonly unknown[] =
+    readonly WriteContractFunctionParameters[],
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
@@ -131,15 +131,10 @@ export async function writeContracts<
 export type WriteContractFunctionParameters<
   abi extends Abi | readonly unknown[] = Abi,
   mutability extends AbiStateMutability = AbiStateMutability,
-  functionName extends ContractFunctionName<
-    abi,
-    mutability
-  > = ContractFunctionName<abi, mutability>,
-  args extends ContractFunctionArgs<
-    abi,
-    mutability,
-    functionName
-  > = ContractFunctionArgs<abi, mutability, functionName>,
+  functionName extends ContractFunctionName<abi, mutability> =
+    ContractFunctionName<abi, mutability>,
+  args extends ContractFunctionArgs<abi, mutability, functionName> =
+    ContractFunctionArgs<abi, mutability, functionName>,
   ///
   allFunctionNames = ContractFunctionName<abi, mutability>,
   allArgs = ContractFunctionArgs<abi, mutability, functionName>,

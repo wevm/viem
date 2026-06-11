@@ -178,30 +178,15 @@ export {
   zksyncSepoliaTestnet,
 } from './chains.js'
 
-export {
-  l2BaseTokenAddress,
-  legacyEthAddress,
-} from './constants/address.js'
+export { l2BaseTokenAddress, legacyEthAddress } from './constants/address.js'
 export {
   type Eip712WalletActions,
   eip712WalletActions,
 } from './decorators/eip712.js'
-export {
-  type PublicActionsL1,
-  publicActionsL1,
-} from './decorators/publicL1.js'
-export {
-  type PublicActionsL2,
-  publicActionsL2,
-} from './decorators/publicL2.js'
-export {
-  type WalletActionsL1,
-  walletActionsL1,
-} from './decorators/walletL1.js'
-export {
-  type WalletActionsL2,
-  walletActionsL2,
-} from './decorators/walletL2.js'
+export { type PublicActionsL1, publicActionsL1 } from './decorators/publicL1.js'
+export { type PublicActionsL2, publicActionsL2 } from './decorators/publicL2.js'
+export { type WalletActionsL1, walletActionsL1 } from './decorators/walletL1.js'
+export { type WalletActionsL2, walletActionsL2 } from './decorators/walletL2.js'
 export { serializeTransaction } from './serializers.js'
 export type { ZksyncSmartAccount } from './types/account.js'
 export type {

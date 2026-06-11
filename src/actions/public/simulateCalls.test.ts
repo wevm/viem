@@ -86,9 +86,8 @@ test('behavior: with mutation calls', async () => {
     ],
   })
 
-  expect(
-    results.map((result) => ({ ...result, logs: null })),
-  ).toMatchInlineSnapshot(`
+  expect(results.map((result) => ({ ...result, logs: null })))
+    .toMatchInlineSnapshot(`
     [
       {
         "data": "0x",
@@ -189,9 +188,8 @@ test.skip('behavior: with mutation calls + asset changes', async () => {
       },
     ]
   `)
-  expect(
-    results.map((result) => ({ ...result, logs: null })),
-  ).toMatchInlineSnapshot(`
+  expect(results.map((result) => ({ ...result, logs: null })))
+    .toMatchInlineSnapshot(`
     [
       {
         "data": "0x",

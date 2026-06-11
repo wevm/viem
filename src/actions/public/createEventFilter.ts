@@ -26,10 +26,8 @@ import { createFilterRequestScope } from '../../utils/filters/createFilterReques
 
 export type CreateEventFilterParameters<
   abiEvent extends AbiEvent | undefined = undefined,
-  abiEvents extends
-    | readonly AbiEvent[]
-    | readonly unknown[]
-    | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
+  abiEvents extends readonly AbiEvent[] | readonly unknown[] | undefined =
+    abiEvent extends AbiEvent ? [abiEvent] : undefined,
   strict extends boolean | undefined = undefined,
   fromBlock extends BlockNumber | BlockTag | undefined = undefined,
   toBlock extends BlockNumber | BlockTag | undefined = undefined,
@@ -94,10 +92,8 @@ export type CreateEventFilterParameters<
 
 export type CreateEventFilterReturnType<
   abiEvent extends AbiEvent | undefined = undefined,
-  abiEvents extends
-    | readonly AbiEvent[]
-    | readonly unknown[]
-    | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
+  abiEvents extends readonly AbiEvent[] | readonly unknown[] | undefined =
+    abiEvent extends AbiEvent ? [abiEvent] : undefined,
   strict extends boolean | undefined = undefined,
   fromBlock extends BlockNumber | BlockTag | undefined = undefined,
   toBlock extends BlockNumber | BlockTag | undefined = undefined,
@@ -141,10 +137,8 @@ export type CreateEventFilterErrorType =
 export async function createEventFilter<
   chain extends Chain | undefined,
   const abiEvent extends AbiEvent | undefined = undefined,
-  const abiEvents extends
-    | readonly AbiEvent[]
-    | readonly unknown[]
-    | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
+  const abiEvents extends readonly AbiEvent[] | readonly unknown[] | undefined =
+    abiEvent extends AbiEvent ? [abiEvent] : undefined,
   strict extends boolean | undefined = undefined,
   fromBlock extends BlockNumber<bigint> | BlockTag | undefined = undefined,
   toBlock extends BlockNumber<bigint> | BlockTag | undefined = undefined,

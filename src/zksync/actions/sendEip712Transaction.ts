@@ -28,10 +28,8 @@ export type SendEip712TransactionParameters<
   chain extends ChainEIP712 | undefined = ChainEIP712 | undefined,
   account extends Account | undefined = Account | undefined,
   chainOverride extends ChainEIP712 | undefined = ChainEIP712 | undefined,
-  request extends SendTransactionRequest<
-    chain,
-    chainOverride
-  > = SendTransactionRequest<chain, chainOverride>,
+  request extends SendTransactionRequest<chain, chainOverride> =
+    SendTransactionRequest<chain, chainOverride>,
 > = SendTransactionParameters<chain, account, chainOverride, request>
 
 export type SendEip712TransactionReturnType = SendTransactionReturnType

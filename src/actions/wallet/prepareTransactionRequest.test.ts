@@ -791,9 +791,8 @@ describe('without `eth_fillTransaction`', () => {
       to: targetAccount.address,
       value: parseEther('1'),
     })
-    expect(
-      sidecars.map(({ blob: _blob, ...rest }) => rest),
-    ).toMatchInlineSnapshot(`
+    expect(sidecars.map(({ blob: _blob, ...rest }) => rest))
+      .toMatchInlineSnapshot(`
         [
           {
             "commitment": "0xae5f688fc774ce26be308660c003c9c528a85410ce7f3138e37f424b7a31f61afaff45d74996ac5a5d83d061857b8006",
@@ -1817,9 +1816,8 @@ describe('with `eth_fillTransaction`', () => {
       to: targetAccount.address,
       value: parseEther('1'),
     })
-    expect(
-      sidecars.map(({ blob: _blob, ...rest }) => rest),
-    ).toMatchInlineSnapshot(`
+    expect(sidecars.map(({ blob: _blob, ...rest }) => rest))
+      .toMatchInlineSnapshot(`
         [
           {
             "commitment": "0xae5f688fc774ce26be308660c003c9c528a85410ce7f3138e37f424b7a31f61afaff45d74996ac5a5d83d061857b8006",

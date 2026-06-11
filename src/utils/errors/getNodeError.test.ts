@@ -28,7 +28,7 @@ test('FeeCapTooHigh', () => {
   const error = new TransactionRejectedRpcError(
     new RpcRequestError({
       body: {},
-      error: { code: -32003, message: 'fee cap higher than 2\^256-1' },
+      error: { code: -32003, message: 'fee cap higher than 2^256-1' },
       url: '',
     }),
   )

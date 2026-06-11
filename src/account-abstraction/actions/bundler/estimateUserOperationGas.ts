@@ -60,8 +60,8 @@ export type EstimateUserOperationGasParameters<
     account,
     accountOverride
   >,
-  _derivedVersion extends
-    EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
+  _derivedVersion extends EntryPointVersion =
+    DeriveEntryPointVersion<_derivedAccount>,
 > = GetSmartAccountParameter<account, accountOverride, false> &
   (
     | UserOperation // Accept a full-formed User Operation.
@@ -105,8 +105,8 @@ export type EstimateUserOperationGasReturnType<
     account,
     accountOverride
   >,
-  _derivedVersion extends
-    EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
+  _derivedVersion extends EntryPointVersion =
+    DeriveEntryPointVersion<_derivedAccount>,
 > = Prettify<EstimateUserOperationGasReturnType_<_derivedVersion>>
 
 export type EstimateUserOperationGasErrorType =

@@ -4,7 +4,6 @@ packages:
 
 catalog:
   '@arethetypeswrong/cli': ^0.18.3
-  '@biomejs/biome': ^2.4.16
   '@changesets/changelog-github': ^0.7.0
   '@changesets/cli': ^2.31.0
   '@paulmillr/trusted-setups': ^0.3.0
@@ -29,12 +28,21 @@ catalog:
   size-limit: ^12.1.0
   testcontainers: ^11.10.0
   typescript: 5.9.3
-  vitest: ^4.1.8
+  vitest: npm:@voidzero-dev/vite-plus-test@0.1.24
+  vite-plus: 0.1.24
+  vp: npm:vite-plus@0.1.24
   zile: ^0.0.29
 
 minimumReleaseAge: 1440
 
 minimumReleaseAgeExclude:
+  - '@oxfmt/*'
+  - '@oxlint/*'
+  - '@voidzero-dev/*'
+  - oxfmt
+  - oxlint
+  - vite-plus
+  - zile
   - '@modelcontextprotocol/sdk'
   - '@vitest/*'
   - abitype
@@ -51,4 +59,3 @@ minimumReleaseAgeExclude:
   - vocs
   - webpack
   - basic-ftp
-

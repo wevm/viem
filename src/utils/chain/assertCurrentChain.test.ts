@@ -33,17 +33,15 @@ test('chain mismatch', () => {
 })
 
 test('no chain', () => {
-  expect(() =>
-    assertCurrentChain({ currentChainId: mainnet.id }),
-  ).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => assertCurrentChain({ currentChainId: mainnet.id }))
+    .toThrowErrorMatchingInlineSnapshot(`
     [ChainNotFoundError: No chain was provided to the request.
     Please provide a chain with the \`chain\` argument on the Action, or by supplying a \`chain\` to WalletClient.
 
     Version: viem@x.y.z]
   `)
-  expect(() =>
-    assertCurrentChain({ currentChainId: optimism.id }),
-  ).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => assertCurrentChain({ currentChainId: optimism.id }))
+    .toThrowErrorMatchingInlineSnapshot(`
     [ChainNotFoundError: No chain was provided to the request.
     Please provide a chain with the \`chain\` argument on the Action, or by supplying a \`chain\` to WalletClient.
 

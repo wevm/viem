@@ -10,13 +10,13 @@ export type ChainEIP712<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
   TransactionSignable = {},
   ///
-  transactionSerializable extends
-    ZksyncTransactionSerializable = formatters extends ChainFormatters
-    ? formatters['transactionRequest'] extends ChainFormatter
-      ? ZksyncTransactionSerializable &
-          Parameters<formatters['transactionRequest']['format']>[0]
-      : ZksyncTransactionSerializable
-    : ZksyncTransactionSerializable,
+  transactionSerializable extends ZksyncTransactionSerializable =
+    formatters extends ChainFormatters
+      ? formatters['transactionRequest'] extends ChainFormatter
+        ? ZksyncTransactionSerializable &
+            Parameters<formatters['transactionRequest']['format']>[0]
+        : ZksyncTransactionSerializable
+      : ZksyncTransactionSerializable,
 > = Chain<
   formatters,
   {

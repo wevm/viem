@@ -613,10 +613,7 @@ export {
   type PublicActions,
   publicActions,
 } from './clients/decorators/public.js'
-export {
-  type TestActions,
-  testActions,
-} from './clients/decorators/test.js'
+export { type TestActions, testActions } from './clients/decorators/test.js'
 export {
   type WalletActions,
   walletActions,
@@ -1050,11 +1047,7 @@ export {
   InvalidDecimalNumberError,
   type InvalidDecimalNumberErrorType,
 } from './errors/unit.js'
-export type {
-  DeriveAccount,
-  HDKey,
-  ParseAccount,
-} from './types/account.js'
+export type { DeriveAccount, HDKey, ParseAccount } from './types/account.js'
 export type {
   Authorization,
   AuthorizationList,
@@ -1214,10 +1207,7 @@ export type {
   RpcUncle,
   Status,
 } from './types/rpc.js'
-export type {
-  StateMapping,
-  StateOverride,
-} from './types/stateOverride.js'
+export type { StateMapping, StateOverride } from './types/stateOverride.js'
 export type {
   AccessList,
   Transaction,
@@ -1606,10 +1596,7 @@ export {
 } from './utils/encoding/toRlp.js'
 export { type LabelhashErrorType, labelhash } from './utils/ens/labelhash.js'
 export { type NamehashErrorType, namehash } from './utils/ens/namehash.js'
-export {
-  type ToCoinTypeError,
-  toCoinType,
-} from './utils/ens/toCoinType.js'
+export { type ToCoinTypeError, toCoinType } from './utils/ens/toCoinType.js'
 export {
   type GetContractErrorReturnType,
   getContractError,

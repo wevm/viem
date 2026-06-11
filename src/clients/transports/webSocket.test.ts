@@ -143,9 +143,8 @@ test('errors: rpc error', async () => {
     name: 'JSON RPC',
   })({ chain: localhost })
 
-  await expect(() =>
-    transport.request({ method: 'eth_wagmi' }),
-  ).rejects.toThrowErrorMatchingInlineSnapshot(`
+  await expect(() => transport.request({ method: 'eth_wagmi' })).rejects
+    .toThrowErrorMatchingInlineSnapshot(`
     [InvalidParamsRpcError: Invalid parameters were provided to the RPC method.
     Double check you have provided the correct parameters.
 

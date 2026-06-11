@@ -19,9 +19,8 @@ export type Filter<
   filterType extends FilterType = 'event',
   abi extends Abi | readonly unknown[] | undefined = undefined,
   eventName extends string | undefined = undefined,
-  args extends
-    | MaybeExtractEventArgsFromAbi<abi, eventName>
-    | undefined = MaybeExtractEventArgsFromAbi<abi, eventName>,
+  args extends MaybeExtractEventArgsFromAbi<abi, eventName> | undefined =
+    MaybeExtractEventArgsFromAbi<abi, eventName>,
   strict extends boolean | undefined = undefined,
   fromBlock extends BlockNumber | BlockTag | undefined = undefined,
   toBlock extends BlockNumber | BlockTag | undefined = undefined,

@@ -28,9 +28,8 @@ const docsPath = '/docs/contract/encodeFunctionData'
 
 export type PrepareEncodeFunctionDataParameters<
   abi extends Abi | readonly unknown[] = Abi,
-  functionName extends
-    | ContractFunctionName<abi>
-    | undefined = ContractFunctionName<abi>,
+  functionName extends ContractFunctionName<abi> | undefined =
+    ContractFunctionName<abi>,
   ///
   hasFunctions = abi extends Abi
     ? Abi extends abi
@@ -61,9 +60,8 @@ export type PrepareEncodeFunctionDataParameters<
 
 export type PrepareEncodeFunctionDataReturnType<
   abi extends Abi | readonly unknown[] = Abi,
-  functionName extends
-    | ContractFunctionName<abi>
-    | undefined = ContractFunctionName<abi>,
+  functionName extends ContractFunctionName<abi> | undefined =
+    ContractFunctionName<abi>,
 > = {
   abi: abi extends Abi
     ? functionName extends ContractFunctionName<abi>

@@ -275,9 +275,8 @@ describe('converts boolean to hex', () => {
       Version: viem@x.y.z]
     `,
     )
-    expect(() =>
-      boolToHex(false, { size: 0 }),
-    ).toThrowErrorMatchingInlineSnapshot(`
+    expect(() => boolToHex(false, { size: 0 }))
+      .toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 0 bytes. Given size: 1 bytes.
 
       Version: viem@x.y.z]
@@ -318,16 +317,14 @@ describe('converts string to hex', () => {
   })
 
   test('error: size overflow', () => {
-    expect(() =>
-      toHex('Hello World!', { size: 8 }),
-    ).toThrowErrorMatchingInlineSnapshot(`
+    expect(() => toHex('Hello World!', { size: 8 }))
+      .toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 8 bytes. Given size: 12 bytes.
 
       Version: viem@x.y.z]
     `)
-    expect(() =>
-      stringToHex('Hello World!', { size: 8 }),
-    ).toThrowErrorMatchingInlineSnapshot(`
+    expect(() => stringToHex('Hello World!', { size: 8 }))
+      .toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 8 bytes. Given size: 12 bytes.
 
       Version: viem@x.y.z]

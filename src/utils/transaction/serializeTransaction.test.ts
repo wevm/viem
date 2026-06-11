@@ -884,9 +884,8 @@ describe('legacy', () => {
 })
 
 test('cannot infer type from transaction object', () => {
-  expect(() =>
-    serializeTransaction({ chainId: 1, data: '0x1234', nonce: 69 }),
-  ).toThrowErrorMatchingInlineSnapshot(`
+  expect(() => serializeTransaction({ chainId: 1, data: '0x1234', nonce: 69 }))
+    .toThrowErrorMatchingInlineSnapshot(`
     [InvalidSerializableTransactionError: Cannot infer a transaction type from provided transaction.
 
     Provided Transaction:

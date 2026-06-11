@@ -37,8 +37,8 @@ export type Account_base<source extends string = string> = RequiredBy<
   sign: NonNullable<LocalAccount['sign']>
   /** Sign transaction fn. */
   signTransaction: <
-    serializer extends
-      SerializeTransactionFn<TransactionSerializable> = SerializeTransactionFn<Transaction.TransactionSerializableTempo>,
+    serializer extends SerializeTransactionFn<TransactionSerializable> =
+      SerializeTransactionFn<Transaction.TransactionSerializableTempo>,
     transaction extends Parameters<serializer>[0] = Parameters<serializer>[0],
   >(
     transaction: transaction,
