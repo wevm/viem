@@ -77,11 +77,12 @@ export type EncodeEventTopicsReturnType<
         ? abi[0]
         : ExtractAbiEvents<abi>
     : unknown,
-> = IsNarrowable<abi, Abi> extends true
-  ? [resolvedEvent] extends [{ anonymous: true }]
-    ? (Hex | Hex[] | null)[]
-    : [Hex, ...(Hex | Hex[] | null)[]]
-  : (Hex | Hex[] | null)[]
+> =
+  IsNarrowable<abi, Abi> extends true
+    ? [resolvedEvent] extends [{ anonymous: true }]
+      ? (Hex | Hex[] | null)[]
+      : [Hex, ...(Hex | Hex[] | null)[]]
+    : (Hex | Hex[] | null)[]
 
 export type EncodeEventTopicsErrorType =
   | AbiEventNotFoundErrorType

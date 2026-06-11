@@ -347,7 +347,7 @@ async function verifyErc6492(
   throw new VerificationError()
 }
 
-export namespace verifyErc6492 {
+namespace verifyErc6492 {
   export type Parameters = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
     /** The address that signed the original message. */
     address: Address

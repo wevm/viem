@@ -2,7 +2,10 @@
 
 @source "./";
 
-@custom-variant dark (&:where([style*="color-scheme: dark"], [style*="color-scheme: dark"] *));
+@custom-variant dark (&:where(
+  [style*="color-scheme: dark"],
+  [style*="color-scheme: dark"] *
+));
 
 :root {
   --vocs-color-accent: #ff9318;

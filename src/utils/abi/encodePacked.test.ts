@@ -209,12 +209,13 @@ test.each([
     expected:
       '0xd8da6bf26964af9d7eed9e03e53415d37aa9604568656c6c6f20776f726c64deadbeef00000000000000000000000000000000000000000000000000000000cafebabe00000000000000000000000000000000000000000000000000000000',
   },
-])(
-  "encodePacked($types, $values) -> '$expected'",
-  ({ types, values, expected }) => {
-    expect(encodePacked(types, values)).toBe(expected)
-  },
-)
+])("encodePacked($types, $values) -> '$expected'", ({
+  types,
+  values,
+  expected,
+}) => {
+  expect(encodePacked(types, values)).toBe(expected)
+})
 
 test('error: invalid address', () => {
   expect(() =>

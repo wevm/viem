@@ -127,9 +127,6 @@ const transaction = await publicClient.getTransaction({
 
 ## Example
 
-Check out the usage of `getTransaction` in the live [Fetching Transactions Example](https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions_fetching-transactions) below.
-
-<iframe frameBorder="0" width="100%" height="500px" src="https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions_fetching-transactions?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>
 
 ## JSON-RPC Method
 

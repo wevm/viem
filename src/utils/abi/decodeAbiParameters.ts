@@ -316,7 +316,7 @@ function decodeTuple(
         staticPosition: start,
       })
       consumed += consumed_
-      value[hasUnnamedChild ? i : component?.name!] = data
+      value[hasUnnamedChild ? i : component.name!] = data
     }
 
     // As we have gone wondering, restore to the original position + next slot.
@@ -331,7 +331,7 @@ function decodeTuple(
     const [data, consumed_] = decodeParameter(cursor, component, {
       staticPosition,
     })
-    value[hasUnnamedChild ? i : component?.name!] = data
+    value[hasUnnamedChild ? i : component.name!] = data
     consumed += consumed_
   }
   return [value, consumed]

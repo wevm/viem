@@ -1,4 +1,3 @@
-import { keccak256 } from 'ethers'
 import { describe, expect, test } from 'vitest'
 import { anvilMainnet, anvilOptimism } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
@@ -7,6 +6,7 @@ import { createClient } from '../../clients/createClient.js'
 import { custom } from '../../clients/transports/custom.js'
 import type { RpcBlock, RpcProof } from '../../types/rpc.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
+import { keccak256 } from '../../utils/hash/keccak256.js'
 
 import { getL2Output, getWithdrawals, proveWithdrawal } from '../index.js'
 import {

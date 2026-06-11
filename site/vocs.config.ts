@@ -1,10 +1,10 @@
 import * as fs from 'node:fs'
 import { type Config, defineConfig, McpSource } from 'vocs/config'
 
-import pkg from '../src/package.json' with { type: 'json' }
+import pkg from '../package.json' with { type: 'json' }
 
 const hasBuiltTypes = fs.existsSync(
-  new URL('../src/_types/index.d.ts', import.meta.url),
+  new URL('../dist/index.d.ts', import.meta.url),
 )
 
 export const sponsors = {

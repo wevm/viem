@@ -138,9 +138,6 @@ const unwatch = publicClient.watchBlockNumber(
 
 ## Example
 
-Check out the usage of `watchBlockNumber` in the live [Watch Block Numbers Example](https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks_watching-blocks) below.
-
-<iframe frameBorder="0" width="100%" height="500px" src="https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks_watching-blocks?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>
 
 ## JSON-RPC Methods
 

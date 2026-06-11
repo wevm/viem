@@ -395,11 +395,6 @@ const hash = await walletClient.sendTransaction({
 
 - For dapps: When using this action, it is assumed that the user has connected to their wallet (e.g. given permission for the dapp to access their accounts via [`requestAddresses`](/docs/actions/wallet/requestAddresses)). You can also check if the user has granted access to their accounts via [`getAddresses`](/docs/actions/wallet/getAddresses)
 
-## Live Example
-
-Check out the usage of `sendTransaction` in the live [Sending Transactions Example](https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions_sending-transactions) below.
-
-<iframe frameBorder="0" width="100%" height="500px" src="https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions_sending-transactions?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>
 
 ## JSON-RPC Methods
 

@@ -69,16 +69,17 @@ import {
 export type ParseTransactionReturnType<
   serialized extends TransactionSerializedGeneric = TransactionSerialized,
   type extends TransactionType = GetSerializedTransactionType<serialized>,
-> = IsNarrowable<serialized, Hex> extends true
-  ?
-      | (type extends 'eip1559' ? TransactionSerializableEIP1559 : never)
-      | (type extends 'eip2930' ? TransactionSerializableEIP2930 : never)
-      | (type extends 'eip4844'
-          ? TransactionSerializableEIP4844<bigint, number, false>
-          : never)
-      | (type extends 'eip7702' ? TransactionSerializableEIP7702 : never)
-      | (type extends 'legacy' ? TransactionSerializableLegacy : never)
-  : TransactionSerializable
+> =
+  IsNarrowable<serialized, Hex> extends true
+    ?
+        | (type extends 'eip1559' ? TransactionSerializableEIP1559 : never)
+        | (type extends 'eip2930' ? TransactionSerializableEIP2930 : never)
+        | (type extends 'eip4844'
+            ? TransactionSerializableEIP4844<bigint, number, false>
+            : never)
+        | (type extends 'eip7702' ? TransactionSerializableEIP7702 : never)
+        | (type extends 'legacy' ? TransactionSerializableLegacy : never)
+    : TransactionSerializable
 
 export type ParseTransactionErrorType =
   | GetSerializedTransactionTypeErrorType

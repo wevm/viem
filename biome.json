@@ -3,9 +3,7 @@
   "files": {
     "includes": [
       "**",
-      "!**/_cjs",
-      "!**/_esm",
-      "!**/_types",
+      "!**/dist",
       "!**/.cache",
       "!**/.next",
       "!**/.svelte-kit",
@@ -57,7 +55,9 @@
         "noNonNullAssertion": "off",
         "useConsistentArrayType": {
           "level": "error",
-          "options": { "syntax": "shorthand" }
+          "options": {
+            "syntax": "shorthand"
+          }
         }
       },
       "suspicious": {
@@ -66,7 +66,12 @@
         "noConfusingVoidType": "off",
         "noExplicitAny": "off",
         "noRedeclare": "off",
-        "noConsole": { "level": "error", "options": { "allow": ["log"] } },
+        "noConsole": {
+          "level": "error",
+          "options": {
+            "allow": ["log"]
+          }
+        },
         "noUnknownAtRules": "off"
       }
     }
@@ -78,5 +83,16 @@
       "semicolons": "asNeeded"
     }
   },
-  "assist": { "actions": { "source": { "organizeImports": "on" } } }
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  }
 }

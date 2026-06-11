@@ -22,7 +22,7 @@ export function createCcipServer() {
       }),
     )
 
-    const data = req.url?.split('/')[2]! as Hex
+    const data = req.url!.split('/')[2] as Hex
     const [name] = decodeAbiParameters(parseAbiParameters('string'), data)
 
     res.end(

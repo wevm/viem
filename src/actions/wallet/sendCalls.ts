@@ -186,9 +186,7 @@ export async function sendCalls<
         error.details.toLowerCase().includes('eip-7702 not supported') ||
         error.details.toLowerCase().includes('unsupported wc_ method') ||
         // magic.link
-        error.details
-          .toLowerCase()
-          .includes('feature toggled misconfigured') ||
+        error.details.toLowerCase().includes('feature toggled misconfigured') ||
         // Trust Wallet
         error.details
           .toLowerCase()

@@ -101,9 +101,6 @@ const block = await publicClient.getBlock({
 
 ## Example
 
-Check out the usage of `getBlock` in the live [Fetching Blocks Example](https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks_fetching-blocks) below.
-
-<iframe frameBorder="0" width="100%" height="500px" src="https://stackblitz.com/github/wevm/viem/tree/main/examples/blocks_fetching-blocks?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>
 
 ## JSON-RPC Method
 

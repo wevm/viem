@@ -1551,25 +1551,24 @@ describe('subscribe', () => {
     })
   })
 
-  test(
-    'https://github.com/wevm/viem/issues/2563',
-    { timeout: 10_000 },
-    async () => {
-      let error: Error | undefined
-      const unwatch = watchContractEvent(webSocketClient, {
-        ...usdcContractConfig,
-        onError: (error_) => {
-          error = error_
-        },
-        onLogs: () => {},
-      })
+  test('https://github.com/wevm/viem/issues/2563', {
+    timeout: 10_000,
+  }, async () => {
+    let error: Error | undefined
+    const unwatch = watchContractEvent(webSocketClient, {
+      ...usdcContractConfig,
+      onError: (error_) => {
+        error = error_
+      },
+      onLogs: () => {},
+    })
 
-      await wait(100)
-      const { socket } = await webSocketClient.transport.getRpcClient()
-      socket.close()
-      await wait(100)
+    await wait(100)
+    const { socket } = await webSocketClient.transport.getRpcClient()
+    socket.close()
+    await wait(100)
 
-      expect(error).toMatchInlineSnapshot(`
+    expect(error).toMatchInlineSnapshot(`
         [SocketClosedError: The socket has been closed.
 
         URL: http://localhost
@@ -1577,7 +1576,6 @@ describe('subscribe', () => {
         Version: viem@x.y.z]
       `)
 
-      unwatch()
-    },
-  )
+    unwatch()
+  })
 })

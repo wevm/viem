@@ -1878,65 +1878,63 @@ describe.skipIf(nodeEnv === 'testnet')(
       ).rejects.toThrow()
     })
 
-    test(
-      'behavior: periodic spending limit resets after period',
-      { timeout: 20_000 },
-      async () => {
-        const account = accounts[0]
-        const accessKey = Account.fromP256(generatePrivateKey(), {
-          access: account,
+    test('behavior: periodic spending limit resets after period', {
+      timeout: 20_000,
+    }, async () => {
+      const account = accounts[0]
+      const accessKey = Account.fromP256(generatePrivateKey(), {
+        access: account,
+      })
+
+      // Authorize with periodic limit that resets every 5 seconds
+      const keyAuthorization = await Actions.accessKey.signAuthorization(
+        client,
+        {
+          account,
+          accessKey,
+          limits: feeTokenLimits(Value.from('5', 6), Period.seconds(5)),
+        },
+      )
+
+      // Provision key + transfer 4 (within 5 limit)
+      {
+        const { receipt } = await Actions.token.transferSync(client, {
+          account: accessKey,
+          feeToken,
+          keyAuthorization,
+          amount: Value.from('4', 6),
+          token: feeToken,
+          to: '0x0000000000000000000000000000000000000001',
         })
+        expect(receipt.status).toBe('success')
+      }
 
-        // Authorize with periodic limit that resets every 5 seconds
-        const keyAuthorization = await Actions.accessKey.signAuthorization(
-          client,
-          {
-            account,
-            accessKey,
-            limits: feeTokenLimits(Value.from('5', 6), Period.seconds(5)),
-          },
-        )
+      // Immediately try another 4 (total 8 > limit 5 — should throw).
+      await expect(
+        Actions.token.transferSync(client, {
+          account: accessKey,
+          feeToken,
+          amount: Value.from('4', 6),
+          token: feeToken,
+          to: '0x0000000000000000000000000000000000000001',
+        }),
+      ).rejects.toThrow()
 
-        // Provision key + transfer 4 (within 5 limit)
-        {
-          const { receipt } = await Actions.token.transferSync(client, {
-            account: accessKey,
-            feeToken,
-            keyAuthorization,
-            amount: Value.from('4', 6),
-            token: feeToken,
-            to: '0x0000000000000000000000000000000000000001',
-          })
-          expect(receipt.status).toBe('success')
-        }
+      // Wait for period to reset
+      await setTimeout(6000)
 
-        // Immediately try another 4 (total 8 > limit 5 — should throw).
-        await expect(
-          Actions.token.transferSync(client, {
-            account: accessKey,
-            feeToken,
-            amount: Value.from('4', 6),
-            token: feeToken,
-            to: '0x0000000000000000000000000000000000000001',
-          }),
-        ).rejects.toThrow()
-
-        // Wait for period to reset
-        await setTimeout(6000)
-
-        // Transfer again after period reset — should succeed
-        {
-          const { receipt } = await Actions.token.transferSync(client, {
-            account: accessKey,
-            feeToken,
-            amount: Value.from('4', 6),
-            token: feeToken,
-            to: '0x0000000000000000000000000000000000000001',
-          })
-          expect(receipt.status).toBe('success')
-        }
-      },
-    )
+      // Transfer again after period reset — should succeed
+      {
+        const { receipt } = await Actions.token.transferSync(client, {
+          account: accessKey,
+          feeToken,
+          amount: Value.from('4', 6),
+          token: feeToken,
+          to: '0x0000000000000000000000000000000000000001',
+        })
+        expect(receipt.status).toBe('success')
+      }
+    })
   },
 )
 

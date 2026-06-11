@@ -35,25 +35,26 @@ export type DecodeErrorResultReturnType<
   abi extends Abi | readonly unknown[] = Abi,
   ///
   allErrorNames extends ContractErrorName<abi> = ContractErrorName<abi>,
-> = IsNarrowable<abi, Abi> extends true
-  ? UnionEvaluate<
-      {
-        [errorName in allErrorNames]: {
-          abiItem: abi extends Abi
-            ? Abi extends abi
-              ? AbiItem
-              : ExtractAbiError<abi, errorName>
-            : AbiItem
-          args: ContractErrorArgs<abi, errorName>
-          errorName: errorName
-        }
-      }[allErrorNames]
-    >
-  : {
-      abiItem: AbiItem
-      args: readonly unknown[] | undefined
-      errorName: string
-    }
+> =
+  IsNarrowable<abi, Abi> extends true
+    ? UnionEvaluate<
+        {
+          [errorName in allErrorNames]: {
+            abiItem: abi extends Abi
+              ? Abi extends abi
+                ? AbiItem
+                : ExtractAbiError<abi, errorName>
+              : AbiItem
+            args: ContractErrorArgs<abi, errorName>
+            errorName: errorName
+          }
+        }[allErrorNames]
+      >
+    : {
+        abiItem: AbiItem
+        args: readonly unknown[] | undefined
+        errorName: string
+      }
 
 export type DecodeErrorResultErrorType =
   | AbiDecodingZeroDataErrorType

@@ -312,12 +312,12 @@ describe('resolveAvatarUri()', () => {
         isEncoded: false,
       },
     },
-  ])(
-    'http/data: resolveAvatarUri($uri) -> onchain: $expected.isOnChain, encoded: $expected.isEncoded, $expected.uri',
-    ({ uri, expected }) => {
-      expect(resolveAvatarUri({ uri })).toStrictEqual(expected)
-    },
-  )
+  ])('http/data: resolveAvatarUri($uri) -> onchain: $expected.isOnChain, encoded: $expected.isEncoded, $expected.uri', ({
+    uri,
+    expected,
+  }) => {
+    expect(resolveAvatarUri({ uri })).toStrictEqual(expected)
+  })
 
   test('invalid uri', () => {
     expect(() =>

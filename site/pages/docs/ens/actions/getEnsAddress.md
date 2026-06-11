@@ -168,8 +168,3 @@ const ensAddress = await publicClient.getEnsAddress({
 })
 ```
 
-## Live Example
-
-Check out the usage of `getEnsAddress` in the live [ENS Examples](https://stackblitz.com/github/wevm/viem/tree/main/examples/ens) below.
-
-<iframe frameBorder="0" width="100%" height="500px" src="https://stackblitz.com/github/wevm/viem/tree/main/examples/ens?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>

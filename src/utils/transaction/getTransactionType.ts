@@ -30,11 +30,12 @@ export type GetTransactionType<
     | (transaction['type'] extends TransactionSerializableGeneric['type']
         ? Extract<transaction['type'], string>
         : never),
-> = IsNever<keyof transaction> extends true
-  ? string
-  : IsNever<result> extends false
-    ? result
-    : string
+> =
+  IsNever<keyof transaction> extends true
+    ? string
+    : IsNever<result> extends false
+      ? result
+      : string
 
 export type GetTransactionTypeErrorType =
   | InvalidSerializableTransactionErrorType

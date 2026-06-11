@@ -53,7 +53,7 @@ jobs:
         run: pnpm test:build
 
       - name: Check for unused files, dependencies, and exports
-        run: pnpm knip --production
+        run: pnpm knip
 
       - name: Check size
         run: pnpm size
@@ -86,9 +86,6 @@ jobs:
 
       - name: Check types
         run: pnpm check:types
-
-      - name: Bench types
-        run: pnpm bench:types
 
   test:
     name: 'Test Local (transport: ${{ matrix.transport-mode }}, multicall: ${{ matrix.multicall }}, ${{ matrix.shard }}/${{ matrix.total-shards }})'

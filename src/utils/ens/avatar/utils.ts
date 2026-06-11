@@ -231,7 +231,7 @@ export function parseNftUri(uri_: string): ParsedNft {
   const [eip_namespace, chainID] = reference.split(':')
   const [erc_namespace, contractAddress] = asset_namespace.split(':')
 
-  if (!eip_namespace || eip_namespace.toLowerCase() !== 'eip155')
+  if (eip_namespace?.toLowerCase() !== 'eip155')
     throw new EnsAvatarInvalidNftUriError({ reason: 'Only EIP-155 supported' })
   if (!chainID)
     throw new EnsAvatarInvalidNftUriError({ reason: 'Chain ID not found' })

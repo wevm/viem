@@ -161,9 +161,10 @@ type ExtractCustomFormattedTransactionType<
       : never
     : never,
   _builtin = NonNullable<TransactionRequest['type']>,
-> = IsNever<Extract<_matched, _builtin>> extends true
-  ? Exclude<_matched, _builtin>
-  : never
+> =
+  IsNever<Extract<_matched, _builtin>> extends true
+    ? Exclude<_matched, _builtin>
+    : never
 
 export type PrepareTransactionRequestReturnType<
   chain extends Chain | undefined = Chain | undefined,

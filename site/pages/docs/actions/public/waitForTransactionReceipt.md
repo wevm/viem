@@ -163,11 +163,6 @@ const transaction = await publicClient.waitForTransactionReceipt(
   - `cancelled`: The Transaction has been cancelled (ie. `value === 0n`)
   - `replaced`: The Transaction has been replaced (ie. different `value` or `data`)
 
-## Live Example
-
-Check out the usage of `waitForTransactionReceipt` in the live [Sending Transactions Example](https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions_sending-transactions) below.
-
-<iframe frameBorder="0" width="100%" height="500px" src="https://stackblitz.com/github/wevm/viem/tree/main/examples/transactions_sending-transactions?embed=1&file=index.ts&hideNavigation=1&hideDevTools=true&terminalHeight=0&ctl=1"></iframe>
 
 
 ## JSON-RPC Methods

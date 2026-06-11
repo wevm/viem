@@ -1,6 +1,0 @@
-{
-  "type": "module",
-  "types": "../_types/account-abstraction/index.d.ts",
-  "module": "../_esm/account-abstraction/index.js",
-  "main": "../_cjs/account-abstraction/index.js"
-}
