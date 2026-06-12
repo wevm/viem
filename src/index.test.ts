@@ -14,7 +14,14 @@ test('exports', () => {
       "ContractAddress",
       "Hash",
       "Hex",
+      "PersonalMessage",
+      "PublicKey",
       "Rlp",
+      "Secp256k1",
+      "Signature",
+      "SignatureErc6492",
+      "SignatureErc8010",
+      "TypedData",
       "Value",
     ]
   `)
