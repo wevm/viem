@@ -26,6 +26,9 @@ jobs:
       - name: Check repo
         run: pnpm check:repo
 
+      - name: Check Tempo ABIs
+        run: pnpm check:tempo-abis
+
       - name: Check code
         run: pnpm biome check
 

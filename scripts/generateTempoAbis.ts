@@ -1,12 +1,18 @@
 import * as Fs from 'node:fs'
 import * as Path from 'node:path'
 import * as Abi from 'ox/Abi'
+import * as AbiFunction from 'ox/AbiFunction'
+import * as AbiItem from 'ox/AbiItem'
 
 const extensions: Record<string, string[]> = {
   ITIP20: ['IRolesAuth'],
 }
 
 const out = Path.resolve(import.meta.dirname, '../src/tempo/Abis.ts')
+const selectorsOut = Path.resolve(
+  import.meta.dirname,
+  '../src/tempo/Selectors.ts',
+)
 const precompilesDir = Path.resolve(
   import.meta.dirname,
   '../test/tempo/crates/contracts/src/precompiles',
@@ -25,6 +31,11 @@ const content = files
 interface InterfaceDefinition {
   name: string
   items: string[]
+}
+
+interface ProcessedInterface {
+  exportName: string
+  abi: ReturnType<typeof Abi.from>
 }
 
 const interfaces = new Map<string, InterfaceDefinition>()
@@ -172,6 +183,7 @@ Fs.writeFileSync(
 
 // Generate ABIs for all interfaces
 const processedInterfaces = new Set<string>()
+const processedInterfaceData: ProcessedInterface[] = []
 
 for (const [interfaceName, interfaceData] of interfaces.entries()) {
   // Skip if this interface is only used as an extension (not exported standalone)
@@ -227,13 +239,15 @@ for (const [interfaceName, interfaceData] of interfaces.entries()) {
   })
 
   console.log(items)
+  const abi = Abi.from(items)
 
   Fs.appendFileSync(
     out,
-    `export const ${exportName} = ${JSON.stringify(Abi.from(items))} as const\n\n`,
+    `export const ${exportName} = ${JSON.stringify(abi)} as const\n\n`,
   )
 
   processedInterfaces.add(interfaceName)
+  processedInterfaceData.push({ exportName, abi })
 }
 
 // Generate concatenated `abis` export
@@ -267,6 +281,62 @@ Fs.appendFileSync(
   out,
   `export const abis = [\n${exportNames.map((n) => `  ...${n},`).join('\n')}\n] as const\n`,
 )
+
+try {
+  Fs.rmSync(selectorsOut)
+} catch {}
+
+Fs.writeFileSync(
+  selectorsOut,
+  "// Generated with `pnpm gen:abis`. Do not modify manually.\n\nimport type { Abi, ExtractAbiFunctionNames } from 'abitype'\nimport type { Hex } from '../types/misc.js'\nimport type * as Abis from './Abis.js'\n\n",
+)
+Fs.appendFileSync(
+  selectorsOut,
+  'type FunctionSelectors<\n  abi extends Abi,\n  excluded extends string = never,\n> = {\n  readonly [name in Exclude<ExtractAbiFunctionNames<abi>, excluded>]: Hex\n}\n\n',
+)
+Fs.appendFileSync(
+  selectorsOut,
+  'type OverloadedFunctionSelectors<names extends string> = {\n  readonly [name in names]: Record<string, Hex>\n}\n\n',
+)
+
+for (const { exportName, abi } of processedInterfaceData) {
+  const functions = abi.filter((item) => item.type === 'function')
+  if (functions.length === 0) continue
+
+  const functionNames = functions.map((item) => item.name)
+  const overloadedNames = Array.from(
+    new Set(
+      functionNames.filter(
+        (name, index) => functionNames.indexOf(name) !== index,
+      ),
+    ),
+  )
+
+  const selectors: Record<string, string | Record<string, string>> = {}
+  for (const item of functions) {
+    const selector = AbiFunction.getSelector(item)
+    if (overloadedNames.includes(item.name)) {
+      selectors[item.name] ??= {}
+      const overloadedSelectors = selectors[item.name] as Record<string, string>
+      overloadedSelectors[AbiItem.getSignature(item)] = selector
+      continue
+    }
+    selectors[item.name] = selector
+  }
+
+  const overloadedNameType = overloadedNames
+    .map((name) => `'${name}'`)
+    .join(' | ')
+  const selectorType =
+    overloadedNames.length > 0
+      ? `FunctionSelectors<typeof Abis.${exportName}, ${overloadedNameType}> & OverloadedFunctionSelectors<${overloadedNameType}>`
+      : `FunctionSelectors<typeof Abis.${exportName}>`
+
+  Fs.appendFileSync(
+    selectorsOut,
+    `export const ${exportName} = ${JSON.stringify(selectors, null, 2)} as const satisfies ${selectorType}\n\n`,
+  )
+}
 
 console.log(
   `✓ Generated ${processedInterfaces.size} ABIs from ${files.length} precompile files`,
