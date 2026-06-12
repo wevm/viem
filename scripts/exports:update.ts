@@ -57,11 +57,11 @@ for (const dir of readdirSync(srcDir, { withFileTypes: true })) {
 }
 
 for (const file of fileEntrypoints)
-  exports.push(entry(`./${file}`, `./src/${file}.ts`))
+  if (existsSync(join(srcDir, `${file}.ts`)))
+    exports.push(entry(`./${file}`, `./src/${file}.ts`))
 
-// NOTE: no `./package.json` export (unlike v2) — zile treats it as an asset and
-// copies the (dev) manifest into `dist/`, which breaks publint + ships dev fields.
-// Matches ox v1. Breaking change logged in tasks/v3-breaking-changes.md.
+// NOTE: no `./package.json` export — zile treats it as an asset and copies the
+// (dev) manifest into `dist/`, which breaks publint + ships dev fields.
 exports.sort(([a], [b]) =>
   a === '.' ? -1 : b === '.' ? 1 : a.localeCompare(b),
 )

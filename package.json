@@ -71,7 +71,10 @@
     "ignore": [
       ".github/**",
       "environments/**",
-      "vectors/**"
+      "vectors/**",
+      "src-old/**",
+      "test-old/**",
+      "src/core/internal/**"
     ],
     "ignoreBinaries": [
       "dev",
@@ -81,7 +84,10 @@
     ],
     "ignoreDependencies": [
       "bun",
-      "@size-limit/preset-big-lib"
+      "@size-limit/preset-big-lib",
+      "abitype",
+      "isows",
+      "ws"
     ],
     "ignoreWorkspaces": [
       "test"
@@ -97,9 +103,7 @@
     "workspaces": {
       ".": {
         "entry": [
-          "src/index.ts!",
-          "src/{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,tempo,tempo/actions,tempo/chains,tempo/zones,utils,window,zksync}/index.ts!",
-          "src/chains/utils.ts!"
+          "src/index.ts!"
         ],
         "project": [
           "src/**/*.ts!",
@@ -118,104 +122,8 @@
     {
       "name": "import * from 'viem' (esm)",
       "path": "./dist/index.js",
-      "limit": "92 kB",
+      "limit": "7 kB",
       "import": "*"
-    },
-    {
-      "name": "import { createClient, http } from 'viem'",
-      "path": "./dist/index.js",
-      "limit": "6.6 kB",
-      "import": "{ createClient, http }"
-    },
-    {
-      "name": "import * from 'viem/account-abstraction'",
-      "path": "./dist/account-abstraction/index.js",
-      "limit": "66 kB",
-      "import": "*"
-    },
-    {
-      "name": "import * from 'viem/accounts'",
-      "path": "./dist/accounts/index.js",
-      "limit": "97 kB",
-      "import": "*"
-    },
-    {
-      "name": "import { privateKeyToAccount } from 'viem/accounts'",
-      "path": "./dist/accounts/index.js",
-      "limit": "22 kB",
-      "import": "{ privateKeyToAccount }"
-    },
-    {
-      "name": "import { mnemonicToAccount } from 'viem/accounts'",
-      "path": "./dist/accounts/index.js",
-      "limit": "30 kB",
-      "import": "{ mnemonicToAccount }"
-    },
-    {
-      "name": "import * from 'viem/actions'",
-      "path": "./dist/actions/index.js",
-      "limit": "69 kB",
-      "import": "*"
-    },
-    {
-      "name": "import { getBlockNumber } from 'viem/actions'",
-      "path": "./dist/actions/index.js",
-      "limit": "1 kB",
-      "import": "{ getBlockNumber }"
-    },
-    {
-      "name": "import * from 'viem/chains'",
-      "path": "./dist/chains/index.js",
-      "limit": "117 kB",
-      "import": "*"
-    },
-    {
-      "name": "import { mainnet } from 'viem/chains'",
-      "path": "./dist/chains/index.js",
-      "limit": "500 B",
-      "import": "{ mainnet }"
-    },
-    {
-      "name": "import { tempoTestnet } from 'viem/chains'",
-      "path": "./dist/chains/index.js",
-      "limit": "74 kB",
-      "import": "{ tempoTestnet }"
-    },
-    {
-      "name": "import * from 'viem/chains/utils'",
-      "path": "./dist/chains/utils.js",
-      "limit": "8 kB",
-      "import": "*"
-    },
-    {
-      "name": "import * from 'viem/ens'",
-      "path": "./dist/ens/index.js",
-      "limit": "53 kB",
-      "import": "*"
-    },
-    {
-      "name": "import { getEnsAvatar } from 'viem/ens'",
-      "path": "./dist/ens/index.js",
-      "limit": "28 kB",
-      "import": "{ getEnsAvatar }"
-    },
-    {
-      "name": "import * from 'viem/siwe'",
-      "path": "./dist/siwe/index.js",
-      "limit": "49 kB",
-      "import": "*"
-    },
-    {
-      "name": "import { verifySiweMessage } from 'viem/siwe'",
-      "path": "./dist/siwe/index.js",
-      "limit": "48 kB",
-      "import": "{ verifySiweMessage }"
-    },
-    {
-      "name": "import { verifyHash } from 'viem/actions'",
-      "path": "./dist/actions/index.js",
-      "limit": "47 kB",
-      "import": "{ verifyHash }"
     }
   ],
   "pnpm": {
@@ -349,10 +257,6 @@
     }
   },
   "dependencies": {
-    "@noble/curves": "1.9.1",
-    "@noble/hashes": "1.8.0",
-    "@scure/bip32": "1.7.0",
-    "@scure/bip39": "1.6.0",
     "abitype": "1.2.3",
     "isows": "1.0.7",
     "ox": "1.0.0-beta.0",
@@ -363,131 +267,6 @@
       "src": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    },
-    "./account-abstraction": {
-      "src": "./src/account-abstraction/index.ts",
-      "types": "./dist/account-abstraction/index.d.ts",
-      "default": "./dist/account-abstraction/index.js"
-    },
-    "./accounts": {
-      "src": "./src/accounts/index.ts",
-      "types": "./dist/accounts/index.d.ts",
-      "default": "./dist/accounts/index.js"
-    },
-    "./actions": {
-      "src": "./src/actions/index.ts",
-      "types": "./dist/actions/index.d.ts",
-      "default": "./dist/actions/index.js"
-    },
-    "./celo": {
-      "src": "./src/celo/index.ts",
-      "types": "./dist/celo/index.d.ts",
-      "default": "./dist/celo/index.js"
-    },
-    "./chains": {
-      "src": "./src/chains/index.ts",
-      "types": "./dist/chains/index.d.ts",
-      "default": "./dist/chains/index.js"
-    },
-    "./chains/utils": {
-      "src": "./src/chains/utils.ts",
-      "types": "./dist/chains/utils.d.ts",
-      "default": "./dist/chains/utils.js"
-    },
-    "./ens": {
-      "src": "./src/ens/index.ts",
-      "types": "./dist/ens/index.d.ts",
-      "default": "./dist/ens/index.js"
-    },
-    "./experimental": {
-      "src": "./src/experimental/index.ts",
-      "types": "./dist/experimental/index.d.ts",
-      "default": "./dist/experimental/index.js"
-    },
-    "./experimental/erc7739": {
-      "src": "./src/experimental/erc7739/index.ts",
-      "types": "./dist/experimental/erc7739/index.d.ts",
-      "default": "./dist/experimental/erc7739/index.js"
-    },
-    "./experimental/erc7811": {
-      "src": "./src/experimental/erc7811/index.ts",
-      "types": "./dist/experimental/erc7811/index.d.ts",
-      "default": "./dist/experimental/erc7811/index.js"
-    },
-    "./experimental/erc7821": {
-      "src": "./src/experimental/erc7821/index.ts",
-      "types": "./dist/experimental/erc7821/index.d.ts",
-      "default": "./dist/experimental/erc7821/index.js"
-    },
-    "./experimental/erc7846": {
-      "src": "./src/experimental/erc7846/index.ts",
-      "types": "./dist/experimental/erc7846/index.d.ts",
-      "default": "./dist/experimental/erc7846/index.js"
-    },
-    "./experimental/erc7895": {
-      "src": "./src/experimental/erc7895/index.ts",
-      "types": "./dist/experimental/erc7895/index.d.ts",
-      "default": "./dist/experimental/erc7895/index.js"
-    },
-    "./linea": {
-      "src": "./src/linea/index.ts",
-      "types": "./dist/linea/index.d.ts",
-      "default": "./dist/linea/index.js"
-    },
-    "./node": {
-      "src": "./src/node/index.ts",
-      "types": "./dist/node/index.d.ts",
-      "default": "./dist/node/index.js"
-    },
-    "./nonce": {
-      "src": "./src/nonce/index.ts",
-      "types": "./dist/nonce/index.d.ts",
-      "default": "./dist/nonce/index.js"
-    },
-    "./op-stack": {
-      "src": "./src/op-stack/index.ts",
-      "types": "./dist/op-stack/index.d.ts",
-      "default": "./dist/op-stack/index.js"
-    },
-    "./siwe": {
-      "src": "./src/siwe/index.ts",
-      "types": "./dist/siwe/index.d.ts",
-      "default": "./dist/siwe/index.js"
-    },
-    "./tempo": {
-      "src": "./src/tempo/index.ts",
-      "types": "./dist/tempo/index.d.ts",
-      "default": "./dist/tempo/index.js"
-    },
-    "./tempo/actions": {
-      "src": "./src/tempo/actions/index.ts",
-      "types": "./dist/tempo/actions/index.d.ts",
-      "default": "./dist/tempo/actions/index.js"
-    },
-    "./tempo/chains": {
-      "src": "./src/tempo/chains/index.ts",
-      "types": "./dist/tempo/chains/index.d.ts",
-      "default": "./dist/tempo/chains/index.js"
-    },
-    "./tempo/zones": {
-      "src": "./src/tempo/zones/index.ts",
-      "types": "./dist/tempo/zones/index.d.ts",
-      "default": "./dist/tempo/zones/index.js"
-    },
-    "./utils": {
-      "src": "./src/utils/index.ts",
-      "types": "./dist/utils/index.d.ts",
-      "default": "./dist/utils/index.js"
-    },
-    "./window": {
-      "src": "./src/window/index.ts",
-      "types": "./dist/window/index.d.ts",
-      "default": "./dist/window/index.js"
-    },
-    "./zksync": {
-      "src": "./src/zksync/index.ts",
-      "types": "./dist/zksync/index.d.ts",
-      "default": "./dist/zksync/index.js"
     }
   },
   "typesVersions": {

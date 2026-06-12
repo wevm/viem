@@ -165,18 +165,6 @@ importers:
 
   .:
     dependencies:
-      '@noble/curves':
-        specifier: 1.9.1
-        version: 1.9.1
-      '@noble/hashes':
-        specifier: 1.8.0
-        version: 1.8.0
-      '@scure/bip32':
-        specifier: 1.7.0
-        version: 1.7.0
-      '@scure/bip39':
-        specifier: 1.6.0
-        version: 1.6.0
       abitype:
         specifier: 1.2.3
         version: 1.2.3(typescript@5.9.3)(zod@4.4.3)
@@ -13309,10 +13297,6 @@ snapshots:
 
   viem@file:(typescript@5.9.3)(zod@4.4.3):
     dependencies:
-      '@noble/curves': 1.9.1
-      '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.7.0
-      '@scure/bip39': 1.6.0
       abitype: 1.2.3(typescript@5.9.3)(zod@4.4.3)
       isows: 1.0.7(ws@8.20.1)
       ox: 1.0.0-beta.0(typescript@5.9.3)

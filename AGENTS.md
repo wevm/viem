@@ -10,6 +10,15 @@ This document contains guidelines for AI agents working on the Viem codebase.
 
 - **Branch** -- v3 development happens on `v3-next`. The pre-existing `v3` branch is an old
   big-bang prototype kept only as reference. v2 releases continue from `main`.
+- **Clean slate** -- the v2 sources are frozen under `src-old/` and `test-old/` (reference +
+  test-porting source only; deleted once the rewrite reaches parity). They are excluded from
+  build, lint, type-check, tests, knip, and size -- **never edit them, never import from them in
+  committed code**, and do not try to fix their type errors (the frozen tree no longer compiles
+  against ox `1.0.0-beta.0`; that is expected and irrelevant). The v3 tree grows fresh in `src/`
+  and `test/`. The `test/tempo` submodule stays at `test/tempo` (it is live infra, not v2 legacy).
+- **Parity tests are one-shot scaffolding** -- a colocated test importing from `src-old/` to
+  assert v2/v3 output parity is written, run, passed, and **deleted before commit**. Permanent v3
+  tests are ports of the v2 suites (adapted to the new API), never comparisons against `src-old/`.
 - **Build** -- `pnpm build` runs `exports:update` + `zile` (ESM-only, output in `dist/`) + copies
   `src/trusted-setups` into `dist/`. zile derives sources from `package.json#exports` (the
   `include` in tsconfig is irrelevant to it) and reads `./tsconfig.json` for compiler options.
@@ -26,17 +35,20 @@ This document contains guidelines for AI agents working on the Viem codebase.
 - **Lint/format** -- `pnpm check` runs `vp check --fix` (oxlint + oxfmt) and **mutates**. yaml,
   md/mdx, css, and `site/pages/` are excluded from formatting. Type-aware linting and the
   jsdoc/tsdoc plugins are intentionally off until modules migrate to v3 conventions.
-- **Tests** -- `pnpm test` runs `vp test` with projects `core` and `tempo` (config in root
-  `vite.config.ts`). Use `pnpm test --run <paths>` for targeted runs and
-  `SKIP_GLOBAL_SETUP=true` for offline runs that do not need anvil. The `tempo` project's global
-  setup only starts a node when `VITE_TEMPO_ENV=localnet`.
+- **Tests** -- `pnpm test` runs `vp test` (config in root `vite.config.ts`). Currently a single
+  `core` project over `src/**/*.test.ts` with no global setup (anvil/prool and the `tempo`
+  project return as the modules that need them are rebuilt). Tests are colocated ox-style in
+  `_test/` directories with `_snap/` snapshots. Use `pnpm test --run <paths>` for targeted runs.
 - **Type checking** -- `pnpm check:types` runs `tsc -b` (project references: scripts, site, src,
   test).
 - **Other gates** -- `pnpm knip` (production mode), `pnpm check:repo` (sherif), `pnpm test:build`
   (publint + attw, esm-only profile), `pnpm size` (size-limit against `dist/`), `pnpm vectors`
   (bun).
 - **Plan docs are local** -- `tasks/` is gitignored. The v3 plan lives at `tasks/v3.md`; the
-  breaking-change log at `tasks/v3-breaking-changes.md`; API sketches at `tasks/v3-api/`.
+  breaking-change log at `tasks/v3-breaking-changes.md`; API sketches at `tasks/v3-api/`; v2
+  size baselines (pre-flip actuals) at `tasks/v3-size-baselines.md`.
+- **Version constant** -- `pnpm version:update` writes `src/version.ts` (`@internal`, consumed by
+  the errors substrate). Do not hand-edit it.
 
 ## v3 Process Conventions
 
