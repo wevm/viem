@@ -1,5 +1,11 @@
 # viem
 
+## 2.53.0
+
+### Minor Changes
+
+- [#4729](https://github.com/wevm/viem/pull/4729) [`ce518cde15845fedc3cab51f0d560159d7c794fe`](https://github.com/wevm/viem/commit/ce518cde15845fedc3cab51f0d560159d7c794fe) Thanks [@brendanjryan](https://github.com/brendanjryan)! - Added generated Tempo function selector exports under `Selectors` in `viem/tempo`.
+
 ## 2.52.2
 
 ### Patch Changes
