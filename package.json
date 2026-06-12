@@ -123,7 +123,7 @@
     {
       "name": "import * from 'viem' (esm)",
       "path": "./dist/index.js",
-      "limit": "7 kB",
+      "limit": "22 kB",
       "import": "*"
     }
   ],

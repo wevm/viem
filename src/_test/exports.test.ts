@@ -6,9 +6,16 @@ test('exports', () => {
   expect(Object.keys(viem)).toMatchInlineSnapshot(`
     [
       "Errors",
+      "AbiEvent",
+      "AbiFunction",
+      "AbiItem",
+      "Address",
       "Bytes",
+      "ContractAddress",
+      "Hash",
       "Hex",
       "Rlp",
+      "Value",
     ]
   `)
 })
