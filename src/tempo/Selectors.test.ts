@@ -8,53 +8,33 @@ import { Selectors as TempoSelectors } from './index.js'
 import * as Selectors from './Selectors.js'
 
 type AbiFunction = Extract<(typeof Abis.abis)[number], { type: 'function' }>
+type SelectorMap = Record<string, string | Record<string, string>>
 
-const selectorFixtures = [
-  { name: 'tip20', abi: Abis.tip20, selectors: Selectors.tip20 },
-  {
-    name: 'validatorConfigV2',
-    abi: Abis.validatorConfigV2,
-    selectors: Selectors.validatorConfigV2,
-  },
-  {
-    name: 'signatureVerifier',
-    abi: Abis.signatureVerifier,
-    selectors: Selectors.signatureVerifier,
-  },
-  {
-    name: 'stablecoinDex',
-    abi: Abis.stablecoinDex,
-    selectors: Selectors.stablecoinDex,
-  },
-  {
-    name: 'addressRegistry',
-    abi: Abis.addressRegistry,
-    selectors: Selectors.addressRegistry,
-  },
-  { name: 'feeManager', abi: Abis.feeManager, selectors: Selectors.feeManager },
-  { name: 'feeAmm', abi: Abis.feeAmm, selectors: Selectors.feeAmm },
-  {
-    name: 'accountKeychain',
-    abi: Abis.accountKeychain,
-    selectors: Selectors.accountKeychain,
-  },
-  { name: 'nonce', abi: Abis.nonce, selectors: Selectors.nonce },
-  {
-    name: 'tip20Factory',
-    abi: Abis.tip20Factory,
-    selectors: Selectors.tip20Factory,
-  },
-  {
-    name: 'tip403Registry',
-    abi: Abis.tip403Registry,
-    selectors: Selectors.tip403Registry,
-  },
-  {
-    name: 'validatorConfig',
-    abi: Abis.validatorConfig,
-    selectors: Selectors.validatorConfig,
-  },
-] as const
+const selectorMaps = {
+  accountKeychain: Selectors.accountKeychain,
+  addressRegistry: Selectors.addressRegistry,
+  feeAmm: Selectors.feeAmm,
+  feeManager: Selectors.feeManager,
+  nonce: Selectors.nonce,
+  receivePolicyGuard: Selectors.receivePolicyGuard,
+  signatureVerifier: Selectors.signatureVerifier,
+  stablecoinDex: Selectors.stablecoinDex,
+  tip20: Selectors.tip20,
+  tip20ChannelReserve: Selectors.tip20ChannelReserve,
+  tip20Factory: Selectors.tip20Factory,
+  tip403Registry: Selectors.tip403Registry,
+  validatorConfig: Selectors.validatorConfig,
+  validatorConfigV2: Selectors.validatorConfigV2,
+} satisfies Record<string, SelectorMap>
+
+const selectorFixtures = Object.entries(Abis)
+  .filter(([name]) => name !== 'abis')
+  .map(([name, abi]) => ({
+    name,
+    abi,
+    selectors: selectorMaps[name as keyof typeof selectorMaps]!,
+  }))
+  .filter(({ abi }) => getFunctions(abi).length > 0)
 
 function getFunctions(abi: readonly unknown[]) {
   return (abi as readonly AbiFunction[]).filter(
@@ -76,10 +56,10 @@ describe('Selectors', () => {
   })
 
   test('exports one selector map per ABI', () => {
+    expect(Object.keys(Selectors).sort()).toEqual(Object.keys(selectorMaps))
     expect(Object.keys(Selectors).sort()).toEqual(
       selectorFixtures.map((fixture) => fixture.name).sort(),
     )
-    expect(selectorFixtures).toHaveLength(Object.keys(Abis).length - 1)
   })
 
   test('all selectors are bytes4 hex values', () => {

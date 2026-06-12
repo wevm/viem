@@ -12,6 +12,23 @@ type OverloadedFunctionSelectors<names extends string> = {
   readonly [name in names]: Record<string, Hex>
 }
 
+export const tip20ChannelReserve = {
+  CLOSE_GRACE_PERIOD: '0x956c8327',
+  VOUCHER_TYPEHASH: '0x94739e87',
+  open: '0xedc53b00',
+  settle: '0x97fb5104',
+  topUp: '0xdc48471e',
+  close: '0x73b57f74',
+  requestClose: '0x675402e5',
+  withdraw: '0x41e2c664',
+  getChannel: '0xeef95313',
+  getChannelState: '0xd18da8b1',
+  getChannelStatesBatch: '0xd1f4cda2',
+  computeChannelId: '0x185eeeac',
+  getVoucherDigest: '0xf3b349e8',
+  domainSeparator: '0xf698da25',
+} as const satisfies FunctionSelectors<typeof Abis.tip20ChannelReserve>
+
 export const tip20 = {
   name: '0x06fdde03',
   symbol: '0x95d89b41',
@@ -30,6 +47,8 @@ export const tip20 = {
   supplyCap: '0x8f770ad0',
   paused: '0x5c975abb',
   transferPolicyId: '0x9c4bad29',
+  logoURI: '0x6bb38b28',
+  setLogoURI: '0xc30ff6df',
   burnBlocked: '0xec0cf3dc',
   mintWithMemo: '0xe44f0b12',
   burnWithMemo: '0x38f23b0b',
@@ -88,6 +107,8 @@ export const validatorConfigV2 = {
 export const signatureVerifier = {
   recover: '0x19045a25',
   verify: '0x1a86b550',
+  verifyKeychain: '0x6c0c731e',
+  verifyKeychainAdmin: '0x5f6fc5b7',
 } as const satisfies FunctionSelectors<typeof Abis.signatureVerifier>
 
 export const stablecoinDex = {
@@ -125,6 +146,7 @@ export const addressRegistry = {
   resolveVirtualAddress: '0xe2fc56ef',
   isVirtualAddress: '0xd501235a',
   decodeVirtualAddress: '0xb35d6fb9',
+  isImplicitlyApproved: '0xa8da6aa7',
 } as const satisfies FunctionSelectors<typeof Abis.addressRegistry>
 
 export const feeManager = {
@@ -151,12 +173,22 @@ export const feeAmm = {
   rebalanceSwap: '0x1bd94ac7',
 } as const satisfies FunctionSelectors<typeof Abis.feeAmm>
 
+export const receivePolicyGuard = {
+  balanceOf: '0x78415365',
+  claim: '0xbb1757cf',
+  burnBlockedReceipt: '0x96c1264c',
+} as const satisfies FunctionSelectors<typeof Abis.receivePolicyGuard>
+
 export const accountKeychain = {
   authorizeKey: {
     'authorizeKey(address,uint8,uint64,bool,(address,uint256)[])': '0x54063a55',
     'authorizeKey(address,uint8,(uint64,bool,(address,uint256,uint64)[],bool,(address,(bytes4,address[])[])[]))':
       '0x980a6025',
+    'authorizeKey(address,uint8,(uint64,bool,(address,uint256,uint64)[],bool,(address,(bytes4,address[])[])[]),bytes32)':
+      '0xe3c154d2',
   },
+  authorizeAdminKey: '0x9a424307',
+  burnKeyAuthorizationWitness: '0xcff31c46',
   revokeKey: '0x5ae7ab32',
   updateSpendingLimit: '0xcbbb4480',
   setAllowedCalls: '0xf5456703',
@@ -165,6 +197,8 @@ export const accountKeychain = {
   getRemainingLimit: '0x63b4290d',
   getRemainingLimitWithPeriod: '0xa7f72cab',
   getAllowedCalls: '0x0163e7ec',
+  isKeyAuthorizationWitnessBurned: '0x8e6c7e11',
+  isAdminKey: '0x9009a18d',
   getTransactionKey: '0xb07fbc1a',
 } as const satisfies FunctionSelectors<
   typeof Abis.accountKeychain,
@@ -177,10 +211,18 @@ export const nonce = {
 } as const satisfies FunctionSelectors<typeof Abis.nonce>
 
 export const tip20Factory = {
-  createToken: '0x68130445',
+  createToken: {
+    'createToken(string,string,string,address,address,bytes32)': '0x68130445',
+    'createToken(string,string,string,address,address,bytes32,string)':
+      '0x5323d222',
+  },
   isTIP20: '0x35ec42c9',
   getTokenAddress: '0x9ed7cd64',
-} as const satisfies FunctionSelectors<typeof Abis.tip20Factory>
+} as const satisfies FunctionSelectors<
+  typeof Abis.tip20Factory,
+  'createToken'
+> &
+  OverloadedFunctionSelectors<'createToken'>
 
 export const tip403Registry = {
   policyIdCounter: '0x3cc32f9c',
@@ -191,12 +233,15 @@ export const tip403Registry = {
   isAuthorizedRecipient: '0x6fbc13d6',
   isAuthorizedMintRecipient: '0xb389e305',
   compoundPolicyData: '0xb6266019',
+  receivePolicy: '0xe111e611',
+  validateReceivePolicy: '0xb72b0c59',
   createPolicy: '0xca5d55f6',
   createPolicyWithAccounts: '0xa2d3044f',
   setPolicyAdmin: '0x25f7d376',
   modifyPolicyWhitelist: '0x71ec67a3',
   modifyPolicyBlacklist: '0xc62b27d4',
   createCompoundPolicy: '0x5da414ee',
+  setReceivePolicy: '0xdda03d86',
 } as const satisfies FunctionSelectors<typeof Abis.tip403Registry>
 
 export const validatorConfig = {
