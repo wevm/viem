@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { uid } from '../uid.js'
+import { uid } from './uid.js'
 
 test('default', () => {
   const id_1 = uid()

@@ -1,8 +1,8 @@
 import { expect, test, vi } from 'vitest'
 
-import { BaseError, setConfig } from '../Errors.js'
+import { BaseError, setConfig } from './Errors.js'
 
-vi.mock('../../version.js', () => ({ version: 'x.y.z' }))
+vi.mock('../version.js', () => ({ version: 'x.y.z' }))
 
 test('BaseError', () => {
   expect(new BaseError('An error occurred.')).toMatchInlineSnapshot(`

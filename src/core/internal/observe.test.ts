@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest'
 
-import { cleanupCache, listenersCache, observe } from '../observe.js'
-import { wait } from '../wait.js'
+import { cleanupCache, listenersCache, observe } from './observe.js'
+import { wait } from './wait.js'
 
 test('emits data to callbacks', async () => {
   const id = 'mock'

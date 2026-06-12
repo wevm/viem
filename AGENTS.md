@@ -37,8 +37,9 @@ This document contains guidelines for AI agents working on the Viem codebase.
   jsdoc/tsdoc plugins are intentionally off until modules migrate to v3 conventions.
 - **Tests** -- `pnpm test` runs `vp test` (config in root `vite.config.ts`). Currently a single
   `core` project over `src/**/*.test.ts` with no global setup (anvil/prool and the `tempo`
-  project return as the modules that need them are rebuilt). Tests are colocated ox-style in
-  `_test/` directories with `_snap/` snapshots. Use `pnpm test --run <paths>` for targeted runs.
+  project return as the modules that need them are rebuilt). Tests are colocated as siblings of
+  their module (`src/utils/Hex.ts` + `src/utils/Hex.test.ts`), inline snapshots preferred.
+  Use `pnpm test --run <paths>` for targeted runs.
 - **Type checking** -- `pnpm check:types` runs `tsc -b` (project references: scripts, site, src,
   test).
 - **Other gates** -- `pnpm knip` (production mode), `pnpm check:repo` (sherif), `pnpm test:build`
@@ -141,7 +142,7 @@ This document contains guidelines for AI agents working on the Viem codebase.
 
 - **Use `pnpm test` for tests** -- run tests through package scripts, not `vitest` directly.
 - **Target the relevant project** -- prefer `pnpm test --run <paths>` or `pnpm test --project core --bail=1` / `--project tempo` over the full matrix while iterating. Use `SKIP_GLOBAL_SETUP=true` for offline runs that do not need anvil.
-- **Colocate tests** -- v2 tests are sibling `*.test.ts` files; modules migrated to v3 adopt the ox `src/**/_test/*.test.ts` (+ `_snap/`) layout as they move.
+- **Colocate tests** -- tests are sibling `*.test.ts` files next to their module (`src/utils/Hex.ts` + `src/utils/Hex.test.ts`); prefer inline snapshots over snapshot files.
 - **Wrap function exports in `describe`** -- every test file targets one or more exported functions; each function gets its own `describe('functionName', () => { ... })` block.
 - **Inline snapshots over direct assertions** -- prefer `toMatchInlineSnapshot()` over `.toBe()`, `.toEqual()`, etc. for stable return values. Use `toThrowErrorMatchingInlineSnapshot()` for error assertions.
 - **Snapshot whole objects, omit nondeterministic properties** -- destructure out nondeterministic fields and snapshot the rest, rather than cherry-picking individual fields to assert.

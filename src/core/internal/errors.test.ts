@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { getUrl } from '../errors.js'
+import { getUrl } from './errors.js'
 
 test('passes a credential-free URL through unchanged', () => {
   expect(getUrl('https://example.com/rpc')).toMatchInlineSnapshot(

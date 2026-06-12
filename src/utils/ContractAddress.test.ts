@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
-import * as ContractAddress from '../ContractAddress.js'
-import * as Hex from '../Hex.js'
+import * as ContractAddress from './ContractAddress.js'
+import * as Hex from './Hex.js'
 
 describe('from', () => {
   test('default', () => {

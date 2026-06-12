@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { LruMap } from '../lru.js'
+import { LruMap } from './lru.js'
 
 test('default', () => {
   const cache = new LruMap(5)

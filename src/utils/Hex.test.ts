@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import * as Hex from '../Hex.js'
+import * as Hex from './Hex.js'
 
 describe('concat', () => {
   test('default', () => {

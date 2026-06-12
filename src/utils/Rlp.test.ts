@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest'
 
-import * as Bytes from '../Bytes.js'
-import * as Hex from '../Hex.js'
-import * as Rlp from '../Rlp.js'
+import * as Bytes from './Bytes.js'
+import * as Hex from './Hex.js'
+import * as Rlp from './Rlp.js'
 
 const generateBytes = (length: number) => {
   const bytes = new Uint8Array(length)

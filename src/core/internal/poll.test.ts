@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
-import { poll } from '../poll.js'
-import { wait } from '../wait.js'
+import { poll } from './poll.js'
+import { wait } from './wait.js'
 
 test('polls on a given interval', async () => {
   const items: string[] = []

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import * as Value from '../Value.js'
+import * as Value from './Value.js'
 
 describe('format', () => {
   test('default', () => {

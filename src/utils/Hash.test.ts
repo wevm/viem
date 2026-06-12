@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
-import * as Bytes from '../Bytes.js'
-import * as Hash from '../Hash.js'
+import * as Bytes from './Bytes.js'
+import * as Hash from './Hash.js'
 
 describe('keccak256', () => {
   test('default', () => {

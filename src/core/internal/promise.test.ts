@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 
 import { createHttpServer } from '~test/utils.js'
-import { uid } from '../uid.js'
-import { wait } from '../wait.js'
+import { uid } from './uid.js'
+import { wait } from './wait.js'
 import {
   createBatchScheduler,
   dedupeCache,
@@ -12,7 +12,7 @@ import {
   withResolvers,
   withRetry,
   withTimeout,
-} from '../promise.js'
+} from './promise.js'
 
 describe('withResolvers', () => {
   test('default', () => {

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import * as AbiFunction from '../AbiFunction.js'
+import * as AbiFunction from './AbiFunction.js'
 
 describe('getSelector', () => {
   test('default', () => {

@@ -62,7 +62,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
-      exclude: ['**/dist/**', '**/_test/**', '**/*.test.ts', '**/*.test-d.ts'],
+      exclude: ['**/dist/**', '**/*.test.ts', '**/*.test-d.ts'],
     },
     exclude: ['**/node_modules/**', '**/dist/**', 'src-old/**', 'test-old/**'],
     retry: 3,

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import * as Bytes from '../Bytes.js'
+import * as Bytes from './Bytes.js'
 
 describe('concat', () => {
   test('default', () => {

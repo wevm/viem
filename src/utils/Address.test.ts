@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import * as Address from '../Address.js'
+import * as Address from './Address.js'
 
 describe('from', () => {
   test('default', () => {

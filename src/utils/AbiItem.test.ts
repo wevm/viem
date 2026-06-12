@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import * as AbiItem from '../AbiItem.js'
+import * as AbiItem from './AbiItem.js'
 
 describe('getSignature', () => {
   test('default', () => {
