@@ -5,8 +5,8 @@ import * as viem from '../index.js'
 test('exports', () => {
   expect(Object.keys(viem)).toMatchInlineSnapshot(`
     [
-      "Bytes",
       "Errors",
+      "Bytes",
       "Hex",
       "Rlp",
     ]

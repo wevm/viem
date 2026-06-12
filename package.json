@@ -103,7 +103,8 @@
     "workspaces": {
       ".": {
         "entry": [
-          "src/index.ts!"
+          "src/index.ts!",
+          "src/utils/index.ts!"
         ],
         "project": [
           "src/**/*.ts!",
@@ -267,6 +268,11 @@
       "src": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./utils": {
+      "src": "./src/utils/index.ts",
+      "types": "./dist/utils/index.d.ts",
+      "default": "./dist/utils/index.js"
     }
   },
   "typesVersions": {
