@@ -21,7 +21,7 @@ import { accounts, poolId } from './constants.js'
 
 export const anvilMainnet = defineAnvil({
   chain: mainnet,
-  forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://cloudflare-eth.com'),
+  forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://eth.drpc.org'),
   forkBlockNumber: 22263623n,
   noMining: true,
   port: 8545,
@@ -29,7 +29,7 @@ export const anvilMainnet = defineAnvil({
 
 export const anvilSepolia = defineAnvil({
   chain: sepolia,
-  forkUrl: getEnv('VITE_ANVIL_FORK_URL_SEPOLIA', 'https://rpc.sepolia.org'),
+  forkUrl: getEnv('VITE_ANVIL_FORK_URL_SEPOLIA', 'https://sepolia.drpc.org'),
   forkBlockNumber: 5858117n,
   noMining: true,
   port: 8845,
@@ -59,7 +59,8 @@ export const anvilZksync = defineAnvil({
 // Utilities
 
 function getEnv(key: string, fallback: string): string {
-  if (typeof process.env[key] === 'string') return process.env[key] as string
+  if (typeof process.env[key] === 'string' && process.env[key]?.trim() !== '')
+    return process.env[key] as string
   // biome-ignore lint/suspicious/noConsole: _
   console.warn(
     `\`process.env.${key}\` not found. Falling back to \`${fallback}\`.`,
