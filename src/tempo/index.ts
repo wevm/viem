@@ -12,7 +12,10 @@ export type {
   TxEnvelopeTempo as z_TxEnvelopeTempo,
 } from 'ox/tempo'
 export {
+  Channel,
+  MultisigConfig,
   Period,
+  ReceivePolicyReceipt,
   TempoAddress,
   Tick,
   TokenId,
@@ -24,13 +27,16 @@ export * as Account from './Account.js'
 export * as Addresses from './Addresses.js'
 export * as Actions from './actions/index.js'
 export * as Capabilities from './Capabilities.js'
+export * as Chain from './Chain.js'
 export {
   type Decorator as TempoActions,
   decorator as tempoActions,
 } from './Decorator.js'
 export * as Expiry from './Expiry.js'
+export * from './errors.js'
 export * as Formatters from './Formatters.js'
 export * as Hardfork from './Hardfork.js'
+export * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
 export * as P256 from './P256.js'
 export * as Selectors from './Selectors.js'
 export * as Storage from './Storage.js'

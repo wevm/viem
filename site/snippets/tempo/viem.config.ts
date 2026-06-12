@@ -1,12 +1,10 @@
 // [!region setup]
 import { createClient, http, publicActions, walletActions } from 'viem'
-import { privateKeyToAccount } from 'viem/accounts'
-import { tempoModerato } from 'viem/chains'
-import { tempoActions } from 'viem/tempo'
+import { Account, Chain, tempoActions } from 'viem/tempo'
 
 export const client = createClient({
-  account: privateKeyToAccount('0x...'),
-  chain: tempoModerato,
+  account: Account.fromSecp256k1('0x...'),
+  chain: Chain.testnet,
   transport: http(),
 })
   .extend(publicActions)
@@ -14,3 +12,17 @@ export const client = createClient({
   .extend(tempoActions())
 
 // [!endregion setup]
+
+// [!region channel]
+import { Channel } from 'viem/tempo'
+
+export const channel = Channel.from({
+  expiringNonceHash:
+    '0x0000000000000000000000000000000000000000000000000000000000000000',
+  payee: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  payer: client.account.address,
+  salt: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  token: '0x20c0000000000000000000000000000000000001',
+})
+
+// [!endregion channel]

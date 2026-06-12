@@ -2,6 +2,8 @@ import { expect, test } from 'vitest'
 import { wagmiContractConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
+import { createPublicClient } from '../../clients/createPublicClient.js'
+import { custom } from '../../clients/transports/custom.js'
 import { encodeFunctionData, parseEther } from '../../utils/index.js'
 import { createAccessList } from './createAccessList.js'
 
@@ -64,14 +66,33 @@ test('behavior: revert', async () => {
       }),
       to: wagmiContractConfig.address,
     }),
+  ).rejects.toThrowError('Execution reverted')
+})
+
+test('behavior: response error', async () => {
+  const client = createPublicClient({
+    transport: custom({
+      async request() {
+        return {
+          accessList: [],
+          error: 'execution reverted: nope',
+          gasUsed: '0x0',
+        }
+      },
+    }),
+  })
+
+  await expect(() =>
+    createAccessList(client, {
+      to: wagmiContractConfig.address,
+    }),
   ).rejects.toMatchInlineSnapshot(`
-    [CallExecutionError: Execution reverted with reason: ERC721: operator query for nonexistent token.
+    [CallExecutionError: Execution reverted with reason: nope.
 
     Raw Call Arguments:
-      to:    0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
-      data:  0x42842e0e000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c80000000000000000000000000000000000000000000000000de0b6b3a7640000
+      to:  0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2
 
-    Details: execution reverted: ERC721: operator query for nonexistent token
+    Details: execution reverted: nope
     Version: viem@x.y.z]
   `)
 })

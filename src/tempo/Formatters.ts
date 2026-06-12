@@ -72,9 +72,15 @@ export function formatTransactionRequest(
 ): TransactionRequestRpc {
   const request = r as TransactionRequest & {
     account?: viem_Account | Address | undefined
+    feePayerSignature?:
+      | { r: Hex.Hex; s: Hex.Hex; yParity: number; v?: number | undefined }
+      | null
+      | undefined
     keyData?: Hex.Hex | undefined
     keyId?: Address | undefined
     keyType?: 'p256' | 'secp256k1' | 'webAuthn' | undefined
+    multisig?: unknown
+    signatures?: unknown
   }
   const account = request.account
     ? parseAccount<Account | viem_Account | Address>(request.account)
@@ -100,13 +106,29 @@ export function formatTransactionRequest(
       },
     ]
 
-  // If we have marked the transaction as intended to be paid
-  // by a fee payer (feePayer: true), we will not use the fee token
-  // as the fee payer will choose their fee token.
-  if (request.feePayer === true) delete request.feeToken
+  // If we have marked the transaction as intended to be paid by a fee
+  // payer (feePayer: true), we strip the fee token from the sender's
+  // sign payload — per TIP-76 the sender does not commit to it; the fee
+  // payer chooses and commits to the token via its own signature.
+  //
+  // Once the fee payer has signed (`feePayerSignature` is populated),
+  // the relay has chosen a token and signed over it. The broadcast
+  // envelope must therefore include `feeToken` so the chain can verify
+  // the fee payer's signature and identify which token to charge.
+  if (request.feePayer === true && !request.feePayerSignature)
+    delete request.feeToken
+
+  // `multisig` / `signatures` are client-side only (TIP-1061). They drive
+  // sender derivation, owner signing, and final envelope assembly, but are
+  // never sent as raw RPC fields — the wire payload is the serialized tx.
+  const {
+    multisig: _multisig,
+    signatures: _signatures,
+    ...rpcRequest
+  } = request
 
   const rpc = ox_TransactionRequest.toRpc({
-    ...request,
+    ...rpcRequest,
     type: 'tempo',
   } as never)
 
@@ -122,12 +144,15 @@ export function formatTransactionRequest(
   const [keyType, keyData] = (() => {
     const type =
       account && 'keyType' in account ? account.keyType : account?.source
-    if (!type) return [request.keyType, request.keyData]
+    if (!type) return [request.keyType, shimKeyData(request.keyData)]
     if (type === 'webAuthn')
-      // TODO: derive correct bytes size of key data based on webauthn create metadata.
-      return ['webAuthn', `0x${'ff'.repeat(1400)}`]
+      // Send a 2-byte big-endian length hint (1400 = 0x0578) instead of a
+      // 1400-byte dummy blob.  The node's gas estimator expects key_data to
+      // be 1, 2, or 4 bytes encoding the desired WebAuthn signature size;
+      // anything else falls back to the 800-byte default.
+      return ['webAuthn', '0x0578']
     if (['p256', 'secp256k1'].includes(type)) return [type, undefined]
-    return [request.keyType, request.keyData]
+    return [request.keyType, shimKeyData(request.keyData)]
   })()
 
   const keyId =
@@ -156,4 +181,17 @@ export function formatTransactionRequest(
       ? { feePayerSignature: request.feePayerSignature }
       : {}),
   } as never
+}
+
+/**
+ * Auto-shim user-provided keyData that is longer than 4 bytes into a
+ * 2-byte big-endian length hint.  The node gas estimator only accepts
+ * 1, 2, or 4-byte key_data as a size hint; anything else silently falls
+ * back to the 800-byte default.
+ */
+function shimKeyData(data: Hex.Hex | undefined): Hex.Hex | undefined {
+  if (!data) return data
+  const byteLength = (data.length - 2) / 2 // subtract "0x" prefix
+  if (byteLength <= 4) return data
+  return Hex.fromNumber(byteLength, { size: 2 })
 }

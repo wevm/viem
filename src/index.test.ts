@@ -310,6 +310,7 @@ test('exports', () => {
       "offchainLookup",
       "offchainLookupAbiItem",
       "offchainLookupSignature",
+      "ccipReadTunnel",
       "assertCurrentChain",
       "defineChain",
       "extendSchema",

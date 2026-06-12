@@ -64,6 +64,10 @@ export type GetWithdrawalStatusParameters<
      * @default 100
      */
     gameLimit?: number
+    /**
+     * L2 timestamp of the withdrawal. Required for super-root dispute games.
+     */
+    l2Timestamp?: bigint | undefined
   } & OneOf<
     | {
         /**
@@ -160,7 +164,8 @@ export async function getWithdrawalStatus<
     return Object.values(targetChain.contracts.portal)[0].address
   })()
 
-  const l2BlockNumber = receipt?.blockNumber ?? parameters.l2BlockNumber
+  const l2BlockNumber =
+    parameters.l2Timestamp ?? receipt?.blockNumber ?? parameters.l2BlockNumber
 
   const withdrawal = (() => {
     if (receipt) {

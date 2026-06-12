@@ -13,24 +13,13 @@ import {
 import { zoneModerato } from '../../../src/tempo/zones/zone.js'
 import { debugOptions } from './config.js'
 
-const credentials = import.meta.env.VITE_TEMPO_CREDENTIALS
-
 export const zone = zoneModerato(7)
 
-export const rpcUrl = 'https://rpc-zone-006-private.tempoxyz.dev'
+export const rpcUrl = zone.rpcUrls.default.http[0]!
 
 export const http = (url = rpcUrl, config: ZoneHttpConfig = {}) =>
   zoneHttp(url, {
     ...debugOptions({ rpcUrl: url }),
-    ...(credentials
-      ? {
-          fetchOptions: {
-            headers: {
-              Authorization: `Basic ${btoa(credentials)}`,
-            },
-          },
-        }
-      : {}),
     ...config,
   })
 

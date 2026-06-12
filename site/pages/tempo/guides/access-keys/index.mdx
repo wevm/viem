@@ -1,0 +1,59 @@
+---
+description: Delegate signing to a secondary key with access keys, with spending limits, scopes, admin keys, and signature verification.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Access Keys
+
+## Overview
+
+Access keys let an account delegate transaction signing to a secondary key. The root key signs
+a key authorization granting the access key permission, optionally bounded by an expiry,
+per-token spending limits, and call scopes. Users can then transact without a passkey prompt
+each time, while the root key stays offline. Tempo also supports unrestricted admin keys,
+witnesses for revoking signed-but-not-submitted authorizations, and onchain signature
+verification.
+
+[See the Access Keys specification](https://docs.tempo.xyz/protocol/transactions/AccountKeychain)
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:key-round"
+    title="Authorize Access Keys"
+    description="Create an access key and authorize it to sign on an account's behalf."
+    to="/tempo/guides/access-keys/authorize"
+  />
+  <Card
+    icon="lucide:sliders-horizontal"
+    title="Set Permissions & Limits"
+    description="Restrict a key with an expiry, spending limits, and call scopes."
+    to="/tempo/guides/access-keys/permissions"
+  />
+  <Card
+    icon="lucide:settings"
+    title="Manage Access Keys"
+    description="Update limits, revoke keys, and inspect their onchain state."
+    to="/tempo/guides/access-keys/manage"
+  />
+  <Card
+    icon="lucide:shield-check"
+    title="Admin Access Keys"
+    description="Authorize unrestricted admin keys that can manage an account's other keys."
+    to="/tempo/guides/access-keys/admin"
+  />
+  <Card
+    icon="lucide:flame"
+    title="Witnesses"
+    description="Bind a witness to an authorization and burn it to revoke before submission."
+    to="/tempo/guides/access-keys/witnesses"
+  />
+  <Card
+    icon="lucide:badge-check"
+    title="Verify Signatures"
+    description="Verify that a signature was produced by an active access key for an account."
+    to="/tempo/guides/access-keys/verify"
+  />
+</Cards>

@@ -6,15 +6,16 @@ import type { Transport } from '../../clients/transports/createTransport.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
+import type { Hash } from '../../types/misc.js'
+import {
+  type FormatBlockParameterErrorType,
+  formatBlockParameter,
+} from '../../utils/block/formatBlockParameter.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import {
   type HexToNumberErrorType,
   hexToNumber,
 } from '../../utils/encoding/fromHex.js'
-import {
-  type NumberToHexErrorType,
-  numberToHex,
-} from '../../utils/encoding/toHex.js'
 
 export type GetTransactionCountParameters = {
   /** The account address. */
@@ -24,18 +25,30 @@ export type GetTransactionCountParameters = {
       /** The block number. */
       blockNumber?: bigint | undefined
       blockTag?: undefined
+      blockHash?: undefined
+      requireCanonical?: undefined
     }
   | {
       blockNumber?: undefined
       /** The block tag. Defaults to 'latest'. */
       blockTag?: BlockTag | undefined
+      blockHash?: undefined
+      requireCanonical?: undefined
+    }
+  | {
+      blockNumber?: undefined
+      blockTag?: undefined
+      /** The transaction count at a block specified by block hash. */
+      blockHash: Hash
+      /** Whether or not to throw an error if the block is not in the canonical chain. Only allowed in conjunction with `blockHash`. */
+      requireCanonical?: boolean | undefined
     }
 )
 export type GetTransactionCountReturnType = number
 
 export type GetTransactionCountErrorType =
   | RequestErrorType
-  | NumberToHexErrorType
+  | FormatBlockParameterErrorType
   | HexToNumberErrorType
   | ErrorType
 
@@ -67,18 +80,27 @@ export async function getTransactionCount<
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  { address, blockTag = 'latest', blockNumber }: GetTransactionCountParameters,
+  {
+    address,
+    blockHash,
+    blockNumber,
+    blockTag = 'latest',
+    requireCanonical,
+  }: GetTransactionCountParameters,
 ): Promise<GetTransactionCountReturnType> {
+  const block = formatBlockParameter({
+    blockHash,
+    blockNumber,
+    blockTag,
+    requireCanonical,
+  })
   const count = await client.request(
     {
       method: 'eth_getTransactionCount',
-      params: [
-        address,
-        typeof blockNumber === 'bigint' ? numberToHex(blockNumber) : blockTag,
-      ],
+      params: [address, block],
     },
     {
-      dedupe: Boolean(blockNumber),
+      dedupe: typeof blockNumber === 'bigint' || blockHash !== undefined,
     },
   )
   return hexToNumber(count)

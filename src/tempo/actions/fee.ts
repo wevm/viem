@@ -11,7 +11,7 @@ import { writeContractSync } from '../../actions/wallet/writeContractSync.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { zeroAddress } from '../../constants/address.js'
-import type { BaseErrorType } from '../../errors/base.js'
+import type { BaseError, BaseErrorType } from '../../errors/base.js'
 import type { Chain } from '../../types/chain.js'
 import type { ExtractAbiItem, GetEventArgs } from '../../types/contract.js'
 import type { Log, Log as viem_Log } from '../../types/log.js'
@@ -19,6 +19,12 @@ import type { Compute, UnionOmit } from '../../types/utils.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
 import * as Abis from '../Abis.js'
 import * as Addresses from '../Addresses.js'
+import {
+  FeeTokenNotTip20Error,
+  FeeTokenNotUsdError,
+  FeeTokenPausedError,
+  InvalidFeeTokenError,
+} from '../errors.js'
 import type {
   GetAccountParameter,
   ReadParameters,
@@ -26,6 +32,116 @@ import type {
 } from '../internal/types.js'
 import { defineCall } from '../internal/utils.js'
 import type { TransactionReceipt } from '../Transaction.js'
+import * as tokenActions from './token.js'
+
+const tip20AddressPrefix = '0x20c0'
+
+/**
+ * Validates that a token can be used as a Tempo fee token.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempo } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempo,
+ *   transport: http(),
+ * })
+ *
+ * const { address, metadata } = await Actions.fee.validateToken(client, {
+ *   token: '0x20c0000000000000000000000000000000000001',
+ * })
+ * ```
+ *
+ * @param client - Client.
+ * @param parameters - Parameters.
+ * @returns The fee token address, ID, and metadata.
+ */
+export async function validateToken<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: validateToken.Parameters,
+): Promise<validateToken.ReturnValue> {
+  const { token, ...rest } = parameters
+  const token_ = String(token)
+  const address = (() => {
+    try {
+      return TokenId.toAddress(token)
+    } catch (cause) {
+      throw new InvalidFeeTokenError({
+        cause: cause as BaseError | Error,
+        token: token_,
+      })
+    }
+  })()
+
+  if (!address.toLowerCase().startsWith(tip20AddressPrefix))
+    throw new FeeTokenNotTip20Error({ token: address })
+
+  const isPathUsd = address.toLowerCase() === Addresses.pathUsd.toLowerCase()
+  if (!isPathUsd) {
+    const isTip20 = await readContract(client, {
+      ...rest,
+      address: Addresses.tip20Factory,
+      abi: Abis.tip20Factory,
+      functionName: 'isTIP20',
+      args: [address],
+    }).catch((cause) => {
+      throw new InvalidFeeTokenError({
+        cause: cause as BaseError | Error,
+        token: address,
+      })
+    })
+    if (!isTip20) throw new FeeTokenNotTip20Error({ token: address })
+  }
+
+  const metadata = await tokenActions
+    .getMetadata(client, {
+      ...rest,
+      token: address,
+    })
+    .catch((cause) => {
+      throw new InvalidFeeTokenError({
+        cause: cause as BaseError | Error,
+        token: address,
+      })
+    })
+
+  if (metadata.currency !== 'USD')
+    throw new FeeTokenNotUsdError({
+      currency: metadata.currency,
+      token: address,
+    })
+  if (metadata.paused === true)
+    throw new FeeTokenPausedError({ token: address })
+
+  return {
+    address,
+    id: TokenId.fromAddress(address),
+    metadata,
+  }
+}
+
+export declare namespace validateToken {
+  export type Parameters = ReadParameters & {
+    /** Address or ID of the TIP20 token. */
+    token: TokenId.TokenIdOrAddress
+  }
+
+  export type ReturnValue = Compute<{
+    address: Address
+    id: bigint
+    metadata: tokenActions.getMetadata.ReturnValue
+  }>
+
+  export type ErrorType =
+    | FeeTokenNotTip20Error
+    | FeeTokenNotUsdError
+    | FeeTokenPausedError
+    | InvalidFeeTokenError
+    | BaseErrorType
+}
 
 /**
  * Gets the user's default fee token.

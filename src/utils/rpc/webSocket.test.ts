@@ -48,6 +48,19 @@ describe.runIf(process.env.VITE_NETWORK_TRANSPORT_MODE === 'webSocket')(
       expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
     })
 
+    test('close does not reconnect', async () => {
+      const socketClient = await getWebSocketRpcClient(
+        'ws://127.0.0.1:8545/69422',
+        {
+          reconnect: { delay: 100 },
+        },
+      )
+      expect(socketClient.socket.readyState).toEqual(WebSocket.OPEN)
+      socketClient.close()
+      await wait(500)
+      expect(socketClient.socket.readyState).not.toEqual(WebSocket.OPEN)
+    })
+
     test('keepalive', async () => {
       const socketClient = await getWebSocketRpcClient(
         'ws://127.0.0.1:8545/69421',

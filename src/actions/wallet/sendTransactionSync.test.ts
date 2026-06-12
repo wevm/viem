@@ -260,6 +260,8 @@ test('sends transaction (w/ serializer)', async () => {
       account: privateKeyToAccount(sourceAccount.privateKey),
       to: targetAccount.address,
       value: parseEther('1'),
+      maxFeePerGas: parseGwei('10.3875'),
+      maxPriorityFeePerGas: parseGwei('1'),
     }),
   ).rejects.toThrowError()
 

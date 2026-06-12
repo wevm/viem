@@ -48,6 +48,7 @@ test('default', async () => {
       "getBlobBaseFee": [Function],
       "getBlock": [Function],
       "getBlockNumber": [Function],
+      "getBlockReceipts": [Function],
       "getBlockTransactionCount": [Function],
       "getBytecode": [Function],
       "getChainId": [Function],
@@ -161,6 +162,14 @@ describe('smoke test', () => {
   test('getBlock', async () => {
     expect(
       await client.getBlock({
+        blockNumber: anvilMainnet.forkBlockNumber,
+      }),
+    ).toBeDefined()
+  })
+
+  test('getBlockReceipts', async () => {
+    expect(
+      await client.getBlockReceipts({
         blockNumber: anvilMainnet.forkBlockNumber,
       }),
     ).toBeDefined()

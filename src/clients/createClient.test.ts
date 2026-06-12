@@ -606,6 +606,7 @@ describe('extends', () => {
         "getBlobBaseFee": [Function],
         "getBlock": [Function],
         "getBlockNumber": [Function],
+        "getBlockReceipts": [Function],
         "getBlockTransactionCount": [Function],
         "getBytecode": [Function],
         "getChainId": [Function],

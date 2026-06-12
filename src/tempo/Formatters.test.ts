@@ -140,7 +140,7 @@ describe('formatTransactionRequest', () => {
     expect(rpc.calls?.[0]?.to).toBe(undefined)
   })
 
-  test('behavior: feePayer: true deletes feeToken', () => {
+  test('behavior: feePayer: true deletes feeToken (no fee payer signature)', () => {
     const rpc = Formatters.formatTransactionRequest({
       chainId: 1,
       calls: [{ to: '0x0000000000000000000000000000000000000000' }],
@@ -149,6 +149,43 @@ describe('formatTransactionRequest', () => {
     } as never)
     expect((rpc as Record<string, unknown>).feeToken).toBeUndefined()
     expect((rpc as Record<string, unknown>).feePayer).toBe(true)
+  })
+
+  test('behavior: feePayer: true preserves feeToken once feePayerSignature is set', () => {
+    const rpc = Formatters.formatTransactionRequest({
+      chainId: 1,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      feePayer: true,
+      feeToken,
+      feePayerSignature: {
+        r: '0x0000000000000000000000000000000000000000000000000000000000000001',
+        s: '0x0000000000000000000000000000000000000000000000000000000000000002',
+        yParity: 0,
+      },
+    } as never)
+    expect((rpc as Record<string, unknown>).feeToken).toBe(feeToken)
+    expect((rpc as Record<string, unknown>).feePayer).toBe(true)
+  })
+
+  test('behavior: keyData >4 bytes is shimmed to length hint', () => {
+    const rpc = Formatters.formatTransactionRequest({
+      chainId: 1,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      keyType: 'webAuthn',
+      keyData: `0x${'ff'.repeat(1400)}`,
+    } as never)
+    // 1400 = 0x0578 → 2-byte BE length hint
+    expect((rpc as Record<string, unknown>).keyData).toBe('0x0578')
+  })
+
+  test('behavior: keyData ≤4 bytes passes through unchanged', () => {
+    const rpc = Formatters.formatTransactionRequest({
+      chainId: 1,
+      calls: [{ to: '0x0000000000000000000000000000000000000000' }],
+      keyType: 'webAuthn',
+      keyData: '0x0578',
+    } as never)
+    expect((rpc as Record<string, unknown>).keyData).toBe('0x0578')
   })
 
   test('behavior: feePayer as object is parsed', () => {

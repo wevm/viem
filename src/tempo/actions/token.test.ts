@@ -322,6 +322,7 @@ describe('getMetadata', () => {
       {
         "currency": "USD",
         "decimals": 6,
+        "logoURI": "",
         "name": "AlphaUSD",
         "paused": false,
         "quoteToken": "0x20C0000000000000000000000000000000000000",
@@ -348,6 +349,7 @@ describe('getMetadata', () => {
       {
         "currency": "USD",
         "decimals": 6,
+        "logoURI": "",
         "name": "Test USD",
         "paused": false,
         "quoteToken": "0x20C0000000000000000000000000000000000000",
@@ -369,6 +371,7 @@ describe('getMetadata', () => {
         {
           "currency": "USD",
           "decimals": 6,
+          "logoURI": "",
           "name": "pathUSD",
           "symbol": "pathUSD",
           "totalSupply": 184467440737095516150n,
@@ -385,6 +388,7 @@ describe('getMetadata', () => {
         {
           "currency": "USD",
           "decimals": 6,
+          "logoURI": "",
           "name": "pathUSD",
           "symbol": "pathUSD",
           "totalSupply": 184467440737095516150n,
@@ -408,6 +412,7 @@ describe('getMetadata', () => {
       {
         "currency": "USD",
         "decimals": 6,
+        "logoURI": "",
         "name": "Test USD",
         "paused": false,
         "quoteToken": "0x20C0000000000000000000000000000000000000",
@@ -417,6 +422,22 @@ describe('getMetadata', () => {
         "transferPolicyId": 1n,
       }
     `)
+  })
+
+  test('behavior: custom token with logo URI', async () => {
+    const logoURI = 'https://example.com/test-usd.svg'
+    const { token } = await actions.token.createSync(client, {
+      currency: 'USD',
+      logoURI,
+      name: 'Logo USD',
+      symbol: 'LUSD',
+    })
+
+    const metadata = await actions.token.getMetadata(client, {
+      token,
+    })
+
+    expect(metadata.logoURI).toBe(logoURI)
   })
 })
 

@@ -40,11 +40,6 @@ import type {
 import type { GetTransactionRequestKzgParameter } from '../../types/kzg.js'
 import type {
   TransactionRequest,
-  TransactionRequestEIP1559,
-  TransactionRequestEIP2930,
-  TransactionRequestEIP4844,
-  TransactionRequestEIP7702,
-  TransactionRequestLegacy,
   TransactionSerializable,
 } from '../../types/transaction.js'
 import type {
@@ -58,7 +53,10 @@ import { blobsToCommitments } from '../../utils/blob/blobsToCommitments.js'
 import { blobsToProofs } from '../../utils/blob/blobsToProofs.js'
 import { commitmentsToVersionedHashes } from '../../utils/blob/commitmentsToVersionedHashes.js'
 import { toBlobSidecars } from '../../utils/blob/toBlobSidecars.js'
-import type { FormattedTransactionRequest } from '../../utils/formatters/transactionRequest.js'
+import type {
+  ExtractFormattedTransactionRequest,
+  FormattedTransactionRequest,
+} from '../../utils/formatters/transactionRequest.js'
 import { getAction } from '../../utils/getAction.js'
 import { LruMap } from '../../utils/lru.js'
 import type { NonceManager } from '../../utils/nonceManager.js'
@@ -143,6 +141,30 @@ export type PrepareTransactionRequestParameters<
   GetChainParameter<chain, chainOverride> &
   GetTransactionRequestKzgParameter<request> & { chainId?: number | undefined }
 
+/**
+ * Infers a chain-specific (non-built-in) transaction type from the request
+ * shape. Returns the custom `type` (e.g. `'tempo'`) only when the request
+ * uniquely matches a custom member of the chain's formatted request union (i.e.
+ * it does not also match any built-in member). Built-in chains have no custom
+ * members, so this resolves to `never` and leaves their inference unchanged.
+ */
+type ExtractCustomFormattedTransactionType<
+  chain extends Chain | undefined,
+  request,
+  ///
+  _candidates = UnionOmit<FormattedTransactionRequest<chain>, 'from'>,
+  _matched extends string = _candidates extends object
+    ? request extends ExactPartial<_candidates>
+      ? _candidates extends { type?: infer type | undefined }
+        ? Extract<type, string>
+        : never
+      : never
+    : never,
+  _builtin = NonNullable<TransactionRequest['type']>,
+> = IsNever<Extract<_matched, _builtin>> extends true
+  ? Exclude<_matched, _builtin>
+  : never
+
 export type PrepareTransactionRequestReturnType<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
@@ -161,17 +183,23 @@ export type PrepareTransactionRequestReturnType<
     accountOverride
   >,
   _derivedChain extends Chain | undefined = DeriveChain<chain, chainOverride>,
-  _transactionType = request['type'] extends string | undefined
+  _customTransactionType extends string = ExtractCustomFormattedTransactionType<
+    _derivedChain,
+    request
+  >,
+  _transactionType = request['type'] extends string
     ? request['type']
-    : GetTransactionType<request> extends 'legacy'
-      ? unknown
-      : GetTransactionType<request>,
-  _transactionRequest extends TransactionRequest =
-    | (_transactionType extends 'legacy' ? TransactionRequestLegacy : never)
-    | (_transactionType extends 'eip1559' ? TransactionRequestEIP1559 : never)
-    | (_transactionType extends 'eip2930' ? TransactionRequestEIP2930 : never)
-    | (_transactionType extends 'eip4844' ? TransactionRequestEIP4844 : never)
-    | (_transactionType extends 'eip7702' ? TransactionRequestEIP7702 : never),
+    : IsNever<_customTransactionType> extends false
+      ? _customTransactionType
+      : request['type'] extends string | undefined
+        ? request['type']
+        : GetTransactionType<request> extends 'legacy'
+          ? unknown
+          : GetTransactionType<request>,
+  _transactionRequest = ExtractFormattedTransactionRequest<
+    _derivedChain,
+    { type?: _transactionType extends string ? _transactionType : undefined }
+  >,
 > = Prettify<
   UnionRequiredBy<
     Extract<
@@ -333,6 +361,7 @@ export async function prepareTransactionRequest<
     request = await prepareTransactionRequest.fn(
       { ...request, chain },
       {
+        client,
         phase: 'beforeFillTransaction',
       },
     )
@@ -484,6 +513,7 @@ export async function prepareTransactionRequest<
     request = await prepareTransactionRequest.fn(
       { ...request, chain },
       {
+        client,
         phase: 'beforeFillParameters',
       },
     )
@@ -634,6 +664,7 @@ export async function prepareTransactionRequest<
     request = await prepareTransactionRequest.fn(
       { ...request, chain },
       {
+        client,
         phase: 'afterFillParameters',
       },
     )

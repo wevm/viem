@@ -29,7 +29,8 @@ const client = (requests: unknown[]) =>
       async request(request) {
         requests.push(request)
 
-        if (request.method === 'wallet_send') return { chainId: 4321, receipt }
+        if (request.method === 'wallet_transfer')
+          return { chainId: 4321, receipt }
         if (request.method === 'wallet_swap') return { receipt }
         if (request.method === 'wallet_deposit')
           return { receipts: [receipt] } as never
@@ -39,26 +40,28 @@ const client = (requests: unknown[]) =>
     }),
   })
 
-test('send', async () => {
+test('transfer', async () => {
   const requests: unknown[] = []
-  const result = await wallet.send(client(requests), {
+  const result = await wallet.transfer(client(requests), {
+    amount: '1.5',
     feePayer: false,
+    memo: 'thanks',
     to: '0x0000000000000000000000000000000000000003',
     token: '0x0000000000000000000000000000000000000004',
-    value: '1.5',
   })
 
   expect({ requests, result }).toMatchInlineSnapshot(`
     {
       "requests": [
         {
-          "method": "wallet_send",
+          "method": "wallet_transfer",
           "params": [
             {
+              "amount": "1.5",
               "feePayer": false,
+              "memo": "thanks",
               "to": "0x0000000000000000000000000000000000000003",
               "token": "0x0000000000000000000000000000000000000004",
-              "value": "1.5",
             },
           ],
         },
@@ -138,10 +141,10 @@ test('deposit', async () => {
   const requests: unknown[] = []
   const result = await wallet.deposit(client(requests), {
     address: '0x0000000000000000000000000000000000000003',
+    amount: '3.5',
     chainId: 1,
     displayName: 'Account',
-    token: '0x0000000000000000000000000000000000000004',
-    value: '3.5',
+    token: 'pathUsd',
   })
 
   expect({ requests, result }).toMatchInlineSnapshot(`
@@ -152,10 +155,10 @@ test('deposit', async () => {
           "params": [
             {
               "address": "0x0000000000000000000000000000000000000003",
+              "amount": "3.5",
               "chainId": 1,
               "displayName": "Account",
-              "token": "0x0000000000000000000000000000000000000004",
-              "value": "3.5",
+              "token": "pathUsd",
             },
           ],
         },

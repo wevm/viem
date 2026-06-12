@@ -17,6 +17,7 @@ import type {
   GetChainParameter,
 } from '../../types/chain.js'
 import { disputeGameAbi, disputeGameFactoryAbi, portal2Abi } from '../abis.js'
+import { isSuperGameType } from '../gameTypes.js'
 import type { GetContractAddressParameter } from '../types/contract.js'
 import type { Game } from '../types/withdrawal.js'
 
@@ -40,7 +41,14 @@ export type GetGamesParameters<
     limit?: number | undefined
   }
 export type GetGamesReturnType = (Game & {
+  /**
+   * L2 block number anchored by the dispute game. For super-root games, this
+   * value is the L2 timestamp instead. Check `usesSuperRoots` to distinguish
+   * the unit.
+   */
   l2BlockNumber: bigint
+  /** Whether the dispute game anchors on super roots. */
+  usesSuperRoots: boolean
 })[]
 export type GetGamesErrorType =
   | ReadContractErrorType
@@ -133,11 +141,12 @@ export async function getGames<
     })),
   })
 
+  const usesSuperRoots = isSuperGameType(gameType)
   const games = rawGames
     .map((game, i) => {
       const blockNumber = l2SequenceNumbers[i] as bigint
       return !l2BlockNumber || blockNumber > l2BlockNumber
-        ? { ...game, l2BlockNumber: blockNumber }
+        ? { ...game, l2BlockNumber: blockNumber, usesSuperRoots }
         : null
     })
     .filter(Boolean) as GetGamesReturnType
