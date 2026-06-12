@@ -18,10 +18,12 @@ const precompilesDir = Path.resolve(
   '../test/tempo/crates/contracts/src/precompiles',
 )
 
+const compareStrings = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0)
+
 // Read all .rs files from the precompiles directory
-const files = Fs.readdirSync(precompilesDir).filter(
-  (file) => file.endsWith('.rs') && file !== 'mod.rs',
-)
+const files = Fs.readdirSync(precompilesDir)
+  .filter((file) => file.endsWith('.rs') && file !== 'mod.rs')
+  .sort()
 
 // Aggregate content from all precompile files
 const content = files
@@ -236,7 +238,6 @@ for (const [interfaceName, interfaceData] of interfaces.entries()) {
     return item.replace('external bool', 'external returns (bool)')
   })
 
-  console.log(items)
   const abi = Abi.from(items)
 
   Fs.appendFileSync(
@@ -298,7 +299,13 @@ Fs.appendFileSync(
 )
 
 for (const { exportName, abi } of processedInterfaceData) {
-  const functions = abi.filter((item) => item.type === 'function')
+  const functions = abi
+    .filter((item) => item.type === 'function')
+    .sort(
+      (a, b) =>
+        compareStrings(a.name, b.name) ||
+        compareStrings(AbiItem.getSignature(a), AbiItem.getSignature(b)),
+    )
   if (functions.length === 0) continue
 
   const functionNames = functions.map((item) => item.name)
@@ -308,7 +315,7 @@ for (const { exportName, abi } of processedInterfaceData) {
         (name, index) => functionNames.indexOf(name) !== index,
       ),
     ),
-  )
+  ).sort(compareStrings)
 
   const selectors: Record<string, string | Record<string, string>> = {}
   for (const item of functions) {
