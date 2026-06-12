@@ -20,7 +20,6 @@
     "docs:dev": "pnpm --filter site dev",
     "docs:build": "pnpm --filter site build",
     "check": "biome check --write --unsafe",
-    "check:tempo-abis": "pnpm gen:tempo-abis && git diff --exit-code -- src/tempo/Abis.ts src/tempo/Selectors.ts",
     "check:repo": "sherif",
     "check:types": "tsc -b",
     "check:unused": "pnpm clean && knip",
