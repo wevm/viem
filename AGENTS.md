@@ -142,7 +142,8 @@ This document contains guidelines for AI agents working on the Viem codebase.
 
 - **Use `pnpm test` for tests** -- run tests through package scripts, not `vitest` directly.
 - **Target the relevant project** -- prefer `pnpm test --run <paths>` or `pnpm test --project core --bail=1` / `--project tempo` over the full matrix while iterating. Use `SKIP_GLOBAL_SETUP=true` for offline runs that do not need anvil.
-- **Colocate tests** -- tests are sibling `*.test.ts` files next to their module (`src/utils/Hex.ts` + `src/utils/Hex.test.ts`); prefer inline snapshots over snapshot files.
+- **Colocate tests** -- tests are sibling `*.test.ts` files next to their module; prefer inline snapshots over snapshot files.
+- **No tests for pure re-exports** -- modules that only `export * from 'ox/<Ns>'` get no committed test suite (ox owns that coverage). Behavior-delta verification against v2 happens as one-shot scaffolding: write, run, record findings in the module's `tasks/v3-api/` manifest + breaking-change log, then delete the tests. Once a façade gains viem-specific logic, that logic gets sibling tests.
 - **Wrap function exports in `describe`** -- every test file targets one or more exported functions; each function gets its own `describe('functionName', () => { ... })` block.
 - **Inline snapshots over direct assertions** -- prefer `toMatchInlineSnapshot()` over `.toBe()`, `.toEqual()`, etc. for stable return values. Use `toThrowErrorMatchingInlineSnapshot()` for error assertions.
 - **Snapshot whole objects, omit nondeterministic properties** -- destructure out nondeterministic fields and snapshot the rest, rather than cherry-picking individual fields to assert.
