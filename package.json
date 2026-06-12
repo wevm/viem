@@ -104,6 +104,7 @@
       ".": {
         "entry": [
           "src/index.ts!",
+          "src/node/index.ts!",
           "src/utils/index.ts!"
         ],
         "project": [
@@ -123,7 +124,7 @@
     {
       "name": "import * from 'viem' (esm)",
       "path": "./dist/index.js",
-      "limit": "36 kB",
+      "limit": "64 kB",
       "import": "*"
     }
   ],
@@ -268,6 +269,11 @@
       "src": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./node": {
+      "src": "./src/node/index.ts",
+      "types": "./dist/node/index.d.ts",
+      "default": "./dist/node/index.js"
     },
     "./utils": {
       "src": "./src/utils/index.ts",
