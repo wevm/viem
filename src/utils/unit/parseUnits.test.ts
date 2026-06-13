@@ -100,3 +100,14 @@ test('decimals < fraction length', () => {
   expect(parseUnits('69.59000000059', 9)).toMatchInlineSnapshot('69590000001n')
   expect(parseUnits('69.59000002359', 9)).toMatchInlineSnapshot('69590000024n')
 })
+
+test('float-precision rounding (regression)', () => {
+  // `Number('.4999999999999999999')` evaluates to 0.5 due to float precision,
+  // so a value strictly *below* the rounding midpoint was previously rounded
+  // up by a whole unit. These must round down.
+  expect(parseUnits('3.4999999999999999999', 0)).toBe(3n)
+  expect(parseUnits('0.4999999999999999999', 0)).toBe(0n)
+  expect(parseUnits('123.4999999999999999999', 0)).toBe(123n)
+  expect(parseUnits('1.04999999999999999999', 1)).toBe(10n)
+})
+
