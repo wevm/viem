@@ -18,7 +18,7 @@ export function parseUnits(value: string, decimals: number) {
   if (!/^(-?)([0-9]*)\.?([0-9]*)$/.test(value))
     throw new InvalidDecimalNumberError({ value })
 
-  let [integer, fraction = '0'] = value.split('.')
+  let [integer = '', fraction = ''] = value.split('.')
 
   const negative = integer.startsWith('-')
   if (negative) integer = integer.slice(1)
@@ -26,32 +26,22 @@ export function parseUnits(value: string, decimals: number) {
   // trim trailing zeros.
   fraction = fraction.replace(/(0+)$/, '')
 
-  // round off if the fraction is larger than the number of decimals.
-  if (decimals === 0) {
-    if (Math.round(Number(`.${fraction}`)) === 1)
-      integer = `${BigInt(integer) + 1n}`
-    fraction = ''
-  } else if (fraction.length > decimals) {
-    const [left, unit, right] = [
-      fraction.slice(0, decimals - 1),
-      fraction.slice(decimals - 1, decimals),
-      fraction.slice(decimals),
-    ]
-
-    const rounded = Math.round(Number(`${unit}.${right}`))
-    if (rounded > 9)
-      fraction = `${BigInt(left) + BigInt(1)}0`.padStart(left.length + 1, '0')
-    else fraction = `${left}${rounded}`
-
-    if (fraction.length > decimals) {
-      fraction = fraction.slice(1)
-      integer = `${BigInt(integer) + 1n}`
-    }
-
-    fraction = fraction.slice(0, decimals)
-  } else {
+  // Fraction fits within `decimals`: just pad it out, nothing to round.
+  if (fraction.length <= decimals) {
     fraction = fraction.padEnd(decimals, '0')
+    return BigInt(`${negative ? '-' : ''}${integer || '0'}${fraction}`)
   }
 
-  return BigInt(`${negative ? '-' : ''}${integer}${fraction}`)
+  // Fraction is longer than `decimals`: round half-up based on the first
+  // dropped digit. We compare the digit *characters* directly instead of
+  // routing the fraction through a JS float (the previous implementation used
+  // `Math.round(Number(...))`). `Number('.4999999999999999999')` evaluates to
+  // `0.5` due to float precision, which rounded a value strictly *below* the
+  // midpoint up by a whole unit. Concatenating the kept digits into a single
+  // BigInt also lets the carry propagate into the integer part automatically.
+  const keep = fraction.slice(0, decimals)
+  const roundUp = fraction[decimals] >= '5'
+  let scaled = BigInt(`${integer || '0'}${keep}`)
+  if (roundUp) scaled += 1n
+  return BigInt(negative ? '-1' : '1') * scaled
 }
