@@ -114,6 +114,11 @@
       "import": "./_esm/siwe/index.js",
       "default": "./_cjs/siwe/index.js"
     },
+    "./stablecoins": {
+      "types": "./_types/stablecoins/index.d.ts",
+      "import": "./_esm/stablecoins/index.js",
+      "default": "./_cjs/stablecoins/index.js"
+    },
     "./tempo": {
       "types": "./_types/tempo/index.d.ts",
       "import": "./_esm/tempo/index.js",
@@ -194,6 +199,9 @@
       ],
       "siwe": [
         "./_types/siwe/index.d.ts"
+      ],
+      "stablecoins": [
+        "./_types/stablecoins/index.d.ts"
       ],
       "tempo": [
         "./_types/tempo/index.d.ts"
