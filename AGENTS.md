@@ -61,6 +61,11 @@ This document contains guidelines for AI agents working on the Viem codebase.
 - **API-first module reviews** -- no public module is implemented before a signature-only sketch
   in `tasks/v3-api/<Module>.md` is approved by the maintainer. For utils façades the sketch is the
   curated export manifest (which v2 names survive → ox mapping, which are deleted).
+- **Check parity against v2** -- when migrating or sketching a module, always read the real v2
+  implementation (on `main`, or the existing `src/` code) for that surface and reconcile field
+  shapes, names, ordering, defaults, and behavior against it. Intentional divergences from v2 are
+  logged in `tasks/v3-breaking-changes.md`; unintentional ones are bugs. Do not infer the v2 shape
+  from memory.
 - **Ox is the primitive layer** -- when migrating code, prefer ox v1 modules (`Hex`, `Bytes`,
   `Abi*`, `Address`, `Hash`, `Signature`, `Secp256k1`, `TxEnvelope*`, …) over hand-rolled
   implementations. Direct `@noble/*`/`@scure/*` usage is being removed in Phase B; do not add new
@@ -91,6 +96,8 @@ This document contains guidelines for AI agents working on the Viem codebase.
 - **IIFE expressions for fallible local derivations** -- when a local needs `try`/`catch` to parse or normalize a value, prefer an IIFE expression over `let value: T` followed by assignment inside `try`.
 - **Skip braces for single-statement blocks** -- omit `{}` for single-statement `if`, `for`, etc., when the surrounding file follows that style.
 - **No section separator comments** -- do not use `// ---` or `// ===` divider comments. Let JSDoc and whitespace provide structure.
+- **No plan references in code or comments** -- never reference the v3 plan, phases, or tasks (e.g. `C2`, `B6`, `D11`, "in a later phase", `TODO(C2)`) in source comments, JSDoc, or identifiers. Code must read standalone. Plan/phase tracking belongs only in `tasks/`. A bare `TODO:` describing the actual work is fine.
+- **No v2 references in code or comments** -- never mention v2, its old names, or migration framing (e.g. "replaces v2 `formatters`", "was `defineChain`") in source comments, JSDoc, or identifiers. Comments describe what the code does now and must read standalone. v2-parity and migration notes belong in `tasks/v3-breaking-changes.md`.
 - **Static imports by default** -- use static `import` declarations. Dynamic imports are reserved for real runtime boundaries (e.g. `viem/node` trusted setups, optional heavyweight paths).
 - **Minimize `as any`** -- avoid new `as any` where a safer assertion is practical, but do not mass-rewrite existing crypto, tuple, and inference glue that already relies on it.
 - **Destructure when accessing multiple properties** -- prefer `const { a, b } = options` over repeated `options.a`, `options.b`.

@@ -6,6 +6,7 @@ test('exports', () => {
   expect(Object.keys(viem)).toMatchInlineSnapshot(`
     [
       "Account",
+      "Chain",
       "Errors",
       "Abi",
       "AbiConstructor",
