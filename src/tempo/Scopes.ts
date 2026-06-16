@@ -60,7 +60,11 @@ export type Tip20<address extends Address = Address> = Contract<
   typeof Selectors.tip20
 >
 
-/** Creates a call scope builder for an arbitrary target. */
+/**
+ * Creates a call scope builder for an arbitrary target.
+ *
+ * @experimental
+ */
 export function target<address extends Address>(
   address: address,
 ): Target<address> {
@@ -76,7 +80,11 @@ export function target<address extends Address>(
   }
 }
 
-/** Creates a typed call scope builder from a selector map. */
+/**
+ * Creates a typed call scope builder from a selector map.
+ *
+ * @experimental
+ */
 export function contract<
   address extends Address,
   selectors extends SelectorMap,
@@ -104,7 +112,11 @@ export function contract<
   return result as Contract<address, selectors>
 }
 
-/** Creates a call scope builder for a TIP-20 token. */
+/**
+ * Creates a call scope builder for a TIP-20 token.
+ *
+ * @experimental
+ */
 export function tip20<address extends Address>(
   address: address,
 ): Tip20<address> {

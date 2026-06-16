@@ -38,7 +38,9 @@ export * as Formatters from './Formatters.js'
 export * as Hardfork from './Hardfork.js'
 export * as KeyAuthorizationManager from './KeyAuthorizationManager.js'
 export * as P256 from './P256.js'
+/** @experimental */
 export * as Scopes from './Scopes.js'
+/** @experimental */
 export * as Selectors from './Selectors.js'
 export * as Storage from './Storage.js'
 export * as TokenIds from './TokenIds.js'
