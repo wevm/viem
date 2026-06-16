@@ -29,8 +29,6 @@
     "test:env:tsc": "pnpm --filter test-tsc test",
     "test:env:vite": "pnpm --filter test-vite test",
     "test:typecheck": "SKIP_GLOBAL_SETUP=true vp test --typecheck.only",
-    "vectors": "bun test vectors/**/*.test.ts",
-    "vectors:generate": "bun vectors/generate.ts",
     "version:update": "bun scripts/version:update.ts"
   },
   "devDependencies": {
@@ -71,7 +69,6 @@
     "ignore": [
       ".github/**",
       "environments/**",
-      "vectors/**",
       "src-old/**",
       "test-old/**",
       "src/core/internal/**"

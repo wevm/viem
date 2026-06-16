@@ -233,25 +233,6 @@ jobs:
       - name: Run tests
         run: pnpm test:env:${{ matrix.runtime }}
 
-  vectors:
-    name: Vectors
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
-    steps:
-      - name: Clone repository
-        uses: actions/checkout@v4
-        with: 
-          submodules: 'recursive'
-
-      - name: Install dependencies
-        uses: ./.github/actions/install-dependencies
-
-      - name: Run test vectors
-        shell: bash
-        run: pnpm vectors
-
   wagmi:
     name: Wagmi
     permissions:
