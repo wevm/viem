@@ -1,12 +1,13 @@
 export * from 'ox/PersonalMessage'
 
-import type * as Address from 'ox/Address'
+import * as Address from 'ox/Address'
 import type * as Bytes from 'ox/Bytes'
 import type * as Errors from 'ox/Errors'
 import * as Hex from 'ox/Hex'
 import * as PersonalMessage from 'ox/PersonalMessage'
-import * as Secp256k1 from 'ox/Secp256k1'
 import type * as Signature from 'ox/Signature'
+import { secp256k1 } from '../core/Curve.js'
+import type * as Curve from '../core/Curve.js'
 
 /**
  * Message accepted by the personal-message helpers: a UTF-8 string, or a
@@ -31,15 +32,18 @@ export type SignableMessage = string | { raw: Hex.Hex | Bytes.Bytes }
 export function recoverAddress(
   options: recoverAddress.Options,
 ): Address.Address {
-  const { message, signature } = options
-  return Secp256k1.recoverAddress({
+  const { curve = secp256k1(), message, signature } = options
+  const publicKey = curve.recoverPublicKey({
     payload: PersonalMessage.getSignPayload(toPayload(message)),
     signature,
   })
+  return Address.fromPublicKey(publicKey)
 }
 
 export declare namespace recoverAddress {
   type Options = {
+    /** Signing curve (defaults to `Curve.secp256k1`). */
+    curve?: Curve.Recoverable | undefined
     /** The message that was signed. */
     message: SignableMessage
     /** Signature of the message. */
@@ -48,7 +52,7 @@ export declare namespace recoverAddress {
 
   type ErrorType =
     | PersonalMessage.getSignPayload.ErrorType
-    | Secp256k1.recoverAddress.ErrorType
+    | Address.fromPublicKey.ErrorType
     | Errors.GlobalErrorType
 }
 
@@ -63,34 +67,34 @@ export declare namespace recoverAddress {
  * import { PersonalMessage } from 'viem'
  *
  * const valid = PersonalMessage.verify({
- *   address: '0x…',
  *   message: 'hello world',
+ *   address, // or `publicKey`
  *   signature: '0x…',
  * })
  * ```
  */
-export function verify(options: verify.Options): boolean {
-  const { address, message, signature } = options
-  return Secp256k1.verify({
-    address,
+export function verify<
+  curve extends Curve.Curve<any> = ReturnType<typeof secp256k1>,
+>(options: verify.Options<curve>): ReturnType<curve['verify']> {
+  const { curve: curveOption, message, ...rest } = options
+  const curve = (curveOption ?? secp256k1()) as Curve.Curve<any>
+  return curve.verify({
     payload: PersonalMessage.getSignPayload(toPayload(message)),
-    signature,
-  })
+    ...rest,
+  }) as ReturnType<curve['verify']>
 }
 
 export declare namespace verify {
-  type Options = {
-    /** Address that signed the message. */
-    address: Address.Address
-    /** The message that was signed. */
-    message: SignableMessage
-    /** Signature of the message. */
-    signature: Hex.Hex | Bytes.Bytes | Signature.Signature
-  }
+  type Options<curve extends Curve.Curve<any> = ReturnType<typeof secp256k1>> =
+    {
+      /** Signing curve (defaults to `Curve.secp256k1`). */
+      curve?: curve | undefined
+      /** The message that was signed. */
+      message: SignableMessage
+    } & Curve.VerifyOptions<curve>
 
   type ErrorType =
     | PersonalMessage.getSignPayload.ErrorType
-    | Secp256k1.verify.ErrorType
     | Errors.GlobalErrorType
 }
 

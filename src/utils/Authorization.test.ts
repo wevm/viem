@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/constants.js'
+import * as Curve from '../core/Curve.js'
 import * as Authorization from './Authorization.js'
 import * as Secp256k1 from './Secp256k1.js'
 
@@ -22,7 +23,9 @@ function signedAuthorization() {
 describe('recoverAddress', () => {
   test('default', () => {
     expect(
-      Authorization.recoverAddress({ authorization: signedAuthorization() }),
+      Authorization.recoverAddress({
+        authorization: signedAuthorization(),
+      }),
     ).toBe(account.address)
   })
 
@@ -36,9 +39,13 @@ describe('recoverAddress', () => {
       payload: Authorization.getSignPayload(authorization),
       privateKey: account.privateKey,
     })
-    expect(Authorization.recoverAddress({ authorization, signature })).toBe(
-      account.address,
-    )
+    expect(
+      Authorization.recoverAddress({
+        authorization,
+        curve: Curve.secp256k1(),
+        signature,
+      }),
+    ).toBe(account.address)
   })
 })
 
@@ -46,17 +53,20 @@ describe('verify', () => {
   test('default', () => {
     expect(
       Authorization.verify({
-        address: account.address,
         authorization: signedAuthorization(),
+        publicKey: Secp256k1.getPublicKey({ privateKey: account.privateKey }),
       }),
     ).toBe(true)
   })
 
-  test('behavior: mismatched address', () => {
+  test('behavior: mismatched public key', () => {
     expect(
       Authorization.verify({
-        address: accounts[1].address,
         authorization: signedAuthorization(),
+        curve: Curve.secp256k1(),
+        publicKey: Secp256k1.getPublicKey({
+          privateKey: accounts[1].privateKey,
+        }),
       }),
     ).toBe(false)
   })

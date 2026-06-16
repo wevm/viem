@@ -172,6 +172,7 @@ This document contains guidelines for AI agents working on the Viem codebase.
 
 ## Git Conventions
 
+- **Maintainer-gated commits** -- never `git commit`, `git push`, or stage changes without the maintainer's explicit go-ahead. Implement and verify, then leave the work tree dirty for review; the maintainer decides when it gets committed (a "landed"/done task may stay reviewed-but-uncommitted until then).
 - **Conventional commits** -- use `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:` prefixes. Scope is optional (e.g. `feat(abi): add tuple formatter`).
 - **Preserve dirty work** -- do not revert, clean, or overwrite existing local changes unless explicitly asked. Never stage the `test/tempo` submodule pointer or the user's untracked in-progress files; exclude them explicitly (e.g. `git add -A -- ':(exclude)test/tempo'`).
 
