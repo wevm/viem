@@ -29,6 +29,8 @@ test('exports tempo', () => {
       "Hardfork",
       "KeyAuthorizationManager",
       "P256",
+      "Scopes",
+      "Selectors",
       "Storage",
       "TokenIds",
       "Transaction",
