@@ -617,6 +617,7 @@ describe('without `eth_fillTransaction`', () => {
     } = await prepareTransactionRequest(client, {
       account: privateKeyToAccount(sourceAccount.privateKey),
       blobs: toBlobs({ data: '0x1234' }),
+      gas: 21001n,
       kzg,
       maxFeePerBlobGas: parseGwei('20'),
       to: targetAccount.address,
