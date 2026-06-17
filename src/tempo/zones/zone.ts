@@ -1,11 +1,12 @@
 import { ZoneId } from 'ox/tempo'
-import { tempo } from '../../chains/definitions/tempo.js'
-import { tempoModerato } from '../../chains/definitions/tempoModerato.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 import { chainConfig } from '../chainConfig.js'
 
+const tempoId = 4217
+const tempoModeratoId = 42431
+
 export const portalAddresses = {
-  [tempoModerato.id]: {
+  [tempoModeratoId]: {
     6: '0x7069DeC4E64Fd07334A0933eDe836C17259c9B23',
     7: '0x3F5296303400B56271b476F5A0B9cBF74350D6Ac',
   },
@@ -42,12 +43,12 @@ const overrides = {
 } as const satisfies Record<number, Override>
 
 export const zone = /*#__PURE__*/ from({
-  sourceId: tempo.id,
+  sourceId: tempoId,
   rpcHost: 'tempo.xyz',
 })
 
 export const zoneModerato = /*#__PURE__*/ from({
-  sourceId: tempoModerato.id,
+  sourceId: tempoModeratoId,
   rpcHost: 'tempoxyz.dev',
 })
 

@@ -7,10 +7,12 @@ import type { Chain } from '../types/chain.js'
 import type { RpcSchema, WalletRpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
 import {
+  type ChainActions,
   type Client,
   type ClientConfig,
   type CreateClientErrorType,
   createClient,
+  extendChainActions,
 } from './createClient.js'
 import { type WalletActions, walletActions } from './decorators/wallet.js'
 import type { Transport } from './transports/createTransport.js'
@@ -52,7 +54,7 @@ export type WalletClient<
     rpcSchema extends RpcSchema
       ? [...WalletRpcSchema, ...rpcSchema]
       : WalletRpcSchema,
-    WalletActions<chain, account>
+    WalletActions<chain, account> & ChainActions<chain>
   >
 >
 
@@ -114,5 +116,5 @@ export function createWalletClient(
     transport,
     type: 'walletClient',
   })
-  return client.extend(walletActions)
+  return extendChainActions(client.extend(walletActions)) as never
 }

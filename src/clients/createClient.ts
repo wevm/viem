@@ -158,6 +158,15 @@ export type Client<
     >
   }
 
+export type ChainActions<chain extends Chain | undefined = Chain | undefined> =
+  chain extends {
+    decorators?: {
+      client?: (...args: any) => infer actions
+    }
+  }
+    ? actions
+    : unknown
+
 type Client_Base<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
@@ -295,6 +304,27 @@ export function createClient(parameters: ClientConfig): Client {
   }
 
   return Object.assign(client, { extend: extend(client) as any })
+}
+
+export function extendChainActions<
+  transport extends Transport,
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+  rpcSchema extends RpcSchema | undefined,
+  extended extends Extended | undefined,
+>(
+  client: Client<transport, chain, account, rpcSchema, extended>,
+): Client<
+  transport,
+  chain,
+  account,
+  rpcSchema,
+  Prettify<ChainActions<chain>> &
+    (extended extends Extended ? extended : unknown)
+> {
+  const decorator = client.chain?.decorators?.client
+  if (!decorator) return client as never
+  return client.extend(decorator as never) as never
 }
 
 /**

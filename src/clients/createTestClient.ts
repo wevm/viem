@@ -7,10 +7,12 @@ import type { Chain } from '../types/chain.js'
 import type { RpcSchema, TestRpcSchema } from '../types/eip1193.js'
 import type { Prettify } from '../types/utils.js'
 import {
+  type ChainActions,
   type Client,
   type ClientConfig,
   type CreateClientErrorType,
   createClient,
+  extendChainActions,
 } from './createClient.js'
 import { type TestActions, testActions } from './decorators/test.js'
 import type { Transport } from './transports/createTransport.js'
@@ -60,7 +62,8 @@ export type TestClient<
       : TestRpcSchema<mode>,
     { mode: mode } & (includeActions extends true
       ? TestActions
-      : Record<string, unknown>)
+      : Record<string, unknown>) &
+      ChainActions<chain>
   >
 >
 
@@ -120,8 +123,10 @@ export function createTestClient(parameters: TestClientConfig): TestClient {
     name,
     type: 'testClient',
   })
-  return client.extend((config) => ({
-    mode,
-    ...testActions({ mode })(config),
-  }))
+  return extendChainActions(
+    client.extend((config) => ({
+      mode,
+      ...testActions({ mode })(config),
+    })),
+  ) as never
 }

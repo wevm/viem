@@ -15,15 +15,20 @@ import { keccak256 } from '../utils/hash/keccak256.js'
 import type { SerializeTransactionFn } from '../utils/transaction/serializeTransaction.js'
 import type { Account, MultisigAccount } from './Account.js'
 import { getMetadata } from './actions/accessKey.js'
+import { decorator } from './Decorator.js'
 import * as Formatters from './Formatters.js'
 import type { Hardfork } from './Hardfork.js'
 import * as Concurrent from './internal/concurrent.js'
 import * as Transaction from './Transaction.js'
 
 const maxExpirySecs = 25
+const clientDecorator = decorator()
 
 export const chainConfig = {
   blockTime: 1_000,
+  decorators: {
+    client: clientDecorator,
+  },
   extendSchema: extendSchema<{
     feeToken?: TokenId.TokenIdOrAddress | undefined
     hardfork?: Hardfork | undefined

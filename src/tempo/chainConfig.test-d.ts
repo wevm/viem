@@ -12,6 +12,8 @@ test('prepareTransactionRequest preserves tempo transaction type', async () => {
     transport: http(),
   })
 
+  expectTypeOf(client.token.transfer).toBeFunction()
+
   const request_action = await prepareTransactionRequest(client, {
     calls: [],
     type: 'tempo',

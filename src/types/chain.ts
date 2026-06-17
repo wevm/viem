@@ -24,6 +24,7 @@ export type Chain<
   extendSchema extends Record<string, unknown> | undefined =
     | Record<string, unknown>
     | undefined,
+  decorators extends ChainDecorators | undefined = ChainDecorators | undefined,
 > = {
   /** Collection of block explorers */
   blockExplorers?:
@@ -69,7 +70,7 @@ export type Chain<
   sourceId?: number | undefined
   /** Flag for test networks */
   testnet?: boolean | undefined
-} & ChainConfig<formatters, extendSchema>
+} & ChainConfig<formatters, extendSchema, decorators>
 
 /////////////////////////////////////////////////////////////////////
 // Config
@@ -90,14 +91,23 @@ type ChainVerifyHashFn = (
   parameters: VerifyHashParameters,
 ) => Promise<VerifyHashReturnType>
 
+type ChainClientDecoratorFn = (client: Client) => Record<string, unknown>
+
+type ChainDecorators = {
+  client?: ChainClientDecoratorFn | undefined
+}
+
 export type ChainConfig<
   formatters extends ChainFormatters | undefined = ChainFormatters | undefined,
   extendSchema extends Record<string, unknown> | undefined =
     | Record<string, unknown>
     | undefined,
+  decorators extends ChainDecorators | undefined = ChainDecorators | undefined,
 > = {
   /** Custom chain data. @deprecated use `.extend` instead. */
   custom?: extendSchema | undefined
+  /** Adds chain-specific actions to clients configured with this chain. */
+  decorators?: decorators | undefined
   /** Extend schema. */
   extendSchema?: extendSchema | undefined
   /** Modifies how fees are derived. */

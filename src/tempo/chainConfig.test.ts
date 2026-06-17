@@ -10,6 +10,7 @@ import {
   verifyHash,
 } from '../actions/index.js'
 import { mainnet, tempoLocalnet } from '../chains/index.js'
+import { createWalletClient } from '../clients/createWalletClient.js'
 import { createClient, http } from '../index.js'
 import { defineChain } from '../utils/chain/defineChain.js'
 import { hashMessage } from '../utils/index.js'
@@ -29,6 +30,15 @@ const client = getClient({
 const maxUint256 = 2n ** 256n - 1n
 
 describe('prepareTransactionRequest', () => {
+  test('behavior: chain config adds tempo client actions', () => {
+    const client = createWalletClient({
+      chain: tempoLocalnet,
+      transport: http(),
+    })
+
+    expect(client.token.transfer).toBeTypeOf('function')
+  })
+
   test('behavior: expiring nonces for feePayer transactions', async () => {
     const now = Math.floor(Date.now() / 1000)
     const requests = await Promise.all([
