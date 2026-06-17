@@ -1,3 +1,5 @@
+import { Cards, Card } from 'vocs'
+
 # Chain
 
 ## Overview
@@ -6,46 +8,20 @@ The **Chain** module describes an EVM chain: its id, name, native currency, RPC 
 
 A `Chain` is plain data plus two optional behavior slots:
 
-- **`schema`**: bidirectional RPC to native codecs (the declarative replacement for function-based formatters).
+- **`schema`**: bidirectional RPC to native codecs.
 - **`serializers`**: transaction serialization overrides.
 
-### Topics
-
-| Topic | Description |
-| --- | --- |
-| [Defining a Chain](/docs/chains/create) | Define a chain with `Chain.from`, preserving its literal type. |
-| [Extending Chains](/docs/chains/extend) | Derive a new chain from a base with the chainable `.extend()`. |
-
-## Recipes
-
-:::warning[TODO]
-A holistic, end-to-end walkthrough of using chains (defining one and wiring it into a client to drive RPC encoding and transaction serialization) will be added once clients and actions are available.
-:::
-
-## Reference
-
-The `Chain` module defines and extends EVM chains, preserving their literal types.
-
-### Usage
-
-```ts twoslash
-import { Chain } from 'viem'
-
-const mainnet = Chain.from({
-  id: 1,
-  name: 'Ethereum',
-  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-})
-```
-
-### Types
-
-- `Chain.Chain`: an EVM chain.
-- `Chain.BlockExplorer`: a block explorer for a chain.
-- `Chain.Contract`: a deployed contract on a chain.
-- `Chain.Contracts`: collection of contracts on a chain.
-- `Chain.NativeCurrency`: native currency of a chain.
-- `Chain.RpcUrls`: RPC endpoints of a chain.
-- `Chain.Schema`: per-entity `zod/mini` codecs (input = RPC shape, output = native shape).
-- `Chain.Serializers`: transaction serialization overrides.
+<Cards>
+  <Card
+    title="Defining a Chain"
+    description="Define a chain with Chain.from, preserving its literal type."
+    icon="lucide:hammer"
+    to="/docs/chains/create"
+  />
+  <Card
+    title="Extending Chains"
+    description="Derive a new chain from a base with the chainable .extend()."
+    icon="lucide:git-branch"
+    to="/docs/chains/extend"
+  />
+</Cards>

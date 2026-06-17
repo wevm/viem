@@ -1,3 +1,5 @@
+import { Cards, Card } from 'vocs'
+
 # Errors
 
 ## Overview
@@ -6,34 +8,17 @@ The **Errors** module provides the base error class inherited by every error thr
 
 `Errors.BaseError` extends ox's `BaseError`, so every viem error is also an ox error (`instanceof` holds across the stack) and ox errors compose as `cause` without wrapping.
 
-### Topics
-
-| Topic | Description |
-| --- | --- |
-| [Base Error](/docs/errors/base-error) | The base error class inherited by all viem errors. |
-| [Configuration](/docs/errors/configuration) | Set viem-scoped defaults (docs origin, version) applied to every error. |
-
-## Recipes
-
-:::warning[TODO]
-A holistic, end-to-end walkthrough of error handling (catching, inspecting, and attributing errors thrown by actions) will be added once clients and actions are available.
-:::
-
-## Reference
-
-The `Errors` module provides the base error class inherited by every viem error, plus configuration for how errors are attributed.
-
-### Usage
-
-```ts twoslash
-import { Errors } from 'viem'
-
-throw new Errors.BaseError('An error occurred.', {
-  docsPath: '/docs/errors',
-  metaMessages: ['Reason: example'],
-})
-```
-
-### Types
-
-- `Errors.Config`: viem-scoped defaults (`docsOrigin`, `version`) applied to every `BaseError`.
+<Cards>
+  <Card
+    title="Base Error"
+    description="The base error class inherited by all errors thrown by viem."
+    icon="lucide:circle-alert"
+    to="/docs/errors/base-error"
+  />
+  <Card
+    title="Configuration"
+    description="Set viem-scoped defaults (docs origin, version) applied to every error."
+    icon="lucide:settings"
+    to="/docs/errors/configuration"
+  />
+</Cards>

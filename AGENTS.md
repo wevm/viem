@@ -202,18 +202,21 @@ Guidelines for authoring docs and guides under `site/pages/`.
 
 ### Module Pages
 
-- **Module docs are concept-first.** Each module page leads with prose explaining the concept, then
-  drills into the API. At minimum a module page contains, in this order:
-  - `## Overview` -- what the module is, how it works, and when to reach for it. Concept first, not
-    a list of functions.
-  - `## Recipes` -- independent, self-contained tasks (see the Guides section for the recipe shape).
-  - **An API reference** -- one `## ` section per exported function/type, named after the identifier
-    (e.g. ``## `Account.from` ``), each containing `### Usage`, `### Parameters`,
-    `### Return Value`, and `### Errors` as applicable.
-- **Reference sections open with a one-line description** -- directly under each reference heading
-  (the function `## ` heading, and the module page's `## Reference` heading), write a single
-  sentence describing what it does, then `### Usage`. Keep it terse and sourced from the symbol's
-  TSDoc.
+- **Module docs are concept-first.** Each module has a concept landing page plus task/reference
+  sub-pages.
+  - **Landing page** (`index.mdx`) is concept-only: a `## Overview` explaining what the module is,
+    how it works, and when to reach for it, followed by a `<Cards>` grid linking to each succeeding
+    sub-page (one `<Card>` per sub-page, with a title, short description, icon, and `to`). No
+    `## Recipes` or reference sections here.
+  - **Sub-pages** lead with prose, then drill into the API, containing in order:
+    - `## Overview` -- the concept for this task/function.
+    - `## Recipes` -- independent, self-contained tasks (see the Guides section for the recipe shape).
+    - **An API reference** -- one `## ` section per exported function/type, named after the
+      identifier (e.g. ``## `Account.from` ``), each containing `### Usage`, `### Parameters`,
+      `### Return Value`, and `### Errors` as applicable.
+- **Reference sections open with a one-line description** -- directly under each function `## `
+  heading, write a single sentence describing what it does, then `### Usage`. Keep it terse and
+  sourced from the symbol's TSDoc.
 - **`### Return Value` is an inline code fence, not a bullet** -- place the type as a bare
   inline `` `Type` `` on its own line directly under the heading (not `- **Type:** ...`), followed
   by a sentence describing it.

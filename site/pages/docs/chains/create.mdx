@@ -4,24 +4,6 @@
 
 Use [`Chain.from`](/docs/chains) to define a [Chain](/docs/chains). It preserves the literal type of the input (so ids, names, and contract addresses stay narrow) and attaches a chainable [`.extend()`](/docs/chains/extend) for deriving a new chain from a base.
 
-### Required Fields
-
-A chain requires the following fields; all others are optional.
-
-| Field | Type | Description |
-| --- | --- | --- |
-| `id` | `number` | Chain id. |
-| `name` | `string` | Human-readable name. |
-| `nativeCurrency` | `Chain.NativeCurrency` | Currency used by the chain (`name`, `symbol`, `decimals`). |
-| `rpcUrls` | `{ default: Chain.RpcUrls }` | RPC endpoints, keyed by name with a required `default`. |
-
-### Optional Behavior
-
-Beyond plain metadata, a chain carries two optional behavior slots:
-
-- **`schema`**: bidirectional RPC to native codecs (the declarative replacement for function-based formatters).
-- **`serializers`**: transaction serialization overrides.
-
 ## Recipes
 
 :::warning[TODO]
@@ -51,7 +33,23 @@ const mainnet = Chain.from({
 
 - **Type:** `Chain.Chain`
 
-The chain definition.
+The chain definition. `id`, `name`, `nativeCurrency`, and `rpcUrls` are required; all other fields are optional.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `number` | Chain id. |
+| `name` | `string` | Human-readable name. |
+| `nativeCurrency` | `Chain.NativeCurrency` | Currency used by the chain (`name`, `symbol`, `decimals`). |
+| `rpcUrls` | `{ default: Chain.RpcUrls }` | RPC endpoints, keyed by name with a required `default`. |
+| `blockExplorers` | `{ default: Chain.BlockExplorer }` | Block explorers, keyed by name with a required `default`. |
+| `blockTime` | `number` | Block time in milliseconds. |
+| `contracts` | `Chain.Contracts` | Deployed contracts on the chain. |
+| `ensTlds` | `readonly string[]` | ENS TLDs for the chain. |
+| `preconfirmationTime` | `number` | Preconfirmation time in milliseconds. |
+| `schema` | `Chain.Schema` | Bidirectional RPC to native codecs. |
+| `serializers` | `Chain.Serializers` | Transaction serialization overrides. |
+| `sourceId` | `number` | Source chain id (e.g. the L1 chain). |
+| `testnet` | `boolean` | Flag for test networks. |
 
 ### Return Value
 

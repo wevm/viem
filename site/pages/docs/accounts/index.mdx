@@ -45,35 +45,3 @@ Viem distinguishes between two kinds of account:
     to="/docs/accounts/local/custom"
   />
 </Cards>
-
-## Recipes
-
-:::warning[TODO]
-A holistic, end-to-end walkthrough of using accounts (creating one, attaching it to a client, and signing through actions) will be added once clients and actions are available.
-:::
-
-## Reference
-
-The `Account` module creates and represents accounts that sign messages, transactions, typed data, and authorizations.
-
-### Usage
-
-```ts twoslash
-import { Account } from 'viem'
-
-// A local account from a private key.
-const local = Account.fromPrivateKey('0x...')
-
-// A JSON-RPC account from an address (e.g. a browser wallet).
-const jsonRpc = Account.from('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')
-```
-
-### Types
-
-- `Account.Account`: a local signer, or a JSON-RPC account referenced by address.
-- `Account.Local`: an account that signs locally from injected signing logic.
-- `Account.JsonRpc`: an account whose signing is delegated to a JSON-RPC provider.
-- `Account.PrivateKey`: a private-key-backed local account.
-- `Account.Hd`: a mnemonic/HD-derived local account.
-- `Account.CustomSource`: the custom signing logic backing a local account.
-- `Account.SignableMessage`: a UTF-8 string, or a raw payload signed as-is.
