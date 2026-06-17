@@ -74,8 +74,9 @@ const overrides: Record<string, string> = {
 
 /**
  * Module → sidebar category, mirroring ox's `@category` grouping so the
- * Utilities sidebar nests Category › Module › pages. Categories are emitted
- * alphabetically; modules absent from this map fall back to "Other".
+ * Utilities sidebar nests Category › Module › pages. Categories sort
+ * alphabetically, interleaved with the root modules below. Modules absent from
+ * this map and from `rootModules` fall back to "Other".
  */
 const categories: Record<string, string> = {
   Abi: 'ABI',
@@ -95,28 +96,15 @@ const categories: Record<string, string> = {
   Hash: 'Crypto',
   HdKey: 'Crypto',
   Mnemonic: 'Crypto',
-  PublicKey: 'Crypto',
-  Secp256k1: 'Crypto',
-  Signature: 'Crypto',
-  SignatureErc6492: 'Crypto',
-  SignatureErc8010: 'Crypto',
-  Bytes: 'Data',
-  Hex: 'Data',
-  Rlp: 'Data',
-  Value: 'Data',
-  AccessList: 'Execution Spec',
-  AccountProof: 'Execution Spec',
-  Block: 'Execution Spec',
-  BlockOverrides: 'Execution Spec',
-  Fee: 'Execution Spec',
-  Filter: 'Execution Spec',
-  Log: 'Execution Spec',
-  StateOverrides: 'Execution Spec',
-  Transaction: 'Execution Spec',
-  TransactionReceipt: 'Execution Spec',
-  TransactionRequest: 'Execution Spec',
-  Withdrawal: 'Execution Spec',
-  Siwe: 'Sign-In with Ethereum (EIP-4361)',
+  Bytes: 'Encoding',
+  Hex: 'Encoding',
+  Rlp: 'Encoding',
+  Value: 'Encoding',
+  PublicKey: 'Keys & Signatures',
+  Secp256k1: 'Keys & Signatures',
+  Signature: 'Keys & Signatures',
+  SignatureErc6492: 'Keys & Signatures',
+  SignatureErc8010: 'Keys & Signatures',
   PersonalMessage: 'Signed & Typed Data',
   TypedData: 'Signed & Typed Data',
   TxEnvelope: 'Transaction Envelopes',
@@ -125,6 +113,32 @@ const categories: Record<string, string> = {
   TxEnvelopeEip4844: 'Transaction Envelopes',
   TxEnvelopeEip7702: 'Transaction Envelopes',
   TxEnvelopeLegacy: 'Transaction Envelopes',
+}
+
+/**
+ * Modules surfaced directly at the Utilities root instead of nested under a
+ * category. They sort alphabetically (by sidebar label) alongside the category
+ * groups.
+ */
+const rootModules = new Set([
+  'AccessList',
+  'AccountProof',
+  'Block',
+  'BlockOverrides',
+  'Fee',
+  'Filter',
+  'Log',
+  'StateOverrides',
+  'Transaction',
+  'TransactionReceipt',
+  'TransactionRequest',
+  'Withdrawal',
+  'Siwe',
+])
+
+/** Sidebar label overrides (module name → displayed text). */
+const labels: Record<string, string> = {
+  Siwe: 'Siwe (Sign-in with Ethereum)',
 }
 
 type Module = {
@@ -244,7 +258,10 @@ function transform(
   // from viem's pinned ox version, so re-checking them here is unreliable.
   // `// @noErrors` keeps twoslash rendering (`// @log:` annotations, hovers)
   // without failing the build.
-  out = out.replace(/```ts twoslash\n(?!\/\/ @noErrors)/g, '```ts twoslash\n// @noErrors\n')
+  out = out.replace(
+    /```ts twoslash\n(?!\/\/ @noErrors)/g,
+    '```ts twoslash\n// @noErrors\n',
+  )
 
   // 6. Rename the ox namespace to the viem one (e.g. `TransactionEnvelope` →
   // `TxEnvelope`). Runs after link rewriting so route paths are already mapped.
@@ -429,16 +446,19 @@ type SidebarItem = {
 }
 
 /** Builds the per-module sidebar node (Module › Overview/functions/helpers). */
-function moduleItem(m: Synced): SidebarItem {
+function moduleItem(m: Synced, label = m.name): SidebarItem {
   const extraText = { errors: 'Errors', types: 'Types' } as const
   const base = `/docs/utilities/${m.slug}`
   return {
-    text: m.name,
+    text: label,
     collapsed: true,
     items: [
       { text: 'Overview', link: base },
       ...m.functions.map((fn) => ({ text: fn, link: `${base}/${fn}` })),
-      ...m.helpers.map((helper) => ({ text: helper, link: `${base}/${helper}` })),
+      ...m.helpers.map((helper) => ({
+        text: helper,
+        link: `${base}/${helper}`,
+      })),
       ...m.extras.map((extra) => ({
         text: extraText[extra],
         link: `${base}/${extra}`,
@@ -447,23 +467,40 @@ function moduleItem(m: Synced): SidebarItem {
   }
 }
 
+/** Splits a PascalCase module name into spaced words (AccessList → Access List). */
+function spaceCase(name: string) {
+  return name.replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+}
+
 function writeSidebar(synced: Synced[]) {
-  // Group modules by ox category → Category › Module › pages.
+  // Root modules sit at the Utilities top level; the rest nest under their ox
+  // category (Category › Module › pages).
   const groups = new Map<string, SidebarItem[]>()
+  const roots: SidebarItem[] = []
   for (const m of synced) {
+    if (rootModules.has(m.name)) {
+      roots.push(moduleItem(m, labels[m.name] ?? spaceCase(m.name)))
+      continue
+    }
     const category = categories[m.name] ?? 'Other'
-    if (!(m.name in categories)) console.warn(`  ! uncategorized module: ${m.name}`)
+    if (!(m.name in categories))
+      console.warn(`  ! uncategorized module: ${m.name}`)
     const list = groups.get(category) ?? groups.set(category, []).get(category)!
     list.push(moduleItem(m))
   }
 
-  const items: SidebarItem[] = [...groups.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([category, modules]) => ({
+  // Category groups and root modules share one alphabetical ordering, keyed by
+  // sidebar label.
+  const groupItems: SidebarItem[] = [...groups.entries()].map(
+    ([category, modules]) => ({
       text: category,
       collapsed: true,
       items: modules.sort((a, b) => a.text.localeCompare(b.text)),
-    }))
+    }),
+  )
+  const items = [...groupItems, ...roots].sort((a, b) =>
+    a.text.localeCompare(b.text),
+  )
 
   const tree: SidebarItem = { text: 'Utilities', collapsed: false, items }
   const content = `// AUTOGENERATED by \`pnpm docs:sync-utils\` — do not edit by hand.\nimport type { Sidebar } from 'vocs'\n\nexport const utilities = ${JSON.stringify(
@@ -480,7 +517,8 @@ function readHelpers(modules: Module[]) {
   for (const m of modules)
     for (const helper of m.helpers) {
       const path = join(outDir, m.slug, `${helper}.mdx`)
-      if (existsSync(path)) pages.set(`${m.slug}/${helper}`, readFileSync(path, 'utf8'))
+      if (existsSync(path))
+        pages.set(`${m.slug}/${helper}`, readFileSync(path, 'utf8'))
     }
   return pages
 }
@@ -516,7 +554,9 @@ async function main() {
   // (used by `docs:dev` to avoid re-fetching ox docs on every start).
   const ifNeeded = process.argv.includes('--if-needed')
   if (ifNeeded && existsSync(sidebarPath) && existsSync(outDir)) {
-    console.log('Utilities docs already synced — skipping (run `pnpm docs:sync-utils` to refresh).')
+    console.log(
+      'Utilities docs already synced — skipping (run `pnpm docs:sync-utils` to refresh).',
+    )
     return
   }
 
@@ -531,7 +571,8 @@ async function main() {
   // they survive the regenerate-from-scratch and can be written back in place.
   const helperPages = readHelpers(allModules)
 
-  if (!only && existsSync(outDir)) rmSync(outDir, { recursive: true, force: true })
+  if (!only && existsSync(outDir))
+    rmSync(outDir, { recursive: true, force: true })
   mkdirSync(outDir, { recursive: true })
 
   // Sync modules concurrently; the global fetch limiter bounds total requests.
