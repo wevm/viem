@@ -185,7 +185,7 @@ export declare namespace fromPrivateKey {
  * @example
  * ```ts
  * import { Account } from 'viem'
- * import * as HdKey from 'ox/HdKey'
+ * import { HdKey } from 'viem/utils'
  *
  * const account = Account.fromHdKey(HdKey.fromSeed('0x…'))
  * ```

@@ -30,6 +30,8 @@ A holistic, end-to-end walkthrough of defining a chain and wiring it into a clie
 
 ## `Chain.from`
 
+Defines a chain, preserving its literal type and attaching a chainable `.extend()`.
+
 ### Usage
 
 ```ts twoslash
@@ -53,6 +55,6 @@ The chain definition.
 
 ### Return Value
 
-- **Type:** `chain & { extend: (overrides) => Chain }`
+`chain & { extend: (overrides) => Chain }`
 
 The chain with its literal type preserved, plus a chainable [`.extend()`](/docs/chains/extend).

@@ -16,11 +16,13 @@ A holistic, end-to-end walkthrough of using an HD account (attaching it to a cli
 
 ## `Account.fromHdKey`
 
+Creates a local account from an HD key.
+
 ### Usage
 
 ```ts twoslash
 import { Account } from 'viem'
-import * as HdKey from 'ox/HdKey'
+import { HdKey } from 'viem/utils'
 
 const account = Account.fromHdKey(HdKey.fromSeed('0x...'))
 ```
@@ -46,6 +48,6 @@ The HD key to derive the account from.
 
 ### Return Value
 
-- **Type:** `Account.Hd`
+`Account.Hd`
 
 An HD-derived local account (`source: 'hd'`) exposing `address`, `publicKey`, the signing methods, and `getHdKey()`.

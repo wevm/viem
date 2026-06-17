@@ -12,6 +12,8 @@ A holistic, end-to-end walkthrough of extending a chain and wiring it into a cli
 
 ## `chain.extend`
 
+Derives a new chain from a base, merging the overrides over it.
+
 ### Usage
 
 ```ts twoslash
@@ -39,6 +41,6 @@ The fields to merge over the base chain.
 
 ### Return Value
 
-- **Type:** `Chain`
+`Chain`
 
 A new chain with the overrides applied, preserving the merged literal type and exposing its own `.extend()`.

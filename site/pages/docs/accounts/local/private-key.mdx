@@ -14,6 +14,8 @@ A holistic, end-to-end walkthrough of using a private key account (attaching it 
 
 ## `Account.fromPrivateKey`
 
+Creates a private-key-backed local account from a private key.
+
 ### Usage
 
 ```ts twoslash
@@ -37,16 +39,20 @@ The private key to derive the account from.
 
 ### Return Value
 
-- **Type:** `Account.PrivateKey`
+`Account.PrivateKey`
 
 A private-key-backed local account (`source: 'privateKey'`) exposing `address`, `publicKey`, and the signing methods.
 
 ### Errors
 
-- `Secp256k1.getPublicKey.ErrorType`: thrown when the private key is invalid.
-- `Address.fromPublicKey.ErrorType`: thrown when the address cannot be derived.
+| Error                     | Description                                          |
+| ------------------------- | --------------------------------------------------- |
+| `PublicKey.InvalidError`  | The private key is invalid (or produces an invalid public key). |
+| `Errors.GlobalErrorType`  | A globally-handled error.                           |
 
 ## `Account.random`
+
+Creates a random private-key-backed local account.
 
 ### Usage
 
@@ -58,10 +64,12 @@ const account = Account.random()
 
 ### Return Value
 
-- **Type:** `Account.PrivateKey`
+`Account.PrivateKey`
 
 A private-key-backed local account (`source: 'privateKey'`) generated from a random private key.
 
 ### Errors
 
-- `Secp256k1.randomPrivateKey.ErrorType`: thrown when a random private key cannot be generated.
+| Error                    | Description               |
+| ------------------------ | ------------------------- |
+| `Errors.GlobalErrorType` | A globally-handled error. |

@@ -210,6 +210,19 @@ Guidelines for authoring docs and guides under `site/pages/`.
   - **An API reference** -- one `## ` section per exported function/type, named after the identifier
     (e.g. ``## `Account.from` ``), each containing `### Usage`, `### Parameters`,
     `### Return Value`, and `### Errors` as applicable.
+- **Reference sections open with a one-line description** -- directly under each reference heading
+  (the function `## ` heading, and the module page's `## Reference` heading), write a single
+  sentence describing what it does, then `### Usage`. Keep it terse and sourced from the symbol's
+  TSDoc.
+- **`### Return Value` is an inline code fence, not a bullet** -- place the type as a bare
+  inline `` `Type` `` on its own line directly under the heading (not `- **Type:** ...`), followed
+  by a sentence describing it.
+- **`### Errors` is a table, not bullets** -- two columns, `Error` and `Description`. List the
+  concrete error classes the function throws, not `.ErrorType` aliases: expand an alias like
+  `Address.assert.ErrorType` to its underlying class(es) (`Address.InvalidAddressError`,
+  `Errors.GlobalErrorType`).
+- **Don't restate the discriminant in prose** -- do not append parentheticals like
+  `(type: 'json-rpc')` after a concept name; the type is already shown in the usage example.
 - **Sidebar labels are short concept/task phrases** -- fewer than 5 words, Title Case, describing
   the concept or task rather than echoing the identifier (e.g. `Overview`, `Defining a Chain`,
   `Extending Chains`, `Base Error`). The module's landing page is always labelled `Overview`.

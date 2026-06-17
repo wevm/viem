@@ -14,6 +14,8 @@ A holistic, end-to-end walkthrough of using a custom account (attaching it to a 
 
 ## `Account.from`
 
+Creates an account from an address (JSON-RPC) or custom signing logic (local).
+
 ### Usage
 
 ```ts twoslash
@@ -49,10 +51,13 @@ The custom signing logic backing the account. Provides `address`, the required `
 
 ### Return Value
 
-- **Type:** `Account.Local<'custom'>`
+`Account.Local<'custom'>`
 
 A local account stamped with `source: 'custom'`.
 
 ### Errors
 
-- `Address.assert.ErrorType`: thrown when the supplied address is not a valid Ethereum address.
+| Error                         | Description                                           |
+| ----------------------------- | ----------------------------------------------------- |
+| `Address.InvalidAddressError` | The supplied address is not a valid Ethereum address. |
+| `Errors.GlobalErrorType`      | A globally-handled error.                             |

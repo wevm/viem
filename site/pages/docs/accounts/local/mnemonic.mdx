@@ -16,6 +16,8 @@ A holistic, end-to-end walkthrough of using a mnemonic account (attaching it to 
 
 ## `Account.fromMnemonic`
 
+Creates a local account from a mnemonic phrase.
+
 ### Usage
 
 ```ts twoslash
@@ -59,6 +61,6 @@ The mnemonic phrase to derive the account from.
 
 ### Return Value
 
-- **Type:** `Account.Hd`
+`Account.Hd`
 
 A mnemonic/HD-derived local account (`source: 'hd'`) exposing `address`, `publicKey`, the signing methods, and `getHdKey()`.
