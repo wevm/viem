@@ -11,8 +11,9 @@
     "contracts:build": "forge build --config-path ./contracts/foundry.toml && bun scripts/contracts:build.ts",
     "deps": "pnpx taze -r",
     "dev": "pnpm exports:update && zile dev",
-    "docs:build": "pnpm --filter site build",
-    "docs:dev": "pnpm --filter site dev",
+    "docs:build": "pnpm docs:sync-utils && pnpm --filter site build",
+    "docs:dev": "pnpm docs:sync-utils && pnpm --filter site dev",
+    "docs:sync-utils": "bun scripts/docs:sync-utils.ts",
     "exports:update": "bun scripts/exports:update.ts",
     "gen:tempo-abis": "bun scripts/gen:tempo-abis.ts",
     "knip": "knip --production --no-tag-hints",
@@ -200,7 +201,10 @@
       "bun",
       "protobufjs",
       "simple-git-hooks"
-    ]
+    ],
+    "patchedDependencies": {
+      "vocs@2.0.14": "patches/vocs@2.0.14.patch"
+    }
   },
   "[!start-pkg]": "",
   "name": "viem",

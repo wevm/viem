@@ -1,24 +1,25 @@
 {
   "name": "site",
   "private": true,
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vocs dev",
-    "build": "pnpm -w build:types && NODE_OPTIONS='--max-old-space-size=6144' vocs build",
-    "twoslash": "vocs twoslash",
+    "build": "vocs build",
     "preview": "vocs preview"
   },
-  "devDependencies": {
-    "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
-    "accounts": "^0.9.0",
+  "dependencies": {
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-server-dom-webpack": "~19.2.3",
-    "tailwindcss": "^4.1.16",
-    "viem": "workspace:*",
-    "vite": "^8.0.14",
-    "vocs": "^2.0.11",
-    "waku": "^1.0.0-beta.1"
+    "vocs": "catalog:",
+    "waku": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
   }
 }

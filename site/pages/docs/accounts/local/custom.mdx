@@ -1,0 +1,54 @@
+# Custom Accounts
+
+A **Custom Account** is a [local account](/docs/accounts) (`Account.Local<'custom'>`) backed by signing logic you provide, for example a KMS, an HSM, or a remote signer.
+
+Create one with [`Account.from`](/docs/accounts) by passing a [`CustomSource`](/docs/accounts) object. The source supplies the account `address` and the signing methods.
+
+## Import
+
+```ts twoslash
+import { Account } from 'viem'
+```
+
+## Usage
+
+```ts twoslash
+import { Account } from 'viem'
+
+// An external signer (e.g. a KMS) that signs a payload and returns a hex signature.
+declare const kms: { sign(payload: string): Promise<`0x${string}`> }
+
+const account = Account.from({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  async sign({ hash }) {
+    return await kms.sign(hash)
+  },
+  async signMessage({ message }) {
+    return await kms.sign(JSON.stringify(message))
+  },
+  async signTransaction(transaction) {
+    return await kms.sign(JSON.stringify(transaction))
+  },
+  async signTypedData(typedData) {
+    return await kms.sign(JSON.stringify(typedData))
+  },
+})
+```
+
+## Parameters
+
+### source
+
+- **Type:** `Account.CustomSource`
+
+The custom signing logic backing the account. Provides `address`, the required `sign` method, and `signMessage` / `signTransaction` / `signTypedData` (and optionally `signAuthorization`).
+
+## Return Value
+
+- **Type:** `Account.Local<'custom'>`
+
+A local account stamped with `source: 'custom'`.
+
+## Errors
+
+- `Address.assert.ErrorType`: thrown when the supplied address is not a valid Ethereum address.

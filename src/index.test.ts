@@ -25,7 +25,6 @@ test('exports', () => {
       "BlockOverrides",
       "Bytes",
       "ContractAddress",
-      "Curve",
       "Ens",
       "Fee",
       "Filter",

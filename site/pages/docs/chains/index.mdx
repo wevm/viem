@@ -1,0 +1,45 @@
+# Chain
+
+The **Chain** module describes an EVM chain: its id, name, native currency, RPC endpoints, block explorers, contracts, and optional encoding behavior.
+
+A `Chain` is plain data plus two optional behavior slots:
+
+- **`schema`**: bidirectional RPC to native codecs (the declarative replacement for function-based formatters).
+- **`serializers`**: transaction serialization overrides.
+
+## Import
+
+```ts twoslash
+import { Chain } from 'viem'
+```
+
+## Usage
+
+```ts twoslash
+import { Chain } from 'viem'
+
+const mainnet = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+})
+```
+
+## Topics
+
+| Topic | Description |
+| --- | --- |
+| [Defining a Chain](/docs/chains/create) | Define a chain with `Chain.from`, preserving its literal type. |
+| [Extending Chains](/docs/chains/extend) | Derive a new chain from a base with the chainable `.extend()`. |
+
+## Types
+
+- `Chain.Chain`: an EVM chain.
+- `Chain.BlockExplorer`: a block explorer for a chain.
+- `Chain.Contract`: a deployed contract on a chain.
+- `Chain.Contracts`: collection of contracts on a chain.
+- `Chain.NativeCurrency`: native currency of a chain.
+- `Chain.RpcUrls`: RPC endpoints of a chain.
+- `Chain.Schema`: per-entity `zod/mini` codecs (input = RPC shape, output = native shape).
+- `Chain.Serializers`: transaction serialization overrides.

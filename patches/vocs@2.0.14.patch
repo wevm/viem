@@ -1,0 +1,30 @@
+diff --git a/dist/internal/shiki-transformers.js b/dist/internal/shiki-transformers.js
+index a55d3df9f8b1bc37f18de77a39a681946dac8796..8f901f25811c7c1a7cba82af9ac779b0fccd9557 100644
+--- a/dist/internal/shiki-transformers.js
++++ b/dist/internal/shiki-transformers.js
+@@ -273,6 +273,10 @@ function checkOnlyTwoslasher(options) {
+         const twoslashOptions = {
+             ...options.twoslashOptions,
+             ...executeOptions,
++            compilerOptions: {
++                ...options.twoslashOptions?.compilerOptions,
++                ...executeOptions?.compilerOptions,
++            },
+             handbookOptions: {
+                 ...options.twoslashOptions?.handbookOptions,
+                 ...executeOptions?.handbookOptions,
+diff --git a/src/internal/shiki-transformers.ts b/src/internal/shiki-transformers.ts
+index e97aaed052c6d9c851d77fb95aeec33c1426844f..a7a200fd3c1017beb900936e1ec5bca0ffa4a40c 100644
+--- a/src/internal/shiki-transformers.ts
++++ b/src/internal/shiki-transformers.ts
+@@ -407,6 +407,10 @@ function checkOnlyTwoslasher(options: {
+     const twoslashOptions = {
+       ...options.twoslashOptions,
+       ...executeOptions,
++      compilerOptions: {
++        ...options.twoslashOptions?.compilerOptions,
++        ...executeOptions?.compilerOptions,
++      },
+       handbookOptions: {
+         ...options.twoslashOptions?.handbookOptions,
+         ...executeOptions?.handbookOptions,

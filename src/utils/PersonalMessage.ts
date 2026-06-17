@@ -5,9 +5,8 @@ import type * as Bytes from 'ox/Bytes'
 import type * as Errors from 'ox/Errors'
 import * as Hex from 'ox/Hex'
 import * as PersonalMessage from 'ox/PersonalMessage'
+import * as Secp256k1 from 'ox/Secp256k1'
 import type * as Signature from 'ox/Signature'
-import { secp256k1 } from '../core/Curve.js'
-import type * as Curve from '../core/Curve.js'
 
 /**
  * Message accepted by the personal-message helpers: a UTF-8 string, or a
@@ -32,8 +31,8 @@ export type SignableMessage = string | { raw: Hex.Hex | Bytes.Bytes }
 export function recoverAddress(
   options: recoverAddress.Options,
 ): Address.Address {
-  const { curve = secp256k1(), message, signature } = options
-  const publicKey = curve.recoverPublicKey({
+  const { message, signature } = options
+  const publicKey = Secp256k1.recoverPublicKey({
     payload: PersonalMessage.getSignPayload(toPayload(message)),
     signature,
   })
@@ -42,8 +41,6 @@ export function recoverAddress(
 
 export declare namespace recoverAddress {
   type Options = {
-    /** Signing curve (defaults to `Curve.secp256k1`). */
-    curve?: Curve.Recoverable | undefined
     /** The message that was signed. */
     message: SignableMessage
     /** Signature of the message. */
@@ -52,13 +49,14 @@ export declare namespace recoverAddress {
 
   type ErrorType =
     | PersonalMessage.getSignPayload.ErrorType
+    | Secp256k1.recoverPublicKey.ErrorType
     | Address.fromPublicKey.ErrorType
     | Errors.GlobalErrorType
 }
 
 /**
  * Verifies a personal ([EIP-191](https://eips.ethereum.org/EIPS/eip-191)) message was signed by
- * the provided address.
+ * the provided address (or public key).
  *
  * Plain ECDSA verification — no ERC-1271/ERC-6492 smart-account support.
  *
@@ -73,28 +71,23 @@ export declare namespace recoverAddress {
  * })
  * ```
  */
-export function verify<
-  curve extends Curve.Curve<any> = ReturnType<typeof secp256k1>,
->(options: verify.Options<curve>): ReturnType<curve['verify']> {
-  const { curve: curveOption, message, ...rest } = options
-  const curve = (curveOption ?? secp256k1()) as Curve.Curve<any>
-  return curve.verify({
+export function verify(options: verify.Options): boolean {
+  const { message, ...rest } = options
+  return Secp256k1.verify({
     payload: PersonalMessage.getSignPayload(toPayload(message)),
     ...rest,
-  }) as ReturnType<curve['verify']>
+  } as Secp256k1.verify.Options)
 }
 
 export declare namespace verify {
-  type Options<curve extends Curve.Curve<any> = ReturnType<typeof secp256k1>> =
-    {
-      /** Signing curve (defaults to `Curve.secp256k1`). */
-      curve?: curve | undefined
-      /** The message that was signed. */
-      message: SignableMessage
-    } & Curve.VerifyOptions<curve>
+  type Options = {
+    /** The message that was signed. */
+    message: SignableMessage
+  } & Omit<Secp256k1.verify.Options, 'hash' | 'payload'>
 
   type ErrorType =
     | PersonalMessage.getSignPayload.ErrorType
+    | Secp256k1.verify.ErrorType
     | Errors.GlobalErrorType
 }
 

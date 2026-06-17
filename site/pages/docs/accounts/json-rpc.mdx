@@ -1,0 +1,42 @@
+# JSON-RPC Accounts
+
+A **JSON-RPC Account** (`type: 'json-rpc'`) delegates signing to a JSON-RPC provider (for example, a browser wallet). Only the address is known to your program; signing requests are forwarded to the provider.
+
+Create one with [`Account.from`](/docs/accounts) by passing an address.
+
+## Import
+
+```ts twoslash
+import { Account } from 'viem'
+```
+
+## Usage
+
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.from('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')
+
+account.address
+// @log: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+account.type
+// @log: 'json-rpc'
+```
+
+## Parameters
+
+### address
+
+- **Type:** `Address.Address`
+
+The address of the account.
+
+## Return Value
+
+- **Type:** `Account.JsonRpc`
+
+A JSON-RPC account referenced by address.
+
+## Errors
+
+- `Address.assert.ErrorType`: thrown when the supplied address is not a valid Ethereum address.

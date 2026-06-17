@@ -1,0 +1,33 @@
+# Errors
+
+The **Errors** module provides the base error class inherited by every error thrown by viem, plus configuration for how those errors are attributed.
+
+`Errors.BaseError` extends ox's `BaseError`, so every viem error is also an ox error (`instanceof` holds across the stack) and ox errors compose as `cause` without wrapping.
+
+## Import
+
+```ts twoslash
+import { Errors } from 'viem'
+```
+
+## Usage
+
+```ts twoslash
+import { Errors } from 'viem'
+
+throw new Errors.BaseError('An error occurred.', {
+  docsPath: '/docs/errors',
+  metaMessages: ['Reason: example'],
+})
+```
+
+## Topics
+
+| Topic | Description |
+| --- | --- |
+| [Base Error](/docs/errors/base-error) | The base error class inherited by all viem errors. |
+| [Configuration](/docs/errors/configuration) | Set viem-scoped defaults (docs origin, version) applied to every error. |
+
+## Types
+
+- `Errors.Config`: viem-scoped defaults (`docsOrigin`, `version`) applied to every `BaseError`.

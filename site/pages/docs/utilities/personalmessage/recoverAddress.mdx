@@ -1,0 +1,49 @@
+# PersonalMessage.recoverAddress
+
+Recovers the signing address of a personal ([EIP-191](https://eips.ethereum.org/EIPS/eip-191)) message.
+
+## Imports
+
+```ts
+import { PersonalMessage } from 'viem/utils'
+```
+
+## Examples
+
+```ts twoslash
+// @noErrors
+import { PersonalMessage } from 'viem/utils'
+
+const address = PersonalMessage.recoverAddress({
+  message: 'hello world',
+  signature: '0x…',
+})
+```
+
+## Definition
+
+```ts
+function recoverAddress(
+  options: recoverAddress.Options,
+): Address
+```
+
+## Parameters
+
+### options.message
+
+- **Type:** `SignableMessage`
+
+The message that was signed.
+
+### options.signature
+
+- **Type:** `Hex | Bytes | Signature.Signature`
+
+Signature of the message.
+
+## Return Type
+
+The recovered signing address.
+
+`Address`

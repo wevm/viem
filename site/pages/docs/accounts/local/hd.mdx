@@ -1,0 +1,48 @@
+# HD Accounts
+
+An **HD Account** is a [local account](/docs/accounts) (`Account.Hd`) derived from an [HD key](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki).
+
+The account is derived at the configured path (defaulting to `m/44'/60'/0'/0/0`). The underlying HD key is available via `account.getHdKey()`.
+
+Create one with [`Account.fromHdKey`](/docs/accounts).
+
+## Import
+
+```ts twoslash
+import { Account } from 'viem'
+import * as HdKey from 'ox/HdKey'
+```
+
+## Usage
+
+```ts twoslash
+import { Account } from 'viem'
+import * as HdKey from 'ox/HdKey'
+
+const account = Account.fromHdKey(HdKey.fromSeed('0x...'))
+```
+
+## Parameters
+
+### hdKey
+
+- **Type:** `HdKey.HdKey`
+
+The HD key to derive the account from.
+
+### options
+
+- **Type:** `Account.fromHdKey.Options`
+
+| Option | Type | Description |
+| --- | --- | --- |
+| `accountIndex` | `number` | Account index in the path (`m/44'/60'/${accountIndex}'/0/0`). |
+| `addressIndex` | `number` | Address index in the path (`m/44'/60'/0'/0/${addressIndex}`). |
+| `changeIndex` | `number` | Change index in the path (`m/44'/60'/0'/${changeIndex}/0`). |
+| `path` | `` `m/44'/60'/${string}` `` | Full HD path (overrides the index options). |
+
+## Return Value
+
+- **Type:** `Account.Hd`
+
+An HD-derived local account (`source: 'hd'`) exposing `address`, `publicKey`, the signing methods, and `getHdKey()`.

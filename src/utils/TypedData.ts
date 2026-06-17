@@ -4,10 +4,9 @@ import * as Address from 'ox/Address'
 import type * as Bytes from 'ox/Bytes'
 import type * as Errors from 'ox/Errors'
 import type * as Hex from 'ox/Hex'
+import * as Secp256k1 from 'ox/Secp256k1'
 import type * as Signature from 'ox/Signature'
 import * as TypedData from 'ox/TypedData'
-import { secp256k1 } from '../core/Curve.js'
-import type * as Curve from '../core/Curve.js'
 
 /**
  * Recovers the signing address of signed [EIP-712](https://eips.ethereum.org/EIPS/eip-712)
@@ -30,8 +29,8 @@ export function recoverAddress<
   const typedData extends TypedData.TypedData | Record<string, unknown>,
   primaryType extends keyof typedData | 'EIP712Domain',
 >(options: recoverAddress.Options<typedData, primaryType>): Address.Address {
-  const { curve = secp256k1(), signature, ...value } = options
-  const publicKey = curve.recoverPublicKey({
+  const { signature, ...value } = options
+  const publicKey = Secp256k1.recoverPublicKey({
     payload: TypedData.getSignPayload(
       value as unknown as TypedData.encode.Value<typedData, primaryType>,
     ),
@@ -46,21 +45,20 @@ export declare namespace recoverAddress {
       TypedData.TypedData,
     primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
   > = TypedData.encode.Value<typedData, primaryType> & {
-    /** Signing curve (defaults to `Curve.secp256k1`). */
-    curve?: Curve.Recoverable | undefined
     /** Signature of the typed data. */
     signature: Hex.Hex | Bytes.Bytes | Signature.Signature
   }
 
   type ErrorType =
     | TypedData.getSignPayload.ErrorType
+    | Secp256k1.recoverPublicKey.ErrorType
     | Address.fromPublicKey.ErrorType
     | Errors.GlobalErrorType
 }
 
 /**
  * Verifies [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data was signed by the
- * provided address.
+ * provided address (or public key).
  *
  * Plain ECDSA verification — no ERC-1271/ERC-6492 smart-account support.
  *
@@ -81,22 +79,13 @@ export declare namespace recoverAddress {
 export function verify<
   const typedData extends TypedData.TypedData | Record<string, unknown>,
   primaryType extends keyof typedData | 'EIP712Domain',
-  curve extends Curve.Curve<any> = ReturnType<typeof secp256k1>,
->(
-  options: verify.Options<typedData, primaryType, curve>,
-): ReturnType<curve['verify']> {
-  const { curve: curveOption, ...value } = options
-  const curve = (curveOption ?? secp256k1()) as Curve.Curve<any>
-  // `value` carries the typed data plus the curve's identity/signature/extra fields
-  // (`address`/`publicKey`, `signature`, WebAuthn `metadata`). `getSignPayload` reads only the
-  // EIP-712 fields and `verify` reads only the fields its curve needs, so both safely ignore the
-  // other's keys.
-  return curve.verify({
-    ...value,
+>(options: verify.Options<typedData, primaryType>): boolean {
+  return Secp256k1.verify({
+    ...options,
     payload: TypedData.getSignPayload(
-      value as unknown as TypedData.encode.Value<typedData, primaryType>,
+      options as unknown as TypedData.encode.Value<typedData, primaryType>,
     ),
-  }) as ReturnType<curve['verify']>
+  } as Secp256k1.verify.Options)
 }
 
 export declare namespace verify {
@@ -104,11 +93,11 @@ export declare namespace verify {
     typedData extends TypedData.TypedData | Record<string, unknown> =
       TypedData.TypedData,
     primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
-    curve extends Curve.Curve<any> = ReturnType<typeof secp256k1>,
-  > = TypedData.encode.Value<typedData, primaryType> & {
-    /** Signing curve (defaults to `Curve.secp256k1`). */
-    curve?: curve | undefined
-  } & Curve.VerifyOptions<curve>
+  > = TypedData.encode.Value<typedData, primaryType> &
+    Omit<Secp256k1.verify.Options, 'hash' | 'payload'>
 
-  type ErrorType = TypedData.getSignPayload.ErrorType | Errors.GlobalErrorType
+  type ErrorType =
+    | TypedData.getSignPayload.ErrorType
+    | Secp256k1.verify.ErrorType
+    | Errors.GlobalErrorType
 }

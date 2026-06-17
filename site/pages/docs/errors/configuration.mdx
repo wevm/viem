@@ -1,0 +1,32 @@
+# Configuration
+
+Use [`Errors.setConfig`](/docs/errors) to set viem-scoped defaults applied to every [`Errors.BaseError`](/docs/errors/base-error) instance (merge semantics). This controls how errors are attributed: the docs origin rendered into `See:` URLs, and the version line. It is useful for consumers (for example, wagmi) that re-attribute errors. ox's global static options are never touched.
+
+## Import
+
+```ts twoslash
+import { Errors } from 'viem'
+```
+
+## Usage
+
+```ts twoslash
+import { Errors } from 'viem'
+
+Errors.setConfig({ version: 'sweetlib@1.2.3' })
+```
+
+## Parameters
+
+### value
+
+- **Type:** `Errors.Config`
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `docsOrigin` | `string` | `'https://viem.sh'` | Origin rendered into `See:` docs URLs. |
+| `version` | `string` | `` `viem@<package version>` `` | Version attribution rendered as `Version: <value>`. Set to `undefined` to omit the version line. |
+
+## Return Value
+
+- **Type:** `void`

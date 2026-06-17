@@ -1,0 +1,61 @@
+# Private Key Accounts
+
+A **Private Key Account** (`Account.PrivateKey`) is a [local account](/docs/accounts) backed by a secp256k1 private key. It derives its public key and checksummed address from the key, and signs hashes, messages, transactions, typed data, and [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) authorizations locally.
+
+Create one from an existing private key with [`Account.fromPrivateKey`](/docs/accounts), or generate a random one with [`Account.random`](/docs/accounts).
+
+## Import
+
+```ts twoslash
+import { Account } from 'viem'
+```
+
+## From a Private Key
+
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.fromPrivateKey('0x...')
+
+account.address
+// '0x...'
+account.publicKey
+// '0x...'
+```
+
+### Parameters
+
+#### privateKey
+
+- **Type:** `Hex.Hex`
+
+The private key to derive the account from.
+
+### Return Value
+
+- **Type:** `Account.PrivateKey`
+
+A private-key-backed local account (`source: 'privateKey'`) exposing `address`, `publicKey`, and the signing methods.
+
+### Errors
+
+- `Secp256k1.getPublicKey.ErrorType`: thrown when the private key is invalid.
+- `Address.fromPublicKey.ErrorType`: thrown when the address cannot be derived.
+
+## Random
+
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.random()
+```
+
+### Return Value
+
+- **Type:** `Account.PrivateKey`
+
+A private-key-backed local account (`source: 'privateKey'`) generated from a random private key.
+
+### Errors
+
+- `Secp256k1.randomPrivateKey.ErrorType`: thrown when a random private key cannot be generated.

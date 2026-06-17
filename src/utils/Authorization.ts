@@ -5,9 +5,8 @@ import * as Authorization from 'ox/Authorization'
 import type * as Bytes from 'ox/Bytes'
 import type * as Errors from 'ox/Errors'
 import type * as Hex from 'ox/Hex'
+import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
-import { secp256k1 } from '../core/Curve.js'
-import type * as Curve from '../core/Curve.js'
 
 /**
  * Recovers the authorizing address of an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702)
@@ -25,9 +24,9 @@ import type * as Curve from '../core/Curve.js'
 export function recoverAddress(
   options: recoverAddress.Options,
 ): Address.Address {
-  const { authorization, curve = secp256k1() } = options
+  const { authorization } = options
   const signature = options.signature ?? Signature.extract(authorization)!
-  const publicKey = curve.recoverPublicKey({
+  const publicKey = Secp256k1.recoverPublicKey({
     payload: Authorization.getSignPayload(
       authorization as Authorization.Authorization,
     ),
@@ -40,21 +39,20 @@ export declare namespace recoverAddress {
   type Options = {
     /** The authorization (signed, or unsigned with an explicit `signature`). */
     authorization: Authorization.Authorization<boolean>
-    /** Signing curve (defaults to `Curve.secp256k1`). */
-    curve?: Curve.Recoverable | undefined
     /** Signature of the authorization (defaults to the one carried on a signed authorization). */
     signature?: Hex.Hex | Bytes.Bytes | Signature.Signature | undefined
   }
 
   type ErrorType =
     | Authorization.getSignPayload.ErrorType
+    | Secp256k1.recoverPublicKey.ErrorType
     | Address.fromPublicKey.ErrorType
     | Errors.GlobalErrorType
 }
 
 /**
  * Verifies an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) authorization was signed by
- * the provided address.
+ * the provided address (or public key).
  *
  * @example
  * ```ts
@@ -66,38 +64,28 @@ export declare namespace recoverAddress {
  * })
  * ```
  */
-export function verify<
-  curve extends Curve.Curve<any> = ReturnType<typeof secp256k1>,
->(options: verify.Options<curve>): ReturnType<curve['verify']> {
-  const {
-    authorization,
-    curve: curveOption,
-    signature: signatureOption,
-    ...rest
-  } = options
-  const curve = (curveOption ?? secp256k1()) as Curve.Curve<any>
+export function verify(options: verify.Options): boolean {
+  const { authorization, signature: signatureOption, ...rest } = options
   const signature = signatureOption ?? Signature.extract(authorization)!
-  return curve.verify({
+  return Secp256k1.verify({
     payload: Authorization.getSignPayload(
       authorization as Authorization.Authorization,
     ),
     signature,
     ...rest,
-  }) as ReturnType<curve['verify']>
+  } as Secp256k1.verify.Options)
 }
 
 export declare namespace verify {
-  type Options<curve extends Curve.Curve<any> = ReturnType<typeof secp256k1>> =
-    {
-      /** The authorization (signed, or unsigned with an explicit `signature`). */
-      authorization: Authorization.Authorization<boolean>
-      /** Signing curve (defaults to `Curve.secp256k1`). */
-      curve?: curve | undefined
-      /** Signature of the authorization (defaults to the one carried on a signed authorization). */
-      signature?: Hex.Hex | Bytes.Bytes | Signature.Signature | undefined
-    } & Omit<Curve.VerifyOptions<curve>, 'signature'>
+  type Options = {
+    /** The authorization (signed, or unsigned with an explicit `signature`). */
+    authorization: Authorization.Authorization<boolean>
+    /** Signature of the authorization (defaults to the one carried on a signed authorization). */
+    signature?: Hex.Hex | Bytes.Bytes | Signature.Signature | undefined
+  } & Omit<Secp256k1.verify.Options, 'hash' | 'payload' | 'signature'>
 
   type ErrorType =
     | Authorization.getSignPayload.ErrorType
+    | Secp256k1.verify.ErrorType
     | Errors.GlobalErrorType
 }

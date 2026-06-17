@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
 import { accounts } from '~test/constants.js'
-import * as Curve from '../core/Curve.js'
 import * as Authorization from './Authorization.js'
 import * as Secp256k1 from './Secp256k1.js'
 
@@ -42,7 +41,6 @@ describe('recoverAddress', () => {
     expect(
       Authorization.recoverAddress({
         authorization,
-        curve: Curve.secp256k1(),
         signature,
       }),
     ).toBe(account.address)
@@ -63,7 +61,6 @@ describe('verify', () => {
     expect(
       Authorization.verify({
         authorization: signedAuthorization(),
-        curve: Curve.secp256k1(),
         publicKey: Secp256k1.getPublicKey({
           privateKey: accounts[1].privateKey,
         }),

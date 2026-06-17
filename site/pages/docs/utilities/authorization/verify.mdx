@@ -1,0 +1,65 @@
+# Authorization.verify
+
+Verifies that an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) authorization was signed by the provided address (or public key).
+
+## Imports
+
+```ts
+import { Authorization } from 'viem/utils'
+```
+
+## Examples
+
+```ts twoslash
+// @noErrors
+import { Authorization } from 'viem/utils'
+
+declare const authorization: Authorization.Authorization<true>
+declare const address: `0x${string}`
+
+const valid = Authorization.verify({
+  authorization,
+  address, // or `publicKey`
+})
+```
+
+## Definition
+
+```ts
+function verify(
+  options: verify.Options,
+): boolean
+```
+
+## Parameters
+
+### options.authorization
+
+- **Type:** `Authorization.Authorization<boolean>`
+
+The authorization (signed, or unsigned with an explicit `signature`).
+
+### options.address
+
+- **Type:** `Address`
+
+Address to verify the authorization against. Mutually exclusive with `publicKey`.
+
+### options.publicKey
+
+- **Type:** `PublicKey`
+
+Public key to verify the authorization against. Mutually exclusive with `address`.
+
+### options.signature
+
+- **Type:** `Hex | Bytes | Signature.Signature`
+- **Optional**
+
+Signature of the authorization. Defaults to the one carried on a signed authorization.
+
+## Return Type
+
+Whether the authorization is valid.
+
+`boolean`

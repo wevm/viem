@@ -7,7 +7,7 @@ import * as PersonalMessage from '../utils/PersonalMessage.js'
 import * as TxEnvelope from '../utils/TxEnvelope.js'
 import * as TypedData from '../utils/TypedData.js'
 import * as Account from './Account.js'
-import * as Curve from './Curve.js'
+import * as Secp256k1 from 'ox/Secp256k1'
 
 const mnemonic = 'test test test test test test test test test test test junk'
 
@@ -112,7 +112,7 @@ describe('fromPrivateKey', () => {
       '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68'
     const signature = await account.sign({ hash: payload })
     expect(
-      Curve.secp256k1().verify({
+      Secp256k1.verify({
         payload,
         publicKey: account.publicKey,
         signature,

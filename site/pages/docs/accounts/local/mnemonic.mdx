@@ -1,0 +1,60 @@
+# Mnemonic Accounts
+
+A **Mnemonic Account** is a [local account](/docs/accounts) (`Account.Hd`) derived from a [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) mnemonic phrase.
+
+The mnemonic is converted to an HD key and the account is derived at the configured path (defaulting to `m/44'/60'/0'/0/0`). The underlying HD key is available via `account.getHdKey()`.
+
+Create one with [`Account.fromMnemonic`](/docs/accounts).
+
+## Import
+
+```ts twoslash
+import { Account } from 'viem'
+```
+
+## Usage
+
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+)
+```
+
+### Deriving a Specific Address
+
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  { addressIndex: 1 },
+)
+```
+
+## Parameters
+
+### mnemonic
+
+- **Type:** `string`
+
+The mnemonic phrase to derive the account from.
+
+### options
+
+- **Type:** `Account.fromMnemonic.Options`
+
+| Option | Type | Description |
+| --- | --- | --- |
+| `accountIndex` | `number` | Account index in the path (`m/44'/60'/${accountIndex}'/0/0`). |
+| `addressIndex` | `number` | Address index in the path (`m/44'/60'/0'/0/${addressIndex}`). |
+| `changeIndex` | `number` | Change index in the path (`m/44'/60'/0'/${changeIndex}/0`). |
+| `path` | `` `m/44'/60'/${string}` `` | Full HD path (overrides the index options). |
+| `passphrase` | `string` | Optional BIP-39 passphrase. |
+
+## Return Value
+
+- **Type:** `Account.Hd`
+
+A mnemonic/HD-derived local account (`source: 'hd'`) exposing `address`, `publicKey`, the signing methods, and `getHdKey()`.

@@ -1,0 +1,49 @@
+# Base Error
+
+`Errors.BaseError` is the base error class inherited by all errors thrown by viem.
+
+It extends ox's `BaseError`, so every viem error is also an ox error (`instanceof Errors.BaseError` holds across the stack) and ox errors compose as `cause` without wrapping. Docs origin and version attribution default to the values set via [`Errors.setConfig`](/docs/errors/configuration).
+
+## Import
+
+```ts twoslash
+import { Errors } from 'viem'
+```
+
+## Usage
+
+```ts twoslash
+import { Errors } from 'viem'
+
+throw new Errors.BaseError('An error occurred.', {
+  docsPath: '/docs/errors',
+  metaMessages: ['Reason: example'],
+})
+```
+
+## Parameters
+
+### shortMessage
+
+- **Type:** `string`
+
+The short, human-readable error message.
+
+### options
+
+- **Type:** `Errors.BaseError.Options`
+
+| Option | Type | Description |
+| --- | --- | --- |
+| `cause` | `Error` | An error (viem, ox, or foreign) to attach as the failure cause. |
+| `details` | `string` | Details of the error (derived from `cause` when omitted). |
+| `docsOrigin` | `string` | Docs origin override (defaults to the configured origin). |
+| `docsPath` | `string` | Docs path appended to the origin and rendered as `See: <url>`. |
+| `metaMessages` | `readonly (string \| undefined)[]` | Meta messages rendered between the short message and the detail block. |
+| `version` | `string` | Version attribution override (defaults to the configured version). |
+
+## Return Value
+
+- **Type:** `Errors.BaseError`
+
+A `BaseError` instance with `name: 'BaseError'` and the resolved `metaMessages`.
