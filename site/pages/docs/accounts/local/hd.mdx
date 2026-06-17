@@ -1,19 +1,22 @@
 # HD Accounts
 
+## Overview
+
 An **HD Account** is a [local account](/docs/accounts) (`Account.Hd`) derived from an [HD key](https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki).
 
 The account is derived at the configured path (defaulting to `m/44'/60'/0'/0/0`). The underlying HD key is available via `account.getHdKey()`.
 
 Create one with [`Account.fromHdKey`](/docs/accounts).
 
-## Import
+## Recipes
 
-```ts twoslash
-import { Account } from 'viem'
-import * as HdKey from 'ox/HdKey'
-```
+:::warning[TODO]
+A holistic, end-to-end walkthrough of using an HD account (attaching it to a client and signing through actions) will be added once clients and actions are available.
+:::
 
-## Usage
+## `Account.fromHdKey`
+
+### Usage
 
 ```ts twoslash
 import { Account } from 'viem'
@@ -22,15 +25,15 @@ import * as HdKey from 'ox/HdKey'
 const account = Account.fromHdKey(HdKey.fromSeed('0x...'))
 ```
 
-## Parameters
+### Parameters
 
-### hdKey
+#### hdKey
 
 - **Type:** `HdKey.HdKey`
 
 The HD key to derive the account from.
 
-### options
+#### options
 
 - **Type:** `Account.fromHdKey.Options`
 
@@ -41,7 +44,7 @@ The HD key to derive the account from.
 | `changeIndex` | `number` | Change index in the path (`m/44'/60'/0'/${changeIndex}/0`). |
 | `path` | `` `m/44'/60'/${string}` `` | Full HD path (overrides the index options). |
 
-## Return Value
+### Return Value
 
 - **Type:** `Account.Hd`
 

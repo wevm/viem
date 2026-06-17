@@ -1,16 +1,20 @@
 # Base Error
 
+## Overview
+
 `Errors.BaseError` is the base error class inherited by all errors thrown by viem.
 
 It extends ox's `BaseError`, so every viem error is also an ox error (`instanceof Errors.BaseError` holds across the stack) and ox errors compose as `cause` without wrapping. Docs origin and version attribution default to the values set via [`Errors.setConfig`](/docs/errors/configuration).
 
-## Import
+## Recipes
 
-```ts twoslash
-import { Errors } from 'viem'
-```
+:::warning[TODO]
+A holistic, end-to-end walkthrough of catching and inspecting a `BaseError` thrown by actions will be added once clients and actions are available.
+:::
 
-## Usage
+## `Errors.BaseError`
+
+### Usage
 
 ```ts twoslash
 import { Errors } from 'viem'
@@ -21,15 +25,15 @@ throw new Errors.BaseError('An error occurred.', {
 })
 ```
 
-## Parameters
+### Parameters
 
-### shortMessage
+#### shortMessage
 
 - **Type:** `string`
 
 The short, human-readable error message.
 
-### options
+#### options
 
 - **Type:** `Errors.BaseError.Options`
 
@@ -42,7 +46,7 @@ The short, human-readable error message.
 | `metaMessages` | `readonly (string \| undefined)[]` | Meta messages rendered between the short message and the detail block. |
 | `version` | `string` | Version attribution override (defaults to the configured version). |
 
-## Return Value
+### Return Value
 
 - **Type:** `Errors.BaseError`
 

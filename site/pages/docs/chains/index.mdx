@@ -1,5 +1,7 @@
 # Chain
 
+## Overview
+
 The **Chain** module describes an EVM chain: its id, name, native currency, RPC endpoints, block explorers, contracts, and optional encoding behavior.
 
 A `Chain` is plain data plus two optional behavior slots:
@@ -7,13 +9,22 @@ A `Chain` is plain data plus two optional behavior slots:
 - **`schema`**: bidirectional RPC to native codecs (the declarative replacement for function-based formatters).
 - **`serializers`**: transaction serialization overrides.
 
-## Import
+### Topics
 
-```ts twoslash
-import { Chain } from 'viem'
-```
+| Topic | Description |
+| --- | --- |
+| [Defining a Chain](/docs/chains/create) | Define a chain with `Chain.from`, preserving its literal type. |
+| [Extending Chains](/docs/chains/extend) | Derive a new chain from a base with the chainable `.extend()`. |
 
-## Usage
+## Recipes
+
+:::warning[TODO]
+A holistic, end-to-end walkthrough of using chains (defining one and wiring it into a client to drive RPC encoding and transaction serialization) will be added once clients and actions are available.
+:::
+
+## Reference
+
+### Usage
 
 ```ts twoslash
 import { Chain } from 'viem'
@@ -26,14 +37,7 @@ const mainnet = Chain.from({
 })
 ```
 
-## Topics
-
-| Topic | Description |
-| --- | --- |
-| [Defining a Chain](/docs/chains/create) | Define a chain with `Chain.from`, preserving its literal type. |
-| [Extending Chains](/docs/chains/extend) | Derive a new chain from a base with the chainable `.extend()`. |
-
-## Types
+### Types
 
 - `Chain.Chain`: an EVM chain.
 - `Chain.BlockExplorer`: a block explorer for a chain.

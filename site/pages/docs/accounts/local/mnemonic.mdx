@@ -1,18 +1,22 @@
 # Mnemonic Accounts
 
+## Overview
+
 A **Mnemonic Account** is a [local account](/docs/accounts) (`Account.Hd`) derived from a [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) mnemonic phrase.
 
 The mnemonic is converted to an HD key and the account is derived at the configured path (defaulting to `m/44'/60'/0'/0/0`). The underlying HD key is available via `account.getHdKey()`.
 
 Create one with [`Account.fromMnemonic`](/docs/accounts).
 
-## Import
+## Recipes
 
-```ts twoslash
-import { Account } from 'viem'
-```
+:::warning[TODO]
+A holistic, end-to-end walkthrough of using a mnemonic account (attaching it to a client and signing through actions) will be added once clients and actions are available.
+:::
 
-## Usage
+## `Account.fromMnemonic`
+
+### Usage
 
 ```ts twoslash
 import { Account } from 'viem'
@@ -22,7 +26,7 @@ const account = Account.fromMnemonic(
 )
 ```
 
-### Deriving a Specific Address
+#### Deriving a Specific Address
 
 ```ts twoslash
 import { Account } from 'viem'
@@ -33,15 +37,15 @@ const account = Account.fromMnemonic(
 )
 ```
 
-## Parameters
+### Parameters
 
-### mnemonic
+#### mnemonic
 
 - **Type:** `string`
 
 The mnemonic phrase to derive the account from.
 
-### options
+#### options
 
 - **Type:** `Account.fromMnemonic.Options`
 
@@ -53,7 +57,7 @@ The mnemonic phrase to derive the account from.
 | `path` | `` `m/44'/60'/${string}` `` | Full HD path (overrides the index options). |
 | `passphrase` | `string` | Optional BIP-39 passphrase. |
 
-## Return Value
+### Return Value
 
 - **Type:** `Account.Hd`
 

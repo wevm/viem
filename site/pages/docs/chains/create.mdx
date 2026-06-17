@@ -1,14 +1,36 @@
 # Defining a Chain
 
+## Overview
+
 Use [`Chain.from`](/docs/chains) to define a [Chain](/docs/chains). It preserves the literal type of the input (so ids, names, and contract addresses stay narrow) and attaches a chainable [`.extend()`](/docs/chains/extend) for deriving a new chain from a base.
 
-## Import
+### Required Fields
 
-```ts twoslash
-import { Chain } from 'viem'
-```
+A chain requires the following fields; all others are optional.
 
-## Usage
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `number` | Chain id. |
+| `name` | `string` | Human-readable name. |
+| `nativeCurrency` | `Chain.NativeCurrency` | Currency used by the chain (`name`, `symbol`, `decimals`). |
+| `rpcUrls` | `{ default: Chain.RpcUrls }` | RPC endpoints, keyed by name with a required `default`. |
+
+### Optional Behavior
+
+Beyond plain metadata, a chain carries two optional behavior slots:
+
+- **`schema`**: bidirectional RPC to native codecs (the declarative replacement for function-based formatters).
+- **`serializers`**: transaction serialization overrides.
+
+## Recipes
+
+:::warning[TODO]
+A holistic, end-to-end walkthrough of defining a chain and wiring it into a client will be added once clients and actions are available.
+:::
+
+## `Chain.from`
+
+### Usage
 
 ```ts twoslash
 import { Chain } from 'viem'
@@ -21,33 +43,15 @@ const mainnet = Chain.from({
 })
 ```
 
-## Required Fields
+### Parameters
 
-A chain requires the following fields; all others are optional.
-
-| Field | Type | Description |
-| --- | --- | --- |
-| `id` | `number` | Chain id. |
-| `name` | `string` | Human-readable name. |
-| `nativeCurrency` | `Chain.NativeCurrency` | Currency used by the chain (`name`, `symbol`, `decimals`). |
-| `rpcUrls` | `{ default: Chain.RpcUrls }` | RPC endpoints, keyed by name with a required `default`. |
-
-## Optional Behavior
-
-Beyond plain metadata, a chain carries two optional behavior slots:
-
-- **`schema`**: bidirectional RPC to native codecs (the declarative replacement for function-based formatters).
-- **`serializers`**: transaction serialization overrides.
-
-## Parameters
-
-### chain
+#### chain
 
 - **Type:** `Chain.Chain`
 
 The chain definition.
 
-## Return Value
+### Return Value
 
 - **Type:** `chain & { extend: (overrides) => Chain }`
 

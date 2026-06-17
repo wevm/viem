@@ -12,7 +12,7 @@
     "deps": "pnpx taze -r",
     "dev": "pnpm exports:update && zile dev",
     "docs:build": "pnpm docs:sync-utils && pnpm --filter site build",
-    "docs:dev": "pnpm docs:sync-utils && pnpm --filter site dev",
+    "docs:dev": "pnpm docs:sync-utils --if-needed && pnpm --filter site dev",
     "docs:sync-utils": "bun scripts/docs:sync-utils.ts",
     "exports:update": "bun scripts/exports:update.ts",
     "gen:tempo-abis": "bun scripts/gen:tempo-abis.ts",

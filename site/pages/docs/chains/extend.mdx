@@ -1,14 +1,18 @@
 # Extending Chains
 
+## Overview
+
 Every chain returned by [`Chain.from`](/docs/chains) carries a chainable `.extend()` method for deriving a new chain from an existing base. The overrides are merged over the base, and the result keeps its own `.extend()` (so you can derive further).
 
-## Import
+## Recipes
 
-```ts twoslash
-import { Chain } from 'viem'
-```
+:::warning[TODO]
+A holistic, end-to-end walkthrough of extending a chain and wiring it into a client will be added once clients and actions are available.
+:::
 
-## Usage
+## `chain.extend`
+
+### Usage
 
 ```ts twoslash
 import { Chain } from 'viem'
@@ -25,15 +29,15 @@ const custom = mainnet.extend({
 })
 ```
 
-## Parameters
+### Parameters
 
-### overrides
+#### overrides
 
 - **Type:** `Partial<Chain.Chain>`
 
 The fields to merge over the base chain.
 
-## Return Value
+### Return Value
 
 - **Type:** `Chain`
 

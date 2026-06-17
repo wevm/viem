@@ -1,19 +1,60 @@
+import { Cards, Card } from 'vocs'
+
 # Account
+
+## Overview
 
 The **Account** module represents an Ethereum account that can sign messages, transactions, typed data, and authorizations.
 
 Viem distinguishes between two kinds of account:
 
-- **Local Account** (`type: 'local'`): signing happens locally from injected signing logic (a private key, mnemonic, KMS, etc.). The raw signing material is available to your program.
-- **JSON-RPC Account** (`type: 'json-rpc'`): signing is delegated to a JSON-RPC provider (for example, a browser wallet). Only the address is known.
+- **Local Account**: signing happens locally from injected signing logic (a private key, mnemonic, KMS, etc.). The raw signing material is available to your program.
+- **JSON-RPC Account**: signing is delegated to a JSON-RPC provider (for example, a browser wallet). Only the address is known.
 
-## Import
+### Account Types
 
-```ts twoslash
-import { Account } from 'viem'
-```
+<Cards>
+  <Card
+    title="JSON-RPC Accounts"
+    description="Signing delegated to a JSON-RPC provider, referenced by address."
+    icon="lucide:globe"
+    to="/docs/accounts/json-rpc"
+  />
+  <Card
+    title="Private Key Accounts"
+    description="Local account backed by a secp256k1 private key."
+    icon="lucide:key-round"
+    to="/docs/accounts/local/private-key"
+  />
+  <Card
+    title="Mnemonic Accounts"
+    description="Local account derived from a BIP-39 mnemonic phrase."
+    icon="lucide:spell-check"
+    to="/docs/accounts/local/mnemonic"
+  />
+  <Card
+    title="HD Accounts"
+    description="Local account derived from a BIP-32 HD key."
+    icon="lucide:network"
+    to="/docs/accounts/local/hd"
+  />
+  <Card
+    title="Custom Accounts"
+    description="Local account backed by custom signing logic (KMS, HSM, etc.)."
+    icon="lucide:settings"
+    to="/docs/accounts/local/custom"
+  />
+</Cards>
 
-## Usage
+## Recipes
+
+:::warning[TODO]
+A holistic, end-to-end walkthrough of using accounts (creating one, attaching it to a client, and signing through actions) will be added once clients and actions are available.
+:::
+
+## Reference
+
+### Usage
 
 ```ts twoslash
 import { Account } from 'viem'
@@ -25,17 +66,7 @@ const local = Account.fromPrivateKey('0x...')
 const jsonRpc = Account.from('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')
 ```
 
-## Account Types
-
-| Type | Description |
-| --- | --- |
-| [JSON-RPC Accounts](/docs/accounts/json-rpc) | Signing delegated to a JSON-RPC provider, referenced by address. |
-| [Private Key Accounts](/docs/accounts/local/private-key) | Local account backed by a secp256k1 private key. |
-| [Mnemonic Accounts](/docs/accounts/local/mnemonic) | Local account derived from a BIP-39 mnemonic phrase. |
-| [HD Accounts](/docs/accounts/local/hd) | Local account derived from a BIP-32 HD key. |
-| [Custom Accounts](/docs/accounts/local/custom) | Local account backed by custom signing logic (KMS, HSM, …). |
-
-## Types
+### Types
 
 - `Account.Account`: a local signer, or a JSON-RPC account referenced by address.
 - `Account.Local`: an account that signs locally from injected signing logic.

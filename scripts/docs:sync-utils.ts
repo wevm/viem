@@ -479,6 +479,14 @@ async function main() {
   const onlyArg = process.argv.find((a) => a.startsWith('--only='))
   const only = onlyArg?.slice('--only='.length).split(',')
 
+  // `--if-needed` skips the sync when the generated output is already present
+  // (used by `docs:dev` to avoid re-fetching ox docs on every start).
+  const ifNeeded = process.argv.includes('--if-needed')
+  if (ifNeeded && existsSync(sidebarPath) && existsSync(outDir)) {
+    console.log('Utilities docs already synced — skipping (run `pnpm docs:sync-utils` to refresh).')
+    return
+  }
+
   const allModules = discoverModules()
   const modules = only
     ? allModules.filter((m) => only.includes(m.name))

@@ -1,16 +1,20 @@
 # Private Key Accounts
 
+## Overview
+
 A **Private Key Account** (`Account.PrivateKey`) is a [local account](/docs/accounts) backed by a secp256k1 private key. It derives its public key and checksummed address from the key, and signs hashes, messages, transactions, typed data, and [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) authorizations locally.
 
 Create one from an existing private key with [`Account.fromPrivateKey`](/docs/accounts), or generate a random one with [`Account.random`](/docs/accounts).
 
-## Import
+## Recipes
 
-```ts twoslash
-import { Account } from 'viem'
-```
+:::warning[TODO]
+A holistic, end-to-end walkthrough of using a private key account (attaching it to a client and signing through actions) will be added once clients and actions are available.
+:::
 
-## From a Private Key
+## `Account.fromPrivateKey`
+
+### Usage
 
 ```ts twoslash
 import { Account } from 'viem'
@@ -42,7 +46,9 @@ A private-key-backed local account (`source: 'privateKey'`) exposing `address`, 
 - `Secp256k1.getPublicKey.ErrorType`: thrown when the private key is invalid.
 - `Address.fromPublicKey.ErrorType`: thrown when the address cannot be derived.
 
-## Random
+## `Account.random`
+
+### Usage
 
 ```ts twoslash
 import { Account } from 'viem'
