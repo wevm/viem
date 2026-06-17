@@ -9,16 +9,16 @@ This document contains guidelines for AI agents working on the Viem codebase.
 ## Repository & Tooling (v3)
 
 - **Branch** -- v3 development happens on `v3-next`. The pre-existing `v3` branch is an old
-  big-bang prototype kept only as reference. v2 releases continue from `main`.
-- **Clean slate** -- the v2 sources are frozen under `src-old/` and `test-old/` (reference +
+  big-bang prototype kept only as reference. Released versions continue from `main`.
+- **Clean slate** -- the old sources are frozen under `src-old/` and `test-old/` (reference +
   test-porting source only; deleted once the rewrite reaches parity). They are excluded from
   build, lint, type-check, tests, knip, and size -- **never edit them, never import from them in
   committed code**, and do not try to fix their type errors (the frozen tree no longer compiles
   against ox `1.0.0-beta.0`; that is expected and irrelevant). The v3 tree grows fresh in `src/`
-  and `test/`. The `test/tempo` submodule stays at `test/tempo` (it is live infra, not v2 legacy).
+  and `test/`. The `test/tempo` submodule stays at `test/tempo` (it is live infra, not legacy).
 - **Parity tests are one-shot scaffolding** -- a colocated test importing from `src-old/` to
-  assert v2/v3 output parity is written, run, passed, and **deleted before commit**. Permanent v3
-  tests are ports of the v2 suites (adapted to the new API), never comparisons against `src-old/`.
+  assert output parity is written, run, passed, and **deleted before commit**. Permanent
+  tests are ports of the old suites (adapted to the new API), never comparisons against `src-old/`.
 - **Build** -- `pnpm build` runs `exports:update` + `zile` (ESM-only, output in `dist/`) + copies
   `src/trusted-setups` into `dist/`. zile derives sources from `package.json#exports` (the
   `include` in tsconfig is irrelevant to it) and reads `./tsconfig.json` for compiler options.
@@ -45,36 +45,27 @@ This document contains guidelines for AI agents working on the Viem codebase.
 - **Other gates** -- `pnpm knip` (production mode), `pnpm check:repo` (sherif), `pnpm test:build`
   (publint + attw, esm-only profile), `pnpm size` (size-limit against `dist/`), `pnpm vectors`
   (bun).
-- **Plan docs are local** -- `tasks/` is gitignored. The v3 plan lives at `tasks/v3.md`; the
-  breaking-change log at `tasks/v3-breaking-changes.md`; API sketches at `tasks/v3-api/`; v2
-  size baselines (pre-flip actuals) at `tasks/v3-size-baselines.md`.
 - **Version constant** -- `pnpm version:update` writes `src/version.ts` (`@internal`, consumed by
   the errors substrate). Do not hand-edit it.
 
 ## v3 Process Conventions
 
-- **Breaking-change log (same-PR rule)** -- any change to public behavior/API appends or updates
-  an entry in `tasks/v3-breaking-changes.md` in the same change set. Log discovered breaks
-  (snapshot diffs, error-class changes, type-inference changes) too, not just intentional ones.
-  Entries: status (`planned` → `landed`), phase/task ref, area, past-tense summary, and a `diff`
-  fence with the migration shape.
-- **API-first module reviews** -- no public module is implemented before a signature-only sketch
-  in `tasks/v3-api/<Module>.md` is approved by the maintainer. For utils façades the sketch is the
-  curated export manifest (which v2 names survive → ox mapping, which are deleted).
-- **Check parity against v2** -- when migrating or sketching a module, always read the real v2
-  implementation (on `main`, or the existing `src/` code) for that surface and reconcile field
-  shapes, names, ordering, defaults, and behavior against it. Intentional divergences from v2 are
-  logged in `tasks/v3-breaking-changes.md`; unintentional ones are bugs. Do not infer the v2 shape
-  from memory.
+- **API-first module reviews** -- no public module is implemented before its signature-only API
+  shape is approved by the maintainer. For utils façades the review is the curated export manifest
+  (which existing names survive → ox mapping, which are deleted).
+- **Check parity against the old implementation** -- when migrating or sketching a module, always
+  read the real old implementation (under `src-old/`, or the existing `src/` code) for that surface
+  and reconcile field shapes, names, ordering, defaults, and behavior against it. Intentional
+  divergences are recorded in the changeset; unintentional ones are bugs. Do not infer the old
+  shape from memory.
 - **Ox is the primitive layer** -- when migrating code, prefer ox v1 modules (`Hex`, `Bytes`,
   `Abi*`, `Address`, `Hash`, `Signature`, `Secp256k1`, `TxEnvelope*`, …) over hand-rolled
-  implementations. Direct `@noble/*`/`@scure/*` usage is being removed in Phase B; do not add new
-  usage.
+  implementations. Direct `@noble/*`/`@scure/*` usage is being removed; do not add new usage.
 
 ## TypeScript Conventions
 
 - **Exact optional properties** -- `exactOptionalPropertyTypes` is enabled in tsconfig. Optional properties must include `| undefined` in their type if they can be assigned `undefined` (e.g. `foo?: string | undefined`, not `foo?: string`).
-- **No unchecked indexed reads** -- `noUncheckedIndexedAccess` is **not yet enabled** in viem (planned for v3). Write new code as if it were: narrow indexed reads before use, or make the invariant obvious with the smallest possible assertion.
+- **No unchecked indexed reads** -- `noUncheckedIndexedAccess` is **not yet enabled** in viem. Write new code as if it were: narrow indexed reads before use, or make the invariant obvious with the smallest possible assertion.
 - **`readonly` arrays** -- use `readonly T[]` for array types in type definitions.
 - **Existing `readonly` properties are fine** -- viem has DOM-shaped WebAuthn types and inference-heavy literals that intentionally preserve `readonly` properties. Do not churn them just to satisfy a style preference.
 - **`type` over `interface` by default** -- use `type` for project-owned shapes. Ambient declarations and DOM-shaped compatibility types may use `interface`.
@@ -82,12 +73,12 @@ This document contains guidelines for AI agents working on the Viem codebase.
 - **Follow local import style** -- viem uses both namespace imports and named internal imports. Match the surrounding file instead of mass-converting import lists.
 - **Zod import aliases** -- import `zod/mini` as `z`, and import zod module namespaces as `z_<Module>` (for example, `import * as z_Hex from './Hex.js'`). Applies from the C2 `chain.schema` work onward.
 - **Classes for errors only** -- all other APIs use functions and plain data.
-- **Errors live next to the code that throws them** -- module-specific failure classes live inside the module that owns the failure mode. Place each error class near the bottom of the module so the public functions and types are what the reader sees first. Set `name` to the namespaced form (`'Hex.InvalidHexValueError'`, `'Client.ExtensionError'`, etc.). (v3 convention -- applies to new/migrated modules; v2 error classes migrate with their module.)
+- **Errors live next to the code that throws them** -- module-specific failure classes live inside the module that owns the failure mode. Place each error class near the bottom of the module so the public functions and types are what the reader sees first. Set `name` to the namespaced form (`'Hex.InvalidHexValueError'`, `'Client.ExtensionError'`, etc.). (v3 convention -- applies to new/migrated modules; legacy error classes migrate with their module.)
 - **No enums** -- use union types or `as const` objects for fixed sets.
 - **camelCase constants** -- prefer `camelCase` for local constants unless the surrounding file already uses protocol-style uppercase names for numeric constants.
 - **`const` generic modifier** -- use to preserve literal types for full inference.
 - **Options default `= {}`** -- use `options: Options = {}` not `options?: Options`.
-- **Namespace params and return types** -- place function parameter, return, and error types in a `declare namespace` matching the function name (e.g. `from.Options`, `serialize.ErrorType`). Do not lift the params type to a sibling export unless the surrounding module already has a shared type. (v3 convention -- v2's `<Action>Parameters`/`<Action>ReturnType` exports migrate to this shape per-module.)
+- **Namespace params and return types** -- place function parameter, return, and error types in a `declare namespace` matching the function name (e.g. `from.Options`, `serialize.ErrorType`). Do not lift the params type to a sibling export unless the surrounding module already has a shared type. (v3 convention -- legacy `<Action>Parameters`/`<Action>ReturnType` exports migrate to this shape per-module.)
 - **`options` over `args`** -- use `options` for typed option bags. Use domain nouns only when the parameter is not an options bag.
 - **Minimal variable names** -- prefer short, obvious names. Use `options` not `serializeOptions`, `fn` not `callbackFunction`, etc. Context makes meaning clear.
 - **No redundant type annotations** -- if the return type of a function already covers it, do not annotate intermediate variables. Let the return type do the work.
@@ -96,8 +87,8 @@ This document contains guidelines for AI agents working on the Viem codebase.
 - **IIFE expressions for fallible local derivations** -- when a local needs `try`/`catch` to parse or normalize a value, prefer an IIFE expression over `let value: T` followed by assignment inside `try`.
 - **Skip braces for single-statement blocks** -- omit `{}` for single-statement `if`, `for`, etc., when the surrounding file follows that style.
 - **No section separator comments** -- do not use `// ---` or `// ===` divider comments. Let JSDoc and whitespace provide structure.
-- **No plan references in code or comments** -- never reference the v3 plan, phases, or tasks (e.g. `C2`, `B6`, `D11`, "in a later phase", `TODO(C2)`) in source comments, JSDoc, or identifiers. Code must read standalone. Plan/phase tracking belongs only in `tasks/`. A bare `TODO:` describing the actual work is fine.
-- **No v2 references in code or comments** -- never mention v2, its old names, or migration framing (e.g. "replaces v2 `formatters`", "was `defineChain`") in source comments, JSDoc, or identifiers. Comments describe what the code does now and must read standalone. v2-parity and migration notes belong in `tasks/v3-breaking-changes.md`.
+- **No internal-tracking references in code or comments** -- never reference internal planning, phases, or task IDs (e.g. `C2`, `B6`, `D11`, "in a later phase", `TODO(C2)`) in source comments, JSDoc, or identifiers. Code must read standalone. A bare `TODO:` describing the actual work is fine.
+- **No prior-version references in code or comments** -- never mention prior versions, their old names, or migration framing (e.g. "replaces old `formatters`", "was `defineChain`") in source comments, JSDoc, or identifiers. Comments describe what the code does now and must read standalone. Parity and migration notes belong in the changeset.
 - **Static imports by default** -- use static `import` declarations. Dynamic imports are reserved for real runtime boundaries (e.g. `viem/node` trusted setups, optional heavyweight paths).
 - **Minimize `as any`** -- avoid new `as any` where a safer assertion is practical, but do not mass-rewrite existing crypto, tuple, and inference glue that already relies on it.
 - **Destructure when accessing multiple properties** -- prefer `const { a, b } = options` over repeated `options.a`, `options.b`.
@@ -150,7 +141,7 @@ This document contains guidelines for AI agents working on the Viem codebase.
 - **Use `pnpm test` for tests** -- run tests through package scripts, not `vitest` directly.
 - **Target the relevant project** -- prefer `pnpm test --run <paths>` or `pnpm test --project core --bail=1` / `--project tempo` over the full matrix while iterating. Use `SKIP_GLOBAL_SETUP=true` for offline runs that do not need anvil.
 - **Colocate tests** -- tests are sibling `*.test.ts` files next to their module; prefer inline snapshots over snapshot files.
-- **No tests for pure re-exports** -- modules that only `export * from 'ox/<Ns>'` get no committed test suite (ox owns that coverage). Behavior-delta verification against v2 happens as one-shot scaffolding: write, run, record findings in the module's `tasks/v3-api/` manifest + breaking-change log, then delete the tests. Once a façade gains viem-specific logic, that logic gets sibling tests.
+- **No tests for pure re-exports** -- modules that only `export * from 'ox/<Ns>'` get no committed test suite (ox owns that coverage). Behavior-delta verification against the old implementation happens as one-shot scaffolding: write, run, record findings, then delete the tests. Once a façade gains viem-specific logic, that logic gets sibling tests.
 - **Wrap function exports in `describe`** -- every test file targets one or more exported functions; each function gets its own `describe('functionName', () => { ... })` block.
 - **Inline snapshots over direct assertions** -- prefer `toMatchInlineSnapshot()` over `.toBe()`, `.toEqual()`, etc. for stable return values. Use `toThrowErrorMatchingInlineSnapshot()` for error assertions.
 - **Snapshot whole objects, omit nondeterministic properties** -- destructure out nondeterministic fields and snapshot the rest, rather than cherry-picking individual fields to assert.
@@ -175,7 +166,7 @@ This document contains guidelines for AI agents working on the Viem codebase.
 - **Changesets only for public behavior** -- add or update a changeset when a change affects public API or existing behavior.
 - **Update existing changesets first** -- if the branch already has a changeset for the same area, update it instead of adding a duplicate.
 - **One sentence, past tense** -- changeset entries are a single sentence written in past tense.
-- **Breaking changes include migration shape** -- major changes include a `diff` fence showing the before/after migration shape -- and a matching entry in `tasks/v3-breaking-changes.md`.
+- **Breaking changes include migration shape** -- major changes include a `diff` fence showing the before/after migration shape.
 
 ## Git Conventions
 
@@ -208,6 +199,28 @@ Guidelines for authoring docs and guides under `site/pages/`.
 
 - Link out to every action (and other API) referenced in prose, on first mention. Tempo Actions
   link to `/tempo/actions/<namespace>.<action>`; core Viem actions link to their `/docs/...` page.
+
+### Module Pages
+
+- **Module docs are concept-first.** Each module page leads with prose explaining the concept, then
+  drills into the API. At minimum a module page contains, in this order:
+  - `## Overview` -- what the module is, how it works, and when to reach for it. Concept first, not
+    a list of functions.
+  - `## Recipes` -- independent, self-contained tasks (see the Guides section for the recipe shape).
+  - **An API reference** -- one `## ` section per exported function/type, named after the identifier
+    (e.g. ``## `Account.from` ``), each containing `### Usage`, `### Parameters`,
+    `### Return Value`, and `### Errors` as applicable.
+- **Sidebar labels are short concept/task phrases** -- fewer than 5 words, Title Case, describing
+  the concept or task rather than echoing the identifier (e.g. `Overview`, `Defining a Chain`,
+  `Extending Chains`, `Base Error`). The module's landing page is always labelled `Overview`.
+- **Paths are `/docs/<module>/<slug>`** -- lowercase, hyphenated. The module landing page lives at
+  `/docs/<module>` (its `index.mdx`); sub-pages use a short task/concept slug
+  (e.g. `/docs/chains/create`, `/docs/chains/extend`, `/docs/accounts/json-rpc`). Nest deeper only
+  when a module has sub-groups (e.g. `/docs/accounts/local/private-key`).
+- **Viem utilities are re-exported Ox docs.** Utility modules under `docs/utilities/` are pure
+  re-exports of Ox modules, so their pages are synced from the Ox docs (`pnpm docs:sync-utils`)
+  rather than hand-written. Do not author concept/Recipes sections for them, and do not hand-edit
+  the generated pages -- update the sync script instead.
 
 ### Guides
 
