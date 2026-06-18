@@ -4787,9 +4787,9 @@ export type Decorator<
 export function decorator<const testnet extends boolean = false>(
   options: decorator.Options<testnet> = {},
 ) {
-  const chain = (options.testnet
-    ? tempoModerato
-    : tempo) as decorator.DefaultChain<testnet>
+  const chain = (
+    options.testnet ? tempoModerato : tempo
+  ) as decorator.DefaultChain<testnet>
   return <
     transport extends Transport,
     chain_ extends Chain | undefined,
@@ -4802,9 +4802,11 @@ export function decorator<const testnet extends boolean = false>(
     // Default the client chain when one was not provided. Contained cast: the
     // spread widens the `chain` slot, but the action closures below expect the
     // resolved client shape.
-    const client = (
-      client_.chain ? client_ : { ...client_, chain }
-    ) as Client<transport, decorator.ResolvedChain<chain_, testnet>, account>
+    const client = (client_.chain ? client_ : { ...client_, chain }) as Client<
+      transport,
+      decorator.ResolvedChain<chain_, testnet>,
+      account
+    >
     return {
       chain,
       accessKey: {

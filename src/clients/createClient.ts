@@ -213,10 +213,9 @@ type Extended = Prettify<
  * default `chain` (via the `chain` property on its return value), but only
  * takes effect when the client was created without an explicit chain.
  */
-type ChainFromExtension<
-  chain extends Chain | undefined,
-  extended,
-> = [chain] extends [undefined]
+type ChainFromExtension<chain extends Chain | undefined, extended> = [
+  chain,
+] extends [undefined]
   ? extended extends { chain: infer chain_ extends Chain }
     ? chain_
     : chain

@@ -1,5 +1,5 @@
 import { createClient, http } from 'viem'
-import { tempo, tempoLocalnet, tempoModerato } from 'viem/chains'
+import { type tempo, tempoLocalnet, type tempoModerato } from 'viem/chains'
 import { tempoActions } from 'viem/tempo'
 import { describe, expectTypeOf, test } from 'vitest'
 
