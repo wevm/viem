@@ -70,6 +70,7 @@ export default defineConfig({
         test: {
           name: 'core',
           include: ['src/**/*.test.ts'],
+          globalSetup: ['./test/setup.global.ts'],
         },
       },
     ],

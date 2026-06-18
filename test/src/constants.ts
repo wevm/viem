@@ -1,3 +1,9 @@
+/** Per-worker pool id, appended to the local anvil proxy URL. */
+export const poolId =
+  Number(process.env.VITEST_POOL_ID ?? 1) *
+    Number(process.env.VITEST_SHARD_ID ?? 1) +
+  Math.floor(Math.random() * 10000)
+
 export const accounts = [
   {
     address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',

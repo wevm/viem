@@ -35,11 +35,15 @@ This document contains guidelines for AI agents working on the Viem codebase.
 - **Lint/format** -- `pnpm check` runs `vp check --fix` (oxlint + oxfmt) and **mutates**. yaml,
   md/mdx, css, and `site/pages/` are excluded from formatting. Type-aware linting and the
   jsdoc/tsdoc plugins are intentionally off until modules migrate to v3 conventions.
-- **Tests** -- `pnpm test` runs `vp test` (config in root `vite.config.ts`). Currently a single
-  `core` project over `src/**/*.test.ts` with no global setup (anvil/prool and the `tempo`
-  project return as the modules that need them are rebuilt). Tests are colocated as siblings of
+- **Tests** -- `pnpm test` runs `vp test` (config in root `vite.config.ts`). The `core` project
+  covers `src/**/*.test.ts`; a global setup (`test/setup.global.ts`) boots a mainnet-fork anvil
+  (prool) that RPC tests connect to via `test/src/anvil.ts`. Tests are colocated as siblings of
   their module (`src/utils/Hex.ts` + `src/utils/Hex.test.ts`), inline snapshots preferred.
   Use `pnpm test --run <paths>` for targeted runs.
+- **No mocks, ever** -- tests **must never** use mocks, stubs, or `vi` (`vi.fn`, `vi.mock`,
+  `vi.spyOn`, fake `fetch`, hand-rolled fake clients, etc.). Exercise real behavior against the
+  prool anvil fork (`test/src/anvil.ts`) -- hit the forked node, not a fake. A test that seems to
+  need a mock is a signal the code or the test is wrong; rework it instead.
 - **Type checking** -- `pnpm check:types` runs `tsc -b` (project references: scripts, site, src,
   test).
 - **Other gates** -- `pnpm knip` (production mode), `pnpm check:repo` (sherif), `pnpm test:build`
