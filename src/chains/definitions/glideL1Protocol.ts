@@ -1,0 +1,20 @@
+import * as Chain from '../../core/Chain.js'
+
+export const glideL1Protocol = /*#__PURE__*/ Chain.from({
+  id: 251,
+  name: 'Glide L1 Protocol XP',
+  nativeCurrency: { name: 'GLXP', symbol: 'GLXP', decimals: 18 },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc-api.glideprotocol.xyz/l1-rpc'],
+      webSocket: ['wss://rpc-api.glideprotocol.xyz/l1-rpc'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Glide Protocol Explore',
+      url: 'https://blockchain-explorer.glideprotocol.xyz',
+    },
+  },
+  testnet: false,
+})
