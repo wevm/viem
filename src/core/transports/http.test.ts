@@ -2,11 +2,11 @@ import * as RpcResponse from 'ox/RpcResponse'
 import { describe, expect, test } from 'vitest'
 
 import { anvilMainnet } from '~test/anvil.js'
-import { createHttpServer } from '~test/utils.js'
+import * as Http from '~test/http.js'
 import * as Chain from '../Chain.js'
-import { HttpError } from '../RpcClient.js'
-import { UrlRequiredError } from '../Transport.js'
-import { http } from './http.js'
+import * as RpcClient from '../../utils/RpcClient.js'
+import * as Transport from '../Transport.js'
+import * as http from './http.js'
 
 const url = anvilMainnet.rpcUrl.http
 
@@ -15,12 +15,12 @@ const ok = (result: unknown) =>
 
 describe('http', () => {
   test('request returns the result', async () => {
-    const transport = http(url).setup({})
+    const transport = http.http(url).setup()
     expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
   })
 
   test('batches concurrent requests', async () => {
-    const transport = http(url, { batch: true }).setup({})
+    const transport = http.http(url, { batch: true }).setup()
     const [chainId, blockNumber] = await Promise.all([
       transport.request({ method: 'eth_chainId' }),
       transport.request({ method: 'eth_blockNumber' }),
@@ -30,34 +30,36 @@ describe('http', () => {
   })
 
   test('maps a JSON-RPC error via ox', async () => {
-    const transport = http(url, { retryCount: 0 }).setup({})
+    const transport = http.http(url, { retryCount: 0 }).setup()
     await expect(
       transport.request({ method: 'eth_thisDoesNotExist' }),
     ).rejects.toBeInstanceOf(RpcResponse.BaseError)
   })
 
   test('honors the method filter', async () => {
-    const transport = http(url, {
-      methods: { exclude: ['eth_accounts'] },
-    }).setup({})
+    const transport = http
+      .http(url, {
+        methods: { exclude: ['eth_accounts'] },
+      })
+      .setup()
     await expect(
       transport.request({ method: 'eth_accounts' }),
     ).rejects.toBeInstanceOf(RpcResponse.MethodNotSupportedError)
   })
 
   test('throws HttpError when the endpoint is unreachable', async () => {
-    const transport = http('http://127.0.0.1:1', { retryCount: 0 }).setup({})
+    const transport = http.http('http://127.0.0.1:1', { retryCount: 0 }).setup()
     await expect(
       transport.request({ method: 'eth_chainId' }),
-    ).rejects.toBeInstanceOf(HttpError)
+    ).rejects.toBeInstanceOf(RpcClient.HttpError)
   })
 
   test('throws UrlRequiredError without a URL or chain', () => {
-    expect(() => http().setup({})).toThrowError(UrlRequiredError)
+    expect(() => http.http().setup()).toThrowError(Transport.UrlRequiredError)
   })
 
   test('falls back to the chain default RPC URL', async () => {
-    const server = await createHttpServer((_req, res) => {
+    const server = await Http.createServer((_req, res) => {
       res.writeHead(200, { 'Content-Type': 'application/json' })
       res.end(ok('0x1'))
     })
@@ -68,7 +70,7 @@ describe('http', () => {
         nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
         rpcUrls: { default: { http: [server.url] } },
       })
-      const transport = http().setup({ chain })
+      const transport = http.http().setup({ chain })
       expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
     } finally {
       await server.close()
@@ -76,12 +78,12 @@ describe('http', () => {
   })
 
   test('raw mode returns the response envelope instead of throwing', async () => {
-    const server = await createHttpServer((_req, res) => {
+    const server = await Http.createServer((_req, res) => {
       res.writeHead(200, { 'Content-Type': 'application/json' })
       res.end(ok('0x1'))
     })
     try {
-      const transport = http(server.url, { raw: true }).setup({})
+      const transport = http.http(server.url, { raw: true }).setup()
       expect(await transport.request({ method: 'eth_chainId' })).toEqual({
         error: undefined,
         result: '0x1',
@@ -93,7 +95,7 @@ describe('http', () => {
 
   test('retries a retryable HTTP error', async () => {
     let count = 0
-    const server = await createHttpServer((_req, res) => {
+    const server = await Http.createServer((_req, res) => {
       count += 1
       if (count <= 2) {
         res.writeHead(500)
@@ -104,7 +106,7 @@ describe('http', () => {
       res.end(ok('0x1'))
     })
     try {
-      const transport = http(server.url, { retryDelay: 1 }).setup({})
+      const transport = http.http(server.url, { retryDelay: 1 }).setup()
       expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
       expect(count).toBe(3)
     } finally {
@@ -114,7 +116,7 @@ describe('http', () => {
 
   test('honors a Retry-After header on retry', async () => {
     let count = 0
-    const server = await createHttpServer((_req, res) => {
+    const server = await Http.createServer((_req, res) => {
       count += 1
       if (count === 1) {
         res.writeHead(429, { 'Retry-After': '0' })
@@ -125,7 +127,7 @@ describe('http', () => {
       res.end(ok('0x1'))
     })
     try {
-      const transport = http(server.url, { retryDelay: 1 }).setup({})
+      const transport = http.http(server.url, { retryDelay: 1 }).setup()
       expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
       expect(count).toBe(2)
     } finally {
@@ -134,7 +136,7 @@ describe('http', () => {
   })
 
   test('scopes batches by abort signal', async () => {
-    const server = await createHttpServer((req, res) => {
+    const server = await Http.createServer((req, res) => {
       let raw = ''
       req.on('data', (chunk) => {
         raw += chunk
@@ -151,7 +153,7 @@ describe('http', () => {
       })
     })
     try {
-      const transport = http(server.url, { batch: true }).setup({})
+      const transport = http.http(server.url, { batch: true }).setup()
       const controller = new AbortController()
       const [a, b] = await Promise.all([
         transport.request(
@@ -171,7 +173,7 @@ describe('http', () => {
   })
 
   test('accepts batch configuration options', async () => {
-    const server = await createHttpServer((req, res) => {
+    const server = await Http.createServer((req, res) => {
       let raw = ''
       req.on('data', (chunk) => {
         raw += chunk
@@ -188,9 +190,11 @@ describe('http', () => {
       })
     })
     try {
-      const transport = http(server.url, {
-        batch: { batchSize: 2, wait: 0 },
-      }).setup({})
+      const transport = http
+        .http(server.url, {
+          batch: { batchSize: 2, wait: 0 },
+        })
+        .setup()
       const [a, b] = await Promise.all([
         transport.request({ method: 'eth_chainId' }),
         transport.request({ method: 'eth_blockNumber' }),

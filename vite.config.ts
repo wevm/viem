@@ -12,6 +12,7 @@ export default defineConfig({
     ignorePatterns: [
       'contracts/**',
       'src-old/**',
+      'src/vendor/**',
       'test-old/**',
       'test/tempo/**',
       'site/dist/**',
@@ -44,6 +45,7 @@ export default defineConfig({
     ignorePatterns: [
       'contracts/**',
       'src-old/**',
+      'src/vendor/**',
       'test-old/**',
       'test/tempo/**',
       'site/dist/**',
@@ -60,7 +62,12 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: process.env.CI ? ['lcov'] : ['text', 'json', 'html'],
-      exclude: ['**/dist/**', '**/*.test.ts', '**/*.test-d.ts'],
+      exclude: [
+        '**/dist/**',
+        '**/*.test.ts',
+        '**/*.test-d.ts',
+        'src/vendor/**',
+      ],
     },
     exclude: ['**/node_modules/**', '**/dist/**', 'src-old/**', 'test-old/**'],
     retry: 3,

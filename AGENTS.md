@@ -44,8 +44,9 @@ This document contains guidelines for AI agents working on the Viem codebase.
   `vi.spyOn`, fake `fetch`, hand-rolled fake clients, etc.). Exercise real behavior against the
   prool anvil fork (`test/src/anvil.ts`) -- hit the forked node, not a fake. For transport-level
   responses the fork cannot produce (5xx, slow/timeout, malformed bodies, auth headers), spin a
-  real ephemeral HTTP server with `createHttpServer` (`test/src/utils.ts`) -- still a real server,
-  not a mock. A test that seems to need a mock is a signal the code or the test is wrong; rework it.
+  real ephemeral server with `createServer` (`test/src/http.ts`, `test/src/ws.ts`, or
+  `test/src/ipc.ts`) -- still a real server, not a mock. A test that seems to need a mock is a
+  signal the code or the test is wrong; rework it.
 - **Type checking** -- `pnpm check:types` runs `tsc -b` (project references: scripts, site, src,
   test).
 - **Other gates** -- `pnpm knip` (production mode), `pnpm check:repo` (sherif), `pnpm test:build`

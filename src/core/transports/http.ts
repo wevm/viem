@@ -1,7 +1,7 @@
 import * as RpcResponse from 'ox/RpcResponse'
 
 import * as promise from '../internal/promise.js'
-import * as RpcClient from '../RpcClient.js'
+import * as RpcClient from '../../utils/RpcClient.js'
 import * as Transport from '../Transport.js'
 
 /** An HTTP JSON-RPC {@link Transport}. */

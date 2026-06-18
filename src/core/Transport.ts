@@ -4,10 +4,17 @@ import * as internal from './internal/transport.js'
 import type { Prettify } from './internal/types.js'
 import { uid } from './internal/uid.js'
 
-export { HttpError, TimeoutError } from './RpcClient.js'
+export {
+  HttpError,
+  SocketClosedError,
+  TimeoutError,
+} from '../utils/RpcClient.js'
 export { custom } from './transports/custom.js'
 export { fallback } from './transports/fallback.js'
 export { http } from './transports/http.js'
+export { loadBalance } from './transports/loadBalance.js'
+export { rateLimit } from './transports/rateLimit.js'
+export { webSocket } from './transports/webSocket.js'
 
 /** Raw (pre-wrap) rpc request function returned by a transport's `setup`. */
 type RawRequestFn = (
@@ -23,7 +30,7 @@ export type Transport<type extends string = string, properties = {}> = {
   key: string
   name: string
   type: type
-  setup: (options: SetupOptions) => Instance<properties>
+  setup: (options?: SetupOptions) => Instance<properties>
 }
 
 export type SetupOptions = {
@@ -37,16 +44,20 @@ export type SetupOptions = {
   timeout?: number | undefined
 }
 
+/** Configuration shared by every transport instance (and a `setup` return). */
+type InstanceOptions = {
+  /** RPC methods to include or exclude. */
+  methods?: { include?: string[] } | { exclude?: string[] } | undefined
+  /** Max retries per request. @default 3 */
+  retryCount?: number | undefined
+  /** Base delay (ms) between retries. @default 150 */
+  retryDelay?: number | undefined
+  /** Request timeout (ms). */
+  timeout?: number | undefined
+}
+
 export type Instance<properties = {}> = Prettify<
-  {
-    /** RPC methods to include or exclude. */
-    methods?: { include?: string[] } | { exclude?: string[] } | undefined
-    /** Max retries per request. @default 3 */
-    retryCount?: number | undefined
-    /** Base delay (ms) between retries. @default 150 */
-    retryDelay?: number | undefined
-    /** Request timeout (ms). */
-    timeout?: number | undefined
+  InstanceOptions & {
     /** The retry/dedupe-wrapped request function. */
     request: internal.RequestFn
   } & properties
@@ -66,7 +77,7 @@ export function from<const type extends string, instance extends from.Instance>(
   const { setup, ...identity } = parameters
   return {
     ...identity,
-    setup(options) {
+    setup(options = {}) {
       const { request, ...rest } = setup(options)
       return {
         ...rest,
@@ -83,11 +94,7 @@ export function from<const type extends string, instance extends from.Instance>(
 
 export declare namespace from {
   /** Base instance shape a `setup` must return (with a raw `request`). */
-  type Instance = {
-    methods?: { include?: string[] } | { exclude?: string[] } | undefined
-    retryCount?: number | undefined
-    retryDelay?: number | undefined
-    timeout?: number | undefined
+  type Instance = InstanceOptions & {
     request: RawRequestFn
   }
 
@@ -96,10 +103,10 @@ export declare namespace from {
     Omit<instance, keyof Instance>
   >
 
-  type Parameters<type extends string, instance extends Instance> = {
-    key: string
-    name: string
-    type: type
+  type Parameters<type extends string, instance extends Instance> = Omit<
+    Transport<type>,
+    'setup'
+  > & {
     setup: (options: SetupOptions) => instance
   }
 }

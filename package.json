@@ -71,6 +71,7 @@
       ".github/**",
       "environments/**",
       "src-old/**",
+      "src/vendor/**",
       "test-old/**",
       "src/core/internal/**"
     ],
@@ -83,9 +84,7 @@
     "ignoreDependencies": [
       "bun",
       "@size-limit/preset-big-lib",
-      "abitype",
-      "isows",
-      "ws"
+      "abitype"
     ],
     "ignoreWorkspaces": [
       "test"
@@ -261,9 +260,7 @@
   },
   "dependencies": {
     "abitype": "1.2.3",
-    "isows": "1.0.7",
-    "ox": "1.0.0-beta.0",
-    "ws": "8.20.1"
+    "ox": "1.0.0-beta.1"
   },
   "exports": {
     ".": {

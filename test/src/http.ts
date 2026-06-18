@@ -1,10 +1,14 @@
-import { createServer, type RequestListener } from 'node:http'
+import {
+  type RequestListener,
+  createServer as createHttpServer,
+} from 'node:http'
 import type { AddressInfo } from 'node:net'
 
-export function createHttpServer(
+/** A minimal real HTTP server for tests. */
+export function createServer(
   handler: RequestListener,
 ): Promise<{ close: () => Promise<unknown>; url: string }> {
-  const server = createServer(handler)
+  const server = createHttpServer(handler)
 
   const closeAsync = () =>
     new Promise((resolve, reject) =>

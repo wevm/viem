@@ -185,15 +185,9 @@ importers:
       abitype:
         specifier: 1.2.3
         version: 1.2.3(typescript@5.9.3)(zod@4.4.3)
-      isows:
-        specifier: 1.0.7
-        version: 1.0.7(ws@8.20.1)
       ox:
-        specifier: 1.0.0-beta.0
-        version: 1.0.0-beta.0(typescript@5.9.3)
-      ws:
-        specifier: 8.20.1
-        version: 8.20.1
+        specifier: 1.0.0-beta.1
+        version: 1.0.0-beta.1(typescript@5.9.3)
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: 'catalog:'
@@ -236,7 +230,7 @@ importers:
         version: 0.18.1
       permissionless:
         specifier: 'catalog:'
-        version: 0.2.57(ox@1.0.0-beta.0(typescript@5.9.3))
+        version: 0.2.57(ox@1.0.0-beta.1(typescript@5.9.3))
       prool:
         specifier: 'catalog:'
         version: 0.2.4(@pimlico/alto@0.0.18(typescript@5.9.3))(testcontainers@11.10.0)
@@ -5072,8 +5066,8 @@ packages:
       typescript:
         optional: true
 
-  ox@1.0.0-beta.0:
-    resolution: {integrity: sha512-A4qw9Jx6eCiXL/KDUUhcUnf9hAlMjpDHoAZGnAIYz/XgMU4IOuZIGffyoo3gZ3II4VLl2SzFo4mS24GXUGC3xg==}
+  ox@1.0.0-beta.1:
+    resolution: {integrity: sha512-26mLJ9dP1zOUS3F4uip4X6dJvBAd4orXv7WNW2hbQoKUF8ESZa6XPpi0Q8nBcXMT0I+4Y8nzzjVDQ0AzuS80BQ==}
     peerDependencies:
       typescript: ^5.9.3
     peerDependenciesMeta:
@@ -11501,7 +11495,7 @@ snapshots:
     transitivePeerDependencies:
       - zod
 
-  ox@1.0.0-beta.0(typescript@5.9.3):
+  ox@1.0.0-beta.1(typescript@5.9.3):
     dependencies:
       '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 2.2.0
@@ -11738,9 +11732,9 @@ snapshots:
 
   pend@1.2.0: {}
 
-  permissionless@0.2.57(ox@1.0.0-beta.0(typescript@5.9.3)):
+  permissionless@0.2.57(ox@1.0.0-beta.1(typescript@5.9.3)):
     optionalDependencies:
-      ox: 1.0.0-beta.0(typescript@5.9.3)
+      ox: 1.0.0-beta.1(typescript@5.9.3)
 
   picocolors@1.1.1: {}
 
@@ -12993,14 +12987,10 @@ snapshots:
   viem@file:(typescript@5.9.3)(zod@4.4.3):
     dependencies:
       abitype: 1.2.3(typescript@5.9.3)(zod@4.4.3)
-      isows: 1.0.7(ws@8.20.1)
-      ox: 1.0.0-beta.0(typescript@5.9.3)
-      ws: 8.20.1
+      ox: 1.0.0-beta.1(typescript@5.9.3)
     optionalDependencies:
       typescript: 5.9.3
     transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
       - zod
 
   vite-plugin-arraybuffer@0.1.4: {}

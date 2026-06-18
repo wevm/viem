@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest'
 
-import { createHttpServer } from '~test/utils.js'
+import * as Http from '~test/http.js'
 import { uid } from './uid.js'
 import { wait } from './wait.js'
 import {
@@ -462,7 +462,7 @@ describe('withDedupe', () => {
 describe('withRetry', () => {
   test('default', async () => {
     let retryTimes = -1
-    const server = await createHttpServer((_req, res) => {
+    const server = await Http.createServer((_req, res) => {
       retryTimes++
       res.writeHead(500)
       res.end()
@@ -480,7 +480,7 @@ describe('withRetry', () => {
 
   test('shouldRetry: retries, and then errors', async () => {
     let retryTimes = -1
-    const server = await createHttpServer((_req, res) => {
+    const server = await Http.createServer((_req, res) => {
       retryTimes++
       res.writeHead(500)
       res.end()
@@ -501,7 +501,7 @@ describe('withRetry', () => {
 
   test('shouldRetry: retries, and then succeeds', async () => {
     let retryTimes = -1
-    const server = await createHttpServer((_req, res) => {
+    const server = await Http.createServer((_req, res) => {
       retryTimes++
       if (retryTimes === 2) {
         res.writeHead(200, {
@@ -555,7 +555,7 @@ describe('withRetry', () => {
 
   test('retryCount', async () => {
     let retryTimes = -1
-    const server = await createHttpServer((_req, res) => {
+    const server = await Http.createServer((_req, res) => {
       retryTimes++
       res.writeHead(500)
       res.end()
@@ -577,7 +577,7 @@ describe('withRetry', () => {
   test('delay: number', async () => {
     const start = Date.now()
     let end = 0
-    const server = await createHttpServer((_req, res) => {
+    const server = await Http.createServer((_req, res) => {
       end = Date.now() - start
       res.writeHead(500)
       res.end()
@@ -599,7 +599,7 @@ describe('withRetry', () => {
   test('delay: fn', async () => {
     const start = Date.now()
     let end = 0
-    const server = await createHttpServer((_req, res) => {
+    const server = await Http.createServer((_req, res) => {
       end = Date.now() - start
       res.writeHead(500, {
         'Retry-After': 1,
@@ -704,7 +704,7 @@ describe('withTimeout', () => {
   })
 
   test('times out correctly w/ signal', async () => {
-    const server = await createHttpServer((_req, res) =>
+    const server = await Http.createServer((_req, res) =>
       setTimeout(() => res.end('wagmi'), 5000),
     )
 
