@@ -1,17 +1,9 @@
-import type { Address } from 'abitype'
-
 export type ErrorType<name extends string = 'Error'> = Error & { name: name }
 export type AbortErrorType = ErrorType<'AbortError'>
 
-export const getContractAddress = (address: Address) => address
-
 export function getAbortError(signal?: AbortSignal | undefined) {
   if (signal?.reason) return signal.reason
-  if (typeof DOMException === 'function')
-    return new DOMException('This operation was aborted', 'AbortError')
-  const error = new Error('This operation was aborted') as AbortErrorType
-  error.name = 'AbortError'
-  return error
+  return new DOMException('This operation was aborted', 'AbortError')
 }
 
 export function isAbortError(error: unknown): error is AbortErrorType {

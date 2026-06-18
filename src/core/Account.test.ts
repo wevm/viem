@@ -141,6 +141,15 @@ describe('fromPrivateKey', () => {
     ).toBe(true)
   })
 
+  test('sign message (raw)', async () => {
+    const account = Account.fromPrivateKey(accounts[0].privateKey)
+    const message = { raw: '0xdeadbeef' } as const
+    const signature = await account.signMessage({ message })
+    expect(
+      PersonalMessage.verify({ address: account.address, message, signature }),
+    ).toBe(true)
+  })
+
   test('sign transaction', async () => {
     const account = Account.fromPrivateKey(accounts[0].privateKey)
     const serialized = await account.signTransaction({

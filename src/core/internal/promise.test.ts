@@ -529,6 +529,30 @@ describe('withRetry', () => {
     expect(retryTimes).toBe(2)
   })
 
+  test('aborts mid-retry when the signal aborts', async () => {
+    const controller = new AbortController()
+    await expect(
+      withRetry(
+        async () => {
+          controller.abort()
+          throw new Error('boom')
+        },
+        { retryCount: 3, signal: controller.signal },
+      ),
+    ).rejects.toThrow()
+  })
+
+  test('rethrows an abort error thrown by the function', async () => {
+    await expect(
+      withRetry(
+        async () => {
+          throw new DOMException('aborted', 'AbortError')
+        },
+        { retryCount: 3 },
+      ),
+    ).rejects.toThrow()
+  })
+
   test('retryCount', async () => {
     let retryTimes = -1
     const server = await createHttpServer((_req, res) => {

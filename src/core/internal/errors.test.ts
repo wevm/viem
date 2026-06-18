@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { getUrl } from './errors.js'
+import { getAbortError, getUrl, isAbortError } from './errors.js'
 
 test('passes a credential-free URL through unchanged', () => {
   expect(getUrl('https://example.com/rpc')).toMatchInlineSnapshot(
@@ -34,4 +34,21 @@ test('preserves query string and hash after stripping', () => {
 
 test('returns the input untouched when not a parseable URL', () => {
   expect(getUrl('not-a-url')).toMatchInlineSnapshot(`"not-a-url"`)
+})
+
+test('getAbortError returns the signal reason when present', () => {
+  const controller = new AbortController()
+  controller.abort(new Error('custom reason'))
+  expect((getAbortError(controller.signal) as Error).message).toBe(
+    'custom reason',
+  )
+})
+
+test('getAbortError falls back to an AbortError without a reason', () => {
+  expect(isAbortError(getAbortError())).toBe(true)
+})
+
+test('isAbortError is false for non-abort values', () => {
+  expect(isAbortError(new Error('nope'))).toBe(false)
+  expect(isAbortError(null)).toBe(false)
 })

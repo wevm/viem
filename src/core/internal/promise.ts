@@ -11,8 +11,8 @@ export type PromiseWithResolvers<type> = {
 
 /** @internal */
 export function withResolvers<type>(): PromiseWithResolvers<type> {
-  let resolve: PromiseWithResolvers<type>['resolve'] = () => undefined
-  let reject: PromiseWithResolvers<type>['reject'] = () => undefined
+  let resolve!: PromiseWithResolvers<type>['resolve']
+  let reject!: PromiseWithResolvers<type>['reject']
 
   const promise = new Promise<type>((resolve_, reject_) => {
     resolve = resolve_
@@ -343,9 +343,9 @@ export function withTimeout<data>(
             }
           }, timeout) as NodeJS.Timeout // need to cast because bun globals.d.ts overrides @types/node
         }
-        resolve(await fn({ signal: controller?.signal || null }))
+        resolve(await fn({ signal: controller.signal }))
       } catch (err) {
-        if (controller?.signal.aborted && isAbortError(err)) {
+        if (controller.signal.aborted && isAbortError(err)) {
           reject(errorInstance)
           return
         }
