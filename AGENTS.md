@@ -42,8 +42,10 @@ This document contains guidelines for AI agents working on the Viem codebase.
   Use `pnpm test --run <paths>` for targeted runs.
 - **No mocks, ever** -- tests **must never** use mocks, stubs, or `vi` (`vi.fn`, `vi.mock`,
   `vi.spyOn`, fake `fetch`, hand-rolled fake clients, etc.). Exercise real behavior against the
-  prool anvil fork (`test/src/anvil.ts`) -- hit the forked node, not a fake. A test that seems to
-  need a mock is a signal the code or the test is wrong; rework it instead.
+  prool anvil fork (`test/src/anvil.ts`) -- hit the forked node, not a fake. For transport-level
+  responses the fork cannot produce (5xx, slow/timeout, malformed bodies, auth headers), spin a
+  real ephemeral HTTP server with `createHttpServer` (`test/src/utils.ts`) -- still a real server,
+  not a mock. A test that seems to need a mock is a signal the code or the test is wrong; rework it.
 - **Type checking** -- `pnpm check:types` runs `tsc -b` (project references: scripts, site, src,
   test).
 - **Other gates** -- `pnpm knip` (production mode), `pnpm check:repo` (sherif), `pnpm test:build`
@@ -94,6 +96,7 @@ This document contains guidelines for AI agents working on the Viem codebase.
 - **No internal-tracking references in code or comments** -- never reference internal planning, phases, or task IDs (e.g. `C2`, `B6`, `D11`, "in a later phase", `TODO(C2)`) in source comments, JSDoc, or identifiers. Code must read standalone. A bare `TODO:` describing the actual work is fine.
 - **No prior-version references in code or comments** -- never mention prior versions, their old names, or migration framing (e.g. "replaces old `formatters`", "was `defineChain`") in source comments, JSDoc, or identifiers. Comments describe what the code does now and must read standalone. Parity and migration notes belong in the changeset.
 - **Static imports by default** -- use static `import` declarations. Dynamic imports are reserved for real runtime boundaries (e.g. `viem/node` trusted setups, optional heavyweight paths).
+- **Namespace imports for modules** -- prefer `import * as <Module>` for module imports, accessing members as `Errors.BaseError` / `RpcSchema.Default` (matches ox and the namespaced-module pattern; a module's own `./internal/*` helper is aliased `import * as internal`). Use named imports only for the type-utility module `internal/types.ts` (`import type { Compute, IsNarrowable }`), single-function helper modules (`stringify`, `uid`, `wait`), and non-namespace third-party packages (e.g. `vitest`).
 - **Minimize `as any`** -- avoid new `as any` where a safer assertion is practical, but do not mass-rewrite existing crypto, tuple, and inference glue that already relies on it.
 - **Destructure when accessing multiple properties** -- prefer `const { a, b } = options` over repeated `options.a`, `options.b`.
 - **Read from `options.x` when normalizing a single field** -- when transforming exactly one option into a local of the same name, read it directly from `options` instead of destructuring and inventing a second name.
@@ -153,6 +156,7 @@ This document contains guidelines for AI agents working on the Viem codebase.
 - **Fuzz tests stay gated** -- fuzz harnesses use `*.fuzz.ts` behind a `FUZZ=true` project so the default `pnpm test` run never picks them up (project lands with its first harness; fuzz regressions become deterministic `*.test.ts` cases or vector fixtures).
 - **Vectors use Bun** -- run vector tests with `pnpm vectors`.
 - **Unit and type tests as you go** -- write unit tests and `.test-d.ts` type tests alongside implementation for each public behavior change.
+- **100% module coverage** -- every module under `src/core/**` must reach 100% statement/branch/function/line coverage (`pnpm test --coverage <paths>`). Cover error, retry, and timeout paths, not just the happy path. If a branch is unreachable through real behavior, the code is dead -- delete it or wire it, do not leave it uncovered.
 
 ## Workflow Conventions
 
