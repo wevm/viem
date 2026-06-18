@@ -1,13 +1,39 @@
 import * as RpcResponse from 'ox/RpcResponse'
+import type * as RpcSchema from 'ox/RpcSchema'
 
 import { getAbortError } from '../errors.js'
 import { withDedupe, withRetry } from '../promise.js'
 import { stringify } from '../stringify.js'
+import type { Compute, IsNarrowable } from '../types.js'
 
-export type RequestFn = (
-  args: { method: string; params?: unknown },
+/** Request params: typed when `methodName` is in `schema`, generic otherwise. */
+type ExtractRequest<
+  schema extends RpcSchema.Generic,
+  methodName extends RpcSchema.MethodNameGeneric<schema>,
+> = Compute<
+  Omit<
+    {
+      method: methodName | schema['Request']['method']
+      params?: unknown
+    } & (methodName extends schema['Request']['method']
+      ? IsNarrowable<schema, RpcSchema.Generic> extends true
+        ? Extract<schema, { Request: { method: methodName } }>['Request']
+        : {}
+      : {}),
+    ''
+  >
+>
+
+/**
+ * An EIP-1193-style request function, typed against an {@link ox#RpcSchema} so
+ * the result is inferred from the method (mirrors ox `RpcTransport`).
+ */
+export type RequestFn<schema extends RpcSchema.Generic = RpcSchema.Default> = <
+  methodName extends RpcSchema.MethodNameGeneric<schema>,
+>(
+  parameters: ExtractRequest<schema, methodName>,
   options?: wrap.Options | undefined,
-) => Promise<unknown>
+) => Promise<RpcSchema.ExtractReturnType<schema, methodName>>
 
 /**
  * Wraps an rpc request function with method filtering, retry/backoff, and
@@ -20,7 +46,10 @@ export function wrap<
     options?: { signal?: AbortSignal | undefined } | undefined,
   ) => Promise<any>,
 >(request: request, options: wrap.Options = {}): RequestFn {
-  return async (args, overrideOptions = {}) => {
+  const requestFn = async (
+    args: { method: string; params?: unknown },
+    overrideOptions: wrap.Options = {},
+  ) => {
     const {
       dedupe = false,
       methods,
@@ -63,6 +92,7 @@ export function wrap<
       { enabled: dedupe, id: requestId },
     )
   }
+  return requestFn as RequestFn
 }
 
 export declare namespace wrap {
