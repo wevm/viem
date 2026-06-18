@@ -1,12 +1,13 @@
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const marooTestnet = /*#__PURE__*/ defineChain({
-  id: 450815,
+  id: 450_815,
   name: 'Maroo Testnet',
   nativeCurrency: { name: 'Testnet OKRW', symbol: 'tOKRW', decimals: 18 },
   rpcUrls: {
     default: {
       http: ['https://rpc-testnet.maroo.io'],
+      webSocket: ['wss://ws-testnet.maroo.io'],
     },
   },
   blockExplorers: {
