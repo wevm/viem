@@ -5,6 +5,7 @@ import {
   type ParseAccountErrorType,
   parseAccount,
 } from '../accounts/utils/parseAccount.js'
+import { UrlRequiredError } from '../errors/transport.js'
 import type { ErrorType } from '../errors/utils.js'
 import type { Account } from '../types/account.js'
 import type { BlockTag } from '../types/block.js'
@@ -141,7 +142,9 @@ export type Client<
   rpcSchema extends RpcSchema | undefined = undefined,
   extended extends Extended | undefined = Extended | undefined,
 > = Client_Base<transport, chain, account, rpcSchema> &
-  (extended extends Extended ? extended : unknown) & {
+  // `chain` is sourced from the slot above (see `ChainFromExtension`), so it is
+  // omitted here to avoid intersecting a decorator-supplied default `chain`.
+  (extended extends Extended ? Omit<extended, 'chain'> : unknown) & {
     extend: <
       const client extends Extended &
         ExactPartial<ExtendableProtectedActions<transport, chain, account>>,
@@ -151,7 +154,7 @@ export type Client<
       ) => client,
     ) => Client<
       transport,
-      chain,
+      ChainFromExtension<chain, client>,
       account,
       rpcSchema,
       Prettify<client> & (extended extends Extended ? extended : unknown)
@@ -197,11 +200,27 @@ type Client_Base<
 }
 
 type Extended = Prettify<
-  // disallow redefining base properties
-  { [_ in keyof Client_Base]?: undefined } & {
+  // disallow redefining base properties, except `chain` which a decorator
+  // may supply as a default when the client was created without one.
+  { [_ in Exclude<keyof Client_Base, 'chain'>]?: undefined } & {
+    chain?: Chain | undefined
     [key: string]: unknown
   }
 >
+
+/**
+ * Resolves the `chain` slot for an extended client. A decorator may supply a
+ * default `chain` (via the `chain` property on its return value), but only
+ * takes effect when the client was created without an explicit chain.
+ */
+type ChainFromExtension<
+  chain extends Chain | undefined,
+  extended,
+> = [chain] extends [undefined]
+  ? extended extends { chain: infer chain_ extends Chain }
+    ? chain_
+    : chain
+  : chain
 
 export type MulticallBatchOptions = {
   /** The maximum size (in bytes) for each calldata chunk. @default 1_024 */
@@ -260,11 +279,63 @@ export function createClient(parameters: ClientConfig): Client {
   const account = parameters.account
     ? parseAccount(parameters.account)
     : undefined
-  const { config, request, value } = parameters.transport({
-    account,
-    chain,
-    pollingInterval,
-  })
+
+  const resolveTransport = (chain: Chain | undefined) =>
+    parameters.transport({
+      account,
+      chain,
+      pollingInterval,
+    })
+
+  // A transport (e.g. `http()` without a URL) resolves its RPC URL from the
+  // client's `chain` at setup time. When the client was created without a
+  // `chain`, a decorator may attach a default one via `extend` (see
+  // `ChainFromExtension`). To support that, a `UrlRequiredError` thrown during
+  // setup is deferred so the transport can be re-resolved once a chain arrives.
+  //
+  // The deferred `request` keeps a stable identity but forwards to a mutable
+  // target, so action closures created before the chain was attached start
+  // working once it is. The map lets a later `extend` resolve a deferred
+  // request captured by an earlier one.
+  const deferredResolvers = new WeakMap<
+    EIP1193RequestFn,
+    (chain: Chain) => ReturnType<ClientConfig['transport']>
+  >()
+  const deferTransport = (
+    fallback: EIP1193RequestFn,
+  ): ReturnType<ClientConfig['transport']> => {
+    let request = fallback
+    // Contained cast: `EIP1193RequestFn`'s overloaded generic call signature
+    // cannot be expressed by a plain variadic forwarder.
+    const deferredRequest = ((...args: any[]) =>
+      (request as any)(...args)) as EIP1193RequestFn
+    deferredResolvers.set(deferredRequest, (chain) => {
+      const resolved = resolveTransport(chain)
+      request = resolved.request
+      return resolved
+    })
+    return {
+      config: {
+        key: 'deferred',
+        name: 'Deferred Transport',
+        request: deferredRequest,
+        type: 'deferred',
+      },
+      request: deferredRequest,
+    }
+  }
+
+  const { config, request, value } = (() => {
+    try {
+      return resolveTransport(chain)
+    } catch (error) {
+      if (chain === undefined && error instanceof UrlRequiredError)
+        return deferTransport(() => {
+          throw error
+        })
+      throw error
+    }
+  })()
   const transport = { ...config, ...value }
 
   const client = {
@@ -287,9 +358,39 @@ export function createClient(parameters: ClientConfig): Client {
   function extend(base: typeof client) {
     type ExtendFn = (base: typeof client) => unknown
     return (extendFn: ExtendFn) => {
-      const extended = extendFn(base) as Extended
-      for (const key in client) delete extended[key]
-      const combined = { ...base, ...extended }
+      // When extending the root client whose transport was deferred, fork the
+      // deferred request so sibling extensions resolve independently.
+      const base_ =
+        base === client && deferredResolvers.has(base.request)
+          ? (() => {
+              const { config, request, value } = deferTransport(base.request)
+              return { ...base, request, transport: { ...config, ...value } }
+            })()
+          : base
+
+      const extended = extendFn(base_) as Extended
+      for (const key in client) {
+        // allow a decorator to supply a default `chain` when the client was
+        // created without one.
+        if (key === 'chain' && base_.chain === undefined) continue
+        delete extended[key]
+      }
+
+      // When a decorator attaches a default `chain` to a chainless client whose
+      // transport was deferred, re-resolve the transport with that chain.
+      const resolve = deferredResolvers.get(base_.request)
+      if (resolve && base_.chain === undefined && extended.chain) {
+        const { config, request, value } = resolve(extended.chain)
+        const combined = {
+          ...base_,
+          ...extended,
+          request,
+          transport: { ...config, ...value },
+        }
+        return Object.assign(combined, { extend: extend(combined as any) })
+      }
+
+      const combined = { ...base_, ...extended }
       return Object.assign(combined, { extend: extend(combined as any) })
     }
   }

@@ -71,6 +71,23 @@ describe('extend', () => {
     expectTypeOf(extended.getChainId).toEqualTypeOf<() => Promise<1337>>()
   })
 
+  test('chain default: ignored when chain is set', () => {
+    const client = createClient({
+      chain: localhost,
+      transport: http(),
+    })
+    const extended = client.extend(() => ({ chain: optimism }))
+    expectTypeOf(extended.chain).toEqualTypeOf(localhost)
+  })
+
+  test('chain default: used when chain is unset', () => {
+    const client = createClient({
+      transport: http(localhost.rpcUrls.default.http[0]),
+    })
+    const extended = client.extend(() => ({ chain: optimism }))
+    expectTypeOf(extended.chain).toEqualTypeOf(optimism)
+  })
+
   test('chain w/ formatter', async () => {
     const client = createClient({
       chain: optimism,
