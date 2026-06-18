@@ -2,7 +2,7 @@ import * as RpcResponse from 'ox/RpcResponse'
 import { describe, expect, test } from 'vitest'
 
 import * as Http from '~test/http.js'
-import * as RpcClient from '../../utils/RpcClient.js'
+import { RpcClient } from 'viem'
 import * as transport from './transport.js'
 
 const withCode = (code: number) => Object.assign(new Error('rpc'), { code })

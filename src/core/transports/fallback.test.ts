@@ -2,13 +2,13 @@ import { describe, expect, test } from 'vitest'
 
 import { anvilMainnet } from '~test/anvil.js'
 import * as Http from '~test/http.js'
+import { http } from 'viem'
 import { wait } from '../internal/wait.js'
 import * as fallback from './fallback.js'
-import * as http from './http.js'
 
 const url = anvilMainnet.rpcUrl.http
 /** A transport whose endpoint always refuses the connection. */
-const dead = () => http.http('http://127.0.0.1:1')
+const dead = () => http('http://127.0.0.1:1')
 
 /** Poll until `fn` returns true, or throw on timeout. */
 async function waitFor(fn: () => boolean, timeout = 5_000) {
@@ -46,18 +46,18 @@ describe('shouldThrow', () => {
 
 describe('fallback', () => {
   test('uses the first transport when it succeeds', async () => {
-    const transport = fallback.fallback([http.http(url)]).setup()
+    const transport = fallback.fallback([http(url)]).setup()
     expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
   })
 
   test('falls through to the next transport on error', async () => {
-    const transport = fallback.fallback([dead(), http.http(url)]).setup()
+    const transport = fallback.fallback([dead(), http(url)]).setup()
     expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
   })
 
   test('rethrows immediately when shouldThrow returns true', async () => {
     const transport = fallback
-      .fallback([dead(), http.http(url)], {
+      .fallback([dead(), http(url)], {
         retryCount: 0,
         shouldThrow: () => true,
       })
@@ -73,7 +73,7 @@ describe('fallback', () => {
   })
 
   test('does not fall through when the next transport excludes the method', async () => {
-    const next = http.http(url, { methods: { exclude: ['eth_chainId'] } })
+    const next = http(url, { methods: { exclude: ['eth_chainId'] } })
     const transport = fallback
       .fallback([dead(), next], { retryCount: 0 })
       .setup()
@@ -81,29 +81,27 @@ describe('fallback', () => {
   })
 
   test('falls through when the next transport includes the method', async () => {
-    const next = http.http(url, { methods: { include: ['eth_chainId'] } })
+    const next = http(url, { methods: { include: ['eth_chainId'] } })
     const transport = fallback.fallback([dead(), next]).setup()
     expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
   })
 
   test('treats an empty method filter as supporting everything', async () => {
-    const next = http.http(url, { methods: {} })
+    const next = http(url, { methods: {} })
     const transport = fallback.fallback([dead(), next]).setup()
     expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
   })
 
   test('invokes onResponse for each attempt', async () => {
     const statuses: string[] = []
-    const transport = fallback.fallback([dead(), http.http(url)]).setup()
+    const transport = fallback.fallback([dead(), http(url)]).setup()
     transport.onResponse((response) => statuses.push(response.status))
     await transport.request({ method: 'eth_chainId' })
     expect(statuses).toEqual(['error', 'success'])
   })
 
   test('exposes the inner transport instances', () => {
-    const transport = fallback
-      .fallback([http.http(url), http.http(url)])
-      .setup()
+    const transport = fallback.fallback([http(url), http(url)]).setup()
     expect(transport.transports).toHaveLength(2)
   })
 
@@ -113,7 +111,7 @@ describe('fallback', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
     const transport = fallback
-      .fallback([http.http(server.url)], {
+      .fallback([http(server.url)], {
         rank: { interval: 100 },
       })
       .setup({ chain: undefined })
@@ -128,7 +126,7 @@ describe('fallback', () => {
       res.end(JSON.stringify({ result: '0x1' }))
     })
     const transport = fallback
-      .fallback([http.http(server.url)], { rank: true })
+      .fallback([http(server.url)], { rank: true })
       .setup()
 
     expect(await transport.request({ method: 'eth_blockNumber' })).toBe('0x1')
@@ -154,8 +152,8 @@ describe('rankTransports', () => {
       sampleCount: 2,
       timeout: 500,
       transports: [
-        http.http(unhealthy.url, { key: 'unhealthy' }),
-        http.http(healthy.url, { key: 'healthy' }),
+        http(unhealthy.url, { key: 'unhealthy' }),
+        http(healthy.url, { key: 'healthy' }),
       ],
       onTransports: (transports) =>
         rankings.push(transports.map((transport) => transport.key)),
@@ -183,8 +181,8 @@ describe('rankTransports', () => {
       interval: 10,
       timeout: 500,
       transports: [
-        http.http(unhealthy.url, { key: 'unhealthy' }),
-        http.http(healthy.url, { key: 'healthy' }),
+        http(unhealthy.url, { key: 'unhealthy' }),
+        http(healthy.url, { key: 'healthy' }),
       ],
       weights: { latency: 0, stability: 1 },
       onTransports: (transports) =>
@@ -212,7 +210,7 @@ describe('rankTransports', () => {
     let count = 0
     fallback.rankTransports({
       interval: 10,
-      transports: [http.http(server.url)],
+      transports: [http(server.url)],
       onTransports: () => {},
       ping: ({ transport }) => {
         count++

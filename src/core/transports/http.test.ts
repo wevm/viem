@@ -3,10 +3,7 @@ import { describe, expect, test } from 'vitest'
 
 import { anvilMainnet } from '~test/anvil.js'
 import * as Http from '~test/http.js'
-import * as Chain from '../Chain.js'
-import * as RpcClient from '../../utils/RpcClient.js'
-import * as Transport from '../Transport.js'
-import * as http from './http.js'
+import { Chain, http, RpcClient, Transport } from 'viem'
 
 const url = anvilMainnet.rpcUrl.http
 
@@ -15,12 +12,12 @@ const ok = (result: unknown) =>
 
 describe('http', () => {
   test('request returns the result', async () => {
-    const transport = http.http(url).setup()
+    const transport = http(url).setup()
     expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
   })
 
   test('batches concurrent requests', async () => {
-    const transport = http.http(url, { batch: true }).setup()
+    const transport = http(url, { batch: true }).setup()
     const [chainId, blockNumber] = await Promise.all([
       transport.request({ method: 'eth_chainId' }),
       transport.request({ method: 'eth_blockNumber' }),
@@ -30,32 +27,32 @@ describe('http', () => {
   })
 
   test('maps a JSON-RPC error via ox', async () => {
-    const transport = http.http(url, { retryCount: 0 }).setup()
+    const transport = http(url, { retryCount: 0 }).setup()
     await expect(
       transport.request({ method: 'eth_thisDoesNotExist' }),
     ).rejects.toBeInstanceOf(RpcResponse.BaseError)
   })
 
   test('honors the method filter', async () => {
-    const transport = http
-      .http(url, {
-        methods: { exclude: ['eth_accounts'] },
-      })
-      .setup()
+    const transport = http(url, {
+      methods: { exclude: ['eth_accounts'] },
+    }).setup()
     await expect(
       transport.request({ method: 'eth_accounts' }),
     ).rejects.toBeInstanceOf(RpcResponse.MethodNotSupportedError)
   })
 
   test('throws HttpError when the endpoint is unreachable', async () => {
-    const transport = http.http('http://127.0.0.1:1', { retryCount: 0 }).setup()
+    const transport = http('http://127.0.0.1:1', {
+      retryCount: 0,
+    }).setup()
     await expect(
       transport.request({ method: 'eth_chainId' }),
     ).rejects.toBeInstanceOf(RpcClient.HttpError)
   })
 
   test('throws UrlRequiredError without a URL or chain', () => {
-    expect(() => http.http().setup()).toThrowError(Transport.UrlRequiredError)
+    expect(() => http().setup()).toThrowError(Transport.UrlRequiredError)
   })
 
   test('falls back to the chain default RPC URL', async () => {
@@ -70,7 +67,7 @@ describe('http', () => {
         nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
         rpcUrls: { default: { http: [server.url] } },
       })
-      const transport = http.http().setup({ chain })
+      const transport = http().setup({ chain })
       expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
     } finally {
       await server.close()
@@ -83,7 +80,7 @@ describe('http', () => {
       res.end(ok('0x1'))
     })
     try {
-      const transport = http.http(server.url, { raw: true }).setup()
+      const transport = http(server.url, { raw: true }).setup()
       expect(await transport.request({ method: 'eth_chainId' })).toEqual({
         error: undefined,
         result: '0x1',
@@ -106,7 +103,7 @@ describe('http', () => {
       res.end(ok('0x1'))
     })
     try {
-      const transport = http.http(server.url, { retryDelay: 1 }).setup()
+      const transport = http(server.url, { retryDelay: 1 }).setup()
       expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
       expect(count).toBe(3)
     } finally {
@@ -127,7 +124,7 @@ describe('http', () => {
       res.end(ok('0x1'))
     })
     try {
-      const transport = http.http(server.url, { retryDelay: 1 }).setup()
+      const transport = http(server.url, { retryDelay: 1 }).setup()
       expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
       expect(count).toBe(2)
     } finally {
@@ -153,7 +150,7 @@ describe('http', () => {
       })
     })
     try {
-      const transport = http.http(server.url, { batch: true }).setup()
+      const transport = http(server.url, { batch: true }).setup()
       const controller = new AbortController()
       const [a, b] = await Promise.all([
         transport.request(
@@ -190,11 +187,9 @@ describe('http', () => {
       })
     })
     try {
-      const transport = http
-        .http(server.url, {
-          batch: { batchSize: 2, wait: 0 },
-        })
-        .setup()
+      const transport = http(server.url, {
+        batch: { batchSize: 2, wait: 0 },
+      }).setup()
       const [a, b] = await Promise.all([
         transport.request({ method: 'eth_chainId' }),
         transport.request({ method: 'eth_blockNumber' }),

@@ -2,7 +2,7 @@ import type * as RpcResponse from 'ox/RpcResponse'
 import { z } from 'ox/zod'
 import { expectTypeOf, test } from 'vitest'
 
-import * as RpcClient from './RpcClient.js'
+import { RpcClient } from 'viem'
 
 const client = RpcClient.http('https://example.com')
 

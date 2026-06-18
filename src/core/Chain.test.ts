@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import * as Chain from './Chain.js'
+import { Chain } from 'viem'
 
 describe('from', () => {
   test('default', () => {

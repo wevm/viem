@@ -1,23 +1,22 @@
 import { describe, expect, test } from 'vitest'
 
 import { anvilMainnet } from '~test/anvil.js'
-import * as http from './http.js'
-import * as rateLimit from './rateLimit.js'
+import { http, rateLimit } from 'viem'
 
 const url = anvilMainnet.rpcUrl.http
 
 describe('rateLimit', () => {
   test('forwards a request to the inner transport', async () => {
-    const transport = rateLimit
-      .rateLimit(http.http(url), { requestsPerSecond: 100 })
-      .setup()
+    const transport = rateLimit(http(url), {
+      requestsPerSecond: 100,
+    }).setup()
     expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
   })
 
   test('throttles throughput to `requestsPerSecond`', async () => {
-    const transport = rateLimit
-      .rateLimit(http.http(url), { requestsPerSecond: 1 })
-      .setup()
+    const transport = rateLimit(http(url), {
+      requestsPerSecond: 1,
+    }).setup()
 
     const start = Date.now()
     const results = await Promise.all([
@@ -33,7 +32,7 @@ describe('rateLimit', () => {
   })
 
   test('uses default key and name', () => {
-    const transport = rateLimit.rateLimit(http.http(url), {
+    const transport = rateLimit(http(url), {
       requestsPerSecond: 1,
     })
     expect(transport.key).toBe('rateLimit')
@@ -41,27 +40,23 @@ describe('rateLimit', () => {
   })
 
   test('honors custom key, name, and retry options', () => {
-    const transport = rateLimit
-      .rateLimit(http.http(url), {
-        key: 'rl',
-        name: 'RL',
-        requestsPerSecond: 10,
-        retryCount: 5,
-        retryDelay: 10,
-      })
-      .setup()
+    const transport = rateLimit(http(url), {
+      key: 'rl',
+      name: 'RL',
+      requestsPerSecond: 10,
+      retryCount: 5,
+      retryDelay: 10,
+    }).setup()
     expect(transport.retryCount).toBe(5)
     expect(transport.retryDelay).toBe(10)
   })
 
   test('applies method filtering', async () => {
-    const transport = rateLimit
-      .rateLimit(http.http(url), {
-        methods: { exclude: ['eth_chainId'] },
-        requestsPerSecond: 10,
-        retryCount: 0,
-      })
-      .setup()
+    const transport = rateLimit(http(url), {
+      methods: { exclude: ['eth_chainId'] },
+      requestsPerSecond: 10,
+      retryCount: 0,
+    }).setup()
     await expect(
       transport.request({ method: 'eth_chainId' }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(

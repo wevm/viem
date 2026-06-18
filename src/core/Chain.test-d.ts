@@ -1,6 +1,6 @@
 import { expectTypeOf, test } from 'vitest'
 
-import * as Chain from './Chain.js'
+import { Chain } from 'viem'
 
 test('from: preserves literal types', () => {
   const chain = Chain.from({

@@ -2,11 +2,13 @@ import * as HdKey from 'ox/HdKey'
 import { describe, expect, test } from 'vitest'
 
 import { accounts, typedData } from '~test/constants.js'
-import * as Authorization from '../utils/Authorization.js'
-import * as PersonalMessage from '../utils/PersonalMessage.js'
-import * as TxEnvelope from '../utils/TxEnvelope.js'
-import * as TypedData from '../utils/TypedData.js'
-import * as Account from './Account.js'
+import {
+  Account,
+  Authorization,
+  PersonalMessage,
+  TxEnvelope,
+  TypedData,
+} from 'viem'
 import * as Secp256k1 from 'ox/Secp256k1'
 
 const mnemonic = 'test test test test test test test test test test test junk'

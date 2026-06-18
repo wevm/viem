@@ -1,8 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
 import { accounts, typedData } from '~test/constants.js'
-import * as Secp256k1 from './Secp256k1.js'
-import * as TypedData from './TypedData.js'
+import { Secp256k1, TypedData } from 'viem'
 
 const account = accounts[0].address
 const publicKey = Secp256k1.getPublicKey({

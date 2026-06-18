@@ -3,10 +3,7 @@ import { describe, expect, test } from 'vitest'
 
 import { anvilMainnet } from '~test/anvil.js'
 import * as Ws from '~test/ws.js'
-import * as Chain from '../Chain.js'
-import * as RpcClient from '../../utils/RpcClient.js'
-import * as Transport from '../Transport.js'
-import * as webSocket from './webSocket.js'
+import { Chain, RpcClient, Transport, webSocket } from 'viem'
 
 const url = anvilMainnet.rpcUrl.ws
 
@@ -31,58 +28,55 @@ const mine = () =>
 
 describe('webSocket', () => {
   test('uses the default transport identity', () => {
-    const transport = webSocket.webSocket(url)
+    const transport = webSocket(url)
     expect(transport.key).toBe('webSocket')
     expect(transport.name).toBe('WebSocket JSON-RPC')
     expect(transport.type).toBe('webSocket')
   })
 
   test('accepts a custom key and name', () => {
-    const transport = webSocket.webSocket(url, { key: 'ws', name: 'My WS' })
+    const transport = webSocket(url, { key: 'ws', name: 'My WS' })
     expect(transport.key).toBe('ws')
     expect(transport.name).toBe('My WS')
   })
 
   test('transport options take precedence over setup options', () => {
-    const instance = webSocket
-      .webSocket(url, {
-        retryCount: 7,
-        retryDelay: 99,
-        timeout: 5_000,
-      })
-      .setup({ retryCount: 1, timeout: 1_000 })
+    const instance = webSocket(url, {
+      retryCount: 7,
+      retryDelay: 99,
+      timeout: 5_000,
+    }).setup({ retryCount: 1, timeout: 1_000 })
     expect(instance.timeout).toBe(5_000)
     expect(instance.retryCount).toBe(7)
     expect(instance.retryDelay).toBe(99)
   })
 
   test('falls back to setup options when transport options are absent', () => {
-    const instance = webSocket
-      .webSocket(url)
-      .setup({ retryCount: 2, timeout: 1_234 })
+    const instance = webSocket(url).setup({
+      retryCount: 2,
+      timeout: 1_234,
+    })
     expect(instance.timeout).toBe(1_234)
     expect(instance.retryCount).toBe(2)
   })
 
   test('honors the method filter', async () => {
-    const transport = webSocket
-      .webSocket(url, {
-        methods: { exclude: ['eth_accounts'] },
-      })
-      .setup()
+    const transport = webSocket(url, {
+      methods: { exclude: ['eth_accounts'] },
+    }).setup()
     await expect(
       transport.request({ method: 'eth_accounts' }),
     ).rejects.toBeInstanceOf(RpcResponse.MethodNotSupportedError)
   })
 
   test('request returns the result', async () => {
-    const transport = webSocket.webSocket(url).setup()
+    const transport = webSocket(url).setup()
     expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
     ;(await transport.getRpcClient()).close()
   })
 
   test('request forwards method and params', async () => {
-    const transport = webSocket.webSocket(url).setup()
+    const transport = webSocket(url).setup()
     // Requesting block `0x0` proves `params` reached the node (it returns the
     // genesis block, not the latest one).
     const block = (await transport.request({
@@ -94,9 +88,7 @@ describe('webSocket', () => {
   })
 
   test('throws UrlRequiredError without a URL or chain', () => {
-    expect(() => webSocket.webSocket().setup()).toThrowError(
-      Transport.UrlRequiredError,
-    )
+    expect(() => webSocket().setup()).toThrowError(Transport.UrlRequiredError)
   })
 
   test('falls back to the chain default RPC URL', async () => {
@@ -106,13 +98,13 @@ describe('webSocket', () => {
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
       rpcUrls: { default: { http: [], webSocket: [url] } },
     })
-    const transport = webSocket.webSocket().setup({ chain })
+    const transport = webSocket().setup({ chain })
     expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
     ;(await transport.getRpcClient()).close()
   })
 
   test('maps a JSON-RPC error via ox', async () => {
-    const transport = webSocket.webSocket(url, { retryCount: 0 }).setup()
+    const transport = webSocket(url, { retryCount: 0 }).setup()
     await expect(
       transport.request({ method: 'eth_thisDoesNotExist' }),
     ).rejects.toBeInstanceOf(RpcResponse.BaseError)
@@ -120,7 +112,7 @@ describe('webSocket', () => {
   })
 
   test('getRpcClient returns the same cached client', async () => {
-    const transport = webSocket.webSocket(url).setup()
+    const transport = webSocket(url).setup()
     const a = await transport.getRpcClient()
     const b = await transport.getRpcClient()
     expect(a).toBe(b)
@@ -138,9 +130,9 @@ describe('webSocket', () => {
       )
     })
     try {
-      const transport = webSocket
-        .webSocket(server.url, { keepAlive: false })
-        .setup()
+      const transport = webSocket(server.url, {
+        keepAlive: false,
+      }).setup()
       expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
       ;(await transport.getRpcClient()).close()
     } finally {
@@ -154,13 +146,11 @@ describe('webSocket', () => {
       connection.send('not json')
     })
     try {
-      const transport = webSocket
-        .webSocket(server.url, {
-          keepAlive: false,
-          retryCount: 0,
-          timeout: 50,
-        })
-        .setup()
+      const transport = webSocket(server.url, {
+        keepAlive: false,
+        retryCount: 0,
+        timeout: 50,
+      }).setup()
       await expect(
         transport.request({ method: 'eth_chainId' }),
       ).rejects.toBeInstanceOf(RpcClient.TimeoutError)
@@ -171,7 +161,7 @@ describe('webSocket', () => {
   })
 
   test('request honors an explicit body id', async () => {
-    const transport = webSocket.webSocket(url).setup()
+    const transport = webSocket(url).setup()
     const client = await transport.getRpcClient()
     const response = await client.request({
       body: { id: 99, method: 'eth_chainId' },
@@ -182,7 +172,7 @@ describe('webSocket', () => {
   })
 
   test('request sends a batch body and preserves order', async () => {
-    const transport = webSocket.webSocket(url).setup()
+    const transport = webSocket(url).setup()
     const client = await transport.getRpcClient()
     const [chainId, blockNumber] = await client.request({
       body: [{ method: 'eth_chainId' }, { method: 'eth_blockNumber' }],
@@ -193,7 +183,7 @@ describe('webSocket', () => {
   })
 
   test('subscribe receives data and unsubscribes', async () => {
-    const transport = webSocket.webSocket(url, { keepAlive: false }).setup()
+    const transport = webSocket(url, { keepAlive: false }).setup()
     const data: unknown[] = []
     const sub = await transport.subscribe({
       params: ['newHeads'],
@@ -226,7 +216,7 @@ describe('webSocket', () => {
     })
 
     try {
-      const transport = webSocket.webSocket(server.url).setup()
+      const transport = webSocket(server.url).setup()
       await expect(
         transport.subscribe({
           params: ['newHeads'],
@@ -255,12 +245,10 @@ describe('webSocket', () => {
     })
 
     try {
-      const transport = webSocket
-        .webSocket(server.url, {
-          keepAlive: false,
-          reconnect: { minReconnectionDelay: 10, maxReconnectionDelay: 10 },
-        })
-        .setup()
+      const transport = webSocket(server.url, {
+        keepAlive: false,
+        reconnect: { minReconnectionDelay: 10, maxReconnectionDelay: 10 },
+      }).setup()
       await transport.subscribe({ params: ['newHeads'] })
       expect(subscribeCount).toBe(1)
 
@@ -283,12 +271,10 @@ describe('webSocket', () => {
     })
 
     try {
-      const transport = webSocket
-        .webSocket(server.url, {
-          keepAlive: false,
-          reconnect: false,
-        })
-        .setup()
+      const transport = webSocket(server.url, {
+        keepAlive: false,
+        reconnect: false,
+      }).setup()
       await transport.subscribe({ params: ['newHeads'] })
       const client = await transport.getRpcClient()
       expect(client.subscriptions.size).toBe(1)
@@ -316,11 +302,9 @@ describe('webSocket', () => {
     })
 
     try {
-      const transport = webSocket
-        .webSocket(server.url, {
-          keepAlive: { interval: 30 },
-        })
-        .setup()
+      const transport = webSocket(server.url, {
+        keepAlive: { interval: 30 },
+      }).setup()
       await transport.getRpcClient()
       await wait(120)
       expect(pings).toBeGreaterThanOrEqual(2)
@@ -337,9 +321,9 @@ describe('webSocket', () => {
     })
 
     try {
-      const transport = webSocket
-        .webSocket(server.url, { keepAlive: false })
-        .setup()
+      const transport = webSocket(server.url, {
+        keepAlive: false,
+      }).setup()
       await transport.getRpcClient()
       await wait(80)
       expect(pings).toBe(0)
@@ -352,13 +336,11 @@ describe('webSocket', () => {
   test('times out when the server does not respond', async () => {
     const server = await Ws.createServer(() => {})
     try {
-      const transport = webSocket
-        .webSocket(server.url, {
-          keepAlive: false,
-          retryCount: 0,
-          timeout: 50,
-        })
-        .setup()
+      const transport = webSocket(server.url, {
+        keepAlive: false,
+        retryCount: 0,
+        timeout: 50,
+      }).setup()
       await expect(
         transport.request({ method: 'eth_chainId' }),
       ).rejects.toBeInstanceOf(RpcClient.TimeoutError)
@@ -374,13 +356,11 @@ describe('webSocket', () => {
       connection.close()
     })
     try {
-      const transport = webSocket
-        .webSocket(server.url, {
-          keepAlive: false,
-          reconnect: false,
-          retryCount: 0,
-        })
-        .setup()
+      const transport = webSocket(server.url, {
+        keepAlive: false,
+        reconnect: false,
+        retryCount: 0,
+      }).setup()
       const client = await transport.getRpcClient()
       await expect(
         client.request({ body: { method: 'eth_chainId' } }),
@@ -393,14 +373,12 @@ describe('webSocket', () => {
 
   test('replays the last socket error to subsequent requests', async () => {
     // Connection-refused endpoint: the socket errors immediately.
-    const transport = webSocket
-      .webSocket('ws://127.0.0.1:1', {
-        keepAlive: false,
-        reconnect: false,
-        retryCount: 0,
-        timeout: 1_000,
-      })
-      .setup()
+    const transport = webSocket('ws://127.0.0.1:1', {
+      keepAlive: false,
+      reconnect: false,
+      retryCount: 0,
+      timeout: 1_000,
+    }).setup()
     const client = await transport.getRpcClient()
 
     await expect(

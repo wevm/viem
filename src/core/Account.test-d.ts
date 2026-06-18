@@ -1,7 +1,7 @@
 import type * as Hex from 'ox/Hex'
 import { expectTypeOf, test } from 'vitest'
 
-import * as Account from './Account.js'
+import { Account } from 'viem'
 
 test('from: address -> JsonRpc, custom source -> Local', () => {
   expectTypeOf(

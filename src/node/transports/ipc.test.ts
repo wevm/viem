@@ -2,7 +2,7 @@ import * as RpcResponse from 'ox/RpcResponse'
 import { describe, expect, test } from 'vitest'
 
 import * as Ipc from '~test/ipc.js'
-import * as RpcClient from '../../utils/RpcClient.js'
+import { RpcClient } from 'viem'
 import * as ipc from './ipc.js'
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
