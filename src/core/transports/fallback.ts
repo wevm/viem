@@ -169,7 +169,11 @@ export declare namespace fallback {
   }
 }
 
-/** Whether a fallback should rethrow `error` instead of trying the next transport. */
+/**
+ * Whether a fallback should rethrow `error` instead of trying the next transport.
+ *
+ * @internal
+ */
 export function shouldThrow(error: Error): boolean {
   if ('code' in error && typeof error.code === 'number')
     return (

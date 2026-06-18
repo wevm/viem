@@ -9,12 +9,21 @@ export {
   SocketClosedError,
   TimeoutError,
 } from '../utils/RpcClient.js'
-export { custom } from './transports/custom.js'
-export { fallback } from './transports/fallback.js'
-export { http } from './transports/http.js'
-export { loadBalance } from './transports/loadBalance.js'
-export { rateLimit } from './transports/rateLimit.js'
-export { webSocket } from './transports/webSocket.js'
+export { custom, type Custom } from './transports/custom.js'
+export {
+  fallback,
+  type Fallback,
+  type OnResponse,
+  type RankOptions,
+} from './transports/fallback.js'
+export { http, type Http } from './transports/http.js'
+export { loadBalance, type LoadBalance } from './transports/loadBalance.js'
+export { rateLimit, type RateLimit } from './transports/rateLimit.js'
+export {
+  webSocket,
+  type WebSocket,
+  type WebSocketRpcClient,
+} from './transports/webSocket.js'
 
 /** Raw (pre-wrap) rpc request function returned by a transport's `setup`. */
 type RawRequestFn = (

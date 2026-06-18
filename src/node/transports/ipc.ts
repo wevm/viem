@@ -93,7 +93,11 @@ export declare namespace ipc {
 const openingBrace = '{'.charCodeAt(0)
 const closingBrace = '}'.charCodeAt(0)
 
-/** Extracts complete JSON messages from a (possibly partial) IPC buffer. */
+/**
+ * Extracts complete JSON messages from a (possibly partial) IPC buffer.
+ *
+ * @internal
+ */
 export function extractMessages(
   buffer: Buffer,
 ): [messages: Buffer[], remaining: Buffer] {
