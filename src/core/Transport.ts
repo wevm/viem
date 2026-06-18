@@ -4,6 +4,7 @@ import * as internal from './internal/transport.js'
 import type { Prettify } from './internal/types.js'
 import { uid } from './internal/uid.js'
 
+export type { RequestFn } from './internal/transport.js'
 export {
   HttpError,
   SocketClosedError,
