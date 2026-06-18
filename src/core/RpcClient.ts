@@ -2,9 +2,9 @@ import type * as RpcRequest_ox from 'ox/RpcRequest'
 import type * as RpcResponse from 'ox/RpcResponse'
 import type * as RpcSchema from 'ox/RpcSchema'
 
-import { BaseError } from './Errors.js'
-import { getAbortError, isAbortError } from './internal/errors.js'
-import { withTimeout } from './internal/promise.js'
+import * as Errors from './Errors.js'
+import * as errors from './internal/errors.js'
+import * as promise from './internal/promise.js'
 import { stringify } from './internal/stringify.js'
 import type { MaybePromise } from './internal/types.js'
 
@@ -18,24 +18,36 @@ export type RpcRequest = Omit<
 }
 
 /**
+ * A request body's typed response: a single body maps to one response, a batch
+ * maps element-wise to a tuple. Results are typed from each method against the
+ * {@link ox#RpcSchema}, falling back to `unknown`.
+ */
+type ResponsesOf<body extends RpcRequest | readonly RpcRequest[]> =
+  body extends readonly RpcRequest[]
+    ? {
+        -readonly [index in keyof body]: RpcResponse.RpcResponse<
+          RpcSchema.ExtractReturnType<
+            RpcSchema.Default,
+            body[index] extends RpcRequest ? body[index]['method'] : string
+          >
+        >
+      }
+    : body extends RpcRequest
+      ? RpcResponse.RpcResponse<
+          RpcSchema.ExtractReturnType<RpcSchema.Default, body['method']>
+        >
+      : RpcResponse.RpcResponse
+
+/**
  * A JSON-RPC client: executes a request body (single or batch) over an
- * endpoint. A single body's result is typed from its method against the
- * {@link ox#RpcSchema} (mirrors ox `RpcTransport`); a batch returns raw
- * responses.
+ * endpoint. Results are typed from each method against the
+ * {@link ox#RpcSchema} (mirrors ox `RpcTransport`).
  */
 export type RpcClient = {
-  request<body extends RpcRequest | RpcRequest[]>(params: {
+  request<const body extends RpcRequest | readonly RpcRequest[]>(params: {
     body: body
     fetchOptions?: Omit<RequestInit, 'body'> | undefined
-  }): Promise<
-    body extends RpcRequest[]
-      ? RpcResponse.RpcResponse[]
-      : body extends RpcRequest
-        ? RpcResponse.RpcResponse<
-            RpcSchema.ExtractReturnType<RpcSchema.Default, body['method']>
-          >
-        : RpcResponse.RpcResponse
-  >
+  }): Promise<ResponsesOf<body>>
 }
 
 /** Creates an HTTP JSON-RPC client (single + batch bodies). */
@@ -47,7 +59,8 @@ export function http(
 
   return {
     async request(params) {
-      const { body, fetchOptions: fetchOptions_ } = params
+      const { fetchOptions: fetchOptions_ } = params
+      const body = params.body as RpcRequest | RpcRequest[]
       const {
         fetchFn = options.fetchFn ?? fetch,
         onRequest = options.onRequest,
@@ -59,7 +72,7 @@ export function http(
       const { headers, method, signal: signal_ } = fetchOptions
 
       try {
-        const response = await withTimeout(
+        const response = await promise.withTimeout(
           async ({ signal }) => {
             const init: RequestInit = {
               ...fetchOptions,
@@ -130,8 +143,7 @@ export function http(
 
         return data
       } catch (err) {
-        if (signal_?.aborted) throw getAbortError(signal_)
-        if (isAbortError(err)) throw err
+        if (signal_?.aborted) throw errors.getAbortError(signal_)
         if (err instanceof HttpError) throw err
         if (err instanceof TimeoutError) throw err
         throw new HttpError({ body, cause: err as Error, url })
@@ -188,7 +200,7 @@ function parseUrl(url_: string): {
 }
 
 /** Thrown when an HTTP request fails. */
-export class HttpError extends BaseError<Error | undefined> {
+export class HttpError extends Errors.BaseError<Error | undefined> {
   override readonly name = 'RpcClient.HttpError'
 
   body?: { [x: string]: unknown } | { [y: string]: unknown }[] | undefined
@@ -228,7 +240,7 @@ export class HttpError extends BaseError<Error | undefined> {
 }
 
 /** Thrown when a request takes longer than the configured timeout. */
-export class TimeoutError extends BaseError {
+export class TimeoutError extends Errors.BaseError {
   override readonly name = 'RpcClient.TimeoutError'
 
   url: string

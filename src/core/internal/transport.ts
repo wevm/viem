@@ -1,10 +1,10 @@
 import * as RpcResponse from 'ox/RpcResponse'
 import type * as RpcSchema from 'ox/RpcSchema'
 
-import { getAbortError } from '../errors.js'
-import { withDedupe, withRetry } from '../promise.js'
-import { stringify } from '../stringify.js'
-import type { Compute, IsNarrowable } from '../types.js'
+import * as errors from './errors.js'
+import * as promise from './promise.js'
+import { stringify } from './stringify.js'
+import type { Compute, IsNarrowable } from './types.js'
 
 /** Request params: typed when `methodName` is in `schema`, generic otherwise. */
 type ExtractRequest<
@@ -32,7 +32,7 @@ export type RequestFn<schema extends RpcSchema.Generic = RpcSchema.Default> = <
   methodName extends RpcSchema.MethodNameGeneric<schema>,
 >(
   parameters: ExtractRequest<schema, methodName>,
-  options?: wrap.Options | undefined,
+  options?: wrapRequest.Options | undefined,
 ) => Promise<RpcSchema.ExtractReturnType<schema, methodName>>
 
 /**
@@ -40,15 +40,15 @@ export type RequestFn<schema extends RpcSchema.Generic = RpcSchema.Default> = <
  * in-flight dedupe. Error mapping is owned upstream by the ox transport
  * (`RpcResponse`/`Provider`); this layer only filters, retries, and dedupes.
  */
-export function wrap<
+export function wrapRequest<
   request extends (
     args: any,
     options?: { signal?: AbortSignal | undefined } | undefined,
   ) => Promise<any>,
->(request: request, options: wrap.Options = {}): RequestFn {
+>(request: request, options: wrapRequest.Options = {}): RequestFn {
   const requestFn = async (
     args: { method: string; params?: unknown },
-    overrideOptions: wrap.Options = {},
+    overrideOptions: wrapRequest.Options = {},
   ) => {
     const {
       dedupe = false,
@@ -67,35 +67,38 @@ export function wrap<
         message: `Method "${method}" is not supported.`,
       })
 
-    if (signal?.aborted) throw getAbortError(signal)
+    if (signal?.aborted) throw errors.getAbortError(signal)
 
     const requestId = dedupe
       ? hashString(`${uid}.${stringify(args)}`)
       : undefined
 
-    return withDedupe(
+    return promise.withDedupe(
       () =>
-        withRetry(() => request(args, signal ? { signal } : undefined), {
-          delay: ({ count, error }) => {
-            // Honor a `Retry-After` header when the error carries one.
-            const headers = (error as { headers?: Headers } | undefined)
-              ?.headers
-            const retryAfter = headers?.get?.('Retry-After')
-            if (retryAfter?.match(/\d/))
-              return Number.parseInt(retryAfter, 10) * 1000
-            return ~~(1 << count) * retryDelay
+        promise.withRetry(
+          () => request(args, signal ? { signal } : undefined),
+          {
+            delay: ({ count, error }) => {
+              // Honor a `Retry-After` header when the error carries one.
+              const headers = (error as { headers?: Headers } | undefined)
+                ?.headers
+              const retryAfter = headers?.get?.('Retry-After')
+              if (retryAfter?.match(/\d/))
+                return Number.parseInt(retryAfter, 10) * 1000
+              return ~~(1 << count) * retryDelay
+            },
+            retryCount,
+            signal,
+            shouldRetry: ({ error }) => shouldRetry(error),
           },
-          retryCount,
-          signal,
-          shouldRetry: ({ error }) => shouldRetry(error),
-        }),
+        ),
       { enabled: dedupe, id: requestId },
     )
   }
   return requestFn as RequestFn
 }
 
-export declare namespace wrap {
+export declare namespace wrapRequest {
   type Options = {
     /** Whether to deduplicate identical in-flight requests. */
     dedupe?: boolean | undefined

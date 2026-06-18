@@ -1,9 +1,8 @@
-import { BaseError } from './Errors.js'
-import type * as Request from './internal/transport/request.js'
-import { wrap } from './internal/transport/request.js'
+import type * as Chain from './Chain.js'
+import * as Errors from './Errors.js'
+import * as internal from './internal/transport.js'
 import type { Prettify } from './internal/types.js'
 import { uid } from './internal/uid.js'
-import type { Chain } from './Chain.js'
 
 export { HttpError, TimeoutError } from './RpcClient.js'
 export { http } from './transports/http.js'
@@ -28,7 +27,7 @@ export type Transport<type extends string = string, properties = {}> = {
 export declare namespace Transport {
   type SetupOptions = {
     /** Chain the transport connects through (supplied by the client). */
-    chain?: Chain | undefined
+    chain?: Chain.Chain | undefined
     /** Client polling interval (ms). */
     pollingInterval?: number | undefined
     /** Max retries per request. */
@@ -48,7 +47,7 @@ export declare namespace Transport {
       /** Request timeout (ms). */
       timeout?: number | undefined
       /** The retry/dedupe-wrapped request function. */
-      request: Request.RequestFn
+      request: internal.RequestFn
     } & properties
   >
 }
@@ -68,7 +67,7 @@ export function from<
       const { request, ...rest } = setup(options)
       return {
         ...rest,
-        request: wrap(request, {
+        request: internal.wrapRequest(request, {
           methods: rest.methods,
           retryCount: rest.retryCount,
           retryDelay: rest.retryDelay,
@@ -97,7 +96,7 @@ export declare namespace from {
 }
 
 /** Thrown when a transport has no URL and the chain provides no default. */
-export class UrlRequiredError extends BaseError {
+export class UrlRequiredError extends Errors.BaseError {
   override readonly name = 'Transport.UrlRequiredError'
 
   constructor() {

@@ -1,11 +1,11 @@
 import * as RpcResponse from 'ox/RpcResponse'
 
-import { createBatchScheduler } from '../internal/promise.js'
+import * as promise from '../internal/promise.js'
 import * as RpcClient from '../RpcClient.js'
-import { from, type Transport, UrlRequiredError } from '../Transport.js'
+import * as Transport from '../Transport.js'
 
 /** An HTTP JSON-RPC {@link Transport}. */
-export type Http = Transport<'http', { url: string }>
+export type Http = Transport.Transport<'http', { url: string }>
 
 /** Creates an HTTP JSON-RPC transport. */
 export function http(
@@ -13,7 +13,7 @@ export function http(
   options: http.Options = {},
 ): Http {
   const { batch } = options
-  return from<'http', { url: string }>({
+  return Transport.from<'http', { url: string }>({
     key: options.key ?? 'http',
     name: options.name ?? 'HTTP JSON-RPC',
     type: 'http',
@@ -21,7 +21,7 @@ export function http(
       const { batchSize = 1000, wait = 0 } =
         typeof batch === 'object' ? batch : {}
       const url_ = url ?? chain?.rpcUrls.default.http[0]
-      if (!url_) throw new UrlRequiredError()
+      if (!url_) throw new Transport.UrlRequiredError()
       const timeout_ = options.timeout ?? timeout ?? 10_000
 
       const client = RpcClient.http(url_, {
@@ -44,7 +44,7 @@ export function http(
             ? { signal: opts.signal }
             : undefined
 
-          const { schedule } = createBatchScheduler({
+          const { schedule } = promise.createBatchScheduler({
             id: `${url_}.${getSignalId(opts?.signal)}`,
             wait,
             shouldSplitBatch: (requests) => requests.length > batchSize,
