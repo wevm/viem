@@ -13,7 +13,7 @@ export function http(
   options: http.Options = {},
 ): Http {
   const { batch } = options
-  return Transport.from<'http', { url: string }>({
+  return Transport.from({
     key: options.key ?? 'http',
     name: options.name ?? 'HTTP JSON-RPC',
     type: 'http',

@@ -5,6 +5,8 @@ import type { Prettify } from './internal/types.js'
 import { uid } from './internal/uid.js'
 
 export { HttpError, TimeoutError } from './RpcClient.js'
+export { custom } from './transports/custom.js'
+export { fallback } from './transports/fallback.js'
 export { http } from './transports/http.js'
 
 /** Raw (pre-wrap) rpc request function returned by a transport's `setup`. */
@@ -21,45 +23,46 @@ export type Transport<type extends string = string, properties = {}> = {
   key: string
   name: string
   type: type
-  setup: (options: Transport.SetupOptions) => Transport.Instance<properties>
+  setup: (options: SetupOptions) => Instance<properties>
 }
 
-export declare namespace Transport {
-  type SetupOptions = {
-    /** Chain the transport connects through (supplied by the client). */
-    chain?: Chain.Chain | undefined
-    /** Client polling interval (ms). */
-    pollingInterval?: number | undefined
-    /** Max retries per request. */
+export type SetupOptions = {
+  /** Chain the transport connects through (supplied by the client). */
+  chain?: Chain.Chain | undefined
+  /** Client polling interval (ms). */
+  pollingInterval?: number | undefined
+  /** Max retries per request. */
+  retryCount?: number | undefined
+  /** Request timeout (ms). */
+  timeout?: number | undefined
+}
+
+export type Instance<properties = {}> = Prettify<
+  {
+    /** RPC methods to include or exclude. */
+    methods?: { include?: string[] } | { exclude?: string[] } | undefined
+    /** Max retries per request. @default 3 */
     retryCount?: number | undefined
+    /** Base delay (ms) between retries. @default 150 */
+    retryDelay?: number | undefined
     /** Request timeout (ms). */
     timeout?: number | undefined
-  }
-
-  type Instance<properties = {}> = Prettify<
-    {
-      /** RPC methods to include or exclude. */
-      methods?: { include?: string[] } | { exclude?: string[] } | undefined
-      /** Max retries per request. @default 3 */
-      retryCount?: number | undefined
-      /** Base delay (ms) between retries. @default 150 */
-      retryDelay?: number | undefined
-      /** Request timeout (ms). */
-      timeout?: number | undefined
-      /** The retry/dedupe-wrapped request function. */
-      request: internal.RequestFn
-    } & properties
-  >
-}
+    /** The retry/dedupe-wrapped request function. */
+    request: internal.RequestFn
+  } & properties
+>
 
 /**
  * Builds a {@link Transport} from its identity + a `setup` that produces the
  * instance. Injects the retry/dedupe wrap around the instance's `request`.
+ *
+ * The transport `type` and `properties` are inferred from the `setup` return:
+ * any fields beyond the base {@link Instance} shape become the transport's
+ * `properties`.
  */
-export function from<
-  type extends string,
-  properties extends Record<string, unknown> = {},
->(parameters: from.Parameters<type, properties>): Transport<type, properties> {
+export function from<const type extends string, instance extends from.Instance>(
+  parameters: from.Parameters<type, instance>,
+): Transport<type, from.Properties<instance>> {
   const { setup, ...identity } = parameters
   return {
     ...identity,
@@ -73,25 +76,31 @@ export function from<
           retryDelay: rest.retryDelay,
           uid: uid(),
         }),
-      } as Transport.Instance<properties>
+      } as Instance<from.Properties<instance>>
     },
-  }
+  } as Transport<type, from.Properties<instance>>
 }
 
 export declare namespace from {
-  type Parameters<
-    type extends string,
-    properties extends Record<string, unknown> = {},
-  > = {
+  /** Base instance shape a `setup` must return (with a raw `request`). */
+  type Instance = {
+    methods?: { include?: string[] } | { exclude?: string[] } | undefined
+    retryCount?: number | undefined
+    retryDelay?: number | undefined
+    timeout?: number | undefined
+    request: RawRequestFn
+  }
+
+  /** Extra fields beyond the base {@link Instance} become `properties`. */
+  type Properties<instance extends Instance> = Prettify<
+    Omit<instance, keyof Instance>
+  >
+
+  type Parameters<type extends string, instance extends Instance> = {
     key: string
     name: string
     type: type
-    setup: (options: Transport.SetupOptions) => Omit<
-      Transport.Instance<properties>,
-      'request'
-    > & {
-      request: RawRequestFn
-    }
+    setup: (options: SetupOptions) => instance
   }
 }
 
