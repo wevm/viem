@@ -1,0 +1,69 @@
+import { Cards, Card } from 'vocs'
+
+# Transport
+
+## Overview
+
+A **Transport** is the wire a [Client](/docs/clients) uses to carry JSON-RPC requests. It is a static identity (`key`/`name`/`type`) plus a `setup` the client calls to produce a live instance with a retry- and dedupe-wrapped `request` function.
+
+Viem ships transports for the common wire protocols, plus composable transports that wrap others:
+
+- **Wire transports**: [`http`](/docs/transports/http), [`webSocket`](/docs/transports/websocket), [`ipc`](/docs/transports/ipc), and [`custom`](/docs/transports/custom) (EIP-1193).
+- **Composing transports**: [`fallback`](/docs/transports/fallback), [`loadBalance`](/docs/transports/load-balance), and [`rateLimit`](/docs/transports/rate-limit) wrap one or more transports.
+
+Each transport is available both as a top-level sugar export (`http`, `webSocket`, ...) and on the `Transport` namespace (`Transport.http`, ...).
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http('https://eth.merkle.io'),
+})
+```
+
+<Cards>
+  <Card
+    title="HTTP"
+    description="JSON-RPC over HTTP, with optional request batching."
+    icon="lucide:globe"
+    to="/docs/transports/http"
+  />
+  <Card
+    title="WebSocket"
+    description="JSON-RPC over a reconnecting WebSocket, with subscriptions."
+    icon="lucide:cable"
+    to="/docs/transports/websocket"
+  />
+  <Card
+    title="IPC"
+    description="JSON-RPC over a local IPC socket (Node only)."
+    icon="lucide:plug"
+    to="/docs/transports/ipc"
+  />
+  <Card
+    title="Custom (EIP-1193)"
+    description="Wrap any EIP-1193-compatible provider as a transport."
+    icon="lucide:puzzle"
+    to="/docs/transports/custom"
+  />
+  <Card
+    title="Fallback"
+    description="Chain through transports, falling through on error."
+    icon="lucide:list-ordered"
+    to="/docs/transports/fallback"
+  />
+  <Card
+    title="Load Balance"
+    description="Round-robin requests across a list of transports."
+    icon="lucide:scale"
+    to="/docs/transports/load-balance"
+  />
+  <Card
+    title="Rate Limit"
+    description="Throttle a transport to a fixed requests-per-second budget."
+    icon="lucide:gauge"
+    to="/docs/transports/rate-limit"
+  />
+</Cards>

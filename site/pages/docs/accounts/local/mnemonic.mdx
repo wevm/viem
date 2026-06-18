@@ -8,11 +8,54 @@ The mnemonic is converted to an HD key and the account is derived at the configu
 
 Create one with [`Account.fromMnemonic`](/docs/accounts).
 
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+)
+```
+
 ## Recipes
 
-:::warning[TODO]
-A holistic, end-to-end walkthrough of using a mnemonic account (attaching it to a client and signing through actions) will be added once clients and actions are available.
-:::
+### Deriving at a Specific Index
+
+Use index options when you want to derive an account from a specific BIP-44 path position.
+
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  { accountIndex: 1, addressIndex: 2 }, // [!code focus]
+)
+```
+
+### Using a Custom Derivation Path
+
+Use a custom derivation path when you need to derive from a path that does not match the default index options.
+
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  { path: "m/44'/60'/0'/0/0" }, // [!code focus]
+)
+```
+
+### Adding a Passphrase
+
+Use a passphrase when the mnemonic was protected with an additional BIP-39 passphrase.
+
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  { passphrase: 'my-passphrase' }, // [!code focus]
+)
+```
 
 ## `Account.fromMnemonic`
 
@@ -47,17 +90,102 @@ const account = Account.fromMnemonic(
 
 The mnemonic phrase to derive the account from.
 
+```ts twoslash
+import { Account } from 'viem'
+// ---cut---
+const account = Account.fromMnemonic( // [!code focus]
+  'test test test test test test test test test test test junk', // [!code focus]
+) // [!code focus]
+```
+
 #### options
 
 - **Type:** `Account.fromMnemonic.Options`
 
-| Option | Type | Description |
-| --- | --- | --- |
-| `accountIndex` | `number` | Account index in the path (`m/44'/60'/${accountIndex}'/0/0`). |
-| `addressIndex` | `number` | Address index in the path (`m/44'/60'/0'/0/${addressIndex}`). |
-| `changeIndex` | `number` | Change index in the path (`m/44'/60'/0'/${changeIndex}/0`). |
-| `path` | `` `m/44'/60'/${string}` `` | Full HD path (overrides the index options). |
-| `passphrase` | `string` | Optional BIP-39 passphrase. |
+##### options.accountIndex
+
+- **Type:** `number`
+
+Account index in the path (`m/44'/60'/${accountIndex}'/0/0`).
+
+```ts twoslash
+import { Account } from 'viem'
+// ---cut---
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  {
+    accountIndex: 0, // [!code focus]
+  },
+)
+```
+
+##### options.addressIndex
+
+- **Type:** `number`
+
+Address index in the path (`m/44'/60'/0'/0/${addressIndex}`).
+
+```ts twoslash
+import { Account } from 'viem'
+// ---cut---
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  {
+    addressIndex: 1, // [!code focus]
+  },
+)
+```
+
+##### options.changeIndex
+
+- **Type:** `number`
+
+Change index in the path (`m/44'/60'/0'/${changeIndex}/0`).
+
+```ts twoslash
+import { Account } from 'viem'
+// ---cut---
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  {
+    changeIndex: 0, // [!code focus]
+  },
+)
+```
+
+##### options.path
+
+- **Type:** `` `m/44'/60'/${string}` ``
+
+Full HD path (overrides the index options).
+
+```ts twoslash
+import { Account } from 'viem'
+// ---cut---
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  {
+    path: "m/44'/60'/0'/0/0", // [!code focus]
+  },
+)
+```
+
+##### options.passphrase
+
+- **Type:** `string`
+
+Optional BIP-39 passphrase.
+
+```ts twoslash
+import { Account } from 'viem'
+// ---cut---
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  {
+    passphrase: 'my-passphrase', // [!code focus]
+  },
+)
+```
 
 ### Return Value
 

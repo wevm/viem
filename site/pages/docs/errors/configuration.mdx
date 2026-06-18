@@ -4,11 +4,33 @@
 
 Use [`Errors.setConfig`](/docs/errors) to set viem-scoped defaults applied to every [`Errors.BaseError`](/docs/errors/base-error) instance (merge semantics). This controls how errors are attributed: the docs origin rendered into `See:` URLs, and the version line. It is useful for consumers (for example, wagmi) that re-attribute errors. ox's global static options are never touched.
 
+```ts twoslash
+import { Errors } from 'viem'
+
+Errors.setConfig({ version: 'sweetlib@1.2.3' })
+```
+
 ## Recipes
 
-:::warning[TODO]
-A holistic, end-to-end walkthrough of configuring error attribution across a viem-based library will be added once clients and actions are available.
-:::
+### Setting the Docs Origin
+
+Set the docs origin when errors should link to documentation hosted at a specific origin.
+
+```ts twoslash
+import { Errors } from 'viem'
+
+Errors.setConfig({ docsOrigin: 'https://viem.sh' }) // [!code focus]
+```
+
+### Overriding the Version
+
+Override the version when errors should attribute themselves to a wrapper library or integration.
+
+```ts twoslash
+import { Errors } from 'viem'
+
+Errors.setConfig({ version: 'sweetlib@1.2.3' }) // [!code focus]
+```
 
 ## `Errors.setConfig`
 
@@ -28,10 +50,35 @@ Errors.setConfig({ version: 'sweetlib@1.2.3' })
 
 - **Type:** `Errors.Config`
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| `docsOrigin` | `string` | `'https://viem.sh'` | Origin rendered into `See:` docs URLs. |
-| `version` | `string` | `` `viem@<package version>` `` | Version attribution rendered as `Version: <value>`. Set to `undefined` to omit the version line. |
+##### value.docsOrigin
+
+- **Type:** `string`
+- **Default:** `'https://viem.sh'`
+
+Origin rendered into `See:` docs URLs.
+
+```ts twoslash
+import { Errors } from 'viem'
+// ---cut---
+Errors.setConfig({
+  docsOrigin: 'https://viem.sh', // [!code focus]
+})
+```
+
+##### value.version
+
+- **Type:** `string`
+- **Default:** `` `viem@<package version>` ``
+
+Version attribution rendered as `Version: <value>`. Set to `undefined` to omit the version line.
+
+```ts twoslash
+import { Errors } from 'viem'
+// ---cut---
+Errors.setConfig({
+  version: 'sweetlib@1.2.3', // [!code focus]
+})
+```
 
 ### Return Value
 

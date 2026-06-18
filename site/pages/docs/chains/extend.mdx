@@ -4,6 +4,21 @@
 
 Every chain returned by [`Chain.from`](/docs/chains) carries a chainable `.extend()` method for deriving a new chain from an existing base. The overrides are merged over the base, and the result keeps its own `.extend()` (so you can derive further).
 
+```ts twoslash
+import { Chain } from 'viem'
+
+const mainnet = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+})
+
+const custom = mainnet.extend({
+  rpcUrls: { default: { http: ['https://my-rpc.example'] } },
+})
+```
+
 ## Recipes
 
 :::warning[TODO]

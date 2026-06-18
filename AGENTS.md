@@ -215,19 +215,34 @@ Guidelines for authoring docs and guides under `site/pages/`.
 
 - **Module docs are concept-first.** Each module has a concept landing page plus task/reference
   sub-pages.
-  - **Landing page** (`index.mdx`) is concept-only: a `## Overview` explaining what the module is,
-    how it works, and when to reach for it, followed by a `<Cards>` grid linking to each succeeding
-    sub-page (one `<Card>` per sub-page, with a title, short description, icon, and `to`). No
-    `## Recipes` or reference sections here.
+  - **Landing page** (`index.mdx`) is concept-first: a `## Overview` explaining what the module is,
+    how it works, and when to reach for it. The Overview always includes a minimal `ts twoslash`
+    usage example (the smallest end-to-end shape) after the concept prose. It is followed by a
+    `<Cards>` grid linking to each succeeding sub-page (one `<Card>` per sub-page, with a title,
+    short description, icon, and `to`). No `## Recipes` or reference sections here.
   - **Sub-pages** lead with prose, then drill into the API, containing in order:
     - `## Overview` -- the concept for this task/function.
-    - `## Recipes` -- independent, self-contained tasks (see the Guides section for the recipe shape).
+    - `## Recipes` -- independent, self-contained tasks (see the Guides section for the recipe
+      shape). Recipes must cover the use cases of the documented parameters/options: every
+      meaningful parameter (and notable option-bag field) should be demonstrated by at least one
+      recipe showing why and how you would reach for it, not just restated in the reference table.
     - **An API reference** -- one `## ` section per exported function/type, named after the
       identifier (e.g. ``## `Account.from` ``), each containing `### Usage`, `### Parameters`,
       `### Return Value`, and `### Errors` as applicable.
 - **Reference sections open with a one-line description** -- directly under each function `## `
   heading, write a single sentence describing what it does, then `### Usage`. Keep it terse and
   sourced from the symbol's TSDoc.
+- **`### Parameters` never uses tables** -- list each parameter as its own heading
+  (`#### options`, then `##### options.foo` for nested option-bag fields), with `- **Type:**` (and
+  `- **Default:**` when applicable) bullets followed by a prose description. Tables are reserved for
+  `### Errors`; do not put parameter/option fields in a table.
+- **Each parameter heading includes a focused example** -- under each `##### options.foo` (and
+  scalar `#### param`) entry, after the type bullets and prose, add a `ts twoslash` snippet showing
+  that parameter in realistic use, with the line(s) that set it marked `// [!code focus]` so the
+  reader's eye lands on the relevant usage. Keep the snippet minimal (imports + the smallest call
+  that exercises the parameter). Hide the imports (and any setup `declare`/scaffolding lines) with a
+  `// ---cut---` directive so only the focused call renders. (This is the opposite of the Guides
+  rule, where imports are always shown -- parameter reference snippets stay terse.)
 - **`### Return Value` is an inline code fence, not a bullet** -- place the type as a bare
   inline `` `Type` `` on its own line directly under the heading (not `- **Type:** ...`), followed
   by a sentence describing it.
@@ -253,6 +268,10 @@ Guidelines for authoring docs and guides under `site/pages/`.
 
 - A guide's main body is a **`## Recipes`** section: independent, self-contained tasks, each a
   `###` subheading with no enforced order. Do not use step-by-step "Walkthrough" sections.
+- **Recipes use code focus.** A recipe's code block shows full imports (no `// ---cut---`), but
+  marks the line(s) that demonstrate the recipe's option/parameter with `// [!code focus]` so the
+  reader's eye lands on the relevant lines. Focus only the lines the recipe is about, not the
+  surrounding boilerplate.
 - Do **not** repeat client setup as its own recipe. Open the Recipes section with a prerequisite
   line linking to Getting Started, e.g. "These recipes assume you have
   [set up a Tempo client](/tempo)." Code examples still include a `viem.config.ts` tab via

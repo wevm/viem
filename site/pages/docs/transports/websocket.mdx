@@ -1,0 +1,254 @@
+# WebSocket
+
+## Overview
+
+The [`webSocket`](/docs/transports) transport carries JSON-RPC requests over a reconnecting WebSocket connection. When no `url` is provided, it falls back to the [Chain](/docs/chains)'s default WebSocket RPC URL. Unlike [HTTP](/docs/transports/http), it supports JSON-RPC subscriptions and keeps the connection alive across requests, reconnecting and resubscribing automatically on closure.
+
+```ts twoslash
+import { webSocket } from 'viem'
+
+const transport = webSocket('wss://eth.merkle.io/ws')
+```
+
+## Recipes
+
+### Disabling Reconnection
+
+By default the socket reconnects on closure. Pass `reconnect: false`, or an options object to tune the attempts.
+
+```ts twoslash
+import { webSocket } from 'viem'
+
+const transport = webSocket('wss://eth.merkle.io/ws', { reconnect: false }) // [!code focus]
+```
+
+### Disabling Keep-Alive
+
+Keep-alive traffic holds the connection open between requests. Disable it with `keepAlive: false`.
+
+```ts twoslash
+import { webSocket } from 'viem'
+
+const transport = webSocket('wss://eth.merkle.io/ws', { keepAlive: false }) // [!code focus]
+```
+
+### Tuning Reconnection
+
+Pass a `reconnect` object to control how often the socket retries and the delay before reconnecting.
+
+```ts twoslash
+import { webSocket } from 'viem'
+
+const transport = webSocket('wss://eth.merkle.io', {
+  reconnect: { maxRetries: 10, minReconnectionDelay: 2_000 }, // [!code focus]
+})
+```
+
+### Tuning Keep-Alive
+
+Pass a `keepAlive` object to tune the interval used for connection health checks.
+
+```ts twoslash
+import { webSocket } from 'viem'
+
+const transport = webSocket('wss://eth.merkle.io', {
+  keepAlive: { interval: 30_000 }, // [!code focus]
+})
+```
+
+### Restricting RPC Methods
+
+Use `methods` to allow or deny specific RPC methods for this transport.
+
+```ts twoslash
+import { webSocket } from 'viem'
+
+const transport = webSocket('wss://eth.merkle.io', {
+  methods: { include: ['eth_subscribe', 'eth_call'] }, // [!code focus]
+})
+```
+
+### Configuring Retries
+
+Set `retryCount` and `retryDelay` to control how many times failed requests retry and the base backoff between attempts.
+
+```ts twoslash
+import { webSocket } from 'viem'
+
+const transport = webSocket('wss://eth.merkle.io', {
+  retryCount: 5, // [!code focus]
+  retryDelay: 200, // [!code focus]
+})
+```
+
+### Setting a Request Timeout
+
+Set `timeout` to limit how long a JSON-RPC request can take before it fails.
+
+```ts twoslash
+import { webSocket } from 'viem'
+
+const transport = webSocket('wss://eth.merkle.io', { timeout: 20_000 }) // [!code focus]
+```
+
+## `webSocket`
+
+Creates a WebSocket JSON-RPC transport.
+
+### Usage
+
+```ts twoslash
+import { webSocket } from 'viem'
+
+const transport = webSocket('wss://eth.merkle.io/ws')
+```
+
+### Parameters
+
+#### url
+
+- **Type:** `string`
+- **Optional**
+
+The WebSocket RPC URL. When omitted, the chain's default WebSocket RPC URL is used.
+
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth.merkle.io') // [!code focus]
+```
+
+#### options
+
+- **Type:** `webSocket.Options`
+
+##### options.keepAlive
+
+- **Type:** `boolean | { interval?: number }`
+- **Default:** `true`
+
+Whether (and how often) to send keep-alive messages.
+
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth.merkle.io', {
+  keepAlive: { interval: 30_000 }, // [!code focus]
+})
+```
+
+##### options.reconnect
+
+- **Type:** `boolean | { maxRetries?: number; minReconnectionDelay?: number; maxReconnectionDelay?: number; reconnectionDelayGrowFactor?: number; minUptime?: number; connectionTimeout?: number; maxEnqueuedMessages?: number }`
+- **Default:** `true`
+
+Whether (and how) to reconnect on socket closure. `maxRetries` caps reconnection attempts (default `Infinity`); `minReconnectionDelay`/`maxReconnectionDelay` bound the backoff window.
+
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth.merkle.io', {
+  reconnect: { maxRetries: 10, minReconnectionDelay: 2_000 }, // [!code focus]
+})
+```
+
+##### options.key
+
+- **Type:** `string`
+- **Default:** `'webSocket'`
+
+Transport key.
+
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth.merkle.io', {
+  key: 'webSocket', // [!code focus]
+})
+```
+
+##### options.name
+
+- **Type:** `string`
+- **Default:** `'WebSocket JSON-RPC'`
+
+Transport name.
+
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth.merkle.io', {
+  name: 'WebSocket JSON-RPC', // [!code focus]
+})
+```
+
+##### options.methods
+
+- **Type:** `{ include?: string[] } | { exclude?: string[] }`
+
+RPC methods to include or exclude.
+
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth.merkle.io', {
+  methods: { include: ['eth_subscribe', 'eth_call'] }, // [!code focus]
+})
+```
+
+##### options.retryCount
+
+- **Type:** `number`
+- **Default:** `3`
+
+Max retries per request.
+
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth.merkle.io', {
+  retryCount: 5, // [!code focus]
+})
+```
+
+##### options.retryDelay
+
+- **Type:** `number`
+- **Default:** `150`
+
+Base delay (ms) between retries.
+
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth.merkle.io', {
+  retryDelay: 200, // [!code focus]
+})
+```
+
+##### options.timeout
+
+- **Type:** `number`
+- **Default:** `10_000`
+
+Request timeout (ms).
+
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth.merkle.io', {
+  timeout: 20_000, // [!code focus]
+})
+```
+
+### Return Value
+
+`Transport<'webSocket', { getRpcClient, subscribe }>`
+
+A WebSocket transport. The instance exposes `getRpcClient()` for the live client and `subscribe()` for JSON-RPC subscriptions.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Transport.UrlRequiredError` | No `url` was provided and the chain has no default WebSocket RPC URL. |

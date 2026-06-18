@@ -6,11 +6,64 @@
 
 It extends ox's `BaseError`, so every viem error is also an ox error (`instanceof Errors.BaseError` holds across the stack) and ox errors compose as `cause` without wrapping. Docs origin and version attribution default to the values set via [`Errors.setConfig`](/docs/errors/configuration).
 
+```ts twoslash
+import { Errors } from 'viem'
+
+throw new Errors.BaseError('An error occurred.', {
+  docsPath: '/docs/errors',
+  metaMessages: ['Reason: example'],
+})
+```
+
 ## Recipes
 
-:::warning[TODO]
-A holistic, end-to-end walkthrough of catching and inspecting a `BaseError` thrown by actions will be added once clients and actions are available.
-:::
+### Attaching a Cause
+
+Wrap a lower-level error when you want callers to inspect the original failure.
+
+```ts twoslash
+import { Errors } from 'viem'
+
+const cause = new Error('boom') // [!code focus]
+
+throw new Errors.BaseError('An error occurred.', { cause }) // [!code focus]
+```
+
+### Adding Meta Messages
+
+Add meta messages when you need extra lines between the message and detail block.
+
+```ts twoslash
+import { Errors } from 'viem'
+
+throw new Errors.BaseError('An error occurred.', {
+  metaMessages: ['Reason: example'], // [!code focus]
+})
+```
+
+### Linking to Docs
+
+Set a docs path when the error should render a `See: <url>` line.
+
+```ts twoslash
+import { Errors } from 'viem'
+
+throw new Errors.BaseError('An error occurred.', {
+  docsPath: '/docs/errors', // [!code focus]
+})
+```
+
+### Overriding Details
+
+Override details when you want to show a precise explanation instead of deriving it from the cause.
+
+```ts twoslash
+import { Errors } from 'viem'
+
+throw new Errors.BaseError('An error occurred.', {
+  details: 'The RPC returned an invalid response.', // [!code focus]
+})
+```
 
 ## `Errors.BaseError`
 
@@ -35,18 +88,101 @@ throw new Errors.BaseError('An error occurred.', {
 
 The short, human-readable error message.
 
+```ts twoslash
+import { Errors } from 'viem'
+// ---cut---
+throw new Errors.BaseError('An error occurred.') // [!code focus]
+```
+
 #### options
 
 - **Type:** `Errors.BaseError.Options`
 
-| Option | Type | Description |
-| --- | --- | --- |
-| `cause` | `Error` | An error (viem, ox, or foreign) to attach as the failure cause. |
-| `details` | `string` | Details of the error (derived from `cause` when omitted). |
-| `docsOrigin` | `string` | Docs origin override (defaults to the configured origin). |
-| `docsPath` | `string` | Docs path appended to the origin and rendered as `See: <url>`. |
-| `metaMessages` | `readonly (string \| undefined)[]` | Meta messages rendered between the short message and the detail block. |
-| `version` | `string` | Version attribution override (defaults to the configured version). |
+##### options.cause
+
+- **Type:** `Error`
+
+An error (viem, ox, or foreign) to attach as the failure cause.
+
+```ts twoslash
+import { Errors } from 'viem'
+
+const cause = new Error('boom')
+// ---cut---
+throw new Errors.BaseError('An error occurred.', {
+  cause, // [!code focus]
+})
+```
+
+##### options.details
+
+- **Type:** `string`
+
+Details of the error (derived from `cause` when omitted).
+
+```ts twoslash
+import { Errors } from 'viem'
+// ---cut---
+throw new Errors.BaseError('An error occurred.', {
+  details: 'The RPC returned an invalid response.', // [!code focus]
+})
+```
+
+##### options.docsOrigin
+
+- **Type:** `string`
+
+Docs origin override (defaults to the configured origin).
+
+```ts twoslash
+import { Errors } from 'viem'
+// ---cut---
+throw new Errors.BaseError('An error occurred.', {
+  docsOrigin: 'https://viem.sh', // [!code focus]
+})
+```
+
+##### options.docsPath
+
+- **Type:** `string`
+
+Docs path appended to the origin and rendered as `See: <url>`.
+
+```ts twoslash
+import { Errors } from 'viem'
+// ---cut---
+throw new Errors.BaseError('An error occurred.', {
+  docsPath: '/docs/errors', // [!code focus]
+})
+```
+
+##### options.metaMessages
+
+- **Type:** `readonly (string | undefined)[]`
+
+Meta messages rendered between the short message and the detail block.
+
+```ts twoslash
+import { Errors } from 'viem'
+// ---cut---
+throw new Errors.BaseError('An error occurred.', {
+  metaMessages: ['Reason: example'], // [!code focus]
+})
+```
+
+##### options.version
+
+- **Type:** `string`
+
+Version attribution override (defaults to the configured version).
+
+```ts twoslash
+import { Errors } from 'viem'
+// ---cut---
+throw new Errors.BaseError('An error occurred.', {
+  version: 'viem@3.0.0', // [!code focus]
+})
+```
 
 ### Return Value
 

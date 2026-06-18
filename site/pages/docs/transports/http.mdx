@@ -1,0 +1,331 @@
+# HTTP
+
+## Overview
+
+The [`http`](/docs/transports) transport carries JSON-RPC requests over HTTP. When no `url` is provided, it falls back to the [Chain](/docs/chains)'s default HTTP RPC URL. It can batch eligible requests into a single HTTP call, and exposes hooks over the underlying `fetch`.
+
+```ts twoslash
+import { http } from 'viem'
+
+const transport = http('https://eth.merkle.io')
+```
+
+## Recipes
+
+### Batching JSON-RPC Requests
+
+Enable `batch` to coalesce concurrent requests into a single JSON-RPC batch call. Tune the batch with `batchSize` and `wait`.
+
+```ts twoslash
+import { http } from 'viem'
+
+const transport = http('https://eth.merkle.io', {
+  batch: { batchSize: 1_000, wait: 16 }, // [!code focus]
+})
+```
+
+### Returning Raw JSON-RPC Errors
+
+By default an RPC error is thrown. Set `raw` to return `{ error, result }` instead.
+
+```ts twoslash
+import { http } from 'viem'
+
+const transport = http('https://eth.merkle.io', { raw: true }) // [!code focus]
+```
+
+### Setting Custom Fetch Options
+
+Set `fetchOptions` when the RPC endpoint needs per-request fetch configuration, such as an API key header.
+
+```ts twoslash
+import { http } from 'viem'
+
+const transport = http('https://eth.merkle.io', {
+  fetchOptions: { headers: { 'X-Api-Key': 'abc' } }, // [!code focus]
+})
+```
+
+### Providing a Custom Fetch
+
+Pass `fetchFn` to provide your own `fetch` implementation for proxying, instrumentation, or runtime-specific behavior.
+
+```ts twoslash
+import { http } from 'viem'
+
+const transport = http('https://eth.merkle.io', { fetchFn: fetch }) // [!code focus]
+```
+
+### Observing Requests and Responses
+
+Use `onFetchRequest` and `onFetchResponse` to inspect each raw HTTP request and response, such as for logging.
+
+```ts twoslash
+import { http } from 'viem'
+
+const transport = http('https://eth.merkle.io', {
+  onFetchRequest(request) { // [!code focus]
+    console.log(request.url) // [!code focus]
+  }, // [!code focus]
+  onFetchResponse(response) { // [!code focus]
+    console.log(response.status) // [!code focus]
+  }, // [!code focus]
+})
+```
+
+### Restricting RPC Methods
+
+Use `methods` to allow or deny specific RPC methods for this transport.
+
+```ts twoslash
+import { http } from 'viem'
+
+const transport = http('https://eth.merkle.io', {
+  methods: { include: ['eth_call', 'eth_chainId'] }, // [!code focus]
+})
+```
+
+### Configuring Retries
+
+Set `retryCount` and `retryDelay` to control how many times failed requests retry and the base backoff between attempts.
+
+```ts twoslash
+import { http } from 'viem'
+
+const transport = http('https://eth.merkle.io', {
+  retryCount: 5, // [!code focus]
+  retryDelay: 200, // [!code focus]
+})
+```
+
+### Setting a Request Timeout
+
+Set `timeout` to limit how long a JSON-RPC request can take before it fails.
+
+```ts twoslash
+import { http } from 'viem'
+
+const transport = http('https://eth.merkle.io', { timeout: 20_000 }) // [!code focus]
+```
+
+## `http`
+
+Creates an HTTP JSON-RPC transport.
+
+### Usage
+
+```ts twoslash
+import { http } from 'viem'
+
+const transport = http('https://eth.merkle.io')
+```
+
+### Parameters
+
+#### url
+
+- **Type:** `string`
+- **Optional**
+
+The HTTP RPC URL. When omitted, the chain's default HTTP RPC URL is used.
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://eth.merkle.io') // [!code focus]
+```
+
+#### options
+
+- **Type:** `http.Options`
+
+##### options.batch
+
+- **Type:** `boolean | { batchSize?: number; wait?: number }`
+- **Default:** `false`
+
+Whether to batch JSON-RPC requests. `batchSize` is the max requests per batch (default `1_000`); `wait` is the max ms to wait before sending a batch (default `0`).
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://eth.merkle.io', {
+  batch: true, // [!code focus]
+})
+```
+
+##### options.fetchFn
+
+- **Type:** `typeof fetch`
+
+Override for the `fetch` function.
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://eth.merkle.io', {
+  fetchFn: fetch, // [!code focus]
+})
+```
+
+##### options.fetchOptions
+
+- **Type:** `RequestInit`
+
+Request configuration passed to `fetch`.
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://eth.merkle.io', {
+  fetchOptions: { headers: { 'X-Api-Key': 'abc' } }, // [!code focus]
+})
+```
+
+##### options.onFetchRequest
+
+- **Type:** `(request: Request) => void`
+
+Callback invoked before each fetch.
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://eth.merkle.io', {
+  onFetchRequest(request) { // [!code focus]
+    console.log(request.url) // [!code focus]
+  }, // [!code focus]
+})
+```
+
+##### options.onFetchResponse
+
+- **Type:** `(response: Response) => void`
+
+Callback invoked with each raw response.
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://eth.merkle.io', {
+  onFetchResponse(response) { // [!code focus]
+    console.log(response.status) // [!code focus]
+  }, // [!code focus]
+})
+```
+
+##### options.raw
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Return JSON-RPC errors instead of throwing.
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://eth.merkle.io', {
+  raw: true, // [!code focus]
+})
+```
+
+##### options.key
+
+- **Type:** `string`
+- **Default:** `'http'`
+
+Transport key.
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://eth.merkle.io', {
+  key: 'http', // [!code focus]
+})
+```
+
+##### options.name
+
+- **Type:** `string`
+- **Default:** `'HTTP JSON-RPC'`
+
+Transport name.
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://eth.merkle.io', {
+  name: 'HTTP JSON-RPC', // [!code focus]
+})
+```
+
+##### options.methods
+
+- **Type:** `{ include?: string[] } | { exclude?: string[] }`
+
+RPC methods to include or exclude.
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://eth.merkle.io', {
+  methods: { include: ['eth_call', 'eth_chainId'] }, // [!code focus]
+})
+```
+
+##### options.retryCount
+
+- **Type:** `number`
+- **Default:** `3`
+
+Max retries per request.
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://eth.merkle.io', {
+  retryCount: 5, // [!code focus]
+})
+```
+
+##### options.retryDelay
+
+- **Type:** `number`
+- **Default:** `150`
+
+Base delay (ms) between retries.
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://eth.merkle.io', {
+  retryDelay: 200, // [!code focus]
+})
+```
+
+##### options.timeout
+
+- **Type:** `number`
+- **Default:** `10_000`
+
+Request timeout (ms).
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://eth.merkle.io', {
+  timeout: 20_000, // [!code focus]
+})
+```
+
+### Return Value
+
+`Transport<'http', { url: string }>`
+
+An HTTP transport. The resolved `url` is exposed on the instance.
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Transport.UrlRequiredError` | No `url` was provided and the chain has no default HTTP RPC URL. |

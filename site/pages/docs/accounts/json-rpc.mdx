@@ -6,6 +6,17 @@ A **JSON-RPC Account** delegates signing to a JSON-RPC provider (for example, a 
 
 Create one with [`Account.from`](/docs/accounts) by passing an address.
 
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.from('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')
+
+account.address
+// @log: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+account.type
+// @log: 'json-rpc'
+```
+
 ## Recipes
 
 :::warning[TODO]
@@ -36,6 +47,12 @@ account.type
 - **Type:** `Address.Address`
 
 The address of the account.
+
+```ts twoslash
+import { Account } from 'viem'
+// ---cut---
+const account = Account.from('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266') // [!code focus]
+```
 
 ### Return Value
 

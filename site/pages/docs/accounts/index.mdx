@@ -11,6 +11,15 @@ Viem distinguishes between two kinds of account:
 - **Local Account**: signing happens locally from injected signing logic (a private key, mnemonic, KMS, etc.). The raw signing material is available to your program.
 - **JSON-RPC Account**: signing is delegated to a JSON-RPC provider (for example, a browser wallet). Only the address is known.
 
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.fromPrivateKey('0x...')
+
+account.address
+// '0x...'
+```
+
 ### Account Types
 
 <Cards>

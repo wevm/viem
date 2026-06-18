@@ -8,11 +8,41 @@ The account is derived at the configured path (defaulting to `m/44'/60'/0'/0/0`)
 
 Create one with [`Account.fromHdKey`](/docs/accounts).
 
+```ts twoslash
+import { Account } from 'viem'
+import { HdKey } from 'viem/utils'
+
+const account = Account.fromHdKey(HdKey.fromSeed('0x...'))
+```
+
 ## Recipes
 
-:::warning[TODO]
-A holistic, end-to-end walkthrough of using an HD account (attaching it to a client and signing through actions) will be added once clients and actions are available.
-:::
+### Deriving at a Specific Index
+
+Use index options when you want to derive an account from a specific BIP-44 path position.
+
+```ts twoslash
+import { Account } from 'viem'
+import { HdKey } from 'viem/utils'
+
+const account = Account.fromHdKey(HdKey.fromSeed('0x...'), {
+  accountIndex: 1, // [!code focus]
+  addressIndex: 2, // [!code focus]
+})
+```
+
+### Using a Custom Derivation Path
+
+Use a custom derivation path when you need to derive from a path that does not match the default index options.
+
+```ts twoslash
+import { Account } from 'viem'
+import { HdKey } from 'viem/utils'
+
+const account = Account.fromHdKey(HdKey.fromSeed('0x...'), {
+  path: "m/44'/60'/0'/0/0", // [!code focus]
+})
+```
 
 ## `Account.fromHdKey`
 
@@ -35,16 +65,76 @@ const account = Account.fromHdKey(HdKey.fromSeed('0x...'))
 
 The HD key to derive the account from.
 
+```ts twoslash
+import { Account } from 'viem'
+import { HdKey } from 'viem/utils'
+// ---cut---
+const account = Account.fromHdKey(HdKey.fromSeed('0x...')) // [!code focus]
+```
+
 #### options
 
 - **Type:** `Account.fromHdKey.Options`
 
-| Option | Type | Description |
-| --- | --- | --- |
-| `accountIndex` | `number` | Account index in the path (`m/44'/60'/${accountIndex}'/0/0`). |
-| `addressIndex` | `number` | Address index in the path (`m/44'/60'/0'/0/${addressIndex}`). |
-| `changeIndex` | `number` | Change index in the path (`m/44'/60'/0'/${changeIndex}/0`). |
-| `path` | `` `m/44'/60'/${string}` `` | Full HD path (overrides the index options). |
+##### options.accountIndex
+
+- **Type:** `number`
+
+Account index in the path (`m/44'/60'/${accountIndex}'/0/0`).
+
+```ts twoslash
+import { Account } from 'viem'
+import { HdKey } from 'viem/utils'
+// ---cut---
+const account = Account.fromHdKey(HdKey.fromSeed('0x...'), {
+  accountIndex: 0, // [!code focus]
+})
+```
+
+##### options.addressIndex
+
+- **Type:** `number`
+
+Address index in the path (`m/44'/60'/0'/0/${addressIndex}`).
+
+```ts twoslash
+import { Account } from 'viem'
+import { HdKey } from 'viem/utils'
+// ---cut---
+const account = Account.fromHdKey(HdKey.fromSeed('0x...'), {
+  addressIndex: 1, // [!code focus]
+})
+```
+
+##### options.changeIndex
+
+- **Type:** `number`
+
+Change index in the path (`m/44'/60'/0'/${changeIndex}/0`).
+
+```ts twoslash
+import { Account } from 'viem'
+import { HdKey } from 'viem/utils'
+// ---cut---
+const account = Account.fromHdKey(HdKey.fromSeed('0x...'), {
+  changeIndex: 0, // [!code focus]
+})
+```
+
+##### options.path
+
+- **Type:** `` `m/44'/60'/${string}` ``
+
+Full HD path (overrides the index options).
+
+```ts twoslash
+import { Account } from 'viem'
+import { HdKey } from 'viem/utils'
+// ---cut---
+const account = Account.fromHdKey(HdKey.fromSeed('0x...'), {
+  path: "m/44'/60'/0'/0/0", // [!code focus]
+})
+```
 
 ### Return Value
 

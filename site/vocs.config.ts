@@ -150,6 +150,31 @@ export default defineConfig({
   sidebar: {
     '/docs': [
       {
+        text: 'Clients & Transports',
+        items: [
+          {
+            text: 'Client',
+            items: [
+              { text: 'Overview', link: '/docs/clients' },
+              { text: 'Creating a Client', link: '/docs/clients/create' },
+            ],
+          },
+          {
+            text: 'Transports',
+            items: [
+              { text: 'Overview', link: '/docs/transports' },
+              { text: 'HTTP', link: '/docs/transports/http' },
+              { text: 'WebSocket', link: '/docs/transports/websocket' },
+              { text: 'IPC', link: '/docs/transports/ipc' },
+              { text: 'Custom (EIP-1193)', link: '/docs/transports/custom' },
+              { text: 'Fallback', link: '/docs/transports/fallback' },
+              { text: 'Load Balance', link: '/docs/transports/load-balance' },
+              { text: 'Rate Limit', link: '/docs/transports/rate-limit' },
+            ],
+          },
+        ],
+      },
+      {
         text: 'Accounts',
         items: [
           { text: 'Overview', link: '/docs/accounts' },

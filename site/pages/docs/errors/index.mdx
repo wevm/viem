@@ -8,6 +8,15 @@ The **Errors** module provides the base error class inherited by every error thr
 
 `Errors.BaseError` extends ox's `BaseError`, so every viem error is also an ox error (`instanceof` holds across the stack) and ox errors compose as `cause` without wrapping.
 
+```ts twoslash
+import { Errors } from 'viem'
+
+throw new Errors.BaseError('An error occurred.', {
+  docsPath: '/docs/errors',
+  metaMessages: ['Reason: example'],
+})
+```
+
 <Cards>
   <Card
     title="Base Error"

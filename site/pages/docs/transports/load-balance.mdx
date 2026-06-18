@@ -1,0 +1,171 @@
+# Load Balance
+
+## Overview
+
+The [`loadBalance`](/docs/transports) transport distributes requests across a list of [Transports](/docs/transports) using a round-robin algorithm: each request is routed to the next transport in the list, wrapping back to the first after the last. Use it to spread load evenly across multiple RPC endpoints.
+
+Unlike [`fallback`](/docs/transports/fallback), it does not retry a failed request on the next transport: it rotates on every request regardless of outcome.
+
+```ts twoslash
+import { http, loadBalance } from 'viem'
+
+const transport = loadBalance([
+  http('https://1.rpc.example'),
+  http('https://2.rpc.example'),
+])
+```
+
+## Recipes
+
+### Spreading Load Across Endpoints
+
+```ts twoslash
+import { http, loadBalance } from 'viem'
+
+const transport = loadBalance([ // [!code focus]
+  http('https://1.rpc.example'), // [!code focus]
+  http('https://2.rpc.example'), // [!code focus]
+  http('https://3.rpc.example'), // [!code focus]
+]) // [!code focus]
+```
+
+### Restricting RPC Methods
+
+Limit a load-balanced transport to specific RPC methods when only part of your traffic should be distributed.
+
+```ts twoslash
+import { http, loadBalance } from 'viem'
+
+const transport = loadBalance([http(), http()], {
+  methods: { include: ['eth_call'] }, // [!code focus]
+})
+```
+
+### Configuring Retries
+
+Tune retry behavior when the load-balanced transport needs a different retry budget or backoff delay.
+
+```ts twoslash
+import { http, loadBalance } from 'viem'
+
+const transport = loadBalance([http(), http()], {
+  retryCount: 5, // [!code focus]
+  retryDelay: 200, // [!code focus]
+})
+```
+
+## `loadBalance`
+
+Creates a transport that round-robins requests across transports.
+
+### Usage
+
+```ts twoslash
+import { http, loadBalance } from 'viem'
+
+const transport = loadBalance([
+  http('https://1.rpc.example'),
+  http('https://2.rpc.example'),
+])
+```
+
+### Parameters
+
+#### transports
+
+- **Type:** `readonly Transport[]`
+
+The transports to distribute requests across.
+
+```ts twoslash
+import { http, loadBalance } from 'viem'
+// ---cut---
+const transport = loadBalance([ // [!code focus]
+  http('https://1.rpc.example'), // [!code focus]
+  http('https://2.rpc.example'), // [!code focus]
+]) // [!code focus]
+```
+
+#### options
+
+- **Type:** `loadBalance.Options`
+
+##### options.key
+
+- **Type:** `string`
+- **Default:** `'loadBalance'`
+
+Transport key.
+
+```ts twoslash
+import { http, loadBalance } from 'viem'
+// ---cut---
+const transport = loadBalance([http(), http()], {
+  key: 'loadBalance', // [!code focus]
+})
+```
+
+##### options.name
+
+- **Type:** `string`
+- **Default:** `'Load Balance'`
+
+Transport name.
+
+```ts twoslash
+import { http, loadBalance } from 'viem'
+// ---cut---
+const transport = loadBalance([http(), http()], {
+  name: 'Load Balance', // [!code focus]
+})
+```
+
+##### options.methods
+
+- **Type:** `{ include?: string[] } | { exclude?: string[] }`
+
+RPC methods to include or exclude.
+
+```ts twoslash
+import { http, loadBalance } from 'viem'
+// ---cut---
+const transport = loadBalance([http(), http()], {
+  methods: { include: ['eth_call'] }, // [!code focus]
+})
+```
+
+##### options.retryCount
+
+- **Type:** `number`
+- **Default:** `3`
+
+Max retries per request.
+
+```ts twoslash
+import { http, loadBalance } from 'viem'
+// ---cut---
+const transport = loadBalance([http(), http()], {
+  retryCount: 5, // [!code focus]
+})
+```
+
+##### options.retryDelay
+
+- **Type:** `number`
+- **Default:** `150`
+
+Base delay (ms) between retries.
+
+```ts twoslash
+import { http, loadBalance } from 'viem'
+// ---cut---
+const transport = loadBalance([http(), http()], {
+  retryDelay: 200, // [!code focus]
+})
+```
+
+### Return Value
+
+`Transport<'loadBalance', { transports }>`
+
+A load-balanced transport. The instance exposes the resolved `transports`.

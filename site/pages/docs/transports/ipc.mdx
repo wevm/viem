@@ -1,0 +1,239 @@
+# IPC
+
+## Overview
+
+The [`ipc`](/docs/transports) transport carries JSON-RPC requests over a local IPC socket (a Unix domain socket or Windows named pipe), typically exposed by a node running on the same machine. Like [WebSocket](/docs/transports/websocket), it supports subscriptions and keeps the connection alive with automatic reconnect and resubscribe.
+
+It is Node-only, so it is imported from `viem/node` rather than the root entrypoint.
+
+```ts twoslash
+import { ipc } from 'viem/node'
+
+const transport = ipc('/tmp/reth.ipc')
+```
+
+## Recipes
+
+### Disabling Reconnection
+
+By default the socket reconnects on closure. Pass `reconnect: false` to disable.
+
+```ts twoslash
+import { ipc } from 'viem/node'
+
+const transport = ipc('/tmp/reth.ipc', { reconnect: false }) // [!code focus]
+```
+
+### Tuning Reconnection
+
+Pass a `reconnect` object to control how often the socket retries and the delay before reconnecting.
+
+```ts twoslash
+import { ipc } from 'viem/node'
+
+const transport = ipc('/tmp/reth.ipc', {
+  reconnect: { maxRetries: 10, minReconnectionDelay: 2_000 }, // [!code focus]
+})
+```
+
+### Tuning Keep-Alive
+
+Pass a `keepAlive` object to tune the interval used for connection health checks.
+
+```ts twoslash
+import { ipc } from 'viem/node'
+
+const transport = ipc('/tmp/reth.ipc', {
+  keepAlive: { interval: 30_000 }, // [!code focus]
+})
+```
+
+### Restricting RPC Methods
+
+Use `methods` to allow or deny specific RPC methods for this transport.
+
+```ts twoslash
+import { ipc } from 'viem/node'
+
+const transport = ipc('/tmp/reth.ipc', {
+  methods: { include: ['eth_call', 'eth_chainId'] }, // [!code focus]
+})
+```
+
+### Configuring Retries
+
+Set `retryCount` and `retryDelay` to control how many times failed requests retry and the base backoff between attempts.
+
+```ts twoslash
+import { ipc } from 'viem/node'
+
+const transport = ipc('/tmp/reth.ipc', {
+  retryCount: 5, // [!code focus]
+  retryDelay: 200, // [!code focus]
+})
+```
+
+### Setting a Request Timeout
+
+Set `timeout` to limit how long a JSON-RPC request can take before it fails.
+
+```ts twoslash
+import { ipc } from 'viem/node'
+
+const transport = ipc('/tmp/reth.ipc', { timeout: 20_000 }) // [!code focus]
+```
+
+## `ipc`
+
+Creates an IPC JSON-RPC transport (Node only).
+
+### Usage
+
+```ts twoslash
+import { ipc } from 'viem/node'
+
+const transport = ipc('/tmp/reth.ipc')
+```
+
+### Parameters
+
+#### path
+
+- **Type:** `string`
+
+The path to the IPC socket (e.g. `/tmp/reth.ipc`).
+
+```ts twoslash
+import { ipc } from 'viem/node'
+// ---cut---
+const transport = ipc('/tmp/reth.ipc') // [!code focus]
+```
+
+#### options
+
+- **Type:** `ipc.Options`
+
+##### options.keepAlive
+
+- **Type:** `boolean | { interval?: number }`
+- **Default:** `true`
+
+Whether (and how often) to send keep-alive messages.
+
+```ts twoslash
+import { ipc } from 'viem/node'
+// ---cut---
+const transport = ipc('/tmp/reth.ipc', {
+  keepAlive: { interval: 30_000 }, // [!code focus]
+})
+```
+
+##### options.reconnect
+
+- **Type:** `boolean | { maxRetries?: number; minReconnectionDelay?: number; maxReconnectionDelay?: number; reconnectionDelayGrowFactor?: number; minUptime?: number; connectionTimeout?: number; maxEnqueuedMessages?: number }`
+- **Default:** `true`
+
+Whether (and how) to reconnect on socket closure. `maxRetries` caps reconnection attempts (default `Infinity`); `minReconnectionDelay`/`maxReconnectionDelay` bound the backoff window.
+
+```ts twoslash
+import { ipc } from 'viem/node'
+// ---cut---
+const transport = ipc('/tmp/reth.ipc', {
+  reconnect: { maxRetries: 10, minReconnectionDelay: 2_000 }, // [!code focus]
+})
+```
+
+##### options.key
+
+- **Type:** `string`
+- **Default:** `'ipc'`
+
+Transport key.
+
+```ts twoslash
+import { ipc } from 'viem/node'
+// ---cut---
+const transport = ipc('/tmp/reth.ipc', {
+  key: 'ipc', // [!code focus]
+})
+```
+
+##### options.name
+
+- **Type:** `string`
+- **Default:** `'IPC JSON-RPC'`
+
+Transport name.
+
+```ts twoslash
+import { ipc } from 'viem/node'
+// ---cut---
+const transport = ipc('/tmp/reth.ipc', {
+  name: 'IPC JSON-RPC', // [!code focus]
+})
+```
+
+##### options.methods
+
+- **Type:** `{ include?: string[] } | { exclude?: string[] }`
+
+RPC methods to include or exclude.
+
+```ts twoslash
+import { ipc } from 'viem/node'
+// ---cut---
+const transport = ipc('/tmp/reth.ipc', {
+  methods: { include: ['eth_call', 'eth_chainId'] }, // [!code focus]
+})
+```
+
+##### options.retryCount
+
+- **Type:** `number`
+- **Default:** `3`
+
+Max retries per request.
+
+```ts twoslash
+import { ipc } from 'viem/node'
+// ---cut---
+const transport = ipc('/tmp/reth.ipc', {
+  retryCount: 5, // [!code focus]
+})
+```
+
+##### options.retryDelay
+
+- **Type:** `number`
+- **Default:** `150`
+
+Base delay (ms) between retries.
+
+```ts twoslash
+import { ipc } from 'viem/node'
+// ---cut---
+const transport = ipc('/tmp/reth.ipc', {
+  retryDelay: 200, // [!code focus]
+})
+```
+
+##### options.timeout
+
+- **Type:** `number`
+- **Default:** `10_000`
+
+Request timeout (ms).
+
+```ts twoslash
+import { ipc } from 'viem/node'
+// ---cut---
+const transport = ipc('/tmp/reth.ipc', {
+  timeout: 20_000, // [!code focus]
+})
+```
+
+### Return Value
+
+`Transport<'ipc', { getRpcClient, subscribe }>`
+
+An IPC transport. The instance exposes `getRpcClient()` for the live client and `subscribe()` for JSON-RPC subscriptions.

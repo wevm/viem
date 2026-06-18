@@ -6,6 +6,17 @@ A **Private Key Account** (`Account.PrivateKey`) is a [local account](/docs/acco
 
 Create one from an existing private key with [`Account.fromPrivateKey`](/docs/accounts), or generate a random one with [`Account.random`](/docs/accounts).
 
+```ts twoslash
+import { Account } from 'viem'
+
+const account = Account.fromPrivateKey('0x...')
+
+account.address
+// '0x...'
+account.publicKey
+// '0x...'
+```
+
 ## Recipes
 
 :::warning[TODO]
@@ -36,6 +47,12 @@ account.publicKey
 - **Type:** `Hex.Hex`
 
 The private key to derive the account from.
+
+```ts twoslash
+import { Account } from 'viem'
+// ---cut---
+const account = Account.fromPrivateKey('0x...') // [!code focus]
+```
 
 ### Return Value
 

@@ -1,0 +1,186 @@
+# Custom (EIP-1193)
+
+## Overview
+
+The [`custom`](/docs/transports) transport wraps any [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193)-compatible provider (anything with a `request` method) as a [Transport](/docs/transports). It is the bridge for injected wallets (`window.ethereum`), provider libraries, or a hand-rolled provider. Provider errors are normalized via ox's `Provider.from`.
+
+```ts twoslash
+import { custom } from 'viem'
+
+const transport = custom({
+  async request({ method, params }) {
+    // ...
+    return null
+  },
+})
+```
+
+## Recipes
+
+### Wrapping an Existing Provider
+
+Any object with an EIP-1193 `request` method works, such as an injected wallet provider or one from a provider library.
+
+```ts twoslash
+import { custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+// ---cut---
+const transport = custom(provider) // [!code focus]
+```
+
+### Restricting RPC Methods
+
+Limit a custom provider to specific RPC methods when it should only handle part of your request flow.
+
+```ts twoslash
+import { custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+// ---cut---
+const transport = custom(provider, {
+  methods: { include: ['eth_call'] }, // [!code focus]
+})
+```
+
+### Configuring Retries
+
+Tune retry behavior when the wrapped provider needs a different retry budget or backoff delay.
+
+```ts twoslash
+import { custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+// ---cut---
+const transport = custom(provider, {
+  retryCount: 5, // [!code focus]
+  retryDelay: 200, // [!code focus]
+})
+```
+
+## `custom`
+
+Creates a transport from an EIP-1193-compatible provider.
+
+### Usage
+
+```ts twoslash
+import { custom } from 'viem'
+
+const transport = custom({
+  async request({ method, params }) {
+    // ...
+    return null
+  },
+})
+```
+
+### Parameters
+
+#### provider
+
+- **Type:** `{ request(...args): Promise<any> }`
+
+An EIP-1193-compatible provider.
+
+```ts twoslash
+import { custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+// ---cut---
+const transport = custom(provider) // [!code focus]
+```
+
+#### options
+
+- **Type:** `custom.Options`
+
+##### options.key
+
+- **Type:** `string`
+- **Default:** `'custom'`
+
+Transport key.
+
+```ts twoslash
+import { custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+// ---cut---
+const transport = custom(provider, {
+  key: 'custom', // [!code focus]
+})
+```
+
+##### options.name
+
+- **Type:** `string`
+- **Default:** `'Custom Provider'`
+
+Transport name.
+
+```ts twoslash
+import { custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+// ---cut---
+const transport = custom(provider, {
+  name: 'Custom Provider', // [!code focus]
+})
+```
+
+##### options.methods
+
+- **Type:** `{ include?: string[] } | { exclude?: string[] }`
+
+RPC methods to include or exclude.
+
+```ts twoslash
+import { custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+// ---cut---
+const transport = custom(provider, {
+  methods: { include: ['eth_call'] }, // [!code focus]
+})
+```
+
+##### options.retryCount
+
+- **Type:** `number`
+- **Default:** `3`
+
+Max retries per request.
+
+```ts twoslash
+import { custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+// ---cut---
+const transport = custom(provider, {
+  retryCount: 5, // [!code focus]
+})
+```
+
+##### options.retryDelay
+
+- **Type:** `number`
+- **Default:** `150`
+
+Base delay (ms) between retries.
+
+```ts twoslash
+import { custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+// ---cut---
+const transport = custom(provider, {
+  retryDelay: 200, // [!code focus]
+})
+```
+
+### Return Value
+
+`Transport<'custom'>`
+
+A custom transport that delegates each request to the provider.

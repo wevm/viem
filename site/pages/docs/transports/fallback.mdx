@@ -1,0 +1,325 @@
+# Fallback
+
+## Overview
+
+The [`fallback`](/docs/transports) transport accepts a list of [Transports](/docs/transports) and attempts each in order, falling through to the next when one errors, unless the error is terminal (for example, a user rejection). When `rank` is enabled, the transports are periodically re-ordered by latency and stability so the healthiest endpoint is tried first.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+
+const transport = fallback([
+  http('https://1.rpc.example'),
+  http('https://2.rpc.example'),
+])
+```
+
+## Recipes
+
+### Falling Through Multiple Providers
+
+List transports in priority order. The first to succeed wins; failures fall through to the next.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+
+const transport = fallback([ // [!code focus]
+  http('https://1.rpc.example'), // [!code focus]
+  http('https://2.rpc.example'), // [!code focus]
+]) // [!code focus]
+```
+
+### Ranking Transports by Latency
+
+Enable `rank` to continuously re-order transports by latency and stability. Pass an object to tune the sampling.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+
+const transport = fallback(
+  [http('https://1.rpc.example'), http('https://2.rpc.example')],
+  { rank: { interval: 4_000, sampleCount: 10 } }, // [!code focus]
+)
+```
+
+### Treating Some Errors as Terminal
+
+Return `true` from `shouldThrow` when an error should be rethrown instead of falling through to the next transport.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+
+const transport = fallback([http(), http()], {
+  shouldThrow(error) { // [!code focus]
+    return error.name === 'UserRejectedRequestError' // [!code focus]
+  }, // [!code focus]
+})
+```
+
+### Tuning Ranking
+
+Adjust ranking settings to control how frequently transports are sampled and how latency and stability are weighted.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+
+const transport = fallback([http(), http()], {
+  rank: { // [!code focus]
+    interval: 4_000, // [!code focus]
+    sampleCount: 5, // [!code focus]
+    timeout: 1_000, // [!code focus]
+    weights: { latency: 0.3, stability: 0.7 }, // [!code focus]
+  }, // [!code focus]
+})
+```
+
+### Customizing the Ranking Ping
+
+Provide a custom `ping` when your ranking check should call a specific RPC method.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+
+const transport = fallback([http(), http()], {
+  rank: { // [!code focus]
+    async ping({ transport }) { // [!code focus]
+      return transport.request({ method: 'eth_blockNumber' }) // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
+})
+```
+
+### Configuring Retries
+
+Tune retry behavior when the fallback transport needs a different retry budget or backoff delay.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+
+const transport = fallback([http(), http()], {
+  retryCount: 5, // [!code focus]
+  retryDelay: 200, // [!code focus]
+})
+```
+
+## `fallback`
+
+Creates a transport that attempts each transport in order, falling through on error.
+
+### Usage
+
+```ts twoslash
+import { fallback, http } from 'viem'
+
+const transport = fallback([
+  http('https://1.rpc.example'),
+  http('https://2.rpc.example'),
+])
+```
+
+### Parameters
+
+#### transports
+
+- **Type:** `readonly Transport[]`
+
+The transports to attempt, in order.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([ // [!code focus]
+  http('https://1.rpc.example'), // [!code focus]
+  http('https://2.rpc.example'), // [!code focus]
+]) // [!code focus]
+```
+
+#### options
+
+- **Type:** `fallback.Options`
+
+##### options.rank
+
+- **Type:** `boolean | RankOptions`
+- **Default:** `false`
+
+Enable ranking, or ranking options (see [Rank Options](#rank-options) below).
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  rank: true, // [!code focus]
+})
+```
+
+##### options.shouldThrow
+
+- **Type:** `(error: Error) => boolean`
+
+Whether an error is terminal (rethrow) rather than falling through.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  shouldThrow(error) { // [!code focus]
+    return error.name === 'UserRejectedRequestError' // [!code focus]
+  }, // [!code focus]
+})
+```
+
+##### options.key
+
+- **Type:** `string`
+- **Default:** `'fallback'`
+
+Transport key.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  key: 'fallback', // [!code focus]
+})
+```
+
+##### options.name
+
+- **Type:** `string`
+- **Default:** `'Fallback'`
+
+Transport name.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  name: 'Fallback', // [!code focus]
+})
+```
+
+##### options.retryCount
+
+- **Type:** `number`
+- **Default:** `3`
+
+Max retries per request.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  retryCount: 5, // [!code focus]
+})
+```
+
+##### options.retryDelay
+
+- **Type:** `number`
+- **Default:** `150`
+
+Base delay (ms) between retries.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  retryDelay: 200, // [!code focus]
+})
+```
+
+#### Rank Options
+
+The shape of `options.rank` when passed an object.
+
+##### options.rank.interval
+
+- **Type:** `number`
+- **Default:** client `pollingInterval`
+
+Polling interval (ms) at which each transport is pinged.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  rank: {
+    interval: 4_000, // [!code focus]
+  },
+})
+```
+
+##### options.rank.ping
+
+- **Type:** `(options: { transport: Transport.Instance }) => Promise<unknown>`
+
+Ping function used to determine latency.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  rank: {
+    async ping({ transport }) { // [!code focus]
+      return transport.request({ method: 'eth_blockNumber' }) // [!code focus]
+    }, // [!code focus]
+  },
+})
+```
+
+##### options.rank.sampleCount
+
+- **Type:** `number`
+- **Default:** `10`
+
+Number of previous samples to rank on.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  rank: {
+    sampleCount: 5, // [!code focus]
+  },
+})
+```
+
+##### options.rank.timeout
+
+- **Type:** `number`
+- **Default:** `1_000`
+
+Timeout (ms) when sampling transports.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  rank: {
+    timeout: 1_000, // [!code focus]
+  },
+})
+```
+
+##### options.rank.weights
+
+- **Type:** `{ latency?: number; stability?: number }`
+- **Default:** `{ latency: 0.3, stability: 0.7 }`
+
+Proportional weights applied to the latency and stability scores.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  rank: {
+    weights: { latency: 0.3, stability: 0.7 }, // [!code focus]
+  },
+})
+```
+
+### Return Value
+
+`Transport<'fallback', { onResponse, transports }>`
+
+A fallback transport. The instance exposes `onResponse(fn)` to observe each attempt and the resolved `transports`.

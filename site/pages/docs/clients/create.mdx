@@ -1,0 +1,455 @@
+# Creating a Client
+
+## Overview
+
+Use [`Client.create`](/docs/clients) to compose a [Transport](/docs/transports) with an optional [Chain](/docs/chains) and [Account](/docs/accounts) into a [Client](/docs/clients). The transport is the only required option. The returned client preserves the literal types of its chain, account, and transport, and carries a chainable [`.extend()`](#extending-a-client) for attaching Actions.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+## Recipes
+
+These recipes are self-contained. Each constructs its own client.
+
+### Setting the Chain
+
+Set `chain` when the client should carry chain metadata for actions, fee defaults, and contract addresses. The chain literal is preserved on the returned client.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet, // [!code focus]
+  transport: http(),
+})
+```
+
+### Setting a Default Account
+
+A string address is coerced to a [JSON-RPC Account](/docs/accounts/json-rpc); a [Local Account](/docs/accounts) is used as-is. Actions that require an Account fall back to it.
+
+```ts twoslash
+import { Client, http } from 'viem'
+
+const client = Client.create({
+  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+  transport: http('https://eth.merkle.io'),
+})
+
+client.account
+//     ^?
+```
+
+### Aggregating Calls with Multicall
+
+Enable `batch.multicall` when multiple compatible contract reads should be aggregated into a single multicall request. This reduces RPC round trips when actions support batching.
+
+```ts twoslash
+import { Client, http } from 'viem'
+
+const client = Client.create({
+  transport: http(),
+  batch: { multicall: true }, // [!code focus]
+})
+```
+
+### Setting a Default Block Tag
+
+Set `blockTag` to choose the default block context for reads that do not pass their own block selector. Use this to consistently target `latest`, `safe`, `finalized`, or another supported tag.
+
+```ts twoslash
+import { Client, http } from 'viem'
+
+const client = Client.create({
+  transport: http(),
+  blockTag: 'latest', // [!code focus]
+})
+```
+
+### Tuning the Polling Interval
+
+Set `pollingInterval` to control how often polling-based actions check for new data. Use a lower value for faster updates and a higher value to reduce RPC traffic.
+
+```ts twoslash
+import { Client, http } from 'viem'
+
+const client = Client.create({
+  transport: http(),
+  pollingInterval: 4_000, // [!code focus]
+})
+```
+
+### Caching RPC Responses
+
+Set `cacheTime` to control how long cacheable RPC responses are retained. This is useful for repeated reads that can tolerate a short-lived cached result.
+
+```ts twoslash
+import { Client, http } from 'viem'
+
+const client = Client.create({
+  transport: http(),
+  cacheTime: 4_000, // [!code focus]
+})
+```
+
+### Configuring CCIP Read
+
+Set `ccipRead` to `false` to disable EIP-3668 offchain lookups. This is useful when you want calls to fail instead of following resolver-provided URLs.
+
+```ts twoslash
+import { Client, http } from 'viem'
+
+const client = Client.create({
+  transport: http(),
+  ccipRead: false, // [!code focus]
+})
+```
+
+### Appending a Data Suffix
+
+Set `dataSuffix` to append extra calldata to compatible calls. This is commonly used by integrators that need to tag requests with attribution data.
+
+```ts twoslash
+import { Client, http } from 'viem'
+
+const client = Client.create({
+  transport: http(),
+  dataSuffix: '0xdeadbeef', // [!code focus]
+})
+```
+
+### Per-Request Retries and Timeout
+
+Set `retryCount` and `timeout` to tune request reliability for this client. Increase retries for flaky endpoints, and set a timeout to fail slow requests predictably.
+
+```ts twoslash
+import { Client, http } from 'viem'
+
+const client = Client.create({
+  transport: http(),
+  retryCount: 5, // [!code focus]
+  timeout: 10_000, // [!code focus]
+})
+```
+
+### Typing a Custom RPC Schema
+
+Pass a `schema` to type `request` against custom methods. The schema accepts an ox [`RpcSchema`](https://oxlib.sh) or a Zod namespace from `ox/zod`.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { z } from 'ox/zod'
+
+const client = Client.create({
+  transport: http('https://eth.merkle.io'),
+  schema: z.RpcSchema.from({ // [!code focus]
+    abe_foo: { params: z.tuple([z.number()]), returns: z.string() }, // [!code focus]
+  }), // [!code focus]
+})
+
+const result = await client.request({ method: 'abe_foo', params: [42] })
+//    ^?
+```
+
+### Extending a Client
+
+`.extend()` returns a new client with the bag returned by the function merged in. Extensions may add keys, but not redefine the base client keys. It is chainable, so you can layer extensions.
+
+```ts twoslash
+import { Client, http } from 'viem'
+
+const client = Client.create({
+  transport: http('https://eth.merkle.io'),
+}).extend((client) => ({ // [!code focus]
+  getChainId: () => client.request({ method: 'eth_chainId' }), // [!code focus]
+})) // [!code focus]
+
+const chainId = await client.getChainId()
+//    ^?
+```
+
+
+## `Client.create`
+
+Composes a transport with an optional chain and account into a client, with `.extend()` for attaching Actions.
+
+### Usage
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+```
+
+### Parameters
+
+#### options
+
+- **Type:** `Client.create.Options`
+
+##### options.transport
+
+- **Type:** `Transport`
+
+The transport for the client.
+
+```ts twoslash
+import { Client, http } from 'viem'
+// ---cut---
+const client = Client.create({
+  transport: http('https://eth.merkle.io'), // [!code focus]
+})
+```
+
+##### options.account
+
+- **Type:** `Account | Address`
+- **Optional**
+
+The Account (or address) that Actions requiring an Account default to. An address string is coerced to a [JSON-RPC Account](/docs/accounts/json-rpc).
+
+```ts twoslash
+import { Client, http } from 'viem'
+// ---cut---
+const client = Client.create({
+  transport: http('https://eth.merkle.io'),
+  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+})
+```
+
+##### options.batch
+
+- **Type:** `{ multicall?: boolean | MulticallOptions }`
+- **Optional**
+
+`eth_call` multicall aggregation flags.
+
+```ts twoslash
+import { Client, http } from 'viem'
+// ---cut---
+const client = Client.create({
+  transport: http('https://eth.merkle.io'),
+  batch: { multicall: true }, // [!code focus]
+})
+```
+
+##### options.blockTag
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'pending'` when the chain preconfirms, otherwise `'latest'`
+
+Default block tag for RPC requests.
+
+```ts twoslash
+import { Client, http } from 'viem'
+// ---cut---
+const client = Client.create({
+  transport: http('https://eth.merkle.io'),
+  blockTag: 'latest', // [!code focus]
+})
+```
+
+##### options.cacheTime
+
+- **Type:** `number`
+- **Default:** `pollingInterval`
+
+Time (ms) cached data stays in memory.
+
+```ts twoslash
+import { Client, http } from 'viem'
+// ---cut---
+const client = Client.create({
+  transport: http('https://eth.merkle.io'),
+  cacheTime: 4_000, // [!code focus]
+})
+```
+
+##### options.ccipRead
+
+- **Type:** `CcipReadOptions | false`
+- **Optional**
+
+[CCIP Read](https://eips.ethereum.org/EIPS/eip-3668) config (`false` disables).
+
+```ts twoslash
+import { Client, http } from 'viem'
+// ---cut---
+const client = Client.create({
+  transport: http('https://eth.merkle.io'),
+  ccipRead: false, // [!code focus]
+})
+```
+
+##### options.chain
+
+- **Type:** `Chain`
+- **Optional**
+
+The chain for the client.
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+// ---cut---
+const client = Client.create({
+  chain: mainnet, // [!code focus]
+  transport: http('https://eth.merkle.io'),
+})
+```
+
+##### options.dataSuffix
+
+- **Type:** `Hex`
+- **Optional**
+
+Data suffix appended to transaction calldata.
+
+```ts twoslash
+import { Client, http } from 'viem'
+// ---cut---
+const client = Client.create({
+  transport: http('https://eth.merkle.io'),
+  dataSuffix: '0xdeadbeef', // [!code focus]
+})
+```
+
+##### options.key
+
+- **Type:** `string`
+- **Default:** `'base'`
+
+A key for the client.
+
+```ts twoslash
+import { Client, http } from 'viem'
+// ---cut---
+const client = Client.create({
+  transport: http('https://eth.merkle.io'),
+  key: 'base', // [!code focus]
+})
+```
+
+##### options.name
+
+- **Type:** `string`
+- **Default:** `'Base Client'`
+
+A name for the client.
+
+```ts twoslash
+import { Client, http } from 'viem'
+// ---cut---
+const client = Client.create({
+  transport: http('https://eth.merkle.io'),
+  name: 'Base Client', // [!code focus]
+})
+```
+
+##### options.pollingInterval
+
+- **Type:** `number`
+- **Default:** derived from the chain block time
+
+Polling frequency (ms) for Actions and events.
+
+```ts twoslash
+import { Client, http } from 'viem'
+// ---cut---
+const client = Client.create({
+  transport: http('https://eth.merkle.io'),
+  pollingInterval: 4_000, // [!code focus]
+})
+```
+
+##### options.retryCount
+
+- **Type:** `number`
+- **Optional**
+
+Per-request retry budget passed through to the transport.
+
+```ts twoslash
+import { Client, http } from 'viem'
+// ---cut---
+const client = Client.create({
+  transport: http('https://eth.merkle.io'),
+  retryCount: 5, // [!code focus]
+})
+```
+
+##### options.schema
+
+- **Type:** `RpcSchema.Generic | z.RpcSchema`
+- **Optional**
+
+Typed JSON-RPC schema (an ox `RpcSchema.Generic` or an `ox/zod` namespace).
+
+```ts twoslash
+import { Client, http } from 'viem'
+import { z } from 'ox/zod'
+// ---cut---
+const client = Client.create({
+  transport: http('https://eth.merkle.io'),
+  schema: z.RpcSchema.from({ // [!code focus]
+    abe_foo: { params: z.tuple([z.number()]), returns: z.string() }, // [!code focus]
+  }), // [!code focus]
+})
+```
+
+##### options.timeout
+
+- **Type:** `number`
+- **Optional**
+
+Per-request timeout (ms) passed through to the transport.
+
+```ts twoslash
+import { Client, http } from 'viem'
+// ---cut---
+const client = Client.create({
+  transport: http('https://eth.merkle.io'),
+  timeout: 10_000, // [!code focus]
+})
+```
+
+##### options.type
+
+- **Type:** `string`
+- **Default:** `'base'`
+
+The type of client.
+
+```ts twoslash
+import { Client, http } from 'viem'
+// ---cut---
+const client = Client.create({
+  transport: http('https://eth.merkle.io'),
+  type: 'base', // [!code focus]
+})
+```
+
+### Return Value
+
+`Client`
+
+The client, with the literal types of its chain, account, transport, and schema preserved, plus a chainable [`.extend()`](#extending-a-client).
+
+### Errors
+
+| Error | Description |
+| --- | --- |
+| `Account.InvalidAddressError` | The `account` was an address string that failed validation. |
+| `Errors.GlobalErrorType` | An unexpected error occurred. |
