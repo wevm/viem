@@ -19,7 +19,7 @@ export function defineAnvil(parameters: DefineAnvilParameters) {
     ws: `ws://127.0.0.1:${port}/${poolId}`,
   }
   return {
-    forkBlockNumber: parameters.forkBlockNumber,
+    forkBlockNumber: BigInt(parameters.forkBlockNumber ?? 0),
     forkUrl: parameters.forkUrl,
     port,
     rpcUrl,

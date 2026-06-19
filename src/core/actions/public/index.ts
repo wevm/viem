@@ -1,3 +1,8 @@
+export { getBlobBaseFee } from './getBlobBaseFee.js'
 export { getBlockNumber } from './getBlockNumber.js'
+export { getBlockTransactionCount } from './getBlockTransactionCount.js'
 export { getChainId } from './getChainId.js'
+export { getCode } from './getCode.js'
 export { getGasPrice } from './getGasPrice.js'
+export { getStorageAt } from './getStorageAt.js'
+export { getTransactionCount } from './getTransactionCount.js'

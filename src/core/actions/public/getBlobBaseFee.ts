@@ -4,7 +4,7 @@ import { z } from 'ox/zod'
 import type * as Client from '../../Client.js'
 
 /**
- * Returns the current price of gas (in wei).
+ * Returns the base fee per blob gas (in wei).
  *
  * @example
  * ```ts
@@ -15,17 +15,17 @@ import type * as Client from '../../Client.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const gasPrice = await Actions.getGasPrice(client)
+ * const blobBaseFee = await Actions.getBlobBaseFee(client)
  * ```
  */
-export async function getGasPrice(
+export async function getBlobBaseFee(
   client: Client.Client,
-): Promise<getGasPrice.ReturnType> {
-  const gasPrice = await client.request({ method: 'eth_gasPrice' })
-  return z.RpcSchema.decodeReturns(z.RpcSchema.Eth, 'eth_gasPrice', gasPrice)
+): Promise<getBlobBaseFee.ReturnType> {
+  const baseFee = await client.request({ method: 'eth_blobBaseFee' })
+  return z.RpcSchema.decodeReturns(z.RpcSchema.Eth, 'eth_blobBaseFee', baseFee)
 }
 
-export declare namespace getGasPrice {
+export declare namespace getBlobBaseFee {
   type ReturnType = bigint
   type ErrorType = Errors.GlobalErrorType
 }

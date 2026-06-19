@@ -1,5 +1,5 @@
-import * as Hex from 'ox/Hex'
 import type * as Errors from 'ox/Errors'
+import { z } from 'ox/zod'
 
 import type * as Client from '../../Client.js'
 
@@ -25,7 +25,7 @@ export async function getChainId(
     { method: 'eth_chainId' },
     { dedupe: true },
   )
-  return Hex.toNumber(chainId)
+  return z.RpcSchema.decodeReturns(z.RpcSchema.Eth, 'eth_chainId', chainId)
 }
 
 export declare namespace getChainId {
