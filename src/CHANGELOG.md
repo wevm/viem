@@ -1,5 +1,23 @@
 # viem
 
+## 2.53.0
+
+### Minor Changes
+
+- [#4745](https://github.com/wevm/viem/pull/4745) [`f603eb5b6e01bc621df26cc386218b3954e33f41`](https://github.com/wevm/viem/commit/f603eb5b6e01bc621df26cc386218b3954e33f41) Thanks [@jxom](https://github.com/jxom)! - Raised the minimum supported TypeScript version to v5.9.
+
+- [#4745](https://github.com/wevm/viem/pull/4745) [`f603eb5b6e01bc621df26cc386218b3954e33f41`](https://github.com/wevm/viem/commit/f603eb5b6e01bc621df26cc386218b3954e33f41) Thanks [@jxom](https://github.com/jxom)! - Added the ability for action decorators to attach a default `chain` to the Client.
+
+- [#4729](https://github.com/wevm/viem/pull/4729) [`ce518cde15845fedc3cab51f0d560159d7c794fe`](https://github.com/wevm/viem/commit/ce518cde15845fedc3cab51f0d560159d7c794fe) Thanks [@brendanjryan](https://github.com/brendanjryan)! - Added generated Tempo function selector exports under `Selectors` and call scope builders under `Scopes` in `viem/tempo`.
+
+### Patch Changes
+
+- [#4725](https://github.com/wevm/viem/pull/4725) [`2b558fd3a21ad2dd5947067d4c5862cce291d76b`](https://github.com/wevm/viem/commit/2b558fd3a21ad2dd5947067d4c5862cce291d76b) Thanks [@brianspens](https://github.com/brianspens)! - Added Whitechain Sepolia chain.
+
+- [#4727](https://github.com/wevm/viem/pull/4727) [`0505541fcd57f2b2eb35b339d3f630a1535507bf`](https://github.com/wevm/viem/commit/0505541fcd57f2b2eb35b339d3f630a1535507bf) Thanks [@crow-004](https://github.com/crow-004)! - Fixed `estimateUserOperationGas` omitting `maxFeePerGas` and `maxPriorityFeePerGas` during User Operation preparation, which caused strict bundlers to reject gas estimation requests.
+
+- [#4728](https://github.com/wevm/viem/pull/4728) [`e70d2e8543af38b3d8c2ed4b8cd114d171ce53ba`](https://github.com/wevm/viem/commit/e70d2e8543af38b3d8c2ed4b8cd114d171ce53ba) Thanks [@jarrodwatts](https://github.com/jarrodwatts)! - Changed Monad's default block explorer to Monadscan.
+
 ## 2.52.2
 
 ### Patch Changes
