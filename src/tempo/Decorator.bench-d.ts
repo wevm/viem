@@ -11,5 +11,5 @@ test('decorator', () => {
   // this benchmarks a fully Tempo-typed client. The cost matches
   // `createClient({ chain: tempo, transport }).extend(decorator())`; the
   // previous baseline measured the cheaper chain-less client.
-  attest.instantiations([1909536, 'instantiations'])
+  attest.instantiations([1909230, 'instantiations'])
 })

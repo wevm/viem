@@ -201,9 +201,12 @@ type Client_Base<
 
 type Extended = Prettify<
   // disallow redefining base properties, except `chain` which a decorator
-  // may supply as a default when the client was created without one.
+  // may supply as a default when the client was created without one. `chain`
+  // is typed `unknown` (rather than `Chain | undefined`) so this constraint,
+  // which is checked on every `extend` call, does not instantiate the heavy
+  // `Chain` type. `ChainFromExtension` recovers the concrete chain type.
   { [_ in Exclude<keyof Client_Base, 'chain'>]?: undefined } & {
-    chain?: Chain | undefined
+    chain?: unknown
     [key: string]: unknown
   }
 >
@@ -379,7 +382,10 @@ export function createClient(parameters: ClientConfig): Client {
       // transport was deferred, re-resolve the transport with that chain.
       const resolve = deferredResolvers.get(base_.request)
       if (resolve && base_.chain === undefined && extended.chain) {
-        const { config, request, value } = resolve(extended.chain)
+        // Contained cast: `Extended['chain']` is typed `unknown` to keep the
+        // `extend` generic constraint from referencing the heavy `Chain` type
+        // on every call. A decorator-supplied `chain` is a `Chain` at runtime.
+        const { config, request, value } = resolve(extended.chain as Chain)
         const combined = {
           ...base_,
           ...extended,
