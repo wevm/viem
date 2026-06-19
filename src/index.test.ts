@@ -7,6 +7,7 @@ test('exports', () => {
     [
       "Account",
       "Actions",
+      "publicActions",
       "testActions",
       "Chain",
       "Client",

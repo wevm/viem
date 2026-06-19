@@ -1,6 +1,6 @@
 export * as Account from './core/Account.js'
 export * as Actions from './core/actions/index.js'
-export { testActions } from './core/actions/index.js'
+export { publicActions, testActions } from './core/actions/index.js'
 export * as Chain from './core/Chain.js'
 export * as Client from './core/Client.js'
 export * as Errors from './core/Errors.js'
