@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'vitest'
 
 import { anvilMainnet } from '~test/anvil.js'
-import { Client, Hex, http, Actions } from 'viem'
+import { Client, Hex, http, testActions } from 'viem'
 
 const client = Client.create({
   transport: http(anvilMainnet.rpcUrl.http),
-}).extend(Actions.testActions())
+}).extend(testActions())
 
 describe('setNextBlockBaseFeePerGas', () => {
   test('sets the next block base fee', async () => {
