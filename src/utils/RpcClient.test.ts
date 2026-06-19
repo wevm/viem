@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet } from '~test/anvil.js'
+import { anvilMainnet, getClient } from '~test/anvil.js'
 import * as Http from '~test/http.js'
 import * as Ws from '~test/ws.js'
-import { RpcClient } from 'viem'
+import { Actions, RpcClient } from 'viem'
 
 const ok = (result: unknown) =>
   JSON.stringify({ id: 1, jsonrpc: '2.0', result })
@@ -11,23 +11,7 @@ const ok = (result: unknown) =>
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const ws = anvilMainnet.rpcUrl.ws
-
-/**
- * Mines a block on the anvil fork (it does not auto-mine).
- * TODO: Replace the raw `anvil_mine` request with the `mine` test action once
- * test actions exist.
- */
-const mine = () =>
-  fetch(anvilMainnet.rpcUrl.http, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      id: 1,
-      jsonrpc: '2.0',
-      method: 'anvil_mine',
-      params: ['0x1'],
-    }),
-  })
+const client = getClient(anvilMainnet)
 
 describe('http', () => {
   test('sends a single request', async () => {
@@ -694,14 +678,14 @@ describe('webSocket', () => {
     })
 
     test('receives notifications and unsubscribes', async () => {
-      const client = await RpcClient.webSocket(ws, { keepAlive: false })
+      const rpcClient = await RpcClient.webSocket(ws, { keepAlive: false })
       const data: unknown[] = []
-      const sub = await client.subscribe({
+      const sub = await rpcClient.subscribe({
         params: ['newHeads'],
       })
       sub.onData((d) => data.push(d))
       // anvil only emits `newHeads` when a block is mined.
-      await mine()
+      await Actions.test.mine(client, { blocks: 1 })
       await wait(500)
       expect(data.length).toBeGreaterThan(0)
       expect((data[0] as { subscription: string }).subscription).toBe(
@@ -709,7 +693,7 @@ describe('webSocket', () => {
       )
       const result = await sub.unsubscribe()
       expect(result.result).toBe(true)
-      client.close()
+      rpcClient.close()
     })
 
     test('routes interleaved notifications to the matching subscription', async () => {

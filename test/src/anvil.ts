@@ -1,4 +1,5 @@
 import { Instance, Server } from 'prool'
+import { Client, http } from 'viem'
 
 import { poolId } from './constants.js'
 
@@ -26,6 +27,13 @@ export function defineAnvil(parameters: DefineAnvilParameters) {
       return Server.create({ instance: Instance.anvil(options), port }).start()
     },
   }
+}
+
+/** Returns a Client pointed at an anvil instance. */
+export function getClient(anvil: Anvil) {
+  return Client.create({
+    transport: http(anvil.rpcUrl.http),
+  })
 }
 
 export const anvilMainnet = defineAnvil({

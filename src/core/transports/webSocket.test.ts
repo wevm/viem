@@ -1,30 +1,14 @@
 import * as RpcResponse from 'ox/RpcResponse'
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet } from '~test/anvil.js'
+import { anvilMainnet, getClient } from '~test/anvil.js'
 import * as Ws from '~test/ws.js'
-import { Chain, RpcClient, Transport, webSocket } from 'viem'
+import { Actions, Chain, RpcClient, Transport, webSocket } from 'viem'
 
 const url = anvilMainnet.rpcUrl.ws
+const client = getClient(anvilMainnet)
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-
-/**
- * Mines a block on the anvil fork (it does not auto-mine).
- * TODO: Replace the raw `anvil_mine` request with the `mine` test action once
- * test actions exist.
- */
-const mine = () =>
-  fetch(anvilMainnet.rpcUrl.http, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      id: 1,
-      jsonrpc: '2.0',
-      method: 'anvil_mine',
-      params: ['0x1'],
-    }),
-  })
 
 describe('webSocket', () => {
   test('uses the default transport identity', () => {
@@ -191,7 +175,7 @@ describe('webSocket', () => {
     sub.onData((d) => data.push(d))
     expect(sub.subscriptionId).toMatch(/^0x/)
     // anvil only emits `newHeads` when a block is mined.
-    await mine()
+    await Actions.test.mine(client, { blocks: 1 })
     await wait(500)
     expect(data.length).toBeGreaterThan(0)
     expect((data[0] as { subscription: string }).subscription).toBe(
