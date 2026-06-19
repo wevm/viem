@@ -1,5 +1,5 @@
 ---
-"viem": patch
+"viem": minor
 ---
 
-Added the ability for `tempoActions` to attach a default `chain` to the Client.
+Added the ability for action decorators to attach a default `chain` to the Client.
