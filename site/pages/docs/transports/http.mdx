@@ -139,7 +139,7 @@ const transport = http('https://eth.merkle.io') // [!code focus]
 
 - **Type:** `http.Options`
 
-##### options.batch
+##### batch
 
 - **Type:** `boolean | { batchSize?: number; wait?: number }`
 - **Default:** `false`
@@ -154,7 +154,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### options.fetchFn
+##### fetchFn
 
 - **Type:** `typeof fetch`
 
@@ -168,7 +168,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### options.fetchOptions
+##### fetchOptions
 
 - **Type:** `RequestInit`
 
@@ -182,7 +182,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### options.onFetchRequest
+##### onFetchRequest
 
 - **Type:** `(request: Request) => void`
 
@@ -198,7 +198,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### options.onFetchResponse
+##### onFetchResponse
 
 - **Type:** `(response: Response) => void`
 
@@ -214,7 +214,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### options.raw
+##### raw
 
 - **Type:** `boolean`
 - **Default:** `false`
@@ -229,7 +229,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### options.key
+##### key
 
 - **Type:** `string`
 - **Default:** `'http'`
@@ -244,7 +244,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### options.name
+##### name
 
 - **Type:** `string`
 - **Default:** `'HTTP JSON-RPC'`
@@ -259,7 +259,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### options.methods
+##### methods
 
 - **Type:** `{ include?: string[] } | { exclude?: string[] }`
 
@@ -273,7 +273,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### options.retryCount
+##### retryCount
 
 - **Type:** `number`
 - **Default:** `3`
@@ -288,7 +288,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### options.retryDelay
+##### retryDelay
 
 - **Type:** `number`
 - **Default:** `150`
@@ -303,7 +303,7 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
-##### options.timeout
+##### timeout
 
 - **Type:** `number`
 - **Default:** `10_000`

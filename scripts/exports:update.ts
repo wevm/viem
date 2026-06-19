@@ -38,6 +38,8 @@ for (const dir of readdirSync(srcDir, { withFileTypes: true })) {
   if (!dir.isDirectory()) continue
   if (dir.name.startsWith('_') || dir.name.startsWith('.')) continue
   if (dir.name === 'node_modules') continue
+  // `core/` is internal; its modules are re-exported by `src/index.ts`.
+  if (dir.name === 'core') continue
 
   const dirPath = join(srcDir, dir.name)
   if (existsSync(join(dirPath, 'index.ts')))

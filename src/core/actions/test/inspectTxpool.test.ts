@@ -1,0 +1,16 @@
+import { describe, expect, test } from 'vitest'
+
+import { anvilMainnet } from '~test/anvil.js'
+import { Client, http, Actions } from 'viem'
+
+const client = Client.create({
+  transport: http(anvilMainnet.rpcUrl.http),
+}).extend(Actions.testActions())
+
+describe('inspectTxpool', () => {
+  test('returns pending and queued maps', async () => {
+    const txpool = await client.inspectTxpool()
+    expect(txpool.pending).toBeDefined()
+    expect(txpool.queued).toBeDefined()
+  })
+})

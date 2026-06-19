@@ -98,6 +98,7 @@ This document contains guidelines for AI agents working on the Viem codebase.
 - **No prior-version references in code or comments** -- never mention prior versions, their old names, or migration framing (e.g. "replaces old `formatters`", "was `defineChain`") in source comments, JSDoc, or identifiers. Comments describe what the code does now and must read standalone. Parity and migration notes belong in the changeset.
 - **Static imports by default** -- use static `import` declarations. Dynamic imports are reserved for real runtime boundaries (e.g. `viem/node` trusted setups, optional heavyweight paths).
 - **Namespace imports for modules** -- prefer `import * as <Module>` for module imports, accessing members as `Errors.BaseError` / `RpcSchema.Default` (matches ox and the namespaced-module pattern; a module's own `./internal/*` helper is aliased `import * as internal`). Use named imports only for the type-utility module `internal/types.ts` (`import type { Compute, IsNarrowable }`), single-function helper modules (`stringify`, `uid`, `wait`), and non-namespace third-party packages (e.g. `vitest`).
+- **Actions are imported via the root `Actions` namespace** -- there is no `viem/actions` entrypoint. Actions live under `src/core/actions` and are re-exported from `viem` as the `Actions` namespace (`export * as Actions from './core/actions/index.js'`). Both in source JSDoc/examples and in tests, use `import { Actions } from 'viem'` and call actions as `Actions.<action>(client, …)`. Test actions live under the `test` sub-namespace (`Actions.test.mine(client, …)`). Decorators are also re-exported as top-level named exports (`import { testActions } from 'viem'`), so decorator usage prefers the named import (`.extend(testActions({ mode }))`) while standalone actions stay namespaced (`Actions.test.mine(client, …)`). Do not use named imports for individual actions.
 - **Minimize `as any`** -- avoid new `as any` where a safer assertion is practical, but do not mass-rewrite existing crypto, tuple, and inference glue that already relies on it.
 - **Destructure when accessing multiple properties** -- prefer `const { a, b } = options` over repeated `options.a`, `options.b`.
 - **Read from `options.x` when normalizing a single field** -- when transforming exactly one option into a local of the same name, read it directly from `options` instead of destructuring and inventing a second name.
@@ -233,10 +234,11 @@ Guidelines for authoring docs and guides under `site/pages/`.
   heading, write a single sentence describing what it does, then `### Usage`. Keep it terse and
   sourced from the symbol's TSDoc.
 - **`### Parameters` never uses tables** -- list each parameter as its own heading
-  (`#### options`, then `##### options.foo` for nested option-bag fields), with `- **Type:**` (and
-  `- **Default:**` when applicable) bullets followed by a prose description. Tables are reserved for
-  `### Errors`; do not put parameter/option fields in a table.
-- **Each parameter heading includes a focused example** -- under each `##### options.foo` (and
+  (`#### options`, then `##### foo` for nested option-bag fields), with `- **Type:**` (and
+  `- **Default:**` when applicable) bullets followed by a prose description. Do not prefix
+  parameter headings with `options.` (write `##### batch`, not `##### options.batch`). Tables are
+  reserved for `### Errors`; do not put parameter/option fields in a table.
+- **Each parameter heading includes a focused example** -- under each `##### foo` (and
   scalar `#### param`) entry, after the type bullets and prose, add a `ts twoslash` snippet showing
   that parameter in realistic use, with the line(s) that set it marked `// [!code focus]` so the
   reader's eye lands on the relevant usage. Keep the snippet minimal (imports + the smallest call

@@ -83,7 +83,7 @@ const transport = rateLimit(http(), { requestsPerSecond: 50 }) // [!code focus]
 
 - **Type:** `rateLimit.Options`
 
-##### options.requestsPerSecond
+##### requestsPerSecond
 
 - **Type:** `number`
 
@@ -97,7 +97,7 @@ const transport = rateLimit(http(), {
 })
 ```
 
-##### options.key
+##### key
 
 - **Type:** `string`
 - **Default:** `'rateLimit'`
@@ -113,7 +113,7 @@ const transport = rateLimit(http(), {
 })
 ```
 
-##### options.name
+##### name
 
 - **Type:** `string`
 - **Default:** `'Rate Limit'`
@@ -129,7 +129,7 @@ const transport = rateLimit(http(), {
 })
 ```
 
-##### options.methods
+##### methods
 
 - **Type:** `{ include?: string[] } | { exclude?: string[] }`
 
@@ -144,7 +144,7 @@ const transport = rateLimit(http(), {
 })
 ```
 
-##### options.retryCount
+##### retryCount
 
 - **Type:** `number`
 - **Default:** `3`
@@ -160,7 +160,7 @@ const transport = rateLimit(http(), {
 })
 ```
 
-##### options.retryDelay
+##### retryDelay
 
 - **Type:** `number`
 - **Default:** `150`

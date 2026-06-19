@@ -113,7 +113,7 @@ const transport = ipc('/tmp/reth.ipc') // [!code focus]
 
 - **Type:** `ipc.Options`
 
-##### options.keepAlive
+##### keepAlive
 
 - **Type:** `boolean | { interval?: number }`
 - **Default:** `true`
@@ -128,7 +128,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### options.reconnect
+##### reconnect
 
 - **Type:** `boolean | { maxRetries?: number; minReconnectionDelay?: number; maxReconnectionDelay?: number; reconnectionDelayGrowFactor?: number; minUptime?: number; connectionTimeout?: number; maxEnqueuedMessages?: number }`
 - **Default:** `true`
@@ -143,7 +143,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### options.key
+##### key
 
 - **Type:** `string`
 - **Default:** `'ipc'`
@@ -158,7 +158,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### options.name
+##### name
 
 - **Type:** `string`
 - **Default:** `'IPC JSON-RPC'`
@@ -173,7 +173,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### options.methods
+##### methods
 
 - **Type:** `{ include?: string[] } | { exclude?: string[] }`
 
@@ -187,7 +187,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### options.retryCount
+##### retryCount
 
 - **Type:** `number`
 - **Default:** `3`
@@ -202,7 +202,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### options.retryDelay
+##### retryDelay
 
 - **Type:** `number`
 - **Default:** `150`
@@ -217,7 +217,7 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### options.timeout
+##### timeout
 
 - **Type:** `number`
 - **Default:** `10_000`

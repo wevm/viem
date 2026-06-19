@@ -122,7 +122,7 @@ const transport = webSocket('wss://eth.merkle.io') // [!code focus]
 
 - **Type:** `webSocket.Options`
 
-##### options.keepAlive
+##### keepAlive
 
 - **Type:** `boolean | { interval?: number }`
 - **Default:** `true`
@@ -137,7 +137,7 @@ const transport = webSocket('wss://eth.merkle.io', {
 })
 ```
 
-##### options.reconnect
+##### reconnect
 
 - **Type:** `boolean | { maxRetries?: number; minReconnectionDelay?: number; maxReconnectionDelay?: number; reconnectionDelayGrowFactor?: number; minUptime?: number; connectionTimeout?: number; maxEnqueuedMessages?: number }`
 - **Default:** `true`
@@ -152,7 +152,7 @@ const transport = webSocket('wss://eth.merkle.io', {
 })
 ```
 
-##### options.key
+##### key
 
 - **Type:** `string`
 - **Default:** `'webSocket'`
@@ -167,7 +167,7 @@ const transport = webSocket('wss://eth.merkle.io', {
 })
 ```
 
-##### options.name
+##### name
 
 - **Type:** `string`
 - **Default:** `'WebSocket JSON-RPC'`
@@ -182,7 +182,7 @@ const transport = webSocket('wss://eth.merkle.io', {
 })
 ```
 
-##### options.methods
+##### methods
 
 - **Type:** `{ include?: string[] } | { exclude?: string[] }`
 
@@ -196,7 +196,7 @@ const transport = webSocket('wss://eth.merkle.io', {
 })
 ```
 
-##### options.retryCount
+##### retryCount
 
 - **Type:** `number`
 - **Default:** `3`
@@ -211,7 +211,7 @@ const transport = webSocket('wss://eth.merkle.io', {
 })
 ```
 
-##### options.retryDelay
+##### retryDelay
 
 - **Type:** `number`
 - **Default:** `150`
@@ -226,7 +226,7 @@ const transport = webSocket('wss://eth.merkle.io', {
 })
 ```
 
-##### options.timeout
+##### timeout
 
 - **Type:** `number`
 - **Default:** `10_000`

@@ -1,0 +1,119 @@
+# setStorageAt
+
+Writes to a slot of an account's storage.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+await client.setStorageAt({
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  index: 2,
+  value: '0x0000000000000000000000000000000000000000000000000000000000000045',
+})
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+await Actions.test.setStorageAt(client, {
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  index: 2,
+  value: '0x0000000000000000000000000000000000000000000000000000000000000045',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, testActions } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+}).extend(testActions())
+```
+
+:::
+
+## Parameters
+
+### address
+
+- **Type:** `Address`
+
+The account address.
+
+```ts twoslash
+import { Client, http, Actions } from 'viem'
+
+const client = Client.create({ transport: http() })
+// ---cut---
+await Actions.test.setStorageAt(client, {
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', // [!code focus]
+  index: 2,
+  value: '0x0000000000000000000000000000000000000000000000000000000000000045',
+  mode: 'hardhat',
+})
+```
+
+### index
+
+- **Type:** `number | Hex`
+
+The storage slot (index). Either a number or a hash value.
+
+```ts twoslash
+import { Client, http, Actions } from 'viem'
+
+const client = Client.create({ transport: http() })
+// ---cut---
+await Actions.test.setStorageAt(client, {
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  index: 2, // [!code focus]
+  value: '0x0000000000000000000000000000000000000000000000000000000000000045',
+  mode: 'hardhat',
+})
+```
+
+### value
+
+- **Type:** `Hex`
+
+The value to store, as a 32-byte hex string.
+
+```ts twoslash
+import { Client, http, Actions } from 'viem'
+
+const client = Client.create({ transport: http() })
+// ---cut---
+await Actions.test.setStorageAt(client, {
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  index: 2,
+  value: '0x0000000000000000000000000000000000000000000000000000000000000045', // [!code focus]
+  mode: 'hardhat',
+})
+```
+
+### mode
+
+- **Type:** `'anvil' | 'hardhat' | 'ganache'`
+- **Default:** `'anvil'`
+
+The test node implementation to target.
+
+```ts twoslash
+import { Client, http, Actions } from 'viem'
+
+const client = Client.create({ transport: http() })
+// ---cut---
+await Actions.test.setStorageAt(client, {
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  index: 2,
+  value: '0x0000000000000000000000000000000000000000000000000000000000000045',
+  mode: 'hardhat', // [!code focus]
+})
+```

@@ -1,0 +1,38 @@
+# snapshot
+
+Snapshots the state of the blockchain at the current block.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const result = await client.snapshot()
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const result = await Actions.test.snapshot(client)
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, testActions } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+}).extend(testActions())
+```
+
+:::
+
+## Return Value
+
+`Hex`
+
+The snapshot ID, which can be passed to `revert`.

@@ -1,0 +1,73 @@
+# setNextBlockBaseFeePerGas
+
+Sets the next block's base fee per gas.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+await client.setNextBlockBaseFeePerGas({
+  baseFeePerGas: 1_000_000_000n,
+})
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+await Actions.test.setNextBlockBaseFeePerGas(client, {
+  baseFeePerGas: 1_000_000_000n,
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, testActions } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+}).extend(testActions())
+```
+
+:::
+
+## Parameters
+
+### baseFeePerGas
+
+- **Type:** `bigint`
+
+The base fee per gas (in wei) to set.
+
+```ts twoslash
+import { Client, http, Actions } from 'viem'
+
+const client = Client.create({ transport: http() })
+// ---cut---
+await Actions.test.setNextBlockBaseFeePerGas(client, {
+  baseFeePerGas: 1_000_000_000n, // [!code focus]
+  mode: 'hardhat',
+})
+```
+
+### mode
+
+- **Type:** `'anvil' | 'hardhat' | 'ganache'`
+- **Default:** `'anvil'`
+
+The test node implementation to target.
+
+```ts twoslash
+import { Client, http, Actions } from 'viem'
+
+const client = Client.create({ transport: http() })
+// ---cut---
+await Actions.test.setNextBlockBaseFeePerGas(client, {
+  baseFeePerGas: 1_000_000_000n,
+  mode: 'hardhat', // [!code focus]
+})
+```

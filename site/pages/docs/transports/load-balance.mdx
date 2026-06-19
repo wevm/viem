@@ -90,7 +90,7 @@ const transport = loadBalance([ // [!code focus]
 
 - **Type:** `loadBalance.Options`
 
-##### options.key
+##### key
 
 - **Type:** `string`
 - **Default:** `'loadBalance'`
@@ -105,7 +105,7 @@ const transport = loadBalance([http(), http()], {
 })
 ```
 
-##### options.name
+##### name
 
 - **Type:** `string`
 - **Default:** `'Load Balance'`
@@ -120,7 +120,7 @@ const transport = loadBalance([http(), http()], {
 })
 ```
 
-##### options.methods
+##### methods
 
 - **Type:** `{ include?: string[] } | { exclude?: string[] }`
 
@@ -134,7 +134,7 @@ const transport = loadBalance([http(), http()], {
 })
 ```
 
-##### options.retryCount
+##### retryCount
 
 - **Type:** `number`
 - **Default:** `3`
@@ -149,7 +149,7 @@ const transport = loadBalance([http(), http()], {
 })
 ```
 
-##### options.retryDelay
+##### retryDelay
 
 - **Type:** `number`
 - **Default:** `150`

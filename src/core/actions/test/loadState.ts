@@ -1,0 +1,38 @@
+import type * as Errors from 'ox/Errors'
+import type * as Hex from 'ox/Hex'
+
+import type * as Client from '../../Client.js'
+import type * as Mode from './internal/mode.js'
+import { request } from './internal/request.js'
+
+/**
+ * Adds state previously dumped with `dumpState` to the current chain.
+ *
+ * @example
+ * ```ts
+ * import { Client, http, Actions } from 'viem'
+ *
+ * const client = Client.create({ transport: http() })
+ * await Actions.test.loadState(client, { state: '0x...' })
+ * ```
+ */
+export async function loadState(
+  client: Client.Client,
+  options: loadState.Options,
+): Promise<void> {
+  const { mode = 'anvil', state } = options
+  await request(client)({
+    method: `${mode}_loadState`,
+    params: [state],
+  })
+}
+
+export declare namespace loadState {
+  type Options = {
+    /** Test node mode. @default 'anvil' */
+    mode?: Mode.Mode | undefined
+    /** The state to load. */
+    state: Hex.Hex
+  }
+  type ErrorType = Errors.GlobalErrorType
+}

@@ -1,0 +1,45 @@
+import { Cards, Card } from 'vocs'
+
+# Actions
+
+## Overview
+
+**Actions** are functions that perform JSON-RPC requests against a [Client](/docs/clients). Each action takes a Client as its first argument, and is also available as a method once the matching decorator is attached to the Client via [`.extend()`](/docs/clients/create#extending-a-client).
+
+Decorators (such as [`testActions`](/docs/actions/test)) attach a group of actions to a Client as methods. Import them from `viem`, or call each action standalone by passing a Client as the first argument from the `Actions` namespace:
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+await client.mine({ blocks: 1 })
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+await Actions.test.mine(client, { blocks: 1 })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, testActions } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+}).extend(testActions())
+```
+
+:::
+
+<Cards>
+  <Card
+    title="Test Actions"
+    description="Manipulate a local test node (anvil, hardhat, ganache): mine blocks, set balances, manage state, and more."
+    icon="lucide:flask-conical"
+    to="/docs/actions/test"
+  />
+</Cards>

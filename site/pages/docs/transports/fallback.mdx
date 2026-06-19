@@ -137,7 +137,7 @@ const transport = fallback([ // [!code focus]
 
 - **Type:** `fallback.Options`
 
-##### options.rank
+##### rank
 
 - **Type:** `boolean | RankOptions`
 - **Default:** `false`
@@ -152,7 +152,7 @@ const transport = fallback([http(), http()], {
 })
 ```
 
-##### options.shouldThrow
+##### shouldThrow
 
 - **Type:** `(error: Error) => boolean`
 
@@ -168,7 +168,7 @@ const transport = fallback([http(), http()], {
 })
 ```
 
-##### options.key
+##### key
 
 - **Type:** `string`
 - **Default:** `'fallback'`
@@ -183,7 +183,7 @@ const transport = fallback([http(), http()], {
 })
 ```
 
-##### options.name
+##### name
 
 - **Type:** `string`
 - **Default:** `'Fallback'`
@@ -198,7 +198,7 @@ const transport = fallback([http(), http()], {
 })
 ```
 
-##### options.retryCount
+##### retryCount
 
 - **Type:** `number`
 - **Default:** `3`
@@ -213,7 +213,7 @@ const transport = fallback([http(), http()], {
 })
 ```
 
-##### options.retryDelay
+##### retryDelay
 
 - **Type:** `number`
 - **Default:** `150`
@@ -232,7 +232,7 @@ const transport = fallback([http(), http()], {
 
 The shape of `options.rank` when passed an object.
 
-##### options.rank.interval
+##### rank.interval
 
 - **Type:** `number`
 - **Default:** client `pollingInterval`
@@ -249,7 +249,7 @@ const transport = fallback([http(), http()], {
 })
 ```
 
-##### options.rank.ping
+##### rank.ping
 
 - **Type:** `(options: { transport: Transport.Instance }) => Promise<unknown>`
 
@@ -267,7 +267,7 @@ const transport = fallback([http(), http()], {
 })
 ```
 
-##### options.rank.sampleCount
+##### rank.sampleCount
 
 - **Type:** `number`
 - **Default:** `10`
@@ -284,7 +284,7 @@ const transport = fallback([http(), http()], {
 })
 ```
 
-##### options.rank.timeout
+##### rank.timeout
 
 - **Type:** `number`
 - **Default:** `1_000`
@@ -301,7 +301,7 @@ const transport = fallback([http(), http()], {
 })
 ```
 
-##### options.rank.weights
+##### rank.weights
 
 - **Type:** `{ latency?: number; stability?: number }`
 - **Default:** `{ latency: 0.3, stability: 0.7 }`

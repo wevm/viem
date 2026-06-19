@@ -199,7 +199,7 @@ const client = Client.create({
 
 - **Type:** `Client.create.Options`
 
-##### options.transport
+##### transport
 
 - **Type:** `Transport`
 
@@ -213,7 +213,7 @@ const client = Client.create({
 })
 ```
 
-##### options.account
+##### account
 
 - **Type:** `Account | Address`
 - **Optional**
@@ -229,7 +229,7 @@ const client = Client.create({
 })
 ```
 
-##### options.batch
+##### batch
 
 - **Type:** `{ multicall?: boolean | MulticallOptions }`
 - **Optional**
@@ -245,7 +245,7 @@ const client = Client.create({
 })
 ```
 
-##### options.blockTag
+##### blockTag
 
 - **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
 - **Default:** `'pending'` when the chain preconfirms, otherwise `'latest'`
@@ -261,7 +261,7 @@ const client = Client.create({
 })
 ```
 
-##### options.cacheTime
+##### cacheTime
 
 - **Type:** `number`
 - **Default:** `pollingInterval`
@@ -277,7 +277,7 @@ const client = Client.create({
 })
 ```
 
-##### options.ccipRead
+##### ccipRead
 
 - **Type:** `CcipReadOptions | false`
 - **Optional**
@@ -293,7 +293,7 @@ const client = Client.create({
 })
 ```
 
-##### options.chain
+##### chain
 
 - **Type:** `Chain`
 - **Optional**
@@ -310,7 +310,7 @@ const client = Client.create({
 })
 ```
 
-##### options.dataSuffix
+##### dataSuffix
 
 - **Type:** `Hex`
 - **Optional**
@@ -326,7 +326,7 @@ const client = Client.create({
 })
 ```
 
-##### options.key
+##### key
 
 - **Type:** `string`
 - **Default:** `'base'`
@@ -342,7 +342,7 @@ const client = Client.create({
 })
 ```
 
-##### options.name
+##### name
 
 - **Type:** `string`
 - **Default:** `'Base Client'`
@@ -358,7 +358,7 @@ const client = Client.create({
 })
 ```
 
-##### options.pollingInterval
+##### pollingInterval
 
 - **Type:** `number`
 - **Default:** derived from the chain block time
@@ -374,7 +374,7 @@ const client = Client.create({
 })
 ```
 
-##### options.retryCount
+##### retryCount
 
 - **Type:** `number`
 - **Optional**
@@ -390,7 +390,7 @@ const client = Client.create({
 })
 ```
 
-##### options.schema
+##### schema
 
 - **Type:** `RpcSchema.Generic | z.RpcSchema`
 - **Optional**
@@ -409,7 +409,7 @@ const client = Client.create({
 })
 ```
 
-##### options.timeout
+##### timeout
 
 - **Type:** `number`
 - **Optional**
@@ -425,7 +425,7 @@ const client = Client.create({
 })
 ```
 
-##### options.type
+##### type
 
 - **Type:** `string`
 - **Default:** `'base'`

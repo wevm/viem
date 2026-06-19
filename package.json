@@ -264,28 +264,28 @@
   },
   "exports": {
     ".": {
-      "src": "./src/index.ts",
       "types": "./dist/index.d.ts",
+      "src": "./src/index.ts",
       "default": "./dist/index.js"
     },
     "./chains": {
-      "src": "./src/chains/index.ts",
       "types": "./dist/chains/index.d.ts",
+      "src": "./src/chains/index.ts",
       "default": "./dist/chains/index.js"
     },
     "./chains/utils": {
-      "src": "./src/chains/utils.ts",
       "types": "./dist/chains/utils.d.ts",
+      "src": "./src/chains/utils.ts",
       "default": "./dist/chains/utils.js"
     },
     "./node": {
-      "src": "./src/node/index.ts",
       "types": "./dist/node/index.d.ts",
+      "src": "./src/node/index.ts",
       "default": "./dist/node/index.js"
     },
     "./utils": {
-      "src": "./src/utils/index.ts",
       "types": "./dist/utils/index.d.ts",
+      "src": "./src/utils/index.ts",
       "default": "./dist/utils/index.js"
     }
   },

@@ -1,0 +1,51 @@
+import type * as Address from 'ox/Address'
+import type * as Errors from 'ox/Errors'
+import * as Hex from 'ox/Hex'
+
+import type * as Client from '../../Client.js'
+import type * as Mode from './internal/mode.js'
+import { request } from './internal/request.js'
+
+/**
+ * Writes to a slot of an account's storage.
+ *
+ * @example
+ * ```ts
+ * import { Client, http, Actions } from 'viem'
+ *
+ * const client = Client.create({ transport: http() })
+ * await Actions.test.setStorageAt(client, {
+ *   address: '0xe846c6fcf817734ca4527b28ccb4aea2b6663c79',
+ *   index: 2,
+ *   value: '0x0000000000000000000000000000000000000000000000000000000000000069',
+ * })
+ * ```
+ */
+export async function setStorageAt(
+  client: Client.Client,
+  options: setStorageAt.Options,
+): Promise<void> {
+  const { address, index, mode = 'anvil', value } = options
+  await request(client)({
+    method: `${mode}_setStorageAt`,
+    params: [
+      address,
+      typeof index === 'number' ? Hex.fromNumber(index) : index,
+      value,
+    ],
+  })
+}
+
+export declare namespace setStorageAt {
+  type Options = {
+    /** The account address. */
+    address: Address.Address
+    /** The storage slot (index). Can either be a number or hash value. */
+    index: number | Hex.Hex
+    /** Test node mode. @default 'anvil' */
+    mode?: Mode.Mode | undefined
+    /** The value to store as a 32 byte hex string. */
+    value: Hex.Hex
+  }
+  type ErrorType = Errors.GlobalErrorType
+}

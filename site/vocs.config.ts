@@ -175,6 +175,88 @@ export default defineConfig({
         ],
       },
       {
+        text: 'Actions',
+        items: [
+          { text: 'Overview', link: '/docs/actions' },
+          {
+            text: 'Test',
+            items: [
+              { text: 'Overview', link: '/docs/actions/test' },
+              {
+                text: 'dropTransaction',
+                link: '/docs/actions/test/dropTransaction',
+              },
+              { text: 'dumpState', link: '/docs/actions/test/dumpState' },
+              { text: 'getAutomine', link: '/docs/actions/test/getAutomine' },
+              {
+                text: 'getTxpoolStatus',
+                link: '/docs/actions/test/getTxpoolStatus',
+              },
+              {
+                text: 'impersonateAccount',
+                link: '/docs/actions/test/impersonateAccount',
+              },
+              { text: 'increaseTime', link: '/docs/actions/test/increaseTime' },
+              {
+                text: 'inspectTxpool',
+                link: '/docs/actions/test/inspectTxpool',
+              },
+              { text: 'loadState', link: '/docs/actions/test/loadState' },
+              { text: 'mine', link: '/docs/actions/test/mine' },
+              {
+                text: 'removeBlockTimestampInterval',
+                link: '/docs/actions/test/removeBlockTimestampInterval',
+              },
+              { text: 'reset', link: '/docs/actions/test/reset' },
+              { text: 'revert', link: '/docs/actions/test/revert' },
+              { text: 'setAutomine', link: '/docs/actions/test/setAutomine' },
+              { text: 'setBalance', link: '/docs/actions/test/setBalance' },
+              {
+                text: 'setBlockGasLimit',
+                link: '/docs/actions/test/setBlockGasLimit',
+              },
+              {
+                text: 'setBlockTimestampInterval',
+                link: '/docs/actions/test/setBlockTimestampInterval',
+              },
+              { text: 'setCode', link: '/docs/actions/test/setCode' },
+              { text: 'setCoinbase', link: '/docs/actions/test/setCoinbase' },
+              {
+                text: 'setIntervalMining',
+                link: '/docs/actions/test/setIntervalMining',
+              },
+              {
+                text: 'setLoggingEnabled',
+                link: '/docs/actions/test/setLoggingEnabled',
+              },
+              {
+                text: 'setMinGasPrice',
+                link: '/docs/actions/test/setMinGasPrice',
+              },
+              {
+                text: 'setNextBlockBaseFeePerGas',
+                link: '/docs/actions/test/setNextBlockBaseFeePerGas',
+              },
+              {
+                text: 'setNextBlockTimestamp',
+                link: '/docs/actions/test/setNextBlockTimestamp',
+              },
+              { text: 'setNonce', link: '/docs/actions/test/setNonce' },
+              { text: 'setRpcUrl', link: '/docs/actions/test/setRpcUrl' },
+              {
+                text: 'setStorageAt',
+                link: '/docs/actions/test/setStorageAt',
+              },
+              { text: 'snapshot', link: '/docs/actions/test/snapshot' },
+              {
+                text: 'stopImpersonatingAccount',
+                link: '/docs/actions/test/stopImpersonatingAccount',
+              },
+            ],
+          },
+        ],
+      },
+      {
         text: 'Accounts',
         items: [
           { text: 'Overview', link: '/docs/accounts' },

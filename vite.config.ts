@@ -66,6 +66,7 @@ export default defineConfig({
         '**/dist/**',
         '**/*.test.ts',
         '**/*.test-d.ts',
+        '**/index.ts',
         'src/vendor/**',
       ],
     },
