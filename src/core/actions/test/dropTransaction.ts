@@ -10,9 +10,13 @@ import { request } from './internal/request.js'
  *
  * @example
  * ```ts
- * import { Client, http, Actions } from 'viem'
+ * import { Actions, Client, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
  *
- * const client = Client.create({ transport: http() })
+ * const client = Client.create({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
  * await Actions.test.dropTransaction(client, {
  *   hash: '0xe58dceb6b20b03965bb678e27d141e151d7d4efc2334c2d6a49b9fac523f7364',
  * })

@@ -44,9 +44,13 @@ export const client = Client.create({
 The hash of the transaction to drop.
 
 ```ts twoslash
-import { Client, http, Actions } from 'viem'
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
 
-const client = Client.create({ transport: http() })
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
 // ---cut---
 await Actions.test.dropTransaction(client, {
   hash: '0xe58dceb6b20b03965bb678e27d141e151d7d4efc2334c2d6a49b9fac523f7364', // [!code focus]
@@ -62,9 +66,13 @@ await Actions.test.dropTransaction(client, {
 The test node implementation to target.
 
 ```ts twoslash
-import { Client, http, Actions } from 'viem'
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
 
-const client = Client.create({ transport: http() })
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
 // ---cut---
 await Actions.test.dropTransaction(client, {
   hash: '0xe58dceb6b20b03965bb678e27d141e151d7d4efc2334c2d6a49b9fac523f7364',

@@ -11,9 +11,13 @@ import { request } from './internal/request.js'
  *
  * @example
  * ```ts
- * import { Client, http, Actions } from 'viem'
+ * import { Actions, Client, http } from 'viem'
+ * import { mainnet } from 'viem/chains'
  *
- * const client = Client.create({ transport: http() })
+ * const client = Client.create({
+ *   chain: mainnet,
+ *   transport: http(),
+ * })
  * await Actions.test.setBalance(client, {
  *   address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
  *   value: 1_000_000_000_000_000_000n,

@@ -1,4 +1,4 @@
-import { Cards, Card } from 'vocs'
+import { Card, Cards } from 'vocs'
 
 # Test Actions
 
@@ -41,8 +41,12 @@ Test methods are mode-prefixed (for example `anvil_setBalance`, `hardhat_setBala
 
 ```ts twoslash
 import { Client, http, testActions } from 'viem'
+import { mainnet } from 'viem/chains'
 
-const client = Client.create({ transport: http() }).extend(
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(
   testActions({ mode: 'hardhat' }), // [!code focus]
 )
 ```
@@ -115,8 +119,12 @@ Returns a bag of test actions bound to a Client, with the configured `mode` inje
 
 ```ts twoslash
 import { Client, http, testActions } from 'viem'
+import { mainnet } from 'viem/chains'
 
-const client = Client.create({ transport: http() }).extend(testActions())
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(testActions())
 
 await client.mine({ blocks: 1 })
 ```
@@ -132,8 +140,12 @@ The test node implementation to target. It is injected as the `mode` of every ac
 
 ```ts twoslash
 import { Client, http, testActions } from 'viem'
+import { mainnet } from 'viem/chains'
 
-const client = Client.create({ transport: http() }).extend(
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(
   testActions({ mode: 'hardhat' }), // [!code focus]
 )
 ```

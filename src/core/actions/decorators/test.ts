@@ -39,11 +39,13 @@ type Without<options> = Omit<options, 'mode'>
  *
  * @example
  * ```ts
- * import { Client, http, Actions } from 'viem'
+ * import { Client, http, testActions } from 'viem'
+ * import { mainnet } from 'viem/chains'
  *
- * const client = Client.create({ transport: http() }).extend(
- *   Actions.testActions({ mode: 'anvil' }),
- * )
+ * const client = Client.create({
+ *   chain: mainnet,
+ *   transport: http(),
+ * }).extend(testActions({ mode: 'anvil' }))
  * await client.mine({ blocks: 1 })
  * ```
  */
