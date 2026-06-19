@@ -680,7 +680,7 @@ importers:
         specifier: 0.14.29
         version: 0.14.29(typescript@5.9.3)(zod@4.3.6)
       ws:
-        specifier: ^8.21.0
+        specifier: 8.21.0
         version: 8.21.0
 
 packages:
