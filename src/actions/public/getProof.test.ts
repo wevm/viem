@@ -1,91 +1,76 @@
 import { expect, test } from 'vitest'
 
-import { base } from '../../chains/index.js'
-import { createPublicClient } from '../../clients/createPublicClient.js'
-import { http } from '../../clients/transports/http.js'
+import { anvilMainnet } from '~test/anvil.js'
 import { getBlock } from './getBlock.js'
 import { getProof } from './getProof.js'
 
-test('default', async () => {
-  const client = createPublicClient({
-    chain: base,
-    transport: http(),
-  })
+const client = anvilMainnet.getClient()
 
+// WETH on Ethereum mainnet.
+const address = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
+const storageKeys = [
+  '0x0000000000000000000000000000000000000000000000000000000000000000',
+] satisfies `0x${string}`[]
+
+test('default', async () => {
   const result = await getProof(client, {
-    address: '0x4200000000000000000000000000000000000016',
-    storageKeys: [
-      '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
-    ],
+    address,
+    storageKeys,
   })
 
   expect(Object.keys(result)).toMatchInlineSnapshot(`
     [
-      "accountProof",
       "address",
       "balance",
       "codeHash",
       "nonce",
       "storageHash",
+      "accountProof",
       "storageProof",
     ]
   `)
 })
 
 test('args: blockHash (EIP-1898)', async () => {
-  const client = createPublicClient({
-    chain: base,
-    transport: http(),
-  })
-
   const block = await getBlock(client, { blockTag: 'latest' })
 
   const result = await getProof(client, {
-    address: '0x4200000000000000000000000000000000000016',
-    storageKeys: [
-      '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
-    ],
+    address,
+    storageKeys,
     blockHash: block.hash!,
   })
 
   expect(Object.keys(result)).toMatchInlineSnapshot(`
     [
-      "accountProof",
       "address",
       "balance",
       "codeHash",
       "nonce",
       "storageHash",
+      "accountProof",
       "storageProof",
     ]
   `)
 })
 
 test('args: blockHash + requireCanonical (EIP-1898)', async () => {
-  const client = createPublicClient({
-    chain: base,
-    transport: http(),
-  })
-
   const block = await getBlock(client, { blockTag: 'latest' })
 
   const result = await getProof(client, {
-    address: '0x4200000000000000000000000000000000000016',
-    storageKeys: [
-      '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
-    ],
+    address,
+    storageKeys,
     blockHash: block.hash!,
     requireCanonical: true,
   })
 
   expect(Object.keys(result)).toMatchInlineSnapshot(`
     [
-      "accountProof",
       "address",
       "balance",
       "codeHash",
       "nonce",
       "storageHash",
+      "accountProof",
       "storageProof",
     ]
   `)
