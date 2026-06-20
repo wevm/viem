@@ -71,7 +71,7 @@ overrides:
   tar: '>=7.5.16'
   tar-fs@>=3.0.0 <3.1.1: '>=3.1.1'
   tmp: '>=0.2.7'
-  undici@>=7.0.0 <7.28.0: 7.28.0
+  undici@>=7.0.0 <7.24.0: 7.24.0
   vite@>=6.0.0 <=6.4.2: 6.4.3
   vite@>=7.0.0 <=7.3.1: 7.3.2
   vite@>=8.0.0 <=8.0.15: 8.0.16
@@ -6172,8 +6172,8 @@ packages:
   undici-types@7.12.0:
     resolution: {integrity: sha512-goOacqME2GYyOZZfb5Lgtu+1IDmAlAEu5xnD3+xTzS10hT0vzpf0SPjkXwAw9Jm+4n/mQGDP3LO8CPbYROeBfQ==}
 
-  undici@7.28.0:
-    resolution: {integrity: sha512-cRZYrTDwWznlnRiPjggAGxZXanty6M8RV1ff8Wm4LWXBp7/IG8v5DnOm74DtUBp9OONpK75YlPnIjQqX0dBDtA==}
+  undici@7.24.0:
+    resolution: {integrity: sha512-jxytwMHhsbdpBXxLAcuu0fzlQeXCNnWdDyRHpvWsUl8vd98UwYdl9YTyn8/HcpcJPC3pwUveefsa3zTxyD/ERg==}
     engines: {node: '>=20.18.1'}
 
   unicode-emoji-modifier-base@1.0.0:
@@ -12809,7 +12809,7 @@ snapshots:
       ssh-remote-port-forward: 1.0.4
       tar-fs: 3.1.1
       tmp: 0.2.7
-      undici: 7.28.0
+      undici: 7.24.0
     transitivePeerDependencies:
       - bare-buffer
       - supports-color
@@ -12935,7 +12935,7 @@ snapshots:
 
   undici-types@7.12.0: {}
 
-  undici@7.28.0: {}
+  undici@7.24.0: {}
 
   unicode-emoji-modifier-base@1.0.0: {}
 

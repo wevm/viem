@@ -2,7 +2,6 @@ import { assertType, describe, expect, test, vi } from 'vitest'
 
 import { anvilMainnet } from '~test/anvil.js'
 import { base, localhost, mainnet } from '../chains/index.js'
-import { UrlRequiredError } from '../errors/transport.js'
 import type { EIP1193RequestFn, EIP1474Methods } from '../types/eip1193.js'
 import { getAction } from '../utils/getAction.js'
 import { type Client, createClient } from './createClient.js'
@@ -672,70 +671,19 @@ describe('extends', () => {
     `)
   })
 
-  describe('chain default', () => {
-    test('decorator-supplied chain is ignored when chain is set', () => {
+  describe('ignores protected properties', () => {
+    test('default', () => {
       const client = createClient({
         chain: localhost,
         transport: http(),
       })
       const extended = client.extend(() => ({
+        // @ts-expect-error
         chain: mainnet,
       }))
 
+      // @ts-expect-error
       expect(extended.chain.id).toEqual(client.chain.id)
-    })
-
-    test('decorator-supplied chain is used when chain is unset', () => {
-      const client = createClient({
-        transport: http(localhost.rpcUrls.default.http[0]),
-      })
-      const extended = client.extend(() => ({
-        chain: mainnet,
-      }))
-
-      expect(extended.chain.id).toEqual(mainnet.id)
-    })
-
-    test('behavior: deferred transport resolves url from decorator chain', () => {
-      const extended = createClient({
-        transport: http(),
-      }).extend(() => ({ chain: mainnet }))
-
-      expect(extended.chain.id).toEqual(mainnet.id)
-      expect(extended.transport.url).toEqual(mainnet.rpcUrls.default.http[0])
-    })
-
-    test('behavior: request captured before chain attaches resolves', async () => {
-      // A transport that, like `http()`, can only resolve once a chain is known.
-      const deferrable = (({ chain }) => {
-        if (!chain) throw new UrlRequiredError()
-        return createTransport({
-          key: 'mock',
-          name: 'Mock',
-          type: 'mock',
-          request: (async ({ method }) =>
-            method === 'eth_chainId' ? chain.id : null) as EIP1193RequestFn,
-        })
-      }) as Parameters<typeof createClient>[0]['transport']
-
-      const extended = createClient({ transport: deferrable })
-        // captures `request` before any chain is attached
-        .extend((client) => ({
-          getId: () => client.request({ method: 'eth_chainId' }),
-        }))
-        .extend(() => ({ chain: mainnet }))
-
-      // the captured request now delegates to the chain-resolved transport
-      expect(await extended.getId()).toEqual(mainnet.id)
-    })
-
-    test('behavior: sibling extensions resolve independently', () => {
-      const client = createClient({ transport: http() })
-      const a = client.extend(() => ({ chain: mainnet }))
-      const b = client.extend(() => ({ chain: base }))
-
-      expect(a.transport.url).toEqual(mainnet.rpcUrls.default.http[0])
-      expect(b.transport.url).toEqual(base.rpcUrls.default.http[0])
     })
   })
 

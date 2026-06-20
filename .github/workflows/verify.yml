@@ -67,7 +67,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        version: ['5.9.3', 'latest']
+        version: ['5.8.2', '5.9.3', 'latest']
 
     steps:
       - name: Clone repository
@@ -260,7 +260,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        typescript-version: ['5.9.3']
+        typescript-version: ['5.7.3', '5.8.3', '5.9.3']
 
     steps:
       - name: Clone repository

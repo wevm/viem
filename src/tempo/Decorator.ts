@@ -1,7 +1,5 @@
 import type { Address } from 'abitype'
 import type { Account } from '../accounts/types.js'
-import { tempo } from '../chains/definitions/tempo.js'
-import { tempoModerato } from '../chains/definitions/tempoModerato.js'
 import type { Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
 import type { Chain } from '../types/chain.js'
@@ -32,12 +30,14 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions, Account } from 'viem/tempo'
      * import { generatePrivateKey } from 'viem/accounts'
      *
      * const account = Account.from({ privateKey: '0x...' })
      * const client = createClient({
      *   account,
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -63,12 +63,14 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions, Account } from 'viem/tempo'
      * import { generatePrivateKey } from 'viem/accounts'
      *
      * const account = Account.from({ privateKey: '0x...' })
      * const client = createClient({
      *   account,
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -95,11 +97,13 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -120,11 +124,13 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      * import { privateKeyToAccount } from 'viem/accounts'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -145,9 +151,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -169,9 +177,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -194,9 +204,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -218,9 +230,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -243,10 +257,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -268,10 +284,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -293,10 +311,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -320,10 +340,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -346,9 +368,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -371,9 +395,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -396,9 +422,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -449,9 +477,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -479,10 +509,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -507,10 +539,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -535,10 +569,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -563,10 +599,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -591,10 +629,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -619,10 +659,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -646,9 +688,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -669,9 +713,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -692,9 +738,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -994,10 +1042,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1022,10 +1072,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1050,10 +1102,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1075,10 +1129,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1103,10 +1159,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1131,10 +1189,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1156,10 +1216,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1181,10 +1243,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1205,9 +1269,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1229,9 +1295,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1254,9 +1322,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1277,9 +1347,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions, Tick } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1302,9 +1374,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1328,10 +1402,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions, Tick } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1356,10 +1432,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions, Tick } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1384,10 +1462,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions, Tick } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1413,10 +1493,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions, Tick } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1442,10 +1524,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1470,10 +1554,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1498,10 +1584,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1524,10 +1612,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1549,9 +1639,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1574,9 +1666,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1599,9 +1693,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1624,9 +1720,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1652,9 +1750,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1677,9 +1777,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1702,9 +1804,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1726,9 +1830,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1753,9 +1859,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1777,10 +1885,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1803,10 +1913,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1829,10 +1941,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1853,9 +1967,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1882,10 +1998,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1908,10 +2026,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1934,10 +2054,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1960,10 +2082,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -1986,10 +2110,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2013,10 +2139,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2040,10 +2168,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2067,10 +2197,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2093,9 +2225,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2116,9 +2250,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2140,9 +2276,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2165,9 +2303,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2190,9 +2330,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2215,9 +2357,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2243,10 +2387,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2266,10 +2412,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2291,10 +2439,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2317,10 +2467,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2342,9 +2494,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2363,9 +2517,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2387,10 +2543,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2414,10 +2572,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2441,9 +2601,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2466,9 +2628,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2491,9 +2655,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2516,9 +2682,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2541,9 +2709,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2569,10 +2739,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2594,10 +2766,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2619,10 +2793,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2645,10 +2821,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2670,9 +2848,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2695,10 +2875,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2721,10 +2903,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2746,9 +2930,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2772,9 +2958,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2800,10 +2988,12 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http, parseUnits } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { Actions, tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: '0x...',
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2833,10 +3023,12 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http, parseUnits } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { Actions, Addresses, tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: '0x...',
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2881,10 +3073,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2908,10 +3102,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2935,10 +3131,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2963,10 +3161,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -2991,10 +3191,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3018,10 +3220,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3045,10 +3249,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3072,10 +3278,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3102,10 +3310,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3131,10 +3341,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3160,10 +3372,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3186,10 +3400,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3209,9 +3425,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3233,9 +3451,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3259,10 +3479,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3286,10 +3508,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3314,10 +3538,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3341,10 +3567,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3369,10 +3597,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3397,10 +3627,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3423,10 +3655,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3449,10 +3683,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3476,10 +3712,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3502,10 +3740,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3530,10 +3770,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3557,10 +3799,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3584,10 +3828,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3611,10 +3857,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3639,10 +3887,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3667,10 +3917,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3694,10 +3946,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3721,10 +3975,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3747,10 +4003,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3772,9 +4030,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3798,9 +4058,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3822,9 +4084,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3846,9 +4110,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3870,9 +4136,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3896,9 +4164,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3920,9 +4190,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3949,10 +4221,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -3978,10 +4252,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -4007,10 +4283,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -4032,10 +4310,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -4057,10 +4337,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -4083,10 +4365,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -4108,9 +4392,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -4131,9 +4417,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -4154,9 +4442,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -4175,9 +4465,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -4196,9 +4488,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -4217,9 +4511,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -4239,10 +4535,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -4267,10 +4565,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -4295,10 +4595,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -4323,10 +4625,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -4352,9 +4656,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -4376,10 +4682,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -4404,10 +4712,12 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -4432,9 +4742,11 @@ export type Decorator<
      * @example
      * ```ts
      * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
+     *   chain: tempo,
      *   transport: http(),
      * }).extend(tempoActions())
      *
@@ -4459,12 +4771,14 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
      *   transport: http(),
-     * }).extend(tempoActions({ testnet: true }))
+     * }).extend(tempoActions())
      *
      * const hash = await client.zone.deposit({
      *   token: '0x20c0...0001',
@@ -4486,12 +4800,14 @@ export type Decorator<
      * ```ts
      * import { createClient, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
+     * import { tempoModerato } from 'viem/chains'
      * import { tempoActions } from 'viem/tempo'
      *
      * const client = createClient({
      *   account: privateKeyToAccount('0x...'),
+     *   chain: tempoModerato,
      *   transport: http(),
-     * }).extend(tempoActions({ testnet: true }))
+     * }).extend(tempoActions())
      *
      * const { receipt } = await client.zone.depositSync({
      *   token: '0x20c0...0001',
@@ -4758,57 +5074,15 @@ export type Decorator<
   }
 }
 
-/**
- * A suite of Tempo Actions for a Client.
- *
- * Attaches a default `chain` to the Client when one was not provided:
- * `tempo` by default, or `tempoModerato` when `testnet` is `true`. An
- * explicitly-provided chain on the Client always takes precedence.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempoActions } from 'viem/tempo'
- *
- * // Attaches the `tempo` chain.
- * const client = createClient({
- *   transport: http(),
- * }).extend(tempoActions())
- *
- * // Attaches the `tempoModerato` (testnet) chain.
- * const testnetClient = createClient({
- *   transport: http(),
- * }).extend(tempoActions({ testnet: true }))
- * ```
- *
- * @param options - Decorator options.
- * @returns A function that decorates a Client with Tempo Actions.
- */
-export function decorator<const testnet extends boolean = false>(
-  options: decorator.Options<testnet> = {},
-) {
-  const chain = (
-    options.testnet ? tempoModerato : tempo
-  ) as decorator.DefaultChain<testnet>
+export function decorator() {
   return <
     transport extends Transport,
-    chain_ extends Chain | undefined,
+    chain extends Chain | undefined,
     account extends Account | undefined,
   >(
-    client_: Client<transport, chain_, account>,
-  ): Decorator<decorator.ResolvedChain<chain_, testnet>, account> & {
-    chain: decorator.DefaultChain<testnet>
-  } => {
-    // Default the client chain when one was not provided. Contained cast: the
-    // spread widens the `chain` slot, but the action closures below expect the
-    // resolved client shape.
-    const client = (client_.chain ? client_ : { ...client_, chain }) as Client<
-      transport,
-      decorator.ResolvedChain<chain_, testnet>,
-      account
-    >
+    client: Client<transport, chain, account>,
+  ): Decorator<chain, account> => {
     return {
-      chain,
       accessKey: {
         authorize: (parameters) =>
           accessKeyActions.authorize(client, parameters),
@@ -5142,28 +5416,4 @@ export function decorator<const testnet extends boolean = false>(
       },
     }
   }
-}
-
-export declare namespace decorator {
-  type Options<testnet extends boolean = boolean> = {
-    /**
-     * Whether to attach the Tempo testnet chain (`tempoModerato`) as the
-     * default chain. The default chain is only attached when the Client was
-     * created without an explicit chain.
-     *
-     * @default false
-     */
-    testnet?: testnet | undefined
-  }
-
-  /** The default chain attached for a given `testnet` flag. */
-  type DefaultChain<testnet extends boolean> = testnet extends true
-    ? typeof tempoModerato
-    : typeof tempo
-
-  /** Resolves the Client chain, falling back to the default Tempo chain. */
-  type ResolvedChain<
-    chain extends Chain | undefined,
-    testnet extends boolean,
-  > = [chain] extends [undefined] ? DefaultChain<testnet> : chain
 }
