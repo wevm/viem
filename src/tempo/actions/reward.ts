@@ -1,6 +1,5 @@
 import type { Address } from 'abitype'
 import type { Account } from '../../accounts/types.js'
-import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
 import { readContract } from '../../actions/public/readContract.js'
 import type {
@@ -726,18 +725,7 @@ export async function setRecipientSync<
     ...rest,
     throwOnReceiptRevert,
   } as never)
-  let args: { holder: Address; recipient: Address }
-  try {
-    ;({ args } = setRecipient.extractEvent(receipt.logs))
-  } catch (error) {
-    if (receipt.status !== 'success') throw error
-    const account = rest.account ?? client.account
-    if (!account) throw error
-    args = {
-      holder: parseAccount(account).address,
-      recipient: rest.recipient,
-    }
-  }
+  const { args } = setRecipient.extractEvent(receipt.logs)
   return {
     ...args,
     receipt,
