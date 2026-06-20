@@ -89,7 +89,7 @@ describe('simulateBlocks', () => {
       ),
     }).toMatchInlineSnapshot(`
       {
-        "gasUsed": 287370n,
+        "gasUsed": 287170n,
         "logs": [
           {
             "address": "0x20c0000000000000000000000000000000000001",

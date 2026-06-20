@@ -2,13 +2,14 @@ import { expect, test } from 'vitest'
 
 import { wagmiContractConfig } from '~test/abis.js'
 import { anvilMainnet } from '~test/anvil.js'
+import type { Hash } from '../../types/misc.js'
 import { getBlock } from './getBlock.js'
 import { getProof } from './getProof.js'
 
 const client = anvilMainnet.getClient()
-const storageKeys = [
+const storageKeys: Hash[] = [
   '0x0000000000000000000000000000000000000000000000000000000000000000',
-] as const
+]
 
 test('default', async () => {
   const result = await getProof(client, {
