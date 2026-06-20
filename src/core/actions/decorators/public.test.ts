@@ -7,6 +7,19 @@ import { publicActions } from './public.js'
 describe('publicActions', () => {
   test('decorates a client with public actions', async () => {
     const client = getClient(anvilMainnet).extend(publicActions())
+    expect(
+      (
+        await client.call({
+          data: '0x06fdde03',
+          to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+        })
+      ).data,
+    ).toBeDefined()
+    expect(
+      await client.getBalance({
+        address: '0xC02aaa39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+      }),
+    ).toBeTypeOf('bigint')
     expect(typeof (await client.getBlockNumber())).toBe('bigint')
     expect(await client.getBlobBaseFee()).toBeTypeOf('bigint')
     expect(await client.getBlockTransactionCount()).toBeTypeOf('number')

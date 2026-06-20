@@ -1,4 +1,6 @@
 import type * as Client from '../../Client.js'
+import { call } from '../public/call.js'
+import { getBalance } from '../public/getBalance.js'
 import { getBlobBaseFee } from '../public/getBlobBaseFee.js'
 import { getBlockNumber } from '../public/getBlockNumber.js'
 import { getBlockTransactionCount } from '../public/getBlockTransactionCount.js'
@@ -26,6 +28,8 @@ import { getTransactionCount } from '../public/getTransactionCount.js'
  */
 export function publicActions() {
   return (client: Client.Client): publicActions.Decorator => ({
+    call: (options) => call(client, options),
+    getBalance: (options) => getBalance(client, options),
     getBlobBaseFee: () => getBlobBaseFee(client),
     getBlockNumber: (options) => getBlockNumber(client, options),
     getBlockTransactionCount: (options) =>
@@ -40,6 +44,8 @@ export function publicActions() {
 
 export declare namespace publicActions {
   type Decorator = {
+    call: (options?: call.Options | undefined) => Promise<call.ReturnType>
+    getBalance: (options: getBalance.Options) => Promise<getBalance.ReturnType>
     getBlobBaseFee: () => Promise<getBlobBaseFee.ReturnType>
     getBlockNumber: (
       options?: getBlockNumber.Options | undefined,

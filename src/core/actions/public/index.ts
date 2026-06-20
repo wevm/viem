@@ -1,3 +1,5 @@
+export { call } from './call.js'
+export { getBalance } from './getBalance.js'
 export { getBlobBaseFee } from './getBlobBaseFee.js'
 export { getBlockNumber } from './getBlockNumber.js'
 export { getBlockTransactionCount } from './getBlockTransactionCount.js'
