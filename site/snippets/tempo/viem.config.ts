@@ -1,15 +1,9 @@
 // [!region setup]
-import { createClient, http, publicActions, walletActions } from 'viem'
-import { Account, Chain, tempoActions } from 'viem/tempo'
+import { Account, createClient } from 'viem/tempo'
 
 export const client = createClient({
   account: Account.fromSecp256k1('0x...'),
-  chain: Chain.testnet,
-  transport: http(),
 })
-  .extend(publicActions)
-  .extend(walletActions)
-  .extend(tempoActions())
 
 // [!endregion setup]
 
