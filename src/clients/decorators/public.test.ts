@@ -19,10 +19,13 @@ import {
   writeContract,
 } from '../../actions/index.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
+import { base } from '../../chains/index.js'
 import { pad } from '../../utils/index.js'
 import { createSiweMessage } from '../../utils/siwe/createSiweMessage.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { wait } from '../../utils/wait.js'
+import { createPublicClient } from '../createPublicClient.js'
+import { http } from '../transports/http.js'
 import { publicActions } from './public.js'
 
 const client = anvilMainnet.getClient().extend(publicActions)
@@ -332,12 +335,16 @@ describe('smoke test', () => {
   })
 
   test('getProof', async () => {
+    const client = createPublicClient({
+      chain: base,
+      transport: http(),
+    })
+
     expect(
       await client.getProof({
-        // WETH on Ethereum mainnet.
-        address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+        address: '0x4200000000000000000000000000000000000016',
         storageKeys: [
-          '0x0000000000000000000000000000000000000000000000000000000000000000',
+          '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
         ],
       }),
     ).toBeDefined()
