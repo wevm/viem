@@ -1507,6 +1507,10 @@ export default defineConfig({
           text: 'Bundler Actions',
           items: [
             {
+              text: 'Introduction',
+              link: '/account-abstraction/actions/bundler/introduction',
+            },
+            {
               text: 'estimateUserOperationGas',
               link: '/account-abstraction/actions/bundler/estimateUserOperationGas',
             },
