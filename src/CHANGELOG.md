@@ -1,5 +1,11 @@
 # viem
 
+## 2.53.1
+
+### Patch Changes
+
+- [#4748](https://github.com/wevm/viem/pull/4748) [`ed55a13fbf8af9c587d94a3363f507e642236e93`](https://github.com/wevm/viem/commit/ed55a13fbf8af9c587d94a3363f507e642236e93) Thanks [@jxom](https://github.com/jxom)! - **`viem/tempo`:** Added `createClient` to `viem/tempo` with a default chain, transport, and actions.
+
 ## 2.53.0
 
 ### Minor Changes
