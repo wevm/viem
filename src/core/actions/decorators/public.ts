@@ -7,12 +7,14 @@ import { getBalance } from '../public/getBalance.js'
 import { getBlobBaseFee } from '../public/getBlobBaseFee.js'
 import { getBlock } from '../public/getBlock.js'
 import { getBlockNumber } from '../public/getBlockNumber.js'
+import { getBlockReceipts } from '../public/getBlockReceipts.js'
 import { getBlockTransactionCount } from '../public/getBlockTransactionCount.js'
 import { getChainId } from '../public/getChainId.js'
 import { getCode } from '../public/getCode.js'
 import { getGasPrice } from '../public/getGasPrice.js'
 import { getStorageAt } from '../public/getStorageAt.js'
 import { getTransaction } from '../public/getTransaction.js'
+import { getTransactionConfirmations } from '../public/getTransactionConfirmations.js'
 import { getTransactionCount } from '../public/getTransactionCount.js'
 import { getTransactionReceipt } from '../public/getTransactionReceipt.js'
 
@@ -41,6 +43,7 @@ export function publicActions() {
     getBlobBaseFee: () => getBlobBaseFee(client),
     getBlock: (options) => getBlock(client, options),
     getBlockNumber: (options) => getBlockNumber(client, options),
+    getBlockReceipts: (options) => getBlockReceipts(client, options),
     getBlockTransactionCount: (options) =>
       getBlockTransactionCount(client, options),
     getChainId: () => getChainId(client),
@@ -48,6 +51,8 @@ export function publicActions() {
     getGasPrice: () => getGasPrice(client),
     getStorageAt: (options) => getStorageAt(client, options),
     getTransaction: (options) => getTransaction(client, options),
+    getTransactionConfirmations: (options) =>
+      getTransactionConfirmations(client, options),
     getTransactionCount: (options) => getTransactionCount(client, options),
     getTransactionReceipt: (options) => getTransactionReceipt(client, options),
   })
@@ -150,6 +155,25 @@ export declare namespace publicActions {
     getBlockNumber: (
       options?: getBlockNumber.Options | undefined,
     ) => Promise<getBlockNumber.ReturnType>
+    /**
+     * Returns the transaction receipts of a block at a block number, hash, or
+     * tag.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const receipts = await client.getBlockReceipts({ blockNumber: 69420n })
+     * ```
+     */
+    getBlockReceipts: (
+      options?: getBlockReceipts.Options | undefined,
+    ) => Promise<getBlockReceipts.ReturnType<chain>>
     /**
      * Returns the number of transactions at a block number, hash, or tag.
      *
@@ -259,6 +283,27 @@ export declare namespace publicActions {
     getTransaction: <blockTag extends Block.Tag = 'latest'>(
       options: getTransaction.Options<blockTag>,
     ) => Promise<getTransaction.ReturnType<chain, blockTag>>
+    /**
+     * Returns the number of blocks passed (confirmations) since the transaction
+     * was processed on a block.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const confirmations = await client.getTransactionConfirmations({
+     *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+     * })
+     * ```
+     */
+    getTransactionConfirmations: (
+      options: getTransactionConfirmations.Options<chain>,
+    ) => Promise<getTransactionConfirmations.ReturnType>
     /**
      * Returns the number of transactions an Account has broadcast / sent.
      *

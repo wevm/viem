@@ -1,0 +1,126 @@
+# getBlockReceipts
+
+Returns the transaction receipts of a block at a block number, hash, or tag.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const receipts = await client.getBlockReceipts({ blockNumber: 69420n })
+// @log: [
+// @log:   {
+// @log:     blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+// @log:     blockNumber: 69420n,
+// @log:     contractAddress: null,
+// @log:     cumulativeGasUsed: 21000n,
+// @log:     from: '0xa152f8bb749c55e9943a3a0a3111d18ee2b3f94e',
+// @log:     gasUsed: 21000n,
+// @log:     status: 'success',
+// @log:     transactionHash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+// @log:     ...
+// @log:   },
+// @log:   ...
+// @log: ]
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const receipts = await Actions.getBlockReceipts(client, { blockNumber: 69420n })
+// @log: [
+// @log:   {
+// @log:     blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+// @log:     blockNumber: 69420n,
+// @log:     contractAddress: null,
+// @log:     cumulativeGasUsed: 21000n,
+// @log:     from: '0xa152f8bb749c55e9943a3a0a3111d18ee2b3f94e',
+// @log:     gasUsed: 21000n,
+// @log:     status: 'success',
+// @log:     transactionHash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+// @log:     ...
+// @log:   },
+// @log:   ...
+// @log: ]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Return Value
+
+`TransactionReceipt[]`
+
+The block's transaction receipts. When the connected Client's [`chain`](/docs/chains) defines a `schema.transactionReceipt` codec, each entry reflects that chain's custom receipt shape.
+
+## Parameters
+
+### blockHash
+
+- **Type:** `Hex`
+
+Return the receipts of the block with the given hash.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const receipts = await Actions.getBlockReceipts(client, {
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d', // [!code focus]
+})
+```
+
+### blockNumber
+
+- **Type:** `bigint`
+
+Return the receipts of the block at the given number.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const receipts = await Actions.getBlockReceipts(client, {
+  blockNumber: 69420n, // [!code focus]
+})
+```
+
+### blockTag
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+Return the receipts of the block at the given tag.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const receipts = await Actions.getBlockReceipts(client, {
+  blockTag: 'safe', // [!code focus]
+})
+```
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Block.NotFoundError` | The block could not be found. |

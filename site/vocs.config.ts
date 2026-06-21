@@ -194,6 +194,10 @@ export default defineConfig({
                 link: '/docs/actions/public/getBlockNumber',
               },
               {
+                text: 'getBlockReceipts',
+                link: '/docs/actions/public/getBlockReceipts',
+              },
+              {
                 text: 'getBlockTransactionCount',
                 link: '/docs/actions/public/getBlockTransactionCount',
               },
@@ -207,6 +211,10 @@ export default defineConfig({
               {
                 text: 'getTransaction',
                 link: '/docs/actions/public/getTransaction',
+              },
+              {
+                text: 'getTransactionConfirmations',
+                link: '/docs/actions/public/getTransactionConfirmations',
               },
               {
                 text: 'getTransactionCount',
