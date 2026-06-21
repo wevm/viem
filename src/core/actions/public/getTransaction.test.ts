@@ -185,6 +185,19 @@ describe('getTransaction', () => {
     `)
   })
 
+  test('error: transaction not found (by block hash + index)', async () => {
+    await expect(() =>
+      getTransaction(client, {
+        blockHash: forkTip.blockHash,
+        index: 9_999_999,
+      }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [Transaction.NotFoundError: Transaction at block hash "0xd028bdc00aff985bdf872d6b961110d41a6fe4df5e93aeb6dffe2f38ae0a4f7d" at index "9999999" could not be found.
+
+      Version: viem@2.52.1]
+    `)
+  })
+
   test('error: transaction not found (by sender + nonce)', async () => {
     await expect(() =>
       getTransaction(client, {

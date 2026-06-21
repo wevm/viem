@@ -132,6 +132,25 @@ describe('http', () => {
     }
   })
 
+  test('rethrows an abort error raised by fetch', async () => {
+    const server = await Http.createServer((_req, res) => {
+      res.end(ok('0x1'))
+    })
+    try {
+      const error = await RpcClient.http(server.url, {
+        // Inject an already-aborted signal so fetch raises an AbortError,
+        // without the caller-provided `signal` being set.
+        onRequest: (_request, init) =>
+          ({ ...init, signal: AbortSignal.abort() }) as any,
+      })
+        .request({ body: { method: 'eth_chainId' } })
+        .catch((error) => error as Error)
+      expect((error as Error).name).toBe('AbortError')
+    } finally {
+      await server.close()
+    }
+  })
+
   test('sends Basic auth credentials parsed from the URL', async () => {
     let authorization: string | undefined
     const server = await Http.createServer((req, res) => {
