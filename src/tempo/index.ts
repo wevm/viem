@@ -22,12 +22,42 @@ export {
   VirtualAddress,
   VirtualMaster,
 } from 'ox/tempo'
+export {
+  type CustomTransport,
+  type CustomTransportConfig,
+  type CustomTransportErrorType,
+  custom,
+} from '../clients/transports/custom.js'
+export {
+  type FallbackTransport,
+  type FallbackTransportConfig,
+  type FallbackTransportErrorType,
+  fallback,
+} from '../clients/transports/fallback.js'
+export {
+  type HttpTransport,
+  type HttpTransportConfig,
+  type HttpTransportErrorType,
+  http,
+} from '../clients/transports/http.js'
+export {
+  type WebSocketTransport,
+  type WebSocketTransportConfig,
+  type WebSocketTransportErrorType,
+  webSocket,
+} from '../clients/transports/webSocket.js'
 export * as Abis from './Abis.js'
 export * as Account from './Account.js'
 export * as Addresses from './Addresses.js'
 export * as Actions from './actions/index.js'
 export * as Capabilities from './Capabilities.js'
 export * as Chain from './Chain.js'
+export {
+  type Client,
+  type ClientConfig,
+  type CreateClientErrorType,
+  createClient,
+} from './Client.js'
 export {
   type Decorator as TempoActions,
   decorator as tempoActions,
