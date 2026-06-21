@@ -8,9 +8,12 @@ import {
   type RequireCanonicalError,
   blockParameter,
 } from '../internal/blockParameter.js'
-import { getEthBalanceAbi } from '../internal/constants.js'
 import { getMulticallAddress } from '../internal/multicall.js'
 import { call } from './call.js'
+
+const getEthBalanceAbi = /*#__PURE__*/ AbiFunction.from(
+  'function getEthBalance(address addr) returns (uint256 balance)',
+)
 
 /**
  * Returns the balance of an address in wei.

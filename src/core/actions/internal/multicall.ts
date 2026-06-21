@@ -8,12 +8,12 @@ import type * as Client from '../../Client.js'
 import { BaseError } from '../../Errors.js'
 import { getChainContractAddress } from '../../../chains/utils.js'
 import { createBatchScheduler } from '../../internal/promise.js'
-import {
-  aggregate3Abi,
-  aggregate3Signature,
-  multicall3Bytecode,
-} from './constants.js'
+import { multicall3Bytecode } from './constants.js'
 import { toDeploylessCallViaBytecodeData } from './deployless.js'
+
+const aggregate3Abi = /*#__PURE__*/ AbiFunction.from(
+  'function aggregate3((address target, bool allowFailure, bytes callData)[] calls) returns ((bool success, bytes returnData)[] returnData)',
+)
 
 type RequestOptions = Parameters<Client.Client['request']>[1]
 
@@ -30,7 +30,7 @@ export function shouldPerformMulticall(options: {
 }): boolean {
   const { data, to, ...rest } = options.request
   if (!data) return false
-  if (data.startsWith(aggregate3Signature)) return false
+  if (data.startsWith(AbiFunction.getSelector(aggregate3Abi))) return false
   if (!to) return false
   if (Object.values(rest).filter((x) => typeof x !== 'undefined').length > 0)
     return false
