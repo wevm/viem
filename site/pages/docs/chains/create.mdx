@@ -117,6 +117,25 @@ const chain = Chain.from({
 })
 ```
 
+### Customizing Fees
+
+Set `fees` to override how fee-estimation actions derive values for the chain. See [Customizing Fees](/docs/chains/fees) for the full configuration.
+
+```ts twoslash
+import { Chain } from 'viem'
+
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  fees: { // [!code focus]
+    baseFeeMultiplier: 1.2, // [!code focus]
+    maxPriorityFeePerGas: 1_000_000_000n, // [!code focus]
+  }, // [!code focus]
+})
+```
+
 ### Setting Preconfirmation Time
 
 Set `preconfirmationTime` to describe the expected delay before preconfirmations are available. Use it for chains that expose faster preconfirmation signals than final blocks.
@@ -231,6 +250,25 @@ const chain = Chain.from({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
   ensTlds: ['.eth'], // [!code focus]
+})
+```
+
+##### chain.fees
+
+- **Type:** `Chain.Fees`
+- **Optional**
+
+Overrides for how fees are derived. See [Customizing Fees](/docs/chains/fees).
+
+```ts twoslash
+import { Chain } from 'viem'
+// ---cut---
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  fees: { baseFeeMultiplier: 1.2, maxPriorityFeePerGas: 1_000_000_000n }, // [!code focus]
 })
 ```
 

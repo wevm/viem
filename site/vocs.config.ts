@@ -340,6 +340,7 @@ export default defineConfig({
           { text: 'Overview', link: '/docs/chains' },
           { text: 'Defining a Chain', link: '/docs/chains/create' },
           { text: 'Extending Chains', link: '/docs/chains/extend' },
+          { text: 'Customizing Fees', link: '/docs/chains/fees' },
         ],
       },
       {
