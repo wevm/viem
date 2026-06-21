@@ -112,6 +112,22 @@ const transport = custom(provider, {
 })
 ```
 
+##### methods
+
+- **Type:** `{ include?: string[] } | { exclude?: string[] }`
+
+RPC methods to include or exclude.
+
+```ts twoslash
+import { custom } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+// ---cut---
+const transport = custom(provider, {
+  methods: { include: ['eth_call'] }, // [!code focus]
+})
+```
+
 ##### name
 
 - **Type:** `string`
@@ -126,22 +142,6 @@ declare const provider: { request(...args: any): Promise<any> }
 // ---cut---
 const transport = custom(provider, {
   name: 'Custom Provider', // [!code focus]
-})
-```
-
-##### methods
-
-- **Type:** `{ include?: string[] } | { exclude?: string[] }`
-
-RPC methods to include or exclude.
-
-```ts twoslash
-import { custom } from 'viem'
-
-declare const provider: { request(...args: any): Promise<any> }
-// ---cut---
-const transport = custom(provider, {
-  methods: { include: ['eth_call'] }, // [!code focus]
 })
 ```
 

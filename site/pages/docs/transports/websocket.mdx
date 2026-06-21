@@ -137,21 +137,6 @@ const transport = webSocket('wss://eth.merkle.io', {
 })
 ```
 
-##### reconnect
-
-- **Type:** `boolean | { maxRetries?: number; minReconnectionDelay?: number; maxReconnectionDelay?: number; reconnectionDelayGrowFactor?: number; minUptime?: number; connectionTimeout?: number; maxEnqueuedMessages?: number }`
-- **Default:** `true`
-
-Whether (and how) to reconnect on socket closure. `maxRetries` caps reconnection attempts (default `Infinity`); `minReconnectionDelay`/`maxReconnectionDelay` bound the backoff window.
-
-```ts twoslash
-import { webSocket } from 'viem'
-// ---cut---
-const transport = webSocket('wss://eth.merkle.io', {
-  reconnect: { maxRetries: 10, minReconnectionDelay: 2_000 }, // [!code focus]
-})
-```
-
 ##### key
 
 - **Type:** `string`
@@ -164,6 +149,20 @@ import { webSocket } from 'viem'
 // ---cut---
 const transport = webSocket('wss://eth.merkle.io', {
   key: 'webSocket', // [!code focus]
+})
+```
+
+##### methods
+
+- **Type:** `{ include?: string[] } | { exclude?: string[] }`
+
+RPC methods to include or exclude.
+
+```ts twoslash
+import { webSocket } from 'viem'
+// ---cut---
+const transport = webSocket('wss://eth.merkle.io', {
+  methods: { include: ['eth_subscribe', 'eth_call'] }, // [!code focus]
 })
 ```
 
@@ -182,17 +181,18 @@ const transport = webSocket('wss://eth.merkle.io', {
 })
 ```
 
-##### methods
+##### reconnect
 
-- **Type:** `{ include?: string[] } | { exclude?: string[] }`
+- **Type:** `boolean | { maxRetries?: number; minReconnectionDelay?: number; maxReconnectionDelay?: number; reconnectionDelayGrowFactor?: number; minUptime?: number; connectionTimeout?: number; maxEnqueuedMessages?: number }`
+- **Default:** `true`
 
-RPC methods to include or exclude.
+Whether (and how) to reconnect on socket closure. `maxRetries` caps reconnection attempts (default `Infinity`); `minReconnectionDelay`/`maxReconnectionDelay` bound the backoff window.
 
 ```ts twoslash
 import { webSocket } from 'viem'
 // ---cut---
 const transport = webSocket('wss://eth.merkle.io', {
-  methods: { include: ['eth_subscribe', 'eth_call'] }, // [!code focus]
+  reconnect: { maxRetries: 10, minReconnectionDelay: 2_000 }, // [!code focus]
 })
 ```
 

@@ -62,6 +62,24 @@ const count = await Actions.getTransactionCount(client, {
 })
 ```
 
+### blockHash
+
+- **Type:** `Hex`
+
+The transaction count at a given block hash (EIP-1898).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const count = await Actions.getTransactionCount(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d', // [!code focus]
+})
+```
+
 ### blockNumber
 
 - **Type:** `bigint`
@@ -96,24 +114,6 @@ const client = Client.create({ chain: mainnet, transport: http() })
 const count = await Actions.getTransactionCount(client, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
   blockTag: 'pending', // [!code focus]
-})
-```
-
-### blockHash
-
-- **Type:** `Hex`
-
-The transaction count at a given block hash (EIP-1898).
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const count = await Actions.getTransactionCount(client, {
-  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
-  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d', // [!code focus]
 })
 ```
 

@@ -128,21 +128,6 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### reconnect
-
-- **Type:** `boolean | { maxRetries?: number; minReconnectionDelay?: number; maxReconnectionDelay?: number; reconnectionDelayGrowFactor?: number; minUptime?: number; connectionTimeout?: number; maxEnqueuedMessages?: number }`
-- **Default:** `true`
-
-Whether (and how) to reconnect on socket closure. `maxRetries` caps reconnection attempts (default `Infinity`); `minReconnectionDelay`/`maxReconnectionDelay` bound the backoff window.
-
-```ts twoslash
-import { ipc } from 'viem/node'
-// ---cut---
-const transport = ipc('/tmp/reth.ipc', {
-  reconnect: { maxRetries: 10, minReconnectionDelay: 2_000 }, // [!code focus]
-})
-```
-
 ##### key
 
 - **Type:** `string`
@@ -155,6 +140,20 @@ import { ipc } from 'viem/node'
 // ---cut---
 const transport = ipc('/tmp/reth.ipc', {
   key: 'ipc', // [!code focus]
+})
+```
+
+##### methods
+
+- **Type:** `{ include?: string[] } | { exclude?: string[] }`
+
+RPC methods to include or exclude.
+
+```ts twoslash
+import { ipc } from 'viem/node'
+// ---cut---
+const transport = ipc('/tmp/reth.ipc', {
+  methods: { include: ['eth_call', 'eth_chainId'] }, // [!code focus]
 })
 ```
 
@@ -173,17 +172,18 @@ const transport = ipc('/tmp/reth.ipc', {
 })
 ```
 
-##### methods
+##### reconnect
 
-- **Type:** `{ include?: string[] } | { exclude?: string[] }`
+- **Type:** `boolean | { maxRetries?: number; minReconnectionDelay?: number; maxReconnectionDelay?: number; reconnectionDelayGrowFactor?: number; minUptime?: number; connectionTimeout?: number; maxEnqueuedMessages?: number }`
+- **Default:** `true`
 
-RPC methods to include or exclude.
+Whether (and how) to reconnect on socket closure. `maxRetries` caps reconnection attempts (default `Infinity`); `minReconnectionDelay`/`maxReconnectionDelay` bound the backoff window.
 
 ```ts twoslash
 import { ipc } from 'viem/node'
 // ---cut---
 const transport = ipc('/tmp/reth.ipc', {
-  methods: { include: ['eth_call', 'eth_chainId'] }, // [!code focus]
+  reconnect: { maxRetries: 10, minReconnectionDelay: 2_000 }, // [!code focus]
 })
 ```
 

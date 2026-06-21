@@ -182,6 +182,50 @@ const transport = http('https://eth.merkle.io', {
 })
 ```
 
+##### key
+
+- **Type:** `string`
+- **Default:** `'http'`
+
+Transport key.
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://eth.merkle.io', {
+  key: 'http', // [!code focus]
+})
+```
+
+##### methods
+
+- **Type:** `{ include?: string[] } | { exclude?: string[] }`
+
+RPC methods to include or exclude.
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://eth.merkle.io', {
+  methods: { include: ['eth_call', 'eth_chainId'] }, // [!code focus]
+})
+```
+
+##### name
+
+- **Type:** `string`
+- **Default:** `'HTTP JSON-RPC'`
+
+Transport name.
+
+```ts twoslash
+import { http } from 'viem'
+// ---cut---
+const transport = http('https://eth.merkle.io', {
+  name: 'HTTP JSON-RPC', // [!code focus]
+})
+```
+
 ##### onFetchRequest
 
 - **Type:** `(request: Request) => void`
@@ -226,50 +270,6 @@ import { http } from 'viem'
 // ---cut---
 const transport = http('https://eth.merkle.io', {
   raw: true, // [!code focus]
-})
-```
-
-##### key
-
-- **Type:** `string`
-- **Default:** `'http'`
-
-Transport key.
-
-```ts twoslash
-import { http } from 'viem'
-// ---cut---
-const transport = http('https://eth.merkle.io', {
-  key: 'http', // [!code focus]
-})
-```
-
-##### name
-
-- **Type:** `string`
-- **Default:** `'HTTP JSON-RPC'`
-
-Transport name.
-
-```ts twoslash
-import { http } from 'viem'
-// ---cut---
-const transport = http('https://eth.merkle.io', {
-  name: 'HTTP JSON-RPC', // [!code focus]
-})
-```
-
-##### methods
-
-- **Type:** `{ include?: string[] } | { exclude?: string[] }`
-
-RPC methods to include or exclude.
-
-```ts twoslash
-import { http } from 'viem'
-// ---cut---
-const transport = http('https://eth.merkle.io', {
-  methods: { include: ['eth_call', 'eth_chainId'] }, // [!code focus]
 })
 ```
 

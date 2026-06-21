@@ -83,20 +83,6 @@ const transport = rateLimit(http(), { requestsPerSecond: 50 }) // [!code focus]
 
 - **Type:** `rateLimit.Options`
 
-##### requestsPerSecond
-
-- **Type:** `number`
-
-Max number of requests per second.
-
-```ts twoslash
-import { http, rateLimit } from 'viem'
-// ---cut---
-const transport = rateLimit(http(), {
-  requestsPerSecond: 50, // [!code focus]
-})
-```
-
 ##### key
 
 - **Type:** `string`
@@ -110,6 +96,21 @@ import { http, rateLimit } from 'viem'
 const transport = rateLimit(http(), {
   requestsPerSecond: 50,
   key: 'rateLimit', // [!code focus]
+})
+```
+
+##### methods
+
+- **Type:** `{ include?: string[] } | { exclude?: string[] }`
+
+RPC methods to include or exclude.
+
+```ts twoslash
+import { http, rateLimit } from 'viem'
+// ---cut---
+const transport = rateLimit(http(), {
+  requestsPerSecond: 50,
+  methods: { include: ['eth_call'] }, // [!code focus]
 })
 ```
 
@@ -129,18 +130,17 @@ const transport = rateLimit(http(), {
 })
 ```
 
-##### methods
+##### requestsPerSecond
 
-- **Type:** `{ include?: string[] } | { exclude?: string[] }`
+- **Type:** `number`
 
-RPC methods to include or exclude.
+Max number of requests per second.
 
 ```ts twoslash
 import { http, rateLimit } from 'viem'
 // ---cut---
 const transport = rateLimit(http(), {
-  requestsPerSecond: 50,
-  methods: { include: ['eth_call'] }, // [!code focus]
+  requestsPerSecond: 50, // [!code focus]
 })
 ```
 

@@ -153,23 +153,6 @@ const account = Account.fromMnemonic(
 )
 ```
 
-##### path
-
-- **Type:** `` `m/44'/60'/${string}` ``
-
-Full HD path (overrides the index options).
-
-```ts twoslash
-import { Account } from 'viem'
-// ---cut---
-const account = Account.fromMnemonic(
-  'test test test test test test test test test test test junk',
-  {
-    path: "m/44'/60'/0'/0/0", // [!code focus]
-  },
-)
-```
-
 ##### passphrase
 
 - **Type:** `string`
@@ -183,6 +166,23 @@ const account = Account.fromMnemonic(
   'test test test test test test test test test test test junk',
   {
     passphrase: 'my-passphrase', // [!code focus]
+  },
+)
+```
+
+##### path
+
+- **Type:** `` `m/44'/60'/${string}` ``
+
+Full HD path (overrides the index options).
+
+```ts twoslash
+import { Account } from 'viem'
+// ---cut---
+const account = Account.fromMnemonic(
+  'test test test test test test test test test test test junk',
+  {
+    path: "m/44'/60'/0'/0/0", // [!code focus]
   },
 )
 ```

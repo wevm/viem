@@ -105,6 +105,20 @@ const transport = loadBalance([http(), http()], {
 })
 ```
 
+##### methods
+
+- **Type:** `{ include?: string[] } | { exclude?: string[] }`
+
+RPC methods to include or exclude.
+
+```ts twoslash
+import { http, loadBalance } from 'viem'
+// ---cut---
+const transport = loadBalance([http(), http()], {
+  methods: { include: ['eth_call'] }, // [!code focus]
+})
+```
+
 ##### name
 
 - **Type:** `string`
@@ -117,20 +131,6 @@ import { http, loadBalance } from 'viem'
 // ---cut---
 const transport = loadBalance([http(), http()], {
   name: 'Load Balance', // [!code focus]
-})
-```
-
-##### methods
-
-- **Type:** `{ include?: string[] } | { exclude?: string[] }`
-
-RPC methods to include or exclude.
-
-```ts twoslash
-import { http, loadBalance } from 'viem'
-// ---cut---
-const transport = loadBalance([http(), http()], {
-  methods: { include: ['eth_call'] }, // [!code focus]
 })
 ```
 

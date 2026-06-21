@@ -137,37 +137,6 @@ const transport = fallback([ // [!code focus]
 
 - **Type:** `fallback.Options`
 
-##### rank
-
-- **Type:** `boolean | RankOptions`
-- **Default:** `false`
-
-Enable ranking, or ranking options (see [Rank Options](#rank-options) below).
-
-```ts twoslash
-import { fallback, http } from 'viem'
-// ---cut---
-const transport = fallback([http(), http()], {
-  rank: true, // [!code focus]
-})
-```
-
-##### shouldThrow
-
-- **Type:** `(error: Error) => boolean`
-
-Whether an error is terminal (rethrow) rather than falling through.
-
-```ts twoslash
-import { fallback, http } from 'viem'
-// ---cut---
-const transport = fallback([http(), http()], {
-  shouldThrow(error) { // [!code focus]
-    return error.name === 'UserRejectedRequestError' // [!code focus]
-  }, // [!code focus]
-})
-```
-
 ##### key
 
 - **Type:** `string`
@@ -198,6 +167,21 @@ const transport = fallback([http(), http()], {
 })
 ```
 
+##### rank
+
+- **Type:** `boolean | RankOptions`
+- **Default:** `false`
+
+Enable ranking, or ranking options (see [Rank Options](#rank-options) below).
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  rank: true, // [!code focus]
+})
+```
+
 ##### retryCount
 
 - **Type:** `number`
@@ -225,6 +209,22 @@ import { fallback, http } from 'viem'
 // ---cut---
 const transport = fallback([http(), http()], {
   retryDelay: 200, // [!code focus]
+})
+```
+
+##### shouldThrow
+
+- **Type:** `(error: Error) => boolean`
+
+Whether an error is terminal (rethrow) rather than falling through.
+
+```ts twoslash
+import { fallback, http } from 'viem'
+// ---cut---
+const transport = fallback([http(), http()], {
+  shouldThrow(error) { // [!code focus]
+    return error.name === 'UserRejectedRequestError' // [!code focus]
+  }, // [!code focus]
 })
 ```
 

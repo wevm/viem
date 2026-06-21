@@ -47,29 +47,11 @@ The return data of the call, or `undefined` when the call returns `0x`.
 
 ## Parameters
 
-### to
+### accessList
 
-- **Type:** `Address`
+- **Type:** `AccessList`
 
-The contract address or recipient to call.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const { data } = await Actions.call(client, {
-  data: '0x06fdde03',
-  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-})
-```
-
-### data
-
-- **Type:** `Hex`
-
-The calldata to send with the call.
+The EIP-2930 access list to attach to the call.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -78,7 +60,14 @@ import { mainnet } from 'viem/chains'
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
 const { data } = await Actions.call(client, {
-  data: '0x06fdde03', // [!code focus]
+  accessList: [ // [!code focus]
+    { // [!code focus]
+      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+      storageKeys: [ // [!code focus]
+        '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
+      ], // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
   to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
 })
 ```
@@ -102,11 +91,11 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-### value
+### authorizationList
 
-- **Type:** `bigint`
+- **Type:** `AuthorizationList`
 
-The value (in wei) sent with the call.
+The EIP-7702 (signed) authorization list to attach to the call.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -115,9 +104,175 @@ import { mainnet } from 'viem/chains'
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
 const { data } = await Actions.call(client, {
+  authorizationList: [ // [!code focus]
+    { // [!code focus]
+      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+      chainId: 1, // [!code focus]
+      nonce: 0n, // [!code focus]
+      r: '0x...', // [!code focus]
+      s: '0x...', // [!code focus]
+      yParity: 0, // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### batch
+
+- **Type:** `boolean`
+- **Default:** `client.batch.multicall`
+
+Whether to batch this call into a single `multicall` aggregate request when the Client has multicall batching enabled.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { data } = await Actions.call(client, {
+  batch: false, // [!code focus]
   data: '0x06fdde03',
   to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  value: 1000000000000000000n, // [!code focus]
+})
+```
+
+### blobs
+
+- **Type:** `readonly Hex[]`
+
+The blobs to attach to the call (EIP-4844).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const blobData = '0x1234' as const
+// ---cut---
+const { data } = await Actions.call(client, {
+  blobs: [blobData], // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### blockNumber
+
+- **Type:** `bigint`
+
+Executes the call against the state at a given block number.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { data } = await Actions.call(client, {
+  blockNumber: 42069n, // [!code focus]
+  data: '0x06fdde03',
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### blockOverrides
+
+- **Type:** `BlockOverrides`
+
+Overrides block fields (e.g. `number`, `time`, `baseFeePerGas`) for the duration of the call.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { data } = await Actions.call(client, {
+  blockOverrides: { // [!code focus]
+    baseFeePerGas: 1000000000n, // [!code focus]
+  }, // [!code focus]
+  data: '0x06fdde03',
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### blockTag
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+Executes the call against the state at a given block tag.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { data } = await Actions.call(client, {
+  blockTag: 'pending', // [!code focus]
+  data: '0x06fdde03',
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### code
+
+- **Type:** `Hex`
+
+Bytecode to execute the call against, without deploying it (deployless call via bytecode). Cannot be combined with `factory`/`factoryData`.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const bytecode = '0x...'
+const calldata = '0x...'
+// ---cut---
+const { data } = await Actions.call(client, {
+  code: bytecode, // [!code focus]
+  data: calldata,
+})
+```
+
+### data
+
+- **Type:** `Hex`
+
+The calldata to send with the call.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { data } = await Actions.call(client, {
+  data: '0x06fdde03', // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### factory / factoryData
+
+- **Type:** `factory: Address`, `factoryData: Hex`
+
+Deploys a contract counterfactually via a factory and executes the call against it (deployless call via factory). Cannot be combined with `code`.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const calldata = '0x...'
+// ---cut---
+const { data } = await Actions.call(client, {
+  data: calldata,
+  factory: '0xE8Df82fA4E10e6A12a9Dab552bceA2acd26De9bb', // [!code focus]
+  factoryData: '0x...', // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
 })
 ```
 
@@ -153,6 +308,24 @@ const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
 const { data } = await Actions.call(client, {
   gasPrice: 20_000_000_000n, // [!code focus]
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+})
+```
+
+### maxFeePerBlobGas
+
+- **Type:** `bigint`
+
+The max fee per blob gas (in wei) the sender is willing to pay (EIP-4844).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { data } = await Actions.call(client, {
+  maxFeePerBlobGas: 1_000_000_000n, // [!code focus]
   to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
 })
 ```
@@ -193,24 +366,6 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-### maxFeePerBlobGas
-
-- **Type:** `bigint`
-
-The max fee per blob gas (in wei) the sender is willing to pay (EIP-4844).
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const { data } = await Actions.call(client, {
-  maxFeePerBlobGas: 1_000_000_000n, // [!code focus]
-  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-})
-```
-
 ### nonce
 
 - **Type:** `bigint`
@@ -225,154 +380,6 @@ const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
 const { data } = await Actions.call(client, {
   nonce: 69n, // [!code focus]
-  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-})
-```
-
-### accessList
-
-- **Type:** `AccessList`
-
-The EIP-2930 access list to attach to the call.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const { data } = await Actions.call(client, {
-  accessList: [ // [!code focus]
-    { // [!code focus]
-      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-      storageKeys: [ // [!code focus]
-        '0x0000000000000000000000000000000000000000000000000000000000000001', // [!code focus]
-      ], // [!code focus]
-    }, // [!code focus]
-  ], // [!code focus]
-  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-})
-```
-
-### authorizationList
-
-- **Type:** `AuthorizationList`
-
-The EIP-7702 (signed) authorization list to attach to the call.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const { data } = await Actions.call(client, {
-  authorizationList: [ // [!code focus]
-    { // [!code focus]
-      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
-      chainId: 1, // [!code focus]
-      nonce: 0n, // [!code focus]
-      r: '0x...', // [!code focus]
-      s: '0x...', // [!code focus]
-      yParity: 0, // [!code focus]
-    }, // [!code focus]
-  ], // [!code focus]
-  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-})
-```
-
-### blobs
-
-- **Type:** `readonly Hex[]`
-
-The blobs to attach to the call (EIP-4844).
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-const blobData = '0x1234' as const
-// ---cut---
-const { data } = await Actions.call(client, {
-  blobs: [blobData], // [!code focus]
-  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-})
-```
-
-### type
-
-- **Type:** `string`
-
-Forces the transaction request to a specific type (e.g. `'eip1559'`, `'eip2930'`, `'legacy'`).
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const { data } = await Actions.call(client, {
-  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-  type: 'eip1559', // [!code focus]
-})
-```
-
-### batch
-
-- **Type:** `boolean`
-- **Default:** `client.batch.multicall`
-
-Whether to batch this call into a single `multicall` aggregate request when the Client has multicall batching enabled.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const { data } = await Actions.call(client, {
-  batch: false, // [!code focus]
-  data: '0x06fdde03',
-  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-})
-```
-
-### blockNumber
-
-- **Type:** `bigint`
-
-Executes the call against the state at a given block number.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const { data } = await Actions.call(client, {
-  blockNumber: 42069n, // [!code focus]
-  data: '0x06fdde03',
-  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-})
-```
-
-### blockTag
-
-- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
-- **Default:** `'latest'`
-
-Executes the call against the state at a given block tag.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-// ---cut---
-const { data } = await Actions.call(client, {
-  blockTag: 'pending', // [!code focus]
-  data: '0x06fdde03',
   to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
 })
 ```
@@ -400,11 +407,11 @@ const { data } = await Actions.call(client, {
 })
 ```
 
-### blockOverrides
+### to
 
-- **Type:** `BlockOverrides`
+- **Type:** `Address`
 
-Overrides block fields (e.g. `number`, `time`, `baseFeePerGas`) for the duration of the call.
+The contract address or recipient to call.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
@@ -413,52 +420,45 @@ import { mainnet } from 'viem/chains'
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
 const { data } = await Actions.call(client, {
-  blockOverrides: { // [!code focus]
-    baseFeePerGas: 1000000000n, // [!code focus]
-  }, // [!code focus]
+  data: '0x06fdde03',
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+})
+```
+
+### type
+
+- **Type:** `string`
+
+Forces the transaction request to a specific type (e.g. `'eip1559'`, `'eip2930'`, `'legacy'`).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { data } = await Actions.call(client, {
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  type: 'eip1559', // [!code focus]
+})
+```
+
+### value
+
+- **Type:** `bigint`
+
+The value (in wei) sent with the call.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const { data } = await Actions.call(client, {
   data: '0x06fdde03',
   to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-})
-```
-
-### code
-
-- **Type:** `Hex`
-
-Bytecode to execute the call against, without deploying it (deployless call via bytecode). Cannot be combined with `factory`/`factoryData`.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-const bytecode = '0x...'
-const calldata = '0x...'
-// ---cut---
-const { data } = await Actions.call(client, {
-  code: bytecode, // [!code focus]
-  data: calldata,
-})
-```
-
-### factory / factoryData
-
-- **Type:** `factory: Address`, `factoryData: Hex`
-
-Deploys a contract counterfactually via a factory and executes the call against it (deployless call via factory). Cannot be combined with `code`.
-
-```ts twoslash
-import { Actions, Client, http } from 'viem'
-import { mainnet } from 'viem/chains'
-
-const client = Client.create({ chain: mainnet, transport: http() })
-const calldata = '0x...'
-// ---cut---
-const { data } = await Actions.call(client, {
-  data: calldata,
-  factory: '0xE8Df82fA4E10e6A12a9Dab552bceA2acd26De9bb', // [!code focus]
-  factoryData: '0x...', // [!code focus]
-  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+  value: 1000000000000000000n, // [!code focus]
 })
 ```
 
