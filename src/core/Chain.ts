@@ -1,10 +1,12 @@
 import type * as Address from 'ox/Address'
 import type * as Block from 'ox/Block'
+import type * as Fee from 'ox/Fee'
 import type * as Hex from 'ox/Hex'
 import type * as Signature from 'ox/Signature'
 import type * as Transaction from 'ox/Transaction'
 import type * as TransactionReceipt from 'ox/TransactionReceipt'
 import type { z } from 'ox/zod'
+import type * as Client from './Client.js'
 import type { Assign, Prettify } from './internal/types.js'
 
 /** An EVM chain. */
@@ -22,6 +24,8 @@ export type Chain = {
   contracts?: Chain.Contracts | undefined
   /** Collection of ENS TLDs for the chain. */
   ensTlds?: readonly string[] | undefined
+  /** Modifies how fees are derived. */
+  fees?: Chain.Fees | undefined
   /** Chain id. */
   id: number
   /** Human-readable name. */
@@ -80,6 +84,62 @@ export declare namespace Chain {
     /** 2-6 characters long. */
     symbol: string
     decimals: number
+  }
+
+  /** Modifies how fees are derived for a {@link Chain}. */
+  type Fees = {
+    /**
+     * The fee multiplier to use to account for fee fluctuations. Used in the
+     * `estimateFeesPerGas` Action.
+     *
+     * @default 1.2
+     */
+    baseFeeMultiplier?:
+      | number
+      | ((args: Fees.FnParameters) => Promise<number> | number)
+      | undefined
+    /**
+     * The default `maxPriorityFeePerGas` to use when a priority fee is not
+     * defined upon sending a transaction. Overrides the return value in the
+     * `estimateMaxPriorityFeePerGas` Action.
+     */
+    maxPriorityFeePerGas?: bigint | Fees.MaxPriorityFeePerGasFn | undefined
+    /** @deprecated Use `maxPriorityFeePerGas` instead. */
+    defaultPriorityFee?: bigint | Fees.MaxPriorityFeePerGasFn | undefined
+    /**
+     * Allows customization of fee per gas values (e.g.
+     * `maxFeePerGas`/`maxPriorityFeePerGas`). Overrides the return value in the
+     * `estimateFeesPerGas` Action.
+     */
+    estimateFeesPerGas?: Fees.EstimateFeesPerGasFn | undefined
+  }
+
+  namespace Fees {
+    /** Parameters supplied to a {@link Chain.Fees} function. */
+    type FnParameters = {
+      /** The latest block. */
+      block: Block.Block
+      /** The Client used to make the request. */
+      client: Client.Client
+    }
+
+    /** Parameters supplied to a {@link Chain.Fees} `estimateFeesPerGas` function. */
+    type EstimateFeesPerGasFnParameters = FnParameters & {
+      /** A function to multiply the base fee based on the `baseFeeMultiplier` value. */
+      multiply: (x: bigint) => bigint
+      /** The type of fees to return. */
+      type: Fee.FeeValuesType
+    }
+
+    /** A {@link Chain.Fees} `estimateFeesPerGas` function. */
+    type EstimateFeesPerGasFn = (
+      args: EstimateFeesPerGasFnParameters,
+    ) => Promise<Fee.FeeValues | null>
+
+    /** A {@link Chain.Fees} `maxPriorityFeePerGas` function. */
+    type MaxPriorityFeePerGasFn = (
+      args: FnParameters,
+    ) => Promise<bigint | null> | bigint | null
   }
 
   /** RPC endpoints of a {@link Chain}. */

@@ -15,6 +15,7 @@ describe('publicActions', () => {
         })
       ).data,
     ).toBeDefined()
+    expect(await client.estimateMaxPriorityFeePerGas()).toBeTypeOf('bigint')
     expect(
       await client.getBalance({
         address: '0xC02aaa39b223FE8D0A0e5C4F27eAD9083C756Cc2',

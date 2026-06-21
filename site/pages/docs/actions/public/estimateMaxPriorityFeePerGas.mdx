@@ -1,0 +1,66 @@
+# estimateMaxPriorityFeePerGas
+
+Returns an estimate for the max priority fee per gas (in wei) for a transaction to be likely included in the next block.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const maxPriorityFeePerGas = await client.estimateMaxPriorityFeePerGas()
+// @log: 1500000000n
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const maxPriorityFeePerGas = await Actions.estimateMaxPriorityFeePerGas(client)
+// @log: 1500000000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+The estimate is derived in the following order:
+
+1. The Client chain's [`fees.maxPriorityFeePerGas`](/docs/chains) (or the deprecated `fees.defaultPriorityFee`), if set.
+2. The `eth_maxPriorityFeePerGas` RPC method, if the provider supports it.
+3. A fallback of `gasPrice - baseFeePerGas` (returning `0n` if negative).
+
+## Return Value
+
+`bigint`
+
+An estimate (in wei) for the max priority fee per gas.
+
+## Parameters
+
+### chain
+
+- **Type:** `Chain`
+- **Default:** the Client's `chain`
+
+Chain to use for fee derivation. Override the Client's chain to apply a different chain's [`fees`](/docs/chains) configuration.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ transport: http() })
+// ---cut---
+const maxPriorityFeePerGas = await Actions.estimateMaxPriorityFeePerGas(client, {
+  chain: mainnet, // [!code focus]
+})
+```

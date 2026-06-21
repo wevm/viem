@@ -183,6 +183,10 @@ export default defineConfig({
             items: [
               { text: 'Overview', link: '/docs/actions/public' },
               { text: 'call', link: '/docs/actions/public/call' },
+              {
+                text: 'estimateMaxPriorityFeePerGas',
+                link: '/docs/actions/public/estimateMaxPriorityFeePerGas',
+              },
               { text: 'getBalance', link: '/docs/actions/public/getBalance' },
               {
                 text: 'getBlobBaseFee',

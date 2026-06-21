@@ -1,4 +1,5 @@
 export { call } from './call.js'
+export { estimateMaxPriorityFeePerGas } from './estimateMaxPriorityFeePerGas.js'
 export { getBalance } from './getBalance.js'
 export { getBlobBaseFee } from './getBlobBaseFee.js'
 export { getBlock } from './getBlock.js'
