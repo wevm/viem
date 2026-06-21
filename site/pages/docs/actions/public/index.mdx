@@ -14,6 +14,7 @@ Attach [`publicActions`](#publicactions) to a Client to call them as methods, or
 import { client } from './viem.config'
 
 const block = await client.getBlock()
+// @log: { number: 19868020n, hash: '0x89644b...', timestamp: 1715852123n, ... }
 ```
 
 ```ts twoslash [Standalone]
@@ -21,6 +22,7 @@ import { Actions } from 'viem'
 import { client } from './viem.config'
 
 const block = await Actions.getBlock(client)
+// @log: { number: 19868020n, hash: '0x89644b...', timestamp: 1715852123n, ... }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -67,6 +69,7 @@ const client = Client.create({
 }).extend(publicActions())
 
 const block = await client.getBlock()
+// @log: { number: 19868020n, hash: '0x89644b...', timestamp: 1715852123n, ... }
 ```
 
 ### Return Value

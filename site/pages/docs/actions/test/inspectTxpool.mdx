@@ -10,6 +10,14 @@ Returns a textual summary of all transactions currently pending for inclusion in
 import { client } from './viem.config'
 
 const result = await client.inspectTxpool()
+// @log: {
+// @log:   pending: {
+// @log:     '0xa0cf798816d4b9b9866b5330eea46a18382f251e': {
+// @log:       '42': '0x...: 1 wei + 21000 gas × 1 wei',
+// @log:     },
+// @log:   },
+// @log:   queued: {},
+// @log: }
 ```
 
 ```ts twoslash [Standalone]
@@ -17,6 +25,14 @@ import { Actions } from 'viem'
 import { client } from './viem.config'
 
 const result = await Actions.test.inspectTxpool(client)
+// @log: {
+// @log:   pending: {
+// @log:     '0xa0cf798816d4b9b9866b5330eea46a18382f251e': {
+// @log:       '42': '0x...: 1 wei + 21000 gas × 1 wei',
+// @log:     },
+// @log:   },
+// @log:   queued: {},
+// @log: }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

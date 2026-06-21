@@ -10,6 +10,7 @@ Returns the number of transactions at a block number, hash, or tag.
 import { client } from './viem.config'
 
 const count = await client.getBlockTransactionCount()
+// @log: 123
 ```
 
 ```ts twoslash [Standalone]
@@ -17,6 +18,7 @@ import { Actions } from 'viem'
 import { client } from './viem.config'
 
 const count = await Actions.getBlockTransactionCount(client)
+// @log: 123
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

@@ -12,6 +12,7 @@ import { client } from './viem.config'
 const code = await client.getCode({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
 })
+// @log: '0x60806040...'
 ```
 
 ```ts twoslash [Standalone]
@@ -21,6 +22,7 @@ import { client } from './viem.config'
 const code = await Actions.getCode(client, {
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
 })
+// @log: '0x60806040...'
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

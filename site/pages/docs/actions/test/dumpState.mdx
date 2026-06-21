@@ -10,6 +10,7 @@ Serializes the current state (contract code, contract storage, account propertie
 import { client } from './viem.config'
 
 const result = await client.dumpState()
+// @log: '0x1f8b08000000000000ff...'
 ```
 
 ```ts twoslash [Standalone]
@@ -17,6 +18,7 @@ import { Actions } from 'viem'
 import { client } from './viem.config'
 
 const result = await Actions.test.dumpState(client)
+// @log: '0x1f8b08000000000000ff...'
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

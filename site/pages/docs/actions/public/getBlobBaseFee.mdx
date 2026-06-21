@@ -10,6 +10,7 @@ Returns the base fee per blob gas (in wei).
 import { client } from './viem.config'
 
 const blobBaseFee = await client.getBlobBaseFee()
+// @log: 1n
 ```
 
 ```ts twoslash [Standalone]
@@ -17,6 +18,7 @@ import { Actions } from 'viem'
 import { client } from './viem.config'
 
 const blobBaseFee = await Actions.getBlobBaseFee(client)
+// @log: 1n
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

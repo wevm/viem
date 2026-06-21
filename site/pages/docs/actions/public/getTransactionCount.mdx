@@ -12,6 +12,7 @@ import { client } from './viem.config'
 const count = await client.getTransactionCount({
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 })
+// @log: 420
 ```
 
 ```ts twoslash [Standalone]
@@ -21,6 +22,7 @@ import { client } from './viem.config'
 const count = await Actions.getTransactionCount(client, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 })
+// @log: 420
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

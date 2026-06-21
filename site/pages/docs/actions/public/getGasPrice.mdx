@@ -10,6 +10,7 @@ Returns the current price of gas (in wei).
 import { client } from './viem.config'
 
 const gasPrice = await client.getGasPrice()
+// @log: 2000000000n
 ```
 
 ```ts twoslash [Standalone]
@@ -17,6 +18,7 @@ import { Actions } from 'viem'
 import { client } from './viem.config'
 
 const gasPrice = await Actions.getGasPrice(client)
+// @log: 2000000000n
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

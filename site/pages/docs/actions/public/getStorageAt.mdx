@@ -13,6 +13,7 @@ const value = await client.getStorageAt({
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   slot: '0x0',
 })
+// @log: '0x0000000000000000000000000000000000000000000000000000000000000001'
 ```
 
 ```ts twoslash [Standalone]
@@ -23,6 +24,7 @@ const value = await Actions.getStorageAt(client, {
   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
   slot: '0x0',
 })
+// @log: '0x0000000000000000000000000000000000000000000000000000000000000001'
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

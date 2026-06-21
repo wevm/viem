@@ -10,6 +10,7 @@ Returns the number of the most recent block seen.
 import { client } from './viem.config'
 
 const blockNumber = await client.getBlockNumber()
+// @log: 19868020n
 ```
 
 ```ts twoslash [Standalone]
@@ -17,6 +18,7 @@ import { Actions } from 'viem'
 import { client } from './viem.config'
 
 const blockNumber = await Actions.getBlockNumber(client)
+// @log: 19868020n
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

@@ -10,6 +10,7 @@ Returns the automatic mining status of the node.
 import { client } from './viem.config'
 
 const result = await client.getAutomine()
+// @log: false
 ```
 
 ```ts twoslash [Standalone]
@@ -17,6 +18,7 @@ import { Actions } from 'viem'
 import { client } from './viem.config'
 
 const result = await Actions.test.getAutomine(client)
+// @log: false
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

@@ -10,6 +10,14 @@ Returns information about a block at a block number, hash, or tag.
 import { client } from './viem.config'
 
 const block = await client.getBlock()
+// @log: {
+// @log:   baseFeePerGas: 10789405161n,
+// @log:   hash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+// @log:   number: 19868020n,
+// @log:   timestamp: 1715852123n,
+// @log:   transactions: ['0x...', '0x...'],
+// @log:   ...
+// @log: }
 ```
 
 ```ts twoslash [Standalone]
@@ -17,6 +25,14 @@ import { Actions } from 'viem'
 import { client } from './viem.config'
 
 const block = await Actions.getBlock(client)
+// @log: {
+// @log:   baseFeePerGas: 10789405161n,
+// @log:   hash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+// @log:   number: 19868020n,
+// @log:   timestamp: 1715852123n,
+// @log:   transactions: ['0x...', '0x...'],
+// @log:   ...
+// @log: }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

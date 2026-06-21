@@ -12,6 +12,7 @@ import { client } from './viem.config'
 const balance = await client.getBalance({
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 })
+// @log: 10000000000000000000n
 ```
 
 ```ts twoslash [Standalone]
@@ -21,6 +22,7 @@ import { client } from './viem.config'
 const balance = await Actions.getBalance(client, {
   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
 })
+// @log: 10000000000000000000n
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

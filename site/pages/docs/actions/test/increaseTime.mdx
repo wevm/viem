@@ -12,6 +12,7 @@ import { client } from './viem.config'
 const result = await client.increaseTime({
   seconds: 420,
 })
+// @log: '0x1'
 ```
 
 ```ts twoslash [Standalone]
@@ -21,6 +22,7 @@ import { client } from './viem.config'
 const result = await Actions.test.increaseTime(client, {
   seconds: 420,
 })
+// @log: '0x1'
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
