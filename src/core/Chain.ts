@@ -1,4 +1,5 @@
 import type * as Address from 'ox/Address'
+import type * as Block from 'ox/Block'
 import type * as Hex from 'ox/Hex'
 import type * as Signature from 'ox/Signature'
 import type { z } from 'ox/zod'
@@ -86,14 +87,23 @@ export declare namespace Chain {
   }
 
   /**
-   * Per-entity `zod/mini` codecs. Each entry is a bidirectional codec:
-   * `z.input` is the RPC/wire shape, `z.output` is the native (viem-side) shape.
+   * Per-entity `zod/mini` codecs, split by direction. `fromRpc` decodes an RPC
+   * value into its native (viem-side) shape; `toRpc` encodes a native value
+   * into its RPC/wire shape.
    */
   type Schema = {
-    block?: z.ZodMiniType | undefined
-    transaction?: z.ZodMiniType | undefined
-    transactionReceipt?: z.ZodMiniType | undefined
-    transactionRequest?: z.ZodMiniType | undefined
+    block?: SchemaCodec | undefined
+    transaction?: SchemaCodec | undefined
+    transactionReceipt?: SchemaCodec | undefined
+    transactionRequest?: SchemaCodec | undefined
+  }
+
+  /** RPC ↔ native `zod/mini` codec pair for a chain entity. */
+  type SchemaCodec = {
+    /** Codec decoding an RPC value into its native shape (via `z.decode`). */
+    fromRpc?: z.ZodMiniType | undefined
+    /** Codec encoding a native value into its RPC shape (via `z.decode`). */
+    toRpc?: z.ZodMiniType | undefined
   }
 
   /** Transaction serialization overrides. */
@@ -107,6 +117,21 @@ export declare namespace Chain {
       | undefined
   }
 }
+
+/**
+ * Native block type a {@link Chain} produces. Resolves to `z.output` of the
+ * chain's `schema.block.fromRpc` codec when declared, otherwise the ox default
+ * {@link ox#Block.Block}.
+ */
+export type ExtractBlock<
+  chain extends Chain | undefined,
+  includeTransactions extends boolean = false,
+  blockTag extends Block.Tag = 'latest',
+> = chain extends {
+  schema: { block: { fromRpc: infer schema extends z.ZodMiniType } }
+}
+  ? z.output<schema>
+  : Block.Block<includeTransactions, blockTag>
 
 /**
  * Defines a {@link Chain}. Preserves the literal type and attaches a

@@ -20,6 +20,7 @@ describe('publicActions', () => {
         address: '0xC02aaa39b223FE8D0A0e5C4F27eAD9083C756Cc2',
       }),
     ).toBeTypeOf('bigint')
+    expect((await client.getBlock()).number).toBeTypeOf('bigint')
     expect(typeof (await client.getBlockNumber())).toBe('bigint')
     expect(await client.getBlobBaseFee()).toBeTypeOf('bigint')
     expect(await client.getBlockTransactionCount()).toBeTypeOf('number')
