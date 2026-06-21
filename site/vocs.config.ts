@@ -179,6 +179,15 @@ export default defineConfig({
         items: [
           { text: 'Overview', link: '/docs/actions' },
           {
+            text: 'Public',
+            items: [
+              { text: 'Overview', link: '/docs/actions/public' },
+              { text: 'call', link: '/docs/actions/public/call' },
+              { text: 'getBalance', link: '/docs/actions/public/getBalance' },
+              { text: 'getBlock', link: '/docs/actions/public/getBlock' },
+            ],
+          },
+          {
             text: 'Test',
             items: [
               { text: 'Overview', link: '/docs/actions/test' },

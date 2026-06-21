@@ -125,6 +125,7 @@ This document contains guidelines for AI agents working on the Viem codebase.
 
 ## Documentation Conventions
 
+- **Docs immediately after a module** -- when a public module/action is implemented, write its site docs (sub-page + sidebar wiring) before moving on to the next module. Docs are part of finishing a module, not a later phase.
 - **TSDoc on public exports** -- every exported public function, type, and constant gets a TSDoc comment. Type properties get TSDoc when they are part of the public surface. (Enforced per-module as code migrates to v3 conventions -- the jsdoc lint plugins switch on with B/C.)
 - **Doc-driven API changes** -- write or update the TSDoc before or alongside the implementation, not as an afterthought.
 - **Examples should be small** -- public examples should show the minimum useful shape and avoid unrelated setup.
