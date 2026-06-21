@@ -184,7 +184,30 @@ export default defineConfig({
               { text: 'Overview', link: '/docs/actions/public' },
               { text: 'call', link: '/docs/actions/public/call' },
               { text: 'getBalance', link: '/docs/actions/public/getBalance' },
+              {
+                text: 'getBlobBaseFee',
+                link: '/docs/actions/public/getBlobBaseFee',
+              },
               { text: 'getBlock', link: '/docs/actions/public/getBlock' },
+              {
+                text: 'getBlockNumber',
+                link: '/docs/actions/public/getBlockNumber',
+              },
+              {
+                text: 'getBlockTransactionCount',
+                link: '/docs/actions/public/getBlockTransactionCount',
+              },
+              { text: 'getChainId', link: '/docs/actions/public/getChainId' },
+              { text: 'getCode', link: '/docs/actions/public/getCode' },
+              { text: 'getGasPrice', link: '/docs/actions/public/getGasPrice' },
+              {
+                text: 'getStorageAt',
+                link: '/docs/actions/public/getStorageAt',
+              },
+              {
+                text: 'getTransactionCount',
+                link: '/docs/actions/public/getTransactionCount',
+              },
             ],
           },
           {
