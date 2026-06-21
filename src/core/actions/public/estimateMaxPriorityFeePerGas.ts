@@ -11,7 +11,7 @@ import { getGasPrice } from './getGasPrice.js'
 /**
  * Returns an estimate for the max priority fee per gas (in wei) for a
  * transaction to be likely included in the next block. Defaults to
- * `chain.fees.defaultPriorityFee` if set.
+ * `chain.fees.maxPriorityFeePerGas` if set.
  *
  * @example
  * ```ts
@@ -41,8 +41,7 @@ export async function internal_estimateMaxPriorityFeePerGas(
   const { block: block_, chain = client.chain } = options
 
   try {
-    const maxPriorityFeePerGas =
-      chain?.fees?.maxPriorityFeePerGas ?? chain?.fees?.defaultPriorityFee
+    const maxPriorityFeePerGas = chain?.fees?.maxPriorityFeePerGas
 
     if (typeof maxPriorityFeePerGas === 'function') {
       const block = block_ ?? (await getBlock(client))

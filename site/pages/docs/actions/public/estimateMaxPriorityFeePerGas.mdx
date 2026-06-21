@@ -35,7 +35,7 @@ export const client = Client.create({
 
 The estimate is derived in the following order:
 
-1. The Client chain's [`fees.maxPriorityFeePerGas`](/docs/chains) (or the deprecated `fees.defaultPriorityFee`), if set.
+1. The Client chain's [`fees.maxPriorityFeePerGas`](/docs/chains), if set.
 2. The `eth_maxPriorityFeePerGas` RPC method, if the provider supports it.
 3. A fallback of `gasPrice - baseFeePerGas` (returning `0n` if negative).
 

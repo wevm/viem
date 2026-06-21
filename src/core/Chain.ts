@@ -104,8 +104,6 @@ export declare namespace Chain {
      * `estimateMaxPriorityFeePerGas` Action.
      */
     maxPriorityFeePerGas?: bigint | Fees.MaxPriorityFeePerGasFn | undefined
-    /** @deprecated Use `maxPriorityFeePerGas` instead. */
-    defaultPriorityFee?: bigint | Fees.MaxPriorityFeePerGasFn | undefined
     /**
      * Allows customization of fee per gas values (e.g.
      * `maxFeePerGas`/`maxPriorityFeePerGas`). Overrides the return value in the

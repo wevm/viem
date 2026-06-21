@@ -65,6 +65,10 @@ This document contains guidelines for AI agents working on the Viem codebase.
   and reconcile field shapes, names, ordering, defaults, and behavior against it. Intentional
   divergences are recorded in the changeset; unintentional ones are bugs. Do not infer the old
   shape from memory.
+- **Drop `@deprecated` surface on migration** -- when migrating a module, do not carry over any
+  property, option, parameter, or export marked `@deprecated` in v2 (`src-old/`). Remove it and
+  port only the non-deprecated replacement (e.g. `chain.fees.defaultPriorityFee` →
+  `chain.fees.maxPriorityFeePerGas`). Record the removal in the v3 breaking-change log.
 - **Ox is the primitive layer** -- when migrating code, prefer ox v1 modules (`Hex`, `Bytes`,
   `Abi*`, `Address`, `Hash`, `Signature`, `Secp256k1`, `TxEnvelope*`, …) over hand-rolled
   implementations. Direct `@noble/*`/`@scure/*` usage is being removed; do not add new usage.

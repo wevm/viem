@@ -70,14 +70,6 @@ describe('estimateMaxPriorityFeePerGas', () => {
     })
   })
 
-  test('chain `defaultPriorityFee` override', async () => {
-    expect(
-      await estimateMaxPriorityFeePerGas(client, {
-        chain: { ...chain, fees: { defaultPriorityFee: 69420n } },
-      }),
-    ).toBe(69420n)
-  })
-
   test('returns 0n when `gasPrice` is below `baseFeePerGas`', async () => {
     expect(
       await internal_estimateMaxPriorityFeePerGas(client, {
