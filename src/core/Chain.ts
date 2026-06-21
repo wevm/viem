@@ -2,6 +2,8 @@ import type * as Address from 'ox/Address'
 import type * as Block from 'ox/Block'
 import type * as Hex from 'ox/Hex'
 import type * as Signature from 'ox/Signature'
+import type * as Transaction from 'ox/Transaction'
+import type * as TransactionReceipt from 'ox/TransactionReceipt'
 import type { z } from 'ox/zod'
 import type { Assign, Prettify } from './internal/types.js'
 
@@ -132,6 +134,35 @@ export type ExtractBlock<
 }
   ? z.output<schema>
   : Block.Block<includeTransactions, blockTag>
+
+/**
+ * Native transaction type a {@link Chain} produces. Resolves to `z.output` of
+ * the chain's `schema.transaction.fromRpc` codec when declared, otherwise the
+ * ox default {@link ox#Transaction.Transaction}.
+ */
+export type ExtractTransaction<
+  chain extends Chain | undefined,
+  pending extends boolean = false,
+> = chain extends {
+  schema: { transaction: { fromRpc: infer schema extends z.ZodMiniType } }
+}
+  ? z.output<schema>
+  : Transaction.Transaction<pending>
+
+/**
+ * Native transaction receipt type a {@link Chain} produces. Resolves to
+ * `z.output` of the chain's `schema.transactionReceipt.fromRpc` codec when
+ * declared, otherwise the ox default
+ * {@link ox#TransactionReceipt.TransactionReceipt}.
+ */
+export type ExtractTransactionReceipt<chain extends Chain | undefined> =
+  chain extends {
+    schema: {
+      transactionReceipt: { fromRpc: infer schema extends z.ZodMiniType }
+    }
+  }
+    ? z.output<schema>
+    : TransactionReceipt.TransactionReceipt
 
 /**
  * Defines a {@link Chain}. Preserves the literal type and attaches a

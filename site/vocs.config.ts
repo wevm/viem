@@ -205,8 +205,16 @@ export default defineConfig({
                 link: '/docs/actions/public/getStorageAt',
               },
               {
+                text: 'getTransaction',
+                link: '/docs/actions/public/getTransaction',
+              },
+              {
                 text: 'getTransactionCount',
                 link: '/docs/actions/public/getTransactionCount',
+              },
+              {
+                text: 'getTransactionReceipt',
+                link: '/docs/actions/public/getTransactionReceipt',
               },
             ],
           },

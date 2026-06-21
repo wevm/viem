@@ -12,7 +12,9 @@ import { getChainId } from '../public/getChainId.js'
 import { getCode } from '../public/getCode.js'
 import { getGasPrice } from '../public/getGasPrice.js'
 import { getStorageAt } from '../public/getStorageAt.js'
+import { getTransaction } from '../public/getTransaction.js'
 import { getTransactionCount } from '../public/getTransactionCount.js'
+import { getTransactionReceipt } from '../public/getTransactionReceipt.js'
 
 /**
  * Bag of public actions bound to a {@link Client}. Pass to `Client.create`'s
@@ -45,7 +47,9 @@ export function publicActions() {
     getCode: (options) => getCode(client, options),
     getGasPrice: () => getGasPrice(client),
     getStorageAt: (options) => getStorageAt(client, options),
+    getTransaction: (options) => getTransaction(client, options),
     getTransactionCount: (options) => getTransactionCount(client, options),
+    getTransactionReceipt: (options) => getTransactionReceipt(client, options),
   })
 }
 
@@ -53,29 +57,247 @@ export declare namespace publicActions {
   type Decorator<
     chain extends Chain.Chain | undefined = Chain.Chain | undefined,
   > = {
+    /**
+     * Executes a new message call without submitting a transaction to the
+     * network (`eth_call`).
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const { data } = await client.call({
+     *   data: '0x06fdde03',
+     *   to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+     * })
+     * ```
+     */
     call: (options?: call.Options | undefined) => Promise<call.ReturnType>
+    /**
+     * Returns the balance of an address in wei.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const balance = await client.getBalance({
+     *   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+     * })
+     * ```
+     */
     getBalance: (options: getBalance.Options) => Promise<getBalance.ReturnType>
+    /**
+     * Returns the base fee per blob gas (in wei).
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const blobBaseFee = await client.getBlobBaseFee()
+     * ```
+     */
     getBlobBaseFee: () => Promise<getBlobBaseFee.ReturnType>
+    /**
+     * Returns information about a block at a block number, hash, or tag.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const block = await client.getBlock()
+     * ```
+     */
     getBlock: <
       includeTransactions extends boolean = false,
       blockTag extends Block.Tag = 'latest',
     >(
       options?: getBlock.Options<includeTransactions, blockTag> | undefined,
     ) => Promise<getBlock.ReturnType<chain, includeTransactions, blockTag>>
+    /**
+     * Returns the number of the most recent block seen.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const blockNumber = await client.getBlockNumber()
+     * ```
+     */
     getBlockNumber: (
       options?: getBlockNumber.Options | undefined,
     ) => Promise<getBlockNumber.ReturnType>
+    /**
+     * Returns the number of transactions at a block number, hash, or tag.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const count = await client.getBlockTransactionCount()
+     * ```
+     */
     getBlockTransactionCount: (
       options?: getBlockTransactionCount.Options | undefined,
     ) => Promise<getBlockTransactionCount.ReturnType>
+    /**
+     * Returns the chain ID associated with the current network.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const chainId = await client.getChainId()
+     * ```
+     */
     getChainId: () => Promise<getChainId.ReturnType>
+    /**
+     * Retrieves the bytecode at an address.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const code = await client.getCode({
+     *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+     * })
+     * ```
+     */
     getCode: (options: getCode.Options) => Promise<getCode.ReturnType>
+    /**
+     * Returns the current price of gas (in wei).
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const gasPrice = await client.getGasPrice()
+     * ```
+     */
     getGasPrice: () => Promise<getGasPrice.ReturnType>
+    /**
+     * Returns the value from a storage slot at a given address.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const value = await client.getStorageAt({
+     *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+     *   slot: '0x0',
+     * })
+     * ```
+     */
     getStorageAt: (
       options: getStorageAt.Options,
     ) => Promise<getStorageAt.ReturnType>
+    /**
+     * Returns information about a transaction given a hash or block identifier.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const transaction = await client.getTransaction({
+     *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+     * })
+     * ```
+     */
+    getTransaction: <blockTag extends Block.Tag = 'latest'>(
+      options: getTransaction.Options<blockTag>,
+    ) => Promise<getTransaction.ReturnType<chain, blockTag>>
+    /**
+     * Returns the number of transactions an Account has broadcast / sent.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const count = await client.getTransactionCount({
+     *   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+     * })
+     * ```
+     */
     getTransactionCount: (
       options: getTransactionCount.Options,
     ) => Promise<getTransactionCount.ReturnType>
+    /**
+     * Returns the transaction receipt for a given transaction hash.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const receipt = await client.getTransactionReceipt({
+     *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+     * })
+     * ```
+     */
+    getTransactionReceipt: (
+      options: getTransactionReceipt.Options,
+    ) => Promise<getTransactionReceipt.ReturnType<chain>>
   }
 }
