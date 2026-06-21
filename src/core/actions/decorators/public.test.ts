@@ -30,6 +30,14 @@ describe('publicActions', () => {
         address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
       }),
     ).toMatch(/^0x60/)
+    expect(
+      (
+        await client.getFeeHistory({
+          blockCount: 4,
+          rewardPercentiles: [25, 75],
+        })
+      ).oldestBlock,
+    ).toBeTypeOf('bigint')
     expect(await client.getGasPrice()).toBeTypeOf('bigint')
     expect(
       await client.getStorageAt({

@@ -203,6 +203,10 @@ export default defineConfig({
               },
               { text: 'getChainId', link: '/docs/actions/public/getChainId' },
               { text: 'getCode', link: '/docs/actions/public/getCode' },
+              {
+                text: 'getFeeHistory',
+                link: '/docs/actions/public/getFeeHistory',
+              },
               { text: 'getGasPrice', link: '/docs/actions/public/getGasPrice' },
               {
                 text: 'getStorageAt',

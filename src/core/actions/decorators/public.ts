@@ -11,6 +11,7 @@ import { getBlockReceipts } from '../public/getBlockReceipts.js'
 import { getBlockTransactionCount } from '../public/getBlockTransactionCount.js'
 import { getChainId } from '../public/getChainId.js'
 import { getCode } from '../public/getCode.js'
+import { getFeeHistory } from '../public/getFeeHistory.js'
 import { getGasPrice } from '../public/getGasPrice.js'
 import { getStorageAt } from '../public/getStorageAt.js'
 import { getTransaction } from '../public/getTransaction.js'
@@ -48,6 +49,7 @@ export function publicActions() {
       getBlockTransactionCount(client, options),
     getChainId: () => getChainId(client),
     getCode: (options) => getCode(client, options),
+    getFeeHistory: (options) => getFeeHistory(client, options),
     getGasPrice: () => getGasPrice(client),
     getStorageAt: (options) => getStorageAt(client, options),
     getTransaction: (options) => getTransaction(client, options),
@@ -226,6 +228,27 @@ export declare namespace publicActions {
      * ```
      */
     getCode: (options: getCode.Options) => Promise<getCode.ReturnType>
+    /**
+     * Returns a collection of historical gas information.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const feeHistory = await client.getFeeHistory({
+     *   blockCount: 4,
+     *   rewardPercentiles: [25, 75],
+     * })
+     * ```
+     */
+    getFeeHistory: (
+      options: getFeeHistory.Options,
+    ) => Promise<getFeeHistory.ReturnType>
     /**
      * Returns the current price of gas (in wei).
      *
