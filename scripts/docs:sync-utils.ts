@@ -50,6 +50,7 @@ type Augmented = {
  */
 const augmented: Record<string, Augmented> = {
   Authorization: { helpers: ['recoverAddress', 'verify'] },
+  Json: { helpers: ['prettyPrint'] },
   PersonalMessage: { helpers: ['recoverAddress', 'verify'] },
   TypedData: { helpers: ['recoverAddress', 'verify'] },
   TxEnvelope: {
@@ -98,6 +99,7 @@ const categories: Record<string, string> = {
   Mnemonic: 'Crypto',
   Bytes: 'Encoding',
   Hex: 'Encoding',
+  Json: 'Encoding',
   Rlp: 'Encoding',
   Value: 'Encoding',
   PublicKey: 'Keys & Signatures',

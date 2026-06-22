@@ -4,6 +4,7 @@ export { publicActions, testActions } from './core/actions/index.js'
 export * as Chain from './core/Chain.js'
 export * as Client from './core/Client.js'
 export * as Errors from './core/Errors.js'
+export * as NodeError from './core/NodeError.js'
 export * as Transport from './core/Transport.js'
 export {
   custom,

@@ -5,6 +5,7 @@
 !.gitignore
 !authorization/recoverAddress.mdx
 !authorization/verify.mdx
+!json/prettyPrint.mdx
 !personalmessage/recoverAddress.mdx
 !personalmessage/verify.mdx
 !txenvelope/recoverAddress.mdx

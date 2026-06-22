@@ -4,12 +4,16 @@ import type * as Errors from 'ox/Errors'
 import * as Hex from 'ox/Hex'
 import type * as StateOverrides from 'ox/StateOverrides'
 import type * as TransactionRequest from 'ox/TransactionRequest'
+import * as Value from 'ox/Value'
 import { z } from 'ox/zod'
 
 import type * as Account from '../../Account.js'
+import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
 import { BaseError } from '../../Errors.js'
+import * as NodeError from '../../NodeError.js'
 import { isAbortError } from '../../internal/errors.js'
+import * as Json from '../../../utils/Json.js'
 import {
   type RequireCanonicalError,
   blockParameter,
@@ -181,7 +185,24 @@ export async function call(
     if (deploylessCall && data?.slice(0, 10) === '0x101bb98d')
       throw new CounterfactualDeploymentFailedError({ factory })
 
-    throw err
+    const cause = (() => {
+      const nodeError = NodeError.fromRpcError(err as Error, {
+        gas: rest.gas,
+        maxFeePerGas: rest.maxFeePerGas,
+        maxPriorityFeePerGas: rest.maxPriorityFeePerGas,
+        nonce: rest.nonce,
+      })
+      if (nodeError instanceof NodeError.UnknownNodeError) return err as Error
+      return nodeError
+    })()
+    throw new CallExecutionError(cause, {
+      ...rest,
+      chain: client.chain,
+      data: data_,
+      from,
+      stateOverride,
+      to: to ?? undefined,
+    })
   }
 }
 
@@ -211,6 +232,7 @@ export declare namespace call {
   }
 
   type ErrorType =
+    | CallExecutionError
     | CounterfactualDeploymentFailedError
     | RequireCanonicalError
     | Errors.GlobalErrorType
@@ -236,6 +258,62 @@ export function getRevertErrorData(err: unknown): Hex.Hex | undefined {
     error = (error as { cause?: unknown }).cause
   }
   return undefined
+}
+
+/** Thrown when an `eth_call` execution fails. */
+export class CallExecutionError extends BaseError<Error> {
+  override readonly name = 'CallExecutionError'
+
+  constructor(cause: Error, options: CallExecutionError.Options = {}) {
+    const { chain, docsPath, value, ...request } = options
+
+    const gwei = (x: bigint | number | Hex.Hex | undefined) =>
+      typeof x === 'bigint' ? `${Value.formatGwei(x)} gwei` : x
+
+    const prettyArgs = Json.prettyPrint(
+      {
+        ...request,
+        value:
+          typeof value === 'bigint'
+            ? `${Value.formatEther(value)} ${chain?.nativeCurrency?.symbol ?? 'ETH'}`
+            : value,
+        gasPrice: gwei(request.gasPrice),
+        maxFeePerGas: gwei(request.maxFeePerGas),
+        maxPriorityFeePerGas: gwei(request.maxPriorityFeePerGas),
+      },
+      { indent: 2 },
+    )
+
+    const shortMessage =
+      'shortMessage' in cause && typeof cause.shortMessage === 'string'
+        ? cause.shortMessage
+        : cause.message || 'An error occurred.'
+    const causeMeta =
+      'metaMessages' in cause && Array.isArray(cause.metaMessages)
+        ? (cause.metaMessages as string[])
+        : undefined
+
+    super(shortMessage, {
+      cause,
+      docsPath,
+      metaMessages: [
+        ...(causeMeta ? [...causeMeta, ' '] : []),
+        'Raw Call Arguments:',
+        prettyArgs,
+      ],
+    })
+  }
+}
+
+export declare namespace CallExecutionError {
+  type Options = TransactionRequest.toRpc.Input & {
+    /** Chain (for native currency symbol). */
+    chain?: Chain.Chain | undefined
+    /** Docs path appended to the error. */
+    docsPath?: string | undefined
+    /** State overrides applied to the call. */
+    stateOverride?: StateOverrides.StateOverrides | undefined
+  }
 }
 
 /** Thrown when a deployless call fails to deploy its counterfactual contract. */

@@ -10,9 +10,11 @@ import { anvilMainnet, getClient } from '~test/anvil.js'
 import { accounts } from '~test/constants.js'
 
 import { BaseError } from '../../Errors.js'
+import * as NodeError from '../../NodeError.js'
 import { multicall3Bytecode } from '../internal/constants.js'
 import { MulticallCallFailedError } from '../internal/multicall.js'
 import {
+  CallExecutionError,
   CounterfactualDeploymentFailedError,
   call,
   getRevertErrorData,
@@ -381,9 +383,12 @@ describe('call', () => {
       transport: http(anvilMainnet.rpcUrl.http),
     })
 
-    await expect(() =>
-      call(batchClient, { data: '0xdeadbeef', to: wagmi }),
-    ).rejects.toThrowError(MulticallCallFailedError)
+    const error = await call(batchClient, {
+      data: '0xdeadbeef',
+      to: wagmi,
+    }).catch((error) => error)
+    expect(error).toBeInstanceOf(CallExecutionError)
+    expect(error.cause).toBeInstanceOf(MulticallCallFailedError)
   })
 
   test('batch: explicit batch option without client batch config', async () => {
@@ -465,6 +470,153 @@ describe('call', () => {
       to: wagmi,
     })
     expect(AbiFunction.decodeResult(nameAbi, data!)).toBe('wagmi')
+  })
+
+  describe('errors', () => {
+    // BAYC ERC-721; `ownerOf` of a nonexistent token reverts.
+    const bayc = '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D'
+    const ownerOfAbi = AbiFunction.from(
+      'function ownerOf(uint256 tokenId) returns (address)',
+    )
+    const ownerOfNonexistent = AbiFunction.encodeData(ownerOfAbi, [12517631n])
+
+    test('execution reverted maps to CallExecutionError', async () => {
+      const error = await call(client, {
+        account: sourceAccount.address,
+        data: ownerOfNonexistent,
+        to: bayc,
+      }).catch((error) => error)
+
+      expect(error).toBeInstanceOf(CallExecutionError)
+      expect(error.cause).toBeInstanceOf(NodeError.ExecutionRevertedError)
+      expect(error.cause.name).toBe('NodeError.ExecutionRevertedError')
+    })
+
+    test('error renders raw call arguments', async () => {
+      const error = await call(client, {
+        account: sourceAccount.address,
+        data: ownerOfNonexistent,
+        to: bayc,
+      }).catch((error) => error)
+
+      expect(error.metaMessages?.join('\n')).toContain('Raw Call Arguments:')
+      expect(error.metaMessages?.join('\n')).toContain(bayc)
+      expect(error.metaMessages?.join('\n')).toContain(sourceAccount.address)
+    })
+
+    test('deployless (no `to`) revert maps to CallExecutionError', async () => {
+      // Runtime bytecode that immediately reverts; `to` is undefined.
+      const error = await call(client, {
+        code: '0x60006000fd',
+        data: '0xdeadbeef',
+      }).catch((error) => error)
+
+      expect(error).toBeInstanceOf(CallExecutionError)
+      expect(error.metaMessages?.join('\n')).not.toContain('to:')
+    })
+  })
+})
+
+describe('CallExecutionError', () => {
+  test('renders fees, value and raw args', () => {
+    const error = new CallExecutionError(new BaseError('reverted'), {
+      chain: mainnet,
+      data: '0xdeadbeef',
+      from: '0x0000000000000000000000000000000000000000',
+      gas: 21000n,
+      gasPrice: 2000000000n,
+      maxFeePerGas: 3000000000n,
+      maxPriorityFeePerGas: 1000000000n,
+      nonce: 1,
+      to: '0x1111111111111111111111111111111111111111',
+      value: 1000000000000000000n,
+    })
+    expect(error.message).toMatchInlineSnapshot(`
+      "reverted
+
+      Raw Call Arguments:
+        data:                  0xdeadbeef
+        from:                  0x0000000000000000000000000000000000000000
+        gas:                   21000
+        gasPrice:              2 gwei
+        maxFeePerGas:          3 gwei
+        maxPriorityFeePerGas:  1 gwei
+        nonce:                 1
+        to:                    0x1111111111111111111111111111111111111111
+        value:                 1 ETH
+
+      Details: reverted
+      Version: viem@2.52.1"
+    `)
+  })
+
+  test('renders nested request fields (state override, access list)', () => {
+    const error = new CallExecutionError(new BaseError('reverted'), {
+      accessList: [
+        {
+          address: '0x3333333333333333333333333333333333333333',
+          storageKeys: [
+            '0x0000000000000000000000000000000000000000000000000000000000000001',
+          ],
+        },
+      ],
+      data: '0xdeadbeef',
+      to: '0x1111111111111111111111111111111111111111',
+      stateOverride: {
+        '0x2222222222222222222222222222222222222222': {
+          balance: 1n,
+          nonce: 2n,
+          stateDiff: {
+            '0x0000000000000000000000000000000000000000000000000000000000000001':
+              '0x0000000000000000000000000000000000000000000000000000000000000002',
+          },
+        },
+      },
+    })
+    expect(error.message).toMatchInlineSnapshot(`
+      "reverted
+
+      Raw Call Arguments:
+        accessList:
+          - address:      0x3333333333333333333333333333333333333333
+            storageKeys:
+              - 0x0000000000000000000000000000000000000000000000000000000000000001
+        data:           0xdeadbeef
+        to:             0x1111111111111111111111111111111111111111
+        stateOverride:
+          0x2222222222222222222222222222222222222222:
+            balance:    1
+            nonce:      2
+            stateDiff:
+              0x0000000000000000000000000000000000000000000000000000000000000001:  0x0000000000000000000000000000000000000000000000000000000000000002
+
+      Details: reverted
+      Version: viem@2.52.1"
+    `)
+  })
+
+  test('forwards cause metaMessages', () => {
+    const cause = new BaseError('reverted', {
+      metaMessages: ['meta line'],
+    })
+    const error = new CallExecutionError(cause, {
+      data: '0xdeadbeef',
+      to: '0x1111111111111111111111111111111111111111',
+    })
+    expect(error.metaMessages?.join('\n')).toContain('meta line')
+    expect(error.metaMessages?.join('\n')).toContain('Raw Call Arguments:')
+  })
+
+  test('plain Error cause falls back to message', () => {
+    const error = new CallExecutionError(new Error(''), {})
+    expect(error.message).toContain('An error occurred.')
+  })
+
+  test('uses ETH symbol when chain omitted', () => {
+    const error = new CallExecutionError(new BaseError('reverted'), {
+      value: 1000000000000000000n,
+    })
+    expect(error.metaMessages?.join('\n')).toContain('1 ETH')
   })
 })
 
