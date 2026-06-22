@@ -19,8 +19,8 @@ export const xdcTestnet = /*#__PURE__*/ defineChain({
   },
   contracts: {
     multicall3: {
-      address: '0xca11bde05977b3631167028862be2a173976ca11',
-      blockCreated: 59765389,
+      address: '0x7937b3878860eb3CDA14360cEaaa11a9646d941B',
+      blockCreated: 83401816,
     },
   },
   testnet: true,
