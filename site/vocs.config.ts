@@ -232,6 +232,10 @@ export default defineConfig({
                 text: 'getTransactionReceipt',
                 link: '/docs/actions/public/getTransactionReceipt',
               },
+              {
+                text: 'readContract',
+                link: '/docs/actions/public/readContract',
+              },
             ],
           },
           {

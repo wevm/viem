@@ -1,7 +1,12 @@
+import type { Abi } from 'abitype'
 import type * as Block from 'ox/Block'
 
 import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
+import type {
+  ContractFunctionArgs,
+  ContractFunctionName,
+} from '../internal/contract.js'
 import { call } from '../public/call.js'
 import { estimateMaxPriorityFeePerGas } from '../public/estimateMaxPriorityFeePerGas.js'
 import { getBalance } from '../public/getBalance.js'
@@ -19,6 +24,7 @@ import { getTransaction } from '../public/getTransaction.js'
 import { getTransactionConfirmations } from '../public/getTransactionConfirmations.js'
 import { getTransactionCount } from '../public/getTransactionCount.js'
 import { getTransactionReceipt } from '../public/getTransactionReceipt.js'
+import { readContract } from '../public/readContract.js'
 
 /**
  * Bag of public actions bound to a {@link Client}. Pass to `Client.create`'s
@@ -60,6 +66,7 @@ export function publicActions() {
       getTransactionConfirmations(client, options),
     getTransactionCount: (options) => getTransactionCount(client, options),
     getTransactionReceipt: (options) => getTransactionReceipt(client, options),
+    readContract: (options) => readContract(client, options),
   })
 }
 
@@ -389,5 +396,38 @@ export declare namespace publicActions {
     getTransactionReceipt: (
       options: getTransactionReceipt.Options,
     ) => Promise<getTransactionReceipt.ReturnType<chain>>
+    /**
+     * Calls a read-only (`pure`/`view`) function on a contract and returns the
+     * decoded response.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     * import { Abi } from 'viem/utils'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const balance = await client.readContract({
+     *   abi: Abi.from(['function balanceOf(address) view returns (uint256)']),
+     *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+     *   args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+     *   functionName: 'balanceOf',
+     * })
+     * ```
+     */
+    readContract: <
+      const abi extends Abi | readonly unknown[],
+      functionName extends ContractFunctionName<abi, 'pure' | 'view'>,
+      const args extends ContractFunctionArgs<
+        abi,
+        'pure' | 'view',
+        functionName
+      >,
+    >(
+      options: readContract.Options<abi, functionName, args>,
+    ) => Promise<readContract.ReturnType<abi, functionName, args>>
   }
 }

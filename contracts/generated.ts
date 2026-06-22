@@ -1,3 +1,130 @@
+export const ErrorsExample = {
+  "abi": [
+    {
+      "type": "function",
+      "name": "assertRead",
+      "inputs": [],
+      "outputs": [],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "complexCustomRead",
+      "inputs": [],
+      "outputs": [],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "divideByZeroRead",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "overflowRead",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "requireRead",
+      "inputs": [],
+      "outputs": [],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "revertRead",
+      "inputs": [],
+      "outputs": [],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "simpleCustomRead",
+      "inputs": [],
+      "outputs": [],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "function",
+      "name": "simpleCustomReadNoArgs",
+      "inputs": [],
+      "outputs": [],
+      "stateMutability": "pure"
+    },
+    {
+      "type": "error",
+      "name": "ComplexError",
+      "inputs": [
+        {
+          "name": "foo",
+          "type": "tuple",
+          "internalType": "struct ErrorsExample.Foo",
+          "components": [
+            {
+              "name": "sender",
+              "type": "address",
+              "internalType": "address"
+            },
+            {
+              "name": "bar",
+              "type": "uint256",
+              "internalType": "uint256"
+            }
+          ]
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "internalType": "string"
+        },
+        {
+          "name": "number",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "SimpleError",
+      "inputs": [
+        {
+          "name": "message",
+          "type": "string",
+          "internalType": "string"
+        }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "SimpleErrorNoArgs",
+      "inputs": []
+    }
+  ],
+  "bytecode": {
+    "object": "0x6080604052348015600e575f5ffd5b506105bc8061001c5f395ff3fe608060405234801561000f575f5ffd5b5060043610610086575f3560e01c806388452b851161005957806388452b85146100da5780639f558709146100e4578063eb1aba20146100ee578063efbbf995146100f857610086565b80631515d7681461008a57806324db9ba0146100945780634adac6eb146100b2578063699389ca146100d0575b5f5ffd5b610092610102565b005b61009c61016d565b6040516100a991906102ac565b60405180910390f35b6100ba61018f565b6040516100c791906102ac565b60405180910390f35b6100d86101d1565b005b6100e26101dc565b005b6100ec610217565b005b6100f6610252565b005b610100610262565b005b60405180604001604052805f73ffffffffffffffffffffffffffffffffffffffff168152602001604581525060456040517fdb731cf40000000000000000000000000000000000000000000000000000000081526004016101649291906103dc565b60405180910390fd5b5f5f604590505f5f90505f81836101849190610470565b905080935050505090565b5f5f7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff90505f600190505f81836101c691906104a0565b905080935050505090565b5f6101da575f5ffd5b565b6040517ff900639800000000000000000000000000000000000000000000000000000000815260040161020e906104d3565b60405180910390fd5b6040517f08c379a00000000000000000000000000000000000000000000000000000000081526004016102499061053b565b60405180910390fd5b5f6102605761025f610559565b5b565b6040517f67476b9a00000000000000000000000000000000000000000000000000000000815260040160405180910390fd5b5f819050919050565b6102a681610294565b82525050565b5f6020820190506102bf5f83018461029d565b92915050565b5f73ffffffffffffffffffffffffffffffffffffffff82169050919050565b5f6102ee826102c5565b9050919050565b6102fe816102e4565b82525050565b61030d81610294565b82525050565b604082015f8201516103275f8501826102f5565b50602082015161033a6020850182610304565b50505050565b5f82825260208201905092915050565b7f62756767657200000000000000000000000000000000000000000000000000005f82015250565b5f610384600683610340565b915061038f82610350565b602082019050919050565b5f819050919050565b5f819050919050565b5f6103c66103c16103bc8461039a565b6103a3565b610294565b9050919050565b6103d6816103ac565b82525050565b5f6080820190506103ef5f830185610313565b818103604083015261040081610378565b905061040f60608301846103cd565b9392505050565b7f4e487b71000000000000000000000000000000000000000000000000000000005f52601260045260245ffd5b7f4e487b71000000000000000000000000000000000000000000000000000000005f52601160045260245ffd5b5f61047a82610294565b915061048583610294565b92508261049557610494610416565b5b828204905092915050565b5f6104aa82610294565b91506104b583610294565b92508282019050808211156104cd576104cc610443565b5b92915050565b5f6020820190508181035f8301526104ea81610378565b9050919050565b7f54686973206973206120726576657274206d65737361676500000000000000005f82015250565b5f610525601883610340565b9150610530826104f1565b602082019050919050565b5f6020820190508181035f83015261055281610519565b9050919050565b7f4e487b71000000000000000000000000000000000000000000000000000000005f52600160045260245ffdfea2646970667358221220bc80d08ddc878f727f994c3b13fda5574eee91b53ce2bb6a6fef19e19dde913164736f6c63430008210033",
+    "sourceMap": "345:1192:0:-:0;;;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  }
+} as const;
+
 export const ERC721 = {
   "abi": [
     {

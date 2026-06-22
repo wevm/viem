@@ -11,6 +11,7 @@ test('exports', () => {
       "testActions",
       "Chain",
       "Client",
+      "ContractError",
       "Errors",
       "NodeError",
       "Transport",
