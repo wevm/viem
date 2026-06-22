@@ -1,0 +1,40 @@
+# getGasPrice
+
+Returns the current price of gas (in wei).
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const gasPrice = await client.fee.getGasPrice()
+// @log: 2000000000n
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const gasPrice = await Actions.fee.getGasPrice(client)
+// @log: 2000000000n
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Return Value
+
+`bigint`
+
+The current gas price, in wei.

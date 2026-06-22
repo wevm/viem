@@ -190,7 +190,7 @@ export function create(options: create.Options): Client {
     return (fn: ExtendFn) => {
       const extended = fn(base)
       for (const key in client) delete extended[key]
-      const combined = { ...base, ...extended }
+      const combined = merge(base, extended)
       return Object.assign(combined, {
         extend: extend(combined as typeof base),
       })
@@ -198,6 +198,26 @@ export function create(options: create.Options): Client {
   }
 
   return Object.assign(client, { extend: extend(client) }) as unknown as Client
+}
+
+/** Deep-merges decorator namespaces so colliding bags (e.g. `block`) combine. */
+function merge(
+  base: Record<string, unknown>,
+  extended: Record<string, unknown>,
+) {
+  const result: Record<string, unknown> = { ...base }
+  for (const key in extended) {
+    const a = result[key]
+    const b = extended[key]
+    result[key] = isPlainObject(a) && isPlainObject(b) ? merge(a, b) : b
+  }
+  return result
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (typeof value !== 'object' || value === null) return false
+  const proto = Object.getPrototypeOf(value)
+  return proto === Object.prototype || proto === null
 }
 
 export declare namespace create {

@@ -111,4 +111,19 @@ describe('extend', () => {
     )
     expect((client as unknown as { key: string }).key).toBe('base')
   })
+
+  test('deep-merges colliding namespaces across extends', () => {
+    const client = Client.create({ transport: http(url) })
+      .extend(() => ({ ns: { a: () => 'a' as const } }))
+      .extend(() => ({ ns: { b: () => 'b' as const } }))
+    expect(client.ns.a()).toBe('a')
+    expect(client.ns.b()).toBe('b')
+  })
+
+  test('later extend wins on leaf collisions within a namespace', () => {
+    const client = Client.create({ transport: http(url) })
+      .extend(() => ({ ns: { a: () => 'first' as const } }))
+      .extend(() => ({ ns: { a: () => 'second' as const } }))
+    expect(client.ns.a()).toBe('second')
+  })
 })

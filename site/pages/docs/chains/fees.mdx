@@ -6,7 +6,7 @@ A [Chain](/docs/chains) can describe how fees are derived via the optional `fees
 
 `fees` has three optional slots:
 
-- **`maxPriorityFeePerGas`**: the default priority fee, consumed by [`estimateMaxPriorityFeePerGas`](/docs/actions/public/estimateMaxPriorityFeePerGas).
+- **`maxPriorityFeePerGas`**: the default priority fee, consumed by [`estimateMaxPriorityFeePerGas`](/docs/actions/public/fee/estimateMaxPriorityFeePerGas).
 - **`baseFeeMultiplier`**: a multiplier applied to the base fee to account for fluctuations.
 - **`estimateFeesPerGas`**: full control over the derived `maxFeePerGas`/`maxPriorityFeePerGas` (or legacy `gasPrice`).
 
@@ -29,7 +29,7 @@ const chain = Chain.from({
 
 ### Setting a Default Priority Fee
 
-Set `fees.maxPriorityFeePerGas` to a fixed value (in wei) to skip the `eth_maxPriorityFeePerGas` RPC call and always use your own default. [`estimateMaxPriorityFeePerGas`](/docs/actions/public/estimateMaxPriorityFeePerGas) returns this value verbatim.
+Set `fees.maxPriorityFeePerGas` to a fixed value (in wei) to skip the `eth_maxPriorityFeePerGas` RPC call and always use your own default. [`estimateMaxPriorityFeePerGas`](/docs/actions/public/fee/estimateMaxPriorityFeePerGas) returns this value verbatim.
 
 ```ts twoslash
 import { Chain } from 'viem'
@@ -159,7 +159,7 @@ const chain = Chain.from({
 - **Type:** `bigint | ((args: { block: Block; client: Client }) => bigint | null | Promise<bigint | null>)`
 - **Optional**
 
-The default `maxPriorityFeePerGas` (in wei) used when a priority fee is not supplied. Overrides the return value of [`estimateMaxPriorityFeePerGas`](/docs/actions/public/estimateMaxPriorityFeePerGas). A function may return `null` to fall back to the default derivation.
+The default `maxPriorityFeePerGas` (in wei) used when a priority fee is not supplied. Overrides the return value of [`estimateMaxPriorityFeePerGas`](/docs/actions/public/fee/estimateMaxPriorityFeePerGas). A function may return `null` to fall back to the default derivation.
 
 ```ts twoslash
 import { Chain } from 'viem'

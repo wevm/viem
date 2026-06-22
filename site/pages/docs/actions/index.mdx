@@ -13,14 +13,14 @@ Decorators (such as [`testActions`](/docs/actions/test)) attach a group of actio
 ```ts twoslash [Decorator]
 import { client } from './viem.config'
 
-await client.mine({ blocks: 1 })
+await client.block.mine({ blocks: 1 })
 ```
 
 ```ts twoslash [Standalone]
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
-await Actions.test.mine(client, { blocks: 1 })
+await Actions.test.block.mine(client, { blocks: 1 })
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"

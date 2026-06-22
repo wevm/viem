@@ -1,5 +1,3 @@
-import { Card, Cards } from 'vocs'
-
 # Test Actions
 
 ## Overview
@@ -13,14 +11,14 @@ Attach [`testActions`](#testactions) to a Client to call them as methods, or cal
 ```ts twoslash [Decorator]
 import { client } from './viem.config'
 
-await client.mine({ blocks: 1 })
+await client.block.mine({ blocks: 1 })
 ```
 
 ```ts twoslash [Standalone]
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
-await Actions.test.mine(client, { blocks: 1 })
+await Actions.test.block.mine(client, { blocks: 1 })
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
@@ -51,66 +49,6 @@ const client = Client.create({
 )
 ```
 
-## Actions
-
-### Mining
-
-<Cards>
-  <Card title="mine" description="Mine a specified number of blocks." icon="lucide:pickaxe" to="/docs/actions/test/mine" />
-  <Card title="getAutomine" description="Return the automatic mining status of the node." icon="lucide:pickaxe" to="/docs/actions/test/getAutomine" />
-  <Card title="setAutomine" description="Enable or disable mining a block on each new transaction." icon="lucide:pickaxe" to="/docs/actions/test/setAutomine" />
-  <Card title="setIntervalMining" description="Set the automatic mining interval (in seconds) of blocks." icon="lucide:pickaxe" to="/docs/actions/test/setIntervalMining" />
-  <Card title="setBlockGasLimit" description="Set the block's gas limit." icon="lucide:pickaxe" to="/docs/actions/test/setBlockGasLimit" />
-  <Card title="setNextBlockBaseFeePerGas" description="Set the next block's base fee per gas." icon="lucide:pickaxe" to="/docs/actions/test/setNextBlockBaseFeePerGas" />
-</Cards>
-
-### Time
-
-<Cards>
-  <Card title="increaseTime" description="Jump forward in time by the given amount of time, in seconds." icon="lucide:clock" to="/docs/actions/test/increaseTime" />
-  <Card title="setNextBlockTimestamp" description="Set the next block's timestamp." icon="lucide:clock" to="/docs/actions/test/setNextBlockTimestamp" />
-  <Card title="setBlockTimestampInterval" description="Set a block timestamp interval for future blocks." icon="lucide:clock" to="/docs/actions/test/setBlockTimestampInterval" />
-  <Card title="removeBlockTimestampInterval" description="Remove the block timestamp interval, if set." icon="lucide:clock" to="/docs/actions/test/removeBlockTimestampInterval" />
-</Cards>
-
-### State
-
-<Cards>
-  <Card title="snapshot" description="Snapshot the state of the blockchain at the current block." icon="lucide:database" to="/docs/actions/test/snapshot" />
-  <Card title="revert" description="Revert the state of the blockchain to a previous snapshot." icon="lucide:database" to="/docs/actions/test/revert" />
-  <Card title="reset" description="Reset the fork back to its original state." icon="lucide:database" to="/docs/actions/test/reset" />
-  <Card title="dumpState" description="Serialize the current state into a savable data blob." icon="lucide:database" to="/docs/actions/test/dumpState" />
-  <Card title="loadState" description="Add state previously dumped with dumpState to the chain." icon="lucide:database" to="/docs/actions/test/loadState" />
-  <Card title="setBalance" description="Modify the balance of an account." icon="lucide:database" to="/docs/actions/test/setBalance" />
-  <Card title="setCode" description="Modify the bytecode stored at an account's address." icon="lucide:database" to="/docs/actions/test/setCode" />
-  <Card title="setNonce" description="Modify (override) the nonce of an account." icon="lucide:database" to="/docs/actions/test/setNonce" />
-  <Card title="setStorageAt" description="Write to a slot of an account's storage." icon="lucide:database" to="/docs/actions/test/setStorageAt" />
-</Cards>
-
-### Accounts
-
-<Cards>
-  <Card title="impersonateAccount" description="Impersonate an account or contract address." icon="lucide:user" to="/docs/actions/test/impersonateAccount" />
-  <Card title="stopImpersonatingAccount" description="Stop impersonating a previously impersonated account." icon="lucide:user" to="/docs/actions/test/stopImpersonatingAccount" />
-  <Card title="setCoinbase" description="Set the coinbase address to be used in new blocks." icon="lucide:user" to="/docs/actions/test/setCoinbase" />
-</Cards>
-
-### Transaction Pool
-
-<Cards>
-  <Card title="getTxpoolStatus" description="Return the number of pending and queued transactions." icon="lucide:layers" to="/docs/actions/test/getTxpoolStatus" />
-  <Card title="inspectTxpool" description="Return a textual summary of pending and queued transactions." icon="lucide:layers" to="/docs/actions/test/inspectTxpool" />
-  <Card title="dropTransaction" description="Remove a transaction from the mempool." icon="lucide:layers" to="/docs/actions/test/dropTransaction" />
-</Cards>
-
-### Node
-
-<Cards>
-  <Card title="setRpcUrl" description="Set the backend RPC URL." icon="lucide:server" to="/docs/actions/test/setRpcUrl" />
-  <Card title="setLoggingEnabled" description="Enable or disable logging on the test node network." icon="lucide:server" to="/docs/actions/test/setLoggingEnabled" />
-  <Card title="setMinGasPrice" description="Change the minimum gas price (in wei) accepted by the network." icon="lucide:server" to="/docs/actions/test/setMinGasPrice" />
-</Cards>
-
 ## testActions
 
 Returns a bag of test actions bound to a Client, with the configured `mode` injected into every action. Pass it to [`.extend()`](/docs/clients/create#extending-a-client).
@@ -126,7 +64,7 @@ const client = Client.create({
   transport: http(),
 }).extend(testActions())
 
-await client.mine({ blocks: 1 })
+await client.block.mine({ blocks: 1 })
 ```
 
 ### Parameters

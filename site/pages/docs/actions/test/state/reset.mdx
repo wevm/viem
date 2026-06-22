@@ -1,0 +1,109 @@
+# reset
+
+Resets the fork back to its original state.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+await client.state.reset({
+  blockNumber: 19_868_020n,
+  jsonRpcUrl: 'https://eth.merkle.io',
+})
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+await Actions.test.state.reset(client, {
+  blockNumber: 19_868_020n,
+  jsonRpcUrl: 'https://eth.merkle.io',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, testActions } from 'viem'
+import { anvil } from 'viem/chains'
+
+export const client = Client.create({
+  chain: anvil,
+  transport: http(),
+}).extend(testActions())
+```
+
+:::
+
+## Parameters
+
+### blockNumber
+
+- **Type:** `bigint`
+- **Optional**
+
+The block number to reset the fork to.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+// ---cut---
+await Actions.test.state.reset(client, {
+  blockNumber: 19_868_020n, // [!code focus]
+  jsonRpcUrl: 'https://eth.merkle.io',
+  mode: 'hardhat',
+})
+```
+
+### jsonRpcUrl
+
+- **Type:** `string`
+- **Optional**
+
+The JSON-RPC URL of the chain to fork from.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+// ---cut---
+await Actions.test.state.reset(client, {
+  blockNumber: 19_868_020n,
+  jsonRpcUrl: 'https://eth.merkle.io', // [!code focus]
+  mode: 'hardhat',
+})
+```
+
+### mode
+
+- **Type:** `'anvil' | 'hardhat' | 'ganache'`
+- **Default:** `'anvil'`
+
+The test node implementation to target.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+})
+// ---cut---
+await Actions.test.state.reset(client, {
+  blockNumber: 19_868_020n,
+  jsonRpcUrl: 'https://eth.merkle.io',
+  mode: 'hardhat', // [!code focus]
+})
+```

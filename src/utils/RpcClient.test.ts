@@ -704,7 +704,7 @@ describe('webSocket', () => {
       })
       sub.onData((d) => data.push(d))
       // anvil only emits `newHeads` when a block is mined.
-      await Actions.test.mine(client, { blocks: 1 })
+      await Actions.test.block.mine(client, { blocks: 1 })
       await wait(500)
       expect(data.length).toBeGreaterThan(0)
       expect((data[0] as { subscription: string }).subscription).toBe(

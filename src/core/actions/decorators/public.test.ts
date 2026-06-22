@@ -19,40 +19,40 @@ test('decorates a client with public actions', async () => {
       })
     ).data,
   ).toBeDefined()
-  expect(await client.estimateMaxPriorityFeePerGas()).toBeTypeOf('bigint')
+  expect(await client.fee.estimateMaxPriorityFeePerGas()).toBeTypeOf('bigint')
   expect(
-    await client.getBalance({
+    await client.address.getBalance({
       address: '0xC02aaa39b223FE8D0A0e5C4F27eAD9083C756Cc2',
     }),
   ).toBeTypeOf('bigint')
-  expect((await client.getBlock()).number).toBeTypeOf('bigint')
-  expect(typeof (await client.getBlockNumber())).toBe('bigint')
-  expect(await client.getBlobBaseFee()).toBeTypeOf('bigint')
-  expect(await client.getBlockTransactionCount()).toBeTypeOf('number')
-  expect(await client.getChainId()).toBe(1)
+  expect((await client.block.get()).number).toBeTypeOf('bigint')
+  expect(typeof (await client.block.getNumber())).toBe('bigint')
+  expect(await client.fee.getBlobBaseFee()).toBeTypeOf('bigint')
+  expect(await client.block.getTransactionCount()).toBeTypeOf('number')
+  expect(await client.chains.getId()).toBe(1)
   expect(
-    await client.getCode({
+    await client.address.getCode({
       address,
     }),
   ).toMatch(/^0x60/)
   expect(
     (
-      await client.getFeeHistory({
+      await client.fee.getHistory({
         blockCount: 4,
         rewardPercentiles: [25, 75],
       })
     ).oldestBlock,
   ).toBeTypeOf('bigint')
-  expect(await client.getGasPrice()).toBeTypeOf('bigint')
-  expect(await client.getLogs({ address })).toBeInstanceOf(Array)
+  expect(await client.fee.getGasPrice()).toBeTypeOf('bigint')
+  expect(await client.logs.get({ address })).toBeInstanceOf(Array)
   expect(
-    await client.getStorageAt({
+    await client.address.getStorageAt({
       address,
       slot: '0x0',
     }),
   ).toBeDefined()
   expect(
-    await client.getTransactionCount({
+    await client.address.getTransactionCount({
       address: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac',
     }),
   ).toBeTypeOf('number')

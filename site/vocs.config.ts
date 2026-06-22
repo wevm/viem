@@ -184,75 +184,122 @@ export default defineConfig({
               { text: 'Overview', link: '/docs/actions/public' },
               { text: 'call', link: '/docs/actions/public/call' },
               {
-                text: 'estimateFeesPerGas',
-                link: '/docs/actions/public/estimateFeesPerGas',
+                text: 'Address',
+                items: [
+                  {
+                    text: 'getBalance',
+                    link: '/docs/actions/public/address/getBalance',
+                  },
+                  {
+                    text: 'getCode',
+                    link: '/docs/actions/public/address/getCode',
+                  },
+                  {
+                    text: 'getDelegation',
+                    link: '/docs/actions/public/address/getDelegation',
+                  },
+                  {
+                    text: 'getProof',
+                    link: '/docs/actions/public/address/getProof',
+                  },
+                  {
+                    text: 'getStorageAt',
+                    link: '/docs/actions/public/address/getStorageAt',
+                  },
+                  {
+                    text: 'getTransactionCount',
+                    link: '/docs/actions/public/address/getTransactionCount',
+                  },
+                ],
               },
               {
-                text: 'estimateMaxPriorityFeePerGas',
-                link: '/docs/actions/public/estimateMaxPriorityFeePerGas',
-              },
-              { text: 'getBalance', link: '/docs/actions/public/getBalance' },
-              {
-                text: 'getBlobBaseFee',
-                link: '/docs/actions/public/getBlobBaseFee',
-              },
-              { text: 'getBlock', link: '/docs/actions/public/getBlock' },
-              {
-                text: 'getBlockNumber',
-                link: '/docs/actions/public/getBlockNumber',
-              },
-              {
-                text: 'getBlockReceipts',
-                link: '/docs/actions/public/getBlockReceipts',
-              },
-              {
-                text: 'getBlockTransactionCount',
-                link: '/docs/actions/public/getBlockTransactionCount',
-              },
-              { text: 'getChainId', link: '/docs/actions/public/getChainId' },
-              { text: 'getCode', link: '/docs/actions/public/getCode' },
-              {
-                text: 'getContractEvents',
-                link: '/docs/actions/public/getContractEvents',
+                text: 'Block',
+                items: [
+                  { text: 'get', link: '/docs/actions/public/block/get' },
+                  {
+                    text: 'getNumber',
+                    link: '/docs/actions/public/block/getNumber',
+                  },
+                  {
+                    text: 'getReceipts',
+                    link: '/docs/actions/public/block/getReceipts',
+                  },
+                  {
+                    text: 'getTransactionCount',
+                    link: '/docs/actions/public/block/getTransactionCount',
+                  },
+                ],
               },
               {
-                text: 'getDelegation',
-                link: '/docs/actions/public/getDelegation',
+                text: 'Chains',
+                items: [
+                  { text: 'getId', link: '/docs/actions/public/chains/getId' },
+                ],
               },
               {
-                text: 'getEip712Domain',
-                link: '/docs/actions/public/getEip712Domain',
+                text: 'Contract',
+                items: [
+                  {
+                    text: 'getEip712Domain',
+                    link: '/docs/actions/public/contract/getEip712Domain',
+                  },
+                  {
+                    text: 'getLogs',
+                    link: '/docs/actions/public/contract/getLogs',
+                  },
+                  { text: 'read', link: '/docs/actions/public/contract/read' },
+                ],
               },
               {
-                text: 'getFeeHistory',
-                link: '/docs/actions/public/getFeeHistory',
-              },
-              { text: 'getGasPrice', link: '/docs/actions/public/getGasPrice' },
-              { text: 'getLogs', link: '/docs/actions/public/getLogs' },
-              { text: 'getProof', link: '/docs/actions/public/getProof' },
-              {
-                text: 'getStorageAt',
-                link: '/docs/actions/public/getStorageAt',
+                text: 'Logs',
+                items: [
+                  {
+                    text: 'get',
+                    link: '/docs/actions/public/logs/get',
+                  },
+                ],
               },
               {
-                text: 'getTransaction',
-                link: '/docs/actions/public/getTransaction',
+                text: 'Fee',
+                items: [
+                  {
+                    text: 'estimateFeesPerGas',
+                    link: '/docs/actions/public/fee/estimateFeesPerGas',
+                  },
+                  {
+                    text: 'estimateMaxPriorityFeePerGas',
+                    link: '/docs/actions/public/fee/estimateMaxPriorityFeePerGas',
+                  },
+                  {
+                    text: 'getBlobBaseFee',
+                    link: '/docs/actions/public/fee/getBlobBaseFee',
+                  },
+                  {
+                    text: 'getGasPrice',
+                    link: '/docs/actions/public/fee/getGasPrice',
+                  },
+                  {
+                    text: 'getHistory',
+                    link: '/docs/actions/public/fee/getHistory',
+                  },
+                ],
               },
               {
-                text: 'getTransactionConfirmations',
-                link: '/docs/actions/public/getTransactionConfirmations',
-              },
-              {
-                text: 'getTransactionCount',
-                link: '/docs/actions/public/getTransactionCount',
-              },
-              {
-                text: 'getTransactionReceipt',
-                link: '/docs/actions/public/getTransactionReceipt',
-              },
-              {
-                text: 'readContract',
-                link: '/docs/actions/public/readContract',
+                text: 'Transaction',
+                items: [
+                  {
+                    text: 'get',
+                    link: '/docs/actions/public/transaction/get',
+                  },
+                  {
+                    text: 'getConfirmations',
+                    link: '/docs/actions/public/transaction/getConfirmations',
+                  },
+                  {
+                    text: 'getReceipt',
+                    link: '/docs/actions/public/transaction/getReceipt',
+                  },
+                ],
               },
             ],
           },
@@ -261,74 +308,126 @@ export default defineConfig({
             items: [
               { text: 'Overview', link: '/docs/actions/test' },
               {
-                text: 'dropTransaction',
-                link: '/docs/actions/test/dropTransaction',
-              },
-              { text: 'dumpState', link: '/docs/actions/test/dumpState' },
-              { text: 'getAutomine', link: '/docs/actions/test/getAutomine' },
-              {
-                text: 'getTxpoolStatus',
-                link: '/docs/actions/test/getTxpoolStatus',
-              },
-              {
-                text: 'impersonateAccount',
-                link: '/docs/actions/test/impersonateAccount',
-              },
-              { text: 'increaseTime', link: '/docs/actions/test/increaseTime' },
-              {
-                text: 'inspectTxpool',
-                link: '/docs/actions/test/inspectTxpool',
-              },
-              { text: 'loadState', link: '/docs/actions/test/loadState' },
-              { text: 'mine', link: '/docs/actions/test/mine' },
-              {
-                text: 'removeBlockTimestampInterval',
-                link: '/docs/actions/test/removeBlockTimestampInterval',
-              },
-              { text: 'reset', link: '/docs/actions/test/reset' },
-              { text: 'revert', link: '/docs/actions/test/revert' },
-              { text: 'setAutomine', link: '/docs/actions/test/setAutomine' },
-              { text: 'setBalance', link: '/docs/actions/test/setBalance' },
-              {
-                text: 'setBlockGasLimit',
-                link: '/docs/actions/test/setBlockGasLimit',
+                text: 'Address',
+                items: [
+                  {
+                    text: 'impersonate',
+                    link: '/docs/actions/test/address/impersonate',
+                  },
+                  {
+                    text: 'setBalance',
+                    link: '/docs/actions/test/address/setBalance',
+                  },
+                  {
+                    text: 'setCode',
+                    link: '/docs/actions/test/address/setCode',
+                  },
+                  {
+                    text: 'setNonce',
+                    link: '/docs/actions/test/address/setNonce',
+                  },
+                  {
+                    text: 'setStorageAt',
+                    link: '/docs/actions/test/address/setStorageAt',
+                  },
+                  {
+                    text: 'stopImpersonating',
+                    link: '/docs/actions/test/address/stopImpersonating',
+                  },
+                ],
               },
               {
-                text: 'setBlockTimestampInterval',
-                link: '/docs/actions/test/setBlockTimestampInterval',
+                text: 'Block',
+                items: [
+                  {
+                    text: 'getAutomine',
+                    link: '/docs/actions/test/block/getAutomine',
+                  },
+                  {
+                    text: 'increaseTime',
+                    link: '/docs/actions/test/block/increaseTime',
+                  },
+                  { text: 'mine', link: '/docs/actions/test/block/mine' },
+                  {
+                    text: 'removeTimestampInterval',
+                    link: '/docs/actions/test/block/removeTimestampInterval',
+                  },
+                  {
+                    text: 'setAutomine',
+                    link: '/docs/actions/test/block/setAutomine',
+                  },
+                  {
+                    text: 'setCoinbase',
+                    link: '/docs/actions/test/block/setCoinbase',
+                  },
+                  {
+                    text: 'setGasLimit',
+                    link: '/docs/actions/test/block/setGasLimit',
+                  },
+                  {
+                    text: 'setIntervalMining',
+                    link: '/docs/actions/test/block/setIntervalMining',
+                  },
+                  {
+                    text: 'setNextBaseFeePerGas',
+                    link: '/docs/actions/test/block/setNextBaseFeePerGas',
+                  },
+                  {
+                    text: 'setNextTimestamp',
+                    link: '/docs/actions/test/block/setNextTimestamp',
+                  },
+                  {
+                    text: 'setTimestampInterval',
+                    link: '/docs/actions/test/block/setTimestampInterval',
+                  },
+                ],
               },
-              { text: 'setCode', link: '/docs/actions/test/setCode' },
-              { text: 'setCoinbase', link: '/docs/actions/test/setCoinbase' },
               {
-                text: 'setIntervalMining',
-                link: '/docs/actions/test/setIntervalMining',
+                text: 'Node',
+                items: [
+                  {
+                    text: 'setLoggingEnabled',
+                    link: '/docs/actions/test/node/setLoggingEnabled',
+                  },
+                  {
+                    text: 'setMinGasPrice',
+                    link: '/docs/actions/test/node/setMinGasPrice',
+                  },
+                  {
+                    text: 'setRpcUrl',
+                    link: '/docs/actions/test/node/setRpcUrl',
+                  },
+                ],
               },
               {
-                text: 'setLoggingEnabled',
-                link: '/docs/actions/test/setLoggingEnabled',
+                text: 'State',
+                items: [
+                  { text: 'dump', link: '/docs/actions/test/state/dump' },
+                  { text: 'load', link: '/docs/actions/test/state/load' },
+                  { text: 'reset', link: '/docs/actions/test/state/reset' },
+                  { text: 'revert', link: '/docs/actions/test/state/revert' },
+                  {
+                    text: 'snapshot',
+                    link: '/docs/actions/test/state/snapshot',
+                  },
+                ],
               },
               {
-                text: 'setMinGasPrice',
-                link: '/docs/actions/test/setMinGasPrice',
-              },
-              {
-                text: 'setNextBlockBaseFeePerGas',
-                link: '/docs/actions/test/setNextBlockBaseFeePerGas',
-              },
-              {
-                text: 'setNextBlockTimestamp',
-                link: '/docs/actions/test/setNextBlockTimestamp',
-              },
-              { text: 'setNonce', link: '/docs/actions/test/setNonce' },
-              { text: 'setRpcUrl', link: '/docs/actions/test/setRpcUrl' },
-              {
-                text: 'setStorageAt',
-                link: '/docs/actions/test/setStorageAt',
-              },
-              { text: 'snapshot', link: '/docs/actions/test/snapshot' },
-              {
-                text: 'stopImpersonatingAccount',
-                link: '/docs/actions/test/stopImpersonatingAccount',
+                text: 'Transaction Pool',
+                items: [
+                  {
+                    text: 'dropTransaction',
+                    link: '/docs/actions/test/txpool/dropTransaction',
+                  },
+                  {
+                    text: 'getStatus',
+                    link: '/docs/actions/test/txpool/getStatus',
+                  },
+                  {
+                    text: 'inspect',
+                    link: '/docs/actions/test/txpool/inspect',
+                  },
+                ],
               },
             ],
           },

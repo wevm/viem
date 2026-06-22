@@ -1,0 +1,6 @@
+export { getBalance } from './getBalance.js'
+export { getCode } from './getCode.js'
+export { getDelegation } from './getDelegation.js'
+export { getProof } from './getProof.js'
+export { getStorageAt } from './getStorageAt.js'
+export { getTransactionCount } from './getTransactionCount.js'
