@@ -2,7 +2,7 @@ import * as AbiFunction from 'ox/AbiFunction'
 import * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import { Actions } from 'viem'
-import { describe, expect, test } from 'vitest'
+import { expect, test } from 'vitest'
 
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
@@ -52,111 +52,109 @@ const approve = (owner: Hex.Hex, spender: Hex.Hex, value: bigint) =>
 
 const head = () => Actions.getBlockNumber(client, { cacheTime: 0 })
 
-describe('getContractEvents', () => {
-  test('default: returns all event logs for the abi', async () => {
-    const fromBlock = (await head()) + 1n
-    await transfer(a, b, 1n)
-    await approve(a, c, 2n)
+test('default: returns all event logs for the abi', async () => {
+  const fromBlock = (await head()) + 1n
+  await transfer(a, b, 1n)
+  await approve(a, c, 2n)
 
-    const logs = await getContractEvents(client, { abi, address, fromBlock })
-    expect(logs.length).toBe(2)
-    expect(logs[0]!.eventName).toBe('Transfer')
-    expect(logs[0]!.args).toEqual({
-      from: Address.checksum(a),
-      to: Address.checksum(b),
-      value: 1n,
-    })
-    expect(logs[1]!.eventName).toBe('Approval')
-    expect(logs[1]!.args).toEqual({
-      owner: Address.checksum(a),
-      spender: Address.checksum(c),
-      value: 2n,
-    })
+  const logs = await getContractEvents(client, { abi, address, fromBlock })
+  expect(logs.length).toBe(2)
+  expect(logs[0]!.eventName).toBe('Transfer')
+  expect(logs[0]!.args).toEqual({
+    from: Address.checksum(a),
+    to: Address.checksum(b),
+    value: 1n,
   })
-
-  test('args: eventName', async () => {
-    const fromBlock = (await head()) + 1n
-    await transfer(a, b, 1n)
-    await approve(a, c, 2n)
-    await transfer(b, c, 3n)
-
-    const logs = await getContractEvents(client, {
-      abi,
-      address,
-      eventName: 'Transfer',
-      fromBlock,
-    })
-    expect(logs.length).toBe(2)
-    expect(logs.map((log) => log.eventName)).toEqual(['Transfer', 'Transfer'])
+  expect(logs[1]!.eventName).toBe('Approval')
+  expect(logs[1]!.args).toEqual({
+    owner: Address.checksum(a),
+    spender: Address.checksum(c),
+    value: 2n,
   })
+})
 
-  test('args: args', async () => {
-    const fromBlock = (await head()) + 1n
-    await transfer(a, b, 1n)
-    await transfer(a, c, 2n)
-    await transfer(b, c, 3n)
+test('args: eventName', async () => {
+  const fromBlock = (await head()) + 1n
+  await transfer(a, b, 1n)
+  await approve(a, c, 2n)
+  await transfer(b, c, 3n)
 
-    const logs = await getContractEvents(client, {
-      abi,
-      address,
-      args: { from: a },
-      eventName: 'Transfer',
-      fromBlock,
-    })
-    expect(logs.length).toBe(2)
-    expect(logs.map((log) => log.args.to)).toEqual([
-      Address.checksum(b),
-      Address.checksum(c),
-    ])
+  const logs = await getContractEvents(client, {
+    abi,
+    address,
+    eventName: 'Transfer',
+    fromBlock,
   })
+  expect(logs.length).toBe(2)
+  expect(logs.map((log) => log.eventName)).toEqual(['Transfer', 'Transfer'])
+})
 
-  test('args: address', async () => {
-    const { address: otherAddress } = await contract.deploy(client, {
-      bytecode: generated.Events.bytecode.object,
-    })
-    const fromBlock = (await head()) + 1n
-    await transfer(a, b, 1n)
-    await send(otherAddress, 'emitTransfer', [a, b, 1n])
+test('args: args', async () => {
+  const fromBlock = (await head()) + 1n
+  await transfer(a, b, 1n)
+  await transfer(a, c, 2n)
+  await transfer(b, c, 3n)
 
-    const logs = await getContractEvents(client, {
-      abi,
-      address,
-      fromBlock,
-    })
-    expect(logs.length).toBe(1)
-    expect(logs[0]!.address.toLowerCase()).toBe(address.toLowerCase())
+  const logs = await getContractEvents(client, {
+    abi,
+    address,
+    args: { from: a },
+    eventName: 'Transfer',
+    fromBlock,
   })
+  expect(logs.length).toBe(2)
+  expect(logs.map((log) => log.args.to)).toEqual([
+    Address.checksum(b),
+    Address.checksum(c),
+  ])
+})
 
-  test('args: strict', async () => {
-    const fromBlock = (await head()) + 1n
-    await transfer(a, b, 1n)
-
-    const logs = await getContractEvents(client, {
-      abi,
-      address,
-      eventName: 'Transfer',
-      fromBlock,
-      strict: true,
-    })
-    expect(logs.length).toBe(1)
-    expect(logs[0]!.args).toEqual({
-      from: Address.checksum(a),
-      to: Address.checksum(b),
-      value: 1n,
-    })
+test('args: address', async () => {
+  const { address: otherAddress } = await contract.deploy(client, {
+    bytecode: generated.Events.bytecode.object,
   })
+  const fromBlock = (await head()) + 1n
+  await transfer(a, b, 1n)
+  await send(otherAddress, 'emitTransfer', [a, b, 1n])
 
-  test('args: blockHash', async () => {
-    const fromBlock = (await head()) + 1n
-    await transfer(a, b, 1n)
-    const block = await Actions.getBlock(client, { blockNumber: fromBlock })
-
-    const logs = await getContractEvents(client, {
-      abi,
-      address,
-      blockHash: block.hash!,
-    })
-    expect(logs.length).toBe(1)
-    expect(logs[0]!.eventName).toBe('Transfer')
+  const logs = await getContractEvents(client, {
+    abi,
+    address,
+    fromBlock,
   })
+  expect(logs.length).toBe(1)
+  expect(logs[0]!.address.toLowerCase()).toBe(address.toLowerCase())
+})
+
+test('args: strict', async () => {
+  const fromBlock = (await head()) + 1n
+  await transfer(a, b, 1n)
+
+  const logs = await getContractEvents(client, {
+    abi,
+    address,
+    eventName: 'Transfer',
+    fromBlock,
+    strict: true,
+  })
+  expect(logs.length).toBe(1)
+  expect(logs[0]!.args).toEqual({
+    from: Address.checksum(a),
+    to: Address.checksum(b),
+    value: 1n,
+  })
+})
+
+test('args: blockHash', async () => {
+  const fromBlock = (await head()) + 1n
+  await transfer(a, b, 1n)
+  const block = await Actions.getBlock(client, { blockNumber: fromBlock })
+
+  const logs = await getContractEvents(client, {
+    abi,
+    address,
+    blockHash: block.hash!,
+  })
+  expect(logs.length).toBe(1)
+  expect(logs[0]!.eventName).toBe('Transfer')
 })

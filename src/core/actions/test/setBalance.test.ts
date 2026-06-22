@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
@@ -10,20 +10,18 @@ const client = Client.create({
 
 const { address } = constants.accounts[0]
 
-describe('setBalance', () => {
-  test('sets account balance', async () => {
-    await client.setBalance({ address, value: 69n })
-    expect(
-      await client.request({
-        method: 'eth_getBalance',
-        params: [address, 'latest'],
-      }),
-    ).toBe('0x45')
-  })
+test('sets account balance', async () => {
+  await client.setBalance({ address, value: 69n })
+  expect(
+    await client.request({
+      method: 'eth_getBalance',
+      params: [address, 'latest'],
+    }),
+  ).toBe('0x45')
+})
 
-  test('ganache uses evm_setAccountBalance', async () => {
-    await Actions.test
-      .setBalance(client, { address, value: 1n, mode: 'ganache' })
-      .catch(() => {})
-  })
+test('ganache uses evm_setAccountBalance', async () => {
+  await Actions.test
+    .setBalance(client, { address, value: 1n, mode: 'ganache' })
+    .catch(() => {})
 })

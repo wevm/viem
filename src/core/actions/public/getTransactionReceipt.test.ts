@@ -1,6 +1,6 @@
 import { z } from 'ox/zod'
 import { Chain, Client, http } from 'viem'
-import { describe, expect, test } from 'vitest'
+import { expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
 
@@ -13,10 +13,9 @@ const client = anvil.getClient(anvil.mainnet)
 const hash =
   '0xa830b5e09e6d2709eaddc555c12fe5177aa22a0862869aefab392d64bcb67926'
 
-describe('getTransactionReceipt', () => {
-  test('args: hash', async () => {
-    const receipt = await getTransactionReceipt(client, { hash })
-    expect(receipt).toMatchInlineSnapshot(`
+test('args: hash', async () => {
+  const receipt = await getTransactionReceipt(client, { hash })
+  expect(receipt).toMatchInlineSnapshot(`
       {
         "blobGasPrice": undefined,
         "blobGasUsed": undefined,
@@ -98,61 +97,60 @@ describe('getTransactionReceipt', () => {
         "type": "eip1559",
       }
     `)
-  })
+})
 
-  test('behavior: decodes via chain schema when declared', async () => {
-    const chain = Chain.from({
-      id: 1,
-      name: 'Ethereum',
-      nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-      schema: {
-        transactionReceipt: {
-          fromRpc: z.TransactionReceipt.TransactionReceipt,
-        },
+test('behavior: decodes via chain schema when declared', async () => {
+  const chain = Chain.from({
+    id: 1,
+    name: 'Ethereum',
+    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
+    schema: {
+      transactionReceipt: {
+        fromRpc: z.TransactionReceipt.TransactionReceipt,
       },
-    })
-    const schemaClient = Client.create({ chain, transport: http() })
-
-    expect(await getTransactionReceipt(schemaClient, { hash })).toEqual(
-      await getTransactionReceipt(client, { hash }),
-    )
+    },
   })
+  const schemaClient = Client.create({ chain, transport: http() })
 
-  test('behavior: decodes custom properties via chain schema', async () => {
-    const chain = Chain.from({
-      id: 1,
-      name: 'Ethereum',
-      nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-      schema: {
-        transactionReceipt: {
-          fromRpc: z.pipe(
-            z.TransactionReceipt.TransactionReceipt,
-            z.transform((receipt) => ({
-              ...receipt,
-              custom: 'hello' as const,
-            })),
-          ),
-        },
+  expect(await getTransactionReceipt(schemaClient, { hash })).toEqual(
+    await getTransactionReceipt(client, { hash }),
+  )
+})
+
+test('behavior: decodes custom properties via chain schema', async () => {
+  const chain = Chain.from({
+    id: 1,
+    name: 'Ethereum',
+    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
+    schema: {
+      transactionReceipt: {
+        fromRpc: z.pipe(
+          z.TransactionReceipt.TransactionReceipt,
+          z.transform((receipt) => ({
+            ...receipt,
+            custom: 'hello' as const,
+          })),
+        ),
       },
-    })
-    const schemaClient = Client.create({ chain, transport: http() })
-
-    const receipt = await getTransactionReceipt(schemaClient, { hash })
-    expect(receipt.custom).toBe('hello')
-    expect(receipt.transactionHash).toBe(hash)
+    },
   })
+  const schemaClient = Client.create({ chain, transport: http() })
 
-  test('error: receipt not found', async () => {
-    await expect(() =>
-      getTransactionReceipt(client, {
-        hash: '0x0000000000000000000000000000000000000000000000000000000000000000',
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+  const receipt = await getTransactionReceipt(schemaClient, { hash })
+  expect(receipt.custom).toBe('hello')
+  expect(receipt.transactionHash).toBe(hash)
+})
+
+test('error: receipt not found', async () => {
+  await expect(() =>
+    getTransactionReceipt(client, {
+      hash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [TransactionReceipt.NotFoundError: Transaction receipt with hash "0x0000000000000000000000000000000000000000000000000000000000000000" could not be found. The Transaction may not be processed on a block yet.
 
       Version: viem@2.52.1]
     `)
-  })
 })

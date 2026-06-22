@@ -1,6 +1,6 @@
 import { Chain, Client, http } from 'viem'
 import { z } from 'ox/zod'
-import { describe, expect, test } from 'vitest'
+import { expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
 
@@ -8,12 +8,11 @@ import { getBlock } from './getBlock.js'
 
 const client = anvil.getClient(anvil.mainnet)
 
-describe('getBlock', () => {
-  test('default', async () => {
-    // the pinned fork-tip block is cached by anvil, so the header is
-    // deterministic. omit the large transactions array (asserted below).
-    const { transactions, ...block } = await getBlock(client)
-    expect(block).toMatchInlineSnapshot(`
+test('default', async () => {
+  // the pinned fork-tip block is cached by anvil, so the header is
+  // deterministic. omit the large transactions array (asserted below).
+  const { transactions, ...block } = await getBlock(client)
+  expect(block).toMatchInlineSnapshot(`
       {
         "baseFeePerGas": 635678744n,
         "blobGasUsed": 786432n,
@@ -139,35 +138,35 @@ describe('getBlock', () => {
         "withdrawalsRoot": "0x96c5c22e9b58cb7141b2aecf4250fc84b0486a00a78353cdcfc9d42c214b2127",
       }
     `)
-    // schema-less default path returns transaction hashes.
-    expect(transactions.every((tx) => typeof tx === 'string')).toBe(true)
-  })
+  // schema-less default path returns transaction hashes.
+  expect(transactions.every((tx) => typeof tx === 'string')).toBe(true)
+})
 
-  test('args: blockNumber', async () => {
-    const block = await getBlock(client, {
-      blockNumber: anvil.mainnet.forkBlockNumber - 100n,
-    })
-    expect(block.number).toBe(anvil.mainnet.forkBlockNumber - 100n)
+test('args: blockNumber', async () => {
+  const block = await getBlock(client, {
+    blockNumber: anvil.mainnet.forkBlockNumber - 100n,
   })
+  expect(block.number).toBe(anvil.mainnet.forkBlockNumber - 100n)
+})
 
-  test('args: blockTag', async () => {
-    const block = await getBlock(client, { blockTag: 'latest' })
-    expect(block.number).toBe(anvil.mainnet.forkBlockNumber)
+test('args: blockTag', async () => {
+  const block = await getBlock(client, { blockTag: 'latest' })
+  expect(block.number).toBe(anvil.mainnet.forkBlockNumber)
+})
+
+test('args: blockHash', async () => {
+  const { hash } = await getBlock(client)
+  const block = await getBlock(client, { blockHash: hash! })
+  expect(block.hash).toBe(hash)
+  expect(block.number).toBe(anvil.mainnet.forkBlockNumber)
+})
+
+test('args: includeTransactions', async () => {
+  const block = await getBlock(client, {
+    blockNumber: anvil.mainnet.forkBlockNumber,
+    includeTransactions: true,
   })
-
-  test('args: blockHash', async () => {
-    const { hash } = await getBlock(client)
-    const block = await getBlock(client, { blockHash: hash! })
-    expect(block.hash).toBe(hash)
-    expect(block.number).toBe(anvil.mainnet.forkBlockNumber)
-  })
-
-  test('args: includeTransactions', async () => {
-    const block = await getBlock(client, {
-      blockNumber: anvil.mainnet.forkBlockNumber,
-      includeTransactions: true,
-    })
-    expect(block.transactions[0]).toMatchInlineSnapshot(`
+  expect(block.transactions[0]).toMatchInlineSnapshot(`
       {
         "accessList": [],
         "blockHash": "0xd028bdc00aff985bdf872d6b961110d41a6fe4df5e93aeb6dffe2f38ae0a4f7d",
@@ -193,72 +192,71 @@ describe('getBlock', () => {
         "yParity": 1,
       }
     `)
+})
+
+test('behavior: decodes via chain schema when declared', async () => {
+  const chain = Chain.from({
+    id: 1,
+    name: 'Ethereum',
+    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
+    schema: { block: { fromRpc: z.Block.Block } },
   })
+  const schemaClient = Client.create({ chain, transport: http() })
 
-  test('behavior: decodes via chain schema when declared', async () => {
-    const chain = Chain.from({
-      id: 1,
-      name: 'Ethereum',
-      nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-      schema: { block: { fromRpc: z.Block.Block } },
-    })
-    const schemaClient = Client.create({ chain, transport: http() })
-
-    const viaSchema = await getBlock(schemaClient, {
-      blockNumber: anvil.mainnet.forkBlockNumber,
-    })
-    const viaDefault = await getBlock(client, {
-      blockNumber: anvil.mainnet.forkBlockNumber,
-    })
-    expect(viaSchema).toEqual(viaDefault)
+  const viaSchema = await getBlock(schemaClient, {
+    blockNumber: anvil.mainnet.forkBlockNumber,
   })
+  const viaDefault = await getBlock(client, {
+    blockNumber: anvil.mainnet.forkBlockNumber,
+  })
+  expect(viaSchema).toEqual(viaDefault)
+})
 
-  test('behavior: decodes custom properties via chain schema', async () => {
-    const chain = Chain.from({
-      id: 1,
-      name: 'Ethereum',
-      nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-      schema: {
-        block: {
-          fromRpc: z.pipe(
-            z.Block.Block,
-            z.transform((block) => ({ ...block, custom: 'hello' as const })),
-          ),
-        },
+test('behavior: decodes custom properties via chain schema', async () => {
+  const chain = Chain.from({
+    id: 1,
+    name: 'Ethereum',
+    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
+    schema: {
+      block: {
+        fromRpc: z.pipe(
+          z.Block.Block,
+          z.transform((block) => ({ ...block, custom: 'hello' as const })),
+        ),
       },
-    })
-    const schemaClient = Client.create({ chain, transport: http() })
-
-    const block = await getBlock(schemaClient, {
-      blockNumber: anvil.mainnet.forkBlockNumber,
-    })
-    // custom property is decoded onto the result.
-    expect(block.custom).toBe('hello')
-    // standard properties still decode correctly.
-    expect(block.number).toBe(anvil.mainnet.forkBlockNumber)
+    },
   })
+  const schemaClient = Client.create({ chain, transport: http() })
 
-  test('error: block not found', async () => {
-    await expect(() => getBlock(client, { blockNumber: 9_999_999_999n }))
-      .rejects.toThrowErrorMatchingInlineSnapshot(`
+  const block = await getBlock(schemaClient, {
+    blockNumber: anvil.mainnet.forkBlockNumber,
+  })
+  // custom property is decoded onto the result.
+  expect(block.custom).toBe('hello')
+  // standard properties still decode correctly.
+  expect(block.number).toBe(anvil.mainnet.forkBlockNumber)
+})
+
+test('error: block not found', async () => {
+  await expect(() => getBlock(client, { blockNumber: 9_999_999_999n })).rejects
+    .toThrowErrorMatchingInlineSnapshot(`
       [Block.NotFoundError: Block at number "9999999999" could not be found.
 
       Version: viem@2.52.1]
     `)
-  })
+})
 
-  test('error: block not found (by hash)', async () => {
-    await expect(() =>
-      getBlock(client, {
-        blockHash:
-          '0x0000000000000000000000000000000000000000000000000000000000000000',
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+test('error: block not found (by hash)', async () => {
+  await expect(() =>
+    getBlock(client, {
+      blockHash:
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Block.NotFoundError: Block at hash "0x0000000000000000000000000000000000000000000000000000000000000000" could not be found.
 
       Version: viem@2.52.1]
     `)
-  })
 })

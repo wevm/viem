@@ -1,6 +1,6 @@
 import { z } from 'ox/zod'
 import { Actions, Chain, Client, http } from 'viem'
-import { describe, expect, test } from 'vitest'
+import { expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
@@ -17,10 +17,9 @@ const forkTip = {
   hash: '0xa830b5e09e6d2709eaddc555c12fe5177aa22a0862869aefab392d64bcb67926',
 } as const
 
-describe('getTransaction', () => {
-  test('args: hash', async () => {
-    const transaction = await getTransaction(client, { hash: forkTip.hash })
-    expect(transaction).toMatchInlineSnapshot(`
+test('args: hash', async () => {
+  const transaction = await getTransaction(client, { hash: forkTip.hash })
+  expect(transaction).toMatchInlineSnapshot(`
       {
         "accessList": [],
         "blockHash": "0xd028bdc00aff985bdf872d6b961110d41a6fe4df5e93aeb6dffe2f38ae0a4f7d",
@@ -46,57 +45,57 @@ describe('getTransaction', () => {
         "yParity": 1,
       }
     `)
+})
+
+test('args: blockHash + index', async () => {
+  const transaction = await getTransaction(client, {
+    blockHash: forkTip.blockHash,
+    index: 0,
   })
+  expect(transaction).toEqual(
+    await getTransaction(client, { hash: forkTip.hash }),
+  )
+})
 
-  test('args: blockHash + index', async () => {
-    const transaction = await getTransaction(client, {
-      blockHash: forkTip.blockHash,
-      index: 0,
-    })
-    expect(transaction).toEqual(
-      await getTransaction(client, { hash: forkTip.hash }),
-    )
+test('args: blockNumber + index', async () => {
+  // The fork-tip block cannot be queried by number/index, so mine a local
+  // block to exercise the success path.
+  // TODO: replace raw `eth_sendTransaction` with `sendTransaction` wallet
+  // action once it lands.
+  const hash = (await client.request({
+    method: 'eth_sendTransaction',
+    params: [
+      {
+        from: constants.accounts[0].address,
+        to: constants.accounts[1].address,
+        value: '0xde0b6b3a7640000',
+      },
+    ],
+  } as never)) as `0x${string}`
+  await Actions.test.mine(client, { blocks: 1 })
+
+  const byHash = await getTransaction(client, { hash })
+  const transaction = await getTransaction(client, {
+    blockNumber: byHash.blockNumber!,
+    index: byHash.transactionIndex!,
   })
+  expect(transaction).toEqual(byHash)
+})
 
-  test('args: blockNumber + index', async () => {
-    // The fork-tip block cannot be queried by number/index, so mine a local
-    // block to exercise the success path.
-    // TODO: replace raw `eth_sendTransaction` with `sendTransaction` wallet
-    // action once it lands.
-    const hash = (await client.request({
-      method: 'eth_sendTransaction',
-      params: [
-        {
-          from: constants.accounts[0].address,
-          to: constants.accounts[1].address,
-          value: '0xde0b6b3a7640000',
-        },
-      ],
-    } as never)) as `0x${string}`
-    await Actions.test.mine(client, { blocks: 1 })
-
-    const byHash = await getTransaction(client, { hash })
-    const transaction = await getTransaction(client, {
-      blockNumber: byHash.blockNumber!,
-      index: byHash.transactionIndex!,
-    })
-    expect(transaction).toEqual(byHash)
+test('behavior: decodes via chain schema when declared', async () => {
+  const chain = Chain.from({
+    id: 1,
+    name: 'Ethereum',
+    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
+    schema: { transaction: { fromRpc: z.Transaction.Transaction } },
   })
+  const schemaClient = Client.create({ chain, transport: http() })
 
-  test('behavior: decodes via chain schema when declared', async () => {
-    const chain = Chain.from({
-      id: 1,
-      name: 'Ethereum',
-      nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-      schema: { transaction: { fromRpc: z.Transaction.Transaction } },
-    })
-    const schemaClient = Client.create({ chain, transport: http() })
-
-    const transaction = await getTransaction(schemaClient, {
-      hash: forkTip.hash,
-    })
-    expect(transaction).toMatchInlineSnapshot(`
+  const transaction = await getTransaction(schemaClient, {
+    hash: forkTip.hash,
+  })
+  expect(transaction).toMatchInlineSnapshot(`
       {
         "accessList": [],
         "blockHash": "0xd028bdc00aff985bdf872d6b961110d41a6fe4df5e93aeb6dffe2f38ae0a4f7d",
@@ -121,93 +120,92 @@ describe('getTransaction', () => {
         "yParity": 1,
       }
     `)
-  })
+})
 
-  test('behavior: decodes custom properties via chain schema', async () => {
-    const chain = Chain.from({
-      id: 1,
-      name: 'Ethereum',
-      nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-      schema: {
-        transaction: {
-          fromRpc: z.pipe(
-            z.Transaction.Transaction,
-            z.transform((transaction) => ({
-              ...transaction,
-              custom: 'hello' as const,
-            })),
-          ),
-        },
+test('behavior: decodes custom properties via chain schema', async () => {
+  const chain = Chain.from({
+    id: 1,
+    name: 'Ethereum',
+    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
+    schema: {
+      transaction: {
+        fromRpc: z.pipe(
+          z.Transaction.Transaction,
+          z.transform((transaction) => ({
+            ...transaction,
+            custom: 'hello' as const,
+          })),
+        ),
       },
-    })
-    const schemaClient = Client.create({ chain, transport: http() })
-
-    const transaction = await getTransaction(schemaClient, {
-      hash: forkTip.hash,
-    })
-    expect(transaction.custom).toBe('hello')
-    expect(transaction.hash).toBe(forkTip.hash)
+    },
   })
+  const schemaClient = Client.create({ chain, transport: http() })
 
-  test('error: transaction not found (by hash)', async () => {
-    await expect(() =>
-      getTransaction(client, {
-        hash: '0x0000000000000000000000000000000000000000000000000000000000000000',
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+  const transaction = await getTransaction(schemaClient, {
+    hash: forkTip.hash,
+  })
+  expect(transaction.custom).toBe('hello')
+  expect(transaction.hash).toBe(forkTip.hash)
+})
+
+test('error: transaction not found (by hash)', async () => {
+  await expect(() =>
+    getTransaction(client, {
+      hash: '0x0000000000000000000000000000000000000000000000000000000000000000',
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Transaction.NotFoundError: Transaction with hash "0x0000000000000000000000000000000000000000000000000000000000000000" could not be found.
 
       Version: viem@2.52.1]
     `)
-  })
+})
 
-  test('error: transaction not found (by block number + index)', async () => {
-    await expect(() =>
-      getTransaction(client, {
-        blockNumber: anvil.mainnet.forkBlockNumber,
-        index: 9_999_999,
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+test('error: transaction not found (by block number + index)', async () => {
+  await expect(() =>
+    getTransaction(client, {
+      blockNumber: anvil.mainnet.forkBlockNumber,
+      index: 9_999_999,
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Transaction.NotFoundError: Transaction at block number "22263623" at index "9999999" could not be found.
 
       Version: viem@2.52.1]
     `)
-  })
+})
 
-  test('error: transaction not found (by block tag + index)', async () => {
-    await expect(() =>
-      getTransaction(client, { blockTag: 'latest', index: 9_999_999 }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+test('error: transaction not found (by block tag + index)', async () => {
+  await expect(() =>
+    getTransaction(client, { blockTag: 'latest', index: 9_999_999 }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Transaction.NotFoundError: Transaction at block time "latest" at index "9999999" could not be found.
 
       Version: viem@2.52.1]
     `)
-  })
+})
 
-  test('error: transaction not found (by block hash + index)', async () => {
-    await expect(() =>
-      getTransaction(client, {
-        blockHash: forkTip.blockHash,
-        index: 9_999_999,
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+test('error: transaction not found (by block hash + index)', async () => {
+  await expect(() =>
+    getTransaction(client, {
+      blockHash: forkTip.blockHash,
+      index: 9_999_999,
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Transaction.NotFoundError: Transaction at block hash "0xd028bdc00aff985bdf872d6b961110d41a6fe4df5e93aeb6dffe2f38ae0a4f7d" at index "9999999" could not be found.
 
       Version: viem@2.52.1]
     `)
-  })
+})
 
-  test('error: transaction not found (by sender + nonce)', async () => {
-    await expect(() =>
-      getTransaction(client, {
-        sender: '0x000000000000000000000000000000000000dEaD',
-        nonce: 9_999_999,
-      }),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+test('error: transaction not found (by sender + nonce)', async () => {
+  await expect(() =>
+    getTransaction(client, {
+      sender: '0x000000000000000000000000000000000000dEaD',
+      nonce: 9_999_999,
+    }),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Transaction.NotFoundError: Transaction could not be found.
 
       Version: viem@2.52.1]
     `)
-  })
 })

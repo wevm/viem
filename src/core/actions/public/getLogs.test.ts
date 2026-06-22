@@ -73,24 +73,23 @@ const transfer = (from: Hex.Hex, to: Hex.Hex, value: bigint) =>
 const approve = (owner: Hex.Hex, spender: Hex.Hex, value: bigint) =>
   send(address, generated.Events.abi, 'emitApproval', [owner, spender, value])
 
-describe('getLogs', () => {
-  test('default: returns raw logs', async () => {
-    const fromBlock =
-      (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
-    await transfer(a, b, 1n)
+test('default: returns raw logs', async () => {
+  const fromBlock =
+    (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
+  await transfer(a, b, 1n)
 
-    const logs = await getLogs(client, { address, fromBlock })
-    expect(logs.length).toBe(1)
-    expect(logs[0]!.address.toLowerCase()).toBe(address.toLowerCase())
-    expect(logs[0]).toMatchInlineSnapshot(
-      {
-        address: expect.any(String),
-        blockHash: expect.any(String),
-        blockNumber: expect.any(BigInt),
-        blockTimestamp: expect.any(BigInt),
-        transactionHash: expect.any(String),
-      },
-      `
+  const logs = await getLogs(client, { address, fromBlock })
+  expect(logs.length).toBe(1)
+  expect(logs[0]!.address.toLowerCase()).toBe(address.toLowerCase())
+  expect(logs[0]).toMatchInlineSnapshot(
+    {
+      address: expect.any(String),
+      blockHash: expect.any(String),
+      blockNumber: expect.any(BigInt),
+      blockTimestamp: expect.any(BigInt),
+      transactionHash: expect.any(String),
+    },
+    `
       {
         "address": Any<String>,
         "blockHash": Any<String>,
@@ -108,372 +107,367 @@ describe('getLogs', () => {
         "transactionIndex": 0,
       }
     `,
-    )
-  })
+  )
+})
 
-  test('behavior: no events, returns all logs in range', async () => {
+test('behavior: no events, returns all logs in range', async () => {
+  const fromBlock =
+    (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
+  await transfer(a, b, 1n)
+  await transfer(a, c, 1n)
+
+  const logs = await getLogs(client, { address, fromBlock })
+  expect(logs.length).toBe(2)
+})
+
+describe('events', () => {
+  test('args: event', async () => {
     const fromBlock =
       (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
     await transfer(a, b, 1n)
     await transfer(a, c, 1n)
 
-    const logs = await getLogs(client, { address, fromBlock })
+    const logs = await getLogs(client, {
+      address,
+      event: transferEvent,
+      fromBlock,
+    })
     expect(logs.length).toBe(2)
+    expect(logs[0]!.eventName).toEqual('Transfer')
+    expect(logs[0]!.args).toEqual({
+      from: Address.checksum(a),
+      to: Address.checksum(b),
+      value: 1n,
+    })
+    expect(logs[1]!.args).toEqual({
+      from: Address.checksum(a),
+      to: Address.checksum(c),
+      value: 1n,
+    })
   })
 
-  describe('events', () => {
-    test('args: event', async () => {
+  test('args: events', async () => {
+    const fromBlock =
+      (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
+    await approve(a, b, 1n)
+    await transfer(a, c, 1n)
+
+    const logs = await getLogs(client, {
+      address,
+      events: [transferEvent, approvalEvent],
+      fromBlock,
+    })
+    expect(logs.length).toBe(2)
+    expect(logs[0]!.eventName).toEqual('Approval')
+    expect(logs[0]!.args).toEqual({
+      owner: Address.checksum(a),
+      spender: Address.checksum(b),
+      value: 1n,
+    })
+    expect(logs[1]!.eventName).toEqual('Transfer')
+    expect(logs[1]!.args).toEqual({
+      from: Address.checksum(a),
+      to: Address.checksum(c),
+      value: 1n,
+    })
+  })
+
+  test('args: non-indexed data event', async () => {
+    const fromBlock =
+      (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
+    await send(address, generated.Events.abi, 'emitMessage', ['gm'])
+
+    const logs = await getLogs(client, {
+      address,
+      event: messageEvent,
+      fromBlock,
+    })
+    expect(logs.length).toBe(1)
+    expect(logs[0]!.args).toEqual({ message: 'gm' })
+  })
+
+  test('args: fromBlock/toBlock', async () => {
+    const fromBlock =
+      (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
+    await transfer(a, b, 1n)
+    const toBlock = await Actions.getBlockNumber(client, { cacheTime: 0 })
+    await transfer(a, c, 2n)
+
+    const logs = await getLogs(client, {
+      address,
+      event: transferEvent,
+      fromBlock,
+      toBlock,
+    })
+    expect(logs.length).toBe(1)
+    expect(logs[0]!.args.value).toBe(1n)
+  })
+
+  test('args: blockHash', async () => {
+    const hash = await transfer(a, b, 7n)
+    const { blockHash } = await Actions.getTransactionReceipt(client, {
+      hash,
+    })
+
+    const logs = await getLogs(client, {
+      address,
+      blockHash,
+      event: transferEvent,
+    })
+    expect(logs.length).toBe(1)
+    expect(logs[0]!.args.value).toBe(7n)
+  })
+
+  test('args: strict = true (named)', async () => {
+    const fromBlock =
+      (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
+    await transfer(a, b, 1n)
+
+    const logs = await getLogs(client, {
+      address,
+      event: transferEvent,
+      fromBlock,
+      strict: true,
+    })
+    expect(logs.length).toBe(1)
+    expect(logs[0]!.args).toEqual({
+      from: Address.checksum(a),
+      to: Address.checksum(b),
+      value: 1n,
+    })
+  })
+
+  test('args: strict = false (named)', async () => {
+    const fromBlock =
+      (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
+    await transfer(a, b, 1n)
+
+    const logs = await getLogs(client, {
+      address,
+      event: transferEvent,
+      fromBlock,
+    })
+    expect(logs.length).toBe(1)
+    expect(logs[0]!.args).toEqual({
+      from: Address.checksum(a),
+      to: Address.checksum(b),
+      value: 1n,
+    })
+  })
+
+  test('args: strict = true (unnamed)', async () => {
+    const fromBlock =
+      (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
+    await transfer(a, b, 1n)
+
+    const logs = await getLogs(client, {
+      address,
+      event: transferEventUnnamed,
+      fromBlock,
+      strict: true,
+    })
+    expect(logs.length).toBe(1)
+    expect(logs[0]!.args).toEqual([
+      Address.checksum(a),
+      Address.checksum(b),
+      1n,
+    ])
+  })
+
+  test('args: strict = false (unnamed)', async () => {
+    const fromBlock =
+      (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
+    await transfer(a, b, 1n)
+
+    const logs = await getLogs(client, {
+      address,
+      event: transferEventUnnamed,
+      fromBlock,
+    })
+    expect(logs.length).toBe(1)
+    expect(logs[0]!.args).toEqual([
+      Address.checksum(a),
+      Address.checksum(b),
+      1n,
+    ])
+  })
+
+  test('args: singular `from`', async () => {
+    const fromBlock =
+      (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
+    await transfer(d, a, 1n)
+    await transfer(a, b, 1n)
+    await transfer(a, b, 1n)
+    await approve(a, a, 1n)
+
+    const namedLogs = await getLogs(client, {
+      address,
+      event: transferEvent,
+      args: { from: a },
+      fromBlock,
+    })
+    expect(namedLogs.length).toBe(2)
+    expect(namedLogs[0]!.args).toEqual({
+      from: Address.checksum(a),
+      to: Address.checksum(b),
+      value: 1n,
+    })
+
+    const unnamedLogs = await getLogs(client, {
+      address,
+      event: transferEventUnnamed,
+      args: [a],
+      fromBlock,
+    })
+    expect(unnamedLogs.length).toBe(2)
+    expect(unnamedLogs[0]!.args).toEqual([
+      Address.checksum(a),
+      Address.checksum(b),
+      1n,
+    ])
+  })
+
+  test('args: multiple `from`', async () => {
+    const fromBlock =
+      (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
+    await transfer(d, a, 1n)
+    await transfer(a, b, 1n)
+    await transfer(a, c, 1n)
+    await approve(a, a, 1n)
+
+    const logs = await getLogs(client, {
+      address,
+      event: transferEvent,
+      args: { from: [d, a] },
+      fromBlock,
+    })
+    expect(logs.length).toBe(3)
+    expect(logs.map((log) => log.args.from)).toEqual([
+      Address.checksum(d),
+      Address.checksum(a),
+      Address.checksum(a),
+    ])
+  })
+
+  test('args: singular `to`', async () => {
+    const fromBlock =
+      (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
+    await transfer(d, a, 1n)
+    await transfer(a, b, 1n)
+    await transfer(a, b, 1n)
+    await approve(a, a, 1n)
+
+    const namedLogs = await getLogs(client, {
+      address,
+      event: transferEvent,
+      args: { to: a },
+      fromBlock,
+    })
+    expect(namedLogs.length).toBe(1)
+    expect(namedLogs[0]!.args).toEqual({
+      from: Address.checksum(d),
+      to: Address.checksum(a),
+      value: 1n,
+    })
+
+    const unnamedLogs = await getLogs(client, {
+      address,
+      event: transferEventUnnamed,
+      args: [null, a],
+      fromBlock,
+    })
+    expect(unnamedLogs.length).toBe(1)
+    expect(unnamedLogs[0]!.args).toEqual([
+      Address.checksum(d),
+      Address.checksum(a),
+      1n,
+    ])
+  })
+
+  test('args: multiple `to`', async () => {
+    const fromBlock =
+      (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
+    await transfer(d, a, 1n)
+    await transfer(a, b, 1n)
+    await transfer(a, c, 1n)
+    await approve(a, a, 1n)
+
+    const namedLogs = await getLogs(client, {
+      address,
+      event: transferEvent,
+      args: { to: [a, b] },
+      fromBlock,
+    })
+    expect(namedLogs.length).toBe(2)
+    expect(namedLogs.map((log) => log.args.to)).toEqual([
+      Address.checksum(a),
+      Address.checksum(b),
+    ])
+
+    const unnamedLogs = await getLogs(client, {
+      address,
+      event: transferEventUnnamed,
+      args: [null, [a, b]],
+      fromBlock,
+    })
+    expect(unnamedLogs.length).toBe(2)
+  })
+
+  describe('args: strict', () => {
+    test('indexed params mismatch', async () => {
       const fromBlock =
         (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
       await transfer(a, b, 1n)
-      await transfer(a, c, 1n)
+      await send(invalidAddress, generated.EventsInvalid.abi, 'emitTransfer', [
+        a,
+        b,
+        1n,
+      ])
+      await send(invalidAddress, generated.EventsInvalid.abi, 'emitTransfer', [
+        a,
+        c,
+        1n,
+      ])
 
-      const logs = await getLogs(client, {
-        address,
-        event: transferEvent,
-        fromBlock,
-      })
-      expect(logs.length).toBe(2)
-      expect(logs[0]!.eventName).toEqual('Transfer')
-      expect(logs[0]!.args).toEqual({
-        from: Address.checksum(a),
-        to: Address.checksum(b),
-        value: 1n,
-      })
-      expect(logs[1]!.args).toEqual({
-        from: Address.checksum(a),
-        to: Address.checksum(c),
-        value: 1n,
-      })
-    })
-
-    test('args: events', async () => {
-      const fromBlock =
-        (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
-      await approve(a, b, 1n)
-      await transfer(a, c, 1n)
-
-      const logs = await getLogs(client, {
-        address,
-        events: [transferEvent, approvalEvent],
-        fromBlock,
-      })
-      expect(logs.length).toBe(2)
-      expect(logs[0]!.eventName).toEqual('Approval')
-      expect(logs[0]!.args).toEqual({
-        owner: Address.checksum(a),
-        spender: Address.checksum(b),
-        value: 1n,
-      })
-      expect(logs[1]!.eventName).toEqual('Transfer')
-      expect(logs[1]!.args).toEqual({
-        from: Address.checksum(a),
-        to: Address.checksum(c),
-        value: 1n,
-      })
-    })
-
-    test('args: non-indexed data event', async () => {
-      const fromBlock =
-        (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
-      await send(address, generated.Events.abi, 'emitMessage', ['gm'])
-
-      const logs = await getLogs(client, {
-        address,
-        event: messageEvent,
-        fromBlock,
-      })
-      expect(logs.length).toBe(1)
-      expect(logs[0]!.args).toEqual({ message: 'gm' })
-    })
-
-    test('args: fromBlock/toBlock', async () => {
-      const fromBlock =
-        (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
-      await transfer(a, b, 1n)
-      const toBlock = await Actions.getBlockNumber(client, { cacheTime: 0 })
-      await transfer(a, c, 2n)
-
-      const logs = await getLogs(client, {
-        address,
-        event: transferEvent,
-        fromBlock,
-        toBlock,
-      })
-      expect(logs.length).toBe(1)
-      expect(logs[0]!.args.value).toBe(1n)
-    })
-
-    test('args: blockHash', async () => {
-      const hash = await transfer(a, b, 7n)
-      const { blockHash } = await Actions.getTransactionReceipt(client, {
-        hash,
-      })
-
-      const logs = await getLogs(client, {
-        address,
-        blockHash,
-        event: transferEvent,
-      })
-      expect(logs.length).toBe(1)
-      expect(logs[0]!.args.value).toBe(7n)
-    })
-
-    test('args: strict = true (named)', async () => {
-      const fromBlock =
-        (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
-      await transfer(a, b, 1n)
-
-      const logs = await getLogs(client, {
-        address,
+      const strictLogs = await getLogs(client, {
         event: transferEvent,
         fromBlock,
         strict: true,
       })
-      expect(logs.length).toBe(1)
-      expect(logs[0]!.args).toEqual({
-        from: Address.checksum(a),
-        to: Address.checksum(b),
-        value: 1n,
-      })
-    })
-
-    test('args: strict = false (named)', async () => {
-      const fromBlock =
-        (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
-      await transfer(a, b, 1n)
-
-      const logs = await getLogs(client, {
-        address,
+      const looseLogs = await getLogs(client, {
         event: transferEvent,
         fromBlock,
       })
-      expect(logs.length).toBe(1)
-      expect(logs[0]!.args).toEqual({
-        from: Address.checksum(a),
-        to: Address.checksum(b),
-        value: 1n,
-      })
+      expect(strictLogs.length).toBe(1)
+      expect(looseLogs.length).toBe(3)
     })
 
-    test('args: strict = true (unnamed)', async () => {
+    test('non-indexed params mismatch', async () => {
       const fromBlock =
         (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
       await transfer(a, b, 1n)
+      await send(invalidAddress, generated.EventsInvalid.abi, 'emitTransfer', [
+        a,
+        b,
+        1n,
+      ])
+      await send(invalidAddress, generated.EventsInvalid.abi, 'emitTransfer', [
+        a,
+        c,
+        1n,
+      ])
 
-      const logs = await getLogs(client, {
-        address,
-        event: transferEventUnnamed,
+      const strictLogs = await getLogs(client, {
+        event: transferEventInvalid,
         fromBlock,
         strict: true,
       })
-      expect(logs.length).toBe(1)
-      expect(logs[0]!.args).toEqual([
-        Address.checksum(a),
-        Address.checksum(b),
-        1n,
-      ])
-    })
-
-    test('args: strict = false (unnamed)', async () => {
-      const fromBlock =
-        (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
-      await transfer(a, b, 1n)
-
-      const logs = await getLogs(client, {
-        address,
-        event: transferEventUnnamed,
+      const looseLogs = await getLogs(client, {
+        event: transferEventInvalid,
         fromBlock,
       })
-      expect(logs.length).toBe(1)
-      expect(logs[0]!.args).toEqual([
-        Address.checksum(a),
-        Address.checksum(b),
-        1n,
-      ])
-    })
-
-    test('args: singular `from`', async () => {
-      const fromBlock =
-        (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
-      await transfer(d, a, 1n)
-      await transfer(a, b, 1n)
-      await transfer(a, b, 1n)
-      await approve(a, a, 1n)
-
-      const namedLogs = await getLogs(client, {
-        address,
-        event: transferEvent,
-        args: { from: a },
-        fromBlock,
-      })
-      expect(namedLogs.length).toBe(2)
-      expect(namedLogs[0]!.args).toEqual({
-        from: Address.checksum(a),
-        to: Address.checksum(b),
-        value: 1n,
-      })
-
-      const unnamedLogs = await getLogs(client, {
-        address,
-        event: transferEventUnnamed,
-        args: [a],
-        fromBlock,
-      })
-      expect(unnamedLogs.length).toBe(2)
-      expect(unnamedLogs[0]!.args).toEqual([
-        Address.checksum(a),
-        Address.checksum(b),
-        1n,
-      ])
-    })
-
-    test('args: multiple `from`', async () => {
-      const fromBlock =
-        (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
-      await transfer(d, a, 1n)
-      await transfer(a, b, 1n)
-      await transfer(a, c, 1n)
-      await approve(a, a, 1n)
-
-      const logs = await getLogs(client, {
-        address,
-        event: transferEvent,
-        args: { from: [d, a] },
-        fromBlock,
-      })
-      expect(logs.length).toBe(3)
-      expect(logs.map((log) => log.args.from)).toEqual([
-        Address.checksum(d),
-        Address.checksum(a),
-        Address.checksum(a),
-      ])
-    })
-
-    test('args: singular `to`', async () => {
-      const fromBlock =
-        (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
-      await transfer(d, a, 1n)
-      await transfer(a, b, 1n)
-      await transfer(a, b, 1n)
-      await approve(a, a, 1n)
-
-      const namedLogs = await getLogs(client, {
-        address,
-        event: transferEvent,
-        args: { to: a },
-        fromBlock,
-      })
-      expect(namedLogs.length).toBe(1)
-      expect(namedLogs[0]!.args).toEqual({
-        from: Address.checksum(d),
-        to: Address.checksum(a),
-        value: 1n,
-      })
-
-      const unnamedLogs = await getLogs(client, {
-        address,
-        event: transferEventUnnamed,
-        args: [null, a],
-        fromBlock,
-      })
-      expect(unnamedLogs.length).toBe(1)
-      expect(unnamedLogs[0]!.args).toEqual([
-        Address.checksum(d),
-        Address.checksum(a),
-        1n,
-      ])
-    })
-
-    test('args: multiple `to`', async () => {
-      const fromBlock =
-        (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
-      await transfer(d, a, 1n)
-      await transfer(a, b, 1n)
-      await transfer(a, c, 1n)
-      await approve(a, a, 1n)
-
-      const namedLogs = await getLogs(client, {
-        address,
-        event: transferEvent,
-        args: { to: [a, b] },
-        fromBlock,
-      })
-      expect(namedLogs.length).toBe(2)
-      expect(namedLogs.map((log) => log.args.to)).toEqual([
-        Address.checksum(a),
-        Address.checksum(b),
-      ])
-
-      const unnamedLogs = await getLogs(client, {
-        address,
-        event: transferEventUnnamed,
-        args: [null, [a, b]],
-        fromBlock,
-      })
-      expect(unnamedLogs.length).toBe(2)
-    })
-
-    describe('args: strict', () => {
-      test('indexed params mismatch', async () => {
-        const fromBlock =
-          (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
-        await transfer(a, b, 1n)
-        await send(
-          invalidAddress,
-          generated.EventsInvalid.abi,
-          'emitTransfer',
-          [a, b, 1n],
-        )
-        await send(
-          invalidAddress,
-          generated.EventsInvalid.abi,
-          'emitTransfer',
-          [a, c, 1n],
-        )
-
-        const strictLogs = await getLogs(client, {
-          event: transferEvent,
-          fromBlock,
-          strict: true,
-        })
-        const looseLogs = await getLogs(client, {
-          event: transferEvent,
-          fromBlock,
-        })
-        expect(strictLogs.length).toBe(1)
-        expect(looseLogs.length).toBe(3)
-      })
-
-      test('non-indexed params mismatch', async () => {
-        const fromBlock =
-          (await Actions.getBlockNumber(client, { cacheTime: 0 })) + 1n
-        await transfer(a, b, 1n)
-        await send(
-          invalidAddress,
-          generated.EventsInvalid.abi,
-          'emitTransfer',
-          [a, b, 1n],
-        )
-        await send(
-          invalidAddress,
-          generated.EventsInvalid.abi,
-          'emitTransfer',
-          [a, c, 1n],
-        )
-
-        const strictLogs = await getLogs(client, {
-          event: transferEventInvalid,
-          fromBlock,
-          strict: true,
-        })
-        const looseLogs = await getLogs(client, {
-          event: transferEventInvalid,
-          fromBlock,
-        })
-        expect(strictLogs.length).toBe(2)
-        expect(looseLogs.length).toBe(3)
-      })
+      expect(strictLogs.length).toBe(2)
+      expect(looseLogs.length).toBe(3)
     })
   })
 })

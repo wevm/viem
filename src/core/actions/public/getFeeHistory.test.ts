@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
 
@@ -6,14 +6,13 @@ import { getFeeHistory } from './getFeeHistory.js'
 
 const client = anvil.getClient(anvil.mainnet)
 
-describe('getFeeHistory', () => {
-  test('default', async () => {
-    const feeHistory = await getFeeHistory(client, {
-      blockCount: 4,
-      blockNumber: anvil.mainnet.forkBlockNumber,
-      rewardPercentiles: [25, 75],
-    })
-    expect(feeHistory).toMatchInlineSnapshot(`
+test('default', async () => {
+  const feeHistory = await getFeeHistory(client, {
+    blockCount: 4,
+    blockNumber: anvil.mainnet.forkBlockNumber,
+    rewardPercentiles: [25, 75],
+  })
+  expect(feeHistory).toMatchInlineSnapshot(`
       {
         "baseFeePerGas": [
           634639953n,
@@ -49,24 +48,23 @@ describe('getFeeHistory', () => {
         ],
       }
     `)
-  })
+})
 
-  test('args: blockTag', async () => {
-    const feeHistory = await getFeeHistory(client, {
-      blockCount: 4,
-      blockTag: 'latest',
-      rewardPercentiles: [25, 75],
-    })
-    expect(feeHistory.baseFeePerGas.length).toBe(5)
-    expect(feeHistory.reward?.length).toBe(4)
+test('args: blockTag', async () => {
+  const feeHistory = await getFeeHistory(client, {
+    blockCount: 4,
+    blockTag: 'latest',
+    rewardPercentiles: [25, 75],
   })
+  expect(feeHistory.baseFeePerGas.length).toBe(5)
+  expect(feeHistory.reward?.length).toBe(4)
+})
 
-  test('args: no rewardPercentiles', async () => {
-    const feeHistory = await getFeeHistory(client, {
-      blockCount: 2,
-      blockNumber: anvil.mainnet.forkBlockNumber,
-      rewardPercentiles: [],
-    })
-    expect(feeHistory.reward).toMatchInlineSnapshot(`undefined`)
+test('args: no rewardPercentiles', async () => {
+  const feeHistory = await getFeeHistory(client, {
+    blockCount: 2,
+    blockNumber: anvil.mainnet.forkBlockNumber,
+    rewardPercentiles: [],
   })
+  expect(feeHistory.reward).toMatchInlineSnapshot(`undefined`)
 })

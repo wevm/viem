@@ -1,5 +1,5 @@
 import * as anvil from '~test/anvil.js'
-import { describe, expect, test } from 'vitest'
+import { expect, test } from 'vitest'
 
 import { getProof } from './getProof.js'
 
@@ -9,13 +9,12 @@ const weth = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
 const storageKey =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
 
-describe('getProof', () => {
-  test('default', async () => {
-    const proof = await getProof(client, {
-      address: weth,
-      storageKeys: [storageKey],
-    })
-    expect(Object.keys(proof)).toMatchInlineSnapshot(`
+test('default', async () => {
+  const proof = await getProof(client, {
+    address: weth,
+    storageKeys: [storageKey],
+  })
+  expect(Object.keys(proof)).toMatchInlineSnapshot(`
       [
         "address",
         "balance",
@@ -26,17 +25,17 @@ describe('getProof', () => {
         "storageProof",
       ]
     `)
-    expect({
-      address: proof.address,
-      balance: proof.balance,
-      codeHash: proof.codeHash,
-      nonce: proof.nonce,
-      storageHash: proof.storageHash,
-      storageProofEntry: {
-        key: proof.storageProof[0]?.key,
-        value: proof.storageProof[0]?.value,
-      },
-    }).toMatchInlineSnapshot(`
+  expect({
+    address: proof.address,
+    balance: proof.balance,
+    codeHash: proof.codeHash,
+    nonce: proof.nonce,
+    storageHash: proof.storageHash,
+    storageProofEntry: {
+      key: proof.storageProof[0]?.key,
+      value: proof.storageProof[0]?.value,
+    },
+  }).toMatchInlineSnapshot(`
       {
         "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
         "balance": 2780879341265161775352224n,
@@ -49,16 +48,15 @@ describe('getProof', () => {
         },
       }
     `)
-  })
+})
 
-  test('args: blockNumber', async () => {
-    const proof = await getProof(client, {
-      address: weth,
-      blockNumber: anvil.mainnet.forkBlockNumber,
-      storageKeys: [storageKey],
-    })
-    expect(typeof proof.balance).toBe('bigint')
-    expect(typeof proof.nonce).toBe('number')
-    expect(proof.accountProof.length).toBeGreaterThan(0)
+test('args: blockNumber', async () => {
+  const proof = await getProof(client, {
+    address: weth,
+    blockNumber: anvil.mainnet.forkBlockNumber,
+    storageKeys: [storageKey],
   })
+  expect(typeof proof.balance).toBe('bigint')
+  expect(typeof proof.nonce).toBe('number')
+  expect(proof.accountProof.length).toBeGreaterThan(0)
 })
