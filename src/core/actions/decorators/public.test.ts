@@ -45,6 +45,7 @@ describe('publicActions', () => {
       ).oldestBlock,
     ).toBeTypeOf('bigint')
     expect(await client.getGasPrice()).toBeTypeOf('bigint')
+    expect(await client.getLogs({ address })).toBeInstanceOf(Array)
     expect(
       await client.getStorageAt({
         address,

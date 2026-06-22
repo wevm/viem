@@ -271,3 +271,193 @@ export const Erc721 = {
   }
 } as const;
 
+export const Events = {
+  "abi": [
+    {
+      "type": "function",
+      "name": "emitApproval",
+      "inputs": [
+        {
+          "name": "owner",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "spender",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "value",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "emitMessage",
+      "inputs": [
+        {
+          "name": "message",
+          "type": "string",
+          "internalType": "string"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "emitTransfer",
+      "inputs": [
+        {
+          "name": "from",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "to",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "value",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "event",
+      "name": "Approval",
+      "inputs": [
+        {
+          "name": "owner",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "spender",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "value",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "Message",
+      "inputs": [
+        {
+          "name": "message",
+          "type": "string",
+          "indexed": false,
+          "internalType": "string"
+        }
+      ],
+      "anonymous": false
+    },
+    {
+      "type": "event",
+      "name": "Transfer",
+      "inputs": [
+        {
+          "name": "from",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "to",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "value",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    }
+  ],
+  "bytecode": {
+    "object": "0x6080604052348015600e575f5ffd5b506104138061001c5f395ff3fe608060405234801561000f575f5ffd5b506004361061003f575f3560e01c806323de6651146100435780632ac0df261461005f5780635687f2b81461007b575b5f5ffd5b61005d6004803603810190610058919061023d565b610097565b005b610079600480360381019061007491906102ee565b610101565b005b6100956004803603810190610090919061023d565b61013e565b005b8173ffffffffffffffffffffffffffffffffffffffff168373ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef836040516100f49190610348565b60405180910390a3505050565b7f51a7f65c6325882f237d4aeb43228179cfad48b868511d508e24b4437a81913782826040516101329291906103bb565b60405180910390a15050565b8173ffffffffffffffffffffffffffffffffffffffff168373ffffffffffffffffffffffffffffffffffffffff167f8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b9258360405161019b9190610348565b60405180910390a3505050565b5f5ffd5b5f5ffd5b5f73ffffffffffffffffffffffffffffffffffffffff82169050919050565b5f6101d9826101b0565b9050919050565b6101e9816101cf565b81146101f3575f5ffd5b50565b5f81359050610204816101e0565b92915050565b5f819050919050565b61021c8161020a565b8114610226575f5ffd5b50565b5f8135905061023781610213565b92915050565b5f5f5f60608486031215610254576102536101a8565b5b5f610261868287016101f6565b9350506020610272868287016101f6565b925050604061028386828701610229565b9150509250925092565b5f5ffd5b5f5ffd5b5f5ffd5b5f5f83601f8401126102ae576102ad61028d565b5b8235905067ffffffffffffffff8111156102cb576102ca610291565b5b6020830191508360018202830111156102e7576102e6610295565b5b9250929050565b5f5f60208385031215610304576103036101a8565b5b5f83013567ffffffffffffffff811115610321576103206101ac565b5b61032d85828601610299565b92509250509250929050565b6103428161020a565b82525050565b5f60208201905061035b5f830184610339565b92915050565b5f82825260208201905092915050565b828183375f83830152505050565b5f601f19601f8301169050919050565b5f61039a8385610361565b93506103a7838584610371565b6103b08361037f565b840190509392505050565b5f6020820190508181035f8301526103d481848661038f565b9050939250505056fea264697066735822122060b55b440d4b5ac99f6ce8f2d88c578c50ac097b5868803718a00ca83b3f5a5a64736f6c63430008210033",
+    "sourceMap": "424:635:0:-:0;;;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  }
+} as const;
+
+export const EventsInvalid = {
+  "abi": [
+    {
+      "type": "function",
+      "name": "emitTransfer",
+      "inputs": [
+        {
+          "name": "from",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "to",
+          "type": "address",
+          "internalType": "address"
+        },
+        {
+          "name": "value",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ],
+      "outputs": [],
+      "stateMutability": "nonpayable"
+    },
+    {
+      "type": "event",
+      "name": "Transfer",
+      "inputs": [
+        {
+          "name": "from",
+          "type": "address",
+          "indexed": true,
+          "internalType": "address"
+        },
+        {
+          "name": "to",
+          "type": "address",
+          "indexed": false,
+          "internalType": "address"
+        },
+        {
+          "name": "value",
+          "type": "uint256",
+          "indexed": false,
+          "internalType": "uint256"
+        }
+      ],
+      "anonymous": false
+    }
+  ],
+  "bytecode": {
+    "object": "0x6080604052348015600e575f5ffd5b506101fa8061001c5f395ff3fe608060405234801561000f575f5ffd5b5060043610610029575f3560e01c806323de66511461002d575b5f5ffd5b6100476004803603810190610042919061012f565b610049565b005b8273ffffffffffffffffffffffffffffffffffffffff167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef838360405161009192919061019d565b60405180910390a2505050565b5f5ffd5b5f73ffffffffffffffffffffffffffffffffffffffff82169050919050565b5f6100cb826100a2565b9050919050565b6100db816100c1565b81146100e5575f5ffd5b50565b5f813590506100f6816100d2565b92915050565b5f819050919050565b61010e816100fc565b8114610118575f5ffd5b50565b5f8135905061012981610105565b92915050565b5f5f5f606084860312156101465761014561009e565b5b5f610153868287016100e8565b9350506020610164868287016100e8565b92505060406101758682870161011b565b9150509250925092565b610188816100c1565b82525050565b610197816100fc565b82525050565b5f6040820190506101b05f83018561017f565b6101bd602083018461018e565b939250505056fea264697066735822122031841d8414afff64b47700919302b0f197a619376f53cfb89cb116dcdb80f53f64736f6c63430008210033",
+    "sourceMap": "413:220:0:-:0;;;;;;;;;;;;;;;;;;;",
+    "linkReferences": {}
+  }
+} as const;
+

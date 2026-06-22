@@ -1,4 +1,5 @@
 import type { Abi } from 'abitype'
+import type * as AbiEvent from 'ox/AbiEvent'
 import type * as Block from 'ox/Block'
 import type * as Fee from 'ox/Fee'
 
@@ -23,6 +24,7 @@ import { getDelegation } from '../public/getDelegation.js'
 import { getEip712Domain } from '../public/getEip712Domain.js'
 import { getFeeHistory } from '../public/getFeeHistory.js'
 import { getGasPrice } from '../public/getGasPrice.js'
+import { getLogs } from '../public/getLogs.js'
 import { getProof } from '../public/getProof.js'
 import { getStorageAt } from '../public/getStorageAt.js'
 import { getTransaction } from '../public/getTransaction.js'
@@ -68,6 +70,7 @@ export function publicActions() {
     getEip712Domain: (options) => getEip712Domain(client, options),
     getFeeHistory: (options) => getFeeHistory(client, options),
     getGasPrice: () => getGasPrice(client),
+    getLogs: (options) => getLogs(client, options as never),
     getProof: (options) => getProof(client, options),
     getStorageAt: (options) => getStorageAt(client, options),
     getTransaction: (options) => getTransaction(client, options),
@@ -363,6 +366,39 @@ export declare namespace publicActions {
      * ```
      */
     getGasPrice: () => Promise<getGasPrice.ReturnType>
+    /**
+     * Returns a list of event logs matching the provided parameters.
+     *
+     * @example
+     * ```ts
+     * import { AbiEvent } from 'ox'
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const logs = await client.getLogs({
+     *   event: AbiEvent.from(
+     *     'event Transfer(address indexed from, address indexed to, uint256 value)',
+     *   ),
+     * })
+     * ```
+     */
+    getLogs: <
+      const abiEvent extends
+        | AbiEvent.AbiEvent
+        | readonly AbiEvent.AbiEvent[]
+        | undefined = undefined,
+      strict extends boolean | undefined = undefined,
+      fromBlock extends Block.Number | Block.Tag | undefined = undefined,
+      toBlock extends Block.Number | Block.Tag | undefined = undefined,
+    >(
+      options?:
+        | getLogs.Options<abiEvent, strict, fromBlock, toBlock>
+        | undefined,
+    ) => Promise<getLogs.ReturnType<abiEvent, strict, fromBlock, toBlock>>
     /**
      * Returns the account and storage values of the specified account,
      * including the Merkle proof.
