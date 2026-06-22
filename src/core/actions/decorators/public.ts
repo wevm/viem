@@ -19,6 +19,7 @@ import { getChainId } from '../public/getChainId.js'
 import { getCode } from '../public/getCode.js'
 import { getFeeHistory } from '../public/getFeeHistory.js'
 import { getGasPrice } from '../public/getGasPrice.js'
+import { getProof } from '../public/getProof.js'
 import { getStorageAt } from '../public/getStorageAt.js'
 import { getTransaction } from '../public/getTransaction.js'
 import { getTransactionConfirmations } from '../public/getTransactionConfirmations.js'
@@ -60,6 +61,7 @@ export function publicActions() {
     getCode: (options) => getCode(client, options),
     getFeeHistory: (options) => getFeeHistory(client, options),
     getGasPrice: () => getGasPrice(client),
+    getProof: (options) => getProof(client, options),
     getStorageAt: (options) => getStorageAt(client, options),
     getTransaction: (options) => getTransaction(client, options),
     getTransactionConfirmations: (options) =>
@@ -294,6 +296,28 @@ export declare namespace publicActions {
      * ```
      */
     getGasPrice: () => Promise<getGasPrice.ReturnType>
+    /**
+     * Returns the account and storage values of the specified account,
+     * including the Merkle proof.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const proof = await client.getProof({
+     *   address: '0x4200000000000000000000000000000000000016',
+     *   storageKeys: [
+     *     '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
+     *   ],
+     * })
+     * ```
+     */
+    getProof: (options: getProof.Options) => Promise<getProof.ReturnType>
     /**
      * Returns the value from a storage slot at a given address.
      *

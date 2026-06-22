@@ -212,6 +212,7 @@ export default defineConfig({
                 link: '/docs/actions/public/getFeeHistory',
               },
               { text: 'getGasPrice', link: '/docs/actions/public/getGasPrice' },
+              { text: 'getProof', link: '/docs/actions/public/getProof' },
               {
                 text: 'getStorageAt',
                 link: '/docs/actions/public/getStorageAt',
