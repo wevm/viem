@@ -3,11 +3,11 @@ import { describe, expect, test } from 'vitest'
 import { Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-import { anvilMainnet, getClient } from '~test/anvil.js'
+import * as anvil from '~test/anvil.js'
 
 import { getBalance } from './getBalance.js'
 
-const client = getClient(anvilMainnet)
+const client = anvil.getClient(anvil.mainnet)
 
 // WETH contract on mainnet (large, stable balance at the fork block).
 const weth = '0xC02aaa39b223FE8D0A0e5C4F27eAD9083C756Cc2'
@@ -22,7 +22,7 @@ describe('getBalance', () => {
     expect(
       await getBalance(client, {
         address: weth,
-        blockNumber: anvilMainnet.forkBlockNumber,
+        blockNumber: anvil.mainnet.forkBlockNumber,
       }),
     ).toBe(wethBalance)
   })
@@ -56,7 +56,7 @@ describe('getBalance', () => {
     const batchClient = Client.create({
       batch: { multicall: true },
       chain: mainnet,
-      transport: http(anvilMainnet.rpcUrl.http),
+      transport: http(anvil.mainnet.rpcUrl.http),
     })
     expect(await getBalance(batchClient, { address: weth })).toBe(wethBalance)
   })
@@ -65,12 +65,12 @@ describe('getBalance', () => {
     const batchClient = Client.create({
       batch: { multicall: true },
       chain: mainnet,
-      transport: http(anvilMainnet.rpcUrl.http),
+      transport: http(anvil.mainnet.rpcUrl.http),
     })
     expect(
       await getBalance(batchClient, {
         address: weth,
-        blockNumber: anvilMainnet.forkBlockNumber,
+        blockNumber: anvil.mainnet.forkBlockNumber,
       }),
     ).toBe(wethBalance)
   })
@@ -79,7 +79,7 @@ describe('getBalance', () => {
     const batchClient = Client.create({
       batch: { multicall: { deployless: true } },
       chain: mainnet,
-      transport: http(anvilMainnet.rpcUrl.http),
+      transport: http(anvil.mainnet.rpcUrl.http),
     })
     expect(await getBalance(batchClient, { address: weth })).toBe(wethBalance)
   })
@@ -87,7 +87,7 @@ describe('getBalance', () => {
   test('batch: no multicall3 falls back to direct request', async () => {
     const batchClient = Client.create({
       batch: { multicall: true },
-      transport: http(anvilMainnet.rpcUrl.http),
+      transport: http(anvil.mainnet.rpcUrl.http),
     })
     expect(await getBalance(batchClient, { address: weth })).toBe(wethBalance)
   })

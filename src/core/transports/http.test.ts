@@ -1,11 +1,11 @@
 import * as RpcResponse from 'ox/RpcResponse'
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet } from '~test/anvil.js'
+import * as anvil from '~test/anvil.js'
 import * as Http from '~test/http.js'
 import { Chain, http, RpcClient, Transport } from 'viem'
 
-const url = anvilMainnet.rpcUrl.http
+const url = anvil.mainnet.rpcUrl.http
 
 const ok = (result: unknown) =>
   JSON.stringify({ id: 1, jsonrpc: '2.0', result })

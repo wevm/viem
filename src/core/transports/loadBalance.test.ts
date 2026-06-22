@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet } from '~test/anvil.js'
+import * as anvil from '~test/anvil.js'
 import * as Http from '~test/http.js'
 import { http, loadBalance } from 'viem'
 
-const url = anvilMainnet.rpcUrl.http
+const url = anvil.mainnet.rpcUrl.http
 
 /** A real JSON-RPC server that returns `result` and counts requests. */
 function createCountingServer(result: string) {

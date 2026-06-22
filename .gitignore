@@ -25,6 +25,8 @@ tasks
 
 # tests
 generated.ts
+# Committed so tests/CI can import contract artifacts without running Foundry.
+!contracts/generated.ts
 vectors/**/*.json
 
 # docs

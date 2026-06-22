@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet, getClient } from '~test/anvil.js'
+import * as anvil from '~test/anvil.js'
 import { Actions } from 'viem'
 
 import { getBlockNumber } from './getBlockNumber.js'
@@ -9,13 +9,13 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 describe('getBlockNumber', () => {
   test('default', async () => {
-    expect(typeof (await getBlockNumber(getClient(anvilMainnet)))).toBe(
+    expect(typeof (await getBlockNumber(anvil.getClient(anvil.mainnet)))).toBe(
       'bigint',
     )
   })
 
   test('behavior: dedupes concurrent invocations', async () => {
-    const client = getClient(anvilMainnet)
+    const client = anvil.getClient(anvil.mainnet)
     const results = await Promise.all(
       Array.from({ length: 10 }, () => getBlockNumber(client)),
     )
@@ -23,7 +23,7 @@ describe('getBlockNumber', () => {
   })
 
   test('behavior: caches within cacheTime', async () => {
-    const client = getClient(anvilMainnet)
+    const client = anvil.getClient(anvil.mainnet)
     const a = await getBlockNumber(client, { cacheTime: 10_000 })
     await Actions.test.mine(client, { blocks: 1 })
     const b = await getBlockNumber(client, { cacheTime: 10_000 })
@@ -31,7 +31,7 @@ describe('getBlockNumber', () => {
   })
 
   test('behavior: cacheTime of 0 disables the cache', async () => {
-    const client = getClient(anvilMainnet)
+    const client = anvil.getClient(anvil.mainnet)
     const a = await getBlockNumber(client, { cacheTime: 10_000 })
     await Actions.test.mine(client, { blocks: 1 })
     const b = await getBlockNumber(client, { cacheTime: 0 })
@@ -39,7 +39,7 @@ describe('getBlockNumber', () => {
   })
 
   test('behavior: refetches after cacheTime expires', async () => {
-    const client = getClient(anvilMainnet)
+    const client = anvil.getClient(anvil.mainnet)
     const a = await getBlockNumber(client, { cacheTime: 1 })
     await Actions.test.mine(client, { blocks: 1 })
     await wait(5)

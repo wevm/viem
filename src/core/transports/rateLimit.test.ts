@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet } from '~test/anvil.js'
+import * as anvil from '~test/anvil.js'
 import { http, rateLimit } from 'viem'
 
-const url = anvilMainnet.rpcUrl.http
+const url = anvil.mainnet.rpcUrl.http
 
 describe('rateLimit', () => {
   test('forwards a request to the inner transport', async () => {

@@ -69,6 +69,7 @@
   "knip": {
     "ignore": [
       ".github/**",
+      "contracts-old/**",
       "environments/**",
       "src-old/**",
       "src/vendor/**",

@@ -1,16 +1,16 @@
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet, getClient } from '~test/anvil.js'
+import * as anvil from '~test/anvil.js'
 
 import { getFeeHistory } from './getFeeHistory.js'
 
-const client = getClient(anvilMainnet)
+const client = anvil.getClient(anvil.mainnet)
 
 describe('getFeeHistory', () => {
   test('default', async () => {
     const feeHistory = await getFeeHistory(client, {
       blockCount: 4,
-      blockNumber: anvilMainnet.forkBlockNumber,
+      blockNumber: anvil.mainnet.forkBlockNumber,
       rewardPercentiles: [25, 75],
     })
     expect(feeHistory).toMatchInlineSnapshot(`
@@ -64,7 +64,7 @@ describe('getFeeHistory', () => {
   test('args: no rewardPercentiles', async () => {
     const feeHistory = await getFeeHistory(client, {
       blockCount: 2,
-      blockNumber: anvilMainnet.forkBlockNumber,
+      blockNumber: anvil.mainnet.forkBlockNumber,
       rewardPercentiles: [],
     })
     expect(feeHistory.reward).toMatchInlineSnapshot(`undefined`)

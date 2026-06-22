@@ -1,18 +1,19 @@
 import * as AbiFunction from 'ox/AbiFunction'
 import * as AbiParameters from 'ox/AbiParameters'
 import * as Hex from 'ox/Hex'
+import * as generated from '~contracts/generated.js'
+import * as anvil from '~test/anvil.js'
+import * as testConstants from '~test/constants.js'
+import * as contract from '~test/contract.js'
 import { describe, expect, test } from 'vitest'
 
 import { Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-import { anvilMainnet, getClient } from '~test/anvil.js'
-import { accounts } from '~test/constants.js'
-
-import { BaseError } from '../../Errors.js'
+import * as Errors from '../../Errors.js'
 import * as NodeError from '../../NodeError.js'
-import { multicall3Bytecode } from '../internal/constants.js'
-import { MulticallCallFailedError } from '../internal/multicall.js'
+import * as constants from '../internal/constants.js'
+import * as multicall from '../internal/multicall.js'
 import {
   CallExecutionError,
   CounterfactualDeploymentFailedError,
@@ -22,16 +23,19 @@ import {
 
 const multicall3 = '0xcA11bde05977b3631167028862bE2a173976CA11'
 
-const client = getClient(anvilMainnet)
+const client = anvil.getClient(anvil.mainnet)
 
-// wagmi ERC-721 contract on mainnet.
-const wagmi = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
+// Self-hosted ERC-721 (`name()` returns "wagmi").
+const { address, blockNumber } = await contract.deploy(client, {
+  bytecode: generated.ERC721.bytecode.object,
+})
+
 const name4bytes = '0x06fdde03'
 const mint4bytes = '0x1249c58b'
 const totalSupply4bytes = '0x18160ddd'
 const getCurrentBlockTimestamp4bytes = '0x0f28c97d'
 
-const sourceAccount = accounts[0]
+const sourceAccount = testConstants.accounts[0]
 
 const nameAbi = AbiFunction.from('function name() returns (string)')
 
@@ -40,7 +44,7 @@ describe('call', () => {
     const { data } = await call(client, {
       account: sourceAccount.address,
       data: name4bytes,
-      to: wagmi,
+      to: address,
     })
     expect(data).toMatchInlineSnapshot(
       '"0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000057761676d69000000000000000000000000000000000000000000000000000000"',
@@ -51,7 +55,7 @@ describe('call', () => {
     const { data } = await call(client, {
       account: sourceAccount.address,
       data: mint4bytes,
-      to: wagmi,
+      to: address,
     })
     expect(data).toBeUndefined()
   })
@@ -59,9 +63,9 @@ describe('call', () => {
   test('args: blockNumber', async () => {
     const { data } = await call(client, {
       account: sourceAccount.address,
-      blockNumber: anvilMainnet.forkBlockNumber,
+      blockNumber,
       data: name4bytes,
-      to: wagmi,
+      to: address,
     })
     expect(data).toMatch(/7761676d69/)
   })
@@ -74,7 +78,7 @@ describe('call', () => {
       maxFeePerGas: 100_000_000_000n,
       maxPriorityFeePerGas: 1,
       nonce: 0,
-      to: wagmi,
+      to: address,
       value: '0x0',
     })
     expect(data).toMatch(/7761676d69/)
@@ -84,7 +88,7 @@ describe('call', () => {
     const { data } = await call(client, {
       data: name4bytes,
       from: sourceAccount.address,
-      to: wagmi,
+      to: address,
     })
     expect(data).toMatch(/7761676d69/)
   })
@@ -99,7 +103,7 @@ describe('call', () => {
       account: sourceAccount.address,
       blockHash: block!.hash!,
       data: name4bytes,
-      to: wagmi,
+      to: address,
     })
     expect(data).toMatch(/7761676d69/)
   })
@@ -115,7 +119,7 @@ describe('call', () => {
       blockHash: block!.hash!,
       data: name4bytes,
       requireCanonical: true,
-      to: wagmi,
+      to: address,
     })
     expect(data).toMatch(/7761676d69/)
   })
@@ -134,11 +138,11 @@ describe('call', () => {
     const { data } = await call(client, {
       data: name4bytes,
       stateOverride: {
-        [wagmi]: {
+        [address]: {
           stateDiff: { [nameSlot]: slotValue },
         },
       },
-      to: wagmi,
+      to: address,
     })
 
     expect(data).toBe(AbiParameters.encode([{ type: 'string' }], [fakeName]))
@@ -147,7 +151,7 @@ describe('call', () => {
   test('args: blockOverrides (deployless bytecode)', async () => {
     const { data } = await call(client, {
       blockOverrides: { time: 420n },
-      code: multicall3Bytecode,
+      code: constants.multicall3Bytecode,
       data: getCurrentBlockTimestamp4bytes,
     })
     expect(data).toBe(Hex.fromNumber(420, { size: 32 }))
@@ -156,18 +160,18 @@ describe('call', () => {
   test('account hoisting', async () => {
     const hoistClient = Client.create({
       account: sourceAccount.address,
-      transport: http(anvilMainnet.rpcUrl.http),
+      transport: http(anvil.mainnet.rpcUrl.http),
     })
     const { data } = await call(hoistClient, {
       data: mint4bytes,
-      to: wagmi,
+      to: address,
     })
     expect(data).toBeUndefined()
   })
 
   test('deployless call (bytecode)', async () => {
     const { data } = await call(client, {
-      code: multicall3Bytecode,
+      code: constants.multicall3Bytecode,
       data: getCurrentBlockTimestamp4bytes,
     })
     expect(data).toBeDefined()
@@ -177,7 +181,7 @@ describe('call', () => {
     await expect(() =>
       call(client, {
         code: '0xdeadbeef',
-        factory: wagmi,
+        factory: address,
         factoryData: '0xdeadbeef',
       }),
     ).rejects.toThrowError(
@@ -199,7 +203,7 @@ describe('call', () => {
       call(client, {
         account: '0xdeadbeef' as never,
         data: name4bytes,
-        to: wagmi,
+        to: address,
       }),
     ).rejects.toThrowError()
   })
@@ -220,7 +224,7 @@ describe('call', () => {
       call(client, {
         data: name4bytes,
         requestOptions: { signal: controller.signal },
-        to: wagmi,
+        to: address,
       }),
     ).rejects.toThrowError()
   })
@@ -240,12 +244,12 @@ describe('call', () => {
     const batchClient = Client.create({
       batch: { multicall: true },
       chain: mainnet,
-      transport: http(anvilMainnet.rpcUrl.http),
+      transport: http(anvil.mainnet.rpcUrl.http),
     })
 
     const [{ data: nameData }, { data: totalSupplyData }] = await Promise.all([
-      call(batchClient, { data: name4bytes, to: wagmi }),
-      call(batchClient, { data: totalSupply4bytes, to: wagmi }),
+      call(batchClient, { data: name4bytes, to: address }),
+      call(batchClient, { data: totalSupply4bytes, to: address }),
     ])
 
     expect(AbiFunction.decodeResult(nameAbi, nameData!)).toBe('wagmi')
@@ -256,12 +260,12 @@ describe('call', () => {
     const batchClient = Client.create({
       batch: { multicall: { deployless: true } },
       chain: mainnet,
-      transport: http(anvilMainnet.rpcUrl.http),
+      transport: http(anvil.mainnet.rpcUrl.http),
     })
 
     const [{ data: nameData }] = await Promise.all([
-      call(batchClient, { data: name4bytes, to: wagmi }),
-      call(batchClient, { data: totalSupply4bytes, to: wagmi }),
+      call(batchClient, { data: name4bytes, to: address }),
+      call(batchClient, { data: totalSupply4bytes, to: address }),
     ])
 
     expect(AbiFunction.decodeResult(nameAbi, nameData!)).toBe('wagmi')
@@ -271,7 +275,7 @@ describe('call', () => {
     const batchClient = Client.create({
       batch: { multicall: true },
       chain: mainnet,
-      transport: http(anvilMainnet.rpcUrl.http),
+      transport: http(anvil.mainnet.rpcUrl.http),
     })
 
     const { data } = await call(batchClient, {
@@ -279,7 +283,7 @@ describe('call', () => {
       stateOverride: {
         '0x0000000000000000000000000000000000000000': { balance: 1n },
       },
-      to: wagmi,
+      to: address,
     })
 
     expect(AbiFunction.decodeResult(nameAbi, data!)).toBe('wagmi')
@@ -289,7 +293,7 @@ describe('call', () => {
     const batchClient = Client.create({
       batch: { multicall: true },
       chain: mainnet,
-      transport: http(anvilMainnet.rpcUrl.http),
+      transport: http(anvil.mainnet.rpcUrl.http),
     })
 
     const { data } = await call(batchClient, {
@@ -297,7 +301,7 @@ describe('call', () => {
       stateOverride: {
         [multicall3]: { balance: 1n },
       },
-      to: wagmi,
+      to: address,
     })
 
     expect(AbiFunction.decodeResult(nameAbi, data!)).toBe('wagmi')
@@ -307,13 +311,17 @@ describe('call', () => {
     const batchClient = Client.create({
       batch: { multicall: true },
       chain: mainnet,
-      transport: http(anvilMainnet.rpcUrl.http),
+      transport: http(anvil.mainnet.rpcUrl.http),
     })
 
     const requestOptions = {}
     const [{ data: nameData }] = await Promise.all([
-      call(batchClient, { data: name4bytes, requestOptions, to: wagmi }),
-      call(batchClient, { data: totalSupply4bytes, requestOptions, to: wagmi }),
+      call(batchClient, { data: name4bytes, requestOptions, to: address }),
+      call(batchClient, {
+        data: totalSupply4bytes,
+        requestOptions,
+        to: address,
+      }),
     ])
 
     expect(AbiFunction.decodeResult(nameAbi, nameData!)).toBe('wagmi')
@@ -322,10 +330,10 @@ describe('call', () => {
   test('batch: no chain uses deployless multicall', async () => {
     const batchClient = Client.create({
       batch: { multicall: true },
-      transport: http(anvilMainnet.rpcUrl.http),
+      transport: http(anvil.mainnet.rpcUrl.http),
     })
 
-    const { data } = await call(batchClient, { data: name4bytes, to: wagmi })
+    const { data } = await call(batchClient, { data: name4bytes, to: address })
     expect(AbiFunction.decodeResult(nameAbi, data!)).toBe('wagmi')
   })
 
@@ -333,12 +341,12 @@ describe('call', () => {
     const batchClient = Client.create({
       batch: { multicall: true },
       chain: { ...mainnet, contracts: {} },
-      transport: http(anvilMainnet.rpcUrl.http),
+      transport: http(anvil.mainnet.rpcUrl.http),
     })
 
     const [{ data: nameData }] = await Promise.all([
-      call(batchClient, { data: name4bytes, to: wagmi }),
-      call(batchClient, { data: totalSupply4bytes, to: wagmi }),
+      call(batchClient, { data: name4bytes, to: address }),
+      call(batchClient, { data: totalSupply4bytes, to: address }),
     ])
     expect(AbiFunction.decodeResult(nameAbi, nameData!)).toBe('wagmi')
   })
@@ -348,10 +356,10 @@ describe('call', () => {
       account: sourceAccount.address,
       batch: { multicall: true },
       chain: mainnet,
-      transport: http(anvilMainnet.rpcUrl.http),
+      transport: http(anvil.mainnet.rpcUrl.http),
     })
 
-    const { data } = await call(batchClient, { data: name4bytes, to: wagmi })
+    const { data } = await call(batchClient, { data: name4bytes, to: address })
     expect(AbiFunction.decodeResult(nameAbi, data!)).toBe('wagmi')
   })
 
@@ -359,7 +367,7 @@ describe('call', () => {
     const batchClient = Client.create({
       batch: { multicall: true },
       chain: mainnet,
-      transport: http(anvilMainnet.rpcUrl.http),
+      transport: http(anvil.mainnet.rpcUrl.http),
     })
 
     // setApprovalForAll(operator, true): returns void (0x) and succeeds for
@@ -371,7 +379,7 @@ describe('call', () => {
 
     const { data } = await call(batchClient, {
       data: setApprovalForAll as `0x${string}`,
-      to: wagmi,
+      to: address,
     })
     expect(data).toBeUndefined()
   })
@@ -380,27 +388,27 @@ describe('call', () => {
     const batchClient = Client.create({
       batch: { multicall: true },
       chain: mainnet,
-      transport: http(anvilMainnet.rpcUrl.http),
+      transport: http(anvil.mainnet.rpcUrl.http),
     })
 
     const error = await call(batchClient, {
       data: '0xdeadbeef',
-      to: wagmi,
+      to: address,
     }).catch((error) => error)
     expect(error).toBeInstanceOf(CallExecutionError)
-    expect(error.cause).toBeInstanceOf(MulticallCallFailedError)
+    expect(error.cause).toBeInstanceOf(multicall.MulticallCallFailedError)
   })
 
   test('batch: explicit batch option without client batch config', async () => {
     const chainClient = Client.create({
       chain: mainnet,
-      transport: http(anvilMainnet.rpcUrl.http),
+      transport: http(anvil.mainnet.rpcUrl.http),
     })
 
     const { data } = await call(chainClient, {
       batch: true,
       data: name4bytes,
-      to: wagmi,
+      to: address,
     })
     expect(AbiFunction.decodeResult(nameAbi, data!)).toBe('wagmi')
   })
@@ -409,7 +417,7 @@ describe('call', () => {
     const batchClient = Client.create({
       batch: { multicall: true },
       chain: mainnet,
-      transport: http(anvilMainnet.rpcUrl.http),
+      transport: http(anvil.mainnet.rpcUrl.http),
     })
 
     // EOA target with empty calldata returns `0x`.
@@ -421,12 +429,12 @@ describe('call', () => {
     const batchClient = Client.create({
       batch: { multicall: { batchSize: 4096, wait: 1 } },
       chain: mainnet,
-      transport: http(anvilMainnet.rpcUrl.http),
+      transport: http(anvil.mainnet.rpcUrl.http),
     })
 
     const [{ data: nameData }] = await Promise.all([
-      call(batchClient, { data: name4bytes, to: wagmi }),
-      call(batchClient, { data: totalSupply4bytes, to: wagmi }),
+      call(batchClient, { data: name4bytes, to: address }),
+      call(batchClient, { data: totalSupply4bytes, to: address }),
     ])
 
     expect(AbiFunction.decodeResult(nameAbi, nameData!)).toBe('wagmi')
@@ -436,7 +444,7 @@ describe('call', () => {
     const batchClient = Client.create({
       batch: { multicall: true },
       chain: mainnet,
-      transport: http(anvilMainnet.rpcUrl.http),
+      transport: http(anvil.mainnet.rpcUrl.http),
     })
 
     // contract-creation call (no `to`) is never wrapped in a multicall.
@@ -448,14 +456,14 @@ describe('call', () => {
     const batchClient = Client.create({
       batch: { multicall: true },
       chain: mainnet,
-      transport: http(anvilMainnet.rpcUrl.http),
+      transport: http(anvil.mainnet.rpcUrl.http),
     })
 
     // data already targeting `aggregate3` is never re-wrapped in a multicall.
     await expect(() =>
       call(batchClient, {
         data: '0x82ad56cb',
-        to: wagmi,
+        to: address,
       }),
     ).rejects.toThrowError()
   })
@@ -467,14 +475,13 @@ describe('call', () => {
       stateOverride: {
         '0x0000000000000000000000000000000000000000': { balance: 1n },
       },
-      to: wagmi,
+      to: address,
     })
     expect(AbiFunction.decodeResult(nameAbi, data!)).toBe('wagmi')
   })
 
   describe('errors', () => {
-    // BAYC ERC-721; `ownerOf` of a nonexistent token reverts.
-    const bayc = '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D'
+    // `ownerOf` of a nonexistent token reverts.
     const ownerOfAbi = AbiFunction.from(
       'function ownerOf(uint256 tokenId) returns (address)',
     )
@@ -484,7 +491,7 @@ describe('call', () => {
       const error = await call(client, {
         account: sourceAccount.address,
         data: ownerOfNonexistent,
-        to: bayc,
+        to: address,
       }).catch((error) => error)
 
       expect(error).toBeInstanceOf(CallExecutionError)
@@ -496,11 +503,11 @@ describe('call', () => {
       const error = await call(client, {
         account: sourceAccount.address,
         data: ownerOfNonexistent,
-        to: bayc,
+        to: address,
       }).catch((error) => error)
 
       expect(error.metaMessages?.join('\n')).toContain('Raw Call Arguments:')
-      expect(error.metaMessages?.join('\n')).toContain(bayc)
+      expect(error.metaMessages?.join('\n')).toContain(address)
       expect(error.metaMessages?.join('\n')).toContain(sourceAccount.address)
     })
 
@@ -519,7 +526,7 @@ describe('call', () => {
 
 describe('CallExecutionError', () => {
   test('renders fees, value and raw args', () => {
-    const error = new CallExecutionError(new BaseError('reverted'), {
+    const error = new CallExecutionError(new Errors.BaseError('reverted'), {
       chain: mainnet,
       data: '0xdeadbeef',
       from: '0x0000000000000000000000000000000000000000',
@@ -551,7 +558,7 @@ describe('CallExecutionError', () => {
   })
 
   test('renders nested request fields (state override, access list)', () => {
-    const error = new CallExecutionError(new BaseError('reverted'), {
+    const error = new CallExecutionError(new Errors.BaseError('reverted'), {
       accessList: [
         {
           address: '0x3333333333333333333333333333333333333333',
@@ -596,7 +603,7 @@ describe('CallExecutionError', () => {
   })
 
   test('forwards cause metaMessages', () => {
-    const cause = new BaseError('reverted', {
+    const cause = new Errors.BaseError('reverted', {
       metaMessages: ['meta line'],
     })
     const error = new CallExecutionError(cause, {
@@ -613,7 +620,7 @@ describe('CallExecutionError', () => {
   })
 
   test('uses ETH symbol when chain omitted', () => {
-    const error = new CallExecutionError(new BaseError('reverted'), {
+    const error = new CallExecutionError(new Errors.BaseError('reverted'), {
       value: 1000000000000000000n,
     })
     expect(error.metaMessages?.join('\n')).toContain('1 ETH')
@@ -639,17 +646,17 @@ describe('CounterfactualDeploymentFailedError', () => {
 describe('getRevertErrorData', () => {
   test('default', () => {
     expect(getRevertErrorData(new Error('lol'))).toBe(undefined)
-    expect(getRevertErrorData(new BaseError('lol'))).toBe(undefined)
+    expect(getRevertErrorData(new Errors.BaseError('lol'))).toBe(undefined)
     expect(
       getRevertErrorData(
-        new BaseError('error', {
+        new Errors.BaseError('error', {
           cause: Object.assign(new Error('inner'), { data: '0xdeadbeef' }),
         }),
       ),
     ).toBe('0xdeadbeef')
     expect(
       getRevertErrorData(
-        new BaseError('error', {
+        new Errors.BaseError('error', {
           cause: Object.assign(new Error('inner'), {
             data: { data: '0x556f1830' },
           }),

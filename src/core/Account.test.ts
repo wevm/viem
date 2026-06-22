@@ -1,7 +1,7 @@
 import * as HdKey from 'ox/HdKey'
 import { describe, expect, test } from 'vitest'
 
-import { accounts, typedData } from '~test/constants.js'
+import * as constants from '~test/constants.js'
 import {
   Account,
   Authorization,
@@ -19,7 +19,7 @@ const hdKey = HdKey.fromSeed(
 
 describe('from', () => {
   test('json-rpc account', () => {
-    expect(Account.from(accounts[0].address)).toMatchInlineSnapshot(`
+    expect(Account.from(constants.accounts[0].address)).toMatchInlineSnapshot(`
       {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
         "type": "json-rpc",
@@ -38,7 +38,7 @@ describe('from', () => {
   test('local account', () => {
     expect(
       Account.from({
-        address: accounts[0].address,
+        address: constants.accounts[0].address,
         async sign() {
           return '0x' as const
         },
@@ -92,7 +92,7 @@ describe('from', () => {
 
 describe('fromPrivateKey', () => {
   test('default', () => {
-    expect(Account.fromPrivateKey(accounts[0].privateKey))
+    expect(Account.fromPrivateKey(constants.accounts[0].privateKey))
       .toMatchInlineSnapshot(`
       {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -109,7 +109,7 @@ describe('fromPrivateKey', () => {
   })
 
   test('sign', async () => {
-    const account = Account.fromPrivateKey(accounts[0].privateKey)
+    const account = Account.fromPrivateKey(constants.accounts[0].privateKey)
     const payload =
       '0xd9eba16ed0ecae432b71fe008c98cc872bb4cc214d3220a36f365326cf807d68'
     const signature = await account.sign({ hash: payload })
@@ -123,7 +123,7 @@ describe('fromPrivateKey', () => {
   })
 
   test('sign authorization', async () => {
-    const account = Account.fromPrivateKey(accounts[0].privateKey)
+    const account = Account.fromPrivateKey(constants.accounts[0].privateKey)
     const authorization = await account.signAuthorization!({
       address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
       chainId: 1,
@@ -135,7 +135,7 @@ describe('fromPrivateKey', () => {
   })
 
   test('sign message', async () => {
-    const account = Account.fromPrivateKey(accounts[0].privateKey)
+    const account = Account.fromPrivateKey(constants.accounts[0].privateKey)
     const message = 'hello world'
     const signature = await account.signMessage({ message })
     expect(
@@ -144,7 +144,7 @@ describe('fromPrivateKey', () => {
   })
 
   test('sign message (raw)', async () => {
-    const account = Account.fromPrivateKey(accounts[0].privateKey)
+    const account = Account.fromPrivateKey(constants.accounts[0].privateKey)
     const message = { raw: '0xdeadbeef' } as const
     const signature = await account.signMessage({ message })
     expect(
@@ -153,13 +153,13 @@ describe('fromPrivateKey', () => {
   })
 
   test('sign transaction', async () => {
-    const account = Account.fromPrivateKey(accounts[0].privateKey)
+    const account = Account.fromPrivateKey(constants.accounts[0].privateKey)
     const serialized = await account.signTransaction({
       type: 'eip1559',
       chainId: 1,
       maxFeePerGas: 20000000000n,
       gas: 21000n,
-      to: accounts[1].address,
+      to: constants.accounts[1].address,
       value: 1000000000000000000n,
     })
     expect(
@@ -168,8 +168,8 @@ describe('fromPrivateKey', () => {
   })
 
   test('sign typed data', async () => {
-    const account = Account.fromPrivateKey(accounts[0].privateKey)
-    const data = { ...typedData.basic, primaryType: 'Mail' } as const
+    const account = Account.fromPrivateKey(constants.accounts[0].privateKey)
+    const data = { ...constants.typedData.basic, primaryType: 'Mail' } as const
     const signature = await account.signTypedData(data)
     expect(
       TypedData.verify({ ...data, address: account.address, signature }),
@@ -199,7 +199,9 @@ describe('fromHdKey', () => {
     Array.from({ length: 10 }).forEach((_, index) => {
       test(`addressIndex: ${index}`, () => {
         const account = Account.fromHdKey(hdKey, { addressIndex: index })
-        expect(account.address.toLowerCase()).toEqual(accounts[index].address)
+        expect(account.address.toLowerCase()).toEqual(
+          constants.accounts[index].address,
+        )
       })
     })
   })
@@ -238,7 +240,9 @@ describe('fromMnemonic', () => {
     Array.from({ length: 10 }).forEach((_, index) => {
       test(`addressIndex: ${index}`, () => {
         const account = Account.fromMnemonic(mnemonic, { addressIndex: index })
-        expect(account.address.toLowerCase()).toEqual(accounts[index].address)
+        expect(account.address.toLowerCase()).toEqual(
+          constants.accounts[index].address,
+        )
       })
     })
   })

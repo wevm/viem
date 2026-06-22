@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet, getClient } from '~test/anvil.js'
+import * as anvil from '~test/anvil.js'
 
 import { getBlockTransactionCount } from './getBlockTransactionCount.js'
 
-const client = getClient(anvilMainnet)
+const client = anvil.getClient(anvil.mainnet)
 
 describe('getBlockTransactionCount', () => {
   test('default', async () => {
@@ -14,7 +14,7 @@ describe('getBlockTransactionCount', () => {
   test('args: blockNumber', async () => {
     expect(
       await getBlockTransactionCount(client, {
-        blockNumber: anvilMainnet.forkBlockNumber - 1n,
+        blockNumber: anvil.mainnet.forkBlockNumber - 1n,
       }),
     ).toBe(165)
   })

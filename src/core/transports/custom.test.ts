@@ -1,17 +1,17 @@
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet } from '~test/anvil.js'
+import * as anvil from '~test/anvil.js'
 import { custom, http } from 'viem'
 
 describe('custom', () => {
   test('request delegates to the provider', async () => {
-    const provider = http(anvilMainnet.rpcUrl.http).setup({})
+    const provider = http(anvil.mainnet.rpcUrl.http).setup({})
     const transport = custom(provider).setup({})
     expect(await transport.request({ method: 'eth_chainId' })).toBe('0x1')
   })
 
   test('propagates provider errors', async () => {
-    const provider = http(anvilMainnet.rpcUrl.http, {
+    const provider = http(anvil.mainnet.rpcUrl.http, {
       retryCount: 0,
     }).setup({})
     const transport = custom(provider, { retryCount: 0 }).setup({})
@@ -21,7 +21,7 @@ describe('custom', () => {
   })
 
   test('respects identity and options', async () => {
-    const provider = http(anvilMainnet.rpcUrl.http).setup({})
+    const provider = http(anvil.mainnet.rpcUrl.http).setup({})
     const transport = custom(provider, {
       key: 'my-custom',
       methods: { include: ['eth_chainId'] },

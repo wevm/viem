@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest'
 
-import { accounts } from '~test/constants.js'
+import * as constants from '~test/constants.js'
 import { Secp256k1, TxEnvelope } from 'viem'
 
-const account = accounts[0]
+const account = constants.accounts[0]
 
 function signedSerialized() {
   const envelope = TxEnvelope.from({

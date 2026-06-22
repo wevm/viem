@@ -2,11 +2,11 @@ import { Chain, Client, http } from 'viem'
 import { z } from 'ox/zod'
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet, getClient } from '~test/anvil.js'
+import * as anvil from '~test/anvil.js'
 
 import { getBlock } from './getBlock.js'
 
-const client = getClient(anvilMainnet)
+const client = anvil.getClient(anvil.mainnet)
 
 describe('getBlock', () => {
   test('default', async () => {
@@ -145,26 +145,26 @@ describe('getBlock', () => {
 
   test('args: blockNumber', async () => {
     const block = await getBlock(client, {
-      blockNumber: anvilMainnet.forkBlockNumber - 100n,
+      blockNumber: anvil.mainnet.forkBlockNumber - 100n,
     })
-    expect(block.number).toBe(anvilMainnet.forkBlockNumber - 100n)
+    expect(block.number).toBe(anvil.mainnet.forkBlockNumber - 100n)
   })
 
   test('args: blockTag', async () => {
     const block = await getBlock(client, { blockTag: 'latest' })
-    expect(block.number).toBe(anvilMainnet.forkBlockNumber)
+    expect(block.number).toBe(anvil.mainnet.forkBlockNumber)
   })
 
   test('args: blockHash', async () => {
     const { hash } = await getBlock(client)
     const block = await getBlock(client, { blockHash: hash! })
     expect(block.hash).toBe(hash)
-    expect(block.number).toBe(anvilMainnet.forkBlockNumber)
+    expect(block.number).toBe(anvil.mainnet.forkBlockNumber)
   })
 
   test('args: includeTransactions', async () => {
     const block = await getBlock(client, {
-      blockNumber: anvilMainnet.forkBlockNumber,
+      blockNumber: anvil.mainnet.forkBlockNumber,
       includeTransactions: true,
     })
     expect(block.transactions[0]).toMatchInlineSnapshot(`
@@ -200,16 +200,16 @@ describe('getBlock', () => {
       id: 1,
       name: 'Ethereum',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [anvilMainnet.rpcUrl.http] } },
+      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
       schema: { block: { fromRpc: z.Block.Block } },
     })
     const schemaClient = Client.create({ chain, transport: http() })
 
     const viaSchema = await getBlock(schemaClient, {
-      blockNumber: anvilMainnet.forkBlockNumber,
+      blockNumber: anvil.mainnet.forkBlockNumber,
     })
     const viaDefault = await getBlock(client, {
-      blockNumber: anvilMainnet.forkBlockNumber,
+      blockNumber: anvil.mainnet.forkBlockNumber,
     })
     expect(viaSchema).toEqual(viaDefault)
   })
@@ -219,7 +219,7 @@ describe('getBlock', () => {
       id: 1,
       name: 'Ethereum',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [anvilMainnet.rpcUrl.http] } },
+      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
       schema: {
         block: {
           fromRpc: z.pipe(
@@ -232,12 +232,12 @@ describe('getBlock', () => {
     const schemaClient = Client.create({ chain, transport: http() })
 
     const block = await getBlock(schemaClient, {
-      blockNumber: anvilMainnet.forkBlockNumber,
+      blockNumber: anvil.mainnet.forkBlockNumber,
     })
     // custom property is decoded onto the result.
     expect(block.custom).toBe('hello')
     // standard properties still decode correctly.
-    expect(block.number).toBe(anvilMainnet.forkBlockNumber)
+    expect(block.number).toBe(anvil.mainnet.forkBlockNumber)
   })
 
   test('error: block not found', async () => {

@@ -1,7 +1,7 @@
 import type * as Block from 'ox/Block'
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet, getClient } from '~test/anvil.js'
+import * as anvil from '~test/anvil.js'
 
 import { Chain } from 'viem'
 
@@ -11,13 +11,13 @@ import {
   internal_estimateMaxPriorityFeePerGas,
 } from './estimateMaxPriorityFeePerGas.js'
 
-const client = getClient(anvilMainnet)
+const client = anvil.getClient(anvil.mainnet)
 
 const chain = Chain.from({
   id: 1,
   name: 'Ethereum',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: [anvilMainnet.rpcUrl.http] } },
+  rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
 })
 
 describe('estimateMaxPriorityFeePerGas', () => {

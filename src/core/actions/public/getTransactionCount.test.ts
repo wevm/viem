@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet, getClient } from '~test/anvil.js'
+import * as anvil from '~test/anvil.js'
 
 import { getTransactionCount } from './getTransactionCount.js'
 
-const client = getClient(anvilMainnet)
+const client = anvil.getClient(anvil.mainnet)
 
 describe('getTransactionCount', () => {
   test('default', async () => {

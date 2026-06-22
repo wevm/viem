@@ -2,11 +2,11 @@ import { z } from 'ox/zod'
 import { Chain, Client, http } from 'viem'
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet, getClient } from '~test/anvil.js'
+import * as anvil from '~test/anvil.js'
 
 import { getTransactionReceipt } from './getTransactionReceipt.js'
 
-const client = getClient(anvilMainnet)
+const client = anvil.getClient(anvil.mainnet)
 
 // The first transaction of the pinned fork-tip block. anvil caches the fork
 // block, so the receipt is deterministic and independent of the upstream.
@@ -105,7 +105,7 @@ describe('getTransactionReceipt', () => {
       id: 1,
       name: 'Ethereum',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [anvilMainnet.rpcUrl.http] } },
+      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
       schema: {
         transactionReceipt: {
           fromRpc: z.TransactionReceipt.TransactionReceipt,
@@ -124,7 +124,7 @@ describe('getTransactionReceipt', () => {
       id: 1,
       name: 'Ethereum',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [anvilMainnet.rpcUrl.http] } },
+      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
       schema: {
         transactionReceipt: {
           fromRpc: z.pipe(

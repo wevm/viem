@@ -1,14 +1,14 @@
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet } from '~test/anvil.js'
-import { accounts } from '~test/constants.js'
+import * as anvil from '~test/anvil.js'
+import * as constants from '~test/constants.js'
 import { Client, http, testActions } from 'viem'
 
 const client = Client.create({
-  transport: http(anvilMainnet.rpcUrl.http),
+  transport: http(anvil.mainnet.rpcUrl.http),
 }).extend(testActions())
 
-const { address } = accounts[0]
+const { address } = constants.accounts[0]
 
 describe('dropTransaction', () => {
   test('drops a pending transaction', async () => {

@@ -1,17 +1,22 @@
+import * as generated from '~contracts/generated.js'
+import * as anvil from '~test/anvil.js'
+import * as contract from '~test/contract.js'
 import { describe, expect, test } from 'vitest'
-
-import { anvilMainnet, getClient } from '~test/anvil.js'
 
 import { publicActions } from './public.js'
 
+const { address } = await contract.deploy(anvil.getClient(anvil.mainnet), {
+  bytecode: generated.ERC721.bytecode.object,
+})
+
 describe('publicActions', () => {
   test('decorates a client with public actions', async () => {
-    const client = getClient(anvilMainnet).extend(publicActions())
+    const client = anvil.getClient(anvil.mainnet).extend(publicActions())
     expect(
       (
         await client.call({
           data: '0x06fdde03',
-          to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+          to: address,
         })
       ).data,
     ).toBeDefined()
@@ -28,7 +33,7 @@ describe('publicActions', () => {
     expect(await client.getChainId()).toBe(1)
     expect(
       await client.getCode({
-        address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+        address,
       }),
     ).toMatch(/^0x60/)
     expect(
@@ -42,7 +47,7 @@ describe('publicActions', () => {
     expect(await client.getGasPrice()).toBeTypeOf('bigint')
     expect(
       await client.getStorageAt({
-        address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+        address,
         slot: '0x0',
       }),
     ).toBeDefined()

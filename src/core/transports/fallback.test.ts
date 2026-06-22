@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet } from '~test/anvil.js'
+import * as anvil from '~test/anvil.js'
 import * as Http from '~test/http.js'
 import { http } from 'viem'
 import { wait } from '../internal/wait.js'
 import * as fallback from './fallback.js'
 
-const url = anvilMainnet.rpcUrl.http
+const url = anvil.mainnet.rpcUrl.http
 /** A transport whose endpoint always refuses the connection. */
 const dead = () => http('http://127.0.0.1:1')
 

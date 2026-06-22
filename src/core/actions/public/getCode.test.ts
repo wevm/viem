@@ -1,13 +1,15 @@
+import * as generated from '~contracts/generated.js'
+import * as anvil from '~test/anvil.js'
+import * as contract from '~test/contract.js'
 import { describe, expect, test } from 'vitest'
-
-import { anvilMainnet, getClient } from '~test/anvil.js'
 
 import { getCode } from './getCode.js'
 
-const client = getClient(anvilMainnet)
+const client = anvil.getClient(anvil.mainnet)
 
-// wagmi ERC-721 contract on mainnet.
-const wagmi = '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2'
+const { address, blockNumber } = await contract.deploy(client, {
+  bytecode: generated.ERC721.bytecode.object,
+})
 
 describe('getCode', () => {
   test('default', async () => {
@@ -16,14 +18,14 @@ describe('getCode', () => {
         address: '0x0000000000000000000000000000000000000000',
       }),
     ).toBeUndefined()
-    expect(await getCode(client, { address: wagmi })).toMatch(/^0x60/)
+    expect(await getCode(client, { address })).toMatch(/^0x60/)
   })
 
   test('args: blockNumber', async () => {
     expect(
       await getCode(client, {
-        address: wagmi,
-        blockNumber: anvilMainnet.forkBlockNumber,
+        address,
+        blockNumber,
       }),
     ).toBeDefined()
   })
@@ -36,7 +38,7 @@ describe('getCode', () => {
     })
     expect(
       await getCode(client, {
-        address: wagmi,
+        address,
         blockHash: block!.hash!,
         requireCanonical: true,
       }),

@@ -1,12 +1,12 @@
 import * as RpcResponse from 'ox/RpcResponse'
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet, getClient } from '~test/anvil.js'
+import * as anvil from '~test/anvil.js'
 import * as Ws from '~test/ws.js'
 import { Actions, Chain, RpcClient, Transport, webSocket } from 'viem'
 
-const url = anvilMainnet.rpcUrl.ws
-const client = getClient(anvilMainnet)
+const url = anvil.mainnet.rpcUrl.ws
+const client = anvil.getClient(anvil.mainnet)
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 

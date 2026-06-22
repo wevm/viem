@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet, getClient } from '~test/anvil.js'
+import * as anvil from '~test/anvil.js'
 import * as Http from '~test/http.js'
 import * as Ws from '~test/ws.js'
 import { Actions, RpcClient } from 'viem'
@@ -10,18 +10,18 @@ const ok = (result: unknown) =>
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-const ws = anvilMainnet.rpcUrl.ws
-const client = getClient(anvilMainnet)
+const ws = anvil.mainnet.rpcUrl.ws
+const client = anvil.getClient(anvil.mainnet)
 
 describe('http', () => {
   test('sends a single request', async () => {
-    const client = RpcClient.http(anvilMainnet.rpcUrl.http)
+    const client = RpcClient.http(anvil.mainnet.rpcUrl.http)
     const response = await client.request({ body: { method: 'eth_chainId' } })
     expect(response.result).toBe('0x1')
   })
 
   test('sends a batch request', async () => {
-    const client = RpcClient.http(anvilMainnet.rpcUrl.http)
+    const client = RpcClient.http(anvil.mainnet.rpcUrl.http)
     const responses = await client.request({
       body: [{ method: 'eth_chainId' }, { method: 'eth_blockNumber' }],
     })
@@ -30,7 +30,7 @@ describe('http', () => {
   })
 
   test('returns a JSON-RPC error in the response body', async () => {
-    const client = RpcClient.http(anvilMainnet.rpcUrl.http)
+    const client = RpcClient.http(anvil.mainnet.rpcUrl.http)
     const response = await client.request({
       body: { method: 'eth_thisDoesNotExist' },
     })

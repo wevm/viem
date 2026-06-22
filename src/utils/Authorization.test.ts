@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest'
 
-import { accounts } from '~test/constants.js'
+import * as constants from '~test/constants.js'
 import { Authorization, Secp256k1 } from 'viem'
 
-const account = accounts[0]
+const account = constants.accounts[0]
 
 function signedAuthorization() {
   const authorization = Authorization.from({
@@ -61,7 +61,7 @@ describe('verify', () => {
       Authorization.verify({
         authorization: signedAuthorization(),
         publicKey: Secp256k1.getPublicKey({
-          privateKey: accounts[1].privateKey,
+          privateKey: constants.accounts[1].privateKey,
         }),
       }),
     ).toBe(false)

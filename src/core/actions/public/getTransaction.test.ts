@@ -2,12 +2,12 @@ import { z } from 'ox/zod'
 import { Actions, Chain, Client, http } from 'viem'
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet, getClient } from '~test/anvil.js'
-import { accounts } from '~test/constants.js'
+import * as anvil from '~test/anvil.js'
+import * as constants from '~test/constants.js'
 
 import { getTransaction } from './getTransaction.js'
 
-const client = getClient(anvilMainnet)
+const client = anvil.getClient(anvil.mainnet)
 
 // The first transaction of the pinned fork-tip block. anvil caches the fork
 // block, so these lookups are deterministic and do not depend on the upstream.
@@ -67,8 +67,8 @@ describe('getTransaction', () => {
       method: 'eth_sendTransaction',
       params: [
         {
-          from: accounts[0].address,
-          to: accounts[1].address,
+          from: constants.accounts[0].address,
+          to: constants.accounts[1].address,
           value: '0xde0b6b3a7640000',
         },
       ],
@@ -88,7 +88,7 @@ describe('getTransaction', () => {
       id: 1,
       name: 'Ethereum',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [anvilMainnet.rpcUrl.http] } },
+      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
       schema: { transaction: { fromRpc: z.Transaction.Transaction } },
     })
     const schemaClient = Client.create({ chain, transport: http() })
@@ -128,7 +128,7 @@ describe('getTransaction', () => {
       id: 1,
       name: 'Ethereum',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [anvilMainnet.rpcUrl.http] } },
+      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
       schema: {
         transaction: {
           fromRpc: z.pipe(
@@ -165,7 +165,7 @@ describe('getTransaction', () => {
   test('error: transaction not found (by block number + index)', async () => {
     await expect(() =>
       getTransaction(client, {
-        blockNumber: anvilMainnet.forkBlockNumber,
+        blockNumber: anvil.mainnet.forkBlockNumber,
         index: 9_999_999,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`

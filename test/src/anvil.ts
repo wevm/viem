@@ -1,7 +1,7 @@
 import { Instance, Server } from 'prool'
 import { Client, http } from 'viem'
 
-import { poolId } from './constants.js'
+import * as constants from './constants.js'
 
 export type DefineAnvilParameters = Instance.anvil.Parameters & {
   /** Proxy port the prool server listens on. */
@@ -14,9 +14,9 @@ export type Anvil = ReturnType<typeof defineAnvil>
 export function defineAnvil(parameters: DefineAnvilParameters) {
   const { port, ...options } = parameters
   const rpcUrl = {
-    http: `http://127.0.0.1:${port}/${poolId}`,
-    ipc: `/tmp/anvil-${poolId}.ipc`,
-    ws: `ws://127.0.0.1:${port}/${poolId}`,
+    http: `http://127.0.0.1:${port}/${constants.poolId}`,
+    ipc: `/tmp/anvil-${constants.poolId}.ipc`,
+    ws: `ws://127.0.0.1:${port}/${constants.poolId}`,
   }
   return {
     forkBlockNumber: BigInt(parameters.forkBlockNumber ?? 0),
@@ -36,7 +36,7 @@ export function getClient(anvil: Anvil) {
   })
 }
 
-export const anvilMainnet = defineAnvil({
+export const mainnet = defineAnvil({
   chainId: 1,
   forkBlockNumber: 22263623n,
   forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://eth.drpc.org'),

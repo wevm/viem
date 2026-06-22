@@ -1,11 +1,11 @@
 import { z } from 'ox/zod'
 import { expectTypeOf, test } from 'vitest'
 
-import { accounts } from '~test/constants.js'
+import * as constants from '~test/constants.js'
 import { mainnet } from '../chains/definitions/mainnet.js'
 import { Account, Client, http } from 'viem'
 
-const { address, privateKey } = accounts[0]
+const { address, privateKey } = constants.accounts[0]
 
 test('request: typed against the default schema', async () => {
   const client = Client.create({ transport: http() })

@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet, getClient } from '~test/anvil.js'
+import * as anvil from '~test/anvil.js'
 
 import { getTransactionConfirmations } from './getTransactionConfirmations.js'
 import { getTransactionReceipt } from './getTransactionReceipt.js'
 
-const client = getClient(anvilMainnet)
+const client = anvil.getClient(anvil.mainnet)
 
 // The first transaction of the pinned fork-tip block. anvil caches the fork
 // block, so confirmations are deterministic: the tx sits on the chain tip, so

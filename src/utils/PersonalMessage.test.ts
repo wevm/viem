@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'vitest'
 
-import { accounts } from '~test/constants.js'
+import * as constants from '~test/constants.js'
 import { PersonalMessage, Secp256k1 } from 'viem'
 
-const account = accounts[0].address
+const account = constants.accounts[0].address
 const publicKey = Secp256k1.getPublicKey({
-  privateKey: accounts[0].privateKey,
+  privateKey: constants.accounts[0].privateKey,
 })
 
 describe('recoverAddress', () => {
@@ -83,7 +83,7 @@ describe('verify', () => {
 
     expect(
       PersonalMessage.verify({
-        address: accounts[1].address,
+        address: constants.accounts[1].address,
         message: 'hello world',
         signature:
           '0xa461f509887bd19e312c0c58467ce8ff8e300d3c1a90b608a760c5b80318eaf15fe57c96f9175d6cd4daad4663763baa7e78836e067d0163e9a2ccf2ff753f5b1b',
@@ -106,7 +106,7 @@ describe('verify', () => {
     expect(
       PersonalMessage.verify({
         publicKey: Secp256k1.getPublicKey({
-          privateKey: accounts[1].privateKey,
+          privateKey: constants.accounts[1].privateKey,
         }),
         message: 'hello world',
         signature:

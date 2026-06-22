@@ -11,6 +11,7 @@ export default defineConfig({
     printWidth: 80,
     ignorePatterns: [
       'contracts/**',
+      'contracts-old/**',
       'src-old/**',
       'src/vendor/**',
       'test-old/**',
@@ -44,6 +45,7 @@ export default defineConfig({
     },
     ignorePatterns: [
       'contracts/**',
+      'contracts-old/**',
       'src-old/**',
       'src/vendor/**',
       'test-old/**',
@@ -70,7 +72,13 @@ export default defineConfig({
         'src/vendor/**',
       ],
     },
-    exclude: ['**/node_modules/**', '**/dist/**', 'src-old/**', 'test-old/**'],
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      'contracts-old/**',
+      'src-old/**',
+      'test-old/**',
+    ],
     retry: 3,
     projects: [
       {

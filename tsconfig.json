@@ -8,10 +8,6 @@
 		{ "path": "./test/tsconfig.json" }
 	],
 	"compilerOptions": {
-		// `zile` builds with this config (it derives sources from
-		// `package.json#exports`, so no `include` is needed). Keep
-		// `incremental` disabled: `.tsbuildinfo` reuse after zile cleans
-		// `dist/` would skip emit and produce an empty build.
 		"incremental": false,
 		"outDir": "./dist",
 		"rootDir": "./src",

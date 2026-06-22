@@ -2,16 +2,16 @@ import { z } from 'ox/zod'
 import { Chain, Client, http } from 'viem'
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet, getClient } from '~test/anvil.js'
+import * as anvil from '~test/anvil.js'
 
 import { getBlockReceipts } from './getBlockReceipts.js'
 import { getTransactionReceipt } from './getTransactionReceipt.js'
 
-const client = getClient(anvilMainnet)
+const client = anvil.getClient(anvil.mainnet)
 
 // The pinned fork-tip block. anvil caches it, so its receipts are deterministic
 // and independent of the upstream.
-const blockNumber = anvilMainnet.forkBlockNumber
+const blockNumber = anvil.mainnet.forkBlockNumber
 const blockHash =
   '0xd028bdc00aff985bdf872d6b961110d41a6fe4df5e93aeb6dffe2f38ae0a4f7d'
 const firstTransactionHash =
@@ -44,7 +44,7 @@ describe('getBlockReceipts', () => {
       id: 1,
       name: 'Ethereum',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [anvilMainnet.rpcUrl.http] } },
+      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
       schema: {
         transactionReceipt: {
           fromRpc: z.TransactionReceipt.TransactionReceipt,
@@ -63,7 +63,7 @@ describe('getBlockReceipts', () => {
       id: 1,
       name: 'Ethereum',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-      rpcUrls: { default: { http: [anvilMainnet.rpcUrl.http] } },
+      rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
       schema: {
         transactionReceipt: {
           fromRpc: z.pipe(

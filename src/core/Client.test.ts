@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'vitest'
 
-import { anvilMainnet } from '~test/anvil.js'
-import { accounts } from '~test/constants.js'
+import * as anvil from '~test/anvil.js'
+import * as constants from '~test/constants.js'
 import { mainnet } from '../chains/definitions/mainnet.js'
 import { Account, Client, http } from 'viem'
 
-const url = anvilMainnet.rpcUrl.http
-const { address, privateKey } = accounts[0]
+const url = anvil.mainnet.rpcUrl.http
+const { address, privateKey } = constants.accounts[0]
 
 describe('create', () => {
   test('binds request to the transport', async () => {
