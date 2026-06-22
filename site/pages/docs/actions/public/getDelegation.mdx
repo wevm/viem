@@ -1,0 +1,137 @@
+# getDelegation
+
+Returns the address that an account has delegated to via [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702), or `undefined` if the account is not delegated.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const delegation = await client.getDelegation({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
+// @log: '0x7e5F4552091A69125d5DfCb7b8C2659029395Bdf'
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const delegation = await Actions.getDelegation(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
+// @log: '0x7e5F4552091A69125d5DfCb7b8C2659029395Bdf'
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Return Value
+
+`Address | undefined`
+
+The delegated address (checksummed), or `undefined` if the account is not delegated.
+
+## Parameters
+
+### address
+
+- **Type:** `Address`
+
+The address of the account to check for delegation.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const delegation = await Actions.getDelegation(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+})
+```
+
+### blockHash
+
+- **Type:** `Hex`
+
+The delegation at a given block hash (EIP-1898).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const delegation = await Actions.getDelegation(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d', // [!code focus]
+})
+```
+
+### blockNumber
+
+- **Type:** `bigint`
+
+The delegation at a given block number.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const delegation = await Actions.getDelegation(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  blockNumber: 42069n, // [!code focus]
+})
+```
+
+### blockTag
+
+- **Type:** `'latest' | 'earliest' | 'pending' | 'safe' | 'finalized'`
+- **Default:** `'latest'`
+
+The delegation at a given block tag.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const delegation = await Actions.getDelegation(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  blockTag: 'safe', // [!code focus]
+})
+```
+
+### requireCanonical
+
+- **Type:** `boolean`
+
+Whether to error if the `blockHash` is not in the canonical chain. Can only be provided alongside `blockHash`.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const delegation = await Actions.getDelegation(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  blockHash: '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+  requireCanonical: true, // [!code focus]
+})
+```

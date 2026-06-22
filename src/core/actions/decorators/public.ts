@@ -17,6 +17,7 @@ import { getBlockReceipts } from '../public/getBlockReceipts.js'
 import { getBlockTransactionCount } from '../public/getBlockTransactionCount.js'
 import { getChainId } from '../public/getChainId.js'
 import { getCode } from '../public/getCode.js'
+import { getDelegation } from '../public/getDelegation.js'
 import { getEip712Domain } from '../public/getEip712Domain.js'
 import { getFeeHistory } from '../public/getFeeHistory.js'
 import { getGasPrice } from '../public/getGasPrice.js'
@@ -60,6 +61,7 @@ export function publicActions() {
       getBlockTransactionCount(client, options),
     getChainId: () => getChainId(client),
     getCode: (options) => getCode(client, options),
+    getDelegation: (options) => getDelegation(client, options),
     getEip712Domain: (options) => getEip712Domain(client, options),
     getFeeHistory: (options) => getFeeHistory(client, options),
     getGasPrice: () => getGasPrice(client),
@@ -261,6 +263,26 @@ export declare namespace publicActions {
      * ```
      */
     getCode: (options: getCode.Options) => Promise<getCode.ReturnType>
+    /**
+     * Returns the address that an account has delegated to via EIP-7702.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const delegation = await client.getDelegation({
+     *   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+     * })
+     * ```
+     */
+    getDelegation: (
+      options: getDelegation.Options,
+    ) => Promise<getDelegation.ReturnType>
     /**
      * Reads the EIP-712 domain from a contract, based on the ERC-5267
      * specification.
