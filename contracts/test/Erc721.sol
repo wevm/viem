@@ -8,7 +8,7 @@ pragma solidity ^0.8.23;
 /// `ownerOf` reverts for a nonexistent token so error paths (e.g.
 /// `CallExecutionError`) can be exercised. Unknown selectors revert (no
 /// fallback), which the multicall batch tests rely on.
-contract ERC721 {
+contract Erc721 {
     string public name = "wagmi";
     string public symbol = "WAGMI";
 

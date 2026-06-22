@@ -6,7 +6,7 @@ import { describe, expect, test } from 'vitest'
 import { publicActions } from './public.js'
 
 const { address } = await contract.deploy(anvil.getClient(anvil.mainnet), {
-  bytecode: generated.ERC721.bytecode.object,
+  bytecode: generated.Erc721.bytecode.object,
 })
 
 describe('publicActions', () => {

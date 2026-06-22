@@ -27,7 +27,7 @@ const client = anvil.getClient(anvil.mainnet)
 
 // Self-hosted ERC-721 (`name()` returns "wagmi").
 const { address, blockNumber } = await contract.deploy(client, {
-  bytecode: generated.ERC721.bytecode.object,
+  bytecode: generated.Erc721.bytecode.object,
 })
 
 const name4bytes = '0x06fdde03'

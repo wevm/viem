@@ -9,9 +9,9 @@ import { readContract } from './readContract.js'
 
 const client = anvil.getClient(anvil.mainnet)
 
-const { abi } = generated.ERC721
+const { abi } = generated.Erc721
 const { address, blockNumber } = await contract.deploy(client, {
-  bytecode: generated.ERC721.bytecode.object,
+  bytecode: generated.Erc721.bytecode.object,
 })
 
 const errors = {
@@ -118,7 +118,7 @@ describe('readContract', () => {
     expect(
       await readContract(client, {
         abi,
-        code: generated.ERC721.bytecode.object,
+        code: generated.Erc721.bytecode.object,
         functionName: 'name',
       }),
     ).toBe('wagmi')

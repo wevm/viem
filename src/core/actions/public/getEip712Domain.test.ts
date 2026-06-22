@@ -52,7 +52,7 @@ describe('getEip712Domain', () => {
 
   test('error: rethrows non-zero-data errors', async () => {
     const { address } = await contract.deploy(client, {
-      bytecode: generated.ERC721.bytecode.object,
+      bytecode: generated.Erc721.bytecode.object,
     })
     await expect(() =>
       getEip712Domain(client, { address }),

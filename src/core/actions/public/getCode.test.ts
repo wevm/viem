@@ -8,7 +8,7 @@ import { getCode } from './getCode.js'
 const client = anvil.getClient(anvil.mainnet)
 
 const { address, blockNumber } = await contract.deploy(client, {
-  bytecode: generated.ERC721.bytecode.object,
+  bytecode: generated.Erc721.bytecode.object,
 })
 
 describe('getCode', () => {
