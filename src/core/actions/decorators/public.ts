@@ -1,5 +1,6 @@
 import type { Abi } from 'abitype'
 import type * as Block from 'ox/Block'
+import type * as Fee from 'ox/Fee'
 
 import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
@@ -8,6 +9,7 @@ import type {
   ContractFunctionName,
 } from '../internal/contract.js'
 import { call } from '../public/call.js'
+import { estimateFeesPerGas } from '../public/estimateFeesPerGas.js'
 import { estimateMaxPriorityFeePerGas } from '../public/estimateMaxPriorityFeePerGas.js'
 import { getBalance } from '../public/getBalance.js'
 import { getBlobBaseFee } from '../public/getBlobBaseFee.js'
@@ -50,6 +52,7 @@ export function publicActions() {
     client: Client.Client<chain>,
   ): publicActions.Decorator<chain> => ({
     call: (options) => call(client, options),
+    estimateFeesPerGas: (options) => estimateFeesPerGas(client, options),
     estimateMaxPriorityFeePerGas: (options) =>
       estimateMaxPriorityFeePerGas(client, options),
     getBalance: (options) => getBalance(client, options),
@@ -100,6 +103,25 @@ export declare namespace publicActions {
      * ```
      */
     call: (options?: call.Options | undefined) => Promise<call.ReturnType>
+    /**
+     * Returns an estimate for the fees per gas (in wei) for a transaction to be
+     * likely included in the next block.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const fees = await client.estimateFeesPerGas()
+     * ```
+     */
+    estimateFeesPerGas: <type extends Fee.FeeValuesType = 'eip1559'>(
+      options?: estimateFeesPerGas.Options<type> | undefined,
+    ) => Promise<estimateFeesPerGas.ReturnType<type>>
     /**
      * Returns an estimate for the max priority fee per gas (in wei) for a
      * transaction to be likely included in the next block.

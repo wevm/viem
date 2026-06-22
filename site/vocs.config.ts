@@ -184,6 +184,10 @@ export default defineConfig({
               { text: 'Overview', link: '/docs/actions/public' },
               { text: 'call', link: '/docs/actions/public/call' },
               {
+                text: 'estimateFeesPerGas',
+                link: '/docs/actions/public/estimateFeesPerGas',
+              },
+              {
                 text: 'estimateMaxPriorityFeePerGas',
                 link: '/docs/actions/public/estimateMaxPriorityFeePerGas',
               },
