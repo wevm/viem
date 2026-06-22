@@ -212,6 +212,10 @@ export default defineConfig({
               { text: 'getChainId', link: '/docs/actions/public/getChainId' },
               { text: 'getCode', link: '/docs/actions/public/getCode' },
               {
+                text: 'getContractEvents',
+                link: '/docs/actions/public/getContractEvents',
+              },
+              {
                 text: 'getDelegation',
                 link: '/docs/actions/public/getDelegation',
               },

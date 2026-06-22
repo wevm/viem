@@ -20,6 +20,7 @@ import { getBlockReceipts } from '../public/getBlockReceipts.js'
 import { getBlockTransactionCount } from '../public/getBlockTransactionCount.js'
 import { getChainId } from '../public/getChainId.js'
 import { getCode } from '../public/getCode.js'
+import { getContractEvents } from '../public/getContractEvents.js'
 import { getDelegation } from '../public/getDelegation.js'
 import { getEip712Domain } from '../public/getEip712Domain.js'
 import { getFeeHistory } from '../public/getFeeHistory.js'
@@ -66,6 +67,7 @@ export function publicActions() {
       getBlockTransactionCount(client, options),
     getChainId: () => getChainId(client),
     getCode: (options) => getCode(client, options),
+    getContractEvents: (options) => getContractEvents(client, options as never),
     getDelegation: (options) => getDelegation(client, options),
     getEip712Domain: (options) => getEip712Domain(client, options),
     getFeeHistory: (options) => getFeeHistory(client, options),
@@ -288,6 +290,45 @@ export declare namespace publicActions {
      * ```
      */
     getCode: (options: getCode.Options) => Promise<getCode.ReturnType>
+    /**
+     * Returns a list of event logs emitted by a contract.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     * import { Abi } from 'viem/utils'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const logs = await client.getContractEvents({
+     *   abi: Abi.from([
+     *     'event Transfer(address indexed from, address indexed to, uint256 value)',
+     *   ]),
+     *   eventName: 'Transfer',
+     * })
+     * ```
+     */
+    getContractEvents: <
+      const abi extends Abi | readonly unknown[],
+      eventName extends AbiEvent.extractLogs.EventName<abi> | undefined =
+        undefined,
+      strict extends boolean | undefined = undefined,
+      fromBlock extends Block.Number | Block.Tag | undefined = undefined,
+      toBlock extends Block.Number | Block.Tag | undefined = undefined,
+    >(
+      options: getContractEvents.Options<
+        abi,
+        eventName,
+        strict,
+        fromBlock,
+        toBlock
+      >,
+    ) => Promise<
+      getContractEvents.ReturnType<abi, eventName, strict, fromBlock, toBlock>
+    >
     /**
      * Returns the address that an account has delegated to via EIP-7702.
      *
