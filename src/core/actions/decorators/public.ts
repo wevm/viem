@@ -17,6 +17,7 @@ import { getBlockReceipts } from '../public/getBlockReceipts.js'
 import { getBlockTransactionCount } from '../public/getBlockTransactionCount.js'
 import { getChainId } from '../public/getChainId.js'
 import { getCode } from '../public/getCode.js'
+import { getEip712Domain } from '../public/getEip712Domain.js'
 import { getFeeHistory } from '../public/getFeeHistory.js'
 import { getGasPrice } from '../public/getGasPrice.js'
 import { getProof } from '../public/getProof.js'
@@ -59,6 +60,7 @@ export function publicActions() {
       getBlockTransactionCount(client, options),
     getChainId: () => getChainId(client),
     getCode: (options) => getCode(client, options),
+    getEip712Domain: (options) => getEip712Domain(client, options),
     getFeeHistory: (options) => getFeeHistory(client, options),
     getGasPrice: () => getGasPrice(client),
     getProof: (options) => getProof(client, options),
@@ -259,6 +261,27 @@ export declare namespace publicActions {
      * ```
      */
     getCode: (options: getCode.Options) => Promise<getCode.ReturnType>
+    /**
+     * Reads the EIP-712 domain from a contract, based on the ERC-5267
+     * specification.
+     *
+     * @example
+     * ```ts
+     * import { Client, http, publicActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(publicActions())
+     * const { domain, extensions, fields } = await client.getEip712Domain({
+     *   address: '0x57ba3ec8df619d4d243ce439551cce713bb17411',
+     * })
+     * ```
+     */
+    getEip712Domain: (
+      options: getEip712Domain.Options,
+    ) => Promise<getEip712Domain.ReturnType>
     /**
      * Returns a collection of historical gas information.
      *

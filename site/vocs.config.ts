@@ -208,6 +208,10 @@ export default defineConfig({
               { text: 'getChainId', link: '/docs/actions/public/getChainId' },
               { text: 'getCode', link: '/docs/actions/public/getCode' },
               {
+                text: 'getEip712Domain',
+                link: '/docs/actions/public/getEip712Domain',
+              },
+              {
                 text: 'getFeeHistory',
                 link: '/docs/actions/public/getFeeHistory',
               },
