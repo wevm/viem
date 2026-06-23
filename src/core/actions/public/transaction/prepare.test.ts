@@ -153,34 +153,50 @@ afterAll(async () => {
   await counter.close()
 })
 
-test('default', async () => {
-  const { capabilities, request } = await Actions.transaction.prepare(client, {
-    account,
-    to,
-    value: 1n,
+describe.each([
+  ['json-rpc (Account.from)', Account.from(account)],
+  [
+    'local (Account.fromPrivateKey)',
+    Account.fromPrivateKey(constants.accounts[0].privateKey),
+  ],
+] as const)('account: %s', (_name, account) => {
+  test('prepares a transaction request', async () => {
+    const { capabilities, request } = await Actions.transaction.prepare(
+      client,
+      {
+        account,
+        to,
+        value: 1n,
+      },
+    )
+
+    const {
+      account: _account,
+      from,
+      gas,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      ...rest
+    } = request
+
+    expect(capabilities).toBeUndefined()
+    expect((from as string).toLowerCase()).toBe(account)
+    expect(gas).toBeTypeOf('bigint')
+    expect(maxFeePerGas).toBeTypeOf('bigint')
+    expect(maxPriorityFeePerGas).toBeTypeOf('bigint')
+    expect(nonce).toBeTypeOf('number')
+    expect(rest).toMatchInlineSnapshot(`
+      {
+        "chainId": 1,
+        "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+        "type": "eip1559",
+        "value": 1n,
+      }
+    `)
   })
 
-  const { gas, maxFeePerGas, maxPriorityFeePerGas, nonce, ...rest } = request
-
-  expect(capabilities).toBeUndefined()
-  expect(gas).toBeTypeOf('bigint')
-  expect(maxFeePerGas).toBeTypeOf('bigint')
-  expect(maxPriorityFeePerGas).toBeTypeOf('bigint')
-  expect(nonce).toBeTypeOf('number')
-  expect(rest).toMatchInlineSnapshot(`
-    {
-      "account": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-      "chainId": 1,
-      "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-      "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-      "type": "eip1559",
-      "value": 1n,
-    }
-  `)
-})
-
-describe('args', () => {
-  test('nonce', async () => {
+  test('args: nonce', async () => {
     const { request } = await Actions.transaction.prepare(client, {
       account,
       nonce: 5,
@@ -190,7 +206,7 @@ describe('args', () => {
     expect(request.nonce).toBe(5)
   })
 
-  test('chainId', async () => {
+  test('args: chainId', async () => {
     const { request } = await Actions.transaction.prepare(client, {
       account,
       chainId: 1,
@@ -200,7 +216,7 @@ describe('args', () => {
     expect(request.chainId).toBe(1)
   })
 
-  test('gas', async () => {
+  test('args: gas', async () => {
     const { request } = await Actions.transaction.prepare(client, {
       account,
       gas: 50_000n,
@@ -210,7 +226,7 @@ describe('args', () => {
     expect(request.gas).toBe(50_000n)
   })
 
-  test('type (legacy)', async () => {
+  test('args: type (legacy)', async () => {
     const { request } = await Actions.transaction.prepare(client, {
       account,
       to,
@@ -223,7 +239,7 @@ describe('args', () => {
     expect(request.maxPriorityFeePerGas).toBeUndefined()
   })
 
-  test('fees (supplied)', async () => {
+  test('args: fees (supplied)', async () => {
     const { request } = await Actions.transaction.prepare(client, {
       account,
       maxFeePerGas: 10_000_000_000n,
@@ -235,7 +251,9 @@ describe('args', () => {
     expect(request.maxPriorityFeePerGas).toBe(1_000_000_000n)
     expect(request.type).toBe('eip1559')
   })
+})
 
+describe('args', () => {
   test('parameters (nonce only)', async () => {
     const { request } = await Actions.transaction.prepare(client, {
       account,
@@ -394,7 +412,7 @@ describe('args', () => {
     expect(request.maxFeePerGas).toBeUndefined()
   })
 
-  test('account (local Account)', async () => {
+  test('account (local Account, manual path)', async () => {
     const localAccount = Account.fromPrivateKey(
       constants.accounts[0].privateKey,
     )

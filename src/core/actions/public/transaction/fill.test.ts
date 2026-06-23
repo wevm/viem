@@ -4,7 +4,7 @@ import * as anvil from '~test/anvil.js'
 import * as contract from '~test/contract.js'
 import * as Http from '~test/http.js'
 import { z } from 'ox/zod'
-import { expect, test } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { Account, Actions, Client, http, NodeError, NonceManager } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -17,7 +17,6 @@ const chain = mainnet.extend({
   rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
 })
 
-// Self-hosted ERC-721 used for the revert path.
 const { address } = await contract.deploy(client, {
   bytecode: generated.Erc721.bytecode.object,
 })
@@ -26,91 +25,99 @@ const ownerOfAbi = AbiFunction.from(
 )
 const ownerOfNonexistent = AbiFunction.encodeData(ownerOfAbi, [12517631n])
 
-test('default', async () => {
-  const { capabilities, raw, transaction } = await Actions.transaction.fill(
-    client,
-    {
+describe.each([
+  ['json-rpc (Account.from)', Account.from(accounts[0].address)],
+  [
+    'local (Account.fromPrivateKey)',
+    Account.fromPrivateKey(accounts[0].privateKey),
+  ],
+] as const)('account: %s', (_name, account) => {
+  test('fills a transaction request', async () => {
+    const { capabilities, raw, transaction } = await Actions.transaction.fill(
+      client,
+      {
+        account,
+        data: '0xdeadbeef',
+        to: '0x0000000000000000000000000000000000000000',
+      },
+    )
+
+    const { gasPrice, hash, maxFeePerGas, maxPriorityFeePerGas, nonce, ...tx } =
+      transaction
+
+    expect(capabilities).toBeUndefined()
+    expect(raw).toBeTypeOf('string')
+    expect(hash).toBeTypeOf('string')
+    expect(nonce).toBeTypeOf('bigint')
+    expect(gasPrice).toBeTypeOf('bigint')
+    expect(maxFeePerGas).toBeTypeOf('bigint')
+    expect(maxPriorityFeePerGas).toBeTypeOf('bigint')
+    expect(tx).toMatchInlineSnapshot(`
+      {
+        "accessList": [],
+        "chainId": 1,
+        "data": "0xdeadbeef",
+        "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "gas": 21160n,
+        "input": "0xdeadbeef",
+        "to": "0x0000000000000000000000000000000000000000",
+        "type": "eip1559",
+        "value": 0n,
+      }
+    `)
+  })
+
+  test('args: gas', async () => {
+    const { transaction } = await Actions.transaction.fill(client, {
       account,
       data: '0xdeadbeef',
+      gas: 50_000n,
       to: '0x0000000000000000000000000000000000000000',
-    },
-  )
-
-  const { gasPrice, hash, maxFeePerGas, maxPriorityFeePerGas, nonce, ...tx } =
-    transaction
-
-  expect(capabilities).toBeUndefined()
-  expect(raw).toBeTypeOf('string')
-  expect(hash).toBeTypeOf('string')
-  expect(nonce).toBeTypeOf('bigint')
-  expect(gasPrice).toBeTypeOf('bigint')
-  expect(maxFeePerGas).toBeTypeOf('bigint')
-  expect(maxPriorityFeePerGas).toBeTypeOf('bigint')
-  expect(tx).toMatchInlineSnapshot(`
-    {
-      "accessList": [],
-      "chainId": 1,
-      "data": "0xdeadbeef",
-      "from": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-      "gas": 21160n,
-      "input": "0xdeadbeef",
-      "to": "0x0000000000000000000000000000000000000000",
-      "type": "eip1559",
-      "value": 0n,
-    }
-  `)
-})
-
-test('args: gas', async () => {
-  const { transaction } = await Actions.transaction.fill(client, {
-    account,
-    data: '0xdeadbeef',
-    gas: 50_000n,
-    to: '0x0000000000000000000000000000000000000000',
+    })
+    expect(transaction.gas).toBe(50_000n)
   })
-  expect(transaction.gas).toBe(50_000n)
-})
 
-test('args: gasPrice', async () => {
-  const { transaction } = await Actions.transaction.fill(client, {
-    account,
-    data: '0xdeadbeef',
-    gasPrice: 20_000_000_000n,
-    to: '0x0000000000000000000000000000000000000000',
-    type: 'legacy',
+  test('args: gasPrice', async () => {
+    const { transaction } = await Actions.transaction.fill(client, {
+      account,
+      data: '0xdeadbeef',
+      gasPrice: 20_000_000_000n,
+      to: '0x0000000000000000000000000000000000000000',
+      type: 'legacy',
+    })
+    expect(transaction.gasPrice).toBe(20_000_000_000n)
   })
-  expect(transaction.gasPrice).toBe(20_000_000_000n)
-})
 
-test('args: maxFeePerGas', async () => {
-  const { transaction } = await Actions.transaction.fill(client, {
-    account,
-    data: '0xdeadbeef',
-    maxFeePerGas: 50_000_000_000n,
-    to: '0x0000000000000000000000000000000000000000',
+  test('args: maxFeePerGas', async () => {
+    const { transaction } = await Actions.transaction.fill(client, {
+      account,
+      data: '0xdeadbeef',
+      maxFeePerGas: 50_000_000_000n,
+      to: '0x0000000000000000000000000000000000000000',
+    })
+    expect(transaction.maxFeePerGas).toBe(50_000_000_000n)
   })
-  expect(transaction.maxFeePerGas).toBe(50_000_000_000n)
-})
 
-test('args: maxPriorityFeePerGas', async () => {
-  const { transaction } = await Actions.transaction.fill(client, {
-    account,
-    data: '0xdeadbeef',
-    maxFeePerGas: 50_000_000_000n,
-    maxPriorityFeePerGas: 2_000_000_000n,
-    to: '0x0000000000000000000000000000000000000000',
+  test('args: maxPriorityFeePerGas', async () => {
+    const { transaction } = await Actions.transaction.fill(client, {
+      account,
+      data: '0xdeadbeef',
+      maxFeePerGas: 50_000_000_000n,
+      maxPriorityFeePerGas: 2_000_000_000n,
+      to: '0x0000000000000000000000000000000000000000',
+    })
+    expect(transaction.maxPriorityFeePerGas).toBe(2_000_000_000n)
   })
-  expect(transaction.maxPriorityFeePerGas).toBe(2_000_000_000n)
-})
 
-test('args: nonce', async () => {
-  const { transaction } = await Actions.transaction.fill(client, {
-    account,
-    data: '0xdeadbeef',
-    nonce: 1000,
-    to: '0x0000000000000000000000000000000000000000',
+  test('args: nonce', async () => {
+    const { transaction } = await Actions.transaction.fill(client, {
+      account,
+      data: '0xdeadbeef',
+      nonce: 1000,
+      to: '0x0000000000000000000000000000000000000000',
+    })
+    expect(transaction.nonce).toBe(1000n)
   })
-  expect(transaction.nonce).toBe(1000n)
 })
 
 test('args: nonceManager', async () => {
