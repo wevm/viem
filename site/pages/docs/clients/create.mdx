@@ -23,13 +23,31 @@ These recipes are self-contained. Each constructs its own client.
 Set `chain` when the client should carry chain metadata for actions, fee defaults, and contract addresses. The chain literal is preserved on the returned client.
 
 ```ts twoslash
-import { Client, http } from 'viem'
+import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({
   chain: mainnet, // [!code focus]
   transport: http(),
 })
+
+const fees = await Actions.fee.estimateFeesPerGas(client)
+```
+
+### Extend Client with Actions
+
+Attach a group of Actions to the client as methods with [`.extend()`](#extending-a-client). Pass a decorator such as [`publicActions`](/docs/actions/public) to add every action in that group.
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions()) // [!code focus]
+
+const blockNumber = await client.block.getNumber() // [!code focus]
 ```
 
 ### Setting a Default Account
@@ -37,7 +55,7 @@ const client = Client.create({
 A string address is coerced to a [JSON-RPC Account](/docs/accounts/json-rpc); a [Local Account](/docs/accounts) is used as-is. Actions that require an Account fall back to it.
 
 ```ts twoslash
-import { Client, http } from 'viem'
+import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({
@@ -46,8 +64,11 @@ const client = Client.create({
   transport: http('https://eth.merkle.io'),
 })
 
-client.account
-//     ^?
+// Actions requiring an Account fall back to `client.account`.
+const gas = await Actions.transaction.estimateGas(client, {
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
 ```
 
 ### Aggregating Calls with Multicall
@@ -65,18 +86,54 @@ const client = Client.create({
 })
 ```
 
+Concurrent `call` actions (e.g. fired together with `Promise.all`) within the same event loop tick are automatically coalesced into a single `multicall` request:
+
+```ts twoslash
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+  batch: { multicall: true },
+}).extend(publicActions())
+
+const abi = Abi.from([
+  'function name() view returns (string)',
+  'function symbol() view returns (string)',
+])
+
+const [name, symbol] = await Promise.all([ // [!code focus]
+  client.contract.read({ // [!code focus]
+    abi, // [!code focus]
+    address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+    functionName: 'name', // [!code focus]
+  }), // [!code focus]
+  client.contract.read({ // [!code focus]
+    abi, // [!code focus]
+    address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+    functionName: 'symbol', // [!code focus]
+  }), // [!code focus]
+]) // [!code focus]
+```
+
 ### Setting a Default Block Tag
 
 Set `blockTag` to choose the default block context for reads that do not pass their own block selector. Use this to consistently target `latest`, `safe`, `finalized`, or another supported tag.
 
 ```ts twoslash
-import { Client, http } from 'viem'
+import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({
   chain: mainnet,
   transport: http(),
   blockTag: 'latest', // [!code focus]
+})
+
+const balance = await Actions.address.getBalance(client, {
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
 })
 ```
 
@@ -85,7 +142,7 @@ const client = Client.create({
 Set `pollingInterval` to control how often polling-based actions check for new data. Use a lower value for faster updates and a higher value to reduce RPC traffic.
 
 ```ts twoslash
-import { Client, http } from 'viem'
+import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({
@@ -93,6 +150,8 @@ const client = Client.create({
   transport: http(),
   pollingInterval: 4_000, // [!code focus]
 })
+
+const blockNumber = await Actions.block.getNumber(client)
 ```
 
 ### Caching RPC Responses
@@ -100,7 +159,7 @@ const client = Client.create({
 Set `cacheTime` to control how long cacheable RPC responses are retained. This is useful for repeated reads that can tolerate a short-lived cached result.
 
 ```ts twoslash
-import { Client, http } from 'viem'
+import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({
@@ -108,6 +167,8 @@ const client = Client.create({
   transport: http(),
   cacheTime: 4_000, // [!code focus]
 })
+
+const blockNumber = await Actions.block.getNumber(client)
 ```
 
 ### Configuring CCIP Read
@@ -115,13 +176,18 @@ const client = Client.create({
 Set `ccipRead` to `false` to disable EIP-3668 offchain lookups. This is useful when you want calls to fail instead of following resolver-provided URLs.
 
 ```ts twoslash
-import { Client, http } from 'viem'
+import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({
   chain: mainnet,
   transport: http(),
   ccipRead: false, // [!code focus]
+})
+
+const { data } = await Actions.call(client, {
+  data: '0x06fdde03',
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
 })
 ```
 
@@ -130,13 +196,18 @@ const client = Client.create({
 Set `dataSuffix` to append extra calldata to compatible calls. This is commonly used by integrators that need to tag requests with attribution data.
 
 ```ts twoslash
-import { Client, http } from 'viem'
+import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({
   chain: mainnet,
   transport: http(),
   dataSuffix: '0xdeadbeef', // [!code focus]
+})
+
+const { data } = await Actions.call(client, {
+  data: '0x06fdde03',
+  to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
 })
 ```
 
@@ -145,7 +216,7 @@ const client = Client.create({
 Set `retryCount` and `timeout` to tune request reliability for this client. Increase retries for flaky endpoints, and set a timeout to fail slow requests predictably.
 
 ```ts twoslash
-import { Client, http } from 'viem'
+import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({
@@ -154,6 +225,8 @@ const client = Client.create({
   retryCount: 5, // [!code focus]
   timeout: 10_000, // [!code focus]
 })
+
+const blockNumber = await Actions.block.getNumber(client)
 ```
 
 ### Typing a Custom RPC Schema

@@ -13,6 +13,19 @@ index a55d3df9f8b1bc37f18de77a39a681946dac8796..8f901f25811c7c1a7cba82af9ac779b0
              handbookOptions: {
                  ...options.twoslashOptions?.handbookOptions,
                  ...executeOptions?.handbookOptions,
+diff --git a/dist/react/internal/Outline.js b/dist/react/internal/Outline.js
+index 1d2ce10029664071d7b58be43ce500de28807ee7..f5b8b6bfef587026b2f586ef0049d05dd86078fd 100644
+--- a/dist/react/internal/Outline.js
++++ b/dist/react/internal/Outline.js
+@@ -102,7 +102,7 @@ function useOutlineItems(options) {
+     return { items, activeId };
+ }
+ export function Outline(props) {
+-    const { className, minLevel = 2, maxLevel: maxLevelProp = 3, footer: Footer } = props;
++    const { className, minLevel = 2, maxLevel: maxLevelProp = 4, footer: Footer } = props;
+     const { frontmatter } = MdxPageContext.use();
+     const { outline = true } = frontmatter ?? {};
+     const maxLevel = typeof outline === 'number' ? outline + 1 : maxLevelProp;
 diff --git a/src/internal/shiki-transformers.ts b/src/internal/shiki-transformers.ts
 index e97aaed052c6d9c851d77fb95aeec33c1426844f..a7a200fd3c1017beb900936e1ec5bca0ffa4a40c 100644
 --- a/src/internal/shiki-transformers.ts
@@ -28,3 +41,16 @@ index e97aaed052c6d9c851d77fb95aeec33c1426844f..a7a200fd3c1017beb900936e1ec5bca0
        handbookOptions: {
          ...options.twoslashOptions?.handbookOptions,
          ...executeOptions?.handbookOptions,
+diff --git a/src/react/internal/Outline.tsx b/src/react/internal/Outline.tsx
+index e7977a1d6733a80ad44bb7d537fc36e7d95541c7..3fa5e362ac57af771642df5fcdefacecf48bf2f0 100644
+--- a/src/react/internal/Outline.tsx
++++ b/src/react/internal/Outline.tsx
+@@ -119,7 +119,7 @@ function useOutlineItems(options: { minLevel: number; maxLevel: number }) {
+ }
+ 
+ export function Outline(props: Outline.Props) {
+-  const { className, minLevel = 2, maxLevel: maxLevelProp = 3, footer: Footer } = props
++  const { className, minLevel = 2, maxLevel: maxLevelProp = 4, footer: Footer } = props
+ 
+   const { frontmatter } = MdxPageContext.use()
+   const { outline = true } = frontmatter ?? {}
