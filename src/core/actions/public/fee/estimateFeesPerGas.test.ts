@@ -76,6 +76,23 @@ describe('chain `baseFeeMultiplier` override', () => {
     expect(maxFeePerGas).toBeTypeOf('bigint')
   })
 
+  test('fn receives request', async () => {
+    let received: unknown
+    await internal_estimateFeesPerGas(client, {
+      chain: {
+        ...chain,
+        fees: {
+          baseFeeMultiplier: ({ request }) => {
+            received = request
+            return 1.5
+          },
+        },
+      },
+      request: { maxFeePerGas: 2n },
+    })
+    expect(received).toMatchObject({ maxFeePerGas: 2n })
+  })
+
   test('error: value below 1', async () => {
     await expect(() =>
       Actions.fee.estimateFeesPerGas(client, {

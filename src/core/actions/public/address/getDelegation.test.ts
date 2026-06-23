@@ -24,7 +24,10 @@ test('default: delegated account', async () => {
 })
 
 test('not delegated: no code', async () => {
-  await Actions.test.address.setCode(client, { address: account, bytecode: '0x' })
+  await Actions.test.address.setCode(client, {
+    address: account,
+    bytecode: '0x',
+  })
 
   expect(
     await Actions.address.getDelegation(client, { address: account }),

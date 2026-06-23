@@ -75,6 +75,8 @@ export function publicActions() {
       getHistory: (options) => fee.getHistory(client, options),
     },
     transaction: {
+      estimateGas: (options) => transaction.estimateGas(client, options),
+      fill: (options) => transaction.fill(client, options),
       get: (options) => transaction.get(client, options),
       getConfirmations: (options) =>
         transaction.getConfirmations(client, options),
@@ -554,6 +556,52 @@ export declare namespace publicActions {
       ) => Promise<fee.getHistory.ReturnType>
     }
     transaction: {
+      /**
+       * Estimates the gas necessary to complete a transaction without
+       * submitting it to the network.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const gas = await client.transaction.estimateGas({
+       *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+       *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+       *   value: 1n,
+       * })
+       * ```
+       */
+      estimateGas: (
+        options?: transaction.estimateGas.Options | undefined,
+      ) => Promise<transaction.estimateGas.ReturnType>
+      /**
+       * Fills a transaction request with the fields required to be signed over,
+       * via `eth_fillTransaction`.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const { raw, transaction } = await client.transaction.fill({
+       *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+       *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+       *   value: 1n,
+       * })
+       * ```
+       */
+      fill: (
+        options: transaction.fill.Options<chain>,
+      ) => Promise<transaction.fill.ReturnType<chain>>
       /**
        * Returns information about a transaction given a hash or block
        * identifier.

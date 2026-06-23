@@ -64,9 +64,11 @@ Flat public action names were renamed to their namespaced v3 equivalents.
 - getLogs(client, options)
 + Actions.logs.get(client, options)
 
+- fillTransaction(client, options)
 - getTransaction(client, options)
 - getTransactionConfirmations(client, options)
 - getTransactionReceipt(client, options)
++ Actions.transaction.fill(client, options)
 + Actions.transaction.get(client, options)
 + Actions.transaction.getConfirmations(client, options)
 + Actions.transaction.getReceipt(client, options)

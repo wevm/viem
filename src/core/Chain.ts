@@ -5,6 +5,7 @@ import type * as Hex from 'ox/Hex'
 import type * as Signature from 'ox/Signature'
 import type * as Transaction from 'ox/Transaction'
 import type * as TransactionReceipt from 'ox/TransactionReceipt'
+import type * as TransactionRequest from 'ox/TransactionRequest'
 import type { z } from 'ox/zod'
 import type * as Client from './Client.js'
 import type { Assign, Prettify } from './internal/types.js'
@@ -119,6 +120,12 @@ export declare namespace Chain {
       block: Block.Block
       /** The Client used to make the request. */
       client: Client.Client
+      /**
+       * The transaction request. Undefined when the caller is outside of a
+       * transaction request context (e.g. a direct call to the
+       * `estimateFeesPerGas` Action).
+       */
+      request?: TransactionRequest.toRpc.Input | undefined
     }
 
     /** Parameters supplied to a {@link Chain.Fees} `estimateFeesPerGas` function. */
@@ -221,6 +228,20 @@ export type ExtractTransactionReceipt<chain extends Chain | undefined> =
   }
     ? z.output<schema>
     : TransactionReceipt.TransactionReceipt
+
+/**
+ * Native transaction request input a {@link Chain} accepts. Resolves to
+ * `z.input` of the chain's `schema.transactionRequest.toRpc` codec when
+ * declared, otherwise the ox default {@link ox#TransactionRequest.toRpc.Input}.
+ */
+export type ExtractTransactionRequest<chain extends Chain | undefined> =
+  chain extends {
+    schema: {
+      transactionRequest: { toRpc: infer schema extends z.ZodMiniType }
+    }
+  }
+    ? z.input<schema>
+    : TransactionRequest.toRpc.Input
 
 /**
  * Defines a {@link Chain}. Preserves the literal type and attaches a

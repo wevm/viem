@@ -1,6 +1,7 @@
 import type * as Block from 'ox/Block'
 import type * as Errors from 'ox/Errors'
 import type * as Fee from 'ox/Fee'
+import type * as TransactionRequest from 'ox/TransactionRequest'
 
 import type * as Chain from '../../../Chain.js'
 import type * as Client from '../../../Client.js'
@@ -46,15 +47,25 @@ export async function internal_estimateFeesPerGas<
   client: Client.Client,
   options: estimateFeesPerGas.Options<type> & {
     block?: Block.Block | undefined
+    /**
+     * The transaction request, supplied to the chain's fee functions. Undefined
+     * when estimating fees outside of a transaction request context.
+     */
+    request?: TransactionRequest.toRpc.Input | undefined
   },
 ): Promise<estimateFeesPerGas.ReturnType<type>> {
-  const { block: block_, chain = client.chain, type = 'eip1559' } = options
+  const {
+    block: block_,
+    chain = client.chain,
+    request,
+    type = 'eip1559',
+  } = options
 
   const block = block_ ?? (await get(client))
 
   const baseFeeMultiplier = await (async () => {
     if (typeof chain?.fees?.baseFeeMultiplier === 'function')
-      return chain.fees.baseFeeMultiplier({ block, client })
+      return chain.fees.baseFeeMultiplier({ block, client, request })
     return chain?.fees?.baseFeeMultiplier ?? 1.2
   })()
   if (baseFeeMultiplier < 1) throw new BaseFeeScalarError()
@@ -70,6 +81,7 @@ export async function internal_estimateFeesPerGas<
       block,
       client,
       multiply,
+      request,
       type,
     })
     if (fees !== null)
@@ -82,7 +94,7 @@ export async function internal_estimateFeesPerGas<
 
     const maxPriorityFeePerGas = await internal_estimateMaxPriorityFeePerGas(
       client,
-      { block, chain },
+      { block, chain, request },
     )
     const baseFeePerGas = multiply(block.baseFeePerGas)
     const maxFeePerGas = baseFeePerGas + maxPriorityFeePerGas

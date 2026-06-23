@@ -151,6 +151,7 @@ export default defineConfig({
     '/docs': [
       {
         text: 'Clients & Transports',
+        collapsed: true,
         items: [
           {
             text: 'Client',
@@ -176,10 +177,12 @@ export default defineConfig({
       },
       {
         text: 'Actions',
+        collapsed: true,
         items: [
           { text: 'Overview', link: '/docs/actions' },
           {
             text: 'Public',
+            collapsed: true,
             items: [
               { text: 'Overview', link: '/docs/actions/public' },
               { text: 'call', link: '/docs/actions/public/call' },
@@ -288,6 +291,14 @@ export default defineConfig({
                 text: 'Transaction',
                 items: [
                   {
+                    text: 'estimateGas',
+                    link: '/docs/actions/public/transaction/estimateGas',
+                  },
+                  {
+                    text: 'fill',
+                    link: '/docs/actions/public/transaction/fill',
+                  },
+                  {
                     text: 'get',
                     link: '/docs/actions/public/transaction/get',
                   },
@@ -305,6 +316,7 @@ export default defineConfig({
           },
           {
             text: 'Test',
+            collapsed: true,
             items: [
               { text: 'Overview', link: '/docs/actions/test' },
               {
@@ -435,6 +447,7 @@ export default defineConfig({
       },
       {
         text: 'Accounts',
+        collapsed: true,
         items: [
           { text: 'Overview', link: '/docs/accounts' },
           { text: 'JSON-RPC Accounts', link: '/docs/accounts/json-rpc' },
@@ -457,6 +470,7 @@ export default defineConfig({
       },
       {
         text: 'Chains',
+        collapsed: true,
         items: [
           { text: 'Overview', link: '/docs/chains' },
           { text: 'Defining a Chain', link: '/docs/chains/create' },
@@ -466,13 +480,14 @@ export default defineConfig({
       },
       {
         text: 'Errors',
+        collapsed: true,
         items: [
           { text: 'Overview', link: '/docs/errors' },
           { text: 'Base Error', link: '/docs/errors/base-error' },
           { text: 'Configuration', link: '/docs/errors/configuration' },
         ],
       },
-      sidebar.utilities,
+      { ...sidebar.utilities, collapsed: true },
     ],
   },
   socials: [

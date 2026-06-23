@@ -1,5 +1,6 @@
 import type * as Block from 'ox/Block'
 import type * as Errors from 'ox/Errors'
+import type * as TransactionRequest from 'ox/TransactionRequest'
 import { z } from 'ox/zod'
 
 import type * as Chain from '../../../Chain.js'
@@ -36,16 +37,21 @@ export async function internal_estimateMaxPriorityFeePerGas(
   client: Client.Client,
   options: estimateMaxPriorityFeePerGas.Options & {
     block?: Block.Block | undefined
+    /**
+     * The transaction request, supplied to the chain's fee functions. Undefined
+     * when estimating fees outside of a transaction request context.
+     */
+    request?: TransactionRequest.toRpc.Input | undefined
   },
 ): Promise<estimateMaxPriorityFeePerGas.ReturnType> {
-  const { block: block_, chain = client.chain } = options
+  const { block: block_, chain = client.chain, request } = options
 
   try {
     const maxPriorityFeePerGas = chain?.fees?.maxPriorityFeePerGas
 
     if (typeof maxPriorityFeePerGas === 'function') {
       const block = block_ ?? (await get(client))
-      const result = await maxPriorityFeePerGas({ block, client })
+      const result = await maxPriorityFeePerGas({ block, client, request })
       if (result === null) throw new Error()
       return result
     }

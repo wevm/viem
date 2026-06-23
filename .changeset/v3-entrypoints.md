@@ -2,7 +2,7 @@
 "viem": major
 ---
 
-The `viem/accounts`, `viem/actions`, `viem/ens`, and `viem/siwe` subpath entrypoints were removed in favor of namespaces exported from the package root.
+The `viem/accounts`, `viem/actions`, `viem/ens`, `viem/nonce`, and `viem/siwe` subpath entrypoints were removed in favor of namespaces exported from the package root.
 
 ```diff
 - import { privateKeyToAccount } from 'viem/accounts'

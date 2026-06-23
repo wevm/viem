@@ -203,7 +203,6 @@
       "simple-git-hooks"
     ],
     "patchedDependencies": {
-      "ox@1.0.0-beta.7": "patches/ox@1.0.0-beta.7.patch",
       "vocs@2.0.14": "patches/vocs@2.0.14.patch"
     }
   },
@@ -262,7 +261,7 @@
   },
   "dependencies": {
     "abitype": "1.2.3",
-    "ox": "1.0.0-beta.7"
+    "ox": "1.0.0-beta.10"
   },
   "exports": {
     ".": {

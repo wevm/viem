@@ -188,6 +188,7 @@ This document contains guidelines for AI agents working on the Viem codebase.
 - **Update existing changesets first** -- if the branch already has a changeset for the same area, update it instead of adding a duplicate.
 - **One sentence, past tense** -- changeset entries are a single sentence written in past tense.
 - **Breaking changes include migration shape** -- major changes include a `diff` fence showing the before/after migration shape.
+- **Log v3 breaking changes as you migrate a module** -- when porting or implementing a v3 module, immediately compare its public surface to the v2 counterpart (`src-old/`) and record every breaking change (renames, moved/removed exports, dropped entrypoints, changed option/return shapes) in a `major` changeset, with a `diff` fence per change. Do this as part of finishing the module, not in a later sweep, so nothing is forgotten. One changeset per area/module (e.g. `.changeset/v3-nonce-manager.md`); update the existing area changeset rather than adding a duplicate.
 
 ## Git Conventions
 
