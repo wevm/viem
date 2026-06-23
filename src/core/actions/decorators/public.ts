@@ -3,6 +3,7 @@ import type * as AbiEvent from 'ox/AbiEvent'
 import type * as Block from 'ox/Block'
 import type * as Fee from 'ox/Fee'
 
+import type * as Account from '../../Account.js'
 import type * as Chain from '../../Chain.js'
 import type * as Client from '../../Client.js'
 import type {
@@ -35,9 +36,12 @@ import * as transaction from '../public/transaction/index.js'
  * ```
  */
 export function publicActions() {
-  return <chain extends Chain.Chain | undefined>(
-    client: Client.Client<chain>,
-  ): publicActions.Decorator<chain> => ({
+  return <
+    chain extends Chain.Chain | undefined,
+    account extends Account.Account | undefined,
+  >(
+    client: Client.Client<chain, account>,
+  ): publicActions.Decorator<chain, account> => ({
     address: {
       getBalance: (options) => address.getBalance(client, options),
       getCode: (options) => address.getCode(client, options),
@@ -81,6 +85,7 @@ export function publicActions() {
       getConfirmations: (options) =>
         transaction.getConfirmations(client, options),
       getReceipt: (options) => transaction.getReceipt(client, options),
+      prepare: (options) => transaction.prepare(client, options),
     },
   })
 }
@@ -88,6 +93,7 @@ export function publicActions() {
 export declare namespace publicActions {
   type Decorator<
     chain extends Chain.Chain | undefined = Chain.Chain | undefined,
+    account extends Account.Account | undefined = Account.Account | undefined,
   > = {
     address: {
       /**
@@ -664,6 +670,30 @@ export declare namespace publicActions {
       getReceipt: (
         options: transaction.getReceipt.Options,
       ) => Promise<transaction.getReceipt.ReturnType<chain>>
+      /**
+       * Prepares a transaction request for signing, by populating the fields
+       * required to be signed over (e.g. `nonce`, `chainId`, `type`, fees,
+       * `gas`).
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const { request } = await client.transaction.prepare({
+       *   account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+       *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+       *   value: 1n,
+       * })
+       * ```
+       */
+      prepare: <const options extends transaction.prepare.Options<chain>>(
+        options: transaction.prepare.Options<chain> & options,
+      ) => Promise<transaction.prepare.ReturnType<chain, account, options>>
     }
   }
 }

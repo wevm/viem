@@ -332,6 +332,8 @@ test('behavior: encodes/decodes via chain schema when declared', async () => {
   })
 
   expect(transaction.from).toBe(account.toLowerCase())
+  expect(transaction.type).toBe('eip1559')
+  if (transaction.type !== 'eip1559') return
   expect(transaction.maxFeePerGas).toBeTypeOf('bigint')
 })
 

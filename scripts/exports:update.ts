@@ -7,16 +7,17 @@ import { join } from 'node:path'
 // - `./src/index.ts`             → `.`
 // - `./src/<dir>/index.ts`       → `./<dir>`
 // - `./src/<dir>/<sub>/index.ts` → `./<dir>/<sub>`
-// - explicit file entrypoints (see `fileEntrypoints`), e.g. `./src/chains/utils.ts` → `./chains/utils`
+// - explicit file entrypoints (see `fileEntrypoints`), e.g. `./src/<dir>/<file>.ts` → `./<dir>/<file>`
 //
 // Directories without an `index.ts` (e.g. `clients/`, `constants/`, `errors/`, `types/`)
 // are internal and not exported.
 
 /** Non-`index.ts` file entrypoints. */
-const fileEntrypoints = ['chains/utils']
+const fileEntrypoints: string[] = []
 
 const srcDir = join(import.meta.dirname, '../src')
 const packageJsonPath = join(import.meta.dirname, '../package.json')
+const testTsconfigPath = join(import.meta.dirname, '../test/tsconfig.json')
 
 function entry(key: string, srcPath: string) {
   const distPath = srcPath.replace(/^\.\/src\//, './dist/').replace(/\.ts$/, '')
@@ -76,5 +77,23 @@ packageJson.typesVersions = {
   },
 }
 writeFileSync(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`)
+
+// Keep `test/tsconfig.json` `viem*` paths in lockstep with the exports above so
+// tests resolve the same module identity the package ships (drift collapses
+// contextual typing and breaks editor completions in test files).
+const testTsconfig = JSON.parse(readFileSync(testTsconfigPath, 'utf8'))
+const paths = testTsconfig.compilerOptions.paths as Record<string, string[]>
+const nonViem = Object.fromEntries(
+  Object.entries(paths).filter(([key]) => !/^viem(\/|$)/.test(key)),
+)
+const viem = Object.fromEntries(
+  exports.map(([key, value]) => {
+    const subpath = key === '.' ? 'viem' : key.replace(/^\.\//, 'viem/')
+    const srcPath = (value as { src: string }).src.replace(/^\.\//, '../')
+    return [subpath, [srcPath]] as const
+  }),
+)
+testTsconfig.compilerOptions.paths = { ...nonViem, ...viem }
+writeFileSync(testTsconfigPath, `${JSON.stringify(testTsconfig, null, 2)}\n`)
 
 console.log(`Updated ${exports.length} exports.`)

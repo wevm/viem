@@ -6,7 +6,7 @@ import * as StateOverrides from 'ox/StateOverrides'
 
 import type * as Client from '../../Client.js'
 import { BaseError } from '../../Errors.js'
-import { getChainContractAddress } from '../../../chains/utils.js'
+import { getContractAddress } from '../../Chain.js'
 import { createBatchScheduler } from '../../internal/promise.js'
 import { multicall3Bytecode } from './constants.js'
 import { toDeploylessCallViaBytecodeData } from './deployless.js'
@@ -52,10 +52,10 @@ export function getMulticallAddress(
   const { blockNumber, deployless } = options
   if (deployless) return null
   if (!client.chain) return null
-  // `getChainContractAddress` throws `ChainDoesNotSupportContract` when the
+  // `getContractAddress` throws `DoesNotSupportContract` when the
   // chain has no multicall3 deployment; fall back to a deployless multicall.
   try {
-    return getChainContractAddress({
+    return getContractAddress({
       blockNumber,
       chain: client.chain,
       contract: 'multicall3',

@@ -24,6 +24,12 @@
       "viem": [
         "../src/index.ts"
       ],
+      "viem/chains": [
+        "../src/chains/index.ts"
+      ],
+      "viem/node": [
+        "../src/node/index.ts"
+      ],
       "viem/utils": [
         "../src/utils/index.ts"
       ]

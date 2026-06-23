@@ -92,12 +92,17 @@ export async function internal_estimateFeesPerGas<
     if (typeof block.baseFeePerGas !== 'bigint')
       throw new Eip1559FeesNotSupportedError()
 
-    const maxPriorityFeePerGas = await internal_estimateMaxPriorityFeePerGas(
-      client,
-      { block, chain, request },
-    )
+    const maxPriorityFeePerGas =
+      typeof request?.maxPriorityFeePerGas === 'bigint'
+        ? request.maxPriorityFeePerGas
+        : await internal_estimateMaxPriorityFeePerGas(client, {
+            block,
+            chain,
+            request,
+          })
     const baseFeePerGas = multiply(block.baseFeePerGas)
-    const maxFeePerGas = baseFeePerGas + maxPriorityFeePerGas
+    const maxFeePerGas =
+      request?.maxFeePerGas ?? baseFeePerGas + maxPriorityFeePerGas
 
     return {
       maxFeePerGas,
@@ -105,7 +110,7 @@ export async function internal_estimateFeesPerGas<
     } as estimateFeesPerGas.ReturnType<type>
   }
 
-  const gasPrice = multiply(await getGasPrice(client))
+  const gasPrice = request?.gasPrice ?? multiply(await getGasPrice(client))
   return { gasPrice } as estimateFeesPerGas.ReturnType<type>
 }
 

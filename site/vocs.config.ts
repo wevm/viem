@@ -310,6 +310,10 @@ export default defineConfig({
                     text: 'getReceipt',
                     link: '/docs/actions/public/transaction/getReceipt',
                   },
+                  {
+                    text: 'prepare',
+                    link: '/docs/actions/public/transaction/prepare',
+                  },
                 ],
               },
             ],

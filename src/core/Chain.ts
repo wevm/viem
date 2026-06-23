@@ -1,5 +1,6 @@
 import type * as Address from 'ox/Address'
 import type * as Block from 'ox/Block'
+import type * as Errors from 'ox/Errors'
 import type * as Fee from 'ox/Fee'
 import type * as Hex from 'ox/Hex'
 import type * as Signature from 'ox/Signature'
@@ -8,6 +9,7 @@ import type * as TransactionReceipt from 'ox/TransactionReceipt'
 import type * as TransactionRequest from 'ox/TransactionRequest'
 import type { z } from 'ox/zod'
 import type * as Client from './Client.js'
+import { BaseError } from './Errors.js'
 import type { Assign, Prettify } from './internal/types.js'
 
 /** An EVM chain. */
@@ -35,6 +37,22 @@ export type Chain = {
   nativeCurrency: Chain.NativeCurrency
   /** Preconfirmation time in milliseconds. */
   preconfirmationTime?: number | undefined
+  /**
+   * Hook to prepare a transaction request. Runs while a transaction is
+   * prepared (e.g. to inject chain-specific fields). Provide a function to run
+   * it at the `'beforeFillTransaction'` phase, or a `[fn, { runAt }]` tuple to
+   * select the phase(s).
+   */
+  prepareTransactionRequest?:
+    | Chain.PrepareTransactionRequestFn
+    | [
+        fn: Chain.PrepareTransactionRequestFn,
+        options: {
+          /** Phases to run the function at. */
+          runAt: readonly Chain.PrepareTransactionRequestPhase[]
+        },
+      ]
+    | undefined
   /** Collection of RPC endpoints. */
   rpcUrls: {
     [key: string]: Chain.RpcUrls
@@ -146,6 +164,34 @@ export declare namespace Chain {
       args: FnParameters,
     ) => Promise<bigint | null> | bigint | null
   }
+
+  /**
+   * Hook that prepares an in-flight transaction request for a {@link Chain}.
+   * Receives the mutable request (including `chain`) and may return a modified
+   * request. Runs at one or more {@link Chain.PrepareTransactionRequestPhase}.
+   */
+  type PrepareTransactionRequestFn = (
+    request: Record<string, unknown>,
+    context: {
+      /** The Client preparing the transaction. */
+      client: Client.Client
+      /** Phase the hook is running at. */
+      phase: PrepareTransactionRequestPhase
+    },
+  ) => Promise<Record<string, unknown>> | Record<string, unknown>
+
+  /**
+   * Phase a {@link Chain.PrepareTransactionRequestFn} runs at.
+   *
+   * - `beforeFillTransaction`: before the request is filled via
+   *   `eth_fillTransaction`.
+   * - `beforeFillParameters`: before missing parameters are filled.
+   * - `afterFillParameters`: after missing parameters are filled.
+   */
+  type PrepareTransactionRequestPhase =
+    | 'beforeFillTransaction'
+    | 'beforeFillParameters'
+    | 'afterFillParameters'
 
   /** RPC endpoints of a {@link Chain}. */
   type RpcUrls = {
@@ -278,4 +324,159 @@ export declare namespace from {
 /** Builds the chainable `extend` for a base chain. @internal */
 function extend(base: Chain) {
   return (extended: Partial<Chain>) => from({ ...base, ...extended } as Chain)
+}
+
+/** Asserts that the connected chain matches the chain targeted by a request. */
+export function assertCurrent({
+  chain,
+  currentChainId,
+}: assertCurrent.Parameters): void {
+  if (!chain) throw new NotFoundError()
+  if (currentChainId !== chain.id)
+    throw new MismatchError({ chain, currentChainId })
+}
+
+export declare namespace assertCurrent {
+  type Parameters = {
+    chain?: Chain | undefined
+    currentChainId: number
+  }
+
+  type ErrorType = NotFoundError | MismatchError | Errors.GlobalErrorType
+}
+
+/** Extracts a chain from a list of chains by id, narrowing the return type. */
+export function extract<
+  const chains extends readonly Chain[],
+  chainId extends chains[number]['id'],
+>({
+  chains,
+  id,
+}: extract.Parameters<chains, chainId>): extract.ReturnType<chains, chainId> {
+  return chains.find((chain) => chain.id === id) as extract.ReturnType<
+    chains,
+    chainId
+  >
+}
+
+export declare namespace extract {
+  type Parameters<
+    chains extends readonly Chain[],
+    chainId extends chains[number]['id'],
+  > = {
+    chains: chains
+    id: chainId | chains[number]['id']
+  }
+
+  type ReturnType<
+    chains extends readonly Chain[],
+    chainId extends chains[number]['id'],
+  > = Extract<chains[number], { id: chainId }>
+
+  type ErrorType = Errors.GlobalErrorType
+}
+
+/** Resolves a named contract address on a chain (optionally at a block). */
+export function getContractAddress({
+  blockNumber,
+  chain,
+  contract: name,
+}: {
+  blockNumber?: bigint | undefined
+  chain: Chain
+  contract: string
+}) {
+  const contract = (chain?.contracts as Record<string, Chain.Contract>)?.[name]
+  if (!contract)
+    throw new DoesNotSupportContract({
+      chain,
+      contract: { name },
+    })
+
+  if (
+    blockNumber &&
+    contract.blockCreated &&
+    contract.blockCreated > blockNumber
+  )
+    throw new DoesNotSupportContract({
+      blockNumber,
+      chain,
+      contract: {
+        name,
+        blockCreated: contract.blockCreated,
+      },
+    })
+
+  return contract.address
+}
+
+export declare namespace getContractAddress {
+  type ErrorType = DoesNotSupportContract | Errors.GlobalErrorType
+}
+
+export class DoesNotSupportContract extends BaseError {
+  override name = 'Chain.DoesNotSupportContract'
+
+  constructor({
+    blockNumber,
+    chain,
+    contract,
+  }: {
+    blockNumber?: bigint | undefined
+    chain: Chain
+    contract: { name: string; blockCreated?: number | undefined }
+  }) {
+    super(
+      `Chain "${chain.name}" does not support contract "${contract.name}".`,
+      {
+        metaMessages: [
+          'This could be due to any of the following:',
+          ...(blockNumber &&
+          contract.blockCreated &&
+          contract.blockCreated > blockNumber
+            ? [
+                `- The contract "${contract.name}" was not deployed until block ${contract.blockCreated} (current block ${blockNumber}).`,
+              ]
+            : [
+                `- The chain does not have the contract "${contract.name}" configured.`,
+              ]),
+        ],
+      },
+    )
+  }
+}
+
+export class MismatchError extends BaseError {
+  override name = 'Chain.MismatchError'
+
+  constructor({
+    chain,
+    currentChainId,
+  }: {
+    chain: Chain
+    currentChainId: number
+  }) {
+    super(
+      `The current chain of the wallet (id: ${currentChainId}) does not match the target chain for the transaction (id: ${chain.id} – ${chain.name}).`,
+      {
+        metaMessages: [
+          `Current Chain ID:  ${currentChainId}`,
+          `Expected Chain ID: ${chain.id} – ${chain.name}`,
+        ],
+      },
+    )
+  }
+}
+
+export class NotFoundError extends BaseError {
+  override name = 'Chain.NotFoundError'
+
+  constructor() {
+    super(
+      [
+        'No chain was provided to the request.',
+        'Please provide a chain with the `chain` argument on the Action, or by supplying a `chain` to WalletClient.',
+      ].join('\n'),
+    )
+  }
 }

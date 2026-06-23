@@ -37,12 +37,18 @@ Top-level types are now accessed through their namespace rather than as named ty
 + function f(chain: Chain.Chain, account: Account.Account, transport: Transport.Transport) {}
 ```
 
-`defineChain` was removed from the `viem/chains/utils` entrypoint in favor of `Chain.from` from the package root.
+The `viem/chains/utils` entrypoint was removed. Its members now live on the `Chain` namespace exported from the package root.
 
 ```diff
-- import { defineChain } from 'viem/chains/utils'
+- import { defineChain, extractChain, getChainContractAddress } from 'viem/chains/utils'
 + import { Chain } from 'viem'
 
 - export const example = defineChain({ /* ... */ })
 + export const example = Chain.from({ /* ... */ })
+
+- const chain = extractChain({ chains, id: 10 })
++ const chain = Chain.extract({ chains, id: 10 })
+
+- const address = getChainContractAddress({ chain, contract: 'multicall3' })
++ const address = Chain.getContractAddress({ chain, contract: 'multicall3' })
 ```

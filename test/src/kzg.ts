@@ -1,4 +1,4 @@
-import { trustedSetup } from '@paulmillr/trusted-setups/fast-kzg.js'
+import { trustedSetup } from '@paulmillr/trusted-setups/fast-peerdas.js'
 import { KZG } from 'micro-eth-signer/advanced/kzg.js'
 import * as Bytes from 'ox/Bytes'
 import * as Kzg from 'ox/Kzg'

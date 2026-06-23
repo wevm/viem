@@ -274,11 +274,6 @@
       "src": "./src/chains/index.ts",
       "default": "./dist/chains/index.js"
     },
-    "./chains/utils": {
-      "types": "./dist/chains/utils.d.ts",
-      "src": "./src/chains/utils.ts",
-      "default": "./dist/chains/utils.js"
-    },
     "./node": {
       "types": "./dist/node/index.d.ts",
       "src": "./src/node/index.ts",

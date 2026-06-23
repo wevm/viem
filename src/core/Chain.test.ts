@@ -2,6 +2,9 @@ import { describe, expect, test } from 'vitest'
 
 import { Chain } from 'viem'
 
+import { mainnet } from '../chains/definitions/mainnet.js'
+import { optimism } from '../chains/definitions/optimism.js'
+
 describe('from', () => {
   test('default', () => {
     expect(
@@ -59,5 +62,57 @@ describe('from', () => {
 
     expect(chain.testnet).toBe(true)
     expect(chain.sourceId).toBe(10)
+  })
+})
+
+describe('extract', () => {
+  test('extracts a chain by id', () => {
+    const chain = Chain.extract({ chains: [mainnet, optimism], id: 10 })
+    expect(chain.id).toBe(10)
+    expect(chain.name).toBe('OP Mainnet')
+  })
+})
+
+describe('getContractAddress', () => {
+  test('returns the contract address', () => {
+    expect(
+      Chain.getContractAddress({ chain: mainnet, contract: 'multicall3' }),
+    ).toBe('0xca11bde05977b3631167028862be2a173976ca11')
+  })
+
+  test('throws when the contract is not configured', () => {
+    expect(() =>
+      Chain.getContractAddress({ chain: mainnet, contract: 'unknown' }),
+    ).toThrow(Chain.DoesNotSupportContract)
+  })
+
+  test('throws when the contract is not yet deployed at the block', () => {
+    expect(() =>
+      Chain.getContractAddress({
+        blockNumber: 1n,
+        chain: mainnet,
+        contract: 'multicall3',
+      }),
+    ).toThrow(Chain.DoesNotSupportContract)
+  })
+})
+
+describe('assertCurrent', () => {
+  test('passes when chain ids match', () => {
+    expect(() =>
+      Chain.assertCurrent({ chain: mainnet, currentChainId: 1 }),
+    ).not.toThrow()
+  })
+
+  test('throws when no chain is provided', () => {
+    expect(() =>
+      Chain.assertCurrent({ chain: undefined, currentChainId: 1 }),
+    ).toThrow(Chain.NotFoundError)
+  })
+
+  test('throws when chain ids mismatch', () => {
+    expect(() =>
+      Chain.assertCurrent({ chain: mainnet, currentChainId: 10 }),
+    ).toThrow(Chain.MismatchError)
   })
 })
