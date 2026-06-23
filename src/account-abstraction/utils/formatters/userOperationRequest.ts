@@ -69,8 +69,9 @@ function formatAuthorization(authorization: SignedAuthorization) {
     s: authorization.s
       ? numberToHex(BigInt(authorization.s), { size: 32 })
       : pad('0x', { size: 32 }),
-    yParity: authorization.yParity
-      ? numberToHex(authorization.yParity, { size: 1 })
-      : pad('0x', { size: 32 }),
+    yParity:
+      typeof authorization.yParity === 'number'
+        ? numberToHex(authorization.yParity, { size: 1 })
+        : pad('0x', { size: 1 }),
   }
 }

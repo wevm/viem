@@ -70,3 +70,29 @@ test('default', () => {
     }
   `)
 })
+
+test('args: authorization (yParity serialization)', () => {
+  const request = {
+    callData: '0xdeadbeef',
+    sender: '0x0000000000000000000000000000000000000000',
+    signature: '0xdeadbeef',
+    authorization: {
+      address: '0x0000000000000000000000000000000000000000',
+      chainId: 1,
+      nonce: 0,
+      r: '0x0000000000000000000000000000000000000000000000000000000000000001',
+      s: '0x0000000000000000000000000000000000000000000000000000000000000002',
+      yParity: 0,
+    },
+  } as const
+
+  // A `yParity` of `0` must serialize to a single byte (`0x00`), not 32 bytes.
+  expect(formatUserOperationRequest(request).eip7702Auth?.yParity).toBe('0x00')
+
+  expect(
+    formatUserOperationRequest({
+      ...request,
+      authorization: { ...request.authorization, yParity: 1 },
+    }).eip7702Auth?.yParity,
+  ).toBe('0x01')
+})
