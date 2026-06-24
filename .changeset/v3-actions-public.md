@@ -137,3 +137,13 @@ Contract reads were renamed from `readContract` to `Actions.contract.read`.
 + const client = Client.create({ transport: custom(window.ethereum) })
 + await Actions.transaction.send(client, { account, to, value })
 ```
+
+`Actions.transaction.sendRaw`'s `serializedTransaction` option was renamed to `transaction`.
+
+```diff
+- import { sendRawTransaction } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- await sendRawTransaction(client, { serializedTransaction: '0x02f8…' })
++ await Actions.transaction.sendRaw(client, { transaction: '0x02f8…' })
+```

@@ -19,7 +19,7 @@ type RequestOptions = Parameters<Client.Client['request']>[1]
  *   transport: http(),
  * })
  * const hash = await Actions.transaction.sendRaw(client, {
- *   serializedTransaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33',
+ *   transaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33',
  * })
  * ```
  */
@@ -27,9 +27,9 @@ export async function sendRaw(
   client: Client.Client,
   options: sendRaw.Options,
 ): Promise<sendRaw.ReturnType> {
-  const { requestOptions, serializedTransaction } = options
+  const { requestOptions, transaction } = options
   return client.request(
-    { method: 'eth_sendRawTransaction', params: [serializedTransaction] },
+    { method: 'eth_sendRawTransaction', params: [transaction] },
     { ...requestOptions, retryCount: 0 },
   )
 }
@@ -39,7 +39,7 @@ export declare namespace sendRaw {
     /** Options to pass to the underlying RPC request. */
     requestOptions?: RequestOptions | undefined
     /** The signed serialized transaction. */
-    serializedTransaction: TxEnvelope.Serialized | Hex.Hex
+    transaction: TxEnvelope.Serialized | Hex.Hex
   }
 
   type ReturnType = Hex.Hex

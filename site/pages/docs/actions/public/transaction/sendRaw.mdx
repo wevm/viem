@@ -10,7 +10,7 @@ Sends a **signed** serialized transaction to the network (`eth_sendRawTransactio
 import { client } from './viem.config'
 
 const hash = await client.transaction.sendRaw({
-  serializedTransaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33',
+  transaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33',
 })
 // @log: '0x...'
 ```
@@ -20,7 +20,7 @@ import { Actions } from 'viem'
 import { client } from './viem.config'
 
 const hash = await Actions.transaction.sendRaw(client, {
-  serializedTransaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33',
+  transaction: '0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33',
 })
 // @log: '0x...'
 ```
@@ -60,11 +60,11 @@ const client = Client.create({ chain: mainnet, transport: http() })
 const controller = new AbortController()
 const hash = await Actions.transaction.sendRaw(client, {
   requestOptions: { signal: controller.signal }, // [!code focus]
-  serializedTransaction: '0x02f850018203118080825208808080c080a0…',
+  transaction: '0x02f850018203118080825208808080c080a0…',
 })
 ```
 
-### serializedTransaction
+### transaction
 
 - **Type:** `Hex`
 
@@ -77,7 +77,7 @@ import { mainnet } from 'viem/chains'
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
 const hash = await Actions.transaction.sendRaw(client, {
-  serializedTransaction: '0x02f850018203118080825208808080c080a0…', // [!code focus]
+  transaction: '0x02f850018203118080825208808080c080a0…', // [!code focus]
 })
 ```
 

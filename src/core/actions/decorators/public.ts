@@ -732,7 +732,7 @@ export declare namespace publicActions {
        *   transport: http(),
        * }).extend(publicActions())
        * const hash = await client.transaction.sendRaw({
-       *   serializedTransaction: '0x02f850018203118080825208808080c080a0…',
+       *   transaction: '0x02f850018203118080825208808080c080a0…',
        * })
        * ```
        */

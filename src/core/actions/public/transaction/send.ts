@@ -159,14 +159,14 @@ export async function send<chain extends Chain.Chain | undefined>(
       to,
     } as never)
 
-    const serializedTransaction = await sign(client, {
+    const transaction = await sign(client, {
       ...(request as object),
       account,
       chain,
       kzg,
     } as never)
 
-    return await sendRaw(client, { requestOptions, serializedTransaction })
+    return await sendRaw(client, { requestOptions, transaction })
   } catch (err) {
     if (reset && nonceManager) nonceManager.reset(reset)
 
