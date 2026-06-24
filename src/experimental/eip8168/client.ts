@@ -2,14 +2,8 @@ import { createClient } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { http } from '../../clients/transports/http.js'
 import type {
-  FillTransactionParameters,
-  FillTransactionReturnType,
-  GetBalanceParameters,
-  GetBalanceReturnType,
-  GetCapabilitiesParameters,
-  GetCapabilitiesReturnType,
-  GetOptionsParameters,
-  GetOptionsReturnType,
+  GetSponsorshipBalanceParameters,
+  GetSponsorshipBalanceReturnType,
   GetTermsParameters,
   GetTermsReturnType,
   SendTransactionParameters,
@@ -17,6 +11,30 @@ import type {
   SignTransactionParameters,
   SignTransactionReturnType,
 } from './types.js'
+
+/** JSON-RPC schema for the ERC-8168 `payer_*` methods. */
+export type PayerRpcSchema = [
+  {
+    Method: 'payer_getTerms'
+    Parameters: [GetTermsParameters]
+    ReturnType: GetTermsReturnType
+  },
+  {
+    Method: 'payer_sendTransaction'
+    Parameters: [SendTransactionParameters]
+    ReturnType: SendTransactionReturnType
+  },
+  {
+    Method: 'payer_signTransaction'
+    Parameters: [SignTransactionParameters]
+    ReturnType: SignTransactionReturnType
+  },
+  {
+    Method: 'payer_getSponsorshipBalance'
+    Parameters: [GetSponsorshipBalanceParameters]
+    ReturnType: GetSponsorshipBalanceReturnType
+  },
+]
 
 export type CreatePayerClientParameters = {
   /** Payer service endpoint URL (path-versioned, e.g. `https://payer.example.com/v1`). */
@@ -29,34 +47,33 @@ export type CreatePayerClientParameters = {
 }
 
 export type PayerClient = {
-  /** Sponsorship/token-payment terms for a transaction intent (pre-signature). */
+  /**
+   * Payment offers (sponsorship / token payment) for a transaction intent,
+   * pre-signature. REQUIRED on every payer.
+   */
   getTerms(parameters: GetTermsParameters): Promise<GetTermsReturnType>
-  /** Co-sign a sender-signed EIP-8130 transaction and submit it. */
+  /**
+   * Co-sign a sender-signed EIP-8130 transaction and submit it (returns the tx
+   * hash). REQUIRED on every payer.
+   */
   sendTransaction(
     parameters: SendTransactionParameters,
   ): Promise<SendTransactionReturnType>
-  /** Co-sign a sender-signed EIP-8130 transaction and return it (no submit). */
+  /**
+   * Co-sign a sender-signed EIP-8130 transaction and return the bytes without
+   * submitting. OPTIONAL — only call when the picked offer advertises it via
+   * `methods`. Returns JSON-RPC `-32601` when unimplemented.
+   */
   signTransaction(
     parameters: SignTransactionParameters,
   ): Promise<SignTransactionReturnType>
   /**
-   * Fill a transaction intent into a complete unsigned EIP-8130 transaction
-   * with phases assembled and `payer` set. Wallet MUST verify before signing.
-   * (OPTIONAL per ERC-8168.)
+   * Standing, intent-free balances (sponsorship allowance / prepaid credit).
+   * OPTIONAL.
    */
-  fillTransaction(
-    parameters: FillTransactionParameters,
-  ): Promise<FillTransactionReturnType>
-  /** Standing, intent-free balances (sponsorship allowance / prepaid credit). */
-  getBalance(parameters: GetBalanceParameters): Promise<GetBalanceReturnType>
-  /** Ranked payer options for a transaction intent. */
-  getOptions(
-    parameters: GetOptionsParameters,
-  ): Promise<GetOptionsReturnType>
-  /** Static, intent-free descriptor of what the payer accepts. */
-  getCapabilities(
-    parameters?: GetCapabilitiesParameters,
-  ): Promise<GetCapabilitiesReturnType>
+  getSponsorshipBalance(
+    parameters: GetSponsorshipBalanceParameters,
+  ): Promise<GetSponsorshipBalanceReturnType>
 }
 
 /**
@@ -68,7 +85,7 @@ export type PayerClient = {
  * import { createPayerClient } from 'viem/experimental'
  *
  * const payer = createPayerClient({ url: 'https://payer.example.com/v1' })
- * const terms = await payer.getTerms({ chainId: '0x2105', from, calls })
+ * const { options } = await payer.getTerms({ chainId: '0x2105', from, calls })
  */
 export function createPayerClient(
   parameters: CreatePayerClientParameters,
@@ -77,7 +94,14 @@ export function createPayerClient(
   if (!url && !parameters.transport)
     throw new Error('`url` or `transport` is required.')
 
-  const { request } = createClient({ transport })
+  const { request } = createClient<
+    Transport,
+    undefined,
+    undefined,
+    PayerRpcSchema
+  >({
+    transport,
+  })
 
   return {
     getTerms(params) {
@@ -98,29 +122,11 @@ export function createPayerClient(
         params: [params],
       }) as Promise<SignTransactionReturnType>
     },
-    fillTransaction(params) {
+    getSponsorshipBalance(params) {
       return request({
-        method: 'payer_fillTransaction',
+        method: 'payer_getSponsorshipBalance',
         params: [params],
-      }) as Promise<FillTransactionReturnType>
-    },
-    getBalance(params) {
-      return request({
-        method: 'payer_getBalance',
-        params: [params],
-      }) as Promise<GetBalanceReturnType>
-    },
-    getOptions(params) {
-      return request({
-        method: 'payer_getOptions',
-        params: [params],
-      }) as Promise<GetOptionsReturnType>
-    },
-    getCapabilities(params) {
-      return request({
-        method: 'payer_getCapabilities',
-        params: [params ?? {}],
-      }) as Promise<GetCapabilitiesReturnType>
+      }) as Promise<GetSponsorshipBalanceReturnType>
     },
   }
 }
