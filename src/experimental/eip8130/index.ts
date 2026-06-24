@@ -18,6 +18,25 @@ export {
   toSmartAccount8130,
 } from './accounts/toSmartAccount8130.js'
 export {
+  type Eip8130AuthScheme,
+  type EstimateGas8130Parameters,
+  type EstimateGas8130ReturnType,
+  estimateGas8130,
+} from './actions/estimateGas8130.js'
+export {
+  type GetTransactionCount8130Parameters,
+  type GetTransactionCount8130ReturnType,
+  getTransactionCount8130,
+} from './actions/getTransactionCount8130.js'
+export {
+  allPhasesSucceeded,
+  type Eip8130ReceiptFields,
+  type GetTransactionReceipt8130Parameters,
+  type GetTransactionReceipt8130ReturnType,
+  getTransactionReceipt8130,
+  parseEip8130ReceiptFields,
+} from './actions/getTransactionReceipt8130.js'
+export {
   type PrepareTransaction8130Parameters,
   prepareTransaction8130,
   type SendCalls8130Parameters,
@@ -42,6 +61,7 @@ export {
   defaultAccountAddress,
   deploymentHeaderSize,
   ecrecoverAuthenticator,
+  externalCallerAuthenticator,
   maxCodeSize,
   nonceKeyMax,
   nonceManagerAddress,
@@ -53,6 +73,7 @@ export {
   type Eip8130Deployment,
   eip8130Deployments,
   getEip8130Deployment,
+  vibenetDevnetDeployment,
 } from './deployments.js'
 export {
   type AuthorizeActorOptions,
@@ -63,6 +84,27 @@ export {
   revokeActor,
   toScope,
 } from './keys.js'
+export {
+  type CommitmentOfErrorType,
+  commitmentOf,
+  type DefineSessionPolicyErrorType,
+  type DefineSessionPolicyParameters,
+  defineSessionPolicy,
+  type EncodeSessionPolicyActionErrorType,
+  type EncodeSessionPolicyConfigErrorType,
+  encodeSessionPolicyAction,
+  encodeSessionPolicyConfig,
+  type PolicyBinding,
+  policyManagerAbi,
+  type SessionPolicy,
+  type SessionPolicyAction,
+  type SessionPolicyCallScope,
+  type SessionPolicyConfig,
+  type SessionPolicySelectorRule,
+  type SessionPolicyTokenLimit,
+  sessionPolicyAbi,
+  sessionPolicyAddress,
+} from './policies.js'
 export type {
   AaAccountChange,
   AaAccountChangeConfig,
@@ -113,6 +155,12 @@ export {
   deploymentHeader,
 } from './utils/computeAddress.js'
 export {
+  defaultEncodeExecute,
+  type EncodeExecute,
+  type EncodeExecuteParameters,
+  encodeWalletCalls,
+} from './utils/encodeWalletCalls.js'
+export {
   actorChangeTypehash,
   type HashActorChanges8130ErrorType,
   type HashActorChanges8130Parameters,
@@ -127,12 +175,6 @@ export {
   getPayerSignatureHash8130,
   getSenderSignatureHash8130,
 } from './utils/hashTransaction.js'
-export {
-  defaultEncodeExecute,
-  type EncodeExecute,
-  type EncodeExecuteParameters,
-  encodeWalletCalls,
-} from './utils/encodeWalletCalls.js'
 export {
   type ParseTransaction8130ErrorType,
   parseTransaction8130,
@@ -156,6 +198,13 @@ export {
   type SignedActorChangeSet,
   signedActorChangesMagic,
 } from './utils/signedActorChangesSignature.js'
+export {
+  type ToP256SignerParameters,
+  type ToWebAuthnSignerParameters,
+  toP256Signer,
+  toWebAuthnSigner,
+  type WebAuthnSignSource,
+} from './utils/signers.js'
 export {
   type Signer,
   type SignTransaction8130ErrorType,

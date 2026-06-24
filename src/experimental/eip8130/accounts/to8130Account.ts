@@ -134,6 +134,7 @@ export function to8130Account(
       return signTransaction8130({
         transaction: { ...transaction, from: transaction.from ?? address },
         account: signer,
+        authenticator,
         payer: options.payer,
       })
     },

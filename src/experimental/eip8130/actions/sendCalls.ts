@@ -1,5 +1,4 @@
 import { estimateFeesPerGas } from '../../../actions/public/estimateFeesPerGas.js'
-import { readContract } from '../../../actions/public/readContract.js'
 import { sendRawTransaction } from '../../../actions/wallet/sendRawTransaction.js'
 import type { Client } from '../../../clients/createClient.js'
 import type { Transport } from '../../../clients/transports/createTransport.js'
@@ -8,9 +7,7 @@ import type { Account } from '../../../types/account.js'
 import type { Chain } from '../../../types/chain.js'
 import type { Hex } from '../../../types/misc.js'
 import { getAction } from '../../../utils/getAction.js'
-import { nonceManagerAbi } from '../abis.js'
 import type { To8130AccountReturnType } from '../accounts/to8130Account.js'
-import { nonceManagerAddress as defaultNonceManagerAddress } from '../constants.js'
 import type {
   AaAccountChange,
   AaCall,
@@ -19,6 +16,7 @@ import type {
 } from '../types/transaction.js'
 import { type EncodeExecute, encodeWalletCalls } from '../utils/encodeWalletCalls.js'
 import type { Signer } from '../utils/signTransaction.js'
+import { getTransactionCount8130 } from './getTransactionCount8130.js'
 
 type FeeOverrides = {
   maxFeePerGas?: bigint | undefined
@@ -36,29 +34,20 @@ export type PrepareTransaction8130Parameters = FeeOverrides & {
   nonceKey?: bigint | undefined
   nonceSequence?: bigint | undefined
   expiry?: bigint | undefined
-  /** Override the Nonce Manager precompile address. */
-  nonceManagerAddress?: `0x${string}` | undefined
 }
 
 /**
  * Builds a fully-populated {@link TransactionSerializable8130} for an
- * `AA_TX_TYPE` transaction, filling chain id, nonce sequence (from the Nonce
- * Manager precompile), and EIP-1559 fees from the client when not provided.
+ * `AA_TX_TYPE` transaction, filling chain id, nonce sequence (via
+ * `eth_getTransactionCount`'s 2D channel-nonce extension), and EIP-1559 fees
+ * from the client when not provided.
  */
 export async function prepareTransaction8130(
   client: Client<Transport, Chain | undefined, Account | undefined>,
   parameters: PrepareTransaction8130Parameters,
 ): Promise<TransactionSerializable8130> {
-  const {
-    account,
-    calls,
-    accountChanges,
-    payer,
-    gas,
-    expiry,
-    nonceKey = 0n,
-    nonceManagerAddress = defaultNonceManagerAddress,
-  } = parameters
+  const { account, calls, accountChanges, payer, gas, expiry, nonceKey = 0n } =
+    parameters
 
   const chainId = client.chain?.id
   if (!chainId)
@@ -70,25 +59,21 @@ export async function prepareTransaction8130(
       client,
       estimateFeesPerGas,
       'estimateFeesPerGas',
-    )({})
+    )({ chain: client.chain })
     maxFeePerGas ??= fees.maxFeePerGas
     maxPriorityFeePerGas ??= fees.maxPriorityFeePerGas
   }
 
+  // Read the next sequence via `eth_getTransactionCount` (with the 2D
+  // `nonce_key` extension). The Nonce Manager precompile is not callable via
+  // `eth_call`, so this RPC path is the correct nonce source.
   let nonceSequence = parameters.nonceSequence
   if (nonceSequence === undefined)
-    nonceSequence = BigInt(
-      await getAction(
-        client,
-        readContract,
-        'readContract',
-      )({
-        abi: nonceManagerAbi,
-        address: nonceManagerAddress,
-        functionName: 'getNonce',
-        args: [account.address, nonceKey],
-      }),
-    )
+    nonceSequence = await getAction(
+      client,
+      getTransactionCount8130,
+      'getTransactionCount8130',
+    )({ address: account.address, nonceKey })
 
   return {
     chainId,
@@ -118,7 +103,6 @@ export type SendCalls8130Parameters = FeeOverrides & {
   nonceKey?: bigint | undefined
   nonceSequence?: bigint | undefined
   expiry?: bigint | undefined
-  nonceManagerAddress?: `0x${string}` | undefined
   /**
    * Encoder for value-bearing phases. Defaults to a self-call to the account's
    * `executeBatch`. Override when the wallet bytecode exposes a different

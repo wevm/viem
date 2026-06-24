@@ -81,35 +81,42 @@ function parseActorChange(value: RlpHex): AaActorChange {
 }
 
 function parseAccountChanges(value: RlpHex): readonly AaAccountChange[] {
-  const entries = value as RlpHex[]
-  return entries.map((entry): AaAccountChange => {
-    const fields = entry as RlpHex[]
-    const type = fields[0] as Hex
+  // Wire format: each AccountChange is encoded as type_byte || rlp([body_fields...]).
+  // After RLP decoding the outer list we receive alternating [type_hex, body_array] pairs.
+  const flat = value as RlpHex[]
+  const result: AaAccountChange[] = []
+  for (let i = 0; i < flat.length; i += 2) {
+    const type = flat[i] as Hex
+    const body = flat[i + 1] as RlpHex[]
     if (type === accountChangeType.create) {
-      const [, userSalt, code, actors] = fields
-      return {
+      const [userSalt, code, actors] = body
+      result.push({
         type: 'create',
         userSalt: userSalt as Hex,
         code: code as Hex,
         initialActors: (actors as RlpHex[]).map(parseActor),
-      }
+      })
+      continue
     }
     if (type === accountChangeType.config) {
-      const [, chainId, sequence, actorChanges, auth] = fields
-      return {
+      const [chainId, sequence, actorChanges, auth] = body
+      result.push({
         type: 'config',
         chainId: chainId === '0x' ? 0 : hexToNumber(chainId as Hex),
         sequence: sequence === '0x' ? 0 : hexToNumber(sequence as Hex),
         actorChanges: (actorChanges as RlpHex[]).map(parseActorChange),
         auth: auth as Hex,
-      }
+      })
+      continue
     }
     if (type === accountChangeType.delegation) {
-      const [, target] = fields
-      return { type: 'delegation', target: target as Address }
+      const [target] = body
+      result.push({ type: 'delegation', target: target as Address })
+      continue
     }
     throw new BaseError(`Unknown account change entry type: "${type}".`)
-  })
+  }
+  return result
 }
 
 /**
@@ -137,6 +144,7 @@ export function parseTransaction8130(
     gas,
     accountChanges,
     calls,
+    metadata,
     payer,
     senderAuth,
     payerAuth,
@@ -169,6 +177,7 @@ export function parseTransaction8130(
   if ((accountChanges as RlpHex[]).length > 0)
     transaction.accountChanges = parseAccountChanges(accountChanges)
   if ((calls as RlpHex[]).length > 0) transaction.calls = parseCalls(calls)
+  if ((metadata as Hex) !== '0x') transaction.metadata = metadata as Hex
 
   const payerAddress = toOptionalAddress(payer as Hex)
   if (payerAddress) transaction.payer = payerAddress

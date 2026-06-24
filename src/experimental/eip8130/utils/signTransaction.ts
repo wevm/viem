@@ -22,11 +22,25 @@ import {
   serializeTransaction8130,
 } from './serializeTransaction.js'
 
-/** A signer capable of producing a raw secp256k1 signature over a hash. */
+/**
+ * A signer capable of producing an authenticator `data` blob over a hash.
+ *
+ * For the native secp256k1 path `sign` returns a raw 65-byte ECDSA signature.
+ * For non-ECDSA authenticators (P-256, WebAuthn/passkey, delegate) `sign`
+ * returns the authenticator-specific `data` (the bytes after the 20-byte
+ * authenticator prefix), and `authenticator` identifies the authenticator
+ * contract that validates it.
+ */
 export type Signer = Pick<LocalAccount, 'address'> & {
   sign?:
     | ((parameters: { hash: `0x${string}` }) => Promise<`0x${string}`>)
     | undefined
+  /**
+   * Authenticator address for this signer's auth blob. Defaults to
+   * `ECRECOVER_AUTHENTICATOR` (native secp256k1). Set to a P-256 / WebAuthn /
+   * delegate authenticator to sign as a non-ECDSA configured actor.
+   */
+  authenticator?: Address | undefined
 }
 
 export type SignTransaction8130Parameters = {
@@ -42,14 +56,26 @@ export type SignTransaction8130Parameters = {
    */
   account?: Signer | undefined
   /**
-   * Payer signer for sponsored transactions (secp256k1). Produces `payer_auth`
-   * as `ECRECOVER_AUTHENTICATOR || signature` over the payer signature hash.
+   * Authenticator for the sender's `auth` blob (configured-actor path). Defaults
+   * to `account.authenticator`, then `ECRECOVER_AUTHENTICATOR`. Set to a P-256 /
+   * WebAuthn (passkey) / delegate authenticator to sign as a non-ECDSA actor.
+   */
+  authenticator?: Address | undefined
+  /**
+   * Payer signer for sponsored transactions. Produces `payer_auth` as
+   * `authenticator || data` over the payer signature hash. Defaults the
+   * authenticator to `ECRECOVER_AUTHENTICATOR` (native secp256k1).
    */
   payer?:
     | {
         account: Signer
         /** The `payer` wire address. Defaults to the payer account's address. */
         address?: Address | undefined
+        /**
+         * Authenticator for the payer's `auth` blob. Defaults to
+         * `account.authenticator`, then `ECRECOVER_AUTHENTICATOR`.
+         */
+        authenticator?: Address | undefined
       }
     | undefined
 }
@@ -64,10 +90,13 @@ export type SignTransaction8130ErrorType =
 /**
  * Signs an EIP-8130 (`AA_TX_TYPE`) transaction.
  *
- * Produces `sender_auth` (and, for sponsored transactions, `payer_auth`) using
- * native secp256k1 signers, then returns the serialized envelope. For custom
- * authenticators, set `transaction.senderAuth` / `transaction.payerAuth`
- * directly and the corresponding signer is skipped.
+ * Produces `sender_auth` (and, for sponsored transactions, `payer_auth`) and
+ * returns the serialized envelope. Defaults to native secp256k1
+ * (`ECRECOVER_AUTHENTICATOR`); pass `authenticator` (and/or `payer.authenticator`,
+ * or set `authenticator` on the signer) to sign as a P-256 / WebAuthn (passkey) /
+ * delegate configured actor, in which case the signer's `sign` returns the
+ * authenticator-specific `data`. Presetting `transaction.senderAuth` /
+ * `transaction.payerAuth` skips the corresponding signer entirely.
  */
 export async function signTransaction8130(
   parameters: SignTransaction8130Parameters,
@@ -81,11 +110,14 @@ export async function signTransaction8130(
       throw new BaseError(
         'A sender `account` with raw signing support, or a preset `transaction.senderAuth`, is required.',
       )
+    const authenticator =
+      parameters.authenticator ?? account.authenticator ?? ecrecoverAuthenticator
     const senderHash = getSenderSignatureHash8130(transaction)
     const signature = await account.sign({ hash: senderHash })
     transaction.senderAuth = transaction.from
-      ? // Configured actor: ECRECOVER_AUTHENTICATOR || (r || s || v)
-        concatHex([ecrecoverAuthenticator, signature])
+      ? // Configured actor: AUTHENTICATOR || data
+        // (ecrecover: r || s || v; P-256/WebAuthn: authenticator-specific blob)
+        concatHex([authenticator, signature])
       : // EOA path: raw 65-byte signature
         signature
   }
@@ -99,11 +131,15 @@ export async function signTransaction8130(
       throw new BaseError(
         'A `payer` signer with raw signing support, or a preset `transaction.payerAuth`, is required for sponsored transactions.',
       )
+    const authenticator =
+      payer.authenticator ??
+      payer.account.authenticator ??
+      ecrecoverAuthenticator
     // The payer hash MUST bind to the resolved sender address.
     const from = transaction.from ?? account?.address
     const payerHash = getPayerSignatureHash8130({ ...transaction, from })
     const signature = await payer.account.sign({ hash: payerHash })
-    transaction.payerAuth = concatHex([ecrecoverAuthenticator, signature])
+    transaction.payerAuth = concatHex([authenticator, signature])
   }
 
   return serializeTransaction8130(transaction)

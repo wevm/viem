@@ -65,6 +65,18 @@ export const revokedAuthenticator =
   '0xffffffffffffffffffffffffffffffffffffffff' satisfies Hex
 
 /**
+ * Sentinel authenticator for execution-enabled "external caller" actors
+ * (`EXTERNAL_CALLER_AUTHENTICATOR = address(uint160(uint256(keccak256("externalCaller"))))`).
+ *
+ * No contract is deployed here. An actor whose `authenticator` is this sentinel
+ * is authorized to drive the account via `executeBatch` when it is the
+ * `msg.sender` (e.g. an ERC-4337 EntryPoint or a {@link policyManagerAbi}
+ * PolicyManager). It cannot produce signatures — only direct calls.
+ */
+export const externalCallerAuthenticator =
+  '0x345249274eE98994AbBf79ef955319e4Cb3f6849' satisfies Hex
+
+/**
  * Canonical authenticator set (the signature algorithms compliant nodes MUST
  * accept). `k1` is the native `ECRECOVER_AUTHENTICATOR` sentinel; the others are
  * onchain contracts.
@@ -82,7 +94,7 @@ export const canonicalAuthenticators = {
   /** WebAuthn / FIDO2 passkey. base/eip-8130 deployment (Base Sepolia). */
   passkey: '0x1CB75BE39Fb950202BF4239010534B86EdA66c31',
   /** Signature delegation (1-hop). base/eip-8130 deployment (Base Sepolia). */
-  delegate: '0x0d10CfB3D0CD016bf20b7254C4a869FBbc0ad8C7',
+  delegate: '0x4C4D27e56087797Feca62262417d57be4e30dD1F',
 } as const satisfies Record<string, Hex>
 
 /** Nonce Manager precompile address (`NONCE_MANAGER_ADDRESS`). */
@@ -104,7 +116,7 @@ export const txContextAddress =
  * parameter of {@link computeAddress8130}.
  */
 export const accountConfigAddress =
-  '0xb0198a714872EE5bfDF829e7986DB5C5899a6b50' satisfies Hex
+  '0xAff8A7A86605D61197C1b98630d93B9d9702afb5' satisfies Hex
 
 /**
  * Default wallet implementation for EOA auto-delegation
@@ -115,7 +127,7 @@ export const accountConfigAddress =
  * {@link accountConfigAddress}.
  */
 export const defaultAccountAddress =
-  '0x124b52d5D57a76ed064c414975beA11Beffe0251' satisfies Hex
+  '0xD67D6ae50521A0ea9Aa1e174C536F346E87a1903' satisfies Hex
 
 /** Size of the deployment header in bytes (`DEPLOYMENT_HEADER_SIZE`). */
 export const deploymentHeaderSize = 14

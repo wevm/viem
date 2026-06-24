@@ -43,30 +43,42 @@ function toActorChange(change: AaActorChange): RecursiveArray<Hex> {
   ]
 }
 
-/** Encodes the `account_changes` field into a nested RLP-ready array. */
+/**
+ * Encodes the `account_changes` field into a flat RLP-ready array.
+ *
+ * Each AccountChange is encoded on the wire as `type_byte || rlp([fields...])`:
+ * the type byte is a raw prefix, NOT wrapped in its own RLP list. To produce
+ * this with `toRlp`, we flatMap each entry into two sibling items in the outer
+ * list: the type-byte hex string (encodes as a single raw byte ≤ 0x7f) and
+ * the body array (encodes as an RLP list of fields).
+ */
 export function toAccountChangesList(
   accountChanges: readonly AaAccountChange[] | undefined,
 ): RecursiveArray<Hex>[] {
-  return (accountChanges ?? []).map((entry): RecursiveArray<Hex> => {
+  return (accountChanges ?? []).flatMap((entry): RecursiveArray<Hex>[] => {
     if (entry.type === 'create')
       return [
         accountChangeType.create,
-        entry.userSalt,
-        entry.code,
-        entry.initialActors.map((actor) => [
-          actor.actorId,
-          actor.authenticator,
-        ]),
+        [
+          entry.userSalt,
+          entry.code,
+          entry.initialActors.map((actor) => [
+            actor.actorId,
+            actor.authenticator,
+          ]),
+        ],
       ]
     if (entry.type === 'config')
       return [
         accountChangeType.config,
-        entry.chainId ? numberToHex(entry.chainId) : '0x',
-        entry.sequence ? numberToHex(entry.sequence) : '0x',
-        entry.actorChanges.map(toActorChange),
-        entry.auth,
+        [
+          entry.chainId ? numberToHex(entry.chainId) : '0x',
+          entry.sequence ? numberToHex(entry.sequence) : '0x',
+          entry.actorChanges.map(toActorChange),
+          entry.auth,
+        ],
       ]
-    return [accountChangeType.delegation, entry.target]
+    return [accountChangeType.delegation, [entry.target]]
   })
 }
 
@@ -90,6 +102,7 @@ export function toTransactionBody(
     gas,
     accountChanges,
     calls,
+    metadata,
   } = transaction
   return [
     numberToHex(chainId),
@@ -102,6 +115,7 @@ export function toTransactionBody(
     gas ? numberToHex(gas) : '0x',
     toAccountChangesList(accountChanges),
     toCallsList(calls),
+    metadata ?? '0x',
   ]
 }
 

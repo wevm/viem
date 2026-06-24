@@ -125,7 +125,7 @@ export type AaAccountChange =
  * AA_TX_TYPE || rlp([
  *   chain_id, sender, nonce_key, nonce_sequence, expiry,
  *   max_priority_fee_per_gas, max_fee_per_gas, gas_limit,
- *   account_changes, calls, payer, sender_auth, payer_auth
+ *   account_changes, calls, metadata, payer, sender_auth, payer_auth
  * ])
  * ```
  */
@@ -154,6 +154,13 @@ export type TransactionSerializable8130 = {
   accountChanges?: readonly AaAccountChange[] | undefined
   /** Ordered call phases. */
   calls?: AaCalls | undefined
+  /**
+   * Opaque, application-defined metadata (arbitrary bytes) carried at the top
+   * level of the transaction. Appended after `calls` in the signed body, so it
+   * is authenticated by both the sender and (when present) the payer. Omit or
+   * `'0x'` for none.
+   */
+  metadata?: Hex | undefined
   /** Gas payer. Omit for self-pay; set to a 20-byte address for sponsored. */
   payer?: Address | undefined
   /**

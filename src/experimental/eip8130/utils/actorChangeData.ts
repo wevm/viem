@@ -47,7 +47,9 @@ export function encodeActorChangeData(change: AaActorChange): Hex {
       {
         authenticator: change.authenticator,
         scope: change.scope ?? 0,
-        expiry: change.expiry ?? 0n,
+        // `uint48` maps to `number` in viem's ABI encoder; expiry (unix seconds)
+        // fits comfortably.
+        expiry: Number(change.expiry ?? 0n),
         policyType: change.policyType ?? 0,
       },
       change.policyData ?? '0x',

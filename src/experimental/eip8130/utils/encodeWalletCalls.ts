@@ -4,6 +4,13 @@ import { encodeFunctionData } from '../../../utils/abi/encodeFunctionData.js'
 import { erc4337AccountAbi } from '../abis.js'
 import type { AaCall, AaCalls } from '../types/transaction.js'
 
+/** An {@link AaCall} with `value`/`data` normalized to defined values. */
+export type NormalizedAaCall = {
+  to: Address
+  data: Hex
+  value: bigint
+}
+
 /**
  * Parameters passed to an {@link EncodeExecute} function: the account whose
  * wallet bytecode runs the batch, and the (value-bearing) calls in a phase.
@@ -12,7 +19,7 @@ export type EncodeExecuteParameters = {
   /** The EIP-8130 account whose wallet bytecode executes the batch. */
   account: Address
   /** The phase's calls, with normalized `value`/`data`. */
-  calls: readonly Required<AaCall>[]
+  calls: readonly NormalizedAaCall[]
 }
 
 /**
@@ -72,7 +79,7 @@ export function encodeWalletCalls(parameters: {
       return phase.map((call) => ({ to: call.to, data: call.data ?? '0x' }))
 
     const normalized = phase.map(
-      (call): Required<AaCall> => ({
+      (call): NormalizedAaCall => ({
         to: call.to,
         value: call.value ?? 0n,
         data: call.data ?? '0x',

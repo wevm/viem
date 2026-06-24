@@ -7,6 +7,7 @@ import { parseAbi } from 'abitype'
 export const accountConfigurationAbi = parseAbi([
   'struct InitialActor { bytes32 actorId; address authenticator; }',
   'struct ActorConfig { address authenticator; uint8 scope; uint48 expiry; uint8 policyType; }',
+  'struct Actor { bytes32 actorId; ActorConfig config; bytes policyData; }',
   'struct ActorChange { uint8 changeType; bytes32 actorId; bytes data; }',
   'struct ChangeSequences { uint64 multichain; uint64 local; }',
 
@@ -14,7 +15,7 @@ export const accountConfigurationAbi = parseAbi([
   'event ActorRevoked(address indexed account, bytes32 indexed actorId)',
   'event AccountCreated(address indexed account, bytes32 userSalt, bytes32 codeHash)',
   'event AccountImported(address indexed account)',
-  'event DelegationChanged(address indexed account, address target)',
+  'event DelegationApplied(address indexed account, address target)',
   'event AccountLocked(address indexed account, uint16 unlockDelay)',
   'event AccountUnlockInitiated(address indexed account, uint40 unlocksAt)',
 
@@ -25,10 +26,12 @@ export const accountConfigurationAbi = parseAbi([
   'function lock(uint16 unlockDelay)',
   'function initiateUnlock()',
   'function verifySignature(address account, bytes32 hash, bytes signature) view returns (bool verified)',
-  'function authenticateActor(address account, bytes32 hash, bytes auth) view returns (uint8 scope)',
+  'function authenticateActor(address account, bytes32 hash, bytes auth) view returns (uint8 scope, uint8 policyType, address policyTarget)',
   'function isActor(address account, bytes32 actorId) view returns (bool)',
   'function getActorConfig(address account, bytes32 actorId) view returns (ActorConfig)',
-  'function getPolicy(address account, bytes32 actorId) view returns (address target, bytes32 commitment)',
+  'function getPolicy(address account, bytes32 actorId) view returns (uint8 policyType, address target, bytes32 commitment)',
+  'function getPolicyCommitment(address account, bytes32 actorId) view returns (bytes32)',
+  'function getPolicyManager(address account, bytes32 actorId) view returns (address)',
   'function getChangeSequences(address account) view returns (ChangeSequences)',
   'function isLocked(address account) view returns (bool)',
   'function getLockStatus(address account) view returns (bool locked, bool hasInitiatedUnlock, uint40 unlocksAt, uint16 unlockDelay)',

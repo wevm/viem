@@ -32,7 +32,7 @@ export type SignActorChanges8130Parameters = {
   actorChanges: readonly AaActorChange[]
   /**
    * Authenticator address for the `auth` blob. Defaults to
-   * `ECRECOVER_AUTHENTICATOR` (native secp256k1).
+   * `signer.authenticator`, then `ECRECOVER_AUTHENTICATOR` (native secp256k1).
    */
   authenticator?: Address | undefined
 }
@@ -52,13 +52,9 @@ export type SignActorChanges8130ErrorType =
 export async function signActorChanges8130(
   parameters: SignActorChanges8130Parameters,
 ): Promise<AaAccountChangeConfig> {
-  const {
-    signer,
-    chainId,
-    sequence,
-    actorChanges,
-    authenticator = ecrecoverAuthenticator,
-  } = parameters
+  const { signer, chainId, sequence, actorChanges } = parameters
+  const authenticator =
+    parameters.authenticator ?? signer.authenticator ?? ecrecoverAuthenticator
   const account = parameters.account ?? signer.address
 
   if (!signer.sign)
