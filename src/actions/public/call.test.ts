@@ -506,7 +506,9 @@ describe('errors', () => {
         to: accounts[0].address,
         value: parseEther('100000'),
       }),
-    ).rejects.toThrowError('insufficient funds for gas * price + value')
+    ).rejects.toThrowError(
+      /insufficient funds for gas \* price \+ value|EVM error: OutOfFunds/i,
+    )
   })
 
   test('maxFeePerGas less than maxPriorityFeePerGas', async () => {
