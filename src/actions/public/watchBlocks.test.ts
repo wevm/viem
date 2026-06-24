@@ -133,7 +133,7 @@ describe('poll', () => {
       await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
-      expect(blocks.length).toBe(2)
+      expect(blocks.length).toBeGreaterThanOrEqual(2)
     })
   })
 

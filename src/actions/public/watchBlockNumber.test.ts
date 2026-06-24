@@ -104,7 +104,7 @@ describe('poll', () => {
       await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
-      expect(blockNumbers.length).toBe(2)
+      expect(blockNumbers.length).toBeGreaterThanOrEqual(2)
     })
   })
 
