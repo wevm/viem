@@ -5,7 +5,10 @@ import * as constants from '~test/constants.js'
 import {
   Account,
   Authorization,
+  Hash,
+  Hex,
   PersonalMessage,
+  Signature,
   TxEnvelope,
   TypedData,
 } from 'viem'
@@ -55,14 +58,58 @@ describe('from', () => {
     ).toMatchInlineSnapshot(`
       {
         "address": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+        "keyType": "custom",
         "sign": [Function],
+        "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
-        "source": "custom",
         "type": "local",
       }
     `)
+  })
+
+  test('derives address from publicKey', () => {
+    const pk = Account.fromPrivateKey(constants.accounts[0].privateKey)
+    const account = Account.from({
+      publicKey: pk.publicKey,
+      sign: ({ hash }) => pk.sign({ hash }),
+    })
+    expect(account.address).toEqual(pk.address)
+    expect(account.publicKey).toEqual(pk.publicKey)
+  })
+
+  test('derives signing methods from an async sign', async () => {
+    const pk = Account.fromPrivateKey(constants.accounts[0].privateKey)
+    // An async `sign` primitive exercises the derived methods' async path.
+    const account = Account.from({
+      address: pk.address,
+      sign: async ({ hash }) => pk.sign({ hash }),
+    })
+
+    const serialized = await account.signTransaction({
+      type: 'eip1559',
+      chainId: 1,
+      maxFeePerGas: 20000000000n,
+      gas: 21000n,
+      to: constants.accounts[1].address,
+      value: 1000000000000000000n,
+    })
+    expect(
+      TxEnvelope.recoverAddress(serialized as TxEnvelope.Serialized),
+    ).toEqual(account.address.toLowerCase())
+
+    const authorization = await account.signAuthorization!({
+      address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+      chainId: 1,
+      nonce: 0n,
+    })
+    expect(
+      Secp256k1.recoverAddress({
+        payload: Authorization.getSignPayload(authorization),
+        signature: authorization,
+      }).toLowerCase(),
+    ).toEqual(account.address.toLowerCase())
   })
 
   test('local account (invalid address)', () => {
@@ -94,18 +141,18 @@ describe('fromPrivateKey', () => {
   test('default', () => {
     expect(Account.fromPrivateKey(constants.accounts[0].privateKey))
       .toMatchInlineSnapshot(`
-      {
-        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
-        "sign": [Function],
-        "signAuthorization": [Function],
-        "signMessage": [Function],
-        "signTransaction": [Function],
-        "signTypedData": [Function],
-        "source": "privateKey",
-        "type": "local",
-      }
-    `)
+        {
+          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          "keyType": "secp256k1",
+          "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
+          "sign": [Function],
+          "signAuthorization": [Function],
+          "signMessage": [Function],
+          "signTransaction": [Function],
+          "signTypedData": [Function],
+          "type": "local",
+        }
+      `)
   })
 
   test('sign', async () => {
@@ -167,6 +214,38 @@ describe('fromPrivateKey', () => {
     ).toEqual(account.address.toLowerCase())
   })
 
+  test('sign transaction (chain hooks)', async () => {
+    const account = Account.fromPrivateKey(constants.accounts[0].privateKey)
+    const envelope = {
+      type: 'eip1559',
+      chainId: 1,
+      maxFeePerGas: 20000000000n,
+      gas: 21000n,
+      to: constants.accounts[1].address,
+      value: 1000000000000000000n,
+    } as const
+
+    const payload = Hash.keccak256(Hex.fromString('custom payload'))
+    const chain = {
+      transaction: {
+        getSignPayload: () => payload,
+        serialize: (
+          _envelope: TxEnvelope.TxEnvelope,
+          options?: { signature?: Signature.Signature },
+        ) => Signature.toHex(options!.signature!),
+      },
+    } as never
+
+    const serialized = await account.signTransaction(envelope, { chain })
+
+    expect(
+      Secp256k1.recoverAddress({
+        payload,
+        signature: Signature.fromHex(serialized as Hex.Hex),
+      }).toLowerCase(),
+    ).toEqual(account.address.toLowerCase())
+  })
+
   test('sign typed data', async () => {
     const account = Account.fromPrivateKey(constants.accounts[0].privateKey)
     const data = { ...constants.typedData.basic, primaryType: 'Mail' } as const
@@ -183,13 +262,13 @@ describe('fromHdKey', () => {
       {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "getHdKey": [Function],
+        "keyType": "secp256k1",
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
         "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
-        "source": "hd",
         "type": "local",
       }
     `)
@@ -224,13 +303,13 @@ describe('fromMnemonic', () => {
       {
         "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "getHdKey": [Function],
+        "keyType": "secp256k1",
         "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
         "signAuthorization": [Function],
         "signMessage": [Function],
         "signTransaction": [Function],
         "signTypedData": [Function],
-        "source": "hd",
         "type": "local",
       }
     `)
@@ -262,7 +341,7 @@ describe('random', () => {
     const account = Account.random()
     expect(account.address).toBeDefined()
     expect(account.publicKey).toBeDefined()
-    expect(account.source).toBe('privateKey')
+    expect(account.keyType).toBe('secp256k1')
     expect(account.type).toBe('local')
   })
 })

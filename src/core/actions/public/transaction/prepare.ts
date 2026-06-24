@@ -100,13 +100,13 @@ export async function prepare<
   request.account = account_
 
   const hook = (() => {
-    const value = chain?.prepareTransactionRequest
+    const value = chain?.transaction?.prepare
     if (typeof value === 'function')
       return {
         fn: value,
         runAt: [
           'beforeFillTransaction',
-        ] as readonly Chain.Chain.PrepareTransactionRequestPhase[],
+        ] as readonly Chain.Chain.Transaction.PreparePhase[],
       }
     if (Array.isArray(value)) return { fn: value[0], runAt: value[1].runAt }
     return undefined

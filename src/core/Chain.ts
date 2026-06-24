@@ -3,14 +3,16 @@ import type * as Block from 'ox/Block'
 import type * as Errors from 'ox/Errors'
 import type * as Fee from 'ox/Fee'
 import type * as Hex from 'ox/Hex'
+import type * as Kzg from 'ox/Kzg'
 import type * as Signature from 'ox/Signature'
 import type * as Transaction from 'ox/Transaction'
 import type * as TransactionReceipt from 'ox/TransactionReceipt'
 import type * as TransactionRequest from 'ox/TransactionRequest'
+import type * as TxEnvelope from 'ox/TxEnvelope'
 import type { z } from 'ox/zod'
 import type * as Client from './Client.js'
 import { BaseError } from './Errors.js'
-import type { Assign, Prettify } from './internal/types.js'
+import type { Assign, MaybePromise, Prettify } from './internal/types.js'
 
 /** An EVM chain. */
 export type Chain = {
@@ -37,22 +39,6 @@ export type Chain = {
   nativeCurrency: Chain.NativeCurrency
   /** Preconfirmation time in milliseconds. */
   preconfirmationTime?: number | undefined
-  /**
-   * Hook to prepare a transaction request. Runs while a transaction is
-   * prepared (e.g. to inject chain-specific fields). Provide a function to run
-   * it at the `'beforeFillTransaction'` phase, or a `[fn, { runAt }]` tuple to
-   * select the phase(s).
-   */
-  prepareTransactionRequest?:
-    | Chain.PrepareTransactionRequestFn
-    | [
-        fn: Chain.PrepareTransactionRequestFn,
-        options: {
-          /** Phases to run the function at. */
-          runAt: readonly Chain.PrepareTransactionRequestPhase[]
-        },
-      ]
-    | undefined
   /** Collection of RPC endpoints. */
   rpcUrls: {
     [key: string]: Chain.RpcUrls
@@ -60,12 +46,12 @@ export type Chain = {
   }
   /** Bidirectional RPC ↔ native codecs. */
   schema?: Chain.Schema | undefined
-  /** Transaction serialization overrides. */
-  serializers?: Chain.Serializers | undefined
   /** Source chain id (e.g. the L1 chain). */
   sourceId?: number | undefined
   /** Flag for test networks. */
   testnet?: boolean | undefined
+  /** Transaction signing & preparation hooks. */
+  transaction?: Chain.Transaction | undefined
 }
 
 export declare namespace Chain {
@@ -165,33 +151,84 @@ export declare namespace Chain {
     ) => Promise<bigint | null> | bigint | null
   }
 
-  /**
-   * Hook that prepares an in-flight transaction request for a {@link Chain}.
-   * Receives the mutable request (including `chain`) and may return a modified
-   * request. Runs at one or more {@link Chain.PrepareTransactionRequestPhase}.
-   */
-  type PrepareTransactionRequestFn = (
-    request: Record<string, unknown>,
-    context: {
-      /** The Client preparing the transaction. */
-      client: Client.Client
-      /** Phase the hook is running at. */
-      phase: PrepareTransactionRequestPhase
-    },
-  ) => Promise<Record<string, unknown>> | Record<string, unknown>
+  /** Transaction signing & preparation hooks for a {@link Chain}. */
+  type Transaction = {
+    /**
+     * Derives the sign payload (hash) for a transaction envelope.
+     *
+     * @default ox `TxEnvelope.getSignPayload`
+     */
+    getSignPayload?: ((envelope: TxEnvelope.TxEnvelope) => Hex.Hex) | undefined
+    /**
+     * Hook to prepare a transaction request. Runs while a transaction is
+     * prepared (e.g. to inject chain-specific fields). Provide a function to
+     * run it at the `'beforeFillTransaction'` phase, or a `[fn, { runAt }]`
+     * tuple to select the phase(s).
+     */
+    prepare?:
+      | Transaction.PrepareFn
+      | [
+          fn: Transaction.PrepareFn,
+          options: {
+            /** Phases to run the function at. */
+            runAt: readonly Transaction.PreparePhase[]
+          },
+        ]
+      | undefined
+    /**
+     * Serializes a (signed or unsigned) transaction envelope.
+     *
+     * @default ox `TxEnvelope.serialize`
+     */
+    serialize?:
+      | ((
+          envelope: TxEnvelope.TxEnvelope,
+          options?: { signature?: Signature.Signature | undefined } | undefined,
+        ) => Hex.Hex)
+      | undefined
+    /**
+     * Converts a transaction request into a (typed) transaction envelope.
+     *
+     * @default ox `TransactionRequest.toEnvelope`
+     */
+    toEnvelope?:
+      | ((
+          request: TransactionRequest.TransactionRequest,
+          options?: { kzg?: Kzg.Kzg | undefined } | undefined,
+        ) => MaybePromise<TxEnvelope.TxEnvelope>)
+      | undefined
+  }
 
-  /**
-   * Phase a {@link Chain.PrepareTransactionRequestFn} runs at.
-   *
-   * - `beforeFillTransaction`: before the request is filled via
-   *   `eth_fillTransaction`.
-   * - `beforeFillParameters`: before missing parameters are filled.
-   * - `afterFillParameters`: after missing parameters are filled.
-   */
-  type PrepareTransactionRequestPhase =
-    | 'beforeFillTransaction'
-    | 'beforeFillParameters'
-    | 'afterFillParameters'
+  namespace Transaction {
+    /**
+     * Hook that prepares an in-flight transaction request for a {@link Chain}.
+     * Receives the mutable request (including `chain`) and may return a
+     * modified request. Runs at one or more
+     * {@link Chain.Transaction.PreparePhase}.
+     */
+    type PrepareFn = (
+      request: Record<string, unknown>,
+      context: {
+        /** The Client preparing the transaction. */
+        client: Client.Client
+        /** Phase the hook is running at. */
+        phase: PreparePhase
+      },
+    ) => Promise<Record<string, unknown>> | Record<string, unknown>
+
+    /**
+     * Phase a {@link Chain.Transaction.PrepareFn} runs at.
+     *
+     * - `beforeFillTransaction`: before the request is filled via
+     *   `eth_fillTransaction`.
+     * - `beforeFillParameters`: before missing parameters are filled.
+     * - `afterFillParameters`: after missing parameters are filled.
+     */
+    type PreparePhase =
+      | 'beforeFillTransaction'
+      | 'beforeFillParameters'
+      | 'afterFillParameters'
+  }
 
   /** RPC endpoints of a {@link Chain}. */
   type RpcUrls = {
@@ -217,17 +254,6 @@ export declare namespace Chain {
     fromRpc?: z.ZodMiniType | undefined
     /** Codec encoding a native value into its RPC shape (via `z.decode`). */
     toRpc?: z.ZodMiniType | undefined
-  }
-
-  /** Transaction serialization overrides. */
-  type Serializers = {
-    // TODO: infer transaction input from `schema` instead of `any`.
-    transaction?:
-      | ((
-          transaction: any,
-          options?: { signature?: Signature.Signature | undefined } | undefined,
-        ) => Hex.Hex)
-      | undefined
   }
 }
 

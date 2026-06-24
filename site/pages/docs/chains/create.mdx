@@ -378,25 +378,6 @@ const chain = Chain.from({
 })
 ```
 
-##### chain.serializers
-
-- **Type:** `Chain.Serializers`
-- **Optional**
-
-Transaction serialization overrides.
-
-```ts twoslash
-import { Chain } from 'viem'
-// ---cut---
-const chain = Chain.from({
-  id: 1,
-  name: 'Ethereum',
-  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
-  serializers: {}, // [!code focus]
-})
-```
-
 ##### chain.sourceId
 
 - **Type:** `number`
@@ -432,6 +413,33 @@ const chain = Chain.from({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
   testnet: false, // [!code focus]
+})
+```
+
+##### chain.transaction
+
+- **Type:** `Chain.Transaction`
+- **Optional**
+
+Transaction signing & preparation hooks: `toEnvelope` overrides how a
+transaction request is converted into an envelope, `getSignPayload` and
+`serialize` override how transactions are hashed and serialized (defaulting to
+the ox `TransactionRequest`/`TxEnvelope` codecs), and `prepare` injects
+chain-specific fields while a transaction request is being prepared.
+
+```ts twoslash
+import { Chain } from 'viem'
+import { TxEnvelope } from 'viem/utils'
+// ---cut---
+const chain = Chain.from({
+  id: 1,
+  name: 'Ethereum',
+  nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+  rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
+  transaction: { // [!code focus]
+    serialize: (envelope, options) => // [!code focus]
+      TxEnvelope.serialize(envelope, options), // [!code focus]
+  }, // [!code focus]
 })
 ```
 

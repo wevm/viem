@@ -181,7 +181,7 @@ describe.each([
     } = request
 
     expect(capabilities).toBeUndefined()
-    expect((from as string).toLowerCase()).toBe(account)
+    expect((from as string).toLowerCase()).toBe(account.address.toLowerCase())
     expect(gas).toBeTypeOf('bigint')
     expect(maxFeePerGas).toBeTypeOf('bigint')
     expect(maxPriorityFeePerGas).toBeTypeOf('bigint')
@@ -952,8 +952,10 @@ describe('behavior: chain hooks', () => {
       name: 'Ethereum',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
       rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-      prepareTransactionRequest(request) {
-        return { ...request, value: 69n }
+      transaction: {
+        prepare(request) {
+          return { ...request, value: 69n }
+        },
       },
     })
     const hookClient = Client.create({
@@ -976,13 +978,15 @@ describe('behavior: chain hooks', () => {
       name: 'Ethereum',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
       rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-      prepareTransactionRequest: [
-        (request, { phase }) => {
-          phases.push(phase)
-          return request
-        },
-        { runAt: ['beforeFillTransaction', 'afterFillParameters'] },
-      ],
+      transaction: {
+        prepare: [
+          (request, { phase }) => {
+            phases.push(phase)
+            return request
+          },
+          { runAt: ['beforeFillTransaction', 'afterFillParameters'] },
+        ],
+      },
     })
     const hookClient = Client.create({
       chain,
@@ -999,10 +1003,12 @@ describe('behavior: chain hooks', () => {
       name: 'Ethereum',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
       rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-      prepareTransactionRequest: [
-        (request) => ({ ...request, value: 42n }),
-        { runAt: ['beforeFillParameters'] },
-      ],
+      transaction: {
+        prepare: [
+          (request) => ({ ...request, value: 42n }),
+          { runAt: ['beforeFillParameters'] },
+        ],
+      },
     })
     const hookClient = Client.create({
       chain,
@@ -1023,8 +1029,10 @@ describe('behavior: chain hooks', () => {
       name: 'Ethereum',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
       rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-      prepareTransactionRequest(request) {
-        return { ...request, gas: 50_000n }
+      transaction: {
+        prepare(request) {
+          return { ...request, gas: 50_000n }
+        },
       },
     })
     const hookClient = Client.create({
@@ -1048,16 +1056,18 @@ describe('behavior: chain hooks', () => {
       name: 'Ethereum',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
       rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-      prepareTransactionRequest: [
-        (request, { phase }) => {
-          phases.push(phase)
-          return {
-            ...request,
-            data: phase === 'beforeFillParameters' ? '0xdead' : '0xbeef',
-          }
-        },
-        { runAt: ['beforeFillParameters', 'afterFillParameters'] },
-      ],
+      transaction: {
+        prepare: [
+          (request, { phase }) => {
+            phases.push(phase)
+            return {
+              ...request,
+              data: phase === 'beforeFillParameters' ? '0xdead' : '0xbeef',
+            }
+          },
+          { runAt: ['beforeFillParameters', 'afterFillParameters'] },
+        ],
+      },
     })
     const hookClient = Client.create({
       chain,
@@ -1080,14 +1090,16 @@ describe('behavior: chain hooks', () => {
       name: 'Ethereum',
       nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
       rpcUrls: { default: { http: [anvil.mainnet.rpcUrl.http] } },
-      prepareTransactionRequest: [
-        (request, { phase }) => {
-          if (phase === 'afterFillParameters')
-            capturedGas = request.gas as bigint
-          return request
-        },
-        { runAt: ['afterFillParameters'] },
-      ],
+      transaction: {
+        prepare: [
+          (request, { phase }) => {
+            if (phase === 'afterFillParameters')
+              capturedGas = request.gas as bigint
+            return request
+          },
+          { runAt: ['afterFillParameters'] },
+        ],
+      },
     })
     const hookClient = Client.create({
       chain,

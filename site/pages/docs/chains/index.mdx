@@ -9,7 +9,7 @@ The **Chain** module describes an EVM chain: its id, name, native currency, RPC 
 A `Chain` is plain data plus two optional behavior slots:
 
 - **`schema`**: bidirectional RPC to native codecs.
-- **`serializers`**: transaction serialization overrides.
+- **`transaction`**: transaction signing & preparation hooks.
 
 ```ts twoslash
 import { Chain } from 'viem'

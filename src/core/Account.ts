@@ -11,6 +11,8 @@ import * as Secp256k1 from 'ox/Secp256k1'
 import * as Signature from 'ox/Signature'
 import * as TxEnvelope from 'ox/TxEnvelope'
 import * as TypedData from 'ox/TypedData'
+import type * as Chain from './Chain.js'
+import { BaseError } from './Errors.js'
 import type { OneOf } from './internal/types.js'
 
 /** A viem Account: a local signer, or a json-rpc account referenced by address. */
@@ -26,31 +28,15 @@ export type JsonRpc<address extends Address.Address = Address.Address> = {
 
 /** An account that signs locally from injected signing logic (private key, mnemonic, KMS, …). */
 export type Local<
-  source extends string = string,
+  keyType extends string = string,
   address extends Address.Address = Address.Address,
-> = CustomSource & {
-  address: address
-  publicKey?: Hex.Hex | undefined
-  source: source
-  type: 'local'
-}
-
-/** A private-key-backed local account. */
-export type PrivateKey = Local<'privateKey'> & {
-  publicKey: Hex.Hex
-}
-
-/** A mnemonic/HD-derived local account. */
-export type Hd = Local<'hd'> & {
-  publicKey: Hex.Hex
-  /** Returns the underlying HD key. */
-  getHdKey: () => HdKey.HdKey
-}
-
-/** Custom signing logic backing a {@link Local}. */
-export type CustomSource = {
+> = {
   /** Address of the account. */
-  address: Address.Address
+  address: address
+  /** Key type used for signing (e.g. `'secp256k1'`, or `'custom'` for injected signers). */
+  keyType: keyType
+  /** Public key of the account. */
+  publicKey?: Hex.Hex | undefined
   /** Signs a hash. */
   sign: (options: { hash: Hex.Hex }) => Hex.Hex | Promise<Hex.Hex>
   /** Signs an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) authorization. */
@@ -68,6 +54,7 @@ export type CustomSource = {
   /** Signs a transaction, returning the serialized signed transaction. */
   signTransaction: (
     transaction: TxEnvelope.TxEnvelope,
+    options?: Local.SignTransactionOptions | undefined,
   ) => Hex.Hex | Promise<Hex.Hex>
   /** Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data. */
   signTypedData: <
@@ -76,6 +63,32 @@ export type CustomSource = {
   >(
     typedData: TypedData.encode.Value<typedData, primaryType>,
   ) => Hex.Hex | Promise<Hex.Hex>
+  /** Account type. */
+  type: 'local'
+}
+
+export declare namespace Local {
+  /** Options for {@link Local.signTransaction}. */
+  type SignTransactionOptions = {
+    /**
+     * Chain the transaction targets. When provided, its
+     * {@link Chain.Chain.Transaction} hooks override the default sign-payload
+     * derivation and serialization.
+     */
+    chain?: Chain.Chain | undefined
+  }
+}
+
+/** A private-key-backed local account. */
+export type PrivateKey = Local<'secp256k1'> & {
+  publicKey: Hex.Hex
+}
+
+/** A mnemonic/HD-derived local account. */
+export type Hd = Local<'secp256k1'> & {
+  publicKey: Hex.Hex
+  /** Returns the underlying HD key. */
+  getHdKey: () => HdKey.HdKey
 }
 
 /** Message accepted by signing helpers: a UTF-8 string, or a raw payload signed as-is. */
@@ -83,6 +96,11 @@ export type SignableMessage = string | { raw: Hex.Hex | Bytes.Bytes }
 
 /**
  * Creates an {@link Account} from an address (json-rpc) or custom signing logic (local).
+ *
+ * Local accounts require a `sign` primitive plus either an `address` or a
+ * `publicKey` (the `address` is derived from `publicKey` when omitted); the
+ * `signMessage`, `signTransaction`, `signTypedData`, and `signAuthorization`
+ * methods are derived from `sign` when omitted.
  *
  * @example
  * ```ts
@@ -92,27 +110,96 @@ export type SignableMessage = string | { raw: Hex.Hex | Bytes.Bytes }
  * const local = Account.from({
  *   address: '0x…',
  *   async sign({ hash }) { return await kms.sign(hash) },
- *   async signMessage({ message }) { … },
- *   async signTransaction(transaction) { … },
- *   async signTypedData(typedData) { … },
  * })
  * ```
  */
-export function from<const source extends Address.Address | CustomSource>(
-  source: source,
-): from.ReturnType<source> {
-  if (typeof source === 'string') {
-    Address.assert(source, { strict: false })
-    return { address: source, type: 'json-rpc' } as never
+export function from<const account extends Address.Address | from.Account>(
+  account: account,
+): from.ReturnType<account> {
+  if (typeof account === 'string') {
+    Address.assert(account, { strict: false })
+    return { address: account, type: 'json-rpc' } as never
   }
-  Address.assert(source.address, { strict: false })
-  return { ...source, source: 'custom', type: 'local' } as never
+
+  const { publicKey, sign } = account
+  const address =
+    account.address ??
+    Address.fromPublicKey(PublicKey.fromHex(publicKey!), { checksum: true })
+  Address.assert(address, { strict: false })
+
+  return {
+    ...({
+      signAuthorization(authorization) {
+        return withSignature(
+          sign({ hash: Authorization.getSignPayload(authorization) }),
+          (signature) => Authorization.from(authorization, { signature }),
+        )
+      },
+      signMessage({ message }) {
+        return sign({
+          hash: PersonalMessage.getSignPayload(toPayload(message)),
+        })
+      },
+      signTransaction(transaction, options) {
+        const chain = options?.chain
+        const payload = chain?.transaction?.getSignPayload
+          ? chain.transaction.getSignPayload(transaction)
+          : TxEnvelope.getSignPayload(
+              transaction as TxEnvelope.TxEnvelope<false>,
+            )
+        return withSignature(sign({ hash: payload }), (signature) =>
+          chain?.transaction?.serialize
+            ? chain.transaction.serialize(transaction, { signature })
+            : TxEnvelope.serialize(transaction, { signature }),
+        )
+      },
+      signTypedData(typedData) {
+        return sign({
+          hash: TypedData.getSignPayload(typedData as TypedData.encode.Value),
+        })
+      },
+    } satisfies Pick<
+      Local,
+      'signAuthorization' | 'signMessage' | 'signTransaction' | 'signTypedData'
+    >),
+    keyType: 'custom',
+    type: 'local',
+    ...account,
+    address,
+  } as never
 }
 
 export declare namespace from {
-  type ReturnType<source extends Address.Address | CustomSource> =
-    | (source extends Address.Address ? JsonRpc : never)
-    | (source extends CustomSource ? Local<'custom'> : never)
+  /**
+   * Account definition passed to {@link from} to create a {@link Local} account.
+   * A `sign` primitive plus either an `address` or a `publicKey` is required
+   * (the `address` is derived from `publicKey` when omitted); `signMessage`,
+   * `signTransaction`, `signTypedData`, and `signAuthorization` are derived from
+   * `sign` when omitted (or overridden when provided). `keyType` defaults to
+   * `'custom'`.
+   */
+  type Account = {
+    keyType?: string | undefined
+    sign: Local['sign']
+    signAuthorization?: Local['signAuthorization']
+    signMessage?: Local['signMessage'] | undefined
+    signTransaction?: Local['signTransaction'] | undefined
+    signTypedData?: Local['signTypedData'] | undefined
+  } & OneOf<{ address: Address.Address } | { publicKey: Hex.Hex }>
+
+  type ReturnType<account extends Address.Address | Account> =
+    | (account extends Address.Address ? JsonRpc : never)
+    | (account extends Account
+        ? Local<
+            account extends { keyType: infer keyType extends string }
+              ? keyType
+              : 'custom'
+          > &
+            // Carry through a supplied `publicKey` (as a required property).
+            (account extends { publicKey: infer publicKey extends Hex.Hex }
+              ? { publicKey: publicKey }
+              : unknown)
+        : never)
 
   type ErrorType = Address.assert.ErrorType | Errors.GlobalErrorType
 }
@@ -128,47 +215,11 @@ export declare namespace from {
  * ```
  */
 export function fromPrivateKey(privateKey: Hex.Hex): PrivateKey {
-  const publicKey = Secp256k1.getPublicKey({ privateKey })
-  const address = Address.fromPublicKey(publicKey, { checksum: true })
-
+  const publicKey = PublicKey.toHex(Secp256k1.getPublicKey({ privateKey }))
   function sign({ hash }: { hash: Hex.Hex }): Hex.Hex {
     return Signature.toHex(Secp256k1.sign({ payload: hash, privateKey }))
   }
-
-  return {
-    ...from({
-      address,
-      sign,
-      signAuthorization(authorization) {
-        const signature = Secp256k1.sign({
-          payload: Authorization.getSignPayload(authorization),
-          privateKey,
-        })
-        return Authorization.from(authorization, { signature })
-      },
-      signMessage({ message }) {
-        return sign({
-          hash: PersonalMessage.getSignPayload(toPayload(message)),
-        })
-      },
-      signTransaction(transaction) {
-        const signature = Secp256k1.sign({
-          payload: TxEnvelope.getSignPayload(
-            transaction as TxEnvelope.TxEnvelope<false>,
-          ),
-          privateKey,
-        })
-        return TxEnvelope.serialize(transaction, { signature })
-      },
-      signTypedData(typedData) {
-        return sign({
-          hash: TypedData.getSignPayload(typedData as TypedData.encode.Value),
-        })
-      },
-    }),
-    publicKey: PublicKey.toHex(publicKey),
-    source: 'privateKey',
-  }
+  return from({ keyType: 'secp256k1', publicKey, sign })
 }
 
 export declare namespace fromPrivateKey {
@@ -206,7 +257,6 @@ export function fromHdKey(
   return {
     ...fromPrivateKey(derived.privateKey),
     getHdKey: () => derived,
-    source: 'hd',
   }
 }
 
@@ -278,4 +328,32 @@ export declare namespace random {
 function toPayload(message: SignableMessage): Hex.Hex | Bytes.Bytes {
   if (typeof message === 'string') return Hex.fromString(message)
   return message.raw
+}
+
+/**
+ * Finalizes a (possibly async) signature hex into a derived value (e.g. a
+ * serialized transaction or signed authorization).
+ *
+ * @internal
+ */
+function withSignature<type>(
+  signature: Hex.Hex | Promise<Hex.Hex>,
+  fn: (signature: Signature.Signature) => type,
+): type | Promise<type> {
+  if (signature instanceof Promise)
+    return signature.then((value) => fn(Signature.fromHex(value)))
+  return fn(Signature.fromHex(signature))
+}
+
+/** Thrown when an Action requires an Account but none was provided. */
+export class NotFoundError extends BaseError {
+  override readonly name = 'Account.NotFoundError'
+
+  constructor() {
+    super('Could not find an Account to execute with this Action.', {
+      metaMessages: [
+        'Please provide an Account with the `account` argument on the Action, or by supplying an `account` to the Client.',
+      ],
+    })
+  }
 }

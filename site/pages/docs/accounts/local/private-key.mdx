@@ -58,7 +58,7 @@ const account = Account.fromPrivateKey('0x...') // [!code focus]
 
 `Account.PrivateKey`
 
-A private-key-backed local account (`source: 'privateKey'`) exposing `address`, `publicKey`, and the signing methods.
+A private-key-backed local account (`keyType: 'secp256k1'`) exposing `address`, `publicKey`, and the signing methods.
 
 ### Errors
 
@@ -83,7 +83,7 @@ const account = Account.random()
 
 `Account.PrivateKey`
 
-A private-key-backed local account (`source: 'privateKey'`) generated from a random private key.
+A private-key-backed local account (`keyType: 'secp256k1'`) generated from a random private key.
 
 ### Errors
 

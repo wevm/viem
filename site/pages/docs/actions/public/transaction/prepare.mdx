@@ -169,7 +169,7 @@ const { request } = await Actions.transaction.prepare(client, {
 - **Type:** `Chain`
 - **Default:** `client.chain`
 
-The chain the transaction targets. Used to derive the chain ID, apply chain-specific fee multipliers, and run any `prepareTransactionRequest` hooks.
+The chain the transaction targets. Used to derive the chain ID, apply chain-specific fee multipliers, and run any `chain.transaction.prepare` hooks.
 
 ```ts twoslash
 import { Actions, Client, http } from 'viem'
