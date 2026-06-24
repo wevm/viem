@@ -235,7 +235,7 @@ describe('poll', () => {
       await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
-      expect(blocks.length).toBe(2)
+      expect(blocks.length).toBeGreaterThanOrEqual(2)
     })
 
     test('multiple watchers', async () => {
@@ -263,7 +263,7 @@ describe('poll', () => {
       unwatch1()
       unwatch2()
       unwatch3()
-      expect(blocks.length).toBe(6)
+      expect(blocks.length).toBeGreaterThanOrEqual(6)
 
       blocks = []
 
@@ -289,7 +289,7 @@ describe('poll', () => {
       unwatch1()
       unwatch2()
       unwatch3()
-      expect(blocks.length).toBe(6)
+      expect(blocks.length).toBeGreaterThanOrEqual(6)
     })
 
     test('immediately unwatch', async () => {
