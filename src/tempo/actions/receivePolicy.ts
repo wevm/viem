@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import * as Hex_ from 'ox/Hex'
 import type { ReceivePolicyReceipt } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
@@ -56,6 +57,28 @@ export type BlockedReason = ReceivePolicyReceipt.BlockedReason
 
 /** @internal */
 const blockedReasons = ['none', 'tokenFilter', 'receivePolicy'] as const
+
+/** @internal */
+const tip20Prefix = '0x20c000000000000000000000'
+
+/** @internal */
+const virtualAddressMagic = '0xfdfdfdfdfdfdfdfdfdfd'
+
+/** @internal */
+const systemPrecompiles = [
+  Addresses.accountKeychain,
+  Addresses.accountRegistrar,
+  Addresses.addressRegistry,
+  Addresses.feeManager,
+  Addresses.nonceManager,
+  Addresses.receivePolicyGuard,
+  Addresses.signatureVerifier,
+  Addresses.stablecoinDex,
+  Addresses.tip20ChannelReserve,
+  Addresses.tip20Factory,
+  Addresses.tip403Registry,
+  Addresses.validator,
+] as const
 
 /**
  * Claimer authorized to reclaim blocked funds.
@@ -1253,9 +1276,35 @@ function toPolicyRef(id: bigint): PolicyRef {
 
 /** @internal */
 function resolveClaimer(claimer: Claimer, self: Address): Address {
-  if (claimer === 'sender') return zeroAddress
-  if (claimer === 'self') return self
-  return claimer
+  const recoveryAuthority =
+    claimer === 'sender' ? zeroAddress : claimer === 'self' ? self : claimer
+  assertValidRecoveryAuthority(recoveryAuthority)
+  return recoveryAuthority
+}
+
+/** @internal */
+function assertValidRecoveryAuthority(recoveryAuthority: Address) {
+  if (isAddressEqual(recoveryAuthority, zeroAddress)) return
+  if (isVirtualAddress(recoveryAuthority))
+    throw new Error('Recovery authority cannot be a TIP-1022 virtual address.')
+  if (isTip20Address(recoveryAuthority))
+    throw new Error('Recovery authority cannot be a TIP-20 token address.')
+  if (
+    systemPrecompiles.some((address) =>
+      isAddressEqual(address, recoveryAuthority),
+    )
+  )
+    throw new Error('Recovery authority cannot be a Tempo system precompile.')
+}
+
+/** @internal */
+function isTip20Address(address: Address): boolean {
+  return address.toLowerCase().startsWith(tip20Prefix)
+}
+
+/** @internal */
+function isVirtualAddress(address: Address): boolean {
+  return Hex_.slice(address, 4, 14).toLowerCase() === virtualAddressMagic
 }
 
 /** @internal */
