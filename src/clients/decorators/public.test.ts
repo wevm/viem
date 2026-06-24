@@ -335,6 +335,7 @@ describe('smoke test', () => {
     expect(
       await client.getProof({
         address: wagmiContractConfig.address,
+        blockNumber: anvilMainnet.forkBlockNumber,
         storageKeys: [
           '0x0000000000000000000000000000000000000000000000000000000000000000',
         ],
