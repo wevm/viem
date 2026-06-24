@@ -57,6 +57,22 @@ export type BlockedReason = ReceivePolicyReceipt.BlockedReason
 /** @internal */
 const blockedReasons = ['none', 'tokenFilter', 'receivePolicy'] as const
 
+/** @internal */
+const systemPrecompiles = [
+  Addresses.accountKeychain,
+  Addresses.accountRegistrar,
+  Addresses.addressRegistry,
+  Addresses.feeManager,
+  Addresses.nonceManager,
+  Addresses.receivePolicyGuard,
+  Addresses.signatureVerifier,
+  Addresses.stablecoinDex,
+  Addresses.tip20ChannelReserve,
+  Addresses.tip20Factory,
+  Addresses.tip403Registry,
+  Addresses.validator,
+] as const
+
 /**
  * Claimer authorized to reclaim blocked funds.
  *
@@ -1253,9 +1269,25 @@ function toPolicyRef(id: bigint): PolicyRef {
 
 /** @internal */
 function resolveClaimer(claimer: Claimer, self: Address): Address {
-  if (claimer === 'sender') return zeroAddress
-  if (claimer === 'self') return self
-  return claimer
+  const recoveryAuthority =
+    claimer === 'sender' ? zeroAddress : claimer === 'self' ? self : claimer
+  assertValidRecoveryAuthority(recoveryAuthority)
+  return recoveryAuthority
+}
+
+/** @internal */
+function assertValidRecoveryAuthority(recoveryAuthority: Address) {
+  if (isAddressEqual(recoveryAuthority, zeroAddress)) return
+  if (Addresses.isVirtualAddress(recoveryAuthority))
+    throw new Error('Recovery authority cannot be a TIP-1022 virtual address.')
+  if (Addresses.isTip20Address(recoveryAuthority))
+    throw new Error('Recovery authority cannot be a TIP-20 token address.')
+  if (
+    systemPrecompiles.some((address) =>
+      isAddressEqual(address, recoveryAuthority),
+    )
+  )
+    throw new Error('Recovery authority cannot be a Tempo system precompile.')
 }
 
 /** @internal */

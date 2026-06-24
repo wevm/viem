@@ -1,6 +1,6 @@
 import { setTimeout } from 'node:timers/promises'
 import { isAddressEqual, parseUnits, zeroAddress } from 'viem'
-import { ReceivePolicyReceipt } from 'viem/tempo'
+import { Addresses, ReceivePolicyReceipt } from 'viem/tempo'
 import { beforeAll, describe, expect, test } from 'vitest'
 import {
   accounts,
@@ -101,6 +101,26 @@ describe('set / get', () => {
     })
     expect(policy.claimer).toBe('sender')
     expect(policy.recoveryAuthority).toBe(zeroAddress)
+  })
+
+  test('behavior: rejects unclaimable claimer addresses', async () => {
+    await expect(
+      actions.receivePolicy.set(receiverClient, {
+        claimer: Addresses.tip20ChannelReserve,
+      }),
+    ).rejects.toThrow('Tempo system precompile')
+
+    await expect(
+      actions.receivePolicy.set(receiverClient, {
+        claimer: '0x20c0000000000000000000000000000000000001',
+      }),
+    ).rejects.toThrow('TIP-20 token address')
+
+    await expect(
+      actions.receivePolicy.set(receiverClient, {
+        claimer: '0x12345678fdfdfdfdfdfdfdfdfdfd000000000001',
+      }),
+    ).rejects.toThrow('TIP-1022 virtual address')
   })
 })
 
