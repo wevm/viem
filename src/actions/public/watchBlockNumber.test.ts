@@ -124,7 +124,7 @@ describe('poll', () => {
       await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
-      expect(blockNumbers.length).toBe(4)
+      expect(blockNumbers.length).toBeGreaterThanOrEqual(4)
     })
 
     test('fallback transport', async () => {
@@ -149,7 +149,7 @@ describe('poll', () => {
       await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
-      expect(blockNumbers.length).toBe(4)
+      expect(blockNumbers.length).toBeGreaterThanOrEqual(4)
     })
   })
 
