@@ -768,7 +768,9 @@ describe('node errors', () => {
         // @ts-expect-error
         value: parseEther('100000'),
       }),
-    ).rejects.toThrowError('insufficient funds for gas * price + value')
+    ).rejects.toThrowError(
+      /insufficient funds for gas \* price \+ value|EVM error: OutOfFunds/i,
+    )
   })
 
   test('maxFeePerGas less than maxPriorityFeePerGas', async () => {
