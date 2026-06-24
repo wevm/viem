@@ -17,7 +17,7 @@ import {
   Chain,
   Client,
   http,
-  NodeError,
+  RpcError,
   NonceManager,
   testActions,
 } from 'viem'
@@ -1351,7 +1351,7 @@ describe('errors', () => {
         to,
         value: 1n,
       }),
-    ).rejects.toThrowError(NodeError.TipAboveFeeCapError)
+    ).rejects.toThrowError(RpcError.TipAboveFeeCapError)
   })
 
   test('gasPrice + maxPriorityFeePerGas (legacy)', async () => {

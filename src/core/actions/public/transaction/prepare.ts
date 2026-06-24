@@ -12,7 +12,7 @@ import type * as Capabilities from '../../../Capabilities.js'
 import type * as Chain from '../../../Chain.js'
 import type * as Client from '../../../Client.js'
 import { BaseError } from '../../../Errors.js'
-import * as NodeError from '../../../NodeError.js'
+import * as RpcError from '../../../RpcError.js'
 import type * as NonceManager from '../../../NonceManager.js'
 import { isAbortError } from '../../../internal/errors.js'
 import { LruMap } from '../../../internal/lru.js'
@@ -238,7 +238,7 @@ export async function prepare<
       }
     } catch (err) {
       if (isAbortError(err)) throw err
-      if (err instanceof NodeError.ExecutionRevertedError) throw err
+      if (err instanceof RpcError.ExecutionRevertedError) throw err
       if (isUnsupportedFill(err)) supportsFill.set(client.uid, false)
       // Otherwise, fall back to manual preparation below.
     }

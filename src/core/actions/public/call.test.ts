@@ -11,11 +11,10 @@ import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 import * as Errors from '../../Errors.js'
-import * as NodeError from '../../NodeError.js'
+import * as RpcError from '../../RpcError.js'
 import * as constants from '../internal/constants.js'
 import * as multicall from '../internal/multicall.js'
 import {
-  CallExecutionError,
   CounterfactualDeploymentFailedError,
   getRevertErrorData,
 } from './call.js'
@@ -403,7 +402,7 @@ test('batch: sub-call failure throws', async () => {
     data: '0xdeadbeef',
     to: address,
   }).catch((error) => error)
-  expect(error).toBeInstanceOf(CallExecutionError)
+  expect(error).toBeInstanceOf(RpcError.ExecutionError)
   expect(error.cause).toBeInstanceOf(multicall.MulticallCallFailedError)
 })
 
@@ -497,16 +496,16 @@ describe('errors', () => {
   )
   const ownerOfNonexistent = AbiFunction.encodeData(ownerOfAbi, [12517631n])
 
-  test('execution reverted maps to CallExecutionError', async () => {
+  test('execution reverted maps to RpcError.ExecutionError', async () => {
     const error = await Actions.call(client, {
       account: sourceAccount.address,
       data: ownerOfNonexistent,
       to: address,
     }).catch((error) => error)
 
-    expect(error).toBeInstanceOf(CallExecutionError)
-    expect(error.cause).toBeInstanceOf(NodeError.ExecutionRevertedError)
-    expect(error.cause.name).toBe('NodeError.ExecutionRevertedError')
+    expect(error).toBeInstanceOf(RpcError.ExecutionError)
+    expect(error.cause).toBeInstanceOf(RpcError.ExecutionRevertedError)
+    expect(error.cause.name).toBe('RpcError.ExecutionRevertedError')
   })
 
   test('error renders raw call arguments', async () => {
@@ -516,43 +515,47 @@ describe('errors', () => {
       to: address,
     }).catch((error) => error)
 
-    expect(error.metaMessages?.join('\n')).toContain('Raw Call Arguments:')
+    expect(error.metaMessages?.join('\n')).toContain('Request Arguments:')
     expect(error.metaMessages?.join('\n')).toContain(address)
     expect(error.metaMessages?.join('\n')).toContain(sourceAccount.address)
   })
 
-  test('deployless (no `to`) revert maps to CallExecutionError', async () => {
+  test('deployless (no `to`) revert maps to RpcError.ExecutionError', async () => {
     // Runtime bytecode that immediately reverts; `to` is undefined.
     const error = await Actions.call(client, {
       code: '0x60006000fd',
       data: '0xdeadbeef',
     }).catch((error) => error)
 
-    expect(error).toBeInstanceOf(CallExecutionError)
+    expect(error).toBeInstanceOf(RpcError.ExecutionError)
     expect(error.metaMessages?.join('\n')).not.toContain('to:')
   })
 })
 
-describe('CallExecutionError', () => {
+describe('RpcError.ExecutionError', () => {
   test('renders fees, value and raw args', () => {
-    const error = new CallExecutionError(new Errors.BaseError('reverted'), {
-      chain: mainnet,
-      data: '0xdeadbeef',
-      from: '0x0000000000000000000000000000000000000000',
-      gas: 21000n,
-      gasPrice: 2000000000n,
-      maxFeePerGas: 3000000000n,
-      maxPriorityFeePerGas: 1000000000n,
-      nonce: 1,
-      to: '0x1111111111111111111111111111111111111111',
-      value: 1000000000000000000n,
-    })
+    const error = new RpcError.ExecutionError(
+      new Errors.BaseError('reverted'),
+      {
+        chain: mainnet,
+        data: '0xdeadbeef',
+        from: '0x0000000000000000000000000000000000000000',
+        gas: 21000n,
+        gasPrice: 2000000000n,
+        maxFeePerGas: 3000000000n,
+        maxPriorityFeePerGas: 1000000000n,
+        nonce: 1,
+        to: '0x1111111111111111111111111111111111111111',
+        value: 1000000000000000000n,
+      },
+    )
     expect(error.message).toMatchInlineSnapshot(`
       "reverted
 
-      Raw Call Arguments:
-        data:                  0xdeadbeef
+      Request Arguments:
+        chain:                 Ethereum (id: 1)
         from:                  0x0000000000000000000000000000000000000000
+        data:                  0xdeadbeef
         gas:                   21000
         gasPrice:              2 gwei
         maxFeePerGas:          3 gwei
@@ -567,32 +570,35 @@ describe('CallExecutionError', () => {
   })
 
   test('renders nested request fields (state override, access list)', () => {
-    const error = new CallExecutionError(new Errors.BaseError('reverted'), {
-      accessList: [
-        {
-          address: '0x3333333333333333333333333333333333333333',
-          storageKeys: [
-            '0x0000000000000000000000000000000000000000000000000000000000000001',
-          ],
-        },
-      ],
-      data: '0xdeadbeef',
-      to: '0x1111111111111111111111111111111111111111',
-      stateOverride: {
-        '0x2222222222222222222222222222222222222222': {
-          balance: 1n,
-          nonce: 2n,
-          stateDiff: {
-            '0x0000000000000000000000000000000000000000000000000000000000000001':
-              '0x0000000000000000000000000000000000000000000000000000000000000002',
+    const error = new RpcError.ExecutionError(
+      new Errors.BaseError('reverted'),
+      {
+        accessList: [
+          {
+            address: '0x3333333333333333333333333333333333333333',
+            storageKeys: [
+              '0x0000000000000000000000000000000000000000000000000000000000000001',
+            ],
+          },
+        ],
+        data: '0xdeadbeef',
+        to: '0x1111111111111111111111111111111111111111',
+        stateOverride: {
+          '0x2222222222222222222222222222222222222222': {
+            balance: 1n,
+            nonce: 2n,
+            stateDiff: {
+              '0x0000000000000000000000000000000000000000000000000000000000000001':
+                '0x0000000000000000000000000000000000000000000000000000000000000002',
+            },
           },
         },
       },
-    })
+    )
     expect(error.message).toMatchInlineSnapshot(`
       "reverted
 
-      Raw Call Arguments:
+      Request Arguments:
         accessList:
           - address:      0x3333333333333333333333333333333333333333
             storageKeys:
@@ -615,23 +621,26 @@ describe('CallExecutionError', () => {
     const cause = new Errors.BaseError('reverted', {
       metaMessages: ['meta line'],
     })
-    const error = new CallExecutionError(cause, {
+    const error = new RpcError.ExecutionError(cause, {
       data: '0xdeadbeef',
       to: '0x1111111111111111111111111111111111111111',
     })
     expect(error.metaMessages?.join('\n')).toContain('meta line')
-    expect(error.metaMessages?.join('\n')).toContain('Raw Call Arguments:')
+    expect(error.metaMessages?.join('\n')).toContain('Request Arguments:')
   })
 
   test('plain Error cause falls back to message', () => {
-    const error = new CallExecutionError(new Error(''), {})
+    const error = new RpcError.ExecutionError(new Error(''), {})
     expect(error.message).toContain('An error occurred.')
   })
 
   test('uses ETH symbol when chain omitted', () => {
-    const error = new CallExecutionError(new Errors.BaseError('reverted'), {
-      value: 1000000000000000000n,
-    })
+    const error = new RpcError.ExecutionError(
+      new Errors.BaseError('reverted'),
+      {
+        value: 1000000000000000000n,
+      },
+    )
     expect(error.metaMessages?.join('\n')).toContain('1 ETH')
   })
 })

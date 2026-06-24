@@ -1,6 +1,11 @@
 import type * as Hex from 'ox/Hex'
+import type * as StateOverrides from 'ox/StateOverrides'
+import type * as TransactionRequest from 'ox/TransactionRequest'
 import * as Value from 'ox/Value'
 
+import * as Json from '../utils/Json.js'
+import type * as Account from './Account.js'
+import type * as Chain from './Chain.js'
 import { BaseError } from './Errors.js'
 
 /**
@@ -19,7 +24,7 @@ export class ExecutionRevertedError extends BaseError<Error> {
   static code = 3
   static nodeMessage = /execution reverted|gas required exceeds allowance/
 
-  override readonly name = 'NodeError.ExecutionRevertedError'
+  override readonly name = 'RpcError.ExecutionRevertedError'
 
   constructor(
     options: { cause?: Error | undefined; message?: string | undefined } = {},
@@ -41,7 +46,7 @@ export class FeeCapTooHighError extends BaseError<Error> {
   static nodeMessage =
     /max fee per gas higher than 2\^256-1|fee cap higher than 2\^256-1/
 
-  override readonly name = 'NodeError.FeeCapTooHighError'
+  override readonly name = 'RpcError.FeeCapTooHighError'
 
   constructor(
     options: {
@@ -63,7 +68,7 @@ export class FeeCapTooLowError extends BaseError<Error> {
   static nodeMessage =
     /max fee per gas less than block base fee|fee cap less than block base fee|transaction is outdated/
 
-  override readonly name = 'NodeError.FeeCapTooLowError'
+  override readonly name = 'RpcError.FeeCapTooLowError'
 
   constructor(
     options: {
@@ -84,7 +89,7 @@ export class FeeCapTooLowError extends BaseError<Error> {
 export class NonceTooHighError extends BaseError<Error> {
   static nodeMessage = /nonce too high/
 
-  override readonly name = 'NodeError.NonceTooHighError'
+  override readonly name = 'RpcError.NonceTooHighError'
 
   constructor(
     options: { cause?: Error | undefined; nonce?: number | undefined } = {},
@@ -103,7 +108,7 @@ export class NonceTooLowError extends BaseError<Error> {
   static nodeMessage =
     /nonce too low|transaction already imported|already known/
 
-  override readonly name = 'NodeError.NonceTooLowError'
+  override readonly name = 'RpcError.NonceTooLowError'
 
   constructor(
     options: { cause?: Error | undefined; nonce?: number | undefined } = {},
@@ -124,7 +129,7 @@ export class NonceTooLowError extends BaseError<Error> {
 export class NonceMaxValueError extends BaseError<Error> {
   static nodeMessage = /nonce has max value/
 
-  override readonly name = 'NodeError.NonceMaxValueError'
+  override readonly name = 'RpcError.NonceMaxValueError'
 
   constructor(
     options: { cause?: Error | undefined; nonce?: number | undefined } = {},
@@ -143,7 +148,7 @@ export class InsufficientFundsError extends BaseError<Error> {
   static nodeMessage =
     /insufficient funds|exceeds transaction sender account balance/
 
-  override readonly name = 'NodeError.InsufficientFundsError'
+  override readonly name = 'RpcError.InsufficientFundsError'
 
   constructor(options: { cause?: Error | undefined } = {}) {
     super(
@@ -169,7 +174,7 @@ export class InsufficientFundsError extends BaseError<Error> {
 export class IntrinsicGasTooHighError extends BaseError<Error> {
   static nodeMessage = /intrinsic gas too high|gas limit reached/
 
-  override readonly name = 'NodeError.IntrinsicGasTooHighError'
+  override readonly name = 'RpcError.IntrinsicGasTooHighError'
 
   constructor(
     options: { cause?: Error | undefined; gas?: bigint | undefined } = {},
@@ -187,7 +192,7 @@ export class IntrinsicGasTooHighError extends BaseError<Error> {
 export class IntrinsicGasTooLowError extends BaseError<Error> {
   static nodeMessage = /intrinsic gas too low/
 
-  override readonly name = 'NodeError.IntrinsicGasTooLowError'
+  override readonly name = 'RpcError.IntrinsicGasTooLowError'
 
   constructor(
     options: { cause?: Error | undefined; gas?: bigint | undefined } = {},
@@ -205,7 +210,7 @@ export class IntrinsicGasTooLowError extends BaseError<Error> {
 export class TransactionTypeNotSupportedError extends BaseError<Error> {
   static nodeMessage = /transaction type not valid/
 
-  override readonly name = 'NodeError.TransactionTypeNotSupportedError'
+  override readonly name = 'RpcError.TransactionTypeNotSupportedError'
 
   constructor(options: { cause?: Error | undefined } = {}) {
     super('The transaction type is not supported for this chain.', {
@@ -219,7 +224,7 @@ export class TipAboveFeeCapError extends BaseError<Error> {
   static nodeMessage =
     /max priority fee per gas higher than max fee per gas|tip higher than fee cap/
 
-  override readonly name = 'NodeError.TipAboveFeeCapError'
+  override readonly name = 'RpcError.TipAboveFeeCapError'
 
   constructor(
     options: {
@@ -242,8 +247,8 @@ export class TipAboveFeeCapError extends BaseError<Error> {
 }
 
 /** Thrown when a node error could not be matched to a known taxonomy entry. */
-export class UnknownNodeError extends BaseError<Error> {
-  override readonly name = 'NodeError.UnknownNodeError'
+export class UnknownRpcError extends BaseError<Error> {
+  override readonly name = 'RpcError.UnknownRpcError'
 
   constructor(options: { cause?: Error | undefined } = {}) {
     const cause = options.cause as
@@ -255,6 +260,82 @@ export class UnknownNodeError extends BaseError<Error> {
       }`,
       { cause },
     )
+  }
+}
+
+/**
+ * Wraps a node execution failure (`eth_call`, `eth_estimateGas`,
+ * `eth_sendTransaction`, …) with the request arguments that produced it, for a
+ * readable error message. The raw RPC error is mapped to a concrete node error
+ * via {@link fromRpcError} and preserved on `cause` (an unrecognized error is
+ * kept as-is).
+ */
+export class ExecutionError extends BaseError<Error> {
+  override readonly name = 'RpcError.ExecutionError'
+
+  constructor(error: Error, options: ExecutionError.Options = {}) {
+    const { account, chain, docsPath, from, value, ...request } = options
+
+    const cause = (() => {
+      const nodeError = fromRpcError(error, {
+        gas: request.gas,
+        maxFeePerGas: request.maxFeePerGas,
+        maxPriorityFeePerGas: request.maxPriorityFeePerGas,
+        nonce: request.nonce,
+      })
+      return nodeError instanceof UnknownRpcError ? error : nodeError
+    })()
+
+    const fee = (x: bigint | number | Hex.Hex | undefined) =>
+      typeof x === 'bigint' ? `${Value.formatGwei(x)} gwei` : x
+
+    const prettyArgs = Json.prettyPrint(
+      {
+        chain: chain && `${chain.name} (id: ${chain.id})`,
+        from: account?.address ?? from,
+        ...request,
+        value:
+          typeof value === 'bigint'
+            ? `${Value.formatEther(value)} ${chain?.nativeCurrency?.symbol ?? 'ETH'}`
+            : value,
+        gasPrice: fee(request.gasPrice),
+        maxFeePerGas: fee(request.maxFeePerGas),
+        maxPriorityFeePerGas: fee(request.maxPriorityFeePerGas),
+      },
+      { indent: 2 },
+    )
+
+    const shortMessage =
+      'shortMessage' in cause && typeof cause.shortMessage === 'string'
+        ? cause.shortMessage
+        : cause.message || 'An error occurred.'
+    const causeMeta =
+      'metaMessages' in cause && Array.isArray(cause.metaMessages)
+        ? (cause.metaMessages as string[])
+        : undefined
+
+    super(shortMessage, {
+      cause,
+      docsPath,
+      metaMessages: [
+        ...(causeMeta ? [...causeMeta, ' '] : []),
+        'Request Arguments:',
+        prettyArgs,
+      ],
+    })
+  }
+}
+
+export declare namespace ExecutionError {
+  type Options = TransactionRequest.toRpc.Input & {
+    /** Account the request was sent from. */
+    account?: Account.Account | undefined
+    /** Chain (for native currency symbol). */
+    chain?: Chain.Chain | undefined
+    /** Docs path appended to the error. */
+    docsPath?: string | undefined
+    /** State overrides applied to the request. */
+    stateOverride?: StateOverrides.StateOverrides | undefined
   }
 }
 
@@ -313,9 +394,9 @@ function hasExecutionRevertedCode(error: unknown): boolean {
 }
 
 /**
- * Maps a raw RPC error thrown by a transport into the {@link NodeError} taxonomy
+ * Maps a raw RPC error thrown by a transport into the {@link RpcError} taxonomy
  * by matching the node's message against each error's `nodeMessage` regex
- * (execution-revert detection comes first). Returns {@link UnknownNodeError}
+ * (execution-revert detection comes first). Returns {@link UnknownRpcError}
  * when no entry matches.
  *
  * @internal
@@ -335,7 +416,7 @@ export function fromRpcError(
   | IntrinsicGasTooLowError
   | TransactionTypeNotSupportedError
   | TipAboveFeeCapError
-  | UnknownNodeError {
+  | UnknownRpcError {
   const candidates = getMessages(error)
   const message = candidates.join('\n').toLowerCase()
 
@@ -382,7 +463,7 @@ export function fromRpcError(
       maxFeePerGas,
       maxPriorityFeePerGas,
     })
-  return new UnknownNodeError({ cause: error })
+  return new UnknownRpcError({ cause: error })
 }
 
 export declare namespace fromRpcError {

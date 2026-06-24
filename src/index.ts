@@ -6,7 +6,7 @@ export * as Chain from './core/Chain.js'
 export * as Client from './core/Client.js'
 export * as ContractError from './core/ContractError.js'
 export * as Errors from './core/Errors.js'
-export * as NodeError from './core/NodeError.js'
+export * as RpcError from './core/RpcError.js'
 export * as NonceManager from './core/NonceManager.js'
 export * as Transport from './core/Transport.js'
 export {

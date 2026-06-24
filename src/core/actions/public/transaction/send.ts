@@ -11,6 +11,7 @@ import * as Account from '../../../Account.js'
 import * as Chain from '../../../Chain.js'
 import type * as Client from '../../../Client.js'
 import { BaseError } from '../../../Errors.js'
+import * as RpcError from '../../../RpcError.js'
 import type * as NonceManager from '../../../NonceManager.js'
 import * as transactionRequest from '../../internal/transactionRequest.js'
 import { getId } from '../chains/getId.js'
@@ -168,9 +169,12 @@ export async function send<chain extends Chain.Chain | undefined>(
     return await sendRaw(client, { requestOptions, serializedTransaction })
   } catch (err) {
     if (reset && nonceManager) nonceManager.reset(reset)
-    // TODO: wrap with `getTransactionError` to surface a pretty
-    // node/contract error once that subsystem is ported.
-    throw err
+
+    throw new RpcError.ExecutionError(err as Error, {
+      ...rest,
+      account,
+      chain: chain ?? undefined,
+    })
   }
 }
 
@@ -209,6 +213,7 @@ export declare namespace send {
     | Account.NotFoundError
     | Account.from.ErrorType
     | Chain.assertCurrent.ErrorType
+    | RpcError.ExecutionError
     | getId.ErrorType
     | prepare.ErrorType
     | sign.ErrorType

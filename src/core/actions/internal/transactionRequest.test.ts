@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest'
 
-import { NodeError } from 'viem'
+import { RpcError } from 'viem'
 import * as transactionRequest from './transactionRequest.js'
 
 test('default: no fees', () => {
@@ -19,7 +19,7 @@ test('valid fees pass', () => {
 test('maxFeePerGas above 2^256-1 throws FeeCapTooHighError', () => {
   expect(() =>
     transactionRequest.assert({ maxFeePerGas: 2n ** 256n }),
-  ).toThrowError(NodeError.FeeCapTooHighError)
+  ).toThrowError(RpcError.FeeCapTooHighError)
 })
 
 test('maxPriorityFeePerGas above maxFeePerGas throws TipAboveFeeCapError', () => {
@@ -28,7 +28,7 @@ test('maxPriorityFeePerGas above maxFeePerGas throws TipAboveFeeCapError', () =>
       maxFeePerGas: 1n,
       maxPriorityFeePerGas: 2n,
     }),
-  ).toThrowError(NodeError.TipAboveFeeCapError)
+  ).toThrowError(RpcError.TipAboveFeeCapError)
 })
 
 test('normalizes number and hex inputs', () => {
@@ -37,7 +37,7 @@ test('normalizes number and hex inputs', () => {
       maxFeePerGas: 1,
       maxPriorityFeePerGas: '0x2',
     }),
-  ).toThrowError(NodeError.TipAboveFeeCapError)
+  ).toThrowError(RpcError.TipAboveFeeCapError)
   expect(() =>
     transactionRequest.assert({
       maxFeePerGas: '0x2',

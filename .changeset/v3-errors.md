@@ -2,7 +2,7 @@
 "viem": major
 ---
 
-Error classes and error configuration were moved from flat root exports into the `Errors`, `NodeError`, and `ContractError` namespaces.
+Error classes and error configuration were moved from flat root exports into the `Errors`, `RpcError`, and `ContractError` namespaces.
 
 ```diff
 - import {
@@ -13,7 +13,7 @@ Error classes and error configuration were moved from flat root exports into the
 -   ContractFunctionExecutionError,
 -   ContractFunctionRevertedError,
 - } from 'viem'
-+ import { ContractError, Errors, NodeError } from 'viem'
++ import { ContractError, Errors, RpcError } from 'viem'
 
 - setErrorConfig({ version: 'app@1.0.0' })
 - throw new BaseError('Example')
@@ -24,13 +24,13 @@ Error classes and error configuration were moved from flat root exports into the
 - error instanceof InsufficientFundsError
 - error instanceof ContractFunctionExecutionError
 - error instanceof ContractFunctionRevertedError
-+ error instanceof NodeError.ExecutionRevertedError
-+ error instanceof NodeError.InsufficientFundsError
++ error instanceof RpcError.ExecutionRevertedError
++ error instanceof RpcError.InsufficientFundsError
 + error instanceof ContractError.ContractFunctionExecutionError
 + error instanceof ContractError.ContractFunctionRevertedError
 ```
 
-Node execution errors kept their class names but were grouped under `NodeError`.
+Node execution errors were grouped under `RpcError` (mostly keeping their class names; `UnknownNodeError` became `RpcError.UnknownRpcError`).
 
 ```diff
 - import {
@@ -45,7 +45,7 @@ Node execution errors kept their class names but were grouped under `NodeError`.
 -   TipAboveFeeCapError,
 -   UnknownNodeError,
 - } from 'viem'
-+ import { NodeError } from 'viem'
++ import { RpcError } from 'viem'
 
 - error instanceof FeeCapTooHighError
 - error instanceof FeeCapTooLowError
@@ -57,16 +57,16 @@ Node execution errors kept their class names but were grouped under `NodeError`.
 - error instanceof TransactionTypeNotSupportedError
 - error instanceof TipAboveFeeCapError
 - error instanceof UnknownNodeError
-+ error instanceof NodeError.FeeCapTooHighError
-+ error instanceof NodeError.FeeCapTooLowError
-+ error instanceof NodeError.NonceTooHighError
-+ error instanceof NodeError.NonceTooLowError
-+ error instanceof NodeError.NonceMaxValueError
-+ error instanceof NodeError.IntrinsicGasTooHighError
-+ error instanceof NodeError.IntrinsicGasTooLowError
-+ error instanceof NodeError.TransactionTypeNotSupportedError
-+ error instanceof NodeError.TipAboveFeeCapError
-+ error instanceof NodeError.UnknownNodeError
++ error instanceof RpcError.FeeCapTooHighError
++ error instanceof RpcError.FeeCapTooLowError
++ error instanceof RpcError.NonceTooHighError
++ error instanceof RpcError.NonceTooLowError
++ error instanceof RpcError.NonceMaxValueError
++ error instanceof RpcError.IntrinsicGasTooHighError
++ error instanceof RpcError.IntrinsicGasTooLowError
++ error instanceof RpcError.TransactionTypeNotSupportedError
++ error instanceof RpcError.TipAboveFeeCapError
++ error instanceof RpcError.UnknownRpcError
 ```
 
 Contract function errors kept their class names but were grouped under `ContractError`, while `CallExecutionError` and `CounterfactualDeploymentFailedError` were removed.

@@ -1,6 +1,6 @@
 import * as Hex from 'ox/Hex'
 
-import * as NodeError from '../../NodeError.js'
+import * as RpcError from '../../RpcError.js'
 
 const maxUint256 = 2n ** 256n - 1n
 
@@ -23,13 +23,13 @@ export function assert(options: assert.Options): void {
   const maxPriorityFeePerGas = toBigInt(options.maxPriorityFeePerGas)
 
   if (maxFeePerGas && maxFeePerGas > maxUint256)
-    throw new NodeError.FeeCapTooHighError({ maxFeePerGas })
+    throw new RpcError.FeeCapTooHighError({ maxFeePerGas })
   if (
     maxPriorityFeePerGas &&
     maxFeePerGas &&
     maxPriorityFeePerGas > maxFeePerGas
   )
-    throw new NodeError.TipAboveFeeCapError({
+    throw new RpcError.TipAboveFeeCapError({
       maxFeePerGas,
       maxPriorityFeePerGas,
     })
@@ -43,5 +43,5 @@ export declare namespace assert {
     maxPriorityFeePerGas?: bigint | number | Hex.Hex | undefined
   }
 
-  type ErrorType = NodeError.FeeCapTooHighError | NodeError.TipAboveFeeCapError
+  type ErrorType = RpcError.FeeCapTooHighError | RpcError.TipAboveFeeCapError
 }

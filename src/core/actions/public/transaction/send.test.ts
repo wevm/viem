@@ -1,13 +1,24 @@
+import * as AbiFunction from 'ox/AbiFunction'
 import * as Authorization from 'ox/Authorization'
+import * as Errors from 'ox/Errors'
 import * as Value from 'ox/Value'
 import { describe, expect, test } from 'vitest'
 
-import { Account, Actions, Client, http, NonceManager, testActions } from 'viem'
-import { optimism } from 'viem/chains'
+import {
+  Account,
+  Actions,
+  Client,
+  http,
+  RpcError,
+  NonceManager,
+  testActions,
+} from 'viem'
+import { mainnet, optimism } from 'viem/chains'
 
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
+import * as contract from '~test/contract.js'
 
 const client = anvil.getClient(anvil.mainnet)
 const testClient = anvil.getClient(anvil.mainnet).extend(testActions())
@@ -141,5 +152,62 @@ describe('errors', () => {
     await expect(() =>
       Actions.transaction.send(client, { to, value: 1n }),
     ).rejects.toThrowError(Account.NotFoundError)
+  })
+
+  test('execution reverted maps to RpcError.ExecutionError', async () => {
+    const { address } = await contract.deploy(client, {
+      bytecode: generated.Erc721.bytecode.object,
+    })
+    // `ownerOf` of a nonexistent token reverts during gas estimation.
+    const ownerOf = AbiFunction.from(
+      'function ownerOf(uint256 tokenId) returns (address)',
+    )
+    const error = await Actions.transaction
+      .send(client, {
+        account: local,
+        data: AbiFunction.encodeData(ownerOf, [12517631n]),
+        to: address,
+      })
+      .catch((error) => error)
+
+    expect(error).toBeInstanceOf(RpcError.ExecutionError)
+    expect(error.cause).toBeInstanceOf(RpcError.ExecutionRevertedError)
+    expect(error.metaMessages?.join('\n')).toContain('Request Arguments:')
+  })
+})
+
+describe('RpcError.ExecutionError', () => {
+  test('renders fees, value and request args', () => {
+    const error = new RpcError.ExecutionError(
+      new Errors.BaseError('reverted'),
+      {
+        account: Account.from('0x0000000000000000000000000000000000000000'),
+        chain: mainnet,
+        data: '0xdeadbeef',
+        gas: 21000n,
+        maxFeePerGas: 3000000000n,
+        maxPriorityFeePerGas: 1000000000n,
+        nonce: 1,
+        to: '0x1111111111111111111111111111111111111111',
+        value: 1000000000000000000n,
+      },
+    )
+    expect(error.message).toMatchInlineSnapshot(`
+      "reverted
+
+      Request Arguments:
+        chain:                 Ethereum (id: 1)
+        from:                  0x0000000000000000000000000000000000000000
+        data:                  0xdeadbeef
+        gas:                   21000
+        maxFeePerGas:          3 gwei
+        maxPriorityFeePerGas:  1 gwei
+        nonce:                 1
+        to:                    0x1111111111111111111111111111111111111111
+        value:                 1 ETH
+
+      Details: reverted
+      Version: viem@2.52.1"
+    `)
   })
 })

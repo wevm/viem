@@ -7,16 +7,13 @@ import type * as Kzg from 'ox/Kzg'
 import * as Secp256k1 from 'ox/Secp256k1'
 import type * as StateOverrides from 'ox/StateOverrides'
 import type * as TransactionRequest from 'ox/TransactionRequest'
-import * as Value from 'ox/Value'
 import { z } from 'ox/zod'
 
 import type * as Account from '../../../Account.js'
-import type * as Chain from '../../../Chain.js'
 import type * as Client from '../../../Client.js'
 import { BaseError } from '../../../Errors.js'
-import * as NodeError from '../../../NodeError.js'
+import * as RpcError from '../../../RpcError.js'
 import { isAbortError } from '../../../internal/errors.js'
-import * as Json from '../../../../utils/Json.js'
 import { blockParameter } from '../../internal/blockParameter.js'
 import * as transactionRequest from '../../internal/transactionRequest.js'
 
@@ -136,17 +133,7 @@ export async function estimateGas(
   } catch (err) {
     if (isAbortError(err)) throw err
 
-    const cause = (() => {
-      const nodeError = NodeError.fromRpcError(err as Error, {
-        gas: rest.gas,
-        maxFeePerGas: rest.maxFeePerGas,
-        maxPriorityFeePerGas: rest.maxPriorityFeePerGas,
-        nonce: rest.nonce,
-      })
-      if (nodeError instanceof NodeError.UnknownNodeError) return err as Error
-      return nodeError
-    })()
-    throw new EstimateGasExecutionError(cause, {
+    throw new RpcError.ExecutionError(err as Error, {
       ...rest,
       chain: client.chain,
       from,
@@ -168,75 +155,5 @@ export declare namespace estimateGas {
 
   type ReturnType = bigint
 
-  type ErrorType = EstimateGasExecutionError | Errors.GlobalErrorType
-}
-
-/** Thrown when an `eth_estimateGas` execution fails. */
-export class EstimateGasExecutionError extends BaseError<Error> {
-  override readonly name = 'EstimateGasExecutionError'
-
-  constructor(cause: Error, options: EstimateGasExecutionError.Options = {}) {
-    const {
-      chain,
-      data,
-      docsPath,
-      from,
-      gas,
-      gasPrice,
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      nonce,
-      to,
-      value,
-    } = options
-
-    const gwei = (x: bigint | number | Hex.Hex | undefined) =>
-      typeof x === 'bigint' ? `${Value.formatGwei(x)} gwei` : undefined
-
-    const prettyArgs = Json.prettyPrint(
-      {
-        from,
-        to,
-        value:
-          typeof value === 'bigint'
-            ? `${Value.formatEther(value)} ${chain?.nativeCurrency?.symbol ?? 'ETH'}`
-            : undefined,
-        data,
-        gas,
-        gasPrice: gwei(gasPrice),
-        maxFeePerGas: gwei(maxFeePerGas),
-        maxPriorityFeePerGas: gwei(maxPriorityFeePerGas),
-        nonce,
-      },
-      { indent: 2 },
-    )
-
-    const shortMessage =
-      'shortMessage' in cause && typeof cause.shortMessage === 'string'
-        ? cause.shortMessage
-        : cause.message || 'An error occurred.'
-    const causeMeta =
-      'metaMessages' in cause && Array.isArray(cause.metaMessages)
-        ? (cause.metaMessages as string[])
-        : undefined
-
-    super(shortMessage, {
-      cause,
-      docsPath,
-      metaMessages: [
-        ...(causeMeta ? [...causeMeta, ' '] : []),
-        'Estimate Gas Arguments:',
-        prettyArgs,
-      ],
-    })
-  }
-}
-
-export declare namespace EstimateGasExecutionError {
-  type Options = TransactionRequest.toRpc.Input & {
-    /** Chain (for native currency symbol). */
-    chain?: Chain.Chain | undefined
-    /** Docs path appended to the error. */
-    docsPath?: string | undefined
-  }
+  type ErrorType = RpcError.ExecutionError | Errors.GlobalErrorType
 }

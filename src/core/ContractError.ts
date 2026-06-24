@@ -7,7 +7,7 @@ import type * as Errors from 'ox/Errors'
 import * as Hex from 'ox/Hex'
 
 import { BaseError } from './Errors.js'
-import * as NodeError from './NodeError.js'
+import * as RpcError from './RpcError.js'
 import * as Json from '../utils/Json.js'
 
 /** JSON-RPC `eth_call` execution-reverted error code. */
@@ -94,7 +94,7 @@ function getRevertData(error: unknown): Hex.Hex | undefined {
 
 /**
  * Returns `true` when the error chain signals an EVM execution revert (a
- * {@link NodeError.ExecutionRevertedError}, the `3` error code, or an
+ * {@link RpcError.ExecutionRevertedError}, the `3` error code, or an
  * `execution reverted` message).
  *
  * @internal
@@ -102,7 +102,7 @@ function getRevertData(error: unknown): Hex.Hex | undefined {
 function hasExecutionReverted(error: unknown): boolean {
   let current: unknown = error
   while (current && typeof current === 'object') {
-    if (current instanceof NodeError.ExecutionRevertedError) return true
+    if (current instanceof RpcError.ExecutionRevertedError) return true
     const value = current as {
       code?: unknown
       data?: unknown
@@ -158,7 +158,7 @@ function getRevertMessage(error: unknown): string | undefined {
 }
 
 /**
- * Walks the error chain for the underlying `call` error's `Raw Call Arguments`
+ * Walks the error chain for the underlying `call` error's `Request Arguments`
  * meta block (`data`, `to`, `value`, …) so contract errors can surface it.
  *
  * @internal
@@ -167,7 +167,7 @@ function getCallArgsMeta(error: unknown): readonly string[] | undefined {
   let current: unknown = error
   while (current && typeof current === 'object') {
     const meta = (current as { metaMessages?: unknown }).metaMessages
-    if (Array.isArray(meta) && meta.includes('Raw Call Arguments:'))
+    if (Array.isArray(meta) && meta.includes('Request Arguments:'))
       return meta as readonly string[]
     current = (current as { cause?: unknown }).cause
   }

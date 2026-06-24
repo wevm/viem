@@ -452,4 +452,4 @@ const { request } = await Actions.transaction.prepare(client, {
 | --- | --- |
 | `Eip1559FeesNotSupportedError` | `maxFeePerGas`/`maxPriorityFeePerGas` were supplied for a `legacy`/`eip2930` transaction. |
 | `MaxFeePerGasTooLowError` | The supplied `maxFeePerGas` is lower than the estimated `maxPriorityFeePerGas`. |
-| `NodeError` | The node rejected one of the underlying RPC requests. |
+| `RpcError` | The node rejected one of the underlying RPC requests. |

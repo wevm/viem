@@ -3,7 +3,7 @@ import * as AbiParameters from 'ox/AbiParameters'
 import type * as Hex from 'ox/Hex'
 import { describe, expect, test } from 'vitest'
 
-import { ContractError, Errors, NodeError } from 'viem'
+import { ContractError, Errors, RpcError } from 'viem'
 
 const abi = Abi.from([
   'function totalSupply() view returns (uint256)',
@@ -375,8 +375,8 @@ describe('fromError', () => {
     )
   })
 
-  test('reverted: NodeError.ExecutionRevertedError', () => {
-    const error = new NodeError.ExecutionRevertedError({
+  test('reverted: RpcError.ExecutionRevertedError', () => {
+    const error = new RpcError.ExecutionRevertedError({
       cause: new Errors.BaseError('execution reverted'),
     })
     const result = ContractError.fromError(error, {

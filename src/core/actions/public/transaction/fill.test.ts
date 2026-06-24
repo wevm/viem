@@ -5,7 +5,7 @@ import * as contract from '~test/contract.js'
 import * as Http from '~test/http.js'
 import { z } from 'ox/zod'
 import { describe, expect, test } from 'vitest'
-import { Account, Actions, Client, http, NodeError, NonceManager } from 'viem'
+import { Account, Actions, Client, http, RpcError, NonceManager } from 'viem'
 import { mainnet } from 'viem/chains'
 
 import { accounts } from '~test/constants.js'
@@ -287,7 +287,7 @@ test('error: baseFeeMultiplier below 1', async () => {
   ).rejects.toThrowError('`baseFeeMultiplier` must be greater than 1.')
 })
 
-test('error: execution reverted maps to NodeError', async () => {
+test('error: execution reverted maps to RpcError.ExecutionError', async () => {
   const error = await Actions.transaction
     .fill(client, {
       account,
@@ -296,12 +296,14 @@ test('error: execution reverted maps to NodeError', async () => {
     })
     .catch((error) => error)
 
-  expect(error).toBeInstanceOf(NodeError.ExecutionRevertedError)
+  expect(error).toBeInstanceOf(RpcError.ExecutionError)
+  expect(error.cause).toBeInstanceOf(RpcError.ExecutionRevertedError)
+  expect(error.metaMessages?.join('\n')).toContain('Request Arguments:')
 })
 
-test('error: unrecognized node error rethrows original', async () => {
+test('error: unrecognized node error wraps the original on cause', async () => {
   // A blob versioned hash without a valid sidecar makes the node reject the
-  // fill with an unrecognized `invalid params` error, which is rethrown as-is.
+  // fill with an unrecognized `invalid params` error, preserved on `cause`.
   const error = await Actions.transaction
     .fill(client, {
       account,
@@ -313,8 +315,9 @@ test('error: unrecognized node error rethrows original', async () => {
     })
     .catch((error) => error)
 
-  expect(error).not.toBeInstanceOf(NodeError.UnknownNodeError)
-  expect(error.name).toBe('RpcResponse.InvalidParamsError')
+  expect(error).toBeInstanceOf(RpcError.ExecutionError)
+  expect(error.cause).not.toBeInstanceOf(RpcError.UnknownRpcError)
+  expect(error.cause.name).toBe('RpcResponse.InvalidParamsError')
 })
 
 test('behavior: encodes/decodes via chain schema when declared', async () => {

@@ -9,7 +9,7 @@ import type * as Account from '../../../Account.js'
 import type * as Capabilities from '../../../Capabilities.js'
 import type * as Chain from '../../../Chain.js'
 import type * as Client from '../../../Client.js'
-import * as NodeError from '../../../NodeError.js'
+import * as RpcError from '../../../RpcError.js'
 import type * as NonceManager from '../../../NonceManager.js'
 import { isAbortError } from '../../../internal/errors.js'
 import * as transactionRequest from '../../internal/transactionRequest.js'
@@ -166,16 +166,12 @@ export async function fill<chain extends Chain.Chain | undefined>(
   } catch (err) {
     if (isAbortError(err)) throw err
 
-    // TODO: wrap in a `TransactionExecutionError` once the node/contract error
-    // subsystem is ported.
-    const nodeError = NodeError.fromRpcError(err as Error, {
-      gas: rest.gas,
-      maxFeePerGas: rest.maxFeePerGas,
-      maxPriorityFeePerGas: rest.maxPriorityFeePerGas,
+    throw new RpcError.ExecutionError(err as Error, {
+      ...rest,
+      chain: chain ?? undefined,
+      from,
       nonce,
     })
-    if (nodeError instanceof NodeError.UnknownNodeError) throw err
-    throw nodeError
   }
 }
 
@@ -209,6 +205,7 @@ export declare namespace fill {
   }
 
   type ErrorType =
+    | RpcError.ExecutionError
     | transactionRequest.assert.ErrorType
     | BaseFeeScalarError
     | Errors.GlobalErrorType

@@ -67,21 +67,21 @@ test('args: args', async () => {
       functionName: 'ownerOf',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "ownerOf" reverted with the following reason:
-      Execution reverted for an unknown reason.
+    [ContractFunctionExecutionError: The contract function "ownerOf" reverted with the following reason:
+    Execution reverted for an unknown reason.
 
-      Contract Call:
-        address:   0x081f08945fd17c5470f7bcee23fb57ab1099428e
-        function:  function ownerOf(uint256) pure returns (address)
-        args:             (123)
-       
-      Raw Call Arguments:
-        data:  0x6352211e000000000000000000000000000000000000000000000000000000000000007b
-        to:    0x081f08945fd17c5470f7bcee23fb57ab1099428e
+    Contract Call:
+      address:   0x081f08945fd17c5470f7bcee23fb57ab1099428e
+      function:  function ownerOf(uint256) pure returns (address)
+      args:             (123)
+     
+    Request Arguments:
+      data:  0x6352211e000000000000000000000000000000000000000000000000000000000000007b
+      to:    0x081f08945fd17c5470f7bcee23fb57ab1099428e
 
-      Details: execution reverted
-      Version: viem@2.52.1]
-    `)
+    Details: execution reverted
+    Version: viem@2.52.1]
+  `)
 })
 
 test('error: reverts', async () => {
@@ -93,21 +93,21 @@ test('error: reverts', async () => {
       functionName: 'ownerOf',
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [ContractFunctionExecutionError: The contract function "ownerOf" reverted with the following reason:
-      Execution reverted for an unknown reason.
+    [ContractFunctionExecutionError: The contract function "ownerOf" reverted with the following reason:
+    Execution reverted for an unknown reason.
 
-      Contract Call:
-        address:   0x081f08945fd17c5470f7bcee23fb57ab1099428e
-        function:  function ownerOf(uint256) pure returns (address)
-        args:             (1)
-       
-      Raw Call Arguments:
-        data:  0x6352211e0000000000000000000000000000000000000000000000000000000000000001
-        to:    0x081f08945fd17c5470f7bcee23fb57ab1099428e
+    Contract Call:
+      address:   0x081f08945fd17c5470f7bcee23fb57ab1099428e
+      function:  function ownerOf(uint256) pure returns (address)
+      args:             (1)
+     
+    Request Arguments:
+      data:  0x6352211e0000000000000000000000000000000000000000000000000000000000000001
+      to:    0x081f08945fd17c5470f7bcee23fb57ab1099428e
 
-      Details: execution reverted
-      Version: viem@2.52.1]
-    `)
+    Details: execution reverted
+    Version: viem@2.52.1]
+  `)
 })
 
 test('args: deployless (code)', async () => {
@@ -166,20 +166,20 @@ describe('reverts', () => {
         functionName: 'revertRead',
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        [ContractFunctionExecutionError: The contract function "revertRead" reverted with the following reason:
-        This is a revert message
+      [ContractFunctionExecutionError: The contract function "revertRead" reverted with the following reason:
+      This is a revert message
 
-        Contract Call:
-          address:   0xf102f0173707c6726543d65fa38025eb72026c37
-          function:  function revertRead() pure
-         
-        Raw Call Arguments:
-          data:  0x9f558709
-          to:    0xf102f0173707c6726543d65fa38025eb72026c37
+      Contract Call:
+        address:   0xf102f0173707c6726543d65fa38025eb72026c37
+        function:  function revertRead() pure
+       
+      Request Arguments:
+        data:  0x9f558709
+        to:    0xf102f0173707c6726543d65fa38025eb72026c37
 
-        Details: execution reverted: This is a revert message
-        Version: viem@2.52.1]
-      `)
+      Details: execution reverted: This is a revert message
+      Version: viem@2.52.1]
+    `)
   })
 
   test('panic: assert', async () => {
@@ -189,20 +189,20 @@ describe('reverts', () => {
         functionName: 'assertRead',
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        [ContractFunctionExecutionError: The contract function "assertRead" reverted with the following reason:
-        An \`assert\` condition failed.
+      [ContractFunctionExecutionError: The contract function "assertRead" reverted with the following reason:
+      An \`assert\` condition failed.
 
-        Contract Call:
-          address:   0xf102f0173707c6726543d65fa38025eb72026c37
-          function:  function assertRead() pure
-         
-        Raw Call Arguments:
-          data:  0xeb1aba20
-          to:    0xf102f0173707c6726543d65fa38025eb72026c37
+      Contract Call:
+        address:   0xf102f0173707c6726543d65fa38025eb72026c37
+        function:  function assertRead() pure
+       
+      Request Arguments:
+        data:  0xeb1aba20
+        to:    0xf102f0173707c6726543d65fa38025eb72026c37
 
-        Details: execution reverted: panic: assertion failed (0x01)
-        Version: viem@2.52.1]
-      `)
+      Details: execution reverted: panic: assertion failed (0x01)
+      Version: viem@2.52.1]
+    `)
   })
 
   test('panic: overflow', async () => {
@@ -212,20 +212,20 @@ describe('reverts', () => {
         functionName: 'overflowRead',
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        [ContractFunctionExecutionError: The contract function "overflowRead" reverted with the following reason:
-        Arithmetic operation resulted in underflow or overflow.
+      [ContractFunctionExecutionError: The contract function "overflowRead" reverted with the following reason:
+      Arithmetic operation resulted in underflow or overflow.
 
-        Contract Call:
-          address:   0xf102f0173707c6726543d65fa38025eb72026c37
-          function:  function overflowRead() pure returns (uint256)
-         
-        Raw Call Arguments:
-          data:  0x4adac6eb
-          to:    0xf102f0173707c6726543d65fa38025eb72026c37
+      Contract Call:
+        address:   0xf102f0173707c6726543d65fa38025eb72026c37
+        function:  function overflowRead() pure returns (uint256)
+       
+      Request Arguments:
+        data:  0x4adac6eb
+        to:    0xf102f0173707c6726543d65fa38025eb72026c37
 
-        Details: execution reverted: panic: arithmetic underflow or overflow (0x11)
-        Version: viem@2.52.1]
-      `)
+      Details: execution reverted: panic: arithmetic underflow or overflow (0x11)
+      Version: viem@2.52.1]
+    `)
   })
 
   test('panic: divide by zero', async () => {
@@ -235,20 +235,20 @@ describe('reverts', () => {
         functionName: 'divideByZeroRead',
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        [ContractFunctionExecutionError: The contract function "divideByZeroRead" reverted with the following reason:
-        Division or modulo by zero (e.g. \`5 / 0\` or \`23 % 0\`).
+      [ContractFunctionExecutionError: The contract function "divideByZeroRead" reverted with the following reason:
+      Division or modulo by zero (e.g. \`5 / 0\` or \`23 % 0\`).
 
-        Contract Call:
-          address:   0xf102f0173707c6726543d65fa38025eb72026c37
-          function:  function divideByZeroRead() pure returns (uint256)
-         
-        Raw Call Arguments:
-          data:  0x24db9ba0
-          to:    0xf102f0173707c6726543d65fa38025eb72026c37
+      Contract Call:
+        address:   0xf102f0173707c6726543d65fa38025eb72026c37
+        function:  function divideByZeroRead() pure returns (uint256)
+       
+      Request Arguments:
+        data:  0x24db9ba0
+        to:    0xf102f0173707c6726543d65fa38025eb72026c37
 
-        Details: execution reverted: panic: division or modulo by zero (0x12)
-        Version: viem@2.52.1]
-      `)
+      Details: execution reverted: panic: division or modulo by zero (0x12)
+      Version: viem@2.52.1]
+    `)
   })
 
   test('require', async () => {
@@ -258,20 +258,20 @@ describe('reverts', () => {
         functionName: 'requireRead',
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-        [ContractFunctionExecutionError: The contract function "requireRead" reverted with the following reason:
-        Execution reverted for an unknown reason.
+      [ContractFunctionExecutionError: The contract function "requireRead" reverted with the following reason:
+      Execution reverted for an unknown reason.
 
-        Contract Call:
-          address:   0xf102f0173707c6726543d65fa38025eb72026c37
-          function:  function requireRead() pure
-         
-        Raw Call Arguments:
-          data:  0x699389ca
-          to:    0xf102f0173707c6726543d65fa38025eb72026c37
+      Contract Call:
+        address:   0xf102f0173707c6726543d65fa38025eb72026c37
+        function:  function requireRead() pure
+       
+      Request Arguments:
+        data:  0x699389ca
+        to:    0xf102f0173707c6726543d65fa38025eb72026c37
 
-        Details: execution reverted
-        Version: viem@2.52.1]
-      `)
+      Details: execution reverted
+      Version: viem@2.52.1]
+    `)
   })
 
   // Custom-error `Details:` lines carry anvil's raw (binary) revert payload,

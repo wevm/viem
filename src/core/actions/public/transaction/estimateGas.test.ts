@@ -7,9 +7,7 @@ import * as constants from '~test/constants.js'
 import { kzg } from '~test/kzg.js'
 import { describe, expect, test } from 'vitest'
 
-import { Account, Actions } from 'viem'
-
-import { EstimateGasExecutionError } from './estimateGas.js'
+import { Account, Actions, RpcError } from 'viem'
 
 const client = anvil.getClient(anvil.mainnet)
 
@@ -200,11 +198,18 @@ describe('errors', () => {
         data: '0xdeadbeef',
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [EstimateGasExecutionError: \`to\` is required. Could not infer from \`authorizationList\`
+      [RpcError.ExecutionError: \`to\` is required. Could not infer from \`authorizationList\`
 
-      Estimate Gas Arguments:
-        from:  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
-        data:  0xdeadbeef
+      Request Arguments:
+        from:               0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        authorizationList:
+          - address:  0x0000000000000000000000000000000000000000
+            chainId:  1
+            nonce:    0
+            r:        0x0000000000000000000000000000000000000000000000000000000000000000
+            s:        0x0000000000000000000000000000000000000000000000000000000000000000
+            yParity:  0
+        data:               0xdeadbeef
 
       Details: \`to\` is required. Could not infer from \`authorizationList\`
       Version: viem@2.52.1]
@@ -220,13 +225,13 @@ describe('errors', () => {
         value: Value.fromEther('1'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [EstimateGasExecutionError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
+      [RpcError.ExecutionError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
-      Estimate Gas Arguments:
+      Request Arguments:
         from:          0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+        maxFeePerGas:  115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei
         to:            0x70997970c51812dc3a010c7d01b50e0d17dc79c8
         value:         1 ETH
-        maxFeePerGas:  115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei
 
       Details: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
       Version: viem@2.52.1]
@@ -256,7 +261,7 @@ describe('errors', () => {
         data: transferData,
         to: wethAddress,
       }),
-    ).rejects.toThrowError(EstimateGasExecutionError)
+    ).rejects.toThrowError(RpcError.ExecutionError)
   })
 
   test('tip higher than fee cap', async () => {
@@ -269,14 +274,14 @@ describe('errors', () => {
         value: Value.fromEther('1'),
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
-      [EstimateGasExecutionError: The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
+      [RpcError.ExecutionError: The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
 
-      Estimate Gas Arguments:
+      Request Arguments:
         from:                  0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
-        to:                    0x70997970c51812dc3a010c7d01b50e0d17dc79c8
-        value:                 1 ETH
         maxFeePerGas:          10 gwei
         maxPriorityFeePerGas:  11 gwei
+        to:                    0x70997970c51812dc3a010c7d01b50e0d17dc79c8
+        value:                 1 ETH
 
       Details: The provided tip (\`maxPriorityFeePerGas\` = 11 gwei) cannot be higher than the fee cap (\`maxFeePerGas\` = 10 gwei).
       Version: viem@2.52.1]
