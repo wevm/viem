@@ -2,10 +2,6 @@ import WriteParameters from '../../../snippets/tempo/write-parameters.mdx'
 
 # `receivePolicy.set`
 
-:::warning
-**Coming soon:** [TIP-1028](https://tips.sh/1028) ships in the **T6** hardfork — live on **Testnet** June 11 and **Mainnet** June 15.
-:::
-
 Sets the receive policy for the calling account. A receive policy controls which TIP-20 tokens and which senders an account accepts. Inbound transfers and mints that violate the policy are not reverted – instead the funds are redirected to the `ReceivePolicyGuard` and can be reclaimed later (see [`receivePolicy.claim`](/tempo/actions/receivePolicy.claim)). [Learn more about transfer policies](https://docs.tempo.xyz/protocol/tip403/spec)
 
 ## Usage
