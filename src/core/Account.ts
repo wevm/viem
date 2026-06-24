@@ -13,6 +13,7 @@ import * as TxEnvelope from 'ox/TxEnvelope'
 import * as TypedData from 'ox/TypedData'
 import type * as Chain from './Chain.js'
 import { BaseError } from './Errors.js'
+import type * as NonceManager from './NonceManager.js'
 import type { OneOf } from './internal/types.js'
 
 /** A viem Account: a local signer, or a json-rpc account referenced by address. */
@@ -35,6 +36,8 @@ export type Local<
   address: address
   /** Key type used for signing (e.g. `'secp256k1'`, or `'custom'` for injected signers). */
   keyType: keyType
+  /** Nonce manager used to derive the transaction nonce. */
+  nonceManager?: NonceManager.NonceManager | undefined
   /** Public key of the account. */
   publicKey?: Hex.Hex | undefined
   /** Signs a hash. */
@@ -180,6 +183,7 @@ export declare namespace from {
    */
   type Account = {
     keyType?: string | undefined
+    nonceManager?: NonceManager.NonceManager | undefined
     sign: Local['sign']
     signAuthorization?: Local['signAuthorization']
     signMessage?: Local['signMessage'] | undefined

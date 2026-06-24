@@ -315,6 +315,14 @@ export default defineConfig({
                     link: '/docs/actions/public/transaction/prepare',
                   },
                   {
+                    text: 'send',
+                    link: '/docs/actions/public/transaction/send',
+                  },
+                  {
+                    text: 'sendRaw',
+                    link: '/docs/actions/public/transaction/sendRaw',
+                  },
+                  {
                     text: 'sign',
                     link: '/docs/actions/public/transaction/sign',
                   },

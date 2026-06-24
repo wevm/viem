@@ -68,10 +68,18 @@ Flat public action names were renamed to their namespaced v3 equivalents.
 - getTransaction(client, options)
 - getTransactionConfirmations(client, options)
 - getTransactionReceipt(client, options)
+- prepareTransactionRequest(client, options)
+- sendTransaction(client, options)
+- sendRawTransaction(client, options)
+- signTransaction(client, options)
 + Actions.transaction.fill(client, options)
 + Actions.transaction.get(client, options)
 + Actions.transaction.getConfirmations(client, options)
 + Actions.transaction.getReceipt(client, options)
++ Actions.transaction.prepare(client, options)
++ Actions.transaction.send(client, options)
++ Actions.transaction.sendRaw(client, options)
++ Actions.transaction.sign(client, options)
 ```
 
 Public actions that default to a client block tag read `client.blockTag` instead of `client.experimental_blockTag`.
@@ -115,4 +123,17 @@ Contract reads were renamed from `readContract` to `Actions.contract.read`.
     functionName: 'balanceOf',
     args: [account],
   })
+```
+
+`Actions.transaction.send` no longer falls back to `wallet_sendTransaction` when a JSON-RPC account's transport rejects `eth_sendTransaction`; it always sends via `eth_sendTransaction`.
+
+`Actions.transaction.send` with a JSON-RPC account no longer throws when the client has no configured `chain`; it sends against the transport's current chain instead of requiring `chain` (or `chain: null`) to opt out of the chain assertion.
+
+```diff
+- // v2: threw ChainNotFoundError without a configured chain
+- const client = createWalletClient({ transport: custom(window.ethereum) })
+- await sendTransaction(client, { account, to, value })
++ // v3: sends against the transport's current chain
++ const client = Client.create({ transport: custom(window.ethereum) })
++ await Actions.transaction.send(client, { account, to, value })
 ```

@@ -86,6 +86,8 @@ export function publicActions() {
         transaction.getConfirmations(client, options),
       getReceipt: (options) => transaction.getReceipt(client, options),
       prepare: (options) => transaction.prepare(client, options),
+      send: (options) => transaction.send(client, options),
+      sendRaw: (options) => transaction.sendRaw(client, options),
       sign: (options) => transaction.sign(client, options),
     },
   })
@@ -695,6 +697,48 @@ export declare namespace publicActions {
       prepare: <const options extends transaction.prepare.Options<chain>>(
         options: transaction.prepare.Options<chain> & options,
       ) => Promise<transaction.prepare.ReturnType<chain, account, options>>
+      /**
+       * Creates, signs, and sends a new transaction to the network.
+       *
+       * @example
+       * ```ts
+       * import { Account, Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   account: Account.fromPrivateKey('0x…'),
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const hash = await client.transaction.send({
+       *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+       *   value: 1n,
+       * })
+       * ```
+       */
+      send: (
+        options: transaction.send.Options<chain>,
+      ) => Promise<transaction.send.ReturnType>
+      /**
+       * Sends a signed serialized transaction to the network.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const hash = await client.transaction.sendRaw({
+       *   serializedTransaction: '0x02f850018203118080825208808080c080a0…',
+       * })
+       * ```
+       */
+      sendRaw: (
+        options: transaction.sendRaw.Options,
+      ) => Promise<transaction.sendRaw.ReturnType>
       /**
        * Signs a transaction.
        *
