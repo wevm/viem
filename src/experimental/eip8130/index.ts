@@ -24,6 +24,11 @@ export {
   estimateGas8130,
 } from './actions/estimateGas8130.js'
 export {
+  type GetConfigSequence8130Parameters,
+  type GetConfigSequence8130ReturnType,
+  getConfigSequence8130,
+} from './actions/getConfigSequence8130.js'
+export {
   type GetTransactionCount8130Parameters,
   type GetTransactionCount8130ReturnType,
   getTransactionCount8130,
