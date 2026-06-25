@@ -2111,7 +2111,6 @@ export default defineConfig({
                   link: '/tempo/guides/access-keys/manage',
                 },
                 {
-                  badge: { text: 'T6', variant: 'warning' },
                   text: 'Admin Access Keys',
                   link: '/tempo/guides/access-keys/admin',
                 },
@@ -2174,7 +2173,6 @@ export default defineConfig({
               ],
             },
             {
-              badge: { text: 'T6', variant: 'warning' },
               text: 'Receive Policies',
               collapsed: true,
               items: [
