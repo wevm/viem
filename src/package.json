@@ -114,11 +114,6 @@
       "import": "./_esm/siwe/index.js",
       "default": "./_cjs/siwe/index.js"
     },
-    "./stablecoins": {
-      "types": "./_types/stablecoins/index.d.ts",
-      "import": "./_esm/stablecoins/index.js",
-      "default": "./_cjs/stablecoins/index.js"
-    },
     "./tempo": {
       "types": "./_types/tempo/index.d.ts",
       "import": "./_esm/tempo/index.js",
@@ -138,6 +133,11 @@
       "types": "./_types/tempo/zones/index.d.ts",
       "import": "./_esm/tempo/zones/index.js",
       "default": "./_cjs/tempo/zones/index.js"
+    },
+    "./tokens": {
+      "types": "./_types/tokens/index.d.ts",
+      "import": "./_esm/tokens/index.js",
+      "default": "./_cjs/tokens/index.js"
     },
     "./utils": {
       "types": "./_types/utils/index.d.ts",
@@ -200,9 +200,6 @@
       "siwe": [
         "./_types/siwe/index.d.ts"
       ],
-      "stablecoins": [
-        "./_types/stablecoins/index.d.ts"
-      ],
       "tempo": [
         "./_types/tempo/index.d.ts"
       ],
@@ -211,6 +208,9 @@
       ],
       "tempo/chains": [
         "./_types/tempo/chains/index.d.ts"
+      ],
+      "tokens": [
+        "./_types/tokens/index.d.ts"
       ],
       "utils": [
         "./_types/utils/index.d.ts"
