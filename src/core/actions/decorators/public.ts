@@ -57,6 +57,7 @@ export function publicActions() {
       getReceipts: (options) => block.getReceipts(client, options),
       getTransactionCount: (options) =>
         block.getTransactionCount(client, options),
+      watchNumber: (options) => block.watchNumber(client, options),
     },
     call: (options) => call(client, options),
     chains: {
@@ -89,6 +90,7 @@ export function publicActions() {
       send: (options) => transaction.send(client, options),
       sendRaw: (options) => transaction.sendRaw(client, options),
       sign: (options) => transaction.sign(client, options),
+      waitForReceipt: (options) => transaction.waitForReceipt(client, options),
     },
   })
 }
@@ -302,6 +304,27 @@ export declare namespace publicActions {
       getTransactionCount: (
         options?: block.getTransactionCount.Options | undefined,
       ) => Promise<block.getTransactionCount.ReturnType>
+      /**
+       * Watches incoming block numbers, returning a watcher handle.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       *
+       * const watch = client.block.watchNumber()
+       * watch.onBlockNumber((blockNumber) => console.log(blockNumber))
+       * // later: watch.off()
+       * ```
+       */
+      watchNumber: (
+        options?: block.watchNumber.Options | undefined,
+      ) => block.watchNumber.Watcher
     }
     /**
      * Executes a new message call without submitting a transaction to the
@@ -761,6 +784,29 @@ export declare namespace publicActions {
       sign: (
         options: transaction.sign.Options<chain>,
       ) => Promise<transaction.sign.ReturnType>
+      /**
+       * Waits for a transaction to be included on a block (one confirmation by
+       * default), returning a watcher handle whose `receipt` promise resolves
+       * with the transaction receipt.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const { receipt } = client.transaction.waitForReceipt({
+       *   hash: '0x4ca7ee652d57678f26e887c149ab0735f41de37bcad58c9f6d3ed5824f15b74d',
+       * })
+       * await receipt
+       * ```
+       */
+      waitForReceipt: (
+        options: transaction.waitForReceipt.Options,
+      ) => transaction.waitForReceipt.ReturnType<chain>
     }
   }
 }

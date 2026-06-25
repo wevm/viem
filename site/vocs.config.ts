@@ -231,6 +231,10 @@ export default defineConfig({
                     text: 'getTransactionCount',
                     link: '/docs/actions/public/block/getTransactionCount',
                   },
+                  {
+                    text: 'watchNumber',
+                    link: '/docs/actions/public/block/watchNumber',
+                  },
                 ],
               },
               {
@@ -325,6 +329,10 @@ export default defineConfig({
                   {
                     text: 'sign',
                     link: '/docs/actions/public/transaction/sign',
+                  },
+                  {
+                    text: 'waitForReceipt',
+                    link: '/docs/actions/public/transaction/waitForReceipt',
                   },
                 ],
               },
