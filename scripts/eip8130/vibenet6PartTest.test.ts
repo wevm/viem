@@ -1,13 +1,15 @@
 /**
- * 6-part EIP-8130 native transaction test against the local vibenet devnet.
+ * 8-part EIP-8130 native transaction test against the local vibenet devnet.
  *
  * Tests (in order):
  *   1. EOA plain tx        — delegate + send ETH (EIP-7702 style)
  *   2. EOA owner change    — authorize a second K1 key
  *   3. EOA with new key    — send tx signed by the newly authorized key
- *   4. Smart account create — createAccount + send ETH
+ *   4. Smart account create — createAccount + send ETH (K1 signer)
  *   5. Smart account tx    — follow-up send using same account
  *   6. Smart account rotate — authorize a new K1 key
+ *   7. P256 smart account create — createAccount + send ETH (P-256 signer)
+ *   8. P256 smart account tx    — follow-up send signed by P-256 key
  *
  * Run:
  *   npx vitest run --config test/vitest.eip8130.config.ts \
@@ -28,6 +30,8 @@ import { getTransactionCount8130 } from '../../src/experimental/eip8130/actions/
 import { sendCalls8130 } from '../../src/experimental/eip8130/actions/sendCalls.js'
 import { vibenetDevnetDeployment } from '../../src/experimental/eip8130/deployments.js'
 import { authorizeActor, key } from '../../src/experimental/eip8130/keys.js'
+import { toP256Signer } from '../../src/experimental/eip8130/utils/signers.js'
+import * as P256 from 'ox/P256'
 import type { AaCalls } from '../../src/experimental/eip8130/types/transaction.js'
 import { erc1167Bytecode } from '../../src/experimental/eip8130/utils/proxy.js'
 import { keccak256 } from '../../src/utils/hash/keccak256.js'
@@ -162,6 +166,20 @@ const smartAccount = to8130Account({
   accountConfigAddress: D.accountConfiguration as Address,
 })
 
+// P256 smart account — address derived from P-256 public key
+const p256PrivateKey = P256.randomPrivateKey()
+const p256Signer = toP256Signer({ privateKey: p256PrivateKey })
+const p256Salt = keccak256(stringToHex(`vibe-p256-${Date.now()}`))
+
+const p256Account = to8130Account({
+  signer: p256Signer,
+  authenticator: p256Signer.authenticator,
+  userSalt: p256Salt,
+  code,
+  initialActors: [key.p256(p256Signer.publicKey)],
+  accountConfigAddress: D.accountConfiguration as Address,
+})
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -255,5 +273,43 @@ describe.sequential('6-part vibenet EIP-8130 native tx test', () => {
       [authorizeActor({ actorId: key.k1(newKey.address).actorId, authenticator: D.authenticators.k1 as Address })],
     )
     log('authorized', newKey.address)
+  }, 60_000)
+
+  test('7. P256 smart account — createAccount + ETH send', async () => {
+    console.log('\n══ Test 7: P256 smart account create ══')
+    log('p256 account', p256Account.address)
+    log('p256 pubkey x', p256Signer.publicKey.x)
+    log('p256 pubkey y', p256Signer.publicKey.y)
+    log('authenticator', p256Signer.authenticator!)
+
+    await fund(p256Account.address)
+
+    const balBefore = await getBalance(client as any, { address: RECIPIENT })
+
+    // First tx: create account change deploys the account, then sends ETH.
+    await send8130(
+      p256Account,
+      [[{ to: RECIPIENT, value: parseEther('0.001') }]],
+      [p256Account.create()],
+    )
+
+    const balAfter = await getBalance(client as any, { address: RECIPIENT })
+    expect(balAfter).toBeGreaterThan(balBefore)
+    log('recipient Δ', `+${(Number(balAfter - balBefore) / 1e15).toFixed(3)} mETH`)
+  }, 60_000)
+
+  test('8. P256 smart account — follow-up tx (no redeploy)', async () => {
+    console.log('\n══ Test 8: P256 smart account follow-up tx ══')
+    const balBefore = await getBalance(client as any, { address: RECIPIENT })
+
+    // Subsequent tx: no account changes needed, P-256 signer signs directly.
+    await send8130(
+      p256Account,
+      [[{ to: RECIPIENT, value: parseEther('0.001') }]],
+    )
+
+    const balAfter = await getBalance(client as any, { address: RECIPIENT })
+    expect(balAfter).toBeGreaterThan(balBefore)
+    log('recipient Δ', `+${(Number(balAfter - balBefore) / 1e15).toFixed(3)} mETH`)
   }, 60_000)
 })
