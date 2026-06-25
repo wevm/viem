@@ -319,7 +319,12 @@ export async function waitForTransactionReceipt<
                 )
 
                 // If we couldn't find a replacement transaction, continue polling.
-                if (!replacementTransaction) return
+                // Also skip if the candidate transaction has no hash — this can
+                // happen when the block contains a transaction type that viem
+                // does not yet know how to deserialize (e.g. EIP-8130 type 0x7b),
+                // in which case the parsed object will have `hash: undefined`.
+                if (!replacementTransaction || !replacementTransaction.hash)
+                  return
 
                 // If we found a replacement transaction, return it's receipt.
                 receipt = await getAction(

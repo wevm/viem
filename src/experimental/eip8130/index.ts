@@ -42,6 +42,17 @@ export {
   parseEip8130ReceiptFields,
 } from './actions/getTransactionReceipt8130.js'
 export {
+  type GetTransaction8130Parameters,
+  type GetTransaction8130ReturnType,
+  type Transaction8130,
+  getTransaction8130,
+} from './actions/getTransaction8130.js'
+export {
+  type WaitForTransactionReceipt8130Parameters,
+  type WaitForTransactionReceipt8130ReturnType,
+  waitForTransactionReceipt8130,
+} from './actions/waitForTransactionReceipt8130.js'
+export {
   type PrepareTransaction8130Parameters,
   prepareTransaction8130,
   type SendCalls8130Parameters,
