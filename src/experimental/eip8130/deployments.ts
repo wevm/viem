@@ -48,59 +48,31 @@ export type Eip8130Deployment = {
   }
 }
 
-/** EIP-8130 deployment on Base Sepolia (chain id `84532`). */
-export const baseSepoliaDeployment = {
-  accountConfiguration: '0xAff8A7A86605D61197C1b98630d93B9d9702afb5',
-  accounts: {
-    default: '0xD67D6ae50521A0ea9Aa1e174C536F346E87a1903',
-    defaultHighRate: '0xED15A3590597120f11F320801291f4d7A38156bD',
-    erc4337: '0xc0072312BB152278C0CaEb31d034a051ed4a86b9',
-    upgradeable: '0x0c5daDDb66Af134D3FD4e69874F665d78b3a4533',
-  },
-  authenticators: {
-    k1: '0x0000000000000000000000000000000000000001',
-    p256: '0x3AE129D846CD1CAf0369b4Caa56c188E18E11B15',
-    webAuthn: '0x1CB75BE39Fb950202BF4239010534B86EdA66c31',
-    delegate: '0x4C4D27e56087797Feca62262417d57be4e30dD1F',
-    alwaysValid: '0x520fBA4840729CB57b3Dc7B40D548AcF354DBA25',
-  },
-  policies: {
-    manager: '0x9736ad211D56164bEBA5Fa486c6dfA77E586a7fE',
-    sessionPolicy: '0x1c30e92C01B242a748625330777d8A7B5E51EAAE',
-  },
-} as const satisfies Eip8130Deployment
-
 /**
- * EIP-8130 deployment for the Base "vibenet" devnet (chain id `84538453`).
+ * Canonical EIP-8130 deployment addresses, derived deterministically from
+ * `base/eip-8130` contract bytecode compiled with **solc 0.8.33** via
+ * `Deploy.s.sol`. These addresses are identical on every chain that runs the
+ * same bytecode (Base Sepolia, vibenet devnet, mainnet when live).
  *
- * This devnet runs EIP-8130 **natively**, so the `accountConfiguration` and the
- * native account/authenticator addresses are the ones the execution client
- * enshrines (`base` `Eip8130Contracts`) — *not* the addresses of the example
- * contracts deployed from `base/eip-8130`. Account-address derivation and the
- * native authorization path read this enshrined `accountConfiguration`
- * (`0xb019…`); using any other value derives a different address and the create
- * transaction's sender fails to authorize.
+ * `accountConfiguration` is enshrined in the execution client; using any other
+ * value derives a different account address and the create transaction fails.
  *
- * The EVM-execution-only contracts the client does not enshrine (`erc4337` and
- * `upgradeable` account implementations, and the example `policies`) are taken
- * from the `base/eip-8130` devnet broadcast; they are only relevant to the
- * ERC-4337 / policy-gated execution path, not native `AA_TX_TYPE` inclusion.
+ * When the `base/eip-8130` contracts are recompiled (e.g. Solidity upgrade or
+ * bytecode change), all addresses must be re-derived and this object updated.
  */
-export const vibenetDevnetDeployment = {
-  // Enshrined by the execution client (native path) — verified on-devnet.
-  accountConfiguration: '0xb0198a714872EE5bfDF829e7986DB5C5899a6b50',
+const canonicalEip8130Deployment = {
+  accountConfiguration: '0xC6595B992AF49099B476690d4D7CAb7D1890388F',
   accounts: {
-    default: '0x124b52d5D57a76ed064c414975beA11Beffe0251',
-    defaultHighRate: '0x13dD0F222cCF60B7C08a95C2d1FcC85A38DD675D',
-    // EVM-execution-only (base/eip-8130 devnet broadcast).
-    erc4337: '0xfd054f275750DA23893aECaDE788825f8A3F434C',
-    upgradeable: '0x7Cf83aB369Fefabe2C9cb6D7C9DE816cc4f68Eaa',
+    default: '0xca8D7419FEC024a5CEDB8D427615f3A74E3ebA6b',
+    defaultHighRate: '0x9bB1a51927A7B8Fc433956E1a417DB9f97465527',
+    erc4337: '0xe8e6317b1440ead4a3fc93e17cee77324a509923',
+    upgradeable: '0x7Cf83aB369Fefabe2C9cb6D7C9DE816cc4f68Ea',
   },
   authenticators: {
     k1: '0x0000000000000000000000000000000000000001',
     p256: '0x3AE129D846CD1CAf0369b4Caa56c188E18E11B15',
     webAuthn: '0x1CB75BE39Fb950202BF4239010534B86EdA66c31',
-    delegate: '0xE67D299Ff3F0a185398B6C5a28998696969265d7',
+    delegate: '0xCc81575121084c3538773478577e04CA7e9b35B1',
     alwaysValid: '0x520fBA4840729CB57b3Dc7B40D548AcF354DBA25',
   },
   policies: {
@@ -108,6 +80,20 @@ export const vibenetDevnetDeployment = {
     sessionPolicy: '0x1577b86A7F621B2274909BeD3D9e7dE2a008151C',
   },
 } as const satisfies Eip8130Deployment
+
+/** EIP-8130 deployment on Base Sepolia (chain id `84532`). */
+export const baseSepoliaDeployment = canonicalEip8130Deployment
+
+/**
+ * EIP-8130 deployment for the Base "vibenet" devnet (chain id `84538453`).
+ *
+ * The devnet runs EIP-8130 **natively** and the execution client enshrines the
+ * canonical CREATE2 addresses (solc 0.8.33 via `Deploy.s.sol`), identical to
+ * Base Sepolia and every other supported chain. Using any other
+ * `accountConfiguration` derives a different account address and create
+ * transactions fail with "create address mismatch".
+ */
+export const vibenetDevnetDeployment = canonicalEip8130Deployment
 
 /** Known EIP-8130 deployments, keyed by chain id. */
 export const eip8130Deployments: Record<number, Eip8130Deployment> = {

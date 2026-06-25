@@ -69,16 +69,20 @@ export type GetPayerSignatureHash8130ErrorType =
   | ErrorType
 
 /**
- * Computes the EIP-8130 **payer** signature hash — all transaction fields
- * through `calls`, excluding `payer`, `sender_auth`, and `payer_auth`:
+ * Computes the EIP-8130 **payer** signature hash — the full transaction body
+ * including the `payer` field, but excluding `sender_auth` and `payer_auth`:
  *
  * ```
  * keccak256(AA_PAYER_TYPE || rlp([
  *   chain_id, from, nonce_key, nonce_sequence, expiry,
  *   max_priority_fee_per_gas, max_fee_per_gas, gas_limit,
- *   account_changes, calls
+ *   account_changes, calls, metadata, payer
  * ]))
  * ```
+ *
+ * This matches the Rust node's `payer_signature_hash` which encodes all fields
+ * of the transaction body including the `payer` slot (mirrors `rlp_encode_fields`
+ * in `TxEip8130`).
  *
  * @remarks
  * `from` MUST be the **resolved** sender address. In the EOA path (`from`
@@ -89,9 +93,12 @@ export type GetPayerSignatureHash8130ErrorType =
 export function getPayerSignatureHash8130<to extends To = 'hex'>(
   parameters: GetSignatureHash8130Parameters<to>,
 ): GetSignatureHash8130ReturnType<to> {
-  const { to = 'hex' } = parameters
+  const { to = 'hex', payer } = parameters
   const hash = keccak256(
-    concatHex([aaPayerType, toRlp(toTransactionBody(parameters))]),
+    concatHex([
+      aaPayerType,
+      toRlp([...toTransactionBody(parameters), payer ?? '0x']),
+    ]),
   )
   if (to === 'bytes')
     return hexToBytes(hash) as GetSignatureHash8130ReturnType<to>
