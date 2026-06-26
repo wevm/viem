@@ -24,41 +24,86 @@ import { erc1167Bytecode } from '../utils/proxy.js'
 import { signActorChanges8130 } from '../utils/signActorChanges.js'
 import { type Signer, signTransaction8130 } from '../utils/signTransaction.js'
 
-export type To8130AccountParameters = {
-  /** Signer for the controlling actor (produces `auth` / `sender_auth`). */
+/**
+ * Common base params shared by both `to8130Account` shapes.
+ * @internal
+ */
+type To8130AccountBase = {
+  /** Signer that produces `sender_auth` / `auth` blobs for this account. */
   signer: Signer
-  /** User-chosen uniqueness factor (bytes32). */
-  userSalt: Hex
-  /** Runtime bytecode placed at the account address (e.g. ERC-1167 proxy). */
-  code: Hex
   /**
-   * Initial actors registered at creation. MUST be sorted by `actorId` in
-   * strictly ascending order.
-   */
-  initialActors: readonly AaActor[]
-  /**
-   * Authenticator address used for this account's `auth` blobs. Defaults to the
-   * native `ECRECOVER_AUTHENTICATOR`.
+   * Authenticator address for the signer's auth blobs. Defaults to the
+   * native `ECRECOVER_AUTHENTICATOR` (secp256k1). Set to the P-256 /
+   * WebAuthn / delegate authenticator address for non-K1 signers.
    */
   authenticator?: Address | undefined
-  /** Account Configuration contract (CREATE2 deployer). */
-  accountConfigAddress?: Address | undefined
-  /** Override the derived account address. */
-  address?: Address | undefined
 }
+
+/**
+ * Parameters for `to8130Account` — two mutually exclusive shapes:
+ *
+ * **Smart-account shape** (`userSalt` + `code` + `initialActors`): derives the
+ * counterfactual CREATE2 address and exposes `create()` for first-deployment.
+ *
+ * **Address shape** (`address` only): binds to a known address (e.g. an EOA that
+ * will delegate via EIP-7702). `create()` is unavailable — use `delegate(impl)`
+ * in the first transaction's `accountChanges` instead. No `userSalt`, `code`, or
+ * `initialActors` are needed.
+ */
+export type To8130AccountParameters = To8130AccountBase &
+  (
+    | {
+        /**
+         * User-chosen uniqueness factor (bytes32). Required to derive the
+         * counterfactual CREATE2 address.
+         */
+        userSalt: Hex
+        /** Runtime bytecode placed at the account address (ERC-1167 proxy). */
+        code: Hex
+        /**
+         * Initial actors registered at creation, sorted by `actorId` in strictly
+         * ascending order.
+         */
+        initialActors: readonly AaActor[]
+        /** Account Configuration contract (CREATE2 deployer). Defaults to canonical. */
+        accountConfigAddress?: Address | undefined
+        /** Override the derived address (advanced). */
+        address?: Address | undefined
+      }
+    | {
+        /**
+         * A known account address — e.g. an EOA address for EIP-7702 delegation.
+         * When provided, `userSalt`, `code`, and `initialActors` are not needed
+         * and `create()` is not available. Use `delegate(impl)` in the first
+         * transaction's `accountChanges` to install delegation code.
+         */
+        address: Address
+        userSalt?: undefined
+        code?: undefined
+        initialActors?: undefined
+        accountConfigAddress?: undefined
+      }
+  )
 
 export type To8130AccountReturnType = {
   readonly address: Address
   readonly signer: Signer
   readonly initialActors: readonly AaActor[]
-  /** Builds the `create` account-change entry (place in the first transaction). */
+  /**
+   * Builds the `create` account-change entry (include in the first tx for
+   * smart accounts). Throws if the account was constructed with a known `address`
+   * (e.g. delegated EOA) — use `delegate(impl)` instead.
+   */
   create(): AaAccountChangeCreate
   /** Signs an `authorizeActor` / `revokeActor` set into a `config` entry. */
   change(
     actorChanges: readonly AaActorChange[],
     options?: { chainId?: number; sequence?: number },
   ): Promise<AaAccountChangeConfig>
-  /** Builds a `delegation` account-change entry. */
+  /**
+   * Builds an EIP-7702 `delegation` account-change entry.
+   * Include in the first transaction's `accountChanges` for delegated EOA accounts.
+   */
   delegate(target: Address): AaAccountChangeDelegation
   /** Signs an `AA_TX_TYPE` transaction as this account (configured-actor path). */
   signTransaction(
@@ -70,45 +115,63 @@ export type To8130AccountReturnType = {
 }
 
 /**
- * Creates a local EIP-8130 account helper around a signer and an account
- * identity (`userSalt` + `code` + `initialActors`). Provides ergonomic builders
- * for the account lifecycle:
+ * Creates a local EIP-8130 account helper for the **configured-actor** signing
+ * path (authenticator-prefixed `senderAuth`). Two shapes:
  *
- * - `create()` — the `create` account-change entry that deploys the account
- * - `change([...])` — a signed `config` entry (authorize / revoke actors)
- * - `delegate(target)` — a `delegation` entry
- * - `signTransaction(tx)` — signs an `AA_TX_TYPE` transaction as this account
+ * **Smart-account** — supply `userSalt + code + initialActors`:
+ * ```ts
+ * const account = to8130Account({ signer, userSalt, code, initialActors })
+ * // first tx: accountChanges: [account.create()]
+ * ```
  *
- * @example
- * import { to8130Account, key, authorizeActor, actorScope } from 'viem/experimental'
+ * **Delegated EOA** — supply `address` only (no salt, no code, no actors):
+ * ```ts
+ * const account = to8130Account({ signer, address: eoaSigner.address })
+ * // first tx: accountChanges: [account.delegate(deployment.accounts.default)]
+ * // add keys:  accountChanges: [account.delegate(...), await account.change([...])]
+ * ```
  *
- * const account = to8130Account({
- *   signer,
- *   userSalt,
- *   code: erc1167Bytecode(impl),
- *   initialActors: [key.k1(signer.address)],
+ * For the P256 / WebAuthn actor to drive the EOA after delegation, construct
+ * a second handle with the new signer but the same `address`:
+ * ```ts
+ * const accountAsP256 = to8130Account({
+ *   signer: p256,
+ *   authenticator: p256.authenticator,
+ *   address: eoaSigner.address,
  * })
+ * ```
  *
- * const create = account.create()
- * const change = await account.change([
- *   authorizeActor(key.p256({ x, y }), { scope: actorScope.sender }),
- * ])
+ * For pure EOA K1 signing (no contract, raw 65-byte sig) see {@link toEoa8130Account}.
+ * For a new smart account with auto-derived address see {@link newSmartAccount8130}.
  */
 export function to8130Account(
   parameters: To8130AccountParameters,
 ): To8130AccountReturnType {
   const {
     signer,
-    userSalt,
-    code,
-    initialActors,
     authenticator = ecrecoverAuthenticator,
-    accountConfigAddress = defaultAccountConfigAddress,
   } = parameters
 
-  const address =
-    parameters.address ??
-    computeAddress8130({ userSalt, code, initialActors, accountConfigAddress })
+  // Address-only mode (delegated EOA): address is fixed, no CREATE2 derivation.
+  const isAddressOnly = parameters.userSalt === undefined
+
+  const address: Address = (() => {
+    if (parameters.address) return parameters.address
+    if (isAddressOnly)
+      throw new BaseError(
+        'Provide `address` or `userSalt + code + initialActors` to derive the account address.',
+      )
+    return computeAddress8130({
+      userSalt: parameters.userSalt!,
+      code: parameters.code!,
+      initialActors: parameters.initialActors!,
+      accountConfigAddress:
+        (parameters as { accountConfigAddress?: Address }).accountConfigAddress ??
+        defaultAccountConfigAddress,
+    })
+  })()
+
+  const initialActors = parameters.initialActors ?? []
 
   return {
     address,
@@ -116,7 +179,17 @@ export function to8130Account(
     initialActors,
 
     create() {
-      return { type: 'create', userSalt, code, initialActors }
+      if (isAddressOnly)
+        throw new BaseError(
+          '`create()` is not available for address-only (delegated EOA) accounts. ' +
+            'Include `account.delegate(impl)` in `accountChanges` instead.',
+        )
+      return {
+        type: 'create',
+        userSalt: parameters.userSalt!,
+        code: parameters.code!,
+        initialActors: parameters.initialActors!,
+      }
     },
 
     async change(actorChanges, options = {}) {
