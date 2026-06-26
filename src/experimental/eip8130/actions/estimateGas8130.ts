@@ -183,6 +183,14 @@ export async function estimateGas8130<
       metadata: '0x',
       payer: payer ?? null,
     }
+    // Pass auth-scheme hints so the node can price intrinsic gas correctly even
+    // when the authenticator type cannot be fully inferred from on-chain state
+    // (e.g. the account hasn't been deployed yet).  The node ignores these in
+    // simulate mode when it can determine the scheme from initialActors, so
+    // providing them is always safe.
+    if (senderAuthScheme !== undefined) request.senderAuthScheme = senderAuthScheme
+    if (senderAuthSize !== undefined)
+      request.senderAuthSize = numberToHex(senderAuthSize)
     if (payerAuthScheme !== undefined) request.payerAuthScheme = payerAuthScheme
     if (payerAuthSize !== undefined)
       request.payerAuthSize = numberToHex(payerAuthSize)
