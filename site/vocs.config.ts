@@ -786,6 +786,34 @@ export default defineConfig({
         ],
       },
       {
+        text: 'Tokens',
+        collapsed: true,
+        items: [
+          { text: 'Overview', link: '/tokens' },
+          { text: 'Read a Balance', link: '/tokens#read-a-balance' },
+          {
+            text: 'Read Token Metadata',
+            link: '/tokens#read-token-metadata',
+          },
+          { text: 'Transfer Tokens', link: '/tokens#transfer-tokens' },
+          { text: 'Approve a Spender', link: '/tokens#approve-a-spender' },
+          {
+            text: 'Estimate Gas for a Write',
+            link: '/tokens#estimate-gas-for-a-write',
+          },
+          { text: 'Batch Calls', link: '/tokens#batch-calls' },
+          { text: 'Watch Transfers', link: '/tokens#watch-transfers' },
+          {
+            text: 'Look Up a Token Address',
+            link: '/tokens#look-up-a-token-address',
+          },
+          {
+            text: 'Define a Custom Token',
+            link: '/tokens#define-a-custom-token',
+          },
+        ],
+      },
+      {
         text: 'Contract',
         collapsed: true,
         items: [
@@ -1383,6 +1411,50 @@ export default defineConfig({
         ],
       },
     ],
+    '/tokens': {
+      backLink: true,
+      items: [
+        {
+          text: 'Tokens',
+          items: [{ text: 'Overview', link: '/tokens' }],
+        },
+        {
+          text: 'Recipes',
+          items: [
+            { text: 'Read a Balance', link: '/tokens#read-a-balance' },
+            {
+              text: 'Read Token Metadata',
+              link: '/tokens#read-token-metadata',
+            },
+            { text: 'Transfer Tokens', link: '/tokens#transfer-tokens' },
+            { text: 'Approve a Spender', link: '/tokens#approve-a-spender' },
+            {
+              text: 'Transfer From an Approved Account',
+              link: '/tokens#transfer-from-an-approved-account',
+            },
+            {
+              text: 'Estimate Gas for a Write',
+              link: '/tokens#estimate-gas-for-a-write',
+            },
+            { text: 'Batch Calls', link: '/tokens#batch-calls' },
+            { text: 'Watch Transfers', link: '/tokens#watch-transfers' },
+            {
+              text: 'Look Up a Token Address',
+              link: '/tokens#look-up-a-token-address',
+            },
+            {
+              text: 'Use on an Unsupported Chain',
+              link: '/tokens#use-on-an-unsupported-chain',
+            },
+            {
+              text: 'Define a Custom Token',
+              link: '/tokens#define-a-custom-token',
+            },
+            { text: 'Override Addresses', link: '/tokens#override-addresses' },
+          ],
+        },
+      ],
+    },
     '/account-abstraction': {
       backLink: true,
       items: [
@@ -3230,6 +3302,10 @@ export default defineConfig({
     {
       text: 'Extensions',
       items: [
+        {
+          text: 'Tokens',
+          link: '/tokens',
+        },
         {
           text: 'Account Abstraction',
           link: '/account-abstraction',
