@@ -369,16 +369,47 @@ export function newSmartAccount8130(
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type ToEoa8130AccountReturnType = {
-  /** The EOA address — used as both `sender` and signer identity. */
+  /** The EOA address — both the sender identity and the key recovery target. */
   readonly address: Address
   readonly signer: Signer
   /**
-   * Signs an EIP-8130 transaction as a bare EOA (implicit self-actor).
+   * Builds an EIP-7702 `delegation` account-change entry that sets the code
+   * at this EOA address. Include in the first transaction's `accountChanges`
+   * to enable smart-account execution (e.g. `executeBatch`, multi-actor auth).
    *
-   * The `senderAuth` is a raw 65-byte secp256k1 signature with no authenticator
-   * prefix — the node recovers the sender address directly via `ecrecover`.
-   * Use this when you want native EIP-8130 features (e.g. payer sponsorship)
-   * without deploying a smart-contract account.
+   * @example
+   * await account.signTransaction({
+   *   accountChanges: [account.delegate(deployment.accounts.default)],
+   *   calls: wire, ...
+   * })
+   */
+  delegate(target: Address): AaAccountChangeDelegation
+  /**
+   * Signs an `authorizeActor` / `revokeActor` set into a `config` account-change
+   * entry. Use to add P-256 / WebAuthn keys or remove the K1 actor after
+   * delegation without needing a separate account handle.
+   *
+   * @example
+   * // Atomically delegate + add a P256 key in the first tx:
+   * const addP256 = await account.change([
+   *   authorizeActor(key.p256(p256.publicKey), { scope: actorScope.sender }),
+   * ], { chainId, sequence: 0 })
+   * await account.signTransaction({
+   *   accountChanges: [account.delegate(impl), addP256],
+   *   calls: wire, ...
+   * })
+   */
+  change(
+    actorChanges: readonly AaActorChange[],
+    options?: { chainId?: number; sequence?: number },
+  ): Promise<AaAccountChangeConfig>
+  /**
+   * Signs an EIP-8130 transaction using the EOA implicit self-actor path.
+   *
+   * `senderAuth` is a **raw 65-byte secp256k1 signature** — no authenticator
+   * address prefix, no `from` field in the tx body. The node recovers the sender
+   * via `ecrecover` and validates it as the implicit K1 self-actor. This is the
+   * cheapest auth path and works for both plain-EOA and delegated-EOA cases.
    */
   signTransaction(
     transaction: TransactionSerializable8130,
@@ -389,33 +420,43 @@ export type ToEoa8130AccountReturnType = {
 }
 
 /**
- * Wraps a secp256k1 EOA signer for EIP-8130 transactions using the implicit
- * self-actor path. The `senderAuth` is a raw 65-byte ECDSA signature (no
- * authenticator prefix); the node recovers the sender via `ecrecover`.
+ * Wraps a secp256k1 EOA signer for EIP-8130 transactions using the **implicit
+ * self-actor** path. `senderAuth` is a raw 65-byte ECDSA signature (no
+ * authenticator prefix, no `from` field); the node recovers the sender via
+ * `ecrecover`.
  *
- * Use this when your EOA address IS the account — no smart contract deployment
- * needed. The signer can still receive payer sponsorship and use all other
- * EIP-8130 features.
+ * Use this when the EOA key IS the account — whether the EOA is undelegated
+ * (pure K1, no contract) or delegated via EIP-7702 (use `delegate(impl)` in
+ * the first tx's `accountChanges`). Both cases use the same signing path.
  *
- * For smart contract accounts (create / delegate / configure), use
- * {@link newSmartAccount8130} or {@link to8130Account} instead.
+ * To drive the same EOA address with a **different** actor (P-256 / WebAuthn)
+ * after delegation, use {@link to8130Account} with `address`:
+ * ```ts
+ * const accountAsP256 = to8130Account({
+ *   signer: p256,
+ *   authenticator: p256.authenticator,
+ *   address: eoaSigner.address,
+ * })
+ * ```
  *
  * @example
- * const eoa = toEoa8130Account(privateKeyToAccount(pk))
+ * // Pure EOA — no contract, payer-sponsored
+ * const account = toEoa8130Account(privateKeyToAccount(pk))
+ * const signed = await account.signTransaction({ calls: wire, payer: payerAddr, ... })
  *
- * const signed = await eoa.signTransaction({
- *   chainId, nonceKey: 0n, nonceSequence: 0n,
- *   calls: wire,
- *   gas: gasLimit,
- *   maxFeePerGas: 1_000_000_000n,
- *   maxPriorityFeePerGas: 1_000_000n,
- *   // No `from` → raw 65-byte EOA auth
+ * @example
+ * // Delegated EOA — delegate + add P256 in one shot
+ * const account = toEoa8130Account(privateKeyToAccount(pk))
+ * const addP256 = await account.change([authorizeActor(key.p256(...))], { chainId, sequence: 0 })
+ * const signed = await account.signTransaction({
+ *   accountChanges: [account.delegate(deployment.accounts.default), addP256],
+ *   calls: wire, ...
  * })
  */
 export function toEoa8130Account(signer: Signer): ToEoa8130AccountReturnType {
   if (!signer.address)
     throw new BaseError(
-      '`signer.address` is required for an EOA account. Use `privateKeyToAccount(pk)` or equivalent.',
+      '`signer.address` is required. Use `privateKeyToAccount(pk)` or equivalent.',
     )
   const address = signer.address
 
@@ -423,11 +464,27 @@ export function toEoa8130Account(signer: Signer): ToEoa8130AccountReturnType {
     address,
     signer,
 
+    delegate(target) {
+      return { type: 'delegation', target }
+    },
+
+    async change(actorChanges, options = {}) {
+      return signActorChanges8130({
+        signer,
+        account: address,
+        chainId: options.chainId ?? 0,
+        sequence: options.sequence ?? 0,
+        actorChanges,
+        authenticator: ecrecoverAuthenticator,
+      })
+    },
+
     async signTransaction(transaction, options = {}) {
       if (!signer.sign)
         throw new BaseError('`signer` does not support raw signing.')
       return signTransaction8130({
-        // Do NOT set `from` — signals the EOA path: raw 65-byte sig, no prefix.
+        // Omit `from` → EOA implicit self-actor path:
+        // senderAuth = raw 65-byte sig, sender recovered via ecrecover.
         transaction,
         account: signer,
         authenticator: ecrecoverAuthenticator,
