@@ -19,6 +19,7 @@ test('default', async () => {
   expect(walletActions(walletClient as any)).toMatchInlineSnapshot(`
     {
       "addChain": [Function],
+      "connect": [Function],
       "deployContract": [Function],
       "fillTransaction": [Function],
       "getAddresses": [Function],
@@ -53,6 +54,10 @@ test('default', async () => {
 describe('smoke test', () => {
   test('addChain', async () => {
     await walletClient.addChain({ chain: avalanche })
+  })
+
+  test('connect', async () => {
+    expect(await walletClient.connect()).toBeDefined()
   })
 
   test('deployContract', async () => {

@@ -480,6 +480,12 @@ export {
   addChain,
 } from './wallet/addChain.js'
 export {
+  type ConnectErrorType,
+  type ConnectParameters,
+  type ConnectReturnType,
+  connect,
+} from './wallet/connect.js'
+export {
   type DeployContractErrorType,
   type DeployContractParameters,
   type DeployContractReturnType,

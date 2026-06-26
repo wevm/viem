@@ -37,6 +37,81 @@ export type GetCallsStatusReturnType = Prettify<
 
 export type GetCallsStatusErrorType = RequestErrorType | ErrorType
 
+type RawCallsStatus =
+  | (Omit<
+      WalletGetCallsStatusReturnType<
+        any,
+        Hex | number,
+        Hex | bigint,
+        Hex | 'success' | 'reverted'
+      >,
+      'status'
+    > & {
+      status: number | 'CONFIRMED' | 'PENDING'
+    })
+  | {
+      atomic: boolean
+      chainId: number
+      receipts: RpcTransactionReceipt[]
+      status: number
+      version: string
+    }
+
+export function formatCallsStatus(
+  status_: RawCallsStatus,
+): GetCallsStatusReturnType {
+  const {
+    atomic = false,
+    chainId,
+    receipts,
+    version = '2.0.0',
+    ...response
+  } = status_
+  const [status, statusCode] = (() => {
+    const statusCode = response.status
+    if (typeof statusCode === 'number') {
+      if (statusCode >= 100 && statusCode < 200)
+        return ['pending', statusCode] as const
+      if (statusCode >= 200 && statusCode < 300)
+        return ['success', statusCode] as const
+      if (statusCode >= 300 && statusCode < 700)
+        return ['failure', statusCode] as const
+    }
+    if (statusCode === 'CONFIRMED') return ['success', 200] as const
+    if (statusCode === 'PENDING') return ['pending', 100] as const
+    return [undefined, statusCode]
+  })()
+  return {
+    ...response,
+    atomic,
+    chainId:
+      typeof chainId === 'number'
+        ? chainId
+        : chainId
+          ? hexToNumber(chainId)
+          : undefined,
+    receipts:
+      receipts?.map((receipt) => ({
+        ...receipt,
+        blockNumber:
+          typeof receipt.blockNumber === 'bigint'
+            ? receipt.blockNumber
+            : hexToBigInt(receipt.blockNumber),
+        gasUsed:
+          typeof receipt.gasUsed === 'bigint'
+            ? receipt.gasUsed
+            : hexToBigInt(receipt.gasUsed),
+        status:
+          receipt.status === 'success' || receipt.status === 'reverted'
+            ? receipt.status
+            : receiptStatuses[receipt.status as '0x0' | '0x1'],
+      })) ?? [],
+    statusCode,
+    status,
+    version,
+  } as GetCallsStatusReturnType
+}
+
 /**
  * Returns the status of a call batch that was sent via `sendCalls`.
  *
@@ -107,41 +182,5 @@ export async function getCallsStatus<
     })
   }
 
-  const {
-    atomic = false,
-    chainId,
-    receipts,
-    version = '2.0.0',
-    ...response
-  } = await getStatus(parameters.id as Hex)
-  const [status, statusCode] = (() => {
-    const statusCode = response.status
-    if (statusCode >= 100 && statusCode < 200)
-      return ['pending', statusCode] as const
-    if (statusCode >= 200 && statusCode < 300)
-      return ['success', statusCode] as const
-    if (statusCode >= 300 && statusCode < 700)
-      return ['failure', statusCode] as const
-    // @ts-expect-error: for backwards compatibility
-    if (statusCode === 'CONFIRMED') return ['success', 200] as const
-    // @ts-expect-error: for backwards compatibility
-    if (statusCode === 'PENDING') return ['pending', 100] as const
-    return [undefined, statusCode]
-  })()
-  return {
-    ...response,
-    atomic,
-    // @ts-expect-error: for backwards compatibility
-    chainId: chainId ? hexToNumber(chainId) : undefined,
-    receipts:
-      receipts?.map((receipt) => ({
-        ...receipt,
-        blockNumber: hexToBigInt(receipt.blockNumber),
-        gasUsed: hexToBigInt(receipt.gasUsed),
-        status: receiptStatuses[receipt.status as '0x0' | '0x1'],
-      })) ?? [],
-    statusCode,
-    status,
-    version,
-  }
+  return formatCallsStatus(await getStatus(parameters.id as Hex))
 }

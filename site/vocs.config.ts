@@ -462,6 +462,10 @@ export default defineConfig({
             text: 'Account',
             items: [
               {
+                text: 'connect',
+                link: '/docs/actions/wallet/connect',
+              },
+              {
                 text: 'getAddresses',
                 link: '/docs/actions/wallet/getAddresses',
               },

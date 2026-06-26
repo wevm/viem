@@ -15,6 +15,11 @@ import {
   addChain,
 } from '../../actions/wallet/addChain.js'
 import {
+  type ConnectParameters,
+  type ConnectReturnType,
+  connect,
+} from '../../actions/wallet/connect.js'
+import {
   type DeployContractParameters,
   type DeployContractReturnType,
   deployContract,
@@ -169,6 +174,26 @@ export type WalletActions<
    * await client.addChain({ chain: optimism })
    */
   addChain: (args: AddChainParameters) => Promise<void>
+  /**
+   * Requests to connect account(s) with optional capabilities.
+   *
+   * - Docs: https://viem.sh/docs/actions/wallet/connect
+   * - JSON-RPC Methods: [`wallet_connect`](https://github.com/ethereum/ERCs/blob/abd1c9f4eda2d6ad06ade0e3af314637a27d1ee7/ERCS/erc-7846.md)
+   *
+   * @param args - {@link ConnectParameters}
+   * @returns List of accounts managed by a wallet {@link ConnectReturnType}
+   *
+   * @example
+   * import { createWalletClient, custom } from 'viem'
+   * import { mainnet } from 'viem/chains'
+   *
+   * const client = createWalletClient({
+   *   chain: mainnet,
+   *   transport: custom(window.ethereum),
+   * })
+   * const response = await client.connect()
+   */
+  connect: (args?: ConnectParameters<chain>) => Promise<ConnectReturnType>
   /**
    * Deploys a contract to the network, given bytecode and constructor arguments.
    *
@@ -1184,6 +1209,7 @@ export function walletActions<
 >(client: Client<transport, chain, account>): WalletActions<chain, account> {
   return {
     addChain: (args) => addChain(client, args),
+    connect: (args) => connect(client, args),
     deployContract: (args) => deployContract(client, args),
     fillTransaction: (args) => fillTransaction(client, args),
     getAddresses: () => getAddresses(client),

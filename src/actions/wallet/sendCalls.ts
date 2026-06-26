@@ -1,27 +1,27 @@
 import type { Address, Narrow } from 'abitype'
-import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { BaseError } from '../../errors/base.js'
+import type { ChainNotFoundErrorType } from '../../errors/chain.js'
 import {
   AtomicityNotSupportedError,
   UnsupportedNonOptionalCapabilityError,
 } from '../../errors/rpc.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { Account, GetAccountParameter } from '../../types/account.js'
-import type { Call, Calls } from '../../types/calls.js'
+import type { Calls } from '../../types/calls.js'
 import type { ExtractCapabilities } from '../../types/capabilities.js'
 import type { Chain, DeriveChain } from '../../types/chain.js'
 import type { WalletSendCallsParameters } from '../../types/eip1193.js'
 import type { Hex } from '../../types/misc.js'
 import type { Prettify } from '../../types/utils.js'
-import { encodeFunctionData } from '../../utils/abi/encodeFunctionData.js'
 import type { RequestErrorType } from '../../utils/buildRequest.js'
 import { concat } from '../../utils/data/concat.js'
 import { hexToBigInt } from '../../utils/encoding/fromHex.js'
 import { numberToHex } from '../../utils/encoding/toHex.js'
 import { getTransactionError } from '../../utils/errors/getTransactionError.js'
 import { sendTransaction } from './sendTransaction.js'
+import { prepareSendCallsRequest } from './utils/prepareSendCallsRequest.js'
 
 export const fallbackMagicIdentifier =
   '0x5792579257925792579257925792579257925792579257925792579257925792'
@@ -52,7 +52,10 @@ export type SendCallsReturnType = Prettify<{
   id: string
 }>
 
-export type SendCallsErrorType = RequestErrorType | ErrorType
+export type SendCallsErrorType =
+  | RequestErrorType
+  | ChainNotFoundErrorType
+  | ErrorType
 
 /**
  * Requests the connected wallet to send a batch of calls.
@@ -96,68 +99,21 @@ export async function sendCalls<
   parameters: SendCallsParameters<chain, account, chainOverride, calls>,
 ): Promise<SendCallsReturnType> {
   const {
-    account: account_ = client.account,
-    chain = client.chain,
+    calls,
+    capabilities,
+    chain,
     experimental_fallback,
-    experimental_fallbackDelay = 32,
-    forceAtomic = false,
-    id,
-    version = '2.0.0',
-  } = parameters
-
-  const account = account_ ? parseAccount(account_) : null
-
-  let capabilities = parameters.capabilities
-
-  if (client.dataSuffix && !parameters.capabilities?.dataSuffix) {
-    if (typeof client.dataSuffix === 'string')
-      capabilities = {
-        ...parameters.capabilities,
-        dataSuffix: { value: client.dataSuffix, optional: true },
-      }
-    else
-      capabilities = {
-        ...parameters.capabilities,
-        dataSuffix: {
-          value: client.dataSuffix.value,
-          ...(client.dataSuffix.required ? {} : { optional: true }),
-        },
-      }
-  }
-
-  const calls = parameters.calls.map((call_: unknown) => {
-    const call = call_ as Call
-
-    const data = call.abi
-      ? encodeFunctionData({
-          abi: call.abi,
-          functionName: call.functionName,
-          args: call.args,
-        })
-      : call.data
-
-    return {
-      data: call.dataSuffix && data ? concat([data, call.dataSuffix]) : data,
-      to: call.to,
-      value: call.value ? numberToHex(call.value) : undefined,
-    }
-  })
+    experimental_fallbackDelay,
+    forceAtomic,
+    account,
+    request,
+  } = prepareSendCallsRequest(client, parameters)
 
   try {
     const response = await client.request(
       {
         method: 'wallet_sendCalls',
-        params: [
-          {
-            atomicRequired: forceAtomic,
-            calls,
-            capabilities,
-            chainId: numberToHex(chain!.id),
-            from: account?.address,
-            id,
-            version,
-          },
-        ],
+        params: [request],
       },
       { retryCount: 0 },
     )
