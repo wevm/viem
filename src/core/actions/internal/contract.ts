@@ -10,7 +10,12 @@ import type {
 } from 'abitype'
 import type * as Hex from 'ox/Hex'
 
-import type { IsUnion, UnionToTuple } from '../../internal/types.js'
+import type {
+  IsNarrowable,
+  IsUnion,
+  NoInfer,
+  UnionToTuple,
+} from '../../internal/types.js'
 
 /** Extracts the callable function names from an `abi` for a given `mutability`. */
 export type ContractFunctionName<
@@ -109,6 +114,30 @@ type CheckArgs<
 > = (readonly [] extends args ? readonly [] : args) extends targetArgs
   ? abiFunction
   : never
+
+/**
+ * Resolves the `value` field for a write/simulate action so it is only offered
+ * when the targeted function is `payable` (and forbidden otherwise).
+ */
+export type GetMutabilityAwareValue<
+  abi extends Abi | readonly unknown[],
+  mutability extends AbiStateMutability = AbiStateMutability,
+  functionName extends ContractFunctionName<abi, mutability> =
+    ContractFunctionName<abi, mutability>,
+  valueType = bigint,
+  args extends ContractFunctionArgs<abi, mutability, functionName> =
+    ContractFunctionArgs<abi, mutability, functionName>,
+  abiFunction extends AbiFunction = abi extends Abi
+    ? ExtractAbiFunctionForArgs<abi, mutability, functionName, args>
+    : AbiFunction,
+  _Narrowable extends boolean = IsNarrowable<abi, Abi>,
+> = _Narrowable extends true
+  ? abiFunction['stateMutability'] extends 'payable'
+    ? { value?: NoInfer<valueType> | undefined }
+    : abiFunction['payable'] extends true
+      ? { value?: NoInfer<valueType> | undefined }
+      : { value?: undefined }
+  : { value?: NoInfer<valueType> | undefined }
 
 /**
  * The shared input shape for contract actions: `abi` + `functionName` (with all

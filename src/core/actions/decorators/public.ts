@@ -67,6 +67,7 @@ export function publicActions() {
       getEip712Domain: (options) => contract.getEip712Domain(client, options),
       getLogs: (options) => contract.getLogs(client, options as never),
       read: (options) => contract.read(client, options),
+      write: (options) => contract.write(client, options as never),
     },
     logs: {
       get: (options) => logs.get(client, options as never),
@@ -458,6 +459,42 @@ export declare namespace publicActions {
       >(
         options: contract.read.Options<abi, functionName, args>,
       ) => Promise<contract.read.ReturnType<abi, functionName, args>>
+      /**
+       * Executes a write (`nonpayable`/`payable`) function on a contract.
+       *
+       * @example
+       * ```ts
+       * import { Account, Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       * import { Abi } from 'viem/utils'
+       *
+       * const client = Client.create({
+       *   account: Account.fromPrivateKey('0x…'),
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const hash = await client.contract.write({
+       *   abi: Abi.from(['function mint(uint32 tokenId)']),
+       *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+       *   args: [69420],
+       *   functionName: 'mint',
+       * })
+       * ```
+       */
+      write: <
+        const abi extends Abi | readonly unknown[],
+        functionName extends ContractFunctionName<
+          abi,
+          'nonpayable' | 'payable'
+        >,
+        const args extends ContractFunctionArgs<
+          abi,
+          'nonpayable' | 'payable',
+          functionName
+        >,
+      >(
+        options: contract.write.Options<abi, functionName, args, chain>,
+      ) => Promise<contract.write.ReturnType>
     }
     logs: {
       /**

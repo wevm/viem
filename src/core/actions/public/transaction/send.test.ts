@@ -693,3 +693,18 @@ describe('RpcError.ExecutionError', () => {
     `)
   })
 })
+
+test('error: aborted request is not wrapped', async () => {
+  await setup()
+  const controller = new AbortController()
+  controller.abort()
+  const error = await Actions.transaction
+    .send(client, {
+      account: jsonRpc,
+      to,
+      value: 1n,
+      requestOptions: { signal: controller.signal },
+    })
+    .catch((error) => error)
+  expect(error).not.toBeInstanceOf(RpcError.ExecutionError)
+})

@@ -13,6 +13,7 @@ import type * as Client from '../../../Client.js'
 import { BaseError } from '../../../Errors.js'
 import * as RpcError from '../../../RpcError.js'
 import type * as NonceManager from '../../../NonceManager.js'
+import { isAbortError } from '../../../internal/errors.js'
 import * as transactionRequest from '../../internal/transactionRequest.js'
 import { getId } from '../chains/getId.js'
 import { defaultParameters, prepare } from './prepare.js'
@@ -169,6 +170,8 @@ export async function send<chain extends Chain.Chain | undefined>(
     return await sendRaw(client, { requestOptions, transaction })
   } catch (err) {
     if (reset && nonceManager) nonceManager.reset(reset)
+
+    if (isAbortError(err)) throw err
 
     throw new RpcError.ExecutionError(err as Error, {
       ...rest,

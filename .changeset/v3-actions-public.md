@@ -46,9 +46,11 @@ Flat public action names were renamed to their namespaced v3 equivalents.
 - getEip712Domain(client, options)
 - getContractEvents(client, options)
 - readContract(client, options)
+- writeContract(client, options)
 + Actions.contract.getEip712Domain(client, options)
 + Actions.contract.getLogs(client, options)
 + Actions.contract.read(client, options)
++ Actions.contract.write(client, options)
 
 - estimateFeesPerGas(client, options)
 - estimateMaxPriorityFeePerGas(client, options)
@@ -122,6 +124,21 @@ Contract reads were renamed from `readContract` to `Actions.contract.read`.
     address,
     functionName: 'balanceOf',
     args: [account],
+  })
+```
+
+Contract writes were renamed from `writeContract` to `Actions.contract.write`.
+
+```diff
+- import { writeContract } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const hash = await writeContract(client, {
++ const hash = await Actions.contract.write(client, {
+    abi,
+    address,
+    functionName: 'mint',
+    args: [tokenId],
   })
 ```
 
