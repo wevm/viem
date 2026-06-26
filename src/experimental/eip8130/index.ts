@@ -10,6 +10,11 @@ export {
   type To8130AccountParameters,
   type To8130AccountReturnType,
   to8130Account,
+  type NewSmartAccount8130Parameters,
+  type NewSmartAccount8130ReturnType,
+  newSmartAccount8130,
+  type ToEoa8130AccountReturnType,
+  toEoa8130Account,
 } from './accounts/to8130Account.js'
 export {
   type Eip8130SmartAccountImplementation,
@@ -86,6 +91,7 @@ export {
 } from './constants.js'
 export {
   baseSepoliaDeployment,
+  canonicalEip8130Deployment,
   type Eip8130Deployment,
   eip8130Deployments,
   getEip8130Deployment,

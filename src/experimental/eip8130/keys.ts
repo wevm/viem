@@ -39,7 +39,17 @@ export const key = {
       authenticator: options.authenticator ?? canonicalAuthenticators.p256,
     }
   },
-  /** WebAuthn / FIDO2 passkey actor for a public key. */
+  /** WebAuthn / FIDO2 passkey actor for a public key. Alias: `key.passkey`. */
+  webAuthn(
+    publicKey: { x: Hex; y: Hex } | Hex,
+    options: { authenticator?: Address } = {},
+  ): AaActor {
+    return {
+      actorId: actorIdFromPublicKey(publicKey),
+      authenticator: options.authenticator ?? canonicalAuthenticators.passkey,
+    }
+  },
+  /** WebAuthn / FIDO2 passkey actor for a public key. Alias: `key.webAuthn`. */
   passkey(
     publicKey: { x: Hex; y: Hex } | Hex,
     options: { authenticator?: Address } = {},

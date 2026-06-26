@@ -60,7 +60,7 @@ export type Eip8130Deployment = {
  * When the `base/eip-8130` contracts are recompiled (e.g. Solidity upgrade or
  * bytecode change), all addresses must be re-derived and this object updated.
  */
-const canonicalEip8130Deployment = {
+export const canonicalEip8130Deployment = {
   accountConfiguration: '0xC6595B992AF49099B476690d4D7CAb7D1890388F',
   accounts: {
     default: '0xca8D7419FEC024a5CEDB8D427615f3A74E3ebA6b',
