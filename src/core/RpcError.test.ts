@@ -1,5 +1,7 @@
 import { describe, expect, test } from 'vitest'
 
+import { mainnet } from '../chains/definitions/mainnet.js'
+import * as Account from './Account.js'
 import * as RpcError from './RpcError.js'
 
 describe('ExecutionRevertedError', () => {
@@ -147,6 +149,85 @@ describe('UnknownRpcError', () => {
     expect(
       new RpcError.UnknownRpcError({ cause: new Error('boom') }).message,
     ).toContain('boom')
+  })
+})
+
+describe('ExecutionError', () => {
+  test('wraps a recognized node error with request arguments', () => {
+    const result = new RpcError.ExecutionError(
+      new Error('insufficient funds for gas'),
+      {
+        chain: mainnet,
+        from: '0x0000000000000000000000000000000000000001',
+        gas: 21000n,
+        maxFeePerGas: 2000000000n,
+        maxPriorityFeePerGas: 1000000000n,
+        nonce: 1,
+        value: 1000000000000000000n,
+      },
+    )
+    expect(result.cause).toBeInstanceOf(RpcError.InsufficientFundsError)
+    expect(result.message).toMatchInlineSnapshot(`
+      "The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.
+
+      This error could arise when the account does not have enough funds to:
+       - pay for the total gas fee,
+       - pay for the value to send.
+       
+      The cost of the transaction is calculated as \`gas * gas fee + value\`, where:
+       - \`gas\` is the amount of gas needed for transaction to execute,
+       - \`gas fee\` is the gas fee,
+       - \`value\` is the amount of ether to send to the recipient.
+       
+      Request Arguments:
+        chain:                 Ethereum (id: 1)
+        from:                  0x0000000000000000000000000000000000000001
+        gas:                   21000
+        maxFeePerGas:          2 gwei
+        maxPriorityFeePerGas:  1 gwei
+        nonce:                 1
+        value:                 1 ETH
+
+      Details: insufficient funds for gas
+      Version: viem@2.52.1"
+    `)
+  })
+
+  test('resolves `from` from a provided account', () => {
+    const result = new RpcError.ExecutionError(new Error('nonce too low'), {
+      account: Account.from('0x0000000000000000000000000000000000000002'),
+    })
+    expect(result.cause).toBeInstanceOf(RpcError.NonceTooLowError)
+    expect(result.message).toContain(
+      '0x0000000000000000000000000000000000000002',
+    )
+  })
+
+  test('keeps an unrecognized error as the cause and formats value without a chain', () => {
+    const error = new Error('something unexpected')
+    const result = new RpcError.ExecutionError(error, {
+      value: 1000000000000000000n,
+    })
+    expect(result.cause).toBe(error)
+    expect(result.message).toContain('something unexpected')
+    expect(result.message).toContain('1 ETH')
+  })
+
+  test('falls back to a default short message for an empty cause message', () => {
+    const result = new RpcError.ExecutionError(new Error(''))
+    expect(result.message).toContain('An error occurred.')
+  })
+
+  test('passes non-bigint value and fees through untouched', () => {
+    const result = new RpcError.ExecutionError(new Error('boom'), {
+      gasPrice: '0x1',
+      maxFeePerGas: '0x2',
+      value: '0x3',
+    })
+    expect(result.message).toContain('gasPrice')
+    expect(result.message).toContain('0x1')
+    expect(result.message).toContain('0x2')
+    expect(result.message).toContain('0x3')
   })
 })
 

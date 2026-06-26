@@ -1,4 +1,5 @@
 import { Abi } from 'ox'
+import * as AbiError from 'ox/AbiError'
 import * as AbiParameters from 'ox/AbiParameters'
 import type * as Hex from 'ox/Hex'
 import { describe, expect, test } from 'vitest'
@@ -275,6 +276,29 @@ describe('ContractFunctionRevertedError', () => {
     expect(err.signature).toBe('0xdb731cfa')
   })
 
+  test('data: single-arg custom error unwraps the decoded value', () => {
+    const data = AbiError.encode(AbiError.fromAbi(abi, 'SimpleError'), ['nope'])
+    const err = new ContractError.ContractFunctionRevertedError({
+      abi,
+      data,
+      functionName: 'totalSupply',
+    })
+    expect(err.data?.name).toBe('SimpleError')
+    expect(err.data?.args).toEqual(['nope'])
+  })
+
+  test('data: zero-arg custom error', () => {
+    const abi2 = Abi.from(['error Unauthorized()'])
+    const data = AbiError.encode(AbiError.fromAbi(abi2, 'Unauthorized'))
+    const err = new ContractError.ContractFunctionRevertedError({
+      abi: abi2,
+      data,
+      functionName: 'totalSupply',
+    })
+    expect(err.data?.name).toBe('Unauthorized')
+    expect(err.message).toContain('error Unauthorized()')
+  })
+
   test('data: undecodable args on known selector', () => {
     // `SimpleError(string)` selector with a bogus string offset so the selector
     // resolves on the ABI but `AbiError.decode` throws (non-`NotFoundError`).
@@ -482,5 +506,23 @@ describe('fromError', () => {
     })
     const cause = result.cause as ContractError.ContractFunctionRevertedError
     expect(cause.reason).toBe('execution reverted: nested reason')
+  })
+
+  test('surfaces the underlying call `Request Arguments` meta block', () => {
+    const error = Object.assign(new Errors.BaseError('boom'), {
+      metaMessages: [
+        'Request Arguments:',
+        '  to:  0x0000000000000000000000000000000000000000',
+      ],
+    })
+    const result = ContractError.fromError(error, {
+      abi,
+      functionName: 'totalSupply',
+    })
+    expect(result.cause).toBe(error)
+    expect(result.message).toContain('Request Arguments:')
+    expect(result.message).toContain(
+      '0x0000000000000000000000000000000000000000',
+    )
   })
 })
