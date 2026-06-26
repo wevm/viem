@@ -15,7 +15,6 @@ export const marsCredit = /*#__PURE__*/ defineChain({
     default: {
       name: 'Blockscout',
       url: 'https://blockscan.marscredit.xyz',
-      apiUrl: 'https://blockscan.marscredit.xyz/api',
     },
   },
 })
