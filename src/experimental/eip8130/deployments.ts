@@ -65,8 +65,8 @@ export const canonicalEip8130Deployment = {
   accounts: {
     default: '0xca8D7419FEC024a5CEDB8D427615f3A74E3ebA6b',
     defaultHighRate: '0x9bB1a51927A7B8Fc433956E1a417DB9f97465527',
-    erc4337: '0xe8e6317b1440ead4a3fc93e17cee77324a509923',
-    upgradeable: '0x7Cf83aB369Fefabe2C9cb6D7C9DE816cc4f68Ea',
+    erc4337: '0xfd054f275750DA23893aECaDE788825f8A3F434C',
+    upgradeable: '0x7Cf83aB369Fefabe2C9cb6D7C9DE816cc4f68Eaa',
   },
   authenticators: {
     k1: '0x0000000000000000000000000000000000000001',
