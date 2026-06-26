@@ -24,5 +24,14 @@ export const avalancheFuji = /*#__PURE__*/ defineChain({
       blockCreated: 7096959,
     },
   },
+  tokens: {
+    usdc: {
+      address: '0x5425890298aed601595a70AB815c96711a31Bc65',
+      decimals: 6,
+      name: 'USD Coin',
+      symbol: 'USDC',
+      type: 'erc20',
+    },
+  },
   testnet: true,
 })

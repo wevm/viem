@@ -134,21 +134,6 @@
       "import": "./_esm/tempo/zones/index.js",
       "default": "./_cjs/tempo/zones/index.js"
     },
-    "./tokens": {
-      "types": "./_types/tokens/index.d.ts",
-      "import": "./_esm/tokens/index.js",
-      "default": "./_cjs/tokens/index.js"
-    },
-    "./tokens/actions": {
-      "types": "./_types/tokens/actions/index.d.ts",
-      "import": "./_esm/tokens/actions/index.js",
-      "default": "./_cjs/tokens/actions/index.js"
-    },
-    "./tokens/decorators": {
-      "types": "./_types/tokens/decorators/index.d.ts",
-      "import": "./_esm/tokens/decorators/index.js",
-      "default": "./_cjs/tokens/decorators/index.js"
-    },
     "./utils": {
       "types": "./_types/utils/index.d.ts",
       "import": "./_esm/utils/index.js",
@@ -218,15 +203,6 @@
       ],
       "tempo/chains": [
         "./_types/tempo/chains/index.d.ts"
-      ],
-      "tokens": [
-        "./_types/tokens/index.d.ts"
-      ],
-      "tokens/actions": [
-        "./_types/tokens/actions/index.d.ts"
-      ],
-      "tokens/decorators": [
-        "./_types/tokens/decorators/index.d.ts"
       ],
       "utils": [
         "./_types/utils/index.d.ts"

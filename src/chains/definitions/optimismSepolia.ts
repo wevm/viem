@@ -47,6 +47,15 @@ export const optimismSepolia = /*#__PURE__*/ defineChain({
       },
     },
   },
+  tokens: {
+    usdc: {
+      address: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7',
+      decimals: 6,
+      name: 'USD Coin',
+      symbol: 'USDC',
+      type: 'erc20',
+    },
+  },
   testnet: true,
   sourceId,
 })

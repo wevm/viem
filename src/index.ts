@@ -610,6 +610,12 @@ export {
   type WalletClientConfig,
 } from './clients/createWalletClient.js'
 export {
+  type Erc20Actions,
+  type Erc20TokenName,
+  erc20Actions,
+  tokenActions,
+} from './clients/decorators/erc20.js'
+export {
   type PublicActions,
   publicActions,
 } from './clients/decorators/public.js'
@@ -1094,6 +1100,7 @@ export type {
   ChainFormatters,
   ChainMaxPriorityFeePerGasFn,
   ChainSerializers,
+  ChainToken,
   DeriveChain,
   ExtractChainFormatterExclude,
   ExtractChainFormatterParameters,

@@ -24,5 +24,14 @@ export const sonic = /*#__PURE__*/ defineChain({
       blockCreated: 60,
     },
   },
+  tokens: {
+    usdc: {
+      address: '0x29219dd400f2Bf60E5a23d13Be72B486D4038894',
+      decimals: 6,
+      name: 'USD Coin',
+      symbol: 'USDC',
+      type: 'erc20',
+    },
+  },
   testnet: false,
 })

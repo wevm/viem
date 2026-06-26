@@ -23,5 +23,14 @@ export const sonicBlazeTestnet = /*#__PURE__*/ defineChain({
       blockCreated: 1100,
     },
   },
+  tokens: {
+    usdc: {
+      address: '0xA4879Fed32Ecbef99399e5cbC247E533421C4eC6',
+      decimals: 6,
+      name: 'USD Coin',
+      symbol: 'USDC',
+      type: 'erc20',
+    },
+  },
   testnet: true,
 })

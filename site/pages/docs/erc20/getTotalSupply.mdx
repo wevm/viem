@@ -1,0 +1,76 @@
+# erc20.getTotalSupply
+
+Reads the total supply of an ERC-20 token.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const totalSupply = await client.erc20.getTotalSupply({ token: 'usdc' })
+// @log: { amount: 30000000000000n, decimals: 6, formatted: '30000000' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/erc20/viem.config.ts:setup]
+```
+
+:::
+
+### Composing Calls
+
+Use `.call` to build a `totalSupply` contract call, ready to pass to
+[`multicall`](/docs/contract/multicall), [`simulateContract`](/docs/contract/simulateContract), or any
+other Action that accepts a contract call.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const call = client.erc20.getTotalSupply.call({ token: 'usdc' })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/erc20/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Total supply in the token's base units. */
+  amount: bigint
+  /** Token decimals used to derive `formatted`. */
+  decimals: number
+  /** Total supply formatted with the token's `decimals`. */
+  formatted: string
+}
+```
+
+The token's total supply, both in base units (`amount`) and as a human-readable decimal string
+(`formatted`, derived from the token's `decimals`).
+
+## Parameters
+
+### token
+
+- **Type:** `string`
+
+Token to operate on: either the name of a token declared on the connected
+chain's [`tokens` config](/docs/erc20#declaring-tokens-on-a-chain) (resolved to
+its contract `address` and `decimals`), or a contract `address`.
+
+### decimals (optional)
+
+- **Type:** `number`
+
+Token decimals, used to convert between base units and the human-readable
+amount (parsing `amount` for writes, formatting `amount`/`formatted` for
+reads). Inferred from the chain's `tokens` config when `token` matches a declared
+token (by name or address). Defaults to `0` when the token isn't declared on the
+connected chain and `decimals` is omitted.

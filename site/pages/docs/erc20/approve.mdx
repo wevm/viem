@@ -1,0 +1,145 @@
+# erc20.approve
+
+Approves a spender to transfer up to `amount` tokens on behalf of the caller, and returns the
+transaction hash.
+
+:::tip
+Use [`approveSync`](/docs/erc20/approveSync) to wait for the transaction to be confirmed and return
+the decoded `Approval` event.
+:::
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const hash = await client.erc20.approve({
+  amount: '10.5', // 10.5 USDC
+  spender: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/erc20/viem.config.ts:setup]
+```
+
+:::
+
+### Estimate Gas & Simulate
+
+Every write Action exposes `.estimateGas` and `.simulate`, which take the same parameters as the
+Action itself.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const gas = await client.erc20.approve.estimateGas({
+  amount: '1',
+  spender: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/erc20/viem.config.ts:setup]
+```
+
+:::
+
+### Composing Calls
+
+Use `.call` to build an `approve` contract call, ready to pass to
+[`sendCalls`](/docs/actions/wallet/sendCalls), `sendTransaction` (`calls`), or
+[`multicall`](/docs/contract/multicall).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const call = client.erc20.approve.call({
+  amount: '1',
+  spender: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/erc20/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+[`Hex`](/docs/glossary/types#hex)
+
+The transaction hash.
+
+## Parameters
+
+### amount
+
+- **Type:** `string`
+
+Amount of tokens to approve, as a human-readable decimal string (e.g. `'10.5'`). Parsed with the
+token's `decimals`.
+
+### spender
+
+- **Type:** `Address`
+
+Account to approve as a spender of the caller's tokens.
+
+### token
+
+- **Type:** `string`
+
+Token to operate on: either the name of a token declared on the connected
+chain's [`tokens` config](/docs/erc20#declaring-tokens-on-a-chain) (resolved to
+its contract `address` and `decimals`), or a contract `address`.
+
+### decimals (optional)
+
+- **Type:** `number`
+
+Token decimals, used to convert between base units and the human-readable
+amount (parsing `amount` for writes, formatting `amount`/`formatted` for
+reads). Inferred from the chain's `tokens` config when `token` matches a declared
+token (by name or address). Defaults to `0` when the token isn't declared on the
+connected chain and `decimals` is omitted.
+
+### account (optional)
+
+- **Type:** `Account | Address`
+
+Account that will send the transaction. Defaults to the Client's `account`.
+
+### gas (optional)
+
+- **Type:** `bigint`
+
+Gas limit for the transaction.
+
+### maxFeePerGas (optional)
+
+- **Type:** `bigint`
+
+Max fee per gas for the transaction.
+
+### maxPriorityFeePerGas (optional)
+
+- **Type:** `bigint`
+
+Max priority fee per gas for the transaction.
+
+### nonce (optional)
+
+- **Type:** `number`
+
+Nonce for the transaction.

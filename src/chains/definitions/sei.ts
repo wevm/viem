@@ -22,4 +22,13 @@ export const sei = /*#__PURE__*/ defineChain({
       address: '0xcA11bde05977b3631167028862bE2a173976CA11',
     },
   },
+  tokens: {
+    usdc: {
+      address: '0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392',
+      decimals: 6,
+      name: 'USD Coin',
+      symbol: 'USDC',
+      type: 'erc20',
+    },
+  },
 })

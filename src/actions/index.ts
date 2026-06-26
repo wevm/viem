@@ -29,6 +29,7 @@ export {
   type GetEnsTextReturnType,
   getEnsText,
 } from './ens/getEnsText.js'
+export * as erc20 from './erc20/index.js'
 export {
   type CallErrorType,
   type CallParameters,

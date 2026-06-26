@@ -50,6 +50,8 @@ export type Chain<
         }
       >
     | undefined
+  /** Collection of well-known tokens on the chain. */
+  tokens?: { [key: string]: ChainToken } | undefined
   /** Collection of ENS TLDs for the chain. */
   ensTlds?: readonly string[] | undefined
   /** ID in number form */
@@ -316,6 +318,19 @@ type ChainBlockExplorer = {
 export type ChainContract = {
   address: Address
   blockCreated?: number | undefined
+}
+
+export type ChainToken = {
+  /** Token contract address. */
+  address: Address
+  /** Token decimals, used to parse human-readable `amount` strings. */
+  decimals: number
+  /** Token name. */
+  name?: string | undefined
+  /** Token symbol. */
+  symbol?: string | undefined
+  /** Token standard, used to attach the matching Actions to the Client. */
+  type: 'erc20' | (string & {})
 }
 
 type ChainNativeCurrency = {

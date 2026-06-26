@@ -49,6 +49,15 @@ export const ink = /*#__PURE__*/ defineChain({
       },
     },
   },
+  tokens: {
+    usdc: {
+      address: '0x2D270e6886d130D724215A266106e6832161EAEd',
+      decimals: 6,
+      name: 'USD Coin',
+      symbol: 'USDC',
+      type: 'erc20',
+    },
+  },
   testnet: false,
   sourceId,
 })

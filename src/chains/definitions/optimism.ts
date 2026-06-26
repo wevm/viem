@@ -47,5 +47,14 @@ export const optimism = /*#__PURE__*/ defineChain({
       },
     },
   },
+  tokens: {
+    usdc: {
+      address: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
+      decimals: 6,
+      name: 'USD Coin',
+      symbol: 'USDC',
+      type: 'erc20',
+    },
+  },
   sourceId,
 })

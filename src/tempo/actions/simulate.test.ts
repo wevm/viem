@@ -44,7 +44,7 @@ describe('simulateBlocks', () => {
       {
         "calls": [
           {
-            "gasUsed": 22080n,
+            "gasUsed": 271644n,
             "logs": [],
             "status": "success",
           },

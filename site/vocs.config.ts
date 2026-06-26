@@ -764,6 +764,10 @@ export default defineConfig({
                 text: 'Serializers',
                 link: '/docs/chains/serializers',
               },
+              {
+                text: 'Tokens',
+                link: '/docs/chains/tokens',
+              },
             ],
           },
           {
@@ -786,30 +790,21 @@ export default defineConfig({
         ],
       },
       {
-        text: 'Tokens',
+        text: 'ERC20 Actions',
         collapsed: true,
         items: [
-          { text: 'Overview', link: '/tokens' },
-          { text: 'Read a Balance', link: '/tokens#read-a-balance' },
+          { text: 'Overview', link: '/docs/erc20' },
           {
-            text: 'Read Token Metadata',
-            link: '/tokens#read-token-metadata',
-          },
-          { text: 'Transfer Tokens', link: '/tokens#transfer-tokens' },
-          { text: 'Approve a Spender', link: '/tokens#approve-a-spender' },
-          {
-            text: 'Estimate Gas for a Write',
-            link: '/tokens#estimate-gas-for-a-write',
-          },
-          { text: 'Batch Calls', link: '/tokens#batch-calls' },
-          { text: 'Watch Transfers', link: '/tokens#watch-transfers' },
-          {
-            text: 'Look Up a Token Address',
-            link: '/tokens#look-up-a-token-address',
-          },
-          {
-            text: 'Define a Custom Token',
-            link: '/tokens#define-a-custom-token',
+            text: 'Actions',
+            items: [
+              { text: 'allowance', link: '/docs/erc20/allowance' },
+              { text: 'approve', link: '/docs/erc20/approve' },
+              { text: 'approveSync', link: '/docs/erc20/approveSync' },
+              { text: 'getBalance', link: '/docs/erc20/getBalance' },
+              { text: 'getTotalSupply', link: '/docs/erc20/getTotalSupply' },
+              { text: 'transfer', link: '/docs/erc20/transfer' },
+              { text: 'transferSync', link: '/docs/erc20/transferSync' },
+            ],
           },
         ],
       },
@@ -1411,50 +1406,6 @@ export default defineConfig({
         ],
       },
     ],
-    '/tokens': {
-      backLink: true,
-      items: [
-        {
-          text: 'Tokens',
-          items: [{ text: 'Overview', link: '/tokens' }],
-        },
-        {
-          text: 'Recipes',
-          items: [
-            { text: 'Read a Balance', link: '/tokens#read-a-balance' },
-            {
-              text: 'Read Token Metadata',
-              link: '/tokens#read-token-metadata',
-            },
-            { text: 'Transfer Tokens', link: '/tokens#transfer-tokens' },
-            { text: 'Approve a Spender', link: '/tokens#approve-a-spender' },
-            {
-              text: 'Transfer From an Approved Account',
-              link: '/tokens#transfer-from-an-approved-account',
-            },
-            {
-              text: 'Estimate Gas for a Write',
-              link: '/tokens#estimate-gas-for-a-write',
-            },
-            { text: 'Batch Calls', link: '/tokens#batch-calls' },
-            { text: 'Watch Transfers', link: '/tokens#watch-transfers' },
-            {
-              text: 'Look Up a Token Address',
-              link: '/tokens#look-up-a-token-address',
-            },
-            {
-              text: 'Use on an Unsupported Chain',
-              link: '/tokens#use-on-an-unsupported-chain',
-            },
-            {
-              text: 'Define a Custom Token',
-              link: '/tokens#define-a-custom-token',
-            },
-            { text: 'Override Addresses', link: '/tokens#override-addresses' },
-          ],
-        },
-      ],
-    },
     '/account-abstraction': {
       backLink: true,
       items: [
@@ -3303,8 +3254,8 @@ export default defineConfig({
       text: 'Extensions',
       items: [
         {
-          text: 'Tokens',
-          link: '/tokens',
+          text: 'ERC20',
+          link: '/docs/erc20',
         },
         {
           text: 'Account Abstraction',

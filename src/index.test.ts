@@ -30,6 +30,8 @@ test('exports', () => {
       "createPublicClient",
       "createTestClient",
       "createWalletClient",
+      "erc20Actions",
+      "tokenActions",
       "publicActions",
       "testActions",
       "walletActions",
