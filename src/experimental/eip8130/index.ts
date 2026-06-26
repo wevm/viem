@@ -203,6 +203,11 @@ export {
 } from './utils/parseTransaction.js'
 export { erc1167Bytecode } from './utils/proxy.js'
 export {
+  type RecoverSenderAddress8130ErrorType,
+  type RecoverSenderAddress8130Parameters,
+  recoverSenderAddress8130,
+} from './utils/recoverSender.js'
+export {
   type SerializeTransaction8130ErrorType,
   serializeTransaction8130,
   toAccountChangesList,
