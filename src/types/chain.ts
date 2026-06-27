@@ -329,8 +329,6 @@ export type ChainToken = {
   name?: string | undefined
   /** Token symbol. */
   symbol?: string | undefined
-  /** Token standard, used to attach the matching Actions to the Client. */
-  type: 'erc20' | (string & {})
 }
 
 type ChainNativeCurrency = {

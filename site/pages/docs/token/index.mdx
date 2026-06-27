@@ -91,8 +91,8 @@ const chain = defineChain({
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: { default: { http: ['https://eth.merkle.io'] } },
   tokens: {
-    usdc: { address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', decimals: 6, type: 'erc20' },
-    dai: { address: '0x6B175474E89094C44Da98b954EedeAC495271d0F', decimals: 18, type: 'erc20' },
+    usdc: { address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', decimals: 6 },
+    dai: { address: '0x6B175474E89094C44Da98b954EedeAC495271d0F', decimals: 18 },
   },
 })
 
@@ -115,7 +115,7 @@ const chain = {
   ...mainnet,
   tokens: {
     ...mainnet.tokens,
-    dai: { address: '0x6B175474E89094C44Da98b954EedeAC495271d0F', decimals: 18, type: 'erc20' },
+    dai: { address: '0x6B175474E89094C44Da98b954EedeAC495271d0F', decimals: 18 },
   },
 } as const
 ```

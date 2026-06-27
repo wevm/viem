@@ -12,13 +12,12 @@ import { defineChain } from 'viem'
 
 export const example = defineChain({
   /* ... */
-  tokens: { // [!code focus:9]
+  tokens: { // [!code focus:8]
     usdc: {
       address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
       decimals: 6,
       name: 'USD Coin',
       symbol: 'USDC',
-      type: 'erc20',
     },
   },
 })
@@ -50,14 +49,13 @@ import { mainnet } from 'viem/chains'
 
 const example = defineChain({
   ...mainnet,
-  tokens: { // [!code focus:10]
+  tokens: { // [!code focus:9]
     ...mainnet.tokens,
     dai: {
       address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
       decimals: 18,
       name: 'Dai Stablecoin',
       symbol: 'DAI',
-      type: 'erc20',
     },
   },
 })
@@ -89,10 +87,5 @@ type ChainToken = {
    * Ticker symbol of the token (e.g. `'USDC'`).
    */
   symbol?: string | undefined
-  /**
-   * Token standard, used to attach the matching Actions to the Client. Set to
-   * `'erc20'` for tokens exposed by [`tokenActions`](/docs/token).
-   */
-  type: 'erc20' | (string & {})
 }
 ```

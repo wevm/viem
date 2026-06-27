@@ -173,9 +173,9 @@ export namespace approve {
 }
 
 /** Builds the underlying `approve` contract call. @internal */
-function getCall(
-  client: Client<Transport, Chain | undefined>,
-  parameters: approve.Args,
+function getCall<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: approve.Args<chain>,
 ) {
   const { amount, spender } = parameters
   const { address, decimals } = resolveToken(client, parameters)

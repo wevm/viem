@@ -193,9 +193,9 @@ export namespace transfer {
 }
 
 /** Builds the underlying `transfer`/`transferFrom` contract call. @internal */
-function getCall(
-  client: Client<Transport, Chain | undefined>,
-  parameters: transfer.Args,
+function getCall<chain extends Chain | undefined>(
+  client: Client<Transport, chain>,
+  parameters: transfer.Args<chain>,
 ) {
   const { amount, from, to } = parameters
   const { address, decimals } = resolveToken(client, parameters)

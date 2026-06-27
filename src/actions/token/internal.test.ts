@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'vitest'
 import { client, usdc } from '~test/token.js'
-import { mainnet } from '../../chains/definitions/mainnet.js'
 import { createClient } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
 import { pickWriteParameters, resolveToken } from './internal.js'
@@ -56,27 +55,6 @@ describe('resolveToken', () => {
         "decimals": 0,
       }
     `)
-  })
-
-  test('throws when the declared `token` is not an ERC-20 token', () => {
-    const nonErc20 = createClient({
-      chain: {
-        ...mainnet,
-        tokens: {
-          wat: {
-            address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
-            decimals: 18,
-            type: 'native',
-          },
-        },
-      },
-      transport: http('https://eth.merkle.io'),
-    })
-    expect(() =>
-      resolveToken(nonErc20, { token: 'wat' }),
-    ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Token "wat" is not an ERC-20 token on the chain's \`tokens\` config.]`,
-    )
   })
 
   test('throws when the `token` name is not declared and is not an address', () => {

@@ -18,16 +18,13 @@ import type { ReadContractParameters as viem_ReadContractParameters } from '../p
 import type { WriteContractSyncParameters as viem_WriteContractSyncParameters } from '../wallet/writeContractSync.js'
 
 /**
- * Union of ERC-20 token names declared on `chain`'s `tokens` config (tokens
- * whose `type` is `'erc20'`).
+ * Union of token names declared on `chain`'s `tokens` config.
  */
 export type TokenName<chain extends Chain | undefined> = chain extends {
   tokens: infer tokens extends Record<string, ChainToken>
 }
   ? {
-      [name in keyof tokens]: tokens[name] extends { type: 'erc20' }
-        ? name
-        : never
+      [name in keyof tokens]: name
     }[keyof tokens]
   : never
 
@@ -102,16 +99,11 @@ export function resolveToken(
   const { decimals, token } = parameters
 
   const declared = client.chain?.tokens?.[token]
-  if (declared) {
-    if (declared.type !== 'erc20')
-      throw new Error(
-        `Token "${token}" is not an ERC-20 token on the chain's \`tokens\` config.`,
-      )
+  if (declared)
     return {
       address: declared.address,
       decimals: decimals ?? declared.decimals,
     }
-  }
 
   if (isAddress(token, { strict: false }))
     return {

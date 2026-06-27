@@ -56,7 +56,6 @@ export const baseSepolia = /*#__PURE__*/ defineChain({
       decimals: 6,
       name: 'USD Coin',
       symbol: 'USDC',
-      type: 'erc20',
     },
   },
   testnet: true,
