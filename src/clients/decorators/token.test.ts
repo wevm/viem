@@ -33,6 +33,7 @@ describe('inference', () => {
   test('attaches a single `token` namespace', () => {
     expect(typeof client.token.transfer).toBe('function')
     expect(typeof client.token.getBalance).toBe('function')
+    expect(typeof client.token.getMetadata).toBe('function')
     expect(typeof client.token.getTotalSupply).toBe('function')
   })
 })
@@ -116,6 +117,19 @@ describe('getBalance', () => {
     })
     expect(balance.amount).toBeTypeOf('bigint')
     expect(balance.formatted).toBe(formatUnits(balance.amount, 6))
+  })
+})
+
+describe('getMetadata', () => {
+  test('default: by token name', async () => {
+    const metadata = await client.token.getMetadata({ token: 'usdc' })
+    expect(metadata).toMatchInlineSnapshot(`
+      {
+        "decimals": 6,
+        "name": "USD Coin",
+        "symbol": "USDC",
+      }
+    `)
   })
 })
 

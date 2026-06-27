@@ -1,3 +1,4 @@
+import { usdc } from '../../tokens/definitions/usdc.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const polygonAmoy = /*#__PURE__*/ defineChain({
@@ -23,12 +24,7 @@ export const polygonAmoy = /*#__PURE__*/ defineChain({
     },
   },
   tokens: {
-    usdc: {
-      address: '0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582',
-      decimals: 6,
-      name: 'USD Coin',
-      symbol: 'USDC',
-    },
+    usdc: usdc(80_002),
   },
   testnet: true,
 })

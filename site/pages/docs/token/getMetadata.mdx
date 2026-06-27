@@ -1,0 +1,53 @@
+# token.getMetadata
+
+Reads the metadata (`decimals`, `name`, `symbol`) of an ERC-20 token.
+
+Fields declared on the connected chain's [`tokens` config](/docs/token#declaring-tokens-on-a-chain)
+are used as-is; any missing field is fetched from the token contract.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const metadata = await client.token.getMetadata({ token: 'usdc' })
+// @log: { decimals: 6, name: 'USD Coin', symbol: 'USDC' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Number of decimals the token uses. */
+  decimals: number
+  /** Human-readable name of the token. */
+  name: string
+  /** Ticker symbol of the token. */
+  symbol: string
+}
+```
+
+## Parameters
+
+### token
+
+- **Type:** `string`
+
+Token to operate on: either the name of a token declared on the connected
+chain's [`tokens` config](/docs/token#declaring-tokens-on-a-chain) (resolved to
+its contract `address` and metadata), or a contract `address`.
+
+### decimals (optional)
+
+- **Type:** `number`
+
+Token decimals. Overrides the `decimals` resolved from the chain's `tokens`
+config or fetched from the token contract.

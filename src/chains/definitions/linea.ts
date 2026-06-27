@@ -1,4 +1,5 @@
 import { chainConfig } from '../../linea/chainConfig.js'
+import { usdc } from '../../tokens/definitions/usdc.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const linea = /*#__PURE__*/ defineChain({
@@ -35,12 +36,7 @@ export const linea = /*#__PURE__*/ defineChain({
     },
   },
   tokens: {
-    usdc: {
-      address: '0x176211869cA2b568f2A7D4EE941E073a821EE1ff',
-      decimals: 6,
-      name: 'USD Coin',
-      symbol: 'USDC',
-    },
+    usdc: usdc(59_144),
   },
   ensTlds: ['.linea.eth'],
   testnet: false,

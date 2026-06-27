@@ -1,3 +1,4 @@
+import { usdc } from '../../tokens/definitions/usdc.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const sonicBlazeTestnet = /*#__PURE__*/ defineChain({
@@ -24,12 +25,7 @@ export const sonicBlazeTestnet = /*#__PURE__*/ defineChain({
     },
   },
   tokens: {
-    usdc: {
-      address: '0xA4879Fed32Ecbef99399e5cbC247E533421C4eC6',
-      decimals: 6,
-      name: 'USD Coin',
-      symbol: 'USDC',
-    },
+    usdc: usdc(57_054),
   },
   testnet: true,
 })

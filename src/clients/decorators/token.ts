@@ -4,6 +4,7 @@ import {
   approve,
   approveSync,
   getBalance,
+  getMetadata,
   getTotalSupply,
   transfer,
   transferSync,
@@ -206,6 +207,30 @@ export type TokenActions<
       call: (args: getBalance.Args<chain>) => ReturnType<typeof getBalance.call>
     }
     /**
+     * Gets the metadata (`decimals`, `name`, `symbol`) of the token. Fields
+     * declared on the chain's `tokens` config are used as-is; any missing field
+     * is fetched from the token contract.
+     *
+     * - Docs: https://viem.sh/docs/token/getMetadata
+     *
+     * @param parameters - {@link getMetadata.Parameters}
+     * @returns The token metadata (`decimals`, `name`, `symbol`). {@link getMetadata.ReturnValue}
+     *
+     * @example
+     * import { createClient, tokenActions, http } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = createClient({
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(tokenActions())
+     *
+     * const metadata = await client.token.getMetadata({ token: 'usdc' })
+     */
+    getMetadata: (
+      parameters: getMetadata.Parameters<chain>,
+    ) => Promise<getMetadata.ReturnValue>
+    /**
      * Gets the total supply of the token.
      *
      * - Docs: https://viem.sh/docs/token/getTotalSupply
@@ -407,6 +432,7 @@ function bindToken(client: Client<Transport, Chain | undefined, any>) {
     approve: bind(approve),
     approveSync: bind(approveSync),
     getBalance: bind(getBalance),
+    getMetadata: bind(getMetadata),
     getTotalSupply: bind(getTotalSupply),
     transfer: bind(transfer),
     transferSync: bind(transferSync),

@@ -126,6 +126,30 @@ export namespace resolveToken {
 }
 
 /**
+ * Finds the declared {@link ChainToken} on the client's chain `tokens` config
+ * matching `token`, which is either a token name or a contract `address`.
+ * Returns `undefined` when no declared token matches.
+ *
+ * @param client - Client.
+ * @param token - Token name (declared on the chain's `tokens` config) or contract address.
+ * @returns The matching declared token config, or `undefined`.
+ */
+export function findDeclaredToken(
+  client: Client<Transport, Chain | undefined>,
+  token: string,
+): ChainToken | undefined {
+  const tokens = client.chain?.tokens
+  if (!tokens) return undefined
+  if (tokens[token]) return tokens[token]
+  if (isAddress(token, { strict: false }))
+    for (const key in tokens) {
+      const declared = tokens[key]!
+      if (isAddressEqual(declared.address, token)) return declared
+    }
+  return undefined
+}
+
+/**
  * Infers a token's `decimals` from the client's chain `tokens` config by
  * matching `address`, defaulting to `0` when no declared token matches.
  * @internal

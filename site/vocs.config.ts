@@ -801,6 +801,7 @@ export default defineConfig({
               { text: 'approve', link: '/docs/token/approve' },
               { text: 'approveSync', link: '/docs/token/approveSync' },
               { text: 'getBalance', link: '/docs/token/getBalance' },
+              { text: 'getMetadata', link: '/docs/token/getMetadata' },
               { text: 'getTotalSupply', link: '/docs/token/getTotalSupply' },
               { text: 'transfer', link: '/docs/token/transfer' },
               { text: 'transferSync', link: '/docs/token/transferSync' },
