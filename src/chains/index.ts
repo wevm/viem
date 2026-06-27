@@ -990,3 +990,4 @@ export type {
   ZksyncTransactionType as ZkSyncTransactionType,
   ZksyncTransactionType,
 } from '../zksync/types/transaction.js'
+export { gmachain } from './definitions/gmachain.js'
