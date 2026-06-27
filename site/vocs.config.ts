@@ -12,6 +12,13 @@ import * as sidebar from './sidebar.generated'
 // directories).
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
+const badge = (kind: 'public' | 'test' | 'wallet') =>
+  ({
+    public: { text: 'Public', variant: 'info' as const },
+    test: { text: 'Test', variant: 'warning' as const },
+    wallet: { text: 'Wallet', variant: 'tip' as const },
+  })[kind]
+
 export default defineConfig({
   accentColor: 'light-dark(#ff9318, #ffc517)',
   baseUrl:
@@ -181,289 +188,372 @@ export default defineConfig({
         items: [
           { text: 'Overview', link: '/docs/actions' },
           {
-            text: 'Public',
+            text: 'call',
+            link: '/docs/actions/public/call',
+            badge: badge('public'),
+          },
+          {
+            text: 'Address',
             collapsed: true,
             items: [
-              { text: 'Overview', link: '/docs/actions/public' },
-              { text: 'call', link: '/docs/actions/public/call' },
               {
-                text: 'Address',
-                items: [
-                  {
-                    text: 'getBalance',
-                    link: '/docs/actions/public/address/getBalance',
-                  },
-                  {
-                    text: 'getCode',
-                    link: '/docs/actions/public/address/getCode',
-                  },
-                  {
-                    text: 'getDelegation',
-                    link: '/docs/actions/public/address/getDelegation',
-                  },
-                  {
-                    text: 'getProof',
-                    link: '/docs/actions/public/address/getProof',
-                  },
-                  {
-                    text: 'getStorageAt',
-                    link: '/docs/actions/public/address/getStorageAt',
-                  },
-                  {
-                    text: 'getTransactionCount',
-                    link: '/docs/actions/public/address/getTransactionCount',
-                  },
-                ],
+                text: 'getBalance',
+                link: '/docs/actions/public/address/getBalance',
+                badge: badge('public'),
               },
               {
-                text: 'Block',
-                items: [
-                  { text: 'get', link: '/docs/actions/public/block/get' },
-                  {
-                    text: 'getNumber',
-                    link: '/docs/actions/public/block/getNumber',
-                  },
-                  {
-                    text: 'getReceipts',
-                    link: '/docs/actions/public/block/getReceipts',
-                  },
-                  {
-                    text: 'getTransactionCount',
-                    link: '/docs/actions/public/block/getTransactionCount',
-                  },
-                  {
-                    text: 'watchNumber',
-                    link: '/docs/actions/public/block/watchNumber',
-                  },
-                ],
+                text: 'getCode',
+                link: '/docs/actions/public/address/getCode',
+                badge: badge('public'),
               },
               {
-                text: 'Chains',
-                items: [
-                  { text: 'getId', link: '/docs/actions/public/chains/getId' },
-                ],
+                text: 'getDelegation',
+                link: '/docs/actions/public/address/getDelegation',
+                badge: badge('public'),
               },
               {
-                text: 'Contract',
-                items: [
-                  {
-                    text: 'getEip712Domain',
-                    link: '/docs/actions/public/contract/getEip712Domain',
-                  },
-                  {
-                    text: 'getLogs',
-                    link: '/docs/actions/public/contract/getLogs',
-                  },
-                  { text: 'read', link: '/docs/actions/public/contract/read' },
-                ],
+                text: 'getProof',
+                link: '/docs/actions/public/address/getProof',
+                badge: badge('public'),
               },
               {
-                text: 'Logs',
-                items: [
-                  {
-                    text: 'get',
-                    link: '/docs/actions/public/logs/get',
-                  },
-                ],
+                text: 'getStorageAt',
+                link: '/docs/actions/public/address/getStorageAt',
+                badge: badge('public'),
               },
               {
-                text: 'Fee',
-                items: [
-                  {
-                    text: 'estimateFeesPerGas',
-                    link: '/docs/actions/public/fee/estimateFeesPerGas',
-                  },
-                  {
-                    text: 'estimateMaxPriorityFeePerGas',
-                    link: '/docs/actions/public/fee/estimateMaxPriorityFeePerGas',
-                  },
-                  {
-                    text: 'getBlobBaseFee',
-                    link: '/docs/actions/public/fee/getBlobBaseFee',
-                  },
-                  {
-                    text: 'getGasPrice',
-                    link: '/docs/actions/public/fee/getGasPrice',
-                  },
-                  {
-                    text: 'getHistory',
-                    link: '/docs/actions/public/fee/getHistory',
-                  },
-                ],
+                text: 'getTransactionCount',
+                link: '/docs/actions/public/address/getTransactionCount',
+                badge: badge('public'),
               },
               {
-                text: 'Transaction',
-                items: [
-                  {
-                    text: 'estimateGas',
-                    link: '/docs/actions/public/transaction/estimateGas',
-                  },
-                  {
-                    text: 'fill',
-                    link: '/docs/actions/public/transaction/fill',
-                  },
-                  {
-                    text: 'get',
-                    link: '/docs/actions/public/transaction/get',
-                  },
-                  {
-                    text: 'getConfirmations',
-                    link: '/docs/actions/public/transaction/getConfirmations',
-                  },
-                  {
-                    text: 'getReceipt',
-                    link: '/docs/actions/public/transaction/getReceipt',
-                  },
-                  {
-                    text: 'prepare',
-                    link: '/docs/actions/public/transaction/prepare',
-                  },
-                  {
-                    text: 'send',
-                    link: '/docs/actions/public/transaction/send',
-                  },
-                  {
-                    text: 'sendRaw',
-                    link: '/docs/actions/public/transaction/sendRaw',
-                  },
-                  {
-                    text: 'sign',
-                    link: '/docs/actions/public/transaction/sign',
-                  },
-                  {
-                    text: 'waitForReceipt',
-                    link: '/docs/actions/public/transaction/waitForReceipt',
-                  },
-                ],
+                text: 'impersonate',
+                link: '/docs/actions/test/address/impersonate',
+                badge: badge('test'),
+              },
+              {
+                text: 'setBalance',
+                link: '/docs/actions/test/address/setBalance',
+                badge: badge('test'),
+              },
+              {
+                text: 'setCode',
+                link: '/docs/actions/test/address/setCode',
+                badge: badge('test'),
+              },
+              {
+                text: 'setNonce',
+                link: '/docs/actions/test/address/setNonce',
+                badge: badge('test'),
+              },
+              {
+                text: 'setStorageAt',
+                link: '/docs/actions/test/address/setStorageAt',
+                badge: badge('test'),
+              },
+              {
+                text: 'stopImpersonating',
+                link: '/docs/actions/test/address/stopImpersonating',
+                badge: badge('test'),
               },
             ],
           },
           {
-            text: 'Test',
+            text: 'Block',
             collapsed: true,
             items: [
-              { text: 'Overview', link: '/docs/actions/test' },
               {
-                text: 'Address',
-                items: [
-                  {
-                    text: 'impersonate',
-                    link: '/docs/actions/test/address/impersonate',
-                  },
-                  {
-                    text: 'setBalance',
-                    link: '/docs/actions/test/address/setBalance',
-                  },
-                  {
-                    text: 'setCode',
-                    link: '/docs/actions/test/address/setCode',
-                  },
-                  {
-                    text: 'setNonce',
-                    link: '/docs/actions/test/address/setNonce',
-                  },
-                  {
-                    text: 'setStorageAt',
-                    link: '/docs/actions/test/address/setStorageAt',
-                  },
-                  {
-                    text: 'stopImpersonating',
-                    link: '/docs/actions/test/address/stopImpersonating',
-                  },
-                ],
+                text: 'get',
+                link: '/docs/actions/public/block/get',
+                badge: badge('public'),
               },
               {
-                text: 'Block',
-                items: [
-                  {
-                    text: 'getAutomine',
-                    link: '/docs/actions/test/block/getAutomine',
-                  },
-                  {
-                    text: 'increaseTime',
-                    link: '/docs/actions/test/block/increaseTime',
-                  },
-                  { text: 'mine', link: '/docs/actions/test/block/mine' },
-                  {
-                    text: 'removeTimestampInterval',
-                    link: '/docs/actions/test/block/removeTimestampInterval',
-                  },
-                  {
-                    text: 'setAutomine',
-                    link: '/docs/actions/test/block/setAutomine',
-                  },
-                  {
-                    text: 'setCoinbase',
-                    link: '/docs/actions/test/block/setCoinbase',
-                  },
-                  {
-                    text: 'setGasLimit',
-                    link: '/docs/actions/test/block/setGasLimit',
-                  },
-                  {
-                    text: 'setIntervalMining',
-                    link: '/docs/actions/test/block/setIntervalMining',
-                  },
-                  {
-                    text: 'setNextBaseFeePerGas',
-                    link: '/docs/actions/test/block/setNextBaseFeePerGas',
-                  },
-                  {
-                    text: 'setNextTimestamp',
-                    link: '/docs/actions/test/block/setNextTimestamp',
-                  },
-                  {
-                    text: 'setTimestampInterval',
-                    link: '/docs/actions/test/block/setTimestampInterval',
-                  },
-                ],
+                text: 'getAutomine',
+                link: '/docs/actions/test/block/getAutomine',
+                badge: badge('test'),
               },
               {
-                text: 'Node',
-                items: [
-                  {
-                    text: 'setLoggingEnabled',
-                    link: '/docs/actions/test/node/setLoggingEnabled',
-                  },
-                  {
-                    text: 'setMinGasPrice',
-                    link: '/docs/actions/test/node/setMinGasPrice',
-                  },
-                  {
-                    text: 'setRpcUrl',
-                    link: '/docs/actions/test/node/setRpcUrl',
-                  },
-                ],
+                text: 'getNumber',
+                link: '/docs/actions/public/block/getNumber',
+                badge: badge('public'),
               },
               {
-                text: 'State',
-                items: [
-                  { text: 'dump', link: '/docs/actions/test/state/dump' },
-                  { text: 'load', link: '/docs/actions/test/state/load' },
-                  { text: 'reset', link: '/docs/actions/test/state/reset' },
-                  { text: 'revert', link: '/docs/actions/test/state/revert' },
-                  {
-                    text: 'snapshot',
-                    link: '/docs/actions/test/state/snapshot',
-                  },
-                ],
+                text: 'getReceipts',
+                link: '/docs/actions/public/block/getReceipts',
+                badge: badge('public'),
               },
               {
-                text: 'Transaction Pool',
-                items: [
-                  {
-                    text: 'dropTransaction',
-                    link: '/docs/actions/test/txpool/dropTransaction',
-                  },
-                  {
-                    text: 'getStatus',
-                    link: '/docs/actions/test/txpool/getStatus',
-                  },
-                  {
-                    text: 'inspect',
-                    link: '/docs/actions/test/txpool/inspect',
-                  },
-                ],
+                text: 'getTransactionCount',
+                link: '/docs/actions/public/block/getTransactionCount',
+                badge: badge('public'),
+              },
+              {
+                text: 'increaseTime',
+                link: '/docs/actions/test/block/increaseTime',
+                badge: badge('test'),
+              },
+              {
+                text: 'mine',
+                link: '/docs/actions/test/block/mine',
+                badge: badge('test'),
+              },
+              {
+                text: 'removeTimestampInterval',
+                link: '/docs/actions/test/block/removeTimestampInterval',
+                badge: badge('test'),
+              },
+              {
+                text: 'setAutomine',
+                link: '/docs/actions/test/block/setAutomine',
+                badge: badge('test'),
+              },
+              {
+                text: 'setCoinbase',
+                link: '/docs/actions/test/block/setCoinbase',
+                badge: badge('test'),
+              },
+              {
+                text: 'setGasLimit',
+                link: '/docs/actions/test/block/setGasLimit',
+                badge: badge('test'),
+              },
+              {
+                text: 'setIntervalMining',
+                link: '/docs/actions/test/block/setIntervalMining',
+                badge: badge('test'),
+              },
+              {
+                text: 'setNextBaseFeePerGas',
+                link: '/docs/actions/test/block/setNextBaseFeePerGas',
+                badge: badge('test'),
+              },
+              {
+                text: 'setNextTimestamp',
+                link: '/docs/actions/test/block/setNextTimestamp',
+                badge: badge('test'),
+              },
+              {
+                text: 'setTimestampInterval',
+                link: '/docs/actions/test/block/setTimestampInterval',
+                badge: badge('test'),
+              },
+              {
+                text: 'watchNumber',
+                link: '/docs/actions/public/block/watchNumber',
+                badge: badge('public'),
+              },
+            ],
+          },
+          {
+            text: 'Chains',
+            collapsed: true,
+            items: [
+              {
+                text: 'getId',
+                link: '/docs/actions/public/chains/getId',
+                badge: badge('public'),
+              },
+            ],
+          },
+          {
+            text: 'Contract',
+            collapsed: true,
+            items: [
+              {
+                text: 'getEip712Domain',
+                link: '/docs/actions/public/contract/getEip712Domain',
+                badge: badge('public'),
+              },
+              {
+                text: 'getLogs',
+                link: '/docs/actions/public/contract/getLogs',
+                badge: badge('public'),
+              },
+              {
+                text: 'read',
+                link: '/docs/actions/public/contract/read',
+                badge: badge('public'),
+              },
+              {
+                text: 'simulate',
+                link: '/docs/actions/public/contract/simulate',
+                badge: badge('public'),
+              },
+              {
+                text: 'write',
+                link: '/docs/actions/public/contract/write',
+                badge: badge('public'),
+              },
+            ],
+          },
+          {
+            text: 'Fee',
+            collapsed: true,
+            items: [
+              {
+                text: 'estimateFeesPerGas',
+                link: '/docs/actions/public/fee/estimateFeesPerGas',
+                badge: badge('public'),
+              },
+              {
+                text: 'estimateMaxPriorityFeePerGas',
+                link: '/docs/actions/public/fee/estimateMaxPriorityFeePerGas',
+                badge: badge('public'),
+              },
+              {
+                text: 'getBlobBaseFee',
+                link: '/docs/actions/public/fee/getBlobBaseFee',
+                badge: badge('public'),
+              },
+              {
+                text: 'getGasPrice',
+                link: '/docs/actions/public/fee/getGasPrice',
+                badge: badge('public'),
+              },
+              {
+                text: 'getHistory',
+                link: '/docs/actions/public/fee/getHistory',
+                badge: badge('public'),
+              },
+            ],
+          },
+          {
+            text: 'Logs',
+            collapsed: true,
+            items: [
+              {
+                text: 'get',
+                link: '/docs/actions/public/logs/get',
+                badge: badge('public'),
+              },
+            ],
+          },
+          {
+            text: 'Node',
+            collapsed: true,
+            items: [
+              {
+                text: 'setLoggingEnabled',
+                link: '/docs/actions/test/node/setLoggingEnabled',
+                badge: badge('test'),
+              },
+              {
+                text: 'setMinGasPrice',
+                link: '/docs/actions/test/node/setMinGasPrice',
+                badge: badge('test'),
+              },
+              {
+                text: 'setRpcUrl',
+                link: '/docs/actions/test/node/setRpcUrl',
+                badge: badge('test'),
+              },
+            ],
+          },
+          {
+            text: 'State',
+            collapsed: true,
+            items: [
+              {
+                text: 'dump',
+                link: '/docs/actions/test/state/dump',
+                badge: badge('test'),
+              },
+              {
+                text: 'load',
+                link: '/docs/actions/test/state/load',
+                badge: badge('test'),
+              },
+              {
+                text: 'reset',
+                link: '/docs/actions/test/state/reset',
+                badge: badge('test'),
+              },
+              {
+                text: 'revert',
+                link: '/docs/actions/test/state/revert',
+                badge: badge('test'),
+              },
+              {
+                text: 'snapshot',
+                link: '/docs/actions/test/state/snapshot',
+                badge: badge('test'),
+              },
+            ],
+          },
+          {
+            text: 'Transaction',
+            collapsed: true,
+            items: [
+              {
+                text: 'estimateGas',
+                link: '/docs/actions/public/transaction/estimateGas',
+                badge: badge('public'),
+              },
+              {
+                text: 'fill',
+                link: '/docs/actions/public/transaction/fill',
+                badge: badge('public'),
+              },
+              {
+                text: 'get',
+                link: '/docs/actions/public/transaction/get',
+                badge: badge('public'),
+              },
+              {
+                text: 'getConfirmations',
+                link: '/docs/actions/public/transaction/getConfirmations',
+                badge: badge('public'),
+              },
+              {
+                text: 'getReceipt',
+                link: '/docs/actions/public/transaction/getReceipt',
+                badge: badge('public'),
+              },
+              {
+                text: 'prepare',
+                link: '/docs/actions/public/transaction/prepare',
+                badge: badge('public'),
+              },
+              {
+                text: 'send',
+                link: '/docs/actions/public/transaction/send',
+                badge: badge('public'),
+              },
+              {
+                text: 'sendRaw',
+                link: '/docs/actions/public/transaction/sendRaw',
+                badge: badge('public'),
+              },
+              {
+                text: 'sign',
+                link: '/docs/actions/public/transaction/sign',
+                badge: badge('public'),
+              },
+              {
+                text: 'waitForReceipt',
+                link: '/docs/actions/public/transaction/waitForReceipt',
+                badge: badge('public'),
+              },
+            ],
+          },
+          {
+            text: 'Transaction Pool',
+            collapsed: true,
+            items: [
+              {
+                text: 'dropTransaction',
+                link: '/docs/actions/test/txpool/dropTransaction',
+                badge: badge('test'),
+              },
+              {
+                text: 'getStatus',
+                link: '/docs/actions/test/txpool/getStatus',
+                badge: badge('test'),
+              },
+              {
+                text: 'inspect',
+                link: '/docs/actions/test/txpool/inspect',
+                badge: badge('test'),
               },
             ],
           },

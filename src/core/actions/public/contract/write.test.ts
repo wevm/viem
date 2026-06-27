@@ -1,9 +1,9 @@
 import * as Value from 'ox/Value'
 import { describe, expect, test } from 'vitest'
 
-import { Account, Actions, ContractError, http } from 'viem'
+import { Account, Actions, Chain, ContractError, http } from 'viem'
 import { Client, testActions } from 'viem'
-import { mainnet } from 'viem/chains'
+import { mainnet, optimism } from 'viem/chains'
 
 import * as generated from '~contracts/generated.js'
 import * as anvil from '~test/anvil.js'
@@ -221,8 +221,62 @@ test('overloaded function', async () => {
   expect(transaction2.input).toMatchInlineSnapshot(`"0xc2985578"`)
 })
 
-// TODO: test `contract.write` with a `contract.simulate` request (and its
-// overloaded / chain-mismatch variants) once `contract.simulate` is ported.
+describe('request: from contract.simulate', () => {
+  test('broadcasts a simulated request', async () => {
+    const { request, result } = await Actions.contract.simulate(client, {
+      ...writeExample,
+      account: local,
+      args: [69n],
+      functionName: 'foo',
+    })
+    expect(result).toBe(69n)
+
+    await setup()
+    const hash = await Actions.contract.write(client, request)
+    await testClient.block.mine({ blocks: 1 })
+    const receipt = await Actions.transaction.getReceipt(client, { hash })
+    expect(receipt.status).toBe('success')
+  })
+
+  test('overloaded function', async () => {
+    const { request, result } = await Actions.contract.simulate(client, {
+      ...writeExample,
+      account: local,
+      args: [2n, 3n],
+      functionName: 'foo',
+    })
+    expect(result).toBe(5n)
+
+    await setup()
+    const hash = await Actions.contract.write(client, request)
+    await testClient.block.mine({ blocks: 1 })
+    const transaction = await Actions.transaction.get(client, { hash })
+    // `foo(uint256,uint256)` selector + the encoded arguments.
+    expect(transaction.input).toMatchInlineSnapshot(
+      `"0x04bc52f800000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000003"`,
+    )
+  })
+
+  test('chain mismatch throws', async () => {
+    const { request } = await Actions.contract.simulate(client, {
+      ...writeExample,
+      account: jsonRpc,
+      args: [69n],
+      functionName: 'foo',
+    })
+    const mismatched = Client.create({
+      chain: optimism,
+      transport: http(anvil.mainnet.rpcUrl.http),
+    })
+    const error = (await Actions.contract
+      .write(mismatched, request)
+      .catch((error) => error)) as ContractError.ContractFunctionExecutionError
+    expect(error).toBeInstanceOf(ContractError.ContractFunctionExecutionError)
+    expect(error.walk((e) => e instanceof Chain.MismatchError)).toBeInstanceOf(
+      Chain.MismatchError,
+    )
+  })
+})
 
 // Write reverts surface during gas estimation (`eth_estimateGas`), which the
 // node decodes to a string/panic reason. Custom-error `Details:` lines carry

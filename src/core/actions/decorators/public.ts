@@ -67,6 +67,7 @@ export function publicActions() {
       getEip712Domain: (options) => contract.getEip712Domain(client, options),
       getLogs: (options) => contract.getLogs(client, options as never),
       read: (options) => contract.read(client, options),
+      simulate: (options) => contract.simulate(client, options as never),
       write: (options) => contract.write(client, options as never),
     },
     logs: {
@@ -459,6 +460,45 @@ export declare namespace publicActions {
       >(
         options: contract.read.Options<abi, functionName, args>,
       ) => Promise<contract.read.ReturnType<abi, functionName, args>>
+      /**
+       * Simulates a write (`nonpayable`/`payable`) function on a contract
+       * without broadcasting a transaction, returning the decoded `result` and
+       * a `request` that can be passed to `contract.write`.
+       *
+       * @example
+       * ```ts
+       * import { Account, Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       * import { Abi } from 'viem/utils'
+       *
+       * const client = Client.create({
+       *   account: Account.fromPrivateKey('0x…'),
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const { request, result } = await client.contract.simulate({
+       *   abi: Abi.from(['function mint(uint32 tokenId) returns (uint32)']),
+       *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+       *   args: [69420],
+       *   functionName: 'mint',
+       * })
+       * const hash = await client.contract.write(request)
+       * ```
+       */
+      simulate: <
+        const abi extends Abi | readonly unknown[],
+        functionName extends ContractFunctionName<
+          abi,
+          'nonpayable' | 'payable'
+        >,
+        const args extends ContractFunctionArgs<
+          abi,
+          'nonpayable' | 'payable',
+          functionName
+        >,
+      >(
+        options: contract.simulate.Options<abi, functionName, args>,
+      ) => Promise<contract.simulate.ReturnType<abi, functionName, args>>
       /**
        * Executes a write (`nonpayable`/`payable`) function on a contract.
        *

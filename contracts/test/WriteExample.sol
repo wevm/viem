@@ -10,7 +10,11 @@ contract WriteExample {
 
     function foo() external {}
 
-    function foo(uint256) external {}
+    function foo(uint256 x) external returns (uint256) {
+        return x;
+    }
 
-    function foo(uint256, uint256) external {}
+    function foo(uint256 x, uint256 y) external returns (uint256) {
+        return x + y;
+    }
 }
