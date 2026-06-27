@@ -6,7 +6,7 @@ import {
   mined,
   prepareAccount,
   usdc,
-} from '~test/erc20.js'
+} from '~test/token.js'
 import { mine } from '../test/mine.js'
 import { approve } from './approve.js'
 import { transferSync } from './transferSync.js'

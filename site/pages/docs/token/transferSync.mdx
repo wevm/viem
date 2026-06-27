@@ -1,4 +1,4 @@
-# erc20.transferSync
+# token.transferSync
 
 Transfers ERC-20 tokens to a recipient, **waits for the transaction to be confirmed**, and returns the
 decoded `Transfer` event along with the transaction receipt.
@@ -13,7 +13,7 @@ otherwise transfers from the caller (calls `transfer`).
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const { from, to, value, formatted, receipt } = await client.erc20.transferSync({
+const { from, to, value, formatted, receipt } = await client.token.transferSync({
   amount: '10.5', // 10.5 USDC
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   token: 'usdc',
@@ -21,7 +21,7 @@ const { from, to, value, formatted, receipt } = await client.erc20.transferSync(
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/erc20/viem.config.ts:setup]
+// [!include ~/snippets/token/viem.config.ts:setup]
 ```
 
 :::
@@ -71,7 +71,7 @@ Address to transfer tokens from, using an allowance (calls `transferFrom`). Defa
 - **Type:** `string`
 
 Token to operate on: either the name of a token declared on the connected
-chain's [`tokens` config](/docs/erc20#declaring-tokens-on-a-chain) (resolved to
+chain's [`tokens` config](/docs/token#declaring-tokens-on-a-chain) (resolved to
 its contract `address` and `decimals`), or a contract `address`.
 
 ### decimals (optional)

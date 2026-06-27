@@ -32,7 +32,7 @@ import {
  * import { createClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { erc20 } from 'viem/actions'
+ * import { token } from 'viem/actions'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
@@ -40,7 +40,7 @@ import {
  *   transport: http(),
  * })
  *
- * const hash = await erc20.approve(client, {
+ * const hash = await token.approve(client, {
  *   amount: '100',
  *   spender: '0x...',
  *   token: '0x...',

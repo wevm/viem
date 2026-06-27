@@ -1,4 +1,4 @@
-# erc20.transfer
+# token.transfer
 
 Transfers ERC-20 tokens to a recipient, and returns the transaction hash.
 
@@ -6,7 +6,7 @@ Pass `from` to transfer on behalf of another address using an allowance (calls `
 otherwise transfers from the caller (calls `transfer`).
 
 :::tip
-Use [`transferSync`](/docs/erc20/transferSync) to wait for the transaction to be confirmed and return
+Use [`transferSync`](/docs/token/transferSync) to wait for the transaction to be confirmed and return
 the decoded `Transfer` event.
 :::
 
@@ -17,7 +17,7 @@ the decoded `Transfer` event.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const hash = await client.erc20.transfer({
+const hash = await client.token.transfer({
   amount: '10.5', // 10.5 USDC
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   token: 'usdc',
@@ -25,7 +25,7 @@ const hash = await client.erc20.transfer({
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/erc20/viem.config.ts:setup]
+// [!include ~/snippets/token/viem.config.ts:setup]
 ```
 
 :::
@@ -39,7 +39,7 @@ Pass `from` to move tokens on behalf of an owner that has approved the caller (c
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const hash = await client.erc20.transfer({
+const hash = await client.token.transfer({
   amount: '10.5',
   from: '0x55FE002aefF02F77364de339a1292923A15844B8',
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
@@ -48,7 +48,7 @@ const hash = await client.erc20.transfer({
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/erc20/viem.config.ts:setup]
+// [!include ~/snippets/token/viem.config.ts:setup]
 ```
 
 :::
@@ -63,13 +63,13 @@ Action itself.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const gas = await client.erc20.transfer.estimateGas({
+const gas = await client.token.transfer.estimateGas({
   amount: '1',
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   token: 'usdc',
 })
 
-const { result } = await client.erc20.transfer.simulate({
+const { result } = await client.token.transfer.simulate({
   amount: '1',
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   token: 'usdc',
@@ -77,7 +77,7 @@ const { result } = await client.erc20.transfer.simulate({
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/erc20/viem.config.ts:setup]
+// [!include ~/snippets/token/viem.config.ts:setup]
 ```
 
 :::
@@ -93,7 +93,7 @@ pass to [`sendCalls`](/docs/actions/wallet/sendCalls), `sendTransaction` (`calls
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const call = client.erc20.transfer.call({
+const call = client.token.transfer.call({
   amount: '1',
   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   token: 'usdc',
@@ -101,7 +101,7 @@ const call = client.erc20.transfer.call({
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/erc20/viem.config.ts:setup]
+// [!include ~/snippets/token/viem.config.ts:setup]
 ```
 
 :::
@@ -138,7 +138,7 @@ Address to transfer tokens from, using an allowance (calls `transferFrom`). Defa
 - **Type:** `string`
 
 Token to operate on: either the name of a token declared on the connected
-chain's [`tokens` config](/docs/erc20#declaring-tokens-on-a-chain) (resolved to
+chain's [`tokens` config](/docs/token#declaring-tokens-on-a-chain) (resolved to
 its contract `address` and `decimals`), or a contract `address`.
 
 ### decimals (optional)

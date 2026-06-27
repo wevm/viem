@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { client, usdc } from '~test/erc20.js'
+import { client, usdc } from '~test/token.js'
 import { mainnet } from '../../chains/definitions/mainnet.js'
 import { createClient } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'

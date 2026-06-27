@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { client, holder, usdc } from '~test/erc20.js'
+import { client, holder, usdc } from '~test/token.js'
 import { formatUnits } from '../../utils/unit/formatUnits.js'
 import { getBalance } from './getBalance.js'
 

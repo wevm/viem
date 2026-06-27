@@ -790,20 +790,20 @@ export default defineConfig({
         ],
       },
       {
-        text: 'ERC20 Actions',
+        text: 'Token Actions',
         collapsed: true,
         items: [
-          { text: 'Overview', link: '/docs/erc20' },
+          { text: 'Overview', link: '/docs/token' },
           {
             text: 'Actions',
             items: [
-              { text: 'allowance', link: '/docs/erc20/allowance' },
-              { text: 'approve', link: '/docs/erc20/approve' },
-              { text: 'approveSync', link: '/docs/erc20/approveSync' },
-              { text: 'getBalance', link: '/docs/erc20/getBalance' },
-              { text: 'getTotalSupply', link: '/docs/erc20/getTotalSupply' },
-              { text: 'transfer', link: '/docs/erc20/transfer' },
-              { text: 'transferSync', link: '/docs/erc20/transferSync' },
+              { text: 'allowance', link: '/docs/token/allowance' },
+              { text: 'approve', link: '/docs/token/approve' },
+              { text: 'approveSync', link: '/docs/token/approveSync' },
+              { text: 'getBalance', link: '/docs/token/getBalance' },
+              { text: 'getTotalSupply', link: '/docs/token/getTotalSupply' },
+              { text: 'transfer', link: '/docs/token/transfer' },
+              { text: 'transferSync', link: '/docs/token/transferSync' },
             ],
           },
         ],
@@ -3254,8 +3254,8 @@ export default defineConfig({
       text: 'Extensions',
       items: [
         {
-          text: 'ERC20',
-          link: '/docs/erc20',
+          text: 'Tokens',
+          link: '/docs/token',
         },
         {
           text: 'Account Abstraction',

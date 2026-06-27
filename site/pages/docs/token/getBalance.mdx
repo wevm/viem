@@ -1,4 +1,4 @@
-# erc20.getBalance
+# token.getBalance
 
 Reads the ERC-20 token balance of an account.
 
@@ -9,7 +9,7 @@ Reads the ERC-20 token balance of an account.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const balance = await client.erc20.getBalance({
+const balance = await client.token.getBalance({
   account: '0x55FE002aefF02F77364de339a1292923A15844B8',
   token: 'usdc',
 })
@@ -17,7 +17,7 @@ const balance = await client.erc20.getBalance({
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/erc20/viem.config.ts:setup]
+// [!include ~/snippets/token/viem.config.ts:setup]
 ```
 
 :::
@@ -33,11 +33,11 @@ other Action that accepts a contract call.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const call = client.erc20.getBalance.call({ account: '0x…', token: 'usdc' })
+const call = client.token.getBalance.call({ account: '0x…', token: 'usdc' })
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/erc20/viem.config.ts:setup]
+// [!include ~/snippets/token/viem.config.ts:setup]
 ```
 
 :::
@@ -71,7 +71,7 @@ Account to read the balance of.
 - **Type:** `string`
 
 Token to operate on: either the name of a token declared on the connected
-chain's [`tokens` config](/docs/erc20#declaring-tokens-on-a-chain) (resolved to
+chain's [`tokens` config](/docs/token#declaring-tokens-on-a-chain) (resolved to
 its contract `address` and `decimals`), or a contract `address`.
 
 ### decimals (optional)

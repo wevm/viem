@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { accounts, client, holder, usdc } from '~test/erc20.js'
+import { accounts, client, holder, usdc } from '~test/token.js'
 import { allowance } from './allowance.js'
 
 const spender = accounts[0].address

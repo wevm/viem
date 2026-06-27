@@ -1,12 +1,8 @@
-# erc20.approve
+# token.approveSync
 
-Approves a spender to transfer up to `amount` tokens on behalf of the caller, and returns the
-transaction hash.
-
-:::tip
-Use [`approveSync`](/docs/erc20/approveSync) to wait for the transaction to be confirmed and return
-the decoded `Approval` event.
-:::
+Approves a spender to transfer up to `amount` tokens on behalf of the caller, **waits for the
+transaction to be confirmed**, and returns the decoded `Approval` event along with the transaction
+receipt.
 
 ## Usage
 
@@ -15,7 +11,7 @@ the decoded `Approval` event.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const hash = await client.erc20.approve({
+const { owner, spender, value, formatted, receipt } = await client.token.approveSync({
   amount: '10.5', // 10.5 USDC
   spender: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
   token: 'usdc',
@@ -23,63 +19,29 @@ const hash = await client.erc20.approve({
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/erc20/viem.config.ts:setup]
-```
-
-:::
-
-### Estimate Gas & Simulate
-
-Every write Action exposes `.estimateGas` and `.simulate`, which take the same parameters as the
-Action itself.
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const gas = await client.erc20.approve.estimateGas({
-  amount: '1',
-  spender: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  token: 'usdc',
-})
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/erc20/viem.config.ts:setup]
-```
-
-:::
-
-### Composing Calls
-
-Use `.call` to build an `approve` contract call, ready to pass to
-[`sendCalls`](/docs/actions/wallet/sendCalls), `sendTransaction` (`calls`), or
-[`multicall`](/docs/contract/multicall).
-
-:::code-group
-
-```ts twoslash [example.ts]
-import { client } from './viem.config'
-
-const call = client.erc20.approve.call({
-  amount: '1',
-  spender: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
-  token: 'usdc',
-})
-```
-
-```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/erc20/viem.config.ts:setup]
+// [!include ~/snippets/token/viem.config.ts:setup]
 ```
 
 :::
 
 ## Return Type
 
-[`Hex`](/docs/glossary/types#hex)
-
-The transaction hash.
+```ts
+type ReturnType = {
+  /** Token decimals used to derive `formatted`. */
+  decimals: number
+  /** Approved amount, formatted with the token's `decimals`. */
+  formatted: string
+  /** Account that owns the tokens. */
+  owner: Address
+  /** Transaction receipt. */
+  receipt: TransactionReceipt
+  /** Account approved to spend the tokens. */
+  spender: Address
+  /** Approved amount, in base units. */
+  value: bigint
+}
+```
 
 ## Parameters
 
@@ -101,7 +63,7 @@ Account to approve as a spender of the caller's tokens.
 - **Type:** `string`
 
 Token to operate on: either the name of a token declared on the connected
-chain's [`tokens` config](/docs/erc20#declaring-tokens-on-a-chain) (resolved to
+chain's [`tokens` config](/docs/token#declaring-tokens-on-a-chain) (resolved to
 its contract `address` and `decimals`), or a contract `address`.
 
 ### decimals (optional)
@@ -113,6 +75,13 @@ amount (parsing `amount` for writes, formatting `amount`/`formatted` for
 reads). Inferred from the chain's `tokens` config when `token` matches a declared
 token (by name or address). Defaults to `0` when the token isn't declared on the
 connected chain and `decimals` is omitted.
+
+### throwOnReceiptRevert (optional)
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to throw if the transaction receipt reverts.
 
 ### account (optional)
 

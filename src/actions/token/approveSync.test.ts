@@ -7,7 +7,7 @@ import {
   mined,
   prepareAccount,
   usdc,
-} from '~test/erc20.js'
+} from '~test/token.js'
 import { approveSync } from './approveSync.js'
 
 const spender = accounts[3].address

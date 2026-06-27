@@ -19,11 +19,11 @@ import {
  * ```ts
  * import { createClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { erc20 } from 'viem/actions'
+ * import { token } from 'viem/actions'
  *
  * const client = createClient({ chain: mainnet, transport: http() })
  *
- * const totalSupply = await erc20.getTotalSupply(client, {
+ * const totalSupply = await token.getTotalSupply(client, {
  *   token: '0x...',
  * })
  * ```

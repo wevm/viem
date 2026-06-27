@@ -1,6 +1,6 @@
-# erc20.getTotalSupply
+# token.allowance
 
-Reads the total supply of an ERC-20 token.
+Reads the amount of tokens a spender is allowed to spend on behalf of an owner.
 
 ## Usage
 
@@ -9,19 +9,23 @@ Reads the total supply of an ERC-20 token.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const totalSupply = await client.erc20.getTotalSupply({ token: 'usdc' })
-// @log: { amount: 30000000000000n, decimals: 6, formatted: '30000000' }
+const allowance = await client.token.allowance({
+  owner: '0x55FE002aefF02F77364de339a1292923A15844B8',
+  spender: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+// @log: { amount: 1000000000n, decimals: 6, formatted: '1000' }
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/erc20/viem.config.ts:setup]
+// [!include ~/snippets/token/viem.config.ts:setup]
 ```
 
 :::
 
 ### Composing Calls
 
-Use `.call` to build a `totalSupply` contract call, ready to pass to
+Use `.call` to build an `allowance` contract call, ready to pass to
 [`multicall`](/docs/contract/multicall), [`simulateContract`](/docs/contract/simulateContract), or any
 other Action that accepts a contract call.
 
@@ -30,11 +34,11 @@ other Action that accepts a contract call.
 ```ts twoslash [example.ts]
 import { client } from './viem.config'
 
-const call = client.erc20.getTotalSupply.call({ token: 'usdc' })
+const call = client.token.allowance.call({ owner: '0x…', spender: '0x…', token: 'usdc' })
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-// [!include ~/snippets/erc20/viem.config.ts:setup]
+// [!include ~/snippets/token/viem.config.ts:setup]
 ```
 
 :::
@@ -43,26 +47,38 @@ const call = client.erc20.getTotalSupply.call({ token: 'usdc' })
 
 ```ts
 type ReturnType = {
-  /** Total supply in the token's base units. */
+  /** Allowance in the token's base units. */
   amount: bigint
   /** Token decimals used to derive `formatted`. */
   decimals: number
-  /** Total supply formatted with the token's `decimals`. */
+  /** Allowance formatted with the token's `decimals`. */
   formatted: string
 }
 ```
 
-The token's total supply, both in base units (`amount`) and as a human-readable decimal string
+The remaining allowance, both in base units (`amount`) and as a human-readable decimal string
 (`formatted`, derived from the token's `decimals`).
 
 ## Parameters
+
+### owner
+
+- **Type:** `Address`
+
+Account that owns the tokens.
+
+### spender
+
+- **Type:** `Address`
+
+Account allowed to spend the owner's tokens.
 
 ### token
 
 - **Type:** `string`
 
 Token to operate on: either the name of a token declared on the connected
-chain's [`tokens` config](/docs/erc20#declaring-tokens-on-a-chain) (resolved to
+chain's [`tokens` config](/docs/token#declaring-tokens-on-a-chain) (resolved to
 its contract `address` and `decimals`), or a contract `address`.
 
 ### decimals (optional)

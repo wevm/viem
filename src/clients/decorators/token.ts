@@ -7,47 +7,47 @@ import {
   getTotalSupply,
   transfer,
   transferSync,
-} from '../../actions/erc20/index.js'
+} from '../../actions/token/index.js'
 import type { Chain } from '../../types/chain.js'
 import type { Client } from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'
 
-export type { Erc20TokenName } from '../../actions/erc20/internal.js'
+export type { TokenName } from '../../actions/token/internal.js'
 
 /**
- * The `erc20` namespace attached to a Client by {@link erc20Actions}.
+ * The `token` namespace attached to a Client by {@link tokenActions}.
  *
  * Every action selects its token by `token`, which is either a token name
  * (resolved from the chain's `tokens` config) or a contract `address`. `amount`
  * inputs are human-readable decimal strings (e.g. `'10.5'`), parsed with the
  * token's `decimals`.
  *
- * - Docs: https://viem.sh/docs/erc20
+ * - Docs: https://viem.sh/docs/token
  */
-export type Erc20Actions<
+export type TokenActions<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
 > = {
-  erc20: {
+  token: {
     /**
      * Gets the amount of tokens a `spender` is allowed to spend on behalf of an
      * `owner`.
      *
-     * - Docs: https://viem.sh/docs/erc20/allowance
+     * - Docs: https://viem.sh/docs/token/allowance
      *
      * @param parameters - {@link allowance.Parameters}
      * @returns The remaining allowance, in base units and human-readable form. {@link allowance.ReturnValue}
      *
      * @example
-     * import { createClient, erc20Actions, http } from 'viem'
+     * import { createClient, tokenActions, http } from 'viem'
      * import { mainnet } from 'viem/chains'
      *
      * const client = createClient({
      *   chain: mainnet,
      *   transport: http(),
-     * }).extend(erc20Actions())
+     * }).extend(tokenActions())
      *
-     * const allowance = await client.erc20.allowance({
+     * const allowance = await client.token.allowance({
      *   owner: '0x…',
      *   spender: '0x…',
      *   token: 'usdc',
@@ -60,7 +60,7 @@ export type Erc20Actions<
        * Defines an `allowance` contract call, ready to pass to `multicall`,
        * `simulateContract`, or any other action that accepts a contract call.
        *
-       * - Docs: https://viem.sh/docs/erc20/allowance#composing-calls
+       * - Docs: https://viem.sh/docs/token/allowance#composing-calls
        *
        * @param args - {@link allowance.Args}
        * @returns The contract call.
@@ -71,13 +71,13 @@ export type Erc20Actions<
      * Approves a `spender` to transfer up to `amount` tokens on behalf of the
      * caller.
      *
-     * - Docs: https://viem.sh/docs/erc20/approve
+     * - Docs: https://viem.sh/docs/token/approve
      *
      * @param parameters - {@link approve.Parameters}
      * @returns The transaction hash. {@link approve.ReturnValue}
      *
      * @example
-     * import { createClient, erc20Actions, http } from 'viem'
+     * import { createClient, tokenActions, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      * import { mainnet } from 'viem/chains'
      *
@@ -85,9 +85,9 @@ export type Erc20Actions<
      *   account: privateKeyToAccount('0x…'),
      *   chain: mainnet,
      *   transport: http(),
-     * }).extend(erc20Actions())
+     * }).extend(tokenActions())
      *
-     * const hash = await client.erc20.approve({
+     * const hash = await client.token.approve({
      *   amount: '10.5',
      *   spender: '0x…',
      *   token: 'usdc',
@@ -100,7 +100,7 @@ export type Erc20Actions<
        * Defines an `approve` contract call, ready to pass to `sendCalls`,
        * `sendTransaction` (`calls`), or `multicall`.
        *
-       * - Docs: https://viem.sh/docs/erc20/approve#composing-calls
+       * - Docs: https://viem.sh/docs/token/approve#composing-calls
        *
        * @param args - {@link approve.Args}
        * @returns The contract call.
@@ -110,7 +110,7 @@ export type Erc20Actions<
        * Estimates the gas required to approve a `spender` to transfer up to
        * `amount` tokens on behalf of the caller.
        *
-       * - Docs: https://viem.sh/docs/erc20/approve#estimate-gas--simulate
+       * - Docs: https://viem.sh/docs/token/approve#estimate-gas--simulate
        *
        * @param parameters - {@link approve.Parameters}
        * @returns The gas estimate.
@@ -121,7 +121,7 @@ export type Erc20Actions<
       /**
        * Extracts the `Approval` event from transaction logs.
        *
-       * - Docs: https://viem.sh/docs/erc20/approve
+       * - Docs: https://viem.sh/docs/token/approve
        *
        * @param logs - The logs.
        * @returns The decoded `Approval` event.
@@ -131,7 +131,7 @@ export type Erc20Actions<
        * Simulates approving a `spender` to transfer up to `amount` tokens on
        * behalf of the caller, returning the result and write request.
        *
-       * - Docs: https://viem.sh/docs/erc20/approve#estimate-gas--simulate
+       * - Docs: https://viem.sh/docs/token/approve#estimate-gas--simulate
        *
        * @param parameters - {@link approve.Parameters}
        * @returns The simulation result and write request.
@@ -144,13 +144,13 @@ export type Erc20Actions<
      * Approves a `spender` to transfer up to `amount` tokens on behalf of the
      * caller, and waits for the transaction to be confirmed.
      *
-     * - Docs: https://viem.sh/docs/erc20/approveSync
+     * - Docs: https://viem.sh/docs/token/approveSync
      *
      * @param parameters - {@link approveSync.Parameters}
      * @returns The decoded `Approval` event and the transaction receipt. {@link approveSync.ReturnValue}
      *
      * @example
-     * import { createClient, erc20Actions, http } from 'viem'
+     * import { createClient, tokenActions, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      * import { mainnet } from 'viem/chains'
      *
@@ -158,9 +158,9 @@ export type Erc20Actions<
      *   account: privateKeyToAccount('0x…'),
      *   chain: mainnet,
      *   transport: http(),
-     * }).extend(erc20Actions())
+     * }).extend(tokenActions())
      *
-     * const { receipt, value } = await client.erc20.approveSync({
+     * const { receipt, value } = await client.token.approveSync({
      *   amount: '10.5',
      *   spender: '0x…',
      *   token: 'usdc',
@@ -172,21 +172,21 @@ export type Erc20Actions<
     /**
      * Gets the token balance of an `account`.
      *
-     * - Docs: https://viem.sh/docs/erc20/getBalance
+     * - Docs: https://viem.sh/docs/token/getBalance
      *
      * @param parameters - {@link getBalance.Parameters}
      * @returns The token balance, in base units and human-readable form. {@link getBalance.ReturnValue}
      *
      * @example
-     * import { createClient, erc20Actions, http } from 'viem'
+     * import { createClient, tokenActions, http } from 'viem'
      * import { mainnet } from 'viem/chains'
      *
      * const client = createClient({
      *   chain: mainnet,
      *   transport: http(),
-     * }).extend(erc20Actions())
+     * }).extend(tokenActions())
      *
-     * const balance = await client.erc20.getBalance({
+     * const balance = await client.token.getBalance({
      *   account: '0x…',
      *   token: 'usdc',
      * })
@@ -198,7 +198,7 @@ export type Erc20Actions<
        * Defines a `balanceOf` contract call, ready to pass to `multicall`,
        * `simulateContract`, or any other action that accepts a contract call.
        *
-       * - Docs: https://viem.sh/docs/erc20/getBalance#composing-calls
+       * - Docs: https://viem.sh/docs/token/getBalance#composing-calls
        *
        * @param args - {@link getBalance.Args}
        * @returns The contract call.
@@ -208,21 +208,21 @@ export type Erc20Actions<
     /**
      * Gets the total supply of the token.
      *
-     * - Docs: https://viem.sh/docs/erc20/getTotalSupply
+     * - Docs: https://viem.sh/docs/token/getTotalSupply
      *
      * @param parameters - {@link getTotalSupply.Parameters}
      * @returns The token total supply, in base units and human-readable form. {@link getTotalSupply.ReturnValue}
      *
      * @example
-     * import { createClient, erc20Actions, http } from 'viem'
+     * import { createClient, tokenActions, http } from 'viem'
      * import { mainnet } from 'viem/chains'
      *
      * const client = createClient({
      *   chain: mainnet,
      *   transport: http(),
-     * }).extend(erc20Actions())
+     * }).extend(tokenActions())
      *
-     * const totalSupply = await client.erc20.getTotalSupply({ token: 'usdc' })
+     * const totalSupply = await client.token.getTotalSupply({ token: 'usdc' })
      */
     getTotalSupply: ((
       parameters: getTotalSupply.Parameters<chain>,
@@ -231,7 +231,7 @@ export type Erc20Actions<
        * Defines a `totalSupply` contract call, ready to pass to `multicall`,
        * `simulateContract`, or any other action that accepts a contract call.
        *
-       * - Docs: https://viem.sh/docs/erc20/getTotalSupply#composing-calls
+       * - Docs: https://viem.sh/docs/token/getTotalSupply#composing-calls
        *
        * @param args - {@link getTotalSupply.Args}
        * @returns The contract call.
@@ -244,13 +244,13 @@ export type Erc20Actions<
      * Transfers `amount` tokens to a recipient. Pass `from` to transfer on
      * behalf of another address using an allowance (calls `transferFrom`).
      *
-     * - Docs: https://viem.sh/docs/erc20/transfer
+     * - Docs: https://viem.sh/docs/token/transfer
      *
      * @param parameters - {@link transfer.Parameters}
      * @returns The transaction hash. {@link transfer.ReturnValue}
      *
      * @example
-     * import { createClient, erc20Actions, http } from 'viem'
+     * import { createClient, tokenActions, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      * import { mainnet } from 'viem/chains'
      *
@@ -258,9 +258,9 @@ export type Erc20Actions<
      *   account: privateKeyToAccount('0x…'),
      *   chain: mainnet,
      *   transport: http(),
-     * }).extend(erc20Actions())
+     * }).extend(tokenActions())
      *
-     * const hash = await client.erc20.transfer({
+     * const hash = await client.token.transfer({
      *   amount: '10.5',
      *   to: '0x…',
      *   token: 'usdc',
@@ -274,7 +274,7 @@ export type Erc20Actions<
        * call, ready to pass to `sendCalls`, `sendTransaction` (`calls`), or
        * `multicall`.
        *
-       * - Docs: https://viem.sh/docs/erc20/transfer#composing-calls
+       * - Docs: https://viem.sh/docs/token/transfer#composing-calls
        *
        * @param args - {@link transfer.Args}
        * @returns The contract call.
@@ -283,7 +283,7 @@ export type Erc20Actions<
       /**
        * Estimates the gas required to transfer `amount` tokens to a recipient.
        *
-       * - Docs: https://viem.sh/docs/erc20/transfer#estimate-gas--simulate
+       * - Docs: https://viem.sh/docs/token/transfer#estimate-gas--simulate
        *
        * @param parameters - {@link transfer.Parameters}
        * @returns The gas estimate.
@@ -294,7 +294,7 @@ export type Erc20Actions<
       /**
        * Extracts the `Transfer` event from transaction logs.
        *
-       * - Docs: https://viem.sh/docs/erc20/transfer
+       * - Docs: https://viem.sh/docs/token/transfer
        *
        * @param logs - The logs.
        * @returns The decoded `Transfer` event.
@@ -304,7 +304,7 @@ export type Erc20Actions<
        * Simulates a transfer of `amount` tokens to a recipient, returning the
        * result and write request.
        *
-       * - Docs: https://viem.sh/docs/erc20/transfer#estimate-gas--simulate
+       * - Docs: https://viem.sh/docs/token/transfer#estimate-gas--simulate
        *
        * @param parameters - {@link transfer.Parameters}
        * @returns The simulation result and write request.
@@ -318,13 +318,13 @@ export type Erc20Actions<
      * be confirmed. Pass `from` to transfer on behalf of another address using
      * an allowance (calls `transferFrom`).
      *
-     * - Docs: https://viem.sh/docs/erc20/transferSync
+     * - Docs: https://viem.sh/docs/token/transferSync
      *
      * @param parameters - {@link transferSync.Parameters}
      * @returns The decoded `Transfer` event and the transaction receipt. {@link transferSync.ReturnValue}
      *
      * @example
-     * import { createClient, erc20Actions, http } from 'viem'
+     * import { createClient, tokenActions, http } from 'viem'
      * import { privateKeyToAccount } from 'viem/accounts'
      * import { mainnet } from 'viem/chains'
      *
@@ -332,9 +332,9 @@ export type Erc20Actions<
      *   account: privateKeyToAccount('0x…'),
      *   chain: mainnet,
      *   transport: http(),
-     * }).extend(erc20Actions())
+     * }).extend(tokenActions())
      *
-     * const { receipt, value } = await client.erc20.transferSync({
+     * const { receipt, value } = await client.token.transferSync({
      *   amount: '10.5',
      *   to: '0x…',
      *   token: 'usdc',
@@ -347,7 +347,7 @@ export type Erc20Actions<
 }
 
 /**
- * A suite of ERC-20 Actions, attached to the Client as a single `erc20`
+ * A suite of ERC-20 Actions, attached to the Client as a single `token`
  * namespace.
  *
  * Each action selects its token by `token`, which is either a token name
@@ -355,41 +355,12 @@ export type Erc20Actions<
  * `address`. `amount` inputs are human-readable decimal strings (e.g. `'10.5'`),
  * parsed with the token's `decimals`.
  *
- * - Docs: https://viem.sh/docs/erc20
+ * - Docs: https://viem.sh/docs/token
  *
- * @returns A Client decorator that adds the `erc20` namespace ({@link Erc20Actions}) to the Client.
- *
- * @example
- * import { createClient, erc20Actions, http } from 'viem'
- * import { mainnet } from 'viem/chains'
- *
- * const client = createClient({
- *   chain: mainnet,
- *   transport: http(),
- * }).extend(erc20Actions())
- *
- * const balance = await client.erc20.getBalance({ account: '0x…', token: 'usdc' })
- * await client.erc20.transfer({ amount: '10.5', to: '0x…', token: 'usdc' })
- */
-export function erc20Actions() {
-  return <
-    transport extends Transport,
-    chain extends Chain | undefined,
-    account extends Account | undefined,
-  >(
-    client: Client<transport, chain, account>,
-  ): Erc20Actions<chain, account> => {
-    return { erc20: bindErc20(client) } as never
-  }
-}
-
-/**
- * Alias for {@link erc20Actions}.
- *
- * @returns A Client decorator that adds the `erc20` namespace ({@link Erc20Actions}) to the Client.
+ * @returns A Client decorator that adds the `token` namespace ({@link TokenActions}) to the Client.
  *
  * @example
- * import { createClient, http, tokenActions } from 'viem'
+ * import { createClient, tokenActions, http } from 'viem'
  * import { mainnet } from 'viem/chains'
  *
  * const client = createClient({
@@ -397,17 +368,27 @@ export function erc20Actions() {
  *   transport: http(),
  * }).extend(tokenActions())
  *
- * const balance = await client.erc20.getBalance({ account: '0x…', token: 'usdc' })
- * await client.erc20.transfer({ amount: '10.5', to: '0x…', token: 'usdc' })
+ * const balance = await client.token.getBalance({ account: '0x…', token: 'usdc' })
+ * await client.token.transfer({ amount: '10.5', to: '0x…', token: 'usdc' })
  */
-export const tokenActions = erc20Actions
+export function tokenActions() {
+  return <
+    transport extends Transport,
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    client: Client<transport, chain, account>,
+  ): TokenActions<chain, account> => {
+    return { token: bindToken(client) } as never
+  }
+}
 
 /**
  * Binds each ERC-20 action (and its `.call`/`.estimateGas`/`.simulate`/
  * `.extractEvent` helpers) to `client`. Token selection (`token` name or
  * contract `address`) is resolved inside each action. @internal
  */
-function bindErc20(client: Client<Transport, Chain | undefined, any>) {
+function bindToken(client: Client<Transport, Chain | undefined, any>) {
   function bind(action: any) {
     const wrapped = (parameters: any = {}) => action(client, parameters)
     if (Object.hasOwn(action, 'call'))

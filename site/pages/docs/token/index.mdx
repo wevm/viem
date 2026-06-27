@@ -4,29 +4,29 @@ description: Actions for interacting with ERC-20 tokens.
 
 import { Card, Cards } from 'vocs'
 
-# ERC20 Actions
+# Token Actions
 
 Viem provides type-safe, chain-aware Actions for interacting with ERC-20 tokens. The
-`erc20Actions()` decorator attaches a single `erc20` namespace to the Client.
+`tokenActions()` decorator attaches a single `token` namespace to the Client.
 
 Each Action selects its token by `token` name (resolved from the
 [chain's `tokens`](/docs/chains/introduction)), so actions like 
-[`transfer`](/docs/erc20/transfer) and [`getBalance`](/docs/erc20/getBalance) need no lookups.
+[`transfer`](/docs/token/transfer) and [`getBalance`](/docs/token/getBalance) need no lookups.
 
 ## Usage
 
 The `tokenActions` decorator is available from the `viem` entrypoint.
 
 ```ts twoslash
-import { createClient, erc20Actions, http } from 'viem'
+import { createClient, tokenActions, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = createClient({
   chain: mainnet,
   transport: http(),
-}).extend(erc20Actions())
+}).extend(tokenActions())
 
-const balance = await client.erc20.getBalance({
+const balance = await client.token.getBalance({
   account: '0x55FE002aefF02F77364de339a1292923A15844B8',
   token: 'usdc',
 })
@@ -55,17 +55,17 @@ Every Action selects its token via the `token` parameter, which is either:
   for writes and to format the returned amount for reads). Pass `decimals` to override.
 
 ```ts twoslash
-import { createClient, erc20Actions, http } from 'viem'
+import { createClient, tokenActions, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createClient({ chain: mainnet, transport: http() }).extend(erc20Actions())
+const client = createClient({ chain: mainnet, transport: http() }).extend(tokenActions())
 // ---cut---
 // By token name (resolved from the chain).
-await client.erc20.getBalance({ account: '0x…', token: 'usdc' })
+await client.token.getBalance({ account: '0x…', token: 'usdc' })
 // @log: { amount: 1000000000n, decimals: 6, formatted: '1000' }
 
 // By contract address (undeclared, so `decimals` defaults to 0).
-await client.erc20.getBalance({
+await client.token.getBalance({
   account: '0x…',
   token: '0x6B175474E89094C44Da98b954EedeAC495271d0F'
 })
@@ -75,14 +75,14 @@ await client.erc20.getBalance({
 ### Declaring Tokens on a Chain
 
 Tokens are declared under the chain's `tokens` config. Every token there becomes selectable by name
-from `client.erc20`, with no per-token code. Each token declares its contract `address`, `decimals`,
+from `client.token`, with no per-token code. Each token declares its contract `address`, `decimals`,
 and `type` (with optional `name` and `symbol`). Built-in viem chains ship a `usdc` token where
 available.
 
 For a custom chain, pass `tokens` to [`defineChain`](/docs/chains/introduction):
 
 ```ts twoslash
-import { createClient, defineChain, erc20Actions, http } from 'viem'
+import { createClient, defineChain, tokenActions, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 
 const chain = defineChain({
@@ -100,10 +100,10 @@ const client = createClient({
   account: privateKeyToAccount('0x...'),
   chain,
   transport: http(),
-}).extend(erc20Actions())
+}).extend(tokenActions())
 
 // both `token: 'usdc'` and `token: 'dai'` are inferred from the chain
-await client.erc20.transfer({ amount: '10.5', to: '0x…', token: 'dai' })
+await client.token.transfer({ amount: '10.5', to: '0x…', token: 'dai' })
 ```
 
 To extend an existing viem chain with an extra token, spread its `tokens`:
@@ -122,17 +122,17 @@ const chain = {
 
 ### Standalone Actions
 
-The `erc20` Actions are also available standalone from `viem/actions`, taking the `client` as the
+The `token` Actions are also available standalone from `viem/actions`, taking the `client` as the
 first argument. They accept the same token selector (`token` name or contract address).
 
 ```ts twoslash
 import { createClient, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { erc20 } from 'viem/actions'
+import { token } from 'viem/actions'
 
 const client = createClient({ chain: mainnet, transport: http() })
 
-const balance = await erc20.getBalance(client, {
+const balance = await token.getBalance(client, {
   account: '0x55FE002aefF02F77364de339a1292923A15844B8',
   token: 'usdc',
 })
@@ -145,42 +145,42 @@ const balance = await erc20.getBalance(client, {
     icon="lucide:wallet"
     title="getBalance"
     description="Read the token balance of an account."
-    to="/docs/erc20/getBalance"
+    to="/docs/token/getBalance"
   />
   <Card
     icon="lucide:coins"
     title="getTotalSupply"
     description="Read the token's total supply."
-    to="/docs/erc20/getTotalSupply"
+    to="/docs/token/getTotalSupply"
   />
   <Card
     icon="lucide:search"
     title="allowance"
     description="Read the amount a spender may spend on behalf of an owner."
-    to="/docs/erc20/allowance"
+    to="/docs/token/allowance"
   />
   <Card
     icon="lucide:send"
     title="transfer"
     description="Transfer tokens to a recipient (or transferFrom via from)."
-    to="/docs/erc20/transfer"
+    to="/docs/token/transfer"
   />
   <Card
     icon="lucide:send-horizontal"
     title="transferSync"
     description="transfer that waits for confirmation and returns the event."
-    to="/docs/erc20/transferSync"
+    to="/docs/token/transferSync"
   />
   <Card
     icon="lucide:check"
     title="approve"
     description="Approve a spender to transfer tokens on behalf of the caller."
-    to="/docs/erc20/approve"
+    to="/docs/token/approve"
   />
   <Card
     icon="lucide:check-check"
     title="approveSync"
     description="approve that waits for confirmation and returns the event."
-    to="/docs/erc20/approveSync"
+    to="/docs/token/approveSync"
   />
 </Cards>

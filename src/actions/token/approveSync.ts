@@ -9,23 +9,19 @@ import type { TransactionReceipt } from '../../types/transaction.js'
 import type { Compute } from '../../types/utils.js'
 import { formatUnits } from '../../utils/unit/formatUnits.js'
 import { writeContractSync } from '../wallet/writeContractSync.js'
+import { approve } from './approve.js'
 import { resolveToken } from './internal.js'
-import { transfer } from './transfer.js'
 
 /**
- * Transfers ERC-20 tokens to another address, and waits for the transaction to
- * be confirmed.
- *
- * Pass `from` to transfer on behalf of another address using an allowance
- * (calls `transferFrom`); otherwise transfers from the caller (calls
- * `transfer`).
+ * Approves a spender to transfer ERC-20 tokens on behalf of the caller, and
+ * waits for the transaction to be confirmed.
  *
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { erc20 } from 'viem/actions'
+ * import { token } from 'viem/actions'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
@@ -33,9 +29,9 @@ import { transfer } from './transfer.js'
  *   transport: http(),
  * })
  *
- * const { receipt, ...event } = await erc20.transferSync(client, {
+ * const { receipt, ...event } = await token.approveSync(client, {
  *   amount: '100',
- *   to: '0x...',
+ *   spender: '0x...',
  *   token: '0x...',
  * })
  * ```
@@ -44,19 +40,19 @@ import { transfer } from './transfer.js'
  * @param parameters - Parameters.
  * @returns The transaction receipt and event data.
  */
-export async function transferSync<
+export async function approveSync<
   chain extends Chain | undefined,
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: transferSync.Parameters<chain, account>,
-): Promise<transferSync.ReturnValue> {
+  parameters: approveSync.Parameters<chain, account>,
+): Promise<approveSync.ReturnValue> {
   const { decimals, token, throwOnReceiptRevert = true } = parameters
-  const receipt = await transfer.inner(writeContractSync, client, {
+  const receipt = await approve.inner(writeContractSync, client, {
     ...parameters,
     throwOnReceiptRevert,
   } as never)
-  const { args } = transfer.extractEvent(receipt.logs)
+  const { args } = approve.extractEvent(receipt.logs)
   const { decimals: resolved } = resolveToken(client, { decimals, token })
   return {
     ...args,
@@ -66,22 +62,22 @@ export async function transferSync<
   } as never
 }
 
-export namespace transferSync {
+export namespace approveSync {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = transfer.Parameters<chain, account>
+  > = approve.Parameters<chain, account>
   export type Args<chain extends Chain | undefined = Chain | undefined> =
-    transfer.Args<chain>
+    approve.Args<chain>
   export type ReturnValue = Compute<
     GetEventArgs<
       typeof erc20Abi,
-      'Transfer',
+      'Approval',
       { IndexedOnly: false; Required: true }
     > & {
       /** Token decimals used to derive `formatted`. */
       decimals: number
-      /** Transferred amount, formatted with the token's `decimals`. */
+      /** Approved amount, formatted with the token's `decimals`. */
       formatted: string
       /** Transaction receipt. */
       receipt: TransactionReceipt

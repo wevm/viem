@@ -36,7 +36,7 @@ import {
  * import { createClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
  * import { privateKeyToAccount } from 'viem/accounts'
- * import { erc20 } from 'viem/actions'
+ * import { token } from 'viem/actions'
  *
  * const client = createClient({
  *   account: privateKeyToAccount('0x...'),
@@ -44,7 +44,7 @@ import {
  *   transport: http(),
  * })
  *
- * const hash = await erc20.transfer(client, {
+ * const hash = await token.transfer(client, {
  *   amount: '100',
  *   to: '0x...',
  *   token: '0x...',
@@ -54,7 +54,7 @@ import {
  * @example
  * ```ts
  * // Transfer on behalf of another address (via an allowance).
- * const hash = await erc20.transfer(client, {
+ * const hash = await token.transfer(client, {
  *   amount: '100',
  *   from: '0x...',
  *   to: '0x...',

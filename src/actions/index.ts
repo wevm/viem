@@ -29,7 +29,6 @@ export {
   type GetEnsTextReturnType,
   getEnsText,
 } from './ens/getEnsText.js'
-export * as erc20 from './erc20/index.js'
 export {
   type CallErrorType,
   type CallParameters,
@@ -475,6 +474,7 @@ export {
   type StopImpersonatingAccountParameters,
   stopImpersonatingAccount,
 } from './test/stopImpersonatingAccount.js'
+export * as token from './token/index.js'
 export {
   type AddChainErrorType,
   type AddChainParameters,

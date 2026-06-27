@@ -21,7 +21,7 @@ import type { WriteContractSyncParameters as viem_WriteContractSyncParameters } 
  * Union of ERC-20 token names declared on `chain`'s `tokens` config (tokens
  * whose `type` is `'erc20'`).
  */
-export type Erc20TokenName<chain extends Chain | undefined> = chain extends {
+export type TokenName<chain extends Chain | undefined> = chain extends {
   tokens: infer tokens extends Record<string, ChainToken>
 }
   ? {
@@ -51,7 +51,7 @@ export type TokenParameters<chain extends Chain | undefined> = {
    * Token to operate on: either the name of a token declared on the chain's
    * `tokens` config, or a contract `address`.
    */
-  token: Erc20TokenName<chain> | Address
+  token: TokenName<chain> | Address
 }
 
 /**

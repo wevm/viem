@@ -14,50 +14,53 @@ import {
 } from './internal.js'
 
 /**
- * Gets the ERC-20 token balance of an account.
+ * Gets the ERC-20 allowance a spender has over an owner's tokens.
  *
  * @example
  * ```ts
  * import { createClient, http } from 'viem'
  * import { mainnet } from 'viem/chains'
- * import { erc20 } from 'viem/actions'
+ * import { token } from 'viem/actions'
  *
  * const client = createClient({ chain: mainnet, transport: http() })
  *
- * const balance = await erc20.getBalance(client, {
- *   account: '0x...',
+ * const allowance = await token.allowance(client, {
+ *   owner: '0x...',
+ *   spender: '0x...',
  *   token: '0x...',
  * })
  * ```
  *
  * @param client - Client.
  * @param parameters - Parameters.
- * @returns The token balance, in base units and human-readable form.
+ * @returns The allowance, in base units and human-readable form.
  */
-export async function getBalance<chain extends Chain | undefined>(
+export async function allowance<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  parameters: getBalance.Parameters<chain>,
-): Promise<getBalance.ReturnValue> {
-  const { account, decimals, token, ...rest } = parameters
+  parameters: allowance.Parameters<chain>,
+): Promise<allowance.ReturnValue> {
+  const { decimals, owner, spender, token, ...rest } = parameters
   const amount = await readContract(client, {
     ...rest,
-    ...getBalance.call(client, { account, token } as never),
+    ...allowance.call(client, { owner, spender, token } as never),
   })
   const { decimals: resolved } = resolveToken(client, { decimals, token })
   return toAmount(amount, resolved)
 }
 
-export namespace getBalance {
+export namespace allowance {
   export type Args<chain extends Chain | undefined = Chain | undefined> = {
-    /** Account to get the balance of. */
-    account: Address
+    /** Owner of the tokens. */
+    owner: Address
+    /** Spender of the tokens. */
+    spender: Address
   } & TokenParameters<chain>
   export type Parameters<chain extends Chain | undefined = Chain | undefined> =
     ReadParameters & Args<chain>
   export type ReturnValue = Amount
 
   /**
-   * Defines a call to the `balanceOf` function.
+   * Defines a call to the `allowance` function.
    *
    * Can be passed as a parameter to `multicall`, `simulateContract`, or any
    * other action that accepts a contract call. The token is selected by `token`
@@ -75,8 +78,8 @@ export namespace getBalance {
     return defineCall({
       address: resolveToken(client, args).address,
       abi: erc20Abi,
-      functionName: 'balanceOf',
-      args: [args.account],
+      functionName: 'allowance',
+      args: [args.owner, args.spender],
     })
   }
 }

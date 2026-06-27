@@ -7,7 +7,7 @@ import {
   holder,
   prepareAccount,
   usdc,
-} from '~test/erc20.js'
+} from '~test/token.js'
 import { getTransactionReceipt } from '../public/getTransactionReceipt.js'
 import { mine } from '../test/mine.js'
 import { approve } from './approve.js'

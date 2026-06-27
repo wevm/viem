@@ -8,9 +8,9 @@ import { mainnet } from '../../chains/definitions/mainnet.js'
 import { getAddress } from '../../utils/address/getAddress.js'
 import { formatUnits } from '../../utils/unit/formatUnits.js'
 import { wait } from '../../utils/wait.js'
-import { erc20Actions } from './erc20.js'
+import { tokenActions } from './token.js'
 
-const client = anvilMainnet.getClient().extend(erc20Actions())
+const client = anvilMainnet.getClient().extend(tokenActions())
 
 const usdc = mainnet.tokens.usdc.address
 const holder = address.usdcHolder
@@ -30,16 +30,16 @@ async function mined<value>(action: Promise<value>): Promise<value> {
 }
 
 describe('inference', () => {
-  test('attaches a single `erc20` namespace', () => {
-    expect(typeof client.erc20.transfer).toBe('function')
-    expect(typeof client.erc20.getBalance).toBe('function')
-    expect(typeof client.erc20.getTotalSupply).toBe('function')
+  test('attaches a single `token` namespace', () => {
+    expect(typeof client.token.transfer).toBe('function')
+    expect(typeof client.token.getBalance).toBe('function')
+    expect(typeof client.token.getTotalSupply).toBe('function')
   })
 })
 
 describe('token selector', () => {
   test('resolves address + decimals from a `token` name', () => {
-    const call = client.erc20.transfer.call({
+    const call = client.token.transfer.call({
       token: 'usdc',
       to,
       amount: '10.5',
@@ -53,7 +53,7 @@ describe('token selector', () => {
   })
 
   test('resolves address + decimals from a `token` address', () => {
-    const call = client.erc20.transfer.call({
+    const call = client.token.transfer.call({
       token: usdc,
       to,
       amount: '10.5',
@@ -67,7 +67,7 @@ describe('token selector', () => {
   })
 
   test('accepts a `token` address + explicit `decimals`', () => {
-    const call = client.erc20.transfer.call({
+    const call = client.token.transfer.call({
       token: usdc,
       decimals: 6,
       to,
@@ -79,7 +79,7 @@ describe('token selector', () => {
   test('throws for an unknown `token` name', () => {
     expect(() =>
       // @ts-expect-error - 'dai' is not declared on mainnet
-      client.erc20.transfer.call({ token: 'dai', to, amount: '1' }),
+      client.token.transfer.call({ token: 'dai', to, amount: '1' }),
     ).toThrowErrorMatchingInlineSnapshot(
       `[Error: Token "dai" is not a declared ERC-20 token on the chain's \`tokens\` config, and is not a valid address.]`,
     )
@@ -87,7 +87,7 @@ describe('token selector', () => {
 
   test('defaults decimals to 0 when it cannot be inferred from `token` address', () => {
     // `amount: '1'` parsed with the default 0 decimals == `1n` base units.
-    const call = client.erc20.transfer.call({
+    const call = client.token.transfer.call({
       token: '0x0000000000000000000000000000000000000abc',
       to,
       amount: '1',
@@ -101,7 +101,7 @@ describe('token selector', () => {
 
 describe('getBalance', () => {
   test('default: by token name', async () => {
-    const balance = await client.erc20.getBalance({
+    const balance = await client.token.getBalance({
       token: 'usdc',
       account: holder,
     })
@@ -110,7 +110,7 @@ describe('getBalance', () => {
   })
 
   test('by token address', async () => {
-    const balance = await client.erc20.getBalance({
+    const balance = await client.token.getBalance({
       token: usdc,
       account: holder,
     })
@@ -121,7 +121,7 @@ describe('getBalance', () => {
 
 describe('getTotalSupply', () => {
   test('default: by token name', async () => {
-    const totalSupply = await client.erc20.getTotalSupply({ token: 'usdc' })
+    const totalSupply = await client.token.getTotalSupply({ token: 'usdc' })
     expect(totalSupply.amount).toBeTypeOf('bigint')
     expect(totalSupply.amount).toBeGreaterThan(0n)
     expect(totalSupply.formatted).toBe(formatUnits(totalSupply.amount, 6))
@@ -133,9 +133,9 @@ describe('transferSync', () => {
     await impersonateAccount(client, { address: holder })
     await setBalance(client, { address: holder, value: 10n ** 20n })
 
-    const before = await client.erc20.getBalance({ token: 'usdc', account: to })
+    const before = await client.token.getBalance({ token: 'usdc', account: to })
     const { receipt, value } = await mined(
-      client.erc20.transferSync({
+      client.token.transferSync({
         account: holder,
         token: 'usdc',
         to,
@@ -145,21 +145,21 @@ describe('transferSync', () => {
 
     expect(receipt.status).toMatchInlineSnapshot(`"success"`)
     expect(value).toMatchInlineSnapshot(`100000000n`)
-    const after = await client.erc20.getBalance({ token: 'usdc', account: to })
+    const after = await client.token.getBalance({ token: 'usdc', account: to })
     expect(after.amount - before.amount).toMatchInlineSnapshot(`100000000n`)
   })
 })
 
 describe('call composition', () => {
   test('.extractEvent present on write actions', () => {
-    expect(typeof client.erc20.transfer.extractEvent).toBe('function')
-    expect(typeof client.erc20.approve.extractEvent).toBe('function')
+    expect(typeof client.token.transfer.extractEvent).toBe('function')
+    expect(typeof client.token.approve.extractEvent).toBe('function')
   })
 
   test('.estimateGas resolves token from chain', async () => {
     await impersonateAccount(client, { address: holder })
     await setBalance(client, { address: holder, value: 10n ** 20n })
-    const gas = await client.erc20.transfer.estimateGas({
+    const gas = await client.token.transfer.estimateGas({
       account: holder,
       amount: '1',
       to,
@@ -172,7 +172,7 @@ describe('call composition', () => {
   test('.simulate resolves token from chain', async () => {
     await impersonateAccount(client, { address: holder })
     await setBalance(client, { address: holder, value: 10n ** 20n })
-    const { result, request } = await client.erc20.transfer.simulate({
+    const { result, request } = await client.token.transfer.simulate({
       account: holder,
       amount: '1',
       to,

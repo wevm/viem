@@ -1,8 +1,8 @@
 # Tokens [Declare well-known tokens on a chain]
 
 You can declare well-known tokens on a chain using the `tokens` property. Each declared token becomes
-selectable by name (via the [`erc20Actions`](/docs/erc20) decorator), so you can call ERC-20 Actions
-like [`transfer`](/docs/erc20/transfer) and [`getBalance`](/docs/erc20/getBalance) by `token` name
+selectable by name (via the [`tokenActions`](/docs/token) decorator), so you can call ERC-20 Actions
+like [`transfer`](/docs/token/transfer) and [`getBalance`](/docs/token/getBalance) by `token` name
 without looking up its contract `address` or `decimals`.
 
 ## Usage
@@ -27,12 +27,12 @@ export const example = defineChain({
 Once declared, the token can be selected by name on any ERC-20 Action:
 
 ```ts twoslash
-import { createClient, erc20Actions, http } from 'viem'
+import { createClient, tokenActions, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const client = createClient({ chain: mainnet, transport: http() }).extend(erc20Actions())
+const client = createClient({ chain: mainnet, transport: http() }).extend(tokenActions())
 // ---cut---
-const balance = await client.erc20.getBalance({
+const balance = await client.token.getBalance({
   account: '0x55FE002aefF02F77364de339a1292923A15844B8',
   token: 'usdc', // [!code focus]
 })
@@ -91,7 +91,7 @@ type ChainToken = {
   symbol?: string | undefined
   /**
    * Token standard, used to attach the matching Actions to the Client. Set to
-   * `'erc20'` for tokens exposed by [`erc20Actions`](/docs/erc20).
+   * `'erc20'` for tokens exposed by [`tokenActions`](/docs/token).
    */
   type: 'erc20' | (string & {})
 }
