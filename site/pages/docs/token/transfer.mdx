@@ -127,29 +127,25 @@ token's `decimals`.
 
 Address to transfer tokens to.
 
+### token
+
+- **Type:** `string`
+
+Token to operate on: a [chain-declared](/docs/token#declaring-tokens-on-a-chain)
+token name (resolving its `address` and `decimals`), or a contract `address`.
+
 ### from (optional)
 
 - **Type:** `Address`
 
 Address to transfer tokens from, using an allowance (calls `transferFrom`). Defaults to the caller.
 
-### token
-
-- **Type:** `string`
-
-Token to operate on: either the name of a token declared on the connected
-chain's [`tokens` config](/docs/token#declaring-tokens-on-a-chain) (resolved to
-its contract `address` and `decimals`), or a contract `address`.
-
 ### decimals (optional)
 
 - **Type:** `number`
 
-Token decimals, used to convert between base units and the human-readable
-amount (parsing `amount` for writes, formatting `amount`/`formatted` for
-reads). Inferred from the chain's `tokens` config when `token` matches a declared
-token (by name or address). Defaults to `0` when the token isn't declared on the
-connected chain and `decimals` is omitted.
+Token decimals for converting base units to human-readable amounts. Inferred
+from the chain's `tokens` config, defaulting to `0`.
 
 ### account (optional)
 
