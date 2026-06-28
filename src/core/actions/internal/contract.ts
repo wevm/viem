@@ -52,6 +52,23 @@ export type ContractFunctionArgs<
       : args
     : readonly unknown[]
 
+/** Extracts the input argument tuple for a contract constructor. */
+export type ContractConstructorArgs<
+  abi extends Abi | readonly unknown[] = Abi,
+> =
+  AbiParametersToPrimitiveTypes<
+    Extract<
+      (abi extends Abi ? abi : Abi)[number],
+      { type: 'constructor' }
+    >['inputs'],
+    'inputs',
+    true
+  > extends infer args
+    ? [args] extends [never]
+      ? readonly unknown[]
+      : args
+    : readonly unknown[]
+
 /** Widens a literal type to its base type (used to relax inferred `args`). */
 export type Widen<type> =
   | ([unknown] extends [type] ? unknown : never)

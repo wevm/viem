@@ -1,6 +1,10 @@
 export * as Account from './core/Account.js'
 export * as Actions from './core/actions/index.js'
-export { publicActions, testActions } from './core/actions/index.js'
+export {
+  publicActions,
+  testActions,
+  walletActions,
+} from './core/actions/index.js'
 export * as Capabilities from './core/Capabilities.js'
 export * as Chain from './core/Chain.js'
 export * as Client from './core/Client.js'

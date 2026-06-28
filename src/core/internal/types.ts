@@ -297,6 +297,17 @@ export type UnionOmit<type, keys extends keyof type> = type extends any
   : never
 
 /**
+ * @description Construct a type with matching properties omitted from each
+ * union branch. Unlike UnionOmit, keys do not need to exist on every branch.
+ * @example
+ * type Result = DistributiveOmit<{ a: string, b: number } | { a: string, c: boolean }, 'b'>
+ * => { a: string } | { a: string, c: boolean }
+ */
+export type DistributiveOmit<type, keys extends PropertyKey> = type extends any
+  ? Omit<type, Extract<keyof type, keys>>
+  : never
+
+/**
  * @description Construct a type with the properties of union type T except for those in type K.
  * @example
  * type Result = UnionOmit<{ a: string, b: number } | { a: string, b: undefined, c: number }, 'a'>

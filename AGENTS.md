@@ -1,201 +1,223 @@
 # Viem Agent Guidelines
 
-This document contains guidelines for AI agents working on the Viem codebase.
+This document contains general guidelines for AI agents working on the Viem codebase.
 
-> **Update after learnings or mistakes** -- when a correction, new convention, or hard-won lesson
+For v3 rewrite work, also read `AGENTS.tmp.md`.
+
+> **Update after learnings or mistakes**; when a correction, new convention, or hard-won lesson
 > emerges during development, append it to the relevant section of this file immediately. AGENTS.md
-> is the source of truth for project conventions and should grow as the project does.
-
-## Repository & Tooling (v3)
-
-- **Branch** -- v3 development happens on `v3-next`. The pre-existing `v3` branch is an old
-  big-bang prototype kept only as reference. Released versions continue from `main`.
-- **Clean slate** -- the old sources are frozen under `src-old/` and `test-old/` (reference +
-  test-porting source only; deleted once the rewrite reaches parity). They are excluded from
-  build, lint, type-check, tests, knip, and size -- **never edit them, never import from them in
-  committed code**, and do not try to fix their type errors (the frozen tree no longer compiles
-  against ox `1.0.0-beta.0`; that is expected and irrelevant). The v3 tree grows fresh in `src/`
-  and `test/`. The `test/tempo` submodule stays at `test/tempo` (it is live infra, not legacy).
-- **Parity tests are one-shot scaffolding** -- a colocated test importing from `src-old/` to
-  assert output parity is written, run, passed, and **deleted before commit**. Permanent
-  tests are ports of the old suites (adapted to the new API), never comparisons against `src-old/`.
-- **Build** -- `pnpm build` runs `exports:update` + `zile` (ESM-only, output in `dist/`) + copies
-  `src/trusted-setups` into `dist/`. zile derives sources from `package.json#exports` (the
-  `include` in tsconfig is irrelevant to it) and reads `./tsconfig.json` for compiler options.
-  Never re-enable `incremental` for the root tsconfig: `.tsbuildinfo` reuse after zile cleans
-  `dist/` silently skips emit and produces a near-empty build.
-- **Package layout** -- the root `package.json` holds private workspace fields above the
-  `"[!start-pkg]": ""` marker and the published package fields below it. `zile publish:prepare`
-  strips the pre-marker fields. There is no `src/package.json`.
-- **Exports are generated** -- run `pnpm exports:update` only when intentionally adding, removing,
-  or renaming public entrypoints. It rewrites `package.json#exports` (+ `typesVersions`) from the
-  contents of `src/` (`src/<dir>/index.ts` → `./<dir>`; `types` condition first — publint
-  requires it). There is deliberately no `./package.json` export (zile would copy the dev manifest
-  into `dist/`).
-- **Lint/format** -- `pnpm check` runs `vp check --fix` (oxlint + oxfmt) and **mutates**. yaml,
-  md/mdx, css, and `site/pages/` are excluded from formatting. Type-aware linting and the
-  jsdoc/tsdoc plugins are intentionally off until modules migrate to v3 conventions.
-- **Tests** -- `pnpm test` runs `vp test` (config in root `vite.config.ts`). The `core` project
-  covers `src/**/*.test.ts`; a global setup (`test/setup.global.ts`) boots a mainnet-fork anvil
-  (prool) that RPC tests connect to via `test/src/anvil.ts`. Tests are colocated as siblings of
-  their module (`src/utils/Hex.ts` + `src/utils/Hex.test.ts`), inline snapshots preferred.
-  Use `pnpm test --run <paths>` for targeted runs.
-- **No mocks, ever** -- tests **must never** use mocks, stubs, or `vi` (`vi.fn`, `vi.mock`,
-  `vi.spyOn`, fake `fetch`, hand-rolled fake clients, etc.). Exercise real behavior against the
-  prool anvil fork (`test/src/anvil.ts`) -- hit the forked node, not a fake. For transport-level
-  responses the fork cannot produce (5xx, slow/timeout, malformed bodies, auth headers), spin a
-  real ephemeral server with `createServer` (`test/src/http.ts`, `test/src/ws.ts`, or
-  `test/src/ipc.ts`) -- still a real server, not a mock. A test that seems to need a mock is a
-  signal the code or the test is wrong; rework it.
-- **Type checking** -- `pnpm check:types` runs `tsc -b` (project references: scripts, site, src,
-  test).
-- **Other gates** -- `pnpm knip` (production mode), `pnpm check:repo` (sherif), `pnpm test:build`
-  (publint + attw, esm-only profile), `pnpm size` (size-limit against `dist/`), `pnpm vectors`
-  (bun).
-- **Version constant** -- `pnpm version:update` writes `src/version.ts` (`@internal`, consumed by
-  the errors substrate). Do not hand-edit it.
-
-## v3 Process Conventions
-
-- **API-first module reviews** -- no public module is implemented before its signature-only API
-  shape is approved by the maintainer. For utils façades the review is the curated export manifest
-  (which existing names survive → ox mapping, which are deleted).
-- **Check parity against the old implementation** -- when migrating or sketching a module, always
-  read the real old implementation (under `src-old/`, or the existing `src/` code) for that surface
-  and reconcile field shapes, names, ordering, defaults, and behavior against it. Intentional
-  divergences are recorded in the changeset; unintentional ones are bugs. Do not infer the old
-  shape from memory.
-- **Drop `@deprecated` surface on migration** -- when migrating a module, do not carry over any
-  property, option, parameter, or export marked `@deprecated` in v2 (`src-old/`). Remove it and
-  port only the non-deprecated replacement (e.g. `chain.fees.defaultPriorityFee` →
-  `chain.fees.maxPriorityFeePerGas`). Record the removal in the v3 breaking-change log.
-- **Ox is the primitive layer** -- when migrating code, prefer ox v1 modules (`Hex`, `Bytes`,
-  `Abi*`, `Address`, `Hash`, `Signature`, `Secp256k1`, `TxEnvelope*`, …) over hand-rolled
-  implementations. Direct `@noble/*`/`@scure/*` usage is being removed; do not add new usage.
+> and referenced addenda are the source of truth for project conventions.
 
 ## TypeScript Conventions
 
-- **Exact optional properties** -- `exactOptionalPropertyTypes` is enabled in tsconfig. Optional properties must include `| undefined` in their type if they can be assigned `undefined` (e.g. `foo?: string | undefined`, not `foo?: string`).
-- **No unchecked indexed reads** -- `noUncheckedIndexedAccess` is **not yet enabled** in viem. Write new code as if it were: narrow indexed reads before use, or make the invariant obvious with the smallest possible assertion.
-- **`readonly` arrays** -- use `readonly T[]` for array types in type definitions.
-- **Existing `readonly` properties are fine** -- viem has DOM-shaped WebAuthn types and inference-heavy literals that intentionally preserve `readonly` properties. Do not churn them just to satisfy a style preference.
-- **`type` over `interface` by default** -- use `type` for project-owned shapes. Ambient declarations and DOM-shaped compatibility types may use `interface`.
-- **`.js` extensions** -- all relative source imports include `.js` for ESM compatibility.
-- **Follow local import style** -- viem uses both namespace imports and named internal imports. Match the surrounding file instead of mass-converting import lists.
-- **Zod import aliases** -- import `zod/mini` as `z`, and import zod module namespaces as `z_<Module>` (for example, `import * as z_Hex from './Hex.js'`). Applies from the C2 `chain.schema` work onward.
-- **Classes for errors only** -- all other APIs use functions and plain data.
-- **Errors live next to the code that throws them** -- module-specific failure classes live inside the module that owns the failure mode. Place each error class near the bottom of the module so the public functions and types are what the reader sees first. Set `name` to the namespaced form (`'Hex.InvalidHexValueError'`, `'Client.ExtensionError'`, etc.). (v3 convention -- applies to new/migrated modules; legacy error classes migrate with their module.)
-- **No enums** -- use union types or `as const` objects for fixed sets.
-- **camelCase constants** -- prefer `camelCase` for local constants unless the surrounding file already uses protocol-style uppercase names for numeric constants.
-- **`const` generic modifier** -- use to preserve literal types for full inference.
-- **Options default `= {}`** -- use `options: Options = {}` not `options?: Options`.
-- **Namespace params and return types** -- place function parameter, return, and error types in a `declare namespace` matching the function name (e.g. `from.Options`, `serialize.ErrorType`). Do not lift the params type to a sibling export unless the surrounding module already has a shared type. (v3 convention -- legacy `<Action>Parameters`/`<Action>ReturnType` exports migrate to this shape per-module.)
-- **`options` over `args`** -- use `options` for typed option bags. Use domain nouns only when the parameter is not an options bag.
-- **Minimal variable names** -- prefer short, obvious names. Use `options` not `serializeOptions`, `fn` not `callbackFunction`, etc. Context makes meaning clear.
-- **No redundant type annotations** -- if the return type of a function already covers it, do not annotate intermediate variables. Let the return type do the work.
-- **No inline object types on locals** -- when a local variable needs an explicit object-type annotation, declare a named `type` on the line directly above and reference it.
-- **Return directly** -- do not declare a variable just to return it. Use `return { ... }` unless the variable is needed for reuse or readability.
-- **IIFE expressions for fallible local derivations** -- when a local needs `try`/`catch` to parse or normalize a value, prefer an IIFE expression over `let value: T` followed by assignment inside `try`.
-- **Skip braces for single-statement blocks** -- omit `{}` for single-statement `if`, `for`, etc., when the surrounding file follows that style.
-- **No section separator comments** -- do not use `// ---` or `// ===` divider comments. Let JSDoc and whitespace provide structure.
-- **No internal-tracking references in code or comments** -- never reference internal planning, phases, or task IDs (e.g. `C2`, `B6`, `D11`, "in a later phase", `TODO(C2)`) in source comments, JSDoc, or identifiers. Code must read standalone. A bare `TODO:` describing the actual work is fine.
-- **No prior-version references in code or comments** -- never mention prior versions, their old names, or migration framing (e.g. "replaces old `formatters`", "was `defineChain`") in source comments, JSDoc, or identifiers. Comments describe what the code does now and must read standalone. Parity and migration notes belong in the changeset.
-- **Static imports by default** -- use static `import` declarations. Dynamic imports are reserved for real runtime boundaries (e.g. `viem/node` trusted setups, optional heavyweight paths).
-- **Namespace imports for modules** -- prefer `import * as <Module>` for module imports, accessing members as `Errors.BaseError` / `RpcSchema.Default` (matches ox and the namespaced-module pattern; a module's own `./internal/*` helper is aliased `import * as internal`). Use named imports only for the type-utility module `internal/types.ts` (`import type { Compute, IsNarrowable }`), single-function helper modules (`stringify`, `uid`, `wait`), and non-namespace third-party packages (e.g. `vitest`).
-- **Actions are imported via the root `Actions` namespace** -- there is no `viem/actions` entrypoint. Actions live under `src/core/actions` and are re-exported from `viem` as the `Actions` namespace (`export * as Actions from './core/actions/index.js'`). Both in source JSDoc/examples and in tests, use `import { Actions } from 'viem'` and call actions as `Actions.<action>(client, …)`. Test actions live under the `test` sub-namespace (`Actions.test.mine(client, …)`). Decorators are also re-exported as top-level named exports (`import { testActions } from 'viem'`), so decorator usage prefers the named import (`.extend(testActions({ mode }))`) while standalone actions stay namespaced (`Actions.test.mine(client, …)`). Do not use named imports for individual actions.
-- **Minimize `as any`** -- avoid new `as any` where a safer assertion is practical, but do not mass-rewrite existing crypto, tuple, and inference glue that already relies on it.
-- **Destructure when accessing multiple properties** -- prefer `const { a, b } = options` over repeated `options.a`, `options.b`.
-- **Read from `options.x` when normalizing a single field** -- when transforming exactly one option into a local of the same name, read it directly from `options` instead of destructuring and inventing a second name.
-- **Ox helpers over ad hoc conversion** -- use ox helpers like `Hex.fromNumber`, `Hex.toBytes`, `Bytes.fromHex`, `Value.fromGwei`, etc. instead of open-coded conversions.
-- **Use ox branded types** -- prefer existing ox types such as `Hex.Hex`, `Bytes.Bytes`, and `Address.Address` over raw template literal types when the branded module type exists.
-- **Keep property order readable** -- preserve the local ordering style. Do not alphabetize arrays, RLP tuples, ABI parameters, transaction fields, or other order-sensitive wire shapes.
+- **Exact optional properties**; `exactOptionalPropertyTypes` is enabled.
+  - Optional properties must include `| undefined` when assignable to `undefined`.
+  - Use `foo?: string | undefined`, not `foo?: string`.
+- **No unchecked indexed reads**; write new code as if `noUncheckedIndexedAccess` were enabled.
+  - Narrow indexed reads before use.
+  - Otherwise, make the invariant obvious with the smallest practical assertion.
+- **`readonly` arrays**; use `readonly T[]` for array types in type definitions.
+- **Existing `readonly` properties are fine**; viem has DOM-shaped WebAuthn types and inference-heavy literals that intentionally preserve `readonly` properties. Do not churn them just to satisfy a style preference.
+- **`type` over `interface` by default**; use `type` for project-owned shapes. Ambient declarations and DOM-shaped compatibility types may use `interface`.
+- **`.js` extensions**; all relative source imports include `.js` for ESM compatibility.
+- **Follow local import style**; viem uses both namespace imports and named internal imports. Match the surrounding file instead of mass-converting import lists.
+- **Zod import aliases**; import `zod/mini` as `z`.
+  - Import zod module namespaces as `z_<Module>`.
+  - Example: `import * as z_Hex from './Hex.js'`.
+- **Classes for errors only**; all other APIs use functions and plain data.
+- **Errors live next to the code that throws them**; keep module-specific failure classes local.
+  - Put error classes near the bottom of the owning module.
+  - Keep public functions and types first.
+  - Set `name` to the namespaced form.
+- **No enums**; use union types or `as const` objects for fixed sets.
+- **camelCase constants**; prefer `camelCase` for local constants unless the surrounding file already uses protocol-style uppercase names for numeric constants.
+- **`const` generic modifier**; use to preserve literal types for full inference.
+- **Options default `= {}`**; use `options: Options = {}` not `options?: Options`.
+- **Namespace params and return types**; put function types in a matching `declare namespace`.
+  - Examples: `from.Options`, `serialize.ErrorType`.
+  - Do not lift params to sibling exports by default.
+- **`options` over `args`**; use `options` for typed option bags. Use domain nouns only when the parameter is not an options bag.
+- **Minimal variable names**; prefer short, obvious names. Use `options` not `serializeOptions`, `fn` not `callbackFunction`, etc. Context makes meaning clear.
+- **No redundant type annotations**; if the return type of a function already covers it, do not annotate intermediate variables. Let the return type do the work.
+- **No inline object types on locals**; when a local variable needs an explicit object-type annotation, declare a named `type` on the line directly above and reference it.
+- **Return directly**; do not declare a variable just to return it. Use `return { ... }` unless the variable is needed for reuse or readability.
+- **IIFE expressions for fallible local derivations**; prefer IIFEs for local `try`/`catch` parsing.
+  - Avoid `let value: T` followed by assignment inside `try`.
+- **Skip braces for single-statement blocks**; omit `{}` for single-statement `if`, `for`, etc., when the surrounding file follows that style.
+- **No section separator comments**; do not use `// ---` or `// ===` divider comments. Let JSDoc and whitespace provide structure.
+- **No internal-tracking references in code or comments**; code must read standalone.
+  - Avoid planning phases, task IDs, and internal labels.
+  - A bare `TODO:` describing actual work is fine.
+- **No prior-version references in code or comments**; do not mention old names or migration framing.
+  - Comments describe current behavior only.
+  - Put parity and migration notes in the changeset.
+- **Static imports by default**; use static `import` declarations. Dynamic imports are reserved for real runtime boundaries (e.g. `viem/node` trusted setups, optional heavyweight paths).
+- **Namespace imports for modules**; prefer `import * as <Module>` for module imports.
+  - Access members as `Errors.BaseError` or `RpcSchema.Default`.
+  - Alias a module's own `./internal/*` helper as `import * as internal`.
+  - Named imports are fine for `internal/types.ts`.
+  - Named imports are fine for single-function helpers like `stringify`, `uid`, and `wait`.
+  - Named imports are fine for non-namespace third-party packages like `vitest`.
+- **Actions are imported via the root `Actions` namespace**; use `import { Actions } from 'viem'`.
+  - Call standalone actions as `Actions.<action>(client, ...)`.
+  - Test actions live under `Actions.test`.
+  - Decorator usage prefers named imports like `testActions`.
+  - Do not use named imports for individual actions.
+- **Minimize `as any`**; avoid new `as any` where a safer assertion is practical, but do not mass-rewrite existing crypto, tuple, and inference glue that already relies on it.
+- **Destructure when accessing multiple properties**; prefer `const { a, b } = options` over repeated `options.a`, `options.b`.
+- **Read from `options.x` when normalizing a single field**; avoid inventing a second name.
+  - Applies when transforming one option into a local of the same name.
+- **Ox helpers over ad hoc conversion**; use ox helpers like `Hex.fromNumber`, `Hex.toBytes`, `Bytes.fromHex`, `Value.fromGwei`, etc. instead of open-coded conversions.
+- **Use ox branded types**; prefer existing ox types such as `Hex.Hex`, `Bytes.Bytes`, and `Address.Address` over raw template literal types when the branded module type exists.
+- **Keep property order readable**; preserve the local ordering style. Do not alphabetize arrays, RLP tuples, ABI parameters, transaction fields, or other order-sensitive wire shapes.
 
 ## Type Inference Conventions
 
-- **Preserve literals** -- use `const` generics and narrow helper signatures when an API should preserve literal inputs.
-- **Type tests in `.test-d.ts`** -- use Vitest's `expectTypeOf` in colocated `.test-d.ts` files to assert generic inference works. Type tests are first-class; write them alongside implementation. Run via `pnpm test:typecheck`.
-- **Snapshot inferred public types** -- the ox `.snap-d.ts` type-snapshot pattern is adopted as modules migrate to v3 conventions.
-- **No `any` leakage** -- user-facing callback, return, and option types should not leak `any` unless the surrounding API already intentionally does.
-- **Type inference after every feature** -- after implementing any feature, check if new types can be narrowed. Add or update type tests alongside behavioral tests when public inference changes.
+- **Preserve literals**; use `const` generics and narrow helper signatures when an API should preserve literal inputs.
+- **Type tests in `.test-d.ts`**; use Vitest's `expectTypeOf` in colocated `.test-d.ts` files to assert generic inference works. Type tests are first-class; write them alongside implementation. Run via `pnpm test:typecheck`.
+- **Snapshot inferred public types**; use type snapshots for migrated public surfaces.
+- **No `any` leakage**; user-facing callback, return, and option types should not leak `any` unless the surrounding API already intentionally does.
+- **Type inference after every feature**; check whether new types can be narrowed.
+  - Add or update type tests when public inference changes.
 
 ## API Conventions
 
-- **Stateless module APIs** -- public APIs are module namespaces full of functions and types. Do not introduce stateful classes for normal library behavior.
-- **Public entrypoint docs** -- when adding a public module or export, update the owning `index.ts` (and `src/index.ts` for root exports) with the export and a TSDoc block.
-- **Package exports are generated** -- run `pnpm exports:update` only when intentionally adding, removing, or renaming public subpath exports.
-- **Keep public APIs lean** -- avoid exposing options for values the library can derive from existing inputs.
-- **Wire formats stay explicit** -- serialization, RPC, RLP, ABI, and transaction-envelope code should keep wire-order and field-shape decisions visible at the call site.
-- **Internal helpers stay internal** -- keep helper modules under `internal/` directories unless they are part of the public API.
+- **Stateless module APIs**; public APIs are module namespaces full of functions and types. Do not introduce stateful classes for normal library behavior.
+- **Public entrypoint docs**; when adding a public module or export, update the owning `index.ts` (and `src/index.ts` for root exports) with the export and a TSDoc block.
+- **Package exports are generated**; run `pnpm exports:update` only when intentionally adding, removing, or renaming public subpath exports.
+- **Keep public APIs lean**; avoid exposing options for values the library can derive from existing inputs.
+- **Wire formats stay explicit**; serialization, RPC, RLP, ABI, and transaction-envelope code should keep wire-order and field-shape decisions visible at the call site.
+- **Internal helpers stay internal**; keep helper modules under `internal/` directories unless they are part of the public API.
 
 ## Documentation Conventions
 
-- **Docs immediately after a module** -- when a public module/action is implemented, write its site docs (sub-page + sidebar wiring) before moving on to the next module. Docs are part of finishing a module, not a later phase.
-- **Show example responses with `// @log:`** -- every action doc Usage example that returns a value must annotate the result with a vocs `// @log:` comment showing the example response shape (e.g. `// @log: 10000000000000000000n`, or a multi-line `// @log:` block for objects). Place it directly under the line that binds the result. Actions that return `void` are exempt.
-- **Alphabetize doc parameters** -- within an options bag, list every property alphabetically by name, regardless of required/optional (matching the source `Options` types, which are alphabetized). This covers the `##### ` sub-properties of a `#### options` block and the `### ` entries of an action's options. Positional function arguments (e.g. `url` then `options`) stay in signature order. Applies to hand-written docs only; generated `utilities/` pages are synced from Ox.
-- **TSDoc on public exports** -- every exported public function, type, and constant gets a TSDoc comment. Type properties get TSDoc when they are part of the public surface. (Enforced per-module as code migrates to v3 conventions -- the jsdoc lint plugins switch on with B/C.)
-- **Decorator methods get JSDoc** -- every method on a decorator's `Decorator` type (e.g. `publicActions.Decorator`, `testActions.Decorator`) gets the same JSDoc as its underlying action, rewritten for the client-extension call shape: the `@example` uses `Client.create(...).extend(<decorator>())` and calls `client.<method>(...)` instead of `Actions.<method>(client, ...)`.
-- **Doc-driven API changes** -- write or update the TSDoc before or alongside the implementation, not as an afterthought.
-- **Examples should be small** -- public examples should show the minimum useful shape and avoid unrelated setup.
-- **Source docs first** -- public API documentation usually belongs in TSDoc near the exported source.
-- **Site pages** -- human-written docs live under `site/pages/`. `site/pages.gen.ts` is generated -- do not edit by hand. (ox-style generated API-reference pages arrive with the post-C7 docgen stretch.)
+- **Docs immediately after a module**; write site docs before moving to the next module.
+  - Include the sub-page and sidebar wiring.
+- **Show example responses with `// @log:`**; annotate action doc Usage examples that return values.
+  - Place the `// @log:` comment directly under the bound result.
+  - Show the example response shape.
+  - Multi-line `// @log:` blocks are fine for objects.
+  - Actions returning `void` are exempt.
+- **Alphabetize doc parameters**; option-bag properties are listed alphabetically.
+  - Required and optional properties share the same ordering.
+  - This matches source `Options` types.
+  - Covers `##### ` sub-properties under `#### options`.
+  - Covers `### ` entries for action options.
+  - Positional function arguments stay in signature order.
+  - Applies to hand-written docs only.
+  - Generated `utilities/` pages are synced from Ox.
+- **Doc-driven API changes**; write or update the TSDoc before or alongside the implementation, not as an afterthought.
+- **TSDoc on public exports**; every public function, type, and constant gets TSDoc.
+  - Public type properties get TSDoc too.
+- **Decorator methods get JSDoc**; every method on a decorator's `Decorator` type gets JSDoc.
+  - Use the same docs as the underlying action.
+  - Rewrite examples for client-extension calls.
+- **Examples should be small**; public examples should show the minimum useful shape and avoid unrelated setup.
+- **Source docs first**; public API documentation usually belongs in TSDoc near the exported source.
+- **Site pages**; human-written docs live under `site/pages/`.
+  - Generated site page files are not edited by hand.
 
 ## Type Conventions
 
-- **No eager type definitions** -- do not extract a named type until it is used in more than one place or makes a difficult local shape easier to read.
-- **Shared domain types live near their module** -- keep reusable public types in the module that owns the domain concept.
-- **Error unions live in namespaces** -- exported function error unions should live in that function's namespace as `ErrorType`.
+- **No eager type definitions**; do not extract a named type until it is used in more than one place or makes a difficult local shape easier to read.
+- **Shared domain types live near their module**; keep reusable public types in the module that owns the domain concept.
+- **Error unions live in namespaces**; exported function error unions should live in that function's namespace as `ErrorType`.
 
 ## Abstraction Conventions
 
-- **Prefer duplication over the wrong abstraction** -- duplicated code with a clear bug-fix burden is better than a bad abstraction that is scary to change.
-- **Do not abstract until the commonalities scream** -- wait for 3+ concrete use cases where the right abstraction becomes obvious. Do not abstract for 1-2 instances.
-- **Optimize for change** -- code that is easy to change beats code that is cleverly DRY. We do not know future requirements.
-- **No flags or mode parameters** -- if an abstraction needs `if` branches or boolean params to handle different call sites, it is usually the wrong abstraction. Inline it.
-- **Start concrete, extract later** -- begin inline. Extract only when a clear pattern emerges across multiple real usages.
+- **Prefer duplication over the wrong abstraction**; duplicated code with a clear bug-fix burden is better than a bad abstraction that is scary to change.
+- **Do not abstract until the commonalities scream**; wait for 3+ concrete use cases where the right abstraction becomes obvious. Do not abstract for 1-2 instances.
+- **Optimize for change**; code that is easy to change beats code that is cleverly DRY. We do not know future requirements.
+- **No flags or mode parameters**; if an abstraction needs `if` branches or boolean params to handle different call sites, it is usually the wrong abstraction. Inline it.
+- **Start concrete, extract later**; begin inline. Extract only when a clear pattern emerges across multiple real usages.
 
 ## Testing Conventions
 
-- **Use `pnpm test` for tests** -- run tests through package scripts, not `vitest` directly.
-- **Target the relevant project** -- prefer `pnpm test --run <paths>` or `pnpm test --project core --bail=1` / `--project tempo` over the full matrix while iterating. Use `SKIP_GLOBAL_SETUP=true` for offline runs that do not need anvil.
-- **Colocate tests** -- tests are sibling `*.test.ts` files next to their module; prefer inline snapshots over snapshot files.
-- **Import public API from `'viem'` in tests** -- when a test exercises a publicly-exported module, import it from `'viem'` (or `'viem/node'`) via the `viem` alias rather than a relative path (e.g. `import { Account, Client } from 'viem'`). Internal helpers (`internal/*`), non-exported members (e.g. `fallback.rankTransports`, `ipc.extractMessages`), and chain definitions stay relative since they are not on the public surface.
-- **Import transports by their bare name** -- in tests, use the sugar export (`http(...)`, `custom(...)`, `fallback(...)`, `webSocket(...)`, `loadBalance(...)`, `rateLimit(...)`) imported from `'viem'`, not `Transport.http(...)`. Keep the `Transport` namespace import only for non-transport members (`Transport.UrlRequiredError`, `Transport.Instance`, the `Transport.Transport` type).
-- **No tests for pure re-exports** -- modules that only `export * from 'ox/<Ns>'` get no committed test suite (ox owns that coverage). Behavior-delta verification against the old implementation happens as one-shot scaffolding: write, run, record findings, then delete the tests. Once a façade gains viem-specific logic, that logic gets sibling tests.
-- **No redundant top-level `describe`** -- do not wrap a whole test file in a single `describe('<thing>', ...)` that just echoes the file's primary export; put the `test(...)` blocks at the top level. Use `describe` only to group a *subset* of tests (a nested scenario like `describe('events', ...)`) or to separate **multiple** distinct exports tested in one file (e.g. `call.test.ts` keeps `describe('CallExecutionError', ...)` alongside the top-level `call` tests).
-- **Inline snapshots over direct assertions** -- prefer `toMatchInlineSnapshot()` over `.toBe()`, `.toEqual()`, etc. for stable return values. Use `toThrowErrorMatchingInlineSnapshot()` for error assertions.
-- **Test behavior, not call-tracking** -- assert on observable outputs, not on whether a hook/function was invoked. Do not add `let xCalled = false` flags (or counters) inside injected hooks/callbacks and assert they flipped -- that is spying, which the no-mocks rule forbids in spirit. Instead make the hook produce a distinguishable, verifiable result and assert against it (e.g. a chain `serialize` hook that returns a known value, or a `getSignPayload` hook whose payload you recover the signer from), so the test fails only when the actual behavior breaks.
-- **Snapshot whole objects, omit nondeterministic properties** -- destructure out nondeterministic fields and snapshot the rest, rather than cherry-picking individual fields to assert.
-- **Prefer whole-response snapshots over dynamic fixtures** -- assert an action's whole decoded response with `toMatchInlineSnapshot()` against deterministic data (e.g. a pinned fork block anvil caches), omitting nondeterministic values. Do not fetch a value in `beforeAll`, stash selected fields in a mutable fixture, and assert those fields one-by-one. When a lookup variant cannot return deterministic data (an upstream/fork limitation), cover its branch with a deterministic not-found assertion or a whole-object equality against a locally-produced transaction, not a hand-picked-field fixture.
-- **Browser tests use browser suffixes** -- browser-specific behavior uses `*.browser.test.ts` and the `browser` Vitest project (project lands with its first test).
-- **Fuzz tests stay gated** -- fuzz harnesses use `*.fuzz.ts` behind a `FUZZ=true` project so the default `pnpm test` run never picks them up (project lands with its first harness; fuzz regressions become deterministic `*.test.ts` cases or vector fixtures).
-- **Vectors use Bun** -- run vector tests with `pnpm vectors`.
-- **Unit and type tests as you go** -- write unit tests and `.test-d.ts` type tests alongside implementation for each public behavior change.
-- **100% module coverage** -- every module under `src/core/**` must reach 100% statement/branch/function/line coverage (`pnpm test --coverage <paths>`). Cover error, retry, and timeout paths, not just the happy path. If a branch is unreachable through real behavior, the code is dead -- delete it or wire it, do not leave it uncovered.
+- **Use `pnpm test` for tests**; run tests through package scripts, not `vitest` directly.
+- **No mocks, ever**; tests must not use mocks, stubs, or `vi`.
+  - Forbidden examples: `vi.fn`, `vi.mock`, `vi.spyOn`, fake `fetch`, fake clients.
+  - Exercise real behavior against the configured test chain or real ephemeral servers.
+  - If a test seems to need a mock, rework the code or test.
+- **Target the relevant project**; prefer narrow test commands while iterating.
+  - Use `pnpm test --run <paths>` for focused runs.
+  - Use `pnpm test --project core --bail=1` for core failures.
+  - Use `--project tempo` for tempo work.
+  - Use `SKIP_GLOBAL_SETUP=true` for offline runs that do not need anvil.
+- **Colocate tests**; tests are sibling `*.test.ts` files next to their module; prefer inline snapshots over snapshot files.
+- **No tests for pure re-exports**; upstream packages own coverage for pure re-export modules.
+  - Once a facade gains project logic, add sibling tests.
+- **Import public API from `'viem'` in tests**; use aliases for public exports.
+  - Import public modules from `'viem'` or `'viem/node'`.
+  - Avoid relative imports for public surface tests.
+  - Internal helpers may stay relative.
+  - Non-exported members may stay relative.
+  - Chain definitions may stay relative.
+- **Import transports by their bare name**; use transport sugar exports in tests.
+  - Use `http(...)`, `custom(...)`, `fallback(...)`, `webSocket(...)`, `loadBalance(...)`, `rateLimit(...)`.
+  - Import those functions from `'viem'`.
+  - Do not call `Transport.http(...)`.
+  - Keep `Transport` namespace imports for non-transport members only.
+- **No redundant top-level `describe`**; do not wrap a whole file in an echoing `describe`.
+  - Put primary export tests at top level.
+  - Use `describe` for nested scenarios.
+  - Use `describe` to separate multiple distinct exports in one file.
+- **Inline snapshots over direct assertions**; prefer `toMatchInlineSnapshot()` over `.toBe()`, `.toEqual()`, etc. for stable return values. Use `toThrowErrorMatchingInlineSnapshot()` for error assertions.
+- **Test behavior, not call-tracking**; assert observable outputs.
+  - Do not assert that a hook or function was invoked.
+  - Do not use `let xCalled = false` flags or counters.
+  - Make hooks produce distinguishable, verifiable results.
+  - Example: a chain `serialize` hook can return a known value.
+  - Example: recover the signer from a `getSignPayload` payload.
+- **Snapshot whole objects, omit nondeterministic properties**; destructure out nondeterministic fields and snapshot the rest, rather than cherry-picking individual fields to assert.
+- **Prefer whole-response snapshots over dynamic fixtures**; snapshot whole decoded responses.
+  - Use deterministic data, like a pinned fork block anvil caches.
+  - Omit nondeterministic values before snapshotting.
+  - Do not fetch values in `beforeAll` for mutable fixtures.
+  - Do not assert stashed fields one-by-one.
+  - For nondeterministic lookups, use deterministic not-found assertions.
+  - Locally-produced transaction equality is fine for whole-object assertions.
+- **Vectors use Bun**; run vector tests with `pnpm vectors`.
+- **Browser tests use browser suffixes**; browser-specific behavior uses `*.browser.test.ts`.
+- **Fuzz tests stay gated**; fuzz harnesses use `*.fuzz.ts` behind an opt-in project.
+  - Default `pnpm test` must never pick them up.
+- **Unit and type tests as you go**; write unit tests and `.test-d.ts` type tests alongside implementation for each public behavior change.
+- **100% module coverage**; modules with coverage requirements must reach 100%.
+  - Cover error, retry, and timeout paths.
+  - Delete or wire unreachable branches.
 
 ## Workflow Conventions
 
-- **Use targeted commands** -- prefer the smallest command that covers the touched behavior.
-- **Types** -- run `pnpm check:types` after TypeScript changes.
-- **Repo checks** -- run `pnpm check:repo` when package metadata or workspace shape changes.
-- **Docs dev server** -- use `pnpm docs:dev` for documentation UI work; `pnpm docs:build` builds the site.
-- **`pnpm check` mutates** -- it runs `vp check --fix` (oxlint + oxfmt). Use it only when intentionally applying lint/format fixes.
-- **`pnpm exports:update` mutates** -- it rewrites `package.json#exports` (+ `typesVersions`).
-- **`pnpm contracts:build` mutates generated contract artifacts** -- it runs Forge and `scripts/contracts:build.ts`.
-- **Install hooks can mutate** -- `pnpm install` runs `postinstall`, which initializes submodules, builds contracts, and runs `pnpm dev`. **Use `pnpm install --ignore-scripts` when the `test/tempo` submodule has local work** (a bare install resets its checked-out commit). After `--ignore-scripts`, freshly added binary packages (e.g. `bun`) may need `node node_modules/<pkg>/install.js`.
+- **Use targeted commands**; prefer the smallest command that covers the touched behavior.
+- **Types**; run `pnpm check:types` after TypeScript changes.
+- **Repo checks**; run `pnpm check:repo` when package metadata or workspace shape changes.
+- **Docs dev server**; use `pnpm docs:dev` for documentation UI work; `pnpm docs:build` builds the site.
+- **`pnpm check` mutates**; it runs `vp check --fix` (oxlint + oxfmt). Use it only when intentionally applying lint/format fixes.
+- **`pnpm exports:update` mutates**; it rewrites `package.json#exports` (+ `typesVersions`).
+- **`pnpm contracts:build` mutates generated contract artifacts**; it runs Forge and `scripts/contracts:build.ts`.
+- **Install hooks can mutate**; `pnpm install` runs `postinstall`.
+  - `postinstall` initializes submodules, builds contracts, and runs `pnpm dev`.
+  - Use `pnpm install --ignore-scripts` when `test/tempo` has local work.
+  - A bare install resets the `test/tempo` checked-out commit.
+  - Fresh binary packages may need `node node_modules/<pkg>/install.js`.
 
 ## Changeset Conventions
 
-- **Changesets only for public behavior** -- add or update a changeset when a change affects public API or existing behavior.
-- **Update existing changesets first** -- if the branch already has a changeset for the same area, update it instead of adding a duplicate.
-- **One sentence, past tense** -- changeset entries are a single sentence written in past tense.
-- **Breaking changes include migration shape** -- major changes include a `diff` fence showing the before/after migration shape.
-- **Log v3 breaking changes as you migrate a module** -- when porting or implementing a v3 module, immediately compare its public surface to the v2 counterpart (`src-old/`) and record every breaking change (renames, moved/removed exports, dropped entrypoints, changed option/return shapes) in a `major` changeset, with a `diff` fence per change. Do this as part of finishing the module, not in a later sweep, so nothing is forgotten. One changeset per area/module (e.g. `.changeset/v3-nonce-manager.md`); update the existing area changeset rather than adding a duplicate.
+- **Changesets only for public behavior**; add or update a changeset when a change affects public API or existing behavior.
+- **Update existing changesets first**; if the branch already has a changeset for the same area, update it instead of adding a duplicate.
+- **One sentence, past tense**; changeset entries are a single sentence written in past tense.
+- **Breaking changes include migration shape**; major changes include a `diff` fence showing the before/after migration shape.
 
 ## Git Conventions
 
-- **Maintainer-gated commits** -- never `git commit`, `git push`, or stage changes without the maintainer's explicit go-ahead. Implement and verify, then leave the work tree dirty for review; the maintainer decides when it gets committed (a "landed"/done task may stay reviewed-but-uncommitted until then).
-- **Conventional commits** -- use `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:` prefixes. Scope is optional (e.g. `feat(abi): add tuple formatter`).
-- **Preserve dirty work** -- do not revert, clean, or overwrite existing local changes unless explicitly asked. Never stage the `test/tempo` submodule pointer or the user's untracked in-progress files; exclude them explicitly (e.g. `git add -A -- ':(exclude)test/tempo'`).
+- **Maintainer-gated commits**; never commit, push, or stage without explicit maintainer approval.
+  - Implement and verify, then leave the work tree dirty for review.
+  - The maintainer decides when work gets committed.
+  - A landed task may stay reviewed but uncommitted.
+- **Conventional commits**; use `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:` prefixes. Scope is optional (e.g. `feat(abi): add tuple formatter`).
+- **Preserve dirty work**; do not revert, clean, or overwrite local changes unless asked.
+  - Never stage the `test/tempo` submodule pointer.
+  - Never stage the user's untracked in-progress files.
+  - Exclude `test/tempo` explicitly when staging.
 
 ## Documentation (Site)
 
@@ -208,11 +230,11 @@ Guidelines for authoring docs and guides under `site/pages/`.
 
 ### Headings
 
-- **Use Title Case for all headings.** Capitalize the first and last word and all major words
-  (nouns, verbs, adjectives, adverbs, pronouns). Keep minor words lowercase unless they are the
-  first or last word: articles (`a`, `an`, `the`), short coordinating conjunctions
-  (`and`, `but`, `or`, `nor`, `for`, `so`, `yet`), and short prepositions (`in`, `on`, `to`,
-  `of`, `for`, `with`, `as`, etc.).
+- **Use Title Case for all headings.**
+  - Capitalize the first and last word.
+  - Capitalize major words: nouns, verbs, adjectives, adverbs, and pronouns.
+  - Keep minor words lowercase unless first or last.
+  - Minor words include articles, short coordinating conjunctions, and short prepositions.
 - Examples: `Send a Transaction`, `Pay Fees with Stablecoins`, `Set a Default Fee Token`,
   `See More`.
 - Code identifiers inside a heading keep their original casing (e.g. `### Prefer Sync Actions`,
@@ -227,69 +249,89 @@ Guidelines for authoring docs and guides under `site/pages/`.
 
 - **Module docs are concept-first.** Each module has a concept landing page plus task/reference
   sub-pages.
-  - **Landing page** (`index.mdx`) is concept-first: a `## Overview` explaining what the module is,
-    how it works, and when to reach for it. The Overview always includes a minimal `ts twoslash`
-    usage example (the smallest end-to-end shape) after the concept prose. It is followed by a
-    `<Cards>` grid linking to each succeeding sub-page (one `<Card>` per sub-page, with a title,
-    short description, icon, and `to`). No `## Recipes` or reference sections here.
+  - **Landing page** (`index.mdx`) is concept-first.
+    - Start with `## Overview`.
+    - Explain what the module is, how it works, and when to use it.
+    - Include a minimal `ts twoslash` usage example after the concept prose.
+    - Follow with a `<Cards>` grid linking to each succeeding sub-page.
+    - Each `<Card>` has a title, short description, icon, and `to`.
+    - Do not add `## Recipes` or reference sections here.
   - **Sub-pages** lead with prose, then drill into the API, containing in order:
-    - `## Overview` -- the concept for this task/function.
-    - `## Recipes` -- independent, self-contained tasks (see the Guides section for the recipe
-      shape). Recipes must cover the use cases of the documented parameters/options: every
-      meaningful parameter (and notable option-bag field) should be demonstrated by at least one
-      recipe showing why and how you would reach for it, not just restated in the reference table.
-    - **An API reference** -- one `## ` section per exported function/type, named after the
-      identifier (e.g. ``## `Account.from` ``), each containing `### Usage`, `### Parameters`,
-      `### Return Value`, and `### Errors` as applicable.
-- **Reference sections open with a one-line description** -- directly under each function `## `
-  heading, write a single sentence describing what it does, then `### Usage`. Keep it terse and
-  sourced from the symbol's TSDoc.
-- **`### Parameters` never uses tables** -- list each parameter as its own heading
-  (`#### options`, then `##### foo` for nested option-bag fields), with `- **Type:**` (and
-  `- **Default:**` when applicable) bullets followed by a prose description. Do not prefix
-  parameter headings with `options.` (write `##### batch`, not `##### options.batch`). Tables are
-  reserved for `### Errors`; do not put parameter/option fields in a table.
-- **Each parameter heading includes a focused example** -- under each `##### foo` (and
-  scalar `#### param`) entry, after the type bullets and prose, add a `ts twoslash` snippet showing
-  that parameter in realistic use, with the line(s) that set it marked `// [!code focus]` so the
-  reader's eye lands on the relevant usage. Keep the snippet minimal (imports + the smallest call
-  that exercises the parameter). Hide the imports (and any setup `declare`/scaffolding lines) with a
-  `// ---cut---` directive so only the focused call renders. (This is the opposite of the Guides
-  rule, where imports are always shown -- parameter reference snippets stay terse.)
-- **`### Return Value` is an inline code fence, not a bullet** -- place the type as a bare
-  inline `` `Type` `` on its own line directly under the heading (not `- **Type:** ...`), followed
-  by a sentence describing it.
-- **`### Errors` is a table, not bullets** -- two columns, `Error` and `Description`. List the
-  concrete error classes the function throws, not `.ErrorType` aliases: expand an alias like
-  `Address.assert.ErrorType` to its underlying class(es) (`Address.InvalidAddressError`,
-  `Errors.GlobalErrorType`).
-- **Don't restate the discriminant in prose** -- do not append parentheticals like
+    - `## Overview`; the concept for this task/function.
+    - `## Recipes`; independent, self-contained tasks.
+      - See the Guides section for the recipe shape.
+      - Cover documented parameters and options through recipes.
+      - Demonstrate every meaningful parameter or notable option-bag field.
+      - Show why and how to reach for each option.
+      - Do not only restate the reference table.
+    - **An API reference**; add one `## ` section per exported function or type.
+      - Name each section after the identifier.
+      - Example: ``## `Account.from` ``.
+      - Include `### Usage`, `### Parameters`, `### Return Value`, and `### Errors` as applicable.
+- **Reference sections open with a one-line description**; place it under each function heading.
+  - Describe what the function does.
+  - Then add `### Usage`.
+  - Keep it terse and sourced from TSDoc.
+- **`### Parameters` never uses tables**; list each parameter as its own heading.
+  - Use `#### options` for option bags.
+  - Use `##### foo` for nested option-bag fields.
+  - Add `- **Type:**` and `- **Default:**` bullets when applicable.
+  - Follow type bullets with prose.
+  - Do not prefix parameter headings with `options.`.
+  - Write `##### batch`, not `##### options.batch`.
+  - Reserve tables for `### Errors`.
+- **Each parameter heading includes a focused example**; add a `ts twoslash` snippet.
+  - Place it after the type bullets and prose.
+  - Cover each `##### foo` and scalar `#### param`.
+  - Show the parameter in realistic use.
+  - Mark relevant lines with `// [!code focus]`.
+  - Keep snippets minimal.
+  - Hide imports and setup with `// ---cut---`.
+  - Parameter reference snippets stay terse.
+- **`### Return Value` is an inline code fence, not a bullet**; put the type alone.
+  - Place bare inline `` `Type` `` directly under the heading.
+  - Do not write `- **Type:** ...`.
+  - Follow with a sentence describing it.
+- **`### Errors` is a table, not bullets**; use `Error` and `Description` columns.
+  - List concrete error classes.
+  - Do not list `.ErrorType` aliases.
+  - Expand aliases to their underlying classes.
+- **Don't restate the discriminant in prose**; do not append parentheticals like
   `(type: 'json-rpc')` after a concept name; the type is already shown in the usage example.
-- **Sidebar labels are short concept/task phrases** -- fewer than 5 words, Title Case, describing
-  the concept or task rather than echoing the identifier (e.g. `Overview`, `Defining a Chain`,
-  `Extending Chains`, `Base Error`). The module's landing page is always labelled `Overview`.
-- **Paths are `/docs/<module>/<slug>`** -- lowercase, hyphenated. The module landing page lives at
-  `/docs/<module>` (its `index.mdx`); sub-pages use a short task/concept slug
-  (e.g. `/docs/chains/create`, `/docs/chains/extend`, `/docs/accounts/json-rpc`). Nest deeper only
-  when a module has sub-groups (e.g. `/docs/accounts/local/private-key`).
-- **Viem utilities are re-exported Ox docs.** Utility modules under `docs/utilities/` are pure
-  re-exports of Ox modules, so their pages are synced from the Ox docs (`pnpm docs:sync-utils`)
-  rather than hand-written. Do not author concept/Recipes sections for them, and do not hand-edit
-  the generated pages -- update the sync script instead.
+- **Sidebar labels are short concept/task phrases**; use fewer than 5 words.
+  - Use Title Case.
+  - Describe the concept or task.
+  - Do not merely echo the identifier.
+  - Always label the module landing page `Overview`.
+- **Paths are `/docs/<module>/<slug>`**; use lowercase, hyphenated paths.
+  - The module landing page lives at `/docs/<module>`.
+  - Sub-pages use a short task or concept slug.
+  - Example: `/docs/chains/create`.
+  - Nest deeper only when a module has sub-groups.
+- **Viem utilities are re-exported Ox docs.**
+  - Utility modules under `docs/utilities/` are pure Ox re-exports.
+  - Sync their pages from Ox docs with `pnpm docs:sync-utils`.
+  - Do not hand-author concept or Recipes sections for them.
+  - Do not hand-edit generated utility pages.
+  - Update the sync script instead.
 
 ### Guides
 
 - A guide's main body is a **`## Recipes`** section: independent, self-contained tasks, each a
   `###` subheading with no enforced order. Do not use step-by-step "Walkthrough" sections.
-- **Recipes use code focus.** A recipe's code block shows full imports (no `// ---cut---`), but
-  marks the line(s) that demonstrate the recipe's option/parameter with `// [!code focus]` so the
-  reader's eye lands on the relevant lines. Focus only the lines the recipe is about, not the
-  surrounding boilerplate.
-- Do **not** repeat client setup as its own recipe. Open the Recipes section with a prerequisite
-  line linking to Getting Started, e.g. "These recipes assume you have
-  [set up a Tempo client](/tempo)." Code examples still include a `viem.config.ts` tab via
-  `[!include ~/snippets/tempo/viem.config.ts:setup]`.
-- **Always show imports in code examples.** Do not use the twoslash `// ---cut---` directive to hide
-  import statements. Each `example.ts` block starts with its imports (including
-  `import { client } from './viem.config'`), then a blank line, then the example body.
+- **Recipes use code focus.**
+  - Show full imports in recipe code blocks.
+  - Do not use `// ---cut---` in recipes.
+  - Mark relevant option or parameter lines with `// [!code focus]`.
+  - Focus only the lines the recipe is about.
+- Do **not** repeat client setup as its own recipe.
+  - Open Recipes with a prerequisite line linking to Getting Started.
+  - Example: "These recipes assume you have [set up a Tempo client](/tempo)."
+  - Code examples still include a `viem.config.ts` tab.
+  - Use `[!include ~/snippets/tempo/viem.config.ts:setup]`.
+- **Always show imports in code examples.**
+  - Do not use `// ---cut---` to hide imports.
+  - Each `example.ts` block starts with imports.
+  - Include `import { client } from './viem.config'` when relevant.
+  - Add a blank line before the example body.
 - Guide section order: `## Overview` → `## Recipes` → `## Best Practices` → `## See More`.

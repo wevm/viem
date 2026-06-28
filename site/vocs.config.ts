@@ -360,6 +360,11 @@ export default defineConfig({
             collapsed: true,
             items: [
               {
+                text: 'deploy',
+                link: '/docs/actions/public/contract/deploy',
+                badge: badge('public'),
+              },
+              {
                 text: 'getEip712Domain',
                 link: '/docs/actions/public/contract/getEip712Domain',
                 badge: badge('public'),

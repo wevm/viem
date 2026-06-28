@@ -10,14 +10,14 @@ import type {
   ContractFunctionArgs,
   ContractFunctionName,
 } from '../internal/contract.js'
-import * as address from '../public/address/index.js'
-import * as block from '../public/block/index.js'
-import { call } from '../public/call.js'
-import * as chains from '../public/chains/index.js'
-import * as contract from '../public/contract/index.js'
-import * as logs from '../public/logs/index.js'
-import * as fee from '../public/fee/index.js'
-import * as transaction from '../public/transaction/index.js'
+import * as address from '../address/index.js'
+import * as block from '../block/index.js'
+import { call } from '../call.js'
+import * as chains from '../chains/index.js'
+import * as contract from '../contract/index.js'
+import * as logs from '../logs/index.js'
+import * as fee from '../fee/index.js'
+import * as transaction from '../transaction/index.js'
 
 /**
  * Bag of public actions bound to a {@link Client}. Pass to `Client.create`'s
@@ -68,7 +68,6 @@ export function publicActions() {
       getLogs: (options) => contract.getLogs(client, options as never),
       read: (options) => contract.read(client, options),
       simulate: (options) => contract.simulate(client, options as never),
-      write: (options) => contract.write(client, options as never),
     },
     logs: {
       get: (options) => logs.get(client, options as never),
@@ -89,9 +88,6 @@ export function publicActions() {
         transaction.getConfirmations(client, options),
       getReceipt: (options) => transaction.getReceipt(client, options),
       prepare: (options) => transaction.prepare(client, options),
-      send: (options) => transaction.send(client, options),
-      sendRaw: (options) => transaction.sendRaw(client, options),
-      sign: (options) => transaction.sign(client, options),
       waitForReceipt: (options) => transaction.waitForReceipt(client, options),
     },
   })
@@ -499,42 +495,6 @@ export declare namespace publicActions {
       >(
         options: contract.simulate.Options<abi, functionName, args>,
       ) => Promise<contract.simulate.ReturnType<abi, functionName, args>>
-      /**
-       * Executes a write (`nonpayable`/`payable`) function on a contract.
-       *
-       * @example
-       * ```ts
-       * import { Account, Client, http, publicActions } from 'viem'
-       * import { mainnet } from 'viem/chains'
-       * import { Abi } from 'viem/utils'
-       *
-       * const client = Client.create({
-       *   account: Account.fromPrivateKey('0x…'),
-       *   chain: mainnet,
-       *   transport: http(),
-       * }).extend(publicActions())
-       * const hash = await client.contract.write({
-       *   abi: Abi.from(['function mint(uint32 tokenId)']),
-       *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
-       *   args: [69420],
-       *   functionName: 'mint',
-       * })
-       * ```
-       */
-      write: <
-        const abi extends Abi | readonly unknown[],
-        functionName extends ContractFunctionName<
-          abi,
-          'nonpayable' | 'payable'
-        >,
-        const args extends ContractFunctionArgs<
-          abi,
-          'nonpayable' | 'payable',
-          functionName
-        >,
-      >(
-        options: contract.write.Options<abi, functionName, args, chain>,
-      ) => Promise<contract.write.ReturnType>
     }
     logs: {
       /**
@@ -797,70 +757,6 @@ export declare namespace publicActions {
       prepare: <const options extends transaction.prepare.Options<chain>>(
         options: transaction.prepare.Options<chain> & options,
       ) => Promise<transaction.prepare.ReturnType<chain, account, options>>
-      /**
-       * Creates, signs, and sends a new transaction to the network.
-       *
-       * @example
-       * ```ts
-       * import { Account, Client, http, publicActions } from 'viem'
-       * import { mainnet } from 'viem/chains'
-       *
-       * const client = Client.create({
-       *   account: Account.fromPrivateKey('0x…'),
-       *   chain: mainnet,
-       *   transport: http(),
-       * }).extend(publicActions())
-       * const hash = await client.transaction.send({
-       *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-       *   value: 1n,
-       * })
-       * ```
-       */
-      send: (
-        options: transaction.send.Options<chain>,
-      ) => Promise<transaction.send.ReturnType>
-      /**
-       * Sends a signed serialized transaction to the network.
-       *
-       * @example
-       * ```ts
-       * import { Client, http, publicActions } from 'viem'
-       * import { mainnet } from 'viem/chains'
-       *
-       * const client = Client.create({
-       *   chain: mainnet,
-       *   transport: http(),
-       * }).extend(publicActions())
-       * const hash = await client.transaction.sendRaw({
-       *   transaction: '0x02f850018203118080825208808080c080a0…',
-       * })
-       * ```
-       */
-      sendRaw: (
-        options: transaction.sendRaw.Options,
-      ) => Promise<transaction.sendRaw.ReturnType>
-      /**
-       * Signs a transaction.
-       *
-       * @example
-       * ```ts
-       * import { Account, Client, http, publicActions } from 'viem'
-       * import { mainnet } from 'viem/chains'
-       *
-       * const client = Client.create({
-       *   account: Account.fromPrivateKey('0x…'),
-       *   chain: mainnet,
-       *   transport: http(),
-       * }).extend(publicActions())
-       * const signed = await client.transaction.sign({
-       *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-       *   value: 1n,
-       * })
-       * ```
-       */
-      sign: (
-        options: transaction.sign.Options<chain>,
-      ) => Promise<transaction.sign.ReturnType>
       /**
        * Waits for a transaction to be included on a block (one confirmation by
        * default), returning a watcher handle whose `receipt` promise resolves

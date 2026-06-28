@@ -1,5 +1,6 @@
 import * as Hex from 'ox/Hex'
 
+import type * as Chain from '../../Chain.js'
 import * as RpcError from '../../RpcError.js'
 
 const maxUint256 = 2n ** 256n - 1n
@@ -45,3 +46,47 @@ export declare namespace assert {
 
   type ErrorType = RpcError.FeeCapTooHighError | RpcError.TipAboveFeeCapError
 }
+
+export type Options<
+  chain extends Chain.Chain | undefined = Chain.Chain | undefined,
+> = Omit<
+  Chain.ExtractTransactionRequest<chain>,
+  'gasPrice' | 'maxFeePerGas' | 'maxPriorityFeePerGas' | 'type'
+> &
+  FeeOptions & {
+    /** Value in wei sent with this transaction. */
+    value?: Value<chain> | undefined
+  }
+
+type FeeOptions =
+  | {
+      /** Gas price for legacy and EIP-2930 transactions. */
+      gasPrice?: FeeValue | undefined
+      maxFeePerGas?: undefined
+      maxPriorityFeePerGas?: undefined
+      /** Transaction type. */
+      type?: 'legacy' | 'eip2930' | undefined
+    }
+  | {
+      gasPrice?: undefined
+      /** Maximum fee per gas. */
+      maxFeePerGas?: FeeValue | undefined
+      /** Maximum priority fee per gas. */
+      maxPriorityFeePerGas?: FeeValue | undefined
+      /** Transaction type. */
+      type?: 'eip1559' | 'eip4844' | 'eip7702' | undefined
+    }
+  | {
+      gasPrice?: undefined
+      maxFeePerGas?: undefined
+      maxPriorityFeePerGas?: undefined
+      /** Transaction type. */
+      type?: string | undefined
+    }
+
+type FeeValue = Hex.Hex | bigint | number
+
+type Value<chain extends Chain.Chain | undefined> =
+  Chain.ExtractTransactionRequest<chain> extends { value?: infer value }
+    ? value
+    : Hex.Hex | bigint | number

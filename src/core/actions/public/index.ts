@@ -1,8 +1,0 @@
-export * as address from './address/index.js'
-export * as block from './block/index.js'
-export { call } from './call.js'
-export * as chains from './chains/index.js'
-export * as contract from './contract/index.js'
-export * as logs from './logs/index.js'
-export * as fee from './fee/index.js'
-export * as transaction from './transaction/index.js'

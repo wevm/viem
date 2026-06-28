@@ -42,7 +42,7 @@ export const mainnet = defineAnvil({
   forkUrl: getEnv('VITE_ANVIL_FORK_URL', 'https://eth.drpc.org'),
   hardfork: 'Prague',
   noMining: true,
-  port: 8545,
+  port: Number(getEnv('VITE_ANVIL_PORT', '8545')),
 })
 
 function getEnv(key: string, fallback: string): string {

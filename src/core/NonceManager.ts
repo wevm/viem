@@ -1,7 +1,7 @@
 import type * as Address from 'ox/Address'
 
 import type * as Client from './Client.js'
-import { getTransactionCount } from './actions/public/address/getTransactionCount.js'
+import { getTransactionCount } from './actions/address/getTransactionCount.js'
 import { LruMap } from './internal/lru.js'
 import type { MaybePromise } from './internal/types.js'
 

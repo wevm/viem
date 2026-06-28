@@ -1,10 +1,10 @@
 import type * as Client from '../../Client.js'
-import * as address from '../test/address/index.js'
-import * as block from '../test/block/index.js'
-import * as node from '../test/node/index.js'
-import * as state from '../test/state/index.js'
-import * as txpool from '../test/txpool/index.js'
-import type * as Mode from '../test/internal/mode.js'
+import * as address from '../address/test/index.js'
+import * as block from '../block/test/index.js'
+import type * as Mode from '../internal/test/mode.js'
+import * as node from '../node/index.js'
+import * as state from '../state/index.js'
+import * as txpool from '../txpool/index.js'
 
 /** Action options with `mode` injected by the decorator stripped out. */
 type Without<options> = Omit<options, 'mode'>
