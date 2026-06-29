@@ -250,7 +250,7 @@ describe('sendTransaction', () => {
     const hash = await sendTransaction(client, {
       account,
       calls: [
-        Actions.token.create.call({
+        Actions.token.create.call(client, {
           admin: accounts[0].address,
           currency: 'USD',
           name: 'Test Token 3',
@@ -533,7 +533,7 @@ describe('sendTransaction', () => {
       const receipt = await sendTransactionSync(client, {
         account,
         calls: [
-          Actions.token.create.call({
+          Actions.token.create.call(client, {
             admin: account.address,
             currency: 'USD',
             name: 'Test Token 4',
@@ -824,7 +824,7 @@ describe('sendTransaction', () => {
       const receipt = await sendTransactionSync(client, {
         account,
         calls: [
-          Actions.token.create.call({
+          Actions.token.create.call(client, {
             admin: account.address,
             currency: 'USD',
             name: 'Test Token 5',
@@ -1035,7 +1035,7 @@ describe('sendTransaction', () => {
       const receipt = await sendTransactionSync(client, {
         account,
         calls: [
-          Actions.token.create.call({
+          Actions.token.create.call(client, {
             admin: account.address,
             currency: 'USD',
             name: 'Test Token 6',
@@ -1871,7 +1871,7 @@ describe.skipIf(nodeEnv === 'testnet')(
         Actions.token.transferSync(client, {
           account: accessKey,
           keyAuthorization,
-          amount: Value.from('10', 6),
+          amount: { decimals: 6, formatted: '10' },
           token: feeToken,
           to: '0x0000000000000000000000000000000000000001',
         }),
@@ -1903,7 +1903,7 @@ describe.skipIf(nodeEnv === 'testnet')(
             account: accessKey,
             feeToken,
             keyAuthorization,
-            amount: Value.from('4', 6),
+            amount: { decimals: 6, formatted: '4' },
             token: feeToken,
             to: '0x0000000000000000000000000000000000000001',
           })
@@ -1915,7 +1915,7 @@ describe.skipIf(nodeEnv === 'testnet')(
           Actions.token.transferSync(client, {
             account: accessKey,
             feeToken,
-            amount: Value.from('4', 6),
+            amount: { decimals: 6, formatted: '4' },
             token: feeToken,
             to: '0x0000000000000000000000000000000000000001',
           }),
@@ -1929,7 +1929,7 @@ describe.skipIf(nodeEnv === 'testnet')(
           const { receipt } = await Actions.token.transferSync(client, {
             account: accessKey,
             feeToken,
-            amount: Value.from('4', 6),
+            amount: { decimals: 6, formatted: '4' },
             token: feeToken,
             to: '0x0000000000000000000000000000000000000001',
           })

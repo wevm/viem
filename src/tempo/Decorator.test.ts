@@ -44,4 +44,45 @@ describe('decorator', () => {
       ]
     `)
   })
+
+  test('binds action helpers', () => {
+    expect(typeof client2.dex.buy.call).toBe('function')
+    expect(typeof client2.amm.getPool.calls).toBe('function')
+    expect(typeof client2.accessKey.getRemainingLimit.callWithPeriod).toBe(
+      'function',
+    )
+    expect(typeof client2.token.transfer.call).toBe('function')
+    expect(typeof client2.token.transfer.estimateGas).toBe('function')
+    expect(typeof client2.token.transfer.simulate).toBe('function')
+  })
+
+  test('binds missing action entries', () => {
+    expect(typeof client2.dex.getOrderbook).toBe('function')
+    expect(typeof client2.fee.getValidatorToken).toBe('function')
+    expect(typeof client2.reward.getPendingRewards).toBe('function')
+    expect(typeof client2.token.prepareUpdateQuoteToken).toBe('function')
+    expect(typeof client2.token.watchUpdateQuoteToken).toBe('function')
+    expect(typeof client2.accessKey.verifyHash).toBe('function')
+  })
+
+  test('binds pure and client-first call helpers', () => {
+    const token = '0x20c0000000000000000000000000000000000001'
+
+    expect(
+      client2.dex.buy.call({
+        amountOut: 1n,
+        maxAmountIn: 1n,
+        tokenIn: token,
+        tokenOut: token,
+      }).to,
+    ).toBe('0xdec0000000000000000000000000000000000000')
+
+    expect(
+      client2.token.transfer.call({
+        amount: 1n,
+        to: '0x0000000000000000000000000000000000000000',
+        token,
+      }).to,
+    ).toBe(token)
+  })
 })

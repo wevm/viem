@@ -144,7 +144,7 @@ test('deposit', async () => {
     amount: '3.5',
     chainId: 1,
     displayName: 'Account',
-    token: 'pathUsd',
+    token: 'pathusd',
   })
 
   expect({ requests, result }).toMatchInlineSnapshot(`
@@ -158,7 +158,7 @@ test('deposit', async () => {
               "amount": "3.5",
               "chainId": 1,
               "displayName": "Account",
-              "token": "pathUsd",
+              "token": "pathusd",
             },
           ],
         },

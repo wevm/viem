@@ -1,3 +1,4 @@
+import { usdc } from '../../tokens/definitions/usdc.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const avalancheFuji = /*#__PURE__*/ defineChain({
@@ -23,6 +24,9 @@ export const avalancheFuji = /*#__PURE__*/ defineChain({
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 7096959,
     },
+  },
+  tokens: {
+    usdc: usdc(43_113),
   },
   testnet: true,
 })

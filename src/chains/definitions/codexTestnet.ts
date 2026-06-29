@@ -1,4 +1,5 @@
 import { chainConfig } from '../../op-stack/chainConfig.js'
+import { usdc } from '../../tokens/definitions/usdc.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11_155_111 // sepolia
@@ -40,6 +41,9 @@ export const codexTestnet = /*#__PURE__*/ defineChain({
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
     },
+  },
+  tokens: {
+    usdc: usdc(812242),
   },
   sourceId,
   testnet: true,

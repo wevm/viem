@@ -88,8 +88,10 @@ export type Client<
     chain,
     account,
     rpcSchema,
-    PublicActions<transport, chain, account> &
-      WalletActions<chain, account> &
+    Omit<
+      PublicActions<transport, chain, account> & WalletActions<chain, account>,
+      'token'
+    > &
       Decorator<chain, account>
   >
 >

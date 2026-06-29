@@ -1,3 +1,4 @@
+import { usdc } from '../../tokens/definitions/usdc.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const arbitrum = /*#__PURE__*/ defineChain({
@@ -22,5 +23,8 @@ export const arbitrum = /*#__PURE__*/ defineChain({
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 7654707,
     },
+  },
+  tokens: {
+    usdc: usdc(42_161),
   },
 })

@@ -15,7 +15,7 @@ import {
   verifyMessage,
   verifyTypedData,
 } from '../actions/index.js'
-import { parseGwei, parseUnits } from '../utils/index.js'
+import { parseGwei } from '../utils/index.js'
 import * as Account from './Account.js'
 import * as Actions from './actions/index.js'
 import * as Scopes from './Scopes.js'
@@ -1277,7 +1277,7 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
     // account (no faucet RPC, so it works on localnet).
     await Actions.token.transferSync(client, {
       account: accounts[0],
-      amount: parseUnits('10000', 6),
+      amount: { formatted: '10000' },
       to: account.address,
       token: feeToken,
     })
@@ -1287,7 +1287,11 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
     {
       const request = await prepareTransactionRequest(client, {
         calls: [
-          Actions.token.transfer.call({ amount: 1n, to, token: feeToken }),
+          Actions.token.transfer.call(client, {
+            amount: 1n,
+            to,
+            token: feeToken,
+          }),
         ],
         feeToken,
         multisig: config,
@@ -1315,7 +1319,11 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
     {
       const request = await prepareTransactionRequest(client, {
         calls: [
-          Actions.token.transfer.call({ amount: 1n, to, token: feeToken }),
+          Actions.token.transfer.call(client, {
+            amount: 1n,
+            to,
+            token: feeToken,
+          }),
         ],
         feeToken,
         multisig: config,
@@ -1354,13 +1362,19 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
-      amount: parseUnits('10000', 6),
+      amount: { formatted: '10000' },
       to: account.address,
       token: feeToken,
     })
 
     const request = await prepareTransactionRequest(client, {
-      calls: [Actions.token.transfer.call({ amount: 1n, to, token: feeToken })],
+      calls: [
+        Actions.token.transfer.call(client, {
+          amount: 1n,
+          to,
+          token: feeToken,
+        }),
+      ],
       feeToken,
       multisig: config,
     })
@@ -1394,13 +1408,19 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
-      amount: parseUnits('10000', 6),
+      amount: { formatted: '10000' },
       to: account.address,
       token: feeToken,
     })
 
     const request = await prepareTransactionRequest(client, {
-      calls: [Actions.token.transfer.call({ amount: 1n, to, token: feeToken })],
+      calls: [
+        Actions.token.transfer.call(client, {
+          amount: 1n,
+          to,
+          token: feeToken,
+        }),
+      ],
       feeToken,
       multisig: config,
     })
@@ -1436,13 +1456,19 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
-      amount: parseUnits('10000', 6),
+      amount: { formatted: '10000' },
       to: account.address,
       token: feeToken,
     })
 
     const request = await prepareTransactionRequest(client, {
-      calls: [Actions.token.transfer.call({ amount: 1n, to, token: feeToken })],
+      calls: [
+        Actions.token.transfer.call(client, {
+          amount: 1n,
+          to,
+          token: feeToken,
+        }),
+      ],
       feeToken,
       multisig: config,
     })
@@ -1475,7 +1501,7 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
-      amount: parseUnits('10000', 6),
+      amount: { formatted: '10000' },
       to: account.address,
       token: feeToken,
     })
@@ -1484,7 +1510,13 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
     // config is inferred from it, so no `multisig` field is needed.
     const request = await prepareTransactionRequest(client, {
       account,
-      calls: [Actions.token.transfer.call({ amount: 1n, to, token: feeToken })],
+      calls: [
+        Actions.token.transfer.call(client, {
+          amount: 1n,
+          to,
+          token: feeToken,
+        }),
+      ],
       feeToken,
     })
     // The prepared request carries the multisig account as sender, so `...request`

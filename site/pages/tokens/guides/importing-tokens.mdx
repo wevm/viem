@@ -1,0 +1,92 @@
+---
+description: Import built-in token definitions from Viem.
+---
+
+# Importing Tokens
+
+Viem exports reusable token definitions from `viem/tokens`. Use these imports when you need token
+metadata, a chain-specific token config, or a token address for a supported chain.
+
+## Usage
+
+```ts twoslash
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+usdc
+// @log: {
+// @log:   addresses: {
+// @log:     1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+// @log:     10: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
+// @log:     8453: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+// @log:   },
+// @log:   decimals: 6,
+// @log:   name: 'USD Coin',
+// @log:   symbol: 'USDC',
+// @log: }
+
+const mainnetUsdc = usdc(mainnet.id)
+// @log: {
+// @log:   address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+// @log:   decimals: 6,
+// @log:   name: 'USD Coin',
+// @log:   symbol: 'USDC',
+// @log: }
+```
+
+## Attach to a Chain
+
+To select a token by symbol in Token Actions, attach the imported definition to the chain's
+`tokens` map.
+
+```ts twoslash
+import { defineChain } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+export const example = defineChain({
+  ...mainnet,
+  tokens: {
+    usdc: usdc(mainnet.id), // [!code hl]
+  },
+})
+```
+
+Once attached, use the `tokens` map key as the Action selector.
+
+```ts twoslash
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens' // [!code focus]
+
+const chain = {
+  ...mainnet,
+  tokens: {
+    usdc: usdc(mainnet.id),
+  },
+}
+
+const client = createPublicClient({ chain, transport: http() })
+// ---cut---
+const balance = await client.token.getBalance({
+  account: '0x55FE002aefF02F77364de339a1292923A15844B8',
+  token: 'usdc',
+})
+// @log: { amount: 1000000000n, decimals: 6, formatted: '1000' }
+```
+
+## Use the Address
+
+Imported tokens also expose an `addresses` map. Use it when you want to pass a token contract
+address directly.
+
+```ts twoslash
+import { usdc } from 'viem/tokens'
+
+const addresses = usdc.addresses
+// @log: {
+// @log:   1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+// @log:   10: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
+// @log:   8453: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+// @log: }
+```

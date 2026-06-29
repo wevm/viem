@@ -1,0 +1,81 @@
+# token.getBalance
+
+Reads the token balance of an account.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const balance = await client.token.getBalance({
+  account: '0x55FE002aefF02F77364de339a1292923A15844B8',
+  token: 'usdc',
+})
+// @log: { amount: 1000000000n, decimals: 6, formatted: '1000' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### Composing Calls
+
+Use `.call` to build a `balanceOf` contract call, ready to pass to
+[`multicall`](/docs/contract/multicall), [`simulateContract`](/docs/contract/simulateContract), or any
+other Action that accepts a contract call.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const call = client.token.getBalance.call({ account: '0x…', token: 'usdc' })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Balance in the token's base units. */
+  amount: bigint
+  /** Token decimals used to derive `formatted`. */
+  decimals: number
+  /** Balance formatted with the token's `decimals`. */
+  formatted: string
+}
+```
+
+The token balance, both in base units (`amount`) and as a human-readable decimal string
+(`formatted`, derived from the token's `decimals`).
+
+## Parameters
+
+### account
+
+- **Type:** `Address`
+
+Account to read the balance of.
+
+### token
+
+- **Type:** `string`
+
+Token to operate on: a [chain-declared](/tokens/tokens#token-lookup)
+token name (resolving its `address` and `decimals`), or a token address.
+
+### decimals (optional)
+
+- **Type:** `number`
+
+Token decimals for converting base units to human-readable amounts. Inferred
+from the chain's `tokens` config, or fetched from the token contract when omitted.

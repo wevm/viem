@@ -1,0 +1,173 @@
+---
+description: Transfer tokens to a recipient with Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Transfer Tokens
+
+Transfer tokens to a recipient, or move them on behalf of an owner using an allowance.
+
+These recipes assume you have [set up a Client](/tokens) extended with `publicActions` and
+`walletActions`.
+
+## Recipes
+
+### Transfer Tokens
+
+Use [`transfer`](/tokens/actions/transfer) (via the `transferSync` variant) to send tokens and wait
+for the transaction to be confirmed. Use `amount: { formatted: '10.5' }` to parse a
+human-readable decimal string for a chain-declared token.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { value, formatted, receipt } = await client.token.transferSync({
+  amount: { formatted: '10.5' },
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+// @log: {
+// @log:   value: 10500000n,
+// @log:   formatted: '10.5',
+// @log:   receipt: { status: 'success', … },
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### By Token Address
+
+When passing a token address, include `amount.decimals` so the formatted amount can be parsed.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { value, formatted, receipt } = await client.token.transferSync({
+  amount: { decimals: 6, formatted: '10.5' },
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+})
+// @log: {
+// @log:   value: 10500000n,
+// @log:   formatted: '10.5',
+// @log:   receipt: { status: 'success', … },
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### Base Amounts
+
+Pass a `bigint` to use the token's base unit amount directly.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { value, formatted, receipt } = await client.token.transferSync({
+  amount: 10500000n,
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+// @log: {
+// @log:   value: 10500000n,
+// @log:   formatted: '10.5',
+// @log:   receipt: { status: 'success', … },
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### Transfer From an Approved Account
+
+Pass `from` to move tokens on behalf of an owner that has approved the caller (calls `transferFrom`).
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const { receipt } = await client.token.transferSync({
+  amount: { formatted: '10.5' },
+  from: '0x55FE002aefF02F77364de339a1292923A15844B8',
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+// @log: {
+// @log:   receipt: { status: 'success', … },
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+### Transfer Without Waiting
+
+If you are optimizing for performance, use the non-sync [`transfer`](/tokens/actions/transfer) action
+and wait for inclusion manually.
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { waitForTransactionReceipt } from 'viem/actions'
+import { client } from './viem.config'
+
+const hash = await client.token.transfer({
+  amount: { formatted: '10.5' },
+  to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+  token: 'usdc',
+})
+// @log: '0x4ca7ee652d57678f26e887c149ab0735f41de667966bf...'
+const receipt = await waitForTransactionReceipt(client, { hash })
+
+const { args } = client.token.transfer.extractEvent(receipt.logs)
+// @log: args: {
+// @log:   from: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+// @log:   to: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEbb',
+// @log:   value: 10500000n,
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+## See More
+
+<Cards>
+  <Card
+    icon="lucide:send"
+    title="transfer"
+    description="Action reference for transferring tokens (and transferFrom)."
+    to="/tokens/actions/transfer"
+  />
+  <Card
+    icon="lucide:check-check"
+    title="Approve Spending"
+    description="Allow another account to transfer your tokens via an allowance."
+    to="/tokens/guides/approve-spending"
+  />
+</Cards>

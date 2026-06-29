@@ -1,0 +1,71 @@
+---
+description: How tokens are declared and selected across Viem's Token Actions.
+---
+
+import { TokenLookup } from '../components/TokenLookup'
+
+# Tokens
+
+Every Token Action selects the token it operates on via a single `token` parameter. This page
+explains how that selection works.
+
+## Token Lookup
+
+<TokenLookup />
+
+## Importing Tokens
+
+Tokens in the lookup can be imported from `viem/tokens`. Use the imported definition to get the
+token's chain-specific address and metadata.
+
+```ts twoslash
+import { mainnet } from 'viem/chains'
+import { usdc } from 'viem/tokens'
+
+usdc
+// @log: {
+// @log:   addresses: {
+// @log:     1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+// @log:     10: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
+// @log:     8453: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+// @log:   },
+// @log:   decimals: 6,
+// @log:   name: 'USD Coin',
+// @log:   symbol: 'USDC',
+// @log: }
+
+const mainnetUsdc = usdc(mainnet.id)
+// @log: {
+// @log:   address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+// @log:   decimals: 6,
+// @log:   name: 'USD Coin',
+// @log:   symbol: 'USDC',
+// @log: }
+```
+
+## Using Named Tokens
+
+The `token` parameter is either:
+
+- **A token symbol** declared on the connected chain. See
+  [Defining Tokens](/tokens/guides/defining-tokens) for how symbols are attached to chains. The
+  symbol is resolved to its token address and `decimals`.
+- **A token address** for any token, declared or not.
+
+```ts twoslash
+import { client } from './viem.config'
+
+// By token symbol (resolved from the chain).
+await client.token.getBalance({
+  account: '0x…',
+  token: 'usdc', // [!code hl]
+})
+// @log: { amount: 1000000000n, decimals: 6, formatted: '1000' }
+
+// By token address.
+await client.token.getBalance({
+  account: '0x…',
+  token: '0x6B175474E89094C44Da98b954EedeAC495271d0F', // [!code hl]
+})
+// @log: { amount: 1000000000000000000000n, decimals: 18, formatted: '1000' }
+```

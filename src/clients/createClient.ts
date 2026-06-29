@@ -290,11 +290,63 @@ export function createClient(parameters: ClientConfig): Client {
       const extended = extendFn(base) as Extended
       for (const key in client) delete extended[key]
       const combined = { ...base, ...extended }
+      // For keys that exist on both the base client and the extension and
+      // resolve to plain objects (e.g. namespaces like `token`), shallow-merge
+      // their members instead of overwriting. This lets decorators contribute
+      // to the same namespace (e.g. `publicActions` adds read actions and
+      // `walletActions` adds write actions to `client.token`).
+      for (const key in extended) {
+        const a = (base as Record<string, unknown>)[key]
+        const b = (extended as Record<string, unknown>)[key]
+        if (isPlainObject(a) && isPlainObject(b))
+          (combined as Record<string, unknown>)[key] = { ...a, ...b }
+      }
       return Object.assign(combined, { extend: extend(combined as any) })
     }
   }
 
   return Object.assign(client, { extend: extend(client) as any })
+}
+
+/** Whether `value` is a plain object (`{}`), as opposed to a function, array,
+ * or class instance. Used to decide which extension namespaces to merge. */
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (typeof value !== 'object' || value === null) return false
+  const prototype = Object.getPrototypeOf(value)
+  return prototype === Object.prototype || prototype === null
+}
+
+/**
+ * Binds an action function to a `client`, returning a parameter-only version
+ * along with any helpers the action exposes. Helpers that need a client
+ * (`.call`, `.calls`, `.callWithPeriod`, `.estimateGas`, `.simulate`) are bound
+ * to `client`; pure helpers (`.extractEvent`, `.extractEvents`) are copied
+ * as-is. Used by decorators that attach namespaced actions to a Client.
+ * @internal
+ */
+export function bindActionDecorators(
+  client: Client<Transport, Chain | undefined, any>,
+  action: any,
+) {
+  const wrapped: any = (parameters: any = {}) => action(client, parameters)
+  for (const key of [
+    'call',
+    'calls',
+    'callWithPeriod',
+    'estimateGas',
+    'simulate',
+  ] as const)
+    if (Object.hasOwn(action, key)) {
+      const helper = action[key]
+      wrapped[key] = (args: any = {}) => {
+        if (helper.length >= 2) return helper(client, args)
+        if (helper.length === 0) return helper()
+        return helper(args)
+      }
+    }
+  for (const key of ['extractEvent', 'extractEvents'] as const)
+    if (Object.hasOwn(action, key)) wrapped[key] = action[key]
+  return wrapped
 }
 
 /**

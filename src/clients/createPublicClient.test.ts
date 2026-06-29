@@ -89,6 +89,12 @@ test('creates', () => {
       "simulateBlocks": [Function],
       "simulateCalls": [Function],
       "simulateContract": [Function],
+      "token": {
+        "getAllowance": [Function],
+        "getBalance": [Function],
+        "getMetadata": [Function],
+        "getTotalSupply": [Function],
+      },
       "transport": {
         "key": "mock",
         "methods": undefined,
@@ -239,6 +245,12 @@ describe('transports', () => {
         "simulateBlocks": [Function],
         "simulateCalls": [Function],
         "simulateContract": [Function],
+        "token": {
+          "getAllowance": [Function],
+          "getBalance": [Function],
+          "getMetadata": [Function],
+          "getTotalSupply": [Function],
+        },
         "transport": {
           "fetchOptions": undefined,
           "key": "http",
@@ -354,6 +366,12 @@ describe('transports', () => {
         "simulateBlocks": [Function],
         "simulateCalls": [Function],
         "simulateContract": [Function],
+        "token": {
+          "getAllowance": [Function],
+          "getBalance": [Function],
+          "getMetadata": [Function],
+          "getTotalSupply": [Function],
+        },
         "transport": {
           "getRpcClient": [Function],
           "getSocket": [Function],
@@ -493,6 +511,12 @@ describe('transports', () => {
         "simulateBlocks": [Function],
         "simulateCalls": [Function],
         "simulateContract": [Function],
+        "token": {
+          "getAllowance": [Function],
+          "getBalance": [Function],
+          "getMetadata": [Function],
+          "getTotalSupply": [Function],
+        },
         "transport": {
           "key": "custom",
           "methods": undefined,
@@ -657,6 +681,16 @@ test('extend', () => {
       "snapshot": [Function],
       "stopImpersonatingAccount": [Function],
       "switchChain": [Function],
+      "token": {
+        "getAllowance": [Function],
+        "approve": [Function],
+        "approveSync": [Function],
+        "getBalance": [Function],
+        "getMetadata": [Function],
+        "getTotalSupply": [Function],
+        "transfer": [Function],
+        "transferSync": [Function],
+      },
       "transport": {
         "fetchOptions": undefined,
         "key": "http",

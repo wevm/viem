@@ -1,3 +1,4 @@
+import { usdc } from '../../tokens/definitions/usdc.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const sepolia = /*#__PURE__*/ defineChain({
@@ -25,6 +26,9 @@ export const sepolia = /*#__PURE__*/ defineChain({
       address: '0xeeeeeeee14d718c2b47d9923deab1335e144eeee',
       blockCreated: 8_928_790,
     },
+  },
+  tokens: {
+    usdc: usdc(11_155_111),
   },
   testnet: true,
 })

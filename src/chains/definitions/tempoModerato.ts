@@ -1,4 +1,10 @@
 import { chainConfig } from '../../tempo/chainConfig.js'
+import { alphausd } from '../../tokens/definitions/alphausd.js'
+import { betausd } from '../../tokens/definitions/betausd.js'
+import { eurce } from '../../tokens/definitions/eurce.js'
+import { pathusd } from '../../tokens/definitions/pathusd.js'
+import { thetausd } from '../../tokens/definitions/thetausd.js'
+import { usdce } from '../../tokens/definitions/usdce.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const tempoModerato = /*#__PURE__*/ defineChain({
@@ -24,4 +30,12 @@ export const tempoModerato = /*#__PURE__*/ defineChain({
     },
   },
   testnet: true,
+  tokens: {
+    pathusd: pathusd(42431),
+    usdce: usdce(42431),
+    eurce: eurce(42431),
+    alphausd: alphausd(42431),
+    betausd: betausd(42431),
+    thetausd: thetausd(42431),
+  },
 })

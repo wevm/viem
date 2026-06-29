@@ -1094,6 +1094,7 @@ export type {
   ChainFormatters,
   ChainMaxPriorityFeePerGasFn,
   ChainSerializers,
+  ChainToken,
   DeriveChain,
   ExtractChainFormatterExclude,
   ExtractChainFormatterParameters,

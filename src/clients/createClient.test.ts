@@ -643,6 +643,12 @@ describe('extends', () => {
         "simulateBlocks": [Function],
         "simulateCalls": [Function],
         "simulateContract": [Function],
+        "token": {
+          "getAllowance": [Function],
+          "getBalance": [Function],
+          "getMetadata": [Function],
+          "getTotalSupply": [Function],
+        },
         "transport": {
           "fetchOptions": undefined,
           "key": "http",

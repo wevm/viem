@@ -1,3 +1,4 @@
+import { usdc } from '../../tokens/definitions/usdc.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const mainnet = /*#__PURE__*/ defineChain({
@@ -26,5 +27,8 @@ export const mainnet = /*#__PURE__*/ defineChain({
       address: '0xca11bde05977b3631167028862be2a173976ca11',
       blockCreated: 14_353_601,
     },
+  },
+  tokens: {
+    usdc: usdc(1),
   },
 })

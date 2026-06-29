@@ -1,4 +1,5 @@
 import { chainConfig } from '../../op-stack/chainConfig.js'
+import { usdc } from '../../tokens/definitions/usdc.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // mainnet
@@ -46,6 +47,9 @@ export const optimism = /*#__PURE__*/ defineChain({
         address: '0x99C9fc46f92E8a1c0deC1b1747d010903E884bE1',
       },
     },
+  },
+  tokens: {
+    usdc: usdc(10),
   },
   sourceId,
 })

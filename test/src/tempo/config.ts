@@ -61,6 +61,10 @@ export const chain = (() => {
       return defineChain({
         ...tempoLocalnet,
         rpcUrls: { default: { http: [rpcUrl] } },
+        tokens: {
+          pathUsd: { address: addresses.pathUsd, decimals: 6 },
+          alphaUsd: { address: addresses.alphaUsd, decimals: 6 },
+        },
       })
   }
 })()
@@ -195,7 +199,7 @@ export async function setupPoolWithLiquidity(
 }
 
 export async function setupTokenPair(
-  client: Client<Transport, typeof chain, viem_Account>,
+  client: Client<Transport, typeof tempoLocalnet, viem_Account>,
 ) {
   // Create quote token
   const { token: quoteToken } = await Actions.token.createSync(client, {
@@ -214,35 +218,35 @@ export async function setupTokenPair(
 
   await sendTransactionSync(client, {
     calls: [
-      Actions.token.grantRoles.call({
+      Actions.token.grantRoles.call(client, {
         token: baseToken,
         role: 'issuer',
         to: client.account.address,
       }),
-      Actions.token.grantRoles.call({
+      Actions.token.grantRoles.call(client, {
         token: quoteToken,
         role: 'issuer',
         to: client.account.address,
       }),
-      Actions.token.mint.call({
+      Actions.token.mint.call(client, {
         token: baseToken,
         to: client.account.address,
         amount: parseUnits('10000', 6),
       }),
-      Actions.token.mint.call({
+      Actions.token.mint.call(client, {
         token: quoteToken,
         to: client.account.address,
         amount: parseUnits('10000', 6),
       }),
-      Actions.token.approve.call({
+      Actions.token.approve.call(client, {
         token: baseToken,
         spender: Addresses.stablecoinDex,
-        amount: parseUnits('10000', 6),
+        amount: { decimals: 6, formatted: '10000' },
       }),
-      Actions.token.approve.call({
+      Actions.token.approve.call(client, {
         token: quoteToken,
         spender: Addresses.stablecoinDex,
-        amount: parseUnits('10000', 6),
+        amount: { decimals: 6, formatted: '10000' },
       }),
     ],
   })
@@ -254,7 +258,7 @@ export async function setupTokenPair(
 }
 
 export async function setupOrders(
-  client: Client<Transport, typeof chain, viem_Account>,
+  client: Client<Transport, typeof tempoLocalnet, viem_Account>,
 ) {
   const { base: base1 } = await setupTokenPair(client)
   const { base: base2 } = await setupTokenPair(client)
@@ -296,7 +300,7 @@ export async function setupFeeToken(
   if (!isAddressEqual(account.address, targetAccount.address)) {
     await Actions.token.transferSync(client, {
       account,
-      amount: parseUnits('10000', 6),
+      amount: { formatted: '10000' },
       to: targetAccount.address,
       token: feeToken,
     })

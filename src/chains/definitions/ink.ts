@@ -1,4 +1,5 @@
 import { chainConfig } from '../../op-stack/chainConfig.js'
+import { usdc } from '../../tokens/definitions/usdc.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 1 // mainnet
@@ -48,6 +49,9 @@ export const ink = /*#__PURE__*/ defineChain({
         address: '0x88ff1e5b602916615391f55854588efcbb7663f0',
       },
     },
+  },
+  tokens: {
+    usdc: usdc(57073),
   },
   testnet: false,
   sourceId,

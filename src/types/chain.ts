@@ -69,6 +69,8 @@ export type Chain<
   sourceId?: number | undefined
   /** Flag for test networks */
   testnet?: boolean | undefined
+  /** Collection of well-known tokens on the chain. */
+  tokens?: { [key: string]: ChainToken } | undefined
 } & ChainConfig<formatters, extendSchema>
 
 /////////////////////////////////////////////////////////////////////
@@ -316,6 +318,17 @@ type ChainBlockExplorer = {
 export type ChainContract = {
   address: Address
   blockCreated?: number | undefined
+}
+
+export type ChainToken = {
+  /** Token contract address. */
+  address: Address
+  /** Token decimals, used to parse human-readable `amount` strings. */
+  decimals: number
+  /** Token name. */
+  name?: string | undefined
+  /** Token symbol. */
+  symbol?: string | undefined
 }
 
 type ChainNativeCurrency = {

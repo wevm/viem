@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
 import type { Account } from '../accounts/types.js'
-import type { Client } from '../clients/createClient.js'
+import { bindActionDecorators, type Client } from '../clients/createClient.js'
 import type { Transport } from '../clients/transports/createTransport.js'
 import type { Chain } from '../types/chain.js'
 import * as accessKeyActions from './actions/accessKey.js'
@@ -19,7 +19,7 @@ import * as validatorActions from './actions/validator.js'
 import * as virtualAddressActions from './actions/virtualAddress.js'
 import * as zoneActions from './actions/zone.js'
 
-export type Decorator<
+type DecoratorBase<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
 > = {
@@ -3382,16 +3382,18 @@ export type Decorator<
      * }).extend(tempoActions())
      *
      * const allowance = await client.token.getAllowance({
+     *   account: '0x...',
      *   spender: '0x...',
+     *   token: '0x...',
      * })
      * ```
      *
      * @param client - Client.
      * @param parameters - Parameters.
-     * @returns The token allowance.
+     * @returns The token allowance, in base units and human-readable form.
      */
     getAllowance: (
-      parameters: tokenActions.getAllowance.Parameters,
+      parameters: tokenActions.getAllowance.Parameters<chain>,
     ) => Promise<tokenActions.getAllowance.ReturnValue>
     /**
      * Gets TIP20 token balance for an address.
@@ -3409,15 +3411,18 @@ export type Decorator<
      *   transport: http(),
      * }).extend(tempoActions())
      *
-     * const balance = await client.token.getBalance()
+     * const balance = await client.token.getBalance({
+     *   account: '0x...',
+     *   token: '0x...',
+     * })
      * ```
      *
      * @param client - Client.
      * @param parameters - Parameters.
-     * @returns The token balance.
+     * @returns The token balance, in base units and human-readable form.
      */
     getBalance: (
-      parameters: tokenActions.getBalance.Parameters<account>,
+      parameters: tokenActions.getBalance.Parameters<chain, account>,
     ) => Promise<tokenActions.getBalance.ReturnValue>
     /**
      * Gets TIP20 token metadata including name, symbol, logo URI, currency, decimals, and total supply.
@@ -3443,8 +3448,34 @@ export type Decorator<
      * @returns The token metadata.
      */
     getMetadata: (
-      parameters: tokenActions.getMetadata.Parameters,
+      parameters: tokenActions.getMetadata.Parameters<chain>,
     ) => Promise<tokenActions.getMetadata.ReturnValue>
+    /**
+     * Gets the total supply of a TIP20 token.
+     *
+     * @example
+     * ```ts
+     * import { createClient, http } from 'viem'
+     * import { tempo } from 'viem/chains'
+     * import { tempoActions } from 'viem/tempo'
+     *
+     * const client = createClient({
+     *   chain: tempo
+     *   transport: http(),
+     * }).extend(tempoActions())
+     *
+     * const totalSupply = await client.token.getTotalSupply({
+     *   token: '0x...',
+     * })
+     * ```
+     *
+     * @param client - Client.
+     * @param parameters - Parameters.
+     * @returns The token total supply, in base units and human-readable form.
+     */
+    getTotalSupply: (
+      parameters: tokenActions.getTotalSupply.Parameters<chain>,
+    ) => Promise<tokenActions.getTotalSupply.ReturnValue>
     /**
      * Gets the admin role for a specific role in a TIP20 token.
      *
@@ -5074,6 +5105,140 @@ export type Decorator<
   }
 }
 
+type BoundHelper<helper> = helper extends (
+  ...parameters: infer parameters
+) => infer returnType
+  ? parameters extends [Client<any, any, any>, infer args, ...unknown[]]
+    ? (args: args) => returnType
+    : parameters extends [Client<any, any, any>]
+      ? () => returnType
+      : parameters extends [infer args, ...unknown[]]
+        ? (args: args) => returnType
+        : () => returnType
+  : never
+
+type BoundActionHelpers<action> = (action extends { call: infer helper }
+  ? { call: BoundHelper<helper> }
+  : {}) &
+  (action extends { calls: infer helper }
+    ? { calls: BoundHelper<helper> }
+    : {}) &
+  (action extends { callWithPeriod: infer helper }
+    ? { callWithPeriod: BoundHelper<helper> }
+    : {}) &
+  (action extends { estimateGas: infer helper }
+    ? { estimateGas: BoundHelper<helper> }
+    : {}) &
+  (action extends { simulate: infer helper }
+    ? { simulate: BoundHelper<helper> }
+    : {}) &
+  (action extends { extractEvent: infer helper }
+    ? { extractEvent: BoundHelper<helper> }
+    : {}) &
+  (action extends { extractEvents: infer helper }
+    ? { extractEvents: BoundHelper<helper> }
+    : {})
+
+type BoundAction<action> = action extends (
+  ...parameters: infer parameters
+) => infer returnType
+  ? (parameters extends [Client<any, any, any>, infer args, ...unknown[]]
+      ? (args: args) => returnType
+      : parameters extends [Client<any, any, any>]
+        ? () => returnType
+        : never) &
+      BoundActionHelpers<action>
+  : never
+
+type DecorateNamespace<namespace, actions> = {
+  [key in keyof namespace]: key extends keyof actions
+    ? namespace[key] & BoundActionHelpers<actions[key]>
+    : namespace[key]
+} & {
+  [key in Exclude<keyof actions, keyof namespace> as actions[key] extends (
+    ...parameters: any
+  ) => any
+    ? key
+    : never]: BoundAction<actions[key]>
+}
+
+export type Decorator<
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined,
+> = {
+  accessKey: DecorateNamespace<
+    DecoratorBase<chain, account>['accessKey'],
+    typeof accessKeyActions
+  >
+  amm: DecorateNamespace<
+    DecoratorBase<chain, account>['amm'],
+    typeof ammActions
+  >
+  channel: DecorateNamespace<
+    DecoratorBase<chain, account>['channel'],
+    typeof channelActions
+  >
+  dex: DecorateNamespace<
+    DecoratorBase<chain, account>['dex'],
+    typeof dexActions
+  >
+  faucet: DecorateNamespace<
+    DecoratorBase<chain, account>['faucet'],
+    typeof faucetActions
+  >
+  nonce: DecorateNamespace<
+    DecoratorBase<chain, account>['nonce'],
+    typeof nonceActions
+  >
+  fee: DecorateNamespace<
+    DecoratorBase<chain, account>['fee'],
+    typeof feeActions
+  >
+  policy: DecorateNamespace<
+    DecoratorBase<chain, account>['policy'],
+    typeof policyActions
+  >
+  receivePolicy: DecorateNamespace<
+    DecoratorBase<chain, account>['receivePolicy'],
+    typeof receivePolicyActions
+  >
+  reward: DecorateNamespace<
+    DecoratorBase<chain, account>['reward'],
+    typeof rewardActions
+  >
+  simulate: DecorateNamespace<
+    DecoratorBase<chain, account>['simulate'],
+    typeof simulateActions
+  >
+  token: DecorateNamespace<
+    DecoratorBase<chain, account>['token'],
+    typeof tokenActions
+  >
+  validator: DecorateNamespace<
+    DecoratorBase<chain, account>['validator'],
+    typeof validatorActions
+  >
+  virtualAddress: DecorateNamespace<
+    DecoratorBase<chain, account>['virtualAddress'],
+    typeof virtualAddressActions
+  >
+  zone: DecorateNamespace<
+    DecoratorBase<chain, account>['zone'],
+    typeof zoneActions
+  >
+}
+
+function bindActions<actions extends Record<string, unknown>>(
+  client: Client<Transport, Chain | undefined, Account | undefined>,
+  actions: actions,
+  keys: readonly (keyof actions)[],
+) {
+  const bound: Record<string, unknown> = {}
+  for (const key of keys)
+    bound[key as string] = bindActionDecorators(client, actions[key])
+  return bound
+}
+
 export function decorator() {
   return <
     transport extends Transport,
@@ -5083,337 +5248,233 @@ export function decorator() {
     client: Client<transport, chain, account>,
   ): Decorator<chain, account> => {
     return {
-      accessKey: {
-        authorize: (parameters) =>
-          accessKeyActions.authorize(client, parameters),
-        authorizeSync: (parameters) =>
-          accessKeyActions.authorizeSync(client, parameters),
-        burnWitness: (parameters) =>
-          accessKeyActions.burnWitness(client, parameters),
-        burnWitnessSync: (parameters) =>
-          accessKeyActions.burnWitnessSync(client, parameters),
-        getMetadata: (parameters) =>
-          accessKeyActions.getMetadata(client, parameters),
-        getRemainingLimit: (parameters) =>
-          accessKeyActions.getRemainingLimit(client, parameters),
-        isAdmin: (parameters) => accessKeyActions.isAdmin(client, parameters),
-        isWitnessBurned: (parameters) =>
-          accessKeyActions.isWitnessBurned(client, parameters),
-        revoke: (parameters) => accessKeyActions.revoke(client, parameters),
-        revokeSync: (parameters) =>
-          accessKeyActions.revokeSync(client, parameters),
-        updateLimit: (parameters) =>
-          accessKeyActions.updateLimit(client, parameters),
-        updateLimitSync: (parameters) =>
-          accessKeyActions.updateLimitSync(client, parameters),
-        watchAdminAuthorized: (parameters) =>
-          accessKeyActions.watchAdminAuthorized(client, parameters),
-        watchWitness: (parameters) =>
-          accessKeyActions.watchWitness(client, parameters),
-        watchWitnessBurned: (parameters) =>
-          accessKeyActions.watchWitnessBurned(client, parameters),
-      },
-      amm: {
-        getPool: (parameters) => ammActions.getPool(client, parameters),
-        getLiquidityBalance: (parameters) =>
-          ammActions.getLiquidityBalance(client, parameters),
-        burn: (parameters) => ammActions.burn(client, parameters),
-        burnSync: (parameters) => ammActions.burnSync(client, parameters),
-        mint: (parameters) => ammActions.mint(client, parameters),
-        mintSync: (parameters) => ammActions.mintSync(client, parameters),
-        rebalanceSwap: (parameters) =>
-          ammActions.rebalanceSwap(client, parameters),
-        rebalanceSwapSync: (parameters) =>
-          ammActions.rebalanceSwapSync(client, parameters),
-        watchBurn: (parameters) => ammActions.watchBurn(client, parameters),
-        watchMint: (parameters) => ammActions.watchMint(client, parameters),
-        watchRebalanceSwap: (parameters) =>
-          ammActions.watchRebalanceSwap(client, parameters),
-      },
-      channel: {
-        close: (parameters) => channelActions.close(client, parameters),
-        closeSync: (parameters) => channelActions.closeSync(client, parameters),
-        getStates: (parameters) => channelActions.getStates(client, parameters),
-        open: (parameters) => channelActions.open(client, parameters),
-        openSync: (parameters) => channelActions.openSync(client, parameters),
-        requestClose: (parameters) =>
-          channelActions.requestClose(client, parameters),
-        requestCloseSync: (parameters) =>
-          channelActions.requestCloseSync(client, parameters),
-        settle: (parameters) => channelActions.settle(client, parameters),
-        settleSync: (parameters) =>
-          channelActions.settleSync(client, parameters),
-        signVoucher: (parameters) =>
-          channelActions.signVoucher(client, parameters),
-        topUp: (parameters) => channelActions.topUp(client, parameters),
-        topUpSync: (parameters) => channelActions.topUpSync(client, parameters),
-        withdraw: (parameters) => channelActions.withdraw(client, parameters),
-        withdrawSync: (parameters) =>
-          channelActions.withdrawSync(client, parameters),
-      },
-      dex: {
-        buy: (parameters) => dexActions.buy(client, parameters),
-        buySync: (parameters) => dexActions.buySync(client, parameters),
-        cancel: (parameters) => dexActions.cancel(client, parameters),
-        cancelSync: (parameters) => dexActions.cancelSync(client, parameters),
-        cancelStale: (parameters) => dexActions.cancelStale(client, parameters),
-        cancelStaleSync: (parameters) =>
-          dexActions.cancelStaleSync(client, parameters),
-        createPair: (parameters) => dexActions.createPair(client, parameters),
-        createPairSync: (parameters) =>
-          dexActions.createPairSync(client, parameters),
-        getBalance: (parameters) => dexActions.getBalance(client, parameters),
-        getBuyQuote: (parameters) => dexActions.getBuyQuote(client, parameters),
-        getOrder: (parameters) => dexActions.getOrder(client, parameters),
-        getTickLevel: (parameters) =>
-          dexActions.getTickLevel(client, parameters),
-        getSellQuote: (parameters) =>
-          dexActions.getSellQuote(client, parameters),
-        place: (parameters) => dexActions.place(client, parameters),
-        placeSync: (parameters) => dexActions.placeSync(client, parameters),
-        placeFlip: (parameters) => dexActions.placeFlip(client, parameters),
-        placeFlipSync: (parameters) =>
-          dexActions.placeFlipSync(client, parameters),
-        sell: (parameters) => dexActions.sell(client, parameters),
-        sellSync: (parameters) => dexActions.sellSync(client, parameters),
-        withdraw: (parameters) => dexActions.withdraw(client, parameters),
-        withdrawSync: (parameters) =>
-          dexActions.withdrawSync(client, parameters),
-        watchFlipOrderPlaced: (parameters) =>
-          dexActions.watchFlipOrderPlaced(client, parameters),
-        watchOrderCancelled: (parameters) =>
-          dexActions.watchOrderCancelled(client, parameters),
-        watchOrderFilled: (parameters) =>
-          dexActions.watchOrderFilled(client, parameters),
-        watchOrderPlaced: (parameters) =>
-          dexActions.watchOrderPlaced(client, parameters),
-      },
-      faucet: {
-        fund: (parameters) => faucetActions.fund(client, parameters),
-        fundSync: (parameters) => faucetActions.fundSync(client, parameters),
-      },
-      nonce: {
-        getNonce: (parameters) => nonceActions.getNonce(client, parameters),
-        watchNonceIncremented: (parameters) =>
-          nonceActions.watchNonceIncremented(client, parameters),
-      },
-      fee: {
-        validateToken: (parameters) =>
-          feeActions.validateToken(client, parameters),
-        // @ts-expect-error
-        getUserToken: (parameters) =>
-          // @ts-expect-error
-          feeActions.getUserToken(client, parameters),
-        setUserToken: (parameters) =>
-          feeActions.setUserToken(client, parameters),
-        setUserTokenSync: (parameters) =>
-          feeActions.setUserTokenSync(client, parameters),
-        watchSetUserToken: (parameters) =>
-          feeActions.watchSetUserToken(client, parameters),
-      },
-      policy: {
-        create: (parameters) => policyActions.create(client, parameters),
-        createSync: (parameters) =>
-          policyActions.createSync(client, parameters),
-        setAdmin: (parameters) => policyActions.setAdmin(client, parameters),
-        setAdminSync: (parameters) =>
-          policyActions.setAdminSync(client, parameters),
-        modifyWhitelist: (parameters) =>
-          policyActions.modifyWhitelist(client, parameters),
-        modifyWhitelistSync: (parameters) =>
-          policyActions.modifyWhitelistSync(client, parameters),
-        modifyBlacklist: (parameters) =>
-          policyActions.modifyBlacklist(client, parameters),
-        modifyBlacklistSync: (parameters) =>
-          policyActions.modifyBlacklistSync(client, parameters),
-        getData: (parameters) => policyActions.getData(client, parameters),
-        isAuthorized: (parameters) =>
-          policyActions.isAuthorized(client, parameters),
-        watchCreate: (parameters) =>
-          policyActions.watchCreate(client, parameters),
-        watchAdminUpdated: (parameters) =>
-          policyActions.watchAdminUpdated(client, parameters),
-        watchWhitelistUpdated: (parameters) =>
-          policyActions.watchWhitelistUpdated(client, parameters),
-        watchBlacklistUpdated: (parameters) =>
-          policyActions.watchBlacklistUpdated(client, parameters),
-      },
-      receivePolicy: {
-        burn: (parameters) => receivePolicyActions.burn(client, parameters),
-        burnSync: (parameters) =>
-          receivePolicyActions.burnSync(client, parameters),
-        claim: (parameters) => receivePolicyActions.claim(client, parameters),
-        claimSync: (parameters) =>
-          receivePolicyActions.claimSync(client, parameters),
-        get: (parameters) => receivePolicyActions.get(client, parameters),
-        getBlockedBalance: (parameters) =>
-          receivePolicyActions.getBlockedBalance(client, parameters),
-        set: (parameters) => receivePolicyActions.set(client, parameters),
-        setSync: (parameters) =>
-          receivePolicyActions.setSync(client, parameters),
-        validate: (parameters) =>
-          receivePolicyActions.validate(client, parameters),
-        watchBlocked: (parameters) =>
-          receivePolicyActions.watchBlocked(client, parameters),
-        watchBurned: (parameters) =>
-          receivePolicyActions.watchBurned(client, parameters),
-        watchClaimed: (parameters) =>
-          receivePolicyActions.watchClaimed(client, parameters),
-        watchUpdated: (parameters) =>
-          receivePolicyActions.watchUpdated(client, parameters),
-      },
-      reward: {
-        claim: (parameters) => rewardActions.claim(client, parameters),
-        claimSync: (parameters) => rewardActions.claimSync(client, parameters),
-        distribute: (parameters) =>
-          rewardActions.distribute(client, parameters),
-        distributeSync: (parameters) =>
-          rewardActions.distributeSync(client, parameters),
-        getUserRewardInfo: (parameters) =>
-          rewardActions.getUserRewardInfo(client, parameters),
-        setRecipient: (parameters) =>
-          rewardActions.setRecipient(client, parameters),
-        setRecipientSync: (parameters) =>
-          rewardActions.setRecipientSync(client, parameters),
-        watchRewardDistributed: (parameters) =>
-          rewardActions.watchRewardDistributed(client, parameters),
-        watchRewardRecipientSet: (parameters) =>
-          rewardActions.watchRewardRecipientSet(client, parameters),
-      },
-      simulate: {
-        simulateBlocks: (parameters) =>
-          simulateActions.simulateBlocks(client, parameters),
-        simulateCalls: (parameters) =>
-          simulateActions.simulateCalls(client, parameters),
-      },
-      token: {
-        approve: (parameters) => tokenActions.approve(client, parameters),
-        approveSync: (parameters) =>
-          tokenActions.approveSync(client, parameters),
-        burnBlocked: (parameters) =>
-          tokenActions.burnBlocked(client, parameters),
-        burnBlockedSync: (parameters) =>
-          tokenActions.burnBlockedSync(client, parameters),
-        burn: (parameters) => tokenActions.burn(client, parameters),
-        burnSync: (parameters) => tokenActions.burnSync(client, parameters),
-        changeTransferPolicy: (parameters) =>
-          tokenActions.changeTransferPolicy(client, parameters),
-        changeTransferPolicySync: (parameters) =>
-          tokenActions.changeTransferPolicySync(client, parameters),
-        create: (parameters) => tokenActions.create(client, parameters),
-        createSync: (parameters) => tokenActions.createSync(client, parameters),
-        getAllowance: (parameters) =>
-          tokenActions.getAllowance(client, parameters),
-        getBalance: (parameters) => tokenActions.getBalance(client, parameters),
-        getMetadata: (parameters) =>
-          tokenActions.getMetadata(client, parameters),
-        getRoleAdmin: (parameters) =>
-          tokenActions.getRoleAdmin(client, parameters),
-        hasRole: (parameters) => tokenActions.hasRole(client, parameters),
-        grantRoles: (parameters) => tokenActions.grantRoles(client, parameters),
-        grantRolesSync: (parameters) =>
-          tokenActions.grantRolesSync(client, parameters),
-        mint: (parameters) => tokenActions.mint(client, parameters),
-        mintSync: (parameters) => tokenActions.mintSync(client, parameters),
-        pause: (parameters) => tokenActions.pause(client, parameters),
-        pauseSync: (parameters) => tokenActions.pauseSync(client, parameters),
-        renounceRoles: (parameters) =>
-          tokenActions.renounceRoles(client, parameters),
-        renounceRolesSync: (parameters) =>
-          tokenActions.renounceRolesSync(client, parameters),
-        revokeRoles: (parameters) =>
-          tokenActions.revokeRoles(client, parameters),
-        revokeRolesSync: (parameters) =>
-          tokenActions.revokeRolesSync(client, parameters),
-        setSupplyCap: (parameters) =>
-          tokenActions.setSupplyCap(client, parameters),
-        setSupplyCapSync: (parameters) =>
-          tokenActions.setSupplyCapSync(client, parameters),
-        setRoleAdmin: (parameters) =>
-          tokenActions.setRoleAdmin(client, parameters),
-        setRoleAdminSync: (parameters) =>
-          tokenActions.setRoleAdminSync(client, parameters),
-        transfer: (parameters) => tokenActions.transfer(client, parameters),
-        transferSync: (parameters) =>
-          tokenActions.transferSync(client, parameters),
-        unpause: (parameters) => tokenActions.unpause(client, parameters),
-        unpauseSync: (parameters) =>
-          tokenActions.unpauseSync(client, parameters),
-        watchApprove: (parameters) =>
-          tokenActions.watchApprove(client, parameters),
-        watchBurn: (parameters) => tokenActions.watchBurn(client, parameters),
-        watchCreate: (parameters) =>
-          tokenActions.watchCreate(client, parameters),
-        watchMint: (parameters) => tokenActions.watchMint(client, parameters),
-        watchAdminRole: (parameters) =>
-          tokenActions.watchAdminRole(client, parameters),
-        watchRole: (parameters) => tokenActions.watchRole(client, parameters),
-        watchTransfer: (parameters) =>
-          tokenActions.watchTransfer(client, parameters),
-      },
-      validator: {
-        add: (parameters) => validatorActions.add(client, parameters),
-        addSync: (parameters) => validatorActions.addSync(client, parameters),
-        changeOwner: (parameters) =>
-          validatorActions.changeOwner(client, parameters),
-        changeOwnerSync: (parameters) =>
-          validatorActions.changeOwnerSync(client, parameters),
-        changeStatus: (parameters) =>
-          validatorActions.changeStatus(client, parameters),
-        changeStatusSync: (parameters) =>
-          validatorActions.changeStatusSync(client, parameters),
-        get: (parameters) => validatorActions.get(client, parameters),
-        getByIndex: (parameters) =>
-          validatorActions.getByIndex(client, parameters),
-        getCount: (parameters) => validatorActions.getCount(client, parameters),
-        getNextFullDkgCeremony: (parameters) =>
-          validatorActions.getNextFullDkgCeremony(client, parameters),
-        getOwner: (parameters) => validatorActions.getOwner(client, parameters),
-        list: (parameters) => validatorActions.list(client, parameters),
-        setNextFullDkgCeremony: (parameters) =>
-          validatorActions.setNextFullDkgCeremony(client, parameters),
-        setNextFullDkgCeremonySync: (parameters) =>
-          validatorActions.setNextFullDkgCeremonySync(client, parameters),
-        update: (parameters) => validatorActions.update(client, parameters),
-        updateSync: (parameters) =>
-          validatorActions.updateSync(client, parameters),
-      },
-      virtualAddress: {
-        getMasterAddress: (parameters) =>
-          virtualAddressActions.getMasterAddress(client, parameters),
-        registerMaster: (parameters) =>
-          virtualAddressActions.registerMaster(client, parameters),
-        registerMasterSync: (parameters) =>
-          virtualAddressActions.registerMasterSync(client, parameters),
-        resolve: (parameters) =>
-          virtualAddressActions.resolve(client, parameters),
-      },
-      zone: {
-        deposit: (parameters) => zoneActions.deposit(client, parameters),
-        depositSync: (parameters) =>
-          zoneActions.depositSync(client, parameters),
-        encryptedDeposit: (parameters) =>
-          zoneActions.encryptedDeposit(client, parameters),
-        encryptedDepositSync: (parameters) =>
-          zoneActions.encryptedDepositSync(client, parameters),
-        getAuthorizationTokenInfo: () =>
-          zoneActions.getAuthorizationTokenInfo(client),
-        getDepositStatus: (parameters) =>
-          zoneActions.getDepositStatus(client, parameters),
-        getWithdrawalFee: (parameters) =>
-          zoneActions.getWithdrawalFee(client, parameters),
-        getZoneInfo: () => zoneActions.getZoneInfo(client),
-        requestWithdrawal: (parameters) =>
-          zoneActions.requestWithdrawal(client, parameters),
-        requestWithdrawalSync: (parameters) =>
-          zoneActions.requestWithdrawalSync(client, parameters),
-        requestVerifiableWithdrawal: (parameters) =>
-          zoneActions.requestVerifiableWithdrawal(client, parameters),
-        requestVerifiableWithdrawalSync: (parameters) =>
-          zoneActions.requestVerifiableWithdrawalSync(client, parameters),
-        signAuthorizationToken: (parameters) =>
-          zoneActions.signAuthorizationToken(client, parameters),
-      },
-    }
+      accessKey: bindActions(client, accessKeyActions, [
+        'authorize',
+        'authorizeSync',
+        'burnWitness',
+        'burnWitnessSync',
+        'getMetadata',
+        'getRemainingLimit',
+        'isAdmin',
+        'isWitnessBurned',
+        'revoke',
+        'revokeSync',
+        'signAuthorization',
+        'updateLimit',
+        'updateLimitSync',
+        'verifyHash',
+        'watchAdminAuthorized',
+        'watchWitness',
+        'watchWitnessBurned',
+      ]),
+      amm: bindActions(client, ammActions, [
+        'getPool',
+        'getLiquidityBalance',
+        'burn',
+        'burnSync',
+        'mint',
+        'mintSync',
+        'rebalanceSwap',
+        'rebalanceSwapSync',
+        'watchBurn',
+        'watchMint',
+        'watchRebalanceSwap',
+      ]),
+      channel: bindActions(client, channelActions, [
+        'close',
+        'closeSync',
+        'getStates',
+        'open',
+        'openSync',
+        'requestClose',
+        'requestCloseSync',
+        'settle',
+        'settleSync',
+        'signVoucher',
+        'topUp',
+        'topUpSync',
+        'withdraw',
+        'withdrawSync',
+      ]),
+      dex: bindActions(client, dexActions, [
+        'buy',
+        'buySync',
+        'cancel',
+        'cancelSync',
+        'cancelStale',
+        'cancelStaleSync',
+        'createPair',
+        'createPairSync',
+        'getBalance',
+        'getBuyQuote',
+        'getOrder',
+        'getOrderbook',
+        'getTickLevel',
+        'getSellQuote',
+        'place',
+        'placeSync',
+        'placeFlip',
+        'placeFlipSync',
+        'sell',
+        'sellSync',
+        'withdraw',
+        'withdrawSync',
+        'watchFlipOrderPlaced',
+        'watchOrderCancelled',
+        'watchOrderFilled',
+        'watchOrderPlaced',
+      ]),
+      faucet: bindActions(client, faucetActions, ['fund', 'fundSync']),
+      nonce: bindActions(client, nonceActions, [
+        'getNonce',
+        'watchNonceIncremented',
+      ]),
+      fee: bindActions(client, feeActions, [
+        'validateToken',
+        'getUserToken',
+        'setUserToken',
+        'setUserTokenSync',
+        'getValidatorToken',
+        'setValidatorToken',
+        'setValidatorTokenSync',
+        'watchSetUserToken',
+        'watchSetValidatorToken',
+      ]),
+      policy: bindActions(client, policyActions, [
+        'create',
+        'createSync',
+        'setAdmin',
+        'setAdminSync',
+        'modifyWhitelist',
+        'modifyWhitelistSync',
+        'modifyBlacklist',
+        'modifyBlacklistSync',
+        'getData',
+        'isAuthorized',
+        'watchCreate',
+        'watchAdminUpdated',
+        'watchWhitelistUpdated',
+        'watchBlacklistUpdated',
+      ]),
+      receivePolicy: bindActions(client, receivePolicyActions, [
+        'burn',
+        'burnSync',
+        'claim',
+        'claimSync',
+        'get',
+        'getBlockedBalance',
+        'set',
+        'setSync',
+        'validate',
+        'watchBlocked',
+        'watchBurned',
+        'watchClaimed',
+        'watchUpdated',
+      ]),
+      reward: bindActions(client, rewardActions, [
+        'claim',
+        'claimSync',
+        'distribute',
+        'distributeSync',
+        'getGlobalRewardPerToken',
+        'getPendingRewards',
+        'getUserRewardInfo',
+        'setRecipient',
+        'setRecipientSync',
+        'watchRewardDistributed',
+        'watchRewardRecipientSet',
+      ]),
+      simulate: bindActions(client, simulateActions, [
+        'simulateBlocks',
+        'simulateCalls',
+      ]),
+      token: bindActions(client, tokenActions, [
+        'approve',
+        'approveSync',
+        'burnBlocked',
+        'burnBlockedSync',
+        'burn',
+        'burnSync',
+        'changeTransferPolicy',
+        'changeTransferPolicySync',
+        'create',
+        'createSync',
+        'getAllowance',
+        'getBalance',
+        'getMetadata',
+        'getTotalSupply',
+        'getRoleAdmin',
+        'hasRole',
+        'grantRoles',
+        'grantRolesSync',
+        'mint',
+        'mintSync',
+        'pause',
+        'pauseSync',
+        'renounceRoles',
+        'renounceRolesSync',
+        'revokeRoles',
+        'revokeRolesSync',
+        'setSupplyCap',
+        'setSupplyCapSync',
+        'setRoleAdmin',
+        'setRoleAdminSync',
+        'transfer',
+        'transferSync',
+        'unpause',
+        'unpauseSync',
+        'prepareUpdateQuoteToken',
+        'prepareUpdateQuoteTokenSync',
+        'updateQuoteToken',
+        'updateQuoteTokenSync',
+        'watchApprove',
+        'watchBurn',
+        'watchCreate',
+        'watchMint',
+        'watchAdminRole',
+        'watchRole',
+        'watchTransfer',
+        'watchUpdateQuoteToken',
+      ]),
+      validator: bindActions(client, validatorActions, [
+        'add',
+        'addSync',
+        'changeOwner',
+        'changeOwnerSync',
+        'changeStatus',
+        'changeStatusSync',
+        'get',
+        'getByIndex',
+        'getCount',
+        'getNextFullDkgCeremony',
+        'getOwner',
+        'list',
+        'setNextFullDkgCeremony',
+        'setNextFullDkgCeremonySync',
+        'update',
+        'updateSync',
+      ]),
+      virtualAddress: bindActions(client, virtualAddressActions, [
+        'getMasterAddress',
+        'registerMaster',
+        'registerMasterSync',
+        'resolve',
+      ]),
+      zone: bindActions(client, zoneActions, [
+        'deposit',
+        'depositSync',
+        'encryptedDeposit',
+        'encryptedDepositSync',
+        'getAuthorizationTokenInfo',
+        'getDepositStatus',
+        'getWithdrawalFee',
+        'getZoneInfo',
+        'requestWithdrawal',
+        'requestWithdrawalSync',
+        'requestVerifiableWithdrawal',
+        'requestVerifiableWithdrawalSync',
+        'signAuthorizationToken',
+      ]),
+    } as Decorator<chain, account>
   }
 }

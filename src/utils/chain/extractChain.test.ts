@@ -47,6 +47,14 @@ test('default', async () => {
         },
       },
       "serializers": undefined,
+      "tokens": {
+        "usdc": {
+          "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          "decimals": 6,
+          "name": "USD Coin",
+          "symbol": "USDC",
+        },
+      },
     }
   `)
 
@@ -146,6 +154,14 @@ test('default', async () => {
         "transaction": [Function],
       },
       "sourceId": 1,
+      "tokens": {
+        "usdc": {
+          "address": "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
+          "decimals": 6,
+          "name": "USD Coin",
+          "symbol": "USDC",
+        },
+      },
     }
   `)
 })

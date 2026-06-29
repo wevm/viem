@@ -427,6 +427,16 @@ test('extend', () => {
       "snapshot": [Function],
       "stopImpersonatingAccount": [Function],
       "switchChain": [Function],
+      "token": {
+        "getAllowance": [Function],
+        "approve": [Function],
+        "approveSync": [Function],
+        "getBalance": [Function],
+        "getMetadata": [Function],
+        "getTotalSupply": [Function],
+        "transfer": [Function],
+        "transferSync": [Function],
+      },
       "transport": {
         "fetchOptions": undefined,
         "key": "http",

@@ -1,0 +1,45 @@
+# token.getMetadata
+
+Reads the metadata (`decimals`, `name`, `symbol`) of a token.
+
+Fields declared on the connected chain's [`tokens` config](/docs/chains/tokens)
+are used as-is; any missing field is fetched from the token contract.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [example.ts]
+import { client } from './viem.config'
+
+const metadata = await client.token.getMetadata({ token: 'usdc' })
+// @log: { decimals: 6, name: 'USD Coin', symbol: 'USDC' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+// [!include ~/snippets/token/viem.config.ts:setup]
+```
+
+:::
+
+## Return Type
+
+```ts
+type ReturnType = {
+  /** Number of decimals the token uses. */
+  decimals: number
+  /** Human-readable name of the token. */
+  name: string
+  /** Ticker symbol of the token. */
+  symbol: string
+}
+```
+
+## Parameters
+
+### token
+
+- **Type:** `string`
+
+Token to operate on: a [chain-declared](/tokens/tokens#token-lookup)
+token name (resolving its `address` and metadata), or a token address.
