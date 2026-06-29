@@ -10,7 +10,7 @@ test('createWalletClient', () => {
   createWalletClient({
     transport: http('https://cloudflare-eth.com'),
   })
-  attest.instantiations([3466, 'instantiations'])
+  attest.instantiations([9532, 'instantiations'])
 })
 
 test('createClient.extend + walletActions', () => {
