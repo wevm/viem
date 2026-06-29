@@ -11,6 +11,7 @@ import {
   InvalidSerializableTransactionError,
   InvalidSerializedTransactionError,
   InvalidSerializedTransactionTypeError,
+  InvalidYParityError,
   TransactionExecutionError,
   TransactionNotFoundError,
   TransactionReceiptNotFoundError,
@@ -20,6 +21,14 @@ import {
 test('InvalidLegacyVError', () => {
   expect(new InvalidLegacyVError({ v: 69n })).toMatchInlineSnapshot(`
     [InvalidLegacyVError: Invalid \`v\` value "69". Expected 27 or 28.
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('InvalidYParityError', () => {
+  expect(new InvalidYParityError({ yParity: 2n })).toMatchInlineSnapshot(`
+    [InvalidYParityError: Invalid \`yParity\` value "2". Expected 0 or 1.
 
     Version: viem@x.y.z]
   `)

@@ -938,6 +938,8 @@ export {
 export {
   HttpRequestError,
   type HttpRequestErrorType,
+  ResponseBodyTooLargeError,
+  type ResponseBodyTooLargeErrorType,
   RpcRequestError,
   type RpcRequestErrorType,
   SocketClosedError,
@@ -1025,6 +1027,8 @@ export {
   type InvalidSerializedTransactionTypeErrorType,
   InvalidStorageKeySizeError,
   type InvalidStorageKeySizeErrorType,
+  InvalidYParityError,
+  type InvalidYParityErrorType,
   TransactionExecutionError,
   type TransactionExecutionErrorType,
   TransactionNotFoundError,
