@@ -59,7 +59,7 @@ export default defineConfig({
       status: 308,
     },
 
-    // Renamed functions — keep deprecated paths working.
+    // Renamed functions; keep deprecated paths working.
     {
       source: '/:match/hexToSignature',
       destination: '/:match/parseSignature',
@@ -142,6 +142,51 @@ export default defineConfig({
       destination: '/docs/actions/wallet/:path',
       status: 308,
     },
+    {
+      source: '/docs/actions/public/contract/deploy',
+      destination: '/docs/actions/wallet/contract/deploy',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/contract/deploySync',
+      destination: '/docs/actions/wallet/contract/deploySync',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/contract/write',
+      destination: '/docs/actions/wallet/contract/write',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/contract/writeSync',
+      destination: '/docs/actions/wallet/contract/writeSync',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/transaction/send',
+      destination: '/docs/actions/wallet/transaction/send',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/transaction/sendRaw',
+      destination: '/docs/actions/wallet/transaction/sendRaw',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/transaction/sendRawSync',
+      destination: '/docs/actions/wallet/transaction/sendRawSync',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/transaction/sendSync',
+      destination: '/docs/actions/wallet/transaction/sendSync',
+      status: 308,
+    },
+    {
+      source: '/docs/actions/public/transaction/sign',
+      destination: '/docs/actions/wallet/transaction/sign',
+      status: 308,
+    },
   ],
   renderStrategy: 'partial-static',
   rootDir: '.',
@@ -187,6 +232,11 @@ export default defineConfig({
         collapsed: true,
         items: [
           { text: 'Overview', link: '/docs/actions' },
+          {
+            text: 'Wallet Actions',
+            link: '/docs/actions/wallet',
+            badge: badge('wallet'),
+          },
           {
             text: 'call',
             link: '/docs/actions/public/call',
@@ -361,12 +411,12 @@ export default defineConfig({
             items: [
               {
                 text: 'deploy',
-                link: '/docs/actions/public/contract/deploy',
+                link: '/docs/actions/wallet/contract/deploy',
                 badge: badge('wallet'),
               },
               {
                 text: 'deploySync',
-                link: '/docs/actions/public/contract/deploySync',
+                link: '/docs/actions/wallet/contract/deploySync',
                 badge: badge('wallet'),
               },
               {
@@ -391,12 +441,12 @@ export default defineConfig({
               },
               {
                 text: 'write',
-                link: '/docs/actions/public/contract/write',
+                link: '/docs/actions/wallet/contract/write',
                 badge: badge('wallet'),
               },
               {
                 text: 'writeSync',
-                link: '/docs/actions/public/contract/writeSync',
+                link: '/docs/actions/wallet/contract/writeSync',
                 badge: badge('wallet'),
               },
             ],
@@ -531,27 +581,27 @@ export default defineConfig({
               },
               {
                 text: 'send',
-                link: '/docs/actions/public/transaction/send',
+                link: '/docs/actions/wallet/transaction/send',
                 badge: badge('wallet'),
               },
               {
                 text: 'sendRaw',
-                link: '/docs/actions/public/transaction/sendRaw',
+                link: '/docs/actions/wallet/transaction/sendRaw',
                 badge: badge('wallet'),
               },
               {
                 text: 'sendRawSync',
-                link: '/docs/actions/public/transaction/sendRawSync',
+                link: '/docs/actions/wallet/transaction/sendRawSync',
                 badge: badge('wallet'),
               },
               {
                 text: 'sendSync',
-                link: '/docs/actions/public/transaction/sendSync',
+                link: '/docs/actions/wallet/transaction/sendSync',
                 badge: badge('wallet'),
               },
               {
                 text: 'sign',
-                link: '/docs/actions/public/transaction/sign',
+                link: '/docs/actions/wallet/transaction/sign',
                 badge: badge('wallet'),
               },
               {

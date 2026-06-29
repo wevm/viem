@@ -1,8 +1,8 @@
 # simulateContract
 
-Simulates a write function on a contract without broadcasting a transaction. Returns the decoded `result` and a `request` that can be passed to [write](/docs/actions/public/contract/write).
+Simulates a write function on a contract without broadcasting a transaction. Returns the decoded `result` and a `request` that can be passed to [write](/docs/actions/wallet/contract/write).
 
-Unlike [write](/docs/actions/public/contract/write), this validates the call against current state (surfacing return data and revert reasons) via `eth_call`, so it does not require gas or change chain state.
+Unlike [write](/docs/actions/wallet/contract/write), this validates the call against current state (surfacing return data and revert reasons) via `eth_call`, so it does not require gas or change chain state.
 
 ## Usage
 
@@ -40,14 +40,16 @@ const hash = await Actions.contract.write(client, request)
 ```
 
 ```ts twoslash [viem.config.ts] filename="viem.config.ts"
-import { Account, Client, http, publicActions } from 'viem'
+import { Account, Client, http, publicActions, walletActions } from 'viem'
 import { mainnet } from 'viem/chains'
 
 export const client = Client.create({
   account: Account.fromPrivateKey('0x…'),
   chain: mainnet,
   transport: http(),
-}).extend(publicActions())
+})
+  .extend(publicActions())
+  .extend(walletActions())
 ```
 
 :::
@@ -57,7 +59,7 @@ export const client = Client.create({
 `{ request, result }`
 
 - `result`: the decoded return value of the simulated function. The type is inferred from the `abi` and `functionName`.
-- `request`: a write request (with the ABI minimized to the called function) that can be passed to [write](/docs/actions/public/contract/write).
+- `request`: a write request (with the ABI minimized to the called function) that can be passed to [write](/docs/actions/wallet/contract/write).
 
 ## Parameters
 

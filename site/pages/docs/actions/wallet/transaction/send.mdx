@@ -150,11 +150,12 @@ const hash = await Actions.transaction.send(client, {
 The blobs to attach to the transaction (EIP-4844). Use with [`kzg`](#kzg) to derive the blob fields.
 
 ```ts twoslash
+import * as Kzg from 'ox/Kzg'
 import { Account, Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { kzg } from './kzg'
 
 const blobData = '0x1234' as const
+const kzg = {} as Kzg.Kzg
 const account = Account.fromPrivateKey('0x…')
 const client = Client.create({ account, chain: mainnet, transport: http() })
 // ---cut---
@@ -272,11 +273,12 @@ const hash = await Actions.transaction.send(client, {
 The KZG context used to derive EIP-4844 blob fields from [`blobs`](#blobs).
 
 ```ts twoslash
+import * as Kzg from 'ox/Kzg'
 import { Account, Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
-import { kzg } from './kzg'
 
 const blobData = '0x1234' as const
+const kzg = {} as Kzg.Kzg
 const account = Account.fromPrivateKey('0x…')
 const client = Client.create({ account, chain: mainnet, transport: http() })
 // ---cut---
@@ -364,23 +366,25 @@ const hash = await Actions.transaction.send(client, {
 })
 ```
 
-### nonceManager
+### account.nonceManager
 
 - **Type:** `NonceManager`
 
-A nonce manager used to derive and auto-increment the transaction nonce (Local Accounts). The nonce is reset if signing or broadcasting fails.
+A nonce manager attached to a Local Account, used to derive and auto-increment the transaction nonce. The nonce is reset if signing or broadcasting fails.
 
 ```ts twoslash
 import { Account, Actions, Client, http, NonceManager } from 'viem'
 import { mainnet } from 'viem/chains'
 
-const account = Account.fromPrivateKey('0x…')
+const nonceManager = NonceManager.from({ source: NonceManager.jsonRpc() })
+const account = {
+  ...Account.fromPrivateKey('0x…'),
+  nonceManager, // [!code focus]
+}
 const client = Client.create({ account, chain: mainnet, transport: http() })
 // ---cut---
-const nonceManager = NonceManager.from({ source: NonceManager.jsonRpc() })
 
 const hash = await Actions.transaction.send(client, {
-  nonceManager, // [!code focus]
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
   value: 1n,
 })
