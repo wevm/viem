@@ -77,12 +77,12 @@ describe('tokens', () => {
     const client = createClient({
       account,
       chain: mainnet,
-      tokens: [usdc],
+      tokens: [usdc, usdce],
       transport: http(),
     }).extend(publicActions)
 
     client.token.getBalance({ token: 'usdc' })
-    // @ts-expect-error USDC.e is not declared.
+    // @ts-expect-error USDC.e has no mainnet address.
     client.token.getBalance({ token: 'usdc.e' })
   })
 
