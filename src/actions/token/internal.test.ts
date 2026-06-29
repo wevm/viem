@@ -75,7 +75,7 @@ describe('resolveToken', () => {
     expect(() =>
       resolveToken(client, { token: 'dai' }),
     ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Token "dai" is not a declared ERC-20 token on the chain's \`tokens\` config, and is not a valid address.]`,
+      `[Error: Token "dai" is not a declared ERC-20 token on the client's \`tokens\` config (with an address for the client's chain), and is not a valid address.]`,
     )
   })
 
@@ -94,7 +94,7 @@ describe('resolveToken', () => {
     expect(() =>
       resolveToken(chainless, { token: 'usdc' }),
     ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Token "usdc" is not a declared ERC-20 token on the chain's \`tokens\` config, and is not a valid address.]`,
+      `[Error: Token "usdc" is not a declared ERC-20 token on the client's \`tokens\` config (with an address for the client's chain), and is not a valid address.]`,
     )
   })
 })

@@ -43,13 +43,5 @@ export const unichain = /*#__PURE__*/ defineChain({
       },
     },
   },
-  tokens: {
-    usdc: {
-      address: '0x078D782b760474a361dDA0AF3839290b0EF57AD6',
-      decimals: 6,
-      name: 'USD Coin',
-      symbol: 'USDC',
-    },
-  },
   sourceId,
 })

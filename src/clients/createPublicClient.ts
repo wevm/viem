@@ -7,6 +7,7 @@ import type { Prettify } from '../types/utils.js'
 import {
   type Client,
   type ClientConfig,
+  type ClientTokens,
   type CreateClientErrorType,
   createClient,
 } from './createClient.js'
@@ -18,9 +19,10 @@ export type PublicClientConfig<
   chain extends Chain | undefined = Chain | undefined,
   accountOrAddress extends Account | Address | undefined = undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
+  tokens extends ClientTokens | undefined = ClientTokens | undefined,
 > = Prettify<
   Pick<
-    ClientConfig<transport, chain, accountOrAddress, rpcSchema>,
+    ClientConfig<transport, chain, accountOrAddress, rpcSchema, tokens>,
     | 'batch'
     | 'cacheTime'
     | 'ccipRead'
@@ -30,6 +32,7 @@ export type PublicClientConfig<
     | 'name'
     | 'pollingInterval'
     | 'rpcSchema'
+    | 'tokens'
     | 'transport'
   >
 >
@@ -39,6 +42,7 @@ export type PublicClient<
   chain extends Chain | undefined = Chain | undefined,
   accountOrAddress extends Account | undefined = undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
+  tokens extends ClientTokens | undefined = ClientTokens | undefined,
 > = Prettify<
   Client<
     transport,
@@ -47,7 +51,8 @@ export type PublicClient<
     rpcSchema extends RpcSchema
       ? [...PublicRpcSchema, ...rpcSchema]
       : PublicRpcSchema,
-    PublicActions<transport, chain>
+    PublicActions<transport, chain, accountOrAddress, tokens>,
+    tokens
   >
 >
 
@@ -77,9 +82,22 @@ export function createPublicClient<
   chain extends Chain | undefined = undefined,
   accountOrAddress extends Account | Address | undefined = undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
+  const tokens extends ClientTokens | undefined = undefined,
 >(
-  parameters: PublicClientConfig<transport, chain, accountOrAddress, rpcSchema>,
-): PublicClient<transport, chain, ParseAccount<accountOrAddress>, rpcSchema> {
+  parameters: PublicClientConfig<
+    transport,
+    chain,
+    accountOrAddress,
+    rpcSchema,
+    tokens
+  >,
+): PublicClient<
+  transport,
+  chain,
+  ParseAccount<accountOrAddress>,
+  rpcSchema,
+  tokens
+> {
   const { key = 'public', name = 'Public Client' } = parameters
   const client = createClient({
     ...parameters,

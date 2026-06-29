@@ -23,13 +23,5 @@ export const seiTestnet = /*#__PURE__*/ defineChain({
       blockCreated: 98697651,
     },
   },
-  tokens: {
-    usdc: {
-      address: '0x4fCF1784B31630811181f670Aea7A7bEF803eaED',
-      decimals: 6,
-      name: 'USD Coin',
-      symbol: 'USDC',
-    },
-  },
   testnet: true,
 })

@@ -34,13 +34,5 @@ export const arcTestnet = /*#__PURE__*/ defineChain({
       blockCreated: 0,
     },
   },
-  tokens: {
-    usdc: {
-      address: '0x3600000000000000000000000000000000000000',
-      decimals: 6,
-      name: 'USD Coin',
-      symbol: 'USDC',
-    },
-  },
   testnet: true,
 })

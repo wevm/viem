@@ -42,14 +42,6 @@ export const inkSepolia = /*#__PURE__*/ defineChain({
       },
     },
   },
-  tokens: {
-    usdc: {
-      address: '0xFabab97dCE620294D2B0b0e46C68964e326300Ac',
-      decimals: 6,
-      name: 'USD Coin',
-      symbol: 'USDC',
-    },
-  },
   testnet: true,
   sourceId,
 })

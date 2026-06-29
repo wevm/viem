@@ -51,14 +51,6 @@ export const worldchainSepolia = /*#__PURE__*/ defineChain({
       },
     },
   },
-  tokens: {
-    usdc: {
-      address: '0x66145f38cBAC35Ca6F1Dfb4914dF98F1614aeA88',
-      decimals: 6,
-      name: 'USD Coin',
-      symbol: 'USDC',
-    },
-  },
   testnet: true,
   sourceId,
 })

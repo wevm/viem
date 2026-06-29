@@ -299,7 +299,11 @@ import type {
 } from '../../types/contract.js'
 import type { FeeValuesType } from '../../types/fee.js'
 import type { FilterType } from '../../types/filter.js'
-import { bindActionDecorators, type Client } from '../createClient.js'
+import {
+  bindActionDecorators,
+  type Client,
+  type ClientTokens,
+} from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'
 
 /** @internal */
@@ -309,6 +313,7 @@ export type PublicActions<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
+  tokens extends ClientTokens | undefined = ClientTokens | undefined,
 > = {
   /**
    * Executes a new message call immediately without submitting a transaction to the network.
@@ -2131,7 +2136,7 @@ export type PublicActions<
      * })
      */
     getAllowance: ((
-      parameters: getAllowance.Parameters<chain>,
+      parameters: getAllowance.Parameters<chain, tokens>,
     ) => Promise<getAllowance.ReturnValue>) & {
       /**
        * Defines an `allowance` contract call, ready to pass to `multicall`,
@@ -2143,7 +2148,7 @@ export type PublicActions<
        * @returns The contract call.
        */
       call: (
-        args: getAllowance.Args<chain>,
+        args: getAllowance.Args<chain, tokens>,
       ) => ReturnType<typeof getAllowance.call>
     }
     /**
@@ -2166,7 +2171,7 @@ export type PublicActions<
      * })
      */
     getBalance: ((
-      parameters: getTokenBalance.Parameters<chain, account>,
+      parameters: getTokenBalance.Parameters<chain, account, tokens>,
     ) => Promise<getTokenBalance.ReturnValue>) & {
       /**
        * Defines a `balanceOf` contract call, ready to pass to `multicall`,
@@ -2178,7 +2183,7 @@ export type PublicActions<
        * @returns The contract call.
        */
       call: (
-        args: getTokenBalance.Args<chain, account>,
+        args: getTokenBalance.Args<chain, account, tokens>,
       ) => ReturnType<typeof getTokenBalance.call>
     }
     /**
@@ -2200,7 +2205,7 @@ export type PublicActions<
      * const metadata = await client.token.getMetadata({ token: 'usdc' })
      */
     getMetadata: (
-      parameters: getMetadata.Parameters<chain>,
+      parameters: getMetadata.Parameters<chain, tokens>,
     ) => Promise<getMetadata.ReturnValue>
     /**
      * Gets the total supply of the token.
@@ -2219,7 +2224,7 @@ export type PublicActions<
      * const totalSupply = await client.token.getTotalSupply({ token: 'usdc' })
      */
     getTotalSupply: ((
-      parameters: getTotalSupply.Parameters<chain>,
+      parameters: getTotalSupply.Parameters<chain, tokens>,
     ) => Promise<getTotalSupply.ReturnValue>) & {
       /**
        * Defines a `totalSupply` contract call, ready to pass to `multicall`,
@@ -2231,7 +2236,7 @@ export type PublicActions<
        * @returns The contract call.
        */
       call: (
-        args: getTotalSupply.Args<chain>,
+        args: getTotalSupply.Args<chain, tokens>,
       ) => ReturnType<typeof getTotalSupply.call>
     }
   }
@@ -2240,9 +2245,10 @@ export function publicActions<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
+  tokens extends ClientTokens | undefined = ClientTokens | undefined,
 >(
-  client: Client<transport, chain, account>,
-): PublicActions<transport, chain, account> {
+  client: Client<transport, chain, account, undefined, undefined, tokens>,
+): PublicActions<transport, chain, account, tokens> {
   return {
     call: (args) => call(client, args),
     createAccessList: (args) => createAccessList(client, args),

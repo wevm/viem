@@ -6,6 +6,7 @@ import {
   parseAccount,
 } from '../accounts/utils/parseAccount.js'
 import type { ErrorType } from '../errors/utils.js'
+import type { Token } from '../tokens/defineToken.js'
 import type { Account } from '../types/account.js'
 import type { BlockTag } from '../types/block.js'
 import type { Chain } from '../types/chain.js'
@@ -25,6 +26,14 @@ import type { PublicActions } from './decorators/public.js'
 import type { WalletActions } from './decorators/wallet.js'
 import type { Transport } from './transports/createTransport.js'
 
+/**
+ * Collection of {@link Token}s to declare on a Client, keyed by name. Each
+ * token carries a per-chain `addresses` map (see {@link defineToken}); on a
+ * Client, a token's name is only usable by token Actions when its `addresses`
+ * includes the Client's `chain.id`.
+ */
+export type ClientTokens = { [name: string]: Token }
+
 export type ClientConfig<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
@@ -33,6 +42,7 @@ export type ClientConfig<
     | Address
     | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
+  tokens extends ClientTokens | undefined = ClientTokens | undefined,
 > = {
   /** The Account to use for the Client. This will be used for Actions that require an account as an argument. */
   account?: accountOrAddress | Account | Address | undefined
@@ -90,6 +100,13 @@ export type ClientConfig<
    * Typed JSON-RPC schema for the client.
    */
   rpcSchema?: rpcSchema | undefined
+  /**
+   * Collection of {@link Token}s (see {@link defineToken}) to declare on the
+   * Client, keyed by name. A token's name becomes available to token Actions
+   * (e.g. `token.transfer`) only when its `addresses` map includes the Client's
+   * `chain.id`.
+   */
+  tokens?: tokens | undefined
   /** The RPC transport */
   transport: transport
   /** The type of client. */
@@ -104,8 +121,9 @@ type ExtendableProtectedActions<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
+  tokens extends ClientTokens | undefined = ClientTokens | undefined,
 > = Pick<
-  PublicActions<transport, chain, account>,
+  PublicActions<transport, chain, account, tokens>,
   | 'call'
   | 'createContractEventFilter'
   | 'createEventFilter'
@@ -130,7 +148,10 @@ type ExtendableProtectedActions<
   | 'watchBlockNumber'
   | 'watchContractEvent'
 > &
-  Pick<WalletActions<chain, account>, 'sendTransaction' | 'writeContract'>
+  Pick<
+    WalletActions<chain, account, tokens>,
+    'sendTransaction' | 'writeContract'
+  >
 
 // TODO: Move `transport` to slot index 2 since `chain` and `account` used more frequently.
 // Otherwise, we end up with a lot of `Client<Transport, chain, account>` in actions.
@@ -140,21 +161,25 @@ export type Client<
   account extends Account | undefined = Account | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
   extended extends Extended | undefined = Extended | undefined,
-> = Client_Base<transport, chain, account, rpcSchema> &
+  tokens extends ClientTokens | undefined = ClientTokens | undefined,
+> = Client_Base<transport, chain, account, rpcSchema, tokens> &
   (extended extends Extended ? extended : unknown) & {
     extend: <
       const client extends Extended &
-        ExactPartial<ExtendableProtectedActions<transport, chain, account>>,
+        ExactPartial<
+          ExtendableProtectedActions<transport, chain, account, tokens>
+        >,
     >(
       fn: (
-        client: Client<transport, chain, account, rpcSchema, extended>,
+        client: Client<transport, chain, account, rpcSchema, extended, tokens>,
       ) => client,
     ) => Client<
       transport,
       chain,
       account,
       rpcSchema,
-      Prettify<client> & (extended extends Extended ? extended : unknown)
+      Prettify<client> & (extended extends Extended ? extended : unknown),
+      tokens
     >
   }
 
@@ -163,6 +188,7 @@ type Client_Base<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
+  tokens extends ClientTokens | undefined = ClientTokens | undefined,
 > = {
   /** The Account of the Client. */
   account: account
@@ -188,6 +214,8 @@ type Client_Base<
   request: EIP1193RequestFn<
     rpcSchema extends undefined ? EIP1474Methods : rpcSchema
   >
+  /** Collection of {@link Token}s declared on the Client, keyed by name. */
+  tokens: tokens
   /** The RPC transport */
   transport: ReturnType<transport>['config'] & ReturnType<transport>['value']
   /** The type of client. */
@@ -219,8 +247,15 @@ export function createClient<
   chain extends Chain | undefined = undefined,
   accountOrAddress extends Account | Address | undefined = undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
+  const tokens extends ClientTokens | undefined = undefined,
 >(
-  parameters: ClientConfig<transport, chain, accountOrAddress, rpcSchema>,
+  parameters: ClientConfig<
+    transport,
+    chain,
+    accountOrAddress,
+    rpcSchema,
+    tokens
+  >,
 ): Prettify<
   Client<
     transport,
@@ -228,7 +263,9 @@ export function createClient<
     accountOrAddress extends Address
       ? Prettify<JsonRpcAccount<accountOrAddress>>
       : accountOrAddress,
-    rpcSchema
+    rpcSchema,
+    undefined,
+    tokens
   >
 >
 
@@ -240,6 +277,7 @@ export function createClient(parameters: ClientConfig): Client {
     dataSuffix,
     key = 'base',
     name = 'Base Client',
+    tokens,
     type = 'base',
   } = parameters
 
@@ -278,6 +316,7 @@ export function createClient(parameters: ClientConfig): Client {
     name,
     pollingInterval,
     request,
+    tokens,
     transport,
     type,
     uid: uid(),

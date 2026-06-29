@@ -7,8 +7,8 @@ import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { impersonateAccount } from '../../actions/test/impersonateAccount.js'
 import { mine } from '../../actions/test/mine.js'
 import { setBalance } from '../../actions/test/setBalance.js'
-import { mainnet } from '../../chains/definitions/mainnet.js'
 import { avalanche } from '../../chains/index.js'
+import { usdc as usdcToken } from '../../tokens/definitions/usdc.js'
 import { getAddress } from '../../utils/address/getAddress.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { wait } from '../../utils/wait.js'
@@ -353,11 +353,11 @@ describe('smoke test', () => {
 
 describe('token', () => {
   const client = anvilMainnet
-    .getClient()
+    .getClient({ tokens: { usdc: usdcToken } })
     .extend(publicActions)
     .extend(walletActions)
 
-  const usdc = mainnet.tokens.usdc.address
+  const usdc = usdcToken.addresses[anvilMainnet.chain.id]
   const holder = address.usdcHolder
   const to = accounts[1].address
 
@@ -426,7 +426,7 @@ describe('token', () => {
           amount: { formatted: '1' },
         }),
       ).toThrowErrorMatchingInlineSnapshot(
-        `[Error: Token "dai" is not a declared ERC-20 token on the chain's \`tokens\` config, and is not a valid address.]`,
+        `[Error: Token "dai" is not a declared ERC-20 token on the client's \`tokens\` config (with an address for the client's chain), and is not a valid address.]`,
       )
     })
 

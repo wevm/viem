@@ -3,15 +3,16 @@ import { mine } from '../../src/actions/test/mine.js'
 import { setBalance } from '../../src/actions/test/setBalance.js'
 import { mainnet } from '../../src/chains/definitions/mainnet.js'
 import type { Address } from '../../src/index.js'
+import { usdc as usdcToken } from '../../src/tokens/definitions/usdc.js'
 import { wait } from '../../src/utils/wait.js'
 import { anvilMainnet } from './anvil.js'
 import { accounts, address } from './constants.js'
 
 export { accounts }
 
-export const client = anvilMainnet.getClient()
+export const client = anvilMainnet.getClient({ tokens: { usdc: usdcToken } })
 
-export const usdc = mainnet.tokens.usdc.address
+export const usdc = usdcToken.addresses[mainnet.id]
 export const decimals = 6
 export const holder = address.usdcHolder
 

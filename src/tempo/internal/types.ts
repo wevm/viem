@@ -16,12 +16,14 @@ import type { TransactionRequestTempo } from '../Transaction.js'
  *
  * @internal
  */
-export type TokenName<chain extends Chain | undefined> = chain extends {
-  tokens: infer tokens extends Record<string, ChainToken>
-}
-  ? {
-      [name in keyof tokens]: name
-    }[keyof tokens]
+export type TokenName<chain extends Chain | undefined> = chain extends unknown
+  ? chain extends {
+      tokens?: infer tokens extends Record<string, ChainToken> | undefined
+    }
+    ? string extends keyof NonNullable<tokens>
+      ? never
+      : Extract<keyof NonNullable<tokens>, string>
+    : never
   : never
 
 /**

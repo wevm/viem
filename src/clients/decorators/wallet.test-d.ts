@@ -3,6 +3,7 @@ import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { localhost, mainnet } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
+import { usdc } from '../../tokens/definitions/usdc.js'
 import type { TransactionReceipt } from '../../types/transaction.js'
 import { publicActions } from './public.js'
 import { walletActions } from './wallet.js'
@@ -10,7 +11,12 @@ import { walletActions } from './wallet.js'
 const account = privateKeyToAccount(
   '0x0000000000000000000000000000000000000000000000000000000000000001',
 )
-const client = createClient({ account, chain: mainnet, transport: http() })
+const client = createClient({
+  account,
+  chain: mainnet,
+  tokens: { usdc },
+  transport: http(),
+})
 
 describe('token', () => {
   const extended = client.extend(publicActions).extend(walletActions)

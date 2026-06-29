@@ -150,12 +150,17 @@ import type {
   ContractFunctionArgs,
   ContractFunctionName,
 } from '../../types/contract.js'
-import { bindActionDecorators, type Client } from '../createClient.js'
+import {
+  bindActionDecorators,
+  type Client,
+  type ClientTokens,
+} from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'
 
 export type WalletActions<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
+  tokens extends ClientTokens | undefined = ClientTokens | undefined,
 > = {
   /**
    * Adds an EVM chain to the wallet.
@@ -1220,7 +1225,7 @@ export type WalletActions<
      * })
      */
     approveSync: (
-      parameters: approveSync.Parameters<chain, account>,
+      parameters: approveSync.Parameters<chain, account, tokens>,
     ) => Promise<approveSync.ReturnValue>
     /**
      * Approves a `spender` to transfer up to `amount` tokens on behalf of the
@@ -1249,7 +1254,7 @@ export type WalletActions<
      * })
      */
     approve: ((
-      parameters: approve.Parameters<chain, account>,
+      parameters: approve.Parameters<chain, account, tokens>,
     ) => Promise<approve.ReturnValue>) & {
       /**
        * Defines an `approve` contract call, ready to pass to `sendCalls`,
@@ -1260,7 +1265,9 @@ export type WalletActions<
        * @param args - {@link approve.Args}
        * @returns The contract call.
        */
-      call: (args: approve.Args<chain>) => ReturnType<typeof approve.call>
+      call: (
+        args: approve.Args<chain, tokens>,
+      ) => ReturnType<typeof approve.call>
       /**
        * Estimates the gas required to approve a `spender` to transfer up to
        * `amount` tokens on behalf of the caller.
@@ -1271,7 +1278,7 @@ export type WalletActions<
        * @returns The gas estimate.
        */
       estimateGas: (
-        parameters: approve.Parameters<chain, account>,
+        parameters: approve.Parameters<chain, account, tokens>,
       ) => Promise<bigint>
       /**
        * Extracts the `Approval` event from transaction logs.
@@ -1292,7 +1299,7 @@ export type WalletActions<
        * @returns The simulation result and write request.
        */
       simulate: (
-        parameters: approve.Parameters<chain, account>,
+        parameters: approve.Parameters<chain, account, tokens>,
       ) => ReturnType<typeof approve.simulate>
     }
     /**
@@ -1323,7 +1330,7 @@ export type WalletActions<
      * })
      */
     transferSync: (
-      parameters: transferSync.Parameters<chain, account>,
+      parameters: transferSync.Parameters<chain, account, tokens>,
     ) => Promise<transferSync.ReturnValue>
     /**
      * Transfers `amount` tokens to a recipient, and returns the transaction hash.
@@ -1353,7 +1360,7 @@ export type WalletActions<
      * })
      */
     transfer: ((
-      parameters: transfer.Parameters<chain, account>,
+      parameters: transfer.Parameters<chain, account, tokens>,
     ) => Promise<transfer.ReturnValue>) & {
       /**
        * Defines a `transfer` (or `transferFrom`, when `from` is given) contract
@@ -1365,7 +1372,9 @@ export type WalletActions<
        * @param args - {@link transfer.Args}
        * @returns The contract call.
        */
-      call: (args: transfer.Args<chain>) => ReturnType<typeof transfer.call>
+      call: (
+        args: transfer.Args<chain, tokens>,
+      ) => ReturnType<typeof transfer.call>
       /**
        * Estimates the gas required to transfer `amount` tokens to a recipient.
        *
@@ -1375,7 +1384,7 @@ export type WalletActions<
        * @returns The gas estimate.
        */
       estimateGas: (
-        parameters: transfer.Parameters<chain, account>,
+        parameters: transfer.Parameters<chain, account, tokens>,
       ) => Promise<bigint>
       /**
        * Extracts the `Transfer` event from transaction logs.
@@ -1396,7 +1405,7 @@ export type WalletActions<
        * @returns The simulation result and write request.
        */
       simulate: (
-        parameters: transfer.Parameters<chain, account>,
+        parameters: transfer.Parameters<chain, account, tokens>,
       ) => ReturnType<typeof transfer.simulate>
     }
   }
@@ -1405,7 +1414,10 @@ export function walletActions<
   transport extends Transport,
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
->(client: Client<transport, chain, account>): WalletActions<chain, account> {
+  tokens extends ClientTokens | undefined = ClientTokens | undefined,
+>(
+  client: Client<transport, chain, account, undefined, undefined, tokens>,
+): WalletActions<chain, account, tokens> {
   return {
     addChain: (args) => addChain(client, args),
     deployContract: (args) => deployContract(client, args),

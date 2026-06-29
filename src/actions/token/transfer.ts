@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
 import type { Account } from '../../accounts/types.js'
-import type { Client } from '../../clients/createClient.js'
+import type { Client, ClientTokens } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { erc20Abi } from '../../constants/abis.js'
 import type { BaseErrorType } from '../../errors/base.js'
@@ -70,26 +70,31 @@ import {
 export async function transfer<
   chain extends Chain | undefined,
   account extends Account | undefined,
+  tokens extends ClientTokens | undefined = undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: transfer.Parameters<chain, account>,
+  client: Client<Transport, chain, account, undefined, undefined, tokens>,
+  parameters: transfer.Parameters<chain, account, tokens>,
 ): Promise<transfer.ReturnValue> {
   return transfer.inner(writeContract, client, parameters)
 }
 
 export namespace transfer {
-  export type Args<chain extends Chain | undefined = Chain | undefined> = {
+  export type Args<
+    chain extends Chain | undefined = Chain | undefined,
+    tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  > = {
     /** Amount to transfer in base units, or as a formatted helper. */
     amount: AmountInput
     /** Address to transfer tokens from (uses an allowance via `transferFrom`). */
     from?: Address | undefined
     /** Address to transfer tokens to. */
     to: Address
-  } & TokenParameter<chain>
+  } & TokenParameter<chain, tokens>
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args<chain>
+    tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  > = WriteParameters<chain, account> & Args<chain, tokens>
   export type ReturnValue = WriteContractReturnType
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
@@ -99,10 +104,11 @@ export namespace transfer {
     action extends typeof writeContract | typeof writeContractSync,
     chain extends Chain | undefined,
     account extends Account | undefined,
+    tokens extends ClientTokens | undefined = undefined,
   >(
     action: action,
-    client: Client<Transport, chain, account>,
-    parameters: transfer.Parameters<chain, account>,
+    client: Client<Transport, chain, account, undefined, undefined, tokens>,
+    parameters: transfer.Parameters<chain, account, tokens>,
   ): Promise<ReturnType<action>> {
     return (await action(client, {
       ...parameters,
@@ -124,11 +130,15 @@ export namespace transfer {
    * @param parameters - Parameters.
    * @returns The call.
    */
-  export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    parameters: Args<chain>,
+  export function call<
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+    tokens extends ClientTokens | undefined = undefined,
+  >(
+    client: Client<Transport, chain, account, undefined, undefined, tokens>,
+    parameters: Args<chain, tokens>,
   ) {
-    return defineCall(getCall(client, parameters))
+    return defineCall(getCall(client, parameters as transfer.Args))
   }
 
   /**
@@ -142,9 +152,10 @@ export namespace transfer {
   export async function estimateGas<
     chain extends Chain | undefined,
     account extends Account | undefined,
+    tokens extends ClientTokens | undefined = undefined,
   >(
-    client: Client<Transport, chain, account>,
-    parameters: transfer.Parameters<chain, account>,
+    client: Client<Transport, chain, account, undefined, undefined, tokens>,
+    parameters: transfer.Parameters<chain, account, tokens>,
   ): Promise<bigint> {
     return estimateContractGas(client, {
       ...pickWriteParameters(parameters as never),
@@ -163,9 +174,10 @@ export namespace transfer {
   export async function simulate<
     chain extends Chain | undefined,
     account extends Account | undefined,
+    tokens extends ClientTokens | undefined = undefined,
   >(
-    client: Client<Transport, chain, account>,
-    parameters: transfer.Parameters<chain, account>,
+    client: Client<Transport, chain, account, undefined, undefined, tokens>,
+    parameters: transfer.Parameters<chain, account, tokens>,
   ): Promise<
     SimulateContractReturnType<typeof erc20Abi, 'transfer' | 'transferFrom'>
   > {
@@ -194,9 +206,9 @@ export namespace transfer {
 }
 
 /** Builds the underlying `transfer`/`transferFrom` contract call. @internal */
-function getCall<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: transfer.Args<chain>,
+function getCall(
+  client: Client<Transport, Chain | undefined>,
+  parameters: transfer.Args,
 ) {
   const { amount, from, to, token } = parameters
   const { address, decimals } = resolveToken(client, { token })

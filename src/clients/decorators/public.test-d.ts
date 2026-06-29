@@ -3,15 +3,21 @@ import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { mainnet } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
+import { usdc } from '../../tokens/definitions/usdc.js'
 import { publicActions } from './public.js'
 
 const account = privateKeyToAccount(
   '0x0000000000000000000000000000000000000000000000000000000000000001',
 )
-const client = createClient({ account, chain: mainnet, transport: http() })
+const clientWithTokens = createClient({
+  account,
+  chain: mainnet,
+  tokens: { usdc },
+  transport: http(),
+})
 
 describe('token', () => {
-  const extended = client.extend(publicActions)
+  const extended = clientWithTokens.extend(publicActions)
 
   test('attaches read token actions', () => {
     expectTypeOf(extended).toHaveProperty('token')

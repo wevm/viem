@@ -33,14 +33,6 @@ export const lineaSepolia = /*#__PURE__*/ defineChain({
       blockCreated: 17_168_484,
     },
   },
-  tokens: {
-    usdc: {
-      address: '0xFEce4462D57bD51A6A552365A011b95f0E16d9B7',
-      decimals: 6,
-      name: 'USD Coin',
-      symbol: 'USDC',
-    },
-  },
   ensTlds: ['.linea.eth'],
   testnet: true,
 })

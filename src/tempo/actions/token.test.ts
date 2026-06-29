@@ -18,9 +18,19 @@ const account = accounts[0]
 const account2 = accounts[1]
 const account3 = accounts[2]
 
-const client = getClient({
+const chainWithFeeToken_ = chain.extend({ feeToken })
+const chainWithFeeToken = chainWithFeeToken_ as Omit<
+  typeof chainWithFeeToken_,
+  'tokens'
+> & {
+  tokens: {
+    alphausd: { address: typeof addresses.alphaUsd; decimals: 6 }
+    pathusd: { address: typeof addresses.pathUsd; decimals: 6 }
+  }
+}
+const client = getClient<typeof chainWithFeeToken, typeof account>({
   account,
-  chain: chain.extend({ feeToken }),
+  chain: chainWithFeeToken,
 })
 const tokenlessClient = getClient({
   account,

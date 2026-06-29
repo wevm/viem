@@ -34,14 +34,6 @@ export const linea = /*#__PURE__*/ defineChain({
       blockCreated: 22_222_151,
     },
   },
-  tokens: {
-    usdc: {
-      address: '0x176211869cA2b568f2A7D4EE941E073a821EE1ff',
-      decimals: 6,
-      name: 'USD Coin',
-      symbol: 'USDC',
-    },
-  },
   ensTlds: ['.linea.eth'],
   testnet: false,
 })

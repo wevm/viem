@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
-import type { Client } from '../../clients/createClient.js'
+import type { Account } from '../../accounts/types.js'
+import type { Client, ClientTokens } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { erc20Abi } from '../../constants/abis.js'
 import type { Chain } from '../../types/chain.js'
@@ -36,9 +37,13 @@ import {
  * @param parameters - Parameters.
  * @returns The allowance, in base units and human-readable form.
  */
-export async function getAllowance<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: getAllowance.Parameters<chain>,
+export async function getAllowance<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+  tokens extends ClientTokens | undefined = undefined,
+>(
+  client: Client<Transport, chain, account, undefined, undefined, tokens>,
+  parameters: getAllowance.Parameters<chain, tokens>,
 ): Promise<getAllowance.ReturnValue> {
   const { account, decimals, spender, token, ...rest } = parameters
   const [amount, { decimals: resolved }] = await Promise.all([
@@ -51,18 +56,23 @@ export async function getAllowance<chain extends Chain | undefined>(
       token,
     }),
   ])
-  return toAmount(amount, resolved)
+  return toAmount(amount as bigint, resolved)
 }
 
 export namespace getAllowance {
-  export type Args<chain extends Chain | undefined = Chain | undefined> = {
+  export type Args<
+    chain extends Chain | undefined = Chain | undefined,
+    tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  > = {
     /** Account that owns the tokens. */
     account: Address
     /** Spender of the tokens. */
     spender: Address
-  } & TokenParameters<chain>
-  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
-    ReadParameters & Args<chain>
+  } & TokenParameters<chain, tokens>
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  > = ReadParameters & Args<chain, tokens>
   export type ReturnValue = Amount
 
   /**
@@ -77,9 +87,13 @@ export namespace getAllowance {
    * @param args - Arguments.
    * @returns The call.
    */
-  export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    args: Args<chain>,
+  export function call<
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+    tokens extends ClientTokens | undefined = undefined,
+  >(
+    client: Client<Transport, chain, account, undefined, undefined, tokens>,
+    args: Args<chain, tokens>,
   ) {
     return defineCall({
       address: resolveToken(client, args).address,

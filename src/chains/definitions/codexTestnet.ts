@@ -41,14 +41,6 @@ export const codexTestnet = /*#__PURE__*/ defineChain({
       address: '0xca11bde05977b3631167028862be2a173976ca11',
     },
   },
-  tokens: {
-    usdc: {
-      address: '0x6d7f141b6819C2c9CC2f818e6ad549E7Ca090F8f',
-      decimals: 6,
-      name: 'USD Coin',
-      symbol: 'USDC',
-    },
-  },
   sourceId,
   testnet: true,
 })

@@ -9,6 +9,7 @@ import type { Prettify } from '../types/utils.js'
 import {
   type Client,
   type ClientConfig,
+  type ClientTokens,
   type CreateClientErrorType,
   createClient,
 } from './createClient.js'
@@ -23,9 +24,10 @@ export type WalletClientConfig<
     | Address
     | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
+  tokens extends ClientTokens | undefined = ClientTokens | undefined,
 > = Prettify<
   Pick<
-    ClientConfig<transport, chain, accountOrAddress, rpcSchema>,
+    ClientConfig<transport, chain, accountOrAddress, rpcSchema, tokens>,
     | 'account'
     | 'cacheTime'
     | 'ccipRead'
@@ -35,6 +37,7 @@ export type WalletClientConfig<
     | 'name'
     | 'pollingInterval'
     | 'rpcSchema'
+    | 'tokens'
     | 'transport'
   >
 >
@@ -44,6 +47,7 @@ export type WalletClient<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
+  tokens extends ClientTokens | undefined = ClientTokens | undefined,
 > = Prettify<
   Client<
     transport,
@@ -52,7 +56,8 @@ export type WalletClient<
     rpcSchema extends RpcSchema
       ? [...WalletRpcSchema, ...rpcSchema]
       : WalletRpcSchema,
-    WalletActions<chain, account>
+    WalletActions<chain, account, tokens>,
+    tokens
   >
 >
 
@@ -99,9 +104,22 @@ export function createWalletClient<
   chain extends Chain | undefined = undefined,
   accountOrAddress extends Account | Address | undefined = undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
+  const tokens extends ClientTokens | undefined = undefined,
 >(
-  parameters: WalletClientConfig<transport, chain, accountOrAddress, rpcSchema>,
-): WalletClient<transport, chain, ParseAccount<accountOrAddress>, rpcSchema>
+  parameters: WalletClientConfig<
+    transport,
+    chain,
+    accountOrAddress,
+    rpcSchema,
+    tokens
+  >,
+): WalletClient<
+  transport,
+  chain,
+  ParseAccount<accountOrAddress>,
+  rpcSchema,
+  tokens
+>
 
 export function createWalletClient(
   parameters: WalletClientConfig,

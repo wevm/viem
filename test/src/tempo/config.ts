@@ -62,8 +62,8 @@ export const chain = (() => {
         ...tempoLocalnet,
         rpcUrls: { default: { http: [rpcUrl] } },
         tokens: {
-          pathUsd: { address: addresses.pathUsd, decimals: 6 },
-          alphaUsd: { address: addresses.alphaUsd, decimals: 6 },
+          pathusd: { address: addresses.pathUsd, decimals: 6 },
+          alphausd: { address: addresses.alphaUsd, decimals: 6 },
         },
       })
   }
@@ -111,18 +111,18 @@ export const http = (url = rpcUrl) =>
   })
 
 export function getClient<
-  chain extends Chain | undefined = typeof tempoLocalnet,
+  chain_ extends Chain | undefined = typeof tempoLocalnet,
   accountOrAddress extends viem_Account | Address | undefined = undefined,
 >(
   parameters: Partial<
     Pick<
-      ClientConfig<Transport, chain, accountOrAddress>,
+      ClientConfig<Transport, chain_, accountOrAddress>,
       'account' | 'chain' | 'transport'
     >
   > = {},
 ): Client<
   Transport,
-  chain,
+  chain_,
   accountOrAddress extends Address
     ? JsonRpcAccount<accountOrAddress>
     : accountOrAddress

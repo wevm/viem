@@ -23,12 +23,4 @@ export const arbitrum = /*#__PURE__*/ defineChain({
       blockCreated: 7654707,
     },
   },
-  tokens: {
-    usdc: {
-      address: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
-      decimals: 6,
-      name: 'USD Coin',
-      symbol: 'USDC',
-    },
-  },
 })

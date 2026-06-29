@@ -3,6 +3,7 @@ import { privateKeyToAccount } from '../../accounts/privateKeyToAccount.js'
 import { mainnet, zora } from '../../chains/index.js'
 import { createClient } from '../../clients/createClient.js'
 import { http } from '../../clients/transports/http.js'
+import { usdc } from '../../tokens/definitions/usdc.js'
 import { transfer } from './transfer.js'
 import { transferSync } from './transferSync.js'
 
@@ -11,7 +12,12 @@ const account = privateKeyToAccount(
 )
 
 describe('transfer: token selector', () => {
-  const client = createClient({ account, chain: mainnet, transport: http() })
+  const client = createClient({
+    account,
+    chain: mainnet,
+    tokens: { usdc },
+    transport: http(),
+  })
 
   test('selects by `token` name', () => {
     transfer(client, { amount: 1n, to: '0x', token: 'usdc' })
@@ -32,7 +38,7 @@ describe('transfer: token selector', () => {
   })
 
   test('rejects an unknown `token` name', () => {
-    // @ts-expect-error - 'dai' is neither declared on mainnet nor an address
+    // @ts-expect-error - 'dai' is neither declared on the client nor an address
     transfer(client, { amount: { formatted: '1' }, to: '0x', token: 'dai' })
   })
 
@@ -70,8 +76,13 @@ describe('transfer: token selector', () => {
 })
 
 describe('transferSync: token selector', () => {
-  test('chain with tokens: selects by `token` name or address', () => {
-    const client = createClient({ account, chain: mainnet, transport: http() })
+  test('client with tokens: selects by `token` name or address', () => {
+    const client = createClient({
+      account,
+      chain: mainnet,
+      tokens: { usdc },
+      transport: http(),
+    })
     transferSync(client, { amount: 1n, to: '0x', token: 'usdc' })
     transferSync(client, {
       amount: { formatted: '1' },

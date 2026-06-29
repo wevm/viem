@@ -1,5 +1,5 @@
 import type { Account } from '../../accounts/types.js'
-import type { Client } from '../../clients/createClient.js'
+import type { Client, ClientTokens } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import type { erc20Abi } from '../../constants/abis.js'
 import type { BaseErrorType } from '../../errors/base.js'
@@ -43,9 +43,10 @@ import { resolveAmountDecimals, resolveToken } from './internal.js'
 export async function approveSync<
   chain extends Chain | undefined,
   account extends Account | undefined,
+  tokens extends ClientTokens | undefined = undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: approveSync.Parameters<chain, account>,
+  client: Client<Transport, chain, account, undefined, undefined, tokens>,
+  parameters: approveSync.Parameters<chain, account, tokens>,
 ): Promise<approveSync.ReturnValue> {
   const { amount, token, throwOnReceiptRevert = true } = parameters
   const { decimals } = resolveToken(client, { token })
@@ -68,9 +69,12 @@ export namespace approveSync {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = approve.Parameters<chain, account>
-  export type Args<chain extends Chain | undefined = Chain | undefined> =
-    approve.Args<chain>
+    tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  > = approve.Parameters<chain, account, tokens>
+  export type Args<
+    chain extends Chain | undefined = Chain | undefined,
+    tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  > = approve.Args<chain, tokens>
   export type ReturnValue = Compute<
     GetEventArgs<
       typeof erc20Abi,

@@ -22,13 +22,5 @@ export const polygonAmoy = /*#__PURE__*/ defineChain({
       blockCreated: 3127388,
     },
   },
-  tokens: {
-    usdc: {
-      address: '0x41E94Eb019C0762f9Bfcf9Fb1E58725BfB0e7582',
-      decimals: 6,
-      name: 'USD Coin',
-      symbol: 'USDC',
-    },
-  },
   testnet: true,
 })

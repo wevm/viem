@@ -8,6 +8,7 @@ import {
   type Chain,
   type Client,
   type ClientConfig,
+  type ClientTokens,
   createClient,
   type ExactPartial,
   http,
@@ -103,7 +104,8 @@ type DefineAnvilReturnType<chain extends Chain> = {
           ? ParseAccount<(typeof accounts)[0]['address']>
           : undefined,
     undefined,
-    { mode: 'anvil' }
+    { mode: 'anvil' },
+    config['tokens'] extends ClientTokens ? config['tokens'] : undefined
   >
   port: number
   rpcUrl: {

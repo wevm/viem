@@ -19,7 +19,7 @@ import {
   writeContract,
 } from '../../actions/index.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
-import { mainnet } from '../../chains/definitions/mainnet.js'
+import { usdc as usdcToken } from '../../tokens/definitions/usdc.js'
 import { pad } from '../../utils/index.js'
 import { createSiweMessage } from '../../utils/siwe/createSiweMessage.js'
 import { formatUnits } from '../../utils/unit/formatUnits.js'
@@ -596,7 +596,10 @@ describe('smoke test', () => {
 })
 
 describe('token', () => {
-  const usdc = mainnet.tokens.usdc.address
+  const client = anvilMainnet
+    .getClient({ tokens: { usdc: usdcToken } })
+    .extend(publicActions)
+  const usdc = usdcToken.addresses[anvilMainnet.chain.id]
   const holder = address.usdcHolder
 
   test('attaches read token actions', () => {

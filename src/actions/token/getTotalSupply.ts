@@ -1,4 +1,5 @@
-import type { Client } from '../../clients/createClient.js'
+import type { Account } from '../../accounts/types.js'
+import type { Client, ClientTokens } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { erc20Abi } from '../../constants/abis.js'
 import type { Chain } from '../../types/chain.js'
@@ -33,9 +34,13 @@ import {
  * @param parameters - Parameters.
  * @returns The token total supply, in base units and human-readable form.
  */
-export async function getTotalSupply<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: getTotalSupply.Parameters<chain>,
+export async function getTotalSupply<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+  tokens extends ClientTokens | undefined = undefined,
+>(
+  client: Client<Transport, chain, account, undefined, undefined, tokens>,
+  parameters: getTotalSupply.Parameters<chain, tokens>,
 ): Promise<getTotalSupply.ReturnValue> {
   const { decimals, token, ...rest } = parameters
   const [amount, { decimals: resolved }] = await Promise.all([
@@ -48,14 +53,18 @@ export async function getTotalSupply<chain extends Chain | undefined>(
       token,
     }),
   ])
-  return toAmount(amount, resolved)
+  return toAmount(amount as bigint, resolved)
 }
 
 export namespace getTotalSupply {
-  export type Args<chain extends Chain | undefined = Chain | undefined> =
-    TokenParameters<chain>
-  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
-    Omit<ReadParameters, 'account'> & Args<chain>
+  export type Args<
+    chain extends Chain | undefined = Chain | undefined,
+    tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  > = TokenParameters<chain, tokens>
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  > = Omit<ReadParameters, 'account'> & Args<chain, tokens>
   export type ReturnValue = Amount
 
   /**
@@ -70,9 +79,13 @@ export namespace getTotalSupply {
    * @param args - Arguments.
    * @returns The call.
    */
-  export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    args: Args<chain>,
+  export function call<
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+    tokens extends ClientTokens | undefined = undefined,
+  >(
+    client: Client<Transport, chain, account, undefined, undefined, tokens>,
+    args: Args<chain, tokens>,
   ) {
     return defineCall({
       address: resolveToken(client, args).address,

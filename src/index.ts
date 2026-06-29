@@ -586,6 +586,7 @@ export type {
 export {
   type Client,
   type ClientConfig,
+  type ClientTokens,
   type CreateClientErrorType,
   createClient,
   type MulticallBatchOptions,

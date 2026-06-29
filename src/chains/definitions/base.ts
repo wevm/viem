@@ -49,14 +49,6 @@ export const base = /*#__PURE__*/ defineChain({
       },
     },
   },
-  tokens: {
-    usdc: {
-      address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-      decimals: 6,
-      name: 'USD Coin',
-      symbol: 'USDC',
-    },
-  },
   sourceId,
 })
 

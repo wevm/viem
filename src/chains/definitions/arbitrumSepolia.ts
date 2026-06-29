@@ -27,13 +27,5 @@ export const arbitrumSepolia = /*#__PURE__*/ defineChain({
       blockCreated: 81930,
     },
   },
-  tokens: {
-    usdc: {
-      address: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
-      decimals: 6,
-      name: 'USD Coin',
-      symbol: 'USDC',
-    },
-  },
   testnet: true,
 })

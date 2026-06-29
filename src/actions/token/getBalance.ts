@@ -1,7 +1,7 @@
 import type { Address } from 'abitype'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
-import type { Client } from '../../clients/createClient.js'
+import type { Client, ClientTokens } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { erc20Abi } from '../../constants/abis.js'
 import { AccountNotFoundError } from '../../errors/account.js'
@@ -42,9 +42,10 @@ import {
 export async function getBalance<
   chain extends Chain | undefined,
   account extends Account | undefined,
+  tokens extends ClientTokens | undefined = undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: getBalance.Parameters<chain, account>,
+  client: Client<Transport, chain, account, undefined, undefined, tokens>,
+  parameters: getBalance.Parameters<chain, account, tokens>,
 ): Promise<getBalance.ReturnValue> {
   const {
     account: account_ = client.account,
@@ -71,11 +72,14 @@ export namespace getBalance {
   export type Args<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = GetAccountParameter<account, Account | Address> & TokenParameters<chain>
+    tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  > = GetAccountParameter<account, Account | Address> &
+    TokenParameters<chain, tokens>
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = Omit<ReadParameters, 'account'> & Args<chain, account>
+    tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  > = Omit<ReadParameters, 'account'> & Args<chain, account, tokens>
   export type ReturnValue = Amount
 
   /**
@@ -93,7 +97,11 @@ export namespace getBalance {
   export function call<
     chain extends Chain | undefined,
     account extends Account | undefined,
-  >(client: Client<Transport, chain, account>, args: Args<chain, account>) {
+    tokens extends ClientTokens | undefined = undefined,
+  >(
+    client: Client<Transport, chain, account, undefined, undefined, tokens>,
+    args: Args<chain, account, tokens>,
+  ) {
     const account_ = args.account ?? client.account
     if (!account_) throw new AccountNotFoundError()
     const account = parseAccount(account_).address

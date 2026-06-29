@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
 import type { Account } from '../../accounts/types.js'
-import type { Client } from '../../clients/createClient.js'
+import type { Client, ClientTokens } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { erc20Abi } from '../../constants/abis.js'
 import type { BaseErrorType } from '../../errors/base.js'
@@ -55,24 +55,29 @@ import {
 export async function approve<
   chain extends Chain | undefined,
   account extends Account | undefined,
+  tokens extends ClientTokens | undefined = undefined,
 >(
-  client: Client<Transport, chain, account>,
-  parameters: approve.Parameters<chain, account>,
+  client: Client<Transport, chain, account, undefined, undefined, tokens>,
+  parameters: approve.Parameters<chain, account, tokens>,
 ): Promise<approve.ReturnValue> {
   return approve.inner(writeContract, client, parameters)
 }
 
 export namespace approve {
-  export type Args<chain extends Chain | undefined = Chain | undefined> = {
+  export type Args<
+    chain extends Chain | undefined = Chain | undefined,
+    tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  > = {
     /** Amount to approve in base units, or as a formatted helper. */
     amount: AmountInput
     /** Address of the spender. */
     spender: Address
-  } & TokenParameter<chain>
+  } & TokenParameter<chain, tokens>
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args<chain>
+    tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  > = WriteParameters<chain, account> & Args<chain, tokens>
   export type ReturnValue = WriteContractReturnType
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
@@ -82,10 +87,11 @@ export namespace approve {
     action extends typeof writeContract | typeof writeContractSync,
     chain extends Chain | undefined,
     account extends Account | undefined,
+    tokens extends ClientTokens | undefined = undefined,
   >(
     action: action,
-    client: Client<Transport, chain, account>,
-    parameters: approve.Parameters<chain, account>,
+    client: Client<Transport, chain, account, undefined, undefined, tokens>,
+    parameters: approve.Parameters<chain, account, tokens>,
   ): Promise<ReturnType<action>> {
     return (await action(client, {
       ...parameters,
@@ -106,11 +112,15 @@ export namespace approve {
    * @param parameters - Parameters.
    * @returns The call.
    */
-  export function call<chain extends Chain | undefined>(
-    client: Client<Transport, chain>,
-    parameters: Args<chain>,
+  export function call<
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+    tokens extends ClientTokens | undefined = undefined,
+  >(
+    client: Client<Transport, chain, account, undefined, undefined, tokens>,
+    parameters: Args<chain, tokens>,
   ) {
-    return defineCall(getCall(client, parameters))
+    return defineCall(getCall(client, parameters as approve.Args))
   }
 
   /**
@@ -124,9 +134,10 @@ export namespace approve {
   export async function estimateGas<
     chain extends Chain | undefined,
     account extends Account | undefined,
+    tokens extends ClientTokens | undefined = undefined,
   >(
-    client: Client<Transport, chain, account>,
-    parameters: approve.Parameters<chain, account>,
+    client: Client<Transport, chain, account, undefined, undefined, tokens>,
+    parameters: approve.Parameters<chain, account, tokens>,
   ): Promise<bigint> {
     return estimateContractGas(client, {
       ...pickWriteParameters(parameters as never),
@@ -145,9 +156,10 @@ export namespace approve {
   export async function simulate<
     chain extends Chain | undefined,
     account extends Account | undefined,
+    tokens extends ClientTokens | undefined = undefined,
   >(
-    client: Client<Transport, chain, account>,
-    parameters: approve.Parameters<chain, account>,
+    client: Client<Transport, chain, account, undefined, undefined, tokens>,
+    parameters: approve.Parameters<chain, account, tokens>,
   ): Promise<SimulateContractReturnType<typeof erc20Abi, 'approve'>> {
     return simulateContract(client, {
       ...pickWriteParameters(parameters as never),
@@ -174,9 +186,9 @@ export namespace approve {
 }
 
 /** Builds the underlying `approve` contract call. @internal */
-function getCall<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: approve.Args<chain>,
+function getCall(
+  client: Client<Transport, Chain | undefined>,
+  parameters: approve.Args,
 ) {
   const { amount, spender, token } = parameters
   const { address, decimals } = resolveToken(client, { token })

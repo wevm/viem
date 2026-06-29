@@ -47,14 +47,6 @@ export const unichainSepolia = /*#__PURE__*/ defineChain({
       },
     },
   },
-  tokens: {
-    usdc: {
-      address: '0x31d0220469e10c4E71834a79b1f276d740d3768F',
-      decimals: 6,
-      name: 'USD Coin',
-      symbol: 'USDC',
-    },
-  },
   testnet: true,
   sourceId,
 })

@@ -1,4 +1,5 @@
-import type { Client } from '../../clients/createClient.js'
+import type { Account } from '../../accounts/types.js'
+import type { Client, ClientTokens } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { erc20Abi } from '../../constants/abis.js'
 import type { Chain } from '../../types/chain.js'
@@ -33,9 +34,13 @@ import {
  * @param parameters - Parameters.
  * @returns The token metadata (`decimals`, `name`, `symbol`).
  */
-export async function getMetadata<chain extends Chain | undefined>(
-  client: Client<Transport, chain>,
-  parameters: getMetadata.Parameters<chain>,
+export async function getMetadata<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+  tokens extends ClientTokens | undefined = undefined,
+>(
+  client: Client<Transport, chain, account, undefined, undefined, tokens>,
+  parameters: getMetadata.Parameters<chain, tokens>,
 ): Promise<getMetadata.ReturnValue> {
   const { token, ...rest } = parameters
   const { address } = resolveToken(client, { token })
@@ -65,14 +70,22 @@ export async function getMetadata<chain extends Chain | undefined>(
       }),
   ])
 
-  return { decimals: decimals_, name, symbol }
+  return {
+    decimals: decimals_ as number,
+    name: name as string,
+    symbol: symbol as string,
+  }
 }
 
 export namespace getMetadata {
-  export type Args<chain extends Chain | undefined = Chain | undefined> =
-    TokenParameter<chain>
-  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
-    Omit<ReadParameters, 'account'> & Args<chain>
+  export type Args<
+    chain extends Chain | undefined = Chain | undefined,
+    tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  > = TokenParameter<chain, tokens>
+  export type Parameters<
+    chain extends Chain | undefined = Chain | undefined,
+    tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  > = Omit<ReadParameters, 'account'> & Args<chain, tokens>
   export type ReturnValue = {
     /** Number of decimals the token uses. */
     decimals: number
