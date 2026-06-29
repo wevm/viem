@@ -1050,7 +1050,7 @@ export {
   InvalidDecimalNumberError,
   type InvalidDecimalNumberErrorType,
 } from './errors/unit.js'
-export type { ClientTokens } from './tokens/defineToken.js'
+export type { Tokens } from './tokens/defineToken.js'
 export type {
   DeriveAccount,
   HDKey,

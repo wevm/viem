@@ -1,6 +1,6 @@
 import type { Address } from 'abitype'
 import type { ErrorType } from '../errors/utils.js'
-import type { ClientTokens } from '../tokens/defineToken.js'
+import type { Tokens } from '../tokens/defineToken.js'
 import type { Account, ParseAccount } from '../types/account.js'
 import type { Chain } from '../types/chain.js'
 import type { PublicRpcSchema, RpcSchema } from '../types/eip1193.js'
@@ -19,7 +19,7 @@ export type PublicClientConfig<
   chain extends Chain | undefined = Chain | undefined,
   accountOrAddress extends Account | Address | undefined = undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
-  tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  tokens extends Tokens | undefined = Tokens | undefined,
 > = Prettify<
   Pick<
     ClientConfig<transport, chain, accountOrAddress, rpcSchema, tokens>,
@@ -42,7 +42,7 @@ export type PublicClient<
   chain extends Chain | undefined = Chain | undefined,
   accountOrAddress extends Account | undefined = undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
-  tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  tokens extends Tokens | undefined = Tokens | undefined,
 > = Prettify<
   Client<
     transport,
@@ -82,7 +82,7 @@ export function createPublicClient<
   chain extends Chain | undefined = undefined,
   accountOrAddress extends Account | Address | undefined = undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
-  const tokens extends ClientTokens | undefined = undefined,
+  const tokens extends Tokens | undefined = undefined,
 >(
   parameters: PublicClientConfig<
     transport,

@@ -145,7 +145,7 @@ import {
   type WriteContractSyncReturnType,
   writeContractSync,
 } from '../../actions/wallet/writeContractSync.js'
-import type { ClientTokens } from '../../tokens/defineToken.js'
+import type { Tokens } from '../../tokens/defineToken.js'
 import type { Chain } from '../../types/chain.js'
 import type {
   ContractFunctionArgs,
@@ -157,7 +157,7 @@ import type { Transport } from '../transports/createTransport.js'
 export type WalletActions<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
-  tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  tokens extends Tokens | undefined = Tokens | undefined,
 > = {
   /**
    * Adds an EVM chain to the wallet.
@@ -1411,7 +1411,7 @@ export function walletActions<
   transport extends Transport,
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
-  tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  tokens extends Tokens | undefined = Tokens | undefined,
 >(
   client: Client<transport, chain, account, undefined, undefined, tokens>,
 ): WalletActions<chain, account, tokens> {

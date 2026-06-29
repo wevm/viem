@@ -12,7 +12,7 @@ export type Token<
 > = defineToken.ReturnType<token>
 
 /** Collection of tokens to declare on a Client. */
-export type ClientTokens = readonly Token[]
+export type Tokens = readonly Token[]
 
 /**
  * Creates a token from shared metadata (`currency`, `decimals`, `name`,

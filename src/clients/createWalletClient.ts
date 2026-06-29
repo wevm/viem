@@ -2,7 +2,7 @@ import type { Address } from 'abitype'
 
 import type { Account } from '../accounts/types.js'
 import type { ErrorType } from '../errors/utils.js'
-import type { ClientTokens } from '../tokens/defineToken.js'
+import type { Tokens } from '../tokens/defineToken.js'
 import type { ParseAccount } from '../types/account.js'
 import type { Chain } from '../types/chain.js'
 import type { RpcSchema, WalletRpcSchema } from '../types/eip1193.js'
@@ -24,7 +24,7 @@ export type WalletClientConfig<
     | Address
     | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
-  tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  tokens extends Tokens | undefined = Tokens | undefined,
 > = Prettify<
   Pick<
     ClientConfig<transport, chain, accountOrAddress, rpcSchema, tokens>,
@@ -47,7 +47,7 @@ export type WalletClient<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
-  tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  tokens extends Tokens | undefined = Tokens | undefined,
 > = Prettify<
   Client<
     transport,
@@ -104,7 +104,7 @@ export function createWalletClient<
   chain extends Chain | undefined = undefined,
   accountOrAddress extends Account | Address | undefined = undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
-  const tokens extends ClientTokens | undefined = undefined,
+  const tokens extends Tokens | undefined = undefined,
 >(
   parameters: WalletClientConfig<
     transport,

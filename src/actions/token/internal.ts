@@ -3,7 +3,7 @@ import type { Account } from '../../accounts/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { erc20Abi } from '../../constants/abis.js'
-import type { ClientTokens, Token } from '../../tokens/defineToken.js'
+import type { Token, Tokens } from '../../tokens/defineToken.js'
 import type { Chain, ChainToken } from '../../types/chain.js'
 import type {
   ContractFunctionName,
@@ -30,11 +30,11 @@ import type { WriteContractSyncParameters as viem_WriteContractSyncParameters } 
  */
 export type TokenName<
   chain extends Chain | undefined,
-  tokens extends ClientTokens | undefined,
+  tokens extends Tokens | undefined,
 > = chain extends { id: infer chainId extends number }
   ? number extends chainId
     ? never
-    : tokens extends ClientTokens
+    : tokens extends Tokens
       ? TokenSymbolForChain<tokens[number], chainId>
       : never
   : never
@@ -58,7 +58,7 @@ type TokenSymbolForChain<token, chainId extends number> = token extends Token
  */
 export type TokenParameter<
   chain extends Chain | undefined,
-  tokens extends ClientTokens | undefined,
+  tokens extends Tokens | undefined,
 > = {
   /**
    * Token to operate on: either the symbol of a token declared on the Client's
@@ -70,7 +70,7 @@ export type TokenParameter<
 
 export type TokenParameters<
   chain extends Chain | undefined,
-  tokens extends ClientTokens | undefined,
+  tokens extends Tokens | undefined,
 > = TokenParameter<chain, tokens> & {
   /**
    * Decimals used to convert between base units and the human-readable amount.
@@ -260,10 +260,7 @@ function resolveTokenForChain(
 }
 
 /** Finds a {@link Token} by symbol (case-insensitively) on a `tokens` array. @internal */
-function findTokenBySymbol(
-  tokens: ClientTokens,
-  symbol: string,
-): Token | undefined {
+function findTokenBySymbol(tokens: Tokens, symbol: string): Token | undefined {
   const lowerSymbol = symbol.toLowerCase()
   for (const token of tokens) {
     if (token.symbol?.toLowerCase() === lowerSymbol) return token

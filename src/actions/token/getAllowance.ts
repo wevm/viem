@@ -3,7 +3,7 @@ import type { Account } from '../../accounts/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { erc20Abi } from '../../constants/abis.js'
-import type { ClientTokens } from '../../tokens/defineToken.js'
+import type { Tokens } from '../../tokens/defineToken.js'
 import type { Chain } from '../../types/chain.js'
 import { readContract } from '../public/readContract.js'
 import {
@@ -41,7 +41,7 @@ import {
 export async function getAllowance<
   chain extends Chain | undefined,
   account extends Account | undefined,
-  tokens extends ClientTokens | undefined = undefined,
+  tokens extends Tokens | undefined = undefined,
 >(
   client: Client<Transport, chain, account, undefined, undefined, tokens>,
   parameters: getAllowance.Parameters<chain, tokens>,
@@ -63,7 +63,7 @@ export async function getAllowance<
 export namespace getAllowance {
   export type Args<
     chain extends Chain | undefined = Chain | undefined,
-    tokens extends ClientTokens | undefined = ClientTokens | undefined,
+    tokens extends Tokens | undefined = Tokens | undefined,
   > = {
     /** Account that owns the tokens. */
     account: Address
@@ -72,7 +72,7 @@ export namespace getAllowance {
   } & TokenParameters<chain, tokens>
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
-    tokens extends ClientTokens | undefined = ClientTokens | undefined,
+    tokens extends Tokens | undefined = Tokens | undefined,
   > = ReadParameters & Args<chain, tokens>
   export type ReturnValue = Amount
 
@@ -90,7 +90,7 @@ export namespace getAllowance {
   export function call<
     chain extends Chain | undefined,
     account extends Account | undefined,
-    tokens extends ClientTokens | undefined = undefined,
+    tokens extends Tokens | undefined = undefined,
   >(
     client: Client<Transport, chain, account, undefined, undefined, tokens>,
     args: Args<chain, tokens>,

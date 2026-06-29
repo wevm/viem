@@ -8,11 +8,11 @@ import {
   type Chain,
   type Client,
   type ClientConfig,
-  type ClientTokens,
   createClient,
   type ExactPartial,
   http,
   type ParseAccount,
+  type Tokens,
   type Transport,
   webSocket,
 } from '../../src/index.js'
@@ -105,7 +105,7 @@ type DefineAnvilReturnType<chain extends Chain> = {
           : undefined,
     undefined,
     { mode: 'anvil' },
-    config['tokens'] extends ClientTokens ? config['tokens'] : undefined
+    config['tokens'] extends Tokens ? config['tokens'] : undefined
   >
   port: number
   rpcUrl: {

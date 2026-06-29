@@ -4,7 +4,7 @@ import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { erc20Abi } from '../../constants/abis.js'
 import type { BaseErrorType } from '../../errors/base.js'
-import type { ClientTokens } from '../../tokens/defineToken.js'
+import type { Tokens } from '../../tokens/defineToken.js'
 import type { Chain } from '../../types/chain.js'
 import type { Log } from '../../types/log.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
@@ -71,7 +71,7 @@ import {
 export async function transfer<
   chain extends Chain | undefined,
   account extends Account | undefined,
-  tokens extends ClientTokens | undefined = undefined,
+  tokens extends Tokens | undefined = undefined,
 >(
   client: Client<Transport, chain, account, undefined, undefined, tokens>,
   parameters: transfer.Parameters<chain, account, tokens>,
@@ -82,7 +82,7 @@ export async function transfer<
 export namespace transfer {
   export type Args<
     chain extends Chain | undefined = Chain | undefined,
-    tokens extends ClientTokens | undefined = ClientTokens | undefined,
+    tokens extends Tokens | undefined = Tokens | undefined,
   > = {
     /** Amount to transfer in base units, or as a formatted helper. */
     amount: AmountInput
@@ -94,7 +94,7 @@ export namespace transfer {
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-    tokens extends ClientTokens | undefined = ClientTokens | undefined,
+    tokens extends Tokens | undefined = Tokens | undefined,
   > = WriteParameters<chain, account> & Args<chain, tokens>
   export type ReturnValue = WriteContractReturnType
   // TODO: exhaustive error type
@@ -105,7 +105,7 @@ export namespace transfer {
     action extends typeof writeContract | typeof writeContractSync,
     chain extends Chain | undefined,
     account extends Account | undefined,
-    tokens extends ClientTokens | undefined = undefined,
+    tokens extends Tokens | undefined = undefined,
   >(
     action: action,
     client: Client<Transport, chain, account, undefined, undefined, tokens>,
@@ -134,7 +134,7 @@ export namespace transfer {
   export function call<
     chain extends Chain | undefined,
     account extends Account | undefined,
-    tokens extends ClientTokens | undefined = undefined,
+    tokens extends Tokens | undefined = undefined,
   >(
     client: Client<Transport, chain, account, undefined, undefined, tokens>,
     parameters: Args<chain, tokens>,
@@ -153,7 +153,7 @@ export namespace transfer {
   export async function estimateGas<
     chain extends Chain | undefined,
     account extends Account | undefined,
-    tokens extends ClientTokens | undefined = undefined,
+    tokens extends Tokens | undefined = undefined,
   >(
     client: Client<Transport, chain, account, undefined, undefined, tokens>,
     parameters: transfer.Parameters<chain, account, tokens>,
@@ -175,7 +175,7 @@ export namespace transfer {
   export async function simulate<
     chain extends Chain | undefined,
     account extends Account | undefined,
-    tokens extends ClientTokens | undefined = undefined,
+    tokens extends Tokens | undefined = undefined,
   >(
     client: Client<Transport, chain, account, undefined, undefined, tokens>,
     parameters: transfer.Parameters<chain, account, tokens>,

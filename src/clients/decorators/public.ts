@@ -287,7 +287,7 @@ import {
   type SendRawTransactionSyncReturnType,
   sendRawTransactionSync,
 } from '../../actions/wallet/sendRawTransactionSync.js'
-import type { ClientTokens } from '../../tokens/defineToken.js'
+import type { Tokens } from '../../tokens/defineToken.js'
 import type { Account } from '../../types/account.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
@@ -310,7 +310,7 @@ export type PublicActions<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
-  tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  tokens extends Tokens | undefined = Tokens | undefined,
 > = {
   /**
    * Executes a new message call immediately without submitting a transaction to the network.
@@ -2242,7 +2242,7 @@ export function publicActions<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
-  tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  tokens extends Tokens | undefined = Tokens | undefined,
 >(
   client: Client<transport, chain, account, undefined, undefined, tokens>,
 ): PublicActions<transport, chain, account, tokens> {

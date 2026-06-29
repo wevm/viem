@@ -338,7 +338,7 @@ async function writeTokensIndex(tokenDefinitions: TokenDefinition[]) {
   await Bun.write(
     tokensIndexFile,
     `// biome-ignore lint/performance/noBarrelFile: entrypoint module
-export { type ClientTokens, defineToken, type Token } from './defineToken.js'
+export { defineToken, type Token, type Tokens } from './defineToken.js'
 ${definitionExports.map((name) => `export { ${name} } from './definitions/${name}.js'`).join('\n')}
 `,
   )

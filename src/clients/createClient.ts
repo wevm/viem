@@ -6,7 +6,7 @@ import {
   parseAccount,
 } from '../accounts/utils/parseAccount.js'
 import type { ErrorType } from '../errors/utils.js'
-import type { ClientTokens } from '../tokens/defineToken.js'
+import type { Tokens } from '../tokens/defineToken.js'
 import type { Account } from '../types/account.js'
 import type { BlockTag } from '../types/block.js'
 import type { Chain } from '../types/chain.js'
@@ -34,7 +34,7 @@ export type ClientConfig<
     | Address
     | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
-  tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  tokens extends Tokens | undefined = Tokens | undefined,
 > = {
   /** The Account to use for the Client. This will be used for Actions that require an account as an argument. */
   account?: accountOrAddress | Account | Address | undefined
@@ -112,7 +112,7 @@ type ExtendableProtectedActions<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
-  tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  tokens extends Tokens | undefined = Tokens | undefined,
 > = Pick<
   PublicActions<transport, chain, account, tokens>,
   | 'call'
@@ -152,7 +152,7 @@ export type Client<
   account extends Account | undefined = Account | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
   extended extends Extended | undefined = Extended | undefined,
-  tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  tokens extends Tokens | undefined = Tokens | undefined,
 > = Client_Base<transport, chain, account, rpcSchema, tokens> &
   (extended extends Extended ? extended : unknown) & {
     extend: <
@@ -179,7 +179,7 @@ type Client_Base<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
-  tokens extends ClientTokens | undefined = ClientTokens | undefined,
+  tokens extends Tokens | undefined = Tokens | undefined,
 > = {
   /** The Account of the Client. */
   account: account
@@ -238,7 +238,7 @@ export function createClient<
   chain extends Chain | undefined = undefined,
   accountOrAddress extends Account | Address | undefined = undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
-  const tokens extends ClientTokens | undefined = undefined,
+  const tokens extends Tokens | undefined = undefined,
 >(
   parameters: ClientConfig<
     transport,
