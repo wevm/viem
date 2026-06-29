@@ -13,6 +13,8 @@ import type { TransactionRequestTempo } from '../Transaction.js'
 
 /**
  * Union of token names declared on `chain`'s `tokens` config.
+ *
+ * @internal
  */
 export type TokenName<chain extends Chain | undefined> = chain extends {
   tokens: infer tokens extends Record<string, ChainToken>

@@ -302,6 +302,7 @@ import type { FilterType } from '../../types/filter.js'
 import { bindActionDecorators, type Client } from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'
 
+/** @internal */
 export type { TokenName } from '../../actions/token/internal.js'
 
 export type PublicActions<

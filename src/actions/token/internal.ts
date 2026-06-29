@@ -22,6 +22,8 @@ import type { WriteContractSyncParameters as viem_WriteContractSyncParameters } 
 
 /**
  * Union of token names declared on `chain`'s `tokens` config.
+ *
+ * @internal
  */
 export type TokenName<chain extends Chain | undefined> = chain extends {
   tokens: infer tokens extends Record<string, ChainToken>
