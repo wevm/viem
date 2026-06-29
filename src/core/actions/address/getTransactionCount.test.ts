@@ -40,15 +40,11 @@ test('behavior: no count', async () => {
 })
 
 test('args: blockHash (EIP-1898)', async () => {
-  // TODO: replace with `get` action when ported.
-  const block = await client.request({
-    method: 'eth_getBlockByNumber',
-    params: ['latest', false],
-  })
+  const block = await Actions.block.get(client, { blockTag: 'latest' })
   expect(
     await Actions.address.getTransactionCount(client, {
       address: '0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac',
-      blockHash: block!.hash!,
+      blockHash: block.hash!,
     }),
   ).toBeTypeOf('number')
 })

@@ -1,0 +1,171 @@
+# getChanges
+
+Returns the changes for a filter since it was created or last polled.
+
+Block and transaction filters return hashes. Event filters return logs.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+// TODO: Replace with Actions.block.createFilter.
+const id = await client.request({ method: 'eth_newBlockFilter' })
+const filter = {
+  id,
+  request: client.request,
+  type: 'block',
+} satisfies Actions.filter.Filter<'block'>
+
+const changes = await client.filter.getChanges({ filter })
+// @log: [
+// @log:   '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+// @log: ]
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+// TODO: Replace with Actions.block.createFilter.
+const id = await client.request({ method: 'eth_newBlockFilter' })
+const filter = {
+  id,
+  request: client.request,
+  type: 'block',
+} satisfies Actions.filter.Filter<'block'>
+
+const changes = await Actions.filter.getChanges(client, { filter })
+// @log: [
+// @log:   '0x89644bbd5c8d682a2e9611170e6c1f02573d866d286f006cbf517eec7254ec2d',
+// @log: ]
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Recipes
+
+These recipes call the action standalone with a Client as the first argument. Each is equivalent to the decorator form (`client.filter.getChanges(...)`).
+
+### Polling Block Filters
+
+Use a `block` filter to retrieve block hashes since the previous poll.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+// TODO: Replace with Actions.block.createFilter.
+const id = await client.request({ method: 'eth_newBlockFilter' })
+const filter = {
+  id,
+  request: client.request,
+  type: 'block',
+} satisfies Actions.filter.Filter<'block'>
+
+const blockHashes = await Actions.filter.getChanges(client, { filter })
+//    ^?
+```
+
+### Polling Transaction Filters
+
+Use a `transaction` filter to retrieve pending transaction hashes since the previous poll.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+// TODO: Replace with Actions.transaction.createPendingFilter.
+const id = await client.request({ method: 'eth_newPendingTransactionFilter' })
+const filter = {
+  id,
+  request: client.request,
+  type: 'transaction',
+} satisfies Actions.filter.Filter<'transaction'>
+
+const transactionHashes = await Actions.filter.getChanges(client, { filter })
+//    ^?
+```
+
+### Polling Event Filters
+
+Use an `event` filter to retrieve decoded event logs since the previous poll.
+
+```ts twoslash
+import { AbiEvent } from 'ox'
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const transferEvent = AbiEvent.from(
+  'event Transfer(address indexed from, address indexed to, uint256 value)',
+)
+// TODO: Replace with Actions.event.createFilter.
+const id = await client.request({
+  method: 'eth_newFilter',
+  params: [
+    {
+      address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
+      topics: AbiEvent.encode(transferEvent).topics,
+    },
+  ],
+})
+const filter = {
+  abiEvent: transferEvent,
+  id,
+  request: client.request,
+  type: 'event',
+} satisfies Actions.filter.Filter<'event', typeof transferEvent>
+
+const logs = await Actions.filter.getChanges(client, { filter })
+//    ^?
+```
+
+## Return Value
+
+`readonly Hex[] | readonly Log[]`
+
+The changes for the filter. `block` and `transaction` filters return hashes. `event` filters return logs, decoded by `filter.abiEvent` when provided.
+
+## Parameters
+
+### filter
+
+- **Type:** `Actions.filter.Filter`
+
+The filter to poll for changes. Its `request` function should point at the transport that created the filter id.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+// TODO: Replace with Actions.block.createFilter.
+const id = await client.request({ method: 'eth_newBlockFilter' })
+const filter = { // [!code focus]
+  id, // [!code focus]
+  request: client.request, // [!code focus]
+  type: 'block', // [!code focus]
+} satisfies Actions.filter.Filter<'block'> // [!code focus]
+
+const changes = await Actions.filter.getChanges(client, { filter })
+```

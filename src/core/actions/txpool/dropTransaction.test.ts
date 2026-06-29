@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
-import { Client, http, testActions } from 'viem'
+import { Actions, Client, http, testActions } from 'viem'
 
 const client = Client.create({
   transport: http(anvil.mainnet.rpcUrl.http),
@@ -17,15 +17,10 @@ test('drops a pending transaction', async () => {
     value: 10_000_000_000_000_000_000n,
   })
   await client.address.impersonate({ address })
-  const hash = await client.request({
-    method: 'eth_sendTransaction',
-    params: [
-      {
-        from: address,
-        to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-        value: '0x1',
-      },
-    ],
+  const hash = await Actions.transaction.send(client, {
+    account: address,
+    to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    value: 1n,
   })
   await client.txpool.dropTransaction({ hash })
   expect(

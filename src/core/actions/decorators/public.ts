@@ -15,6 +15,7 @@ import * as block from '../block/index.js'
 import { call } from '../call.js'
 import * as chains from '../chains/index.js'
 import * as contract from '../contract/index.js'
+import * as filter from '../filter/index.js'
 import * as logs from '../logs/index.js'
 import * as fee from '../fee/index.js'
 import * as transaction from '../transaction/index.js'
@@ -68,6 +69,11 @@ export function publicActions() {
       getLogs: (options) => contract.getLogs(client, options as never),
       read: (options) => contract.read(client, options),
       simulate: (options) => contract.simulate(client, options as never),
+    },
+    filter: {
+      getChanges: (options) => filter.getChanges(client, options as never),
+      getLogs: (options) => filter.getLogs(client, options as never),
+      uninstall: (options) => filter.uninstall(client, options),
     },
     logs: {
       get: (options) => logs.get(client, options as never),
@@ -495,6 +501,98 @@ export declare namespace publicActions {
       >(
         options: contract.simulate.Options<abi, functionName, args>,
       ) => Promise<contract.simulate.ReturnType<abi, functionName, args>>
+    }
+    filter: {
+      /**
+       * Returns the changes for a filter since it was created or last polled.
+       * Block/transaction filters return hashes; event filters return logs.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       *
+       * // `filter` is returned from a `create*Filter` action.
+       * const changes = await client.filter.getChanges({ filter })
+       * ```
+       */
+      getChanges: <
+        type extends filter.Type = filter.Type,
+        const abiEvent extends
+          | AbiEvent.AbiEvent
+          | readonly AbiEvent.AbiEvent[]
+          | undefined = undefined,
+        strict extends boolean | undefined = undefined,
+        fromBlock extends Block.Number | Block.Tag | undefined = undefined,
+        toBlock extends Block.Number | Block.Tag | undefined = undefined,
+      >(
+        options: filter.getChanges.Options<
+          type,
+          abiEvent,
+          strict,
+          fromBlock,
+          toBlock
+        >,
+      ) => Promise<
+        filter.getChanges.ReturnType<type, abiEvent, strict, fromBlock, toBlock>
+      >
+      /**
+       * Returns the list of logs matching an event filter, regardless of when
+       * it was created or last polled.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       *
+       * // `filter` is returned from `event.createFilter`.
+       * const logs = await client.filter.getLogs({ filter })
+       * ```
+       */
+      getLogs: <
+        const abiEvent extends
+          | AbiEvent.AbiEvent
+          | readonly AbiEvent.AbiEvent[]
+          | undefined = undefined,
+        strict extends boolean | undefined = undefined,
+        fromBlock extends Block.Number | Block.Tag | undefined = undefined,
+        toBlock extends Block.Number | Block.Tag | undefined = undefined,
+      >(
+        options: filter.getLogs.Options<abiEvent, strict, fromBlock, toBlock>,
+      ) => Promise<
+        filter.getLogs.ReturnType<abiEvent, strict, fromBlock, toBlock>
+      >
+      /**
+       * Destroys a filter. Returns whether the filter was successfully
+       * uninstalled.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       *
+       * // `filter` is returned from a `create*Filter` action.
+       * const uninstalled = await client.filter.uninstall({ filter })
+       * ```
+       */
+      uninstall: (
+        options: filter.uninstall.Options,
+      ) => Promise<filter.uninstall.ReturnType>
     }
     logs: {
       /**

@@ -483,6 +483,27 @@ export default defineConfig({
             ],
           },
           {
+            text: 'Filter',
+            collapsed: true,
+            items: [
+              {
+                text: 'getChanges',
+                link: '/docs/actions/public/filter/getChanges',
+                badge: badge('public'),
+              },
+              {
+                text: 'getLogs',
+                link: '/docs/actions/public/filter/getLogs',
+                badge: badge('public'),
+              },
+              {
+                text: 'uninstall',
+                link: '/docs/actions/public/filter/uninstall',
+                badge: badge('public'),
+              },
+            ],
+          },
+          {
             text: 'Logs',
             collapsed: true,
             items: [

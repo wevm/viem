@@ -60,18 +60,11 @@ test('args: blockHash + index', async () => {
 test('args: blockNumber + index', async () => {
   // The fork-tip block cannot be queried by number/index, so mine a local
   // block to exercise the success path.
-  // TODO: replace raw `eth_sendTransaction` with `sendTransaction` wallet
-  // action once it lands.
-  const hash = (await client.request({
-    method: 'eth_sendTransaction',
-    params: [
-      {
-        from: constants.accounts[0].address,
-        to: constants.accounts[1].address,
-        value: '0xde0b6b3a7640000',
-      },
-    ],
-  } as never)) as `0x${string}`
+  const hash = await Actions.transaction.send(client, {
+    account: constants.accounts[0].address,
+    to: constants.accounts[1].address,
+    value: 1_000_000_000_000_000_000n,
+  })
   await Actions.test.block.mine(client, { blocks: 1 })
 
   const byHash = await Actions.transaction.get(client, { hash })

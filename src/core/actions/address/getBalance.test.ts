@@ -44,15 +44,11 @@ test('behavior: zero balance', async () => {
 })
 
 test('args: blockHash (EIP-1898)', async () => {
-  // TODO: replace with `get` action when ported.
-  const block = await client.request({
-    method: 'eth_getBlockByNumber',
-    params: ['latest', false],
-  })
+  const block = await Actions.block.get(client, { blockTag: 'latest' })
   expect(
     await Actions.address.getBalance(client, {
       address: weth,
-      blockHash: block!.hash!,
+      blockHash: block.hash!,
     }),
   ).toBe(wethBalance)
 })

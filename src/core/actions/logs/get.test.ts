@@ -1,5 +1,4 @@
 import * as AbiEvent from 'ox/AbiEvent'
-import * as AbiFunction from 'ox/AbiFunction'
 import * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import { Actions } from 'viem'
@@ -32,33 +31,6 @@ const b = constants.accounts[1].address
 const c = constants.accounts[2].address
 const d = constants.accounts[3].address
 
-/**
- * Calls a contract function, mines the tx into a block, returns the tx hash.
- *
- * TODO: replace the raw `eth_sendTransaction` with the `sendTransaction` wallet
- * action, then with the `writeContract` wallet action once they land.
- */
-async function send(
-  to: Hex.Hex,
-  abi: readonly unknown[],
-  name: string,
-  args: readonly unknown[],
-) {
-  const hash = await client.request({
-    method: 'eth_sendTransaction',
-    params: [
-      {
-        from: a,
-        to,
-        data: AbiFunction.encodeData(abi, name as never, args as never),
-      },
-    ],
-  })
-  // TODO: replace with `mine` test action import once stable.
-  await Actions.test.block.mine(client, { blocks: 1 })
-  return hash
-}
-
 const { address } = await contract.deploy(client, {
   bytecode: generated.Events.bytecode.object,
 })
@@ -66,10 +38,55 @@ const { address: invalidAddress } = await contract.deploy(client, {
   bytecode: generated.EventsInvalid.bytecode.object,
 })
 
-const transfer = (from: Hex.Hex, to: Hex.Hex, value: bigint) =>
-  send(address, generated.Events.abi, 'emitTransfer', [from, to, value])
-const approve = (owner: Hex.Hex, spender: Hex.Hex, value: bigint) =>
-  send(address, generated.Events.abi, 'emitApproval', [owner, spender, value])
+/** Mines pending transactions into a block. */
+async function mine() {
+  await Actions.test.block.mine(client, { blocks: 1 })
+}
+
+async function transfer(from: Hex.Hex, to: Hex.Hex, value: bigint) {
+  const hash = await Actions.contract.write(client, {
+    abi: generated.Events.abi,
+    account: a,
+    address,
+    args: [from, to, value],
+    functionName: 'emitTransfer',
+  })
+  await mine()
+  return hash
+}
+
+async function approve(owner: Hex.Hex, spender: Hex.Hex, value: bigint) {
+  await Actions.contract.write(client, {
+    abi: generated.Events.abi,
+    account: a,
+    address,
+    args: [owner, spender, value],
+    functionName: 'emitApproval',
+  })
+  await mine()
+}
+
+async function message(value: string) {
+  await Actions.contract.write(client, {
+    abi: generated.Events.abi,
+    account: a,
+    address,
+    args: [value],
+    functionName: 'emitMessage',
+  })
+  await mine()
+}
+
+async function transferInvalid(from: Hex.Hex, to: Hex.Hex, value: bigint) {
+  await Actions.contract.write(client, {
+    abi: generated.EventsInvalid.abi,
+    account: a,
+    address: invalidAddress,
+    args: [from, to, value],
+    functionName: 'emitTransfer',
+  })
+  await mine()
+}
 
 test('default: returns raw logs', async () => {
   const fromBlock =
@@ -173,7 +190,7 @@ describe('events', () => {
   test('args: non-indexed data event', async () => {
     const fromBlock =
       (await Actions.block.getNumber(client, { cacheTime: 0 })) + 1n
-    await send(address, generated.Events.abi, 'emitMessage', ['gm'])
+    await message('gm')
 
     const logs = await Actions.logs.get(client, {
       address,
@@ -416,16 +433,8 @@ describe('events', () => {
       const fromBlock =
         (await Actions.block.getNumber(client, { cacheTime: 0 })) + 1n
       await transfer(a, b, 1n)
-      await send(invalidAddress, generated.EventsInvalid.abi, 'emitTransfer', [
-        a,
-        b,
-        1n,
-      ])
-      await send(invalidAddress, generated.EventsInvalid.abi, 'emitTransfer', [
-        a,
-        c,
-        1n,
-      ])
+      await transferInvalid(a, b, 1n)
+      await transferInvalid(a, c, 1n)
 
       const strictLogs = await Actions.logs.get(client, {
         event: transferEvent,
@@ -444,16 +453,8 @@ describe('events', () => {
       const fromBlock =
         (await Actions.block.getNumber(client, { cacheTime: 0 })) + 1n
       await transfer(a, b, 1n)
-      await send(invalidAddress, generated.EventsInvalid.abi, 'emitTransfer', [
-        a,
-        b,
-        1n,
-      ])
-      await send(invalidAddress, generated.EventsInvalid.abi, 'emitTransfer', [
-        a,
-        c,
-        1n,
-      ])
+      await transferInvalid(a, b, 1n)
+      await transferInvalid(a, c, 1n)
 
       const strictLogs = await Actions.logs.get(client, {
         event: transferEventInvalid,

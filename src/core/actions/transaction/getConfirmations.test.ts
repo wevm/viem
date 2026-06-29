@@ -2,6 +2,7 @@ import { expect, test } from 'vitest'
 import { Actions } from 'viem'
 
 import * as anvil from '~test/anvil.js'
+import * as constants from '~test/constants.js'
 
 const client = anvil.getClient(anvil.mainnet)
 
@@ -29,11 +30,15 @@ test('args: transactionReceipt', async () => {
 })
 
 test('behavior: pending transaction (no block) returns 0n', async () => {
-  // TODO: replace with a real pending transaction once `sendTransaction` is
-  // ported. A transaction (or receipt) without a `blockNumber` is one that
-  // has not been mined yet.
+  // The anvil instance does not auto-mine, so the transaction stays pending
+  // (no `blockNumber`) and confirmations resolve to 0n.
+  const hash = await Actions.transaction.send(client, {
+    account: constants.accounts[0].address,
+    to: constants.accounts[1].address,
+    value: 1n,
+  })
   const confirmations = await Actions.transaction.getConfirmations(client, {
-    transactionReceipt: { blockNumber: undefined } as never,
+    hash,
   })
   expect(confirmations).toMatchInlineSnapshot('0n')
 })

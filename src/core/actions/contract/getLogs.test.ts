@@ -1,4 +1,3 @@
-import * as AbiFunction from 'ox/AbiFunction'
 import * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
 import { Actions } from 'viem'
@@ -17,36 +16,42 @@ const a = constants.accounts[0].address
 const b = constants.accounts[1].address
 const c = constants.accounts[2].address
 
-/**
- * Calls a contract function, mines the tx into a block, returns the tx hash.
- *
- * TODO: replace the raw `eth_sendTransaction` with the `sendTransaction` wallet
- * action, then with the `writeContract` wallet action once they land.
- */
-async function send(to: Hex.Hex, name: string, args: readonly unknown[]) {
-  const hash = await client.request({
-    method: 'eth_sendTransaction',
-    params: [
-      {
-        from: a,
-        to,
-        data: AbiFunction.encodeData(abi, name as never, args as never),
-      },
-    ],
-  })
-  // TODO: replace with `mine` test action import once stable.
-  await Actions.test.block.mine(client, { blocks: 1 })
-  return hash
-}
-
 const { address } = await contract.deploy(client, {
   bytecode: generated.Events.bytecode.object,
 })
 
-const transfer = (from: Hex.Hex, to: Hex.Hex, value: bigint) =>
-  send(address, 'emitTransfer', [from, to, value])
-const approve = (owner: Hex.Hex, spender: Hex.Hex, value: bigint) =>
-  send(address, 'emitApproval', [owner, spender, value])
+/** Mines pending transactions into a block. */
+async function mine() {
+  await Actions.test.block.mine(client, { blocks: 1 })
+}
+
+async function transfer(
+  from: Hex.Hex,
+  to: Hex.Hex,
+  value: bigint,
+  contractAddress: Address.Address = address,
+) {
+  const hash = await Actions.contract.write(client, {
+    abi,
+    account: a,
+    address: contractAddress,
+    args: [from, to, value],
+    functionName: 'emitTransfer',
+  })
+  await mine()
+  return hash
+}
+
+async function approve(owner: Hex.Hex, spender: Hex.Hex, value: bigint) {
+  await Actions.contract.write(client, {
+    abi,
+    account: a,
+    address,
+    args: [owner, spender, value],
+    functionName: 'emitApproval',
+  })
+  await mine()
+}
 
 const head = () => Actions.block.getNumber(client, { cacheTime: 0 })
 
@@ -117,7 +122,7 @@ test('args: address', async () => {
   })
   const fromBlock = (await head()) + 1n
   await transfer(a, b, 1n)
-  await send(otherAddress, 'emitTransfer', [a, b, 1n])
+  await transfer(a, b, 1n, otherAddress)
 
   const logs = await Actions.contract.getLogs(client, {
     abi,

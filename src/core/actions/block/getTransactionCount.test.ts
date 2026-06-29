@@ -24,14 +24,10 @@ test('args: blockTag', async () => {
 })
 
 test('args: blockHash', async () => {
-  // TODO: replace with `get` action when ported.
-  const block = await client.request({
-    method: 'eth_getBlockByNumber',
-    params: ['latest', false],
-  })
+  const block = await Actions.block.get(client, { blockTag: 'latest' })
   expect(
     await Actions.block.getTransactionCount(client, {
-      blockHash: block!.hash!,
+      blockHash: block.hash!,
     }),
   ).toBeTypeOf('number')
 })

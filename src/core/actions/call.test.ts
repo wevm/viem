@@ -91,14 +91,10 @@ test('args: from (instead of account)', async () => {
 })
 
 test('args: blockHash (EIP-1898)', async () => {
-  // TODO: replace with `get` action when ported.
-  const block = await client.request({
-    method: 'eth_getBlockByNumber',
-    params: ['latest', false],
-  })
+  const block = await Actions.block.get(client, { blockTag: 'latest' })
   const { data } = await Actions.call(client, {
     account: sourceAccount.address,
-    blockHash: block!.hash!,
+    blockHash: block.hash!,
     data: name4bytes,
     to: address,
   })
@@ -106,14 +102,10 @@ test('args: blockHash (EIP-1898)', async () => {
 })
 
 test('args: blockHash + requireCanonical (EIP-1898)', async () => {
-  // TODO: replace with `get` action when ported.
-  const block = await client.request({
-    method: 'eth_getBlockByNumber',
-    params: ['latest', false],
-  })
+  const block = await Actions.block.get(client, { blockTag: 'latest' })
   const { data } = await Actions.call(client, {
     account: sourceAccount.address,
-    blockHash: block!.hash!,
+    blockHash: block.hash!,
     data: name4bytes,
     requireCanonical: true,
     to: address,

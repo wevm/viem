@@ -37,16 +37,12 @@ test('args: blockNumber', async () => {
 })
 
 test('args: blockHash (EIP-1898)', async () => {
-  // TODO: replace with `get` action when ported.
-  const block = await client.request({
-    method: 'eth_getBlockByNumber',
-    params: ['latest', false],
-  })
+  const block = await Actions.block.get(client, { blockTag: 'latest' })
   expect(
     await Actions.address.getStorageAt(client, {
       address,
       slot: '0x0',
-      blockHash: block!.hash!,
+      blockHash: block.hash!,
     }),
   ).toMatchInlineSnapshot(
     `"0x7761676d6900000000000000000000000000000000000000000000000000000a"`,

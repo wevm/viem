@@ -193,8 +193,6 @@ Sync transaction and contract writes were renamed to their v3 action namespaces.
   })
 ```
 
-`Actions.transaction.send` no longer falls back to `wallet_sendTransaction` when a JSON-RPC account's transport rejects `eth_sendTransaction`; it always sends via `eth_sendTransaction`.
-
 `Actions.transaction.send` with a JSON-RPC account no longer throws when the client has no configured `chain`; it sends against the transport's current chain instead of requiring `chain` (or `chain: null`) to opt out of the chain assertion.
 
 ```diff
@@ -214,4 +212,18 @@ Sync transaction and contract writes were renamed to their v3 action namespaces.
 
 - await sendRawTransaction(client, { serializedTransaction: '0x02f8…' })
 + await Actions.transaction.sendRaw(client, { transaction: '0x02f8…' })
+```
+
+Filter lifecycle actions were renamed to the `filter` namespace.
+
+```diff
+- import { getFilterChanges, getFilterLogs, uninstallFilter } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const changes = await getFilterChanges(client, { filter })
+- const logs = await getFilterLogs(client, { filter })
+- const uninstalled = await uninstallFilter(client, { filter })
++ const changes = await Actions.filter.getChanges(client, { filter })
++ const logs = await Actions.filter.getLogs(client, { filter })
++ const uninstalled = await Actions.filter.uninstall(client, { filter })
 ```
