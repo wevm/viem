@@ -428,9 +428,9 @@ test('extend', () => {
       "stopImpersonatingAccount": [Function],
       "switchChain": [Function],
       "token": {
-        "getAllowance": [Function],
         "approve": [Function],
         "approveSync": [Function],
+        "getAllowance": [Function],
         "getBalance": [Function],
         "getMetadata": [Function],
         "getTotalSupply": [Function],

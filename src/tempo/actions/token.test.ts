@@ -544,14 +544,14 @@ describe('mint', () => {
       actions.token.mint.call(client, {
         amount: { formatted: '1.25' },
         to: account2.address,
-        token: 'alphaUsd',
+        token: 'alphausd',
       }).args,
     ).toEqual([account2.address, amount])
 
     expect(
       actions.token.burn.call(client, {
         amount: { formatted: '1.25' },
-        token: 'alphaUsd',
+        token: 'alphausd',
       }).args,
     ).toEqual([amount])
 
@@ -559,7 +559,7 @@ describe('mint', () => {
       actions.token.burnBlocked.call(client, {
         amount: { formatted: '1.25' },
         from: account2.address,
-        token: 'alphaUsd',
+        token: 'alphausd',
       }).args,
     ).toEqual([account2.address, amount])
   })
@@ -807,16 +807,19 @@ describe('transfer', () => {
     ['token id', TokenIds.pathUsd],
     ['address', Addresses.pathUsd],
   ])('behavior: pathUSD with formatted amount (%s)', async (_, token) => {
+    const token_ = token as Parameters<
+      typeof actions.token.getBalance
+    >[1]['token']
     const amount = parseUnits('1.25', 6)
     const balanceBefore = await actions.token.getBalance(client, {
       account: account2.address,
-      token,
+      token: token_,
     })
 
     const { receipt, ...result } = await actions.token.transferSync(client, {
       amount: { formatted: '1.25' },
       to: account2.address,
-      token,
+      token: token_,
     })
 
     expect(receipt.status).toBe('success')
@@ -830,7 +833,7 @@ describe('transfer', () => {
 
     const balanceAfter = await actions.token.getBalance(client, {
       account: account2.address,
-      token,
+      token: token_,
     })
     expect(balanceAfter.amount - balanceBefore.amount).toBe(amount)
   })

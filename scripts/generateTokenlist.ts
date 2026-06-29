@@ -383,7 +383,12 @@ function assertTokenlist(
       throw new Error(
         `Invalid token address from ${uri}: ${String(token.address)}.`,
       )
-    if (!Number.isInteger(token.decimals) || token.decimals < 0)
+    const decimals = token.decimals
+    if (
+      typeof decimals !== 'number' ||
+      !Number.isInteger(decimals) ||
+      decimals < 0
+    )
       throw new Error(
         `Invalid token decimals from ${uri} for ${token.address}.`,
       )
