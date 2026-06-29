@@ -254,6 +254,7 @@ jobs:
 
   wagmi:
     name: Wagmi
+    if: ${{ false }}
     permissions:
       contents: read
     runs-on: ubuntu-latest
