@@ -254,6 +254,7 @@ jobs:
 
   wagmi:
     name: Wagmi
+    # TODO: Re-enable Wagmi verification.
     if: ${{ false }}
     permissions:
       contents: read
