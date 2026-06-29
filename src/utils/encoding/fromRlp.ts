@@ -2,6 +2,8 @@ import { BaseError, type BaseErrorType } from '../../errors/base.js'
 import {
   InvalidHexValueError,
   type InvalidHexValueErrorType,
+  RlpDepthLimitExceededError,
+  type RlpDepthLimitExceededErrorType,
 } from '../../errors/encoding.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type { ByteArray, Hex } from '../../types/misc.js'
@@ -17,6 +19,8 @@ import type { RecursiveArray } from './toRlp.js'
 
 type To = 'hex' | 'bytes'
 
+const rlpDepthLimit = 1_024
+
 export type FromRlpReturnType<to extends To> =
   | (to extends 'bytes' ? RecursiveArray<ByteArray> : never)
   | (to extends 'hex' ? RecursiveArray<Hex> : never)
@@ -26,6 +30,7 @@ export type FromRlpErrorType =
   | FromRlpCursorErrorType
   | HexToBytesErrorType
   | InvalidHexValueErrorType
+  | RlpDepthLimitExceededErrorType
   | ErrorType
 
 export function fromRlp<to extends To = 'hex'>(
@@ -58,7 +63,11 @@ type FromRlpCursorErrorType =
 function fromRlpCursor<to extends To = 'hex'>(
   cursor: Cursor,
   to: to | To | undefined = 'hex',
+  recursiveDepth = 0,
 ): FromRlpReturnType<to> {
+  if (recursiveDepth >= rlpDepthLimit)
+    throw new RlpDepthLimitExceededError({ limit: rlpDepthLimit })
+
   if (cursor.bytes.length === 0)
     return (
       to === 'hex' ? bytesToHex(cursor.bytes) : cursor.bytes
@@ -76,7 +85,12 @@ function fromRlpCursor<to extends To = 'hex'>(
 
   // list
   const length = readLength(cursor, prefix, 0xc0)
-  return readList(cursor, length, to) as {} as FromRlpReturnType<to>
+  return readList(
+    cursor,
+    length,
+    to,
+    recursiveDepth + 1,
+  ) as {} as FromRlpReturnType<to>
 }
 
 type ReadLengthErrorType = BaseErrorType | ErrorType
@@ -93,10 +107,15 @@ function readLength(cursor: Cursor, prefix: number, offset: number) {
 
 type ReadListErrorType = ErrorType
 
-function readList<to extends To>(cursor: Cursor, length: number, to: to | To) {
+function readList<to extends To>(
+  cursor: Cursor,
+  length: number,
+  to: to | To,
+  recursiveDepth: number,
+) {
   const position = cursor.position
   const value: FromRlpReturnType<to>[] = []
   while (cursor.position - position < length)
-    value.push(fromRlpCursor(cursor, to))
+    value.push(fromRlpCursor(cursor, to, recursiveDepth))
   return value
 }
