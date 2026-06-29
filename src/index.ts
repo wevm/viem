@@ -878,6 +878,8 @@ export {
   type InvalidHexBooleanErrorType,
   InvalidHexValueError,
   type InvalidHexValueErrorType,
+  RlpDepthLimitExceededError,
+  type RlpDepthLimitExceededErrorType,
   SizeOverflowError,
   type SizeOverflowErrorType,
 } from './errors/encoding.js'
