@@ -1,10 +1,4 @@
 import { chainConfig } from '../../tempo/chainConfig.js'
-import { alphausd } from '../../tokens/definitions/alphausd.js'
-import { betausd } from '../../tokens/definitions/betausd.js'
-import { eurce } from '../../tokens/definitions/eurce.js'
-import { pathusd } from '../../tokens/definitions/pathusd.js'
-import { thetausd } from '../../tokens/definitions/thetausd.js'
-import { usdce } from '../../tokens/definitions/usdce.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const tempoModerato = /*#__PURE__*/ defineChain({
@@ -31,11 +25,41 @@ export const tempoModerato = /*#__PURE__*/ defineChain({
   },
   testnet: true,
   tokens: {
-    pathusd: pathusd(42431),
-    usdce: usdce(42431),
-    eurce: eurce(42431),
-    alphausd: alphausd(42431),
-    betausd: betausd(42431),
-    thetausd: thetausd(42431),
+    pathusd: {
+      address: '0x20c0000000000000000000000000000000000000',
+      decimals: 6,
+      name: 'PathUSD',
+      symbol: 'pathUSD',
+    },
+    usdce: {
+      address: '0x20c0000000000000000000009e8d7eb59b783726',
+      decimals: 6,
+      name: 'Bridged USDC (Stargate)',
+      symbol: 'USDC.e',
+    },
+    eurce: {
+      address: '0x20c000000000000000000000d72572838bbee59c',
+      decimals: 6,
+      name: 'Bridged EURC (Stargate)',
+      symbol: 'EURC.e',
+    },
+    alphausd: {
+      address: '0x20c0000000000000000000000000000000000001',
+      decimals: 6,
+      name: 'AlphaUSD',
+      symbol: 'alphaUSD',
+    },
+    betausd: {
+      address: '0x20c0000000000000000000000000000000000002',
+      decimals: 6,
+      name: 'BetaUSD',
+      symbol: 'betaUSD',
+    },
+    thetausd: {
+      address: '0x20c0000000000000000000000000000000000003',
+      decimals: 6,
+      name: 'ThetaUSD',
+      symbol: 'thetaUSD',
+    },
   },
 })

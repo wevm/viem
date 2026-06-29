@@ -239,14 +239,8 @@ async function updateChainTokens(
   const tokens = tokenDefinitions.filter((token) =>
     token.addresses.has(chainId),
   )
-  const imports = tokens
-    .map(
-      (token) =>
-        `import { ${token.importName} } from '../../tokens/definitions/${token.importName}.js'`,
-    )
-    .join('\n')
   const tokensBlock = `  tokens: {
-${tokens.map((token) => `    ${token.importName}: ${token.importName}(${chainId}),`).join('\n')}
+${tokens.map((token) => getChainTokenSource(token, chainId)).join('\n')}
   },`
 
   const source = readFileSync(file, 'utf8')
@@ -254,22 +248,32 @@ ${tokens.map((token) => `    ${token.importName}: ${token.importName}(${chainId}
     /^import \{ \w+ \} from '\.\.\/\.\.\/tokens\/definitions\/\w+\.js'\n/gm,
     '',
   )
-
-  const withImports = withoutTokenImports.replace(
-    /(import \{ defineChain \} from '\.\.\/\.\.\/utils\/chain\/defineChain\.js'\n)/,
-    `${imports}\n$1`,
-  )
+  const withoutHelper = withoutTokenImports
+    .replace(
+      /^import type \{ ChainToken \} from '\.\.\/\.\.\/types\/chain\.js'\n/gm,
+      '',
+    )
+    .replace(/\nfunction chainToken\([\s\S]*?\n\}\n(?=\nexport const)/m, '')
 
   const withTokensBlock = /\n {2}tokens: \{[\s\S]*?\n {2}\},(?=\n\}\))/m.test(
-    withImports,
+    withoutHelper,
   )
-    ? withImports.replace(
+    ? withoutHelper.replace(
         /\n {2}tokens: \{[\s\S]*?\n {2}\},(?=\n\}\))/m,
         `\n${tokensBlock}`,
       )
-    : withImports.replace(/\n\}\)\n?$/, `\n${tokensBlock}\n})\n`)
+    : withoutHelper.replace(/\n\}\)\n?$/, `\n${tokensBlock}\n})\n`)
 
   await Bun.write(file, withTokensBlock)
+}
+
+function getChainTokenSource(token: TokenDefinition, chainId: number) {
+  return `    ${token.importName}: {
+      address: '${token.addresses.get(chainId)!}',
+      decimals: ${token.decimals},
+      name: ${toStringLiteral(token.name)},
+      symbol: ${toStringLiteral(token.symbol)},
+    },`
 }
 
 function getTokenDefinitionSource(token: TokenDefinition) {
@@ -290,10 +294,18 @@ export const ${token.importName} = /*#__PURE__*/ defineToken({
 ${addresses}
   },
   decimals: ${token.decimals},
-  name: ${JSON.stringify(token.name)},
-  symbol: ${JSON.stringify(token.symbol)},
+  name: ${toStringLiteral(token.name)},
+  symbol: ${toStringLiteral(token.symbol)},
 })
 `
+}
+
+function toStringLiteral(value: string) {
+  return `'${value
+    .replaceAll('\\', '\\\\')
+    .replaceAll("'", "\\'")
+    .replaceAll('\n', '\\n')
+    .replaceAll('\r', '\\r')}'`
 }
 
 function getDefinitionExports(tokenDefinitions: TokenDefinition[]) {

@@ -1,4 +1,3 @@
-import { usdc } from '../../tokens/definitions/usdc.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const arcTestnet = /*#__PURE__*/ defineChain({
@@ -36,7 +35,12 @@ export const arcTestnet = /*#__PURE__*/ defineChain({
     },
   },
   tokens: {
-    usdc: usdc(5042002),
+    usdc: {
+      address: '0x3600000000000000000000000000000000000000',
+      decimals: 6,
+      name: 'USD Coin',
+      symbol: 'USDC',
+    },
   },
   testnet: true,
 })

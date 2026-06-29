@@ -1,4 +1,3 @@
-import { usdc } from '../../tokens/definitions/usdc.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const sonic = /*#__PURE__*/ defineChain({
@@ -26,7 +25,12 @@ export const sonic = /*#__PURE__*/ defineChain({
     },
   },
   tokens: {
-    usdc: usdc(146),
+    usdc: {
+      address: '0x29219dd400f2Bf60E5a23d13Be72B486D4038894',
+      decimals: 6,
+      name: 'USD Coin',
+      symbol: 'USDC',
+    },
   },
   testnet: false,
 })

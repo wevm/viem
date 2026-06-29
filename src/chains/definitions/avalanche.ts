@@ -1,4 +1,3 @@
-import { usdc } from '../../tokens/definitions/usdc.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const avalanche = /*#__PURE__*/ defineChain({
@@ -27,6 +26,11 @@ export const avalanche = /*#__PURE__*/ defineChain({
     },
   },
   tokens: {
-    usdc: usdc(43_114),
+    usdc: {
+      address: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
+      decimals: 6,
+      name: 'USD Coin',
+      symbol: 'USDC',
+    },
   },
 })

@@ -1,4 +1,3 @@
-import { usdc } from '../../tokens/definitions/usdc.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const sei = /*#__PURE__*/ defineChain({
@@ -24,6 +23,11 @@ export const sei = /*#__PURE__*/ defineChain({
     },
   },
   tokens: {
-    usdc: usdc(1329),
+    usdc: {
+      address: '0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392',
+      decimals: 6,
+      name: 'USD Coin',
+      symbol: 'USDC',
+    },
   },
 })

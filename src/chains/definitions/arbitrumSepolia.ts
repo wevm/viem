@@ -1,4 +1,3 @@
-import { usdc } from '../../tokens/definitions/usdc.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 export const arbitrumSepolia = /*#__PURE__*/ defineChain({
@@ -29,7 +28,12 @@ export const arbitrumSepolia = /*#__PURE__*/ defineChain({
     },
   },
   tokens: {
-    usdc: usdc(421_614),
+    usdc: {
+      address: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
+      decimals: 6,
+      name: 'USD Coin',
+      symbol: 'USDC',
+    },
   },
   testnet: true,
 })

@@ -1,5 +1,4 @@
 import { chainConfig } from '../../op-stack/chainConfig.js'
-import { usdc } from '../../tokens/definitions/usdc.js'
 import { defineChain } from '../../utils/chain/defineChain.js'
 
 const sourceId = 11_155_111 // sepolia
@@ -53,7 +52,12 @@ export const worldchainSepolia = /*#__PURE__*/ defineChain({
     },
   },
   tokens: {
-    usdc: usdc(4801),
+    usdc: {
+      address: '0x66145f38cBAC35Ca6F1Dfb4914dF98F1614aeA88',
+      decimals: 6,
+      name: 'USD Coin',
+      symbol: 'USDC',
+    },
   },
   testnet: true,
   sourceId,
