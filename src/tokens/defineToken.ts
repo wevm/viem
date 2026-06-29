@@ -10,6 +10,9 @@ export type Token<
   token extends defineToken.Parameters = defineToken.Parameters,
 > = defineToken.ReturnType<token>
 
+/** Collection of tokens to declare on a Client. */
+export type ClientTokens = readonly Token[]
+
 /**
  * Creates a token from shared metadata (`decimals`, `name`, `symbol`) and a map
  * of per-chain contract `addresses`. The returned value is callable with a

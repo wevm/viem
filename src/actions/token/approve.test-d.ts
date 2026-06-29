@@ -12,11 +12,11 @@ const account = privateKeyToAccount(
 )
 
 describe('approve: token selector', () => {
-  test('client with tokens: selects by `token` name or address', () => {
+  test('client with tokens: selects by `token` symbol or address', () => {
     const client = createClient({
       account,
       chain: mainnet,
-      tokens: { usdc },
+      tokens: [usdc],
       transport: http(),
     })
     approve(client, { amount: 1n, spender: '0x', token: 'usdc' })
@@ -37,7 +37,7 @@ describe('approve: token selector', () => {
     const client = createClient({
       account,
       chain: mainnet,
-      tokens: { usdc },
+      tokens: [usdc],
       transport: http(),
     })
     // @ts-expect-error - use base units or a formatted helper
@@ -48,7 +48,7 @@ describe('approve: token selector', () => {
     const client = createClient({
       account,
       chain: mainnet,
-      tokens: { usdc },
+      tokens: [usdc],
       transport: http(),
     })
     approve(client, {
@@ -60,11 +60,11 @@ describe('approve: token selector', () => {
     })
   })
 
-  test('rejects an unknown `token` name', () => {
+  test('rejects an unknown `token` symbol', () => {
     const client = createClient({
       account,
       chain: mainnet,
-      tokens: { usdc },
+      tokens: [usdc],
       transport: http(),
     })
     // @ts-expect-error - 'dai' is neither declared on the client nor an address
@@ -77,7 +77,7 @@ describe('approve: token selector', () => {
     approve(client, { amount: { formatted: '1' }, spender: '0x' })
   })
 
-  test('chain without tokens: only an address `token` is allowed', () => {
+  test('client without tokens: only an address `token` is allowed', () => {
     const client = createClient({ account, chain: zora, transport: http() })
     approve(client, { amount: { formatted: '1' }, spender: '0x', token: '0x' })
     approve(client, {
@@ -89,11 +89,11 @@ describe('approve: token selector', () => {
 })
 
 describe('approveSync: token selector', () => {
-  test('client with tokens: selects by `token` name or address', () => {
+  test('client with tokens: selects by `token` symbol or address', () => {
     const client = createClient({
       account,
       chain: mainnet,
-      tokens: { usdc },
+      tokens: [usdc],
       transport: http(),
     })
     approveSync(client, { amount: 1n, spender: '0x', token: 'usdc' })
@@ -109,7 +109,7 @@ describe('approveSync: token selector', () => {
     })
   })
 
-  test('chain without tokens: only an address `token` is allowed', () => {
+  test('client without tokens: only an address `token` is allowed', () => {
     const client = createClient({ account, chain: zora, transport: http() })
     approveSync(client, {
       amount: { formatted: '1' },

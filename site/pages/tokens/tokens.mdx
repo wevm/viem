@@ -47,15 +47,15 @@ const mainnetUsdc = usdc(mainnet.id)
 
 The `token` parameter is either:
 
-- **A token symbol** declared on the connected chain. See
-  [Defining Tokens](/tokens/guides/defining-tokens) for how symbols are attached to chains. The
+- **A token symbol** declared on the connected Client. See
+  [Defining Tokens](/tokens/guides/defining-tokens) for how symbols are attached to Clients. The
   symbol is resolved to its token address and `decimals`.
 - **A token address** for any token, declared or not.
 
 ```ts twoslash
 import { client } from './viem.config'
 
-// By token symbol (resolved from the chain).
+// By token symbol (resolved from the Client).
 await client.token.getBalance({
   account: '0x…',
   token: 'usdc', // [!code hl]

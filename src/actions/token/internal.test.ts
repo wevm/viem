@@ -9,7 +9,7 @@ import {
   toBaseUnits,
 } from './internal.js'
 
-// DAI: a token that is not declared on the mainnet chain's `tokens` config.
+// DAI: a token that is not declared on the mainnet Client's `tokens` config.
 const dai = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
 
 describe('resolveToken', () => {
@@ -22,7 +22,7 @@ describe('resolveToken', () => {
     `)
   })
 
-  test('resolves mixed-case `token` names against lowercase chain tokens', () => {
+  test('resolves mixed-case `token` names against lowercase client tokens', () => {
     expect(resolveToken(client, { token: 'USDC' })).toMatchInlineSnapshot(`
       {
         "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
@@ -71,15 +71,15 @@ describe('resolveToken', () => {
     `)
   })
 
-  test('throws when the `token` name is not declared and is not an address', () => {
+  test('throws when the `token` symbol is not declared and is not an address', () => {
     expect(() =>
       resolveToken(client, { token: 'dai' }),
     ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Token "dai" is not a declared ERC-20 token on the client's \`tokens\` config (with an address for the client's chain), and is not a valid address.]`,
+      `[Error: Token "dai" is not a declared ERC-20 token on the client's \`tokens\` array (with an address for the client's chain), and is not a valid address.]`,
     )
   })
 
-  test('resolves an `address` when the chain has no tokens', () => {
+  test('resolves an `address` when the client has no tokens', () => {
     const chainless = createClient({ transport: http('https://eth.merkle.io') })
     expect(resolveToken(chainless, { token: usdc })).toMatchInlineSnapshot(`
       {
@@ -89,12 +89,12 @@ describe('resolveToken', () => {
     `)
   })
 
-  test('throws for a `token` name when the chain has no tokens', () => {
+  test('throws for a `token` symbol when the client has no tokens', () => {
     const chainless = createClient({ transport: http('https://eth.merkle.io') })
     expect(() =>
       resolveToken(chainless, { token: 'usdc' }),
     ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Token "usdc" is not a declared ERC-20 token on the client's \`tokens\` config (with an address for the client's chain), and is not a valid address.]`,
+      `[Error: Token "usdc" is not a declared ERC-20 token on the client's \`tokens\` array (with an address for the client's chain), and is not a valid address.]`,
     )
   })
 })
@@ -112,7 +112,7 @@ describe('toBaseUnits', () => {
     expect(() =>
       toBaseUnits({ formatted: '1.5' }, undefined),
     ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Token decimals are required. Pass \`amount.decimals\` or declare the token on the chain.]`,
+      `[Error: Token decimals are required. Pass \`amount.decimals\` or select a declared token.]`,
     )
   })
 })

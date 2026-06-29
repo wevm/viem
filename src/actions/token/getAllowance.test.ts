@@ -39,7 +39,7 @@ describe('getAllowance', () => {
     `)
   })
 
-  test('token: resolves address from chain tokens', async () => {
+  test('token: resolves address from client tokens', async () => {
     const result = await getAllowance(client, {
       token: 'usdc',
       account: holder,
@@ -54,7 +54,7 @@ describe('getAllowance', () => {
     `)
   })
 
-  test('token: call resolves address from chain tokens', () => {
+  test('token: call resolves address from client tokens', () => {
     const call = getAllowance.call(client, {
       token: 'usdc',
       account: holder,

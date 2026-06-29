@@ -208,7 +208,7 @@ The non-sync `transfer` action returns the transaction [`Hex`](/docs/glossary/ty
 - **Type:** `bigint | { decimals?: number, formatted: string }`
 
 Amount to transfer in base units. Use `{ formatted: '10.5' }` to parse a human-readable
-decimal string for a chain-declared token, or include `amount.decimals` when using a
+decimal string for a Client-declared token, or include `amount.decimals` when using a
 token address.
 
 ### to
@@ -221,8 +221,8 @@ Address to transfer tokens to.
 
 - **Type:** `string`
 
-Token to operate on: a [chain-declared](/tokens/tokens#token-lookup)
-token name (resolving its `address` and `decimals`), or a token address.
+Token to operate on: a [Client-declared](/tokens/tokens#token-lookup)
+token symbol (resolving its `address` and `decimals`), or a token address.
 
 ### from (optional)
 

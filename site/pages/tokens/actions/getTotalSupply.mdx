@@ -65,12 +65,12 @@ The token's total supply, both in base units (`amount`) and as a human-readable 
 
 - **Type:** `string`
 
-Token to operate on: a [chain-declared](/tokens/tokens#token-lookup)
-token name (resolving its `address` and `decimals`), or a token address.
+Token to operate on: a [Client-declared](/tokens/tokens#token-lookup)
+token symbol (resolving its `address` and `decimals`), or a token address.
 
 ### decimals (optional)
 
 - **Type:** `number`
 
 Token decimals for converting base units to human-readable amounts. Inferred
-from the chain's `tokens` config, or fetched from the token contract when omitted.
+from the Client's `tokens` array, or fetched from the token contract when omitted.

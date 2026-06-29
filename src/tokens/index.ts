@@ -1,5 +1,5 @@
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
-export { defineToken, type Token } from './defineToken.js'
+export { type ClientTokens, defineToken, type Token } from './defineToken.js'
 export { alphausd } from './definitions/alphausd.js'
 export { betausd } from './definitions/betausd.js'
 export { brla } from './definitions/brla.js'

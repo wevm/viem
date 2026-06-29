@@ -70,7 +70,7 @@ describe('transfer', () => {
         amount: { formatted: '1' },
       }),
     ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Token decimals are required. Pass \`amount.decimals\` or declare the token on the chain.]`,
+      `[Error: Token decimals are required. Pass \`amount.decimals\` or select a declared token.]`,
     )
   })
 
@@ -86,11 +86,11 @@ describe('transfer', () => {
         amount: { formatted: '0.000000000000000001' },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: Token decimals are required. Pass \`amount.decimals\` or declare the token on the chain.]`,
+      `[Error: Token decimals are required. Pass \`amount.decimals\` or select a declared token.]`,
     )
   })
 
-  test('token: resolves address + decimals from chain tokens', async () => {
+  test('token: resolves address + decimals from client tokens', async () => {
     const tokenTo = accounts[8].address
     const before = await getBalance(client, { token: 'usdc', account: tokenTo })
 
@@ -116,7 +116,7 @@ describe('transfer', () => {
     expect(after.amount - before.amount).toMatchInlineSnapshot(`1000000000n`)
   })
 
-  test('token: call resolves address + decimals from chain tokens', () => {
+  test('token: call resolves address + decimals from client tokens', () => {
     const call = transfer.call(client, {
       token: 'usdc',
       to,
@@ -161,7 +161,7 @@ describe('transfer', () => {
     )
   })
 
-  test('estimateGas: infers decimals from chain tokens', async () => {
+  test('estimateGas: infers decimals from client tokens', async () => {
     const gas = await transfer.estimateGas(client, {
       account: holder,
       token: usdc,
@@ -172,7 +172,7 @@ describe('transfer', () => {
     expect(gas).toBeGreaterThan(0n)
   })
 
-  test('simulate: infers decimals from chain tokens', async () => {
+  test('simulate: infers decimals from client tokens', async () => {
     const { result, request } = await transfer.simulate(client, {
       account: holder,
       token: usdc,

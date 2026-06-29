@@ -1,9 +1,9 @@
 import type { Abi, AbiStateMutability, Address } from 'abitype'
 import type { Account } from '../../accounts/types.js'
-import type { Client, ClientTokens } from '../../clients/createClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { erc20Abi } from '../../constants/abis.js'
-import type { Token } from '../../tokens/defineToken.js'
+import type { ClientTokens, Token } from '../../tokens/defineToken.js'
 import type { Chain, ChainToken } from '../../types/chain.js'
 import type {
   ContractFunctionName,
@@ -22,9 +22,9 @@ import { readContract } from '../public/readContract.js'
 import type { WriteContractSyncParameters as viem_WriteContractSyncParameters } from '../wallet/writeContractSync.js'
 
 /**
- * Union of names of the Client's declared `tokens` whose `addresses` include
+ * Union of symbols of the Client's declared `tokens` whose `addresses` include
  * the Client's `chain.id`. Collapses to `never` when there is no chain mapping
- * (no `tokens`, no `chain`, a widened `chain.id`, or a widened `tokens` map).
+ * (no `tokens`, no `chain`, a widened `chain.id`, or widened token symbols).
  *
  * @internal
  */
@@ -35,33 +35,34 @@ export type TokenName<
   ? number extends chainId
     ? never
     : tokens extends ClientTokens
-      ? string extends keyof tokens
-        ? never
-        : Extract<
-            {
-              [name in keyof tokens]: chainId extends keyof tokens[name]['addresses']
-                ? name
-                : never
-            }[keyof tokens],
-            string
-          >
+      ? TokenSymbolForChain<tokens[number], chainId>
       : never
   : never
 
+type TokenSymbolForChain<token, chainId extends number> = token extends Token
+  ? chainId extends keyof token['addresses']
+    ? token['symbol'] extends string
+      ? string extends token['symbol']
+        ? never
+        : Lowercase<token['symbol']>
+      : never
+    : never
+  : never
+
 /**
- * Selects an ERC-20 token by `token`, which is either the name of a token
- * declared on the Client's `tokens` config or a contract `address`.
+ * Selects an ERC-20 token by `token`, which is either the symbol of a token
+ * declared on the Client's `tokens` array or a contract `address`.
  *
- * When `token` is a declared name (or an address that matches a declared
- * token), token metadata is resolved from the Client's `tokens` config.
+ * When `token` is a declared symbol (or an address that matches a declared
+ * token), token metadata is resolved from the Client's `tokens` array.
  */
 export type TokenParameter<
   chain extends Chain | undefined,
   tokens extends ClientTokens | undefined,
 > = {
   /**
-   * Token to operate on: either the name of a token declared on the Client's
-   * `tokens` config (with an address for the Client's `chain.id`), or a
+   * Token to operate on: either the symbol of a token declared on the Client's
+   * `tokens` array (with an address for the Client's `chain.id`), or a
    * contract `address`.
    */
   token: TokenName<chain, tokens> | Address
@@ -73,7 +74,7 @@ export type TokenParameters<
 > = TokenParameter<chain, tokens> & {
   /**
    * Decimals used to convert between base units and the human-readable amount.
-   * Inferred from the Client's `tokens` config when `token` matches a declared
+   * Inferred from the Client's `tokens` array when `token` matches a declared
    * token; otherwise fetched from the token contract when needed.
    */
   decimals?: number | undefined
@@ -141,7 +142,7 @@ export function toBaseUnits(
 export function requireTokenDecimals(decimals: number | undefined): number {
   if (decimals === undefined)
     throw new Error(
-      'Token decimals are required. Pass `amount.decimals` or declare the token on the chain.',
+      'Token decimals are required. Pass `amount.decimals` or select a declared token.',
     )
   return decimals
 }
@@ -163,14 +164,14 @@ export function resolveAmountDecimals(
 
 /**
  * Resolves the token contract `address` and `decimals` from a `token`, which is
- * either the name of a token declared on the client's `tokens` config or a
+ * either the symbol of a token declared on the client's `tokens` array or a
  * contract `address`.
  *
- * When `token` is a declared name, the `address` and `decimals` are resolved
- * from the Client's `tokens` for the Client's `chain.id` (`decimals` can be
- * overridden via the explicit `decimals`). When `token` is an address, its
- * `decimals` is inferred from the Client's `tokens` when the address matches a
- * declared token, otherwise taken from the explicit `decimals`.
+ * When `token` is a declared symbol, the `address` and `decimals` are resolved
+ * from the Client's `tokens` array for the Client's `chain.id` (`decimals` can
+ * be overridden via the explicit `decimals`). When `token` is an address, its
+ * `decimals` is inferred from the Client's `tokens` array when the address
+ * matches a declared token, otherwise taken from the explicit `decimals`.
  *
  * @param client - Client.
  * @param parameters - Parameters.
@@ -196,7 +197,7 @@ export function resolveToken(
     }
 
   throw new Error(
-    `Token "${token}" is not a declared ERC-20 token on the client's \`tokens\` config (with an address for the client's chain), and is not a valid address.`,
+    `Token "${token}" is not a declared ERC-20 token on the client's \`tokens\` array (with an address for the client's chain), and is not a valid address.`,
   )
 }
 
@@ -204,19 +205,19 @@ export namespace resolveToken {
   export type Parameters = {
     /** Decimals, if provided explicitly. */
     decimals?: number | undefined
-    /** Token name (declared on the client's `tokens` config) or contract address. */
+    /** Token symbol (declared on the client's `tokens` array) or contract address. */
     token: string
   }
 }
 
 /**
- * Finds the declared token on the Client's `tokens` config matching `token`
- * (either a token name or contract `address`), resolved to a {@link ChainToken}
+ * Finds the declared token on the Client's `tokens` array matching `token`
+ * (either a token symbol or contract `address`), resolved to a {@link ChainToken}
  * for the Client's `chain.id`. Returns `undefined` when no declared token
  * matches, or the matching token has no address for the Client's chain.
  *
  * @param client - Client.
- * @param token - Token name (declared on the client's `tokens` config) or contract address.
+ * @param token - Token symbol (declared on the client's `tokens` array) or contract address.
  * @returns The matching resolved token config, or `undefined`.
  */
 export function findDeclaredToken(
@@ -227,12 +228,12 @@ export function findDeclaredToken(
   const chainId = client.chain?.id
   if (!tokens || chainId === undefined) return undefined
 
-  const byName = findTokenByName(tokens, token)
-  if (byName) return resolveTokenForChain(byName, chainId)
+  const bySymbol = findTokenBySymbol(tokens, token)
+  if (bySymbol) return resolveTokenForChain(bySymbol, chainId)
 
   if (isAddress(token, { strict: false }))
-    for (const key in tokens) {
-      const resolved = resolveTokenForChain(tokens[key]!, chainId)
+    for (const token_ of tokens) {
+      const resolved = resolveTokenForChain(token_, chainId)
       if (resolved && isAddressEqual(resolved.address, token)) return resolved
     }
   return undefined
@@ -256,22 +257,20 @@ function resolveTokenForChain(
   }
 }
 
-/** Finds a {@link Token} by name (case-insensitively) on a `tokens` map. @internal */
-function findTokenByName(
+/** Finds a {@link Token} by symbol (case-insensitively) on a `tokens` array. @internal */
+function findTokenBySymbol(
   tokens: ClientTokens,
-  name: string,
+  symbol: string,
 ): Token | undefined {
-  if (tokens[name]) return tokens[name]
-  const lowerName = name.toLowerCase()
-  if (tokens[lowerName]) return tokens[lowerName]
-  for (const key in tokens) {
-    if (key.toLowerCase() === lowerName) return tokens[key]
+  const lowerSymbol = symbol.toLowerCase()
+  for (const token of tokens) {
+    if (token.symbol?.toLowerCase() === lowerSymbol) return token
   }
   return undefined
 }
 
 /**
- * Infers a token's `decimals` from the Client's `tokens` config by matching
+ * Infers a token's `decimals` from the Client's `tokens` array by matching
  * `address` against each token's address for the Client's `chain.id`.
  * @internal
  */
@@ -282,8 +281,8 @@ function inferDecimals(
   const tokens = client.tokens
   const chainId = client.chain?.id
   if (tokens && chainId !== undefined)
-    for (const key in tokens) {
-      const resolved = resolveTokenForChain(tokens[key]!, chainId)
+    for (const token of tokens) {
+      const resolved = resolveTokenForChain(token, chainId)
       if (resolved && isAddressEqual(resolved.address, address))
         return resolved.decimals
     }
@@ -292,7 +291,7 @@ function inferDecimals(
 
 /**
  * Resolves token decimals, fetching from the token contract when they are not
- * provided explicitly or declared on the chain.
+ * provided explicitly or declared on the client.
  * @internal
  */
 export async function resolveTokenWithDecimals(

@@ -2,6 +2,7 @@ import type { Address } from 'abitype'
 
 import type { Account } from '../accounts/types.js'
 import type { ErrorType } from '../errors/utils.js'
+import type { ClientTokens } from '../tokens/defineToken.js'
 import type { ParseAccount } from '../types/account.js'
 import type { Chain } from '../types/chain.js'
 import type { RpcSchema, WalletRpcSchema } from '../types/eip1193.js'
@@ -9,7 +10,6 @@ import type { Prettify } from '../types/utils.js'
 import {
   type Client,
   type ClientConfig,
-  type ClientTokens,
   type CreateClientErrorType,
   createClient,
 } from './createClient.js'

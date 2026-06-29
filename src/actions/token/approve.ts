@@ -1,9 +1,10 @@
 import type { Address } from 'abitype'
 import type { Account } from '../../accounts/types.js'
-import type { Client, ClientTokens } from '../../clients/createClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { erc20Abi } from '../../constants/abis.js'
 import type { BaseErrorType } from '../../errors/base.js'
+import type { ClientTokens } from '../../tokens/defineToken.js'
 import type { Chain } from '../../types/chain.js'
 import type { Log } from '../../types/log.js'
 import { parseEventLogs } from '../../utils/abi/parseEventLogs.js'
@@ -104,9 +105,9 @@ export namespace approve {
    *
    * Can be passed as a parameter to `estimateContractGas`, `simulateContract`,
    * `sendCalls`, `sendTransaction` (`calls`), or `multicall`. The token is
-   * selected by `token`, which is either a token name (resolved from the
-   * client's chain `tokens` config) or a contract `address`; `amount.decimals`
-   * is inferred from declared chain tokens when omitted.
+   * selected by `token`, which is either a token symbol (resolved from the
+   * client's `tokens` array) or a contract `address`; `amount.decimals`
+   * is inferred from declared client tokens when omitted.
    *
    * @param client - Client.
    * @param parameters - Parameters.
@@ -125,7 +126,7 @@ export namespace approve {
 
   /**
    * Estimates the gas required to approve a spender. `amount.decimals` is
-   * inferred from declared chain tokens when omitted.
+   * inferred from declared client tokens when omitted.
    *
    * @param client - Client.
    * @param parameters - Parameters.
@@ -147,7 +148,7 @@ export namespace approve {
 
   /**
    * Simulates an approval of a spender. `amount.decimals` is inferred from
-   * declared chain tokens when omitted.
+   * declared client tokens when omitted.
    *
    * @param client - Client.
    * @param parameters - Parameters.

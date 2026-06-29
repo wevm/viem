@@ -6,7 +6,7 @@ description: Read token metadata.
 
 Reads the metadata (`decimals`, `name`, `symbol`) of a token.
 
-Fields declared on the connected chain's [`tokens` config](/docs/chains/tokens)
+Fields declared on the connected Client's [`tokens` array](/tokens/tokens#token-lookup)
 are used as-is; any missing field is fetched from the token contract.
 
 ## Usage
@@ -45,5 +45,5 @@ type ReturnType = {
 
 - **Type:** `string`
 
-Token to operate on: a [chain-declared](/tokens/tokens#token-lookup)
-token name (resolving its `address` and metadata), or a token address.
+Token to operate on: a [Client-declared](/tokens/tokens#token-lookup)
+token symbol (resolving its `address` and metadata), or a token address.

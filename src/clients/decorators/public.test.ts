@@ -597,7 +597,7 @@ describe('smoke test', () => {
 
 describe('token', () => {
   const client = anvilMainnet
-    .getClient({ tokens: { usdc: usdcToken } })
+    .getClient({ tokens: [usdcToken] })
     .extend(publicActions)
   const usdc = usdcToken.addresses[anvilMainnet.chain.id]
   const holder = address.usdcHolder
@@ -609,7 +609,7 @@ describe('token', () => {
   })
 
   describe('getBalance', () => {
-    test('default: by token name', async () => {
+    test('default: by token symbol', async () => {
       const balance = await client.token.getBalance({
         token: 'usdc',
         account: holder,
@@ -629,7 +629,7 @@ describe('token', () => {
   })
 
   describe('getMetadata', () => {
-    test('default: by token name', async () => {
+    test('default: by token symbol', async () => {
       const metadata = await client.token.getMetadata({ token: 'usdc' })
       expect(metadata).toMatchInlineSnapshot(`
         {
@@ -642,7 +642,7 @@ describe('token', () => {
   })
 
   describe('getTotalSupply', () => {
-    test('default: by token name', async () => {
+    test('default: by token symbol', async () => {
       const totalSupply = await client.token.getTotalSupply({ token: 'usdc' })
       expect(totalSupply.amount).toBeTypeOf('bigint')
       expect(totalSupply.amount).toBeGreaterThan(0n)

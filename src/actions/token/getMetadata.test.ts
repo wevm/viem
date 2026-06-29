@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest'
 import { client, usdc } from '~test/token.js'
 import { getMetadata } from './getMetadata.js'
 
-// Dai Stablecoin: an ERC-20 not declared on the chain's `tokens` config.
+// Dai Stablecoin: an ERC-20 not declared on the Client's `tokens` array.
 const dai = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
 
 describe('getMetadata', () => {
@@ -17,7 +17,7 @@ describe('getMetadata', () => {
     `)
   })
 
-  test('token: resolves metadata from chain tokens', async () => {
+  test('token: resolves metadata from client tokens', async () => {
     const metadata = await getMetadata(client, { token: 'usdc' })
     expect(metadata).toMatchInlineSnapshot(`
       {

@@ -95,7 +95,7 @@ describe('approve', () => {
         amount: { formatted: '1' },
       }),
     ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Token decimals are required. Pass \`amount.decimals\` or declare the token on the chain.]`,
+      `[Error: Token decimals are required. Pass \`amount.decimals\` or select a declared token.]`,
     )
   })
 
@@ -109,11 +109,11 @@ describe('approve', () => {
         amount: { formatted: '1' },
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: Token decimals are required. Pass \`amount.decimals\` or declare the token on the chain.]`,
+      `[Error: Token decimals are required. Pass \`amount.decimals\` or select a declared token.]`,
     )
   })
 
-  test('token: resolves address + decimals from chain tokens', async () => {
+  test('token: resolves address + decimals from client tokens', async () => {
     const tokenSpender = accounts[1].address
     const hash = await approve(client, {
       account: holder,
@@ -147,7 +147,7 @@ describe('approve', () => {
     `)
   })
 
-  test('token: call resolves address + decimals from chain tokens', () => {
+  test('token: call resolves address + decimals from client tokens', () => {
     const call = approve.call(client, {
       token: 'usdc',
       spender,
@@ -172,7 +172,7 @@ describe('approve', () => {
     )
   })
 
-  test('estimateGas: infers decimals from chain tokens', async () => {
+  test('estimateGas: infers decimals from client tokens', async () => {
     const gas = await approve.estimateGas(client, {
       account: holder,
       token: usdc,
@@ -183,7 +183,7 @@ describe('approve', () => {
     expect(gas).toBeGreaterThan(0n)
   })
 
-  test('simulate: infers decimals from chain tokens', async () => {
+  test('simulate: infers decimals from client tokens', async () => {
     const { result, request } = await approve.simulate(client, {
       account: holder,
       token: usdc,

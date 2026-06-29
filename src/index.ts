@@ -586,7 +586,6 @@ export type {
 export {
   type Client,
   type ClientConfig,
-  type ClientTokens,
   type CreateClientErrorType,
   createClient,
   type MulticallBatchOptions,
@@ -1051,6 +1050,7 @@ export {
   InvalidDecimalNumberError,
   type InvalidDecimalNumberErrorType,
 } from './errors/unit.js'
+export type { ClientTokens } from './tokens/defineToken.js'
 export type {
   DeriveAccount,
   HDKey,

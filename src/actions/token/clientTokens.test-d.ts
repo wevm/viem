@@ -9,34 +9,34 @@ import { getBalance } from './getBalance.js'
 
 const account = privateKeyToAccount(`0x${'1'.repeat(64)}`)
 
-test('standalone: infers token names from client tokens', () => {
+test('standalone: infers token symbols from client tokens', () => {
   const client = createClient({
     account,
     chain: mainnet,
-    tokens: { usdc, usdce },
+    tokens: [usdc, usdce],
     transport: http(),
   })
 
   getBalance(client, { token: 'usdc' })
   getBalance(client, { token: '0x' })
 
-  // @ts-expect-error usdce has no mainnet address.
-  getBalance(client, { token: 'usdce' })
+  // @ts-expect-error USDC.e has no mainnet address.
+  getBalance(client, { token: 'usdc.e' })
   // @ts-expect-error unknown name.
   getBalance(client, { token: 'nope' })
 })
 
-test('decorated client: keeps token-name inference', () => {
+test('decorated client: keeps token-symbol inference', () => {
   const client = createClient({
     account,
     chain: mainnet,
-    tokens: { usdc },
+    tokens: [usdc],
     transport: http(),
   }).extend(publicActions)
 
   client.token.getBalance({ token: 'usdc' })
-  // @ts-expect-error usdce is not declared.
-  client.token.getBalance({ token: 'usdce' })
+  // @ts-expect-error USDC.e is not declared.
+  client.token.getBalance({ token: 'usdc.e' })
 })
 
 test('no tokens: only address allowed', () => {

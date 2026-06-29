@@ -27,7 +27,7 @@ describe('getTotalSupply', () => {
     `)
   })
 
-  test('token: resolves total supply from chain tokens', async () => {
+  test('token: resolves total supply from client tokens', async () => {
     const totalSupply = await getTotalSupply(client, { token: 'usdc' })
     // `totalSupply.amount` is a live mainnet-fork value.
     expect(typeof totalSupply.amount).toBe('bigint')
@@ -35,7 +35,7 @@ describe('getTotalSupply', () => {
     expect(totalSupply.formatted).toBe(formatUnits(totalSupply.amount, 6))
   })
 
-  test('token: call resolves address from chain tokens', () => {
+  test('token: call resolves address from client tokens', () => {
     const call = getTotalSupply.call(client, { token: 'usdc' })
     expect({
       data: call.data,

@@ -40,7 +40,7 @@ describe('approveSync', () => {
     `)
   })
 
-  test('token: resolves address + decimals from chain tokens', async () => {
+  test('token: resolves address + decimals from client tokens', async () => {
     const { receipt, ...args } = await mined(
       approveSync(client, {
         account: holder,

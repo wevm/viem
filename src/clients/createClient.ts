@@ -6,7 +6,7 @@ import {
   parseAccount,
 } from '../accounts/utils/parseAccount.js'
 import type { ErrorType } from '../errors/utils.js'
-import type { Token } from '../tokens/defineToken.js'
+import type { ClientTokens } from '../tokens/defineToken.js'
 import type { Account } from '../types/account.js'
 import type { BlockTag } from '../types/block.js'
 import type { Chain } from '../types/chain.js'
@@ -25,14 +25,6 @@ import { uid } from '../utils/uid.js'
 import type { PublicActions } from './decorators/public.js'
 import type { WalletActions } from './decorators/wallet.js'
 import type { Transport } from './transports/createTransport.js'
-
-/**
- * Collection of {@link Token}s to declare on a Client, keyed by name. Each
- * token carries a per-chain `addresses` map (see {@link defineToken}); on a
- * Client, a token's name is only usable by token Actions when its `addresses`
- * includes the Client's `chain.id`.
- */
-export type ClientTokens = { [name: string]: Token }
 
 export type ClientConfig<
   transport extends Transport = Transport,
@@ -101,10 +93,9 @@ export type ClientConfig<
    */
   rpcSchema?: rpcSchema | undefined
   /**
-   * Collection of {@link Token}s (see {@link defineToken}) to declare on the
-   * Client, keyed by name. A token's name becomes available to token Actions
-   * (e.g. `token.transfer`) only when its `addresses` map includes the Client's
-   * `chain.id`.
+   * Collection of tokens to declare on the Client. A token's symbol becomes
+   * available to token Actions (e.g. `token.transfer`) only when its `addresses`
+   * map includes the Client's `chain.id`.
    */
   tokens?: tokens | undefined
   /** The RPC transport */
@@ -214,7 +205,7 @@ type Client_Base<
   request: EIP1193RequestFn<
     rpcSchema extends undefined ? EIP1474Methods : rpcSchema
   >
-  /** Collection of {@link Token}s declared on the Client, keyed by name. */
+  /** Collection of tokens declared on the Client. */
   tokens: tokens
   /** The RPC transport */
   transport: ReturnType<transport>['config'] & ReturnType<transport>['value']

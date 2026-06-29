@@ -183,7 +183,7 @@ The non-sync `approve` action returns the transaction [`Hex`](/docs/glossary/typ
 - **Type:** `bigint | { decimals?: number, formatted: string }`
 
 Amount to approve in base units. Use `{ formatted: '10.5' }` to parse a human-readable
-decimal string for a chain-declared token, or include `amount.decimals` when using a
+decimal string for a Client-declared token, or include `amount.decimals` when using a
 token address.
 
 ### spender
@@ -196,8 +196,8 @@ Account to approve as a spender of the caller's tokens.
 
 - **Type:** `string`
 
-Token to operate on: a [chain-declared](/tokens/tokens#token-lookup)
-token name (resolving its `address` and `decimals`), or a token address.
+Token to operate on: a [Client-declared](/tokens/tokens#token-lookup)
+token symbol (resolving its `address` and `decimals`), or a token address.
 
 ### throwOnReceiptRevert (optional)
 

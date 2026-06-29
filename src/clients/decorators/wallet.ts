@@ -145,16 +145,13 @@ import {
   type WriteContractSyncReturnType,
   writeContractSync,
 } from '../../actions/wallet/writeContractSync.js'
+import type { ClientTokens } from '../../tokens/defineToken.js'
 import type { Chain } from '../../types/chain.js'
 import type {
   ContractFunctionArgs,
   ContractFunctionName,
 } from '../../types/contract.js'
-import {
-  bindActionDecorators,
-  type Client,
-  type ClientTokens,
-} from '../createClient.js'
+import { bindActionDecorators, type Client } from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'
 
 export type WalletActions<
@@ -1189,8 +1186,8 @@ export type WalletActions<
   /**
    * Write ERC-20 Actions, exposed under the `token` namespace.
    *
-   * Every action selects its token by `token`, which is either a token name
-   * (resolved from the chain's `tokens` config) or a contract `address`. `amount`
+   * Every action selects its token by `token`, which is either a token symbol
+   * (resolved from the Client's `tokens` array) or a contract `address`. `amount`
    * inputs are base-unit `bigint` values, or
    * `{ decimals?: number, formatted: string }` to parse a human-readable decimal
    * string.

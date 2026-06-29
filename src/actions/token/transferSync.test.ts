@@ -21,7 +21,7 @@ beforeAll(async () => {
 })
 
 describe('transferSync', () => {
-  test('default: infers decimals from chain token', async () => {
+  test('default: infers decimals from client token', async () => {
     const { receipt, ...args } = await mined(
       transferSync(client, {
         account: holder,
@@ -42,7 +42,7 @@ describe('transferSync', () => {
     `)
   })
 
-  test('token: resolves address + decimals from chain tokens', async () => {
+  test('token: resolves address + decimals from client tokens', async () => {
     const { receipt, ...args } = await mined(
       transferSync(client, {
         account: holder,

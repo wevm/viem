@@ -2,7 +2,7 @@
 "viem": minor
 ---
 
-**Breaking:** Changed ERC-20 token actions to resolve named tokens from client `tokens` config instead of built-in chain `tokens` config.
+**Breaking:** Changed ERC-20 token actions to resolve token symbols from the Client `tokens` array instead of built-in chain `tokens` config.
 
 ```diff
  import { createPublicClient, http } from 'viem'
@@ -12,7 +12,7 @@
 -const client = createPublicClient({ chain: mainnet, transport: http() })
 +const client = createPublicClient({
 +  chain: mainnet,
-+  tokens: { usdc },
++  tokens: [usdc],
 +  transport: http(),
 +})
 

@@ -60,7 +60,7 @@ describe('getBalance', () => {
     `)
   })
 
-  test('token: resolves balance from chain tokens', async () => {
+  test('token: resolves balance from client tokens', async () => {
     const balance = await getBalance(client, { token: 'usdc', account: holder })
     // `balance.amount` is a live mainnet-fork value, so we assert on its
     // type/range and that `formatted` is derived from it.
@@ -69,7 +69,7 @@ describe('getBalance', () => {
     expect(balance.formatted).toBe(formatUnits(balance.amount, 6))
   })
 
-  test('token: call resolves address from chain tokens', () => {
+  test('token: call resolves address from client tokens', () => {
     const call = getBalance.call(client, { token: 'usdc', account: holder })
     expect({
       data: call.data,

@@ -287,6 +287,7 @@ import {
   type SendRawTransactionSyncReturnType,
   sendRawTransactionSync,
 } from '../../actions/wallet/sendRawTransactionSync.js'
+import type { ClientTokens } from '../../tokens/defineToken.js'
 import type { Account } from '../../types/account.js'
 import type { BlockNumber, BlockTag } from '../../types/block.js'
 import type { Chain } from '../../types/chain.js'
@@ -299,11 +300,7 @@ import type {
 } from '../../types/contract.js'
 import type { FeeValuesType } from '../../types/fee.js'
 import type { FilterType } from '../../types/filter.js'
-import {
-  bindActionDecorators,
-  type Client,
-  type ClientTokens,
-} from '../createClient.js'
+import { bindActionDecorators, type Client } from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'
 
 /** @internal */
@@ -2108,8 +2105,8 @@ export type PublicActions<
   /**
    * Read-only ERC-20 Actions, exposed under the `token` namespace.
    *
-   * Every action selects its token by `token`, which is either a token name
-   * (resolved from the chain's `tokens` config) or a contract `address`.
+   * Every action selects its token by `token`, which is either a token symbol
+   * (resolved from the Client's `tokens` array) or a contract `address`.
    *
    * - Docs: https://viem.sh/docs/token
    */
@@ -2188,7 +2185,7 @@ export type PublicActions<
     }
     /**
      * Gets the metadata (`decimals`, `name`, `symbol`) of the token. Fields
-     * declared on the chain's `tokens` config are used as-is; any missing field
+     * declared on the Client's `tokens` array are used as-is; any missing field
      * is fetched from the token contract.
      *
      * - Docs: https://viem.sh/docs/token/getMetadata

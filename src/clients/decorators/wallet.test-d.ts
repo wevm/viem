@@ -14,7 +14,7 @@ const account = privateKeyToAccount(
 const client = createClient({
   account,
   chain: mainnet,
-  tokens: { usdc },
+  tokens: [usdc],
   transport: http(),
 })
 
@@ -161,7 +161,7 @@ describe('chain without tokens', () => {
       to: '0x',
       amount: { formatted: '1' },
     })
-    // @ts-expect-error - `token` is required when the chain has no `tokens`
+    // @ts-expect-error - `token` is required when the client has no `tokens`
     extended.token.transfer({ to: '0x', amount: { formatted: '1' } })
   })
 })

@@ -10,7 +10,7 @@ import { accounts, address } from './constants.js'
 
 export { accounts }
 
-export const client = anvilMainnet.getClient({ tokens: { usdc: usdcToken } })
+export const client = anvilMainnet.getClient({ tokens: [usdcToken] })
 
 export const usdc = usdcToken.addresses[mainnet.id]
 export const decimals = 6

@@ -353,7 +353,7 @@ describe('smoke test', () => {
 
 describe('token', () => {
   const client = anvilMainnet
-    .getClient({ tokens: { usdc: usdcToken } })
+    .getClient({ tokens: [usdcToken] })
     .extend(publicActions)
     .extend(walletActions)
 
@@ -426,7 +426,7 @@ describe('token', () => {
           amount: { formatted: '1' },
         }),
       ).toThrowErrorMatchingInlineSnapshot(
-        `[Error: Token "dai" is not a declared ERC-20 token on the client's \`tokens\` config (with an address for the client's chain), and is not a valid address.]`,
+        `[Error: Token "dai" is not a declared ERC-20 token on the client's \`tokens\` array (with an address for the client's chain), and is not a valid address.]`,
       )
     })
 
@@ -438,7 +438,7 @@ describe('token', () => {
           amount: { formatted: '1' },
         }),
       ).toThrowErrorMatchingInlineSnapshot(
-        `[Error: Token decimals are required. Pass \`amount.decimals\` or declare the token on the chain.]`,
+        `[Error: Token decimals are required. Pass \`amount.decimals\` or select a declared token.]`,
       )
     })
   })

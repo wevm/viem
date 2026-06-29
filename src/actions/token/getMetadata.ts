@@ -1,7 +1,8 @@
 import type { Account } from '../../accounts/types.js'
-import type { Client, ClientTokens } from '../../clients/createClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { erc20Abi } from '../../constants/abis.js'
+import type { ClientTokens } from '../../tokens/defineToken.js'
 import type { Chain } from '../../types/chain.js'
 import { readContract } from '../public/readContract.js'
 import {
@@ -14,7 +15,7 @@ import {
 /**
  * Gets the metadata (`decimals`, `name`, `symbol`) of an ERC-20 token.
  *
- * Fields declared on the chain's `tokens` config are used as-is; any missing
+ * Fields declared on the Client's `tokens` array are used as-is; any missing
  * field is fetched from the token contract.
  *
  * @example

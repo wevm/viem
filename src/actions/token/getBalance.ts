@@ -1,10 +1,11 @@
 import type { Address } from 'abitype'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
-import type { Client, ClientTokens } from '../../clients/createClient.js'
+import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { erc20Abi } from '../../constants/abis.js'
 import { AccountNotFoundError } from '../../errors/account.js'
+import type { ClientTokens } from '../../tokens/defineToken.js'
 import type { GetAccountParameter } from '../../types/account.js'
 import type { Chain } from '../../types/chain.js'
 import { readContract } from '../public/readContract.js'
@@ -87,8 +88,7 @@ export namespace getBalance {
    *
    * Can be passed as a parameter to `multicall`, `simulateContract`, or any
    * other action that accepts a contract call. The token is selected by `token`
-   * name (resolved from the client's chain `tokens` config) or contract
-   * address.
+   * symbol (resolved from the client's `tokens` array) or contract address.
    *
    * @param client - Client.
    * @param args - Arguments.

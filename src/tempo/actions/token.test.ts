@@ -46,7 +46,7 @@ describe('approve', () => {
         token: addresses.DONOTUSE,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: Token decimals are required. Pass \`amount.decimals\` or declare the token on the chain.]`,
+      `[Error: Token decimals are required. Pass \`amount.decimals\` or select a declared token.]`,
     )
   })
 
@@ -582,7 +582,7 @@ describe('mint', () => {
         token: addresses.DONOTUSE,
       }),
     ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Token decimals are required. Pass \`amount.decimals\` or declare the token on the chain.]`,
+      `[Error: Token decimals are required. Pass \`amount.decimals\` or select a declared token.]`,
     )
 
     expect(() =>
@@ -591,7 +591,7 @@ describe('mint', () => {
         token: addresses.DONOTUSE,
       }),
     ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Token decimals are required. Pass \`amount.decimals\` or declare the token on the chain.]`,
+      `[Error: Token decimals are required. Pass \`amount.decimals\` or select a declared token.]`,
     )
 
     expect(() =>
@@ -601,7 +601,7 @@ describe('mint', () => {
         token: addresses.DONOTUSE,
       }),
     ).toThrowErrorMatchingInlineSnapshot(
-      `[Error: Token decimals are required. Pass \`amount.decimals\` or declare the token on the chain.]`,
+      `[Error: Token decimals are required. Pass \`amount.decimals\` or select a declared token.]`,
     )
   })
 
@@ -707,7 +707,7 @@ describe('transfer', () => {
         token: addresses.DONOTUSE,
       }),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: Token decimals are required. Pass \`amount.decimals\` or declare the token on the chain.]`,
+      `[Error: Token decimals are required. Pass \`amount.decimals\` or select a declared token.]`,
     )
   })
 

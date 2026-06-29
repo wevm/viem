@@ -12,7 +12,7 @@ const account = privateKeyToAccount(
 const clientWithTokens = createClient({
   account,
   chain: mainnet,
-  tokens: { usdc },
+  tokens: [usdc],
   transport: http(),
 })
 
