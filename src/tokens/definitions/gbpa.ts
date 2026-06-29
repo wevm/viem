@@ -6,6 +6,7 @@ export const gbpa = /*#__PURE__*/ defineToken({
   addresses: {
     4217: '0x20c0000000000000000000000a6da882d075a4c3', // tempo
   },
+  currency: 'GBP',
   decimals: 6,
   name: 'Agant GBP',
   symbol: 'GBPA',

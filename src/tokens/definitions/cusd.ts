@@ -6,6 +6,7 @@ export const cusd = /*#__PURE__*/ defineToken({
   addresses: {
     4217: '0x20c0000000000000000000000520792dcccccccc', // tempo
   },
+  currency: 'USD',
   decimals: 6,
   name: 'Cap USD',
   symbol: 'cUSD',

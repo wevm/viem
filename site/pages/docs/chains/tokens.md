@@ -74,6 +74,10 @@ type ChainToken = {
    */
   address: Address
   /**
+   * Currency denomination of the token (e.g. `'USD'`).
+   */
+  currency?: string | undefined
+  /**
    * Number of decimals the token uses. Used to convert between base units and
    * human-readable amounts (parsing `amount` for writes, formatting
    * `amount`/`formatted` for reads).
@@ -83,6 +87,10 @@ type ChainToken = {
    * Human-readable name of the token (e.g. `'USD Coin'`).
    */
   name?: string | undefined
+  /**
+   * Whether the token should be treated as popular in token lists.
+   */
+  popular?: boolean | undefined
   /**
    * Ticker symbol of the token (e.g. `'USDC'`).
    */

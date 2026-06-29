@@ -6,6 +6,7 @@ export const chfau = /*#__PURE__*/ defineToken({
   addresses: {
     4217: '0x20c00000000000000000000042109aef2f8b28e1', // tempo
   },
+  currency: 'CHF',
   decimals: 6,
   name: 'AllUnity CHF',
   symbol: 'CHFAU',

@@ -323,10 +323,14 @@ export type ChainContract = {
 export type ChainToken = {
   /** Token contract address. */
   address: Address
+  /** Token currency denomination. */
+  currency?: string | undefined
   /** Token decimals, used to parse human-readable `amount` strings. */
   decimals: number
   /** Token name. */
   name?: string | undefined
+  /** Whether the token should be treated as popular in token lists. */
+  popular?: boolean | undefined
   /** Token symbol. */
   symbol?: string | undefined
 }

@@ -10,20 +10,22 @@ Client's `tokens` array to make symbol selectors like `token: 'usdc'` available.
 
 ## Define a Token
 
-Use [`defineToken`](/tokens) to create a token from shared metadata (`decimals`, `name`, `symbol`) and
-a per-chain `addresses` map. This step does not attach the token to a Client; it only creates a
-reusable definition.
+Use [`defineToken`](/tokens) to create a token from shared metadata (`currency`, `decimals`,
+`name`, `symbol`, etc.) and a per-chain `addresses` map. This step does not attach the token to a
+Client; it only creates a reusable definition.
 
 ```ts twoslash
 import { defineToken } from 'viem/tokens'
 
-export const usdc = defineToken({ // [!code focus:9]
+export const usdc = defineToken({ // [!code focus:11]
   addresses: {
     1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
     10: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
   },
+  currency: 'USD',
   decimals: 6,
   name: 'USD Coin',
+  popular: true,
   symbol: 'USDC',
 })
 ```
@@ -39,16 +41,20 @@ const usdc = defineToken({
     1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
     10: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
   },
+  currency: 'USD',
   decimals: 6,
   name: 'USD Coin',
+  popular: true,
   symbol: 'USDC',
 })
 // ---cut---
 const mainnetUsdc = usdc(mainnet.id)
 // @log: {
 // @log:   address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+// @log:   currency: 'USD',
 // @log:   decimals: 6,
 // @log:   name: 'USD Coin',
+// @log:   popular: true,
 // @log:   symbol: 'USDC',
 // @log: }
 ```
@@ -67,6 +73,7 @@ const usdc = defineToken({
   addresses: {
     1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
   },
+  currency: 'USD',
   decimals: 6,
   name: 'USD Coin',
   symbol: 'USDC',
@@ -93,6 +100,7 @@ export const client = createPublicClient({
       addresses: {
         1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
       },
+      currency: 'USD',
       decimals: 6,
       name: 'USD Coin',
       symbol: 'USDC',
@@ -113,6 +121,7 @@ const usdc = defineToken({
   addresses: {
     1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
   },
+  currency: 'USD',
   decimals: 6,
   name: 'USD Coin',
   symbol: 'USDC',

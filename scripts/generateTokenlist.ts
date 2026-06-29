@@ -12,23 +12,44 @@ const tokenlistUris = [
   'https://api.tempo.xyz/v1/tokenlist?chainId=42431',
 ]
 
+const tip20CurrencyData = '0xe5a6b10f'
+const tempoMetadataChainIds = new Set([4217, 42431])
+
+type Address = `0x${string}`
+
+type Chain = {
+  id: number
+  rpcUrls?: {
+    default?: {
+      http?: readonly string[] | undefined
+    }
+  }
+}
+
 type ChainTarget = {
+  chain: Chain
   chainId: number
-  file: URL
   name: string
 }
 
 type ChainExport = {
   exportedName: string
-  file: URL
 }
 
 type TokenlistToken = {
   address: string
   chainId: number
+  currency?: string | undefined
   decimals: number
+  extensions?:
+    | {
+        currency?: string | undefined
+        popular?: boolean | undefined
+      }
+    | undefined
   logoURI?: string | undefined
   name: string
+  popular?: boolean | undefined
   symbol: string
 }
 
@@ -47,9 +68,11 @@ type Tokenlist = {
 
 type TokenDefinition = {
   addresses: Map<number, string>
+  currency?: string | undefined
   decimals: number
   importName: string
   name: string
+  popular?: boolean | undefined
   sourceOrder: number
   symbol: string
 }
@@ -61,13 +84,8 @@ const definitionsDir = new URL('../src/tokens/definitions/', import.meta.url)
 const tokensIndexFile = new URL('../src/tokens/index.ts', import.meta.url)
 const chainsIndexFile = new URL('../src/chains/index.ts', import.meta.url)
 
-const tokenDefinitions = await getTokenDefinitions(
-  tokenlistUris,
-  getReservedImportNames(),
-)
-const tokenChainIds = new Set(
-  tokenDefinitions.flatMap((token) => Array.from(token.addresses.keys())),
-)
+const tokenlistTokens = await getTokenlistTokens(tokenlistUris)
+const tokenChainIds = new Set(tokenlistTokens.map((token) => token.chainId))
 const chainTargetById = await getChainTargetById(tokenChainIds)
 const unsupportedChainIds = Array.from(tokenChainIds).filter(
   (chainId) => !chainTargetById.has(chainId),
@@ -77,36 +95,47 @@ if (unsupportedChainIds.length > 0)
     `Missing chain target for tokenlist chain id(s): ${unsupportedChainIds.join(', ')}.`,
   )
 
+const tokenDefinitions = await getTokenDefinitions(
+  tokenlistTokens,
+  getReservedImportNames(),
+  chainTargetById,
+)
+
 await writeTokenDefinitions(tokenDefinitions)
 await writeTokensIndex(tokenDefinitions)
-for (const target of chainTargetById.values())
-  await updateChainTokens(target, tokenDefinitions)
 
 console.log(
   `Synced ${tokenDefinitions.length} token definitions from ${tokenlistUris.length} tokenlist URI(s) across ${tokenChainIds.size} chain(s).`,
 )
 
-async function getTokenDefinitions(
-  tokenlistUris: string[],
-  reservedImportNames: Set<string>,
-) {
-  const tokens = (
+async function getTokenlistTokens(tokenlistUris: string[]) {
+  return (
     await Promise.all(
       tokenlistUris.map(async (uri) =>
         fetchTokenlist(uri).then((tokenlist) => tokenlist.tokens),
       ),
     )
   ).flat()
+}
 
+async function getTokenDefinitions(
+  tokens: TokenlistToken[],
+  reservedImportNames: Set<string>,
+  chainTargetById: Map<number, ChainTarget>,
+) {
   const tokenGroups = new Map<string, TokenDefinition>()
   let sourceOrder = 0
   for (const token of tokens) {
+    const currency = await getTokenCurrency(token, chainTargetById)
+    const popular = token.popular ?? token.extensions?.popular
     const key = `${token.symbol}:${token.name}:${token.decimals}`
     const group = tokenGroups.get(key) ?? {
       addresses: new Map<number, string>(),
+      currency,
       decimals: token.decimals,
       importName: '',
       name: token.name,
+      popular,
       sourceOrder: sourceOrder++,
       symbol: token.symbol,
     }
@@ -118,6 +147,8 @@ async function getTokenDefinitions(
       )
 
     group.addresses.set(token.chainId, token.address)
+    group.currency ||= currency
+    group.popular ||= popular
     tokenGroups.set(key, group)
   }
 
@@ -128,6 +159,90 @@ async function getTokenDefinitions(
       ...token,
       importName: getUniqueImportName(token, usedImportNames),
     }))
+}
+
+async function getTokenCurrency(
+  token: TokenlistToken,
+  chainTargetById: Map<number, ChainTarget>,
+) {
+  const currency = token.currency ?? token.extensions?.currency
+  if (currency) return currency
+  if (!tempoMetadataChainIds.has(token.chainId)) return undefined
+
+  const target = chainTargetById.get(token.chainId)
+  if (!target) return undefined
+
+  try {
+    return await getTip20Currency(target, token.address as Address)
+  } catch (error) {
+    throw new Error(
+      `Failed to fetch TIP20 metadata for ${token.address} on chain ${token.chainId}.`,
+      { cause: error },
+    )
+  }
+}
+
+async function getTip20Currency(target: ChainTarget, token: Address) {
+  const rpcUrl = target.chain.rpcUrls?.default?.http?.[0]
+  if (!rpcUrl) throw new Error(`Missing RPC URL for chain ${target.chainId}.`)
+
+  const response = await fetch(rpcUrl, {
+    body: JSON.stringify({
+      id: 1,
+      jsonrpc: '2.0',
+      method: 'eth_call',
+      params: [
+        {
+          data: tip20CurrencyData,
+          to: token,
+        },
+        'latest',
+      ],
+    }),
+    headers: {
+      'content-type': 'application/json',
+    },
+    method: 'POST',
+  })
+  if (!response.ok)
+    throw new Error(
+      `Failed to call ${rpcUrl}: ${response.status} ${response.statusText}`,
+    )
+
+  const body = (await response.json()) as unknown
+  if (!isRecord(body)) throw new Error(`Invalid RPC response from ${rpcUrl}.`)
+  if ('error' in body)
+    throw new Error(`RPC error from ${rpcUrl}: ${JSON.stringify(body.error)}.`)
+  if (typeof body.result !== 'string')
+    throw new Error(`Invalid RPC result from ${rpcUrl}.`)
+
+  return decodeAbiString(body.result)
+}
+
+function decodeAbiString(hex: string) {
+  if (!/^0x[0-9a-fA-F]*$/.test(hex))
+    throw new Error(`Invalid ABI string result: ${hex}.`)
+
+  const data = hex.slice(2)
+  const offset = Number.parseInt(data.slice(0, 64), 16)
+  if (!Number.isSafeInteger(offset))
+    throw new Error(`Invalid ABI string offset: ${hex}.`)
+
+  const lengthStart = offset * 2
+  const length = Number.parseInt(data.slice(lengthStart, lengthStart + 64), 16)
+  if (!Number.isSafeInteger(length))
+    throw new Error(`Invalid ABI string length: ${hex}.`)
+
+  const valueStart = lengthStart + 64
+  const value = data.slice(valueStart, valueStart + length * 2)
+  if (value.length !== length * 2)
+    throw new Error(`Invalid ABI string data: ${hex}.`)
+
+  return new TextDecoder().decode(
+    Uint8Array.from(value.match(/.{1,2}/g) ?? [], (byte) =>
+      Number.parseInt(byte, 16),
+    ),
+  )
 }
 
 async function fetchTokenlist(uri: string): Promise<Tokenlist> {
@@ -153,8 +268,8 @@ async function getChainTargetById(chainIds: Set<number>) {
     if (!chainIds.has(chain.id)) continue
     if (chainTargetById.has(chain.id)) continue
     chainTargetById.set(chain.id, {
+      chain,
       chainId: chain.id,
-      file: chainExport.file,
       name: chainExport.exportedName,
     })
   }
@@ -170,11 +285,9 @@ function getChainExports() {
 
   for (const match of source.matchAll(exportPattern)) {
     const specifiers = match[1]!
-    const modulePath = match[2]!
-    const file = new URL(modulePath.replace(/\.js$/, '.ts'), chainsIndexFile)
 
     for (const exportedName of getExportedNames(specifiers))
-      chainExports.push({ exportedName, file })
+      chainExports.push({ exportedName })
   }
 
   return chainExports
@@ -225,55 +338,10 @@ async function writeTokensIndex(tokenDefinitions: TokenDefinition[]) {
   await Bun.write(
     tokensIndexFile,
     `// biome-ignore lint/performance/noBarrelFile: entrypoint module
-export { defineToken, type Token } from './defineToken.js'
+export { type ClientTokens, defineToken, type Token } from './defineToken.js'
 ${definitionExports.map((name) => `export { ${name} } from './definitions/${name}.js'`).join('\n')}
 `,
   )
-}
-
-async function updateChainTokens(
-  target: ChainTarget,
-  tokenDefinitions: TokenDefinition[],
-) {
-  const { chainId, file } = target
-  const tokens = tokenDefinitions.filter((token) =>
-    token.addresses.has(chainId),
-  )
-  const tokensBlock = `  tokens: {
-${tokens.map((token) => getChainTokenSource(token, chainId)).join('\n')}
-  },`
-
-  const source = readFileSync(file, 'utf8')
-  const withoutTokenImports = source.replace(
-    /^import \{ \w+ \} from '\.\.\/\.\.\/tokens\/definitions\/\w+\.js'\n/gm,
-    '',
-  )
-  const withoutHelper = withoutTokenImports
-    .replace(
-      /^import type \{ ChainToken \} from '\.\.\/\.\.\/types\/chain\.js'\n/gm,
-      '',
-    )
-    .replace(/\nfunction chainToken\([\s\S]*?\n\}\n(?=\nexport const)/m, '')
-
-  const withTokensBlock = /\n {2}tokens: \{[\s\S]*?\n {2}\},(?=\n\}\))/m.test(
-    withoutHelper,
-  )
-    ? withoutHelper.replace(
-        /\n {2}tokens: \{[\s\S]*?\n {2}\},(?=\n\}\))/m,
-        `\n${tokensBlock}`,
-      )
-    : withoutHelper.replace(/\n\}\)\n?$/, `\n${tokensBlock}\n})\n`)
-
-  await Bun.write(file, withTokensBlock)
-}
-
-function getChainTokenSource(token: TokenDefinition, chainId: number) {
-  return `    ${token.importName}: {
-      address: '${token.addresses.get(chainId)!}',
-      decimals: ${token.decimals},
-      name: ${toStringLiteral(token.name)},
-      symbol: ${toStringLiteral(token.symbol)},
-    },`
 }
 
 function getTokenDefinitionSource(token: TokenDefinition) {
@@ -293,9 +361,9 @@ export const ${token.importName} = /*#__PURE__*/ defineToken({
   addresses: {
 ${addresses}
   },
-  decimals: ${token.decimals},
+${token.currency ? `  currency: ${toStringLiteral(token.currency)},\n` : ''}  decimals: ${token.decimals},
   name: ${toStringLiteral(token.name)},
-  symbol: ${toStringLiteral(token.symbol)},
+${token.popular ? '  popular: true,\n' : ''}  symbol: ${toStringLiteral(token.symbol)},
 })
 `
 }
@@ -408,6 +476,34 @@ function assertTokenlist(
       throw new Error(`Invalid token name from ${uri} for ${token.address}.`)
     if (typeof token.symbol !== 'string' || token.symbol.length === 0)
       throw new Error(`Invalid token symbol from ${uri} for ${token.address}.`)
+    if ('currency' in token && typeof token.currency !== 'string')
+      throw new Error(
+        `Invalid token currency from ${uri} for ${token.address}.`,
+      )
+    if ('popular' in token && typeof token.popular !== 'boolean')
+      throw new Error(
+        `Invalid token popular flag from ${uri} for ${token.address}.`,
+      )
+    if ('extensions' in token && token.extensions !== undefined) {
+      if (!isRecord(token.extensions))
+        throw new Error(
+          `Invalid token extensions from ${uri} for ${token.address}.`,
+        )
+      if (
+        'currency' in token.extensions &&
+        typeof token.extensions.currency !== 'string'
+      )
+        throw new Error(
+          `Invalid token extensions.currency from ${uri} for ${token.address}.`,
+        )
+      if (
+        'popular' in token.extensions &&
+        typeof token.extensions.popular !== 'boolean'
+      )
+        throw new Error(
+          `Invalid token extensions.popular from ${uri} for ${token.address}.`,
+        )
+    }
   }
 }
 
@@ -415,7 +511,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
 
-function isChain(value: unknown): value is { id: number } {
+function isChain(value: unknown): value is Chain {
   return isRecord(value) && Number.isInteger(value.id)
 }
 

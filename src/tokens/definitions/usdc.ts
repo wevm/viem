@@ -59,7 +59,9 @@ export const usdc = /*#__PURE__*/ defineToken({
     11155111: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238', // sepolia
     11155420: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7', // optimismSepolia
   },
+  currency: 'USD',
   decimals: 6,
   name: 'USD Coin',
+  popular: true,
   symbol: 'USDC',
 })

@@ -6,6 +6,7 @@ export const rusd = /*#__PURE__*/ defineToken({
   addresses: {
     4217: '0x20c0000000000000000000007f7ba549dd0251b9', // tempo
   },
+  currency: 'USD',
   decimals: 6,
   name: 'Reservoir Stablecoin',
   symbol: 'rUSD',

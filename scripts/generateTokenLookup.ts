@@ -1,70 +1,63 @@
 import { mkdirSync } from 'node:fs'
 
-type ChainToken = {
-  address: string
-  decimals: number
-  name?: string | undefined
-  symbol?: string | undefined
-}
+type Address = `0x${string}`
 
-type ChainWithTokens = {
+type Chain = {
   id: number
   name: string
   testnet?: boolean | undefined
-  tokens: Record<string, ChainToken>
 }
 
-type TokenGroup = {
-  chains: {
-    address: string
-    id: number
-    name: string
-  }[]
+type TokenLookupChain = {
+  address: Address
+  id: number
+  name: string
+}
+
+type TokenLookupToken = {
+  chains: TokenLookupChain[]
+  currency?: string | undefined
   decimals: number
   importName: string
   name: string
+  popular?: boolean | undefined
   symbol: string
 }
 
-const tokenGroups = new Map<string, TokenGroup>()
-const seenChainTokens = new Set<string>()
-const chainsPath = new URL('../src/chains/index.ts', import.meta.url).href
-const Chains = (await import(chainsPath)) as Record<string, unknown>
-
-for (const chain of Object.values(Chains)) {
-  if (!isChainWithTokens(chain)) continue
-  if (chain.testnet) continue
-
-  for (const [tokenKey, token] of Object.entries(chain.tokens)) {
-    const symbol = token.symbol ?? tokenKey
-    const name = token.name ?? symbol
-    const groupKey = `${tokenKey}:${symbol.toLowerCase()}:${name.toLowerCase()}:${token.decimals}`
-    const chainTokenKey = `${chain.id}:${groupKey}:${token.address.toLowerCase()}`
-    if (seenChainTokens.has(chainTokenKey)) continue
-    seenChainTokens.add(chainTokenKey)
-
-    const group = tokenGroups.get(groupKey) ?? {
-      chains: [],
-      decimals: token.decimals,
-      importName: tokenKey,
-      name,
-      symbol,
-    }
-    group.chains.push({
-      address: token.address,
-      id: chain.id,
-      name: chain.name,
-    })
-    tokenGroups.set(groupKey, group)
-  }
+type Token = {
+  addresses: Record<number, Address>
+  currency?: string | undefined
+  decimals: number
+  name?: string | undefined
+  popular?: boolean | undefined
+  symbol?: string | undefined
 }
 
-const tokenLookupData = Array.from(tokenGroups.values())
-  .map((token) => ({
-    ...token,
-    chains: token.chains.sort((a, b) => a.id - b.id),
-  }))
-  .sort((a, b) => a.symbol.localeCompare(b.symbol))
+const chainsPath = new URL('../src/chains/index.ts', import.meta.url).href
+const tokensPath = new URL('../src/tokens/index.ts', import.meta.url).href
+
+const Chains = (await import(chainsPath)) as Record<string, unknown>
+const Tokens = (await import(tokensPath)) as Record<string, unknown>
+
+const chainById = new Map<number, Chain>()
+for (const chain of Object.values(Chains)) {
+  if (!isChain(chain)) continue
+  if (chain.testnet) continue
+  if (chainById.has(chain.id)) continue
+  chainById.set(chain.id, chain)
+}
+
+const tokenLookupData = Object.entries(Tokens)
+  .filter((entry): entry is [string, Token] => {
+    const [importName, token] = entry
+    return importName !== 'defineToken' && isToken(token)
+  })
+  .map(([importName, token]) => getTokenLookupToken(importName, token))
+  .filter((token) => token.chains.length > 0)
+  .sort((a, b) => {
+    if (a.popular !== b.popular) return a.popular ? -1 : 1
+    return a.symbol.localeCompare(b.symbol)
+  })
 
 const output = new URL('../site/data/tokens.ts', import.meta.url)
 mkdirSync(new URL('.', output), { recursive: true })
@@ -81,9 +74,11 @@ export type TokenLookupChain = {
 
 export type TokenLookupToken = {
   readonly chains: readonly TokenLookupChain[]
+  readonly currency?: string | undefined
   readonly decimals: number
   readonly importName: string
   readonly name: string
+  readonly popular?: boolean | undefined
   readonly symbol: string
 }
 
@@ -91,15 +86,56 @@ export const tokenLookupData = ${JSON.stringify(tokenLookupData, null, 2)} as co
 `,
 )
 
-function isChainWithTokens(value: unknown): value is ChainWithTokens {
+function getTokenLookupToken(
+  importName: string,
+  token: Token,
+): TokenLookupToken {
+  return {
+    chains: getTokenLookupChains(token),
+    ...(token.currency ? { currency: token.currency } : {}),
+    decimals: token.decimals,
+    importName,
+    name: token.name ?? token.symbol ?? importName,
+    ...(token.popular ? { popular: token.popular } : {}),
+    symbol: token.symbol ?? importName,
+  }
+}
+
+function getTokenLookupChains(token: Token) {
+  return Object.entries(token.addresses)
+    .flatMap(([chainId_, address]) => {
+      const chainId = Number(chainId_)
+      const chain = chainById.get(chainId)
+      if (!chain) return []
+      return [
+        {
+          address,
+          id: chain.id,
+          name: chain.name,
+        },
+      ]
+    })
+    .sort((a, b) => a.id - b.id)
+}
+
+function isToken(value: unknown): value is Token {
+  return (
+    typeof value === 'function' &&
+    'addresses' in value &&
+    typeof value.addresses === 'object' &&
+    value.addresses !== null &&
+    'decimals' in value &&
+    typeof value.decimals === 'number'
+  )
+}
+
+function isChain(value: unknown): value is Chain {
   return (
     typeof value === 'object' &&
     value !== null &&
     'id' in value &&
+    Number.isInteger(value.id) &&
     'name' in value &&
-    'tokens' in value &&
-    typeof value.tokens === 'object' &&
-    value.tokens !== null &&
-    Object.keys(value.tokens).length > 0
+    typeof value.name === 'string'
   )
 }

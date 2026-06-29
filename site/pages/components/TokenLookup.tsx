@@ -6,6 +6,7 @@ import { tokenLookupData } from '../../data/tokens.js'
 type TokenEntry = {
   addresses: string[]
   chains: string[]
+  currency?: string | undefined
   decimals: number
   importName: string
   name: string
@@ -14,17 +15,17 @@ type TokenEntry = {
   symbol: string
 }
 
-const popularTokens = new Set(['usdc'])
-
 const tokens: TokenEntry[] = tokenLookupData
   .map((token) => {
     const addresses = token.chains.map((chain) => chain.address)
     const chains = token.chains.map((chain) => chain.name)
-    const popular = popularTokens.has(token.importName)
+    const currency = 'currency' in token ? token.currency : undefined
+    const popular = 'popular' in token ? token.popular : false
 
     return {
       addresses,
       chains,
+      currency,
       decimals: token.decimals,
       importName: token.importName,
       name: token.name,
@@ -33,6 +34,7 @@ const tokens: TokenEntry[] = tokenLookupData
         token.symbol,
         token.name,
         token.importName,
+        currency ?? '',
         token.decimals,
         popular ? 'popular' : '',
         ...chains,

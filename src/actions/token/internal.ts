@@ -251,8 +251,10 @@ function resolveTokenForChain(
   if (!address) return undefined
   return {
     address,
+    currency: token.currency,
     decimals: token.decimals,
     name: token.name,
+    popular: token.popular,
     symbol: token.symbol,
   }
 }
