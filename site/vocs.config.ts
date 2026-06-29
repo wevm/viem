@@ -362,7 +362,12 @@ export default defineConfig({
               {
                 text: 'deploy',
                 link: '/docs/actions/public/contract/deploy',
-                badge: badge('public'),
+                badge: badge('wallet'),
+              },
+              {
+                text: 'deploySync',
+                link: '/docs/actions/public/contract/deploySync',
+                badge: badge('wallet'),
               },
               {
                 text: 'getEip712Domain',
@@ -387,7 +392,12 @@ export default defineConfig({
               {
                 text: 'write',
                 link: '/docs/actions/public/contract/write',
-                badge: badge('public'),
+                badge: badge('wallet'),
+              },
+              {
+                text: 'writeSync',
+                link: '/docs/actions/public/contract/writeSync',
+                badge: badge('wallet'),
               },
             ],
           },
@@ -522,17 +532,27 @@ export default defineConfig({
               {
                 text: 'send',
                 link: '/docs/actions/public/transaction/send',
-                badge: badge('public'),
+                badge: badge('wallet'),
               },
               {
                 text: 'sendRaw',
                 link: '/docs/actions/public/transaction/sendRaw',
-                badge: badge('public'),
+                badge: badge('wallet'),
+              },
+              {
+                text: 'sendRawSync',
+                link: '/docs/actions/public/transaction/sendRawSync',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'sendSync',
+                link: '/docs/actions/public/transaction/sendSync',
+                badge: badge('wallet'),
               },
               {
                 text: 'sign',
                 link: '/docs/actions/public/transaction/sign',
-                badge: badge('public'),
+                badge: badge('wallet'),
               },
               {
                 text: 'waitForReceipt',

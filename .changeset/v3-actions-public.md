@@ -173,6 +173,26 @@ Contract deployments were renamed from `deployContract` to `Actions.contract.dep
   })
 ```
 
+Sync transaction and contract writes were renamed to their v3 action namespaces.
+
+```diff
+- import { sendTransactionSync, sendRawTransactionSync, writeContractSync } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const receipt = await sendTransactionSync(client, { to, value })
++ const receipt = await Actions.transaction.sendSync(client, { to, value })
+
+- const receipt = await sendRawTransactionSync(client, { serializedTransaction })
++ const receipt = await Actions.transaction.sendRawSync(client, { transaction })
+
+- const receipt = await writeContractSync(client, {
++ const receipt = await Actions.contract.writeSync(client, {
+    abi,
+    address,
+    functionName,
+  })
+```
+
 `Actions.transaction.send` no longer falls back to `wallet_sendTransaction` when a JSON-RPC account's transport rejects `eth_sendTransaction`; it always sends via `eth_sendTransaction`.
 
 `Actions.transaction.send` with a JSON-RPC account no longer throws when the client has no configured `chain`; it sends against the transport's current chain instead of requiring `chain` (or `chain: null`) to opt out of the chain assertion.

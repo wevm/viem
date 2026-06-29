@@ -40,13 +40,17 @@ export function walletActions() {
   ): walletActions.Decorator<chain, account> => ({
     contract: {
       deploy: (options) => contract.deploy(client, options as never),
+      deploySync: (options) => contract.deploySync(client, options as never),
       write: (options) => contract.write(client, options as never),
+      writeSync: (options) => contract.writeSync(client, options as never),
     },
     transaction: {
       fill: (options) => transaction.fill(client, options),
       prepare: (options) => transaction.prepare(client, options),
       send: (options) => transaction.send(client, options),
       sendRaw: (options) => transaction.sendRaw(client, options),
+      sendRawSync: (options) => transaction.sendRawSync(client, options),
+      sendSync: (options) => transaction.sendSync(client, options),
       sign: (options) => transaction.sign(client, options),
     },
   })
@@ -86,6 +90,33 @@ export declare namespace walletActions {
         options: contract.deploy.Options<abi, chain, args>,
       ) => Promise<contract.deploy.ReturnType>
       /**
+       * Deploys a contract to the network synchronously.
+       *
+       * @example
+       * ```ts
+       * import { Account, Client, http, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       * import { Abi } from 'viem/utils'
+       *
+       * const client = Client.create({
+       *   account: Account.fromPrivateKey('0x…'),
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(walletActions())
+       * const receipt = await client.contract.deploySync({
+       *   abi: Abi.from(['constructor(address owner)']),
+       *   args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+       *   bytecode: '0x608060405260405161083e38038061083e8339810160408190...',
+       * })
+       * ```
+       */
+      deploySync: <
+        const abi extends Abi | readonly unknown[],
+        const args extends ContractConstructorArgs<abi>,
+      >(
+        options: contract.deploySync.Options<abi, chain, args>,
+      ) => Promise<contract.deploySync.ReturnType<chain>>
+      /**
        * Executes a write (`nonpayable`/`payable`) function on a contract.
        *
        * @example
@@ -121,6 +152,43 @@ export declare namespace walletActions {
       >(
         options: contract.write.Options<abi, functionName, args, chain>,
       ) => Promise<contract.write.ReturnType>
+      /**
+       * Executes a write (`nonpayable`/`payable`) function on a contract
+       * synchronously.
+       *
+       * @example
+       * ```ts
+       * import { Account, Client, http, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       * import { Abi } from 'viem/utils'
+       *
+       * const client = Client.create({
+       *   account: Account.fromPrivateKey('0x…'),
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(walletActions())
+       * const receipt = await client.contract.writeSync({
+       *   abi: Abi.from(['function mint(uint32 tokenId)']),
+       *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+       *   args: [69420],
+       *   functionName: 'mint',
+       * })
+       * ```
+       */
+      writeSync: <
+        const abi extends Abi | readonly unknown[],
+        functionName extends ContractFunctionName<
+          abi,
+          'nonpayable' | 'payable'
+        >,
+        const args extends ContractFunctionArgs<
+          abi,
+          'nonpayable' | 'payable',
+          functionName
+        >,
+      >(
+        options: contract.writeSync.Options<abi, functionName, args, chain>,
+      ) => Promise<contract.writeSync.ReturnType<chain>>
     }
     transaction: {
       /**
@@ -209,6 +277,49 @@ export declare namespace walletActions {
       sendRaw: (
         options: transaction.sendRaw.Options,
       ) => Promise<transaction.sendRaw.ReturnType>
+      /**
+       * Sends a signed serialized transaction to the network synchronously.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(walletActions())
+       * const receipt = await client.transaction.sendRawSync({
+       *   transaction: '0x02f850018203118080825208808080c080a0…',
+       * })
+       * ```
+       */
+      sendRawSync: (
+        options: transaction.sendRawSync.Options,
+      ) => Promise<transaction.sendRawSync.ReturnType<chain>>
+      /**
+       * Creates, signs, and sends a new transaction to the network
+       * synchronously.
+       *
+       * @example
+       * ```ts
+       * import { Account, Client, http, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   account: Account.fromPrivateKey('0x…'),
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(walletActions())
+       * const receipt = await client.transaction.sendSync({
+       *   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+       *   value: 1n,
+       * })
+       * ```
+       */
+      sendSync: (
+        options: transaction.sendSync.Options<chain>,
+      ) => Promise<transaction.sendSync.ReturnType<chain>>
       /**
        * Signs a transaction.
        *

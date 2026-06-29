@@ -86,4 +86,5 @@ test('request is assignable to write', async () => {
     .extend(publicActions())
     .extend(walletActions())
   await decorated.contract.write(request)
+  await decorated.contract.writeSync(request)
 })

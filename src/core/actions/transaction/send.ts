@@ -13,6 +13,7 @@ import type * as Client from '../../Client.js'
 import { BaseError } from '../../Errors.js'
 import * as RpcError from '../../RpcError.js'
 import type * as NonceManager from '../../NonceManager.js'
+import * as dataSuffix_ from '../../internal/dataSuffix.js'
 import { isAbortError } from '../../internal/errors.js'
 import * as transactionRequest from '../internal/transactionRequest.js'
 import { getId } from '../chains/getId.js'
@@ -76,9 +77,7 @@ export async function send<chain extends Chain.Chain | undefined>(
   let reset: NonceManager.NonceManager.Parameters | undefined
 
   try {
-    const data = dataSuffix
-      ? Hex.concat(rest.data ?? '0x', dataSuffix)
-      : rest.data
+    const data = dataSuffix_.append(rest.data, dataSuffix)
 
     const to = (() => {
       // If `to` exists on the options, use that.

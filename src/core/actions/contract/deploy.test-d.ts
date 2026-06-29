@@ -1,5 +1,6 @@
 import { Abi } from 'ox'
 import type * as Hex from 'ox/Hex'
+import type * as TransactionReceipt from 'ox/TransactionReceipt'
 import { expectTypeOf, test } from 'vitest'
 
 import { Actions, Client, http, walletActions } from 'viem'
@@ -15,6 +16,10 @@ const base = {
 
 test('return type is Hex', () => {
   expectTypeOf<Actions.contract.deploy.ReturnType>().toEqualTypeOf<Hex.Hex>()
+})
+
+test('sync return type is a transaction receipt', () => {
+  expectTypeOf<Actions.contract.deploySync.ReturnType>().toEqualTypeOf<TransactionReceipt.TransactionReceipt>()
 })
 
 test('infers constructor args', async () => {
@@ -158,4 +163,7 @@ test('decorator: contract.deploy threads through walletActions', async () => {
   const decorated = Client.create({ transport: http() }).extend(walletActions())
   const hash = await decorated.contract.deploy(base)
   expectTypeOf(hash).toEqualTypeOf<Hex.Hex>()
+
+  const receipt = await decorated.contract.deploySync(base)
+  expectTypeOf(receipt).toEqualTypeOf<TransactionReceipt.TransactionReceipt>()
 })

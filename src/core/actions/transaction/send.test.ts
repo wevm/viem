@@ -339,7 +339,6 @@ describe('behavior: chain schema', () => {
 })
 
 describe('behavior: dataSuffix', () => {
-  // TODO: support and test the `{ value, required }` object form of `dataSuffix`.
   test('appends the suffix to the calldata', async () => {
     const hash = await Actions.transaction.send(client, {
       account: local,
@@ -387,6 +386,21 @@ describe('behavior: dataSuffix', () => {
       account: jsonRpc,
       data: '0xab',
       gas: 100_000n,
+      to,
+    })
+    await testClient.block.mine({ blocks: 1 })
+    const transaction = await Actions.transaction.get(client, { hash })
+    expect(transaction.input).toBe('0xab12345678')
+  })
+
+  test('client.dataSuffix object format', async () => {
+    const client = Client.create({
+      dataSuffix: { required: true, value: '0x12345678' },
+      transport: http(anvil.mainnet.rpcUrl.http),
+    })
+    const hash = await Actions.transaction.send(client, {
+      account: local,
+      data: '0xab',
       to,
     })
     await testClient.block.mine({ blocks: 1 })

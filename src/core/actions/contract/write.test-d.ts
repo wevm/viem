@@ -1,6 +1,7 @@
 import { Abi } from 'ox'
 import type * as Address from 'ox/Address'
 import type * as Hex from 'ox/Hex'
+import type * as TransactionReceipt from 'ox/TransactionReceipt'
 import { expectTypeOf, test } from 'vitest'
 
 import { Actions, Client, http, walletActions } from 'viem'
@@ -14,6 +15,10 @@ const abi = Abi.from([
 
 test('return type is Hex', () => {
   expectTypeOf<Actions.contract.write.ReturnType>().toEqualTypeOf<Hex.Hex>()
+})
+
+test('sync return type is a transaction receipt', () => {
+  expectTypeOf<Actions.contract.writeSync.ReturnType>().toEqualTypeOf<TransactionReceipt.TransactionReceipt>()
 })
 
 test('infers functionName from nonpayable/payable functions', () => {
@@ -124,4 +129,12 @@ test('decorator: contract.write threads through walletActions', async () => {
     functionName: 'approve',
   })
   expectTypeOf(hash).toEqualTypeOf<Hex.Hex>()
+
+  const receipt = await decorated.contract.writeSync({
+    abi,
+    address: '0x',
+    args: ['0x', 123n],
+    functionName: 'approve',
+  })
+  expectTypeOf(receipt).toEqualTypeOf<TransactionReceipt.TransactionReceipt>()
 })

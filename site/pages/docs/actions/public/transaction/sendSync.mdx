@@ -1,0 +1,93 @@
+# sendSync
+
+Creates, signs, and sends a new transaction to the network synchronously, and returns the transaction receipt.
+
+Local Accounts broadcast via `eth_sendRawTransactionSync`. JSON-RPC Accounts broadcast normally, then wait for the receipt.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const receipt = await client.transaction.sendSync({
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+// @log: {
+// @log:   status: 'success',
+// @log:   transactionHash: '0x...',
+// @log: }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const receipt = await Actions.transaction.sendSync(client, {
+  to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+  value: 1n,
+})
+// @log: {
+// @log:   status: 'success',
+// @log:   transactionHash: '0x...',
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+## Return Value
+
+`TransactionReceipt`
+
+The transaction receipt.
+
+## Parameters
+
+Supports the same transaction parameters as [send](/docs/actions/public/transaction/send), plus the sync-specific parameters below.
+
+### confirmations
+
+- **Type:** `number`
+- **Default:** `1`
+
+Number of confirmations to wait for when the action needs to poll for a receipt.
+
+### pollingInterval
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Polling frequency, in milliseconds, when the action needs to poll for a receipt.
+
+### throwOnReceiptRevert
+
+- **Type:** `boolean`
+
+Whether to throw if the returned receipt status is `reverted`.
+
+### timeout
+
+- **Type:** `number`
+- **Default:** `Math.max((chain.blockTime ?? 0) * 3, 5_000)`
+
+Timeout, in milliseconds, before giving up.
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Account.NotFoundError` | No account was provided and the client has no configured account. |
+| `TransactionReceipt.RevertedError` | The transaction receipt status was `reverted` and `throwOnReceiptRevert` was enabled. |

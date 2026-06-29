@@ -6,6 +6,7 @@ import type * as RpcSchema from 'ox/RpcSchema'
 import * as Account from './Account.js'
 import type * as Chain from './Chain.js'
 import * as Transport from './Transport.js'
+import type { DataSuffix } from './internal/dataSuffix.js'
 import { uid } from './internal/uid.js'
 import type { Prettify } from './internal/types.js'
 
@@ -53,7 +54,7 @@ type Base<
   /** Chain for the Client. */
   chain: chain
   /** Data suffix appended to transaction calldata. */
-  dataSuffix?: Hex.Hex | undefined
+  dataSuffix?: DataSuffix | undefined
   /** A key for the Client. */
   key: string
   /** A name for the Client. */
@@ -243,7 +244,7 @@ export declare namespace create {
     /** Chain for the Client. */
     chain?: chain | undefined
     /** Data suffix appended to transaction calldata. */
-    dataSuffix?: Hex.Hex | undefined
+    dataSuffix?: DataSuffix | undefined
     /** A key for the Client. @default 'base' */
     key?: string | undefined
     /** A name for the Client. @default 'Base Client' */

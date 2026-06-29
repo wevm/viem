@@ -1,0 +1,71 @@
+# deployContractSync
+
+Deploys a contract to the network synchronously, and returns the transaction receipt.
+
+Constructor arguments are ABI-encoded with the deployment bytecode, then broadcast as a contract creation transaction. The deployed address is available on `receipt.contractAddress`.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { Abi } from 'viem/utils'
+import { client } from './viem.config'
+
+const receipt = await client.contract.deploySync({
+  abi: Abi.from(['constructor(address owner)']),
+  args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+  bytecode: '0x608060405260405161083e38038061083e8339810160408190...',
+})
+// @log: {
+// @log:   contractAddress: '0x...',
+// @log:   status: 'success',
+// @log: }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { Abi } from 'viem/utils'
+import { client } from './viem.config'
+
+const receipt = await Actions.contract.deploySync(client, {
+  abi: Abi.from(['constructor(address owner)']),
+  args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e'],
+  bytecode: '0x608060405260405161083e38038061083e8339810160408190...',
+})
+// @log: {
+// @log:   contractAddress: '0x...',
+// @log:   status: 'success',
+// @log: }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+## Return Value
+
+`TransactionReceipt`
+
+The transaction receipt.
+
+## Parameters
+
+Supports the same contract and transaction parameters as [deploy](/docs/actions/public/contract/deploy), plus the sync-specific parameters from [sendSync](/docs/actions/public/transaction/sendSync).
+
+## Errors
+
+| Error | Description |
+| --- | --- |
+| `Account.NotFoundError` | No account was provided and the client has no configured account. |
+| `RpcError.ExecutionError` | The deployment transaction could not be sent or executed. |
+| `TransactionReceipt.RevertedError` | The transaction receipt status was `reverted` and `throwOnReceiptRevert` was enabled. |
