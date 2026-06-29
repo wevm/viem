@@ -115,6 +115,7 @@ export function toBaseUnits(
  *
  * @param decimals - Token decimals.
  * @returns Token decimals.
+ * @internal
  */
 export function requireTokenDecimals(decimals: number | undefined): number {
   if (decimals === undefined)
