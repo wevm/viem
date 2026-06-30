@@ -80,6 +80,23 @@ export const client = createWalletClient({
 :::
 
 :::tip
+Instead of listing tokens one by one, pass a curated **token set** from the `tokens` object, like
+`tokens.tempo` (every token on Tempo chains). See [Token Sets](/tokens/tokens#token-sets) for more.
+
+```ts twoslash
+import { createPublicClient, http } from 'viem'
+import { tempo as tempoChain } from 'viem/chains'
+import { tokens } from 'viem/tokens'
+
+const client = createPublicClient({
+  chain: tempoChain,
+  tokens: tokens.tempo, // [!code hl]
+  transport: http(),
+})
+```
+:::
+
+:::tip
 To use both read and write Token Actions on a single Client, extend a Client with both
 [Public Actions](/docs/actions/public/introduction) and
 [Wallet Actions](/docs/actions/wallet/introduction):

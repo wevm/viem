@@ -24,7 +24,7 @@
     "check:types": "tsc -b",
     "check:unused": "pnpm clean && knip",
     "gen:tempo-abis": "bun scripts/generateTempoAbis.ts && biome check --write --unsafe src/tempo/Abis.ts src/tempo/Selectors.ts",
-    "gen:tokenlist": "bun scripts/generateTokenlist.ts && pnpm gen:token-lookup",
+    "gen:tokenlist": "bun scripts/generateTokenlist.ts && biome check --write --unsafe src/tokens && pnpm gen:token-lookup",
     "gen:token-lookup": "bun scripts/generateTokenLookup.ts && biome check --write --unsafe site/data/tokens.ts",
     "postinstall": "git submodule update --init --recursive && pnpm contracts:build",
     "preconstruct": "bun scripts/preconstruct.ts",

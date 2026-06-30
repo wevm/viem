@@ -84,7 +84,10 @@ const generatedBanner =
 
 const definitionsDir = new URL('../src/tokens/definitions/', import.meta.url)
 const tokensIndexFile = new URL('../src/tokens/index.ts', import.meta.url)
+const tokenSetsFile = new URL('../src/tokens/sets.ts', import.meta.url)
 const chainsIndexFile = new URL('../src/chains/index.ts', import.meta.url)
+
+const clientByChainId = new Map<number, ReturnType<typeof createClient>>()
 
 const tokenlistTokens = await getTokenlistTokens(tokenlistUris)
 const tokenChainIds = new Set(tokenlistTokens.map((token) => token.chainId))
@@ -104,6 +107,7 @@ const tokenDefinitions = await getTokenDefinitions(
 )
 
 await writeTokenDefinitions(tokenDefinitions)
+await writeTokenSets(tokenDefinitions)
 await writeTokensIndex(tokenDefinitions)
 
 console.log(
@@ -186,8 +190,6 @@ async function getTokenCurrency(
     )
   }
 }
-
-const clientByChainId = new Map<number, ReturnType<typeof createClient>>()
 
 function getClient(target: ChainTarget) {
   const cached = clientByChainId.get(target.chainId)
@@ -296,6 +298,44 @@ async function writeTokensIndex(tokenDefinitions: TokenDefinition[]) {
     `// biome-ignore lint/performance/noBarrelFile: entrypoint module
 export { defineToken, type Token, type Tokens } from './defineToken.js'
 ${definitionExports.map((name) => `export { ${name} } from './definitions/${name}.js'`).join('\n')}
+export { tokens } from './sets.js'
+`,
+  )
+}
+
+async function writeTokenSets(tokenDefinitions: TokenDefinition[]) {
+  const allNames = getDefinitionExports(tokenDefinitions)
+  const tempoNames = tokenDefinitions
+    .map((token) => token.importName)
+    .sort((a, b) => a.localeCompare(b))
+  const popularNames = allNames.filter((name) => {
+    const file = new URL(`${name}.ts`, definitionsDir)
+    return /\bpopular:\s*true\b/.test(readFileSync(file, 'utf8'))
+  })
+
+  const list = (names: string[]) =>
+    names.length === 0
+      ? '[] as const satisfies Tokens'
+      : `[\n${names.map((name) => `  ${name},`).join('\n')}\n] as const satisfies Tokens`
+
+  await Bun.write(
+    tokenSetsFile,
+    `${generatedBanner}
+
+import type { Tokens } from './defineToken.js'
+${allNames.map((name) => `import { ${name} } from './definitions/${name}.js'`).join('\n')}
+
+/** Every token definition. */
+const all = ${list(allNames)}
+
+/** Tokens flagged as popular. */
+const popular = ${list(popularNames)}
+
+/** All tokens available on Tempo chains. */
+const tempo = ${list(tempoNames)}
+
+/** Curated token sets that can be passed to a Client's \`tokens\` property. */
+export const tokens = { all, popular, tempo }
 `,
   )
 }

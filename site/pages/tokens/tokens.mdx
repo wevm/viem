@@ -47,6 +47,52 @@ const mainnetUsdc = usdc(mainnet.id)
 // @log: }
 ```
 
+## Token Sets
+
+`viem/tokens` exports a `tokens` object of curated **token sets**: ready-made arrays of token
+definitions you can pass straight to a Client's `tokens` property without listing each token by
+hand.
+
+| Set              | Contents                              |
+| ---------------- | ------------------------------------- |
+| `tokens.all`     | Every built-in token definition.      |
+| `tokens.popular` | Tokens flagged as popular.            |
+| `tokens.tempo`   | Every token available on Tempo chains.|
+
+```ts twoslash
+import { createPublicClient, http } from 'viem'
+import { tempo as tempoChain } from 'viem/chains'
+import { tokens } from 'viem/tokens'
+
+const client = createPublicClient({
+  chain: tempoChain,
+  tokens: tokens.tempo, // [!code hl]
+  transport: http(),
+})
+```
+
+Sets are plain arrays, so you can spread them alongside your own definitions:
+
+```ts twoslash
+import { createPublicClient, http } from 'viem'
+import { tempo as tempoChain } from 'viem/chains'
+import { defineToken, tokens } from 'viem/tokens'
+
+const myToken = defineToken({
+  addresses: { 1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' },
+  currency: 'USD',
+  decimals: 6,
+  name: 'My Token',
+  symbol: 'MYT',
+})
+
+const client = createPublicClient({
+  chain: tempoChain,
+  tokens: [...tokens.tempo, myToken], // [!code hl]
+  transport: http(),
+})
+```
+
 ## Using Named Tokens
 
 The `token` parameter is either:

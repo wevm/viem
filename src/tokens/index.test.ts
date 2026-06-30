@@ -38,6 +38,7 @@ test('exports', () => {
       "usdt0",
       "usyc",
       "wsrusd",
+      "tokens",
     ]
   `)
 })
