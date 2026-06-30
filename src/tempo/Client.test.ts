@@ -1,6 +1,7 @@
 import { http } from 'viem'
 import { tempoLocalnet } from 'viem/chains'
 import { createClient } from 'viem/tempo'
+import { tokens } from 'viem/tokens'
 import { describe, expect, test } from 'vitest'
 
 import { tempo, tempoTestnet } from './Chain.js'
@@ -18,6 +19,16 @@ describe('createClient', () => {
     expect(typeof client.sendTransaction).toBe('function') // wallet
     expect(typeof client.token).toBe('object') // tempo
     expect(typeof client.amm).toBe('object') // tempo
+  })
+
+  test('behavior: defaults tokens to the tempo set', () => {
+    const client = createClient()
+    expect(client.tokens).toBe(tokens.tempo)
+  })
+
+  test('behavior: tokens override', () => {
+    const client = createClient({ tokens: [] })
+    expect(client.tokens).toEqual([])
   })
 
   test('behavior: testnet', () => {
