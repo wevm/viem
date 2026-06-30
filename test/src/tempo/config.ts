@@ -25,6 +25,7 @@ import {
 } from '../../../src/index.js'
 import * as Actions from '../../../src/tempo/actions/index.js'
 import { Account, Addresses, Tick } from '../../../src/tempo/index.js'
+import { defineToken } from '../../../src/tokens/index.js'
 import { rpcUrl } from './prool.js'
 
 export const nodeEnv = import.meta.env.VITE_TEMPO_ENV || 'localnet'
@@ -61,13 +62,26 @@ export const chain = (() => {
       return defineChain({
         ...tempoLocalnet,
         rpcUrls: { default: { http: [rpcUrl] } },
-        tokens: {
-          pathusd: { address: addresses.pathUsd, decimals: 6 },
-          alphausd: { address: addresses.alphaUsd, decimals: 6 },
-        },
       })
   }
 })()
+
+export const tokens = [
+  defineToken({
+    addresses: { [chain.id]: addresses.pathUsd },
+    currency: 'USD',
+    decimals: 6,
+    name: 'PathUSD',
+    symbol: 'pathUSD',
+  }),
+  defineToken({
+    addresses: { [chain.id]: addresses.alphaUsd },
+    currency: 'USD',
+    decimals: 6,
+    name: 'AlphaUSD',
+    symbol: 'alphaUSD',
+  }),
+]
 
 export function debugOptions({
   rpcUrl,
@@ -130,6 +144,7 @@ export function getClient<
   return createClient({
     pollingInterval: 100,
     chain,
+    tokens,
     transport: http(rpcUrl),
     ...parameters,
   }) as never
