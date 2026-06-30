@@ -12,4 +12,7 @@ export * as event from './event/index.js'
 export * as fee from './fee/index.js'
 export * as transaction from './transaction/index.js'
 
+export { signMessage } from './signMessage.js'
+export { signTypedData } from './signTypedData.js'
+
 export * as test from './test.js'

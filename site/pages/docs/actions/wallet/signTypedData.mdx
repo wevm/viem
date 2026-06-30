@@ -1,0 +1,146 @@
+# signTypedData
+
+Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data.
+
+- **Local Accounts**: signs locally (no JSON-RPC request).
+- **JSON-RPC Accounts**: signs via `eth_signTypedData_v4`.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const signature = await client.signTypedData({
+  domain: { name: 'Ether Mail', version: '1' },
+  types: {
+    Mail: [{ name: 'contents', type: 'string' }],
+  },
+  primaryType: 'Mail',
+  message: { contents: 'hello world' },
+})
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const signature = await Actions.signTypedData(client, {
+  domain: { name: 'Ether Mail', version: '1' },
+  types: {
+    Mail: [{ name: 'contents', type: 'string' }],
+  },
+  primaryType: 'Mail',
+  message: { contents: 'hello world' },
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+## Return Value
+
+`Hex`
+
+The signed typed data.
+
+## Parameters
+
+### account
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Account (or address) to sign with.
+
+```ts twoslash
+import { Account, Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const signature = await Actions.signTypedData(client, {
+  account: Account.fromPrivateKey('0x…'), // [!code focus]
+  types: { Mail: [{ name: 'contents', type: 'string' }] },
+  primaryType: 'Mail',
+  message: { contents: 'hello world' },
+})
+```
+
+### domain
+
+- **Type:** `TypedDataDomain`
+
+The typed data domain.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const signature = await Actions.signTypedData(client, {
+  domain: { name: 'Ether Mail', version: '1', chainId: 1 }, // [!code focus]
+  types: { Mail: [{ name: 'contents', type: 'string' }] },
+  primaryType: 'Mail',
+  message: { contents: 'hello world' },
+})
+```
+
+### message
+
+- **Type:** Inferred from `types` and `primaryType`
+
+The message to sign.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const signature = await Actions.signTypedData(client, {
+  types: { Mail: [{ name: 'contents', type: 'string' }] },
+  primaryType: 'Mail',
+  message: { contents: 'hello world' }, // [!code focus]
+})
+```
+
+### primaryType
+
+- **Type:** Inferred from `types`
+
+The primary type to extract from `types` and use in `message`.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const signature = await Actions.signTypedData(client, {
+  types: { Mail: [{ name: 'contents', type: 'string' }] },
+  primaryType: 'Mail', // [!code focus]
+  message: { contents: 'hello world' },
+})
+```
+
+### types
+
+- **Type:** `TypedData`
+
+The typed data type definitions.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const signature = await Actions.signTypedData(client, {
+  types: { Mail: [{ name: 'contents', type: 'string' }] }, // [!code focus]
+  primaryType: 'Mail',
+  message: { contents: 'hello world' },
+})
+```

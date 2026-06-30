@@ -48,6 +48,11 @@ Flat public action names were renamed to their namespaced v3 equivalents.
 + Actions.chains.add(client, { chain })
 + Actions.chains.switch(client, { id })
 
+- signMessage(client, { account, message })
+- signTypedData(client, { account, ...typedData })
++ Actions.signMessage(client, { account, message })
++ Actions.signTypedData(client, { account, ...typedData })
+
 - estimateContractGas(client, options)
 - getEip712Domain(client, options)
 - getContractEvents(client, options)

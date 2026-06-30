@@ -1,4 +1,4 @@
-import type { Abi } from 'abitype'
+import type { Abi, TypedData } from 'abitype'
 
 import type * as Account from '../../Account.js'
 import type * as Chain from '../../Chain.js'
@@ -10,6 +10,8 @@ import type {
 } from '../internal/contract.js'
 import * as chains from '../chains/index.js'
 import * as contract from '../contract/index.js'
+import { signMessage } from '../signMessage.js'
+import { signTypedData } from '../signTypedData.js'
 import * as transaction from '../transaction/index.js'
 
 /**
@@ -58,6 +60,8 @@ export function walletActions() {
       sendSync: (options) => transaction.sendSync(client, options),
       sign: (options) => transaction.sign(client, options),
     },
+    signMessage: (options) => signMessage(client, options),
+    signTypedData: (options) => signTypedData(client, options as never),
   })
 }
 
@@ -381,5 +385,54 @@ export declare namespace walletActions {
         options: transaction.sign.Options<chain>,
       ) => Promise<transaction.sign.ReturnType>
     }
+    /**
+     * Calculates an [EIP-191](https://eips.ethereum.org/EIPS/eip-191)
+     * signature over a personal message.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http, walletActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   account: Account.fromPrivateKey('0x…'),
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(walletActions())
+     * const signature = await client.signMessage({
+     *   message: 'hello world',
+     * })
+     * ```
+     */
+    signMessage: (
+      options: signMessage.Options,
+    ) => Promise<signMessage.ReturnType>
+    /**
+     * Signs [EIP-712](https://eips.ethereum.org/EIPS/eip-712) typed data.
+     *
+     * @example
+     * ```ts
+     * import { Account, Client, http, walletActions } from 'viem'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = Client.create({
+     *   account: Account.fromPrivateKey('0x…'),
+     *   chain: mainnet,
+     *   transport: http(),
+     * }).extend(walletActions())
+     * const signature = await client.signTypedData({
+     *   domain: { name: 'Ether Mail', version: '1' },
+     *   types: { Mail: [{ name: 'contents', type: 'string' }] },
+     *   primaryType: 'Mail',
+     *   message: { contents: 'hello world' },
+     * })
+     * ```
+     */
+    signTypedData: <
+      const typedData extends TypedData | Record<string, unknown>,
+      primaryType extends keyof typedData | 'EIP712Domain' = keyof typedData,
+    >(
+      options: signTypedData.Options<typedData, primaryType>,
+    ) => Promise<signTypedData.ReturnType>
   }
 }

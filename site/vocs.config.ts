@@ -708,6 +708,22 @@ export default defineConfig({
               },
             ],
           },
+          {
+            text: 'Wallet',
+            collapsed: true,
+            items: [
+              {
+                text: 'signMessage',
+                link: '/docs/actions/wallet/signMessage',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'signTypedData',
+                link: '/docs/actions/wallet/signTypedData',
+                badge: badge('wallet'),
+              },
+            ],
+          },
         ],
       },
       {

@@ -1,0 +1,80 @@
+# signMessage
+
+Calculates an [EIP-191](https://eips.ethereum.org/EIPS/eip-191) signature over a personal message.
+
+- **Local Accounts**: signs locally (no JSON-RPC request).
+- **JSON-RPC Accounts**: signs via `personal_sign`.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const signature = await client.signMessage({
+  message: 'hello world',
+})
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const signature = await Actions.signMessage(client, {
+  message: 'hello world',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+## Return Value
+
+`Hex`
+
+The signed message.
+
+## Parameters
+
+### account
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Account (or address) to sign with.
+
+```ts twoslash
+import { Account, Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const signature = await Actions.signMessage(client, {
+  account: Account.fromPrivateKey('0x…'), // [!code focus]
+  message: 'hello world',
+})
+```
+
+### message
+
+- **Type:** `string | { raw: Hex | Bytes }`
+
+Message to sign. Pass `{ raw }` to sign over raw bytes without UTF-8 encoding.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const signature = await Actions.signMessage(client, {
+  message: { raw: '0x68656c6c6f20776f726c64' }, // [!code focus]
+})
+```

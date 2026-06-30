@@ -25,6 +25,11 @@ when porting or reshaping v2 surface area.
   - Record intentional divergences in the changeset.
   - Treat unintentional divergences as bugs.
   - Do not infer old behavior from memory.
+- **Verify full v2 parity after each implementation batch**; before moving to the next batch, confirm both implementation and tests match v2.
+  - Diff the v3 module against its `src-old/` counterpart for behavior and options.
+  - Diff the v3 `*.test.ts` against the v2 `*.test.ts` and port every meaningful case (each account kind, every option/arg variant, error shapes).
+  - Note any intentionally dropped cases (e.g. v2 `test.skip`) and why.
+  - Only then continue to the next batch.
 - **Drop `@deprecated` surface on migration**; do not carry over v2 deprecated surface.
   - This includes deprecated properties, options, parameters, and exports.
   - Port only the non-deprecated replacement.

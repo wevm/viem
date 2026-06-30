@@ -42,10 +42,18 @@ export function getClient(anvil: Anvil) {
  * JSON-RPC methods (which anvil does not implement) and delegates everything
  * else to the anvil instance.
  */
-export function getWalletClient(anvil: Anvil) {
+export function getWalletClient(
+  anvil: Anvil,
+  options: getWalletClient.Options = {},
+) {
   const node = http(anvil.rpcUrl.http).setup({})
   const provider = Provider.from({
     async request({ method, params }: any) {
+      if (method === 'personal_sign')
+        return node.request({
+          method: 'eth_sign',
+          params: [params[1], params[0]],
+        })
       if (method === 'wallet_addEthereumChain') return null
       if (method === 'wallet_switchEthereumChain') {
         if (params[0].chainId === '0xfa')
@@ -56,8 +64,15 @@ export function getWalletClient(anvil: Anvil) {
     },
   })
   return Client.create({
+    account: options.account,
     transport: custom(provider),
   })
+}
+
+export declare namespace getWalletClient {
+  type Options = {
+    account?: Client.create.Options['account'] | undefined
+  }
 }
 
 export const mainnet = defineAnvil({
