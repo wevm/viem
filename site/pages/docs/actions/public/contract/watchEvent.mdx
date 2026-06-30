@@ -1,0 +1,349 @@
+# watchContractEvent
+
+Watches incoming contract event logs, returning a watcher handle.
+
+The watcher uses a WebSocket / IPC subscription (`eth_subscribe` over `logs`) when the Client's transport supports it. Otherwise it installs an event filter and polls `eth_getFilterChanges`, falling back to `eth_getLogs` across the block delta when the provider does not support filters. The underlying source starts lazily once the first listener (or iterator) attaches.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { Abi } from 'viem/utils'
+import { client } from './viem.config'
+
+const watch = client.contract.watchEvent({
+  abi: Abi.from([
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ]),
+  eventName: 'Transfer',
+})
+
+watch.onLogs((logs) => console.log(logs))
+// @log: [{ args: { from: '0x…', to: '0x…', value: 1n }, eventName: 'Transfer', ... }]
+
+// later: stop watching
+watch.off()
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { Abi } from 'viem/utils'
+import { client } from './viem.config'
+
+const watch = Actions.contract.watchEvent(client, {
+  abi: Abi.from([
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ]),
+  eventName: 'Transfer',
+})
+
+watch.onLogs((logs) => console.log(logs))
+// @log: [{ args: { from: '0x…', to: '0x…', value: 1n }, eventName: 'Transfer', ... }]
+
+// later: stop watching
+watch.off()
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Return Value
+
+`Watcher`
+
+A watcher handle with the following members:
+
+### onLogs
+
+- **Type:** `(fn: (logs: Log[]) => void) => () => void`
+
+Registers a listener invoked with each batch of new contract event logs. Starts the watcher on first registration. Returns a function that unregisters the listener.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from(['event Transfer(address indexed from, address indexed to, uint256 value)'])
+// ---cut---
+const watch = Actions.contract.watchEvent(client, { abi, eventName: 'Transfer' })
+
+const off = watch.onLogs((logs) => { // [!code focus]
+  console.log(logs) // [!code focus]
+}) // [!code focus]
+
+// later: unregister just this listener
+off()
+```
+
+### onError
+
+- **Type:** `(fn: (error: Error) => void) => () => void`
+
+Registers a listener invoked when polling for logs fails. Returns a function that unregisters the listener.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from(['event Transfer(address indexed from, address indexed to, uint256 value)'])
+// ---cut---
+const watch = Actions.contract.watchEvent(client, { abi, eventName: 'Transfer' })
+watch.onLogs(() => {})
+
+watch.onError((error) => console.error(error)) // [!code focus]
+```
+
+### off
+
+- **Type:** `() => void`
+
+Tears down the watcher: removes all listeners, ends all iterators, stops the underlying poll / subscription, and uninstalls the filter. Idempotent and terminal.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from(['event Transfer(address indexed from, address indexed to, uint256 value)'])
+// ---cut---
+const watch = Actions.contract.watchEvent(client, { abi, eventName: 'Transfer' })
+watch.onLogs((logs) => console.log(logs))
+
+watch.off() // [!code focus]
+```
+
+### `[Symbol.asyncIterator]`
+
+- **Type:** `() => AsyncIterableIterator<{ logs: Log[] }>`
+
+Async-iterates emitted contract event logs. The iterator is a latest-only state stream (it may skip intermediate values under slow consumption) and throws if the source errors.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from(['event Transfer(address indexed from, address indexed to, uint256 value)'])
+// ---cut---
+const watch = Actions.contract.watchEvent(client, { abi, eventName: 'Transfer' })
+
+for await (const { logs } of watch) // [!code focus]
+  console.log(logs) // [!code focus]
+```
+
+## Parameters
+
+### abi
+
+- **Type:** `Abi`
+
+The contract's ABI. Used to filter and decode logs.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+// ---cut---
+const watch = Actions.contract.watchEvent(client, {
+  abi: Abi.from(['event Transfer(address indexed from, address indexed to, uint256 value)']), // [!code focus]
+})
+watch.onLogs((logs) => console.log(logs))
+```
+
+### address
+
+- **Type:** `Address | Address[]`
+
+Address or list of addresses from which logs originated.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from(['event Transfer(address indexed from, address indexed to, uint256 value)'])
+// ---cut---
+const watch = Actions.contract.watchEvent(client, {
+  abi,
+  address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+})
+watch.onLogs((logs) => console.log(logs))
+```
+
+### args
+
+- **Type:** Inferred from `abi` and `eventName`.
+
+Indexed argument values to filter logs by.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from(['event Transfer(address indexed from, address indexed to, uint256 value)'])
+// ---cut---
+const watch = Actions.contract.watchEvent(client, {
+  abi,
+  eventName: 'Transfer',
+  args: { // [!code focus]
+    from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', // [!code focus]
+  }, // [!code focus]
+})
+watch.onLogs((logs) => console.log(logs))
+```
+
+### batch
+
+- **Type:** `boolean`
+- **Default:** `true`
+
+Whether to batch the logs found within a poll interval into a single emission. When `false`, each log is emitted on its own.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from(['event Transfer(address indexed from, address indexed to, uint256 value)'])
+// ---cut---
+const watch = Actions.contract.watchEvent(client, {
+  abi,
+  eventName: 'Transfer',
+  batch: false, // [!code focus]
+})
+watch.onLogs((logs) => console.log(logs))
+```
+
+### eventName
+
+- **Type:** Inferred from `abi`.
+
+Event name to filter and decode logs by. When omitted, all events on the ABI are watched.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from(['event Transfer(address indexed from, address indexed to, uint256 value)'])
+// ---cut---
+const watch = Actions.contract.watchEvent(client, {
+  abi,
+  eventName: 'Transfer', // [!code focus]
+})
+watch.onLogs((logs) => console.log(logs))
+```
+
+### fromBlock
+
+- **Type:** `bigint`
+
+Block number from which to start watching for logs. Forces the polling source.
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from(['event Transfer(address indexed from, address indexed to, uint256 value)'])
+// ---cut---
+const watch = Actions.contract.watchEvent(client, {
+  abi,
+  eventName: 'Transfer',
+  fromBlock: 19868020n, // [!code focus]
+})
+watch.onLogs((logs) => console.log(logs))
+```
+
+### poll
+
+- **Type:** `boolean`
+- **Default:** `false` for WebSocket / IPC transports, `true` otherwise
+
+Whether to poll for new logs instead of using a subscription. Defaults to `true` when the transport cannot subscribe or `fromBlock` is provided.
+
+```ts twoslash
+import { Actions, Client, webSocket } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: webSocket() })
+const abi = Abi.from(['event Transfer(address indexed from, address indexed to, uint256 value)'])
+// ---cut---
+const watch = Actions.contract.watchEvent(client, {
+  abi,
+  eventName: 'Transfer',
+  poll: true, // [!code focus]
+})
+watch.onLogs((logs) => console.log(logs))
+```
+
+### pollingInterval
+
+- **Type:** `number`
+- **Default:** `client.pollingInterval`
+
+Polling frequency (in milliseconds).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from(['event Transfer(address indexed from, address indexed to, uint256 value)'])
+// ---cut---
+const watch = Actions.contract.watchEvent(client, {
+  abi,
+  eventName: 'Transfer',
+  pollingInterval: 1_000, // [!code focus]
+})
+watch.onLogs((logs) => console.log(logs))
+```
+
+### strict
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether the logs must strictly match the indexed/non-indexed arguments on the event. When `false`, logs that do not conform to the event's full ABI are still emitted (with partially decoded `args`).
+
+```ts twoslash
+import { Actions, Client, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { Abi } from 'viem/utils'
+
+const client = Client.create({ chain: mainnet, transport: http() })
+const abi = Abi.from(['event Transfer(address indexed from, address indexed to, uint256 value)'])
+// ---cut---
+const watch = Actions.contract.watchEvent(client, {
+  abi,
+  eventName: 'Transfer',
+  strict: true, // [!code focus]
+})
+watch.onLogs((logs) => console.log(logs))
+```

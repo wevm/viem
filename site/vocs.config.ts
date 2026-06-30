@@ -393,6 +393,11 @@ export default defineConfig({
                 badge: badge('test'),
               },
               {
+                text: 'watch',
+                link: '/docs/actions/public/block/watch',
+                badge: badge('public'),
+              },
+              {
                 text: 'watchNumber',
                 link: '/docs/actions/public/block/watchNumber',
                 badge: badge('public'),
@@ -447,6 +452,11 @@ export default defineConfig({
               {
                 text: 'simulate',
                 link: '/docs/actions/public/contract/simulate',
+                badge: badge('public'),
+              },
+              {
+                text: 'watchEvent',
+                link: '/docs/actions/public/contract/watchEvent',
                 badge: badge('public'),
               },
               {
@@ -525,6 +535,11 @@ export default defineConfig({
               {
                 text: 'getLogs',
                 link: '/docs/actions/public/event/getLogs',
+                badge: badge('public'),
+              },
+              {
+                text: 'watch',
+                link: '/docs/actions/public/event/watch',
                 badge: badge('public'),
               },
             ],
@@ -648,6 +663,11 @@ export default defineConfig({
               {
                 text: 'waitForReceipt',
                 link: '/docs/actions/public/transaction/waitForReceipt',
+                badge: badge('public'),
+              },
+              {
+                text: 'watchPending',
+                link: '/docs/actions/public/transaction/watchPending',
                 badge: badge('public'),
               },
             ],

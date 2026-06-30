@@ -59,6 +59,7 @@ export function publicActions() {
       getReceipts: (options) => block.getReceipts(client, options),
       getTransactionCount: (options) =>
         block.getTransactionCount(client, options),
+      watch: (options) => block.watch(client, options),
       watchNumber: (options) => block.watchNumber(client, options),
     },
     call: (options) => call(client, options),
@@ -72,6 +73,7 @@ export function publicActions() {
       getLogs: (options) => contract.getLogs(client, options as never),
       read: (options) => contract.read(client, options),
       simulate: (options) => contract.simulate(client, options as never),
+      watchEvent: (options) => contract.watchEvent(client, options as never),
     },
     filter: {
       getChanges: (options) => filter.getChanges(client, options as never),
@@ -81,6 +83,7 @@ export function publicActions() {
     event: {
       createFilter: (options) => event.createFilter(client, options as never),
       getLogs: (options) => event.getLogs(client, options as never),
+      watch: (options) => event.watch(client, options as never),
     },
     fee: {
       estimateFeesPerGas: (options) => fee.estimateFeesPerGas(client, options),
@@ -100,6 +103,7 @@ export function publicActions() {
       getReceipt: (options) => transaction.getReceipt(client, options),
       prepare: (options) => transaction.prepare(client, options),
       waitForReceipt: (options) => transaction.waitForReceipt(client, options),
+      watchPending: (options) => transaction.watchPending(client, options),
     },
   })
 }
@@ -329,6 +333,32 @@ export declare namespace publicActions {
       getTransactionCount: (
         options?: block.getTransactionCount.Options | undefined,
       ) => Promise<block.getTransactionCount.ReturnType>
+      /**
+       * Watches incoming blocks, returning a watcher handle.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       *
+       * const watch = client.block.watch()
+       * watch.onBlock((block) => console.log(block))
+       * // later: watch.off()
+       * ```
+       */
+      watch: <
+        includeTransactions extends boolean = false,
+        blockTag extends Block.Tag = 'latest',
+      >(
+        options?:
+          | block.watch.Options<includeTransactions, blockTag>
+          | undefined,
+      ) => block.watch.Watcher<chain, includeTransactions, blockTag>
       /**
        * Watches incoming block numbers, returning a watcher handle.
        *
@@ -567,6 +597,39 @@ export declare namespace publicActions {
       >(
         options: contract.simulate.Options<abi, functionName, args>,
       ) => Promise<contract.simulate.ReturnType<abi, functionName, args>>
+      /**
+       * Watches incoming contract event logs, returning a watcher handle.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       * import { Abi } from 'viem/utils'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       *
+       * const watch = client.contract.watchEvent({
+       *   abi: Abi.from([
+       *     'event Transfer(address indexed from, address indexed to, uint256 value)',
+       *   ]),
+       *   eventName: 'Transfer',
+       * })
+       * watch.onLogs((logs) => console.log(logs))
+       * // later: watch.off()
+       * ```
+       */
+      watchEvent: <
+        const abi extends Abi | readonly unknown[],
+        eventName extends AbiEvent.extractLogs.EventName<abi> | undefined =
+          undefined,
+        strict extends boolean | undefined = undefined,
+        fromBlock extends Block.Number | undefined = undefined,
+      >(
+        options: contract.watchEvent.Options<abi, eventName, strict, fromBlock>,
+      ) => contract.watchEvent.Watcher<abi, eventName, strict>
     }
     filter: {
       /**
@@ -731,6 +794,39 @@ export declare namespace publicActions {
       ) => Promise<
         event.getLogs.ReturnType<abiEvent, strict, fromBlock, toBlock>
       >
+      /**
+       * Watches incoming event logs, returning a watcher handle.
+       *
+       * @example
+       * ```ts
+       * import * as AbiEvent from 'ox/AbiEvent'
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       *
+       * const watch = client.event.watch({
+       *   event: AbiEvent.from(
+       *     'event Transfer(address indexed from, address indexed to, uint256 value)',
+       *   ),
+       * })
+       * watch.onLogs((logs) => console.log(logs))
+       * // later: watch.off()
+       * ```
+       */
+      watch: <
+        const abiEvent extends
+          | AbiEvent.AbiEvent
+          | readonly AbiEvent.AbiEvent[]
+          | undefined = undefined,
+        strict extends boolean | undefined = undefined,
+        fromBlock extends Block.Number | undefined = undefined,
+      >(
+        options?: event.watch.Options<abiEvent, strict, fromBlock> | undefined,
+      ) => event.watch.Watcher<abiEvent, strict>
     }
     fee: {
       /**
@@ -997,6 +1093,28 @@ export declare namespace publicActions {
       waitForReceipt: (
         options: transaction.waitForReceipt.Options,
       ) => transaction.waitForReceipt.ReturnType<chain>
+      /**
+       * Watches incoming pending transaction hashes, returning a watcher
+       * handle.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       *
+       * const watch = client.transaction.watchPending()
+       * watch.onTransactions((hashes) => console.log(hashes))
+       * // later: watch.off()
+       * ```
+       */
+      watchPending: (
+        options?: transaction.watchPending.Options | undefined,
+      ) => transaction.watchPending.Watcher
     }
   }
 }

@@ -2,12 +2,11 @@ import type * as Errors from 'ox/Errors'
 import * as Hex from 'ox/Hex'
 
 import type * as Client from '../../Client.js'
-import type * as Transport from '../../Transport.js'
 import { observe } from '../../internal/observe.js'
 import { poll } from '../../internal/poll.js'
 import { withResolvers } from '../../internal/promise.js'
 import { stringify } from '../../internal/stringify.js'
-import type * as RpcClient from '../../../utils/RpcClient.js'
+import { getSubscribe } from '../internal/getSubscribe.js'
 import { getNumber } from './getNumber.js'
 
 /**
@@ -337,22 +336,4 @@ export declare namespace watchNumber {
   type ReturnType = Watcher
 
   type ErrorType = getNumber.ErrorType | Errors.GlobalErrorType
-}
-
-/** Resolves a subscription function from a transport (or its fallbacks). */
-function getSubscribe(
-  transport: Transport.Instance,
-): RpcClient.Socket.subscribe.Fn | undefined {
-  const primary = (() => {
-    if ('transports' in transport) {
-      const { transports } = transport as {
-        transports: readonly Transport.Instance[]
-      }
-      return transports[0]
-    }
-    return transport
-  })()
-  if ('subscribe' in primary && typeof primary.subscribe === 'function')
-    return primary.subscribe as RpcClient.Socket.subscribe.Fn
-  return undefined
 }

@@ -228,6 +228,33 @@ Filter lifecycle actions were renamed to the `filter` namespace.
 + const uninstalled = await Actions.filter.uninstall(client, { filter })
 ```
 
+Block/event/transaction watchers were renamed to their owning domain namespaces and now return a watcher handle (`onX`/`onError`/`off` + async iterable) instead of a bare unwatch function.
+
+```diff
+- import { watchBlocks } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const unwatch = watchBlocks(client, { onBlock: (block) => console.log(block) })
++ const watch = Actions.block.watch(client)
++ watch.onBlock((block) => console.log(block))
++ // later: watch.off()
+
+- const unwatch = watchPendingTransactions(client, { onTransactions: (hashes) => console.log(hashes) })
++ const watch = Actions.transaction.watchPending(client)
++ watch.onTransactions((hashes) => console.log(hashes))
++ // later: watch.off()
+
+- const unwatch = watchEvent(client, { event, onLogs: (logs) => console.log(logs) })
++ const watch = Actions.event.watch(client, { event })
++ watch.onLogs((logs) => console.log(logs))
++ // later: watch.off()
+
+- const unwatch = watchContractEvent(client, { abi, eventName, onLogs: (logs) => console.log(logs) })
++ const watch = Actions.contract.watchEvent(client, { abi, eventName })
++ watch.onLogs((logs) => console.log(logs))
++ // later: watch.off()
+```
+
 Filter producers were renamed to their owning domain namespaces.
 
 ```diff
