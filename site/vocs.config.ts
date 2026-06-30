@@ -435,6 +435,11 @@ export default defineConfig({
                 badge: badge('wallet'),
               },
               {
+                text: 'estimateGas',
+                link: '/docs/actions/public/contract/estimateGas',
+                badge: badge('public'),
+              },
+              {
                 text: 'getEip712Domain',
                 link: '/docs/actions/public/contract/getEip712Domain',
                 badge: badge('public'),

@@ -69,6 +69,7 @@ export function publicActions() {
     contract: {
       createEventFilter: (options) =>
         contract.createEventFilter(client, options as never),
+      estimateGas: (options) => contract.estimateGas(client, options as never),
       getEip712Domain: (options) => contract.getEip712Domain(client, options),
       getLogs: (options) => contract.getLogs(client, options as never),
       read: (options) => contract.read(client, options),
@@ -465,6 +466,42 @@ export declare namespace publicActions {
           toBlock
         >
       >
+      /**
+       * Estimates the gas required to successfully execute a contract write
+       * (`nonpayable`/`payable`) function call.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       * import { Abi } from 'viem/utils'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const gas = await client.contract.estimateGas({
+       *   abi: Abi.from(['function mint()']),
+       *   address: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2',
+       *   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
+       *   functionName: 'mint',
+       * })
+       * ```
+       */
+      estimateGas: <
+        const abi extends Abi | readonly unknown[],
+        functionName extends ContractFunctionName<
+          abi,
+          'nonpayable' | 'payable'
+        >,
+        const args extends ContractFunctionArgs<
+          abi,
+          'nonpayable' | 'payable',
+          functionName
+        >,
+      >(
+        options: contract.estimateGas.Options<abi, functionName, args>,
+      ) => Promise<contract.estimateGas.ReturnType>
       /**
        * Reads the EIP-712 domain from a contract, based on the ERC-5267
        * specification.

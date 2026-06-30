@@ -1,6 +1,7 @@
 export { createEventFilter } from './createEventFilter.js'
 export { deploy } from './deploy.js'
 export { deploySync } from './deploySync.js'
+export { estimateGas } from './estimateGas.js'
 export { getEip712Domain } from './getEip712Domain.js'
 export { getLogs } from './getLogs.js'
 export { read } from './read.js'
