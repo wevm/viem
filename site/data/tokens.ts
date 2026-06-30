@@ -179,6 +179,40 @@ export const tokenLookupData = [
   {
     chains: [
       {
+        address: '0x1aBaEA1f7C830bD89Acc67eC4af516284b1bC33c',
+        id: 1,
+        name: 'Ethereum',
+      },
+      {
+        address: '0xA6dE01a2d62C6B5f3525d768f34d276652C554c8',
+        id: 25,
+        name: 'Cronos Mainnet',
+      },
+      {
+        address: '0x1C60ba0A0eD1019e8Eb035E6daF4155A5cE2380B',
+        id: 480,
+        name: 'World Chain',
+      },
+      {
+        address: '0x60a3E35Cc302bFA44Cb288Bc5a4F316Fdb1adb42',
+        id: 8453,
+        name: 'Base',
+      },
+      {
+        address: '0xC891EB4cbdEFf6e073e859e987815Ed1505c2ACD',
+        id: 43114,
+        name: 'Avalanche',
+      },
+    ],
+    currency: 'EUR',
+    decimals: 6,
+    importName: 'eurc',
+    name: 'EURC',
+    symbol: 'EURC',
+  },
+  {
+    chains: [
+      {
         address: '0x20c0000000000000000000001621e21f71cf12fb',
         id: 4217,
         name: 'Tempo Mainnet',
@@ -427,6 +461,25 @@ export const tokenLookupData = [
     importName: 'usdt0',
     name: 'USDT0',
     symbol: 'USDT0',
+  },
+  {
+    chains: [
+      {
+        address: '0x136471a34f6ef19fE571EFFC1CA711fdb8E49f2b',
+        id: 1,
+        name: 'Ethereum',
+      },
+      {
+        address: '0x8D0fA28f221eB5735BC71d3a0Da67EE5bC821311',
+        id: 56,
+        name: 'BNB Smart Chain',
+      },
+    ],
+    currency: 'USD',
+    decimals: 6,
+    importName: 'usyc',
+    name: 'US Yield Coin',
+    symbol: 'USYC',
   },
   {
     chains: [

@@ -14,6 +14,7 @@ test('exports', () => {
       "cusd",
       "dlusd",
       "eurau",
+      "eurc",
       "eurce",
       "frxusd",
       "gbpa",
@@ -34,6 +35,7 @@ test('exports', () => {
       "usdce",
       "usde",
       "usdt0",
+      "usyc",
       "wsrusd",
     ]
   `)
