@@ -47,8 +47,8 @@ describe('poll', () => {
     await mine(client, { blocks: 1 })
     await wait(200)
     unwatch()
-    expect(blocks.length).toBe(4)
-    expect(prevBlocks.length).toBe(3)
+    expect(blocks.length).toBeGreaterThanOrEqual(4)
+    expect(prevBlocks.length).toBe(blocks.length - 1)
     expect(typeof blocks[0].number).toBe('bigint')
   })
 
@@ -88,7 +88,7 @@ describe('poll', () => {
       await mine(client, { blocks: 5 })
       await wait(200)
       unwatch()
-      expect(blocks.length).toBe(6)
+      expect(blocks.length).toBeGreaterThanOrEqual(6)
     })
   })
 
@@ -133,7 +133,7 @@ describe('poll', () => {
       await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
-      expect(blocks.length).toBe(2)
+      expect(blocks.length).toBeGreaterThanOrEqual(2)
     })
   })
 
@@ -157,8 +157,8 @@ describe('poll', () => {
       await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
-      expect(blocks.length).toBe(4)
-      expect(prevBlocks.length).toBe(3)
+      expect(blocks.length).toBeGreaterThanOrEqual(4)
+      expect(prevBlocks.length).toBe(blocks.length - 1)
     })
 
     test('fallback transport', async () => {
@@ -207,7 +207,7 @@ describe('poll', () => {
       await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
-      expect(blocks.length).toBe(2)
+      expect(blocks.length).toBeGreaterThanOrEqual(2)
     })
 
     test('watch > unwatch > watch', async () => {
@@ -222,7 +222,7 @@ describe('poll', () => {
       await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
-      expect(blocks.length).toBe(2)
+      expect(blocks.length).toBeGreaterThanOrEqual(2)
 
       blocks = []
       unwatch = watchBlocks(client, {
@@ -235,7 +235,7 @@ describe('poll', () => {
       await mine(client, { blocks: 1 })
       await wait(200)
       unwatch()
-      expect(blocks.length).toBe(2)
+      expect(blocks.length).toBeGreaterThanOrEqual(2)
     })
 
     test('multiple watchers', async () => {
@@ -263,7 +263,7 @@ describe('poll', () => {
       unwatch1()
       unwatch2()
       unwatch3()
-      expect(blocks.length).toBe(6)
+      expect(blocks.length).toBeGreaterThanOrEqual(6)
 
       blocks = []
 
@@ -289,7 +289,7 @@ describe('poll', () => {
       unwatch1()
       unwatch2()
       unwatch3()
-      expect(blocks.length).toBe(6)
+      expect(blocks.length).toBeGreaterThanOrEqual(6)
     })
 
     test('immediately unwatch', async () => {

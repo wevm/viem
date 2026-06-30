@@ -1,5 +1,5 @@
 import type { Address } from 'abitype'
-import type { ReceivePolicyReceipt } from 'ox/tempo'
+import { type ReceivePolicyReceipt, VirtualAddress } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { parseAccount } from '../../accounts/utils/parseAccount.js'
 import type { ReadContractReturnType } from '../../actions/public/readContract.js'
@@ -1253,9 +1253,21 @@ function toPolicyRef(id: bigint): PolicyRef {
 
 /** @internal */
 function resolveClaimer(claimer: Claimer, self: Address): Address {
-  if (claimer === 'sender') return zeroAddress
-  if (claimer === 'self') return self
-  return claimer
+  const recoveryAuthority =
+    claimer === 'sender' ? zeroAddress : claimer === 'self' ? self : claimer
+  assertValidRecoveryAuthority(recoveryAuthority)
+  return recoveryAuthority
+}
+
+/** @internal */
+function assertValidRecoveryAuthority(recoveryAuthority: Address) {
+  if (isAddressEqual(recoveryAuthority, zeroAddress)) return
+  if (VirtualAddress.isVirtual(recoveryAuthority))
+    throw new Error('Recovery authority cannot be a TIP-1022 virtual address.')
+  if (Addresses.isTip20Address(recoveryAuthority))
+    throw new Error('Recovery authority cannot be a TIP-20 token address.')
+  if (Addresses.isSystemPrecompile(recoveryAuthority))
+    throw new Error('Recovery authority cannot be a Tempo system precompile.')
 }
 
 /** @internal */

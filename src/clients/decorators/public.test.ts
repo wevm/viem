@@ -340,9 +340,12 @@ describe('smoke test', () => {
   })
 
   test('getProof', async () => {
+    if (anvilMainnet.forkUrl === 'https://ethereum.reth.rs/rpc') return
+
     expect(
       await client.getProof({
         address: wagmiContractConfig.address,
+        blockNumber: anvilMainnet.forkBlockNumber,
         storageKeys: [
           '0x0000000000000000000000000000000000000000000000000000000000000000',
         ],
