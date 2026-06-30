@@ -504,12 +504,12 @@ export default defineConfig({
             ],
           },
           {
-            text: 'Logs',
+            text: 'Event',
             collapsed: true,
             items: [
               {
-                text: 'get',
-                link: '/docs/actions/public/logs/get',
+                text: 'getLogs',
+                link: '/docs/actions/public/event/getLogs',
                 badge: badge('public'),
               },
             ],

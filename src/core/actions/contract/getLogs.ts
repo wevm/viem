@@ -8,7 +8,7 @@ import type * as Log from 'ox/Log'
 
 import type * as Client from '../../Client.js'
 import type { OneOf } from '../../internal/types.js'
-import { get } from '../logs/get.js'
+import { getLogs as getEventLogs } from '../event/getLogs.js'
 
 /**
  * Returns a list of event logs emitted by a contract (`eth_getLogs`).
@@ -58,7 +58,7 @@ export async function getLogs<
     ? undefined
     : (abi as Abi).filter((item) => item.type === 'event')
 
-  return get(client, {
+  return getEventLogs(client, {
     address,
     args,
     blockHash,
@@ -67,7 +67,7 @@ export async function getLogs<
     fromBlock,
     strict,
     toBlock,
-  } as get.Options) as never
+  } as getEventLogs.Options) as never
 }
 
 export declare namespace getLogs {
@@ -127,7 +127,7 @@ export declare namespace getLogs {
 
   type ErrorType =
     | AbiEvent.fromAbi.ErrorType
-    | get.ErrorType
+    | getEventLogs.ErrorType
     | Errors.GlobalErrorType
 
   /** Distributes a union of events into a union of decoded log shapes. */

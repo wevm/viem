@@ -10,7 +10,7 @@ Returns a list of event logs matching the provided parameters.
 import { AbiEvent } from 'ox'
 import { client } from './viem.config'
 
-const logs = await client.logs.get({
+const logs = await client.event.getLogs({
   event: AbiEvent.from(
     'event Transfer(address indexed from, address indexed to, uint256 value)',
   ),
@@ -37,7 +37,7 @@ import { AbiEvent } from 'ox'
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
-const logs = await Actions.logs.get(client, {
+const logs = await Actions.event.getLogs(client, {
   event: AbiEvent.from(
     'event Transfer(address indexed from, address indexed to, uint256 value)',
   ),
@@ -73,7 +73,7 @@ export const client = Client.create({
 
 ## Recipes
 
-These recipes call the action standalone with a Client as the first argument. Each is equivalent to the decorator form (`client.logs.get(...)`).
+These recipes call the action standalone with a Client as the first argument. Each is equivalent to the decorator form (`client.event.getLogs(...)`).
 
 ### Fetching Logs for a Contract
 
@@ -86,7 +86,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const logs = await Actions.logs.get(client, {
+const logs = await Actions.event.getLogs(client, {
   address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2', // [!code focus]
   event: AbiEvent.from(
     'event Transfer(address indexed from, address indexed to, uint256 value)',
@@ -105,7 +105,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const logs = await Actions.logs.get(client, {
+const logs = await Actions.event.getLogs(client, {
   event: AbiEvent.from(
     'event Transfer(address indexed from, address indexed to, uint256 value)',
   ),
@@ -126,7 +126,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const logs = await Actions.logs.get(client, {
+const logs = await Actions.event.getLogs(client, {
   event: AbiEvent.from(
     'event Transfer(address indexed from, address indexed to, uint256 value)',
   ),
@@ -150,7 +150,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const logs = await Actions.logs.get(client, {
+const logs = await Actions.event.getLogs(client, {
   event: AbiEvent.from(
     'event Transfer(address indexed from, address indexed to, uint256 value)',
   ),
@@ -170,7 +170,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const logs = await Actions.logs.get(client, {
+const logs = await Actions.event.getLogs(client, {
   blockHash: '0xabe69134e80a12f6a93d0aa18215b5b86c2fb338bae911790ca374a8716e01a4', // [!code focus]
   event: AbiEvent.from(
     'event Transfer(address indexed from, address indexed to, uint256 value)',
@@ -189,7 +189,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const logs = await Actions.logs.get(client, {
+const logs = await Actions.event.getLogs(client, {
   events: [ // [!code focus]
     AbiEvent.from('event Approval(address indexed owner, address indexed spender, uint256 value)'), // [!code focus]
     AbiEvent.from('event Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
@@ -208,7 +208,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const logs = await Actions.logs.get(client, {
+const logs = await Actions.event.getLogs(client, {
   event: AbiEvent.from(
     'event Transfer(address indexed from, address indexed to, uint256 value)',
   ),
@@ -236,7 +236,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const logs = await Actions.logs.get(client, {
+const logs = await Actions.event.getLogs(client, {
   address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2', // [!code focus]
 })
 ```
@@ -257,7 +257,7 @@ const transferEvent = AbiEvent.from(
   'event Transfer(address indexed from, address indexed to, uint256 value)',
 )
 // ---cut---
-const logs = await Actions.logs.get(client, {
+const logs = await Actions.event.getLogs(client, {
   event: transferEvent,
   args: { // [!code focus]
     from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', // [!code focus]
@@ -278,7 +278,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const logs = await Actions.logs.get(client, {
+const logs = await Actions.event.getLogs(client, {
   blockHash: '0xabe69134e80a12f6a93d0aa18215b5b86c2fb338bae911790ca374a8716e01a4', // [!code focus]
 })
 ```
@@ -296,7 +296,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const logs = await Actions.logs.get(client, {
+const logs = await Actions.event.getLogs(client, {
   event: AbiEvent.from( // [!code focus]
     'event Transfer(address indexed from, address indexed to, uint256 value)', // [!code focus]
   ), // [!code focus]
@@ -316,7 +316,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const logs = await Actions.logs.get(client, {
+const logs = await Actions.event.getLogs(client, {
   events: [ // [!code focus]
     AbiEvent.from('event Approval(address indexed owner, address indexed spender, uint256 value)'), // [!code focus]
     AbiEvent.from('event Transfer(address indexed from, address indexed to, uint256 value)'), // [!code focus]
@@ -336,7 +336,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const logs = await Actions.logs.get(client, {
+const logs = await Actions.event.getLogs(client, {
   fromBlock: 19760235n, // [!code focus]
   toBlock: 19760240n,
 })
@@ -359,7 +359,7 @@ const transferEvent = AbiEvent.from(
   'event Transfer(address indexed from, address indexed to, uint256 value)',
 )
 // ---cut---
-const logs = await Actions.logs.get(client, {
+const logs = await Actions.event.getLogs(client, {
   event: transferEvent,
   strict: true, // [!code focus]
 })
@@ -377,7 +377,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const logs = await Actions.logs.get(client, {
+const logs = await Actions.event.getLogs(client, {
   fromBlock: 19760235n,
   toBlock: 19760240n, // [!code focus]
 })

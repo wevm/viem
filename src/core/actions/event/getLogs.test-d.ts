@@ -17,12 +17,12 @@ const transferEventUnnamed = AbiEvent.from(
 )
 
 test('default: returns raw logs', async () => {
-  const logs = await Actions.logs.get(client)
+  const logs = await Actions.event.getLogs(client)
   expectTypeOf(logs).toEqualTypeOf<readonly Log.Log<false>[]>()
 })
 
 test('event: decodes args and eventName', async () => {
-  const logs = await Actions.logs.get(client, { event: transferEvent })
+  const logs = await Actions.event.getLogs(client, { event: transferEvent })
   expectTypeOf(logs[0]!.eventName).toEqualTypeOf<'Transfer'>()
   // Non-strict (default) decoding makes every argument optional.
   expectTypeOf(logs[0]!.args).toEqualTypeOf<{
@@ -33,7 +33,7 @@ test('event: decodes args and eventName', async () => {
 })
 
 test('event + strict: decoded args are required', async () => {
-  const logs = await Actions.logs.get(client, {
+  const logs = await Actions.event.getLogs(client, {
     event: transferEvent,
     strict: true,
   })
@@ -45,7 +45,7 @@ test('event + strict: decoded args are required', async () => {
 })
 
 test('unnamed event: decoded args are positional', async () => {
-  const looseLogs = await Actions.logs.get(client, {
+  const looseLogs = await Actions.event.getLogs(client, {
     event: transferEventUnnamed,
   })
   expectTypeOf(looseLogs[0]!.args).toEqualTypeOf<
@@ -55,7 +55,7 @@ test('unnamed event: decoded args are positional', async () => {
     | readonly [Address.Address, Address.Address, bigint]
   >()
 
-  const strictLogs = await Actions.logs.get(client, {
+  const strictLogs = await Actions.event.getLogs(client, {
     event: transferEventUnnamed,
     strict: true,
   })
@@ -65,14 +65,14 @@ test('unnamed event: decoded args are positional', async () => {
 })
 
 test('args: indexed args accept single value or array (OR)', async () => {
-  await Actions.logs.get(client, {
+  await Actions.event.getLogs(client, {
     event: transferEvent,
     args: { from: '0x', to: ['0x', '0x'] },
   })
 })
 
 test('events: union of decoded logs', async () => {
-  const logs = await Actions.logs.get(client, {
+  const logs = await Actions.event.getLogs(client, {
     events: [transferEvent, approvalEvent],
   })
   expectTypeOf(logs[0]!.eventName).toEqualTypeOf<'Transfer' | 'Approval'>()
@@ -80,6 +80,6 @@ test('events: union of decoded logs', async () => {
 
 test('pending blockTag: threads pending into the log type', async () => {
   // Only `fromBlock` is pending, so `_pending` widens to `boolean`.
-  const logs = await Actions.logs.get(client, { fromBlock: 'pending' })
+  const logs = await Actions.event.getLogs(client, { fromBlock: 'pending' })
   expectTypeOf(logs).toEqualTypeOf<readonly Log.Log<boolean>[]>()
 })

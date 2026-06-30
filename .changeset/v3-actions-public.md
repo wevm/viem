@@ -66,7 +66,7 @@ Flat public action names were renamed to their namespaced v3 equivalents.
 + Actions.fee.getHistory(client, options)
 
 - getLogs(client, options)
-+ Actions.logs.get(client, options)
++ Actions.event.getLogs(client, options)
 
 - fillTransaction(client, options)
 - getTransaction(client, options)

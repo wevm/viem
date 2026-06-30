@@ -8,7 +8,7 @@ export { call } from './call.js'
 export * as chains from './chains/index.js'
 export * as contract from './contract/index.js'
 export * as filter from './filter/index.js'
-export * as logs from './logs/index.js'
+export * as event from './event/index.js'
 export * as fee from './fee/index.js'
 export * as transaction from './transaction/index.js'
 

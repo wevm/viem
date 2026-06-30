@@ -22,14 +22,14 @@ import type { OneOf } from '../../internal/types.js'
  *   chain: mainnet,
  *   transport: http(),
  * })
- * const logs = await Actions.logs.get(client, {
+ * const logs = await Actions.event.getLogs(client, {
  *   event: AbiEvent.from(
  *     'event Transfer(address indexed from, address indexed to, uint256 value)',
  *   ),
  * })
  * ```
  */
-export async function get<
+export async function getLogs<
   const abiEvent extends
     | AbiEvent.AbiEvent
     | readonly AbiEvent.AbiEvent[]
@@ -39,8 +39,8 @@ export async function get<
   toBlock extends Block.Number | Block.Tag | undefined = undefined,
 >(
   client: Client.Client,
-  options: get.Options<abiEvent, strict, fromBlock, toBlock> = {},
-): Promise<get.ReturnType<abiEvent, strict, fromBlock, toBlock>> {
+  options: getLogs.Options<abiEvent, strict, fromBlock, toBlock> = {},
+): Promise<getLogs.ReturnType<abiEvent, strict, fromBlock, toBlock>> {
   const {
     address,
     blockHash,
@@ -50,7 +50,7 @@ export async function get<
     events: events_,
     args,
     strict = false,
-  } = options as get.Options
+  } = options as getLogs.Options
 
   const events = events_ ?? (event ? [event] : undefined)
 
@@ -79,7 +79,7 @@ export async function get<
   return AbiEvent.extractLogs(events, logs, { args, strict }) as never
 }
 
-export declare namespace get {
+export declare namespace getLogs {
   type Options<
     abiEvent extends
       | AbiEvent.AbiEvent

@@ -16,7 +16,7 @@ import { call } from '../call.js'
 import * as chains from '../chains/index.js'
 import * as contract from '../contract/index.js'
 import * as filter from '../filter/index.js'
-import * as logs from '../logs/index.js'
+import * as event from '../event/index.js'
 import * as fee from '../fee/index.js'
 import * as transaction from '../transaction/index.js'
 
@@ -75,8 +75,8 @@ export function publicActions() {
       getLogs: (options) => filter.getLogs(client, options as never),
       uninstall: (options) => filter.uninstall(client, options),
     },
-    logs: {
-      get: (options) => logs.get(client, options as never),
+    event: {
+      getLogs: (options) => event.getLogs(client, options as never),
     },
     fee: {
       estimateFeesPerGas: (options) => fee.estimateFeesPerGas(client, options),
@@ -594,7 +594,7 @@ export declare namespace publicActions {
         options: filter.uninstall.Options,
       ) => Promise<filter.uninstall.ReturnType>
     }
-    logs: {
+    event: {
       /**
        * Returns a list of event logs matching the provided parameters.
        *
@@ -608,14 +608,14 @@ export declare namespace publicActions {
        *   chain: mainnet,
        *   transport: http(),
        * }).extend(publicActions())
-       * const logs = await client.logs.get({
+       * const logs = await client.event.getLogs({
        *   event: AbiEvent.from(
        *     'event Transfer(address indexed from, address indexed to, uint256 value)',
        *   ),
        * })
        * ```
        */
-      get: <
+      getLogs: <
         const abiEvent extends
           | AbiEvent.AbiEvent
           | readonly AbiEvent.AbiEvent[]
@@ -625,9 +625,11 @@ export declare namespace publicActions {
         toBlock extends Block.Number | Block.Tag | undefined = undefined,
       >(
         options?:
-          | logs.get.Options<abiEvent, strict, fromBlock, toBlock>
+          | event.getLogs.Options<abiEvent, strict, fromBlock, toBlock>
           | undefined,
-      ) => Promise<logs.get.ReturnType<abiEvent, strict, fromBlock, toBlock>>
+      ) => Promise<
+        event.getLogs.ReturnType<abiEvent, strict, fromBlock, toBlock>
+      >
     }
     fee: {
       /**

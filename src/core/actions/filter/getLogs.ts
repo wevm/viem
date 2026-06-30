@@ -4,7 +4,7 @@ import type * as Errors from 'ox/Errors'
 import { z } from 'ox/zod'
 
 import type * as Client from '../../Client.js'
-import type * as logs from '../logs/index.js'
+import type * as event from '../event/index.js'
 import type { Filter } from './Filter.js'
 
 /**
@@ -80,7 +80,7 @@ export declare namespace getLogs {
     strict extends boolean | undefined = undefined,
     fromBlock extends Block.Number | Block.Tag | undefined = undefined,
     toBlock extends Block.Number | Block.Tag | undefined = undefined,
-  > = logs.get.ReturnType<abiEvent, strict, fromBlock, toBlock>
+  > = event.getLogs.ReturnType<abiEvent, strict, fromBlock, toBlock>
 
   type ErrorType = AbiEvent.extractLogs.ErrorType | Errors.GlobalErrorType
 }

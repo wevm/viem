@@ -93,7 +93,7 @@ test('default: returns raw logs', async () => {
     (await Actions.block.getNumber(client, { cacheTime: 0 })) + 1n
   await transfer(a, b, 1n)
 
-  const logs = await Actions.logs.get(client, { address, fromBlock })
+  const logs = await Actions.event.getLogs(client, { address, fromBlock })
   expect(logs.length).toBe(1)
   expect(logs[0]!.address.toLowerCase()).toBe(address.toLowerCase())
   expect(logs[0]).toMatchInlineSnapshot(
@@ -131,7 +131,7 @@ test('behavior: no events, returns all logs in range', async () => {
   await transfer(a, b, 1n)
   await transfer(a, c, 1n)
 
-  const logs = await Actions.logs.get(client, { address, fromBlock })
+  const logs = await Actions.event.getLogs(client, { address, fromBlock })
   expect(logs.length).toBe(2)
 })
 
@@ -142,7 +142,7 @@ describe('events', () => {
     await transfer(a, b, 1n)
     await transfer(a, c, 1n)
 
-    const logs = await Actions.logs.get(client, {
+    const logs = await Actions.event.getLogs(client, {
       address,
       event: transferEvent,
       fromBlock,
@@ -167,7 +167,7 @@ describe('events', () => {
     await approve(a, b, 1n)
     await transfer(a, c, 1n)
 
-    const logs = await Actions.logs.get(client, {
+    const logs = await Actions.event.getLogs(client, {
       address,
       events: [transferEvent, approvalEvent],
       fromBlock,
@@ -192,7 +192,7 @@ describe('events', () => {
       (await Actions.block.getNumber(client, { cacheTime: 0 })) + 1n
     await message('gm')
 
-    const logs = await Actions.logs.get(client, {
+    const logs = await Actions.event.getLogs(client, {
       address,
       event: messageEvent,
       fromBlock,
@@ -208,7 +208,7 @@ describe('events', () => {
     const toBlock = await Actions.block.getNumber(client, { cacheTime: 0 })
     await transfer(a, c, 2n)
 
-    const logs = await Actions.logs.get(client, {
+    const logs = await Actions.event.getLogs(client, {
       address,
       event: transferEvent,
       fromBlock,
@@ -224,7 +224,7 @@ describe('events', () => {
       hash,
     })
 
-    const logs = await Actions.logs.get(client, {
+    const logs = await Actions.event.getLogs(client, {
       address,
       blockHash,
       event: transferEvent,
@@ -238,7 +238,7 @@ describe('events', () => {
       (await Actions.block.getNumber(client, { cacheTime: 0 })) + 1n
     await transfer(a, b, 1n)
 
-    const logs = await Actions.logs.get(client, {
+    const logs = await Actions.event.getLogs(client, {
       address,
       event: transferEvent,
       fromBlock,
@@ -257,7 +257,7 @@ describe('events', () => {
       (await Actions.block.getNumber(client, { cacheTime: 0 })) + 1n
     await transfer(a, b, 1n)
 
-    const logs = await Actions.logs.get(client, {
+    const logs = await Actions.event.getLogs(client, {
       address,
       event: transferEvent,
       fromBlock,
@@ -275,7 +275,7 @@ describe('events', () => {
       (await Actions.block.getNumber(client, { cacheTime: 0 })) + 1n
     await transfer(a, b, 1n)
 
-    const logs = await Actions.logs.get(client, {
+    const logs = await Actions.event.getLogs(client, {
       address,
       event: transferEventUnnamed,
       fromBlock,
@@ -294,7 +294,7 @@ describe('events', () => {
       (await Actions.block.getNumber(client, { cacheTime: 0 })) + 1n
     await transfer(a, b, 1n)
 
-    const logs = await Actions.logs.get(client, {
+    const logs = await Actions.event.getLogs(client, {
       address,
       event: transferEventUnnamed,
       fromBlock,
@@ -315,7 +315,7 @@ describe('events', () => {
     await transfer(a, b, 1n)
     await approve(a, a, 1n)
 
-    const namedLogs = await Actions.logs.get(client, {
+    const namedLogs = await Actions.event.getLogs(client, {
       address,
       event: transferEvent,
       args: { from: a },
@@ -328,7 +328,7 @@ describe('events', () => {
       value: 1n,
     })
 
-    const unnamedLogs = await Actions.logs.get(client, {
+    const unnamedLogs = await Actions.event.getLogs(client, {
       address,
       event: transferEventUnnamed,
       args: [a],
@@ -350,7 +350,7 @@ describe('events', () => {
     await transfer(a, c, 1n)
     await approve(a, a, 1n)
 
-    const logs = await Actions.logs.get(client, {
+    const logs = await Actions.event.getLogs(client, {
       address,
       event: transferEvent,
       args: { from: [d, a] },
@@ -372,7 +372,7 @@ describe('events', () => {
     await transfer(a, b, 1n)
     await approve(a, a, 1n)
 
-    const namedLogs = await Actions.logs.get(client, {
+    const namedLogs = await Actions.event.getLogs(client, {
       address,
       event: transferEvent,
       args: { to: a },
@@ -385,7 +385,7 @@ describe('events', () => {
       value: 1n,
     })
 
-    const unnamedLogs = await Actions.logs.get(client, {
+    const unnamedLogs = await Actions.event.getLogs(client, {
       address,
       event: transferEventUnnamed,
       args: [null, a],
@@ -407,7 +407,7 @@ describe('events', () => {
     await transfer(a, c, 1n)
     await approve(a, a, 1n)
 
-    const namedLogs = await Actions.logs.get(client, {
+    const namedLogs = await Actions.event.getLogs(client, {
       address,
       event: transferEvent,
       args: { to: [a, b] },
@@ -419,7 +419,7 @@ describe('events', () => {
       Address.checksum(b),
     ])
 
-    const unnamedLogs = await Actions.logs.get(client, {
+    const unnamedLogs = await Actions.event.getLogs(client, {
       address,
       event: transferEventUnnamed,
       args: [null, [a, b]],
@@ -436,12 +436,12 @@ describe('events', () => {
       await transferInvalid(a, b, 1n)
       await transferInvalid(a, c, 1n)
 
-      const strictLogs = await Actions.logs.get(client, {
+      const strictLogs = await Actions.event.getLogs(client, {
         event: transferEvent,
         fromBlock,
         strict: true,
       })
-      const looseLogs = await Actions.logs.get(client, {
+      const looseLogs = await Actions.event.getLogs(client, {
         event: transferEvent,
         fromBlock,
       })
@@ -456,12 +456,12 @@ describe('events', () => {
       await transferInvalid(a, b, 1n)
       await transferInvalid(a, c, 1n)
 
-      const strictLogs = await Actions.logs.get(client, {
+      const strictLogs = await Actions.event.getLogs(client, {
         event: transferEventInvalid,
         fromBlock,
         strict: true,
       })
-      const looseLogs = await Actions.logs.get(client, {
+      const looseLogs = await Actions.event.getLogs(client, {
         event: transferEventInvalid,
         fromBlock,
       })

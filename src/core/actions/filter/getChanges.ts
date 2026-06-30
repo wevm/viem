@@ -5,7 +5,7 @@ import type * as Hex from 'ox/Hex'
 import { z } from 'ox/zod'
 
 import type * as Client from '../../Client.js'
-import type * as logs from '../logs/index.js'
+import type * as event from '../event/index.js'
 import type { Filter, Type } from './Filter.js'
 
 /**
@@ -92,7 +92,7 @@ export declare namespace getChanges {
     fromBlock extends Block.Number | Block.Tag | undefined = undefined,
     toBlock extends Block.Number | Block.Tag | undefined = undefined,
   > = type extends 'event'
-    ? logs.get.ReturnType<abiEvent, strict, fromBlock, toBlock>
+    ? event.getLogs.ReturnType<abiEvent, strict, fromBlock, toBlock>
     : readonly Hex.Hex[]
 
   type ErrorType = AbiEvent.extractLogs.ErrorType | Errors.GlobalErrorType
