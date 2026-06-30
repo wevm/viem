@@ -61,12 +61,12 @@ hand.
 
 ```ts twoslash
 import { createPublicClient, http } from 'viem'
-import { tempo as tempoChain } from 'viem/chains'
-import { tokens } from 'viem/tokens'
+import { mainnet } from 'viem/chains'
+import { tokens } from 'viem/tokens' // [!code hl]
 
 const client = createPublicClient({
-  chain: tempoChain,
-  tokens: tokens.tempo, // [!code hl]
+  chain: mainnet,
+  tokens: tokens.all, // [!code hl]
   transport: http(),
 })
 ```
