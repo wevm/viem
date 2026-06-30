@@ -18,23 +18,14 @@ const account = accounts[0]
 const account2 = accounts[1]
 const account3 = accounts[2]
 
-const chainWithFeeToken_ = chain.extend({ feeToken })
-const chainWithFeeToken = chainWithFeeToken_ as Omit<
-  typeof chainWithFeeToken_,
-  'tokens'
-> & {
-  tokens: {
-    alphausd: { address: typeof addresses.alphaUsd; decimals: 6 }
-    pathusd: { address: typeof addresses.pathUsd; decimals: 6 }
-  }
-}
+const chainWithFeeToken = chain.extend({ feeToken })
 const client = getClient<typeof chainWithFeeToken, typeof account>({
   account,
   chain: chainWithFeeToken,
 })
 const tokenlessClient = getClient({
   account,
-  chain: chain.extend({ feeToken, tokens: undefined }),
+  chain: chain.extend({ feeToken }),
 })
 
 describe('approve', () => {
@@ -554,14 +545,14 @@ describe('mint', () => {
       actions.token.mint.call(client, {
         amount: { formatted: '1.25' },
         to: account2.address,
-        token: 'alphausd',
+        token: addresses.alphaUsd,
       }).args,
     ).toEqual([account2.address, amount])
 
     expect(
       actions.token.burn.call(client, {
         amount: { formatted: '1.25' },
-        token: 'alphausd',
+        token: addresses.alphaUsd,
       }).args,
     ).toEqual([amount])
 
@@ -569,7 +560,7 @@ describe('mint', () => {
       actions.token.burnBlocked.call(client, {
         amount: { formatted: '1.25' },
         from: account2.address,
-        token: 'alphausd',
+        token: addresses.alphaUsd,
       }).args,
     ).toEqual([account2.address, amount])
   })
