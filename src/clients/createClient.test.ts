@@ -39,6 +39,7 @@ test('creates', () => {
       "name": "Base Client",
       "pollingInterval": 4000,
       "request": [Function],
+      "tokens": undefined,
       "transport": {
         "key": "mock",
         "methods": undefined,
@@ -94,6 +95,7 @@ describe('transports', () => {
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "tokens": undefined,
         "transport": {
           "fetchOptions": undefined,
           "key": "http",
@@ -150,6 +152,7 @@ describe('transports', () => {
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "tokens": undefined,
         "transport": {
           "getRpcClient": [Function],
           "getSocket": [Function],
@@ -187,6 +190,7 @@ describe('transports', () => {
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "tokens": undefined,
         "transport": {
           "key": "custom",
           "methods": undefined,
@@ -233,6 +237,7 @@ describe('config', () => {
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "tokens": undefined,
         "transport": {
           "key": "mock",
           "methods": undefined,
@@ -299,6 +304,7 @@ describe('config', () => {
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "tokens": undefined,
         "transport": {
           "key": "mock",
           "methods": undefined,
@@ -347,6 +353,7 @@ describe('config', () => {
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "tokens": undefined,
         "transport": {
           "key": "mock",
           "methods": undefined,
@@ -390,6 +397,7 @@ describe('config', () => {
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "tokens": undefined,
         "transport": {
           "key": "mock",
           "methods": undefined,
@@ -433,6 +441,7 @@ describe('config', () => {
         "name": "Mock Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "tokens": undefined,
         "transport": {
           "key": "mock",
           "methods": undefined,
@@ -476,6 +485,7 @@ describe('config', () => {
         "name": "Base Client",
         "pollingInterval": 10000,
         "request": [Function],
+        "tokens": undefined,
         "transport": {
           "key": "mock",
           "methods": undefined,
@@ -519,6 +529,7 @@ describe('config', () => {
         "name": "Base Client",
         "pollingInterval": 4000,
         "request": [Function],
+        "tokens": undefined,
         "transport": {
           "key": "mock",
           "methods": undefined,
@@ -649,6 +660,7 @@ describe('extends', () => {
           "getMetadata": [Function],
           "getTotalSupply": [Function],
         },
+        "tokens": undefined,
         "transport": {
           "fetchOptions": undefined,
           "key": "http",

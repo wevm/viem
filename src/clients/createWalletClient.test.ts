@@ -74,6 +74,7 @@ test('creates', () => {
         "transfer": [Function],
         "transferSync": [Function],
       },
+      "tokens": undefined,
       "transport": {
         "key": "mock",
         "methods": undefined,
@@ -149,6 +150,7 @@ describe('args: account', () => {
           "transfer": [Function],
           "transferSync": [Function],
         },
+        "tokens": undefined,
         "transport": {
           "key": "mock",
           "methods": undefined,
@@ -231,6 +233,7 @@ describe('args: account', () => {
           "transfer": [Function],
           "transferSync": [Function],
         },
+        "tokens": undefined,
         "transport": {
           "key": "mock",
           "methods": undefined,
@@ -301,6 +304,7 @@ describe('args: transport', () => {
           "transfer": [Function],
           "transferSync": [Function],
         },
+        "tokens": undefined,
         "transport": {
           "key": "custom",
           "methods": undefined,
@@ -369,6 +373,7 @@ describe('args: transport', () => {
           "transfer": [Function],
           "transferSync": [Function],
         },
+        "tokens": undefined,
         "transport": {
           "fetchOptions": undefined,
           "key": "http",
@@ -459,6 +464,7 @@ describe('args: transport', () => {
           "transfer": [Function],
           "transferSync": [Function],
         },
+        "tokens": undefined,
         "transport": {
           "getRpcClient": [Function],
           "getSocket": [Function],
@@ -633,6 +639,7 @@ test('extend', () => {
         "transfer": [Function],
         "transferSync": [Function],
       },
+      "tokens": undefined,
       "transport": {
         "fetchOptions": undefined,
         "key": "http",

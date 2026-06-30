@@ -95,6 +95,7 @@ test('creates', () => {
         "getMetadata": [Function],
         "getTotalSupply": [Function],
       },
+      "tokens": undefined,
       "transport": {
         "key": "mock",
         "methods": undefined,
@@ -251,6 +252,7 @@ describe('transports', () => {
           "getMetadata": [Function],
           "getTotalSupply": [Function],
         },
+        "tokens": undefined,
         "transport": {
           "fetchOptions": undefined,
           "key": "http",
@@ -372,6 +374,7 @@ describe('transports', () => {
           "getMetadata": [Function],
           "getTotalSupply": [Function],
         },
+        "tokens": undefined,
         "transport": {
           "getRpcClient": [Function],
           "getSocket": [Function],
@@ -517,6 +520,7 @@ describe('transports', () => {
           "getMetadata": [Function],
           "getTotalSupply": [Function],
         },
+        "tokens": undefined,
         "transport": {
           "key": "custom",
           "methods": undefined,
@@ -691,6 +695,7 @@ test('extend', () => {
         "transfer": [Function],
         "transferSync": [Function],
       },
+      "tokens": undefined,
       "transport": {
         "fetchOptions": undefined,
         "key": "http",
