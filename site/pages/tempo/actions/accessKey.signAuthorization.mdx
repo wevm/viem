@@ -1,6 +1,6 @@
 # `accessKey.signAuthorization`
 
-Signs a key authorization for an access key. This is a local signing operation — no transaction is sent.
+Signs a key authorization for an access key. This is a local signing operation, so no transaction is sent.
 
 :::info
 If you want to authorize a key and send the transaction in one step, use [`accessKey.authorize`](/tempo/actions/accessKey.authorize) instead.
@@ -104,7 +104,7 @@ const keyAuthorization = await client.accessKey.signAuthorization(
 )
 ```
 
-```ts twoslash [Builder]
+```ts twoslash [Scopes]
 import { parseUnits } from 'viem'
 import { Account, P256, Scopes } from 'viem/tempo'
 import { client } from './viem.config'
@@ -227,7 +227,7 @@ Unix timestamp when the key expires.
 
 - **Type:** `{ token: Address; limit: bigint; period?: number }[]`
 
-Spending limits per token. Optionally include `period` (in seconds) to make the limit periodic — it resets after each period.
+Spending limits per token. Optionally include `period` (in seconds) to make the limit periodic. It resets after each period.
 
 ### scopes (optional)
 

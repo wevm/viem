@@ -2564,6 +2564,10 @@ export default defineConfig({
                   link: '/tempo/actions/fee.setUserToken',
                 },
                 {
+                  text: 'validateToken',
+                  link: '/tempo/actions/fee.validateToken',
+                },
+                {
                   text: 'watchSetUserToken',
                   link: '/tempo/actions/fee.watchSetUserToken',
                 },
@@ -3080,6 +3084,16 @@ export default defineConfig({
                   link: '/tempo/utilities/TempoAddress.validate',
                 },
               ],
+            },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
+              text: 'Scopes',
+              link: '/tempo/utilities/Scopes',
+            },
+            {
+              badge: { text: 'EXP', variant: 'warning' },
+              text: 'Selectors',
+              link: '/tempo/utilities/Selectors',
             },
             {
               text: 'Storage',
