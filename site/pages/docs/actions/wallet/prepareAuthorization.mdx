@@ -1,0 +1,129 @@
+# prepareAuthorization
+
+Prepares an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702) Authorization object for signing. Fills the required fields of the Authorization object if they are not provided (e.g. `nonce` and `chainId`).
+
+With the prepared Authorization object, you can use [`signAuthorization`](/docs/actions/wallet/signAuthorization) to sign over it.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const authorization = await client.wallet.prepareAuthorization({
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const authorization = await Actions.wallet.prepareAuthorization(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Account, Client, http, walletActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  account: Account.fromPrivateKey('0x…'),
+  chain: mainnet,
+  transport: http(),
+}).extend(walletActions())
+```
+
+:::
+
+## Return Value
+
+`Authorization`
+
+The prepared (unsigned) Authorization object.
+
+## Parameters
+
+### account
+
+- **Type:** `Account | Address`
+- **Default:** `client.account`
+
+Account (or address) signing the Authorization.
+
+```ts twoslash
+import { Account, Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const authorization = await Actions.wallet.prepareAuthorization(client, {
+  account: Account.fromPrivateKey('0x…'), // [!code focus]
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+})
+```
+
+### address
+
+- **Type:** `Address`
+
+Address of the contract to delegate to.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const authorization = await Actions.wallet.prepareAuthorization(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+})
+```
+
+### chainId
+
+- **Type:** `number`
+- **Default:** `client.chain.id`
+
+Chain ID to scope the Authorization to.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const authorization = await Actions.wallet.prepareAuthorization(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  chainId: 1, // [!code focus]
+})
+```
+
+### executor
+
+- **Type:** `'self' | Account | Address`
+
+Whether the EIP-7702 Transaction will be executed by the EOA (signing this Authorization) or another Account. Pass `'self'` when the signing EOA also submits the Transaction so the nonce is incremented accordingly.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const authorization = await Actions.wallet.prepareAuthorization(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  executor: 'self', // [!code focus]
+})
+```
+
+### nonce
+
+- **Type:** `bigint`
+- **Default:** account nonce
+
+Nonce of the Authorization.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const authorization = await Actions.wallet.prepareAuthorization(client, {
+  address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  nonce: 69n, // [!code focus]
+})
+```

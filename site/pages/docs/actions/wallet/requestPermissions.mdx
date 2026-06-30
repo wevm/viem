@@ -1,0 +1,59 @@
+# requestPermissions
+
+Requests permissions for a wallet.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const permissions = await client.wallet.requestPermissions({
+  eth_accounts: {},
+})
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const permissions = await Actions.wallet.requestPermissions(client, {
+  eth_accounts: {},
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+export const client = Client.create({
+  transport: custom(provider),
+}).extend(walletActions())
+```
+
+:::
+
+## Return Value
+
+`readonly WalletPermission[]`
+
+The wallet's permissions.
+
+## Parameters
+
+### eth_accounts
+
+- **Type:** `Record<string, any>`
+
+The permissions to request. Each key is a JSON-RPC method name mapped to its requested caveats.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const permissions = await Actions.wallet.requestPermissions(client, {
+  eth_accounts: {}, // [!code focus]
+})
+```

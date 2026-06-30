@@ -282,3 +282,29 @@ Filter producers were renamed to their owning domain namespaces.
 + const eventFilter = await Actions.event.createFilter(client, { event })
 + const contractFilter = await Actions.contract.createEventFilter(client, { abi, eventName })
 ```
+
+Wallet JSON-RPC actions were grouped under the `wallet` namespace, and the EIP-7702 authorization actions were folded in from `viem/experimental`.
+
+```diff
+- import { getAddresses, requestAddresses, getPermissions, requestPermissions, watchAsset } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const addresses = await getAddresses(client)
+- const requested = await requestAddresses(client)
+- const permissions = await getPermissions(client)
+- const requestedPermissions = await requestPermissions(client, { eth_accounts: {} })
+- const success = await watchAsset(client, { type: 'ERC20', options })
++ const addresses = await Actions.wallet.getAddresses(client)
++ const requested = await Actions.wallet.requestAddresses(client)
++ const permissions = await Actions.wallet.getPermissions(client)
++ const requestedPermissions = await Actions.wallet.requestPermissions(client, { eth_accounts: {} })
++ const success = await Actions.wallet.watchAsset(client, { type: 'ERC20', options })
+
+- import { prepareAuthorization, signAuthorization } from 'viem/experimental'
++ import { Actions } from 'viem'
+
+- const authorization = await prepareAuthorization(client, { contractAddress })
+- const signed = await signAuthorization(client, { contractAddress })
++ const authorization = await Actions.wallet.prepareAuthorization(client, { address })
++ const signed = await Actions.wallet.signAuthorization(client, { address })
+```

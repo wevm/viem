@@ -13,6 +13,7 @@ import * as contract from '../contract/index.js'
 import { signMessage } from '../signMessage.js'
 import { signTypedData } from '../signTypedData.js'
 import * as transaction from '../transaction/index.js'
+import * as wallet from '../wallet/index.js'
 
 /**
  * Bag of wallet actions bound to a {@link Client}. Pass to `Client.create`'s
@@ -59,6 +60,17 @@ export function walletActions() {
       sendRawSync: (options) => transaction.sendRawSync(client, options),
       sendSync: (options) => transaction.sendSync(client, options),
       sign: (options) => transaction.sign(client, options),
+    },
+    wallet: {
+      getAddresses: () => wallet.getAddresses(client),
+      getPermissions: () => wallet.getPermissions(client),
+      prepareAuthorization: (options) =>
+        wallet.prepareAuthorization(client, options),
+      requestAddresses: () => wallet.requestAddresses(client),
+      requestPermissions: (options) =>
+        wallet.requestPermissions(client, options),
+      signAuthorization: (options) => wallet.signAuthorization(client, options),
+      watchAsset: (options) => wallet.watchAsset(client, options),
     },
     signMessage: (options) => signMessage(client, options),
     signTypedData: (options) => signTypedData(client, options as never),
@@ -384,6 +396,145 @@ export declare namespace walletActions {
       sign: (
         options: transaction.sign.Options<chain>,
       ) => Promise<transaction.sign.ReturnType>
+    }
+    wallet: {
+      /**
+       * Returns a list of account addresses owned by the wallet or client.
+       *
+       * @example
+       * ```ts
+       * import { Client, custom, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: custom(window.ethereum!),
+       * }).extend(walletActions())
+       * const addresses = await client.wallet.getAddresses()
+       * ```
+       */
+      getAddresses: () => Promise<wallet.getAddresses.ReturnType>
+      /**
+       * Gets the wallet's current permissions.
+       *
+       * @example
+       * ```ts
+       * import { Client, custom, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: custom(window.ethereum!),
+       * }).extend(walletActions())
+       * const permissions = await client.wallet.getPermissions()
+       * ```
+       */
+      getPermissions: () => Promise<wallet.getPermissions.ReturnType>
+      /**
+       * Prepares an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702)
+       * Authorization object for signing.
+       *
+       * @example
+       * ```ts
+       * import { Account, Client, http, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   account: Account.fromPrivateKey('0x…'),
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(walletActions())
+       * const authorization = await client.wallet.prepareAuthorization({
+       *   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+       * })
+       * ```
+       */
+      prepareAuthorization: (
+        options: wallet.prepareAuthorization.Options,
+      ) => Promise<wallet.prepareAuthorization.ReturnType>
+      /**
+       * Requests a list of accounts managed by a wallet.
+       *
+       * @example
+       * ```ts
+       * import { Client, custom, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: custom(window.ethereum!),
+       * }).extend(walletActions())
+       * const addresses = await client.wallet.requestAddresses()
+       * ```
+       */
+      requestAddresses: () => Promise<wallet.requestAddresses.ReturnType>
+      /**
+       * Requests permissions for a wallet.
+       *
+       * @example
+       * ```ts
+       * import { Client, custom, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: custom(window.ethereum!),
+       * }).extend(walletActions())
+       * const permissions = await client.wallet.requestPermissions({
+       *   eth_accounts: {},
+       * })
+       * ```
+       */
+      requestPermissions: (
+        options: wallet.requestPermissions.Options,
+      ) => Promise<wallet.requestPermissions.ReturnType>
+      /**
+       * Signs an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702)
+       * Authorization object.
+       *
+       * @example
+       * ```ts
+       * import { Account, Client, http, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   account: Account.fromPrivateKey('0x…'),
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(walletActions())
+       * const authorization = await client.wallet.signAuthorization({
+       *   address: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+       * })
+       * ```
+       */
+      signAuthorization: (
+        options: wallet.signAuthorization.Options,
+      ) => Promise<wallet.signAuthorization.ReturnType>
+      /**
+       * Adds an EVM token to the wallet's watchlist.
+       *
+       * @example
+       * ```ts
+       * import { Client, custom, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: custom(window.ethereum!),
+       * }).extend(walletActions())
+       * const success = await client.wallet.watchAsset({
+       *   type: 'ERC20',
+       *   options: {
+       *     address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+       *     decimals: 18,
+       *     symbol: 'WETH',
+       *   },
+       * })
+       * ```
+       */
+      watchAsset: (
+        options: wallet.watchAsset.Options,
+      ) => Promise<wallet.watchAsset.ReturnType>
     }
     /**
      * Calculates an [EIP-191](https://eips.ethereum.org/EIPS/eip-191)

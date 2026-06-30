@@ -49,6 +49,8 @@ export function getWalletClient(
   const node = http(anvil.rpcUrl.http).setup({})
   const provider = Provider.from({
     async request({ method, params }: any) {
+      if (method === 'eth_requestAccounts')
+        return [constants.accounts[0].address]
       if (method === 'personal_sign')
         return node.request({
           method: 'eth_sign',
@@ -60,6 +62,30 @@ export function getWalletClient(
           throw new Provider.ProviderRpcError(4902, 'Unrecognized chain.')
         return null
       }
+      if (method === 'wallet_watchAsset') {
+        if (params[0].type === 'ERC721')
+          throw new Provider.ProviderRpcError(
+            -32602,
+            'Token type ERC721 not supported.',
+          )
+        return true
+      }
+      if (
+        method === 'wallet_getPermissions' ||
+        method === 'wallet_requestPermissions'
+      )
+        return [
+          {
+            invoker: 'https://example.com',
+            parentCapability: 'eth_accounts',
+            caveats: [
+              {
+                type: 'filterResponse',
+                value: ['0x0c54fccd2e384b4bb6f2e405bf5cbc15a017aafb'],
+              },
+            ],
+          },
+        ]
       return node.request({ method, params })
     },
   })

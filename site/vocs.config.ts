@@ -243,6 +243,16 @@ export default defineConfig({
             badge: badge('public'),
           },
           {
+            text: 'signMessage',
+            link: '/docs/actions/wallet/signMessage',
+            badge: badge('wallet'),
+          },
+          {
+            text: 'signTypedData',
+            link: '/docs/actions/wallet/signTypedData',
+            badge: badge('wallet'),
+          },
+          {
             text: 'Address',
             collapsed: true,
             items: [
@@ -713,13 +723,38 @@ export default defineConfig({
             collapsed: true,
             items: [
               {
-                text: 'signMessage',
-                link: '/docs/actions/wallet/signMessage',
+                text: 'getAddresses',
+                link: '/docs/actions/wallet/getAddresses',
                 badge: badge('wallet'),
               },
               {
-                text: 'signTypedData',
-                link: '/docs/actions/wallet/signTypedData',
+                text: 'getPermissions',
+                link: '/docs/actions/wallet/getPermissions',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'prepareAuthorization',
+                link: '/docs/actions/wallet/prepareAuthorization',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'requestAddresses',
+                link: '/docs/actions/wallet/requestAddresses',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'requestPermissions',
+                link: '/docs/actions/wallet/requestPermissions',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'signAuthorization',
+                link: '/docs/actions/wallet/signAuthorization',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'watchAsset',
+                link: '/docs/actions/wallet/watchAsset',
                 badge: badge('wallet'),
               },
             ],

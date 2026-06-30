@@ -36,6 +36,25 @@ test('decorates a client with chains actions', async () => {
   await client.chains.switch({ id: avalanche.id })
 })
 
+test('decorates a client with wallet namespace actions', async () => {
+  const client = anvil.getWalletClient(anvil.mainnet).extend(walletActions())
+  expect(await client.wallet.requestAddresses()).toMatchInlineSnapshot(`
+    [
+      "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    ]
+  `)
+  expect(
+    await client.wallet.watchAsset({
+      type: 'ERC20',
+      options: {
+        address: '0xb60e8dd61c5d32be8058bb8eb970870f07233155',
+        symbol: 'FOO',
+        decimals: 18,
+      },
+    }),
+  ).toBe(true)
+})
+
 test('decorates a client with wallet sign actions', async () => {
   const client = anvil.getWalletClient(anvil.mainnet).extend(walletActions())
   const signature = await client.signMessage({

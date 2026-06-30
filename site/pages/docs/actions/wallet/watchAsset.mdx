@@ -1,0 +1,94 @@
+# watchAsset
+
+Adds an EVM token to the wallet's watchlist so its balance is tracked.
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const success = await client.wallet.watchAsset({
+  type: 'ERC20',
+  options: {
+    address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    decimals: 18,
+    symbol: 'WETH',
+  },
+})
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const success = await Actions.wallet.watchAsset(client, {
+  type: 'ERC20',
+  options: {
+    address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    decimals: 18,
+    symbol: 'WETH',
+  },
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+export const client = Client.create({
+  transport: custom(provider),
+}).extend(walletActions())
+```
+
+:::
+
+## Return Value
+
+`boolean`
+
+Whether the token was successfully added.
+
+## Parameters
+
+### options
+
+- **Type:** `{ address: Address; decimals: number; symbol: string; image?: string }`
+
+Token metadata. For `ERC20` assets, the contract `address`, `decimals`, and `symbol` are required; `image` is optional.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const success = await Actions.wallet.watchAsset(client, {
+  type: 'ERC20',
+  options: { // [!code focus]
+    address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // [!code focus]
+    decimals: 18, // [!code focus]
+    symbol: 'WETH', // [!code focus]
+  }, // [!code focus]
+})
+```
+
+### type
+
+- **Type:** `string`
+
+The asset's interface type (e.g. `'ERC20'`).
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const success = await Actions.wallet.watchAsset(client, {
+  type: 'ERC20', // [!code focus]
+  options: {
+    address: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    decimals: 18,
+    symbol: 'WETH',
+  },
+})
+```

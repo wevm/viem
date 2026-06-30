@@ -11,6 +11,7 @@ export * as filter from './filter/index.js'
 export * as event from './event/index.js'
 export * as fee from './fee/index.js'
 export * as transaction from './transaction/index.js'
+export * as wallet from './wallet/index.js'
 
 export { signMessage } from './signMessage.js'
 export { signTypedData } from './signTypedData.js'
