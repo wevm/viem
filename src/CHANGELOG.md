@@ -1,5 +1,15 @@
 # viem
 
+## 2.54.1
+
+### Patch Changes
+
+- [#4780](https://github.com/wevm/viem/pull/4780) [`7ce10f40e466273fdc6926127394d36d0955c688`](https://github.com/wevm/viem/commit/7ce10f40e466273fdc6926127394d36d0955c688) Thanks [@tmm](https://github.com/tmm)! - Added EURC, USYC, and cirBTC token definitions to `viem/tokens`.
+
+- [#4780](https://github.com/wevm/viem/pull/4780) [`7ce10f40e466273fdc6926127394d36d0955c688`](https://github.com/wevm/viem/commit/7ce10f40e466273fdc6926127394d36d0955c688) Thanks [@tmm](https://github.com/tmm)! - Added USDC token addresses for more supported chains.
+
+- [#4782](https://github.com/wevm/viem/pull/4782) [`cf4bdca930df835452a467efd95c59a5e2a4a89f`](https://github.com/wevm/viem/commit/cf4bdca930df835452a467efd95c59a5e2a4a89f) Thanks [@jxom](https://github.com/jxom)! - Added a `tokens` export to `viem/tokens` with curated token sets (`tokens.all`, `tokens.popular`, `tokens.tempo`) that can be passed to a Client's `tokens` property. `viem/tempo`'s `createClient` now defaults `tokens` to `tokens.tempo`.
+
 ## 2.54.0
 
 ### Minor Changes
