@@ -3,6 +3,7 @@ import { TokenId } from 'ox/tempo'
 import { readContract } from '../../actions/public/readContract.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
+import type { Token } from '../../tokens/defineToken.js'
 import type { Chain, ChainToken } from '../../types/chain.js'
 import type {
   ContractFunctionName,
@@ -10,7 +11,6 @@ import type {
   ExtractAbiItem,
 } from '../../types/contract.js'
 import type { Hex } from '../../types/misc.js'
-import { isAddress } from '../../utils/address/isAddress.js'
 import { isAddressEqual } from '../../utils/address/isAddressEqual.js'
 import { encodeFunctionData } from '../../utils/index.js'
 import * as Abis from '../Abis.js'
@@ -37,7 +37,7 @@ export function resolveToken(
   const { decimals, token } = parameters
 
   if (typeof token === 'string') {
-    const declared = findDeclaredTokenByName(client.chain?.tokens, token)
+    const declared = findDeclaredTokenBySymbol(client, token)
     if (declared)
       return {
         address: declared.address,
@@ -56,67 +56,99 @@ export namespace resolveToken {
   export type Parameters = {
     /** Decimals, if provided explicitly. */
     decimals?: number | undefined
-    /** Token name (declared on the chain's `tokens` config), TIP20 token id, or contract address. */
+    /** Token symbol (declared on the client's `tokens` array), TIP20 token id, or contract address. */
     token: TokenId.TokenIdOrAddress | (string & {})
   }
 }
 
 /**
- * Finds the declared {@link ChainToken} on the client's chain `tokens` config
- * matching `token`, which is either a token name, a TIP20 token id, or a
- * contract `address`. Returns `undefined` when no declared token matches.
+ * Finds the declared {@link ChainToken} on the client's `tokens` array matching
+ * `token`, which is either a token symbol, a TIP20 token id, or a contract
+ * `address`, resolved for the client's `chain.id`. Returns `undefined` when no
+ * declared token matches, or the matching token has no address for the client's
+ * chain.
  *
  * @param client - Client.
- * @param token - Token name (declared on the chain's `tokens` config), TIP20 token id, or contract address.
+ * @param token - Token symbol (declared on the client's `tokens` array), TIP20 token id, or contract address.
  * @returns The matching declared token config, or `undefined`.
  */
 export function findDeclaredToken(
   client: Client<Transport, Chain | undefined>,
   token: TokenId.TokenIdOrAddress | (string & {}),
 ): ChainToken | undefined {
-  const tokens = client.chain?.tokens
-  if (!tokens) return undefined
+  const tokens = client.tokens
+  const chainId = client.chain?.id
+  if (!tokens || chainId === undefined) return undefined
+
   if (typeof token === 'string') {
-    const declared = findDeclaredTokenByName(tokens, token)
+    const declared = findDeclaredTokenBySymbol(client, token)
     if (declared) return declared
   }
-  const address = TokenId.toAddress(token as TokenId.TokenIdOrAddress)
-  for (const key in tokens) {
-    const declared = tokens[key]!
-    if (isAddressEqual(declared.address, address)) return declared
-  }
-  return undefined
-}
 
-function findDeclaredTokenByName(
-  tokens: Record<string, ChainToken> | undefined,
-  name: string,
-) {
-  if (!tokens) return undefined
-  if (tokens[name]) return tokens[name]
-  const lowerName = name.toLowerCase()
-  if (tokens[lowerName]) return tokens[lowerName]
-  for (const key in tokens) {
-    if (key.toLowerCase() === lowerName) return tokens[key]
+  const address = TokenId.toAddress(token as TokenId.TokenIdOrAddress)
+  for (const token_ of tokens) {
+    const resolved = resolveTokenForChain(token_, chainId)
+    if (resolved && isAddressEqual(resolved.address, address)) return resolved
   }
   return undefined
 }
 
 /**
- * Infers a token's `decimals` from the client's chain `tokens` config by
- * matching `address`.
+ * Finds a declared token by `symbol` (case-insensitively) on the client's
+ * `tokens` array, resolved for the client's `chain.id`. @internal
+ */
+function findDeclaredTokenBySymbol(
+  client: Client<Transport, Chain | undefined>,
+  symbol: string,
+): ChainToken | undefined {
+  const tokens = client.tokens
+  const chainId = client.chain?.id
+  if (!tokens || chainId === undefined) return undefined
+
+  const lowerSymbol = symbol.toLowerCase()
+  for (const token of tokens) {
+    if (token.symbol?.toLowerCase() === lowerSymbol)
+      return resolveTokenForChain(token, chainId)
+  }
+  return undefined
+}
+
+/**
+ * Resolves a {@link Token} to a {@link ChainToken} for `chainId`, or
+ * `undefined` when the token has no address for `chainId`. @internal
+ */
+function resolveTokenForChain(
+  token: Token,
+  chainId: number,
+): ChainToken | undefined {
+  const address = (token.addresses as Record<number, Address>)[chainId]
+  if (!address) return undefined
+  return {
+    address,
+    currency: token.currency,
+    decimals: token.decimals,
+    name: token.name,
+    popular: token.popular,
+    symbol: token.symbol,
+  }
+}
+
+/**
+ * Infers a token's `decimals` from the client's `tokens` array by matching
+ * `address` against each token's address for the client's `chain.id`.
  * @internal
  */
 function inferDecimals(
   client: Client<Transport, Chain | undefined>,
   address: Address,
 ): number | undefined {
-  const tokens = client.chain?.tokens
-  if (tokens)
-    for (const key in tokens) {
-      const token = tokens[key]!
-      if (isAddress(token.address) && isAddressEqual(token.address, address))
-        return token.decimals
+  const tokens = client.tokens
+  const chainId = client.chain?.id
+  if (tokens && chainId !== undefined)
+    for (const token of tokens) {
+      const resolved = resolveTokenForChain(token, chainId)
+      if (resolved && isAddressEqual(resolved.address, address))
+        return resolved.decimals
     }
   return undefined
 }
