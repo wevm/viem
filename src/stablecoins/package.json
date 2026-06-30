@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "types": "../_types/stablecoins/index.d.ts",
+  "module": "../_esm/stablecoins/index.js",
+  "main": "../_cjs/stablecoins/index.js"
+}
