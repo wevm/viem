@@ -43,7 +43,7 @@ describe('simulateBlocks', () => {
       {
         "calls": [
           {
-            "gasUsed": 271644n,
+            "gasUsed": 22080n,
             "logs": [],
             "status": "success",
           },
@@ -299,7 +299,7 @@ describe('simulateCalls', () => {
         "tokenMetadata": {
           "0x20c0000000000000000000000000000000000000": {
             "currency": "USD",
-            "name": "pathUSD",
+            "name": "PathUSD",
             "symbol": "pathUSD",
           },
           "0x20c0000000000000000000000000000000000001": {

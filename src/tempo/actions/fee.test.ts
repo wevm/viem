@@ -41,7 +41,7 @@ describe('validateToken', () => {
           "currency": "USD",
           "decimals": 6,
           "logoURI": "",
-          "name": "pathUSD",
+          "name": "PathUSD",
           "symbol": "pathUSD",
           "totalSupply": 184467440737095516150n,
         },

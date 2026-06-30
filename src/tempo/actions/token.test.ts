@@ -468,7 +468,7 @@ describe('getMetadata', () => {
           "currency": "USD",
           "decimals": 6,
           "logoURI": "",
-          "name": "pathUSD",
+          "name": "PathUSD",
           "symbol": "pathUSD",
           "totalSupply": 184467440737095516150n,
         }
@@ -485,7 +485,7 @@ describe('getMetadata', () => {
           "currency": "USD",
           "decimals": 6,
           "logoURI": "",
-          "name": "pathUSD",
+          "name": "PathUSD",
           "symbol": "pathUSD",
           "totalSupply": 184467440737095516150n,
         }
