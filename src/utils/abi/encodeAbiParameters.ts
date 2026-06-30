@@ -278,7 +278,12 @@ function encodeArray<const param extends AbiParameter>(
   }
   return {
     dynamic: false,
-    encoded: concat(preparedParams.map(({ encoded }) => encoded)),
+    // A zero-width static array (`T[0]`) contributes no bytes per the ABI spec.
+    // `concat([])` would return an empty `Uint8Array`, so emit `'0x'` directly.
+    encoded:
+      preparedParams.length > 0
+        ? concat(preparedParams.map(({ encoded }) => encoded))
+        : '0x',
   }
 }
 
@@ -411,9 +416,13 @@ function encodeTuple<
   }
   return {
     dynamic,
+    // An empty tuple (`()`) contributes no bytes per the ABI spec. `concat([])`
+    // would return an empty `Uint8Array`, so emit `'0x'` directly.
     encoded: dynamic
       ? encodeParams(preparedParams)
-      : concat(preparedParams.map(({ encoded }) => encoded)),
+      : preparedParams.length > 0
+        ? concat(preparedParams.map(({ encoded }) => encoded))
+        : '0x',
   }
 }
 

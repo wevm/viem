@@ -1921,3 +1921,33 @@ test('https://github.com/wevm/viem/issues/1960', () => {
     Version: viem@x.y.z]
   `)
 })
+
+describe('zero-width static aggregate', () => {
+  // Per the ABI spec, `enc(T[0])` and `enc(())` are zero-length: an empty fixed
+  // array or empty tuple contributes no bytes. The neighbouring uint256 must be
+  // the only output. ethers `AbiCoder.encode(['uint256[0]','uint256'], [[], 3n])`
+  // returns the 32-byte uint256 below.
+  test('empty fixed array', () => {
+    expect(
+      encodeAbiParameters(
+        [{ type: 'uint256[0]' }, { type: 'uint256' }],
+        [[], 3n],
+      ),
+    ).toEqual(
+      '0x0000000000000000000000000000000000000000000000000000000000000003',
+    )
+  })
+
+  // ethers `AbiCoder.encode(['uint256','tuple()'], [5n, []])` returns the
+  // 32-byte uint256 below.
+  test('empty tuple', () => {
+    expect(
+      encodeAbiParameters(
+        [{ type: 'uint256' }, { type: 'tuple', components: [] }],
+        [5n, []],
+      ),
+    ).toEqual(
+      '0x0000000000000000000000000000000000000000000000000000000000000005',
+    )
+  })
+})
