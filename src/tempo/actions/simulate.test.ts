@@ -299,7 +299,7 @@ describe('simulateCalls', () => {
         "tokenMetadata": {
           "0x20c0000000000000000000000000000000000000": {
             "currency": "USD",
-            "name": "PathUSD",
+            "name": "pathUSD",
             "symbol": "pathUSD",
           },
           "0x20c0000000000000000000000000000000000001": {

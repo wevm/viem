@@ -26,6 +26,7 @@ const client = getClient<typeof chainWithFeeToken, typeof account>({
 const tokenlessClient = getClient({
   account,
   chain: chain.extend({ feeToken }),
+  tokens: undefined,
 })
 
 describe('approve', () => {
@@ -423,7 +424,7 @@ describe('getMetadata', () => {
         "paused": false,
         "quoteToken": "0x20C0000000000000000000000000000000000000",
         "supplyCap": 340282366920938463463374607431768211455n,
-        "symbol": "AlphaUSD",
+        "symbol": "alphaUSD",
         "totalSupply": 202914184810805067765n,
         "transferPolicyId": 1n,
       }
