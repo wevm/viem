@@ -652,8 +652,8 @@ importers:
         specifier: 8.0.16
         version: 8.0.16(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.36.0)(tsx@4.22.4)(yaml@2.8.3)
       vocs:
-        specifier: ^2.1.11
-        version: 2.1.11(@cfworker/json-schema@4.1.1)(@types/react@19.0.8)(@vue/compiler-sfc@3.5.39)(change-case@5.4.4)(idb-keyval@6.2.2)(next@16.2.6(@babel/core@7.29.7)(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react-server-dom-webpack@19.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(webpack@5.104.1(esbuild@0.28.1)))(react@19.2.6)(rollup@4.59.0)(typescript@5.9.3)(vite@8.0.16(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.36.0)(tsx@4.22.4)(yaml@2.8.3))(waku@1.0.0-beta.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(react-dom@19.2.6(react@19.2.6))(react-server-dom-webpack@19.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(webpack@5.104.1(esbuild@0.28.1)))(react@19.2.6)(terser@5.36.0)(tsx@4.22.4)(yaml@2.8.3))
+        specifier: ^2.2.1
+        version: 2.2.1(@cfworker/json-schema@4.1.1)(@types/react@19.0.8)(@vue/compiler-sfc@3.5.39)(change-case@5.4.4)(idb-keyval@6.2.2)(next@16.2.6(@babel/core@7.29.7)(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react-server-dom-webpack@19.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(webpack@5.104.1(esbuild@0.28.1)))(react@19.2.6)(rollup@4.59.0)(typescript@5.9.3)(vite@8.0.16(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.36.0)(tsx@4.22.4)(yaml@2.8.3))(waku@1.0.0-beta.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(react-dom@19.2.6(react@19.2.6))(react-server-dom-webpack@19.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(webpack@5.104.1(esbuild@0.28.1)))(react@19.2.6)(terser@5.36.0)(tsx@4.22.4)(yaml@2.8.3))
       waku:
         specifier: ^1.0.0-beta.1
         version: 1.0.0-beta.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(react-dom@19.2.6(react@19.2.6))(react-server-dom-webpack@19.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(webpack@5.104.1(esbuild@0.28.1)))(react@19.2.6)(terser@5.36.0)(tsx@4.22.4)(yaml@2.8.3)
@@ -7050,8 +7050,8 @@ packages:
       jsdom:
         optional: true
 
-  vocs@2.1.11:
-    resolution: {integrity: sha512-/Bo8L7CXSlJl9LoLr+pQWm/lUvIqCQ+LjqZfmb48HzKSQAlYoPU+SyxKjLnvfDEBEG6Dlda9/M57mJbRKln83w==}
+  vocs@2.2.1:
+    resolution: {integrity: sha512-naPotNSOk6l9UHqE75Yn5cMN/BmAmwDl5QnE4TVZ46XdhGd+oSEDw7SmiMdHV/sI5qmH1PlAtPLVAwtVUKNSXQ==}
     hasBin: true
     peerDependencies:
       '@vocs/twoslash-rust': ^0.1.0
@@ -7963,7 +7963,7 @@ snapshots:
   '@floating-ui/vue@1.1.9(vue@3.5.39(typescript@5.9.3))':
     dependencies:
       '@floating-ui/dom': 1.7.6
-      '@floating-ui/utils': 0.2.10
+      '@floating-ui/utils': 0.2.11
       vue-demi: 0.14.10(vue@3.5.39(typescript@5.9.3))
     transitivePeerDependencies:
       - '@vue/composition-api'
@@ -8322,7 +8322,7 @@ snapshots:
 
   '@modelcontextprotocol/server@2.0.0-alpha.2(@cfworker/json-schema@4.1.1)':
     dependencies:
-      zod: 4.3.6
+      zod: 4.4.3
     optionalDependencies:
       '@cfworker/json-schema': 4.1.1
 
@@ -9867,11 +9867,11 @@ snapshots:
   '@types/eslint-scope@3.7.7':
     dependencies:
       '@types/eslint': 9.6.1
-      '@types/estree': 1.0.8
+      '@types/estree': 1.0.9
 
   '@types/eslint@9.6.1':
     dependencies:
-      '@types/estree': 1.0.8
+      '@types/estree': 1.0.9
       '@types/json-schema': 7.0.15
 
   '@types/estree-jsx@1.0.5':
@@ -9957,7 +9957,7 @@ snapshots:
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 24.5.2
+      '@types/node': 24.13.2
     optional: true
 
   '@typescript/analyze-trace@0.10.1':
@@ -10315,17 +10315,17 @@ snapshots:
       - typescript
       - use-sync-external-store
 
-  acorn-import-assertions@1.9.0(acorn@8.15.0):
+  acorn-import-assertions@1.9.0(acorn@8.17.0):
     dependencies:
-      acorn: 8.15.0
+      acorn: 8.17.0
 
-  acorn-import-attributes@1.9.5(acorn@8.15.0):
+  acorn-import-attributes@1.9.5(acorn@8.17.0):
     dependencies:
-      acorn: 8.15.0
+      acorn: 8.17.0
 
-  acorn-import-phases@1.0.4(acorn@8.15.0):
+  acorn-import-phases@1.0.4(acorn@8.17.0):
     dependencies:
-      acorn: 8.15.0
+      acorn: 8.17.0
 
   acorn-jsx@5.3.2(acorn@8.17.0):
     dependencies:
@@ -11789,22 +11789,22 @@ snapshots:
 
   import-in-the-middle@1.13.1:
     dependencies:
-      acorn: 8.15.0
-      acorn-import-attributes: 1.9.5(acorn@8.15.0)
+      acorn: 8.17.0
+      acorn-import-attributes: 1.9.5(acorn@8.17.0)
       cjs-module-lexer: 1.4.1
       module-details-from-path: 1.0.3
 
   import-in-the-middle@1.7.1:
     dependencies:
-      acorn: 8.15.0
-      acorn-import-assertions: 1.9.0(acorn@8.15.0)
+      acorn: 8.17.0
+      acorn-import-assertions: 1.9.0(acorn@8.17.0)
       cjs-module-lexer: 1.4.1
       module-details-from-path: 1.0.3
 
   import-in-the-middle@3.0.1:
     dependencies:
-      acorn: 8.15.0
-      acorn-import-attributes: 1.9.5(acorn@8.15.0)
+      acorn: 8.17.0
+      acorn-import-attributes: 1.9.5(acorn@8.17.0)
       cjs-module-lexer: 2.2.0
       module-details-from-path: 1.0.4
 
@@ -11817,7 +11817,7 @@ snapshots:
       '@toon-format/toon': 2.1.0
       tokenx: 1.3.0
       yaml: 2.8.3
-      zod: 4.3.6
+      zod: 4.4.3
 
   inflight@1.0.6:
     dependencies:
@@ -14274,7 +14274,7 @@ snapshots:
   terser@5.36.0:
     dependencies:
       '@jridgewell/source-map': 0.3.6
-      acorn: 8.15.0
+      acorn: 8.17.0
       commander: 2.20.3
       source-map-support: 0.5.21
 
@@ -14699,7 +14699,7 @@ snapshots:
       - tsx
       - yaml
 
-  vocs@2.1.11(@cfworker/json-schema@4.1.1)(@types/react@19.0.8)(@vue/compiler-sfc@3.5.39)(change-case@5.4.4)(idb-keyval@6.2.2)(next@16.2.6(@babel/core@7.29.7)(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react-server-dom-webpack@19.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(webpack@5.104.1(esbuild@0.28.1)))(react@19.2.6)(rollup@4.59.0)(typescript@5.9.3)(vite@8.0.16(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.36.0)(tsx@4.22.4)(yaml@2.8.3))(waku@1.0.0-beta.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(react-dom@19.2.6(react@19.2.6))(react-server-dom-webpack@19.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(webpack@5.104.1(esbuild@0.28.1)))(react@19.2.6)(terser@5.36.0)(tsx@4.22.4)(yaml@2.8.3)):
+  vocs@2.2.1(@cfworker/json-schema@4.1.1)(@types/react@19.0.8)(@vue/compiler-sfc@3.5.39)(change-case@5.4.4)(idb-keyval@6.2.2)(next@16.2.6(@babel/core@7.29.7)(@opentelemetry/api@1.7.0)(@playwright/test@1.59.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react-server-dom-webpack@19.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(webpack@5.104.1(esbuild@0.28.1)))(react@19.2.6)(rollup@4.59.0)(typescript@5.9.3)(vite@8.0.16(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.36.0)(tsx@4.22.4)(yaml@2.8.3))(waku@1.0.0-beta.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(react-dom@19.2.6(react@19.2.6))(react-server-dom-webpack@19.2.6(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(webpack@5.104.1(esbuild@0.28.1)))(react@19.2.6)(terser@5.36.0)(tsx@4.22.4)(yaml@2.8.3)):
     dependencies:
       '@base-ui/react': 1.6.0(@types/react@19.0.8)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@codesandbox/sandpack-react': 2.20.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -14892,13 +14892,13 @@ snapshots:
   webpack@5.104.1:
     dependencies:
       '@types/eslint-scope': 3.7.7
-      '@types/estree': 1.0.8
+      '@types/estree': 1.0.9
       '@types/json-schema': 7.0.15
       '@webassemblyjs/ast': 1.14.1
       '@webassemblyjs/wasm-edit': 1.14.1
       '@webassemblyjs/wasm-parser': 1.14.1
-      acorn: 8.15.0
-      acorn-import-phases: 1.0.4(acorn@8.15.0)
+      acorn: 8.17.0
+      acorn-import-phases: 1.0.4(acorn@8.17.0)
       browserslist: 4.28.1
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.18.3
@@ -14924,13 +14924,13 @@ snapshots:
   webpack@5.104.1(esbuild@0.28.1):
     dependencies:
       '@types/eslint-scope': 3.7.7
-      '@types/estree': 1.0.8
+      '@types/estree': 1.0.9
       '@types/json-schema': 7.0.15
       '@webassemblyjs/ast': 1.14.1
       '@webassemblyjs/wasm-edit': 1.14.1
       '@webassemblyjs/wasm-parser': 1.14.1
-      acorn: 8.15.0
-      acorn-import-phases: 1.0.4(acorn@8.15.0)
+      acorn: 8.17.0
+      acorn-import-phases: 1.0.4(acorn@8.17.0)
       browserslist: 4.28.1
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.18.3
