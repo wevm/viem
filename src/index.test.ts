@@ -9,6 +9,7 @@ test('exports', () => {
       "Actions",
       "publicActions",
       "testActions",
+      "walletActions",
       "Capabilities",
       "Chain",
       "Client",

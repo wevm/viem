@@ -65,10 +65,5 @@ test('args: no rewardPercentiles', async () => {
     blockNumber: anvil.mainnet.forkBlockNumber,
     rewardPercentiles: [],
   })
-  expect(feeHistory.reward).toMatchInlineSnapshot(`
-    [
-      [],
-      [],
-    ]
-  `)
+  expect(feeHistory.reward).toMatchInlineSnapshot(`undefined`)
 })
