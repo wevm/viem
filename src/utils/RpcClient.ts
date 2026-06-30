@@ -113,6 +113,8 @@ export declare namespace from {
   }
 }
 
+const defaultMaxResponseBodySize = 10_485_760
+
 /** Creates an HTTP JSON-RPC client (single + batch bodies). */
 export function http<schema extends RpcSchema.Schema = RpcSchema.Default>(
   url_: string,
@@ -127,6 +129,8 @@ export function http<schema extends RpcSchema.Schema = RpcSchema.Default>(
         | { [y: string]: unknown }[]
       const {
         fetchFn = options.fetchFn ?? fetch,
+        maxResponseBodySize = options.maxResponseBodySize ??
+          defaultMaxResponseBodySize,
         onRequest = options.onRequest,
         onResponse = options.onResponse,
         timeout = options.timeout ?? 10_000,
@@ -169,12 +173,15 @@ export function http<schema extends RpcSchema.Schema = RpcSchema.Default>(
         if (onResponse) await onResponse(response)
 
         let data: any
+        const responseBody = await readResponseBody(response, {
+          maxResponseBodySize,
+        })
         if (
           response.headers.get('Content-Type')?.startsWith('application/json')
         )
-          data = await response.json()
+          data = JSON.parse(responseBody)
         else {
-          data = await response.text()
+          data = responseBody
           try {
             data = JSON.parse(data || '{}')
           } catch (err) {
@@ -205,11 +212,65 @@ export function http<schema extends RpcSchema.Schema = RpcSchema.Default>(
         if (signal_?.aborted) throw errors.getAbortError(signal_)
         if (errors.isAbortError(err)) throw err
         if (err instanceof HttpError) throw err
+        if (err instanceof ResponseBodyTooLargeError) throw err
         if (err instanceof TimeoutError) throw err
         throw new HttpError({ body: errorBody, cause: err as Error, url })
       }
     },
   })
+}
+
+async function readResponseBody(
+  response: Response,
+  { maxResponseBodySize }: { maxResponseBodySize: number | false },
+): Promise<string> {
+  if (maxResponseBodySize === false) return response.text()
+
+  const contentLength = response.headers.get('Content-Length')
+  if (contentLength) {
+    const size = Number(contentLength)
+    if (size > maxResponseBodySize)
+      throw new ResponseBodyTooLargeError({
+        maxSize: maxResponseBodySize,
+        size,
+      })
+  }
+
+  if (!response.body) {
+    const body = await response.text()
+    const size = new TextEncoder().encode(body).length
+    if (size > maxResponseBodySize)
+      throw new ResponseBodyTooLargeError({
+        maxSize: maxResponseBodySize,
+        size,
+      })
+    return body
+  }
+
+  const reader = response.body.getReader()
+  const decoder = new TextDecoder()
+  let body = ''
+  let size = 0
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      size += value.byteLength
+      if (size > maxResponseBodySize) {
+        await reader.cancel()
+        throw new ResponseBodyTooLargeError({
+          maxSize: maxResponseBodySize,
+          size,
+        })
+      }
+      body += decoder.decode(value, { stream: true })
+    }
+    body += decoder.decode()
+    return body
+  } finally {
+    reader.releaseLock()
+  }
 }
 
 export declare namespace http {
@@ -223,6 +284,11 @@ export declare namespace http {
     fetchFn?: typeof fetch | undefined
     /** Request configuration passed to `fetch`. */
     fetchOptions?: Omit<RequestInit, 'body'> | undefined
+    /**
+     * Maximum response body size in bytes. Set to `false` to disable.
+     * @default 10_485_760
+     */
+    maxResponseBodySize?: number | false | undefined
     /** Callback invoked before the request is sent. */
     onRequest?:
       | ((
@@ -785,6 +851,22 @@ export class HttpError extends Errors.BaseError<Error | undefined> {
     this.headers = headers
     this.status = status
     this.url = url
+  }
+}
+
+/** Thrown when an HTTP response body exceeds the configured size limit. */
+export class ResponseBodyTooLargeError extends Errors.BaseError {
+  override readonly name = 'RpcClient.ResponseBodyTooLargeError'
+
+  maxSize: number
+  size: number
+
+  constructor({ maxSize, size }: { maxSize: number; size: number }) {
+    super('HTTP response body exceeded the size limit.', {
+      metaMessages: [`Max: ${maxSize} bytes`, `Received: ${size} bytes`],
+    })
+    this.maxSize = maxSize
+    this.size = size
   }
 }
 

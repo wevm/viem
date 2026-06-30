@@ -17,13 +17,13 @@ export const monad = /*#__PURE__*/ Chain.from({
   },
   blockExplorers: {
     default: {
-      name: 'MonadVision',
-      url: 'https://monadvision.com',
-    },
-    monadscan: {
       name: 'Monadscan',
       url: 'https://monadscan.com',
-      apiUrl: 'https://api.monadscan.com/api',
+      apiUrl: 'https://api.etherscan.io/v2/api?chainid=143',
+    },
+    monadvision: {
+      name: 'MonadVision',
+      url: 'https://monadvision.com',
     },
   },
   testnet: false,

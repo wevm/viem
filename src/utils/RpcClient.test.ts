@@ -99,6 +99,48 @@ describe('http', () => {
     }
   })
 
+  test('throws ResponseBodyTooLargeError when the body exceeds maxResponseBodySize', async () => {
+    const body = ok('0x1')
+    const server = await Http.createServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Length': body.length,
+        'Content-Type': 'application/json',
+      })
+      res.end(body)
+    })
+    try {
+      const error = (await RpcClient.http(server.url, {
+        maxResponseBodySize: body.length - 1,
+      })
+        .request({ body: { method: 'eth_chainId' } })
+        .catch((error) => error)) as RpcClient.ResponseBodyTooLargeError
+      expect(error).toBeInstanceOf(RpcClient.ResponseBodyTooLargeError)
+      expect(error.maxSize).toBe(body.length - 1)
+      expect(error.size).toBe(body.length)
+    } finally {
+      await server.close()
+    }
+  })
+
+  test('reads the full body when maxResponseBodySize is disabled', async () => {
+    const body = ok('0x1')
+    const server = await Http.createServer((_req, res) => {
+      res.writeHead(200, {
+        'Content-Length': body.length,
+        'Content-Type': 'application/json',
+      })
+      res.end(body)
+    })
+    try {
+      const response = await RpcClient.http(server.url, {
+        maxResponseBodySize: false,
+      }).request({ body: { method: 'eth_chainId' } })
+      expect(response.result).toBe('0x1')
+    } finally {
+      await server.close()
+    }
+  })
+
   test('throws TimeoutError when the response is too slow', async () => {
     const server = await Http.createServer((_req, res) => {
       setTimeout(() => res.end(ok('0x1')), 200)

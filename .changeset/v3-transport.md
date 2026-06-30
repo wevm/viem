@@ -2,6 +2,15 @@
 "viem": major
 ---
 
+The HTTP transport now caps RPC response bodies at 10 MB by default (configurable via `maxResponseBodySize`, or `false` to disable), throwing `RpcClient.ResponseBodyTooLargeError` when exceeded.
+
+```diff
+  import { http } from 'viem'
+
+- const transport = http('https://example.com')
++ const transport = http('https://example.com', { maxResponseBodySize: 20_971_520 })
+```
+
 Transport instances now expose `setup(...)` instead of being called as functions.
 
 ```diff
