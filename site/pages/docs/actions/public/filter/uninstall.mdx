@@ -10,13 +10,7 @@ Destroys a filter and returns whether it was uninstalled.
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
-// TODO: Replace with Actions.block.createFilter.
-const id = await client.request({ method: 'eth_newBlockFilter' })
-const filter = {
-  id,
-  request: client.request,
-  type: 'block',
-} satisfies Actions.filter.Filter<'block'>
+const filter = await client.block.createFilter()
 
 const uninstalled = await client.filter.uninstall({ filter })
 // @log: true
@@ -26,13 +20,7 @@ const uninstalled = await client.filter.uninstall({ filter })
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
-// TODO: Replace with Actions.block.createFilter.
-const id = await client.request({ method: 'eth_newBlockFilter' })
-const filter = {
-  id,
-  request: client.request,
-  type: 'block',
-} satisfies Actions.filter.Filter<'block'>
+const filter = await Actions.block.createFilter(client)
 
 const uninstalled = await Actions.filter.uninstall(client, { filter })
 // @log: true
@@ -70,13 +58,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-// TODO: Replace with Actions.block.createFilter.
-const id = await client.request({ method: 'eth_newBlockFilter' })
-const filter = { // [!code focus]
-  id, // [!code focus]
-  request: client.request, // [!code focus]
-  type: 'block', // [!code focus]
-} satisfies Actions.filter.Filter<'block'> // [!code focus]
+const filter = await Actions.block.createFilter(client) // [!code focus]
 
 const uninstalled = await Actions.filter.uninstall(client, { filter })
 ```

@@ -7,7 +7,7 @@ Returns a list of event logs matching the provided parameters.
 :::code-group
 
 ```ts twoslash [Decorator]
-import { AbiEvent } from 'ox'
+import * as AbiEvent from 'ox/AbiEvent'
 import { client } from './viem.config'
 
 const logs = await client.event.getLogs({
@@ -33,7 +33,7 @@ const logs = await client.event.getLogs({
 ```
 
 ```ts twoslash [Standalone]
-import { AbiEvent } from 'ox'
+import * as AbiEvent from 'ox/AbiEvent'
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
@@ -80,7 +80,7 @@ These recipes call the action standalone with a Client as the first argument. Ea
 Restrict logs to a single contract by passing its `address`.
 
 ```ts twoslash
-import { AbiEvent } from 'ox'
+import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -99,7 +99,7 @@ const logs = await Actions.event.getLogs(client, {
 Pass `args` to filter logs by the indexed parameters of an `event`.
 
 ```ts twoslash
-import { AbiEvent } from 'ox'
+import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -120,7 +120,7 @@ const logs = await Actions.event.getLogs(client, {
 Pass an array of values for an indexed argument to match any of them.
 
 ```ts twoslash
-import { AbiEvent } from 'ox'
+import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -144,7 +144,7 @@ const logs = await Actions.event.getLogs(client, {
 Pass `fromBlock` and `toBlock` to scope logs to a range of blocks.
 
 ```ts twoslash
-import { AbiEvent } from 'ox'
+import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -164,7 +164,7 @@ const logs = await Actions.event.getLogs(client, {
 Pass `blockHash` to fetch logs from one block.
 
 ```ts twoslash
-import { AbiEvent } from 'ox'
+import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -183,7 +183,7 @@ const logs = await Actions.event.getLogs(client, {
 Pass `events` to filter and decode logs by more than one event.
 
 ```ts twoslash
-import { AbiEvent } from 'ox'
+import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -202,7 +202,7 @@ const logs = await Actions.event.getLogs(client, {
 Pass `strict: true` to only include logs whose topics and data conform exactly to `event`.
 
 ```ts twoslash
-import { AbiEvent } from 'ox'
+import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -248,17 +248,16 @@ const logs = await Actions.event.getLogs(client, {
 The indexed argument values to filter the logs by. Requires `event`. Pass an array of values for a single argument to match any of them (logical OR).
 
 ```ts twoslash
-import { AbiEvent } from 'ox'
+import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-const transferEvent = AbiEvent.from(
-  'event Transfer(address indexed from, address indexed to, uint256 value)',
-)
 // ---cut---
 const logs = await Actions.event.getLogs(client, {
-  event: transferEvent,
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
   args: { // [!code focus]
     from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', // [!code focus]
     to: ['0xa5cc3c03994db5b0d9a5eedd10cabab0813678ac', '0x...'], // [!code focus]
@@ -290,7 +289,7 @@ const logs = await Actions.event.getLogs(client, {
 The event to filter and decode the logs by. The returned logs include the decoded `args` and `eventName`.
 
 ```ts twoslash
-import { AbiEvent } from 'ox'
+import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -310,7 +309,7 @@ const logs = await Actions.event.getLogs(client, {
 A list of events to filter and decode the logs by. Mutually exclusive with `event`.
 
 ```ts twoslash
-import { AbiEvent } from 'ox'
+import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
@@ -350,17 +349,16 @@ const logs = await Actions.event.getLogs(client, {
 Whether the logs must conform exactly to the indexed and non-indexed arguments on `event`. When `false`, logs that partially conform are included (and their non-conforming `args` are omitted).
 
 ```ts twoslash
-import { AbiEvent } from 'ox'
+import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-const transferEvent = AbiEvent.from(
-  'event Transfer(address indexed from, address indexed to, uint256 value)',
-)
 // ---cut---
 const logs = await Actions.event.getLogs(client, {
-  event: transferEvent,
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
   strict: true, // [!code focus]
 })
 ```

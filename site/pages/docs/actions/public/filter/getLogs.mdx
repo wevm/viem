@@ -9,29 +9,16 @@ Unlike `getChanges`, this action is not drained by polling. It returns all logs 
 :::code-group
 
 ```ts twoslash [Decorator]
-import { AbiEvent } from 'ox'
+import * as AbiEvent from 'ox/AbiEvent'
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
-const transferEvent = AbiEvent.from(
-  'event Transfer(address indexed from, address indexed to, uint256 value)',
-)
-// TODO: Replace with Actions.event.createFilter.
-const id = await client.request({
-  method: 'eth_newFilter',
-  params: [
-    {
-      address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
-      topics: AbiEvent.encode(transferEvent).topics,
-    },
-  ],
+const filter = await client.event.createFilter({
+  address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
 })
-const filter = {
-  abiEvent: transferEvent,
-  id,
-  request: client.request,
-  type: 'event',
-} satisfies Actions.filter.Filter<'event', typeof transferEvent>
 
 const logs = await client.filter.getLogs({ filter })
 // @log: [
@@ -49,29 +36,16 @@ const logs = await client.filter.getLogs({ filter })
 ```
 
 ```ts twoslash [Standalone]
-import { AbiEvent } from 'ox'
+import * as AbiEvent from 'ox/AbiEvent'
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
-const transferEvent = AbiEvent.from(
-  'event Transfer(address indexed from, address indexed to, uint256 value)',
-)
-// TODO: Replace with Actions.event.createFilter.
-const id = await client.request({
-  method: 'eth_newFilter',
-  params: [
-    {
-      address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
-      topics: AbiEvent.encode(transferEvent).topics,
-    },
-  ],
+const filter = await Actions.event.createFilter(client, {
+  address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
 })
-const filter = {
-  abiEvent: transferEvent,
-  id,
-  request: client.request,
-  type: 'event',
-} satisfies Actions.filter.Filter<'event', typeof transferEvent>
 
 const logs = await Actions.filter.getLogs(client, { filter })
 // @log: [
@@ -109,26 +83,17 @@ These recipes call the action standalone with a Client as the first argument. Ea
 Pass `abiEvent` on the filter to decode the returned logs.
 
 ```ts twoslash
-import { AbiEvent } from 'ox'
+import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const transferEvent = AbiEvent.from(
-  'event Transfer(address indexed from, address indexed to, uint256 value)',
-)
-// TODO: Replace with Actions.event.createFilter.
-const id = await client.request({
-  method: 'eth_newFilter',
-  params: [{ topics: AbiEvent.encode(transferEvent).topics }],
+const filter = await Actions.event.createFilter(client, {
+  event: AbiEvent.from( // [!code focus]
+    'event Transfer(address indexed from, address indexed to, uint256 value)', // [!code focus]
+  ), // [!code focus]
 })
-const filter = {
-  abiEvent: transferEvent, // [!code focus]
-  id,
-  request: client.request,
-  type: 'event',
-} satisfies Actions.filter.Filter<'event', typeof transferEvent>
 
 const logs = await Actions.filter.getLogs(client, { filter })
 //    ^?
@@ -139,29 +104,20 @@ const logs = await Actions.filter.getLogs(client, { filter })
 Pass `args` on the filter to filter decoded logs by indexed arguments.
 
 ```ts twoslash
-import { AbiEvent } from 'ox'
+import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const transferEvent = AbiEvent.from(
-  'event Transfer(address indexed from, address indexed to, uint256 value)',
-)
-// TODO: Replace with Actions.event.createFilter.
-const id = await client.request({
-  method: 'eth_newFilter',
-  params: [{ topics: AbiEvent.encode(transferEvent).topics }],
-})
-const filter = {
-  abiEvent: transferEvent,
+const filter = await Actions.event.createFilter(client, {
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
   args: { // [!code focus]
     from: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045', // [!code focus]
   }, // [!code focus]
-  id,
-  request: client.request,
-  type: 'event',
-} satisfies Actions.filter.Filter<'event', typeof transferEvent>
+})
 
 const logs = await Actions.filter.getLogs(client, { filter })
 ```
@@ -181,26 +137,17 @@ The logs held by the event filter, decoded by `filter.abiEvent` when provided.
 The event filter to fetch logs for. Its `request` function should point at the transport that created the filter id.
 
 ```ts twoslash
-import { AbiEvent } from 'ox'
+import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
-const transferEvent = AbiEvent.from(
-  'event Transfer(address indexed from, address indexed to, uint256 value)',
-)
 // ---cut---
-// TODO: Replace with Actions.event.createFilter.
-const id = await client.request({
-  method: 'eth_newFilter',
-  params: [{ topics: AbiEvent.encode(transferEvent).topics }],
-})
-const filter = { // [!code focus]
-  abiEvent: transferEvent, // [!code focus]
-  id, // [!code focus]
-  request: client.request, // [!code focus]
-  type: 'event', // [!code focus]
-} satisfies Actions.filter.Filter<'event', typeof transferEvent> // [!code focus]
+const filter = await Actions.event.createFilter(client, { // [!code focus]
+  event: AbiEvent.from( // [!code focus]
+    'event Transfer(address indexed from, address indexed to, uint256 value)', // [!code focus]
+  ), // [!code focus]
+}) // [!code focus]
 
 const logs = await Actions.filter.getLogs(client, { filter })
 ```

@@ -227,3 +227,19 @@ Filter lifecycle actions were renamed to the `filter` namespace.
 + const logs = await Actions.filter.getLogs(client, { filter })
 + const uninstalled = await Actions.filter.uninstall(client, { filter })
 ```
+
+Filter producers were renamed to their owning domain namespaces.
+
+```diff
+- import { createBlockFilter, createPendingTransactionFilter, createEventFilter, createContractEventFilter } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const blockFilter = await createBlockFilter(client)
+- const txFilter = await createPendingTransactionFilter(client)
+- const eventFilter = await createEventFilter(client, { event })
+- const contractFilter = await createContractEventFilter(client, { abi, eventName })
++ const blockFilter = await Actions.block.createFilter(client)
++ const txFilter = await Actions.transaction.createPendingFilter(client)
++ const eventFilter = await Actions.event.createFilter(client, { event })
++ const contractFilter = await Actions.contract.createEventFilter(client, { abi, eventName })
+```

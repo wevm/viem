@@ -1,0 +1,42 @@
+# createFilter
+
+Creates a filter to listen for new block hashes.
+
+Poll the filter with [`Actions.filter.getChanges`](/docs/actions/public/filter/getChanges) and tear it down with [`Actions.filter.uninstall`](/docs/actions/public/filter/uninstall).
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const filter = await client.block.createFilter()
+// @log: { id: '0x345a6572337856574a76364e457a4366', request: ƒ, type: 'block' }
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const filter = await Actions.block.createFilter(client)
+// @log: { id: '0x345a6572337856574a76364e457a4366', request: ƒ, type: 'block' }
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, http, publicActions } from 'viem'
+import { mainnet } from 'viem/chains'
+
+export const client = Client.create({
+  chain: mainnet,
+  transport: http(),
+}).extend(publicActions())
+```
+
+:::
+
+## Return Value
+
+`Actions.filter.Filter<'block'>`
+
+A block filter. Its `request` function is scoped to the transport that created the filter id.

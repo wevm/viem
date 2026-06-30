@@ -53,6 +53,7 @@ export function publicActions() {
         address.getTransactionCount(client, options),
     },
     block: {
+      createFilter: () => block.createFilter(client),
       get: (options) => block.get(client, options),
       getNumber: (options) => block.getNumber(client, options),
       getReceipts: (options) => block.getReceipts(client, options),
@@ -65,6 +66,8 @@ export function publicActions() {
       getId: () => chains.getId(client),
     },
     contract: {
+      createEventFilter: (options) =>
+        contract.createEventFilter(client, options as never),
       getEip712Domain: (options) => contract.getEip712Domain(client, options),
       getLogs: (options) => contract.getLogs(client, options as never),
       read: (options) => contract.read(client, options),
@@ -76,6 +79,7 @@ export function publicActions() {
       uninstall: (options) => filter.uninstall(client, options),
     },
     event: {
+      createFilter: (options) => event.createFilter(client, options as never),
       getLogs: (options) => event.getLogs(client, options as never),
     },
     fee: {
@@ -87,6 +91,7 @@ export function publicActions() {
       getHistory: (options) => fee.getHistory(client, options),
     },
     transaction: {
+      createPendingFilter: () => transaction.createPendingFilter(client),
       estimateGas: (options) => transaction.estimateGas(client, options),
       fill: (options) => transaction.fill(client, options),
       get: (options) => transaction.get(client, options),
@@ -233,6 +238,22 @@ export declare namespace publicActions {
     }
     block: {
       /**
+       * Creates a filter to listen for new block hashes.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const filter = await client.block.createFilter()
+       * ```
+       */
+      createFilter: () => Promise<block.createFilter.ReturnType>
+      /**
        * Returns information about a block at a block number, hash, or tag.
        *
        * @example
@@ -369,6 +390,51 @@ export declare namespace publicActions {
       getId: () => Promise<chains.getId.ReturnType>
     }
     contract: {
+      /**
+       * Creates a filter to listen for new event logs emitted by a contract.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       * import { Abi } from 'viem/utils'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const filter = await client.contract.createEventFilter({
+       *   abi: Abi.from([
+       *     'event Transfer(address indexed from, address indexed to, uint256 value)',
+       *   ]),
+       *   eventName: 'Transfer',
+       * })
+       * ```
+       */
+      createEventFilter: <
+        const abi extends Abi | readonly unknown[],
+        eventName extends AbiEvent.extractLogs.EventName<abi> | undefined =
+          undefined,
+        strict extends boolean | undefined = undefined,
+        fromBlock extends Block.Number | Block.Tag | undefined = undefined,
+        toBlock extends Block.Number | Block.Tag | undefined = undefined,
+      >(
+        options: contract.createEventFilter.Options<
+          abi,
+          eventName,
+          strict,
+          fromBlock,
+          toBlock
+        >,
+      ) => Promise<
+        contract.createEventFilter.ReturnType<
+          abi,
+          eventName,
+          strict,
+          fromBlock,
+          toBlock
+        >
+      >
       /**
        * Reads the EIP-712 domain from a contract, based on the ERC-5267
        * specification.
@@ -596,11 +662,46 @@ export declare namespace publicActions {
     }
     event: {
       /**
+       * Creates a filter to listen for new event logs.
+       *
+       * @example
+       * ```ts
+       * import * as AbiEvent from 'ox/AbiEvent'
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const filter = await client.event.createFilter({
+       *   event: AbiEvent.from(
+       *     'event Transfer(address indexed from, address indexed to, uint256 value)',
+       *   ),
+       * })
+       * ```
+       */
+      createFilter: <
+        const abiEvent extends
+          | AbiEvent.AbiEvent
+          | readonly AbiEvent.AbiEvent[]
+          | undefined = undefined,
+        strict extends boolean | undefined = undefined,
+        fromBlock extends Block.Number | Block.Tag | undefined = undefined,
+        toBlock extends Block.Number | Block.Tag | undefined = undefined,
+      >(
+        options?:
+          | event.createFilter.Options<abiEvent, strict, fromBlock, toBlock>
+          | undefined,
+      ) => Promise<
+        event.createFilter.ReturnType<abiEvent, strict, fromBlock, toBlock>
+      >
+      /**
        * Returns a list of event logs matching the provided parameters.
        *
        * @example
        * ```ts
-       * import { AbiEvent } from 'ox'
+       * import * as AbiEvent from 'ox/AbiEvent'
        * import { Client, http, publicActions } from 'viem'
        * import { mainnet } from 'viem/chains'
        *
@@ -725,6 +826,22 @@ export declare namespace publicActions {
       ) => Promise<fee.getHistory.ReturnType>
     }
     transaction: {
+      /**
+       * Creates a filter to listen for new pending transaction hashes.
+       *
+       * @example
+       * ```ts
+       * import { Client, http, publicActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: http(),
+       * }).extend(publicActions())
+       * const filter = await client.transaction.createPendingFilter()
+       * ```
+       */
+      createPendingFilter: () => Promise<transaction.createPendingFilter.ReturnType>
       /**
        * Estimates the gas necessary to complete a transaction without
        * submitting it to the network.

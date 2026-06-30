@@ -313,6 +313,11 @@ export default defineConfig({
             collapsed: true,
             items: [
               {
+                text: 'createFilter',
+                link: '/docs/actions/public/block/createFilter',
+                badge: badge('public'),
+              },
+              {
                 text: 'get',
                 link: '/docs/actions/public/block/get',
                 badge: badge('public'),
@@ -409,6 +414,11 @@ export default defineConfig({
             text: 'Contract',
             collapsed: true,
             items: [
+              {
+                text: 'createEventFilter',
+                link: '/docs/actions/public/contract/createEventFilter',
+                badge: badge('public'),
+              },
               {
                 text: 'deploy',
                 link: '/docs/actions/wallet/contract/deploy',
@@ -508,6 +518,11 @@ export default defineConfig({
             collapsed: true,
             items: [
               {
+                text: 'createFilter',
+                link: '/docs/actions/public/event/createFilter',
+                badge: badge('public'),
+              },
+              {
                 text: 'getLogs',
                 link: '/docs/actions/public/event/getLogs',
                 badge: badge('public'),
@@ -570,6 +585,11 @@ export default defineConfig({
             text: 'Transaction',
             collapsed: true,
             items: [
+              {
+                text: 'createPendingFilter',
+                link: '/docs/actions/public/transaction/createPendingFilter',
+                badge: badge('public'),
+              },
               {
                 text: 'estimateGas',
                 link: '/docs/actions/public/transaction/estimateGas',

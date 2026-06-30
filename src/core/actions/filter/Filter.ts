@@ -40,9 +40,9 @@ export type Filter<
        */
       strict?: strict | boolean | undefined
       /** Block number or tag the filter includes logs from. */
-      fromBlock?: fromBlock | Block.Number | Block.Tag | undefined
+      fromBlock?: fromBlock | undefined
       /** Block number or tag the filter includes logs to. */
-      toBlock?: toBlock | Block.Number | Block.Tag | undefined
+      toBlock?: toBlock | undefined
     }
   : {})
 

@@ -12,13 +12,7 @@ Block and transaction filters return hashes. Event filters return logs.
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
-// TODO: Replace with Actions.block.createFilter.
-const id = await client.request({ method: 'eth_newBlockFilter' })
-const filter = {
-  id,
-  request: client.request,
-  type: 'block',
-} satisfies Actions.filter.Filter<'block'>
+const filter = await client.block.createFilter()
 
 const changes = await client.filter.getChanges({ filter })
 // @log: [
@@ -30,13 +24,7 @@ const changes = await client.filter.getChanges({ filter })
 import { Actions } from 'viem'
 import { client } from './viem.config'
 
-// TODO: Replace with Actions.block.createFilter.
-const id = await client.request({ method: 'eth_newBlockFilter' })
-const filter = {
-  id,
-  request: client.request,
-  type: 'block',
-} satisfies Actions.filter.Filter<'block'>
+const filter = await Actions.block.createFilter(client)
 
 const changes = await Actions.filter.getChanges(client, { filter })
 // @log: [
@@ -70,13 +58,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-// TODO: Replace with Actions.block.createFilter.
-const id = await client.request({ method: 'eth_newBlockFilter' })
-const filter = {
-  id,
-  request: client.request,
-  type: 'block',
-} satisfies Actions.filter.Filter<'block'>
+const filter = await Actions.block.createFilter(client)
 
 const blockHashes = await Actions.filter.getChanges(client, { filter })
 //    ^?
@@ -92,13 +74,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-// TODO: Replace with Actions.transaction.createPendingFilter.
-const id = await client.request({ method: 'eth_newPendingTransactionFilter' })
-const filter = {
-  id,
-  request: client.request,
-  type: 'transaction',
-} satisfies Actions.filter.Filter<'transaction'>
+const filter = await Actions.transaction.createPendingFilter(client)
 
 const transactionHashes = await Actions.filter.getChanges(client, { filter })
 //    ^?
@@ -109,31 +85,18 @@ const transactionHashes = await Actions.filter.getChanges(client, { filter })
 Use an `event` filter to retrieve decoded event logs since the previous poll.
 
 ```ts twoslash
-import { AbiEvent } from 'ox'
+import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-const transferEvent = AbiEvent.from(
-  'event Transfer(address indexed from, address indexed to, uint256 value)',
-)
-// TODO: Replace with Actions.event.createFilter.
-const id = await client.request({
-  method: 'eth_newFilter',
-  params: [
-    {
-      address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
-      topics: AbiEvent.encode(transferEvent).topics,
-    },
-  ],
+const filter = await Actions.event.createFilter(client, {
+  address: '0xfba3912ca04dd458c843e2ee08967fc04f3579c2',
+  event: AbiEvent.from(
+    'event Transfer(address indexed from, address indexed to, uint256 value)',
+  ),
 })
-const filter = {
-  abiEvent: transferEvent,
-  id,
-  request: client.request,
-  type: 'event',
-} satisfies Actions.filter.Filter<'event', typeof transferEvent>
 
 const logs = await Actions.filter.getChanges(client, { filter })
 //    ^?
@@ -159,13 +122,7 @@ import { mainnet } from 'viem/chains'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
-// TODO: Replace with Actions.block.createFilter.
-const id = await client.request({ method: 'eth_newBlockFilter' })
-const filter = { // [!code focus]
-  id, // [!code focus]
-  request: client.request, // [!code focus]
-  type: 'block', // [!code focus]
-} satisfies Actions.filter.Filter<'block'> // [!code focus]
+const filter = await Actions.block.createFilter(client) // [!code focus]
 
 const changes = await Actions.filter.getChanges(client, { filter })
 ```

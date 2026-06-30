@@ -1,3 +1,4 @@
+export { createPendingFilter } from './createPendingFilter.js'
 export { estimateGas } from './estimateGas.js'
 export { fill } from './fill.js'
 export { get } from './get.js'

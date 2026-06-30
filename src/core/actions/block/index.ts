@@ -1,3 +1,4 @@
+export { createFilter } from './createFilter.js'
 export { get } from './get.js'
 export { getNumber } from './getNumber.js'
 export { getReceipts } from './getReceipts.js'
