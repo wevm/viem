@@ -1056,6 +1056,7 @@ export {
   InvalidDecimalNumberError,
   type InvalidDecimalNumberErrorType,
 } from './errors/unit.js'
+export type { ResolvedToken, Tokens } from './tokens/defineToken.js'
 export type {
   DeriveAccount,
   HDKey,

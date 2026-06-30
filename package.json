@@ -24,6 +24,8 @@
     "check:types": "tsc -b",
     "check:unused": "pnpm clean && knip",
     "gen:tempo-abis": "bun scripts/generateTempoAbis.ts && biome check --write --unsafe src/tempo/Abis.ts src/tempo/Selectors.ts",
+    "gen:tokenlist": "bun scripts/generateTokenlist.ts && pnpm gen:token-lookup",
+    "gen:token-lookup": "bun scripts/generateTokenLookup.ts && biome check --write --unsafe site/data/tokens.ts",
     "postinstall": "git submodule update --init --recursive && pnpm contracts:build",
     "preconstruct": "bun scripts/preconstruct.ts",
     "preinstall": "pnpx only-allow pnpm",
@@ -116,7 +118,7 @@
       "src": {
         "entry": [
           "index.ts!",
-          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,tempo,tempo/actions,tempo/chains,tempo/zones,utils,window,zksync}/index.ts!",
+          "{account-abstraction,accounts,actions,celo,chains,ens,experimental,experimental/erc7739,experimental/erc7821,experimental/erc7811,experimental/erc7846,experimental/erc7895,linea,node,nonce,op-stack,siwe,tempo,tempo/actions,tempo/chains,tempo/zones,tokens,utils,window,zksync}/index.ts!",
           "chains/utils.ts!"
         ],
         "ignore": [
@@ -188,7 +190,7 @@
     {
       "name": "import * from 'viem/chains'",
       "path": "./src/_esm/chains/index.js",
-      "limit": "110 kB",
+      "limit": "111 kB",
       "import": "*"
     },
     {
@@ -247,7 +249,7 @@
       "permissionless>viem": "workspace:*",
       "@babel/helpers@<7.26.10": "7.26.10",
       "@babel/runtime@<7.26.10": "7.26.10",
-      "@babel/core": ">=7.29.6",
+      "@babel/core": ">=7.29.6 <8",
       "@grpc/grpc-js": ">=1.14.4",
       "@hono/node-server@<1.19.13": "1.19.13",
       "@isaacs/brace-expansion@<=5.0.0": "5.0.1",

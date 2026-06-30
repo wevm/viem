@@ -1,0 +1,45 @@
+---
+description: Task-oriented guides for working with tokens in Viem.
+---
+
+import { Card, Cards } from 'vocs'
+
+# Guides
+
+Task-oriented walkthroughs for working with tokens in Viem. Each guide shows the end-to-end
+flow using Viem Clients and [Token Actions](/tokens/actions).
+
+New here? Start with [Getting Started](/tokens) to set up a Client, then pick a guide below.
+
+<Cards>
+  <Card
+    icon="lucide:package"
+    title="Importing Tokens"
+    description="Use built-in token definitions from `viem/tokens` with Clients and Actions."
+    to="/tokens/guides/importing-tokens"
+  />
+  <Card
+    icon="lucide:settings"
+    title="Defining Tokens"
+    description="Attach token symbols to a Client so they're selectable across every Action."
+    to="/tokens/guides/defining-tokens"
+  />
+  <Card
+    icon="lucide:wallet"
+    title="Get Balances"
+    description="Read token balances and total supply, in base units and human-readable amounts."
+    to="/tokens/guides/get-balances"
+  />
+  <Card
+    icon="lucide:send"
+    title="Transfer Tokens"
+    description="Send tokens to a recipient, or move them on behalf of an owner via an allowance."
+    to="/tokens/guides/transfer-tokens"
+  />
+  <Card
+    icon="lucide:check-check"
+    title="Approve Spending"
+    description="Grant a spender an allowance, then check or transfer against it."
+    to="/tokens/guides/approve-spending"
+  />
+</Cards>

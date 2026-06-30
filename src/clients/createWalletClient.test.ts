@@ -68,6 +68,13 @@ test('creates', () => {
       "signTransaction": [Function],
       "signTypedData": [Function],
       "switchChain": [Function],
+      "token": {
+        "approve": [Function],
+        "approveSync": [Function],
+        "transfer": [Function],
+        "transferSync": [Function],
+      },
+      "tokens": undefined,
       "transport": {
         "key": "mock",
         "methods": undefined,
@@ -137,6 +144,13 @@ describe('args: account', () => {
         "signTransaction": [Function],
         "signTypedData": [Function],
         "switchChain": [Function],
+        "token": {
+          "approve": [Function],
+          "approveSync": [Function],
+          "transfer": [Function],
+          "transferSync": [Function],
+        },
+        "tokens": undefined,
         "transport": {
           "key": "mock",
           "methods": undefined,
@@ -213,6 +227,13 @@ describe('args: account', () => {
         "signTransaction": [Function],
         "signTypedData": [Function],
         "switchChain": [Function],
+        "token": {
+          "approve": [Function],
+          "approveSync": [Function],
+          "transfer": [Function],
+          "transferSync": [Function],
+        },
+        "tokens": undefined,
         "transport": {
           "key": "mock",
           "methods": undefined,
@@ -277,6 +298,13 @@ describe('args: transport', () => {
         "signTransaction": [Function],
         "signTypedData": [Function],
         "switchChain": [Function],
+        "token": {
+          "approve": [Function],
+          "approveSync": [Function],
+          "transfer": [Function],
+          "transferSync": [Function],
+        },
+        "tokens": undefined,
         "transport": {
           "key": "custom",
           "methods": undefined,
@@ -339,6 +367,13 @@ describe('args: transport', () => {
         "signTransaction": [Function],
         "signTypedData": [Function],
         "switchChain": [Function],
+        "token": {
+          "approve": [Function],
+          "approveSync": [Function],
+          "transfer": [Function],
+          "transferSync": [Function],
+        },
+        "tokens": undefined,
         "transport": {
           "fetchOptions": undefined,
           "key": "http",
@@ -423,6 +458,13 @@ describe('args: transport', () => {
         "signTransaction": [Function],
         "signTypedData": [Function],
         "switchChain": [Function],
+        "token": {
+          "approve": [Function],
+          "approveSync": [Function],
+          "transfer": [Function],
+          "transferSync": [Function],
+        },
+        "tokens": undefined,
         "transport": {
           "getRpcClient": [Function],
           "getSocket": [Function],
@@ -587,6 +629,17 @@ test('extend', () => {
       "snapshot": [Function],
       "stopImpersonatingAccount": [Function],
       "switchChain": [Function],
+      "token": {
+        "approve": [Function],
+        "approveSync": [Function],
+        "getAllowance": [Function],
+        "getBalance": [Function],
+        "getMetadata": [Function],
+        "getTotalSupply": [Function],
+        "transfer": [Function],
+        "transferSync": [Function],
+      },
+      "tokens": undefined,
       "transport": {
         "fetchOptions": undefined,
         "key": "http",

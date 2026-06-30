@@ -52,8 +52,8 @@ describe.skip('claimSync', () => {
       token,
     })
 
-    expect(balanceAfter).toBeGreaterThan(
-      balanceBefore + rewardAmount - parseUnits('1', 6),
+    expect(balanceAfter.amount).toBeGreaterThan(
+      balanceBefore.amount + rewardAmount - parseUnits('1', 6),
     )
   })
 })
@@ -110,8 +110,8 @@ describe.skip('distributeSync', () => {
     })
 
     // Account should have received rewards
-    expect(balanceAfter).toBeGreaterThanOrEqual(
-      balanceBeforeReward + rewardAmount - 1n,
+    expect(balanceAfter.amount).toBeGreaterThanOrEqual(
+      balanceBeforeReward.amount + rewardAmount - 1n,
     )
   })
 })

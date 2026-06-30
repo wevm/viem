@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vocs dev",
-    "build": "pnpm -w build:types && NODE_OPTIONS='--max-old-space-size=6144' vocs build",
+    "dev": "pnpm -w gen:token-lookup && vocs dev",
+    "build": "pnpm -w gen:token-lookup && pnpm -w build:types && NODE_OPTIONS='--max-old-space-size=6144' vocs build",
     "twoslash": "vocs twoslash",
     "preview": "vocs preview"
   },
@@ -18,7 +18,7 @@
     "tailwindcss": "^4.1.16",
     "viem": "workspace:*",
     "vite": "^8.0.14",
-    "vocs": "^2.0.11",
+    "vocs": "^2.1.11",
     "waku": "^1.0.0-beta.1"
   }
 }

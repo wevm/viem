@@ -474,6 +474,7 @@ export {
   type StopImpersonatingAccountParameters,
   stopImpersonatingAccount,
 } from './test/stopImpersonatingAccount.js'
+export * as token from './token/index.js'
 export {
   type AddChainErrorType,
   type AddChainParameters,

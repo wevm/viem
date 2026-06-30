@@ -14,7 +14,7 @@ import { client } from './viem.config'
 
 const result = await Actions.wallet.deposit(client, {
   amount: '1.5',
-  token: 'pathUsd',
+  token: 'pathusd',
 })
 ```
 
@@ -74,4 +74,4 @@ Human-readable account display name.
 
 - **Type:** `Address | string`
 
-Token contract address or supported deposit token symbol to pre-fill. Omit to let the user choose.
+Token address or supported deposit token symbol to pre-fill. Omit to let the user choose.
