@@ -6,13 +6,15 @@ import {
   unlinkSync,
 } from 'node:fs'
 import { basename } from 'node:path'
+import { createClient } from '../src/clients/createClient.js'
+import { http } from '../src/clients/transports/http.js'
+import { Actions } from '../src/tempo/index.js'
 
 const tokenlistUris = [
   'https://api.tempo.xyz/v1/tokenlist?chainId=4217',
   'https://api.tempo.xyz/v1/tokenlist?chainId=42431',
 ]
 
-const tip20CurrencyData = '0xe5a6b10f'
 const tempoMetadataChainIds = new Set([4217, 42431])
 
 type Address = `0x${string}`
@@ -173,7 +175,10 @@ async function getTokenCurrency(
   if (!target) return undefined
 
   try {
-    return await getTip20Currency(target, token.address as Address)
+    const { currency } = await Actions.token.getMetadata(getClient(target), {
+      token: token.address as Address,
+    })
+    return currency
   } catch (error) {
     throw new Error(
       `Failed to fetch TIP20 metadata for ${token.address} on chain ${token.chainId}.`,
@@ -182,67 +187,18 @@ async function getTokenCurrency(
   }
 }
 
-async function getTip20Currency(target: ChainTarget, token: Address) {
+const clientByChainId = new Map<number, ReturnType<typeof createClient>>()
+
+function getClient(target: ChainTarget) {
+  const cached = clientByChainId.get(target.chainId)
+  if (cached) return cached
+
   const rpcUrl = target.chain.rpcUrls?.default?.http?.[0]
   if (!rpcUrl) throw new Error(`Missing RPC URL for chain ${target.chainId}.`)
 
-  const response = await fetch(rpcUrl, {
-    body: JSON.stringify({
-      id: 1,
-      jsonrpc: '2.0',
-      method: 'eth_call',
-      params: [
-        {
-          data: tip20CurrencyData,
-          to: token,
-        },
-        'latest',
-      ],
-    }),
-    headers: {
-      'content-type': 'application/json',
-    },
-    method: 'POST',
-  })
-  if (!response.ok)
-    throw new Error(
-      `Failed to call ${rpcUrl}: ${response.status} ${response.statusText}`,
-    )
-
-  const body = (await response.json()) as unknown
-  if (!isRecord(body)) throw new Error(`Invalid RPC response from ${rpcUrl}.`)
-  if ('error' in body)
-    throw new Error(`RPC error from ${rpcUrl}: ${JSON.stringify(body.error)}.`)
-  if (typeof body.result !== 'string')
-    throw new Error(`Invalid RPC result from ${rpcUrl}.`)
-
-  return decodeAbiString(body.result)
-}
-
-function decodeAbiString(hex: string) {
-  if (!/^0x[0-9a-fA-F]*$/.test(hex))
-    throw new Error(`Invalid ABI string result: ${hex}.`)
-
-  const data = hex.slice(2)
-  const offset = Number.parseInt(data.slice(0, 64), 16)
-  if (!Number.isSafeInteger(offset))
-    throw new Error(`Invalid ABI string offset: ${hex}.`)
-
-  const lengthStart = offset * 2
-  const length = Number.parseInt(data.slice(lengthStart, lengthStart + 64), 16)
-  if (!Number.isSafeInteger(length))
-    throw new Error(`Invalid ABI string length: ${hex}.`)
-
-  const valueStart = lengthStart + 64
-  const value = data.slice(valueStart, valueStart + length * 2)
-  if (value.length !== length * 2)
-    throw new Error(`Invalid ABI string data: ${hex}.`)
-
-  return new TextDecoder().decode(
-    Uint8Array.from(value.match(/.{1,2}/g) ?? [], (byte) =>
-      Number.parseInt(byte, 16),
-    ),
-  )
+  const client = createClient({ transport: http(rpcUrl) })
+  clientByChainId.set(target.chainId, client)
+  return client
 }
 
 async function fetchTokenlist(uri: string): Promise<Tokenlist> {
