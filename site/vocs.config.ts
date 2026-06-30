@@ -409,9 +409,19 @@ export default defineConfig({
             collapsed: true,
             items: [
               {
+                text: 'add',
+                link: '/docs/actions/wallet/chains/add',
+                badge: badge('wallet'),
+              },
+              {
                 text: 'getId',
                 link: '/docs/actions/public/chains/getId',
                 badge: badge('public'),
+              },
+              {
+                text: 'switch',
+                link: '/docs/actions/wallet/chains/switch',
+                badge: badge('wallet'),
               },
             ],
           },

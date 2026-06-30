@@ -1,5 +1,6 @@
+import * as Provider from 'ox/Provider'
 import { Instance, Server } from 'prool'
-import { Client, http } from 'viem'
+import { Client, custom, http } from 'viem'
 
 import * as constants from './constants.js'
 
@@ -33,6 +34,29 @@ export function defineAnvil(parameters: DefineAnvilParameters) {
 export function getClient(anvil: Anvil) {
   return Client.create({
     transport: http(anvil.rpcUrl.http),
+  })
+}
+
+/**
+ * Returns a Client backed by an EIP-1193 provider that emulates wallet-only
+ * JSON-RPC methods (which anvil does not implement) and delegates everything
+ * else to the anvil instance.
+ */
+export function getWalletClient(anvil: Anvil) {
+  const node = http(anvil.rpcUrl.http).setup({})
+  const provider = Provider.from({
+    async request({ method, params }: any) {
+      if (method === 'wallet_addEthereumChain') return null
+      if (method === 'wallet_switchEthereumChain') {
+        if (params[0].chainId === '0xfa')
+          throw new Provider.ProviderRpcError(4902, 'Unrecognized chain.')
+        return null
+      }
+      return node.request({ method, params })
+    },
+  })
+  return Client.create({
+    transport: custom(provider),
   })
 }
 

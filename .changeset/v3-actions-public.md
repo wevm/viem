@@ -43,6 +43,11 @@ Flat public action names were renamed to their namespaced v3 equivalents.
 - getChainId(client)
 + Actions.chains.getId(client)
 
+- addChain(client, { chain })
+- switchChain(client, { id })
++ Actions.chains.add(client, { chain })
++ Actions.chains.switch(client, { id })
+
 - estimateContractGas(client, options)
 - getEip712Domain(client, options)
 - getContractEvents(client, options)

@@ -8,6 +8,7 @@ import type {
   ContractFunctionArgs,
   ContractFunctionName,
 } from '../internal/contract.js'
+import * as chains from '../chains/index.js'
 import * as contract from '../contract/index.js'
 import * as transaction from '../transaction/index.js'
 
@@ -38,6 +39,10 @@ export function walletActions() {
   >(
     client: Client.Client<chain, account>,
   ): walletActions.Decorator<chain, account> => ({
+    chains: {
+      add: (options) => chains.add(client, options),
+      switch: (options) => chains.switch(client, options),
+    },
     contract: {
       deploy: (options) => contract.deploy(client, options as never),
       deploySync: (options) => contract.deploySync(client, options as never),
@@ -61,6 +66,39 @@ export declare namespace walletActions {
     chain extends Chain.Chain | undefined = Chain.Chain | undefined,
     account extends Account.Account | undefined = Account.Account | undefined,
   > = {
+    chains: {
+      /**
+       * Adds an EVM chain to the wallet.
+       *
+       * @example
+       * ```ts
+       * import { Client, custom, walletActions } from 'viem'
+       * import { optimism } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   transport: custom(window.ethereum!),
+       * }).extend(walletActions())
+       * await client.chains.add({ chain: optimism })
+       * ```
+       */
+      add: (options: chains.add.Options) => Promise<void>
+      /**
+       * Switches the target chain in a wallet.
+       *
+       * @example
+       * ```ts
+       * import { Client, custom, walletActions } from 'viem'
+       * import { mainnet, optimism } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: custom(window.ethereum!),
+       * }).extend(walletActions())
+       * await client.chains.switch({ id: optimism.id })
+       * ```
+       */
+      switch: (options: chains.switch.Options) => Promise<void>
+    }
     contract: {
       /**
        * Deploys a contract to the network.

@@ -2,6 +2,7 @@ import * as Value from 'ox/Value'
 import { expect, test } from 'vitest'
 
 import { Account, Actions, testActions, walletActions } from 'viem'
+import { avalanche } from 'viem/chains'
 
 import * as anvil from '~test/anvil.js'
 import * as constants from '~test/constants.js'
@@ -27,4 +28,10 @@ test('decorates a client with wallet actions', async () => {
   const receipt = await Actions.transaction.getReceipt(client, { hash })
 
   expect(receipt.status).toMatchInlineSnapshot(`"success"`)
+})
+
+test('decorates a client with chains actions', async () => {
+  const client = anvil.getWalletClient(anvil.mainnet).extend(walletActions())
+  await client.chains.add({ chain: avalanche })
+  await client.chains.switch({ id: avalanche.id })
 })
