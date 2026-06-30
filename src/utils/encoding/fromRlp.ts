@@ -51,6 +51,16 @@ export function fromRlp<to extends To = 'hex'>(
   })
   const result = fromRlpCursor(cursor, to)
 
+  // RLP is a bijection (Ethereum Yellow Paper, Appendix B): the payload encodes
+  // exactly one item with no leftover bytes. Reject trailing bytes instead of
+  // silently dropping them.
+  if (cursor.position < cursor.bytes.length)
+    throw new BaseError(
+      `Unexpected trailing bytes: RLP payload encodes a single item but ${
+        cursor.bytes.length - cursor.position
+      } byte(s) remain after it.`,
+    )
+
   return result as FromRlpReturnType<to>
 }
 
