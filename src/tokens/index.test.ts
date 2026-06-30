@@ -35,6 +35,7 @@ test('exports', () => {
       "usde",
       "usdt0",
       "wsrusd",
+      "tempo",
     ]
   `)
 })

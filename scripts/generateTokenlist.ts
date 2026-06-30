@@ -84,7 +84,10 @@ const generatedBanner =
 
 const definitionsDir = new URL('../src/tokens/definitions/', import.meta.url)
 const tokensIndexFile = new URL('../src/tokens/index.ts', import.meta.url)
+const tempoTokensFile = new URL('../src/tokens/tempo.ts', import.meta.url)
 const chainsIndexFile = new URL('../src/chains/index.ts', import.meta.url)
+
+const clientByChainId = new Map<number, ReturnType<typeof createClient>>()
 
 const tokenlistTokens = await getTokenlistTokens(tokenlistUris)
 const tokenChainIds = new Set(tokenlistTokens.map((token) => token.chainId))
@@ -104,6 +107,7 @@ const tokenDefinitions = await getTokenDefinitions(
 )
 
 await writeTokenDefinitions(tokenDefinitions)
+await writeTempoTokens(tokenDefinitions)
 await writeTokensIndex(tokenDefinitions)
 
 console.log(
@@ -186,8 +190,6 @@ async function getTokenCurrency(
     )
   }
 }
-
-const clientByChainId = new Map<number, ReturnType<typeof createClient>>()
 
 function getClient(target: ChainTarget) {
   const cached = clientByChainId.get(target.chainId)
@@ -296,6 +298,27 @@ async function writeTokensIndex(tokenDefinitions: TokenDefinition[]) {
     `// biome-ignore lint/performance/noBarrelFile: entrypoint module
 export { defineToken, type Token, type Tokens } from './defineToken.js'
 ${definitionExports.map((name) => `export { ${name} } from './definitions/${name}.js'`).join('\n')}
+export { tempo } from './tempo.js'
+`,
+  )
+}
+
+async function writeTempoTokens(tokenDefinitions: TokenDefinition[]) {
+  const importNames = tokenDefinitions
+    .map((token) => token.importName)
+    .sort((a, b) => a.localeCompare(b))
+
+  await Bun.write(
+    tempoTokensFile,
+    `${generatedBanner}
+
+import type { Tokens } from './defineToken.js'
+${importNames.map((name) => `import { ${name} } from './definitions/${name}.js'`).join('\n')}
+
+/** All tokens available on Tempo chains. */
+export const tempo = [
+${importNames.map((name) => `  ${name},`).join('\n')}
+] as const satisfies Tokens
 `,
   )
 }
