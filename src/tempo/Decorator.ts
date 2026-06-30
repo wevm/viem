@@ -3393,7 +3393,7 @@ type DecoratorBase<
      * @returns The token allowance, in base units and human-readable form.
      */
     getAllowance: (
-      parameters: tokenActions.getAllowance.Parameters<chain>,
+      parameters: tokenActions.getAllowance.Parameters,
     ) => Promise<tokenActions.getAllowance.ReturnValue>
     /**
      * Gets TIP20 token balance for an address.
@@ -3422,7 +3422,7 @@ type DecoratorBase<
      * @returns The token balance, in base units and human-readable form.
      */
     getBalance: (
-      parameters: tokenActions.getBalance.Parameters<chain, account>,
+      parameters: tokenActions.getBalance.Parameters<account>,
     ) => Promise<tokenActions.getBalance.ReturnValue>
     /**
      * Gets TIP20 token metadata including name, symbol, logo URI, currency, decimals, and total supply.
@@ -3448,7 +3448,7 @@ type DecoratorBase<
      * @returns The token metadata.
      */
     getMetadata: (
-      parameters: tokenActions.getMetadata.Parameters<chain>,
+      parameters: tokenActions.getMetadata.Parameters,
     ) => Promise<tokenActions.getMetadata.ReturnValue>
     /**
      * Gets the total supply of a TIP20 token.
@@ -3474,7 +3474,7 @@ type DecoratorBase<
      * @returns The token total supply, in base units and human-readable form.
      */
     getTotalSupply: (
-      parameters: tokenActions.getTotalSupply.Parameters<chain>,
+      parameters: tokenActions.getTotalSupply.Parameters,
     ) => Promise<tokenActions.getTotalSupply.ReturnValue>
     /**
      * Gets the admin role for a specific role in a TIP20 token.

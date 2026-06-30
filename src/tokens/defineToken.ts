@@ -1,5 +1,4 @@
 import type { Address } from 'abitype'
-import type { ChainToken } from '../types/chain.js'
 
 /**
  * A token created by {@link defineToken}: callable with a chain id to produce a
@@ -13,6 +12,22 @@ export type Token<
 
 /** Collection of tokens to declare on a Client. */
 export type Tokens = readonly Token[]
+
+/** A {@link Token} resolved to a specific chain id. */
+export type ResolvedToken = {
+  /** Token contract address. */
+  address: Address
+  /** Token currency denomination. */
+  currency?: string | undefined
+  /** Token decimals, used to parse human-readable `amount` strings. */
+  decimals: number
+  /** Token name. */
+  name?: string | undefined
+  /** Whether the token should be treated as popular in token lists. */
+  popular?: boolean | undefined
+  /** Token symbol. */
+  symbol?: string | undefined
+}
 
 /**
  * Creates a token from shared metadata (`currency`, `decimals`, `name`,
@@ -57,7 +72,7 @@ export function defineToken<const token extends defineToken.Parameters>(
   token: token,
 ): defineToken.ReturnType<token> {
   const { addresses, currency, decimals, name, popular, symbol } = token
-  function fn(chainId: number): ChainToken {
+  function fn(chainId: number): ResolvedToken {
     const address = (addresses as Record<number, Address>)[chainId]
     if (!address)
       throw new Error(`Token has no address for chain id "${chainId}".`)

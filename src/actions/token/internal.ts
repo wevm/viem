@@ -3,8 +3,8 @@ import type { Account } from '../../accounts/types.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
 import { erc20Abi } from '../../constants/abis.js'
-import type { Token, Tokens } from '../../tokens/defineToken.js'
-import type { Chain, ChainToken } from '../../types/chain.js'
+import type { ResolvedToken, Token, Tokens } from '../../tokens/defineToken.js'
+import type { Chain } from '../../types/chain.js'
 import type {
   ContractFunctionName,
   ContractFunctionParameters,
@@ -212,7 +212,7 @@ export namespace resolveToken {
 
 /**
  * Finds the declared token on the Client's `tokens` array matching `token`
- * (either a token symbol or contract `address`), resolved to a {@link ChainToken}
+ * (either a token symbol or contract `address`), resolved to a {@link ResolvedToken}
  * for the Client's `chain.id`. Returns `undefined` when no declared token
  * matches, or the matching token has no address for the Client's chain.
  *
@@ -223,7 +223,7 @@ export namespace resolveToken {
 export function findDeclaredToken(
   client: Client<Transport, Chain | undefined>,
   token: string,
-): ChainToken | undefined {
+): ResolvedToken | undefined {
   const tokens = client.tokens
   const chainId = client.chain?.id
   if (!tokens || chainId === undefined) return undefined
@@ -240,13 +240,13 @@ export function findDeclaredToken(
 }
 
 /**
- * Resolves a {@link Token} to a {@link ChainToken} for `chainId`, or
+ * Resolves a {@link Token} to a {@link ResolvedToken} for `chainId`, or
  * `undefined` when the token has no address for `chainId`. @internal
  */
 function resolveTokenForChain(
   token: Token,
   chainId: number,
-): ChainToken | undefined {
+): ResolvedToken | undefined {
   const address = (token.addresses as Record<number, Address>)[chainId]
   if (!address) return undefined
   return {

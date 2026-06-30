@@ -22,6 +22,7 @@ describe('decorator', () => {
         "name",
         "pollingInterval",
         "request",
+        "tokens",
         "transport",
         "type",
         "uid",

@@ -3,8 +3,8 @@ import { TokenId } from 'ox/tempo'
 import { readContract } from '../../actions/public/readContract.js'
 import type { Client } from '../../clients/createClient.js'
 import type { Transport } from '../../clients/transports/createTransport.js'
-import type { Token } from '../../tokens/defineToken.js'
-import type { Chain, ChainToken } from '../../types/chain.js'
+import type { ResolvedToken, Token } from '../../tokens/defineToken.js'
+import type { Chain } from '../../types/chain.js'
 import type {
   ContractFunctionName,
   ContractFunctionParameters,
@@ -17,14 +17,14 @@ import * as Abis from '../Abis.js'
 
 /**
  * Resolves the token contract `address` and `decimals` from a `token`, which is
- * the name of a token declared on the client's chain `tokens` config, a TIP20
- * token id, or a contract `address`.
+ * a token symbol declared on the client's `tokens` array, a TIP20 token id, or
+ * a contract `address`.
  *
- * When `token` is a declared name, the `address` and `decimals` are read from
- * the chain (`decimals` can be overridden via the explicit `decimals`). When
- * `token` is a token id or address, its `decimals` is inferred from the chain
- * when the address matches a declared token, otherwise taken from the explicit
- * `decimals`.
+ * When `token` is a declared symbol, the `address` and `decimals` are read from
+ * the client's declared `tokens` (`decimals` can be overridden via the explicit
+ * `decimals`). When `token` is a token id or address, its `decimals` is inferred
+ * from the client's declared `tokens` when the address matches a declared token,
+ * otherwise taken from the explicit `decimals`.
  *
  * @param client - Client.
  * @param parameters - Parameters.
@@ -62,7 +62,7 @@ export namespace resolveToken {
 }
 
 /**
- * Finds the declared {@link ChainToken} on the client's `tokens` array matching
+ * Finds the declared {@link ResolvedToken} on the client's `tokens` array matching
  * `token`, which is either a token symbol, a TIP20 token id, or a contract
  * `address`, resolved for the client's `chain.id`. Returns `undefined` when no
  * declared token matches, or the matching token has no address for the client's
@@ -75,7 +75,7 @@ export namespace resolveToken {
 export function findDeclaredToken(
   client: Client<Transport, Chain | undefined>,
   token: TokenId.TokenIdOrAddress | (string & {}),
-): ChainToken | undefined {
+): ResolvedToken | undefined {
   const tokens = client.tokens
   const chainId = client.chain?.id
   if (!tokens || chainId === undefined) return undefined
@@ -100,7 +100,7 @@ export function findDeclaredToken(
 function findDeclaredTokenBySymbol(
   client: Client<Transport, Chain | undefined>,
   symbol: string,
-): ChainToken | undefined {
+): ResolvedToken | undefined {
   const tokens = client.tokens
   const chainId = client.chain?.id
   if (!tokens || chainId === undefined) return undefined
@@ -114,13 +114,13 @@ function findDeclaredTokenBySymbol(
 }
 
 /**
- * Resolves a {@link Token} to a {@link ChainToken} for `chainId`, or
+ * Resolves a {@link Token} to a {@link ResolvedToken} for `chainId`, or
  * `undefined` when the token has no address for `chainId`. @internal
  */
 function resolveTokenForChain(
   token: Token,
   chainId: number,
-): ChainToken | undefined {
+): ResolvedToken | undefined {
   const address = (token.addresses as Record<number, Address>)[chainId]
   if (!address) return undefined
   return {

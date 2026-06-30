@@ -783,10 +783,6 @@ export default defineConfig({
                 text: 'Serializers',
                 link: '/docs/chains/serializers',
               },
-              {
-                text: 'Tokens',
-                link: '/docs/chains/tokens',
-              },
             ],
           },
           {

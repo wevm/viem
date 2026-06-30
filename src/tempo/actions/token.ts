@@ -91,16 +91,16 @@ export async function approve<
 }
 
 export namespace approve {
-  export type Args<chain extends Chain | undefined = Chain | undefined> = {
+  export type Args = {
     /** Amount of tokens to approve, in base units or formatted decimal form. */
     amount: internal_Token.AmountInput
     /** Address of the spender. */
     spender: Address
-  } & TokenParameter<chain>
+  } & TokenParameter
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args<chain>
+  > = WriteParameters<chain, account> & Args
   export type ReturnValue = WriteContractReturnType
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
@@ -126,9 +126,9 @@ export namespace approve {
    *
    * Can be passed as a parameter to `estimateContractGas`, `simulateContract`,
    * `sendCalls`, `sendTransaction` (`calls`), or `multicall`. The token is
-   * selected by `token`, which is either a token name (resolved from the
-   * client's chain `tokens` config), a TIP20 token id, or a contract `address`;
-   * `amount.decimals` is inferred from declared chain tokens when omitted.
+   * selected by `token`, which is either a TIP20 token id or a contract
+   * `address`; `amount.decimals` is inferred from the client's declared
+   * `tokens` when omitted.
    *
    * @param client - Client.
    * @param parameters - Parameters.
@@ -136,7 +136,7 @@ export namespace approve {
    */
   export function call<chain extends Chain | undefined>(
     client: Client<Transport, chain>,
-    parameters: Args<chain>,
+    parameters: Args,
   ) {
     const { amount, spender, token } = parameters
     const { address, decimals } = resolveToken(client, { token })
@@ -150,7 +150,7 @@ export namespace approve {
 
   /**
    * Estimates the gas required to approve a spender. `amount.decimals` is
-   * inferred from declared chain tokens when omitted.
+   * inferred from the client's declared `tokens` when omitted.
    *
    * @param client - Client.
    * @param parameters - Parameters.
@@ -171,7 +171,7 @@ export namespace approve {
 
   /**
    * Simulates an approval of a spender. `amount.decimals` is inferred from
-   * declared chain tokens when omitted.
+   * the client's declared `tokens` when omitted.
    *
    * @param client - Client.
    * @param parameters - Parameters.
@@ -258,8 +258,7 @@ export async function approveSync<
 }
 
 export namespace approveSync {
-  export type Args<chain extends Chain | undefined = Chain | undefined> =
-    approve.Args<chain>
+  export type Args = approve.Args
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
@@ -323,17 +322,17 @@ export async function burnBlocked<
 }
 
 export namespace burnBlocked {
-  export type Args<chain extends Chain | undefined = Chain | undefined> = {
+  export type Args = {
     /** Amount of tokens to burn, in base units or formatted decimal form. */
     amount: internal_Token.AmountInput
     /** Address to burn tokens from. */
     from: Address
-  } & TokenParameter<chain>
+  } & TokenParameter
 
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args<chain>
+  > = WriteParameters<chain, account> & Args
 
   export type ReturnValue = WriteContractReturnType
 
@@ -388,14 +387,14 @@ export namespace burnBlocked {
    * })
    * ```
    *
-   * `amount.decimals` is inferred from declared chain tokens when omitted.
+   * `amount.decimals` is inferred from the client's declared `tokens` when omitted.
    *
    * @param args - Arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
     client: Client<Transport, chain>,
-    args: Args<chain>,
+    args: Args,
   ) {
     const { from, amount, token } = args
     const { address, decimals } = resolveToken(client, { token })
@@ -476,8 +475,7 @@ export namespace burnBlockedSync {
     account extends Account | undefined = Account | undefined,
   > = burnBlocked.Parameters<chain, account>
 
-  export type Args<chain extends Chain | undefined = Chain | undefined> =
-    burnBlocked.Args<chain>
+  export type Args = burnBlocked.Args
 
   export type ReturnValue = Compute<
     GetEventArgs<
@@ -534,17 +532,17 @@ export async function burn<
 }
 
 export namespace burn {
-  export type Args<chain extends Chain | undefined = Chain | undefined> = {
+  export type Args = {
     /** Amount of tokens to burn, in base units or formatted decimal form. */
     amount: internal_Token.AmountInput
     /** Memo to include in the transfer. */
     memo?: Hex.Hex | undefined
-  } & TokenParameter<chain>
+  } & TokenParameter
 
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args<chain>
+  > = WriteParameters<chain, account> & Args
 
   export type ReturnValue = WriteContractReturnType
 
@@ -598,14 +596,14 @@ export namespace burn {
    * })
    * ```
    *
-   * `amount.decimals` is inferred from declared chain tokens when omitted.
+   * `amount.decimals` is inferred from the client's declared `tokens` when omitted.
    *
    * @param args - Arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
     client: Client<Transport, chain>,
-    args: Args<chain>,
+    args: Args,
   ) {
     const { amount, memo, token } = args
     const { address, decimals } = resolveToken(client, { token })
@@ -694,8 +692,7 @@ export namespace burnSync {
     account extends Account | undefined = Account | undefined,
   > = burn.Parameters<chain, account>
 
-  export type Args<chain extends Chain | undefined = Chain | undefined> =
-    burn.Args<chain>
+  export type Args = burn.Args
 
   export type ReturnValue = Compute<
     GetEventArgs<
@@ -1217,7 +1214,7 @@ export namespace createSync {
  */
 export async function getAllowance<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  parameters: getAllowance.Parameters<chain>,
+  parameters: getAllowance.Parameters,
 ): Promise<getAllowance.ReturnValue> {
   const { account, decimals, spender, token, ...rest } = parameters
   const [amount, { decimals: resolved }] = await Promise.all([
@@ -1234,14 +1231,13 @@ export async function getAllowance<chain extends Chain | undefined>(
 }
 
 export namespace getAllowance {
-  export type Args<chain extends Chain | undefined = Chain | undefined> = {
+  export type Args = {
     /** Account that owns the tokens. */
     account: Address
     /** Spender of the tokens. */
     spender: Address
-  } & TokenParameters<chain>
-  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
-    ReadParameters & Args<chain>
+  } & TokenParameters
+  export type Parameters = ReadParameters & Args
   export type ReturnValue = internal_Token.Amount
 
   /**
@@ -1249,8 +1245,7 @@ export namespace getAllowance {
    *
    * Can be passed as a parameter to `multicall`, `simulateContract`, or any
    * other action that accepts a contract call. The token is selected by `token`,
-   * which is either a token name (resolved from the client's chain `tokens`
-   * config), a TIP20 token id, or a contract address.
+   * which is either a TIP20 token id or a contract address.
    *
    * @param client - Client.
    * @param args - Arguments.
@@ -1258,7 +1253,7 @@ export namespace getAllowance {
    */
   export function call<chain extends Chain | undefined>(
     client: Client<Transport, chain>,
-    args: Args<chain>,
+    args: Args,
   ) {
     return defineCall({
       address: resolveToken(client, args).address,
@@ -1300,7 +1295,7 @@ export async function getBalance<
   account extends Account | undefined,
 >(
   client: Client<Transport, chain, account>,
-  parameters: getBalance.Parameters<chain, account>,
+  parameters: getBalance.Parameters<account>,
 ): Promise<getBalance.ReturnValue> {
   const {
     account: account_ = client.account,
@@ -1324,14 +1319,11 @@ export async function getBalance<
 }
 
 export namespace getBalance {
-  export type Args<
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = GetAccountParameter<account, Account | Address> & TokenParameters<chain>
+  export type Args<account extends Account | undefined = Account | undefined> =
+    GetAccountParameter<account, Account | Address> & TokenParameters
   export type Parameters<
-    chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = Omit<ReadParameters, 'account'> & Args<chain, account>
+  > = Omit<ReadParameters, 'account'> & Args<account>
   export type ReturnValue = internal_Token.Amount
 
   /**
@@ -1339,8 +1331,7 @@ export namespace getBalance {
    *
    * Can be passed as a parameter to `multicall`, `simulateContract`, or any
    * other action that accepts a contract call. The token is selected by `token`,
-   * which is either a token name (resolved from the client's chain `tokens`
-   * config), a TIP20 token id, or a contract address.
+   * which is either a TIP20 token id or a contract address.
    *
    * @param client - Client.
    * @param args - Arguments.
@@ -1349,7 +1340,7 @@ export namespace getBalance {
   export function call<
     chain extends Chain | undefined,
     account extends Account | undefined,
-  >(client: Client<Transport, chain, account>, args: Args<chain, account>) {
+  >(client: Client<Transport, chain, account>, args: Args<account>) {
     const account_ = args.account ?? client.account
     if (!account_) throw new AccountNotFoundError()
     const account = parseAccount(account_).address
@@ -1389,7 +1380,7 @@ export namespace getBalance {
  */
 export async function getMetadata<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  parameters: getMetadata.Parameters<chain>,
+  parameters: getMetadata.Parameters,
 ): Promise<getMetadata.ReturnValue> {
   const { token, ...rest } = parameters
   const { address } = resolveToken(client, { token })
@@ -1558,8 +1549,7 @@ function unwrapMulticallResult<result>(
 }
 
 export declare namespace getMetadata {
-  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
-    Omit<ReadParameters, 'account'> & TokenParameter<chain>
+  export type Parameters = Omit<ReadParameters, 'account'> & TokenParameter
 
   export type ReturnValue = Compute<{
     /**
@@ -1640,7 +1630,7 @@ export declare namespace getMetadata {
  */
 export async function getTotalSupply<chain extends Chain | undefined>(
   client: Client<Transport, chain>,
-  parameters: getTotalSupply.Parameters<chain>,
+  parameters: getTotalSupply.Parameters,
 ): Promise<getTotalSupply.ReturnValue> {
   const { decimals, token, ...rest } = parameters
   const [amount, { decimals: resolved }] = await Promise.all([
@@ -1657,10 +1647,8 @@ export async function getTotalSupply<chain extends Chain | undefined>(
 }
 
 export namespace getTotalSupply {
-  export type Args<chain extends Chain | undefined = Chain | undefined> =
-    TokenParameters<chain>
-  export type Parameters<chain extends Chain | undefined = Chain | undefined> =
-    Omit<ReadParameters, 'account'> & Args<chain>
+  export type Args = TokenParameters
+  export type Parameters = Omit<ReadParameters, 'account'> & Args
   export type ReturnValue = internal_Token.Amount
 
   /**
@@ -1668,8 +1656,7 @@ export namespace getTotalSupply {
    *
    * Can be passed as a parameter to `multicall`, `simulateContract`, or any
    * other action that accepts a contract call. The token is selected by `token`,
-   * which is either a token name (resolved from the client's chain `tokens`
-   * config), a TIP20 token id, or a contract address.
+   * which is either a TIP20 token id or a contract address.
    *
    * @param client - Client.
    * @param args - Arguments.
@@ -1677,7 +1664,7 @@ export namespace getTotalSupply {
    */
   export function call<chain extends Chain | undefined>(
     client: Client<Transport, chain>,
-    args: Args<chain>,
+    args: Args,
   ) {
     return defineCall({
       address: resolveToken(client, args).address,
@@ -2093,19 +2080,19 @@ export async function mint<
 }
 
 export namespace mint {
-  export type Args<chain extends Chain | undefined = Chain | undefined> = {
+  export type Args = {
     /** Amount of tokens to mint, in base units or formatted decimal form. */
     amount: internal_Token.AmountInput
     /** Memo to include in the mint. */
     memo?: Hex.Hex | undefined
     /** Address to mint tokens to. */
     to: Address
-  } & TokenParameter<chain>
+  } & TokenParameter
 
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args<chain>
+  > = WriteParameters<chain, account> & Args
 
   export type ReturnValue = WriteContractReturnType
 
@@ -2160,14 +2147,14 @@ export namespace mint {
    * })
    * ```
    *
-   * `amount.decimals` is inferred from declared chain tokens when omitted.
+   * `amount.decimals` is inferred from the client's declared `tokens` when omitted.
    *
    * @param args - Arguments.
    * @returns The call.
    */
   export function call<chain extends Chain | undefined>(
     client: Client<Transport, chain>,
-    args: Args<chain>,
+    args: Args,
   ) {
     const { to, amount, memo, token } = args
     const { address, decimals } = resolveToken(client, { token })
@@ -2257,8 +2244,7 @@ export namespace mintSync {
     account extends Account | undefined = Account | undefined,
   > = mint.Parameters<chain, account>
 
-  export type Args<chain extends Chain | undefined = Chain | undefined> =
-    mint.Args<chain>
+  export type Args = mint.Args
 
   export type ReturnValue = Compute<
     GetEventArgs<
@@ -3341,7 +3327,7 @@ export async function transfer<
 }
 
 export namespace transfer {
-  export type Args<chain extends Chain | undefined = Chain | undefined> = {
+  export type Args = {
     /** Amount of tokens to transfer, in base units or formatted decimal form. */
     amount: internal_Token.AmountInput
     /** Address to transfer tokens from (uses an allowance via `transferFrom`). */
@@ -3350,11 +3336,11 @@ export namespace transfer {
     memo?: Hex.Hex | undefined
     /** Address to transfer tokens to. */
     to: Address
-  } & TokenParameter<chain>
+  } & TokenParameter
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
-  > = WriteParameters<chain, account> & Args<chain>
+  > = WriteParameters<chain, account> & Args
   export type ReturnValue = WriteContractReturnType
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
@@ -3381,9 +3367,9 @@ export namespace transfer {
    *
    * Can be passed as a parameter to `estimateContractGas`, `simulateContract`,
    * `sendCalls`, `sendTransaction` (`calls`), or `multicall`. The token is
-   * selected by `token`, which is either a token name (resolved from the
-   * client's chain `tokens` config), a TIP20 token id, or a contract `address`;
-   * `amount.decimals` is inferred from declared chain tokens when omitted.
+   * selected by `token`, which is either a TIP20 token id or a contract
+   * `address`; `amount.decimals` is inferred from the client's declared
+   * `tokens` when omitted.
    *
    * @param client - Client.
    * @param parameters - Parameters.
@@ -3391,7 +3377,7 @@ export namespace transfer {
    */
   export function call<chain extends Chain | undefined>(
     client: Client<Transport, chain>,
-    parameters: Args<chain>,
+    parameters: Args,
   ) {
     const { from, memo, to, token } = parameters
     const { address, decimals } = resolveToken(client, { token })
@@ -3426,7 +3412,7 @@ export namespace transfer {
 
   /**
    * Estimates the gas required to transfer TIP20 tokens. `amount.decimals` is
-   * inferred from declared chain tokens when omitted.
+   * inferred from the client's declared `tokens` when omitted.
    *
    * @param client - Client.
    * @param parameters - Parameters.
@@ -3447,7 +3433,7 @@ export namespace transfer {
 
   /**
    * Simulates a transfer of TIP20 tokens. `amount.decimals` is inferred from
-   * declared chain tokens when omitted.
+   * the client's declared `tokens` when omitted.
    *
    * @param client - Client.
    * @param parameters - Parameters.
@@ -3539,8 +3525,7 @@ export async function transferSync<
 }
 
 export namespace transferSync {
-  export type Args<chain extends Chain | undefined = Chain | undefined> =
-    transfer.Args<chain>
+  export type Args = transfer.Args
   export type Parameters<
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
