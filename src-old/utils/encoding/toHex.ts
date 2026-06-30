@@ -208,9 +208,8 @@ export function numberToHex(
     })
   }
 
-  const hex = `0x${(signed && value < 0
-    ? (1n << BigInt(size * 8)) + BigInt(value)
-    : value
+  const hex = `0x${(
+    signed && value < 0 ? (1n << BigInt(size * 8)) + BigInt(value) : value
   ).toString(16)}` as Hex
   if (size) return pad(hex, { size }) as Hex
   return hex

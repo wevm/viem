@@ -19,13 +19,12 @@ import {
   writeContract,
 } from '../../actions/index.js'
 import { getBlockNumber } from '../../actions/public/getBlockNumber.js'
-import { base } from '../../chains/index.js'
+import { usdc as usdcToken } from '../../tokens/definitions/usdc.js'
 import { pad } from '../../utils/index.js'
 import { createSiweMessage } from '../../utils/siwe/createSiweMessage.js'
+import { formatUnits } from '../../utils/unit/formatUnits.js'
 import { parseEther } from '../../utils/unit/parseEther.js'
 import { wait } from '../../utils/wait.js'
-import { createPublicClient } from '../createPublicClient.js'
-import { http } from '../transports/http.js'
 import { publicActions } from './public.js'
 
 const client = anvilMainnet.getClient().extend(publicActions)
@@ -81,6 +80,12 @@ test('default', async () => {
       "simulateBlocks": [Function],
       "simulateCalls": [Function],
       "simulateContract": [Function],
+      "token": {
+        "getAllowance": [Function],
+        "getBalance": [Function],
+        "getMetadata": [Function],
+        "getTotalSupply": [Function],
+      },
       "uninstallFilter": [Function],
       "verifyHash": [Function],
       "verifyMessage": [Function],
@@ -335,16 +340,11 @@ describe('smoke test', () => {
   })
 
   test('getProof', async () => {
-    const client = createPublicClient({
-      chain: base,
-      transport: http(),
-    })
-
     expect(
       await client.getProof({
-        address: '0x4200000000000000000000000000000000000016',
+        address: wagmiContractConfig.address,
         storageKeys: [
-          '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
+          '0x0000000000000000000000000000000000000000000000000000000000000000',
         ],
       }),
     ).toBeDefined()
@@ -592,5 +592,61 @@ describe('smoke test', () => {
       onTransactions: () => {},
     })
     expect(unwatch).toBeDefined()
+  })
+})
+
+describe('token', () => {
+  const client = anvilMainnet
+    .getClient({ tokens: [usdcToken] })
+    .extend(publicActions)
+  const usdc = usdcToken.addresses[anvilMainnet.chain.id]
+  const holder = address.usdcHolder
+
+  test('attaches read token actions', () => {
+    expect(typeof client.token.getBalance).toBe('function')
+    expect(typeof client.token.getMetadata).toBe('function')
+    expect(typeof client.token.getTotalSupply).toBe('function')
+  })
+
+  describe('getBalance', () => {
+    test('default: by token symbol', async () => {
+      const balance = await client.token.getBalance({
+        token: 'usdc',
+        account: holder,
+      })
+      expect(balance.amount).toBeTypeOf('bigint')
+      expect(balance.formatted).toBe(formatUnits(balance.amount, 6))
+    })
+
+    test('by token address', async () => {
+      const balance = await client.token.getBalance({
+        token: usdc,
+        account: holder,
+      })
+      expect(balance.amount).toBeTypeOf('bigint')
+      expect(balance.formatted).toBe(formatUnits(balance.amount, 6))
+    })
+  })
+
+  describe('getMetadata', () => {
+    test('default: by token symbol', async () => {
+      const metadata = await client.token.getMetadata({ token: 'usdc' })
+      expect(metadata).toMatchInlineSnapshot(`
+        {
+          "decimals": 6,
+          "name": "USD Coin",
+          "symbol": "USDC",
+        }
+      `)
+    })
+  })
+
+  describe('getTotalSupply', () => {
+    test('default: by token symbol', async () => {
+      const totalSupply = await client.token.getTotalSupply({ token: 'usdc' })
+      expect(totalSupply.amount).toBeTypeOf('bigint')
+      expect(totalSupply.amount).toBeGreaterThan(0n)
+      expect(totalSupply.formatted).toBe(formatUnits(totalSupply.amount, 6))
+    })
   })
 })

@@ -52,8 +52,10 @@ export type SignTransactionParameters<
   chain extends Chain | undefined,
   account extends Account | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
-  request extends SignTransactionRequest<chain, chainOverride> =
-    SignTransactionRequest<chain, chainOverride>,
+  request extends SignTransactionRequest<
+    chain,
+    chainOverride
+  > = SignTransactionRequest<chain, chainOverride>,
 > = request &
   GetAccountParameter<account> &
   GetChainParameter<chain, chainOverride> &
@@ -120,8 +122,10 @@ export async function signTransaction<
   chain extends Chain | undefined,
   account extends Account | undefined,
   chainOverride extends Chain | undefined = undefined,
-  const request extends SignTransactionRequest<chain, chainOverride> =
-    SignTransactionRequest<chain, chainOverride>,
+  const request extends SignTransactionRequest<
+    chain,
+    chainOverride
+  > = SignTransactionRequest<chain, chainOverride>,
 >(
   client: Client<Transport, chain, account>,
   parameters: SignTransactionParameters<chain, account, chainOverride, request>,

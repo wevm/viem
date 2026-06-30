@@ -213,8 +213,8 @@ export function deserialize<
 
 export declare namespace deserialize {
   export type ReturnValue<
-    serialized extends TransactionSerializedGeneric =
-      TransactionSerializedGeneric,
+    serialized extends
+      TransactionSerializedGeneric = TransactionSerializedGeneric,
   > = serialized extends TransactionSerializedTempo
     ? TransactionSerializableTempo
     : serialized extends TransactionSerializedFeePayer
@@ -240,7 +240,7 @@ export async function serialize(
           '`.',
       )
     if (signature && 'type' in signature) {
-      const { r, s, yParity } = signature.signature!
+      const { r, s, yParity } = signature?.signature!
       return viem_serializeTransaction(transaction as never, {
         r: Hex.fromNumber(r, { size: 32 }),
         s: Hex.fromNumber(s, { size: 32 }),

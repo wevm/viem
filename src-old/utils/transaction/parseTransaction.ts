@@ -7,6 +7,8 @@ import {
   type InvalidLegacyVErrorType,
   InvalidSerializedTransactionError,
   type InvalidSerializedTransactionErrorType,
+  InvalidYParityError,
+  type InvalidYParityErrorType,
 } from '../../errors/transaction.js'
 import type { ErrorType } from '../../errors/utils.js'
 import type {
@@ -69,17 +71,16 @@ import {
 export type ParseTransactionReturnType<
   serialized extends TransactionSerializedGeneric = TransactionSerialized,
   type extends TransactionType = GetSerializedTransactionType<serialized>,
-> =
-  IsNarrowable<serialized, Hex> extends true
-    ?
-        | (type extends 'eip1559' ? TransactionSerializableEIP1559 : never)
-        | (type extends 'eip2930' ? TransactionSerializableEIP2930 : never)
-        | (type extends 'eip4844'
-            ? TransactionSerializableEIP4844<bigint, number, false>
-            : never)
-        | (type extends 'eip7702' ? TransactionSerializableEIP7702 : never)
-        | (type extends 'legacy' ? TransactionSerializableLegacy : never)
-    : TransactionSerializable
+> = IsNarrowable<serialized, Hex> extends true
+  ?
+      | (type extends 'eip1559' ? TransactionSerializableEIP1559 : never)
+      | (type extends 'eip2930' ? TransactionSerializableEIP2930 : never)
+      | (type extends 'eip4844'
+          ? TransactionSerializableEIP4844<bigint, number, false>
+          : never)
+      | (type extends 'eip7702' ? TransactionSerializableEIP7702 : never)
+      | (type extends 'legacy' ? TransactionSerializableLegacy : never)
+  : TransactionSerializable
 
 export type ParseTransactionErrorType =
   | GetSerializedTransactionTypeErrorType
@@ -594,6 +595,7 @@ function parseAuthorizationList(
 
 type ParseEIP155SignatureErrorType =
   | HexToBigIntErrorType
+  | InvalidYParityErrorType
   | PadHexErrorType
   | ErrorType
 
@@ -601,8 +603,10 @@ function parseEIP155Signature(
   transactionArray: RecursiveArray<Hex>,
 ): Signature & { yParity: number } {
   const signature = transactionArray.slice(-3)
-  const v =
-    signature[0] === '0x' || hexToBigInt(signature[0] as Hex) === 0n ? 27n : 28n
+  const yParity = signature[0] === '0x' ? 0n : hexToBigInt(signature[0] as Hex)
+  if (yParity !== 0n && yParity !== 1n)
+    throw new InvalidYParityError({ yParity })
+  const v = yParity === 0n ? 27n : 28n
   return {
     r: padHex(signature[1] as Hex, { size: 32 }),
     s: padHex(signature[2] as Hex, { size: 32 }),

@@ -246,8 +246,9 @@ test('parameters: resources', () => {
 })
 
 test('behavior: invalid address', () => {
-  expect(() => createSiweMessage({ ...message, address: '0xfoobarbaz' }))
-    .toThrowErrorMatchingInlineSnapshot(`
+  expect(() =>
+    createSiweMessage({ ...message, address: '0xfoobarbaz' }),
+  ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidAddressError: Address "0xfoobarbaz" is invalid.
 
     - Address must be a hex value of 20 bytes (40 hex characters).
@@ -258,8 +259,9 @@ test('behavior: invalid address', () => {
 })
 
 test('behavior: invalid chainId', () => {
-  expect(() => createSiweMessage({ ...message, chainId: 1.1 }))
-    .toThrowErrorMatchingInlineSnapshot(`
+  expect(() =>
+    createSiweMessage({ ...message, chainId: 1.1 }),
+  ).toThrowErrorMatchingInlineSnapshot(`
     [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "chainId".
 
     - Chain ID must be a EIP-155 chain ID.
@@ -272,8 +274,9 @@ test('behavior: invalid chainId', () => {
 })
 
 test('behavior: invalid domain', () => {
-  expect(() => createSiweMessage({ ...message, domain: '#foo' }))
-    .toThrowErrorMatchingInlineSnapshot(`
+  expect(() =>
+    createSiweMessage({ ...message, domain: '#foo' }),
+  ).toThrowErrorMatchingInlineSnapshot(`
     [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "domain".
 
     - Domain must be an RFC 3986 authority.
@@ -286,8 +289,9 @@ test('behavior: invalid domain', () => {
 })
 
 test('behavior: invalid nonce', () => {
-  expect(() => createSiweMessage({ ...message, nonce: '#foo' }))
-    .toThrowErrorMatchingInlineSnapshot(`
+  expect(() =>
+    createSiweMessage({ ...message, nonce: '#foo' }),
+  ).toThrowErrorMatchingInlineSnapshot(`
     [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "nonce".
 
     - Nonce must be at least 8 characters.
@@ -300,8 +304,9 @@ test('behavior: invalid nonce', () => {
 })
 
 test('behavior: invalid uri', () => {
-  expect(() => createSiweMessage({ ...message, uri: '#foo' }))
-    .toThrowErrorMatchingInlineSnapshot(`
+  expect(() =>
+    createSiweMessage({ ...message, uri: '#foo' }),
+  ).toThrowErrorMatchingInlineSnapshot(`
     [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "uri".
 
     - URI must be a RFC 3986 URI referring to the resource that is the subject of the signing.
@@ -329,8 +334,9 @@ test('behavior: invalid version', () => {
 })
 
 test('behavior: invalid scheme', () => {
-  expect(() => createSiweMessage({ ...message, scheme: 'foo_bar' }))
-    .toThrowErrorMatchingInlineSnapshot(`
+  expect(() =>
+    createSiweMessage({ ...message, scheme: 'foo_bar' }),
+  ).toThrowErrorMatchingInlineSnapshot(`
     [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "scheme".
 
     - Scheme must be an RFC 3986 URI scheme.
@@ -343,8 +349,9 @@ test('behavior: invalid scheme', () => {
 })
 
 test('behavior: invalid statement', () => {
-  expect(() => createSiweMessage({ ...message, statement: 'foo\nbar' }))
-    .toThrowErrorMatchingInlineSnapshot(`
+  expect(() =>
+    createSiweMessage({ ...message, statement: 'foo\nbar' }),
+  ).toThrowErrorMatchingInlineSnapshot(`
     [SiweInvalidMessageFieldError: Invalid Sign-In with Ethereum message field "statement".
 
     - Statement must not include '\\n'.

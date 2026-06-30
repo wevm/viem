@@ -14,8 +14,9 @@ import {
 } from './abi.js'
 
 test('AbiDecodingDataSizeInvalidError', () => {
-  expect(new AbiDecodingDataSizeInvalidError({ data: '0x1234', size: 2 }))
-    .toMatchInlineSnapshot(`
+  expect(
+    new AbiDecodingDataSizeInvalidError({ data: '0x1234', size: 2 }),
+  ).toMatchInlineSnapshot(`
     [AbiDecodingDataSizeInvalidError: Data size of 2 bytes is invalid.
     Size must be in increments of 32 bytes (size % 32 === 0).
 
@@ -46,8 +47,9 @@ test('AbiDecodingDataSizeTooSmallError', () => {
 })
 
 test('InvalidAbiDecodingTypeError', () => {
-  expect(new InvalidAbiDecodingTypeError('lol', { docsPath: '/lol' }))
-    .toMatchInlineSnapshot(`
+  expect(
+    new InvalidAbiDecodingTypeError('lol', { docsPath: '/lol' }),
+  ).toMatchInlineSnapshot(`
     [InvalidAbiDecodingType: Type "lol" is not a valid decoding type.
     Please provide a valid ABI type.
 
@@ -88,8 +90,9 @@ test('AbiEncodingLengthMismatchError', () => {
 })
 
 test('AbiEventSignatureEmptyTopicsError', () => {
-  expect(new AbiEventSignatureEmptyTopicsError({ docsPath: '/test' }))
-    .toMatchInlineSnapshot(`
+  expect(
+    new AbiEventSignatureEmptyTopicsError({ docsPath: '/test' }),
+  ).toMatchInlineSnapshot(`
     [AbiEventSignatureEmptyTopicsError: Cannot extract event signature from empty topics.
 
     Docs: https://viem.sh/test
@@ -198,8 +201,9 @@ describe('DecodeLogTopicsMismatch', () => {
 })
 
 test('InvalidAbiEncodingTypeError', () => {
-  expect(new InvalidAbiEncodingTypeError('lol', { docsPath: '/lol' }))
-    .toMatchInlineSnapshot(`
+  expect(
+    new InvalidAbiEncodingTypeError('lol', { docsPath: '/lol' }),
+  ).toMatchInlineSnapshot(`
     [InvalidAbiEncodingType: Type "lol" is not a valid encoding type.
     Please provide a valid ABI type.
 

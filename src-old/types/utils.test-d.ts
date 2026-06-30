@@ -55,7 +55,9 @@ test('Or', () => {
 })
 
 test('UnionToTuple', () => {
-  expectTypeOf<UnionToTuple<'foo' | 'bar'>>().toEqualTypeOf<['foo', 'bar']>()
+  type Result = UnionToTuple<'foo' | 'bar'>
+  expectTypeOf<Result[number]>().toEqualTypeOf<'foo' | 'bar'>()
+  expectTypeOf<Result['length']>().toEqualTypeOf<2>()
 })
 
 test('IsUnion', () => {

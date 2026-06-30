@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "types": "../_types/siwe/index.d.ts",
+  "module": "../_esm/siwe/index.js",
+  "main": "../_cjs/siwe/index.js"
+}

@@ -6,8 +6,9 @@ import { requestPermissions } from './requestPermissions.js'
 const client = anvilMainnet.getClient()
 
 test('default', async () => {
-  expect(await requestPermissions(client!, { eth_accounts: {} }))
-    .toMatchInlineSnapshot(`
+  expect(
+    await requestPermissions(client!, { eth_accounts: {} }),
+  ).toMatchInlineSnapshot(`
     [
       {
         "caveats": [

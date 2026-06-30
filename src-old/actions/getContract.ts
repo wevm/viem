@@ -816,8 +816,11 @@ type GetReadFunction<
   narrowable extends boolean,
   abi extends Abi | readonly unknown[],
   functionName extends ContractFunctionName<abi, 'pure' | 'view'>,
-  args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName> =
-    ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+  args extends ContractFunctionArgs<
+    abi,
+    'pure' | 'view',
+    functionName
+  > = ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
   abiFunction extends AbiFunction = abi extends Abi
     ? ExtractAbiFunction<abi, functionName>
     : AbiFunction,

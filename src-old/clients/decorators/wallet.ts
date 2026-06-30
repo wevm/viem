@@ -11,6 +11,12 @@ import {
   getChainId,
 } from '../../actions/public/getChainId.js'
 import {
+  approve,
+  approveSync,
+  transfer,
+  transferSync,
+} from '../../actions/token/index.js'
+import {
   type AddChainParameters,
   addChain,
 } from '../../actions/wallet/addChain.js'
@@ -139,17 +145,19 @@ import {
   type WriteContractSyncReturnType,
   writeContractSync,
 } from '../../actions/wallet/writeContractSync.js'
+import type { Tokens } from '../../tokens/defineToken.js'
 import type { Chain } from '../../types/chain.js'
 import type {
   ContractFunctionArgs,
   ContractFunctionName,
 } from '../../types/contract.js'
-import type { Client } from '../createClient.js'
+import { bindActionDecorators, type Client } from '../createClient.js'
 import type { Transport } from '../transports/createTransport.js'
 
 export type WalletActions<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
+  tokens extends Tokens | undefined = Tokens | undefined,
 > = {
   /**
    * Adds an EVM chain to the wallet.
@@ -881,8 +889,10 @@ export type WalletActions<
    */
   signTransaction: <
     chainOverride extends Chain | undefined,
-    const request extends SignTransactionRequest<chain, chainOverride> =
-      SignTransactionRequest<chain, chainOverride>,
+    const request extends SignTransactionRequest<
+      chain,
+      chainOverride
+    > = SignTransactionRequest<chain, chainOverride>,
   >(
     args: SignTransactionParameters<chain, account, chainOverride, request>,
   ) => Promise<SignTransactionReturnType<request>>
@@ -1173,13 +1183,238 @@ export type WalletActions<
       chainOverride
     >,
   ) => Promise<WriteContractSyncReturnType>
+  /**
+   * Write ERC-20 Actions, exposed under the `token` namespace.
+   *
+   * Every action selects its token by `token`, which is either a token symbol
+   * (resolved from the Client's `tokens` array) or a contract `address`. `amount`
+   * inputs are base-unit `bigint` values, or
+   * `{ decimals?: number, formatted: string }` to parse a human-readable decimal
+   * string.
+   *
+   * - Docs: https://viem.sh/docs/token
+   */
+  token: {
+    /**
+     * Approves a `spender` to transfer up to `amount` tokens on behalf of the
+     * caller, and waits for the transaction to be confirmed.
+     *
+     * - Docs: https://viem.sh/docs/token/approve
+     *
+     * @param parameters - {@link approveSync.Parameters}
+     * @returns The decoded `Approval` event and the transaction receipt. {@link approveSync.ReturnValue}
+     *
+     * @example
+     * import { createWalletClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = createWalletClient({
+     *   account: privateKeyToAccount('0x…'),
+     *   chain: mainnet,
+     *   transport: http(),
+     * })
+     *
+     * const { receipt, value } = await client.token.approveSync({
+     *   amount: { decimals: 6, formatted: '10.5' },
+     *   spender: '0x…',
+     *   token: 'usdc',
+     * })
+     */
+    approveSync: (
+      parameters: approveSync.Parameters<chain, account, tokens>,
+    ) => Promise<approveSync.ReturnValue>
+    /**
+     * Approves a `spender` to transfer up to `amount` tokens on behalf of the
+     * caller, and returns the transaction hash.
+     *
+     * - Docs: https://viem.sh/docs/token/approve#asynchronous-usage
+     *
+     * @param parameters - {@link approve.Parameters}
+     * @returns The transaction hash. {@link approve.ReturnValue}
+     *
+     * @example
+     * import { createWalletClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = createWalletClient({
+     *   account: privateKeyToAccount('0x…'),
+     *   chain: mainnet,
+     *   transport: http(),
+     * })
+     *
+     * const hash = await client.token.approve({
+     *   amount: { decimals: 6, formatted: '10.5' },
+     *   spender: '0x…',
+     *   token: 'usdc',
+     * })
+     */
+    approve: ((
+      parameters: approve.Parameters<chain, account, tokens>,
+    ) => Promise<approve.ReturnValue>) & {
+      /**
+       * Defines an `approve` contract call, ready to pass to `sendCalls`,
+       * `sendTransaction` (`calls`), or `multicall`.
+       *
+       * - Docs: https://viem.sh/docs/token/approve#composing-calls
+       *
+       * @param args - {@link approve.Args}
+       * @returns The contract call.
+       */
+      call: (
+        args: approve.Args<chain, tokens>,
+      ) => ReturnType<typeof approve.call>
+      /**
+       * Estimates the gas required to approve a `spender` to transfer up to
+       * `amount` tokens on behalf of the caller.
+       *
+       * - Docs: https://viem.sh/docs/token/approve#estimate-gas--simulate
+       *
+       * @param parameters - {@link approve.Parameters}
+       * @returns The gas estimate.
+       */
+      estimateGas: (
+        parameters: approve.Parameters<chain, account, tokens>,
+      ) => Promise<bigint>
+      /**
+       * Extracts the `Approval` event from transaction logs.
+       *
+       * - Docs: https://viem.sh/docs/token/approve
+       *
+       * @param logs - The logs.
+       * @returns The decoded `Approval` event.
+       */
+      extractEvent: typeof approve.extractEvent
+      /**
+       * Simulates approving a `spender` to transfer up to `amount` tokens on
+       * behalf of the caller, returning the result and write request.
+       *
+       * - Docs: https://viem.sh/docs/token/approve#estimate-gas--simulate
+       *
+       * @param parameters - {@link approve.Parameters}
+       * @returns The simulation result and write request.
+       */
+      simulate: (
+        parameters: approve.Parameters<chain, account, tokens>,
+      ) => ReturnType<typeof approve.simulate>
+    }
+    /**
+     * Transfers `amount` tokens to a recipient, and waits for the transaction to
+     * be confirmed. Pass `from` to transfer on behalf of another address using an
+     * allowance (calls `transferFrom`).
+     *
+     * - Docs: https://viem.sh/docs/token/transfer
+     *
+     * @param parameters - {@link transferSync.Parameters}
+     * @returns The decoded `Transfer` event and the transaction receipt. {@link transferSync.ReturnValue}
+     *
+     * @example
+     * import { createWalletClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = createWalletClient({
+     *   account: privateKeyToAccount('0x…'),
+     *   chain: mainnet,
+     *   transport: http(),
+     * })
+     *
+     * const { receipt, value } = await client.token.transferSync({
+     *   amount: { decimals: 6, formatted: '10.5' },
+     *   to: '0x…',
+     *   token: 'usdc',
+     * })
+     */
+    transferSync: (
+      parameters: transferSync.Parameters<chain, account, tokens>,
+    ) => Promise<transferSync.ReturnValue>
+    /**
+     * Transfers `amount` tokens to a recipient, and returns the transaction hash.
+     * Pass `from` to transfer on behalf of another address using an allowance
+     * (calls `transferFrom`).
+     *
+     * - Docs: https://viem.sh/docs/token/transfer#asynchronous-usage
+     *
+     * @param parameters - {@link transfer.Parameters}
+     * @returns The transaction hash. {@link transfer.ReturnValue}
+     *
+     * @example
+     * import { createWalletClient, http } from 'viem'
+     * import { privateKeyToAccount } from 'viem/accounts'
+     * import { mainnet } from 'viem/chains'
+     *
+     * const client = createWalletClient({
+     *   account: privateKeyToAccount('0x…'),
+     *   chain: mainnet,
+     *   transport: http(),
+     * })
+     *
+     * const hash = await client.token.transfer({
+     *   amount: { decimals: 6, formatted: '10.5' },
+     *   to: '0x…',
+     *   token: 'usdc',
+     * })
+     */
+    transfer: ((
+      parameters: transfer.Parameters<chain, account, tokens>,
+    ) => Promise<transfer.ReturnValue>) & {
+      /**
+       * Defines a `transfer` (or `transferFrom`, when `from` is given) contract
+       * call, ready to pass to `sendCalls`, `sendTransaction` (`calls`), or
+       * `multicall`.
+       *
+       * - Docs: https://viem.sh/docs/token/transfer#composing-calls
+       *
+       * @param args - {@link transfer.Args}
+       * @returns The contract call.
+       */
+      call: (
+        args: transfer.Args<chain, tokens>,
+      ) => ReturnType<typeof transfer.call>
+      /**
+       * Estimates the gas required to transfer `amount` tokens to a recipient.
+       *
+       * - Docs: https://viem.sh/docs/token/transfer#estimate-gas--simulate
+       *
+       * @param parameters - {@link transfer.Parameters}
+       * @returns The gas estimate.
+       */
+      estimateGas: (
+        parameters: transfer.Parameters<chain, account, tokens>,
+      ) => Promise<bigint>
+      /**
+       * Extracts the `Transfer` event from transaction logs.
+       *
+       * - Docs: https://viem.sh/docs/token/transfer
+       *
+       * @param logs - The logs.
+       * @returns The decoded `Transfer` event.
+       */
+      extractEvent: typeof transfer.extractEvent
+      /**
+       * Simulates a transfer of `amount` tokens to a recipient, returning the
+       * result and write request.
+       *
+       * - Docs: https://viem.sh/docs/token/transfer#estimate-gas--simulate
+       *
+       * @param parameters - {@link transfer.Parameters}
+       * @returns The simulation result and write request.
+       */
+      simulate: (
+        parameters: transfer.Parameters<chain, account, tokens>,
+      ) => ReturnType<typeof transfer.simulate>
+    }
+  }
 }
-
 export function walletActions<
   transport extends Transport,
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
->(client: Client<transport, chain, account>): WalletActions<chain, account> {
+  tokens extends Tokens | undefined = Tokens | undefined,
+>(
+  client: Client<transport, chain, account, undefined, undefined, tokens>,
+): WalletActions<chain, account, tokens> {
   return {
     addChain: (args) => addChain(client, args),
     deployContract: (args) => deployContract(client, args),
@@ -1210,5 +1445,11 @@ export function walletActions<
     watchAsset: (args) => watchAsset(client, args),
     writeContract: (args) => writeContract(client, args as any),
     writeContractSync: (args) => writeContractSync(client, args as any),
+    token: {
+      approve: bindActionDecorators(client, approve),
+      approveSync: bindActionDecorators(client, approveSync),
+      transfer: bindActionDecorators(client, transfer),
+      transferSync: bindActionDecorators(client, transferSync),
+    } as never,
   }
 }

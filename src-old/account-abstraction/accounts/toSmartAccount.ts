@@ -16,8 +16,8 @@ export type ToSmartAccountParameters<
 > = SmartAccountImplementation<entryPointAbi, entryPointVersion, extend>
 
 export type ToSmartAccountReturnType<
-  implementation extends SmartAccountImplementation =
-    SmartAccountImplementation,
+  implementation extends
+    SmartAccountImplementation = SmartAccountImplementation,
 > = Prettify<SmartAccount<implementation>>
 
 /**

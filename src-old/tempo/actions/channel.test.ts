@@ -167,7 +167,9 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
       account: payee.address,
       token,
     })
-    expect(payeeBalanceAfter).toBe(payeeBalance + parseUnits('40', 6))
+    expect(payeeBalanceAfter.amount).toBe(
+      payeeBalance.amount + parseUnits('40', 6),
+    )
   })
 
   test('signVoucher', async (ctx) => {
@@ -280,13 +282,17 @@ describe.runIf(nodeEnv === 'localnet')('channel', () => {
       account: payer.address,
       token,
     })
-    expect(payerBalanceAfter).toBe(payerBalance + parseUnits('60', 6))
+    expect(payerBalanceAfter.amount).toBe(
+      payerBalance.amount + parseUnits('60', 6),
+    )
 
     const payeeBalanceAfter = await actions.token.getBalance(payerClient, {
       account: payee.address,
       token,
     })
-    expect(payeeBalanceAfter).toBe(payeeBalance + parseUnits('40', 6))
+    expect(payeeBalanceAfter.amount).toBe(
+      payeeBalance.amount + parseUnits('40', 6),
+    )
   })
 
   test('requestClose and withdraw', async (ctx) => {

@@ -57,31 +57,30 @@ export type DecodeEventLogReturnType<
   data extends Hex | undefined = undefined,
   strict extends boolean = true,
   ///
-  allEventNames extends ContractEventName<abi> =
-    eventName extends ContractEventName<abi>
-      ? eventName
-      : ContractEventName<abi>,
-> =
-  IsNarrowable<abi, Abi> extends true
-    ? {
-        [name in allEventNames]: Prettify<
-          {
-            eventName: name
-          } & UnionEvaluate<
-            ContractEventArgsFromTopics<abi, name, strict> extends infer allArgs
-              ? topics extends readonly []
-                ? data extends undefined
-                  ? { args?: undefined }
-                  : { args?: allArgs | undefined }
-                : { args: allArgs }
-              : never
-          >
+  allEventNames extends
+    ContractEventName<abi> = eventName extends ContractEventName<abi>
+    ? eventName
+    : ContractEventName<abi>,
+> = IsNarrowable<abi, Abi> extends true
+  ? {
+      [name in allEventNames]: Prettify<
+        {
+          eventName: name
+        } & UnionEvaluate<
+          ContractEventArgsFromTopics<abi, name, strict> extends infer allArgs
+            ? topics extends readonly []
+              ? data extends undefined
+                ? { args?: undefined }
+                : { args?: allArgs | undefined }
+              : { args: allArgs }
+            : never
         >
-      }[allEventNames]
-    : {
-        eventName: eventName
-        args: readonly unknown[] | undefined
-      }
+      >
+    }[allEventNames]
+  : {
+      eventName: eventName
+      args: readonly unknown[] | undefined
+    }
 
 export type DecodeEventLogErrorType =
   | AbiDecodingDataSizeTooSmallErrorType

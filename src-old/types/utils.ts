@@ -42,12 +42,11 @@ export type Filter<
  * type Result = IsNarrowable<'foo', string>
  * //   ^? true
  */
-export type IsNarrowable<T, U> =
-  IsNever<
-    (T extends U ? true : false) & (U extends T ? false : true)
-  > extends true
-    ? false
-    : true
+export type IsNarrowable<T, U> = IsNever<
+  (T extends U ? true : false) & (U extends T ? false : true)
+> extends true
+  ? false
+  : true
 
 /**
  * @description Checks if {@link T} is `never`
@@ -216,14 +215,15 @@ export type UnionToTuple<
   ///
   last = LastInUnion<union>,
 > = [union] extends [never] ? [] : [...UnionToTuple<Exclude<union, last>>, last]
-type LastInUnion<U> =
-  UnionToIntersection<U extends unknown ? (x: U) => 0 : never> extends (
-    x: infer l,
-  ) => 0
-    ? l
-    : never
+type LastInUnion<U> = UnionToIntersection<
+  U extends unknown ? (x: U) => 0 : never
+> extends (x: infer l) => 0
+  ? l
+  : never
 type UnionToIntersection<union> = (
-  union extends unknown ? (arg: union) => 0 : never
+  union extends unknown
+    ? (arg: union) => 0
+    : never
 ) extends (arg: infer i) => 0
   ? i
   : never

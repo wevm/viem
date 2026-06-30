@@ -17,8 +17,8 @@ import {
 import { type SignErrorType, sign } from './sign.js'
 
 export type SignTransactionParameters<
-  serializer extends SerializeTransactionFn<TransactionSerializable> =
-    SerializeTransactionFn<TransactionSerializable>,
+  serializer extends
+    SerializeTransactionFn<TransactionSerializable> = SerializeTransactionFn<TransactionSerializable>,
   transaction extends Parameters<serializer>[0] = Parameters<serializer>[0],
 > = {
   privateKey: Hex
@@ -27,8 +27,8 @@ export type SignTransactionParameters<
 }
 
 export type SignTransactionReturnType<
-  serializer extends SerializeTransactionFn<TransactionSerializable> =
-    SerializeTransactionFn<TransactionSerializable>,
+  serializer extends
+    SerializeTransactionFn<TransactionSerializable> = SerializeTransactionFn<TransactionSerializable>,
   transaction extends Parameters<serializer>[0] = Parameters<serializer>[0],
 > = TransactionSerialized<GetTransactionType<transaction>>
 
@@ -38,8 +38,8 @@ export type SignTransactionErrorType =
   | ErrorType
 
 export async function signTransaction<
-  serializer extends SerializeTransactionFn<TransactionSerializable> =
-    SerializeTransactionFn<TransactionSerializable>,
+  serializer extends
+    SerializeTransactionFn<TransactionSerializable> = SerializeTransactionFn<TransactionSerializable>,
   transaction extends Parameters<serializer>[0] = Parameters<serializer>[0],
 >(
   parameters: SignTransactionParameters<serializer, transaction>,

@@ -45,8 +45,8 @@ export type SendUserOperationParameters<
     account,
     accountOverride
   >,
-  _derivedVersion extends EntryPointVersion =
-    DeriveEntryPointVersion<_derivedAccount>,
+  _derivedVersion extends
+    EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
 > = GetSmartAccountParameter<account, accountOverride, false> &
   (
     | UserOperation // Accept a full-formed User Operation.

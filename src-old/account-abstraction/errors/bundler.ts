@@ -7,7 +7,11 @@ export type AccountNotDeployedErrorType = AccountNotDeployedError & {
 }
 export class AccountNotDeployedError extends BaseError {
   static message = /aa20/
-  constructor({ cause }: { cause?: BaseError | undefined }) {
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
     super('Smart Account is not deployed.', {
       cause,
       metaMessages: [
@@ -62,7 +66,11 @@ export type FailedToSendToBeneficiaryErrorType =
   }
 export class FailedToSendToBeneficiaryError extends BaseError {
   static message = /aa91/
-  constructor({ cause }: { cause?: BaseError | undefined }) {
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
     super('Failed to send funds to beneficiary.', {
       cause,
       name: 'FailedToSendToBeneficiaryError',
@@ -75,7 +83,11 @@ export type GasValuesOverflowErrorType = GasValuesOverflowError & {
 }
 export class GasValuesOverflowError extends BaseError {
   static message = /aa94/
-  constructor({ cause }: { cause?: BaseError | undefined }) {
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
     super('Gas value overflowed.', {
       cause,
       metaMessages: [
@@ -92,7 +104,11 @@ export type HandleOpsOutOfGasErrorType = HandleOpsOutOfGasError & {
 }
 export class HandleOpsOutOfGasError extends BaseError {
   static message = /aa95/
-  constructor({ cause }: { cause?: BaseError | undefined }) {
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
     super(
       'The `handleOps` function was called by the Bundler with a gas limit too low.',
       {
@@ -212,7 +228,11 @@ export type InsufficientPrefundErrorType = InsufficientPrefundError & {
 }
 export class InsufficientPrefundError extends BaseError {
   static message = /aa21/
-  constructor({ cause }: { cause?: BaseError | undefined }) {
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
     super(
       'Smart Account does not have sufficient funds to execute the User Operation.',
       {
@@ -233,7 +253,11 @@ export type InternalCallOnlyErrorType = InternalCallOnlyError & {
 }
 export class InternalCallOnlyError extends BaseError {
   static message = /aa92/
-  constructor({ cause }: { cause?: BaseError | undefined }) {
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
     super('Bundler attempted to call an invalid function on the EntryPoint.', {
       cause,
       name: 'InternalCallOnlyError',
@@ -246,7 +270,11 @@ export type InvalidAggregatorErrorType = InvalidAggregatorError & {
 }
 export class InvalidAggregatorError extends BaseError {
   static message = /aa96/
-  constructor({ cause }: { cause?: BaseError | undefined }) {
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
     super(
       'Bundler used an invalid aggregator for handling aggregated User Operations.',
       {
@@ -282,7 +310,11 @@ export type InvalidBeneficiaryErrorType = InvalidBeneficiaryError & {
 }
 export class InvalidBeneficiaryError extends BaseError {
   static message = /aa90/
-  constructor({ cause }: { cause?: BaseError | undefined }) {
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
     super('Bundler has not set a beneficiary address.', {
       cause,
       name: 'InvalidBeneficiaryError',
@@ -296,7 +328,11 @@ export type InvalidFieldsErrorType = InvalidFieldsError & {
 export class InvalidFieldsError extends BaseError {
   static code = -32602
 
-  constructor({ cause }: { cause?: BaseError | undefined }) {
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
     super('Invalid fields set on User Operation.', {
       cause,
       name: 'InvalidFieldsError',
@@ -336,7 +372,11 @@ export class PaymasterDepositTooLowError extends BaseError {
   static code = -32508
   static message = /aa31/
 
-  constructor({ cause }: { cause?: BaseError | undefined }) {
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
     super('Paymaster deposit for the User Operation is too low.', {
       cause,
       metaMessages: [
@@ -354,7 +394,11 @@ export type PaymasterFunctionRevertedErrorType =
   }
 export class PaymasterFunctionRevertedError extends BaseError {
   static message = /aa33/
-  constructor({ cause }: { cause?: BaseError | undefined }) {
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
     super('The `validatePaymasterUserOp` function on the Paymaster reverted.', {
       cause,
       name: 'PaymasterFunctionRevertedError',
@@ -367,7 +411,11 @@ export type PaymasterNotDeployedErrorType = PaymasterNotDeployedError & {
 }
 export class PaymasterNotDeployedError extends BaseError {
   static message = /aa30/
-  constructor({ cause }: { cause?: BaseError | undefined }) {
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
     super('The Paymaster contract has not been deployed.', {
       cause,
       name: 'PaymasterNotDeployedError',
@@ -417,7 +465,11 @@ export type PaymasterPostOpFunctionRevertedErrorType =
   }
 export class PaymasterPostOpFunctionRevertedError extends BaseError {
   static message = /aa50/
-  constructor({ cause }: { cause?: BaseError | undefined }) {
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
     super('Paymaster `postOp` function reverted.', {
       cause,
       name: 'PaymasterPostOpFunctionRevertedError',
@@ -479,7 +531,11 @@ export type SmartAccountFunctionRevertedErrorType =
   }
 export class SmartAccountFunctionRevertedError extends BaseError {
   static message = /aa23/
-  constructor({ cause }: { cause?: BaseError | undefined }) {
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
     super('The `validateUserOp` function on the Smart Account reverted.', {
       cause,
       name: 'SmartAccountFunctionRevertedError',
@@ -511,7 +567,11 @@ export type UserOperationExpiredErrorType = UserOperationExpiredError & {
 }
 export class UserOperationExpiredError extends BaseError {
   static message = /aa22/
-  constructor({ cause }: { cause?: BaseError | undefined }) {
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
     super('User Operation expired.', {
       cause,
       metaMessages: [
@@ -529,7 +589,11 @@ export type UserOperationPaymasterExpiredErrorType =
   }
 export class UserOperationPaymasterExpiredError extends BaseError {
   static message = /aa32/
-  constructor({ cause }: { cause?: BaseError | undefined }) {
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
     super('Paymaster for User Operation expired.', {
       cause,
       metaMessages: [
@@ -546,7 +610,11 @@ export type UserOperationSignatureErrorType = UserOperationSignatureError & {
 }
 export class UserOperationSignatureError extends BaseError {
   static message = /aa24/
-  constructor({ cause }: { cause?: BaseError | undefined }) {
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
     super('Signature provided for the User Operation is invalid.', {
       cause,
       metaMessages: [
@@ -564,7 +632,11 @@ export type UserOperationPaymasterSignatureErrorType =
   }
 export class UserOperationPaymasterSignatureError extends BaseError {
   static message = /aa34/
-  constructor({ cause }: { cause?: BaseError | undefined }) {
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
     super('Signature provided for the User Operation is invalid.', {
       cause,
       metaMessages: [
@@ -667,7 +739,11 @@ export type VerificationGasLimitExceededErrorType =
   }
 export class VerificationGasLimitExceededError extends BaseError {
   static message = /aa40/
-  constructor({ cause }: { cause?: BaseError | undefined }) {
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
     super('User Operation verification gas limit exceeded.', {
       cause,
       metaMessages: [
@@ -685,7 +761,11 @@ export type VerificationGasLimitTooLowErrorType =
   }
 export class VerificationGasLimitTooLowError extends BaseError {
   static message = /aa41/
-  constructor({ cause }: { cause?: BaseError | undefined }) {
+  constructor({
+    cause,
+  }: {
+    cause?: BaseError | undefined
+  }) {
     super('User Operation verification gas limit is too low.', {
       cause,
       metaMessages: [

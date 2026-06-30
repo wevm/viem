@@ -457,6 +457,35 @@ describe('request', () => {
     await server.close()
   })
 
+  test('behavior: maxResponseBodySize', async () => {
+    const body = JSON.stringify({ result: '0x1' })
+    const server = await createHttpServer((_, res) => {
+      res.writeHead(200, {
+        'Content-Length': body.length,
+        'Content-Type': 'application/json',
+      })
+      res.end(body)
+    })
+
+    const transport = http(server.url, {
+      key: 'mock',
+      maxResponseBodySize: body.length - 1,
+    })({ chain: localhost })
+
+    await expect(() =>
+      transport.request({ method: 'eth_blockNumber' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ResponseBodyTooLargeError: HTTP response body exceeded the size limit.
+
+      Max: 15 bytes
+      Received: 16 bytes
+
+      Version: viem@x.y.z]
+    `)
+
+    await server.close()
+  })
+
   test('behavior: methods.exclude', async () => {
     const server = await createHttpServer((_, res) => {
       res.end(JSON.stringify({ result: '0x1' }))
@@ -470,8 +499,9 @@ describe('request', () => {
 
     await transport.request({ method: 'eth_b' })
 
-    await expect(() => transport.request({ method: 'eth_a' })).rejects
-      .toThrowErrorMatchingInlineSnapshot(`
+    await expect(() =>
+      transport.request({ method: 'eth_a' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [MethodNotSupportedRpcError: Method "eth_a" is not supported.
 
       Details: method not supported
@@ -493,8 +523,9 @@ describe('request', () => {
     await transport.request({ method: 'eth_a' })
     await transport.request({ method: 'eth_b' })
 
-    await expect(() => transport.request({ method: 'eth_c' })).rejects
-      .toThrowErrorMatchingInlineSnapshot(`
+    await expect(() =>
+      transport.request({ method: 'eth_c' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [MethodNotSupportedRpcError: Method "eth_c" is not supported.
 
       Details: method not supported
@@ -518,8 +549,9 @@ describe('request', () => {
       retryCount: 1,
     })({ chain: localhost })
 
-    await expect(() => transport.request({ method: 'eth_blockNumber' })).rejects
-      .toThrowErrorMatchingInlineSnapshot(`
+    await expect(() =>
+      transport.request({ method: 'eth_blockNumber' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [HttpRequestError: HTTP request failed.
 
       Status: 500
@@ -550,8 +582,9 @@ describe('request', () => {
       retryDelay: 500,
     })({ chain: localhost })
 
-    await expect(() => transport.request({ method: 'eth_blockNumber' })).rejects
-      .toThrowErrorMatchingInlineSnapshot(`
+    await expect(() =>
+      transport.request({ method: 'eth_blockNumber' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [HttpRequestError: HTTP request failed.
 
       Status: 500
@@ -579,8 +612,9 @@ describe('request', () => {
       timeout: 100,
     })({ chain: localhost })
 
-    await expect(() => transport.request({ method: 'eth_blockNumber' })).rejects
-      .toThrowErrorMatchingInlineSnapshot(`
+    await expect(() =>
+      transport.request({ method: 'eth_blockNumber' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [TimeoutError: The request took too long to respond.
 
       URL: http://localhost
@@ -643,8 +677,9 @@ describe('request', () => {
       chain: localhost,
     })
 
-    await expect(() => transport.request({ method: 'eth_wagmi' })).rejects
-      .toThrowErrorMatchingInlineSnapshot(`
+    await expect(() =>
+      transport.request({ method: 'eth_wagmi' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [MethodNotFoundRpcError: The method "eth_wagmi" does not exist / is not available.
 
       URL: http://localhost

@@ -613,7 +613,10 @@ export {
   type PublicActions,
   publicActions,
 } from './clients/decorators/public.js'
-export { type TestActions, testActions } from './clients/decorators/test.js'
+export {
+  type TestActions,
+  testActions,
+} from './clients/decorators/test.js'
 export {
   type WalletActions,
   walletActions,
@@ -875,6 +878,8 @@ export {
   type InvalidHexBooleanErrorType,
   InvalidHexValueError,
   type InvalidHexValueErrorType,
+  RlpDepthLimitExceededError,
+  type RlpDepthLimitExceededErrorType,
   SizeOverflowError,
   type SizeOverflowErrorType,
 } from './errors/encoding.js'
@@ -935,6 +940,8 @@ export {
 export {
   HttpRequestError,
   type HttpRequestErrorType,
+  ResponseBodyTooLargeError,
+  type ResponseBodyTooLargeErrorType,
   RpcRequestError,
   type RpcRequestErrorType,
   SocketClosedError,
@@ -1022,6 +1029,8 @@ export {
   type InvalidSerializedTransactionTypeErrorType,
   InvalidStorageKeySizeError,
   type InvalidStorageKeySizeErrorType,
+  InvalidYParityError,
+  type InvalidYParityErrorType,
   TransactionExecutionError,
   type TransactionExecutionErrorType,
   TransactionNotFoundError,
@@ -1047,7 +1056,12 @@ export {
   InvalidDecimalNumberError,
   type InvalidDecimalNumberErrorType,
 } from './errors/unit.js'
-export type { DeriveAccount, HDKey, ParseAccount } from './types/account.js'
+export type { ResolvedToken, Tokens } from './tokens/defineToken.js'
+export type {
+  DeriveAccount,
+  HDKey,
+  ParseAccount,
+} from './types/account.js'
 export type {
   Authorization,
   AuthorizationList,
@@ -1207,7 +1221,10 @@ export type {
   RpcUncle,
   Status,
 } from './types/rpc.js'
-export type { StateMapping, StateOverride } from './types/stateOverride.js'
+export type {
+  StateMapping,
+  StateOverride,
+} from './types/stateOverride.js'
 export type {
   AccessList,
   Transaction,
@@ -1596,7 +1613,10 @@ export {
 } from './utils/encoding/toRlp.js'
 export { type LabelhashErrorType, labelhash } from './utils/ens/labelhash.js'
 export { type NamehashErrorType, namehash } from './utils/ens/namehash.js'
-export { type ToCoinTypeError, toCoinType } from './utils/ens/toCoinType.js'
+export {
+  type ToCoinTypeError,
+  toCoinType,
+} from './utils/ens/toCoinType.js'
 export {
   type GetContractErrorReturnType,
   getContractError,

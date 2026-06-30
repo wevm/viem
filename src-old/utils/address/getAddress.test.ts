@@ -34,8 +34,9 @@ test('checksums address', () => {
 
 describe('errors', () => {
   test('invalid address', () => {
-    expect(() => getAddress('0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678az'))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      getAddress('0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678az'),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidAddressError: Address "0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678az" is invalid.
 
       - Address must be a hex value of 20 bytes (40 hex characters).
@@ -43,8 +44,9 @@ describe('errors', () => {
 
       Version: viem@x.y.z]
     `)
-    expect(() => getAddress('0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678aff'))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      getAddress('0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678aff'),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidAddressError: Address "0xa5cc3c03994db5b0d9a5eEdD10Cabab0813678aff" is invalid.
 
       - Address must be a hex value of 20 bytes (40 hex characters).
@@ -52,8 +54,9 @@ describe('errors', () => {
 
       Version: viem@x.y.z]
     `)
-    expect(() => getAddress('a5cc3c03994db5b0d9a5eEdD10Cabab0813678ac'))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      getAddress('a5cc3c03994db5b0d9a5eEdD10Cabab0813678ac'),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidAddressError: Address "a5cc3c03994db5b0d9a5eEdD10Cabab0813678ac" is invalid.
 
       - Address must be a hex value of 20 bytes (40 hex characters).

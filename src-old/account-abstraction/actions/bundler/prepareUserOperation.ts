@@ -201,8 +201,8 @@ export type PrepareUserOperationRequest<
     account,
     accountOverride
   >,
-  _derivedVersion extends EntryPointVersion =
-    DeriveEntryPointVersion<_derivedAccount>,
+  _derivedVersion extends
+    EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
 > = Assign<
   UserOperationRequest<_derivedVersion>,
   OneOf<{ calls: Calls<Narrow<calls>> } | { callData: Hex }> & {
@@ -232,27 +232,33 @@ export type PrepareUserOperationParameters<
   account extends SmartAccount | undefined = SmartAccount | undefined,
   accountOverride extends SmartAccount | undefined = SmartAccount | undefined,
   calls extends readonly unknown[] = readonly unknown[],
-  request extends PrepareUserOperationRequest<account, accountOverride, calls> =
-    PrepareUserOperationRequest<account, accountOverride, calls>,
+  request extends PrepareUserOperationRequest<
+    account,
+    accountOverride,
+    calls
+  > = PrepareUserOperationRequest<account, accountOverride, calls>,
 > = request & GetSmartAccountParameter<account, accountOverride>
 
 export type PrepareUserOperationReturnType<
   account extends SmartAccount | undefined = SmartAccount | undefined,
   accountOverride extends SmartAccount | undefined = SmartAccount | undefined,
   calls extends readonly unknown[] = readonly unknown[],
-  request extends PrepareUserOperationRequest<account, accountOverride, calls> =
-    PrepareUserOperationRequest<account, accountOverride, calls>,
+  request extends PrepareUserOperationRequest<
+    account,
+    accountOverride,
+    calls
+  > = PrepareUserOperationRequest<account, accountOverride, calls>,
   //
-  _parameters extends PrepareUserOperationParameterType =
-    request['parameters'] extends readonly PrepareUserOperationParameterType[]
-      ? request['parameters'][number]
-      : (typeof defaultParameters)[number],
+  _parameters extends
+    PrepareUserOperationParameterType = request['parameters'] extends readonly PrepareUserOperationParameterType[]
+    ? request['parameters'][number]
+    : (typeof defaultParameters)[number],
   _derivedAccount extends SmartAccount | undefined = DeriveSmartAccount<
     account,
     accountOverride
   >,
-  _derivedVersion extends EntryPointVersion =
-    DeriveEntryPointVersion<_derivedAccount>,
+  _derivedVersion extends
+    EntryPointVersion = DeriveEntryPointVersion<_derivedAccount>,
 > = Prettify<
   UnionOmit<request, 'calls' | 'parameters'> & {
     callData: Hex

@@ -4,8 +4,9 @@ import { parseGwei } from '../unit/parseGwei.js'
 import { assertRequest } from './assertRequest.js'
 
 test('invalid address', () => {
-  expect(() => assertRequest({ account: { address: '0x1', type: 'json-rpc' } }))
-    .toThrowErrorMatchingInlineSnapshot(`
+  expect(() =>
+    assertRequest({ account: { address: '0x1', type: 'json-rpc' } }),
+  ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidAddressError: Address "0x1" is invalid.
 
     - Address must be a hex value of 20 bytes (40 hex characters).
@@ -16,8 +17,9 @@ test('invalid address', () => {
 })
 
 test('fee cap too high', () => {
-  expect(() => assertRequest({ maxFeePerGas: maxUint256 + 1n }))
-    .toThrowErrorMatchingInlineSnapshot(`
+  expect(() =>
+    assertRequest({ maxFeePerGas: maxUint256 + 1n }),
+  ).toThrowErrorMatchingInlineSnapshot(`
     [FeeCapTooHighError: The fee cap (\`maxFeePerGas\` = 115792089237316195423570985008687907853269984665640564039457584007913.129639936 gwei) cannot be higher than the maximum allowed value (2^256-1).
 
     Version: viem@x.y.z]
@@ -25,8 +27,9 @@ test('fee cap too high', () => {
 })
 
 test('invalid from address', () => {
-  expect(() => assertRequest({ account: '0x123' }))
-    .toThrowErrorMatchingInlineSnapshot(`
+  expect(() =>
+    assertRequest({ account: '0x123' }),
+  ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidAddressError: Address "0x123" is invalid.
 
     - Address must be a hex value of 20 bytes (40 hex characters).
@@ -37,8 +40,9 @@ test('invalid from address', () => {
 })
 
 test('invalid to address', () => {
-  expect(() => assertRequest({ to: '0x123' }))
-    .toThrowErrorMatchingInlineSnapshot(`
+  expect(() =>
+    assertRequest({ to: '0x123' }),
+  ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidAddressError: Address "0x123" is invalid.
 
     - Address must be a hex value of 20 bytes (40 hex characters).

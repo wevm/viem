@@ -42,8 +42,9 @@ test('WithdrawalLogNotFoundError', () => {
 test('CannotClaimSuccessfulDepositError', () => {
   const hash =
     '0x9afe47f3d95eccfc9210851ba5f877f76d372514a26b48bad848a07f77c33b87'
-  expect(new CannotClaimSuccessfulDepositError({ hash }))
-    .toMatchInlineSnapshot(`
+  expect(
+    new CannotClaimSuccessfulDepositError({ hash }),
+  ).toMatchInlineSnapshot(`
     [CannotClaimSuccessfulDepositError: Cannot claim successful deposit: ${hash}.
     
     Version: viem@x.y.z]

@@ -76,11 +76,7 @@ export class AbiDecodingDataSizeTooSmallError extends BaseError {
     data,
     params,
     size,
-  }: {
-    data: Hex
-    params: readonly AbiParameter[]
-    size: number
-  }) {
+  }: { data: Hex; params: readonly AbiParameter[]; size: number }) {
     super(
       [`Data size of ${size} bytes is too small for given parameters.`].join(
         '\n',
@@ -121,11 +117,7 @@ export class AbiEncodingArrayLengthMismatchError extends BaseError {
     expectedLength,
     givenLength,
     type,
-  }: {
-    expectedLength: number
-    givenLength: number
-    type: string
-  }) {
+  }: { expectedLength: number; givenLength: number; type: string }) {
     super(
       [
         `ABI encoding array length mismatch for type ${type}.`,
@@ -160,10 +152,7 @@ export class AbiEncodingLengthMismatchError extends BaseError {
   constructor({
     expectedLength,
     givenLength,
-  }: {
-    expectedLength: number
-    givenLength: number
-  }) {
+  }: { expectedLength: number; givenLength: number }) {
     super(
       [
         'ABI encoding params/values length mismatch.',
@@ -388,10 +377,7 @@ export class BytesSizeMismatchError extends BaseError {
   constructor({
     expectedSize,
     givenSize,
-  }: {
-    expectedSize: number
-    givenSize: number
-  }) {
+  }: { expectedSize: number; givenSize: number }) {
     super(`Expected bytes${expectedSize}, got bytes${givenSize}.`, {
       name: 'BytesSizeMismatchError',
     })

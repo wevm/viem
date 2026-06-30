@@ -33,7 +33,7 @@ async function estimateFeesPerGas({
   try {
     const response = await estimateGas(client, {
       ...request,
-      account: request!.account!,
+      account: request?.account!,
     })
     const { priorityFeePerGas: maxPriorityFeePerGas } = response
 

@@ -33,8 +33,10 @@ import {
 
 export type EstimateContractL1GasParameters<
   abi extends Abi | readonly unknown[] = Abi,
-  functionName extends ContractFunctionName<abi, 'nonpayable' | 'payable'> =
-    ContractFunctionName<abi, 'nonpayable' | 'payable'>,
+  functionName extends ContractFunctionName<
+    abi,
+    'nonpayable' | 'payable'
+  > = ContractFunctionName<abi, 'nonpayable' | 'payable'>,
   args extends ContractFunctionArgs<
     abi,
     'nonpayable' | 'payable',

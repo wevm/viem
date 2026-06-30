@@ -20,8 +20,10 @@ import { prepareEncodeFunctionData } from './prepareEncodeFunctionData.js'
 
 export type EncodeFunctionDataParameters<
   abi extends Abi | readonly unknown[] = Abi,
-  functionName extends ContractFunctionName<abi> | Hex | undefined =
-    ContractFunctionName<abi>,
+  functionName extends
+    | ContractFunctionName<abi>
+    | Hex
+    | undefined = ContractFunctionName<abi>,
   ///
   hasFunctions = abi extends Abi
     ? Abi extends abi

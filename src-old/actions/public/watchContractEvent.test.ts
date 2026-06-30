@@ -1553,9 +1553,7 @@ describe('subscribe', () => {
 
   test(
     'https://github.com/wevm/viem/issues/2563',
-    {
-      timeout: 10_000,
-    },
+    { timeout: 10_000 },
     async () => {
       let error: Error | undefined
       const unwatch = watchContractEvent(webSocketClient, {

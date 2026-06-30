@@ -143,8 +143,9 @@ describe('should parse a CIP42 transaction', () => {
 
 describe('should throw an error for invalid cip42 transactions', () => {
   test('when all fields are missing', () => {
-    expect(() => parseTransaction(`0x7c${toRlp([]).slice(2)}`))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      parseTransaction(`0x7c${toRlp([]).slice(2)}`),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidSerializedTransactionError: Invalid serialized transaction of type "cip42" was provided.
 
       Serialized Transaction: "0x7cc0"
@@ -155,8 +156,9 @@ describe('should throw an error for invalid cip42 transactions', () => {
   })
 
   test('when some fields are missing', () => {
-    expect(() => parseTransaction(`0x7c${toRlp(['0x0', '0x1']).slice(2)}`))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      parseTransaction(`0x7c${toRlp(['0x0', '0x1']).slice(2)}`),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidSerializedTransactionError: Invalid serialized transaction of type "cip42" was provided.
 
       Serialized Transaction: "0x7cc20001"
@@ -317,8 +319,9 @@ describe('should parse a CIP64 transaction', () => {
 
 describe('should throw an error for invalid cip64 transactions', () => {
   test('when all fields are missing', () => {
-    expect(() => parseTransaction(`0x7b${toRlp([]).slice(2)}`))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      parseTransaction(`0x7b${toRlp([]).slice(2)}`),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidSerializedTransactionError: Invalid serialized transaction of type "cip64" was provided.
 
       Serialized Transaction: "0x7bc0"
@@ -329,8 +332,9 @@ describe('should throw an error for invalid cip64 transactions', () => {
   })
 
   test('when some fields are missing', () => {
-    expect(() => parseTransaction(`0x7b${toRlp(['0x0', '0x1']).slice(2)}`))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      parseTransaction(`0x7b${toRlp(['0x0', '0x1']).slice(2)}`),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidSerializedTransactionError: Invalid serialized transaction of type "cip64" was provided.
 
       Serialized Transaction: "0x7bc20001"

@@ -8,11 +8,7 @@ export class SliceOffsetOutOfBoundsError extends BaseError {
     offset,
     position,
     size,
-  }: {
-    offset: number
-    position: 'start' | 'end'
-    size: number
-  }) {
+  }: { offset: number; position: 'start' | 'end'; size: number }) {
     super(
       `Slice ${
         position === 'start' ? 'starting' : 'ending'

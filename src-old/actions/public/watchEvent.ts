@@ -39,15 +39,19 @@ import { uninstallFilter } from './uninstallFilter.js'
 
 export type WatchEventOnLogsParameter<
   abiEvent extends AbiEvent | undefined = undefined,
-  abiEvents extends readonly AbiEvent[] | readonly unknown[] | undefined =
-    abiEvent extends AbiEvent ? [abiEvent] : undefined,
+  abiEvents extends
+    | readonly AbiEvent[]
+    | readonly unknown[]
+    | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
   strict extends boolean | undefined = undefined,
   eventName extends string | undefined = MaybeAbiEventName<abiEvent>,
 > = Log<bigint, number, false, abiEvent, strict, abiEvents, eventName>[]
 export type WatchEventOnLogsFn<
   abiEvent extends AbiEvent | undefined = undefined,
-  abiEvents extends readonly AbiEvent[] | readonly unknown[] | undefined =
-    abiEvent extends AbiEvent ? [abiEvent] : undefined,
+  abiEvents extends
+    | readonly AbiEvent[]
+    | readonly unknown[]
+    | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
   strict extends boolean | undefined = undefined,
   //
   _eventName extends string | undefined = MaybeAbiEventName<abiEvent>,
@@ -57,8 +61,10 @@ export type WatchEventOnLogsFn<
 
 export type WatchEventParameters<
   abiEvent extends AbiEvent | undefined = undefined,
-  abiEvents extends readonly AbiEvent[] | readonly unknown[] | undefined =
-    abiEvent extends AbiEvent ? [abiEvent] : undefined,
+  abiEvents extends
+    | readonly AbiEvent[]
+    | readonly unknown[]
+    | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
   strict extends boolean | undefined = undefined,
   transport extends Transport = Transport,
   //
@@ -144,8 +150,10 @@ export type WatchEventErrorType =
 export function watchEvent<
   chain extends Chain | undefined,
   const abiEvent extends AbiEvent | undefined = undefined,
-  const abiEvents extends readonly AbiEvent[] | readonly unknown[] | undefined =
-    abiEvent extends AbiEvent ? [abiEvent] : undefined,
+  const abiEvents extends
+    | readonly AbiEvent[]
+    | readonly unknown[]
+    | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
   strict extends boolean | undefined = undefined,
   transport extends Transport = Transport,
   _eventName extends string | undefined = undefined,

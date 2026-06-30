@@ -236,13 +236,13 @@ export type ChainFormatter<type extends string = string> = {
 export type ChainSerializers<
   formatters extends ChainFormatters | undefined = undefined,
   ///
-  transaction extends TransactionSerializableGeneric =
-    formatters extends ChainFormatters
-      ? formatters['transactionRequest'] extends ChainFormatter
-        ? TransactionSerializableGeneric &
-            Parameters<formatters['transactionRequest']['format']>[0]
-        : TransactionSerializable
-      : TransactionSerializable,
+  transaction extends
+    TransactionSerializableGeneric = formatters extends ChainFormatters
+    ? formatters['transactionRequest'] extends ChainFormatter
+      ? TransactionSerializableGeneric &
+          Parameters<formatters['transactionRequest']['format']>[0]
+      : TransactionSerializable
+    : TransactionSerializable,
 > = {
   /** Modifies how Transactions are serialized. */
   transaction?:
@@ -277,20 +277,19 @@ export type ExtractChainFormatterReturnType<
   chain extends Chain | undefined,
   type extends keyof ChainFormatters,
   fallback,
-> =
-  IsNarrowable<chain, Chain> extends true
-    ? chain extends {
-        formatters?:
-          | { [_ in type]?: infer formatter extends ChainFormatter }
-          | undefined
-      }
-      ? chain['formatters'] extends undefined
-        ? fallback
-        : IsNarrowable<formatter, ChainFormatter<type>> extends true
-          ? ReturnType<formatter['format']>
-          : fallback
-      : fallback
+> = IsNarrowable<chain, Chain> extends true
+  ? chain extends {
+      formatters?:
+        | { [_ in type]?: infer formatter extends ChainFormatter }
+        | undefined
+    }
+    ? chain['formatters'] extends undefined
+      ? fallback
+      : IsNarrowable<formatter, ChainFormatter<type>> extends true
+        ? ReturnType<formatter['format']>
+        : fallback
     : fallback
+  : fallback
 
 export type DeriveChain<
   chain extends Chain | undefined,
@@ -300,10 +299,9 @@ export type DeriveChain<
 export type GetChainParameter<
   chain extends Chain | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
-> =
-  IsUndefined<chain> extends true
-    ? { chain: chainOverride | null }
-    : { chain?: chainOverride | null | undefined }
+> = IsUndefined<chain> extends true
+  ? { chain: chainOverride | null }
+  : { chain?: chainOverride | null | undefined }
 
 /////////////////////////////////////////////////////////////////////
 // Constants

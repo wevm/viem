@@ -15,9 +15,10 @@ import {
   verifyMessage,
   verifyTypedData,
 } from '../actions/index.js'
-import { parseGwei, parseUnits } from '../utils/index.js'
+import { parseGwei } from '../utils/index.js'
 import * as Account from './Account.js'
 import * as Actions from './actions/index.js'
+import * as Scopes from './Scopes.js'
 
 const client = tempo.getClient()
 
@@ -943,18 +944,11 @@ describe('signKeyAuthorization', () => {
       chainId: BigInt(client.chain!.id),
       expiry: 1234567890,
       scopes: [
-        {
-          address: '0x20c0000000000000000000000000000000000001',
-        },
-        {
-          address: '0x20c0000000000000000000000000000000000002',
-          selector: '0xa9059cbb',
-        },
-        {
-          address: '0x20c0000000000000000000000000000000000003',
-          selector: '0xa9059cbb',
+        Scopes.target('0x20c0000000000000000000000000000000000001').any(),
+        Scopes.tip20('0x20c0000000000000000000000000000000000002').transfer(),
+        Scopes.tip20('0x20c0000000000000000000000000000000000003').transfer({
           recipients: ['0x0000000000000000000000000000000000000001'],
-        },
+        }),
       ],
     })
     const { chainId: _, ...rest } = authorization
@@ -1000,6 +994,7 @@ describe('signKeyAuthorization', () => {
           address: '0x20c0000000000000000000000000000000000001',
           selector: '0xa9059cbb',
         },
+        Scopes.tip20('0x20c0000000000000000000000000000000000001').transfer(),
       ],
     })
     const { chainId: _, ...rest } = authorization
@@ -1014,6 +1009,10 @@ describe('signKeyAuthorization', () => {
     `)
     expect(rest.scopes).toMatchInlineSnapshot(`
       [
+        {
+          "address": "0x20c0000000000000000000000000000000000001",
+          "selector": "0xa9059cbb",
+        },
         {
           "address": "0x20c0000000000000000000000000000000000001",
           "selector": "0xa9059cbb",
@@ -1234,11 +1233,9 @@ describe('signKeyAuthorization (standalone)', () => {
       chainId: BigInt(client.chain!.id),
       key,
       scopes: [
-        {
-          address: '0x20c0000000000000000000000000000000000001',
-          selector: '0xa9059cbb',
+        Scopes.tip20('0x20c0000000000000000000000000000000000001').transfer({
           recipients: ['0x0000000000000000000000000000000000000001'],
-        },
+        }),
       ],
     })
     const { chainId: _, ...rest } = authorization
@@ -1280,7 +1277,7 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
     // account (no faucet RPC, so it works on localnet).
     await Actions.token.transferSync(client, {
       account: accounts[0],
-      amount: parseUnits('10000', 6),
+      amount: { formatted: '10000' },
       to: account.address,
       token: feeToken,
     })
@@ -1290,7 +1287,11 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
     {
       const request = await prepareTransactionRequest(client, {
         calls: [
-          Actions.token.transfer.call({ amount: 1n, to, token: feeToken }),
+          Actions.token.transfer.call(client, {
+            amount: 1n,
+            to,
+            token: feeToken,
+          }),
         ],
         feeToken,
         multisig: config,
@@ -1318,7 +1319,11 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
     {
       const request = await prepareTransactionRequest(client, {
         calls: [
-          Actions.token.transfer.call({ amount: 1n, to, token: feeToken }),
+          Actions.token.transfer.call(client, {
+            amount: 1n,
+            to,
+            token: feeToken,
+          }),
         ],
         feeToken,
         multisig: config,
@@ -1357,13 +1362,19 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
-      amount: parseUnits('10000', 6),
+      amount: { formatted: '10000' },
       to: account.address,
       token: feeToken,
     })
 
     const request = await prepareTransactionRequest(client, {
-      calls: [Actions.token.transfer.call({ amount: 1n, to, token: feeToken })],
+      calls: [
+        Actions.token.transfer.call(client, {
+          amount: 1n,
+          to,
+          token: feeToken,
+        }),
+      ],
       feeToken,
       multisig: config,
     })
@@ -1397,13 +1408,19 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
-      amount: parseUnits('10000', 6),
+      amount: { formatted: '10000' },
       to: account.address,
       token: feeToken,
     })
 
     const request = await prepareTransactionRequest(client, {
-      calls: [Actions.token.transfer.call({ amount: 1n, to, token: feeToken })],
+      calls: [
+        Actions.token.transfer.call(client, {
+          amount: 1n,
+          to,
+          token: feeToken,
+        }),
+      ],
       feeToken,
       multisig: config,
     })
@@ -1439,13 +1456,19 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
-      amount: parseUnits('10000', 6),
+      amount: { formatted: '10000' },
       to: account.address,
       token: feeToken,
     })
 
     const request = await prepareTransactionRequest(client, {
-      calls: [Actions.token.transfer.call({ amount: 1n, to, token: feeToken })],
+      calls: [
+        Actions.token.transfer.call(client, {
+          amount: 1n,
+          to,
+          token: feeToken,
+        }),
+      ],
       feeToken,
       multisig: config,
     })
@@ -1478,7 +1501,7 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
 
     await Actions.token.transferSync(client, {
       account: accounts[0],
-      amount: parseUnits('10000', 6),
+      amount: { formatted: '10000' },
       to: account.address,
       token: feeToken,
     })
@@ -1487,7 +1510,13 @@ describe.runIf(import.meta.env.VITE_TEMPO_MULTISIG)('multisig', () => {
     // config is inferred from it, so no `multisig` field is needed.
     const request = await prepareTransactionRequest(client, {
       account,
-      calls: [Actions.token.transfer.call({ amount: 1n, to, token: feeToken })],
+      calls: [
+        Actions.token.transfer.call(client, {
+          amount: 1n,
+          to,
+          token: feeToken,
+        }),
+      ],
       feeToken,
     })
     // The prepared request carries the multisig account as sender, so `...request`

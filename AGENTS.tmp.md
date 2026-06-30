@@ -5,10 +5,16 @@ when porting or reshaping v2 surface area.
 
 ## Source Boundaries
 
-- **Clean slate**; the old sources are frozen under `src-old/` and `test-old/`.
+- **Clean slate**; the old sources live under `src-old/` and `test-old/`.
+  - `src-old/` is a snapshot of upstream `wevm/viem` **main @ v2.54.1** (refreshed 2026-06-30
+    from `origin/main`), not the original v2 freeze. It is the parity baseline and now includes
+    later-landed features (e.g. `viem/tokens`, the `token` action namespace, the `tokens` Client
+    option, new chains, tempo `Client`/`Scopes`/`Selectors`).
   - Use them only for reference and test-porting source.
   - Never edit them.
   - Never import from them in committed code.
+  - `src-old/` is excluded from the v3 typecheck/test/lint configs; it never affects the build.
+  - To refresh again: `rm -rf src-old && mkdir src-old && git archive origin/main:src | tar -x -C src-old`.
   - The v3 tree grows fresh in `src/` and `test/`.
 - **Parity tests are one-shot scaffolding**; delete `src-old/` comparison tests before commit.
   - Permanent tests are ports of old suites, adapted to the new API.

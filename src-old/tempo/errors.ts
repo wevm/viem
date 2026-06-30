@@ -45,7 +45,13 @@ export type FeeTokenNotUsdErrorType = FeeTokenNotUsdError & {
   name: 'FeeTokenNotUsdError'
 }
 export class FeeTokenNotUsdError extends BaseError {
-  constructor({ currency, token }: { currency: string; token: string }) {
+  constructor({
+    currency,
+    token,
+  }: {
+    currency: string
+    token: string
+  }) {
     super(`Fee token "${token}" is denominated in "${currency}", not "USD".`, {
       docsPath: '/tempo/transactions',
       docsSlug: 'pay-fees-with-stablecoins',

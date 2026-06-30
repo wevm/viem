@@ -26,8 +26,9 @@ import { createFilterRequestScope } from '../../utils/filters/createFilterReques
 export type CreateContractEventFilterParameters<
   abi extends Abi | readonly unknown[] = Abi,
   eventName extends ContractEventName<abi> | undefined = undefined,
-  args extends MaybeExtractEventArgsFromAbi<abi, eventName> | undefined =
-    undefined,
+  args extends
+    | MaybeExtractEventArgsFromAbi<abi, eventName>
+    | undefined = undefined,
   strict extends boolean | undefined = undefined,
   fromBlock extends BlockNumber | BlockTag | undefined = undefined,
   toBlock extends BlockNumber | BlockTag | undefined = undefined,
@@ -60,8 +61,9 @@ export type CreateContractEventFilterParameters<
 export type CreateContractEventFilterReturnType<
   abi extends Abi | readonly unknown[] = Abi,
   eventName extends ContractEventName<abi> | undefined = undefined,
-  args extends MaybeExtractEventArgsFromAbi<abi, eventName> | undefined =
-    undefined,
+  args extends
+    | MaybeExtractEventArgsFromAbi<abi, eventName>
+    | undefined = undefined,
   strict extends boolean | undefined = undefined,
   fromBlock extends BlockNumber | BlockTag | undefined = undefined,
   toBlock extends BlockNumber | BlockTag | undefined = undefined,

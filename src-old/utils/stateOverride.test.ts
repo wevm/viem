@@ -37,8 +37,9 @@ describe('serializeStateMapping', () => {
       },
     ]
 
-    expect(() => serializeStateMapping(stateMapping))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      serializeStateMapping(stateMapping),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidBytesLengthError: Hex is expected to be 66 hex long, but is 65 hex long.
 
       Version: viem@x.y.z]
@@ -53,8 +54,9 @@ describe('serializeStateMapping', () => {
       },
     ]
 
-    expect(() => serializeStateMapping(stateMapping))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      serializeStateMapping(stateMapping),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidBytesLengthError: Hex is expected to be 66 hex long, but is 65 hex long.
 
       Version: viem@x.y.z]
@@ -78,8 +80,9 @@ describe('serializeAccountStateOverride', () => {
       code: undefined,
     }
 
-    expect(serializeAccountStateOverride(emptyStateOverride))
-      .toMatchInlineSnapshot(`
+    expect(
+      serializeAccountStateOverride(emptyStateOverride),
+    ).toMatchInlineSnapshot(`
         {}
       `)
   })
@@ -99,8 +102,9 @@ describe('serializeAccountStateOverride', () => {
       balance: undefined,
     }
 
-    expect(serializeAccountStateOverride(emptyStateOverride))
-      .toMatchInlineSnapshot(`
+    expect(
+      serializeAccountStateOverride(emptyStateOverride),
+    ).toMatchInlineSnapshot(`
         {}
       `)
   })
@@ -120,8 +124,9 @@ describe('serializeAccountStateOverride', () => {
       nonce: undefined,
     }
 
-    expect(serializeAccountStateOverride(emptyStateOverride))
-      .toMatchInlineSnapshot(`
+    expect(
+      serializeAccountStateOverride(emptyStateOverride),
+    ).toMatchInlineSnapshot(`
         {}
       `)
   })

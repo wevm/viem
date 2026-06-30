@@ -217,8 +217,9 @@ test.each([
 )
 
 test('error: invalid address', () => {
-  expect(() => encodePacked(['address'], ['0xdeadbeef']))
-    .toThrowErrorMatchingInlineSnapshot(`
+  expect(() =>
+    encodePacked(['address'], ['0xdeadbeef']),
+  ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidAddressError: Address "0xdeadbeef" is invalid.
 
     - Address must be a hex value of 20 bytes (40 hex characters).
@@ -242,8 +243,9 @@ test('error: length mismatch', () => {
 })
 
 test('error: bytes size mismatch', () => {
-  expect(() => encodePacked(['bytes8'], ['0xdeadbeef']))
-    .toThrowErrorMatchingInlineSnapshot(`
+  expect(() =>
+    encodePacked(['bytes8'], ['0xdeadbeef']),
+  ).toThrowErrorMatchingInlineSnapshot(`
     [BytesSizeMismatchError: Expected bytes8, got bytes4.
 
     Version: viem@x.y.z]

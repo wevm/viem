@@ -58,8 +58,11 @@ export type ParseEventLogsReturnType<
     | undefined = ContractEventName<abi>,
   strict extends boolean | undefined = boolean | undefined,
   ///
-  derivedEventName extends ContractEventName<abi> | undefined =
-    eventName extends ContractEventName<abi>[] ? eventName[number] : eventName,
+  derivedEventName extends
+    | ContractEventName<abi>
+    | undefined = eventName extends ContractEventName<abi>[]
+    ? eventName[number]
+    : eventName,
 > = Log<bigint, number, false, undefined, strict, abi, derivedEventName>[]
 
 export type ParseEventLogsErrorType = DecodeEventLogErrorType | ErrorType

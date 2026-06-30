@@ -153,8 +153,9 @@ describe('return value: decodeCalls', () => {
       abi: account.abi,
       functionName: 'entryPoint',
     })
-    await expect(() => account.decodeCalls?.(data)).rejects
-      .toThrowErrorMatchingInlineSnapshot(`
+    await expect(() =>
+      account.decodeCalls?.(data),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [BaseError: unable to decode calls for "entryPoint"
 
       Version: viem@x.y.z]

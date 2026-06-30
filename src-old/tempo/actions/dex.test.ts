@@ -41,7 +41,7 @@ describe('buy', () => {
     })
 
     // Should have received base tokens
-    expect(baseBalanceAfter).toBeGreaterThan(baseBalanceBefore)
+    expect(baseBalanceAfter.amount).toBeGreaterThan(baseBalanceBefore.amount)
   })
 
   test('behavior: respects maxAmountIn', async () => {
@@ -139,7 +139,7 @@ describe('cancel', () => {
     // Transfer gas to account2
     await Actions.token.transferSync(client, {
       to: account2.address,
-      amount: parseUnits('1', 6),
+      amount: { formatted: '1' },
       token: 1n,
     })
 
@@ -1071,15 +1071,15 @@ describe('place', () => {
     })
 
     // Base token balance should be unchanged (we're buying base, not selling)
-    expect(baseBalanceAfter).toBe(baseBalanceBefore)
+    expect(baseBalanceAfter.amount).toBe(baseBalanceBefore.amount)
 
     // Quote token balance should decrease (escrowed for the bid)
     // Amount = orderAmount * (1 + tick/1000) for bids
     const expectedQuoteEscrowed =
       (orderAmount * BigInt(100000 + tick)) / BigInt(100000)
-    expect(quoteBalanceBefore - quoteBalanceAfter).toBeGreaterThanOrEqual(
-      expectedQuoteEscrowed,
-    )
+    expect(
+      quoteBalanceBefore.amount - quoteBalanceAfter.amount,
+    ).toBeGreaterThanOrEqual(expectedQuoteEscrowed)
   })
 
   test('behavior: multiple orders at same tick', async () => {
@@ -1554,6 +1554,8 @@ describe('withdraw', () => {
     const walletBalanceAfter = await Actions.token.getBalance(client, {
       token: quote,
     })
-    expect(walletBalanceAfter).toBeGreaterThan(walletBalanceBefore)
+    expect(walletBalanceAfter.amount).toBeGreaterThan(
+      walletBalanceBefore.amount,
+    )
   })
 })

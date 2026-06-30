@@ -438,8 +438,9 @@ test('w/ simulateContract (args chain mismatch)', async () => {
     args: [],
     chain: optimism,
   })
-  await expect(() => writeContractSync(client, request)).rejects
-    .toThrowErrorMatchingInlineSnapshot(`
+  await expect(() =>
+    writeContractSync(client, request),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [ContractFunctionExecutionError: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
 
     Current Chain ID:  1
@@ -472,8 +473,9 @@ test('w/ simulateContract (client chain mismatch)', async () => {
     functionName: 'mint',
     args: [],
   })
-  await expect(() => writeContractSync(client, request)).rejects
-    .toThrowErrorMatchingInlineSnapshot(`
+  await expect(() =>
+    writeContractSync(client, request),
+  ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [ContractFunctionExecutionError: The current chain of the wallet (id: 1) does not match the target chain for the transaction (id: 10 – OP Mainnet).
 
     Current Chain ID:  1

@@ -382,7 +382,11 @@ export {
   type LoadStateReturnType,
   loadState,
 } from './test/loadState.js'
-export { type MineErrorType, type MineParameters, mine } from './test/mine.js'
+export {
+  type MineErrorType,
+  type MineParameters,
+  mine,
+} from './test/mine.js'
 export {
   type RemoveBlockTimestampIntervalErrorType,
   removeBlockTimestampInterval,
@@ -470,6 +474,7 @@ export {
   type StopImpersonatingAccountParameters,
   stopImpersonatingAccount,
 } from './test/stopImpersonatingAccount.js'
+export * as token from './token/index.js'
 export {
   type AddChainErrorType,
   type AddChainParameters,

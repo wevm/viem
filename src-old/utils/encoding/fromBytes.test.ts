@@ -137,8 +137,9 @@ describe('converts bytes to boolean', () => {
   })
 
   test('error: size overflow', () => {
-    expect(() => bytesToBool(boolToBytes(true, { size: 64 }), { size: 32 }))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      bytesToBool(boolToBytes(true, { size: 64 }), { size: 32 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
       Version: viem@x.y.z]
@@ -146,14 +147,16 @@ describe('converts bytes to boolean', () => {
   })
 
   test('error: invalid boolean', () => {
-    expect(() => bytesToBool(new Uint8Array([69])))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      bytesToBool(new Uint8Array([69])),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidBytesBooleanError: Bytes value "69" is not a valid boolean. The bytes array must contain a single byte of either a 0 or 1 value.
 
       Version: viem@x.y.z]
     `)
-    expect(() => bytesToBool(new Uint8Array([1, 2])))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      bytesToBool(new Uint8Array([1, 2])),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidBytesBooleanError: Bytes value "1,2" is not a valid boolean. The bytes array must contain a single byte of either a 0 or 1 value.
 
       Version: viem@x.y.z]
@@ -273,8 +276,9 @@ describe('converts bytes to hex', () => {
   })
 
   test('error: size overflow', () => {
-    expect(() => bytesToHex(hexToBytes('0x420696', { size: 64 }), { size: 32 }))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      bytesToHex(hexToBytes('0x420696', { size: 64 }), { size: 32 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
       Version: viem@x.y.z]

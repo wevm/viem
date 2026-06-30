@@ -1002,12 +1002,11 @@ describe.each([
     },
     expected: false,
   },
-] as {
-  arg: unknown
-  abiParameter: AbiParameter
-  expected: boolean
-}[])('isArgOfType($arg, $abiParameter)', ({ arg, abiParameter, expected }) => {
-  test(`isArgOfType: returns ${expected}`, () => {
-    expect(isArgOfType(arg, abiParameter)).toEqual(expected)
-  })
-})
+] as { arg: unknown; abiParameter: AbiParameter; expected: boolean }[])(
+  'isArgOfType($arg, $abiParameter)',
+  ({ arg, abiParameter, expected }) => {
+    test(`isArgOfType: returns ${expected}`, () => {
+      expect(isArgOfType(arg, abiParameter)).toEqual(expected)
+    })
+  },
+)

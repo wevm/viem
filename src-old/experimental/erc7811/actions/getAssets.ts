@@ -26,8 +26,10 @@ import {
 } from '../../../utils/encoding/toHex.js'
 
 export type GetAssetsParameters<
-  aggregate extends boolean | ((asset: getAssets.Asset) => string) | undefined =
-    undefined,
+  aggregate extends
+    | boolean
+    | ((asset: getAssets.Asset) => string)
+    | undefined = undefined,
   account extends Account | undefined = Account | undefined,
 > = GetAccountParameter<account> & {
   /**
@@ -62,8 +64,10 @@ export type GetAssetsParameters<
 }
 
 export type GetAssetsReturnType<
-  aggregate extends boolean | ((asset: getAssets.Asset) => string) | undefined =
-    undefined,
+  aggregate extends
+    | boolean
+    | ((asset: getAssets.Asset) => string)
+    | undefined = undefined,
 > = {
   [chainId: number]: readonly getAssets.Asset<false>[]
 } & (aggregate extends false ? {} : { 0: readonly getAssets.Asset<true>[] })
@@ -98,8 +102,10 @@ export type GetAssetsErrorType =
 export async function getAssets<
   chain extends Chain | undefined,
   account extends Account | undefined = Account | undefined,
-  aggregate extends boolean | ((asset: getAssets.Asset) => string) | undefined =
-    undefined,
+  aggregate extends
+    | boolean
+    | ((asset: getAssets.Asset) => string)
+    | undefined = undefined,
 >(
   client: Client<Transport, chain, account>,
   ...[parameters]: account extends Account

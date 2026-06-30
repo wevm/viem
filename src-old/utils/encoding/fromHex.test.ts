@@ -58,8 +58,9 @@ describe('converts hex to number', () => {
   })
 
   test('error: size overflow', () => {
-    expect(() => hexToNumber(numberToHex(69420, { size: 64 }), { size: 32 }))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      hexToNumber(numberToHex(69420, { size: 64 }), { size: 32 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
       Version: viem@x.y.z]
@@ -67,14 +68,16 @@ describe('converts hex to number', () => {
   })
 
   test('error: integer out of range', () => {
-    expect(() => hexToNumber('0x20000000000000'))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      hexToNumber('0x20000000000000'),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [IntegerOutOfRangeError: Number "9007199254740992n" is not in safe integer range (-9007199254740991 to 9007199254740991)
 
       Version: viem@x.y.z]
     `)
-    expect(() => hexToNumber('0xffdfffffffffffff', { signed: true }))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      hexToNumber('0xffdfffffffffffff', { signed: true }),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [IntegerOutOfRangeError: Number "-9007199254740993n" is not in safe integer range (-9007199254740991 to 9007199254740991)
 
       Version: viem@x.y.z]
@@ -138,8 +141,9 @@ describe('converts hex to bigint', () => {
   })
 
   test('error: size overflow', () => {
-    expect(() => hexToBigInt(numberToHex(69420, { size: 64 }), { size: 32 }))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      hexToBigInt(numberToHex(69420, { size: 64 }), { size: 32 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
       Version: viem@x.y.z]
@@ -164,8 +168,9 @@ describe('converts hex to boolean', () => {
   })
 
   test('error: size overflow', () => {
-    expect(() => hexToBool(boolToHex(true, { size: 64 }), { size: 32 }))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      hexToBool(boolToHex(true, { size: 64 }), { size: 32 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
       Version: viem@x.y.z]
@@ -213,8 +218,9 @@ describe('converts hex to string', () => {
   })
 
   test('error: size overflow', () => {
-    expect(() => hexToString(stringToHex('wagmi', { size: 64 }), { size: 32 }))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      hexToString(stringToHex('wagmi', { size: 64 }), { size: 32 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 32 bytes. Given size: 64 bytes.
 
       Version: viem@x.y.z]
@@ -239,8 +245,9 @@ describe('converts hex to bytes', () => {
       ]
     `,
     )
-    expect(fromHex('0x48656c6c6f20576f726c6421', 'bytes'))
-      .toMatchInlineSnapshot(`
+    expect(
+      fromHex('0x48656c6c6f20576f726c6421', 'bytes'),
+    ).toMatchInlineSnapshot(`
       Uint8Array [
         72,
         101,
@@ -355,8 +362,9 @@ describe('converts hex to bytes', () => {
   })
 
   test('error: invalid bytes', () => {
-    expect(() => fromHex('0x420fggf11a', 'bytes'))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      fromHex('0x420fggf11a', 'bytes'),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [BaseError: Invalid byte sequence ("gg" in "420fggf11a").
 
       Version: viem@x.y.z]

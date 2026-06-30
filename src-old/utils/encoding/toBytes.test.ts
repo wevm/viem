@@ -189,22 +189,25 @@ describe('converts numbers to bytes', () => {
       ]
     `,
     )
-    expect(numberToBytes(-127, { size: 2, signed: true }))
-      .toMatchInlineSnapshot(`
+    expect(
+      numberToBytes(-127, { size: 2, signed: true }),
+    ).toMatchInlineSnapshot(`
       Uint8Array [
         255,
         129,
       ]
     `)
-    expect(numberToBytes(32767, { size: 2, signed: true }))
-      .toMatchInlineSnapshot(`
+    expect(
+      numberToBytes(32767, { size: 2, signed: true }),
+    ).toMatchInlineSnapshot(`
       Uint8Array [
         127,
         255,
       ]
     `)
-    expect(numberToBytes(-32768, { size: 2, signed: true }))
-      .toMatchInlineSnapshot(`
+    expect(
+      numberToBytes(-32768, { size: 2, signed: true }),
+    ).toMatchInlineSnapshot(`
       Uint8Array [
         128,
         0,
@@ -254,8 +257,9 @@ describe('converts bigints to bytes', () => {
         164,
       ]
     `)
-    expect(toBytes(4206942069420694206942069420694206942069n))
-      .toMatchInlineSnapshot(`
+    expect(
+      toBytes(4206942069420694206942069420694206942069n),
+    ).toMatchInlineSnapshot(`
         Uint8Array [
           12,
           92,
@@ -298,8 +302,9 @@ describe('converts bigints to bytes', () => {
         164,
       ]
     `)
-    expect(numberToBytes(4206942069420694206942069420694206942069n))
-      .toMatchInlineSnapshot(`
+    expect(
+      numberToBytes(4206942069420694206942069420694206942069n),
+    ).toMatchInlineSnapshot(`
         Uint8Array [
           12,
           92,
@@ -453,29 +458,33 @@ describe('converts bigints to bytes', () => {
       ]
     `)
 
-    expect(numberToBytes(127n, { size: 2, signed: true }))
-      .toMatchInlineSnapshot(`
+    expect(
+      numberToBytes(127n, { size: 2, signed: true }),
+    ).toMatchInlineSnapshot(`
       Uint8Array [
         0,
         127,
       ]
     `)
-    expect(numberToBytes(-127n, { size: 2, signed: true }))
-      .toMatchInlineSnapshot(`
+    expect(
+      numberToBytes(-127n, { size: 2, signed: true }),
+    ).toMatchInlineSnapshot(`
       Uint8Array [
         255,
         129,
       ]
     `)
-    expect(numberToBytes(32767n, { size: 2, signed: true }))
-      .toMatchInlineSnapshot(`
+    expect(
+      numberToBytes(32767n, { size: 2, signed: true }),
+    ).toMatchInlineSnapshot(`
       Uint8Array [
         127,
         255,
       ]
     `)
-    expect(numberToBytes(-32768n, { size: 2, signed: true }))
-      .toMatchInlineSnapshot(`
+    expect(
+      numberToBytes(-32768n, { size: 2, signed: true }),
+    ).toMatchInlineSnapshot(`
       Uint8Array [
         128,
         0,
@@ -746,8 +755,9 @@ describe('converts boolean to bytes', () => {
       Version: viem@x.y.z]
     `,
     )
-    expect(() => boolToBytes(false, { size: 0 }))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      boolToBytes(false, { size: 0 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 0 bytes. Given size: 1 bytes.
 
       Version: viem@x.y.z]
@@ -820,8 +830,9 @@ describe('converts hex to bytes', () => {
           33,
         ]
       `)
-    expect(hexToBytes('0x48656c6c620576f726c6421ABCDEFabcdef'))
-      .toMatchInlineSnapshot(`
+    expect(
+      hexToBytes('0x48656c6c620576f726c6421ABCDEFabcdef'),
+    ).toMatchInlineSnapshot(`
       Uint8Array [
         4,
         134,
@@ -846,8 +857,9 @@ describe('converts hex to bytes', () => {
   })
 
   test('args: size', () => {
-    expect(toBytes('0x48656c6c6f20576f726c6421', { size: 16 }))
-      .toMatchInlineSnapshot(`
+    expect(
+      toBytes('0x48656c6c6f20576f726c6421', { size: 16 }),
+    ).toMatchInlineSnapshot(`
       Uint8Array [
         72,
         101,
@@ -867,8 +879,9 @@ describe('converts hex to bytes', () => {
         0,
       ]
     `)
-    expect(hexToBytes('0x48656c6c6f20576f726c6421', { size: 16 }))
-      .toMatchInlineSnapshot(`
+    expect(
+      hexToBytes('0x48656c6c6f20576f726c6421', { size: 16 }),
+    ).toMatchInlineSnapshot(`
       Uint8Array [
         72,
         101,
@@ -971,14 +984,16 @@ describe('converts hex to bytes', () => {
   })
 
   test('error: size overflow', () => {
-    expect(() => toBytes('0x48656c6c6f20576f726c6421', { size: 8 }))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      toBytes('0x48656c6c6f20576f726c6421', { size: 8 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 8 bytes. Given size: 12 bytes.
 
       Version: viem@x.y.z]
     `)
-    expect(() => hexToBytes('0x48656c6c6f20576f726c6421', { size: 8 }))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      hexToBytes('0x48656c6c6f20576f726c6421', { size: 8 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 8 bytes. Given size: 12 bytes.
 
       Version: viem@x.y.z]
@@ -1185,14 +1200,16 @@ describe('converts string to bytes', () => {
   })
 
   test('error: size overflow', () => {
-    expect(() => toBytes('Hello World!', { size: 8 }))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      toBytes('Hello World!', { size: 8 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 8 bytes. Given size: 12 bytes.
 
       Version: viem@x.y.z]
     `)
-    expect(() => stringToBytes('Hello World!', { size: 8 }))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      stringToBytes('Hello World!', { size: 8 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [SizeOverflowError: Size cannot exceed 8 bytes. Given size: 12 bytes.
 
       Version: viem@x.y.z]

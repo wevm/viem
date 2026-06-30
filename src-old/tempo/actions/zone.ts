@@ -1195,7 +1195,8 @@ export async function signAuthorizationToken<
   if (!chain) throw new Error('`signAuthorizationToken` requires a chain.')
 
   const account_ = account ? parseAccount(account) : undefined
-  if (!account_?.sign) throw new Error('`account` with `sign` is required.')
+  if (!account_ || !account_.sign)
+    throw new Error('`account` with `sign` is required.')
 
   const storageKey = `auth:${account_.address.toLowerCase()}:${chain.id}`
 

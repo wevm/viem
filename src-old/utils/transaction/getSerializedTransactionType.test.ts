@@ -34,8 +34,9 @@ test('unknown', () => {
 })
 
 test('invalid', () => {
-  expect(() => getSerializedTransactionType('0x69abc'))
-    .toThrowErrorMatchingInlineSnapshot(`
+  expect(() =>
+    getSerializedTransactionType('0x69abc'),
+  ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidSerializedTransactionType: Serialized transaction type "0x69" is invalid.
 
     Version: viem@x.y.z]

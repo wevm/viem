@@ -30,10 +30,15 @@ import { type CallErrorType, type CallParameters, call } from './call.js'
 
 export type ReadContractParameters<
   abi extends Abi | readonly unknown[] = Abi,
-  functionName extends ContractFunctionName<abi, 'pure' | 'view'> =
-    ContractFunctionName<abi, 'pure' | 'view'>,
-  args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName> =
-    ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+  functionName extends ContractFunctionName<
+    abi,
+    'pure' | 'view'
+  > = ContractFunctionName<abi, 'pure' | 'view'>,
+  args extends ContractFunctionArgs<
+    abi,
+    'pure' | 'view',
+    functionName
+  > = ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
 > = UnionEvaluate<
   Pick<
     CallParameters,
@@ -53,10 +58,15 @@ export type ReadContractParameters<
 
 export type ReadContractReturnType<
   abi extends Abi | readonly unknown[] = Abi,
-  functionName extends ContractFunctionName<abi, 'pure' | 'view'> =
-    ContractFunctionName<abi, 'pure' | 'view'>,
-  args extends ContractFunctionArgs<abi, 'pure' | 'view', functionName> =
-    ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
+  functionName extends ContractFunctionName<
+    abi,
+    'pure' | 'view'
+  > = ContractFunctionName<abi, 'pure' | 'view'>,
+  args extends ContractFunctionArgs<
+    abi,
+    'pure' | 'view',
+    functionName
+  > = ContractFunctionArgs<abi, 'pure' | 'view', functionName>,
 > = ContractFunctionReturnType<abi, 'pure' | 'view', functionName, args>
 
 export type ReadContractErrorType = GetContractErrorReturnType<

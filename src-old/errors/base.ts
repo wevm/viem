@@ -6,7 +6,11 @@ type ErrorConfig = {
 }
 
 let errorConfig: ErrorConfig = {
-  getDocsUrl: ({ docsBaseUrl, docsPath = '', docsSlug }: BaseErrorParameters) =>
+  getDocsUrl: ({
+    docsBaseUrl,
+    docsPath = '',
+    docsSlug,
+  }: BaseErrorParameters) =>
     docsPath
       ? `${docsBaseUrl ?? 'https://viem.sh'}${docsPath}${
           docsSlug ? `#${docsSlug}` : ''

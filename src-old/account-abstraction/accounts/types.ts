@@ -216,8 +216,8 @@ export type SmartAccountImplementation<
     })
 
 export type SmartAccount<
-  implementation extends SmartAccountImplementation =
-    SmartAccountImplementation,
+  implementation extends
+    SmartAccountImplementation = SmartAccountImplementation,
 > = Assign<
   implementation['extend'],
   Assign<

@@ -1,5 +1,100 @@
 # viem
 
+## 2.54.1
+
+### Patch Changes
+
+- [#4780](https://github.com/wevm/viem/pull/4780) [`7ce10f40e466273fdc6926127394d36d0955c688`](https://github.com/wevm/viem/commit/7ce10f40e466273fdc6926127394d36d0955c688) Thanks [@tmm](https://github.com/tmm)! - Added EURC, USYC, and cirBTC token definitions to `viem/tokens`.
+
+- [#4780](https://github.com/wevm/viem/pull/4780) [`7ce10f40e466273fdc6926127394d36d0955c688`](https://github.com/wevm/viem/commit/7ce10f40e466273fdc6926127394d36d0955c688) Thanks [@tmm](https://github.com/tmm)! - Added USDC token addresses for more supported chains.
+
+- [#4782](https://github.com/wevm/viem/pull/4782) [`cf4bdca930df835452a467efd95c59a5e2a4a89f`](https://github.com/wevm/viem/commit/cf4bdca930df835452a467efd95c59a5e2a4a89f) Thanks [@jxom](https://github.com/jxom)! - Added a `tokens` export to `viem/tokens` with curated token sets (`tokens.all`, `tokens.popular`, `tokens.tempo`) that can be passed to a Client's `tokens` property. `viem/tempo`'s `createClient` now defaults `tokens` to `tokens.tempo`.
+
+## 2.54.0
+
+### Minor Changes
+
+- [#4767](https://github.com/wevm/viem/pull/4767) [`0def05663277a93e645bc28740a78bfc916810ec`](https://github.com/wevm/viem/commit/0def05663277a93e645bc28740a78bfc916810ec) Thanks [@jxom](https://github.com/jxom)! - **Breaking (viem/tempo):** Changed Tempo token balance and allowance reads to return `Amount` objects.
+
+  ```diff
+  -const balance = await client.token.getBalance({ token })
+  -// ^? bigint
+  +const balance = await client.token.getBalance({ token })
+  +// ^? { amount: bigint; decimals: number; formatted: string }
+
+  -const allowance = await client.token.getAllowance({ account, spender, token })
+  -// ^? bigint
+  +const allowance = await client.token.getAllowance({ account, spender, token })
+  +// ^? { amount: bigint; decimals: number; formatted: string }
+  ```
+
+- [#4767](https://github.com/wevm/viem/pull/4767) [`0def05663277a93e645bc28740a78bfc916810ec`](https://github.com/wevm/viem/commit/0def05663277a93e645bc28740a78bfc916810ec) Thanks [@jxom](https://github.com/jxom)! - **Breaking (viem/tempo):** Changed Tempo token `.call` helpers to take the client before their action arguments.
+
+  ```diff
+  -Actions.token.transfer.call({ token, to, amount })
+  +Actions.token.transfer.call(client, { token, to, amount })
+
+  -Actions.token.getBalance.call({ account, token })
+  +Actions.token.getBalance.call(client, { account, token })
+  ```
+
+- [#4767](https://github.com/wevm/viem/pull/4767) [`0def05663277a93e645bc28740a78bfc916810ec`](https://github.com/wevm/viem/commit/0def05663277a93e645bc28740a78bfc916810ec) Thanks [@jxom](https://github.com/jxom)! - **Breaking:** Changed ERC-20 token actions to resolve token symbols from the Client `tokens` array instead of built-in chain `tokens` config.
+
+  ```diff
+   import { createPublicClient, http } from 'viem'
+   import { mainnet } from 'viem/chains'
+  +import { usdc } from 'viem/tokens'
+
+  -const client = createPublicClient({ chain: mainnet, transport: http() })
+  +const client = createPublicClient({
+  +  chain: mainnet,
+  +  tokens: [usdc],
+  +  transport: http(),
+  +})
+
+   const balance = await client.token.getBalance({ account, token: 'usdc' })
+  ```
+
+- [#4767](https://github.com/wevm/viem/pull/4767) [`0def05663277a93e645bc28740a78bfc916810ec`](https://github.com/wevm/viem/commit/0def05663277a93e645bc28740a78bfc916810ec) Thanks [@jxom](https://github.com/jxom)! - Added `viem/tokens` entrypoint.
+
+### Patch Changes
+
+- [#4739](https://github.com/wevm/viem/pull/4739) [`cc3c2ff6a50dbca96a665c8fc2ad635f86d94f53`](https://github.com/wevm/viem/commit/cc3c2ff6a50dbca96a665c8fc2ad635f86d94f53) Thanks [@Equious](https://github.com/Equious)! - Added BattleChain Mainnet (chainId 626) to `viem/chains`.
+
+- [#4733](https://github.com/wevm/viem/pull/4733) [`1caa5766109309d5fab48f1c4316deff5f504f9c`](https://github.com/wevm/viem/commit/1caa5766109309d5fab48f1c4316deff5f504f9c) Thanks [@2wheeh](https://github.com/2wheeh)! - Added MarooTestnet chain.
+
+- [#4772](https://github.com/wevm/viem/pull/4772) [`b0a0e1ccd158198d56903759d362f22716a6b1e7`](https://github.com/wevm/viem/commit/b0a0e1ccd158198d56903759d362f22716a6b1e7) Thanks [@jxom](https://github.com/jxom)! - Added an RLP depth limit for decoding deeply nested payloads.
+
+## 2.53.1
+
+### Patch Changes
+
+- [#4748](https://github.com/wevm/viem/pull/4748) [`ed55a13fbf8af9c587d94a3363f507e642236e93`](https://github.com/wevm/viem/commit/ed55a13fbf8af9c587d94a3363f507e642236e93) Thanks [@jxom](https://github.com/jxom)! - **`viem/tempo`:** Added `createClient` to `viem/tempo` with a default chain, transport, and actions.
+
+## 2.53.0
+
+### Minor Changes
+
+- [#4745](https://github.com/wevm/viem/pull/4745) [`f603eb5b6e01bc621df26cc386218b3954e33f41`](https://github.com/wevm/viem/commit/f603eb5b6e01bc621df26cc386218b3954e33f41) Thanks [@jxom](https://github.com/jxom)! - Raised the minimum supported TypeScript version to v5.9.
+
+- [#4745](https://github.com/wevm/viem/pull/4745) [`f603eb5b6e01bc621df26cc386218b3954e33f41`](https://github.com/wevm/viem/commit/f603eb5b6e01bc621df26cc386218b3954e33f41) Thanks [@jxom](https://github.com/jxom)! - Added the ability for action decorators to attach a default `chain` to the Client.
+
+- [#4729](https://github.com/wevm/viem/pull/4729) [`ce518cde15845fedc3cab51f0d560159d7c794fe`](https://github.com/wevm/viem/commit/ce518cde15845fedc3cab51f0d560159d7c794fe) Thanks [@brendanjryan](https://github.com/brendanjryan)! - Added generated Tempo function selector exports under `Selectors` and call scope builders under `Scopes` in `viem/tempo`.
+
+### Patch Changes
+
+- [#4725](https://github.com/wevm/viem/pull/4725) [`2b558fd3a21ad2dd5947067d4c5862cce291d76b`](https://github.com/wevm/viem/commit/2b558fd3a21ad2dd5947067d4c5862cce291d76b) Thanks [@brianspens](https://github.com/brianspens)! - Added Whitechain Sepolia chain.
+
+- [#4727](https://github.com/wevm/viem/pull/4727) [`0505541fcd57f2b2eb35b339d3f630a1535507bf`](https://github.com/wevm/viem/commit/0505541fcd57f2b2eb35b339d3f630a1535507bf) Thanks [@crow-004](https://github.com/crow-004)! - Fixed `estimateUserOperationGas` omitting `maxFeePerGas` and `maxPriorityFeePerGas` during User Operation preparation, which caused strict bundlers to reject gas estimation requests.
+
+- [#4728](https://github.com/wevm/viem/pull/4728) [`e70d2e8543af38b3d8c2ed4b8cd114d171ce53ba`](https://github.com/wevm/viem/commit/e70d2e8543af38b3d8c2ed4b8cd114d171ce53ba) Thanks [@jarrodwatts](https://github.com/jarrodwatts)! - Changed Monad's default block explorer to Monadscan.
+
+## 2.52.2
+
+### Patch Changes
+
+- [#4718](https://github.com/wevm/viem/pull/4718) [`1969c01715736de8a16b841cfed81640f0d708c2`](https://github.com/wevm/viem/commit/1969c01715736de8a16b841cfed81640f0d708c2) Thanks [@jxom](https://github.com/jxom)! - **Tempo:** Set the `t5` hardfork on the Tempo Testnet (Moderato) chain.
+
 ## 2.52.1
 
 ### Patch Changes

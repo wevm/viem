@@ -77,8 +77,10 @@ export type SendTransactionParameters<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
   chainOverride extends Chain | undefined = Chain | undefined,
-  request extends SendTransactionRequest<chain, chainOverride> =
-    SendTransactionRequest<chain, chainOverride>,
+  request extends SendTransactionRequest<
+    chain,
+    chainOverride
+  > = SendTransactionRequest<chain, chainOverride>,
 > = request &
   GetAccountParameter<account, Account | Address, true, true> &
   GetChainParameter<chain, chainOverride> &

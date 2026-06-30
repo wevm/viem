@@ -29,7 +29,13 @@ export type InvalidVersionedHashSizeErrorType =
     name: 'InvalidVersionedHashSizeError'
   }
 export class InvalidVersionedHashSizeError extends BaseError {
-  constructor({ hash, size }: { hash: Hash; size: number }) {
+  constructor({
+    hash,
+    size,
+  }: {
+    hash: Hash
+    size: number
+  }) {
     super(`Versioned hash "${hash}" size is invalid.`, {
       metaMessages: ['Expected: 32', `Received: ${size}`],
       name: 'InvalidVersionedHashSizeError',
@@ -42,7 +48,13 @@ export type InvalidVersionedHashVersionErrorType =
     name: 'InvalidVersionedHashVersionError'
   }
 export class InvalidVersionedHashVersionError extends BaseError {
-  constructor({ hash, version }: { hash: Hash; version: number }) {
+  constructor({
+    hash,
+    version,
+  }: {
+    hash: Hash
+    version: number
+  }) {
     super(`Versioned hash "${hash}" version is invalid.`, {
       metaMessages: [
         `Expected: ${versionedHashVersionKzg}`,

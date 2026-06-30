@@ -1696,8 +1696,9 @@ describe('seaport', () => {
 })
 
 test('invalid type', () => {
-  expect(() => encodeAbiParameters([{ name: 'x', type: 'lol' }], [69]))
-    .toThrowErrorMatchingInlineSnapshot(`
+  expect(() =>
+    encodeAbiParameters([{ name: 'x', type: 'lol' }], [69]),
+  ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidAbiEncodingType: Type "lol" is not a valid encoding type.
     Please provide a valid ABI type.
 
@@ -1723,8 +1724,9 @@ test('invalid params/values lengths', () => {
 })
 
 test('invalid address', () => {
-  expect(() => encodeAbiParameters([{ name: 'x', type: 'address' }], ['0x111']))
-    .toThrowErrorMatchingInlineSnapshot(`
+  expect(() =>
+    encodeAbiParameters([{ name: 'x', type: 'address' }], ['0x111']),
+  ).toThrowErrorMatchingInlineSnapshot(`
     [InvalidAddressError: Address "0x111" is invalid.
 
     - Address must be a hex value of 20 bytes (40 hex characters).
@@ -1765,8 +1767,9 @@ test('invalid array lengths', () => {
 })
 
 test('invalid bytes', () => {
-  expect(() => encodeAbiParameters([{ name: 'x', type: 'bytes8' }], ['0x111']))
-    .toThrowErrorMatchingInlineSnapshot(`
+  expect(() =>
+    encodeAbiParameters([{ name: 'x', type: 'bytes8' }], ['0x111']),
+  ).toThrowErrorMatchingInlineSnapshot(`
     [AbiEncodingBytesSizeMismatchError: Size of bytes "0x111" (bytes2) does not match expected size (bytes8).
 
     Version: viem@x.y.z]

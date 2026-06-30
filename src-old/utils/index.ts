@@ -142,7 +142,10 @@ export {
   type VerifyAuthorizationReturnType,
   verifyAuthorization,
 } from './authorization/verifyAuthorization.js'
-export { buildRequest, type RequestErrorType } from './buildRequest.js'
+export {
+  buildRequest,
+  type RequestErrorType,
+} from './buildRequest.js'
 export {
   ccipRequest,
   /** @deprecated Use `ccipRequest`. */
@@ -152,7 +155,10 @@ export {
   offchainLookupAbiItem,
   offchainLookupSignature,
 } from './ccip.js'
-export { type CcipReadTunnelParameters, ccipReadTunnel } from './ccipTunnel.js'
+export {
+  type CcipReadTunnelParameters,
+  ccipReadTunnel,
+} from './ccipTunnel.js'
 export {
   type AssertCurrentChainErrorType,
   type AssertCurrentChainParameters,
@@ -238,7 +244,10 @@ export {
   hexToNumber,
   hexToString,
 } from './encoding/fromHex.js'
-export { type FromRlpErrorType, fromRlp } from './encoding/fromRlp.js'
+export {
+  type FromRlpErrorType,
+  fromRlp,
+} from './encoding/fromRlp.js'
 export {
   type BoolToBytesErrorType,
   type BoolToBytesOpts,
@@ -342,7 +351,10 @@ export { type IsHashErrorType, isHash } from './hash/isHash.js'
 export { type Keccak256ErrorType, keccak256 } from './hash/keccak256.js'
 export { type Ripemd160ErrorType, ripemd160 } from './hash/ripemd160.js'
 export { type Sha256ErrorType, sha256 } from './hash/sha256.js'
-export { type ToEventHashErrorType, toEventHash } from './hash/toEventHash.js'
+export {
+  type ToEventHashErrorType,
+  toEventHash,
+} from './hash/toEventHash.js'
 export {
   type ToEventSelectorErrorType,
   /** @deprecated use `ToEventSelectorErrorType`. */

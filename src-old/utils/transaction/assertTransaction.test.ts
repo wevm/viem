@@ -179,8 +179,9 @@ describe('eip1559', () => {
   })
 
   test('invalid chainId', () => {
-    expect(() => assertTransactionEIP1559({ chainId: 0 }))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      assertTransactionEIP1559({ chainId: 0 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidChainIdError: Chain ID "0" is invalid.
 
       Version: viem@x.y.z]
@@ -188,8 +189,9 @@ describe('eip1559', () => {
   })
 
   test('invalid address', () => {
-    expect(() => assertTransactionEIP1559({ to: '0x123', chainId: 1 }))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      assertTransactionEIP1559({ to: '0x123', chainId: 1 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidAddressError: Address "0x123" is invalid.
 
       - Address must be a hex value of 20 bytes (40 hex characters).
@@ -215,8 +217,9 @@ describe('eip2930', () => {
   })
 
   test('invalid chainId', () => {
-    expect(() => assertTransactionEIP2930({ chainId: 0 }))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      assertTransactionEIP2930({ chainId: 0 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidChainIdError: Chain ID "0" is invalid.
 
       Version: viem@x.y.z]
@@ -224,8 +227,9 @@ describe('eip2930', () => {
   })
 
   test('invalid address', () => {
-    expect(() => assertTransactionEIP2930({ to: '0x123', chainId: 1 }))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      assertTransactionEIP2930({ to: '0x123', chainId: 1 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidAddressError: Address "0x123" is invalid.
 
       - Address must be a hex value of 20 bytes (40 hex characters).
@@ -264,8 +268,9 @@ describe('legacy', () => {
   })
 
   test('invalid chainId', () => {
-    expect(() => assertTransactionLegacy({ chainId: 0 }))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      assertTransactionLegacy({ chainId: 0 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidChainIdError: Chain ID "0" is invalid.
 
       Version: viem@x.y.z]
@@ -273,8 +278,9 @@ describe('legacy', () => {
   })
 
   test('invalid address', () => {
-    expect(() => assertTransactionLegacy({ to: '0x123', chainId: 1 }))
-      .toThrowErrorMatchingInlineSnapshot(`
+    expect(() =>
+      assertTransactionLegacy({ to: '0x123', chainId: 1 }),
+    ).toThrowErrorMatchingInlineSnapshot(`
       [InvalidAddressError: Address "0x123" is invalid.
 
       - Address must be a hex value of 20 bytes (40 hex characters).

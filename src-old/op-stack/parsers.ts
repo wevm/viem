@@ -19,10 +19,10 @@ import type {
 } from './types/transaction.js'
 
 export type ParseTransactionReturnType<
-  serialized extends OpStackTransactionSerialized =
-    OpStackTransactionSerialized,
-  type extends OpStackTransactionType =
-    GetSerializedTransactionType<serialized>,
+  serialized extends
+    OpStackTransactionSerialized = OpStackTransactionSerialized,
+  type extends
+    OpStackTransactionType = GetSerializedTransactionType<serialized>,
 > = serialized extends TransactionSerializedDeposit
   ? TransactionSerializableDeposit
   : ParseTransactionReturnType_<serialized, type>

@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "types": "../_types/linea/index.d.ts",
+  "module": "../_esm/linea/index.js",
+  "main": "../_cjs/linea/index.js"
+}

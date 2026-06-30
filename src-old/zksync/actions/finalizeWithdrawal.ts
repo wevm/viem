@@ -40,8 +40,10 @@ export type FinalizeWithdrawalParameters<
   chainOverride extends Chain | undefined = Chain | undefined,
   chainL2 extends ChainEIP712 | undefined = ChainEIP712 | undefined,
   accountL2 extends Account | undefined = Account | undefined,
-  request extends SendTransactionRequest<chain, chainOverride> =
-    SendTransactionRequest<chain, chainOverride>,
+  request extends SendTransactionRequest<
+    chain,
+    chainOverride
+  > = SendTransactionRequest<chain, chainOverride>,
 > = Omit<
   SendTransactionParameters<chain, account, chainOverride, request>,
   'value' | 'data' | 'to'

@@ -1260,8 +1260,14 @@ describe('deployless call (factory)', () => {
     })
 
     expect(verifyingContract).toBeDefined()
-    expect([fields, name, version, chainId, salt, extensions])
-      .toMatchInlineSnapshot(`
+    expect([
+      fields,
+      name,
+      version,
+      chainId,
+      salt,
+      extensions,
+    ]).toMatchInlineSnapshot(`
       [
         "0x0f",
         "SoladyAccount",

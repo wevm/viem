@@ -32,8 +32,8 @@ export type CustomSource = {
     | undefined
   signMessage: ({ message }: { message: SignableMessage }) => Promise<Hex>
   signTransaction: <
-    serializer extends SerializeTransactionFn<TransactionSerializable> =
-      SerializeTransactionFn<TransactionSerializable>,
+    serializer extends
+      SerializeTransactionFn<TransactionSerializable> = SerializeTransactionFn<TransactionSerializable>,
     transaction extends Parameters<serializer>[0] = Parameters<serializer>[0],
   >(
     transaction: transaction,

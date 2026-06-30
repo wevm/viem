@@ -89,6 +89,13 @@ test('creates', () => {
       "simulateBlocks": [Function],
       "simulateCalls": [Function],
       "simulateContract": [Function],
+      "token": {
+        "getAllowance": [Function],
+        "getBalance": [Function],
+        "getMetadata": [Function],
+        "getTotalSupply": [Function],
+      },
+      "tokens": undefined,
       "transport": {
         "key": "mock",
         "methods": undefined,
@@ -239,6 +246,13 @@ describe('transports', () => {
         "simulateBlocks": [Function],
         "simulateCalls": [Function],
         "simulateContract": [Function],
+        "token": {
+          "getAllowance": [Function],
+          "getBalance": [Function],
+          "getMetadata": [Function],
+          "getTotalSupply": [Function],
+        },
+        "tokens": undefined,
         "transport": {
           "fetchOptions": undefined,
           "key": "http",
@@ -354,6 +368,13 @@ describe('transports', () => {
         "simulateBlocks": [Function],
         "simulateCalls": [Function],
         "simulateContract": [Function],
+        "token": {
+          "getAllowance": [Function],
+          "getBalance": [Function],
+          "getMetadata": [Function],
+          "getTotalSupply": [Function],
+        },
+        "tokens": undefined,
         "transport": {
           "getRpcClient": [Function],
           "getSocket": [Function],
@@ -493,6 +514,13 @@ describe('transports', () => {
         "simulateBlocks": [Function],
         "simulateCalls": [Function],
         "simulateContract": [Function],
+        "token": {
+          "getAllowance": [Function],
+          "getBalance": [Function],
+          "getMetadata": [Function],
+          "getTotalSupply": [Function],
+        },
+        "tokens": undefined,
         "transport": {
           "key": "custom",
           "methods": undefined,
@@ -657,6 +685,17 @@ test('extend', () => {
       "snapshot": [Function],
       "stopImpersonatingAccount": [Function],
       "switchChain": [Function],
+      "token": {
+        "approve": [Function],
+        "approveSync": [Function],
+        "getAllowance": [Function],
+        "getBalance": [Function],
+        "getMetadata": [Function],
+        "getTotalSupply": [Function],
+        "transfer": [Function],
+        "transferSync": [Function],
+      },
+      "tokens": undefined,
       "transport": {
         "fetchOptions": undefined,
         "key": "http",

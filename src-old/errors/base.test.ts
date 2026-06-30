@@ -9,8 +9,9 @@ test('BaseError', () => {
     Version: viem@x.y.z]
   `)
 
-  expect(new BaseError('An error occurred.', { details: 'details' }))
-    .toMatchInlineSnapshot(`
+  expect(
+    new BaseError('An error occurred.', { details: 'details' }),
+  ).toMatchInlineSnapshot(`
     [BaseError: An error occurred.
 
     Details: details

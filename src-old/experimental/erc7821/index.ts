@@ -25,7 +25,10 @@ export {
   type FunctionSelectorNotRecognizedErrorType,
 } from './errors.js'
 
-export { type EncodeCallsErrorType, encodeCalls } from './utils/encodeCalls.js'
+export {
+  type EncodeCallsErrorType,
+  encodeCalls,
+} from './utils/encodeCalls.js'
 export {
   type EncodeExecuteBatchesDataErrorType,
   type EncodeExecuteBatchesDataParameters,

@@ -29,22 +29,21 @@ export type DecodeFunctionDataParameters<
 export type DecodeFunctionDataReturnType<
   abi extends Abi | readonly unknown[] = Abi,
   ///
-  allFunctionNames extends ContractFunctionName<abi> =
-    ContractFunctionName<abi>,
-> =
-  IsNarrowable<abi, Abi> extends true
-    ? UnionEvaluate<
-        {
-          [functionName in allFunctionNames]: {
-            args: ContractFunctionArgs<abi, AbiStateMutability, functionName>
-            functionName: functionName
-          }
-        }[allFunctionNames]
-      >
-    : {
-        args: readonly unknown[] | undefined
-        functionName: string
-      }
+  allFunctionNames extends
+    ContractFunctionName<abi> = ContractFunctionName<abi>,
+> = IsNarrowable<abi, Abi> extends true
+  ? UnionEvaluate<
+      {
+        [functionName in allFunctionNames]: {
+          args: ContractFunctionArgs<abi, AbiStateMutability, functionName>
+          functionName: functionName
+        }
+      }[allFunctionNames]
+    >
+  : {
+      args: readonly unknown[] | undefined
+      functionName: string
+    }
 
 export type DecodeFunctionDataErrorType =
   | AbiFunctionSignatureNotFoundError

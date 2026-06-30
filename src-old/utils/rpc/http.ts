@@ -1,6 +1,8 @@
 import {
   HttpRequestError,
   type HttpRequestErrorType as HttpRequestErrorType_,
+  ResponseBodyTooLargeError,
+  type ResponseBodyTooLargeErrorType,
   TimeoutError,
   type TimeoutErrorType,
 } from '../../errors/request.js'
@@ -25,6 +27,8 @@ export type HttpRpcClientOptions = {
     | undefined
   /** Request configuration to pass to `fetch`. */
   fetchOptions?: Omit<RequestInit, 'body'> | undefined
+  /** Maximum response body size in bytes. Set to `false` to disable. @default 10_485_760 */
+  maxResponseBodySize?: number | false | undefined
   /** A callback to handle the request. */
   onRequest?:
     | ((
@@ -49,6 +53,8 @@ export type HttpRequestParameters<
   fetchFn?: HttpRpcClientOptions['fetchFn'] | undefined
   /** Request configuration to pass to `fetch`. */
   fetchOptions?: HttpRpcClientOptions['fetchOptions'] | undefined
+  /** Maximum response body size in bytes. Set to `false` to disable. */
+  maxResponseBodySize?: HttpRpcClientOptions['maxResponseBodySize'] | undefined
   /** A callback to handle the response. */
   onRequest?:
     | ((
@@ -70,9 +76,12 @@ export type HttpRequestReturnType<
 
 export type HttpRequestErrorType =
   | HttpRequestErrorType_
+  | ResponseBodyTooLargeErrorType
   | TimeoutErrorType
   | WithTimeoutErrorType
   | ErrorType
+
+const defaultMaxResponseBodySize = 10_485_760
 
 export type HttpRpcClient = {
   request<body extends RpcRequest | RpcRequest[]>(
@@ -91,14 +100,16 @@ export function getHttpRpcClient(
       const {
         body,
         fetchFn = options.fetchFn ?? fetch,
+        maxResponseBodySize = options.maxResponseBodySize ??
+          defaultMaxResponseBodySize,
         onRequest = options.onRequest,
         onResponse = options.onResponse,
         timeout = options.timeout ?? 10_000,
       } = params
 
       const fetchOptions = {
-        ...options.fetchOptions,
-        ...params.fetchOptions,
+        ...(options.fetchOptions ?? {}),
+        ...(params.fetchOptions ?? {}),
       }
 
       const { headers, method, signal: signal_ } = fetchOptions
@@ -144,12 +155,15 @@ export function getHttpRpcClient(
         if (onResponse) await onResponse(response)
 
         let data: any
+        const responseBody = await readResponseBody(response, {
+          maxResponseBodySize,
+        })
         if (
           response.headers.get('Content-Type')?.startsWith('application/json')
         )
-          data = await response.json()
+          data = JSON.parse(responseBody)
         else {
-          data = await response.text()
+          data = responseBody
           try {
             data = JSON.parse(data || '{}')
           } catch (err) {
@@ -181,6 +195,7 @@ export function getHttpRpcClient(
         if (signal_?.aborted) throw getAbortError(signal_)
         if (isAbortError(err)) throw err
         if (err instanceof HttpRequestError) throw err
+        if (err instanceof ResponseBodyTooLargeError) throw err
         if (err instanceof TimeoutError) throw err
         throw new HttpRequestError({
           body,
@@ -189,6 +204,59 @@ export function getHttpRpcClient(
         })
       }
     },
+  }
+}
+
+async function readResponseBody(
+  response: Response,
+  { maxResponseBodySize }: { maxResponseBodySize: number | false },
+): Promise<string> {
+  if (maxResponseBodySize === false) return response.text()
+
+  const contentLength = response.headers.get('Content-Length')
+  if (contentLength) {
+    const size = Number(contentLength)
+    if (size > maxResponseBodySize)
+      throw new ResponseBodyTooLargeError({
+        maxSize: maxResponseBodySize,
+        size,
+      })
+  }
+
+  if (!response.body) {
+    const body = await response.text()
+    const size = new TextEncoder().encode(body).length
+    if (size > maxResponseBodySize)
+      throw new ResponseBodyTooLargeError({
+        maxSize: maxResponseBodySize,
+        size,
+      })
+    return body
+  }
+
+  const reader = response.body.getReader()
+  const decoder = new TextDecoder()
+  let body = ''
+  let size = 0
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      size += value.byteLength
+      if (size > maxResponseBodySize) {
+        await reader.cancel()
+        throw new ResponseBodyTooLargeError({
+          maxSize: maxResponseBodySize,
+          size,
+        })
+      }
+      body += decoder.decode(value, { stream: true })
+    }
+    body += decoder.decode()
+    return body
+  } finally {
+    reader.releaseLock()
   }
 }
 

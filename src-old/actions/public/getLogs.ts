@@ -31,8 +31,10 @@ import {
 
 export type GetLogsParameters<
   abiEvent extends AbiEvent | undefined = undefined,
-  abiEvents extends readonly AbiEvent[] | readonly unknown[] | undefined =
-    abiEvent extends AbiEvent ? [abiEvent] : undefined,
+  abiEvents extends
+    | readonly AbiEvent[]
+    | readonly unknown[]
+    | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
   strict extends boolean | undefined = undefined,
   fromBlock extends BlockNumber | BlockTag | undefined = undefined,
   toBlock extends BlockNumber | BlockTag | undefined = undefined,
@@ -87,8 +89,10 @@ export type GetLogsParameters<
 
 export type GetLogsReturnType<
   abiEvent extends AbiEvent | undefined = undefined,
-  abiEvents extends readonly AbiEvent[] | readonly unknown[] | undefined =
-    abiEvent extends AbiEvent ? [abiEvent] : undefined,
+  abiEvents extends
+    | readonly AbiEvent[]
+    | readonly unknown[]
+    | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
   strict extends boolean | undefined = undefined,
   fromBlock extends BlockNumber | BlockTag | undefined = undefined,
   toBlock extends BlockNumber | BlockTag | undefined = undefined,
@@ -132,8 +136,10 @@ export type GetLogsErrorType =
 export async function getLogs<
   chain extends Chain | undefined,
   const abiEvent extends AbiEvent | undefined = undefined,
-  const abiEvents extends readonly AbiEvent[] | readonly unknown[] | undefined =
-    abiEvent extends AbiEvent ? [abiEvent] : undefined,
+  const abiEvents extends
+    | readonly AbiEvent[]
+    | readonly unknown[]
+    | undefined = abiEvent extends AbiEvent ? [abiEvent] : undefined,
   strict extends boolean | undefined = undefined,
   fromBlock extends BlockNumber | BlockTag | undefined = undefined,
   toBlock extends BlockNumber | BlockTag | undefined = undefined,

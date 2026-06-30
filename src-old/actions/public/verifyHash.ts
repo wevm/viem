@@ -119,7 +119,7 @@ export async function verifyHash<chain extends Chain | undefined>(
     hash,
     erc6492VerifierAddress:
       verifierAddress = parameters.universalSignatureVerifierAddress ??
-        chain?.contracts?.erc6492Verifier?.address,
+      chain?.contracts?.erc6492Verifier?.address,
     multicallAddress = parameters.multicallAddress ??
       chain?.contracts?.multicall3?.address,
     mode = 'auto',
@@ -347,7 +347,7 @@ async function verifyErc6492(
   throw new VerificationError()
 }
 
-namespace verifyErc6492 {
+export namespace verifyErc6492 {
   export type Parameters = Pick<CallParameters, 'blockNumber' | 'blockTag'> & {
     /** The address that signed the original message. */
     address: Address

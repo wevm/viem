@@ -11,6 +11,7 @@ import {
   InvalidSerializableTransactionError,
   InvalidSerializedTransactionError,
   InvalidSerializedTransactionTypeError,
+  InvalidYParityError,
   TransactionExecutionError,
   TransactionNotFoundError,
   TransactionReceiptNotFoundError,
@@ -20,6 +21,14 @@ import {
 test('InvalidLegacyVError', () => {
   expect(new InvalidLegacyVError({ v: 69n })).toMatchInlineSnapshot(`
     [InvalidLegacyVError: Invalid \`v\` value "69". Expected 27 or 28.
+
+    Version: viem@x.y.z]
+  `)
+})
+
+test('InvalidYParityError', () => {
+  expect(new InvalidYParityError({ yParity: 2n })).toMatchInlineSnapshot(`
+    [InvalidYParityError: Invalid \`yParity\` value "2". Expected 0 or 1.
 
     Version: viem@x.y.z]
   `)
@@ -257,8 +266,9 @@ describe('TransactionNotFoundError', () => {
   })
 
   test('blockHash', async () => {
-    expect(new TransactionNotFoundError({ blockHash: '0x123', index: 420 }))
-      .toMatchInlineSnapshot(`
+    expect(
+      new TransactionNotFoundError({ blockHash: '0x123', index: 420 }),
+    ).toMatchInlineSnapshot(`
       [TransactionNotFoundError: Transaction at block hash "0x123" at index "420" could not be found.
 
       Version: viem@x.y.z]
@@ -266,8 +276,9 @@ describe('TransactionNotFoundError', () => {
   })
 
   test('blockTag', async () => {
-    expect(new TransactionNotFoundError({ blockTag: 'latest', index: 420 }))
-      .toMatchInlineSnapshot(`
+    expect(
+      new TransactionNotFoundError({ blockTag: 'latest', index: 420 }),
+    ).toMatchInlineSnapshot(`
       [TransactionNotFoundError: Transaction at block time "latest" at index "420" could not be found.
 
       Version: viem@x.y.z]
@@ -275,8 +286,9 @@ describe('TransactionNotFoundError', () => {
   })
 
   test('blockNumber', async () => {
-    expect(new TransactionNotFoundError({ blockNumber: 42069n, index: 420 }))
-      .toMatchInlineSnapshot(`
+    expect(
+      new TransactionNotFoundError({ blockNumber: 42069n, index: 420 }),
+    ).toMatchInlineSnapshot(`
       [TransactionNotFoundError: Transaction at block number "42069" at index "420" could not be found.
 
       Version: viem@x.y.z]
@@ -284,8 +296,9 @@ describe('TransactionNotFoundError', () => {
   })
 
   test('hash', async () => {
-    expect(new TransactionNotFoundError({ hash: '0x123' }))
-      .toMatchInlineSnapshot(`
+    expect(
+      new TransactionNotFoundError({ hash: '0x123' }),
+    ).toMatchInlineSnapshot(`
       [TransactionNotFoundError: Transaction with hash "0x123" could not be found.
 
       Version: viem@x.y.z]
