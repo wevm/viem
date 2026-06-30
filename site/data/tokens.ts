@@ -137,6 +137,20 @@ export const tokenLookupData = [
   {
     chains: [
       {
+        address: '0x72DFB2E44f59C5AD2bAFE84314E5b99a7cd5075E',
+        id: 1,
+        name: 'Ethereum',
+      },
+    ],
+    currency: 'BTC',
+    decimals: 8,
+    importName: 'cirbtc',
+    name: 'Circle Wrapped Bitcoin',
+    symbol: 'cirBTC',
+  },
+  {
+    chains: [
+      {
         address: '0x20c0000000000000000000000520792dcccccccc',
         id: 4217,
         name: 'Tempo Mainnet',

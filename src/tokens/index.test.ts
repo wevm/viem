@@ -11,6 +11,7 @@ test('exports', () => {
       "brla",
       "cbbtc",
       "chfau",
+      "cirbtc",
       "cusd",
       "dlusd",
       "eurau",
