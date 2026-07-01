@@ -1,4 +1,5 @@
 import type { Address } from 'abitype'
+import type { TokenId } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import type { ReadContractParameters as viem_ReadContractParameters } from '../../actions/public/readContract.js'
 import type { WriteContractSyncParameters as viem_WriteContractSyncParameters } from '../../actions/wallet/writeContractSync.js'
@@ -9,6 +10,24 @@ import type {
   UnionPick,
 } from '../../types/utils.js'
 import type { TransactionRequestTempo } from '../Transaction.js'
+
+/**
+ * Selects a TIP20 token by `token`, which is either a TIP20 token id or a
+ * contract `address`.
+ */
+export type TokenParameter = {
+  /** Token to operate on: a TIP20 token id or a contract `address`. */
+  token: TokenId.TokenIdOrAddress
+}
+
+export type TokenParameters = TokenParameter & {
+  /**
+   * Decimals used to convert between base units and the human-readable amount.
+   * Inferred from the client's `tokens` array when `token` matches a declared
+   * token; otherwise fetched from the token contract when needed.
+   */
+  decimals?: number | undefined
+}
 
 export type GetAccountParameter<
   account extends Account | undefined = Account | undefined,

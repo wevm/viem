@@ -878,6 +878,8 @@ export {
   type InvalidHexBooleanErrorType,
   InvalidHexValueError,
   type InvalidHexValueErrorType,
+  RlpDepthLimitExceededError,
+  type RlpDepthLimitExceededErrorType,
   SizeOverflowError,
   type SizeOverflowErrorType,
 } from './errors/encoding.js'
@@ -938,6 +940,8 @@ export {
 export {
   HttpRequestError,
   type HttpRequestErrorType,
+  ResponseBodyTooLargeError,
+  type ResponseBodyTooLargeErrorType,
   RpcRequestError,
   type RpcRequestErrorType,
   SocketClosedError,
@@ -1025,6 +1029,8 @@ export {
   type InvalidSerializedTransactionTypeErrorType,
   InvalidStorageKeySizeError,
   type InvalidStorageKeySizeErrorType,
+  InvalidYParityError,
+  type InvalidYParityErrorType,
   TransactionExecutionError,
   type TransactionExecutionErrorType,
   TransactionNotFoundError,
@@ -1050,6 +1056,7 @@ export {
   InvalidDecimalNumberError,
   type InvalidDecimalNumberErrorType,
 } from './errors/unit.js'
+export type { ResolvedToken, Tokens } from './tokens/defineToken.js'
 export type {
   DeriveAccount,
   HDKey,

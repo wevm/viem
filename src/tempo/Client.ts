@@ -18,6 +18,7 @@ import {
 import type { Transport } from '../clients/transports/createTransport.js'
 import { http } from '../clients/transports/http.js'
 import type { ErrorType } from '../errors/utils.js'
+import { tokens as tokenSets } from '../tokens/sets.js'
 import type { Account } from '../types/account.js'
 import type { Chain } from '../types/chain.js'
 import type { RpcSchema } from '../types/eip1193.js'
@@ -88,8 +89,10 @@ export type Client<
     chain,
     account,
     rpcSchema,
-    PublicActions<transport, chain, account> &
-      WalletActions<chain, account> &
+    Omit<
+      PublicActions<transport, chain, account> & WalletActions<chain, account>,
+      'token'
+    > &
       Decorator<chain, account>
   >
 >
@@ -153,7 +156,7 @@ export function createClient<
     : accountOrAddress,
   rpcSchema
 > {
-  const { chain, feeToken, testnet, transport, ...rest } = parameters
+  const { chain, feeToken, testnet, tokens, transport, ...rest } = parameters
   const baseChain = chain ?? (testnet ? tempoTestnet : tempo)
   const resolvedChain =
     feeToken && typeof (baseChain as { extend?: unknown }).extend === 'function'
@@ -164,6 +167,7 @@ export function createClient<
   return createClient_({
     ...rest,
     chain: resolvedChain,
+    tokens: tokens ?? tokenSets.tempo,
     transport: transport ?? http(),
   } as ClientConfig_)
     .extend(publicActions)

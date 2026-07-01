@@ -419,6 +419,18 @@ export default defineConfig({
             ],
           },
           {
+            text: 'Token',
+            items: [
+              { text: 'getAllowance', link: '/tokens/actions/getAllowance' },
+              { text: 'getBalance', link: '/tokens/actions/getBalance' },
+              { text: 'getMetadata', link: '/tokens/actions/getMetadata' },
+              {
+                text: 'getTotalSupply',
+                link: '/tokens/actions/getTotalSupply',
+              },
+            ],
+          },
+          {
             text: 'Transaction',
             items: [
               {
@@ -546,6 +558,13 @@ export default defineConfig({
                 text: 'requestPermissions',
                 link: '/docs/actions/wallet/requestPermissions',
               },
+            ],
+          },
+          {
+            text: 'Token',
+            items: [
+              { text: 'approve', link: '/tokens/actions/approve' },
+              { text: 'transfer', link: '/tokens/actions/transfer' },
             ],
           },
           {
@@ -1980,6 +1999,127 @@ export default defineConfig({
         },
       ],
     },
+    '/tokens': {
+      backLink: true,
+      items: [
+        {
+          text: 'Introduction',
+          items: [
+            { text: 'Getting Started', link: '/tokens' },
+            { text: 'Tokens', link: '/tokens/tokens' },
+          ],
+        },
+        {
+          text: 'Guides',
+          items: [
+            { text: 'Overview', link: '/tokens/guides' },
+            {
+              text: 'Importing Tokens',
+              link: '/tokens/guides/importing-tokens',
+            },
+            {
+              text: 'Defining Tokens',
+              link: '/tokens/guides/defining-tokens',
+            },
+            { text: 'Get Balances', link: '/tokens/guides/get-balances' },
+            {
+              text: 'Transfer Tokens',
+              link: '/tokens/guides/transfer-tokens',
+            },
+            {
+              text: 'Approve Spending',
+              link: '/tokens/guides/approve-spending',
+            },
+            {
+              text: 'TIP-20 (Tempo)',
+              collapsed: true,
+              items: [
+                {
+                  text: 'Create a TIP-20 Token',
+                  link: '/tokens/guides/tempo/create-token',
+                },
+                {
+                  text: 'Mint & Burn Tokens',
+                  link: '/tokens/guides/tempo/manage-token-balances',
+                },
+                {
+                  text: 'Transfer Tokens',
+                  link: '/tokens/guides/tempo/transfer-tokens',
+                },
+                {
+                  text: 'Manage Token Roles & Supply',
+                  link: '/tokens/guides/tempo/manage-token-roles',
+                },
+                {
+                  text: 'Configure Transfer Policies',
+                  link: '/tokens/guides/tempo/transfer-policies',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          text: 'Actions',
+          items: [
+            { text: 'Overview', link: '/tokens/actions' },
+            {
+              text: 'Core',
+              items: [
+                { text: 'approve', link: '/tokens/actions/approve' },
+                {
+                  text: 'getAllowance',
+                  link: '/tokens/actions/getAllowance',
+                },
+                { text: 'getBalance', link: '/tokens/actions/getBalance' },
+                { text: 'getMetadata', link: '/tokens/actions/getMetadata' },
+                {
+                  text: 'getTotalSupply',
+                  link: '/tokens/actions/getTotalSupply',
+                },
+                { text: 'transfer', link: '/tokens/actions/transfer' },
+              ],
+            },
+            {
+              text: 'TIP-20 (Tempo)',
+              collapsed: true,
+              items: [
+                { text: 'burn', link: '/tokens/tempo/burn' },
+                {
+                  text: 'burnBlocked',
+                  link: '/tokens/tempo/burnBlocked',
+                },
+                {
+                  text: 'changeTransferPolicy',
+                  link: '/tokens/tempo/changeTransferPolicy',
+                },
+                { text: 'create', link: '/tokens/tempo/create' },
+                { text: 'grantRoles', link: '/tokens/tempo/grantRoles' },
+                { text: 'hasRole', link: '/tokens/tempo/hasRole' },
+                { text: 'mint', link: '/tokens/tempo/mint' },
+                { text: 'pause', link: '/tokens/tempo/pause' },
+                {
+                  text: 'renounceRoles',
+                  link: '/tokens/tempo/renounceRoles',
+                },
+                {
+                  text: 'revokeRoles',
+                  link: '/tokens/tempo/revokeRoles',
+                },
+                {
+                  text: 'setRoleAdmin',
+                  link: '/tokens/tempo/setRoleAdmin',
+                },
+                {
+                  text: 'setSupplyCap',
+                  link: '/tokens/tempo/setSupplyCap',
+                },
+                { text: 'unpause', link: '/tokens/tempo/unpause' },
+              ],
+            },
+          ],
+        },
+      ],
+    },
     '/tempo': {
       backLink: true,
       items: [
@@ -2111,7 +2251,6 @@ export default defineConfig({
                   link: '/tempo/guides/access-keys/manage',
                 },
                 {
-                  badge: { text: 'T6', variant: 'warning' },
                   text: 'Admin Access Keys',
                   link: '/tempo/guides/access-keys/admin',
                 },
@@ -2174,7 +2313,6 @@ export default defineConfig({
               ],
             },
             {
-              badge: { text: 'T6', variant: 'warning' },
               text: 'Receive Policies',
               collapsed: true,
               items: [
@@ -2710,6 +2848,10 @@ export default defineConfig({
                   link: '/tempo/actions/token.getMetadata',
                 },
                 {
+                  text: 'getTotalSupply',
+                  link: '/tempo/actions/token.getTotalSupply',
+                },
+                {
                   text: 'grantRoles',
                   link: '/tempo/actions/token.grantRoles',
                 },
@@ -3228,6 +3370,7 @@ export default defineConfig({
   },
   topNav: [
     { text: 'Docs', link: '/docs/getting-started', match: '/docs' },
+    { text: 'Tokens', link: '/tokens', match: '/tokens' },
     { text: 'Tempo', link: '/tempo', match: '/tempo' },
     {
       text: 'Extensions',

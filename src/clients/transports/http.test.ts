@@ -457,6 +457,35 @@ describe('request', () => {
     await server.close()
   })
 
+  test('behavior: maxResponseBodySize', async () => {
+    const body = JSON.stringify({ result: '0x1' })
+    const server = await createHttpServer((_, res) => {
+      res.writeHead(200, {
+        'Content-Length': body.length,
+        'Content-Type': 'application/json',
+      })
+      res.end(body)
+    })
+
+    const transport = http(server.url, {
+      key: 'mock',
+      maxResponseBodySize: body.length - 1,
+    })({ chain: localhost })
+
+    await expect(() =>
+      transport.request({ method: 'eth_blockNumber' }),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(`
+      [ResponseBodyTooLargeError: HTTP response body exceeded the size limit.
+
+      Max: 15 bytes
+      Received: 16 bytes
+
+      Version: viem@x.y.z]
+    `)
+
+    await server.close()
+  })
+
   test('behavior: methods.exclude', async () => {
     const server = await createHttpServer((_, res) => {
       res.end(JSON.stringify({ result: '0x1' }))

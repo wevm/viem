@@ -6,6 +6,7 @@ import {
   parseAccount,
 } from '../accounts/utils/parseAccount.js'
 import type { ErrorType } from '../errors/utils.js'
+import type { Tokens } from '../tokens/defineToken.js'
 import type { Account } from '../types/account.js'
 import type { BlockTag } from '../types/block.js'
 import type { Chain } from '../types/chain.js'
@@ -33,6 +34,7 @@ export type ClientConfig<
     | Address
     | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
+  tokens extends Tokens | undefined = Tokens | undefined,
 > = {
   /** The Account to use for the Client. This will be used for Actions that require an account as an argument. */
   account?: accountOrAddress | Account | Address | undefined
@@ -90,6 +92,12 @@ export type ClientConfig<
    * Typed JSON-RPC schema for the client.
    */
   rpcSchema?: rpcSchema | undefined
+  /**
+   * Collection of tokens to declare on the Client. A token's symbol becomes
+   * available to token Actions (e.g. `token.transfer`) only when its `addresses`
+   * map includes the Client's `chain.id`.
+   */
+  tokens?: tokens | undefined
   /** The RPC transport */
   transport: transport
   /** The type of client. */
@@ -104,8 +112,9 @@ type ExtendableProtectedActions<
   transport extends Transport = Transport,
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
+  tokens extends Tokens | undefined = Tokens | undefined,
 > = Pick<
-  PublicActions<transport, chain, account>,
+  PublicActions<transport, chain, account, tokens>,
   | 'call'
   | 'createContractEventFilter'
   | 'createEventFilter'
@@ -130,7 +139,10 @@ type ExtendableProtectedActions<
   | 'watchBlockNumber'
   | 'watchContractEvent'
 > &
-  Pick<WalletActions<chain, account>, 'sendTransaction' | 'writeContract'>
+  Pick<
+    WalletActions<chain, account, tokens>,
+    'sendTransaction' | 'writeContract'
+  >
 
 // TODO: Move `transport` to slot index 2 since `chain` and `account` used more frequently.
 // Otherwise, we end up with a lot of `Client<Transport, chain, account>` in actions.
@@ -140,21 +152,25 @@ export type Client<
   account extends Account | undefined = Account | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
   extended extends Extended | undefined = Extended | undefined,
-> = Client_Base<transport, chain, account, rpcSchema> &
+  tokens extends Tokens | undefined = Tokens | undefined,
+> = Client_Base<transport, chain, account, rpcSchema, tokens> &
   (extended extends Extended ? extended : unknown) & {
     extend: <
       const client extends Extended &
-        ExactPartial<ExtendableProtectedActions<transport, chain, account>>,
+        ExactPartial<
+          ExtendableProtectedActions<transport, chain, account, tokens>
+        >,
     >(
       fn: (
-        client: Client<transport, chain, account, rpcSchema, extended>,
+        client: Client<transport, chain, account, rpcSchema, extended, tokens>,
       ) => client,
     ) => Client<
       transport,
       chain,
       account,
       rpcSchema,
-      Prettify<client> & (extended extends Extended ? extended : unknown)
+      Prettify<client> & (extended extends Extended ? extended : unknown),
+      tokens
     >
   }
 
@@ -163,6 +179,7 @@ type Client_Base<
   chain extends Chain | undefined = Chain | undefined,
   account extends Account | undefined = Account | undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
+  tokens extends Tokens | undefined = Tokens | undefined,
 > = {
   /** The Account of the Client. */
   account: account
@@ -188,6 +205,8 @@ type Client_Base<
   request: EIP1193RequestFn<
     rpcSchema extends undefined ? EIP1474Methods : rpcSchema
   >
+  /** Collection of tokens declared on the Client. */
+  tokens: tokens
   /** The RPC transport */
   transport: ReturnType<transport>['config'] & ReturnType<transport>['value']
   /** The type of client. */
@@ -219,8 +238,15 @@ export function createClient<
   chain extends Chain | undefined = undefined,
   accountOrAddress extends Account | Address | undefined = undefined,
   rpcSchema extends RpcSchema | undefined = undefined,
+  const tokens extends Tokens | undefined = undefined,
 >(
-  parameters: ClientConfig<transport, chain, accountOrAddress, rpcSchema>,
+  parameters: ClientConfig<
+    transport,
+    chain,
+    accountOrAddress,
+    rpcSchema,
+    tokens
+  >,
 ): Prettify<
   Client<
     transport,
@@ -228,7 +254,9 @@ export function createClient<
     accountOrAddress extends Address
       ? Prettify<JsonRpcAccount<accountOrAddress>>
       : accountOrAddress,
-    rpcSchema
+    rpcSchema,
+    undefined,
+    tokens
   >
 >
 
@@ -240,6 +268,7 @@ export function createClient(parameters: ClientConfig): Client {
     dataSuffix,
     key = 'base',
     name = 'Base Client',
+    tokens,
     type = 'base',
   } = parameters
 
@@ -278,6 +307,7 @@ export function createClient(parameters: ClientConfig): Client {
     name,
     pollingInterval,
     request,
+    tokens,
     transport,
     type,
     uid: uid(),
@@ -290,11 +320,63 @@ export function createClient(parameters: ClientConfig): Client {
       const extended = extendFn(base) as Extended
       for (const key in client) delete extended[key]
       const combined = { ...base, ...extended }
+      // For keys that exist on both the base client and the extension and
+      // resolve to plain objects (e.g. namespaces like `token`), shallow-merge
+      // their members instead of overwriting. This lets decorators contribute
+      // to the same namespace (e.g. `publicActions` adds read actions and
+      // `walletActions` adds write actions to `client.token`).
+      for (const key in extended) {
+        const a = (base as Record<string, unknown>)[key]
+        const b = (extended as Record<string, unknown>)[key]
+        if (isPlainObject(a) && isPlainObject(b))
+          (combined as Record<string, unknown>)[key] = { ...a, ...b }
+      }
       return Object.assign(combined, { extend: extend(combined as any) })
     }
   }
 
   return Object.assign(client, { extend: extend(client) as any })
+}
+
+/** Whether `value` is a plain object (`{}`), as opposed to a function, array,
+ * or class instance. Used to decide which extension namespaces to merge. */
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (typeof value !== 'object' || value === null) return false
+  const prototype = Object.getPrototypeOf(value)
+  return prototype === Object.prototype || prototype === null
+}
+
+/**
+ * Binds an action function to a `client`, returning a parameter-only version
+ * along with any helpers the action exposes. Helpers that need a client
+ * (`.call`, `.calls`, `.callWithPeriod`, `.estimateGas`, `.simulate`) are bound
+ * to `client`; pure helpers (`.extractEvent`, `.extractEvents`) are copied
+ * as-is. Used by decorators that attach namespaced actions to a Client.
+ * @internal
+ */
+export function bindActionDecorators(
+  client: Client<Transport, Chain | undefined, any>,
+  action: any,
+) {
+  const wrapped: any = (parameters: any = {}) => action(client, parameters)
+  for (const key of [
+    'call',
+    'calls',
+    'callWithPeriod',
+    'estimateGas',
+    'simulate',
+  ] as const)
+    if (Object.hasOwn(action, key)) {
+      const helper = action[key]
+      wrapped[key] = (args: any = {}) => {
+        if (helper.length >= 2) return helper(client, args)
+        if (helper.length === 0) return helper()
+        return helper(args)
+      }
+    }
+  for (const key of ['extractEvent', 'extractEvents'] as const)
+    if (Object.hasOwn(action, key)) wrapped[key] = action[key]
+  return wrapped
 }
 
 /**

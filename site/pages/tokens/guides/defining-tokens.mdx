@@ -1,0 +1,141 @@
+---
+description: Define reusable tokens for Clients.
+---
+
+# Defining Tokens
+
+Token Actions can select tokens by token address, or by a symbol that is declared on the active
+Client. Use `defineToken` when you want a reusable token definition, then attach that token to a
+Client's `tokens` array to make symbol selectors like `token: 'usdc'` available.
+
+## Define a Token
+
+Use [`defineToken`](/tokens) to create a token from shared metadata (`currency`, `decimals`,
+`name`, `symbol`, etc.) and a per-chain `addresses` map. This step does not attach the token to a
+Client; it only creates a reusable definition.
+
+```ts twoslash
+import { defineToken } from 'viem/tokens'
+
+export const usdc = defineToken({ // [!code focus:11]
+  addresses: {
+    1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    10: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
+  },
+  currency: 'USD',
+  decimals: 6,
+  name: 'USD Coin',
+  popular: true,
+  symbol: 'USDC',
+})
+```
+
+The returned token is callable with a chain id when you need a chain token config.
+
+```ts twoslash
+import { mainnet } from 'viem/chains'
+import { defineToken } from 'viem/tokens'
+
+const usdc = defineToken({
+  addresses: {
+    1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    10: '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85',
+  },
+  currency: 'USD',
+  decimals: 6,
+  name: 'USD Coin',
+  popular: true,
+  symbol: 'USDC',
+})
+// ---cut---
+const mainnetUsdc = usdc(mainnet.id)
+// @log: {
+// @log:   address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+// @log:   currency: 'USD',
+// @log:   decimals: 6,
+// @log:   name: 'USD Coin',
+// @log:   popular: true,
+// @log:   symbol: 'USDC',
+// @log: }
+```
+
+## Attach Tokens to a Client
+
+Attach token definitions under the Client's `tokens` property. The token's lowercased `symbol` is
+the selector used by Token Actions.
+
+```ts twoslash
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { defineToken } from 'viem/tokens'
+
+const usdc = defineToken({
+  addresses: {
+    1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  },
+  currency: 'USD',
+  decimals: 6,
+  name: 'USD Coin',
+  symbol: 'USDC',
+})
+
+export const client = createPublicClient({ // [!code focus:5]
+  chain: mainnet,
+  tokens: [usdc], // [!code hl]
+  transport: http(),
+})
+```
+
+You can also attach a one-off token definition directly:
+
+```ts twoslash
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { defineToken } from 'viem/tokens'
+
+export const client = createPublicClient({
+  chain: mainnet,
+  tokens: [
+    defineToken({ // [!code focus:9]
+      addresses: {
+        1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+      },
+      currency: 'USD',
+      decimals: 6,
+      name: 'USD Coin',
+      symbol: 'USDC',
+    }),
+  ],
+  transport: http(),
+})
+```
+
+Once attached, the token can be selected by its lowercased symbol on any Token Action.
+
+```ts twoslash
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { defineToken } from 'viem/tokens'
+
+const usdc = defineToken({
+  addresses: {
+    1: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+  },
+  currency: 'USD',
+  decimals: 6,
+  name: 'USD Coin',
+  symbol: 'USDC',
+})
+
+const client = createPublicClient({
+  chain: mainnet,
+  tokens: [usdc],
+  transport: http(),
+})
+// ---cut---
+const balance = await client.token.getBalance({
+  account: '0x55FE002aefF02F77364de339a1292923A15844B8',
+  token: 'usdc', // [!code focus]
+})
+// @log: { amount: 1000000n, decimals: 6, formatted: '1' }
+```

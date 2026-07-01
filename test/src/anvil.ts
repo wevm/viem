@@ -12,6 +12,7 @@ import {
   type ExactPartial,
   http,
   type ParseAccount,
+  type Tokens,
   type Transport,
   webSocket,
 } from '../../src/index.js'
@@ -103,7 +104,8 @@ type DefineAnvilReturnType<chain extends Chain> = {
           ? ParseAccount<(typeof accounts)[0]['address']>
           : undefined,
     undefined,
-    { mode: 'anvil' }
+    { mode: 'anvil' },
+    config['tokens'] extends Tokens ? config['tokens'] : undefined
   >
   port: number
   rpcUrl: {
