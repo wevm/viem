@@ -63,13 +63,21 @@ export function walletActions() {
     },
     wallet: {
       getAddresses: () => wallet.getAddresses(client),
+      getCallsStatus: (options) => wallet.getCallsStatus(client, options),
+      getCapabilities: (options) => wallet.getCapabilities(client, options),
       getPermissions: () => wallet.getPermissions(client),
       prepareAuthorization: (options) =>
         wallet.prepareAuthorization(client, options),
       requestAddresses: () => wallet.requestAddresses(client),
       requestPermissions: (options) =>
         wallet.requestPermissions(client, options),
+      sendCalls: (options) => wallet.sendCalls(client, options as never),
+      sendCallsSync: (options) =>
+        wallet.sendCallsSync(client, options as never),
+      showCallsStatus: (options) => wallet.showCallsStatus(client, options),
       signAuthorization: (options) => wallet.signAuthorization(client, options),
+      waitForCallsStatus: (options) =>
+        wallet.waitForCallsStatus(client, options),
       watchAsset: (options) => wallet.watchAsset(client, options),
     },
     signMessage: (options) => signMessage(client, options),
@@ -415,6 +423,44 @@ export declare namespace walletActions {
        */
       getAddresses: () => Promise<wallet.getAddresses.ReturnType>
       /**
+       * Returns the status of a call batch that was sent via `sendCalls`.
+       *
+       * @example
+       * ```ts
+       * import { Client, custom, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: custom(window.ethereum!),
+       * }).extend(walletActions())
+       * const { receipts, status } = await client.wallet.getCallsStatus({
+       *   id: '0xdeadbeef',
+       * })
+       * ```
+       */
+      getCallsStatus: (
+        options: wallet.getCallsStatus.Options,
+      ) => Promise<wallet.getCallsStatus.ReturnType>
+      /**
+       * Extracts capabilities that a connected wallet supports.
+       *
+       * @example
+       * ```ts
+       * import { Client, custom, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: custom(window.ethereum!),
+       * }).extend(walletActions())
+       * const capabilities = await client.wallet.getCapabilities()
+       * ```
+       */
+      getCapabilities: <chainId extends number | undefined = undefined>(
+        options?: wallet.getCapabilities.Options<chainId> | undefined,
+      ) => Promise<wallet.getCapabilities.ReturnType<chainId>>
+      /**
        * Gets the wallet's current permissions.
        *
        * @example
@@ -489,6 +535,70 @@ export declare namespace walletActions {
         options: wallet.requestPermissions.Options,
       ) => Promise<wallet.requestPermissions.ReturnType>
       /**
+       * Requests the connected wallet to send a batch of calls.
+       *
+       * @example
+       * ```ts
+       * import { Client, custom, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: custom(window.ethereum!),
+       * }).extend(walletActions())
+       * const { id } = await client.wallet.sendCalls({
+       *   calls: [
+       *     { to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', value: 1n },
+       *   ],
+       * })
+       * ```
+       */
+      sendCalls: <const calls extends readonly unknown[]>(
+        options: wallet.sendCalls.Options<chain, account, chain, calls>,
+      ) => Promise<wallet.sendCalls.ReturnType>
+      /**
+       * Requests the connected wallet to send a batch of calls, and waits for
+       * the calls to be included in a block.
+       *
+       * @example
+       * ```ts
+       * import { Client, custom, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: custom(window.ethereum!),
+       * }).extend(walletActions())
+       * const status = await client.wallet.sendCallsSync({
+       *   calls: [
+       *     { to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', value: 1n },
+       *   ],
+       * })
+       * ```
+       */
+      sendCallsSync: <const calls extends readonly unknown[]>(
+        options: wallet.sendCallsSync.Options<chain, account, chain, calls>,
+      ) => Promise<wallet.sendCallsSync.ReturnType>
+      /**
+       * Requests for the wallet to show information about a call batch that was
+       * sent via `sendCalls`.
+       *
+       * @example
+       * ```ts
+       * import { Client, custom, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: custom(window.ethereum!),
+       * }).extend(walletActions())
+       * await client.wallet.showCallsStatus({ id: '0xdeadbeef' })
+       * ```
+       */
+      showCallsStatus: (
+        options: wallet.showCallsStatus.Options,
+      ) => Promise<wallet.showCallsStatus.ReturnType>
+      /**
        * Signs an [EIP-7702](https://eips.ethereum.org/EIPS/eip-7702)
        * Authorization object.
        *
@@ -510,6 +620,27 @@ export declare namespace walletActions {
       signAuthorization: (
         options: wallet.signAuthorization.Options,
       ) => Promise<wallet.signAuthorization.ReturnType>
+      /**
+       * Waits for the status & receipts of a call bundle that was sent via
+       * `sendCalls`.
+       *
+       * @example
+       * ```ts
+       * import { Client, custom, walletActions } from 'viem'
+       * import { mainnet } from 'viem/chains'
+       *
+       * const client = Client.create({
+       *   chain: mainnet,
+       *   transport: custom(window.ethereum!),
+       * }).extend(walletActions())
+       * const { receipts, status } = await client.wallet.waitForCallsStatus({
+       *   id: '0xdeadbeef',
+       * })
+       * ```
+       */
+      waitForCallsStatus: (
+        options: wallet.waitForCallsStatus.Options,
+      ) => Promise<wallet.waitForCallsStatus.ReturnType>
       /**
        * Adds an EVM token to the wallet's watchlist.
        *

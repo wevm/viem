@@ -1,0 +1,226 @@
+# sendCalls
+
+Requests the connected wallet to send a batch of calls ([EIP-5792](https://eips.ethereum.org/EIPS/eip-5792)).
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+const { id } = await client.wallet.sendCalls({
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  calls: [
+    {
+      data: '0xdeadbeef',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    },
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 69420n,
+    },
+  ],
+})
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+const { id } = await Actions.wallet.sendCalls(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e',
+  calls: [
+    {
+      data: '0xdeadbeef',
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+    },
+    {
+      to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
+      value: 69420n,
+    },
+  ],
+})
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+export const client = Client.create({
+  transport: custom(provider),
+}).extend(walletActions())
+```
+
+:::
+
+## Return Value
+
+`{ id: string; capabilities?: object }`
+
+The identifier of the call batch (and any returned capabilities). Pass `id` to [`getCallsStatus`](/docs/actions/wallet/getCallsStatus) or [`waitForCallsStatus`](/docs/actions/wallet/waitForCallsStatus).
+
+## Parameters
+
+### account
+
+- **Type:** `Account | Address | null`
+- **Default:** `client.account`
+
+The Account (or address) the calls are sent from.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const { id } = await Actions.wallet.sendCalls(client, {
+  account: '0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', // [!code focus]
+  calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
+})
+```
+
+### calls
+
+- **Type:** `Call[]`
+
+The batch of calls to send. Each call is either raw call data (`to`, `data`, `value`) or contract function parameters (`abi`, `functionName`, `args`).
+
+```ts twoslash
+import { Actions } from 'viem'
+import { Abi } from 'viem/utils'
+import { client } from './viem.config'
+// ---cut---
+const { id } = await Actions.wallet.sendCalls(client, {
+  calls: [ // [!code focus]
+    { to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', value: 1n }, // [!code focus]
+    { // [!code focus]
+      abi: Abi.from(['function mint()']), // [!code focus]
+      functionName: 'mint', // [!code focus]
+      to: '0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2', // [!code focus]
+    }, // [!code focus]
+  ], // [!code focus]
+})
+```
+
+### capabilities
+
+- **Type:** `Capabilities`
+
+Capabilities to request from the wallet (e.g. paymaster service).
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const { id } = await Actions.wallet.sendCalls(client, {
+  calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
+  capabilities: { // [!code focus]
+    paymasterService: { // [!code focus]
+      url: 'https://...', // [!code focus]
+    }, // [!code focus]
+  }, // [!code focus]
+})
+```
+
+### chain
+
+- **Type:** `Chain`
+- **Default:** `client.chain`
+
+The chain the calls target.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { mainnet } from 'viem/chains'
+import { client } from './viem.config'
+// ---cut---
+const { id } = await Actions.wallet.sendCalls(client, {
+  calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
+  chain: mainnet, // [!code focus]
+})
+```
+
+### experimental_fallback
+
+- **Type:** `boolean`
+
+Whether to fall back to `eth_sendTransaction` when the wallet does not support EIP-5792.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const { id } = await Actions.wallet.sendCalls(client, {
+  calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
+  experimental_fallback: true, // [!code focus]
+})
+```
+
+### experimental_fallbackDelay
+
+- **Type:** `number`
+- **Default:** `32`
+
+Delay (in ms) between fallback transactions.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const { id } = await Actions.wallet.sendCalls(client, {
+  calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
+  experimental_fallback: true,
+  experimental_fallbackDelay: 100, // [!code focus]
+})
+```
+
+### forceAtomic
+
+- **Type:** `boolean`
+- **Default:** `false`
+
+Whether the calls must be executed atomically.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const { id } = await Actions.wallet.sendCalls(client, {
+  calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
+  forceAtomic: true, // [!code focus]
+})
+```
+
+### id
+
+- **Type:** `string`
+
+A caller-supplied identifier for the call batch.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const { id } = await Actions.wallet.sendCalls(client, {
+  calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
+  id: '0xdeadbeef', // [!code focus]
+})
+```
+
+### version
+
+- **Type:** `string`
+- **Default:** `'2.0.0'`
+
+The EIP-5792 version to use.
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+const { id } = await Actions.wallet.sendCalls(client, {
+  calls: [{ to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8' }],
+  version: '2.0.0', // [!code focus]
+})
+```

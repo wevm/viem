@@ -728,6 +728,16 @@ export default defineConfig({
                 badge: badge('wallet'),
               },
               {
+                text: 'getCallsStatus',
+                link: '/docs/actions/wallet/getCallsStatus',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'getCapabilities',
+                link: '/docs/actions/wallet/getCapabilities',
+                badge: badge('wallet'),
+              },
+              {
                 text: 'getPermissions',
                 link: '/docs/actions/wallet/getPermissions',
                 badge: badge('wallet'),
@@ -748,8 +758,28 @@ export default defineConfig({
                 badge: badge('wallet'),
               },
               {
+                text: 'sendCalls',
+                link: '/docs/actions/wallet/sendCalls',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'sendCallsSync',
+                link: '/docs/actions/wallet/sendCallsSync',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'showCallsStatus',
+                link: '/docs/actions/wallet/showCallsStatus',
+                badge: badge('wallet'),
+              },
+              {
                 text: 'signAuthorization',
                 link: '/docs/actions/wallet/signAuthorization',
+                badge: badge('wallet'),
+              },
+              {
+                text: 'waitForCallsStatus',
+                link: '/docs/actions/wallet/waitForCallsStatus',
                 badge: badge('wallet'),
               },
               {

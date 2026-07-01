@@ -1,0 +1,53 @@
+# showCallsStatus
+
+Requests for the wallet to show information about a call batch that was sent via [`sendCalls`](/docs/actions/wallet/sendCalls) ([EIP-5792](https://eips.ethereum.org/EIPS/eip-5792)).
+
+## Usage
+
+:::code-group
+
+```ts twoslash [Decorator]
+import { client } from './viem.config'
+
+await client.wallet.showCallsStatus({ id: '0xdeadbeef' })
+```
+
+```ts twoslash [Standalone]
+import { Actions } from 'viem'
+import { client } from './viem.config'
+
+await Actions.wallet.showCallsStatus(client, { id: '0xdeadbeef' })
+```
+
+```ts twoslash [viem.config.ts] filename="viem.config.ts"
+import { Client, custom, walletActions } from 'viem'
+
+declare const provider: { request(...args: any): Promise<any> }
+
+export const client = Client.create({
+  transport: custom(provider),
+}).extend(walletActions())
+```
+
+:::
+
+## Return Value
+
+`void`
+
+## Parameters
+
+### id
+
+- **Type:** `string`
+
+The identifier of the call batch (returned by [`sendCalls`](/docs/actions/wallet/sendCalls)).
+
+```ts twoslash
+import { Actions } from 'viem'
+import { client } from './viem.config'
+// ---cut---
+await Actions.wallet.showCallsStatus(client, {
+  id: '0xdeadbeef', // [!code focus]
+})
+```

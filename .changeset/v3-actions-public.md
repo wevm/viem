@@ -308,3 +308,23 @@ Wallet JSON-RPC actions were grouped under the `wallet` namespace, and the EIP-7
 + const authorization = await Actions.wallet.prepareAuthorization(client, { address })
 + const signed = await Actions.wallet.signAuthorization(client, { address })
 ```
+
+The EIP-5792 wallet actions were grouped under the `wallet` namespace.
+
+```diff
+- import { sendCalls, sendCallsSync, getCallsStatus, getCapabilities, showCallsStatus, waitForCallsStatus } from 'viem/actions'
++ import { Actions } from 'viem'
+
+- const { id } = await sendCalls(client, { calls })
+- const status = await sendCallsSync(client, { calls })
+- const callsStatus = await getCallsStatus(client, { id })
+- const capabilities = await getCapabilities(client)
+- await showCallsStatus(client, { id })
+- const confirmed = await waitForCallsStatus(client, { id })
++ const { id } = await Actions.wallet.sendCalls(client, { calls })
++ const status = await Actions.wallet.sendCallsSync(client, { calls })
++ const callsStatus = await Actions.wallet.getCallsStatus(client, { id })
++ const capabilities = await Actions.wallet.getCapabilities(client)
++ await Actions.wallet.showCallsStatus(client, { id })
++ const confirmed = await Actions.wallet.waitForCallsStatus(client, { id })
+```
