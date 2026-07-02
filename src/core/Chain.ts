@@ -171,7 +171,7 @@ export declare namespace Chain {
     /**
      * Derives the sign payload (hash) for a transaction envelope.
      *
-     * @default ox `TxEnvelope.getSignPayload`
+     * @default `TxEnvelope.getSignPayload`
      */
     getSignPayload?: ((envelope: TxEnvelope.TxEnvelope) => Hex.Hex) | undefined
     /**
@@ -193,7 +193,7 @@ export declare namespace Chain {
     /**
      * Serializes a (signed or unsigned) transaction envelope.
      *
-     * @default ox `TxEnvelope.serialize`
+     * @default `TxEnvelope.serialize`
      */
     serialize?:
       | ((
@@ -204,7 +204,7 @@ export declare namespace Chain {
     /**
      * Converts a transaction request into a (typed) transaction envelope.
      *
-     * @default ox `TransactionRequest.toEnvelope`
+     * @default `TransactionRequest.toEnvelope`
      */
     toEnvelope?:
       | ((
@@ -274,8 +274,8 @@ export declare namespace Chain {
 
 /**
  * Native block type a {@link Chain} produces. Resolves to `z.output` of the
- * chain's `schema.block.fromRpc` codec when declared, otherwise the ox default
- * {@link ox#Block.Block}.
+ * chain's `schema.block.fromRpc` codec when declared, otherwise the default
+ * {@link Block.Block}.
  */
 export type ExtractBlock<
   chain extends Chain | undefined,
@@ -290,7 +290,7 @@ export type ExtractBlock<
 /**
  * Native transaction type a {@link Chain} produces. Resolves to `z.output` of
  * the chain's `schema.transaction.fromRpc` codec when declared, otherwise the
- * ox default {@link ox#Transaction.Transaction}.
+ * default {@link Transaction.Transaction}.
  */
 export type ExtractTransaction<
   chain extends Chain | undefined,
@@ -304,8 +304,8 @@ export type ExtractTransaction<
 /**
  * Native transaction receipt type a {@link Chain} produces. Resolves to
  * `z.output` of the chain's `schema.transactionReceipt.fromRpc` codec when
- * declared, otherwise the ox default
- * {@link ox#TransactionReceipt.TransactionReceipt}.
+ * declared, otherwise the default
+ * {@link TransactionReceipt.TransactionReceipt}.
  */
 export type ExtractTransactionReceipt<chain extends Chain | undefined> =
   chain extends {
@@ -319,7 +319,7 @@ export type ExtractTransactionReceipt<chain extends Chain | undefined> =
 /**
  * Native transaction request input a {@link Chain} accepts. Resolves to
  * `z.input` of the chain's `schema.transactionRequest.toRpc` codec when
- * declared, otherwise the ox default {@link ox#TransactionRequest.toRpc.Input}.
+ * declared, otherwise the default {@link TransactionRequest.toRpc.Input}.
  */
 export type ExtractTransactionRequest<chain extends Chain | undefined> =
   chain extends {

@@ -35,9 +35,9 @@ import { getLogs } from './getLogs.js'
  *
  * @example
  * ```ts
- * import * as AbiEvent from 'ox/AbiEvent'
  * import { Actions, Client, http } from 'viem'
  * import { mainnet } from 'viem/chains'
+ * import { AbiEvent } from 'viem/utils'
  *
  * const client = Client.create({
  *   chain: mainnet,

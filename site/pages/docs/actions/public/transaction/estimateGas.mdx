@@ -127,9 +127,9 @@ const gas = await Actions.transaction.estimateGas(client, {
 The blobs to attach to the transaction (EIP-4844). Provide [`kzg`](#kzg) to derive blob versioned hashes locally.
 
 ```ts twoslash
-import * as Kzg from 'ox/Kzg'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import { Kzg } from 'viem/utils'
 
 declare const kzg: Kzg.Kzg
 const blobData = '0x1234' as const
@@ -259,9 +259,9 @@ const gas = await Actions.transaction.estimateGas(client, {
 KZG context used to derive [`blobVersionedHashes`](#blobversionedhashes) from [`blobs`](#blobs).
 
 ```ts twoslash
-import * as Kzg from 'ox/Kzg'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import { Kzg } from 'viem/utils'
 
 declare const kzg: Kzg.Kzg
 const blobData = '0x1234' as const

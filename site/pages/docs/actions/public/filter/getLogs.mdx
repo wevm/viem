@@ -9,8 +9,8 @@ Unlike `getChanges`, this action is not drained by polling. It returns all logs 
 :::code-group
 
 ```ts twoslash [Decorator]
-import * as AbiEvent from 'ox/AbiEvent'
 import { Actions } from 'viem'
+import { AbiEvent } from 'viem/utils'
 import { client } from './viem.config'
 
 const filter = await client.event.createFilter({
@@ -36,8 +36,8 @@ const logs = await client.filter.getLogs({ filter })
 ```
 
 ```ts twoslash [Standalone]
-import * as AbiEvent from 'ox/AbiEvent'
 import { Actions } from 'viem'
+import { AbiEvent } from 'viem/utils'
 import { client } from './viem.config'
 
 const filter = await Actions.event.createFilter(client, {
@@ -83,9 +83,9 @@ These recipes call the action standalone with a Client as the first argument. Ea
 Pass `abiEvent` on the filter to decode the returned logs.
 
 ```ts twoslash
-import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
@@ -104,9 +104,9 @@ const logs = await Actions.filter.getLogs(client, { filter })
 Pass `args` on the filter to filter decoded logs by indexed arguments.
 
 ```ts twoslash
-import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
@@ -137,9 +137,9 @@ The logs held by the event filter, decoded by `filter.abiEvent` when provided.
 The event filter to fetch logs for. Its `request` function should point at the transport that created the filter id.
 
 ```ts twoslash
-import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---

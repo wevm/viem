@@ -9,7 +9,7 @@ Poll the filter with [`Actions.filter.getChanges`](/docs/actions/public/filter/g
 :::code-group
 
 ```ts twoslash [Decorator]
-import * as AbiEvent from 'ox/AbiEvent'
+import { AbiEvent } from 'viem/utils'
 import { client } from './viem.config'
 
 const filter = await client.event.createFilter({
@@ -21,8 +21,8 @@ const filter = await client.event.createFilter({
 ```
 
 ```ts twoslash [Standalone]
-import * as AbiEvent from 'ox/AbiEvent'
 import { Actions } from 'viem'
+import { AbiEvent } from 'viem/utils'
 import { client } from './viem.config'
 
 const filter = await Actions.event.createFilter(client, {
@@ -54,9 +54,9 @@ These recipes call the action standalone with a Client as the first argument. Ea
 Pass `events` to listen for and decode several events with one filter.
 
 ```ts twoslash
-import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
@@ -76,9 +76,9 @@ const logs = await Actions.filter.getChanges(client, { filter })
 Pass `args` to filter logs by the event's indexed arguments.
 
 ```ts twoslash
-import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
@@ -124,9 +124,9 @@ const filter = await Actions.event.createFilter(client, {
 Indexed argument values to filter logs by.
 
 ```ts twoslash
-import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
@@ -145,9 +145,9 @@ const filter = await Actions.event.createFilter(client, {
 Event to filter and decode logs by. Mutually exclusive with `events`.
 
 ```ts twoslash
-import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
@@ -165,9 +165,9 @@ const filter = await Actions.event.createFilter(client, {
 Events to filter and decode logs by. Mutually exclusive with `event`.
 
 ```ts twoslash
-import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
@@ -185,9 +185,9 @@ const filter = await Actions.event.createFilter(client, {
 Block number or tag after which to include logs.
 
 ```ts twoslash
-import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
@@ -207,9 +207,9 @@ const filter = await Actions.event.createFilter(client, {
 Whether the logs must match the indexed/non-indexed arguments on `event`. When `true`, only logs whose arguments fully decode are returned.
 
 ```ts twoslash
-import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
@@ -228,9 +228,9 @@ const filter = await Actions.event.createFilter(client, {
 Block number or tag before which to include logs.
 
 ```ts twoslash
-import * as AbiEvent from 'ox/AbiEvent'
 import { Actions, Client, http } from 'viem'
 import { mainnet } from 'viem/chains'
+import { AbiEvent } from 'viem/utils'
 
 const client = Client.create({ chain: mainnet, transport: http() })
 // ---cut---
