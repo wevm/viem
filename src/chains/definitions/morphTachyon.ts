@@ -10,7 +10,7 @@ export const morphTachyon = /*#__PURE__*/ defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.popdex.xyz'],
+      http: ['https://api.popdex.xyz/api/v1/web3/rpc'],
     },
   },
   blockExplorers: {
