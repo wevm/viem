@@ -243,7 +243,9 @@ export function watch<
     )
   }
 
-  function createIterator(): AsyncIterableIterator<watch.Emitted<abiEvent, strict>> {
+  function createIterator(): AsyncIterableIterator<
+    watch.Emitted<abiEvent, strict>
+  > {
     type Item = watch.Emitted<abiEvent, strict>
     let latest: Item | undefined
     let error: Error | undefined
@@ -476,7 +478,9 @@ export declare namespace watch {
      * stream (it may skip intermediate values under slow consumption) and throws
      * if the source errors.
      */
-    [Symbol.asyncIterator]: () => AsyncIterableIterator<Emitted<abiEvent, strict>>
+    [Symbol.asyncIterator]: () => AsyncIterableIterator<
+      Emitted<abiEvent, strict>
+    >
   }
 
   type ReturnType<
