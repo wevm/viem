@@ -26,7 +26,7 @@ import type {
   ReadParameters,
   WriteParameters,
 } from '../internal/types.js'
-import { defineCall } from '../internal/utils.js'
+import { defineCall, pickWriteParameters } from '../internal/utils.js'
 import * as Storage from '../Storage.js'
 import type { TransactionReceipt } from '../Transaction.js'
 import * as ZoneAbis from '../zones/Abis.js'
@@ -38,6 +38,23 @@ export type EncryptedPayload = {
   ephemeralPubkeyYParity: number
   nonce: Hex.Hex
   tag: Hex.Hex
+}
+
+export type PreparedEncryptedDeposit = {
+  /** Amount of tokens to deposit. */
+  amount: bigint
+  /** Parent chain ID (e.g. `42431` for moderato). */
+  chainId: number
+  /** Encrypted deposit payload. */
+  encrypted: EncryptedPayload
+  /** Encryption key index from the portal contract. */
+  keyIndex: bigint
+  /** Zone portal address on the parent chain. */
+  portalAddress: Address
+  /** Token address or ID to deposit. */
+  token: TokenId.TokenIdOrAddress
+  /** Zone ID (e.g. `7`). */
+  zoneId: number
 }
 
 /**
@@ -269,6 +286,18 @@ export async function encryptedDeposit<
   const account_ = account ? parseAccount(account) : undefined
   if (!account) throw new Error('`account` is required.')
 
+  if ('encrypted' in parameters) {
+    if (parameters.chainId !== chainId) {
+      throw new Error(
+        'Prepared encrypted deposit chain ID does not match client chain.',
+      )
+    }
+    return sendTransaction(client, {
+      ...pickWriteParameters(parameters as never),
+      calls: encryptedDeposit.calls(parameters),
+    } as never) as never
+  }
+
   const recipient = parameters.recipient ?? account_?.address
   if (!recipient) throw new Error('`recipient` is required.')
 
@@ -317,10 +346,13 @@ export namespace encryptedDeposit {
     chain extends Chain | undefined = Chain | undefined,
     account extends Account | undefined = Account | undefined,
   > = WriteParameters<chain, account> &
-    Omit<Args, 'chainId' | 'encrypted' | 'keyIndex' | 'recipient'> & {
-      /** Recipient address in the zone. @default `account.address` */
-      recipient?: Address | undefined
-    }
+    (
+      | (Omit<Args, 'chainId' | 'encrypted' | 'keyIndex' | 'recipient'> & {
+          /** Recipient address in the zone. @default `account.address` */
+          recipient?: Address | undefined
+        })
+      | PreparedEncryptedDeposit
+    )
 
   export type Args = {
     /** Amount of tokens to deposit. */
@@ -352,7 +384,7 @@ export namespace encryptedDeposit {
    * @param args - Arguments.
    * @returns The calls.
    */
-  export function calls(args: Args) {
+  export function calls(args: Args | PreparedEncryptedDeposit) {
     const { amount, chainId, encrypted, keyIndex, token, zoneId } = args
     const portalAddress = getPortalAddress(chainId, zoneId)
     return [
@@ -430,6 +462,20 @@ export async function encryptedDepositSync<
   const account_ = account ? parseAccount(account) : undefined
   if (!account) throw new Error('`account` is required.')
 
+  if ('encrypted' in parameters) {
+    if (parameters.chainId !== chainId) {
+      throw new Error(
+        'Prepared encrypted deposit chain ID does not match client chain.',
+      )
+    }
+    const receipt = await sendTransactionSync(client, {
+      ...pickWriteParameters(parameters as never),
+      throwOnReceiptRevert,
+      calls: encryptedDeposit.calls(parameters),
+    } as never)
+    return { receipt }
+  }
+
   const recipient = parameters.recipient ?? account_?.address
   if (!recipient) throw new Error('`recipient` is required.')
 
@@ -490,6 +536,104 @@ export namespace encryptedDepositSync {
 
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
+}
+
+/**
+ * Prepares an encrypted deposit instruction without broadcasting it.
+ *
+ * @example
+ * ```ts
+ * import { createClient, http } from 'viem'
+ * import { tempoModerato } from 'viem/chains'
+ * import { Actions } from 'viem/tempo'
+ *
+ * const client = createClient({
+ *   chain: tempoModerato,
+ *   transport: http(),
+ * })
+ *
+ * const prepared = await Actions.zone.prepareEncryptedDeposit(client, {
+ *   token: '0x20c0...0001',
+ *   amount: 1_000_000n,
+ *   recipient: '0x...',
+ *   zoneId: 7,
+ * })
+ * ```
+ *
+ * @param client - Public client connected to the parent Tempo chain.
+ * @param parameters - Encrypted deposit preparation parameters.
+ * @returns A prepared encrypted deposit instruction.
+ */
+export async function prepareEncryptedDeposit<
+  chain extends Chain | undefined,
+  account extends Account | undefined,
+>(
+  client: Client<Transport, chain, account>,
+  parameters: prepareEncryptedDeposit.Parameters,
+): Promise<prepareEncryptedDeposit.ReturnValue> {
+  const chainId = client.chain?.id
+  if (!chainId) throw new Error('`chain` is required.')
+
+  const { amount, memo, recipient, token, zoneId, ...rest } = parameters
+  const portalAddress = getPortalAddress(chainId, zoneId)
+
+  const [publicKey, keyIndex] = await Promise.all([
+    readContract(client, {
+      ...rest,
+      address: portalAddress,
+      abi: ZoneAbis.zonePortal,
+      functionName: 'sequencerEncryptionKey',
+    }),
+    readContract(client, {
+      ...rest,
+      address: portalAddress,
+      abi: ZoneAbis.zonePortal,
+      functionName: 'encryptionKeyCount',
+    }),
+  ])
+
+  if (keyIndex === 0n) {
+    throw new Error('No sequencer encryption key configured.')
+  }
+
+  const encrypted = await encryptDepositPayload(
+    { x: publicKey[0], yParity: publicKey[1] },
+    recipient,
+    portalAddress,
+    keyIndex - 1n,
+    memo,
+  )
+
+  return {
+    amount,
+    chainId,
+    encrypted,
+    keyIndex: keyIndex - 1n,
+    portalAddress,
+    token,
+    zoneId,
+  }
+}
+
+export namespace prepareEncryptedDeposit {
+  export type Parameters = ReadParameters & Args
+
+  export type Args = {
+    /** Amount of tokens to deposit. */
+    amount: bigint
+    /** Optional deposit memo. @default `0x00...00` */
+    memo?: Hex.Hex | undefined
+    /** Recipient address in the zone. */
+    recipient: Address
+    /** Token address or ID to deposit. */
+    token: TokenId.TokenIdOrAddress
+    /** Zone ID (e.g. `7`). */
+    zoneId: number
+  }
+
+  export type ReturnValue = PreparedEncryptedDeposit
+
+  export type ErrorType = RequestErrorType | BaseErrorType
 }
 
 /**

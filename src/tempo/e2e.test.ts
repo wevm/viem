@@ -1,7 +1,7 @@
 import * as Http from 'node:http'
 import { setTimeout } from 'node:timers/promises'
 import { createRequestListener } from '@remix-run/node-fetch-server'
-import { RpcRequest, RpcResponse, Value, WebCryptoP256 } from 'ox'
+import { Hex, RpcRequest, RpcResponse, Value, WebCryptoP256 } from 'ox'
 import { Period } from 'ox/tempo'
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts'
 import {
@@ -37,6 +37,29 @@ function feeTokenLimits(limit: bigint, period?: number) {
     { token: addresses.alphaUsd, limit, ...(period != null && { period }) },
   ]
 }
+
+describe.runIf(nodeEnv === 'testnet')('zone.prepareEncryptedDeposit', () => {
+  test('default', async () => {
+    const prepared = await Actions.zone.prepareEncryptedDeposit(client, {
+      token: addresses.pathUsd,
+      amount: 1n,
+      recipient: accounts[0].address,
+      memo: Hex.fromNumber(1n, { size: 32 }),
+      zoneId: 7,
+    })
+
+    expect(prepared.amount).toBe(1n)
+    expect(prepared.chainId).toBe(chain.id)
+    expect(prepared.encrypted.ciphertext).toBeDefined()
+    expect(prepared.encrypted.ephemeralPubkeyX).toBeDefined()
+    expect(prepared.encrypted.nonce).toBeDefined()
+    expect(prepared.encrypted.tag).toBeDefined()
+    expect(prepared.keyIndex).toBeGreaterThanOrEqual(0n)
+    expect(prepared.portalAddress).toBeDefined()
+    expect(prepared.token).toBe(addresses.pathUsd)
+    expect(prepared.zoneId).toBe(7)
+  })
+})
 
 describe('sendTransaction', () => {
   test('default', async () => {
