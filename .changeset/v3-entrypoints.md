@@ -52,3 +52,13 @@ The `viem/chains/utils` entrypoint was removed. Its members now live on the `Cha
 - const address = getChainContractAddress({ chain, contract: 'multicall3' })
 + const address = Chain.getContractAddress({ chain, contract: 'multicall3' })
 ```
+
+Added the `viem/zod` entrypoint, re-exporting the Zod namespace (`z`) used to build typed JSON-RPC schemas for the Client `schema` option.
+
+```ts
+import { z } from 'viem/zod'
+
+const schema = z.RpcSchema.from({
+  abe_foo: { params: z.tuple([z.number()]), returns: z.string() },
+})
+```

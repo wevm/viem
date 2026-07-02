@@ -35,6 +35,9 @@
       ],
       "viem/utils": [
         "../src/utils/index.ts"
+      ],
+      "viem/zod": [
+        "../src/zod/index.ts"
       ]
     }
   }

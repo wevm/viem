@@ -289,6 +289,11 @@
       "types": "./dist/utils/index.d.ts",
       "src": "./src/utils/index.ts",
       "default": "./dist/utils/index.js"
+    },
+    "./zod": {
+      "types": "./dist/zod/index.d.ts",
+      "src": "./src/zod/index.ts",
+      "default": "./dist/zod/index.js"
     }
   },
   "typesVersions": {
