@@ -301,43 +301,16 @@ export async function encryptedDeposit<
   const recipient = parameters.recipient ?? account_?.address
   if (!recipient) throw new Error('`recipient` is required.')
 
-  const portalAddress = getPortalAddress(chainId, parameters.zoneId)
-
-  const [publicKey, keyIndex] = await Promise.all([
-    readContract(client, {
-      address: portalAddress,
-      abi: ZoneAbis.zonePortal,
-      functionName: 'sequencerEncryptionKey',
-    }),
-    readContract(client, {
-      address: portalAddress,
-      abi: ZoneAbis.zonePortal,
-      functionName: 'encryptionKeyCount',
-    }),
-  ])
-
-  if (keyIndex === 0n) {
-    throw new Error('No sequencer encryption key configured.')
-  }
-
-  const encrypted = await encryptDepositPayload(
-    { x: publicKey[0], yParity: publicKey[1] },
+  const prepared = await encryptedDeposit.prepare(client, {
+    amount: parameters.amount,
+    memo: parameters.memo,
     recipient,
-    portalAddress,
-    keyIndex - 1n,
-    parameters.memo,
-  )
-
-  const args = {
-    ...parameters,
-    chainId,
-    encrypted,
-    keyIndex: keyIndex - 1n,
-    recipient,
-  }
+    token: parameters.token,
+    zoneId: parameters.zoneId,
+  })
   return sendTransaction(client, {
     ...rest,
-    calls: encryptedDeposit.calls(args),
+    calls: encryptedDeposit.calls(prepared),
   } as never) as never
 }
 
@@ -577,44 +550,17 @@ export async function encryptedDepositSync<
   const recipient = parameters.recipient ?? account_?.address
   if (!recipient) throw new Error('`recipient` is required.')
 
-  const portalAddress = getPortalAddress(chainId, parameters.zoneId)
-
-  const [publicKey, keyIndex] = await Promise.all([
-    readContract(client, {
-      address: portalAddress,
-      abi: ZoneAbis.zonePortal,
-      functionName: 'sequencerEncryptionKey',
-    }),
-    readContract(client, {
-      address: portalAddress,
-      abi: ZoneAbis.zonePortal,
-      functionName: 'encryptionKeyCount',
-    }),
-  ])
-
-  if (keyIndex === 0n) {
-    throw new Error('No sequencer encryption key configured.')
-  }
-
-  const encrypted = await encryptDepositPayload(
-    { x: publicKey[0], yParity: publicKey[1] },
+  const prepared = await encryptedDeposit.prepare(client, {
+    amount: parameters.amount,
+    memo: parameters.memo,
     recipient,
-    portalAddress,
-    keyIndex - 1n,
-    parameters.memo,
-  )
-
-  const args = {
-    ...parameters,
-    chainId,
-    encrypted,
-    keyIndex: keyIndex - 1n,
-    recipient,
-  }
+    token: parameters.token,
+    zoneId: parameters.zoneId,
+  })
   const receipt = await sendTransactionSync(client, {
     ...rest,
     throwOnReceiptRevert,
-    calls: encryptedDeposit.calls(args),
+    calls: encryptedDeposit.calls(prepared),
   } as never)
   return { receipt }
 }
