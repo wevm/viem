@@ -3036,10 +3036,6 @@ export default defineConfig({
                   link: '/tempo/actions/zone.getZoneInfo',
                 },
                 {
-                  text: 'prepareEncryptedDeposit',
-                  link: '/tempo/actions/zone.prepareEncryptedDeposit',
-                },
-                {
                   text: 'requestVerifiableWithdrawal',
                   link: '/tempo/actions/zone.requestVerifiableWithdrawal',
                 },

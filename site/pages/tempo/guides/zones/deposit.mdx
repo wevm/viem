@@ -118,8 +118,8 @@ public chain. A plain deposit reveals the recipient on Mainnet.
 ### Prepare Private Details Before Broadcasting
 
 If another wallet or service will broadcast the deposit, use
-[`zone.prepareEncryptedDeposit`](/tempo/actions/zone.prepareEncryptedDeposit) to encrypt the private
-recipient and memo first. The broadcaster can pass the returned payload directly to
+[`zone.encryptedDeposit.prepare`](/tempo/actions/zone.encryptedDeposit#prepared-usage) to encrypt the
+private recipient and memo first. The broadcaster can pass the returned payload directly to
 [`zone.encryptedDeposit`](/tempo/actions/zone.encryptedDeposit) without learning the private details.
 Validate the public transaction details before broadcasting a prepared payload from another party.
 

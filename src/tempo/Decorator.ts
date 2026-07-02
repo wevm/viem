@@ -4854,25 +4854,6 @@ type DecoratorBase<
       parameters: zoneActions.depositSync.Parameters<chain, account>,
     ) => Promise<zoneActions.depositSync.ReturnValue>
     /**
-     * Prepares an encrypted deposit instruction without broadcasting it.
-     *
-     * @example
-     * ```ts
-     * const prepared = await client.zone.prepareEncryptedDeposit({
-     *   token: '0x20c0...0001',
-     *   amount: 1_000_000n,
-     *   recipient: '0x...',
-     *   zoneId: 7,
-     * })
-     * ```
-     *
-     * @param parameters - Parameters.
-     * @returns A prepared encrypted deposit instruction.
-     */
-    prepareEncryptedDeposit: (
-      parameters: zoneActions.prepareEncryptedDeposit.Parameters,
-    ) => Promise<zoneActions.prepareEncryptedDeposit.ReturnValue>
-    /**
      * Deposits tokens into a zone with encrypted recipient and memo.
      *
      * @example
@@ -5147,6 +5128,9 @@ type BoundActionHelpers<action> = (action extends { call: infer helper }
     : {}) &
   (action extends { estimateGas: infer helper }
     ? { estimateGas: BoundHelper<helper> }
+    : {}) &
+  (action extends { prepare: infer helper }
+    ? { prepare: BoundHelper<helper> }
     : {}) &
   (action extends { simulate: infer helper }
     ? { simulate: BoundHelper<helper> }
@@ -5484,7 +5468,6 @@ export function decorator() {
         'depositSync',
         'encryptedDeposit',
         'encryptedDepositSync',
-        'prepareEncryptedDeposit',
         'getAuthorizationTokenInfo',
         'getDepositStatus',
         'getWithdrawalFee',

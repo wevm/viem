@@ -2,4 +2,4 @@
 "viem": minor
 ---
 
-Added `prepareEncryptedDeposit` for Tempo Zone encrypted deposits.
+Added `zone.encryptedDeposit.prepare` for Tempo Zone encrypted deposits.

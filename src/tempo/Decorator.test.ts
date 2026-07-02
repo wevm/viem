@@ -55,6 +55,7 @@ describe('decorator', () => {
     expect(typeof client2.token.transfer.call).toBe('function')
     expect(typeof client2.token.transfer.estimateGas).toBe('function')
     expect(typeof client2.token.transfer.simulate).toBe('function')
+    expect(typeof client2.zone.encryptedDeposit.prepare).toBe('function')
   })
 
   test('binds missing action entries', () => {
@@ -64,7 +65,6 @@ describe('decorator', () => {
     expect(typeof client2.token.prepareUpdateQuoteToken).toBe('function')
     expect(typeof client2.token.watchUpdateQuoteToken).toBe('function')
     expect(typeof client2.accessKey.verifyHash).toBe('function')
-    expect(typeof client2.zone.prepareEncryptedDeposit).toBe('function')
   })
 
   test('binds pure and client-first call helpers', () => {

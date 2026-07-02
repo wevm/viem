@@ -14,8 +14,8 @@ const client = createClient({
   }),
 })
 
-test('prepareEncryptedDeposit returns a reusable encrypted deposit payload', async () => {
-  const prepared = await zoneActions.prepareEncryptedDeposit(client, {
+test('encryptedDeposit.prepare returns a reusable encrypted deposit payload', async () => {
+  const prepared = await zoneActions.encryptedDeposit.prepare(client, {
     token: '0x20c0000000000000000000000000000000000000',
     amount: 1n,
     recipient: '0x0000000000000000000000000000000000000001',

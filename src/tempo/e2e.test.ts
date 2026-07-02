@@ -38,9 +38,9 @@ function feeTokenLimits(limit: bigint, period?: number) {
   ]
 }
 
-describe.runIf(nodeEnv === 'testnet')('zone.prepareEncryptedDeposit', () => {
+describe.runIf(nodeEnv === 'testnet')('zone.encryptedDeposit.prepare', () => {
   test('default', async () => {
-    const prepared = await Actions.zone.prepareEncryptedDeposit(client, {
+    const prepared = await Actions.zone.encryptedDeposit.prepare(client, {
       token: addresses.pathUsd,
       amount: 1n,
       recipient: accounts[0].address,

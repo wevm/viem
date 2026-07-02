@@ -379,6 +379,104 @@ export namespace encryptedDeposit {
   export type ErrorType = BaseErrorType
 
   /**
+   * Prepares an encrypted deposit instruction without broadcasting it.
+   *
+   * @example
+   * ```ts
+   * import { createClient, http } from 'viem'
+   * import { tempoModerato } from 'viem/chains'
+   * import { Actions } from 'viem/tempo'
+   *
+   * const client = createClient({
+   *   chain: tempoModerato,
+   *   transport: http(),
+   * })
+   *
+   * const prepared = await Actions.zone.encryptedDeposit.prepare(client, {
+   *   token: '0x20c0...0001',
+   *   amount: 1_000_000n,
+   *   recipient: '0x...',
+   *   zoneId: 7,
+   * })
+   * ```
+   *
+   * @param client - Public client connected to the parent Tempo chain.
+   * @param parameters - Encrypted deposit preparation parameters.
+   * @returns A prepared encrypted deposit instruction.
+   */
+  export async function prepare<
+    chain extends Chain | undefined,
+    account extends Account | undefined,
+  >(
+    client: Client<Transport, chain, account>,
+    parameters: prepare.Parameters,
+  ): Promise<prepare.ReturnValue> {
+    const chainId = client.chain?.id
+    if (!chainId) throw new Error('`chain` is required.')
+
+    const { amount, memo, recipient, token, zoneId, ...rest } = parameters
+    const portalAddress = getPortalAddress(chainId, zoneId)
+
+    const [publicKey, keyIndex] = await Promise.all([
+      readContract(client, {
+        ...rest,
+        address: portalAddress,
+        abi: ZoneAbis.zonePortal,
+        functionName: 'sequencerEncryptionKey',
+      }),
+      readContract(client, {
+        ...rest,
+        address: portalAddress,
+        abi: ZoneAbis.zonePortal,
+        functionName: 'encryptionKeyCount',
+      }),
+    ])
+
+    if (keyIndex === 0n) {
+      throw new Error('No sequencer encryption key configured.')
+    }
+
+    const encrypted = await encryptDepositPayload(
+      { x: publicKey[0], yParity: publicKey[1] },
+      recipient,
+      portalAddress,
+      keyIndex - 1n,
+      memo,
+    )
+
+    return {
+      amount,
+      chainId,
+      encrypted,
+      keyIndex: keyIndex - 1n,
+      portalAddress,
+      token,
+      zoneId,
+    }
+  }
+
+  export namespace prepare {
+    export type Parameters = ReadParameters & Args
+
+    export type Args = {
+      /** Amount of tokens to deposit. */
+      amount: bigint
+      /** Optional deposit memo. @default `0x00...00` */
+      memo?: Hex.Hex | undefined
+      /** Recipient address in the zone. */
+      recipient: Address
+      /** Token address or ID to deposit. */
+      token: TokenId.TokenIdOrAddress
+      /** Zone ID (e.g. `7`). */
+      zoneId: number
+    }
+
+    export type ReturnValue = PreparedEncryptedDeposit
+
+    export type ErrorType = RequestErrorType | BaseErrorType
+  }
+
+  /**
    * Defines the calls to approve and deposit tokens into a zone (encrypted).
    *
    * @param args - Arguments.
@@ -536,104 +634,6 @@ export namespace encryptedDepositSync {
 
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
-}
-
-/**
- * Prepares an encrypted deposit instruction without broadcasting it.
- *
- * @example
- * ```ts
- * import { createClient, http } from 'viem'
- * import { tempoModerato } from 'viem/chains'
- * import { Actions } from 'viem/tempo'
- *
- * const client = createClient({
- *   chain: tempoModerato,
- *   transport: http(),
- * })
- *
- * const prepared = await Actions.zone.prepareEncryptedDeposit(client, {
- *   token: '0x20c0...0001',
- *   amount: 1_000_000n,
- *   recipient: '0x...',
- *   zoneId: 7,
- * })
- * ```
- *
- * @param client - Public client connected to the parent Tempo chain.
- * @param parameters - Encrypted deposit preparation parameters.
- * @returns A prepared encrypted deposit instruction.
- */
-export async function prepareEncryptedDeposit<
-  chain extends Chain | undefined,
-  account extends Account | undefined,
->(
-  client: Client<Transport, chain, account>,
-  parameters: prepareEncryptedDeposit.Parameters,
-): Promise<prepareEncryptedDeposit.ReturnValue> {
-  const chainId = client.chain?.id
-  if (!chainId) throw new Error('`chain` is required.')
-
-  const { amount, memo, recipient, token, zoneId, ...rest } = parameters
-  const portalAddress = getPortalAddress(chainId, zoneId)
-
-  const [publicKey, keyIndex] = await Promise.all([
-    readContract(client, {
-      ...rest,
-      address: portalAddress,
-      abi: ZoneAbis.zonePortal,
-      functionName: 'sequencerEncryptionKey',
-    }),
-    readContract(client, {
-      ...rest,
-      address: portalAddress,
-      abi: ZoneAbis.zonePortal,
-      functionName: 'encryptionKeyCount',
-    }),
-  ])
-
-  if (keyIndex === 0n) {
-    throw new Error('No sequencer encryption key configured.')
-  }
-
-  const encrypted = await encryptDepositPayload(
-    { x: publicKey[0], yParity: publicKey[1] },
-    recipient,
-    portalAddress,
-    keyIndex - 1n,
-    memo,
-  )
-
-  return {
-    amount,
-    chainId,
-    encrypted,
-    keyIndex: keyIndex - 1n,
-    portalAddress,
-    token,
-    zoneId,
-  }
-}
-
-export namespace prepareEncryptedDeposit {
-  export type Parameters = ReadParameters & Args
-
-  export type Args = {
-    /** Amount of tokens to deposit. */
-    amount: bigint
-    /** Optional deposit memo. @default `0x00...00` */
-    memo?: Hex.Hex | undefined
-    /** Recipient address in the zone. */
-    recipient: Address
-    /** Token address or ID to deposit. */
-    token: TokenId.TokenIdOrAddress
-    /** Zone ID (e.g. `7`). */
-    zoneId: number
-  }
-
-  export type ReturnValue = PreparedEncryptedDeposit
-
-  export type ErrorType = RequestErrorType | BaseErrorType
 }
 
 /**
