@@ -90,3 +90,15 @@ The `getTxpoolContent` and `sendUnsignedTransaction` test actions were removed.
 - const content = await getTxpoolContent(client)
 - const hash = await sendUnsignedTransaction(client, { from, to, value })
 ```
+
+The test-node mode moved from the client to the decorator (and per-action `mode` options), and is now optional.
+
+```diff
+- const client = createTestClient({ chain, mode: 'hardhat', transport })
++ const client = Client.create({ chain, transport }).extend(
++   testActions({ mode: 'hardhat' }),
++ )
+
+  // Standalone actions take `mode` per call (default 'anvil').
++ await Actions.test.block.mine(client, { blocks: 1, mode: 'hardhat' })
+```
