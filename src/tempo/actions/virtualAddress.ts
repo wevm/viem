@@ -1,5 +1,6 @@
 import type { Address } from 'abitype'
 import * as Hex from 'ox/Hex'
+import { VirtualAddress } from 'ox/tempo'
 import type { Account } from '../../accounts/types.js'
 import { readContract } from '../../actions/public/readContract.js'
 import type { WriteContractReturnType } from '../../actions/wallet/writeContract.js'
@@ -121,7 +122,7 @@ export async function resolve<
   client: Client<Transport, chain, account>,
   parameters: resolve.Parameters,
 ): Promise<resolve.ReturnValue> {
-  if (!isVirtual(parameters.address)) return parameters.address
+  if (!VirtualAddress.isVirtual(parameters.address)) return parameters.address
 
   const masterId = Hex.slice(parameters.address, 0, 4)
   return getMasterAddress(client, { ...parameters, masterId })
@@ -327,11 +328,4 @@ export namespace registerMasterSync {
 
   // TODO: exhaustive error type
   export type ErrorType = BaseErrorType
-}
-
-const virtualMagic = '0xfdfdfdfdfdfdfdfdfdfd'
-
-/** @internal */
-function isVirtual(address: string): boolean {
-  return Hex.slice(address as Hex.Hex, 4, 14).toLowerCase() === virtualMagic
 }

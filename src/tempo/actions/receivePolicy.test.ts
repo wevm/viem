@@ -1,6 +1,6 @@
 import { setTimeout } from 'node:timers/promises'
-import { isAddressEqual, parseUnits, zeroAddress } from 'viem'
-import { ReceivePolicyReceipt } from 'viem/tempo'
+import { type Address, isAddressEqual, parseUnits, zeroAddress } from 'viem'
+import { Addresses, ReceivePolicyReceipt } from 'viem/tempo'
 import { beforeAll, describe, expect, test } from 'vitest'
 import {
   accounts,
@@ -101,6 +101,63 @@ describe('set / get', () => {
     })
     expect(policy.claimer).toBe('sender')
     expect(policy.recoveryAuthority).toBe(zeroAddress)
+  })
+
+  test('behavior: claimer explicit address', async () => {
+    const claimer = accounts[2]!.address
+    await actions.receivePolicy.setSync(receiverClient, {
+      claimer,
+    })
+
+    const policy = await actions.receivePolicy.get(client, {
+      account: receiverAccount.address,
+    })
+    expect(isAddressEqual(policy.claimer as Address, claimer)).toBe(true)
+    expect(isAddressEqual(policy.recoveryAuthority, claimer)).toBe(true)
+  })
+
+  test('behavior: claimer zero address (sender)', async () => {
+    await actions.receivePolicy.setSync(receiverClient, {
+      claimer: zeroAddress,
+    })
+
+    const policy = await actions.receivePolicy.get(client, {
+      account: receiverAccount.address,
+    })
+    expect(policy.claimer).toBe('sender')
+    expect(policy.recoveryAuthority).toBe(zeroAddress)
+  })
+
+  test('behavior: rejects unclaimable claimer addresses', async () => {
+    await expect(
+      actions.receivePolicy.set(receiverClient, {
+        claimer: Addresses.tip20ChannelReserve,
+      }),
+    ).rejects.toThrow('Tempo system precompile')
+
+    await expect(
+      actions.receivePolicy.set(receiverClient, {
+        claimer: Addresses.receivePolicyGuard,
+      }),
+    ).rejects.toThrow('Tempo system precompile')
+
+    await expect(
+      actions.receivePolicy.set(receiverClient, {
+        claimer: '0x20c0000000000000000000000000000000000001',
+      }),
+    ).rejects.toThrow('TIP-20 token address')
+
+    await expect(
+      actions.receivePolicy.set(receiverClient, {
+        claimer: '0x20C000000000000000000000033AbB6ac7d235e5',
+      }),
+    ).rejects.toThrow('TIP-20 token address')
+
+    await expect(
+      actions.receivePolicy.set(receiverClient, {
+        claimer: '0x12345678fdfdfdfdfdfdfdfdfdfd000000000001',
+      }),
+    ).rejects.toThrow('TIP-1022 virtual address')
   })
 })
 
