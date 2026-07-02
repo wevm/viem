@@ -39,9 +39,15 @@ async function transfer(from: Hex.Hex, to: Hex.Hex, value: bigint) {
   await Actions.test.block.mine(client, { blocks: 1 })
 }
 
-test('default: creates a no-event filter (raw logs)', async () => {
+// Mines past earlier tests' logs; a filter from the returned block only sees
+// logs emitted after it.
+async function nextBlock() {
   await Actions.test.block.mine(client, { blocks: 1 })
-  const fromBlock = await Actions.block.getNumber(client, { cacheTime: 0 })
+  return await Actions.block.getNumber(client, { cacheTime: 0 })
+}
+
+test('default: creates a no-event filter (raw logs)', async () => {
+  const fromBlock = await nextBlock()
   const filter = await Actions.event.createFilter(client, {
     address,
     fromBlock,
@@ -58,7 +64,7 @@ test('default: creates a no-event filter (raw logs)', async () => {
 
 describe('event', () => {
   test('decodes logs by event', async () => {
-    const fromBlock = await Actions.block.getNumber(client, { cacheTime: 0 })
+    const fromBlock = await nextBlock()
     const filter = await Actions.event.createFilter(client, {
       address,
       event: transferEvent,
@@ -79,7 +85,7 @@ describe('event', () => {
   })
 
   test('args: filters by indexed argument', async () => {
-    const fromBlock = await Actions.block.getNumber(client, { cacheTime: 0 })
+    const fromBlock = await nextBlock()
     const filter = await Actions.event.createFilter(client, {
       address,
       args: { from: a },
@@ -97,7 +103,7 @@ describe('event', () => {
   })
 
   test('args: filters by unnamed (positional) argument', async () => {
-    const fromBlock = await Actions.block.getNumber(client, { cacheTime: 0 })
+    const fromBlock = await nextBlock()
     const filter = await Actions.event.createFilter(client, {
       address,
       args: [a],
@@ -120,7 +126,7 @@ describe('event', () => {
 })
 
 test('events: decodes logs by multiple events', async () => {
-  const fromBlock = await Actions.block.getNumber(client, { cacheTime: 0 })
+  const fromBlock = await nextBlock()
   const filter = await Actions.event.createFilter(client, {
     address,
     events: [transferEvent, approvalEvent],
@@ -136,7 +142,7 @@ test('events: decodes logs by multiple events', async () => {
 })
 
 test('getLogs: re-reads the full set', async () => {
-  const fromBlock = await Actions.block.getNumber(client, { cacheTime: 0 })
+  const fromBlock = await nextBlock()
   const filter = await Actions.event.createFilter(client, {
     address,
     event: transferEvent,
@@ -155,7 +161,7 @@ test('getLogs: re-reads the full set', async () => {
 
 test('decorator', async () => {
   const decorated = client.extend(publicActions())
-  const fromBlock = await Actions.block.getNumber(client, { cacheTime: 0 })
+  const fromBlock = await nextBlock()
   const filter = await decorated.event.createFilter({
     address,
     event: transferEvent,

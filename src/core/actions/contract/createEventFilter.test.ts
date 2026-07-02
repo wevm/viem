@@ -28,8 +28,15 @@ async function transfer(from: Hex.Hex, to: Hex.Hex, value: bigint) {
   await Actions.test.block.mine(client, { blocks: 1 })
 }
 
+// Mines past earlier tests' logs; a filter from the returned block only sees
+// logs emitted after it.
+async function nextBlock() {
+  await Actions.test.block.mine(client, { blocks: 1 })
+  return await Actions.block.getNumber(client, { cacheTime: 0 })
+}
+
 test('default: filters and decodes a contract event by name', async () => {
-  const fromBlock = await Actions.block.getNumber(client, { cacheTime: 0 })
+  const fromBlock = await nextBlock()
   const filter = await Actions.contract.createEventFilter(client, {
     abi: generated.Events.abi,
     address,
@@ -47,7 +54,7 @@ test('default: filters and decodes a contract event by name', async () => {
 })
 
 test('args: filters by indexed argument', async () => {
-  const fromBlock = await Actions.block.getNumber(client, { cacheTime: 0 })
+  const fromBlock = await nextBlock()
   const filter = await Actions.contract.createEventFilter(client, {
     abi: generated.Events.abi,
     address,
@@ -66,7 +73,7 @@ test('args: filters by indexed argument', async () => {
 })
 
 test('no eventName: decodes any event in the abi', async () => {
-  const fromBlock = await Actions.block.getNumber(client, { cacheTime: 0 })
+  const fromBlock = await nextBlock()
   const filter = await Actions.contract.createEventFilter(client, {
     abi: generated.Events.abi,
     address,
@@ -82,7 +89,7 @@ test('no eventName: decodes any event in the abi', async () => {
 
 test('decorator', async () => {
   const decorated = client.extend(publicActions())
-  const fromBlock = await Actions.block.getNumber(client, { cacheTime: 0 })
+  const fromBlock = await nextBlock()
   const filter = await decorated.contract.createEventFilter({
     abi: generated.Events.abi,
     address,

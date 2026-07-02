@@ -17,6 +17,7 @@ test('exports', () => {
       "Errors",
       "RpcError",
       "NonceManager",
+      "Token",
       "Transport",
       "custom",
       "fallback",
